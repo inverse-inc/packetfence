@@ -177,7 +177,7 @@ else {
     <tr valign=bottom>
       <td width=25%></td>
       <td width=25% align=center>Username</td>
-      <td width=25%align=left><input type="text" name="username" maxlength="20" value="<?=(isset($_POST['username']) ? $_POST['username'] : "")?>"</td>
+      <td width=25%align=left><input type="text" name="username" maxlength="20" value="<?=(isset($_POST['username']) ? $_POST['username'] : "")?>"></td>
       <td width=25%></td>
     </tr>
     <tr>
