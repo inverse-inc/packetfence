@@ -1,0 +1,49 @@
+<html>
+
+<head>
+<script language="javascript">
+var destination_url="[% destination_url %]";
+var waitTime=[% timer %];
+var action = function()
+{
+  hidebar();
+  [% js_action %]
+  top.location.href=destination_url;
+}
+</script>
+<title>[% txt_page_title %]</title>
+</head>
+
+<body bgcolor="#FFFFFF">
+
+<center>
+  <table border="0" width="650" id="table1">
+    <tr>
+      <td align="center">
+        <p align="center">
+        <img border="0" src="[% logo %]">
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <p align="center">
+        <script language="javascript" src="/3rdparty/timerbar.js"></script>
+        <noscript>[% txt_enabling %]</noscript>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <p align="center"><font face="Arial">
+          [% txt_message %]
+        </font></p>
+      </td>
+    </tr>
+  </table>
+</center>
+
+</body>
+
+</html>
+

@@ -1,0 +1,105 @@
+domain "packetfence"
+
+msgid  "error: access denied not owner"
+msgstr "Toegang geweigerd: U bent niet de eigenaar van deze machine!"
+
+msgid  "error: incorrect mode"
+msgstr "Verkeerde Modus!"
+
+msgid  "error: max re-enables reached"
+msgstr "Maximum aantal reactivaties bereikt!"
+
+msgid  "error: not found in the database"
+msgstr "Uw computer was niet gevonden in de packetshield database, reboot uw computer om dit probleem op te lossen. "
+
+msgid  "error: not trappable IP"
+msgstr "Toegang geweigerd: geen afvangbaar IP adres!"
+
+msgid  "error: only register max nodes"
+msgstr "Er mogen slechts een maximum van %s nodes geregistreerd worden!"
+
+       
+msgid  "help: provide info"
+msgstr "Mochten er vragen zijn over deze pagina, neem dan contact op met de helpdesk voor assistentie. Vermeld hierbij de volgende informatie: "
+
+
+msgid  "register: all systems must be registered"
+msgstr "Het kan voorkomen dat we gebruikers moeten benaderen omtrent individuele systemen, daarom dienen alle systemen op het netwerk geregistreerd te worden."
+
+msgid  "register: aup"
+msgstr "Het registratie process verlangt dat u de Aceptable Use Policy (UAP) accepteerd. Mocht je deze UAP willen lezen voor het begin van het registratieproces bezoek dan: "
+
+msgid  "register: to complete"
+msgstr "Om het registratie proces te voltooien dient u uw gebruikersnaam en wachtwoord in te vullen."
+
+msgid  "register: select authentications"
+msgstr "Selecteer authenticatie methode"
+
+
+msgid  "release: enabling network"
+msgstr "Netwerk toegang wordt geactiveerd"
+
+msgid  "release: reopen browser"
+msgstr "U dient wellicht uw browser opnieuw te openen"
+
+		 
+msgid  "Acceptable Use Policy"
+msgstr "Acceptable Use Policy"
+
+msgid  "Addresses"
+msgstr "Adressen"
+
+msgid  "De-register node"
+msgstr "Machine deregistreren"
+
+msgid  "Enabling ..."
+msgstr "Activeren ..."
+
+msgid  "Gateway"
+msgstr "Gateway"
+
+msgid  "grace"
+msgstr "grace"
+
+msgid  "Hostname"
+msgstr "Hostname"
+
+msgid  "IP"
+msgstr "IP adres"
+
+msgid  "MAC"
+msgstr "MAC"
+
+msgid  "network access is being enabled"
+msgstr "Uw netwerktoegang wordt op dit moment geactiveerd - dit proces neemt ongeveer %s seconden in beslag."
+
+msgid  "Node"
+msgstr "Machine"
+
+msgid  "PacketFence Registration System"
+msgstr "PacketShield Registration System"
+
+msgid  "PID"
+msgstr "Eigenaar"
+
+msgid  "Print this page"
+msgstr "Print deze pagina"
+
+msgid  "reg"
+msgstr "geregistreerd"
+
+msgid  "Sorry"
+msgstr "Sorry!"
+
+msgid  "Status"
+msgstr "Status"
+
+msgid  "unknown"
+msgstr "onbekend"
+
+msgid  "unreg"
+msgstr "niet geregistreerd"
+
+msgid  "Violations"
+msgstr "Overtredingen"
+

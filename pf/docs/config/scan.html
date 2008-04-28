@@ -1,0 +1,41 @@
+<html>
+  <head>
+  <title>Configuration Reference - scan</title>
+  </head>
+  <body>
+  <font
+  <img src="/common/packetfence.gif">
+  <p><b><font size=+1>Configuration Reference - scan</font></b></p>
+<a name=host></a>
+<b>host</b> <i>(text)</i><br>
+Default: 127.0.0.1<br>
+Host the nessus server is running on.  For performance reasons, we recommend running the nessus server remotely.  A 
+passthrough will be automagically created.<p>
+<a name=live_tids></a>
+<b>live_tids</b> <i>(text)</i><br>
+Default: <br>
+If a host fails a scan AND the tid is listed in live_tids the corresponding violation will
+be added.   If the tid is not listed here the event will be logged only.  This is used to test Nessus plugins before going live.<p>
+<a name=pass></a>
+<b>pass</b> <i>(text)</i><br>
+Default: packet<br>
+Password to log into nessus server with.<p>
+<a name=port></a>
+<b>port</b> <i>(text)</i><br>
+Default: 1241<br>
+Port nessus server is running on.<p>
+<a name=registration></a>
+<b>registration</b> <i>(toggle)</i><br>
+Default: disabled<br>
+Options: enabled|disabled<br>
+If this option is enabled, the PF system will scan each host after registration is complete with all nessusids.<p>
+<a name=ssl></a>
+<b>ssl</b> <i>(toggle)</i><br>
+Default: enabled<br>
+Options: enabled|disabled<br>
+enable ssl communication with the nessus server.   <p>
+<a name=user></a>
+<b>user</b> <i>(text)</i><br>
+Default: admin<br>
+Username to log into nessus server with.<p>
+</body></html>

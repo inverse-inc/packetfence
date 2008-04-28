@@ -1,0 +1,1416 @@
+#!/usr/bin/perl -w
+#
+# Copyright 2006-2008 Inverse groupe conseil
+# 
+# See the enclosed file COPYING for license information (GPL).
+# If you did not receive this file, see
+# http://www.fsf.org/licensing/licenses/gpl.html
+#
+
+# perldoc {{{1
+=head1 NAME
+
+pfsetvlan
+
+=head1 SYNOPSIS
+
+./pfsetvlan [options]
+
+ Options:
+   -help           brief help message
+   -man            full documentation
+                                                                                      
+
+=head1 DESCRIPTION
+
+Act on SNMP traps and set switch port VLAN according to
+the discovered MACs status in packetfence.
+
+snmptrapd has to be launched with
+snmptrapd -n -Lf /usr/local/pf/logs/snmptrapd.log -p /var/run/snmptrapd.pid -On -F '%V|%#04.4y-%#02.2m-%02.2l|%#02.2h:%#02.2j:%#02.2k|%b|%a|BEGIN TYPE %w END TYPE BEGIN SUBTYPE %q END SUBTYPE BEGIN VARIABLEBINDINGS %v END VARIABLEBINDINGS\n'
+
+
+=head1 AUTHOR
+
+=over
+
+=item Dominik Gehl <dgehl@inverse.ca>
+
+=item Regis Balzard <rbalzard@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (c) 2006-2008 Inverse groupe conseil
+
+This program is available under the GPL.
+
+=cut
+
+# }}}1
+
+# use, require {{{1
+use strict;
+use warnings;
+use diagnostics;
+
+use Data::Dumper;
+use File::Tail;
+use threads;
+use threads::shared;
+use DBI;
+use FindBin;
+use Log::Log4perl;
+use Getopt::Long;
+use Pod::Usage;
+use Net::SMTP;
+use POSIX qw(:signal_h);
+
+use constant {
+    CONCURRENT_SIGNAL_HANDLER_THREAD_LIST_QUEUED_THREADS => 20,
+    CONCURRENT_SIGNAL_HANDLER_TRAP_LIST_QUEUED_THREADS => 5,
+    LIB_DIR => $FindBin::Bin . "/../lib",
+    CONF_FILE => $FindBin::Bin . "/../conf/switches.conf",
+    LOG_CONF_FILE => $FindBin::Bin . "/../conf/log.conf",
+    SNMPLOG_FILE => $FindBin::Bin . "/../logs/snmptrapd.log",
+    LOG_FILE => $FindBin::Bin . "/../logs/pfsetvlan.log",
+    PID_FILE => "/var/run/pfsetvlan.pid",
+    PFCMD_FILE => $FindBin::Bin . "/../bin/pfcmd"
+};
+
+use lib LIB_DIR;
+use pf::SwitchFactory;
+
+require 5.8.8;
+require $FindBin::Bin . "/../conf/pfsetvlan.pm";
+use pf::config;
+$thread = 1;
+use pf::db;
+use pf::util;
+use pf::locationlog;
+use pf::node;
+use pf::violation;
+use pf::SNMP v1.7.0.6;
+# }}}1
+
+# sighandler {{{1
+POSIX::sigaction(&POSIX::SIGTERM,
+    POSIX::SigAction->new(
+        'normal_sighandler',
+        POSIX::SigSet->new(),
+        &POSIX::SA_NODEFER
+    )
+) or die "pfsetvlan: could not set SIGTERM handler: $!\n";
+
+POSIX::sigaction(&POSIX::SIGINT,
+    POSIX::SigAction->new(
+        'normal_sighandler',
+        POSIX::SigSet->new(),
+        &POSIX::SA_NODEFER
+    )
+) or die "pfsetvlan: could not set SIGINT handler: $!\n";
+# }}}1
+
+# command line options {{{1
+my $help;
+my $man;
+GetOptions(
+    "help|?" => \$help,
+    "man" => \$man,
+) or pod2usage( -verbose => 1);
+
+pod2usage( -verbose => 2) if $man;
+pod2usage( -verbose => 1) if $help;
+# }}}1
+
+# startup {{{1
+Log::Log4perl->init(LOG_CONF_FILE);
+my $logger = Log::Log4perl->get_logger('');
+Log::Log4perl::MDC->put('tid', threads->self->tid());
+
+
+my $switchFactory = new pf::SwitchFactory(
+    -configFile => CONF_FILE
+);
+
+
+my $fh = new File::Tail ('name' => SNMPLOG_FILE,
+    'interval' => 2,
+    'reset_tail' => 0,
+    'maxinterval' => 2);
+
+# Begin - Daemonize the program (see http://www.webreference.com/perl/tutorial/9/index.html)
+if (-f PID_FILE) {
+    open (FILE, PID_FILE);
+    die "Daemon is probably running (process id ",<FILE>,"). Remove pid file first (",PID_FILE,").\n";
+}
+
+chdir ('/') or die "Can't chdir to /: $!";
+open (STDIN, '/dev/null') or die "Can't read /dev/null: $!";
+open STDERR, '>>', LOG_FILE or die "Can't open " . LOG_FILE;
+open STDOUT, '>>', LOG_FILE or die "Can't open " . LOG_FILE;
+
+# (at this point STDOUT and STDERR should be redirected to files)
+
+defined(my $pid = fork) or die "Can't fork: $!";
+exit if $pid;
+POSIX::setsid() or die "Can't start a new session: $!";
+umask 0;
+
+# Write the PID
+open (FILE, ">" . PID_FILE) or die "Can't open pid file: $!";
+print FILE "$$";
+close(FILE);
+# End - Daemonize...
+
+$logger->info("Process started !\n");
+
+my %threadList_running : shared;
+my %threadList_toBeKilled : shared;
+my @threadList_queued : shared;
+my @trapList_queued : shared;
+my $switchFactory_locker : shared;
+
+my %switch_locker : shared;
+foreach my $switch_key (sort keys %{$switchFactory->{_config}}) {
+    if ($switch_key ne 'default') {
+        my $switch_ip = $switchFactory->{_config}{$switch_key}{'ip'};
+        $switch_locker{$switch_ip}  = &share({});
+    }
+}
+
+
+for (my $i=1; $i<=CONCURRENT_SIGNAL_HANDLER_THREAD_LIST_QUEUED_THREADS; $i++) {
+    my $t = threads->new("signalHandlerThreadListQueued");
+    if (! defined($t)) {
+        $logger->error("could not create " . $i . (($i==1) ? "st" : (($i==2) ? "nd" : (($i==3) ? "rd" : "th"))) . " signalHandlerThreadListQueued thread");
+        exit -1;
+    } else {
+        $logger->debug("created " . $i . (($i==1) ? "st" : (($i==2) ? "nd" : (($i==3) ? "rd" : "th"))) . " signalHandlerThreadListQueued thread");
+    }
+}
+
+for (my $i=1; $i<=CONCURRENT_SIGNAL_HANDLER_TRAP_LIST_QUEUED_THREADS; $i++) {
+    my $t = threads->new("signalHandlerTrapListQueued");
+    if (! defined($t)) {
+        $logger->error("could not create " . $i . (($i==1) ? "st" : (($i==2) ? "nd" : (($i==3) ? "rd" : "th"))) . " signalHandlerTrapListQueued thread");
+        exit -1;
+    } else {
+        $logger->debug("created " . $i . (($i==1) ? "st" : (($i==2) ? "nd" : (($i==3) ? "rd" : "th"))) . " signalHandlerTrapListQueued thread");
+    }
+}
+# }}}1
+
+# main program - read trap lines and addTrapLineToQueue($trapLine) {{{1
+my $currentTrapLine = undef;
+my $completeTrapLine;
+my $inMultiLineTrap = 0;
+while (defined($currentTrapLine=$fh->read)) {
+    $currentTrapLine =~ s/\r\n/\n/;
+    chomp($currentTrapLine);
+    if ($currentTrapLine =~ m/BEGIN VARIABLEBINDINGS/) {
+        if ($currentTrapLine =~ m/END VARIABLEBINDINGS$/) {
+            addTrapLineToQueue($currentTrapLine);
+        } else {
+            #start multiLine read
+            $inMultiLineTrap = 1;
+            $completeTrapLine = $currentTrapLine;
+        }
+    } else {
+        if ($inMultiLineTrap) {
+            $completeTrapLine .= " $currentTrapLine";
+            if ($currentTrapLine =~ m/END VARIABLEBINDINGS$/) {
+                #end multiLine read
+                $inMultiLineTrap = 0;
+                addTrapLineToQueue($completeTrapLine);
+            }
+        } else {
+            $logger->warn("ignoring non trap line $currentTrapLine");
+        }
+    }
+}
+# }}}1
+
+# sub addTrapLineToQueue($trapLine) - cond_signal(@trapList_queued){{{1
+sub addTrapLineToQueue {
+    my ($trapLine) = @_;
+    my $logger = Log::Log4perl->get_logger('');
+    Log::Log4perl::MDC->put('tid', threads->self->tid());
+    $logger->trace("locking - trying to lock trapList_queued");
+    {
+        lock @trapList_queued;
+        $logger->debug("adding trapline $trapLine to queued trapList");
+        push @trapList_queued, "raw|$trapLine";
+        $logger->trace("locking - sending signal for trapList_queued");
+        cond_signal(@trapList_queued);
+    }
+    $logger->trace("locking - unlocked trapList_queued");
+}
+# }}}1
+
+# sub signalHandlerTrapListQueued - cond_wait(@trapList_queued), parseTrap($trapLineToParse) {{{1
+sub signalHandlerTrapListQueued {
+    my $logger = Log::Log4perl->get_logger('');
+    Log::Log4perl::MDC->put('tid', threads->self->tid());
+    
+    while (1) {
+        my $trapLineToParse = undef;
+        my $parseResult = undef;
+        $logger->trace("locking - trying to lock trapList_queued in signalHandlerTrapListQueued");
+        {
+            lock @trapList_queued;
+            $logger->trace("locking - obtained lock on trapList_queued in signalHandlerTrapListQueued");
+            $logger->trace("locking - waiting for signal for trapList_queued in signalHandlerTrapListQueued");
+            cond_wait(@trapList_queued);
+            $logger->trace("locking - received signal for trapList_queued in signalHandlerTrapListQueued");
+
+            $logger->trace("initially trapList_queued contains\n" . join("\n", @trapList_queued) . "\n");
+
+            #find first entry in @trapList_queued which must be parsed
+            my $i=0;
+            while (($i < scalar(@trapList_queued)) && (! ($trapList_queued[$i] =~ /^raw\|/))) {
+                $logger->trace("did not find raw trapLine in trapList_queued at position $i");
+                $i++;
+            }
+            if ($i < scalar(@trapList_queued)) {
+                $trapLineToParse = substr($trapList_queued[$i],4);
+                $logger->debug("retrieved raw trapline $trapLineToParse from trapList_queued at position $i");
+                $trapList_queued[$i] = "inparse" . threads->self->tid() . "|$trapLineToParse";
+                $logger->trace("after retrieval operation trapList_queued contains\n" . join("\n", @trapList_queued) . "\n");
+            } else {
+                $logger->trace("couldn't find any raw trapLine in trapList_queued");
+            }
+        }
+        $logger->trace("locking - unlocked trapList_queued in signalHandlerTrapListQueued");
+
+        if (defined($trapLineToParse)) {
+            $logger->debug("calling parseTrap for $trapLineToParse");
+            $parseResult = parseTrap($trapLineToParse);
+            $logger->trace("locking - trying to lock trapList_queued in signalHandlerTrapListQueued");
+            {
+                lock @trapList_queued;
+                $logger->trace("locking - obtained lock on trapList_queued in signalHandlerTrapListQueued");
+                my $i=0;
+                my $threadId = threads->self->tid();
+                $logger->trace("after parseTrap operation trapList_queued contains\n" . join("\n", @trapList_queued) . "\n");
+                while (($i < scalar(@trapList_queued)) && (! ($trapList_queued[$i] =~ /^inparse$threadId\|/))) {
+                    $logger->trace("did not find line starting with \"inparse$threadId\" in trapList_queued at position $i");
+                    $i++;
+                }
+                if ($i < scalar(@trapList_queued)) {
+                    $logger->trace("replacing threadList_queued[$i] with parseTrap result");
+                    $trapList_queued[$i] = "parsed$threadId|" . ($parseResult || '');
+                    $logger->trace("after parseTrap and replacement operation trapList_queued contains\n" . join("\n", @trapList_queued) . "\n");
+                    $logger->debug("finished parsing $i" . (($i == 2) ? 'nd' : ($i == 3) ? 'rd' : 'th') . " trapList_queued entry");
+                } else {
+                    $logger->warn("could not find line starting with \"inparse$threadId\" in trapList_queued -> this is BAD");
+                }
+            }
+            $logger->trace("locking - unlocked trapList_queued in signalHandlerTrapListQueued");
+        }
+
+
+        $logger->trace("locking - trying to lock trapList_queued in signalHandlerTrapListQueued");
+        {
+            lock @trapList_queued;
+            $logger->trace("locking - obtained lock on trapList_queued in signalHandlerTrapListQueued");
+            #for already parsed entries at the begining of @trapList_queued
+            #  shift and check if we need to add them to @threadList_queued
+            my $i=0;
+            my @candidatesForThreadList_queued;
+            my @tmpTrapList_queued;
+            my %switchesWithUnfinishedParse;
+            while (($i < scalar(@trapList_queued)) && (! ($trapList_queued[$i] =~ /^raw\|/))) {
+                my $trapLine = undef;
+                my $prefix = undef;
+                if ($trapList_queued[$i] =~ /^(parsed\d+\|)/) {
+                    $prefix = $1;
+                } elsif ($trapList_queued[$i] =~ /^(inparse\d+\|)/) {
+                    $prefix = $1;
+                }
+                if (defined($prefix)) {
+                    $trapLine = substr($trapList_queued[$i], length($prefix));
+                    if ($prefix =~ /^inparse/) {
+                        push @tmpTrapList_queued, $trapList_queued[$i];
+                        if ($trapLine =~ /^\d{4}-\d{2}-\d{2}\|\d{2}:\d{2}:\d{2}\|(?:UDP: \[)?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?:\]:\d+)?\|([^|]*)\|(.+)$/) {
+                            my $switch_ip = $1;
+                            $logger->trace("adding $switch_ip to switchesWithUnfinishedParse");
+                            $switchesWithUnfinishedParse{$switch_ip} = 1;
+                        }
+                    } else {
+                        if (length($trapLine) > 0) {
+                            my ($switch_ip, $switch_port, $trapType, $trapVlan, $trapOperation, $trapMac) = split(/\|/, $trapLine);
+                            if (exists($switchesWithUnfinishedParse{$switch_ip})) {
+                                $logger->trace("parsed trapLine $trapLine with prefix $prefix comes after a trapLine for the same switch which is still being parsed. Keeping it in trapList_queued");
+                                push @tmpTrapList_queued, $trapList_queued[$i];
+                            } else {
+                                $logger->trace("retrieved parsed trapLine $trapLine with prefix $prefix from trapList_queued. Adding it to candidatesForThreadList_queued");
+                                push @candidatesForThreadList_queued, $trapLine;
+                            }
+                        }
+                    }
+                }
+                $i++;
+            }
+            while ($i < scalar(@trapList_queued)) {
+                push @tmpTrapList_queued, $trapList_queued[$i];
+                $i++;
+            }
+            @trapList_queued = @tmpTrapList_queued;
+            $logger->trace("after intelligent removal of parsed traps trapList_queued contains\n" . join("\n", @trapList_queued) . "\n");
+            if (scalar(@candidatesForThreadList_queued) > 0) {
+                $logger->trace("locking - trying to lock threadList_queued in signalHandlerTrapListQueued");
+                {
+                    lock @threadList_queued;
+                    $logger->trace("locking - obtained lock on threadList_queued in signalHandlerTrapListQueued");
+                    foreach my $trapLine (@candidatesForThreadList_queued) {
+                        $logger->debug("validating if parsed trapLine $trapLine should be added to threadList_queued");
+                        my ($switch_ip, $switch_port, $trapType, $trapVlan, $trapOperation, $trapMac) = split(/\|/, $trapLine);
+                        my $switch = $switchFactory->instantiate($switch_ip);
+                        if (($trapType eq 'secureMacAddrViolation') && (grep("$switch_ip|$switch_port|$trapType|", @threadList_queued) != 0)) {
+                            $logger->info("$trapType trap already in the queue for $switch_ip ifIndex $switch_port. Won't add another one");
+                        } elsif ( ($trapType eq 'mac') && ( grep(/^$trapVlan$/, @{$switch->{_vlans}}) == 0) ) {
+                            $logger->info("$trapType trap for VLAN $trapVlan on $switch_ip ifIndex $switch_port. We don't manage this VLAN. Flush the trap");
+                        } elsif ( ($trapType eq 'mac') && ($trapVlan ne $switch->getVlan($switch_port)) ) {
+                            $logger->info("$trapOperation trap for VLAN $trapVlan on $switch_ip ifIndex $switch_port. This port is no longer in this VLAN. Flush the trap");
+                        } else {
+                            push @threadList_queued, $trapLine;
+                            $logger->debug("added trap $trapType at $switch_ip ifindex $switch_port to queued threadList");
+                            $logger->trace("locking - sending signal for threadList_queued in signalHanderTrapListQueued");
+                            cond_signal(@threadList_queued);
+                        }
+                    }
+                }
+                $logger->trace("locking - unlocked threadList_queued in signalHandlerTrapListQueued");
+            }
+            
+            #signal if we still have 'raw' entries in trapList_queued
+            if (grep (/^raw\|/, @trapList_queued) > 0) {
+                $logger->trace("locking - sending signal for trapList_queued in signalHanderTrapListQueued");
+                cond_signal(@trapList_queued);
+            }
+        }
+        $logger->trace("locking - unlocked trapList_queued in signalHandlerTrapListQueued");
+    }
+}
+# }}}1
+
+# sub parseTrap {{{1
+sub parseTrap {
+    my ($trapLine) = @_;
+    my $logger = Log::Log4perl->get_logger('');
+    Log::Log4perl::MDC->put('tid', threads->self->tid());
+
+    $logger->debug("parsing trap $trapLine");
+    if ($trapLine =~ /^\d{4}-\d{2}-\d{2}\|\d{2}:\d{2}:\d{2}\|(?:UDP: \[)?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?:\]:\d+)?\|([^|]*)\|(.+)$/) {
+    #test if this is a 'normal' trap (i.e. a trap sent from a switch
+    #or a local trap (INVERSE-PACKETFENCE-NOTIFICATION-MIB)
+        my $switch;
+        my $isLocalTrap = ($1 eq '127.0.0.1');
+        $logger->trace("locking - trying to lock switchFactory_locker in parseTrap");
+        if ($isLocalTrap) {
+            lock $switchFactory_locker;
+            $logger->trace("locking - obtained lock on switchFactory_locker in parseTrap");
+            $logger->info("local (127.0.0.1) trap for switch $2");
+            $switch = $switchFactory->instantiate($2);
+        } else {
+            lock $switchFactory_locker;
+            $logger->trace("locking - obtained lock on switchFactory_locker in parseTrap");
+            my %config = %{$switchFactory->{_config}};
+            if (!exists $config{$1}) {
+                $logger->warn("ALERT !!!!! we have received a trap from switch $1. This switch is UNREGISTERED. Flush the trap");
+                return;
+            }
+            if ($config{$1}{'mode'} eq 'ignore') {
+                $logger->info("We have received a trap from switch $1. This switch is in 'ignore' mode. Flush the trap");
+                return;
+            }
+            $switch = $switchFactory->instantiate($1);
+        }
+        $logger->trace("locking - unlocked switchFactory_locker in parseTrap");
+
+        if ($switch) {
+            my $trapHashRef;
+            if ($isLocalTrap) {
+                my $trapLine = $3;
+                if ($trapLine =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.29464\.1\.1\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = INTEGER:/) {
+                    $trapHashRef = { 
+                        'trapType' => 'reAssignVlan',
+                        'trapIfIndex' => $1,
+                    };
+               } elsif ($trapLine =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.29464\.1\.2\|\.1\.3\.6\.1\.4\.1\.29464\.1\.3 = STRING: \"(.+)\" END VARIABLEBINDINGS/) {
+                    $trapHashRef = {
+                        'trapType' => 'desAssociate',
+                        'trapIfIndex' => 'WIFI',
+                        'trapMac' => $1
+                    };
+                } elsif ($trapLine =~ /\.1\.3\.6\.1\.4\.1\.45\.1\.6\.5\.3\.12\.1\.3\.(\d+)\.(\d+) = STRING: "([0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2})"/) {
+                    $trapHashRef->{'trapType'} = 's5SbsViolation';
+                    $trapHashRef->{'trapIfIndex'} = ($1 - 1) * 64 + $2;
+                    $trapHashRef->{'trapMac'} = lc($3);
+                    $trapHashRef->{'trapMac'} =~ s/ /:/g;
+                    $trapHashRef->{'trapVlan'} = $switch->getVlan($trapHashRef->{'trapIfIndex'});
+                } else {
+                    $trapHashRef->{'trapType'} = 'unknown';
+                }
+            } else {
+                $trapHashRef = $switch->parseTrap($3);
+            }
+            my $trapType = $trapHashRef->{'trapType'};
+
+            # skip unknown traps
+            if ($trapType ne 'unknown') {
+                my $switch_ip = $switch->{_ip};
+                my $switch_port = $trapHashRef->{'trapIfIndex'};
+                my $trapVlan = '';
+                my $trapOperation = '';
+                my $trapMac = '';
+
+                if ($trapType eq 'mac') {
+                    $trapVlan = $trapHashRef->{'trapVlan'};
+                    $trapOperation = $trapHashRef->{'trapOperation'};
+                    $trapMac = $trapHashRef->{'trapMac'};
+
+                    if ($trapOperation eq 'unknown') {
+                        $logger->info("ignoring unknown trap: $trapLine");
+                        return;
+                    }
+                } elsif ($trapType eq 'dot11Deauthentication') {
+                    $trapMac = $trapHashRef->{'trapMac'};
+                    $trapVlan = 'WIFI';
+                } elsif (($trapType eq 'secureMacAddrViolation') || ($trapType eq 'secureDynamicMacAddrViolation')) {
+                    $trapMac = $trapHashRef->{'trapMac'};
+                    $trapVlan = $trapHashRef->{'trapVlan'};
+                } elsif ($trapType eq 'desAssociate') {
+                    $trapMac = $trapHashRef->{'trapMac'};
+                    $trapVlan = 'WIFI';
+                }
+                return "$switch_ip|$switch_port|$trapType|$trapVlan|$trapOperation|$trapMac";
+            } else {
+                $logger->info("ignoring unknown trap: $trapLine");
+            }
+        } else {
+            $logger->error("can't instatiate an object for switch $1");
+        }
+    } else {
+        $logger->info("ignoring non trap line: $trapLine");
+    }
+    return;
+}
+# }}}1
+
+# sub signalHandlerThreadListQueued {{{1
+sub signalHandlerThreadListQueued {
+    my $logger = Log::Log4perl->get_logger('');
+    Log::Log4perl::MDC->put('tid', threads->self->tid());
+    
+    while (1) {
+        my $mustDoSomeThing = 0;
+        $logger->trace("locking - trying to lock threadList_queued in signalHandlerThreadListQueued");
+        {
+            lock @threadList_queued;
+            $logger->trace("locking - obtained lock on threadList_queued in signalHandlerThreadListQueued");
+            $logger->trace("locking - waiting for signal for threadList_queued in signalHandlerThreadListQueued");
+            cond_wait(@threadList_queued);
+            $logger->trace("locking - received signal for threadList_queued in signalHandlerThreadListQueued");
+            $mustDoSomeThing = (scalar(@threadList_queued) > 0);
+        }
+        $logger->trace("locking - unlocked threadList_queued in signalHandlerThreadListQueued");
+        if ($mustDoSomeThing) {
+            $logger->debug("new enqueue or dequeue operation happened and threadList_queued is not empty");
+            startTrapHandlers();
+        }
+    }
+}
+# }}}1
+
+# sub startTrapLandlers {{{1
+sub startTrapHandlers {
+    my $logger = Log::Log4perl->get_logger('');
+    Log::Log4perl::MDC->put('tid', threads->self->tid());
+
+    my $mustDoSomeThing = 0;
+    my $switch_ip;
+    my $switch_port;
+    my $trapType;
+    my $trapVlan;
+    my $trapOperation;
+    my $trapMac;
+
+    $logger->trace("locking - trying to lock threadList_queued, threadList_running and treadList_toBeKilled in startTrapHandlers");
+    {
+        lock @threadList_queued;
+        lock %threadList_running;
+        lock %threadList_toBeKilled;
+        $logger->trace("locking - obtained lock on threadList_queued, threadList_running and treadList_toBeKilled in startTrapHandlers");
+        my @tmp = ();
+        my $nbThreadsRunning = scalar(keys(%threadList_running));
+
+        my $threadList_queued_txt = '';
+        foreach my $trapLineWithAdditionalInfo (@threadList_queued) {
+            #extract information from trap line
+            $trapLineWithAdditionalInfo =~ /^([^|]+)\|([^|]+)\|([^|]+)\|(.+)$/;
+            $threadList_queued_txt .= "\n$1\t$2\t$3";
+        }
+        my $threadList_running_txt = '';
+        foreach my $threadList_running_tmp (keys %threadList_running) {
+            $threadList_running_tmp =~ /^(.+)\|(.+)$/;
+            $threadList_running_txt .= "\n$1\t$2";
+        }
+        $logger->info("nb of items in queue: " . scalar(@threadList_queued) . "; nb of threads running: $nbThreadsRunning");
+        $logger->debug("items in queue: $threadList_queued_txt");
+        $logger->debug("threads running: $threadList_running_txt");
+
+        foreach my $trapLineWithAdditionalInfo (@threadList_queued) {
+            #extract information from trap line
+            $trapLineWithAdditionalInfo =~ /^(.*)\|(.*)\|(.*)\|(.*)\|(.*)\|(.*)$/;
+            my $tmpSwitch_ip = $1;
+            my $tmpSwitch_port = $2;
+            my $tmpTrapType = $3;
+            my $tmpTrapVlan = $4;
+            my $tmpTrapOperation = $5;
+            my $tmpTrapMac = $6;
+            if ((! $mustDoSomeThing) && (! exists($threadList_running{"$tmpSwitch_ip|$tmpSwitch_port"}))) {
+                #don't remove the " in the previous line
+                #they are absolutely necessary for the code to work
+                $switch_ip = $tmpSwitch_ip;
+                $switch_port = $tmpSwitch_port;
+                $trapType = $tmpTrapType;
+                $trapVlan = $tmpTrapVlan;
+                $trapOperation = $tmpTrapOperation;
+                $trapMac = $tmpTrapMac;
+                $mustDoSomeThing = 1;
+                $threadList_running{"$switch_ip|$switch_port"} = $trapType;
+            } else {
+                push @tmp, $trapLineWithAdditionalInfo;
+                #check if we have to send a kill signal to another trap
+                #(this is the case if we got a 'down' trap and are still
+                #handling an 'up' thread for the same switch port)
+                if (($tmpTrapType eq 'down') && (exists($threadList_running{"$tmpSwitch_ip|$tmpSwitch_port"})) && ($threadList_running{"$tmpSwitch_ip|$tmpSwitch_port"} eq 'up') && (! exists($threadList_toBeKilled{"$tmpSwitch_ip|$tmpSwitch_port"}))) {
+                    $logger->info("down after up - sending kill signal to thread for $tmpSwitch_ip ifIndex $tmpSwitch_port");
+                    $threadList_toBeKilled{"$tmpSwitch_ip|$tmpSwitch_port"} = 1;
+                }
+            }
+        }
+        @threadList_queued = @tmp;
+    }
+    $logger->trace("locking  - unlocked threadList_queued, threadList_running and treadList_toBeKilled in startTrapHandlers");
+    if ($mustDoSomeThing) {
+        $logger->debug("calling handleTrap");
+        handleTrap($switch_ip, $switch_port, $trapType, $trapVlan, $trapOperation, $trapMac);
+    }
+}
+# }}}1
+
+# sub handleTrap {{{1
+sub handleTrap {
+    # initialize {{{2
+    my ($switch_ip,$switch_port,$trapType, $trapVlan, $trapOperation, $trapMac) = @_;
+    my $logger = Log::Log4perl->get_logger('');
+    Log::Log4perl::MDC->put('tid', threads->self->tid());
+    # }}}2
+    
+    # test if act on this trap {{{2
+    my $switch;
+    $logger->trace("locking - trying to lock switchFactory_locker in handleTrap");
+    {
+        lock $switchFactory_locker;
+        $logger->trace("locking - obtained lock on switchFactory_locker in handleTrap");
+        $switch = $switchFactory->instantiate($switch_ip);
+    }
+    $logger->trace("locking - unlocked switchFactory_locker in handleTrap");
+
+    # do we actually act on this trap ?
+    if (defined($trapMac) && $switch->isFakeMac($trapMac)) {
+        $logger->info("MAC $trapMac is a fake MAC. Stop $trapType handling");
+        cleanupAfterThread($switch_ip, $switch_port);
+        $switch->disconnectRead();
+        $switch->disconnectWrite();
+        return;
+    }
+    my $weActOnThisTrap = custom_doWeActOnThisTrap($switch, $switch_port, $trapType);
+    
+    if ($weActOnThisTrap == 0) {
+        $logger->info("custom_doWeActOnThisTrap returns false. Stop $trapType handling");
+        cleanupAfterThread($switch_ip, $switch_port);
+        $switch->disconnectRead();
+        $switch->disconnectWrite();
+        return;
+    }
+    # }}}2
+
+    # create database connection {{{2
+    my $mysql_connection = db_connect();
+    if (! $mysql_connection) {
+        $logger->error("coudn't connect to MySQL server: " . DBI->errstr);
+        my $mail_host = $switchFactory->{'_config'}{'default'}{'mail_hostname'};
+        my @mail_to = split(/,/, $switchFactory->{'_config'}{'default'}{'mail_to'});
+        my $mail_from = $switchFactory->{'_config'}{'default'}{'mail_from'};
+        my $smtp = Net::SMTP->new($mail_host, Debug => 0);
+        if (! $smtp) {
+            $logger->error("cannot connect to mail server $mail_host\n");
+        } else {
+            $smtp->mail($mail_from);
+            $smtp->to(@mail_to, { Notify =>['NEVER'], SkipBad => 1});
+            $smtp->data();
+            $smtp->datasend("To: " . join(', ', @mail_to) . "\n");
+            $smtp->datasend("From: $mail_from\n");
+            $smtp->datasend("Subject: packetfence error\n");
+            $smtp->datasend("\n");
+            $smtp->datasend("Packetfence encountered the following error while in thread " . threads->self->tid() . ":\n\n");
+            $smtp->datasend(DBI::errstr . "\n\n");
+            $smtp->datasend("No further action will be taken on this thread.\n");
+            $smtp->dataend();
+            $smtp->quit();
+        }
+
+        $weActOnThisTrap = 0;
+        cleanupAfterThread($switch_ip,$switch_port);
+        $switch->disconnectRead();
+        $switch->disconnectWrite();
+        return;
+    }
+
+    $logger->trace("calling node_db_prepare");
+    node_db_prepare($mysql_connection);
+    $logger->trace("calling locationlog_db_prepare");
+    locationlog_db_prepare($mysql_connection);
+    $logger->trace("calling violation_db_prepare");
+    violation_db_prepare($mysql_connection);
+
+    $switch->connectMySQL();
+    # }}}2
+
+    # trapType eq 'mac' {{{2
+    if ($trapType eq 'mac') {
+
+        # initialize {{{3
+        my $mac = lc($trapMac);
+        my $vlan = $trapVlan;
+        $logger->info("$trapOperation trap for MAC $mac in VLAN $vlan on $switch_ip ifIndex $switch_port");
+        # }}}3
+
+        # test if port is still in current VLAN {{{3
+        if ($vlan ne $switch->getVlan($switch_port)) {
+            $logger->info("$switch_ip ifIndex $switch_port is no longer in this VLAN -> Do nothing");
+            cleanupAfterThread($switch_ip, $switch_port);
+            $mysql_connection->disconnect;
+            $switch->disconnectRead();
+            $switch->disconnectWrite();
+            return;
+        }
+        # }}}3
+        
+        # node_updatePF {{{3
+        my $isPhone = $switch->isPhoneAtIfIndex($mac, $switch_port);
+        node_update_PF($switch, $switch_port, $mac, $vlan, $isPhone, $switch->isRegistrationMode(), $mysql_connection);
+        # }}}3
+
+
+        # trapOperation eq 'removed' {{{3
+        if ($trapOperation eq 'removed') {
+            locationlog_update_end_mac($mac);
+
+            #do nothing if it's a phone
+            if ($isPhone) {
+                $logger->info("MAC $mac is a VoIP phone -> Do nothing");
+            } else {
+
+                #do we have an open entry in locationlog for switch/port ?
+                my @locationlog = locationlog_view_open_switchport_no_VoIP($switch_ip, $switch_port);
+                if ((@locationlog) && (scalar(@locationlog) > 0) && ($locationlog[0]->{'mac'} ne '')) {
+                    if ($switch->isMacInAddressTableAtIfIndex($mac, $switch_port)) {
+                        $logger->info("Removed trap for MAC $mac: MAC " . $locationlog[0]->{'mac'} . " is still present in mac-address-table; has probably already been relearned -> DO NOTHING");
+                    } elsif (custom_isClientAlive($locationlog[0]->{'mac'}, $switch_ip, $switch_port, $vlan, $switch->{_isolationVlan}, $mysql_connection)) {
+                        $logger->info("Removed trap for MAC $mac: MAC " . $locationlog[0]->{'mac'} . " ALIVE -> DO NOTHING");
+                    } else {
+                        $logger->info("Removed trap for MAC $mac: MAC " . $locationlog[0]->{'mac'} . " DEAD -> setting data VLAN on $switch_ip ifIndex $switch_port to MAC detection VLAN");
+                        $switch->setMacDetectionVlan($switch_port,\%switch_locker,0);
+                    }
+                } else {
+                    #no open entry in locationlog for switch/port
+                    $logger->info("no line opened for MAC $mac in locationlog.");
+
+                    #try to determine if nothing is left on switch/port (VoIP phones dont' count)
+                    my $nothingLeftOnSwitchPort = 0;
+                    my @macArray = $switch->_getMacAtIfIndex($switch_port);
+                    if (!@macArray) {
+                        $nothingLeftOnSwitchPort = 1;
+                    } elsif (scalar(@macArray) == 1) {
+                        my $onlyMacLeft = $macArray[0];
+                        $logger->debug("only MAC found is $onlyMacLeft");
+                        if ($switch->isPhoneAtIfIndex($onlyMacLeft, $switch_port) || (! custom_isClientAlive($onlyMacLeft, $switch_ip, $switch_port, $vlan, $switch->{_isolationVlan}, $mysql_connection))) {
+                            $nothingLeftOnSwitchPort = 1;
+                        }
+                    } else {
+                        $logger->debug(scalar(@macArray) . " MACs found.");
+                    }
+
+                    if ( $nothingLeftOnSwitchPort == 1 ) {
+                        $logger->info("setting data VLAN on $switch_ip ifIndex $switch_port to MAC detection VLAN");
+                        $switch->setMacDetectionVlan($switch_port,\%switch_locker,0);
+                    } else {
+                        $logger->info("no line in locationlog and MACs (" . join(",", @macArray) . ") still present on this port -> Do nothing");
+                    }
+                }
+            }
+        # }}}3
+
+        # trapOperation eq 'learnt' {{{3
+        } elsif ($trapOperation eq 'learnt') {
+
+            # port security handling {{{4
+            do_port_security($mac, $switch, $switch_port, $trapType);
+            # }}}4
+
+            #do nothing if it's a phone
+            if ($isPhone) {
+                $logger->info("MAC $mac is a VoIP phone -> Do nothing besides updating locationlog");
+                locationlog_insert_start($switch_ip, $switch_port, 'VoIP', $mac);
+            } else {
+
+                my $changeVlan = 0;
+
+                #do we have an open entry in locationlog for switch/port ?
+                my @locationlog = locationlog_view_open_switchport_no_VoIP($switch_ip, $switch_port);
+                if ((@locationlog) && (scalar(@locationlog) > 0) && (defined($locationlog[0]->{'mac'})) && ($locationlog[0]->{'mac'} ne '')) {
+                    if ($locationlog[0]->{'mac'} =~ /^$mac$/i) {
+                        if (($locationlog[0]->{'vlan'} == $vlan) && ($vlan == node_determine_VLAN($mac, $switch, $switch_port))) {
+                            $logger->info("locationlog is already up2date. Do nothing");
+                        } else {
+                            $changeVlan = 1;
+                        }
+                    } else {
+                        #is the old MAC still alive ?
+                        $logger->info("Learnt trap received for $mac. Old MAC " . $locationlog[0]->{'mac'} . " already connected to the port according to locationlog !");
+                        if (custom_isClientAlive($locationlog[0]->{'mac'}, $switch_ip, $switch_port, $vlan, $switch->{_isolationVlan}, $mysql_connection)) {
+                            $logger->info("old MAC is still ALIVE so there is a hub connected on $switch_ip ifIndex $switch_port");
+                            $logger->info("create one Hub violation for old MAC " . $locationlog[0]->{'mac'} . " and one for MAC $mac");
+                            my $cmd = PFCMD_FILE . " 'violation add vid=1400000, mac=" . $locationlog[0]->{'mac'} . "'";
+                            my $output = qx/$cmd/; 
+                            $logger->debug("calling " . PFCMD_FILE . " 'violation add vid=1400000,mac=" . $locationlog[0]->{'mac'} . "'");
+                            $cmd = PFCMD_FILE . " 'violation add vid=1400000, mac=$mac'";
+                            $output = qx/$cmd/; 
+                            $logger->debug("calling " . PFCMD_FILE . " 'violation add vid=1400000,mac=$mac'");
+                        } else {
+                            $logger->info("old MAC is DEAD -> change VLAN");
+                            $changeVlan = 1;
+                        }
+                    }
+                } else {
+                    $changeVlan = 1;
+                }
+
+                if ($changeVlan == 1) {
+                    node_determine_and_set_into_VLAN($mac, $switch, $switch_port);
+                }
+            }
+        }
+    # }}}2
+
+    # trapType eq 'secureMacAddrViolation' (with STATIC MACs) {{{2
+    } elsif ($trapType eq 'secureMacAddrViolation'){
+        $logger->info("$trapType trap for MAC $trapMac on $switch_ip ifIndex $switch_port");
+
+        # generic port security handling {{{3
+        my $secureMacAddrHashRef;
+        if (do_port_security(lc($trapMac), $switch, $switch_port, $trapType) eq 'stopTrapHandling') {
+            $logger->info("MAC $trapMac is already authorized on $switch_ip ifIndex $switch_port. Stopping secureMacAddrViolation trap handling here");
+            cleanupAfterThread($switch_ip,$switch_port);
+            $mysql_connection->disconnect;
+            $switch->disconnectRead();
+            $switch->disconnectWrite();
+            return;
+        }
+
+        # node_update_PF {{{3
+        my $isPhone = $switch->isPhoneAtIfIndex($trapMac, $switch_port);
+        node_update_PF($switch, $switch_port, $trapMac, $trapVlan, $isPhone, $switch->isRegistrationMode(), $mysql_connection);
+        #}}}3
+
+        # synchronize locationlog with secure MAC addresses found on switchport {{{3
+        my $locationlog_phone = locationlog_view_open_switchport_only_VoIP($switch_ip, $switch_port);
+        my @locationlog_pc = locationlog_view_open_switchport_no_VoIP($switch_ip, $switch_port);
+        # }}}3
+        
+        # close locationlog entries for MACs which are not present any more on the switch as secure MACs {{{3
+        $secureMacAddrHashRef = $switch->getSecureMacAddresses($switch_port);
+        if (defined($locationlog_phone) && (! exists($secureMacAddrHashRef->{$locationlog_phone->{'mac'}}))) {
+            $logger->debug($locationlog_phone->{'mac'} . " (VoIP phone) has open locationlog entry at $switch_ip ifIndex $switch_port but is not a secure MAC address. Closing locationlog entry");
+            locationlog_update_end_switchport_only_VoIP($switch_ip, $switch_port);
+            $locationlog_phone = undef;
+        }
+        if ((@locationlog_pc) && (! exists($secureMacAddrHashRef->{$locationlog_pc[0]->{'mac'}}))) {
+            $logger->debug($locationlog_pc[0]->{'mac'} . " has open locationlog entry at $switch_ip ifIndex $switch_port but is not a secure MAC address. Closing locationlog entry");
+            locationlog_update_end_mac($locationlog_pc[0]->{'mac'});
+            @locationlog_pc = ();
+        }
+        # }}}3
+
+
+        # if trap came from a VoIP phone {{{3
+        if ($isPhone) {
+            my $voiceVlan = $switch->getVoiceVlan($switch_port);
+            $logger->debug("$trapType trap comes from VoIP $trapMac");
+            #is another VoIP phone authorized here ?
+            if (defined($locationlog_phone)) {
+                my $oldVoIPPhone = $locationlog_phone->{'mac'};
+                $logger->debug("VoIP $oldVoIPPhone has still open locationlog entry at $switch_ip ifIndex $switch_port");
+                if (exists($secureMacAddrHashRef->{$oldVoIPPhone})) {
+                    $logger->info("de-authorizing VoIP $oldVoIPPhone at old location $switch_ip ifIndex $switch_port VLAN $voiceVlan");
+                    $switch->authorizeMAC($switch_port, $oldVoIPPhone, 0, $voiceVlan, 0);
+                }
+                $logger->debug("closing VoIP $oldVoIPPhone locationlog entry at $switch_ip ifIndex $switch_port VLAN $voiceVlan");
+                locationlog_update_end_switchport_only_VoIP($switch_ip, $switch_port);
+            }
+            #authorize MAC
+            my $secureMacAddrHashRef = $switch->getSecureMacAddresses($switch_port);
+            my $old_mac_to_remove = undef;
+            foreach my $old_mac (keys %$secureMacAddrHashRef) {
+                my $old_isPhone = $switch->isPhoneAtIfIndex($old_mac, $switch_port);
+                if ((grep(/^$voiceVlan$/, @{$secureMacAddrHashRef->{$old_mac}}) >= 1) || $old_isPhone) {
+                    $old_mac_to_remove = $old_mac;
+                }
+            }
+            if (defined($old_mac_to_remove)) {
+                $logger->info("authorizing VoIP $trapMac (old entry $old_mac_to_remove) at new location $switch_ip ifIndex $switch_port VLAN $voiceVlan");
+                $switch->authorizeMAC($switch_port, $old_mac_to_remove, $trapMac, $voiceVlan, $voiceVlan);
+            } else {
+                $logger->info("authorizing VoIP $trapMac at new location $switch_ip ifIndex $switch_port VLAN $voiceVlan");
+                $switch->authorizeMAC($switch_port, 0, $trapMac, 0, $voiceVlan);
+            }
+            locationlog_insert_start($switch_ip,$switch_port,'VoIP',$trapMac);
+        # }}}3
+
+        # if trap came from a PC {{{3
+        } else {
+            $logger->debug("$trapType trap comes from PC $trapMac");
+            if (@locationlog_pc) {
+                my $oldPC = $locationlog_pc[0]->{'mac'};
+                $logger->debug("$oldPC has still open locationlog entry at $switch_ip ifIndex $switch_port");
+                if (custom_isClientAlive($oldPC, $switch_ip, $switch_port, $trapVlan, $switch->{_isolationVlan}, $mysql_connection)) {
+                    $logger->info("old mac $oldPC on $switch_ip ifIndex $switch_port is still alive. Create Hub violation");
+                    my $cmd = PFCMD_FILE . " 'violation add vid=1400000, mac=$oldPC'";
+                    my $output = qx/$cmd/;
+                    $logger->debug("calling " . PFCMD_FILE . " 'violation add vid=1400000,mac=$oldPC'");
+                    $cmd = PFCMD_FILE . " 'violation add vid=1400000, mac=$trapMac'";
+                    $output = qx/$cmd/;
+                    $logger->debug("calling " . PFCMD_FILE . " 'violation add vid=1400000,mac=$trapMac'");
+                } else {
+                    $logger->info("old mac $oldPC on $switch_ip ifIndex $switch_port is dead.");
+                    $logger->debug("closing $oldPC locationlog entry at $switch_ip ifIndex $switch_port");
+                    locationlog_update_end_mac($oldPC);
+                    $logger->info("authorizing $trapMac (old entry $oldPC) at new location $switch_ip ifIndex $switch_port");
+                    $switch->authorizeMAC($switch_port, $oldPC, $trapMac, $switch->getVlan($switch_port), node_determine_VLAN($trapMac,$switch,$switch_port));
+                    #set the right VLAN
+                    $logger->debug("setting correct VLAN for $trapMac at new location $switch_ip ifIndex $switch_port");
+                    node_determine_and_set_into_VLAN($trapMac, $switch, $switch_port);
+                }
+            } else {
+                #authorize MAC
+                my $secureMacAddrHashRef = $switch->getSecureMacAddresses($switch_port);
+                my $voiceVlan = $switch->getVoiceVlan($switch_port);
+                my $old_mac_to_remove = undef;
+                foreach my $old_mac (keys %$secureMacAddrHashRef) {
+                    my $old_isPhone = $switch->isPhoneAtIfIndex($old_mac, $switch_port);
+                    if ((grep(/^$voiceVlan$/, @{$secureMacAddrHashRef->{$old_mac}}) == 0) && (! $old_isPhone)) {
+                        $old_mac_to_remove = $old_mac;
+                    }
+                }
+                if (defined($old_mac_to_remove)) {
+                    $logger->info("authorizing $trapMac (old entry $old_mac_to_remove) at new location $switch_ip ifIndex $switch_port");
+                    $switch->authorizeMAC($switch_port, $old_mac_to_remove, $trapMac, $switch->getVlan($switch_port), node_determine_VLAN($trapMac,$switch,$switch_port));
+                } else {
+                    $logger->info("authorizing $trapMac at new location $switch_ip ifIndex $switch_port");
+                    $switch->authorizeMAC($switch_port, 0, $trapMac, 0, node_determine_VLAN($trapMac,$switch,$switch_port));
+                }
+                #set the right VLAN
+                $logger->debug("setting correct VLAN for $trapMac at new location $switch_ip ifIndex $switch_port");
+                node_determine_and_set_into_VLAN($trapMac, $switch, $switch_port);
+            }
+        }
+        # }}}3 
+    # }}}2
+
+    # trapType eq 'secureDynamicMacAddrViolation' {{{2
+    } elsif ($trapType =~ /secureDynamicMacAddrViolation/) {
+
+        $logger->warn("ERROR: secureDynamicMacAddrViolation traps are currently not supported by PacketFence. Please check our website frequently regarding upgrades !");
+        cleanupAfterThread($switch_ip,$switch_port);
+        $mysql_connection->disconnect;
+        $switch->disconnectRead();
+        $switch->disconnectWrite();
+        return;
+    # }}}2
+
+    # trapType eq 'down' {{{2
+    } elsif ($trapType eq 'down') {
+        $logger->info("Down trap received on $switch_ip ifIndex $switch_port");
+        # continue only if security traps are not available on this port {{{3
+        if ($switch->isPortSecurityEnabled($switch_port)) {
+            $logger->info("security traps are configured on this switch port. Stopping DOWN trap handling here");
+            cleanupAfterThread($switch_ip,$switch_port);
+            $mysql_connection->disconnect;
+            $switch->disconnectRead();
+            $switch->disconnectWrite();
+            return;
+        }
+        # }}}3
+
+        # set into MAC detection VLAN {{{3
+        $logger->info("setting $switch_ip port $switch_port to MAC detection VLAN");
+        $switch->setMacDetectionVlan($switch_port,\%switch_locker,1);
+        # }}}3
+    # }}}2
+
+    # trapType eq 'up' {{{2
+    } elsif ($trapType eq 'up') {
+        $logger->info("Up trap received on $switch_ip ifIndex $switch_port");
+        # continue only if security traps are not available on this port {{{3
+        if ($switch->isPortSecurityEnabled($switch_port)) {
+            $logger->info("security traps are configured on this switch port. Stopping UP trap handling here");
+            cleanupAfterThread($switch_ip,$switch_port);
+            $mysql_connection->disconnect;
+            $switch->disconnectRead();
+            $switch->disconnectWrite();
+            return;
+        }
+        # }}}3
+
+        # set into MAC detection VLAN {{{3
+        $logger->info("setting $switch_ip port $switch_port to MAC detection VLAN");
+        $switch->setMacDetectionVlan($switch_port,\%switch_locker,1);
+        # }}}3
+
+        # continue only if MAC learnt traps are not available on this port {{{3
+        if ($switch->isLearntTrapsEnabled($switch_port)) {
+            $logger->info("MAC learnt traps are configured on this switch port. Stopping UP trap handling here");
+            cleanupAfterThread($switch_ip,$switch_port);
+            $mysql_connection->disconnect;
+            $switch->disconnectRead();
+            $switch->disconnectWrite();
+            return;
+        }
+        # }}}3
+
+        # try to determine MAC address(es) {{{3
+        my $nbAttempts=0;
+        my @macArray = ();
+        my $secureMacAddrHashRef;
+        do {
+            sleep($switchFactory->{'_config'}{'default'}{'macSearchesSleepInterval'}) unless ($nbAttempts == 0);
+            my $mustRunCleanupAfterThread = 0;
+            $logger->trace("locking - trying to lock threadLists_toBeKilled in handleTrap");
+            {
+                lock %threadList_toBeKilled;
+                $logger->trace("locking - obtained lock on threadLists_toBeKilled in handleTrap");
+                if (exists($threadList_toBeKilled{"$switch_ip|$switch_port"})) {
+                    $logger->info("received kill signal for thread at $switch_ip ifIndex $switch_port");
+                    delete $threadList_toBeKilled{"$switch_ip|$switch_port"};
+                    $mustRunCleanupAfterThread = 1;
+                }
+            }
+            $logger->trace("locking - unlocked threadLists_toBeKilled in handleTrap");
+            if ($mustRunCleanupAfterThread == 1) {
+                cleanupAfterThread($switch_ip,$switch_port);
+                $mysql_connection->disconnect;
+                $switch->disconnectRead();
+                $switch->disconnectWrite();
+                return;
+            }
+            $logger->debug("attempt " . ($nbAttempts+1) . " to obtain MAC at $switch_ip ifIndex $switch_port");
+            @macArray = $switch->_getMacAtIfIndex($switch_port);
+            $nbAttempts++;
+        } while (($nbAttempts < $switchFactory->{'_config'}{'default'}{'macSearchesMaxNb'}) && (scalar(@macArray) == 0));
+        # }}}3
+
+        # node_update_PF {{{3
+        my @tmpMacArray = ();
+        if (scalar(@macArray) > 0) {
+            #remove VoIP phones from list
+
+            foreach my $currentMac (@macArray) {
+                if ($switch->isPhoneAtIfIndex($currentMac, $switch_port)) {
+                    #this Mac is a phone
+                    $logger->debug("$currentMac is a phone");
+                    node_update_PF($switch, $switch_port, $currentMac, '', 1, $switch->isRegistrationMode(), $mysql_connection);
+                } else {
+                    push(@tmpMacArray, $currentMac);
+                    node_update_PF($switch, $switch_port, $currentMac, '', 0, $switch->isRegistrationMode(), $mysql_connection);
+                }
+            }
+        }
+        @macArray = @tmpMacArray;
+        # }}}3
+
+        # number of MACs found > 1 {{{3
+        if (scalar(@macArray) > 1) {
+            $logger->info("several MACs found. Do nothing");
+        # }}}3
+
+        # number of MACs found == 1 {{{3
+        } elsif (scalar(@macArray) == 1) {
+
+            my $mac = lc($macArray[0]);
+
+            # port security handling {{{4
+            do_port_security($mac, $switch, $switch_port, $trapType);
+            # }}}4
+
+            # node_determine_and_set_into_VLAN {{{4
+            node_determine_and_set_into_VLAN($mac, $switch, $switch_port);
+            # }}}4
+        # }}}3
+
+        # number of MACs found == 0 {{{3
+        } else {
+            $logger->info("cannot find MAC (maybe we found a VoIP, but they don't count here). Do nothing");
+        }
+        # }}}3
+    # }}}2
+
+    # trapType eq 'desAssociate' {{{2
+    } elsif ($trapType eq 'desAssociate') {
+        $logger->info("$trapType trap received on $switch_ip ifIndex $switch_port for $trapMac");
+        $switch->deauthenticateMac($trapMac);
+    # }}}2
+
+    # trapType eq 'reAssignVlan' {{{2
+    } elsif ($trapType eq 'reAssignVlan') {
+        $logger->info("$trapType trap received on $switch_ip ifIndex $switch_port");
+        
+        my @locationlog = locationlog_view_open_switchport_no_VoIP($switch_ip, $switch_port);
+        if ((@locationlog) && (scalar(@locationlog) > 0) && ($locationlog[0]->{'mac'} ne '')) {
+            my $mac = $locationlog[0]->{'mac'};
+            
+            if ($switch->isPortSecurityEnabled($switch_port)) {
+                $logger->info("security traps are configured on " . $switch->{_ip} . " ifIndex $switch_port. Re-assigning VLAN for $mac");
+                my $hasPhone = $switch->hasPhoneAtIfIndex($switch_port);
+                node_determine_and_set_into_VLAN($mac, $switch, $switch_port);
+                if (! $hasPhone) {
+                    $logger->info("no VoIP phone is currently connected at " . $switch->{_ip} . " ifIndex $switch_port. Flipping port admin status");
+                    $switch->setAdminStatus($switch_port, 0);
+                    sleep(2);
+                    $switch->setAdminStatus($switch_port, 1);
+                } else {
+                    my @violations = violation_view_open_desc($mac);
+                    if (scalar(@violations) > 0) {
+                        my %message;
+                        $message{'subject'} = "VLAN isolation of $mac behind VoIP phone";
+                        $message{'message'} = "The following computer has been isolated behind a VoIP phone\n";
+                        $message{'message'} .= "MAC: $mac\n";
+                        my $node_info = node_view($mac);
+                        $message{'message'} .= "Owner: " . $node_info->{'pid'} . "\n";
+                        $message{'message'} .= "Computer Name: " . $node_info->{'computername'} . "\n";
+                        $message{'message'} .= "Notes: " . $node_info->{'notes'} . "\n";
+                        $message{'message'} .= "Switch: " . $switch->{_ip} . "\n";
+                        $message{'message'} .= "Port (ifIndex): " . $switch_port . "\n\n";
+                        $message{'message'} .= "The violation details are\n";
+                        foreach my $violation (@violations) {
+                            $message{'message'} .= "Description: " . $violation->{'description'} . "\n";
+                            $message{'message'} .= "Start: " . $violation->{'start_date'} . "\n";
+                        }
+                        $logger->info("sending email to admin regarding isolation of $mac behind VoIP phone");
+                        pfmailer(%message);
+                    }
+                }
+            } else {
+                $logger->info("no security traps are configured on " . $switch->{_ip} . " ifIndex $switch_port. Flipping port admin status");
+                $switch->setAdminStatus($switch_port, 0);
+                sleep(2);
+                $switch->setAdminStatus($switch_port, 1);
+            }
+
+        } else {
+            $logger->warn("received reAssignVlan trap on $switch_ip ifIndex $switch_port but can't determine non VoIP MAC");
+        }
+    # }}}2
+
+    # trapType eq 'dot11Deauthentication' {{{2
+    } elsif ($trapType eq 'dot11Deauthentication') {
+        my $mac = $trapMac;
+        $logger->info("$trapType trap received on AP $switch_ip for MAC $mac");
+        # we close the line opened for the mac. If there is no line, this won't do anything
+        locationlog_update_end($switch_ip, $switch_port, $mac);
+    # }}}2
+
+    # trapType eq 'c2900AddressViolation' {{{2
+    } elsif ($trapType eq 'c2900AddressViolation') {
+        $logger->info("$trapType trap received on $switch_ip ifIndex $switch_port");
+        my $maxMacAddresses = $switch->getMaxMacAddresses($switch_port);
+        if ($maxMacAddresses == 1) {
+            my @macArray = $switch->_getMacAtIfIndex($switch_port);
+            if ((@macArray) && (scalar(@macArray) == 1)) {
+                #generate PF 'hub' violation
+                $logger->info("old MAC is $macArray[0] -> create Hub violation for this MAC");
+                my $cmd = PFCMD_FILE . " 'violation add vid=1400000, mac=$macArray[0]'";
+                my $output = qx/$cmd/; 
+                $logger->debug("calling " . PFCMD_FILE . " 'violation add vid=1400000,mac=$macArray[0]'");
+            } else {
+                $logger->info("no secure MAC found on this switchport; security violation is probably caused by someone moving a laptop too fast from one switchport to another -> do nothing");
+            }
+        } else {
+            $logger->info("Max MAC address is $maxMacAddresses. Should not receive a c2900 Address Violation trap on this port. Configuration problem -> Do nothing");
+        }
+    }
+    # }}}2
+
+    # cleanupAfterThread {{{2
+    cleanupAfterThread($switch_ip, $switch_port);
+    $mysql_connection->disconnect;
+    $switch->disconnectRead();
+    $switch->disconnectWrite();
+    # }}}2
+}
+# }}}1
+
+# sub cleanupAfterThread {{{1
+sub cleanupAfterThread {
+    my $logger = Log::Log4perl->get_logger('');
+    Log::Log4perl::MDC->put('tid', threads->self->tid());
+    my ($switch_ip,$switch_port) = @_;
+    $logger->trace("locking - trying to lock threadList_running, threadList_toBeKilled in cleanupAfterThread");
+    {
+        lock %threadList_running;
+        lock %threadList_toBeKilled;
+        $logger->trace("locking - obtained lock on threadList_running, threadList_toBeKilled in cleanupAfterThread");
+        delete $threadList_running{"$switch_ip|$switch_port"};
+
+        if (exists($threadList_toBeKilled{"$switch_ip|$switch_port"})) {
+            $logger->debug("destroyed kill signal for thread at $switch_ip ifIndex $switch_port in cleanupAfterThread");
+            delete $threadList_toBeKilled{"$switch_ip|$switch_port"};
+        }
+    }
+    $logger->trace("locking - unlocked threadList_running, threadList_toBeKilled in cleanupAfterThread");
+    $logger->trace("locking - trying to lock threadList_queued in cleanupAfterThread");
+    {
+        lock @threadList_queued;
+        $logger->trace("locking - obtained lock on threadList_queued in cleanupAfterThread");
+        $logger->trace("locking - sending signal for threadList_queued in cleanupAfterThread");
+        cond_signal(@threadList_queued);
+    }
+    $logger->trace("locking - unlocked threadList_queued in cleanupAfterThread");
+    $logger->info("finished");
+}
+# }}}1
+
+# sub normal_sighandler {{{1
+sub normal_sighandler {
+    my $logger = Log::Log4perl->get_logger('');
+    Log::Log4perl::MDC->put('tid', threads->self->tid());
+    if ((isenabled($Config{'vlan'}{'closelocationlogonstop'})) && (threads->self->tid() == 0)) {
+        $logger->debug("caught SIG" . $_[0]." - closing open locationlogs");
+
+        my $database_hostname;
+        my $database_dbname;
+        my $database_user;
+        my $database_password;
+        $logger->trace("locking - trying to lock switchFactory_locker in normal_sighandler");
+        {
+            lock $switchFactory_locker;
+            $logger->trace("locking - obtained lock on switchFactory_locker in normal_sighandler");
+            $database_hostname = $switchFactory->{'_config'}{'default'}{'database_hostname'};
+            $database_dbname = $switchFactory->{'_config'}{'default'}{'database_dbname'};
+            $database_user = $switchFactory->{'_config'}{'default'}{'database_user'};
+            $database_password = $switchFactory->{'_config'}{'default'}{'database_password'};
+        }
+        $logger->trace("locking - unlocked switchFactory_locker in normal_sighandler");
+
+        my $mysql_connection = DBI->connect("dbi:mysql:dbname=$database_dbname;host=$database_hostname", $database_user, $database_password, {PrintError => 0});
+        if (! $mysql_connection) {
+            $logger->error("coudn't connect to MySQL server: " . DBI->errstr);
+        } else {
+            $mysql_connection->do('UPDATE locationlog SET end_time = now() WHERE isnull(end_time)');
+            $mysql_connection->disconnect;
+        }
+    }
+    die("pfsetvlan: caught SIG".$_[0]." - terminating\n");
+}
+# }}}1
+
+# sub node_update_PF {{{1
+sub node_update_PF {
+    my ($switch, $switch_port, $mac, $vlan, $isPhone, $registrationMode, $mysql_connection) = @_;
+    my $logger = Log::Log4perl->get_logger('');
+    Log::Log4perl::MDC->put('tid', threads->self->tid());
+
+    #lowercase MAC
+    $mac = lc($mac);
+
+    if ($switch->isFakeMac($mac)) {
+        $logger->info("MAC $mac is fake. Stopping node_update_PF");
+        return 0;
+    }
+
+    #add node if necessary
+    if (! node_exist($mac)) {
+        $logger->info("node $mac does not yet exist in PF database. Adding it now");
+        node_add_simple($mac);
+    }
+
+    #auto-register node if we are in registration mode
+    if (($registrationMode == 1) || custom_shouldAutoRegister($mac, $isPhone)) {
+        if (! node_register_auto_PF($switch->{_ip}, $switch_port, $mac, $vlan, $isPhone, $mysql_connection)) {
+            $logger->error("auto-registration of node $mac failed");
+        }
+    }
+
+    #update node information in PF database
+    my $new = custom_getNodeInfo($switch->{_ip}, $switch_port, $mac, $vlan, $isPhone, $mysql_connection);
+    my $old = $mysql_connection->selectrow_hashref("SELECT " . join(",", keys(%$new)) . " FROM node WHERE mac='$mac'");
+    my $logMessage = '';
+    my $updateSQL = '';
+    foreach my $key (keys %$old) {
+        if (! defined($old->{$key})) {
+            $old->{$key} = '';
+        }
+        if ($old->{$key} ne $new->{$key}) {
+            if ($logMessage ne '') {
+                $logMessage .= ", ";
+                $updateSQL .= ", ";
+            }
+            $logMessage .= "$key from '" . $old->{$key} . "' to '" . $new->{$key} . "'";
+            $updateSQL .= "$key = '" . $new->{$key} . "'";
+        }
+    }
+    if ($logMessage ne '') {
+        $logger->debug("updating $mac in PF database: $logMessage");
+        $mysql_connection->do("UPDATE node SET $updateSQL WHERE mac='$mac'") || return 0;
+    }
+    return 1;
+}
+# }}}1 
+
+# sub node_register_auto_PF {{{1
+sub node_register_auto_PF {
+    my ($switch_ip, $switch_port, $mac, $vlan, $isPhone, $mysql_connection) = @_;
+    my $logger = Log::Log4perl->get_logger('');
+    Log::Log4perl::MDC->put('tid', threads->self->tid());
+
+    my ($lineNumbers) = $mysql_connection->selectrow_array("SELECT count(*) FROM node where mac='$mac' and status='reg'");
+    if (defined($lineNumbers) && ($lineNumbers == 1)) {
+        $logger->debug("node $mac is already registered. Skipping auto-registration");
+        return 1;
+    }
+    $lineNumbers = undef;
+    my $new = custom_getNodeInfoForAutoReg($switch_ip, $switch_port, $mac, $vlan, $isPhone, $mysql_connection);
+    my $default_pid = $new->{'pid'};
+    $lineNumbers = $mysql_connection->selectrow_array("SELECT count(*) FROM person WHERE pid='$default_pid'");
+    if (! defined($lineNumbers) || ($lineNumbers == 0)) {
+        $logger->debug("person $default_pid does not yet exist in PF database. Adding it now");
+        $mysql_connection->do("INSERT INTO person(pid,notes) VALUES ('$default_pid', 'pfsetvlan auto-registration user - do not delete')") || return 0;
+    }
+
+    my $updateSQL = 'regdate=now()';
+    foreach my $key (keys %$new) {
+        $updateSQL .= ", $key = '" . $new->{$key} . "'";
+    }
+    $logger->debug("auto-registering node $mac ($updateSQL)");
+    $mysql_connection->do("UPDATE node set $updateSQL WHERE mac='$mac'") || return 0;
+    return 1;
+}
+# }}}1
+
+# sub node_determine_VLAN {{{1
+sub node_determine_VLAN {
+    my ($mac, $switch, $ifIndex) = @_;
+
+    my $logger = Log::Log4perl->get_logger('');
+    Log::Log4perl::MDC->put('tid', threads->self->tid());
+
+    my $node_info = node_view($mac);
+
+    my $correctVlanForThisMAC;
+    if ($node_info->{'status'} eq 'unreg') {
+        $logger->info("$mac is unregistered. Set " . $switch->{_ip} . " ifIndex $ifIndex to registration VLAN");
+        $correctVlanForThisMAC = $switch->{_registrationVlan};
+    } else {
+        my $open_violation_count = violation_count($mac);
+        if ($open_violation_count > 0) {
+            $logger->info("$mac has $open_violation_count open violations(s). Set " . $switch->{_ip} . " ifIndex $ifIndex to isolation VLAN.");
+            $correctVlanForThisMAC = $switch->{_isolationVlan};
+        } else {
+            $correctVlanForThisMAC = custom_getCorrectVlan($switch->{_ip}, $ifIndex, $mac, $node_info->{status}, $node_info->{vlan}, $node_info->{pid});
+            $logger->info("$mac (PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . "). Set " . $switch->{_ip} . " ifIndex $ifIndex to VLAN $correctVlanForThisMAC");
+        }
+    }
+    return $correctVlanForThisMAC;
+}
+# }}}1
+
+# sub node_determine_and_set_into_VLAN {{{1
+sub node_determine_and_set_into_VLAN {
+    my ($mac, $switch, $ifIndex) = @_;
+
+    my $logger = Log::Log4perl->get_logger('');
+    Log::Log4perl::MDC->put('tid', threads->self->tid());
+
+    $switch->setVlan($ifIndex, node_determine_VLAN($mac,$switch,$ifIndex), \%switch_locker, $mac);
+}
+# }}}1
+
+# sub do_port_security {{{1
+sub do_port_security {
+    my ($mac, $switch, $switch_port, $trapType) = @_;
+
+    my $logger = Log::Log4perl->get_logger('');
+    Log::Log4perl::MDC->put('tid', threads->self->tid());
+
+    #determine if $mac is authorized elsewhere
+    my $locationlog_mac = locationlog_view_open_mac($mac);
+    if (defined($locationlog_mac)) {
+        my $old_switch = $locationlog_mac->{'switch'};
+        my $old_port = $locationlog_mac->{'port'};
+        my $old_vlan = $locationlog_mac->{'vlan'};
+
+        #we have to enter to 'if' always when trapType eq 'secureMacAddrViolation'
+        if (($old_switch ne $switch->{_ip}) || ($old_port != $switch_port) || ($trapType eq 'secureMacAddrViolation')) {
+            my $oldSwitch;
+            $logger->debug("$mac has still open locationlog entry at $old_switch ifIndex $old_port");
+            if ($old_switch eq $switch->{_ip}) {
+                $oldSwitch = $switch;
+            } else {
+                $logger->trace("locking - trying to lock switchFactory_locker in $trapType handling");
+                {
+                    lock $switchFactory_locker;
+                    $logger->trace("locking - obtained lock on switchFactory_locker in $trapType handling");
+                    $oldSwitch = $switchFactory->instantiate($old_switch);
+                }
+                $logger->trace("locking - unlocked switchFactory_locker in $trapType handling");
+            }
+            my $secureMacAddrHashRef = $oldSwitch->getSecureMacAddresses($old_port);
+            if (exists($secureMacAddrHashRef->{$mac})) {
+                if (($old_switch eq $switch->{_ip}) && ($old_port == $switch_port) && ($trapType eq 'secureMacAddrViolation')) {
+                    return 'stopTrapHandling';
+                }
+                my $fakeMac = $oldSwitch->generateFakeMac($old_vlan, $old_port);
+                $logger->info("de-authorizing $mac (new entry $fakeMac) at old location $old_switch ifIndex $old_port");
+                $oldSwitch->authorizeMAC($old_port, $mac, $fakeMac, ($old_vlan eq 'VoIP' ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port)), ($old_vlan eq 'VoIP' ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port)));
+            }
+            locationlog_update_end_mac($mac);
+        }
+    }
+
+    # check if $mac is not already secured on another port (in case locationlog is outdated)
+    my $secureMacAddrHashRef = $switch->getAllSecureMacAddresses();
+    if (exists($secureMacAddrHashRef->{$mac})) {
+        foreach my $ifIndex (keys(%{$secureMacAddrHashRef->{$mac}})) {
+            if ($ifIndex == $switch_port) {
+                return 'stopTrapHandling';
+            } else {
+                foreach my $vlan (@{$secureMacAddrHashRef->{$mac}->{$ifIndex}}) {
+                    my $fakeMac = $switch->generateFakeMac(($vlan == $switch->getVoiceVlan($ifIndex) ? 'VoIP' : $vlan), $ifIndex);
+                    $logger->info("$mac is a secure MAC address at " . $switch->{_ip} . " ifIndex $ifIndex VLAN $vlan. De-authorizing (new entry $fakeMac)");
+                    $switch->authorizeMAC($ifIndex, $mac, $fakeMac, $vlan, $vlan);
+                }
+            }
+        }
+    }
+    return 1;
+}
+# }}}1 
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
+# vim: set foldmethod=marker:
+# vim: set foldcolumn=4:

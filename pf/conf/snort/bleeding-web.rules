@@ -1,0 +1,327 @@
+#
+# $Id: bleeding-web.rules,v 1.1024 2006/10/27 17:41:54 jonkman Exp $
+# Bleeding Snort web rules.
+#
+# SID's are 2000000+ to avoid conflicts
+#
+# Only basic testing has been done. At this point all we guarantee is that they won't crash a recent snort release.
+#
+# More information available at www.bleedingsnort.com
+#
+# Please submit any custom rules or ideas to bleeding@bleedingsnort.com or the bleeding-sigs mailing list
+#
+#*************************************************************
+#
+#  Copyright (c) 2006, Bleedingsnort.com
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+#  following conditions are met:
+#
+#  * Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+#    disclaimer.
+#  * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+#    following disclaimer in the documentation and/or other materials provided with the distribution.
+#  * Neither the name of the nor the names of its contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS AND ANY EXPRESS OR IMPLIED WARRANTIES,
+#  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+#  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+#  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+#
+#by Ferdie Riphagen
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB PHP Aardvark Topsites PHP CONFIG[PATH] Remote File Include Attempt"; flow:established,to_server; uricontent:"CONFIG[PATH]="; nocase; pcre:"/(join|lostpw)\.php\?/Ui"; pcre:"/&CONFIG\x5bpath\x5d=(http|ftp|https)\:/Ui"; reference:cve,CVE-2006-2149; reference:url,www.osvdb.org/25158; classtype:web-application-attack; sid:2002901; rev:1;)
+
+#by David Maciejak
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB WebAPP Apage.CGI Remote Command Execution Attempt"; flow: to_server,established; uricontent:"/apage.cgi?f="; nocase; pcre:"/(\.\|.+\|)/"; reference:bugtraq,13637; classtype: web-application-attack; sid: 2001945; rev:4; )
+
+#From Adam Hogan
+#alert tcp $HOME_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE Web Proxy GET Request"; flow: to_server,established; content:"GET http\://"; nocase; depth: 11; classtype: bad-unknown; sid: 2001669; rev:2; )
+#alert tcp $HOME_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE Web Proxy HEAD Request"; flow: to_server,established; content:"HEAD http\://"; nocase; depth: 12; classtype: bad-unknown; sid: 2001670; rev:3; )
+#alert tcp $HOME_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE Proxy POST Request"; flow: to_server,established; content:"POST http\://"; nocase; depth: 12; classtype: bad-unknown; sid: 2001674; rev:2; )
+#alert tcp $HOME_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE Proxy CONNECT Request"; flow: to_server,established; content:"CONNECT "; nocase; depth: 8; classtype: bad-unknown; sid: 2001675; rev:2; )
+
+#By David Maciejak
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB Athena Web Registration Remote Command Execution Attempt"; flow: to_server,established; uricontent:"/athenareg.php?pass=%20\;"; nocase; reference:cve,CAN-2004-1782; reference:bugtraq,9349; classtype: web-application-attack; sid: 2001949; rev:4; )
+
+#by Blake Hartstein
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB CGI AWstats Migrate Command Attempt"; flow:established,to_server; uricontent:"/awstats.pl?"; nocase; pcre:"/migrate\s*=\s*\|/Ui"; reference:bugtraq,17844; classtype:web-application-attack; sid:2002900; rev:1; )
+
+# Submitted 2005-09-04 by David Maciejak
+#alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE WEB Barracuda Spam Firewall img.pl Remote Command Execution Attempt"; flow: to_server,established; uricontent:"/cgi-bin/img.pl?"; nocase; pcre:"/(f=.+\|)/Ui"; reference:bugtraq,14712; classtype: web-application-attack; sid:2002362; rev:1;)
+
+# Submitted 2005-11-22 by David Maciejak (with thanks to Nicob for pointing it out)
+#alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE WEB Barracuda Spam Firewall img.pl Remote Directory Traversal Attempt"; flow: to_server,established; uricontent:"/cgi-bin/img.pl?"; nocase; pcre:"/(f=\.\..+)/Ui"; reference:bugtraq,14710; classtype: web-application-attack; sid:2002685; rev:1;)
+
+# Submitted 2008-08-14 by David Maciejak
+#alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE WEB Barracuda Spam Firewall preview_email.cgi Remote Command Execution"; flow: to_server,established; uricontent:"/cgi-bin/preview_email.cgi?"; nocase; pcre:"/file=.*\|/Ui"; reference:bugtraq,19276; classtype:web-application-attack; sid:2003086; rev:1;)
+#alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE WEB Barracuda Spam Firewall preview_email.cgi Remote Directory Traversal Attempt"; flow: to_server,established; uricontent:"/cgi-bin/preview_email.cgi?"; nocase; pcre:"/file=.+\.\..+\|/Ui"; reference:bugtraq,19276; classtype:web-application-attack; sid:2003087; rev:2;)
+
+#by Jamie Thinglestad
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB Blog Spam Insert Attempt"; flow:to_server,established; content:"|0D 0A|x-aaaaaaaaa"; nocase; classtype:web-application-attack; reference:url,spamhuntress.com/2005/05/14/new-block-for-bulgarians/; reference:url,lists.geeklog.net/pipermail/geeklog-spam/2005-June/000020.html; reference:url,www.webmasterworld.com/forum92/3683.htm; sid:2002069; rev:4;)
+
+# Submitted by Mark Tombaugh, 2005/07/18
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE Cacti Input Validation Attack"; flow:established,to_server; content:"GET"; depth:3; nocase; pcre:"/(config_settings|top_graph_header)\.php\?.*=(http|https)\:\//Ui"; classtype:web-application-activity; reference:url,www.cacti.net; reference:url,www.idefense.com/application/poi/display?id=265&type=vulnerabilities; reference:url,www.idefense.com/application/poi/display?id=266&type=vulnerabilities; sid:2002129; rev:4;)
+
+#by David Maciejak
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB Cacti graph_image.php Remote Command Execution Attempt"; flow:to_server,established; uricontent:"/graph_image.php?"; nocase; pcre:"/(graph_start=%0a.+%0a)/i"; reference:cve,CAN-2005-1524; reference:bugtraq,14129; reference:bugtraq,14042; classtype: web-application-attack; sid:2002313; rev:4;)
+
+# Submitted 2005-12-06 by Bob Grabowsky
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB includer.cgi Remote Command Execution Attempt"; flow: to_server,established; uricontent:"/includer.cgi?|7c|"; nocase; classtype: web-application-attack; reference:url,isc.sans.org/diary.php?storyid=823; sid:2002711; rev:3; )
+
+#by Blake Hartstein
+#alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg: "BLEEDING-EDGE WEB Cisco IOS HTTP set enable password attack"; flow:established,to_server; uricontent:"/configure/"; uricontent:"/enable/"; classtype:web-application-attack; reference:cve,2005-3921; reference:bugtraq,15602; reference:url,www.infohacking.com/INFOHACKING_RESEARCH/Our_Advisories/cisco/index.html; sid:2002721; rev:1; )
+
+#By David Maciejak
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB Community Link Pro Login.CGI Remote Command Execution Attempt"; flow:to_server,established; uricontent:"/login.cgi?"; nocase; pcre:"/(file=\|.+\|)/"; reference:bugtraq,14097; classtype: web-application-attack; sid:2002067; rev:3;)
+
+#By David Maciejak
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB CSV-DB CSV_DB.CGI Remote Command Execution Attempt"; flow:to_server,established; uricontent:"/cgi-bin/csv_db.cgi?"; nocase; pcre:"/(file=\|.+\|)/"; reference:bugtraq,14059; classtype:web-application-attack; sid:2002066; rev:3;)
+
+# By David Maciejak, 2005-11-03
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB CutePHP CuteNews directory traversal vulnerability - show_news"; flow:to_server,established; uricontent:"/show_news.php"; nocase; uricontent:"template="; nocase; pcre:"/template=[./]+/Ui"; reference:bugtraq,15295; classtype: misc-activity; sid: 2002668; rev:4; )
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB CutePHP CuteNews directory traversal vulnerability - show_archives"; flow:to_server,established; uricontent:"/show_archives.php"; nocase; uricontent:"template="; nocase; pcre:"/template=[./]+/Ui"; reference:bugtraq,15295; classtype: misc-activity; sid: 2003152; rev:1; )
+
+# Submitted by David Maciejak on 2005-11-15
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB Cyphor show.php SQL injection attempt"; flow:to_server,established; uricontent:"/show.php?"; nocase; pcre:"/id=-?\d+\s+UNION\s+/Ui"; reference:bugtraq,15418; classtype: web-application-attack; sid: 2002678; rev:2; )
+
+#by David Maciejak
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE IBM Lotus Domino BaseTarget XSS attempt"; flow:to_server,established; uricontent:"OpenForm"; nocase; pcre:"/BaseTarget=.*?\"/iU"; reference:bugtraq,14845; classtype:web-application-attack; sid:2002376; rev:4;)
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE IBM Lotus Domino Src XSS attempt"; flow:to_server,established; uricontent:"OpenFrameSet"; nocase; pcre:"/src=.*\"><\/FRAMESET>.*<script>.*<\/script>/iU"; reference:bugtraq,14846; classtype: web-application-attack; sid:2002377; rev:3;)
+
+# By David Maciejak, 2005-10-24
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB e107 resetcore.php SQL Injection attempt"; flow:to_server,established; uricontent:"/resetcore.php?"; nocase; pcre:"/a_name='/Ui"; reference:bugtraq,15125; classtype:web-application-attack; sid:2002663; rev:2; )
+
+#by Blake Hartstein from Demarc
+#alert tcp $EXTERNAL_NET any -> $HOME_NET 10616 (msg:"BLEEDING-EDGE WEB-MISC EiQNetworks Security Analyzer Buffer Overflow"; flow:established,to_server; content:"LICMGR_ADDLICENSE&"; nocase; depth:18; isdataat:450,relative; pcre:"/LICMGR_ADDLICENSE&[^\x00\n\r@&]{450}/i"; reference:cve,2006-3838; reference:url,secunia.com/advisories/21211/; classtype:attempted-admin; sid:2003056; rev:1; )
+
+#By David Maciejak
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB Galerie ShowGallery.php SQL Injection attempt"; flow:to_server,established; uricontent:"/showGallery.php"; nocase; pcre:"/galid=-?\d+%20/Ui"; reference:bugtraq,15313; classtype:web-application-attack; sid:2002671; rev:2;)
+
+# Submitted 2006-06-29 by Frank Knobbe
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB-PHP GeekLog Remote File Include Vulnerability"; flow:established,to_server; uricontent:".php?"; nocase; uricontent:"_CONF"; nocase; pcre:"/_CONF\[.*\]=(http|ftp)\:\//Ui"; reference:url,securitydot.net/xpl/exploits/vulnerabilities/articles/1122/exploit.html; classtype:web-application-attack; sid:2002996; rev:1;)
+
+# Submitted by Michael Holstein, 2006-02-13. Reference from scheidell
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE WEB Google Desktop User-Agent Detected"; flow:to_server,established; content:"User-Agent\: Mozilla/4.0 (compatible\; Google Desktop)"; nocase; threshold: type limit, count 1, seconds 360, track by_src; classtype:policy-violation; reference:url,news.com.com/2100-1032_3-6038197.html; sid:2002801; rev:3; )
+
+# Submitted 2006-02-28 by Mark Warren. For Google appliances that "should" only spider internal web sites (but sometimes go wild and spider the Internet)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE Google Search Appliance browsing the Internet"; flow:to_server,established; content:"GET "; depth:4; nocase; content:"User-Agent|3A| gsa-crawler"; nocase; reference:url,www.google.com/enterprise/gsa/index.html; classtype:web-application-activity; sid:2002838; rev:1;)
+
+#by Blake Hartstein of Demarc
+#alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE WEB-MISC Google Appliance External Proxy Stylesheet"; flow:established,to_server; uricontent:"/search?"; uricontent:"proxystylesheet="; pcre:"/proxystylesheet=\s*(http|ftp)/Ui"; reference:bugtraq,15509; reference:cve,2005-3758; classtype:web-application-attack; sid:2002849; rev:1; )
+
+# Submitted on 2006-04-21 by Mark Tombaugh
+# This will trigger on the Horde 3.0.9-3.1.0 Remote PHP
+# Metasploit Plugin hosted at milw0rm. Dated: 2006-04-10
+#alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE WEB Horde 3.0.9-3.1.0 Help Viewer Remote PHP Exploit"; flow:established,to_server; uricontent:"/services/help/"; nocase; pcre:"/module=[^\;]*\;.*\"/UGi"; reference:url,www.milw0rm.com/exploits/1660; reference:cve,2006-1491; reference:bugtraq,17292; classtype:web-application-attack; sid:2002867; rev:3; )
+
+# This will trigger on access to the Horde help directory
+# Horde Access
+#alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE WEB Horde Web Mail Help Access"; flow:established,to_server; uricontent:"/horde/services/help/"; nocase; reference:cve,2006-1491; reference:bugtraq,17292; classtype:web-application-activity; sid:2002868; rev:3;)
+
+#by Eric Wolfe of Terradon
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB Horde README access probe"; flow:to_server,established; uricontent:"/horde"; nocase; pcre:"/\/horde((2|3|-3\.(0\.[1-9]|1\.0)))?\/{1,2}README/Ui"; classtype:web-application-activity; reference:cve,CVE-2006-1491; reference:url,csirt.terradon.com/postarchive.php?month=4&year=2006#article28; sid:2002897; rev:3;)
+
+#by David Maciejak
+#Requires port 3443 to be included in http_inspect ports
+#alert tcp $EXTERNAL_NET any -> $HOME_NET 3443 (msg: "BLEEDING-EDGE WEB HP OpenView Network Node Manager Remote Command Execution Attempt"; flow: to_server,established; uricontent:"/OvCgi/connectedNodes.ovpl?"; nocase; pcre:"/node=.*\|.+\|/i"; reference:bugtraq,14662; classtype: web-application-attack; sid:2002365; rev:3;)
+
+#From Erik Fichtner
+##alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE Web IDN url seen.."; flow: established; content:"\://"; nocase; pcre:"/(ftp|http|https)\:\/\/.*&#[0-9]+\;[^\/ \">]*/Ri"; classtype: misc-activity; sid: 2001716; rev:6; )
+
+#Submitted by mjp
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-MISC Alternate Data Stream source view attempt"; flow: to_server,established; uricontent:"|3A 3A 24|$DATA"; reference:url,support.microsoft.com/kb/q188806/; reference:cve,1999-0278; classtype: web-application-activity; sid: 2001365; rev:5; )
+
+#Submitted by Matt Jonkman
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-IIS ASP.net Auth Bypass / Canonicalization"; flow: to_server,established; uricontent:".aspx"; nocase; content:"GET"; nocase; depth: 3; content:"|5C|"; within: 200; content:"aspx"; nocase; within: 100; classtype: web-application-attack; sid: 2001342; rev:18; )
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-IIS ASP.net Auth Bypass / Canonicalization % 5 C"; flow: to_server,established; uricontent:".aspx"; nocase; content:"GET"; nocase; depth: 3; content:"%5C"; depth: 200; nocase; content:"aspx"; within:100; classtype: web-application-attack; sid: 2001343; rev:16; )
+
+#Submitted by Matt Jonkman
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS 443 (msg: "BLEEDING-EDGE THCIISLame IIS SSL Exploit Attempt"; flow: to_server,established; content:"THCOWNZIIS!"; reference:url,www.thc.org/exploits/THCIISSLame.c; reference:url,isc.sans.org/diary.php?date=2004-07-17; classtype: web-application-attack; sid: 2000559; rev:9; )
+
+#by Blake Hartstein of Demarc
+#alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg:"BLEEDING-EDGE WEB JuniperSetup Control Buffer Overflow"; flow:established,from_server; content:"E5F5D008-DD2C-4D32-977D-1A0ADF03058B"; nocase; pcre:"/param[^>]*name\s*=\s*["']?productname["']?[^>]*\s+value\s*=\s*(['"])((?!\1).|\\['"]){200}/Ri"; reference:url,www.eeye.com/html/research/advisories/AD20060424.html; classtype:attempted-user; sid:2002889; rev:2; )
+
+#by David Maciejak
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB Light Weight Calendar 'date' Arbitrary Remote Code Execution"; flow: to_server,established; uricontent:"/index.php?"; nocase; pcre:"/date=\d{8}\)\;.+/Ui"; classtype:web-application-attack; sid:2002777; rev:1;)
+
+# A LINK method request... weird. Anyone remember what caused this?
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-MISC LINK Method"; flow: to_server,established; content:"LINK "; offset: 0; depth: 5; tag: host,10,packets; reference:url,www.w3.org/Protocols/HTTP/Methods/Link.html; classtype: web-application-activity; sid: 2001546; rev:5; )
+
+#matt jonkman, info from SANS. Updated by J Hewlett
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB Mambo Exploit"; flow:established,to_server; uricontent:"index"; nocase; pcre:"/index(2?)\.php\?/iU"; uricontent:"_REQUEST"; nocase; pcre:"/mosConfig_absolute_path=(http|ftp)\:\//Ui"; reference:url,seclists.org/lists/fulldisclosure/2005/Nov/0528.html; reference:url,isc.sans.org/diary.php?storyid=869; classtype:web-application-attack; sid:2002681; rev:5;)
+
+#by Blake Hartstein of Demarc
+#alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE WEB Minishare GET Overflow"; flow:established,to_server; content:"GET "; depth:4; isdataat:200,relative; content:!"/"; distance:0; within:200; reference:cve,2004-2271; reference:bugtraq,11620; classtype:web-application-attack; sid:2002846; rev:3; )
+
+#Submitted by Joseph Gama, Tweaks by Owen Crowe
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-MISC cross site scripting attempt IMG onerror or onload"; flow: to_server,established; content:"<IMG"; nocase; pcre:"/\bonerror\b[\s]*=/Ri"; classtype: web-application-attack; sid: 2001075; rev:3; )
+##alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-MISC cross site scripting attempt TYPE + JAVASCRIPT"; flow: to_server,established; content:"text/javascript"; nocase; pcre:"/TYPE\s*=\s*['"]text\/javascript/i"; classtype: web-application-attack; sid: 2001076; rev:5; )
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-MISC cross site scripting attempt STYLE + JAVASCRIPT"; flow: to_server,established; content:"application/x-javascript"; nocase; pcre:"/TYPE\s*=\s*['"]application\/x-javascript/i"; classtype: web-application-attack; sid: 2001077; rev:5; )
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-MISC cross site scripting attempt STYLE + JSCRIPT"; flow: to_server,established; content:"text/jscript"; nocase; pcre:"/TYPE\s*=\s*['"]text\/jscript/i"; classtype: web-application-attack; sid: 2001078; rev:5; )
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-MISC cross site scripting attempt STYLE + VBSCRIPT 1"; flow: to_server,established; content:"text/vbscript"; nocase; pcre:"/TYPE\s*=\s*['"]text\/vbscript/i"; classtype: web-application-attack; sid: 2001079; rev:6; )
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-MISC cross site scripting attempt STYLE + VBSCRIPT 2"; flow: to_server,established; content:"application/x-vbscript"; nocase; pcre:"/TYPE\s*=\s*['"]application\/x-vbscript/i"; classtype: web-application-attack; sid: 2001080; rev:6; )
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-MISC cross site scripting attempt STYLE + ECMACRIPT"; flow: to_server,established; content:"text/ecmascript"; nocase; pcre:"/TYPE\s*=\s*['"]text\/ecmascript/i"; classtype: web-application-attack; sid: 2001081; rev:5; )
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-MISC cross site scripting attempt STYLE + EXPRESSION 1"; flow: to_server,established; content:"expression"; nocase; pcre:"/STYLE[\s]*=[\s]*[^>]expression[\s]*\(/i"; classtype: web-application-attack; sid: 2001082; rev:5; )
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-MISC cross site scripting attempt STYLE + EXPRESSION 2"; flow: to_server,established; content:"expression"; pcre:"/[\s]*expression[\s]*\([^}]}[\s]*<\/STYLE>/i"; classtype: web-application-attack; sid: 2001083; rev:5; )
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-MISC cross site scripting attempt using XML"; flow: to_server,established; content:"<XML"; content:"<![CDATA[<]]>SCRIPT"; nocase; classtype: web-application-attack; sid: 2001084; rev:3; )
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-MISC cross site scripting attempt executing hidden Javascript 1"; flow: to_server,established; content:"innerhtml"; nocase; pcre:"/eval[\s]*\([\s]*[^\.]\.innerHTML[\s]*\)/i"; classtype: web-application-attack; sid: 2001085; rev:5; )
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-MISC cross site scripting attempt executing hidden Javascript 2"; flow: to_server,established; content:"window.execscript"; nocase; pcre:"/window.execScript[\s]*\(/i"; classtype: web-application-attack; sid: 2001086; rev:5; )
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-MISC cross site scripting attempt to execute Javascript code"; flow: to_server,established; content:"javascript"; nocase; pcre:"/(((URL|SRC|HREF|LOWSRC)[\s]*=)|(url[\s]*[\(]))[\s]*['"]*javascript[\:]/i"; classtype: web-application-attack; sid: 2001087; rev:4; )
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-MISC cross site scripting attempt to execute VBScript code"; flow: to_server,established; content:"vbscript"; nocase; pcre:"/(((URL|SRC|HREF|LOWSRC)[\s]*=)|(url[\s]*[\(]))[\s]*['"]*vbscript[\:]/i"; classtype: web-application-attack; sid: 2001088; rev:4; )
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-MISC cross site scripting attempt to access SHELL\:"; flow: to_server,established; content:"shell"; nocase; pcre:"/(((URL|SRC|HREF|LOWSRC)[\s]*=)|(url[\s]*[\(]))[\s]*['"]*shell[\:]/i"; classtype: web-application-attack; sid: 2001089; rev:4; )
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-MISC cross site scripting stealth attempt to execute Javascript code"; flow: to_server,established; pcre:"/(((URL|SRC|HREF|LOWSRC)[\s]*=)|(url[\s]*[\(]))[\s]*['"]*[\x09\x0a\x0b\x0c\x0d]*j[\x09\x0a\x0b\x0c\x0d]*a[\x09\x0a\x0b\x0c\x0d]*v[\x09\x0a\x0b\x0c\x0d]*a[\x09\x0a\x0b\x0c\x0d]*s[\x09\x0a\x0b\x0c\x0d]*c[\x09\x0a\x0b\x0c\x0d]*r[\x09\x0a\x0b\x0c\x0d]*i[\x09\x0a\x0b\x0c\x0d]*p[\x09\x0a\x0b\x0c\x0d]*t[\x09\x0a\x0b\x0c\x0d]*[\:]/i"; content:"="; content:!"javascript\:"; nocase; classtype: web-application-attack; sid: 2001090; rev:5; )
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-MISC cross site scripting stealth attempt to execute VBScript code"; flow: to_server,established; pcre:"/(((URL|SRC|HREF|LOWSRC)[\s]*=)|(url[\s]*[\(]))[\s]*['"]*[\x09\x0a\x0b\x0c\x0d]*v[\x09\x0a\x0b\x0c\x0d]*b[\x09\x0a\x0b\x0c\x0d]*s[\x09\x0a\x0b\x0c\x0d]*c[\x09\x0a\x0b\x0c\x0d]*r[\x09\x0a\x0b\x0c\x0d]*i[\x09\x0a\x0b\x0c\x0d]*p[\x09\x0a\x0b\x0c\x0d]*t[\x09\x0a\x0b\x0c\x0d]*[\:]/i"; content:"="; content:!"vbscript\:"; nocase; classtype: web-application-attack; sid: 2001091; rev:5; )
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-MISC cross site scripting stealth attempt to access SHELL\:"; flow: to_server,established; pcre:"/(((URL|SRC|HREF|LOWSRC)[\s]*=)|(url[\s]*[\(]))[\s]*['"]*[\x09\x0a\x0b\x0c\x0d]*s[\x09\x0a\x0b\x0c\x0d]*h[\x09\x0a\x0b\x0c\x0d]*e[\x09\x0a\x0b\x0c\x0d]*l[\x09\x0a\x0b\x0c\x0d]*l[\x09\x0a\x0b\x0c\x0d]*[\:]/i";content:"=";  content:!"shell\:"; nocase; classtype: web-application-attack; sid: 2001092; rev:6; )
+
+#Submitted by Joseph Gama
+#alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE Suspicious Encrypted Webpage Content"; flow: established; content:"<script"; nocase; pcre:"/<SCRIPT[^>]*>[\s]*VAR[\s]+[\w]+[\s]*=[\s]*['"]([a-fA-F0-9]{2}){20}/i"; classtype: bad-unknown; sid: 2001021; rev:7; )
+
+#From Joe Stewart, LURHQ
+#alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg: "BLEEDING-EDGE WEB Encoded javascriptdocument.write - usually hostile"; flow: established,to_client; content:"|313030|,111,99,117,109,101,110,116,46,119,114,105,116,101"; classtype: misc-activity; sid: 2001811; rev:3; )
+
+#by Mark Tombaugh
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB Miva Merchant Cross Site Scripting Attack"; flow:to_server,established; uricontent:"merchant.mv"; nocase; pcre:"/customer_login.*\">/Ui"; classtype:web-application-activity; reference:bugtraq,14828; reference:url,smallbusiness.miva.com/products/mia/; reference:url,www.frsirt.com/english/advisories/2005/1758; sid:2002371; rev:1;)
+
+#Submitted by bdoctor
+#alert tcp $HOME_NET $HTTP_PORTS -> any any (msg: "BLEEDING-EDGE WEB MS SQL Server OLEDB asp error"; flow: established,from_server; content:"Microsoft OLE DB Provider for SQL Server error"; reference:url,www.wiretrip.net/rfp/p/doc.asp/i2/d42.htm; classtype: web-application-activity; sid: 2001768; rev:4; )
+
+#by David Maciejak
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB Netquery Remote Command Execution Attempt"; flow: to_server,established; uricontent:"/nquser.php?"; nocase; pcre:"/(host=\|.+)/i"; reference:bugtraq,14373; classtype: web-application-attack; sid:2002361; rev:2;)
+
+#by Blake Hartstein at Demarc
+#alert tcp $EXTERNAL_NET any -> $HOME_NET 8300 (msg:"BLEEDING-EDGE WEB MISC Novell GroupWise Messenger Accept Language Buffer Overflow"; flow:established,to_server; content:"Accept-Language"; nocase; pcre:"/^Accept-Language\:[^\n]*?[^,\;\n]{17}/mi"; reference:cve,2006-0992; reference:bugtraq,17503; classtype:attempted-user; sid:2002865; rev:1; )
+
+#Submitted by bdoctor
+#alert tcp $HOME_NET $HTTP_PORTS -> any any (msg: "BLEEDING-EDGE WEB ORACLE OLEDB asp error"; flow: established,from_server; content:"OraOLEDB error"; reference:url,www.wiretrip.net/rfp/p/doc.asp/i2/d42.htm; classtype: web-application-activity; sid: 2001767; rev:5; )
+#alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg: "BLEEDING-EDGE WEB ORACLE rwcgi60 information leak attempt"; flow: established,to_server; uricontent:"cgi-bin/rwcgi60"; nocase; reference:url,www.kb.cert.org/vuls/id/997403; classtype: attempted-recon; sid: 2001781; rev:4; )
+
+# Submitted by Mark Tombaugh, 2005/07/20
+# Note: Oracle Reports can run on any TCP port. Please configure HTTP_PORTS appropriately.
+#alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE WEB Oracle Reports XSS Attempt"; flow:established,to_server; content:"GET"; depth:3; nocase; pcre:"/(showenv|parsequery|rwservlet)\?.*=\</Ui"; classtype:web-application-activity; reference:url,www.oracle.com/technology/products/reports/index.html; reference:url,www.red-database-security.com/advisory/oracle_reports_various_css.html; sid:2002130; rev:3;)
+#alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE WEB Oracle Reports XML Information Disclosure"; flow:established,to_server; content:"GET"; depth:3; nocase; pcre:"/(showenv|parsequery|rwservlet)\?.*CUSTOMIZE=\//Ui"; classtype:web-application-activity; reference:url,www.oracle.com/technology/products/reports/index.html; reference:url,www.red-database-security.com/advisory/oracle_reports_read_any_xml_file.html; sid:2002131; rev:3;)
+#alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE WEB Oracle Reports DESFORMAT Information Disclosure"; flow:established,to_server; content:"GET"; depth:3; nocase; pcre:"/(showenv|parsequery|rwservlet)\?.*destype=file.*desformat=\//Ui"; classtype:web-application-activity; reference:url,www.oracle.com/technology/products/reports/index.html; reference:url,www.red-database-security.com/advisory/oracle_reports_read_any_file.html; sid:2002132; rev:3;)
+#alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE WEB Oracle Reports OS Command Injection Attempt"; flow:established,to_server; content:"GET"; depth:3; nocase; pcre:"/(showenv|parsequery|rwservlet)\?.*report=.*\.(rdf|rep)/Ui"; classtype:web-application-activity; reference:url,www.oracle.com/technology/products/reports/index.html; reference:url,www.red-database-security.com/advisory/oracle_reports_run_any_os_command.html; sid:2002133; rev:3;)
+#by Michael Scheidell
+#alert tcp $HOME_NET $HTTP_PORTS -> $EXTERNAL_NET any (msg:"BLEEDING-EDGE WEB osCommerce vulnerable web application extras update.php exists"; flow:to_server,established; content:"Select an SQL file to install";reference:url,retrogod.altervista.org/oscommerce_22_adv.html; classtype:attempted-recon; sid:2002863; rev:2;)
+#alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE WEB osCommerce extras/update.php disclosure"; flow:to_server,established; uricontent:"extras/update.php"; nocase; reference:url,retrogod.altervista.org/oscommerce_22_adv.html;classtype:attempted-recon; sid:2002864; rev:2;)
+
+#By Blake Hartstein at Demarc
+#Split into 2 rules, so they can be prequalified with a stronger uri check
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB PHP Remote File Inclusion (monster list http)"; flow:established,to_server; uricontent:".php"; nocase; uricontent:"http"; nocase; pcre:"/(path|page|lib|dir|file|root|icon|lang(uage)?|folder|type|agenda|gallery|domain|calendar|settings|news|name|auth|prog|config|cfg|incl|ext|fad|mod|sbp|rf|id|df|[a-z](\[.*\])+)\s*=\s*https?/Ui"; reference:url,www.sans.org/top20/; classtype:web-application-attack; sid:2002997; rev:2; )
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB PHP Remote File Inclusion (monster list ftp)"; flow:established,to_server; uricontent:".php"; nocase; uricontent:"ftp"; nocase; pcre:"/(path|page|lib|dir|file|root|icon|lang(uage)?|folder|type|agenda|gallery|domain|calendar|settings|news|name|auth|prog|config|cfg|incl|ext|fad|mod|sbp|rf|id|df|[a-z](\[.*\])+)\s*=\s*ftp/Ui"; reference:url,www.sans.org/top20/; classtype:web-application-attack; sid:2003098; rev:1; )
+
+#From Chas Tomlin
+#alert tcp $HOME_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB phpbb Session Cookie"; flow: established; content:"phpbb2mysql_data=a%3A2%3A%7Bs%3A11%3A%22autologinid%22%3Bb%3A1%3Bs%3A6%3A%22userid%22%3Bs%3A1%3A%222%22%3B%7D"; nocase; classtype: web-application-attack; reference:url,www.waraxe.us/ftopict-555.html; sid:2001762; rev:6; )
+
+# Submitted by Joel Ebrahimi
+#alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg: "BLEEDING-EDGE WEB XSS Possible Arbitrary Scripting Code Attack in phpBB (private message)"; flow: established,from_server; content:"privmsg.php"; pcre:"/\<a href="[^"]*(script|about|applet|activex|chrome)\s*\:/i"; reference:url,www.securitytracker.com/alerts/2005/May/1013918.html; classtype: web-application-attack; sid: 2001928; rev:4; )
+#alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg: "BLEEDING-EDGE WEB XSS Possible Arbitrary Scripting Code Attack in phpBB (signature)"; flow: established,from_server; content:"_________________"; pcre:"/\<br \/\>_________________\<br \/\>\<a href="[^"]*(script|about|applet|activex|chrome)\s*\:/i"; reference:url,www.securitytracker.com/alerts/2005/May/1013918.html; classtype: web-application-attack; sid: 2001929; rev:4; )
+
+#By Blake Hartstein
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB phpBB Remote Code Execution Attempt"; flow:established,to_server; uricontent:"/viewtopic.php?"; pcre:"/highlight=.*?(\'|\%[a-f0-9]{4})(\.|\/|\\|\%[a-f0-9]{4}).+?(\'|\%[a-f0-9]{4})/Ui"; reference:url,secunia.com/advisories/15845/; reference:bugtraq,14086; reference:url,www.securiteam.com/unixfocus/6Z00R2ABPY.html; classtype:web-application-attack; sid:2002070; rev:5;)
+
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB-PHP Generic phpbb arbitrary command attempt"; flow:established,to_server; uricontent:".php?"; nocase; uricontent:"phpbb_root_path="; nocase; pcre:"/phpbb_root_path=(ftp|http)/Ui"; reference:url,cve.mitre.org/cgi-bin/cvekey.cgi?keyword=phpbb_root_path; classtype:web-application-attack; sid:2002731; rev:3;)
+
+#Written by Cory Altheide, Incidents.org
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB-PHP EasyDynamicPages exploit"; flow: established,to_server; uricontent:"edp_relative_path="; reference:url,www.securitytracker.com/alerts/2004/Jan/1008584.html; reference:cve,CAN-2004-0073; classtype: web-application-activity; sid: 2001344; rev:4; )
+
+# Submitted 2005-12-22 by David Maciejak
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE PHPGedView Remote Script Code Execution attempt"; flow:to_server,established; uricontent:"/help_text_vars.php?"; nocase; pcre:"/PGV_BASE_DIRECTORY=(f|ht)tp\:\//Ui"; reference:bugtraq,15983; classtype: web-application-attack; sid:2002730; rev:3; )
+
+#From Erik Fichtner
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE Exploit Suspected PHP Injection Attack"; flow: to_server,established; content:"GET"; nocase; depth:3; uricontent:".php?"; nocase; pcre:"/(name=(http|ftp)|cmd=.*(cd|\;|echo|cat|perl|curl|wget|id|uname|t?ftp))/Ui"; reference:cve,2002-0953; classtype: trojan-activity; sid: 2001621; rev:14; )
+
+#From Joe Stewart, LURHQ
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE EXPLOIT WEB PHP remote file include exploit attempt"; flow: to_server,established; content:"GET"; nocase; depth:3; uricontent:".php?"; nocase; pcre:"/=(https?|ftp)\:\//Ui"; nocase; content:"cmd="; nocase; within: 100; classtype: attempted-admin; sid: 2001810; rev:9; )
+
+#by Blake Hartstein
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( msg:"BLEEDING-EDGE WEB PHP PHPNuke Remote File Inclusion Attempt"; flow:established,to_server; uricontent:"/iframe.php"; nocase; uricontent:"file="; nocase; pcre:"/file=\s*(ftp|https?)\:\//Ui"; reference:url,www.zone-h.org/en/advisories/read/id=8694/; classtype:web-application-attack; sid:2002800; rev:2; )
+
+# Submitted 2005-10-10 by Mark Tombaugh
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB phpMyAdmin Suspicious Activity"; flow:to_server,established; content:"POST"; depth:4; nocase; uricontent:"/grab_globals.lib.php"; flowbits:set,post.phpmyadmin.grab_globals; flowbits:noalert; classtype: web-application-activity; sid:2002408; rev:4;)
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB phpMyAdmin Local File Inclusion (2.6.4-pl1)"; flow:to_server,established; flowbits:isset,post.phpmyadmin.grab_globals; content:"[redirect]"; nocase; reference:url,securityreason.com/securityalert/69; reference:url,www.frsirt.com/english/advisories/2005/2024; classtype: web-application-activity; sid:2002409; rev:3;)
+#By Ferdy Riphagen
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB PHP phpMyAgenda rootagenda Remote File Include Attempt"; flow:to_server,established; uricontent:"rootagenda="; nocase; pcre:"/(agendaplace(2?)|infoevent|agenda(2?))\.php3\?/Ui"; pcre:"/rootagenda=(http|ftp)/Ui"; reference:cve,2006-2009; reference:bugtraq,17670; classtype:web-application-attack; sid:2002879; rev:2;)
+
+#Submitted by Federico Petronio
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE PHPNuke SQL injection attempt"; flow: to_server,established; uricontent:"/modules.php?"; uricontent:"name=Search"; uricontent:"instory="; reference:url,www.waraxe.us/index.php?modname=sa&id=35; classtype: web-application-attack; sid: 2001197; rev:6;)
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE PHPNuke general SQL injection attempt"; flow: to_server,established; uricontent:"/modules.php?"; content:"name="; content:"UNION"; nocase; content:"SELECT"; nocase; reference:url,www.waraxe.us/?modname=sa&id=030; reference:url,www.waraxe.us/?modname=sa&id=036; classtype: web-application-attack; sid: 2001202; rev:5; )
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE PHPNuke general XSS attempt"; flow: to_server,established; uricontent:"/modules.php?"; uricontent:"name="; uricontent:"SCRIPT"; nocase; pcre:"/<\s*SCRIPT\s*>/iU"; reference:url,www.waraxe.us/?modname=sa&id=030; classtype: web-application-attack; sid: 2001218; rev:7; )
+
+#By David Maciejak
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB PHPOutsourcing Zorum prod.php Remote Command Execution Attempt"; flow:to_server,established; uricontent:"/prod.php?"; nocase; pcre:"/(argv[1]=\|.+)/"; reference:bugtraq,14601; classtype: web-application-attack; sid:2002314; rev:3;)
+
+# Submitted by Chris Norton, updates by David Maciejak
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB PHP vBulletin Remote Command Execution Attempt"; flow: established,to_server; uricontent:"forumdisplay.php?"; nocase; uricontent:"comma="; nocase; pcre:"/(\.system\(.+\)\.)/i"; reference:bugtraq,12542; classtype: web-application-attack; sid: 2001738; rev:7; )
+
+#By Mark Tombaugh
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB vBulletin misc.php Template Name Arbitrary Code Execution"; flow:established,to_server; content:"/misc.php?"; pcre:"/&template=.*{\${/smi"; distance:7; within:20; classtype:web-application-attack; reference:url,www.osvdb.org/14047; reference:cve,2005-0511; reference:url,metasploit.com/projects/Framework/exploits.html#php_vbulletin_template; sid:2002388; rev:2;)
+
+#by James Riden
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB PHP Web Calendar Remote File Inclusion Attempt"; flow:established,to_server; uricontent:"/send_reminders.php"; nocase; pcre:"/includedir=\s*(ftp|https?)\:\//Ui"; reference:bugtraq,14651; reference:cve,2005-2717; classtype:web-application-attack; sid:2002898; rev:3;)
+
+#By Blake Hartstein at Demarc
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB PHP ZeroBoard .htaccess upload"; flow:established,to_server; content:"filename="; nocase; pcre:"/^\s*\.htaccess/Ri"; reference:url,secunia.com/advisories/20592/; classtype:web-application-activity; sid:2002972; rev:1; )
+
+#by Rmkml
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB Piranha default passwd attempt"; flow:to_server,established; uricontent:"/piranha/secure/control.php3"; content:"Authorization\: Basic cGlyYW5oYTp"; reference:bugtraq,1148; reference:cve,2000-0248; reference:nessus,10381; classtype:attempted-recon; sid:2002331; rev:1;)
+
+#by Ferdy Riphagen
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB Plume CMS prepend.php Remote File Inclusion attempt"; flow:to_server,established; uricontent:"/prepend.php"; nocase; content:"_px_config[manager_path]="; nocase; pcre:"/_px_config\x5bmanager_path\x5d=(http|ftp|https)\:/i"; classtype:web-application-attack; reference:cve,CVE-2006-0725; reference:bugtraq,16662; reference:nessus,20972; sid:2002815; rev:3;)
+
+#by Ferdy Riphagen
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB PmWiki Globals Variables Overwrite Attempt"; flow:to_server,established; uricontent:"/pmwiki.php"; nocase; content:"GLOBALS[FarmD]="; nocase; pcre:"/GLOBALS\x5bFarmD\x5d\x3d/i"; reference:cve,CVE-2006-0479; reference:bugtraq,16421; reference:nessus,20891; classtype:web-application-attack; sid:2002837; rev:1;)
+
+#by Blake Hartstein of Demarc
+#alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE WEB MISC PunkBuster Server webkey Buffer Overflow"; flow:established,to_server; uricontent:"/pbsvweb"; nocase; content:"webkey="; nocase; isdataat:500,relative; pcre:"/^[^&\n]{500}/R"; reference:url,aluigi.altervista.org/adv/pbwebbof-adv.txt; classtype:attempted-admin; sid:2002947; rev:1; )
+
+#matt Jonkman
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB RSA Web Auth Exploit Attempt - Long URL"; flow:to_server,established; uricontent:"/WebID/IISWebAgentIF.dll"; uricontent:"?Redirect?"; nocase; pcre:"/url=.{8000}/i"; reference:url,secunia.com/advisories/17281; reference:url,www.metasploit.com/projects/Framework/modules/exploits/rsa_iiswebagent_redirect.pm; classtype:web-application-activity; sid:2002660; rev:3;)
+
+# By Frank Knobbe, 2005-11-02
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB sumthin scan"; flow:established,to_server; content:"GET /sumthin HTTP/1."; depth:20; nocase; classtype:attempted-recon; reference:url,www.webmasterworld.com/forum11/2100.htm; sid:2002667; rev:1;)
+
+# Submitted by David Maciejak, 2005-10-24
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB TWiki INCLUDE remote command execution attempt"; flow:to_server,established; uricontent:"INCLUDE"; nocase; pcre:"/%INCLUDE\s*{.*rev=\"\d+\|.+\".*}\s*%/i"; reference:bugtraq,14960; classtype: web-application-attack; sid:2002662; rev:3; )
+
+# By David Maciejak, 2006-07-14
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB TWiki Configure Script TYPEOF Remote Command Execution Attempt"; flow:to_server,established; uricontent:"TYPEOF"; nocase; pcre:"/&TYPEOF\:.+system\s*\(/Ui"; reference:cve,CVE-2006-3819; reference:bugtraq,19188; classtype: web-application-attack; sid:2003085; rev:2; )
+
+#By Blake Hartstein
+#Detects uri evasions too
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB-MISC Poison Null Byte"; flow:established,to_server; uricontent:"|00|"; reference:cve,2006-4542; reference:cve,2006-4458; reference:cve,2006-3602; reference:url,www.security-assessment.com/Whitepapers/0x00_vs_ASP_File_Uploads.pdf; classtype:web-application-activity; sid:2003099; rev:1; )
+
+#By David Maciejak
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB Versatile Bulletin Board SQL Injection Attack"; flow:to_server,established; uricontent:"/index.php?"; nocase; pcre:"/select=.+UNION\s+SELECT/Ui"; reference:bugtraq,15068; classtype: web-application-attack; sid:2002494; rev:3;)
+
+#by James Riden
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB PHP VWar Remote File Inclusion get_header.php"; flow:established,to_server; uricontent:"/get_header.php"; nocase; pcre:"/vwar_root=\s*(ftp|https?)\:\//Ui"; reference:url,www.milw0rm.com/exploits/1632; reference:cve,2006-1636; reference:bugtraq,17358; classtype:web-application-attack; sid:2002899; rev:3;)
+
+#by Blake Hartstein
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB PHP VWar Remote File Inclusion functions_install.php"; flow:established,to_server; uricontent:"/functions_install.php"; nocase; pcre:"/vwar_root=\s*(ftp|https?)\:\//Ui"; reference:cve,2006-1503; reference:bugtraq,17290; classtype:web-application-attack; sid:2002902; rev:2;)
+
+#by Blake Hartstein of Demarc
+#alert tcp $EXTERNAL_NET any -> $HOME_NET 1000 (msg:"BLEEDING-EDGE WEB WebAdmin User Overflow"; flow:established,to_server; content:"/WebAdmin.dll?"; nocase; content:"User="; nocase; content:!"|0a|"; distance:0; within:200; reference:cve,2003-471; classtype:attempted-user; sid:2002847; rev:1; )
+
+#by Tom Fischer
+#alert tcp $HOME_NET any -> any $HTTP_PORTS (msg:"BLEEDING-EDGE WEB WebAttacker kit (exploit ie0604)"; flow:established,to_server; uricontent:"ie0604.cgi?exploit"; nocase; classtype: web-application-attack; sid:2002870; rev:2;)
+#alert tcp $HOME_NET any -> any $HTTP_PORTS (msg:"BLEEDING-EDGE WEB WebAttacker kit (bug ie0604)"; flow:established,to_server; uricontent:"ie0604.cgi?bug="; nocase; classtype: web-application-attack; sid:2002871; rev:2;)
+#alert tcp $HOME_NET any -> any $HTTP_PORTS (msg:"BLEEDING-EDGE WEB WebAttacker kit (exploit1 ie0601)"; flow:established,to_server; uricontent:"ie0601.cgi?exploit"; nocase; classtype: web-application-attack; sid:2002869; rev:2;)
+#alert tcp $HOME_NET any -> any $HTTP_PORTS (msg:"BLEEDING-EDGE WEB WebAttacker kit (ie0606)"; flow:established,to_server; uricontent:"ie0606.cgi?"; nocase; classtype: web-application-attack;  sid:2002937; rev:1;)
+#alert tcp $HOME_NET any -> any $HTTP_PORTS (msg:"BLEEDING-EDGE WEB WebAttacker RootLauncher"; flow:established,to_server; uricontent:"rleadmin.cgi?getexe="; nocase; classtype: web-application-attack; sid:2003063; rev:1;)
+
+#by Blake Hartstein of Demarc
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE WEB WebDAV search overflow"; flow:to_server,established; content:"SEARCH "; depth:8; nocase; isdataat:1000,relative; content:!"|0a|"; within:1000; reference:cve,2003-0109; classtype:web-application-attack; sid:2002844; rev:2; )
+
+#by David Maciejak
+#alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg: "BLEEDING-EDGE WEB WPS wps_shop.cgi Remote Command Execution Attempt"; flow: to_server,established; uricontent:"/wps_shop.cgi?"; nocase; pcre:"/(art=\|.+\|)/"; reference:bugtraq,14245; classtype: web-application-attack; sid:2002100; rev:2;)
+
+#Submitted by Chris Norton
+#alert tcp $EXTERNAL_NET any -> $HOME_NET 4274 (msg: "BLEEDING-EDGE Possible Xedus Webserver Directory Traversal Attempt"; flow: to_server,established; content:"/../data/log.txt"; content:"/../WINNT/"; nocase; reference:url,www.gulftech.org/?node=research&article_id=00047-08302004; classtype: web-application-activity; sid: 2001238; rev:5; )
+

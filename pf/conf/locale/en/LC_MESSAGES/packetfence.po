@@ -1,0 +1,113 @@
+domain "packetfence"
+
+msgid  "error: access denied not owner"
+msgstr "Access denied: you are not the owner of this node!"
+
+msgid  "error: incorrect mode"
+msgstr "Incorrect mode!"
+
+msgid  "error: max re-enables reached"
+msgstr "Maximum re-enables reached!"
+
+msgid  "error: not found in the database"
+msgstr "Your computer was not found in the PacketFence database. Please reboot to solve this issue."
+
+msgid  "error: not trappable IP"
+msgstr "Access denied: not a trappable IP!"
+
+msgid  "error: only register max nodes"
+msgstr "You may only register a maximum of %s nodes!"
+
+
+msgid  "help: provide info"
+msgstr "If you have questions about this page, contact your local support staff for assistance. Please provide the following information: "
+
+
+msgid  "register: all systems must be registered"
+msgstr "As we may need to contact users regarding  individual systems, all systems on this network must be registered."
+
+msgid  "register: aup"
+msgstr "The registration process will require acceptance of an Acceptable Use Policy (AUP).  If you wish to read this policy before beginning the registration process, please visit:"
+
+msgid  "register: to complete"
+msgstr "To complete the registration process, you will need to authenticate using your username and password."
+
+msgid  "register: select authentications"
+msgstr "Select Authentications"
+
+
+msgid  "release: enabling network"
+msgstr "Enabling network access"
+
+msgid  "release: reopen browser"
+msgstr "You might have to re-open your browser"
+
+
+msgid  "Acceptable Use Policy"
+msgstr "Acceptable Use Policy"
+
+msgid  "Addresses"
+msgstr "Addresses"
+
+msgid  "De-register node"
+msgstr "De-register node"
+
+msgid  "Enabling ..."
+msgstr "Enabling ..."
+
+msgid  "Gateway"
+msgstr "Gateway"
+
+msgid  "grace"
+msgstr "grace"
+
+msgid  "Hostname"
+msgstr "Hostname"
+
+msgid  "IP"
+msgstr "IP address"
+
+msgid  "Login"
+msgstr "Login"
+
+msgid  "MAC"
+msgstr "MAC"
+
+msgid  "network access is being enabled"
+msgstr "Your network access is currently being enabled - this process will take approximately %s seconds."
+
+msgid  "Node"
+msgstr "Node"
+
+msgid  "PacketFence Registration System"
+msgstr "PacketFence Registration System"
+
+msgid  "Password"
+msgstr "Password"
+
+msgid  "PID"
+msgstr "Owner"
+
+msgid  "Print this page"
+msgstr "Print this page"
+
+msgid  "reg"
+msgstr "registered"
+
+msgid  "Sorry"
+msgstr "Sorry!"
+
+msgid  "Status"
+msgstr "Status"
+
+msgid  "unknown"
+msgstr "unknown"
+
+msgid  "unreg"
+msgstr "unregistered"
+
+msgid  "Username"
+msgstr "Username"
+
+msgid  "Violations"
+msgstr "Violations"

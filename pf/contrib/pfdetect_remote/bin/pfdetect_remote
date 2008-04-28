@@ -1,0 +1,202 @@
+#!/usr/bin/perl
+#
+# $Id: $
+#
+# Copyright 2005 Dave Laporte <dave@laportestyle.org>
+# Copyright 2005 Kevin Amorin <kev@amorin.org>
+# Copyright 2006-2008 Inverse groupe conseil <dgehl@inverse.ca>
+#
+# See the enclosed file COPYING for license information (GPL).
+# If you did not receive this file, see
+# http://www.fsf.org/licensing/licenses/gpl.html.
+#
+
+use Getopt::Std;
+use File::Basename;
+use File::Tail;
+use FileHandle;
+use POSIX qw(:signal_h);
+use SOAP::Lite;
+use Sys::Syslog;
+use Config::IniFiles;
+use Data::Dumper;
+use strict;
+use warnings;
+
+POSIX::sigaction(&POSIX::SIGHUP,
+  POSIX::SigAction->new(
+                        'restart_handler',
+			POSIX::SigSet->new(),
+			&POSIX::SA_NODEFER
+                       )
+) or die "pfdetect_remote: could not set SIGHUP handler: $!\n";
+
+POSIX::sigaction(&POSIX::SIGTERM,
+  POSIX::SigAction->new(
+                        'normal_sighandler',
+			POSIX::SigSet->new(),
+			&POSIX::SA_NODEFER
+                       )
+) or die "pfdetect_remote: could not set SIGTERM handler: $!\n";
+
+POSIX::sigaction(&POSIX::SIGINT,
+  POSIX::SigAction->new(
+                        'normal_sighandler',
+			POSIX::SigSet->new(),
+			&POSIX::SA_NODEFER
+                       )
+) or die "pfdetect_remote: could not set SIGINT handler: $!\n";
+
+
+my $install_dir = '/usr/local/pf';
+
+my @ORIG_ARGV = @ARGV;
+my %args;
+getopts('dhvp:', \%args);
+
+usage() if ($args{h} || !$args{p});
+
+my $daemonize = $args{d};
+my $verbose   = $args{v};
+my $snortpipe = $args{p};
+my $script    = File::Basename::basename($0);
+my $portscan_sid = 1200003;
+
+my ($sid, $descr, $date, $srcmac, $srcip, $dstip);
+
+daemonize() if ($daemonize);
+
+openlog("pfdetect_remote",'','auth');
+syslog("info", "initialized");
+
+my $cfg = new Config::IniFiles( -file => '/usr/local/pf/conf/pfdetect_remote.conf');
+my $ADMIN_USER = $cfg->val('server','user');
+my $ADMIN_PWD = $cfg->val('server','password');
+my $PF_HOST = $cfg->val('server','host');
+
+my $fh = new File::Tail ('name' => $snortpipe,
+	'interval' => 2,
+	'reset_tail' => 0,
+	'maxinterval' => 2);
+syslog("info", "listening on $snortpipe");
+print "$script: listening on $snortpipe\n" if ($verbose);
+
+my $currentLine;
+while (defined($currentLine=$fh->read)) {
+
+  syslog("info", "alert received: $currentLine");
+  if ($currentLine =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+(.+?)\s+.+?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}\s+\-\>\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}/) {
+    $date  = $1;
+    $sid   = $2;
+    $descr = $3;
+    $srcip = $4;
+    $dstip = $6;
+  } elsif ($currentLine =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+Portscan\s+detected\s+from\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
+    $date   = $1;
+    $sid    = $portscan_sid;
+    $srcip  = $3;
+    $descr = "PORTSCAN";
+  } elsif ($currentLine =~ /^(.+?)\[\*\*\] \[\d+:(\d+):\d+\]\s+\(spp_portscan2\) Portscan detected from (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
+    $date  = $1;
+    $sid   = $portscan_sid;
+    $srcip = $3;
+    $descr = "PORTSCAN";
+  } else {
+    syslog("warning", "unknown input: $currentLine ");
+    next;
+  }
+
+  eval {
+    my $soap = new SOAP::Lite(
+      uri => 'http://www.packetfence.org/PFEvents',
+      proxy => 'https://' . $ADMIN_USER . ':' . $ADMIN_PWD . '@' . $PF_HOST . '/cgi-bin/pdp.cgi'
+    );
+    my $result = $soap->event_add($date, $srcip, "detect", $sid);
+    if ($result->fault) {
+      syslog("warning", "violation could not be added: " . $result->faultcode . " - " . $result->faultstring . " - " . $result->faultdetail);
+    } else {
+      syslog("info", "added violation $sid for $srcip");
+    }
+  };
+  if ($@) {
+    syslog("warning", "connection to $PF_HOST with username $ADMIN_USER was NOT successful: $@");
+    next;
+  }
+
+
+}
+
+END {
+  deletepid();
+  syslog("info", "stopping pfdetect_remote");
+}
+
+exit(0);
+
+sub daemonize {
+  chdir '/'               or die "Can't chdir to /: $!";
+  open STDIN, '/dev/null' or die "Can't read /dev/null: $!";  
+  open STDOUT, '>/dev/null' or die "Can't write to /dev/null: $!";
+
+  defined(my $pid = fork) or die "pfdetect_remote: could not fork: $!";
+  POSIX::_exit(0) if ($pid);
+  if (!POSIX::setsid()) {
+    syslog("warning", "could not start a new session: $!");
+  }
+  open STDERR, '>&STDOUT' or die "Can't dup stdout: $!";
+  createpid();
+}
+
+sub normal_sighandler {
+  deletepid();
+  syslog("info", "caught SIG".$_[0]." - terminating pfdetect_remote");
+  die("pfdetect_remote: caught SIG".$_[0]." - terminating\n");
+}
+
+sub restart_handler {
+  deletepid();
+  syslog("info", "caught SIG".$_[0]." - restarting pfdetect_remote");
+  if (!exec($0, @ORIG_ARGV)) {
+    syslog("warning", "could not restart: #!");
+    die "pfdetect_remote: could not restart: $!\n";
+  }
+}
+
+sub usage {
+  my $cmd = File::Basename::basename($0);
+  print STDERR << "EOF";
+  Usage: $cmd -p snortpipe [OPTIONS]
+
+  Options:
+         -d  Daemonize
+         -v  Verbose
+         -h  Help
+EOF
+  exit;
+}
+
+
+sub createpid {
+  my $pname = basename($0);
+  my $pid = $$;
+  my $pidfile = $install_dir."/var/$pname.pid";
+  syslog("info", "$pname starting and writing $pid to $pidfile");
+  my $outfile = new FileHandle ">$pidfile";
+  if (defined($outfile)) {
+    print $outfile $pid;
+    $outfile->close;
+    return($pid);
+  } else {
+    syslog("warning", "$pname: unable to open $pidfile for writing: $!");
+    return(-1);
+  }
+}
+
+sub deletepid {
+  my ($pname) = @_;
+  $pname = basename($0) if (!$pname);
+  my $pidfile = $install_dir."/var/$pname.pid";
+  unlink($pidfile) || return(-1);
+  return(1);
+}
+

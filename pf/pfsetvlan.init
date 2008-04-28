@@ -1,0 +1,105 @@
+#!/bin/sh
+
+#
+# Copyright 2006-2008 Inverse groupe conseil
+#
+# See the enclosed file COPYING for license information (GPL).
+# If you did not receive this file, see
+# http://www.fsf.org/licensing/licenses/gpl.html
+#
+
+# chkconfig: - 90 10
+# description: pfsetvlan acts on SNMP traps
+# processname: pfsetvlan
+# pidfile: /var/run/pfsetvlan.pid
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+prog="/usr/local/pf/bin/pfsetvlan"
+prog_base="$(basename ${prog})"
+
+# Source configuration.
+if [ -f /etc/sysconfig/${prog_base} ] ; then
+        . /etc/sysconfig/${prog_base}
+else
+        OPTIONS=""
+fi
+
+RETVAL=0
+
+# See how we were called.
+start() {
+	#try pidof
+	local pid
+	pid=`/sbin/pidof -o $$ -o $PPID -o %PPID -x ${prog_base}`
+	if [ -n "$pid" ]; then
+		echo -n $"${prog_base}: already running (pid $pid)"
+		return 0
+	fi
+
+	# try .pid file
+	if [ -f /var/run/pfsetvlan.pid ]; then
+		echo -n $"${prog_base}: application dead but pid file exists. Delete /var/run/pfsetvlan.pid and restart ${prog_base}."
+		return 2
+	fi
+
+	# check if lock exists
+	if [ -f /var/lock/subsys/pfsetvlan ]; then
+		echo -n $"${prog_base}: application locked. Delete /var/lock/subsys/pfsetvlan and restart ${prog_base}."
+		return 2
+	fi
+
+	#now we can really try to start 
+	echo -n $"Starting ${prog_base}: "
+	daemon --check ${prog_base} ${prog} ${OPTIONS}
+	RETVAL=$?
+	[ $RETVAL -eq 0 ]  && touch /var/lock/subsys/pfsetvlan
+	echo
+	return $RETVAL
+}
+
+stop() {
+	echo -n $"Shutting down ${prog_base}: "
+	killproc ${prog_base}
+	RETVAL=$?
+	if [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/pfsetvlan; then
+		echo "${prog_base} stopped"
+	else
+		echo
+	fi
+}
+
+restart() {
+	stop
+	start
+}
+
+case "$1" in
+	start)
+		start
+		RETVAL=$?
+	;;
+	stop)
+		stop
+		RETVAL=$?
+	;;
+	status)
+		status ${prog_base}
+		RETVAL=$?
+	;;
+	restart)
+		restart
+		RETVAL=$?
+	;;
+	condrestart)
+		if [ -f /var/lock/subsys/pfsetvlan ]; then
+			restart
+		fi
+	;;
+	*)
+		echo "Usage: $0 {start|stop|status|condrestart|restart}"
+		exit 1
+esac
+
+exit $RETVAL

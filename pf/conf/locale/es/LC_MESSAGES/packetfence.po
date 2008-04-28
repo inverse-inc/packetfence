@@ -1,0 +1,101 @@
+domain "packetfence" 
+
+msgid  "error: access denied not owner" 
+msgstr "Acceso denegado: No es el propietario de este nodo!"
+
+msgid  "error: incorrect mode" 
+msgstr "Modo incorrecto!"
+
+msgid  "error: max re-enables reached"
+msgstr "Máximo de reactivaciones alcanzado!"
+
+msgid  "error: not found in the database"
+msgstr "Su ordenador no fue encontrado en la base de datos del PacketFence. Por favor reinicie para solucionar este problema" 
+
+msgid  "error: not trappable IP"
+msgstr "Acceso denegado: No es una IP interceptable"
+
+msgid  "error: only register max nodes"
+msgstr "Solo debe registrar un máximo de %s nodos!"
+
+msgid  "help: provide info"
+msgstr "Si tiene alguna pregunta sobre esta página, contacta con su técnico local. Por favor indique la siguiente información:"
+
+msgid  "register: all systems must be registered"
+msgstr "Debido a que se necesite contactar con los usuarios considerados como sistemas individuales, todos los sistemas de esta red deben estar registrados"
+
+msgid  "register: aup"
+msgstr "El proceso de registro requiere de la aceptación de Acceptable Use Policy (AUP). Si desea leer esta política antes de empezar con el registro, por favor visite:"
+
+msgid  "register: to complete"
+msgstr "Para completar el proceso de registro, es necesario que se autentifique con un usuario y una contraseña"
+
+msgid  "register: select authentications"
+msgstr "Seleccione Autentificación"
+
+msgid  "release: enabling network"
+msgstr "Habilitando acceso a la red"
+
+msgid  "release: reopen browser"
+msgstr "Debe reabrir su navegador web"
+
+msgid  "Acceptable Use Policy"
+msgstr "Política de uso aceptable"
+
+msgid  "Addresses"
+msgstr "Dirección"
+
+msgid  "De-register node"
+msgstr "Deshabilitar nodo"
+
+msgid  "Enabling ..."
+msgstr "Activando..."
+
+msgid  "Gateway"
+msgstr "Pasarela"
+
+msgid  "grace"
+msgstr "grace"
+
+msgid  "Hostname"
+msgstr "Nombre del equipo"
+
+msgid  "IP"
+msgstr "Dirección IP"
+
+msgid  "MAC"
+msgstr "MAC"
+
+msgid  "network access is being enabled"
+msgstr "Su acceso a la red esta siendo habilitado - este proceso tardara aproximadamente. %s segundos"
+
+msgid  "Node"
+msgstr "Nodo"
+
+msgid  "PacketFence Registration System"
+msgstr "Sistema de registro de PacketFence"
+
+msgid  "PID"
+msgstr "Propietario"
+
+msgid  "Print this page"
+msgstr "Imprimir esta página"
+
+msgid  "reg"
+msgstr "Registrado"
+
+msgid  "Sorry"
+msgstr "Perdón!"
+
+msgid  "Status"
+msgstr "Estado"
+
+msgid  "unknown"
+msgstr "Desconocido"
+
+msgid  "unreg"
+msgstr "No registrado"
+
+msgid  "Violations"
+msgstr "Violaciones"
+

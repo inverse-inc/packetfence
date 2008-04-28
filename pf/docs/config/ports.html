@@ -1,0 +1,36 @@
+<html>
+  <head>
+  <title>Configuration Reference - ports</title>
+  </head>
+  <body>
+  <font
+  <img src="/common/packetfence.gif">
+  <p><b><font size=+1>Configuration Reference - ports</font></b></p>
+<a name=admin></a>
+<b>admin</b> <i>(text)</i><br>
+Default: 1443<br>
+Port the administrative interface listens on.<p>
+<a name=allowed></a>
+<b>allowed</b> <i>(text)</i><br>
+Default: <br>
+Ports allowed through the PacketFence system regardless of registration or violation status.  It is not necessary to define 
+53/udp is DNS servers are defined as passthroughs are automagically added.<p>
+<a name=listeners></a>
+<b>listeners</b> <i>(multi)</i><br>
+Default: <br>
+Options: imap|pop3<br>
+Enables "bogus" IMAP and POP servers.  These servers serve only to deliver a message (POP3) or send an alert (IMAP) to 
+inform the user that he/she must register before connectivity is allowed.  Content of the message is found at 
+/usr/local/pf/conf/templates/listener.msg<p>
+<a name=open></a>
+<b>open</b> <i>(text)</i><br>
+Default: 22/tcp,80/tcp,443/tcp<br>
+Ports on the external (world-facing) interface that are open.<p>
+<a name=redirect></a>
+<b>redirect</b> <i>(text)</i><br>
+Default: 80/tcp,110/tcp,143/tcp,443/tcp<br>
+Ports to intercept and redirect for trapped and unregistered systems.  Defaults to 80/tcp (HTTP), 110/tcp (POP3), and 
+143/tcp (IMAP).  IMAP and POP3 listeners must be enabled via the listeners parameter if the redirection is to be of any use.  
+Redirecting 443/tcp (SSL) will work, although users will get ugly and confusing pop-ups as the commonname will no longer 
+match.  Redirecting 53/udp (DNS) seems to have issues and is also not recommended.<p>
+</body></html>

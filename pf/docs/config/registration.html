@@ -1,0 +1,101 @@
+<html>
+  <head>
+  <title>Configuration Reference - registration</title>
+  </head>
+  <body>
+  <font
+  <img src="/common/packetfence.gif">
+  <p><b><font size=+1>Configuration Reference - registration</font></b></p>
+<a name=aup></a>
+<b>aup</b> <i>(toggle         )</i><br>
+Default: disabled<br>
+Options: enabled|disabled<br>
+If enabled, users will be required to accept an Acceptable Use Policy before network access is allowed.  Currently, registration                     
+must be enabled for the AUP to take effect.  The AUP text is found at: 
+<p>
+/usr/local/pf/html/user/content/violations/aup.php<p>
+<a name=auth></a>
+<b>auth</b> <i>(multi)</i><br>
+Default: local<br>
+Options: local|ldap|mysql|radius|harvard<br>
+Method or Methods by which registering nodes will be authenticated.  Templates for LDAP and local are 
+available at /usr/local/pf/conf/authentication.  If you wish to use a different authentication mechanism, simply create 
+a file called /usr/local/pf/conf/authentication/<authname>.pm, fill it with the necessary data, and set 
+auth=<authname>.  The default value, local, relies on a local access file in /usr/local/pf/conf/user.conf.<p>
+<a name=button_text></a>
+<b>button_text</b> <i>(text)</i><br>
+Default: Register<br>
+The button text will appear on the registration page submit button<p>
+<a name=completemsg></a>
+<b>completemsg</b> <i>(toggle)</i><br>
+Default: disabled<br>
+Options: enabled|disabled<br>
+If enabled, a confirmation screen is displayed after a user successfully registered.  This is useful if you believe the 
+registration process isn't sufficiently clear to users.  The HTML file displayed is found at:
+<p>
+/usr/local/pf/html/user/content/violations/reg_complete.php<p>
+<a name=expire_deadline></a>
+<b>expire_deadline</b> <i>(date)</i><br>
+Default: Mon Nov 12 12:00:00 EST 2012<br>
+If expire_mode is set to "deadline", this is the date (formatted as returned by the "date" command) at which 
+nodes revert to an unregistered state.  This would typically be the end of a semester.<p>
+<a name=expire_mode></a>
+<b>expire_mode</b> <i>(toggle)</i><br>
+Default: window<br>
+Options: window|deadline|session|disabled<br>
+If set to "deadline", the expire_deadline option defines the date at which a node reverts to an unregistered 
+state.  If set to "window", the window is used to determine the length of time after registration that a node
+remains registered.  If set to "session", it specifies that a client should be unregistered as soon as its iplog
+entry closes (or with a bit of latency - check regitration.expire_session).<p>
+<a name=expire_session></a>
+<b>expire_session</b> <i>(time)</i><br>
+Default: 5m<br>
+If expire_mode is set to "session", this is the amount of time after a node's iplog entry is closed that it reverts
+to an unregistered state.<p>
+<a name=expire_window></a>
+<b>expire_window</b> <i>(time)</i><br>
+Default: 52w<br>
+If expire_mode is set to "window", this is length of time after registration that a node reverts to an unregistered state.<p>
+<a name=maxnodes></a>
+<b>maxnodes</b> <i>(numeric)</i><br>
+Default: 0<br>
+If defined, the maximum number of nodes that can be registered to a single PID.<p>
+<a name=queuesize></a>
+<b>queuesize</b> <i>(numeric)</i><br>
+Default: 0<br>
+Useful for passive deployments on very large networks, this defines the number of nodes that PacketFence 
+will simultaneously trap for registration (trappings due to violation always occur).  If set to 0, this queue is disabled. <p>
+<a name=range></a>
+<b>range</b> <i>(text)</i><br>
+Default: <br>
+Address ranges/CIDR blocks that PF will force registration on.  Gateway, network, and broadcast addresses are 
+ignored. If this is not defined the trapping.range will be used as the registration range.  Comma-delimiter entries
+should be of the form:
+<p>
+a.b.c.0/24
+a.b.c.0-255
+a.b.c.0-a.b.c.255
+a.b.c.d<p>
+<a name=skip_deadline></a>
+<b>skip_deadline</b> <i>(date)</i><br>
+Default: Mon Nov 12 12:00:00 EST 2012<br>
+If mode is set to "deadline", this is the date at which the "skip registration" option is disabled.  Date 
+string is formatted as the output of the "date" command is.<p>
+<a name=skip_mode></a>
+<b>skip_mode</b> <i>(toggle)</i><br>
+Default: disabled<br>
+Options: window|deadline|disabled<br>
+If set to "deadline", the deadline option defines the time at which skipping registration is no longer 
+an option for clients.  If set to "window", the window is used to determine the amount of time after 
+first network access that a node may skip registration.<p>
+<a name=skip_reminder></a>
+<b>skip_reminder</b> <i>(time)</i><br>
+Default: 1d<br>
+Interval  that a user is re-prompted to register after skipping.  For example, if window=2w and reminder=1d, a user will
+be allowed to skip for two weeks but will be re-prompted every day.<p>
+<a name=skip_window></a>
+<b>skip_window</b> <i>(time)</i><br>
+Default: 14d<br>
+The length of time that a node may skip registration.  For instance, setting it to 2880 minutes would allow 
+students to skip registration for two days, giving them time to get a student ID, password, etc.<p>
+</body></html>

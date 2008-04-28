@@ -1,0 +1,68 @@
+#!/bin/bash
+#
+# Init script for PacketFence remote Snort sensor
+#
+# Written by Dominik Gehl <dgehl@inverse.ca>
+#
+# chkconfig: - 35 65
+# description: PacketFence remote Snort sensor
+#
+# processname: 
+# config: /usr/local/pf/conf/pfdetect_remote.conf
+
+. /etc/rc.d/init.d/functions
+
+prog="/usr/local/pf/bin/pfdetect_remote"
+prog_base="$(basename ${prog})"
+
+RETVAL=0
+
+start() {
+	echo -n $"Starting ${prog_base}: "
+	if [ -f /usr/local/pf/var/pfdetect_remote.pid ]; then
+		echo -n $"${prog_base}: already running"
+		echo
+		return 0
+	fi
+	daemon ${prog} -d -p /var/log/snort/alert
+	RETVAL=$?
+	echo
+	return $RETVAL
+}
+
+stop() {
+	echo -n $"Shutting down ${prog_base}:"
+	killproc ${prog_base}
+	RETVAL=$?
+	echo
+	return $RETVAL
+}
+
+restart() {
+	stop
+	start
+}
+
+case "$1" in
+  start)
+	start
+	RETVAL=$?
+	;;
+  stop)
+	stop
+	RETVAL=$?
+	;;
+  status)
+	status ${prog_base}
+	RETVAL=$?
+	;;
+  restart)
+        restart
+	RETVAL=$?
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|restart|status}"
+	RETVAL=1
+esac
+
+exit $RETVAL

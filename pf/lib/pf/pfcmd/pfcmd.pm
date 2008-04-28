@@ -1,0 +1,216 @@
+#
+# $Id: pfcmd.pm,v 1.3 2005/11/30 21:41:09 kevmcs Exp $
+#
+# Copyright 2005 David LaPorte <david@davidlaporte.org>
+# Copyright 2005 Kevin Amorin <kev@amorin.org>
+# Copyright 2008 Inverse groupe conseil <dgehl@inverse.ca>
+#
+# See the enclosed file COPYING for license information (GPL).
+# If you did not receive this file, see
+# http://www.fsf.org/licensing/licenses/gpl.html.
+#
+
+use strict;
+use warnings;
+
+use vars qw/%cmd %table2key $grammar $delimiter/;
+
+$delimiter="|";
+
+$::RD_AUTOACTION = q {
+  if ($#item>1 ){
+   foreach my $val (@item[1..$#item]){
+      if (ref($val) eq 'ARRAY') {
+        push @{$main::cmd{$item[0]}},@{$val};
+      }else{ push @{$main::cmd{$item[0]}},$val; }
+   }
+  }elsif ($#item==1){$item[1]}
+};
+
+%table2key = (
+  "person"          => "pid",
+  "node"            => "mac",
+  "violation"       => "id",
+  "class"           => "vid",
+  "trigger"         => "trigger",
+  "scan"            => "id",
+); 
+
+$grammar = q {
+   start : command eofile
+
+   command :   'control' control_options 
+             | 'graph' (/registered\b/ | /unregistered\b/ | /violations\b/ | /nodes\b/) ('day'|'month'|'year')(?) 
+             | 'graph' 'ifoctetshistoryswitch' ipaddr number date_range
+             | 'graph' 'ifoctetshistorymac' mac date_range
+             | 'graph' 'ifoctetshistoryuser' value date_range
+             | 'service' service
+             | 'schedule' schedule_options 
+             | 'locationhistoryswitch' ipaddr number date(?)
+             | 'locationhistorymac' mac date(?)
+             | 'ifoctetshistoryswitch' ipaddr number date_range(?)
+             | 'ifoctetshistorymac' mac date_range(?)
+             | 'ifoctetshistoryuser' value date_range(?)
+             | 'ipmachistory' addr date_range(?)
+             | 'history' addr date(?) 
+             | 'person' person_options 
+             | 'node' node_options 
+             | 'switchlocation' switchlocation_options
+             | 'violation' violation_options 
+             | 'class' class_options 
+             | 'trigger' trigger_options 
+             | 'ui' 'menus' ui_options(?)
+             | 'ui' 'dashboard' dashboard_options vid(?)
+             | 'report' (/unregistered\b/ | /registered\b/ | /active\b/ | /inactive\b/ | /os\b/ | /osclass\b/ | /unknownprints\b/ | /openviolations\b/ | /statics\b/) report_options(?)
+             | 'fingerprint' fingerprint_options 
+             | 'config' ('get' | 'set' | 'help') /.+/
+             | 'lookup' ('person' | 'node') value 
+             | 'version' config_value(?) 
+             | 'reload' reload_options
+             | 'update' update_options
+             | 'manage' manage_options
+             | 'help' config_value
+             | {main::usage()}
+
+   control_options : service ('stop' | 'start' | 'restart')
+                    {[$item{service},$item[2]]}
+
+    manage_options : ('freemac'|'deregister'|'vclose'|'vopen') macaddr value(?) | 'register' macaddr value edit_options(?)
+
+   dashboard_options : /recent_violations\b/ | /recent_violations_opened\b/ | /current_grace\b/ | /recent_violations_closed\b/ | /recent_registrations\b/ | /current_activity\b/ | /current_node_status\b/
+
+   update_options : 'fingerprints' | 'oui'
+
+   reload_options : 'fingerprints' | 'violations'
+
+   person_options : 'add' value person_edit_options(?)  | 'view' value | 'edit' value person_edit_options | 'delete' value
+
+   node_options : 'add' mac node_edit_options | 'view' mac | 'edit' mac node_edit_options | 'delete' mac
+   
+   switchlocation_options : 'view' ipaddr number
+
+   violation_options : 'add' violation_edit_options | 'view' vid | 'edit' vid violation_edit_options | 'delete' vid 
+
+   schedule_options : 'view' vid | 'now' host_range edit_options(?) | 'add' host_range edit_options | 'edit' number edit_options | 'delete' number
+
+   class_options : 'view' vid 
+
+   trigger_options : 'view' vid ('scan' | 'detect')(?)
+
+   fingerprint_options : 'view' config_value  
+
+   ui_options : 'file' '=' value
+
+   service : 'pfmon' | 'pfdhcplistener' | 'pfdetect' | 'pfredirect' | 'snort' | 'httpd' | 'pf'
+
+   mac : 'all' | macaddr
+
+   vid : 'all' | /[0-9]+/
+
+   addr : ipaddr | macaddr
+
+   ipaddr : /(\d{1,3}\.){3}\d{1,3}/
+
+   host_range : /(\d{1,3}\.){3}\d{1,3}[\/\-0-9]*/
+
+   macaddr : /([0-9a-f]{2}:){5}[0-9a-f]{2}/i
+
+   number : /[0-9]+/
+ 
+   report_options : /all\b/ | /active\b/
+
+   edit_options : <leftop: assignment ',' assignment>
+
+   date_range : 'start_time' '=' date ',' 'end_time' '=' date
+                {push @{$main::cmd{$item[0]}}, [$item[1],$item[3],$item[2]], [$item[5],$item[7],$item[6]] }
+
+   date : /[^,=]+/
+
+   config_value : /.+/
+   
+   person_edit_options : <leftop: person_assignment ',' person_assignment>
+
+   node_edit_options : <leftop: node_assignment ',' node_assignment>
+
+   violation_edit_options : <leftop: violation_assignment ',' violation_assignment>
+
+   assignment : columname '=' value
+                {push @{$main::cmd{$item[0]}}, [$item{columname},$item{value},"="] } |
+                columname '>' value
+                {push @{$main::cmd{$item[0]}}, [$item{columname},$item{value},">"] } |
+                columname '<' value
+                {push @{$main::cmd{$item[0]}}, [$item{columname},$item{value},"<"] }
+
+   person_assignment : person_view_field '=' value
+                {push @{$main::cmd{$item[0]}}, [$item{person_view_field},$item{value}] }
+
+   node_assignment : node_view_field '=' value
+                {push @{$main::cmd{$item[0]}}, [$item{node_view_field},$item{value}] }
+
+   violation_assignment : violation_view_field '=' value
+                {push @{$main::cmd{$item[0]}}, [$item{violation_view_field},$item{value}] }
+
+   class_assignment : class_view_field '=' value
+                {push @{$main::cmd{$item[0]}}, [$item{class_view_field},$item{value}] }
+
+   description : /[a-zA-Z_]+/
+
+   columname : /[a-zA-Z_]+/
+
+   value : '"' /[0-9a-zA-Z_\*\.\-\:_\;\@\ ]*/ '"' {$item[2]} | /[0-9a-zA-Z_\*\.\-\:_\;\@]+/
+
+   person_view_field : 'pid' | 'notes'
+
+   node_view_field :  'mac' | 'pid' | 'detect_date' | 'regdate' | 'unregdate' | 'lastskip' | 'status' | 'user_agent' | 'computername'  | 'notes' | 'last_arp' | 'last_dhcp' | 'dhcp_fingerprint' | 'switch' | 'port' | 'vlan'
+
+   violation_view_field :  'id' | 'mac' | 'vid' | 'start_date' | 'release_date' | 'status' | 'notes'
+
+   class_view_field :  'vid' | 'description' | 'auto_enable' | 'max_enables' | 'grace_period' | 'priority' | 'url' | 'max_enable_url' | 'redirect_url' | 'button_text' | 'disable'
+
+   eofile: /^\Z/
+};
+
+
+sub usage {
+  my $command = basename($0);
+  if (defined $ARGV[0] && defined($main::{"help_".$ARGV[0]})){
+   ($main::{"help_".$ARGV[0]} or sub { print "No such sub: help_".$ARGV[0]."\n"; })->(); 
+   exit(1);  
+  }
+
+  print STDERR << "EOF";
+Usage: $command <command> [options]
+
+class           	| view violation classes
+config          	| query, set, or get help on pf.conf configuration paramaters
+control         	| stop/start/restart PF services
+fingerprint     	| view DHCP Fingerprints
+graph           	| trending graphs 
+history         	| IP/MAC history
+ifoctetshistorymac    	| accounting history
+ifoctetshistoryswitch 	| accounting history
+ifoctetshistoryuser   	| accounting history
+ipmachistory    	| IP/MAC history
+locationhistorymac   	| Switch/Port history
+locationhistoryswitch 	| Switch/Port history
+lookup          	| node or pid lookup against local data store
+node            	| node manipulation
+graph           	| trending graphs 
+person          	| person manipulation
+reload          	| rebuild fingerprint or violations tables without restart
+report          	| current usage reports
+schedule        	| Nessus scan scheduling
+service         	| get PF service status
+switchlocation  	| view switchport description and location
+trigger         	| view and throw triggers
+ui              	| used by web UI to create menu hierarchies and dashboard
+update          	| download canonical fingerprint or OUI data
+version         	| get installed PF version and database MD5s
+violation       	| violation manipulation
+
+Please view "$command help <command>" for details on each option
+EOF
+  exit;
+}
+
+1

@@ -1,0 +1,24 @@
+<html>
+  <head>
+  <title>Configuration Reference - vlan</title>
+  </head>
+  <body>
+  <font
+  <img src="/common/packetfence.gif">
+  <p><b><font size=+1>Configuration Reference - vlan</font></b></p>
+<a name=adjustswitchportvlanreasons></a>
+<b>adjustswitchportlvanreasons</b> <i>(text)</i><br>
+Default: node_modify,manage_register,manage_unregister,manage_deregister,manage_vclose,manage_vopen<br>
+After which calls to pfcmd do we have to re-calculate and re-assign
+the switchport VLAN a node is connected to<p>
+<a name=adjustswitchportvlanscript></a>
+<b>adjustswitchportlvanscript</b> <i>(text)</i><br>
+Default: /usr/local/pf/bin/flip.pl<br>
+Which script do we have to execute to adjust the switchport VLAN<p>
+<a name=closelocationlogonstop></a>
+<b>closelocationlogonstop</b> <i>(toggle)</i><br>
+Default: enabled<br>
+Options: enabled|disabled<br>
+Should open locationlog entries be closed when pfsetvlan is
+stopped.<p>
+</body></html>

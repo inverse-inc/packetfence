@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+
+<head>
+  <link rel="stylesheet" href="../style.php" type="text/css">
+  <title>// packetfence // Help // Administration</title>
+</head>
+
+<body>
+
+<div id="help">
+
+  <div align="center"><img src="../images/wire.jpg" alt="[ Packetfence ]"></div>
+
+  <a name="configuration"></a>
+  <div class="help_heading">Administration - Configuration</div>
+  <div class="help_content">
+    Consult and modify the Packetfence configuration<br>
+    Interface to the <code>pfcmd config</code> commands.<br>
+    Please note that this is equivalent to modifying the 
+    Packetfence configuration file <code>/usr/local/pf/conf/pf.conf</code>.
+    In particular, the changes are not immediately taken into account.
+    You'll have to restart the affected Packetfence services in order to
+    use the new configuration settings.
+  </div>
+
+  <br>
+
+  <a name="services"></a>
+  <div class="help_heading">Administration - Services</div>
+  <div class="help_content">
+    Control which pf services are started / stopped.<br>
+    Interface to the <code>pfcmd control</code> and
+    <code>pfcmd service</code> commands.
+  </div>
+
+  <br>
+
+  <a name="adduser"></a>
+  <div class="help_heading">Administration - Add User</div>
+  <div class="help_content">
+    Create a new user for the admin website. <br>
+    Interface to the <code>htpasswd</code>
+    command and modifies the <code>/usr/local/pf/conf/admin.conf</code>
+    file.<br>
+    Please note that the new user will have
+    exactely the same privileges you have now (modifying the
+    pf configuration, adding violations to users etc.).<br>
+  </div>
+
+  <br>
+
+  <a name="ui_options"></a>
+  <div class="help_heading">Administration - UI Options</div>
+  <div class="help_content">
+    Choose between three different font sizes for the admin website.
+    Define the default page which is opened when you login.  Chose the amount of time that graph images are cached.  Setting this to 0 will disable graph caching.
+  </div>
+
+</div>
+
+</body>
+</html>

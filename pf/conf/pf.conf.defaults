@@ -1,0 +1,581 @@
+#
+# please see PacketFence wiki documentation for more information on this file:
+# http://www.packetfence.org/config/index.html
+#
+#
+[general]
+#
+# general.domain
+#
+# Domain name of PacketFence system.
+domain=example.com
+#
+# general.hostname
+#
+# Hostname of PacketFence system.  This is concatenated with the domain in Apache rewriting rules and therefore must be resolvable by clients.
+hostname=abc
+#
+# general.logo
+#
+# Logo displayed on web pages.
+logo=/common/packetfence.gif
+#
+# general.dnsservers
+#
+# Comma-delimited list of DNS servers.  Passthroughs are created to allow queries to these servers from even "trapped" nodes.
+dnsservers=127.0.0.1
+#
+# general.dhcpservers
+#
+# Comma-delimited list of DHCP servers.  Passthroughs are created to allow DHCP transactions from even "trapped" nodes.
+dhcpservers=127.0.0.1
+#
+# general.caching
+#
+# Enable caching of isinternal values as well as other fun stuff.  Leave this enabled or suffer the performance consequences.
+caching=enabled
+#
+# general.locale
+#
+# Locale used for message translation
+locale=en_US
+
+[arp]
+#
+# arp.dhcp_timeout
+#
+# Used in detection of systems with static IP addresses.  Looks for broadcast DHCPDISCOVERs and flags a node as rogue if it 
+# fails to see one before timer is exceeded.  This value should be greater than 50% of your DHCP lease time.
+# 
+dhcp_timeout=8h
+#
+# arp.cleanshutdown
+#
+# If enabled, ARPs are sent to all trapped systems to re-point them to the correct gateway device at shutdown.
+cleanshutdown=enabled
+#
+# arp.interval
+#
+# Interval at which poisoned ARPs ("traps") are sent to infected/unregistered systems.
+interval=60s
+#
+# arp.strobe
+#
+# If enabled, sends ARP request to all IP addresses within range immediately after startup.  This allows for the internal MAC 
+# to IP mappings to be populated quickly.
+strobe=enabled
+#
+# arp.gw_timeout
+#
+# Used in detection of systems with statically-defined gateway ARP entries.  If a system has not ARPed for the gateway 
+# within this interval, it is removed from the IP->MAC mappings and should be flagged as rogue by the next probe.
+gw_timeout=1d
+#
+# arp.timeout
+#
+# Length of time of inactivity after which an unresponsive system is aged out.  Hello ARPs are sent at timeout/2 
+# and timeout-interval to avoid prematurely timing out a system.
+timeout=8h
+#
+# arp.heartbeat
+#
+# To eliminate the negative effects of switch flooding of poisoned ARPs on some (cough...cough...Netgear MR814v2) routers, we 
+# must first send a valid ARP to establish that the system is on-line.  The heartbeat is the length of time between the initial
+# "hello" and a poisoned "goodbye".
+heartbeat=30s
+#
+# arp.stuffing
+#
+# If enabled, forces PF system to "stuff" router ARP cache with a bogus MAC for systems that are not responding.  This 
+# option effectively increases the "stickiness" of traps by suppressing broadcast ARP traffic from the gateway.  It is also 
+# somewhat dangerous in that it relies on systems to issue a GARP (gratuitous ARP) at boot to reclaim previously stuffed 
+# addresses.
+stuffing=disabled
+
+[network]
+#
+# network.nat
+#
+# If enabled, NATs outgoing traffic to the external interface IP address.  This setting is only useful in an in-line 
+# deployment.  Enabling in a passive environment will likely cause network issues for trapped nodes.  Enabling this option 
+# also forces snort to listen on the internal interface - this could have performance implications in high-throughput 
+# environments.
+nat=disabled
+#
+# network.mode
+#
+# Defines the mode in which PacketFence will operate.  When deployed in-line, PacketFence acts as a router and requires 
+# internal and external interfaces to "live" on separate networks.  It's also likely that a static route for the internal 
+# network will need to be added to the upstream router.  The PacketFence system can act as a DHCP server or relay to 
+# one or more external servers.
+# 
+# When deployed in passive mode, PacketFence uses ARP manipulation inject itself into the datastream of unregistered or 
+# trapped nodes.  You can read more about the mechanics of ARP manipulation <a 
+# href="http://www.packetfence.org/dokuwiki/doku.php?id=faq#what_is_arp_manipulation_aka_poisoning_or_spoofing">here</a>.  Passive deployment has several benefits over an 
+# inline deployment including elimination of a performance bottleneck and single point of failure.  Its major failing is that 
+# it's not 100% in catching all traffic - spurious packets can and will occasionaly get through.  In an academic 
+# environment or environments where in-line devices are frowned upon, this failing is minor in relation to the benefits.
+mode=passive
+#
+# network.named
+#
+# If enabled, run a nameserver locally.  Combined with a 53/udp redirection port, this can allow you redirect clients based on 
+# name resolution versus HTTP interception.  There are several caveats to keep in mind, First, many clients cache DNS 
+# responses which may interrupt connectivity even after successful registration/remediation.  Second, in practice we've 
+# noticed issues with the local nameserver refusing to answer queries in some cases - this may be related to 
+# netfilter connection tracking.
+# 
+# If you're running DHCP locally, though, it may make sense to run a nameserver locally as well rather than defining external 
+# servers to passthrough.  Not that running either DHCP or DNS on a passive deployed PF system establishes dependencies on it 
+# that are likely not wanted.
+named=disabled
+#
+# network.vlan
+#
+# If enabled, VLAN based isolation is used. You have to manually start the pfsetvlan service for this to work.
+vlan=disabled
+#
+# network.rogueinterval
+#
+# When rogue DHCP server detection is enabled, this parameter defines how often to email administrators.  With its default 
+# setting of 10, it will email administrators the details of the previous 10 DHCP offers.
+rogueinterval=1
+#
+# network.dhcpdetector
+#
+# If enabled, PacketFence will monitor DHCP-specific items such as rogue DHCP services, DHCP-based OS fingerprinting, computername/hostname 
+# resolution, and (optionnally) option-82 location-based information.  The monitored DHCP packets are DHCPDISCOVERs and DHCPREQUESTs - both are broadcasts, 
+# meaning a span port is not necessary.  This feature is highly recommended if the internal network is DHCP-based.
+dhcpdetector=enabled
+#
+# network.dhcpoption82logger
+#
+# If enabled PacketFence will monitor DHCP option82 location-based information.
+# This feature is only available if the dhcpdetector is activated.
+dhcpoption82logger=disabled
+#
+#
+# This section allows you to configure locally proxied content.  We typically use this to proxy tools like Stinger rather 
+# than having to continually download the latest version. Ex:
+# 
+# <i>tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stng260.exe</i>
+# 
+# The Stinger utility could then be accessed at https://pfhostname/proxies/tools/stinger.exe.
+[proxies]
+tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stng260.exe
+
+[trapping]
+#
+# trapping.testing
+#
+# Disables sending of ARPs - note that this has implications on node detection and timeouts.
+testing=enabled
+#
+# trapping.range
+#
+# Comma-delimited list of address ranges/CIDR blocks that PacketFence will monitor/detect/trap on.  Gateway, network, and 
+# broadcast addresses are ignored.
+range=192.168.0.0/24
+#
+# trapping.registration
+#
+# If enabled, nodes will be required to register on first network access.  Further registration options are configured in the 
+# registration section.
+registration=disabled
+#
+# trapping.immediate
+#
+# Enable this if you want to see lots of "IP conflict boxes on Windows systems!  On detection of a violation, a spoofed GARP 
+# (gratitous ARP) is sent to the offending system.  This causes it to think another system is using its IP address and, under 
+# Windows 2000, causes it to disable its IP stack.  When the user manages to get the system back on the wire (ipconfig 
+# /release, reboot, etc) he/she will be assigned an address from the isolation scope.
+immediate=disabled
+#
+# trapping.redirtimer
+#
+# How long to display the progress bar during trap release.  Setting it to a value of 5 or higher is recommended 
+# when in passive mode.  Doing so allows the client time to receive and process the redirection ARP sent by PacketFence.
+redirtimer=10s
+#
+# trapping.passthrough
+#
+# Method by which content is delivered to trapped systems.  When set to "proxy", PacketFence uses Apache's reverse proxy 
+# functionality and the mod_proxy_html module to rewrite links.  Note that links external servers will not be properly 
+# rewritten.  When set to "iptables", PacketFence creates passthroughs to the content for only those nodes trapped with the
+# corresponding violation.  Be aware that an iptables passthrough is based on IP address and clients will be able to get to
+# ALL content on the destination site.
+passthrough=iptables
+#
+# trapping.blacklist
+#
+# Comma-delimited list of MAC addresses that are not allowed to pass through the PacketFence system.
+blacklist=
+#
+# trapping.whitelist
+#
+# Comma-delimited list of MAC addresses that are immune to registration/trapping and are always allowed to pass.  Useful for
+# monitored switches, etc.
+whitelist=
+#
+# trapping.redirecturl
+#
+# Default URL to redirect to on registration/mitigation release.  This is only used if a per-violation redirecturl is not 
+# defined.
+redirecturl=http://www.packetfence.org
+#
+# trapping.detection
+#
+# Enables snort-based worm detection.  If you don't have a span interface available, don't bother enabling it.  If you do, 
+# you'll most definately want this on.
+detection=disabled
+
+[registration]
+#
+# registration.range
+#
+#
+range=
+
+#
+# registration.skip_mode
+#
+# If set to "deadline", the deadline option defines the time at which skipping registration is no longer 
+# an option for clients.  If set to "window", the window is used to determine the amount of time after 
+# first network access that a node may skip registration.
+skip_mode=disabled
+#
+# registration.skip_deadline
+#
+# If mode is set to "deadline", this is the date at which the "skip registration" option is disabled.  Date 
+# string is formatted as the output of the "date" command is.
+skip_deadline=Mon Nov 12 12:00:00 EST 2012
+#
+# registration.skip_window
+#
+# The length of time that a node may skip registration.  For instance, setting it to 14 days would allow 
+# students to skip registration for two weeks, giving them time to get a student ID, password, etc.
+skip_window=14d
+#
+# registration.skip_reminder
+#
+# Interval that a user is re-prompted to register after skipping.  For example, if skip_window=2w and skip_reminder=1d,
+# a user will be allowed to skip for two weeks but will be re-prompted every day.
+skip_reminder=1d
+#
+# registration.aup
+#
+# If enabled, users will be required to accept an Acceptable Use Policy before network access is allowed.  This option can 
+# operate independently of registration.  The AUP text is found at:
+# /usr/local/pf/html/user/content/violations/aup.php
+aup=disabled
+#
+# registration.auth
+#
+# Method by which registering nodes will be authenticated.  Templates for LDAP and local are 
+# available at /usr/local/pf/conf/authentication.  If you wish to use a different authentication mechanism, simply create 
+# a file called /usr/local/pf/conf/authentication/<authname>.pm, fill it with the necessary data, and set 
+# auth=<authname>.  The default value, local, relies on a local access file in /usr/local/pf/conf/user.conf.
+auth=local
+#
+# registration.expire_mode
+#
+# If set to "deadline", the expire_deadline option defines the date at which a node reverts to an unregistered 
+# state.  If set to "window", the window is used to determine the length of time  after first # network access that a node
+# remains registered.
+expire_mode=window
+#
+# registration.expire_deadline
+#
+# If expire_mode is set to "deadline", this is the date (formatted as returned by the "date" command) at which 
+# nodes revert to an unregistered state.  This would typically be the end of a semester.
+expire_deadline=Mon Nov 12 12:00:00 EST 2012
+#
+# registration.expire_window
+#
+# If expire_mode is set to "window", this is length of time after first network access that a node reverts to an unregistered state.
+expire_window=52w
+#
+# registration.expire_session
+# If expire_mode is set to "session", this is the length of time after a node's iplog entry closes that it will revert to an
+# unregistered state.
+expire_session=5m
+#
+# registration.queuesize
+#
+# Useful for passive deployments on very large networks, this defines the number of nodes that PacketFence 
+# will simultaneously trap for registration (trappings due to violation always occur).  If set to 0, this queue is disabled. 
+queuesize=0
+#
+# registration.maxnodes
+#
+# If defined, the maximum number of nodes that can be registered to a single PID.
+maxnodes=0
+#
+# registration.completemsg
+#
+# If enabled, a confirmation screen is displayed after a user successfully registered.  This is useful if you believe the 
+# registration process isn't sufficiently clear to users.  The HTML file displayed is found at:
+# /usr/local/pf/html/user/content/violations/reg_complete.php
+completemsg=disabled
+#
+# registration.button_text
+#
+#
+button_text=Register
+
+#
+#
+# This section allows you to create passthroughs to HTML content or remote addresses/networks.  Here's an example:
+# 
+# <i>packetfence=http://www.packetfence.org</i>
+# 
+# The above will allow 80/tcp traffic to the resolved IP address (the LHS value is arbitrary).  Passthroughs can also take the 
+# form of:
+# 
+# <i>test=192.168.100.10/23</i>
+# 
+# which would allow full IP to all 512 destination addresses.
+[passthroughs]
+packetfence=http://www.packetfence.org
+symantec_scanner=http://security.symantec.com
+
+[alerting]
+#
+# alerting.emailaddr
+#
+# Email address to which notifications of rogue DHCP servers, violations with an action of "email", or any other 
+# PacketFence-related message goes to.
+emailaddr=pf@localhost
+#
+# alerting.smtpserver
+#
+# Server through which to send messages to the above emailaddr.  The default is localhost - be sure you're running an SMTP 
+# host locally if you don't change it!
+smtpserver=localhost
+#
+# alerting.subjectprefix
+#
+#Subject prefix for email notifications of rogue DHCP servers, violations with an action of "email", or any other
+#PacketFence-related message.
+subjectprefix=PF Alert:
+#
+# alerting.log
+#
+# Log file where "log" actions are sent.
+log=/usr/local/pf/logs/violation.log
+wins_server=192.168.0.100
+admin_netbiosname=EXAMPLE
+
+[ports]
+#
+# ports.allowed
+#
+# Ports allowed through the PacketFence system regardless of registration or violation status.  It is not necessary to define 
+# 53/udp is DNS servers are defined as passthroughs are automagically added.
+allowed=
+#
+# ports.open
+#
+# Ports on the external (world-facing) interface that are open.
+open=22/tcp,80/tcp,443/tcp
+#
+# ports.redirect
+#
+# Ports to intercept and redirect for trapped and unregistered systems.  Defaults to 80/tcp (HTTP), 110/tcp (POP3), and 
+# 143/tcp (IMAP).  IMAP and POP3 listeners must be enabled via the listeners parameter if the redirection is to be of any use.  
+# Redirecting 443/tcp (SSL) will work, although users will get ugly and confusing pop-ups as the commonname will no longer 
+# match.  Redirecting 53/udp (DNS) seems to have issues and is also not recommended.
+redirect=80/tcp,110/tcp,143/tcp,443/tcp
+#
+# ports.listeners
+#
+# Enables "bogus" IMAP and POP servers.  These servers serve only to deliver a message (POP3) or send an alert (IMAP) to 
+# inform the user that he/she must register before connectivity is allowed.  Content of the message is found at 
+# /usr/local/pf/conf/templates/listener.msg
+listeners=
+#
+# ports.admin
+#
+# Port the administrative interface listens on.
+admin=1443
+
+[scan]
+#
+# scan.ssl
+#
+# enable ssl communication with the nessus server.   
+ssl=enabled
+#
+# scan.pass
+#
+# Password to log into nessus server with.
+pass=packet
+#
+# scan.user
+#
+# Username to log into nessus server with.
+user=admin
+#
+# scan.port
+#
+# Port nessus server is running on.
+port=1241
+#
+# scan.host
+#
+# Host the nessus server is running on.  For performance reasons, we recommend running the nessus server remotely.  A 
+# passthrough will be automagically created.
+host=127.0.0.1
+#
+# scan.registration
+#
+# If this option is enabled, pf will scan each host after registration is complete with all nessusids.
+registration=disabled
+#
+# scan.live_tids
+#
+#
+#If a host fails a scan AND the tid is listed in live_tids the corresponding violation will
+#be added.   If the tid is not listed here the event will be logged
+#only.  This is used to test Nessus plugins before going live.
+live_tids=
+#
+
+[database]
+#
+# database.pass
+#
+# Password for the mysql database used by PacketFence.
+pass=packet
+#
+# database.db
+#
+# Name of the mysql database used by PacketFence.
+db=pf
+#
+# database.user
+#
+# Username of the account with access to the mysql database used by PacketFence.
+user=pf
+#
+# database.port
+#
+# Port the mysql server is running on.
+port=3306
+#
+# database.host
+#
+# Server the mysql server is running on.
+host=localhost
+
+[logging]
+#
+# logging.priority
+#
+# Syslog priority to log at.
+priority=info
+#
+# logging.verbosity
+#
+# Logging verbosity level.  Still fairly vague, although 4 is good value for day-to-day operation.  For minor troubleshooting, 
+# use 8.  To see database queries, use 12.  For everything, use 20. For only errors, use 1.
+verbosity=4
+#
+# logging.facility
+#
+# Syslog facility to log on.
+facility=auth
+
+[expire]
+#
+# expire.node
+#
+# Time before a node is removed due to inactivity.
+node=90d
+#
+# expire.iplog
+#
+# Time which you would like to keep logs on IP/MAC information 
+iplog=180d
+#
+# expire.locationlog
+#
+# Time which you would like to keep logs on location information
+locationlog=180d
+
+[services]
+#
+# services.snort
+#
+# Location of the snort binary.  Only necessary to change if you are not running the RPMed version. 
+snort=/usr/sbin/snort
+#
+# services.httpd
+#
+# Location of the apache binary.  Only necessary to change if you are not running the RPMed version.
+httpd=/usr/sbin/httpd
+#
+# services.dhcpd
+#
+# Location of the dhcpd binary.  Only necessary to change if you are not running the RPMed version.  DHCP is not supported until PacketFence 1.6
+dhcpd=/usr/sbin/dhcpd
+#
+# services.pfmon
+#
+# Location of the pfmon daemon.  The default setting should be fine.
+pfmon=/usr/local/pf/bin/pfmon
+#
+# services.pfdhcplistener
+#
+# Location of the pfdhcplistener daemon.  The default setting should be fine.
+pfdhcplistener=/usr/local/pf/bin/pfdhcplistener
+#
+# services.pfdetect
+#
+# Location of the pfdetect daemon.  The default setting should be fine.
+pfdetect=/usr/local/pf/bin/pfdetect
+#
+# services.pfredirect
+#
+# Location of the pfredirect daemon.  The default setting should be fine.
+pfredirect=/usr/local/pf/bin/pfredirect
+#
+# services.named
+# Location of the named binary.  Only necessary to change if you are not using the RPMed version.
+named=/usr/sbin/named
+
+[dhcp]
+#
+# dhcp.isolation_lease
+#
+# Length of lease for isolated clients
+isolation_lease=2m
+#
+# dhcp.unregistered_lease
+#
+# Length of lease for unregistered clients
+unregistered_lease=2m
+#
+# dhcp.registered_lease 
+#
+# Length of lease for registered clients
+registered_lease=2h
+
+[vlan]
+#
+# vlan.adjustswitchportvlanreasons
+#
+# After which calls to pfcmd do we have to re-calculate and re-assign
+# the switchport VLAN a node is connected to
+adjustswitchportvlanreasons=node_modify,manage_register,manage_unregister,manage_deregister,manage_vclose,manage_vopen,violation_modify
+#
+# vlan.adjustswitchportvlanscript
+#
+# Which script do we have to execute to adjust the switchport VLAN
+adjustswitchportvlanscript=/usr/local/pf/bin/flip.pl
+#
+# vlan.closelocationlogonstop
+#
+# Should open locationlog entries be closed when pfsetvlan is 
+# stopped
+closelocationlogonstop=enabled

@@ -1,0 +1,64 @@
+#
+# $Id: bleeding-inappropriate.rules,v 1.1026 2006/10/27 17:41:54 jonkman Exp $
+# Bleeding Snort inappropriate rules.
+#
+# SID's are 2000000+ to avoid conflicts
+#
+# Only basic testing has been done. At this point all we guarantee is that they won't crash a recent snort release.
+#
+# More information available at www.bleedingsnort.com
+#
+# Please submit any custom rules or ideas to bleeding@bleedingsnort.com or the bleeding-sigs mailing list
+#
+#*************************************************************
+#
+#  Copyright (c) 2006, Bleedingsnort.com
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+#  following conditions are met:
+#
+#  * Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+#    disclaimer.
+#  * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+#    following disclaimer in the documentation and/or other materials provided with the distribution.
+#  * Neither the name of the nor the names of its contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS AND ANY EXPRESS OR IMPLIED WARRANTIES,
+#  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+#  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+#  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+#
+#by particle.bored
+# Google Image Search, Safe Mode Off
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE INAPPROPRIATE Google Image Search, Safe Mode Off"; flow:established,to_server; uricontent:"&safe=off"; pcre:"/Host\:\simages.google.com\r\n/ism"; classtype: policy-violation; sid:2002925; rev:1;)
+
+# Info for these sigs from Gary Kalbfleisch
+##alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg: "BLEEDING-EDGE INAPPROPRIATE Kiddy Porn preteen"; flow: from_server,established; content:"preteen"; nocase; threshold: type threshold, track by_dst,count 5, seconds 360; classtype: policy-violation; sid: 2001346; rev:6; )
+##alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg: "BLEEDING-EDGE INAPPROPRIATE Kiddy Porn pre-teen"; flow: from_server,established; content:"pre-teen"; nocase; threshold: type threshold, track by_dst,count 5, seconds 360; classtype: policy-violation; sid: 2001347; rev:6; )
+##alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg: "BLEEDING-EDGE INAPPROPRIATE Kiddy Porn early teen"; flow: from_server,established; content:"early teen"; nocase; threshold: type threshold, track by_dst,count 5, seconds 360; classtype: policy-violation; sid: 2001348; rev:6; )
+
+#From Patrick Harper
+#alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg: "BLEEDING-EDGE INAPPROPRIATE Kiddy Porn pthc"; flow: from_server,established; content:" pthc "; nocase; classtype: policy-violation; sid: 2001386; rev:4; )
+#alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg: "BLEEDING-EDGE INAPPROPRIATE Kiddy Porn zeps"; flow: from_server,established; content:" zeps "; nocase; classtype: policy-violation; sid: 2001387; rev:4; )
+#alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg: "BLEEDING-EDGE INAPPROPRIATE Kiddy Porn r@ygold"; flow: from_server,established; content:" r@ygold "; nocase; classtype: policy-violation; sid: 2001388; rev:4; )
+#alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg: "BLEEDING-EDGE INAPPROPRIATE Kiddy Porn childlover"; flow: from_server,established; content:" childlover "; nocase; classtype: policy-violation; sid: 2001389; rev:4; )
+
+#alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg: "BLEEDING-EDGE INAPPROPRIATE free XXX"; flow: to_client,established; content:"FREE XXX"; nocase; threshold: type threshold, track by_dst,count 5, seconds 360; classtype: kickass-porn; sid: 2001349; rev:5; )
+#alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg: "BLEEDING-EDGE INAPPROPRIATE hardcore anal"; flow: to_client,established; content:"hardcore anal"; nocase; threshold: type threshold, track by_dst,count 5, seconds 360; classtype: kickass-porn; sid: 2001350; rev:5; )
+##alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg: "BLEEDING-EDGE INAPPROPRIATE masturbation"; flow: to_client,established; content:"masturbat"; nocase; threshold: type threshold, track by_dst,count 5, seconds 360; classtype: kickass-porn; sid: 2001351; rev:5; )
+##alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg: "BLEEDING-EDGE INAPPROPRIATE ejaculation"; flow: to_client,established; content:"ejaculat"; nocase; threshold: type threshold, track by_dst,count 5, seconds 360; classtype: kickass-porn; sid: 2001352; rev:5; )
+##alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg: "BLEEDING-EDGE INAPPROPRIATE BDSM"; flow: to_client,established; content:"BDSM"; nocase; threshold: type threshold, track by_dst,count 5, seconds 360; classtype: kickass-porn; sid: 2001353; rev:5; )
+
+#Experiment by Matt Jonkman
+#alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg: "BLEEDING-EDGE INAPPROPRIATE Sextracker Tracking Code Detected (1)"; flow: from_server,established; content:"BEGIN SEXLIST REFERRER-STATS CODE"; nocase; classtype: kickass-porn; sid: 2001392; rev:7; )
+#alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg: "BLEEDING-EDGE INAPPROPRIATE Sextracker Tracking Code Detected (2)"; flow: from_server,established; content:"BEGIN SEXTRACKER CODE"; nocase; classtype: kickass-porn; sid: 2001393; rev:7; )
+
+#By Jeffrey Lowe
+##alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg: "BLEEDING-EDGE INAPPROPRIATE Likely Porn"; flow: established,from_server; pcre:"/ (FREE XXX|dildo|masturbat|oral sex|ejaculat|up skirt|tits|bondage|lolita|clitoris|cock suck|hardcore (teen|anal|sex|porn)|raw sex|((fuck|sex|porn|xxx) (movies|dvd))|((naked|nude) (celeb|lesbian)))\b/i"; classtype: kickass-porn; sid: 2001608; rev:5; )
+

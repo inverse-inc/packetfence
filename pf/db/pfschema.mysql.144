@@ -1,0 +1,113 @@
+--
+-- Table structure for table `class`
+--
+
+CREATE TABLE class (
+  vid int(11) NOT NULL,
+  description varchar(255) NOT NULL default "none",
+  auto_enable char(1) NOT NULL default "Y",
+  max_enables int(11) NOT NULL default 0,
+  grace_period int(11) NOT NULL,
+  priority int(11) NOT NULL,
+  url varchar(255),
+  max_enable_url varchar(255),
+  redirect_url varchar(255),
+  button_text varchar(255),
+  disable char(1) NOT NULL default "Y",
+  PRIMARY KEY (vid)
+) TYPE=InnoDB;
+
+--
+-- Table structure for table `nessusid`
+--
+
+CREATE TABLE nessusid (
+  nid int(11) NOT NULL,
+  vid int(11) default NULL,
+  KEY nid (nid),
+  KEY vid (vid),
+  CONSTRAINT `0_62` FOREIGN KEY (`vid`) REFERENCES `class` (`vid`) ON DELETE CASCADE ON UPDATE CASCADE
+) TYPE=InnoDB;
+
+--
+-- Table structure for table `person`
+--
+
+CREATE TABLE person (
+  pid varchar(255) NOT NULL,
+  first_name varchar(255),
+  last_name varchar(255),
+  email varchar(255),
+  phone varchar(20),
+  address varchar(255),
+  city varchar(255),
+  state varchar(255),
+  custom1 varchar(255),
+  custom2 varchar(255),
+  custom3 varchar(255),
+  PRIMARY KEY  (pid)
+) TYPE=InnoDB;
+
+--
+-- Table structure for table `node`
+--
+
+CREATE TABLE node (
+  mac varchar(17) NOT NULL,
+  pid varchar(255) NOT NULL default "1",
+  regdate datetime NOT NULL,
+  lastskip datetime NOT NULL,
+  status varchar(15) NOT NULL default "unreg",
+  user_agent varchar(255) NOT NULL default "unknown",
+  computername varchar(255) NOT NULL default "unknown",
+  PRIMARY KEY  (mac),
+  KEY pid (pid),
+  CONSTRAINT `0_57` FOREIGN KEY (`pid`) REFERENCES `person` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE
+) TYPE=InnoDB;
+
+--
+-- Table structure for table `violation_actions`
+--
+
+CREATE TABLE violation_actions (
+  vid int(11) NOT NULL,
+  action varchar(255) NOT NULL,
+  KEY vid (vid),
+  CONSTRAINT `FOREIGN` FOREIGN KEY (`vid`) REFERENCES `class` (`vid`) ON DELETE CASCADE ON UPDATE CASCADE
+) TYPE=InnoDB;
+
+--
+-- Table structure for table `violation`
+--
+
+CREATE TABLE violation (
+  mac varchar(17) NOT NULL,
+  vid int(11) NOT NULL,
+  start_date datetime NOT NULL,
+  release_date datetime default "0000-00-00 00:00:00",
+  status varchar(10) default "open",
+  notes text,
+  KEY mac (mac),
+  KEY vid (vid),
+  KEY ind1 (mac,status,vid),
+  CONSTRAINT `0_60` FOREIGN KEY (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `0_61` FOREIGN KEY (`vid`) REFERENCES `class` (`vid`) ON DELETE CASCADE ON UPDATE CASCADE
+) TYPE=InnoDB;
+
+--
+-- Table structure for table `iplog`
+--
+
+CREATE TABLE iplog (
+  mac varchar(17) NOT NULL,
+  ip varchar(15) NOT NULL,
+  start_time datetime NOT NULL,
+  end_time datetime default "0000-00-00 00:00:00",
+  last_seen datetime NOT NULL,
+  KEY mac (mac),
+  KEY ip (ip),
+  CONSTRAINT `0_63` FOREIGN KEY (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE
+) TYPE=InnoDB;
+
+# insert generic person
+insert into person (pid) values("1");

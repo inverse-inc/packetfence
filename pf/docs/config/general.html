@@ -1,0 +1,38 @@
+<html>
+  <head>
+  <title>Configuration Reference - general</title>
+  </head>
+  <body>
+  <font
+  <img src="/common/packetfence.gif">
+  <p><b><font size=+1>Configuration Reference - general</font></b></p>
+<a name=caching></a>
+<b>caching</b> <i>(toggle)</i><br>
+Default: enabled<br>
+Options: enabled|disabled<br>
+Enable caching of isinternal values as well as other fun stuff.  Leave this enabled or suffer the performance consequences.<p>
+<a name=dhcpservers></a>
+<b>dhcpservers</b> <i>(text)</i><br>
+Default: 127.0.0.1<br>
+Comma-delimited list of DHCP servers.  Passthroughs are created to allow DHCP transactions from even "trapped" nodes.<p>
+<a name=dnsservers></a>
+<b>dnsservers</b> <i>(text)</i><br>
+Default: 127.0.0.1<br>
+Comma-delimited list of DNS servers.  Passthroughs are created to allow queries to these servers from even "trapped" nodes.<p>
+<a name=domain></a>
+<b>domain</b> <i>(text)</i><br>
+Default: example.com<br>
+Domain name of PacketFence system.<p>
+<a name=hostname></a>
+<b>hostname</b> <i>(text)</i><br>
+Default: abc<br>
+Hostname of PacketFence system.  This is concatenated with the domain in Apache rewriting rules and therefore must be resolvable by clients.<p>
+<a name=locale></a>
+<b>locale</b> <i>(text)</i><br>
+Default: en_US<br>
+Locale used for message translation.<p>
+<a name=logo></a>
+<b>logo</b> <i>(text)</i><br>
+Default: /common/packetfence.gif<br>
+Logo displayed on web pages.<p>
+</body></html>

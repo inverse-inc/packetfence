@@ -1,0 +1,37 @@
+INVERSE-PACKETFENCE-NOTIFICATION-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    ifIndex     
+       FROM IF-MIB
+    enterprises, NOTIFICATION-TYPE
+       FROM SNMPv2-SMI;
+
+inverse         OBJECT IDENTIFIER ::= { enterprises 29464 }
+
+inversePacketFenceNotificationMIB MODULE-IDENTITY
+  LAST-UPDATED "200804242100Z"
+  ORGANIZATION "Inverse Inc."
+  CONTACT-INFO
+    "Inverse
+     email: dgehl@inverse.ca"
+  DESCRIPTION
+    "Definition of PacketFence SNMP Notification"
+  ::= { inverse 1 }
+
+packetFenceRecalculateVLANNotification NOTIFICATION-TYPE
+  OBJECTS { ifIndex }
+  STATUS current
+  DESCRIPTION
+    "This notification is generated when the VLAN assigned to
+     the specified switch port should be recalculated and
+     (possibly) correctly re-assigned."
+  ::= { inversePacketFenceNotificationMIB 1 }
+
+packetFenceDesAssociateNotification NOTIFICATION-TYPE
+  OBJECTS { ifIndex }
+  STATUS current
+  DESCRIPTION
+    "This notification is generated when the MAC
+     should be des-associated (WIFI)."
+  ::= { inversePacketFenceNotificationMIB 2 }
+END

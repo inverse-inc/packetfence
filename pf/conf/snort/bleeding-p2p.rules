@@ -1,0 +1,110 @@
+#
+# $Id: bleeding-p2p.rules,v 1.1024 2006/10/27 17:41:54 jonkman Exp $
+# Bleeding Snort P2P rules.
+#
+# SID's are 2000000+ to avoid conflicts
+#
+# Only basic testing has been done. At this point all we guarantee is that they won't crash a recent snort release.
+#
+# More information available at www.bleedingsnort.com
+#
+# Please submit any custom rules or ideas to bleeding@bleedingsnort.com or the bleeding-sigs mailing list
+#
+#*************************************************************
+#
+#  Copyright (c) 2006, Bleedingsnort.com
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+#  following conditions are met:
+#
+#  * Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+#    disclaimer.
+#  * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+#    following disclaimer in the documentation and/or other materials provided with the distribution.
+#  * Neither the name of the nor the names of its contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS AND ANY EXPRESS OR IMPLIED WARRANTIES,
+#  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+#  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+#  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+#
+#Submitted by Marcamone
+#alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg: "BLEEDING-EDGE P2P Ares traffic"; flow: established; content:"User-Agent\: Ares"; reference:url,www.aresgalaxy.org; classtype: policy-violation; sid: 2001059; rev:4; )
+##alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg: "BLEEDING-EDGE P2P Ares GET"; flow: established; content:"ares"; nocase; pcre:"/(GET |GET (http|https)\:\/\/[-0-9a-z.]*)\/ares\//i"; reference:url,www.aresgalaxy.org; classtype: policy-violation; sid: 2001060; rev:6; )
+
+#By Bob Grabowsky
+#alert tcp $HOME_NET any -> $EXTERNAL_NET !5190 (msg: "BLEEDING-EDGE P2P Ares File Upload"; flow: established; content:"|50 55 53 48 20 53 48 41 31 3a|"; reference:url,www.aresgalaxy.org; classtype: policy-violation; sid: 2001756; rev:3; )
+
+# By Chich Thierry
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg: "BLEEDING-EDGE P2P BitTorrent peer sync"; flow: established; content:"|0000000d0600|"; offset: 0; depth: 6; reference:url,bitconjurer.org/BitTorrent/protocol.html; classtype: policy-violation; sid: 2000334; rev:7; )
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg: "BLEEDING-EDGE P2P BitTorrent Traffic"; flow: established; content:"|0000400907000000|"; offset: 0; depth: 8; reference:url,bitconjurer.org/BitTorrent/protocol.html; classtype: policy-violation; sid: 2000357; rev:3; )
+alert tcp $HOME_NET any -> $EXTERNAL_NET 6969 (msg: "BLEEDING-EDGE P2P BitTorrent Announce"; flow: to_server,established; content:"/announce"; reference:url,bitconjurer.org/BitTorrent/protocol.html; classtype: policy-violation; sid: 2000369; rev:4; )
+
+#by markmc
+#alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"BLEEDING-EDGE P2P Direct Connect Traffic (client-server)"; flow:from_client,established; content:"$MyINFO"; offset:0; depth:7; classtype:policy-violation; reference:url,en.wikipedia.org/wiki/Direct_connect_file-sharing_application; sid:2002814; rev:1;)
+
+# By Chich Thierry
+alert tcp $HOME_NET any -> any 4660:4799 (msg: "BLEEDING-EDGE P2P ed2k connection to server"; flow: to_server,established; content:"|e3|"; offset: 0; depth: 1; content:"|00000001|"; offset: 2; depth: 4; reference:url,www.giac.org/practical/GCIH/Ian_Gosling_GCIH.pdf; classtype: policy-violation; sid: 2000330; rev:5; )
+alert tcp $HOME_NET any -> any 4660:4799 (msg: "BLEEDING-EDGE P2P ed2k file search"; flow: to_server,established; content:"|e3|"; offset: 0; depth: 1; content:"|00000016|"; offset: 2; depth: 4; reference:url,www.giac.org/practical/GCIH/Ian_Gosling_GCIH.pdf; classtype: policy-violation; sid: 2000331; rev:5; )
+alert tcp $HOME_NET any -> any 4660:4799 (msg: "BLEEDING-EDGE P2P ed2k request part"; flow: to_server,established; content:"|e3|"; offset: 0; depth: 1; content:"|00000047|"; offset: 2; depth: 4; reference:url,www.giac.org/practical/GCIH/Ian_Gosling_GCIH.pdf; classtype: policy-violation; sid: 2000332; rev:5; )
+alert tcp $HOME_NET any -> any 4660:4799 (msg: "BLEEDING-EDGE P2P ed2k file request answer"; flow: to_server,established; content:"|e3|"; offset: 0; depth: 1; content:"|00000059|"; offset: 2; depth: 4; reference:url,www.giac.org/practical/GCIH/Ian_Gosling_GCIH.pdf; classtype: policy-violation; sid: 2000333; rev:5; )
+#alert udp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE P2P Kaaza Media desktop p2pnetworking.exe Activity"; content:"|e30cb0|"; offset: 0; depth: 6; threshold: type limit, track by_dst, count 1 , seconds 600; reference:url,www.giac.org/practical/GCIH/Ian_Gosling_GCIH.pdf; classtype: policy-violation; sid: 2000340; rev:5; )
+
+#Submitted by Sam Evans
+alert tcp $HOME_NET any -> $EXTERNAL_NET 4660:4799 (msg: "BLEEDING-EDGE P2P eDonkey File Status"; flow: to_server,established; content:"|e3 14|"; offset: 0; depth: 2; classtype: policy-violation; reference:url,www.edonkey.com; sid: 2001296; rev:4; )
+alert tcp $HOME_NET any -> $EXTERNAL_NET 4660:4799 (msg: "BLEEDING-EDGE P2P eDonkey File Status Request"; flow: to_server,established; content:"|e3 11|"; offset: 0; depth: 2; classtype: policy-violation; reference:url,www.edonkey.com; sid: 2001297; rev:5; )
+alert udp $HOME_NET any -> $EXTERNAL_NET 4660:4799 (msg: "BLEEDING-EDGE P2P eDonkey Server Status Request"; content:"|e3 96|"; offset: 0; depth: 2; rawbytes;classtype: policy-violation; reference:url,www.edonkey.com; sid: 2001298; rev:3; )
+alert udp $HOME_NET 4660:4799 -> $EXTERNAL_NET any (msg: "BLEEDING-EDGE P2P eDonkey Server Status"; content:"|e3 97|"; offset: 0; depth: 2; rawbytes;classtype: policy-violation; reference:url,www.edonkey.com; sid: 2001299; rev:3; )
+alert udp $HOME_NET any -> $EXTERNAL_NET 4660:4799 (msg: "BLEEDING-EDGE P2P eDonkey Search"; content:"|e3 0e|"; offset: 0; depth: 2; rawbytes;classtype: policy-violation; reference:url,www.edonkey.com; sid: 2001305; rev:3; )
+alert tcp $HOME_NET any -> $EXTERNAL_NET 4660:4799 (msg: "BLEEDING-EDGE P2P eDonkey Hello Request"; flow: to_server,established; content:"|e3|"; content:"|01|"; offset: 0; depth: 7; classtype: policy-violation; reference:url,www.edonkey.com; sid: 2001300; rev:4; )
+
+# Submitted by Pedro Quintanilha on 2005-11-07
+#alert tcp $EXTERNAL_NET 443 -> $HOME_NET any (msg:"BLEEDING-EDGE P2P MS Foldershare Login Detected"; flow:established,to_client; content:"|0b|FolderShare|30 81 9f 30|"; nocase; offset: 392; depth: 18; reference:url,www.foldershare.com; classtype:policy-violation; sid:2002673; rev:2;)
+
+#From Cooljay
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg: "BLEEDING-EDGE P2P Gnutella Connect"; flow: established,to_server; content:"GNUTELLA CONNECT/"; nocase; offset: 0; depth: 17; classtype: policy-violation; reference:url,www.gnutella.com; sid: 2001664; rev:3; )
+
+#by Jeff Kell
+# Looking for Gnucleus/GnucDNA UDP Ultrapeer handshakes
+alert udp $HOME_NET any -> $EXTERNAL_NET any (msg: "BLEEDING-EDGE P2P GnucDNA UDP Ultrapeer Traffic"; content:"SCP@|83|DNA@"; threshold: type both,track by_src,count 10,seconds 600; classtype: policy-violation; sid:2002760; rev:1;)
+# Looking for Gnucleus/GnucDNA running Ultrapeer
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg: "BLEEDING-EDGE P2P Gnutella TCP Ultrapeer Traffic"; flow: established,to_server; content:"GNUTELLA"; offset:0; depth:8; content:"X-Ultrapeer\: True"; nocase;  threshold: type both,track by_src,count 5,seconds 3600; classtype: policy-violation; sid:2002761; rev:1;)
+
+#Thanks to Kevin Kolk
+#alert tcp $EXTERNAL_NET 6667 -> $HOME_NET any (msg: "BLEEDING-EDGE P2P iroffer IRC Bot help message"; flow: from_server,established; content:"|54 6F 20 72 65 71 75 65 73 74 20 61 20 66 69 6C 65 20 74 79 70 65 3A 20 22 2F 6D 73 67|"; depth: 500; classtype: trojan-activity; reference:url,iroffer.org; sid: 2000338; rev:3; )
+#alert tcp $EXTERNAL_NET 6667 -> $HOME_NET any (msg: "BLEEDING-EDGE P2P iroffer IRC Bot offered files advertisement"; flow: from_server,established; content:"|54 6F 74 61 6C 20 4F 66 66 65 72 65 64 3A|"; depth: 500; classtype: trojan-activity; reference:url,iroffer.org; sid: 2000339; rev:3; )
+
+#By Bob Grabowsky
+alert udp $HOME_NET 1024:65535 -> $EXTERNAL_NET 1024:65535 (msg: "BLEEDING-EDGE P2P kazaa over UDP"; content:"KaZaA"; nocase; threshold: type threshold, track by_src,count 10, seconds 60; classtype: policy-violation; reference:url,www.kazaa.com/us/index.htm; sid: 2001796; rev:3; )
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE KazaaClient P2P Traffic"; flow: established; content:"Agent\: KazaaClient"; nocase; classtype: policy-violation; reference:url,www.kazaa.com/us/index.htm; sid: 2001812; rev:3; )
+
+#By Bob Grabowsky
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg: "BLEEDING-EDGE P2P LimeWire P2P Traffic"; flow: established; content:"User-Agent\: LimeWire"; nocase; classtype: policy-violation; reference:url,www.limewire.com; sid: 2001808; rev:3; )
+#alert udp $HOME_NET 6346 -> $EXTERNAL_NET 6346:6700 (msg: "BLEEDING-EDGE P2P Limewire P2P UDP Traffic"; content:"|49 50 40 83 53 43 50 41|"; threshold: type threshold, track by_src,count 10, seconds 60; classtype: policy-violation; reference:url,www.limewire.com; sid: 2001809; rev:3; )
+#alert udp $HOME_NET 6345:6349 -> $EXTERNAL_NET 6345:6349 (msg: "BLEEDING-EDGE P2P UDP traffic - Likely Limewire"; threshold: type threshold,track by_src,count 40, seconds 300; classtype: policy-violation; reference:url,www.limewire.com; sid: 2001841; rev:5; )
+
+#Submitted by Matt Jonkman
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE P2P Morpheus Install"; flow: to_server,established; uricontent:"/morpheus/morpheus.exe"; nocase; reference:url,www.morpheus.com; classtype: policy-violation; sid: 2001035; rev:5; )
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE P2P Morpheus Install ini Download"; flow: to_server,established; uricontent:"/morpheus/morpheus_sm.ini"; nocase; reference:url,www.morpheus.com; classtype: policy-violation; sid: 2001036; rev:5; )
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE P2P Morpheus Update Request"; flow: to_server,established; uricontent:"/gwebcache/gcache.asg?hostfile="; nocase; reference:url,www.morpheus.com; classtype: policy-violation; sid: 2001037; rev:5; )
+
+# By Chich Thierry
+#alert udp $HOME_NET any -> any any (msg: "BLEEDING-EDGE P2P Overnet Server Announce"; content:"|00000203006c6f63|"; offset: 36; content:"|006263703a2f2f|"; distance: 1; classtype: policy-violation; reference:url,www.overnet.com; sid: 2000335; rev:4; )
+
+#
+#alert tcp $HOME_NET any -> any any (msg: "BLEEDING-EDGE P2P Phatbot Control Connection"; flow: established; content:"Wonk-"; content:"|00|#waste|00|"; within: 15; reference:url,www.lurhq.com/phatbot.html; classtype: trojan-activity; sid: 2000015; rev:4; )
+
+#Submitted by marcamone
+#alert tcp $HOME_NET any -> 38.115.131.0/24 2234 (msg: "BLEEDING-EDGE P2P Soulseek traffic (1)"; flow: established; classtype: policy-violation; reference:url,www.slsknet.org; sid: 2001185; rev:6; )
+#alert tcp $HOME_NET any -> 38.115.131.0/24 5534 (msg: "BLEEDING-EDGE P2P Soulseek traffic (2)"; flow: established; classtype: policy-violation; reference:url,www.slsknet.org; sid: 2001186; rev:6; )
+#alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg: "BLEEDING-EDGE P2P Soulseek"; flow: established; content:"slsknet"; classtype: policy-violation; reference:url,www.slsknet.org; sid: 2001188; rev:5; )
+
+#Submitted by Matt Jonkman
+#alert tcp $EXTERNAL_NET 2234 -> $HOME_NET any (msg: "BLEEDING-EDGE P2P Soulseek Filesearch Results"; flow: from_server,established; content:"|09 00 00 00 78|"; classtype: policy-violation; reference:url,www.slsknet.org; sid: 2001187; rev:4; )
+

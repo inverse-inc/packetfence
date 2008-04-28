@@ -1,0 +1,113 @@
+domain "packetfence"
+
+msgid  "error: access denied not owner"
+msgstr "Acc&egrave;s refus&eacute;: vous n'&ecirc;tes pas le propri&eacute;taire de ce noeud!"
+
+msgid  "error: incorrect mode"
+msgstr "Mode incorrect!"
+
+msgid  "error: max re-enables reached"
+msgstr "Nombre maximum de r&eacute;activations atteint!"
+
+msgid  "error: not found in the database"
+msgstr "Votre ordinateur n'a pas pu &ecirc;tre trouv&eacute; dans la base de donn&eacute;es de PacketFence. Veuillez red&eacute;marrer afin de resoudre ce probl&egrave;me."
+
+msgid  "error: not trappable IP"
+msgstr "Acc&egrave; refus&eacute;: IP ne peut pas &ecirc;tre isol&eacute;!"
+
+msgid  "error: only register max nodes"
+msgstr "Vous pouvez seulement enregistrer un maximum de %s noeuds!"
+
+
+msgid  "help: provide info"
+msgstr "Si vous avez des questions par rapport &agrave; cette page, veuillez contacter votre &eacute;quipe informatique et leur fournir les informations suivantes: "
+
+
+msgid  "register: all systems must be registered"
+msgstr "Comme nous pourrions devoir contacter les usager des ordinateurs, tous les ordinateurs de ce r&eacute;seau doivent &ecirc;tre enregistr&eacute;s."
+
+msgid  "register: aup"
+msgstr "Le processus d'enregistrement demande l'acceptation de la politique d'utilisation du r&eacute;seau. Veuillez suivre le lien suivant afin de consulter celle-ci"
+
+msgid  "register: to complete"
+msgstr "Afin de compl&eacute;ter le processus d'enregistrement, vous devez vous authentifier avec votre nom d'usager et mot de passe"
+
+msgid  "register: select authentications"
+msgstr "Choisir l'authentification"
+
+
+msgid  "release: enabling network"
+msgstr "Activation de l'acc&egrave;s au r&eacute;seau"
+
+msgid  "release: reopen browser"
+msgstr "Vous devez possiblement fermer votre navigateur"
+
+
+msgid  "Acceptable Use Policy"
+msgstr "Politique d'utilisation du r&eacute;seau"
+
+msgid  "Addresses"
+msgstr "Adresses"
+
+msgid  "De-register node"
+msgstr "D&eacute;senregistrer le noeud"
+
+msgid  "Enabling ..."
+msgstr "Activation ..."
+
+msgid  "Gateway"
+msgstr "Passerelle"
+
+msgid  "grace"
+msgstr "gr&acirc;ce"
+
+msgid  "Hostname"
+msgstr "Nom d'h&ocirc;te"
+
+msgid  "IP"
+msgstr "Adresse IP"
+
+msgid  "Login"
+msgstr "Authentification"
+
+msgid  "MAC"
+msgstr "MAC"
+
+msgid  "network access is being enabled"
+msgstr "Votre acc&egrave;s au r&eacute;seau est en cours d'activation - ce processus prendra approximativement %s secondes."
+
+msgid  "Node"
+msgstr "Noeud"
+
+msgid  "PacketFence Registration System"
+msgstr "Syst&egrave;me d'enregistrement PacketFence"
+
+msgid  "Password"
+msgstr "Mot de passe"
+
+msgid  "PID"
+msgstr "Propri&eacute;taire"
+
+msgid  "Print this page"
+msgstr "Imprimer cette page"
+
+msgid  "reg"
+msgstr "enregistr&eacute;"
+
+msgid  "Sorry"
+msgstr "D&eacute;sol&eacute;!"
+
+msgid  "Status"
+msgstr "Status"
+
+msgid  "unknown"
+msgstr "inconnu"
+
+msgid  "unreg"
+msgstr "non enregistr&eacute;"
+
+msgid  "Username"
+msgstr "Nom d'utilisateur"
+
+msgid  "Violations"
+msgstr "Violations"

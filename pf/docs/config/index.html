@@ -1,0 +1,150 @@
+<html>
+  <head>
+  <title>PacketFence Configuration Reference</title>
+  </head>
+  <body>
+  <font 
+  <img src="/common/packetfence.gif">
+  <p><b><font size=+1>Configuration Reference</font></b></p>
+<p><b>[alerting]</b><br>
+  <a href='alerting.html#admin_netbiosname'>admin_netbiosname</a><br>
+  <a href='alerting.html#emailaddr'>emailaddr</a><br>
+  <a href='alerting.html#fromaddr'>fromaddr</a><br>
+  <a href='alerting.html#log'>log</a><br>
+  <a href='alerting.html#smtpserver'>smtpserver</a><br>
+  <a href='alerting.html#subjectprefix'>subjectprefix</a><br>
+  <a href='alerting.html#wins_server'>wins_server</a><br>
+<p><b>[arp]</b><br>
+  <a href='arp.html#cleanshutdown'>cleanshutdown</a><br>
+  <a href='arp.html#dhcp_timeout'>dhcp_timeout</a><br>
+  <a href='arp.html#gw_timeout'>gw_timeout</a><br>
+  <a href='arp.html#heartbeat'>heartbeat</a><br>
+  <a href='arp.html#interval'>interval</a><br>
+  <a href='arp.html#strobe'>strobe</a><br>
+  <a href='arp.html#stuffing'>stuffing</a><br>
+  <a href='arp.html#timeout'>timeout</a><br>
+<p><b>[database]</b><br>
+  <a href='database.html#db'>db</a><br>
+  <a href='database.html#host'>host</a><br>
+  <a href='database.html#pass'>pass</a><br>
+  <a href='database.html#port'>port</a><br>
+  <a href='database.html#user'>user</a><br>
+<p><b>[dhcp]</b><br>
+  <a href='dhcp.html#isolation_lease'>isolation_lease</a><br>
+  <a href='dhcp.html#isolation_scopes'>isolation_scopes</a><br>
+  <a href='dhcp.html#registered_lease'>registered_lease</a><br>
+  <a href='dhcp.html#registered_scopes'>registered_scopes</a><br>
+  <a href='dhcp.html#unregistered_lease'>unregistered_lease</a><br>
+  <a href='dhcp.html#unregistered_scopes'>unregistered_scopes</a><br>
+<p><b>[expire]</b><br>
+  <a href='expire.html#iplog'>iplog</a><br>
+  <a href='expire.html#locationlog'>locationlog</a><br>
+  <a href='expire.html#node'>node</a><br>
+<p><b>[general]</b><br>
+  <a href='general.html#caching'>caching</a><br>
+  <a href='general.html#dhcpservers'>dhcpservers</a><br>
+  <a href='general.html#dnsservers'>dnsservers</a><br>
+  <a href='general.html#domain'>domain</a><br>
+  <a href='general.html#hostname'>hostname</a><br>
+  <a href='general.html#locale'>locale</a><br>
+  <a href='general.html#logo'>logo</a><br>
+<p><b>[interface]</b><br>
+  <a href='interface.html#gateway'>gateway</a><br>
+  <a href='interface.html#ip'>ip</a><br>
+  <a href='interface.html#mask'>mask</a><br>
+  <a href='interface.html#type'>type</a><br>
+<p><b>[logging]</b><br>
+  <a href='logging.html#facility'>facility</a><br>
+  <a href='logging.html#priority'>priority</a><br>
+  <a href='logging.html#verbosity'>verbosity</a><br>
+<p><b>[network]</b><br>
+  <a href='network.html#dhcpdetector'>dhcpdetector</a><br>
+  <a href='network.html#mode'>mode</a><br>
+  <a href='network.html#named'>named</a><br>
+  <a href='network.html#nat'>nat</a><br>
+  <a href='network.html#rogueinterval'>rogueinterval</a><br>
+  <a href='network.html#vlan'>vlan</a><br>
+<p><b>[passthroughs]</b><br>
+This section allows you to create passthroughs to HTML content or remote addresses/networks.  Here's an example:
+<p>
+<i>packetfence=http://www.packetfence.org</i>
+<p>
+The above will allow 80/tcp traffic to the resolved IP address (the LHS value is arbitrary).  Passthroughs can also take the 
+form of:
+<p>
+<i>test=192.168.100.10/23</i>
+<p>
+which would allow full IP to all 512 destination addresses.
+<p><b>[ports]</b><br>
+  <a href='ports.html#admin'>admin</a><br>
+  <a href='ports.html#allowed'>allowed</a><br>
+  <a href='ports.html#listeners'>listeners</a><br>
+  <a href='ports.html#open'>open</a><br>
+  <a href='ports.html#redirect'>redirect</a><br>
+<p><b>[proxies]</b><br>
+This section allows you to configure locally proxied content.  We typically use this to proxy tools like Stinger rather 
+than having to continually download the latest version. Ex:
+<p>
+<i>tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stinger.exe</i>
+<p>
+The Stinger utility could then be accessed at https://pfhostname/proxies/tools/stinger.exe.
+<p><b>[registration]</b><br>
+  <a href='registration.html#aup'>aup</a><br>
+  <a href='registration.html#auth'>auth</a><br>
+  <a href='registration.html#button_text'>button_text</a><br>
+  <a href='registration.html#completemsg'>completemsg</a><br>
+  <a href='registration.html#expire_deadline'>expire_deadline</a><br>
+  <a href='registration.html#expire_mode'>expire_mode</a><br>
+  <a href='registration.html#expire_session'>expire_session</a><br>
+  <a href='registration.html#expire_window'>expire_window</a><br>
+  <a href='registration.html#maxnodes'>maxnodes</a><br>
+  <a href='registration.html#queuesize'>queuesize</a><br>
+  <a href='registration.html#range'>range</a><br>
+  <a href='registration.html#skip_deadline'>skip_deadline</a><br>
+  <a href='registration.html#skip_mode'>skip_mode</a><br>
+  <a href='registration.html#skip_reminder'>skip_reminder</a><br>
+  <a href='registration.html#skip_window'>skip_window</a><br>
+<p><b>[routedsubnet]</b><br>
+  <a href='routedsubnet.html#gateway'>gateway</a><br>
+  <a href='routedsubnet.html#mask'>mask</a><br>
+  <a href='routedsubnet.html#network'>network</a><br>
+  <a href='routedsubnet.html#type'>type</a><br>
+<p><b>[scan]</b><br>
+  <a href='scan.html#host'>host</a><br>
+  <a href='scan.html#live_tids'>live_tids</a><br>
+  <a href='scan.html#pass'>pass</a><br>
+  <a href='scan.html#port'>port</a><br>
+  <a href='scan.html#registration'>registration</a><br>
+  <a href='scan.html#ssl'>ssl</a><br>
+  <a href='scan.html#user'>user</a><br>
+<p><b>[scope]</b><br>
+  <a href='scope.html#gateway'>gateway</a><br>
+  <a href='scope.html#network'>network</a><br>
+  <a href='scope.html#range'>range</a><br>
+<p><b>[services]</b><br>
+  <a href='services.html#dhcpd'>dhcpd</a><br>
+  <a href='services.html#httpd'>httpd</a><br>
+  <a href='services.html#named'>named</a><br>
+  <a href='services.html#nessusd'>nessusd</a><br>
+  <a href='services.html#pfdetect'>pfdetect</a><br>
+  <a href='services.html#pfdhcplistener'>pfdhcplistener</a><br>
+  <a href='services.html#pfmon'>pfmon</a><br>
+  <a href='services.html#pfredirect'>pfredirect</a><br>
+  <a href='services.html#snort'>snort</a><br>
+<p><b>[trapping]</b><br>
+  <a href='trapping.html#blacklist'>blacklist</a><br>
+  <a href='trapping.html#detection'>detection</a><br>
+  <a href='trapping.html#immediate'>immediate</a><br>
+  <a href='trapping.html#passthrough'>passthrough</a><br>
+  <a href='trapping.html#range'>range</a><br>
+  <a href='trapping.html#redirecturl'>redirecturl</a><br>
+  <a href='trapping.html#redirtimer'>redirtimer</a><br>
+  <a href='trapping.html#registration'>registration</a><br>
+  <a href='trapping.html#testing'>testing</a><br>
+  <a href='trapping.html#whitelist'>whitelist</a><br>
+<p><b>[vlan]</b><br>
+  <a href='vlan.html#adjustswitchportvlanreasons'>adjustswitchportvlanreasons</a><br>
+  <a href='vlan.html#adjustswitchportvlanscript'>adjustswitchportvlanscript</a><br>
+  <a href='vlan.html#closelocationlogonstop'>closelocationlogonstop</a><br>
+  <body>
+</html>

@@ -1,0 +1,1171 @@
+#
+# $Id: bleeding-policy.rules,v 1.1087 2006/10/27 17:41:54 jonkman Exp $
+# Bleeding Snort Policy rules.
+#
+# SID's are 2000000+ to avoid conflicts
+#
+# Only basic testing has been done. At this point all we guarantee is that they won't crash a recent snort release.
+#
+# More information available at www.bleedingsnort.com
+#
+# Please submit any custom rules or ideas to bleeding@bleedingsnort.com or the bleeding-sigs mailing list
+#
+#*************************************************************
+#
+#  Copyright (c) 2006, Bleedingsnort.com
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+#  following conditions are met:
+#
+#  * Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+#    disclaimer.
+#  * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+#    following disclaimer in the documentation and/or other materials provided with the distribution.
+#  * Neither the name of the nor the names of its contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS AND ANY EXPRESS OR IMPLIED WARRANTIES,
+#  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+#  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+#  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+#
+#By merphie. Please test this out, it should work on NT domains and 98. Disabled by default
+##alert udp $HOME_NET any -> $HOME_NET 137 (msg: "BLEEDING-EDGE POLICY Administrator Login Detected"; content:"ebeeenejeoejfdfefcebfeepfc"; nocase; classtype: policy-violation; sid: 2001806; rev:2; )
+
+#Submitted by Matt Jonkman
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE AOL Webmail Message Send"; flow: to_server,established; uricontent:"/compose_frame.adp"; content:"POST"; classtype: policy-violation; sid: 2000571; rev:4; )
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE AOL Webmail Login"; flow: to_server,established; uricontent:"/login/login.psp?siteId="; content:"triedAimAuth"; classtype: policy-violation; sid: 2000572; rev:4; )
+
+#Submitted by Joseph Gama
+#Good rules, turn them on if you are interested. They are accurate.
+##alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE Executable and linking format (ELF) file download"; flow: established; content:"|7F|ELF"; content:"|00 00 00 00 00 00 00 00|"; reference:url,www.itee.uq.edu.au/~cristina/students/david/honoursThesis96/bff.htm; classtype: misc-activity; sid: 2000418; rev:6; )
+##alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE PE EXE or DLL Windows file download"; flow: established; content:"MZ"; isdataat: 76,relative; content:"This program cannot be run in DOS mode."; distance: 0; isdataat: 10,relative; content:"PE"; distance: 0; classtype: misc-activity; sid: 2000419; rev:6; )
+##alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE REG files version 4 download"; flow: established; content:"REGEDIT4"; content:"|0D 0A|"; content:"["; content:"HKEY_"; nocase; reference:url,www.ss64.com/nt/regedit.html; classtype: misc-activity; sid: 2000420; rev:7; )
+##alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE REG files version 5 download"; flow: established; content:"Windows Registry Editor Version 5.00"; content:"|0D 0A|"; content:"["; content:"HKEY_"; nocase; reference:url,www.ss64.com/nt/regedit.html; classtype: misc-activity; sid: 2000421; rev:7; )
+##alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE REG files version 5 Unicode download"; flow: established; content:"W|00|i|00|n|00|d|00|o|00|w|00|s|00| |00|R|00|e|00|g|00|i|00|s|00|t|00|r|00|y|00| |00|E|00|d|00|i|00|t|00|o|00|r|00| |00|V|00|e|00|r|00|s|00|i|00|o|00|n|00| |00|5|00|.|00|0|00|0|00|"; content:"|0D 0A|"; content:"[|00|"; content:"H|00|K|00|E|00|Y|00|_|00|"; nocase; reference:url,www.ss64.com/nt/regedit.html; classtype: misc-activity; sid: 2000422; rev:7; )
+##alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE NE EXE OS2 file download"; flow: established; content:"MZ"; isdataat: 76,relative; content:"This program cannot be run in a DOS session."; isdataat: 6,relative; content:"NE"; distance: 0; reference:url,www.itee.uq.edu.au/~cristina/students/david/honoursThesis96/bff.htm; classtype: misc-activity; sid: 2000423; rev:6; )
+##alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE LX EXE OS2 file download"; flow: established; content:"MZ"; isdataat: 76,relative; content:"This program cannot be run in a DOS session."; isdataat: 6,relative; content:"LX"; distance: 0; reference:url,www.itee.uq.edu.au/~cristina/students/david/honoursThesis96/bff.htm; classtype: misc-activity; sid: 2000424; rev:6; )
+##alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE NE EXE Windows 3.x file download"; flow: established; content:"MZ"; isdataat: 76,relative; content:"This program requires Microsoft Windows."; isdataat: 10,relative; content:"NE"; distance: 0; reference:url,www.itee.uq.edu.au/~cristina/students/david/honoursThesis96/bff.htm; classtype: misc-activity; sid: 2000425; rev:6; )
+##alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE EXE compressed PKWARE Windows file download"; flow: established; content:"MZ"; isdataat: 28,relative; content:"PKLITE"; distance: 0; reference:url,www.program-transformation.org/Transform/PcExeFormat; classtype: misc-activity; sid: 2000426; rev:6; )
+##alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE PE EXE Install Windows file download"; flow: established; content:"MZ"; isdataat: 76,relative; content:"This program must be run under Win32"; distance: 0; isdataat: 140,relative; content:"PE"; distance: 0; reference:url,www.program-transformation.org/Transform/PcExeFormat; classtype: misc-activity; sid: 2000427; rev:6; )
+##alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE ZIP file download"; flow: established; content:"PK|0304|"; byte_test:1, <=, 0x14, 0, string, hex;content:"|00 00 00|"; distance: 0; reference:url,zziplib.sourceforge.net/zzip-parse.print.html; classtype: misc-activity; sid: 2000428; rev:7; )
+##alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE Download Windows Help File CHM"; flow: established; content:"ITSF|03|"; isdataat: 19,relative; content:"|7C 01 FD 10 7B AA 11 D0 9E 0C 00 A0 C9 22 E6 EC 7C 01 FD 11 7B AA 11 D0 9E 0C 00 A0 C9 22 E6 EC|"; distance: 0; reference:url,www.speakeasy.org/~russotto/chm/chmformat.html; reference:url,www.securiteam.com/windowsntfocus/6V00N000AU.html; classtype: misc-activity; sid: 2000489; rev:6; )
+##alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE Download Windows Help File CHM 2"; flow: established; content:"ITSF|03|"; isdataat: 19,relative; content:"|10 FD 01 7C AA 7B D0 11 9E 0C 00 A0 C9 22 E6 EC 11 FD 01 7C AA 7B D0 11 9E 0C 00 A0 C9 22 E6 EC|"; distance: 0; reference:url,www.speakeasy.org/~russotto/chm/chmformat.html; reference:url,www.securiteam.com/windowsntfocus/6V00N000AU.html; classtype: misc-activity; sid: 2000429; rev:6; )
+##alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE MSI (microsoft installer file) download"; flow: established; content:"|D0 CF 11 E0 A1 B1 1A E1|"; classtype: bad-unknown; sid: 2001115; rev:3; )
+
+# Submitted 2006-09-17 by Mark Warren
+# This signature was designed to detect access to http://www.bodog.com
+# This website contains pornography, gambling, sports and sports related betting
+# The commercials for this website state that portions of the site were designed
+# to bypass security filters.
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY Porn-Sports-Gambling site designed to bypass restrictions"; flow:to_server,established; content:"Host\:"; nocase; pcre:"/Host\:[^\n]+\.(bodog|bodogbeat|bodognation|bodogmusic|bodogconference|bodogpokerchampionships)\.com/i";  reference:url,www.bodog.com; classtype:policy-violation; sid:2003100; rev:2;)
+
+#Idea by David Glosser, sig by Matt Jonkman
+#alert ip [0.0.0.0/7,2.0.0.0/8,5.0.0.0/8,7.0.0.0/8,23.0.0.0/8,27.0.0.0/8,31.0.0.0/8,36.0.0.0/7,39.0.0.0/8,42.0.0.0/8,49.0.0.0/8] any -> $HOME_NET any (msg:"BLEEDING-EDGE POLICY Reserved IP Space Traffic - Bogon Nets 1"; classtype:bad-unknown; reference:url,www.cymru.com/Documents/bogon-list.html; threshold: type limit, track by_src, count 1, seconds 360; sid:2002749; rev:2;)
+#alert ip [50.0.0.0/8,77.0.0.0/8,78.0.0.0/7,92.0.0.0/6,112.0.0.0/5,120.0.0.0/8,140.249.0.0/16,140.250.0.0/16,173.0.0.0/8,174.0.0.0/7,176.0.0.0/5,184.0.0.0/6] any -> $HOME_NET any (msg:"BLEEDING-EDGE POLICY Reserved IP Space Traffic - Bogon Nets 2"; classtype:bad-unknown; reference:url,www.cymru.com/Documents/bogon-list.html; threshold: type limit, track by_src, count 1, seconds 360; sid:2002750; rev:5;)
+#alert ip [192.0.2.0/24,197.0.0.0/8,198.18.0.0/15,223.0.0.0/8] any -> $HOME_NET any (msg:"BLEEDING-EDGE POLICY Reserved IP Space Traffic - Bogon Nets 3"; classtype:bad-unknown; reference:url,www.cymru.com/Documents/bogon-list.html; threshold: type limit, track by_src, count 1, seconds 360; sid:2002751; rev:2;)
+#
+#This is for reserved internal space. Do NOT run this sig on your internal net, commented out by default.
+##alert ip [10.0.0.0/8,169.254.0.0/16,172.16.0.0/12,192.168.0.0/16] any -> $HOME_NET any (msg:"BLEEDING-EDGE POLICY Reserved Internal IP Traffic"; classtype:bad-unknown; reference:url,www.cymru.com/Documents/bogon-list.html; threshold: type limit, track by_src, count 1, seconds 360; sid:2002752; rev:2;)
+
+#Submitted by Matt Jonkman
+#alert tcp $HOME_NET 23 -> any any (msg: "BLEEDING-EDGE Cisco Device in Config Mode"; flow: established; content:"Enter configuration commands, one per line"; nocase; classtype: not-suspicious; sid: 2001239; rev:4; )
+#alert tcp $HOME_NET 23 -> any any (msg: "BLEEDING-EDGE Cisco Device New Config Built"; flow: established; content:"Building configuration..."; nocase; classtype: not-suspicious; sid: 2001240; rev:4; )
+
+#By Cory Bys, Particle.bored.
+# These are going to increase load on a snort process, and are NOT FOOLPROOF. But they may help reveal issues
+# with informaion flow. NOTE: These will not detect classified UUEncoded docs (email attachments) etc.
+#
+#  Email
+#
+# Non-US Restricted
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Non-US Restricted Outbound"; flow:to_server,established; content:"Subject|3A|"; pcre:"///([A-Z]{3}\s)+RESTRICTED//X5/ism"; classtype:policy-violation; sid:2002410; rev:1;)
+#
+# Non-US Confidential
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Non-US Confidential Outbound"; flow:to_server,established; content:"Subject|3A|"; pcre:"///([A-Z]{3}\s)+CONFIDENTIAL//X5/ism"; classtype:policy-violation; sid:2002411; rev:1;)
+#
+# Non-US Top Secret
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Non-US Top Secret Outbound"; flow:to_server,established; content:"Subject|3A|"; pcre:"///([A-Z]{3}\s)+TOP\sSECRET//X5/ism"; classtype:policy-violation; sid:2002412; rev:1;)
+#
+# Non-US Secret
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Non-US Secret"; flow:to_server,established; content:"Subject|3A|"; pcre:"///([A-Z]{3}\s)+(?<!TOP\s)SECRET//X5/ism"; classtype:policy-violation; sid:2002413; rev:1;)
+#
+# NATO Restricted
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP NATO Restricted"; flow:to_server,established; content:"Subject|3A|"; pcre:"///((NATO\sRESTRICTED)|NR)//MR/ism"; classtype:policy-violation; sid:2002414; rev:1;)
+#
+# NATO Confidential Atomal
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP NATO Confidential Atomal"; flow:to_server,established; content:"Subject|3A|"; pcre:"///((NATO\sCONFIDENTIAL\sATOMAL)|NCA)//MR/ism"; classtype:policy-violation; sid:2002415; rev:1;)
+#
+# NATO Confidential
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP NATO Confidential"; flow:to_server,established; content:"Subject|3A|"; pcre:"///((NATO\sCONFIDENTIAL)|NC)//MR/ism"; classtype:policy-violation; sid:2002416; rev:1;)
+#
+# NATO COSMIC Top Secret Atomal
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP NATO COSMIC Top Secret Atomal"; flow:to_server,established; content:"Subject|3A|"; pcre:"///((COSMIC\sTOP\sSECRET\sATOMAL)|CTSA)//MR/ism"; classtype:policy-violation; sid:2002417; rev:1;)
+#
+# NATO Secret Atomal
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP NATO Secret Atomal"; flow:to_server,established; content:"Subject|3A|"; pcre:"///((NATO\sSECRET\sATOMAL)|NSA)//MR/ism"; classtype:policy-violation; sid:2002418; rev:1;)
+#
+# NATO Secret
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP NATO Secret"; flow:to_server,established; content:"Subject|3A|"; pcre:"///((NATO\sSECRET)|NS)//MR/ism"; classtype:policy-violation; sid:2002419; rev:1;)
+#
+# US Confidential, Electronic Format
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Confidential, Electronic"; flow:to_server,established; content:"Subject|3A|"; pcre:"/QQQQ\r\n(?=(O|P|R|Z)\r\n(CC)\r\n)/ism"; classtype:policy-violation; sid:2002420; rev:1;)
+#
+# US Top Secret, Electronic Format
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Top Secret, Electronic"; flow:to_server,established; content:"Subject|3A|"; pcre:"/QQQQ\r\n(?=(O|P|R|Z)\r\n(TT)\r\n)/ism"; classtype:policy-violation; sid:2002421; rev:1;)
+#
+# US Secret, Electronic Format
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Secret, Electronic"; flow:to_server,established; content:"Subject|3A|"; pcre:"/QQQQ\r\n(?=(O|P|R|Z)\r\n(SS)\r\n)/ism"; classtype:policy-violation; sid:2002422; rev:1;)
+#
+# US Confidential Authorized for Release To
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Confidential REL TO"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*REL\sTO\sUSA[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002423; rev:1;)
+#
+# US Top Secret Authorized for Release To
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Top Secret REL TO"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*REL\sTO\sUSA[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002424; rev:1;)
+#
+# US Secret Authorized for Release To
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Secret REL TO"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*REL\sTO\sUSA[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002425; rev:1;)
+#
+# US Confidential Comint
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Confidential COMINT"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*(COMINT|SI)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002426; rev:1;)
+#
+# US Top Secret Comint
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Top Secret COMINT"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*(COMINT|SI)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002427; rev:1;)
+#
+# US Secret Comint
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Secret COMINT"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*(COMINT|SI)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002428; rev:1;)
+#
+# US Unclassified Communications Security Material
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Unclassified COMSEC"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(UNCLASSIFIED|U)//[\s\w,/-]*COMSEC[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002429; rev:1;)
+#
+# US Confidential Communications Security Material
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Confidential COMSEC"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*COMSEC[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002430; rev:1;)
+#
+# US Top Secret Communications Security Material
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Top Secret COMSEC"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*COMSEC[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002431; rev:1;)
+#
+# US Secret Communications Security Material
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Secret COMSEC"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*COMSEC[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002432; rev:1;)
+#
+# US Controlled Imagery
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Secret IMCON"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*(IMCON|IMC)[\s\w,/-]*(?=//(X1|MR))/ism"; classtype:policy-violation; sid:2002433; rev:1;)
+#
+# US Top Secret Critical Nuclear Weapon Design Information
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Top Secret CNWDI"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*(CRITICAL\sNUCLEAR\sWEAPON\sDESIGN\sINFORMATION|CNWDI)[\s\w,/-]*(?=//MR)/ism"; classtype:policy-violation; sid:2002434; rev:1;)
+#
+# US Secret Critical Nuclear Weapon Design Information
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Secret CNWDI"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*(CRITICAL\sNUCLEAR\sWEAPON\sDESIGN\sINFORMATION|CNWDI)[\s\w,/-]*(?=//MR)/ism"; classtype:policy-violation; sid:2002435; rev:1;)
+#
+# US Top Secret Talent Keyhole
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Top Secret TK"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*(TALENT\sKEYHOLE|TK)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002436; rev:1;)
+#
+# US Secret Talent Keyhole
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Secret TK"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*(TALENT\sKEYHOLE|TK)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002437; rev:1;)
+#
+# US Foreign Government Information
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US FGI"; flow:to_server,established; content:"Subject|3A|"; pcre:"///FGI[\s\w,/-]*(?=//X5)/ism"; classtype:policy-violation; sid:2002438; rev:1;)
+#
+# US For Official Use Only
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US FOUO"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(UNCLASSIFIED|U)//(FOR\sOFFICIAL\sUSE\sONLY|FOUO)/ism"; classtype:policy-violation; sid:2002439; rev:1;)
+#
+# US Confidential Not Releasable to Foreign Nationals
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Confidential NOFORN"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*NOFORN[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002440; rev:1;)
+#
+# US Top Secret Not Releasable to Foreign Nationals
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Top Secret NOFORN"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*NOFORN[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002441; rev:1;)
+#
+# US Secret Not Releasable to Foreign Nationals
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Secret NOFORN"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*NOFORN[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002442; rev:1;)
+#
+# US Confidential Originator Controlled
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Confidential ORCON"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*(ORIGINATOR\sCONTROLLED|ORCON)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002443; rev:1;)
+#
+# US Top Secret Originator Controlled
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Top Secret ORCON"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*(ORIGINATOR\sCONTROLLED|ORCON)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002444; rev:1;)
+#
+# US Secret Originator Controlled
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Secret ORCON"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*(ORIGINATOR\sCONTROLLED|ORCON)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002445; rev:1;)
+#
+# US Unclassified Proprietary Information
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Unclassified PROPIN"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(UNCLASSIFIED|U)//[\s\w,/-]*PROPIN[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002446; rev:1;)
+#
+# US Confidential Proprietary Information
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Confidential PROPIN"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*PROPIN[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002447; rev:1;)
+#
+# US Top Secret Proprietary Information
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Top Secret PROPIN"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*PROPIN[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002448; rev:1;)
+#
+# US Secret Proprietary Information
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Secret PROPIN"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*PROPIN[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002449; rev:1;)
+#
+# US Confidential Restricted Data
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Confidential RD"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*(RESTRICTED\sDATA|RD)[\s\w,/-]*(?=//MR)/ism"; classtype:policy-violation; sid:2002450; rev:1;)
+#
+# US Top Secret Restricted Data
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Top Secret RD"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*(RESTRICTED\sDATA|RD)[\s\w,/-]*(?=//MR)/ism"; classtype:policy-violation; sid:2002451; rev:1;)
+#
+# US Secret Restricted Data
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Secret RD"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*(RESTRICTED\sDATA|RD)[\s\w,/-]*(?=//MR)/ism"; classtype:policy-violation; sid:2002452; rev:1;)
+#
+# US Sources and Methods Information
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US SAMI"; flow:to_server,established; content:"Subject|3A|"; pcre:"/SAMI[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002453; rev:1;)
+#
+# US Confidential Special Category
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Confidential SPECAT"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*SPECAT[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002454; rev:1;)
+#
+# US Top Secret Special Category
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Top Secret SPECAT"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*SPECAT[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002455; rev:1;)
+#
+# US Secret Special Category
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Secret SPECAT"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*SPECAT[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002456; rev:1;)
+#
+# US Top Secret Single Integrated Operations Plan
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP US Top Secret STOP"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*STOP[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002457; rev:1;)
+#
+# The word "private"
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Private"; flow:to_server,established; content:"Subject|3A|"; pcre:"/\Wprivate\W(?!/(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002458; rev:1;)
+#
+# The word "restricted"
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Restricted"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(?<!//)\Wrestricted[^\w/]/ism"; classtype:policy-violation; sid:2002459; rev:1;)
+#
+# The word "confidential"
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Confidential"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(?<!//)\Wconfidential[^\w/]/ism"; classtype:policy-violation; sid:2002460; rev:1;)
+#
+# The word "secret"
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Secret"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(?<!TOP|//)\Wsecret[^\w/a]/ism"; classtype:policy-violation; sid:2002461; rev:1;)
+#
+# The phrase "top secret"
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Top Secret"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(?<!//)\Wtop\ssecret[^\w/a]/ism"; classtype:policy-violation; sid:2002462; rev:1;)
+#
+# The word "sealed"
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Sealed"; flow:to_server,established; content:"Subject|3A|"; pcre:"/\Wsealed\W(?!/(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002463; rev:1;)
+#
+# The word "sensitive"
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Sensitive"; flow:to_server,established; content:"Subject|3A|"; pcre:"/(?<!law\senforcement)\Wsensitive\W(?!/(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002464; rev:1;)
+#
+# The word "proprietary"
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Proprietary"; flow:to_server,established; content:"Subject|3A|"; pcre:"/\Wproprietary\W(?!/(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002465; rev:1;)
+#
+# The word "protected"
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Protected"; flow:to_server,established; content:"Subject|3A|"; pcre:"/\Wprotected\W(?!/(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002466; rev:1;)
+#
+# The phrase "law enforcement sensitive"
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Law Enorcement Sensitive"; flow:to_server,established; content:"Subject|3A|"; pcre:"/\Wlaw\senforcement\ssensitive\W/ism"; classtype:policy-violation; sid:2002467; rev:1;)
+#
+# The phrase "internal use only"
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Internal Use Only"; flow:to_server,established; content:"Subject|3A|"; pcre:"/\Winternal\suse\sonly\W/ism"; classtype:policy-violation; sid:2002468; rev:1;)
+#
+# The phrase "date of birth" or its typical abbreviations
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Date of Birth"; flow:to_server,established; content:"Subject|3A|"; pcre:"/[^\w&]d(ate)?(-)?o(f)?(-)?b(irth)?\W[\s\w,/-]*(?=([0-9]{2}[-/][0-9]{2}[-/][0-9]{2,4})|[0-9]{8})/ism"; classtype:policy-violation; sid:2002469; rev:1;)
+#
+# Health Care Common Procedure Coding System (HCPCS) Codes
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP HCPCS Code"; flow:to_server,established; content:"Subject|3A|"; pcre:"/\Whcpcs\W[\s\w,/-]*(?=[a-z][0-9]{10})/ism"; classtype:policy-violation; sid:2002470; rev:1;)
+#
+# International Statistical Classification of Diseases and Related Health Problems 10th Revision (ICD-10) Codes
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP ICD-10 Code"; flow:to_server,established; content:"Subject|3A|"; pcre:"/\Wicd\W[\s\w,/-]*(?=[a-z][0-9]{2}\.[0-9]{2})/ism"; classtype:policy-violation; sid:2002471; rev:1;)
+#
+# Food and Drug Administration (FDA) National Drug Code (NDC) Codes
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP FDA NDC Code"; flow:to_server,established; content:"Subject|3A|"; pcre:"/\Wndc\W[\s\w,/-]*(?=([0-9]{4}-[0-9]{4}-[0-9]{2}|[0-9]{5}-[0-9]{3}-[0-9]{2}|[0-9]{5}-[0-9]{4}-[0-9]{1,2}))/ism"; classtype:policy-violation; sid:2002472; rev:1;)
+#
+# American Dental Association (ADA) Dental Procedure Codes
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP ADA Procedure Code"; flow:to_server,established; content:"Subject|3A|"; pcre:"/\Wada\W[\s\w,/-]*(?=d[0-9]{4})/ism"; classtype:policy-violation; sid:2002473; rev:1;)
+#
+# Diagnostic and Statistical Manual of Mental Disorders (DSM-IV) Codes
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP DSM-IV Code"; flow:to_server,established; content:"Subject|3A|"; pcre:"/\Wdsm\W[\s\w,/-]*(?=([2-9][0-9]{2}(\.[0-9]{1,2)?)|(v[167][0-9]\.[0-9]{1,2}))/ism"; classtype:policy-violation; sid:2002474; rev:1;)
+#
+# American Medical Association (AMA) Current Procedural Terminology (CPT) Codes
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP AMA CPT Code"; flow:to_server,established; content:"Subject|3A|"; pcre:"/\Wcpt\W[\s\w,/-]*(?=[0-9]{4}[ft]|[0-9]{5})/ism"; classtype:policy-violation; sid:2002475; rev:1;)
+#
+# Japan Credit Bureau Credit Card Number
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Credit Card, JCB"; flow:to_server,established; content:"Subject|3A|"; pcre:"/\Wj(apan\s)?c(redit\s)?b(ureau)?\W[\s\w,/-]*(?=(3[12359][0-9]{14})|(1800|2131)[0-9]{11})/ism"; classtype:policy-violation; sid:2002477; rev:1;)
+#
+# The word "password", its typical abbreviations or written/abbreviated in a few forms of "leet"
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Password"; flow:to_server,established; content:"Subject|3A|"; pcre:"/\W[p][a4@][sz5]{0,2}[w]([o0][r])?[d]\W/ism"; classtype:policy-violation; sid:2002483; rev:1;)
+#
+# The word "appraisal"
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Appraisal"; flow:to_server,established; content:"Subject|3A|"; pcre:"/\Wappraisal(s)?\W/ism"; classtype:policy-violation; sid:2002484; rev:1;)
+#
+# The phrase "account balance"
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Account Balance"; flow:to_server,established; content:"Subject|3A|"; pcre:"/\Waccount\sbalance(s)?\W/ism"; classtype:policy-violation; sid:2002485; rev:1;)
+#
+# The phrase "payment history"
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Payment History"; flow:to_server,established; content:"Subject|3A|"; pcre:"/\Wpayment\shistory\W/ism"; classtype:policy-violation; sid:2002486; rev:1;)
+#
+# The phrase "annual income"
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Annual Income"; flow:to_server,established; content:"Subject|3A|"; pcre:"/\Wannual\sincome(s)?\W/ism"; classtype:policy-violation; sid:2002487; rev:2;)
+#
+# The phrase "credit history"
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Credit History"; flow:to_server,established; content:"Subject|3A|"; pcre:"/\Wcredit\shistor(y|ies)\W/ism"; classtype:policy-violation; sid:2002488; rev:1;)
+#
+# The phrase "transaction history"
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Transaction History"; flow:to_server,established; content:"Subject|3A|"; pcre:"/\Wtransaction\shistor(y|ies)\W/ism"; classtype:policy-violation; sid:2002489; rev:1;)
+#
+# The phrase "customer list"
+##alert tcp $SMTP_SERVERS any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP Customer List"; flow:to_server,established; content:"Subject|3A|"; pcre:"/\Wcustomer\slist(s)?\W/ism"; classtype:policy-violation; sid:2002490; rev:1;)
+
+##########################################
+#
+# HTTP POST
+#
+# Non-US Restricted
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP Non-US Restricted"; flow:to_server,established; pcre:"///([A-Z]{3}\s)+RESTRICTED//X5/ism"; classtype:policy-violation; sid:2002495; rev:2;)
+#
+# Non-US Confidential
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Non-US Confidential"; flow:to_server,established; pcre:"///([A-Z]{3}\s)+CONFIDENTIAL//X5/ism"; classtype:policy-violation; sid:2002496; rev:2;)
+#
+# Non-US Top Secret
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Non-US Top Secret"; flow:to_server,established; pcre:"///([A-Z]{3}\s)+TOP\sSECRET//X5/ism"; classtype:policy-violation; sid:2002497; rev:2;)
+#
+# Non-US Secret
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Non-US Secret"; flow:to_server,established; pcre:"///([A-Z]{3}\s)+(?<!TOP\s)SECRET//X5/ism"; classtype:policy-violation; sid:2002498; rev:2;)
+#
+# NATO Restricted
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - NATO Restricted"; flow:to_server,established; pcre:"///((NATO\sRESTRICTED)|NR)//MR/ism"; classtype:policy-violation; sid:2002499; rev:2;)
+#
+# NATO Confidential Atomal
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - NATO Confidential Atomal"; flow:to_server,established; pcre:"///((NATO\sCONFIDENTIAL\sATOMAL)|NCA)//MR/ism"; classtype:policy-violation; sid:2002500; rev:2;)
+#
+# NATO Confidential
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - NATO Confidential"; flow:to_server,established; pcre:"///((NATO\sCONFIDENTIAL)|NC)//MR/ism"; classtype:policy-violation; sid:2002501; rev:2;)
+#
+# NATO COSMIC Top Secret Atomal
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - NATO COSMIC Top Secret Atomal"; flow:to_server,established; pcre:"///((COSMIC\sTOP\sSECRET\sATOMAL)|CTSA)//MR/ism"; classtype:policy-violation; sid:2002502; rev:2;)
+#
+# NATO Secret Atomal
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - NATO Secret Atomal"; flow:to_server,established; pcre:"///((NATO\sSECRET\sATOMAL)|NSA)//MR/ism"; classtype:policy-violation; sid:2002503; rev:2;)
+#
+# NATO Secret
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - NATO Secret"; flow:to_server,established; pcre:"///((NATO\sSECRET)|NS)//MR/ism"; classtype:policy-violation; sid:2002504; rev:2;)
+#
+# US Confidential, Electronic Format
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Confidential, Electronic"; flow:to_server,established; pcre:"/QQQQ\r\n(?=(O|P|R|Z)\r\n(CC)\r\n)/ism"; classtype:policy-violation; sid:2002505; rev:2;)
+#
+# US Top Secret, Electronic Format
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Top Secret, Electronic"; flow:to_server,established; pcre:"/QQQQ\r\n(?=(O|P|R|Z)\r\n(TT)\r\n)/ism"; classtype:policy-violation; sid:2002506; rev:2;)
+#
+# US Secret, Electronic Format
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Secret, Electronic"; flow:to_server,established; pcre:"/QQQQ\r\n(?=(O|P|R|Z)\r\n(SS)\r\n)/ism"; classtype:policy-violation; sid:2002507; rev:2;)
+#
+# US Confidential Authorized for Release To
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Confidential REL TO"; flow:to_server,established; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*REL\sTO\sUSA[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002508; rev:2;)
+#
+# US Top Secret Authorized for Release To
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Top Secret REL TO"; flow:to_server,established; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*REL\sTO\sUSA[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002509; rev:2;)
+#
+# US Secret Authorized for Release To
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Secret REL TO"; flow:to_server,established; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*REL\sTO\sUSA[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002510; rev:2;)
+#
+# US Confidential Comint
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Confidential COMINT"; flow:to_server,established; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*(COMINT|SI)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002511; rev:2;)
+#
+# US Top Secret Comint
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Top Secret COMINT"; flow:to_server,established; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*(COMINT|SI)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002512; rev:2;)
+#
+# US Secret Comint
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Secret COMINT"; flow:to_server,established; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*(COMINT|SI)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002513; rev:2;)
+#
+# US Unclassified Communications Security Material
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Unclassified COMSEC"; flow:to_server,established; pcre:"/(UNCLASSIFIED|U)//[\s\w,/-]*COMSEC[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002514; rev:2;)
+#
+# US Confidential Communications Security Material
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Confidential COMSEC"; flow:to_server,established; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*COMSEC[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002515; rev:2;)
+#
+# US Top Secret Communications Security Material
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Top Secret COMSEC"; flow:to_server,established; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*COMSEC[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002516; rev:2;)
+#
+# US Secret Communications Security Material
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Secret COMSEC"; flow:to_server,established; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*COMSEC[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002517; rev:2;)
+#
+# US Controlled Imagery
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Secret IMCON"; flow:to_server,established; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*(IMCON|IMC)[\s\w,/-]*(?=//(X1|MR))/ism"; classtype:policy-violation; sid:2002518; rev:2;)
+#
+# US Top Secret Critical Nuclear Weapon Design Information
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Top Secret CNWDI"; flow:to_server,established; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*(CRITICAL\sNUCLEAR\sWEAPON\sDESIGN\sINFORMATION|CNWDI)[\s\w,/-]*(?=//MR)/ism"; classtype:policy-violation; sid:2002519; rev:2;)
+#
+# US Secret Critical Nuclear Weapon Design Information
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Secret CNWDI"; flow:to_server,established; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*(CRITICAL\sNUCLEAR\sWEAPON\sDESIGN\sINFORMATION|CNWDI)[\s\w,/-]*(?=//MR)/ism"; classtype:policy-violation; sid:2002520; rev:2;)
+#
+# US Top Secret Talent Keyhole
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Top Secret TK"; flow:to_server,established; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*(TALENT\sKEYHOLE|TK)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002521; rev:2;)
+#
+# US Secret Talent Keyhole
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Secret TK"; flow:to_server,established; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*(TALENT\sKEYHOLE|TK)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002522; rev:2;)
+#
+# US Foreign Government Information
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US FGI"; flow:to_server,established; pcre:"///FGI[\s\w,/-]*(?=//X5)/ism"; classtype:policy-violation; sid:2002523; rev:2;)
+#
+# US For Official Use Only
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US FOUO"; flow:to_server,established; pcre:"/(UNCLASSIFIED|U)//(FOR\sOFFICIAL\sUSE\sONLY|FOUO)/ism"; classtype:policy-violation; sid:2002524; rev:2;)
+#
+# US Confidential Not Releasable to Foreign Nationals
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Confidential NOFORN"; flow:to_server,established; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*NOFORN[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002525; rev:2;)
+#
+# US Top Secret Not Releasable to Foreign Nationals
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Top Secret NOFORN"; flow:to_server,established; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*NOFORN[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002526; rev:2;)
+#
+# US Secret Not Releasable to Foreign Nationals
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Secret NOFORN"; flow:to_server,established; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*NOFORN[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002527; rev:2;)
+#
+# US Confidential Originator Controlled
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Confidential ORCON"; flow:to_server,established; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*(ORIGINATOR\sCONTROLLED|ORCON)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002704; rev:1;)
+#
+# US Top Secret Originator Controlled
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Top Secret ORCON"; flow:to_server,established; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*(ORIGINATOR\sCONTROLLED|ORCON)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002528; rev:2;)
+#
+# US Secret Originator Controlled
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Secret ORCON"; flow:to_server,established; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*(ORIGINATOR\sCONTROLLED|ORCON)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002529; rev:2;)
+#
+# US Unclassified Proprietary Information
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Unclassified PROPIN"; flow:to_server,established; pcre:"/(UNCLASSIFIED|U)//[\s\w,/-]*PROPIN[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002530; rev:2;)
+#
+# US Confidential Proprietary Information
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Confidential PROPIN"; flow:to_server,established; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*PROPIN[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002531; rev:2;)
+#
+# US Top Secret Proprietary Information
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Top Secret PROPIN"; flow:to_server,established; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*PROPIN[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002532; rev:2;)
+#
+# US Secret Proprietary Information
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Secret PROPIN"; flow:to_server,established; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*PROPIN[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002533; rev:2;)
+#
+# US Confidential Restricted Data
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Confidential RD"; flow:to_server,established; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*(RESTRICTED\sDATA|RD)[\s\w,/-]*(?=//MR)/ism"; classtype:policy-violation; sid:2002534; rev:2;)
+#
+# US Top Secret Restricted Data
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Top Secret RD"; flow:to_server,established; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*(RESTRICTED\sDATA|RD)[\s\w,/-]*(?=//MR)/ism"; classtype:policy-violation; sid:2002535; rev:2;)
+#
+# US Secret Restricted Data
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Secret RD"; flow:to_server,established; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*(RESTRICTED\sDATA|RD)[\s\w,/-]*(?=//MR)/ism"; classtype:policy-violation; sid:2002536; rev:2;)
+#
+# US Sources and Methods Information
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US SAMI"; flow:to_server,established; pcre:"/SAMI[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002537; rev:2;)
+#
+# US Confidential Special Category
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Confidential SPECAT"; flow:to_server,established; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*SPECAT[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002538; rev:2;)
+#
+# US Top Secret Special Category
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Top Secret SPECAT"; flow:to_server,established; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*SPECAT[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002539; rev:2;)
+#
+# US Secret Special Category
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Secret SPECAT"; flow:to_server,established; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*SPECAT[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002540; rev:2;)
+#
+# US Top Secret Single Integrated Operations Plan
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - US Top Secret STOP"; flow:to_server,established; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*STOP[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002541; rev:2;)
+#
+# The word "private"
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Private"; flow:to_server,established; pcre:"/\Wprivate\W(?!/(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002542; rev:2;)
+#
+# The word "restricted"
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Restricted"; flow:to_server,established; pcre:"/(?<!//)\Wrestricted[^\w/]/ism"; classtype:policy-violation; sid:2002543; rev:2;)
+#
+# The word "confidential"
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Confidential"; flow:to_server,established; pcre:"/(?<!//)\Wconfidential[^\w/]/ism"; classtype:policy-violation; sid:2002544; rev:2;)
+#
+# The word "secret"
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Secret"; flow:to_server,established; pcre:"/(?<!TOP|//)\Wsecret[^\w/a]/ism"; classtype:policy-violation; sid:2002545; rev:2;)
+#
+# The phrase "top secret"
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Top Secret"; flow:to_server,established; pcre:"/(?<!//)\Wtop\ssecret[^\w/a]/ism"; classtype:policy-violation; sid:2002546; rev:2;)
+#
+# The word "sealed"
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Sealed"; flow:to_server,established; pcre:"/\Wsealed\W(?!/(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002547; rev:2;)
+#
+# The word "sensitive"
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Sensitive"; flow:to_server,established; pcre:"/(?<!law\senforcement)\Wsensitive\W(?!/(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002548; rev:2;)
+#
+# The word "proprietary"
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Proprietary"; flow:to_server,established; pcre:"/\Wproprietary\W(?!/(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002549; rev:2;)
+#
+# The word "protected"
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Protected"; flow:to_server,established; pcre:"/\Wprotected\W(?!/(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002550; rev:2;)
+#
+# The phrase "law enforcement sensitive"
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Law Enorcement Sensitive"; flow:to_server,established; pcre:"/\Wlaw\senforcement\ssensitive\W/ism"; classtype:policy-violation; sid:2002551; rev:2;)
+#
+# The phrase "internal use only"
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Internal Use Only"; flow:to_server,established; pcre:"/\Winternal\suse\sonly\W/ism"; classtype:policy-violation; sid:2002552; rev:2;)
+#
+# The phrase "date of birth" or its typical abbreviations
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Date of Birth"; flow:to_server,established; pcre:"/[^\w&]d(ate)?(-)?o(f)?(-)?b(irth)?\W[\s\w,/-]*(?=([0-9]{2}[-/][0-9]{2}[-/][0-9]{2,4})|[0-9]{8})/ism"; classtype:policy-violation; sid:2002553; rev:2;)
+#
+# Health Care Common Procedure Coding System (HCPCS) Codes
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - HCPCS Code"; flow:to_server,established; pcre:"/\Whcpcs\W[\s\w,/-]*(?=[a-z][0-9]{10})/ism"; classtype:policy-violation; sid:2002554; rev:2;)
+#
+# International Statistical Classification of Diseases and Related Health Problems 10th Revision (ICD-10) Codes
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - ICD-10 Code"; flow:to_server,established; pcre:"/\Wicd\W[\s\w,/-]*(?=[a-z][0-9]{2}\.[0-9]{2})/ism"; classtype:policy-violation; sid:2002555; rev:2;)
+#
+# Food and Drug Administration (FDA) National Drug Code (NDC) Codes
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - FDA NDC Code"; flow:to_server,established; pcre:"/\Wndc\W[\s\w,/-]*(?=([0-9]{4}-[0-9]{4}-[0-9]{2}|[0-9]{5}-[0-9]{3}-[0-9]{2}|[0-9]{5}-[0-9]{4}-[0-9]{1,2}))/ism"; classtype:policy-violation; sid:2002556; rev:2;)
+#
+# American Dental Association (ADA) Dental Procedure Codes
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - ADA Procedure Code"; flow:to_server,established; pcre:"/\Wada\W[\s\w,/-]*(?=d[0-9]{4})/ism"; classtype:policy-violation; sid:2002557; rev:2;)
+#
+# Diagnostic and Statistical Manual of Mental Disorders (DSM-IV) Codes
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - DSM-IV Code"; flow:to_server,established; pcre:"/\Wdsm\W[\s\w,/-]*(?=([2-9][0-9]{2}(\.[0-9]{1,2)?)|(v[167][0-9]\.[0-9]{1,2}))/ism"; classtype:policy-violation; sid:2002558; rev:2;)
+#
+# American Medical Association (AMA) Current Procedural Terminology (CPT) Codes
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - AMA CPT Code"; flow:to_server,established; pcre:"/\Wcpt\W[\s\w,/-]*(?=[0-9]{4}[ft]|[0-9]{5})/ism"; classtype:policy-violation; sid:2002559; rev:2;)
+#
+# Japan Credit Bureau Credit Card Number
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Credit Card, JCB"; flow:to_server,established; pcre:"/\Wj(apan\s)?c(redit\s)?b(ureau)?\W[\s\w,/-]*(?=(3[12359][0-9]{14})|(1800|2131)[0-9]{11})/ism"; classtype:policy-violation; sid:2002561; rev:2;)
+#
+# The word "password", its typical abbreviations or written/abbreviated in a few forms of "leet"
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Password"; flow:to_server,established; pcre:"/\W[p][a4@][sz5]{0,2}[w]([o0][r])?[d]\W/ism"; classtype:policy-violation; sid:2002567; rev:2;)
+#
+# The word "appraisal"
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Appraisal"; flow:to_server,established; pcre:"/\Wappraisal(s)?\W/ism"; classtype:policy-violation; sid:2002568; rev:2;)
+#
+# The phrase "account balance"
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Account Balance"; flow:to_server,established; pcre:"/\Waccount\sbalance(s)?\W/ism"; classtype:policy-violation; sid:2002569; rev:2;)
+#
+# The phrase "payment history"
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Payment History"; flow:to_server,established; pcre:"/\Wpayment\shistory\W/ism"; classtype:policy-violation; sid:2002570; rev:2;)
+#
+# The phrase "annual income"
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Annual Income"; flow:to_server,established; pcre:"/\Wannual\sincome(s)?\W/ism"; classtype:policy-violation; sid:2002571; rev:2;)
+#
+# The phrase "credit history"
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Credit History"; flow:to_server,established; pcre:"/\Wcredit\shistor(y|ies)\W/ism"; classtype:policy-violation; sid:2002572; rev:2;)
+#
+# The phrase "transaction history"
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Transaction History"; flow:to_server,established; pcre:"/\Wtransaction\shistor(y|ies)\W/ism"; classtype:policy-violation; sid:2002573; rev:2;)
+#
+# The phrase "customer list"
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY HTTP - Customer List"; flow:to_server,established; pcre:"/\Wcustomer\slist(s)?\W/ism"; classtype:policy-violation; sid:2002574; rev:2;)
+#
+#
+##########################################
+#
+#  High Ports, possibly Passive FTP DATA
+#
+# Non-US Restricted
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Non-US Restricted"; flow:to_server,established; pcre:"///([A-Z]{3}\s)+RESTRICTED//X5/ism"; classtype:policy-violation; sid:2002575; rev:2;)
+#
+# Non-US Confidential
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Non-US Confidential"; flow:to_server,established; pcre:"///([A-Z]{3}\s)+CONFIDENTIAL//X5/ism"; classtype:policy-violation; sid:2002576; rev:2;)
+#
+# Non-US Top Secret
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Non-US Top Secret"; flow:to_server,established; pcre:"///([A-Z]{3}\s)+TOP\sSECRET//X5/ism"; classtype:policy-violation; sid:2002577; rev:2;)
+#
+# Non-US Secret
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Non-US Secret"; flow:to_server,established; pcre:"///([A-Z]{3}\s)+(?<!TOP\s)SECRET//X5/ism"; classtype:policy-violation; sid:2002578; rev:2;)
+#
+# NATO Restricted
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  NATO Restricted"; flow:to_server,established; pcre:"///((NATO\sRESTRICTED)|NR)//MR/ism"; classtype:policy-violation; sid:2002579; rev:2;)
+#
+# NATO Confidential Atomal
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  NATO Confidential Atomal"; flow:to_server,established; pcre:"///((NATO\sCONFIDENTIAL\sATOMAL)|NCA)//MR/ism"; classtype:policy-violation; sid:2002580; rev:2;)
+#
+# NATO Confidential
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  NATO Confidential"; flow:to_server,established; pcre:"///((NATO\sCONFIDENTIAL)|NC)//MR/ism"; classtype:policy-violation; sid:2002581; rev:2;)
+#
+# NATO COSMIC Top Secret Atomal
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  NATO COSMIC Top Secret Atomal"; flow:to_server,established; pcre:"///((COSMIC\sTOP\sSECRET\sATOMAL)|CTSA)//MR/ism"; classtype:policy-violation; sid:2002582; rev:2;)
+#
+# NATO Secret Atomal
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  NATO Secret Atomal"; flow:to_server,established; pcre:"///((NATO\sSECRET\sATOMAL)|NSA)//MR/ism"; classtype:policy-violation; sid:2002583; rev:2;)
+#
+# NATO Secret
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  NATO Secret"; flow:to_server,established; pcre:"///((NATO\sSECRET)|NS)//MR/ism"; classtype:policy-violation; sid:2002584; rev:2;)
+#
+# US Confidential, Electronic Format
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Confidential, Electronic"; flow:to_server,established; pcre:"/QQQQ\r\n(?=(O|P|R|Z)\r\n(CC)\r\n)/ism"; classtype:policy-violation; sid:2002585; rev:2;)
+#
+# US Top Secret, Electronic Format
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Top Secret, Electronic"; flow:to_server,established; pcre:"/QQQQ\r\n(?=(O|P|R|Z)\r\n(TT)\r\n)/ism"; classtype:policy-violation; sid:2002586; rev:2;)
+#
+# US Secret, Electronic Format
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Secret, Electronic"; flow:to_server,established; pcre:"/QQQQ\r\n(?=(O|P|R|Z)\r\n(SS)\r\n)/ism"; classtype:policy-violation; sid:2002587; rev:2;)
+#
+# US Confidential Authorized for Release To
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Confidential REL TO"; flow:to_server,established; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*REL\sTO\sUSA[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002588; rev:2;)
+#
+# US Top Secret Authorized for Release To
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Top Secret REL TO"; flow:to_server,established; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*REL\sTO\sUSA[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002589; rev:2;)
+#
+# US Secret Authorized for Release To
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Secret REL TO"; flow:to_server,established; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*REL\sTO\sUSA[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002590; rev:2;)
+#
+# US Confidential Comint
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Confidential COMINT"; flow:to_server,established; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*(COMINT|SI)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002591; rev:2;)
+#
+# US Top Secret Comint
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Top Secret COMINT"; flow:to_server,established; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*(COMINT|SI)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002592; rev:2;)
+#
+# US Secret Comint
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Secret COMINT"; flow:to_server,established; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*(COMINT|SI)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002593; rev:2;)
+#
+# US Unclassified Communications Security Material
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Unclassified COMSEC"; flow:to_server,established; pcre:"/(UNCLASSIFIED|U)//[\s\w,/-]*COMSEC[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002594; rev:2;)
+#
+# US Confidential Communications Security Material
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Confidential COMSEC"; flow:to_server,established; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*COMSEC[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002595; rev:2;)
+#
+# US Top Secret Communications Security Material
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Top Secret COMSEC"; flow:to_server,established; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*COMSEC[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002596; rev:2;)
+#
+# US Secret Communications Security Material
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Secret COMSEC"; flow:to_server,established; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*COMSEC[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002597; rev:2;)
+#
+# US Controlled Imagery
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Secret IMCON"; flow:to_server,established; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*(IMCON|IMC)[\s\w,/-]*(?=//(X1|MR))/ism"; classtype:policy-violation; sid:2002598; rev:2;)
+#
+# US Top Secret Critical Nuclear Weapon Design Information
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Top Secret CNWDI"; flow:to_server,established; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*(CRITICAL\sNUCLEAR\sWEAPON\sDESIGN\sINFORMATION|CNWDI)[\s\w,/-]*(?=//MR)/ism"; classtype:policy-violation; sid:2002599; rev:2;)
+#
+# US Secret Critical Nuclear Weapon Design Information
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Secret CNWDI"; flow:to_server,established; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*(CRITICAL\sNUCLEAR\sWEAPON\sDESIGN\sINFORMATION|CNWDI)[\s\w,/-]*(?=//MR)/ism"; classtype:policy-violation; sid:2002600; rev:2;)
+#
+# US Top Secret Talent Keyhole
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Top Secret TK"; flow:to_server,established; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*(TALENT\sKEYHOLE|TK)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002601; rev:2;)
+#
+# US Secret Talent Keyhole
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Secret TK"; flow:to_server,established; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*(TALENT\sKEYHOLE|TK)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002602; rev:2;)
+#
+# US Foreign Government Information
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US FGI"; flow:to_server,established; pcre:"///FGI[\s\w,/-]*(?=//X5)/ism"; classtype:policy-violation; sid:2002603; rev:2;)
+#
+# US For Official Use Only
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US FOUO"; flow:to_server,established; pcre:"/(UNCLASSIFIED|U)//(FOR\sOFFICIAL\sUSE\sONLY|FOUO)/ism"; classtype:policy-violation; sid:2002604; rev:2;)
+#
+# US Confidential Not Releasable to Foreign Nationals
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Confidential NOFORN"; flow:to_server,established; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*NOFORN[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002605; rev:2;)
+#
+# US Top Secret Not Releasable to Foreign Nationals
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Top Secret NOFORN"; flow:to_server,established; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*NOFORN[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002606; rev:2;)
+#
+# US Secret Not Releasable to Foreign Nationals
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Secret NOFORN"; flow:to_server,established; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*NOFORN[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002607; rev:2;)
+#
+# US Confidential Originator Controlled
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Confidential ORCON"; flow:to_server,established; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*(ORIGINATOR\sCONTROLLED|ORCON)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002608; rev:2;)
+#
+# US Top Secret Originator Controlled
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Top Secret ORCON"; flow:to_server,established; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*(ORIGINATOR\sCONTROLLED|ORCON)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002609; rev:2;)
+#
+# US Secret Originator Controlled
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Secret ORCON"; flow:to_server,established; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*(ORIGINATOR\sCONTROLLED|ORCON)[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002610; rev:2;)
+#
+# US Unclassified Proprietary Information
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Unclassified PROPIN"; flow:to_server,established; pcre:"/(UNCLASSIFIED|U)//[\s\w,/-]*PROPIN[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002611; rev:2;)
+#
+# US Confidential Proprietary Information
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Confidential PROPIN"; flow:to_server,established; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*PROPIN[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002612; rev:2;)
+#
+# US Top Secret Proprietary Information
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Top Secret PROPIN"; flow:to_server,established; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*PROPIN[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002613; rev:2;)
+#
+# US Secret Proprietary Information
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Secret PROPIN"; flow:to_server,established; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*PROPIN[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002614; rev:2;)
+#
+# US Confidential Restricted Data
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Confidential RD"; flow:to_server,established; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*(RESTRICTED\sDATA|RD)[\s\w,/-]*(?=//MR)/ism"; classtype:policy-violation; sid:2002615; rev:2;)
+#
+# US Top Secret Restricted Data
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Top Secret RD"; flow:to_server,established; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*(RESTRICTED\sDATA|RD)[\s\w,/-]*(?=//MR)/ism"; classtype:policy-violation; sid:2002616; rev:2;)
+#
+# US Secret Restricted Data
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Secret RD"; flow:to_server,established; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*(RESTRICTED\sDATA|RD)[\s\w,/-]*(?=//MR)/ism"; classtype:policy-violation; sid:2002617; rev:2;)
+#
+# US Sources and Methods Information
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US SAMI"; flow:to_server,established; pcre:"/SAMI[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002618; rev:2;)
+#
+# US Confidential Special Category
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Confidential SPECAT"; flow:to_server,established; pcre:"/(CONFIDENTIAL|C)//[\s\w,/-]*SPECAT[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002619; rev:2;)
+#
+# US Top Secret Special Category
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Top Secret SPECAT"; flow:to_server,established; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*SPECAT[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002620; rev:2;)
+#
+# US Secret Special Category
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Secret SPECAT"; flow:to_server,established; pcre:"/(?<!TOP\s|T)(SECRET|S)//[\s\w,/-]*SPECAT[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002621; rev:2;)
+#
+# US Top Secret Single Integrated Operations Plan
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  US Top Secret STOP"; flow:to_server,established; pcre:"/(TOP\sSECRET|TS)//[\s\w,/-]*STOP[\s\w,/-]*(?=//(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002622; rev:2;)
+#
+# The word "private"
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Private"; flow:to_server,established; pcre:"/\Wprivate\W(?!/(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002623; rev:2;)
+#
+# The word "restricted"
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Restricted"; flow:to_server,established; pcre:"/(?<!//)\Wrestricted[^\w/]/ism"; classtype:policy-violation; sid:2002624; rev:2;)
+#
+# The word "confidential"
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Confidential"; flow:to_server,established; pcre:"/(?<!//)\Wconfidential[^\w/]/ism"; classtype:policy-violation; sid:2002625; rev:2;)
+#
+# The word "secret"
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Secret"; flow:to_server,established; pcre:"/(?<!TOP|//)\Wsecret[^\w/a]/ism"; classtype:policy-violation; sid:2002626; rev:2;)
+#
+# The phrase "top secret"
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Top Secret"; flow:to_server,established; pcre:"/(?<!//)\Wtop\ssecret[^\w/a]/ism"; classtype:policy-violation; sid:2002627; rev:2;)
+#
+# The word "sealed"
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Sealed"; flow:to_server,established; pcre:"/\Wsealed\W(?!/(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002628; rev:2;)
+#
+# The word "sensitive"
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Sensitive"; flow:to_server,established; pcre:"/(?<!law\senforcement)\Wsensitive\W(?!/(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002629; rev:2;)
+#
+# The word "proprietary"
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Proprietary"; flow:to_server,established; pcre:"/\Wproprietary\W(?!/(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002630; rev:2;)
+#
+# The word "protected"
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Protected"; flow:to_server,established; pcre:"/\Wprotected\W(?!/(25)?X[1-9])/ism"; classtype:policy-violation; sid:2002631; rev:2;)
+#
+# The phrase "law enforcement sensitive"
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Law Enorcement Sensitive"; flow:to_server,established; pcre:"/\Wlaw\senforcement\ssensitive\W/ism"; classtype:policy-violation; sid:2002632; rev:2;)
+#
+# The phrase "internal use only"
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Internal Use Only"; flow:to_server,established; pcre:"/\Winternal\suse\sonly\W/ism"; classtype:policy-violation; sid:2002633; rev:2;)
+#
+# The phrase "date of birth" or its typical abbreviations
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Date of Birth"; flow:to_server,established; pcre:"/[^\w&]d(ate)?(-)?o(f)?(-)?b(irth)?\W[\s\w,/-]*(?=([0-9]{2}[-/][0-9]{2}[-/][0-9]{2,4})|[0-9]{8})/ism"; classtype:policy-violation; sid:2002634; rev:2;)
+#
+# Health Care Common Procedure Coding System (HCPCS) Codes
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  HCPCS Code"; flow:to_server,established; pcre:"/\Whcpcs\W[\s\w,/-]*(?=[a-z][0-9]{10})/ism"; classtype:policy-violation; sid:2002635; rev:2;)
+#
+# International Statistical Classification of Diseases and Related Health Problems 10th Revision (ICD-10) Codes
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  ICD-10 Code"; flow:to_server,established; pcre:"/\Wicd\W[\s\w,/-]*(?=[a-z][0-9]{2}\.[0-9]{2})/ism"; classtype:policy-violation; sid:2002636; rev:2;)
+#
+# Food and Drug Administration (FDA) National Drug Code (NDC) Codes
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  FDA NDC Code"; flow:to_server,established; pcre:"/\Wndc\W[\s\w,/-]*(?=([0-9]{4}-[0-9]{4}-[0-9]{2}|[0-9]{5}-[0-9]{3}-[0-9]{2}|[0-9]{5}-[0-9]{4}-[0-9]{1,2}))/ism"; classtype:policy-violation; sid:2002637; rev:2;)
+#
+# American Dental Association (ADA) Dental Procedure Codes
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  ADA Procedure Code"; flow:to_server,established; pcre:"/\Wada\W[\s\w,/-]*(?=d[0-9]{4})/ism"; classtype:policy-violation; sid:2002638; rev:2;)
+#
+# Diagnostic and Statistical Manual of Mental Disorders (DSM-IV) Codes
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  DSM-IV Code"; flow:to_server,established; pcre:"/\Wdsm\W[\s\w,/-]*(?=([2-9][0-9]{2}(\.[0-9]{1,2)?)|(v[167][0-9]\.[0-9]{1,2}))/ism"; classtype:policy-violation; sid:2002639; rev:2;)
+#
+# American Medical Association (AMA) Current Procedural Terminology (CPT) Codes
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  AMA CPT Code"; flow:to_server,established; pcre:"/\Wcpt\W[\s\w,/-]*(?=[0-9]{4}[ft]|[0-9]{5})/ism"; classtype:policy-violation; sid:2002640; rev:2;)
+#
+# Japan Credit Bureau Credit Card Number
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Credit Card, JCB"; flow:to_server,established; pcre:"/\Wj(apan\s)?c(redit\s)?b(ureau)?\W[\s\w,/-]*(?=(3[12359][0-9]{14})|(1800|2131)[0-9]{11})/ism"; classtype:policy-violation; sid:2002642; rev:2;)
+#
+# The word "password", its typical abbreviations or written/abbreviated in a few forms of "leet"
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Password"; flow:to_server,established; pcre:"/\W[p][a4@][sz5]{0,2}[w]([o0][r])?[d]\W/ism"; classtype:policy-violation; sid:2002648; rev:2;)
+#
+# The word "appraisal"
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Appraisal"; flow:to_server,established; pcre:"/\Wappraisal(s)?\W/ism"; classtype:policy-violation; sid:2002649; rev:2;)
+#
+# The phrase "account balance"
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Account Balance"; flow:to_server,established; pcre:"/\Waccount\sbalance(s)?\W/ism"; classtype:policy-violation; sid:2002650; rev:2;)
+#
+# The phrase "payment history"
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Payment History"; flow:to_server,established; pcre:"/\Wpayment\shistory\W/ism"; classtype:policy-violation; sid:2002651; rev:2;)
+#
+# The phrase "annual income"
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Annual Income"; flow:to_server,established; pcre:"/\Wannual\sincome(s)?\W/ism"; classtype:policy-violation; sid:2002652; rev:2;)
+#
+# The phrase "credit history"
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Credit History"; flow:to_server,established; pcre:"/\Wcredit\shistor(y|ies)\W/ism"; classtype:policy-violation; sid:2002653; rev:2;)
+#
+# The phrase "transaction history"
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Transaction History"; flow:to_server,established; pcre:"/\Wtransaction\shistor(y|ies)\W/ism"; classtype:policy-violation; sid:2002654; rev:2;)
+#
+# The phrase "customer list"
+##alert tcp $HOME_NET 1024: -> $EXTERNAL_NET 1024: (msg:"BLEEDING-EDGE POLICY High Ports -  Customer List"; flow:to_server,established; pcre:"/\Wcustomer\slist(s)?\W/ism"; classtype:policy-violation; sid:2002655; rev:2;)
+#
+#Submitted by Matt Jonkman
+#Thees rules are disabled by default. They should generally be run on the outside of your network, not internally. Enable it where useful.
+##alert ip any any -> any any (msg: "BLEEDING-EDGE Credit Card Number Detected in Clear (16 digit spaced)"; pcre:"/ (6011|5[1-5]\d{2}|4\d{3}|3\d{3}) \d{4} \d{4} \d{4}/"; reference:url,www.beachnet.com/~hstiles/cardtype.html; classtype: policy-violation; sid: 2001375; rev:9; )
+##alert ip any any -> any any (msg: "BLEEDING-EDGE Credit Card Number Detected in Clear (16 digit dashed)"; pcre:"/ (6011|5[1-5]\d{2}|4\d{3}|3\d{3})-\d{4}-\d{4}-\d{4}/"; reference:url,www.beachnet.com/~hstiles/cardtype.html; classtype: policy-violation; sid: 2001376; rev:9; )
+##alert ip any any -> any any (msg: "BLEEDING-EDGE Credit Card Number Detected in Clear (16 digit)"; pcre:"/ (6011|5[1-5]\d{2}|4\d{3}|3\d{3})\d{12} /"; reference:url,www.beachnet.com/~hstiles/cardtype.html; classtype: policy-violation; sid: 2001377; rev:9; )
+##alert ip any any -> any any (msg: "BLEEDING-EDGE Credit Card Number Detected in Clear (15 digit)"; pcre:"/ (3[4|7]\d{2}|2014|2149|2131|1800)\d{11} /"; reference:url,www.beachnet.com/~hstiles/cardtype.html; classtype: policy-violation; sid: 2001378; rev:9; )
+##alert ip any any -> any any (msg: "BLEEDING-EDGE Credit Card Number Detected in Clear (15 digit spaced)"; pcre:"/ (3[4|7]\d{2}|2014|2149|2131|1800) \d{4} \d{4} \d{3} /"; reference:url,www.beachnet.com/~hstiles/cardtype.html; classtype: policy-violation; sid: 2001379; rev:9; )
+##alert ip any any -> any any (msg: "BLEEDING-EDGE Credit Card Number Detected in Clear (15 digit dashed)"; pcre:"/ (3[4|7]\d{2}|2014|2149|2131|1800)-\d{4}-\d{4}-\d{3} /"; reference:url,www.beachnet.com/~hstiles/cardtype.html; classtype: policy-violation; sid: 2001380; rev:9; )
+##alert ip any any -> any any (msg: "BLEEDING-EDGE Credit Card Number Detected in Clear (14 digit)"; pcre:"/ (30[0-5]\d|36\d{2}|38\d{2})\d{10} /"; reference:url,www.beachnet.com/~hstiles/cardtype.html; classtype: policy-violation; sid: 2001381; rev:9; )
+##alert ip any any -> any any (msg: "BLEEDING-EDGE Credit Card Number Detected in Clear (14 digit spaced)"; pcre:"/ (30[0-5]\d|36\d{2}|38\d{2}) \d{4} \d{4} \d{2} /"; reference:url,www.beachnet.com/~hstiles/cardtype.html; classtype: policy-violation; sid: 2001382; rev:9; )
+##alert ip any any -> any any (msg: "BLEEDING-EDGE Credit Card Number Detected in Clear (14 digit dashed)"; pcre:"/ (30[0-5]\d|36\d{2}|38\d{2})-\d{4}-\d{4}-\d{2} /"; reference:url,www.beachnet.com/~hstiles/cardtype.html; classtype: policy-violation; sid: 2001383; rev:9; )
+
+#Submitted by Ole-Martin
+#alert tcp $HOME_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE POLICY Dameware Remote Control Service Install"; flow: to_server,established; content:"DWRCK.DLL"; nocase; classtype: successful-admin; sid: 2001294; rev:2; )
+
+#Submitted by Joseph Gama
+##alert udp $DNS_SERVERS 53 -> any any (msg: "BLEEDING-EDGE DNS - Standard query response, Format error"; pcre:"/..[\x81\x82\x83\x84\x85\x86\x87]\x81/"; classtype: not-suspicious; sid: 2001116; rev:2; )
+##alert udp $DNS_SERVERS 53 -> any any (msg: "BLEEDING-EDGE DNS - Standard query response, Name Error"; pcre:"/..[\x81\x82\x83\x84\x85\x86\x87]\x83/"; classtype: not-suspicious; sid: 2001117; rev:2; )
+##alert udp $DNS_SERVERS 53 -> any any (msg: "BLEEDING-EDGE DNS - Standard query response, Not Implemented"; pcre:"/..[\x81\x82\x83\x84\x85\x86\x87]\x84/"; classtype: not-suspicious; sid: 2001118; rev:2; )
+##alert udp $DNS_SERVERS 53 -> any any (msg: "BLEEDING-EDGE DNS - Standard query response, Refused"; pcre:"/..[\x81\x82\x83\x84\x85\x86\x87]\x85/"; classtype: not-suspicious; sid: 2001119; rev:2; )
+
+#by Myron Davis
+#alert udp $HOME_NET any -> $EXTERNAL_NET 53 (msg:"BLEEDING-EDGE POLICY nstx DNS Tunnel Outbound"; content:"cT"; offset:12; depth:3; content:"|00 10 00 01 00 00 29 08|"; within:255; classtype:bad-unknown; reference:url,savannah.nongnu.org/projects/nstx/; reference:url,nstx.dereference.de/nstx; sid:2002676; rev:1;)
+
+#From Charles Lacroix
+# All form elements are encoded before they are sent to the server
+# This makes things a bit more complicated to decode via snort at least
+# for me. This rule will trigger when a user is starting to place
+# an item for sale on the ebay site.
+#
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE POLICY eBay Bid Placed"; flow: to_server,established; uricontent:"/ws/eBayISAPI.dll/"; nocase; content:"maxbid="; nocase; content:"offer.ebay.com"; nocase; classtype: policy-violation; sid: 2001898; rev:2; )
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE POLICY eBay Placing Item for sale"; flow: to_server,established; uricontent:"/ws2/eBayISAPI.dll"; nocase; content:".ebay.com"; nocase; classtype: policy-violation; sid: 2001907; rev:2; )
+# Look for a single item
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE POLICY eBay View Item"; flow: to_server,established; uricontent:"/ws/eBayISAPI.dll"; nocase; content:"ViewItem"; nocase; content:".ebay.com"; nocase; classtype: policy-violation; sid: 2001908; rev:3; )
+# Mark an item to watch
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE POLICY eBay Watch This Item"; flow: to_server,established; uricontent:"/ws/eBayISAPI.dll"; nocase; content:"MakeTrack&Item="; nocase; content:".ebay.com"; nocase; classtype: policy-violation; sid: 2001909; rev:3; )
+
+# Submitted 2006-10-17 by Adam Nunn
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 80 (msg:"BLEEDING-EDGE POLICY docs.google.com Activity"; flow:established,to_server; content:"Host|3a| docs.google.com"; nocase; classtype:policy-violation; reference:url,docs.google.com; sid:2003121; rev:2;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 80 (msg:"BLEEDING-EDGE POLICY Possible docs.google.com Activity"; flow:established,to_server; content:"WRITELY_SID"; nocase; classtype:policy-violation; reference:url,docs.google.com; sid:2003122; rev:2;)
+
+#By Matt Jonkman. Reviving this rule as it's been dropped from the snort.org rulesets.
+#alert tcp $HOME_NET any -> 66.151.158.177 any (msg: "BLEEDING-EDGE GotoMyPC Polling Client"; flow: established; threshold: type limit, track by_src, count 1, seconds 360; classtype: policy-violation; sid: 2000309; rev:6; )
+#This intends to be a more intelligent version of the old gotomypc rule, eventually to replace the old if it catches everything
+#alert tcp 66.151.158.177 8200 -> $HOME_NET any (msg: "BLEEDING-EDGE GotoMyPC poll.gotomypc.com Server Response to Polling Client OK"; flow: established,from_server; content:"cnt=0"; nocase; depth: 40; content:"eventid="; nocase; depth: 40; threshold: type limit, track by_src, count 1, seconds 360; classtype: policy-violation; sid: 2002022; rev:2; )
+
+# Submitted 2006-08-30 by Robert Sharp
+##alert tcp $HOME_NET any <> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY Gmail gtalk"; flow:established; pcre:"/\[\[\d{1,3}\,\[\\\"\w\\\"\,\\\".+@gmail.com.+\\\"\,\\\"/i"; classtype:policy-violation; sid:2003092; rev:1;)
+
+#by Dajackman
+#alert tcp $HOME_NET any -> 64.34.106.33 12975 (msg:"BLEEDING-EDGE POLICY Outbound Hamachi VPN Connection Attempt"; flags:S,12; threshold:type limit, track by_src, count 1, seconds 120; classtype:policy-violation; reference:url,www.hamachi.cc; sid:2002729; rev:1;)
+
+#Submitted by Matt Jonkman
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE Hotmail Inbox Access"; flow: to_server,established; content:"hotmail.msn.com"; pcre:"/(GET |GET (http|https)\:\/\/[-0-9a-z.]*)\/cgi-bin\/HoTMaiL\?curmbox=/i"; classtype: policy-violation; sid: 2000035; rev:9; )
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE Hotmail Message Access"; flow: to_server,established; content:"hotmail.msn.com"; pcre:"/(GET |GET (http|https)\:\/\/[-0-9a-z.]*)\/cgi-bin\/getmsg\?msg=MSG/i"; classtype: policy-violation; sid: 2000036; rev:9; )
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE Hotmail Compose Message Access"; flow: to_server,established; content:"curmbox="; nocase; content:"hotmail.msn.com"; nocase; pcre:"/(GET |GET (http|https)\:\/\/[-0-9a-z.]*)\/cgi-bin\/compose\?/i"; classtype: policy-violation; sid: 2000037; rev:9; )
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE Hotmail Compose Message Submit"; flow: to_server,established; content:"hotmail.msn.com"; nocase; pcre:"/(POST |POST (http|https)\:\/\/[-0-9a-z.]*)\/cgi-bin\/premail/i"; classtype: policy-violation; sid: 2000038; rev:8; )
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE Hotmail Compose Message Submit Data"; flow: to_server,established; content:"curmbox="; nocase; content:"login="; nocase; content:"msghdrid"; nocase; content:"sigflag="; nocase; classtype: policy-violation; sid: 2000039; rev:6; )
+
+#Submitted by Thomas Alex
+#alert tcp $EXTERNAL_NET any -> $HOME_NET 8000 (msg: "BLEEDING-EDGE MISC HP Web JetAdmin ExecuteFile admin access"; flow: to_server,established; content:"/plugins/framework/script/content.hts"; nocase; content:"ExecuteFile"; nocase; reference:bugtraq,10224; classtype: attempted-admin; sid: 2001055; rev:5; )
+
+#Submitted by Brandon Barnes
+##pass tcp $HOME_NET any -> any any ( msg:"BLEEDING-EDGE HTTP CONNECT Tunnel"; content:"CONNECT "; nocase; content:"80"; content:" HTTP/1."; nocase; flow:to_server,established; classtype:misc-activity; sid:2000549; rev:3;)
+##pass tcp $HOME_NET any -> any any ( msg:"BLEEDING-EDGE HTTP CONNECT Tunnel"; content:"CONNECT "; nocase; content:"443"; content:" HTTP/1."; nocase; flow:to_server,established; classtype:misc-activity; sid:2000550; rev:3;)
+##alert tcp $HOME_NET any -> any any (msg: "BLEEDING-EDGE HTTP CONNECT Tunnel"; flow: to_server,established; content:"CONNECT "; nocase; content:!"80"; content:" HTTP/1."; nocase; classtype: misc-activity; sid: 2000547; rev:5; )
+##alert tcp $HOME_NET any -> any any (msg: "BLEEDING-EDGE HTTP CONNECT Tunnel"; flow: to_server,established; content:"CONNECT "; nocase; content:!"443"; content:" HTTP/1."; nocase; classtype: misc-activity; sid: 2000548; rev:5; )
+#Submitted by Jason
+##alert tcp $HOME_NET any -> any any (msg: "BLEEDING-EDGE HTTP CONNECT Tunnel Attempt"; flow: to_server,established; content:"CONNECT "; nocase; content:"|0d 0a|"; within: 1024; distance: 0; content:"HTTP/1."; nocase; within: 8; distance: -10; content:!"\:80"; within: 4; distance: -11; content:"CONNECT "; nocase; content:"|0d 0a|"; within: 1024; distance: 0; content:"HTTP/1."; nocase; within: 8; distance: -10; content:!"\:443"; within: 5; distance: -12; classtype: misc-activity; sid: 2000560; rev:6; )
+
+#by Cam Beasley. Experimental, please report your experiences
+#alert tcp $EXTERNAL_NET 1024: -> $HOME_NET 25 (msg:"BLEEDING-EDGE POLICY Possible Image Spam Inbound (simple rule)"; flow:established,to_server; content:"Content-Transfer-Encoding|3A|"; content:"AMAgAOAgAABAACBAAEBAAGBAAIBAAKBAAMBAAOBAAABgACBgAEBgAGBgAIBgAKBgAMBgAOBg"; depth:575; content:"AACAACCAAECAAGCAAICAAKCAAMCAAOCAAACgACCgAECgAGCgAICgAKCgAMCgAOCgAADAACDA"; content:"AEDAAGDAAIDAAKDAAMDAAODAAADgACDgAEDgAGDgAIDgAKDgAMDgAODgAAAAQCAAQEAAQGAA"; classtype:misc-activity; sid:2003096; rev:1;)
+
+#alert tcp $EXTERNAL_NET 1024: -> $HOME_NET 25 (msg:"BLEEDING-EDGE POLICY Possible Image Spam Inbound (complex rule)"; flow:established,to_server; content:"Content-Transfer-Encoding|3A|"; content:"AMAgAOAgAABAACBAAEBAAGBAAIBAAKBAAMBAAOBAAABgACBgAEBgAGBgAIBgAKBgAMBgAOBg"; depth:575; content:"AACAACCAAECAAGCAAICAAKCAAMCAAOCAAACgACCgAECgAGCgAICgAKCgAMCgAOCgAADAACDA"; content:"AEDAAGDAAIDAAKDAAMDAAODAAADgACDgAEDgAGDgAIDgAKDgAMDgAODgAAAAQCAAQEAAQGAA"; content:"QIAAQKAAQMAAQOAAQAAgQCAgQEAgQGAgQIAgQKAgQMAgQOAgQABAQCBAQEBAQGBAQIBAQKBA"; content:"QMBAQOBAQABgQCBgQEBgQGBgQIBgQKBgQMBgQOBgQACAQCCAQECAQGCAQICAQKCAQMCAQOCA"; content:"QACgQCCgQECgQGCgQICgQKCgQMCgQOCgQADAQCDAQEDAQGDAQIDAQKDAQMDAQODAQADgQCDg"; content:"QEDgQGDgQIDgQKDgQMDgQODgQAAAgCAAgEAAgGAAgIAAgKAAgMAAgOAAgAAggCAggEAggGAg"; content:"gIAggKAggMAggOAggABAgCBAgEBAgGBAgIBAgKBAgMBAgOBAgABggCBggEBggGBggIBggKBg"; content:"gMBggOBggACAgCCAgECAgGCAgICAgKCAgMCAgOCAgACggCCggECggGCggICggKCggMCggOCg"; content:"gADAgCDAgEDAgGDAgIDAgKDAgMDAgODAgADggCDggEDggGDggIDggKDggMDggODggAAAwCAA"; content:"wEAAwGAAwIAAwKAAwMAAwOAAwAAgwCAgwEAgwGAgwIAgwKAgwMAgwOAgwABAwCBAwEBAwGBA"; content:"wIBAwKBAwMBAwOBAwABgwCBgwEBgwGBgwIBgwKBgwMBgwOBgwACAwCCAwECAwGCAwICAwKCA"; content:"wMCAwOCAwACgwCCgwECgwGCgwICgwKCgwMCgwOCgwADAwCDAwEDAwGDAwIDAwKDAwP/78KCg"; classtype:misc-activity; sid:2003097; rev:1;)
+
+#Another from Cam Beasley
+#alert tcp $EXTERNAL_NET 1024: -> $HOME_NET 25 (msg:"BLEEDING-EDGE POLICY Possible Image Spam Inbound (3)"; flow:established,to_server; content:"Content-Transfer-Encoding|3A|"; content:"R0lGODlh"; depth:575; content:"AOAgAABAACBAAEBAAGBAAIBAAKBAAMBAAOBAAABgACBgAEBgAGBgAIBgAKBgAMBgAOBgAACAACCA";content:"AECAAGCAAICAAKCAAMCAAOCAAACgACCgAECgAGCgAICgAKCgAMCgAOCgAADAACDAAEDAAGDAAIDA"; classtype:misc-activity; sid:2003120; rev:1;)
+
+# Submitted 2006-08-30 by Russ McRee
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY iMesh 6 User Agent"; flow:established,to_server; content:"/kiss"; nocase; pcre:"/User-Agent\:[^\n]+MusicNet/i"; classtype:policy-violation; threshold: type limit, count 1, seconds 360, track by_src; sid:2003093; rev:1;)
+
+#By Merphie from the forums
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 5190 (msg: "BLEEDING-EDGE POLICY ICQ Status Invisible"; flow: from_client,established; content:"|2A02|"; depth: 2; content:"|001900130005|"; offset: 4; depth: 6; classtype: policy-violation; sid: 2001801; rev:3; )
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 5190 (msg: "BLEEDING-EDGE POLICY ICQ Status Change (1)"; flow: from_client,established; content:"|2A02|"; depth: 2; content:"|000E00010011|"; offset: 4; depth: 6; classtype: policy-violation; sid: 2001802; rev:4; )
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 5190 (msg: "BLEEDING-EDGE POLICY ICQ Status Change (2)"; flow: from_client,established; content:"|2A02|"; depth: 2; content:"|00120001001E|"; offset: 4; depth: 6; classtype: policy-violation; sid: 2001803; rev:4; )
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 5190 (msg: "BLEEDING-EDGE POLICY ICQ Login"; flow: from_client,established; content:"|2A01|"; depth: 2; content:"|00010001|"; offset: 8; depth: 4; classtype: policy-violation; sid: 2001804; rev:3; )
+#alert tcp $HOME_NET any <> $EXTERNAL_NET any (msg: "BLEEDING-EDGE POLICY ICQ Message"; flow: established; content:"|2A02|"; depth: 2; content:"|000400060000|"; offset: 6; depth: 6; classtype: policy-violation; sid: 2001805; rev:3; )
+
+#Matt Jonkman
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY ICQ Install Direct download - Not normal mode of install"; flow:established,to_server; uricontent:"/pub/ICQ_Win95_98_NT4/"; nocase; classtype: policy-violation; sid:2002986; rev:1;)
+
+#by Mark Tombaugh
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 5222 (msg:"BLEEDING-EDGE POLICY Google Talk (Jabber) Client Login"; flow:established,to_server; content:"gmail.com"; nocase; content:"jabber"; nocase; distance:9; within:6; classtype:policy-violation; reference:url,talk.google.com; reference:url,www.xmpp.org; sid:2002327; rev:2;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 443 (msg:"BLEEDING-EDGE POLICY Google Talk TLS Client Traffic"; flow:established,to_server; content:"gmail.com"; nocase; content:"jabber"; nocase; distance:64; within:78; classtype:policy-violation; reference:url,talk.google.com; reference:url,www.xmpp.org; sid:2002330; rev:2;)
+
+#by Brad Doctor
+#alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"BLEEDING-EDGE POLICY Google IM traffic Windows client user sign-on"; flow:to_server; content:"ms\:xml\:ns\:xmpp-s"; content:"X-GOOGLE-TOKEN\">"; classtype:policy-violation; reference:url,www.google.com/talk; sid:2002332; rev:3;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"BLEEDING-EDGE POLICY Google IM traffic friend invited"; flow:to_server; content:"\"><invitati"; content:"on xmlns=\"google"; classtype:policy-violation; reference:url,www.google.com/talk; sid:2002333; rev:3;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 5222 (msg:"BLEEDING-EDGE POLICY Google IM traffic Jabber client sign-on"; flow:to_server; pcre:"/gmail.com/i"; pcre:"/jabber.org/i"; pcre:"/version=/"; classtype:policy-violation; reference:url,www.google.com/talk; sid:2002334; rev:2;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"BLEEDING-EDGE POLICY Google IM traffic Windows client user sign-off"; flow:to_server; content:"|3C 2F|stream\:s"; content:"tream>"; classtype:policy-violation; reference:url,www.google.com/talk; sid:2002335; rev:4;)
+
+#Submitted by Joel Esler
+#alert tcp $HOME_NET any <> $EXTERNAL_NET any (msg: "BLEEDING-EDGE CHAT MSN file transfer request"; flow: established; content:"MSG "; depth: 4; content:"Content-Type|3A|"; nocase; distance: 0; content:"text/x-msmsgsinvite"; nocase; distance: 0; content:"Application-Name|3A|"; content:"File Transfer"; nocase; distance: 0; classtype: policy-violation; sid: 2001241; rev:3; )
+#alert tcp $HOME_NET any <> $EXTERNAL_NET any (msg: "BLEEDING-EDGE CHAT MSN file transfer accept"; flow: established; content:"MSG "; depth: 4; content:"Content-Type|3A|"; nocase; content:"text/x-msmsgsinvite"; distance: 0; content:"Invitation-Command|3A|"; content:"ACCEPT"; distance: 1; classtype: policy-violation; sid: 2001242; rev:3; )
+#alert tcp $HOME_NET any <> $EXTERNAL_NET any (msg: "BLEEDING-EDGE CHAT MSN file transfer reject"; flow: established; content:"MSG "; depth: 4; content:"Content-Type|3A|"; nocase; content:"text/x-msmsgsinvite"; distance: 0; content:"Invitation-Command|3A|"; content:"CANCEL"; distance: 0; content:"Cancel-Code|3A|"; nocase; content:"REJECT"; nocase; distance: 0; classtype: policy-violation; sid: 2001243; rev:3; )
+
+#Matt Jonkman, more msn
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE Policy MSN IM Poll via HTTP"; flow: established,to_server; uricontent:"/gateway/gateway.dll?Action=poll&SessionID="; nocase; threshold: type limit, track by_src, count 10, seconds 3600; classtype: policy-violation; sid: 2001682; rev:5; )
+
+#Submitted by Scott Melnick
+#alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg: "BLEEDING-EDGE POLICY MSN status change"; flow:established,to_server; content:"CHG "; depth:55; classtype:policy-violation; sid:2002192; rev:2;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg: "BLEEDING-EDGE POLICY MSN Game Loading"; flow:established,to_server; content:"|6D 73 6E 67 61 6D 65 2E 61 73 70 78|"; within:90; classtype:policy-violation; sid:2002312; rev:1;)
+
+#Submitted by Joel Esler
+#alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE CHAT Yahoo IM successful logon"; flow: from_server,established; content:"YMSG"; nocase; depth: 4; content:"|00 01|"; offset: 10; depth: 2; classtype: policy-violation; sid: 2001253; rev:3; )
+#alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE CHAT Yahoo IM voicechat"; flow: from_server,established; content:"YMSG"; nocase; depth: 4; content:"|00|J"; offset: 10; depth: 2; classtype: policy-violation; sid: 2001254; rev:3; )
+#Commenting out, duplicated in Snort.org set
+##alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg: "BLEEDING-EDGE CHAT Yahoo IM ping"; flow: to_server,established; content:"YMSG"; nocase; depth: 4; content:"|00 12|"; offset: 10; depth: 2; classtype: policy-violation; sid: 2001255; rev:4; )
+#alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE CHAT Yahoo IM conference invitation"; flow: from_server,established; content:"YMSG"; nocase; depth: 4; content:"|00 18|"; offset: 10; depth: 2; classtype: policy-violation; sid: 2001256; rev:3; )
+#alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE CHAT Yahoo IM conference logon success"; flow: from_server,established; content:"YMSG"; nocase; depth: 4; content:"|00 19|"; offset: 10; depth: 2; classtype: policy-violation; sid: 2001257; rev:3; )
+#alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg: "BLEEDING-EDGE CHAT Yahoo IM conference message"; flow: to_server,established; content:"YMSG"; nocase; depth: 4; content:"|00 1D|"; offset: 10; depth: 2; classtype: policy-violation; sid: 2001258; rev:3; )
+#alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg: "BLEEDING-EDGE CHAT Yahoo IM Unavailable Status"; flow: to_server,established; content:"|59 47 00 0b 00 00 00 00 00 12 00 00 00 00|"; depth: 55; classtype: policy-violation; sid: 2001427; rev:3; )
+#alert tcp $HOME_NET any <> $EXTERNAL_NET any (msg: "BLEEDING-EDGE CHAT Yahoo IM file transfer request"; flow: established; content:"YMSG"; nocase; depth: 4; content:"|00|M"; offset: 10; depth: 2; classtype: policy-violation; sid: 2001259; rev:4; )
+##alert tcp $HOME_NET any <> $EXTERNAL_NET any (msg: "BLEEDING-EDGE CHAT Yahoo IM message"; flow: established; content:"YMSG"; depth: 4; classtype: policy-violation; sid: 2001260; rev:4; )
+#alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE CHAT Yahoo IM successful chat join"; flow: from_server,established; content:"YMSG"; nocase; depth: 4; content:"|00 98|"; offset: 10; depth: 2; classtype: policy-violation; sid: 2001261; rev:3; )
+#alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg: "BLEEDING-EDGE CHAT Yahoo IM conference offer invitation"; flow: to_server,established; content:"YMSG"; nocase; depth: 4; content:"|00|P"; offset: 10; depth: 2; classtype: policy-violation; sid: 2001262; rev:3; )
+#alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg: "BLEEDING-EDGE CHAT Yahoo IM conference request"; flow: to_server,established; content:"<R"; depth: 2; pcre:"/^\x3c(REQIMG|RVWCFG)\x3e/ism"; classtype: policy-violation; sid: 2001263; rev:3; )
+##alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE CHAT Yahoo IM conference watch"; flow: from_server,established; content:"|0D 00 05 00|"; depth: 4; classtype: policy-violation; sid: 2001264; rev:3; )
+
+#Matt Jonkman
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE CHAT Yahoo IM Client Install"; flow: to_server,established; uricontent:"/ycontent/stats.php?version="; nocase; uricontent:"EVENT=InstallBegin"; nocase; classtype: policy-violation; sid: 2002659; rev:1; )
+
+#Moved from Malware, this is not spyware related
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE POLICY Infotriever Spyware User Agent"; flow: to_server,established; content:"User-Agent\: Client"; nocase; classtype: trojan-activity; reference:url,www.infotriever.com/Intro_SysAdmins.asp; sid: 2002082; rev:6;)
+
+#Submitted by Vernon Stark
+#alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE POLICY IRC authorization message"; flow: established; content:"NOTICE AUTH"; content:"Looking up your hostname..."; nocase; classtype: misc-activity; sid: 2000355; rev:3; )
+#alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE POLICY IRC connection"; flow: established; content:"Welcome to the "; content:"IRC Network"; nocase; classtype: misc-activity; sid: 2000356; rev:3; )
+
+#by Matt Jonkman
+##alert ip any any -> any any (msg: "BLEEDING-EDGE POLICY EIN in the clear (US-IRS Employer ID Number)"; pcre:"/ \d\d-\d{7} /"; reference:url,policy.ssa.gov/poms.nsf/lnx/0101001004; reference:url,policy.ssa.gov/poms.nsf/lnx/0101001001?opendocument; classtype:policy-violation; sid:2002658; rev:2;)
+
+#from Russ Mcree
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY iTunes User Agent"; flow: established,to_server; content:"User-Agent\: "; nocase; pcre:"/User-Agent\:[^\n]+iTunes/i"; reference:url,hcsoftware.sourceforge.net/jason-rohrer/itms4all/; classtype:policy-violation; threshold: type limit, count 1, seconds 360, track by_src; sid:2002878; rev:2;)
+
+#Submitted by Jonathan Miner
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE POLICY KitCo Kcast Ticker (agtray)"; flow: to_server,established; uricontent:"/pr/agtray.txt"; nocase; classtype: policy-violation; sid: 2000569; rev:4; )
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE POLICY KitCo Kcast Ticker (autray)"; flow: to_server,established; uricontent:"/pr/autray.txt"; nocase; classtype: policy-violation; sid: 2000570; rev:4; )
+
+#Submitted by Joseph Gama
+##alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE Policy Mozilla XPI install files download"; flow: from_server,established; content:"content-type\: application/x-xpinstall"; nocase; classtype: bad-unknown; sid: 2001114; rev:3; )
+
+#by William Bell
+#alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg: "BLEEDING-EDGE POLICY MP3 File Transfer Outbound"; flow:established; content:"ID3|03|"; distance: 0; content:"TIT2"; distance:6; within:10; reference:url,filext.com/detaillist.php?extdetail=mp3&Search=Search; classtype:policy-violation; sid: 2002722; rev:1; )
+##alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE POLICY MP3 File Transfer Inbound"; flow: established; content:"ID3|03|"; distance: 0; content:"TIT2"; distance:6; within:10; reference:url,filext.com/detaillist.php?extdetail=mp3&Search=Search; classtype:policy-violation; sid: 2002723; rev:1; )
+
+#by dajackman
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY Myspace Login Attempt"; content:"login.myspace.com"; uricontent:"/index.cfm?fuseaction=login"; classtype:policy-violation; sid:2002872; rev:1;)
+
+#Submitted by Lance Boon
+#alert udp $HOME_NET any -> any any (msg: "BLEEDING-EDGE Policy Netop Remote Control Usage"; content:"|554b30303736305337473130|"; reference:url,www.netop.com; classtype: policy-violation; sid: 2001597; rev:3; )
+
+#by Matt Jonkman
+#intention is to catch traffic on port 25 that is NOT smtp or ssl/tls.
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP traffic on port 25 (mail from)"; flowbits:isnotset,BE.issmtp; flow:established,to_server; content:"mail from\:"; nocase; depth:10; flowbits:set,BE.issmtp; flowbits:noalert; classtype:not-suspicious; sid:2003123; rev:2;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP traffic on port 25 (ehlo)"; flowbits:isnotset,BE.issmtp; flow:established,to_server; content:"ehlo "; nocase; depth:5; flowbits:set,BE.issmtp; flowbits:noalert; classtype:not-suspicious; sid:2003128; rev:2;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP traffic on port 25 (helo)"; flowbits:isnotset,BE.issmtp; flow:established,to_server; content:"helo "; nocase; depth:5; flowbits:set,BE.issmtp; flowbits:noalert; classtype:not-suspicious; sid:2003130; rev:2;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP traffic on port 25 (authsmtp)"; flowbits:isnotset,BE.issmtp; flow:established,to_server; content:"authsmtp"; nocase; depth:8; flowbits:set,BE.issmtp; flowbits:noalert; classtype:not-suspicious; sid:2003131; rev:2;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP traffic on port 25 (starttls)"; flowbits:isnotset,BE.issmtp; flow:established,to_server; content:"STARTTLS"; nocase; depth:8; flowbits:set,BE.issmtp; flowbits:noalert; classtype:not-suspicious; sid:2003129; rev:2;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SMTP traffic on port 25 (rcpt to)"; flowbits:isnotset,BE.issmtp; flow:established,to_server; content:"rcpt to\:"; nocase; flowbits:set,BE.issmtp; flowbits:noalert; classtype:not-suspicious; sid:2003124; rev:2;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SSL/TLS traffic on port 25 (01)"; flowbits:isnotset,BE.issmtp; flow:established,to_server; content:"|17 03 01|"; depth:4; flowbits:set,BE.issmtp; flowbits:noalert; classtype:policy-violation; sid:2003125; rev:2;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SSL/TLS traffic on port 25 (00)"; flowbits:isnotset,BE.issmtp; flow:established,to_server; content:"|17 03 00|"; depth:4; flowbits:set,BE.issmtp; flowbits:noalert; classtype:policy-violation; sid:2003127; rev:2;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY NON-SMTP and NON-SSL/TLS traffic on port 25"; flowbits:isnotset,BE.issmtp; flow:established,to_server; threshold:type both, seconds 90, track by_src, count 10;  classtype:policy-violation; sid:2003126; rev:3;)
+
+#New way to do ssh. First to detect legit ssh sessions on normal ports. Enable these ONLY if you need to know about
+# normal ssh sessions
+#Written by Erik Fichtner, adapted some
+
+##alert tcp $HOME_NET $SSH_PORTS -> any any (msg: "BLEEDING-EDGE POLICY SSH Server Banner Detected on Expected Port";  flowbits:noalert; flow: from_server,established; content:"SSH-"; offset: 0; depth: 4; byte_test:1,>,48,0,relative;byte_test:1,<,51,0,relative;byte_test:1,=,46,1,relative;flowbits: set,is_ssh_server_banner; classtype:misc-activity; sid: 2001973; rev:5; )
+##alert tcp $HOME_NET any -> any $SSH_PORTS (msg: "BLEEDING-EDGE POLICY SSH Client Banner Detected on Expected Port";  flowbits:isset,is_ssh_server_banner; flowbits:noalert; flow: from_client,established; content:"SSH-"; offset: 0; depth: 4; byte_test:1,>,48,0,relative;byte_test:1,<,51,0,relative;byte_test:1,=,46,1,relative;flowbits: set,is_ssh_client_banner; classtype:misc-activity; sid: 2001974; rev:5; )
+##alert tcp $HOME_NET $SSH_PORTS -> any any (msg: "BLEEDING-EDGE POLICY SSHv2 Server KEX Detected on Expected Port";  flowbits:isset,is_ssh_client_banner; flowbits:noalert; flow: from_server,established; byte_test:1,=,20,5; flowbits: set,is_ssh_server_kex; classtype:misc-activity; sid: 2001975; rev:5; )
+##alert tcp $HOME_NET any -> any $SSH_PORTS (msg: "BLEEDING-EDGE POLICY SSHv2 Client KEX Detected on Expected Port";  flowbits:isset,is_ssh_server_kex; flowbits:noalert; flow: from_client,established; byte_test:1,=,20,5;flowbits: set,is_ssh_client_kex; classtype:misc-activity; sid: 2001976; rev:6; )
+##alert tcp $HOME_NET any -> any $SSH_PORTS (msg: "BLEEDING-EDGE POLICY SSHv2 Client New Keys detected on Expected Port"; flowbits:noalert; flowbits:isset,is_ssh_client_kex; flow: from_client,established; byte_test:1,=,21,5;flowbits: set,is_proto_ssh; classtype:misc-activity; sid: 2001977; rev:6; )
+##alert tcp $HOME_NET any <> any $SSH_PORTS (msg: "BLEEDING-EDGE POLICY SSH session in progress on Expected Port"; flowbits: isset,is_proto_ssh; threshold: type both, track by_src, count 2, seconds 300; classtype:misc-activity; sid: 2001978; rev:4; )
+
+#And now to detect Non-standard port usage
+#alert tcp $HOME_NET !$SSH_PORTS -> any any (msg: "BLEEDING-EDGE POLICY SSH Server Banner Detected on Unusual Port"; flowbits:noalert; flow: from_server,established; content:"SSH-"; offset: 0; depth: 4; byte_test:1,>,48,0,relative;byte_test:1,<,51,0,relative;byte_test:1,=,46,1,relative;flowbits: set,is_ssh_server_banner; classtype:misc-activity; sid: 2001979; rev:5; )
+#alert tcp $HOME_NET any -> any !$SSH_PORTS (msg: "BLEEDING-EDGE POLICY SSH Client Banner Detected on Unusual Port"; flowbits:noalert; flowbits:isset,is_ssh_server_banner; flow: from_client,established; content:"SSH-"; offset: 0; depth: 4; byte_test:1,>,48,0,relative;byte_test:1,<,51,0,relative;byte_test:1,=,46,1,relative; flowbits: set,is_ssh_client_banner; classtype:misc-activity; sid: 2001980; rev:6; )
+#alert tcp $HOME_NET !$SSH_PORTS -> any any (msg: "BLEEDING-EDGE POLICY SSHv2 Server KEX Detected on Unusual Port"; flowbits:isset,is_ssh_client_banner; flowbits:noalert; flow: from_server,established; byte_test:1,=,20,5;flowbits: set,is_ssh_server_kex; classtype:misc-activity; sid: 2001981; rev:5; )
+#alert tcp $HOME_NET any -> any !$SSH_PORTS (msg: "BLEEDING-EDGE POLICY SSHv2 Client KEX Detected on Unusual Port"; flowbits:noalert; flowbits:isset,is_ssh_server_kex; flow: from_client,established; byte_test:1,=,20,5; flowbits: set,is_ssh_client_kex; classtype:misc-activity; sid: 2001982; rev:6; )
+#alert tcp $HOME_NET any -> any !$SSH_PORTS (msg: "BLEEDING-EDGE POLICY SSHv2 Client New Keys Detected on Unusual Port"; flowbits:isset,is_ssh_client_kex; flowbits:noalert; flow: from_client,established; byte_test:1,=,21,5; flowbits: set,is_proto_ssh; classtype:misc-activity; sid: 2001983; rev:6; )
+#alert tcp $HOME_NET any <> any !$SSH_PORTS (msg: "BLEEDING-EDGE POLICY SSH session in progress on Unusual Port"; flowbits: isset,is_proto_ssh; threshold: type both, track by_src, count 2, seconds 300; classtype:misc-activity; sid: 2001984; rev:4; )
+
+#Submitted by Scott Melnick
+#alert tcp $HOME_NET any -> any !$HTTP_PORTS (msg: "BLEEDING-EDGE POLICY PCMesh Anonymous Proxy client connect"; flow: from_client,established; content:"http|3a|//www.pcmesh.com|3a|80/ip-check.cgi"; depth:37; offset:4; classtype: policy-violation; sid:2003040; rev:2; )
+
+#Only enable if you do not use and internal Proxy server with your
+#clients or change your HTTP_PORTS to match your Proxy server port
+##alert tcp $HOME_NET any -> any !$HTTP_PORTS (msg: "BLEEDING-EDGE POLICY Anonymous Proxy Traffic from Inside"; flow: from_client,established; flags: *AP,12; content:"GET http|3a|//"; depth:11; offset:0; content:"HTTP/1.0"; within:50; offset:11; classtype: policy-violation; sid:2003069; rev:1;)
+
+# Added by Frank Knobbe
+#alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg: "BLEEDING-EDGE POLICY Prospero Chat Session in Progress"; flow: established,to_server; content:"PCHAT2 "; offset: 0; depth: 7; content:"v='"; nocase; offset: 8; depth: 400; content:"jv='"; nocase; offset: 8; depth: 400; content:"u='"; nocase; offset: 8; depth: 400; reference:url,www.prospero.com/technology.htm; classtype: policy-violation; sid: 2001989; rev:3; )
+
+#Seeing some bots and proxy evasion apps use these proxy judges to find their way out
+#by Scotty Melnick
+#alert tcp $HOME_NET any -> any $HTTP_PORTS (msg: "BLEEDING-EDGE POLICY Proxy Judge Discovery/Evasion (prxjdg.cgi)"; flow: established,to_server; uricontent:"/prxjdg.cgi"; nocase; classtype:policy-violation; sid:2003047; rev:1;)
+#alert tcp $HOME_NET any -> any $HTTP_PORTS (msg: "BLEEDING-EDGE POLICY Proxy Judge Discovery/Evasion (proxyjudge.cgi)"; flow: established,to_server; uricontent:"/proxyjudge.cgi"; nocase; classtype:policy-violation; sid:2003048; rev:1;)
+
+#By Sam Pabon
+#alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg: "BLEEDING-EDGE POLICY RAR File Outbound"; flow: established; content:"|52 61 72 21|"; offset: 0; depth: 4; tag: session; classtype: not-suspicious; sid: 2001950; rev:2; )
+##alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "BLEEDING-EDGE POLICY RAR File Inbound"; flow: established; content:"|52 61 72 21|"; offset: 0; depth: 4; tag: session; classtype: not-suspicious; sid: 2001951; rev:2; )
+
+#Submitted by James Ashton
+#alert tcp $EXTERNAL_NET any -> $HOME_NET 3389 (msg: "BLEEDING-EDGE RDP connection request"; flow: to_server,established; content:"|03|"; offset: 0; depth: 1; content:"|E0|"; offset: 5; depth: 1; classtype: misc-activity; sid: 2001329; rev:5; )
+#alert tcp $HOME_NET 3389 -> $EXTERNAL_NET any (msg: "BLEEDING-EDGE RDP connection confirm"; flow: from_server,established; content:"|03|"; offset: 0; depth: 1; content:"|D0|"; offset: 5; depth: 1; classtype: misc-activity; sid: 2001330; rev:5; )
+#alert tcp $EXTERNAL_NET any -> $HOME_NET 3389 (msg: "BLEEDING-EDGE RDP disconnect request"; flow: to_server,established; content:"|03|"; offset: 0; depth: 1; content:"|80|"; offset: 5; depth: 1; classtype: misc-activity; sid: 2001331; rev:5; )
+
+#Matt jonkman
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE POLICY Real.com Game Arcade Install (User agent)"; flow: established,to_server; content:"User-Agent\:"; nocase;  pcre:"/User-Agent\:[^\n]+ARCADE_BUNDLE_DOWNLOADER/i"; classtype: policy-violation; sid: 2003045; rev:2;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE POLICY Real.com Game Arcade Install"; flow: established,to_server; content:"/gameconsole/bundlescripts/"; classtype: policy-violation; sid:2003046; rev:1;)
+
+#Matt Jonkman
+# This is a commercial product, but we see it very often used in malware. Send this email on install
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 25 (msg:"BLEEDING-EDGE POLICY SC-KeyLog Keylogger Installed - Sending Initial Email Report"; flow:established,to_server; content:"Installation of SC-KeyLog on host "; nocase; content:"<p>You will receive a log report every "; nocase; content:"Document sent by <a href='http\://www.soft-central.net/keylog.php'>SC-KeyLog</a>"; nocase; classtype:trojan-activity; reference:url,www.soft-central.net/keylog.php; sid:2002979; rev:1;)
+
+#By Chich Thierry
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE Policy Skype VOIP Checking Version (Startup)"; flow: to_server,established; uricontent:"/ui/"; nocase; uricontent:"/getlatestversion?ver="; nocase; reference:url,www1.cs.columbia.edu/~library/TR-repository/reports/reports-2004/cucs-039-04.pdf; classtype: policy-violation; sid: 2001595; rev:6; )
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE Policy Skype VOIP Reporting Install"; flow: to_server,established; uricontent:"/ui/"; nocase; uricontent:"/installed"; nocase; reference:url,www1.cs.columbia.edu/~library/TR-repository/reports/reports-2004/cucs-039-04.pdf; classtype: policy-violation; sid: 2001596; rev:6; )
+
+#By Robert Grabowsky
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE POLICY Skype User-Agent detected"; flow:to_server,established; pcre:"/User-Agent\:[^(\n|\r)]+Skype/i"; classtype: policy-violation; sid:2002157; rev:1;)
+
+#by Reg Quinton
+#alert udp $HOME_NET 1024:65535 -> $EXTERNAL_NET 33033 (msg: "BLEEDING-EDGE POLICY Skype Bootstrap Node (udp)"; reference:url,www1.cs.columbia.edu/~library/TR-repository/reports/reports-2004/cucs-039-04.pdf; classtype:policy-violation; sid:2003022; rev:2;)
+
+#By Chris Norton
+##alert tcp $HOME_NET any -> $HOME_NET 22 (msg: "BLEEDING-EDGE Policy SSH Successful user connection"; dsize: 52; flags: AP; threshold: type both, track by_src, count 3, seconds 60; classtype: successful-user; sid: 2001637; rev:3; )
+
+#by matt Jonkman
+#TLS/SSL State Machine for 8081 and up
+#if you have sessions that do NOT trip this please let me know.
+#I only know this will work for sslv2, sslv3, and most TLS.
+
+#Adding these sigs to prevent known ssl ports from being included. You may need to duplicate some of these
+# to exclude known ssl traffic in your environment.
+#  You can also avoid falses by suppressing sigs 2003002-5 for the hosts that you expect unusual port SSL to/from
+#
+#alert tcp $HOME_NET any -> any 443 (msg:"BLEEDING-EDGE POLICY Known SSL traffic on port 443 being excluded from SSL Alerts"; flow:established,to_server; flowbits:noalert; flowbits:set,BS.SSL.Known.Port; classtype:not-suspicious; sid:2003026; rev:2;)
+#alert tcp $HOME_NET any -> any 8000 (msg:"BLEEDING-EDGE POLICY Known SSL traffic on port 8000 being excluded from SSL Alerts"; flow:established,to_server; flowbits:noalert; flowbits:set,BS.SSL.Known.Port; classtype:not-suspicious; sid:2003027; rev:2;)
+#alert tcp $HOME_NET any -> any 8080 (msg:"BLEEDING-EDGE POLICY Known SSL traffic on port 8080 being excluded from SSL Alerts"; flow:established,to_server; flowbits:noalert; flowbits:set,BS.SSL.Known.Port; classtype:not-suspicious; sid:2003028; rev:2;)
+#alert tcp $HOME_NET any -> any 8200 (msg:"BLEEDING-EDGE POLICY Known SSL traffic on port 8200 being excluded from SSL Alerts"; flow:established,to_server; flowbits:noalert; flowbits:set,BS.SSL.Known.Port; classtype:not-suspicious; sid:2003029; rev:2;)
+#alert tcp $HOME_NET any -> any 8443 (msg:"BLEEDING-EDGE POLICY Known SSL traffic on port 8443 being excluded from SSL Alerts"; flow:established,to_server; flowbits:noalert; flowbits:set,BS.SSL.Known.Port; classtype:not-suspicious; sid:2003030; rev:2;)
+#alert tcp $HOME_NET any -> any 5222 (msg:"BLEEDING-EDGE POLICY Known SSL traffic on port 5222 (Jabber) being excluded from SSL Alerts"; flow:established,to_server; flowbits:noalert; flowbits:set,BS.SSL.Known.Port; classtype:not-suspicious; sid:2003031; rev:2;)
+#alert tcp $HOME_NET any -> any 5223 (msg:"BLEEDING-EDGE POLICY Known SSL traffic on port 5223 (Jabber) being excluded from SSL Alerts"; flow:established,to_server; flowbits:noalert; flowbits:set,BS.SSL.Known.Port; classtype:not-suspicious; sid:2003032; rev:2;)
+#alert tcp $HOME_NET any -> any 2967 (msg:"BLEEDING-EDGE POLICY Known SSL traffic on port 2967 (Symantec) being excluded from SSL Alerts"; flow:established,to_server; flowbits:noalert; flowbits:set,BS.SSL.Known.Port; classtype:not-suspicious; sid:2003033; rev:1;)
+#alert tcp $HOME_NET any -> any 3128 (msg:"BLEEDING-EDGE POLICY Known SSL traffic on port 3128 (proxy) being excluded from SSL Alerts"; flow:established,to_server; flowbits:noalert; flowbits:set,BS.SSL.Known.Port; classtype:not-suspicious; sid:2003035; rev:1;)
+#alert tcp $HOME_NET any -> any 8080 (msg:"BLEEDING-EDGE POLICY Known SSL traffic on port 8080 (proxy) being excluded from SSL Alerts"; flow:established,to_server; flowbits:noalert; flowbits:set,BS.SSL.Known.Port; classtype:not-suspicious; sid:2003036; rev:1;)
+#alert tcp $HOME_NET any -> any 8292 (msg:"BLEEDING-EDGE POLICY Known SSL traffic on port 8292 (Bloomberg) being excluded from SSL Alerts"; flow:established,to_server; flowbits:noalert; flowbits:set,BS.SSL.Known.Port; classtype:not-suspicious; sid:2003037; rev:1;)
+#alert tcp $HOME_NET any -> any 8294 (msg:"BLEEDING-EDGE POLICY Known SSL traffic on port 8294 (Bloomberg) being excluded from SSL Alerts"; flow:established,to_server; flowbits:noalert; flowbits:set,BS.SSL.Known.Port; classtype:not-suspicious; sid:2003038; rev:1;)
+
+#Client Hello
+#alert tcp $HOME_NET any -> any 1024:65535 (msg:"BLEEDING-EDGE POLICY TLS/SSL Client Hello on Unusual Port TLS"; flowbits:isnotset,BS.SSL.Known.Port; flowbits:isnotset,BS.SSL.Client.Hello; flow:established,to_server; content:"|16 03 01|"; depth:3; content:"|01|"; within:6; content:"|03 01|"; within:5; flowbits:set,BS.SSL.Client.Hello; flowbits:noalert; classtype:unusual-client-port-connection; sid:2003002; rev:5;)
+#alert tcp $HOME_NET any -> any 1024:65535 (msg:"BLEEDING-EDGE POLICY TLS/SSL Client Hello on Unusual Port SSLv3"; flowbits:isnotset,BS.SSL.Known.Port; flowbits:isnotset,BS.SSL.Client.Hello; flow:established,to_server; content:"|16 03 00|"; depth:3; content:"|01|"; within:2; content:"|03 00|"; within:3; flowbits:set,BS.SSL.Client.Hello; flowbits:noalert; classtype:unusual-client-port-connection; sid:2003003; rev:5;)
+#alert tcp $HOME_NET any -> any 1024:65535 (msg:"BLEEDING-EDGE POLICY TLS/SSL Client Hello on Unusual Port Case 2"; flowbits:isnotset,BS.SSL.Known.Port; flowbits:isnotset,BS.SSL.Client.Hello; flow:established; content:"|01 03 01|"; depth:5; offset:2; flowbits:set,BS.SSL.Client.Hello; flowbits:noalert; classtype:unusual-client-port-connection; sid:2003004; rev:5;)
+#alert tcp $HOME_NET any -> any 1024:65535 (msg:"BLEEDING-EDGE POLICY TLS/SSL Client Hello on Unusual Port SSLv3"; flowbits:isnotset,BS.SSL.Known.Port; flowbits:isnotset,BS.SSL.Client.Hello; flow:established; content:"|01 03 00|"; depth:5; flowbits:set,BS.SSL.Client.Hello; flowbits:noalert; classtype:unusual-client-port-connection; sid:2003005; rev:6;)
+
+#Client Key exch and setup
+#alert tcp $HOME_NET any -> any 1024:65535 (msg:"BLEEDING-EDGE POLICY TLS/SSL Client Key Exchange on Unusual Port"; flowbits:isset,BS.SSL.Client.Hello; flow:established; content:"|16 03 01|"; content:"|10|"; within:6; flowbits:set,BS.SSL.Client.Key; flowbits:noalert; classtype:unusual-client-port-connection; sid:2003006; rev:4;)
+#alert tcp $HOME_NET any -> any 1024:65535 (msg:"BLEEDING-EDGE POLICY TLS/SSL Client Key Exchange on Unusual Port SSLv3"; flowbits:isset,BS.SSL.Client.Hello; flow:established; content:"|16 03 00|"; content:"|10|"; within:6; flowbits:set,BS.SSL.Client.Key; flowbits:noalert; classtype:unusual-client-port-connection; sid:2003007; rev:4;)
+#alert tcp $HOME_NET any -> any 1024:65535 (msg:"BLEEDING-EDGE POLICY TLS/SSL Client Cipher Set on Unusual Port"; flowbits:isset,BS.SSL.Client.Hello; flow:established; content:"|14 03 01 00 01 01|"; flowbits:set,BS.SSL.Client.Cipher; flowbits:noalert; classtype:unusual-client-port-connection; sid:2003008; rev:4;)
+#alert tcp $HOME_NET any -> any 1024:65535 (msg:"BLEEDING-EDGE POLICY TLS/SSL Client Cipher Set on Unusual Port SSLv3"; flowbits:isset,BS.SSL.Client.Hello; flow:established; content:"|14 03 00 00 01 01|"; flowbits:set,BS.SSL.Client.Cipher; flowbits:noalert; classtype:unusual-client-port-connection; sid:2003009; rev:4;)
+
+#Server Hello
+#alert tcp $HOME_NET 1024:65535 -> any any (msg:"BLEEDING-EDGE POLICY TLS/SSL Server Hello on Unusual Port"; flowbits:isset,BS.SSL.Client.Hello; flow:established; content:"|16 03 01|"; depth:3; content:"|02|"; within:6; content:"|03 01|"; within:6; flowbits:set,BS.SSL.Server.Hello; flowbits:noalert; classtype:unusual-client-port-connection; sid:2003010; rev:4;)
+#alert tcp $HOME_NET 1024:65535 -> any any (msg:"BLEEDING-EDGE POLICY TLS/SSL Server Hello on Unusual Port SSLv3"; flowbits:isset,BS.SSL.Client.Hello; flow:established; content:"|16 03 00|"; depth:3; content:"|02|"; within:6; content:"|03 00|"; within:6; flowbits:set,BS.SSL.Server.Hello; flowbits:noalert; classtype:unusual-client-port-connection; sid:2003011; rev:4;)
+
+#Server cert and key exchange
+#alert tcp $HOME_NET 1024:65535 -> any any (msg:"BLEEDING-EDGE POLICY TLS/SSL Server Certificate Exchange on Unusual Port"; flowbits:isset,BS.SSL.Client.Hello; flow:established; content:"|16 03 01|"; content:"|0b|"; within:6; flowbits:set,BS.SSL.Server.Cert; flowbits:noalert; classtype:unusual-client-port-connection; sid:2003012; rev:4;)
+#alert tcp $HOME_NET 1024:65535 -> any any (msg:"BLEEDING-EDGE POLICY TLS/SSL Server Certificate Exchange on Unusual Port SSLv3"; flowbits:isset,BS.SSL.Client.Hello; flow:established; content:"|16 03 00|"; content:"|0b|"; within:6; flowbits:set,BS.SSL.Server.Cert; flowbits:noalert; classtype:unusual-client-port-connection; sid:2003013; rev:3;)
+#alert tcp $HOME_NET 1024:65535 -> any any (msg:"BLEEDING-EDGE POLICY TLS/SSL Server Key Exchange on Unusual Port"; flowbits:isset,BS.SSL.Client.Hello; flow:established; content:"|16 03 01|"; content:"|0c|"; within:6; flowbits:set,BS.SSL.Server.Key; flowbits:noalert; classtype:unusual-client-port-connection; sid:2003014; rev:4;)
+#alert tcp $HOME_NET 1024:65535 -> any any (msg:"BLEEDING-EDGE POLICY TLS/SSL Server Key Exchange on Unusual Port SSLv3"; flowbits:isset,BS.SSL.Client.Hello; flow:established; content:"|16 03 00|"; content:"|0c|"; within:6; flowbits:set,BS.SSL.Server.Key; flowbits:noalert; classtype:unusual-client-port-connection; sid:2003015; rev:3;)
+#alert tcp $HOME_NET 1024:65535 -> any any (msg:"BLEEDING-EDGE POLICY TLS/SSL Server Hello Done on Unusual Port"; flowbits:isset,BS.SSL.Server.Key; flow:established; content:"|16 03 01|"; content:"|0e|"; within:6; flowbits:set,BS.SSL.Server.Hello.Done; flowbits:noalert; classtype:unusual-client-port-connection; sid:2003016; rev:4;)
+#alert tcp $HOME_NET 1024:65535 -> any any (msg:"BLEEDING-EDGE POLICY TLS/SSL Server Hello Done on Unusual Port SSLv3"; flowbits:isset,BS.SSL.Server.Key; flow:established; content:"|16 03 00|"; content:"|0e|"; within:6; flowbits:set,BS.SSL.Server.Hello.Done; flowbits:noalert; classtype:unusual-client-port-connection; sid:2003017; rev:3;)
+
+#Server Cipher set
+#alert tcp $HOME_NET 1024:65535 -> any any (msg:"BLEEDING-EDGE POLICY TLS/SSL Server Cipher Set on Unusual Port"; flowbits:isset,BS.SSL.Client.Cipher; flow:established; content:"|14 03 01 00 01|"; flowbits:set,BS.SSL.Established; flowbits:noalert; classtype:unusual-client-port-connection; sid:2003018; rev:4;)
+#alert tcp $HOME_NET 1024:65535 -> any any (msg:"BLEEDING-EDGE POLICY TLS/SSL Server Cipher Set on Unusual Port SSLv3"; flowbits:isset,BS.SSL.Client.Cipher; flow:established; content:"|14 03 00 00 01|"; flowbits:set,BS.SSL.Established; flowbits:noalert; classtype:unusual-client-port-connection; sid:2003019; rev:4;)
+
+#Application data stream
+#alert tcp $HOME_NET any -> any 1024:65535 (msg:"BLEEDING-EDGE POLICY TLS/SSL Encrypted Application Data on Unusual Port"; flowbits:isset,BS.SSL.Established; flow:established,from_server; content:"|17 03 01|"; depth:4; threshold:type limit, count 1, seconds 120, track by_src; classtype:unusual-client-port-connection; sid:2003020; rev:5;)
+#alert tcp $HOME_NET any -> any 1024:65535 (msg:"BLEEDING-EDGE POLICY TLS/SSL Encrypted Application Data on Unusual Port SSLv3"; flowbits:isset,BS.SSL.Established; flow:established,to_server; content:"|17 03 00|"; depth:4; threshold:type limit, count 1, seconds 120, track by_src; classtype:unusual-client-port-connection; sid:2003021; rev:5;)
+
+
+
+#Submitted by Patrick Harper. pcre by Matt Jonkman
+#This rule is disabled by default. It should generally be run on the outside of your network, not internally. Enable it where useful.
+##alert tcp $HOME_NET any -> any any (msg: "BLEEDING-EDGE SSN Detected in Clear Text"; flow: established; pcre:"/ ([0-6]\d\d|7[0-256]\d|73[0-3]|77[0-2])-\d{2}-\d{4} /"; classtype: policy-violation; sid: 2001328; rev:8; )
+##alert tcp $HOME_NET any -> any any (msg: "BLEEDING-EDGE SSN Detected in Clear Text"; flow: established; pcre:"/ ([0-6]\d\d|7[0-256]\d|73[0-3]|77[0-2]) \d{2} \d{4} /"; classtype: policy-violation; sid: 2001384; rev:8; )
+
+#by Mark Tombaugh, updated by Robert Grabowsky
+#alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"BLEEDING-EDGE POLICY TOR 1.0 Client Circuit Traffic"; flow:established,to_server;content:"|54 4f 52|"; content:"|63 6c 69 65 6e 74 20 3C 69 64 65 6E 74 69 74 79 3E|"; distance:10; within:20; threshold:type limit, track by_src, count 1, seconds 120; classtype:policy-violation; reference:url,tor.eff.org; sid:2001728; rev:4;)
+
+#Submitted by an anonymous researcher
+#alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"BLEEDING-EDGE POLICY TOR 1.0 Server Key Retrival"; flow:established,to_server;content:"|47 45 54 20 2f 74 6f 72 2f 73 65 72 76 65 72 2f|"; threshold:type limit, track by_src, count 1, seconds 60; classtype:policy-violation; reference:url,tor.eff.org; sid:2002950; rev:2;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"BLEEDING-EDGE POLICY TOR 1.0 Status Update"; flow:established,to_server;content:"|47 45 54 20 2f 74 6f 72 2f 73 74 61 74 75 73 2f|"; threshold:type limit, track by_src, count 1, seconds 60; classtype:policy-violation; reference:url,tor.eff.org; sid:2002951; rev:2;)
+#this sig is good as long as the client isn't recompiled to use an identifier other than TOR..
+#alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"BLEEDING-EDGE POLICY TOR 1.0 Inbound Circuit Traffic"; flow:established; content:"|54 4f 52|"; content:"|3C 69 64 65 6E 74 69 74 79 3E|"; rawbytes; distance:10; within:35; threshold:type limit, track by_src, count 1, seconds 120; classtype:policy-violation; reference:url,tor.eff.org; sid:2002952; rev:2;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"BLEEDING-EDGE POLICY TOR 1.0 Outbound Circuit Traffic"; flow:established; content:"|54 4f 52|"; content:"|3C 69 64 65 6E 74 69 74 79 3E|"; rawbytes; distance:10; within:35; threshold:type limit, track by_src, count 1, seconds 120; classtype:policy-violation; reference:url,tor.eff.org; sid:2002953; rev:2;)
+
+#Submitted by Erik Vincent
+##alert tcp $HOME_NET any -> $EXTERNAL_NET 80 (msg: "BLEEDING-EDGE Policy Proxy Connection detected"; flow: established; content:"Proxy-Connection"; classtype: attempted-user; sid: 2001449; rev:2; )
+
+#
+#You MUST add the SMTP_SERVERS var to your snort.conf!!!!
+#alert tcp !$SMTP_SERVERS any -> !$HOME_NET 25 (msg: "BLEEDING-EDGE POLICY Outbound Multiple Non-SMTP Server Emails"; flags: S,12; threshold: type threshold, track by_src,count 10, seconds 120; classtype: misc-activity; sid: 2000328; rev:7;)
+#alert tcp !$HOME_NET any -> $HOME_NET 25 (msg: "BLEEDING-EDGE POLICY Inbound Frequent Emails - Possible Spambot Inbound"; flags: S,12; threshold: type threshold, track by_src,count 10, seconds 60; classtype: misc-activity; sid: 2002087; rev:5;)
+
+#by Jacob Kitchel of infotex
+#These are of particular use in detecting recon for phishing, etc.
+##alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY Wget User Agent"; flow:established,to_server; content:"Wget"; nocase; pcre:"/User-Agent\:[^\n]+Wget/i"; reference:url,www.gnu.org/software/wget; classtype: attempted-recon; sid:2002822; rev:2;)
+#alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY POSSIBLE Web Crawl using Wget"; flow:established,to_server; content:"Wget"; nocase; pcre:"/User-Agent\:[^\n]+Wget/i"; threshold: type both, track by_src, count 10, seconds 60; classtype: attempted-recon; reference:url,www.gnu.org/software/wget/; sid:2002823; rev:1;)
+
+##alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY CURL User Agent"; flow:established,to_server; content:"curl"; nocase; pcre:"/User-Agent\:[^\n]+curl/i"; reference:url,curl.haxx.se; classtype: attempted-recon; sid:2002824; rev:2;)
+#alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY POSSIBLE Web Crawl using Curl"; flow:established,to_server; content:"curl"; nocase; pcre:"/User-Agent\:[^\n]+curl/i"; threshold: type both, track by_src, count 10, seconds 60; classtype:attempted-recon; reference:url,curl.haxx.se; sid:2002825; rev:2;)
+
+##alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY fetch User Agent"; flow:established,to_server; content:"fetch"; nocase; pcre:"/User-Agent\:[^\n]+fetch/i"; reference:url,gobsd.com/code/freebsd/lib/libfetch; classtype: attempted-recon; sid:2002826; rev:2;)
+#alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY POSSIBLE Crawl using Fetch"; flow:established,to_server; content:"fetch"; nocase; pcre:"/User-Agent\:[^\n]+fetch/i"; threshold: type both, track by_src, count 10, seconds 60; classtype: attempted-recon; reference:url,gobsd.com/code/freebsd/lib/libfetch; sid:2002827; rev:1;)
+
+##alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY libwww-perl User Agent"; flow:established,to_server; content:"libwww-perl/"; nocase; pcre:"/User-Agent\:[^\n]+libwww-perl\/\d\.\d+/i"; reference:url,www.linpro.no/lwp/; classtype: attempted-recon; sid:2002934; rev:2;)
+#alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY libwww-perl User Agent"; flow:established,to_server; content:"libwww-perl/"; nocase; pcre:"/User-Agent\:[^\n]+libwww-perl\/\d\.\d+/i"; threshold: type both, track by_src, count 10, seconds 60; reference:url,www.linpro.no/lwp/; classtype: attempted-recon; sid:2002935; rev:1;)
+
+#These aren't security issues necessarily, but you may be interested in seeing how often these crawlers hit you
+##alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY googlebot User Agent";  flow:established,to_server; content:"googlebot";  nocase; pcre:"/User-Agent\:[^\n]+googlebot/i"; reference:url,www.google.com/webmasters/bot.html; classtype:not-suspicious; sid:2002828; rev:2;)
+##alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY Googlebot Crawl"; flow:established,to_server;  content:"googlebot"; nocase; pcre:"/User-Agent\:[^\n]+googlebot/i"; threshold: type both, track by_src, count 10, seconds 60; classtype: attempted-recon; reference:url,www.google.com/webmasters/bot.html; sid:2002829; rev:1;)
+
+##alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY msnbot User Agent";  flow:established,to_server; content:"msnbot";  nocase; pcre:"/User-Agent\:[^\n]+msnbot/i"; reference:url,search.msn.com/msnbot.htm; classtype:not-suspicious; sid:2002830; rev:2;)
+##alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY Msnbot Crawl"; flow:established,to_server;  content:"msnbot"; nocase; pcre:"/User-Agent\:[^\n]+msnbot/i"; threshold: type both, track by_src, count 10, seconds 60; classtype: attempted-recon; reference:url,search.msn.com/msnbot.htm; sid:2002831; rev:2;)
+
+##alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY Yahoo Crawler User Agent";  flow:established,to_server; content:"Yahoo-MMCrawler";  nocase; pcre:"/User-Agent\:[^\n]+Yahoo-MMCrawler/i"; reference:url,mms-mmcrawler-support@yahoo-inc.com; classtype:not-suspicious; sid:2002832; rev:3;)
+##alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY Yahoo Crawler Crawl"; flow:established,to_server;  content:"Yahoo-MMCrawler"; nocase; pcre:"/User-Agent\:[^\n]+Yahoo-MMCrawler/i"; threshold: type both, track by_src, count 10, seconds 60; classtype: attempted-recon; reference:url,mms-mmcrawler-support@yahoo-inc.com; sid:2002833; rev:1;)
+
+#by Jacob Kitchel
+##alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY python.urllib User Agent"; flow:established,to_server; content:"python.urllib/"; nocase; pcre:"/User-Agent\:[^\n]+python.urllib\/\d\.\d+/i"; reference:url,docs.python.org/lib/module-urllib.html; classtype: attempted-recon;  sid:2002944; rev:1;)
+#alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY python.urllib User Agent Web Crawl"; flow:established,to_server; content:"python.urllib/"; nocase; pcre:"/User-Agent\:[^\n]+python.urllib\/\d\.\d+/i"; threshold: type both, track by_src, count 10, seconds 60; reference:url,docs.python.org/lib/module-urllib.html; classtype: attempted-recon; sid:2002943; rev:2;)
+
+##alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY Java Url Lib User Agent"; flow:established,to_server; content:"User-agent\:"; nocase; content:"Java/"; nocase; within:50; pcre:"/User-Agent\:[^\n]+Java/\d\.\d+/i"; reference:url,www.mozilla.org/docs/netlib/seealso/netmods.html; classtype: attempted-recon; sid:2002946; rev:2;)
+#alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY Java Url Lib User Agent Web Crawl"; flow:established,to_server; content:"User-agent\:"; nocase; content:"Java/"; nocase; within:50; pcre:"/User-Agent\:[^\n]+Java/\d\.\d+/i"; threshold: type both, track by_src, count 10, seconds 60; reference:url,www.mozilla.org/docs/netlib/seealso/netmods.html; classtype: attempted-recon; sid:2002945; rev:3;)
+
+# Submitted by Jason Alvarado
+#alert tcp $HOME_NET any -> [208.8.81.0/24,64.68.96.0/19] 443 (msg: "BLEEDING-EDGE MyWebEx Server Traffic"; flow: to_server,established; dsize: <50; content:"|17|"; offset: 0; depth: 1; threshold: type limit,track by_src, count 1, seconds 360; reference:url,www.mywebexpc.com/how.php; classtype: policy-violation; sid: 2001712; rev:3; )
+#alert tcp $HOME_NET any -> [208.8.81.0/24,64.68.96.0/19] $HTTP_PORTS (msg: "BLEEDING-EDGE MyWebEx Installation"; flow: to_server,established; content:"/pc/r.php?AT=RS"; nocase; threshold: type limit, track by_src, count 1, seconds 30; reference:url,www.mywebexpc.com/how.php; classtype: policy-violation; sid: 2001713; rev:3; )
+#alert tcp [208.8.81.0/24,64.68.96.0/19] 443 -> $HOME_NET any (msg: "BLEEDING-EDGE MyWebEx Incoming Connection"; flow: to_client,established; content:"|16 03|"; offset: 0; depth: 2; content:"Comodo"; nocase; depth: 240; content:"accessanywhere.com"; nocase; offset: 592; depth: 48; reference:url,www.mywebexpc.com/how.php; classtype: policy-violation; sid: 2001714; rev:3; )
+
+#Originally posted by Matt Jonkman, major tweaks by Matt Watchinski.
+#Less useful rules are disabled, feel free to enable if you require the information. They are functional and accurate
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE Yahoo Mail Inbox View"; flow: to_server,established; uricontent:"/ym/ShowFolder"; nocase; content:"rb=Inbox"; nocase; classtype: policy-violation; sid: 2000041; rev:9; )
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE Yahoo Mail Message View"; flow: to_server,established; uricontent:"/ym/ShowLetter"; nocase; content:"MsgId"; nocase; classtype: policy-violation; sid: 2000042; rev:8; )
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE Yahoo Mail Message Compose Open"; flow: to_server,established; uricontent:"/ym/Compose"; nocase; classtype: policy-violation; sid: 2000043; rev:8; )
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE Yahoo Mail Message Send"; flow: to_server,established; uricontent:"/ym/Compose"; nocase; classtype: policy-violation; sid: 2000044; rev:7; )
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE Yahoo Mail Message Send Info Capture"; flow: to_server,established; content:"crumb="; nocase; content:"Subject="; nocase; classtype: policy-violation; sid: 2000045; rev:8; )
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE Yahoo Mail General Page View"; flow: to_server,established; uricontent:"/ym/login"; nocase; content:".rand="; nocase; classtype: policy-violation; sid: 2000341; rev:6; )
+
+#Submitted by Jonathan Miner
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE Yahoo Briefcase Upload"; flow: to_server,established; content:"briefcase.yahoo.com"; uricontent:"/process_bcmultipart_form"; nocase; classtype: policy-violation; sid: 2001044; rev:3; )
+
+#Submitted by Matt Jonkman
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE POLICY Gmail Inbox Access"; flow: to_server,established; uricontent:"/gmail?view=tl&search=inbox&start="; nocase; classtype: policy-violation; sid: 2001424; rev:4; )
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE POLICY Gmail File Send"; flow: to_server,established; content:"Content-Disposition\: form-data\; name=\"msgbody\""; nocase; content:"name=\"form-data\; file0\"\; filename=\""; nocase; classtype: policy-violation; sid: 2001425; rev:5; )
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE POLICY Gmail Message Send"; flow: to_server,established; content:"Content-Disposition\: form-data\; name=\"to\""; nocase; content:"Content-Disposition\: form-data\; name=\"msgbody\""; nocase; classtype: policy-violation; sid: 2001426; rev:4; )
+
+#By Robert Grabowsky
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg: "BLEEDING-EDGE POLICY WebshotsNetClient"; flow: to_server,established; content:"User-Agent\:"; nocase; pcre:"/User-Agent\:[^\n]+WebshotsNetClient/i"; reference:url,www.webshots.com; classtype:policy-violation; sid:2002407; rev:2;)
+
+#by Jacob Kitchel of infotex
+#Windows update operates over port 80 or 443 (443 not detected here). It uses this user
+#agent with the hostname. This sig can be used to identify internal hosts that are
+#not using an internal patching server,
+##alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY External Windows Update in Progress"; flow:established,to_server; content:"Windows-Update-Agent"; content:"Host\:"; nocase; within:20; pcre:"/User-Agent\:[^\n]+Windows-Update-Agent/i"; threshold: type limit, count 1, seconds 300, track by_src; reference:url,windowsupdate.microsoft.com; sid:2002948; rev:3;)
+
+#this sig can be used to track internal updates, or updates in general
+##alert tcp $HOME_NET any -> any $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY Windows Update in Progress"; flow:established,to_server; content:"Windows-Update-Agent"; content:"Host\:"; nocase; within:20; pcre:"/User-Agent\:[^\n]+Windows-Update-Agent/i"; threshold: type limit, count 1, seconds 300, track by_src; reference:url,windowsupdate.microsoft.com; sid:2002949; rev:3;)
+
+#Microsoft BITS (Background Intelligent Transfer Agent) user agent sig
+#Thresholded like the Windows-User-Agent user agent sig (after suggestion from Eduardo)
+##alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"BLEEDING-EDGE POLICY Microsoft BITS User Agent"; flow:established,to_server; content:"Microsoft BITS/"; content:"Host\:"; within: 20; pcre:"/\/User-Agent\:[^\n]+Microsoft BITS\//i"; threshold: type limit, track by_src, count 1, seconds 300; reference:url,au.download.windowsupdate.com; sid:2002969; rev:3;)
+
+#Matt Jonkman
+#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS  (msg:"BLEEDING-EDGE POLICY Winpcap Installation in Progress"; flow:established,to_server; uricontent:"/install/banner/"; nocase; pcre:"/\d/\d+.jpg/Ui"; content:"Host\: www.winpcap.org"; nocase; content:"User-Agent\: NSISDL"; nocase; reference:url,www.winpcap.org; classtype: policy-violation; sid:2002866; rev:1;)
+
+#by Mark Tombaugh
+#alert udp $HOME_NET any -> $EXTERNAL_NET 88 (msg:"BLEEDING-EDGE POLICY X-Box Live Connecting"; content:"<Xbox Version="; content:" Title=0x"; distance:4; within:32; reference:url,www.microsoft.com/xbox/; classtype:policy-violation; sid:2002796; rev:2;)
+
+#Submitted by Joel Esler
+##alert tcp $HOME_NET any -> any any (msg: "BLEEDING-EDGE ZIPPED DOC in transit"; flow: established; content:"|50 4B 03 04|"; content:"|00|"; content:".doc"; nocase; classtype: not-suspicious; sid: 2001402; rev:3; )
+##alert tcp $HOME_NET any -> any any (msg: "BLEEDING-EDGE ZIPPED XLS in transit"; flow: established; content:"|50 4B 03 04|"; content:"|00|"; content:".xls"; nocase; classtype: not-suspicious; sid: 2001403; rev:3; )
+##alert tcp $HOME_NET any -> any any (msg: "BLEEDING-EDGE ZIPPED EXE in transit"; flow: established; content:"|50 4B 03 04|"; content:"|00|"; content:".exe"; nocase; classtype: not-suspicious; sid: 2001404; rev:3; )
+##alert tcp $HOME_NET any -> any any (msg: "BLEEDING-EDGE ZIPPED PPT in transit"; flow: established; content:"|50 4B 03 04|"; content:"|00|"; content:".ppt"; nocase; classtype: not-suspicious; sid: 2001405; rev:3; )
+#From David Glosser
+#alert tcp $EXTERNAL_NET any <> $HOME_NET any (msg: "BLEEDING-EDGE Possible hidden zip extension .cpl"; flowbits: isnotset,tagged; content:"|20 20 2E 63 70 6C 50 4B|"; nocase; tag: host,1,packets,src; flowbits:set,tagged; classtype: suspicious-filename-detect; sid: 2001406; rev:5; )
+#alert tcp $EXTERNAL_NET any <> $HOME_NET any (msg: "BLEEDING-EDGE Possible hidden zip extension .pif"; flowbits:isnotset,tagged; content:"|20 20 2E 70 69 66 50 4B|"; nocase; tag: host,1,packets,src; flowbits:set,tagged; classtype: suspicious-filename-detect; sid: 2001407; rev:5; )
+#alert tcp $EXTERNAL_NET any <> $HOME_NET any (msg: "BLEEDING-EDGE Possible hidden zip extension .scr"; flowbits:isnotset,tagged; content:"|20 20 2E 73 63 72 50 4B|"; nocase; tag: host,1,packets,src; flowbits:set,tagged; classtype: suspicious-filename-detect; sid: 2001408; rev:5; )
+

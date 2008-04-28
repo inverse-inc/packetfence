@@ -1,0 +1,30 @@
+<html>
+  <head>
+  <title>Configuration Reference - dhcp</title>
+  </head>
+  <body>
+  <font
+  <img src="/common/packetfence.gif">
+  <p><b><font size=+1>Configuration Reference - dhcp</font></b></p>
+<a name=isolation_lease></a>
+<b>isolation_lease</b> <i>(text)</i><br>
+Default: 2m<br>
+Optional lease time for the isolation scope.  If not defined, defaults to 120 seconds.<p>
+<a name=isolation_scopes></a>
+<b>isolation_scopes</b> <i>(text)</i><br>
+List of scope definitions that isolated clients are assigned to.<p>
+<a name=registered_lease></a>
+<b>registered_lease</b> <i>(text)</i><br>
+Default: 2h<br>
+Optional lease time for the registered scope.  If not defined, defaults to 7200 seconds.<p>
+<a name=registered_scopes></a>
+<b>registered_scopes</b> <i>(text)</i><br>
+List of scope definitions that registered (and non-isolated) clients are assigned to.<p>
+<a name=unregistered_lease></a>
+<b>unregistered_lease</b> <i>(text)</i><br>
+Default: 2m<br>
+Optional lease time for the unregistered scope.  If not defined, defaults to 120 seconds.<p>
+<a name=unregistered_scopes></a>
+<b>unregistered_scopes</b> <i>(text)</i><br>
+List of scope definitions that unregistered clients are assigned to.  This is the "default" scope for a new client.<p>
+</body></html>

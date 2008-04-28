@@ -1,0 +1,63 @@
+
+                          PacketFence
+
+  What is it?
+  -----------
+
+  Please visit http://www.packetfence.org/dokuwiki/doku.php?id=faq#faq
+
+
+  The Latest Stable Version
+  ------------------
+
+  http://sourceforge.net/projects/packetfence/
+
+
+  The Latest Development Version
+  ------------------
+
+  http://www.packetfence.org/pf170rc1/
+
+
+  Documentation
+  -------------
+
+  The documentation available at:
+  http://www.packetfence.org/documentation.html
+
+
+  Installation
+  ------------
+  
+  Untar source to /usr/local/pf and run installer.pl
+
+  or please see documentation available at:
+  http://www.packetfence.org/wiki.html
+
+  For the 1.7RC1, please also consult:
+  http://www.packetfence.org/dokuwiki/doku.php?id=1.7rc1
+
+
+  Licensing
+  ---------
+
+  GPL: visit http://sourceforge.net/projects/packetfence/
+
+
+  Acknowledgments
+  ----------------
+
+  Core Technologies
+    Kevin Amorin 
+    David Laporte
+
+  Additional Development
+    Randy Heins
+    Dominik Gehl
+    Regis Balzard
+
+
+  Support
+  -------
+  Mailing list packetfence-devel@lists.sourceforge.net
+

@@ -1,0 +1,263 @@
+# This file is generated from a template at %%install_dir%%/conf/templates/httpd.conf
+# Any changes made to this file will be lost on restart 
+
+HostnameLookups off
+User pf
+Group pf
+ServerAdmin root@%%hostname%%.%%domain%%
+ServerTokens Prod
+ServerSignature Off
+UseCanonicalName Off
+Timeout 50
+KeepAlive On
+MaxKeepAliveRequests 100
+KeepAliveTimeout 10
+MinSpareServers 50
+MaxSpareServers 100
+StartServers 50
+MaxClients 256
+MaxRequestsPerChild 0
+ServerName %%hostname%%.%%domain%%
+Listen 0.0.0.0:80
+Listen 0.0.0.0:443
+Listen 0.0.0.0:%%admin_port%%
+PidFile %%install_dir%%/var/httpd.pid
+LogFormat "%{User-agent}i" agent
+LogFormat "%h %l %u %t \"%r\" %>s %b" common
+LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
+AddDefaultCharset ISO-8859-1
+AddCharset ISO-8859-1  .iso8859-1  .latin1
+AddHandler cgi-script .cgi
+TypesConfig /etc/mime.types
+AddType .gif image/gif binary
+AddType .jpg image/jpg binary
+Options Indexes
+DirectoryIndex index.html index.cgi index.php
+
+<IfModule !mod_auth.c>
+  LoadModule auth_module modules/mod_auth.so
+</IfModule>
+<IfModule !mod_rewrite.c>
+  LoadModule rewrite_module modules/mod_rewrite.so
+</IfModule>
+<IfModule !mod_cgi.c>
+  LoadModule cgi_module modules/mod_cgi.so
+</IfModule>
+<IfModule !mod_mime.c>
+  LoadModule mime_module modules/mod_mime.so
+</IfModule>
+<IfModule !mod_dir.c>
+  LoadModule dir_module modules/mod_dir.so
+</IfModule>
+<IfModule !mod_alias.c>
+  LoadModule alias_module modules/mod_alias.so
+</IfModule>
+<IfModule !mod_log_config.c>
+  LoadModule log_config_module modules/mod_log_config.so
+</IfModule>
+<IfModule !mod_ssl.c>
+  LoadModule ssl_module modules/mod_ssl.so
+</IfModule>
+<IfModule !mod_setenvif.c>
+  LoadModule setenvif_module modules/mod_setenvif.so
+</IfModule>
+<IfModule !mod_proxy.c>
+  LoadModule proxy_module modules/mod_proxy.so
+</IfModule>
+<IfModule !proxy_http.c>
+  LoadModule proxy_http_module modules/mod_proxy_http.so
+</IfModule>
+<IfModule !mod_access.c>
+  LoadModule access_module modules/mod_access.so
+</IfModule>
+<IfModule !mod_headers.c>
+  LoadModule headers_module modules/mod_headers.so
+</IfModule>
+<IfModule !sapi_apache2.c>
+  #LoadModule php5_module modules/libphp5.so
+  LoadModule php4_module modules/libphp4.so
+</IfModule>
+
+AddType application/x-httpd-php .php
+#<Files *.php>
+#    SetOutputFilter PHP
+#    SetInputFilter PHP
+#    LimitRequestBody 524288
+#</Files>
+
+ProxyRequests Off
+
+<Proxy *>
+  Order deny,allow
+  Allow from all
+</Proxy>
+
+RewriteLock %%install_dir%%/var/apache_rewrite_lock
+
+#NameVirtualHost *:80
+
+SSLPassPhraseDialog  builtin
+SSLSessionCache         dbm:%%install_dir%%/var/ssl_scache
+SSLSessionCacheTimeout  300
+SSLMutex  file:%%install_dir%%/var/ssl_mutex
+SSLRandomSeed startup builtin
+SSLRandomSeed connect builtin
+SSLCipherSuite ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eNULL
+
+<Files ~ "\.(cgi|shtml|phtml|php3?)$">
+  SSLOptions +StdEnvVars
+</Files>
+
+SetEnvIf User-Agent ".*MSIE.*" \
+  nokeepalive ssl-unclean-shutdown \
+  downgrade-1.0 force-response-1.0
+
+<VirtualHost *:80>
+
+  DocumentRoot %%install_dir%%/html/user
+  ServerName %%hostname%%.%%domain%%:80
+
+  Alias /favicon.ico %%install_dir%%/html/common/favicon.ico
+  Alias /common/ %%install_dir%%/html/common/
+  ScriptAlias /cgi-bin/ "%%install_dir%%/cgi-bin/"
+
+  CustomLog %%install_dir%%/logs/access_log combined
+  ErrorLog %%install_dir%%/logs/error_log
+
+  <DirectoryMatch "%%install_dir%%(/cgi-bin|/html/user)">
+    Order deny,allow
+    Deny from all
+    allow from %%internal-nets%% %%routed-nets%% 127.0.0.1
+  </DirectoryMatch>
+
+  RewriteEngine On
+  #RewriteLogLevel 3
+  #RewriteLog %%install_dir%%/logs/rewrite_log
+
+  RewriteCond %{REQUEST_URI} !^/favicon.ico
+  RewriteCond %{REQUEST_URI} !^/msdownload/update/v3/static/trustedr/en/authrootseq.txt$
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/register.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/enabler.cgi
+  RewriteCond %{REQUEST_URI} !^/common
+  RewriteCond %{REQUEST_URI} !^/content
+  RewriteCond %{REQUEST_URI} !^/3rdparty
+  RewriteCond %{REQUEST_URI} !^/status
+  RewriteCond %{REQUEST_URI} !^/proxies
+  RewriteRule ^.*$ https://%%hostname%%.%%domain%%/cgi-bin/redir.cgi?destination_url=http://%{HTTP_HOST}%{REQUEST_URI} [L]
+  RewriteRule ^.*$ https://%%hostname%%.%%domain%%%{REQUEST_URI} [R=permanent]
+
+  ProxyPassReverse /msdownload/update/v3/static/trustedr/en/authrootseq.txt http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootseq.txt
+  ProxyPass /msdownload/update/v3/static/trustedr/en/authrootseq.txt http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootseq.txt
+
+</VirtualHost>
+
+<VirtualHost *:443>
+
+  DocumentRoot "%%install_dir%%/html/user"
+  ServerName %%hostname%%.%%domain%%:443
+
+  Alias /favicon.ico %%install_dir%%/html/common/favicon.ico
+  Alias /common/ %%install_dir%%/html/common/
+  #Alias /cgi-bin/register-skip.cgi %%install_dir%%/cgi-bin/register.cgi
+%%auth-aliases%%
+  ScriptAlias /cgi-bin/ "%%install_dir%%/cgi-bin/"
+
+  CustomLog %%install_dir%%/logs/access_log combined
+  ErrorLog %%install_dir%%/logs/error_log
+
+  <DirectoryMatch "%%install_dir%%(/cgi-bin|/html/user)">
+    SSLOptions +StdEnvVars
+	Options ExecCGI
+    Order deny,allow
+    Deny from all
+    allow from %%internal-nets%% %%routed-nets%% 127.0.0.1
+  </DirectoryMatch>
+
+  SSLEngine on
+  SSLCertificateFile %%install_dir%%/conf/ssl/server.crt
+  SSLCertificateKeyFile %%install_dir%%/conf/ssl/server.key
+
+  Redirect /status https://%%hostname%%.%%domain%%/cgi-bin/register.cgi?mode=status
+
+  RewriteEngine On
+  #RewriteLogLevel 3
+  #RewriteLog %%install_dir%%/logs/rewrite_log
+
+  RewriteCond %{REQUEST_URI} !^/favicon.ico
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/register.+\.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/register.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/enabler.cgi
+  RewriteCond %{REQUEST_URI} !^/common
+  RewriteCond %{REQUEST_URI} !^/content
+  RewriteCond %{REQUEST_URI} !^/3rdparty
+  RewriteCond %{REQUEST_URI} !^/status
+  RewriteCond %{REQUEST_URI} !^/proxies
+  RewriteRule ^.*$ https://%%hostname%%.%%domain%%/cgi-bin/redir.cgi?destination_url=https://%{HTTP_HOST}%{REQUEST_URI} [R=permanent]
+
+%%proxies%%                
+
+%%content-proxies%%
+
+  <Location /content>
+    Options Indexes FollowSymLinks ExecCGI
+    php_value session.save_path "%%install_dir%%/var/session"
+    #(E_ALL & ~E_NOTICE) = 2047-8
+    php_value error_reporting 2039
+  </Location>
+
+</VirtualHost>
+
+<VirtualHost *:%%admin_port%%>
+
+  DocumentRoot "%%install_dir%%/html/admin"
+  ServerName %%hostname%%.%%domain%%:%%admin_port%%
+
+  Alias /favicon.ico %%install_dir%%/html/common/favicon.ico
+  Alias /common/ %%install_dir%%/html/common/
+  Alias /cgi-bin/pfcmd.cgi %%install_dir%%/bin/pfcmd
+  Alias /cgi-bin/pdp.cgi %%install_dir%%/cgi-bin/pdp.cgi
+  Alias /docs/ %%install_dir%%/docs/
+  Alias /content/ %%install_dir%%/html/user/content/
+
+  CustomLog %%install_dir%%/logs/admin_access_log combined
+  ErrorLog %%install_dir%%/logs/admin_error_log
+
+  SSLEngine on
+  SSLCertificateFile %%install_dir%%/conf/ssl/server.crt
+  SSLCertificateKeyFile %%install_dir%%/conf/ssl/server.key
+
+
+  <Location /cgi-bin/pfcmd.cgi>
+    SetHandler cgi-script
+    Options Indexes FollowSymLinks ExecCGI
+  </Location>
+
+  <Location /cgi-bin/pdp.cgi>
+    SetHandler cgi-script
+    Options Indexes FollowSymLinks ExecCGI
+  </Location>
+
+  <LocationMatch /cgi-bin/(pfcmd|pdp).cgi>
+    AuthUserFile %%install_dir%%/conf/admin.conf
+    AuthGroupFile /dev/null
+    AuthName "PacketFence Authentication"
+    AuthType Basic
+    require valid-user
+  </LocationMatch>
+
+  <Location ~ />
+    Options Indexes FollowSymLinks ExecCGI
+    AllowOverride None
+    #php_value register_globals "On"
+    php_value register_long_arrays "On"
+    php_value session.save_path "%%install_dir%%/var/session"
+    php_value memory_limit "64M"
+    #(E_ALL & ~E_NOTICE) = 2047-8
+    php_value error_reporting 2039
+  </Location>
+
+</VirtualHost>

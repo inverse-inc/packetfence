@@ -1,0 +1,146 @@
+#!/usr/bin/perl
+#
+# $Id: pfdetect,v 1.3 2005/11/30 21:40:08 kevmcs Exp $
+#
+# Copyright 2005 Dave Laporte <dave@laportestyle.org>
+# Copyright 2005 Kevin Amorin <kev@amorin.org>
+#
+# See the enclosed file COPYING for license information (GPL).
+# If you did not receive this file, see
+# http://www.fsf.org/licensing/licenses/gpl.html.
+#
+
+use Getopt::Std;
+use File::Basename;
+use strict;
+use warnings;
+
+use lib '/usr/local/pf/lib';
+use pf::db;
+use pf::config;
+use pf::iplog;
+use pf::util;
+use pf::violation;
+use pf::trigger;
+use pf::node;
+use pf::class;
+use pf::action;
+use pf::os;
+use pf::person;
+$SIG{'HUP'}=\&restart_handler;
+
+my @ORIG_ARGV = @ARGV;
+my %args;
+getopts('dhvp:', \%args);
+
+usage() if ($args{h} || !$args{p});
+
+my $daemonize = $args{d};
+my $verbose   = $args{v};
+my $snortpipe = $args{p};
+my $script    = File::Basename::basename($0);
+
+my ($line, $sid, $descr, $priority, $date, $srcmac, $srcip, $dstip, $mydbh);
+
+daemonize() if ($daemonize);
+
+pflogger("initialized", 1);
+
+if (!open(SNORTPIPE, "< $snortpipe")) {
+  pflogger("unable to open snort pipe: $!", 1);
+  die "pfdetect: unable to open snort pipe: $!\n";
+} else {
+  pflogger("listening on $snortpipe", 1);
+  print "pfdetect: listening on $snortpipe\n" if ($verbose);
+}
+
+while (<SNORTPIPE>) {
+
+  pflogger("alert received: $_", 2);
+  if ($_ =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+(.+?)\s+.+?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}\s+\-\>\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}/) {
+    $date  = $1;
+    $sid   = $2;
+    $descr = $3;
+    $srcip = $4;
+    $dstip = $6;
+  } elsif ($_ =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+Portscan\s+detected\s+from\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
+    $date   = $1;
+    $sid    = $portscan_sid;
+    $srcip  = $3;
+    $descr = "PORTSCAN";
+  } elsif ($_ =~ /^(.+?)\[\*\*\] \[\d+:(\d+):\d+\]\s+\(spp_portscan2\) Portscan detected from (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
+    $date  = $1;
+    $sid   = $portscan_sid;
+    $srcip = $3;
+    $descr = "PORTSCAN";
+  } else {
+    pflogger("unknown input: $_ ", 1);
+    next;
+  }
+
+  db_connect($mydbh,'iplog','violation','trigger','node','action','class','os','person');
+  $srcmac = ip2mac($srcip);
+  
+  if ($srcmac) {
+    pflogger("pfdetect: violation $sid [$descr]: $srcmac",8);
+    if (valid_mac($srcmac) && !whitelisted_mac($srcmac) && 
+        trappable_ip($srcip) && trappable_mac($srcmac)) {
+      violation_trigger($srcmac, $sid, "detect");
+    }else{
+     pflogger("violation $sid [$descr]: $srcmac not added, host is not trappable, or whitelisted",4);
+    }
+  }else{
+    pflogger("pfdetect: $srcip MAC NOT FOUND for violation $sid [$descr]",4);
+  }
+
+}
+
+END {
+  deletepid();
+  pflogger ("stopping pfdetect", 1);
+  #close(SNORTPIPE);
+}
+
+exit(0);
+
+sub daemonize {
+  createpid();
+  chdir '/'               or die "Can't chdir to /: $!";
+  open STDIN, '/dev/null' or die "Can't read /dev/null: $!";  
+  open STDOUT, '>/dev/null' or die "Can't write to /dev/null: $!";
+
+  defined(my $pid = fork) or die "pfdetect: could not fork: $!";
+  POSIX::_exit(0) if ($pid);
+  if (!POSIX::setsid()) {
+    pflogger("could not start a new session: $!", 1);
+  }
+  open STDERR, '>&STDOUT' or die "Can't dup stdout: $!";
+}
+
+sub normal_sighandler {
+  deletepid();
+  pflogger("caught SIG".$_[0]." - terminating", 1);
+  die("pfdetect: caught SIG".$_[0]." - terminating\n");
+}
+
+sub restart_handler {
+  deletepid();
+  pflogger("caught SIG".$_[0]." - restarting", 1);
+  if (!exec($0, @ORIG_ARGV)) {
+    pflogger("could not restart: #!", 1);
+    die "pfdetect: could not restart: $!\n";
+  }
+}
+
+sub usage {
+  my $cmd = File::Basename::basename($0);
+  print STDERR << "EOF";
+  Usage: $cmd -p snortpipe [OPTIONS]
+
+  Options:
+        -d  Daemonize
+        -v  Verbose
+        -h  Help
+EOF
+  exit;
+}

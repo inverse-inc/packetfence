@@ -1,0 +1,649 @@
+1.7.0 RC4
+        usage of gettext and template-toolkit in web pages
+        pfcmd_vlan -reAssignVlan
+          (https://support.inverse.ca/mantis/view.php?id=2341)
+        replaced HTTP auth with form based authentication
+        setVlan on Linksys switches
+          (http://www.packetfence.org/mantis/view.php?id=307)
+        added autodiscover script
+        added sample iptables.pre configuration file to allow
+          reception of SNMP traps
+        show database and scan passwords in password fields in 
+          web admin GUI
+        fixed issue in node_cleanup SQL query
+        added missing test/connect_and_read.pl script
+        support for Cisco::WLC_2106
+
+1.7.0 RC3
+        setting configuration parameters back to default values
+          (http://www.packetfence.org/mantis/view.php?id=313)
+        = sign in configuration values
+          (https://support.inverse.ca/mantis/view.php?id=2265)
+
+1.7.0 RC2
+        Some reports (Active/InActive) do not have DHCP fingerprint
+          information (http://www.packetfence.org/mantis/view.php?id=4)
+        pfcmd always connects to MySQL
+          (http://www.packetfence.org/mantis/view.php?id=101)
+        can't close blocks in administration/configuration.php
+          (http://www.packetfence.org/mantis/view.php?id=122)
+        admin/screenshots
+          (http://www.packetfence.org/mantis/view.php?id=125)
+        in UI if var/session doesn't exist or is not writable - user 
+          can not login and no error is given
+          (http://www.packetfence.org/mantis/view.php?id=140)
+        class/violation.php
+          (http://www.packetfence.org/mantis/view.php?id=169)
+        make packetfence.init LSB compliant
+          (http://www.packetfence.org/mantis/view.php?id=170)
+        allow to configure alert email through pf.conf
+          (http://www.packetfence.org/mantis/view.php?id=174)
+        admin/common.php : pager might be too big
+          (http://www.packetfence.org/mantis/view.php?id=205)
+        add group access right to web admin interface
+          (http://www.packetfence.org/mantis/view.php?id=211)
+        make rogue DHCP detect a "real" violation
+          (http://www.packetfence.org/mantis/view.php?id=220)
+        flip.pl calls pfcmd_contrib
+          (http://www.packetfence.org/mantis/view.php?id=228)
+        problems with File::Tail in setVlanOnTrapd
+          (http://www.packetfence.org/mantis/view.php?id=229)
+        added remote DHCP listener to SPEC file
+        status::reports:: history (IP/MAC) column names are not 
+          correctly shown
+          (http://www.packetfence.org/mantis/view.php?id=231)
+        Web link http://www.packetfence.org/install.html does 
+          not exist
+          (http://www.packetfence.org/mantis/view.php?id=230)
+        status::reports:: location history (IP/MAC) column
+          names are not correctly shown
+          (http://www.packetfence.org/mantis/view.php?id=232)
+        up2date no longer available under RHEL5/CentOS5
+          (http://www.packetfence.org/mantis/view.php?id=234)
+        installer can't find pfschema.mysql
+          (http://www.packetfence.org/mantis/view.php?id=235)
+        installer trying to install snort binary
+          (http://www.packetfence.org/mantis/view.php?id=236)
+        web admin gui history sort
+          (http://www.packetfence.org/mantis/view.php?id=237)
+        configuration value alerting.fromaddr
+          (http://www.packetfence.org/mantis/view.php?id=238)
+        templates/httpd.conf symlink
+          (http://www.packetfence.org/mantis/view.php?id=239)
+        several DNS servers and network.named=enabled
+          (http://www.packetfence.org/mantis/view.php?id=242)
+        iptables-restore
+          (http://www.packetfence.org/mantis/view.php?id=240)
+        '[warn] Useless use of AllowOverride' on RHEL5/CentOS5
+          (http://www.packetfence.org/mantis/view.php?id=243)
+        ifOctets throughput calculation and ifOctets discontinuities
+          (http://www.packetfence.org/mantis/view.php?id=244)
+        ifOctets accounting and throughput rounding
+          (http://www.packetfence.org/mantis/view.php?id=245)
+        pf1.7 database schema md5sum
+          (http://www.packetfence.org/mantis/view.php?id=250)
+        cleanup of services documentation
+          (http://www.packetfence.org/mantis/view.php?id=253)
+        renamed setVlanOnTrapd to pfsetvlan
+          (http://www.packetfence.org/mantis/view.php?id=255)
+        subroutine isTestingMode defined twice
+          (http://www.packetfence.org/mantis/view.php?id=257)
+        MAC security and Cisco Catalyst 2950
+          (http://www.packetfence.org/mantis/view.php?id=258)
+        new VLAN reassignment option in recovery.pl
+          (http://www.packetfence.org/mantis/view.php?id=259)
+        Undefined subroutine &main::locationlog_view_open_mac
+          (http://www.packetfence.org/mantis/view.php?id=260)
+        MAC security and registration
+          (http://www.packetfence.org/mantis/view.php?id=262)
+        pflogger STDERR
+          (http://www.packetfence.org/mantis/view.php?id=268)
+        can't locate object method via package mac
+          (http://www.packetfence.org/mantis/view.php?id=269)
+        custom_isClientAlive returns true if MAC-IP cannot be
+          found
+          (http://www.packetfence.org/mantis/view.php?id=271)
+        Hub violation
+          (http://www.packetfence.org/mantis/view.php?id=270)
+        pfdhcplistener garbage
+          (http://www.packetfence.org/mantis/view.php?id=266)
+        AuthAuthoritative and apache2.2
+          (http://www.packetfence.org/mantis/view.php?id=272)
+        userlog table definition
+          (http://www.packetfence.org/mantis/view.php?id=273)
+        pfcmd control and iptables
+          (http://www.packetfence.org/mantis/view.php?id=274)
+        locationlog table indexes
+          (http://www.packetfence.org/mantis/view.php?id=275)
+        pfcmd_vlan -getType
+          (http://www.packetfence.org/mantis/view.php?id=276)
+        Catalyst 2950 min OS version
+          (http://www.packetfence.org/mantis/view.php?id=277)
+        Catalyst 2950 and port security
+          (http://www.packetfence.org/mantis/view.php?id=278)
+        handling of (duplicated) port security traps
+          (http://www.packetfence.org/mantis/view.php?id=279)
+        IOS version comparison
+          (http://www.packetfence.org/mantis/view.php?id=281)
+        MAC/port security
+          (http://www.packetfence.org/mantis/view.php?id=280)
+        getAllIfOctets and MAC/port security
+          (http://www.packetfence.org/mantis/view.php?id=282)
+        release page and VLAN isolation
+          (http://www.packetfence.org/mantis/view.php?id=283)
+        syntax error in nat.php
+          (http://www.packetfence.org/mantis/view.php?id=284)
+        rlm_perl_packetfence.pl uses wrong pfcmd
+          (http://www.packetfence.org/mantis/view.php?id=286)
+        release.html and <font face>
+          (http://www.packetfence.org/mantis/view.php?id=289)
+        pfcmd_ap.pl retuns wrong registration LAN
+          (http://www.packetfence.org/mantis/view.php?id=288)
+        optimize handleTrap order and comparison types
+          (http://www.packetfence.org/mantis/view.php?id=291)
+        monitorpfsetvlan.pl script
+          (http://www.packetfence.org/mantis/view.php?id=290)
+        added support for 3COM NJ220 switch
+	allow port security to work with VoIP phones
+          (http://www.packetfence.org/mantis/view.php?id=285)
+        templates/local.conf and apache version
+          (http://www.packetfence.org/mantis/view.php?id=298)
+        register.cgi: icmp ping requires root privilege
+          (http://www.packetfence.org/mantis/view.php?id=297)
+        arp.cleanshutdown issue
+          (http://www.packetfence.org/mantis/view.php?id=299)
+        SNMP warn messages are duplicated in log file
+          (http://www.packetfence.org/mantis/view.php?id=300)
+        Undefined subroutine &pf::SNMP::Nortel::getIfIndex
+          (http://www.packetfence.org/mantis/view.php?id=301)
+        Nortel switches and VoIP phones
+          (http://www.packetfence.org/mantis/view.php?id=302)
+        $pid != 1
+          (http://www.packetfence.org/mantis/view.php?id=303)
+        allow date-time range queries for MAC/IP history
+          (http://www.packetfence.org/mantis/view.php?id=304)
+        ip2mac uses invalid iplog_history_ip call 
+          (http://www.packetfence.org/mantis/view.php?id=305)
+        mac2ip uses invalid iplog_history_ip call 
+          (http://www.packetfence.org/mantis/view.php?id=306)
+        insertion of VLAN in registration data
+          (http://www.packetfence.org/mantis/view.php?id=308)
+        RewriteRule prevents a user from being directed to an 
+        https site
+          (http://www.packetfence.org/mantis/view.php?id=309)
+        add notes field to node table
+          (http://www.packetfence.org/mantis/view.php?id=310)
+        add email alert when PC behind VoIP phone has been 
+	isolated
+          (http://www.packetfence.org/mantis/view.php?id=311)
+        issues in hasPhoneAtIfIndex
+          (https://support.inverse.ca/mantis/view.php?id=2257)
+        pfsetvlan, local reassign trap and VoIP phones
+          (https://support.inverse.ca/mantis/view.php?id=2259)
+        test if VLAN is defined in setVlan
+          (https://support.inverse.ca/mantis/view.php?id=2248)
+        ui_options homepage list
+          (https://support.inverse.ca/mantis/view.php?id=2260)
+
+1.7.0 RC1
+        several bugfixes / 1.6.2
+        integration of VLAN isolation 
+          (http://www.packetfence.org/mantis/view.php?id=9)
+        ability to execute Snort on separate machine
+          (http://www.packetfence.org/mantis/view.php?id=100)
+        pfmon does not record DHCPRELEASE requests
+          (http://www.packetfence.org/mantis/view.php?id=103)
+        unregdate in node table
+          (http://www.packetfence.org/mantis/view.php?id=112)
+        allow DHCP listener to work on a SPAN interface
+          (http://www.packetfence.org/mantis/view.php?id=190)
+        separate dhcp listener from pfmon
+          (http://www.packetfence.org/mantis/view.php?id=193)
+        LDAP authentication for Web admin interface
+          (http://www.packetfence.org/mantis/view.php?id=208)
+
+1.6.2
+	removed bogus sanity_checks from pfcmd
+	added spam violation
+	renamed iptables.preload to iptables.pre
+	added iptables.post
+	expire_mode=session is now a valid configuration
+	updated stinger URL
+	added passthrough for symantec scanner
+	added threadid to pflogger output
+	added interface to rogue DHCP messages
+	properly escaped references to trigger table for mysql5 users
+	changed "Schedule" tab to "Scan"
+	fixed issue with pretty print column headers in class tabs
+	fixed init script status function
+	replaced PopCalendarXP with a GPLed alternative
+	updated the GUI dashbaord so you can remove all elements
+	fixed dhcp fingerprint submission through the 'class' page
+	fixed searching within 'status/reports'
+	added optimization for ip2mac (086)
+	added snort to startup list in services.pm (121)
+	many changes to the pfmon threads & db_connection process to be able to reconnect on dead db handle and avoid timeout issues...
+        pfdetect handles sigpipe that db_connect dbh->ping() throws now
+	pfdetect calls db_connect with function list to support reconnect
+	pfdetect now uses perl signal handlers insead of POSIX
+	updated snort rule locations in violations.conf
+	included example oinkmaster.conf file in contrib
+	added passthroughs to local.rules for chat services that use non-standard IRC ports
+	changed default node expire from 180d to 90d
+	please add the following to /etc/my.cnf:
+
+	[mysqld]
+	# don't close session
+	wait_timeout = 86400  
+	# default 28800
+
+
+1.6.1
+	fixed admin->remediation page (0000087)
+	gateway no longer shows up in the Probable Static report
+	added additional DHCP fingerprints (thanks to Eric Kollmann)
+	fixed x-axis of monthly graphs
+	added additional sanity_check warning for large internal IP space
+	added backticks to "trigger" table to allow for proper import
+	set default action for IRC violation to "trap,email,log"
+	corrected redirect "looping" bug
+	registration of PIDs with spaces should now work
+	added "session" as an registration.expire_mode
+	added session_expire parameter
+	added sessionauth configuration template
+	added Snort 2.6 warning to installer.pl
+	fixed double count of statics in os/osclass report totals
+	moved cleanup thread in pfmon after listen_arp
+	added GUI bug reporting
+	fixed unknownprint submission
+
+1.6.0 (Butterball)
+	register.cgi reg exp change on user agent
+	added DHCP fingerprints
+	register.cgi bug fix for freemac
+	lots of misc bug fixes
+
+1.6.0 rc3 (Franklin)
+	schedule ui fixes
+	ui user login file check
+	ui admin tab updates
+	index.cgi bug fix (058)
+	named bug fix (056)
+	registration.window = registration.skip_window (057)
+	violation_view sql bug fix
+	addition of ticket_ref column in violation
+	bug fix to user_agent string during registration
+	valid_ip bug fix
+	index.php addition
+	
+
+1.6.0 rc2 (gizzard)
+	clean up to registeration.html template
+	bug fix to dhcp_listener
+	cleanup in conf/users (043)
+	register.cgi uses trigger fix (042)
+	IE bug fix (044)
+	added code to pfmon cleanup() to preform consistency check against DB (045)
+	cgi debugging code removal (049 & 050)
+        config.pm normalize time fix (048)
+	pfcmd cgi bug fix (051)
+	fixed /32 bug in trapping range
+
+1.6.0 rc1 (dinde)
+	bug fix to pfcmd violation add (028)
+	clean up to violations.conf (024 & 030)
+	action.pm netbiosname change (029)
+	documentation links added to config files (031)
+	max_enables bug fix (026)
+	snort restart bug fix (023)
+	web.pm bug fix (033)
+	pfcmd help additions
+	edit.php bug fix (035)
+	results.php bug fix (036)
+	pfcmd schedule bug fix (038)
+	pfcmd schedule add bug fix (034)
+
+1.6.0 beta4 (poult)
+	pfdetect db_connect move
+	many many many bug fixes to account for the new method of using chained use statments
+
+1.6.0 beta3 (Tryptophan)
+	updated unknownprints report to resolve vendor from OUI
+	fixed bug in get_internal_ips() and strobe
+	trigger support for disabled violations
+	fixed NAT (router, NATed AP) TTL-based detection
+        cleaned up thread variables in pfmon
+	added support for ARP & DHCP listening on multiple interfaces
+        changes to arp_listen to support new @listen_devs
+	fixed bugs with timer to 3rdparty move
+	changed trigger code and table to support tid ranges (tid_start-tid_end)
+	reformatted dhcp_fingerprints.conf to allow for integration with triggers
+	support for banning operating systems (see violations.conf)
+	"pfcmd reload <fingerprints|violations>" allows reload of DB tables w/o restart
+	"pfcmd update <fingerprints|oui>" allows update of lookup tables from canonical source
+        added inactive and openviolations report types
+        lib/pf reshuffle: moved pfcmd-specific components into subdir, renamed dhcp_fingerprint.pm to os.pm
+	renamed report types to be more consistent - see pfcmd usage for new names
+	fixed vendor parsing in oui.txt
+	added graphs aggregated on day/month/year intervals - see pfcmd usage for graph types (typically only used by GUI)
+	added mrtg_wrapper.pl to contrib directory for plug-and-play MRTG integration
+	pfcmd freemac/register/deregister added to eliminate SUID bit from CGI scripts
+	fixed optional date field to IP history report
+	updated help for pfcmd to make things more readable
+	network numbers are now excluded from the trappable_ip preload hash
+	updated packetfence.init script
+	added additional help support to pfcmd
+	modules exports/etc are now done properly
+	updated sanity_check to validate toggle pf.conf values against documentation.conf
+	normalize time values and allow second,minute,hour,day,week (s,m,h,d,w) modifiers
+	dashboard is now customizable with "nuggets" of information and graphs
+	trigger module updated for schedule ui tab
+	added indexes to OS tables
+
+1.6.0 beta2 (Gobble Gobble)
+	added Kazaa and Gnutella violations
+	added additional IRC trojan triggers
+	parse_web_conf reg exp bug fix
+	iptables NAT bugfix
+	iptables MASQ to SNAT
+	dnsservers addition to dhcpd.conf
+	dhcpd.conf default lease time changes
+	update_hashes bug fix new_node
+	added update_3rd_party_confs to update bleeding snort and oui files
+	DHCP ranges can now be of 192.168.0.100-200 form
+	fixed bogus reference to "authentication=" in documentation.conf and templates/pf.conf
+	configurator upgrade registration.authentication to registration.auth
+	NAT & external interface santity check
+	removal of httpd.conf release.cgi comment
+	new option registration.button text will display on registration page
+	trigger_scan bug fixes due to new 1.6.0 code changes
+	fixed new node add in update_hashes
+	added support for individual ips in preload_network_range
+	updated documentation.conf with new options
+	configurable DHCP lease times for reg/unreg/iso scopes
+	better reporting of typos in pf.conf
+
+1.6.0 beta1 (Turkey Day)
+	scan table has been replaced with trigger table.
+	rewrote update_hashes to support DHCP mode
+	bug fixes to nodecache module
+	bug fix to util::inrange() function when /32 is used
+	option registration ip range (pf.conf registration.range) added
+	changes to preload.pm, util.pm, pfmon to support reg range.
+	bug fix to get_interface_macs() to support down interfaces
+	change to trappable_ip to use more efficient grep then foreach enumeration
+	network/broadcast addresses no longer considered trappable
+	fixed configurator.pl bug with dnsservers
+	added additional sanity checks into pfcmd  
+	pflogger() bug fix to openlog (Peter Bates)
+	cleanup to node.pm to remove unused node_violator(),nodes_violators()
+	Cleanup up violations.conf - gave proper credit to the Bleeding Snort folks
+	created pf.defaults.conf, deleted redundant data from pf.conf
+	mac2ip bug fix to order results (Robert Kerr)
+	inrange_ip bug fix (Rober Kerr)
+	inrange_ip additions for /32, and individual IPs
+	violations.conf format has now changed.
+	configurator.pl admin port bug fix
+	snortrule & scanids have been replaced with trigger.
+
+	    trigger=detect::2000032,scan::11808
+
+	where 2000032 is the snort id and 11808 is the nussus plugin number 
+		
+	New 1.6 features:
+		Registration Ranges
+		DHCP mode
+		Triggers
+		Config Defaults
+		Multiple Authentication Registration
+
+	please update your existing database with upgrade-1.6.0
+		mysql -p pf < db/upgrade-1.6.0.sql
+
+1.5.1
+	configuration.php more_info path change
+	additional reports active os, unknown fingerprints 
+	report.pm code cleanup
+	fixed the CHANGES (Robert Kerr)
+	rnamed node_unmark to unmark_node in register_node
+	unmark_node bug fix 
+	added new DHCP prints
+	templates configurator default changes (Dominik Gehl) 
+
+1.5.0 release (Animal House)
+	small schema changes (Dominik Gehl):
+
+		alter table action add primary key(vid,action);
+		alter table violation add key status (status);
+		alter table dhcp_fingerprint add primary key dhcp_fingerprint(dhcp_fingerprint);
+
+	added dhcp fingerprints (Mike Cochrane)
+	
+1.5.1
+	configuration.php more_info path change
+	additional reports active os, unknown fingerprints 
+	report.pm code cleanup
+	fixed the CHANGES (Robert Kerr)
+	rnamed node_unmark to unmark_node in register_node
+	unmark_node bug fix 
+	added new DHCP prints
+	templates configurator default changes (Dominik Gehl) 
+
+1.5.0 release (Animal House)
+	small schema changes (Dominik Gehl):
+
+		alter table action add primary key(vid,action);
+		alter table violation add key status (status);
+		alter table dhcp_fingerprint add primary key dhcp_fingerprint(dhcp_fingerprint);
+
+	added dhcp fingerprints (Mike Cochrane)
+	bug fix to nodecache delete_node()
+	deleted debugging statement from trappable_ip
+	removed time filter option in reporting
+	removed old template options arp.probe_interval and arp.mode
+	change the default values for arp.timeout,arp.gw_timeout,arp.dhcp_timeout
+	updates and bug fixes to scan.pm
+	pfcmd schedule now IP will now output all scan results to /html/admin/schdule/depot/dump-IP-DATE
+	removed scan_results tab in ui and graphs tab in reports
+	renamed depot to results
+	configurator.pl changes to default monitor,net
+	getlocalmac() bug fix
+	header.php changes to accommodate spaces in key values
+	addition tab class->fingerprint added
+	node view dhcp_fingerprint is now linked to class->fingerprint
+	all UI calls to pfcmd are now done through env vars
+	listeners are now allowed through iptables INPUT
+	administrative GUI now separated from user content
+	fixed small bug with arp stuffing using old trapping.blackholemac
+	fixed small bug with arp isolation
+	violation array is now unique
+	fixed violation_add() to now force_close portscan if known sid is added
+	various updates to documentation.conf
+	index.cgi fix to initial class_db
+	remove unmark_node() from violation_force_close().
+	dhcp listener now uses chaddr instead of source mac for reporting
+	reg report was actually showing regactive
+	references to expiry are now expire in pf.conf
+	pfcmd now takes commands via ARGS query string param
+	pfmailer bug fix
+	exporter.php bug fix
+	index.cgi path fix
+	additions to violations.conf
+	scan key(sid,vid) is now scan primary key(sid,vid) (Dominik Gehl)
+	bug fix to hello() to arp non trappable IPs also
+	many update to documentation.conf (Dominik Gehl)
+	cleanup of scan.php (Dominik Gehl)
+	isolation bug fix on gratuitous arps
+	grace_period bug fix to template/index.cgi
+	cleanup to os.php and class.php (Dominik Gehl)
+	bug fix to installer.pl mysql user create
+	MAJOR cleanup to rearp() code
+	optimized rearp() to now handle chatty router(s) much better
+
+		customizable port (ports.admin)
+		common images/elements moved to /common - existing violations may need to be manually updated
+		be sure to update general.logo to /common/packetfence.gif
+
+1.5 rc2 (big willie style)
+	fqdn hostname and hello from outbound mail (Robert Kerr)
+	scan to schedule name changes (Mike Cochrane)
+	scan.php updates (Mike Cochrane)
+	pfcmd person edit vid changes (Mike Cochrane)
+	passive-span is now monitor_int 
+	added rxbot bleeding edge sig
+	changed NAT sigs to TTL 2-63,65-127,129-254
+	added sanity_check function to check for common problems
+	additional dhcp sigs added
+	person_modify/person_add bug fix
+	UI.conf person view/edit/delete update
+	arp_time updated on all host arps now
+	left join on dhcp_fingerprints for reports
+	changed "pfcmd pidlookup" to  "pfcmd lookup person"
+	added "pfcmd lookup node" - lists useful info about node (os, browser, owner, oui vendor resolution, etc)
+	added x.x.x.x-y.y.y.y to trappable_ip (Robert Kerr)
+	deleted from $ENV variables in pfcmd
+	some login updates (Dominik Gehl)
+	minor changes to admin code to work under PHP5
+	new report - "pfcmd report os_class"
+
+1.5 rc1 (big willie)
+	logging changes to violation_add
+	uncomment rawip in action.pm (Thanks to Mike Cochrane)
+	nessusd definition in services.pm (Thanks to Mike Cochrane)
+	./restart fix to to service.pm     
+	small installer bug fixes	
+	addition of ndp.cgi to cgi-bin.  in 1.6 this will support remote violation additions.
+	pfcmd help now matches up with schema (Thanks to Robert Kerr)
+	move of nessus.pm to scan.pm
+	various bug fixes in configurator (Thanks to Dominik Gehl)
+	modified spec file to include configurator templates (Dominik Gehl)
+	added some missing help files (Dominik Gehl)
+	updated ldap.conf to 0.26 compatible syntax (Dominik Gehl)
+	added CentOS 4.1 support (Dominik Gehl)
+	fixes to configuration.php to correct bad options behavior (Dominik Gehl)
+	changes to violations.conf, all violations now set to enabled action=email,log
+	added defaults to violation_add to set start_time=now, status=open when not defined
+	Added unique row to violations for better edit/delete control.
+
+	DB Schema change, beta users please do the following:
+          echo 'alter table violation add id int NOT NULL AUTO_INCREMENT Primary Key first;                                     
+                drop table nessusid;
+                drop table nessus;
+                CREATE TABLE scan (
+                  sid int(11) NOT NULL,
+                  vid int(11) default NULL,
+                  Key (sid,vid),
+                  CONSTRAINT `0_62` FOREIGN KEY (`vid`) REFERENCES `class` (`vid`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) TYPE=InnoDB;' | mysql -p pf
+
+	nessus.x is now called scan.x for later support of general scanning devices
+	scanning on registration has been tested in 1.5 tree.
+	total rewrite of interface code - it now actually makes sense
+	*lots* of PHP tweaks (Dominik Gehl), running on E_ALL is no longer so noisy
+	added some more DHCP fingerprints (Robert Kerr)
+	changed scan to schedule in the UI and pfcmd
+	node auto registration (think TiVo or Xbox) is now working
+	fixed registration "skip" bug
+	fixed violation add small bug from pfcmd
+ 
+1.5 beta 3 (willie) 
+	added index on iplog for (mac,ip,end_time)
+	added expire functionality for iplog and node  iplog_timeframe=60 node_timefram=60 (days)
+	pfmon cleanup() changes to run intensive functions every 10*arp_timeout
+	node.pm cleanup
+	violation_modify rewrite
+	pfcmd ui/class/nessus changes
+	moved iplog-last_seen to node-last_arp for beta 2 users please do the following:
+		alter table node add last_arp datetime NOT NULL default "0000-00-00 00:00:00" after computername; 
+		alter table iplog drop last_seen;
+	   for 1.4.4 users just run the ./installer which will upgrade your schema
+	changed table nessusid to nessus  
+	added nessus.pm module
+ 	redir cgi bug fixes
+	httpd.conf redir bug fix
+	configurator.pl now has support for template configs
+	unreg and isolated interfaces were removed.  they will be renamed in 1.6
+
+1.5 beta 2 (small willie)
+	violation.pm bug fixes
+	support for snort spp_portscan2
+	changed default violation actions to email/log
+	UI violation bug fixes
+	UI report bug fixes
+	action_add() bug fix on non trap actions	
+	ip2mac bug fixes and cleanup
+	class_modify bug fixes
+	cgi interface to pfcmd, httpd.conf changes also
+	bug fix on httpd.conf mod_write rules	
+	pflogger now can figure out calling function 	
+	fixed content index.cgi permissions issue
+	 
+
+1.5 beta1 (tiny willie)
+
+Rewrite of the PacketFence modules
+
+bug fixes and code clean up to content pass through and proxing
+
+CLI cleanup and bugfixes
+
+installer is more flexible with OS types
+
+
+Additional Features:
+        additional OS support (RHEL 3/4, FC3/4, basic Gentoo & SuSe)
+        basic NAT device detection
+        dhcp fingerprints
+        dhcp netbios computername information
+        os reporting
+        Detection via Darknet or reserved netblocks
+        CLI reporting additions
+        dhcp option 82
+        static ip/arp detection (beta)
+        basic arp poisoning detection
+        conf files are cleaner do to a move from Config::Simple to Config:InI
+        much cleaner code :)    
+
+1.4.4
+
+Clean up of the pf modules directory
+
+UI nessus addition
+
+The packetfence.spec file has been tweaked alot make sure uninstall is clean.
+
+documentation.conf is now included 
+
+regex bug in violations.conf fixed
+
+new logic to install correct snort  (fixes old FC3 library error)
+
+upgraded mysql to 4.1 (fixes another FC3 bug) 
+
+changed installer/spec file package deps and installer doc. 
+misc installer cleanup.  
+
+added nessus modules and dependencies to installer
+
+Apache/PHP was bombing on FC3 - changed PHP handler and enabled 
+pf/session dir for session handling.
+ 
+fixed bug where apache auth config was appended even if registration 
+was disabled.
+
+changed default value of named to "disabled".
+
+changed stuffing to disabled.
+
+deleted default expiry_window and window values. 
+
+added msdownload SSL proxy crap.  
+
+changed iptables log messages to clarify passthrough.
+
+fixed problem where *all* violations were adding iptables rules, 
+not just those with trap actions.  
+
+pf.conf defaults to using a non-root account (user will need to edit 
+account/password - I didn't bother doing that) and installer creates 
+one.  installer creates admin GUI account (ships with no admin.conf)

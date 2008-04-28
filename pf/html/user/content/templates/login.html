@@ -1,0 +1,61 @@
+<html>
+
+<head>
+<title>[%txt_page_title %]</title>
+<style>
+<!--
+.bio         { }
+-->
+</style>
+</head>
+
+<body>
+
+<center>
+  <table border="0" width="650" id="table2">
+    <tr>
+      <td align="center">
+      <img border="0" src="[% logo %]">
+      <td>
+    </tr>
+    <tr>
+      <td align="center" class="bio">
+
+<p align="center"><font face="Arial" size="+1"> <b>[% txt_page_header %]</b></font></p>
+<form method="post" action="[% post_uri %]">
+[% IF list_authentications.size == 1 %]
+<input type='hidden' name='[% list_authentications.first.name %]' value='[% list_authentications.first.value %]'>
+[% ELSE %]
+<select name='auth'>
+   <option value='' selected>[% txt_select_authentications %]</option>
+   [% FOREACH authentication_info IN list_authentications %]
+   <option value='[% authentication_info.value %]'>[% authentication_info.name %]</option>
+   [% END %]
+</select>
+[% END %]
+                                                              
+<input type="hidden" name="destination_url" value="[% destination_url %]">
+<p align="center"><font face="Arial">
+<table>
+<tr>
+  <td>[% txt_username %]</td><td><input type="text" name="login"></td>
+</tr>
+<tr>
+  <td>[% txt_password %]</td><td><input type="password" name="password"></td>
+</tr>
+<tr>
+  <td colspan="2" style="text-align:center"><input type="submit" value="[% txt_login %]"></td>
+</tr>
+</table>
+
+</font></p>
+</form>
+
+      <td>
+    </tr>
+  </table>
+</center>
+
+</body>
+
+</html>

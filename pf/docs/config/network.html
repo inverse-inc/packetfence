@@ -1,0 +1,69 @@
+<html>
+  <head>
+  <title>Configuration Reference - network</title>
+  </head>
+  <body>
+  <font
+  <img src="/common/packetfence.gif">
+  <p><b><font size=+1>Configuration Reference - network</font></b></p>
+<a name=dhcpdetector></a>
+<b>dhcpdetector</b> <i>(toggle)</i><br>
+Default: enabled<br>
+Options: enabled|disabled<br>
+If enabled, PacketFence will monitor DHCP-specific items such as rogue DHCP services, DHCP-based OS fingerprinting, computername/hostname 
+resolution, and (optionnally) option-82 location-based information.  The monitored DHCP packets are DHCPDISCOVERs and DHCPREQUESTs - both are broadcasts, 
+meaning a span port is not necessary.  This feature is highly recommended if the internal network is DHCP-based.<p>
+<a name=dhcpoption82logger></a>
+<b>dhcpoption82logger</b><i>(toggle)</i><br>
+Default: disabled<br>
+Options: enabled|disabled<br>
+If enabled PacketFence will monitor DHCP option82 location-based information.
+This feature is only available if the dhcpdetector is activated.<p>
+<a name=mode></a>
+<b>mode</b> <i>(toggle)</i><br>
+Default: passive<br>
+Options: passive|inline<br>
+Defines the mode in which PacketFence will operate.  When deployed in-line, PacketFence acts as a router and requires 
+internal and external interfaces to "live" on separate networks.  It's also likely that a static route for the internal 
+network will need to be added to the upstream router.  The PacketFence system can act as a DHCP server or relay to 
+one or more external servers.
+<p>
+When deployed in passive mode, PacketFence uses ARP manipulation inject itself into the datastream of unregistered or 
+trapped nodes.  You can read more about the mechanics of ARP manipulation <a 
+href="http://www.packetfence.org/dokuwiki/doku.php?id=faq#what_is_arp_manipulation_aka_poisoning_or_spoofing">here</a>.  Passive deployment has several benefits over an 
+inline deployment including elimination of a performance bottleneck and single point of failure.  Its major failing is that 
+it's not 100% in catching all traffic - spurious packets can and will occasionaly get through.  In an academic 
+environment or environments where in-line devices are frowned upon, this failing is minor in relation to the benefits.<p>
+<a name=named></a>
+<b>named</b> <i>(toggle)</i><br>
+Default: disabled<br>
+Options: enabled|disabled<br>
+If enabled, run a nameserver locally.  Combined with a 53/udp redirection port, this can allow you redirect clients based on 
+name resolution versus HTTP interception.  There are several caveats to keep in mind, First, many clients cache DNS 
+responses which may interrupt connectivity even after successful registration/remediation.  Second, in practice we've 
+noticed issues with the local nameserver refusing to answer queries in some cases - this may be related to 
+netfilter connection tracking.
+<p>
+If you're running DHCP locally, though, it may make sense to run a nameserver locally as well rather than defining external 
+servers to passthrough.  Note that running either DHCP or DNS on a passive deployed PF system establishes dependencies on it 
+that are likely not wanted.<p>
+<a name=nat></a>
+<b>nat</b> <i>(toggle)</i><br>
+Default: disabled<br>
+Options: enabled|disabled<br>
+If enabled, NATs outgoing traffic to the external interface IP address.  This setting is only useful in an in-line 
+deployment.  Enabling in a passive environment will likely cause network issues for trapped nodes.  Enabling this option 
+also forces snort to listen on the internal interface - this could have performance implications in high-throughput 
+environments.<p>
+<a name=rogueinterval></a>
+<b>rogueinterval</b> <i>(numeric)</i><br>
+Default: 1<br>
+When rogue DHCP server detection is enabled, this parameter defines how often to email administrators.  With its default 
+setting of 10, it will email administrators the details of the previous 10 DHCP offers.<p>
+<a name=vlan></a>
+<b>vlan</b> <i>(toggle)</i><br>
+Default: disabled<br>
+Options: enabled|disabled<br>
+If enabled, VLAN based isolation is used. You have to manually start the pfsetvlan service for this to work.
+
+</body></html>

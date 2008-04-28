@@ -1,0 +1,25 @@
+<html>
+<head>
+<script language="javascript"><!--
+  function framePrint(whichFrame) {
+    parent[whichFrame].focus();
+    parent[whichFrame].print();
+  }
+//--></script>
+</head>
+
+<body bgcolor="#FFFFFF">
+<center>
+  <form action="/cgi-bin/release.cgi" method="post" target="_top">
+    <input type="hidden" name="destination_url" value="[% destination_url %]">
+    <input type="hidden" name="violation_id" value="[% violation_id %]">
+
+    <script language="javascript"><!--
+    document.writeln("<input type=button value='[% txt_print %]' name='Print' onClick='framePrint(\"content\");'>");
+    //--></script>
+
+  <input type="submit" value="[% enable_text %]">
+  </form>
+</center>
+</body>
+</html>

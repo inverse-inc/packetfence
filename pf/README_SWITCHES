@@ -1,0 +1,65 @@
+Packetfence supports the following access points:
+- Cisco 1130AG
+- Cisco 1240AG
+
+Eventhough this list is really small, PacketFence may support many other access
+points as long as they have the following functionalities:
+- definition of several SSID with several VLANs inside every SSID (minimum
+  of 2 VLANs per SSID)
+- RADIUS authentication (802.1X)
+- dynamic VLAN assignment based on RADIUS attributes
+- SNMP deassociation/deauthentication traps
+- CLI (or SNMP) commaned to deassociate/deauthenticate a STA
+
+
+Currently, PacketFence supports the following switches:
+
+		       |  Link Up |   MAC    |   Port   |          |
+                       |   Down   |  Notif.  | Security |  802.1x  |
+-----------------------|----------|----------|----------|----------|
+3COM NJ220             |    XX    |    --    |    --    |    --    |
+-----------------------|----------|----------|----------|----------|
+Accton ES3526XA        |    XX    |    --    |    --    |    --    |
+-----------------------|----------|----------|----------|----------|
+Accton ES3528M         |    XX    |    --    |    --    |    XX    |
+-----------------------|----------|----------|----------|----------|
+Cisco 2900XL           |    XX    |    XX    |    --    |    ??    |
+-----------------------|----------|----------|----------|----------|
+Cisco 2950             |    XX    |    XX    |    XX    |    XX    |
+-----------------------|----------|----------|----------|----------|
+Cisco 2960/2970        |    XX    |    XX    |    XX    |    XX    |
+-----------------------|----------|----------|----------|----------|
+Cisco 3500XL           |    XX    |    XX    |    XX    |    XX    |
+-----------------------|----------|----------|----------|----------|
+Cisco 3550             |    XX    |    XX    |    XX    |    XX    |
+-----------------------|----------|----------|----------|----------|
+Cisco 3560             |    XX    |    XX    |    XX    |    XX    |
+-----------------------|----------|----------|----------|----------|
+Dell PowerConnect 3424 |    XX    |    ??    |    --    |    --    |
+-----------------------|----------|----------|----------|----------|
+Intel Express 460      |    XX    |    --    |    --    |    --    |
+-----------------------|----------|----------|----------|----------|
+Intel Express 530      |    XX    |    --    |    --    |    --    |
+-----------------------|----------|----------|----------|----------|
+Linksys SRW224G4       |    XX    |    --    |    --    |    --    |
+-----------------------|----------|----------|----------|----------|
+Nortel BayStack 470    |    XX    |    --    |    XX    |    XX    |
+-----------------------|----------|----------|----------|----------|
+Nortel ES325           |    XX    |    --    |    XX    |    XX    |
+-----------------------|----------|----------|----------|----------|
+Nortel BPS2000         |    XX    |    --    |    XX    |    XX    |
+-----------------------|----------|----------|----------|----------|
+
+VoIP: 
+
+Link Up/Down
+- the switch sends a trap UP when the port ifOperStatus is set to 1
+- the switch sends a trap DOWN when the port ifOperStatus is set to 0
+
+MAC Notif.:
+
+Port Security:
+
+802.1x:
+
+Deauthen:

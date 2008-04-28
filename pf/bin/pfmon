@@ -1,0 +1,631 @@
+#!/usr/bin/perl 
+#
+# $Id: pfmon,v 1.14 2005/12/22 00:33:14 kevmcs Exp $
+#
+# Copyright 2005 Dave Laporte <dave@laportestyle.org>
+# Copyright 2005 Kevin Amorin <kev@amorin.org>
+#
+# See the enclosed file COPYING for license information (GPL).
+# If you did not receive this file, see
+# http://www.fsf.org/licensing/licenses/gpl.html.
+#
+
+use warnings;
+use strict;
+use Getopt::Std;
+use Net::RawIP qw(:pcap);
+use threads;
+use threads::shared;
+use POSIX qw(:signal_h);
+
+
+use lib '/usr/local/pf/lib';
+use pf::config;
+use pf::iplog;
+
+#$thread=1;
+
+use pf::db;
+use pf::util;
+use pf::person;
+use pf::node;
+use pf::class;
+use pf::violation;
+use pf::trigger;
+use pf::services;
+use pf::os;
+use pf::action;
+use pf::iptables;
+use pf::nodecache;
+use pf::rawip;
+use pf::locationlog;
+
+POSIX::sigaction(&POSIX::SIGHUP,
+          POSIX::SigAction->new(
+                                'restart_handler',
+                                POSIX::SigSet->new(),
+                                &POSIX::SA_NODEFER
+                               )
+         ) or die "pfmon: could not set SIGHUP handler: $!\n";
+
+POSIX::sigaction(&POSIX::SIGTERM,
+          POSIX::SigAction->new(
+                                'normal_sighandler',
+                                POSIX::SigSet->new(),
+                                &POSIX::SA_NODEFER
+                               )
+         ) or die "pfmon: could not set SIGTERM handler: $!\n";
+
+POSIX::sigaction(&POSIX::SIGINT,
+          POSIX::SigAction->new(
+                                'normal_sighandler',
+                                POSIX::SigSet->new(),
+                                &POSIX::SA_NODEFER
+                               )
+         ) or die "pfmon: could not set SIGINT handler: $!\n";
+
+my @ORIG_ARGV = @ARGV;
+
+my %args;
+getopts('dhvr', \%args);
+
+usage() if ($args{h});
+
+my $daemonize = $args{d};
+my $verbose   = $args{v};
+my $restart   = $args{r};
+my %violations : shared;
+
+# Strobe Global flag 
+my $strobe_done : shared;
+$strobe_done = 0;
+
+# Rearp flag
+my $rearp_flag : shared;
+$rearp_flag = 0;
+
+our $arp_signal : shared;
+$arp_signal = 0;
+
+# It's so hard to say goodbye
+my $last_goodbye;
+
+my $arp_interval = $Config{'arp'}{'interval'};
+
+#my $eth = $Config{'arp'}{'listendevice'};
+my @kids;
+
+my $cache = pf::nodecache->new();
+
+# standard signals and daemonize
+daemonize() if ($daemonize);
+
+# thread off violation updater
+if ($Config{'network'}{'mode'} =~ /^passive$/i) {
+ push @kids, threads->create(\&arp_gun);
+}
+
+if ( $Config{'network'}{'mode'}=~/^dhcp$/i ) {
+  pflogger( "DHCP scope changer enabled", 1 );
+  push @kids, threads->create( \&dhcp_scoper );
+}
+
+# thread off arp listener
+if ( $Config{'network'}{'mode'}=~/^passive$/i){
+  foreach my $dev (@listen_ints){
+    pflogger("ARP detector on $dev enabled",1);
+    push @kids, threads->create( \&arp_detector, $dev );
+  }
+}
+
+# thread off the cleanup function
+push @kids, threads->create(\&cleanup);
+
+$kids[$#kids]->join();
+pflogger("cleanup thread finished - this is bad",1);
+
+END {
+  deletepid();
+  pflogger("stopping pfmon", 1);
+  if ($Config{'network'}{'mode'}=~/passive/i) {
+    # wake up the arpgun... then kill him
+    foreach my $kid (@kids){
+      $kid->detach;
+    }
+  }
+  # killing kids ain't fun, but somebody's got to do it...
+  kill 6,-$$;
+}
+
+exit(0);
+
+sub arp_detector {
+  my ($eth) = @_;          
+  my $packet_arp = new Net::RawIP;
+  my $filter = arp_filter();
+  my $pcap_arp = $packet_arp->pcapinit($eth,$filter,1500,30);
+  pflogger("starting arp detector on $eth",1);
+  my $mydbh=0;
+  while(1) {
+    my $tmp;
+    my $packet = &next($pcap_arp, $tmp);
+    db_connect($mydbh,'iplog','node');
+    listen_arp($packet) if ($packet);
+  }
+}
+
+
+
+sub dhcp_scoper {
+  my $mydbh;
+  db_connect($mydbh,'node','violation');
+
+  my %isolated;   
+  my %oldisolated;
+  my %registered;
+  my %oldregistered;
+  my $isoflag = 0;
+  my $regflag = 0;
+
+  if (service_ctl("dhcpd","status")==0){
+    pflogger("ERROR - DHCP IS NOT RUNNING - EXIT",1);
+    exit 1;
+  }
+
+  #every 30 seconds check to see if a host has changed status
+  #
+  while (1) {
+    # is iso enabled
+    if ( !isenabled( $Config{'trapping'}{'testing'} ) ) {
+      foreach my $row ( violation_view_open_uniq() ) {
+        my $hostname = $row->{'mac'};
+        $hostname =~ s/://g;
+        $isolated{$hostname}=1;
+        $isoflag = 1 if ( !defined $oldisolated{$hostname} );
+      }
+      foreach my $key (keys %oldisolated){
+	    $isoflag=1 if (!defined $isolated{$key});
+      }
+    }
+
+    # is registration is enabled
+    if ( isenabled( $Config{'trapping'}{'registration'} ) ) {
+      foreach my $row ( nodes_registered_not_violators() ) {
+        my $hostname = $row->{'mac'};
+        $hostname =~ s/://g;
+        $registered{$hostname}=1;
+        $regflag = 1 if ( !defined $oldregistered{$hostname} );
+      }
+      foreach my $key (keys %oldregistered){
+	    $regflag=1 if (!defined $registered{$key});
+      }
+    }
+
+    if ($regflag || $isoflag){
+       #regen files if necessary
+       pflogger("Regen DHCP Reg/Iso Files and Restart");
+       generate_dhcpd_reg() if ($regflag);
+       generate_dhcpd_iso() if ($isoflag);
+
+       # stop dhcp - DIE DIE
+       do {service_ctl("dhcpd","stop"); sleep(2); } while (service_ctl("dhcpd","status")!=0);
+
+       # start dhcp
+       do {service_ctl("dhcpd","start",1); sleep (2); } while (service_ctl("dhcpd","status")==0);
+    }
+
+    #reset vars for loop
+    %oldisolated   = %isolated;
+    %oldregistered = %registered;
+    %isolated      = ();
+    %registered    = ();
+    $regflag       = 0;
+    $isoflag       = 0;
+    pflogger("sleeping 30 seconds");
+    sleep(30);
+  }
+
+}
+
+
+sub listen_arp {
+  my ($type,$srcmac,$srcip,$destmac,$destip)=&decode(@_);
+  return if (!isinternal($srcip));
+ 
+  if ($type == 1) {
+    pflogger("ARP who-has $destip tell $srcip  $srcmac $srcip $destmac $destip",12);
+    my $gip = ip2gateway($srcip);
+    if (valid_ip($srcip) && valid_ip($gip) && ($srcip eq $gip)) {
+      if ($destmac =~ /ff:ff:ff:ff:ff:ff/i || $destmac =~ /00:00:00:00:00:00/i) {
+        pflogger("broadcast arp request from router for $destip - re-trapping all nodes",4);
+	  }elsif (!grep(/^$monitor_int$/,@listen_ints)){
+        pflogger("flooded arp request from router for $destmac ($destip) - re-trapping all nodes",4);
+      } else {
+        pflogger("arp request from router for $destmac ($destip) ",20);
+        return;
+      }
+
+      # stuff router cache with our MAC for unresponsive addresses
+      if (!$cache->ip_exist($destip) && $strobe_done && isenabled($Config{'arp'}{'stuffing'}) && trappable_ip($destip)) {
+        pflogger("host $destip not in hash, forging ARP reply",1);
+        arpmac($blackholemac,$destip,ip2mac($gip),$gip,0,2); 
+      }
+
+      {
+        #mark the rearp flag
+        pflogger("setting rearp flag == 1",16);
+        pflogger("trying to obtain lock on \$rearp_flag in listen_arp sub",20);
+        lock($rearp_flag);
+        $rearp_flag=1;
+        pflogger("releasing lock on \$rearp_flag in listen_arp sub",20);
+      }
+
+      #wake up the arpgun thread
+      pflogger("sending signal to arp_gun (if he is sleeping)",16);
+      {
+        pflogger("trying to obtain lock on \$arp_signal in listen_arp sub",20);
+        lock($arp_signal);
+        cond_signal($arp_signal);
+        pflogger("releasing lock on \$arp_signal in listen_arp sub",20);
+      }
+    } else{
+       #util_funnyarp($srcmac,$srcip,$destmac,$destip,$type);
+    }
+
+    pflogger("trying to obtain lock on \%violations in listen_arp sub",20);
+    lock(%violations);
+    #  if a violation host arp them now!
+    if ($violations{$srcmac}){
+      pflogger("$srcmac ($srcip) is arping for $destip",8);
+      trapmac($srcmac) if ($destip eq $gip);
+    }
+    update_hashes($srcmac,$srcip);
+    pflogger("releasing lock on \%violations in listen_arp sub",20);
+
+  } elsif ($type == 2) {
+    pflogger("ARP $srcip is-at $srcmac $srcmac $srcip $destmac $destip",12);
+    update_hashes($srcmac,$srcip);
+    #util_funnyarp($srcmac,$srcip,$destmac,$destip,$type);
+  } 
+}
+
+
+
+
+# 
+#
+sub arp_gun {
+  pflogger("Starting ARP gun thread",1);
+  #lock($arp_signal);
+  my $mydbh=0;
+
+  $last_goodbye=time();
+
+  # don't start shooting till the DB is populated 
+  sleep($arp_interval);
+
+  while(1) {
+    db_connect($mydbh,'iplog','node','violation');
+    #reset the flag as we are going to arp now
+    if ($rearp_flag){
+      pflogger("resetting flag and ARPing",16);
+      pflogger("trying to obtain lock on \$rearp_flag in arp_gun sub",20);
+      lock($rearp_flag);
+      $rearp_flag=0;
+      pflogger("releasing lock on \$rearp_flag in arp_gun sub",20);
+    }
+    rearp();
+
+    # has the flag been set while we were arping??? if no flag sleep for $arp_interval
+    if (!$rearp_flag){
+      pflogger("sleeping for $arp_interval seconds",2);
+      lock($arp_signal);
+      if (cond_wait( $arp_signal)) {
+        pflogger("cleanup/listen_arp woke us up",8);
+      }
+    }
+  }
+}
+
+sub hello {
+  my @tmpv = @_;
+  pflogger(scalar(@tmpv)." node(s) ",8) if (scalar(@tmpv) > 1);
+
+  for my $row (@tmpv) {
+    my $mac = $row->{'mac'};
+    my $ip = $row->{'ip'};
+    #  arp from my ip please
+    my $intip = ip2interface($ip);
+    my $mymac = getlocalmac(ip2device($ip));
+    if ($mac=~/ff:ff:ff:ff:ff:ff/ || trappable_mac($mac)) {
+      arpmac($mymac,$intip,$mac,$ip,0,1);
+      pflogger("heartbeat sent to $mac ($ip)",16);
+    }
+  }
+
+}
+
+sub goodbye {
+  my @tmpv = @_;
+  my $heartbeat =$Config{'arp'}{'heartbeat'};
+  my @deadnodes;
+  pflogger(scalar(@tmpv)." node(s) - heartbeat = $heartbeat",8) if (scalar(@tmpv) > 0);
+
+  for my $row (@tmpv) {
+    my $mac = $row->{'mac'};
+    my $ip = $row->{'ip'};
+
+    if (trappable_ip($ip) && trappable_mac($mac)) {
+      my $diff = $cache->get_arptime($mac);
+      if ($diff <= $heartbeat ){
+        pflogger("trapping $mac last seen $diff seconds ago",10);
+        trapmac($mac);
+      }else{
+	    pflogger("$mac timeout : $diff",10);
+        hello({'ip'=>$ip,'mac'=>$mac});
+        push(@deadnodes,$mac); 
+      }
+    }
+  }
+
+  return(@deadnodes);
+}
+
+
+sub rearp {
+  my %new_violations=();
+  my $newflag=0;
+
+  #check the db handle every arp_interval
+
+  my @violators = violation_view_all_active();
+
+  foreach my $row (@violators) {
+    my $mac = $row->{'mac'};
+    my $ip = $row->{'ip'};
+    $new_violations{$mac}=$ip;
+    $newflag=1 if (!$violations{$mac});
+  }
+
+  # update the violations hash for other threads
+  {
+    pflogger("trying to obtain lock on \%violations in rearp sub",20);
+    lock(%violations);
+    %violations=();
+    %violations=%new_violations;
+    pflogger("releasing lock on \%violations in rearp sub",20);
+  }
+
+  if (scalar(@violators) > 0) {
+    #
+    # say hello if we haven't said goodbye in the last heartbeat/2 sec (usally 15sec) or 
+    #     a new host is in violation
+    #
+    my $mytime = time()-$last_goodbye;
+    if ($newflag || $mytime > ($Config{'arp'}{'heartbeat'})/2){
+      pflogger("Saying hello, last goodbye time was $mytime [$newflag] sec",10);
+      hello(@violators);
+      # sleep 2 sec to give listen arp time to catch up
+      sleep(2);
+    } else{
+      pflogger("No hello, last goodbye was $mytime [$newflag] sec",8);
+    }
+    goodbye(@violators);
+    $last_goodbye=time();
+  }
+
+}
+
+sub cleanup {
+  pflogger("Starting cleanup thread");
+  my $mydbh;
+  db_connect($mydbh,'iplog','node','locationlog');
+
+  if (!$restart) {
+    pflogger("closing open iplogs (just in case)", 1);
+    iplog_shutdown();
+  } else {
+    pflogger("restarted - leaving iplogs open and re-creating hashes",1);
+    my @iplogs = iplog_view_open();
+    for my $row (@iplogs) {
+      my $mac = $row->{'mac'};
+      my $ip  = $row->{'ip'};
+      pflogger("re-populating hashes $mac<->$ip",8);
+      $cache->new_node($mac,$ip);
+    }
+  }
+
+  # strobe if we are not DHCP
+  #
+  if ($Config{'network'}{'mode'}!~/^dhcp$/){
+    # wait until listen_arp is ready
+    sleep ($arp_interval);
+
+    # make sure we get gateways
+    foreach my $gateway (get_gateways()) {
+      pflogger("ARPing gateway $gateway", 4);
+      hello({'ip'=>$gateway,'mac'=>"ff:ff:ff:ff:ff:ff"});
+    }
+
+    strobe() if(isenabled($Config{'arp'}{'strobe'}) || isenabled($Config{'arp'}{'stuffing'}));
+  }
+
+  my $counter=0;
+  while (1) {
+    db_connect($mydbh,'iplog','node','locationlog');
+    $counter=($counter+1) % 10;
+    #
+    # delete expired nodes 
+    $cache->delete_expired($Config{'arp'}{'timeout'});
+
+    #
+    # say hello before expiring nodes
+    if ($Config{'network'}{'mode'}!~/^dhcp$/){
+      my @macs = $cache->hello_macs($Config{'arp'}{'timeout'},$arp_interval);
+      foreach my $mac (@macs){
+        hello({'ip'=>$cache->get_ip($mac),'mac'=>$mac});
+      }
+    }
+
+    #
+    # run these functions every $arp_interval * 10 
+    if ($counter==0){
+      pflogger("running expire check",1);
+      iplog_cleanup($Config{'expire'}{'iplog'}) if ($Config{'expire'}{'iplog'});
+      locationlog_cleanup($Config{'expire'}{'locationlog'}) if ($Config{'expire'}{'locationlog'});
+      node_cleanup($Config{'expire'}{'node'}) if ($Config{'expire'}{'node'});
+      pflogger("checking registered nodes for expiration");
+      nodes_maintenance();
+    }      
+
+    sleep $arp_interval;
+    if ($Config{'network'}{'mode'}!~/^dhcp$/i) {
+      pflogger("trying to obtain lock on arp_signal in cleanup sub",20);
+      lock($arp_signal);
+      cond_signal($arp_signal);
+      pflogger("releasing lock on arp_signal in cleanup sub",20);
+    } 
+  }
+}
+
+sub update_hashes {
+  my ($srcmac,$srcip,$lease_length)=@_;
+  pflogger("$srcip && $srcmac",16);
+
+  # return if MAC or IP is not valid
+  if (!valid_mac($srcmac) || !valid_ip($srcip)) {
+    pflogger("invalid MAC or IP: $srcmac $srcip",1);
+    return;
+  }
+
+  #DB is out of date with Cache
+  if (!node_exist($srcmac) && $cache->get_ip($srcmac)){
+     pflogger("$srcmac ($srcip) does not exist in the Database - Deleting from cache",4);
+     $cache->delete_node($srcmac);
+  }
+
+  my $oldmac=$cache->get_mac($srcip);
+
+  if ($oldmac eq $srcmac){
+
+     pflogger("oldmac and newmac ($srcmac) are the same for $srcip",16);
+     if (! defined(iplog_view_open_mac($srcmac))) {
+       pflogger("inserting $srcip ($srcmac) into iplog table", 16);
+       iplog_open($srcmac,$srcip,$lease_length);
+     } elsif ($lease_length) {
+       pflogger("updating end_time for $srcip ($srcmac) in iplog table", 16);
+       iplog_open($srcmac,$srcip,$lease_length);
+     }
+
+     $cache->set_arptime($srcmac);
+     node_update_lastarp($srcmac);
+     return;
+  }
+
+  my $oldip=$cache->get_ip($srcmac);
+
+  if ($oldip && !$oldmac && $Config{'network'}{'mode'}!~/dhcp/i){
+    pflogger("new IP: $srcmac ($srcip) - adding to iplog",4);
+    $cache->add_ip($srcmac,$srcip,$lease_length);
+    node_update_lastarp($srcmac);
+    return;
+  }
+
+  #pflogger("Delete_node $oldmac if $oldmac",14);
+  $cache->delete_node($oldmac) if ($oldmac);
+
+  #pflogger("Delete_node $srcmac if $oldip",14);
+  $cache->delete_node($srcmac) if ($oldip);
+
+  if (!$cache->get_ip($srcmac)){
+    pflogger("UPDATE New node $srcmac ($srcip) ",8);
+    node_add_simple($srcmac) if (!$oldip);
+    $cache->new_node($srcmac,$srcip,$lease_length);
+  }else{
+    pflogger("NOT ADDING NODE $srcmac $srcip could not age out ($oldmac,$oldip)");
+  }
+} 
+
+
+sub decode {
+  my $pkt=shift; 
+  my ($m1,$m2,$proto,$hwas,$pas,$hwal,$pal,$opcode,$sha,$spa,$tha,$tpa)=unpack('H12H12nnnCCnH12NH12N', $pkt);
+  return ($opcode,clean_mac($sha),int2ip($spa),clean_mac($tha),int2ip($tpa));
+}
+
+sub arp_filter {
+  my $filter = "arp net (".join(" or ",get_internal_nets()).")";
+  foreach my $mac (get_internal_macs()) {
+    $filter .= " and not ether src $mac";
+  }
+  $filter .= " and not ether src ".$blackholemac;
+  return($filter);
+}
+
+sub strobe {
+  pflogger("strobing all internal IPs",4);
+  foreach my $ip (get_all_internal_ips()){
+    my $intip = ip2interface($ip);
+    my $mymac = getlocalmac(ip2device($ip));
+    pflogger("Strobe $ip [$intip $mymac]",14);
+    arpmac($mymac,$intip,"ff:ff:ff:ff:ff:ff",$ip,0,1);
+  }
+  sleep($Config{'arp'}{'heartbeat'});
+  $strobe_done++;
+  pflogger("strobe complete, network map should be up to date",8);
+}
+
+sub daemonize {
+  chdir '/'               or die "Can't chdir to /: $!";
+  open STDIN, '/dev/null' or die "Can't read /dev/null: $!";
+  my $log_file = '/usr/local/pf/logs/pfmon';
+  open STDOUT, ">>$log_file" or die "Can't write to $log_file: $!";
+
+  defined(my $pid = fork) or die "pfmon: could not fork: $!";
+  POSIX::_exit(0) if ($pid);
+  if (!POSIX::setsid()) {
+    pflogger("could not start a new session: $!", 1);
+#    die("pfmon: could not start a new session: $!\n");
+  }
+  open STDERR, '>&STDOUT' or die "Can't dup stdout: $!";
+  createpid();
+}
+
+sub normal_sighandler {
+  deletepid(); 
+  if (threads->self->tid() == 0) {
+    pflogger("caught SIG".$_[0]." - closing open iplogs and untrapping", 1);
+
+    my $mydbh;
+    db_connect($mydbh,'iplog','node','violation');
+
+    if (isenabled($Config{'arp'}{'cleanshutdown'})) {
+      my @violators = violation_view_all_active();  
+      foreach my $violator (@violators) {
+        freemac($violator->{'mac'});
+      }
+    }
+    iplog_shutdown;
+    die("pfmon: caught SIG".$_[0]." - terminating\n");
+  }
+}
+
+sub restart_handler {
+  deletepid();
+  pflogger("caught SIG".$_[0]." - restarting", 1);
+  push @ORIG_ARGV, "-r" if(!grep(/^\-r$/,@ORIG_ARGV));
+  if (!exec($0, @ORIG_ARGV)) {
+    pflogger("could not restart: #!", 1);
+    die "pfmon: could not restart: $!\n";
+  }
+}
+
+sub usage {
+  print STDERR << "EOF";
+  Usage: $0 [OPTIONS]
+        -d      Daemonize
+        -v      Verbose
+        -h      Help
+EOF
+  exit;
+}

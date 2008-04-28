@@ -1,0 +1,1936 @@
+2000004 || BLEEDING-EDGE EXPLOIT Microsoft MHTML URL Redirection Attempt || url,www.microsoft.com/technet/security/bulletin/MS04-013.mspx || cve,CAN-2004-0380
+2000005 || BLEEDING-EDGE EXPLOIT Cisco Telnet Buffer Overflow || url,www.cisco.com/warp/public/707/cisco-sn-20040326-exploits.shtml
+2000006 || BLEEDING-EDGE DOS Cisco Router HTTP DoS || url,www.cisco.com/warp/public/707/cisco-sn-20040326-exploits.shtml
+2000007 || BLEEDING-EDGE EXPLOIT Catalyst SSH protocol mismatch || url,www.cisco.com/warp/public/707/catalyst-ssh-protocolmismatch-pub.shtml
+2000008 || BLEEDING-EDGE EXPLOIT Catalyst 3500 arbitrary command || url,www.securityfocus.com/archive/1/141471
+2000009 || BLEEDING-EDGE EXPLOIT Cisco IOS HTTP DoS || url,www.cisco.com/warp/public/707/ioshttpserverquery-pub.shtml
+2000010 || BLEEDING-EDGE DOS Cisco 514 UDP flood DoS || url,www.cisco.com/warp/public/707/IOS-cbac-dynacl-pub.shtml
+2000011 || BLEEDING-EDGE DOS Catalyst memory leak attack || url,www.cisco.com/en/US/products/products_security_advisory09186a00800b138e.shtml
+2000012 || BLEEDING-EDGE EXPLOIT Cisco %u IDS evasion
+2000013 || BLEEDING-EDGE EXPLOIT Cisco IOS HTTP server DoS
+2000014 || BLEEDING-EDGE VIRUS Agobot/Phatbot Infection Successful || url,www.lurhq.com/phatbot.html
+2000015 || BLEEDING-EDGE P2P Phatbot Control Connection || url,www.lurhq.com/phatbot.html
+2000016 || BLEEDING-EDGE DOS SSL Bomb DoS Attempt || url,www.microsoft.com/technet/security/bulletin/MS04-011.mspx || cve,CAN-2004-0120
+2000017 || BLEEDING-EDGE EXPLOIT NII Microsoft ASN.1 Library Buffer Overflow Exploit || url,www.microsoft.com/technet/security/bulletin/ms04-007.asp
+2000024 || BLEEDING-EDGE Malware rcprograms || url,sarc.com/avcenter/venc/data/adware.rcprograms.html
+2000025 || BLEEDING-EDGE Malware Gator Cookie || url,www3.ca.com/securityadvisor/pest/content.aspx?q=67999
+2000026 || BLEEDING-EDGE Malware Gator Agent Traffic
+2000031 || BLEEDING-EDGE EXPLOIT CVS server heap overflow attempt (target BSD)
+2000032 || BLEEDING-EDGE EXPLOIT LSA exploit || url,www.upenn.edu/computing/virus/04/w32.sasser.worm.html || url,www.eeye.com/html/research/advisories/AD20040501.html
+2000033 || BLEEDING-EDGE EXPLOIT MS04011 Lsasrv.dll RPC exploit (WinXP)
+2000035 || BLEEDING-EDGE Hotmail Inbox Access
+2000036 || BLEEDING-EDGE Hotmail Message Access
+2000037 || BLEEDING-EDGE Hotmail Compose Message Access
+2000038 || BLEEDING-EDGE Hotmail Compose Message Submit
+2000039 || BLEEDING-EDGE Hotmail Compose Message Submit Data
+2000040 || BLEEDING-EDGE VIRUS Sasser FTP Traffic || url,vil.mcafeesecurity.com/vil/content/Print125009.htm
+2000041 || BLEEDING-EDGE Yahoo Mail Inbox View
+2000042 || BLEEDING-EDGE Yahoo Mail Message View
+2000043 || BLEEDING-EDGE Yahoo Mail Message Compose Open
+2000044 || BLEEDING-EDGE Yahoo Mail Message Send
+2000045 || BLEEDING-EDGE Yahoo Mail Message Send Info Capture
+2000046 || BLEEDING-EDGE EXPLOIT MS04011 Lsasrv.dll RPC exploit (Win2k)
+2000047 || BLEEDING-EDGE VIRUS Sasser Transfer _up.exe || url,vil.mcafeesecurity.com/vil/content/Print125009.htm
+2000048 || BLEEDING-EDGE EXPLOIT CVS server heap overflow attempt (target Linux)
+2000049 || BLEEDING-EDGE EXPLOIT CVS server heap overflow attempt (target Solaris)
+2000306 || BLEEDING-EDGE Malware Virtumonde Spyware siae3123.exe GET || url,sarc.com/avcenter/venc/data/adware.virtumonde.html
+2000307 || BLEEDING-EDGE Malware Virtumonde Spyware siae3123.exe GET (8081) || url,sarc.com/avcenter/venc/data/adware.virtumonde.html
+2000308 || BLEEDING-EDGE Malware Virtumonde Spyware Information Post || url,sarc.com/avcenter/venc/data/adware.virtumonde.html
+2000309 || BLEEDING-EDGE GotoMyPC Polling Client
+2000310 || BLEEDING-EDGE VIRUS Probable Zafi VIRUS Outbound via SMTP || url,securityresponse.symantec.com/avcenter/venc/data/w32.erkez.a@mm.html
+2000327 || BLEEDING-EDGE MALWARE Spyware 2020 || url,securityresponse.symantec.com/avcenter/venc/data/spyware.2020search.html
+2000328 || BLEEDING-EDGE POLICY Outbound Multiple Non-SMTP Server Emails
+2000329 || BLEEDING-EDGE EXPLOIT mIRC <=6.12 DCC Buffer Overflow || bugtraq,8880
+2000330 || BLEEDING-EDGE P2P ed2k connection to server || url,www.giac.org/practical/GCIH/Ian_Gosling_GCIH.pdf
+2000331 || BLEEDING-EDGE P2P ed2k file search || url,www.giac.org/practical/GCIH/Ian_Gosling_GCIH.pdf
+2000332 || BLEEDING-EDGE P2P ed2k request part || url,www.giac.org/practical/GCIH/Ian_Gosling_GCIH.pdf
+2000333 || BLEEDING-EDGE P2P ed2k file request answer || url,www.giac.org/practical/GCIH/Ian_Gosling_GCIH.pdf
+2000334 || BLEEDING-EDGE P2P BitTorrent peer sync || url,bitconjurer.org/BitTorrent/protocol.html
+2000335 || BLEEDING-EDGE P2P Overnet Server Announce || url,www.overnet.com
+2000336 || BLEEDING-EDGE Malware Yesadvertising Banking Spyware RETRIEVE || url,isc.sans.org/presentations/banking_malware.pdf
+2000337 || BLEEDING-EDGE Malware Yesadvertising Banking Spyware INFORMATION SUBMIT || url,isc.sans.org/presentations/banking_malware.pdf
+2000338 || BLEEDING-EDGE P2P iroffer IRC Bot help message || url,iroffer.org
+2000339 || BLEEDING-EDGE P2P iroffer IRC Bot offered files advertisement || url,iroffer.org
+2000340 || BLEEDING-EDGE P2P Kaaza Media desktop p2pnetworking.exe Activity || url,www.giac.org/practical/GCIH/Ian_Gosling_GCIH.pdf
+2000341 || BLEEDING-EDGE Yahoo Mail General Page View
+2000342 || BLEEDING-EDGE EXPLOIT Squid NTLM Auth Overflow Exploit || cve,CAN-2004-0541 || url,www.idefense.com/application/poi/display?id=107
+2000343 || BLEEDING-EDGE VIRUS Possible Evaman Worm Outbound || url,secunia.com/virus_information/10429/evaman
+2000345 || BLEEDING-EDGE ATTACK RESPONSE IRC - Nick change on non-std port
+2000346 || BLEEDING-EDGE ATTACK RESPONSE IRC - Name response on non-std port
+2000347 || BLEEDING-EDGE ATTACK RESPONSE IRC - Private message on non-std port
+2000348 || BLEEDING-EDGE ATTACK RESPONSE IRC - Channel JOIN on non-std port
+2000349 || BLEEDING-EDGE ATTACK RESPONSE IRC - DCC file transfer request on non-std port
+2000350 || BLEEDING-EDGE ATTACK RESPONSE IRC - DCC chat request on non-std port
+2000351 || BLEEDING-EDGE ATTACK RESPONSE IRC - channel join on non-std port
+2000352 || BLEEDING-EDGE ATTACK RESPONSE IRC - dns request on non-std port
+2000355 || BLEEDING-EDGE POLICY IRC authorization message
+2000356 || BLEEDING-EDGE POLICY IRC connection
+2000357 || BLEEDING-EDGE P2P BitTorrent Traffic || url,bitconjurer.org/BitTorrent/protocol.html
+2000365 || BLEEDING-EDGE VIRUS Psyme Trojan Download || url,securityresponse.symantec.com/avcenter/venc/data/downloader.psyme.html
+2000366 || BLEEDING-EDGE MALWARE Binet (download complete) || url,sarc.com/avcenter/venc/data/pf/adware.betterinternet.html
+2000367 || BLEEDING-EDGE MALWARE Binet (set_pix) || url,sarc.com/avcenter/venc/data/pf/adware.betterinternet.html
+2000369 || BLEEDING-EDGE P2P BitTorrent Announce || url,bitconjurer.org/BitTorrent/protocol.html
+2000371 || BLEEDING-EDGE MALWARE Binet (randreco.exe) || url,sarc.com/avcenter/venc/data/pf/adware.betterinternet.html
+2000372 || BLEEDING-EDGE EXPLOIT MS-SQL SQL Injection running SQL statements line comment || url,www.securitymap.net/sdm/docs/windows/mssql-checklist.html || url,www.nextgenss.com/papers/more_advanced_sql_injection.pdf
+2000373 || BLEEDING-EDGE EXPLOIT MS-SQL SQL Injection line comment || url,www.securitymap.net/sdm/docs/windows/mssql-checklist.html || url,www.nextgenss.com/papers/more_advanced_sql_injection.pdf
+2000377 || BLEEDING-EDGE EXPLOIT MS-SQL heap overflow attempt || url,www.nextgenss.com/papers/tp-SQL2000.pdf
+2000378 || BLEEDING-EDGE EXPLOIT MS-SQL DOS attempt (08) || url,www.nextgenss.com/papers/tp-SQL2000.pdf
+2000379 || BLEEDING-EDGE EXPLOIT MS-SQL DOS attempt (08) 1 byte || url,www.nextgenss.com/papers/tp-SQL2000.pdf
+2000380 || BLEEDING-EDGE EXPLOIT MS-SQL Spike buffer overflow || bugtraq,5411
+2000381 || BLEEDING-EDGE EXPLOIT MS-SQL DOS bouncing packets || url,www.nextgenss.com/papers/tp-SQL2000.pdf
+2000418 || BLEEDING-EDGE Executable and linking format (ELF) file download || url,www.itee.uq.edu.au/~cristina/students/david/honoursThesis96/bff.htm
+2000419 || BLEEDING-EDGE PE EXE or DLL Windows file download
+2000420 || BLEEDING-EDGE REG files version 4 download || url,www.ss64.com/nt/regedit.html
+2000421 || BLEEDING-EDGE REG files version 5 download || url,www.ss64.com/nt/regedit.html
+2000422 || BLEEDING-EDGE REG files version 5 Unicode download || url,www.ss64.com/nt/regedit.html
+2000423 || BLEEDING-EDGE NE EXE OS2 file download || url,www.itee.uq.edu.au/~cristina/students/david/honoursThesis96/bff.htm
+2000424 || BLEEDING-EDGE LX EXE OS2 file download || url,www.itee.uq.edu.au/~cristina/students/david/honoursThesis96/bff.htm
+2000425 || BLEEDING-EDGE NE EXE Windows 3.x file download || url,www.itee.uq.edu.au/~cristina/students/david/honoursThesis96/bff.htm
+2000426 || BLEEDING-EDGE EXE compressed PKWARE Windows file download || url,www.program-transformation.org/Transform/PcExeFormat
+2000427 || BLEEDING-EDGE PE EXE Install Windows file download || url,www.program-transformation.org/Transform/PcExeFormat
+2000428 || BLEEDING-EDGE ZIP file download || url,zziplib.sourceforge.net/zzip-parse.print.html
+2000429 || BLEEDING-EDGE Download Windows Help File CHM 2 || url,www.securiteam.com/windowsntfocus/6V00N000AU.html || url,www.speakeasy.org/~russotto/chm/chmformat.html
+2000488 || BLEEDING-EDGE EXPLOIT MS-SQL SQL Injection closing string plus line comment || url,www.securitymap.net/sdm/docs/windows/mssql-checklist.html || url,www.nextgenss.com/papers/more_advanced_sql_injection.pdf
+2000489 || BLEEDING-EDGE Download Windows Help File CHM || url,www.securiteam.com/windowsntfocus/6V00N000AU.html || url,www.speakeasy.org/~russotto/chm/chmformat.html
+2000494 || BLEEDING-EDGE VIRUS Possible Atak.mm Worm Outbound || url,securityresponse.symantec.com/avcenter/venc/data/w32.atak@mm.html
+2000496 || BLEEDING-EDGE DOS Microsoft SMS dos attempt || url,www.securityfocus.com/archive/1/368911/2004-07-12/2004-07-18/0
+2000499 || BLEEDING-EDGE ATTACK RESPONSE FTP inaccessible directory access COM1
+2000500 || BLEEDING-EDGE ATTACK RESPONSE FTP inaccessible directory access COM2
+2000501 || BLEEDING-EDGE ATTACK RESPONSE FTP inaccessible directory access COM3
+2000502 || BLEEDING-EDGE ATTACK RESPONSE FTP inaccessible directory access COM4
+2000503 || BLEEDING-EDGE ATTACK RESPONSE FTP inaccessible directory access LPT1
+2000504 || BLEEDING-EDGE ATTACK RESPONSE FTP inaccessible directory access LPT2
+2000505 || BLEEDING-EDGE ATTACK RESPONSE FTP inaccessible directory access LPT3
+2000506 || BLEEDING-EDGE ATTACK RESPONSE FTP inaccessible directory access LPT4
+2000507 || BLEEDING-EDGE ATTACK RESPONSE FTP inaccessible directory access AUX
+2000508 || BLEEDING-EDGE ATTACK RESPONSE FTP inaccessible directory access NULL
+2000514 || BLEEDING-EDGE IE homepage hijacking || url,www.geek.com/news/geeknews/2004Jun/gee20040610025522.htm
+2000519 || BLEEDING-EDGE shell browser vulnerability W9x/XP || url,www.packetfocus.com/shell_exploit.htm
+2000520 || BLEEDING-EDGE shell browser vulnerability NT/2K || url,www.packetfocus.com/shell_exploit.htm
+2000536 || BLEEDING-EDGE SCAN NMAP -sO || arachnids,162
+2000537 || BLEEDING-EDGE SCAN NMAP -sS || arachnids,162
+2000538 || BLEEDING-EDGE SCAN NMAP -sA (1) || arachnids,162
+2000540 || BLEEDING-EDGE SCAN NMAP -sA (2) || arachnids,162
+2000543 || BLEEDING-EDGE SCAN NMAP -f -sF || arachnids,162
+2000544 || BLEEDING-EDGE SCAN NMAP -f -sN || arachnids,162
+2000545 || BLEEDING-EDGE SCAN NMAP -f -sS || arachnids,162
+2000546 || BLEEDING-EDGE SCAN NMAP -f -sX || arachnids,162
+2000547 || BLEEDING-EDGE HTTP CONNECT Tunnel
+2000548 || BLEEDING-EDGE HTTP CONNECT Tunnel
+2000549 || BLEEDING-EDGE HTTP CONNECT Tunnel
+2000550 || BLEEDING-EDGE HTTP CONNECT Tunnel
+2000559 || BLEEDING-EDGE THCIISLame IIS SSL Exploit Attempt || url,isc.sans.org/diary.php?date=2004-07-17 || url,www.thc.org/exploits/THCIISSLame.c
+2000560 || BLEEDING-EDGE HTTP CONNECT Tunnel Attempt
+2000561 || BLEEDING-EDGE VIRUS Possible Bagle.AI Worm Outbound || url,securityresponse.symantec.com/avcenter/venc/data/w32.beagle.ag@mm.html
+2000562 || BLEEDING-EDGE VIRUS OUTBOUND Suspicious Email Attachment
+2000563 || BLEEDING-EDGE EXPLOIT Pwdump3e Password Hash Retrieval port 445
+2000564 || BLEEDING-EDGE EXPLOIT Pwdump3e pwservice.exe Access port 445
+2000565 || BLEEDING-EDGE EXPLOIT Pwdump3e Session Established Reg-Entry port 139
+2000566 || BLEEDING-EDGE EXPLOIT Pwdump3e Session Established Reg-Entry port 445
+2000567 || BLEEDING-EDGE EXPLOIT Pwdump3e pwservice.exe Access port 139
+2000568 || BLEEDING-EDGE EXPLOIT Pwdump3e Password Hash Retrieval port 139
+2000569 || BLEEDING-EDGE POLICY KitCo Kcast Ticker (agtray)
+2000570 || BLEEDING-EDGE POLICY KitCo Kcast Ticker (autray)
+2000571 || BLEEDING-EDGE AOL Webmail Message Send
+2000572 || BLEEDING-EDGE AOL Webmail Login
+2000574 || BLEEDING-EDGE MALWARE Bargain Buddy || url,www.doxdesk.com/parasite/BargainBuddy.html
+2000575 || BLEEDING-EDGE ICMP PING IPTools || url,www.ks-soft.net/ip-tools.eng/index.htm || url,www.ks-soft.net/ip-tools.eng
+2000577 || BLEEDING-EDGE Malware Popuptraffic.com Bot Reporting || url,popuptraffic.com
+2000580 || BLEEDING-EDGE Malware Shop At Home Select.com Install Attempt || url,www.shopathomeselect.com || url,www.spywareguide.com/product_show.php?id=700
+2000581 || BLEEDING-EDGE Malware Shop At Home Select.com Install Download || url,www.shopathomeselect.com || url,www.spywareguide.com/product_show.php?id=700
+2000582 || BLEEDING-EDGE Malware F1Organizer Reporting
+2000583 || BLEEDING-EDGE Malware Mindset Interactive Install (1) || url,www.mindsetinteractive.com
+2000584 || BLEEDING-EDGE Malware Mindset Interactive Install (2) || url,www.mindsetinteractive.com
+2000585 || BLEEDING-EDGE Malware F1Organizer Install Attempt
+2000586 || BLEEDING-EDGE Malware Ezula Related Calling Home || url,www.spyany.com/program/article_spw_rm_eZuLa.html || url,www.ezula.com
+2000587 || BLEEDING-EDGE Malware SpywareLabs VirtualBouncer Seeking Instructions || url,securityresponse.symantec.com/avcenter/venc/data/adware.virtualbouncer.html
+2000588 || BLEEDING-EDGE Malware TopMoxie Reporting Data to External Host || url,www.topmoxie.com
+2000589 || BLEEDING-EDGE Malware TopMoxie Retrieving Data (downloads) || url,www.topmoxie.com
+2000590 || BLEEDING-EDGE Malware TopMoxie Retrieving Data (common) || url,www.topmoxie.com
+2000593 || BLEEDING-EDGE MALWARE Binet Ad Retrieval || url,sarc.com/avcenter/venc/data/pf/adware.betterinternet.html
+2000594 || BLEEDING-EDGE Malware Mindset Interactive Ad Retrieval || url,www.mindsetinteractive.com
+2000595 || BLEEDING-EDGE Malware Gator Checkin || url,www3.ca.com/securityadvisor/pest/content.aspx?q=67999
+2000596 || BLEEDING-EDGE Malware Gator/Claria Data Submission || url,www3.ca.com/securityadvisor/pest/content.aspx?q=67999
+2000597 || BLEEDING-EDGE Malware Gator New Code Download || url,www3.ca.com/securityadvisor/pest/content.aspx?q=67999
+2000598 || BLEEDING-EDGE MALWARE Altnet PeerPoints Manager Data Submission || url,securityresponse.symantec.com/avcenter/venc/data/adware.topsearch.html
+2000599 || BLEEDING-EDGE Malware Fun Web Products Install || url,www.funwebproducts.com
+2000600 || BLEEDING-EDGE Malware MyWebSearch Toolbar Receiving Configuration
+2000601 || BLEEDING-EDGE Malware Salongas Infection
+2000900 || BLEEDING-EDGE Malware JoltID Agent Probing or Announcing UDP || url,securityresponse.symantec.com/avcenter/venc/data/adware.p2pnetworking.html || url,forum.treweeke.com/lofiversion/index.php/t597.html || url,www.joltid.com
+2000901 || BLEEDING-EDGE Malware JoltID Agent Communicating TCP || url,securityresponse.symantec.com/avcenter/venc/data/adware.p2pnetworking.html || url,forum.treweeke.com/lofiversion/index.php/t597.html || url,www.joltid.com
+2000902 || BLEEDING-EDGE Malware MarketScore.com Spyware Configuration Access || url,www.spysweeper.com/remove-marketscore.html || url,www.marketscore.com
+2000903 || BLEEDING-EDGE MALWARE Avres Agent Receiving Instructions || url,ar.avres.net/ie/updatenew/ || url,www.avres.net
+2000904 || BLEEDING-EDGE MALWARE Amex.Ipsrime.com Unknown Malware Download || url,www.isprime.com || url,amex.isprime.com
+2000905 || BLEEDING-EDGE Malware FlashPoint Agent Retrieving New Code || url,www.flashpoint.bm
+2000906 || BLEEDING-EDGE MALWARE Altnet PeerPoints Manager Start || url,securityresponse.symantec.com/avcenter/venc/data/adware.topsearch.html
+2000907 || BLEEDING-EDGE MALWARE Altnet PeerPoints Manager Settings Download || url,securityresponse.symantec.com/avcenter/venc/data/adware.topsearch.html
+2000908 || BLEEDING-EDGE Malware WhenUClick.com App and Search Bar Install (1) || url,www.kephyr.com/spywarescanner/library/whenusearch/index.phtml || url,www.whenusearch.com
+2000909 || BLEEDING-EDGE Malware WhenUClick.com App and Search Bar Install (2) || url,www.kephyr.com/spywarescanner/library/whenusearch/index.phtml || url,www.whenusearch.com
+2000910 || BLEEDING-EDGE Malware WhenUClick.com Clock Sync App Checkin || url,www.kephyr.com/spywarescanner/library/whenusearch/index.phtml || url,www.whenusearch.com
+2000911 || BLEEDING-EDGE Malware WhenUClick.com Weather App Checkin || url,www.kephyr.com/spywarescanner/library/whenusearch/index.phtml || url,www.whenusearch.com
+2000912 || BLEEDING-EDGE Malware WhenUClick.com Clock Sync App Checkin (1) || url,www.kephyr.com/spywarescanner/library/whenusearch/index.phtml || url,www.whenusearch.com
+2000913 || BLEEDING-EDGE Malware WhenUClick.com Clock Sync App Checkin (2) || url,www.kephyr.com/spywarescanner/library/whenusearch/index.phtml || url,www.whenusearch.com
+2000914 || BLEEDING-EDGE Malware WhenUClick.com Weather App Checkin (1) || url,www.kephyr.com/spywarescanner/library/whenusearch/index.phtml || url,www.whenusearch.com
+2000915 || BLEEDING-EDGE Malware WhenUClick.com Weather App Checkin (2) || url,www.kephyr.com/spywarescanner/library/whenusearch/index.phtml || url,www.whenusearch.com
+2000916 || BLEEDING-EDGE Malware WhenUClick.com WhenUSave App Checkin || url,www.kephyr.com/spywarescanner/library/whenusearch/index.phtml || url,www.whenusearch.com
+2000917 || BLEEDING-EDGE Malware WhenUClick.com WhenUSave Data Retrieval (offersdata) || url,www.kephyr.com/spywarescanner/library/whenusearch/index.phtml || url,www.whenusearch.com
+2000918 || BLEEDING-EDGE Malware WhenUClick.com Desktop Bar Install || url,www.kephyr.com/spywarescanner/library/whenusearch/index.phtml || url,www.whenusearch.com
+2000919 || BLEEDING-EDGE Malware WhenUClick.com WhenUSave Data Retrieval (Searchdb) || url,www.kephyr.com/spywarescanner/library/whenusearch/index.phtml || url,www.whenusearch.com
+2000920 || BLEEDING-EDGE Malware Hotbar Install (1) || url,www.hotbar.com
+2000921 || BLEEDING-EDGE Malware Hotbar Install (2) || url,www.hotbar.com
+2000922 || BLEEDING-EDGE Malware Hotbar Install (3) || url,www.hotbar.com
+2000923 || BLEEDING-EDGE Malware Hotbar Agent Reporting Information || url,www.hotbar.com
+2000924 || BLEEDING-EDGE Malware Hotbar Agent Upgrading || url,www.hotbar.com
+2000925 || BLEEDING-EDGE Malware Hotbar Agent Partner Checkin || url,www.hotbar.com
+2000927 || BLEEDING-EDGE Malware ISearchTech.com XXXPornToolbar Reporting || url,www.isearchtech.com
+2000928 || BLEEDING-EDGE Malware ISearchTech.com XXXPornToolbar Activity (1) || url,www.isearchtech.com
+2000929 || BLEEDING-EDGE Malware Hotbar Agent Activity || url,www.hotbar.com
+2000930 || BLEEDING-EDGE MALWARE 180solutions Update Engine || url,www.safer-networking.org/index.php?page=threats&detail=212
+2000931 || BLEEDING-EDGE Malware Comet Systems Spyware Traffic
+2000932 || BLEEDING-EDGE Malware Keenvalue Update Engine || url,www.safer-networking.org/index.php?page=updatehistory&detail=2003-11-24
+2000934 || BLEEDING-EDGE MALWARE 2020search Update Engine || url,www.safer-networking.org/index.php?page=updatehistory&detail=2004-03-04
+2000935 || BLEEDING-EDGE Malware EUniverse-thunderdownloads Update Engine || url,www.pestpatrol.com/pestinfo/e/euniverse.asp
+2000936 || BLEEDING-EDGE Malware FlashTrack Agent Retrieving New App Code || url,www.flashpoint.bm
+2001012 || BLEEDING-EDGE WORM Mailto domain search possible MyDoom.M,O || url,www.lurhq.com/zindos.html
+2001013 || BLEEDING-EDGE Malware Fun Web Products SmileyCentral || url,www.funwebproducts.com
+2001015 || BLEEDING-EDGE Malware JoltID Agent Keep-Alive || url,securityresponse.symantec.com/avcenter/venc/data/adware.p2pnetworking.html || url,forum.treweeke.com/lofiversion/index.php/t597.html || url,www.joltid.com
+2001016 || BLEEDING-EDGE Malware SideStep Bar Install || url,www.spyany.com/program/article_spw_rm_SideStep.html || url,www.sidestep.com
+2001017 || BLEEDING-EDGE Malware SideStep Bar Reporting Data || url,www.spyany.com/program/article_spw_rm_SideStep.html || url,www.sidestep.com
+2001018 || BLEEDING-EDGE Malware SideStep Bar Activity || url,www.spyany.com/program/article_spw_rm_SideStep.html || url,www.sidestep.com
+2001019 || BLEEDING-EDGE Malware SideStep Bar Autoupdate || url,www.spyany.com/program/article_spw_rm_SideStep.html || url,www.sidestep.com
+2001020 || BLEEDING-EDGE Malware SideStep Bar Update Reporting || url,www.spyany.com/program/article_spw_rm_SideStep.html || url,www.sidestep.com
+2001021 || BLEEDING-EDGE Suspicious Encrypted Webpage Content
+2001022 || BLEEDING-EDGE EXPLOIT Invalid non-fragmented packet with fragment offset>0
+2001023 || BLEEDING-EDGE EXPLOIT Invalid fragment - ACK reset
+2001024 || BLEEDING-EDGE EXPLOIT Invalid fragment - illegal flags
+2001031 || BLEEDING-EDGE MALWARE Casino on Net Reporting Data || url,www.888casino.net
+2001032 || BLEEDING-EDGE MALWARE Casino on Net Ping Hit || url,www.888casino.net
+2001033 || BLEEDING-EDGE MALWARE Casino on Net Data Download || url,www.888casino.net
+2001034 || BLEEDING-EDGE Malware Fun Web Products Agent Traffic || url,www.funwebproducts.com
+2001035 || BLEEDING-EDGE P2P Morpheus Install || url,www.morpheus.com
+2001036 || BLEEDING-EDGE P2P Morpheus Install ini Download || url,www.morpheus.com
+2001037 || BLEEDING-EDGE P2P Morpheus Update Request || url,www.morpheus.com
+2001038 || BLEEDING-EDGE Malware Ebates Install || url,www.pestpatrol.com/PestInfo/e/ebates_moneymaker.asp
+2001040 || BLEEDING-EDGE Malware My Search Bar Install || url,www.2-spyware.com/parasite-my-search-bar.html
+2001041 || BLEEDING-EDGE MALWARE Casino on Net Install || url,www.888casino.net
+2001043 || BLEEDING-EDGE Malware Fun Web Products MyWay Agent Traffic || url,www.funwebproducts.com
+2001044 || BLEEDING-EDGE Yahoo Briefcase Upload
+2001045 || BLEEDING-EDGE WORM MyDoom.P Query || url,www.sarc.com/avcenter/venc/data/w32.mydoom.p@mm.html
+2001046 || BLEEDING-EDGE WORM UPX compressed file download - possible worm
+2001047 || BLEEDING-EDGE WORM UPX encrypted file download - possible worm
+2001048 || BLEEDING-EDGE EXPLOIT IE process injection iexplore.exe executable download
+2001049 || BLEEDING-EDGE EXPLOIT Buffer Overflow Exploit in Adobe Acrobat Reader || url,www.securiteam.com/securitynews/5WP080AAKK.html
+2001050 || BLEEDING-EDGE Malware CometSystems Spyware
+2001052 || BLEEDING-EDGE EXPLOIT NTDump Session Established Reg-Entry port 139
+2001053 || BLEEDING-EDGE EXPLOIT NTDump.exe Service Started port 139
+2001055 || BLEEDING-EDGE MISC HP Web JetAdmin ExecuteFile admin access || bugtraq,10224
+2001056 || BLEEDING-EDGE VIRUS W32/Sasser.worm.b -NAI-) || url,securityresponse.symantec.com/avcenter/venc/data/w32.sasser.worm.html
+2001057 || BLEEDING-EDGE VIRUS W32/Sasser.worm.a -NAI-) || url,securityresponse.symantec.com/avcenter/venc/data/w32.sasser.worm.html
+2001058 || BLEEDING-EDGE EXPLOIT libpng tRNS overflow attempt || cve,CAN-2004-0597
+2001059 || BLEEDING-EDGE P2P Ares traffic || url,www.aresgalaxy.org
+2001060 || BLEEDING-EDGE P2P Ares GET || url,www.aresgalaxy.org
+2001061 || BLEEDING-EDGE VIRUS Bagle Variant Requesting 2.jpg || url,isc.sans.org/diary.php?date=2004-08-09
+2001064 || BLEEDING-EDGE VIRUS Bagle Variant Checking In || url,vil.nai.com/vil/content/v_127423.htm
+2001065 || BLEEDING-EDGE VIRUS Possible Bagle.AQ Worm Outbound || url,securityresponse.symantec.com/avcenter/venc/data/w32.beagle.av@mm.html
+2001066 || BLEEDING-EDGE IE Ilookup Trojan || url,62.131.86.111/analysis.htm
+2001075 || BLEEDING-EDGE WEB-MISC cross site scripting attempt IMG onerror or onload
+2001076 || BLEEDING-EDGE WEB-MISC cross site scripting attempt TYPE + JAVASCRIPT
+2001077 || BLEEDING-EDGE WEB-MISC cross site scripting attempt STYLE + JAVASCRIPT
+2001078 || BLEEDING-EDGE WEB-MISC cross site scripting attempt STYLE + JSCRIPT
+2001079 || BLEEDING-EDGE WEB-MISC cross site scripting attempt STYLE + VBSCRIPT 1
+2001080 || BLEEDING-EDGE WEB-MISC cross site scripting attempt STYLE + VBSCRIPT 2
+2001081 || BLEEDING-EDGE WEB-MISC cross site scripting attempt STYLE + ECMACRIPT
+2001082 || BLEEDING-EDGE WEB-MISC cross site scripting attempt STYLE + EXPRESSION 1
+2001083 || BLEEDING-EDGE WEB-MISC cross site scripting attempt STYLE + EXPRESSION 2
+2001084 || BLEEDING-EDGE WEB-MISC cross site scripting attempt using XML
+2001085 || BLEEDING-EDGE WEB-MISC cross site scripting attempt executing hidden Javascript 1
+2001086 || BLEEDING-EDGE WEB-MISC cross site scripting attempt executing hidden Javascript 2
+2001087 || BLEEDING-EDGE WEB-MISC cross site scripting attempt to execute Javascript code
+2001088 || BLEEDING-EDGE WEB-MISC cross site scripting attempt to execute VBScript code
+2001089 || BLEEDING-EDGE WEB-MISC cross site scripting attempt to access SHELL\:
+2001090 || BLEEDING-EDGE WEB-MISC cross site scripting stealth attempt to execute Javascript code
+2001091 || BLEEDING-EDGE WEB-MISC cross site scripting stealth attempt to execute VBScript code
+2001092 || BLEEDING-EDGE WEB-MISC cross site scripting stealth attempt to access SHELL\:
+2001093 || BLEEDING-EDGE EXPLOIT IE Local zone Shell execution of arbitrary code || url,www.securityfocus.com/archive/1/348688/2003-12-31/2004-01-06/0
+2001094 || BLEEDING-EDGE EXPLOIT Internet Explorer URL parsing vulnerability || url,www.securityfocus.com/archive/1/346948
+2001095 || BLEEDING-EDGE EXPLOIT IFRAME ExecCommand vulnerability || url,www.securiteam.com/exploits/3D5Q4RFPPK.html
+2001097 || BLEEDING-EDGE EXPLOIT Internet Explorer Object Data Remote Execution Vulnerability || url,www.securityfocus.com/bid/8456/solution/
+2001099 || BLEEDING-EDGE EXPLOIT Attempt to execute VBScript code
+2001101 || BLEEDING-EDGE EXPLOIT Stealth attempt to execute Javascript code
+2001102 || BLEEDING-EDGE EXPLOIT Stealth attempt to execute VBScript code
+2001103 || BLEEDING-EDGE EXPLOIT Stealth attempt to access SHELL\:
+2001105 || BLEEDING-EDGE EXPLOIT Javascript execution with expression eval || url,www.securiteam.com/exploits/3D5Q4RFPPK.html
+2001106 || BLEEDING-EDGE EXPLOIT Javascript execution with expression eval hex || url,www.securiteam.com/exploits/3D5Q4RFPPK.html
+2001114 || BLEEDING-EDGE Policy Mozilla XPI install files download
+2001115 || BLEEDING-EDGE MSI (microsoft installer file) download
+2001116 || BLEEDING-EDGE DNS - Standard query response, Format error
+2001117 || BLEEDING-EDGE DNS - Standard query response, Name Error
+2001118 || BLEEDING-EDGE DNS - Standard query response, Not Implemented
+2001119 || BLEEDING-EDGE DNS - Standard query response, Refused
+2001181 || BLEEDING-EDGE EXPLOIT Internet Explorer Plugin.ocx Heap Overflow || url,www.hnc3k.com/ievulnerabil.htm
+2001182 || BLEEDING-EDGE EXPLOIT IE trojan Ants3set 1.exe - process injection
+2001184 || BLEEDING-EDGE WORM RXBOT / RBOT Vulnerability Scan || url,www.muzzleflash.org/readarticle.php?article_id=5#scanning || url,www.trendmicro.com/vinfo/virusencyclo/default5.asp?VName=WORM_RBOT.GL || url,www.nitroguard.com/rxbot.html
+2001185 || BLEEDING-EDGE P2P Soulseek traffic (1) || url,www.slsknet.org
+2001186 || BLEEDING-EDGE P2P Soulseek traffic (2) || url,www.slsknet.org
+2001187 || BLEEDING-EDGE P2P Soulseek Filesearch Results || url,www.slsknet.org
+2001188 || BLEEDING-EDGE P2P Soulseek || url,www.slsknet.org
+2001190 || BLEEDING-EDGE EXPLOIT libPNG - Possible NULL-pointer crash in png_handle_iCCP || url,www.securiteam.com/unixfocus/5ZP0C0KDPG.html
+2001191 || BLEEDING-EDGE EXPLOIT libPNG - Width exceeds limit || url,www.securiteam.com/unixfocus/5ZP0C0KDPG.html
+2001192 || BLEEDING-EDGE EXPLOIT libPNG - Height exceeds limit || url,www.securiteam.com/unixfocus/5ZP0C0KDPG.html
+2001195 || BLEEDING-EDGE EXPLOIT libPNG - Possible integer overflow in allocation in png_handle_sPLT || url,www.securiteam.com/unixfocus/5ZP0C0KDPG.html
+2001196 || BLEEDING-EDGE WORM MyDoom.S Outbound || url,isc.sans.org/diary.php?date=2004-08-16 || url,www.f-secure.com/v-descs/mydoom_s.shtml
+2001197 || BLEEDING-EDGE PHPNuke SQL injection attempt || url,www.waraxe.us/index.php?modname=sa&id=35
+2001198 || BLEEDING-EDGE MALWARE Twaintec Download Attempt || url,www.pestpatrol.com/PestInfo/t/twain-tech.asp
+2001199 || BLEEDING-EDGE MALWARE Twaintec Ad Retrieval || url,www.pestpatrol.com/PestInfo/t/twain-tech.asp
+2001202 || BLEEDING-EDGE PHPNuke general SQL injection attempt || url,www.waraxe.us/?modname=sa&id=036 || url,www.waraxe.us/?modname=sa&id=030
+2001205 || BLEEDING-EDGE DOS Internet Explorer Memory Corruption Bug || url,www.securiteam.com/windowsntfocus/5XP051FDFM.html
+2001206 || BLEEDING-EDGE EXPLOIT Mozilla Firefox Certificate Spoofing || url,www.securiteam.com/securitynews/5EP0L1PDFG.html
+2001207 || BLEEDING-EDGE EXPLOIT Mozilla Cookie theft || url,www.securiteam.com/securitynews/5GP0T0U60M.html
+2001208 || BLEEDING-EDGE EXPLOIT Reading Local Files in Netscape 6 and Mozilla || url,www.securiteam.com/securitynews/5JP000A76K.html
+2001209 || BLEEDING-EDGE EXPLOIT Mozilla FTP View Cross-Site Scripting Vulnerability || url,www.securiteam.com/windowsntfocus/5MP0I0080A.html
+2001210 || BLEEDING-EDGE EXPLOIT FTP Serv-U Local Privilege Escalation Vulnerability || url,www.securiteam.com/windowsntfocus/5YP0F1FDPO.html
+2001211 || BLEEDING-EDGE EXPLOIT FTP Serv-U directory traversal vulnerability (1) || url,www.securiteam.com/windowsntfocus/6C0041F0KO.html
+2001212 || BLEEDING-EDGE EXPLOIT FTP Serv-U directory traversal vulnerability (2) || url,www.securiteam.com/windowsntfocus/6C0041F0KO.html
+2001213 || BLEEDING-EDGE EXPLOIT FTP Serv-U LIST -l Parameter Buffer Overflow || url,www.securiteam.com/windowsntfocus/5ZP0G2KCKA.html
+2001215 || BLEEDING-EDGE EXPLOIT FTP Serv-U Server Long Filename Stack Overflow Vulnerability || url,www.securiteam.com/windowsntfocus/5OP0N1PBPG.html
+2001216 || BLEEDING-EDGE MALWARE Twaintec Reporting Data || url,www.pestpatrol.com/PestInfo/t/twain-tech.asp
+2001217 || BLEEDING-EDGE EXPLOIT Adobe Acrobat Reader Malicious URL Null Byte || cve,2004-0629 || url,www.securiteam.com/windowsntfocus/5BP0D20DPW.html || url,idefense.com/application/poi/display?id=126&type=vulnerabilities
+2001218 || BLEEDING-EDGE PHPNuke general XSS attempt || url,www.waraxe.us/?modname=sa&id=030
+2001219 || BLEEDING-EDGE Potential SSH Scan || url,www.whitedust.net/article/27/Recent%20SSH%20Brute-Force%20Attacks/
+2001220 || BLEEDING-EDGE WORM RXBOT / RBOT Exploit Report || url,www.trendmicro.com/vinfo/virusencyclo/default5.asp?VName=WORM_RBOT.GL || url,www.nitroguard.com/rxbot.html
+2001221 || BLEEDING-EDGE Malware F1Organizer Config Download
+2001222 || BLEEDING-EDGE Malware Default-homepage-network.com Access || url,default-homepage-network.com/start.cgi?new-hkcu
+2001223 || BLEEDING-EDGE Malware Regnow.com Access || url,www.regnow.com
+2001224 || BLEEDING-EDGE Malware Regnow.com Gamehouse.com Access || url,www.gamehouse.com
+2001225 || BLEEDING-EDGE Malware Statblaster Receiving New configuration (update) || url,securityresponse.symantec.com/avcenter/venc/data/adware.statblaster.html
+2001226 || BLEEDING-EDGE MALWARE Advertising.com Agent || url,securityresponse.symantec.com/avcenter/venc/data/adware.fastseek.html
+2001228 || BLEEDING-EDGE MALWARE Advertising.com Data Post (villains) || url,securityresponse.symantec.com/avcenter/venc/data/adware.fastseek.html
+2001230 || BLEEDING-EDGE MALWARE Advertising.com Data Post (cakedeal) || url,securityresponse.symantec.com/avcenter/venc/data/adware.fastseek.html
+2001233 || BLEEDING-EDGE ROJAN Possible CIA Trojan download/upload attempt
+2001235 || BLEEDING-EDGE MALWARE Weatherbug
+2001236 || BLEEDING-EDGE TROJAN Akak trojan protocol hello || url,www.lurhq.com/akak.html
+2001237 || BLEEDING-EDGE TROJAN Akak trojan protocol response from infected host || url,www.lurhq.com/akak.html
+2001238 || BLEEDING-EDGE Possible Xedus Webserver Directory Traversal Attempt || url,www.gulftech.org/?node=research&article_id=00047-08302004
+2001239 || BLEEDING-EDGE Cisco Device in Config Mode
+2001240 || BLEEDING-EDGE Cisco Device New Config Built
+2001241 || BLEEDING-EDGE CHAT MSN file transfer request
+2001242 || BLEEDING-EDGE CHAT MSN file transfer accept
+2001243 || BLEEDING-EDGE CHAT MSN file transfer reject
+2001247 || BLEEDING-EDGE WORM General MSN Worm URL Attempt || url,isc.sans.org/diary.php?date=2005-04-13
+2001253 || BLEEDING-EDGE CHAT Yahoo IM successful logon
+2001254 || BLEEDING-EDGE CHAT Yahoo IM voicechat
+2001255 || BLEEDING-EDGE CHAT Yahoo IM ping
+2001256 || BLEEDING-EDGE CHAT Yahoo IM conference invitation
+2001257 || BLEEDING-EDGE CHAT Yahoo IM conference logon success
+2001258 || BLEEDING-EDGE CHAT Yahoo IM conference message
+2001259 || BLEEDING-EDGE CHAT Yahoo IM file transfer request
+2001260 || BLEEDING-EDGE CHAT Yahoo IM message
+2001261 || BLEEDING-EDGE CHAT Yahoo IM successful chat join
+2001262 || BLEEDING-EDGE CHAT Yahoo IM conference offer invitation
+2001263 || BLEEDING-EDGE CHAT Yahoo IM conference request
+2001264 || BLEEDING-EDGE CHAT Yahoo IM conference watch
+2001266 || BLEEDING-EDGE MALWARE Browseraid.com Agent Reporting Data || url,www.browseraid.com
+2001267 || BLEEDING-EDGE MALWARE Weatherbug Capture
+2001269 || BLEEDING-EDGE VIRUS Beagle User Agent Detected || url,securityresponse.symantec.com/avcenter/venc/data/w32.beagle.i@mm.html
+2001270 || BLEEDING-EDGE VIRUS Bagle Worm || url,securityresponse.symantec.com/avcenter/venc/data/w32.beagle.i@mm.html
+2001273 || BLEEDING-EDGE VIRUS Outbound W32.Novarg.A worm || url,securityresponse.symantec.com/avcenter/venc/data/w32.mydoom.a@mm.html
+2001274 || BLEEDING-EDGE VIRUS MyDoom/MIMAIL.R Outbound 1 || url,vil.mcafeesecurity.com/vil/content/Print100989.htm
+2001275 || BLEEDING-EDGE VIRUS MyDoom/MIMAIL.R Outbound 2 || url,vil.mcafeesecurity.com/vil/content/Print100989.htm
+2001276 || BLEEDING-EDGE VIRUS MyDoom/MIMAIL.R Outbound 3 || url,vil.mcafeesecurity.com/vil/content/Print100989.htm
+2001277 || BLEEDING-EDGE VIRUS MyDoom/MIMAIL.R Variant Outbound || url,vil.mcafeesecurity.com/vil/content/Print100989.htm || url,vil.mcafeesecurity.com/vil/content/v_101014.htm
+2001279 || BLEEDING-EDGE VIRUS MyDoom.F Worm || url,vil.mcafeesecurity.com/vil/content/v_101014.htm
+2001280 || BLEEDING-EDGE VIRUS Netsky message.zip HEX port 139 || url,antivirus.about.com/cs/allabout/a/netskyp_2.htm
+2001281 || BLEEDING-EDGE VIRUS Netsky message.zip HEX port 445 || url,antivirus.about.com/cs/allabout/a/netskyp_2.htm
+2001282 || BLEEDING-EDGE VIRUS Netsky base64 port 1352 || url,antivirus.about.com/cs/allabout/a/netskyp_2.htm
+2001283 || BLEEDING-EDGE VIRUS Netsky base64 port 25 || url,antivirus.about.com/cs/allabout/a/netskyp_2.htm
+2001284 || BLEEDING-EDGE VIRUS Sober.F Outbound (1) || url,securityresponse.symantec.com/avcenter/venc/data/w32.sober.f@mm.html?Open
+2001285 || BLEEDING-EDGE VIRUS Sober.F Outbound (2) || url,securityresponse.symantec.com/avcenter/venc/data/w32.sober.f@mm.html?Open
+2001292 || BLEEDING-EDGE VIRUS Possible Bagle.AI Worm || url,securityresponse.symantec.com/avcenter/venc/data/w32.beagle.i@mm.html
+2001293 || BLEEDING-EDGE Malware Featured-Results.com Agent Reporting Data || url,www.featured-results.com
+2001294 || BLEEDING-EDGE POLICY Dameware Remote Control Service Install
+2001295 || BLEEDING-EDGE MALWARE Browseraid.com Agent || url,www.browseraid.com
+2001296 || BLEEDING-EDGE P2P eDonkey File Status || url,www.edonkey.com
+2001297 || BLEEDING-EDGE P2P eDonkey File Status Request || url,www.edonkey.com
+2001298 || BLEEDING-EDGE P2P eDonkey Server Status Request || url,www.edonkey.com
+2001299 || BLEEDING-EDGE P2P eDonkey Server Status || url,www.edonkey.com
+2001300 || BLEEDING-EDGE P2P eDonkey Hello Request || url,www.edonkey.com
+2001302 || BLEEDING-EDGE VIRUS Nachi/Phatbot Worm || url,www.microsoft.com/technet/security/bulletin/MS03-026.asp || bugtraq,8205 || cve,CAN-2003-0352
+2001303 || BLEEDING-EDGE TROJAN Webber/Berbew Trojan keystroke log upload || url,www.lurhq.com/berbew.html
+2001304 || BLEEDING-EDGE MALWARE Browseraid.com Agent Updating || url,www.browseraid.com
+2001305 || BLEEDING-EDGE P2P eDonkey Search || url,www.edonkey.com
+2001306 || BLEEDING-EDGE Malware Gator/Clarian Agent || url,www3.ca.com/securityadvisor/pest/content.aspx?q=67999
+2001307 || BLEEDING-EDGE Malware Wild Tangent Agent Installation || url,www.wildtangent.com || url,www.spyany.com/program/article_spw_rm_WildTangent.html
+2001308 || BLEEDING-EDGE Malware Internet Optomizer Reporting Data || url,securityresponse.symantec.com/avcenter/venc/data/adware.netoptimizer.html
+2001309 || BLEEDING-EDGE Malware Wild Tangent Agent Checking In || url,www.wildtangent.com || url,www.spyany.com/program/article_spw_rm_WildTangent.html
+2001310 || BLEEDING-EDGE Malware Wild Tangent Agent Traffic || url,www.wildtangent.com || url,www.spyany.com/program/article_spw_rm_WildTangent.html
+2001311 || BLEEDING-EDGE Malware Rdxrp.com Traffic
+2001312 || BLEEDING-EDGE Malware Rdxrp.com Traffic (Generic)
+2001313 || BLEEDING-EDGE Malware Traffic Syndicate Add/Remove
+2001314 || BLEEDING-EDGE Malware Wild Tangent Agent || url,www.wildtangent.com || url,www.spyany.com/program/article_spw_rm_WildTangent.html
+2001315 || BLEEDING-EDGE Malware Traffic Syndicate Agent Updating (1)
+2001316 || BLEEDING-EDGE Malware Traffic Syndicate Agent Updating (2)
+2001317 || BLEEDING-EDGE Malware Webhancer Data Upload || url,securityresponse.symantec.com/avcenter/venc/data/spyware.webhancer.html
+2001318 || BLEEDING-EDGE MALWARE Adwave Agent Access || url,www.intermute.com/spyware/HuntBar.html
+2001320 || BLEEDING-EDGE Malware Speedera Agent
+2001321 || BLEEDING-EDGE Malware Speedera Agent (Specific)
+2001322 || BLEEDING-EDGE Malware Wild Tangent New Install || url,www.wildtangent.com || url,www.spyany.com/program/article_spw_rm_WildTangent.html
+2001325 || BLEEDING-EDGE Malware Websearch.com Spyware || mcafee,131461
+2001328 || BLEEDING-EDGE SSN Detected in Clear Text
+2001329 || BLEEDING-EDGE RDP connection request
+2001330 || BLEEDING-EDGE RDP connection confirm
+2001331 || BLEEDING-EDGE RDP disconnect request
+2001334 || BLEEDING-EDGE Malware Ezula || url,www.spyany.com/program/article_spw_rm_eZuLa.html || url,www.ezula.com
+2001335 || BLEEDING-EDGE Malware Ezula Installer Download || url,www.spyany.com/program/article_spw_rm_eZuLa.html || url,www.ezula.com
+2001336 || BLEEDING-EDGE Malware Internet Optimizer Spyware Agent Upload || url,securityresponse.symantec.com/avcenter/venc/data/adware.netoptimizer.html
+2001337 || BLEEDING-EDGE WORM Korgo.P offering executable || url,www.f-secure.com/v-descs/korgo_p.shtml
+2001338 || BLEEDING-EDGE WORM Korgo.P binary upload || url,www.f-secure.com/v-descs/korgo_p.shtml
+2001339 || BLEEDING-EDGE MALWARE BInet Information Upload || url,sarc.com/avcenter/venc/data/pf/adware.betterinternet.html
+2001340 || BLEEDING-EDGE Malware LocalNRD Spyware Checkin || url,www.localnrd.com
+2001341 || BLEEDING-EDGE Malware OfferOptimizer.com Spyware || url,www.offeroptimizer.com
+2001342 || BLEEDING-EDGE WEB-IIS ASP.net Auth Bypass / Canonicalization
+2001343 || BLEEDING-EDGE WEB-IIS ASP.net Auth Bypass / Canonicalization % 5 C
+2001344 || BLEEDING-EDGE WEB-PHP EasyDynamicPages exploit || cve,CAN-2004-0073 || url,www.securitytracker.com/alerts/2004/Jan/1008584.html
+2001345 || BLEEDING-EDGE MALWARE Bonziportal Traffic || url,www3.ca.com/securityadvisor/pest/pest.aspx?id=59256
+2001346 || BLEEDING-EDGE INAPPROPRIATE Kiddy Porn preteen
+2001347 || BLEEDING-EDGE INAPPROPRIATE Kiddy Porn pre-teen
+2001348 || BLEEDING-EDGE INAPPROPRIATE Kiddy Porn early teen
+2001349 || BLEEDING-EDGE INAPPROPRIATE free XXX
+2001350 || BLEEDING-EDGE INAPPROPRIATE hardcore anal
+2001351 || BLEEDING-EDGE INAPPROPRIATE masturbation
+2001352 || BLEEDING-EDGE INAPPROPRIATE ejaculation
+2001353 || BLEEDING-EDGE INAPPROPRIATE BDSM
+2001359 || BLEEDING-EDGE Malware MarketScore.com Spyware Access || url,www.spysweeper.com/remove-marketscore.html || url,www.marketscore.com
+2001362 || BLEEDING-EDGE DOS MS04-030 Attempted DoS || url,isc.sans.org/diary.php?date=2004-10-20
+2001363 || BLEEDING-EDGE EXPLOIT Possible MS04-032 Windows Metafile (.emf) Heap Overflow Portbind Attempt || url,www.microsoft.com/technet/security/bulletin/ms04-032.mspx
+2001364 || BLEEDING-EDGE EXPLOIT MS04-032 Windows Metafile (.emf) Heap Overflow Connectback Attempt || url,www.microsoft.com/technet/security/bulletin/ms04-032.mspx
+2001365 || BLEEDING-EDGE WEB-MISC Alternate Data Stream source view attempt || cve,1999-0278 || url,support.microsoft.com/kb/q188806/
+2001366 || BLEEDING-EDGE DOS Possible Microsoft SQL Server Remote Denial Of Service Attempt || bugtraq,11265
+2001367 || BLEEDING-EDGE WORM RBOT inbound Bestfriends.scr || url,spree.mnin.org/forums/viewtopic.php?t-104
+2001369 || BLEEDING-EDGE EXPLOIT MS04-032 Windows Metafile (.emf) Heap Overflow Exploit || url,www.k-otik.com/exploits/20041020.HOD-ms04032-emf-expl2.c.php
+2001374 || BLEEDING-EDGE EXPLOIT MS04-032 Bad EMF file || url,www.sygate.com/alerts/SSR20041013-0001.htm
+2001375 || BLEEDING-EDGE Credit Card Number Detected in Clear (16 digit spaced) || url,www.beachnet.com/~hstiles/cardtype.html
+2001376 || BLEEDING-EDGE Credit Card Number Detected in Clear (16 digit dashed) || url,www.beachnet.com/~hstiles/cardtype.html
+2001377 || BLEEDING-EDGE Credit Card Number Detected in Clear (16 digit) || url,www.beachnet.com/~hstiles/cardtype.html
+2001378 || BLEEDING-EDGE Credit Card Number Detected in Clear (15 digit) || url,www.beachnet.com/~hstiles/cardtype.html
+2001379 || BLEEDING-EDGE Credit Card Number Detected in Clear (15 digit spaced) || url,www.beachnet.com/~hstiles/cardtype.html
+2001380 || BLEEDING-EDGE Credit Card Number Detected in Clear (15 digit dashed) || url,www.beachnet.com/~hstiles/cardtype.html
+2001381 || BLEEDING-EDGE Credit Card Number Detected in Clear (14 digit) || url,www.beachnet.com/~hstiles/cardtype.html
+2001382 || BLEEDING-EDGE Credit Card Number Detected in Clear (14 digit spaced) || url,www.beachnet.com/~hstiles/cardtype.html
+2001383 || BLEEDING-EDGE Credit Card Number Detected in Clear (14 digit dashed) || url,www.beachnet.com/~hstiles/cardtype.html
+2001384 || BLEEDING-EDGE SSN Detected in Clear Text
+2001385 || BLEEDING-EDGE EXPLOIT Possible ShixxNote buffer-overflow + remote shell attempt || url,aluigi.altervista.org/adv/shixxbof-adv.txt
+2001386 || BLEEDING-EDGE INAPPROPRIATE Kiddy Porn pthc
+2001387 || BLEEDING-EDGE INAPPROPRIATE Kiddy Porn zeps
+2001388 || BLEEDING-EDGE INAPPROPRIATE Kiddy Porn r@ygold
+2001389 || BLEEDING-EDGE INAPPROPRIATE Kiddy Porn childlover
+2001390 || BLEEDING-EDGE VIRUS Possible Beagle.AV Worm Outbound || url,securityresponse.symantec.com/avcenter/venc/data/w32.beagle.av@mm.html
+2001391 || BLEEDING-EDGE VIRUS Possible Beagle.AV Worm Inbound || url,securityresponse.symantec.com/avcenter/venc/data/w32.beagle.av@mm.html
+2001392 || BLEEDING-EDGE INAPPROPRIATE Sextracker Tracking Code Detected (1)
+2001393 || BLEEDING-EDGE INAPPROPRIATE Sextracker Tracking Code Detected (2)
+2001395 || BLEEDING-EDGE Malware ISearchTech.com XXXPornToolbar Activity (2) || url,www.isearchtech.com
+2001396 || BLEEDING-EDGE Malware Internet Optimizer Spyware Install || url,securityresponse.symantec.com/avcenter/venc/data/adware.netoptimizer.html
+2001397 || BLEEDING-EDGE MALWARE 180solutions Spyware (tracked event reported) || url,securityresponse.symantec.com/avcenter/venc/data/pf/adware.180search.html
+2001398 || BLEEDING-EDGE MALWARE Bfast.com Spyware
+2001399 || BLEEDING-EDGE MALWARE 180solutions Spyware (action url reported) || url,securityresponse.symantec.com/avcenter/venc/data/pf/adware.180search.html
+2001400 || BLEEDING-EDGE MALWARE 180solutions Spyware Reporting || url,securityresponse.symantec.com/avcenter/venc/data/pf/adware.180search.html
+2001401 || BLEEDING-EDGE EXPLOIT IE IFRAME Exploit
+2001402 || BLEEDING-EDGE ZIPPED DOC in transit
+2001403 || BLEEDING-EDGE ZIPPED XLS in transit
+2001404 || BLEEDING-EDGE ZIPPED EXE in transit
+2001405 || BLEEDING-EDGE ZIPPED PPT in transit
+2001406 || BLEEDING-EDGE Possible hidden zip extension .cpl
+2001407 || BLEEDING-EDGE Possible hidden zip extension .pif
+2001408 || BLEEDING-EDGE Possible hidden zip extension .scr
+2001409 || BLEEDING-EDGE Malware Mastermind Related Reporting
+2001410 || BLEEDING-EDGE Malware Mastermind Related Reporting 8081
+2001411 || BLEEDING-EDGE Malware Mastermind Related Downloading mm20.ocx
+2001412 || BLEEDING-EDGE Malware Mastermind Related Downloading Daily Executable
+2001413 || BLEEDING-EDGE Malware Medis-Motor Related Downloading ast_4_mm.exe
+2001414 || BLEEDING-EDGE Malware Media-Motor Related Downloading MediaMotor25.exe
+2001415 || BLEEDING-EDGE Malware E2give Related Downloading IeBHOs.dll
+2001416 || BLEEDING-EDGE Malware E2give Related Reporting Install
+2001417 || BLEEDING-EDGE Malware E2give Related Receiving Config
+2001418 || BLEEDING-EDGE Malware E2give Related Downloading Code
+2001419 || BLEEDING-EDGE Malware Avres.net Downloading cpr_mm2.exe
+2001420 || BLEEDING-EDGE Malware Avres.net Downloading ab1.exe
+2001421 || BLEEDING-EDGE Malware Avres.net Downloading tvm_bundle.exe
+2001422 || BLEEDING-EDGE Malware Avres.net Reporting Data
+2001423 || BLEEDING-EDGE Malware E2give Related Reporting
+2001424 || BLEEDING-EDGE POLICY Gmail Inbox Access
+2001425 || BLEEDING-EDGE POLICY Gmail File Send
+2001426 || BLEEDING-EDGE POLICY Gmail Message Send
+2001427 || BLEEDING-EDGE CHAT Yahoo IM Unavailable Status
+2001428 || BLEEDING-EDGE WORM MyDoom.AH Victim Accessing Infected Page || url,us.mcafee.com/virusInfo/default.asp?id=description&virus_k=129631
+2001430 || BLEEDING-EDGE WORM Bofra Victim Accessing Reactor Page || url,us.mcafee.com/virusInfo/default.asp?id=description&virus_k=129631 || url,securityresponse.symantec.com/avcenter/venc/data/w32.bofra.e@mm.html
+2001431 || BLEEDING-EDGE WORM Potential MyDoom.AH Email Inbound || url,us.mcafee.com/virusInfo/default.asp?id=description&virus_k=129631
+2001432 || BLEEDING-EDGE WORM Potential MyDoom.AH Email Outbound (1) || url,us.mcafee.com/virusInfo/default.asp?id=description&virus_k=129631
+2001433 || BLEEDING-EDGE WORM Potential MyDoom.AH Email Inbound || url,us.mcafee.com/virusInfo/default.asp?id=description&virus_k=129631
+2001434 || BLEEDING-EDGE WORM Potential MyDoom.AH Email Outbound (2) || url,us.mcafee.com/virusInfo/default.asp?id=description&virus_k=129631
+2001435 || BLEEDING-EDGE WORM Potential MyDoom.AH Email Inbound || url,us.mcafee.com/virusInfo/default.asp?id=description&virus_k=129631
+2001436 || BLEEDING-EDGE WORM Potential MyDoom.AH Email Outbound (3) || url,us.mcafee.com/virusInfo/default.asp?id=description&virus_k=129631
+2001437 || BLEEDING-EDGE WORM Potential MyDoom.AI Email Inbound || url,us.mcafee.com/virusInfo/default.asp?id=description&virus_k=129631
+2001438 || BLEEDING-EDGE WORM Potential MyDoom.AI Email Outbound || url,us.mcafee.com/virusInfo/default.asp?id=description&virus_k=129631
+2001440 || BLEEDING-EDGE MALWARE Abox Download
+2001441 || BLEEDING-EDGE MALWARE Abox Install Report || url,securityresponse.symantec.com/avcenter/venc/data/adware.adultbox.html
+2001442 || BLEEDING-EDGE Malware Statblaster.MemoryWatcher Download || url,www.memorywatcher.com/eula.aspx
+2001443 || BLEEDING-EDGE Malware WhenUClick.com Desktop Bar App Checkin || url,www.kephyr.com/spywarescanner/library/whenusearch/index.phtml || url,www.whenusearch.com
+2001444 || BLEEDING-EDGE Malware Overpro Spyware Bundle Install || url,www.wildarcade.com
+2001445 || BLEEDING-EDGE Malware PeopleOnPage Install || url,www.safer-networking.org/en/threats/602.html || url,www.peopleonpage.com
+2001446 || BLEEDING-EDGE Malware PeopleOnPage Ping || url,www.safer-networking.org/en/threats/602.html || url,www.peopleonpage.com
+2001447 || BLEEDING-EDGE MALWARE 2nd-thought (W32.Daqa.C) Download || url,securityresponse.symantec.com/avcenter/venc/data/adware.secondthought.html
+2001448 || BLEEDING-EDGE Malware MediaTickets Download || url,securityresponse.symantec.com/avcenter/venc/data/adware.winad.html
+2001449 || BLEEDING-EDGE Policy Proxy Connection detected
+2001450 || BLEEDING-EDGE MALWARE Wintools Download/Configure || url,www.intermute.com/spyware/HuntBar.html
+2001451 || BLEEDING-EDGE MALWARE Bundleware Spyware Download
+2001452 || BLEEDING-EDGE MALWARE Bundleware Spyware CHM Download
+2001453 || BLEEDING-EDGE Malware Couponage Download || url,www3.ca.com/securityadvisor/pest/pest.aspx?id=453090725
+2001454 || BLEEDING-EDGE Malware Couponage Configure || url,www3.ca.com/securityadvisor/pest/pest.aspx?id=453090725
+2001455 || BLEEDING-EDGE Malware Couponage Reporting || url,www3.ca.com/securityadvisor/pest/pest.aspx?id=453090725
+2001456 || BLEEDING-EDGE Malware ContextPanel Reporting
+2001458 || BLEEDING-EDGE MALWARE Bundleware Spyware cab Download
+2001459 || BLEEDING-EDGE Malware Overpro Spyware Games || url,securityresponse.symantec.com/avcenter/venc/data/adware.overpro.html
+2001460 || BLEEDING-EDGE Malware Sexmaniack Install Tracking
+2001461 || BLEEDING-EDGE Malware Xpire.info Multiple Spyware Installs (1)
+2001462 || BLEEDING-EDGE Malware Xpire.info Multiple Spyware Installs Occuring
+2001463 || BLEEDING-EDGE Malware Xpire.info Multiple Spyware Installs (2)
+2001464 || BLEEDING-EDGE Malware Xpire.info Multiple Spyware Installs (3)
+2001466 || BLEEDING-EDGE Malware Xpire.info Multiple Spyware Installs (4)
+2001467 || BLEEDING-EDGE Malware Xpire.info Multiple Spyware Installs (5)
+2001468 || BLEEDING-EDGE Malware Xpire.info Multiple Spyware Installs CHM Exploit
+2001469 || BLEEDING-EDGE Malware Xpire.info Multiple Spyware Installs (6)
+2001470 || BLEEDING-EDGE Malware Xpire.info Multiple Spyware Installs (7)
+2001471 || BLEEDING-EDGE Malware Xpire.info Spyware Exploit
+2001472 || BLEEDING-EDGE Malware Xpire.info Spyware Install Reporting
+2001473 || BLEEDING-EDGE Malware Searchmeup Spyware Install (toolbar)
+2001474 || BLEEDING-EDGE Malware Searchmeup Spyware Install (prog)
+2001475 || BLEEDING-EDGE Malware Searchmeup Spyware Receiving Commands
+2001476 || BLEEDING-EDGE Malware Searchmeup Spyware Affiliate install (pizdato)
+2001477 || BLEEDING-EDGE Malware Searchmeup Spyware Affiliate install (coolsearch)
+2001478 || BLEEDING-EDGE Malware Searchmeup Spyware Affiliate install (newiframe)
+2001479 || BLEEDING-EDGE Malware Coolsearch Spyware Install
+2001480 || BLEEDING-EDGE Malware Searchmeup Spyware Install (systime)
+2001481 || BLEEDING-EDGE Malware MediaTickets Spyware Install || url,securityresponse.symantec.com/avcenter/venc/data/adware.winad.html
+2001482 || BLEEDING-EDGE Malware thebestsoft4u.com Spyware Install (1)
+2001483 || BLEEDING-EDGE Malware Searchmeup Spyware Install (mstask)
+2001484 || BLEEDING-EDGE Malware Searchmeup Spyware Install (d.exe)
+2001485 || BLEEDING-EDGE Malware thebestsoft4u.com Spyware Install (2)
+2001486 || BLEEDING-EDGE Malware thebestsoft4u.com Spyware Install (3)
+2001487 || BLEEDING-EDGE Malware Tibsystems Spyware Activity
+2001488 || BLEEDING-EDGE Malware Tibsystems Spyware Download
+2001489 || BLEEDING-EDGE Malware Spygalaxy.ws Activity
+2001490 || BLEEDING-EDGE Malware ICQ-Update.biz Reporting Install
+2001491 || BLEEDING-EDGE Malware Xpire.info Install Code Download
+2001492 || BLEEDING-EDGE Malware ISearchTech.com XXXPornToolbar Activity (MyApp) || url,www.isearchtech.com
+2001493 || BLEEDING-EDGE Malware ISearchTech.com XXXPornToolbar Activity (IST) || url,www.isearchtech.com
+2001494 || BLEEDING-EDGE Malware Clickspring.net Spyware Reporting Successful Install || url,www3.ca.com/securityadvisor/pest/pest.aspx?id=453082745
+2001495 || BLEEDING-EDGE Malware Outerinfo.com Spyware Install
+2001496 || BLEEDING-EDGE Malware Outerinfo.com Spyware Advertising Campaign Download
+2001497 || BLEEDING-EDGE Malware Outerinfo.com Spyware Activity
+2001498 || BLEEDING-EDGE Malware Internet Optimizer Activity
+2001499 || BLEEDING-EDGE Malware Look2me Spyware Activity (1) || url,securityresponse.symantec.com/avcenter/venc/data/adware.look2me.html
+2001500 || BLEEDING-EDGE Malware Clickspring.net Spyware Reporting || url,www3.ca.com/securityadvisor/pest/pest.aspx?id=453082745
+2001501 || BLEEDING-EDGE MALWARE Clickspring.net Spyware Reporting || url,sarc.com/avcenter/venc/data/adware.bargainbuddy.html
+2001502 || BLEEDING-EDGE Malware Look2me Spyware Activity (2) || url,securityresponse.symantec.com/avcenter/venc/data/adware.look2me.html
+2001503 || BLEEDING-EDGE Malware Medialoads.com Spyware Config
+2001504 || BLEEDING-EDGE Malware Medialoads.com Spyware Activity
+2001505 || BLEEDING-EDGE Malware Smartpops.com Spyware Install rh.exe || url,securityresponse.symantec.com/avcenter/venc/data/adware.smartpops.html
+2001507 || BLEEDING-EDGE Malware Medialoads.com Spyware Identifying Country of Origin
+2001508 || BLEEDING-EDGE Malware Medialoads.com Spyware Reporting (download.cgi)
+2001509 || BLEEDING-EDGE Malware Medialoads.com Spyware Reporting (register.cgi)
+2001510 || BLEEDING-EDGE Malware SurfAssistant.com Spyware Install || url,securityresponse.symantec.com/avcenter/venc/data/adware.sa.html
+2001512 || BLEEDING-EDGE Malware pool.Westpop.com Spyware Install
+2001513 || BLEEDING-EDGE Malware Smartpops.com Spyware Update || url,securityresponse.symantec.com/avcenter/venc/data/adware.smartpops.html
+2001514 || BLEEDING-EDGE Malware SurfAssistant.com Spyware Reporting || url,securityresponse.symantec.com/avcenter/venc/data/adware.sa.html
+2001516 || BLEEDING-EDGE Malware Smartpops.com Spyware Install || url,securityresponse.symantec.com/avcenter/venc/data/adware.smartpops.html
+2001517 || BLEEDING-EDGE Malware Websearch.com Outbound Dialer Retrieval || mcafee,131461
+2001520 || BLEEDING-EDGE Malware Spywaremover Activity || url,securityresponse.symantec.com/avcenter/venc/data/adware.topantispyware.html
+2001521 || BLEEDING-EDGE MALWARE Spywaremover Activity || url,www3.ca.com/securityadvisor/pest/pest.aspx?id=453087903
+2001522 || BLEEDING-EDGE Malware SpywareLabs Application Install
+2001523 || BLEEDING-EDGE Malware Statblaster Receiving New configuration (allfiles) || url,securityresponse.symantec.com/avcenter/venc/data/adware.statblaster.html
+2001524 || BLEEDING-EDGE Malware Statblaster Code Download || url,securityresponse.symantec.com/avcenter/venc/data/adware.statblaster.html
+2001525 || BLEEDING-EDGE Malware Virtumonde Spyware Code Download mmdom.exe || url,sarc.com/avcenter/venc/data/adware.virtumonde.html
+2001526 || BLEEDING-EDGE Malware Virtumonde Spyware Code Download bkinst.exe || url,www.lurhq.com/iframeads.html
+2001529 || BLEEDING-EDGE MALWARE Casalemedia Access, Likely Spyware
+2001530 || BLEEDING-EDGE MALWARE ak-networks.com Spyware Code Download
+2001531 || BLEEDING-EDGE MALWARE C4tdownload.com Access, Likely Spyware || url,sarc.com/avcenter/venc/data/adware.clickdloader.b.html
+2001532 || BLEEDING-EDGE Malware Searchmiracle.com Access, Likely Spyware || url,securityresponse.symantec.com/avcenter/venc/data/trojan.elitebar.html
+2001533 || BLEEDING-EDGE Malware Searchmiracle.com Spyware Installer silent.exe Download || url,www.searchmiracle.com/silent.exe
+2001534 || BLEEDING-EDGE Malware Searchmiracle.com Spyware Install (silent_install) || url,www.searchmiracle.com
+2001535 || BLEEDING-EDGE Malware Searchmiracle.com Spyware Install (protector.exe) || url,www.searchmiracle.com
+2001536 || BLEEDING-EDGE Malware Spyspotter.com Install
+2001537 || BLEEDING-EDGE Malware Spyspotter.com Access
+2001538 || BLEEDING-EDGE Malware Oenji.com Install
+2001539 || BLEEDING-EDGE Malware Spyspotter.com Access, Likely Spyware
+2001540 || BLEEDING-EDGE Malware Searchmiracle.com Spyware Install (v3cab) || url,www.searchmiracle.com
+2001541 || BLEEDING-EDGE Malware Xpire.info Install Report
+2001542 || BLEEDING-EDGE VIRUS Possible Sober.j - outbound || url,vil.mcafeesecurity.com/vil/content/v_130130.htm
+2001543 || BLEEDING-EDGE EXPLOIT NTDump Session Established Reg-Entry port 445
+2001544 || BLEEDING-EDGE EXPLOIT NTDump.exe Service Started port 445
+2001546 || BLEEDING-EDGE WEB-MISC LINK Method || url,www.w3.org/Protocols/HTTP/Methods/Link.html
+2001547 || BLEEDING-EDGE VIRUS Sobig.E-F Trojan Site Download Request || url,securityresponse.symantec.com/avcenter/venc/data/w32.sobig.e@mm.html
+2001548 || BLEEDING-EDGE VIRUS Sasser FTP exploit attempt || url,www.lurhq.com/dabber.html
+2001549 || BLEEDING-EDGE EXPLOIT Possible Sun Java Plugin arbitrary package access exploit (1) || cve,CAN-2004-1029 || url,www.kb.cert.org/vuls/id/760344 || url,secunia.com/advisories/13271/ || url,archives.neohapsis.com/archives/bugtraq/2004-11/0299.html || url,www.idefense.com/application/poi/display?id=158 || url,sunsolve.sun.com/search/document.do?assetkey=1-26-57591-1 || url,jouko.iki.fi/adv/javaplugin.html
+2001550 || BLEEDING-EDGE EXPLOIT Possible Sun Java Plugin arbitrary package access exploit (2) || cve,CAN-2004-1029 || url,www.kb.cert.org/vuls/id/760344 || url,secunia.com/advisories/13271/ || url,archives.neohapsis.com/archives/bugtraq/2004-11/0299.html || url,www.idefense.com/application/poi/display?id=158 || url,sunsolve.sun.com/search/document.do?assetkey=1-26-57591-1 || url,jouko.iki.fi/adv/javaplugin.html
+2001551 || BLEEDING-EDGE EXPLOIT Possible Sun Java Plugin arbitrary package access exploit (3) || cve,CAN-2004-1029 || url,www.kb.cert.org/vuls/id/760344 || url,secunia.com/advisories/13271/ || url,archives.neohapsis.com/archives/bugtraq/2004-11/0299.html || url,www.idefense.com/application/poi/display?id=158 || url,sunsolve.sun.com/search/document.do?assetkey=1-26-57591-1 || url,jouko.iki.fi/adv/javaplugin.html
+2001552 || BLEEDING-EDGE EXPLOIT Possible Sun Java Plugin arbitrary package access exploit (4) || cve,CAN-2004-1029 || url,www.kb.cert.org/vuls/id/760344 || url,secunia.com/advisories/13271/ || url,archives.neohapsis.com/archives/bugtraq/2004-11/0299.html || url,www.idefense.com/application/poi/display?id=158 || url,sunsolve.sun.com/search/document.do?assetkey=1-26-57591-1 || url,jouko.iki.fi/adv/javaplugin.html
+2001553 || BLEEDING-EDGE Scan Possible SSL Brute Force attack or Site Crawl
+2001554 || BLEEDING-EDGE WORM Rbot.Gen Infection Attempt || url,www.f-secure.com/v-descs/rbot.shtml
+2001556 || BLEEDING-EDGE VIRUS W32/Bagle.z@MM Requesting 5.php || mcafee,122415
+2001562 || BLEEDING-EDGE Malware MarketScore.com Spyware User Configuration and Setup Access || url,www.spysweeper.com/remove-marketscore.html || url,www.marketscore.com
+2001563 || BLEEDING-EDGE Malware MarketScore.com Spyware SSL Access || url,www.spysweeper.com/remove-marketscore.html || url,www.marketscore.com
+2001564 || BLEEDING-EDGE Malware MarketScore.com Spyware Proxied Traffic || url,www.spysweeper.com/remove-marketscore.html || url,www.marketscore.com
+2001565 || BLEEDING-EDGE WORM Netsky.P - SMTP incoming || url,secunia.com/search/?search=netsky.p
+2001566 || BLEEDING-EDGE WORM Netsky.P - SMTP outgoing || url,secunia.com/search/?search=netsky.p
+2001567 || BLEEDING-EDGE VIRUS Bagel - outbound || url,securityresponse.symantec.com/avcenter/venc/data/w32.beagle.a@mm.html
+2001568 || BLEEDING-EDGE VIRUS Bagel - incoming || url,securityresponse.symantec.com/avcenter/venc/data/w32.beagle.a@mm.html
+2001569 || BLEEDING-EDGE Behavioral Unusual Port 445 traffic, Potential Scan or Infection
+2001570 || BLEEDING-EDGE Malware Spyware Stormer Reporting Data || url,www.spywarestormer.com
+2001571 || BLEEDING-EDGE Malware Spyware Stormer/Error Guard Activity || url,www.spywarestormer.com
+2001572 || BLEEDING-EDGE VIRUS Zafi Worm - incoming || url,securityresponse.symantec.com/avcenter/venc/data/w32.erkez.b@mm.html
+2001573 || BLEEDING-EDGE VIRUS Zafi Worm outgoing detected || url,securityresponse.symantec.com/avcenter/venc/data/w32.erkez.b@mm.html
+2001576 || BLEEDING-EDGE MALWARE BInet Information Install Report || url,sarc.com/avcenter/venc/data/pf/adware.betterinternet.html
+2001577 || BLEEDING-EDGE VIRUS Sober.I - incoming || url,securityresponse.symantec.com/avcenter/venc/data/w32.sober.i@mm.html
+2001578 || BLEEDING-EDGE VIRUS Sober.I - outbound || url,securityresponse.symantec.com/avcenter/venc/data/w32.sober.i@mm.html
+2001579 || BLEEDING-EDGE Behavioral Unusual Port 139 traffic, Potential Scan or Infection
+2001580 || BLEEDING-EDGE Behavioral Unusual Port 137 traffic, Potential Scan or Infection
+2001581 || BLEEDING-EDGE Behavioral Unusual Port 135 traffic, Potential Scan or Infection
+2001582 || BLEEDING-EDGE Behavioral Unusual Port 1434 traffic, Potential Scan or Infection
+2001583 || BLEEDING-EDGE Behavioral Unusual Port 1433 traffic, Potential Scan or Infection
+2001584 || BLEEDING-EDGE VIRUS Bot Reporting Scan/Exploit || url,www.nitroguard.com/rxbot.html || url,cert.uni-stuttgart.de/doc/netsec/bots.php
+2001586 || BLEEDING-EDGE Malware MarketScore.com Spyware Proxied Traffic (mitmproxy agent) || url,www.spysweeper.com/remove-marketscore.html || url,www.marketscore.com
+2001587 || BLEEDING-EDGE Malware MarketScore.com Spyware Upgrading || url,www.spysweeper.com/remove-marketscore.html || url,www.marketscore.com
+2001588 || BLEEDING-EDGE Malware MarketScore.com Spyware Activity (1) || url,www.spysweeper.com/remove-marketscore.html || url,www.marketscore.com
+2001589 || BLEEDING-EDGE Malware MarketScore.com Spyware Activity (2) || url,www.spysweeper.com/remove-marketscore.html || url,www.marketscore.com
+2001590 || BLEEDING-EDGE VIRUS NetSky.C Worm - incoming || url,secunia.com/virus_information/557/
+2001591 || BLEEDING-EDGE VIRUS NetSky.C Worm - outgoing detected || url,secunia.com/virus_information/557/
+2001592 || BLEEDING-EDGE VIRUS Zafi.d P2P Infection Attempt (1) || url,www.trendmicro.com/vinfo/virusencyclo/default5.asp?VName=WORM_ZAFI.D
+2001593 || BLEEDING-EDGE VIRUS Zafi.d P2P Infection Attempt (2) || url,www.trendmicro.com/vinfo/virusencyclo/default5.asp?VName=WORM_ZAFI.D
+2001594 || BLEEDING-EDGE VIRUS Zafi.d a.exe file upload || url,www.trendmicro.com/vinfo/virusencyclo/default5.asp?VName=WORM_ZAFI.D
+2001595 || BLEEDING-EDGE Policy Skype VOIP Checking Version (Startup) || url,www1.cs.columbia.edu/~library/TR-repository/reports/reports-2004/cucs-039-04.pdf
+2001596 || BLEEDING-EDGE Policy Skype VOIP Reporting Install || url,www1.cs.columbia.edu/~library/TR-repository/reports/reports-2004/cucs-039-04.pdf
+2001597 || BLEEDING-EDGE Policy Netop Remote Control Usage || url,www.netop.com
+2001598 || BLEEDING-EDGE VIRUS Zafi.D Worm .zip - incoming detected || url,secunia.com/virus_information/13874/
+2001599 || BLEEDING-EDGE VIRUS Zafi.D Worm .zip - outgoing detected || url,secunia.com/virus_information/13874/
+2001600 || BLEEDING-EDGE VIRUS Zafi.D Worm .cmd, .com, .pif or .bat - incoming detected || url,secunia.com/virus_information/13874/
+2001601 || BLEEDING-EDGE VIRUS Zafi.D Worm .cmd, .com, .pif or .bat - outgoing detected || url,secunia.com/virus_information/13874/
+2001602 || BLEEDING-EDGE VIRUS Netsky.Z Worm - incoming detected || url,secunia.com/virus_information/8911/
+2001603 || BLEEDING-EDGE VIRUS Netsky.Z Worm - outgoing detected || url,secunia.com/virus_information/8911/
+2001607 || BLEEDING-EDGE Virus Possible santy.A Worm Defaced Page || url,securityresponse.symantec.com/avcenter/venc/data/perl.santy.html || url,securityresponse.symantec.com/avcenter/venc/data/perl.santy.html
+2001608 || BLEEDING-EDGE INAPPROPRIATE Likely Porn
+2001609 || BLEEDING-EDGE F5 BIG-IP 3DNS TCP Probe 1 || url,www.f5.com/f5products/v9intro/index.html
+2001610 || BLEEDING-EDGE F5 BIG-IP 3DNS TCP Probe 2 || url,www.f5.com/f5products/v9intro/index.html
+2001611 || BLEEDING-EDGE F5 BIG-IP 3DNS TCP Probe 3 || url,www.f5.com/f5products/v9intro/index.html
+2001614 || BLEEDING-EDGE VIRUS PHPInclude.Worm Inbound Attack || url,www.k-otik.com/exploits/20041225.PhpIncludeWorm.php
+2001615 || BLEEDING-EDGE VIRUS PHPInclude.Worm Outbound Attack - LOCAL INFECTION || url,www.k-otik.com/exploits/20041225.PhpIncludeWorm.php
+2001616 || BLEEDING-EDGE ATTACK RESPONSE Zone-H.org defacement notification
+2001617 || BLEEDING-EDGE Virus Santy.B worm variants searching for targets (1) || url,securityresponse.symantec.com/avcenter/venc/data/perl.santy.b.html
+2001618 || BLEEDING-EDGE Virus Santy.B worm variants searching for targets (2) || url,securityresponse.symantec.com/avcenter/venc/data/perl.santy.b.html
+2001619 || BLEEDING-EDGE Virus Santy.B worm variants searching for targets (yahoo) || url,securityresponse.symantec.com/avcenter/venc/data/perl.santy.b.html
+2001620 || BLEEDING-EDGE ATTACK RESPONSE Likely Botnet Activity
+2001621 || BLEEDING-EDGE Exploit Suspected PHP Injection Attack || cve,2002-0953
+2001622 || BLEEDING-EDGE EXPLOIT winhlp32 ActiveX control attack, phase 1
+2001623 || BLEEDING-EDGE EXPLOIT winhlp32 ActiveX control attack, phase 2
+2001624 || BLEEDING-EDGE EXPLOIT winhlp32 ActiveX control attack, phase 3
+2001625 || BLEEDING-EDGE EXPLOIT winhlp32 ActiveX control attack via EMAIL, phase 1
+2001626 || BLEEDING-EDGE EXPLOIT winhlp32 ActiveX control attack via EMAIL, phase 2
+2001627 || BLEEDING-EDGE EXPLOIT winhlp32 ActiveX control attack via EMAIL, phase 3
+2001628 || BLEEDING-EDGE ATTACK RESPONSE Outbound PHP Connection
+2001633 || BLEEDING-EDGE EXPLOIT Probable MSIE XPSP2 Remote Compromise (1) || url,freehost07.websamba.com/greyhats/sp2rc-analysis.htm
+2001634 || BLEEDING-EDGE EXPLOIT Probable MSIE XPSP2 Remote Compromise (2) || url,freehost07.websamba.com/greyhats/sp2rc-analysis.htm
+2001635 || BLEEDING-EDGE DOS HTTP GET with newline appended || cve,2004-0942
+2001636 || BLEEDING-EDGE DOS squ1rt Apache DoS || cve,2004-0942
+2001637 || BLEEDING-EDGE Policy SSH Successful user connection
+2001638 || BLEEDING-EDGE VIRUS W32/Bagle.dldr Trojan - download attempt || url,secunia.com/virus_information/13085/
+2001639 || BLEEDING-EDGE Malware Wild Tangent Agent Activity
+2001640 || BLEEDING-EDGE MALWARE Altnet PeerPoints Manager Traffic
+2001641 || BLEEDING-EDGE Malware Microgaming.com Spyware Installation (dlhelper)
+2001643 || BLEEDING-EDGE Malware Microgaming.com Spyware Installation (2)
+2001644 || BLEEDING-EDGE Malware Microgaming.com Spyware Reporting Installation
+2001645 || BLEEDING-EDGE Malware Microgaming.com Spyware Casino App Install
+2001646 || BLEEDING-EDGE Malware Toprebates.com Install (1) || url,securityresponse.symantec.com/avcenter/venc/data/adware.webrebates.html
+2001647 || BLEEDING-EDGE Malware Toprebates.com Install (2) || url,securityresponse.symantec.com/avcenter/venc/data/adware.webrebates.html
+2001648 || BLEEDING-EDGE Malware Toprebates.com User Confirming Membership || url,securityresponse.symantec.com/avcenter/venc/data/adware.webrebates.html
+2001650 || BLEEDING-EDGE Malware Search Scout Related Spyware (content) || url,securityresponse.symantec.com/avcenter/venc/data/adware.searchscout.html
+2001652 || BLEEDING-EDGE Malware JoltID Agent New Code Download || url,forum.treweeke.com/lofiversion/index.php/t597.html || url,www.joltid.com
+2001653 || BLEEDING-EDGE Malware Search Scout Related Spyware (results) || url,securityresponse.symantec.com/avcenter/venc/data/adware.searchscout.html
+2001654 || BLEEDING-EDGE Malware JoltID Agent Requesting File || url,forum.treweeke.com/lofiversion/index.php/t597.html || url,www.joltid.com
+2001655 || BLEEDING-EDGE Malware Comet Systems Spyware Traffic (context.xml) || url,www3.ca.com/securityadvisor/pest/pest.aspx?id=453083029
+2001656 || BLEEDING-EDGE Malware GlobalPhon.com Dialer
+2001657 || BLEEDING-EDGE Malware GlobalPhon.com Dialer Download
+2001658 || BLEEDING-EDGE Malware Comet Systems Spyware Reporting
+2001659 || BLEEDING-EDGE Malware GlobalPhon.com Dialer (no_pop)
+2001660 || BLEEDING-EDGE Malware GlobalPhon.com Dialer (add_ocx)
+2001662 || BLEEDING-EDGE Malware MyWebSearch Toolbar Traffic (Agent)
+2001663 || BLEEDING-EDGE Malware MyWebSearch Toolbar Traffic (host)
+2001664 || BLEEDING-EDGE P2P Gnutella Connect || url,www.gnutella.com
+2001665 || BLEEDING-EDGE Malware Unknown Suspicious PrintMe Suspected Spyware
+2001666 || BLEEDING-EDGE Malware Metarewards Spyware Activity
+2001667 || BLEEDING-EDGE EXPLOIT Blahot Worm Infection Reporting in || url,www.blahot.com || url,www.vitalsecurity.org/2005/01/malware-spam.html
+2001668 || BLEEDING-EDGE EXPLOIT Exploit MS05-002 Malformed .ANI stack overflow attack
+2001669 || BLEEDING-EDGE Web Proxy GET Request
+2001670 || BLEEDING-EDGE Web Proxy HEAD Request
+2001671 || BLEEDING-EDGE EXPLOIT Blahot Worm Infection Reporting in (to blahot.com) || url,www.blahot.com || url,www.vitalsecurity.org/2005/01/malware-spam.html
+2001672 || BLEEDING-EDGE VIRUS MyDoom.I worm - outbound || url,secunia.com/virus_information/8818/
+2001673 || BLEEDING-EDGE VIRUS MyDoom.I worm - inbound || url,secunia.com/virus_information/8818/
+2001674 || BLEEDING-EDGE Proxy POST Request
+2001675 || BLEEDING-EDGE Proxy CONNECT Request
+2001676 || BLEEDING-EDGE VIRUS Bot Reporting/Commencing DDoS || url,www.nitroguard.com/rxbot.html || url,cert.uni-stuttgart.de/doc/netsec/bots.php
+2001677 || BLEEDING-EDGE Malware Webhancer Data Post || url,securityresponse.symantec.com/avcenter/venc/data/spyware.webhancer.html
+2001678 || BLEEDING-EDGE Malware Webhancer Agent Activity || url,securityresponse.symantec.com/avcenter/venc/data/spyware.webhancer.html
+2001679 || BLEEDING-EDGE Malware JoltID Agent P2P via Proxy Server || url,securityresponse.symantec.com/avcenter/venc/data/adware.p2pnetworking.html
+2001680 || BLEEDING-EDGE Virus VBSun.A Tsunami Scam Worm INCOMING || url,www.sophos.com/virusinfo/articles/vbsuna.html
+2001681 || BLEEDING-EDGE Virus VBSun.A Tsunami Scam Worm OUTBOUND || url,www.sophos.com/virusinfo/articles/vbsuna.html
+2001682 || BLEEDING-EDGE Policy MSN IM Poll via HTTP
+2001683 || BLEEDING-EDGE Malware Windows executable sent when remote host claims to send an image
+2001684 || BLEEDING-EDGE Malware Windows executable sent when remote host claims to send image, Win32
+2001685 || BLEEDING-EDGE Malware Possible Windows executable sent when remote host claims to send an image
+2001686 || BLEEDING-EDGE EXPLOIT Awstats Remote Code Execution Attempt || cve,CAN-2005-0116 || bugtraq,12298 || url,www.idefense.com/application/poi/display?id=185&type=vulnerabilities&flashstatus=false || url,awstats.sourceforge.net || url,www.k-otik.com/exploits/20050302.awstats_shell.c.php || url,www.k-otik.com/exploits/20050124.awexpl.c.php
+2001687 || BLEEDING-EDGE WORM MySQL bot DNS lookup || url,isc.sans.org/diary.php?date=2005-01-27
+2001688 || BLEEDING-EDGE WORM MySQL bot DNS lookup || url,isc.sans.org/diary.php?date=2005-01-27
+2001689 || BLEEDING-EDGE WORM Potential MySQL bot scanning for SQL server || url,isc.sans.org/diary.php?date=2005-01-27
+2001690 || BLEEDING-EDGE WORM Potential MySQL bot connecting to IRC server || url,isc.sans.org/diary.php?date=2005-01-27
+2001691 || BLEEDING-EDGE VIRUS Bagle.BJ -alias .AY, .BC- worm -.com, exe extensions- - outbound || url,secunia.com/virus_information/14902/
+2001692 || BLEEDING-EDGE VIRUS Bagle.BJ -alias .AY, .BC- worm -.com, .exe extensions- - incoming || url,secunia.com/virus_information/14902/
+2001693 || BLEEDING-EDGE VIRUS Bagle.BJ -alias .AY, .BC- worm -.cpl extension- - outbound || url,secunia.com/virus_information/14902/
+2001694 || BLEEDING-EDGE VIRUS Bagle.BJ -alias .AY, .BC- worm -.cpl extension- - incoming || url,secunia.com/virus_information/14902/
+2001695 || BLEEDING-EDGE VIRUS Bagle.BJ -alias .AY, .BC- - download attempt || url,secunia.com/virus_information/14877/
+2001696 || BLEEDING-EDGE Malware Search Relevancy Spyware || url,securityresponse.symantec.com/avcenter/venc/data/spyware.relevancy.html
+2001697 || BLEEDING-EDGE Malware ISearchTech.com XXXPornToolbar Data Submission || url,www.isearchtech.com
+2001698 || BLEEDING-EDGE Malware YourSiteBar Data Submision || url,www.ysbweb.com
+2001699 || BLEEDING-EDGE Malware YourSiteBar Activity || url,www.ysbweb.com
+2001700 || BLEEDING-EDGE Malware Windupdates.com Spyware Install
+2001701 || BLEEDING-EDGE Malware Windupdates.com Spyware Loggin Data
+2001702 || BLEEDING-EDGE Malware Shop at Home Select Spyware Activity (Bundle)
+2001703 || BLEEDING-EDGE Malware Context Plus Spyware Activity (1)
+2001704 || BLEEDING-EDGE Malware Context Plus Spyware Install
+2001705 || BLEEDING-EDGE Malware Flingstone Spyware Install (sportsinteraction) || url,securityresponse.symantec.com/avcenter/venc/data/adware.winfavorites.html
+2001706 || BLEEDING-EDGE Malware Context Plus Spyware Activity (2)
+2001707 || BLEEDING-EDGE Malware Shop at Home Select Spyware Activity (SAH)
+2001708 || BLEEDING-EDGE Malware Shop at Home Select Spyware Heartbeat || url,securityresponse.symantec.com/avcenter/venc/data/adware.sahagent.html
+2001709 || BLEEDING-EDGE Malware Shop at Home Select Spyware Config Download (agentprefs) || url,securityresponse.symantec.com/avcenter/venc/data/adware.sahagent.html
+2001710 || BLEEDING-EDGE Malware Flingstone Spyware Install (cxtpls) || url,securityresponse.symantec.com/avcenter/venc/data/adware.winfavorites.html
+2001711 || BLEEDING-EDGE Malware Likely Spambot Web-based Control Traffic
+2001712 || BLEEDING-EDGE MyWebEx Server Traffic || url,www.mywebexpc.com/how.php
+2001713 || BLEEDING-EDGE MyWebEx Installation || url,www.mywebexpc.com/how.php
+2001714 || BLEEDING-EDGE MyWebEx Incoming Connection || url,www.mywebexpc.com/how.php
+2001715 || BLEEDING-EDGE VIRUS Bropia.F Worm Propagation || url,www.trendmicro.com/vinfo/virusencyclo/default5.asp?VName=WORM%5FBROPIA%2EF
+2001716 || BLEEDING-EDGE Web IDN url seen..
+2001718 || BLEEDING-EDGE EXPLOIT CAN-2004-1244 PNG with bad width
+2001719 || BLEEDING-EDGE EXPLOIT CAN-2004-1244 PNG with bad height
+2001720 || BLEEDING-EDGE EXPLOIT CAN-2004-0597 PNG with indexed color
+2001721 || BLEEDING-EDGE EXPLOIT CAN-2004-0597 PNG with too big PLTE
+2001722 || BLEEDING-EDGE EXPLOIT CAN-2004-0597 PNG with too big hIST
+2001723 || BLEEDING-EDGE EXPLOIT ATmaCA PoC for CORE-2004-0819 - Bad PNG
+2001724 || BLEEDING-EDGE EXPLOIT libpng CAN-2004-1244 overflow attempt || bugtraq,10872 || cve,2004-0597
+2001725 || BLEEDING-EDGE EXPLOIT MS05-014 HTML OBJECT tag local zone exploit || url,www.microsoft.com/technet/security/bulletin/ms05-014.mspx
+2001726 || BLEEDING-EDGE VIRUS Trojan-Spy.Win32.Bancos Download || url,securityresponse.symantec.com/avcenter/venc/data/pwsteal.bancos.b.html
+2001727 || BLEEDING-EDGE EXPLOIT MS05-005 Office XP .doc Remote Code Attempt || url,www.frsirt.com/english/advisories/2005/0119 || cve,2004-0848
+2001728 || BLEEDING-EDGE POLICY TOR 1.0 Client Circuit Traffic || url,tor.eff.org
+2001729 || BLEEDING-EDGE Malware Tibsystems Spyware Install (1)
+2001730 || BLEEDING-EDGE MALWARE A-d-w-a-r-e.com Activity (popup) || url,www.a-d-w-a-r-e.com
+2001731 || BLEEDING-EDGE Malware SurfSidekick Activity || url,securityresponse.symantec.com/avcenter/venc/data/adware.surfsidekick.html
+2001732 || BLEEDING-EDGE Malware Top Converting Agent Activity
+2001733 || BLEEDING-EDGE Malware CrazyWinnings.com Activity
+2001734 || BLEEDING-EDGE Malware Tibsystems Spyware Install (2)
+2001735 || BLEEDING-EDGE MALWARE A-d-w-a-r-e.com Activity (cmd) || url,www.a-d-w-a-r-e.com
+2001736 || BLEEDING-EDGE Malware UCMore Spyware Activity
+2001737 || BLEEDING-EDGE MALWARE ak-networks.com Spyware Code Install
+2001738 || BLEEDING-EDGE WEB PHP vBulletin Remote Command Execution Attempt || bugtraq,12542
+2001739 || BLEEDING-EDGE VIRUS Dipnet infected host response (1) || url,www.lurhq.com/dipnet.html
+2001740 || BLEEDING-EDGE VIRUS Dipnet infected host response (2) || url,www.lurhq.com/dipnet.html
+2001742 || BLEEDING-EDGE EXPLOIT Arkeia full remote access without password or authentication || url,metasploit.com/research/vulns/arkeia_agent
+2001743 || BLEEDING-EDGE TROJAN HackerDefender Root Kit Remote Connection Attempt Detected || url,securityresponse.symantec.com/avcenter/venc/data/backdoor.hackdefender.html
+2001744 || BLEEDING-EDGE Malware Searchmiracle.com Spyware Install (install) || url,www.searchmiracle.com
+2001746 || BLEEDING-EDGE Malware Enhance My Search Spyware Activity
+2001747 || BLEEDING-EDGE Malware My-Stats.com Spyware Checkin
+2001748 || BLEEDING-EDGE Malware Pynix.dll BHO Activity || url,www.pynix.com
+2001749 || BLEEDING-EDGE VIRUS Sober.K Worm - incoming || url,secunia.com/search/?search=sober.k
+2001750 || BLEEDING-EDGE VIRUS Sober.K Worm - outgoing || url,secunia.com/search/?search=sober.k
+2001751 || BLEEDING-EDGE Nullsoft Shoutcast Server Format String Attack || bugtraq,12096 || cve,2004-1373
+2001752 || BLEEDING-EDGE VIRUS Bagle.BE Download attempt || url,secunia.com/virus_information/15815/bagle.be/
+2001753 || BLEEDING-EDGE EXPLOIT Pwdump4 Session Established GetHash port 139
+2001754 || BLEEDING-EDGE EXPLOIT Pwdump4 Session Established GetHash port 445
+2001756 || BLEEDING-EDGE P2P Ares File Upload || url,www.aresgalaxy.org
+2001757 || BLEEDING-EDGE VIRUS BagleDl-M SMTP Outbound || url,www.sophos.com/virusinfo/analyses/trojbagledlm.html
+2001758 || BLEEDING-EDGE VIRUS BagleDl-M SMTP Inbound || url,www.sophos.com/virusinfo/analyses/trojbagledlm.html
+2001759 || BLEEDING-EDGE VIRUS Beagle.BK - outbound || url,securityresponse.symantec.com/avcenter/venc/data/w32.beagle.bk@mm.html
+2001760 || BLEEDING-EDGE VIRUS Beagle.BK - incoming || url,securityresponse.symantec.com/avcenter/venc/data/w32.beagle.bk@mm.html
+2001761 || BLEEDING-EDGE MALWARE ABX Toolbar ActiveX Install || url,isc.sans.org/diary.php?date=2005-03-04
+2001762 || BLEEDING-EDGE WEB phpbb Session Cookie || url,www.waraxe.us/ftopict-555.html
+2001763 || BLEEDING-EDGE VIRUS - W32.Opaserv Worm Infection || url,www.sarc.com/avcenter/venc/data/w32.opaserv.worm.html
+2001764 || BLEEDING-EDGE VIRUS - Bugbear@MM virus in SMTP || url,www.symantec.com/avcenter/venc/data/w32.bugbear@mm.html
+2001765 || BLEEDING-EDGE VIRUS - BugBear@MM virus in Network share || url,www.symantec.com/avcenter/venc/data/w32.bugbear@mm.html
+2001766 || BLEEDING-EDGE VIRUS - BugBear@MM Worm Copied to Startup Folder || url,www.symantec.com/avcenter/venc/data/w32.bugbear@mm.html
+2001767 || BLEEDING-EDGE WEB ORACLE OLEDB asp error || url,www.wiretrip.net/rfp/p/doc.asp/i2/d42.htm
+2001768 || BLEEDING-EDGE WEB MS SQL Server OLEDB asp error || url,www.wiretrip.net/rfp/p/doc.asp/i2/d42.htm
+2001780 || BLEEDING-EDGE EXPLOIT Solaris TTYPROMPT environment variable set || url,online.securityfocus.com/archive/1/293844
+2001781 || BLEEDING-EDGE WEB ORACLE rwcgi60 information leak attempt || url,www.kb.cert.org/vuls/id/997403
+2001783 || BLEEDING-EDGE Malware Media Pass ActiveX Install || url,static.windupdates.com/Release/v19/Info.txt || url,www.benedelman.org/news/010205-1.html
+2001793 || BLEEDING-EDGE Malware Incredisearch.com Spyware Ping
+2001794 || BLEEDING-EDGE Malware Incredisearch.com Spyware Activity
+2001795 || BLEEDING-EDGE DOS Excessive SMTP MAIL-FROM DDoS
+2001796 || BLEEDING-EDGE P2P kazaa over UDP || url,www.kazaa.com/us/index.htm
+2001801 || BLEEDING-EDGE POLICY ICQ Status Invisible
+2001802 || BLEEDING-EDGE POLICY ICQ Status Change (1)
+2001803 || BLEEDING-EDGE POLICY ICQ Status Change (2)
+2001804 || BLEEDING-EDGE POLICY ICQ Login
+2001805 || BLEEDING-EDGE POLICY ICQ Message
+2001806 || BLEEDING-EDGE POLICY Administrator Login Detected
+2001807 || BLEEDING-EDGE EXPLOIT CAN-2005-0399 Gif Vuln via http
+2001808 || BLEEDING-EDGE P2P LimeWire P2P Traffic || url,www.limewire.com
+2001809 || BLEEDING-EDGE P2P Limewire P2P UDP Traffic || url,www.limewire.com
+2001810 || BLEEDING-EDGE EXPLOIT WEB PHP remote file include exploit attempt
+2001811 || BLEEDING-EDGE WEB Encoded javascriptdocument.write - usually hostile
+2001812 || BLEEDING-EDGE KazaaClient P2P Traffic || url,www.kazaa.com/us/index.htm
+2001813 || BLEEDING-EDGE EXPLOIT MSIE Hidden Address Bar (Phish) || url,securityresponse.symantec.com/avcenter/venc/data/js.trojan.blinder.html || url,www.guninski.com/popspoof.html
+2001814 || BLEEDING-EDGE Spambot Proxy Control Channel || url,isc.sans.org/diary.php?storyid=722
+2001815 || BLEEDING-EDGE Spambot Suspicious 220 Banner on Local Port
+2001834 || BLEEDING-EDGE DNS lookup attempt to hostile, poisoning DNS server - ISC Diary || url,isc.sans.org/diary.php?date=2005-03-31 || url,isc.sans.org/diary.php?date=2005-03-30
+2001835 || BLEEDING-EDGE Sites trying to infect PCs with malware - ISC Diary || url,isc.sans.org/diary.php?date=2005-03-30
+2001836 || BLEEDING-EDGE Web page trying to infect PCs with malware - ISC Diary || url,isc.sans.org/diary.php?date=2005-03-30
+2001837 || BLEEDING-EDGE Suspicious DNS server answer\: 218.38.13.108
+2001838 || BLEEDING-EDGE Suspicious DNS server answer\: 217.16.26.148
+2001839 || BLEEDING-EDGE Suspicious DNS server answer\: 205.162.201.11
+2001840 || BLEEDING-EDGE Suspicious DNS server answer\: besthost.co.kr
+2001841 || BLEEDING-EDGE P2P UDP traffic - Likely Limewire || url,www.limewire.com
+2001842 || BLEEDING-EDGE Possible DNS Lookup for DNS Poisoning Domain 7sir7.com || url,isc.sans.org/diary.php?date=2005-04-07
+2001843 || BLEEDING-EDGE Possible DNS Lookup for DNS Poisoning Domain 123xxl.com || url,isc.sans.org/diary.php?date=2005-04-07
+2001844 || BLEEDING-EDGE Possible DNS Lookup for DNS Poisoning Domain abx4.com || url,isc.sans.org/diary.php?date=2005-04-07
+2001846 || BLEEDING-EDGE DOS -ISC- ICMP blind TCP reset DoS guessing attempt || url,isc.sans.org/diary.php?date=2005-04-12 || url,www.microsoft.com/technet/security/bulletin/MS05-019.mspx || cve,can-2004-0790
+2001848 || BLEEDING-EDGE EXPLOIT MS05-021 Exchange Link State - Possible Attack (1) || url,www.microsoft.com/technet/security/bulletin/MS05-021.mspx || url,isc.sans.org/diary.php?date=2005-04-12 || cve,CAN-2005-0560
+2001849 || BLEEDING-EDGE EXPLOIT MS05-021 Exchange Link State - Possible Attack (2) || url,www.microsoft.com/technet/security/bulletin/MS05-021.mspx || url,isc.sans.org/diary.php?date=2005-04-12 || cve,CAN-2005-0560
+2001850 || BLEEDING-EDGE MALWARE Likely Trojan/Spyware Installer Requested (1)
+2001852 || BLEEDING-EDGE MALWARE 404Search Spyware User Agent || url,www.bleedingedgethreats.net/cgi-bin/viewcvs.cgi/?root=Spyware-User-Agents
+2001853 || BLEEDING-EDGE MALWARE Easy Search Bar Spyware User Agent || url,www.bleedingedgethreats.net/cgi-bin/viewcvs.cgi/?root=Spyware-User-Agents
+2001854 || BLEEDING-EDGE MALWARE EZULA Spyware User Agent || url,www.bleedingedgethreats.net/cgi-bin/viewcvs.cgi/?root=Spyware-User-Agents
+2001855 || BLEEDING-EDGE MALWARE Fun Web Products Spyware User Agent (1) || url,www.bleedingedgethreats.net/cgi-bin/viewcvs.cgi/?root=Spyware-User-Agents
+2001858 || BLEEDING-EDGE MALWARE Hotbar Spyware User Agent || url,www.bleedingedgethreats.net/cgi-bin/viewcvs.cgi/?root=Spyware-User-Agents
+2001859 || BLEEDING-EDGE MALWARE Cool Web Search Spyware User Agent || url,www.bleedingedgethreats.net/cgi-bin/viewcvs.cgi/?root=Spyware-User-Agents
+2001860 || BLEEDING-EDGE MALWARE Kontiki Spyware User Agent || url,www.bleedingedgethreats.net/cgi-bin/viewcvs.cgi/?root=Spyware-User-Agents
+2001861 || BLEEDING-EDGE MALWARE Micro-Gaming Spyware User Agent || url,www.bleedingedgethreats.net/cgi-bin/viewcvs.cgi/?root=Spyware-User-Agents
+2001862 || BLEEDING-EDGE MALWARE Surf Assistant Spyware User Agent || url,www.bleedingedgethreats.net/cgi-bin/viewcvs.cgi/?root=Spyware-User-Agents
+2001863 || BLEEDING-EDGE MALWARE Fun Web Products Spyware User Agent (2) || url,www.bleedingedgethreats.net/cgi-bin/viewcvs.cgi/?root=Spyware-User-Agents
+2001864 || BLEEDING-EDGE MALWARE Fun Web Products Spyware User Agent (3) || url,www.bleedingedgethreats.net/cgi-bin/viewcvs.cgi/?root=Spyware-User-Agents3
+2001865 || BLEEDING-EDGE MALWARE MyWebSearch Spyware User Agent || url,www.bleedingedgethreats.net/cgi-bin/viewcvs.cgi/?root=Spyware-User-Agents
+2001867 || BLEEDING-EDGE MALWARE Search Engine 2000 Spyware User Agent || url,www.bleedingedgethreats.net/cgi-bin/viewcvs.cgi/?root=Spyware-User-Agents
+2001868 || BLEEDING-EDGE MALWARE SureSeeker Spyware User Agent || url,www.bleedingedgethreats.net/cgi-bin/viewcvs.cgi/?root=Spyware-User-Agents
+2001869 || BLEEDING-EDGE MALWARE Sidesearch Spyware User Agent || url,www.bleedingedgethreats.net/cgi-bin/viewcvs.cgi/?root=Spyware-User-Agents
+2001870 || BLEEDING-EDGE MALWARE Surfplayer Spyware User Agent || url,www.bleedingedgethreats.net/cgi-bin/viewcvs.cgi/?root=Spyware-User-Agents
+2001871 || BLEEDING-EDGE MALWARE Target Saver Spyware User Agent || url,www.bleedingedgethreats.net/cgi-bin/viewcvs.cgi/?root=Spyware-User-Agents
+2001872 || BLEEDING-EDGE MALWARE Visicom Spyware User Agent || url,www.bleedingedgethreats.net/cgi-bin/viewcvs.cgi/?root=Spyware-User-Agents
+2001873 || BLEEDING-EDGE EXPLOIT MS Exchange Link State Routing Chunk (maybe MS05-021) || url,www.microsoft.com/technet/security/bulletin/MS05-021.mspx || url,isc.sans.org/diary.php?date=2005-04-12 || cve,CAN-2005-0560
+2001874 || BLEEDING-EDGE EXPLOIT TCP Reset from MS Exchange after chunked data, probably crashed it (MS05-021) || url,www.microsoft.com/technet/security/bulletin/MS05-021.mspx || url,isc.sans.org/diary.php?date=2005-04-12 || cve,CAN-2005-0560
+2001875 || BLEEDING-EDGE EXPLOIT MS Exchange chunks accepted || url,www.microsoft.com/technet/security/bulletin/MS05-021.mspx || url,isc.sans.org/diary.php?date=2005-04-12 || cve,CAN-2005-0560
+2001876 || BLEEDING-EDGE EXPLOIT MS Exchange disliked link state chunk, but didn't die (MS05-021) || url,www.microsoft.com/technet/security/bulletin/MS05-021.mspx || url,isc.sans.org/diary.php?date=2005-04-12 || cve,CAN-2005-0560
+2001878 || BLEEDING-EDGE WORM General MSN Worm URL Outbound || url,isc.sans.org/diary.php?date=2005-04-13
+2001879 || BLEEDING-EDGE VIRUS Sober-style Ehlo - noalert || url,securityresponse.symantec.com/avcenter/venc/data/w32.sober@mm.html
+2001880 || BLEEDING-EDGE VIRUS Sober-style Ehlo followed by SMTP AUTH - noalert || url,securityresponse.symantec.com/avcenter/venc/data/w32.sober@mm.html
+2001881 || BLEEDING-EDGE VIRUS Possible Sober virus attachment Outbound || url,securityresponse.symantec.com/avcenter/venc/data/w32.sober@mm.html
+2001882 || BLEEDING-EDGE DOS ICMP Path MTU lowered below acceptable threshold || url,isc.sans.org/diary.php?date=2005-04-12 || url,www.microsoft.com/technet/security/bulletin/MS05-019.mspx || cve,CAN-2004-1060
+2001883 || BLEEDING-EDGE EXPLOIT Kali Tagboard Command Execution Attempt
+2001884 || BLEEDING-EDGE MALWARE DesktopTraffic Toolbar Spyware || url,research.spysweeper.com/threat_library/threat_details.php?threat=desktoptraffic.net_hijack
+2001885 || BLEEDING-EDGE MALWARE Begin2Search.com Spyware || url,sarc.com/avcenter/venc/data/adware.begin2search.html
+2001886 || BLEEDING-EDGE MALWARE ToolbarPartner Spyware Install || url,toolbarpartner.com
+2001887 || BLEEDING-EDGE MALWARE ToolbarPartner Spyware Activity (1) || url,toolbarpartner.com
+2001888 || BLEEDING-EDGE MALWARE ToolbarPartner Spyware Activity (2) || url,toolbarpartner.com
+2001889 || BLEEDING-EDGE MALWARE ToolbarPartner Spyware Jeemp Trojan Download || url,toolbarpartner.com
+2001890 || BLEEDING-EDGE MALWARE ToolbarPartner Spyware Agent Download (1) || url,toolbarpartner.com
+2001891 || BLEEDING-EDGE Malware ToolbarPartner User Agent Activity
+2001892 || BLEEDING-EDGE MALWARE ToolbarPartner Spyware Agent Download (2) || url,toolbarpartner.com
+2001893 || BLEEDING-EDGE MALWARE ToolbarPartner Spyware Agent Reporting Install || url,toolbarpartner.com
+2001894 || BLEEDING-EDGE MALWARE ToolbarPartner Spyware Agent Partner Install || url,toolbarpartner.com
+2001895 || BLEEDING-EDGE MALWARE ToolbarPartner Spyware Spambot Retrieving Target Emails || url,toolbarpartner.com
+2001897 || BLEEDING-EDGE Malware pool.Westpop.com Spyware Updates
+2001898 || BLEEDING-EDGE POLICY eBay Bid Placed
+2001899 || BLEEDING-EDGE BOTNET HTTP Botnet reg || url,www.honeynet.org/papers/bots
+2001900 || BLEEDING-EDGE BOTNET BwB Botnet Checkin || url,www.honeynet.org/papers/bots
+2001901 || BLEEDING-EDGE TROJAN Possible Bobax trojan infection || url,www.lurhq.com/bobax.html
+2001902 || BLEEDING-EDGE WORM Sober.O Attachment Outbound (2) || url,secunia.com/virus_information/17692/
+2001903 || BLEEDING-EDGE WORM Sober.O Attachment Inbound (2) || url,secunia.com/virus_information/17692/
+2001904 || BLEEDING-EDGE Behavioral Unusually fast Telnet Connections, Potential Scan or Brute Force || url,www.rapid7.com/nexpose-faq-answer2.htm
+2001905 || BLEEDING-EDGE VIRUS AIM Bot im.exe Activity
+2001906 || BLEEDING-EDGE SCAN MYSQL 4.0 brute force root login attempt || url,www.redferni.uklinux.net/mysql/MySQL-323.html
+2001907 || BLEEDING-EDGE POLICY eBay Placing Item for sale
+2001908 || BLEEDING-EDGE POLICY eBay View Item
+2001909 || BLEEDING-EDGE POLICY eBay Watch This Item
+2001910 || BLEEDING-EDGE VIRUS AIM Bot Outbound Control Channel Open and Login
+2001911 || BLEEDING-EDGE VIRUS Beaconing DREMN Trojan || url,www.symantec.com/avcenter/venc/data/trojan.dremn.html
+2001912 || BLEEDING-EDGE VIRUS Answering DREMN Trojan || url,www.symantec.com/avcenter/venc/data/trojan.dremn.html
+2001913 || BLEEDING-EDGE VIRUS Possible Sober.P Outbound (2) || url,securityresponse.symantec.com/avcenter/venc/data/w32.sober.o@mm.html
+2001914 || BLEEDING-EDGE VIRUS Possible Sober.P Inbound (2) || url,securityresponse.symantec.com/avcenter/venc/data/w32.sober.o@mm.html
+2001915 || BLEEDING-EDGE EXPLOIT Ethereal SIP Dissector Overflow (Request-TCP) || url,www.securiteam.com/exploits/5AP0F1FFPG.html
+2001916 || BLEEDING-EDGE EXPLOIT Ethereal SIP Dissector Overflow (Response-TCP) || url,www.securiteam.com/exploits/5AP0F1FFPG.html
+2001917 || BLEEDING-EDGE EXPLOIT Ethereal SIP Dissector Overflow (Request-UDP) || url,www.securiteam.com/exploits/5AP0F1FFPG.html
+2001918 || BLEEDING-EDGE EXPLOIT Ethereal SIP Dissector Overflow (Response-UDP) || url,www.securiteam.com/exploits/5AP0F1FFPG.html
+2001919 || BLEEDING-EDGE VIRUS - Greeting card gif.exe email incoming SMTP || url,securityresponse.symantec.com/avcenter/venc/data/vbs.postcard@mm.html
+2001920 || BLEEDING-EDGE VIRUS - Greeting card gif.exe email incoming POP3/IMAP || url,securityresponse.symantec.com/avcenter/venc/data/vbs.postcard@mm.html
+2001921 || BLEEDING-EDGE VIRUS - Greeting card gif.exe email incoming HTTP || url,securityresponse.symantec.com/avcenter/venc/data/vbs.postcard@mm.html
+2001922 || BLEEDING-EDGE VIRUS Mytob.ED email attachment 1 Outbound || url,securityresponse.symantec.com/avcenter/venc/data/w32.mytob.ed@mm.html
+2001923 || BLEEDING-EDGE VIRUS Mytob.ED email attachment 2 Outbound || url,securityresponse.symantec.com/avcenter/venc/data/w32.mytob.ed@mm.html
+2001924 || BLEEDING-EDGE VIRUS Mytob.ED email attachment 3 Outbound || url,securityresponse.symantec.com/avcenter/venc/data/w32.mytob.ed@mm.html
+2001925 || BLEEDING-EDGE VIRUS Mytob.ED email attachment 1 Inbound || url,securityresponse.symantec.com/avcenter/venc/data/w32.mytob.ed@mm.html
+2001926 || BLEEDING-EDGE VIRUS Mytob.ED email attachment 2 Inbound || url,securityresponse.symantec.com/avcenter/venc/data/w32.mytob.ed@mm.html
+2001927 || BLEEDING-EDGE VIRUS Mytob.ED email attachment 3 Inbound || url,securityresponse.symantec.com/avcenter/venc/data/w32.mytob.ed@mm.html
+2001928 || BLEEDING-EDGE WEB XSS Possible Arbitrary Scripting Code Attack in phpBB (private message) || url,www.securitytracker.com/alerts/2005/May/1013918.html
+2001929 || BLEEDING-EDGE WEB XSS Possible Arbitrary Scripting Code Attack in phpBB (signature) || url,www.securitytracker.com/alerts/2005/May/1013918.html
+2001930 || BLEEDING-EDGE VIRUS Maslan.C - outbound || url,secunia.com/virus_information/13805/
+2001931 || BLEEDING-EDGE VIRUS Maslan.C - inbound || url,secunia.com/virus_information/13805/
+2001932 || BLEEDING-EDGE Exploit wowBB view_user.php SQL Injection || bugtraq,13569
+2001933 || BLEEDING-EDGE VIRUS PWS Banker Trojan Sending Report of Infection || url,securityresponse.symantec.com/avcenter/venc/data/pwsteal.banker.b.html
+2001944 || BLEEDING-EDGE EXPLOIT MS04-007 Kill-Bill ASN1 exploit attempt || cve,CAN-2003-0818 || url,www.microsoft.com/technet/security/bulletin/MS04-007.mspx || url,www.phreedom.org/solar/exploits/msasn1-bitstring/
+2001945 || BLEEDING-EDGE WEB WebAPP Apage.CGI Remote Command Execution Attempt || bugtraq,13637
+2001947 || BLEEDING-EDGE MALWARE Zenotecnico Adware || url,www.zenotecnico.com
+2001949 || BLEEDING-EDGE WEB Athena Web Registration Remote Command Execution Attempt || bugtraq,9349 || cve,CAN-2004-1782
+2001950 || BLEEDING-EDGE POLICY RAR File Outbound
+2001951 || BLEEDING-EDGE POLICY RAR File Inbound
+2001952 || BLEEDING-EDGE VIRUS Bagle.BO or variant - OUTBOUND || url,secunia.com/virus_information/18441/
+2001953 || BLEEDING-EDGE VIRUS Bagle.BO or variant - INBOUND || url,secunia.com/virus_information/18441/
+2001954 || BLEEDING-EDGE EXPLOIT Meteor FTP Server Exploit || url,www.securiteam.com/exploits/5RP0Q2KFPC.html
+2001955 || BLEEDING-EDGE VIRUS Win32.Mytob.CU Worm Infection / DNS lookup || url,www3.ca.com/securityadvisor/virusinfo/virus.aspx?id=43006
+2001956 || BLEEDING-EDGE VIRUS Win32.Mytob.CU Worm Infection || url,www3.ca.com/securityadvisor/virusinfo/virus.aspx?id=43006
+2001959 || BLEEDING-EDGE VIRUS Hotword Trojan in Transit || url,securityresponse.symantec.com/avcenter/venc/data/trojan.hotword.html
+2001960 || BLEEDING-EDGE VIRUS Hotword Trojan inbound via http || url,securityresponse.symantec.com/avcenter/venc/data/trojan.hotword.html
+2001961 || BLEEDING-EDGE VIRUS Hotword Trojan - Possible File Upload CHJO || url,securityresponse.symantec.com/avcenter/venc/data/trojan.hotword.html
+2001962 || BLEEDING-EDGE VIRUS Hotword Trojan - Possible File Upload CFXP || url,securityresponse.symantec.com/avcenter/venc/data/trojan.hotword.html
+2001963 || BLEEDING-EDGE VIRUS Hotword Trojan - Possible FTP File Request pspv.exe || url,securityresponse.symantec.com/avcenter/venc/data/trojan.hotword.html
+2001964 || BLEEDING-EDGE VIRUS Hotword Trojan - Possible FTP File Request .tea || url,securityresponse.symantec.com/avcenter/venc/data/trojan.hotword.html
+2001965 || BLEEDING-EDGE VIRUS Hotword Trojan - Possible FTP File Status Upload ___ || url,securityresponse.symantec.com/avcenter/venc/data/trojan.hotword.html
+2001966 || BLEEDING-EDGE VIRUS Hotword Trojan - Possible FTP File Status Check ___ || url,securityresponse.symantec.com/avcenter/venc/data/trojan.hotword.html
+2001967 || BLEEDING-EDGE VIRUS Fireby proxy trojan port report || url,securityresponse.symantec.com/avcenter/venc/data/backdoor.staprew.b.html
+2001972 || BLEEDING-EDGE Behavioral Unusually fast Terminal Server Traffic, Potential Scan or Infection
+2001973 || BLEEDING-EDGE POLICY SSH Server Banner Detected on Expected Port
+2001974 || BLEEDING-EDGE POLICY SSH Client Banner Detected on Expected Port
+2001975 || BLEEDING-EDGE POLICY SSHv2 Server KEX Detected on Expected Port
+2001976 || BLEEDING-EDGE POLICY SSHv2 Client KEX Detected on Expected Port
+2001977 || BLEEDING-EDGE POLICY SSHv2 Client New Keys detected on Expected Port
+2001978 || BLEEDING-EDGE POLICY SSH session in progress on Expected Port
+2001979 || BLEEDING-EDGE POLICY SSH Server Banner Detected on Unusual Port
+2001980 || BLEEDING-EDGE POLICY SSH Client Banner Detected on Unusual Port
+2001981 || BLEEDING-EDGE POLICY SSHv2 Server KEX Detected on Unusual Port
+2001982 || BLEEDING-EDGE POLICY SSHv2 Client KEX Detected on Unusual Port
+2001983 || BLEEDING-EDGE POLICY SSHv2 Client New Keys Detected on Unusual Port
+2001984 || BLEEDING-EDGE POLICY SSH session in progress on Unusual Port
+2001985 || BLEEDING-EDGE VIRUS HTTP Challenge/Response Authentication || url,www.phreedom.org/solar/exploits/msasn1-bitstring || url,isc.sans.org/diary.php?date=2005-06-03
+2001986 || BLEEDING-EDGE VIRUS Mytob.DI - outbound || url,secunia.com/virus_information/18407/
+2001987 || BLEEDING-EDGE VIRUS Mytob.DI - incoming || url,secunia.com/virus_information/18407/
+2001988 || BLEEDING-EDGE EXPLOIT MySQL MaxDB Buffer Overflow
+2001989 || BLEEDING-EDGE POLICY Prospero Chat Session in Progress || url,www.prospero.com/technology.htm
+2001990 || BLEEDING-EDGE EXPLOIT JamMail Jammail.pl Remote Command Execution Attempt || bugtraq,13937
+2001991 || BLEEDING-EDGE EXPLOIT WebHints Scripts Remote Command Execution Attempt || bugtraq,13930
+2001992 || BLEEDING-EDGE Malware SurfSidekick Download || url,securityresponse.symantec.com/avcenter/venc/data/adware.surfsidekick.html
+2001993 || BLEEDING-EDGE Malware SurfSidekick Dictionary Download || url,securityresponse.symantec.com/avcenter/venc/data/adware.surfsidekick.html
+2001994 || BLEEDING-EDGE Malware SurfSidekick Activity (ipixel) || url,securityresponse.symantec.com/avcenter/venc/data/adware.surfsidekick.html
+2001995 || BLEEDING-EDGE MALWARE UCMore Spyware Reporting || url,www3.ca.com/securityadvisor/pest/pest.aspx?id=58660
+2001996 || BLEEDING-EDGE Malware UCMore Spyware Activity User Agent String
+2001997 || BLEEDING-EDGE MALWARE TargetNetworks.net Spyware Reporting (req) || url,www.targetnetworks.com
+2001998 || BLEEDING-EDGE MALWARE UCMore Spyware Downloading Ads || url,www3.ca.com/securityadvisor/pest/pest.aspx?id=58660
+2001999 || BLEEDING-EDGE MALWARE BTGrab.com Spyware Downloading Ads || url,www3.ca.com/securityadvisor/pest/pest.aspx?id=453090726 || url,www.btgrab.com
+2002000 || BLEEDING-EDGE MALWARE Shopnav Spyware Install || url,securityresponse.symantec.com/avcenter/venc/data/spyware.shopnav.html
+2002001 || BLEEDING-EDGE MALWARE 180solutions Spyware Keywords Download || url,securityresponse.symantec.com/avcenter/venc/data/pf/adware.180search.html
+2002002 || BLEEDING-EDGE Malware Better Internet Spyware User Agent Activity (thnall)
+2002003 || BLEEDING-EDGE MALWARE 180solutions Spyware Install || url,securityresponse.symantec.com/avcenter/venc/data/pf/adware.180search.html
+2002004 || BLEEDING-EDGE MALWARE Topconverting Spyware Install || url,securityresponse.symantec.com/avcenter/venc/data/pf/adware.180search.html
+2002005 || BLEEDING-EDGE Malware Better Internet Spyware User Agent Activity (poller)
+2002007 || BLEEDING-EDGE Malware Wildmedia Spyware User Agent Activity
+2002008 || BLEEDING-EDGE Malware Wild Tangent Install || mcafee,122249
+2002009 || BLEEDING-EDGE Malware ESyndicate Spyware Install (esyndicateinst.exe) || url,www3.ca.com/securityadvisor/pest/pest.aspx?id=453094058
+2002010 || BLEEDING-EDGE Malware ESyndicate Spyware Install (sepinst.exe) || url,www3.ca.com/securityadvisor/pest/pest.aspx?id=453094058
+2002011 || BLEEDING-EDGE Malware PeopleonPage Spyware User Agent Activity
+2002012 || BLEEDING-EDGE Malware GrandstreetInteractive.com Install
+2002013 || BLEEDING-EDGE Malware GrandstreetInteractive.com Update
+2002014 || BLEEDING-EDGE Malware Grandstreet Interactive Spyware User Agent Activity (2)
+2002015 || BLEEDING-EDGE Malware Internet Fuel.com Install
+2002016 || BLEEDING-EDGE Malware jmnad1.com Spyware Install (2)
+2002017 || BLEEDING-EDGE Malware Overpro Spyware Install Report || url,securityresponse.symantec.com/avcenter/venc/data/adware.overpro.html
+2002019 || BLEEDING-EDGE Malware jmnad1.com Spyware Install (1)
+2002020 || BLEEDING-EDGE Malware Overpro Spyware User Agent Activity (merong)
+2002021 || BLEEDING-EDGE Malware Grandstreet Interactive Spyware User Agent Activity (1)
+2002022 || BLEEDING-EDGE GotoMyPC poll.gotomypc.com Server Response to Polling Client OK
+2002023 || BLEEDING-EDGE TROJAN IRC USER command
+2002024 || BLEEDING-EDGE TROJAN IRC NICK command
+2002025 || BLEEDING-EDGE TROJAN IRC JOIN command
+2002026 || BLEEDING-EDGE TROJAN IRC PRIVMSG command
+2002027 || BLEEDING-EDGE TROJAN IRC PING command
+2002028 || BLEEDING-EDGE TROJAN IRC PONG response
+2002029 || BLEEDING-EDGE TROJAN BOT - channel topic scan/exploit command
+2002030 || BLEEDING-EDGE TROJAN BOT - potential scan/exploit command
+2002031 || BLEEDING-EDGE TROJAN BOT - potential update/download
+2002032 || BLEEDING-EDGE TROJAN BOT - potential DDoS command (1)
+2002033 || BLEEDING-EDGE TROJAN BOT - potential response
+2002034 || BLEEDING-EDGE ATTACK RESPONSE Possible /etc/passwd via HTTP (linux style)
+2002035 || BLEEDING-EDGE Malware Better Internet Spyware User Agent Activity (thin)
+2002036 || BLEEDING-EDGE MALWARE Weird on the Web /180 Solutions Checkin || url,securityresponse.symantec.com/avcenter/venc/data/pf/adware.180search.html
+2002037 || BLEEDING-EDGE Malware Shop at Home Select Spyware Install || url,securityresponse.symantec.com/avcenter/venc/data/adware.sahagent.html
+2002038 || BLEEDING-EDGE Malware Shopathomeselect.com Spyware User Agent Activity
+2002039 || BLEEDING-EDGE Malware Better Internet Spyware User Agent Activity (aurareco)
+2002040 || BLEEDING-EDGE MALWARE Topconverting Spyware Reporting || url,securityresponse.symantec.com/avcenter/venc/data/pf/adware.180search.html
+2002041 || BLEEDING-EDGE MALWARE Weird on the Web /180 Solutions Update || url,securityresponse.symantec.com/avcenter/venc/data/pf/adware.180search.html
+2002043 || BLEEDING-EDGE Malware Shop at Home Select Spyware Config Download || url,securityresponse.symantec.com/avcenter/venc/data/adware.sahagent.html
+2002044 || BLEEDING-EDGE Malware OutBlaze.com Spyware Activity
+2002046 || BLEEDING-EDGE MALWARE TargetNetworks.net Spyware Reporting (tn) || url,www.targetnetworks.com
+2002047 || BLEEDING-EDGE MALWARE surfaccuracy Spyware User Agent || url,securityresponse.symantec.com/avcenter/venc/data/adware.surfaccuracy.html
+2002048 || BLEEDING-EDGE MALWARE 180solutions Spyware Defs Download || url,securityresponse.symantec.com/avcenter/venc/data/pf/adware.180search.html
+2002049 || BLEEDING-EDGE VIRUS Mytob.GC - outbound || url,www.norman.com/Virus/Virus_descriptions/23458/en?show=default
+2002050 || BLEEDING-EDGE VIRUS Mytob.GC - incoming || url,www.norman.com/Virus/Virus_descriptions/23458/en?show=default
+2002051 || BLEEDING-EDGE VIRUS Bagle.BQ - outbound || url,secunia.com/virus_information/19194/
+2002052 || BLEEDING-EDGE VIRUS Bagle.BQ - incoming || url,secunia.com/virus_information/19194/
+2002053 || BLEEDING-EDGE VIRUS Mytob.HF - outbound || url,www.norman.com/Virus/Virus_descriptions/23458/en?show=default
+2002054 || BLEEDING-EDGE VIRUS Mytob.HF - incoming || url,www.norman.com/Virus/Virus_descriptions/23458/en?show=default
+2002055 || BLEEDING-EDGE WORM Sober.O Attachment Outbound (1) || url,secunia.com/virus_information/17692/
+2002056 || BLEEDING-EDGE WORM Sober.O Attachment Inbound (1) || url,secunia.com/virus_information/17692/
+2002057 || BLEEDING-EDGE WORM Sober.O Attachment Outbound (3) || url,secunia.com/virus_information/17692/
+2002058 || BLEEDING-EDGE WORM Sober.O Attachment Inbound (3) || url,secunia.com/virus_information/17692/
+2002059 || BLEEDING-EDGE VIRUS Possible Sober.P Outbound (1) || url,securityresponse.symantec.com/avcenter/venc/data/w32.sober.o@mm.html
+2002060 || BLEEDING-EDGE VIRUS Possible Sober.P Inbound (1) || url,securityresponse.symantec.com/avcenter/venc/data/w32.sober.o@mm.html
+2002061 || BLEEDING-EDGE EXPLOIT Possible BackupExec Metasploit Exploit (inbound) || url,www.metasploit.org/projects/Framework/modules/exploits/backupexec_agent.pm || url,isc.sans.org/diary.php?date=2005-06-27
+2002062 || BLEEDING-EDGE EXPLOIT Possible BackupExec Metasploit Exploit (outbound) || url,www.metasploit.org/projects/Framework/modules/exploits/backupexec_agent.pm || url,isc.sans.org/diary.php?date=2005-06-27
+2002064 || BLEEDING-EDGE EXPLOIT ms05-011 exploit || url,www.frsirt.com/exploits/20050623.mssmb_poc.c.php || bugtraq,12484
+2002065 || BLEEDING-EDGE EXPLOIT Veritas backupexec_agent exploit || url,isc.sans.org/diary.php?date=2005-06-27
+2002066 || BLEEDING-EDGE WEB CSV-DB CSV_DB.CGI Remote Command Execution Attempt || bugtraq,14059
+2002067 || BLEEDING-EDGE WEB Community Link Pro Login.CGI Remote Command Execution Attempt || bugtraq,14097
+2002068 || BLEEDING-EDGE NDMP Notify Connect - Possible Backup Exec Remote Agent Recon || url,www.ndmp.org/download/sdk_v4/draft-skardal-ndmp4-04.txt
+2002069 || BLEEDING-EDGE WEB Blog Spam Insert Attempt || url,www.webmasterworld.com/forum92/3683.htm || url,lists.geeklog.net/pipermail/geeklog-spam/2005-June/000020.html || url,spamhuntress.com/2005/05/14/new-block-for-bulgarians/
+2002070 || BLEEDING-EDGE WEB phpBB Remote Code Execution Attempt || url,www.securiteam.com/unixfocus/6Z00R2ABPY.html || bugtraq,14086 || url,secunia.com/advisories/15845/
+2002071 || BLEEDING-EDGE Malware XupiterToolbar Spyware User Agent Activity || url,castlecops.com/tk781-Xupitertoolbar_dll_t_dll.html
+2002073 || BLEEDING-EDGE Malware General Spyware User Agent Activity
+2002074 || BLEEDING-EDGE Malware Win32.Stubby Spyware User Agent Activity || url,www3.ca.com/securityadvisor/pest/pest.aspx?id=453088437
+2002076 || BLEEDING-EDGE Malware New.net Spyware User Agent Activity || url,www.pcsympathy.com/printout74.html || url,www.newdotnet.com
+2002078 || BLEEDING-EDGE Malware SideStep Spyware User Agent Activity
+2002079 || BLEEDING-EDGE MALWARE MyWaySearch Products Spyware User Agent
+2002080 || BLEEDING-EDGE MALWARE MySearch Products Spyware User Agent
+2002082 || BLEEDING-EDGE POLICY Infotriever Spyware User Agent || url,www.infotriever.com/Intro_SysAdmins.asp
+2002083 || BLEEDING-EDGE MALWARE Pacimedia Spyware 1
+2002086 || BLEEDING-EDGE VIRUS London bombing trojan file || url,www.theregister.co.uk/2005/07/08/london_bombing_spambot/
+2002087 || BLEEDING-EDGE POLICY Inbound Frequent Emails - Possible Spambot Inbound
+2002088 || BLEEDING-EDGE MALWARE C4tdownload.com Spyware Activity || url,sarc.com/avcenter/venc/data/adware.clickdloader.b.html
+2002089 || BLEEDING-EDGE MALWARE CWS qck.cc Spyware Installer (in.php) || url,www3.ca.com/securityadvisor/pest/pest.aspx?id=453076035
+2002090 || BLEEDING-EDGE MALWARE IEHelp.net Spyware Installer || url,securityresponse.symantec.com/avcenter/venc/data/trojan.domcom.html
+2002091 || BLEEDING-EDGE Malware Searchmiracle.com Spyware Install - silent.exe || url,www.searchmiracle.com
+2002092 || BLEEDING-EDGE Malware yupsearch.com Spyware Install - protector.exe || url,www.yupsearch.com
+2002093 || BLEEDING-EDGE MALWARE Likely Trojan/Spyware Installer Requested (2)
+2002094 || BLEEDING-EDGE MALWARE MSUpdater.net Spyware Checkin
+2002095 || BLEEDING-EDGE MALWARE CWS qck.cc Spyware Installer (web.php) || url,www3.ca.com/securityadvisor/pest/pest.aspx?id=453076035
+2002096 || BLEEDING-EDGE MALWARE IEHelp.net Spyware checkin || url,securityresponse.symantec.com/avcenter/venc/data/trojan.domcom.html
+2002097 || BLEEDING-EDGE Malware IEHelp.net Spyware User Agent Activity
+2002098 || BLEEDING-EDGE Malware yupsearch.com Spyware Install - sideb.exe || url,www.yupsearch.com
+2002099 || BLEEDING-EDGE MALWARE 180solutions Spyware config Download || url,securityresponse.symantec.com/avcenter/venc/data/pf/adware.180search.html
+2002100 || BLEEDING-EDGE WEB WPS wps_shop.cgi Remote Command Execution Attempt || bugtraq,14245
+2002101 || BLEEDING-EDGE GAMES Battle.net Starcraft login
+2002102 || BLEEDING-EDGE GAMES Battle.net Brood War login
+2002103 || BLEEDING-EDGE GAMES Battle.net Diablo login
+2002104 || BLEEDING-EDGE GAMES Battle.net Diablo 2 login
+2002105 || BLEEDING-EDGE GAMES Battle.net Diablo 2 Lord of Destruction login
+2002106 || BLEEDING-EDGE GAMES Battle.net Warcraft 2 login
+2002107 || BLEEDING-EDGE GAMES Battle.net Warcraft 3 login
+2002108 || BLEEDING-EDGE GAMES Battle.net Warcraft 3\: The Frozen throne login
+2002109 || BLEEDING-EDGE GAMES Battle.net old game version
+2002110 || BLEEDING-EDGE GAMES Battle.net invalid version
+2002111 || BLEEDING-EDGE GAMES Battle.net invalid cdkey
+2002112 || BLEEDING-EDGE GAMES Battle.net cdkey in use
+2002113 || BLEEDING-EDGE GAMES Battle.net banned key
+2002114 || BLEEDING-EDGE GAMES Battle.net wrong product
+2002115 || BLEEDING-EDGE GAMES Battle.net failed account login (OLS)\: wrong password
+2002116 || BLEEDING-EDGE GAMES Battle.net failed account login (NLS)\: wrong password
+2002117 || BLEEDING-EDGE GAMES Battle.net connection reset (possible IP-Ban)
+2002118 || BLEEDING-EDGE GAMES Battle.net user in channel
+2002119 || BLEEDING-EDGE GAMES Battle.net outgoing chat message
+2002120 || BLEEDING-EDGE EXPLOIT Potential MS05-036 exploit - JPEG with embedded ICC - Excessive Profile Size || cve,CVE-2005-1219 || url,www.microsoft.com/technet/security/Bulletin/MS05-036.mspx
+2002121 || BLEEDING-EDGE EXPLOIT Potential MS05-036 exploit - JPEG with embedded ICC - Excessive Tag Count || cve,CVE-2005-1219 || url,www.microsoft.com/technet/security/Bulletin/MS05-036.mspx
+2002122 || BLEEDING-EDGE EXPLOIT Potential MS05-036 exploit - GIF with embedded ICC - Excessive Profile Size || cve,CVE-2005-1219 || url,www.microsoft.com/technet/security/Bulletin/MS05-036.mspx
+2002123 || BLEEDING-EDGE EXPLOIT Potential MS05-036 exploit - GIF with embedded ICC - Excessive Tag Count || cve,CVE-2005-1219 || url,www.microsoft.com/technet/security/Bulletin/MS05-036.mspx
+2002124 || BLEEDING-EDGE EXPLOIT Potential MS05-036 exploit - PNG with embedded ICC document || cve,CVE-2005-1219 || url,www.microsoft.com/technet/security/Bulletin/MS05-036.mspx
+2002125 || BLEEDING-EDGE VIRUS Mytob.HE - outbound || url,www.norman.com/Virus/Virus_descriptions/23458/en?show=default
+2002126 || BLEEDING-EDGE VIRUS Mytob.HE - incoming || url,www.norman.com/Virus/Virus_descriptions/23458/en?show=default
+2002127 || BLEEDING-EDGE EXPLOIT Firefox Set Wallpaper Code Execution Attempt (img) || url,www.mozilla.org/security/announce/mfsa2005-47.html || url,secunia.com/advisories/16043/
+2002128 || BLEEDING-EDGE EXPLOIT Firefox Set Wallpaper Code Execution Attempt (input) || url,www.mozilla.org/security/announce/mfsa2005-47.html || url,secunia.com/advisories/16043/
+2002129 || BLEEDING-EDGE Cacti Input Validation Attack || url,www.idefense.com/application/poi/display?id=266&type=vulnerabilities || url,www.idefense.com/application/poi/display?id=265&type=vulnerabilities || url,www.cacti.net
+2002130 || BLEEDING-EDGE WEB Oracle Reports XSS Attempt || url,www.red-database-security.com/advisory/oracle_reports_various_css.html || url,www.oracle.com/technology/products/reports/index.html
+2002131 || BLEEDING-EDGE WEB Oracle Reports XML Information Disclosure || url,www.red-database-security.com/advisory/oracle_reports_read_any_xml_file.html || url,www.oracle.com/technology/products/reports/index.html
+2002132 || BLEEDING-EDGE WEB Oracle Reports DESFORMAT Information Disclosure || url,www.red-database-security.com/advisory/oracle_reports_read_any_file.html || url,www.oracle.com/technology/products/reports/index.html
+2002133 || BLEEDING-EDGE WEB Oracle Reports OS Command Injection Attempt || url,www.red-database-security.com/advisory/oracle_reports_run_any_os_command.html || url,www.oracle.com/technology/products/reports/index.html
+2002134 || BLEEDING-EDGE EXPLOIT MS05-036 exploit - JPEG ICC r/b/g/XYZ GetColorProfileElement overflow || cve,CVE-2005-1219 || url,www.microsoft.com/technet/security/Bulletin/MS05-036.mspx
+2002137 || BLEEDING-EDGE EXPLOIT MS05-036 exploit - GIF ICC r/b/g/XYZ GetColorProfileElement overflow || cve,CVE-2005-1219 || url,www.microsoft.com/technet/security/Bulletin/MS05-036.mspx
+2002138 || BLEEDING-EDGE GAMES World of Warcraft connection
+2002139 || BLEEDING-EDGE GAMES World of Warcraft failed logon
+2002140 || BLEEDING-EDGE GAMES Battle.net user joined channel
+2002141 || BLEEDING-EDGE GAMES Battle.net user left channel
+2002142 || BLEEDING-EDGE GAMES Battle.net received whisper message
+2002143 || BLEEDING-EDGE GAMES Battle.net received server broadcast
+2002144 || BLEEDING-EDGE GAMES Battle.net joined channel
+2002145 || BLEEDING-EDGE GAMES Battle.net user had a flags update
+2002146 || BLEEDING-EDGE GAMES Battle.net sent a whisper
+2002147 || BLEEDING-EDGE GAMES Battle.net channel full
+2002148 || BLEEDING-EDGE GAMES Battle.net channel doesn't exist
+2002149 || BLEEDING-EDGE GAMES Battle.net channel is restricted
+2002150 || BLEEDING-EDGE GAMES Battle.net informational message
+2002151 || BLEEDING-EDGE GAMES Battle.net error message
+2002152 || BLEEDING-EDGE GAMES Battle.net 'emote' message
+2002153 || BLEEDING-EDGE MALWARE EXE as User Agent - Potential Spyware
+2002154 || BLEEDING-EDGE GAMES Guild Wars connection
+2002155 || BLEEDING-EDGE GAMES Steam connection
+2002156 || BLEEDING-EDGE VIRUS Fireby proxy trojan port report (TCP) || url,securityresponse.symantec.com/avcenter/venc/data/backdoor.staprew.b.html
+2002157 || BLEEDING-EDGE POLICY Skype User-Agent detected
+2002158 || BLEEDING-EDGE EXPLOIT XML-RPC for PHP Remote Code Injection || cve,2005-1921 || url,www.securityfocus.com/bid/14088/exploit
+2002160 || BLEEDING-EDGE MALWARE CoolWebSearch Spyware (Feat) || url,www.doxdesk.com/parasite/CoolWebSearch.html || url,www3.ca.com/securityadvisor/pest/pest.aspx?id=453075759 || url,www.spywareguide.com/product_show.php?id=599
+2002161 || BLEEDING-EDGE MALWARE CoolWebSearch Spyware (feat2) || url,www.doxdesk.com/parasite/CoolWebSearch.html || url,www3.ca.com/securityadvisor/pest/pest.aspx?id=453075759 || url,www.spywareguide.com/product_show.php?id=599
+2002163 || BLEEDING-EDGE MALWARE Ezula Update Engine || url,www.spywareguide.com/product_show.php?id=9
+2002164 || BLEEDING-EDGE MALWARE Hotbar Spyware || url,www.pchell.com/support/hotbar.shtml || url,www.doxdesk.com/parasite/Hotbar.html
+2002165 || BLEEDING-EDGE MALWARE IESearch Spyware || url,www.spywareguide.com/product_show.php?id=982
+2002166 || BLEEDING-EDGE MALWARE Alexa Search Toolbar || url,www.spywareguide.com/product_show.php?id=418
+2002167 || BLEEDING-EDGE MALWARE Possible Spyware - Wise User Agent || url,www3.ca.com/securityadvisor/pest/pest.aspx?id=453076771
+2002168 || BLEEDING-EDGE MALWARE Svcmm Parasite || url,doxdesk.com/parasite/SvcMM.html || url,castlecops.com/startuplist-5862.html
+2002169 || BLEEDING-EDGE MALWARE iWon Spyware || url,www.spywareguide.com/product_show.php?id=461
+2002170 || BLEEDING-EDGE GAMES Battle.net incoming chat message
+2002171 || BLEEDING-EDGE EXPLOIT COM Object Instantiation Memory Corruption Vulnerability (group 1) || url,www.microsoft.com/technet/security/Bulletin/MS05-038.mspx || cve,2005-1990
+2002172 || BLEEDING-EDGE EXPLOIT COM Object Instantiation Memory Corruption Vulnerability (group 2) || url,www.microsoft.com/technet/security/Bulletin/MS05-038.mspx || cve,2005-1990
+2002173 || BLEEDING-EDGE EXPLOIT COM Object Instantiation Memory Corruption Vulnerability (group 3) || url,www.microsoft.com/technet/security/Bulletin/MS05-038.mspx || cve,2005-1990
+2002174 || BLEEDING-EDGE EXPLOIT CLSID Pattern Matched
+2002175 || BLEEDING-EDGE TROJAN Srv.SSA-KeyLogger Checkin Traffic
+2002176 || BLEEDING-EDGE Veritas Backup Exec Windows Agent Remote File Access Exploit || url,isc.sans.org/diary.php?date=2005-08-11 || url,www.frsirt.com/exploits/20050811.backupexec_dump.pm.php || url,www.frsirt.com/english/advisories/2005/1387
+2002177 || BLEEDING-EDGE VIRUS Bagle.CC (aka Win32.Bagle.bz, .ca, .cb) - outbound || url,www.viruslist.com/en/alerts?alertid=168511904
+2002178 || BLEEDING-EDGE VIRUS Bagle.CC (aka Win32.Bagle.bz, .ca, .cb) - incoming || url,www.viruslist.com/en/alerts?alertid=168511904
+2002180 || BLEEDING-EDGE VIRUS W32.Beagle.CE@mm Infection Outbound web.php || url,securityresponse.symantec.com/avcenter/venc/data/w32.beagle.ce@mm.html
+2002181 || BLEEDING-EDGE EXPLOIT Backup Exec Windows Agent Remote File Access - Attempt || url,www.frsirt.com/exploits/20050811.backupexec_dump.pm.php || url,www.frsirt.com/english/advisories/2005/1387
+2002182 || BLEEDING-EDGE EXPLOIT Backup Exec Windows Agent Remote File Access - Vulnerable || url,www.frsirt.com/exploits/20050811.backupexec_dump.pm.php || url,www.frsirt.com/english/advisories/2005/1387
+2002183 || BLEEDING-EDGE VIRUS BagleDL-S SMTP Outbound || url,www.sophos.com/virusinfo/analyses/trojbagledls.html
+2002184 || BLEEDING-EDGE VIRUS BagleDL-S SMTP Inbound || url,www.sophos.com/virusinfo/analyses/trojbagledls.html
+2002185 || BLEEDING-EDGE WORM Possible MS05-039 PnP worm infection || url,isc.sans.org/diary.php?date=2005-08-14
+2002186 || BLEEDING-EDGE EXPLOIT SMB-DS Microsoft Windows 2000 Plug and Play Vulnerability || url,isc.sans.org/diary.php?date=2005-08-14 || url,www.microsoft.com/technet/security/Bulletin/MS05-039.mspx
+2002187 || BLEEDING-EDGE EXPLOIT NETBIOS SMB Microsoft Windows 2000 PNP Vuln || url,isc.sans.org/diary.php?date=2005-08-14 || url,www.microsoft.com/technet/security/Bulletin/MS05-039.mspx
+2002188 || BLEEDING-EDGE EXPLOIT NETBIOS SMB-DS Microsoft Windows 2000 PNP Vuln || url,isc.sans.org/diary.php?date=2005-08-14 || url,www.microsoft.com/technet/security/Bulletin/MS05-039.mspx
+2002190 || BLEEDING-EDGE WORM Possible UPnP Infection - gc.exe download
+2002192 || BLEEDING-EDGE POLICY MSN status change
+2002194 || BLEEDING-EDGE Malware Pacimedia Spyware 2
+2002195 || BLEEDING-EDGE MALWARE Casalemedia Spyware Reporting URL Visited1
+2002196 || BLEEDING-EDGE MALWARE Casalemedia Spyware Reporting URL Visited2
+2002197 || BLEEDING-EDGE MALWARE Tickle.com Spyware || url,www.spywareremove.com/removeTickle.html
+2002198 || BLEEDING-EDGE MALWARE Bidclix.com Spyware
+2002199 || BLEEDING-EDGE EXPLOIT SMB-DS DCERPC PnP HOD bind attempt
+2002200 || BLEEDING-EDGE EXPLOIT SMB-DS DCERPC PnP bind attempt
+2002201 || BLEEDING-EDGE EXPLOIT SMB-DS DCERPC PnP QueryResConfList exploit attempt || url,www.microsoft.com/technet/security/Bulletin/MS05-039.mspx || cve,CAN-2005-1983
+2002202 || BLEEDING-EDGE EXPLOIT SMB DCERPC PnP bind attempt
+2002203 || BLEEDING-EDGE EXPLOIT SMB DCERPC PnP QueryResConfList exploit attempt || url,www.microsoft.com/technet/security/Bulletin/MS05-039.mspx || cve,CAN-2005-1983
+2002204 || BLEEDING-EDGE MALWARE Websponsors.com Spyware
+2002296 || BLEEDING-EDGE Malware Searchfeed.com Spyware 1 || url,www.searchfeed.com
+2002297 || BLEEDING-EDGE Malware Searchfeed.com Spyware 2 || url,www.searchfeed.com
+2002298 || BLEEDING-EDGE Malware Searchfeed.com Spyware 3 || url,www.searchfeed.com
+2002299 || BLEEDING-EDGE Malware Searchfeed.com Spyware 4 || url,www.searchfeed.com
+2002300 || BLEEDING-EDGE Malware Searchfeed.com Spyware 5 || url,www.searchfeed.com
+2002301 || BLEEDING-EDGE Malware Searchfeed.com Spyware 6 || url,www.searchfeed.com
+2002302 || BLEEDING-EDGE Malware Searchfeed.com Spyware 7 || url,www.searchfeed.com
+2002303 || BLEEDING-EDGE Malware Searchfeed.com Spyware 8 || url,www.searchfeed.com
+2002304 || BLEEDING-EDGE MALWARE Advertising.com Reporting Data || url,securityresponse.symantec.com/avcenter/venc/data/adware.fastseek.html
+2002305 || BLEEDING-EDGE Malware Fun Web Products Smileychooser Spyware || url,www.funwebproducts.com
+2002306 || BLEEDING-EDGE Malware Fun Web Products Cursorchooser Spyware || url,www.funwebproducts.com
+2002307 || BLEEDING-EDGE Malware Fun Web Products Stampchooser Spyware || url,www.funwebproducts.com
+2002308 || BLEEDING-EDGE EXPLOIT Internet Explorer Vulnerable CLSID (Msdds.dll) || url,www.frsirt.com/exploits/20050817.IE-Msddsdll-0day.php
+2002309 || BLEEDING-EDGE Malware Metarewards Disclaimer Access
+2002310 || BLEEDING-EDGE Malware Fun Web Products Smileychooser Spyware || url,www.funwebproducts.com
+2002312 || BLEEDING-EDGE POLICY MSN Game Loading
+2002313 || BLEEDING-EDGE WEB Cacti graph_image.php Remote Command Execution Attempt || bugtraq,14042 || bugtraq,14129 || cve,CAN-2005-1524
+2002314 || BLEEDING-EDGE WEB PHPOutsourcing Zorum prod.php Remote Command Execution Attempt || bugtraq,14601
+2002315 || BLEEDING-EDGE EXPLOIT Incoming Electronic Mail for UNIX Expires Header Buffer Overflow Exploit || url,www.instinct.org/elm/ || url,www.frsirt.com/exploits/20050822.elmexploit.c.php
+2002316 || BLEEDING-EDGE EXPLOIT Outgoing Electronic Mail for UNIX Expires Header Buffer Overflow Exploit || url,www.instinct.org/elm/ || url,www.frsirt.com/exploits/20050822.elmexploit.c.php
+2002317 || BLEEDING-EDGE MALWARE EZSearch Spyware Reporting Search Strings
+2002318 || BLEEDING-EDGE MALWARE EZSearch Spyware Reporting Search Category
+2002319 || BLEEDING-EDGE MALWARE EZSearch Spyware Reporting 2
+2002320 || BLEEDING-EDGE MALWARE Transponder Spyware Activity || url,www.doxdesk.com/parasite/Transponder.html
+2002322 || BLEEDING-EDGE WORM Possible MSN Worm Exploit php
+2002323 || BLEEDING-EDGE WORM Possible MSN Worm Exploit exe
+2002324 || BLEEDING-EDGE WORM Possible MSN Worm Exploit pif
+2002325 || BLEEDING-EDGE WORM W32.kelvir.HI || url,securityresponse.symantec.com/avcenter/venc/data/w32.kelvir.hi.html
+2002327 || BLEEDING-EDGE POLICY Google Talk (Jabber) Client Login || url,www.xmpp.org || url,talk.google.com
+2002330 || BLEEDING-EDGE POLICY Google Talk TLS Client Traffic || url,www.xmpp.org || url,talk.google.com
+2002331 || BLEEDING-EDGE WEB Piranha default passwd attempt || nessus,10381 || cve,2000-0248 || bugtraq,1148
+2002332 || BLEEDING-EDGE POLICY Google IM traffic Windows client user sign-on || url,www.google.com/talk
+2002333 || BLEEDING-EDGE POLICY Google IM traffic friend invited || url,www.google.com/talk
+2002334 || BLEEDING-EDGE POLICY Google IM traffic Jabber client sign-on || url,www.google.com/talk
+2002335 || BLEEDING-EDGE POLICY Google IM traffic Windows client user sign-off || url,www.google.com/talk
+2002336 || BLEEDING-EDGE WORM Possible Myfip PDF file transfer - IP theft || url,www.lurhq.com/myfip.html
+2002337 || BLEEDING-EDGE WORM Possible Myfip DOC file transfer - IP theft || url,www.lurhq.com/myfip.html
+2002338 || BLEEDING-EDGE WORM Possible Myfip DWG file transfer - IP theft || url,www.lurhq.com/myfip.html
+2002339 || BLEEDING-EDGE WORM Possible Myfip SCH file transfer - IP theft || url,www.lurhq.com/myfip.html
+2002340 || BLEEDING-EDGE WORM Possible Myfip PCB file transfer - IP theft || url,www.lurhq.com/myfip.html
+2002341 || BLEEDING-EDGE WORM Possible Myfip DWT file transfer - IP theft || url,www.lurhq.com/myfip.html
+2002342 || BLEEDING-EDGE WORM Possible Myfip DWF file transfer - IP theft || url,www.lurhq.com/myfip.html
+2002343 || BLEEDING-EDGE WORM Possible Myfip MAX file transfer - IP theft || url,www.lurhq.com/myfip.html
+2002344 || BLEEDING-EDGE WORM Possible Myfip MDB file transfer - IP theft || url,www.lurhq.com/myfip.html
+2002348 || BLEEDING-EDGE MALWARE VPP Technologies Spyware
+2002349 || BLEEDING-EDGE MALWARE Alexa Spyware Reporting URL
+2002350 || BLEEDING-EDGE MALWARE VPP Technologies Spyware Reporting URL
+2002351 || BLEEDING-EDGE Malware Comet Systems Spyware Update Download
+2002352 || BLEEDING-EDGE Malware Comet Systems Spyware Context Report
+2002353 || BLEEDING-EDGE Malware AdultfriendFinder.com Spyware Iframe Download
+2002354 || BLEEDING-EDGE MALWARE 180solutions Spyware versionconfig POST || url,securityresponse.symantec.com/avcenter/venc/data/pf/adware.180search.html
+2002355 || BLEEDING-EDGE TROJAN Trojan.Exphook Sending Info Home 198.173.4.9 || url,securityresponse.symantec.com/avcenter/venc/data/trojan.exphook.html
+2002356 || BLEEDING-EDGE TROJAN Trojan.Exphook Sending Info Home 66.160.138.149 || url,securityresponse.symantec.com/avcenter/venc/data/trojan.exphook.html
+2002357 || BLEEDING-EDGE TROJAN Trojan.Exphook Sending Info Home 66.225.221.197 || url,securityresponse.symantec.com/avcenter/venc/data/trojan.exphook.html
+2002358 || BLEEDING-EDGE TROJAN Backdoor.Graybird.O Calling Home 202.101.43.83 || url,securityresponse.symantec.com/avcenter/venc/data/backdoor.graybird.o.html
+2002359 || BLEEDING-EDGE TROJAN Backdoor.Graybird.O Calling Home 61.152.93.13 || url,securityresponse.symantec.com/avcenter/venc/data/backdoor.graybird.o.html
+2002360 || BLEEDING-EDGE VIRUS W97M.Nometz.A Sending Info Home || url,securityresponse.symantec.com/avcenter/venc/data/w97m.nometz.a.html
+2002361 || BLEEDING-EDGE WEB Netquery Remote Command Execution Attempt || bugtraq,14373
+2002362 || BLEEDING-EDGE WEB Barracuda Spam Firewall img.pl Remote Command Execution Attempt || bugtraq,14712
+2002363 || BLEEDING-EDGE TROJAN BOT - potential reptile commands
+2002364 || BLEEDING-EDGE MALWARE Weatherbug Wxbug Capture
+2002365 || BLEEDING-EDGE WEB HP OpenView Network Node Manager Remote Command Execution Attempt || bugtraq,14662
+2002367 || BLEEDING-EDGE VIRUS Bagle-BB SMTP Outbound || url,isc.sans.org/diary.php?date=2005-09-12 || url,www.sophos.com/virusinfo/analyses/trojdropperbb.html
+2002368 || BLEEDING-EDGE VIRUS Bagle-BB SMTP Inbound || url,isc.sans.org/diary.php?date=2005-09-12 || url,www.sophos.com/virusinfo/analyses/trojdropperbb.html
+2002369 || BLEEDING-EDGE VIRUS Forbot-FG SMTP Outbound || url,www.sophos.com/virusinfo/analyses/w32forbotfg.html
+2002370 || BLEEDING-EDGE VIRUS Forbot-FG SMTP Inbound || url,www.sophos.com/virusinfo/analyses/w32forbotfg.html
+2002371 || BLEEDING-EDGE WEB Miva Merchant Cross Site Scripting Attack || url,www.frsirt.com/english/advisories/2005/1758 || url,smallbusiness.miva.com/products/mia/ || bugtraq,14828
+2002372 || BLEEDING-EDGE VIRUS Bagle.CJ SMTP Outbound || url,isc.sans.org/diary.php?date=2005-09-19
+2002373 || BLEEDING-EDGE VIRUS Bagle.CJ SMTP Inbound || url,isc.sans.org/diary.php?date=2005-09-19
+2002376 || BLEEDING-EDGE IBM Lotus Domino BaseTarget XSS attempt || bugtraq,14845
+2002377 || BLEEDING-EDGE IBM Lotus Domino Src XSS attempt || bugtraq,14846
+2002380 || BLEEDING-EDGE Firefox Domain Name Buffer Overflow || url,www.milw0rm.com/id.php?id=1224 || url,bugzilla.mozilla.org/show_bug.cgi?id=307259 || cve,2005-2871
+2002381 || BLEEDING-EDGE RealPlayer/Helix Player Format String Exploit || cve,2005-2710 || bugtraq,14945 || url,milw0rm.com/id.php?id=1232
+2002382 || BLEEDING-EDGE EXPLOIT Wzdftpd SITE command arbitrary command execution attempt || url,www.securiteam.com/exploits/5CP0R1PGUE.html || bugtraq,14935
+2002383 || BLEEDING-EDGE SCAN Potential FTP Brute-Force attempt
+2002384 || BLEEDING-EDGE TROJAN BOT - potential misc bot commands
+2002385 || BLEEDING-EDGE TROJAN BOT - channel topic reptile commands
+2002386 || BLEEDING-EDGE TROJAN BOT - channel topic misc bot commands
+2002387 || BLEEDING-EDGE TROJAN Mitglieder Proxy Bot Checking In || url,isc.sans.org/diary.php?storyid=722
+2002388 || BLEEDING-EDGE WEB vBulletin misc.php Template Name Arbitrary Code Execution || url,metasploit.com/projects/Framework/exploits.html#php_vbulletin_template || cve,2005-0511 || url,www.osvdb.org/14047
+2002389 || BLEEDING-EDGE EXPLOIT Vulnerable Mercury 4.01a IMAP Banner || bugtraq,11775 || url,www.pmail.com/whatsnew/m32401.htm
+2002390 || BLEEDING-EDGE EXPLOIT Mercury v4.01a IMAP RENAME Buffer Overflow || bugtraq,11775 || url,metasploit.com/projects/Framework/exploits.html#mercury_imap || url,www.pmail.com/whatsnew/m32401.htm
+2002391 || BLEEDING-EDGE VIRUS CME-151 Sober.R SMTP Outbound || url,vil.nai.com/vil/content/v_136390.htm
+2002392 || BLEEDING-EDGE VIRUS CME-151 Sober.R SMTP Inbound || url,vil.nai.com/vil/content/v_136390.htm
+2002394 || BLEEDING-EDGE MALWARE Adwave/MarketScore User Agent || url,www.marketscore.com || url,www.adwave.com/our_mission.aspx
+2002395 || BLEEDING-EDGE MALWARE Miva User Agent || url,www.findwhat.com || url,www.miva.com
+2002396 || BLEEDING-EDGE MALWARE Miva User Agent 2 || url,www.miva.com
+2002397 || BLEEDING-EDGE MALWARE Precision Targeting User Agent || url,www.precisiontargeting.com
+2002398 || BLEEDING-EDGE MALWARE DelFin Project User Agent || url,www.delfinproject.com
+2002399 || BLEEDING-EDGE MALWARE DelFin Project User Agent 2 || url,www.delfinproject.com
+2002400 || BLEEDING-EDGE MALWARE Suspicious User Agent || url,www.topinstalls.com
+2002401 || BLEEDING-EDGE MALWARE Web Search User Agent 2 || url,www.websearch.com
+2002402 || BLEEDING-EDGE MALWARE Web Search User Agent 3 || url,www.websearch.com
+2002403 || BLEEDING-EDGE MALWARE Context Plus User Agent 2 || url,www.contextplus.net
+2002404 || BLEEDING-EDGE MALWARE Movies etc User Agent || url,www.movies-etc.com
+2002405 || BLEEDING-EDGE MALWARE Internet Optimizer User Agent 2 || url,www.internet-optimizer.com
+2002406 || BLEEDING-EDGE TAC Attack Directory Traversal || url,cirt.dk/advisories/cirt-37-advisory.pdf || url,secunia.com/advisories/16854 || cve,2005-3040
+2002407 || BLEEDING-EDGE POLICY WebshotsNetClient || url,www.webshots.com
+2002408 || BLEEDING-EDGE WEB phpMyAdmin Suspicious Activity
+2002409 || BLEEDING-EDGE WEB phpMyAdmin Local File Inclusion (2.6.4-pl1) || url,www.frsirt.com/english/advisories/2005/2024 || url,securityreason.com/securityalert/69
+2002410 || BLEEDING-EDGE POLICY SMTP Non-US Restricted Outbound
+2002411 || BLEEDING-EDGE POLICY SMTP Non-US Confidential Outbound
+2002412 || BLEEDING-EDGE POLICY SMTP Non-US Top Secret Outbound
+2002413 || BLEEDING-EDGE POLICY SMTP Non-US Secret
+2002414 || BLEEDING-EDGE POLICY SMTP NATO Restricted
+2002415 || BLEEDING-EDGE POLICY SMTP NATO Confidential Atomal
+2002416 || BLEEDING-EDGE POLICY SMTP NATO Confidential
+2002417 || BLEEDING-EDGE POLICY SMTP NATO COSMIC Top Secret Atomal
+2002418 || BLEEDING-EDGE POLICY SMTP NATO Secret Atomal
+2002419 || BLEEDING-EDGE POLICY SMTP NATO Secret
+2002420 || BLEEDING-EDGE POLICY SMTP US Confidential, Electronic
+2002421 || BLEEDING-EDGE POLICY SMTP US Top Secret, Electronic
+2002422 || BLEEDING-EDGE POLICY SMTP US Secret, Electronic
+2002423 || BLEEDING-EDGE POLICY SMTP US Confidential REL TO
+2002424 || BLEEDING-EDGE POLICY SMTP US Top Secret REL TO
+2002425 || BLEEDING-EDGE POLICY SMTP US Secret REL TO
+2002426 || BLEEDING-EDGE POLICY SMTP US Confidential COMINT
+2002427 || BLEEDING-EDGE POLICY SMTP US Top Secret COMINT
+2002428 || BLEEDING-EDGE POLICY SMTP US Secret COMINT
+2002429 || BLEEDING-EDGE POLICY SMTP US Unclassified COMSEC
+2002430 || BLEEDING-EDGE POLICY SMTP US Confidential COMSEC
+2002431 || BLEEDING-EDGE POLICY SMTP US Top Secret COMSEC
+2002432 || BLEEDING-EDGE POLICY SMTP US Secret COMSEC
+2002433 || BLEEDING-EDGE POLICY SMTP US Secret IMCON
+2002434 || BLEEDING-EDGE POLICY SMTP US Top Secret CNWDI
+2002435 || BLEEDING-EDGE POLICY SMTP US Secret CNWDI
+2002436 || BLEEDING-EDGE POLICY SMTP US Top Secret TK
+2002437 || BLEEDING-EDGE POLICY SMTP US Secret TK
+2002438 || BLEEDING-EDGE POLICY SMTP US FGI
+2002439 || BLEEDING-EDGE POLICY SMTP US FOUO
+2002440 || BLEEDING-EDGE POLICY SMTP US Confidential NOFORN
+2002441 || BLEEDING-EDGE POLICY SMTP US Top Secret NOFORN
+2002442 || BLEEDING-EDGE POLICY SMTP US Secret NOFORN
+2002443 || BLEEDING-EDGE POLICY SMTP US Confidential ORCON
+2002444 || BLEEDING-EDGE POLICY SMTP US Top Secret ORCON
+2002445 || BLEEDING-EDGE POLICY SMTP US Secret ORCON
+2002446 || BLEEDING-EDGE POLICY SMTP US Unclassified PROPIN
+2002447 || BLEEDING-EDGE POLICY SMTP US Confidential PROPIN
+2002448 || BLEEDING-EDGE POLICY SMTP US Top Secret PROPIN
+2002449 || BLEEDING-EDGE POLICY SMTP US Secret PROPIN
+2002450 || BLEEDING-EDGE POLICY SMTP US Confidential RD
+2002451 || BLEEDING-EDGE POLICY SMTP US Top Secret RD
+2002452 || BLEEDING-EDGE POLICY SMTP US Secret RD
+2002453 || BLEEDING-EDGE POLICY SMTP US SAMI
+2002454 || BLEEDING-EDGE POLICY SMTP US Confidential SPECAT
+2002455 || BLEEDING-EDGE POLICY SMTP US Top Secret SPECAT
+2002456 || BLEEDING-EDGE POLICY SMTP US Secret SPECAT
+2002457 || BLEEDING-EDGE POLICY SMTP US Top Secret STOP
+2002458 || BLEEDING-EDGE POLICY SMTP Private
+2002459 || BLEEDING-EDGE POLICY SMTP Restricted
+2002460 || BLEEDING-EDGE POLICY SMTP Confidential
+2002461 || BLEEDING-EDGE POLICY SMTP Secret
+2002462 || BLEEDING-EDGE POLICY SMTP Top Secret
+2002463 || BLEEDING-EDGE POLICY SMTP Sealed
+2002464 || BLEEDING-EDGE POLICY SMTP Sensitive
+2002465 || BLEEDING-EDGE POLICY SMTP Proprietary
+2002466 || BLEEDING-EDGE POLICY SMTP Protected
+2002467 || BLEEDING-EDGE POLICY SMTP Law Enorcement Sensitive
+2002468 || BLEEDING-EDGE POLICY SMTP Internal Use Only
+2002469 || BLEEDING-EDGE POLICY SMTP Date of Birth
+2002470 || BLEEDING-EDGE POLICY SMTP HCPCS Code
+2002471 || BLEEDING-EDGE POLICY SMTP ICD-10 Code
+2002472 || BLEEDING-EDGE POLICY SMTP FDA NDC Code
+2002473 || BLEEDING-EDGE POLICY SMTP ADA Procedure Code
+2002474 || BLEEDING-EDGE POLICY SMTP DSM-IV Code
+2002475 || BLEEDING-EDGE POLICY SMTP AMA CPT Code
+2002477 || BLEEDING-EDGE POLICY SMTP Credit Card, JCB
+2002483 || BLEEDING-EDGE POLICY SMTP Password
+2002484 || BLEEDING-EDGE POLICY SMTP Appraisal
+2002485 || BLEEDING-EDGE POLICY SMTP Account Balance
+2002486 || BLEEDING-EDGE POLICY SMTP Payment History
+2002487 || BLEEDING-EDGE POLICY SMTP Annual Income
+2002488 || BLEEDING-EDGE POLICY SMTP Credit History
+2002489 || BLEEDING-EDGE POLICY SMTP Transaction History
+2002490 || BLEEDING-EDGE POLICY SMTP Customer List
+2002491 || BLEEDING-EDGE EXPLOIT COM Object MS05-052 (group 1) || url,www.microsoft.com/technet/security/Bulletin/MS05-052.mspx || cve,2005-2127
+2002492 || BLEEDING-EDGE EXPLOIT COM Object MS05-052 (group 2) || url,www.microsoft.com/technet/security/Bulletin/MS05-052.mspx || cve,2005-2127
+2002493 || BLEEDING-EDGE EXPLOIT COM Object MS05-052 (group 3) || url,www.microsoft.com/technet/security/Bulletin/MS05-052.mspx || cve,2005-2127
+2002494 || BLEEDING-EDGE WEB Versatile Bulletin Board SQL Injection Attack || bugtraq,15068
+2002495 || BLEEDING-EDGE POLICY HTTP Non-US Restricted
+2002496 || BLEEDING-EDGE POLICY HTTP - Non-US Confidential
+2002497 || BLEEDING-EDGE POLICY HTTP - Non-US Top Secret
+2002498 || BLEEDING-EDGE POLICY HTTP - Non-US Secret
+2002499 || BLEEDING-EDGE POLICY HTTP - NATO Restricted
+2002500 || BLEEDING-EDGE POLICY HTTP - NATO Confidential Atomal
+2002501 || BLEEDING-EDGE POLICY HTTP - NATO Confidential
+2002502 || BLEEDING-EDGE POLICY HTTP - NATO COSMIC Top Secret Atomal
+2002503 || BLEEDING-EDGE POLICY HTTP - NATO Secret Atomal
+2002504 || BLEEDING-EDGE POLICY HTTP - NATO Secret
+2002505 || BLEEDING-EDGE POLICY HTTP - US Confidential, Electronic
+2002506 || BLEEDING-EDGE POLICY HTTP - US Top Secret, Electronic
+2002507 || BLEEDING-EDGE POLICY HTTP - US Secret, Electronic
+2002508 || BLEEDING-EDGE POLICY HTTP - US Confidential REL TO
+2002509 || BLEEDING-EDGE POLICY HTTP - US Top Secret REL TO
+2002510 || BLEEDING-EDGE POLICY HTTP - US Secret REL TO
+2002511 || BLEEDING-EDGE POLICY HTTP - US Confidential COMINT
+2002512 || BLEEDING-EDGE POLICY HTTP - US Top Secret COMINT
+2002513 || BLEEDING-EDGE POLICY HTTP - US Secret COMINT
+2002514 || BLEEDING-EDGE POLICY HTTP - US Unclassified COMSEC
+2002515 || BLEEDING-EDGE POLICY HTTP - US Confidential COMSEC
+2002516 || BLEEDING-EDGE POLICY HTTP - US Top Secret COMSEC
+2002517 || BLEEDING-EDGE POLICY HTTP - US Secret COMSEC
+2002518 || BLEEDING-EDGE POLICY HTTP - US Secret IMCON
+2002519 || BLEEDING-EDGE POLICY HTTP - US Top Secret CNWDI
+2002520 || BLEEDING-EDGE POLICY HTTP - US Secret CNWDI
+2002521 || BLEEDING-EDGE POLICY HTTP - US Top Secret TK
+2002522 || BLEEDING-EDGE POLICY HTTP - US Secret TK
+2002523 || BLEEDING-EDGE POLICY HTTP - US FGI
+2002524 || BLEEDING-EDGE POLICY HTTP - US FOUO
+2002525 || BLEEDING-EDGE POLICY HTTP - US Confidential NOFORN
+2002526 || BLEEDING-EDGE POLICY HTTP - US Top Secret NOFORN
+2002527 || BLEEDING-EDGE POLICY HTTP - US Secret NOFORN
+2002528 || BLEEDING-EDGE POLICY HTTP - US Top Secret ORCON
+2002529 || BLEEDING-EDGE POLICY HTTP - US Secret ORCON
+2002530 || BLEEDING-EDGE POLICY HTTP - US Unclassified PROPIN
+2002531 || BLEEDING-EDGE POLICY HTTP - US Confidential PROPIN
+2002532 || BLEEDING-EDGE POLICY HTTP - US Top Secret PROPIN
+2002533 || BLEEDING-EDGE POLICY HTTP - US Secret PROPIN
+2002534 || BLEEDING-EDGE POLICY HTTP - US Confidential RD
+2002535 || BLEEDING-EDGE POLICY HTTP - US Top Secret RD
+2002536 || BLEEDING-EDGE POLICY HTTP - US Secret RD
+2002537 || BLEEDING-EDGE POLICY HTTP - US SAMI
+2002538 || BLEEDING-EDGE POLICY HTTP - US Confidential SPECAT
+2002539 || BLEEDING-EDGE POLICY HTTP - US Top Secret SPECAT
+2002540 || BLEEDING-EDGE POLICY HTTP - US Secret SPECAT
+2002541 || BLEEDING-EDGE POLICY HTTP - US Top Secret STOP
+2002542 || BLEEDING-EDGE POLICY HTTP - Private
+2002543 || BLEEDING-EDGE POLICY HTTP - Restricted
+2002544 || BLEEDING-EDGE POLICY HTTP - Confidential
+2002545 || BLEEDING-EDGE POLICY HTTP - Secret
+2002546 || BLEEDING-EDGE POLICY HTTP - Top Secret
+2002547 || BLEEDING-EDGE POLICY HTTP - Sealed
+2002548 || BLEEDING-EDGE POLICY HTTP - Sensitive
+2002549 || BLEEDING-EDGE POLICY HTTP - Proprietary
+2002550 || BLEEDING-EDGE POLICY HTTP - Protected
+2002551 || BLEEDING-EDGE POLICY HTTP - Law Enorcement Sensitive
+2002552 || BLEEDING-EDGE POLICY HTTP - Internal Use Only
+2002553 || BLEEDING-EDGE POLICY HTTP - Date of Birth
+2002554 || BLEEDING-EDGE POLICY HTTP - HCPCS Code
+2002555 || BLEEDING-EDGE POLICY HTTP - ICD-10 Code
+2002556 || BLEEDING-EDGE POLICY HTTP - FDA NDC Code
+2002557 || BLEEDING-EDGE POLICY HTTP - ADA Procedure Code
+2002558 || BLEEDING-EDGE POLICY HTTP - DSM-IV Code
+2002559 || BLEEDING-EDGE POLICY HTTP - AMA CPT Code
+2002561 || BLEEDING-EDGE POLICY HTTP - Credit Card, JCB
+2002567 || BLEEDING-EDGE POLICY HTTP - Password
+2002568 || BLEEDING-EDGE POLICY HTTP - Appraisal
+2002569 || BLEEDING-EDGE POLICY HTTP - Account Balance
+2002570 || BLEEDING-EDGE POLICY HTTP - Payment History
+2002571 || BLEEDING-EDGE POLICY HTTP - Annual Income
+2002572 || BLEEDING-EDGE POLICY HTTP - Credit History
+2002573 || BLEEDING-EDGE POLICY HTTP - Transaction History
+2002574 || BLEEDING-EDGE POLICY HTTP - Customer List
+2002575 || BLEEDING-EDGE POLICY High Ports -  Non-US Restricted
+2002576 || BLEEDING-EDGE POLICY High Ports -  Non-US Confidential
+2002577 || BLEEDING-EDGE POLICY High Ports -  Non-US Top Secret
+2002578 || BLEEDING-EDGE POLICY High Ports -  Non-US Secret
+2002579 || BLEEDING-EDGE POLICY High Ports -  NATO Restricted
+2002580 || BLEEDING-EDGE POLICY High Ports -  NATO Confidential Atomal
+2002581 || BLEEDING-EDGE POLICY High Ports -  NATO Confidential
+2002582 || BLEEDING-EDGE POLICY High Ports -  NATO COSMIC Top Secret Atomal
+2002583 || BLEEDING-EDGE POLICY High Ports -  NATO Secret Atomal
+2002584 || BLEEDING-EDGE POLICY High Ports -  NATO Secret
+2002585 || BLEEDING-EDGE POLICY High Ports -  US Confidential, Electronic
+2002586 || BLEEDING-EDGE POLICY High Ports -  US Top Secret, Electronic
+2002587 || BLEEDING-EDGE POLICY High Ports -  US Secret, Electronic
+2002588 || BLEEDING-EDGE POLICY High Ports -  US Confidential REL TO
+2002589 || BLEEDING-EDGE POLICY High Ports -  US Top Secret REL TO
+2002590 || BLEEDING-EDGE POLICY High Ports -  US Secret REL TO
+2002591 || BLEEDING-EDGE POLICY High Ports -  US Confidential COMINT
+2002592 || BLEEDING-EDGE POLICY High Ports -  US Top Secret COMINT
+2002593 || BLEEDING-EDGE POLICY High Ports -  US Secret COMINT
+2002594 || BLEEDING-EDGE POLICY High Ports -  US Unclassified COMSEC
+2002595 || BLEEDING-EDGE POLICY High Ports -  US Confidential COMSEC
+2002596 || BLEEDING-EDGE POLICY High Ports -  US Top Secret COMSEC
+2002597 || BLEEDING-EDGE POLICY High Ports -  US Secret COMSEC
+2002598 || BLEEDING-EDGE POLICY High Ports -  US Secret IMCON
+2002599 || BLEEDING-EDGE POLICY High Ports -  US Top Secret CNWDI
+2002600 || BLEEDING-EDGE POLICY High Ports -  US Secret CNWDI
+2002601 || BLEEDING-EDGE POLICY High Ports -  US Top Secret TK
+2002602 || BLEEDING-EDGE POLICY High Ports -  US Secret TK
+2002603 || BLEEDING-EDGE POLICY High Ports -  US FGI
+2002604 || BLEEDING-EDGE POLICY High Ports -  US FOUO
+2002605 || BLEEDING-EDGE POLICY High Ports -  US Confidential NOFORN
+2002606 || BLEEDING-EDGE POLICY High Ports -  US Top Secret NOFORN
+2002607 || BLEEDING-EDGE POLICY High Ports -  US Secret NOFORN
+2002608 || BLEEDING-EDGE POLICY High Ports -  US Confidential ORCON
+2002609 || BLEEDING-EDGE POLICY High Ports -  US Top Secret ORCON
+2002610 || BLEEDING-EDGE POLICY High Ports -  US Secret ORCON
+2002611 || BLEEDING-EDGE POLICY High Ports -  US Unclassified PROPIN
+2002612 || BLEEDING-EDGE POLICY High Ports -  US Confidential PROPIN
+2002613 || BLEEDING-EDGE POLICY High Ports -  US Top Secret PROPIN
+2002614 || BLEEDING-EDGE POLICY High Ports -  US Secret PROPIN
+2002615 || BLEEDING-EDGE POLICY High Ports -  US Confidential RD
+2002616 || BLEEDING-EDGE POLICY High Ports -  US Top Secret RD
+2002617 || BLEEDING-EDGE POLICY High Ports -  US Secret RD
+2002618 || BLEEDING-EDGE POLICY High Ports -  US SAMI
+2002619 || BLEEDING-EDGE POLICY High Ports -  US Confidential SPECAT
+2002620 || BLEEDING-EDGE POLICY High Ports -  US Top Secret SPECAT
+2002621 || BLEEDING-EDGE POLICY High Ports -  US Secret SPECAT
+2002622 || BLEEDING-EDGE POLICY High Ports -  US Top Secret STOP
+2002623 || BLEEDING-EDGE POLICY High Ports -  Private
+2002624 || BLEEDING-EDGE POLICY High Ports -  Restricted
+2002625 || BLEEDING-EDGE POLICY High Ports -  Confidential
+2002626 || BLEEDING-EDGE POLICY High Ports -  Secret
+2002627 || BLEEDING-EDGE POLICY High Ports -  Top Secret
+2002628 || BLEEDING-EDGE POLICY High Ports -  Sealed
+2002629 || BLEEDING-EDGE POLICY High Ports -  Sensitive
+2002630 || BLEEDING-EDGE POLICY High Ports -  Proprietary
+2002631 || BLEEDING-EDGE POLICY High Ports -  Protected
+2002632 || BLEEDING-EDGE POLICY High Ports -  Law Enorcement Sensitive
+2002633 || BLEEDING-EDGE POLICY High Ports -  Internal Use Only
+2002634 || BLEEDING-EDGE POLICY High Ports -  Date of Birth
+2002635 || BLEEDING-EDGE POLICY High Ports -  HCPCS Code
+2002636 || BLEEDING-EDGE POLICY High Ports -  ICD-10 Code
+2002637 || BLEEDING-EDGE POLICY High Ports -  FDA NDC Code
+2002638 || BLEEDING-EDGE POLICY High Ports -  ADA Procedure Code
+2002639 || BLEEDING-EDGE POLICY High Ports -  DSM-IV Code
+2002640 || BLEEDING-EDGE POLICY High Ports -  AMA CPT Code
+2002642 || BLEEDING-EDGE POLICY High Ports -  Credit Card, JCB
+2002648 || BLEEDING-EDGE POLICY High Ports -  Password
+2002649 || BLEEDING-EDGE POLICY High Ports -  Appraisal
+2002650 || BLEEDING-EDGE POLICY High Ports -  Account Balance
+2002651 || BLEEDING-EDGE POLICY High Ports -  Payment History
+2002652 || BLEEDING-EDGE POLICY High Ports -  Annual Income
+2002653 || BLEEDING-EDGE POLICY High Ports -  Credit History
+2002654 || BLEEDING-EDGE POLICY High Ports -  Transaction History
+2002655 || BLEEDING-EDGE POLICY High Ports -  Customer List
+2002656 || BLEEDING-EDGE EXPLOIT malformed Sack - Snort DoS-by-$um$id
+2002658 || BLEEDING-EDGE POLICY EIN in the clear (US-IRS Employer ID Number) || url,policy.ssa.gov/poms.nsf/lnx/0101001001?opendocument || url,policy.ssa.gov/poms.nsf/lnx/0101001004
+2002659 || BLEEDING-EDGE CHAT Yahoo IM Client Install
+2002660 || BLEEDING-EDGE WEB RSA Web Auth Exploit Attempt - Long URL || url,www.metasploit.com/projects/Framework/modules/exploits/rsa_iiswebagent_redirect.pm || url,secunia.com/advisories/17281
+2002661 || BLEEDING-EDGE EXPLOIT Snort Back Orifice pre-processor buffer overflow attempt || url,xforce.iss.net/xforce/alerts/id/207 || url,isc.sans.org/diary.php?storyid=770 || url,isc.sans.org/diary.php?storyid=782
+2002662 || BLEEDING-EDGE WEB TWiki INCLUDE remote command execution attempt || bugtraq,14960
+2002663 || BLEEDING-EDGE WEB e107 resetcore.php SQL Injection attempt || bugtraq,15125
+2002664 || BLEEDING-EDGE SCAN Nessus User Agent || url,www.nessus.org
+2002665 || BLEEDING-EDGE VIRUS Bagle.dk SMTP Inbound || url,vil.nai.com/vil/content/v_136751.htm
+2002666 || BLEEDING-EDGE VIRUS Bagle.dk SMTP Outbound || url,vil.nai.com/vil/content/v_136751.htm
+2002667 || BLEEDING-EDGE WEB sumthin scan || url,www.webmasterworld.com/forum11/2100.htm
+2002668 || BLEEDING-EDGE WEB CutePHP CuteNews directory traversal vulnerability - show_news || bugtraq,15295
+2002670 || BLEEDING-EDGE CURRENT EVENTS Malware Altered Host - DNS to Malicious DNS Server (tcp) || url,isc.sans.org/diary.php?storyid=819
+2002671 || BLEEDING-EDGE WEB Galerie ShowGallery.php SQL Injection attempt || bugtraq,15313
+2002672 || BLEEDING-EDGE CURRENT EVENTS Malware Altered Host - DNS to Malicious DNS Server (udp) || url,isc.sans.org/diary.php?storyid=819
+2002673 || BLEEDING-EDGE P2P MS Foldershare Login Detected || url,www.foldershare.com
+2002674 || BLEEDING-EDGE MALWARE Sony DRM Reporting 2 || url,www.sysinternals.com/blog/2005/11/more-on-sony-dangerous-decloaking.html
+2002675 || BLEEDING-EDGE MALWARE Sony DRM Reporting 1 || url,www.sysinternals.com/blog/2005/11/more-on-sony-dangerous-decloaking.html
+2002676 || BLEEDING-EDGE POLICY nstx DNS Tunnel Outbound || url,nstx.dereference.de/nstx || url,savannah.nongnu.org/projects/nstx/
+2002677 || BLEEDING-EDGE SCAN Nikto Web App Scan in Progress || url,www.cirt.net/code/nikto.shtml
+2002678 || BLEEDING-EDGE WEB Cyphor show.php SQL injection attempt || bugtraq,15418
+2002679 || BLEEDING-EDGE Malware Sony DRM Related - CodeSupport ActiveX Attempt || url,www.hack.fi/~muzzy/sony-drm/ || url,www.frsirt.com/english/advisories/2005/2454
+2002680 || BLEEDING-EDGE Malware Sony DRM - Uninstaller CLSID || url,www.microsoft.com/technet/security/bulletin/ms05-054.mspx || url,www.frsirt.com/english/advisories/2005/2493 || url,www.freedom-to-tinker.com/?p=931
+2002681 || BLEEDING-EDGE WEB Mambo Exploit || url,isc.sans.org/diary.php?storyid=869 || url,seclists.org/lists/fulldisclosure/2005/Nov/0528.html
+2002682 || BLEEDING-EDGE CURRENT EVENTS Microsoft Internet Explorer Window() Possible Code Execution || cve,2005-1790 || url,www.computerterrorism.com/research/ie/ct21-11-2005 || url,secunia.com/advisories/15546
+2002683 || BLEEDING-EDGE WORM shell bot perl code download
+2002684 || BLEEDING-EDGE WORM Shell Bot Code Download
+2002685 || BLEEDING-EDGE WEB Barracuda Spam Firewall img.pl Remote Directory Traversal Attempt || bugtraq,14710
+2002686 || BLEEDING-EDGE VIRUS Sober.AA (.Z,.AG,.X,.Y,.W) worm SMTP Outbound || url,www.norman.com/Virus/Virus_descriptions/25962 || url,cme.mitre.org/data/list.html#681
+2002687 || BLEEDING-EDGE VIRUS Sober.AA (.Z,.AG,.X,.Y,.W) worm SMTP Inbound || url,www.norman.com/Virus/Virus_descriptions/25962 || url,cme.mitre.org/data/list.html#681
+2002688 || BLEEDING-EDGE VIRUS Bagle.EO or EP Inbound || url,www.f-secure.com/v-descs/bagle_ep.shtml || url,www.f-secure.com/v-descs/bagle_eo.shtml
+2002689 || BLEEDING-EDGE VIRUS Bagle.EO or EP Outbound || url,www.f-secure.com/v-descs/bagle_ep.shtml || url,www.f-secure.com/v-descs/bagle_eo.shtml
+2002690 || BLEEDING-EDGE VIRUS Bagle.ES or ET Inbound || url,www.f-secure.com/v-descs/bagle_es.shtml || url,www.f-secure.com/v-descs/bagle_et.shtml
+2002691 || BLEEDING-EDGE VIRUS Bagle.ES or ET Outbound || url,www.f-secure.com/v-descs/bagle_es.shtml || url,www.f-secure.com/v-descs/bagle_et.shtml
+2002692 || BLEEDING-EDGE CURRENT EVENTS Bagle.Gen HTTP Get Traffic - Possible Infected Host
+2002693 || BLEEDING-EDGE VIRUS Generic Downloader Inbound
+2002694 || BLEEDING-EDGE VIRUS Generic Downloader Outbound
+2002695 || BLEEDING-EDGE VIRUS Generic Downloader Outbound HTTP connection - Downloading Code
+2002696 || BLEEDING-EDGE TROJAN Bankem Reporting User Activity
+2002697 || BLEEDING-EDGE EXPLOIT CVSTrac filediff Arbitrary Remote Code Execution || cve,2004-1456 || bugtraq,10878
+2002698 || BLEEDING-EDGE WORM Netsky.P (variant 2) - SMTP incoming  || url,secunia.com/search/?search=netsky.p
+2002699 || BLEEDING-EDGE VIRUS Win32.Bagle.f (.AH,.AJ,Trojan.Lodear.D) Trojan Activity - download attempt || url,symantec.com/avcenter/venc/data/trojan.lodear.d.html || url,www.trendmicro.com.au/consumer/vinfo/encyclopedia.php?LYstr=VMAINDATA&vNav=3&VName=TROJ_BAGLE.AH
+2002700 || BLEEDING-EDGE WORM Netsky.P (variant 2) - SMTP outgoing || url,secunia.com/search/?search=netsky.p
+2002702 || BLEEDING-EDGE EXPLOIT OSTicket Remote Code Execution Attempt || cve,CAN-2005-1439 || cve,CAN-2005-1438 || url,www.gulftech.org/?node=research&article_id=00071-05022005 || url,secunia.com/advisories/15216
+2002703 || BLEEDING-EDGE EXPLOIT GuppY error.php Arbitrary Remote Code Execution || bugtraq,15609
+2002704 || BLEEDING-EDGE POLICY HTTP - US Confidential ORCON
+2002705 || BLEEDING-EDGE WORM W32.Magflag.A@mm 1 || url,securityresponse.symantec.com/avcenter/venc/data/w32.magflag.a@mm.html
+2002706 || BLEEDING-EDGE WORM W32.Magflag.A@mm 2 || url,securityresponse.symantec.com/avcenter/venc/data/w32.magflag.a@mm.html
+2002707 || BLEEDING-EDGE MALWARE iframebiz - adv***.php || url,isc.sans.org/diary.php?storyid=868 || url,iframecash.biz
+2002708 || BLEEDING-EDGE MALWARE iframebiz - sploit.anr || url,isc.sans.org/diary.php?storyid=868 || url,iframecash.biz
+2002709 || BLEEDING-EDGE MALWARE iframebiz - loaderadv***.jar || url,isc.sans.org/diary.php?storyid=868 || url,iframecash.biz
+2002710 || BLEEDING-EDGE MALWARE iframebiz - loadadv***.exe || url,isc.sans.org/diary.php?storyid=868 || url,iframecash.biz
+2002711 || BLEEDING-EDGE WEB includer.cgi Remote Command Execution Attempt || url,isc.sans.org/diary.php?storyid=823
+2002712 || BLEEDING-EDGE DNS Lookup for sites serving Sober control activity - people.freenet.de || url,www.lurhq.com/soberdates.html || url,www.f-secure.com/weblog/archives/archive-122005.html#00000729
+2002713 || BLEEDING-EDGE DNS Lookup for sites serving Sober control activity - scifi.pages.at || url,www.lurhq.com/soberdates.html || url,www.f-secure.com/weblog/archives/archive-122005.html#00000729
+2002714 || BLEEDING-EDGE DNS Lookup for sites serving Sober control activity - home.pages.at || url,www.lurhq.com/soberdates.html || url,www.f-secure.com/weblog/archives/archive-122005.html#00000729
+2002715 || BLEEDING-EDGE DNS Lookup for sites serving Sober control activity - free.pages.at || url,www.lurhq.com/soberdates.html || url,www.f-secure.com/weblog/archives/archive-122005.html#00000729
+2002716 || BLEEDING-EDGE DNS Lookup for sites serving Sober control activity - home.arcor.de || url,www.lurhq.com/soberdates.html || url,www.f-secure.com/weblog/archives/archive-122005.html#00000729
+2002719 || BLEEDING-EDGE VIRUS Mytob.AH SMTP Inbound (aka - BQ,AU,BA,F,T-2,T,.gen,AR,-Fam) || url,www.symantec.com/avcenter/venc/data/w32.mytob.ah@mm.html
+2002720 || BLEEDING-EDGE VIRUS Mytob.AH SMTP Outbound (aka - BQ,AU,BA,F,T-2,T,.gen,AR,-Fam) || url,www.symantec.com/avcenter/venc/data/w32.mytob.ah@mm.html
+2002721 || BLEEDING-EDGE WEB Cisco IOS HTTP set enable password attack || url,www.infohacking.com/INFOHACKING_RESEARCH/Our_Advisories/cisco/index.html || bugtraq,15602 || cve,2005-3921
+2002722 || BLEEDING-EDGE POLICY MP3 File Transfer Outbound || url,filext.com/detaillist.php?extdetail=mp3&Search=Search
+2002723 || BLEEDING-EDGE POLICY MP3 File Transfer Inbound || url,filext.com/detaillist.php?extdetail=mp3&Search=Search
+2002724 || BLEEDING-EDGE Exploit MciWndx ActiveX Control || url,www.microsoft.com/technet/security/bulletin/ms05-054.mspx
+2002725 || BLEEDING-EDGE Exploit COM Object Instantiation Memory Corruption Vulnerability MS05-054 || url,www.microsoft.com/technet/security/bulletin/ms05-054.mspx || cve,2005-2831
+2002726 || BLEEDING-EDGE VIRUS Bagle.gen SMTP Inbound (aka - .BK,.ET,.FT,.JH,Lodear.E,.gen,Mitglieder.GU) || url,isc.sans.org/diary.php?storyid=937
+2002727 || BLEEDING-EDGE VIRUS Bagle.gen SMTP Outbound (aka - .BK,.ET,.FT,.JH,Lodear.E,.gen,Mitglieder.GU) || url,isc.sans.org/diary.php?storyid=937
+2002728 || BLEEDING-EDGE TROJAN Ransky or variant backdoor communication ping || url,www.sophos.com/virusinfo/analyses/trojranckcx.html
+2002729 || BLEEDING-EDGE POLICY Outbound Hamachi VPN Connection Attempt || url,www.hamachi.cc
+2002730 || BLEEDING-EDGE PHPGedView Remote Script Code Execution attempt || bugtraq,15983
+2002731 || BLEEDING-EDGE WEB-PHP Generic phpbb arbitrary command attempt || url,cve.mitre.org/cgi-bin/cvekey.cgi?keyword=phpbb_root_path
+2002732 || BLEEDING-EDGE VIRUS Multiple Time server requests - Possible Sober Infection || url,www.bleedingsnort.com/forum/viewtopic.php?forum=3&showtopic=1540
+2002733 || BLEEDING-EDGE EXPLOIT WMF Escape Record Exploit - All Ports - v3 || url,www.frsirt.com/english/advisories/2005/3086
+2002734 || BLEEDING-EDGE CURRENT WMF Exploit || url,www.frsirt.com/exploits/20051228.ie_xp_pfv_metafile.pm.php
+2002735 || BLEEDING-EDGE MALWARE Zenotecnico Adware 2 || url,www.zenotecnico.com
+2002736 || BLEEDING-EDGE MALWARE Trafficsector.com Spyware Install
+2002737 || BLEEDING-EDGE MALWARE Zenotecnico Spyware Install Report || url,www.zenotecnico.com
+2002738 || BLEEDING-EDGE Malware SurfSidekick Activity (rinfo) || url,securityresponse.symantec.com/avcenter/venc/data/adware.surfsidekick.html
+2002739 || BLEEDING-EDGE MALWARE iDownloadAgent Spyware User Agent
+2002740 || BLEEDING-EDGE MALWARE adservs.com Spyware
+2002741 || BLEEDING-EDGE EXPLOIT WMF Escape Record Exploit - Web Only - version 3 || url,www.frsirt.com/english/advisories/2005/3086
+2002742 || BLEEDING-EDGE EXPLOIT WMF Escape Record Exploit - Version 3 || url,www.frsirt.com/english/advisories/2005/3086
+2002743 || BLEEDING-EDGE EXPLOIT WMF Escape Record Exploit - Web Only - all versions || url,www.frsirt.com/english/advisories/2005/3086
+2002749 || BLEEDING-EDGE POLICY Reserved IP Space Traffic - Bogon Nets 1 || url,www.cymru.com/Documents/bogon-list.html
+2002750 || BLEEDING-EDGE POLICY Reserved IP Space Traffic - Bogon Nets 2 || url,www.cymru.com/Documents/bogon-list.html
+2002751 || BLEEDING-EDGE POLICY Reserved IP Space Traffic - Bogon Nets 3 || url,www.cymru.com/Documents/bogon-list.html
+2002752 || BLEEDING-EDGE POLICY Reserved Internal IP Traffic || url,www.cymru.com/Documents/bogon-list.html
+2002757 || BLEEDING-EDGE EXPLOIT WMF Escape Record Exploit - Web Only - version 1 || url,www.frsirt.com/english/advisories/2005/3086
+2002758 || BLEEDING-EDGE EXPLOIT WMF Escape Record Exploit - Version 1 || url,www.frsirt.com/english/advisories/2005/3086
+2002759 || BLEEDING-EDGE EXPLOIT WMF Escape Record Exploit - All Ports - v1 || url,www.frsirt.com/english/advisories/2005/3086
+2002760 || BLEEDING-EDGE P2P GnucDNA UDP Ultrapeer Traffic
+2002761 || BLEEDING-EDGE P2P Gnutella TCP Ultrapeer Traffic
+2002762 || BLEEDING-EDGE TROJAN Torpig Reporting User Activity (x25) || url,www.sophos.com/virusinfo/analyses/trojtorpigr.html
+2002763 || BLEEDING-EDGE TROJAN Dumador Reporting User Activity || url,www.norman.com/Virus/Virus_descriptions/24279/
+2002764 || BLEEDING-EDGE WEB MISC WinProxy Host port buffer overflow || bugtraq,16147 || cve,2005-4085
+2002765 || BLEEDING-EDGE MALWARE Corpsespyware.net BlackListed Malicious Domain - google.vc || url,www.securityfocus.com/infocus/1745
+2002766 || BLEEDING-EDGE MALWARE Corpsespyware.net BlackList - pcpeek || url,www.securityfocus.com/infocus/1745
+2002767 || BLEEDING-EDGE MALWARE Corpsespyware.net Distribution - bos.biz || url,www.securityfocus.com/infocus/1745
+2002768 || BLEEDING-EDGE MALWARE Corpsespyware.net Distribution - fesexy || url,www.securityfocus.com/infocus/1745
+2002769 || BLEEDING-EDGE MALWARE Corpsespyware.net Distribution - studiolacase || url,www.securityfocus.com/infocus/1745
+2002770 || BLEEDING-EDGE MALWARE Corpsespyware.net - msits.exe access || url,www.securityfocus.com/infocus/1745
+2002771 || BLEEDING-EDGE MALWARE Corpsespyware.net - msys.exe access || url,www.securityfocus.com/infocus/1745
+2002772 || BLEEDING-EDGE MALWARE Corpsespyware.net - PG 02 Outbound || url,www.securityfocus.com/infocus/1745
+2002773 || BLEEDING-EDGE MALWARE Corpsepsyware.net - PG 02 Inbound || url,www.securityfocus.com/infocus/1745
+2002774 || BLEEDING-EDGE MALWARE Corpsespyware.net Blind Data Upload || url,www.securityfocus.com/infocus/1745
+2002775 || BLEEDING-EDGE TROJAN Goldun Reporting User Activity || url,www.avira.com/en/threats/TR_Spy_Goldun_de_1_details.html
+2002776 || BLEEDING-EDGE TROJAN SickleBot Reporting User Activity
+2002777 || BLEEDING-EDGE WEB Light Weight Calendar 'date' Arbitrary Remote Code Execution
+2002778 || BLEEDING-EDGE VIRUS W32.Nyxem-D SMTP outbound || url,www.sophos.com/virusinfo/analyses/w32nyxemd.html
+2002779 || BLEEDING-EDGE VIRUS W32.Nyxem-D SMTP inbound || url,www.sophos.com/virusinfo/analyses/w32nyxemd.html
+2002780 || BLEEDING-EDGE TROJAN Goldun Reporting User Activity 2 || url,www.avira.com/en/threats/TR_Spy_Goldun_de_1_details.html
+2002781 || BLEEDING-EDGE TROJAN w32agent.dsi Posting Info || url,nepenthes.sourceforge.net/analysis\:w32agent.dsi
+2002782 || BLEEDING-EDGE TROJAN w32agent.dsi Domain Update || url,nepenthes.sourceforge.net/analysis\:w32agent.dsi
+2002783 || BLEEDING-EDGE EXPLOIT Java runtime.exec() call || url,www.mullingsecurity.com
+2002784 || BLEEDING-EDGE EXPLOIT Java private function call sun.misc.unsafe || url,www.mullingsecurity.com
+2002785 || BLEEDING-EDGE EXPLOIT Java field reflector call java.lang.reflect.field || url,www.mullingsecurity.com
+2002786 || BLEEDING-EDGE EXPLOIT Javascript unsafe applet call || url,www.mullingsecurity.com
+2002787 || BLEEDING-EDGE EXPLOIT Javascript Securitymanager class applet call || url,www.mullingsecurity.com
+2002788 || BLEEDING-EDGE VIRUS webstats.web.rcn.net count.cgi request without referrer (possible BlackWorm/Nyxem infection)
+2002789 || BLEEDING-EDGE VIRUS Agentless HTTP request to www.microsoft.com (possible BlackWorm/Nyxem infection)
+2002790 || BLEEDING-EDGE TROJAN Haxdoor Reporting User Activity || url,www.trendmicro.com/vinfo/virusencyclo/default5.asp?VName=BKDR_HAXDOOR.DI
+2002791 || BLEEDING-EDGE WEB MISC Computer Associates Negative Content-Length Buffer Overflow || cve,2005-3653 || bugtraq,16354
+2002792 || BLEEDING-EDGE TROJAN Win32.Agent Reporting User Activity
+2002793 || BLEEDING-EDGE VIRUS Stinx-N SMTP Outbound || url,www.antivirusprogram.se/virusinfo/OutsBot+Family_2855.html || url,www.sophos.com/virusinfo/analyses/trojstinxn.html
+2002794 || BLEEDING-EDGE VIRUS Stinx-N SMTP Inbound || url,www.antivirusprogram.se/virusinfo/OutsBot+Family_2855.html || url,www.sophos.com/virusinfo/analyses/trojstinxn.html
+2002795 || BLEEDING-EDGE VIRUS Nyxem attempting to copy WINZIP_TMP.exe to shares || url,www.incidents.org/diary.php?date=2006-02-02 || url,www.lurhq.com/blackworm.html
+2002796 || BLEEDING-EDGE POLICY X-Box Live Connecting || url,www.microsoft.com/xbox/
+2002797 || BLEEDING-EDGE VIRUS Bagle.fj(CME-328) SMTP Inbound || url,cme.mitre.org/data/list.html#328
+2002798 || BLEEDING-EDGE VIRUS Bagle.fj(CME-328) SMTP Outbound || url,cme.mitre.org/data/list.html#328
+2002799 || BLEEDING-EDGE EXPLOIT MS05-005 Office XP .rtf Remote Code Attempt || url,www.frsirt.com/english/advisories/2005/0119 || cve,2004-0848
+2002800 || BLEEDING-EDGE WEB PHP PHPNuke Remote File Inclusion Attempt || url,www.zone-h.org/en/advisories/read/id=8694/
+2002801 || BLEEDING-EDGE WEB Google Desktop User-Agent Detected || url,news.com.com/2100-1032_3-6038197.html
+2002802 || BLEEDING-EDGE EXPLOIT Windows Media Player parsing BMP file with 0 size offset to start of image || bugtraq,16633 || cve,2006-0006 || url,www.microsoft.com/technet/security/Bulletin/MS06-005.mspx || url,www.milw0rm.com/id.php?id=1500
+2002803 || BLEEDING-EDGE EXPLOIT BMP with invalid bfOffBits || bugtraq,16633 || cve,2006-0006 || url,www.microsoft.com/technet/security/Bulletin/ms06-005.mspx
+2002804 || BLEEDING-EDGE MALWARE Spyaxe Spyware DB Update
+2002805 || BLEEDING-EDGE MALWARE Spyaxe Spyware DB Version Check
+2002806 || BLEEDING-EDGE MALWARE Spyaxe Spyware Checkin
+2002807 || BLEEDING-EDGE MALWARE Spyaxe Spyware User Agent
+2002808 || BLEEDING-EDGE MALWARE Spyaxe Spyware User Agent 2
+2002809 || BLEEDING-EDGE ATTACK RESPONSE Hostile FTP Server Banner (StnyFtpd)
+2002810 || BLEEDING-EDGE ATTACK RESPONSE Hostile FTP Server Banner (Reptile)
+2002811 || BLEEDING-EDGE ATTACK RESPONSE Hostile FTP Server Banner (Bot Server)
+2002812 || BLEEDING-EDGE TROJAN PWS-LDPinch Reporting User Activity
+2002813 || BLEEDING-EDGE CURRENT Mac OS/X MIME Header x-unix-mode Tag || url,isc.sans.org/diary.php?storyid=1138
+2002814 || BLEEDING-EDGE P2P Direct Connect Traffic (client-server) || url,en.wikipedia.org/wiki/Direct_connect_file-sharing_application
+2002815 || BLEEDING-EDGE WEB Plume CMS prepend.php Remote File Inclusion attempt || nessus,20972 || bugtraq,16662 || cve,CVE-2006-0725
+2002816 || BLEEDING-EDGE Malware DelFin Project Spyware (payload)
+2002817 || BLEEDING-EDGE Malware DelFin Project Spyware (setup)
+2002818 || BLEEDING-EDGE Malware MyWebSearch Toolbar Traffic (general download)
+2002819 || BLEEDING-EDGE Malware MyWebSearch Toolbar Traffic (bin download)
+2002820 || BLEEDING-EDGE Malware Hotbar Agent Subscription POST || url,www.hotbar.com
+2002821 || BLEEDING-EDGE Malware SideStep Bar Reporting Data (sbstart) || url,www.spyany.com/program/article_spw_rm_SideStep.html || url,www.sidestep.com
+2002822 || BLEEDING-EDGE POLICY Wget User Agent || url,www.gnu.org/software/wget
+2002823 || BLEEDING-EDGE POLICY POSSIBLE Web Crawl using Wget || url,www.gnu.org/software/wget/
+2002824 || BLEEDING-EDGE POLICY CURL User Agent || url,curl.haxx.se
+2002825 || BLEEDING-EDGE POLICY POSSIBLE Web Crawl using Curl || url,curl.haxx.se
+2002826 || BLEEDING-EDGE POLICY fetch User Agent || url,gobsd.com/code/freebsd/lib/libfetch
+2002827 || BLEEDING-EDGE POLICY POSSIBLE Crawl using Fetch || url,gobsd.com/code/freebsd/lib/libfetch
+2002828 || BLEEDING-EDGE POLICY googlebot User Agent || url,www.google.com/webmasters/bot.html
+2002829 || BLEEDING-EDGE POLICY Googlebot Crawl || url,www.google.com/webmasters/bot.html
+2002830 || BLEEDING-EDGE POLICY msnbot User Agent || url,search.msn.com/msnbot.htm
+2002831 || BLEEDING-EDGE POLICY Msnbot Crawl || url,search.msn.com/msnbot.htm
+2002832 || BLEEDING-EDGE POLICY Yahoo Crawler User Agent || url,mms-mmcrawler-support@yahoo-inc.com
+2002833 || BLEEDING-EDGE POLICY Yahoo Crawler Crawl || url,mms-mmcrawler-support@yahoo-inc.com
+2002836 || BLEEDING-EDGE Malware MyWebSearch Toolbar Traffic (bar config download)
+2002837 || BLEEDING-EDGE WEB PmWiki Globals Variables Overwrite Attempt || nessus,20891 || bugtraq,16421 || cve,CVE-2006-0479
+2002838 || BLEEDING-EDGE Google Search Appliance browsing the Internet || url,www.google.com/enterprise/gsa/index.html
+2002839 || BLEEDING-EDGE Malware My Search Spyware Config Download
+2002840 || BLEEDING-EDGE Malware Freeze.com Spyware/Adware (Install)
+2002841 || BLEEDING-EDGE Malware Freeze.com Spyware/Adware (Install Registration)
+2002842 || BLEEDING-EDGE SCAN MYSQL 4.1 brute force root login attempt || url,www.redferni.uklinux.net/mysql/MySQL-Protocol.html
+2002843 || BLEEDING-EDGE DOS Microsoft Streaming Server Malformed Request || url,www.microsoft.com/technet/security/bulletin/ms00-038.mspx || bugtraq,1282
+2002844 || BLEEDING-EDGE WEB WebDAV search overflow || cve,2003-0109
+2002845 || BLEEDING-EDGE EXPLOIT Hello Overflow Attempt || bugtraq,5411 || cve,2002-1123
+2002846 || BLEEDING-EDGE WEB Minishare GET Overflow || bugtraq,11620 || cve,2004-2271
+2002847 || BLEEDING-EDGE WEB WebAdmin User Overflow || cve,2003-471
+2002848 || BLEEDING-EDGE EXPLOIT SIP UDP Softphone INVITE overflow || cve,2006-0189 || bugtraq,16213
+2002849 || BLEEDING-EDGE WEB-MISC Google Appliance External Proxy Stylesheet || cve,2005-3758 || bugtraq,15509
+2002850 || BLEEDING-EDGE FTP USER login flowbit
+2002851 || BLEEDING-EDGE FTP HP-UX LIST command without login || bugtraq,15138 || cve,2005-3296
+2002852 || BLEEDING-EDGE EXPLOIT HP-UX Printer LPD Command Insertion || bugtraq,15136 || cve,2005-3277
+2002853 || BLEEDING-EDGE DOS FreeBSD NFS RPC Kernel Panic || bugtraq,19017 || cve,2006-0900
+2002854 || BLEEDING-EDGE TROJAN Orderjack Reporting User Activity || url,www.avira.com/en/threats/section/fulldetails/id_vir/1724/tr_dldr.orderjack.a.html
+2002855 || BLEEDING-EDGE GAMES Blizzard Downloader || url,www.worldofwarcraft.com/info/faq/blizzarddownloader.html
+2002856 || BLEEDING-EDGE MALWARE Suspicious POST to ROBOTS.TXT
+2002857 || BLEEDING-EDGE TROJAN Win32.VB.aie Reporting User Activity
+2002858 || BLEEDING-EDGE Malware Fun Web Products StationaryChooser Spyware || url,www.funwebproducts.com
+2002859 || BLEEDING-EDGE TROJAN PassSickle Reporting User Activity
+2002860 || BLEEDING-EDGE WEB CLIENT Internet Explorer createTextRange Code Execution || cve,2006-1359 || bugtraq,17196
+2002861 || BLEEDING-EDGE WEB CLIENT Danim.dll and Dxtmsft.dll COM Objects || url,www.microsoft.com/technet/security/bulletin/ms06-013.mspx || cve,2006-1186
+2002862 || BLEEDING-EDGE EXPLOIT PeerCast Url Overflow || bugtraq,17040 || cve,2006-1148
+2002863 || BLEEDING-EDGE WEB osCommerce vulnerable web application extras update.php exists || url,retrogod.altervista.org/oscommerce_22_adv.html
+2002864 || BLEEDING-EDGE WEB osCommerce extras/update.php disclosure || url,retrogod.altervista.org/oscommerce_22_adv.html
+2002865 || BLEEDING-EDGE WEB MISC Novell GroupWise Messenger Accept Language Buffer Overflow || bugtraq,17503 || cve,2006-0992
+2002866 || BLEEDING-EDGE POLICY Winpcap Installation in Progress || url,www.winpcap.org
+2002867 || BLEEDING-EDGE WEB Horde 3.0.9-3.1.0 Help Viewer Remote PHP Exploit || bugtraq,17292 || cve,2006-1491 || url,www.milw0rm.com/exploits/1660
+2002868 || BLEEDING-EDGE WEB Horde Web Mail Help Access || bugtraq,17292 || cve,2006-1491
+2002869 || BLEEDING-EDGE WEB WebAttacker kit (exploit1 ie0601)
+2002870 || BLEEDING-EDGE WEB WebAttacker kit (exploit ie0604)
+2002871 || BLEEDING-EDGE WEB WebAttacker kit (bug ie0604)
+2002872 || BLEEDING-EDGE POLICY Myspace Login Attempt
+2002873 || BLEEDING-EDGE MALWARE Torpig/Anserin/Sinowal User Agent
+2002874 || BLEEDING-EDGE MALWARE Metafisher/Goldun z User Agent
+2002875 || BLEEDING-EDGE MALWARE Torpig/Anserin/Sinowal MSID User Agent
+2002876 || BLEEDING-EDGE MALWARE Small-EM/Divo/PassSickle User Agent
+2002877 || BLEEDING-EDGE MALWARE BankSnif/Nethelper User Agent
+2002878 || BLEEDING-EDGE POLICY iTunes User Agent || url,hcsoftware.sourceforge.net/jason-rohrer/itms4all/
+2002879 || BLEEDING-EDGE WEB PHP phpMyAgenda rootagenda Remote File Include Attempt || bugtraq,17670 || cve,2006-2009
+2002880 || BLEEDING-EDGE SNMP Cisco Non-Trap PDU request on SNMPv1 trap port || bugtraq,10186 || cve,2004-0714
+2002881 || BLEEDING-EDGE SNMP Cisco Non-Trap PDU request on SNMPv2 trap port || bugtraq,10186 || cve,2004-0714
+2002882 || BLEEDING-EDGE SNMP Cisco Non-Trap PDU request on SNMPv3 trap port || bugtraq,10186 || cve,2004-0714
+2002886 || BLEEDING-EDGE EXPLOIT SYS get_domain_index_metadata Privilege Escalation Attempt || bugtraq,17699
+2002887 || BLEEDING-EDGE EXPLOIT SYS get_domain_index_tables Access || bugtraq,17699
+2002888 || BLEEDING-EDGE EXPLOIT SYS get_v2_domain_index_tables Privilege Escalation Attempt || bugtraq,17699
+2002889 || BLEEDING-EDGE WEB JuniperSetup Control Buffer Overflow || url,www.eeye.com/html/research/advisories/AD20060424.html
+2002892 || BLEEDING-EDGE VIRUS Mytob.X [clam] SMTP Inbound || url,www3.ca.com/securityadvisor/virusinfo/virus.aspx?ID=42326
+2002893 || BLEEDING-EDGE VIRUS Mytob.X [clam] SMTP Outbound || url,www3.ca.com/securityadvisor/virusinfo/virus.aspx?ID=42326
+2002894 || BLEEDING-EDGE VIRUS W32.Nugache SMTP Inbound || url,www.symantec.com/avcenter/venc/data/w32.nugache.a@mm.html
+2002895 || BLEEDING-EDGE VIRUS W32.Nugache SMTP Outbound || url,www.symantec.com/avcenter/venc/data/w32.nugache.a@mm.html
+2002896 || BLEEDING-EDGE EXPLOIT Symantec Scan Engine Request Password Hash || bugtraq,17637 || cve,2006-0230
+2002897 || BLEEDING-EDGE WEB Horde README access probe || url,csirt.terradon.com/postarchive.php?month=4&year=2006#article28 || cve,CVE-2006-1491
+2002898 || BLEEDING-EDGE WEB PHP Web Calendar Remote File Inclusion Attempt || cve,2005-2717 || bugtraq,14651
+2002899 || BLEEDING-EDGE WEB PHP VWar Remote File Inclusion get_header.php || bugtraq,17358 || cve,2006-1636 || url,www.milw0rm.com/exploits/1632
+2002900 || BLEEDING-EDGE WEB CGI AWstats Migrate Command Attempt || bugtraq,17844
+2002901 || BLEEDING-EDGE WEB PHP Aardvark Topsites PHP CONFIG[PATH] Remote File Include Attempt || url,www.osvdb.org/25158 || cve,CVE-2006-2149
+2002902 || BLEEDING-EDGE WEB PHP VWar Remote File Inclusion functions_install.php || bugtraq,17290 || cve,2006-1503
+2002903 || BLEEDING-EDGE EXPLOIT x86 PexFnstenvMov/Sub Encoder
+2002904 || BLEEDING-EDGE EXPLOIT x86 Alpha2 GetEIPs Encoder
+2002905 || BLEEDING-EDGE EXPLOIT x86 Countdown Encoder
+2002906 || BLEEDING-EDGE EXPLOIT x86 PexAlphaNum Encoder
+2002907 || BLEEDING-EDGE EXPLOIT x86 PexCall Encoder
+2002908 || BLEEDING-EDGE EXPLOIT x86 JmpCallAdditive Encoder
+2002909 || BLEEDING-EDGE WEB CLIENT Internet Explorer Cryptomathic ActiveX createPKCS10 Access || bugtraq,17852 || cve,2006-1172
+2002910 || BLEEDING-EDGE SCAN Potential VNC Scan 5800-5820
+2002911 || BLEEDING-EDGE SCAN Potential VNC Scan 5900-5920
+2002912 || BlEEDING-EDGE EXPLOIT VNC Possible Vulnerable Server Response || cve,2006-2369 || url,www.cl.cam.ac.uk/Research/DTG/attarchive/vnc/rfbproto.pdf
+2002913 || BLEEDING-EDGE EXPLOIT VNC Client response || url,www.cl.cam.ac.uk/Research/DTG/attarchive/vnc/rfbproto.pdf
+2002914 || BLEEDING-EDGE EXPLOIT VNC Server VNC Auth Offer || url,www.cl.cam.ac.uk/Research/DTG/attarchive/vnc/rfbproto.pdf
+2002915 || BLEEDING-EDGE EXPLOIT VNC Authentication Reply || url,www.cl.cam.ac.uk/Research/DTG/attarchive/vnc/rfbproto.pdf
+2002916 || BLEEDING-EDGE EXPLOIT RealVNC Authentication Bypass Attempt || cve,2006-2369 || url,www.cl.cam.ac.uk/Research/DTG/attarchive/vnc/rfbproto.pdf || url,archives.neohapsis.com/archives/fulldisclosure/2006-05/0356.html || url,secunia.com/advisories/20107/
+2002917 || BLEEDING-EDGE EXPLOIT RealVNC Server Authentication Bypass Successful || cve,2006-2369 || url,archives.neohapsis.com/archives/fulldisclosure/2006-05/0356.html || url,secunia.com/advisories/20107/
+2002918 || BLEEDING-EDGE EXPLOIT VNC Server VNC Auth Offer - No Challenge string || url,www.cl.cam.ac.uk/Research/DTG/attarchive/vnc/rfbproto.pdf
+2002919 || BLEEDING-EDGE EXPLOIT VNC Good Authentication Reply || url,www.cl.cam.ac.uk/Research/DTG/attarchive/vnc/rfbproto.pdf
+2002920 || BLEEDING-EDGE POLICY VNC Authentication Failure || url,www.cl.cam.ac.uk/Research/DTG/attarchive/vnc/rfbproto.pdf
+2002921 || BLEEDING-EDGE EXPLOIT VNC Multiple Authentication Failures || url,www.cl.cam.ac.uk/Research/DTG/attarchive/vnc/rfbproto.pdf
+2002922 || BLEEDING-EDGE POLICY VNC Authentication Successful || url,www.cl.cam.ac.uk/Research/DTG/attarchive/vnc/rfbproto.pdf
+2002923 || BLEEDING-EDGE EXPLOIT VNC Server Not Requiring Authentication (case 2) || cve,2006-2369 || url,www.cl.cam.ac.uk/Research/DTG/attarchive/vnc/rfbproto.pdf
+2002924 || BLEEDING-EDGE EXPLOIT VNC Server Not Requiring Authentication || cve,2006-2369 || url,www.cl.cam.ac.uk/Research/DTG/attarchive/vnc/rfbproto.pdf
+2002925 || BLEEDING-EDGE INAPPROPRIATE Google Image Search, Safe Mode Off
+2002926 || BLEEDING-EDGE SNMP Cisco Non-Trap PDU request on SNMPv1 random port || bugtraq,10186 || cve,2004-0714
+2002927 || BLEEDING-EDGE SNMP Cisco Non-Trap PDU request on SNMPv2 random port || bugtraq,10186 || cve,2004-0714
+2002928 || BLEEDING-EDGE SNMP Cisco Non-Trap PDU request on SNMPv3 random port || bugtraq,10186 || cve,2004-0714
+2002929 || BLEEDING-EDGE TROJAN Haxdoor Reporting User Activity 2
+2002930 || BLEEDING-EDGE WORM perlb0t Bot Reporting Scan/Exploit
+2002931 || BLEEDING-EDGE MALWARE CWS Trafcool.biz Related Installer || url,www3.ca.com/securityadvisor/pest/pest.aspx?id=453076035
+2002932 || BLEEDING-EDGE MALWARE CWS Related Installer || url,www3.ca.com/securityadvisor/pest/pest.aspx?id=453076035
+2002933 || BLEEDING-EDGE MALWARE CWS Spy-Sheriff.com Infeced Buy Page Request || url,www3.ca.com/securityadvisor/pest/pest.aspx?id=453076035
+2002934 || BLEEDING-EDGE POLICY libwww-perl User Agent || url,www.linpro.no/lwp/
+2002935 || BLEEDING-EDGE POLICY libwww-perl User Agent || url,www.linpro.no/lwp/
+2002937 || BLEEDING-EDGE WEB WebAttacker kit (ie0606)
+2002938 || BLEEDING-EDGE TROJAN - elitekeylogger v1.0 reporting - Inbound
+2002940 || BLEEDING-EDGE TROJAN XP keylogger v2.1 mail report - Inbound
+2002941 || BLEEDING-EDGE TROJAN - elitekeylogger v1.0 reporting - Outbound
+2002942 || BLEEDING-EDGE TROJAN XP keylogger v2.1 mail report - Outbound
+2002943 || BLEEDING-EDGE POLICY python.urllib User Agent Web Crawl || url,docs.python.org/lib/module-urllib.html
+2002944 || BLEEDING-EDGE POLICY python.urllib User Agent || url,docs.python.org/lib/module-urllib.html
+2002945 || BLEEDING-EDGE POLICY Java Url Lib User Agent Web Crawl || url,www.mozilla.org/docs/netlib/seealso/netmods.html
+2002946 || BLEEDING-EDGE POLICY Java Url Lib User Agent || url,www.mozilla.org/docs/netlib/seealso/netmods.html
+2002947 || BLEEDING-EDGE WEB MISC PunkBuster Server webkey Buffer Overflow || url,aluigi.altervista.org/adv/pbwebbof-adv.txt
+2002948 || BLEEDING-EDGE POLICY External Windows Update in Progress || url,windowsupdate.microsoft.com
+2002949 || BLEEDING-EDGE POLICY Windows Update in Progress || url,windowsupdate.microsoft.com
+2002950 || BLEEDING-EDGE POLICY TOR 1.0 Server Key Retrival || url,tor.eff.org
+2002951 || BLEEDING-EDGE POLICY TOR 1.0 Status Update || url,tor.eff.org
+2002952 || BLEEDING-EDGE POLICY TOR 1.0 Inbound Circuit Traffic || url,tor.eff.org
+2002953 || BLEEDING-EDGE POLICY TOR 1.0 Outbound Circuit Traffic || url,tor.eff.org
+2002954 || BLEEDING-EDGE MALWARE Bravesentry.com Fake Antispyware Download || url,www.bravesentry.com
+2002955 || BLEEDING-EDGE MALWARE Bestcount.net Spyware Checkin || url,reports.internic.net/cgi/whois?whois_nic=bestcount.net&type=domain
+2002956 || BLEEDING-EDGE MALWARE Bestcount.net Spyware Downloading vxgame || url,reports.internic.net/cgi/whois?whois_nic=bestcount.net&type=domain
+2002957 || BLEEDING-EDGE MALWARE Bestcount.net Spyware Initial Infection Download || url,reports.internic.net/cgi/whois?whois_nic=bestcount.net&type=domain
+2002958 || BLEEDING-EDGE MALWARE Blueskyltd.biz Spyware Checkin or Download
+2002959 || BLEEDING-EDGE MALWARE Blueskyltd.biz Spyware Checkin
+2002960 || BLEEDING-EDGE MALWARE Blueskyltd.biz Spyware Download
+2002961 || BLEEDING-EDGE MALWARE Blueskyltd.biz Spyware Checkin 2
+2002962 || BLEEDING-EDGE MALWARE nov.ru Spyware Code Download
+2002963 || BLEEDING-EDGE MALWARE Generic Spambot-Spyware Access
+2002964 || BLEEDING-EDGE MALWARE Generic Spyware Update Download
+2002965 || BLEEDING-EDGE MALWARE Generic Spambot Spam Download
+2002966 || BLEEDING-EDGE MALWARE Elitemediagroup.net Spyware Config Download || url,elitemediagroup.net
+2002967 || BLEEDING-EDGE MALWARE Dollarrevenue.com Spyware Code Download || url,dollarrevenue.com
+2002968 || BLEEDING-EDGE MALWARE Matcash.com Spyware Code Download || url,matcash.com
+2002969 || BLEEDING-EDGE POLICY Microsoft BITS User Agent || url,au.download.windowsupdate.com
+2002970 || BLEEDING-EDGE MALWARE VB WinHTTP User Agent - Possible Malware
+2002971 || BLEEDING-EDGE WEB CLIENT Wmm2fxa.dll COM Object Instantiation Memory Corruption || url,www.microsoft.com/technet/security/bulletin/ms06-021.mspx || bugtraq,18328 || cve,2006-1303
+2002972 || BLEEDING-EDGE WEB PHP ZeroBoard .htaccess upload || url,secunia.com/advisories/20592/
+2002973 || BLEEDING-EDGE Behavioral Unusual Port 3127 traffic, Potential Scan or Backdoor
+2002974 || BLEEDING-EDGE TROJAN Backdoor.Hupigon Possible Control Connection Being Established || url,www.avira.com/en/threats/section/fulldetails/id_vir/1051/bds_hupigon.bo.html
+2002975 || BLEEDING-EDGE TROJAN Backdoor.Hupigon INFECTION - Reporting Host Type || url,www.avira.com/en/threats/section/fulldetails/id_vir/1051/bds_hupigon.bo.html
+2002976 || BLEEDING-EDGE TROJAN Banker.Delf Infection - Sending Initial Email to Owner || url,www.avira.com/en/threats/section/details/id_vir/1836/tr_banker.delf.df735649.html
+2002977 || BLEEDING-EDGE TROJAN Banload Downloader Infection - Sending initial email to owner || url,www.viruslist.com/en/viruses/encyclopedia?virusid=95586
+2002978 || BLEEDING-EDGE TROJAN Banker.Delf Infection variant 2 - Sending Initial Email to Owner || url,www.avira.com/en/threats/section/details/id_vir/1836/tr_banker.delf.df735649.html
+2002979 || BLEEDING-EDGE POLICY SC-KeyLog Keylogger Installed - Sending Initial Email Report || url,www.soft-central.net/keylog.php
+2002980 || BLEEDING-EDGE TROJAN Banker.Delf Infection variant 3 - Sending Initial Email to Owner || url,www.avira.com/en/threats/section/details/id_vir/1836/tr_banker.delf.df735649.html
+2002981 || BLEEDING-EDGE TROJAN Banker.Delf Infection variant 4 - Sending Initial Email to Owner || url,www.avira.com/en/threats/section/details/id_vir/1836/tr_banker.delf.df735649.html
+2002982 || BLEEDING-EDGE TROJAN GENERAL Possible Trojan Sending Initial Email to Owner - INFECTADO
+2002983 || BLEEDING-EDGE TROJAN GENERAL Possible Trojan Sending Initial Email to Owner - SUCCESSO
+2002984 || BLEEDING-EDGE MALWARE SpySherriff Spyware Activity
+2002985 || BLEEDING-EDGE MALWARE SpySherriff Spyware Activity
+2002986 || BLEEDING-EDGE POLICY ICQ Install Direct download - Not normal mode of install
+2002987 || BLEEDING-EDGE MALWARE Jupitersatellites.biz Spyware Download
+2002988 || BLEEDING-EDGE MALWARE Possible Spambot Checking in to Spam
+2002989 || BLEEDING-EDGE MALWARE Possible Spambot getting new exe url
+2002990 || BLEEDING-EDGE MALWARE Possible Spambot Pulling IP List to Spam
+2002991 || BLEEDING-EDGE MALWARE Possible Spambot getting new exe
+2002992 || BLEEDING-EDGE SCAN Rapid POP3 Connections - Possible Brute Force Attack
+2002993 || BLEEDING-EDGE SCAN Rapid POP3S Connections - Possible Brute Force Attack
+2002994 || BLEEDING-EDGE SCAN Rapid IMAP Connections - Possible Brute Force Attack
+2002995 || BLEEDING-EDGE SCAN Rapid IMAPS Connections - Possible Brute Force Attack
+2002996 || BLEEDING-EDGE WEB-PHP GeekLog Remote File Include Vulnerability || url,securitydot.net/xpl/exploits/vulnerabilities/articles/1122/exploit.html
+2002997 || BLEEDING-EDGE WEB PHP Remote File Inclusion (monster list http) || url,www.sans.org/top20/
+2002998 || BLEEDING-EDGE SMTP HELO Non-Displayable Characters MailEnable Denial of Service || bugtraq,18630 || cve,2006-3277
+2002999 || BLEEDING-EDGE MALWARE /jk/exp.wmf Exploit Code Load Attempt
+2003000 || BLEEDING-EDGE MALWARE PopupSh.ocx Access Attempt
+2003001 || BLEEDING-EDGE TROJAN Unknown Trojan Communication
+2003002 || BLEEDING-EDGE POLICY TLS/SSL Client Hello on Unusual Port TLS
+2003003 || BLEEDING-EDGE POLICY TLS/SSL Client Hello on Unusual Port SSLv3
+2003004 || BLEEDING-EDGE POLICY TLS/SSL Client Hello on Unusual Port Case 2
+2003005 || BLEEDING-EDGE POLICY TLS/SSL Client Hello on Unusual Port SSLv3
+2003006 || BLEEDING-EDGE POLICY TLS/SSL Client Key Exchange on Unusual Port
+2003007 || BLEEDING-EDGE POLICY TLS/SSL Client Key Exchange on Unusual Port SSLv3
+2003008 || BLEEDING-EDGE POLICY TLS/SSL Client Cipher Set on Unusual Port
+2003009 || BLEEDING-EDGE POLICY TLS/SSL Client Cipher Set on Unusual Port SSLv3
+2003010 || BLEEDING-EDGE POLICY TLS/SSL Server Hello on Unusual Port
+2003011 || BLEEDING-EDGE POLICY TLS/SSL Server Hello on Unusual Port SSLv3
+2003012 || BLEEDING-EDGE POLICY TLS/SSL Server Certificate Exchange on Unusual Port
+2003013 || BLEEDING-EDGE POLICY TLS/SSL Server Certificate Exchange on Unusual Port SSLv3
+2003014 || BLEEDING-EDGE POLICY TLS/SSL Server Key Exchange on Unusual Port
+2003015 || BLEEDING-EDGE POLICY TLS/SSL Server Key Exchange on Unusual Port SSLv3
+2003016 || BLEEDING-EDGE POLICY TLS/SSL Server Hello Done on Unusual Port
+2003017 || BLEEDING-EDGE POLICY TLS/SSL Server Hello Done on Unusual Port SSLv3
+2003018 || BLEEDING-EDGE POLICY TLS/SSL Server Cipher Set on Unusual Port
+2003019 || BLEEDING-EDGE POLICY TLS/SSL Server Cipher Set on Unusual Port SSLv3
+2003020 || BLEEDING-EDGE POLICY TLS/SSL Encrypted Application Data on Unusual Port
+2003021 || BLEEDING-EDGE POLICY TLS/SSL Encrypted Application Data on Unusual Port SSLv3
+2003022 || BLEEDING-EDGE POLICY Skype Bootstrap Node (udp) || url,www1.cs.columbia.edu/~library/TR-repository/reports/reports-2004/cucs-039-04.pdf
+2003023 || BLEEDING-EDGE EXPLOIT IE StructuredGraphicsControl SourceURL Bug MoBB#6 || url,browserfun.blogspot.com/2006/07/mobb-6-structuredgraphicscontrol.html
+2003024 || BLEEDING-EDGE EXPLOIT IE StructuredGraphicsControl SourceURL Bug MoBB#6 CLSID || url,browserfun.blogspot.com/2006/07/mobb-6-structuredgraphicscontrol.html
+2003025 || BLEEDING-EDGE MALWARE Unknown Web Bot Controller Accessed
+2003026 || BLEEDING-EDGE POLICY Known SSL traffic on port 443 being excluded from SSL Alerts
+2003027 || BLEEDING-EDGE POLICY Known SSL traffic on port 8000 being excluded from SSL Alerts
+2003028 || BLEEDING-EDGE POLICY Known SSL traffic on port 8080 being excluded from SSL Alerts
+2003029 || BLEEDING-EDGE POLICY Known SSL traffic on port 8200 being excluded from SSL Alerts
+2003030 || BLEEDING-EDGE POLICY Known SSL traffic on port 8443 being excluded from SSL Alerts
+2003031 || BLEEDING-EDGE POLICY Known SSL traffic on port 5222 (Jabber) being excluded from SSL Alerts
+2003032 || BLEEDING-EDGE POLICY Known SSL traffic on port 5223 (Jabber) being excluded from SSL Alerts
+2003033 || BLEEDING-EDGE POLICY Known SSL traffic on port 2967 (Symantec) being excluded from SSL Alerts
+2003034 || BLEEDING-EDGE MALWARE Trojan.Downloader.Time2Pay.AQ || url,research.sunbelt-software.com
+2003035 || BLEEDING-EDGE POLICY Known SSL traffic on port 3128 (proxy) being excluded from SSL Alerts
+2003036 || BLEEDING-EDGE POLICY Known SSL traffic on port 8080 (proxy) being excluded from SSL Alerts
+2003037 || BLEEDING-EDGE POLICY Known SSL traffic on port 8292 (Bloomberg) being excluded from SSL Alerts
+2003038 || BLEEDING-EDGE POLICY Known SSL traffic on port 8294 (Bloomberg) being excluded from SSL Alerts
+2003039 || BLEEDING-EDGE EXPLOIT UPnP DLink M-Search Overflow Attempt || url,www.eeye.com/html/research/advisories/AD20060714.html
+2003040 || BLEEDING-EDGE POLICY PCMesh Anonymous Proxy client connect
+2003041 || BLEEDING-EDGE VIRUS Win32.SMTP-Mailer SMTP Outbound || url,www.hauri.net/virus/virusinfo_read.php?code=TRW3000774&start=1
+2003045 || BLEEDING-EDGE POLICY Real.com Game Arcade Install (User agent)
+2003046 || BLEEDING-EDGE POLICY Real.com Game Arcade Install
+2003047 || BLEEDING-EDGE POLICY Proxy Judge Discovery/Evasion (prxjdg.cgi)
+2003048 || BLEEDING-EDGE POLICY Proxy Judge Discovery/Evasion (proxyjudge.cgi)
+2003055 || BLEEDING-EDGE MALWARE Suspicious 220 Banner on Local Port
+2003056 || BLEEDING-EDGE WEB-MISC EiQNetworks Security Analyzer Buffer Overflow || url,secunia.com/advisories/21211/ || cve,2006-3838
+2003057 || BLEEDING-EDGE MALWARE 180solutions Spyware Actionlibs Download || url,securityresponse.symantec.com/avcenter/venc/data/pf/adware.180search.html
+2003058 || BLEEDING-EDGE MALWARE 180solutions (Zango) Spyware Installer Download || url,securityresponse.symantec.com/avcenter/venc/data/pf/adware.180search.html
+2003059 || BLEEDING-EDGE MALWARE 180solutions (Zango) Spyware TB Installer Download || url,securityresponse.symantec.com/avcenter/venc/data/pf/adware.180search.html
+2003060 || BLEEDING-EDGE MALWARE 180solutions (Zango) Spyware Local Stats Post || url,securityresponse.symantec.com/avcenter/venc/data/pf/adware.180search.html
+2003061 || BLEEDING-EDGE MALWARE 180solutions (Zango) Spyware Event Activity Post || url,securityresponse.symantec.com/avcenter/venc/data/pf/adware.180search.html
+2003062 || BLEEDING-EDGE MALWARE 180 Solutions (Zango Installer) User Agent
+2003063 || BLEEDING-EDGE WEB WebAttacker RootLauncher
+2003064 || BLEEDING-EDGE EXPLOIT Cisco-MARS/JBoss jmx-console POST || bugtraq,19071
+2003065 || BLEEDING-EDGE EXPLOIT Cisco-MARS/JBoss Remote Command Execution || bugtraq,19071
+2003066 || BLEEDING-EDGE TROJAN Torpig Reporting User Activity (wur8) || url,www.sophos.com/virusinfo/analyses/trojtorpigr.html
+2003067 || BLEEDING-EDGE EXPLOIT DOS Microsoft Windows SRV.SYS MAILSLOT  || url,www.microsoft.com/technet/security/bulletin/MS06-035.mspx || url,www.milw0rm.com/exploits/2057
+2003068 || BLEEDING-EDGE Potential SSH Scan OUTBOUND || url,www.whitedust.net/article/27/Recent%20SSH%20Brute-Force%20Attacks/
+2003069 || BLEEDING-EDGE POLICY Anonymous Proxy Traffic from Inside
+2003070 || BLEEDING-EDGE WORM Korgo.U Reporting || url,www.f-secure.com/v-descs/korgo_u.shtml
+2003071 || BLEEDING-EDGE ATTACK RESPONSE Possible /etc/passwd via HTTP (BSD style)
+2003072 || BLEEDING-EDGE EXPLOIT Linksys WRT54g Authentication Bypass Attempt || url,secunia.com/advisories/21372/
+2003073 || BLEEDING-EDGE TROJAN ICMP Banking Trojan sending encrypted stolen data || url,www.websensesecuritylabs.com/alerts/alert.php?AlertID=570
+2003074 || BLEEDING-EDGE MALWARE Content-loader.com Spyware Install
+2003075 || BLEEDING-EDGE MALWARE Content-loader.com Spyware Install 2
+2003076 || BLEEDING-EDGE MALWARE Content-loader.com (ownusa.info) Spyware Install
+2003077 || BLEEDING-EDGE EXPLOIT COM Object MS06-042 (group 1) || url,www.microsoft.com/technet/security/Bulletin/MS06-042.mspx || cve,2006-3638
+2003078 || BLEEDING-EDGE EXPLOIT COM Object MS06-042 (group 2) || url,www.microsoft.com/technet/security/Bulletin/MS06-042.mspx || cve,2006-3638
+2003079 || BLEEDING-EDGE EXPLOIT COM Object MS06-042 (group 3) || url,www.microsoft.com/technet/security/Bulletin/MS06-042.mspx || cve,2006-3638
+2003080 || BLEEDING-EDGE EXPLOIT COM Object MS06-042 (group 4) || url,www.microsoft.com/technet/security/Bulletin/MS06-042.mspx || cve,2006-3638
+2003081 || BLEEDING-EDGE EXPLOIT NETBIOS SMB DCERPC NetrpPathCanonicalize request (possible MS06-040) || url,www.microsoft.com/technet/security/bulletin/MS06-040.mspx
+2003082 || BLEEDING-EDGE EXPLOIT NETBIOS SMB-DS DCERPC NetrpPathCanonicalize request (possible MS06-040) || url,www.microsoft.com/technet/security/bulletin/MS06-040.mspx
+2003083 || BLEEDING-EDGE TROJAN Dialer || url,isc.sans.org/diary.php?storyid=1388
+2003084 || BLEEDING-EDGE MALWARE TROJAN_VB Microjoin || url,de.trendmicro-europe.com/consumer/vinfo/encyclopedia.php?VName=TROJ_VB.AWW
+2003085 || BLEEDING-EDGE WEB TWiki Configure Script TYPEOF Remote Command Execution Attempt || bugtraq,19188 || cve,CVE-2006-3819
+2003086 || BLEEDING-EDGE WEB Barracuda Spam Firewall preview_email.cgi Remote Command Execution || bugtraq,19276
+2003087 || BLEEDING-EDGE WEB Barracuda Spam Firewall preview_email.cgi Remote Directory Traversal Attempt || bugtraq,19276
+2003088 || BLEEDING-EDGE MALWARE W32/Sality || url,www.sophos.com/security/analyses/w32salityu.html
+2003089 || BLEEDING-EDGE GAMES STEAM Connection (v2)
+2003090 || BLEEDING-EDGE CURRENT TROJAN Unknown Bot C&C Traffic Outbound
+2003091 || BLEEDING-EDGE CURRENT TROJAN Unknown Bot C&C Traffic Inbound
+2003092 || BLEEDING-EDGE POLICY Gmail gtalk
+2003093 || BLEEDING-EDGE POLICY iMesh 6 User Agent
+2003094 || BLEEDING-EDGE TROJAN VMM Detecting Torpig/Anserin/Sinowal Trojan
+2003095 || BLEEDING-EDGE TROJAN (UPX) VMM Detecting Torpig/Anserin/Sinowal Trojan
+2003096 || BLEEDING-EDGE POLICY Possible Image Spam Inbound (simple rule)
+2003097 || BLEEDING-EDGE POLICY Possible Image Spam Inbound (complex rule)
+2003098 || BLEEDING-EDGE WEB PHP Remote File Inclusion (monster list ftp) || url,www.sans.org/top20/
+2003099 || BLEEDING-EDGE WEB-MISC Poison Null Byte || url,www.security-assessment.com/Whitepapers/0x00_vs_ASP_File_Uploads.pdf || cve,2006-3602 || cve,2006-4458 || cve,2006-4542
+2003100 || BLEEDING-EDGE POLICY Porn-Sports-Gambling site designed to bypass restrictions || url,www.bodog.com
+2003101 || BLEEDING-EDGE VIRUS Win32.SMTP-Mailer SMTP Outbound v.2 || url,research.sunbelt-software.com/threatdisplay.aspx?name=Win32.SMTP-Mailer&threatid=48095
+2003102 || BLEEDING-EDGE EXPLOIT Microsoft Multimedia Controls - ActiveX control's spline function call CSLID || url,www.osvdb.org/displayvuln.php?osvdb_id=28841
+2003103 || BLEEDING-EDGE EXPLOIT Microsoft Multimedia Controls - ActiveX control's spline function call Object || url,www.osvdb.org/displayvuln.php?osvdb_id=28841
+2003104 || BLEEDING-EDGE EXPLOIT Microsoft Multimedia Controls - ActiveX control's KeyFrame function call CSLID || url,www.osvdb.org/displayvuln.php?osvdb_id=28842
+2003105 || BLEEDING-EDGE EXPLOIT Microsoft Multimedia Controls - ActiveX control's KeyFrame function call Object || url,www.osvdb.org/displayvuln.php?osvdb_id=28842
+2003106 || BLEEDING-EDGE EXPLOIT Possible MSIE VML Exploit || url,sunbeltblog.blogspot.com/2006/09/seen-in-wild-zero-day-exploit-being.html
+2003107 || BLEEDING-EDGE TROJAN Possible Goldun Dropsite 1
+2003108 || BLEEDING-EDGE TROJAN Possible Goldun Dropsite 2
+2003109 || BLEEDING-EDGE Microsoft Internet Explorer VML Fill Method Attribute Overflow || bugtraq,20096 || cve,2006-4868
+2003110 || BLEEDING-EDGE EXPLOIT MSIE WebViewFolderIcon setSlice invalid memory copy || url,osvdb.org/27110 || url,riosec.com/msie-setslice-vuln
+2003111 || BLEEDING-EDGE CURRENT Lookup for Trojan.Proxy.PPAgent.A - v.1 || url,original.avira.com/en/threats/vdf_history.html?id_vdf=2738
+2003112 || BLEEDING-EDGE CURRENT Lookup for Trojan.Proxy.PPAgent.A - v.2 || url,original.avira.com/en/threats/vdf_history.html?id_vdf=2738
+2003113 || BLEEDING-EDGE CURRENT Lookup for Trojan.Proxy.PPAgent.A - v.3 || url,original.avira.com/en/threats/vdf_history.html?id_vdf=2738
+2003114 || BLEEDING-EDGE CURRENT Lookup for Trojan.Proxy.PPAgent.A - v.4 || url,original.avira.com/en/threats/vdf_history.html?id_vdf=2738
+2003115 || BLEEDING-EDGE TROJAN - Trojan.Proxy.PPAgent.t (updatea) || url,original.avira.com/en/threats/vdf_history.html?id_vdf=2738
+2003116 || BLEEDING-EDGE TROJAN - Trojan.Proxy.PPAgent.t (updateb) || url,original.avira.com/en/threats/vdf_history.html?id_vdf=2738
+2003117 || BLEEDING-EDGE VIRUS SHELLCODE CLET polymorphic payload || url,toorcon.org/2006/conference.html?id=29
+2003118 || BLEEDING-EDGE VIRUS SHELLCODE Shikata Ga Nai polymorphic payload || url,toorcon.org/2006/conference.html?id=29
+2003119 || BLEEDING-EDGE VIRUS SHELLCODE ADMutate polymorphic payload || url,toorcon.org/2006/conference.html?id=29
+2003120 || BLEEDING-EDGE POLICY Possible Image Spam Inbound (3)
+2003121 || BLEEDING-EDGE POLICY docs.google.com Activity || url,docs.google.com
+2003122 || BLEEDING-EDGE POLICY Possible docs.google.com Activity || url,docs.google.com
+2003123 || BLEEDING-EDGE POLICY SMTP traffic on port 25 (mail from)
+2003124 || BLEEDING-EDGE POLICY SMTP traffic on port 25 (rcpt to)
+2003125 || BLEEDING-EDGE POLICY SSL/TLS traffic on port 25 (01)
+2003126 || BLEEDING-EDGE POLICY NON-SMTP and NON-SSL/TLS traffic on port 25
+2003127 || BLEEDING-EDGE POLICY SSL/TLS traffic on port 25 (00)
+2003128 || BLEEDING-EDGE POLICY SMTP traffic on port 25 (ehlo)
+2003129 || BLEEDING-EDGE POLICY SMTP traffic on port 25 (starttls)
+2003130 || BLEEDING-EDGE POLICY SMTP traffic on port 25 (helo)
+2003131 || BLEEDING-EDGE POLICY SMTP traffic on port 25 (authsmtp)
+2003132 || BLEEDING-EDGE TROJAN BOT - potential DDoS command (2)
+2003138 || BLEEDING-EDGE TROJAN SpamThru trojan peer exchange || url,www.secureworks.com/analysis/spamthru/
+2003139 || BLEEDING-EDGE TROJAN SpamThru trojan SMTP test successful || url,www.secureworks.com/analysis/spamthru/
+2003140 || BLEEDING-EDGE TROJAN SpamThru trojan update request || url,www.secureworks.com/analysis/spamthru/
+2003141 || BLEEDING-EDGE TROJAN SpamThru trojan AV DLL request || url,www.secureworks.com/analysis/spamthru/
+2003142 || BLEEDING-EDGE TROJAN SpamThru trojan spam template request || url,www.secureworks.com/analysis/spamthru/
+2003143 || BLEEDING-EDGE TROJAN SpamThru trojan spam run report || url,www.secureworks.com/analysis/spamthru/
+2003144 || BLEEDING-EDGE TROJAN SpamThru trojan AV scan report || url,www.secureworks.com/analysis/spamthru/
+2003145 || BLEEDING-EDGE EXPLOIT Novell HttpStk Remote Code Execution Attempt /nds
+2003146 || BLEEDING-EDGE EXPLOIT Novell HttpStk Remote Code Execution Attempt /dhost
+2003147 || BLEEDING-EDGE EXPLOIT Novell HttpStk Remote Code Execution Attempt /dhost (linewrap)
+2003148 || BLEEDING-EDGE EXPLOIT Novell HttpStk Remote Code Execution Attempt /nds (linewrap)
+2003149 || BLEEDING-EDGE ATTACK RESPONSE Possible /etc/passwd via SMTP (linux style)
+2003150 || BLEEDING-EDGE ATTACK RESPONSE Possible /etc/passwd via SMTP (BSD style)
+2003151 || BLEEDING-EDGE Malware Fun Web Products SmileyCentral IEsp2 Install || url,www.myfuncards.com
+2003152 || BLEEDING-EDGE WEB CutePHP CuteNews directory traversal vulnerability - show_archives || bugtraq,15295
+2003153 || BLEEDING-EDGE MALWARE Bestcount.net Spyware Exploit Download || url,reports.internic.net/cgi/whois?whois_nic=bestcount.net&type=domain
+2003154 || BLEEDING-EDGE MALWARE Bestcount.net Spyware Data Upload || url,reports.internic.net/cgi/whois?whois_nic=bestcount.net&type=domain
+2003155 || BLEEDING-EDGE CURRENT Microsoft TEREDO IPv6 tunneling
+2400000 || BLEEDING-EDGE DROP Spamhaus DROP Listed Traffic Inbound || url,www.spamhaus.org/drop/drop.lasso
+2400001 || BLEEDING-EDGE DROP Spamhaus DROP Listed Traffic Inbound || url,www.spamhaus.org/drop/drop.lasso
+2400002 || BLEEDING-EDGE DROP Spamhaus DROP Listed Traffic Inbound || url,www.spamhaus.org/drop/drop.lasso
+2400003 || BLEEDING-EDGE DROP Spamhaus DROP Listed Traffic Inbound || url,www.spamhaus.org/drop/drop.lasso
+2400004 || BLEEDING-EDGE DROP Spamhaus DROP Listed Traffic Inbound || url,www.spamhaus.org/drop/drop.lasso
+2401000 || BLEEDING-EDGE DROP Spamhaus DROP Listed Traffic Inbound - BLOCKING SOURCE || url,www.spamhaus.org/drop/drop.lasso
+2401001 || BLEEDING-EDGE DROP Spamhaus DROP Listed Traffic Inbound - BLOCKING SOURCE || url,www.spamhaus.org/drop/drop.lasso
+2401002 || BLEEDING-EDGE DROP Spamhaus DROP Listed Traffic Inbound - BLOCKING SOURCE || url,www.spamhaus.org/drop/drop.lasso
+2401003 || BLEEDING-EDGE DROP Spamhaus DROP Listed Traffic Inbound - BLOCKING SOURCE || url,www.spamhaus.org/drop/drop.lasso
+2401004 || BLEEDING-EDGE DROP Spamhaus DROP Listed Traffic Inbound - BLOCKING SOURCE || url,www.spamhaus.org/drop/drop.lasso
+2402000 || BLEEDING-EDGE DROP Dshield Block Listed Source || url,feeds.dshield.org/block.txt
+2403000 || BLEEDING-EDGE DROP Dshield Block Listed Source - BLOCKING || url,feeds.dshield.org/block.txt
+2410000 || BLEEDING-EDGE DROP Known Bot C&C Server Traffic (group 1)  || url,www.shadowserver.org
+2410001 || BLEEDING-EDGE DROP Known Bot C&C Server Traffic (group 2)  || url,www.shadowserver.org
+2410002 || BLEEDING-EDGE DROP Known Bot C&C Server Traffic (group 3)  || url,www.shadowserver.org
+2410003 || BLEEDING-EDGE DROP Known Bot C&C Server Traffic (group 4)  || url,www.shadowserver.org
+2410004 || BLEEDING-EDGE DROP Known Bot C&C Server Traffic (group 5)  || url,www.shadowserver.org
+2410005 || BLEEDING-EDGE DROP Known Bot C&C Server Traffic (group 6)  || url,www.shadowserver.org
+2410006 || BLEEDING-EDGE DROP Known Bot C&C Server Traffic (group 7)  || url,www.shadowserver.org
+2410007 || BLEEDING-EDGE DROP Known Bot C&C Server Traffic (group 8)  || url,www.shadowserver.org
+2410008 || BLEEDING-EDGE DROP Known Bot C&C Server Traffic (group 9)  || url,www.shadowserver.org
+2410009 || BLEEDING-EDGE DROP Known Bot C&C Server Traffic (group 10)  || url,www.shadowserver.org
+2411000 || BLEEDING-EDGE DROP Known Bot C&C Traffic (group 1) - BLOCKING SOURCE || url,www.shadowserver.org
+2411001 || BLEEDING-EDGE DROP Known Bot C&C Traffic (group 2) - BLOCKING SOURCE || url,www.shadowserver.org
+2411002 || BLEEDING-EDGE DROP Known Bot C&C Traffic (group 3) - BLOCKING SOURCE || url,www.shadowserver.org
+2411003 || BLEEDING-EDGE DROP Known Bot C&C Traffic (group 4) - BLOCKING SOURCE || url,www.shadowserver.org
+2411004 || BLEEDING-EDGE DROP Known Bot C&C Traffic (group 5) - BLOCKING SOURCE || url,www.shadowserver.org
+2411005 || BLEEDING-EDGE DROP Known Bot C&C Traffic (group 6) - BLOCKING SOURCE || url,www.shadowserver.org
+2411006 || BLEEDING-EDGE DROP Known Bot C&C Traffic (group 7) - BLOCKING SOURCE || url,www.shadowserver.org
+2411007 || BLEEDING-EDGE DROP Known Bot C&C Traffic (group 8) - BLOCKING SOURCE || url,www.shadowserver.org
+2411008 || BLEEDING-EDGE DROP Known Bot C&C Traffic (group 9) - BLOCKING SOURCE || url,www.shadowserver.org
+2411009 || BLEEDING-EDGE DROP Known Bot C&C Traffic (group 10) - BLOCKING SOURCE || url,www.shadowserver.org

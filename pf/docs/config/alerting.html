@@ -1,0 +1,40 @@
+<html>
+  <head>
+  <title>Configuration Reference - alerting</title>
+  </head>
+  <body>
+  <font
+  <img src="/common/packetfence.gif">
+  <p><b><font size=+1>Configuration Reference - alerting</font></b></p>
+<a name=admin_netbiosname></a>
+<b>admin_netbiosname</b> <i>(text)</i><br>
+Default: EXAMPLE<br>
+NetBIOS name of administrative workstation to send alerts with "winpopup" action assigned.<p>
+<a name=emailaddr></a>
+<b>emailaddr</b> <i>(text)</i><br>
+Default: pf@localhost<br>
+Email address to which notifications of rogue DHCP servers, violations with an action of "email", or any other 
+PacketFence-related message goes to.<p>
+<a name=fromaddr></a>
+<b>fromaddr</b> <i>(text)</i><br>
+Email address from which notifications of rogue DHCP servers, violations with an action of "email", or any other 
+PacketFence-related message are sent.<p>
+<a name=log></a>
+<b>log</b> <i>(text)</i><br>
+Default: /usr/local/pf/logs/violation.log<br>
+Log file where "log" actions are sent.<p>
+<a name=smtpserver></a>
+<b>smtpserver</b> <i>(text)</i><br>
+Default: localhost<br>
+Server through which to send messages to the above emailaddr.  The default is localhost - be sure you're running an SMTP 
+host locally if you don't change it!<p>
+<a name=subjectprefix></a>
+<b>subjectprefix</b> <i>(text)</i><br>
+Default: PF Alert<br>
+Subject prefix for email notifications of rogue DHCP servers, violations with an action of "email", or any other
+PacketFence-related message.<p>
+<a name=wins_server></a>
+<b>wins_server</b> <i>(text)</i><br>
+Default: 192.168.0.100<br>
+WINS server to  resolve NetBIOS name of administrative workstation to IP address.<p>
+</body></html>

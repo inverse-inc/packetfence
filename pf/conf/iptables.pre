@@ -1,0 +1,7 @@
+#de-comment (and adapt if necessary) the below lines to allow
+#snmp traps to be received
+#
+#*filter
+#:INPUT ACCEPT [0:0]
+#-A INPUT -i eth0 -p udp --dport 162 -j ACCEPT
+#COMMIT

@@ -1,0 +1,67 @@
+#!/bin/bash
+#
+# Init script for PacketFence network registration / worm mitigation system
+#
+# Written by David LaPorte <dlaporte@packetfence.org>
+# Adapted from script by Dag Wieers <dag@wieers.com>
+#
+# chkconfig: - 90 10
+# description: PacketFence network registration / worm mitigation system
+#
+# processname: 
+# config: /usr/local/pf/conf/pf.conf
+
+source /etc/rc.d/init.d/functions
+
+[ -x /usr/local/pf/bin/pfcmd ] || exit 1
+[ -r /usr/local/pf/conf/pf.conf ] || exit 1
+
+start() {
+	echo -n $"Starting PacketFence..."
+	/usr/local/pf/bin/pfcmd control pf start
+	RETVAL=$?
+	echo
+	return $RETVAL
+}
+
+stop() {
+	echo -n $"Shutting down PacketFence..."
+	/usr/local/pf/bin/pfcmd control pf stop
+	RETVAL=$?
+	echo
+	return $RETVAL
+}
+
+restart() {
+	stop
+	sleep 10
+	start
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  restart)
+	restart
+	;;
+  status)
+	/usr/local/pf/bin/pfcmd service pf
+  if [ ! -f /usr/local/pf/var/pfmon.pid ]; then
+    RETVAL=3
+  fi
+	;;
+  condrestart)
+        if [ -f /usr/local/pf/var/pfmon.pid ]; then
+                restart
+        fi
+        ;;
+  *)
+	echo $"Usage: $0 {start|stop|restart|condrestart|reload|status}"
+	RETVAL=1
+esac
+
+exit $RETVAL

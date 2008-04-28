@@ -1,0 +1,94 @@
+#
+# $Id: bleeding-game.rules,v 1.708 2006/10/27 17:41:54 jonkman Exp $
+# Bleeding Snort game rules.
+#
+# SID's are 2000000+ to avoid conflicts
+#
+# Only basic testing has been done. At this point all we guarantee is that they won't crash a recent snort release.
+#
+# More information available at www.bleedingsnort.com
+#
+# Please submit any custom rules or ideas to bleeding@bleedingsnort.com or the bleeding-sigs mailing list
+#
+#*************************************************************
+#
+#  Copyright (c) 2006, Bleedingsnort.com
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+#  following conditions are met:
+#
+#  * Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+#    disclaimer.
+#  * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+#    following disclaimer in the documentation and/or other materials provided with the distribution.
+#  * Neither the name of the nor the names of its contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS AND ANY EXPRESS OR IMPLIED WARRANTIES,
+#  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+#  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+#  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+#
+#All by Ron Bowes. Many thanks Ron
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 6112 (msg:"BLEEDING-EDGE GAMES Battle.net Starcraft login"; flow:established,to_server; content:"|FF 50|"; depth:2; content:"RATS"; offset:12; depth:12; classtype: policy-violation; sid:2002101; rev:2;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 6112 (msg:"BLEEDING-EDGE GAMES Battle.net Brood War login"; flow:established,to_server; content:"|FF 50|"; depth:2; content:"PXES"; offset:12; depth:12; classtype: policy-violation; sid:2002102; rev:2;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 6112 (msg:"BLEEDING-EDGE GAMES Battle.net Diablo login";    flow:established,to_server; content:"|FF 50|"; depth:2; content:"LTRD"; offset:12; depth:12; classtype: policy-violation; sid:2002103; rev:2;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 6112 (msg:"BLEEDING-EDGE GAMES Battle.net Diablo 2 login";  flow:established,to_server; content:"|FF 50|"; depth:2; content:"VD2D"; offset:12; depth:12; classtype: policy-violation; sid:2002104; rev:2;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 6112 (msg:"BLEEDING-EDGE GAMES Battle.net Diablo 2 Lord of Destruction login"; flow:established,to_server; content:"|FF 50|"; depth:2; content:"PX2D"; offset:12; depth:12; classtype: policy-violation; sid:2002105; rev:2;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 6112 (msg:"BLEEDING-EDGE GAMES Battle.net Warcraft 2 login"; flow:established,to_server; content:"|FF 50|"; depth:2; content:"NB2W"; offset:12; depth:12; classtype: policy-violation; sid:2002106; rev:2;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 6112 (msg:"BLEEDING-EDGE GAMES Battle.net Warcraft 3 login"; flow:established,to_server; content:"|FF 50|"; depth:2; content:"3RAW"; offset:12; depth:12; classtype: policy-violation; sid:2002107; rev:2;)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 6112 (msg:"BLEEDING-EDGE GAMES Battle.net Warcraft 3\: The Frozen throne login"; flow:established,to_server; content:"|FF 50|"; depth:2; content:"PX3W"; offset:12; depth:12; classtype: policy-violation; sid:2002108; rev:2;)
+
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net old game version"; flow:established,from_server; content:"|FF 51|"; depth:2; content:"|00 01 00 00|"; offset:4; depth:4; classtype: policy-violation; sid:2002109; rev:2;)
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net invalid version"; flow:established,from_server;  content:"|FF 51 08 00 01 01 00 00|"; classtype: policy-violation; sid:2002110; rev:1;)
+
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net invalid cdkey"; flow:established,from_server; content:"|FF 51 09 00 00 02 00 00|"; classtype: policy-violation; sid:2002111; rev:1;)
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net cdkey in use"; flow:established,from_server; content:"|FF 51|"; depth:2; content:"|01 02 00 00|"; offset:4; depth:4; classtype: policy-violation; sid:2002112; rev:2;)
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net banned key"; flow:established,from_server; content:"|FF 51 09 00 02 02 00 00|"; classtype: policy-violation; sid:2002113; rev:1;)
+
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net wrong product"; flow:established,from_server; content:"|FF 51 09 00 03 02 00 00|"; classtype: policy-violation; sid:2002114; rev:1;)
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net failed account login (OLS)\: wrong password"; flow:established,from_server; content:"|FF 3A 08 00 02 00 00 00|"; classtype: policy-violation; sid:2002115; rev:1;)
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net failed account login (NLS)\: wrong password"; flow:established,from_server; content:"|FF 54 1C 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00|"; classtype: policy-violation; sid:2002116; rev:1;)
+
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net connection reset (possible IP-Ban)"; flags:R,12; classtype: policy-violation; sid:2002117; rev:2;)
+
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net user in channel"; flow:established,from_server; content:"|FF 0F|"; depth:2; content:"|01 00 00 00|"; offset:4; depth:4; classtype: policy-violation; sid:2002118; rev:2;)
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net user joined channel"; flow:established,from_server; content:"|FF 0F|"; depth:2; content:"|02 00 00 00|"; offset:4; depth:4; classtype: policy-violation; sid:2002140; rev:1;)
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net user left channel"; flow:established,from_server; content:"|FF 0F|"; depth:2; content:"|03 00 00 00|"; offset:4; depth:4; classtype: policy-violation; sid:2002141; rev:1;)
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net received whisper message"; flow:established,from_server; content:"|FF 0F|"; depth:2; content:"|04 00 00 00|"; offset:4; depth:4; classtype: policy-violation; sid:2002142; rev:1;)
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net received server broadcast"; flow:established,from_server; content:"|FF 0F|"; depth:2; content:"|06 00 00 00|"; offset:4; depth:4; classtype: policy-violation; sid:2002143; rev:1;)
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net joined channel"; flow:established,from_server; content:"|FF 0F|"; depth:2; content:"|07 00 00 00|"; offset:4; depth:4; classtype: policy-violation; sid:2002144; rev:1;)
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net user had a flags update"; flow:established,from_server; content:"|FF 0F|"; depth:2; content:"|09 00 00 00|"; offset:4; depth:4; classtype: policy-violation; sid:2002145; rev:1;)
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net sent a whisper"; flow:established,from_server; content:"|FF 0F|"; depth:2; content:"|0a 00 00 00|"; offset:4; depth:4; classtype: policy-violation; sid:2002146; rev:1;)
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net channel full"; flow:established,from_server; content:"|FF 0F|"; depth:2; content:"|0d 00 00 00|"; offset:4; depth:4; classtype: policy-violation; sid:2002147; rev:1;)
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net channel doesn't exist"; flow:established,from_server; content:"|FF 0F|"; depth:2; content:"|0e 00 00 00|"; offset:4; depth:4; classtype: policy-violation; sid:2002148; rev:1;)
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net channel is restricted"; flow:established,from_server; content:"|FF 0F|"; depth:2; content:"|0f 00 00 00|"; offset:4; depth:4; classtype: policy-violation; sid:2002149; rev:1;)
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net informational message"; flow:established,from_server; content:"|FF 0F|"; depth:2; content:"|12 00 00 00|"; offset:4; depth:4; classtype: policy-violation; sid:2002150; rev:1;)
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net error message"; flow:established,from_server; content:"|FF 0F|"; depth:2; content:"|13 00 00 00|"; offset:4; depth:4; classtype: policy-violation; sid:2002151; rev:1;)
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net 'emote' message"; flow:established,from_server; content:"|FF 0F|"; depth:2; content:"|17 00 00 00|"; offset:4; depth:4; classtype: policy-violation; sid:2002152; rev:1;)
+
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 6112 (msg:"BLEEDING-EDGE GAMES Battle.net outgoing chat message"; flow:established,to_server; content:"|FF 0E|"; depth:2; classtype: policy-violation; sid:2002119; rev:2;)
+
+# World of Warcraft rules, though written by Ron, are thanks to information from Justin (UserLoser)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 3724 (msg:"BLEEDING-EDGE GAMES World of Warcraft connection"; flow:established,to_server; content:"|00 02|"; depth:2; content:"WoW|00|"; distance:2; within:4; classtype: policy-violation; sid:2002138; rev:1;)
+#alert tcp $EXTERNAL_NET 3724 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES World of Warcraft failed logon"; flow:established,from_server; content:"|01 0A|"; depth:2; classtype: policy-violation; sid:2002139; rev:1;)
+
+
+# Guild wars rues, again written by Ron, are thanks to information from Ian (Romi)
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 6112 (msg:"BLEEDING-EDGE GAMES Guild Wars connection"; flow:established,to_server; content:"|01 00 00 00 00 F1 00 10 00 01 00 00 00 00 00 00 00 00 00 00 00|"; classtype: policy-violation; sid:2002154; rev:1;)
+
+#alert tcp $EXTERNAL_NET 6112 -> $HOME_NET any (msg:"BLEEDING-EDGE GAMES Battle.net incoming chat message"; flow:established,from_server; content:"|FF 0F|"; depth:2; content:"|05 00 00 00|"; offset:4; depth:4; classtype: policy-violation; sid:2002170; rev:1;)
+#by Jason Wallace. Detects blizzard game updates, p2p traffic may follow for downloads from blizzard
+#alert tcp $HOME_NET ANY -> $EXTERNAL_NET ANY ( msg: "BLEEDING-EDGE GAMES Blizzard Downloader"; flow: established,to_server; content: "User-Agent\: Blizzard Downloader"; nocase; reference:url,www.worldofwarcraft.com/info/faq/blizzarddownloader.html; classtype:policy-violation; sid:2002855; rev:3;)
+
+#By Ron Iago
+#alert udp $HOME_NET any -> $EXTERNAL_NET 27015 (msg:"BLEEDING-EDGE GAMES Steam connection"; content:"getchallengesteam"; classtype:policy-violation; sid:2002155; rev:2;)
+
+#by Sean Calista
+#alert tcp $HOME_NET any -> $EXTERNAL_NET 27035 (msg:"BLEEDING-EDGE GAMES STEAM Connection (v2)"; flow:established,to_server; content:"|00 00 00 03|"; dsize:4; classtype:policy-violation; sid:2003089; rev:1; )
+
