@@ -67,6 +67,7 @@ my @modules = ( "Time::HiRes",
                 "Net::Telnet::Cisco",
                 "Log::Log4perl",
                 "Thread::Pool",
+                "Apache::Htpasswd",
                 "Template"
               );
 
