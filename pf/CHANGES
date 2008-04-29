@@ -1,3 +1,7 @@
+1.7.0 RC5
+        pid with spaces causes issues in web admin GUI
+          (http://www.packetfence.org/mantis/view.php?id=315)
+
 1.7.0 RC4
         usage of gettext and template-toolkit in web pages
         pfcmd_vlan -reAssignVlan

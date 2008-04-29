@@ -17,7 +17,7 @@
   $edit_item = set_default($_REQUEST['item'], '');
 
   if($_POST){
-    $edit_cmd = "$current_top edit $edit_item ";
+    $edit_cmd = "$current_top edit \"$edit_item\" ";
     foreach($_POST as $key => $val){
       $parts[] = "$key=\"$val\""; 
     }
@@ -30,7 +30,7 @@
 
   }
 
-  $edit_info = new table("$current_top view $edit_item");
+  $edit_info = new table("$current_top view \"$edit_item\"");
 
   print "<form method='post' action='/$current_top/edit.php?item=$edit_item'>";
   print "<div id='add'><table>";
