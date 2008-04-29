@@ -38,7 +38,7 @@
       $msg[] = print_r($_POST['context'], true);
     }
 
-    if(!mail('randy_heins@harvard.edu', "PF Bug Report", implode("\n", $msg), "From: bugs@packetfence.org")){
+    if(!mail('bugs@packetfence.org', "PF Bug Report", implode("\n", $msg), "From: bugs@packetfence.org")){
       print "Could not send email";
       exit;
     }
