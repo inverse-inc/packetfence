@@ -1,6 +1,8 @@
 1.7.0 RC5
         pid with spaces causes issues in web admin GUI
           (http://www.packetfence.org/mantis/view.php?id=315)
+        replaced packetfence.gif with new packetfence.png logo
+          be sure to update general.logo to /common/packetfence.png
 
 1.7.0 RC4
         usage of gettext and template-toolkit in web pages

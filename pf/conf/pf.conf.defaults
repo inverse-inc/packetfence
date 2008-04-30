@@ -18,7 +18,7 @@ hostname=abc
 # general.logo
 #
 # Logo displayed on web pages.
-logo=/common/packetfence.gif
+logo=/common/packetfence.png
 #
 # general.dnsservers
 #

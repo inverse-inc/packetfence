@@ -161,7 +161,7 @@
       <?php PrintTopNav() ?>
     </td>
     <td valign="top">
-      <a href="index.php"><img border="0" src="/common/packetfence.gif" align="right" alt="[ Packetfence ]"></a>
+      <a href="index.php"><img border="0" src="/common/packetfence.png" align="right" alt="[ Packetfence ]"></a>
     </td>
   </tr>
   <tr>
