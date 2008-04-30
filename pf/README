@@ -25,8 +25,10 @@
   
   Untar source to /usr/local/pf and run installer.pl
 
-  or please see documentation available at:
-  http://www.packetfence.org/wiki.html
+  Please see documentation available at:
+  http://www.packetfence.org/documentation/basic_setup.html
+  and
+  http://www.packetfence.org/dokuwiki/
 
 
   Licensing
@@ -41,14 +43,15 @@
   Core Technologies
     Kevin Amorin 
     David Laporte
+    Dominik Gehl
 
   Additional Development
     Randy Heins
-    Dominik Gehl
     Regis Balzard
 
 
   Support
   -------
-  Mailing list packetfence-devel@lists.sourceforge.net
+
+  Visit http://www.packetfence.org/support/community.html
 
