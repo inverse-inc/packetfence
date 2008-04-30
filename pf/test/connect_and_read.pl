@@ -39,6 +39,8 @@ switches.conf file and to execute some simple SNMP reads.
 
 =item Dominik Gehl <dgehl@inverse.ca>
 
+=back
+
 =head1 COPYRIGHT
 
 Copyright (c) 2006-2008 Inverse groupe conseil
