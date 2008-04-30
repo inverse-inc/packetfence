@@ -25,16 +25,15 @@ Requires: perl(Time::HiRes), perl(Config::IniFiles), perl(Net::Netmask), perl(Da
 
 %description
 
-PacketFence is an open-source solution developed to solve many of
-the issues confronted by IT staffs at universities with large
-residential populations.  Specifically, PacketFence provides for
-the following:
-
-* Passive or in-line operation
-* Network registration
-* Worm/Bot detection/isolation
-* User-directed mitigation
-* Proactive vulnerability scans
+PacketFence is an open source network access control (NAC) system. 
+It can be used to effectively secure networks, from small to very large 
+heterogeneous networks. PacketFence provides features such 
+as 
+* registration of new network devices
+* detection of abnormal network activities
+* isolation of problematic devices
+* remediation through a captive portal 
+* registration-based and scheduled vulnerability scans.
 
 %package remote-snort-sensor
 Group: System Environment/Daemons
@@ -455,5 +454,7 @@ fi
 /usr/local/pf/lib/pf/pfcmd/pfcmd_pregrammar.pm
 
 %changelog
+* Mon Apr 30 2008 - Dominik Gehl
+- 1.7.0 rc4
 * Wed Oct 10 2007 - Dominik Gehl
 - 1.7.0 v1
