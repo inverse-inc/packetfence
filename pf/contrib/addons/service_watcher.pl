@@ -1,27 +1,38 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 #
 # (c) 2006-2008 Inverse inc., licensed under the GPLv2
 #
 # Author: Regis Balzard <rbalzard@inverse.ca>
 #         Dominik Gehl  <dgehl@inverse.ca>
 #
-# Check if, when this node is the master:
+# Check if (when this node is the master):
 #   - packetfence, pfmon, http and pfsetvlan services are running
 # If not then notify administrators.
 #
 
 use strict;
+use warnings;
+use diagnostics;
 use FindBin;
 use Net::SMTP;
-use threads;
+use Log::Log4perl qw(:easy);
 use constant {
-    LIB_DIR => $FindBin::Bin . "/../lib",
-    CONF_FILE => $FindBin::Bin . "/../conf/switches.conf"
+    LIB_DIR => $FindBin::Bin . "/../../lib",
+    CONF_FILE => $FindBin::Bin . "/../../conf/switches.conf"
 };
 use lib LIB_DIR;
 use pf::SwitchFactory;
 
 require 5.8.8;
+
+Log::Log4perl->easy_init(
+    {
+        level => $DEBUG,
+        layout => '%d (%r) %M%n    %m %n'
+    }
+);
+my $logger = Log::Log4perl->get_logger('');
+
 
 my $trouble = 1;
 my $switchFactory = new pf::SwitchFactory(
@@ -38,15 +49,21 @@ my $ext ;
 ($host,$domain,$ext) = split(/\./,$hostname);
 
 while (($count < 3) && ($trouble > 0)) {
+    $logger->debug("starting loop $count");
     $trouble = 0;
     if ($count > 0) {
+        $logger->debug("entering sleep");
         sleep 60;
+        $logger->debug("finishing sleep");
     }
 
-    $status = `/usr/bin/cl_status rscstatus`;
+    #$status = `/usr/bin/cl_status rscstatus`
+    $status = "all";
     chomp($status);
     if ($status eq "all") {
+        $logger->debug("testing for pfsetvlan pid");
         my $pid=`/sbin/pidof -x pfsetvlan`;
+        $pid =~ s/\n//g;
         if (! $pid) {
             $trouble++; 
         }
@@ -54,6 +71,7 @@ while (($count < 3) && ($trouble > 0)) {
             $trouble = $trouble + 2; 
         }
     }
+    $logger->debug("trouble value is $trouble");
     $count++;
 }
 
