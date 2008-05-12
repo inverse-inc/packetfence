@@ -1,6 +1,8 @@
 1.7.1
         fixed various issues with service_watcher
           (http://www.packetfence.org/mantis/view.php?id=319)
+        added VLAN isolation template
+          (http://www.packetfence.org/mantis/view.php?id=318)
 
 
 1.7.0
