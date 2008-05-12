@@ -135,6 +135,9 @@ incidental, consequential, or other damages whatsoever (including without
 limitation, damages for loss of critical data, loss of profits, interruption
 of business, etc) arising out of the use or inability to use this software.
 \n\nSorry for the legalese...do you agree?","y",("y", "n"))); 
+
+print "\nPlease not that the ARP-based registration code is currently disabled.\n\n";
+
 if (`cat /proc/modules | grep ^ip_tables` !~ /^ip_tables/) {
   die("IPTables module is not loaded!  Try 'modprobe ip_tables' or /etc/init.d/iptables restart and re-running the installer.\n");
 } 
