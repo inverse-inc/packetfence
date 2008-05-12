@@ -330,6 +330,7 @@ if (!installed("snort")) {
   my $snort_version = `rpm -q --qf %{VERSION} snort`;
   #print "You are running Snort 2.6.x, which is incompatible with PacketFence - please downgrade to 2.4.x.\n" if ($snort_version =~ /^2\.6/);
 }
+print "We encourage the usage of oinkmaster to manage your snort rules. If you don't have it installed yet, please visit http://oinkmaster.sourceforge.net/download.shtml to download oinkmaster. A sample oinkmaster configuration file is provided at /usr/local/pf/contrib/oinkmaster.conf.\n";
 
 # check if modules are installed
 if (questioner("PF needs several Perl modules to function properly.  May I download and install them?","y",("y", "n"))) {
