@@ -16,7 +16,7 @@ BuildRoot: /var/tmp/%{name}-%{version}-root
 Packager: Dominik Gehl <dgehl@inverse.ca>
 Vendor: PacketFence, http://www.packetfence.org
 
-Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz?download
+Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz
 
 BuildRequires: gettext, perl(Parse::RecDescent), httpd
 Requires: perl >= 5.8.0, perl-suidperl, httpd, mod_ssl, php, php-gd, libpcap, libxml2, zlib, zlib-devel, coreutils, net-snmp, iproute, sed
