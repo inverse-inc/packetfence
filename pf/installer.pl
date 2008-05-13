@@ -340,10 +340,22 @@ if (questioner("PF needs several Perl modules to function properly.  May I downl
   print "Installing perl modules - note that if CPAN has not been run before it may prompt for configuration (just answer 'N')\n";
   foreach my $module (@modules) {
     my $mod = CPAN::Shell->expand("Module",$module);
-    if (!$mod->uptodate) {
-      if (questioner("Module $module is not installed or not up to date - do you wish to install it?","y",("y", "n"))) {
-        print "    Installing module $module\n";
-        my $obj = CPAN::Shell->install($module);
+    if ($module eq "Net::RawIP") {
+      print "\nPlease note that we encourage the usage of Net::RawIP version 0.2\n";
+    }
+    if ($mod->inst_file) {
+      if (!$mod->uptodate) {
+        if (questioner("Module $module is installed (version " . $mod->inst_version . ") but not up to date (CPAN has version " . $mod->cpan_version . ") - do you wish to upgrade it?","y",("y", "n"))) {
+          print "    Upgrading module $module\n";
+          my $obj = CPAN::Shell->install($module);
+        }
+      }
+    } else {
+      if (!$mod->uptodate) {
+        if (questioner("Module $module is not installed (CPAN has version " . $mod->cpan_version . ") - do you wish to install it?","y",("y", "n"))) {
+          print "    Installing module $module\n";
+          my $obj = CPAN::Shell->install($module);
+        }
       }
     }
   }
