@@ -839,7 +839,7 @@ sub handleTrap {
             locationlog_update_end_switchport_only_VoIP($switch_ip, $switch_port);
             $locationlog_phone = undef;
         }
-        if ((@locationlog_pc) && (! exists($secureMacAddrHashRef->{$locationlog_pc[0]->{'mac'}}))) {
+        if ((@locationlog_pc) && (scalar(@locationlog_pc) > 0) && (defined($locationlog_pc[0]->{'mac'})) && (! exists($secureMacAddrHashRef->{$locationlog_pc[0]->{'mac'}}))) {
             $logger->debug($locationlog_pc[0]->{'mac'} . " has open locationlog entry at $switch_ip ifIndex $switch_port but is not a secure MAC address. Closing locationlog entry");
             locationlog_update_end_mac($locationlog_pc[0]->{'mac'});
             @locationlog_pc = ();
