@@ -7,6 +7,8 @@
           (http://www.packetfence.org/mantis/view.php?id=320)
         prohibit node deletion of connected nodes in VLAN isolation
           (http://www.packetfence.org/mantis/view.php?id=321)
+        show 'reg/unreg' choices in node/add.php
+          (http://www.packetfence.org/mantis/view.php?id=322)
 
 
 1.7.0
