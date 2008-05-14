@@ -5,6 +5,8 @@
           (http://www.packetfence.org/mantis/view.php?id=318)
         encourage usage of Net::RawIP version 0.2
           (http://www.packetfence.org/mantis/view.php?id=320)
+        prohibit node deletion of connected nodes in VLAN isolation
+          (http://www.packetfence.org/mantis/view.php?id=321)
 
 
 1.7.0

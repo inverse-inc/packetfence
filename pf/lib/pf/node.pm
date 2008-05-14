@@ -38,6 +38,7 @@ use pf::util;
 use pf::person qw(person_nodes person_exist person_add);
 use pf::violation qw(violation_add violation_view_open);
 use pf::iptables qw(unmark_node mark_node);
+use pf::locationlog qw(locationlog_view_open_mac);
 #use pf::rawip qw(freemac trapmac);
 
 node_db_prepare($dbh) if (!$thread);
@@ -99,6 +100,12 @@ sub node_delete {
   if (!node_exist($mac)) {
     pflogger("delete of non-existent node '$mac' failed", 2);
     return 0;
+  }
+  if (isenabled($Config{'network'}{'vlan'})) {
+    if (defined(locationlog_view_open_mac($mac))) {
+      pflogger("VLAN isolation mode enabled and $mac has open locationlog entry. Node deletion prohibited", 2);
+      return 0;
+    }
   }
   $node_delete_sql->execute($mac) || return(0);
   pflogger("node $mac deleted", 2);
