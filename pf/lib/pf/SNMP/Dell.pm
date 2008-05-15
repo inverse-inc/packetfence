@@ -48,7 +48,7 @@ sub parseTrap {
     my ($this, $trapString) = @_;
     my $trapHashRef;
     my $logger = Log::Log4perl::get_logger("pf::SNMP::Dell");
-    if ($trapString =~ /OID: .1.3.6.1.6.3.1.1.5.([34])\|.1.3.6.1.2.1.2.2.1.1.(\d+) = INTEGER/) {
+    if ($trapString =~ /OID: \.1\.3\.6\.1\.6\.3\.1\.1\.5\.([34])\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = INTEGER/) {
         $trapHashRef->{'trapType'} = (($1 == 3) ? "down" : "up");
         $trapHashRef->{'trapIfIndex'} = $2;
     } elsif ($trapString =~ /\.1\.3\.6\.1\.2\.1\.2\.2\.1\.8\.(\d+) = INTEGER: (down|up)/) {
