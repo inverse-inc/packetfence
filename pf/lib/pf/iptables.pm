@@ -566,7 +566,7 @@ sub generate_iptables {
     die "IPTables filter table commit error: $!\n";
   }
   if (-r $post_file) {
-    restore_iptables($post_file);
+    restore_iptables_noflush($post_file);
   }
 }
 
@@ -685,4 +685,11 @@ sub restore_iptables {
   }
 }
 
+sub restore_iptables_noflush {
+  my ($restore_file) = @_;
+  if (-r $restore_file) {
+    pflogger("restoring iptables (no flush) from ".$restore_file, 8);
+    `/sbin/iptables-restore -n < $restore_file`;
+  }
+}
 1
