@@ -118,7 +118,7 @@ sub dhcp_detector {
     my $tmp;
     my $packet = &next($pcap_dhcp, $tmp);
     db_connect($mydbh,'iplog','node','violation','trigger','action','class','os','person');
-    listen_dhcp($packet) if ($packet);
+    listen_dhcp($packet,$eth) if ($packet);
   }  
 }
 
