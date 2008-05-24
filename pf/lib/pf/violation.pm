@@ -278,6 +278,7 @@ sub violation_close {
     unmark_node($mac, $vid);
     my $grace = $class_info->{'grace_period'};
     $violation_close_sql->execute($mac,$vid) || return(0);
+    pflogger("violation $vid closed for $mac",2);
     return($grace);
   }
   return(-1);
@@ -289,6 +290,7 @@ sub violation_force_close {
   my ($mac,$vid) = @_;
   #unmark_node($mac, $vid);
   $violation_close_sql->execute($mac,$vid) || return(0);
+  pflogger("violation $vid closed for $mac since it's a non-trap violation",2);
   return(1);
 } 
 

@@ -13,6 +13,8 @@
           (http://www.packetfence.org/mantis/view.php?id=323)
         fixed iptables issue with iptables.post file
           (http://www.packetfence.org/mantis/view.php?id=325)
+        added better log messages on violation close
+          (http://www.packetfence.org/mantis/view.php?id=326)
 
 
 1.7.0
