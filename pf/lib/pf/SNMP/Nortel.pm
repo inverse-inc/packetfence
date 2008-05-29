@@ -422,6 +422,9 @@ sub isPortSecurityEnabled {
             $s5SbsSecurityStatus = $result->{$oid};
         } elsif ($oid =~ /^$oid_s5SbsSecurityAction/) {
             $s5SbsSecurityAction = $result->{$oid};
+            if ($s5SbsSecurityAction == 2) {
+                $logger->warn("s5SbsSecurityAction is 2 (trap) ... should be 6 (filter and trap)");
+            }
         }
     }
 
@@ -440,7 +443,7 @@ sub isPortSecurityEnabled {
     return (defined($s5SbsSecurityStatus) && 
         $s5SbsSecurityStatus == 1 &&
         defined($s5SbsSecurityAction) && 
-        $s5SbsSecurityAction == 6 &&
+        ($s5SbsSecurityAction == 6 || $s5SbsSecurityAction == 2) &&
         ((!defined($s5SbsCurrentPortSecurStatus)) ||
          ($s5SbsCurrentPortSecurStatus >= 2)));
 }
