@@ -276,7 +276,7 @@ sub control {
   my @running_services;
   foreach my $tmp (@all_services){
     my $pid;
-    if (-e $install_dir."/logs/$tmp.pid"){
+    if (-e $install_dir."/var/$tmp.pid"){
       $pid=readpid($tmp);
       push @running_services, $tmp;
     } else {
