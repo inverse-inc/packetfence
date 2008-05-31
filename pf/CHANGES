@@ -17,6 +17,9 @@
           (http://www.packetfence.org/mantis/view.php?id=326)
         tests look in the wrong directory for pid files
           (http://www.packetfence.org/mantis/view.php?id=329)
+        issues stopping processes
+          (http://www.packetfence.org/mantis/view.php?id=324
+           http://www.packetfence.org/mantis/view.php?id=327)
 
 
 1.7.0
