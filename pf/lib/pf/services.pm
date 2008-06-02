@@ -74,7 +74,7 @@ sub service_ctl {
       my @debug= system('pkill',$exe);
       my $maxWait = 10;
       my $curWait = 0;
-      while (($curWait < $maxWait) && (service_ctl($exe) != 0)) {
+      while (($curWait < $maxWait) && (service_ctl($exe,"status") != 0)) {
         pflogger("Waiting for $exe to stop");
         sleep(2);
         $curWait++;
