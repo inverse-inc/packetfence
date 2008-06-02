@@ -273,20 +273,16 @@ sub control {
   my $command = $cmd{command}[2];
 
   my @all_services=('pfdhcplistener','pfmon','pfdetect','pfredirect','snort','httpd');
-  my @running_services;
-  foreach my $tmp (@all_services){
-    my $pid;
-    if (-e $install_dir."/var/$tmp.pid"){
-      $pid=readpid($tmp);
-      push @running_services, $tmp;
-    } else {
-      chop($pid=`pidof -s -x $tmp`);
-      if ($pid) {
-        push @running_services, $tmp;
-      }
-    }
+
+  if (($service =~ /^pf$/i) && ($command =~ /^restart$/i)) {
+    pflogger("packetfence restart ... executing stop followed by start", 8);
+    local $cmd{command}[2] = "stop";
+    control();
+    local $cmd{command}[2] = "start";
+    control();
+    return;
   }
-  
+
   my @services;
   if ($service !~ /^pf$/) {
     push @services, $service;
@@ -296,24 +292,18 @@ sub control {
 
   if ($command =~ /^start$/i) {
     sanity_check(@services);
-    if (scalar(@running_services) == 0) {
+    my $nb_running_services = 0;
+    foreach my $tmp (@all_services){
+      if (service_ctl($tmp, "status")) {
+        $nb_running_services++;
+      }
+    }
+    if ($nb_running_services == 0) {
+      pflogger("saving current iptables to var/iptables.bak", 8);
       save_iptables($install_dir.'/var/iptables.bak');
     }
   }
-  if ($command =~ /^stop$/i) {
-    my $restore = 1;
-    my $running_service_nb = 0;
-    while (($restore) && ($running_service_nb < scalar(@running_services))) {
-      my $current_service = $running_services[$running_service_nb];
-      if (grep(/^$current_service$/, @services) == 0) {
-        $restore = 0;
-      }
-      $running_service_nb++;
-    }
-    if (($running_service_nb > 0) && ($restore)) {
-      restore_iptables($install_dir.'/var/iptables.bak');
-    }
-  }
+
   print "service|command\n";
   if ($command !~ /^stop$/){
     print "config files|$command\n";
@@ -324,9 +314,26 @@ sub control {
     generate_sysctl_conf();
     `/sbin/sysctl -p $install_dir/conf/sysctl.conf`;
   }
+
   foreach my $srv (@services){
     service_ctl($srv, $command);
     print "$srv|$command\n";
+  }
+
+  if ($command =~ /^stop$/i) {
+    my $nb_running_services = 0;
+    foreach my $tmp (@all_services){
+      if (service_ctl($tmp, "status")) {
+        $nb_running_services++;
+      }
+    }
+    if ($nb_running_services == 0) {
+      restore_iptables($install_dir.'/var/iptables.bak');
+    } else {
+      if ($service =~ /^pf$/i) {
+        pflogger("even though 'control pf stop' was called, there are still $nb_running_services services running. Can't restore iptables from var/iptables.bak", 2);
+      }
+    }
   }
 }
 

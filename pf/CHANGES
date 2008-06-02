@@ -20,6 +20,8 @@
         issues stopping processes
           (http://www.packetfence.org/mantis/view.php?id=324
            http://www.packetfence.org/mantis/view.php?id=327)
+        iptables save/restore
+          (http://www.packetfence.org/mantis/view.php?id=328)
 
 
 1.7.0
