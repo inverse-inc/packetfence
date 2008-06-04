@@ -52,6 +52,8 @@ if (defined($cgi->param('mode')) && $cgi->param('auth')) {
 #check to see if node needs to be registered
 #
 my $unreg = node_unregistered($mac);
+pflogger("TEST: node_unregistered($mac) returns $unreg", 8);
+pflogger("TEST: isenabled(trapping.registration) returns " . isenabled($Config{'trapping'}{'registration'}), 8); 
 if ($unreg && isenabled($Config{'trapping'}{'registration'})){
   pflogger("$mac redirected to registration page", 8);
   generate_registration_page($cgi, $session, $destination_url,$mac);
