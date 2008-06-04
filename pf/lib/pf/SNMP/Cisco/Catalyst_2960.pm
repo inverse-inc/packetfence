@@ -222,7 +222,7 @@ sub getSecureMacAddresses {
 }
 
 sub authorizeMAC {
-    my ($this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan) = @_;
+    my ($this, $ifIndex, $deauthMac, $authMac, $vlan) = @_;
     my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Catalyst_2960");
     my $oid_cpsIfVlanSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.3.1.5';
 
@@ -235,8 +235,7 @@ sub authorizeMAC {
         return 0;
     }
 
-    my $voiceVlan = $this->getVoiceVlan($ifIndex);
-    if (($deauthVlan == $voiceVlan) || ($authVlan == $voiceVlan)) {
+    if ($vlan == $this->getVoiceVlan($ifIndex)) {
         $logger->error("ERROR: authorizeMAC called with voice VLAN .... this should not have happened ... we won't add an entry to the SecureMacAddrTable");
         return 1;
     }
@@ -248,7 +247,7 @@ sub authorizeMAC {
         foreach my $macPiece (@macArray) {
             $completeOid .= "." . hex($macPiece);
         }
-        $completeOid .= "." . $deauthVlan;
+        $completeOid .= "." . $vlan;
         push @oid_value, ($completeOid, Net::SNMP::INTEGER, 6);
     }
     if ($authMac) {
@@ -257,7 +256,7 @@ sub authorizeMAC {
         foreach my $macPiece (@macArray) {
             $completeOid .= "." . hex($macPiece);
         }
-        $completeOid .= "." . $authVlan;
+        $completeOid .= "." . $vlan;
         push @oid_value, ($completeOid, Net::SNMP::INTEGER, 4);
     }
 
