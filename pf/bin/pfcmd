@@ -274,18 +274,13 @@ sub control {
 
   my @all_services=('pfdhcplistener','pfmon','pfdetect','pfredirect','snort','httpd');
 
-  if ($command =~ /^restart$/i) {
-    if ($service =~ /^pf$/i) {
-      pflogger("packetfence restart ... executing stop followed by start", 8);
-      local $cmd{command}[2] = "stop";
-      control();
-      local $cmd{command}[2] = "start";
-      control();
-      return;
-  } else {
-      if (! service_ctl($service, "status")) {
-        $command = "start";
-      }
+  if (($service =~ /^pf$/i) && ($command =~ /^restart$/i)) {
+    pflogger("packetfence restart ... executing stop followed by start", 8);
+    local $cmd{command}[2] = "stop";
+    control();
+    local $cmd{command}[2] = "start";
+    control();
+    return;
   }
 
   my @services;
