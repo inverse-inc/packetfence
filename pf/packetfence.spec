@@ -98,6 +98,7 @@ rmdir contrib/pfdetect_remote
 #end pfdetect_remote
 #remote pfdhcplistener
 mv contrib/pfdhcplistener_remote/initrd/pfdhcplistenerd $RPM_BUILD_ROOT%{_initrddir}/
+mkdir $RPM_BUILD_ROOT/etc/sysconfig
 mv contrib/pfdhcplistener_remote/sysconfig/pfdhcplistener $RPM_BUILD_ROOT/etc/sysconfig/
 rmdir contrib/pfdhcplistener_remote/initrd
 rmdir contrib/pfdhcplistener_remote/sysconfig
