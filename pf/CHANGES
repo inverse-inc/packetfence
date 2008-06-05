@@ -22,6 +22,10 @@
            http://www.packetfence.org/mantis/view.php?id=327)
         iptables save/restore
           (http://www.packetfence.org/mantis/view.php?id=328)
+        authentication module error messages
+          (http://www.packetfence.org/mantis/view.php?id=330)
+        Net::Pcap instead of Net::RawIP in dhcplistener
+          (http://www.packetfence.org/mantis/view.php?id=267)
 
 
 1.7.0
