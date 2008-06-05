@@ -35,6 +35,7 @@ use lib qw(/usr/local/pf/lib);
 use pf::config;
 use pf::db;
 use pf::util;
+use pf::node qw(node_exist node_add_simple);
 
 iplog_db_prepare($dbh) if (!$thread);
 
@@ -121,6 +122,9 @@ sub iplog_view_all {
 
 sub iplog_open {
   my ($mac, $ip, $lease_length) = @_;
+  if (! node_exist($mac)) {
+    node_add_simple($mac);
+  }
   if ($lease_length) {
     if (! defined(iplog_view_open_mac($mac))) {
       pflogger("creating new entry for ($mac - $ip)",16);
