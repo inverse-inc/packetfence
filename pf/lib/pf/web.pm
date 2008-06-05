@@ -307,6 +307,10 @@ sub web_user_authenticate {
     #validate login and password
     use lib '/usr/local/pf/conf';
     eval "use authentication::$auth";
+    if ($@) {
+      pflogger("ERROR loading authentication::$auth $@", 1);
+      return 0;
+    }
     if (authenticate($cgi->param("login"), $cgi->param("password"))) {
       #save login into session
       $session->param("login", $cgi->param("login"));
