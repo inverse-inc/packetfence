@@ -21,7 +21,7 @@ Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz
 BuildRequires: gettext, perl(Parse::RecDescent), httpd
 Requires: perl >= 5.8.0, perl-suidperl, httpd, mod_ssl, php, php-gd, libpcap, libxml2, zlib, zlib-devel, coreutils, net-snmp, iproute, sed
 Requires: gcc, mysql, perl-DBD-MySQL
-Requires: perl(Time::HiRes), perl(Config::IniFiles), perl(Net::Netmask), perl(Date::Parse), perl(Parse::RecDescent), perl(Net::RawIP) = 0.2, perl(CGI), perl(CGI::Session), perl(Term::ReadKey), perl(File::Tail), perl(Net::MAC::Vendor), perl(Net::SNMP), perl(LWP::UserAgent), perl(Net::Telnet::Cisco), perl(Log::Log4perl) >= 1.11, perl(Thread::Pool), perl(Locale::gettext), perl(Template), perl(Apache::Htpasswd)
+Requires: perl(Time::HiRes), perl(Config::IniFiles), perl(Net::Netmask), perl(Date::Parse), perl(Parse::RecDescent), perl(Net::RawIP) = 0.2, perl(Net::Pcap), perl(CGI), perl(CGI::Session), perl(Term::ReadKey), perl(File::Tail), perl(Net::MAC::Vendor), perl(Net::SNMP), perl(LWP::UserAgent), perl(Net::Telnet::Cisco), perl(Log::Log4perl) >= 1.11, perl(Thread::Pool), perl(Locale::gettext), perl(Template), perl(Apache::Htpasswd)
 
 %description
 
@@ -49,7 +49,7 @@ server.
 
 %package remote-dhcp-listener
 Group: System Environment/Daemons
-Requires: perl >= 5.8.0, perl(Config::IniFiles), libpcap, perl-DBD-MySQL, perl(Net::RawIP) = 0.2
+Requires: perl >= 5.8.0, perl(Config::IniFiles), libpcap, perl-DBD-MySQL, perl(Net::Pcap)
 Conflicts: packetfence
 AutoReqProv: 0
 Summary: Files needed for the dhcp listener on a remote machine

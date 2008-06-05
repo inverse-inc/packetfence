@@ -12,7 +12,7 @@
 use warnings;
 use strict;
 use Getopt::Std;
-use Net::RawIP qw(:pcap);
+use Net::Pcap;
 use POSIX qw(:signal_h);
 
 
@@ -76,7 +76,9 @@ my %rogue_servers;
 # standard signals and daemonize
 daemonize() if ($daemonize);
 
-# thread off dhcp monitor
+my $mydbh=0;
+
+# start dhcp monitor
 if (isenabled($Config{'network'}{'dhcpdetector'})) {
   my @devices = @listen_ints;
   push @devices, @dhcplistener_ints;
@@ -101,17 +103,27 @@ exit(0);
 
 sub dhcp_detector { 
   my ($eth) = @_;
-  my $packet_dhcp = new Net::RawIP({udp=>{}});
   my $filter = "udp and (port 67 or port 68)";
-  my $pcap_dhcp = $packet_dhcp->pcapinit($eth,$filter,576,30);
-  pflogger("dhcp_detector starting on $eth",1);
-  my $mydbh=0;
-  while(1) {
-    my $tmp;
-    my $packet = &next($pcap_dhcp, $tmp);
-    db_connect($mydbh,'iplog','node','violation','trigger','action','class','os','person');
-    listen_dhcp($packet,$eth) if ($packet);
-  }  
+  my $filter_t;
+  my $net;
+  my $mask;
+  my $opt = 1;
+  my $err;
+  my $pcap_t = Net::Pcap::pcap_open_live($eth, 576, 1, 0, \$err);
+  if ((Net::Pcap::lookupnet($eth, \$net, \$mask, \$err)) == -1) {
+    die "Net::Pcap::lookupnet failed. Error was $err";
+  }
+  if ((Net::Pcap::compile($pcap_t, \$filter_t, $filter, $opt, $net)) == -1) {
+    die "Unable to compile filter string '$filter'";
+  }
+  Net::Pcap::setfilter($pcap_t, $filter_t);
+  Net::Pcap::loop($pcap_t, -1, \&process_pkt, $eth);
+}
+
+sub process_pkt {
+  my ($user_data, $hdr, $pkt) = @_;
+  db_connect($mydbh,'iplog','node','violation','trigger','action','class','os','person');
+  listen_dhcp($pkt, $user_data);
 }
 
 sub listen_dhcp {

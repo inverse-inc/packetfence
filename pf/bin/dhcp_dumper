@@ -10,7 +10,7 @@
 # http://www.fsf.org/licensing/licenses/gpl.html.
 #
 
-use Net::RawIP qw(:pcap);
+use Net::Pcap
 use POSIX qw(:signal_h);
 use Getopt::Std;
 use Config::IniFiles;
@@ -90,13 +90,28 @@ $msg_types{'82'} = "agent information (82)";
 $msg_types{'150'} = "cisco tftp server (150)";
 $msg_types{'116'} = "dhcp auto-config";
 
-my $packet_dhcp = new Net::RawIP({udp=>{}});
-my $pcap_dhcp = $packet_dhcp->pcapinit($interface,$filter,576,30);
-while(1) {
-  my $tmp;
-  my $packet = &next($pcap_dhcp, $tmp);
-  listen_dhcp($packet) if ($packet);
-}  
+
+my $filter_t;
+my $net;
+my $mask;
+my $opt = 1;
+my $err;
+my $pcap_t = Net::Pcap::pcap_open_live($eth, 576, 1, 0, \$err);
+if ((Net::Pcap::lookupnet($eth, \$net, \$mask, \$err)) == -1) {
+  die "Net::Pcap::lookupnet failed. Error was $err";
+}
+if ((Net::Pcap::compile($pcap_t, \$filter_t, $filter, $opt, $net)) == -1) {
+  die "Unable to compile filter string '$filter'";
+}
+Net::Pcap::setfilter($pcap_t, $filter_t);
+Net::Pcap::loop($pcap_t, -1, \&process_pkt, $eth);
+
+sub process_pkt {
+  my ($user_data, $hdr, $pkt) = @_;
+  db_connect($mydbh,'iplog','node','violation','trigger','action','class','os','person');
+  listen_dhcp($pkt, $user_data);
+}
+
 
 sub int2ip {
   return(join(".",unpack("C4",pack("N",shift))));
@@ -140,7 +155,7 @@ EOF
   exit;
 }
 sub listen_dhcp {
-  my ($packet) = @_;
+  my ($packet, $eth) = @_;
 
   # decode src/dst MAC addrs
   my ($dmac,$smac) = unpack('H12H12', $packet);
