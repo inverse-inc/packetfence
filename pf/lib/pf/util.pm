@@ -435,7 +435,8 @@ sub num_interfaces {
 }
 
 sub createpid {
-  my $pname = basename($0);
+  my ($pname) = @_;
+  $pname = basename($0) if (!$pname);
   my $pid = $$;
   my $pidfile = $install_dir."/var/$pname.pid";
   pflogger("$pname starting and writing $pid to $pidfile");

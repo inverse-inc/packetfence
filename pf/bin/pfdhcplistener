@@ -13,8 +13,6 @@ use warnings;
 use strict;
 use Getopt::Std;
 use Net::RawIP qw(:pcap);
-use threads;
-use threads::shared;
 use POSIX qw(:signal_h);
 
 
@@ -63,16 +61,17 @@ POSIX::sigaction(&POSIX::SIGINT,
 my @ORIG_ARGV = @ARGV;
 
 my %args;
-getopts('dhvr', \%args);
+getopts('dhvri:', \%args);
 
 usage() if ($args{h});
+usage() if (! $args{i});
 
 my $daemonize = $args{d};
 my $restart   = $args{r};
+my $interface = $args{i};
 
 
 my %rogue_servers;
-my @kids;
 
 # standard signals and daemonize
 daemonize() if ($daemonize);
@@ -83,25 +82,18 @@ if (isenabled($Config{'network'}{'dhcpdetector'})) {
   push @devices, @dhcplistener_ints;
   @devices=get_dhcp_devs() if ( $Config{'network'}{'mode'} =~ /^dhcp$/i );
   foreach my $dev (@devices){
-    pflogger("DHCP detector on $dev enabled",1);
-    push @kids, threads->create(\&dhcp_detector,$dev);
+    if ($dev eq $interface) {
+      pflogger("DHCP detector on $dev enabled",1);
+      dhcp_detector($interface);
+    }
   }
-
-  $kids[0]->join();
-  pflogger("pfdhcplistener thread for " . $devices[0] . " finished - this is bad",1);
+  pflogger("pfdhcplistener for $interface finished - this is bad",1);
 }
 
 
 END {
-  deletepid();
-  pflogger("stopping pfdhcplistener", 1);
-  if ($Config{'network'}{'mode'}=~/passive/i) {
-    foreach my $kid (@kids){
-      $kid->detach;
-    }
-  }
-  # killing kids ain't fun, but somebody's got to do it...
-  kill 6,-$$;
+  deletepid("pfdhcplistener_$interface");
+  pflogger("stopping pfdhcplistener for interface $interface", 1);
 }
 
 exit(0);
@@ -370,7 +362,7 @@ sub update_iplog {
 sub daemonize {
   chdir '/'               or die "Can't chdir to /: $!";
   open STDIN, '/dev/null' or die "Can't read /dev/null: $!";
-  my $log_file = '/usr/local/pf/logs/pfdhcplistener';
+  my $log_file = "/usr/local/pf/logs/pfdhcplistener_$interface";
   open STDOUT, ">>$log_file" or die "Can't write to $log_file: $!";
 
   defined(my $pid = fork) or die "pfdhcplistener: could not fork: $!";
@@ -379,18 +371,18 @@ sub daemonize {
     pflogger("could not start a new session: $!", 1);
   }
   open STDERR, '>&STDOUT' or die "Can't dup stdout: $!";
-  createpid();
+  createpid("pfdhcplistener_$interface");
 }
 
 sub normal_sighandler {
-  deletepid(); 
+  deletepid("pfdhcplistener_$interface"); 
   if (threads->self->tid() == 0) {
     die("pfdhcplistener: caught SIG".$_[0]." - terminating\n");
   }
 }
 
 sub restart_handler {
-  deletepid();
+  deletepid("pfdhcplistener_$interface");
   pflogger("caught SIG".$_[0]." - restarting", 1);
   push @ORIG_ARGV, "-r" if(!grep(/^\-r$/,@ORIG_ARGV));
   if (!exec($0, @ORIG_ARGV)) {
@@ -401,7 +393,7 @@ sub restart_handler {
 
 sub usage {
   print STDERR << "EOF";
-  Usage: $0 [OPTIONS]
+  Usage: $0 -i interface [OPTIONS]
         -d      Daemonize
         -h      Help
 EOF

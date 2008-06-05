@@ -62,8 +62,21 @@ sub service_ctl {
          ($pf::services::{$confname} or sub { print "No such sub: $_\n" })->();
       }
       if (defined($flags{$daemon})) {
+        if ($daemon ne 'pfdhcplistener') {
           pflogger("Starting $exe with '$service $flags{$daemon}'");
-	  return(system("$service $flags{$daemon}"));
+          return(system("$service $flags{$daemon}"));
+        } else {
+          if (isenabled($Config{'network'}{'dhcpdetector'})) {
+            my @devices = @listen_ints;
+            push @devices, @dhcplistener_ints;
+            @devices=get_dhcp_devs() if ( $Config{'network'}{'mode'} =~ /^dhcp$/i );
+            foreach my $dev (@devices){
+              pflogger("Starting $exe with '$service -i $dev $flags{$daemon}'");
+              system("$service -i $dev $flags{$daemon}");
+            }
+            return 1;
+          }
+        }
       }
       last CASE;
     };

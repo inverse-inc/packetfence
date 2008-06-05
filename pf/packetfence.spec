@@ -98,7 +98,9 @@ rmdir contrib/pfdetect_remote
 #end pfdetect_remote
 #remote pfdhcplistener
 mv contrib/pfdhcplistener_remote/initrd/pfdhcplistenerd $RPM_BUILD_ROOT%{_initrddir}/
+mv contrib/pfdhcplistener_remote/sysconfig/pfdhcplistener $RPM_BUILD_ROOT/etc/sysconfig/
 rmdir contrib/pfdhcplistener_remote/initrd
+rmdir contrib/pfdhcplistener_remote/sysconfig
 rmdir contrib/pfdhcplistener_remote
 #end remote pfdhcplistener
 cp -r contrib $RPM_BUILD_ROOT/usr/local/pf/
@@ -421,6 +423,7 @@ fi
 %files remote-dhcp-listener
 %defattr(-, pf, pf)
 %attr(0755, root, root) %{_initrddir}/pfdhcplistenerd
+%config(noreplace) /etc/sysconfig/pfdhcplistener
 %dir /usr/local/pf
 %dir /usr/local/pf/var
 %dir /usr/local/pf/bin

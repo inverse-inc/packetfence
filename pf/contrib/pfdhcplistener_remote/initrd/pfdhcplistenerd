@@ -12,6 +12,9 @@
 
 . /etc/rc.d/init.d/functions
 
+#source pfdhcplistener configuration
+. /etc/sysconfig/pfdhcplistener
+
 prog="/usr/local/pf/bin/pfdhcplistener"
 prog_base="$(basename ${prog})"
 
@@ -24,7 +27,7 @@ start() {
 		echo
 		return 0
 	fi
-	daemon ${prog} -d
+	daemon ${prog} $PFDHCPLISTENERARGS -d
 	RETVAL=$?
 	echo
 	return $RETVAL
