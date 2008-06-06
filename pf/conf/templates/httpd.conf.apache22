@@ -143,6 +143,13 @@ SetEnvIf User-Agent ".*MSIE.*" \
   #RewriteLogLevel 3
   #RewriteLog %%install_dir%%/logs/rewrite_log
 
+  #activate if you don't want requests to update servers
+  #to end up going to the PacketFence system
+  #RewriteRule ^/msdownload/update.+$ - [F,L]
+  #RewriteRule ^/wpad.dat$ - [F,L]
+  #RewriteRule ^/ReportingWebService/ReportingWebService.asmx$ - [F,L]
+  #RewriteRule ^/v7/windowsupdate.+$ - [F,L]
+
   RewriteCond %{REQUEST_URI} !^/favicon.ico
   RewriteCond %{REQUEST_URI} !^/msdownload/update/v3/static/trustedr/en/authrootseq.txt$
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
