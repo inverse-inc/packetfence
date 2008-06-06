@@ -1,3 +1,10 @@
+# Copyright 2006-2008 Inverse groupe conseil
+# 
+# See the enclosed file COPYING for license information (GPL).
+# If you did not receive this file, see
+# http://www.fsf.org/licensing/licenses/gpl.html
+#
+
 package authentication::ldap;
 
 use strict;
