@@ -66,8 +66,6 @@ use Net::SMTP;
 use POSIX qw(:signal_h);
 
 use constant {
-    CONCURRENT_SIGNAL_HANDLER_THREAD_LIST_QUEUED_THREADS => 20,
-    CONCURRENT_SIGNAL_HANDLER_TRAP_LIST_QUEUED_THREADS => 5,
     LIB_DIR => $FindBin::Bin . "/../lib",
     CONF_FILE => $FindBin::Bin . "/../conf/switches.conf",
     LOG_CONF_FILE => $FindBin::Bin . "/../conf/log.conf",
@@ -179,7 +177,7 @@ foreach my $switch_key (sort keys %{$switchFactory->{_config}}) {
 }
 
 
-for (my $i=1; $i<=CONCURRENT_SIGNAL_HANDLER_THREAD_LIST_QUEUED_THREADS; $i++) {
+for (my $i=1; $i<=$Config{'vlan'}{'nbtraphandlerthreads'}; $i++) {
     my $t = threads->new("signalHandlerThreadListQueued");
     if (! defined($t)) {
         $logger->error("could not create " . $i . (($i==1) ? "st" : (($i==2) ? "nd" : (($i==3) ? "rd" : "th"))) . " signalHandlerThreadListQueued thread");
@@ -189,7 +187,7 @@ for (my $i=1; $i<=CONCURRENT_SIGNAL_HANDLER_THREAD_LIST_QUEUED_THREADS; $i++) {
     }
 }
 
-for (my $i=1; $i<=CONCURRENT_SIGNAL_HANDLER_TRAP_LIST_QUEUED_THREADS; $i++) {
+for (my $i=1; $i<=$Config{'vlan'}{'nbtrapparserthreads'}; $i++) {
     my $t = threads->new("signalHandlerTrapListQueued");
     if (! defined($t)) {
         $logger->error("could not create " . $i . (($i==1) ? "st" : (($i==2) ? "nd" : (($i==3) ? "rd" : "th"))) . " signalHandlerTrapListQueued thread");

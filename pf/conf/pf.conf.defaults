@@ -579,3 +579,13 @@ adjustswitchportvlanscript=/usr/local/pf/bin/flip.pl
 # Should open locationlog entries be closed when pfsetvlan is 
 # stopped
 closelocationlogonstop=enabled
+#
+# vlan.nbtraphandlerthreads
+#
+# Number of trap handler threads pfsetvlan should start
+nbtraphandlerthreads = 20
+#
+# vlan.nbtrapparserthreads
+#
+# Number of trap parser threads pfsetvlan should start
+nbtrapparserthreads = 5
