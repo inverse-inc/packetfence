@@ -405,7 +405,7 @@ sub restart_handler {
 
 sub usage {
   print STDERR << "EOF";
-  Usage: $0 -i interface [OPTIONS]
+  Usage: $0 -i <interface> [OPTIONS]
         -d      Daemonize
         -h      Help
 EOF
