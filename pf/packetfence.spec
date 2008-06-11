@@ -127,7 +127,7 @@ ln -s pfcmd ./stop
 
 #pfschema symlink
 cd $RPM_BUILD_ROOT/usr/local/pf/db
-ln -s pfschema.mysql.170 ./pfschema.mysql
+ln -s pfschema.mysql.171 ./pfschema.mysql
 
 #httpd.conf and local.conf symlink
 cd $RPM_BUILD_ROOT/usr/local/pf/conf/templates

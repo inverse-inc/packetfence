@@ -88,7 +88,8 @@ my @suids   = (
                "/usr/local/pf/bin/pfcmd"
               );
 
-my %schemas = ( "37929828877c2328f0146f4c76740fb4" => "1.7.0",
+my %schemas = ( "182e091302f8f79d6036e890812b1756" => "1.7.1",
+                "37929828877c2328f0146f4c76740fb4" => "1.7.0",
                 "8ce4c53fe0700c7d499213015e95f810" => "1.6.0",
                 "305de249fd415f181eb990e8cd25863d" => "1.5.1",
                 "e997a9969f196762859b9505e08d0459" => "1.5.0",
@@ -285,10 +286,10 @@ if(`echo "use $mysql_db"|mysql --host=$mysql_host --port=$mysql_port -u root -p'
 if ($dropped && !$unknown && !$upgraded && questioner("PF needs to create the PF database - is that ok?","y",("y", "n"))) {
   `/usr/bin/mysqladmin --host=$mysql_host --port=$mysql_port -u root -p'$pass' create $mysql_db`;
   print "  Loading schema\n";
-  if (-e "/usr/local/pf/db/pfschema.mysql.170") {
-    `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u root -p'$pass' $mysql_db < /usr/local/pf/db/pfschema.mysql.170`
+  if (-e "/usr/local/pf/db/pfschema.mysql.171") {
+    `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u root -p'$pass' $mysql_db < /usr/local/pf/db/pfschema.mysql.171`
   } else {
-    die("Where's my schema?  Nothing at /usr/local/pf/db/pfschema.mysql.170\n");
+    die("Where's my schema?  Nothing at /usr/local/pf/db/pfschema.mysql.171\n");
   }
 }
 
