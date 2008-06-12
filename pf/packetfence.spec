@@ -1,11 +1,11 @@
 #rpmbuild should be done in several steps:
 #1) rpmbuild -bs packetfence.spec
 #on each target distribution
-#2) rpmbuild --rebuild --define 'dist .el5' packetfence-1.7.0-1.src.rpm
+#2) rpmbuild --rebuild --define 'dist .el5' packetfence-1.7.1-RC1.src.rpm
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 1.7.0
-Release: 1%{?dist}
+Version: 1.7.1
+Release: RC1%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.packetfence.org
@@ -131,7 +131,7 @@ ln -s pfschema.mysql.171 ./pfschema.mysql
 
 #httpd.conf and local.conf symlink
 cd $RPM_BUILD_ROOT/usr/local/pf/conf/templates
-if (httpd -v | egrep 'Apache/2\.[2-9]\.' > /dev/null)
+if (/usr/sbin/httpd -v | egrep 'Apache/2\.[2-9]\.' > /dev/null)
 then
   ln -s httpd.conf.apache22 ./httpd.conf
   ln -s local.conf.apache22 ./local.conf
@@ -372,6 +372,7 @@ fi
 %dir /usr/local/pf/conf/authentication
 %config(noreplace) /usr/local/pf/conf/authentication/local.pm
 %config(noreplace) /usr/local/pf/conf/authentication/ldap.pm
+%config(noreplace) /usr/local/pf/conf/authentication/radius.pm
 %dir /usr/local/pf/conf/templates/configurator
 /usr/local/pf/conf/templates/configurator/*
 %config(noreplace) /usr/local/pf/conf/templates/popup.msg
