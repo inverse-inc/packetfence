@@ -9,6 +9,9 @@
 #   - packetfence, pfmon, http and pfsetvlan services are running
 # If not then notify administrators.
 #
+# This script should be run regularly to ensure that your PacketFence
+# services are all running perfectly. Please install it as a crontab.
+#
 
 use strict;
 use warnings;
@@ -98,14 +101,10 @@ if ($trouble > 0) {
         `/etc/init.d/pfsetvlan start`;
     }
     if ( ($trouble == 2) || ($trouble == 3) ) { 
-        `/etc/init.d/packetfence stop`;
-        sleep(10);
-        `/etc/init.d/packetfence start`;
-
         $smtp->datasend("\t- packetfence\n"); 
         $smtp->datasend("\n");
         $smtp->datasend("The script is re-starting PacketFence\n");
-
+        `/etc/init.d/packetfence restart`;
     }
     $smtp->dataend();
     $smtp->quit();

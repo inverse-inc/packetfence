@@ -33,9 +33,11 @@ stop() {
 }
 
 restart() {
-	stop
-	sleep 10
-	start
+        echo -n $"Restarting PacketFence..."
+        /usr/local/pf/bin/pfcmd control pf restart
+        RETVAL=$?
+        echo
+        return $RETVAL
 }
 
 case "$1" in
