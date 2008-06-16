@@ -32,7 +32,8 @@
            http://www.packetfence.org/mantis/view.php?id=316)
         SQL queries and active/inactive nodes
           (http://www.packetfence.org/mantis/view.php?id=333)
-
+        optimized oui_to_vendor
+          (http://www.packetfence.org/mantis/view.php?id=335)
 
 1.7.0
         pid with spaces causes issues in web admin GUI
