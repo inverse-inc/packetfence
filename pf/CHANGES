@@ -30,6 +30,8 @@
         database optimizations
           (http://www.packetfence.org/mantis/view.php?id=287,
            http://www.packetfence.org/mantis/view.php?id=316)
+        SQL queries and active/inactive nodes
+          (http://www.packetfence.org/mantis/view.php?id=333)
 
 
 1.7.0
