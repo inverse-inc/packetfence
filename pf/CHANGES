@@ -27,6 +27,9 @@
         Net::Pcap instead of Net::RawIP in dhcplistener
           (http://www.packetfence.org/mantis/view.php?id=267)
         new RADIUS authentication template
+        database optimizations
+          (http://www.packetfence.org/mantis/view.php?id=287,
+           http://www.packetfence.org/mantis/view.php?id=316)
 
 
 1.7.0
