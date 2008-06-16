@@ -37,8 +37,7 @@ CREATE TABLE `trigger` (
 CREATE TABLE person (
   pid varchar(255) NOT NULL,
   notes varchar(255),
-  PRIMARY KEY (pid),
-  KEY person_view (pid,notes)
+  PRIMARY KEY (pid)
 ) TYPE=InnoDB;
 
 --
@@ -64,7 +63,8 @@ CREATE TABLE node (
   vlan varchar(4) default NULL,
   PRIMARY KEY (mac),
   KEY pid (pid),
-  KEY node_lookup_person (mac,pid,user_agent,computername),
+  KEY `node_status` (`status`, `unregdate`),
+  KEY `node_dhcpfingerprint` (`dhcp_fingerprint`),
   CONSTRAINT `0_57` FOREIGN KEY (`pid`) REFERENCES `person` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) TYPE=InnoDB;
 
@@ -96,7 +96,6 @@ CREATE TABLE violation (
   KEY vid (vid),
   KEY status (status),
   KEY ind1 (mac,status,vid),
-  KEY violation_exist (id,mac,vid,start_date,release_date,status),
   CONSTRAINT `0_60` FOREIGN KEY (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `0_61` FOREIGN KEY (`vid`) REFERENCES `class` (`vid`) ON DELETE CASCADE ON UPDATE CASCADE,
   PRIMARY KEY (id)
@@ -112,24 +111,21 @@ CREATE TABLE iplog (
   start_time datetime NOT NULL,
   end_time datetime default "0000-00-00 00:00:00",
   KEY mac (mac),
-  KEY ip (ip),
-  KEY iplog_view_open (mac,ip,start_time,end_time),
+  KEY `ip_view_open` (`ip`, `end_time`),
+  KEY `mac_view_open` (`mac`, `end_time`),
   CONSTRAINT `0_63` FOREIGN KEY (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE
 ) TYPE=InnoDB;
 
 CREATE TABLE os_type (
   os_id int(11) NOT NULL,
   description varchar(255) NOT NULL,
-  PRIMARY KEY os_id (os_id),
-  KEY os_type_view (os_id,description),
-  KEY os_id_key (os_id)
+  PRIMARY KEY os_id (os_id)
 ) TYPE=InnoDB;
 
 CREATE TABLE dhcp_fingerprint (
   fingerprint varchar(255) NOT NULL,
   os_id int(11) NOT NULL,
   PRIMARY KEY fingerprint (fingerprint),
-  KEY fingerprint_view (fingerprint,os_id),
   KEY os_id_key (os_id),
   CONSTRAINT `0_65` FOREIGN KEY (`os_id`) REFERENCES `os_type` (`os_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) TYPE=InnoDB;
@@ -137,14 +133,13 @@ CREATE TABLE dhcp_fingerprint (
 CREATE TABLE os_class (
   class_id int(11) NOT NULL,               
   description varchar(255) NOT NULL,     
-  PRIMARY KEY class_id (class_id),
-  KEY os_class_view (class_id,description)
+  PRIMARY KEY class_id (class_id)
 ) TYPE=InnoDB;     
 
 CREATE TABLE os_mapping (   
   os_type int(11) NOT NULL,  
   os_class int(11) NOT NULL,
-  KEY os_mapping_view (os_type,os_class),
+  PRIMARY KEY  (os_type,os_class),
   KEY os_type_key (os_type),
   KEY os_class_key (os_class),
   CONSTRAINT `0_66` FOREIGN KEY (`os_type`) REFERENCES `os_type` (`os_id`) ON DELETE CASCADE ON UPDATE CASCADE,
