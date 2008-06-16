@@ -501,6 +501,8 @@ iplog=180d
 # expire.locationlog
 #
 # Time which you would like to keep logs on location information
+# Please note that this table should not become too big since it 
+# could degrade pfsetvlan performance
 locationlog=180d
 
 [services]
