@@ -18,6 +18,7 @@ use FileHandle;
 use Sys::Syslog;
 use POSIX();
 use Net::SMTP;
+use Net::MAC::Vendor;
 use threads;
 use threads::shared;
 
@@ -515,19 +516,12 @@ sub util_funnyarp {
 
 sub oui_to_vendor {
   my($mac) = @_;
-  my $oui_fh;
-  $mac =~ s/:/-/g;
-  $mac = uc($mac);
-  open($oui_fh, $oui_file) || die "Unable to open $oui_file: $!\n";
-  while (<$oui_fh>) {
-    chomp;
-    if ($_ =~ /^[A-F0-9]{2}\-[A-F0-9]{2}\-[A-F0-9]{2}\s+\(hex\)/) {
-      my ($prefix, $hex, $vendor) = split(/\s+/, $_, 3);
-      return($vendor) if ($mac =~ /^$prefix/);
-    }
+  if (scalar(keys(%${Net::MAC::Vendor::Cached})) == 0) {
+    pflogger("loading Net::MAC::Vendor cache from $oui_file", 12);
+    Net::MAC::Vendor::load_cache("file://$oui_file");
   }
-  close($oui_fh);
-  return undef;
+  my $oui_info = Net::MAC::Vendor::lookup($mac);
+  return $$oui_info[0] || '';
 }
 
 sub preload_getlocalmac {
