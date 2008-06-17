@@ -173,6 +173,8 @@ my @threadList_queued : shared;
 my @trapList_queued : shared;
 my $switchFactory_locker : shared;
 
+my @completeThreadList;
+
 my %switch_locker : shared;
 foreach my $switch_key (sort keys %{$switchFactory->{_config}}) {
     if ($switch_key ne 'default') {
@@ -188,6 +190,7 @@ for (my $i=1; $i<=$Config{'vlan'}{'nbtraphandlerthreads'}; $i++) {
         $logger->error("could not create " . $i . (($i==1) ? "st" : (($i==2) ? "nd" : (($i==3) ? "rd" : "th"))) . " signalHandlerThreadListQueued thread");
         exit -1;
     } else {
+        push @completeThreadList, $t;
         $logger->debug("created " . $i . (($i==1) ? "st" : (($i==2) ? "nd" : (($i==3) ? "rd" : "th"))) . " signalHandlerThreadListQueued thread");
     }
 }
@@ -198,6 +201,7 @@ for (my $i=1; $i<=$Config{'vlan'}{'nbtrapparserthreads'}; $i++) {
         $logger->error("could not create " . $i . (($i==1) ? "st" : (($i==2) ? "nd" : (($i==3) ? "rd" : "th"))) . " signalHandlerTrapListQueued thread");
         exit -1;
     } else {
+        push @completeThreadList, $t;
         $logger->debug("created " . $i . (($i==1) ? "st" : (($i==2) ? "nd" : (($i==3) ? "rd" : "th"))) . " signalHandlerTrapListQueued thread");
     }
 }
@@ -1419,6 +1423,10 @@ END {
         if (-f PID_FILE) {
             unlink(PID_FILE);
         }
+        foreach my $t (@completeThreadList) {
+            $t->detach;
+        }
+        kill 6, -$$;
     }
 }
 

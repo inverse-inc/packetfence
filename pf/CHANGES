@@ -38,6 +38,8 @@
           (http://www.packetfence.org/mantis/view.php?id=336)
         pfsetvlan should clean its PID file
           (http://www.packetfence.org/mantis/view.php?id=337)
+        pfsetvlan: A thread exited while 26 threads were running
+          (http://www.packetfence.org/mantis/view.php?id=338)
 
 1.7.0
         pid with spaces causes issues in web admin GUI
