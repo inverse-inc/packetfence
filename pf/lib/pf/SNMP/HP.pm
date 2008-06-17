@@ -235,11 +235,13 @@ sub authorizeMAC {
 }
 
 #called with $authorized set to true, creates a new line to authorize the MAC
-#when $authorized is set to false, deletes an existing line
+#called with $authorized set to false, deletes an existing line
+# In both case, resets IntrusionFlag
 sub _authorizeMAC {
     my ($this, $ifIndex, $MACHexString, $authorize) = @_;
     my $logger = Log::Log4perl::get_logger("pf::SNMP::HP");
     my $OID_hpSecCfgStatus = '1.3.6.1.4.1.11.2.14.2.10.4.1.4'; #HP-ICF-GENERIC-RPTR
+    my $OID_hpSecPtIntrusionFlag = '1.3.6.1.4.1.11.2.14.2.10.3.1.7'; #HP-ICF-GENERIC-RPTR
     my $hpSecCfgAddrGroupIndex = 1;
 
     if (! $this->isProductionMode()) {
@@ -265,6 +267,7 @@ sub _authorizeMAC {
     my $result = $this->{_sessionWrite}->set_request(
         -varbindlist => [
         "$OID_hpSecCfgStatus.$hpSecCfgAddrGroupIndex.$ifIndex.$MACDecString", Net::SNMP::INTEGER, ($authorize) ? 4 : 6,
+        "$OID_hpSecPtIntrusionFlag.$hpSecCfgAddrGroupIndex.$ifIndex", Net::SNMP::INTEGER, 2,
         ]
     );
     return (defined($result));

@@ -6,17 +6,17 @@
 # http://www.fsf.org/licensing/licenses/gpl.html
 #
 
-package pf::SNMP::HP::Procurve_2626;
+package pf::SNMP::HP::Procurve_2600;
 
 =head1 NAME
 
-pf::SNMP::HP::Procurve_2626 - Object oriented module to access SNMP enabled HP Procurve 2626 switches
+pf::SNMP::HP::Procurve_2600 - Object oriented module to access SNMP enabled HP Procurve 2600 switches
 
 
 =head1 SYNOPSIS
 
-The pf::SNMP::HP::Procurve_2626 module implements an object 
-oriented interface to access SNMP enabled HP Procurve 2626 switches.
+The pf::SNMP::HP::Procurve_2600 module implements an object 
+oriented interface to access SNMP enabled HP Procurve 2600 switches.
 
 =cut
 
