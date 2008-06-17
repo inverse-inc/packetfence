@@ -1,6 +1,4 @@
 #
-# $Id: pfcmd.pm,v 1.3 2005/11/30 21:41:09 kevmcs Exp $
-#
 # Copyright 2005 David LaPorte <david@davidlaporte.org>
 # Copyright 2005 Kevin Amorin <kev@amorin.org>
 # Copyright 2008 Inverse groupe conseil <dgehl@inverse.ca>

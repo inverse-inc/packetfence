@@ -1,6 +1,4 @@
 #
-# $Id: services.pm,v 1.12 2005/12/06 18:57:22 dgehl Exp $
-#
 # Copyright 2005 David LaPorte <david@davidlaporte.org>
 # Copyright 2005 Kevin Amorin <kev@amorin.org>
 #

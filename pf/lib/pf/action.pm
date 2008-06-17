@@ -1,6 +1,4 @@
 #
-# $Id: action.pm,v 1.4 2005/11/30 21:29:50 kevmcs Exp $
-#
 # Copyright 2005 David Laporte <david@davidlaporte.org>
 # Copyright 2005 Kevin Amorin <kev@amorin.org>
 # Copyright 2007-2008 Inverse groupe conseil <dgehl@inverse.ca>

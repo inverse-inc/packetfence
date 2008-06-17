@@ -1,6 +1,4 @@
 #
-# $Id: lookup_node.pl,v 1.15 2006/04/26 14:36:11 kevmcs Exp $
-#
 # Copyright 2005 Dave Laporte <dave@laportestyle.org>
 # Copyright 2005 Kevin Amorin <kev@amorin.org>
 #

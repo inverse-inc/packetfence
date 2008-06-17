@@ -1,6 +1,4 @@
 #
-# $Id: iptables.pm,v 1.3 2005/11/30 21:28:46 kevmcs Exp $
-#
 # Copyright 2005 David LaPorte <david@davidlaporte.org>
 # Copyright 2005 Kevin Amorin <kev@amorin.org>
 #

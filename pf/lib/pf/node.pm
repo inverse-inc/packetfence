@@ -1,6 +1,4 @@
 #
-# $Id: node.pm,v 1.4 2005/11/17 21:34:56 dgehl Exp $
-#
 # Copyright 2005 David LaPorte <david@davidlaporte.org>
 # Copyright 2005 Kevin Amorin <kev@amorin.org>
 # Copyright 2007-2008 Inverse groupe conseil <dgehl@inverse.ca>

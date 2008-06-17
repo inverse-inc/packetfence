@@ -1,6 +1,4 @@
 #
-# $Id: dashboard.pm,v 1.2 2005/11/17 21:34:56 dgehl Exp $
-#
 # Copyright 2005 David LaPorte <david@davidlaporte.org>
 # Copyright 2005 Kevin Amorin <kev@amorin.org>
 #

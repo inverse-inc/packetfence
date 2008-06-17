@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 #
-# $Id: pfcmd,v 1.9 2005/12/21 21:54:05 kevmcs Exp $
-#
 # Copyright 2005 Dave Laporte <dave@laportestyle.org>
 # Copyright 2005 Kevin Amorin <kev@amorin.org>
 # Copyright 2008 Inverse groupe conseil <dgehl@inverse.ca>

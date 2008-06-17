@@ -1,7 +1,5 @@
 #!/usr/bin/perl 
 #
-# $Id: pfmon,v 1.14 2005/12/22 00:33:14 kevmcs Exp $
-#
 # Copyright 2005 Dave Laporte <dave@laportestyle.org>
 # Copyright 2005 Kevin Amorin <kev@amorin.org>
 #

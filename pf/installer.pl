@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 #
-# $Id: installer.pl,v 1.4 2005/11/30 21:40:08 kevmcs Exp $
-#
 # Copyright 2005 Dave Laporte <dave@laportestyle.org>
 # Copyright 2005 Kevin Amorin <kev@amorin.org>
 # Copyright 2007-2008 Dominik Gehl <dgehl@inverse.ca>

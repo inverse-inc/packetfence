@@ -1,7 +1,5 @@
 #!/usr/bin/perl -w
 #
-# $Id: configurator.pl,v 1.7 2005/12/21 21:09:50 kevmcs Exp $
-#
 # Copyright 2005 Dave Laporte <dave@laportestyle.org>
 # Copyright 2005 Kevin Amorin <kev@amorin.org>
 #

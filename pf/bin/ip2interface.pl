@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 #
-# $Id: ip2interface.pl,v 1.2 2005/11/17 21:47:08 dgehl Exp $
-#
 # Copyright 2005 Dave Laporte <dave@laportestyle.org>
 # Copyright 2005 Kevin Amorin <kev@amorin.org>
 #

@@ -1,6 +1,4 @@
 #
-# $Id: rawip.pm,v 1.3 2005/11/18 20:58:56 dgehl Exp $
-#
 # Copyright 2005 David LaPorte <david@davidlaporte.org>
 # Copyright 2005 Kevin Amorin <kev@amorin.org>
 #
