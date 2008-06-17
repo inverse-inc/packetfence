@@ -17,6 +17,7 @@ pfsetvlan
 ./pfsetvlan [options]
 
  Options:
+   -daemonize      daemonize
    -help           brief help message
    -man            full documentation
                                                                                       
@@ -111,9 +112,11 @@ POSIX::sigaction(&POSIX::SIGINT,
 # command line options {{{1
 my $help;
 my $man;
+my $daemonize;
 GetOptions(
     "help|?" => \$help,
     "man" => \$man,
+    "daemonize" => \$daemonize,
 ) or pod2usage( -verbose => 1);
 
 pod2usage( -verbose => 2) if $man;
@@ -136,28 +139,30 @@ my $fh = new File::Tail ('name' => SNMPLOG_FILE,
     'reset_tail' => 0,
     'maxinterval' => 2);
 
-# Begin - Daemonize the program (see http://www.webreference.com/perl/tutorial/9/index.html)
-if (-f PID_FILE) {
-    open (FILE, PID_FILE);
-    die "Daemon is probably running (process id ",<FILE>,"). Remove pid file first (",PID_FILE,").\n";
+if ($daemonize) {
+    # Begin - Daemonize the program (see http://www.webreference.com/perl/tutorial/9/index.html)
+    if (-f PID_FILE) {
+        open (FILE, PID_FILE);
+        die "Daemon is probably running (process id ",<FILE>,"). Remove pid file first (",PID_FILE,").\n";
+    }
+
+    chdir ('/') or die "Can't chdir to /: $!";
+    open (STDIN, '/dev/null') or die "Can't read /dev/null: $!";
+    open STDERR, '>>', LOG_FILE or die "Can't open " . LOG_FILE;
+    open STDOUT, '>>', LOG_FILE or die "Can't open " . LOG_FILE;
+
+    # (at this point STDOUT and STDERR should be redirected to files)
+
+    defined(my $pid = fork) or die "Can't fork: $!";
+    exit if $pid;
+    POSIX::setsid() or die "Can't start a new session: $!";
+    umask 0;
+
+    # Write the PID
+    open (FILE, ">" . PID_FILE) or die "Can't open pid file: $!";
+    print FILE "$$";
+    close(FILE);
 }
-
-chdir ('/') or die "Can't chdir to /: $!";
-open (STDIN, '/dev/null') or die "Can't read /dev/null: $!";
-open STDERR, '>>', LOG_FILE or die "Can't open " . LOG_FILE;
-open STDOUT, '>>', LOG_FILE or die "Can't open " . LOG_FILE;
-
-# (at this point STDOUT and STDERR should be redirected to files)
-
-defined(my $pid = fork) or die "Can't fork: $!";
-exit if $pid;
-POSIX::setsid() or die "Can't start a new session: $!";
-umask 0;
-
-# Write the PID
-open (FILE, ">" . PID_FILE) or die "Can't open pid file: $!";
-print FILE "$$";
-close(FILE);
 # End - Daemonize...
 
 $logger->info("Process started !\n");
