@@ -36,6 +36,8 @@
           (http://www.packetfence.org/mantis/view.php?id=335)
         don't automatically daemonize pfsetvlan
           (http://www.packetfence.org/mantis/view.php?id=336)
+        pfsetvlan should clean its PID file
+          (http://www.packetfence.org/mantis/view.php?id=337)
 
 1.7.0
         pid with spaces causes issues in web admin GUI

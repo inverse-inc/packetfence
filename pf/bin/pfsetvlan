@@ -154,7 +154,7 @@ if ($daemonize) {
     # (at this point STDOUT and STDERR should be redirected to files)
 
     defined(my $pid = fork) or die "Can't fork: $!";
-    exit if $pid;
+    POSIX::_exit(0) if $pid;
     POSIX::setsid() or die "Can't start a new session: $!";
     umask 0;
 
@@ -1411,6 +1411,16 @@ sub do_port_security {
     return 1;
 }
 # }}}1 
+
+
+END {
+    if ((! $man) && (! $help)) {
+        $logger->info("stopping pfsetvlan");
+        if (-f PID_FILE) {
+            unlink(PID_FILE);
+        }
+    }
+}
 
 # vim: set shiftwidth=4:
 # vim: set expandtab:
