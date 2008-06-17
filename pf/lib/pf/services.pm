@@ -35,7 +35,7 @@ $flags{'pfdetect'} = "-d -p $install_dir/var/alert &";
 $flags{'pfmon'} = "-d &";
 $flags{'pfdhcplistener'} = "-d &";
 $flags{'pfredirect'} =  "-d &";
-
+$flags{'pfsetvlan'} = "-d &";
 $flags{'dhcpd'} = " -lf $install_dir/conf/dhcpd/dhcpd.leases -cf $install_dir/conf/dhcpd.conf ".join(" ", get_dhcp_devs());
 $flags{'named'} = "-u pf -c $install_dir/conf/named.conf";
 $flags{'nessusd'} = "-D";
@@ -54,6 +54,7 @@ sub service_ctl {
       return(0) if ($exe=~/dhcp/ && (! ($exe=~/pfdhcplistener/)) && $Config{'network'}{'mode'}!~/^dhcp$/);	
       return(0) if ($exe=~/snort/ && !isenabled($Config{'trapping'}{'detection'}));
       return(0) if ($exe=~/pfdhcplistener/ && !isenabled($Config{'network'}{'dhcpdetector'}));
+      return(0) if ($exe=~/pfsetvlan/ && !isenabled($Config{'network'}{'vlan'}));
       if ($daemon=~/(dhcpd|named|snort|httpd)/ && !$quick){
          my $confname="generate_".$daemon."_conf";
          pflogger("Generating configuration file $confname for $exe");
@@ -125,6 +126,8 @@ sub service_list {
       push @finalServiceList, $service  if ($Config{'network'}{'mode'} =~ /^dhcp$/i);
     } elsif ($service eq "named") {
       push @finalServiceList, $service  if (isenabled($Config{'network'}{'named'}));
+    } elsif ($service eq "pfsetvlan") {
+      push @finalServiceList, $service  if (isenabled($Config{'network'}{'vlan'}));
     } else {
       push @finalServiceList, $service;
     }

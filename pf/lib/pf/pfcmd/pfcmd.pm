@@ -99,7 +99,7 @@ $grammar = q {
 
    ui_options : 'file' '=' value
 
-   service : 'pfmon' | 'pfdhcplistener' | 'pfdetect' | 'pfredirect' | 'snort' | 'httpd' | 'pf'
+   service : 'pfmon' | 'pfdhcplistener' | 'pfdetect' | 'pfredirect' | 'snort' | 'httpd' | 'pfsetvlan' | 'pf'
 
    mac : 'all' | macaddr
 

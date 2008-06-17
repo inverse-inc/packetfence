@@ -542,6 +542,11 @@ pfdetect=/usr/local/pf/bin/pfdetect
 # Location of the pfredirect daemon.  The default setting should be fine.
 pfredirect=/usr/local/pf/bin/pfredirect
 #
+# services.pfsetvlan
+#
+# Location of the pfsetvlan daemon.  The default setting should be fine.
+pfsetvlan=/usr/local/pf/bin/pfsetvlan
+#
 # services.named
 # Location of the named binary.  Only necessary to change if you are not using the RPMed version.
 named=/usr/sbin/named

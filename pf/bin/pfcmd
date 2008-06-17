@@ -270,7 +270,7 @@ sub control {
   my $service = $cmd{command}[1];
   my $command = $cmd{command}[2];
 
-  my @all_services=('pfdhcplistener','pfmon','pfdetect','pfredirect','snort','httpd');
+  my @all_services=('pfdhcplistener','pfmon','pfdetect','pfredirect','snort','httpd', 'pfsetvlan');
 
   if ($command =~ /^restart$/i) {
     if ($service =~ /^pf$/i) {
@@ -404,7 +404,7 @@ sub service {
   my @services;
   my $pid;
   if ($service eq "pf") {
-    @services=('pfdhcplistener','pfmon','pfdetect','pfredirect','snort','httpd');
+    @services=('pfdhcplistener','pfmon','pfdetect','pfredirect','snort','httpd','pfsetvlan');
   } else {
     push(@services, $service);
   }

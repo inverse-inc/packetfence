@@ -17,13 +17,14 @@ Usage: pfcmd control <service> [start|stop|restart]
 
 stop/stop/restart specified service
 
-  pfmon            | PF ARP monitoring daemon
-  pfdhcplistener   | PF DHCP monitoring daemon
-  pfdetect         | PF snort alert parser
-  pfredirect       | bogus POP3/SMTP servers
-  snort            | if stopped or restarted, pfredirect must also be restarted
   httpd            | apache
   pf               | manage all PF services
+  pfdetect         | PF snort alert parser
+  pfdhcplistener   | PF DHCP monitoring daemon
+  pfmon            | PF ARP monitoring daemon
+  pfredirect       | bogus POP3/SMTP servers
+  pfsetvlan        | PF VLAN isolation daemon
+  snort            | if stopped or restarted, pfredirect must also be restarted
 EOT
   exit;
 }
@@ -34,13 +35,14 @@ Usage: pfcmd service <service>
 
 return PID of specified PF daemon or 0 if not running
 
-  pfmon            | PF ARP monitoring daemon
-  pfdhcplistener   | PF DHCP monitoring daemon
-  pfdetect         | PF snort alert parser
-  pfredirect       | bogus POP3/SMTP servers
-  snort            | if stopped or restarted, pfredirect must also be restarted
   httpd            | apache
   pf               | all services
+  pfdetect         | PF snort alert parser
+  pfdhcplistener   | PF DHCP monitoring daemon
+  pfmon            | PF ARP monitoring daemon
+  pfredirect       | bogus POP3/SMTP servers
+  pfsetvlan        | PF VLAN isolation daemon
+  snort            | if stopped or restarted, pfredirect must also be restarted
 EOT
   exit;
 }
