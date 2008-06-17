@@ -52,7 +52,7 @@ start() {
 
 	#now we can really try to start 
 	echo -n $"Starting ${prog_base}: "
-	daemon --check ${prog_base} ${prog} ${OPTIONS}
+	daemon --check ${prog_base} ${prog} -d ${OPTIONS}
 	RETVAL=$?
 	[ $RETVAL -eq 0 ]  && touch /var/lock/subsys/pfsetvlan
 	echo
