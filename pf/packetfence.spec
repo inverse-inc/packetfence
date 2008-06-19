@@ -1,11 +1,11 @@
 #rpmbuild should be done in several steps:
 #1) rpmbuild -bs packetfence.spec
 #on each target distribution
-#2) rpmbuild --rebuild --define 'dist .el5' packetfence-1.7.1-RC1.src.rpm
+#2) rpmbuild --rebuild --define 'dist .el5' packetfence-1.7.1-RC2.src.rpm
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
 Version: 1.7.1
-Release: RC1%{?dist}
+Release: RC2%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.packetfence.org
@@ -16,7 +16,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Packager: Dominik Gehl <dgehl@inverse.ca>
 Vendor: PacketFence, http://www.packetfence.org
 
-Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz
+Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}-RC2.tar.gz
 
 BuildRequires: gettext, perl(Parse::RecDescent), httpd
 Requires: perl >= 5.8.0, perl-suidperl, httpd, mod_ssl, php, php-gd, libpcap, libxml2, zlib, zlib-devel, coreutils, net-snmp, iproute, sed
@@ -272,7 +272,6 @@ fi
 %dir /usr/local/pf
 %dir /usr/local/pf/bin
 /usr/local/pf/bin/dhcp_dumper
-/usr/local/pf/bin/externalapi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 /usr/local/pf/bin/pfcmd_vlan
 %config(noreplace) /usr/local/pf/bin/flip.pl
