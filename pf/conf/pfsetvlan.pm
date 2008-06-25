@@ -27,11 +27,11 @@ sub custom_doWeActOnThisTrap {
             if (grep(/^$ifIndex$/, @upLinks) == 0) {
                 $weActOnThisTrap = 1;
             } else {
-                $logger->info("trap received at " . $switch->{_ip} . " ifindex $ifIndex which is uplink and we don't manage uplinks");
+                $logger->info("$trapType trap received on " . $switch->{_ip} . " ifindex $ifIndex which is uplink and we don't manage uplinks");
             }
         }
     } else {
-        $logger->info("trap was not received on ethernetCsmacd port");
+        $logger->info("$trapType trap received on " . $switch->{_ip} . " ifindex $ifIndex which is not ethernetCsmacd");
     }
     return $weActOnThisTrap;
 }
@@ -50,13 +50,13 @@ sub custom_doWeActOnThisTrap {
 #            if ( grep(/^$port_vlan$/, @{$switch->{_vlans}}) != 0 ) {  # managed vlan ?
 #                $weActOnThisTrap = 1;
 #            } else {
-#                $logger->debug("trap received at " . $switch->{_ip} . " ifindex $ifIndex for vlan $port_vlan, we do not manage this vlan");
+#                $logger->debug("$trapType trap received on " . $switch->{_ip} . " ifindex $ifIndex for vlan $port_vlan, we do not manage this vlan");
 #            }
 #        } else {
-#            $logger->debug("trap received at " . $switch->{_ip} . " ifindex $ifIndex which is dynamic, we do not manage dynamic ports");
+#            $logger->debug("$trapType trap received on " . $switch->{_ip} . " ifindex $ifIndex which is dynamic, we do not manage dynamic ports");
 #        }
 #    } else {
-#        $logger->info("trap was not received on ethernetCsmacd port");
+#        $logger->info("$trapType trap received on " . $switch->{_ip} . " ifindex $ifIndex which is not ethernetCsmacd");
 #    }
 #    return $weActOnThisTrap;
 #}

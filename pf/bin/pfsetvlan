@@ -951,7 +951,7 @@ sub handleTrap {
 
     # trapType eq 'down' {{{2
     } elsif ($trapType eq 'down') {
-        $logger->info("Down trap received on $switch_ip ifIndex $switch_port");
+        $logger->info("$trapType trap received on $switch_ip ifIndex $switch_port");
         # continue only if security traps are not available on this port {{{3
         if ($switch->isPortSecurityEnabled($switch_port)) {
             $logger->info("security traps are configured on this switch port. Stopping DOWN trap handling here");
@@ -971,7 +971,7 @@ sub handleTrap {
 
     # trapType eq 'up' {{{2
     } elsif ($trapType eq 'up') {
-        $logger->info("Up trap received on $switch_ip ifIndex $switch_port");
+        $logger->info("$trapType trap received on $switch_ip ifIndex $switch_port");
         # continue only if security traps are not available on this port {{{3
         if ($switch->isPortSecurityEnabled($switch_port)) {
             $logger->info("security traps are configured on this switch port. Stopping UP trap handling here");
