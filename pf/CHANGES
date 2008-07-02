@@ -43,6 +43,7 @@
         start pfsetvlan when network.vlan=enabled
           (http://www.packetfence.org/mantis/view.php?id=252)
         start snmptrapd when network.vlan=enabled
+        automatically open UDP port 162 during VLAN isolation
 
 1.7.0
         pid with spaces causes issues in web admin GUI
