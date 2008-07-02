@@ -24,6 +24,7 @@ stop/stop/restart specified service
   pfmon            | PF ARP monitoring daemon
   pfredirect       | bogus POP3/SMTP servers
   pfsetvlan        | PF VLAN isolation daemon
+  snmptrapd        | SNMP trap receiver daemon
   snort            | if stopped or restarted, pfredirect must also be restarted
 EOT
   exit;
@@ -42,6 +43,7 @@ return PID of specified PF daemon or 0 if not running
   pfmon            | PF ARP monitoring daemon
   pfredirect       | bogus POP3/SMTP servers
   pfsetvlan        | PF VLAN isolation daemon
+  snmptrapd        | SNMP trap receiver daemon
   snort            | if stopped or restarted, pfredirect must also be restarted
 EOT
   exit;

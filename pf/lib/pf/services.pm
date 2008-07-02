@@ -38,6 +38,7 @@ $flags{'pfredirect'} =  "-d &";
 $flags{'pfsetvlan'} = "-d &";
 $flags{'dhcpd'} = " -lf $install_dir/conf/dhcpd/dhcpd.leases -cf $install_dir/conf/dhcpd.conf ".join(" ", get_dhcp_devs());
 $flags{'named'} = "-u pf -c $install_dir/conf/named.conf";
+$flags{'snmptrapd'} = "-n -c /usr/local/pf/conf/snmptrapd.conf -C -Lf /usr/local/pf/logs/snmptrapd.log -p /usr/local/pf/var/snmptrapd.pid -On";
 $flags{'nessusd'} = "-D";
 
 if (isenabled($Config{'trapping'}{'detection'}) && $monitor_int) {
@@ -54,6 +55,7 @@ sub service_ctl {
       return(0) if ($exe=~/dhcp/ && (! ($exe=~/pfdhcplistener/)) && $Config{'network'}{'mode'}!~/^dhcp$/);	
       return(0) if ($exe=~/snort/ && !isenabled($Config{'trapping'}{'detection'}));
       return(0) if ($exe=~/pfdhcplistener/ && !isenabled($Config{'network'}{'dhcpdetector'}));
+      return(0) if ($exe=~/snmptrapd/ && !isenabled($Config{'network'}{'vlan'}));
       return(0) if ($exe=~/pfsetvlan/ && !isenabled($Config{'network'}{'vlan'}));
       if ($daemon=~/(dhcpd|named|snort|httpd)/ && !$quick){
          my $confname="generate_".$daemon."_conf";
@@ -126,6 +128,8 @@ sub service_list {
       push @finalServiceList, $service  if ($Config{'network'}{'mode'} =~ /^dhcp$/i);
     } elsif ($service eq "named") {
       push @finalServiceList, $service  if (isenabled($Config{'network'}{'named'}));
+    } elsif ($service eq "snmptrapd") {
+      push @finalServiceList, $service  if (isenabled($Config{'network'}{'vlan'}));
     } elsif ($service eq "pfsetvlan") {
       push @finalServiceList, $service  if (isenabled($Config{'network'}{'vlan'}));
     } else {
