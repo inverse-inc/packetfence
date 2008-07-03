@@ -134,10 +134,8 @@ cd $RPM_BUILD_ROOT/usr/local/pf/conf/templates
 if (/usr/sbin/httpd -v | egrep 'Apache/2\.[2-9]\.' > /dev/null)
 then
   ln -s httpd.conf.apache22 ./httpd.conf
-  ln -s local.conf.apache22 ./local.conf
 else
   ln -s httpd.conf.pre_apache22 ./httpd.conf
-  ln -s local.conf.pre_apache22 ./local.conf
 fi
 
 cd $curdir
@@ -359,14 +357,7 @@ fi
 /usr/local/pf/conf/templates/httpd.conf
 /usr/local/pf/conf/templates/httpd.conf.pre_apache22
 /usr/local/pf/conf/templates/httpd.conf.apache22
-%config(noreplace) /usr/local/pf/conf/templates/ldap.conf
-%config(noreplace) /usr/local/pf/conf/templates/ldap-rudedog.conf
-%config(noreplace) /usr/local/pf/conf/templates/local.conf.pre_apache22
-%config(noreplace) /usr/local/pf/conf/templates/local.conf.apache22
-%config(noreplace) /usr/local/pf/conf/templates/local.conf
 %config(noreplace) /usr/local/pf/conf/templates/named.conf
-%config(noreplace) /usr/local/pf/conf/templates/radius.conf
-%config(noreplace) /usr/local/pf/conf/templates/kerb.conf
 /usr/local/pf/conf/templates/snort.conf
 /usr/local/pf/conf/templates/sysctl.conf
 %dir /usr/local/pf/conf/authentication
