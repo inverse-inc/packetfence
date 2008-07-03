@@ -19,7 +19,7 @@
     <td class=header align=center>Services</td>
   </tr>
   <tr class=content>
-    <td class=system><img src="images/wire.jpg"><br><?system('uname -n')?></td>
+    <td class=system><img src="../images/wire.png"><br><?system('uname -n')?></td>
     <td class=services>
 	<? print_status_table() ?>
     </td>
