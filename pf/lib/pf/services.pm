@@ -105,7 +105,7 @@ sub service_ctl {
     };
     $action eq "status" && do {
       my $pid;
-      chop($pid=`pidof -s -x $exe`);
+      chop($pid=`pidof -x $exe`);
       $pid=0 if (!$pid);
       return($pid);
       last CASE;

@@ -412,14 +412,8 @@ sub service {
   print "service|shouldBeStarted|pid\n";
   foreach my $tmp (@services){
     my $should_be_started = ((grep(/^$tmp$/,@services_which_should_be_started) > 0) ? 1 : 0);
-    if (-e $install_dir."/var/$tmp.pid"){
-      $pid=readpid($tmp);
-      print "$tmp|$should_be_started|$pid\n";
-    }else{
-      chop($pid=`pidof -s -x $tmp`);
-      $pid=0 if (!$pid);
-      print "$tmp|$should_be_started|$pid\n";
-    }
+    my $pid = service_ctl($tmp, 'status');
+    print "$tmp|$should_be_started|$pid\n";
   }
 }
 
