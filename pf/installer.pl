@@ -44,6 +44,7 @@ my %oses    = ( "Red Hat Enterprise Linux AS release 4" => "RHEL4",
                 "White Box Enterprise Linux release 4"  => "RHEL4",
                 "CentOS release 4"			=> "RHEL4",
                 "CentOS release 5"			=> "RHEL5",
+                "Red Hat Enterprise Linux Server release 5" => "RHEL5",
                 "Fedora Core release 4"			=> "FC4"
               );
 
@@ -86,7 +87,8 @@ my @suids   = (
                "/usr/local/pf/bin/pfcmd"
               );
 
-my %schemas = ( "5588316d6e053eea32fe73b22ae3bde9" => "1.7.1",
+my %schemas = ( "5588316d6e053eea32fe73b22ae3bde9" => "1.7.2",
+                "5588316d6e053eea32fe73b22ae3bde9" => "1.7.1",
                 "37929828877c2328f0146f4c76740fb4" => "1.7.0",
                 "8ce4c53fe0700c7d499213015e95f810" => "1.6.0",
                 "305de249fd415f181eb990e8cd25863d" => "1.5.1",

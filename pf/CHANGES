@@ -1,3 +1,7 @@
+1.7.2
+        added RHEL5 to supported operating systems
+
+
 1.7.1
         fixed various issues with service_watcher
           (http://www.packetfence.org/mantis/view.php?id=319)
