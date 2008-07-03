@@ -11,6 +11,8 @@
 # it's called via "pfcmd lookup person <pid>", through the administrative GUI,
 # or as the content of a violation action
 
+# have a look at contrib/lookup/lookup_person.pl.ldap for an LDAP example
+
 sub lookup_person {
   my($pid) = @_;
   if (person_exist($pid)) {
