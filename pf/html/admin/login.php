@@ -148,7 +148,7 @@ else {
   <form method="post" name="login" action="<? print "$_SERVER[PHP_SELF]?p="	. (array_key_exists('p', $_GET) ? $_GET['p'] :'');?>">
   <table>
     <tr height=30%>
-      <td colspan=4 align=center><img src="/images/pfence-new.gif" alt="[ packetfence ]"></td>
+      <td colspan=4 align=center><img src="/common/packetfence.png" alt="[ PacketFence ]"></td>
     </tr>
     <tr>
       <td colspan=4 align=center>
