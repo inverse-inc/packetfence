@@ -93,6 +93,9 @@ sub service_ctl {
         sleep(2);
         $curWait++;
       }
+      if (-e $install_dir."/var/$exe.pid") {
+        unlink($install_dir."/var/$exe.pid");
+      }
       last CASE;
     };
     $action eq "restart" && do {
