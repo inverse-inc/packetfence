@@ -2,6 +2,8 @@
         added RHEL5 to supported operating systems
         stopped to distribute jpgraph with PF; the installer
           will now download jpgraph
+        `pfcmd service pf` now indicates if service should be
+          started according to configuration file
 
 
 1.7.1

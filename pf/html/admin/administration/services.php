@@ -44,7 +44,7 @@ function print_status_table(){
     $services=preg_split("/\|/",$line);
 
     print "<tr>";
-    if($services[1] == 0){
+    if($services[2] == 0){
       print "<td><font color=red>$services[0] (stopped)</font></td>";
       print "<td align=center><a href=$current_top/$current_sub.php?service=$services[0]&action=start><img src='images/start.png' title='Start $services[0]' border=0></a></td>";
     }

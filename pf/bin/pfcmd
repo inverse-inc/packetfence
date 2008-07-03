@@ -408,15 +408,17 @@ sub service {
   } else {
     push(@services, $service);
   }
-  print "service|pid\n";
+  my @services_which_should_be_started = service_list();
+  print "service|shouldBeStarted|pid\n";
   foreach my $tmp (@services){
+    my $should_be_started = ((grep(/^$tmp$/,@services_which_should_be_started) > 0) ? 1 : 0);
     if (-e $install_dir."/var/$tmp.pid"){
       $pid=readpid($tmp);
-      print "$tmp|$pid\n";
+      print "$tmp|$should_be_started|$pid\n";
     }else{
       chop($pid=`pidof -s -x $tmp`);
       $pid=0 if (!$pid);
-      print "$tmp|$pid\n";
+      print "$tmp|$should_be_started|$pid\n";
     }
   }
 }

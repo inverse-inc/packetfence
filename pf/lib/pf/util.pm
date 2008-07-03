@@ -458,6 +458,7 @@ sub readpid {
   my $file = new FileHandle "$pidfile";
   if (defined($file)) {
      my $pid = $file->getline() ;
+     chomp($pid);
      $file->close;
      return($pid);
   } else {
