@@ -410,7 +410,7 @@ sub service {
   }
   print "service|pid\n";
   foreach my $tmp (@services){
-    if (-e $install_dir."/logs/$tmp.pid"){
+    if (-e $install_dir."/var/$tmp.pid"){
       $pid=readpid($tmp);
       print "$tmp|$pid\n";
     }else{
