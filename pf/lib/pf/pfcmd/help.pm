@@ -11,30 +11,12 @@
 use strict;
 use warnings;
 
-sub help_control {
-  print STDERR << "EOT";
-Usage: pfcmd control <service> [start|stop|restart]
-
-stop/stop/restart specified service
-
-  httpd            | apache
-  pf               | manage all PF services
-  pfdetect         | PF snort alert parser
-  pfdhcplistener   | PF DHCP monitoring daemon
-  pfmon            | PF ARP monitoring daemon
-  pfredirect       | bogus POP3/SMTP servers
-  pfsetvlan        | PF VLAN isolation daemon
-  snmptrapd        | SNMP trap receiver daemon
-  snort            | if stopped or restarted, pfredirect must also be restarted
-EOT
-  exit;
-}
-
 sub help_service {
   print STDERR << "EOT";
-Usage: pfcmd service <service>
+Usage: pfcmd service <service> [start|stop|restart|status]
 
-return PID of specified PF daemon or 0 if not running
+stop/stop/restart specified service
+status returns PID of specified PF daemon or 0 if not running
 
   httpd            | apache
   pf               | all services

@@ -62,7 +62,7 @@ if (defined $ENV{GATEWAY_INTERFACE}){
 # legacy mode - allow ./start|./stop|./restart symlinks
 my $called_name = basename($0);
 if ($called_name =~ /^(start|stop|restart)$/i) {
-  @ARGV = ("control", "pf", $called_name);
+  @ARGV = ("service", "pf", $called_name);
 }
 
 # generate pre-compiled grammar
@@ -265,12 +265,30 @@ sub ipmachistory {
 
 #
 # stop/start pf services
+# return service status
 #
-sub control {
+sub service {
   my $service = $cmd{command}[1];
   my $command = $cmd{command}[2];
 
   my @all_services=('pfdhcplistener','pfmon','pfdetect','pfredirect','snort','httpd', 'snmptrapd', 'pfsetvlan');
+
+  if ($command =~ /^status$/i) {
+    my @services;
+    if ($service eq "pf") {
+      @services=@all_services;
+    } else {
+      push(@services, $service);
+    }
+    my @services_which_should_be_started = service_list();
+    print "service|shouldBeStarted|pid\n";
+    foreach my $tmp (@services){
+      my $should_be_started = ((grep(/^$tmp$/,@services_which_should_be_started) > 0) ? 1 : 0);
+      my $pid = service_ctl($tmp, 'status');
+      print "$tmp|$should_be_started|$pid\n";
+    }
+    return;
+  }
 
   if ($command =~ /^restart$/i) {
     if ($service =~ /^pf$/i) {
@@ -393,28 +411,6 @@ sub version {
   
   my $md5sum = (split(/\s+/, `/usr/bin/mysqldump -n -d --host=$Config{'database'}{'host'} --port=$Config{'database'}{'port'} -n -d -u $Config{'database'}{'user'} -p'$Config{'database'}{'pass'}' $Config{'database'}{'db'} | egrep -v '(^/|^\$|^--|^DROP)'|md5sum`))[0];
   print "DB MD5SUM: $md5sum\n";
-}
-
-#
-# return pid of running processes or 0 if not running
-#
-sub service {
-  my $service = $cmd{command}[1];
-  my $command = $cmd{command}[2];
-  my @services;
-  my $pid;
-  if ($service eq "pf") {
-    @services=('pfdhcplistener','pfmon','pfdetect','pfredirect','snort','httpd','snmptrapd', 'pfsetvlan');
-  } else {
-    push(@services, $service);
-  }
-  my @services_which_should_be_started = service_list();
-  print "service|shouldBeStarted|pid\n";
-  foreach my $tmp (@services){
-    my $should_be_started = ((grep(/^$tmp$/,@services_which_should_be_started) > 0) ? 1 : 0);
-    my $pid = service_ctl($tmp, 'status');
-    print "$tmp|$should_be_started|$pid\n";
-  }
 }
 
 #

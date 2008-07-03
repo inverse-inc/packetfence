@@ -7,7 +7,7 @@
   include_once('../header.php');
 
   if(isset($_GET['service']) && isset($_GET['action'])){
-    PFCMD("control {$_GET['service']} {$_GET['action']}");
+    PFCMD("service {$_GET['service']} {$_GET['action']}");
   }
 
 ?>

@@ -37,12 +37,11 @@ $::RD_AUTOACTION = q {
 $grammar = q {
    start : command eofile
 
-   command :   'control' control_options 
+   command :   'service' service_options 
              | 'graph' (/registered\b/ | /unregistered\b/ | /violations\b/ | /nodes\b/) ('day'|'month'|'year')(?) 
              | 'graph' 'ifoctetshistoryswitch' ipaddr number date_range
              | 'graph' 'ifoctetshistorymac' mac date_range
              | 'graph' 'ifoctetshistoryuser' value date_range
-             | 'service' service
              | 'schedule' schedule_options 
              | 'locationhistoryswitch' ipaddr number date(?)
              | 'locationhistorymac' mac date(?)
@@ -70,7 +69,7 @@ $grammar = q {
              | 'help' config_value
              | {main::usage()}
 
-   control_options : service ('stop' | 'start' | 'restart')
+   service_options : service ('stop' | 'start' | 'restart' | 'status')
                     {[$item{service},$item[2]]}
 
     manage_options : ('freemac'|'deregister'|'vclose'|'vopen') macaddr value(?) | 'register' macaddr value edit_options(?)
@@ -181,7 +180,6 @@ Usage: $command <command> [options]
 
 class           	| view violation classes
 config          	| query, set, or get help on pf.conf configuration paramaters
-control         	| stop/start/restart PF services
 fingerprint     	| view DHCP Fingerprints
 graph           	| trending graphs 
 history         	| IP/MAC history
@@ -198,7 +196,7 @@ person          	| person manipulation
 reload          	| rebuild fingerprint or violations tables without restart
 report          	| current usage reports
 schedule        	| Nessus scan scheduling
-service         	| get PF service status
+service         	| start/stop/restart and get PF daemon status
 switchlocation  	| view switchport description and location
 trigger         	| view and throw triggers
 ui              	| used by web UI to create menu hierarchies and dashboard

@@ -18,7 +18,7 @@ source /etc/rc.d/init.d/functions
 
 start() {
 	echo -n $"Starting PacketFence..."
-	/usr/local/pf/bin/pfcmd control pf start
+	/usr/local/pf/bin/pfcmd service pf start
 	RETVAL=$?
 	echo
 	return $RETVAL
@@ -26,7 +26,7 @@ start() {
 
 stop() {
 	echo -n $"Shutting down PacketFence..."
-	/usr/local/pf/bin/pfcmd control pf stop
+	/usr/local/pf/bin/pfcmd service pf stop
 	RETVAL=$?
 	echo
 	return $RETVAL
@@ -34,7 +34,7 @@ stop() {
 
 restart() {
         echo -n $"Restarting PacketFence..."
-        /usr/local/pf/bin/pfcmd control pf restart
+        /usr/local/pf/bin/pfcmd service pf restart
         RETVAL=$?
         echo
         return $RETVAL
@@ -51,7 +51,7 @@ case "$1" in
 	restart
 	;;
   status)
-	/usr/local/pf/bin/pfcmd service pf
+	/usr/local/pf/bin/pfcmd service pf status
   if [ ! -f /usr/local/pf/var/pfmon.pid ]; then
     RETVAL=3
   fi

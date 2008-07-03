@@ -8,6 +8,7 @@
           - all pids (in case several processus are running)
         clean PID files in /usr/local/pf/var when necessary
           after service stop
+        unified pfcmd service and pfcmd control
 
 1.7.1
         fixed various issues with service_watcher
