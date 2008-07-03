@@ -96,6 +96,14 @@ my %schemas = ( "5588316d6e053eea32fe73b22ae3bde9" => "1.7.2",
                 "b125feaa50bc9c1fdf591e7c9caabf91" => "1.4.4p1"
               );
 
+my $external_deps = { "jpgraph_v1" => {"url_path"     => "http://hem.bredband.net/jpgraph/",
+                                       "file_name"    => "jpgraph-1.26.tar.gz",
+                                       "install_path" => "/usr/local/pf/html/admin/common/jpgraph/jpgraph-1.26"},
+                      "jpgraph_v2" => {"url_path"     => "http://hem.bredband.net/jpgraph2/",
+                                       "file_name"    => "jpgraph-2.3.3.tar.gz",
+                                       "install_path" => "/usr/local/pf/html/admin/common/jpgraph/jpgraph-2.3.3"}
+                    };
+
 $ENV{'LANG'} = "C";
 
 # can we install RPMs?
@@ -356,6 +364,18 @@ if (questioner("PF needs several Perl modules to function properly.  May I downl
           my $obj = CPAN::Shell->install($module);
         }
       }
+    }
+  }
+}
+
+# check if external dependencies should be installed
+if (questioner("PF needs JPGraph for its administrative Web GUI.  May I download and install it?","y",("y", "n"))) {
+  foreach my $name (keys %$external_deps) {
+    if ($name =~ /^jpgraph/) {
+      my $url = $external_deps->{$name}->{'url_path'} . $external_deps->{$name}->{'file_name'};
+      my $local_file_name = '/usr/local/pf/html/admin/common/jpgraph/' . $external_deps->{$name}->{'file_name'};
+      `/usr/bin/wget -N $url -P /usr/local/pf/html/admin/common/jpgraph/`;
+      `/bin/tar zxvf $local_file_name --strip-components 1 -C $external_deps->{$name}->{'install_path'}`;
     }
   }
 }

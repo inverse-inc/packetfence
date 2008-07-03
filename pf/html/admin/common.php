@@ -820,9 +820,9 @@ function PrintSubNav($menu){
 
   function jpgraph_dir(){
     if(preg_match("/^4/", phpversion())){
-      return '../common/jpgraph/v1/src';   
+      return '../common/jpgraph/jpgraph-1.26/src';   
     } else {
-      return '../common/jpgraph/v2/src';
+      return '../common/jpgraph/jpgraph-2.3.3/src';
     }
   }
 
