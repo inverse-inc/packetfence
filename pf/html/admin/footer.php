@@ -36,7 +36,7 @@
   </tr>
   <tr>
 <!--    <td align="right" colspan="2"><font size="1"><?=meta("pf-version")?></font></td> -->
-    <td align="right" colspan="2"><font size="1"><a class="no_hover" href='gobbles.wav'><?=meta("pf-version")?></a></font></td>
+    <td align="right" colspan="2"><font size="1"><?=meta("pf-version")?></font></td>
   </tr>
 </table>
 
