@@ -13,10 +13,11 @@ use warnings;
 
 sub help_service {
   print STDERR << "EOT";
-Usage: pfcmd service <service> [start|stop|restart|status]
+Usage: pfcmd service <service> [start|stop|restart|status|watch]
 
 stop/stop/restart specified service
 status returns PID of specified PF daemon or 0 if not running
+watch acts as a service watcher which can send email/restart the services
 
   httpd            | apache
   pf               | all services

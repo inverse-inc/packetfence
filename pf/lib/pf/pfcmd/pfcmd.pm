@@ -69,7 +69,7 @@ $grammar = q {
              | 'help' config_value
              | {main::usage()}
 
-   service_options : service ('stop' | 'start' | 'restart' | 'status')
+   service_options : service ('stop' | 'start' | 'restart' | 'status' | 'watch')
                     {[$item{service},$item[2]]}
 
     manage_options : ('freemac'|'deregister'|'vclose'|'vopen') macaddr value(?) | 'register' macaddr value edit_options(?)

@@ -290,6 +290,28 @@ sub service {
     return;
   }
 
+  if ($command =~ /^watch$/i) {
+    my @services;
+    if ($service eq "pf") {
+      @services=@all_services;
+    } else {
+      push(@services, $service);
+    }
+    my @services_which_should_be_started = service_list();
+    my @incorrectly_stopped_services = ();
+    foreach my $tmp (@services){
+      my $should_be_started = ((grep(/^$tmp$/,@services_which_should_be_started) > 0) ? 1 : 0);
+      my $pid = service_ctl($tmp, 'status');
+      if (($should_be_started) && (! $pid)) {
+        push @incorrectly_stopped_services, $tmp;
+      }
+    }
+    if (scalar(@incorrectly_stopped_services) > 0) {
+      print "The following processes are not running:\n" . join("\n - ", @incorrectly_stopped_services) . "\n";
+    }
+    return;
+  }
+
   if ($command =~ /^restart$/i) {
     if ($service =~ /^pf$/i) {
       pflogger("packetfence restart ... executing stop followed by start", 8);
