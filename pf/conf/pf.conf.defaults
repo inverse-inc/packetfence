@@ -600,3 +600,10 @@ nbtraphandlerthreads = 20
 #
 # Number of trap parser threads pfsetvlan should start
 nbtrapparserthreads = 5
+
+[servicewatch]
+#
+# servicewatch.email
+#
+# should pfcmd service pf watch send an email if services are not running
+email=1
