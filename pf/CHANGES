@@ -9,6 +9,7 @@
         clean PID files in /usr/local/pf/var when necessary
           after service stop
         unified pfcmd service and pfcmd control
+        replaced bin/pfwatcher with pfcmd service pf watch
 
 1.7.1
         fixed various issues with service_watcher
