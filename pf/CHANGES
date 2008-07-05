@@ -10,6 +10,8 @@
           after service stop
         unified pfcmd service and pfcmd control
         replaced bin/pfwatcher with pfcmd service pf watch
+        added trapping.redirlocal parameter which is used by 
+          bin/ip2interface.pl
 
 1.7.1
         fixed various issues with service_watcher

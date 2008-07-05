@@ -228,6 +228,12 @@ redirecturl=http://www.packetfence.org
 # Enables snort-based worm detection.  If you don't have a span interface available, don't bother enabling it.  If you do, 
 # you'll most definately want this on.
 detection=disabled
+#
+# trapping.redirlocal
+#
+# Typically best to leave this disabled unless you are having problems and under
+stand why you need this.
+redirlocal=disabled
 
 [registration]
 #
