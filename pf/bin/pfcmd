@@ -315,7 +315,11 @@ sub service {
       $message{'message'} = "The following processes are not running:\n" . join("\n - ", @incorrectly_stopped_services) . "\n";
       pfmailer(%message);
     }
-    return;
+    if (isenabled($Config{'servicewatch'}{'restart'})) {
+      $command = 'restart';
+    } else {
+      return;
+    }
   }
 
   if ($command =~ /^restart$/i) {

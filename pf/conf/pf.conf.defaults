@@ -606,4 +606,9 @@ nbtrapparserthreads = 5
 # servicewatch.email
 #
 # should pfcmd service pf watch send an email if services are not running
-email=1
+email=enabled
+#
+# servicewatch.restart
+#
+# should pfcmd service pf watch restart PF if services are not running
+restart=disabled
