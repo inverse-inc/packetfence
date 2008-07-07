@@ -32,6 +32,24 @@ use pf::pfcmd::pfcmd_pregrammar;
 use pf::pfcmd::help;
 
 delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
+
+if (defined($ENV{'PATH'})) {
+    my @PATH = split(/:/,$ENV{'PATH'});
+    my $pos = 0;
+    while (($pos < scalar(@PATH)) && (! ( -x "$PATH[$pos]/getenforce" ))) {
+        $pos++;
+    }
+    if ($pos < scalar(@PATH)) {
+        my $enforcing = `$PATH[$pos]/getenforce`;
+        if ($enforcing =~ /^Enforcing$/) {
+            pflogger("SELinux is in enforcing mode. This is currently not supported in PacketFence", 1);
+            die "SELinux is in enforcing mode. This is currently not supported in PacketFence";
+        }
+    }
+}
+
+
+
 $ENV{PATH} = "/bin:/sbin:/usr/bin:/usr/sbin";
 
 my $count  = $ENV{PER_PAGE};
