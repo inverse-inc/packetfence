@@ -14,6 +14,7 @@
           bin/ip2interface.pl
         removed conf/ssl/server.crt and conf/ssl/server.key from
           distribution and added code to generate them to installer.pl
+        added DHCP fingerprint update to configurator.pl
 
 1.7.1
         fixed various issues with service_watcher
