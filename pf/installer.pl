@@ -395,13 +395,14 @@ foreach my $locale_dir (@locale_dirs){
   rename "packetfence.mo", "$locale_start_dir/$locale_dir/LC_MESSAGES/packetfence.mo";
 }
 
-print "Setting permissions\n";
-print "  Chowning /usr/local/pf pf:pf\n";
-`chown -R pf:pf /usr/local/pf`;
-foreach my $file (@suids) {
-  print "  Chowning $file root:root and setting SGID bits\n";
-  `chown root:root $file`;
-  `chmod 6755 $file`;
+if (! (-e '/usr/local/pf/conf/ssl/server.crt')) {
+  if (questioner("Would you like me to create a self-signed SSL certificate for the PacketFence web pages?","y",("y", "n"))) {
+    `openssl req -x509 -new -nodes  -keyout newkey.pem -out newcert.pem -days 365`;
+    `mv newcert.pem /usr/local/pf/conf/ssl/server.crt`;
+    `mv newkey.pem /usr/local/pf/conf/ssl/server.key`;
+  } else {
+    print "You must save your SSL certificates as /usr/local/pf/conf/ssl/server.crt and /usr/local/pf/conf/ssl/server.key before starting PacketFence";
+  }
 }
 
 if (! (-e '/usr/local/pf/conf/templates/httpd.conf')) {
@@ -433,6 +434,15 @@ if (questioner("Would you like me to create an account for the web administrativ
     chop $adminuser;
     $adminuser = "admin" if (!$adminuser);
   } while (system("htpasswd -c /usr/local/pf/conf/admin.conf $adminuser"));
+}
+
+print "Setting permissions\n";
+print "  Chowning /usr/local/pf pf:pf\n";
+`chown -R pf:pf /usr/local/pf`;
+foreach my $file (@suids) {
+  print "  Chowning $file root:root and setting SGID bits\n";
+  `chown root:root $file`;
+  `chmod 6755 $file`;
 }
 
 print "Installation is complete\n** Please run cd /usr/local/pf && ./configurator.pl before starting PacketFence **\n\n\n";

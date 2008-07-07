@@ -349,8 +349,6 @@ fi
 %dir /usr/local/pf/conf/snort
 /usr/local/pf/conf/snort/*
 %dir /usr/local/pf/conf/ssl
-%config(noreplace) /usr/local/pf/conf/ssl/server.crt
-%config(noreplace) /usr/local/pf/conf/ssl/server.key
 %dir /usr/local/pf/conf/users
 %dir /usr/local/pf/conf/templates
 /usr/local/pf/conf/templates/dhcpd.conf

@@ -12,6 +12,8 @@
         replaced bin/pfwatcher with pfcmd service pf watch
         added trapping.redirlocal parameter which is used by 
           bin/ip2interface.pl
+        removed conf/ssl/server.crt and conf/ssl/server.key from
+          distribution and added code to generate them to installer.pl
 
 1.7.1
         fixed various issues with service_watcher
