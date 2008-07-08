@@ -219,7 +219,7 @@ sub generate_iptables {
 
   # open snmptrapd if network.vlan=enabled
   if (isenabled($Config{'network'}{'vlan'})) {
-    internal_append_entry($filter,'INPUT',{
+    managed_append_entry($filter,'INPUT',{
          'protocol' => 'udp',
          'destination-port' => '162',
          'jump' => 'ACCEPT'

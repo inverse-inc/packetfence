@@ -17,6 +17,10 @@
         added DHCP fingerprint update to configurator.pl
         configurator.pl reference to registration.authentication
           (http://www.packetfence.org/mantis/view.php?id=342)
+        port 162 is opened on internal interface instead of management 
+          interface
+          (http://www.packetfence.org/mantis/view.php?id=344)
+
 
 1.7.1
         fixed various issues with service_watcher
