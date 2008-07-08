@@ -393,7 +393,7 @@ sub config_registration{
     my $rc;
     print "\n** NOTE: There are several registration timers/windows to be set in pf.conf - please be sure to review them **\n\n";
     gatherer("Do you wish to have users accept an AUP?","registration.aup",("enabled","disabled"));
-    my $auth = gatherer("How would you like users to authenticate at registration?","registration.authentication",("local","ldap","radius","mysql"));
+    my $auth = gatherer("How would you like users to authenticate at registration?","registration.auth",("local","ldap","radius","mysql"));
     if ($auth =~ /^ldap$/i) {
       if (!installed("mod_authz_ldap")) {
         if (questioner("I need to install mod_authz_ldap - is that OK?","y",("y","n"))) {
