@@ -263,10 +263,10 @@ sub configuration {
   config_network($cfg{network}{mode});
 
   # ARP  
-  if (!$template){
-    print "\nARP CONFIGURATION\n";
-    gatherer("What interface should I listen for ARPs on?","arp.listendevice");
-  }
+  #if (!$template){
+  #  print "\nARP CONFIGURATION\n";
+  #  gatherer("What interface should I listen for ARPs on?","arp.listendevice");
+  #}
 
   # TRAPPING
   print "\nTRAPPING CONFIGURATION\n";

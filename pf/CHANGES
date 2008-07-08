@@ -20,6 +20,7 @@
         port 162 is opened on internal interface instead of management 
           interface
           (http://www.packetfence.org/mantis/view.php?id=344)
+        removed configurator.pl reference to arp.listendevice
 
 
 1.7.1
