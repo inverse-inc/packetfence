@@ -278,7 +278,6 @@ fi
 /usr/local/pf/bin/pfmon
 /usr/local/pf/bin/accounting.pl
 %attr(0755, pf, pf) /usr/local/pf/bin/pfdhcplistener
-/usr/local/pf/bin/pfwatcher
 %config(noreplace) /usr/local/pf/bin/lookup_node.pl
 %config(noreplace) /usr/local/pf/bin/lookup_person.pl
 /usr/local/pf/bin/pfsetvlan
@@ -319,7 +318,6 @@ fi
 /usr/local/pf/contrib/802.1X/*
 /usr/local/pf/contrib/oinkmaster.conf
 %dir /usr/local/pf/contrib/addons
-/usr/local/pf/contrib/addons/service_watcher.pl
 /usr/local/pf/contrib/addons/recovery.pl
 /usr/local/pf/contrib/addons/monitorpfsetvlan.pl
 /usr/local/pf/contrib/addons/autodiscover.pl
