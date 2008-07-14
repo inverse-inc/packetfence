@@ -344,9 +344,9 @@ sub service {
     if ($service =~ /^pf$/i) {
       pflogger("packetfence restart ... executing stop followed by start", 8);
       local $cmd{command}[2] = "stop";
-      control();
+      service();
       local $cmd{command}[2] = "start";
-      control();
+      service();
       return;
     } else {
       if (! service_ctl($service, "status")) {
