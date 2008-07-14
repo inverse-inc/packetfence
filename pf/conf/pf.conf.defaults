@@ -231,8 +231,8 @@ detection=disabled
 #
 # trapping.redirlocal
 #
-# Typically best to leave this disabled unless you are having problems and under
-stand why you need this.
+# Typically best to leave this disabled unless you are having problems 
+# and under stand why you need this.
 redirlocal=disabled
 
 [registration]
