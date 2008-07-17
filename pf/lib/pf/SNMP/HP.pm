@@ -51,7 +51,15 @@ sub parseTrap {
     my ($this, $trapString) = @_;
     my $trapHashRef;
     my $logger = Log::Log4perl::get_logger("pf::SNMP::HP");
-    if ($trapString =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.2\.1\.\d+ = INTEGER: 1\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.3\.1\.(\d+) = INTEGER: \d+\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.4\.1\.\d+ = Hex-STRING: ([0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2})/) {
+
+    #link up/down
+    if ($trapString =~ /BEGIN TYPE ([23]) END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.([0-9]+) = INTEGER: [0-9]+ END VARIABLEBINDINGS/) {
+        $trapHashRef->{'trapType'} = (($1 == 2) ? "down" : "up");
+        $trapHashRef->{'trapIfIndex'} = $2;
+
+    # Port Security
+    } elsif ($trapString =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.2\.1\.\d+ = INTEGER: 1\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.3\.1\.(\d+) = INTEGER:
+\d+\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.4\.1\.\d+ = Hex-STRING: ([0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2})/) {
         $trapHashRef->{'trapType'} = 'secureMacAddrViolation';
         $trapHashRef->{'trapIfIndex'} = $1;
         $trapHashRef->{'trapMac'} = lc($2);
@@ -91,6 +99,13 @@ sub _setVlan {
             -varbindlist => [
             "$OID_dot1qVlanStaticEgressPorts.$oldVlan",
             "$OID_dot1qVlanStaticEgressPorts.$newVlan",
+            "$OID_dot1qVlanStaticUntaggedPorts.$oldVlan",
+            "$OID_dot1qVlanStaticUntaggedPorts.$newVlan"
+            ]
+        );
+
+        # calculate new settings
+        my $egressPortsOldVlan = $this->modifyBitmask($result->{"$OID_dot1qVlanStaticEgressPorts.$oldVlan"}, $ifIndex-1, 0);
             "$OID_dot1qVlanStaticUntaggedPorts.$oldVlan",
             "$OID_dot1qVlanStaticUntaggedPorts.$newVlan"
             ]
@@ -304,10 +319,3 @@ sub isPortSecurityEnabled {
     );
     return (defined($result->{"$OID_hpSecPtLearnMode.$hpSecCfgAddrGroupIndex.$ifIndex"}) && defined($result->{"$OID_hpSecPtAlarmEnable.$hpSecCfgAddrGroupIndex.$ifIndex"}) && ($result->{"$OID_hpSecPtLearnMode.$hpSecCfgAddrGroupIndex.$ifIndex"} == 4) && ($result->{"$OID_hpSecPtAlarmEnable.$hpSecCfgAddrGroupIndex.$ifIndex"} == 2));
 }
-
-
-1;
-
-# vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:
