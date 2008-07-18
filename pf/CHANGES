@@ -21,6 +21,8 @@
           interface
           (http://www.packetfence.org/mantis/view.php?id=344)
         removed configurator.pl reference to arp.listendevice
+        perl-IPTables-IPv4 conflicts with PacketFence RPM
+          (http://www.packetfence.org/mantis/view.php?id=348)
 
 
 1.7.1

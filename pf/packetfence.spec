@@ -13,6 +13,9 @@ AutoReqProv: 0
 BuildArch: noarch
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
+#currently IPTables::IPv4 should be installed through CPAN
+Conflicts: perl(IPTables::IPv4) 
+
 Packager: Dominik Gehl <dgehl@inverse.ca>
 Vendor: PacketFence, http://www.packetfence.org
 
