@@ -16,43 +16,45 @@ pfcmd_vlan - packetfence commands for VLAN isolation
 pfcmd_vlan command [options]
 
  Command:
-   -deauthenticate  de-authenticate a dot11 client
-   -getAlias        show the description of the specified switch port
-   -getAllMACs      show all MACS on all switch ports
-   -getHubs         show switch ports with several MACs
-   -getIfOperStatus show the operational status of the specified switch port
-   -getIfType       show the ifType on the specified switch port
-   -getLocation     show at which switch port the MAC is found
-   -getMAC          show all MACs on the specified switch port
-   -getType         show switch type
-   -getUpLinks      show the upLinks of the specified switch
-   -getVersion      show switch OS version
-   -getVlan         show the VLAN on the specified switch port
-   -getVlanType     show the type of the specified port
-   -help            brief help message
-   -isolate         set the switch port to the isolation VLAN
-   -man             full documentation
-   -reAssignVlan    re-assign a switch port VLAN
-   -setAlias        set the description of the specified switch port
-   -setDefaultVlan  set the switch port to the default VLAN
-   -setIfAdminStatus set the admin status of the specified switch port
-   -setVlan         set the VLAN on the specified switch port
-   -setVlanAllPort  set the VLAN of all the non-UpLink ports
+   -deauthenticate  	de-authenticate a dot11 client
+   -getAlias        	show the description of the specified switch port
+   -getAllMACs      	show all MACS on all switch ports
+   -getHubs         	show switch ports with several MACs
+   -getIfOperStatus 	show the operational status of the specified switch port
+   -getIfType       	show the ifType on the specified switch port
+   -getLocation     	show at which switch port the MAC is found
+   -getMAC          	show all MACs on the specified switch port
+   -getType         	show switch type
+   -getUpLinks      	show the upLinks of the specified switch
+   -getVersion      	show switch OS version
+   -getVlan         	show the VLAN on the specified switch port
+   -getVlanType     	show the type of the specified port
+   -help            	brief help message
+   -isolate         	set the switch port to the isolation VLAN
+   -man             	full documentation
+   -reAssignVlan    	re-assign a switch port VLAN
+   -resetVlanAllPort  	reset VLAN on all non-UpLink ports of the specified switch
+   -resetVlanNetwork	reset VLAN on all non-UpLink ports of all managed switches
+   -setAlias        	set the description of the specified switch port
+   -setDefaultVlan  	set the switch port to the default VLAN
+   -setIfAdminStatus 	set the admin status of the specified switch port
+   -setVlan         	set VLAN on the specified switch port 
+   -setVlanAllPort  	set VLAN on all non-UpLink ports of the specified switch
 
  Options:
-   -alias          switch port description
-   -ifAdminStatus  ifAdminStatus
-   -ifIndex        switch port ifIndex
-   -mac            MAC address
-   -showMACVendor  show the MAC vendor
-   -showPF         show additional information available in PF
-   -switch         switch description
-   -verbose        log verbosity level
-                     0 : fatal messages
-                     1 : warn messages
-                     2 : info messages
-                   > 2 : full debug
-   -vlan           VLAN
+   -alias          	switch port description
+   -ifAdminStatus  	ifAdminStatus
+   -ifIndex        	switch port ifIndex
+   -mac            	MAC address
+   -showMACVendor  	show the MAC vendor
+   -showPF         	show additional information available in PF
+   -switch         	switch description
+   -verbose        	log verbosity level
+                   	  0 : fatal messages
+                   	  1 : warn messages
+                   	  2 : info messages
+                   	> 2 : full debug
+   -vlan           	VLAN
                  
 
 =head1 DESCRIPTION
@@ -129,6 +131,8 @@ my $getAllMacs;
 my $getAlias;
 my $setAlias;
 my $getVlan;
+my $resetVlanAllPort;
+my $resetVlanNetwork;
 my $setVlan;
 my $setVlanAllPort;
 my $setIfAdminStatus;
@@ -149,37 +153,39 @@ my $ifAdminStatus = 0;
 my $deauthenticate;
 my $reAssignVlan;
 
-GetOptions("switch:s" => \$switchDescRegExp,
-    "ifIndex:i" => \$ifIndex,
-    "vlan:i" => \$vlan,
-    "mac:s" => \$mac,
-    "alias:s" => \$alias,
-    "help|?" => \$help,
-    "man" => \$man,
+GetOptions("alias:s" => \$alias,
     "deauthenticate" => \$deauthenticate,
-    "setDefaultVlan" => \$setDefaultVlan,
-    "getMac" => \$getMac,
-    "getAllMacs" => \$getAllMacs,
     "getAlias" => \$getAlias,
-    "setAlias" => \$setAlias,
+    "getAllMacs" => \$getAllMacs,
+    "getHubs" => \$getHubs,
+    "getIfOperStatus" => \$getIfOperStatus,
+    "getIfType" => \$getIfType,
+    "getLocation" => \$getLocation,
+    "getMac" => \$getMac,
+    "getType" => \$getType,
+    "getUpLinks" => \$getUpLinks,
+    "getVersion" => \$getVersion,
     "getVlan" => \$getVlan,
+    "getVlanType" => \$getVlanType,
+    "help|?" => \$help,
+    "ifAdminStatus:i" => \$ifAdminStatus,
+    "ifIndex:i" => \$ifIndex,
+    "isolate" => \$isolate,
+    "mac:s" => \$mac,
+    "man" => \$man,
+    "reAssignVlan" => \$reAssignVlan,
+    "resetVlanAllPort" => $resetVlanAllPort,;
+    "resetVlanNetwork" => $resetVlanNetwork;
+    "setAlias" => \$setAlias,
+    "setDefaultVlan" => \$setDefaultVlan,
+    "setIfAdminStatus" => \$setIfAdminStatus,
     "setVlan" => \$setVlan,
     "setVlanAllPort" => \$setVlanAllPort,
-    "getVlanType" => \$getVlanType,
-    "getIfType" => \$getIfType,
-    "getUpLinks" => \$getUpLinks,
-    "getIfOperStatus" => \$getIfOperStatus,
-    "getLocation" => \$getLocation,
-    "isolate" => \$isolate,
-    "getHubs" => \$getHubs,
-    "showPF" => \$showPF,
     "showMacVendor" => \$showMacVendor,
-    "getVersion" => \$getVersion,
-    "getType" => \$getType,
-    "setIfAdminStatus" => \$setIfAdminStatus,
-    "ifAdminStatus:i" => \$ifAdminStatus,
-    "reAssignVlan" => \$reAssignVlan,
-    "verbose:i" => \$logLevel
+    "showPF" => \$showPF,
+    "switch:s" => \$switchDescRegExp,
+    "verbose:i" => \$logLevel,
+    "vlan:i" => \$vlan
 ) or pod2usage( -verbose => 1);
 
 pod2usage( -verbose => 2) if $man;
@@ -352,9 +358,9 @@ if (($getUpLinks) || ($getVersion) || ($getType) || ($getAllMacs) || ($getHubs))
 
     $logger->debug("finished handling 'deauthenticate' command");
 
-} elsif ($getMac || $getAlias || $setAlias || $getVlan || $setVlan || $setVlanAllPort || $getVlanType || $isolate || $setDefaultVlan || $getIfType || $getIfOperStatus || $setIfAdminStatus || $reAssignVlan ) {
+} elsif ($getMac || $getAlias || $setAlias || $getVlan || $setVlan || $resetVlanAllPort || $setVlanAllPort || $getVlanType || $isolate || $setDefaultVlan || $getIfType || $getIfOperStatus || $setIfAdminStatus || $reAssignVlan ) {
 
-    if (! $setVlanAllPort) {
+    if (!$resetVlanAllPort && !$setVlanAllPort) {
         if ($ifIndex == 0) {
             pod2usage("the ifIndex option is necessary");
         }
@@ -442,6 +448,12 @@ if (($getUpLinks) || ($getVersion) || ($getType) || ($getAllMacs) || ($getHubs))
         $switch->setAlias($ifIndex,$alias);
         print "new alias: " . $switch->getAlias($ifIndex) . "\n";
         $logger->debug("finished handling 'setAlias' command");
+    } elsif ($resetVlanAllPort) {
+        $logger->debug("start handling 'resetVlanAllPort' command");
+        my %switch_locker : shared;
+        $switch_locker{$switch->{_ip}} = &share({});
+        $switch->resetVlanAllPort(\%switch_locker);
+        print "finished handling 'resetVlanAllPort' command\n";
     } elsif ($setVlanAllPort) {
         if ($vlan == 0) {
             pod2usage("you must specify the VLAN to set");
@@ -519,6 +531,22 @@ if (($getUpLinks) || ($getVersion) || ($getType) || ($getAllMacs) || ($getHubs))
         print "MAC $mac cannot be found\n";
     }
     $logger->debug("finished handling 'getLocation' command");
+
+} elsif ($resetVlanNetwork) {
+    $logger->debug("start handling 'resetVlanNetwork' command");
+    my %Config = %{$switchFactory->{_config}};
+
+    my $switch_ip = undef;
+    my $switch_port = undef;
+    foreach my $key (sort keys %Config) {
+	if ($key ne 'default') {
+	    $switch_ip = $Config{$key}{'ip'};
+	    my $switch = $switchFactory->instantiate($switch_ip);
+            $switch->resetVlanAllPort();
+        }   
+    }   
+
+    $logger->debug("finished handling 'resetVlanNetwork command");
 
 } else {
     pod2usage(-verbose => 1);

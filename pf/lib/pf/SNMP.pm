@@ -656,6 +656,15 @@ sub setVlanAllPort {
     }
 }
 
+=item resetVlanAllPort - reset the port VLAN for all the non-UpLink ports of a switch
+
+=cut
+sub resetVlanAllPort {
+    my ($this, $switch_locker_ref) = @_;
+
+   $switch->setVlanAllPort($this->{_normalVlan}, $switch_locker_ref); 
+
+}
 
 =item getMacAtIfIndex - obtain list of MACs at switch ifIndex
 
