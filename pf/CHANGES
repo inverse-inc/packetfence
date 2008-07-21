@@ -26,6 +26,8 @@
         added authorizedips variable to each interface to customize 
           IPTables rules
           (http://www.packetfence.org/mantis/view.php?id=345)
+        representation of adjustswitchportvlan reasons in web admin GUI
+          (http://www.packetfence.org/mantis/view.php?id=343)
 
 
 1.7.1
