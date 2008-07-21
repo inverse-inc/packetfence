@@ -204,7 +204,7 @@ foreach($config_tree as $section => $settings){
 			case "multi":
 			print "<select multiple name='".$setting."[]'>";
 			$my_options = explode(";", $options['options']);  
-			$my_values = explode(",", $options['value']);			
+			$my_values = explode(",", set_default($options['value'],$options['default']));			
  			foreach($my_options as $option){
 				if(in_array($option, $my_values))
 					print "    <option value='$option' SELECTED>$option</option>\n";
