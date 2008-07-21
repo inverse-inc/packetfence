@@ -174,8 +174,8 @@ GetOptions("alias:s" => \$alias,
     "mac:s" => \$mac,
     "man" => \$man,
     "reAssignVlan" => \$reAssignVlan,
-    "resetVlanAllPort" => $resetVlanAllPort,;
-    "resetVlanNetwork" => $resetVlanNetwork;
+    "resetVlanAllPort" => \$resetVlanAllPort,
+    "resetVlanNetwork" => \$resetVlanNetwork,
     "setAlias" => \$setAlias,
     "setDefaultVlan" => \$setDefaultVlan,
     "setIfAdminStatus" => \$setIfAdminStatus,
@@ -542,10 +542,13 @@ if (($getUpLinks) || ($getVersion) || ($getType) || ($getAllMacs) || ($getHubs))
 	if ($key ne 'default') {
 	    $switch_ip = $Config{$key}{'ip'};
 	    my $switch = $switchFactory->instantiate($switch_ip);
-            $switch->resetVlanAllPort();
-        }   
-    }   
-
+            if ($switch->isProductionMode()) {
+                my %switch_locker : shared;
+                $switch_locker{$switch->{_ip}} = &share({});
+                $switch->resetVlanAllPort(\%switch_locker);
+            }
+        }
+    }
     $logger->debug("finished handling 'resetVlanNetwork command");
 
 } else {

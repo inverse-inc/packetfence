@@ -31,6 +31,8 @@
         default values for multi config options are correctly shown in 
           web admin GUI
           (http://www.packetfence.org/mantis/view.php?id=350)
+        added functionality to reset switch ports in case of desaster
+          (http://www.packetfence.org/mantis/view.php?id=349)
 
 
 1.7.1

@@ -661,9 +661,7 @@ sub setVlanAllPort {
 =cut
 sub resetVlanAllPort {
     my ($this, $switch_locker_ref) = @_;
-
-   $switch->setVlanAllPort($this->{_normalVlan}, $switch_locker_ref); 
-
+    $switch->setVlanAllPort($this->{_normalVlan}, $switch_locker_ref); 
 }
 
 =item getMacAtIfIndex - obtain list of MACs at switch ifIndex
