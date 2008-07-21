@@ -35,6 +35,8 @@
           (http://www.packetfence.org/mantis/view.php?id=349)
         parse for local trap OID instead of only 127.0.0.1
           (http://www.packetfence.org/mantis/view.php?id=341)
+        iptables FORWARD ACCEPT chains in passive mode
+          (http://www.packetfence.org/mantis/view.php?id=314)
 
 
 1.7.1

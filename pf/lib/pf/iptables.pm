@@ -365,28 +365,30 @@ sub generate_iptables {
     }
   }
 
-  # allow unregistered users if registration disabled
-  if (!isenabled($Config{'trapping'}{'registration'})) {
-    internal_append_entry($filter,'FORWARD',{
+  if ($Config{'network'}{'mode'} =~ /^inline$/i) {
+    # allow unregistered users if registration disabled
+    if (!isenabled($Config{'trapping'}{'registration'})) {
+      internal_append_entry($filter,'FORWARD',{
          'matches' => ['mark'],
          'mark' => "0x".$unreg_mark,
          'jump' => 'ACCEPT'
-    });
-  }
+      });
+    }
 
-  # allow registered/whitelisted nodes through
-  internal_append_entry($filter,'FORWARD',{
+    # allow registered/whitelisted nodes through
+    internal_append_entry($filter,'FORWARD',{
        'matches' => ['mark'],
        'mark' => "0x".$reg_mark,
        'jump' => 'ACCEPT'
-  });
+    });
 
-  # drop blacklisted nodes
-  internal_append_entry($filter,'FORWARD',{
+    # drop blacklisted nodes
+    internal_append_entry($filter,'FORWARD',{
        'matches' => ['mark'],
        'mark' => "$black_mark",
        'jump' => 'DROP'
-  });
+    });
+  }
 
   my @trapvids = class_trappable();
   foreach my $row (@trapvids) {
