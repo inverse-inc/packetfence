@@ -360,10 +360,12 @@ sub config_network {
     gatherer("What is its IP address?","interface $int.ip");
     gatherer("What is its mask?","interface $int.mask");
     $cfg{"interface $int"}{"type"} = "internal";
+    $cfg{"interface $int"}{"authorizedips"} = "";
     $int = gatherer("What is my external interface (facing the network)?","");
     gatherer("What is its IP address?","interface $int.ip");
     gatherer("What is its mask?","interface $int.mask");
     $cfg{"interface $int"}{"type"} = "managed";
+    $cfg{"interface $int"}{"authorizedips"} = "";
 
     $tmp_net = new Net::Netmask($cfg{"interface $int"}{"ip"}, $cfg{"interface $int"}{"mask"});   
     $cfg{"interface $int"}{"gateway"} = $tmp_net->nth(1);
@@ -379,6 +381,7 @@ sub config_network {
     gatherer("What is its IP address?","interface $int.ip");
     gatherer("What is its mask?","interface $int.mask");
     $cfg{"interface $int"}{"type"} = "internal,managed";
+    $cfg{"interface $int"}{"authorizedips"} = "";
 
     $tmp_net = new Net::Netmask($cfg{"interface $int"}{"ip"}, $cfg{"interface $int"}{"mask"});
     $cfg{"interface $int"}{"gateway"} = $tmp_net->nth(1);

@@ -219,7 +219,7 @@ sub generate_iptables {
 
   # open snmptrapd if network.vlan=enabled
   if (isenabled($Config{'network'}{'vlan'})) {
-    managed_append_entry($filter,'INPUT',{
+    internal_append_entry($filter,'INPUT',{
          'protocol' => 'udp',
          'destination-port' => '162',
          'jump' => 'ACCEPT'
@@ -579,18 +579,29 @@ sub generate_iptables {
 
 sub internal_append_entry() {
   my ($obj, $type, $params, @output_interfaces) = @_;
-  foreach my $dev (get_internal_devs()){
-    $params->{'in-interface'} = $dev;
-    if (scalar(@output_interfaces)) {
-      foreach my $out_dev (@output_interfaces) {
-        $params->{'out-interface'} = $out_dev;
+  #foreach my $dev (get_internal_devs()){
+  foreach my $internal (@internal_nets) {
+    my $dev = $internal->tag("int");
+    my @authorized_ips = split(/\s*,\s*/, $internal->tag("authips"));
+    if (scalar(@authorized_ips) == 0) {
+      push @authorized_ips, '';
+    }
+    foreach my $authorized_subnet (@authorized_ips) {
+      if ($authorized_subnet ne '') {
+        $params->{'source'} = $authorized_subnet;
+      }
+      $params->{'in-interface'} = $dev;
+      if (scalar(@output_interfaces)) {
+        foreach my $out_dev (@output_interfaces) {
+          $params->{'out-interface'} = $out_dev;
+          if (!$obj->append_entry($type,$params) ){
+            die "Unable to initialize rule: $!\n";
+          }
+        }
+      } else {
         if (!$obj->append_entry($type,$params) ){
           die "Unable to initialize rule: $!\n";
         }
-      }
-    } else {
-      if (!$obj->append_entry($type,$params) ){
-        die "Unable to initialize rule: $!\n";
       }
     }
   }
@@ -598,18 +609,29 @@ sub internal_append_entry() {
 
 sub managed_append_entry() {
   my ($obj, $type, $params, @output_interfaces) = @_;
-  foreach my $dev (get_managed_devs()){
-    $params->{'in-interface'} = $dev;
-    if (scalar(@output_interfaces)) {
-      foreach my $out_dev (@output_interfaces) {
-        $params->{'out-interface'} = $out_dev;
+  #foreach my $dev (get_managed_devs()){
+  foreach my $managed (@managed_nets) {
+    my $dev = $managed->tag("int");
+    my @authorized_ips = split(/\s*,\s*/, $managed->tag("authips"));
+    if (scalar(@authorized_ips) == 0) {
+      push @authorized_ips, '';
+    }
+    foreach my $authorized_subnet (@authorized_ips) {
+      if ($authorized_subnet ne '') {
+        $params->{'source'} = $authorized_subnet;
+      }
+      $params->{'in-interface'} = $dev;
+      if (scalar(@output_interfaces)) {
+        foreach my $out_dev (@output_interfaces) {
+          $params->{'out-interface'} = $out_dev;
+          if (!$obj->append_entry($type,$params) ){
+            die "Unable to initialize rule: $!\n";
+          }
+        }
+      } else {
         if (!$obj->append_entry($type,$params) ){
           die "Unable to initialize rule: $!\n";
         }
-      }
-    } else {
-      if (!$obj->append_entry($type,$params) ){
-        die "Unable to initialize rule: $!\n";
       }
     }
   }

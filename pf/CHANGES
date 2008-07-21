@@ -23,6 +23,9 @@
         removed configurator.pl reference to arp.listendevice
         perl-IPTables-IPv4 conflicts with PacketFence RPM
           (http://www.packetfence.org/mantis/view.php?id=348)
+        added authorizedips variable to each interface to customize 
+          IPTables rules
+          (http://www.packetfence.org/mantis/view.php?id=345)
 
 
 1.7.1
