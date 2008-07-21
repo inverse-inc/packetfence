@@ -33,6 +33,8 @@
           (http://www.packetfence.org/mantis/view.php?id=350)
         added functionality to reset switch ports in case of desaster
           (http://www.packetfence.org/mantis/view.php?id=349)
+        parse for local trap OID instead of only 127.0.0.1
+          (http://www.packetfence.org/mantis/view.php?id=341)
 
 
 1.7.1

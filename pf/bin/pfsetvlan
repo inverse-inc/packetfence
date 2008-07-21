@@ -412,7 +412,7 @@ sub parseTrap {
     #test if this is a 'normal' trap (i.e. a trap sent from a switch
     #or a local trap (INVERSE-PACKETFENCE-NOTIFICATION-MIB)
         my $switch;
-        my $isLocalTrap = ($1 eq '127.0.0.1');
+        my $isLocalTrap = (($1 eq '127.0.0.1') || ($3 =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.29464\.1/));
         $logger->trace("locking - trying to lock switchFactory_locker in parseTrap");
         if ($isLocalTrap) {
             lock $switchFactory_locker;
