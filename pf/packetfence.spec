@@ -325,6 +325,7 @@ fi
 /usr/local/pf/contrib/addons/recovery.pl
 /usr/local/pf/contrib/addons/monitorpfsetvlan.pl
 /usr/local/pf/contrib/addons/autodiscover.pl
+/usr/local/pf/contrib/addons/convertToPortSecurity.pl
 %dir /usr/local/pf/html/user
 %dir /usr/local/pf/html/user/3rdparty
 /usr/local/pf/html/user/3rdparty/timerbar.js
