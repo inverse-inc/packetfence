@@ -579,7 +579,7 @@ sub generate_iptables {
   }
 }
 
-sub internal_append_entry() {
+sub internal_append_entry {
   my ($obj, $type, $params, @output_interfaces) = @_;
   #foreach my $dev (get_internal_devs()){
   foreach my $internal (@internal_nets) {
@@ -609,7 +609,7 @@ sub internal_append_entry() {
   }
 }
 
-sub managed_append_entry() {
+sub managed_append_entry {
   my ($obj, $type, $params, @output_interfaces) = @_;
   #foreach my $dev (get_managed_devs()){
   foreach my $managed (@managed_nets) {
@@ -639,7 +639,7 @@ sub managed_append_entry() {
   }
 }
 
-sub external_append_entry() {
+sub external_append_entry {
   my ($obj, $type, $params, @output_interfaces) = @_;
   foreach my $dev (get_external_devs()){
     $params->{'in-interface'} = $dev;
