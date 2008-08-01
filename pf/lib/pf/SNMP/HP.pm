@@ -57,6 +57,10 @@ sub parseTrap {
         $trapHashRef->{'trapMac'} = lc($2);
         $trapHashRef->{'trapMac'} =~ s/ /:/g;
         $trapHashRef->{'trapVlan'} = $this->getVlan($trapHashRef->{'trapIfIndex'});
+    #link up/down
+    } elsif ($trapString =~ /BEGIN TYPE ([23]) END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.([0-9]+) = INTEGER: [0-9]+ END VARIABLEBINDINGS/) {
+        $trapHashRef->{'trapType'} = (($1 == 2) ? "down" : "up");
+        $trapHashRef->{'trapIfIndex'} = $2;
     } else {
         $logger->debug("trap currently not handled");
         $trapHashRef->{'trapType'} = 'unknown';
