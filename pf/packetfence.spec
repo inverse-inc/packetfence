@@ -394,8 +394,6 @@ fi
 %dir /usr/local/pf/var/session
 %dir /usr/local/pf/lib/pf
 /usr/local/pf/lib/pf/*
-%dir /usr/local/pf/lib/apache
-#/usr/local/pf/lib/apache/*
 %dir /usr/local/pf/logs
 /usr/local/pf/configurator.pl
 /usr/local/pf/installer.pl
