@@ -379,9 +379,8 @@ sub isPortSecurityEnabled {
     return (exists($result->{"$OID_cpsIfPortSecurityEnable.$ifIndex"}) && ($result->{"$OID_cpsIfPortSecurityEnable.$ifIndex"} ne 'noSuchInstance') && ($result->{"$OID_cpsIfPortSecurityEnable.$ifIndex"} == 1));
 }   
 
-sub setPortSecurityEnabled {
-    #1 means 'enabled', 2 means 'disabled'
-    my ($this, $ifIndex, $trueFalse) = @_;
+sub setPortSecurityDisabled {
+    my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
     if (! $this->connectWrite()) {
         return 0;
@@ -391,7 +390,7 @@ sub setPortSecurityEnabled {
     $logger->trace("SNMP set_request for cpsIfPortSecurityEnable: $OID_cpsIfPortSecurityEnable");
     my $result = $this->{_sessionWrite}->set_request(
         -varbindlist => [
-        "$OID_cpsIfPortSecurityEnable.$ifIndex", Net::SNMP::INTEGER, $trueFalse
+        "$OID_cpsIfPortSecurityEnable.$ifIndex", Net::SNMP::INTEGER, 2
         ]
     );
     return (defined($result));

@@ -671,7 +671,7 @@ sub resetVlanAllPort {
     foreach my $ifIndex(@managedIfIndexes) {
         if ($this->isPortSecurityEnabled($ifIndex)) {	# disabling port-security
             $logger->debug("disabling port-security on ifIndex $ifIndex before resetting to vlan " . $this->{_normalVlan});
-            $this->setPortSecurityEnabled($ifIndex, 2);
+            $this->setPortSecurityDisabled($ifIndex);
          }
          $logger->debug("setting " . $this->{_ip} . " ifIndex $ifIndex to VLAN " . $this->{_normalVlan});
          $this->setVlan($ifIndex, $this->{_normalVlan}, $switch_locker_ref);
@@ -794,7 +794,7 @@ sub isPortSecurityEnabled {
     return (0==1);
 }
 
-sub setPortSecurityEnabled {
+sub setPortSecurityDisabled {
     my ($this, $ifIndex, $trueFalse) = @_;
     return (0==1);
 }
