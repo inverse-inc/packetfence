@@ -640,19 +640,11 @@ sub setVlanAllPort {
     if (! $this->connectRead()) {
         return 0;
     }
-    my $ifTypes = $this->{_sessionRead}->get_table(             # fetch the ifTypes list of the ports
-        -baseoid => $oid_ifType
-    );
-    if (defined($ifTypes)) {
-        foreach my $port (sort keys %{$ifTypes}) {
-            if ($ifTypes->{$port} == 6 ) {                      # skip non ethernetCsmacd port type
-                $port =~ /^$oid_ifType\.(\d+)$/;
-                if ( grep(/^$1$/, @UpLinks) == 0 ) {            # skip UpLinks
-                    $logger->debug("setting " . $this->{_ip} . " ifIndex $1 to VLAN $vlan");
-                    $this->setVlan($1,$vlan,$switch_locker_ref);
-                }
-            }
-        }
+
+    my @managedIfIndexes = $this->getManagedIfIndexes();
+    foreach my $ifIndex (@managedIfIndexes) {
+        $logger->debug("setting " . $this->{_ip} . " ifIndex $ifIndex to VLAN $vlan");
+        $this->setVlan($ifIndex,$vlan,$switch_locker_ref);
     }
 }
 
@@ -662,41 +654,28 @@ sub setVlanAllPort {
 sub resetVlanAllPort {
     my ($this, $switch_locker_ref) = @_;
     my $oid_ifType = '1.3.6.1.2.1.2.2.1.3';                     # MIB: ifTypes
-    my @ports;
     my @UpLinks = $this->getUpLinks();                          # fetch the UpLink list
     
     my $logger = Log::Log4perl::get_logger("pf::SNMP");
-    $logger->info("setting all ports of switch $this->{_ip} to VLAN $vlan");
+    $logger->info("resetting all ports of switch $this->{_ip}");
     if (! $this->isProductionMode()) {
-        $logger->info("not in production mode ... we won't change any port VLAN");
+        $logger->info("not in production mode ... we won't change any port");
         return 1;
     }
 
     if (! $this->connectRead()) {
         return 0;
     }
-    my $ifTypes = $this->{_sessionRead}->get_table(             # fetch the ifTypes list of the ports
-        -baseoid => $oid_ifType 
-    );  
-    if (defined($ifTypes)) {
-        foreach my $port (sort keys %{$ifTypes}) {
-            if ($ifTypes->{$port} == 6 ) {                      # skip non ethernetCsmacd port type
-                $port =~ /^$oid_ifType\.(\d+)$/;
 
-                if ( grep(/^$1$/, @UpLinks) == 0 ) {            # skip UpLinks
-
-		    if ($this->isPortSecurityEnabled($1)) {	# disabling port-security
-		        $logger->debug("disabling port-security on ifIndex $1 before resetting to vlan $this->{_normalVlan}");
-        	        $this->setPortSecurityEnabled($1, 2);
-		    }
-
-                    $logger->debug("setting " . $this->{_ip} . " ifIndex $1 to VLAN $vlan");
-                    $this->setVlan($1, $this->{_normalVlan}, $switch_locker_ref);
-                }
-            }
-        }
+    my @managedIfIndexes = $this->getManagedIfIndexes();
+    foreach my $ifIndex(@managedIfIndexes) {
+        if ($this->isPortSecurityEnabled($ifIndex)) {	# disabling port-security
+            $logger->debug("disabling port-security on ifIndex $ifIndex before resetting to vlan " . $this->{_normalVlan});
+            $this->setPortSecurityEnabled($ifIndex, 2);
+         }
+         $logger->debug("setting " . $this->{_ip} . " ifIndex $ifIndex to VLAN " . $this->{_normalVlan});
+         $this->setVlan($ifIndex, $this->{_normalVlan}, $switch_locker_ref);
     }
-
 }
 
 =item getMacAtIfIndex - obtain list of MACs at switch ifIndex
