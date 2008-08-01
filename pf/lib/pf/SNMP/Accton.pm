@@ -29,6 +29,7 @@ use base ('pf::SNMP');
 use POSIX;
 use Log::Log4perl;
 use Data::Dumper;
+use Net::SNMP;
 
 sub getVersion {
     my ($this) = @_;
