@@ -8,7 +8,7 @@
 # http://www.fsf.org/licensing/licenses/gpl.html.
 #
 
-use Net::Pcap
+use Net::Pcap;
 use POSIX qw(:signal_h);
 use Getopt::Std;
 use Config::IniFiles;
@@ -94,19 +94,18 @@ my $net;
 my $mask;
 my $opt = 1;
 my $err;
-my $pcap_t = Net::Pcap::pcap_open_live($eth, 576, 1, 0, \$err);
-if ((Net::Pcap::lookupnet($eth, \$net, \$mask, \$err)) == -1) {
+my $pcap_t = Net::Pcap::pcap_open_live($interface, 576, 1, 0, \$err);
+if ((Net::Pcap::lookupnet($interface, \$net, \$mask, \$err)) == -1) {
   die "Net::Pcap::lookupnet failed. Error was $err";
 }
 if ((Net::Pcap::compile($pcap_t, \$filter_t, $filter, $opt, $net)) == -1) {
   die "Unable to compile filter string '$filter'";
 }
 Net::Pcap::setfilter($pcap_t, $filter_t);
-Net::Pcap::loop($pcap_t, -1, \&process_pkt, $eth);
+Net::Pcap::loop($pcap_t, -1, \&process_pkt, $interface);
 
 sub process_pkt {
   my ($user_data, $hdr, $pkt) = @_;
-  db_connect($mydbh,'iplog','node','violation','trigger','action','class','os','person');
   listen_dhcp($pkt, $user_data);
 }
 
