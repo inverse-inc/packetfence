@@ -34,7 +34,7 @@ use pf::config;
 use pf::util;
 use pf::db;
 use pf::node qw(node_view);
-use pf::violation qw(violation_count);
+use pf::violation qw(violation_count_trap);
 use pf::SwitchFactory;
 
 require "/usr/local/pf/conf/pfsetvlan.pm";
@@ -50,9 +50,9 @@ sub vlan_determine_for_node {
         my $switch = $switchFactory->instantiate($switch_ip);
         $correctVlanForThisMAC = $switch->{_registrationVlan};
     } else {
-        my $open_violation_count = violation_count($mac);
+        my $open_violation_count = violation_count_trap($mac);
         if ($open_violation_count > 0) {
-            pflogger("$mac has $open_violation_count open violations(s); belongs into isolation VLAN.", 8);
+            pflogger("$mac has $open_violation_count open violations(s) with action=trap; belongs into isolation VLAN.", 8);
             my $switchFactory = new pf::SwitchFactory( -configFile => CONF_FILE);
             my $switch = $switchFactory->instantiate($switch_ip);
             $correctVlanForThisMAC = $switch->{_isolationVlan};

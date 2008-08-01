@@ -39,6 +39,8 @@
           (http://www.packetfence.org/mantis/view.php?id=314)
         wrong comparison in iplog_cleanup_sql
           (http://www.packetfence.org/mantis/view.php?id=352)
+        VLAN isolation should verify violation action parameter
+          (http://www.packetfence.org/mantis/view.php?id=353)
 
 
 1.7.1

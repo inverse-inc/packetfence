@@ -1331,9 +1331,9 @@ sub node_determine_VLAN {
         $logger->info("$mac is unregistered. Set " . $switch->{_ip} . " ifIndex $ifIndex to registration VLAN");
         $correctVlanForThisMAC = $switch->{_registrationVlan};
     } else {
-        my $open_violation_count = violation_count($mac);
+        my $open_violation_count = violation_count_trap($mac);
         if ($open_violation_count > 0) {
-            $logger->info("$mac has $open_violation_count open violations(s). Set " . $switch->{_ip} . " ifIndex $ifIndex to isolation VLAN.");
+            $logger->info("$mac has $open_violation_count open violations(s) with action=trap. Set " . $switch->{_ip} . " ifIndex $ifIndex to isolation VLAN.");
             $correctVlanForThisMAC = $switch->{_isolationVlan};
         } else {
             $correctVlanForThisMAC = custom_getCorrectVlan($switch->{_ip}, $ifIndex, $mac, $node_info->{status}, $node_info->{vlan}, $node_info->{pid});
