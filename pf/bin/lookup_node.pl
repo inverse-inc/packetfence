@@ -11,6 +11,8 @@
 # it's called via "pfcmd lookup node <mac>", through the administrative GUI,
 # or as the content of a violation action
 
+use lib '/usr/local/pf/lib/';
+
 use pf::util;
 use pf::iplog;
 use pf::node;
