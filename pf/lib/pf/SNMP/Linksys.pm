@@ -295,7 +295,17 @@ sub isPortSecurityEnabled {
     );
     return (exists($result->{"$OID_swIfHostMode.$ifIndex"}) && ($result->{"$OID_swIfHostMode.$ifIndex"} ne 'noSuchInstance') && ($result->{"$OID_swIfHostMode.$ifIndex"} == 2));
 }
-   
+
+sub setPortSecurityEnabled {
+    my ($this, $ifIndex, $trueFalse) = @_;
+    my $logger = Log::Log4perl::get_logger("pf::SNMP::Linksys");
+    my $OID_swIfHostMode = '1.3.6.1.4.1.89.43.1.1.30'; #RADLAN-rlInterfaces MIB
+
+    $logger->trace("function not implemented yet !");
+    return 1;
+}
+
+ 
 sub isDynamicPortSecurityEnabled {
     my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger("pf::SNMP::Linksys");

@@ -661,7 +661,42 @@ sub setVlanAllPort {
 =cut
 sub resetVlanAllPort {
     my ($this, $switch_locker_ref) = @_;
-    $this->setVlanAllPort($this->{_normalVlan}, $switch_locker_ref); 
+    my $oid_ifType = '1.3.6.1.2.1.2.2.1.3';                     # MIB: ifTypes
+    my @ports;
+    my @UpLinks = $this->getUpLinks();                          # fetch the UpLink list
+    
+    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    $logger->info("setting all ports of switch $this->{_ip} to VLAN $vlan");
+    if (! $this->isProductionMode()) {
+        $logger->info("not in production mode ... we won't change any port VLAN");
+        return 1;
+    }
+
+    if (! $this->connectRead()) {
+        return 0;
+    }
+    my $ifTypes = $this->{_sessionRead}->get_table(             # fetch the ifTypes list of the ports
+        -baseoid => $oid_ifType 
+    );  
+    if (defined($ifTypes)) {
+        foreach my $port (sort keys %{$ifTypes}) {
+            if ($ifTypes->{$port} == 6 ) {                      # skip non ethernetCsmacd port type
+                $port =~ /^$oid_ifType\.(\d+)$/;
+
+                if ( grep(/^$1$/, @UpLinks) == 0 ) {            # skip UpLinks
+
+		    if ($this->isPortSecurityEnabled($1)) {	# disabling port-security
+		        $logger->debug("disabling port-security on ifIndex $1 before resetting to vlan $this->{_normalVlan}");
+        	        $this->setPortSecurityEnabled($1, 2);
+		    }
+
+                    $logger->debug("setting " . $this->{_ip} . " ifIndex $1 to VLAN $vlan");
+                    $this->setVlan($1, $this->{_normalVlan}, $switch_locker_ref);
+                }
+            }
+        }
+    }
+
 }
 
 =item getMacAtIfIndex - obtain list of MACs at switch ifIndex
@@ -777,6 +812,11 @@ sub isRemovedTrapsEnabled {
 
 sub isPortSecurityEnabled {
     my ($this, $ifIndex) = @_;
+    return (0==1);
+}
+
+sub setPortSecurityEnabled {
+    my ($this, $ifIndex, $trueFalse) = @_;
     return (0==1);
 }
 
