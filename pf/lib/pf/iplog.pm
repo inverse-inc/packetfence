@@ -54,7 +54,7 @@ sub iplog_db_prepare {
   $iplog_open_update_end_time_sql=$dbh->prepare( qq [ update iplog set end_time = adddate(now(), interval ? second) where mac=? and ip=? and (end_time = 0 or end_time > now()) ]);
   $iplog_close_sql=$dbh->prepare( qq [ update iplog set end_time=now() where ip=? and end_time=0 ]);
   $iplog_close_now_sql=$dbh->prepare( qq [ update iplog set end_time=now() where ip=? and (end_time=0 or end_time > now())]);
-  $iplog_cleanup_sql=$dbh->prepare ( qq [ delete from iplog where end_time < (unix_timestamp(now()) - ?) and end_time!=0 ]);
+  $iplog_cleanup_sql=$dbh->prepare ( qq [ delete from iplog where unix_timestamp(end_time) < (unix_timestamp(now()) - ?) and end_time!=0 ]);
 }
 
 sub iplog_shutdown {
