@@ -272,7 +272,7 @@ if(`echo "use $mysql_db"|mysql --host=$mysql_host --port=$mysql_port -u root -p'
     my $schema_version = $schemas{$md5sum};
     if ($schema_version ne $pf_release) {
       if (questioner("PF database already exists - do you want to upgrade it?","y",("y", "n"))) {
-        my $update_script = "/usr/local/pf/db/upgrade-$schema_version-$pf_release.sql";
+        my $update_script = "/usr/local/pf/db/upgrade-$schema_version-1.7.1.sql";
         if (-e $update_script) {
           `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u root -p'$pass' $mysql_db < $update_script`;
           $upgraded = 1;
