@@ -56,8 +56,8 @@ use diagnostics;
 use FindBin;
 
 use constant {
-    LIB_DIR => $FindBin::Bin . "/../lib",
-    CONF_FILE => $FindBin::Bin . "/../conf/switches.conf",
+    LIB_DIR => $FindBin::Bin . "/../../lib",
+    CONF_FILE => $FindBin::Bin . "/../../conf/switches.conf",
 };
 
 use lib LIB_DIR;
@@ -74,6 +74,7 @@ use pf::SwitchFactory;
 use pf::config;
 use pf::db;
 use pf::node;
+use pf::locationlog;
 
 my $help;
 my $man;
@@ -241,6 +242,12 @@ foreach my $ifIndex (sort { $a <=> $b } keys %$ifDescHashRef) {
       my $macToSecure;
       if (scalar(@macArray) == 1) {
         $macToSecure = $macArray[0];
+        if (! node_exist($macToSecure)) {
+          $logger->info("node $macToSecure is a new node. Adding it to node table");
+          if ($doit) {
+            node_add_simple($macToSecure);
+          }
+        }
       } else {
         $macToSecure = "02:00:00:00:00:" . ((length($ifIndex) == 1) ? "0" . substr($ifIndex,-1,1) : substr($ifIndex,-2,2));
       }
@@ -280,6 +287,10 @@ foreach my $ifIndex (sort { $a <=> $b } keys %$ifDescHashRef) {
           print Dumper($session->cmd($modLine));
         } 
         print Dumper($session->cmd("end"));
+        $logger->debug("synchronizing locationlog entries");
+        if (! ($macToSecure =~ /02:00:00:00:00/)) {
+          locationlog_synchronize($switch_ip, $ifIndex, $switch->getVlan($ifIndex), $macToSecure);
+        }
       }
     }
   }
