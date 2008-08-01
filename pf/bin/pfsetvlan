@@ -412,7 +412,7 @@ sub parseTrap {
     #test if this is a 'normal' trap (i.e. a trap sent from a switch
     #or a local trap (INVERSE-PACKETFENCE-NOTIFICATION-MIB)
         my $switch;
-        my $isLocalTrap = ($1 eq '127.0.0.1');
+        my $isLocalTrap = (($1 eq '127.0.0.1') || ($3 =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.29464\.1/));
         $logger->trace("locking - trying to lock switchFactory_locker in parseTrap");
         if ($isLocalTrap) {
             lock $switchFactory_locker;
@@ -1331,9 +1331,9 @@ sub node_determine_VLAN {
         $logger->info("$mac is unregistered. Set " . $switch->{_ip} . " ifIndex $ifIndex to registration VLAN");
         $correctVlanForThisMAC = $switch->{_registrationVlan};
     } else {
-        my $open_violation_count = violation_count($mac);
+        my $open_violation_count = violation_count_trap($mac);
         if ($open_violation_count > 0) {
-            $logger->info("$mac has $open_violation_count open violations(s). Set " . $switch->{_ip} . " ifIndex $ifIndex to isolation VLAN.");
+            $logger->info("$mac has $open_violation_count open violations(s) with action=trap. Set " . $switch->{_ip} . " ifIndex $ifIndex to isolation VLAN.");
             $correctVlanForThisMAC = $switch->{_isolationVlan};
         } else {
             $correctVlanForThisMAC = custom_getCorrectVlan($switch->{_ip}, $ifIndex, $mac, $node_info->{status}, $node_info->{vlan}, $node_info->{pid});

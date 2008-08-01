@@ -131,6 +131,7 @@ foreach my $interface (tied(%Config)->GroupMembers("interface")) {
   my $mask    = $Config{$interface}{'mask'};
   my $gateway = $Config{$interface}{'gateway'};
   my $type    = $Config{$interface}{'type'};
+  my $authorized_ips = $Config{$interface}{'authorizedips'} || '';
 
   if (defined($ip) && defined($mask)) {
     $ip=~s/ //g; $mask=~s/ //g;
@@ -138,6 +139,7 @@ foreach my $interface (tied(%Config)->GroupMembers("interface")) {
     $int_obj->tag("gw", $gateway);
     $int_obj->tag("ip", $ip);
     $int_obj->tag("int", $int);
+    $int_obj->tag("authips", $authorized_ips);
   }
   foreach my $type (split(/\s*,\s*/, $type)) {
     if ($type eq "internal") {

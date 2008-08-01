@@ -21,6 +21,26 @@
           interface
           (http://www.packetfence.org/mantis/view.php?id=344)
         removed configurator.pl reference to arp.listendevice
+        perl-IPTables-IPv4 conflicts with PacketFence RPM
+          (http://www.packetfence.org/mantis/view.php?id=348)
+        added authorizedips variable to each interface to customize 
+          IPTables rules
+          (http://www.packetfence.org/mantis/view.php?id=345)
+        representation of adjustswitchportvlan reasons in web admin GUI
+          (http://www.packetfence.org/mantis/view.php?id=343)
+        default values for multi config options are correctly shown in 
+          web admin GUI
+          (http://www.packetfence.org/mantis/view.php?id=350)
+        added functionality to reset switch ports in case of desaster
+          (http://www.packetfence.org/mantis/view.php?id=349)
+        parse for local trap OID instead of only 127.0.0.1
+          (http://www.packetfence.org/mantis/view.php?id=341)
+        iptables FORWARD ACCEPT chains in passive mode
+          (http://www.packetfence.org/mantis/view.php?id=314)
+        wrong comparison in iplog_cleanup_sql
+          (http://www.packetfence.org/mantis/view.php?id=352)
+        VLAN isolation should verify violation action parameter
+          (http://www.packetfence.org/mantis/view.php?id=353)
 
 
 1.7.1

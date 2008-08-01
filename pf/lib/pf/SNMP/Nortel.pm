@@ -392,6 +392,14 @@ sub isStaticPortSecurityEnabled {
     return 1;
 }
 
+sub setPortSecurityDisabled {
+    my ($this, $ifIndex, $trueFalse) = @_;
+    my $logger = Log::Log4perl::get_logger("pf::SNMP::Nortel");
+
+    $logger->info("function not implemented yet");
+    return 1;
+}
+
 sub isPortSecurityEnabled {
     my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger("pf::SNMP::Nortel");

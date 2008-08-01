@@ -16,7 +16,7 @@ our ($violation_desc_sql, $violation_add_sql, $violation_exist_sql, $violation_e
      $violation_exist_id_sql, $violation_view_sql, $violation_view_all_sql, $violation_view_top_sql,
      $violation_view_open_sql, $violation_view_open_desc_sql, $violation_view_open_uniq_sql, $violation_view_open_all_sql,
      $violation_view_all_active_sql, $violation_close_sql, $violation_delete_sql, $violation_modify_sql,
-     $violation_grace_sql, $violation_count_sql, $violation_count_vid_sql);
+     $violation_grace_sql, $violation_count_sql, $violation_count_trap_sql, $violation_count_vid_sql);
 
 BEGIN {
   use Exporter ();
@@ -24,7 +24,7 @@ BEGIN {
   @ISA    = qw(Exporter);
   @EXPORT = qw(violation_force_close violation_close violation_view violation_view_all violation_view_all_active
                violation_view_open_all violation_add violation_view_open violation_view_open_desc violation_view_open_uniq violation_modify
-               violation_trigger violation_count violation_view_top violation_db_prepare violation_delete violation_exist_open);
+               violation_trigger violation_count violation_count_trap violation_view_top violation_db_prepare violation_delete violation_exist_open);
 }
 
 use lib qw(/usr/local/pf/lib);
@@ -61,6 +61,7 @@ sub violation_db_prepare {
   $violation_close_sql=$dbh->prepare( qq [ update violation set release_date=now(),status="closed" where mac=? and vid=? and status="open" ]);
   $violation_grace_sql=$dbh->prepare( qq [ select unix_timestamp(start_date)+grace_period-unix_timestamp(now()) from violation v left join class c on v.vid=c.vid where mac=? and v.vid=? and status="closed" order by start_date desc ]);
   $violation_count_sql=$dbh->prepare( qq [ select count(*) from violation where mac=? and status="open" ]);
+  $violation_count_trap_sql=$dbh->prepare( qq [ select count(*) from violation, action where violation.vid=action.vid and action.action='trap' and mac=? and status="open" ]);
   $violation_count_vid_sql=$dbh->prepare( qq [ select count(*) from violation where mac=? and vid=? ]);
 }
 
@@ -109,6 +110,14 @@ sub violation_count {
   $violation_count_sql->execute($mac) || return(0);
   my ($val) = $violation_count_sql->fetchrow_array();
   $violation_count_sql->finish();
+  return($val);
+}
+
+sub violation_count_trap {
+  my ($mac) = @_;
+  $violation_count_trap_sql->execute($mac) || return(0);
+  my ($val) = $violation_count_trap_sql->fetchrow_array();
+  $violation_count_trap_sql->finish();
   return($val);
 }
 

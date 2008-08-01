@@ -6,6 +6,9 @@
   <font
   <img src="/common/packetfence.png">
   <p><b><font size=+1>Configuration Reference - interface</font></b></p>
+<a name=authorizedips></a>
+<b>authorizedips</b> <i>(text)</i><br>
+(Optional) list of IPs/subnets to authorize on this interface. If not specified, all IPs are authorized to connect. This can be used for example to limit access to the management interface to some specific hosts.<p>
 <a name=gateway></a>
 <b>gateway</b> <i>(text)</i><br>
 Gateway of the named interface.<p>
@@ -18,7 +21,7 @@ changes.<p>
 Network mask of the named interface.<p>
 <a name=type></a>
 <b>type</b> <i>(multi)</i><br>
-Options: internal;managed;monitor;dhcplistener;registration;isolation<br>
+Options: internal|managed|monitor|dhcplistener|registration|isolation<br>
 Describes "type" of named interface.  Internal describes internal client networks, managed (aka external) interfaces have the administrative 
 GUI running on them, and monitor is the interface that snort listens on.<p>
 </body></html>

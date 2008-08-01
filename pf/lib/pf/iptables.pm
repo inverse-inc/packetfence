@@ -365,28 +365,30 @@ sub generate_iptables {
     }
   }
 
-  # allow unregistered users if registration disabled
-  if (!isenabled($Config{'trapping'}{'registration'})) {
-    internal_append_entry($filter,'FORWARD',{
+  if ($Config{'network'}{'mode'} =~ /^inline$/i) {
+    # allow unregistered users if registration disabled
+    if (!isenabled($Config{'trapping'}{'registration'})) {
+      internal_append_entry($filter,'FORWARD',{
          'matches' => ['mark'],
          'mark' => "0x".$unreg_mark,
          'jump' => 'ACCEPT'
-    });
-  }
+      });
+    }
 
-  # allow registered/whitelisted nodes through
-  internal_append_entry($filter,'FORWARD',{
+    # allow registered/whitelisted nodes through
+    internal_append_entry($filter,'FORWARD',{
        'matches' => ['mark'],
        'mark' => "0x".$reg_mark,
        'jump' => 'ACCEPT'
-  });
+    });
 
-  # drop blacklisted nodes
-  internal_append_entry($filter,'FORWARD',{
+    # drop blacklisted nodes
+    internal_append_entry($filter,'FORWARD',{
        'matches' => ['mark'],
        'mark' => "$black_mark",
        'jump' => 'DROP'
-  });
+    });
+  }
 
   my @trapvids = class_trappable();
   foreach my $row (@trapvids) {
@@ -577,45 +579,67 @@ sub generate_iptables {
   }
 }
 
-sub internal_append_entry() {
+sub internal_append_entry {
   my ($obj, $type, $params, @output_interfaces) = @_;
-  foreach my $dev (get_internal_devs()){
-    $params->{'in-interface'} = $dev;
-    if (scalar(@output_interfaces)) {
-      foreach my $out_dev (@output_interfaces) {
-        $params->{'out-interface'} = $out_dev;
+  #foreach my $dev (get_internal_devs()){
+  foreach my $internal (@internal_nets) {
+    my $dev = $internal->tag("int");
+    my @authorized_ips = split(/\s*,\s*/, $internal->tag("authips"));
+    if (scalar(@authorized_ips) == 0) {
+      push @authorized_ips, '';
+    }
+    foreach my $authorized_subnet (@authorized_ips) {
+      if ($authorized_subnet ne '') {
+        $params->{'source'} = $authorized_subnet;
+      }
+      $params->{'in-interface'} = $dev;
+      if (scalar(@output_interfaces)) {
+        foreach my $out_dev (@output_interfaces) {
+          $params->{'out-interface'} = $out_dev;
+          if (!$obj->append_entry($type,$params) ){
+            die "Unable to initialize rule: $!\n";
+          }
+        }
+      } else {
         if (!$obj->append_entry($type,$params) ){
           die "Unable to initialize rule: $!\n";
         }
-      }
-    } else {
-      if (!$obj->append_entry($type,$params) ){
-        die "Unable to initialize rule: $!\n";
       }
     }
   }
 }
 
-sub managed_append_entry() {
+sub managed_append_entry {
   my ($obj, $type, $params, @output_interfaces) = @_;
-  foreach my $dev (get_managed_devs()){
-    $params->{'in-interface'} = $dev;
-    if (scalar(@output_interfaces)) {
-      foreach my $out_dev (@output_interfaces) {
-        $params->{'out-interface'} = $out_dev;
+  #foreach my $dev (get_managed_devs()){
+  foreach my $managed (@managed_nets) {
+    my $dev = $managed->tag("int");
+    my @authorized_ips = split(/\s*,\s*/, $managed->tag("authips"));
+    if (scalar(@authorized_ips) == 0) {
+      push @authorized_ips, '';
+    }
+    foreach my $authorized_subnet (@authorized_ips) {
+      if ($authorized_subnet ne '') {
+        $params->{'source'} = $authorized_subnet;
+      }
+      $params->{'in-interface'} = $dev;
+      if (scalar(@output_interfaces)) {
+        foreach my $out_dev (@output_interfaces) {
+          $params->{'out-interface'} = $out_dev;
+          if (!$obj->append_entry($type,$params) ){
+            die "Unable to initialize rule: $!\n";
+          }
+        }
+      } else {
         if (!$obj->append_entry($type,$params) ){
           die "Unable to initialize rule: $!\n";
         }
-      }
-    } else {
-      if (!$obj->append_entry($type,$params) ){
-        die "Unable to initialize rule: $!\n";
       }
     }
   }
 }
 
-sub external_append_entry() {
+sub external_append_entry {
   my ($obj, $type, $params, @output_interfaces) = @_;
   foreach my $dev (get_external_devs()){
     $params->{'in-interface'} = $dev;
