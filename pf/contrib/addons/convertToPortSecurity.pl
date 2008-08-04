@@ -210,6 +210,7 @@ if (grep(/^snmp-server host $snmp_server .+ port-security/i, @tmp) > 0) {
   }
 }
 
+my @uplinks = $switch->getUpLinks();
 foreach my $ifIndex (sort { $a <=> $b } keys %$ifDescHashRef) {
   my $ifDesc = $ifDescHashRef->{$ifIndex};
   my @tmp = $session->cmd("show run interface $ifDesc");
@@ -226,7 +227,7 @@ foreach my $ifIndex (sort { $a <=> $b } keys %$ifDescHashRef) {
   }
 
   #exclude some ports:
-  if (grep(/^$ifIndex$/, $switch->getUpLinks()) > 0) {
+  if (grep(/^$ifIndex$/, @uplinks) > 0) {
     $logger->info("ifIndex $ifIndex excluded since defined as uplink");
   } elsif ( ($config =~ /switchport access vlan (\d+)/i) && (grep(/^$1$/, @{$switch->{_vlans}}) == 0 )) {
     $logger->info("ifIndex $ifIndex excluded since access VLAN $1 is not a managed VLAN");
