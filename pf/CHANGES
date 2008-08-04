@@ -42,6 +42,8 @@
         VLAN isolation should verify violation action parameter
           (http://www.packetfence.org/mantis/view.php?id=353)
         support for linkup/linkdown traps on HP switches
+        administration/adduser.php - alignment of version information
+          (http://www.packetfence.org/mantis/view.php?id=354)
 
 
 1.7.1

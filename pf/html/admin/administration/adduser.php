@@ -46,9 +46,9 @@
 ?>
 
   <div id=history>
-  <form action=administration/adduser.php name=history method=POST>
+  <form action="administration/adduser.php" name="history" method="POST">
   <table class=main>
-    <tr><td rowspan=20 valign=top><img src='images/adduser.png'></td></tr>      
+    <tr><td rowspan=20 valign=top><img src='images/adduser.png' alt=''></td></tr>      
     <tr>
       <td>Username</td>
       <td><input type=text name=username></td>
@@ -69,10 +69,6 @@
   </div>
 
 <?
-
-  print "</table>";
-
   include_once('../footer.php');
-
 ?>
 
