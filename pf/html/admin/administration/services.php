@@ -35,7 +35,7 @@ function print_status_table(){
   global $current_top;
   global $current_sub;
 
-  $data=array_slice(PFCMD('service pf'), 1); // sliced to get rid of headers
+  $data=array_slice(PFCMD('service pf status'), 1); // sliced to get rid of headers
   print "<table width=75% align=center>";
   print "<tr><td align=center><b>Service (status)</b></td><td colspan=2 align=center><b>Action</b></td></tr>";
   
