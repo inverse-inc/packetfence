@@ -148,7 +148,10 @@ SetEnvIf User-Agent ".*MSIE.*" \
   #RewriteRule ^/msdownload/update.+$ - [F,L]
   #RewriteRule ^/wpad.dat$ - [F,L]
   #RewriteRule ^/ReportingWebService/ReportingWebService.asmx$ - [F,L]
+  #RewriteRule ^/v6/windowsupdate.+$ - [F,L]
   #RewriteRule ^/v7/windowsupdate.+$ - [F,L]
+  #RewriteRule ^/remupd/cidsync.upd$ - [F,L]
+  #RewriteRule ^/NTInst/i386/cidsync.upd$ - [F,L]
 
   RewriteCond %{REQUEST_URI} !^/favicon.ico
   RewriteCond %{REQUEST_URI} !^/msdownload/update/v3/static/trustedr/en/authrootseq.txt$
