@@ -1,6 +1,7 @@
 1.7.3
         not all port security traps are handled
           (http://www.packetfence.org/mantis/view.php?id=363)
+        require at least version 0.16 of Net::Pcap in SPEC
 
 
 1.7.2
