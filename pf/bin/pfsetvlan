@@ -373,7 +373,7 @@ sub signalHandlerTrapListQueued {
                         $logger->debug("validating if parsed trapLine $trapLine should be added to threadList_queued");
                         my ($switch_ip, $switch_port, $trapType, $trapVlan, $trapOperation, $trapMac) = split(/\|/, $trapLine);
                         my $switch = $switchFactory->instantiate($switch_ip);
-                        if (($trapType eq 'secureMacAddrViolation') && (grep("$switch_ip|$switch_port|$trapType|", @threadList_queued) != 0)) {
+                        if (($trapType eq 'secureMacAddrViolation') && (grep(/\Q$switch_ip|$switch_port|$trapType|\E/, @threadList_queued) != 0)) {
                             $logger->info("$trapType trap already in the queue for $switch_ip ifIndex $switch_port. Won't add another one");
                         } elsif ( ($trapType eq 'mac') && ( grep(/^$trapVlan$/, @{$switch->{_vlans}}) == 0) ) {
                             $logger->info("$trapType trap for VLAN $trapVlan on $switch_ip ifIndex $switch_port. We don't manage this VLAN. Flush the trap");

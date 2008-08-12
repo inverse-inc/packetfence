@@ -1,3 +1,8 @@
+1.7.3
+        not all port security traps are handled
+          (http://www.packetfence.org/mantis/view.php?id=363)
+
+
 1.7.2
         added RHEL5 to supported operating systems
         stopped to distribute jpgraph with PF; the installer
