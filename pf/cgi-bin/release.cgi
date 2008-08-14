@@ -81,8 +81,9 @@ my $class_max_enable_url = $class->{'max_enable_url'};
 
 #scan code...
 if ($vid==1200001){
-  pflogger("scanning $ip ", 4);
-  my $scan=trigger_scan($ip);
+  my $cmd = $install_dir."/bin/pfcmd schedule now $ip";
+  pflogger("scanning $ip by calling $cmd", 4);
+  my $scan = qx/$cmd/;
 }
 
 my $cmd = $install_dir."/bin/pfcmd manage vclose $mac $vid";
