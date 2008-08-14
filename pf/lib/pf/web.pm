@@ -23,7 +23,7 @@ BEGIN {
   use Exporter ();
   our (@ISA, @EXPORT);
   @ISA    = qw(Exporter);
-  @EXPORT = qw(generate_release_page generate_login_page generate_enabler_page generate_redirect_page generate_error_page generate_status_page generate_registration_page web_node_register web_user_authenticate parse_auth_conf);
+  @EXPORT = qw(generate_release_page generate_login_page generate_enabler_page generate_redirect_page generate_error_page generate_status_page generate_registration_page web_node_register web_user_authenticate);
 }
 
 use lib qw(/usr/local/pf/lib);
@@ -95,11 +95,11 @@ sub generate_login_page {
     foreach my $auth (@auth) {
       my $auth_name;
       if ($auth ne "harvard") {
-        $auth_name = parse_auth_conf($auth);
+        $auth_name = $auth;
       } else {
         $auth_name = "Harvard PIN Server";
       }
-      push @{$vars->{list_authentications}}, { name => $auth_name, value => $auth }
+      push @{$vars->{list_authentications}}, { name => $auth, value => $auth }
     }
   }
   
@@ -382,19 +382,5 @@ sub generate_registration_page {
   $template->process("register.html", $vars);
   exit;
 }
-
-sub parse_auth_conf {
-  my ($authtype)=@_;
-  my $authconf = "$install_dir/conf/templates/${authtype}.conf";
-  if (-e $authconf) {
-     open(AUTHCONF, $authconf) || die("Unable to open authentication config file $authconf: $!\n",1); 
-     while (<AUTHCONF>){
-	   return $1 if (/AuthName\s+"*(.+?)"*\s*$/i);
-     }
-  }else{
-     pflogger("Auth File $authconf does not exist",1);
-  }
-  return $authtype;
-} 
 
 1
