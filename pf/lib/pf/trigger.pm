@@ -155,14 +155,14 @@ sub trigger_scan {
         push @return, "Address $addr total info: ".$trigger->total_info." Total holes: ".$trigger->total_holes."\n";   
         foreach my $info ($trigger->info_list){
                 my $srcmac = ip2mac($info->Host);
-                push (@return,join $main::delimiter,(0,$srcmac,$info->Host,$info->ScanID, 0, $info->Port,$info->Description));
+                push (@return,join "|",(0,$srcmac,$info->Host,$info->ScanID, 0, $info->Port,$info->Description));
                 pflogger("Info ID: ". $info->ScanID."  Host: ".$info->Host." Port: ".$info->Port,8);
                 trigger_scan_add($info);
         }
         foreach my $info ($trigger->hole_list) {
                 my $tid=$info->ScanID;
                 my $srcmac = ip2mac($info->Host);
-                push (@return,join $main::delimiter, (1,$srcmac,$info->Host, $tid, $info->Port,$info->Description));
+                push (@return,join "|", (1,$srcmac,$info->Host, $tid, $info->Port,$info->Description));
                 pflogger("Hole ID: ". $info->ScanID."  Host: ".$info->Host." Port: ".$info->Port,2);
                 trigger_scan_add($info);
         }

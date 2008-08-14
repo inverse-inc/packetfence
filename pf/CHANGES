@@ -4,6 +4,8 @@
         require at least version 0.16 of Net::Pcap in SPEC
         web.pm still refers to parse_auth_conf
           (http://www.packetfence.org/mantis/view.php?id=365)
+        reg scans and issues in trigger.pm
+          (http://www.packetfence.org/mantis/view.php?id=367)
 
 
 1.7.2
