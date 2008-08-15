@@ -307,7 +307,7 @@ fi
 %config(noreplace) /usr/local/pf/conf/log.conf
 %config(noreplace) /usr/local/pf/conf/pfsetvlan.pm
 %config /usr/local/pf/conf/pf.conf.defaults
-%config(noreplace) /usr/local/pf/conf/snmptrapd.conf
+%config(noreplace) /usr/local/pf/conf/templates/snmptrapd.conf
 %config /usr/local/pf/conf/documentation.conf
 /usr/local/pf/conf/pf-release
 %config /usr/local/pf/conf/dhcp_fingerprints.conf

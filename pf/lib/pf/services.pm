@@ -12,6 +12,7 @@ package pf::services;
 use strict;
 use warnings;
 use File::Basename;
+use Config::IniFiles;
 
 BEGIN {
   use Exporter ();
@@ -57,7 +58,7 @@ sub service_ctl {
       return(0) if ($exe=~/pfdhcplistener/ && !isenabled($Config{'network'}{'dhcpdetector'}));
       return(0) if ($exe=~/snmptrapd/ && !isenabled($Config{'network'}{'vlan'}));
       return(0) if ($exe=~/pfsetvlan/ && !isenabled($Config{'network'}{'vlan'}));
-      if ($daemon=~/(dhcpd|named|snort|httpd)/ && !$quick){
+      if ($daemon=~/(dhcpd|named|snort|httpd|snmptrapd)/ && !$quick){
          my $confname="generate_".$daemon."_conf";
          pflogger("Generating configuration file $confname for $exe");
          ($pf::services::{$confname} or sub { print "No such sub: $_\n" })->();
@@ -383,6 +384,29 @@ sub generate_sysctl_conf {
   $tags{'template'} = "$install_dir/conf/templates/sysctl.conf";
   pflogger("generating $install_dir/conf/sysctl.conf", 4);
   parse_template(\%tags, "$install_dir/conf/templates/sysctl.conf", "$install_dir/conf/sysctl.conf");
+}
+
+sub generate_snmptrapd_conf {
+  my %tags;
+  my %switchConfig;
+  tie %switchConfig, 'Config::IniFiles', (-file => "$install_dir/conf/switches.conf");
+  my @errors = @Config::IniFiles::errors;
+  if (scalar(@errors)) {
+      pflogger("Error reading config file: " . join("\n", @errors), 1);
+      return 0;
+  }
+
+  #remove trailing spaces..
+  foreach my $section (tied(%switchConfig)->Sections){
+      foreach my $key (keys %{$switchConfig{$section}}){
+          $switchConfig{$section}{$key}=~s/\s+$//;
+      }
+  }
+
+  $tags{'template'} = "$install_dir/conf/templates/snmptrapd.conf";
+  $tags{'communityTrap'} = $switchConfig{'default'}{'communityTrap'};
+  pflogger("generating $install_dir/conf/snmptrapd.conf", 4);
+  parse_template(\%tags, "$install_dir/conf/templates/snmptrapd.conf", "$install_dir/conf/snmptrapd.conf");
 }
 
 sub generate_httpd_conf {

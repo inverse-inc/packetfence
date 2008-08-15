@@ -13,6 +13,7 @@ use diagnostics;
 
 use Net::SNMP;
 use Log::Log4perl;
+use Config::IniFiles;
 use lib '/usr/local/pf/lib';
 use pf::util;
 use pf::locationlog;
@@ -29,6 +30,17 @@ if ($mac =~ /^([0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a
 
 pflogger("flip.pl called with $mac", 8);
 
+my %switchConfig;
+tie %switchConfig, 'Config::IniFiles', (-file => "/usr/local/pf/conf/switches.conf");
+my @errors = @Config::IniFiles::errors;
+if (scalar(@errors)) {
+    pflogger("Error reading config file: " . join("\n", @errors), 1);
+    return 0;
+}
+
+#remove trailing spaces..
+$switchConfig{'default'}{'communityTrap'}=~s/\s+$//;
+
 
 my $locationlog_entry = locationlog_view_open_mac($mac);
 if ($locationlog_entry) {
@@ -40,7 +52,7 @@ if ($locationlog_entry) {
             -hostname => '127.0.0.1',
             -port => '162',
             -version => '1',
-            -community => 'public');
+            -community => $switchConfig{'default'}{'communityTrap'});
 
         $session->trap(
             -genericTrap => Net::SNMP::ENTERPRISE_SPECIFIC,
@@ -56,7 +68,7 @@ if ($locationlog_entry) {
             -hostname => '127.0.0.1',
             -port => '162',
             -version => '1',
-            -community => 'public');
+            -community => $switchConfig{'default'}{'communityTrap'});
 
         $session->trap(
             -genericTrap => Net::SNMP::ENTERPRISE_SPECIFIC,
