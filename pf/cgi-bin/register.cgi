@@ -52,8 +52,9 @@ foreach my $param($cgi->param()) {
 
 if (defined($params{'mode'})) {
   if ($params{'mode'} eq "register") {
-    if (! web_user_authenticate($cgi, $session)) {
-      generate_login_page($cgi, $session, $ENV{REQUEST_URI});
+    my ($auth_return,$err) = web_user_authenticate($cgi, $session);
+    if ($auth_return != 1) {
+      generate_login_page($cgi, $session, $ENV{REQUEST_URI}, '', $err);
       exit(0);
     }
 
@@ -103,8 +104,9 @@ if (defined($params{'mode'})) {
       generate_error_page($cgi, $session, "error: not trappable IP");
     }
   } elsif ($params{'mode'} eq "deregister") {
-    if (! web_user_authenticate($cgi, $session)) {
-      generate_login_page($cgi, $session, $ENV{REQUEST_URI});
+    my ($auth_return,$err) = web_user_authenticate($cgi, $session);
+    if ($auth_return != 1) {
+      generate_login_page($cgi, $session, $ENV{REQUEST_URI},'',$err);
       exit(0);
     }
     my $node_info = node_view($mac);

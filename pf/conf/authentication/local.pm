@@ -4,6 +4,10 @@
 # If you did not receive this file, see
 # http://www.fsf.org/licensing/licenses/gpl.html
 #
+# return (1,0) for successfull authentication
+# return (0,2) for inability to check credentials
+# return (0,1) for wrong login/password
+
 
 package authentication::local;
 
@@ -18,13 +22,29 @@ BEGIN {
 }
 
 use Apache::Htpasswd;
+use lib '/usr/local/pf/lib';
+use pf::config;
+use pf::util;
+
 
 sub authenticate {
   my ($username, $password) = @_;
+
+  my $passwdFile = '/usr/local/pf/conf/user.conf';
+
+  if (! -r $passwdFile) {
+      pflogger("unable to read password file '$passwdFile'", 1);
+      return (0,2);
+  }
+
   my $htpasswd = new Apache::Htpasswd({
-      passwdFile => "/usr/local/pf/conf/user.conf",
+      passwdFile => $passwdFile,
       ReadOnly   => 1});
-  return $htpasswd->htCheckPassword($username, $password);
+  if ($htpasswd->htCheckPassword($username, $password) == 0) {
+      return (0,1);
+  } else {
+      return (1,0);
+  }
 }
 
 1;

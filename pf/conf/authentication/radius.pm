@@ -5,6 +5,10 @@
 # If you did not receive this file, see
 # http://www.fsf.org/licensing/licenses/gpl.html
 #
+# return (1,0) for successfull authentication
+# return (0,2) for inability to check credentials
+# return (0,1) for wrong login/password
+
 
 package authentication::radius;
 
@@ -26,7 +30,11 @@ sub authenticate {
  $radcheck = new Authen::Radius(
     Host => 'localhost', 
     Secret => 'testing123');
- return $radcheck->check_pwd($username, $password);
+ if ($radcheck->check_pwd($username, $password)) {
+     return (1,0);
+ } else {
+     return (0,1);
+ }
 }
 
 1;

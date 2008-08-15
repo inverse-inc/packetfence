@@ -70,7 +70,7 @@ sub generate_release_page {
 }
 
 sub generate_login_page {
-  my ($cgi, $session, $post_uri, $destination_url) = @_;
+  my ($cgi, $session, $post_uri, $destination_url, $err) = @_;
   setlocale(LC_MESSAGES, $Config{'general'}{'locale'});
   bindtextdomain("packetfence", "/usr/local/pf/conf/locale");
   textdomain("packetfence");
@@ -85,6 +85,13 @@ sub generate_login_page {
     txt_select_authentications => gettext("register: select authentications"),
     txt_page_header => gettext('Login')
   };
+  if (defined($err)) {
+      if ($err == 2) {
+          $vars->{'txt_auth_error'} = gettext('error: unable to validate credentials at the moment');
+      } elsif ($err == 1) {
+          $vars->{'txt_auth_error'} = gettext('error: invalid login or password');
+      }
+  }
   
   my @auth=split(/\s*,\s*/,$Config{'registration'}{'auth'});
   #
@@ -220,8 +227,9 @@ sub generate_error_page {
 # ugly hack - fix me!
 sub generate_status_page {
   my ($cgi, $session, $mac) = @_;
-  if (! web_user_authenticate($cgi, $session)) {
-    generate_login_page($cgi, $session, $ENV{REQUEST_URI});
+  my ($auth_return,$err) = web_user_authenticate($cgi, $session);
+  if ($auth_return != 1) {
+    generate_login_page($cgi, $session, $ENV{REQUEST_URI},'',$err);
     exit(0);
   }
   my $node_info = node_view($mac);
@@ -292,32 +300,36 @@ sub web_node_register {
 }
 
 sub web_user_authenticate {
+# return (1,0) for successfull authentication
+# return (0,2) for inability to check credentials
+# return (0,1) for wrong login/password
+# return (0,0) for first attempt
+
   my ($cgi, $session) = @_;
   if ($session->param("login")) {
-    return 1;  # if logged in, don't bother going further
+    return (1,0);  # if logged in, don't bother going further
   }
   if ($cgi->param("login") && $cgi->param("password") && $cgi->param("auth")) {
     my $auth = $cgi->param("auth");
     my @auth_choices=split(/\s*,\s*/,$Config{'registration'}{'auth'});
     if (grep(/^$auth$/, @auth_choices) == 0) {
-      return 0;
+      return (0,2);
     }
     #validate login and password
     use lib '/usr/local/pf/conf';
     eval "use authentication::$auth";
     if ($@) {
       pflogger("ERROR loading authentication::$auth $@", 1);
-      return 0;
+      return (0,2);
     }
-    if (authenticate($cgi->param("login"), $cgi->param("password"))) {
+    my ($authReturn,$err) = authenticate($cgi->param("login"), $cgi->param("password"));
+    if ($authReturn == 1) {
       #save login into session
       $session->param("login", $cgi->param("login"));
-      return 1;
-    } else {
-      return 0;
     }
+    return ($authReturn,$err);
   }
-  return 0;
+  return (0,0);
 }
 
 sub generate_registration_page {

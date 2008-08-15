@@ -6,6 +6,9 @@ msgstr "Access denied: you are not the owner of this node!"
 msgid  "error: incorrect mode"
 msgstr "Incorrect mode!"
 
+msgid  "error: invalid login or password"
+msgstr "Invalide login or password"
+
 msgid  "error: max re-enables reached"
 msgstr "Maximum re-enables reached!"
 
@@ -17,6 +20,9 @@ msgstr "Access denied: not a trappable IP!"
 
 msgid  "error: only register max nodes"
 msgstr "You may only register a maximum of %s nodes!"
+
+msgid  "error: unable to validate credentials at the moment"
+msgstr "Unable to validate credentials at the moment"
 
 
 msgid  "help: provide info"

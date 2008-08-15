@@ -6,6 +6,9 @@ msgstr "Acc&egrave;s refus&eacute;: vous n'&ecirc;tes pas le propri&eacute;taire
 msgid  "error: incorrect mode"
 msgstr "Mode incorrect!"
 
+msgid  "error: invalid login or password"
+msgstr "Login ou mot de passe invalide"
+
 msgid  "error: max re-enables reached"
 msgstr "Nombre maximum de r&eacute;activations atteint!"
 
@@ -17,6 +20,9 @@ msgstr "Acc&egrave; refus&eacute;: IP ne peut pas &ecirc;tre isol&eacute;!"
 
 msgid  "error: only register max nodes"
 msgstr "Vous pouvez seulement enregistrer un maximum de %s noeuds!"
+
+msgid  "error: unable to validate credentialsi at the moment"
+msgstr "Impossible de valider votre login et mot de passe en ce moment"
 
 
 msgid  "help: provide info"
