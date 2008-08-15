@@ -584,7 +584,7 @@ registered_lease=2h
 #
 # After which calls to pfcmd do we have to re-calculate and re-assign
 # the switchport VLAN a node is connected to
-adjustswitchportvlanreasons=node_modify,manage_register,manage_deregister,manage_vclose,manage_vopen,violation_modify
+adjustswitchportvlanreasons=node_modify,manage_register,manage_deregister,manage_vclose,manage_vopen,violation_modify,violation_add
 #
 # vlan.adjustswitchportvlanscript
 #

@@ -14,6 +14,9 @@
           (http://www.packetfence.org/mantis/view.php?id=364)
         destination_url parameter lost during registration
           (http://www.packetfence.org/mantis/view.php?id=369)
+        violation_add should be part of default 
+          adjustswitchportvlan reasons
+          (http://www.packetfence.org/mantis/view.php?id=370)
 
 
 1.7.2
