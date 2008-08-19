@@ -376,7 +376,7 @@ sub isPortSecurityEnabled {
         "$OID_cpsIfPortSecurityEnable.$ifIndex"
         ]
     );
-    return (exists($result->{"$OID_cpsIfPortSecurityEnable.$ifIndex"}) && ($result->{"$OID_cpsIfPortSecurityEnable.$ifIndex"} ne 'noSuchInstance') && ($result->{"$OID_cpsIfPortSecurityEnable.$ifIndex"} == 1));
+    return (exists($result->{"$OID_cpsIfPortSecurityEnable.$ifIndex"}) && ($result->{"$OID_cpsIfPortSecurityEnable.$ifIndex"} ne 'noSuchInstance') && ($result->{"$OID_cpsIfPortSecurityEnable.$ifIndex"} ne 'noSuchObject') && ($result->{"$OID_cpsIfPortSecurityEnable.$ifIndex"} == 1));
 }   
 
 sub setPortSecurityDisabled {
