@@ -197,7 +197,7 @@ sub recoverSwitch {
                         }
                     }
                 }
-                @currentPhones = $switch->getPhonesAtIfIndex($currentIfIndex);
+                @currentPhones = $switch->getPhonesDPAtIfIndex($currentIfIndex);
                 print Dumper(@currentPhones);
                 foreach my $mac (@currentMacs) {
                     my $node_info = node_view_with_fingerprint($mac);

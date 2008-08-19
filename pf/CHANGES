@@ -17,6 +17,8 @@
         violation_add should be part of default 
           adjustswitchportvlan reasons
           (http://www.packetfence.org/mantis/view.php?id=370)
+        recovery.pl uses obsolete getPhonesAtIfIndex
+          (http://www.packetfence.org/mantis/view.php?id=372)
 
 
 1.7.2
