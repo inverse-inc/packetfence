@@ -138,8 +138,8 @@ if (($switchDescription ne '') && (scalar(@switchDescriptions) == 0)) {
 if (($switchDescriptionRegExp ne '') && (scalar(@switchDescriptions) == 0)) {
     pod2usage("no switch description matches $switchDescriptionRegExp");
 }
-
 my %switch_locker : shared;
+
 foreach my $switchDesc (sort @switchDescriptions) {
     my $switch_ip = $switchFactory->{_config}{$switchDesc}{'ip'};
     $switch_locker{$switch_ip}  = &share({});
@@ -179,6 +179,7 @@ sub recoverSwitch {
         $txt .= "$switchDesc\n";
         my @managedIfIndexes = $switch->getManagedIfIndexes();
         my $allMacs = $switch->getAllMacs(@managedIfIndexes);
+        my $allSecMacs = $switch->getAllSecureMacAddresses();
         my $vlanHashRef = $switch->getAllVlans(@managedIfIndexes);
         foreach my $currentIfIndex (sort { $a <=> $b } @managedIfIndexes) {
             my $currentVlan = $vlanHashRef->{$currentIfIndex};
@@ -188,17 +189,24 @@ sub recoverSwitch {
             my $currentPcStatus;
             my $currentPcViolationCount = 0;
             my @currentPhones;
-            if ($ifOperStatus eq 'up') {
+            if (($ifOperStatus eq 'up') || ($switch->isPortSecurityEnabled($currentIfIndex))) {
                 my @currentMacs;
                 foreach my $vlan (keys %{$allMacs->{$currentIfIndex}}) {
                     foreach my $mac (@{$allMacs->{$currentIfIndex}->{$vlan}}) {
-                        if (grep(/^$mac$/,@currentMacs) == 0) {
+                        if ((! $switch->isFakeMac($mac)) && (! $switch->isFakeVoIPMac($mac)) && (grep(/^$mac$/,@currentMacs) == 0)) {
+                            push @currentMacs, $mac;
+                        }
+                    }
+                }
+                foreach my $mac (keys %{$allSecMacs}) {
+                    if (exists($allSecMacs->{$mac}->{$currentIfIndex})) {
+                    $mac = uc($mac);
+                        if ((! $switch->isFakeMac($mac)) && (! $switch->isFakeVoIPMac($mac)) && (grep(/^$mac$/,@currentMacs) == 0)) {
                             push @currentMacs, $mac;
                         }
                     }
                 }
                 @currentPhones = $switch->getPhonesDPAtIfIndex($currentIfIndex);
-                print Dumper(@currentPhones);
                 foreach my $mac (@currentMacs) {
                     my $node_info = node_view_with_fingerprint($mac);
                     my $isPhone = ((grep(/^$mac$/i, @currentPhones) != 0) || (defined($node_info) && $node_info->{dhcp_fingerprint} =~ /VoIP Phone/));

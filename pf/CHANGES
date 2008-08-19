@@ -19,6 +19,8 @@
           (http://www.packetfence.org/mantis/view.php?id=370)
         recovery.pl uses obsolete getPhonesAtIfIndex
           (http://www.packetfence.org/mantis/view.php?id=372)
+        recovery.pl and port security
+          (http://www.packetfence.org/mantis/view.php?id=373)
 
 
 1.7.2
