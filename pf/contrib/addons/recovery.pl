@@ -180,7 +180,7 @@ sub recoverSwitch {
         my @managedIfIndexes = $switch->getManagedIfIndexes();
         my $allMacs = $switch->getAllMacs(@managedIfIndexes);
         my $vlanHashRef = $switch->getAllVlans(@managedIfIndexes);
-        foreach my $currentIfIndex (sort @managedIfIndexes) {
+        foreach my $currentIfIndex (sort { $a <=> $b } @managedIfIndexes) {
             my $currentVlan = $vlanHashRef->{$currentIfIndex};
             my $correctVlan = 0;
             my $ifOperStatus = ($switch->getIfOperStatus($currentIfIndex) == 1 ? 'up' : 'down');
