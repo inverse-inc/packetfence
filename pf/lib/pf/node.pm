@@ -44,7 +44,7 @@ node_db_prepare($dbh) if (!$thread);
 sub node_db_prepare {
   my ($dbh) = @_;
   $node_exist_sql=$dbh->prepare( qq[ select mac from node where mac=? ]);
-  $node_pid_sql=$dbh->prepare( qq[ select count(*) from node where pid=? ]);
+  $node_pid_sql=$dbh->prepare( qq[ select count(*) from node where status='reg' and pid=? ]);
   $node_add_sql=$dbh->prepare( qq[ insert into node(mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,dhcp_fingerprint,last_dhcp,switch,port,vlan) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ]); 
   $node_delete_sql=$dbh->prepare( qq[ delete from node where mac=? ]);
   $node_modify_sql=$dbh->prepare( qq[ update node set mac=?,pid=?,detect_date=?,regdate=?,unregdate=?,lastskip=?,status=?,user_agent=?,computername=?,notes=?,dhcp_fingerprint=?,last_dhcp=?,switch=?,port=?,vlan=? where mac=? ]);
