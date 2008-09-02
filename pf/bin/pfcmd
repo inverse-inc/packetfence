@@ -781,6 +781,12 @@ sub ui {
   my $interval = $cmd{command}[3];
 
   if ($service eq "menus") {
+    # check if Nessus::ScanLite is installed
+    my $scanLiteInstalled = 1;
+    eval "use Nessus::ScanLite";
+    if ($@) {
+      $scanLiteInstalled = 0;
+    }
     # read in configuration file
     my %uiconfig;
     my $ui_conf_file = $install_dir."/conf/ui.conf";
@@ -792,8 +798,9 @@ sub ui {
     my $string;  
     foreach my $section (tied(%uiconfig)->Sections) {
       my @array = split(/\./,$section);
-      $string .= join("|", @array)."|";
       my $service = $array[1] if ($array[1]);
+      next if ((defined $service) && ($service eq "scan") && (! $scanLiteInstalled));
+      $string .= join("|", @array)."|";
       my @keys;
       #print "NO SECTION $section \n" if (!defined $uiconfig{$section}{'display'});
       foreach my $key (split(/\s*,\s*/,$uiconfig{$section}{'display'})) {
@@ -804,6 +811,7 @@ sub ui {
           $key2 = $key;
         }               
         $key=~s/^-//;
+        next if (($key eq "scan") && (! $scanLiteInstalled));
         if (defined $uiconfig{$section}{$key}){
           push @keys, "$key2='$uiconfig{$section}{$key}'";
         }else{
