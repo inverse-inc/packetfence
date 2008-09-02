@@ -23,10 +23,11 @@
           (http://www.packetfence.org/mantis/view.php?id=373)
         node_pid and registration status
           (http://www.packetfence.org/mantis/view.php?id=374)
-        support for Dlink::DES3526 
+        added support for Dlink::DES_3526 
           (contributed by Treker Chen)
         automatically hide scan section if necessary
           (http://www.packetfence.org/mantis/view.php?id=376)
+        added support for HP::Procurve_2500
 
 
 1.7.2
