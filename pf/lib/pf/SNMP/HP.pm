@@ -317,6 +317,26 @@ sub isPortSecurityEnabled {
     return (defined($result->{"$OID_hpSecPtLearnMode.$hpSecCfgAddrGroupIndex.$ifIndex"}) && defined($result->{"$OID_hpSecPtAlarmEnable.$hpSecCfgAddrGroupIndex.$ifIndex"}) && ($result->{"$OID_hpSecPtLearnMode.$hpSecCfgAddrGroupIndex.$ifIndex"} == 4) && ($result->{"$OID_hpSecPtAlarmEnable.$hpSecCfgAddrGroupIndex.$ifIndex"} == 2));
 }
 
+sub getVlanFdbId {
+    my ($this, $vlan) = @_;
+    my $OID_dot1qVlanFdbId = '1.3.6.1.2.1.17.7.1.4.2.1.3.0'; #Q-BRIDGE-MIB
+    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+
+    if (! $this->connectRead()) {
+        return 0;
+    }
+
+    $logger->trace("SNMP get_request for dot1qVlanFdbId $OID_dot1qVlanFdbId.$vlan");
+    my $result = $this->{_sessionRead}->get_request(
+        -varbindlist => ["$OID_dot1qVlanFdbId.$vlan"]
+    );
+
+    if (! defined($result)) {
+        return 0;
+    } else {
+        return $result->{"$OID_dot1qVlanFdbId.$vlan"};
+    }
+}
 
 1;
 

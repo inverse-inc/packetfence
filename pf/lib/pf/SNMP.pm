@@ -1194,20 +1194,22 @@ sub getMacBridgePortHash {
     $logger->trace("SNMP get_table for dot1qTpFdbPort: $OID_dot1qTpFdbPort");
     my $result;
 
+    my $vlanFdbId = 0;
     if ($vlan eq '') {
         $result = $this->{_sessionRead}->get_table(
             -baseoid => $OID_dot1qTpFdbPort
         );
     } else {
+        $vlanFdbId = $this->getVlanFdbId($vlan);
         $result = $this->{_sessionRead}->get_table(
-            -baseoid => "$OID_dot1qTpFdbPort.$vlan"
+            -baseoid => "$OID_dot1qTpFdbPort.$vlanFdbId"
         );
     }
 
     if (defined($result)) {
         foreach my $key (keys %{$result}) {
             $key =~ /^$OID_dot1qTpFdbPort\.(\d+)\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
-            if (($vlan eq '') || ($1 eq $vlan)) {
+            if (($vlanFdbId == 0) || ($1 eq $vlanFdbId)) {
                 my $mac = sprintf("%02X:%02X:%02X:%02X:%02X:%02X", $2, $3, $4, $5, $6, $7);
                 $macBridgePortHash{$mac} = $result->{$key};
             }
@@ -1453,6 +1455,13 @@ sub getUpLinks {
     return @upLinks;
 }
 
+sub getVlanFdbId {
+    my ($this, $vlan) = @_;
+    my $OID_dot1qVlanFdbId = '1.3.6.1.2.1.17.7.1.4.2.1.3.0'; #Q-BRIDGE-MIB
+    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+
+    return $vlan;
+}
 
 =over
 

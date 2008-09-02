@@ -28,6 +28,9 @@
         automatically hide scan section if necessary
           (http://www.packetfence.org/mantis/view.php?id=376)
         added support for HP::Procurve_2500
+        correct getMacBridgePortHash for HP switches
+          (http://www.packetfence.org/mantis/view.php?id=375)
+
 
 
 1.7.2
