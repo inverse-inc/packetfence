@@ -1004,7 +1004,7 @@ sub handleTrap {
         my @macArray = ();
         my $secureMacAddrHashRef;
         do {
-            sleep($switchFactory->{'_config'}{'default'}{'macSearchesSleepInterval'}) unless ($nbAttempts == 0);
+            sleep($switch->{_macSearchesSleepInterval}) unless ($nbAttempts == 0);
             my $mustRunCleanupAfterThread = 0;
             $logger->trace("locking - trying to lock threadLists_toBeKilled in handleTrap");
             {
@@ -1027,7 +1027,7 @@ sub handleTrap {
             $logger->debug("attempt " . ($nbAttempts+1) . " to obtain MAC at $switch_ip ifIndex $switch_port");
             @macArray = $switch->_getMacAtIfIndex($switch_port);
             $nbAttempts++;
-        } while (($nbAttempts < $switchFactory->{'_config'}{'default'}{'macSearchesMaxNb'}) && (scalar(@macArray) == 0));
+        } while (($nbAttempts < $switch->{_macSearchesMaxNb}) && (scalar(@macArray) == 0));
         # }}}3
 
         # node_update_PF {{{3

@@ -50,109 +50,115 @@ use pf::node;
 sub new {
     my ($class, %argv) = @_;
     my $this = bless {
-        '_ip' => undef,
-        '_version' => 1,
         '_communityRead' => undef,
         '_communityWrite' => undef,
-        '_SNMPUserNameRead' => undef,
-        '_SNMPAuthPasswordRead' => undef,
-        '_SNMPAuthProtocolRead' => undef,
-        '_SNMPPrivPasswordRead' => undef,
-        '_SNMPPrivProtocolRead' => undef,
-        '_SNMPUserNameWrite' => undef,
-        '_SNMPAuthPasswordWrite' => undef,
-        '_SNMPAuthProtocolWrite' => undef,
-        '_SNMPPrivPasswordWrite' => undef,
-        '_SNMPPrivProtocolWrite' => undef,
-        '_sessionRead' => undef,
-        '_sessionWrite' => undef,
-        '_normalVlan' => undef,
-        '_macDetectionVlan' => undef,
-        '_voiceVlan' => undef,
-        '_registrationVlan' => undef,
-        '_isolationVlan' => undef,
+        '_dbHostname' => undef,
+        '_dbName' => undef,
+        '_dbPassword' => undef,
+        '_dbUser' => undef,
         '_error' => undef,
-        '_uplink' => undef,
-        '_vlans' => undef,
-        '_mode' => undef,
-        '_telnetUser' => undef,
-        '_telnetPwd' => undef,
-        '_telnetEnablePwd' => undef,
         '_htaccessPwd' => undef,
         '_htaccessUser' => undef,
-        '_dbHostname' => undef,
-        '_dbUser' => undef,
-        '_dbPassword' => undef,
-        '_dbName' => undef,
-        '_VoIPEnabled' => undef,
+        '_ip' => undef,
+        '_isolationVlan' => undef,
+        '_macDetectionVlan' => undef,
+	'_macSearchesMaxNb' => undef,
+	'_macSearchesSleepInterval' => undef,
+        '_mode' => undef,
         '_mysqlConnection' => undef
+        '_normalVlan' => undef,
+        '_registrationVlan' => undef,
+        '_sessionRead' => undef,
+        '_sessionWrite' => undef,
+        '_SNMPAuthPasswordRead' => undef,
+        '_SNMPAuthPasswordWrite' => undef,
+        '_SNMPAuthProtocolRead' => undef,
+        '_SNMPAuthProtocolWrite' => undef,
+        '_SNMPPrivPasswordRead' => undef,
+        '_SNMPPrivPasswordWrite' => undef,
+        '_SNMPPrivProtocolRead' => undef,
+        '_SNMPPrivProtocolWrite' => undef,
+        '_SNMPUserNameRead' => undef,
+        '_SNMPUserNameWrite' => undef,
+        '_telnetEnablePwd' => undef,
+        '_telnetPwd' => undef,
+        '_telnetUser' => undef,
+        '_uplink' => undef,
+        '_version' => 1,
+        '_vlans' => undef,
+        '_voiceVlan' => undef,
+        '_VoIPEnabled' => undef
     }, $class;
 
     foreach (keys %argv) {
-        if (/^-?ip$/i) {
-            $this->{_ip} = $argv{$_};
-        } elsif (/^-?version$/i) {
-            $this->{_version} = $argv{$_};
-        } elsif (/^-?communityRead$/i) {
+        if (/^-?communityRead$/i) {
             $this->{_communityRead} = $argv{$_};
         } elsif (/^-?communityWrite$/i) {
             $this->{_communityWrite} = $argv{$_};
-        } elsif (/^-?SNMPUserNameRead$/i) {
-            $this->{_SNMPUserNameRead} = $argv{$_};
-        } elsif (/^-?SNMPAuthProtocolRead$/i) {
-            $this->{_SNMPAuthProtocolRead} = $argv{$_};
-        } elsif (/^-?SNMPAuthPasswordRead$/i) {
-            $this->{_SNMPAuthPasswordRead} = $argv{$_};
-        } elsif (/^-?SNMPPrivProtocolRead$/i) {
-            $this->{_SNMPPrivProtocolRead} = $argv{$_};
-        } elsif (/^-?SNMPPrivPasswordRead$/i) {
-            $this->{_SNMPPrivPasswordRead} = $argv{$_};
-        } elsif (/^-?SNMPUserNameWrite$/i) {
-            $this->{_SNMPUserNameWrite} = $argv{$_};
-        } elsif (/^-?SNMPAuthProtocolWrite$/i) {
-            $this->{_SNMPAuthProtocolWrite} = $argv{$_};
-        } elsif (/^-?SNMPAuthPasswordWrite$/i) {
-            $this->{_SNMPAuthPasswordWrite} = $argv{$_};
-        } elsif (/^-?SNMPPrivProtocolWrite$/i) {
-            $this->{_SNMPPrivProtocolWrite} = $argv{$_};
-        } elsif (/^-?SNMPPrivPasswordWrite$/i) {
-            $this->{_SNMPPrivPasswordWrite} = $argv{$_};
-        } elsif (/^-?normalVlan$/i) {
-            $this->{_normalVlan} = $argv{$_};
-        } elsif (/^-?macDetectionVlan$/i) {
-            $this->{_macDetectionVlan} = $argv{$_};
-        } elsif (/^-?voiceVlan$/i) {
-            $this->{_voiceVlan} = $argv{$_};
-        } elsif (/^-?registrationVlan$/i) {
-            $this->{_registrationVlan} = $argv{$_};
-        } elsif (/^-?isolationVlan$/i) {
-            $this->{_isolationVlan} = $argv{$_};
-        } elsif (/^-?uplink$/i) {
-            $this->{_uplink} = $argv{$_};
-        } elsif (/^-?vlans$/i) {
-            $this->{_vlans} = $argv{$_};
-        } elsif (/^-?mode$/i) {
-            $this->{_mode} = $argv{$_};
-        } elsif (/^-?telnetUser$/i) {
-            $this->{_telnetUser} = $argv{$_};
-        } elsif (/^-?telnetPwd$/i) {
-            $this->{_telnetPwd} = $argv{$_};
-        } elsif (/^-?telnetEnablePwd$/i) {
-            $this->{_telnetEnablePwd} = $argv{$_};
-        } elsif (/^-?htaccessUser$/i) {
-            $this->{_htaccessUser} = $argv{$_};
-        } elsif (/^-?htaccessPwd$/i) {
-            $this->{_htaccessPwd} = $argv{$_};
-        } elsif (/^-?VoIPEnabled$/i) {
-            $this->{_VoIPEnabled} = $argv{$_};
         } elsif (/^-?dbHostname$/i) {
             $this->{_dbHostname} = $argv{$_};
-        } elsif (/^-?dbUser$/i) {
-            $this->{_dbUser} = $argv{$_};
-        } elsif (/^-?dbPassword$/i) {
-            $this->{_dbPassword} = $argv{$_};
         } elsif (/^-?dbName$/i) {
             $this->{_dbName} = $argv{$_};
+        } elsif (/^-?dbPassword$/i) {
+            $this->{_dbPassword} = $argv{$_};
+        } elsif (/^-?dbUser$/i) {
+            $this->{_dbUser} = $argv{$_};
+        } elsif (/^-?htaccessPwd$/i) {
+            $this->{_htaccessPwd} = $argv{$_};
+        } elsif (/^-?htaccessUser$/i) {
+            $this->{_htaccessUser} = $argv{$_};
+        } elsif (/^-?ip$/i) {
+            $this->{_ip} = $argv{$_};
+        } elsif (/^-?isolationVlan$/i) {
+            $this->{_isolationVlan} = $argv{$_};
+        } elsif (/^-?macDetectionVlan$/i) {
+            $this->{_macDetectionVlan} = $argv{$_};
+        } elsif (/^-?macSearchesMaxNb$/i) {
+            $this->{_macSearchesMaxNb} = $argv{$_};
+        } elsif (/^-?macSearchesSleepInterval$/i) {
+            $this->{_macSearchesSleepInterval} = $argv{$_};
+        } elsif (/^-?mode$/i) {
+            $this->{_mode} = $argv{$_};
+        } elsif (/^-?normalVlan$/i) {
+            $this->{_normalVlan} = $argv{$_};
+        } elsif (/^-?registrationVlan$/i) {
+            $this->{_registrationVlan} = $argv{$_};
+        } elsif (/^-?SNMPAuthPasswordRead$/i) {
+            $this->{_SNMPAuthPasswordRead} = $argv{$_};
+        } elsif (/^-?SNMPAuthPasswordWrite$/i) {
+            $this->{_SNMPAuthPasswordWrite} = $argv{$_};
+        } elsif (/^-?SNMPAuthProtocolRead$/i) {
+            $this->{_SNMPAuthProtocolRead} = $argv{$_};
+        } elsif (/^-?SNMPAuthProtocolWrite$/i) {
+            $this->{_SNMPAuthProtocolWrite} = $argv{$_};
+        } elsif (/^-?SNMPPrivPasswordRead$/i) {
+            $this->{_SNMPPrivPasswordRead} = $argv{$_};
+        } elsif (/^-?SNMPPrivPasswordWrite$/i) {
+            $this->{_SNMPPrivPasswordWrite} = $argv{$_};
+        } elsif (/^-?SNMPPrivProtocolRead$/i) {
+            $this->{_SNMPPrivProtocolRead} = $argv{$_};
+        } elsif (/^-?SNMPPrivProtocolWrite$/i) {
+            $this->{_SNMPPrivProtocolWrite} = $argv{$_};
+        } elsif (/^-?SNMPUserNameRead$/i) {
+            $this->{_SNMPUserNameRead} = $argv{$_};
+        } elsif (/^-?SNMPUserNameWrite$/i) {
+            $this->{_SNMPUserNameWrite} = $argv{$_};
+        } elsif (/^-?telnetEnablePwd$/i) {
+            $this->{_telnetEnablePwd} = $argv{$_};
+        } elsif (/^-?telnetPwd$/i) {
+            $this->{_telnetPwd} = $argv{$_};
+        } elsif (/^-?telnetUser$/i) {
+            $this->{_telnetUser} = $argv{$_};
+        } elsif (/^-?uplink$/i) {
+            $this->{_uplink} = $argv{$_};
+        } elsif (/^-?version$/i) {
+            $this->{_version} = $argv{$_};
+        } elsif (/^-?vlans$/i) {
+            $this->{_vlans} = $argv{$_};
+        } elsif (/^-?voiceVlan$/i) {
+            $this->{_voiceVlan} = $argv{$_};
+        } elsif (/^-?VoIPEnabled$/i) {
+            $this->{_VoIPEnabled} = $argv{$_};
         }
     }
     return $this;
