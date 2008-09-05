@@ -30,7 +30,7 @@
         added support for HP::Procurve_2500
         correct getMacBridgePortHash for HP switches
           (http://www.packetfence.org/mantis/view.php?id=375)
-
+        added support for HP::Procurve_4100
 
 
 1.7.2
