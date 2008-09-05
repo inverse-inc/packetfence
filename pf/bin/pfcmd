@@ -326,17 +326,17 @@ sub service {
     }
     if (scalar(@incorrectly_stopped_services) > 0) {
       print "The following processes are not running:\n" . join("\n - ", @incorrectly_stopped_services) . "\n";
-    }
-    if (isenabled($Config{'servicewatch'}{'email'})) {
-      my %message;
-      $message{'subject'}  = "PF WATCHER ALERT";
-      $message{'message'} = "The following processes are not running:\n" . join("\n - ", @incorrectly_stopped_services) . "\n";
-      pfmailer(%message);
-    }
-    if (isenabled($Config{'servicewatch'}{'restart'})) {
-      $command = 'restart';
-    } else {
-      return;
+      if (isenabled($Config{'servicewatch'}{'email'})) {
+        my %message;
+        $message{'subject'}  = "PF WATCHER ALERT";
+        $message{'message'} = "The following processes are not running:\n" . join("\n - ", @incorrectly_stopped_services) . "\n";
+        pfmailer(%message);
+      }
+      if (isenabled($Config{'servicewatch'}{'restart'})) {
+        $command = 'restart';
+      } else {
+        return;
+      }
     }
   }
 

@@ -31,6 +31,8 @@
         correct getMacBridgePortHash for HP switches
           (http://www.packetfence.org/mantis/view.php?id=375)
         added support for HP::Procurve_4100
+        pfcmd service watch and restart of services
+          (http://www.packetfence.org/mantis/view.php?id=377)
 
 
 1.7.2
