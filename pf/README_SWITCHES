@@ -1,3 +1,7 @@
+======================================
+Access Points and Wireless controllers
+======================================
+
 Packetfence supports the following access points and wireless controlers:
 - Cisco 1130AG
 - Cisco 1240AG
@@ -12,6 +16,11 @@ points as long as they have the following functionalities:
 - SNMP deassociation/deauthentication traps
 - CLI (or SNMP) commaned to deassociate/deauthenticate a STA
 
+
+
+======================================
+Switches
+======================================
 
 Currently, PacketFence supports the following switches:
 
@@ -38,6 +47,12 @@ Cisco 3560             |    XX    |    XX    |    XX    |    XX    |
 -----------------------|----------|----------|----------|----------|
 Dell PowerConnect 3424 |    XX    |    ??    |    --    |    --    |
 -----------------------|----------|----------|----------|----------|
+HP Procurve 2500       |    XX    |    --    |    XX    |    ??    |
+-----------------------|----------|----------|----------|----------|
+HP Procurve 2600       |    XX    |    --    |    XX    |    ??    |
+-----------------------|----------|----------|----------|----------|
+HP Procurve 4100       |    XX    |    --    |    XX    |    ??    |
+-----------------------|----------|----------|----------|----------|
 Intel Express 460      |    XX    |    --    |    --    |    --    |
 -----------------------|----------|----------|----------|----------|
 Intel Express 530      |    XX    |    --    |    --    |    --    |
@@ -46,21 +61,96 @@ Linksys SRW224G4       |    XX    |    --    |    --    |    --    |
 -----------------------|----------|----------|----------|----------|
 Nortel BayStack 470    |    XX    |    --    |    XX    |    XX    |
 -----------------------|----------|----------|----------|----------|
+Nortel BayStack 4550   |    XX    |    --    |    XX    |    XX    |
+-----------------------|----------|----------|----------|----------|
+Nortel BayStack 5520   |    XX    |    --    |    XX    |    XX    |
+-----------------------|----------|----------|----------|----------|
 Nortel ES325           |    XX    |    --    |    XX    |    XX    |
 -----------------------|----------|----------|----------|----------|
 Nortel BPS2000         |    XX    |    --    |    XX    |    XX    |
 -----------------------|----------|----------|----------|----------|
 
-VoIP: 
+======================================
+LinkUp/Down traps
+======================================
 
-Link Up/Down
-- the switch sends a trap UP when the port ifOperStatus is set to 1
-- the switch sends a trap DOWN when the port ifOperStatus is set to 0
+- the switch sends a LinkUp trap when the port ifOperStatus is set to 1
+- the switch sends a LinkDown trap when the port ifOperStatus is set to 0
 
-MAC Notif.:
+This is the most basic setup and it needs a VLAN called the MAC detection VLAN. 
+There should be nothing in this VLAN (no DHCP server) and it should not be 
+routed anywhere, it is just an empty VLAN.
 
-Port Security:
+When a host connects to a switch port, the switch sends a LinkUp trap to 
+PacketFence. Since it takes some time before the switch learns the MAC address 
+of the newly connected device, PacketFence immediately puts the port in the MAC 
+detection VLAN in which the device will send DHCP requests (with no answer) in 
+order for the switch to learn its MAC address. Then pfsetvlan will send 
+periodical SNMP queries to the switch until the switch learns the MAC of the 
+device. When the MAC address is known, pfsetvlan checks its status (existing? 
+registered ?, any violations ?) in the database and puts the port in the 
+appropriate VLAN. When a device is unplugged, the switch sends a LinkDown
+trap to PacketFence which puts the port into the MAC detection VLAN.
 
-802.1x:
+IMPORTANT:
+When a computer boots, the initialization of the NIC generates several link    |
+status changes. And every time the switch sends a linkup and a linkdown trap to 
+PacketFence. Since PacketFence has to act on each of these trap, this generates 
+unfortunately some unnecessary load on pfsetvlan. In order to optimize the trap 
+treatment, PacketFence stops every thread for a LinkUp trap when it receives a 
+LinkDown trap on the same port. But using only LinkUp/LinkDown traps is not the 
+most scalable option. For example in case of power failure, if hundreds of 
+computers boot at the same time, PacketFence would receive a lot of traps almost
+instantly and this could result in network connection latency…
 
-Deauthen:
+
+======================================
+MAC notification traps
+======================================
+
+If your switches support MAC notification traps (MAC learnt, MAC removed), we 
+suggest that you activate them in addition to the LinkUp/LinkDown traps. This 
+way, pfsetvlan does not need, after a link up trap, to query the switch 
+continuously until the MAC has finally been learned. When it receives a LinkUp 
+trap for a port on which MAC notification traps are also enabled, it only needs
+to put the port in the MAC detection VLAN and can than free the thread. When the
+switch learns the MAC address of the device it sends a MAC learnt trap 
+(containing the MAC address) to PacketFence.
+
+
+======================================
+Port Security traps
+======================================
+
+In its most basic form, the Port Security feature remembers the MAC address 
+connected to the switch port and allows only that MAC address to communicate on
+that port. If any other MAC address tries to communicate through the port, port
+security will not allow it and send a port-security trap.
+
+If your switches support this feature, we strongly recommend to use it rather 
+than LinkUp/LinkDown and/or MAC notifications. Why ? Because as long as a MAC 
+address is authorized on a port and is the only one connected, the switch will 
+send no trap whether the device reboots, plugs in or unplugs. This drastically 
+reduces the SNMP interactions between the switches and PacketFence.
+
+NOTE:
+When you enable port security traps you should not enable LinkUp/LinkDown nor 
+MAC notification traps.
+
+
+======================================
+802.1x
+======================================
+
+802.1X provides port-based authentication, which involves communications between
+a supplicant, authenticator, and authentication server. The supplicant is often
+software on a client device, such as a laptop, the authenticator is a wired 
+Ethernet switch or wireless access point, and an authentication server is 
+generally a RADIUS database. 
+The supplicant (i.e., client device) is not allowed access through the 
+authenticator to the network until the supplicant’s identity is authorized. 
+With 802.1X port-based authentication, the supplicant provides credentials, such
+as user name / password or digital certificate, to the authenticator, and the 
+authenticator forwards the credentials to the authentication server for 
+verification. If the credentials are valid (in the authentication server 
+database), the supplicant (client device) is allowed to access the network.
