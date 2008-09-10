@@ -1,3 +1,8 @@
+1.8.0
+        replace javascript popup on relase page
+          (http://www.packetfence.org/mantis/view.php?id=380)
+
+
 1.7.3
         not all port security traps are handled
           (http://www.packetfence.org/mantis/view.php?id=363)

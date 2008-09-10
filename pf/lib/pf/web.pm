@@ -49,7 +49,20 @@ sub generate_release_page {
     txt_enabling => gettext("Enabling ..."),
   };
   if (isenabled($Config{'network'}{'vlan'})) {
-    $vars->{js_action} = "window.alert('" . gettext("release: reopen browser") . "');";
+    $vars->{js_action} = "var action = function()
+{
+  hidebar();
+  var toReplace=document.getElementById('toReplace');
+  toReplace.innerHTML = '<font face=\"Arial\">" . gettext("release: reopen browser") . "</font>';
+}";
+  } else {
+    $vars->{js_action} = <<EOT;
+var action = function() 
+{
+  hidebar();
+  top.location.href=destination_url;
+}
+EOT
   }
   if (-r "$install_dir/conf/templates/release.pl") {
     open INCLUDE, "<$install_dir/conf/templates/release.pl";

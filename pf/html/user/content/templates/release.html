@@ -4,12 +4,7 @@
 <script language="javascript">
 var destination_url="[% destination_url %]";
 var waitTime=[% timer %];
-var action = function()
-{
-  hidebar();
-  [% js_action %]
-  top.location.href=destination_url;
-}
+[% js_action %]
 </script>
 <title>[% txt_page_title %]</title>
 </head>
@@ -35,7 +30,7 @@ var action = function()
     </tr>
     <tr>
       <td align="center">
-        <p align="center"><font face="Arial">
+        <p align="center" id="toReplace"><font face="Arial">
           [% txt_message %]
         </font></p>
       </td>
