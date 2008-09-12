@@ -29,7 +29,7 @@ use base ('pf::SNMP::HP');
 
 sub getMaxMacAddresses {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::HP::Procurve_2500");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_hpSecPtAddressLimit = '1.3.6.1.4.1.11.2.14.2.10.3.1.3';
     my $OID_hpSecPtLearnMode = '1.3.6.1.4.1.11.2.14.2.10.3.1.4';
     my $hpSecCfgAddrGroupIndex = 1;
@@ -71,7 +71,7 @@ sub getMaxMacAddresses {
 
 sub isPortSecurityEnabled {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::HP::Procurve_2500");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     my $OID_hpSecPtLearnMode = '1.3.6.1.4.1.11.2.14.2.10.3.1.4';
     my $OID_hpSecPtAlarmEnable = '1.3.6.1.4.1.11.2.14.2.10.3.1.6';
@@ -93,7 +93,7 @@ sub isPortSecurityEnabled {
 
 sub authorizeMAC {
     my ($this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::HP::Procurve_2500");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     my $OID_hpSecCfgStatus = '1.3.6.1.4.1.11.2.14.2.10.4.1.4'; #HP-ICF-GENERIC-RPTR
     my $OID_hpSecPtIntrusionFlag = '1.3.6.1.4.1.11.2.14.2.10.3.1.7'; #HP-ICF-GENERIC-RPTR

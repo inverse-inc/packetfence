@@ -10,6 +10,7 @@
 
 use strict;
 use warnings;
+use Log::Log4perl;
 
 sub help_service {
   print STDERR << "EOT";

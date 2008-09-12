@@ -18,6 +18,7 @@ use Sys::Syslog;
 use POSIX;
 use Template;
 use Locale::gettext;
+use Log::Log4perl;
 
 BEGIN {
   use Exporter ();
@@ -288,13 +289,14 @@ sub generate_status_page {
 
 sub web_node_register {
     my ($mac,$pid,%info) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web');
     my $info;
     foreach my $key (keys %info){
       $info{$key}=~s/[^0-9a-zA-Z_\*\.\-\:_\;\@\ ]/ /g;
       $info.=$key.'="'.$info{$key}.'",';
     }
     chop($info);
-    pflogger("calling $install_dir/bin/pfcmd 'manage register $mac \"$pid\" $info'");
+    $logger->info("calling $install_dir/bin/pfcmd 'manage register $mac \"$pid\" $info'");
     my $cmd = $install_dir."/bin/pfcmd 'manage register $mac \"$pid\" $info'";
     my $output = qx/$cmd/;
 }
@@ -306,6 +308,7 @@ sub web_user_authenticate {
 # return (0,0) for first attempt
 
   my ($cgi, $session) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::web');
   if ($session->param("login")) {
     return (1,0);  # if logged in, don't bother going further
   }
@@ -319,7 +322,7 @@ sub web_user_authenticate {
     use lib '/usr/local/pf/conf';
     eval "use authentication::$auth";
     if ($@) {
-      pflogger("ERROR loading authentication::$auth $@", 1);
+      $logger->error("ERROR loading authentication::$auth $@");
       return (0,2);
     }
     my ($authReturn,$err) = authenticate($cgi->param("login"), $cgi->param("password"));
@@ -334,6 +337,7 @@ sub web_user_authenticate {
 
 sub generate_registration_page {
   my ($cgi, $session, $destination_url,$mac) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::web');
   setlocale(LC_MESSAGES, $Config{'general'}{'locale'});
   bindtextdomain("packetfence", "/usr/local/pf/conf/locale");
   textdomain("packetfence");
@@ -375,10 +379,10 @@ sub generate_registration_page {
   
   my $skip_until = POSIX::strftime("%Y-%m-%d %H:%M:%S", POSIX::localtime($skip_allowed_until));
   if (time < $skip_allowed_until) {
-    pflogger($node_info->{'mac'} . " allowed to skip registration until $skip_until", 8);
+    $logger->info($node_info->{'mac'} . " allowed to skip registration until $skip_until");
     $skip = 1;
   } else {
-    pflogger($node_info->{'mac'} . " is not allowed to skip registration - deadline passed at $skip_until - ", 8);
+    $logger->info($node_info->{'mac'} . " is not allowed to skip registration - deadline passed at $skip_until - ");
   }
   
   if (-r "$install_dir/conf/templates/register.pl") {

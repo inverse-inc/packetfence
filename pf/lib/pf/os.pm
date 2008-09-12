@@ -11,6 +11,7 @@ package pf::os;
 
 use strict;
 use warnings;
+use Log::Log4perl;
 
 our ($dhcp_fingerprint_add_sql, $os_delete_all_sql, $dhcp_fingerprint_view_sql, $dhcp_fingerprint_view_all_sql,
      $os_add_sql, $os_class_add_sql, $os_mapping_add_sql, $os_class_delete_all_sql);

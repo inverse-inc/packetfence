@@ -65,7 +65,7 @@ sub new {
 	'_macSearchesMaxNb' => undef,
 	'_macSearchesSleepInterval' => undef,
         '_mode' => undef,
-        '_mysqlConnection' => undef
+        '_mysqlConnection' => undef,
         '_normalVlan' => undef,
         '_registrationVlan' => undef,
         '_sessionRead' => undef,
@@ -177,7 +177,7 @@ sub isUpLink {
 =cut
 sub connectRead {
     my $this = shift;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (defined($this->{_sessionRead})) {
         return 1;
     }
@@ -226,7 +226,7 @@ sub connectRead {
 =cut
 sub disconnectRead {
     my $this = shift;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (!defined($this->{_sessionRead})) {
         return 1;
     }
@@ -240,7 +240,7 @@ sub disconnectRead {
 =cut
 sub connectWrite {
     my $this = shift;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (defined($this->{_sessionWrite})) {
         return 1;
     }
@@ -302,7 +302,7 @@ sub connectWrite {
 =cut
 sub disconnectWrite {
     my $this = shift;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (!defined($this->{_sessionWrite})) {
         return 1;
     }
@@ -316,7 +316,7 @@ sub disconnectWrite {
 =cut
 sub connectMySQL {
     my $this = shift;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     $logger->debug("initializing database connection");
     if (defined($this->{_mysqlConnection})) {
@@ -339,7 +339,7 @@ sub connectMySQL {
 =cut
 sub setVlan {
     my ($this, $ifIndex, $newVlan, $switch_locker_ref, $presentPCMac, $closeAllOpenLocationlogEntries) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     if (! $this->isProductionMode()) {
         $logger->warn("Should set ifIndex $ifIndex to VLAN $newVlan but the switch is not in production -> Do nothing");
@@ -425,7 +425,7 @@ sub setRegistrationVlan {
 =cut
 sub getIfOperStatus {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $oid_ifOperStatus = '1.3.6.1.2.1.2.2.1.8';
     if (! $this->connectRead()) {
         return 0;
@@ -459,7 +459,7 @@ sub setNormalVlan {
 =cut
 sub getAlias {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->connectRead()) {
         return '';
     }
@@ -476,7 +476,7 @@ sub getAlias {
 =cut
 sub setAlias {
     my ($this, $ifIndex, $alias) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     $logger->info("setting " . $this->{_ip} . " ifIndex $ifIndex ifAlias from " . $this->getAlias($ifIndex) . " to $alias");
     if (! $this->isProductionMode()) {
         $logger->info("not in production mode ... we won't change this port ifAlias");
@@ -500,7 +500,7 @@ sub setAlias {
 =cut
 sub getManagedIfIndexes {
     my $this = shift;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my @managedIfIndexes;
     my @tmp_managedIfIndexes;
     my $ifTypeHashRef;
@@ -636,7 +636,7 @@ sub setVlanAllPort {
     my @ports;
     my @UpLinks = $this->getUpLinks();                          # fetch the UpLink list
 
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     $logger->info("setting all ports of switch $this->{_ip} to VLAN $vlan");
     if (! $this->isProductionMode()) {
         $logger->info("not in production mode ... we won't change any port VLAN");
@@ -662,7 +662,7 @@ sub resetVlanAllPort {
     my $oid_ifType = '1.3.6.1.2.1.2.2.1.3';                     # MIB: ifTypes
     my @UpLinks = $this->getUpLinks();                          # fetch the UpLink list
     
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     $logger->info("resetting all ports of switch $this->{_ip}");
     if (! $this->isProductionMode()) {
         $logger->info("not in production mode ... we won't change any port");
@@ -689,7 +689,7 @@ sub resetVlanAllPort {
 =cut
 sub getMacAtIfIndex {
     my ($this,$ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $i=0;
     my @macArray; 
     do {
@@ -706,7 +706,7 @@ sub getMacAtIfIndex {
 =cut
 sub getIfDesc {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2'; # IF-MIB
     my $oid = $OID_ifDesc . "." . $ifIndex;
     if (! $this->connectRead()) {
@@ -727,7 +727,7 @@ sub getIfDesc {
 =cut
 sub getIfName {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_ifName = '1.3.6.1.2.1.31.1.1.1.1'; # IF-MIB
     my $oid = $OID_ifName . "." . $ifIndex;
     if (! $this->connectRead()) {
@@ -748,7 +748,7 @@ sub getIfName {
 =cut
 sub getIfNameIfIndexHash {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_ifName = '1.3.6.1.2.1.31.1.1.1.1'; # IF-MIB
     my %ifNameIfIndexHash;
     if (! $this->connectRead()) {
@@ -770,7 +770,7 @@ sub getIfNameIfIndexHash {
 =cut
 sub setAdminStatus {
     my ($this, $ifIndex, $enabled) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_ifAdminStatus = '1.3.6.1.2.1.2.2.1.7';
     if (! $this->connectWrite()) {
         return 0;
@@ -817,7 +817,7 @@ sub isStaticPortSecurityEnabled {
 
 sub getPhonesDPAtIfIndex {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my @phones;
     if (! $this->isVoIPEnabled()) {
         $logger->debug("VoIP not enabled on switch " . $this->{_ip});
@@ -828,7 +828,7 @@ sub getPhonesDPAtIfIndex {
 
 sub hasPhoneAtIfIndex {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->isVoIPEnabled()) {
         $logger->debug("VoIP not enabled on switch " . $this->{_ip});
         return 0;
@@ -849,7 +849,7 @@ sub hasPhoneAtIfIndex {
 
 sub isPhoneAtIfIndex {
     my ($this, $mac, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->isVoIPEnabled()) {
         $logger->debug("VoIP not enabled on switch " . $this->{_ip});
         return 0;
@@ -883,7 +883,7 @@ sub isPhoneAtIfIndex {
 
 sub getMaxMacAddresses {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     $logger->error("function is NOT implemented");
     return -1;
 }
@@ -891,26 +891,27 @@ sub getMaxMacAddresses {
 sub getSecureMacAddresses {
     my ($this, $ifIndex) = @_;
     my $secureMacAddrHashRef = {};
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     return $secureMacAddrHashRef;
 }
 
 sub getAllSecureMacAddresses {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $secureMacAddrHashRef = {};
     return $secureMacAddrHashRef;
 }
 
 sub authorizeMAC {
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
     $logger->error("function is NOT implemented");
     return 1;
 }
 
 sub _authorizeMAC {
     my ($this, $ifIndex, $mac, $authorize, $vlan) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     $logger->error("function is NOT implemented");
     return 1;
 }
@@ -920,7 +921,7 @@ sub _authorizeMAC {
 =cut
 sub getRegExpFromList{
     my ($this,@list) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     my %decompHash;
     foreach my $item (@list) {
@@ -972,7 +973,7 @@ sub modifyBitmask {
 =cut
 sub getSysUptime {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $oid_sysUptime = '1.3.6.1.2.1.1.3.0';
     if (! $this->connectRead()) {
         return '';
@@ -989,7 +990,7 @@ sub getSysUptime {
 =cut
 sub getIfType {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_ifType = '1.3.6.1.2.1.2.2.1.3'; #IF-MIB
     if (! $this->connectRead()) {
         return 0;
@@ -1006,7 +1007,7 @@ sub getIfType {
 =cut
 sub _getMacAtIfIndex {
     my ($this,$ifIndex,$vlan) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my @macArray;
     if (! $this->connectRead()) {
         return @macArray;
@@ -1025,7 +1026,7 @@ sub _getMacAtIfIndex {
 
 sub getAllDot1dBasePorts {
     my ($this, @ifIndexes) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! @ifIndexes) {
         @ifIndexes = $this->getManagedIfIndexes();
     }
@@ -1056,7 +1057,7 @@ sub getAllDot1dBasePorts {
 =cut
 sub getDot1dBasePortForThisIfIndex {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_dot1dBasePortIfIndex = '1.3.6.1.2.1.17.1.4.1.2'; #BRIDGE-MIB
     my $dot1dBasePort = undef;
     if (! $this->connectRead()) {
@@ -1078,7 +1079,7 @@ sub getDot1dBasePortForThisIfIndex {
 
 sub getAllVlans {
     my ($this, @ifIndexes) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $vlanHashRef;
     if (! @ifIndexes) {
         @ifIndexes = $this->getManagedIfIndexes();
@@ -1110,7 +1111,7 @@ sub getAllVlans {
 =cut
 sub getVoiceVlan {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if ($this->isVoIPEnabled()) {
         $logger->error("function is NOT implemented");
         return -1;
@@ -1123,7 +1124,7 @@ sub getVoiceVlan {
 =cut
 sub getVlan {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_dot1qPvid = '1.3.6.1.2.1.17.7.1.4.5.1.1'; # Q-BRIDGE-MIB
     if (! $this->connectRead()) {
         return 0;
@@ -1146,7 +1147,7 @@ sub getVlan {
 
 sub getVlans {
     my $this = shift;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_dot1qVlanStaticName = '1.3.6.1.2.1.17.7.1.4.3.1.1'; #Q-BRIDGE-MIB
     my $vlans = {};
     if (! $this->connectRead()) {
@@ -1174,7 +1175,7 @@ sub getVlans {
 
 sub isDefinedVlan {
     my ($this, $vlan) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_dot1qVlanStaticName = '1.3.6.1.2.1.17.7.1.4.3.1.1'; #Q-BRIDGE-MIB
     if (! $this->connectRead()) {
         return 0;
@@ -1191,7 +1192,7 @@ sub isDefinedVlan {
 sub getMacBridgePortHash {
     my $this = shift;
     my $vlan = shift || '';
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_dot1qTpFdbPort = '1.3.6.1.2.1.17.7.1.2.2.1.2'; #Q-BRIDGE-MIB
     my %macBridgePortHash = ();
     if (! $this->connectRead()) {
@@ -1226,7 +1227,7 @@ sub getMacBridgePortHash {
 
 sub getHubs {
     my $this = shift;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my @upLinks = $this->getUpLinks();
     my $hubPorts = {};
     my %macBridgePortHash = $this->getMacBridgePortHash();
@@ -1257,7 +1258,7 @@ sub getHubs {
 
 sub getIfIndexForThisMac {
     my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my @macParts = split(':', $mac);
     if (! $this->connectRead()) {
         return -1;
@@ -1290,7 +1291,7 @@ sub getMacAddrVlan {
     my @upLinks = $this->getUpLinks();
     my %ifIndexMac;
     my %macVlan;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     my $OID_dot1qTpFdbPort = '1.3.6.1.2.1.17.7.1.2.2.1.2'; #Q-BRIDGE-MIB
     if (! $this->connectRead()) {
@@ -1333,7 +1334,7 @@ sub getMacAddrVlan {
 
 sub getAllMacs {
     my ($this, @ifIndexes) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! @ifIndexes) {
         @ifIndexes = $this->getManagedIfIndexes();
     }
@@ -1375,7 +1376,7 @@ sub getAllMacs {
 
 sub getAllIfOctets {
     my ($this, @ifIndexes) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $oid_ifInOctets = '1.3.6.1.2.1.2.2.1.10';
     my $oid_ifOutOctets = '1.3.6.1.2.1.2.2.1.16';
     my $ifOctetsHashRef;
@@ -1451,7 +1452,7 @@ sub isFakeVoIPMac {
 sub getUpLinks {
     my ($this) = @_;
     my @upLinks;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     if (@{$this->{_uplink}}[0] eq 'Dynamic') {
         $logger->warn("Warning: for switch " . $this->{_ip} . ", 'uplink = Dynamic' in config file but this is not supported !");
@@ -1464,7 +1465,7 @@ sub getUpLinks {
 sub getVlanFdbId {
     my ($this, $vlan) = @_;
     my $OID_dot1qVlanFdbId = '1.3.6.1.2.1.17.7.1.4.2.1.3.0'; #Q-BRIDGE-MIB
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     return $vlan;
 }

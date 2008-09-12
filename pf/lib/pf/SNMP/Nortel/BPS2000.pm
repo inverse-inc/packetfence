@@ -29,7 +29,7 @@ use base ('pf::SNMP::Nortel');
 
 sub getPhonesLLDPAtIfIndex {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Nortel");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my @phones;
     if (! $this->isVoIPEnabled()) {
         $logger->debug("VoIP not enabled on switch " . $this->{_ip} . ". getPhonesLLDPAtIfIndex will return empty list.");

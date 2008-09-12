@@ -10,6 +10,7 @@ package pf::trigger;
 
 use strict;
 use warnings;
+use Log::Log4perl;
 
 our ($trigger_desc_sql, $trigger_view_vid_sql, $trigger_view_sql, $trigger_view_enable_sql,
      $trigger_view_all_sql, $trigger_exist_sql, $trigger_view_type_sql, $trigger_add_sql,
@@ -82,14 +83,16 @@ sub trigger_view_type {
 
 sub trigger_delete_vid {
   my ($vid) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::trigger');
   $trigger_delete_vid_sql->execute($vid) || return(0);
-  pflogger("triggers vid $vid deleted", 2);
+  $logger->info("triggers vid $vid deleted");
   return(1);
 }
 
 sub trigger_delete_all {
+  my $logger = Log::Log4perl::get_logger('pf::trigger');
   $trigger_delete_all_sql->execute() || return(0);
-  pflogger("All triggers deleted", 2);
+  $logger->info("All triggers deleted");
   return(1);
 }
 
@@ -106,17 +109,19 @@ sub trigger_exist {
 #
 sub trigger_add {
   my ($vid,$tid_start,$tid_end,$type)=@_;
+  my $logger = Log::Log4perl::get_logger('pf::trigger');
   if (trigger_exist($vid,$tid_start,$tid_end,$type)) {
-    pflogger("attempt to add existing trigger $tid_start $tid_end [$type]", 1);
+    $logger->error("attempt to add existing trigger $tid_start $tid_end [$type]");
     return(2);
   }
   $trigger_add_sql->execute($vid,$tid_start,$tid_end,$type) || return(0);
-  pflogger("trigger $tid_start $tid_end added", 2);
+  $logger->info("trigger $tid_start $tid_end added");
   return(1);
 }
 
 sub trigger_scan {
   my ($addr,$tids)=@_;
+  my $logger = Log::Log4perl::get_logger('pf::trigger');
   eval "use Net::Nessus::ScanLite; 1" || return(0);
   my @return;
   return -1 if (!$addr);
@@ -147,28 +152,28 @@ sub trigger_scan {
 
   $trigger->preferences( { host_expansion => 'none', safe_checks => 'yes', checks_read_timeout => 1 });
   $trigger->plugin_set($pluginlist);
-  &pflogger("plug = $pluginlist addr = $addr user =$user port = $port host = $host ssl = $ssl\n",2);
+  $logger->info("plug = $pluginlist addr = $addr user =$user port = $port host = $host ssl = $ssl\n");
   if ($trigger->login($user,$pass)) {
-        &pflogger("starting to trigger node(s) $addr ", 2);
+        $logger->info("starting to trigger node(s) $addr");
         $trigger->attack($addr);
-        &pflogger("Address $addr total info: ".$trigger->total_info." Total holes: ".$trigger->total_holes,2);
+        $logger->info("Address $addr total info: ".$trigger->total_info." Total holes: ".$trigger->total_holes);
         push @return, "Address $addr total info: ".$trigger->total_info." Total holes: ".$trigger->total_holes."\n";   
         foreach my $info ($trigger->info_list){
                 my $srcmac = ip2mac($info->Host);
                 push (@return,join "|",(0,$srcmac,$info->Host,$info->ScanID, 0, $info->Port,$info->Description));
-                pflogger("Info ID: ". $info->ScanID."  Host: ".$info->Host." Port: ".$info->Port,8);
+                $logger->info("Info ID: ". $info->ScanID."  Host: ".$info->Host." Port: ".$info->Port);
                 trigger_scan_add($info);
         }
         foreach my $info ($trigger->hole_list) {
                 my $tid=$info->ScanID;
                 my $srcmac = ip2mac($info->Host);
                 push (@return,join "|", (1,$srcmac,$info->Host, $tid, $info->Port,$info->Description));
-                pflogger("Hole ID: ". $info->ScanID."  Host: ".$info->Host." Port: ".$info->Port,2);
+                $logger->info("Hole ID: ". $info->ScanID."  Host: ".$info->Host." Port: ".$info->Port);
                 trigger_scan_add($info);
         }
   } else {
         push(@return,"trigger_scan: Nessus login failed: ".$trigger->code.": ".$trigger->error."\n");
-        pflogger("Nessus login failed: ".$trigger->code.": ".$trigger->error,1);
+        $logger->error("Nessus login failed: ".$trigger->code.": ".$trigger->error);
   }
 
    return(@return);
@@ -176,24 +181,25 @@ sub trigger_scan {
 
 sub trigger_scan_add {
   my($info) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::trigger');
   my $tid=$info->ScanID;
   my $srcmac = ip2mac($info->Host);
   if (!$srcmac){
-    pflogger("MAC address for ".$info->Host." not found can not add violation");
+    $logger->error("MAC address for ".$info->Host." not found can not add violation");
     return;
   }
   if (defined $Config{'scan'}{'live_tids'} && grep(/^$tid$/,split(/\s*,\s*/, $Config{'scan'}{'live_tids'}))){
-    pflogger("Trying to add trigger $tid for ($srcmac) (".$info->Host.")", 2);
+    $logger->info("Trying to add trigger $tid for ($srcmac) (".$info->Host.")");
     my @trigger_info=trigger_view_enable($tid,"scan");
     if (!scalar(@trigger_info)) {
-      pflogger("violation not added, no trigger found for scan::${tid} or violation is disabled",4);
+      logger->info("violation not added, no trigger found for scan::${tid} or violation is disabled");
     }
     foreach my $row (@trigger_info){
       my $vid=$row->{'vid'};
       violation_add($srcmac, $vid);
     }
   }else {
-    pflogger("NOT ADDING Trigger - $tid for $srcmac (".$info->Host.") please add $tid to scan.live_tids if you would like this done",1);
+    $logger->warn("NOT ADDING Trigger - $tid for $srcmac (".$info->Host.") please add $tid to scan.live_tids if you would like this done");
   }
 }
 

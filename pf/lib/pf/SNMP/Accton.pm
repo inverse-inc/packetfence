@@ -34,7 +34,7 @@ use Net::SNMP;
 sub getVersion {
     my ($this) = @_;
     my $oid_swOpCodeVer = '1.3.6.1.4.1.259.6.10.74.1.1.3.1.6.1';
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Accton");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->connectRead()) {
         return '';
     }
@@ -51,7 +51,7 @@ sub getVersion {
 sub parseTrap {
     my ($this, $trapString) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Accton");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if ($trapString =~ /^BEGIN TYPE ([23]) END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = INTEGER: \d+ END VARIABLEBINDINGS$/) {
         #trap in 'old' firmware release
         $trapHashRef->{'trapType'} = (($1 == 2) ? "down" : "up");
@@ -75,7 +75,7 @@ sub getTrunkPorts {
     my ($this) = @_;
     my $OID_vlanPortMode = '1.3.6.1.4.1.259.6.10.74.1.12.2.1.2';
     my @trunkPorts;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Accton");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     if (! $this->connectRead()) {
         return @trunkPorts;
@@ -100,7 +100,7 @@ sub getTrunkPorts {
 
 sub getUpLinks {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Accton");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my @upLinks;
 
     if (@{$this->{_uplink}}[0] eq 'Dynamic') {
@@ -113,7 +113,7 @@ sub getUpLinks {
 
 sub _setVlan {
     my ($this,$ifIndex,$newVlan,$oldVlan,$switch_locker_ref) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Accton");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->connectRead()) {
         return 0;
     }

@@ -14,6 +14,7 @@ use warnings;
 use Config::IniFiles;
 use Net::Netmask;
 use Date::Parse;
+use Log::Log4perl;
 
 our ($install_dir, %Default_Config, %Config, $verbosity, $facility, $priority, @listen_ints, @internal_nets, @routed_nets,
      $blackholemac, @managed_nets, @external_nets, @dhcplistener_ints, $isolation_int, $registration_int, $monitor_int, $unreg_mark, $reg_mark, $black_mark, $portscan_sid, 

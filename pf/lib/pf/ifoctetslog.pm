@@ -44,6 +44,7 @@ BEGIN {
 }
 
 use Date::Parse;
+use Log::Log4perl;
 use lib qw(/usr/local/pf/lib);
 use pf::config;
 use pf::db;

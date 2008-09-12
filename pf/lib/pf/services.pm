@@ -13,6 +13,7 @@ use strict;
 use warnings;
 use File::Basename;
 use Config::IniFiles;
+use Log::Log4perl;
 
 BEGIN {
   use Exporter ();
@@ -48,9 +49,10 @@ if (isenabled($Config{'trapping'}{'detection'}) && $monitor_int) {
 
 sub service_ctl {
   my ($daemon, $action, $quick) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::pfservices');
   my $service = $Config{'services'}{$daemon};
   my $exe = basename($service);
-  pflogger("$service $action", 2);
+  $logger->info("$service $action");
   CASE: {
     $action eq "start" && do {
       return(0) if ($exe=~/dhcp/ && (! ($exe=~/pfdhcplistener/)) && $Config{'network'}{'mode'}!~/^dhcp$/);	
@@ -60,12 +62,12 @@ sub service_ctl {
       return(0) if ($exe=~/pfsetvlan/ && !isenabled($Config{'network'}{'vlan'}));
       if ($daemon=~/(dhcpd|named|snort|httpd|snmptrapd)/ && !$quick){
          my $confname="generate_".$daemon."_conf";
-         pflogger("Generating configuration file $confname for $exe");
+         $logger->info("Generating configuration file $confname for $exe");
          ($pf::services::{$confname} or sub { print "No such sub: $_\n" })->();
       }
       if (defined($flags{$daemon})) {
         if ($daemon ne 'pfdhcplistener') {
-          pflogger("Starting $exe with '$service $flags{$daemon}'");
+          $logger->info("Starting $exe with '$service $flags{$daemon}'");
           return(system("$service $flags{$daemon}"));
         } else {
           if (isenabled($Config{'network'}{'dhcpdetector'})) {
@@ -73,7 +75,7 @@ sub service_ctl {
             push @devices, @dhcplistener_ints;
             @devices=get_dhcp_devs() if ( $Config{'network'}{'mode'} =~ /^dhcp$/i );
             foreach my $dev (@devices){
-              pflogger("Starting $exe with '$service -i $dev $flags{$daemon}'");
+              $logger->info("Starting $exe with '$service -i $dev $flags{$daemon}'");
               system("$service -i $dev $flags{$daemon}");
             }
             return 1;
@@ -90,7 +92,7 @@ sub service_ctl {
       my $maxWait = 10;
       my $curWait = 0;
       while (($curWait < $maxWait) && (service_ctl($exe,"status") != 0)) {
-        pflogger("Waiting for $exe to stop");
+        $logger->info("Waiting for $exe to stop");
         sleep(2);
         $curWait++;
       }
@@ -148,6 +150,7 @@ sub service_list {
 
 sub generate_dhcpd_conf {
   my %tags;
+  my $logger = Log::Log4perl::get_logger('pf::services');
   $tags{'template'}           = "$install_dir/conf/templates/dhcpd.conf";
   $tags{'domain'}             = $Config{'general'}{'domain'};
   $tags{'hostname'}           = $Config{'general'}{'hostname'};
@@ -156,7 +159,7 @@ sub generate_dhcpd_conf {
   parse_template(\%tags, "$install_dir/conf/templates/dhcpd.conf", "$install_dir/conf/dhcpd.conf");
 
   my %shared_nets;
-  pflogger("generating $install_dir/conf/dhcpd.conf", 4);
+  $logger->info("generating $install_dir/conf/dhcpd.conf");
   foreach my $dhcp (tied(%Config)->GroupMembers("dhcp")) {
     my @registered_scopes;
     my @unregistered_scopes;
@@ -347,17 +350,19 @@ sub generate_dhcpd_reg {
 
 
 sub generate_named_conf {
+  my $logger = Log::Log4perl::get_logger('pf::services');
   my %tags;
   $tags{'template'}   = "$install_dir/conf/templates/named.conf";
   $tags{'install_dir'} = $install_dir;
   $tags{'dnsservers'}   = $Config{'general'}{'dnsservers'};
   #convert comma separated list into semo-colon separated one
   $tags{'dnsservers'} =~ s/,/; /g;
-  pflogger("generating $install_dir/conf/named.conf", 4);
+  $logger->info("generating $install_dir/conf/named.conf");
   parse_template(\%tags, "$install_dir/conf/templates/named.conf", "$install_dir/conf/named.conf");
 }
 
 sub generate_snort_conf {
+  my $logger = Log::Log4perl::get_logger('pf::services');
   my %tags;
   $tags{'template'}      = "$install_dir/conf/templates/snort.conf";
   $tags{'internal-ips'}   = join(",",get_internal_ips());
@@ -375,24 +380,26 @@ sub generate_snort_conf {
 	push @rules,"include $rule";
   }
   $tags{'snort_rules'} = join("\n",@rules);
-  pflogger("generating $install_dir/conf/snort.conf", 4);
+  $logger->info("generating $install_dir/conf/snort.conf");
   parse_template(\%tags, "$install_dir/conf/templates/snort.conf", "$install_dir/conf/snort.conf");
 }
 
 sub generate_sysctl_conf {
+  my $logger = Log::Log4perl::get_logger('pf::services');
   my %tags;
   $tags{'template'} = "$install_dir/conf/templates/sysctl.conf";
-  pflogger("generating $install_dir/conf/sysctl.conf", 4);
+  $logger->info("generating $install_dir/conf/sysctl.conf");
   parse_template(\%tags, "$install_dir/conf/templates/sysctl.conf", "$install_dir/conf/sysctl.conf");
 }
 
 sub generate_snmptrapd_conf {
+  my $logger = Log::Log4perl::get_logger('pf::services');
   my %tags;
   my %switchConfig;
   tie %switchConfig, 'Config::IniFiles', (-file => "$install_dir/conf/switches.conf");
   my @errors = @Config::IniFiles::errors;
   if (scalar(@errors)) {
-      pflogger("Error reading config file: " . join("\n", @errors), 1);
+      $logger->error("Error reading config file: " . join("\n", @errors));
       return 0;
   }
 
@@ -405,12 +412,13 @@ sub generate_snmptrapd_conf {
 
   $tags{'template'} = "$install_dir/conf/templates/snmptrapd.conf";
   $tags{'communityTrap'} = $switchConfig{'default'}{'communityTrap'};
-  pflogger("generating $install_dir/conf/snmptrapd.conf", 4);
+  $logger->info("generating $install_dir/conf/snmptrapd.conf");
   parse_template(\%tags, "$install_dir/conf/templates/snmptrapd.conf", "$install_dir/conf/snmptrapd.conf");
 }
 
 sub generate_httpd_conf {
   my (%tags, $httpdconf_fh, $authconf_fh);
+  my $logger = Log::Log4perl::get_logger('pf::services');
   $tags{'template'}        = "$install_dir/conf/templates/httpd.conf";
   $tags{'internal-nets'}   = join(" ",get_internal_nets());
   $tags{'routed-nets'}     = join(" ",get_routed_nets());
@@ -426,9 +434,9 @@ sub generate_httpd_conf {
       if ($proxy !~ /^\/(content|admin|redirect|cgi-bin)/) {
         push @proxies, "ProxyPassReverse $proxy $proxy_configs{$proxy}";
         push @proxies, "ProxyPass $proxy $proxy_configs{$proxy}";
-        pflogger("proxy $proxy is not relative - add path to apache rewrite exclude list!",1);
+        $logger->warn("proxy $proxy is not relative - add path to apache rewrite exclude list!");
       } else {
-        pflogger("proxy $proxy conflicts with PF paths!", 1);
+        $logger->warn("proxy $proxy conflicts with PF paths!");
         next;
       }
     } else {
@@ -446,7 +454,7 @@ sub generate_httpd_conf {
       my $vid = $row->{'vid'};
       next  if ((! defined($url)) || ($url =~ /^\//));
       if ($url !~ /^(http|https):\/\//) {
-        pflogger("vid ".$vid.": unrecognized content URL: ".$url, 1);
+        $logger->warn("vid ".$vid.": unrecognized content URL: ".$url);
         next;
       }
       if ($url =~ /^((http|https):\/\/.+)\/$/) {
@@ -478,7 +486,7 @@ sub generate_httpd_conf {
   }
   $tags{'auth-aliases'} = join("\n", @authaliases);
 
-  pflogger("generating $install_dir/conf/httpd.conf", 4);
+  $logger->info("generating $install_dir/conf/httpd.conf");
   parse_template(\%tags, "$install_dir/conf/templates/httpd.conf", "$install_dir/conf/httpd.conf");
 
   # append authentication code
@@ -501,6 +509,7 @@ sub generate_httpd_conf {
 }
 
 sub read_violations_conf {
+  my $logger = Log::Log4perl::get_logger('pf::services');
   my %violations_conf;
   tie %violations_conf, 'Config::IniFiles', ( -file => "/usr/local/pf/conf/violations.conf" );
   my %violations = class_set_defaults(%violations_conf);
@@ -515,7 +524,7 @@ sub read_violations_conf {
             my ($type,$tid)=split(/::/,$trigger);
             $type=lc($type);
             if (!grep(/^$type$/i, @valid_trigger_types)) {
-               pflogger("invalid trigger'$type' found at $violation", 1) ;
+               $logger->warn("invalid trigger'$type' found at $violation");
                next;
             } 
             if ($tid=~/(\d+)-(\d+)/){
@@ -542,6 +551,7 @@ sub read_violations_conf {
 #
 sub generate_snort_rules {
   my (%violations) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::services');
   open(RULES, "> $install_dir/conf/snort/violation.rules");
   print RULES "# This file is auto-generated from $install_dir/conf/violations.conf - do not edit!\n";
   print RULES "pass  ip \$INTERNAL_IPS any -> any any\n";
@@ -549,7 +559,7 @@ sub generate_snort_rules {
   foreach my $violation (sort keys %violations) {
     next if (!(defined($violations{$violation}{'snortrule'})));
     if ($violation >= 1200000 && $violation < 1200100) {
-      pflogger("violation $violation out of range, skipping", 1);
+      $logger->info("violation $violation out of range, skipping");
       next;
     }
     print RULES "# " if ($violations{$violation}{'disable'} =~ /^y$/i);

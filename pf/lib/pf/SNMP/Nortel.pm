@@ -34,7 +34,7 @@ use Data::Dumper;
 sub getVersion {
     my ($this) = @_;
     my $oid_s5ChasVer = '1.3.6.1.4.1.45.1.6.3.1.5';
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Nortel");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->connectRead()) {
         return '';
     }
@@ -51,7 +51,7 @@ sub getVersion {
 sub parseTrap {
     my ($this, $trapString) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Nortel");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if ($trapString =~ /^BEGIN TYPE ([23]) END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = INTEGER: \d+\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.7\.\d+ = INTEGER: [^|]+\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.8\.\d+ = INTEGER: [^)]+\)/) {
         $trapHashRef->{'trapType'} = (($1 == 2) ? "down" : "up");
         $trapHashRef->{'trapIfIndex'} = $2;
@@ -79,7 +79,7 @@ sub getTrunkPorts {
     my ($this) = @_;
     my $OID_rcVlanPortType = '1.3.6.1.4.1.2272.1.3.3.1.4'; #RC-VLAN-MIB
     my @trunkPorts;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Nortel");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     if (! $this->connectRead()) {
         return @trunkPorts;
@@ -116,13 +116,13 @@ sub getUpLinks {
 
 sub getVoiceVlan {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Nortel");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     return ($this->{_voiceVlan} || -1);
 }
 
 sub getVlans {
     my $this = shift;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Nortel");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_rcVlanName = '1.3.6.1.4.1.2272.1.3.2.1.2';  #RC-VLAN-MIB
     my $vlans = {};
     if (! $this->connectRead()) {
@@ -146,7 +146,7 @@ sub getVlans {
 
 sub isDefinedVlan {
     my ($this, $vlan) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Nortel");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_rcVlanName = '1.3.6.1.4.1.2272.1.3.2.1.2';  #RC-VLAN-MIB
     if (! $this->connectRead()) {
         return 0;
@@ -162,7 +162,7 @@ sub isDefinedVlan {
 
 sub getAllVlans {
     my ($this, @ifIndexes) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Nortel");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $vlanHashRef;
     if (! @ifIndexes) {
         @ifIndexes = $this->getManagedIfIndexes();
@@ -190,7 +190,7 @@ sub getAllVlans {
 sub getVlan {
     my ($this, $ifIndex) = @_;
     my $OID_rcVlanPortDefaultVlanId = '1.3.6.1.4.1.2272.1.3.3.1.7'; # RC-VLAN-MIB
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Nortel");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->connectRead()) {
         return 0;
     }
@@ -205,7 +205,7 @@ sub _setVlan {
     my ($this, $ifIndex, $newVlan, $oldVlan,$switch_locker_ref) = @_;
     my $OID_rcVlanPortMembers = '1.3.6.1.4.1.2272.1.3.2.1.11'; #RC-VLAN-MIB
     my $OID_rcVlanPortDefaultVlanId = '1.3.6.1.4.1.2272.1.3.3.1.7'; #RC-VLAN-MIB
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Nortel");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $result;
 
     if (! $this->connectRead()) {
@@ -257,7 +257,7 @@ sub getIfIndexFromBoardPort {
 
 sub getAllSecureMacAddresses {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Nortel");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_s5SbsAuthCfgAccessCtrlType = '1.3.6.1.4.1.45.1.6.5.3.10.1.4'; #S5-SWITCH-BAYSECURE-MIB
 
     my $secureMacAddrHashRef = {};
@@ -282,7 +282,7 @@ sub getAllSecureMacAddresses {
 
 sub getSecureMacAddresses {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Nortel");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_s5SbsAuthCfgAccessCtrlType = '1.3.6.1.4.1.45.1.6.5.3.10.1.4'; #S5-SWITCH-BAYSECURE-MIB
 
     my ($boardIndx, $portIndx) = $this->getBoardPortFromIfIndex($ifIndex);
@@ -309,14 +309,14 @@ sub getSecureMacAddresses {
 
 sub getMaxMacAddresses {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Nortel");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     #so that everything runs like on a Cisco
     return 2;
 }
 
 sub authorizeMAC {
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Nortel");
     my ($this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     if (($deauthMac) && (! $this->isFakeMac($deauthMac))) {
         $this->_authorizeMAC($ifIndex, $deauthMac, 0);
@@ -336,7 +336,7 @@ sub _authorizeMAC {
     my $OID_s5SbsAuthCfgAccessCtrlType = '1.3.6.1.4.1.45.1.6.5.3.10.1.4';
     my $OID_s5SbsAuthCfgStatus = '1.3.6.1.4.1.45.1.6.5.3.10.1.5';
     #my $OID_s5SbsAuthCfgSecureList = '1.3.6.1.4.1.45.1.6.5.3.10.1.6';
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Nortel");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     if (! $this->isProductionMode()) {
         $logger->info("not in production mode ... we won't delete an entry from the SecureMacAddrTable");
@@ -394,7 +394,7 @@ sub isStaticPortSecurityEnabled {
 
 sub setPortSecurityDisabled {
     my ($this, $ifIndex, $trueFalse) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Nortel");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     $logger->info("function not implemented yet");
     return 1;
@@ -402,7 +402,7 @@ sub setPortSecurityDisabled {
 
 sub isPortSecurityEnabled {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Nortel");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     my $oid_s5SbsSecurityStatus = '1.3.6.1.4.1.45.1.6.5.3.3';
     my $oid_s5SbsSecurityAction = '1.3.6.1.4.1.45.1.6.5.3.5';
@@ -458,7 +458,7 @@ sub isPortSecurityEnabled {
 
 sub getPhonesDPAtIfIndex {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Nortel");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my @phones;
     if (! $this->isVoIPEnabled()) {
         $logger->debug("VoIP not enabled on switch " . $this->{_ip} . ". getPhonesDPAtIfIndex will return empty list.");
@@ -469,7 +469,7 @@ sub getPhonesDPAtIfIndex {
 
 sub getPhonesLLDPAtIfIndex {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Nortel");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my @phones;
     if (! $this->isVoIPEnabled()) {
         $logger->debug("VoIP not enabled on switch " . $this->{_ip} . ". getPhonesLLDPAtIfIndex will return empty list.");

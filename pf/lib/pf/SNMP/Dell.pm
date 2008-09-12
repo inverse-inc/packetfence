@@ -33,7 +33,7 @@ use Data::Dumper;
 sub getVersion {
     my ($this) = @_;
     my $oid_productIdentificationBuildNumber = '1.3.6.1.4.1.674.10895.3000.1.2.100.5.0'; # Dell-Vendor-MIB
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Dell");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->connectRead()) {
         return '';
     }
@@ -47,7 +47,7 @@ sub getVersion {
 sub parseTrap {
     my ($this, $trapString) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Dell");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if ($trapString =~ /OID: \.1\.3\.6\.1\.6\.3\.1\.1\.5\.([34])\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = INTEGER/) {
         $trapHashRef->{'trapType'} = (($1 == 3) ? "down" : "up");
         $trapHashRef->{'trapIfIndex'} = $2;
@@ -65,7 +65,7 @@ sub parseTrap {
 # 2 => dynamic
 sub getVmVlanType {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Dell");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->connectRead()) {
         return 0;
     }

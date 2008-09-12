@@ -22,7 +22,7 @@ BEGIN {
   @EXPORT = qw(class_db_prepare class_view class_view_all class_trappable class_view_actions class_add class_delete class_merge);
 }
 
-
+use Log::Log4perl;
 use lib qw(/usr/local/pf/lib);
 use pf::config;
 use pf::util;
@@ -76,48 +76,53 @@ sub class_view_actions {
 
 sub class_add {
   my $id = $_[0];
+  my $logger = Log::Log4perl::get_logger('pf::class');
   if (class_exist($id)) {
-    pflogger("attempt to add existing class $id", 1);
+    $logger->warn("attempt to add existing class $id");
     return(2);
   }
   $class_add_sql->execute(@_) || return(0);
-  pflogger("class $id added", 2);
+  $logger->info("class $id added");
   return(1);
 }
 
 sub class_delete {
   my ($id) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::class');
   $class_delete_sql->execute($id) || return(0);
-  pflogger("class $id deleted", 2);
+  $logger->info("class $id deleted");
   return(1)  
 }
 
 sub class_cleanup {
+  my $logger = Log::Log4perl::get_logger('pf::class');
   $class_cleanup_sql->execute() || return(0);
-  pflogger("class cleanup completed", 2);
+  $logger->info("class cleanup completed");
   return(1)  
 }
 
 sub class_modify {
   my $id = shift(@_);
+  my $logger = Log::Log4perl::get_logger('pf::class');
   push(@_, $id);
   if (class_exist($id)) {
-    pflogger("modify existing existing class $id", 1);
+    $logger->info("modify existing existing class $id");
   }
   $class_modify_sql->execute(@_) || return(0);
-  pflogger("class $id modified", 2);
+  $logger->info("class $id modified");
   return(1);
 }
 
 sub class_merge {
   my $id = shift(@_);
+  my $logger = Log::Log4perl::get_logger('pf::class');
   my $triggers = pop(@_);
   my $actions = pop(@_);
 
-  pflogger("inserting $id",4);
+  $logger->info("inserting $id");
   # delete existing violation actions
   if (!action_delete_all($id)) {
-    pflogger("error deleting actions for class $id",1);
+    $logger->error("error deleting actions for class $id");
     return(0);
   }
 
@@ -142,8 +147,6 @@ sub class_merge {
       trigger_add($id,$tid_start,$tid_end,$type);
     }
   }
-
-  
 }
 
 1

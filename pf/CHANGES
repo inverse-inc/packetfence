@@ -1,3 +1,10 @@
+1.8.0
+        undef operator in SNMP.pm
+          (http://www.packetfence.org/mantis/view.php?id=382)
+        Bareword "Net::SNMP::OCTET_STRING" not allowed
+          (http://www.packetfence.org/mantis/view.php?id=383)
+
+
 1.7.3
         not all port security traps are handled
           (http://www.packetfence.org/mantis/view.php?id=363)

@@ -11,6 +11,7 @@ package pf::person;
 
 use strict;
 use warnings;
+use Log::Log4perl;
 
 our ($person_modify_sql, $person_exist_sql, $person_delete_sql, $person_add_sql, 
      $person_view_sql, $person_view_all_sql, $person_nodes_sql);
@@ -56,15 +57,16 @@ sub person_exist {
 #
 sub person_delete {
   my ($pid) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::person');
   return(0) if ($pid eq "1"); 
 
   if (!person_exist($pid)) {
-    pflogger("delete of non-existent person '$pid' failed", 2);
+    $logger->error("delete of non-existent person '$pid' failed");
     return 0;
   }
                 
   $person_delete_sql->execute($pid) || return(0);
-  pflogger("person $pid deleted", 2);
+  $logger->info("person $pid deleted");
   return(1)
 }
 
@@ -73,12 +75,13 @@ sub person_delete {
 #
 sub person_add {
   my ($pid,%data)=@_;
+  my $logger = Log::Log4perl::get_logger('pf::person');
   if (person_exist($pid)) {
-    pflogger("attempt to add existing person $pid", 1);
+    $logger->error("attempt to add existing person $pid");
     return(2);
   }
   $person_add_sql->execute($pid,$data{'notes'}) || return(0);
-  pflogger("person $pid added", 2);
+  $logger->info("person $pid added");
   return(1);
 }
 
@@ -100,12 +103,13 @@ sub person_view_all {
 
 sub person_modify {
   my($pid,%data) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::person');
   if (!person_exist($pid)) {
     if (person_add($pid,%data)) {
-      pflogger("modify of non-existent person $pid attempted - person added", 1);
+      $logger->warn("modify of non-existent person $pid attempted - person added");
       return(2);
     } else {
-      pflogger("modify of non-existent person $pid attempted - person add failed", 1);
+      $logger->error("modify of non-existent person $pid attempted - person add failed");
       return(0);
     }
   }
@@ -117,12 +121,12 @@ sub person_modify {
   my $new_notes = $existing->{'notes'};
 
   if ($pid ne $new_pid && person_exist($new_pid)) {
-    pflogger("modify of pid $pid to $new_pid conflicts with existing person", 1);
+    $logger->error("modify of pid $pid to $new_pid conflicts with existing person");
     return(0);
   }
 
   $person_modify_sql->execute($new_pid, $new_notes, $pid) || return(0);
-  pflogger("person $pid modified to $new_pid", 2);
+  $logger->info("person $pid modified to $new_pid");
   return(1);
 }
 

@@ -36,7 +36,7 @@ use Data::Dumper;
 # return the list of managed ports
 sub getManagedPorts {
     my $this = shift;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Catalyst_3500XL");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $oid_ifType = '1.3.6.1.2.1.2.2.1.3'; # MIB: ifTypes
     my $oid_ifDescr = '1.3.6.1.2.1.2.2.1.2';
     my @nonUpLinks;
@@ -97,7 +97,7 @@ sub clearMacAddressTable {
     my $command;
     my $session;
     my $oid_ifDescr = '1.3.6.1.2.1.2.2.1.2';
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Catalyst_3500XL");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     eval {
         $session = Net::Telnet::Cisco->new(Host => $this->{_ip}, Timeout=>5);
@@ -134,7 +134,7 @@ sub clearMacAddressTable {
 
 sub getMaxMacAddresses {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Catalyst_3500XL");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     #CISCO-C2900-MIB
     my $OID_c2900PortUsageApplication = '1.3.6.1.4.1.9.9.87.1.4.1.1.3';
     my $OID_c2900PortIfIndex = '1.3.6.1.4.1.9.9.87.1.4.1.1.25';
@@ -201,7 +201,7 @@ sub getMaxMacAddresses {
 
 sub ping {
     my ($this, $ip) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Catalyst_3500XL");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $result;
     my $random;
 

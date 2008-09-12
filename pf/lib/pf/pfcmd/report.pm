@@ -9,6 +9,7 @@
 
 use strict;
 use warnings;
+use Log::Log4perl;
 
 use lib qw(/usr/local/pf/lib);
 use pf::db;

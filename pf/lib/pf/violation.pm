@@ -11,6 +11,7 @@ package pf::violation;
 
 use strict;
 use warnings;
+use Log::Log4perl;
 
 our ($violation_desc_sql, $violation_add_sql, $violation_exist_sql, $violation_exist_open_sql,
      $violation_exist_id_sql, $violation_view_sql, $violation_view_all_sql, $violation_view_top_sql,
@@ -74,15 +75,16 @@ sub violation_desc {
 #
 sub violation_modify {
   my ($id,%data)=@_;
+  my $logger = Log::Log4perl::get_logger('pf::violation');
   return(0) if (!$id);
   my $existing = violation_exist_id($id);
 
   if (!$existing) {
     if (violation_add($data{mac},$data{vid},%data)) {
-      pflogger("modify of non-existent violation $id attempted - violation added", 1);
+      $logger->warn("modify of non-existent violation $id attempted - violation added");
       return(2);
     } else {
-      pflogger("modify of non-existent node $data{mac} attempted - node add failed", 1);
+      $logger->error("modify of non-existent violation $id attempted - violation add failed");
       return(0);
     }
   }
@@ -90,7 +92,7 @@ sub violation_modify {
     $existing->{$item} = $data{$item};
   }
 
-  pflogger("violation for mac " . $existing->{mac} . " vid " . $existing->{vid} . " modified", 2);
+  $logger->info("violation for mac " . $existing->{mac} . " vid " . $existing->{vid} . " modified");
   $violation_modify_sql->execute($existing->{mac},$existing->{vid},$existing->{start_date},$existing->{release_date},
 				 $existing->{status},$existing->{ticket_ref},$existing->{notes},$id) || return(0);
   return(1);
@@ -195,6 +197,7 @@ sub violation_view_all_active {
 #
 sub violation_add  {
   my ($mac,$vid,%data) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::violation');
   return(0) if (!$vid);
   #print Dumper(%data);
   #defaults
@@ -206,7 +209,7 @@ sub violation_add  {
 
   # Is this MAC and ID aready in DB?  if so don't add another
   if (violation_exist_open($mac, $vid)) {
-    pflogger("violation $vid already exists for $mac",4);
+    $logger->warn("violation $vid already exists for $mac");
     return(1);
   }
 
@@ -215,12 +218,12 @@ sub violation_add  {
   if($latest_vid) {
     # don't add a hostscan if violation exists
     if ($vid == $portscan_sid) {
-      pflogger("hostscan detected from $mac, but violation $latest_vid exists - ignoring",2);
+      $logger->warn("hostscan detected from $mac, but violation $latest_vid exists - ignoring");
       return(1);
     }
     #replace UNKNOWN hostscan with known violation
     if ($latest_vid == $portscan_sid) {
-      pflogger("violation $vid detected for $mac - updating existing hostscan entry",2);
+      $logger->info("violation $vid detected for $mac - updating existing hostscan entry");
       violation_force_close($mac,$portscan_sid);
     }
   }
@@ -232,28 +235,29 @@ sub violation_add  {
     # not a new violation check violation
     my ($remaining_time) = violation_grace($mac, $vid);
     if ($remaining_time > 0) {
-      pflogger("$remaining_time grace remaining on violation $vid for node $mac",4);
+      $logger->info("$remaining_time grace remaining on violation $vid for node $mac");
       return(1);
     } else {
-      pflogger("grace expired on violation $vid for node $mac",2);
+      $logger->info("grace expired on violation $vid for node $mac");
     }
   }
 
   # insert violation into db
   $violation_add_sql->execute($mac,$vid,$data{start_date},$data{release_date},$data{status},$data{ticket_ref},$data{notes}) || return(0);
-  pflogger("violation $vid added for $mac",2);
+  $logger->info("violation $vid added for $mac");
   action_execute($mac, $vid);
   return(1);
 }
 
 sub violation_trigger {
   my ($mac,$tid,$type,%data) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::violation');
   return(0) if (!$tid);
   $type=lc($type);
 
   my @trigger_info=trigger_view_enable($tid,$type);
   if (!scalar(@trigger_info)) {
-    pflogger("violation not added, no trigger found for ${type}::${tid} or violation is disabled",12);
+    $logger->debug("violation not added, no trigger found for ${type}::${tid} or violation is disabled");
   }
   foreach my $row (@trigger_info){
     violation_add($mac,$row->{'vid'},%data);
@@ -270,6 +274,7 @@ sub violation_delete {
 #
 sub violation_close {
   my ($mac,$vid) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::violation');
 
   my $class_info = class_view($vid);
   # check auto_enable = 'N'
@@ -285,7 +290,7 @@ sub violation_close {
     unmark_node($mac, $vid);
     my $grace = $class_info->{'grace_period'};
     $violation_close_sql->execute($mac,$vid) || return(0);
-    pflogger("violation $vid closed for $mac",2);
+    $logger->info("violation $vid closed for $mac");
     return($grace);
   }
   return(-1);
@@ -295,9 +300,10 @@ sub violation_close {
 #
 sub violation_force_close {
   my ($mac,$vid) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::violation');
   #unmark_node($mac, $vid);
   $violation_close_sql->execute($mac,$vid) || return(0);
-  pflogger("violation $vid closed for $mac since it's a non-trap violation",2);
+  $logger->warn("violation $vid closed for $mac since it's a non-trap violation");
   return(1);
 } 
 
