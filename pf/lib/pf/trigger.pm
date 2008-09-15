@@ -14,7 +14,7 @@ use Log::Log4perl;
 
 our ($trigger_desc_sql, $trigger_view_vid_sql, $trigger_view_sql, $trigger_view_enable_sql,
      $trigger_view_all_sql, $trigger_exist_sql, $trigger_view_type_sql, $trigger_add_sql,
-     $trigger_delete_vid_sql, $trigger_delete_all_sql, $trigger_view_tid_sql);
+     $trigger_delete_vid_sql, $trigger_delete_all_sql, $trigger_view_tid_sql, $trigger_db_prepared);
 
 BEGIN {
   use Exporter ();
@@ -31,10 +31,14 @@ use pf::util;
 use pf::violation qw(violation_trigger violation_add);
 use pf::iplog qw(ip2mac);
 
-trigger_db_prepare($dbh) if (!$thread);
+$trigger_db_prepared = 0;
+#trigger_db_prepare($dbh) if (!$thread);
 
 sub trigger_db_prepare {
   my ($dbh) = @_;
+  db_connect($dbh);
+  my $logger = Log::Log4perl::get_logger('pf::trigger');
+  $logger->info("Preparing pf::trigger database queries");
   $trigger_desc_sql=$dbh->prepare( qq [ desc `trigger` ] );
   $trigger_view_sql=$dbh->prepare( qq[ select tid_start,tid_end,class.vid,type,description from `trigger`,class where class.vid=`trigger`.vid and tid_start<=? and tid_end>=? and type=?]);
   $trigger_view_enable_sql=$dbh->prepare( qq[ select tid_start,tid_end,class.vid,type from `trigger`,class where class.vid=`trigger`.vid and tid_start<=? and tid_end>=? and type=? and disable="N"]);
@@ -46,43 +50,52 @@ sub trigger_db_prepare {
   $trigger_add_sql=$dbh->prepare( qq [ insert into `trigger`(vid,tid_start,tid_end,type) values(?,?,?,?) ]);
   $trigger_delete_vid_sql=$dbh->prepare( qq [ delete from `trigger` where vid=? ]);
   $trigger_delete_all_sql=$dbh->prepare( qq [ delete from `trigger` ]);
+  $trigger_db_prepared = 1;
 }
 
 sub trigger_desc {
- return db_data($trigger_desc_sql);
+  trigger_db_prepare($dbh) if (! $trigger_db_prepared);
+  return db_data($trigger_desc_sql);
 }
 
 sub trigger_view {
   my ($tid,%type) = @_;
+  trigger_db_prepare($dbh) if (! $trigger_db_prepared);
   return db_data($trigger_view_sql,$tid,$tid,$type{type});
 }
 
 sub trigger_view_enable {
   my ($tid,$type) = @_;
+  trigger_db_prepare($dbh) if (! $trigger_db_prepared);
   return db_data($trigger_view_enable_sql,$tid,$tid,$type);
 }
 
 sub trigger_view_vid {
   my ($vid) = @_;
+  trigger_db_prepare($dbh) if (! $trigger_db_prepared);
   return db_data($trigger_view_vid_sql,$vid);
 }  
 
 sub trigger_view_tid {
   my ($tid) = @_;
+  trigger_db_prepare($dbh) if (! $trigger_db_prepared);
   return db_data($trigger_view_tid_sql,$tid,$tid);
 }
 
 sub trigger_view_all {
+  trigger_db_prepare($dbh) if (! $trigger_db_prepared);
   return db_data($trigger_view_all_sql);
 }     
 
 sub trigger_view_type {
   my ($type) = @_;
+  trigger_db_prepare($dbh) if (! $trigger_db_prepared);
   return db_data($trigger_view_type_sql,$type);
 }     
 
 sub trigger_delete_vid {
   my ($vid) = @_;
+  trigger_db_prepare($dbh) if (! $trigger_db_prepared);
   my $logger = Log::Log4perl::get_logger('pf::trigger');
   $trigger_delete_vid_sql->execute($vid) || return(0);
   $logger->info("triggers vid $vid deleted");
@@ -91,6 +104,7 @@ sub trigger_delete_vid {
 
 sub trigger_delete_all {
   my $logger = Log::Log4perl::get_logger('pf::trigger');
+  trigger_db_prepare($dbh) if (! $trigger_db_prepared);
   $trigger_delete_all_sql->execute() || return(0);
   $logger->info("All triggers deleted");
   return(1);
@@ -98,6 +112,7 @@ sub trigger_delete_all {
 
 sub trigger_exist {
   my ($vid,$tid_start,$tid_end,$type) = @_;
+  trigger_db_prepare($dbh) if (! $trigger_db_prepared);
   $trigger_exist_sql->execute($vid,$tid_start,$tid_end,$type) || return(0);
   my ($val) = $trigger_exist_sql->fetchrow_array();
   $trigger_exist_sql->finish();
@@ -110,6 +125,7 @@ sub trigger_exist {
 sub trigger_add {
   my ($vid,$tid_start,$tid_end,$type)=@_;
   my $logger = Log::Log4perl::get_logger('pf::trigger');
+  trigger_db_prepare($dbh) if (! $trigger_db_prepared);
   if (trigger_exist($vid,$tid_start,$tid_end,$type)) {
     $logger->error("attempt to add existing trigger $tid_start $tid_end [$type]");
     return(2);

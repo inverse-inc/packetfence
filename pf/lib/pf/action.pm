@@ -13,7 +13,7 @@ package pf::action;
 use strict;
 use warnings;
 
-our ($action_add_sql, $action_delete_sql, $action_delete_all_sql, $action_exist_sql, $action_view_sql, $action_view_all_sql);
+our ($action_add_sql, $action_delete_sql, $action_delete_all_sql, $action_exist_sql, $action_view_sql, $action_view_all_sql, $action_db_prepared);
 
 BEGIN {
   use Exporter ();
@@ -34,20 +34,26 @@ use pf::violation qw(violation_force_close);
 use pf::iplog qw(mac2ip);
 use pf::iptables qw(mark_node);
 
-action_db_prepare($dbh) if (!$thread);
+$action_db_prepared = 0;
+#action_db_prepare($dbh) if (!$thread);
 
 sub action_db_prepare {
   my ($dbh) = @_;
+  db_connect($dbh);
+  my $logger = Log::Log4perl::get_logger('pf::action');
+  $logger->info("Preparing pf::action database queries");
   $action_add_sql=$dbh->prepare( qq[ insert into action(vid,action) values(?,?) ]);
   $action_delete_sql=$dbh->prepare( qq[ delete from action where vid=? and action=? ]);
   $action_delete_all_sql=$dbh->prepare( qq[ delete from action where vid=? ]);
   $action_exist_sql=$dbh->prepare( qq[ select vid,action from action where vid=? and action=? ]);
   $action_view_sql=$dbh->prepare( qq[ select vid,action from action where vid=? and action=? ]);
   $action_view_all_sql=$dbh->prepare( qq[ select vid,action from action where vid=? ]);
+  $action_db_prepared = 1;
 }
 
 sub action_exist {
   my ($vid,$action) = @_;
+  action_db_prepare($dbh) if (! $action_db_prepared);
   $action_exist_sql->execute($vid,$action) || return(0);
   my ($val) = $action_exist_sql->fetchrow_array();
   $action_exist_sql->finish();
@@ -56,6 +62,7 @@ sub action_exist {
 
 sub action_add {
   my ($vid, $action) = @_;
+  action_db_prepare($dbh) if (! $action_db_prepared);
   my $logger = Log::Log4perl::get_logger('pf::action');
   if (action_exist($vid, $action)) {
     $logger->info("attempt to add existing action $action to class $vid");
@@ -68,6 +75,7 @@ sub action_add {
 
 sub action_view {
   my ($vid, $action) = @_;
+  action_db_prepare($dbh) if (! $action_db_prepared);
   $action_view_sql->execute($vid,$action) || return(0);
    my $ref = $action_view_sql->fetchrow_hashref();
   # just get one row and finish
@@ -77,11 +85,13 @@ sub action_view {
 
 sub action_view_all {
   my ($vid) = @_;
+  action_db_prepare($dbh) if (! $action_db_prepared);
   return db_data($action_view_all_sql,$vid);
 }
 
 sub action_delete {
   my ($vid, $action) = @_;
+  action_db_prepare($dbh) if (! $action_db_prepared);
   my $logger = Log::Log4perl::get_logger('pf::action');
   $action_delete_sql->execute($vid,$action) || return(0);
   $logger->info("action $action deleted from class $vid");
@@ -90,6 +100,7 @@ sub action_delete {
 
 sub action_delete_all {
   my ($vid) = @_;
+  action_db_prepare($dbh) if (! $action_db_prepared);
   my $logger = Log::Log4perl::get_logger('pf::action');
   $action_delete_all_sql->execute($vid) || return(0);
   $logger->info("all actions for class $vid deleted");

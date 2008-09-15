@@ -21,7 +21,9 @@ our (
   $switchlocation_view_open_switchport_sql,
 
   $switchlocation_insert_start_sql,
-  $switchlocation_update_end_sql
+  $switchlocation_update_end_sql,
+
+  $switchlocation_db_prepared
 );
 
 BEGIN {
@@ -43,10 +45,14 @@ use lib qw(/usr/local/pf/lib);
 use pf::config;
 use pf::db;
 
-switchlocation_db_prepare($dbh) if (!$thread);
+$switchlocation_db_prepared = 0;
+#switchlocation_db_prepare($dbh) if (!$thread);
 
 sub switchlocation_db_prepare {
   my ($dbh) = @_;
+  db_connect($dbh);
+  my $logger = Log::Log4perl::get_logger('pf::switchlocation');
+  $logger->info("Preparing pf::switchlocation database queries");
   
   $switchlocation_view_all_sql=$dbh->prepare( qq [ select switch,port,start_time,end_time,location,description from switchlocation order by start_time desc, end_time desc]);
   $switchlocation_view_switchport_sql=$dbh->prepare( qq [ select switch,port,start_time,end_time,location,description from switchlocation where switch=? and port=? order by start_time desc, end_time desc ]);
@@ -55,38 +61,44 @@ sub switchlocation_db_prepare {
 
   $switchlocation_insert_start_sql=$dbh->prepare( qq [ INSERT INTO switchlocation (switch, port, start_time,location,description) VALUES(?,?,NOW(),?,?)]);
   $switchlocation_update_end_sql=$dbh->prepare( qq [ UPDATE switchlocation SET end_time = now() WHERE switch = ? AND port = ? AND (ISNULL(end_time) or end_time = 0) ]);
+
+  $switchlocation_db_prepared = 1;
 }
 
 sub switchlocation_view_all {
+  switchlocation_db_prepare($dbh) if (! $switchlocation_db_prepared);
   return db_data($switchlocation_view_all_sql);
 }
 
 sub switchlocation_view_open {
+  switchlocation_db_prepare($dbh) if (! $switchlocation_db_prepared);
   return db_data($switchlocation_view_open_sql);
 }
 
 sub switchlocation_view_switchport {
   my ($switch,%params) = @_;
+  switchlocation_db_prepare($dbh) if (! $switchlocation_db_prepared);
   return db_data($switchlocation_view_switchport_sql, $switch, $params{'ifIndex'});
 }
 
 sub switchlocation_view_open_switchport {
   my ($switch,$ifIndex) = @_;
+  switchlocation_db_prepare($dbh) if (! $switchlocation_db_prepared);
   return db_data($switchlocation_view_open_switchport_sql, $switch, $ifIndex);
 }
 
 sub switchlocation_insert_start {
   my ($switch,$ifIndex,$location,$description) = @_;
+  switchlocation_db_prepare($dbh) if (! $switchlocation_db_prepared);
   $switchlocation_insert_start_sql->execute($switch,$ifIndex,$location,$description) || return(0);
   return(1);
 }
 
 sub switchlocation_update_end {
   my ($switch, $ifIndex) = @_;
-  switchlocation_update_end($switch, $ifIndex) || return(0);
+  switchlocation_update_end_sql->execute($switch, $ifIndex) || return(0);
   return(1);
 }
 
 
 1
-

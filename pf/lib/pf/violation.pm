@@ -17,7 +17,7 @@ our ($violation_desc_sql, $violation_add_sql, $violation_exist_sql, $violation_e
      $violation_exist_id_sql, $violation_view_sql, $violation_view_all_sql, $violation_view_top_sql,
      $violation_view_open_sql, $violation_view_open_desc_sql, $violation_view_open_uniq_sql, $violation_view_open_all_sql,
      $violation_view_all_active_sql, $violation_close_sql, $violation_delete_sql, $violation_modify_sql,
-     $violation_grace_sql, $violation_count_sql, $violation_count_trap_sql, $violation_count_vid_sql);
+     $violation_grace_sql, $violation_count_sql, $violation_count_trap_sql, $violation_count_vid_sql, $violation_db_prepared);
 
 BEGIN {
   use Exporter ();
@@ -38,10 +38,14 @@ use pf::trigger qw(trigger_view_enable);
 use pf::iptables qw(unmark_node);
 use pf::class qw(class_view);
 
-violation_db_prepare($dbh) if (!$thread);
+$violation_db_prepared = 0;
+#violation_db_prepare($dbh) if (!$thread);
 
 sub violation_db_prepare {
   my ($dbh) = @_;
+  db_connect($dbh);
+  my $logger = Log::Log4perl::get_logger('pf::violation');
+  $logger->info("Preparing pf::violation database queries");
   $violation_desc_sql=$dbh->prepare( qq [ desc violation ] );
   $violation_add_sql=$dbh->prepare( qq [ insert into violation(mac,vid,start_date,release_date,status,ticket_ref,notes) values(?,?,?,?,?,?,?) ]);
   $violation_modify_sql=$dbh->prepare( qq [ update violation set mac=?,vid=?,start_date=?,release_date=?,status=?,ticket_ref=?,notes=? where id=? ]);
@@ -64,17 +68,20 @@ sub violation_db_prepare {
   $violation_count_sql=$dbh->prepare( qq [ select count(*) from violation where mac=? and status="open" ]);
   $violation_count_trap_sql=$dbh->prepare( qq [ select count(*) from violation, action where violation.vid=action.vid and action.action='trap' and mac=? and status="open" ]);
   $violation_count_vid_sql=$dbh->prepare( qq [ select count(*) from violation where mac=? and vid=? ]);
+  $violation_db_prepared = 1;
 }
 
 #
 #
 sub violation_desc {
+  violation_db_prepare($dbh) if (! $violation_db_prepared);
   return db_data($violation_desc_sql);
 }
 
 #
 sub violation_modify {
   my ($id,%data)=@_;
+  violation_db_prepare($dbh) if (! $violation_db_prepared);
   my $logger = Log::Log4perl::get_logger('pf::violation');
   return(0) if (!$id);
   my $existing = violation_exist_id($id);
@@ -100,6 +107,7 @@ sub violation_modify {
 
 sub violation_grace {
   my ($mac, $vid) = @_;
+  violation_db_prepare($dbh) if (! $violation_db_prepared);
   $violation_grace_sql->execute($mac,$vid) || return(0);
   my ($val) = $violation_grace_sql->fetchrow_array();
   $violation_grace_sql->finish();
@@ -109,6 +117,7 @@ sub violation_grace {
 
 sub violation_count {
   my ($mac) = @_;
+  violation_db_prepare($dbh) if (! $violation_db_prepared);
   $violation_count_sql->execute($mac) || return(0);
   my ($val) = $violation_count_sql->fetchrow_array();
   $violation_count_sql->finish();
@@ -117,6 +126,7 @@ sub violation_count {
 
 sub violation_count_trap {
   my ($mac) = @_;
+  violation_db_prepare($dbh) if (! $violation_db_prepared);
   $violation_count_trap_sql->execute($mac) || return(0);
   my ($val) = $violation_count_trap_sql->fetchrow_array();
   $violation_count_trap_sql->finish();
@@ -125,6 +135,7 @@ sub violation_count_trap {
 
 sub violation_count_vid {
   my ($mac, $vid) = @_;
+  violation_db_prepare($dbh) if (! $violation_db_prepared);
   $violation_count_vid_sql->execute($mac,$vid) || return(0);
   my ($val) = $violation_count_vid_sql->fetchrow_array();
   $violation_count_vid_sql->finish();
@@ -133,6 +144,7 @@ sub violation_count_vid {
 
 sub violation_exist {
   my ($mac, $vid, $start_date) = @_;
+  violation_db_prepare($dbh) if (! $violation_db_prepared);
   $violation_exist_sql->execute($mac,$vid,$start_date) || return(0);
   my $val = $violation_exist_sql->fetchrow_hashref();
   $violation_exist_sql->finish();
@@ -141,6 +153,7 @@ sub violation_exist {
 
 sub violation_exist_id {
   my ($id) = @_;
+  violation_db_prepare($dbh) if (! $violation_db_prepared);
   $violation_exist_id_sql->execute($id) || return(0);
   my $val = $violation_exist_id_sql->fetchrow_hashref();
   $violation_exist_id_sql->finish();
@@ -149,6 +162,7 @@ sub violation_exist_id {
 
 sub violation_exist_open {
   my ($mac, $vid) = @_;
+  violation_db_prepare($dbh) if (! $violation_db_prepared);
   $violation_exist_open_sql->execute($mac,$vid) || return(0);
   my ($val) = $violation_exist_open_sql->fetchrow_array();
   $violation_exist_open_sql->finish();
@@ -157,15 +171,18 @@ sub violation_exist_open {
 
 sub violation_view {
   my ($id) = @_;
+  violation_db_prepare($dbh) if (! $violation_db_prepared);
   return db_data($violation_view_sql,$id);
 }
 
 sub violation_view_all {
+  violation_db_prepare($dbh) if (! $violation_db_prepared);
   return db_data($violation_view_all_sql);
 }
 
 sub violation_view_top {
   my ($mac) = @_;
+  violation_db_prepare($dbh) if (! $violation_db_prepared);
   $violation_view_top_sql->execute($mac) || return(0);
   my $ref = $violation_view_top_sql->fetchrow_hashref(); 
   $violation_view_top_sql->finish();
@@ -174,29 +191,35 @@ sub violation_view_top {
 
 sub violation_view_open {
   my ($mac) = @_;
+  violation_db_prepare($dbh) if (! $violation_db_prepared);
   return db_data($violation_view_open_sql,$mac);
 }
 
 sub violation_view_open_desc {
   my ($mac) = @_;
+  violation_db_prepare($dbh) if (! $violation_db_prepared);
   return db_data($violation_view_open_desc_sql,$mac);
 }
 
 sub violation_view_open_uniq {
+  violation_db_prepare($dbh) if (! $violation_db_prepared);
   return db_data($violation_view_open_uniq_sql);
 }
 
 sub violation_view_open_all {
+  violation_db_prepare($dbh) if (! $violation_db_prepared);
   return db_data($violation_view_open_all_sql);
 }
 
 sub violation_view_all_active {
+  violation_db_prepare($dbh) if (! $violation_db_prepared);
   return db_data($violation_view_all_active_sql);
 }
 
 #
 sub violation_add  {
   my ($mac,$vid,%data) = @_;
+  violation_db_prepare($dbh) if (! $violation_db_prepared);
   my $logger = Log::Log4perl::get_logger('pf::violation');
   return(0) if (!$vid);
   #print Dumper(%data);
@@ -266,6 +289,7 @@ sub violation_trigger {
 
 sub violation_delete {
   my ($id)=@_;
+  violation_db_prepare($dbh) if (! $violation_db_prepared);
   $violation_delete_sql->execute($id) || return(0); 
   return(0);
 }
@@ -274,6 +298,7 @@ sub violation_delete {
 #
 sub violation_close {
   my ($mac,$vid) = @_;
+  violation_db_prepare($dbh) if (! $violation_db_prepared);
   my $logger = Log::Log4perl::get_logger('pf::violation');
 
   my $class_info = class_view($vid);
@@ -300,6 +325,7 @@ sub violation_close {
 #
 sub violation_force_close {
   my ($mac,$vid) = @_;
+  violation_db_prepare($dbh) if (! $violation_db_prepared);
   my $logger = Log::Log4perl::get_logger('pf::violation');
   #unmark_node($mac, $vid);
   $violation_close_sql->execute($mac,$vid) || return(0);

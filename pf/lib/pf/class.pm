@@ -13,7 +13,7 @@ use strict;
 use warnings;
 
 our ($class_view_sql, $class_exist_sql, $class_add_sql, $class_delete_sql, $class_cleanup_sql,
-     $class_modify_sql, $class_view_all_sql, $class_view_actions_sql, $class_trappable_sql);
+     $class_modify_sql, $class_view_all_sql, $class_view_actions_sql, $class_trappable_sql, $class_db_prepared);
 
 BEGIN {
   use Exporter ();
@@ -30,10 +30,14 @@ use pf::db;
 use pf::action qw(action_delete_all action_add);
 use pf::trigger qw(trigger_add);
 
-class_db_prepare($dbh) if (!$thread);
+$class_db_prepared = 0;
+#class_db_prepare($dbh) if (!$thread);
 
 sub class_db_prepare {
   my ($dbh) = @_;
+  db_connect($dbh);
+  my $logger = Log::Log4perl::get_logger('pf::action');
+  $logger->info("Preparing pf::class database queries");
   $class_view_sql=$dbh->prepare( qq [ select class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.disable,group_concat(action.action order by action.action asc) as action from class left join action on class.vid=action.vid where class.vid=? GROUP BY class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.disable ]);
   $class_view_all_sql=$dbh->prepare( qq [ select class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.disable,group_concat(action.action order by action.action asc) as action from class left join action on class.vid=action.vid GROUP BY class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.disable ] );
   $class_view_actions_sql=$dbh->prepare( qq [ select vid,action from action where vid=? ]);
@@ -43,10 +47,12 @@ sub class_db_prepare {
   $class_modify_sql=$dbh->prepare( qq [ update class set description=?,auto_enable=?,max_enables=?,grace_period=?,priority=?,url=?,max_enable_url=?,redirect_url=?,button_text=?,disable=? where vid=? ]);
   $class_cleanup_sql=$dbh->prepare( qq [ delete from class where vid not in (?) and vid < 1200000 and vid > 1200100 ]);
   $class_trappable_sql=$dbh->prepare( qq [select c.vid,c.description,c.auto_enable,c.max_enables,c.grace_period,c.priority,c.url,c.max_enable_url,c.redirect_url,c.button_text,c.disable from class c left join action a on c.vid=a.vid where a.action="trap" ]);
+  $class_db_prepared = 1;
 }
 
 sub class_exist {
   my ($id) = @_;
+  class_db_prepare($dbh) if (! $class_db_prepared);
   $class_exist_sql->execute($id) || return(0);
   my ($val) = $class_exist_sql->fetchrow_hashref();
   $class_exist_sql->finish();
@@ -55,6 +61,7 @@ sub class_exist {
 
 sub class_view {
   my ($id) = @_;
+  class_db_prepare($dbh) if (! $class_db_prepared);
   $class_view_sql->execute($id) || return(0);
   my ($val) = $class_view_sql->fetchrow_hashref();
   $class_view_sql->finish();
@@ -62,20 +69,24 @@ sub class_view {
 }
 
 sub class_view_all {
+  class_db_prepare($dbh) if (! $class_db_prepared);
   return db_data($class_view_all_sql);
 }
 
 sub class_trappable {
+  class_db_prepare($dbh) if (! $class_db_prepared);
   return db_data($class_trappable_sql);
 }
 
 sub class_view_actions {
   my ($id) = @_;
+  class_db_prepare($dbh) if (! $class_db_prepared);
   return db_data($class_view_actions_sql,$id);
 }
 
 sub class_add {
   my $id = $_[0];
+  class_db_prepare($dbh) if (! $class_db_prepared);
   my $logger = Log::Log4perl::get_logger('pf::class');
   if (class_exist($id)) {
     $logger->warn("attempt to add existing class $id");
@@ -88,6 +99,7 @@ sub class_add {
 
 sub class_delete {
   my ($id) = @_;
+  class_db_prepare($dbh) if (! $class_db_prepared);
   my $logger = Log::Log4perl::get_logger('pf::class');
   $class_delete_sql->execute($id) || return(0);
   $logger->info("class $id deleted");
@@ -95,6 +107,7 @@ sub class_delete {
 }
 
 sub class_cleanup {
+  class_db_prepare($dbh) if (! $class_db_prepared);
   my $logger = Log::Log4perl::get_logger('pf::class');
   $class_cleanup_sql->execute() || return(0);
   $logger->info("class cleanup completed");
@@ -103,6 +116,7 @@ sub class_cleanup {
 
 sub class_modify {
   my $id = shift(@_);
+  class_db_prepare($dbh) if (! $class_db_prepared);
   my $logger = Log::Log4perl::get_logger('pf::class');
   push(@_, $id);
   if (class_exist($id)) {

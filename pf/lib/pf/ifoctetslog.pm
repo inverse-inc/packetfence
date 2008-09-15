@@ -22,6 +22,8 @@ our (
   $ifoctetslog_history_switchport_start_end_sql,
   
   $ifoctetslog_insert_sql,
+
+  $ifoctectslog_db_prepared
 );
 
 BEGIN {
@@ -50,10 +52,13 @@ use pf::config;
 use pf::db;
 use pf::util;
 
-ifoctetslog_db_prepare($dbh) if (!$thread);
+$ifoctetslog_db_prepared = 0;
+#ifoctetslog_db_prepare($dbh) if (!$thread);
 
 sub ifoctetslog_db_prepare {
   my ($dbh) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::ifoctetslog');
+  $logger->info("Preparing pf::ifoctetslog database queries");
   $ifoctetslog_history_mac_sql=$dbh->prepare( qq [ select switch,port,read_time,mac,ifInOctets,ifOutOctets from ifoctetslog where mac=? order by read_time desc ]);
   $ifoctetslog_history_mac_start_end_sql=$dbh->prepare( qq [ select switch,port,read_time,mac,ifInOctets,ifOutOctets from ifoctetslog where mac=? and unix_timestamp(read_time) >= ? and unix_timestamp(read_time) <= ? order by read_time desc ]);
   $ifoctetslog_history_user_sql=$dbh->prepare( qq [ select ifoctetslog.switch,ifoctetslog.port,read_time,ifoctetslog.mac,ifInOctets,ifOutOctets from ifoctetslog, node where ifoctetslog.mac=node.mac and pid=? order by mac asc, read_time desc ]);
@@ -64,10 +69,13 @@ sub ifoctetslog_db_prepare {
   
   $ifoctetslog_insert_sql=$dbh->prepare( qq [ INSERT INTO ifoctetslog (switch, port, read_time, mac, ifInOctets, ifOutOctets) VALUES(?,?,NOW(),?,?,?) ]);
 
+  $ifoctetslog_db_prepared = 1;
+
 }
 
 sub ifoctetslog_history_mac {
   my($mac, %params) = @_;
+  ifoctetslog_db_prepare($dbh) if (! $ifoctetslog_db_prepared);
   my @raw_data;
   my @data;
   if (exists($params{'start_time'}) && exists($params{'end_time'})) {
@@ -96,6 +104,7 @@ sub ifoctetslog_history_mac {
 
 sub ifoctetslog_history_user {
   my($user, %params) = @_;
+  ifoctetslog_db_prepare($dbh) if (! $ifoctetslog_db_prepared);
   my @raw_data;
   my @data;
   if (exists($params{'start_time'}) && exists($params{'end_time'})) {
@@ -146,6 +155,7 @@ sub ifoctetslog_graph_user {
 
 sub ifoctetslog_history_switchport {
   my($switch, %params) = @_;
+  ifoctetslog_db_prepare($dbh) if (! $ifoctetslog_db_prepared);
   my @raw_data;
   my @data;
   if (exists($params{'start_time'}) && exists($params{'end_time'})) {
@@ -172,6 +182,7 @@ sub ifoctetslog_history_switchport {
 
 sub ifoctetslog_insert {
   my ($switch,$ifIndex,$mac,$ifInOctets,$ifOutOctets) = @_;
+  ifoctetslog_db_prepare($dbh) if (! $ifoctetslog_db_prepared);
   $ifoctetslog_insert_sql->execute($switch,$ifIndex,$mac,$ifInOctets,$ifOutOctets) || return(0);
   return(1);
 }
@@ -266,4 +277,3 @@ sub getFirstAndLastPosInRange {
 }
 
 1
-

@@ -18,7 +18,7 @@ our ($node_modify_sql, $node_exist_sql, $node_pid_sql, $node_delete_sql, $node_a
      $node_view_sql, $node_view_all_sql, $node_view_with_fingerprint_sql, $node_ungrace_sql, $node_expire_window_sql, $node_expire_deadline_sql, $node_expire_unreg_field_sql,
      $node_expire_session_sql, $node_expire_lastarp_sql, $node_unregistered_sql, $nodes_unregistered_sql,
      $node_update_lastarp_sql, $nodes_active_unregistered_sql, $nodes_registered_sql, $nodes_registered_not_violators_sql,
-     $nodes_active_sql, $node_cleanup_sql);
+     $nodes_active_sql, $node_cleanup_sql, $is_node_db_prepared);
 
 BEGIN {
   use Exporter ();
@@ -40,10 +40,15 @@ use pf::iptables qw(unmark_node mark_node);
 use pf::locationlog qw(locationlog_view_open_mac);
 #use pf::rawip qw(freemac trapmac);
 
-node_db_prepare($dbh) if (!$thread);
+$is_node_db_prepared = 0;
+
+#node_db_prepare($dbh) if (!$thread);
 
 sub node_db_prepare {
   my ($dbh) = @_;
+  db_connect($dbh);
+  my $logger = Log::Log4perl::get_logger('pf::node');
+  $logger->info("Preparing pf::node database queries");
   $node_exist_sql=$dbh->prepare( qq[ select mac from node where mac=? ]);
   $node_pid_sql=$dbh->prepare( qq[ select count(*) from node where status='reg' and pid=? ]);
   $node_add_sql=$dbh->prepare( qq[ insert into node(mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,dhcp_fingerprint,last_dhcp,switch,port,vlan) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ]); 
@@ -67,6 +72,7 @@ sub node_db_prepare {
   $node_update_lastarp_sql = $dbh->prepare( qq [ update node set last_arp=now() where mac=? ] );
   #$node_lookup_person_sql = $dbh->prepare( qq [ select mac,pid,description,user_agent,computername from node where pid=? ] );
   #$node_lookup_node_sql = $dbh->prepare( qq [ select mac,pid,description,user_agent,computername from node where mac=? ] );
+  $is_node_db_prepared = 1;
 }
 
 #
@@ -74,6 +80,9 @@ sub node_db_prepare {
 #
 sub node_exist {
   my ($mac) = @_;
+
+  node_db_prepare($dbh) if (! $is_node_db_prepared);
+  
   $node_exist_sql->execute($mac) || return(0);
   my ($val) = $node_exist_sql->fetchrow_array();
   $node_exist_sql->finish();
@@ -85,6 +94,9 @@ sub node_exist {
 #
 sub node_pid {
   my ($pid) = @_;
+
+  node_db_prepare($dbh) if (! $is_node_db_prepared);
+  
   $node_pid_sql->execute($pid) || return(0);
   my ($count) = $node_pid_sql->fetchrow_array();
   $node_pid_sql->finish();
@@ -96,6 +108,9 @@ sub node_pid {
 #
 sub node_delete {
   my ($mac) = @_;
+
+  node_db_prepare($dbh) if (! $is_node_db_prepared);
+  
   my $logger = Log::Log4perl::get_logger('pf::node');
   if (!node_exist($mac)) {
     $logger->error("delete of non-existent node '$mac' failed");
@@ -117,6 +132,9 @@ sub node_delete {
 #
 sub node_add {
   my ($mac,%data) = @_;
+
+  node_db_prepare($dbh) if (! $is_node_db_prepared);
+  
   my $logger = Log::Log4perl::get_logger('pf::node');
   $mac = lc($mac);
   return(0) if (!valid_mac($mac));
@@ -170,6 +188,9 @@ sub node_add_simple {
 #
 sub node_view {
   my ($mac) = @_;
+
+  node_db_prepare($dbh) if (! $is_node_db_prepared);
+  
   $node_view_sql->execute($mac) || return(0);
   my $ref = $node_view_sql->fetchrow_hashref();
   # just get one row and finish
@@ -178,11 +199,17 @@ sub node_view {
 }
 
 sub node_view_all {
+
+  node_db_prepare($dbh) if (! $is_node_db_prepared);
+  
   return db_data($node_view_all_sql);
 }
 
 sub node_view_with_fingerprint {
   my ($mac) = @_;
+
+  node_db_prepare($dbh) if (! $is_node_db_prepared);
+  
   $node_view_with_fingerprint_sql->execute($mac) || return(0);
   my $ref = $node_view_with_fingerprint_sql->fetchrow_hashref();
   # just get one row and finish
@@ -192,6 +219,9 @@ sub node_view_with_fingerprint {
   
 sub node_modify {
   my($mac,%data) = @_;
+
+  node_db_prepare($dbh) if (! $is_node_db_prepared);
+  
   my $logger = Log::Log4perl::get_logger('pf::node');
   $mac = lc($mac);
   return (0) if (!valid_mac($mac));
@@ -358,6 +388,8 @@ sub node_deregister {
 sub nodes_maintenance {
   $node_ungrace_sql->execute() || return(0);
 
+  node_db_prepare($dbh) if (! $is_node_db_prepared);
+  
   my $expire_mode = $Config{'registration'}{'expire_mode'};
   if (isdisabled($expire_mode)) {
     return(1);
@@ -378,6 +410,9 @@ sub nodes_maintenance {
 #
 sub node_unregistered {
   my ($mac) = @_;
+
+  node_db_prepare($dbh) if (! $is_node_db_prepared);
+  
   $node_unregistered_sql->execute($mac) || return(0);
   my $ref = $node_unregistered_sql->fetchrow_hashref();
   $node_unregistered_sql->finish();
@@ -385,23 +420,28 @@ sub node_unregistered {
 }
 
 sub nodes_unregistered {
+  node_db_prepare($dbh) if (! $is_node_db_prepared);
   return db_data($nodes_unregistered_sql);
 }
 
 sub nodes_registered {
+  node_db_prepare($dbh) if (! $is_node_db_prepared);
   return db_data($nodes_registered_sql);
 }
 
 sub nodes_registered_not_violators {
- return db_data($nodes_registered_not_violators_sql);
+  node_db_prepare($dbh) if (! $is_node_db_prepared);
+  return db_data($nodes_registered_not_violators_sql);
 }   
 
 sub nodes_active_unregistered {
+  node_db_prepare($dbh) if (! $is_node_db_prepared);
   return db_data($nodes_active_unregistered_sql);
 }
 
 sub node_expire_lastarp {
   my ($time) = @_;
+  node_db_prepare($dbh) if (! $is_node_db_prepared);
   return db_data($node_expire_lastarp_sql,$time);
 }
 
@@ -418,6 +458,7 @@ sub node_cleanup {
 
 sub node_update_lastarp {
   my ($mac) = @_;
+  node_db_prepare($dbh) if (! $is_node_db_prepared);
   $node_update_lastarp_sql->execute($mac) || return(0);
   return(1);
 }

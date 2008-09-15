@@ -33,7 +33,7 @@ use lib qw(/usr/local/pf/lib);
 use pf::config;
 use pf::util;
 
-$dbh = db_connect() if (!threads->self->tid);
+#$dbh = db_connect() if (!threads->self->tid);
 
 sub db_connect {
   my ($mydbh,@function_list) = @_;

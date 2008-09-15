@@ -11,6 +11,8 @@
           (http://www.packetfence.org/mantis/view.php?id=357)
         not all log statements contain thread and proc ID
           (http://www.packetfence.org/mantis/view.php?id=384)
+        service packetfence status works only if mysql is running
+          (http://www.packetfence.org/mantis/view.php?id=142)
 
 
 1.7.3

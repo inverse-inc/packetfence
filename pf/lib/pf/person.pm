@@ -14,7 +14,7 @@ use warnings;
 use Log::Log4perl;
 
 our ($person_modify_sql, $person_exist_sql, $person_delete_sql, $person_add_sql, 
-     $person_view_sql, $person_view_all_sql, $person_nodes_sql);
+     $person_view_sql, $person_view_all_sql, $person_nodes_sql, $person_db_prepared);
 
 BEGIN {
   use Exporter ();
@@ -28,10 +28,14 @@ use pf::config;
 use pf::db;
 use pf::util;
 
-person_db_prepare($dbh) if (!$thread);
+$person_db_prepared = 0;
+#person_db_prepare($dbh) if (!$thread);
 
 sub person_db_prepare {
   my ($dbh) = @_;
+  db_connect($dbh);
+  my $logger = Log::Log4perl::get_logger('pf::person');
+  $logger->info("Preparing pf::person database queries");
   $person_exist_sql=$dbh->prepare( qq[ select count(*) from person where pid=? ]);
   $person_add_sql=$dbh->prepare( qq[ insert into person(pid,notes) values(?,?) ]); 
   $person_delete_sql=$dbh->prepare( qq[ delete from person where pid=? ]);
@@ -39,6 +43,7 @@ sub person_db_prepare {
   $person_view_sql=$dbh->prepare( qq[ select pid,notes from person where pid=? ]);
   $person_view_all_sql=$dbh->prepare( qq[ select pid,notes from person ]);
   $person_nodes_sql=$dbh->prepare( qq[ select mac,pid,regdate,unregdate,lastskip,status,user_agent,computername,dhcp_fingerprint from node where pid=? ]);
+  $person_db_prepared = 1;
 }
 
 #
@@ -46,6 +51,9 @@ sub person_db_prepare {
 #
 sub person_exist {
   my ($pid) = @_;
+
+  person_db_prepare($dbh) if (! $person_db_prepared);
+
   $person_exist_sql->execute($pid) || return(0);
   my ($val) = $person_exist_sql->fetchrow_array();
   $person_exist_sql->finish();
@@ -57,6 +65,9 @@ sub person_exist {
 #
 sub person_delete {
   my ($pid) = @_;
+
+  person_db_prepare($dbh) if (! $person_db_prepared);
+
   my $logger = Log::Log4perl::get_logger('pf::person');
   return(0) if ($pid eq "1"); 
 
@@ -75,6 +86,9 @@ sub person_delete {
 #
 sub person_add {
   my ($pid,%data)=@_;
+
+  person_db_prepare($dbh) if (! $person_db_prepared);
+
   my $logger = Log::Log4perl::get_logger('pf::person');
   if (person_exist($pid)) {
     $logger->error("attempt to add existing person $pid");
@@ -90,6 +104,9 @@ sub person_add {
 #
 sub person_view {
   my ($pid) = @_;
+
+  person_db_prepare($dbh) if (! $person_db_prepared);
+
   $person_view_sql->execute($pid) || return(0);
   my $ref = $person_view_sql->fetchrow_hashref();
   # just get one row and finish
@@ -98,11 +115,13 @@ sub person_view {
 }
 
 sub person_view_all {
+  person_db_prepare($dbh) if (! $person_db_prepared);
   return db_data($person_view_all_sql);
 }
 
 sub person_modify {
   my($pid,%data) = @_;
+  person_db_prepare($dbh) if (! $person_db_prepared);
   my $logger = Log::Log4perl::get_logger('pf::person');
   if (!person_exist($pid)) {
     if (person_add($pid,%data)) {
@@ -132,6 +151,7 @@ sub person_modify {
 
 sub person_nodes {
   my ($pid) = @_;
+  person_db_prepare($dbh) if (! $person_db_prepared);
   return db_data($person_nodes_sql,$pid);
 }
 

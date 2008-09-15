@@ -36,7 +36,9 @@ our (
   $locationlog_update_end_switchport_sql,
   $locationlog_update_end_switchport_no_VoIP_sql,
   $locationlog_update_end_switchport_only_VoIP_sql,
-  $locationlog_update_end_mac_sql
+  $locationlog_update_end_mac_sql,
+
+  $locationlog_db_prepared
 );
 
 BEGIN {
@@ -74,10 +76,14 @@ use pf::db;
 use pf::util;
 use pf::node;
 
-locationlog_db_prepare($dbh) if (!$thread);
+$locationlog_db_prepared = 0;
+#locationlog_db_prepare($dbh) if (!$thread);
 
 sub locationlog_db_prepare {
   my ($dbh) = @_;
+  db_connect($dbh);
+  my $logger = Log::Log4perl::get_logger('pf::locationlog');
+  $logger->info("Preparing pf::locationlog database queries");
   $locationlog_history_mac_sql=$dbh->prepare( qq [ select mac,switch,port,vlan,start_time,end_time from locationlog where mac=? order by start_time desc, isnull(end_time) desc, end_time desc ]);
   $locationlog_history_switchport_sql=$dbh->prepare( qq [ select mac,switch,port,vlan,start_time,end_time from locationlog where switch=? and port=? order by start_time desc, isnull(end_time) desc, end_time desc ]);
   
@@ -100,10 +106,12 @@ sub locationlog_db_prepare {
   $locationlog_update_end_mac_sql=$dbh->prepare( qq [ UPDATE locationlog SET end_time = now() WHERE mac = ? AND (ISNULL(end_time) or end_time = 0)]);
 
   $locationlog_cleanup_sql=$dbh->prepare( qq [ delete from locationlog where unix_timestamp(end_time) < (unix_timestamp(now()) - ?) and end_time != 0 ]);
+  $locationlog_db_prepared = 1;
 }
 
 sub locationlog_history_mac {
   my($mac, %params) = @_;
+  locationlog_db_prepare($dbh) if (! $locationlog_db_prepared);
   if (defined($params{'date'})) {
     return db_data($locationlog_history_mac_date_sql,$mac, $params{'date'}, $params{'date'});
   } else {
@@ -114,6 +122,7 @@ sub locationlog_history_mac {
 
 sub locationlog_history_switchport {
   my($switch, %params) = @_;
+  locationlog_db_prepare($dbh) if (! $locationlog_db_prepared);
   if (defined($params{'date'})) {
     return db_data($locationlog_history_switchport_date_sql,$switch,$params{'ifIndex'}, $params{'date'}, $params{'date'});
   } else {
@@ -123,30 +132,36 @@ sub locationlog_history_switchport {
 }
 
 sub locationlog_view_all {
+  locationlog_db_prepare($dbh) if (! $locationlog_db_prepared);
   return db_data($locationlog_view_all_sql);
 }
 
 sub locationlog_view_all_open_mac {
   my ($mac) = @_;
+  locationlog_db_prepare($dbh) if (! $locationlog_db_prepared);
   return db_data($locationlog_view_open_mac_sql, $mac);
 }
 
 sub locationlog_view_open {
+  locationlog_db_prepare($dbh) if (! $locationlog_db_prepared);
   return db_data($locationlog_view_open_sql);
 }
 
 sub locationlog_view_open_switchport {
   my ($switch,$ifIndex) = @_;
+  locationlog_db_prepare($dbh) if (! $locationlog_db_prepared);
   return db_data($locationlog_view_open_switchport_sql, $switch, $ifIndex);
 }
 
 sub locationlog_view_open_switchport_no_VoIP {
   my ($switch,$ifIndex) = @_;
+  locationlog_db_prepare($dbh) if (! $locationlog_db_prepared);
   return db_data($locationlog_view_open_switchport_no_VoIP_sql, $switch, $ifIndex);
 }
 
 sub locationlog_view_open_switchport_only_VoIP {
   my ($switch,$ifIndex) = @_;
+  locationlog_db_prepare($dbh) if (! $locationlog_db_prepared);
   $locationlog_view_open_switchport_only_VoIP_sql->execute($switch,$ifIndex) || return(0);
   my $ref = $locationlog_view_open_switchport_only_VoIP_sql->fetchrow_hashref();
   # just get one row and finish
@@ -156,6 +171,7 @@ sub locationlog_view_open_switchport_only_VoIP {
 
 sub locationlog_view_open_mac {
   my ($mac) = @_;
+  locationlog_db_prepare($dbh) if (! $locationlog_db_prepared);
   $locationlog_view_open_mac_sql->execute($mac) || return(0);
   my $ref = $locationlog_view_open_mac_sql->fetchrow_hashref();
   # just get one row and finish
@@ -165,6 +181,7 @@ sub locationlog_view_open_mac {
 
 sub locationlog_insert_start {
   my ($switch,$ifIndex,$vlan,$mac) = @_;
+  locationlog_db_prepare($dbh) if (! $locationlog_db_prepared);
   if (defined($mac)) {
     $locationlog_insert_start_with_mac_sql->execute(lc($mac),$switch,$ifIndex,$vlan) || return(0);
     $locationlog_node_update_location_sql->execute($switch,$ifIndex,lc($mac));
@@ -176,6 +193,7 @@ sub locationlog_insert_start {
 
 sub locationlog_update_end {
   my ($switch, $ifIndex, $mac) = @_;
+  locationlog_db_prepare($dbh) if (! $locationlog_db_prepared);
   my $logger = Log::Log4perl::get_logger('pf::locationlog');
   if (defined($mac)) {
     $logger->info("locationlog_update_end called with mac=$mac");
@@ -189,18 +207,21 @@ sub locationlog_update_end {
 
 sub locationlog_update_end_switchport_no_VoIP {
   my ($switch, $ifIndex) = @_;
+  locationlog_db_prepare($dbh) if (! $locationlog_db_prepared);
   $locationlog_update_end_switchport_no_VoIP_sql->execute($switch, $ifIndex) || return(0);
   return(1);
 }
 
 sub locationlog_update_end_switchport_only_VoIP {
   my ($switch, $ifIndex) = @_;
+  locationlog_db_prepare($dbh) if (! $locationlog_db_prepared);
   $locationlog_update_end_switchport_only_VoIP_sql->execute($switch, $ifIndex) || return(0);
   return(1);
 }
 
 sub locationlog_update_end_mac {
   my ($mac) = @_;
+  locationlog_db_prepare($dbh) if (! $locationlog_db_prepared);
   $locationlog_update_end_mac_sql->execute($mac) || return(0);
   return(1);
 }
@@ -212,6 +233,7 @@ sub locationlog_update_end_mac {
 #then do nothing
 sub locationlog_synchronize {
   my ($switch, $ifIndex,$vlan,$mac) = @_;
+  locationlog_db_prepare($dbh) if (! $locationlog_db_prepared);
   if (defined($mac)) {
     $mac = lc($mac);
     my $locationlog_mac = locationlog_view_open_mac($mac);
@@ -251,6 +273,7 @@ sub locationlog_synchronize {
 
 sub locationlog_cleanup {
   my ($time) = @_;
+  locationlog_db_prepare($dbh) if (! $locationlog_db_prepared);
   $locationlog_cleanup_sql->execute($time) || return(0);
   return(0);
 }
