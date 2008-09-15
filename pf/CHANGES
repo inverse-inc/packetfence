@@ -3,6 +3,9 @@
           (http://www.packetfence.org/mantis/view.php?id=382)
         Bareword "Net::SNMP::OCTET_STRING" not allowed
           (http://www.packetfence.org/mantis/view.php?id=383)
+        unify log management
+          (http://www.packetfence.org/mantis/view.php?id=356)
+
 
 
 1.7.3

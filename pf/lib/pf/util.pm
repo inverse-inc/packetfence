@@ -28,7 +28,7 @@ BEGIN {
   our (@ISA, @EXPORT);
   @ISA    = qw(Exporter);
   @EXPORT = qw(valid_date valid_ip clean_mac valid_mac whitelisted_mac trappable_mac trappable_ip reggable_ip
-               inrange_ip ip2gateway ip2interface ip2device isinternal pflogger pfmailer isenabled
+               inrange_ip ip2gateway ip2interface ip2device isinternal pfmailer isenabled
                isdisabled getlocalmac ip2int int2ip get_all_internal_ips get_internal_nets get_routed_nets get_internal_ips 
                get_internal_devs get_internal_devs_phy get_external_devs get_managed_devs get_internal_macs 
                get_internal_info get_gateways get_dhcp_devs num_interfaces createpid readpid deletepid 
@@ -45,15 +45,6 @@ if (basename($0) eq "pfmon" && isenabled($Config{'general'}{'caching'})) {
   %local_mac    = preload_getlocalmac();
 }
 
-# pflogger logging levels
-# 1 - errors
-# 2 - interesting info
-# 4 - needed information (on large changes)
-# 8 - normal operations
-# 10 - database queries
-# 12 - extreme arp operations
-# 16 - debugginig only
-#
 sub valid_date {
   my ($date) = @_;
   my $logger = Log::Log4perl::get_logger('pf::util');
@@ -249,20 +240,6 @@ sub isinternal {
     }
   }
   return(0);
-}
-
-sub pflogger {
-  my ($msg, $v) = @_;
-  $v = 4 if (!$v);
-  if ($v <= $verbosity) {
-    openlog("pf",'',$facility);
-
-    my $caller = (caller(1))[3] || basename($0);
-    $caller =~ s/^(pf::\w+|main):://;
-    my $tid = threads->self->tid;
-    syslog($priority, "$caller($tid): $msg");
-    closelog();
-  }
 }
 
 sub pfmailer {

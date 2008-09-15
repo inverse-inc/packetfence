@@ -1292,11 +1292,6 @@ sub sanity_check {
     throw_hissy_fit("ARP stuffing is enabled...this is dangerous!","WARNING");
   }
 
-  # make sure verbosity isn't too high
-  if ($Config{'logging'}{'verbosity'} > 10) {
-    throw_hissy_fit("verbosity > 10 - this could impact performance!","WARNING");
-  }
-
   # make sure pid 1 exists
   if (!person_exist(1)){
     throw_hissy_fit("person user id 1 must exist - please reinitialize your database"); 

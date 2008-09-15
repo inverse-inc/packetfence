@@ -20,6 +20,11 @@ use pf::locationlog;
 use pf::config;
 use pf::SwitchFactory;
 
+Log::Log4perl->init('/usr/local/pf/conf/log.conf');
+my $logger = Log::Log4perl->get_logger('flip');
+Log::Log4perl::MDC->put('proc', 'flip');
+Log::Log4perl::MDC->put('tid', 0);
+
 my $mac = $ARGV[0];
 
 if ($mac =~ /^([0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2})$/) {
@@ -28,13 +33,13 @@ if ($mac =~ /^([0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a
     die "Bad MAC $mac";
 }
 
-pflogger("flip.pl called with $mac", 8);
+$logger->info("flip.pl called with $mac");
 
 my %switchConfig;
 tie %switchConfig, 'Config::IniFiles', (-file => "/usr/local/pf/conf/switches.conf");
 my @errors = @Config::IniFiles::errors;
 if (scalar(@errors)) {
-    pflogger("Error reading config file: " . join("\n", @errors), 1);
+    $logger->error("Error reading config file: " . join("\n", @errors));
     return 0;
 }
 
@@ -46,7 +51,7 @@ my $locationlog_entry = locationlog_view_open_mac($mac);
 if ($locationlog_entry) {
     my $switch_ip = $locationlog_entry->{'switch'};
     my $ifIndex = $locationlog_entry->{'port'};
-    pflogger("switch port for $mac is $switch_ip ifIndex $ifIndex", 8);
+    $logger->info("switch port for $mac is $switch_ip ifIndex $ifIndex");
     if ($ifIndex eq 'WIFI') {
         my ($session,$err) = Net::SNMP->session(
             -hostname => '127.0.0.1',
@@ -80,7 +85,7 @@ if ($locationlog_entry) {
         );
     }
 } else {
-    pflogger("cannot determine switch port for $mac. Flipping the ports admin status is impossible", 2);
+    $logger->warn("cannot determine switch port for $mac. Flipping the ports admin status is impossible");
 }
 
 

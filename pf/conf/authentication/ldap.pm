@@ -21,6 +21,7 @@ BEGIN {
 }
 
 use Net::LDAP;
+use Log::Log4perl;
 use lib '/usr/local/pf/lib';
 use pf::config;
 use pf::util;
@@ -34,17 +35,18 @@ my $LDAPServer = "";
 
 sub authenticate {
   my ($username, $password) = @_;
+  my $logger = Log::Log4perl::get_logger('authentication::ldap');
 
   my $connection = Net::LDAP->new($LDAPServer);
   if (! defined($connection)) {
-    pflogger("Unable to connect to '$LDAPServer'", 1);
+    $logger->error("Unable to connect to '$LDAPServer'");
     return (0,2);
   }
 
   my $result = $connection->bind($LDAPBindDN, password => $LDAPBindPassword);
 
   if ($result->is_error) {
-    pflogger("Unable to bind with '$LDAPBindDN'", 1);
+    $logger->error("Unable to bind with '$LDAPBindDN'");
     return (0,2);
   }
  
@@ -56,12 +58,12 @@ sub authenticate {
   );
   
   if ($result->is_error) {
-    pflogger("Unable to execute search", 1);
+    $logger->error("Unable to execute search");
     return (0,2);
   }
   
   if ($result->count != 1) {
-    pflogger("Unable to find user '$username'", 1);
+    $logger->warn("Unable to find user '$username'");
     return (0,1);
   }
 
@@ -70,7 +72,7 @@ sub authenticate {
   $result = $connection->bind($user->dn, password => $password);
 
   if ($result->is_error) {
-    pflogger("invalid password for $username", 8);
+    $logger->info("invalid password for $username");
     return (0,1);
   }
   

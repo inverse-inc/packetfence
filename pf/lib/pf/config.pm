@@ -16,7 +16,7 @@ use Net::Netmask;
 use Date::Parse;
 use Log::Log4perl;
 
-our ($install_dir, %Default_Config, %Config, $verbosity, $facility, $priority, @listen_ints, @internal_nets, @routed_nets,
+our ($install_dir, %Default_Config, %Config, @listen_ints, @internal_nets, @routed_nets,
      $blackholemac, @managed_nets, @external_nets, @dhcplistener_ints, $isolation_int, $registration_int, $monitor_int, $unreg_mark, $reg_mark, $black_mark, $portscan_sid, 
      $default_config_file, $config_file, $dhcp_fingerprints_file, $default_pid, $fqdn, $oui_url, $dhcp_fingerprints_url,
      $oui_file, @valid_trigger_types, $thread);
@@ -25,7 +25,7 @@ BEGIN {
   use Exporter ();
   our (@ISA, @EXPORT);
   @ISA    = qw(Exporter);
-  @EXPORT = qw($install_dir %Default_Config %Config $verbosity $facility $priority @listen_ints @internal_nets @routed_nets
+  @EXPORT = qw($install_dir %Default_Config %Config @listen_ints @internal_nets @routed_nets
                $blackholemac @managed_nets @external_nets @dhcplistener_ints $isolation_int $registration_int $monitor_int $unreg_mark $reg_mark $black_mark $portscan_sid
                $default_config_file $config_file $dhcp_fingerprints_file $default_pid $fqdn $oui_url $dhcp_fingerprints_url
                $oui_file @valid_trigger_types $thread)
@@ -101,10 +101,6 @@ foreach my $val ("registration.skip_deadline","registration.expire_deadline") {
   my($group,$item) = split(/\./, $val);
   $Config{$group}{$item} = str2time($Config{$group}{$item});
 }
-
-$verbosity = $Config{'logging'}{'verbosity'};
-$facility  = $Config{'logging'}{'facility'};
-$priority  = $Config{'logging'}{'priority'};
 
 $fqdn = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
 

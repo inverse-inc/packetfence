@@ -16,6 +16,11 @@ use threads;
 use threads::shared;
 use POSIX qw(:signal_h);
 
+Log::Log4perl->init('/usr/local/pf/conf/log.conf');
+my $logger = Log::Log4perl->get_logger('pfmon');
+Log::Log4perl::MDC->put('proc', 'pfmon');
+Log::Log4perl::MDC->put('tid', 0);
+
 
 use lib '/usr/local/pf/lib';
 use pf::config;
@@ -104,14 +109,14 @@ if ($Config{'network'}{'mode'} =~ /^passive$/i) {
 }
 
 if ( $Config{'network'}{'mode'}=~/^dhcp$/i ) {
-  pflogger( "DHCP scope changer enabled", 1 );
+  $logger->info( "DHCP scope changer enabled");
   push @kids, threads->create( \&dhcp_scoper );
 }
 
 # thread off arp listener
 if ( $Config{'network'}{'mode'}=~/^passive$/i){
   foreach my $dev (@listen_ints){
-    pflogger("ARP detector on $dev enabled",1);
+    logger->info("ARP detector on $dev enabled");
     push @kids, threads->create( \&arp_detector, $dev );
   }
 }
@@ -120,11 +125,11 @@ if ( $Config{'network'}{'mode'}=~/^passive$/i){
 push @kids, threads->create(\&cleanup);
 
 $kids[$#kids]->join();
-pflogger("cleanup thread finished - this is bad",1);
+$logger->error("cleanup thread finished - this is bad");
 
 END {
   deletepid();
-  pflogger("stopping pfmon", 1);
+  $logger->info("stopping pfmon");
   if ($Config{'network'}{'mode'}=~/passive/i) {
     # wake up the arpgun... then kill him
     foreach my $kid (@kids){
@@ -139,10 +144,11 @@ exit(0);
 
 sub arp_detector {
   my ($eth) = @_;          
+  my $logger = Log::Log4perl::get_logger('pfmon::arp_detector');
   my $packet_arp = new Net::RawIP;
   my $filter = arp_filter();
   my $pcap_arp = $packet_arp->pcapinit($eth,$filter,1500,30);
-  pflogger("starting arp detector on $eth",1);
+  $logger->info("starting arp detector on $eth");
   my $mydbh=0;
   while(1) {
     my $tmp;
@@ -156,6 +162,7 @@ sub arp_detector {
 
 sub dhcp_scoper {
   my $mydbh;
+  my $logger = Log::Log4perl::get_logger('pfmon::dhcp_scoper');
   db_connect($mydbh,'node','violation');
 
   my %isolated;   
@@ -166,7 +173,7 @@ sub dhcp_scoper {
   my $regflag = 0;
 
   if (service_ctl("dhcpd","status")==0){
-    pflogger("ERROR - DHCP IS NOT RUNNING - EXIT",1);
+    $logger->error("ERROR - DHCP IS NOT RUNNING - EXIT");
     exit 1;
   }
 
@@ -201,7 +208,7 @@ sub dhcp_scoper {
 
     if ($regflag || $isoflag){
        #regen files if necessary
-       pflogger("Regen DHCP Reg/Iso Files and Restart");
+       $logger->info("Regen DHCP Reg/Iso Files and Restart");
        generate_dhcpd_reg() if ($regflag);
        generate_dhcpd_iso() if ($isoflag);
 
@@ -219,7 +226,7 @@ sub dhcp_scoper {
     %registered    = ();
     $regflag       = 0;
     $isoflag       = 0;
-    pflogger("sleeping 30 seconds");
+    $logger->info("sleeping 30 seconds");
     sleep(30);
   }
 
@@ -231,57 +238,57 @@ sub listen_arp {
   return if (!isinternal($srcip));
  
   if ($type == 1) {
-    pflogger("ARP who-has $destip tell $srcip  $srcmac $srcip $destmac $destip",12);
+    $logger->debug("ARP who-has $destip tell $srcip  $srcmac $srcip $destmac $destip");
     my $gip = ip2gateway($srcip);
     if (valid_ip($srcip) && valid_ip($gip) && ($srcip eq $gip)) {
       if ($destmac =~ /ff:ff:ff:ff:ff:ff/i || $destmac =~ /00:00:00:00:00:00/i) {
-        pflogger("broadcast arp request from router for $destip - re-trapping all nodes",4);
+        $logger->info("broadcast arp request from router for $destip - re-trapping all nodes");
 	  }elsif (!grep(/^$monitor_int$/,@listen_ints)){
-        pflogger("flooded arp request from router for $destmac ($destip) - re-trapping all nodes",4);
+        $logger->info("flooded arp request from router for $destmac ($destip) - re-trapping all nodes");
       } else {
-        pflogger("arp request from router for $destmac ($destip) ",20);
+        $logger->debug("arp request from router for $destmac ($destip)");
         return;
       }
 
       # stuff router cache with our MAC for unresponsive addresses
       if (!$cache->ip_exist($destip) && $strobe_done && isenabled($Config{'arp'}{'stuffing'}) && trappable_ip($destip)) {
-        pflogger("host $destip not in hash, forging ARP reply",1);
+        $logger->info("host $destip not in hash, forging ARP reply");
         arpmac($blackholemac,$destip,ip2mac($gip),$gip,0,2); 
       }
 
       {
         #mark the rearp flag
-        pflogger("setting rearp flag == 1",16);
-        pflogger("trying to obtain lock on \$rearp_flag in listen_arp sub",20);
+        $logger->debug("setting rearp flag == 1");
+        $logger->trace("trying to obtain lock on \$rearp_flag in listen_arp sub");
         lock($rearp_flag);
         $rearp_flag=1;
-        pflogger("releasing lock on \$rearp_flag in listen_arp sub",20);
+        $logger->trace("releasing lock on \$rearp_flag in listen_arp sub");
       }
 
       #wake up the arpgun thread
-      pflogger("sending signal to arp_gun (if he is sleeping)",16);
+      $logger->debug("sending signal to arp_gun (if he is sleeping)");
       {
-        pflogger("trying to obtain lock on \$arp_signal in listen_arp sub",20);
+        $logger->trace("trying to obtain lock on \$arp_signal in listen_arp sub");
         lock($arp_signal);
         cond_signal($arp_signal);
-        pflogger("releasing lock on \$arp_signal in listen_arp sub",20);
+        $logger->trace("releasing lock on \$arp_signal in listen_arp sub");
       }
     } else{
        #util_funnyarp($srcmac,$srcip,$destmac,$destip,$type);
     }
 
-    pflogger("trying to obtain lock on \%violations in listen_arp sub",20);
+    $logger->trace("trying to obtain lock on \%violations in listen_arp sub");
     lock(%violations);
     #  if a violation host arp them now!
     if ($violations{$srcmac}){
-      pflogger("$srcmac ($srcip) is arping for $destip",8);
+      $logger->info("$srcmac ($srcip) is arping for $destip");
       trapmac($srcmac) if ($destip eq $gip);
     }
     update_hashes($srcmac,$srcip);
-    pflogger("releasing lock on \%violations in listen_arp sub",20);
+    $logger->trace("releasing lock on \%violations in listen_arp sub");
 
   } elsif ($type == 2) {
-    pflogger("ARP $srcip is-at $srcmac $srcmac $srcip $destmac $destip",12);
+    $logger->debug("ARP $srcip is-at $srcmac $srcmac $srcip $destmac $destip");
     update_hashes($srcmac,$srcip);
     #util_funnyarp($srcmac,$srcip,$destmac,$destip,$type);
   } 
@@ -293,7 +300,9 @@ sub listen_arp {
 # 
 #
 sub arp_gun {
-  pflogger("Starting ARP gun thread",1);
+  my $logger = Log::Log4perl::get_logger('pfmon::arp_gun');
+
+  $logger->info("Starting ARP gun thread");
   #lock($arp_signal);
   my $mydbh=0;
 
@@ -306,20 +315,20 @@ sub arp_gun {
     db_connect($mydbh,'iplog','node','violation');
     #reset the flag as we are going to arp now
     if ($rearp_flag){
-      pflogger("resetting flag and ARPing",16);
-      pflogger("trying to obtain lock on \$rearp_flag in arp_gun sub",20);
+      $logger->debug("resetting flag and ARPing");
+      $logger->trace("trying to obtain lock on \$rearp_flag in arp_gun sub");
       lock($rearp_flag);
       $rearp_flag=0;
-      pflogger("releasing lock on \$rearp_flag in arp_gun sub",20);
+      $logger->trace("releasing lock on \$rearp_flag in arp_gun sub");
     }
     rearp();
 
     # has the flag been set while we were arping??? if no flag sleep for $arp_interval
     if (!$rearp_flag){
-      pflogger("sleeping for $arp_interval seconds",2);
+      $logger->info("sleeping for $arp_interval seconds");
       lock($arp_signal);
       if (cond_wait( $arp_signal)) {
-        pflogger("cleanup/listen_arp woke us up",8);
+        $logger->info("cleanup/listen_arp woke us up");
       }
     }
   }
@@ -327,7 +336,7 @@ sub arp_gun {
 
 sub hello {
   my @tmpv = @_;
-  pflogger(scalar(@tmpv)." node(s) ",8) if (scalar(@tmpv) > 1);
+  $logger->info(scalar(@tmpv)." node(s) ") if (scalar(@tmpv) > 1);
 
   for my $row (@tmpv) {
     my $mac = $row->{'mac'};
@@ -337,7 +346,7 @@ sub hello {
     my $mymac = getlocalmac(ip2device($ip));
     if ($mac=~/ff:ff:ff:ff:ff:ff/ || trappable_mac($mac)) {
       arpmac($mymac,$intip,$mac,$ip,0,1);
-      pflogger("heartbeat sent to $mac ($ip)",16);
+      $logger->debug("heartbeat sent to $mac ($ip)");
     }
   }
 
@@ -347,7 +356,7 @@ sub goodbye {
   my @tmpv = @_;
   my $heartbeat =$Config{'arp'}{'heartbeat'};
   my @deadnodes;
-  pflogger(scalar(@tmpv)." node(s) - heartbeat = $heartbeat",8) if (scalar(@tmpv) > 0);
+  $logger->info(scalar(@tmpv)." node(s) - heartbeat = $heartbeat") if (scalar(@tmpv) > 0);
 
   for my $row (@tmpv) {
     my $mac = $row->{'mac'};
@@ -356,10 +365,10 @@ sub goodbye {
     if (trappable_ip($ip) && trappable_mac($mac)) {
       my $diff = $cache->get_arptime($mac);
       if ($diff <= $heartbeat ){
-        pflogger("trapping $mac last seen $diff seconds ago",10);
+        $logger->info("trapping $mac last seen $diff seconds ago");
         trapmac($mac);
       }else{
-	    pflogger("$mac timeout : $diff",10);
+	    $logger->info("$mac timeout : $diff");
         hello({'ip'=>$ip,'mac'=>$mac});
         push(@deadnodes,$mac); 
       }
@@ -387,11 +396,11 @@ sub rearp {
 
   # update the violations hash for other threads
   {
-    pflogger("trying to obtain lock on \%violations in rearp sub",20);
+    $logger->trace("trying to obtain lock on \%violations in rearp sub");
     lock(%violations);
     %violations=();
     %violations=%new_violations;
-    pflogger("releasing lock on \%violations in rearp sub",20);
+    $logger->trace("releasing lock on \%violations in rearp sub");
   }
 
   if (scalar(@violators) > 0) {
@@ -401,12 +410,12 @@ sub rearp {
     #
     my $mytime = time()-$last_goodbye;
     if ($newflag || $mytime > ($Config{'arp'}{'heartbeat'})/2){
-      pflogger("Saying hello, last goodbye time was $mytime [$newflag] sec",10);
+      $logger->info("Saying hello, last goodbye time was $mytime [$newflag] sec");
       hello(@violators);
       # sleep 2 sec to give listen arp time to catch up
       sleep(2);
     } else{
-      pflogger("No hello, last goodbye was $mytime [$newflag] sec",8);
+      $logger->info("No hello, last goodbye was $mytime [$newflag] sec");
     }
     goodbye(@violators);
     $last_goodbye=time();
@@ -415,20 +424,21 @@ sub rearp {
 }
 
 sub cleanup {
-  pflogger("Starting cleanup thread");
+  my $logger = Log::Log4perl::get_logger('pfmon::cleanup');
+  $logger->info("Starting cleanup thread");
   my $mydbh;
   db_connect($mydbh,'iplog','node','locationlog');
 
   if (!$restart) {
-    pflogger("closing open iplogs (just in case)", 1);
+    $logger->info("closing open iplogs (just in case)");
     iplog_shutdown();
   } else {
-    pflogger("restarted - leaving iplogs open and re-creating hashes",1);
+    $logger->info("restarted - leaving iplogs open and re-creating hashes");
     my @iplogs = iplog_view_open();
     for my $row (@iplogs) {
       my $mac = $row->{'mac'};
       my $ip  = $row->{'ip'};
-      pflogger("re-populating hashes $mac<->$ip",8);
+      $logger->info("re-populating hashes $mac<->$ip");
       $cache->new_node($mac,$ip);
     }
   }
@@ -441,7 +451,7 @@ sub cleanup {
 
     # make sure we get gateways
     foreach my $gateway (get_gateways()) {
-      pflogger("ARPing gateway $gateway", 4);
+      $logger->info("ARPing gateway $gateway");
       hello({'ip'=>$gateway,'mac'=>"ff:ff:ff:ff:ff:ff"});
     }
 
@@ -468,37 +478,37 @@ sub cleanup {
     #
     # run these functions every $arp_interval * 10 
     if ($counter==0){
-      pflogger("running expire check",1);
+      $logger->info("running expire check");
       iplog_cleanup($Config{'expire'}{'iplog'}) if ($Config{'expire'}{'iplog'});
       locationlog_cleanup($Config{'expire'}{'locationlog'}) if ($Config{'expire'}{'locationlog'});
       node_cleanup($Config{'expire'}{'node'}) if ($Config{'expire'}{'node'});
-      pflogger("checking registered nodes for expiration");
+      $logger->info("checking registered nodes for expiration");
       nodes_maintenance();
     }      
 
     sleep $arp_interval;
     if ($Config{'network'}{'mode'}!~/^dhcp$/i) {
-      pflogger("trying to obtain lock on arp_signal in cleanup sub",20);
+      $logger->trace("trying to obtain lock on arp_signal in cleanup sub");
       lock($arp_signal);
       cond_signal($arp_signal);
-      pflogger("releasing lock on arp_signal in cleanup sub",20);
+      $logger->trace("releasing lock on arp_signal in cleanup sub");
     } 
   }
 }
 
 sub update_hashes {
   my ($srcmac,$srcip,$lease_length)=@_;
-  pflogger("$srcip && $srcmac",16);
+  $logger->debug("$srcip && $srcmac");
 
   # return if MAC or IP is not valid
   if (!valid_mac($srcmac) || !valid_ip($srcip)) {
-    pflogger("invalid MAC or IP: $srcmac $srcip",1);
+    $logger->error("invalid MAC or IP: $srcmac $srcip");
     return;
   }
 
   #DB is out of date with Cache
   if (!node_exist($srcmac) && $cache->get_ip($srcmac)){
-     pflogger("$srcmac ($srcip) does not exist in the Database - Deleting from cache",4);
+     $logger->info("$srcmac ($srcip) does not exist in the Database - Deleting from cache");
      $cache->delete_node($srcmac);
   }
 
@@ -506,12 +516,12 @@ sub update_hashes {
 
   if ($oldmac eq $srcmac){
 
-     pflogger("oldmac and newmac ($srcmac) are the same for $srcip",16);
+     $logger->debug("oldmac and newmac ($srcmac) are the same for $srcip");
      if (! defined(iplog_view_open_mac($srcmac))) {
-       pflogger("inserting $srcip ($srcmac) into iplog table", 16);
+       $logger->debug("inserting $srcip ($srcmac) into iplog table");
        iplog_open($srcmac,$srcip,$lease_length);
      } elsif ($lease_length) {
-       pflogger("updating end_time for $srcip ($srcmac) in iplog table", 16);
+       $logger->debug("updating end_time for $srcip ($srcmac) in iplog table");
        iplog_open($srcmac,$srcip,$lease_length);
      }
 
@@ -523,24 +533,21 @@ sub update_hashes {
   my $oldip=$cache->get_ip($srcmac);
 
   if ($oldip && !$oldmac && $Config{'network'}{'mode'}!~/dhcp/i){
-    pflogger("new IP: $srcmac ($srcip) - adding to iplog",4);
+    $logger->info("new IP: $srcmac ($srcip) - adding to iplog");
     $cache->add_ip($srcmac,$srcip,$lease_length);
     node_update_lastarp($srcmac);
     return;
   }
 
-  #pflogger("Delete_node $oldmac if $oldmac",14);
   $cache->delete_node($oldmac) if ($oldmac);
-
-  #pflogger("Delete_node $srcmac if $oldip",14);
   $cache->delete_node($srcmac) if ($oldip);
 
   if (!$cache->get_ip($srcmac)){
-    pflogger("UPDATE New node $srcmac ($srcip) ",8);
+    $logger->info("UPDATE New node $srcmac ($srcip)");
     node_add_simple($srcmac) if (!$oldip);
     $cache->new_node($srcmac,$srcip,$lease_length);
   }else{
-    pflogger("NOT ADDING NODE $srcmac $srcip could not age out ($oldmac,$oldip)");
+    $logger->warn("NOT ADDING NODE $srcmac $srcip could not age out ($oldmac,$oldip)");
   }
 } 
 
@@ -561,16 +568,16 @@ sub arp_filter {
 }
 
 sub strobe {
-  pflogger("strobing all internal IPs",4);
+  $logger->info("strobing all internal IPs");
   foreach my $ip (get_all_internal_ips()){
     my $intip = ip2interface($ip);
     my $mymac = getlocalmac(ip2device($ip));
-    pflogger("Strobe $ip [$intip $mymac]",14);
+    $logger->debug("Strobe $ip [$intip $mymac]");
     arpmac($mymac,$intip,"ff:ff:ff:ff:ff:ff",$ip,0,1);
   }
   sleep($Config{'arp'}{'heartbeat'});
   $strobe_done++;
-  pflogger("strobe complete, network map should be up to date",8);
+  $logger->info("strobe complete, network map should be up to date");
 }
 
 sub daemonize {
@@ -582,7 +589,7 @@ sub daemonize {
   defined(my $pid = fork) or die "pfmon: could not fork: $!";
   POSIX::_exit(0) if ($pid);
   if (!POSIX::setsid()) {
-    pflogger("could not start a new session: $!", 1);
+    $logger->error("could not start a new session: $!");
 #    die("pfmon: could not start a new session: $!\n");
   }
   open STDERR, '>&STDOUT' or die "Can't dup stdout: $!";
@@ -592,7 +599,7 @@ sub daemonize {
 sub normal_sighandler {
   deletepid(); 
   if (threads->self->tid() == 0) {
-    pflogger("caught SIG".$_[0]." - closing open iplogs and untrapping", 1);
+    $logger->info("caught SIG".$_[0]." - closing open iplogs and untrapping");
 
     my $mydbh;
     db_connect($mydbh,'iplog','node','violation');
@@ -610,10 +617,10 @@ sub normal_sighandler {
 
 sub restart_handler {
   deletepid();
-  pflogger("caught SIG".$_[0]." - restarting", 1);
+  $logger->info("caught SIG".$_[0]." - restarting");
   push @ORIG_ARGV, "-r" if(!grep(/^\-r$/,@ORIG_ARGV));
   if (!exec($0, @ORIG_ARGV)) {
-    pflogger("could not restart: #!", 1);
+    $logger->error("could not restart: #!");
     die "pfmon: could not restart: $!\n";
   }
 }
