@@ -16,8 +16,6 @@ use File::Basename;
 use Log::Log4perl;
 use threads;
 
-Log::Log4perl->init('/usr/local/pf/conf/log.conf');
-
 our ($dbh,%last_connect);
 
 BEGIN {
