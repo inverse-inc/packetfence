@@ -14,6 +14,8 @@ use strict;
 use Getopt::Std;
 use Net::Pcap;
 use POSIX qw(:signal_h);
+use Data::Dumper;
+use Log::Log4perl;
 
 
 use lib '/usr/local/pf/lib';
@@ -32,7 +34,12 @@ use pf::os;
 use pf::action;
 use pf::iptables;
 use pf::rawip;
-use Data::Dumper;
+
+
+Log::Log4perl->init('/usr/local/pf/conf/log.conf');
+my $logger = Log::Log4perl->get_logger('pfdhcplistener');
+Log::Log4perl::MDC->put('proc', 'pfdhcplistener');
+Log::Log4perl::MDC->put('tid', 0);
 
 POSIX::sigaction(&POSIX::SIGHUP,
           POSIX::SigAction->new(
@@ -85,17 +92,17 @@ if (isenabled($Config{'network'}{'dhcpdetector'})) {
   @devices=get_dhcp_devs() if ( $Config{'network'}{'mode'} =~ /^dhcp$/i );
   foreach my $dev (@devices){
     if ($dev eq $interface) {
-      pflogger("DHCP detector on $dev enabled",1);
+      $logger->info("DHCP detector on $dev enabled");
       dhcp_detector($interface);
     }
   }
-  pflogger("pfdhcplistener for $interface finished - this is bad",1);
+  $logger->warn("pfdhcplistener for $interface finished - this is bad");
 }
 
 
 END {
   deletepid("pfdhcplistener_$interface");
-  pflogger("stopping pfdhcplistener for interface $interface", 1);
+  $logger->info("stopping pfdhcplistener for interface $interface");
 }
 
 exit(0);
@@ -150,20 +157,20 @@ sub listen_dhcp {
   my ($op, $htype, $hlen, $hops, $xid, $secs, $dflags, $ciaddr, $yiaddr, $siaddr, $giaddr, $chaddr, $sname, $file, @options) = unpack('CCCCNnnNNNNH32A64A128C*', substr($packet, 14 + $ihl * 4 + 8));
 
   if (! defined($chaddr)) {
-    pflogger("chaddr is undefined in DHCP packet", 12);
+    $logger->debug("chaddr is undefined in DHCP packet");
     return;
   }
   
   $chaddr = clean_mac(substr($chaddr,0,12));
   if ($chaddr ne "00:00:00:00:00:00" && !valid_mac($chaddr)) {
-    pflogger("invalid CHADDR value ($chaddr) in DHCP packet from $smac ($src)",12);
+    $logger->debug("invalid CHADDR value ($chaddr) in DHCP packet from $smac ($src)");
     return;
   }
 
   # decode DHCP options
   # valid DHCP options field begins with 99,130,83,99...
   if (! join(":", splice(@options, 0, 4)) =~ /^99:130:83:99$/) {
-    pflogger("invalid DHCP options received from $chaddr", 12);
+    $logger->debug("invalid DHCP options received from $chaddr");
     return;
   }
 
@@ -208,23 +215,23 @@ sub listen_dhcp {
     if (defined($options{'53'}[0]) && $options{'53'}[0] == 2) {
       if ($yiaddr) {
         $yiaddr = int2ip($yiaddr);
-        pflogger("DHCPOFFER from $src ($smac) to host $chaddr ($yiaddr)",8);
+        $logger->info("DHCPOFFER from $src ($smac) to host $chaddr ($yiaddr)");
       } else {
-        pflogger("DHCPOFFER invalid IP $yiaddr for $chaddr",8);
+        $logger->warn("DHCPOFFER invalid IP $yiaddr for $chaddr");
         return;
       }
 
       # ignore DHCPOFFER from gateways
       # avoid rogue DHCP false positives
       if (grep(/^$src$/, get_gateways()) || grep(/^$src$/, split(/\s*,\s*/, $Config{'general'}{'dhcpservers'}))) {
-        pflogger("$src ($smac) appears to be a DHCP server or relay, adding $chaddr ($yiaddr) to hash",14);
+        $logger->debug("$src ($smac) appears to be a DHCP server or relay, adding $chaddr ($yiaddr) to hash");
         #update_iplog($chaddr,$yiaddr);
         return;
       }
 
       my $date = POSIX::strftime("%m/%d/%y %H:%M:%S", localtime);
       push @{$rogue_servers{$smac}}, sprintf("%s: %15s to %s on interface %s\n",$date, $yiaddr, $chaddr, $eth);
-      pflogger("$src ($smac) was detected offering $yiaddr to $chaddr on $eth",1);
+      $logger->warn("$src ($smac) was detected offering $yiaddr to $chaddr on $eth");
       `/usr/local/pf/bin/pfcmd 'violation add vid=1100010, mac=$smac'`;
       if (scalar(@{$rogue_servers{$smac}}) == $Config{'network'}{'rogueinterval'}) {
         my %rogue_message;
@@ -246,32 +253,32 @@ sub listen_dhcp {
 
       if ($yiaddr) {
         $yiaddr = int2ip($yiaddr);
-        pflogger("DHCPACK from $src ($smac) to host $chaddr ($yiaddr)" . (defined($lease_length) ? " for $lease_length seconds" : ""),8);
+        $logger->info("DHCPACK from $src ($smac) to host $chaddr ($yiaddr)" . (defined($lease_length) ? " for $lease_length seconds" : ""));
         update_iplog($chaddr,$yiaddr,$lease_length);
         return;
       } elsif ($ciaddr) {
         $ciaddr = int2ip($ciaddr);
-        pflogger("DHCPACK CIADDR from $src ($smac) to host $chaddr ($ciaddr)" . (defined($lease_length) ? " for $lease_length seconds" : ""),8);
+        $logger->info("DHCPACK CIADDR from $src ($smac) to host $chaddr ($ciaddr)" . (defined($lease_length) ? " for $lease_length seconds" : ""));
         update_iplog($chaddr,$ciaddr,$lease_length);
         return;
       } else {
-        pflogger("invalid DHCPACK from $src ($smac) to host $chaddr [$yiaddr - $ciaddr ] -", 8);
+        $logger->warn("invalid DHCPACK from $src ($smac) to host $chaddr [$yiaddr - $ciaddr ] -");
         return;
       }
     }
   } elsif ($op == 1) {
     if (defined($options{'53'}[0]) && $options{'53'}[0] == 1) {
-      pflogger("DHCPDISCOVER from $chaddr", 8);
+      $logger->info("DHCPDISCOVER from $chaddr");
     } elsif (defined($options{'53'}[0]) && $options{'53'}[0] == 3) {
-      pflogger("DHCPREQUEST from $chaddr", 8);
+      $logger->info("DHCPREQUEST from $chaddr");
     } elsif (defined($options{'53'}[0]) && $options{'53'}[0] == 7) {
       $ciaddr=int2ip($ciaddr);
-      pflogger("DHCPRELEASE from $chaddr ($ciaddr)", 8);
+      $logger->info("DHCPRELEASE from $chaddr ($ciaddr)");
       iplog_close($ciaddr);
       return;
     } elsif (defined($options{'53'}[0]) && $options{'53'}[0] == 8) {
       $ciaddr=int2ip($ciaddr);
-      pflogger("DHCPINFORM from $chaddr ($ciaddr)", 8);
+      $logger->info("DHCPINFORM from $chaddr ($ciaddr)");
       return;
     }
 
@@ -283,15 +290,15 @@ sub listen_dhcp {
       my @fingerprint_info = dhcp_fingerprint_view($dhcp_fingerprint);
       if (scalar(@fingerprint_info) && (ref($fingerprint_info[0]) eq 'HASH')) {
         my @os_triggers;
-	pflogger("$chaddr DHCP fingerprint is OS::".$fingerprint_info[0]->{'os_id'}." (".$fingerprint_info[0]->{'os'}.") ",4);
-        pflogger("sending OS::".$fingerprint_info[0]->{'os_id'}." (".$fingerprint_info[0]->{'os'}.") trigger",12);
+	$logger->info("$chaddr DHCP fingerprint is OS::".$fingerprint_info[0]->{'os_id'}." (".$fingerprint_info[0]->{'os'}.") ");
+        $logger->debug("sending OS::".$fingerprint_info[0]->{'os_id'}." (".$fingerprint_info[0]->{'os'}.") trigger");
         violation_trigger($chaddr,$fingerprint_info[0]->{'os_id'},"OS");
         foreach my $os_trigger (@fingerprint_info) {
-          pflogger("sending OS::".$os_trigger->{'class_id'}." (".$os_trigger->{'class'}.") trigger",12);
+          $logger->debug("sending OS::".$os_trigger->{'class_id'}." (".$os_trigger->{'class'}.") trigger");
           violation_trigger($chaddr,$os_trigger->{'class_id'},"OS");
         }
       } else {
-        pflogger("unknown DHCP fingerprint: $dhcp_fingerprint", 1);
+        $logger->warn("unknown DHCP fingerprint: $dhcp_fingerprint");
       }
     }
     $tmp{'last_dhcp'} = mysql_date();
@@ -324,7 +331,7 @@ sub listen_dhcp {
     }
  
     if (! node_exist($chaddr)) {
-      pflogger("UPDATE New node $chaddr",8);
+      $logger->info("UPDATE New node $chaddr");
       node_add_simple($chaddr);
     }
 
@@ -333,21 +340,21 @@ sub listen_dhcp {
         $modifying_node_log_message .= "$node_key = " . $tmp{$node_key} . ",";
     }
     chop($modifying_node_log_message);
-    pflogger("modifying node $chaddr with $modifying_node_log_message",1);
+    $logger->info("modifying node $chaddr with $modifying_node_log_message");
     node_modify($chaddr,%tmp);
   } else {
-    pflogger("unrecognized DHCP opcode from $chaddr: $op", 12);
+    $logger->debug("unrecognized DHCP opcode from $chaddr: $op");
   }
 }
 
 
 sub update_iplog {
   my ($srcmac,$srcip,$lease_length)=@_;
-  pflogger("$srcip && $srcmac",16);
+  $logger->debug("$srcip && $srcmac");
 
   # return if MAC or IP is not valid
   if (!valid_mac($srcmac) || !valid_ip($srcip)) {
-    pflogger("invalid MAC or IP: $srcmac $srcip",1);
+    $logger->error("invalid MAC or IP: $srcmac $srcip");
     return;
   }
 
@@ -355,15 +362,15 @@ sub update_iplog {
   my $oldip = mac2ip($srcmac);
 
   if ($oldmac && $oldmac ne $srcmac) {
-    pflogger("oldmac ($oldmac) and newmac ($srcmac) are different for $srcip - closing iplog entry",8);
+    $logger->info("oldmac ($oldmac) and newmac ($srcmac) are different for $srcip - closing iplog entry");
     iplog_close_now($srcip);
   }
   if ($oldip && $oldip ne $srcip) {
-    pflogger("oldip ($oldip) and newip ($srcip) are different for $srcmac - closing iplog entry",8);
+    $logger->info("oldip ($oldip) and newip ($srcip) are different for $srcmac - closing iplog entry");
     iplog_close_now($oldip);
   }
   if (! node_exist($srcmac)) {
-    pflogger("UPDATE New node $srcmac ($srcip) ",8);
+    $logger->info("UPDATE New node $srcmac ($srcip)");
     node_add_simple($srcmac);
   }
   iplog_open($srcmac,$srcip,$lease_length);
@@ -380,7 +387,7 @@ sub daemonize {
   defined(my $pid = fork) or die "pfdhcplistener: could not fork: $!";
   POSIX::_exit(0) if ($pid);
   if (!POSIX::setsid()) {
-    pflogger("could not start a new session: $!", 1);
+    $logger->error("could not start a new session: $!");
   }
   open STDERR, '>&STDOUT' or die "Can't dup stdout: $!";
   createpid("pfdhcplistener_$interface");
@@ -395,10 +402,10 @@ sub normal_sighandler {
 
 sub restart_handler {
   deletepid("pfdhcplistener_$interface");
-  pflogger("caught SIG".$_[0]." - restarting", 1);
+  $logger->info("caught SIG".$_[0]." - restarting");
   push @ORIG_ARGV, "-r" if(!grep(/^\-r$/,@ORIG_ARGV));
   if (!exec($0, @ORIG_ARGV)) {
-    pflogger("could not restart: #!", 1);
+    $logger->error("could not restart: #!");
     die "pfdhcplistener: could not restart: $!\n";
   }
 }

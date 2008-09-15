@@ -33,7 +33,7 @@ use Data::Dumper;
 sub parseTrap {
     my ($this, $trapString) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Intel");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if ($trapString =~ /^BEGIN TYPE ([23]) END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = INTEGER: \d+ END VARIABLEBINDINGS$/) {
         $trapHashRef->{'trapType'} = (($1 == 2) ? "down" : "up");
         $trapHashRef->{'trapIfIndex'} = $2;

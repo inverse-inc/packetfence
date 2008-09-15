@@ -13,7 +13,10 @@ use strict;
 use warnings;
 use DBD::mysql;
 use File::Basename;
+use Log::Log4perl;
 use threads;
+
+Log::Log4perl->init('/usr/local/pf/conf/log.conf');
 
 our ($dbh,%last_connect);
 
@@ -36,26 +39,27 @@ $dbh = db_connect() if (!threads->self->tid);
 
 sub db_connect {
   my ($mydbh,@function_list) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::db');
   $mydbh=0 if (!defined $mydbh);
   my $caller = (caller(1))[3] || basename($0);
-  pflogger("function $caller is calling db_connect ",12);
+  $logger->debug("function $caller is calling db_connect");
 
   my $tid = threads->self->tid;
   $mydbh=$dbh if (!$tid  && defined $dbh);
 
   if (defined($last_connect{$tid}) && $last_connect{$tid} && (time() - $last_connect{$tid} < 30) && $mydbh) {
-    pflogger("not checking db handle, it has less then 300 sec from last time",18);
+    $logger->debug("not checking db handle, it has less then 300 sec from last time");
     return $mydbh;
   } 
-  pflogger("checking handle",12);
+  $logger->debug("checking handle");
 
   if ($mydbh && $mydbh->ping()){
     $last_connect{$tid} = time();
-    pflogger("we are currently connected ",12);
+    $logger->debug("we are currently connected");
     return $mydbh;
   }
 
-  pflogger("Connecting $mydbh from $tid db connection is DEAD (re)connecting",1);
+  $logger->info("Connecting $mydbh from $tid db connection is DEAD (re)connecting");
 
   my $host = $Config{'database'}{'host'};
   my $port = $Config{'database'}{'port'};
@@ -67,12 +71,12 @@ sub db_connect {
  
   # make sure we have a database handle
   if ($mydbh) {
-    pflogger("connected",12);
+    $logger->debug("connected");
     $last_connect{$tid} = time() if $mydbh;
     $dbh=$mydbh if (!$tid);
     foreach my $function (@function_list){
       $function.="_db_prepare";
-      pflogger("db preparing $function",1);
+      $logger->info("db preparing $function");
       ($main::{$function} or sub { print "No such sub: $_\n" })->($mydbh);
      }
     $_[0]=$mydbh;

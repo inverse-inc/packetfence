@@ -36,7 +36,7 @@ use Net::Telnet;
 sub getVersion {
     my ($this) = @_;
     my $oid_rlPhdUnitGenParamSoftwareVersion = '1.3.6.1.4.1.89.53.14.1.2.1'; #RADLAN-Physicaldescription-MIB
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Linksys");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->connectRead()) {
         return '';
     }
@@ -53,7 +53,7 @@ sub getVersion {
 sub parseTrap {
     my ($this, $trapString) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Linksys");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if ($trapString =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = INTEGER: \d+\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.7\.\d+ = INTEGER: [^|]+\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.8\.\d+ = INTEGER: [^(]+\((\d)\) END VARIABLEBINDINGS/) {
         $trapHashRef->{'trapType'} = (($2 == 2) ? "down" : "up");
         $trapHashRef->{'trapIfIndex'} = $1;
@@ -74,7 +74,7 @@ sub parseTrap {
 
 sub isDefinedVlan {
     my ($this, $vlan) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Linksys");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if ($vlan == 1) {
         return 1;
     }
@@ -85,7 +85,7 @@ sub getTrunkPorts {
     my ($this) = @_;
     my $OID_vlanPortModeState = '1.3.6.1.4.1.89.48.22.1.1'; #RADLAN-vlan-MIB
     my @trunkPorts;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Linksys");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     if (! $this->connectRead()) {
         return @trunkPorts;
@@ -122,7 +122,7 @@ sub getUpLinks {
 
 sub _setVlan {
     my ($this,$ifIndex,$newVlan,$oldVlan,$switch_locker_ref) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Linksys");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->connectRead()) {
         return 0;
     }
@@ -226,7 +226,7 @@ sub _setVlan {
 
 sub connectTelnet {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Linksys");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $maxTries = 50;
     my $tryNb = 1;
     my $cliAvailable = 0;
@@ -279,7 +279,7 @@ sub connectTelnet {
 
 sub isPortSecurityEnabled {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Linksys");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_swIfHostMode = '1.3.6.1.4.1.89.43.1.1.30'; #RADLAN-rlInterfaces MIB
     
     if (! $this->connectRead()) {
@@ -298,7 +298,7 @@ sub isPortSecurityEnabled {
 
 sub setPortSecurityDisabled {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Linksys");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     $logger->info("function not implemented yet !");
     return 1;
@@ -307,13 +307,13 @@ sub setPortSecurityDisabled {
  
 sub isDynamicPortSecurityEnabled {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Linksys");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     return ($this->isPortSecurityEnabled($ifIndex) && (! $this->isStaticPortSecurityEnabled($ifIndex)));
 }
 
 sub isStaticPortSecurityEnabled {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Linksys");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_swIfLockAdminStatus = '1.3.6.1.4.1.89.43.1.1.8';
     
     if (! $this->connectRead()) {
@@ -342,7 +342,7 @@ sub isStaticPortSecurityEnabled {
 
 sub getMaxMacAddresses {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Linksys");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_swIfLockMaxMacAddresses = '1.3.6.1.4.1.89.43.1.1.38';
 
     if (! $this->connectRead()) {
@@ -371,7 +371,7 @@ sub getMaxMacAddresses {
 
 sub getSecureMacAddresses {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Linksys");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $secureMacAddrHashRef = {};
     my $ifName = $this->getIfName($ifIndex);
     if ($ifName eq '') {
@@ -396,7 +396,7 @@ sub getSecureMacAddresses {
 
 sub getAllSecureMacAddresses {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Linksys");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $secureMacAddrHashRef = {};
     my %ifNameIfIndexHash = $this->getIfNameIfIndexHash();
     my $telnetConnection = $this->connectTelnet();
@@ -420,7 +420,7 @@ sub getAllSecureMacAddresses {
 
 sub authorizeMAC {
     my ($this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Catalyst_2950");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $oid_cpsSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.2.1.4';
 
     if (! $this->isProductionMode()) {

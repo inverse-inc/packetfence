@@ -12,6 +12,7 @@ package pf::rawip;
 use strict;
 use warnings;
 use Net::RawIP;
+use Log::Log4perl;
 
 use lib qw(/usr/local/pf/lib);
 
@@ -27,6 +28,7 @@ use pf::iplog qw(mac2allips ip2mac mac2ip);
 
 sub trapmac {
   my ($mac) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::rawip');
   my $all_ok = 1;
   foreach my $ip (mac2allips($mac)) {
     my $gip = ip2gateway($ip);
@@ -34,7 +36,7 @@ sub trapmac {
     if (!trappable_mac($mac) || !trappable_ip($ip)) {
       $all_ok = 0;
     } else {
-      pflogger("trapping $mac (ip: $ip, gwip: $gip, gwmac: $gmac)",4);
+      $logger->info("trapping $mac (ip: $ip, gwip: $gip, gwmac: $gmac)");
       #arpmac($gmac,$gip,$mac,$ip,0,2);
       arpmac($gmac,$gip,$mac,$ip,0,1);
     }
@@ -44,11 +46,12 @@ sub trapmac {
 
 sub freemac {
   my $destmac = shift;
+  my $logger = Log::Log4perl::get_logger('pf::rawip');
   foreach my $destip (mac2allips($destmac)) {
     my $destgateip = ip2gateway($destip);
     my $destgatemac = ip2mac($destgateip);
     if ($destgatemac && $destgateip && $destip) {
-      pflogger("releasing $destmac (ip: $destip, gwip: $destgateip, gwmac: $destgatemac)",4);
+      $logger->info("releasing $destmac (ip: $destip, gwip: $destgateip, gwmac: $destgatemac)");
       #&arpmac($destgatemac,$destgateip,$destmac,$destip,0,2);
       &arpmac($destgatemac,$destgateip,$destmac,$destip,0,1);
     }
@@ -59,6 +62,7 @@ sub freemac {
 
 sub arpmac {
   my ($mymac,$myip,$destmac,$destip,$delay,$type) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::rawip');
 
   return 0 if (!$mymac || !$myip || !$destip || !$destmac);
 
@@ -83,14 +87,14 @@ sub arpmac {
 
   my $padding = "KevinAmorinDaveLaPorte";
 
-  pflogger("ARP type=$type src $eth $mymac $myip -> dst $destmac content: [$mymac,$myip,$destmac,$destip]",12);
+  $logger->debug("ARP type=$type src $eth $mymac $myip -> dst $destmac content: [$mymac,$myip,$destmac,$destip]");
   my $arp=pack("nnnCCnCCCCCCNCCCCCCN",2054,1,2048,6,4,$type,@mymac,$sip,@destmac,$dip).$padding;
 
   # don't send the frame in testing!!
   if (!isenabled($Config{'trapping'}{'testing'})) {
     $a->send_eth_frame($arp,$delay,1);
   }else{
-    pflogger("not sending frame, testing mode enabled",12);
+    $logger->warn("not sending frame, testing mode enabled");
   } 
 }
 

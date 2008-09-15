@@ -10,6 +10,7 @@
 
 use strict;
 use warnings;
+use Log::Log4perl;
 
 use vars qw/%cmd %table2key $grammar $delimiter/;
 

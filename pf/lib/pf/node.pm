@@ -12,6 +12,7 @@ package pf::node;
 
 use strict;
 use warnings;
+use Log::Log4perl;
 
 our ($node_modify_sql, $node_exist_sql, $node_pid_sql, $node_delete_sql, $node_add_sql, $node_regdate_sql,
      $node_view_sql, $node_view_all_sql, $node_view_with_fingerprint_sql, $node_ungrace_sql, $node_expire_window_sql, $node_expire_deadline_sql, $node_expire_unreg_field_sql,
@@ -95,18 +96,19 @@ sub node_pid {
 #
 sub node_delete {
   my ($mac) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::node');
   if (!node_exist($mac)) {
-    pflogger("delete of non-existent node '$mac' failed", 2);
+    $logger->error("delete of non-existent node '$mac' failed");
     return 0;
   }
   if (isenabled($Config{'network'}{'vlan'})) {
     if (defined(locationlog_view_open_mac($mac))) {
-      pflogger("VLAN isolation mode enabled and $mac has open locationlog entry. Node deletion prohibited", 2);
+      $logger->warn("VLAN isolation mode enabled and $mac has open locationlog entry. Node deletion prohibited");
       return 0;
     }
   }
   $node_delete_sql->execute($mac) || return(0);
-  pflogger("node $mac deleted", 2);
+  $logger->info("node $mac deleted");
   return(1)
 }
 
@@ -115,11 +117,12 @@ sub node_delete {
 #
 sub node_add {
   my ($mac,%data) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::node');
   $mac = lc($mac);
   return(0) if (!valid_mac($mac));
 
   if (node_exist($mac)) {
-      pflogger("attempt to add existing node $mac", 16);
+      $logger->warn("attempt to add existing node $mac");
       #return node_modify($mac,%data);
       return(2);
   }
@@ -189,14 +192,15 @@ sub node_view_with_fingerprint {
   
 sub node_modify {
   my($mac,%data) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::node');
   $mac = lc($mac);
   return (0) if (!valid_mac($mac));
 
   if (!node_exist($mac)) {
     if (node_add_simple($mac)) {
-      pflogger("modify of non-existent node $mac attempted - node added", 8);
+      $logger->info("modify of non-existent node $mac attempted - node added");
     } else {
-      pflogger("modify of non-existent node $mac attempted - node add failed", 8);
+      $logger->error("modify of non-existent node $mac attempted - node add failed");
       return(0);
     }
   }
@@ -211,7 +215,7 @@ print "$item: $data{$item}\n";
   my $new_status = $existing->{'status'};
   
   if ($mac ne $new_mac && node_exist($new_mac)) {
-    pflogger("modify of node $mac to $new_mac conflicts with existing node", 8);
+    $logger->error("modify of node $mac to $new_mac conflicts with existing node");
     return(0);
   }
 
@@ -220,7 +224,7 @@ print "$item: $data{$item}\n";
   }
 
   if (($new_status eq 'reg') && ($old_status ne 'reg') && ($existing->{unregdate} eq '0000-00-00 00:00:00' || $existing->{unregdate} eq '')) {
-    pflogger("changed registration status for mac $new_mac from $old_status to $new_status; unregdate has not been specified -> calculating it now", 10);
+    $logger->debug("changed registration status for mac $new_mac from $old_status to $new_status; unregdate has not been specified -> calculating it now");
     my $expire_mode = $Config{'registration'}{'expire_mode'};
     if(($expire_mode =~ /^window$/i)&&($Config{'registration'}{'expire_window'} > 0)) {
       $existing->{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time+$Config{'registration'}{'expire_window'}));
@@ -247,6 +251,7 @@ sub node_register_auto {
 
 sub node_register {
   my ($mac,$pid,%info) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::node');
   $mac = lc($mac);
   my $auto_registered = 0;
 
@@ -259,15 +264,15 @@ sub node_register {
   $max_nodes = $Config{'registration'}{'maxnodes'} if (defined $Config{'registration'}{'maxnodes'});
   my $owned_nodes = person_nodes($pid);
   if ($max_nodes != 0 && $pid ne '1' && $owned_nodes >= $max_nodes) {
-    pflogger("maxnodes met or exceeded - registration of $mac to $pid failed", 1);
+    $logger->error("maxnodes met or exceeded - registration of $mac to $pid failed");
     return(0);
   }
 
   if (!person_exist($pid)) {
     person_add($pid);
-    pflogger("creating person $pid", 4);
+    $logger->info("creating person $pid");
   } else {
-    pflogger("person $pid already exists", 4);
+    $logger->info("person $pid already exists");
   }
   $info{'pid'}     = $pid;
   $info{'status'}  = 'reg';
@@ -287,17 +292,17 @@ sub node_register {
       my %ConfigVlan;
       tie %ConfigVlan, 'Config::IniFiles', (-file => '/usr/local/pf/conf/switches.conf');
       $info{'vlan'}=$ConfigVlan{'default'}{'normalVlan'};
-      pflogger("auto-configured VLAN to " . $info{'vlan'}, 8);
+      $logger->info("auto-configured VLAN to " . $info{'vlan'});
     }
   }
 
   if (!node_modify($mac,%info)) {
-    pflogger("modify of node $mac failed", 4);
+    logger->error("modify of node $mac failed");
     return(0);
   }
 
   if (!mark_node($mac, $reg_mark)) {
-    pflogger("unable to mark node $mac as registered", 1);
+    $logger->error("unable to mark node $mac as registered");
     return(0);
   }
 
@@ -327,6 +332,7 @@ sub node_register {
 
 sub node_deregister {
   my ($mac) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::node');
   my %info;
   $info{'status'}   = 'unreg';
   $info{'regdate'}  = 0;
@@ -335,12 +341,12 @@ sub node_deregister {
   $info{'pid'}      = 1;
 
   if (!node_modify($mac,%info)) {
-    pflogger("unable to de-register node $mac", 1);
+    $logger->error("unable to de-register node $mac");
     return(0);
   }
 
   if (!unmark_node($mac, $reg_mark)) {
-    pflogger("unable to delete registration rule for $mac: $!", 1);
+    $logger->error("unable to delete registration rule for $mac: $!");
     return(0);
   }
 
@@ -401,9 +407,10 @@ sub node_expire_lastarp {
 
 sub node_cleanup {
   my ($time) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::node');
   foreach my $row (node_expire_lastarp($time)){
     my $mac=$row->{'mac'};
-    pflogger("mac $mac not seen for $time seconds, deleting");
+    $logger->info("mac $mac not seen for $time seconds, deleting");
     node_delete($row->{'mac'});
   }
   return(0);

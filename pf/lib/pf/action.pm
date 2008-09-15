@@ -22,6 +22,7 @@ BEGIN {
   @EXPORT = qw(action_db_prepare action_add action_view action_view_all action_delete action_delete_all action_execute action_log);
 }
 
+use Log::Log4perl;
 use lib qw(/usr/local/pf/lib);
 use pf::config;
 use pf::util;
@@ -55,12 +56,13 @@ sub action_exist {
 
 sub action_add {
   my ($vid, $action) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::action');
   if (action_exist($vid, $action)) {
-    pflogger("attempt to add existing action $action to class $vid", 1);
+    $logger->info("attempt to add existing action $action to class $vid");
     return(2);
   }
   $action_add_sql->execute($vid,$action) || return(0);
-  pflogger("action $action added to class $vid", 2);
+  $logger->info("action $action added to class $vid");
   return(1);
 }
 
@@ -80,15 +82,17 @@ sub action_view_all {
 
 sub action_delete {
   my ($vid, $action) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::action');
   $action_delete_sql->execute($vid,$action) || return(0);
-  pflogger("action $action deleted from class $vid", 2);
+  $logger->info("action $action deleted from class $vid");
   return(1);
 }
 
 sub action_delete_all {
   my ($vid) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::action');
   $action_delete_all_sql->execute($vid) || return(0);
-  pflogger("all actions for class $vid deleted", 2);
+  $logger->info("all actions for class $vid deleted");
   return(1);
 }
 
@@ -102,11 +106,12 @@ sub action_api {
 
 sub action_execute {
   my($mac, $vid) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::action');
   my $leave_open=0;
   my @actions = class_view_actions($vid);
   foreach my $row (@actions) {
     my $action = $row->{'action'};
-    pflogger("executing action '$action' on class $vid",4);
+    $logger->info("executing action '$action' on class $vid");
     if ($action =~ /^trap$/i) {
       $leave_open = 1;
       action_trap($mac, $vid);
@@ -122,10 +127,10 @@ sub action_execute {
       if (isenabled($Config{'trapping'}{'registration'})) {
         node_register_auto($mac);
       } else {
-        pflogger("autoreg action defined for violation $vid, but registration disabled", 1);
+        $logger->warn("autoreg action defined for violation $vid, but registration disabled");
       }
     } else {
-      pflogger("unknown action '$action' for class $vid",1);
+      $logger->error("unknown action '$action' for class $vid",1);
     }
   }
   violation_force_close($mac, $vid) if (!$leave_open);
@@ -150,7 +155,7 @@ sub action_email {
 
 sub action_log {
   my($mac, $vid) = @_;
-  #pflogger("action log : $mac $vid",1);
+  my $logger = Log::Log4perl::get_logger('pf::action');
   my $ip = mac2ip($mac) || 0;
 
   my $class_info  = class_view($vid);
@@ -161,7 +166,7 @@ sub action_log {
   my $date = mysql_date();
 
   my $logfile = $Config{'alerting'}{'log'};
-  pflogger("$logfile $date: $description ($vid) detected on node $mac ($ip) ",6);
+  $logger->info("$logfile $date: $description ($vid) detected on node $mac ($ip)");
   open(LOG,">>$logfile") || die "Unable to open $logfile for append: $!\n";
   print LOG "$date: $description ($vid) detected on node $mac ($ip)\n";
   #close(LOG);
@@ -169,8 +174,9 @@ sub action_log {
 
 sub action_trap {
   my($mac, $vid) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::action');
   if (!mark_node($mac, $vid)) {
-    pflogger("unable to mark $mac with $vid", 1);
+    $logger->error("unable to mark $mac with $vid");
     return(0);
   }
   # Let pfmon do this...
@@ -179,6 +185,7 @@ sub action_trap {
 
 sub action_winpopup {
   my($mac, $vid) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::action');
 
   eval "use Net::NetSend qw(:all); 1" || return(0);
   eval "use Net::NBName; 1" || return(0);
@@ -197,10 +204,10 @@ sub action_winpopup {
     my $admin_addr_obj = ($nq->addresses)[0];
     my $admin_ip = $admin_addr_obj->address;
     if (! sendMsg($Config{'alerting'}{'netbiosname'}, 'Packetfence', $admin_ip, $message, 0)) {
-      pflogger("Unable to send winpopup to $admin_ip", 1);
+      $logger->error("Unable to send winpopup to $admin_ip");
     }
   } else {
-    pflogger("Unable to resolve NetBIOS->IP to send winpopup", 1);
+    $logger->error("Unable to resolve NetBIOS->IP to send winpopup");
   }
 
 }

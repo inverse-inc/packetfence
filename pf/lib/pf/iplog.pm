@@ -15,6 +15,7 @@ use warnings;
 use Net::Netmask;
 use Net::Ping;
 use Date::Parse;
+use Log::Log4perl;
 
 our ($iplog_shutdown_sql, $iplog_lastseen_sql, $iplog_view_open_sql, $iplog_view_all_sql, $iplog_history_ip_sql,
      $iplog_history_mac_sql, $iplog_history_ip_date_sql, $iplog_history_mac_date_sql, $iplog_close_sql, $iplog_close_now_sql,
@@ -58,7 +59,8 @@ sub iplog_db_prepare {
 }
 
 sub iplog_shutdown {
-  pflogger("closing open iplogs", 2);
+  my $logger = Log::Log4perl::get_logger('pf::iplog');
+  $logger->info("closing open iplogs");
   $iplog_shutdown_sql->execute() || return(0);
   return(1);
 }
@@ -120,19 +122,20 @@ sub iplog_view_all {
 
 sub iplog_open {
   my ($mac, $ip, $lease_length) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::iplog');
   if (! node_exist($mac)) {
     node_add_simple($mac);
   }
   if ($lease_length) {
     if (! defined(iplog_view_open_mac($mac))) {
-      pflogger("creating new entry for ($mac - $ip)",16);
+      $logger->debug("creating new entry for ($mac - $ip)");
       $iplog_open_with_lease_length_sql->execute($mac, $ip, $lease_length);
     } else {
-      pflogger("updating end_time for ($mac - $ip)",16);
+      $logger->debug("updating end_time for ($mac - $ip)");
       $iplog_open_update_end_time_sql->execute($lease_length, $mac, $ip);
     }
   } elsif (! defined(iplog_view_open_mac($mac))) {
-    pflogger("creating new entry for ($mac - $ip) with empty end_time",16);
+    $logger->debug("creating new entry for ($mac - $ip) with empty end_time");
     $iplog_open_sql->execute($mac, $ip) || return(0);
   }
   return(0);
@@ -163,6 +166,7 @@ sub iplog_expire {
 
 sub ip2mac {
   my ($ip, $date) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::iplog');
   my $mac;
   return(0) if (!valid_ip($ip));
 
@@ -174,10 +178,10 @@ sub ip2mac {
     my $iplog = iplog_view_open_ip($ip);
     $mac = $iplog->{'mac'};
     if (!$mac) {
-      pflogger("could not resolve $ip to mac in iplog table", 4);
+      $logger->info("could not resolve $ip to mac in iplog table");
       $mac = ip2macinarp($ip);
       if (! $mac) {
-        pflogger("trying to resolve $ip to mac using ping", 8);
+        $logger->info("trying to resolve $ip to mac using ping");
         my @lines = `/sbin/ip address show`;
         my $lineNb = 0;
         my $src_ip = undef;
@@ -189,20 +193,20 @@ sub ip2mac {
             my $block = new Net::Netmask("$tmp_src_ip/$tmp_src_bits");
             if ($block->match($ip)) {
               $src_ip = $tmp_src_ip;
-              pflogger("found $ip in Network $tmp_src_ip/$tmp_src_bits",8);
+              $logger->info("found $ip in Network $tmp_src_ip/$tmp_src_bits");
             }
           }
           $lineNb++;
         }
         if (defined($src_ip)) {
           my $ping = Net::Ping->new();
-          pflogger("binding ping src IP to $src_ip for ping",8);
+          $logger->info("binding ping src IP to $src_ip for ping");
           $ping->bind($src_ip);
           $ping->ping($ip,2);
 	  $ping->close();
 	  $mac = ip2macinarp($ip);
         } else {
-          pflogger("unable to find an IP address on PF host in the same broadcast domain than $ip -> won't send ping", 8);
+          $logger->info("unable to find an IP address on PF host in the same broadcast domain than $ip -> won't send ping");
         }
       }
       if ($mac) {
@@ -211,7 +215,7 @@ sub ip2mac {
     }
   }
   if (!$mac){
-    pflogger("could not resolve $ip to mac ", 1);
+    $logger->warn("could not resolve $ip to mac");
     return(0);
   }else{
     return(clean_mac($mac));
@@ -220,6 +224,7 @@ sub ip2mac {
 
 sub ip2macinarp {
   my($ip)=@_;
+  my $logger = Log::Log4perl::get_logger('pf::iplog');
   return(0) if (!valid_ip($ip));
   my $mac;
   my @arpList = `/sbin/arp -n -a $ip`;
@@ -228,12 +233,12 @@ sub ip2macinarp {
     if ($arpList[$lineNb] =~ /\($ip\) at ([0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2})/i) {
       $mac=$1;
       $mac = clean_mac($mac);
-      pflogger("resolved $ip to mac ($mac) in ARP table", 8);
+      logger->info("resolved $ip to mac ($mac) in ARP table");
     }
   $lineNb++;
   }
   if (! $mac) {
-    pflogger("could not resolve $ip to mac in ARP table", 1);
+    $logger->info("could not resolve $ip to mac in ARP table");
     return(0);
   }
   return $mac;
@@ -241,6 +246,7 @@ sub ip2macinarp {
 
 sub mac2ip {
   my($mac,$date) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::iplog');
   my $ip;
   return(0) if (!valid_mac($mac));
 
@@ -253,7 +259,7 @@ sub mac2ip {
     $ip = $iplog->{'ip'} || 0 ;
   }
   if (!$ip) {
-    pflogger("unable to resolve $mac to ip", 1);
+    $logger->warn("unable to resolve $mac to ip");
     return();
   } else {
     return($ip);
@@ -262,13 +268,14 @@ sub mac2ip {
 
 sub mac2allips {
   my ($mac) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::iplog');
   return (0) if (!valid_mac($mac));
   my @all_ips = ();
   foreach my $iplog_entry (iplog_view_all_open_mac($mac)) {
     push @all_ips, $iplog_entry->{'ip'};
   }
   if (scalar(@all_ips) == 0) {
-    pflogger("unable to resolve $mac to ip", 1);
+    $logger->warn("unable to resolve $mac to ip");
   }
   return @all_ips;
 }

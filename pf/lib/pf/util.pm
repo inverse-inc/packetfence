@@ -17,6 +17,7 @@ use Sys::Syslog;
 use POSIX();
 use Net::SMTP;
 use Net::MAC::Vendor;
+use Log::Log4perl;
 use threads;
 use threads::shared;
 
@@ -27,7 +28,7 @@ BEGIN {
   our (@ISA, @EXPORT);
   @ISA    = qw(Exporter);
   @EXPORT = qw(valid_date valid_ip clean_mac valid_mac whitelisted_mac trappable_mac trappable_ip reggable_ip
-               inrange_ip ip2gateway ip2interface ip2device isinternal pflogger pfmailer isenabled
+               inrange_ip ip2gateway ip2interface ip2device isinternal pfmailer isenabled
                isdisabled getlocalmac ip2int int2ip get_all_internal_ips get_internal_nets get_routed_nets get_internal_ips 
                get_internal_devs get_internal_devs_phy get_external_devs get_managed_devs get_internal_macs 
                get_internal_info get_gateways get_dhcp_devs num_interfaces createpid readpid deletepid 
@@ -44,20 +45,12 @@ if (basename($0) eq "pfmon" && isenabled($Config{'general'}{'caching'})) {
   %local_mac    = preload_getlocalmac();
 }
 
-# pflogger logging levels
-# 1 - errors
-# 2 - interesting info
-# 4 - needed information (on large changes)
-# 8 - normal operations
-# 10 - database queries
-# 12 - extreme arp operations
-# 16 - debugginig only
-#
 sub valid_date {
   my ($date) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::util');
   # kludgy but short
   if ($date !~ /^\d{4}\-((0[1-9])|(1[0-2]))\-((0[1-9])|([12][0-9])|(3[0-1]))\s+(([01][0-9])|(2[0-3]))(:[0-5][0-9]){2}$/) {
-    pflogger("invalid date $date",1);
+    $logger->error("invalid date $date");
     return(0);
    } else {
     return(1);
@@ -66,10 +59,11 @@ sub valid_date {
 
 sub valid_ip {
   my ($ip) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::util');
   if (!$ip || $ip !~ /^(?:\d{1,3}\.){3}\d{1,3}$/ || $ip =~ /^0\.0\.0\.0$/) {
     my $caller = (caller(1))[3] || basename($0);
     $caller =~ s/^(pf::\w+|main):://;
-    pflogger("invalid IP: $ip from $caller", 1);
+    $logger->error("invalid IP: $ip from $caller");
     return(0);
   } else {
     return(1);
@@ -89,9 +83,10 @@ sub clean_mac {
 
 sub valid_mac {
   my ($mac) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::util');
   $mac = clean_mac($mac);
   if ($mac =~ /^ff:ff:ff:ff:ff:ff$/ || $mac =~ /^00:00:00:00:00:00$/ || $mac !~ /^([0-9a-f]{2}(:|$)){6}$/i) {
-    pflogger("invalid MAC: $mac", 1);
+    $logger->error("invalid MAC: $mac");
     return(0);
   } else {
     return(1);
@@ -100,11 +95,12 @@ sub valid_mac {
 
 sub whitelisted_mac {
   my ($mac) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::util');
   return(0) if (!valid_mac($mac));
   $mac = clean_mac($mac);
   foreach my $whitelist (split(/\s*,\s*/, $Config{'trapping'}{'whitelist'})) {
     if ($mac eq clean_mac($whitelist)) {
-      pflogger("$mac is whitelisted, skipping", 8);
+      $logger->info("$mac is whitelisted, skipping");
       return(1);
     }
   }
@@ -113,11 +109,12 @@ sub whitelisted_mac {
 
 sub trappable_mac {
   my ($mac) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::util');
   return(0) if (!$mac);
   $mac = clean_mac($mac);
   #if (!valid_mac($mac) || whitelisted_mac($mac) || $mac eq getlocalmac(ip2device(mac2ip($mac))) || $mac eq $blackholemac) {
   if (!valid_mac($mac) || whitelisted_mac($mac) || grep(/^$mac$/,get_internal_macs()) || $mac eq $blackholemac ) {
-    pflogger("$mac is not trappable, skipping", 8);
+    $logger->info("$mac is not trappable, skipping");
     return(0);
   } else {
     return(1);
@@ -142,13 +139,14 @@ sub reggable_ip {
 
 sub inrange_ip { 
   my ($ip,$network_range) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::util');
 
   if (grep(/^$ip$/, get_gateways())) {
-    pflogger("$ip is a gateway, skipping", 8);
+    $logger->info("$ip is a gateway, skipping");
     return(0);
   }
   if (grep(/^$ip$/, get_internal_ips())) {
-    pflogger("$ip is a local int, skipping", 8);
+    $logger->info("$ip is a local int, skipping");
     return(0);
   }
 
@@ -168,7 +166,7 @@ sub inrange_ip {
       my $end    = $2;
 
       if (!valid_ip($start) || !valid_ip($end)) {
-        pflogger("$range not valid range!",1);
+        $logger->error("$range not valid range!");
       } else {
         my $int_start = ip2int($start);
         my $int_end   = ip2int($end);
@@ -182,7 +180,7 @@ sub inrange_ip {
       my $end    = $3;
 
       if (!valid_ip($net.".".$start) || $end < $start || $end > 255) {
-        pflogger("$range not valid range!",1);
+        $logger->error("$range not valid range!");
       } else {
         my $int_start = ip2int($net.".".$start);
         my $int_end   = ip2int($net.".".$end);
@@ -191,11 +189,11 @@ sub inrange_ip {
 	} elsif ($range =~ /^(?:\d{1,3}\.){3}\d{1,3}$/) {
       return (1) if ($range=~/^$ip$/); 	
 	} else {
-      pflogger("$range not valid!",1);
+      $logger->error("$range not valid!");
       next;
     }
   }
-  pflogger("$ip is not in $network_range, skipping", 14);
+  $logger->debug("$ip is not in $network_range, skipping");
   return(0);
 }
 
@@ -244,22 +242,9 @@ sub isinternal {
   return(0);
 }
 
-sub pflogger {
-  my ($msg, $v) = @_;
-  $v = 4 if (!$v);
-  if ($v <= $verbosity) {
-    openlog("pf",'',$facility);
-
-    my $caller = (caller(1))[3] || basename($0);
-    $caller =~ s/^(pf::\w+|main):://;
-    my $tid = threads->self->tid;
-    syslog($priority, "$caller($tid): $msg");
-    closelog();
-  }
-}
-
 sub pfmailer {
   my (%data) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::util');
   my $smtpserver = $Config{'alerting'}{'smtpserver'};
   my @to = split(/\s*,\s*/, $Config{'alerting'}{'emailaddr'});
   my $from = $Config{'alerting'}{'fromaddr'} || 'root@'.$fqdn;
@@ -278,9 +263,9 @@ sub pfmailer {
     $smtp->datasend($data{'message'});
     $smtp->dataend();
     $smtp->quit;
-    pflogger("email regarding '$subject' sent to ".join(",",@to),4);
+    $logger->info("email regarding '$subject' sent to ".join(",",@to));
   }else{
-    pflogger("can not connect to SMTP server $smtpserver!",1);
+    $logger->error("can not connect to SMTP server $smtpserver!");
   }
 }
 
@@ -435,17 +420,18 @@ sub num_interfaces {
 
 sub createpid {
   my ($pname) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::util');
   $pname = basename($0) if (!$pname);
   my $pid = $$;
   my $pidfile = $install_dir."/var/$pname.pid";
-  pflogger("$pname starting and writing $pid to $pidfile");
+  $logger->info("$pname starting and writing $pid to $pidfile");
   my $outfile = new FileHandle ">$pidfile";
   if (defined($outfile)) {
      print $outfile $pid;
      $outfile->close;
      return($pid);
   } else {
-     pflogger("$pname: unable to open $pidfile for writing: $!",1);
+     $logger->error("$pname: unable to open $pidfile for writing: $!");
      return(-1);
   }
 }
@@ -453,6 +439,7 @@ sub createpid {
 
 sub readpid {
   my ($pname) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::util');
   $pname = basename($0) if (!$pname);
   my $pidfile = $install_dir."/var/$pname.pid";
   my $file = new FileHandle "$pidfile";
@@ -462,7 +449,7 @@ sub readpid {
      $file->close;
      return($pid);
   } else {
-     pflogger("$pname: unable to open $pidfile for reading: $!",1);
+     $logger->error("$pname: unable to open $pidfile for reading: $!");
      return(-1);
   }
 }
@@ -505,18 +492,20 @@ sub mysql_date {
 
 sub util_funnyarp {
   my ($srcmac,$srcip,$destmac,$destip,$type);
+  my $logger = Log::Log4perl::get_logger('pf::util');
   # Check for unicast arp packets
   if ($destmac =~ /ff:ff:ff:ff:ff:ff/i && $destmac =~ /00:00:00:00:00:00/i  &&
        $Config{'arp'}{'listendevice'} ne $monitor_int) {
-    pflogger("received unicast ARP from $srcmac ($srcip)  - indicative of a MITM attack",1);
+    $logger->warn("received unicast ARP from $srcmac ($srcip)  - indicative of a MITM attack");
   }
   return(0);
 }
 
 sub oui_to_vendor {
   my($mac) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::util');
   if (scalar(keys(%${Net::MAC::Vendor::Cached})) == 0) {
-    pflogger("loading Net::MAC::Vendor cache from $oui_file", 12);
+    $logger->debug("loading Net::MAC::Vendor cache from $oui_file");
     Net::MAC::Vendor::load_cache("file://$oui_file");
   }
   my $oui_info = Net::MAC::Vendor::lookup($mac);
@@ -524,7 +513,8 @@ sub oui_to_vendor {
 }
 
 sub preload_getlocalmac {
-  pflogger("preloading local mac addresses",2);
+  my $logger = Log::Log4perl::get_logger('pf::util');
+  $logger->info("preloading local mac addresses");
   my %hash;
   my @iflist=`/sbin/ifconfig -a`;
   foreach my $dev (get_internal_devs()) {
@@ -536,12 +526,14 @@ sub preload_getlocalmac {
 }
 
 sub preload_trappable_ip {
-  pflogger("preloading trappable_ip hash", 2);
+  my $logger = Log::Log4perl::get_logger('pf::util');
+  $logger->info("preloading trappable_ip hash");
   return(preload_network_range($Config{'trapping'}{'range'}));
 }
 
 sub preload_reggable_ip {
-  pflogger("preloading reggable_ip hash", 2);
+  my $logger = Log::Log4perl::get_logger('pf::util');
+  $logger->info("preloading reggable_ip hash");
   return(preload_network_range($Config{'registration'}{'range'}));
 }
 
@@ -549,6 +541,7 @@ sub preload_reggable_ip {
 #
 sub preload_network_range {
   my ($network_range) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::util');
     my $caller = (caller(1))[3] || basename($0);
     $caller =~ s/^pf::\w+:://;
 
@@ -575,7 +568,7 @@ sub preload_network_range {
       my $start = $1;
       my $end   = $2;
       if (!valid_ip($start) || !valid_ip($end)) {
-        pflogger("$range not valid range!",1);
+        $logger->error("$range not valid range!");
       } else {
         for (my $i = ip2int($start); $i <= ip2int($end); $i++) {
           $cache_ip{int2ip($i)} = 1;
@@ -586,7 +579,7 @@ sub preload_network_range {
       my $start = $2;
       my $end   = $3;
       if (!valid_ip($net.".".$start) || $end < $start || $end > 255) {
-        pflogger("$range not valid range!", 1);
+        $logger->error("$range not valid range!");
       } else {
         for (my $i = $start; $ i<= $end; $i++) {
           my $ip = $net.".".$i;
@@ -596,29 +589,31 @@ sub preload_network_range {
 	} elsif ($range =~ /^(?:\d{1,3}\.){3}\d{1,3}$/){
 	  $cache_ip{$range} = 1;  
     } else {
-      pflogger("$range not valid!",1);
+      $logger->error("$range not valid!");
     }
   }
-  pflogger(scalar(keys(%cache_ip))." cache_ip entries cached", 2);
+  $logger->info(scalar(keys(%cache_ip))." cache_ip entries cached");
   return(%cache_ip);
 }
 
 sub preload_is_internal {
+  my $logger = Log::Log4perl::get_logger('pf::util');
   my %is_internal;
-  pflogger("preloading is_internal hash", 2);
+  $logger->info("preloading is_internal hash");
   foreach my $interface (@internal_nets) {
     foreach my $ip ($interface->enumerate()) {
       $is_internal{$ip} = 1;
     }
   }
-  pflogger(scalar(keys(%is_internal))." is_internal entries cached", 2);
+  $logger->info(scalar(keys(%is_internal))." is_internal entries cached");
   return(%is_internal);
 }
 
 sub throw_hissy_fit {
   my($msg,$pri) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::util');
   $pri = "ERROR" if (!$pri);
-  pflogger(uc($pri).": $msg",1);
+  $logger->error(uc($pri).": $msg");
   print STDERR uc($pri).": $msg\n";          
   exit if ($pri eq "ERROR");
 }

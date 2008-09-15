@@ -33,7 +33,7 @@ use Data::Dumper;
 
 sub deauthenticateMac {
     my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Aironet");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     #format MAC
     if (length($mac) == 17) {
@@ -70,7 +70,7 @@ sub isLearntTrapsEnabled {
 
 sub setLearntTrapsEnabled {
     my ($this, $ifIndex, $trueFalse) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Aironet");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     $logger->error("function is NOT implemented");
     return -1;
 }
@@ -82,28 +82,28 @@ sub isRemovedTrapsEnabled {
 
 sub setRemovedTrapsEnabled {
     my ($this, $ifIndex, $trueFalse) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Aironet");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub getVmVlanType {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Aironet");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub setVmVlanType {
     my ($this, $ifIndex, $type) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Aironet");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub isTrunkPort {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Aironet");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     $logger->error("function is NOT implemented");
     return -1;
 }
@@ -111,21 +111,21 @@ sub isTrunkPort {
 sub getVlans {
     my ($this) = @_;
     my $vlans = {};
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Aironet");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     $logger->error("function is NOT implemented");
     return $vlans;
 }
 
 sub isDefinedVlan {
     my ($this, $vlan) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Aironet");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     $logger->error("function is NOT implemented");
     return 0;
 }
 
 sub getPhonesDPAtIfIndex {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Aironet");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my @phones = ();
     if (! $this->isVoIPEnabled()) {
         $logger->debug("VoIP not enabled on switch " . $this->{_ip} . ". getPhonesDPAtIfIndex will return empty list.");

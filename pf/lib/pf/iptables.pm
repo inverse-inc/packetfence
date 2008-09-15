@@ -12,6 +12,7 @@ package pf::iptables;
 use strict;
 use warnings;
 use IPTables::IPv4;
+use Log::Log4perl;
 
 BEGIN {
   use Exporter ();
@@ -30,9 +31,10 @@ use pf::node qw(nodes_registered);
 
 sub zero_table {
   my ($table) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::iptables');
   my $bob = IPTables::IPv4::init($table);
   foreach my $chain ($bob->list_chains()) {
-    pflogger("flushing $chain chain",8);
+    $logger->info("flushing $chain chain");
     $bob->flush_entries($chain);
     $bob->set_policy($chain, 'ACCEPT');
   }
@@ -42,6 +44,7 @@ sub zero_table {
 }
 
 sub generate_iptables {
+  my $logger = Log::Log4perl::get_logger('pf::iptables');
   my $pre_file = $install_dir.'/conf/iptables.pre';
   my $post_file = $install_dir.'/conf/iptables.post';
   my $passthroughs;
@@ -256,7 +259,7 @@ sub generate_iptables {
       'destination-port' => 53,
       'jump' => 'ACCEPT'
     });
-    pflogger("adding DNS FILTER passthrough for $dns", 8);
+    $logger->info("adding DNS FILTER passthrough for $dns");
   }
 
   internal_append_entry($filter,'FORWARD',{
@@ -264,7 +267,7 @@ sub generate_iptables {
       'destination-port' => 67,
       'jump' => 'ACCEPT'
   });
-  pflogger("adding DHCP FILTER passthrough", 8);
+  $logger->info("adding DHCP FILTER passthrough");
 
   my $scan_server = $Config{'scan'}{'host'};
   if ($scan_server !~ /^127\.0\.0\.1$/ && $scan_server !~ /^localhost$/i) {
@@ -276,7 +279,7 @@ sub generate_iptables {
       'source' => $scan_server,
       'jump' => 'ACCEPT'
     });
-    pflogger("adding Nessus FILTER passthrough for $scan_server", 8);
+    $logger->info("adding Nessus FILTER passthrough for $scan_server");
   }
 
   # poke passthroughs
@@ -294,7 +297,7 @@ sub generate_iptables {
   
       my ($name, $aliases, $addrtype, $length, @addrs) = gethostbyname($host);
       if (!@addrs) {
-        pflogger("unable to resolve $host for passthrough", 1);
+        $logger->error("unable to resolve $host for passthrough");
         next;
       }
       foreach my $addr (@addrs) {
@@ -305,16 +308,16 @@ sub generate_iptables {
              'destination-port' => $port,
              'jump' => 'ACCEPT'
         });
-        pflogger("adding FILTER passthrough for $passthrough", 8);
+        $logger->info("adding FILTER passthrough for $passthrough");
       }
     } elsif ($passthroughs{$passthrough} =~ /^(\d{1,3}.){3}\d{1,3}(\/\d+){0,1}$/) {
       internal_append_entry($filter,'FORWARD',{
           'destination' => $passthroughs{$passthrough},
           'jump' => 'ACCEPT'
       });
-      pflogger("adding FILTER passthrough for $passthrough", 8);
+      $logger->info("adding FILTER passthrough for $passthrough");
     } else {
-      pflogger("unrecognized passthrough $passthrough", 1);
+      $logger->error("unrecognized passthrough $passthrough");
     }
   }
 
@@ -332,7 +335,7 @@ sub generate_iptables {
         # local content or null URLs
         next if (!$u || $u =~ /^\//);
         if ($u !~ /^(http|https):\/\//) {
-          pflogger("vid $vid: unrecognized content URL: $u", 1);
+          $logger->error("vid $vid: unrecognized content URL: $u");
           next;
         }
 
@@ -346,7 +349,7 @@ sub generate_iptables {
 
         my ($name, $aliases, $addrtype, $length, @addrs) = gethostbyname($host);
         if (!@addrs) {
-          pflogger("unable to resolve $host for content passthrough", 1);
+          $logger->error("unable to resolve $host for content passthrough");
           next;
         }
         foreach my $addr (@addrs) {
@@ -359,7 +362,7 @@ sub generate_iptables {
                'mark' => "0x".$vid,
                'jump' => 'ACCEPT'
           });
-          pflogger("adding FILTER passthrough for $destination:$port", 8);
+          $logger->info("adding FILTER passthrough for $destination:$port");
         }
       }
     }
@@ -415,7 +418,7 @@ sub generate_iptables {
       'destination-port' => 53,
       'jump' => 'ACCEPT'
     });
-    pflogger("adding DNS NAT passthrough for $dns", 8);
+    $logger->info("adding DNS NAT passthrough for $dns");
   }
 
   internal_append_entry($nat,'PREROUTING',{
@@ -423,7 +426,7 @@ sub generate_iptables {
       'destination-port' => 67,
       'jump' => 'ACCEPT'
   });
-  pflogger("adding DHCP NAT passthrough", 8);
+  $logger->info("adding DHCP NAT passthrough");
   
 
   if ($scan_server !~ /^127\.0\.0\.1$/ && $scan_server !~ /^localhost$/i) {
@@ -435,7 +438,7 @@ sub generate_iptables {
       'source' => $scan_server,
       'jump' => 'ACCEPT'
     });
-    pflogger("adding Nessus NAT passthrough for $scan_server", 8);
+    $logger->info("adding Nessus NAT passthrough for $scan_server");
   }
 
   # poke passthroughs
@@ -455,7 +458,7 @@ sub generate_iptables {
   
       my ($name, $aliases, $addrtype, $length, @addrs) = gethostbyname($host);
       if (!@addrs) {
-        pflogger("unable to resolve $host for passthrough", 1);
+        $logger->error("unable to resolve $host for passthrough");
         next;
       }
       foreach my $addr (@addrs) {
@@ -466,16 +469,16 @@ sub generate_iptables {
              'destination-port' => $port,
              'jump' => 'ACCEPT'
         });
-        pflogger("adding NAT passthrough for $passthrough", 8);
+        $logger->info("adding NAT passthrough for $passthrough");
       }
     } elsif ($passthroughs{$passthrough} =~ /^(\d{1,3}.){3}\d{1,3}(\/\d+){0,1}$/) {
       internal_append_entry($nat,'PREROUTING',{
           'destination' => $passthroughs{$passthrough},
           'jump' => 'ACCEPT'
       });
-      pflogger("adding NAT passthrough for $passthrough", 8);
+      $logger->info("adding NAT passthrough for $passthrough");
     } else {
-      pflogger("unrecognized passthrough $passthrough", 1);
+      $logger->error("unrecognized passthrough $passthrough");
     }
   }
 
@@ -493,7 +496,7 @@ sub generate_iptables {
         # local content or null URLs
         next if (!$u || $u =~ /^\//);
         if ($u !~ /^(http|https):\/\//) {
-          pflogger("vid $vid: unrecognized content URL: $u", 1);
+          $logger->error("vid $vid: unrecognized content URL: $u");
           next;
         }
 
@@ -507,7 +510,7 @@ sub generate_iptables {
 
         my ($name, $aliases, $addrtype, $length, @addrs) = gethostbyname($host);
         if (!@addrs) {
-          pflogger("unable to resolve $host for content passthrough", 1);
+          $logger->error("unable to resolve $host for content passthrough");
           next;
         }
         foreach my $addr (@addrs) {
@@ -520,7 +523,7 @@ sub generate_iptables {
                  'mark' => "0x".$vid,
                  'jump' => 'ACCEPT'
             });
-          pflogger("adding NAT passthrough for $destination:$port", 8);
+          $logger->info("adding NAT passthrough for $destination:$port");
         }
       }
     }
@@ -660,6 +663,7 @@ sub external_append_entry {
 
 sub mark_node {
   my ($mac, $mark) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::iptables');
   my $mangle = IPTables::IPv4::init('mangle');
 
   if (!$mangle->append_entry('PREROUTING', {
@@ -668,11 +672,11 @@ sub mark_node {
        'set-mark' => "0x".$mark,
        'matches' => ['mac']
   } )) {         
-    pflogger("unable to mark $mac with $mark: $!", 1);
+    $logger->error("unable to mark $mac with $mark: $!");
     return(0);
   }
   if (!$mangle->commit()) {
-    pflogger("unable to commit mark=$mark for $mac: $!", 1);
+    $logger->error("unable to commit mark=$mark for $mac: $!");
     return(0);
   }
   return(1);
@@ -680,6 +684,7 @@ sub mark_node {
 
 sub unmark_node {
   my ($mac, $mark) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::iptables');
   my $mangle = IPTables::IPv4::init('mangle');
 
   if (!$mangle->delete_entry('PREROUTING', {
@@ -688,11 +693,11 @@ sub unmark_node {
        'set-mark' => "0x".$mark,
        'matches' => ['mac']
   } )) {         
-    pflogger("unable to unmark $mac with $mark: $!", 1);
+    $logger->error("unable to unmark $mac with $mark: $!");
     return(0);
   }
   if (!$mangle->commit()) {
-    pflogger("unable to commit unmark=$mark for $mac: $!", 1);
+    $logger->error("unable to commit unmark=$mark for $mac: $!");
     return(0);
   }
   # let redir cgi do this... 
@@ -702,7 +707,8 @@ sub unmark_node {
 
 sub save_iptables {
   my ($save_file) = @_;
-  pflogger("saving existing iptables to ".$save_file, 8);
+  my $logger = Log::Log4perl::get_logger('pf::iptables');
+  $logger->info("saving existing iptables to ".$save_file);
   `/sbin/iptables-save -t nat > $save_file`;
   `/sbin/iptables-save -t mangle >> $save_file`;
   `/sbin/iptables-save -t filter >> $save_file`;
@@ -710,16 +716,18 @@ sub save_iptables {
 
 sub restore_iptables {
   my ($restore_file) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::iptables');
   if (-r $restore_file) {
-    pflogger("restoring iptables from ".$restore_file, 8);
+    $logger->info("restoring iptables from ".$restore_file);
     `/sbin/iptables-restore < $restore_file`;
   }
 }
 
 sub restore_iptables_noflush {
   my ($restore_file) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::iptables');
   if (-r $restore_file) {
-    pflogger("restoring iptables (no flush) from ".$restore_file, 8);
+    $logger->info("restoring iptables (no flush) from ".$restore_file);
     `/sbin/iptables-restore -n < $restore_file`;
   }
 }

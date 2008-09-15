@@ -474,24 +474,6 @@ port=3306
 # Server the mysql server is running on.
 host=localhost
 
-[logging]
-#
-# logging.priority
-#
-# Syslog priority to log at.
-priority=info
-#
-# logging.verbosity
-#
-# Logging verbosity level.  Still fairly vague, although 4 is good value for day-to-day operation.  For minor troubleshooting, 
-# use 8.  To see database queries, use 12.  For everything, use 20. For only errors, use 1.
-verbosity=4
-#
-# logging.facility
-#
-# Syslog facility to log on.
-facility=auth
-
 [expire]
 #
 # expire.node

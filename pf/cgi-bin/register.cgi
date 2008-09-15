@@ -4,6 +4,7 @@ use Date::Parse;
 use CGI::Carp qw( fatalsToBrowser );
 use CGI;
 use CGI::Session;
+use Log::Log4perl;
 use strict;
 use warnings;
 
@@ -16,6 +17,11 @@ use pf::web;
 use pf::node;
 use pf::violation;
 
+Log::Log4perl->init('/usr/local/pf/conf/log.conf');
+my $logger = Log::Log4perl->get_logger('register.cgi');
+Log::Log4perl::MDC->put('proc', 'register.cgi');
+Log::Log4perl::MDC->put('tid', 0);
+
 my %params;
 my $cgi             = new CGI;
 my $session         = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
@@ -26,12 +32,12 @@ my $destination_url = $cgi->param("destination_url");
 $destination_url = $Config{'trapping'}{'redirecturl'} if (!$destination_url);
 
 if (!valid_mac($mac)) {
-  pflogger("MAC not found for $ip generating Error Page",1);
+  $logger->info("MAC not found for $ip generating Error Page");
   generate_error_page($cgi, $session, "error: not found in the database");
   exit(0);
 }
 
-pflogger("$ip - $mac ", 1);
+$logger->info("$ip - $mac ", 1);
 
 my %info;
 
@@ -65,7 +71,7 @@ if (defined($params{'mode'})) {
     my $node_count = node_pid($pid) if ($pid ne '1');
 
     if ($pid ne '1' && $maxnodes !=0 && $node_count >= $maxnodes ) {
-      pflogger("$maxnodes are already registered to $pid",2);
+      $logger->info("$maxnodes are already registered to $pid");
       generate_error_page($cgi, $session, "error: only register max nodes");
       return(0);
     }
@@ -91,10 +97,10 @@ if (defined($params{'mode'})) {
         my $output = qx/$cmd/;
       }
       generate_release_page($cgi, $session, $destination_url);
-      pflogger("registration url = $destination_url");
+      $logger->info("registration url = $destination_url");
     } else {
       print $cgi->redirect("/cgi-bin/redir.cgi?destination_url=$destination_url");
-      pflogger("more violations yet to come for $mac ");
+      $logger->info("more violations yet to come for $mac");
     }
 
   } elsif ($params{'mode'} eq "status") {
@@ -116,7 +122,7 @@ if (defined($params{'mode'})) {
       #trapmac($mac);
       my $cmd = $install_dir."/bin/pfcmd manage deregister $mac";
       my $output = qx/$cmd/;
-      pflogger("calling $install_dir/bin/pfcmd  manage deregister $mac");
+      $logger->info("calling $install_dir/bin/pfcmd  manage deregister $mac");
       print $cgi->redirect("/cgi-bin/register.cgi");
     } else {
       generate_error_page($cgi, $session, "error: access denied not owner");

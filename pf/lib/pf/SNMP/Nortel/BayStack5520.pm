@@ -60,7 +60,7 @@ sub _authorizeMAC {
     my $OID_s5SbsAuthCfgAccessCtrlType = '1.3.6.1.4.1.45.1.6.5.3.10.1.4';
     my $OID_s5SbsAuthCfgStatus = '1.3.6.1.4.1.45.1.6.5.3.10.1.5';
     #my $OID_s5SbsAuthCfgSecureList = '1.3.6.1.4.1.45.1.6.5.3.10.1.6';
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Nortel");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     if (! $this->isProductionMode()) {
         $logger->info("not in production mode ... we won't delete an entry from the SecureMacAddrTable");

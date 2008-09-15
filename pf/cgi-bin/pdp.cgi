@@ -8,6 +8,7 @@ use warnings;
 
 use CGI;
 use CGI::Carp qw( fatalsToBrowser );
+use Log::Log4perl;
 
 use lib '/usr/local/pf/lib';
 use pf::db;
@@ -17,6 +18,12 @@ use pf::trigger;
 
 use SOAP::Transport::HTTP;
 
+Log::Log4perl->init('/usr/local/pf/conf/log.conf');
+my $logger = Log::Log4perl->get_logger('pdp.cgi');
+Log::Log4perl::MDC->put('proc', 'pdp.cgi');
+Log::Log4perl::MDC->put('tid', 0);
+
+
 SOAP::Transport::HTTP::CGI
     -> dispatch_to('PFEvents')
     -> handle;
@@ -24,7 +31,7 @@ SOAP::Transport::HTTP::CGI
 
 sub event_add {
   my ($class, $date, $srcip, $type, $id) = @_;
-  pflogger("PDP: $date - IP: $srcip - Type: $type - ID: $id",1);
+  $logger->info("PDP: $date - IP: $srcip - Type: $type - ID: $id");
   my $dbh = db_connect();
 
   my @trigger_info = trigger_view_enable($id,$type);
@@ -32,21 +39,21 @@ sub event_add {
     foreach my $row (@trigger_info) {
       my $vid = $row->{'vid'};
       # do violation addition 
-      pflogger("PDP: violation: $vid : $srcip",1);
+      $logger->info("PDP: violation: $vid : $srcip");
 
       my $srcmac = ip2mac($srcip);
       if ($srcmac) {
-        pflogger("PDP: violation: $srcip resolved to $srcmac [$vid]",1);
+        $logger->info("PDP: violation: $srcip resolved to $srcmac [$vid]");
         if (!whitelisted_mac($srcmac) && valid_mac($srcmac) && trappable_ip($srcip) && trappable_mac($srcmac)) {
           `/usr/local/pf/bin/pfcmd violation add vid=$vid,mac=$srcmac`;
         }
       } else {
-        pflogger("PDP: Mac not found for IP: $srcip",1);
+        $logger->info("PDP: Mac not found for IP: $srcip");
         return(0);
       }
     }
   } else {
-    pflogger("violation not added, no trigger found for " . $type . "::" . $id . " or violation is disabled", 8);
+    $logger->info("violation not added, no trigger found for " . $type . "::" . $id . " or violation is disabled");
   }
   return (1);
 }

@@ -34,7 +34,7 @@ use base ('pf::SNMP::Cisco::Catalyst_2950');
 
 sub getAllSecureMacAddresses {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Catalyst_2960");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $oid_cpsIfVlanSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.3.1.5';    
 
     my $secureMacAddrHashRef = {};
@@ -121,7 +121,7 @@ sub getAllSecureMacAddresses {
 
 sub isDynamicPortSecurityEnabled {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Catalyst_2960");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $oid_cpsIfVlanSecureMacAddrType = '1.3.6.1.4.1.9.9.315.1.2.3.1.3';
 
     if (! $this->connectRead()) {
@@ -147,7 +147,7 @@ sub isDynamicPortSecurityEnabled {
 
 sub isStaticPortSecurityEnabled {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Catalyst_2960");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $oid_cpsIfVlanSecureMacAddrType = '1.3.6.1.4.1.9.9.315.1.2.3.1.3';
 
     if (! $this->connectRead()) {
@@ -173,7 +173,7 @@ sub isStaticPortSecurityEnabled {
 
 sub getSecureMacAddresses {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Catalyst_2960");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $oid_cpsIfVlanSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.3.1.5';  
 
     my $secureMacAddrHashRef = {};
@@ -223,7 +223,7 @@ sub getSecureMacAddresses {
 
 sub authorizeMAC {
     my ($this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Catalyst_2960");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $oid_cpsIfVlanSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.3.1.5';
 
     if (! $this->isProductionMode()) {

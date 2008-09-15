@@ -22,6 +22,7 @@ BEGIN {
 }
 
 use Apache::Htpasswd;
+use Log::Log4perl;
 use lib '/usr/local/pf/lib';
 use pf::config;
 use pf::util;
@@ -29,11 +30,11 @@ use pf::util;
 
 sub authenticate {
   my ($username, $password) = @_;
-
+  my $logger = Log::Log4perl::get_logger('authentication::local');
   my $passwdFile = '/usr/local/pf/conf/user.conf';
 
   if (! -r $passwdFile) {
-      pflogger("unable to read password file '$passwdFile'", 1);
+      $logger->error("unable to read password file '$passwdFile'");
       return (0,2);
   }
 

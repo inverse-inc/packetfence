@@ -22,7 +22,7 @@ use Net::Ping;
 sub getVersion {
     my ($this) = @_;
     my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->connectRead()) {
         return '';
     }
@@ -80,7 +80,7 @@ sub isNewerVersionThan {
 sub parseTrap {
     my ($this, $trapString) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     #link up/down
     if ($trapString =~ /BEGIN VARIABLEBINDINGS [^|]+[|]\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.6\.3\.1\.1\.5\.([34])\|.1.3.6.1.2.1.2.2.1.1.([0-9]+)/) {
@@ -208,7 +208,7 @@ sub parseTrap {
 
 sub getAllVlans {
     my ($this, @ifIndexes) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $vlanHashRef;
     if (! @ifIndexes) {
         @ifIndexes = $this->getManagedIfIndexes();
@@ -251,7 +251,7 @@ sub getAllVlans {
 
 sub getVoiceVlan {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->connectRead()) {
         return 0;
     }
@@ -270,7 +270,7 @@ sub getVoiceVlan {
 
 sub getVlan {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->connectRead()) {
         return 0;
     }
@@ -294,7 +294,7 @@ sub getVlan {
 
 sub isLearntTrapsEnabled {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->connectRead()) {
         return 0;
     }
@@ -311,7 +311,7 @@ sub isLearntTrapsEnabled {
 sub setLearntTrapsEnabled {
     #1 means 'enabled', 2 means 'disabled'
     my ($this, $ifIndex, $trueFalse) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->connectWrite()) {
         return 0;
     }
@@ -328,7 +328,7 @@ sub setLearntTrapsEnabled {
 
 sub isRemovedTrapsEnabled {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->connectRead()) {
         return 0;
     }
@@ -345,7 +345,7 @@ sub isRemovedTrapsEnabled {
 sub setRemovedTrapsEnabled {
     #1 means 'enabled', 2 means 'disabled'
     my ($this, $ifIndex, $trueFalse) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->connectWrite()) {
         return 0;
     }
@@ -361,7 +361,7 @@ sub setRemovedTrapsEnabled {
 
 sub isPortSecurityEnabled {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     #CISCO-PORT-SECURITY-MIB
     my $OID_cpsIfPortSecurityEnable = '1.3.6.1.4.1.9.9.315.1.2.1.1.1';
 
@@ -381,7 +381,7 @@ sub isPortSecurityEnabled {
 
 sub setPortSecurityDisabled {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->connectWrite()) {
         return 0;
     }
@@ -398,7 +398,7 @@ sub setPortSecurityDisabled {
 
 sub _setVlan {
     my ($this, $ifIndex, $newVlan, $oldVlan,$switch_locker_ref) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     if (! $this->connectWrite()) {
         return 0;
@@ -451,7 +451,7 @@ sub _setVlan {
 # 4 => trunk
 sub getVmVlanType {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->connectRead()) {
         return 0;
     }
@@ -471,7 +471,7 @@ sub getVmVlanType {
 
 sub setVmVlanType {
     my ($this, $ifIndex, $type) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     $logger->info("setting port $ifIndex vmVlanType from " . $this->getVmVlanType($ifIndex) . " to $type");
     if (! $this->isProductionMode()) {
         $logger->info("not in production mode ... we won't change this port VmVlanType");
@@ -494,7 +494,7 @@ sub getMacBridgePortHash {
     my $this = shift;
     my $vlan = shift || '';
     my %macBridgePortHash = ();
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_dot1dTpFdbPort = '1.3.6.1.2.1.17.4.3.1.2'; #BRIDGE-MIB
     my $OID_dot1dBasePortIfIndex = '1.3.6.1.2.1.17.1.4.1.2'; #BRIDGE-MIB
 
@@ -584,7 +584,7 @@ sub getMacBridgePortHash {
 
 sub getIfIndexForThisMac {
     my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my @macParts = split(':', $mac);
     my @uplinks = $this->getUpLinks();
     my $OID_dot1dTpFdbPort = '1.3.6.1.2.1.17.4.3.1.2'; #BRIDGE-MIB
@@ -651,7 +651,7 @@ sub getIfIndexForThisMac {
 
 sub isMacInAddressTableAtIfIndex {
     my ($this, $mac, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my @macParts = split(':', $mac);
     my $OID_dot1dTpFdbPort = '1.3.6.1.2.1.17.4.3.1.2'; #BRIDGE-MIB
     my $OID_dot1dBasePortIfIndex = '1.3.6.1.2.1.17.1.4.1.2'; #BRIDGE-MIB
@@ -719,7 +719,7 @@ sub isMacInAddressTableAtIfIndex {
 
 sub isTrunkPort {
     my ($this,$ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_vlanTrunkPortDynamicState = "1.3.6.1.4.1.9.9.46.1.6.1.1.13"; #CISCO-VTP-MIB
     if (! $this->connectRead()) {
         return 0;
@@ -735,7 +735,7 @@ sub getVlans {
     my ($this) = @_;
     my $vlans = {};
     my $oid_vtpVlanName = '1.3.6.1.4.1.9.9.46.1.3.1.1.4.1'; #CISCO-VTP-MIB
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     if (! $this->connectRead()) {
         return $vlans;
@@ -758,7 +758,7 @@ sub getVlans {
 sub isDefinedVlan {
     my ($this, $vlan) = @_;
     my $oid_vtpVlanName = '1.3.6.1.4.1.9.9.46.1.3.1.1.4.1'; #CISCO-VTP-MIB
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     if (! $this->connectRead()) {
         return 0;
@@ -780,7 +780,7 @@ sub getUpLinks {
     my @ifIndex;
     my @upLinks;
     my $result;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     if (@{$this->{_uplink}}[0] eq 'Dynamic') {
 
@@ -836,7 +836,7 @@ sub getMacAddr {
     my $command; 
     my $session;
     my @macAddressTable;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
    
     eval {
         $session = Net::Telnet::Cisco->new(Host => $this->{_ip}, Timeout=>5);
@@ -866,7 +866,7 @@ sub getMacAddr {
 
 sub getManagedIfIndexes {
     my $this = shift;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my @managedIfIndexes;
     my @tmp_managedIfIndexes = $this->SUPER::getManagedIfIndexes();
     foreach my $ifIndex (@tmp_managedIfIndexes) {
@@ -885,7 +885,7 @@ sub getMacAddrVlan {
     my %macVlan;
     my @managedPorts = $this->getManagedPorts();
     my @macAddr;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     @macAddr = $this->getMacAddr(@managedPorts);
 
@@ -916,7 +916,7 @@ sub getMacAddrVlan {
 
 sub getAllMacs {
     my ($this, @ifIndexes) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! @ifIndexes) {
         @ifIndexes = $this->getManagedIfIndexes();
     }
@@ -1034,7 +1034,7 @@ sub getHubs {
     my $hubPorts;
     my @macAddr;
     my @managedPorts = $this->getManagedPorts();
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     if (@managedPorts) {
 
@@ -1055,7 +1055,7 @@ sub getHubs {
 
 sub getPhonesDPAtIfIndex {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my @phones;
     if (! $this->isVoIPEnabled()) {
         $logger->debug("VoIP not enabled on switch " . $this->{_ip} . ". getPhonesDPAtIfIndex will return empty list.");
@@ -1066,7 +1066,7 @@ sub getPhonesDPAtIfIndex {
 
 sub getPhonesCDPAtIfIndex {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my @phones;
     if (! $this->isVoIPEnabled()) {
         $logger->debug("VoIP not enabled on switch " . $this->{_ip} . ". getPhonesCDPAtIfIndex will return empty list.");

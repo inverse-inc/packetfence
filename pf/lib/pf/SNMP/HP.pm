@@ -33,7 +33,7 @@ use Net::SNMP;
 sub getVersion {
     my ($this) = @_;
     my $oid_hpSwitchOsVersion = '1.3.6.1.4.1.11.2.14.11.5.1.1.3.0';
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::HP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->connectRead()) {
         return '';
     }
@@ -50,7 +50,7 @@ sub getVersion {
 sub parseTrap {
     my ($this, $trapString) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::HP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if ($trapString =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.2\.1\.\d+ = INTEGER: 1\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.3\.1\.(\d+) = INTEGER: \d+\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.4\.1\.\d+ = Hex-STRING: ([0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2})/) {
         $trapHashRef->{'trapType'} = 'secureMacAddrViolation';
         $trapHashRef->{'trapIfIndex'} = $1;
@@ -70,7 +70,7 @@ sub parseTrap {
 
 sub _setVlan {
     my ($this,$ifIndex,$newVlan,$oldVlan,$switch_locker_ref) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::HP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->connectRead()) {
         return 0;
     }
@@ -133,7 +133,7 @@ sub _setVlan {
 
 sub getAllSecureMacAddresses {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::HP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_hpSecCfgStatus = '1.3.6.1.4.1.11.2.14.2.10.4.1.4'; #HP-ICF-GENERIC-RPTR
     my $hpSecCfgAddrGroupIndex = 1;
 
@@ -159,7 +159,7 @@ sub getAllSecureMacAddresses {
 
 sub getSecureMacAddresses {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::HP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_hpSecCfgStatus = '1.3.6.1.4.1.11.2.14.2.10.4.1.4'; #HP-ICF-GENERIC-RPTR
     my $hpSecCfgAddrGroupIndex = 1;
 
@@ -186,7 +186,7 @@ sub getSecureMacAddresses {
 
 sub getMaxMacAddresses {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::HP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_hpSecPtAddressLimit = '1.3.6.1.4.1.11.2.14.2.10.3.1.3';
     my $OID_hpSecPtLearnMode = '1.3.6.1.4.1.11.2.14.2.10.3.1.4';
     my $hpSecCfgAddrGroupIndex = 1;
@@ -227,8 +227,8 @@ sub getMaxMacAddresses {
 }
 
 sub authorizeMAC {
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::HP");
     my ($this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     if (($deauthMac) && (! $this->isFakeMac($deauthMac))) {
         $this->_authorizeMAC($ifIndex, $deauthMac, 0);
@@ -243,7 +243,7 @@ sub authorizeMAC {
 # In both case, resets IntrusionFlag
 sub _authorizeMAC {
     my ($this, $ifIndex, $MACHexString, $authorize) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::HP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_hpSecCfgStatus = '1.3.6.1.4.1.11.2.14.2.10.4.1.4'; #HP-ICF-GENERIC-RPTR
     my $OID_hpSecPtIntrusionFlag = '1.3.6.1.4.1.11.2.14.2.10.3.1.7'; #HP-ICF-GENERIC-RPTR
     my $hpSecCfgAddrGroupIndex = 1;
@@ -289,7 +289,7 @@ sub isStaticPortSecurityEnabled {
 
 sub setPortSecurityDisabled {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::HP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     $logger->info("function not implemented yet");
     return 1;
@@ -297,7 +297,7 @@ sub setPortSecurityDisabled {
     
 sub isPortSecurityEnabled {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::HP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     my $OID_hpSecPtLearnMode = '1.3.6.1.4.1.11.2.14.2.10.3.1.4';
     my $OID_hpSecPtAlarmEnable = '1.3.6.1.4.1.11.2.14.2.10.3.1.6';
@@ -320,7 +320,7 @@ sub isPortSecurityEnabled {
 sub getVlanFdbId {
     my ($this, $vlan) = @_;
     my $OID_dot1qVlanFdbId = '1.3.6.1.2.1.17.7.1.4.2.1.3.0'; #Q-BRIDGE-MIB
-    my $logger = Log::Log4perl::get_logger("pf::SNMP");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     if (! $this->connectRead()) {
         return 0;

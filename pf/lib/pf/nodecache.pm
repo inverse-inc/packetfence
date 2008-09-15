@@ -13,6 +13,7 @@ use strict;
 use warnings;
 use File::Basename;
 use Sys::Syslog;
+use Log::Log4perl;
 
 BEGIN {
   use Exporter ();
@@ -59,6 +60,7 @@ sub new_node {
 
 sub delete_node {
    my ($self, $mac) = @_;
+   my $logger = Log::Log4perl::get_logger('pf::nodecache');
    delete $self->{arptime}->{$mac};
    delete $self->{gwtime}->{$mac};
    delete $self->{dhcptime}->{$mac};
@@ -67,7 +69,7 @@ sub delete_node {
    foreach my $ip (@ips){
      delete $self->{ipmac}->{$ip};
      iplog_close($ip);
-     pflogger("node $mac ($ip) session closed",8);
+     $logger->info("node $mac ($ip) session closed");
    }
    delete $self->{macip}->{$mac};
 }  
@@ -274,6 +276,7 @@ sub is_gateway {
 sub delete_expired {
    my $self = shift;
    my $timeout = shift;
+   my $logger = Log::Log4perl::get_logger('pf::nodecache');
    #my @gateways= @_;
    my @gateways = get_gateways();
    #
@@ -284,21 +287,21 @@ sub delete_expired {
      my $a=$self->get_arptime($mac);
      my $g=$self->get_gwtime($mac);
      my $ip=$self->get_ip($mac);
-     pflogger("$mac ($ip) Timer check ($a,$g,$d)",16);
+     $logger->debug("$mac ($ip) Timer check ($a,$g,$d)");
      if ($self->is_gateway($mac)){
-       pflogger("skipping gateway $mac ($ip)",16);
+       $logger->debug("skipping gateway $mac ($ip)");
        next;
      }
 
      if ($self->arp_expired($mac,$timeout)){
        my $time=$self->get_arptime($mac);
-       pflogger("arp timer exceeded for $mac ($ip) [$time] - closing session ",4);
+       $logger->info("arp timer exceeded for $mac ($ip) [$time] - closing session");
        $self->delete_node($mac);
      } elsif ($self->gw_expired($mac)) {
-       pflogger("gateway timer exceeded for $mac ($ip) - probable static gateway arp entry",4);
+       $logger->info("gateway timer exceeded for $mac ($ip) - probable static gateway arp entry");
        $self->set_gwtime($mac);
      } elsif ($self->dhcp_expired($mac)) {
-       pflogger("DHCP timer exceeded for $mac ($ip) - probable static IP ",4);
+       logger->info("DHCP timer exceeded for $mac ($ip) - probable static IP");
        $self->set_dhcptime($mac);
      }
    }
@@ -310,6 +313,7 @@ sub delete_expired {
 #
 sub hello_macs {
    my ($self,$timeout,$interval)= @_;
+   my $logger = Log::Log4perl::get_logger('pf::nodecache');
    my @macs;
    
    foreach my $mac ($self->get_all_macs){
@@ -318,7 +322,7 @@ sub hello_macs {
                 ($timeout - $age < ($interval * 2 - 1)) ) {
         push @macs,$mac;
         my $ip=$self->get_ip($mac);
-        pflogger("$mac ($ip) hasn't checked in, in more then $timeout / 2 going to say hello [$age]",8);
+        $logger->info("$mac ($ip) hasn't checked in, in more then $timeout / 2 going to say hello [$age]");
      }
    }
    return(@macs);

@@ -30,7 +30,7 @@ use base ('pf::SNMP::Dell');
 
 sub _setVlan {
     my ($this,$ifIndex,$newVlan,$oldVlan,$switch_locker_ref) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Dell::PowerConnect3424");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $session;
 
     eval {

@@ -19,7 +19,7 @@ sub lookup_person {
     my $entry = $searchresult->entry();
 
     if (!$entry) {
-      pflogger("pfcmd: pidinfo: unable to locate PID '$pid'");
+      $logger->info("pfcmd: pidinfo: unable to locate PID '$pid'");
       $return = "Unable to locate PID '$pid'!\n";
     } else {
 

@@ -23,6 +23,7 @@ use Parse::RecDescent;
 use File::Basename qw(basename);
 use LWP;
 use CGI qw(-no_debug :standard); 
+use Log::Log4perl;
 
 use lib '/usr/local/pf/lib';
 use pf::config;
@@ -33,6 +34,12 @@ use pf::pfcmd::help;
 
 delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
 
+Log::Log4perl->init('/usr/local/pf/conf/log.conf');
+my $logger = Log::Log4perl->get_logger('pfcmd');
+Log::Log4perl::MDC->put('proc', 'pfcmd');
+Log::Log4perl::MDC->put('tid', 0);
+
+
 if (defined($ENV{'PATH'})) {
     my @PATH = split(/:/,$ENV{'PATH'});
     my $pos = 0;
@@ -42,7 +49,7 @@ if (defined($ENV{'PATH'})) {
     if ($pos < scalar(@PATH)) {
         my $enforcing = `$PATH[$pos]/getenforce`;
         if ($enforcing =~ /^Enforcing$/) {
-            pflogger("SELinux is in enforcing mode. This is currently not supported in PacketFence", 1);
+            $logger->fatal("SELinux is in enforcing mode. This is currently not supported in PacketFence");
             die "SELinux is in enforcing mode. This is currently not supported in PacketFence";
         }
     }
@@ -342,7 +349,7 @@ sub service {
 
   if ($command =~ /^restart$/i) {
     if ($service =~ /^pf$/i) {
-      pflogger("packetfence restart ... executing stop followed by start", 8);
+      $logger->info("packetfence restart ... executing stop followed by start");
       local $cmd{command}[2] = "stop";
       service();
       local $cmd{command}[2] = "start";
@@ -371,7 +378,7 @@ sub service {
       }
     }
     if ($nb_running_services == 0) {
-      pflogger("saving current iptables to var/iptables.bak", 8);
+      $logger->info("saving current iptables to var/iptables.bak");
       save_iptables($install_dir.'/var/iptables.bak');
     }
   }
@@ -403,7 +410,7 @@ sub service {
       restore_iptables($install_dir.'/var/iptables.bak');
     } else {
       if ($service =~ /^pf$/i) {
-        pflogger("even though 'control pf stop' was called, there are still $nb_running_services services running. Can't restore iptables from var/iptables.bak", 2);
+        $logger->error("even though 'control pf stop' was called, there are still $nb_running_services services running. Can't restore iptables from var/iptables.bak");
       }
     }
   }
@@ -506,7 +513,7 @@ sub schedule {
      my @fields=split(/\s+/,$date); 
      if (!$date || scalar(@fields)!=5 || $date!~/^([\d\-\,\/\* ])+$/ || !$tid){
         print "Date format incorrect $date or tid incorrect $tid\n";
-        pflogger("date format incorrect",4);  
+        $logger->error("date format incorrect");  
 	return(0);
      } else{
         $cron->add_index($date,$install_dir."/bin/pfcmd schedule now $hostaddr tid=$tid");
@@ -520,10 +527,10 @@ sub schedule {
     $hostaddr=$params{hosts} if ($params{hosts});
     $tid=$oldtid if (!$tid);
     $date=$oldate if (!$date);
-    pflogger("updating schedule number $id to date=$date,hostaddr=$hostaddr,tid=$tid",8);
+    $logger->info("updating schedule number $id to date=$date,hostaddr=$hostaddr,tid=$tid");
     $cron->update_index($id,$date,$install_dir."/bin/pfcmd schedule now $hostaddr tid=$tid");
   }else{
-    pflogger("ERROR Schedule Failed",1);
+    $logger->error("Schedule Failed");
     return(0);
   }
 
@@ -674,11 +681,11 @@ sub reload {
   my $option = $cmd{command}[1];
   if ($option eq "fingerprints") {
     my $fp_total = read_dhcp_fingerprints_conf();
-    pflogger("$fp_total DHCP fingerprints reloaded");
+    $logger->info("$fp_total DHCP fingerprints reloaded");
     print "$fp_total DHCP fingerprints reloaded\n";
   } elsif ($option eq "violations") {
     read_violations_conf();
-    pflogger("Violation classes reloaded");
+    $logger->info("Violation classes reloaded");
     print "Violation classes reloaded\n";
   }
   exit;
@@ -698,10 +705,10 @@ sub update {
       my ($version) = $fingerprints =~ /^#\s+dhcp_fingerprints.conf:\s+(version.+?)\n/;
       print $fingerprints_fh $fingerprints;
       close($fingerprints_fh);
-      pflogger("DHCP fingerprints updated via $dhcp_fingerprints_url to $version");
+      $logger->info("DHCP fingerprints updated via $dhcp_fingerprints_url to $version");
       print "DHCP fingerprints updated via $dhcp_fingerprints_url to $version\n";
       my $fp_total = read_dhcp_fingerprints_conf();
-      pflogger("$fp_total DHCP fingerprints reloaded");
+      $logger->info("$fp_total DHCP fingerprints reloaded");
       print "$fp_total DHCP fingerprints reloaded\n";
     }
   } elsif ($option eq "oui") {
@@ -713,7 +720,7 @@ sub update {
       open($oui_fh,">$oui_file") || throw_hissy_fit("Unable to open $oui_file: $!");
       print $oui_fh $response->content;
       close($oui_fh);
-      pflogger("OUI prefixes updated via $oui_url");
+      $logger->info("OUI prefixes updated via $oui_url");
       print "OUI prefixes updated via $oui_url\n";
     }
   }
@@ -864,16 +871,16 @@ sub command_param {
   #print Dumper(%params);
   # run update/or delete  and check return val
   if ($function eq "violation_add"){
-    pflogger("pfcmd calling $function for " . $params{mac},1);
+    $logger->info("pfcmd calling $function for " . $params{mac});
     ($main::{$function} or sub { print "No such sub: $_\n" })->($params{mac},$params{vid},%params);
   }else {
-    pflogger("pfcmd calling $function for $id",1);
+    $logger->info("pfcmd calling $function for $id");
     $returnValue = ($main::{$function} or sub { print "No such sub: $_\n" })->($id,%params);
   }
   if ($returnValue != 2) {
     #print "$function updated\n";
     if ($function =~ /^person_add|person_modify$/) {
-      pflogger("$function was called - we don't need to recalculate iptables and switchport VLAN assignments", 8);
+      $logger->debug("$function was called - we don't need to recalculate iptables and switchport VLAN assignments");
     } else {
       generate_iptables();
       if ($function =~ /^violation/) {
@@ -1285,11 +1292,6 @@ sub sanity_check {
     throw_hissy_fit("ARP stuffing is enabled...this is dangerous!","WARNING");
   }
 
-  # make sure verbosity isn't too high
-  if ($Config{'logging'}{'verbosity'} > 10) {
-    throw_hissy_fit("verbosity > 10 - this could impact performance!","WARNING");
-  }
-
   # make sure pid 1 exists
   if (!person_exist(1)){
     throw_hissy_fit("person user id 1 must exist - please reinitialize your database"); 
@@ -1350,7 +1352,7 @@ sub sanity_check {
 sub generate_switchport_vlan_assignment {
   my ($mac,$function) = @_;
   if (isenabled($Config{'network'}{'vlan'}) && grep(/^$function$/,split(/\s*,\s*/,$Config{'vlan'}{'adjustswitchportvlanreasons'})) > 0) {
-    pflogger("vlan isolation is enabled and $function is part of adjustswitchportvlanreasons", 8);
+    $logger->info("vlan isolation is enabled and $function is part of adjustswitchportvlanreasons");
     require pf::locationlog;
     import pf::locationlog;
     my $locationlog_entry = locationlog_view_open_mac($mac);
@@ -1360,16 +1362,16 @@ sub generate_switchport_vlan_assignment {
       my $switch_ip = $locationlog_entry->{'switch'};
       my $ifIndex = $locationlog_entry->{'port'};
       my $currentVlan = $locationlog_entry->{'vlan'};
-      pflogger("$mac is currentlog connected at $switch_ip ifIndex $ifIndex in VLAN $currentVlan", 12);
+      $logger->info("$mac is currentlog connected at $switch_ip ifIndex $ifIndex in VLAN $currentVlan");
       my $newCorrectVlan = vlan_determine_for_node($mac,$switch_ip,$ifIndex);
-      pflogger("new correct VLAN for $mac is $newCorrectVlan", 12);
+      $logger->info("new correct VLAN for $mac is $newCorrectVlan");
       if (($currentVlan eq 'WIFI') || ($newCorrectVlan ne $currentVlan)) {
-        pflogger("calling " . $Config{'vlan'}{'adjustswitchportvlanscript'} . " for node $mac (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)", 2);
+        $logger->info("calling " . $Config{'vlan'}{'adjustswitchportvlanscript'} . " for node $mac (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)");
         my @args = ($Config{'vlan'}{'adjustswitchportvlanscript'}, $mac);
         system(@args);
       }
     } else {
-      pflogger("no open locationlog entry for $mac",8);
+      $logger->warn("no open locationlog entry for $mac");
     }
   }
 }

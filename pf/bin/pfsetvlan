@@ -125,7 +125,8 @@ pod2usage( -verbose => 1) if $help;
 
 # startup {{{1
 Log::Log4perl->init(LOG_CONF_FILE);
-my $logger = Log::Log4perl->get_logger('');
+my $logger = Log::Log4perl->get_logger('pfsetvlan');
+Log::Log4perl::MDC->put('proc', 'pfsetvlan');
 Log::Log4perl::MDC->put('tid', threads->self->tid());
 
 
@@ -240,7 +241,7 @@ while (defined($currentTrapLine=$fh->read)) {
 # sub addTrapLineToQueue($trapLine) - cond_signal(@trapList_queued){{{1
 sub addTrapLineToQueue {
     my ($trapLine) = @_;
-    my $logger = Log::Log4perl->get_logger('');
+    my $logger = Log::Log4perl->get_logger('pfsetvlan');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
     $logger->trace("locking - trying to lock trapList_queued");
     {
@@ -256,7 +257,7 @@ sub addTrapLineToQueue {
 
 # sub signalHandlerTrapListQueued - cond_wait(@trapList_queued), parseTrap($trapLineToParse) {{{1
 sub signalHandlerTrapListQueued {
-    my $logger = Log::Log4perl->get_logger('');
+    my $logger = Log::Log4perl->get_logger('pfsetvlan');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
     
     while (1) {
@@ -404,7 +405,7 @@ sub signalHandlerTrapListQueued {
 # sub parseTrap {{{1
 sub parseTrap {
     my ($trapLine) = @_;
-    my $logger = Log::Log4perl->get_logger('');
+    my $logger = Log::Log4perl->get_logger('pfsetvlan');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
 
     $logger->debug("parsing trap $trapLine");
@@ -507,7 +508,7 @@ sub parseTrap {
 
 # sub signalHandlerThreadListQueued {{{1
 sub signalHandlerThreadListQueued {
-    my $logger = Log::Log4perl->get_logger('');
+    my $logger = Log::Log4perl->get_logger('pfsetvlan');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
     
     while (1) {
@@ -532,7 +533,7 @@ sub signalHandlerThreadListQueued {
 
 # sub startTrapLandlers {{{1
 sub startTrapHandlers {
-    my $logger = Log::Log4perl->get_logger('');
+    my $logger = Log::Log4perl->get_logger('pfsetvlan');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
 
     my $mustDoSomeThing = 0;
@@ -612,7 +613,7 @@ sub startTrapHandlers {
 sub handleTrap {
     # initialize {{{2
     my ($switch_ip,$switch_port,$trapType, $trapVlan, $trapOperation, $trapMac) = @_;
-    my $logger = Log::Log4perl->get_logger('');
+    my $logger = Log::Log4perl->get_logger('pfsetvlan');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
     # }}}2
     
@@ -1172,7 +1173,7 @@ sub handleTrap {
 
 # sub cleanupAfterThread {{{1
 sub cleanupAfterThread {
-    my $logger = Log::Log4perl->get_logger('');
+    my $logger = Log::Log4perl->get_logger('pfsetvlan');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
     my ($switch_ip,$switch_port) = @_;
     $logger->trace("locking - trying to lock threadList_running, threadList_toBeKilled in cleanupAfterThread");
@@ -1202,7 +1203,7 @@ sub cleanupAfterThread {
 
 # sub normal_sighandler {{{1
 sub normal_sighandler {
-    my $logger = Log::Log4perl->get_logger('');
+    my $logger = Log::Log4perl->get_logger('pfsetvlan');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
     if ((isenabled($Config{'vlan'}{'closelocationlogonstop'})) && (threads->self->tid() == 0)) {
         $logger->debug("caught SIG" . $_[0]." - closing open locationlogs");
@@ -1237,7 +1238,7 @@ sub normal_sighandler {
 # sub node_update_PF {{{1
 sub node_update_PF {
     my ($switch, $switch_port, $mac, $vlan, $isPhone, $registrationMode, $mysql_connection) = @_;
-    my $logger = Log::Log4perl->get_logger('');
+    my $logger = Log::Log4perl->get_logger('pfsetvlan');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
 
     #lowercase MAC
@@ -1290,7 +1291,7 @@ sub node_update_PF {
 # sub node_register_auto_PF {{{1
 sub node_register_auto_PF {
     my ($switch_ip, $switch_port, $mac, $vlan, $isPhone, $mysql_connection) = @_;
-    my $logger = Log::Log4perl->get_logger('');
+    my $logger = Log::Log4perl->get_logger('pfsetvlan');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
 
     my ($lineNumbers) = $mysql_connection->selectrow_array("SELECT count(*) FROM node where mac='$mac' and status='reg'");
@@ -1321,7 +1322,7 @@ sub node_register_auto_PF {
 sub node_determine_VLAN {
     my ($mac, $switch, $ifIndex) = @_;
 
-    my $logger = Log::Log4perl->get_logger('');
+    my $logger = Log::Log4perl->get_logger('pfsetvlan');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
 
     my $node_info = node_view($mac);
@@ -1348,7 +1349,7 @@ sub node_determine_VLAN {
 sub node_determine_and_set_into_VLAN {
     my ($mac, $switch, $ifIndex) = @_;
 
-    my $logger = Log::Log4perl->get_logger('');
+    my $logger = Log::Log4perl->get_logger('pfsetvlan');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
 
     $switch->setVlan($ifIndex, node_determine_VLAN($mac,$switch,$ifIndex), \%switch_locker, $mac);
@@ -1359,7 +1360,7 @@ sub node_determine_and_set_into_VLAN {
 sub do_port_security {
     my ($mac, $switch, $switch_port, $trapType) = @_;
 
-    my $logger = Log::Log4perl->get_logger('');
+    my $logger = Log::Log4perl->get_logger('pfsetvlan');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
 
     #determine if $mac is authorized elsewhere

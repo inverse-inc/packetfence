@@ -35,7 +35,7 @@ use Net::SNMP;
 sub parseTrap {
     my ($this, $trapString) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::3COM");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if ($trapString =~ /BEGIN TYPE ([23]) END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.2\.(\d+) = /) {
         $trapHashRef->{'trapType'} = (($1 == 2) ? "down" : "up");
         $trapHashRef->{'trapIfIndex'} = $2;
@@ -48,7 +48,7 @@ sub parseTrap {
 
 sub getDot1dBasePortForThisIfIndex {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::3COM");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $ifIndexDot1dBasePortHash = { 
         102 => 1,
         103 => 2,
@@ -60,7 +60,7 @@ sub getDot1dBasePortForThisIfIndex {
 
 sub _setVlan {
     my ($this,$ifIndex,$newVlan,$oldVlan,$switch_locker_ref) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::3COM");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     if (! $this->connectRead()) {
         return 0;
     }
@@ -87,7 +87,7 @@ sub _setVlan {
 
 sub _getMacAtIfIndex {
     my ($this,$ifIndex,$vlan) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::3COM");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my @macArray;
     if (! $this->connectRead()) {
         return @macArray;

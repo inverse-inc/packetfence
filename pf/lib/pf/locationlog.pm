@@ -12,6 +12,7 @@ package pf::locationlog;
 
 use strict;
 use warnings;
+use Log::Log4perl;
 
 our (
   $locationlog_history_mac_sql,
@@ -175,11 +176,12 @@ sub locationlog_insert_start {
 
 sub locationlog_update_end {
   my ($switch, $ifIndex, $mac) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::locationlog');
   if (defined($mac)) {
-    pflogger("locationlog_update_end called with mac=$mac", 8);
+    $logger->info("locationlog_update_end called with mac=$mac");
     locationlog_update_end_mac($mac);
   } else {
-    pflogger("locationlog_update_end called without mac", 8);
+    $logger->info("locationlog_update_end called without mac");
     $locationlog_update_end_switchport_sql->execute($switch, $ifIndex) || return(0);
   }
   return(1);

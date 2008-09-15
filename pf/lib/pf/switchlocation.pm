@@ -12,6 +12,7 @@ package pf::switchlocation;
 
 use strict;
 use warnings;
+use Log::Log4perl;
 
 our (
   $switchlocation_view_all_sql,

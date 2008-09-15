@@ -7,6 +7,7 @@ use Date::Parse;
 use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
+use Log::Log4perl;
 
 use lib '/usr/local/pf/lib';
 use pf::config;
@@ -19,6 +20,11 @@ use pf::class;
 use pf::violation;
 use pf::trigger;
 
+Log::Log4perl->init('/usr/local/pf/conf/log.conf');
+my $logger = Log::Log4perl->get_logger('release.cgi');
+Log::Log4perl::MDC->put('proc', 'release.cgi');
+Log::Log4perl::MDC->put('tid', 0);
+
 my $cgi = new CGI;
 my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 
@@ -29,7 +35,7 @@ my $mac             = ip2mac($ip);
 $destination_url = $Config{'trapping'}{'redirecturl'} if (!$destination_url);
 
 if (!valid_mac($mac)) {
-  pflogger("$ip not resolvable, generating error page",1);
+  $logger->info("$ip not resolvable, generating error page");
   generate_error_page($cgi, $session, "error: not found in the database");
   return(0);     
 }
@@ -44,8 +50,8 @@ if (defined($cgi->param('mode'))) {
     if (!isdisabled($Config{'registration'}{'skip_mode'})) {
       if (($Config{'registration'}{'skip_mode'} eq "deadline" && (time - $Config{'registration'}{'skip_deadline'} < 0)) ||
           ($Config{'registration'}{'skip_mode'} eq "window" && $detect_date + $Config{'registration'}{'skip_window'} < time)) {
-        pflogger("test: detect_date=$detect_date window=".$Config{'registration'}{'skip_window'}." time=".time);
-        pflogger("registration grace period exceeded for $mac!");
+        $logger->info("test: detect_date=$detect_date window=".$Config{'registration'}{'skip_window'}." time=".time);
+        $logger->info("registration grace period exceeded for $mac!");
         print $cgi->redirect("/cgi-bin/register.cgi?mode=register&destination_url=".$destination_url);
       } else {
         my %info;
@@ -64,7 +70,7 @@ if (defined($cgi->param('mode'))) {
         } else {
           print $cgi->redirect("/cgi-bin/redir.cgi?destination_url=$destination_url");
         }
-        pflogger("$mac skipped registration", 4);
+        $logger->info("$mac skipped registration");
       }
     }
     exit;
@@ -82,16 +88,16 @@ my $class_max_enable_url = $class->{'max_enable_url'};
 #scan code...
 if ($vid==1200001){
   my $cmd = $install_dir."/bin/pfcmd schedule now $ip";
-  pflogger("scanning $ip by calling $cmd", 4);
+  $logger->info("scanning $ip by calling $cmd");
   my $scan = qx/$cmd/;
 }
 
 my $cmd = $install_dir."/bin/pfcmd manage vclose $mac $vid";
-pflogger("calling $install_dir/bin/pfcmd manage vclose $mac $vid");
+$logger->info("calling $install_dir/bin/pfcmd manage vclose $mac $vid");
 my $grace = qx/$cmd/;
 $grace=~s/^.+\n\n//;
 #my $grace = violation_close($mac,$vid);
-pflogger("violation_close returned $grace", 4);
+$logger->info("violation_close returned $grace");
 
 if ($grace != -1) {
   my $count = violation_count($mac); 
@@ -113,9 +119,9 @@ if ($grace != -1) {
       print $cgi->redirect("/cgi-bin/redir.cgi?destination_url=$destination_url");
     }
   }
-  pflogger("$mac enabled for $grace minutes", 4);
+  $logger->info("$mac enabled for $grace minutes");
 } else {
-  pflogger("$mac reached maximum violations", 4);
+  $logger->info("$mac reached maximum violations");
   if ($class->{'max_enable_url'}) {
     print $cgi->redirect($class_max_enable_url);
   } else {

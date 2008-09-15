@@ -35,7 +35,7 @@ use Data::Dumper;
 
 sub getManagedPorts {
     my $this = shift;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Catalyst_2950");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $oid_ifType = '1.3.6.1.2.1.2.2.1.3'; # MIB: ifTypes
     my $oid_ifName = '1.3.6.1.2.1.31.1.1.1.1';
     my @nonUpLinks;
@@ -96,7 +96,7 @@ sub clearMacAddressTable {
     my $command;
     my $session;
     my $oid_ifName = '1.3.6.1.2.1.31.1.1.1.1';
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Catalyst_2950");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     eval {
         $session = Net::Telnet::Cisco->new(Host => $this->{_ip}, Timeout=>5);
@@ -135,7 +135,7 @@ sub clearMacAddressTable {
 
 sub getAllSecureMacAddresses {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Catalyst_2950");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $oid_cpsSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.2.1.4';    
 
     my $secureMacAddrHashRef = {};
@@ -160,7 +160,7 @@ sub getAllSecureMacAddresses {
 
 sub isDynamicPortSecurityEnabled {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Catalyst_2950");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $oid_cpsSecureMacAddrType = '1.3.6.1.4.1.9.9.315.1.2.2.1.2';
 
     if (! $this->connectRead()) {
@@ -186,7 +186,7 @@ sub isDynamicPortSecurityEnabled {
 
 sub isStaticPortSecurityEnabled {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Catalyst_2950");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $oid_cpsSecureMacAddrType = '1.3.6.1.4.1.9.9.315.1.2.2.1.2';
 
     if (! $this->connectRead()) {
@@ -212,7 +212,7 @@ sub isStaticPortSecurityEnabled {
 
 sub getSecureMacAddresses {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Catalyst_2950");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $oid_cpsSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.2.1.4';    
 
     my $secureMacAddrHashRef = {};
@@ -236,7 +236,7 @@ sub getSecureMacAddresses {
 
 sub authorizeMAC {
     my ($this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Catalyst_2950");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $oid_cpsSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.2.1.4';  
 
     if (! $this->isProductionMode()) {
@@ -282,7 +282,7 @@ sub authorizeMAC {
 
 sub getMaxMacAddresses {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Catalyst_2950");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     #CISCO-PORT-SECURITY-MIB
     my $OID_cpsIfPortSecurityEnable = '1.3.6.1.4.1.9.9.315.1.2.1.1.1';
     my $OID_cpsIfMaxSecureMacAddr = '1.3.6.1.4.1.9.9.315.1.2.1.1.3';
@@ -325,7 +325,7 @@ sub getMaxMacAddresses {
 sub ping {
     my ($this, $ip) = @_;
     my $session;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::Cisco::Catalyst_2950");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     eval {
         $session = Net::Telnet::Cisco->new(Host => $this->{_ip}, Timeout=>5);
