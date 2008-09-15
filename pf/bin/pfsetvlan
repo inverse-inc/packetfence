@@ -127,8 +127,8 @@ pod2usage( -verbose => 1) if $help;
 
 # startup {{{1
 Log::Log4perl->init(LOG_CONF_FILE);
-my $logger = Log::Log4perl->get_logger(basename(0));
-Log::Log4perl::MDC->put('proc', basename(0));
+my $logger = Log::Log4perl->get_logger(basename($0));
+Log::Log4perl::MDC->put('proc', basename($0));
 Log::Log4perl::MDC->put('tid', threads->self->tid());
 
 
