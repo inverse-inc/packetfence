@@ -167,7 +167,7 @@ if ($daemonize) {
 }
 # End - Daemonize...
 
-$logger->info("Process started !\n");
+$logger->info("Process started");
 
 my %threadList_running : shared;
 my %threadList_toBeKilled : shared;
