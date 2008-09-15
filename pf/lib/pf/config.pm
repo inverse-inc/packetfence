@@ -15,6 +15,8 @@ use Config::IniFiles;
 use Net::Netmask;
 use Date::Parse;
 use Log::Log4perl;
+use File::Basename qw(basename);
+use threads;
 
 our ($install_dir, %Default_Config, %Config, @listen_ints, @internal_nets, @routed_nets,
      $blackholemac, @managed_nets, @external_nets, @dhcplistener_ints, $isolation_int, $registration_int, $monitor_int, $unreg_mark, $reg_mark, $black_mark, $portscan_sid, 
@@ -30,6 +32,12 @@ BEGIN {
                $default_config_file $config_file $dhcp_fingerprints_file $default_pid $fqdn $oui_url $dhcp_fingerprints_url
                $oui_file @valid_trigger_types $thread)
 }
+
+
+Log::Log4perl->init('/usr/local/pf/conf/log.conf');
+Log::Log4perl::MDC->put('proc', basename($0));
+Log::Log4perl::MDC->put('tid', threads->self->tid());
+
 
 # these files contain the node and person lookup functions
 # they can be customized to your environment
