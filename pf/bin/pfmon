@@ -19,6 +19,7 @@ use POSIX qw(:signal_h);
 Log::Log4perl->init('/usr/local/pf/conf/log.conf');
 my $logger = Log::Log4perl->get_logger('pfmon');
 Log::Log4perl::MDC->put('proc', 'pfmon');
+Log::Log4perl::MDC->put('tid', threads->self->tid());
 
 
 use lib '/usr/local/pf/lib';
@@ -115,7 +116,7 @@ if ( $Config{'network'}{'mode'}=~/^dhcp$/i ) {
 # thread off arp listener
 if ( $Config{'network'}{'mode'}=~/^passive$/i){
   foreach my $dev (@listen_ints){
-    logger->info("ARP detector on $dev enabled");
+    $logger->info("ARP detector on $dev enabled");
     push @kids, threads->create( \&arp_detector, $dev );
   }
 }
