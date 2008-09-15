@@ -19,7 +19,6 @@ use POSIX qw(:signal_h);
 Log::Log4perl->init('/usr/local/pf/conf/log.conf');
 my $logger = Log::Log4perl->get_logger('pfmon');
 Log::Log4perl::MDC->put('proc', 'pfmon');
-Log::Log4perl::MDC->put('tid', 0);
 
 
 use lib '/usr/local/pf/lib';
@@ -145,6 +144,7 @@ exit(0);
 sub arp_detector {
   my ($eth) = @_;          
   my $logger = Log::Log4perl::get_logger('pfmon::arp_detector');
+  Log::Log4perl::MDC->put('tid', threads->self->tid());
   my $packet_arp = new Net::RawIP;
   my $filter = arp_filter();
   my $pcap_arp = $packet_arp->pcapinit($eth,$filter,1500,30);
@@ -163,6 +163,7 @@ sub arp_detector {
 sub dhcp_scoper {
   my $mydbh;
   my $logger = Log::Log4perl::get_logger('pfmon::dhcp_scoper');
+  Log::Log4perl::MDC->put('tid', threads->self->tid());
   db_connect($mydbh,'node','violation');
 
   my %isolated;   
@@ -301,7 +302,8 @@ sub listen_arp {
 #
 sub arp_gun {
   my $logger = Log::Log4perl::get_logger('pfmon::arp_gun');
-
+  Log::Log4perl::MDC->put('tid', threads->self->tid());
+   
   $logger->info("Starting ARP gun thread");
   #lock($arp_signal);
   my $mydbh=0;
@@ -425,6 +427,7 @@ sub rearp {
 
 sub cleanup {
   my $logger = Log::Log4perl::get_logger('pfmon::cleanup');
+  Log::Log4perl::MDC->put('tid', threads->self->tid());
   $logger->info("Starting cleanup thread");
   my $mydbh;
   db_connect($mydbh,'iplog','node','locationlog');
