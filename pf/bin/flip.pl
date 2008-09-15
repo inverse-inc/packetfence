@@ -14,6 +14,8 @@ use diagnostics;
 use Net::SNMP;
 use Log::Log4perl;
 use Config::IniFiles;
+use File::Basename qw(basename);
+
 use lib '/usr/local/pf/lib';
 use pf::util;
 use pf::locationlog;
@@ -21,8 +23,8 @@ use pf::config;
 use pf::SwitchFactory;
 
 Log::Log4perl->init('/usr/local/pf/conf/log.conf');
-my $logger = Log::Log4perl->get_logger('flip');
-Log::Log4perl::MDC->put('proc', 'flip');
+my $logger = Log::Log4perl->get_logger(basename($0));
+Log::Log4perl::MDC->put('proc', basename($0));
 Log::Log4perl::MDC->put('tid', 0);
 
 my $mac = $ARGV[0];

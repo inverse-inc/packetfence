@@ -12,13 +12,14 @@ use warnings;
 use strict;
 use Getopt::Std;
 use Net::RawIP qw(:pcap);
+use File::Basename qw(basename);
 use threads;
 use threads::shared;
 use POSIX qw(:signal_h);
 
 Log::Log4perl->init('/usr/local/pf/conf/log.conf');
-my $logger = Log::Log4perl->get_logger('pfmon');
-Log::Log4perl::MDC->put('proc', 'pfmon');
+my $logger = Log::Log4perl->get_logger(basename($0));
+Log::Log4perl::MDC->put('proc', basename($0));
 Log::Log4perl::MDC->put('tid', threads->self->tid());
 
 

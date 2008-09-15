@@ -9,7 +9,7 @@
 #
 
 use Getopt::Std;
-use File::Basename;
+use File::Basename qw(basename);
 use strict;
 use warnings;
 use Log::Log4perl;
@@ -28,8 +28,8 @@ use pf::os;
 use pf::person;
 
 Log::Log4perl->init('/usr/local/pf/conf/log.conf');
-my $logger = Log::Log4perl->get_logger('pfdetect');
-Log::Log4perl::MDC->put('proc', 'pfdetect');
+my $logger = Log::Log4perl->get_logger(basename($0));
+Log::Log4perl::MDC->put('proc', basename($0));
 Log::Log4perl::MDC->put('tid', 0);
 
 
@@ -44,7 +44,7 @@ usage() if ($args{h} || !$args{p});
 my $daemonize = $args{d};
 my $verbose   = $args{v};
 my $snortpipe = $args{p};
-my $script    = File::Basename::basename($0);
+my $script    = basename($0);
 
 my ($line, $sid, $descr, $priority, $date, $srcmac, $srcip, $dstip, $mydbh);
 
@@ -139,7 +139,7 @@ sub restart_handler {
 }
 
 sub usage {
-  my $cmd = File::Basename::basename($0);
+  my $cmd = basename($0);
   print STDERR << "EOF";
   Usage: $cmd -p snortpipe [OPTIONS]
 

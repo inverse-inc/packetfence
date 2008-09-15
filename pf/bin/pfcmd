@@ -35,8 +35,8 @@ use pf::pfcmd::help;
 delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
 
 Log::Log4perl->init('/usr/local/pf/conf/log.conf');
-my $logger = Log::Log4perl->get_logger('pfcmd');
-Log::Log4perl::MDC->put('proc', 'pfcmd');
+my $logger = Log::Log4perl->get_logger(basename($0));
+Log::Log4perl::MDC->put('proc', basename($0));
 Log::Log4perl::MDC->put('tid', 0);
 
 
