@@ -89,6 +89,7 @@ use pf::locationlog;
 use pf::node;
 use pf::violation;
 use pf::SNMP v1.7.0.6;
+use pf::vlan;
 # }}}1
 
 # sighandler {{{1
@@ -782,7 +783,7 @@ sub handleTrap {
                 my @locationlog = locationlog_view_open_switchport_no_VoIP($switch_ip, $switch_port);
                 if ((@locationlog) && (scalar(@locationlog) > 0) && (defined($locationlog[0]->{'mac'})) && ($locationlog[0]->{'mac'} ne '')) {
                     if ($locationlog[0]->{'mac'} =~ /^$mac$/i) {
-                        if (($locationlog[0]->{'vlan'} == $vlan) && ($vlan == node_determine_VLAN($mac, $switch, $switch_port))) {
+                        if (($locationlog[0]->{'vlan'} == $vlan) && ($vlan == vlan_determine_for_node($mac, $switch->{_ip}, $switch_port))) {
                             $logger->info("locationlog is already up2date. Do nothing");
                         } else {
                             $changeVlan = 1;
@@ -908,7 +909,7 @@ sub handleTrap {
                     $logger->debug("closing $oldPC locationlog entry at $switch_ip ifIndex $switch_port");
                     locationlog_update_end_mac($oldPC);
                     $logger->info("authorizing $trapMac (old entry $oldPC) at new location $switch_ip ifIndex $switch_port");
-                    $switch->authorizeMAC($switch_port, $oldPC, $trapMac, $switch->getVlan($switch_port), node_determine_VLAN($trapMac,$switch,$switch_port));
+                    $switch->authorizeMAC($switch_port, $oldPC, $trapMac, $switch->getVlan($switch_port), vlan_determine_for_node($trapMac,$switch->{_ip},$switch_port));
                     #set the right VLAN
                     $logger->debug("setting correct VLAN for $trapMac at new location $switch_ip ifIndex $switch_port");
                     node_determine_and_set_into_VLAN($trapMac, $switch, $switch_port);
@@ -926,10 +927,10 @@ sub handleTrap {
                 }
                 if (defined($old_mac_to_remove)) {
                     $logger->info("authorizing $trapMac (old entry $old_mac_to_remove) at new location $switch_ip ifIndex $switch_port");
-                    $switch->authorizeMAC($switch_port, $old_mac_to_remove, $trapMac, $switch->getVlan($switch_port), node_determine_VLAN($trapMac,$switch,$switch_port));
+                    $switch->authorizeMAC($switch_port, $old_mac_to_remove, $trapMac, $switch->getVlan($switch_port), vlan_determine_for_node($trapMac,$switch->{_ip},$switch_port));
                 } else {
                     $logger->info("authorizing $trapMac at new location $switch_ip ifIndex $switch_port");
-                    $switch->authorizeMAC($switch_port, 0, $trapMac, 0, node_determine_VLAN($trapMac,$switch,$switch_port));
+                    $switch->authorizeMAC($switch_port, 0, $trapMac, 0, vlan_determine_for_node($trapMac,$switch->{_ip},$switch_port));
                 }
                 #set the right VLAN
                 $logger->debug("setting correct VLAN for $trapMac at new location $switch_ip ifIndex $switch_port");
@@ -1318,33 +1319,6 @@ sub node_register_auto_PF {
 }
 # }}}1
 
-# sub node_determine_VLAN {{{1
-sub node_determine_VLAN {
-    my ($mac, $switch, $ifIndex) = @_;
-
-    my $logger = Log::Log4perl->get_logger('pfsetvlan');
-    Log::Log4perl::MDC->put('tid', threads->self->tid());
-
-    my $node_info = node_view($mac);
-
-    my $correctVlanForThisMAC;
-    if ($node_info->{'status'} eq 'unreg') {
-        $logger->info("$mac is unregistered. Set " . $switch->{_ip} . " ifIndex $ifIndex to registration VLAN");
-        $correctVlanForThisMAC = $switch->{_registrationVlan};
-    } else {
-        my $open_violation_count = violation_count_trap($mac);
-        if ($open_violation_count > 0) {
-            $logger->info("$mac has $open_violation_count open violations(s) with action=trap. Set " . $switch->{_ip} . " ifIndex $ifIndex to isolation VLAN.");
-            $correctVlanForThisMAC = $switch->{_isolationVlan};
-        } else {
-            $correctVlanForThisMAC = custom_getCorrectVlan($switch->{_ip}, $ifIndex, $mac, $node_info->{status}, $node_info->{vlan}, $node_info->{pid});
-            $logger->info("$mac (PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . "). Set " . $switch->{_ip} . " ifIndex $ifIndex to VLAN $correctVlanForThisMAC");
-        }
-    }
-    return $correctVlanForThisMAC;
-}
-# }}}1
-
 # sub node_determine_and_set_into_VLAN {{{1
 sub node_determine_and_set_into_VLAN {
     my ($mac, $switch, $ifIndex) = @_;
@@ -1352,7 +1326,7 @@ sub node_determine_and_set_into_VLAN {
     my $logger = Log::Log4perl->get_logger('pfsetvlan');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
 
-    $switch->setVlan($ifIndex, node_determine_VLAN($mac,$switch,$ifIndex), \%switch_locker, $mac);
+    $switch->setVlan($ifIndex, vlan_determine_for_node($mac,$switch->{_ip},$ifIndex), \%switch_locker, $mac);
 }
 # }}}1
 
