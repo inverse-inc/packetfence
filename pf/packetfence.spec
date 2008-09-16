@@ -25,7 +25,7 @@ BuildRequires: gettext, perl(Parse::RecDescent), httpd
 Requires: perl >= 5.8.0, perl-suidperl, httpd, mod_ssl, php, php-gd, libpcap, libxml2, zlib, zlib-devel, coreutils, net-snmp, iproute, sed
 Requires: gcc, mysql, perl-DBD-MySQL
 Requires: perl(CPAN)
-Requires: perl(Time::HiRes), perl(Config::IniFiles), perl(Net::Netmask), perl(Date::Parse), perl(Parse::RecDescent), perl(Net::RawIP) = 0.2, perl(Net::Pcap) >= 0.16, perl(CGI), perl(CGI::Session), perl(Term::ReadKey), perl(File::Tail), perl(Net::MAC::Vendor), perl(Net::SNMP), perl(LWP::UserAgent), perl(Net::Telnet::Cisco), perl(Log::Log4perl) >= 1.11, perl(Thread::Pool), perl(Locale::gettext), perl(Template), perl(Apache::Htpasswd), perl(Net::MAC)
+Requires: perl(Time::HiRes), perl(Config::IniFiles), perl(Net::Netmask), perl(Date::Parse), perl(Parse::RecDescent), perl(Net::RawIP) = 0.2, perl(Net::Pcap) >= 0.16, perl(CGI), perl(CGI::Session), perl(Term::ReadKey), perl(File::Tail), perl(Net::MAC::Vendor), perl(Net::SNMP), perl(LWP::UserAgent), perl(Net::Telnet), perl(Net::Appliance::Session), perl(Log::Log4perl) >= 1.11, perl(Thread::Pool), perl(Locale::gettext), perl(Template), perl(Apache::Htpasswd), perl(Net::MAC)
 
 %description
 

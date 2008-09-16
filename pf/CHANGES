@@ -18,6 +18,8 @@
         added script to check for duplication of secure MACs
         documented arp.listendevice
           (http://www.packetfence.org/mantis/view.php?id=387)
+        replace Net::Telnet::Cisco by Net::Appliance::Session
+          (http://www.packetfence.org/mantis/view.php?id=379)
 
 1.7.3
         not all port security traps are handled

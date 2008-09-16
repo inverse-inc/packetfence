@@ -29,7 +29,7 @@ use diagnostics;
 use base ('pf::SNMP::Cisco');
 use Log::Log4perl;
 use Carp;
-use Net::Telnet::Cisco;
+use Net::Appliance::Session;
 use Net::SNMP;
 use Data::Dumper;
 
@@ -99,9 +99,9 @@ sub clearMacAddressTable {
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     eval {
-        $session = Net::Telnet::Cisco->new(Host => $this->{_ip}, Timeout=>5);
-        $session->login($this->{_telnetUser}, $this->{_telnetPwd});
-        $session->enable($this->{_telnetEnablePwd});
+        $session = Net::Appliance::Session->new(Host => $this->{_ip}, Timeout=>5, Transport => 'Telnet');
+        $session->connect(Name => $this->{_telnetUser}, Password => $this->{_telnetPwd});
+        $session->begin_privileged($this->{_telnetEnablePwd});
     };
 
     if ($@) {
@@ -328,8 +328,8 @@ sub ping {
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     eval {
-        $session = Net::Telnet::Cisco->new(Host => $this->{_ip}, Timeout=>5);
-        $session->login($this->{_telnetUser}, $this->{_telnetPwd});
+        $session = Net::Appliance::Session->new(Host => $this->{_ip}, Timeout=>5, Transport => 'Telnet');
+        $session->connect(Name => $this->{_telnetUser}, Password => $this->{_telnetPwd});
     };
 
     if ($@) {
@@ -337,7 +337,7 @@ sub ping {
         return 1;
     }
 
-    if (! $session->enable($this->{_telnetEnablePwd})) {
+    if (! $session->begin_privileged($this->{_telnetEnablePwd})) {
         $logger->error("ERROR: Cannot enable: " . $session->errmsg);
         $session->close();
         return 1;

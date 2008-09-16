@@ -27,7 +27,7 @@ use diagnostics;
 use base ('pf::SNMP::Cisco');
 use Log::Log4perl;
 use Carp;
-use Net::Telnet;
+use Net::Appliance::Session;
 use Net::SNMP;
 use Data::Dumper;
 
@@ -46,13 +46,10 @@ sub deauthenticateMac {
     
     my $session;
     eval {
-        $session = new Net::Telnet(Timeout=>5);
-        $session->open($this->{_ip});
-        $session->waitfor('/User: $/');
-        $session->print($this->{_telnetUser});
-        $session->waitfor('/Password:$/');
-        $session->print($this->{_telnetPwd});
-        $session->waitfor('/\(Cisco Controller\) >$/');
+        $session = new Net::Appliance::Session->new(Host => $this->{_ip}, Timeout=>5, Transport => 'Telnet');
+        $session->connect(Name => $this->{_telnetUser}, Password => $this->{_telnetPwd});
+        $session->begin_privileged($this->{_telnetEnablePwd});
+        $session->begin_configure();
     };
 
     if ($@) {
@@ -63,11 +60,7 @@ sub deauthenticateMac {
     #    $logger->error("ERROR: Can not 'enable' telnet connection");
     #    return 1;
     #}
-    $logger->info("Deauthenticating mac $mac");
-    $session->print("config");
-    $session->waitfor('/\(Cisco Controller\) config>$/');
-    $session->print("client deauthenticate $mac");
-    $session->waitfor('/\(Cisco Controller\) config>$/');
+    $session->cmd("client deauthenticate $mac");
     $session->close();
 }
 

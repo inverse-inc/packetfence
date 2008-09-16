@@ -16,7 +16,7 @@ use Data::Dumper;
 use base ('pf::SNMP');
 use Log::Log4perl;
 use Net::SNMP;
-use Net::Telnet::Cisco;
+use Net::Appliance::Session;
 use Net::Ping;
 
 sub getVersion {
@@ -839,8 +839,8 @@ sub getMacAddr {
     my $logger = Log::Log4perl::get_logger(ref($this));
    
     eval {
-        $session = Net::Telnet::Cisco->new(Host => $this->{_ip}, Timeout=>5);
-        $session->login($this->{_telnetUser}, $this->{_telnetPwd});
+        $session = Net::Appliance::Session->new(Host => $this->{_ip}, Timeout=>5, Transport => 'Telnet');
+        $session->connect(Name => $this->{_telnetUser}, Password => $this->{_telnetPwd});
     };
 
     if ($@) {
