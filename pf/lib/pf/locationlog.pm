@@ -13,6 +13,7 @@ package pf::locationlog;
 use strict;
 use warnings;
 use Log::Log4perl;
+use Net::MAC;
 
 our (
   $locationlog_history_mac_sql,
@@ -112,6 +113,8 @@ sub locationlog_db_prepare {
 sub locationlog_history_mac {
   my($mac, %params) = @_;
   locationlog_db_prepare($dbh) if (! $locationlog_db_prepared);
+  my $tmpMAC = Net::MAC->new('mac' => $mac);
+  $mac = $tmpMAC->as_IEEE();
   if (defined($params{'date'})) {
     return db_data($locationlog_history_mac_date_sql,$mac, $params{'date'}, $params{'date'});
   } else {
@@ -139,6 +142,8 @@ sub locationlog_view_all {
 sub locationlog_view_all_open_mac {
   my ($mac) = @_;
   locationlog_db_prepare($dbh) if (! $locationlog_db_prepared);
+  my $tmpMAC = Net::MAC->new('mac' => $mac);
+  $mac = $tmpMAC->as_IEEE();
   return db_data($locationlog_view_open_mac_sql, $mac);
 }
 
@@ -172,6 +177,8 @@ sub locationlog_view_open_switchport_only_VoIP {
 sub locationlog_view_open_mac {
   my ($mac) = @_;
   locationlog_db_prepare($dbh) if (! $locationlog_db_prepared);
+  my $tmpMAC = Net::MAC->new('mac' => $mac);
+  $mac = $tmpMAC->as_IEEE();
   $locationlog_view_open_mac_sql->execute($mac) || return(0);
   my $ref = $locationlog_view_open_mac_sql->fetchrow_hashref();
   # just get one row and finish

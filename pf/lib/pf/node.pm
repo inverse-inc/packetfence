@@ -13,6 +13,7 @@ package pf::node;
 use strict;
 use warnings;
 use Log::Log4perl;
+use Net::MAC;
 
 our ($node_modify_sql, $node_exist_sql, $node_pid_sql, $node_delete_sql, $node_add_sql, $node_regdate_sql,
      $node_view_sql, $node_view_all_sql, $node_view_with_fingerprint_sql, $node_ungrace_sql, $node_expire_window_sql, $node_expire_deadline_sql, $node_expire_unreg_field_sql,
@@ -80,9 +81,7 @@ sub node_db_prepare {
 #
 sub node_exist {
   my ($mac) = @_;
-
   node_db_prepare($dbh) if (! $is_node_db_prepared);
-  
   $node_exist_sql->execute($mac) || return(0);
   my ($val) = $node_exist_sql->fetchrow_array();
   $node_exist_sql->finish();
@@ -94,9 +93,7 @@ sub node_exist {
 #
 sub node_pid {
   my ($pid) = @_;
-
   node_db_prepare($dbh) if (! $is_node_db_prepared);
-  
   $node_pid_sql->execute($pid) || return(0);
   my ($count) = $node_pid_sql->fetchrow_array();
   $node_pid_sql->finish();
@@ -108,10 +105,10 @@ sub node_pid {
 #
 sub node_delete {
   my ($mac) = @_;
-
   node_db_prepare($dbh) if (! $is_node_db_prepared);
-  
   my $logger = Log::Log4perl::get_logger('pf::node');
+  my $tmpMAC = Net::MAC->new('mac' => $mac);
+  $mac = $tmpMAC->as_IEEE();
   if (!node_exist($mac)) {
     $logger->error("delete of non-existent node '$mac' failed");
     return 0;
@@ -132,10 +129,10 @@ sub node_delete {
 #
 sub node_add {
   my ($mac,%data) = @_;
-
   node_db_prepare($dbh) if (! $is_node_db_prepared);
-  
   my $logger = Log::Log4perl::get_logger('pf::node');
+  my $tmpMAC = Net::MAC->new('mac' => $mac);
+  $mac = $tmpMAC->as_IEEE();
   $mac = lc($mac);
   return(0) if (!valid_mac($mac));
 
@@ -188,9 +185,9 @@ sub node_add_simple {
 #
 sub node_view {
   my ($mac) = @_;
-
   node_db_prepare($dbh) if (! $is_node_db_prepared);
-  
+  my $tmpMAC = Net::MAC->new('mac' => $mac);
+  $mac = $tmpMAC->as_IEEE();
   $node_view_sql->execute($mac) || return(0);
   my $ref = $node_view_sql->fetchrow_hashref();
   # just get one row and finish
@@ -199,17 +196,13 @@ sub node_view {
 }
 
 sub node_view_all {
-
   node_db_prepare($dbh) if (! $is_node_db_prepared);
-  
   return db_data($node_view_all_sql);
 }
 
 sub node_view_with_fingerprint {
   my ($mac) = @_;
-
   node_db_prepare($dbh) if (! $is_node_db_prepared);
-  
   $node_view_with_fingerprint_sql->execute($mac) || return(0);
   my $ref = $node_view_with_fingerprint_sql->fetchrow_hashref();
   # just get one row and finish
@@ -219,9 +212,9 @@ sub node_view_with_fingerprint {
   
 sub node_modify {
   my($mac,%data) = @_;
-
   node_db_prepare($dbh) if (! $is_node_db_prepared);
-  
+  my $tmpMAC = Net::MAC->new('mac' => $mac);
+  $mac = $tmpMAC->as_IEEE();
   my $logger = Log::Log4perl::get_logger('pf::node');
   $mac = lc($mac);
   return (0) if (!valid_mac($mac));

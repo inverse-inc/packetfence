@@ -47,6 +47,7 @@ BEGIN {
 
 use Date::Parse;
 use Log::Log4perl;
+use Net::MAC;
 use lib qw(/usr/local/pf/lib);
 use pf::config;
 use pf::db;
@@ -76,6 +77,8 @@ sub ifoctetslog_db_prepare {
 sub ifoctetslog_history_mac {
   my($mac, %params) = @_;
   ifoctetslog_db_prepare($dbh) if (! $ifoctetslog_db_prepared);
+  my $tmpMAC = Net::MAC->new('mac' => $mac);
+  $mac = $tmpMAC->as_IEEE();
   my @raw_data;
   my @data;
   if (exists($params{'start_time'}) && exists($params{'end_time'})) {

@@ -13,6 +13,8 @@
           (http://www.packetfence.org/mantis/view.php?id=384)
         service packetfence status works only if mysql is running
           (http://www.packetfence.org/mantis/view.php?id=142)
+        support MAC addresses in several different formats
+          (http://www.packetfence.org/mantis/view.php?id=385)
 
 
 1.7.3

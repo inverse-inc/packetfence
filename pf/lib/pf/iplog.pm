@@ -12,6 +12,7 @@ package pf::iplog;
 
 use strict;
 use warnings;
+use Net::MAC;
 use Net::Netmask;
 use Net::Ping;
 use Date::Parse;
@@ -86,6 +87,8 @@ sub iplog_history_ip {
 
 sub iplog_history_mac {
   my($mac, %params) = @_;
+  my $tmpMAC = Net::MAC->new('mac' => $mac);
+  $mac = $tmpMAC->as_IEEE();
   iplog_db_prepare($dbh) if (! $iplog_db_prepared);
   if (defined($params{'start_time'}) && defined($params{'end_time'})) {
     return db_data($iplog_history_mac_date_sql,$mac, $params{'end_time'}, $params{'start_time'});
