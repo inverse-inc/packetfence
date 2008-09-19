@@ -57,7 +57,7 @@ sub db_connect {
     return $mydbh;
   }
 
-  $logger->info("Connecting $mydbh from $tid db connection is DEAD (re)connecting");
+  $logger->debug("Connecting $mydbh from $tid db connection is DEAD (re)connecting");
 
   my $host = $Config{'database'}{'host'};
   my $port = $Config{'database'}{'port'};
