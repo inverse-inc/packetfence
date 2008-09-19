@@ -103,10 +103,10 @@ my $opt = 1;
 my $err;
 my $pcap_t = Net::Pcap::pcap_open_live($interface, 576, 1, 0, \$err);
 if ((Net::Pcap::lookupnet($interface, \$net, \$mask, \$err)) == -1) {
-  die "Net::Pcap::lookupnet failed. Error was $err";
+  $logger->logdie("Net::Pcap::lookupnet failed. Error was $err");
 }
 if ((Net::Pcap::compile($pcap_t, \$filter_t, $filter, $opt, $net)) == -1) {
-  die "Unable to compile filter string '$filter'";
+  $logger->logdie("Unable to compile filter string '$filter'");
 }
 Net::Pcap::setfilter($pcap_t, $filter_t);
 Net::Pcap::loop($pcap_t, -1, \&process_pkt, $interface);

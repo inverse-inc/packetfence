@@ -178,7 +178,7 @@ sub action_log {
 
   my $logfile = $Config{'alerting'}{'log'};
   $logger->info("$logfile $date: $description ($vid) detected on node $mac ($ip)");
-  open(LOG,">>$logfile") || die "Unable to open $logfile for append: $!\n";
+  open(LOG,">>$logfile") || $logger->logdie("Unable to open $logfile for append: $!");
   print LOG "$date: $description ($vid) detected on node $mac ($ip)\n";
   #close(LOG);
 }

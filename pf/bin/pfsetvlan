@@ -93,6 +93,11 @@ use pf::SNMP v1.7.0.6;
 use pf::vlan;
 # }}}1
 
+Log::Log4perl->init(LOG_CONF_FILE);
+my $logger = Log::Log4perl->get_logger(basename($0));
+Log::Log4perl::MDC->put('proc', basename($0));
+Log::Log4perl::MDC->put('tid', threads->self->tid());
+
 # sighandler {{{1
 POSIX::sigaction(&POSIX::SIGTERM,
     POSIX::SigAction->new(
@@ -100,7 +105,7 @@ POSIX::sigaction(&POSIX::SIGTERM,
         POSIX::SigSet->new(),
         &POSIX::SA_NODEFER
     )
-) or die "pfsetvlan: could not set SIGTERM handler: $!\n";
+) or $logger->logdie("pfsetvlan: could not set SIGTERM handler: $!");
 
 POSIX::sigaction(&POSIX::SIGINT,
     POSIX::SigAction->new(
@@ -108,7 +113,7 @@ POSIX::sigaction(&POSIX::SIGINT,
         POSIX::SigSet->new(),
         &POSIX::SA_NODEFER
     )
-) or die "pfsetvlan: could not set SIGINT handler: $!\n";
+) or $logger->logdie("pfsetvlan: could not set SIGINT handler: $!");
 # }}}1
 
 # command line options {{{1
@@ -126,12 +131,6 @@ pod2usage( -verbose => 1) if $help;
 # }}}1
 
 # startup {{{1
-Log::Log4perl->init(LOG_CONF_FILE);
-my $logger = Log::Log4perl->get_logger(basename($0));
-Log::Log4perl::MDC->put('proc', basename($0));
-Log::Log4perl::MDC->put('tid', threads->self->tid());
-
-
 my $switchFactory = new pf::SwitchFactory(
     -configFile => CONF_FILE
 );
@@ -146,23 +145,23 @@ if ($daemonize) {
     # Begin - Daemonize the program (see http://www.webreference.com/perl/tutorial/9/index.html)
     if (-f PID_FILE) {
         open (FILE, PID_FILE);
-        die "Daemon is probably running (process id ",<FILE>,"). Remove pid file first (",PID_FILE,").\n";
+        $logger->logdie("Daemon is probably running (process id " . <FILE> . "). Remove pid file first (" . PID_FILE . ").");
     }
 
-    chdir ('/') or die "Can't chdir to /: $!";
-    open (STDIN, '/dev/null') or die "Can't read /dev/null: $!";
-    open STDERR, '>>', LOG_FILE or die "Can't open " . LOG_FILE;
-    open STDOUT, '>>', LOG_FILE or die "Can't open " . LOG_FILE;
+    chdir ('/') or $logger->logdie("Can't chdir to /: $!");
+    open (STDIN, '/dev/null') or $logger->logdie("Can't read /dev/null: $!");
+    open STDERR, '>>', LOG_FILE or $logger->logdie("Can't open " . LOG_FILE);
+    open STDOUT, '>>', LOG_FILE or $logger->logdie("Can't open " . LOG_FILE);
 
     # (at this point STDOUT and STDERR should be redirected to files)
 
-    defined(my $pid = fork) or die "Can't fork: $!";
+    defined(my $pid = fork) or $logger->logdie("Can't fork: $!");
     POSIX::_exit(0) if $pid;
-    POSIX::setsid() or die "Can't start a new session: $!";
+    POSIX::setsid() or $logger->logdie("Can't start a new session: $!");
     umask 0;
 
     # Write the PID
-    open (FILE, ">" . PID_FILE) or die "Can't open pid file: $!";
+    open (FILE, ">" . PID_FILE) or $logger->logdie("Can't open pid file: $!");
     print FILE "$$";
     close(FILE);
 }
@@ -1241,7 +1240,7 @@ sub normal_sighandler {
             $mysql_connection->disconnect;
         }
     }
-    die("pfsetvlan: caught SIG".$_[0]." - terminating\n");
+    $logger->logdie("pfsetvlan: caught SIG".$_[0]." - terminating");
 }
 # }}}1
 

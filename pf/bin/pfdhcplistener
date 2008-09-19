@@ -48,7 +48,7 @@ POSIX::sigaction(&POSIX::SIGHUP,
                                 POSIX::SigSet->new(),
                                 &POSIX::SA_NODEFER
                                )
-         ) or die "pfdhcplistener: could not set SIGHUP handler: $!\n";
+         ) or $logger->logdie("pfdhcplistener: could not set SIGHUP handler: $!");
 
 POSIX::sigaction(&POSIX::SIGTERM,
           POSIX::SigAction->new(
@@ -56,7 +56,7 @@ POSIX::sigaction(&POSIX::SIGTERM,
                                 POSIX::SigSet->new(),
                                 &POSIX::SA_NODEFER
                                )
-         ) or die "pfdhcplistener: could not set SIGTERM handler: $!\n";
+         ) or $logger->logdie("pfdhcplistener: could not set SIGTERM handler: $!");
 
 POSIX::sigaction(&POSIX::SIGINT,
           POSIX::SigAction->new(
@@ -64,7 +64,7 @@ POSIX::sigaction(&POSIX::SIGINT,
                                 POSIX::SigSet->new(),
                                 &POSIX::SA_NODEFER
                                )
-         ) or die "pfdhcplistener: could not set SIGINT handler: $!\n";
+         ) or $logger->logdie("pfdhcplistener: could not set SIGINT handler: $!");
 
 my @ORIG_ARGV = @ARGV;
 
@@ -119,10 +119,10 @@ sub dhcp_detector {
   my $err;
   my $pcap_t = Net::Pcap::pcap_open_live($eth, 576, 1, 0, \$err);
   if ((Net::Pcap::lookupnet($eth, \$net, \$mask, \$err)) == -1) {
-    die "Net::Pcap::lookupnet failed. Error was $err";
+    $logger->logdie("Net::Pcap::lookupnet failed. Error was $err");
   }
   if ((Net::Pcap::compile($pcap_t, \$filter_t, $filter, $opt, $net)) == -1) {
-    die "Unable to compile filter string '$filter'";
+    $logger->logdie("Unable to compile filter string '$filter'");
   }
   Net::Pcap::setfilter($pcap_t, $filter_t);
   Net::Pcap::loop($pcap_t, -1, \&process_pkt, $eth);
@@ -380,24 +380,24 @@ sub update_iplog {
 
 
 sub daemonize {
-  chdir '/'               or die "Can't chdir to /: $!";
-  open STDIN, '/dev/null' or die "Can't read /dev/null: $!";
+  chdir '/'               or $logger->logdie("Can't chdir to /: $!");
+  open STDIN, '/dev/null' or $logger->logdie("Can't read /dev/null: $!");
   my $log_file = "/usr/local/pf/logs/pfdhcplistener_$interface";
-  open STDOUT, ">>$log_file" or die "Can't write to $log_file: $!";
+  open STDOUT, ">>$log_file" or $logger->logdie("Can't write to $log_file: $!");
 
-  defined(my $pid = fork) or die "pfdhcplistener: could not fork: $!";
+  defined(my $pid = fork) or $logger->logdie("pfdhcplistener: could not fork: $!");
   POSIX::_exit(0) if ($pid);
   if (!POSIX::setsid()) {
     $logger->error("could not start a new session: $!");
   }
-  open STDERR, '>&STDOUT' or die "Can't dup stdout: $!";
+  open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
   createpid("pfdhcplistener_$interface");
 }
 
 sub normal_sighandler {
   deletepid("pfdhcplistener_$interface"); 
   if (threads->self->tid() == 0) {
-    die("pfdhcplistener: caught SIG".$_[0]." - terminating\n");
+    $logger->logdie("pfdhcplistener: caught SIG".$_[0]." - terminating");
   }
 }
 
@@ -406,8 +406,7 @@ sub restart_handler {
   $logger->info("caught SIG".$_[0]." - restarting");
   push @ORIG_ARGV, "-r" if(!grep(/^\-r$/,@ORIG_ARGV));
   if (!exec($0, @ORIG_ARGV)) {
-    $logger->error("could not restart: #!");
-    die "pfdhcplistener: could not restart: $!\n";
+    $logger->logdie("could not restart: $!");
   }
 }
 

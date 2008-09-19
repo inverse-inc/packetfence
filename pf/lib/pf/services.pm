@@ -180,7 +180,7 @@ sub generate_dhcpd_conf {
       $reg_obj->tag("scope", $registered_scope);
       foreach my $shared_net (keys(%shared_nets)) {
         if ($shared_net ne $dhcp && defined($shared_nets{$shared_net}{$reg_obj->desc()})) {
-          die("Network ".$reg_obj->desc()." is defined in another shared-network!\n");
+          $logger->logdie("Network ".$reg_obj->desc()." is defined in another shared-network!\n");
         }
       }
       push(@{$shared_nets{$dhcp}{$reg_obj->desc()}{'registered'}}, $reg_obj);
@@ -190,7 +190,7 @@ sub generate_dhcpd_conf {
       $iso_obj->tag("scope", $isolation_scope);
       foreach my $shared_net (keys(%shared_nets)) {
         if ($shared_net ne $dhcp && defined($shared_nets{$shared_net}{$iso_obj->desc()})) {
-          die("Network ".$iso_obj->desc()." is defined in another shared-network!\n");
+          $logger->logdie("Network ".$iso_obj->desc()." is defined in another shared-network!\n");
         }
       }
       push(@{$shared_nets{$dhcp}{$iso_obj->desc()}{'isolation'}}, $iso_obj);
@@ -200,7 +200,7 @@ sub generate_dhcpd_conf {
       $unreg_obj->tag("scope", $unregistered_scope);
       foreach my $shared_net (keys(%shared_nets)) {
         if ($shared_net ne $dhcp && defined($shared_nets{$shared_net}{$unreg_obj->desc()})) {
-          die("Network ".$unreg_obj->desc()." is defined in another shared-network!\n");
+          $logger->logdie("Network ".$unreg_obj->desc()." is defined in another shared-network!\n");
         }
       }
       push(@{$shared_nets{$dhcp}{$unreg_obj->desc()}{'unregistered'}}, $unreg_obj);
@@ -208,7 +208,7 @@ sub generate_dhcpd_conf {
   }
 
   #open dhcpd.conf file
-  open(DHCPDCONF,">>$install_dir/conf/dhcpd.conf") || die "Unable to append to $install_dir/conf/dhcpd.conf: $!\n";
+  open(DHCPDCONF,">>$install_dir/conf/dhcpd.conf") || $logger->logdie("Unable to append to $install_dir/conf/dhcpd.conf: $!");
   foreach my $internal_interface (get_internal_devs_phy()) {
     my $dhcp_interface = get_internal_info($internal_interface);
     print DHCPDCONF "subnet ".$dhcp_interface->base()." netmask ".$dhcp_interface->mask()." {\n  not authoritative;\n}\n";
@@ -226,7 +226,7 @@ sub generate_dhcpd_conf {
 
           my $range = normalize_dhcpd_range($Config{'scope '.$reg->tag("scope")}{'range'});
           if (!$range) {
-            die("Invalid scope range: ".$Config{'scope '.$reg->tag("scope")}{'range'});
+            $logger->logdie("Invalid scope range: ".$Config{'scope '.$reg->tag("scope")}{'range'});
           }
           print DHCPDCONF "    pool {\n";
           print DHCPDCONF "      # I AM A REGISTERED SCOPE\n";
@@ -253,7 +253,7 @@ sub generate_dhcpd_conf {
 
           my $range = normalize_dhcpd_range($Config{'scope '.$iso->tag("scope")}{'range'});
           if (!$range) {
-            die("Invalid scope range: ".$Config{'scope '.$iso->tag("scope")}{'range'});
+            logger->logdie("Invalid scope range: ".$Config{'scope '.$iso->tag("scope")}{'range'});
           }
 
           print DHCPDCONF "    pool {\n";
@@ -281,7 +281,7 @@ sub generate_dhcpd_conf {
 
           my $range = normalize_dhcpd_range($Config{'scope '.$unreg->tag("scope")}{'range'});
           if (!$range) {
-            die("Invalid scope range: ".$Config{'scope '.$unreg->tag("scope")}{'range'});
+            logger->logdie("Invalid scope range: ".$Config{'scope '.$unreg->tag("scope")}{'range'});
           }
 
           print DHCPDCONF "    pool {\n";
@@ -317,7 +317,8 @@ sub generate_dhcpd_conf {
 
 #open isolated.mac file
 sub generate_dhcpd_iso {
-  open(ISOMAC, ">$install_dir/conf/isolated.mac") || die "Unable to open $install_dir/conf/isolated.mac : $!\n"; 
+  my $logger = Log::Log4perl::get_logger('pf::services');
+  open(ISOMAC, ">$install_dir/conf/isolated.mac") || $logger->logdie("Unable to open $install_dir/conf/isolated.mac : $!"); 
   my @isolated = violation_view_open_uniq();
   my @isolatednodes;
   foreach my $row (@isolated) {
@@ -332,9 +333,10 @@ sub generate_dhcpd_iso {
 
 #open registered.mac file
 sub generate_dhcpd_reg {
+  my $logger = Log::Log4perl::get_logger('pf::services');
   if (isenabled($Config{'trapping'}{'registration'})){
 	my $regmac_fh;
-    open(REGMAC,">$install_dir/conf/registered.mac") || die "Unable to open $install_dir/conf/registered.mac : $!\n";  
+    open(REGMAC,">$install_dir/conf/registered.mac") || $logger->logdie("Unable to open $install_dir/conf/registered.mac : $!");  
     my @registered = nodes_registered_not_violators();
     my @registerednodes;
     foreach my $row (@registered) {

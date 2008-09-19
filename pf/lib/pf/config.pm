@@ -38,6 +38,7 @@ Log::Log4perl->init('/usr/local/pf/conf/log.conf');
 Log::Log4perl::MDC->put('proc', basename($0));
 Log::Log4perl::MDC->put('tid', threads->self->tid());
 
+my $logger = Log::Log4perl->get_logger('pf::config');
 
 # these files contain the node and person lookup functions
 # they can be customized to your environment
@@ -80,7 +81,7 @@ if (-e $default_config_file){
 }
 my @errors = @Config::IniFiles::errors;
 if (scalar(@errors)) {
- die join("\n",@errors)."\n";
+ $logger->logdie(join("\n",@errors));
 }
 
 #remove trailing spaces..

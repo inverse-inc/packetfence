@@ -39,7 +39,7 @@ sub zero_table {
     $bob->set_policy($chain, 'ACCEPT');
   }
   if (! $bob->commit() ) {
-   die "IPTables commit error: $!\n";
+   $logger->logdie("IPTables commit error: $!");
   }
 }
 
@@ -71,7 +71,7 @@ sub generate_iptables {
        'jump' => 'MARK',
        'set-mark' => "0x".$unreg_mark
   } )) {
-    die "Unable to initialize rule: $!\n";
+    $logger->logdie("Unable to initialize rule: $!");
   }
 
   # mark all registered users
@@ -85,7 +85,7 @@ sub generate_iptables {
            'set-mark' => "0x".$reg_mark,
            'matches' => ['mac']
       } )) {
-        die "Unable to initialize rule: $!\n";
+        $logger->logdie("Unable to initialize rule: $!");
       }
     }
   }
@@ -98,7 +98,7 @@ sub generate_iptables {
          'set-mark' => "0x".$reg_mark,
          'matches' => ['mac']
     } )) {
-      die "Unable to initialize rule: $!\n";
+      $logger->logdie("Unable to initialize rule: $!");
     }
   }
 
@@ -114,7 +114,7 @@ sub generate_iptables {
            'set-mark' => "0x".$vid,
            'matches' => ['mac']
       } )) {
-        die "Unable to initialize rule: $!\n";
+        $logger->logdie("Unable to initialize rule: $!");
       }
     }
   }
@@ -127,7 +127,7 @@ sub generate_iptables {
          'set-mark' => "$black_mark",
          'matches' => ['mac']
     } )) {
-      die "Unable to initialize rule: $!\n";
+      $logger->logdie("Unable to initialize rule: $!");
     }
   }
 
@@ -143,7 +143,7 @@ sub generate_iptables {
        'in-interface' => 'lo',
        'jump' => 'ACCEPT'
   } )) {
-    die "Unable to initialize rule: $!\n";
+    $logger->logdie("Unable to initialize rule: $!");
   }
 
   #  registration/trapping server                                                                                                                      
@@ -175,7 +175,7 @@ sub generate_iptables {
        'state' => ['RELATED','ESTABLISHED'],
        'jump' => 'ACCEPT'
   } )) {
-    die "Unable to initialize rule: $!\n";
+    $logger->logdie("Unable to initialize rule: $!");
   }
 
   # open ports
@@ -569,13 +569,13 @@ sub generate_iptables {
   }
 
   if (!$mangle->commit()) {
-    die "IPTables mangle table commit error: $!\n";
+    $logger->logdie("IPTables mangle table commit error: $!");
   }
   if (!$nat->commit()) {
-    die "IPTables nat table commit error: $!\n";
+    $logger->logdie("IPTables nat table commit error: $!");
   }
   if (!$filter->commit()) {
-    die "IPTables filter table commit error: $!\n";
+    $logger->logdie("IPTables filter table commit error: $!");
   }
   if (-r $post_file) {
     restore_iptables_noflush($post_file);
@@ -584,6 +584,7 @@ sub generate_iptables {
 
 sub internal_append_entry {
   my ($obj, $type, $params, @output_interfaces) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::iptables');
   #foreach my $dev (get_internal_devs()){
   foreach my $internal (@internal_nets) {
     my $dev = $internal->tag("int");
@@ -600,12 +601,12 @@ sub internal_append_entry {
         foreach my $out_dev (@output_interfaces) {
           $params->{'out-interface'} = $out_dev;
           if (!$obj->append_entry($type,$params) ){
-            die "Unable to initialize rule: $!\n";
+            $logger->logdie("Unable to initialize rule: $!");
           }
         }
       } else {
         if (!$obj->append_entry($type,$params) ){
-          die "Unable to initialize rule: $!\n";
+          $logger->logdie("Unable to initialize rule: $!");
         }
       }
     }
@@ -614,6 +615,7 @@ sub internal_append_entry {
 
 sub managed_append_entry {
   my ($obj, $type, $params, @output_interfaces) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::iptables');
   #foreach my $dev (get_managed_devs()){
   foreach my $managed (@managed_nets) {
     my $dev = $managed->tag("int");
@@ -630,12 +632,12 @@ sub managed_append_entry {
         foreach my $out_dev (@output_interfaces) {
           $params->{'out-interface'} = $out_dev;
           if (!$obj->append_entry($type,$params) ){
-            die "Unable to initialize rule: $!\n";
+            $logger->logdie("Unable to initialize rule: $!");
           }
         }
       } else {
         if (!$obj->append_entry($type,$params) ){
-          die "Unable to initialize rule: $!\n";
+          $logger->logdie("Unable to initialize rule: $!");
         }
       }
     }
@@ -644,18 +646,19 @@ sub managed_append_entry {
 
 sub external_append_entry {
   my ($obj, $type, $params, @output_interfaces) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::iptables');
   foreach my $dev (get_external_devs()){
     $params->{'in-interface'} = $dev;
     if (scalar(@output_interfaces)) {
       foreach my $out_dev (@output_interfaces) {
         $params->{'out-interface'} = $out_dev;
         if (!$obj->append_entry($type,$params) ){
-          die "Unable to initialize rule: $!\n";
+          $logger->logdie("Unable to initialize rule: $!");
         }
       }
     } else {
       if (!$obj->append_entry($type,$params) ){
-        die "Unable to initialize rule: $!\n";
+        $logger->logdie("Unable to initialize rule: $!");
       }
     }
   }

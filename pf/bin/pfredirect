@@ -32,7 +32,7 @@ POSIX::sigaction(&POSIX::SIGHUP,
                                 POSIX::SigSet->new(),
                                 &POSIX::SA_NODEFER
                                )
-         ) or die "pfredirect: could not set SIGHUP handler: $!\n";
+         ) or $logger->logdie("pfredirect: could not set SIGHUP handler: $!");
 
 POSIX::sigaction(&POSIX::SIGTERM,
           POSIX::SigAction->new(
@@ -40,7 +40,7 @@ POSIX::sigaction(&POSIX::SIGTERM,
                                 POSIX::SigSet->new(),
                                 &POSIX::SA_NODEFER
                                )
-         ) or die "pfredirect: could not set SIGTERM handler: $!\n";
+         ) or $logger->logdie("pfredirect: could not set SIGTERM handler: $!");
 
 POSIX::sigaction(&POSIX::SIGINT,
           POSIX::SigAction->new(
@@ -48,7 +48,7 @@ POSIX::sigaction(&POSIX::SIGINT,
                                 POSIX::SigSet->new(),
                                 &POSIX::SA_NODEFER
                                )
-         ) or die "pfredirect: could not set SIGINT handler: $!\n";
+         ) or $logger->logdie("pfredirect: could not set SIGINT handler: $!");
 
 my @ORIG_ARGV = @ARGV;
 
@@ -69,7 +69,7 @@ my $msg       = "$install_dir/conf/templates/listener.msg";
 my $date      = POSIX::strftime("%a, %d %b %Y %T %z", localtime);
 
 # Build message
-open(MSG, $msg) || die("Unable to open message: $!\n");
+open(MSG, $msg) || $logger->logdie("Unable to open message: $!");
 my $message = join('',<MSG>);
 #close(MSG);
 
@@ -94,7 +94,7 @@ sub imap_director {
   );
   if (!$sock) {
     $logger->error("can't create IMAP socket: $!");
-    die "Can't create IMAP socket: $!\n";
+    $logger->logdie("Can't create IMAP socket: $!");
   }
 
   $sock->autoflush(1);
@@ -129,7 +129,7 @@ sub pop3_director {
     Listen        => 1,
     Reuse         => 1,
   );
-  die "Can't create socket: $!\n" unless $sock;
+  Logger->logdie("Can't create socket: $!") unless $sock;
 
   $sock->autoflush(1);
   while (my $sock_handle = $sock->accept()) {
@@ -180,8 +180,7 @@ sub restart_handler {
   deletepid();
   $logger->info("caught SIG".$_[0]." - restarting");
   if (!exec($0, @ORIG_ARGV)) {
-    $logger->error("could not restart: #!");
-    die "pfredirect: could not restart: $!\n";
+    $logger->logdie("could not restart: $!");
   }
 }
 
@@ -192,16 +191,16 @@ sub normal_handler {
 
 sub daemonize {
   createpid();
-  chdir '/'               or die "Can't chdir to /: $!";
-  open STDIN, '/dev/null' or die "Can't read /dev/null: $!";  
-  open STDOUT, '>/dev/null' or die "Can't write to /dev/null: $!";
+  chdir '/'               or $logger->logdie("Can't chdir to /: $!");
+  open STDIN, '/dev/null' or $logger->logdie("Can't read /dev/null: $!");  
+  open STDOUT, '>/dev/null' or $logger->logdie("Can't write to /dev/null: $!");
 
-  defined(my $pid = fork) or die "pfredirect: could not fork: $!";
+  defined(my $pid = fork) or $logger->logdie("pfredirect: could not fork: $!");
   POSIX::_exit(0) if ($pid);
   if (!POSIX::setsid()) {
     $logger->warn("could not start a new session: $!");
   }
-  open STDERR, '>&STDOUT' or die "Can't dup stdout: $!";
+  open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
 }    
 
 sub usage {

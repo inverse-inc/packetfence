@@ -53,8 +53,7 @@ daemonize() if ($daemonize);
 $logger->info("initialized");
 
 if (!open(SNORTPIPE, "< $snortpipe")) {
-  $logger->error("unable to open snort pipe: $!");
-  die "pfdetect: unable to open snort pipe: $!\n";
+  $logger->logdie("unable to open snort pipe: $!");
 } else {
   $logger->info("listening on $snortpipe");
   print "pfdetect: listening on $snortpipe\n" if ($verbose);
@@ -111,30 +110,28 @@ exit(0);
 
 sub daemonize {
   createpid();
-  chdir '/'               or die "Can't chdir to /: $!";
-  open STDIN, '/dev/null' or die "Can't read /dev/null: $!";  
-  open STDOUT, '>/dev/null' or die "Can't write to /dev/null: $!";
+  chdir '/'               or $logger->logdie("Can't chdir to /: $!");
+  open STDIN, '/dev/null' or $logger->logdie("Can't read /dev/null: $!");  
+  open STDOUT, '>/dev/null' or $logger->logdie("Can't write to /dev/null: $!");
 
-  defined(my $pid = fork) or die "pfdetect: could not fork: $!";
+  defined(my $pid = fork) or $logger->logdie("pfdetect: could not fork: $!");
   POSIX::_exit(0) if ($pid);
   if (!POSIX::setsid()) {
     $logger->warn("could not start a new session: $!");
   }
-  open STDERR, '>&STDOUT' or die "Can't dup stdout: $!";
+  open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
 }
 
 sub normal_sighandler {
   deletepid();
-  $logger->info("caught SIG".$_[0]." - terminating");
-  die("pfdetect: caught SIG".$_[0]." - terminating\n");
+  $logger->logdie("caught SIG".$_[0]." - terminating");
 }
 
 sub restart_handler {
   deletepid();
   $logger->info("caught SIG".$_[0]." - restarting");
   if (!exec($0, @ORIG_ARGV)) {
-    logger->error("could not restart: #!");
-    die "pfdetect: could not restart: $!\n";
+    logger->logdie("could not restart: #!");
   }
 }
 

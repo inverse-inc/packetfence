@@ -465,8 +465,9 @@ sub deletepid {
 
 sub parse_template {
   my ($tags, $template, $destination) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::util');
   my (@parsed);
-  open(TEMPLATE, $template) || die "Unable to open template $template: $!\n";  
+  open(TEMPLATE, $template) || $logger->logdie("Unable to open template $template: $!");  
   while (<TEMPLATE>) {
     study $_;
     foreach my $tag (keys %{$tags}) {
@@ -476,7 +477,7 @@ sub parse_template {
   }
   #close(TEMPLATE);
   if ($destination) {
-    open(DESTINATION, ">".$destination) || die "Unable to open template destination $destination: $!\n";
+    open(DESTINATION, ">".$destination) || $logger->logdie("Unable to open template destination $destination: $!");
     foreach my $line (@parsed) {
       print DESTINATION $line;
     }

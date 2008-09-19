@@ -32,7 +32,7 @@ my $mac = $ARGV[0];
 if ($mac =~ /^([0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2})$/) {
     $mac = $1;
 } else {
-    die "Bad MAC $mac";
+    $logger->logdie("Bad MAC $mac");
 }
 
 $logger->info("flip.pl called with $mac");

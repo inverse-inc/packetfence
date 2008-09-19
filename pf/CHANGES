@@ -24,6 +24,8 @@
           (http://www.packetfence.org/mantis/view.php?id=388)
         use log subcategories in pfsetvlan
           (http://www.packetfence.org/mantis/view.php?id=340)
+        use logdie instead of die
+          (http://www.packetfence.org/mantis/view.php?id=136)
 
 1.7.3
         not all port security traps are handled

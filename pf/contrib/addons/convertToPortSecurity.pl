@@ -126,22 +126,22 @@ my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
 
 
 if (! exists($switchFactory->{_config}{$switch_ip})) {
-  die "switch $switch_ip not found in switch.conf";
+  $logger->logdie("switch $switch_ip not found in switch.conf");
 }
 
 my $switchType = $switchFactory->{_config}{$switch_ip}{'type'};
 if (! ($switchType =~ /Cisco::Catalyst_29(50|60|70)|Cisco::Catalyst_35(50|60)/)) {
-  die "port security is not supported on $switchType";
+  $logger->logdie("port security is not supported on $switchType");
 }
 
 
 open BACKUP, ">$backup_config" or 
-  die "can't open config backup file $backup_config";
+  $logger->logdie("can't open config backup file $backup_config");
 
 $logger->debug("instantiating switch object");
 my $switch = $switchFactory->instantiate($switch_ip);
 if (! $switch->connectRead()) {
-  die "unable to connect ";
+  $logger->logdie("unable to connect");
 }
 
 #obtain all ifIndexes
@@ -167,11 +167,11 @@ eval {
   $session->connect(Name => $switch->{_cliUser}, Password => $switch->{_cliPwd});
 };
 if ($@) {
-  die "Can not connect to switch $switch->{'_ip'} using " . $switch->{_cliTransport};
+  $logger->logdie("Can not connect to switch $switch->{'_ip'} using " . $switch->{_cliTransport});
 }
 if (! $session->in_privileged_mode()) {
   if (! $session->begin_privileged($switch->{_cliEnablePwd})) {
-    die "Can not enable";
+    $logger->logdie("Can not enable");
   }
 }
 

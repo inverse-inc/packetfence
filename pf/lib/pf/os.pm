@@ -60,6 +60,7 @@ sub dhcp_fingerprint_view_all {
 }
 
 sub read_dhcp_fingerprints_conf {
+  my $logger = Log::Log4perl::get_logger('pf::os');
   my $fp_total;
   my %dhcp_fingerprints;
   os_db_prepare($dbh) if (! $os_db_prepared);
@@ -68,7 +69,7 @@ sub read_dhcp_fingerprints_conf {
   tie %dhcp_fingerprints, 'Config::IniFiles', ( -file => $dhcp_fingerprints_file);
   my @errors = @Config::IniFiles::errors;
   if (scalar(@errors)) {
-    die join("\n",@errors)."\n";
+    $logger->logdie(join("\n",@errors));
   }
   my %seen_class;
   foreach my $os (tied(%dhcp_fingerprints)->GroupMembers("os")) {

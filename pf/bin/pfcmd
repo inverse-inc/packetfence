@@ -50,7 +50,7 @@ if (defined($ENV{'PATH'})) {
         my $enforcing = `$PATH[$pos]/getenforce`;
         if ($enforcing =~ /^Enforcing$/) {
             $logger->fatal("SELinux is in enforcing mode. This is currently not supported in PacketFence");
-            die "SELinux is in enforcing mode. This is currently not supported in PacketFence";
+            $logger->logdie("SELinux is in enforcing mode. This is currently not supported in PacketFence");
         }
     }
 }
@@ -461,7 +461,7 @@ sub fingerprint {
 
 sub version {
   my($pfrelease_fh, $release);
-  open($pfrelease_fh,"$install_dir/conf/pf-release") || die "Unable to open $install_dir/conf/pf-release: $!\n"; 
+  open($pfrelease_fh,"$install_dir/conf/pf-release") || $logger->logdie("Unable to open $install_dir/conf/pf-release: $!"); 
   $release = <$pfrelease_fh>;
   close($pfrelease_fh);
   print $release;
@@ -474,7 +474,7 @@ sub version {
 #  schedule a host scan
 #
 sub schedule {
-  eval "use Net::Nessus::ScanLite; 1" || die "Nessus::ScanLite not found, please install for Nessus schedule functionality";
+  eval "use Net::Nessus::ScanLite; 1" || $logger->logdie("Nessus::ScanLite not found, please install for Nessus schedule functionality");
   my $command = $cmd{command}[0];
   my $service = $cmd{command}[1] if (defined $cmd{command}[1]);
   my $option = $cmd{schedule_options}[0];
@@ -583,9 +583,9 @@ sub config {
   my $param = $cmd{command}[2];
   my $value = "";
 
-  tie %documentation, 'Config::IniFiles', ( -file => $install_dir."/conf/documentation.conf" ) or die "Unable to open documentation.conf: $!\n";
-  tie %defaults, 'Config::IniFiles', ( -file => $install_dir."/conf/pf.conf.defaults" ) or die "Unable to open pf.conf.defaults: $!\n";
-  tie %myconfig, 'Config::IniFiles', ( -file => $install_dir."/conf/pf.conf" ) or die "Unable to open pf.conf: $!\n";
+  tie %documentation, 'Config::IniFiles', ( -file => $install_dir."/conf/documentation.conf" ) or $logger->logdie("Unable to open documentation.conf: $!");
+  tie %defaults, 'Config::IniFiles', ( -file => $install_dir."/conf/pf.conf.defaults" ) or $logger->logdie("Unable to open pf.conf.defaults: $!");
+  tie %myconfig, 'Config::IniFiles', ( -file => $install_dir."/conf/pf.conf" ) or $logger->logdie("Unable to open pf.conf: $!");
   
   usage("config") if ($option =~ /^set$/i && $param !~ /^.+?=.+?$/);
   if ($option =~ /^set$/i) {
@@ -800,7 +800,7 @@ sub ui {
     if (defined($cmd{'ui_options'})) {
       $ui_conf_file= $install_dir."/conf/" . $cmd{'ui_options'}[2];
     }
-    tie %uiconfig, 'Config::IniFiles', ( -file => $ui_conf_file ) or die "Unable to open $ui_conf_file: $!\n";;
+    tie %uiconfig, 'Config::IniFiles', ( -file => $ui_conf_file ) or $logger->logdie("Unable to open $ui_conf_file: $!");
 
     my $string;  
     foreach my $section (tied(%uiconfig)->Sections) {
@@ -1133,7 +1133,7 @@ sub format_assignment {
 #
 sub field_order {
   my %uiconfig;
-  tie %uiconfig, 'Config::IniFiles', ( -file => $install_dir."/conf/ui.conf" ) or die "Unable to open ui.conf: $!\n";
+  tie %uiconfig, 'Config::IniFiles', ( -file => $install_dir."/conf/ui.conf" ) or $logger->logdie("Unable to open ui.conf: $!");
   my @fields;
   foreach my $section (sort tied(%uiconfig)->Sections) {
     if (defined $uiconfig{$section}{'command'}  && join(" ",@ARGV)=~/^$uiconfig{$section}{'command'}/){
