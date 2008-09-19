@@ -697,10 +697,10 @@ sub update {
   if ($option eq "fingerprints") {
     my $response = $browser->get($dhcp_fingerprints_url);
     if (!$response->is_success) {
-      throw_hissy_fit("Unable to update DHCP fingerprints: ".$response->status_line);
+      $logger->logdie("Unable to update DHCP fingerprints: ".$response->status_line);
     } else {
       my($fingerprints_fh);
-      open($fingerprints_fh,">$dhcp_fingerprints_file") || throw_hissy_fit("Unable to open $dhcp_fingerprints_file: $!");
+      open($fingerprints_fh,">$dhcp_fingerprints_file") || $logger->logdie("Unable to open $dhcp_fingerprints_file: $!");
       my $fingerprints = $response->content;
       my ($version) = $fingerprints =~ /^#\s+dhcp_fingerprints.conf:\s+(version.+?)\n/;
       print $fingerprints_fh $fingerprints;
@@ -714,10 +714,10 @@ sub update {
   } elsif ($option eq "oui") {
     my $response = $browser->get($oui_url);
     if (!$response->is_success) {
-      throw_hissy_fit("Unable to update OUI prefixes: ".$response->status_line);
+      $logger->logdie("Unable to update OUI prefixes: ".$response->status_line);
     } else {
       my($oui_fh);
-      open($oui_fh,">$oui_file") || throw_hissy_fit("Unable to open $oui_file: $!");
+      open($oui_fh,">$oui_file") || $logger->logdie("Unable to open $oui_file: $!");
       print $oui_fh $response->content;
       close($oui_fh);
       $logger->info("OUI prefixes updated via $oui_url");
@@ -1152,7 +1152,7 @@ sub sanity_check {
   my (@services) = @_;
 
   foreach my $service (@services){
-   throw_hissy_fit("$service does not exist, please change pf.conf services.$service path or install the service!") if (!-e $Config{'services'}{$service});
+   $logger->logdie("$service does not exist, please change pf.conf services.$service path or install the service!") if (!-e $Config{'services'}{$service});
   }
   
   my %seen;
@@ -1160,14 +1160,14 @@ sub sanity_check {
 
   # make sure the services we start are not already running
   foreach my $service (@_) {
-    throw_hissy_fit("$service is already running!") if (`pidof -s -x $service` =~ /^\d/);
+    $logger->logdie("$service is already running!") if (`pidof -s -x $service` =~ /^\d/);
   }
 
   #check the config file to make sure interfaces are fully defined 
   foreach my $interface (tied(%Config)->GroupMembers("interface")) {
     if ($Config{$interface}{'type'} !~ /monitor|dhcplistener/){
       if (!defined $Config{$interface}{'ip'} || !defined $Config{$interface}{'mask'} ||!defined $Config{$interface}{'gateway'}){
-          throw_hissy_fit("incomplete network information for $interface ");
+          $logger->logdie("incomplete network information for $interface ");
       }
     }
   }
@@ -1177,15 +1177,15 @@ sub sanity_check {
   push @tmp_nets, @internal_nets;
   push @tmp_nets, @managed_nets;
   if (!scalar(@internal_nets)) {
-    throw_hissy_fit("internal network(s) not defined!");
+    $logger->logdie("internal network(s) not defined!");
   }
   if (scalar(@managed_nets) != 1) {
-    throw_hissy_fit("please define exactly one managed interace");
+    $logger->logdie("please define exactly one managed interace");
   }
   foreach my $interface (@tmp_nets) {
     my $device = "interface ".$interface->tag("int");
     if (!($Config{$device}{'mask'} && $Config{$device}{'ip'} && $Config{$device}{'gateway'} && $Config{$device}{'type'}) && !$seen{$interface}) {
-      throw_hissy_fit("incomplete network information for $device");
+      $logger->logdie("incomplete network information for $device");
     }
     $seen{$interface} = 1;
   }
@@ -1194,7 +1194,7 @@ sub sanity_check {
   if (isenabled($Config{'trapping'}{'detection'})) {
     # make sure a monitor device is present if snort is enabled
     if (!$monitor_int) {
-      throw_hissy_fit("monitor interface not defined, please disable trapping.dectection or set an interface type=...,monitor in pf.conf");
+      $logger->logdie("monitor interface not defined, please disable trapping.dectection or set an interface type=...,monitor in pf.conf");
     }
 
     # make sure named pipe 'alert' is present if snort is enabled
@@ -1202,14 +1202,14 @@ sub sanity_check {
     if (! -p $snortpipe) {
       require POSIX;
       if (! POSIX::mkfifo($snortpipe, 0666)) {
-        throw_hissy_fit("snort alert pipe ($snortpipe) does not exist and unable to create it");
+        $logger->logdie("snort alert pipe ($snortpipe) does not exist and unable to create it");
       }
     }
   }
   
   if (isenabled($Config{'trapping'}{'detection'})) {
     if (! -x $Config{'services'}{'snort'}) {
-        throw_hissy_fit("snort binary is not executable / does not exist!");
+        $logger->logdie("snort binary is not executable / does not exist!");
     }
   }
 
@@ -1231,12 +1231,12 @@ sub sanity_check {
     }
 
     if (scalar(@dhcp_scopes) == 0) {
-      throw_hissy_fit("missing dhcp scope information");
+      $logger->logdie("missing dhcp scope information");
     }
 
     foreach my $scope (@dhcp_scopes) {
       if (!defined $Config{'scope '.$scope}{'network'} || !defined $Config{'scope '.$scope}{'gateway'} ||!defined $Config{'scope ' .$scope}{'range'}){
-          throw_hissy_fit("incomplete dhcp scope information for $scope ");
+          $logger->logdie("incomplete dhcp scope information for $scope ");
       }
 
       my $found = 0;
@@ -1247,7 +1247,7 @@ sub sanity_check {
         }
       }
       if (! $found) {
-        throw_hissy_fit("dhcp scope $scope gateway ($Config{'scope '.$scope}{'gateway'}) is not bound to internal interface ","WARNING");
+        $logger->logdie("dhcp scope $scope gateway ($Config{'scope '.$scope}{'gateway'}) is not bound to internal interface ","WARNING");
       }
     }
     if (!-e "$install_dir/conf/registered.mac"){
@@ -1264,59 +1264,59 @@ sub sanity_check {
 
   # make sure aup isn't enabled without registration
   if (isenabled($Config{'registration'}{'aup'}) && !isenabled($Config{'trapping'}{'registration'})) {
-    throw_hissy_fit("registration must be enabled if AUP is");
+    $logger->logdie("registration must be enabled if AUP is");
   }
 
   #NAT check
   if (isenabled($Config{'network'}{'nat'}) && scalar(@external_nets)==0){
-    throw_hissy_fit("you must define an external network interface to use NAT, please set type=external on one of your interface definitions ");
+    $logger->logdie("you must define an external network interface to use NAT, please set type=external on one of your interface definitions ");
   }
 
   # network size warning
   my $internal_total;
   foreach my $internal_net (@internal_nets) {
     if ($internal_net->bits() < 22) {
-      throw_hissy_fit("network $internal_net is larger than a /22 - you may want to consider registration queueing!","WARNING");
+      $logger->logwarn("network $internal_net is larger than a /22 - you may want to consider registration queueing!");
     }
     if ($internal_net->bits() < 16 && isenabled($Config{'general'}{'caching'})) {
-      throw_hissy_fit("network $internal_net is larger than a /16 - you must disable general.caching!");
+      $logger->logdie("network $internal_net is larger than a /16 - you must disable general.caching!");
     }
     $internal_total += $internal_net->size();
   }
   if ($internal_total >= 1536) {
-    throw_hissy_fit("internal IP space is very large - you may want to consider registration queueing!","WARNING");
+    $logger->logwarn("internal IP space is very large - you may want to consider registration queueing!");
   }
 
   # stuffing warning
   if (isenabled($Config{'arp'}{'stuffing'})) {
-    throw_hissy_fit("ARP stuffing is enabled...this is dangerous!","WARNING");
+    $logger->logwarn("ARP stuffing is enabled...this is dangerous!");
   }
 
   # make sure pid 1 exists
   if (!person_exist(1)){
-    throw_hissy_fit("person user id 1 must exist - please reinitialize your database"); 
+    $logger->logdie("person user id 1 must exist - please reinitialize your database"); 
   }   
 
   # make sure admin port exists
   if (!$Config{'ports'}{'admin'}){
-    throw_hissy_fit("please set the web admin port in pf.conf (ports.admin)");
+    $logger->logdie("please set the web admin port in pf.conf (ports.admin)");
   }
 
   # make sure dns servers exist
   if (!$Config{'general'}{'dnsservers'}){
-    throw_hissy_fit("please set the dns servers list in pf.conf (general.dnsservers).  If this is not set users in isolation will not be able to resolve hostnames, and will not able to reach PacketFence!");
+    $logger->logdie("please set the dns servers list in pf.conf (general.dnsservers).  If this is not set users in isolation will not be able to resolve hostnames, and will not able to reach PacketFence!");
   }
 
   if ($Config{'registration'}{'skip_mode'} eq "deadline" && !$Config{'registration'}{'skip_deadline'}) {
-    throw_hissy_fit("pf.conf value registration.skip_deadline is mal-formed or null! (format should be that of the 'date' command)");
+    $logger->logdie("pf.conf value registration.skip_deadline is mal-formed or null! (format should be that of the 'date' command)");
   } elsif ($Config{'registration'}{'skip_mode'} eq "windows" && !$Config{'registration'}{'skip_window'}) {
-    throw_hissy_fit("pf.conf value registration.skip_window is not defined!");
+    $logger->logdie("pf.conf value registration.skip_window is not defined!");
   }
 
   if ($Config{'registration'}{'expire_mode'} eq "deadline" && !$Config{'registration'}{'expire_deadline'}) {
-    throw_hissy_fit("pf.conf value registration.expire_deadline is mal-formed or null! (format should be that of the 'date' command)");
+    $logger->logdie("pf.conf value registration.expire_deadline is mal-formed or null! (format should be that of the 'date' command)");
   } elsif ($Config{'registration'}{'expire_mode'} eq "window" && !$Config{'registration'}{'expire_window'}) {
-    throw_hissy_fit("pf.conf value registration.expire_window is not defined!");
+    $logger->logdie("pf.conf value registration.expire_window is not defined!");
   }
 
   tie %myconfig, 'Config::IniFiles', ( -file => $config_file, -import => Config::IniFiles->new( -file => $default_config_file ) );
@@ -1335,16 +1335,15 @@ sub sanity_check {
     if (defined($Config{$group}{$item})) {
       if ($type eq "toggle") {
         if ($Config{$group}{$item} !~ /^$documentation{$section}{'options'}$/) {
-          throw_hissy_fit("pf.conf value $group\.$item must be one of the following: ".$documentation{$section}{'options'});
+          $logger->logdie("pf.conf value $group\.$item must be one of the following: ".$documentation{$section}{'options'});
         }
       } elsif ($type eq "time") {
         if ($myconfig{$group}{$item} !~ /\d+[smhdw]$/) {
-          #throw_hissy_fit("pf.conf value $group\.$item does not explicity define interval (eg. 7200s, 120m, 2h) - defaulting to seconds", "WARNING");
-	  throw_hissy_fit("pf.conf value $group\.$item does not explicity define interval (eg. 7200s, 120m, 2h) - please define it before running packetfence");
+	  $logger->logdie("pf.conf value $group\.$item does not explicity define interval (eg. 7200s, 120m, 2h) - please define it before running packetfence");
         }
       }
     } elsif ($Config{$group}{$item} ne "0") {
-      throw_hissy_fit("pf.conf value $group\.$item is not defined!");
+      $logger->logdie("pf.conf value $group\.$item is not defined!");
     }
   }
 }

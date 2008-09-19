@@ -31,7 +31,6 @@ END {
 
 use lib qw(/usr/local/pf/lib);
 use pf::config;
-use pf::util;
 
 #$dbh = db_connect() if (!threads->self->tid);
 
@@ -80,7 +79,7 @@ sub db_connect {
     $_[0]=$mydbh;
     return($mydbh);
   } else {
-    throw_hissy_fit("unable to connect to database!");
+    $logger->logdie("ERROR: unable to connect to database!");
     return();
   }
 }

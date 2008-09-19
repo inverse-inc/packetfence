@@ -32,7 +32,7 @@ BEGIN {
                isdisabled getlocalmac ip2int int2ip get_all_internal_ips get_internal_nets get_routed_nets get_internal_ips 
                get_internal_devs get_internal_devs_phy get_external_devs get_managed_devs get_internal_macs 
                get_internal_info get_gateways get_dhcp_devs num_interfaces createpid readpid deletepid 
-               parse_template mysql_date util_funnyarp oui_to_vendor normalize_time throw_hissy_fit);
+               parse_template mysql_date util_funnyarp oui_to_vendor normalize_time);
 }
 
 use lib qw(/usr/local/pf/lib);
@@ -608,15 +608,6 @@ sub preload_is_internal {
   }
   $logger->info(scalar(keys(%is_internal))." is_internal entries cached");
   return(%is_internal);
-}
-
-sub throw_hissy_fit {
-  my($msg,$pri) = @_;
-  my $logger = Log::Log4perl::get_logger('pf::util');
-  $pri = "ERROR" if (!$pri);
-  $logger->error(uc($pri).": $msg");
-  print STDERR uc($pri).": $msg\n";          
-  exit if ($pri eq "ERROR");
 }
 
 1
