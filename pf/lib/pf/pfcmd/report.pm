@@ -17,12 +17,16 @@ use pf::db;
 use vars qw/$report_active_all_sql $report_inactive_all_sql $report_unregistered_active_sql $report_unregistered_all_sql
             $report_registered_active_sql $report_registered_all_sql $report_os_active_sql $report_os_all_sql $report_osclass_all_sql
             $report_osclass_active_sql $report_unknownprints_all_sql $report_unknownprints_active_sql $report_openviolations_all_sql
-            $report_openviolations_active_sql $report_statics_all_sql $report_statics_active_sql @ISA @EXPORT/;
+            $report_openviolations_active_sql $report_statics_all_sql $report_statics_active_sql $is_report_db_prepared @ISA @EXPORT/;
 
-report_db_prepare($dbh);
+$is_report_db_prepared = 0;
+
+#report_db_prepare($dbh);
 
 sub report_db_prepare {
   my ($dbh) = @_;
+  db_connect($dbh);
+  my $logger = Log::Log4perl::get_logger('pf::pfcmd::report');
   $report_inactive_all_sql=$dbh->prepare( qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os from node n LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.mac not in (select i.mac from iplog i where i.end_time=0 or i.end_time > now()) ]);
   $report_active_all_sql=$dbh->prepare( qq [ select n.mac,ip,start_time,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os from (node n,iplog i) LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
   $report_unregistered_all_sql=$dbh->prepare( qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os FROM node n LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.status='unreg' ]);
@@ -39,9 +43,11 @@ sub report_db_prepare {
   $report_statics_active_sql=$dbh->prepare( qq [SELECT * FROM node,iplog WHERE (dhcp_fingerprint="" OR dhcp_fingerprint IS NULL) AND node.mac=iplog.mac and (iplog.end_time=0 or iplog.end_time > now()) ] );
   $report_openviolations_all_sql=$dbh->prepare( qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as violation from violation v LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.vid=v.vid WHERE v.status="open" order by n.pid ]);
   $report_openviolations_active_sql=$dbh->prepare( qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as violation from (violation v, iplog i) LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.vid=v.vid WHERE v.status="open" and n.mac=i.mac and (i.end_time=0 or i.end_time > now()) order by n.pid ]);
+  $is_report_db_prepared = 1;
 }
 
 sub report_os_all {
+  report_db_prepare($dbh) if (! $is_report_db_prepared);
   my @data    = db_data($report_os_all_sql);
   my $statics = scalar(db_data($report_statics_all_sql)); 
   my $total   = 0;
@@ -67,6 +73,7 @@ sub report_os_all {
 }
 
 sub report_os_active {
+  report_db_prepare($dbh) if (! $is_report_db_prepared);
   my @data    = db_data($report_os_active_sql);
   my $statics = scalar(db_data($report_statics_active_sql)); 
   my $total   = 0;
@@ -92,6 +99,7 @@ sub report_os_active {
 }
 
 sub report_osclass_all {
+  report_db_prepare($dbh) if (! $is_report_db_prepared);
   my @data = db_data($report_osclass_all_sql);
   my $statics = scalar(db_data($report_statics_all_sql));
   my $total = 0;
@@ -120,6 +128,7 @@ sub report_osclass_all {
 
 
 sub report_osclass_active {
+  report_db_prepare($dbh) if (! $is_report_db_prepared);
   my @data    = db_data($report_osclass_active_sql);
   my $statics = scalar(db_data($report_statics_active_sql));
   my $total   = 0;
@@ -147,51 +156,63 @@ sub report_osclass_active {
 }
 
 sub report_active_all {
- return db_data($report_active_all_sql);
+  report_db_prepare($dbh) if (! $is_report_db_prepared);
+  return db_data($report_active_all_sql);
 }
 
 
 sub report_inactive_all {
- return db_data($report_inactive_all_sql);
+  report_db_prepare($dbh) if (! $is_report_db_prepared);
+  return db_data($report_inactive_all_sql);
 }
 
 sub report_unregistered_active {
- return db_data($report_unregistered_active_sql);
+  report_db_prepare($dbh) if (! $is_report_db_prepared);
+  return db_data($report_unregistered_active_sql);
 }
 
 sub report_unregistered_all {
- return db_data($report_unregistered_all_sql);
+  report_db_prepare($dbh) if (! $is_report_db_prepared);
+  return db_data($report_unregistered_all_sql);
 }
 
 sub report_active_reg {
- return db_data($report_registered_active_sql);
+  report_db_prepare($dbh) if (! $is_report_db_prepared);
+  return db_data($report_registered_active_sql);
 }
 
 sub report_registered_all {
- return db_data($report_registered_all_sql);
+  report_db_prepare($dbh) if (! $is_report_db_prepared);
+  return db_data($report_registered_all_sql);
 }
 
 sub report_registered_active {
- return db_data($report_registered_active_sql);
+  report_db_prepare($dbh) if (! $is_report_db_prepared);
+  return db_data($report_registered_active_sql);
 }
 
 sub report_openviolations_all {
- return db_data($report_openviolations_all_sql);
+  report_db_prepare($dbh) if (! $is_report_db_prepared);
+  return db_data($report_openviolations_all_sql);
 }
 
 sub report_openviolations_active {
- return db_data($report_openviolations_active_sql);
+  report_db_prepare($dbh) if (! $is_report_db_prepared);
+  return db_data($report_openviolations_active_sql);
 }
 
 sub report_statics_all {
+  report_db_prepare($dbh) if (! $is_report_db_prepared);
   return db_data($report_statics_all_sql);
 }
 
 sub report_statics_active {
+  report_db_prepare($dbh) if (! $is_report_db_prepared);
   return db_data($report_statics_active_sql);
 }
 
 sub report_unknownprints_all {
+  report_db_prepare($dbh) if (! $is_report_db_prepared);
   my @data = db_data($report_unknownprints_all_sql);
   foreach my $datum (@data) {
     $datum->{'vendor'} = oui_to_vendor($datum->{'mac'});
@@ -200,6 +221,7 @@ sub report_unknownprints_all {
 }
 
 sub report_unknownprints_active {
+  report_db_prepare($dbh) if (! $is_report_db_prepared);
   my @data = db_data($report_unknownprints_active_sql);
   foreach my $datum (@data) {
     $datum->{'vendor'} = oui_to_vendor($datum->{'mac'});
