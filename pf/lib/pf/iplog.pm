@@ -199,10 +199,10 @@ sub ip2mac {
     my $iplog = iplog_view_open_ip($ip);
     $mac = $iplog->{'mac'};
     if (!$mac) {
-      $logger->info("could not resolve $ip to mac in iplog table");
+      $logger->debug("could not resolve $ip to mac in iplog table");
       $mac = ip2macinarp($ip);
       if (! $mac) {
-        $logger->info("trying to resolve $ip to mac using ping");
+        $logger->debug("trying to resolve $ip to mac using ping");
         my @lines = `/sbin/ip address show`;
         my $lineNb = 0;
         my $src_ip = undef;
@@ -214,20 +214,20 @@ sub ip2mac {
             my $block = new Net::Netmask("$tmp_src_ip/$tmp_src_bits");
             if ($block->match($ip)) {
               $src_ip = $tmp_src_ip;
-              $logger->info("found $ip in Network $tmp_src_ip/$tmp_src_bits");
+              $logger->debug("found $ip in Network $tmp_src_ip/$tmp_src_bits");
             }
           }
           $lineNb++;
         }
         if (defined($src_ip)) {
           my $ping = Net::Ping->new();
-          $logger->info("binding ping src IP to $src_ip for ping");
+          $logger->debug("binding ping src IP to $src_ip for ping");
           $ping->bind($src_ip);
           $ping->ping($ip,2);
 	  $ping->close();
 	  $mac = ip2macinarp($ip);
         } else {
-          $logger->info("unable to find an IP address on PF host in the same broadcast domain than $ip -> won't send ping");
+          $logger->debug("unable to find an IP address on PF host in the same broadcast domain than $ip -> won't send ping");
         }
       }
       if ($mac) {
