@@ -229,7 +229,7 @@ sub dhcp_scoper {
     %registered    = ();
     $regflag       = 0;
     $isoflag       = 0;
-    $logger->info("sleeping 30 seconds");
+    $logger->debug("sleeping 30 seconds");
     sleep(30);
   }
 
@@ -329,7 +329,7 @@ sub arp_gun {
 
     # has the flag been set while we were arping??? if no flag sleep for $arp_interval
     if (!$rearp_flag){
-      $logger->info("sleeping for $arp_interval seconds");
+      $logger->debug("sleeping for $arp_interval seconds");
       lock($arp_signal);
       if (cond_wait( $arp_signal)) {
         $logger->info("cleanup/listen_arp woke us up");
