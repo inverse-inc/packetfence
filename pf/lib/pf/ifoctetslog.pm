@@ -23,7 +23,7 @@ our (
   
   $ifoctetslog_insert_sql,
 
-  $ifoctectslog_db_prepared
+  $ifoctetslog_db_prepared
 );
 
 BEGIN {
