@@ -20,6 +20,8 @@
           (http://www.packetfence.org/mantis/view.php?id=387)
         replace Net::Telnet::Cisco by Net::Appliance::Session
           (http://www.packetfence.org/mantis/view.php?id=379)
+        support for SSH CLI Sessions
+          (http://www.packetfence.org/mantis/view.php?id=388)
 
 1.7.3
         not all port security traps are handled

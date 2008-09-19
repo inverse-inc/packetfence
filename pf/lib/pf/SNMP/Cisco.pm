@@ -839,12 +839,12 @@ sub getMacAddr {
     my $logger = Log::Log4perl::get_logger(ref($this));
    
     eval {
-        $session = Net::Appliance::Session->new(Host => $this->{_ip}, Timeout=>5, Transport => 'Telnet');
-        $session->connect(Name => $this->{_telnetUser}, Password => $this->{_telnetPwd});
+        $session = Net::Appliance::Session->new(Host => $this->{_ip}, Timeout=>5, Transport => $this->{_cliTransport});
+        $session->connect(Name => $this->{_cliUser}, Password => $this->{_cliPwd});
     };
 
     if ($@) {
-        $logger->error("ERROR: Can not connect to switch $this->{'_ip'} using telnet");
+        $logger->error("ERROR: Can not connect to switch $this->{'_ip'} using " . $this->{_cliTransport});
         return @macAddressTable;
     }
 
@@ -853,7 +853,7 @@ sub getMacAddr {
     } else {
         $command = 'show mac-address-table dynamic';
     }
-    $logger->trace("sending telnet command '$command'");
+    $logger->trace("sending CLI command '$command'");
     my @tmp = $session->cmd($command);
 
     foreach my $line (@tmp) {

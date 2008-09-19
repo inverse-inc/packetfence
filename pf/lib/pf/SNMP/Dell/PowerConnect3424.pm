@@ -37,7 +37,7 @@ sub _setVlan {
         $session = new Net::Telnet(Host => $this->{_ip}, Timeout => 20);
         #$session->dump_log();
         $session->waitfor('/Password:/');
-        $session->print($this->{_telnetPwd});
+        $session->print($this->{_cliPwd});
         $session->waitfor('/>/');
     };
     if ($@) {
@@ -47,7 +47,7 @@ sub _setVlan {
 
     $session->print('enable');
     $session->waitfor('/Password:/');
-    $session->print($this->{_telnetEnablePwd});
+    $session->print($this->{_cliEnablePwd});
     $session->waitfor('/#/');
     $session->print('configure');
     $session->waitfor('/\(config\)#/');

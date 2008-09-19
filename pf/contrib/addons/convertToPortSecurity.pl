@@ -65,7 +65,7 @@ use lib LIB_DIR;
 use Getopt::Long;
 use Pod::Usage;
 use Net::SNMP;
-use Net::Telnet::Cisco;
+use Net::Appliance::Session;
 use Log::Log4perl qw(:easy);
 use Data::Dumper;
 use DBI;
@@ -160,17 +160,17 @@ foreach my $key (keys %{$result}) {
 }
 
 #connect to switch
-$logger->debug("instantiating telnet session");
+$logger->debug("instantiating " . $switch->{_cliTransport} . " session");
 my $session;
 eval {
-  $session = Net::Telnet::Cisco->new(Host => $switch->{_ip}, Timeout=>5);
-  $session->login($switch->{_telnetUser}, $switch->{_telnetPwd});
+  $session = Net::Appliance::Session->new(Host => $switch->{_ip}, Timeout=>5, Transport => $switch->{_cliTransport});
+  $session->connect(Name => $switch->{_cliUser}, Password => $switch->{_cliPwd});
 };
 if ($@) {
-  die "Can not connect to switch $switch->{'_ip'} using telnet";
+  die "Can not connect to switch $switch->{'_ip'} using " . $switch->{_cliTransport};
 }
-if (! $session->is_enabled()) {
-  if (! $session->enable($switch->{_telnetEnablePwd})) {
+if (! $session->in_privileged_mode()) {
+  if (! $session->begin_privileged($switch->{_cliEnablePwd})) {
     die "Can not enable";
   }
 }

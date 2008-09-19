@@ -46,12 +46,12 @@ sub deauthenticateMac {
     
     my $session;
     eval {
-        $session = Net::Appliance::Session->new(Host => $this->{_ip}, Timeout=>5, Transport => 'Telnet');
-        $session->connect(User => $this->{_telnetUser}, Password => $this->{_telnetPwd});
+        $session = Net::Appliance::Session->new(Host => $this->{_ip}, Timeout=>5, Transport => $this->{_cliTransport});
+        $session->connect(User => $this->{_cliUser}, Password => $this->{_cliPwd});
     };
 
     if ($@) {
-        $logger->error("ERROR: Can not connect to access point $this->{'_ip'} using telnet");
+        $logger->error("ERROR: Can not connect to access point $this->{'_ip'} using " . $this->{_cliTransport});
         return 1;
     }
     #if (! $session->enable($this->{_telnetEnablePwd})) {

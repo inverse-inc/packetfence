@@ -80,9 +80,10 @@ sub new {
         '_SNMPPrivProtocolWrite' => undef,
         '_SNMPUserNameRead' => undef,
         '_SNMPUserNameWrite' => undef,
-        '_telnetEnablePwd' => undef,
-        '_telnetPwd' => undef,
-        '_telnetUser' => undef,
+        '_cliEnablePwd' => undef,
+        '_cliPwd' => undef,
+        '_cliUser' => undef,
+        '_cliTransport' => undef,
         '_uplink' => undef,
         '_version' => 1,
         '_vlans' => undef,
@@ -143,12 +144,14 @@ sub new {
             $this->{_SNMPUserNameRead} = $argv{$_};
         } elsif (/^-?SNMPUserNameWrite$/i) {
             $this->{_SNMPUserNameWrite} = $argv{$_};
-        } elsif (/^-?telnetEnablePwd$/i) {
-            $this->{_telnetEnablePwd} = $argv{$_};
-        } elsif (/^-?telnetPwd$/i) {
-            $this->{_telnetPwd} = $argv{$_};
-        } elsif (/^-?telnetUser$/i) {
-            $this->{_telnetUser} = $argv{$_};
+        } elsif (/^-?clieEnablePwd$/i) {
+            $this->{_cliEnablePwd} = $argv{$_};
+        } elsif (/^-?cliPwd$/i) {
+            $this->{_cliPwd} = $argv{$_};
+        } elsif (/^-?cliUser$/i) {
+            $this->{_cliUser} = $argv{$_};
+        } elsif (/^-?cliTransport$/i) {
+            $this->{_cliTransport} = $argv{$_};
         } elsif (/^-?uplink$/i) {
             $this->{_uplink} = $argv{$_};
         } elsif (/^-?version$/i) {

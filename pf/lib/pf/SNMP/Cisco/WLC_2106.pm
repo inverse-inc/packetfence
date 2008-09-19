@@ -46,14 +46,14 @@ sub deauthenticateMac {
     
     my $session;
     eval {
-        $session = new Net::Appliance::Session->new(Host => $this->{_ip}, Timeout=>5, Transport => 'Telnet');
-        $session->connect(Name => $this->{_telnetUser}, Password => $this->{_telnetPwd});
-        $session->begin_privileged($this->{_telnetEnablePwd});
+        $session = new Net::Appliance::Session->new(Host => $this->{_ip}, Timeout=>5, Transport => $this->{_cliTransport});
+        $session->connect(Name => $this->{_cliUser}, Password => $this->{_cliPwd});
+        $session->begin_privileged($this->{_cliEnablePwd});
         $session->begin_configure();
     };
 
     if ($@) {
-        $logger->error("ERROR: Can not connect to WLC $this->{'_ip'} using telnet");
+        $logger->error("ERROR: Can not connect to WLC $this->{'_ip'} using " . $this->{_cliTransport});
         return 1;
     }
     #if (! $session->enable($this->{_telnetEnablePwd})) {

@@ -239,9 +239,9 @@ sub connectTelnet {
             $t->waitfor('/Execute\\033\[21;18H\\033\[7mEdit\\033\[0m\\033\[21;18H/');
             $t->put("\n");
             $t->waitfor('/Execute/');
-            $t->put($this->{_telnetUser} . "\n");
+            $t->put($this->{_cliUser} . "\n");
             $t->waitfor('/Execute/');
-            $t->put($this->{_telnetPwd} . "\n");
+            $t->put($this->{_cliPwd} . "\n");
             $t->waitfor('/Execute/');
             $t->put("\033");
             $t->waitfor('/Execute/');
@@ -255,9 +255,9 @@ sub connectTelnet {
             $t->waitfor('/>/');
             $t->put("lcli\n");
             $t->waitfor('/User Name:/');
-            $t->put($this->{_telnetUser} . "\n");
+            $t->put($this->{_cliUser} . "\n");
             $t->waitfor('/Password:/');
-            $t->put($this->{_telnetPwd} . "\n");
+            $t->put($this->{_cliPwd} . "\n");
             $t->waitfor('/console/');
         };
         if (! $@) {
