@@ -22,6 +22,8 @@
           (http://www.packetfence.org/mantis/view.php?id=379)
         support for SSH CLI Sessions
           (http://www.packetfence.org/mantis/view.php?id=388)
+        use log subcategories in pfsetvlan
+          (http://www.packetfence.org/mantis/view.php?id=340)
 
 1.7.3
         not all port security traps are handled

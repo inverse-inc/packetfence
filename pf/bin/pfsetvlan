@@ -243,35 +243,37 @@ while (defined($currentTrapLine=$fh->read)) {
 # sub addTrapLineToQueue($trapLine) - cond_signal(@trapList_queued){{{1
 sub addTrapLineToQueue {
     my ($trapLine) = @_;
-    my $logger = Log::Log4perl->get_logger('pfsetvlan');
+    my $logger = Log::Log4perl->get_logger('pfsetvlan::parsing');
+    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
-    $logger->trace("locking - trying to lock trapList_queued");
+    $lockLogger->trace("locking - trying to lock trapList_queued");
     {
         lock @trapList_queued;
         $logger->debug("adding trapline $trapLine to queued trapList");
         push @trapList_queued, "raw|$trapLine";
-        $logger->trace("locking - sending signal for trapList_queued");
+        $lockLogger->trace("locking - sending signal for trapList_queued");
         cond_signal(@trapList_queued);
     }
-    $logger->trace("locking - unlocked trapList_queued");
+    $lockLogger->trace("locking - unlocked trapList_queued");
 }
 # }}}1
 
 # sub signalHandlerTrapListQueued - cond_wait(@trapList_queued), parseTrap($trapLineToParse) {{{1
 sub signalHandlerTrapListQueued {
-    my $logger = Log::Log4perl->get_logger('pfsetvlan');
+    my $logger = Log::Log4perl->get_logger('pfsetvlan::parsing');
+    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
     
     while (1) {
         my $trapLineToParse = undef;
         my $parseResult = undef;
-        $logger->trace("locking - trying to lock trapList_queued in signalHandlerTrapListQueued");
+        $lockLogger->trace("locking - trying to lock trapList_queued in signalHandlerTrapListQueued");
         {
             lock @trapList_queued;
-            $logger->trace("locking - obtained lock on trapList_queued in signalHandlerTrapListQueued");
-            $logger->trace("locking - waiting for signal for trapList_queued in signalHandlerTrapListQueued");
+            $lockLogger->trace("locking - obtained lock on trapList_queued in signalHandlerTrapListQueued");
+            $lockLogger->trace("locking - waiting for signal for trapList_queued in signalHandlerTrapListQueued");
             cond_wait(@trapList_queued);
-            $logger->trace("locking - received signal for trapList_queued in signalHandlerTrapListQueued");
+            $lockLogger->trace("locking - received signal for trapList_queued in signalHandlerTrapListQueued");
 
             $logger->trace("initially trapList_queued contains\n" . join("\n", @trapList_queued) . "\n");
 
@@ -290,15 +292,15 @@ sub signalHandlerTrapListQueued {
                 $logger->trace("couldn't find any raw trapLine in trapList_queued");
             }
         }
-        $logger->trace("locking - unlocked trapList_queued in signalHandlerTrapListQueued");
+        $lockLogger->trace("locking - unlocked trapList_queued in signalHandlerTrapListQueued");
 
         if (defined($trapLineToParse)) {
             $logger->debug("calling parseTrap for $trapLineToParse");
             $parseResult = parseTrap($trapLineToParse);
-            $logger->trace("locking - trying to lock trapList_queued in signalHandlerTrapListQueued");
+            $lockLogger->trace("locking - trying to lock trapList_queued in signalHandlerTrapListQueued");
             {
                 lock @trapList_queued;
-                $logger->trace("locking - obtained lock on trapList_queued in signalHandlerTrapListQueued");
+                $lockLogger->trace("locking - obtained lock on trapList_queued in signalHandlerTrapListQueued");
                 my $i=0;
                 my $threadId = threads->self->tid();
                 $logger->trace("after parseTrap operation trapList_queued contains\n" . join("\n", @trapList_queued) . "\n");
@@ -315,14 +317,14 @@ sub signalHandlerTrapListQueued {
                     $logger->warn("could not find line starting with \"inparse$threadId\" in trapList_queued -> this is BAD");
                 }
             }
-            $logger->trace("locking - unlocked trapList_queued in signalHandlerTrapListQueued");
+            $lockLogger->trace("locking - unlocked trapList_queued in signalHandlerTrapListQueued");
         }
 
 
-        $logger->trace("locking - trying to lock trapList_queued in signalHandlerTrapListQueued");
+        $lockLogger->trace("locking - trying to lock trapList_queued in signalHandlerTrapListQueued");
         {
             lock @trapList_queued;
-            $logger->trace("locking - obtained lock on trapList_queued in signalHandlerTrapListQueued");
+            $lockLogger->trace("locking - obtained lock on trapList_queued in signalHandlerTrapListQueued");
             #for already parsed entries at the begining of @trapList_queued
             #  shift and check if we need to add them to @threadList_queued
             my $i=0;
@@ -368,10 +370,10 @@ sub signalHandlerTrapListQueued {
             @trapList_queued = @tmpTrapList_queued;
             $logger->trace("after intelligent removal of parsed traps trapList_queued contains\n" . join("\n", @trapList_queued) . "\n");
             if (scalar(@candidatesForThreadList_queued) > 0) {
-                $logger->trace("locking - trying to lock threadList_queued in signalHandlerTrapListQueued");
+                $lockLogger->trace("locking - trying to lock threadList_queued in signalHandlerTrapListQueued");
                 {
                     lock @threadList_queued;
-                    $logger->trace("locking - obtained lock on threadList_queued in signalHandlerTrapListQueued");
+                    $lockLogger->trace("locking - obtained lock on threadList_queued in signalHandlerTrapListQueued");
                     foreach my $trapLine (@candidatesForThreadList_queued) {
                         $logger->debug("validating if parsed trapLine $trapLine should be added to threadList_queued");
                         my ($switch_ip, $switch_port, $trapType, $trapVlan, $trapOperation, $trapMac) = split(/\|/, $trapLine);
@@ -385,21 +387,21 @@ sub signalHandlerTrapListQueued {
                         } else {
                             push @threadList_queued, $trapLine;
                             $logger->debug("added trap $trapType at $switch_ip ifindex $switch_port to queued threadList");
-                            $logger->trace("locking - sending signal for threadList_queued in signalHanderTrapListQueued");
+                            $lockLogger->trace("locking - sending signal for threadList_queued in signalHanderTrapListQueued");
                             cond_signal(@threadList_queued);
                         }
                     }
                 }
-                $logger->trace("locking - unlocked threadList_queued in signalHandlerTrapListQueued");
+                $lockLogger->trace("locking - unlocked threadList_queued in signalHandlerTrapListQueued");
             }
             
             #signal if we still have 'raw' entries in trapList_queued
             if (grep (/^raw\|/, @trapList_queued) > 0) {
-                $logger->trace("locking - sending signal for trapList_queued in signalHanderTrapListQueued");
+                $lockLogger->trace("locking - sending signal for trapList_queued in signalHanderTrapListQueued");
                 cond_signal(@trapList_queued);
             }
         }
-        $logger->trace("locking - unlocked trapList_queued in signalHandlerTrapListQueued");
+        $lockLogger->trace("locking - unlocked trapList_queued in signalHandlerTrapListQueued");
     }
 }
 # }}}1
@@ -407,7 +409,8 @@ sub signalHandlerTrapListQueued {
 # sub parseTrap {{{1
 sub parseTrap {
     my ($trapLine) = @_;
-    my $logger = Log::Log4perl->get_logger('pfsetvlan');
+    my $logger = Log::Log4perl->get_logger('pfsetvlan::parsing');
+    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
 
     $logger->debug("parsing trap $trapLine");
@@ -416,15 +419,15 @@ sub parseTrap {
     #or a local trap (INVERSE-PACKETFENCE-NOTIFICATION-MIB)
         my $switch;
         my $isLocalTrap = (($1 eq '127.0.0.1') || ($3 =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.29464\.1/));
-        $logger->trace("locking - trying to lock switchFactory_locker in parseTrap");
+        $lockLogger->trace("locking - trying to lock switchFactory_locker in parseTrap");
         if ($isLocalTrap) {
             lock $switchFactory_locker;
-            $logger->trace("locking - obtained lock on switchFactory_locker in parseTrap");
+            $lockLogger->trace("locking - obtained lock on switchFactory_locker in parseTrap");
             $logger->info("local (127.0.0.1) trap for switch $2");
             $switch = $switchFactory->instantiate($2);
         } else {
             lock $switchFactory_locker;
-            $logger->trace("locking - obtained lock on switchFactory_locker in parseTrap");
+            $lockLogger->trace("locking - obtained lock on switchFactory_locker in parseTrap");
             my %config = %{$switchFactory->{_config}};
             if (!exists $config{$1}) {
                 $logger->warn("ALERT !!!!! we have received a trap from switch $1. This switch is UNREGISTERED. Flush the trap");
@@ -436,7 +439,7 @@ sub parseTrap {
             }
             $switch = $switchFactory->instantiate($1);
         }
-        $logger->trace("locking - unlocked switchFactory_locker in parseTrap");
+        $lockLogger->trace("locking - unlocked switchFactory_locker in parseTrap");
 
         if ($switch) {
             my $trapHashRef;
@@ -510,21 +513,22 @@ sub parseTrap {
 
 # sub signalHandlerThreadListQueued {{{1
 sub signalHandlerThreadListQueued {
-    my $logger = Log::Log4perl->get_logger('pfsetvlan');
+    my $logger = Log::Log4perl->get_logger('pfsetvlan::parsing');
+    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
     
     while (1) {
         my $mustDoSomeThing = 0;
-        $logger->trace("locking - trying to lock threadList_queued in signalHandlerThreadListQueued");
+        $lockLogger->trace("locking - trying to lock threadList_queued in signalHandlerThreadListQueued");
         {
             lock @threadList_queued;
-            $logger->trace("locking - obtained lock on threadList_queued in signalHandlerThreadListQueued");
-            $logger->trace("locking - waiting for signal for threadList_queued in signalHandlerThreadListQueued");
+            $lockLogger->trace("locking - obtained lock on threadList_queued in signalHandlerThreadListQueued");
+            $lockLogger->trace("locking - waiting for signal for threadList_queued in signalHandlerThreadListQueued");
             cond_wait(@threadList_queued);
-            $logger->trace("locking - received signal for threadList_queued in signalHandlerThreadListQueued");
+            $lockLogger->trace("locking - received signal for threadList_queued in signalHandlerThreadListQueued");
             $mustDoSomeThing = (scalar(@threadList_queued) > 0);
         }
-        $logger->trace("locking - unlocked threadList_queued in signalHandlerThreadListQueued");
+        $lockLogger->trace("locking - unlocked threadList_queued in signalHandlerThreadListQueued");
         if ($mustDoSomeThing) {
             $logger->debug("new enqueue or dequeue operation happened and threadList_queued is not empty");
             startTrapHandlers();
@@ -535,7 +539,8 @@ sub signalHandlerThreadListQueued {
 
 # sub startTrapLandlers {{{1
 sub startTrapHandlers {
-    my $logger = Log::Log4perl->get_logger('pfsetvlan');
+    my $logger = Log::Log4perl->get_logger('pfsetvlan::handling');
+    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
 
     my $mustDoSomeThing = 0;
@@ -546,12 +551,12 @@ sub startTrapHandlers {
     my $trapOperation;
     my $trapMac;
 
-    $logger->trace("locking - trying to lock threadList_queued, threadList_running and treadList_toBeKilled in startTrapHandlers");
+    $lockLogger->trace("locking - trying to lock threadList_queued, threadList_running and treadList_toBeKilled in startTrapHandlers");
     {
         lock @threadList_queued;
         lock %threadList_running;
         lock %threadList_toBeKilled;
-        $logger->trace("locking - obtained lock on threadList_queued, threadList_running and treadList_toBeKilled in startTrapHandlers");
+        $lockLogger->trace("locking - obtained lock on threadList_queued, threadList_running and treadList_toBeKilled in startTrapHandlers");
         my @tmp = ();
         my $nbThreadsRunning = scalar(keys(%threadList_running));
 
@@ -603,7 +608,7 @@ sub startTrapHandlers {
         }
         @threadList_queued = @tmp;
     }
-    $logger->trace("locking  - unlocked threadList_queued, threadList_running and treadList_toBeKilled in startTrapHandlers");
+    $lockLogger->trace("locking  - unlocked threadList_queued, threadList_running and treadList_toBeKilled in startTrapHandlers");
     if ($mustDoSomeThing) {
         $logger->debug("calling handleTrap");
         handleTrap($switch_ip, $switch_port, $trapType, $trapVlan, $trapOperation, $trapMac);
@@ -615,19 +620,20 @@ sub startTrapHandlers {
 sub handleTrap {
     # initialize {{{2
     my ($switch_ip,$switch_port,$trapType, $trapVlan, $trapOperation, $trapMac) = @_;
-    my $logger = Log::Log4perl->get_logger('pfsetvlan');
+    my $logger = Log::Log4perl->get_logger('pfsetvlan::handling');
+    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
     # }}}2
     
     # test if act on this trap {{{2
     my $switch;
-    $logger->trace("locking - trying to lock switchFactory_locker in handleTrap");
+    $lockLogger->trace("locking - trying to lock switchFactory_locker in handleTrap");
     {
         lock $switchFactory_locker;
-        $logger->trace("locking - obtained lock on switchFactory_locker in handleTrap");
+        $lockLogger->trace("locking - obtained lock on switchFactory_locker in handleTrap");
         $switch = $switchFactory->instantiate($switch_ip);
     }
-    $logger->trace("locking - unlocked switchFactory_locker in handleTrap");
+    $lockLogger->trace("locking - unlocked switchFactory_locker in handleTrap");
 
     # do we actually act on this trap ?
     if (defined($trapMac) && $switch->isFakeMac($trapMac)) {
@@ -1009,17 +1015,17 @@ sub handleTrap {
         do {
             sleep($switch->{_macSearchesSleepInterval}) unless ($nbAttempts == 0);
             my $mustRunCleanupAfterThread = 0;
-            $logger->trace("locking - trying to lock threadLists_toBeKilled in handleTrap");
+            $lockLogger->trace("locking - trying to lock threadLists_toBeKilled in handleTrap");
             {
                 lock %threadList_toBeKilled;
-                $logger->trace("locking - obtained lock on threadLists_toBeKilled in handleTrap");
+                $lockLogger->trace("locking - obtained lock on threadLists_toBeKilled in handleTrap");
                 if (exists($threadList_toBeKilled{"$switch_ip|$switch_port"})) {
                     $logger->info("received kill signal for thread at $switch_ip ifIndex $switch_port");
                     delete $threadList_toBeKilled{"$switch_ip|$switch_port"};
                     $mustRunCleanupAfterThread = 1;
                 }
             }
-            $logger->trace("locking - unlocked threadLists_toBeKilled in handleTrap");
+            $lockLogger->trace("locking - unlocked threadLists_toBeKilled in handleTrap");
             if ($mustRunCleanupAfterThread == 1) {
                 cleanupAfterThread($switch_ip,$switch_port);
                 $mysql_connection->disconnect;
@@ -1175,14 +1181,15 @@ sub handleTrap {
 
 # sub cleanupAfterThread {{{1
 sub cleanupAfterThread {
-    my $logger = Log::Log4perl->get_logger('pfsetvlan');
+    my $logger = Log::Log4perl->get_logger('pfsetvlan::cleanup');
+    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
     my ($switch_ip,$switch_port) = @_;
-    $logger->trace("locking - trying to lock threadList_running, threadList_toBeKilled in cleanupAfterThread");
+    $lockLogger->trace("locking - trying to lock threadList_running, threadList_toBeKilled in cleanupAfterThread");
     {
         lock %threadList_running;
         lock %threadList_toBeKilled;
-        $logger->trace("locking - obtained lock on threadList_running, threadList_toBeKilled in cleanupAfterThread");
+        $lockLogger->trace("locking - obtained lock on threadList_running, threadList_toBeKilled in cleanupAfterThread");
         delete $threadList_running{"$switch_ip|$switch_port"};
 
         if (exists($threadList_toBeKilled{"$switch_ip|$switch_port"})) {
@@ -1190,15 +1197,15 @@ sub cleanupAfterThread {
             delete $threadList_toBeKilled{"$switch_ip|$switch_port"};
         }
     }
-    $logger->trace("locking - unlocked threadList_running, threadList_toBeKilled in cleanupAfterThread");
-    $logger->trace("locking - trying to lock threadList_queued in cleanupAfterThread");
+    $lockLogger->trace("locking - unlocked threadList_running, threadList_toBeKilled in cleanupAfterThread");
+    $lockLogger->trace("locking - trying to lock threadList_queued in cleanupAfterThread");
     {
         lock @threadList_queued;
-        $logger->trace("locking - obtained lock on threadList_queued in cleanupAfterThread");
-        $logger->trace("locking - sending signal for threadList_queued in cleanupAfterThread");
+        $lockLogger->trace("locking - obtained lock on threadList_queued in cleanupAfterThread");
+        $lockLogger->trace("locking - sending signal for threadList_queued in cleanupAfterThread");
         cond_signal(@threadList_queued);
     }
-    $logger->trace("locking - unlocked threadList_queued in cleanupAfterThread");
+    $lockLogger->trace("locking - unlocked threadList_queued in cleanupAfterThread");
     $logger->info("finished");
 }
 # }}}1
@@ -1206,6 +1213,7 @@ sub cleanupAfterThread {
 # sub normal_sighandler {{{1
 sub normal_sighandler {
     my $logger = Log::Log4perl->get_logger('pfsetvlan');
+    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
     if ((isenabled($Config{'vlan'}{'closelocationlogonstop'})) && (threads->self->tid() == 0)) {
         $logger->debug("caught SIG" . $_[0]." - closing open locationlogs");
@@ -1214,16 +1222,16 @@ sub normal_sighandler {
         my $database_dbname;
         my $database_user;
         my $database_password;
-        $logger->trace("locking - trying to lock switchFactory_locker in normal_sighandler");
+        $lockLogger->trace("locking - trying to lock switchFactory_locker in normal_sighandler");
         {
             lock $switchFactory_locker;
-            $logger->trace("locking - obtained lock on switchFactory_locker in normal_sighandler");
+            $lockLogger->trace("locking - obtained lock on switchFactory_locker in normal_sighandler");
             $database_hostname = $switchFactory->{'_config'}{'default'}{'database_hostname'};
             $database_dbname = $switchFactory->{'_config'}{'default'}{'database_dbname'};
             $database_user = $switchFactory->{'_config'}{'default'}{'database_user'};
             $database_password = $switchFactory->{'_config'}{'default'}{'database_password'};
         }
-        $logger->trace("locking - unlocked switchFactory_locker in normal_sighandler");
+        $lockLogger->trace("locking - unlocked switchFactory_locker in normal_sighandler");
 
         my $mysql_connection = DBI->connect("dbi:mysql:dbname=$database_dbname;host=$database_hostname", $database_user, $database_password, {PrintError => 0});
         if (! $mysql_connection) {
@@ -1324,7 +1332,7 @@ sub node_register_auto_PF {
 sub node_determine_and_set_into_VLAN {
     my ($mac, $switch, $ifIndex) = @_;
 
-    my $logger = Log::Log4perl->get_logger('pfsetvlan');
+    my $logger = Log::Log4perl->get_logger('pfsetvlan::handling');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
 
     $switch->setVlan($ifIndex, vlan_determine_for_node($mac,$switch->{_ip},$ifIndex), \%switch_locker, $mac);
@@ -1334,8 +1342,8 @@ sub node_determine_and_set_into_VLAN {
 # sub do_port_security {{{1
 sub do_port_security {
     my ($mac, $switch, $switch_port, $trapType) = @_;
-
-    my $logger = Log::Log4perl->get_logger('pfsetvlan');
+    my $logger = Log::Log4perl->get_logger('pfsetvlan::handling');
+    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
 
     #determine if $mac is authorized elsewhere
@@ -1352,13 +1360,13 @@ sub do_port_security {
             if ($old_switch eq $switch->{_ip}) {
                 $oldSwitch = $switch;
             } else {
-                $logger->trace("locking - trying to lock switchFactory_locker in $trapType handling");
+                $lockLogger->trace("locking - trying to lock switchFactory_locker in $trapType handling");
                 {
                     lock $switchFactory_locker;
-                    $logger->trace("locking - obtained lock on switchFactory_locker in $trapType handling");
+                    $lockLogger->trace("locking - obtained lock on switchFactory_locker in $trapType handling");
                     $oldSwitch = $switchFactory->instantiate($old_switch);
                 }
-                $logger->trace("locking - unlocked switchFactory_locker in $trapType handling");
+                $lockLogger->trace("locking - unlocked switchFactory_locker in $trapType handling");
             }
             my $secureMacAddrHashRef = $oldSwitch->getSecureMacAddresses($old_port);
             if (exists($secureMacAddrHashRef->{$mac})) {
