@@ -42,7 +42,6 @@ BEGIN {
 }
 
 use lib qw(/usr/local/pf/lib);
-use pf::config;
 use pf::db;
 
 $switchlocation_db_prepared = 0;

@@ -24,9 +24,7 @@ BEGIN {
 }
 
 use lib qw(/usr/local/pf/lib);
-use pf::config;
 use pf::db;
-use pf::util;
 
 $person_db_prepared = 0;
 #person_db_prepare($dbh) if (!$thread);
@@ -51,9 +49,7 @@ sub person_db_prepare {
 #
 sub person_exist {
   my ($pid) = @_;
-
   person_db_prepare($dbh) if (! $person_db_prepared);
-
   $person_exist_sql->execute($pid) || return(0);
   my ($val) = $person_exist_sql->fetchrow_array();
   $person_exist_sql->finish();
@@ -65,9 +61,7 @@ sub person_exist {
 #
 sub person_delete {
   my ($pid) = @_;
-
   person_db_prepare($dbh) if (! $person_db_prepared);
-
   my $logger = Log::Log4perl::get_logger('pf::person');
   return(0) if ($pid eq "1"); 
 
@@ -86,9 +80,7 @@ sub person_delete {
 #
 sub person_add {
   my ($pid,%data)=@_;
-
   person_db_prepare($dbh) if (! $person_db_prepared);
-
   my $logger = Log::Log4perl::get_logger('pf::person');
   if (person_exist($pid)) {
     $logger->error("attempt to add existing person $pid");
@@ -104,9 +96,7 @@ sub person_add {
 #
 sub person_view {
   my ($pid) = @_;
-
   person_db_prepare($dbh) if (! $person_db_prepared);
-
   $person_view_sql->execute($pid) || return(0);
   my $ref = $person_view_sql->fetchrow_hashref();
   # just get one row and finish

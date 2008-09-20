@@ -49,15 +49,14 @@ use Date::Parse;
 use Log::Log4perl;
 use Net::MAC;
 use lib qw(/usr/local/pf/lib);
-use pf::config;
 use pf::db;
-use pf::util;
 
 $ifoctetslog_db_prepared = 0;
 #ifoctetslog_db_prepare($dbh) if (!$thread);
 
 sub ifoctetslog_db_prepare {
   my ($dbh) = @_;
+  db_connect($dbh);
   my $logger = Log::Log4perl::get_logger('pf::ifoctetslog');
   $logger->info("Preparing pf::ifoctetslog database queries");
   $ifoctetslog_history_mac_sql=$dbh->prepare( qq [ select switch,port,read_time,mac,ifInOctets,ifOutOctets from ifoctetslog where mac=? order by read_time desc ]);

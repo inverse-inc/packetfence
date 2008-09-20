@@ -22,9 +22,6 @@ use Log::Log4perl;
 
 use lib qw(/usr/local/pf/lib);
 
-use pf::config;
-use pf::util;
-use pf::db;
 use pf::node qw(node_view);
 use pf::violation qw(violation_count_trap);
 use pf::SwitchFactory;
