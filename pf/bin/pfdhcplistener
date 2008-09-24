@@ -14,7 +14,6 @@ use strict;
 use Getopt::Std;
 use Net::Pcap;
 use POSIX qw(:signal_h);
-use Data::Dumper;
 use File::Basename qw(basename);
 use Log::Log4perl;
 
