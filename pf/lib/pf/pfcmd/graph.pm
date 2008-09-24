@@ -17,13 +17,13 @@ use pf::db;
 use vars qw/$graph_registered_day_sql $graph_registered_month_sql $graph_registered_year_sql
             $graph_unregistered_day_sql $graph_unregistered_month_sql $graph_unregistered_year_sql
             $graph_violations_day_sql $graph_violations_month_sql $graph_violations_year_sql
-            $graph_nodes_day_sql  $graph_nodes_month_sql  $graph_nodes_year_sql/;
+            $graph_nodes_day_sql  $graph_nodes_month_sql  $graph_nodes_year_sql $graph_db_prepared /;
 
-graph_db_prepare($dbh);
+$graph_db_prepared = 0;
 
 sub graph_db_prepare {
   my ($dbh) = @_;
-
+  db_connect($dbh);
   $graph_registered_day_sql   = $dbh->prepare( qq [ SELECT 'registered nodes' as series, mydate, (SELECT COUNT(*) FROM node WHERE DATE_FORMAT(regdate,"%Y/%m/%d") <= mydate AND regdate!=0) as count FROM  (SELECT DISTINCT DATE_FORMAT(regdate,"%Y/%m/%d") AS mydate FROM node) as tmp order by mydate ]);
   $graph_registered_month_sql = $dbh->prepare( qq [ SELECT 'registered nodes' as series, mydate, (SELECT COUNT(*) FROM node WHERE DATE_FORMAT(regdate,"%Y/%m") <= mydate AND regdate!=0) as count FROM  (SELECT DISTINCT DATE_FORMAT(regdate,"%Y/%m") AS mydate FROM node) as tmp order by mydate ]);
   $graph_registered_year_sql  = $dbh->prepare( qq [ SELECT 'registered nodes' as series, mydate, (SELECT COUNT(*) FROM node WHERE DATE_FORMAT(regdate,"%Y") <= mydate AND regdate!=0) as count FROM  (SELECT DISTINCT DATE_FORMAT(regdate,"%Y") AS mydate FROM node) as tmp order by mydate ]);
@@ -40,10 +40,12 @@ sub graph_db_prepare {
 # graph_activity_current
 # graph_nodes_current
 # graph_violations_current
+  $graph_db_prepared = 1;
 }
 
 sub graph_unregistered {
   my ($interval) = @_;
+  graph_db_prepare($dbh) if (! $graph_db_prepared);
   my $graph = "graph_unregistered_".$interval."_sql";
   no strict 'refs';
   return (db_data($$graph));
@@ -51,6 +53,7 @@ sub graph_unregistered {
 
 sub graph_registered {
   my ($interval) = @_;
+  graph_db_prepare($dbh) if (! $graph_db_prepared);
   my $graph = "graph_registered_".$interval."_sql";
   no strict 'refs';
   return (db_data($$graph));
@@ -58,6 +61,7 @@ sub graph_registered {
 
 sub graph_violations {
   my ($interval) = @_;
+  graph_db_prepare($dbh) if (! $graph_db_prepared);
   my $graph = "graph_violations_".$interval."_sql";
   no strict 'refs';
   return (db_data($$graph));
@@ -65,6 +69,7 @@ sub graph_violations {
 
 sub graph_nodes {
   my ($interval) = @_;
+  graph_db_prepare($dbh) if (! $graph_db_prepared);
   no strict 'refs';
   my $graph = "graph_registered_".$interval."_sql";
   my @return = db_data($$graph);
