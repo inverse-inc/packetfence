@@ -615,7 +615,7 @@ sub normal_sighandler {
         freemac($violator->{'mac'});
       }
     }
-    iplog_shutdown;
+    iplog_shutdown();
     $logger->logdie("pfmon: caught SIG".$_[0]." - terminating");
   }
 }
