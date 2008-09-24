@@ -208,7 +208,7 @@ sub trigger_scan_add {
     $logger->info("Trying to add trigger $tid for ($srcmac) (".$info->Host.")");
     my @trigger_info=trigger_view_enable($tid,"scan");
     if (!scalar(@trigger_info)) {
-      logger->info("violation not added, no trigger found for scan::${tid} or violation is disabled");
+      $logger->info("violation not added, no trigger found for scan::${tid} or violation is disabled");
     }
     foreach my $row (@trigger_info){
       my $vid=$row->{'vid'};

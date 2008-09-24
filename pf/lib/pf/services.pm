@@ -253,7 +253,7 @@ sub generate_dhcpd_conf {
 
           my $range = normalize_dhcpd_range($Config{'scope '.$iso->tag("scope")}{'range'});
           if (!$range) {
-            logger->logdie("Invalid scope range: ".$Config{'scope '.$iso->tag("scope")}{'range'});
+            $logger->logdie("Invalid scope range: ".$Config{'scope '.$iso->tag("scope")}{'range'});
           }
 
           print DHCPDCONF "    pool {\n";
@@ -281,7 +281,7 @@ sub generate_dhcpd_conf {
 
           my $range = normalize_dhcpd_range($Config{'scope '.$unreg->tag("scope")}{'range'});
           if (!$range) {
-            logger->logdie("Invalid scope range: ".$Config{'scope '.$unreg->tag("scope")}{'range'});
+            $logger->logdie("Invalid scope range: ".$Config{'scope '.$unreg->tag("scope")}{'range'});
           }
 
           print DHCPDCONF "    pool {\n";

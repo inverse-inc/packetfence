@@ -301,7 +301,7 @@ sub delete_expired {
        $logger->info("gateway timer exceeded for $mac ($ip) - probable static gateway arp entry");
        $self->set_gwtime($mac);
      } elsif ($self->dhcp_expired($mac)) {
-       logger->info("DHCP timer exceeded for $mac ($ip) - probable static IP");
+       $logger->info("DHCP timer exceeded for $mac ($ip) - probable static IP");
        $self->set_dhcptime($mac);
      }
    }

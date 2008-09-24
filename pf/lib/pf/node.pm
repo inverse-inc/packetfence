@@ -320,7 +320,7 @@ sub node_register {
   }
 
   if (!node_modify($mac,%info)) {
-    logger->error("modify of node $mac failed");
+    $logger->error("modify of node $mac failed");
     return(0);
   }
 
