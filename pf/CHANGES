@@ -26,6 +26,9 @@
           (http://www.packetfence.org/mantis/view.php?id=340)
         use logdie instead of die
           (http://www.packetfence.org/mantis/view.php?id=136)
+        Cisco::Catalyst_3560 inheritance
+          (http://www.packetfence.org/mantis/view.php?id=390)
+
 
 1.7.3
         not all port security traps are handled
