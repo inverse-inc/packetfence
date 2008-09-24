@@ -254,7 +254,7 @@ sub ip2macinarp {
     if ($arpList[$lineNb] =~ /\($ip\) at ([0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2})/i) {
       $mac=$1;
       $mac = clean_mac($mac);
-      logger->info("resolved $ip to mac ($mac) in ARP table");
+      $logger->info("resolved $ip to mac ($mac) in ARP table");
     }
   $lineNb++;
   }
