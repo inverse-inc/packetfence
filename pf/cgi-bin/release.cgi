@@ -97,7 +97,7 @@ $logger->info("calling $install_dir/bin/pfcmd manage vclose $mac $vid");
 my $grace = qx/$cmd/;
 $grace=~s/^.+\n\n//;
 #my $grace = violation_close($mac,$vid);
-$logger->info("violation_close returned $grace");
+$logger->info("pfcmd manage vclose $mac $vid returned $grace");
 
 if ($grace != -1) {
   my $count = violation_count($mac); 
