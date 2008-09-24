@@ -20,7 +20,7 @@ BEGIN {
   our (@ISA, @EXPORT);
   @ISA    = qw(Exporter);
   @EXPORT = qw(service_list service_ctl read_violations_conf generate_sysctl_conf
-               generate_iptables generate_dhcpd_reg generage_dhcpd_iso);
+               generate_dhcpd_reg generage_dhcpd_iso);
 }
 
 use lib qw(/usr/local/pf/lib);
