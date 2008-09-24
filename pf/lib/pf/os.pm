@@ -20,7 +20,7 @@ BEGIN {
   use Exporter ();
   our (@ISA, @EXPORT);
   @ISA    = qw(Exporter);
-  @EXPORT = qw(os_db_prepare read_dhcp_fingerprints_conf os_db_prepare dhcp_fingerprint_view dhcp_fingerprint_view_all);
+  @EXPORT = qw(read_dhcp_fingerprints_conf os_db_prepare dhcp_fingerprint_view dhcp_fingerprint_view_all);
 }
 
 use lib qw(/usr/local/pf/lib);
