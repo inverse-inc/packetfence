@@ -33,6 +33,7 @@ use Log::Log4perl;
 
 
 use lib "/usr/local/pf/lib";
+use pf::config;
 
 =head1 METHODS
 
@@ -70,65 +71,65 @@ sub new {
 sub instantiate {
     my $logger = Log::Log4perl::get_logger("pf::SwitchFactory");
     my ($this, $requestedSwitch) = @_;
-    my %Config = %{$this->{_config}};
-    my $type = "pf::SNMP::" . ($Config{$requestedSwitch}{'type'} || $Config{'default'}{'type'});
+    my %SwitchConfig = %{$this->{_config}};
+    my $type = "pf::SNMP::" . ($SwitchConfig{$requestedSwitch}{'type'} || $SwitchConfig{'default'}{'type'});
     eval "require $type;";
     if ($@) {
-        $logger->error("ERROR ! Unknown switch type: " . $Config{$requestedSwitch}{'type'} . " for switch $requestedSwitch: $@");
+        $logger->error("ERROR ! Unknown switch type: " . $SwitchConfig{$requestedSwitch}{'type'} . " for switch $requestedSwitch: $@");
         return 0;
     }
     my @uplink = ();
-    if ($Config{$requestedSwitch}{'uplink'} || $Config{'default'}{'uplink'}) {
+    if ($SwitchConfig{$requestedSwitch}{'uplink'} || $SwitchConfig{'default'}{'uplink'}) {
 
-        my @_uplink_tmp = split (/,/, ($Config{$requestedSwitch}{'uplink'} || $Config{'default'}{'uplink'}));
+        my @_uplink_tmp = split (/,/, ($SwitchConfig{$requestedSwitch}{'uplink'} || $SwitchConfig{'default'}{'uplink'}));
         foreach my $_tmp (@_uplink_tmp) {
             $_tmp =~ s/ //g;
             push @uplink, $_tmp;
         }
     }
     my @vlans = ();
-    my @_vlans_tmp = split (/,/, ($Config{$requestedSwitch}{'vlans'} || $Config{'default'}{'vlans'}));
+    my @_vlans_tmp = split (/,/, ($SwitchConfig{$requestedSwitch}{'vlans'} || $SwitchConfig{'default'}{'vlans'}));
     foreach my $_tmp (@_vlans_tmp) {
         $_tmp =~ s/ //g;
         push @vlans, $_tmp;
     }
     $logger->debug("creating new $type object");
     return $type->new(
-        '-communityRead' => ($Config{$requestedSwitch}{'communityRead'} || $Config{'default'}{'communityRead'}),
-        '-communityWrite' => ($Config{$requestedSwitch}{'communityWrite'} || $Config{'default'}{'communityWrite'}), 
-        '-dbHostname' => $Config{'default'}{'database_hostname'},
-        '-dbName' => $Config{'default'}{'database_dbname'},
-        '-dbPassword' => $Config{'default'}{'database_password'},
-        '-dbUser' => $Config{'default'}{'database_user'},
-        '-htaccessPwd' => ($Config{$requestedSwitch}{'htaccessPwd'} || $Config{'default'}{'htaccessPwd'}),
-        '-htaccessUser' => ($Config{$requestedSwitch}{'htaccessUser'} || $Config{'default'}{'htaccessUser'}),
-        '-ip' => $Config{$requestedSwitch}{'ip'},
-        '-isolationVlan' => ($Config{$requestedSwitch}{'isolationVlan'} || $Config{'default'}{'isolationVlan'}), 
-        '-macDetectionVlan' => ($Config{$requestedSwitch}{'macDetectionVlan'} || $Config{'default'}{'macDetectionVlan'}), 
-	'-macSearchesMaxNb' => ($Config{$requestedSwitch}{'macSearchesMaxNb'} || $Config{'default'}{'macSearchesMaxNb'}),
-	'-macSearchesSleepInterval' => ($Config{$requestedSwitch}{'macSearchesSleepInterval'} || $Config{'default'}{'macSearchesSleepInterval'}),
-        '-mode' => lc(($Config{$requestedSwitch}{'mode'} || $Config{'default'}{'mode'})),
-        '-normalVlan' => ($Config{$requestedSwitch}{'normalVlan'} || $Config{'default'}{'normalVlan'}), 
-        '-registrationVlan' => ($Config{$requestedSwitch}{'registrationVlan'} || $Config{'default'}{'registrationVlan'}), 
-        '-SNMPAuthPasswordRead' => ($Config{$requestedSwitch}{'SNMPAuthPasswordRead'} || $Config{'default'}{'SNMPAuthPasswordRead'}), 
-        '-SNMPAuthPasswordWrite' => ($Config{$requestedSwitch}{'SNMPAuthPasswordWrite'} || $Config{'default'}{'SNMPAuthPasswordWrite'}), 
-        '-SNMPAuthProtocolRead' => ($Config{$requestedSwitch}{'SNMPAuthProtocolRead'} || $Config{'default'}{'SNMPAuthProtocolRead'}), 
-        '-SNMPAuthProtocolWrite' => ($Config{$requestedSwitch}{'SNMPAuthProtocolWrite'} || $Config{'default'}{'SNMPAuthProtocolWrite'}), 
-        '-SNMPPrivPasswordRead' => ($Config{$requestedSwitch}{'SNMPPrivPasswordRead'} || $Config{'default'}{'SNMPPrivPasswordRead'}), 
-        '-SNMPPrivPasswordWrite' => ($Config{$requestedSwitch}{'SNMPPrivPasswordWrite'} || $Config{'default'}{'SNMPPrivPasswordWrite'}), 
-        '-SNMPPrivProtocolRead' => ($Config{$requestedSwitch}{'SNMPPrivProtocolRead'} || $Config{'default'}{'SNMPPrivProtocolRead'}), 
-        '-SNMPPrivProtocolWrite' => ($Config{$requestedSwitch}{'SNMPPrivProtocolWrite'} || $Config{'default'}{'SNMPPrivProtocolWrite'}), 
-        '-SNMPUserNameRead' => ($Config{$requestedSwitch}{'SNMPUserNameRead'} || $Config{'default'}{'SNMPUserNameRead'}), 
-        '-SNMPUserNameWrite' => ($Config{$requestedSwitch}{'SNMPUserNameWrite'} || $Config{'default'}{'SNMPUserNameWrite'}), 
-        '-cliEnablePwd' => ($Config{$requestedSwitch}{'cliEnablePwd'} || $Config{$requestedSwitch}{'telnetEnablePwd'} || $Config{'default'}{'cliEnablePwd'} || $Config{'default'}{'telnetEnablePwd'}),
-        '-cliPwd' => ($Config{$requestedSwitch}{'cliPwd'} || $Config{$requestedSwitch}{'telnetPwd'} || $Config{'default'}{'cliPwd'} || $Config{'default'}{'telnetPwd'}),
-        '-cliUser' => ($Config{$requestedSwitch}{'cliUser'} || $Config{$requestedSwitch}{'telnetUser'} || $Config{'default'}{'cliUser'} || $Config{'default'}{'telnetUser'}),
-        '-cliTransport' => ($Config{$requestedSwitch}{'cliTransport'} || $Config{'default'}{'cliTransport'} || 'Telnet'),
+        '-communityRead' => ($SwitchConfig{$requestedSwitch}{'communityRead'} || $SwitchConfig{'default'}{'communityRead'}),
+        '-communityWrite' => ($SwitchConfig{$requestedSwitch}{'communityWrite'} || $SwitchConfig{'default'}{'communityWrite'}), 
+        '-dbHostname' => $Config{'database'}{'host'},
+        '-dbName' => $Config{'database'}{'db'},
+        '-dbPassword' => $Config{'database'}{'pass'},
+        '-dbUser' => $Config{'database'}{'user'},
+        '-htaccessPwd' => ($SwitchConfig{$requestedSwitch}{'htaccessPwd'} || $SwitchConfig{'default'}{'htaccessPwd'}),
+        '-htaccessUser' => ($SwitchConfig{$requestedSwitch}{'htaccessUser'} || $SwitchConfig{'default'}{'htaccessUser'}),
+        '-ip' => $SwitchConfig{$requestedSwitch}{'ip'},
+        '-isolationVlan' => ($SwitchConfig{$requestedSwitch}{'isolationVlan'} || $SwitchConfig{'default'}{'isolationVlan'}), 
+        '-macDetectionVlan' => ($SwitchConfig{$requestedSwitch}{'macDetectionVlan'} || $SwitchConfig{'default'}{'macDetectionVlan'}), 
+	'-macSearchesMaxNb' => ($SwitchConfig{$requestedSwitch}{'macSearchesMaxNb'} || $SwitchConfig{'default'}{'macSearchesMaxNb'}),
+	'-macSearchesSleepInterval' => ($SwitchConfig{$requestedSwitch}{'macSearchesSleepInterval'} || $SwitchConfig{'default'}{'macSearchesSleepInterval'}),
+        '-mode' => lc(($SwitchConfig{$requestedSwitch}{'mode'} || $SwitchConfig{'default'}{'mode'})),
+        '-normalVlan' => ($SwitchConfig{$requestedSwitch}{'normalVlan'} || $SwitchConfig{'default'}{'normalVlan'}), 
+        '-registrationVlan' => ($SwitchConfig{$requestedSwitch}{'registrationVlan'} || $SwitchConfig{'default'}{'registrationVlan'}), 
+        '-SNMPAuthPasswordRead' => ($SwitchConfig{$requestedSwitch}{'SNMPAuthPasswordRead'} || $SwitchConfig{'default'}{'SNMPAuthPasswordRead'}), 
+        '-SNMPAuthPasswordWrite' => ($SwitchConfig{$requestedSwitch}{'SNMPAuthPasswordWrite'} || $SwitchConfig{'default'}{'SNMPAuthPasswordWrite'}), 
+        '-SNMPAuthProtocolRead' => ($SwitchConfig{$requestedSwitch}{'SNMPAuthProtocolRead'} || $SwitchConfig{'default'}{'SNMPAuthProtocolRead'}), 
+        '-SNMPAuthProtocolWrite' => ($SwitchConfig{$requestedSwitch}{'SNMPAuthProtocolWrite'} || $SwitchConfig{'default'}{'SNMPAuthProtocolWrite'}), 
+        '-SNMPPrivPasswordRead' => ($SwitchConfig{$requestedSwitch}{'SNMPPrivPasswordRead'} || $SwitchConfig{'default'}{'SNMPPrivPasswordRead'}), 
+        '-SNMPPrivPasswordWrite' => ($SwitchConfig{$requestedSwitch}{'SNMPPrivPasswordWrite'} || $SwitchConfig{'default'}{'SNMPPrivPasswordWrite'}), 
+        '-SNMPPrivProtocolRead' => ($SwitchConfig{$requestedSwitch}{'SNMPPrivProtocolRead'} || $SwitchConfig{'default'}{'SNMPPrivProtocolRead'}), 
+        '-SNMPPrivProtocolWrite' => ($SwitchConfig{$requestedSwitch}{'SNMPPrivProtocolWrite'} || $SwitchConfig{'default'}{'SNMPPrivProtocolWrite'}), 
+        '-SNMPUserNameRead' => ($SwitchConfig{$requestedSwitch}{'SNMPUserNameRead'} || $SwitchConfig{'default'}{'SNMPUserNameRead'}), 
+        '-SNMPUserNameWrite' => ($SwitchConfig{$requestedSwitch}{'SNMPUserNameWrite'} || $SwitchConfig{'default'}{'SNMPUserNameWrite'}), 
+        '-cliEnablePwd' => ($SwitchConfig{$requestedSwitch}{'cliEnablePwd'} || $SwitchConfig{$requestedSwitch}{'telnetEnablePwd'} || $SwitchConfig{'default'}{'cliEnablePwd'} || $SwitchConfig{'default'}{'telnetEnablePwd'}),
+        '-cliPwd' => ($SwitchConfig{$requestedSwitch}{'cliPwd'} || $SwitchConfig{$requestedSwitch}{'telnetPwd'} || $SwitchConfig{'default'}{'cliPwd'} || $SwitchConfig{'default'}{'telnetPwd'}),
+        '-cliUser' => ($SwitchConfig{$requestedSwitch}{'cliUser'} || $SwitchConfig{$requestedSwitch}{'telnetUser'} || $SwitchConfig{'default'}{'cliUser'} || $SwitchConfig{'default'}{'telnetUser'}),
+        '-cliTransport' => ($SwitchConfig{$requestedSwitch}{'cliTransport'} || $SwitchConfig{'default'}{'cliTransport'} || 'Telnet'),
         '-uplink' => \@uplink,
-        '-version' => ($Config{$requestedSwitch}{'version'} || $Config{'default'}{'version'}),
+        '-version' => ($SwitchConfig{$requestedSwitch}{'version'} || $SwitchConfig{'default'}{'version'}),
         '-vlans' => \@vlans,
-        '-voiceVlan' => ($Config{$requestedSwitch}{'voiceVlan'} || $Config{'default'}{'voiceVlan'}), 
-        '-VoIPEnabled' => (($Config{$requestedSwitch}{'VoIPEnabled'} || $Config{'default'}{'VoIPEnabled'}) =~ /^\s*(y|yes|true|enabled|1)\s*$/i ? 1 : 0)
+        '-voiceVlan' => ($SwitchConfig{$requestedSwitch}{'voiceVlan'} || $SwitchConfig{'default'}{'voiceVlan'}), 
+        '-VoIPEnabled' => (($SwitchConfig{$requestedSwitch}{'VoIPEnabled'} || $SwitchConfig{'default'}{'VoIPEnabled'}) =~ /^\s*(y|yes|true|enabled|1)\s*$/i ? 1 : 0)
     );
 }
 
@@ -146,23 +147,23 @@ sub readConfig {
     if (! defined($this->{_configFile})) {
         croak "Config file has not been defined\n";
     }
-    my %Config;
+    my %SwitchConfig;
     if (! -e $this->{_configFile}) {
         croak "Config file " . $this->{_configFile} . " cannot be read\n";
     }
-    tie %Config, 'Config::IniFiles', ( -file => $this->{_configFile});
+    tie %SwitchConfig, 'Config::IniFiles', ( -file => $this->{_configFile});
     my @errors = @Config::IniFiles::errors;
     if (scalar(@errors)) {
         croak "Error reading config file: " . join("\n", @errors) . "\n";
     }
 
     #remove trailing spaces..
-    foreach my $section (tied(%Config)->Sections){
-        foreach my $key (keys %{$Config{$section}}){
-            $Config{$section}{$key}=~s/\s+$//;
+    foreach my $section (tied(%SwitchConfig)->Sections){
+        foreach my $key (keys %{$SwitchConfig{$section}}){
+            $SwitchConfig{$section}{$key}=~s/\s+$//;
         }
     }
-    %{$this->{_config}} = %Config;
+    %{$this->{_config}} = %SwitchConfig;
 
     return 1;
 }

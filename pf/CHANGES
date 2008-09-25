@@ -30,6 +30,8 @@
           (http://www.packetfence.org/mantis/view.php?id=390)
         Removed unused loglevel from switches.conf
           (http://www.packetfence.org/mantis/view.php?id=392)
+        Removed db connection parameters from switches.conf
+          (http://www.packetfence.org/mantis/view.php?id=391)
 
 
 1.7.3
