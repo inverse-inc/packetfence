@@ -37,7 +37,7 @@ if (!valid_mac($mac)) {
   exit(0);
 }
 
-$logger->info("$ip - $mac ", 1);
+$logger->info("$ip - $mac ");
 
 my %info;
 
