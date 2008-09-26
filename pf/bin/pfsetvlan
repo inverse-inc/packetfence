@@ -1215,19 +1215,16 @@ sub normal_sighandler {
     my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
     if ((isenabled($Config{'vlan'}{'closelocationlogonstop'})) && (threads->self->tid() == 0)) {
+
         $logger->debug("caught SIG" . $_[0]." - closing open locationlogs");
 
-        my $database_hostname = $Config{'database'}{'host'};
-        my $database_dbname = $Config{'database'}{'db'};
-        my $database_user = $Config{'database'}{'user'};
-        my $database_password = $Config{'database'}{'pass'};
-
-        my $mysql_connection = DBI->connect("dbi:mysql:dbname=$database_dbname;host=$database_hostname", $database_user, $database_password, {PrintError => 0});
+        my $mysql_connection = db_connect();
         if (! $mysql_connection) {
             $logger->error("coudn't connect to MySQL server: " . DBI->errstr);
         } else {
-            $mysql_connection->do('UPDATE locationlog SET end_time = now() WHERE isnull(end_time)');
-            $mysql_connection->disconnect;
+            $logger->trace("calling locationlog_db_prepare");
+            locationlog_db_prepare($mysql_connection);
+            locationlog_close_all();
         }
     }
     $logger->logdie("pfsetvlan: caught SIG".$_[0]." - terminating");

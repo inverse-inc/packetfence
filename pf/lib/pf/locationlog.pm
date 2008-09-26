@@ -29,6 +29,8 @@ our (
   $locationlog_view_open_switchport_no_VoIP_sql,
   $locationlog_view_open_switchport_only_VoIP_sql,
 
+  $locationlog_close_sql,
+
   $locationlog_cleanup_sql,
 
   $locationlog_insert_start_with_mac_sql,
@@ -60,6 +62,7 @@ BEGIN {
                locationlog_view_open_switchport_no_VoIP
                locationlog_view_open_switchport_only_VoIP
 
+               locationlog_close_all
                locationlog_cleanup
 
                locationlog_insert_start
@@ -103,6 +106,8 @@ sub locationlog_db_prepare {
   $locationlog_update_end_switchport_no_VoIP_sql=$dbh->prepare( qq [ UPDATE locationlog SET end_time = now() WHERE switch = ? AND port = ? AND vlan!='VoIP' AND (ISNULL(end_time) or end_time = 0) ]);
   $locationlog_update_end_switchport_only_VoIP_sql=$dbh->prepare( qq [ UPDATE locationlog SET end_time = now() WHERE switch = ? AND port = ? AND vlan='VoIP' AND (ISNULL(end_time) or end_time = 0) ]);
   $locationlog_update_end_mac_sql=$dbh->prepare( qq [ UPDATE locationlog SET end_time = now() WHERE mac = ? AND (ISNULL(end_time) or end_time = 0)]);
+
+  $locationlog_close_sql=$dbh->prepare( qq [ UPDATE locationlog SET end_time = now() WHERE (ISNULL(end_time) or end_time = 0)]);
 
   $locationlog_cleanup_sql=$dbh->prepare( qq [ delete from locationlog where unix_timestamp(end_time) < (unix_timestamp(now()) - ?) and end_time != 0 ]);
   $locationlog_db_prepared = 1;
@@ -274,6 +279,12 @@ sub locationlog_synchronize {
     }
   }
   return 1;
+}
+
+sub locationlog_close_all {
+  locationlog_db_prepare($dbh) if (! $locationlog_db_prepared);
+  $locationlog_close_sql->execute() || return(0);
+  return(0);
 }
 
 sub locationlog_cleanup {
