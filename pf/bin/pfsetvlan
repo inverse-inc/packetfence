@@ -1217,20 +1217,10 @@ sub normal_sighandler {
     if ((isenabled($Config{'vlan'}{'closelocationlogonstop'})) && (threads->self->tid() == 0)) {
         $logger->debug("caught SIG" . $_[0]." - closing open locationlogs");
 
-        my $database_hostname;
-        my $database_dbname;
-        my $database_user;
-        my $database_password;
-        $lockLogger->trace("locking - trying to lock switchFactory_locker in normal_sighandler");
-        {
-            lock $switchFactory_locker;
-            $lockLogger->trace("locking - obtained lock on switchFactory_locker in normal_sighandler");
-            $database_hostname = $switchFactory->{'_config'}{'default'}{'database_hostname'};
-            $database_dbname = $switchFactory->{'_config'}{'default'}{'database_dbname'};
-            $database_user = $switchFactory->{'_config'}{'default'}{'database_user'};
-            $database_password = $switchFactory->{'_config'}{'default'}{'database_password'};
-        }
-        $lockLogger->trace("locking - unlocked switchFactory_locker in normal_sighandler");
+        my $database_hostname = $Config{'database'}{'host'};
+        my $database_dbname = $Config{'database'}{'db'};
+        my $database_user = $Config{'database'}{'user'};
+        my $database_password = $Config{'database'}{'pass'};
 
         my $mysql_connection = DBI->connect("dbi:mysql:dbname=$database_dbname;host=$database_hostname", $database_user, $database_password, {PrintError => 0});
         if (! $mysql_connection) {
