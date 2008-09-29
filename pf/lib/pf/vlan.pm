@@ -34,21 +34,20 @@ sub vlan_determine_for_node {
     my $logger = Log::Log4perl::get_logger('pf::vlan');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
 
-    my $node_info = node_view($mac);
-
     my $correctVlanForThisMAC;
-    if ((! defined($node_info)) || ($node_info->{'status'} ne 'reg')) {
-        $logger->info("MAC: $mac is unregistered; belongs into registration VLAN");
+    my $open_violation_count = violation_count_trap($mac);
+    if ($open_violation_count > 0) {
+        $logger->info("$mac has $open_violation_count open violations(s) with action=trap; belongs into isolation VLAN.");
         my $switchFactory = new pf::SwitchFactory( -configFile => '/usr/local/pf/conf/switches.conf');
         my $switch = $switchFactory->instantiate($switch_ip);
-        $correctVlanForThisMAC = $switch->{_registrationVlan};
+        $correctVlanForThisMAC = $switch->{_isolationVlan};
     } else {
-        my $open_violation_count = violation_count_trap($mac);
-        if ($open_violation_count > 0) {
-            $logger->info("$mac has $open_violation_count open violations(s) with action=trap; belongs into isolation VLAN.");
+        my $node_info = node_view($mac);
+        if ((! defined($node_info)) || ($node_info->{'status'} ne 'reg')) {
+            $logger->info("MAC: $mac is unregistered; belongs into registration VLAN");
             my $switchFactory = new pf::SwitchFactory( -configFile => '/usr/local/pf/conf/switches.conf');
             my $switch = $switchFactory->instantiate($switch_ip);
-            $correctVlanForThisMAC = $switch->{_isolationVlan};
+            $correctVlanForThisMAC = $switch->{_registrationVlan};
         } else {
             $correctVlanForThisMAC = custom_getCorrectVlan($switch_ip, $ifIndex, $mac, $node_info->{status}, $node_info->{vlan}, $node_info->{pid});
             $logger->info("MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", VLAN: $correctVlanForThisMAC");

@@ -34,6 +34,8 @@
           (http://www.packetfence.org/mantis/view.php?id=391)
         Removed DBI connect in pfsetvlan
           (http://www.packetfence.org/mantis/view.php?id=393)
+        Isolation of unregistered computers
+          (http://www.packetfence.org/mantis/view.php?id=395)
 
 
 1.7.3
