@@ -38,6 +38,8 @@
           (http://www.packetfence.org/mantis/view.php?id=395)
         Support for Cisco Aironet 1250
           (http://www.packetfence.org/mantis/view.php?id=397)
+        Net::Pcap instead of Net::RawIP in pfmon
+          (http://www.packetfence.org/mantis/view.php?id=396)
 
 
 1.7.3

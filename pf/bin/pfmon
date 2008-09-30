@@ -11,7 +11,7 @@
 use warnings;
 use strict;
 use Getopt::Std;
-use Net::RawIP qw(:pcap);
+use Net::Pcap;
 use File::Basename qw(basename);
 use threads;
 use threads::shared;
@@ -147,19 +147,28 @@ sub arp_detector {
   my ($eth) = @_;          
   my $logger = Log::Log4perl::get_logger('pfmon::arp_detector');
   Log::Log4perl::MDC->put('tid', threads->self->tid());
-  my $packet_arp = new Net::RawIP;
+
+  my ($filter_t, $net, $mask, $opt, $err);
+  $opt = 1;
+
+  my $pcap_t = Net::Pcap::pcap_open_live( $eth, 1500, 1 , 0, \$err );
   my $filter = arp_filter();
-  my $pcap_arp = $packet_arp->pcapinit($eth,$filter,1500,30);
-  $logger->info("starting arp detector on $eth");
-  my $mydbh=0;
-  while(1) {
-    my $tmp;
-    my $packet = &next($pcap_arp, $tmp);
-    db_connect($mydbh,'iplog','node');
-    listen_arp($packet) if ($packet);
+  if ((Net::Pcap::lookupnet($eth, \$net, \$mask, \$err)) == -1) {
+    $logger->logdie("Net::Pcap::lookupnet failed. Error was $err");
   }
+  if ((Net::Pcap::compile($pcap_t, \$filter_t, $filter, $opt, $net)) == -1) {
+    $logger->logdie("Unable to compile filter string '$filter'");
+  }
+  Net::Pcap::setfilter($pcap_t, $filter_t);
+  Net::Pcap::loop($pcap_t, -1, \&process_packet, $eth);
 }
 
+sub process_packet{
+  my ($user_data, $header, $packet) = @_;
+   my $mydbh = 0;
+   db_connect($mydbh,'iplog','node');
+   listen_arp($packet) if ($packet);
+}
 
 
 sub dhcp_scoper {
