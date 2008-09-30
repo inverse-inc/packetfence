@@ -5,6 +5,7 @@ Access Points and Wireless controllers
 Packetfence supports the following access points and wireless controlers:
 - Cisco 1130AG
 - Cisco 1240AG
+- Cisco 1250
 - Cisco WLC 2106
 
 Eventhough this list is really small, PacketFence may support many other access
