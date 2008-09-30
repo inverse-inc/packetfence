@@ -7,7 +7,10 @@ msgid  "error: incorrect mode"
 msgstr "Incorrect mode!"
 
 msgid  "error: invalid login or password"
-msgstr "Invalide login or password"
+msgstr "Invalid login or password"
+
+msgid  "error: invalid page number"
+msgstr "Invalid page number"
 
 msgid  "error: max re-enables reached"
 msgstr "Maximum re-enables reached!"

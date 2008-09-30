@@ -241,7 +241,6 @@ redirlocal=disabled
 #
 #
 range=
-
 #
 # registration.skip_mode
 #
@@ -314,6 +313,11 @@ maxnodes=0
 #
 #
 button_text=Register
+#
+# registration.nbregpages
+#
+# The number of registration pages to show to the user
+nbregpages=1
 
 #
 #

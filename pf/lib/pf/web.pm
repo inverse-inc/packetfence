@@ -349,7 +349,7 @@ sub web_user_authenticate {
 }
 
 sub generate_registration_page {
-  my ($cgi, $session, $destination_url,$mac) = @_;
+  my ($cgi, $session, $destination_url,$mac,$pagenumber) = @_;
   my $logger = Log::Log4perl::get_logger('pf::web');
   setlocale(LC_MESSAGES, $Config{'general'}{'locale'});
   bindtextdomain("packetfence", "/usr/local/pf/conf/locale");
@@ -372,8 +372,15 @@ sub generate_registration_page {
       { name => gettext('IP'), value => $ip },
       { name => gettext('MAC'), value => $mac }
     ],
-    button_text => $Config{'registration'}{'button_text'}
+    reg_page_content_file => "register_$pagenumber.html",
   };
+  if ($pagenumber == $Config{'registration'}{'nbregpages'}) {
+    $vars->{'button_text'} = $Config{'registration'}{'button_text'};
+    $vars->{'form_action'} = '/cgi-bin/register.cgi?mode=register';
+  } else {
+    $vars->{'button_text'} = (int($pagenumber)+1) . " / " . $Config{'registration'}{'nbregpages'};
+    $vars->{'form_action'} = '/cgi-bin/register.cgi?mode=next_page&page=' . (int($pagenumber)+1);
+  }
 
   # check to see if node can skip reg 
   my $skip = 0;

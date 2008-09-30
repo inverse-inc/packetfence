@@ -1,0 +1,16 @@
+<p align="justify"><font face="Arial">
+[% txt_all_systems_must_be_registered %]
+</p>
+<p align="justify"><font face="Arial">
+[% txt_to_complete %]
+</p>
+<p align="center"><font face="Arial">
+[% txt_help %]
+<ul>
+  [%  FOREACH txt_help_info IN list_help_info %]
+  <li>[% txt_help_info.name %]: [% txt_help_info.value %]</li>
+  [%  END %]
+</ul>
+</font>
+</p>
+

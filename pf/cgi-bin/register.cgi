@@ -103,6 +103,13 @@ if (defined($params{'mode'})) {
       $logger->info("more violations yet to come for $mac");
     }
 
+  } elsif ($params{'mode'} eq "next_page") {
+    my $pageNb = int($params{'page'});
+    if (($pageNb > 1) && ($pageNb <= $Config{'registration'}{'nbregpages'})) {
+      generate_registration_page($cgi, $session, $destination_url, $mac,$pageNb);
+    } else {
+      generate_error_page($cgi, $session, "error: invalid page number");
+    }
   } elsif ($params{'mode'} eq "status") {
     if (trappable_ip($ip)) {
       generate_status_page($cgi, $session, $mac);
@@ -131,5 +138,5 @@ if (defined($params{'mode'})) {
     generate_error_page($cgi, $session, "error: incorrect mode");
   }
 } else {
-  generate_registration_page($cgi, $session, $destination_url, $mac);
+  generate_registration_page($cgi, $session, $destination_url, $mac,1);
 }

@@ -9,6 +9,9 @@ msgstr "Mode incorrect!"
 msgid  "error: invalid login or password"
 msgstr "Login ou mot de passe invalide"
 
+msgid  "error: invalid page number"
+msgstr "Num&eacute;ro de page invalide"
+
 msgid  "error: max re-enables reached"
 msgstr "Nombre maximum de r&eacute;activations atteint!"
 

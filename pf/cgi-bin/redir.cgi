@@ -60,7 +60,7 @@ if (defined($cgi->param('mode')) && $cgi->param('auth')) {
 my $unreg = node_unregistered($mac);
 if ($unreg && isenabled($Config{'trapping'}{'registration'})){
   $logger->info("$mac redirected to registration page");
-  generate_registration_page($cgi, $session, $destination_url,$mac);
+  generate_registration_page($cgi, $session, $destination_url,$mac,1);
   exit(0);
 } 
 
@@ -70,7 +70,7 @@ my $violation = violation_view_top($mac);
 if ($violation){
   if ($unreg && $Config{'trapping'}{'registration'} =~ /^onviolation$/) {
     $logger->info("$mac redirected to registration page");
-    generate_registration_page($cgi, $session, $destination_url,$mac);
+    generate_registration_page($cgi, $session, $destination_url,$mac,1);
     exit(0);
   }
   my $vid=$violation->{'vid'};
