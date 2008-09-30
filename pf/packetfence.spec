@@ -84,7 +84,6 @@ mv packetfence.mo conf/locale/nl/LC_MESSAGES/
 %install
 %{__rm} -rf $RPM_BUILD_ROOT
 %{__install} -D -m0755 packetfence.init $RPM_BUILD_ROOT%{_initrddir}/packetfence
-%{__install} -D -m0755 pfsetvlan.init $RPM_BUILD_ROOT%{_initrddir}/pfsetvlan
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/logs
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
@@ -189,8 +188,6 @@ fi
 %post
 echo "Adding PacketFence startup script"
 /sbin/chkconfig --add packetfence
-echo "Adding pfsetvlan startup script"
-/sbin/chkconfig --add pfsetvlan
 for service in snortd httpd named 
 do
   if /sbin/chkconfig --list | grep $service > /dev/null 2>&1; then
@@ -229,10 +226,6 @@ if [ $1 -eq 0 ] ; then
 	/sbin/service packetfence stop &>/dev/null || :
 	/sbin/chkconfig --del packetfence
 fi
-if [ $1 -eq 0 ] ; then
-	/sbin/service pfsetvlan stop &>/dev/null || :
-	/sbin/chkconfig --del pfsetvlan
-fi
 #rm -f /usr/local/pf/conf/dhcpd/dhcpd.leases
 
 %preun remote-snort-sensor
@@ -270,7 +263,6 @@ fi
 %defattr(-, pf, pf)
 #%config %{_initrddir}/packetfence
 %attr(0755, root, root) %{_initrddir}/packetfence
-%attr(0755, root, root) %{_initrddir}/pfsetvlan
 %dir /usr/local/pf
 %dir /usr/local/pf/bin
 /usr/local/pf/bin/dhcp_dumper

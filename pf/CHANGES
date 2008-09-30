@@ -46,6 +46,8 @@
           (http://www.packetfence.org/mantis/view.php?id=398)
         configuration parameters for action_winpopup
           (http://www.packetfence.org/mantis/view.php?id=399)
+        removed obsolete pfsetvlan startup script
+          (http://www.packetfence.org/mantis/view.php?id=400)
 
 
 1.7.3
