@@ -59,6 +59,8 @@
           (http://www.packetfence.org/mantis/view.php?id=360)
         add registration.nbregpages configuration parameter
           (http://www.packetfence.org/mantis/view.php?id=403)
+        redir.cgi trapping.registration cannot be onviolation
+          (http://www.packetfence.org/mantis/view.php?id=404)
 
 
 1.7.3

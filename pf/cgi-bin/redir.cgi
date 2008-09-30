@@ -68,11 +68,6 @@ if ($unreg && isenabled($Config{'trapping'}{'registration'})){
 #
 my $violation = violation_view_top($mac);
 if ($violation){
-  if ($unreg && $Config{'trapping'}{'registration'} =~ /^onviolation$/) {
-    $logger->info("$mac redirected to registration page");
-    generate_registration_page($cgi, $session, $destination_url,$mac,1);
-    exit(0);
-  }
   my $vid=$violation->{'vid'};
   my $class=class_view($vid);
   # enable button
