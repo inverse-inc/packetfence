@@ -42,6 +42,8 @@
           (http://www.packetfence.org/mantis/view.php?id=396)
         remved mail_xxx parameters from switches.conf
           (http://www.packetfence.org/mantis/view.php?id=394)
+        documented alerting.wins_server in pf.conf.defaults
+          (http://www.packetfence.org/mantis/view.php?id=398)
 
 
 1.7.3
