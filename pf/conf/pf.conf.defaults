@@ -317,13 +317,6 @@ queuesize=0
 # If defined, the maximum number of nodes that can be registered to a single PID.
 maxnodes=0
 #
-# registration.completemsg
-#
-# If enabled, a confirmation screen is displayed after a user successfully registered.  This is useful if you believe the 
-# registration process isn't sufficiently clear to users.  The HTML file displayed is found at:
-# /usr/local/pf/html/user/content/violations/reg_complete.php
-completemsg=disabled
-#
 # registration.button_text
 #
 #

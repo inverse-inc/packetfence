@@ -341,11 +341,6 @@ sub node_register {
       violation_add($mac,1200001);
     }
 
-    # Registration complete message
-    if (isenabled($Config{'registration'}{'completemsg'})) {
-      violation_add($mac,1200002);
-    }
-
   }
 
   #freemac($mac) if ($Config{'network'}{'mode'} =~ /passive/i && !violation_view_open($mac));

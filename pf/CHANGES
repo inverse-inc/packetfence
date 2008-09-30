@@ -53,6 +53,8 @@
         removed deprecated generate_snort_rules sub
         validation of switches.conf
           (http://www.packetfence.org/mantis/view.php?id=386)
+        removed 'registration complete' violation
+          (http://www.packetfence.org/mantis/view.php?id=402)
 
 
 1.7.3
