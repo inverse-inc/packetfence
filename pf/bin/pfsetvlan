@@ -657,26 +657,13 @@ sub handleTrap {
     my $mysql_connection = db_connect();
     if (! $mysql_connection) {
         $logger->error("coudn't connect to MySQL server: " . DBI->errstr);
-        my $mail_host = $switchFactory->{'_config'}{'default'}{'mail_hostname'};
-        my @mail_to = split(/,/, $switchFactory->{'_config'}{'default'}{'mail_to'});
-        my $mail_from = $switchFactory->{'_config'}{'default'}{'mail_from'};
-        my $smtp = Net::SMTP->new($mail_host, Debug => 0);
-        if (! $smtp) {
-            $logger->error("cannot connect to mail server $mail_host\n");
-        } else {
-            $smtp->mail($mail_from);
-            $smtp->to(@mail_to, { Notify =>['NEVER'], SkipBad => 1});
-            $smtp->data();
-            $smtp->datasend("To: " . join(', ', @mail_to) . "\n");
-            $smtp->datasend("From: $mail_from\n");
-            $smtp->datasend("Subject: packetfence error\n");
-            $smtp->datasend("\n");
-            $smtp->datasend("Packetfence encountered the following error while in thread " . threads->self->tid() . ":\n\n");
-            $smtp->datasend(DBI::errstr . "\n\n");
-            $smtp->datasend("No further action will be taken on this thread.\n");
-            $smtp->dataend();
-            $smtp->quit();
-        }
+
+        my %message;
+        $message{'subject'} = "pfsetvlan database connection error";
+        $message{'message'} = "pfsetvlan encountered the following error while in thread " . threads->self->tid() . ":\n\n";
+        $message{'message'} .= DBI::errstr . "\n\n";
+        $message{'message'} .= "No further action will be taken on this thread.";
+        pfmailer(%message);
 
         $weActOnThisTrap = 0;
         cleanupAfterThread($switch_ip,$switch_port);
