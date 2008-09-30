@@ -188,7 +188,7 @@ fi
 %post
 echo "Adding PacketFence startup script"
 /sbin/chkconfig --add packetfence
-for service in snortd httpd named 
+for service in snortd httpd named snmptrapd
 do
   if /sbin/chkconfig --list | grep $service > /dev/null 2>&1; then
     echo "Disabling $service startup script"
