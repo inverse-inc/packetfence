@@ -67,6 +67,10 @@ sub service_ctl {
       }
       if (defined($flags{$daemon})) {
         if ($daemon ne 'pfdhcplistener') {
+          if (($daemon eq 'pfsetvlan') && (! switches_conf_is_valid())) {
+            $logger->error("errors in switches.conf. pfsetvlan will NOT be started");
+            return 0;
+          }
           $logger->info("Starting $exe with '$service $flags{$daemon}'");
           return(system("$service $flags{$daemon}"));
         } else {
@@ -508,6 +512,56 @@ sub generate_httpd_conf {
   #  }
   #  #close(HTTPDCONF);
   #}
+}
+
+sub switches_conf_is_valid {
+  my $logger = Log::Log4perl::get_logger('pf::services');
+  my %switches_conf;
+  tie %switches_conf, 'Config::IniFiles', ( -file => "/usr/local/pf/conf/switches.conf" );
+  my @errors = @Config::IniFiles::errors;
+  if (scalar(@errors)) {
+    $logger->error("Error reading switches.conf: " . join("\n", @errors) . "\n");
+    return 0;
+  }
+  foreach my $section (tied(%switches_conf)->Sections){
+    foreach my $key (keys %{$switches_conf{$section}}){
+      $switches_conf{$section}{$key}=~s/\s+$//;
+    }
+  }
+  foreach my $section (keys %switches_conf) {
+    if ($section ne 'default') {
+      # check type
+      my $type = "pf::SNMP::" . ($switches_conf{$section}{'type'} || $switches_conf{'default'}{'type'});
+      eval "require $type;";
+      if ($@) {
+        $logger->error("Unknown switch type: $type for switch $section: $@");
+        return 0;
+      }
+      # check IP
+      if ($section ne $switches_conf{$section}{'ip'}) {
+        $logger->error("switch IP and switch section do not match for $section!");
+        return 0;
+      }
+      if (! valid_ip($switches_conf{$section}{'ip'})) {
+        $logger->error("switch IP is invalid for $section");
+        return 0;
+      }
+      # check uplink
+      my $uplink = $switches_conf{$section}{'uplink'} || $switches_conf{'default'}{'uplink'};
+      if (($uplink ne 'dynamic') && (! ($uplink =~ /(\d+,)*\d+/))) {
+        $logger->error("switch uplink ($uplink) is invalid for $section");
+        return 0;
+      }
+      # check mode
+      my @valid_switch_modes = ('testing', 'ignore', 'production', 'registration', 'discovery');
+      my $mode = $switches_conf{$section}{'mode'} || $switches_conf{'default'}{'mode'};
+      if (! grep(/^$mode$/i, @valid_switch_modes)) {
+        $logger->error("switch mode ($mode) is invalid for $section");
+        return 0;
+      }
+    }
+  }
+  return 1;
 }
 
 sub read_violations_conf {

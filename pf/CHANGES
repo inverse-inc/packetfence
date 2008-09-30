@@ -51,6 +51,8 @@
         disabled service entry for snmptrapd
           (http://www.packetfence.org/mantis/view.php?id=401)
         removed deprecated generate_snort_rules sub
+        validation of switches.conf
+          (http://www.packetfence.org/mantis/view.php?id=386)
 
 
 1.7.3
