@@ -75,7 +75,7 @@ sub instantiate {
     my $type = "pf::SNMP::" . ($SwitchConfig{$requestedSwitch}{'type'} || $SwitchConfig{'default'}{'type'});
     eval "require $type;";
     if ($@) {
-        $logger->error("ERROR ! Unknown switch type: " . $SwitchConfig{$requestedSwitch}{'type'} . " for switch $requestedSwitch: $@");
+        $logger->error("ERROR ! Unknown switch type: $type for switch $requestedSwitch: $@");
         return 0;
     }
     my @uplink = ();
