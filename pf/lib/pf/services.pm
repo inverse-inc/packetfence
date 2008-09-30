@@ -543,31 +543,6 @@ sub read_violations_conf {
                 $violations{$violation}{'button_text'},$violations{$violation}{'disable'},$violations{$violation}{'actions'},
                 \@triggers); 
   }
-  #class_cleanup();
-  # 1.6.0 will not generate snort rules
-  # you must supply your own file
-  #generate_snort_rules(%violations);
-}
-
-#deprecated in 1.6.0
-#
-sub generate_snort_rules {
-  my (%violations) = @_;
-  my $logger = Log::Log4perl::get_logger('pf::services');
-  open(RULES, "> $install_dir/conf/snort/violation.rules");
-  print RULES "# This file is auto-generated from $install_dir/conf/violations.conf - do not edit!\n";
-  print RULES "pass  ip \$INTERNAL_IPS any -> any any\n";
-  print RULES "pass  ip \$GATEWAYS any -> any any\n";
-  foreach my $violation (sort keys %violations) {
-    next if (!(defined($violations{$violation}{'snortrule'})));
-    if ($violation >= 1200000 && $violation < 1200100) {
-      $logger->info("violation $violation out of range, skipping");
-      next;
-    }
-    print RULES "# " if ($violations{$violation}{'disable'} =~ /^y$/i);
-    print RULES $violations{$violation}{'snortrule'}."\n";
-  }
-  #close(RULES);
 }
 
 sub class_set_defaults {

@@ -50,6 +50,7 @@
           (http://www.packetfence.org/mantis/view.php?id=400)
         disabled service entry for snmptrapd
           (http://www.packetfence.org/mantis/view.php?id=401)
+        removed deprecated generate_snort_rules sub
 
 
 1.7.3
