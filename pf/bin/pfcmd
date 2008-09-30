@@ -1262,11 +1262,6 @@ sub sanity_check {
 	}
   }
 
-  # make sure aup isn't enabled without registration
-  if (isenabled($Config{'registration'}{'aup'}) && !isenabled($Config{'trapping'}{'registration'})) {
-    $logger->logdie("registration must be enabled if AUP is");
-  }
-
   #NAT check
   if (isenabled($Config{'network'}{'nat'}) && scalar(@external_nets)==0){
     $logger->logdie("you must define an external network interface to use NAT, please set type=external on one of your interface definitions ");

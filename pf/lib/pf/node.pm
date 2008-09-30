@@ -331,11 +331,6 @@ sub node_register {
 
   if (!$auto_registered) {
 
-    # AUP
-    if (isenabled($Config{'registration'}{'aup'})) {
-      violation_add($mac,1200000);
-    }
-
     #nessus code
     if (isenabled($Config{'scan'}{'registration'})) {
       violation_add($mac,1200001);

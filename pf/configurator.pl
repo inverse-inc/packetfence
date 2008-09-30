@@ -395,7 +395,6 @@ sub config_network {
 sub config_registration{
     my $rc;
     print "\n** NOTE: There are several registration timers/windows to be set in pf.conf - please be sure to review them **\n\n";
-    gatherer("Do you wish to have users accept an AUP?","registration.aup",("enabled","disabled"));
     my $auth = gatherer("How would you like users to authenticate at registration?","registration.auth",("local","ldap","radius"));
 
   gatherer("Would you like violation content accessible via iptables passthroughs or apache proxy?","trapping.passthrough",("iptables","proxy"));
