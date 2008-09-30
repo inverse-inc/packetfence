@@ -210,11 +210,11 @@ sub action_winpopup {
   my $message  = "$description detection on $mac " . lookup_node($mac);
 
   my $nb = Net::NBName->new;
-  my $nq = $nb->name_query($Config{'alerting'}{'winsserver'}, $Config{'alerting'}{'netbiosname'}, 0x00);
+  my $nq = $nb->name_query($Config{'alerting'}{'wins_server'}, $Config{'alerting'}{'admin_netbiosname'}, 0x00);
   if ($nq) {
     my $admin_addr_obj = ($nq->addresses)[0];
     my $admin_ip = $admin_addr_obj->address;
-    if (! sendMsg($Config{'alerting'}{'netbiosname'}, 'Packetfence', $admin_ip, $message, 0)) {
+    if (! sendMsg($Config{'alerting'}{'admin_netbiosname'}, 'Packetfence', $admin_ip, $message, 0)) {
       $logger->error("Unable to send winpopup to $admin_ip");
     }
   } else {
