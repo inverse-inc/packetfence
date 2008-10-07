@@ -4,7 +4,7 @@
 #2) rpmbuild --rebuild --define 'dist .el5' packetfence-1.8-mtn.src.rpm
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 1.8
+Version: 1.8.0
 Release: mtn%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -306,6 +306,7 @@ fi
 %config /usr/local/pf/conf/oui.txt
 %dir /usr/local/pf/test
 /usr/local/pf/test/connect_and_read.pl
+/usr/local/pf/test/testSecureMACs.pl
 %dir /usr/local/pf/contrib/lookup
 /usr/local/pf/contrib/lookup/*
 %dir /usr/local/pf/contrib/mrtg
