@@ -1327,6 +1327,7 @@ sub sanity_check {
     my $type = $documentation{$section}{'type'};
     next if ($section =~ /^(proxies|passthroughs)$/ || $group =~ /^(dhcp|scope|interface|routedsubnet|services)$/);
     next if (($group eq 'alerting') && ($item eq 'fromaddr'));
+    next if (($group eq 'arp') && ($item eq 'listendevice'));
     if (defined($Config{$group}{$item})) {
       if ($type eq "toggle") {
         if ($Config{$group}{$item} !~ /^$documentation{$section}{'options'}$/) {

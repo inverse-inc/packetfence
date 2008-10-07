@@ -39,6 +39,8 @@
           (http://www.packetfence.org/mantis/view.php?id=360)
         add registration.nbregpages configuration parameter
           (http://www.packetfence.org/mantis/view.php?id=403)
+        pf.conf value arp.listendevice is not defined!
+          (http://www.packetfence.org/mantis/view.php?id=405)
 
 
 1.7.4
