@@ -1,10 +1,4 @@
 1.8.0
-        replace javascript popup on relase page
-          (http://www.packetfence.org/mantis/view.php?id=380)
-        undef operator in SNMP.pm
-          (http://www.packetfence.org/mantis/view.php?id=382)
-        Bareword "Net::SNMP::OCTET_STRING" not allowed
-          (http://www.packetfence.org/mantis/view.php?id=383)
         unify log management
           (http://www.packetfence.org/mantis/view.php?id=356)
         unify vlan_determine_for_node and node_determine_VLAN
@@ -15,7 +9,6 @@
           (http://www.packetfence.org/mantis/view.php?id=142)
         support MAC addresses in several different formats
           (http://www.packetfence.org/mantis/view.php?id=385)
-        added script to check for duplication of secure MACs
         documented arp.listendevice
           (http://www.packetfence.org/mantis/view.php?id=387)
         replace Net::Telnet::Cisco by Net::Appliance::Session
@@ -26,31 +19,18 @@
           (http://www.packetfence.org/mantis/view.php?id=340)
         use logdie instead of die
           (http://www.packetfence.org/mantis/view.php?id=136)
-        Cisco::Catalyst_3560 inheritance
-          (http://www.packetfence.org/mantis/view.php?id=390)
-        Removed unused loglevel from switches.conf
-          (http://www.packetfence.org/mantis/view.php?id=392)
         Removed db connection parameters from switches.conf
           (http://www.packetfence.org/mantis/view.php?id=391)
         Removed DBI connect in pfsetvlan
           (http://www.packetfence.org/mantis/view.php?id=393)
         Isolation of unregistered computers
           (http://www.packetfence.org/mantis/view.php?id=395)
-        Support for Cisco Aironet 1250
-          (http://www.packetfence.org/mantis/view.php?id=397)
         Net::Pcap instead of Net::RawIP in pfmon
           (http://www.packetfence.org/mantis/view.php?id=396)
         remved mail_xxx parameters from switches.conf
           (http://www.packetfence.org/mantis/view.php?id=394)
-        documented alerting.wins_server in pf.conf.defaults
-          (http://www.packetfence.org/mantis/view.php?id=398)
-        configuration parameters for action_winpopup
-          (http://www.packetfence.org/mantis/view.php?id=399)
         removed obsolete pfsetvlan startup script
           (http://www.packetfence.org/mantis/view.php?id=400)
-        disabled service entry for snmptrapd
-          (http://www.packetfence.org/mantis/view.php?id=401)
-        removed deprecated generate_snort_rules sub
         validation of switches.conf
           (http://www.packetfence.org/mantis/view.php?id=386)
         removed 'registration complete' violation
@@ -59,9 +39,31 @@
           (http://www.packetfence.org/mantis/view.php?id=360)
         add registration.nbregpages configuration parameter
           (http://www.packetfence.org/mantis/view.php?id=403)
+
+
+1.7.4
+        undef operator in SNMP.pm
+          (http://www.packetfence.org/mantis/view.php?id=382)
+        replace javascript popup on relase page
+          (http://www.packetfence.org/mantis/view.php?id=380)
+        Bareword "Net::SNMP::OCTET_STRING" not allowed
+          (http://www.packetfence.org/mantis/view.php?id=383)
+        added script to check for duplication of secure MACs
+        Cisco::Catalyst_3560 inheritance
+          (http://www.packetfence.org/mantis/view.php?id=390)
+        Support for Cisco Aironet 1250
+          (http://www.packetfence.org/mantis/view.php?id=397)
+        Removed unused loglevel from switches.conf
+          (http://www.packetfence.org/mantis/view.php?id=392)
+        documented alerting.wins_server in pf.conf.defaults
+          (http://www.packetfence.org/mantis/view.php?id=398)
+        configuration parameters for action_winpopup
+          (http://www.packetfence.org/mantis/view.php?id=399)
+        disabled service entry for snmptrapd
+          (http://www.packetfence.org/mantis/view.php?id=401)
+        removed deprecated generate_snort_rules sub
         redir.cgi trapping.registration cannot be onviolation
           (http://www.packetfence.org/mantis/view.php?id=404)
-
 
 1.7.3
         not all port security traps are handled
