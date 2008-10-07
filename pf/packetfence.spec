@@ -210,8 +210,6 @@ fi
 
 echo Installation complete
 echo "  * Please cd /usr/local/pf && ./installer.pl to install necessary Perl modules and configure PF"
-echo "  * Be aware the we have switched from MD5 to crypt hashing - you must regenerate all passwords"
-echo "    in /usr/local/pf/conf/admin.conf.  Execute 'htpasswd /usr/local/pf/conf/admin.conf <username>"
 
 %post remote-snort-sensor
 echo "Adding PacketFence remote Snort Sensor startup script"
