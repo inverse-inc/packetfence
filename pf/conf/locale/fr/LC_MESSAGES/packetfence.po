@@ -44,6 +44,9 @@ msgstr "Afin de compl&eacute;ter le processus d'enregistrement, vous devez vous 
 msgid  "register: select authentications"
 msgstr "Choisir l'authentification"
 
+msgid  "register: skip registration"
+msgstr "Enregistrer plus tard"
+ 
 
 msgid  "release: enabling network"
 msgstr "Activation de l'acc&egrave;s au r&eacute;seau"

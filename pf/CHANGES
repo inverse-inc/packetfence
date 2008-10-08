@@ -66,6 +66,8 @@
         removed deprecated generate_snort_rules sub
         redir.cgi trapping.registration cannot be onviolation
           (http://www.packetfence.org/mantis/view.php?id=404)
+        skip registration
+          (http://www.packetfence.org/mantis/view.php?id=408)
 
 1.7.3
         not all port security traps are handled

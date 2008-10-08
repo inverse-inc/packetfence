@@ -34,6 +34,14 @@
           <input type="hidden" name="destination_url" value="[% destination_url %]">
           <input type="submit" name="submit" value="[% button_text %]">
         </form>
+[% IF txt_skip_registration %]
+      <form method="post" action="/cgi-bin/redir.cgi">
+          <input type="hidden" name="destination_url" value="[% destination_url %]">
+          <input type="hidden" name="auth" value="skip">
+          <input type="hidden" name="mode" value="register">
+          <input type="submit" name="submit" value="[% txt_skip_registration %]">
+        </form>
+[% END %]
       </td>
      </tr>
   </table>

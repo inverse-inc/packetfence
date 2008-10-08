@@ -383,26 +383,27 @@ sub generate_registration_page {
   }
 
   # check to see if node can skip reg 
-  my $skip = 0;
-  my $node_info = node_view($mac);
-  my $detect_date = str2time($node_info->{'detect_date'});
-  my $registration_mode = $Config{'registration'}{'skip_mode'};
+  if (($pagenumber == $Config{'registration'}{'nbregpages'}) && isdisabled($Config{'network'}{'vlan'})) {
+    my $node_info = node_view($mac);
+    my $detect_date = str2time($node_info->{'detect_date'});
+    my $registration_mode = $Config{'registration'}{'skip_mode'};
   
-  my $skip_allowed_until = 0;
-  if (isdisabled($registration_mode)) {
-    $skip_allowed_until = 0;
-  } elsif ($registration_mode eq "deadline") {
-    $skip_allowed_until = $Config{'registration'}{'skip_deadline'};
-  } elsif ($registration_mode eq "window") {
-    $skip_allowed_until = $detect_date + $Config{'registration'}{'skip_window'};
-  }
+    my $skip_allowed_until = 0;
+    if (isdisabled($registration_mode)) {
+      $skip_allowed_until = 0;
+    } elsif ($registration_mode eq "deadline") {
+      $skip_allowed_until = $Config{'registration'}{'skip_deadline'};
+    } elsif ($registration_mode eq "window") {
+      $skip_allowed_until = $detect_date + $Config{'registration'}{'skip_window'};
+    }
   
-  my $skip_until = POSIX::strftime("%Y-%m-%d %H:%M:%S", POSIX::localtime($skip_allowed_until));
-  if (time < $skip_allowed_until) {
-    $logger->info($node_info->{'mac'} . " allowed to skip registration until $skip_until");
-    $skip = 1;
-  } else {
-    $logger->info($node_info->{'mac'} . " is not allowed to skip registration - deadline passed at $skip_until - ");
+    my $skip_until = POSIX::strftime("%Y-%m-%d %H:%M:%S", POSIX::localtime($skip_allowed_until));
+    if (time < $skip_allowed_until) {
+      $logger->info($node_info->{'mac'} . " allowed to skip registration until $skip_until");
+      $vars->{'txt_skip_registration'} = gettext("register: skip registration");
+    } else {
+      $logger->info($node_info->{'mac'} . " is not allowed to skip registration - deadline passed at $skip_until - ");
+    }
   }
   
   if (-r "$install_dir/conf/templates/register.pl") {

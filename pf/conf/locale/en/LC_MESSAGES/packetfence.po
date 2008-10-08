@@ -44,6 +44,9 @@ msgstr "To complete the registration process, you will need to authenticate usin
 msgid  "register: select authentications"
 msgstr "Select Authentications"
 
+msgid  "register: skip registration"
+msgstr "Skip Registration"
+
 
 msgid  "release: enabling network"
 msgstr "Enabling network access"
