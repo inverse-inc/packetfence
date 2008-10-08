@@ -474,7 +474,7 @@ sub version {
 #  schedule a host scan
 #
 sub schedule {
-  eval "use Net::Nessus::ScanLite; 1" || $logger->logdie("Nessus::ScanLite not found, please install for Nessus schedule functionality");
+  eval "use Net::Nessus::ScanLite; 1" || $logger->logdie("Net::Nessus::ScanLite not found, please install for Nessus schedule functionality");
   my $command = $cmd{command}[0];
   my $service = $cmd{command}[1] if (defined $cmd{command}[1]);
   my $option = $cmd{schedule_options}[0];
@@ -788,9 +788,9 @@ sub ui {
   my $interval = $cmd{command}[3];
 
   if ($service eq "menus") {
-    # check if Nessus::ScanLite is installed
+    # check if Net::Nessus::ScanLite is installed
     my $scanLiteInstalled = 1;
-    eval "use Nessus::ScanLite";
+    eval "use Net::Nessus::ScanLite";
     if ($@) {
       $scanLiteInstalled = 0;
     }
