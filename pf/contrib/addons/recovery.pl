@@ -150,7 +150,7 @@ foreach my $switchDesc (sort @switchDescriptions) {
 
 if ($singleThread) {
     foreach my $switchDesc (sort @switchDescriptions) {
-        recoverSwitch($switchDesc);
+        print recoverSwitch($switchDesc);
     }
 } else {
     my $threadPool = Thread::Pool->new(
