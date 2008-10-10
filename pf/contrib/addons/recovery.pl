@@ -26,6 +26,7 @@ recovery.pl [command] [options]
                      2 : info messages
                    > 2 : full debug
     -reassign      if set, re-assign switch port VLANs
+    -singleThread  if set, run in single thread (for debugging)
 
 =head1 DESCRIPTION
 
@@ -86,6 +87,7 @@ my $logLevel = 0;
 my $help;
 my $man;
 my $reassign;
+my $singleThread;
 my $switchDescription = '';
 my $switchDescriptionRegExp = '';
 
@@ -93,6 +95,7 @@ GetOptions("verbose:i" => \$logLevel,
     "help|?" => \$help,
     "man" => \$man,
     "reassign" => \$reassign,
+    "singleThread" => \$singleThread,
     "switch:s" => \$switchDescription,
     "switchRegExp:s" => \$switchDescriptionRegExp
 ) or pod2usage ( -verbose => 1);
@@ -145,24 +148,31 @@ foreach my $switchDesc (sort @switchDescriptions) {
     $switch_locker{$switch_ip}  = &share({});
 }
 
-my $threadPool = Thread::Pool->new(
-    {
-        do => sub {
-            my $switchDesc = shift();
-            $logger->debug("starting recoverSwitch($switchDesc)");
-            my $txt = '';
-            eval {
-                $txt = recoverSwitch($switchDesc);
-            };
-            print "$txt\n";
-        },
-        workers => NB_THREADS
+if ($singleThread) {
+    foreach my $switchDesc (sort @switchDescriptions) {
+        recoverSwitch($switchDesc);
     }
-);
-foreach my $switchDesc (sort @switchDescriptions) {
-    $threadPool->job($switchDesc);
+} else {
+    my $threadPool = Thread::Pool->new(
+        {
+            do => sub {
+                my $switchDesc = shift();
+                $logger->debug("starting recoverSwitch($switchDesc)");
+                my $txt = '';
+                eval {
+                    $txt = recoverSwitch($switchDesc);
+                };
+                print "$txt\n";
+            },
+            workers => NB_THREADS
+        }
+    );
+    foreach my $switchDesc (sort @switchDescriptions) {
+        $threadPool->job($switchDesc);
+    }
+    $threadPool->shutdown();
 }
-$threadPool->shutdown();
+
 
 sub recoverSwitch {
     my $switchDesc = shift();
