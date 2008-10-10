@@ -74,6 +74,8 @@
           (http://www.packetfence.org/mantis/view.php?id=411)
         recovery.pl should also validate locationlog entries
           (http://www.packetfence.org/mantis/view.php?id=412)
+        log messages in testSecureMACs.pl
+          (http://www.packetfence.org/mantis/view.php?id=413)
 
 1.7.3
         not all port security traps are handled

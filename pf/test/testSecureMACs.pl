@@ -113,7 +113,9 @@ foreach my $key (sort keys %Config) {
   if ($key ne 'default') {
     $switch_ip = $Config{$key}{'ip'};
     my $switch = $switchFactory->instantiate($switch_ip);
+    $logger->info("starting to obtain secure MACs from $switch_ip");
     my $secureMacAddrHashRef = $switch->getAllSecureMacAddresses();
+    $logger->debug("secure MACs on $switch_ip: " . join(", ", sort keys %$secureMacAddrHashRef));
     foreach my $mac (keys %$secureMacAddrHashRef) {
       if (! $switch->isFakeMac($mac)) {
         $completeSecureMacAddrHashRef->{$mac}->{$switch_ip} = $secureMacAddrHashRef->{$mac};
@@ -122,7 +124,9 @@ foreach my $key (sort keys %Config) {
   }
 }
 
+$logger->info("total number of secure MACs: " . scalar(keys %$completeSecureMacAddrHashRef));
 foreach my $mac (keys %$completeSecureMacAddrHashRef) {
+  $logger->debug ("MAC $mac: " . join(", ", keys %{$completeSecureMacAddrHashRef->{$mac}}));
   if (scalar(keys %{$completeSecureMacAddrHashRef->{$mac}}) > 1) {
     print "$mac\n";
     foreach my $switch (keys %{$completeSecureMacAddrHashRef->{$mac}}) {
