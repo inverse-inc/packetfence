@@ -58,6 +58,7 @@ use diagnostics;
 use FindBin;
 use DBI;
 use threads;
+use threads::shared;
 use Log::Log4perl qw(:easy);
 use Getopt::Long;
 use Pod::Usage;
@@ -144,6 +145,7 @@ if (($switchDescriptionRegExp ne '') && (scalar(@switchDescriptions) == 0)) {
     pod2usage("no switch description matches $switchDescriptionRegExp");
 }
 my %switch_locker : shared;
+my $completeMacAddrHashRef = &share({});
 
 foreach my $switchDesc (sort @switchDescriptions) {
     my $switch_ip = $switchFactory->{_config}{$switchDesc}{'ip'};
@@ -174,6 +176,22 @@ if ($singleThread) {
     }
     $threadPool->shutdown();
 }
+
+{
+    lock $completeMacAddrHashRef;
+    my $format = "%-20.20s %-17.17s %-10.10s\n";
+    foreach my $mac (sort keys %$completeMacAddrHashRef) {
+        my $first = 1;
+        foreach my $switch (keys %{$completeMacAddrHashRef->{$mac}}) {
+            if ($first) {
+                printf($format,$mac,$switch, $completeMacAddrHashRef->{$mac}->{$switch});
+            } else {
+                printf($format,'',$switch, $completeMacAddrHashRef->{$mac}->{$switch});
+            }
+        }
+    }
+}
+
 
 
 sub recoverSwitch {
@@ -232,6 +250,15 @@ sub recoverSwitch {
                         push @currentPcs, $mac;
                     }
                 }
+                $logger->trace("locking - trying to lock completeMacAddrHashRef");
+                {
+                    lock $completeMacAddrHashRef;
+                    foreach my $mac (@currentPcs) {
+                        $completeMacAddrHashRef->{$mac} = &share({});
+                        $completeMacAddrHashRef->{$mac}->{$switch->{_ip}} = $currentIfIndex;
+                    }
+                }
+                $logger->trace("locking - unlocked completeMacAddrHashRef");
                 if (scalar(@currentPcs) > 1) {
                     $correctVlan = $switch->{_isolationVlan};
                 } elsif (scalar(@currentPcs) == 1) {
