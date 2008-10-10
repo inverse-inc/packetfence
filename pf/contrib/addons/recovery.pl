@@ -26,6 +26,7 @@ recovery.pl [command] [options]
                      2 : info messages
                    > 2 : full debug
     -reassign      if set, re-assign switch port VLANs
+    -synchronize   if set, synchronize locationlog entries
     -singleThread  if set, run in single thread (for debugging)
 
 =head1 DESCRIPTION
@@ -61,7 +62,6 @@ use Log::Log4perl qw(:easy);
 use Getopt::Long;
 use Pod::Usage;
 use Thread::Pool;
-use Data::Dumper;
 
 require 5.8.8;
 
@@ -87,6 +87,7 @@ my $logLevel = 0;
 my $help;
 my $man;
 my $reassign;
+my $synchronize;
 my $singleThread;
 my $switchDescription = '';
 my $switchDescriptionRegExp = '';
@@ -95,6 +96,7 @@ GetOptions("verbose:i" => \$logLevel,
     "help|?" => \$help,
     "man" => \$man,
     "reassign" => \$reassign,
+    "synchronize" => \$synchronize,
     "singleThread" => \$singleThread,
     "switch:s" => \$switchDescription,
     "switchRegExp:s" => \$switchDescriptionRegExp
@@ -177,6 +179,7 @@ if ($singleThread) {
 sub recoverSwitch {
     my $switchDesc = shift();
     my $txt = '';
+    my $format = "%-2.2s %7.7s %-7.7s %-7.7s %-7.7s %-20.20s %-20.20s\n";
     my $mysql_connection = db_connect();
     if (! $mysql_connection) {
         return "unable to connect to database\n";
@@ -186,7 +189,10 @@ sub recoverSwitch {
     violation_db_prepare($mysql_connection);
     my $switch = $switchFactory->instantiate($switchDesc);
     if ($switch->isProductionMode()) {
+        $txt .= "------------------------------\n";
         $txt .= "$switchDesc\n";
+        $txt .= "------------------------------\n";
+        $txt .= sprintf($format, '', 'ifIndex', 'oper', 'cur', 'cor', 'MAC(s)', 'locationlog');
         my @managedIfIndexes = $switch->getManagedIfIndexes();
         my $allMacs = $switch->getAllMacs(@managedIfIndexes);
         my $allSecMacs = $switch->getAllSecureMacAddresses();
@@ -194,6 +200,8 @@ sub recoverSwitch {
         foreach my $currentIfIndex (sort { $a <=> $b } @managedIfIndexes) {
             my $currentVlan = $vlanHashRef->{$currentIfIndex};
             my $correctVlan = 0;
+            my $locationLog = '';
+            my $status = '';
             my $ifOperStatus = ($switch->getIfOperStatus($currentIfIndex) == 1 ? 'up' : 'down');
             my @currentPcs;
             my $currentPcStatus;
@@ -228,6 +236,24 @@ sub recoverSwitch {
                     $correctVlan = $switch->{_isolationVlan};
                 } elsif (scalar(@currentPcs) == 1) {
                     $correctVlan = vlan_determine_for_node($currentPcs[0], $switch->{_ip}, $currentIfIndex);
+                    my $locationlog_entry = locationlog_view_open_mac($currentPcs[0]);
+                    if (! $locationlog_entry) {
+                        $locationLog = 'no open entry';
+                        $status = '*';
+                        if ($synchronize) {
+                            locationlog_synchronize($switch->{_ip},$currentIfIndex,$currentVlan,$currentPcs[0],);
+                        }
+                    } else {
+                        if (($currentVlan == $locationlog_entry->{'vlan'}) && ($switch->{_ip} eq $locationlog_entry->{'switch'}) && ($currentIfIndex == $locationlog_entry->{'port'})) {
+                            $locationLog = 'ok';
+                        } else {
+                            $locationLog = $locationlog_entry->{'switch'} . ' ifIndex ' . $locationlog_entry->{'port'};
+                            $status = '*';
+                            if ($synchronize) {
+                                locationlog_synchronize($switch->{_ip},$currentIfIndex,$currentVlan,$currentPcs[0],);
+                            }
+                        }
+                    }
                 } else {
                     $correctVlan = $switch->{_macDetectionVlan};
                 }
@@ -235,14 +261,12 @@ sub recoverSwitch {
                 $correctVlan = $switch->{_macDetectionVlan};
             }
             if ($correctVlan != $currentVlan) {
-                $txt .= "->";
+                $status = "->";
                 if ($reassign) {
                     $switch->setVlan($currentIfIndex, $correctVlan, \%switch_locker);
                 }
-            } else {
-                $txt .= "- ";
             }
-            $txt .= "$currentIfIndex\t$ifOperStatus\t" . join(",", @currentPcs) . "\t$currentVlan\t$correctVlan\n";
+            $txt .= sprintf($format, $status, $currentIfIndex, $ifOperStatus, $currentVlan, $correctVlan, join(",", @currentPcs), $locationLog);
         }
         $txt .= "\n";
     }
