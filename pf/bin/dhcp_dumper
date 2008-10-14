@@ -8,7 +8,7 @@
 # http://www.fsf.org/licensing/licenses/gpl.html.
 #
 
-use Net::Pcap;
+use Net::Pcap 0.16;
 use POSIX qw(:signal_h);
 use Getopt::Std;
 use Config::IniFiles;

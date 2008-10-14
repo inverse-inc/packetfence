@@ -12,7 +12,7 @@
 use warnings;
 use strict;
 use Getopt::Std;
-use Net::Pcap;
+use Net::Pcap 0.16;
 use POSIX qw(:signal_h);
 use File::Basename qw(basename);
 use Log::Log4perl;

@@ -83,6 +83,8 @@
           (http://www.packetfence.org/mantis/view.php?id=371)
         node status can be 'grace'
           (http://www.packetfence.org/mantis/view.php?id=415)
+        specify exact Net::Pcap version
+          (http://www.packetfence.org/mantis/view.php?id=416)
 
 1.7.3
         not all port security traps are handled
