@@ -42,7 +42,7 @@
     $pretty_key = pretty_header("$current_top-view", $key);
     if($key == 'status'){
       print "<tr><td></td><td>$pretty_key:</td><td>";
-      printSelect( array('unreg' => 'Unregistered', 'reg' => 'Registered'), 'hash', $val, "name='$key'");
+      printSelect( array('unreg' => 'Unregistered', 'reg' => 'Registered', 'grace' => 'Grace'), 'hash', $val, "name='$key'");
     }
     else{
       print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val'>";
