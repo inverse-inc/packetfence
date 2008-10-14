@@ -139,7 +139,7 @@ vlan=disabled
 #
 # When rogue DHCP server detection is enabled, this parameter defines how often to email administrators.  With its default 
 # setting of 10, it will email administrators the details of the previous 10 DHCP offers.
-rogueinterval=1
+rogueinterval=10
 #
 # network.dhcpdetector
 #
