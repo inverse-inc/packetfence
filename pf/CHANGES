@@ -87,6 +87,8 @@
           (http://www.packetfence.org/mantis/view.php?id=416)
         add 'on update cascade' to iplog table
           (http://www.packetfence.org/mantis/view.php?id=417)
+        default registration.expire_mode=disabled
+          (http://www.packetfence.org/mantis/view.php?id=418)
 
 1.7.3
         not all port security traps are handled

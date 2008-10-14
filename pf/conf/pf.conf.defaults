@@ -280,7 +280,7 @@ auth=local
 # If set to "deadline", the expire_deadline option defines the date at which a node reverts to an unregistered 
 # state.  If set to "window", the window is used to determine the length of time  after first # network access that a node
 # remains registered.
-expire_mode=window
+expire_mode=disabled
 #
 # registration.expire_deadline
 #
