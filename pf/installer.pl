@@ -89,7 +89,8 @@ my @suids   = (
                "/usr/local/pf/bin/pfcmd"
               );
 
-my %schemas = ( "5588316d6e053eea32fe73b22ae3bde9" => "1.7.1",
+my %schemas = ( "8aeb47f80e4bf35b2427ca002cc20625" => "1.7.4",
+                "5588316d6e053eea32fe73b22ae3bde9" => "1.7.1",
                 "37929828877c2328f0146f4c76740fb4" => "1.7.0",
                 "8ce4c53fe0700c7d499213015e95f810" => "1.6.0",
                 "305de249fd415f181eb990e8cd25863d" => "1.5.1",
@@ -271,9 +272,9 @@ if(`echo "use $mysql_db"|mysql --host=$mysql_host --port=$mysql_port -u root -p'
     $unknown = 1;
   } else {
     my $schema_version = $schemas{$md5sum};
-    if ($schema_version ne '1.7.1') {
+    if ($schema_version ne '1.7.4') {
       if (questioner("PF database already exists - do you want to upgrade it?","y",("y", "n"))) {
-        my $update_script = "/usr/local/pf/db/upgrade-$schema_version-1.7.1.sql";
+        my $update_script = "/usr/local/pf/db/upgrade-$schema_version-1.7.4.sql";
         if (-e $update_script) {
           `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u root -p'$pass' $mysql_db < $update_script`;
           $upgraded = 1;
@@ -295,10 +296,10 @@ if(`echo "use $mysql_db"|mysql --host=$mysql_host --port=$mysql_port -u root -p'
 if ($dropped && !$unknown && !$upgraded && questioner("PF needs to create the PF database - is that ok?","y",("y", "n"))) {
   `/usr/bin/mysqladmin --host=$mysql_host --port=$mysql_port -u root -p'$pass' create $mysql_db`;
   print "  Loading schema\n";
-  if (-e "/usr/local/pf/db/pfschema.mysql.171") {
-    `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u root -p'$pass' $mysql_db < /usr/local/pf/db/pfschema.mysql.171`
+  if (-e "/usr/local/pf/db/pfschema.mysql.174") {
+    `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u root -p'$pass' $mysql_db < /usr/local/pf/db/pfschema.mysql.174`
   } else {
-    die("Where's my schema?  Nothing at /usr/local/pf/db/pfschema.mysql.171\n");
+    die("Where's my schema?  Nothing at /usr/local/pf/db/pfschema.mysql.174\n");
   }
 }
 
