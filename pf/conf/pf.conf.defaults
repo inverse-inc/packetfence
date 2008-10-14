@@ -322,18 +322,12 @@ nbregpages=1
 #
 #
 # This section allows you to create passthroughs to HTML content or remote addresses/networks.  Here's an example:
-# 
-# <i>packetfence=http://www.packetfence.org</i>
-# 
+# packetfence=http://www.packetfence.org
 # The above will allow 80/tcp traffic to the resolved IP address (the LHS value is arbitrary).  Passthroughs can also take the 
 # form of:
-# 
-# <i>test=192.168.100.10/23</i>
-# 
+# test=192.168.100.10/23
 # which would allow full IP to all 512 destination addresses.
 [passthroughs]
-packetfence=http://www.packetfence.org
-symantec_scanner=http://security.symantec.com
 
 [alerting]
 #
