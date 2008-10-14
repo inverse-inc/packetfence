@@ -37,7 +37,7 @@ sub vlan_determine_for_node {
     my $correctVlanForThisMAC;
     my $open_violation_count = violation_count_trap($mac);
     if ($open_violation_count > 0) {
-        if (($open_violation_count == 1) && (violation_exist_open($mac,1200001)) {
+        if (($open_violation_count == 1) && (violation_exist_open($mac,1200001))) {
             $logger->info("$mac has scan reg violation open; belongs into registration VLAN.");
             my $switchFactory = new pf::SwitchFactory( -configFile => '/usr/local/pf/conf/switches.conf');
             my $switch = $switchFactory->instantiate($switch_ip);
