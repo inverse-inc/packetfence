@@ -13,7 +13,7 @@
           (http://www.packetfence.org/mantis/view.php?id=387)
         replace Net::Telnet::Cisco by Net::Appliance::Session
           (http://www.packetfence.org/mantis/view.php?id=379)
-        support for SSH CLI Sessions
+        support for SSH CLI Session on Cisco switchess
           (http://www.packetfence.org/mantis/view.php?id=388)
         use log subcategories in pfsetvlan
           (http://www.packetfence.org/mantis/view.php?id=340)
