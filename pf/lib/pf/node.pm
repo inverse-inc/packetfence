@@ -369,9 +369,9 @@ sub node_deregister {
 }
 
 sub nodes_maintenance {
-  $node_ungrace_sql->execute() || return(0);
-
   node_db_prepare($dbh) if (! $is_node_db_prepared);
+
+  $node_ungrace_sql->execute() || return(0);
   
   my $expire_mode = $Config{'registration'}{'expire_mode'};
   if (isdisabled($expire_mode)) {
