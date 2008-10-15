@@ -87,7 +87,9 @@ sub _getIfDescMacVlan {
         my($mac, $vlan, $ifDesc) = unpack("A14x21A4x2A*", $line);
         $mac =~ s/\./:/g;
         $mac = uc(substr($mac,0,2) . ':' . substr($mac,2,5) . ':' . substr($mac,7,5) . ':' . substr($mac,12,2));
-        push @{$ifDescMacVlan->{$ifDesc}->{$mac}}, int($vlan);
+        if (! ($vlan =~ /ALL/i)) {
+            push @{$ifDescMacVlan->{$ifDesc}->{$mac}}, int($vlan);
+        }
     }
     return $ifDescMacVlan;
 }

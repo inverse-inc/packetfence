@@ -849,9 +849,9 @@ sub getMacAddr {
     }
 
     if (scalar(@managedPorts) > 0) { 
-        $command = 'show mac-address-table dynamic | include ' . $this->getRegExpFromList(@managedPorts);
+        $command = 'show mac-address-table | include ' . $this->getRegExpFromList(@managedPorts);
     } else {
-        $command = 'show mac-address-table dynamic';
+        $command = 'show mac-address-table';
     }
     $logger->trace("sending CLI command '$command'");
     my @tmp = $session->cmd($command);
