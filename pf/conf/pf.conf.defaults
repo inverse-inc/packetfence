@@ -471,19 +471,28 @@ host=localhost
 # expire.node
 #
 # Time before a node is removed due to inactivity.
-node=90d
+# A value of 0 disables expiration.
+# example:
+# node=90d
+node=0
 #
 # expire.iplog
 #
-# Time which you would like to keep logs on IP/MAC information 
-iplog=180d
+# Time which you would like to keep logs on IP/MAC information.
+# A value of 0 disables expiration.
+# example:
+# iplog=180d
+iplog=0
 #
 # expire.locationlog
 #
 # Time which you would like to keep logs on location information
 # Please note that this table should not become too big since it 
-# could degrade pfsetvlan performance
-locationlog=180d
+# could degrade pfsetvlan performance.
+# A value of 0 disables expiration.
+# example:
+# locationlog=180d
+locationlog=0
 
 [services]
 #
