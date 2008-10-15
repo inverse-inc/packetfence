@@ -95,6 +95,8 @@
           (http://www.packetfence.org/mantis/view.php?id=420)
         by default expiration should be disabled
           (http://www.packetfence.org/mantis/view.php?id=421)
+        _cleanup functions should log number of deleted items
+          (http://www.packetfence.org/mantis/view.php?id=422)
 
 1.7.3
         not all port security traps are handled

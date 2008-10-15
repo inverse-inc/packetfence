@@ -17,6 +17,7 @@ use Net::Netmask;
 use Net::Ping;
 use Date::Parse;
 use Log::Log4perl;
+use Log::Log4perl::Level;
 
 our ($iplog_shutdown_sql, $iplog_lastseen_sql, $iplog_view_open_sql, $iplog_view_all_sql, $iplog_history_ip_sql,
      $iplog_history_mac_sql, $iplog_history_ip_date_sql, $iplog_history_mac_date_sql, $iplog_close_sql, $iplog_close_now_sql,
@@ -174,8 +175,12 @@ sub iplog_close_now {
 
 sub iplog_cleanup {
   my ($time) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::iplog');
   iplog_db_prepare($dbh) if (! $iplog_db_prepared);
+  $logger->debug("calling iplog_cleanup with time=$time);
   $iplog_cleanup_sql->execute($time) || return(0);
+  my $rows = $iplog_cleanup_sql->rows;
+  $logger->log((($rows > 0) ? $INFO : $DEBUG), "deleted $rows entries from iplog during iplog cleanup");
   return(0);
 }
 

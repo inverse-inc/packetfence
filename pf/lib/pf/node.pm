@@ -431,6 +431,7 @@ sub node_expire_lastarp {
 sub node_cleanup {
   my ($time) = @_;
   my $logger = Log::Log4perl::get_logger('pf::node');
+  $logger->debug("calling node_cleanup with time=$time");
   foreach my $row (node_expire_lastarp($time)){
     my $mac=$row->{'mac'};
     $logger->info("mac $mac not seen for $time seconds, deleting");

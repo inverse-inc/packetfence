@@ -13,6 +13,7 @@ package pf::locationlog;
 use strict;
 use warnings;
 use Log::Log4perl;
+use Log::Log4perl::Level;
 use Net::MAC;
 
 our (
@@ -289,8 +290,12 @@ sub locationlog_close_all {
 
 sub locationlog_cleanup {
   my ($time) = @_;
+  my $logger = Log::Log4perl::get_logger('pf::locationlog');
   locationlog_db_prepare($dbh) if (! $locationlog_db_prepared);
+  $logger->debug("calling locationlog_cleanup with time=$time");
   $locationlog_cleanup_sql->execute($time) || return(0);
+  my $rows = $locationlog_cleanup_sql->rows;
+  $logger->log((($rows > 0) ? $INFO : $DEBUG), "deleted $rows entries from locationlog during locationlog cleanup");
   return(0);
 }
 
