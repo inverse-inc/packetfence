@@ -13,6 +13,7 @@ package pf::node;
 use strict;
 use warnings;
 use Log::Log4perl;
+use Log::Log4perl::Level;
 use Net::MAC;
 
 our ($node_modify_sql, $node_exist_sql, $node_pid_sql, $node_delete_sql, $node_add_sql, $node_regdate_sql,
@@ -369,21 +370,34 @@ sub node_deregister {
 }
 
 sub nodes_maintenance {
+  my $logger = Log::Log4perl::get_logger('pf::node');
   node_db_prepare($dbh) if (! $is_node_db_prepared);
 
-  $node_ungrace_sql->execute() || return(0);
-  
   my $expire_mode = $Config{'registration'}{'expire_mode'};
+  $logger->debug("nodes_maintenance called with expire_mode=$expire_mode");
+
+  $node_ungrace_sql->execute() || return(0);
+  my $rows = $node_ungrace_sql->rows;
+  $logger->log((($rows > 0) ? $INFO : $DEBUG), "modified $rows nodes from status 'grace' to 'unreg'");
+
   if (isdisabled($expire_mode)) {
     return(1);
   } else {
     $node_expire_unreg_field_sql->execute() || return(0);
+    $rows = $node_expire_unreg_field_sql->rows;
+    $logger->log((($rows > 0) ? $INFO : $DEBUG), "modified $rows nodes from status 'reg' to 'unreg' based on unregdate column");
     if($expire_mode =~ /^window$/i && $Config{'registration'}{'expire_window'} > 0) {
       $node_expire_window_sql->execute() || return(0);
+      $rows = $node_expire_window_sql->rows;
+      $logger->log((($rows > 0) ? $INFO : $DEBUG), "modified $rows nodes from status 'reg' to 'unreg' based on expiration window");
     } elsif ($expire_mode =~ /^deadline$/i && (time - $Config{'registration'}{'expire_deadline'} > 0) ) {
       $node_expire_deadline_sql->execute() || return(0);
+      $rows = $node_expire_deadline_sql->rows;
+      $logger->log((($rows > 0) ? $INFO : $DEBUG), "modified $rows nodes from status 'reg' to 'unreg' based on expiration deadline");
     } elsif ($expire_mode =~ /^session$/i) {
       $node_expire_session_sql->execute() || return(0);
+      $rows = $node_expire_session_sql->rows;
+      $logger->log((($rows > 0) ? $INFO : $DEBUG) "modified $rows nodes from status 'reg' to 'unreg' based on session expiration");
     }
   }
   return(1);
