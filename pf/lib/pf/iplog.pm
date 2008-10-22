@@ -177,7 +177,7 @@ sub iplog_cleanup {
   my ($time) = @_;
   my $logger = Log::Log4perl::get_logger('pf::iplog');
   iplog_db_prepare($dbh) if (! $iplog_db_prepared);
-  $logger->debug("calling iplog_cleanup with time=$time);
+  $logger->debug("calling iplog_cleanup with time=$time");
   $iplog_cleanup_sql->execute($time) || return(0);
   my $rows = $iplog_cleanup_sql->rows;
   $logger->log((($rows > 0) ? $INFO : $DEBUG), "deleted $rows entries from iplog during iplog cleanup");

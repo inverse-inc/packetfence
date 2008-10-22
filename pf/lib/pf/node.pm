@@ -397,7 +397,7 @@ sub nodes_maintenance {
     } elsif ($expire_mode =~ /^session$/i) {
       $node_expire_session_sql->execute() || return(0);
       $rows = $node_expire_session_sql->rows;
-      $logger->log((($rows > 0) ? $INFO : $DEBUG) "modified $rows nodes from status 'reg' to 'unreg' based on session expiration");
+      $logger->log((($rows > 0) ? $INFO : $DEBUG), "modified $rows nodes from status 'reg' to 'unreg' based on session expiration");
     }
   }
   return(1);
