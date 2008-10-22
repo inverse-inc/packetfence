@@ -43,6 +43,7 @@ use pf::iptables;
 use pf::nodecache;
 use pf::rawip;
 use pf::locationlog;
+use pf::traplog;
 
 POSIX::sigaction(&POSIX::SIGHUP,
           POSIX::SigAction->new(
@@ -441,7 +442,7 @@ sub cleanup {
   Log::Log4perl::MDC->put('tid', threads->self->tid());
   $logger->info("Starting cleanup thread");
   my $mydbh;
-  db_connect($mydbh,'iplog','node','locationlog');
+  db_connect($mydbh,'iplog','node','locationlog', 'traplog');
 
   if (!$restart) {
     $logger->info("closing open iplogs (just in case)");
@@ -496,6 +497,7 @@ sub cleanup {
       iplog_cleanup($Config{'expire'}{'iplog'}) if ($Config{'expire'}{'iplog'});
       locationlog_cleanup($Config{'expire'}{'locationlog'}) if ($Config{'expire'}{'locationlog'});
       node_cleanup($Config{'expire'}{'node'}) if ($Config{'expire'}{'node'});
+      traplog_cleanup($Config{'expire'}{'traplog'}) if ($Config{'expire'}{'traplog'});
       $logger->info("checking registered nodes for expiration");
       nodes_maintenance();
     }      

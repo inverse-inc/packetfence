@@ -484,6 +484,14 @@ node=0d
 # iplog=180d
 iplog=0d
 #
+# expire.traplog
+#
+# Time which you would like to keep logs on trap information.
+# A value of 0d disables expiration.
+# example:
+# traplog=180d
+traplog=0d
+#
 # expire.locationlog
 #
 # Time which you would like to keep logs on location information
