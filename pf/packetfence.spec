@@ -130,7 +130,7 @@ ln -s pfcmd ./stop
 
 #pfschema symlink
 cd $RPM_BUILD_ROOT/usr/local/pf/db
-ln -s pfschema.mysql.174 ./pfschema.mysql
+ln -s pfschema.mysql.180 ./pfschema.mysql
 
 #httpd.conf and local.conf symlink
 cd $RPM_BUILD_ROOT/usr/local/pf/conf/templates
@@ -417,6 +417,7 @@ fi
 %dir /usr/local/pf/lib/pf
 /usr/local/pf/lib/pf/config.pm
 /usr/local/pf/lib/pf/iplog.pm
+/usr/local/pf/lib/pf/traplog.pm
 /usr/local/pf/lib/pf/db.pm
 /usr/local/pf/lib/pf/util.pm
 /usr/local/pf/lib/pf/person.pm

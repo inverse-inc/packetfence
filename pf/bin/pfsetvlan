@@ -87,6 +87,7 @@ $thread = 1;
 use pf::db;
 use pf::util;
 use pf::locationlog;
+use pf::traplog;
 use pf::node;
 use pf::violation;
 use pf::SNMP v1.7.0.6;
@@ -386,6 +387,13 @@ sub signalHandlerTrapListQueued {
                         } else {
                             push @threadList_queued, $trapLine;
                             $logger->debug("added trap $trapType at $switch_ip ifindex $switch_port to queued threadList");
+                            my $mysql_connection = db_connect();
+                            if (! $mysql_connection) {
+                                $logger->error("coudn't connect to MySQL server: " . DBI->errstr);
+                            }
+                            $logger->trace("calling traplog_db_prepare");
+                            traplog_db_prepare($mysql_connection);
+                            traplog_insert($switch_ip,$switch_port,$trapType);
                             $lockLogger->trace("locking - sending signal for threadList_queued in signalHanderTrapListQueued");
                             cond_signal(@threadList_queued);
                         }
