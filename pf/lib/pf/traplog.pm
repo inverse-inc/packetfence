@@ -60,7 +60,7 @@ sub traplog_insert {
   return(1);
 }
 
-sub trapslog_cleanup {
+sub traplog_cleanup {
   my ($time) = @_;
   my $logger = Log::Log4perl::get_logger('pf::traplog');
   traplog_db_prepare($dbh) if (! $traplog_db_prepared);
