@@ -100,7 +100,7 @@ foreach my $section (tied(%Config)->Sections){
 #}
 
 #normalize time
-foreach my $val ("expire.iplog","expire.locationlog","expire.node","arp.interval","arp.gw_timeout","arp.timeout","arp.dhcp_timeout","arp.heartbeat",
+foreach my $val ("expire.iplog","expire.traplog","expire.locationlog","expire.node","arp.interval","arp.gw_timeout","arp.timeout","arp.dhcp_timeout","arp.heartbeat",
                  "trapping.redirtimer","registration.skip_window","registration.skip_reminder","registration.expire_window",
                  "registration.expire_session"){
   my($group,$item) = split(/\./, $val);
