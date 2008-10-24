@@ -327,4 +327,14 @@ call bin/lookup_person.pl or bin/lookup_node.pl with the passed value
 EOT
 }
 
+sub help_traplog {
+  print STDERR << "EOT";
+Usage: pfcmd traplog update
+       pfcmd traplog most <number> {day|week|total}
+
+update traplog RRD files and graphs
+obtain the switch IPs of the <n> switches having sent the most traps
+EOT
+}
+
 1

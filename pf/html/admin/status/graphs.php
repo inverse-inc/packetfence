@@ -26,6 +26,67 @@
 
   print helper_menu($current_top, $current_sub, $type, $_GET['menu'], $additional);
 
+  if ($_REQUEST['type'] == 'traps') {
+?>
+<h3>All Switches</h3>
+<table border="0">
+<tr>
+  <td><img src="/traplog/total_total.png"></td>
+  <td><img src="/traplog/total_week.png"></td>
+  <td><img src="/traplog/total_day.png"></td>
+</tr>
+</table>
+<h3>3 Switches having the highest overall number of traps</h3>
+<table border="0">
+<?php
+  $switch_lines = PFCMD("traplog most 3 total");
+  $current_line = array_shift($switch_lines);
+  foreach ($switch_lines as $current_line) {
+    $pieces = explode('|', $current_line);
+    $switch = $pieces[1];
+    print "<tr>\n";
+    print "  <td><img src=\"/traplog/{$switch}_total.png\" alt=\"[ $switch (Total) ]\"></td>\n";    
+    print "  <td><img src=\"/traplog/{$switch}_week.png\" alt=\"[ $switch (Week) ]\"></td>\n";    
+    print "  <td><img src=\"/traplog/{$switch}_day.png\" alt=\"[ $switch (Day) ]\"></td>\n";    
+    print "</tr>\n";
+  }
+?>
+</table>
+<h3>3 Switches having the highest number of traps during the last week</h3>
+<table border="0">
+<?php
+  $switch_lines = PFCMD("traplog most 3 week");
+  $current_line = array_shift($switch_lines);
+  foreach ($switch_lines as $current_line) {
+    $pieces = explode('|', $current_line);
+    $switch = $pieces[1];
+    print "<tr>\n";
+    print "  <td><img src=\"/traplog/{$switch}_total.png\" alt=\"[ $switch (Total) ]\"></td>\n";    
+    print "  <td><img src=\"/traplog/{$switch}_week.png\" alt=\"[ $switch (Week) ]\"></td>\n";    
+    print "  <td><img src=\"/traplog/{$switch}_day.png\" alt=\"[ $switch (Day) ]\"></td>\n";    
+    print "</tr>\n";
+  }
+?>
+</table>
+<h3>3 Switches having the highest number of traps during the last day</h3>
+<table border="0">
+<?php
+  $switch_lines = PFCMD("traplog most 3 day");
+  $current_line = array_shift($switch_lines);
+  foreach ($switch_lines as $current_line) {
+    $pieces = explode('|', $current_line);
+    $switch = $pieces[1];
+    print "<tr>\n";
+    print "  <td><img src=\"/traplog/{$switch}_total.png\" alt=\"[ $switch (Total) ]\"></td>\n";    
+    print "  <td><img src=\"/traplog/{$switch}_week.png\" alt=\"[ $switch (Week) ]\"></td>\n";    
+    print "  <td><img src=\"/traplog/{$switch}_day.png\" alt=\"[ $switch (Day) ]\"></td>\n";    
+    print "</tr>\n";
+  }
+?>
+</table>
+<?php
+  exit(1);
+  }
   if (($_REQUEST['type'] != "ifoctetshistoryuser") && ($_REQUEST['type'] != "ifoctetshistorymac") && ($_REQUEST['type'] != "ifoctetshistoryswitch")) {
     $img_src = "status/grapher.php?type=$type&span=$span";
     print "<div id=graph><img src='$img_src'></div>";  

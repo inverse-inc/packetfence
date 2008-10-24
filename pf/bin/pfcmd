@@ -103,7 +103,7 @@ my $parser=pfcmd_pregrammar->new();
 my $result = $parser->start(join " ",@ARGV);
 my $command = $cmd{'command'}[0];
 
-if ($command =~ /^(help|history|ipmachistory|locationhistoryswitch|locationhistorymac|ifoctetshistorymac|ifoctetshistoryswitch|ifoctetshistoryuser|report|ui|graph|switchlocation)$/i) {
+if ($command =~ /^(help|traplog|history|ipmachistory|locationhistoryswitch|locationhistorymac|ifoctetshistorymac|ifoctetshistoryswitch|ifoctetshistoryuser|report|ui|graph|switchlocation)$/i) {
   ($main::{${$cmd{'command'}}[0]} or sub { print "No such sub: $_\n" })->();
   exit 1;
 }
@@ -286,6 +286,21 @@ sub ipmachistory {
     $params{'end_time'} = str2time($date_params{'end_time'});
   }
   exit(print_results($function,$addr,%params));
+}
+
+sub traplog {
+  require pf::traplog;
+  import pf::traplog;
+  if ($cmd{command}[1] =~ /update/) {
+    traplog_update_rrd();
+  } else {
+    use Data::Dumper;
+    my $nb = $cmd{'traplog_options'}[1];
+    my %params;
+    $params{'timespan'} = $cmd{'traplog_options'}[2];
+    exit(print_results('traplog_get_switches_with_most_traps',$nb,%params));
+  }
+  exit;
 }
 
 #

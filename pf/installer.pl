@@ -70,6 +70,7 @@ my @modules = ( "Time::HiRes",
                 "Log::Log4perl",
                 "Thread::Pool",
                 "Apache::Htpasswd",
+                "RRDs",
                 "Template"
               );
 

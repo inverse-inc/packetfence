@@ -44,6 +44,7 @@ $grammar = q {
              | 'graph' 'ifoctetshistorymac' mac date_range
              | 'graph' 'ifoctetshistoryuser' value date_range
              | 'schedule' schedule_options 
+             | 'traplog' ('update' | traplog_options)
              | 'locationhistoryswitch' ipaddr number date(?)
              | 'locationhistorymac' mac date(?)
              | 'ifoctetshistoryswitch' ipaddr number date_range(?)
@@ -73,7 +74,9 @@ $grammar = q {
    service_options : service ('stop' | 'start' | 'restart' | 'status' | 'watch')
                     {[$item{service},$item[2]]}
 
-    manage_options : ('freemac'|'deregister'|'vclose'|'vopen') macaddr value(?) | 'register' macaddr value edit_options(?)
+   traplog_options: 'most' number ('day' | 'week' | 'total')
+
+   manage_options : ('freemac'|'deregister'|'vclose'|'vopen') macaddr value(?) | 'register' macaddr value edit_options(?)
 
    dashboard_options : /recent_violations\b/ | /recent_violations_opened\b/ | /current_grace\b/ | /recent_violations_closed\b/ | /recent_registrations\b/ | /current_activity\b/ | /current_node_status\b/
 
@@ -199,6 +202,7 @@ report          	| current usage reports
 schedule        	| Nessus scan scheduling
 service         	| start/stop/restart and get PF daemon status
 switchlocation  	| view switchport description and location
+traplog                 | update traplog RRD files and graphs or obtain switch IPs
 trigger         	| view and throw triggers
 ui              	| used by web UI to create menu hierarchies and dashboard
 update          	| download canonical fingerprint or OUI data
