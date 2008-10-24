@@ -294,7 +294,6 @@ sub traplog {
   if ($cmd{command}[1] =~ /update/) {
     traplog_update_rrd();
   } else {
-    use Data::Dumper;
     my $nb = $cmd{'traplog_options'}[1];
     my %params;
     $params{'timespan'} = $cmd{'traplog_options'}[2];
