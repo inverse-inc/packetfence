@@ -325,9 +325,11 @@ sub node_register {
     return(0);
   }
 
-  if (!mark_node($mac, $reg_mark)) {
-    $logger->error("unable to mark node $mac as registered");
-    return(0);
+  if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
+    if (!mark_node($mac, $reg_mark)) {
+      $logger->error("unable to mark node $mac as registered");
+      return(0);
+    }
   }
 
   if (!$auto_registered) {
@@ -359,9 +361,11 @@ sub node_deregister {
     return(0);
   }
 
-  if (!unmark_node($mac, $reg_mark)) {
-    $logger->error("unable to delete registration rule for $mac: $!");
-    return(0);
+  if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
+    if (!unmark_node($mac, $reg_mark)) {
+      $logger->error("unable to delete registration rule for $mac: $!");
+      return(0);
+    }
   }
 
   # we need to rely on the cgi's to do this work

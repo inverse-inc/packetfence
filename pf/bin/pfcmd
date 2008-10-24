@@ -162,7 +162,9 @@ sub manage {
     node_register($mac,$id,%params);
   }elsif ($option eq "deregister"){
     node_deregister($mac);
-    generate_iptables();
+    if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
+      generate_iptables();
+    }
   }elsif ($option eq "vclose"){
     return(-1) if (!$id);
     print violation_close($mac,$id);
@@ -392,8 +394,10 @@ sub service {
       }
     }
     if ($nb_running_services == 0) {
-      $logger->info("saving current iptables to var/iptables.bak");
-      save_iptables($install_dir.'/var/iptables.bak');
+      if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
+        $logger->info("saving current iptables to var/iptables.bak");
+        save_iptables($install_dir.'/var/iptables.bak');
+      }
     }
   }
 
@@ -402,8 +406,10 @@ sub service {
     print "config files|$command\n";
     read_dhcp_fingerprints_conf();
     read_violations_conf();
-    print "iptables|$command\n";
-    generate_iptables();
+    if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
+      print "iptables|$command\n";
+      generate_iptables();
+    }
   }
 
   foreach my $srv (@services){
@@ -419,7 +425,9 @@ sub service {
       }
     }
     if ($nb_running_services == 0) {
-      restore_iptables($install_dir.'/var/iptables.bak');
+      if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
+        restore_iptables($install_dir.'/var/iptables.bak');
+      }
     } else {
       if ($service =~ /^pf$/i) {
         $logger->error("even though 'control pf stop' was called, there are still $nb_running_services services running. Can't restore iptables from var/iptables.bak");
@@ -894,7 +902,9 @@ sub command_param {
     if ($function =~ /^person_add|person_modify$/) {
       $logger->debug("$function was called - we don't need to recalculate iptables and switchport VLAN assignments");
     } else {
-      generate_iptables();
+      if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
+        generate_iptables();
+      }
       if ($function =~ /^violation/) {
         generate_switchport_vlan_assignment($params{mac},$function);
       } else {

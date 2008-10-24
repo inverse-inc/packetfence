@@ -312,7 +312,9 @@ sub violation_close {
   my $max  = $class_info->{'max_enables'};
 
   if ($num <= $max || $max == 0) {
-    unmark_node($mac, $vid);
+    if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
+      unmark_node($mac, $vid);
+    }
     my $grace = $class_info->{'grace_period'};
     $violation_close_sql->execute($mac,$vid) || return(0);
     $logger->info("violation $vid closed for $mac");

@@ -186,9 +186,11 @@ sub action_log {
 sub action_trap {
   my($mac, $vid) = @_;
   my $logger = Log::Log4perl::get_logger('pf::action');
-  if (!mark_node($mac, $vid)) {
-    $logger->error("unable to mark $mac with $vid");
-    return(0);
+  if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
+    if (!mark_node($mac, $vid)) {
+      $logger->error("unable to mark $mac with $vid");
+      return(0);
+    }
   }
   # Let pfmon do this...
   #return(trapmac($mac)) if ($Config{'network'}{'mode'} =~ /arp/i);
