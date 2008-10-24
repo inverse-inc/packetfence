@@ -49,7 +49,7 @@ sub generate_release_page {
     txt_message => sprintf(gettext("network access is being enabled"), $Config{'trapping'}{'redirtimer'}),
     txt_enabling => gettext("Enabling ..."),
   };
-  if (isenabled($Config{'network'}{'vlan'})) {
+  if ($Config{'network'}{'mode'} =~ /vlan/i) {
     $vars->{js_action} = "var action = function()
 {
   hidebar();
@@ -383,7 +383,7 @@ sub generate_registration_page {
   }
 
   # check to see if node can skip reg 
-  if (($pagenumber == $Config{'registration'}{'nbregpages'}) && isdisabled($Config{'network'}{'vlan'})) {
+  if (($pagenumber == $Config{'registration'}{'nbregpages'}) && !($Config{'network'}{'mode'} =~ /vlan/i)) {
     my $node_info = node_view($mac);
     my $detect_date = str2time($node_info->{'detect_date'});
     my $registration_mode = $Config{'registration'}{'skip_mode'};

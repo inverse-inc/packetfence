@@ -59,6 +59,8 @@
           (http://www.packetfence.org/mantis/view.php?id=434)
         removed inline deployment mode
           (http://www.packetfence.org/mantis/view.php?id=436)
+        network.vlan becomes network.mode=vlan
+          (http://www.packetfence.org/mantis/view.php?id=437)
 
 1.7.4
         undef operator in SNMP.pm

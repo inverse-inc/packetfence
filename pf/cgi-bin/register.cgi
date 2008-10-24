@@ -78,7 +78,7 @@ if (defined($params{'mode'})) {
    
     #determine default VLAN if VLAN isolation is enabled
     #and the vlan has not been set yet 
-    if (isenabled($Config{'network'}{'vlan'})) {
+    if ($Config{'network'}{'mode'} =~ /vlan/i) {
       if (! defined($info{'vlan'})) {
          my %ConfigVlan;
          tie %ConfigVlan, 'Config::IniFiles', (-file => '/usr/local/pf/conf/switches.conf');

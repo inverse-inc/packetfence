@@ -58,8 +58,8 @@ sub service_ctl {
       return(0) if ($exe=~/dhcp/ && (! ($exe=~/pfdhcplistener/)) && $Config{'network'}{'mode'}!~/^dhcp$/);	
       return(0) if ($exe=~/snort/ && !isenabled($Config{'trapping'}{'detection'}));
       return(0) if ($exe=~/pfdhcplistener/ && !isenabled($Config{'network'}{'dhcpdetector'}));
-      return(0) if ($exe=~/snmptrapd/ && !isenabled($Config{'network'}{'vlan'}));
-      return(0) if ($exe=~/pfsetvlan/ && !isenabled($Config{'network'}{'vlan'}));
+      return(0) if ($exe=~/snmptrapd/ && !($Config{'network'}{'mode'} =~ /vlan/i));
+      return(0) if ($exe=~/pfsetvlan/ && !($Config{'network'}{'mode'} =~ /vlan/i));
       if ($daemon=~/(dhcpd|named|snort|httpd|snmptrapd)/ && !$quick){
          my $confname="generate_".$daemon."_conf";
          $logger->info("Generating configuration file $confname for $exe");
@@ -139,9 +139,9 @@ sub service_list {
     } elsif ($service eq "named") {
       push @finalServiceList, $service  if (isenabled($Config{'network'}{'named'}));
     } elsif ($service eq "snmptrapd") {
-      push @finalServiceList, $service  if (isenabled($Config{'network'}{'vlan'}));
+      push @finalServiceList, $service  if ($Config{'network'}{'mode'} =~ /vlan/i);
     } elsif ($service eq "pfsetvlan") {
-      push @finalServiceList, $service  if (isenabled($Config{'network'}{'vlan'}));
+      push @finalServiceList, $service  if ($Config{'network'}{'mode'} =~ /vlan/i);
     } else {
       push @finalServiceList, $service;
     }

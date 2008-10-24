@@ -114,7 +114,7 @@ sub node_delete {
     $logger->error("delete of non-existent node '$mac' failed");
     return 0;
   }
-  if (isenabled($Config{'network'}{'vlan'})) {
+  if ($Config{'network'}{'mode'} =~ /vlan/i) {
     if (defined(locationlog_view_open_mac($mac))) {
       $logger->warn("VLAN isolation mode enabled and $mac has open locationlog entry. Node deletion prohibited");
       return 0;
@@ -311,7 +311,7 @@ sub node_register {
     }
   }
  
-  if (isenabled($Config{'network'}{'vlan'})) {
+  if ($Config{'network'}{'mode'} =~ /vlan/i) {
     if (! defined($info{'vlan'})) {
       my %ConfigVlan;
       tie %ConfigVlan, 'Config::IniFiles', (-file => '/usr/local/pf/conf/switches.conf');

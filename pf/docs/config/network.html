@@ -22,7 +22,7 @@ This feature is only available if the dhcpdetector is activated.<p>
 <a name=mode></a>
 <b>mode</b> <i>(toggle)</i><br>
 Default: passive<br>
-Options: passive|dhcp<br>
+Options: dhcp|passive|vlan<br>
 Defines the mode in which PacketFence will operate.
 <p>
 When deployed in passive mode, PacketFence uses ARP manipulation inject itself into the datastream of unregistered or 
@@ -47,10 +47,4 @@ that are likely not wanted.<p>
 Default: 1<br>
 When rogue DHCP server detection is enabled, this parameter defines how often to email administrators.  With its default 
 setting of 10, it will email administrators the details of the previous 10 DHCP offers.<p>
-<a name=vlan></a>
-<b>vlan</b> <i>(toggle)</i><br>
-Default: disabled<br>
-Options: enabled|disabled<br>
-If enabled, VLAN based isolation is used. You have to manually start the pfsetvlan service for this to work.
-
 </body></html>

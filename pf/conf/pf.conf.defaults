@@ -117,11 +117,6 @@ mode=passive
 # that are likely not wanted.
 named=disabled
 #
-# network.vlan
-#
-# If enabled, VLAN based isolation is used. You have to manually start the pfsetvlan service for this to work.
-vlan=disabled
-#
 # network.rogueinterval
 #
 # When rogue DHCP server detection is enabled, this parameter defines how often to email administrators.  With its default 

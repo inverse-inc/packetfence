@@ -1353,8 +1353,8 @@ sub sanity_check {
 
 sub generate_switchport_vlan_assignment {
   my ($mac,$function) = @_;
-  if (isenabled($Config{'network'}{'vlan'}) && grep(/^$function$/,split(/\s*,\s*/,$Config{'vlan'}{'adjustswitchportvlanreasons'})) > 0) {
-    $logger->info("vlan isolation is enabled and $function is part of adjustswitchportvlanreasons");
+  if (($Config{'network'}{'mode'} =~ /vlan/i) && grep(/^$function$/,split(/\s*,\s*/,$Config{'vlan'}{'adjustswitchportvlanreasons'})) > 0) {
+    $logger->info("VLAN isolation is enabled and $function is part of adjustswitchportvlanreasons");
     require pf::locationlog;
     import pf::locationlog;
     my $locationlog_entry = locationlog_view_open_mac($mac);

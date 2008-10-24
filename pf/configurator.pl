@@ -258,7 +258,7 @@ sub configuration {
 
   if (!$template){
     gatherer("Enable DHCP detector?","network.dhcpdetector",("enabled","disabled"));
-    gatherer("Mode (passive|dhcp)","network.mode",("passive","dhcp"));
+    gatherer("Mode (passive|dhcp|vlan)","network.mode",("passive","dhcp","vlan"));
   }
   config_network($cfg{network}{mode});
 
