@@ -278,7 +278,6 @@ fi
 /usr/local/pf/bin/pfsetvlan
 /usr/local/pf/bin/start
 /usr/local/pf/bin/stop
-/usr/local/pf/bin/ip2interface.pl
 %dir /usr/local/pf/cgi-bin
 #%attr(6755, root, root) /usr/local/pf/cgi-bin/redir.cgi
 #%attr(6755, root, root) /usr/local/pf/cgi-bin/register.cgi
