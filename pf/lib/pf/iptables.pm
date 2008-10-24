@@ -220,15 +220,6 @@ sub generate_iptables {
     });
   }
 
-  # open snmptrapd if network.mode=vlan
-  if ($Config{'network'}{'mode'} =~ /vlan/i) {
-    managed_append_entry($filter,'INPUT',{
-         'protocol' => 'udp',
-         'destination-port' => '162',
-         'jump' => 'ACCEPT'
-    });
-  }
-
   # accept already established connections
   external_append_entry($filter,'FORWARD', {
        'matches' => ['state'],
