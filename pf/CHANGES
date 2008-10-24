@@ -107,6 +107,8 @@
         node expire function should log number of expired
           nodes
           (http://www.packetfence.org/mantis/view.php?id=423)
+        missing EOT in conf/documentation.conf
+          (http://www.packetfence.org/mantis/view.php?id=431)
 
 1.7.3
         not all port security traps are handled
