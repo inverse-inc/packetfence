@@ -90,8 +90,9 @@ sub locationlog_db_prepare {
   $locationlog_history_mac_sql=$dbh->prepare( qq [ select mac,switch,port,vlan,start_time,end_time from locationlog where mac=? order by start_time desc, isnull(end_time) desc, end_time desc ]);
   $locationlog_history_switchport_sql=$dbh->prepare( qq [ select mac,switch,port,vlan,start_time,end_time from locationlog where switch=? and port=? order by start_time desc, isnull(end_time) desc, end_time desc ]);
   
-  $locationlog_history_mac_date_sql=$dbh->prepare( qq [ select mac,switch,port,vlan,start_time,end_time from locationlog where mac=? and unix_timestamp(start_time) < ? and (unix_timestamp(end_time) > ? or isnull(end_time)) order by start_time desc, isnull(end_time) desc, end_time desc ]);
-  $locationlog_history_switchport_date_sql=$dbh->prepare( qq [ select mac,switch,port,vlan,start_time,end_time from locationlog where switch=? and port=? and unix_timestamp(start_time) < ? and (unix_timestamp(end_time) > ? or isnull(end_time)) order by start_time desc, isnull(end_time) desc, end_time desc ]);
+  $locationlog_history_mac_date_sql=$dbh->prepare( qq [ select mac,switch,port,vlan,start_time,end_time from locationlog where mac=? and start_time < from_unixtime(?) and (end_time > from_unixtime(?) or isnull(end_time)) order by start_time desc, isnull(end_time) desc, end_time desc ]);
+  $locationlog_history_switchport_date_sql=$dbh->prepare( qq [ select mac,switch,port,vlan,start_time,end_time from locationlog where switch=? and port=? and start_time < from_unixtime(?) and (end_time >
+from_unixtime(?) or isnull(end_time)) order by start_time desc, isnull(end_time) desc, end_time desc ]);
   
   $locationlog_view_all_sql=$dbh->prepare( qq [ select mac,switch,port,vlan,start_time,end_time from locationlog order by start_time desc, end_time desc]);
   $locationlog_view_open_sql=$dbh->prepare( qq [ select mac,switch,port,vlan,start_time,end_time from locationlog where isnull(end_time) or end_time=0 order by start_time desc ]);
