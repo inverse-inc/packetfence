@@ -18,7 +18,7 @@ BEGIN {
   use Exporter ();
   our (@ISA, @EXPORT);
   @ISA    = qw(Exporter);
-  @EXPORT = qw(generate_iptables save_iptables restore_iptables mark_node unmark_node);
+  @EXPORT = qw(iptables_generate iptables_save iptables_restore iptables_mark_node iptables_unmark_node);
 }
 
 use lib qw(/usr/local/pf/lib);
@@ -43,7 +43,7 @@ sub zero_table {
   }
 }
 
-sub generate_iptables {
+sub iptables_generate {
   my $logger = Log::Log4perl::get_logger('pf::iptables');
   my $pre_file = $install_dir.'/conf/iptables.pre';
   my $post_file = $install_dir.'/conf/iptables.post';
@@ -55,7 +55,7 @@ sub generate_iptables {
   zero_table("filter");
 
   if (-r $pre_file) {
-    restore_iptables($pre_file);
+    iptables_restore($pre_file);
   }
 
   # INITIALIZE MANGLE TABLE
@@ -532,7 +532,7 @@ sub generate_iptables {
     $logger->logdie("IPTables filter table commit error: $!");
   }
   if (-r $post_file) {
-    restore_iptables_noflush($post_file);
+    iptables_restore_noflush($post_file);
   }
 }
 
@@ -618,7 +618,7 @@ sub external_append_entry {
   }
 }
 
-sub mark_node {
+sub iptables_mark_node {
   my ($mac, $mark) = @_;
   my $logger = Log::Log4perl::get_logger('pf::iptables');
   my $mangle = IPTables::IPv4::init('mangle');
@@ -639,7 +639,7 @@ sub mark_node {
   return(1);
 }
 
-sub unmark_node {
+sub iptables_unmark_node {
   my ($mac, $mark) = @_;
   my $logger = Log::Log4perl::get_logger('pf::iptables');
   my $mangle = IPTables::IPv4::init('mangle');
@@ -662,7 +662,7 @@ sub unmark_node {
   return(1);
 }
 
-sub save_iptables {
+sub iptables_save {
   my ($save_file) = @_;
   my $logger = Log::Log4perl::get_logger('pf::iptables');
   $logger->info("saving existing iptables to ".$save_file);
@@ -671,7 +671,7 @@ sub save_iptables {
   `/sbin/iptables-save -t filter >> $save_file`;
 }
 
-sub restore_iptables {
+sub iptables_restore {
   my ($restore_file) = @_;
   my $logger = Log::Log4perl::get_logger('pf::iptables');
   if (-r $restore_file) {
@@ -680,7 +680,7 @@ sub restore_iptables {
   }
 }
 
-sub restore_iptables_noflush {
+sub iptables_restore_noflush {
   my ($restore_file) = @_;
   my $logger = Log::Log4perl::get_logger('pf::iptables');
   if (-r $restore_file) {

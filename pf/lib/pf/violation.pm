@@ -35,7 +35,7 @@ use pf::util;
 use pf::node qw(node_exist node_add_simple);
 use pf::action qw(action_execute);
 use pf::trigger qw(trigger_view_enable);
-use pf::iptables qw(unmark_node);
+use pf::iptables qw(iptables_unmark_node);
 use pf::class qw(class_view);
 
 $violation_db_prepared = 0;
@@ -313,7 +313,7 @@ sub violation_close {
 
   if ($num <= $max || $max == 0) {
     if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
-      unmark_node($mac, $vid);
+      iptables_unmark_node($mac, $vid);
     }
     my $grace = $class_info->{'grace_period'};
     $violation_close_sql->execute($mac,$vid) || return(0);
@@ -329,7 +329,7 @@ sub violation_force_close {
   my ($mac,$vid) = @_;
   violation_db_prepare($dbh) if (! $violation_db_prepared);
   my $logger = Log::Log4perl::get_logger('pf::violation');
-  #unmark_node($mac, $vid);
+  #iptables_unmark_node($mac, $vid);
   $violation_close_sql->execute($mac,$vid) || return(0);
   $logger->warn("violation $vid closed for $mac since it's a non-trap violation");
   return(1);

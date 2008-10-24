@@ -163,7 +163,7 @@ sub manage {
   }elsif ($option eq "deregister"){
     node_deregister($mac);
     if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
-      generate_iptables();
+      iptables_generate();
     }
   }elsif ($option eq "vclose"){
     return(-1) if (!$id);
@@ -396,7 +396,7 @@ sub service {
     if ($nb_running_services == 0) {
       if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
         $logger->info("saving current iptables to var/iptables.bak");
-        save_iptables($install_dir.'/var/iptables.bak');
+        iptables_save($install_dir.'/var/iptables.bak');
       }
     }
   }
@@ -408,7 +408,7 @@ sub service {
     read_violations_conf();
     if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
       print "iptables|$command\n";
-      generate_iptables();
+      iptables_generate();
     }
   }
 
@@ -426,7 +426,7 @@ sub service {
     }
     if ($nb_running_services == 0) {
       if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
-        restore_iptables($install_dir.'/var/iptables.bak');
+        iptables_restore($install_dir.'/var/iptables.bak');
       }
     } else {
       if ($service =~ /^pf$/i) {
@@ -903,7 +903,7 @@ sub command_param {
       $logger->debug("$function was called - we don't need to recalculate iptables and switchport VLAN assignments");
     } else {
       if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
-        generate_iptables();
+        iptables_generate();
       }
       if ($function =~ /^violation/) {
         generate_switchport_vlan_assignment($params{mac},$function);

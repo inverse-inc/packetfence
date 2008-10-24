@@ -38,7 +38,7 @@ use pf::db;
 use pf::util;
 use pf::person qw(person_nodes person_exist person_add);
 use pf::violation qw(violation_add violation_view_open);
-use pf::iptables qw(unmark_node mark_node);
+use pf::iptables qw(iptables_unmark_node iptables_mark_node);
 use pf::locationlog qw(locationlog_view_open_mac);
 #use pf::rawip qw(freemac trapmac);
 
@@ -326,7 +326,7 @@ sub node_register {
   }
 
   if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
-    if (!mark_node($mac, $reg_mark)) {
+    if (!iptables_mark_node($mac, $reg_mark)) {
       $logger->error("unable to mark node $mac as registered");
       return(0);
     }
@@ -362,7 +362,7 @@ sub node_deregister {
   }
 
   if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
-    if (!unmark_node($mac, $reg_mark)) {
+    if (!iptables_unmark_node($mac, $reg_mark)) {
       $logger->error("unable to delete registration rule for $mac: $!");
       return(0);
     }

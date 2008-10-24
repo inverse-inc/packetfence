@@ -32,7 +32,7 @@ use pf::class qw(class_view class_view_actions);
 #use pf::rawip qw(trapmac); 
 use pf::violation qw(violation_force_close);
 use pf::iplog qw(mac2ip);
-use pf::iptables qw(mark_node);
+use pf::iptables qw(iptables_mark_node);
 
 $action_db_prepared = 0;
 #action_db_prepare($dbh) if (!$thread);
@@ -187,7 +187,7 @@ sub action_trap {
   my($mac, $vid) = @_;
   my $logger = Log::Log4perl::get_logger('pf::action');
   if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
-    if (!mark_node($mac, $vid)) {
+    if (!iptables_mark_node($mac, $vid)) {
       $logger->error("unable to mark $mac with $vid");
       return(0);
     }
