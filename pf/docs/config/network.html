@@ -22,18 +22,13 @@ This feature is only available if the dhcpdetector is activated.<p>
 <a name=mode></a>
 <b>mode</b> <i>(toggle)</i><br>
 Default: passive<br>
-Options: passive|inline<br>
-Defines the mode in which PacketFence will operate.  When deployed in-line, PacketFence acts as a router and requires 
-internal and external interfaces to "live" on separate networks.  It's also likely that a static route for the internal 
-network will need to be added to the upstream router.  The PacketFence system can act as a DHCP server or relay to 
-one or more external servers.
+Options: passive|dhcp<br>
+Defines the mode in which PacketFence will operate.
 <p>
 When deployed in passive mode, PacketFence uses ARP manipulation inject itself into the datastream of unregistered or 
 trapped nodes.  You can read more about the mechanics of ARP manipulation <a 
-href="http://www.packetfence.org/dokuwiki/doku.php?id=faq#what_is_arp_manipulation_aka_poisoning_or_spoofing">here</a>.  Passive deployment has several benefits over an 
-inline deployment including elimination of a performance bottleneck and single point of failure.  Its major failing is that 
-it's not 100% in catching all traffic - spurious packets can and will occasionaly get through.  In an academic 
-environment or environments where in-line devices are frowned upon, this failing is minor in relation to the benefits.<p>
+href="http://www.packetfence.org/dokuwiki/doku.php?id=faq#what_is_arp_manipulation_aka_poisoning_or_spoofing">here</a>. The major failing of passive mode is that 
+it's not 100% in catching all traffic - spurious packets can and will occasionaly get through.<p>
 <a name=named></a>
 <b>named</b> <i>(toggle)</i><br>
 Default: disabled<br>
@@ -47,14 +42,6 @@ netfilter connection tracking.
 If you're running DHCP locally, though, it may make sense to run a nameserver locally as well rather than defining external 
 servers to passthrough.  Note that running either DHCP or DNS on a passive deployed PF system establishes dependencies on it 
 that are likely not wanted.<p>
-<a name=nat></a>
-<b>nat</b> <i>(toggle)</i><br>
-Default: disabled<br>
-Options: enabled|disabled<br>
-If enabled, NATs outgoing traffic to the external interface IP address.  This setting is only useful in an in-line 
-deployment.  Enabling in a passive environment will likely cause network issues for trapped nodes.  Enabling this option 
-also forces snort to listen on the internal interface - this could have performance implications in high-throughput 
-environments.<p>
 <a name=rogueinterval></a>
 <b>rogueinterval</b> <i>(numeric)</i><br>
 Default: 1<br>

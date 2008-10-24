@@ -94,27 +94,14 @@ stuffing=disabled
 
 [network]
 #
-# network.nat
-#
-# If enabled, NATs outgoing traffic to the external interface IP address.  This setting is only useful in an in-line 
-# deployment.  Enabling in a passive environment will likely cause network issues for trapped nodes.  Enabling this option 
-# also forces snort to listen on the internal interface - this could have performance implications in high-throughput 
-# environments.
-nat=disabled
-#
 # network.mode
 #
-# Defines the mode in which PacketFence will operate.  When deployed in-line, PacketFence acts as a router and requires 
-# internal and external interfaces to "live" on separate networks.  It's also likely that a static route for the internal 
-# network will need to be added to the upstream router.  The PacketFence system can act as a DHCP server or relay to 
-# one or more external servers.
+# Defines the mode in which PacketFence will operate.
 # 
 # When deployed in passive mode, PacketFence uses ARP manipulation inject itself into the datastream of unregistered or 
 # trapped nodes.  You can read more about the mechanics of ARP manipulation <a 
-# href="http://www.packetfence.org/dokuwiki/doku.php?id=faq#what_is_arp_manipulation_aka_poisoning_or_spoofing">here</a>.  Passive deployment has several benefits over an 
-# inline deployment including elimination of a performance bottleneck and single point of failure.  Its major failing is that 
-# it's not 100% in catching all traffic - spurious packets can and will occasionaly get through.  In an academic 
-# environment or environments where in-line devices are frowned upon, this failing is minor in relation to the benefits.
+# href="http://www.packetfence.org/dokuwiki/doku.php?id=faq#what_is_arp_manipulation_aka_poisoning_or_spoofing">here</a>. The major failing of passive mode is that 
+# it's not 100% in catching all traffic - spurious packets can and will occasionaly get through.
 mode=passive
 #
 # network.named

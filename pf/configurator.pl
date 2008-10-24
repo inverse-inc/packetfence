@@ -258,7 +258,7 @@ sub configuration {
 
   if (!$template){
     gatherer("Enable DHCP detector?","network.dhcpdetector",("enabled","disabled"));
-    gatherer("Mode (passive|inline)","network.mode",("passive","inline"));
+    gatherer("Mode (passive|dhcp)","network.mode",("passive","dhcp"));
   }
   config_network($cfg{network}{mode});
 
@@ -355,41 +355,22 @@ sub config_network {
   }
   $cfg{"trapping"}{"range"} = join(",", @trapping_range);
 
-  if ($mode =~ /inline/){
-    $int = gatherer("What is my internal interface (facing the clients)?", "");
-    gatherer("What is its IP address?","interface $int.ip");
-    gatherer("What is its mask?","interface $int.mask");
-    $cfg{"interface $int"}{"type"} = "internal";
-    $cfg{"interface $int"}{"authorizedips"} = "";
-    $int = gatherer("What is my external interface (facing the network)?","");
-    gatherer("What is its IP address?","interface $int.ip");
-    gatherer("What is its mask?","interface $int.mask");
-    $cfg{"interface $int"}{"type"} = "managed";
-    $cfg{"interface $int"}{"authorizedips"} = "";
+  # hack to force default value
+  $cfg{'tmp'}{'managed'} = "eth0";
+  $int = gatherer("What is my management interface?","tmp.managed",get_interfaces());
+  delete($cfg{'tmp'});
 
-    $tmp_net = new Net::Netmask($cfg{"interface $int"}{"ip"}, $cfg{"interface $int"}{"mask"});   
-    $cfg{"interface $int"}{"gateway"} = $tmp_net->nth(1);
+  gatherer("What is its IP address?","interface $int.ip");
+  gatherer("What is its mask?","interface $int.mask");
+  $cfg{"interface $int"}{"type"} = "internal,managed";
+  $cfg{"interface $int"}{"authorizedips"} = "";
 
-    gatherer("What is my gateway?","interface $int.gateway");
-    gatherer("Enable NAT?","network.nat",("enabled","disabled"));
- } else {
-    # hack to force default value
-    $cfg{'tmp'}{'managed'} = "eth0";
-    $int = gatherer("What is my management interface?","tmp.managed",get_interfaces());
-    delete($cfg{'tmp'});
+  $tmp_net = new Net::Netmask($cfg{"interface $int"}{"ip"}, $cfg{"interface $int"}{"mask"});
+  $cfg{"interface $int"}{"gateway"} = $tmp_net->nth(1);
 
-    gatherer("What is its IP address?","interface $int.ip");
-    gatherer("What is its mask?","interface $int.mask");
-    $cfg{"interface $int"}{"type"} = "internal,managed";
-    $cfg{"interface $int"}{"authorizedips"} = "";
+  gatherer("What is my gateway?","interface $int.gateway");
 
-    $tmp_net = new Net::Netmask($cfg{"interface $int"}{"ip"}, $cfg{"interface $int"}{"mask"});
-    $cfg{"interface $int"}{"gateway"} = $tmp_net->nth(1);
-
-    gatherer("What is my gateway?","interface $int.gateway");
-  
-    print "\n** NOTE: You must manually set testing=disabled in pf.conf to allow PF to send ARPs **\n\n" if (!$template);
-  }
+  print "\n** NOTE: You must manually set testing=disabled in pf.conf to allow PF to send ARPs **\n\n" if (!$template);
 }
 
 sub config_registration{

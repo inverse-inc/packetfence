@@ -203,7 +203,7 @@ sub generate_iptables {
          'jump' => 'ACCEPT'
   });
 
-  if (isenabled($Config{'network'}{'named'}) || isenabled($Config{'network'}{'nat'})) {
+  if (isenabled($Config{'network'}{'named'})) {
     internal_append_entry($filter,'INPUT',{
          'protocol' => 'udp',
          'destination-port' => '53',
@@ -368,31 +368,6 @@ sub generate_iptables {
     }
   }
 
-  if ($Config{'network'}{'mode'} =~ /^inline$/i) {
-    # allow unregistered users if registration disabled
-    if (!isenabled($Config{'trapping'}{'registration'})) {
-      internal_append_entry($filter,'FORWARD',{
-         'matches' => ['mark'],
-         'mark' => "0x".$unreg_mark,
-         'jump' => 'ACCEPT'
-      });
-    }
-
-    # allow registered/whitelisted nodes through
-    internal_append_entry($filter,'FORWARD',{
-       'matches' => ['mark'],
-       'mark' => "0x".$reg_mark,
-       'jump' => 'ACCEPT'
-    });
-
-    # drop blacklisted nodes
-    internal_append_entry($filter,'FORWARD',{
-       'matches' => ['mark'],
-       'mark' => "$black_mark",
-       'jump' => 'DROP'
-    });
-  }
-
   my @trapvids = class_trappable();
   foreach my $row (@trapvids) {
     my $vid = $row->{'vid'};
@@ -552,18 +527,6 @@ sub generate_iptables {
            'matches' => ['mark'],
            'mark' => "0x".$vid,   
            'jump' => 'REDIRECT'
-      });
-    }
-  }
-
-  # masquerade if nat enabled in pf.conf
-  if (isenabled($Config{'network'}{'nat'})) {  
-    foreach my $dev (get_external_devs()){
-	  #$nat->append_entry('POSTROUTING',{'jump' => 'MASQUERADE','out-interface' => $dev});
-	  $nat->append_entry('POSTROUTING',{
-	       'jump' => 'SNAT',
-		   'out-interface' => $dev,
-		   'to-source' => $Config{"interface $dev"}{'ip'}
       });
     }
   }

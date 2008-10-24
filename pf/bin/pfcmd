@@ -1274,11 +1274,6 @@ sub sanity_check {
 	}
   }
 
-  #NAT check
-  if (isenabled($Config{'network'}{'nat'}) && scalar(@external_nets)==0){
-    $logger->logdie("you must define an external network interface to use NAT, please set type=external on one of your interface definitions ");
-  }
-
   # network size warning
   my $internal_total;
   foreach my $internal_net (@internal_nets) {
