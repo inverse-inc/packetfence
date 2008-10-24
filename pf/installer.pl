@@ -81,7 +81,6 @@ my @rpms    = (
                "httpd",
                "php",
                "libpcap",
-	       "gcc",
 	       "php-gd",
                "net-snmp"
               );
