@@ -60,15 +60,12 @@ sub ifoctetslog_db_prepare {
   my $logger = Log::Log4perl::get_logger('pf::ifoctetslog');
   $logger->info("Preparing pf::ifoctetslog database queries");
   $ifoctetslog_history_mac_sql=$dbh->prepare( qq [ select switch,port,read_time,mac,ifInOctets,ifOutOctets from ifoctetslog where mac=? order by read_time desc ]);
-  $ifoctetslog_history_mac_start_end_sql=$dbh->prepare( qq [ select switch,port,read_time,mac,ifInOctets,ifOutOctets from ifoctetslog where mac=? and read_time >= from_unixtime(?) and read_time <=
-from_unixtime(?) order by read_time desc ]);
+  $ifoctetslog_history_mac_start_end_sql=$dbh->prepare( qq [ select switch,port,read_time,mac,ifInOctets,ifOutOctets from ifoctetslog where mac=? and unix_timestamp(read_time) >= ? and unix_timestamp(read_time) <= ? order by read_time desc ]);
   $ifoctetslog_history_user_sql=$dbh->prepare( qq [ select ifoctetslog.switch,ifoctetslog.port,read_time,ifoctetslog.mac,ifInOctets,ifOutOctets from ifoctetslog, node where ifoctetslog.mac=node.mac and pid=? order by mac asc, read_time desc ]);
-  $ifoctetslog_history_user_start_end_sql=$dbh->prepare( qq [ select ifoctetslog.switch,ifoctetslog.port,read_time,ifoctetslog.mac,ifInOctets,ifOutOctets from ifoctetslog, node where ifoctetslog.mac=node.mac
-and pid=? and read_time >= from_unixtime(?) and read_time <= from_unixtime(?) order by mac asc, read_time desc ]);
+  $ifoctetslog_history_user_start_end_sql=$dbh->prepare( qq [ select ifoctetslog.switch,ifoctetslog.port,read_time,ifoctetslog.mac,ifInOctets,ifOutOctets from ifoctetslog, node where ifoctetslog.mac=node.mac and pid=? and unix_timestamp(read_time) >= ? and unix_timestamp(read_time) <= ? order by mac asc, read_time desc ]);
 
   $ifoctetslog_history_switchport_sql=$dbh->prepare( qq [ select switch,port,read_time,mac,ifInOctets,ifOutOctets from ifoctetslog where switch=? and port=? order by read_time desc ]);
-  $ifoctetslog_history_switchport_start_end_sql=$dbh->prepare( qq [ select switch,port,read_time,mac,ifInOctets,ifOutOctets from ifoctetslog where switch=? and port=? and read_time >= from_unixtime(?) and
-read_time <= from_unixtime(?) order by read_time desc ]);
+  $ifoctetslog_history_switchport_start_end_sql=$dbh->prepare( qq [ select switch,port,read_time,mac,ifInOctets,ifOutOctets from ifoctetslog where switch=? and port=? and unix_timestamp(read_time) >= ? and unix_timestamp(read_time) <= ? order by read_time desc ]);
   
   $ifoctetslog_insert_sql=$dbh->prepare( qq [ INSERT INTO ifoctetslog (switch, port, read_time, mac, ifInOctets, ifOutOctets) VALUES(?,?,NOW(),?,?,?) ]);
 

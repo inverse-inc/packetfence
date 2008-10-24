@@ -64,7 +64,7 @@ sub violation_db_prepare {
   $violation_view_all_active_sql=$dbh->prepare( qq [ select v.mac,v.vid,v.start_date,v.release_date,v.status,v.ticket_ref,v.notes,i.ip,i.start_time,i.end_time from violation v left join iplog i on v.mac=i.mac where v.status="open" and i.end_time=0 group by v.mac]);
   $violation_delete_sql=$dbh->prepare( qq [ delete from violation where id=? ]);
   $violation_close_sql=$dbh->prepare( qq [ update violation set release_date=now(),status="closed" where mac=? and vid=? and status="open" ]);
-  $violation_grace_sql=$dbh->prepare( qq [ select unix_timestamp(start_date) + grace_period - unix_timestamp(now()) from violation v left join class c on v.vid=c.vid where mac=? and v.vid=? and status="closed" order by start_date desc ]);
+  $violation_grace_sql=$dbh->prepare( qq [ select unix_timestamp(start_date)+grace_period-unix_timestamp(now()) from violation v left join class c on v.vid=c.vid where mac=? and v.vid=? and status="closed" order by start_date desc ]);
   $violation_count_sql=$dbh->prepare( qq [ select count(*) from violation where mac=? and status="open" ]);
   $violation_count_trap_sql=$dbh->prepare( qq [ select count(*) from violation, action where violation.vid=action.vid and action.action='trap' and mac=? and status="open" ]);
   $violation_count_vid_sql=$dbh->prepare( qq [ select count(*) from violation where mac=? and vid=? ]);

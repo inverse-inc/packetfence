@@ -26,11 +26,11 @@ sub dashboard_db_prepare {
   db_connect($dbh);
   my $logger = Log::Log4perl::get_logger('pf::pfcmd::dashboard');
   $logger->info("Preparing pf::pfcmd::dashboard database queries");
-  $nugget_recent_violations_sql = $dbh->prepare( qq [ select v.mac,v.start_date,c.description as violation from violation v left join class c on v.vid=c.vid where start_date > now() - from_unixtime(?) * 3600 order by start_date desc limit 10 ]);
-  $nugget_recent_violations_opened_sql = $dbh->prepare( qq [ select v.mac,v.start_date,c.description as violation from violation v left join class c on v.vid=c.vid where start_date > now() - from_unixtime(?) * 3600 and v.status="open" order by start_date desc limit 10 ]);
-  $nugget_recent_violations_closed_sql = $dbh->prepare( qq [ select v.mac,v.start_date,c.description as violation from violation v left join class c on v.vid=c.vid where start_date > now() - from_unixtime(?) * 3600 and v.status="closed" order by start_date desc limit 10 ]);
+  $nugget_recent_violations_sql = $dbh->prepare( qq [ select v.mac,v.start_date,c.description as violation from violation v left join class c on v.vid=c.vid where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 order by start_date desc limit 10 ]);
+  $nugget_recent_violations_opened_sql = $dbh->prepare( qq [ select v.mac,v.start_date,c.description as violation from violation v left join class c on v.vid=c.vid where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 and v.status="open" order by start_date desc limit 10 ]);
+  $nugget_recent_violations_closed_sql = $dbh->prepare( qq [ select v.mac,v.start_date,c.description as violation from violation v left join class c on v.vid=c.vid where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 and v.status="closed" order by start_date desc limit 10 ]);
   #$nugget_recent_registrations_sql = $dbh->prepare( qq [ select n.pid,n.mac,n.regdate from node n where n.status="unreg" limit 10 ]);
-  $nugget_recent_registrations_sql = $dbh->prepare( qq [ select n.pid,n.mac,n.regdate from node n where n.status="reg" and regdate > now() - from_unixtime(?) * 3600 order by regdate desc limit 10 ]);
+  $nugget_recent_registrations_sql = $dbh->prepare( qq [ select n.pid,n.mac,n.regdate from node n where n.status="reg" and unix_timestamp(regdate) > unix_timestamp(now()) - ? * 3600 order by regdate desc limit 10 ]);
   $nugget_current_grace_sql = $dbh->prepare( qq [ select n.pid,n.lastskip from node n where status="grace" order by n.lastskip desc limit 10 ]);
   $is_dashboard_db_prepared = 1;
 }
