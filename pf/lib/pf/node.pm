@@ -339,7 +339,7 @@ sub node_register {
 
   }
 
-  #freemac($mac) if ($Config{'network'}{'mode'} =~ /passive/i && !violation_view_open($mac));
+  #freemac($mac) if ($Config{'network'}{'mode'} =~ /arp/i && !violation_view_open($mac));
 
   return(1);
 }
@@ -366,7 +366,7 @@ sub node_deregister {
 
   # we need to rely on the cgi's to do this work
   # now that they are not SUID
-  #return(trapmac($mac)) if ($Config{'network'}{'mode'} =~ /passive/i);
+  #return(trapmac($mac)) if ($Config{'network'}{'mode'} =~ /arp/i);
 }
 
 sub nodes_maintenance {

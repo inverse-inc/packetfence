@@ -106,7 +106,7 @@ my $cache = pf::nodecache->new();
 daemonize() if ($daemonize);
 
 # thread off violation updater
-if ($Config{'network'}{'mode'} =~ /^passive$/i) {
+if ($Config{'network'}{'mode'} =~ /^arp$/i) {
  push @kids, threads->create(\&arp_gun);
 }
 
@@ -116,7 +116,7 @@ if ( $Config{'network'}{'mode'}=~/^dhcp$/i ) {
 }
 
 # thread off arp listener
-if ( $Config{'network'}{'mode'}=~/^passive$/i){
+if ( $Config{'network'}{'mode'}=~/^arp$/i){
   foreach my $dev (@listen_ints){
     $logger->info("ARP detector on $dev enabled");
     push @kids, threads->create( \&arp_detector, $dev );
@@ -132,7 +132,7 @@ $logger->error("cleanup thread finished - this is bad");
 END {
   deletepid();
   $logger->info("stopping pfmon");
-  if ($Config{'network'}{'mode'}=~/passive/i) {
+  if ($Config{'network'}{'mode'}=~/arp/i) {
     # wake up the arpgun... then kill him
     foreach my $kid (@kids){
       $kid->detach;

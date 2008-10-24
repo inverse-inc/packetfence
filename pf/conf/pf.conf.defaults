@@ -98,11 +98,11 @@ stuffing=disabled
 #
 # Defines the mode in which PacketFence will operate.
 # 
-# When deployed in passive mode, PacketFence uses ARP manipulation inject itself into the datastream of unregistered or 
+# When deployed in arp mode, PacketFence uses ARP manipulation inject itself into the datastream of unregistered or 
 # trapped nodes.  You can read more about the mechanics of ARP manipulation <a 
-# href="http://www.packetfence.org/dokuwiki/doku.php?id=faq#what_is_arp_manipulation_aka_poisoning_or_spoofing">here</a>. The major failing of passive mode is that 
+# href="http://www.packetfence.org/dokuwiki/doku.php?id=faq#what_is_arp_manipulation_aka_poisoning_or_spoofing">here</a>. The major failing of arp mode is that 
 # it's not 100% in catching all traffic - spurious packets can and will occasionaly get through.
-mode=passive
+mode=arp
 #
 # network.named
 #
@@ -113,7 +113,7 @@ mode=passive
 # netfilter connection tracking.
 # 
 # If you're running DHCP locally, though, it may make sense to run a nameserver locally as well rather than defining external 
-# servers to passthrough.  Not that running either DHCP or DNS on a passive deployed PF system establishes dependencies on it 
+# servers to passthrough.  Not that running either DHCP or DNS on a arp deployed PF system establishes dependencies on it 
 # that are likely not wanted.
 named=disabled
 #
@@ -176,7 +176,7 @@ immediate=disabled
 # trapping.redirtimer
 #
 # How long to display the progress bar during trap release.  Setting it to a value of 5 or higher is recommended 
-# when in passive mode.  Doing so allows the client time to receive and process the redirection ARP sent by PacketFence.
+# when in arp mode.  Doing so allows the client time to receive and process the redirection ARP sent by PacketFence.
 redirtimer=10s
 #
 # trapping.passthrough
@@ -276,7 +276,7 @@ expire_session=5m
 #
 # registration.queuesize
 #
-# Useful for passive deployments on very large networks, this defines the number of nodes that PacketFence 
+# Useful for arp deployments on very large networks, this defines the number of nodes that PacketFence 
 # will simultaneously trap for registration (trappings due to violation always occur).  If set to 0, this queue is disabled. 
 queuesize=0
 #

@@ -62,7 +62,7 @@ if (defined($cgi->param('mode'))) {
 
         my $count = violation_count($mac);
         if ($count == 0) {
-          if ($Config{'network'}{'mode'} =~ /passive/i) {
+          if ($Config{'network'}{'mode'} =~ /arp/i) {
             my $cmd = $install_dir."/bin/pfcmd manage freemac $mac";
             my $output = qx/$cmd/;
           }
@@ -103,7 +103,7 @@ if ($grace != -1) {
   my $count = violation_count($mac); 
 
   if ($count == 0) {
-    if ($Config{'network'}{'mode'} =~ /passive/i && $count == 0) {
+    if ($Config{'network'}{'mode'} =~ /arp/i && $count == 0) {
       my $cmd = $install_dir."/bin/pfcmd manage freemac $mac";
       my $output = qx/$cmd/;
     }

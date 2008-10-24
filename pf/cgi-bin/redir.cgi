@@ -84,7 +84,7 @@ if ($violation){
   }
 } else {
   $logger->info("$mac already registered or registration disabled, freeing mac");
-  if ($Config{'network'}{'mode'} =~ /passive/i) {
+  if ($Config{'network'}{'mode'} =~ /arp/i) {
     my $cmd = $install_dir."/bin/pfcmd manage freemac $mac";
     my $output = qx/$cmd/;
   }

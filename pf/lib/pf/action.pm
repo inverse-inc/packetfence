@@ -191,7 +191,7 @@ sub action_trap {
     return(0);
   }
   # Let pfmon do this...
-  #return(trapmac($mac)) if ($Config{'network'}{'mode'} =~ /passive/i);
+  #return(trapmac($mac)) if ($Config{'network'}{'mode'} =~ /arp/i);
 }
 
 sub action_winpopup {

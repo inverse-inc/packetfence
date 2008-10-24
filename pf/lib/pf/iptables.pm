@@ -667,7 +667,7 @@ sub unmark_node {
     return(0);
   }
   # let redir cgi do this... 
-  #freemac($mac) if ($Config{'network'}{'mode'} =~ /^passive$/i && !violation_count($mac));
+  #freemac($mac) if ($Config{'network'}{'mode'} =~ /^arp$/i && !violation_count($mac));
   return(1);
 }
 
