@@ -33,6 +33,12 @@ use Net::Appliance::Session;
 use Net::SNMP;
 use Data::Dumper;
 
+sub getMinOSVersion {
+    my $this = shift;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    return '12.0(5)WC15';
+}
+
 # return the list of managed ports
 sub getManagedPorts {
     my $this = shift;

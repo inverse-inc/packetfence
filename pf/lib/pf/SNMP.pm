@@ -884,6 +884,13 @@ sub isPhoneAtIfIndex {
     return (grep(/^mac$/i, @phones) != 0);
 }
 
+sub getMinOSVersion {
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    $logger->error("function is NOT implemented");
+    return -1;
+}
+
 sub getMaxMacAddresses {
     my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));

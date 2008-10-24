@@ -28,6 +28,12 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::Intel');
 
+sub getMinOSVersion {
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    return '1.00.23';
+}
+
 sub getVersion {
     my ($this) = @_;
     my $oid_es530AgentRuntimeSwVersion = '1.3.6.1.4.1.343.6.63.1.1.1.0';

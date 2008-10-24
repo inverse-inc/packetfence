@@ -283,7 +283,7 @@ if (($getUpLinks) || ($getVersion) || ($getType) || ($getAllMacs) || ($getHubs))
                 }
                 if ($type eq $switchFactory->{_config}{$switchDescRegExp}{'type'}) {
                     $version = $switch->getVersion();
-                    $versionOk = $switch->isNewerVersionThan($switchFactory->{_config}{'default'}{"minOSVersion_$type"});
+                    $versionOk = $switch->isNewerVersionThan($switch->getMinOSVersion());
                 }
             }
         }
@@ -292,7 +292,7 @@ if (($getUpLinks) || ($getVersion) || ($getType) || ($getAllMacs) || ($getHubs))
             print "typeProblem, configuration file tells us " . $switchFactory->{_config}{$switchDescRegExp}{'type'};
         } else {
             if (!$versionOk) {
-                print "versionProblem: minOSVersion is " . $switchFactory->{_config}{'default'}{"minOSVersion_$type"};
+                print "versionProblem: minOSVersion is " . $switch->getMinOSVersion();
             } else {
                 print "ok";
             }

@@ -28,6 +28,12 @@ use Net::Telnet;
 
 use base ('pf::SNMP::Dell');
 
+sub getMinOSVersion {
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    return '112';
+}
+
 sub _setVlan {
     my ($this,$ifIndex,$newVlan,$oldVlan,$switch_locker_ref) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));

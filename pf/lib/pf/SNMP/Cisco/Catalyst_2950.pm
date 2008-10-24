@@ -33,6 +33,12 @@ use Net::Appliance::Session;
 use Net::SNMP;
 use Data::Dumper;
 
+sub getMinOSVersion {
+    my $this = shift;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    return '12.1(22)EA10';
+}
+
 sub getManagedPorts {
     my $this = shift;
     my $logger = Log::Log4perl::get_logger(ref($this));

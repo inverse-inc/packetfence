@@ -32,6 +32,12 @@ use lib '/usr/local/pf/lib/';
 
 use base ('pf::SNMP::Cisco::Catalyst_2950');
 
+sub getMinOSVersion {
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    return '12.2(25)SEE2';
+}
+
 sub getAllSecureMacAddresses {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));

@@ -27,6 +27,12 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::3COM');
 
+sub getMinOSVersion {
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    return '2.0.23';
+}
+
 sub getVersion {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));

@@ -53,6 +53,8 @@
           (http://www.packetfence.org/mantis/view.php?id=429)
         removed sysctl manipulations
           (http://www.packetfence.org/mantis/view.php?id=432)
+        removed minOSVersion parameters from switches.conf
+          (http://www.packetfence.org/mantis/view.php?id=428)
 
 1.7.4
         undef operator in SNMP.pm
