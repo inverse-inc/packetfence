@@ -127,6 +127,8 @@
           (http://www.packetfence.org/mantis/view.php?id=423)
         missing EOT in conf/documentation.conf
           (http://www.packetfence.org/mantis/view.php?id=431)
+        allow ifType=117 in pfsetvlan.pm
+          (http://www.packetfence.org/mantis/view.php?id=440)
 
 1.7.3
         not all port security traps are handled
