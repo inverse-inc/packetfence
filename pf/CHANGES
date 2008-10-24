@@ -67,6 +67,8 @@
           (http://www.packetfence.org/mantis/view.php?id=359)
         renamed functions in iptables.pm
           (http://www.packetfence.org/mantis/view.php?id=439)
+        removed gcc requirement
+          (http://www.packetfence.org/mantis/view.php?id=430)
 
 1.7.4
         undef operator in SNMP.pm
