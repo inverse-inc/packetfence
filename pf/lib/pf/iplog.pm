@@ -52,8 +52,8 @@ sub iplog_db_prepare {
   $iplog_view_open_ip_sql=$dbh->prepare( qq [ select mac,ip,start_time,end_time from iplog where ip=? and (end_time=0 or end_time > now()) limit 1]);
   $iplog_view_open_mac_sql=$dbh->prepare( qq [ select mac,ip,start_time,end_time from iplog where mac=? and (end_time=0 or end_time > now()) order by start_time desc]);   
   $iplog_view_all_sql=$dbh->prepare( qq [ select mac,ip,start_time,end_time from iplog ]);
-  $iplog_history_ip_date_sql=$dbh->prepare( qq [ select mac,ip,start_time,end_time from iplog where ip=? and unix_timestamp(start_time) < ? and (unix_timestamp(end_time) > ? or end_time=0) order by start_time desc ]);
-  $iplog_history_mac_date_sql=$dbh->prepare( qq [ select mac,ip,start_time,end_time from iplog where mac=? and unix_timestamp(start_time) < ? and (unix_timestamp(end_time) > ? or end_time=0) order by start_time desc ]);
+  $iplog_history_ip_date_sql=$dbh->prepare( qq [ select mac,ip,start_time,end_time from iplog where ip=? and start_time < from_unixtime(?) and (end_time > from_unixtime(?) or end_time=0) order by start_time desc ]);
+  $iplog_history_mac_date_sql=$dbh->prepare( qq [ select mac,ip,start_time,end_time from iplog where mac=? and start_time < from_unixtime(?) and (end_time > from_unixtime(?) or end_time=0) order by start_time desc ]);
   $iplog_history_ip_sql=$dbh->prepare( qq [ select mac,ip,start_time,end_time from iplog where ip=? order by start_time desc ]);
   $iplog_history_mac_sql=$dbh->prepare( qq [ select mac,ip,start_time,end_time from iplog where mac=? order by start_time desc ]);
   $iplog_open_sql=$dbh->prepare( qq [ insert into iplog(mac,ip,start_time) values(?,?,now()) ]);
@@ -61,7 +61,7 @@ sub iplog_db_prepare {
   $iplog_open_update_end_time_sql=$dbh->prepare( qq [ update iplog set end_time = adddate(now(), interval ? second) where mac=? and ip=? and (end_time = 0 or end_time > now()) ]);
   $iplog_close_sql=$dbh->prepare( qq [ update iplog set end_time=now() where ip=? and end_time=0 ]);
   $iplog_close_now_sql=$dbh->prepare( qq [ update iplog set end_time=now() where ip=? and (end_time=0 or end_time > now())]);
-  $iplog_cleanup_sql=$dbh->prepare ( qq [ delete from iplog where unix_timestamp(end_time) < (unix_timestamp(now()) - ?) and end_time!=0 ]);
+  $iplog_cleanup_sql=$dbh->prepare ( qq [ delete from iplog where end_time < (now() - from_unixtime(?)) and end_time!=0 ]);
   $iplog_db_prepared = 1;
 }
 

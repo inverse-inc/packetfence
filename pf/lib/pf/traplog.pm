@@ -64,16 +64,16 @@ sub traplog_db_prepare {
   my $logger = Log::Log4perl::get_logger('pf::traplog');
   $logger->info("Preparing pf::traplog database queries");
 
-  $traplog_insert_sql=$dbh->prepare( qq [ INSERT INTO traplog (switch, ifIndex, parseTime, `type`) VALUES(?,?,NOW(),?) ]);
+  $traplog_insert_sql=$dbh->prepare( qq [ insert into traplog (switch, ifIndex, parseTime, `type`) values (?,?,now(),?) ]);
 
-  $traplog_cleanup_sql=$dbh->prepare( qq [ delete from traplog where parseTime < from_unixtime(unix_timestamp(now()) - ?) ]);
+  $traplog_cleanup_sql=$dbh->prepare( qq [ delete from traplog where parseTime < now() - from_unixtime(?) ]);
 
-  $traplog_first_TimeStamp_sql=$dbh->prepare( qq [ SELECT unix_timestamp(parseTime) AS firstInsert FROM traplog ORDER BY parseTime ASC LIMIT 1 ] );
-  $traplog_all_switches_sql=$dbh->prepare( qq [ SELECT distinct switch FROM traplog ] );
+  $traplog_first_TimeStamp_sql=$dbh->prepare( qq [ select unix_timestamp(parseTime) as firstInsert from traplog order by parseTime asc limit 1 ] );
+  $traplog_all_switches_sql=$dbh->prepare( qq [ select distinct switch from traplog ] );
   $traplog_type_count_sql = $dbh->prepare( qq[ select `type`, count(*) as nb from traplog where parseTime >= from_unixtime(?) and parseTime < from_unixtime(?) group by `type` ]);
   $traplog_switch_type_count_sql = $dbh->prepare( qq[ select switch, `type`, count(*) as nb from traplog where parseTime >= from_unixtime(?) and parseTime < from_unixtime(?) group by switch, `type` ]);
-  $traplog_switches_with_most_traps_sql = $dbh->prepare( qq [ select switch, count(*) as nb from traplog group by switch order by nb DESC limit ? ]);
-  $traplog_switches_with_most_traps_date_sql = $dbh->prepare( qq [ select switch, count(*) as nb from traplog where parseTime >= from_unixtime(?) group by switch order by nb DESC limit ? ]);
+  $traplog_switches_with_most_traps_sql = $dbh->prepare( qq [ select switch, count(*) as nb from traplog group by switch order by nb desc limit ? ]);
+  $traplog_switches_with_most_traps_date_sql = $dbh->prepare( qq [ select switch, count(*) as nb from traplog where parseTime >= from_unixtime(?) group by switch order by nb desc limit ? ]);
 
   $traplog_db_prepared = 1;
 }
