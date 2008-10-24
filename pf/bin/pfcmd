@@ -404,8 +404,6 @@ sub service {
     read_violations_conf();
     print "iptables|$command\n";
     generate_iptables();
-    generate_sysctl_conf();
-    `/sbin/sysctl -p $install_dir/conf/sysctl.conf`;
   }
 
   foreach my $srv (@services){

@@ -19,7 +19,7 @@ BEGIN {
   use Exporter ();
   our (@ISA, @EXPORT);
   @ISA    = qw(Exporter);
-  @EXPORT = qw(service_list service_ctl read_violations_conf generate_sysctl_conf
+  @EXPORT = qw(service_list service_ctl read_violations_conf
                generate_dhcpd_reg generage_dhcpd_iso);
 }
 
@@ -388,14 +388,6 @@ sub generate_snort_conf {
   $tags{'snort_rules'} = join("\n",@rules);
   $logger->info("generating $install_dir/conf/snort.conf");
   parse_template(\%tags, "$install_dir/conf/templates/snort.conf", "$install_dir/conf/snort.conf");
-}
-
-sub generate_sysctl_conf {
-  my $logger = Log::Log4perl::get_logger('pf::services');
-  my %tags;
-  $tags{'template'} = "$install_dir/conf/templates/sysctl.conf";
-  $logger->info("generating $install_dir/conf/sysctl.conf");
-  parse_template(\%tags, "$install_dir/conf/templates/sysctl.conf", "$install_dir/conf/sysctl.conf");
 }
 
 sub generate_snmptrapd_conf {

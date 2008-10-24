@@ -351,7 +351,6 @@ fi
 /usr/local/pf/conf/templates/httpd.conf.apache22
 %config(noreplace) /usr/local/pf/conf/templates/named.conf
 /usr/local/pf/conf/templates/snort.conf
-/usr/local/pf/conf/templates/sysctl.conf
 %dir /usr/local/pf/conf/authentication
 %config(noreplace) /usr/local/pf/conf/authentication/local.pm
 %config(noreplace) /usr/local/pf/conf/authentication/ldap.pm
