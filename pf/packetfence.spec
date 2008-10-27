@@ -267,7 +267,7 @@ fi
 %dir /usr/local/pf/sbin
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 /usr/local/pf/bin/pfcmd_vlan
-%config(noreplace) /usr/local/pf/bin/flip.pl
+/usr/local/pf/bin/flip.pl
 /usr/local/pf/sbin/pfdetect
 /usr/local/pf/sbin/pfredirect
 /usr/local/pf/sbin/pfmon

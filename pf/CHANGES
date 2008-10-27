@@ -71,6 +71,9 @@
           (http://www.packetfence.org/mantis/view.php?id=430)
         re-organize PacketFence binaries
           (http://www.packetfence.org/mantis/view.php?id=441)
+        flip.pl should not any more be declared as config 
+          file in packetfence.spec
+          (http://www.packetfence.org/mantis/view.php?id=442)
 
 1.7.4
         undef operator in SNMP.pm
