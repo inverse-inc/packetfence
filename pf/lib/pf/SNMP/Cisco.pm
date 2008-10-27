@@ -17,7 +17,6 @@ use base ('pf::SNMP');
 use Log::Log4perl;
 use Net::SNMP;
 use Net::Appliance::Session;
-use Net::Ping;
 
 sub getVersion {
     my ($this) = @_;

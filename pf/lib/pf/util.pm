@@ -13,7 +13,6 @@ use strict;
 use warnings;
 use File::Basename;
 use FileHandle;
-use Sys::Syslog;
 use POSIX();
 use Net::SMTP;
 use Net::MAC::Vendor;

@@ -18,6 +18,7 @@ use strict;
 use warnings;
 
 use Data::Dumper;
+use POSIX();
 use Date::Parse;
 use Parse::RecDescent;
 use File::Basename qw(basename);
@@ -1222,7 +1223,6 @@ sub sanity_check {
     # make sure named pipe 'alert' is present if snort is enabled
     my $snortpipe = "$install_dir/var/alert";
     if (! -p $snortpipe) {
-      require POSIX;
       if (! POSIX::mkfifo($snortpipe, 0666)) {
         $logger->logdie("snort alert pipe ($snortpipe) does not exist and unable to create it");
       }

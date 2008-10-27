@@ -9,7 +9,6 @@
 #
 
 use Net::Pcap 0.16;
-use POSIX qw(:signal_h);
 use Getopt::Std;
 use Config::IniFiles;
 use File::Basename qw(basename);

@@ -65,7 +65,7 @@ use Log::Log4perl;
 use Getopt::Long;
 use Pod::Usage;
 use Net::SMTP;
-use POSIX qw(:signal_h);
+use POSIX ();
 
 use constant {
     LIB_DIR => $FindBin::Bin . "/../lib",

@@ -12,7 +12,6 @@ package pf::nodecache;
 use strict;
 use warnings;
 use File::Basename;
-use Sys::Syslog;
 use Log::Log4perl;
 
 BEGIN {
