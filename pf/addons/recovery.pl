@@ -68,14 +68,14 @@ require 5.8.8;
 
 use constant {
     NB_THREADS => 15,
-    LIB_DIR => $FindBin::Bin . "/../../lib",
-    CONF_FILE => $FindBin::Bin . "/../../conf/switches.conf",
+    LIB_DIR => $FindBin::Bin . "/../lib",
+    CONF_FILE => $FindBin::Bin . "/../conf/switches.conf",
 };
 
 
 use lib LIB_DIR;
 use pf::SwitchFactory;
-require $FindBin::Bin . "/../../conf/pfsetvlan.pm";
+require $FindBin::Bin . "/../conf/pfsetvlan.pm";
 use pf::config;
 $thread = 1;
 use pf::db;

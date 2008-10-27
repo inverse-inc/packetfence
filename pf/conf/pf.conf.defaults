@@ -498,27 +498,27 @@ dhcpd=/usr/sbin/dhcpd
 # services.pfmon
 #
 # Location of the pfmon daemon.  The default setting should be fine.
-pfmon=/usr/local/pf/bin/pfmon
+pfmon=/usr/local/pf/sbin/pfmon
 #
 # services.pfdhcplistener
 #
 # Location of the pfdhcplistener daemon.  The default setting should be fine.
-pfdhcplistener=/usr/local/pf/bin/pfdhcplistener
+pfdhcplistener=/usr/local/pf/sbin/pfdhcplistener
 #
 # services.pfdetect
 #
 # Location of the pfdetect daemon.  The default setting should be fine.
-pfdetect=/usr/local/pf/bin/pfdetect
+pfdetect=/usr/local/pf/sbin/pfdetect
 #
 # services.pfredirect
 #
 # Location of the pfredirect daemon.  The default setting should be fine.
-pfredirect=/usr/local/pf/bin/pfredirect
+pfredirect=/usr/local/pf/sbin/pfredirect
 #
 # services.pfsetvlan
 #
 # Location of the pfsetvlan daemon.  The default setting should be fine.
-pfsetvlan=/usr/local/pf/bin/pfsetvlan
+pfsetvlan=/usr/local/pf/sbin/pfsetvlan
 #
 # services.named
 # Location of the named binary.  Only necessary to change if you are not using the RPMed version.

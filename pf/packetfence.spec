@@ -264,18 +264,18 @@ fi
 %attr(0755, root, root) %{_initrddir}/packetfence
 %dir /usr/local/pf
 %dir /usr/local/pf/bin
-/usr/local/pf/bin/dhcp_dumper
+%dir /usr/local/pf/sbin
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 /usr/local/pf/bin/pfcmd_vlan
 %config(noreplace) /usr/local/pf/bin/flip.pl
-/usr/local/pf/bin/pfdetect
-/usr/local/pf/bin/pfredirect
-/usr/local/pf/bin/pfmon
+/usr/local/pf/sbin/pfdetect
+/usr/local/pf/sbin/pfredirect
+/usr/local/pf/sbin/pfmon
 /usr/local/pf/bin/accounting.pl
-%attr(0755, pf, pf) /usr/local/pf/bin/pfdhcplistener
+%attr(0755, pf, pf) /usr/local/pf/sbin/pfdhcplistener
 %config(noreplace) /usr/local/pf/bin/lookup_node.pl
 %config(noreplace) /usr/local/pf/bin/lookup_person.pl
-/usr/local/pf/bin/pfsetvlan
+/usr/local/pf/sbin/pfsetvlan
 /usr/local/pf/bin/start
 /usr/local/pf/bin/stop
 %dir /usr/local/pf/cgi-bin
@@ -303,6 +303,7 @@ fi
 %config /usr/local/pf/conf/dhcp_fingerprints.conf
 %config /usr/local/pf/conf/oui.txt
 %dir /usr/local/pf/test
+/usr/local/pf/test/dhcp_dumper
 /usr/local/pf/test/connect_and_read.pl
 %dir /usr/local/pf/contrib/lookup
 /usr/local/pf/contrib/lookup/*
@@ -311,11 +312,11 @@ fi
 %dir /usr/local/pf/contrib/802.1X
 /usr/local/pf/contrib/802.1X/*
 /usr/local/pf/contrib/oinkmaster.conf
-%dir /usr/local/pf/contrib/addons
-/usr/local/pf/contrib/addons/recovery.pl
-/usr/local/pf/contrib/addons/monitorpfsetvlan.pl
-/usr/local/pf/contrib/addons/autodiscover.pl
-/usr/local/pf/contrib/addons/convertToPortSecurity.pl
+%dir /usr/local/pf/addons
+/usr/local/pf/addons/recovery.pl
+/usr/local/pf/addons/monitorpfsetvlan.pl
+/usr/local/pf/addons/autodiscover.pl
+/usr/local/pf/addons/convertToPortSecurity.pl
 %dir /usr/local/pf/html/user
 %dir /usr/local/pf/html/user/3rdparty
 /usr/local/pf/html/user/3rdparty/timerbar.js
@@ -409,6 +410,7 @@ fi
 %dir /usr/local/pf
 %dir /usr/local/pf/var
 %dir /usr/local/pf/bin
+%dir /usr/local/pf/sbin
 %dir /usr/local/pf/conf
 %config /usr/local/pf/conf/pf.conf.defaults
 %config /usr/local/pf/conf/documentation.conf
@@ -431,7 +433,7 @@ fi
 /usr/local/pf/lib/pf/iptables.pm
 /usr/local/pf/lib/pf/rawip.pm
 /usr/local/pf/lib/pf/locationlog.pm
-%attr(0755, pf, pf) /usr/local/pf/bin/pfdhcplistener
+%attr(0755, pf, pf) /usr/local/pf/sbin/pfdhcplistener
 %config(noreplace) /usr/local/pf/bin/lookup_node.pl
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 %dir /usr/local/pf/lib/pf/pfcmd

@@ -21,8 +21,8 @@ use Log::Log4perl::Appender::File;
 use Data::Dumper;
 
 use constant {
-    SNMPLOG_FILE => $FindBin::Bin . "/../../logs/snmptrapd.log",
-    LOG_FILE => $FindBin::Bin . "/../../logs/pfsetvlan.log",
+    SNMPLOG_FILE => $FindBin::Bin . "/../logs/snmptrapd.log",
+    LOG_FILE => $FindBin::Bin . "/../logs/pfsetvlan.log",
 };
         
 print "SNMP : " . SNMPLOG_FILE . "\n";

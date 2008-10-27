@@ -49,11 +49,9 @@ use Data::Dumper;
 
 use constant {
     LIB_DIR => $FindBin::Bin . "/../lib",
-    PF_LIB_DIR => $FindBin::Bin . "/../../lib",
-    CONF_FILE => $FindBin::Bin . "/../../conf/switches.conf",
+    CONF_FILE => $FindBin::Bin . "/../conf/switches.conf",
 };
 
-use lib PF_LIB_DIR;
 use lib LIB_DIR;
 use pf::SwitchFactory;
 

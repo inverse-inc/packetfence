@@ -56,8 +56,8 @@ use diagnostics;
 use FindBin;
 
 use constant {
-    LIB_DIR => $FindBin::Bin . "/../../lib",
-    CONF_FILE => $FindBin::Bin . "/../../conf/switches.conf",
+    LIB_DIR => $FindBin::Bin . "/../lib",
+    CONF_FILE => $FindBin::Bin . "/../conf/switches.conf",
 };
 
 use lib LIB_DIR;
