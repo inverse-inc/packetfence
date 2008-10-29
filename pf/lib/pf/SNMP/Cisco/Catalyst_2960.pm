@@ -136,32 +136,6 @@ sub getSecureMacAddresses {
         }
     }
 
-    #my $voiceVlan = $this->getVoiceVlan($ifIndex);
-    #my $ifDesc = $this->getIfDesc($ifIndex);
-    #
-    #my $session;
-    #eval {
-    #    $session = Net::Telnet::Cisco->new(Host => $this->{_ip}, Timeout=>5);
-    #    $session->login($this->{_telnetUser}, $this->{_telnetPwd});
-    #    $session->enable($this->{_telnetEnablePwd});
-    #};
-    #
-    #if ($@) {
-    #    $logger->error("ERROR: Can not connect to switch $this->{'_ip'} using Telnet");
-    #    return;
-    #}
-    #
-    #eval {
-    #    my @output = $session->cmd(String => "show port-security interface $ifDesc address | include $voiceVlan", Timeout => '10');
-    #    my $mac;
-    #    foreach my $line (@output) {
-    #        if ($line =~ /^\s*$voiceVlan\s+([A-Z0-9]{2})([A-Z0-9]{2})\.([A-Z0-9]{2})([A-Z0-9]{2})\.([A-Z0-9]{2})([A-Z0-9]{2})/i) {
-    #            $mac = lc("$1:$2:$3:$4:$5:$6");
-    #            push @{$secureMacAddrHashRef->{$mac}}, $voiceVlan;
-    #        }
-    #    }
-    #};
-
     return $secureMacAddrHashRef;
 }
 
