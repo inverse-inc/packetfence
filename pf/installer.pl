@@ -104,7 +104,10 @@ my $external_deps = { "jpgraph_v1" => {"url_path"     => "http://hem.bredband.ne
                                        "install_path" => "/usr/local/pf/html/admin/common/jpgraph/jpgraph-1.26"},
                       "jpgraph_v2" => {"url_path"     => "http://hem.bredband.net/jpgraph2/",
                                        "file_name"    => "jpgraph-2.3.3.tar.gz",
-                                       "install_path" => "/usr/local/pf/html/admin/common/jpgraph/jpgraph-2.3.3"}
+                                       "install_path" => "/usr/local/pf/html/admin/common/jpgraph/jpgraph-2.3.3"},
+                      "bleedingsnort" => {"url_path"  => "http://www.bleedingsnort.com/",
+                                       "file_name"    => "bleeding.rules.tar.gz",
+                                       "install_path" => "/usr/local/pf/conf/snort/"}
                     };
 
 $ENV{'LANG'} = "C";
@@ -347,6 +350,12 @@ if (!installed("snort")) {
   #print "You are running Snort 2.6.x, which is incompatible with PacketFence - please downgrade to 2.4.x.\n" if ($snort_version =~ /^2\.6/);
 }
 print "We encourage the usage of oinkmaster to manage your snort rules. If you don't have it installed yet, please visit http://oinkmaster.sourceforge.net/download.shtml to download oinkmaster. A sample oinkmaster configuration file is provided at /usr/local/pf/contrib/oinkmaster.conf.\n";
+print "Downloading bleedingsnort rulesets\n";
+my $url = $external_deps->{'bleedingsnort'}->{'url_path'} . $external_deps->{'bleedingsnort'}->{'file_name'};
+my $local_file_name =  $external_deps->{'bleedingsnort'}->{'install_path'} . $external_deps->{'bleedingsnort'}->{'file_name'};
+`/usr/bin/wget -N $url -P $external_deps->{'bleedingsnort'}->{'install_path'}`;
+`/bin/tar zxvf $local_file_name --strip-components 1 -C $external_deps->{'bleedingsnort'}->{'install_path'}`;
+
 
 # check if modules are installed
 if (questioner("PF needs several Perl modules to function properly.  May I download and install them?","y",("y", "n"))) {

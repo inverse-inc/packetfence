@@ -74,6 +74,8 @@
         flip.pl should not any more be declared as config 
           file in packetfence.spec
           (http://www.packetfence.org/mantis/view.php?id=442)
+        install bleedingsnort rulesets in installer.pl
+          (http://www.packetfence.org/mantis/view.php?id=443)
 
 1.7.5
         pfsetvlan should check that MAC field is filled before
