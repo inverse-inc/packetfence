@@ -894,7 +894,7 @@ sub handleTrap {
         # if trap came from a PC {{{3
         } else {
             $logger->debug("$trapType trap comes from PC $trapMac");
-            if (@locationlog_pc) {
+            if ((@locationlog_pc) && (defined($locationlog_pc[0]->{'mac'}))) {
                 my $oldPC = $locationlog_pc[0]->{'mac'};
                 $logger->debug("$oldPC has still open locationlog entry at $switch_ip ifIndex $switch_port");
                 if (custom_isClientAlive($oldPC, $switch_ip, $switch_port, $trapVlan, $switch->{_isolationVlan}, $mysql_connection)) {
