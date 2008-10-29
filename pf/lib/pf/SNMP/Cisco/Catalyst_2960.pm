@@ -60,68 +60,6 @@ sub getAllSecureMacAddresses {
         }
     }
 
-    #my $voiceSecureMacAddrHashRef;
-    #my $session;
-    #eval {
-    #    $session = Net::Telnet::Cisco->new(Host => $this->{_ip}, Timeout=>5);
-    #    $session->login($this->{_telnetUser}, $this->{_telnetPwd});
-    #    $session->enable($this->{_telnetEnablePwd});
-    #};
-    #
-    #if ($@) {
-    #    $logger->error("ERROR: Can not connect to switch $this->{'_ip'} using Telnet");
-    #    return;
-    #}
-    #
-    #eval {
-    #    my @output = $session->cmd(String => 'show run | include ((^interface)|(switchport voice vlan)|(switchport port-security mac-address.+vlan voice))', Timeout => '10');
-    #    my $switchPort;
-    #    my $mac;
-    #    my $voiceVlan;
-    #    foreach my $line (@output) {
-    #        if ($line =~ /^\s*interface (.+)$/i) {
-    #            $switchPort = $1;
-    #            $voiceVlan = undef;
-    #            $mac = undef;
-    #        } elsif ($line =~ /switchport voice vlan (\d+)$/) {
-    #            $voiceVlan = $1;
-    #        } elsif ($line =~ /switchport port-security mac-address ([A-Z0-9]{2})([A-Z0-9]{2})\.([A-Z0-9]{2})([A-Z0-9]{2})\.([A-Z0-9]{2})([A-Z0-9]{2}) vlan voice/i) {
-    #            $mac = lc("$1:$2:$3:$4:$5:$6");
-    #        }
-    #        if (defined($switchPort) && defined($mac) && defined($voiceVlan)) {
-    #            push @{$voiceSecureMacAddrHashRef->{$mac}->{$switchPort}}, $voiceVlan;
-    #            $switchPort = undef;
-    #            $voiceVlan = undef;
-    #            $mac = undef;
-    #        }
-    #    }
-    #};
-    #if (scalar(keys(%$voiceSecureMacAddrHashRef)) > 0) {
-    #    my $oid_ifDescr = '1.3.6.1.2.1.2.2.1.2';
-    #    $result = $this->{_sessionRead}->get_table(
-    #        -baseoid => $oid_ifDescr
-    #    );
-    #    my $ifDescrHashRef;
-    #    if (defined($result)) {
-    #        foreach my $port (keys %$result) {
-    #            $port =~ /^$oid_ifDescr\.(\d+)$/;
-    #            $ifDescrHashRef->{$result->{$port}} = $1;
-    #        }
-    #    }
-    #    foreach my $mac (keys %$voiceSecureMacAddrHashRef) {
-    #        foreach my $ifDescr (keys %{$voiceSecureMacAddrHashRef->{$mac}}) {
-    #            my $ifIndex;
-    #            if (exists($ifDescrHashRef->{$ifDescr})) {
-    #                $ifIndex = $ifDescrHashRef->{$ifDescr};
-    #            }
-    #            foreach my $vlan (@{$voiceSecureMacAddrHashRef->{$mac}->{$ifDescr}}) {
-    #                if (defined($ifIndex)) {
-    #                    push @{$secureMacAddrHashRef->{$mac}->{$ifIndex}}, $vlan;
-    #                }
-    #            }
-    #        }
-    #    }
-    #}
     return $secureMacAddrHashRef;
 }
 
