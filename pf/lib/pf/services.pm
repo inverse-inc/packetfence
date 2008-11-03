@@ -117,6 +117,7 @@ sub service_ctl {
       my $pid;
       chop($pid=`pidof -x $exe`);
       $pid=0 if (!$pid);
+      $logger->info("pidof -x $exe returned $pid");
       return($pid);
       last CASE;
     }
