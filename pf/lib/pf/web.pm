@@ -341,6 +341,7 @@ sub web_user_authenticate {
     if ($authReturn == 1) {
       #save login into session
       $session->param("login", $cgi->param("login"));
+      $session->param("authType", $auth);
     }
     return ($authReturn,$err);
   }

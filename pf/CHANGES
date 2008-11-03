@@ -84,6 +84,8 @@
         add executables used in installer.pl to dependencies 
           in packetfence.spec
           (http://www.packetfence.org/mantis/view.php?id=445)
+        CGI session should contain authentication type used
+          (http://www.packetfence.org/mantis/view.php?id=447)
 
 1.7.4
         undef operator in SNMP.pm
