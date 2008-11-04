@@ -88,6 +88,7 @@
           (http://www.packetfence.org/mantis/view.php?id=447)
         support for stacked Nortel BayStack5520
           (http://www.packetfence.org/mantis/view.php?id=448)
+        support for Enterasys::SecureStack C2
 
 1.7.4
         undef operator in SNMP.pm
