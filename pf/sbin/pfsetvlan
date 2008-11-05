@@ -27,10 +27,6 @@ pfsetvlan
 Act on SNMP traps and set switch port VLAN according to
 the discovered MACs status in packetfence.
 
-snmptrapd has to be launched with
-snmptrapd -n -Lf /usr/local/pf/logs/snmptrapd.log -p /var/run/snmptrapd.pid -On -F '%V|%#04.4y-%#02.2m-%02.2l|%#02.2h:%#02.2j:%#02.2k|%b|%a|BEGIN TYPE %w END TYPE BEGIN SUBTYPE %q END SUBTYPE BEGIN VARIABLEBINDINGS %v END VARIABLEBINDINGS\n'
-
-
 =head1 AUTHOR
 
 =over
