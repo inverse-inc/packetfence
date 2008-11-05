@@ -407,6 +407,37 @@ sub setVlan {
     return $this->_setVlan($ifIndex, $newVlan, $vlan, $switch_locker_ref);
 }
 
+
+=item _setVlanByOnlyModifyingPvid
+
+=cut
+sub _setVlanByOnlyModifyingPvid {
+    my ($this,$ifIndex,$newVlan,$oldVlan,$switch_locker_ref) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    if (! $this->connectRead()) {
+        return 0;
+    }
+    my $OID_dot1qPvid = '1.3.6.1.2.1.17.7.1.4.5.1.1'; # Q-BRIDGE-MIB
+    my $result;
+
+    if (! $this->connectWrite()) {
+        return 0;
+    }
+
+    my $dot1dBasePort = $this->getDot1dBasePortForThisIfIndex($ifIndex);
+
+    $logger->trace("SNMP set_request for Pvid for new VLAN");
+    $result = $this->{_sessionWrite}->set_request(
+        -varbindlist => [
+        "$OID_dot1qPvid.$dot1dBasePort", Net::SNMP::GAUGE32, $newVlan
+        ]
+    );
+    if (! defined ($result)) {
+        $logger->error("error setting Pvid: " . $this->{_sessionWrite}->error);
+    }
+    return (defined($result));
+}
+
 =item setIsolationVlan - set the port VLAN to the isolation VLAN
 
 =cut
