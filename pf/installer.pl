@@ -392,6 +392,10 @@ if (questioner("PF needs JPGraph for its administrative Web GUI.  May I download
   }
 }
 
+if(questioner("Do you want me to update the DHCP fingerprints to the latest available version ?","y",("y", "n"))) {
+  `/usr/local/pf/bin/pfcmd update fingerprints`;
+}
+
 print "Pre-compiling pfcmd grammar\n";
 `/usr/bin/perl -w -e 'use strict; use warnings; use diagnostics; use Parse::RecDescent; use lib "/usr/local/pf/lib"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile(\$grammar, "pfcmd_pregrammar");'`;
 rename "pfcmd_pregrammar.pm", '/usr/local/pf/lib/pf/pfcmd/pfcmd_pregrammar.pm';

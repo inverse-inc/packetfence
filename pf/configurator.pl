@@ -71,12 +71,6 @@ if (questioner("Would you like to use a template configuration or custom","t",("
 configuration();
 write_changes();
 
-if(questioner("Do you want me to update the DHCP fingerprints to the latest available version ?","y",("y", "n"))) {
-  `/usr/local/pf/bin/pfcmd update fingerprints`;
-}
-
-
-
 # write and exit   
 sub write_changes {
   my $port=$default_cfg{'ports'}{'admin'};
