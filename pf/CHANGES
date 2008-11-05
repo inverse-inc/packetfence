@@ -91,6 +91,8 @@
         support for Enterasys::SecureStack C2
         moved DHCP fingerprint update from configurator.pl
           to installer.pl
+        added oui update to installer.pl
+          (http://www.packetfence.org/mantis/view.php?id=446)
 
 1.7.4
         undef operator in SNMP.pm
