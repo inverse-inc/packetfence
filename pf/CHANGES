@@ -95,6 +95,8 @@
           (http://www.packetfence.org/mantis/view.php?id=446)
         unified _setVlan code between different modules
           (http://www.packetfence.org/mantis/view.php?id=449)
+        missing return false in templates/register.html
+          (http://www.packetfence.org/mantis/view.php?id=450)
 
 1.7.4
         undef operator in SNMP.pm
