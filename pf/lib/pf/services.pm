@@ -478,13 +478,6 @@ sub generate_httpd_conf {
   }
   $tags{'content-proxies'} = join("\n", @contentproxies);
 
-  my @authaliases; 
-  foreach my $authtype (split(/\s*,\s*/, $Config{'registration'}{'auth'})){ 
-        next if ($authtype eq "harvard");
-	push @authaliases, "  Alias /cgi-bin/register-$authtype.cgi $install_dir/cgi-bin/register.cgi";
-  }
-  $tags{'auth-aliases'} = join("\n", @authaliases);
-
   $logger->info("generating $install_dir/conf/httpd.conf");
   parse_template(\%tags, "$install_dir/conf/templates/httpd.conf", "$install_dir/conf/httpd.conf");
 

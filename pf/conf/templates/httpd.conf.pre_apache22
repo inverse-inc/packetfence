@@ -171,7 +171,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
   Alias /favicon.ico %%install_dir%%/html/common/favicon.ico
   Alias /common/ %%install_dir%%/html/common/
   #Alias /cgi-bin/register-skip.cgi %%install_dir%%/cgi-bin/register.cgi
-%%auth-aliases%%
   ScriptAlias /cgi-bin/ "%%install_dir%%/cgi-bin/"
 
   CustomLog %%install_dir%%/logs/access_log combined
