@@ -134,7 +134,7 @@ ln -s pfcmd ./stop
 cd $RPM_BUILD_ROOT/usr/local/pf/db
 ln -s pfschema.mysql.180 ./pfschema.mysql
 
-#httpd.conf and local.conf symlink
+#httpd.conf symlink
 cd $RPM_BUILD_ROOT/usr/local/pf/conf/templates
 if (/usr/sbin/httpd -v | egrep 'Apache/2\.[2-9]\.' > /dev/null)
 then

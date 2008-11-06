@@ -103,6 +103,8 @@
           (http://www.packetfence.org/mantis/view.php?id=451)
         removed external2 from reg-detect-vlan.conf
           (http://www.packetfence.org/mantis/view.php?id=453)
+        removed reference to local.conf from installer.pl
+          (http://www.packetfence.org/mantis/view.php?id=455)
 
 1.7.4
         undef operator in SNMP.pm

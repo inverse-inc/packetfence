@@ -436,17 +436,6 @@ if (! (-e '/usr/local/pf/conf/templates/httpd.conf')) {
   }
 }
 
-if (! (-e '/usr/local/pf/conf/templates/local.conf')) {
-  print "/usr/local/pf/conf/templates/local.conf symlink does not yet exist\n";
-  if (`httpd -v` =~ /Apache\/2\.[2-9]\./) {
-    print "creating symlink to local.conf.apache22\n";
-    `ln -s /usr/local/pf/conf/templates/local.conf.apache22 /usr/local/pf/conf/templates/local.conf`;
-  } else {
-    print "creating symlink to local.conf.pre_apache22\n";
-    `ln -s /usr/local/pf/conf/templates/local.conf.pre_apache22 /usr/local/pf/conf/templates/local.conf`;
-  }
-}
-
 if (questioner("Would you like me to create an account for the web administrative interface?\n** NOTE: this will overwrite any existing accounts **","y",("y", "n"))) {
   do {
     print "Username [admin]: ";
