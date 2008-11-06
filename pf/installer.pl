@@ -393,11 +393,12 @@ if (questioner("PF needs JPGraph for its administrative Web GUI.  May I download
 }
 
 if(questioner("Do you want me to update the DHCP fingerprints to the latest available version ?","y",("y", "n"))) {
-  `/usr/local/pf/bin/pfcmd update fingerprints`;
+  `/usr/bin/wget -N http://www.packetfence.org/dhcp_fingerprints.conf -P $conf_dir`;
+
 }
 
 if(questioner("Do you want me to update the OUI prefixes to the latest available version ?","y",("y", "n"))) {
-  `/usr/local/pf/bin/pfcmd update oui`;
+  `/usr/bin/wget -N http://standards.ieee.org/regauth/oui/oui.txt -P $conf_dir`;
 }
 
 print "Pre-compiling pfcmd grammar\n";

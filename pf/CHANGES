@@ -105,6 +105,8 @@
           (http://www.packetfence.org/mantis/view.php?id=453)
         removed reference to local.conf from installer.pl
           (http://www.packetfence.org/mantis/view.php?id=455)
+        fixed OUI and fingerprint updates in installer.pl
+          (http://www.packetfence.org/mantis/view.php?id=454)
 
 1.7.4
         undef operator in SNMP.pm
