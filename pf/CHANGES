@@ -97,6 +97,8 @@
           (http://www.packetfence.org/mantis/view.php?id=449)
         missing return false in templates/register.html
           (http://www.packetfence.org/mantis/view.php?id=450)
+        closelocationlogonstop default value should be disabled
+          (http://www.packetfence.org/mantis/view.php?id=452)
 
 1.7.4
         undef operator in SNMP.pm

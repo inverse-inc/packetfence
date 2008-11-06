@@ -562,7 +562,7 @@ adjustswitchportvlanscript=/usr/local/pf/bin/flip.pl
 #
 # Should open locationlog entries be closed when pfsetvlan is 
 # stopped
-closelocationlogonstop=enabled
+closelocationlogonstop=disabled
 #
 # vlan.nbtraphandlerthreads
 #
