@@ -322,7 +322,7 @@ sub service {
     } else {
       push(@services, $service);
     }
-    my @services_which_should_be_started = service_list();
+    my @services_which_should_be_started = service_list(@services);
     print "service|shouldBeStarted|pid\n";
     foreach my $tmp (@services){
       my $should_be_started = ((grep(/^$tmp$/,@services_which_should_be_started) > 0) ? 1 : 0);
@@ -339,7 +339,7 @@ sub service {
     } else {
       push(@services, $service);
     }
-    my @services_which_should_be_started = service_list();
+    my @services_which_should_be_started = service_list(@services);
     my @incorrectly_stopped_services = ();
     foreach my $tmp (@services){
       my $should_be_started = ((grep(/^$tmp$/,@services_which_should_be_started) > 0) ? 1 : 0);
@@ -383,7 +383,7 @@ sub service {
   if ($service !~ /^pf$/) {
     push @services, $service;
   } else {
-    @services = service_list();
+    @services = service_list(@all_services);
   }
 
   if ($command =~ /^start$/i) {

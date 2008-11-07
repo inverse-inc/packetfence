@@ -126,9 +126,10 @@ sub service_ctl {
 
 #return an array of enabled services
 sub service_list {
+  my @services = @_;
   my @finalServiceList = ();
   my $snortflag=0;
-  foreach my $service (tied(%Config)->Parameters("services")) {
+  foreach my $service (@services) {
     if ($service eq "snort" ) {
       $snortflag=1  if (isenabled($Config{'trapping'}{'detection'}));
     } elsif ($service eq "pfdetect") {
