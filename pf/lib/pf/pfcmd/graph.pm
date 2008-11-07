@@ -11,7 +11,6 @@ use strict;
 use warnings;
 use Log::Log4perl;
 
-use lib qw(/usr/local/pf/lib);
 use pf::db;
 
 use vars qw/$graph_registered_day_sql $graph_registered_month_sql $graph_registered_year_sql

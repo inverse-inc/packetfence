@@ -13,17 +13,18 @@ use strict;
 use Getopt::Std;
 use Net::Pcap 0.16;
 use File::Basename qw(basename);
+use FindBin;
 use threads;
 use threads::shared;
 use POSIX qw(:signal_h);
 
-Log::Log4perl->init('/usr/local/pf/conf/log.conf');
+Log::Log4perl->init($FindBin::Bin . "/../conf/log.conf");
 my $logger = Log::Log4perl->get_logger(basename($0));
 Log::Log4perl::MDC->put('proc', basename($0));
 Log::Log4perl::MDC->put('tid', threads->self->tid());
 
 
-use lib '/usr/local/pf/lib';
+use lib $FindBin::Bin . "/../lib";
 use pf::config;
 use pf::iplog;
 
@@ -599,7 +600,7 @@ sub strobe {
 sub daemonize {
   chdir '/'               or $logger->logdie("Can't chdir to /: $!");
   open STDIN, '/dev/null' or $logger->logdie("Can't read /dev/null: $!");
-  my $log_file = '/usr/local/pf/logs/pfmon';
+  my $log_file = "$install_dir/logs/pfmon";
   open STDOUT, ">>$log_file" or $logger->logdie("Can't write to $log_file: $!");
 
   defined(my $pid = fork) or $logger->logdie("pfmon: could not fork: $!");

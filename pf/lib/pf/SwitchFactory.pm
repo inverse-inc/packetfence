@@ -32,7 +32,6 @@ use Config::IniFiles;
 use Log::Log4perl;
 
 
-use lib "/usr/local/pf/lib";
 use pf::config;
 
 =head1 METHODS

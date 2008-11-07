@@ -32,7 +32,6 @@ BEGIN {
                iplog_view_open_mac iplog_view_all iplog_open iplog_close iplog_close_now iplog_cleanup iplog_expire mac2ip mac2allips ip2mac);
 }
 
-use lib qw(/usr/local/pf/lib);
 use pf::config;
 use pf::db;
 use pf::util;

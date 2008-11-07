@@ -12,13 +12,14 @@ package pf::config;
 use strict;
 use warnings;
 use Config::IniFiles;
+use File::Spec;
 use Net::Netmask;
 use Date::Parse;
 use Log::Log4perl;
 use File::Basename qw(basename);
 use threads;
 
-our ($install_dir, %Default_Config, %Config, @listen_ints, @internal_nets, @routed_nets,
+our ($install_dir, $bin_dir, $conf_dir, $lib_dir, $log_dir, %Default_Config, %Config, @listen_ints, @internal_nets, @routed_nets,
      $blackholemac, @managed_nets, @external_nets, @dhcplistener_ints, $monitor_int, $unreg_mark, $reg_mark, $black_mark, $portscan_sid, 
      $default_config_file, $config_file, $dhcp_fingerprints_file, $default_pid, $fqdn, $oui_url, $dhcp_fingerprints_url,
      $oui_file, @valid_trigger_types, $thread);
@@ -27,32 +28,31 @@ BEGIN {
   use Exporter ();
   our (@ISA, @EXPORT);
   @ISA    = qw(Exporter);
-  @EXPORT = qw($install_dir %Default_Config %Config @listen_ints @internal_nets @routed_nets
+  @EXPORT = qw($install_dir $bin_dir $conf_dir $lib_dir %Default_Config %Config @listen_ints @internal_nets @routed_nets
                $blackholemac @managed_nets @external_nets @dhcplistener_ints $monitor_int $unreg_mark $reg_mark $black_mark $portscan_sid
                $default_config_file $config_file $dhcp_fingerprints_file $default_pid $fqdn $oui_url $dhcp_fingerprints_url
                $oui_file @valid_trigger_types $thread)
 }
 
 
-Log::Log4perl->init('/usr/local/pf/conf/log.conf');
+$thread=0;
+
+$install_dir = "/usr/local/pf";
+$bin_dir = File::Spec->catdir($install_dir, "bin");
+$conf_dir = File::Spec->catdir($install_dir, "conf");
+$lib_dir = File::Spec->catdir($install_dir, "lib");
+$log_dir = File::Spec->catdir($install_dir, "logs");
+
+Log::Log4perl->init("$conf_dir/log.conf");
 Log::Log4perl::MDC->put('proc', basename($0));
 Log::Log4perl::MDC->put('tid', threads->self->tid());
 
 my $logger = Log::Log4perl->get_logger('pf::config');
 
-# these files contain the node and person lookup functions
-# they can be customized to your environment
-#push @INC, "/usr/local/pf/bin";
-#require "lookup_node.pl";
-#require "lookup_person.pl";
-
-$thread=0;
-
-$install_dir = "/usr/local/pf";
-$config_file = $install_dir."/conf/pf.conf";
-$default_config_file = $install_dir."/conf/pf.conf.defaults";
-$dhcp_fingerprints_file = $install_dir."/conf/dhcp_fingerprints.conf";
-$oui_file = $install_dir."/conf/oui.txt";
+$config_file = $conf_dir."/pf.conf";
+$default_config_file = $conf_dir."/pf.conf.defaults";
+$dhcp_fingerprints_file = $conf_dir."/dhcp_fingerprints.conf";
+$oui_file = $conf_dir."/oui.txt";
 
 $oui_url = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
@@ -92,7 +92,7 @@ foreach my $section (tied(%Config)->Sections){
 } 
 
 #normalize time
-#tie %documentation, 'Config::IniFiles', ( -file => $install_dir."/conf/documentation.conf" );
+#tie %documentation, 'Config::IniFiles', ( -file => $conf_dir."/documentation.conf" );
 #foreach my $section (sort tied(%documentation)->Sections) {
 #   my($group,$item) = split(/\./, $section);
 #   my $type = $documentation{$section}{'type'};
@@ -109,6 +109,20 @@ foreach my $val ("expire.iplog","expire.traplog","expire.locationlog","expire.no
 foreach my $val ("registration.skip_deadline","registration.expire_deadline") {
   my($group,$item) = split(/\./, $val);
   $Config{$group}{$item} = str2time($Config{$group}{$item});
+}
+
+#determine absolute paths
+foreach my $val ("alerting.log") {
+  my ($group, $item) = split(/\./, $val);
+  if (! File::Spec->file_name_is_absolute($Config{$group}{$item})) {
+    $Config{$group}{$item} = File::Spec->catfile($log_dir, $Config{$group}{$item});
+  }
+}
+foreach my $val ("vlan.adjustswitchportvlanscript") {
+  my ($group, $item) = split(/\./, $val);
+  if (! File::Spec->file_name_is_absolute($Config{$group}{$item})) {
+    $Config{$group}{$item} = File::Spec->catfile($bin_dir, $Config{$group}{$item});
+  }
 }
 
 $fqdn = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};

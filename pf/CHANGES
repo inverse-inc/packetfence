@@ -78,6 +78,8 @@
           (http://www.packetfence.org/mantis/view.php?id=443)
         removed PF daemon paths from [services] in conf file
           (http://www.packetfence.org/mantis/view.php?id=461)
+        make PF portable
+          (http://www.packetfence.org/mantis/view.php?id=75)
 
 1.7.5
         pfsetvlan should check that MAC field is filled before

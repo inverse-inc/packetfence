@@ -12,27 +12,29 @@
 use strict;
 use warnings;
 
+use FindBin;
 use Config::IniFiles;
 use Cwd;
 use Net::Netmask;
 
-die("Please install to /usr/local/pf and run this script again!\n") if (cwd() ne "/usr/local/pf");
+my $install_dir = $FindBin::Bin;
+my $conf_dir = "$install_dir/conf";
 
 # check if user is root
 die("you must be root!\n") if ($< != 0);
 
 my (%default_cfg,%cfg,%doc,%violation,$upgrade,$template);
 
-tie %default_cfg, 'Config::IniFiles', ( -file => "/usr/local/pf/conf/pf.conf.defaults" ) or die "Invalid template: $!\n";
-tie %doc, 'Config::IniFiles', ( -file => "/usr/local/pf/conf/documentation.conf" ) or die "Invalid docs: $!\n";
-tie %violation, 'Config::IniFiles', ( -file => "/usr/local/pf/conf/violations.conf" ) or die "Invalid violations: $!\n";
+tie %default_cfg, 'Config::IniFiles', ( -file => "$conf_dir/pf.conf.defaults" ) or die "Invalid template: $!\n";
+tie %doc, 'Config::IniFiles', ( -file => "$conf_dir/documentation.conf" ) or die "Invalid docs: $!\n";
+tie %violation, 'Config::IniFiles', ( -file => "$conf_dir/violations.conf" ) or die "Invalid violations: $!\n";
 
 # upgrade
 print "Checking existing configuration...\n";
-if (-e "/usr/local/pf/conf/pf.conf") {
+if (-e "$conf_dir/pf.conf") {
   $upgrade=1;
   print "Existing configuration found, upgrading\n";
-  tie %cfg, 'Config::IniFiles', ( -file => "/usr/local/pf/conf/pf.conf" ) or die "Unable to open existing configuration: $!";
+  tie %cfg, 'Config::IniFiles', ( -file => "$conf_dir/pf.conf" ) or die "Unable to open existing configuration: $!";
   if (defined $cfg{'registration'}{'authentication'}){
     $cfg{'registration'}{'auth'}=$cfg{'registration'}{'authentication'};
 	delete $cfg{'registration'}{'authentication'}; 
@@ -41,10 +43,10 @@ if (-e "/usr/local/pf/conf/pf.conf") {
   write_changes() if (questioner("Would you like to modify the existing configuration","n",("y","n")));
 
 }else{
-  tie %default_cfg, 'Config::IniFiles', ( -file => "/usr/local/pf/conf/pf.conf.defaults" ) or die "Unable to open default configuration file: $!\n";;
+  tie %default_cfg, 'Config::IniFiles', ( -file => "$conf_dir/pf.conf.defaults" ) or die "Unable to open default configuration file: $!\n";;
   print "No existing configuration found\n";
   tie %cfg, 'Config::IniFiles', ( -import => tied(%default_cfg) );
-  tied(%cfg)->SetFileName("/usr/local/pf/conf/pf.conf");
+  tied(%cfg)->SetFileName("$conf_dir/pf.conf");
 }
 
 # template configuration or custom?
@@ -63,7 +65,7 @@ if (questioner("Would you like to use a template configuration or custom","t",("
   if ($type ne 1 && $type ne 2){
    print "Enabling host trapping!  Please make sure to review conf/violations.conf and disable any violations that don't fit your environment\n";
    $violation{defaults}{actions}="trap,email,log";
-   tied(%violation)->WriteConfig("/usr/local/pf/conf/violations.conf") || die "Unable to commit settings: $!\n";
+   tied(%violation)->WriteConfig("$conf_dir/violations.conf") || die "Unable to commit settings: $!\n";
   }
   $template=1;
 }
@@ -100,7 +102,7 @@ sub write_changes {
   }
 
   print "Committing settings...\n";
-  tied(%cfg)->WriteConfig("/usr/local/pf/conf/pf.conf") || die "Unable to commit settings: $!\n";
+  tied(%cfg)->WriteConfig("$conf_dir/pf.conf") || die "Unable to commit settings: $!\n";
   foreach my $path (keys(%{$cfg{services}})) {
         print "Note: Service $path does not exist\n" if (!-e $cfg{services}{$path});
   }
@@ -111,7 +113,7 @@ sub write_changes {
 sub load_template {
   $_ = shift @_;
   my %template_cfg;
-  my $template_filename="/usr/local/pf/conf/templates/configurator/";
+  my $template_filename="$conf_dir/templates/configurator/";
   SWITCH: {
     /1/ && do {
       $template_filename.="testmode.conf";
@@ -247,7 +249,7 @@ sub questioner {
 
 sub configuration {
   my ($mode);
-  print "\n** NOTE: The configuration can be a bit tedious.  If you get bored, you can always just edit /usr/local/pf/conf/pf.conf directly ** \n\n";
+  print "\n** NOTE: The configuration can be a bit tedious.  If you get bored, you can always just edit $conf_dir/pf.conf directly ** \n\n";
   config_general() if (!$upgrade);
 
   if (!$template){

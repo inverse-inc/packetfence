@@ -48,7 +48,6 @@ BEGIN {
 use Date::Parse;
 use Log::Log4perl;
 use Net::MAC;
-use lib qw(/usr/local/pf/lib);
 use pf::db;
 
 $ifoctetslog_db_prepared = 0;

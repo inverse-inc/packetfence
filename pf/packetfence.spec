@@ -26,7 +26,7 @@ Requires: perl >= 5.8.0, perl-suidperl, httpd, mod_ssl, php, php-gd, libpcap, li
 Requires: mysql, perl-DBD-MySQL
 Requires: wget, tar, grep, glibc-common, chkconfig, openssl
 Requires: perl(CPAN)
-Requires: perl(Time::HiRes), perl(Config::IniFiles), perl(Net::Netmask), perl(Date::Parse), perl(Parse::RecDescent), perl(Net::RawIP) = 0.2, perl(Net::Pcap) >= 0.16, perl(CGI), perl(CGI::Session), perl(Term::ReadKey), perl(File::Tail), perl(Net::MAC::Vendor), perl(Net::SNMP), perl(LWP::UserAgent), perl(Net::Telnet), perl(Net::Appliance::Session), perl(Log::Log4perl) >= 1.11, perl(Thread::Pool), perl(Locale::gettext), perl(Template), perl(Apache::Htpasswd), perl(Net::MAC), perl(RRDs)
+Requires: perl(Time::HiRes), perl(Config::IniFiles), perl(Net::Netmask), perl(Date::Parse), perl(Parse::RecDescent), perl(Net::RawIP) = 0.2, perl(Net::Pcap) >= 0.16, perl(CGI), perl(CGI::Session), perl(Term::ReadKey), perl(File::Tail), perl(Net::MAC::Vendor), perl(Net::SNMP), perl(LWP::UserAgent), perl(Net::Telnet), perl(Net::Appliance::Session), perl(Log::Log4perl) >= 1.11, perl(Thread::Pool), perl(Locale::gettext), perl(Template), perl(Apache::Htpasswd), perl(Net::MAC), perl(RRDs), perl(File::Spec)
 
 %description
 

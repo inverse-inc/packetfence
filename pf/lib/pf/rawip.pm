@@ -14,7 +14,6 @@ use warnings;
 use Net::RawIP;
 use Log::Log4perl;
 
-use lib qw(/usr/local/pf/lib);
 
 BEGIN {
   use Exporter ();

@@ -24,7 +24,6 @@ BEGIN {
                trigger_in_range trigger_add trigger_view_type trigger_view_tid trigger_scan);
 }
 
-use lib qw(/usr/local/pf/lib);
 use pf::config;
 use pf::db;
 use pf::util;

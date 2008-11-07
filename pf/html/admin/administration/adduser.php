@@ -21,12 +21,12 @@
      if($_POST['password1'] != $_POST['password2'])
        print "Passwords do not match!";
      else{
-	$filename = "/usr/local/pf/conf/users/$_POST[username]";
+	$filename = dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/users/" . $_POST['username'];
         if(file_exists($filename)){
 	  print "Error: User $_POST[username] already exists!";
 	}
 	else{
-  	  exec("/usr/bin/htpasswd -b /usr/local/pf/conf/admin.conf $_POST[username] $_POST[password1]");
+  	  exec("/usr/bin/htpasswd -b " . dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/admin.conf $_POST[username] $_POST[password1]");
           $defaults = array('font-size' => 'medium', 'homepage' => 'status/dashboard.php');
   	  if (!$handle = fopen($filename, 'w+')) {
             echo "Cannot open file ($filename)";

@@ -14,7 +14,7 @@
       }
     }
 
-    $filename = "/usr/local/pf/conf/users/$_SESSION[user]";
+    $filename = dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/users/" . $_SESSION['user'];
     if (!$handle = fopen($filename, 'w+')) {
        echo "Cannot open file ($filename)";
        exit;
@@ -25,9 +25,9 @@
       exit;
     }
     fclose($handle);
-    if(is_readable("/usr/local/pf/conf/users/$_SESSION[user]")){
+    if(is_readable($filename)){
       unset($_SESSION['ui_prefs']);
-      $_SESSION['ui_prefs']=unserialize(file_get_contents("/usr/local/pf/conf/users/$_SESSION[user]"));
+      $_SESSION['ui_prefs']=unserialize(file_get_contents($filename));
     }  
   } 
 

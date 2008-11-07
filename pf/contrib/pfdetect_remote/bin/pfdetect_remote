@@ -67,7 +67,7 @@ daemonize() if ($daemonize);
 openlog("pfdetect_remote",'','auth');
 syslog("info", "initialized");
 
-my $cfg = new Config::IniFiles( -file => '/usr/local/pf/conf/pfdetect_remote.conf');
+my $cfg = new Config::IniFiles( -file => "$install_dir/conf/pfdetect_remote.conf");
 my $ADMIN_USER = $cfg->val('server','user');
 my $ADMIN_PWD = $cfg->val('server','password');
 my $PF_HOST = $cfg->val('server','host');

@@ -75,7 +75,6 @@ BEGIN {
                );
 }
 
-use lib qw(/usr/local/pf/lib);
 use pf::db;
 use pf::node;
 

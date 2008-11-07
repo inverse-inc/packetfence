@@ -23,7 +23,7 @@
   Installation
   ------------
   
-  Untar source to /usr/local/pf and run installer.pl
+  Untar source to the directory of your choice and run installer.pl
 
   Please see documentation available at:
   http://www.packetfence.org/documentation/basic_setup.html

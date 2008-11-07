@@ -26,7 +26,6 @@ use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
 
-use lib '/usr/local/pf/lib';
 use base ('pf::SNMP::Nortel::BayStack5520');
 
 1;

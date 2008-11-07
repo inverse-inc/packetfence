@@ -83,8 +83,8 @@
     }
 
     ## UI Pref Caching
-    if(file_exists("/usr/local/pf/conf/users/$_SESSION[user]")){
-            $_SESSION['ui_prefs']=unserialize(file_get_contents("/usr/local/pf/conf/users/$_SESSION[user]"));
+    if(file_exists(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/users/" . $_SESSION['user'])){
+            $_SESSION['ui_prefs']=unserialize(file_get_contents(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/users/" . $_SESSION['user']));
             get_global_conf();
     }
   } // end caching

@@ -10,7 +10,7 @@
 
   $user_data['ip'] = $_SERVER['REMOTE_ADDR'];
 
-  $PFCMD='/usr/local/pf/bin/pfcmd';
+  $PFCMD=dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/bin/pfcmd';
   $command = "history $user_data[ip]";
   exec("ARGS=".escapeshellarg($command)." $PFCMD 2>&1", $output, $total);
 
@@ -26,7 +26,7 @@
     $_GET['admin'] = 'yes';
   }
 
-  $remediation_conf = '/usr/local/pf/conf/ui-global.conf';   
+  $remediation_conf = dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/conf/ui-global.conf';   
 
   if(file_exists($remediation_conf)){
     $global_conf = unserialize(file_get_contents($remediation_conf));
@@ -34,11 +34,11 @@
   }
 
   if(!$preview){
-    if(!file_exists("/usr/local/pf/html/user/content/violations/$template.php") || preg_match("/[\'|\"|\/]/", $template)){
+    if(!file_exists($_SERVER['DOCUMENT_ROOT'] . "/content/violations/$template.php") || preg_match("/[\'|\"|\/]/", $template)){
       die("An error occured on this page, please contact the Helpdesk.");
     }
 
-    include("/usr/local/pf/html/user/content/violations/$template.php");
+    include($_SERVER['DOCUMENT_ROOT'] . "/content/violations/$template.php");
   }
 
   $description_header = set_default($description_header, $vid_data['description']);

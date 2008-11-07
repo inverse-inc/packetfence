@@ -11,6 +11,7 @@
 
 use strict;
 use warnings;
+use FindBin;
 use CPAN;
 use Net::FTP;
 use Cwd;
@@ -29,12 +30,13 @@ my $mysql_host;
 my $mysql_port;
 my $mysql_db;
 
-die("Please install to /usr/local/pf and run this script again!\n") if (cwd() ne "/usr/local/pf");
+my $install_dir = $FindBin::Bin;
+my $conf_dir = "$install_dir/conf";
 
 #  check if user is root
 die("You must be root to run the installer!\n") if ($< != 0);
 
-open(PFRELEASE,"/usr/local/pf/conf/pf-release");
+open(PFRELEASE,"$conf_dir/pf-release");
 $version = <PFRELEASE>;
 close(PFRELEASE);   
 my $pf_release = (split(/\s+/, $version))[1];
@@ -71,7 +73,8 @@ my @modules = ( "Time::HiRes",
                 "Thread::Pool",
                 "Apache::Htpasswd",
                 "RRDs",
-                "Template"
+                "Template",
+                "File::Spec"
               );
 
 my @rpms    = ( 
@@ -86,7 +89,7 @@ my @rpms    = (
               );
 
 my @suids   = ( 
-               "/usr/local/pf/bin/pfcmd"
+               "$install_dir/bin/pfcmd"
               );
 
 my %schemas = ( "2e8a5ce0549759080b501e0149b77ad0" => "1.8.0",
@@ -101,13 +104,13 @@ my %schemas = ( "2e8a5ce0549759080b501e0149b77ad0" => "1.8.0",
 
 my $external_deps = { "jpgraph_v1" => {"url_path"     => "http://hem.bredband.net/jpgraph/",
                                        "file_name"    => "jpgraph-1.26.tar.gz",
-                                       "install_path" => "/usr/local/pf/html/admin/common/jpgraph/jpgraph-1.26"},
+                                       "install_path" => "$install_dir/html/admin/common/jpgraph/jpgraph-1.26"},
                       "jpgraph_v2" => {"url_path"     => "http://hem.bredband.net/jpgraph2/",
                                        "file_name"    => "jpgraph-2.3.3.tar.gz",
-                                       "install_path" => "/usr/local/pf/html/admin/common/jpgraph/jpgraph-2.3.3"},
+                                       "install_path" => "$install_dir/html/admin/common/jpgraph/jpgraph-2.3.3"},
                       "bleedingsnort" => {"url_path"  => "http://www.bleedingsnort.com/",
                                        "file_name"    => "bleeding.rules.tar.gz",
-                                       "install_path" => "/usr/local/pf/conf/snort/"}
+                                       "install_path" => "$conf_dir/snort/"}
                     };
 
 $ENV{'LANG'} = "C";
@@ -278,7 +281,7 @@ if(`echo "use $mysql_db"|mysql --host=$mysql_host --port=$mysql_port -u root -p'
     my $schema_version = $schemas{$md5sum};
     if ($schema_version ne '1.8.0') {
       if (questioner("PF database already exists - do you want to upgrade it?","y",("y", "n"))) {
-        my $update_script = "/usr/local/pf/db/upgrade-$schema_version-1.8.0.sql";
+        my $update_script = "$install_dir/db/upgrade-$schema_version-1.8.0.sql";
         if (-e $update_script) {
           `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u root -p'$pass' $mysql_db < $update_script`;
           $upgraded = 1;
@@ -300,10 +303,10 @@ if(`echo "use $mysql_db"|mysql --host=$mysql_host --port=$mysql_port -u root -p'
 if ($dropped && !$unknown && !$upgraded && questioner("PF needs to create the PF database - is that ok?","y",("y", "n"))) {
   `/usr/bin/mysqladmin --host=$mysql_host --port=$mysql_port -u root -p'$pass' create $mysql_db`;
   print "  Loading schema\n";
-  if (-e "/usr/local/pf/db/pfschema.mysql.180") {
-    `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u root -p'$pass' $mysql_db < /usr/local/pf/db/pfschema.mysql.180`
+  if (-e "$install_dir/db/pfschema.mysql.180") {
+    `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u root -p'$pass' $mysql_db < $install_dir/db/pfschema.mysql.180`
   } else {
-    die("Where's my schema?  Nothing at /usr/local/pf/db/pfschema.mysql.180\n");
+    die("Where's my schema?  Nothing at $install_dir/db/pfschema.mysql.180\n");
   }
 }
 
@@ -328,7 +331,7 @@ if(questioner("PF needs to create a database user to access the PF database - is
     if (`echo "FLUSH PRIVILEGES" | mysql --host=$mysql_host --port=$mysql_port -u root -p'$pass' mysql`) {
       print "ERROR: UNABLE TO FLUSH PRIVILEGES!\n";
     }
-    print "  ** NOTE: AFTER RUNNING THE CONFIGURATOR, BE SURE TO CHECK THAT /usr/local/pf/conf/pf.conf\n";
+    print "  ** NOTE: AFTER RUNNING THE CONFIGURATOR, BE SURE TO CHECK THAT $conf_dir/pf.conf\n";
     print "           REFLECTS YOUR MYSQL CONFIGURATION:\n";
     print "    - HOST: $mysql_host\n";
     print "    - PORT: $mysql_port\n";
@@ -349,7 +352,7 @@ if (!installed("snort")) {
   my $snort_version = `rpm -q --qf %{VERSION} snort`;
   #print "You are running Snort 2.6.x, which is incompatible with PacketFence - please downgrade to 2.4.x.\n" if ($snort_version =~ /^2\.6/);
 }
-print "We encourage the usage of oinkmaster to manage your snort rules. If you don't have it installed yet, please visit http://oinkmaster.sourceforge.net/download.shtml to download oinkmaster. A sample oinkmaster configuration file is provided at /usr/local/pf/contrib/oinkmaster.conf.\n";
+print "We encourage the usage of oinkmaster to manage your snort rules. If you don't have it installed yet, please visit http://oinkmaster.sourceforge.net/download.shtml to download oinkmaster. A sample oinkmaster configuration file is provided at $install_dir/contrib/oinkmaster.conf.\n";
 print "Downloading bleedingsnort rulesets\n";
 my $url = $external_deps->{'bleedingsnort'}->{'url_path'} . $external_deps->{'bleedingsnort'}->{'file_name'};
 my $local_file_name =  $external_deps->{'bleedingsnort'}->{'install_path'} . $external_deps->{'bleedingsnort'}->{'file_name'};
@@ -385,8 +388,8 @@ if (questioner("PF needs JPGraph for its administrative Web GUI.  May I download
   foreach my $name (keys %$external_deps) {
     if ($name =~ /^jpgraph/) {
       my $url = $external_deps->{$name}->{'url_path'} . $external_deps->{$name}->{'file_name'};
-      my $local_file_name = '/usr/local/pf/html/admin/common/jpgraph/' . $external_deps->{$name}->{'file_name'};
-      `/usr/bin/wget -N $url -P /usr/local/pf/html/admin/common/jpgraph/`;
+      my $local_file_name = "$install_dir/html/admin/common/jpgraph/" . $external_deps->{$name}->{'file_name'};
+      `/usr/bin/wget -N $url -P $install_dir/html/admin/common/jpgraph/`;
       `/bin/tar zxvf $local_file_name --strip-components 1 -C $external_deps->{$name}->{'install_path'}`;
     }
   }
@@ -394,7 +397,6 @@ if (questioner("PF needs JPGraph for its administrative Web GUI.  May I download
 
 if(questioner("Do you want me to update the DHCP fingerprints to the latest available version ?","y",("y", "n"))) {
   `/usr/bin/wget -N http://www.packetfence.org/dhcp_fingerprints.conf -P $conf_dir`;
-
 }
 
 if(questioner("Do you want me to update the OUI prefixes to the latest available version ?","y",("y", "n"))) {
@@ -402,11 +404,11 @@ if(questioner("Do you want me to update the OUI prefixes to the latest available
 }
 
 print "Pre-compiling pfcmd grammar\n";
-`/usr/bin/perl -w -e 'use strict; use warnings; use diagnostics; use Parse::RecDescent; use lib "/usr/local/pf/lib"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile(\$grammar, "pfcmd_pregrammar");'`;
-rename "pfcmd_pregrammar.pm", '/usr/local/pf/lib/pf/pfcmd/pfcmd_pregrammar.pm';
+`/usr/bin/perl -w -e 'use strict; use warnings; use diagnostics; use Parse::RecDescent; use lib "$install_dir/lib"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile(\$grammar, "pfcmd_pregrammar");'`;
+rename "pfcmd_pregrammar.pm", "$install_dir/lib/pf/pfcmd/pfcmd_pregrammar.pm";
 
 print "Compiling message catalogue (i18n)\n";
-my $locale_start_dir = "/usr/local/pf/conf/locale";
+my $locale_start_dir = "$conf_dir/locale";
 opendir(LOCALE_START_DIR, $locale_start_dir) || die "can't open directory $locale_start_dir: $!";
 my @locale_dirs = grep { /^[^.]+$/ && -d "$locale_start_dir/$_" && -d "$locale_start_dir/$_/LC_MESSAGES" && -f "$locale_start_dir/$_/LC_MESSAGES/packetfence.po"} readdir(LOCALE_START_DIR);
 closedir(LOCALE_START_DIR);
@@ -416,24 +418,24 @@ foreach my $locale_dir (@locale_dirs){
   rename "packetfence.mo", "$locale_start_dir/$locale_dir/LC_MESSAGES/packetfence.mo";
 }
 
-if (! (-e '/usr/local/pf/conf/ssl/server.crt')) {
+if (! (-e "$conf_dir/ssl/server.crt")) {
   if (questioner("Would you like me to create a self-signed SSL certificate for the PacketFence web pages?","y",("y", "n"))) {
     `openssl req -x509 -new -nodes  -keyout newkey.pem -out newcert.pem -days 365`;
-    `mv newcert.pem /usr/local/pf/conf/ssl/server.crt`;
-    `mv newkey.pem /usr/local/pf/conf/ssl/server.key`;
+    `mv newcert.pem $conf_dir/ssl/server.crt`;
+    `mv newkey.pem $conf_dir/ssl/server.key`;
   } else {
-    print "You must save your SSL certificates as /usr/local/pf/conf/ssl/server.crt and /usr/local/pf/conf/ssl/server.key before starting PacketFence";
+    print "You must save your SSL certificates as $conf_dir/ssl/server.crt and $conf_dir/ssl/server.key before starting PacketFence";
   }
 }
 
-if (! (-e '/usr/local/pf/conf/templates/httpd.conf')) {
-  print "/usr/local/pf/conf/templates/httpd.conf symlink does not yet exist\n";
+if (! (-e "$conf_dir/templates/httpd.conf")) {
+  print "$conf_dir/templates/httpd.conf symlink does not yet exist\n";
   if (`httpd -v` =~ /Apache\/2\.[2-9]\./) {
     print "creating symlink to httpd.conf.apache22\n";
-    `ln -s /usr/local/pf/conf/templates/httpd.conf.apache22 /usr/local/pf/conf/templates/httpd.conf`;
+    `ln -s $conf_dir/templates/httpd.conf.apache22 $conf_dir/templates/httpd.conf`;
   } else {
     print "creating symlink to httpd.conf.pre_apache22\n";
-    `ln -s /usr/local/pf/conf/templates/httpd.conf.pre_apache22 /usr/local/pf/conf/templates/httpd.conf`;
+    `ln -s $conf_dir/templates/httpd.conf.pre_apache22 $conf_dir/templates/httpd.conf`;
   }
 }
 
@@ -443,19 +445,19 @@ if (questioner("Would you like me to create an account for the web administrativ
     $adminuser = <STDIN>;
     chop $adminuser;
     $adminuser = "admin" if (!$adminuser);
-  } while (system("htpasswd -c /usr/local/pf/conf/admin.conf $adminuser"));
+  } while (system("htpasswd -c $conf_dir/admin.conf $adminuser"));
 }
 
 print "Setting permissions\n";
-print "  Chowning /usr/local/pf pf:pf\n";
-`chown -R pf:pf /usr/local/pf`;
+print "  Chowning $install_dir pf:pf\n";
+`chown -R pf:pf $install_dir`;
 foreach my $file (@suids) {
   print "  Chowning $file root:root and setting SGID bits\n";
   `chown root:root $file`;
   `chmod 6755 $file`;
 }
 
-print "Installation is complete\n** Please run cd /usr/local/pf && ./configurator.pl before starting PacketFence **\n\n\n";
+print "Installation is complete\n** Please run $install_dir/configurator.pl before starting PacketFence **\n\n\n";
 
 sub questioner {
   my ($query, $response, @choices) = @_;

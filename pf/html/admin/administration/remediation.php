@@ -9,7 +9,7 @@
  
   $abs_url="https://$HTTP_SERVER_VARS[HTTP_HOST]";
 
-  $remediation_conf = '/usr/local/pf/conf/ui-global.conf';
+  $remediation_conf = dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/conf/ui-global.conf';
 
   if($_POST){
     if(!file_exists($remediation_conf)){

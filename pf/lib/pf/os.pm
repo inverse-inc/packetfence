@@ -23,7 +23,6 @@ BEGIN {
   @EXPORT = qw(read_dhcp_fingerprints_conf os_db_prepare dhcp_fingerprint_view dhcp_fingerprint_view_all);
 }
 
-use lib qw(/usr/local/pf/lib);
 use pf::config;
 use pf::db;
 use pf::trigger qw(trigger_in_range);

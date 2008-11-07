@@ -29,7 +29,6 @@ END {
      $dbh->disconnect() if $dbh;
 }
 
-use lib qw(/usr/local/pf/lib);
 use pf::config;
 
 #$dbh = db_connect() if (!threads->self->tid);

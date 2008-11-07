@@ -22,11 +22,12 @@ use POSIX();
 use Date::Parse;
 use Parse::RecDescent;
 use File::Basename qw(basename);
+use FindBin;
 use LWP;
 use CGI qw(-no_debug :standard); 
 use Log::Log4perl;
 
-use lib '/usr/local/pf/lib';
+use lib $FindBin::Bin . "/../lib";
 use pf::config;
 use pf::util;
 use pf::pfcmd::pfcmd;
@@ -35,7 +36,7 @@ use pf::pfcmd::help;
 
 delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
 
-Log::Log4perl->init('/usr/local/pf/conf/log.conf');
+Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger(basename($0));
 Log::Log4perl::MDC->put('proc', basename($0));
 Log::Log4perl::MDC->put('tid', 0);
@@ -482,7 +483,7 @@ sub fingerprint {
 
 sub version {
   my($pfrelease_fh, $release);
-  open($pfrelease_fh,"$install_dir/conf/pf-release") || $logger->logdie("Unable to open $install_dir/conf/pf-release: $!"); 
+  open($pfrelease_fh,"$conf_dir/pf-release") || $logger->logdie("Unable to open $conf_dir/pf-release: $!"); 
   $release = <$pfrelease_fh>;
   close($pfrelease_fh);
   print $release;
@@ -537,7 +538,7 @@ sub schedule {
         $logger->error("date format incorrect");  
 	return(0);
      } else{
-        $cron->add_index($date,$install_dir."/bin/pfcmd schedule now $hostaddr tid=$tid");
+        $cron->add_index($date,$bin_dir."/pfcmd schedule now $hostaddr tid=$tid");
      }  
   }elsif ($option=~/^delete$/){
     $cron->delete_index($hostaddr);
@@ -549,7 +550,7 @@ sub schedule {
     $tid=$oldtid if (!$tid);
     $date=$oldate if (!$date);
     $logger->info("updating schedule number $id to date=$date,hostaddr=$hostaddr,tid=$tid");
-    $cron->update_index($id,$date,$install_dir."/bin/pfcmd schedule now $hostaddr tid=$tid");
+    $cron->update_index($id,$date,$bin_dir."/pfcmd schedule now $hostaddr tid=$tid");
   }else{
     $logger->error("Schedule Failed");
     return(0);
@@ -604,9 +605,9 @@ sub config {
   my $param = $cmd{command}[2];
   my $value = "";
 
-  tie %documentation, 'Config::IniFiles', ( -file => $install_dir."/conf/documentation.conf" ) or $logger->logdie("Unable to open documentation.conf: $!");
-  tie %defaults, 'Config::IniFiles', ( -file => $install_dir."/conf/pf.conf.defaults" ) or $logger->logdie("Unable to open pf.conf.defaults: $!");
-  tie %myconfig, 'Config::IniFiles', ( -file => $install_dir."/conf/pf.conf" ) or $logger->logdie("Unable to open pf.conf: $!");
+  tie %documentation, 'Config::IniFiles', ( -file => $conf_dir."/documentation.conf" ) or $logger->logdie("Unable to open documentation.conf: $!");
+  tie %defaults, 'Config::IniFiles', ( -file => $conf_dir."/pf.conf.defaults" ) or $logger->logdie("Unable to open pf.conf.defaults: $!");
+  tie %myconfig, 'Config::IniFiles', ( -file => $conf_dir."/pf.conf" ) or $logger->logdie("Unable to open pf.conf: $!");
   
   usage("config") if ($option =~ /^set$/i && $param !~ /^.+?=.+?$/);
   if ($option =~ /^set$/i) {
@@ -669,7 +670,7 @@ sub config {
       } elsif ($defaults{$section}{$parm} ne $value) {
         tied(%myconfig)->newval($section,$parm,$value);
       }
-      tied(%myconfig)->WriteConfig($install_dir."/conf/pf.conf");
+      tied(%myconfig)->WriteConfig($conf_dir."/pf.conf");
     }
   } else {
     print "Unknown config option!\n";
@@ -791,8 +792,8 @@ sub lookup {
 
   # this file contains the pidlookup function
   # that can be customized to your environment
-  push @INC, "$install_dir/bin";
-  require "$install_dir/bin/lookup_".$service.".pl";
+  push @INC, $bin_dir;
+  require "$bin_dir/lookup_".$service.".pl";
 
   my $function = "lookup_".$service;
   my $tmp_lookup = ($main::{$function} or sub { print "No such sub: $function\n" })->($id);
@@ -817,9 +818,9 @@ sub ui {
     }
     # read in configuration file
     my %uiconfig;
-    my $ui_conf_file = $install_dir."/conf/ui.conf";
+    my $ui_conf_file = $conf_dir."/ui.conf";
     if (defined($cmd{'ui_options'})) {
-      $ui_conf_file= $install_dir."/conf/" . $cmd{'ui_options'}[2];
+      $ui_conf_file= $conf_dir."/" . $cmd{'ui_options'}[2];
     }
     tie %uiconfig, 'Config::IniFiles', ( -file => $ui_conf_file ) or $logger->logdie("Unable to open $ui_conf_file: $!");
 
@@ -1156,7 +1157,7 @@ sub format_assignment {
 #
 sub field_order {
   my %uiconfig;
-  tie %uiconfig, 'Config::IniFiles', ( -file => $install_dir."/conf/ui.conf" ) or $logger->logdie("Unable to open ui.conf: $!");
+  tie %uiconfig, 'Config::IniFiles', ( -file => $conf_dir."/ui.conf" ) or $logger->logdie("Unable to open ui.conf: $!");
   my @fields;
   foreach my $section (sort tied(%uiconfig)->Sections) {
     if (defined $uiconfig{$section}{'command'}  && join(" ",@ARGV)=~/^$uiconfig{$section}{'command'}/){
@@ -1175,7 +1176,8 @@ sub sanity_check {
   my (@services) = @_;
 
   foreach my $service (@services){
-   $logger->logdie("$service does not exist, please change pf.conf services.$service path or install the service!") if (!-e $Config{'services'}{$service});
+    my $exe = ($Config{'services'}{$service} || "$install_dir/sbin/$service");
+   $logger->logdie("$exe for $service does not exist !") if (!-e $exe);
   }
   
   my %seen;
@@ -1272,13 +1274,13 @@ sub sanity_check {
         $logger->logdie("dhcp scope $scope gateway ($Config{'scope '.$scope}{'gateway'}) is not bound to internal interface ","WARNING");
       }
     }
-    if (!-e "$install_dir/conf/registered.mac"){
-		open FILE, ">>$install_dir/conf/registered.mac";
+    if (!-e "$conf_dir/registered.mac"){
+		open FILE, ">>$conf_dir/registered.mac";
 		print FILE "#autogenerated";
 		close FILE;
 	}
-    if (!-e "$install_dir/conf/isolated.mac"){
-		open FILE, ">>$install_dir/conf/isolated.mac";
+    if (!-e "$conf_dir/isolated.mac"){
+		open FILE, ">>$conf_dir/isolated.mac";
 		print FILE "#autogenerated";
 		close FILE;
 	}
@@ -1332,7 +1334,7 @@ sub sanity_check {
   }
 
   tie %myconfig, 'Config::IniFiles', ( -file => $config_file, -import => Config::IniFiles->new( -file => $default_config_file ) );
-  tie %documentation, 'Config::IniFiles', ( -file => $install_dir."/conf/documentation.conf" );
+  tie %documentation, 'Config::IniFiles', ( -file => $conf_dir."/documentation.conf" );
   my @errors = @Config::IniFiles::errors;
   if (scalar(@errors)) {
     print STDERR join("\n",@errors)."\n";

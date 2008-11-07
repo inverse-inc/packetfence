@@ -8,7 +8,7 @@
   $size = set_default($_GET['size'], 'large');
 
   $jpgraph_dir = jpgraph_dir();  
-  DEFINE('TTF_DIR', '/usr/local/pf/html/admin/common/fonts/');
+  DEFINE('TTF_DIR', $_SERVER['DOCUMENT_ROOT'] . '/common/fonts/');
 
   include("$jpgraph_dir/jpgraph.php");
 
@@ -217,7 +217,7 @@
 include_once('../footer.php');
 
 function get_pie_chart_data($cmd){
-	$cached_data = preg_replace("/\s+/", '_', "/usr/local/pf/html/admin/tmp/jpgraph_cache/$cmd");
+	$cached_data = preg_replace("/\s+/", '_', $_SERVER['DOCUMENT_ROOT'] . "/tmp/jpgraph_cache/$cmd");
 
 	if(file_exists($cached_data)){
 		$cache_time = set_default($_SESSION['ui_prefs']['cache_time'], 0) * 60;
@@ -248,7 +248,7 @@ function get_pie_chart_data($cmd){
 
 function get_chart_data($cmd){
 
-        $cached_data = preg_replace("/\s+/", '_', "/usr/local/pf/html/admin/tmp/jpgraph_cache/$cmd");
+        $cached_data = preg_replace("/\s+/", '_', $_SERVER['DOCUMENT_ROOT'] . "/tmp/jpgraph_cache/$cmd");
 
         if(file_exists($cached_data)){
                 $cache_time = set_default($_SESSION['ui_prefs']['cache_time'], 0) * 60;

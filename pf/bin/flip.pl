@@ -15,14 +15,15 @@ use Net::SNMP;
 use Log::Log4perl;
 use Config::IniFiles;
 use File::Basename qw(basename);
+use FindBin;
 
-use lib '/usr/local/pf/lib';
+use lib $FindBin::Bin . "/../lib";
 use pf::util;
 use pf::locationlog;
 use pf::config;
 use pf::SwitchFactory;
 
-Log::Log4perl->init('/usr/local/pf/conf/log.conf');
+Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger(basename($0));
 Log::Log4perl::MDC->put('proc', basename($0));
 Log::Log4perl::MDC->put('tid', 0);
@@ -38,7 +39,7 @@ if ($mac =~ /^([0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a
 $logger->info("flip.pl called with $mac");
 
 my %switchConfig;
-tie %switchConfig, 'Config::IniFiles', (-file => "/usr/local/pf/conf/switches.conf");
+tie %switchConfig, 'Config::IniFiles', (-file => "$conf_dir/switches.conf");
 my @errors = @Config::IniFiles::errors;
 if (scalar(@errors)) {
     $logger->error("Error reading config file: " . join("\n", @errors));

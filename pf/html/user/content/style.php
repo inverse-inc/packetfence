@@ -3,7 +3,7 @@
   session_start();
   header('Content-type: text/css');
 
-  $remediation_conf = '/usr/local/pf/conf/ui-global.conf';   
+  $remediation_conf = dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/conf/ui-global.conf';   
 
   if(file_exists($remediation_conf)){
     $global_conf = unserialize(file_get_contents($remediation_conf));  

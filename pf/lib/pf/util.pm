@@ -34,7 +34,6 @@ BEGIN {
                parse_template mysql_date util_funnyarp oui_to_vendor normalize_time);
 }
 
-use lib qw(/usr/local/pf/lib);
 use pf::config;
 
 if (basename($0) eq "pfmon" && isenabled($Config{'general'}{'caching'})) {

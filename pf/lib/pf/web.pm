@@ -14,7 +14,7 @@ use strict;
 use warnings;
 use Date::Parse;
 use File::Basename;
-use POSIX();
+use POSIX;
 use Template;
 use Locale::gettext;
 use Log::Log4perl;
@@ -26,7 +26,6 @@ BEGIN {
   @EXPORT = qw(generate_release_page generate_login_page generate_enabler_page generate_redirect_page generate_error_page generate_status_page generate_registration_page web_node_register web_user_authenticate);
 }
 
-use lib qw(/usr/local/pf/lib);
 use pf::config;
 use pf::util;
 use pf::class;
@@ -38,7 +37,7 @@ use pf::violation qw(violation_view_open);
 sub generate_release_page {
   my ($cgi, $session, $destination_url) = @_;
   setlocale(LC_MESSAGES, $Config{'general'}{'locale'});
-  bindtextdomain("packetfence", "/usr/local/pf/conf/locale");
+  bindtextdomain("packetfence", "$conf_dir/locale");
   textdomain("packetfence");
   my $vars = {
     logo => $Config{'general'}{'logo'},
@@ -64,8 +63,8 @@ var action = function()
 }
 EOT
   }
-  if (-r "$install_dir/conf/templates/release.pl") {
-    open INCLUDE, "<$install_dir/conf/templates/release.pl";
+  if (-r "$conf_dir/templates/release.pl") {
+    open INCLUDE, "<$conf_dir/templates/release.pl";
     while (<INCLUDE>) {
       eval $_;
     }
@@ -73,7 +72,7 @@ EOT
   }
   my $html_txt;
   my $template=Template->new({
-    INCLUDE_PATH => ['/usr/local/pf/html/user/content/templates'],
+    INCLUDE_PATH => ["$install_dir/html/user/content/templates"],
   });
   $template->process("release.html", $vars, \$html_txt);
   my $cookie = $cgi->cookie(CGISESSID => $session->id );
@@ -85,7 +84,7 @@ EOT
 sub generate_login_page {
   my ($cgi, $session, $post_uri, $destination_url, $err) = @_;
   setlocale(LC_MESSAGES, $Config{'general'}{'locale'});
-  bindtextdomain("packetfence", "/usr/local/pf/conf/locale");
+  bindtextdomain("packetfence", "$conf_dir/locale");
   textdomain("packetfence");
   my $vars = {
     logo => $Config{'general'}{'logo'},
@@ -125,15 +124,15 @@ sub generate_login_page {
   
   my $cookie = $cgi->cookie(CGISESSID => $session->id );
   print $cgi->header(-cookie => $cookie);
-  if (-r "$install_dir/conf/templates/login.pl") {
-    open INCLUDE, "<$install_dir/conf/templates/login.pl";
+  if (-r "$conf_dir/templates/login.pl") {
+    open INCLUDE, "<$conf_dir/templates/login.pl";
     while (<INCLUDE>) {
       eval $_;
     }
     close INCLUDE;
   }
   my $template=Template->new({
-    INCLUDE_PATH => ['/usr/local/pf/html/user/content/templates'],
+    INCLUDE_PATH => ["$install_dir/html/user/content/templates"],
   });
   $template->process("login.html", $vars);
   exit;
@@ -142,7 +141,7 @@ sub generate_login_page {
 sub generate_enabler_page {
   my ($cgi, $session, $destination_url, $violation_id, $enable_text) = @_;
   setlocale(LC_MESSAGES, $Config{'general'}{'locale'});
-  bindtextdomain("packetfence", "/usr/local/pf/conf/locale");
+  bindtextdomain("packetfence", "$conf_dir/locale");
   textdomain("packetfence");
   my $vars = {
     logo => $Config{'general'}{'logo'},
@@ -154,15 +153,15 @@ sub generate_enabler_page {
 
   my $cookie = $cgi->cookie(CGISESSID => $session->id );
   print $cgi->header(-cookie => $cookie);
-  if (-r "$install_dir/conf/templates/enabler.pl") {
-    open INCLUDE, "<$install_dir/conf/templates/enabler.pl";
+  if (-r "$conf_dir/templates/enabler.pl") {
+    open INCLUDE, "<$conf_dir/templates/enabler.pl";
     while (<INCLUDE>) {
       eval $_;
     }
     close INCLUDE;
   }
   my $template=Template->new({
-    INCLUDE_PATH => ['/usr/local/pf/html/user/content/templates'],
+    INCLUDE_PATH => ["$install_dir/html/user/content/templates"],
   });
   $template->process("enabler.html", $vars);
   exit;
@@ -171,7 +170,7 @@ sub generate_enabler_page {
 sub generate_redirect_page {
   my ($cgi, $session, $violation_url, $destination_url) = @_;
   setlocale(LC_MESSAGES, $Config{'general'}{'locale'});
-  bindtextdomain("packetfence", "/usr/local/pf/conf/locale");
+  bindtextdomain("packetfence", "$conf_dir/locale");
   textdomain("packetfence");
   my $vars = {
     logo => $Config{'general'}{'logo'},
@@ -181,15 +180,15 @@ sub generate_redirect_page {
 
   my $cookie = $cgi->cookie(CGISESSID => $session->id );
   print $cgi->header(-cookie => $cookie);
-  if (-r "$install_dir/conf/templates/redirect.pl") {
-    open INCLUDE, "<$install_dir/conf/templates/redirect.pl";
+  if (-r "$conf_dir/templates/redirect.pl") {
+    open INCLUDE, "<$conf_dir/templates/redirect.pl";
     while (<INCLUDE>) {
       eval $_;
     }
     close INCLUDE;
   }
   my $template=Template->new({
-    INCLUDE_PATH => ['/usr/local/pf/html/user/content/templates'],
+    INCLUDE_PATH => ["$install_dir/html/user/content/templates"],
   });
   $template->process("redirect.html", $vars);
   exit;
@@ -198,7 +197,7 @@ sub generate_redirect_page {
 sub generate_error_page {
   my ($cgi, $session, $error_msg) = @_;
   setlocale(LC_MESSAGES, $Config{'general'}{'locale'});
-  bindtextdomain("packetfence", "/usr/local/pf/conf/locale");
+  bindtextdomain("packetfence", "$conf_dir/locale");
   textdomain("packetfence");
   my $vars = {
     logo => $Config{'general'}{'logo'},
@@ -223,15 +222,15 @@ sub generate_error_page {
   
   my $cookie = $cgi->cookie(CGISESSID => $session->id );
   print $cgi->header(-cookie => $cookie);
-  if (-r "$install_dir/conf/templates/error.pl") {
-    open INCLUDE, "<$install_dir/conf/templates/error.pl";
+  if (-r "$conf_dir/templates/error.pl") {
+    open INCLUDE, "<$conf_dir/templates/error.pl";
     while (<INCLUDE>) {
       eval $_;
     }
     close INCLUDE;
   }
   my $template=Template->new({
-    INCLUDE_PATH => ['/usr/local/pf/html/user/content/templates'],
+    INCLUDE_PATH => ["$install_dir/html/user/content/templates"],
   });
   $template->process("error.html", $vars);
   exit;
@@ -251,7 +250,7 @@ sub generate_status_page {
     exit(0);
   }
   setlocale(LC_MESSAGES, $Config{'general'}{'locale'});
-  bindtextdomain("packetfence", "/usr/local/pf/conf/locale");
+  bindtextdomain("packetfence", "$conf_dir/locale");
   textdomain("packetfence");
   my $ip = $cgi->remote_addr;
   my $vars = {
@@ -281,8 +280,8 @@ sub generate_status_page {
     push @{$vars->{list_violations}}, { name => $class_info->{'description'}, value => $violation->{'status'}};
   }
 
-  if (-r "$install_dir/conf/templates/status.pl") {
-    open INCLUDE, "<$install_dir/conf/templates/status.pl";
+  if (-r "$conf_dir/templates/status.pl") {
+    open INCLUDE, "<$conf_dir/templates/status.pl";
     while (<INCLUDE>) {
       eval $_;
     }
@@ -292,7 +291,7 @@ sub generate_status_page {
   my $cookie = $cgi->cookie(CGISESSID => $session->id );
   print $cgi->header(-cookie => $cookie);
   my $template=Template->new({
-    INCLUDE_PATH => ['/usr/local/pf/html/user/content/templates'],
+    INCLUDE_PATH => ["$install_dir/html/user/content/templates"],
   });
   $template->process("status.html", $vars);
   exit;
@@ -308,8 +307,8 @@ sub web_node_register {
       $info.=$key.'="'.$info{$key}.'",';
     }
     chop($info);
-    $logger->info("calling $install_dir/bin/pfcmd 'manage register $mac \"$pid\" $info'");
-    my $cmd = $install_dir."/bin/pfcmd 'manage register $mac \"$pid\" $info'";
+    $logger->info("calling $bin_dir/pfcmd 'manage register $mac \"$pid\" $info'");
+    my $cmd = $bin_dir."/pfcmd 'manage register $mac \"$pid\" $info'";
     my $output = qx/$cmd/;
 }
 
@@ -331,7 +330,7 @@ sub web_user_authenticate {
       return (0,2);
     }
     #validate login and password
-    use lib '/usr/local/pf/conf';
+    use lib $conf_dir;
     eval "use authentication::$auth";
     if ($@) {
       $logger->error("ERROR loading authentication::$auth $@");
@@ -352,7 +351,7 @@ sub generate_registration_page {
   my ($cgi, $session, $destination_url,$mac,$pagenumber) = @_;
   my $logger = Log::Log4perl::get_logger('pf::web');
   setlocale(LC_MESSAGES, $Config{'general'}{'locale'});
-  bindtextdomain("packetfence", "/usr/local/pf/conf/locale");
+  bindtextdomain("packetfence", "$conf_dir/locale");
   textdomain("packetfence");
   my $cookie = $cgi->cookie(CGISESSID => $session->id );
   print $cgi->header(-cookie => $cookie);
@@ -406,15 +405,15 @@ sub generate_registration_page {
     }
   }
   
-  if (-r "$install_dir/conf/templates/register.pl") {
-    open INCLUDE, "<$install_dir/conf/templates/register.pl";
+  if (-r "$conf_dir/templates/register.pl") {
+    open INCLUDE, "<$conf_dir/templates/register.pl";
     while (<INCLUDE>) {
       eval $_;
     }
     close INCLUDE;
   }
   my $template=Template->new({
-    INCLUDE_PATH => ['/usr/local/pf/html/user/content/templates'],
+    INCLUDE_PATH => ["$install_dir/html/user/content/templates"],
   });
   $template->process("register.html", $vars);
   exit;

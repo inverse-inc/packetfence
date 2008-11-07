@@ -8,7 +8,8 @@ use Log::Log4perl;
 use strict;
 use warnings;
 
-use lib '/usr/local/pf/lib';
+use FindBin;
+use lib $FindBin::Bin . "/../lib";
 use pf::config;
 use pf::iplog;
 use pf::util;
@@ -17,7 +18,7 @@ use pf::web;
 use pf::node;
 use pf::violation;
 
-Log::Log4perl->init('/usr/local/pf/conf/log.conf');
+Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('register.cgi');
 Log::Log4perl::MDC->put('proc', 'register.cgi');
 Log::Log4perl::MDC->put('tid', 0);
@@ -31,6 +32,7 @@ my $destination_url = $cgi->param("destination_url");
 
 $destination_url = $Config{'trapping'}{'redirecturl'} if (!$destination_url);
 
+$logger->info("DGL: " . $FindBin::Bin);
 if (!valid_mac($mac)) {
   $logger->info("MAC not found for $ip generating Error Page");
   generate_error_page($cgi, $session, "error: not found in the database");
@@ -81,7 +83,7 @@ if (defined($params{'mode'})) {
     if ($Config{'network'}{'mode'} =~ /vlan/i) {
       if (! defined($info{'vlan'})) {
          my %ConfigVlan;
-         tie %ConfigVlan, 'Config::IniFiles', (-file => '/usr/local/pf/conf/switches.conf');
+         tie %ConfigVlan, 'Config::IniFiles', (-file => "$conf_dir/switches.conf");
          $info{'vlan'}=$ConfigVlan{'default'}{'normalVlan'};                    
       }
     }
@@ -93,7 +95,7 @@ if (defined($params{'mode'})) {
 
     if ($count == 0) {
       if ($Config{'network'}{'mode'} =~ /arp/i) {
-        my $cmd = $install_dir."/bin/pfcmd manage freemac $mac";
+        my $cmd = $bin_dir."/pfcmd manage freemac $mac";
         my $output = qx/$cmd/;
       }
       generate_release_page($cgi, $session, $destination_url);
@@ -127,9 +129,9 @@ if (defined($params{'mode'})) {
     if ($session->param("login") eq $pid) {
       #node_deregister($mac);
       #trapmac($mac);
-      my $cmd = $install_dir."/bin/pfcmd manage deregister $mac";
+      my $cmd = $bin_dir."/pfcmd manage deregister $mac";
       my $output = qx/$cmd/;
-      $logger->info("calling $install_dir/bin/pfcmd  manage deregister $mac");
+      $logger->info("calling $bin_dir/pfcmd  manage deregister $mac");
       print $cgi->redirect("/cgi-bin/register.cgi");
     } else {
       generate_error_page($cgi, $session, "error: access denied not owner");

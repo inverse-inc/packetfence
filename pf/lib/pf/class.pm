@@ -23,7 +23,6 @@ BEGIN {
 }
 
 use Log::Log4perl;
-use lib qw(/usr/local/pf/lib);
 use pf::db;
 use pf::action qw(action_delete_all action_add);
 use pf::trigger qw(trigger_add);

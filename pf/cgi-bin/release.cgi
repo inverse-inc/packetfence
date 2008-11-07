@@ -9,7 +9,8 @@ use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
 use Log::Log4perl;
 
-use lib '/usr/local/pf/lib';
+use FindBin;
+use lib $FindBin::Bin . "/../lib";
 use pf::config;
 use pf::iplog;
 use pf::util;
@@ -20,7 +21,7 @@ use pf::class;
 use pf::violation;
 use pf::trigger;
 
-Log::Log4perl->init('/usr/local/pf/conf/log.conf');
+Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('release.cgi');
 Log::Log4perl::MDC->put('proc', 'release.cgi');
 Log::Log4perl::MDC->put('tid', 0);
@@ -63,7 +64,7 @@ if (defined($cgi->param('mode'))) {
         my $count = violation_count($mac);
         if ($count == 0) {
           if ($Config{'network'}{'mode'} =~ /arp/i) {
-            my $cmd = $install_dir."/bin/pfcmd manage freemac $mac";
+            my $cmd = $bin_dir."/pfcmd manage freemac $mac";
             my $output = qx/$cmd/;
           }
           generate_release_page($cgi, $session, $destination_url);
@@ -87,13 +88,13 @@ my $class_max_enable_url = $class->{'max_enable_url'};
 
 #scan code...
 if ($vid==1200001){
-  my $cmd = $install_dir."/bin/pfcmd schedule now $ip";
+  my $cmd = $bin_dir."/pfcmd schedule now $ip";
   $logger->info("scanning $ip by calling $cmd");
   my $scan = qx/$cmd/;
 }
 
-my $cmd = $install_dir."/bin/pfcmd manage vclose $mac $vid";
-$logger->info("calling $install_dir/bin/pfcmd manage vclose $mac $vid");
+my $cmd = $bin_dir."/pfcmd manage vclose $mac $vid";
+$logger->info("calling $bin_dir/pfcmd manage vclose $mac $vid");
 my $grace = qx/$cmd/;
 $grace=~s/^.+\n\n//;
 #my $grace = violation_close($mac,$vid);
@@ -104,7 +105,7 @@ if ($grace != -1) {
 
   if ($count == 0) {
     if ($Config{'network'}{'mode'} =~ /arp/i && $count == 0) {
-      my $cmd = $install_dir."/bin/pfcmd manage freemac $mac";
+      my $cmd = $bin_dir."/pfcmd manage freemac $mac";
       my $output = qx/$cmd/;
     }
     if ($class_redirect_url) {

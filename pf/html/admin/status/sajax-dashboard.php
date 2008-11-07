@@ -59,8 +59,8 @@ function get_usage(){
 function get_db_creds(){
   $db_user = $db_pass = '';  
 
-  if(file_exists('/usr/local/pf/conf/pf.conf')){
-    $lines = file('/usr/local/pf/conf/pf.conf');
+  if(file_exists(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/conf/pf.conf')){
+    $lines = file(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/conf/pf.conf');
 
     for($i=0; $i<count($lines); $i++){
       if(preg_match("/\[database\]/", $lines[$i])){
@@ -79,10 +79,10 @@ function get_db_creds(){
     }
   }
 
-  if(file_exists('/usr/local/pf/conf/pf.conf.defaults') && !$db_user || !$db_pass){
+  if(file_exists(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/conf/pf.conf.defaults') && !$db_user || !$db_pass){
     $db_user = $db_pass = '';
 
-    $lines = file('/usr/local/pf/conf/pf.conf.defaults');
+    $lines = file(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/conf/pf.conf.defaults');
 
     for($i=0; $i<count($lines); $i++){
       if(preg_match("/\[database\]/", $lines[$i])){

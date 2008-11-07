@@ -28,7 +28,6 @@ BEGIN {
                violation_trigger violation_count violation_count_trap violation_view_top violation_db_prepare violation_delete violation_exist_open);
 }
 
-use lib qw(/usr/local/pf/lib);
 use pf::config;
 use pf::db;
 use pf::util;

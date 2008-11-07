@@ -23,7 +23,6 @@ BEGIN {
                generate_dhcpd_reg generage_dhcpd_iso);
 }
 
-use lib qw(/usr/local/pf/lib);
 use pf::config;
 use pf::util;
 use pf::violation qw(violation_view_open_uniq);
@@ -32,19 +31,19 @@ use pf::trigger qw(trigger_delete_all);
 use pf::class qw(class_view_all class_merge);
 
 my %flags;
-$flags{'httpd'}= "-f $install_dir/conf/httpd.conf";
+$flags{'httpd'}= "-f $conf_dir/httpd.conf";
 $flags{'pfdetect'} = "-d -p $install_dir/var/alert &";
 $flags{'pfmon'} = "-d &";
 $flags{'pfdhcplistener'} = "-d &";
 $flags{'pfredirect'} =  "-d &";
 $flags{'pfsetvlan'} = "-d &";
-$flags{'dhcpd'} = " -lf $install_dir/conf/dhcpd/dhcpd.leases -cf $install_dir/conf/dhcpd.conf ".join(" ", get_dhcp_devs());
-$flags{'named'} = "-u pf -c $install_dir/conf/named.conf";
-$flags{'snmptrapd'} = "-n -c /usr/local/pf/conf/snmptrapd.conf -C -Lf /usr/local/pf/logs/snmptrapd.log -p /usr/local/pf/var/snmptrapd.pid -On";
+$flags{'dhcpd'} = " -lf $conf_dir/dhcpd/dhcpd.leases -cf $conf_dir/dhcpd.conf ".join(" ", get_dhcp_devs());
+$flags{'named'} = "-u pf -c $conf_dir/named.conf";
+$flags{'snmptrapd'} = "-n -c $conf_dir/snmptrapd.conf -C -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/snmptrapd.pid -On";
 $flags{'nessusd'} = "-D";
 
 if (isenabled($Config{'trapping'}{'detection'}) && $monitor_int) {
-  $flags{'snort'} = "-u pf -c $install_dir/conf/snort.conf -i ".$monitor_int." -o -N -D -l $install_dir/var";
+  $flags{'snort'} = "-u pf -c $conf_dir/snort.conf -i ".$monitor_int." -o -N -D -l $install_dir/var";
 }
 
 sub service_ctl {
@@ -157,15 +156,15 @@ sub service_list {
 sub generate_dhcpd_conf {
   my %tags;
   my $logger = Log::Log4perl::get_logger('pf::services');
-  $tags{'template'}           = "$install_dir/conf/templates/dhcpd.conf";
+  $tags{'template'}           = "$conf_dir/templates/dhcpd.conf";
   $tags{'domain'}             = $Config{'general'}{'domain'};
   $tags{'hostname'}           = $Config{'general'}{'hostname'};
   $tags{'dnsservers'}         = $Config{'general'}{'dnsservers'};
 
-  parse_template(\%tags, "$install_dir/conf/templates/dhcpd.conf", "$install_dir/conf/dhcpd.conf");
+  parse_template(\%tags, "$conf_dir/templates/dhcpd.conf", "$conf_dir/dhcpd.conf");
 
   my %shared_nets;
-  $logger->info("generating $install_dir/conf/dhcpd.conf");
+  $logger->info("generating $conf_dir/dhcpd.conf");
   foreach my $dhcp (tied(%Config)->GroupMembers("dhcp")) {
     my @registered_scopes;
     my @unregistered_scopes;
@@ -214,7 +213,7 @@ sub generate_dhcpd_conf {
   }
 
   #open dhcpd.conf file
-  open(DHCPDCONF,">>$install_dir/conf/dhcpd.conf") || $logger->logdie("Unable to append to $install_dir/conf/dhcpd.conf: $!");
+  open(DHCPDCONF,">>$conf_dir/dhcpd.conf") || $logger->logdie("Unable to append to $conf_dir/dhcpd.conf: $!");
   foreach my $internal_interface (get_internal_devs_phy()) {
     my $dhcp_interface = get_internal_info($internal_interface);
     print DHCPDCONF "subnet ".$dhcp_interface->base()." netmask ".$dhcp_interface->mask()." {\n  not authoritative;\n}\n";
@@ -313,8 +312,8 @@ sub generate_dhcpd_conf {
     }
     print DHCPDCONF "}\n";
   }
-  print DHCPDCONF "include \"$install_dir/conf/isolated.mac\";\n";
-  print DHCPDCONF "include \"$install_dir/conf/registered.mac\";\n";
+  print DHCPDCONF "include \"$conf_dir/isolated.mac\";\n";
+  print DHCPDCONF "include \"$conf_dir/registered.mac\";\n";
   #close(DHCPDCONF);
 
   generate_dhcpd_iso();
@@ -324,7 +323,7 @@ sub generate_dhcpd_conf {
 #open isolated.mac file
 sub generate_dhcpd_iso {
   my $logger = Log::Log4perl::get_logger('pf::services');
-  open(ISOMAC, ">$install_dir/conf/isolated.mac") || $logger->logdie("Unable to open $install_dir/conf/isolated.mac : $!"); 
+  open(ISOMAC, ">$conf_dir/isolated.mac") || $logger->logdie("Unable to open $conf_dir/isolated.mac : $!"); 
   my @isolated = violation_view_open_uniq();
   my @isolatednodes;
   foreach my $row (@isolated) {
@@ -342,7 +341,7 @@ sub generate_dhcpd_reg {
   my $logger = Log::Log4perl::get_logger('pf::services');
   if (isenabled($Config{'trapping'}{'registration'})){
 	my $regmac_fh;
-    open(REGMAC,">$install_dir/conf/registered.mac") || $logger->logdie("Unable to open $install_dir/conf/registered.mac : $!");  
+    open(REGMAC,">$conf_dir/registered.mac") || $logger->logdie("Unable to open $conf_dir/registered.mac : $!");  
     my @registered = nodes_registered_not_violators();
     my @registerednodes;
     foreach my $row (@registered) {
@@ -360,19 +359,19 @@ sub generate_dhcpd_reg {
 sub generate_named_conf {
   my $logger = Log::Log4perl::get_logger('pf::services');
   my %tags;
-  $tags{'template'}   = "$install_dir/conf/templates/named.conf";
+  $tags{'template'}   = "$conf_dir/templates/named.conf";
   $tags{'install_dir'} = $install_dir;
   $tags{'dnsservers'}   = $Config{'general'}{'dnsservers'};
   #convert comma separated list into semo-colon separated one
   $tags{'dnsservers'} =~ s/,/; /g;
-  $logger->info("generating $install_dir/conf/named.conf");
-  parse_template(\%tags, "$install_dir/conf/templates/named.conf", "$install_dir/conf/named.conf");
+  $logger->info("generating $conf_dir/named.conf");
+  parse_template(\%tags, "$conf_dir/templates/named.conf", "$conf_dir/named.conf");
 }
 
 sub generate_snort_conf {
   my $logger = Log::Log4perl::get_logger('pf::services');
   my %tags;
-  $tags{'template'}      = "$install_dir/conf/templates/snort.conf";
+  $tags{'template'}      = "$conf_dir/templates/snort.conf";
   $tags{'internal-ips'}   = join(",",get_internal_ips());
   $tags{'internal-nets'} = join(",",get_internal_nets());
   $tags{'gateways'}      = join(",", get_gateways());
@@ -380,7 +379,7 @@ sub generate_snort_conf {
   $tags{'dns_servers'}   = $Config{'general'}{'dnsservers'};
   $tags{'install_dir'}   = $install_dir;
   my %violations_conf;
-  tie %violations_conf, 'Config::IniFiles', ( -file => "$install_dir/conf/violations.conf" ); 
+  tie %violations_conf, 'Config::IniFiles', ( -file => "$conf_dir/violations.conf" ); 
   my @rules;
   foreach my $rule (split(/\s*,\s*/, $violations_conf{'defaults'}{'snort_rules'})){  
     #append install_dir if the path doesn't start with /
@@ -388,15 +387,15 @@ sub generate_snort_conf {
 	push @rules,"include $rule";
   }
   $tags{'snort_rules'} = join("\n",@rules);
-  $logger->info("generating $install_dir/conf/snort.conf");
-  parse_template(\%tags, "$install_dir/conf/templates/snort.conf", "$install_dir/conf/snort.conf");
+  $logger->info("generating $conf_dir/snort.conf");
+  parse_template(\%tags, "$conf_dir/templates/snort.conf", "$conf_dir/snort.conf");
 }
 
 sub generate_snmptrapd_conf {
   my $logger = Log::Log4perl::get_logger('pf::services');
   my %tags;
   my %switchConfig;
-  tie %switchConfig, 'Config::IniFiles', (-file => "$install_dir/conf/switches.conf");
+  tie %switchConfig, 'Config::IniFiles', (-file => "$conf_dir/switches.conf");
   my @errors = @Config::IniFiles::errors;
   if (scalar(@errors)) {
       $logger->error("Error reading config file: " . join("\n", @errors));
@@ -410,16 +409,16 @@ sub generate_snmptrapd_conf {
       }
   }
 
-  $tags{'template'} = "$install_dir/conf/templates/snmptrapd.conf";
+  $tags{'template'} = "$conf_dir/templates/snmptrapd.conf";
   $tags{'communityTrap'} = $switchConfig{'default'}{'communityTrap'};
-  $logger->info("generating $install_dir/conf/snmptrapd.conf");
-  parse_template(\%tags, "$install_dir/conf/templates/snmptrapd.conf", "$install_dir/conf/snmptrapd.conf");
+  $logger->info("generating $conf_dir/snmptrapd.conf");
+  parse_template(\%tags, "$conf_dir/templates/snmptrapd.conf", "$conf_dir/snmptrapd.conf");
 }
 
 sub generate_httpd_conf {
   my (%tags, $httpdconf_fh, $authconf_fh);
   my $logger = Log::Log4perl::get_logger('pf::services');
-  $tags{'template'}        = "$install_dir/conf/templates/httpd.conf";
+  $tags{'template'}        = "$conf_dir/templates/httpd.conf";
   $tags{'internal-nets'}   = join(" ",get_internal_nets());
   $tags{'routed-nets'}     = join(" ",get_routed_nets());
   $tags{'hostname'}        = $Config{'general'}{'hostname'};
@@ -479,14 +478,14 @@ sub generate_httpd_conf {
   }
   $tags{'content-proxies'} = join("\n", @contentproxies);
 
-  $logger->info("generating $install_dir/conf/httpd.conf");
-  parse_template(\%tags, "$install_dir/conf/templates/httpd.conf", "$install_dir/conf/httpd.conf");
+  $logger->info("generating $conf_dir/httpd.conf");
+  parse_template(\%tags, "$conf_dir/templates/httpd.conf", "$conf_dir/httpd.conf");
 
   # append authentication code
   #if (isenabled($Config{'trapping'}{'registration'})) {
-  #  open(HTTPDCONF, ">>$install_dir/conf/httpd.conf") || die "Unable to open $install_dir/conf/httpd.conf for append: $!\n";
+  #  open(HTTPDCONF, ">>$conf_dir/httpd.conf") || die "Unable to open $conf_dir/httpd.conf for append: $!\n";
   #  foreach my $authtype (split(/\s*,\s*/, $Config{'registration'}{'auth'})) {
-  #    my $authconf = "$install_dir/conf/templates/${authtype}.conf";
+  #    my $authconf = "$conf_dir/templates/${authtype}.conf";
   #    if (-e $authconf) {
   #      open(AUTHCONF, $authconf) || die "Unable to open authentication config file $authconf: $!\n";
   #      while (<AUTHCONF>) {
@@ -504,7 +503,7 @@ sub generate_httpd_conf {
 sub switches_conf_is_valid {
   my $logger = Log::Log4perl::get_logger('pf::services');
   my %switches_conf;
-  tie %switches_conf, 'Config::IniFiles', ( -file => "/usr/local/pf/conf/switches.conf" );
+  tie %switches_conf, 'Config::IniFiles', ( -file => "$conf_dir/switches.conf" );
   my @errors = @Config::IniFiles::errors;
   if (scalar(@errors)) {
     $logger->error("Error reading switches.conf: " . join("\n", @errors) . "\n");
@@ -554,7 +553,7 @@ sub switches_conf_is_valid {
 sub read_violations_conf {
   my $logger = Log::Log4perl::get_logger('pf::services');
   my %violations_conf;
-  tie %violations_conf, 'Config::IniFiles', ( -file => "/usr/local/pf/conf/violations.conf" );
+  tie %violations_conf, 'Config::IniFiles', ( -file => "$conf_dir/violations.conf" );
   my %violations = class_set_defaults(%violations_conf);
   
   #clear all triggers at startup

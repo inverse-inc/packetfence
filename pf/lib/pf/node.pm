@@ -32,7 +32,6 @@ BEGIN {
                node_expire_lastarp node_cleanup node_update_lastarp);
 }
 
-use lib qw(/usr/local/pf/lib);
 use pf::config;
 use pf::db;
 use pf::util;
@@ -314,7 +313,7 @@ sub node_register {
   if ($Config{'network'}{'mode'} =~ /vlan/i) {
     if (! defined($info{'vlan'})) {
       my %ConfigVlan;
-      tie %ConfigVlan, 'Config::IniFiles', (-file => '/usr/local/pf/conf/switches.conf');
+      tie %ConfigVlan, 'Config::IniFiles', (-file => "$conf_dir/switches.conf");
       $info{'vlan'}=$ConfigVlan{'default'}{'normalVlan'};
       $logger->info("auto-configured VLAN to " . $info{'vlan'});
     }

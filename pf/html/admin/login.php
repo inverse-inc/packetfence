@@ -15,7 +15,7 @@ function check_input($input){
 } 
 
 //function validate_user($user,$pass,$hash='') {
-//  include("/usr/local/pf/conf/admin_ldap.conf");
+//  include(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/admin_ldap.conf");
 //
 //  if ($hash != '') {
 //    return $hash;
@@ -46,7 +46,7 @@ function check_input($input){
 //}
 
 function validate_user($user, $pass, $hash = ''){
-  $file = file('/usr/local/pf/conf/admin.conf');
+  $file = file(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/conf/admin.conf');
   foreach($file as $line){
     $line = rtrim($line);
     $info = explode(":", $line);
@@ -85,8 +85,8 @@ if(isset($_GET['logout']) || isset($_GET['ip_mismatch'])){
 else {
   if(isset($_SESSION['user']) && isset($_SESSION['passw'])) {
     if(validate_user($_SESSION['user'], '', $_SESSION['passw'])){
-      if(is_readable("/usr/local/pf/conf/users/$_SESSION[user]")){
-        $_SESSION['ui_prefs']=unserialize(file_get_contents("/usr/local/pf/conf/users/$_SESSION[user]")); 
+      if(is_readable(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/users/" . $_SESSION['user'])){
+        $_SESSION['ui_prefs']=unserialize(file_get_contents(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/users/" . $_SESSION['user'])); 
         $homepage = $_SESSION['ui_prefs']['homepage'];
       }
       if(!$homepage){
@@ -111,11 +111,8 @@ else {
       $_SESSION['passw'] = $hash;
       $_SESSION['last_active'] = time();
       $_SESSION['ip_addr'] = $_SERVER['REMOTE_ADDR'];
-      if(is_readable("/usr/local/pf/conf/users/$_SESSION[user]")){
-        $_SESSION['ui_prefs']=unserialize(file_get_contents("/usr/local/pf/conf/users/$_SESSION[user]")); 
-      }
-      if(is_readable("/usr/local/pf/conf/users/$_SESSION[user]")){
-        $_SESSION['ui_prefs']=unserialize(file_get_contents("/usr/local/pf/conf/users/$_SESSION[user]")); 
+      if(is_readable(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/users/" . $_SESSION['user'])){
+        $_SESSION['ui_prefs']=unserialize(file_get_contents(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/users/" . $_SESSION['user'])); 
         $homepage = $_SESSION['ui_prefs']['homepage'];
       }
       else{

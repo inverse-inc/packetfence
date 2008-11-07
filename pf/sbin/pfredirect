@@ -12,16 +12,17 @@ use strict;
 use Getopt::Std;
 use IO::Socket::INET;
 use File::Basename qw(basename);
+use FindBin;
 use threads;
 use threads::shared;
 use POSIX();
 use Log::Log4perl;
 
-use lib '/usr/local/pf/lib';
+use lib $FindBin::Bin . "/../lib";
 use pf::config;
 use pf::util;
 
-Log::Log4perl->init('/usr/local/pf/conf/log.conf');
+Log::Log4perl->init($FindBin::Bin . "/../conf/log.conf");
 my $logger = Log::Log4perl->get_logger(basename($0));
 Log::Log4perl::MDC->put('proc', basename($0));
 Log::Log4perl::MDC->put('tid', 0);
@@ -65,7 +66,7 @@ $logger->info("initialized");
 my $pop3_port = 110;
 my $imap_port = 143;
 my $hostname  = $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
-my $msg       = "$install_dir/conf/templates/listener.msg";
+my $msg       = "$conf_dir/templates/listener.msg";
 my $date      = POSIX::strftime("%a, %d %b %Y %T %z", localtime);
 
 # Build message

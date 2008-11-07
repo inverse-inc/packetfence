@@ -10,7 +10,9 @@ use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use Log::Log4perl;
 
-use lib '/usr/local/pf/lib';
+use FindBin;
+use lib $FindBin::Bin . "/../lib";
+use pf::config;
 use pf::db;
 use pf::util;
 use pf::iplog;
@@ -18,7 +20,7 @@ use pf::trigger;
 
 use SOAP::Transport::HTTP;
 
-Log::Log4perl->init('/usr/local/pf/conf/log.conf');
+Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('pdp.cgi');
 Log::Log4perl::MDC->put('proc', 'pdp.cgi');
 Log::Log4perl::MDC->put('tid', 0);
@@ -45,7 +47,7 @@ sub event_add {
       if ($srcmac) {
         $logger->info("PDP: violation: $srcip resolved to $srcmac [$vid]");
         if (!whitelisted_mac($srcmac) && valid_mac($srcmac) && trappable_ip($srcip) && trappable_mac($srcmac)) {
-          `/usr/local/pf/bin/pfcmd violation add vid=$vid,mac=$srcmac`;
+          `$bin_dir/pfcmd violation add vid=$vid,mac=$srcmac`;
         }
       } else {
         $logger->info("PDP: Mac not found for IP: $srcip");

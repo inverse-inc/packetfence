@@ -15,10 +15,11 @@ use Getopt::Std;
 use Net::Pcap 0.16;
 use POSIX qw(:signal_h);
 use File::Basename qw(basename);
+use FindBin;
 use Log::Log4perl;
 
 
-use lib '/usr/local/pf/lib';
+use lib $FindBin::Bin . "/../lib";
 use pf::config;
 use pf::iplog;
 
@@ -36,7 +37,7 @@ use pf::iptables;
 use pf::rawip;
 
 
-Log::Log4perl->init('/usr/local/pf/conf/log.conf');
+Log::Log4perl->init($FindBin::Bin . "/../conf/log.conf");
 my $logger = Log::Log4perl->get_logger(basename($0));
 Log::Log4perl::MDC->put('proc', basename($0));
 Log::Log4perl::MDC->put('tid', 0);
@@ -232,11 +233,11 @@ sub listen_dhcp {
       my $date = POSIX::strftime("%m/%d/%y %H:%M:%S", localtime);
       push @{$rogue_servers{$smac}}, sprintf("%s: %15s to %s on interface %s\n",$date, $yiaddr, $chaddr, $eth);
       $logger->warn("$src ($smac) was detected offering $yiaddr to $chaddr on $eth");
-      `/usr/local/pf/bin/pfcmd 'violation add vid=1100010, mac=$smac'`;
+      `$bin_dir/pfcmd 'violation add vid=1100010, mac=$smac'`;
       if (scalar(@{$rogue_servers{$smac}}) == $Config{'network'}{'rogueinterval'}) {
         my %rogue_message;
         $rogue_message{'subject'} = "ROGUE DHCP SERVER DETECTED AT ".uc($smac)." ($src) ON ".uc($eth)."\n";
-        push @INC, "$install_dir/bin";
+        push @INC, $bin_dir;
         require "lookup_node.pl";
         $rogue_message{'message'} = lookup_node($smac)."\n";
         $rogue_message{'message'} = "Detected Offers\n---------------\n";
@@ -381,7 +382,7 @@ sub update_iplog {
 sub daemonize {
   chdir '/'               or $logger->logdie("Can't chdir to /: $!");
   open STDIN, '/dev/null' or $logger->logdie("Can't read /dev/null: $!");
-  my $log_file = "/usr/local/pf/logs/pfdhcplistener_$interface";
+  my $log_file = "$install_dir/logs/pfdhcplistener_$interface";
   open STDOUT, ">>$log_file" or $logger->logdie("Can't write to $log_file: $!");
 
   defined(my $pid = fork) or $logger->logdie("pfdhcplistener: could not fork: $!");

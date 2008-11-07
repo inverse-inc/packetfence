@@ -1,5 +1,5 @@
 1) Prepare PF
-   Add a section in /usr/local/pf/conf/switches.conf for the access point,
+   Add a section in <install_dir>/conf/switches.conf for the access point,
    similar to the following
      [192.168.0.34]
      ip = 192.168.0.34

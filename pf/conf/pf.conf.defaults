@@ -246,9 +246,9 @@ skip_reminder=1d
 # registration.auth
 #
 # Method by which registering nodes will be authenticated.  Templates for LDAP and local are 
-# available at /usr/local/pf/conf/authentication.  If you wish to use a different authentication mechanism, simply create 
-# a file called /usr/local/pf/conf/authentication/<authname>.pm, fill it with the necessary data, and set 
-# auth=<authname>.  The default value, local, relies on a local access file in /usr/local/pf/conf/user.conf.
+# available at <conf_dir>/authentication.  If you wish to use a different authentication mechanism, simply create 
+# a file called <conf_dir>/authentication/<authname>.pm, fill it with the necessary data, and set 
+# auth=<authname>.  The default value, local, relies on a local access file in <conf_dir>/user.conf.
 auth=local
 #
 # registration.expire_mode
@@ -328,7 +328,7 @@ subjectprefix=PF Alert:
 # alerting.log
 #
 # Log file where "log" actions are sent.
-log=/usr/local/pf/logs/violation.log
+log=violation.log
 #
 # alerting.wins_server
 #
@@ -365,7 +365,7 @@ redirect=80/tcp,110/tcp,143/tcp,443/tcp
 #
 # Enables "bogus" IMAP and POP servers.  These servers serve only to deliver a message (POP3) or send an alert (IMAP) to 
 # inform the user that he/she must register before connectivity is allowed.  Content of the message is found at 
-# /usr/local/pf/conf/templates/listener.msg
+# <conf_dir>/templates/listener.msg
 listeners=
 #
 # ports.admin
@@ -531,7 +531,7 @@ adjustswitchportvlanreasons=node_modify,manage_register,manage_deregister,manage
 # vlan.adjustswitchportvlanscript
 #
 # Which script do we have to execute to adjust the switchport VLAN
-adjustswitchportvlanscript=/usr/local/pf/bin/flip.pl
+adjustswitchportvlanscript=flip.pl
 #
 # vlan.closelocationlogonstop
 #

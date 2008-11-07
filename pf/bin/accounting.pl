@@ -45,12 +45,11 @@ use Thread::Pool;
 
 
 use constant {
-    LIB_DIR => $FindBin::Bin . "/../lib",
     CONF_FILE => $FindBin::Bin . "/../conf/switches.conf",
     LOG_CONF_FILE => $FindBin::Bin . "/../conf/log.conf"
 };
 
-use lib LIB_DIR;
+use lib $FindBin::Bin . "/../lib";
 use pf::SwitchFactory;
 use pf::db;
 use pf::person;

@@ -22,7 +22,7 @@ BEGIN {
 
 use Net::LDAP;
 use Log::Log4perl;
-use lib '/usr/local/pf/lib';
+
 use pf::config;
 use pf::util;
 

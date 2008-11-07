@@ -23,7 +23,6 @@ BEGIN {
 }
 
 use Log::Log4perl;
-use lib qw(/usr/local/pf/lib);
 use pf::config;
 use pf::util;
 use pf::db;
@@ -152,7 +151,7 @@ sub action_email {
   my($mac, $vid) = @_;
   my %message;
 
-  push @INC, "$install_dir/bin";
+  push @INC, $bin_dir;
   require "lookup_node.pl";
   my $class_info   = class_view($vid);                  
   my $description  = $class_info->{'description'};
@@ -205,7 +204,7 @@ sub action_winpopup {
 #  use Net::NetSend qw(:all);
 #  use Net::NBName;
 
-  push @INC, "$install_dir/bin";
+  push @INC, $bin_dir;
   require "lookup_node.pl";
   my $class_info   = class_view($vid);                  
   my $description  = $class_info->{'description'};

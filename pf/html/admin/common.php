@@ -1,9 +1,9 @@
 <?php
 
-require_once("/usr/local/pf/html/admin/check_login.php");
+require_once($_SERVER['DOCUMENT_ROOT'] . "/check_login.php");
 
 if($sajax){
-	require("/usr/local/pf/html/admin/common/sajax/Sajax.php");
+	require($_SERVER['DOCUMENT_ROOT'] . "/common/sajax/Sajax.php");
 }
 
   class table{
@@ -735,7 +735,7 @@ function PrintSubNav($menu){
   function PFCMD($command){
     global $ui_debug;
 
-    $PFCMD='/usr/local/pf/bin/pfcmd';
+    $PFCMD=dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/bin/pfcmd';
     exec("ARGS=".escapeshellarg($command)." $PFCMD 2>&1", $output, $total);
 
     if($ui_debug == true){
@@ -880,7 +880,7 @@ function PrintSubNav($menu){
 
   function save_prefs_to_file(){
     if($_SESSION['user'] && $_SESSION['ui_prefs']){
-      $filename = "/usr/local/pf/conf/users/$_SESSION[user]";
+      $filename = dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/users/" . $_SESSION['user'];
       if (!$handle = fopen($filename, 'w+')) {
          echo "Cannot open file ($filename)";
          exit;
@@ -896,7 +896,7 @@ function PrintSubNav($menu){
 
   function save_global_prefs_to_file(){
     if($_SESSION['ui_global_prefs']){
-      $filename = "/usr/local/pf/conf/ui-global.conf";
+      $filename = dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/ui-global.conf";
       if (!$handle = fopen($filename, 'w+')) {
          echo "Cannot open file ($filename)";
          exit;
@@ -921,14 +921,14 @@ function PrintSubNav($menu){
   }
 
   function get_global_conf(){
-    $global_conf = '/usr/local/pf/conf/ui-global.conf';
+    $global_conf = dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/conf/ui-global.conf';
     if(file_exists($global_conf)){
-      $_SESSION['ui_global_prefs']=unserialize(file_get_contents("/usr/local/pf/conf/ui-global.conf"));
+      $_SESSION['ui_global_prefs']=unserialize(file_get_contents($global_conf));
     }
     else{
       $defaults = array();
       if(!$DAT = fopen($global_conf, 'w')){
-        print "Could not open file: $globl_conf<br>";
+        print "Could not open file: $global_conf<br>";
       }
       else{
  	if(fwrite($DAT, serialize($defaults) === FALSE)){

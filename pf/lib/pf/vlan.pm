@@ -20,14 +20,13 @@ BEGIN {
 
 use Log::Log4perl;
 
-use lib qw(/usr/local/pf/lib);
-
+use pf::config;
 use pf::node qw(node_view);
 use pf::violation qw(violation_count_trap violation_exist_open);
 use pf::SwitchFactory;
 use threads;
 
-require "/usr/local/pf/conf/pfsetvlan.pm";
+require "$conf_dir/pfsetvlan.pm";
 
 sub vlan_determine_for_node {
     my ($mac, $switch_ip, $ifIndex) = @_;
@@ -39,12 +38,12 @@ sub vlan_determine_for_node {
     if ($open_violation_count > 0) {
         if (($open_violation_count == 1) && (violation_exist_open($mac,1200001))) {
             $logger->info("$mac has scan reg violation open; belongs into registration VLAN.");
-            my $switchFactory = new pf::SwitchFactory( -configFile => '/usr/local/pf/conf/switches.conf');
+            my $switchFactory = new pf::SwitchFactory( -configFile => "$conf_dir/switches.conf");
             my $switch = $switchFactory->instantiate($switch_ip);
             $correctVlanForThisMAC = $switch->{_registrationVlan};
         } else {
             $logger->info("$mac has $open_violation_count open violations(s) with action=trap; belongs into isolation VLAN.");
-            my $switchFactory = new pf::SwitchFactory( -configFile => '/usr/local/pf/conf/switches.conf');
+            my $switchFactory = new pf::SwitchFactory( -configFile => "$conf_dir/switches.conf");
             my $switch = $switchFactory->instantiate($switch_ip);
             $correctVlanForThisMAC = $switch->{_isolationVlan};
        }
@@ -53,7 +52,7 @@ sub vlan_determine_for_node {
         my $node_info = node_view($mac);
         if ((! defined($node_info)) || ($node_info->{'status'} ne 'reg')) {
             $logger->info("MAC: $mac is unregistered; belongs into registration VLAN");
-            my $switchFactory = new pf::SwitchFactory( -configFile => '/usr/local/pf/conf/switches.conf');
+            my $switchFactory = new pf::SwitchFactory( -configFile => "$conf_dir/switches.conf");
             my $switch = $switchFactory->instantiate($switch_ip);
             $correctVlanForThisMAC = $switch->{_registrationVlan};
         } else {

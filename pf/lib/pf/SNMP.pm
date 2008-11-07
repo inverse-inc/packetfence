@@ -32,12 +32,6 @@ use Data::Dumper;
 
 our $VERSION = v1.7.0.6;
 
-use constant {
-    PF_LIB_DIR => "/usr/local/pf/lib"
-};
-
-use lib PF_LIB_DIR;
-
 use pf::locationlog;
 use pf::node;
 

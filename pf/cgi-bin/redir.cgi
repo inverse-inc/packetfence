@@ -8,7 +8,8 @@ use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
 use Log::Log4perl;
 
-use lib '/usr/local/pf/lib';
+use FindBin;
+use lib $FindBin::Bin . "/../lib";
 use pf::config;
 use pf::iplog;
 use pf::util;
@@ -19,7 +20,7 @@ use pf::node;
 use pf::class;
 use pf::violation;
 
-Log::Log4perl->init('/usr/local/pf/conf/log.conf');
+Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('redir.cgi');
 Log::Log4perl::MDC->put('proc', 'redir.cgi');
 Log::Log4perl::MDC->put('tid', 0);
@@ -85,7 +86,7 @@ if ($violation){
 } else {
   $logger->info("$mac already registered or registration disabled, freeing mac");
   if ($Config{'network'}{'mode'} =~ /arp/i) {
-    my $cmd = $install_dir."/bin/pfcmd manage freemac $mac";
+    my $cmd = $bin_dir."/pfcmd manage freemac $mac";
     my $output = qx/$cmd/;
   }
   $logger->info("freed $mac and redirecting to ".$Config{'trapping'}{'redirecturl'});

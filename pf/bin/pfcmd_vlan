@@ -114,6 +114,7 @@ use constant {
 use lib LIB_DIR;
 use pf::SwitchFactory;
 use pf::db;
+use pf::config;
 
 require 5.8.8;
 
@@ -327,7 +328,7 @@ if (($getUpLinks) || ($getVersion) || ($getType) || ($getAllMacs) || ($getHubs))
                 }
                 if ($showPF) {
 
-                    my @pfcmd = `/usr/local/pf/bin/pfcmd node view $mac`;
+                    my @pfcmd = `$bin_dir/pfcmd node view $mac`;
                     @pfcmd = split(/[|]/, $pfcmd[1]);
                     print ", $pfcmd[7]" unless ($pfcmd[7] eq '');
                     print ", $pfcmd[1]" unless ($pfcmd[1] eq '');
@@ -384,7 +385,7 @@ if (($getUpLinks) || ($getVersion) || ($getType) || ($getAllMacs) || ($getHubs))
                 print ", " . ($$oui_info[0] || 'unknown');
             }
             if ($showPF) {
-                my @pfcmd = `/usr/local/pf/bin/pfcmd node view $currentMac`;
+                my @pfcmd = `$bin_dir/pfcmd node view $currentMac`;
                 @pfcmd = split(/[|]/, $pfcmd[1]);
                 print ", $pfcmd[7]" unless ($pfcmd[7] eq '');
                 print ", $pfcmd[1]" unless ($pfcmd[1] eq '');

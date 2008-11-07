@@ -11,7 +11,6 @@ use strict;
 use warnings;
 use Log::Log4perl;
 
-use lib qw(/usr/local/pf/lib);
 use pf::db;
 
 use vars qw/$report_active_all_sql $report_inactive_all_sql $report_unregistered_active_sql $report_unregistered_all_sql

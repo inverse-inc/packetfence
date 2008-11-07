@@ -21,7 +21,6 @@ BEGIN {
   @EXPORT = qw(iptables_generate iptables_save iptables_restore iptables_mark_node iptables_unmark_node);
 }
 
-use lib qw(/usr/local/pf/lib);
 use pf::config;
 use pf::util;
 use pf::class qw(class_view_all class_trappable);
@@ -45,8 +44,8 @@ sub zero_table {
 
 sub iptables_generate {
   my $logger = Log::Log4perl::get_logger('pf::iptables');
-  my $pre_file = $install_dir.'/conf/iptables.pre';
-  my $post_file = $install_dir.'/conf/iptables.post';
+  my $pre_file = $conf_dir.'/iptables.pre';
+  my $post_file = $conf_dir.'/iptables.post';
   my $passthroughs;
   my @vids = class_view_all();
 

@@ -29,7 +29,7 @@
     print "<div id='error'>Invalid VID: '$vid'</div>";
   }
 
-  $template = "/usr/local/pf/html/user".preg_replace("/index.php\?template=/", 'violations/', $url).'.php';
+  $template = dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/html/user".preg_replace("/index.php\?template=/", 'violations/', $url).'.php';
 
   preg_match("/template=([a-zA-Z0-9_]+)(&admin=.+)?$/", $url, $matches);
   if(!$matches[1]){
@@ -40,7 +40,7 @@
     $admin='yes';
   }
 
-  $template = "/usr/local/pf/html/user/content/violations/$matches[1].php";
+  $template = dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/html/user/content/violations/$matches[1].php";
 
   if($_POST['update_content'] && !$_POST['preview']){
 
@@ -125,7 +125,7 @@
     <?
       if($_POST['preview']){
 	print "<tr><td id='preview' colspan=2 style='border:1px solid #aaa; background: white; padding:10px;'>";
-        include('/usr/local/pf/html/user/content/index.php');
+        include(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/html/user/content/index.php');
 	print "</td></tr>";
       }
     ?>

@@ -23,7 +23,6 @@ BEGIN {
   @EXPORT = qw(person_db_prepare person_exist person_delete person_add person_view person_view_all person_modify person_nodes);
 }
 
-use lib qw(/usr/local/pf/lib);
 use pf::db;
 
 $person_db_prepared = 0;
