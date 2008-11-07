@@ -337,7 +337,7 @@ if($sajax){
 
 	if($header_meta){
           foreach($header_meta as $meta){
- 	    if(preg_match("/^$header\*?$/", $meta[0])){
+            if (($meta[0] == $header) || ($meta[0] == ($header . "*"))) {
               $pretty_header=$meta[1];
             }
           }

@@ -113,6 +113,8 @@
           (http://www.packetfence.org/mantis/view.php?id=454)
         removed reboot.php
           (http://www.packetfence.org/mantis/view.php?id=463)
+        Unknown modifier 'r' in common.php on line 340
+          (http://www.packetfence.org/mantis/view.php?id=466)
 
 1.7.4
         undef operator in SNMP.pm
