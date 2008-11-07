@@ -326,7 +326,6 @@ fi
 %config(noreplace) /usr/local/pf/html/user/content/footer.html
 /usr/local/pf/html/user/content/index.php
 /usr/local/pf/html/user/content/style.php
-/usr/local/pf/html/user/content/reboot.php
 %dir /usr/local/pf/html/user/content/images
 /usr/local/pf/html/user/content/images/*
 %dir /usr/local/pf/html/user/content/templates
