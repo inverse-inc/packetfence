@@ -63,17 +63,15 @@ use Pod::Usage;
 use Net::SMTP;
 use POSIX ();
 
+use constant INSTALL_DIR => '/usr/local/pf';
+
 use constant {
-    LIB_DIR => $FindBin::Bin . "/../lib",
-    CONF_FILE => $FindBin::Bin . "/../conf/switches.conf",
-    LOG_CONF_FILE => $FindBin::Bin . "/../conf/log.conf",
-    SNMPLOG_FILE => $FindBin::Bin . "/../logs/snmptrapd.log",
-    LOG_FILE => $FindBin::Bin . "/../logs/pfsetvlan.log",
+    LOG_FILE => INSTALL_DIR . "/logs/pfsetvlan.log",
     PID_FILE => "/var/run/pfsetvlan.pid",
-    PFCMD_FILE => $FindBin::Bin . "/../bin/pfcmd"
+    PFCMD_FILE => INSTALL_DIR . "/bin/pfcmd"
 };
 
-use lib LIB_DIR;
+use lib INSTALL_DIR . '/lib';
 use pf::SwitchFactory;
 
 require 5.8.8;
@@ -90,7 +88,7 @@ use pf::SNMP v1.7.0.6;
 use pf::vlan;
 # }}}1
 
-Log::Log4perl->init(LOG_CONF_FILE);
+Log::Log4perl->init(INSTALL_DIR . '/conf/log.conf');
 my $logger = Log::Log4perl->get_logger(basename($0));
 Log::Log4perl::MDC->put('proc', basename($0));
 Log::Log4perl::MDC->put('tid', threads->self->tid());
@@ -129,11 +127,11 @@ pod2usage( -verbose => 1) if $help;
 
 # startup {{{1
 my $switchFactory = new pf::SwitchFactory(
-    -configFile => CONF_FILE
+    -configFile => INSTALL_DIR . '/conf/switches.conf'
 );
 
 
-my $fh = new File::Tail ('name' => SNMPLOG_FILE,
+my $fh = new File::Tail ('name' => INSTALL_DIR . '/logs/snmptrapd.log',
     'interval' => 2,
     'reset_tail' => 0,
     'maxinterval' => 2);

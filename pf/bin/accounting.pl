@@ -44,12 +44,9 @@ use threads::shared;
 use Thread::Pool;
 
 
-use constant {
-    CONF_FILE => $FindBin::Bin . "/../conf/switches.conf",
-    LOG_CONF_FILE => $FindBin::Bin . "/../conf/log.conf"
-};
+use constant INSTALL_DIR => '/usr/local/pf';
 
-use lib $FindBin::Bin . "/../lib";
+use lib INSTALL_DIR . "/lib";
 use pf::SwitchFactory;
 use pf::db;
 use pf::person;
@@ -57,11 +54,11 @@ use pf::locationlog;
 use pf::node;
 use pf::ifoctetslog;
 
-Log::Log4perl->init(LOG_CONF_FILE);
+Log::Log4perl->init(INSTALL_DIR . '/conf/log.conf');
 my $logger = Log::Log4perl->get_logger('');
 
 my $switchFactory = new pf::SwitchFactory(
-  -configFile => CONF_FILE
+  -configFile => INSTALL_DIR . '/conf/switches.conf';
 );
 
 my $pool = Thread::Pool->new(

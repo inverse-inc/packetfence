@@ -18,13 +18,15 @@ use threads;
 use threads::shared;
 use POSIX qw(:signal_h);
 
-Log::Log4perl->init($FindBin::Bin . "/../conf/log.conf");
+use constant INSTALL_DIR => '/usr/local/pf';
+
+use lib INSTALL_DIR . "/lib";
+Log::Log4perl->init(INSTALL_DIR . "/conf/log.conf");
 my $logger = Log::Log4perl->get_logger(basename($0));
 Log::Log4perl::MDC->put('proc', basename($0));
 Log::Log4perl::MDC->put('tid', threads->self->tid());
 
 
-use lib $FindBin::Bin . "/../lib";
 use pf::config;
 use pf::iplog;
 

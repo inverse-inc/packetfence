@@ -15,7 +15,9 @@ use strict;
 use warnings;
 use Log::Log4perl;
 
-use lib $FindBin::Bin . "/../lib";
+use constant INSTALL_DIR => '/usr/local/pf';
+
+use lib INSTALL_DIR . "/lib";
 use pf::db;
 use pf::config;
 use pf::iplog;
