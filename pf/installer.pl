@@ -157,10 +157,6 @@ of business, etc) arising out of the use or inability to use this software.
 
 print "\nPlease not that the ARP-based registration code is currently disabled.\n\n";
 
-if (`cat /proc/modules | grep ^ip_tables` !~ /^ip_tables/) {
-  die("IPTables module is not loaded!  Try 'modprobe ip_tables' or /etc/init.d/iptables restart and re-running the installer.\n");
-} 
-
 
 # create pf account
 if (!`/usr/bin/getent passwd | grep "^pf:"`) {
