@@ -274,20 +274,6 @@ if(questioner("PF needs to create a database user to access the PF database - is
   print "  ** NOTE: THE ROOT MYSQL ACCOUNT WILL BE USED.  THIS IS NOT SECURE! **\n";
 }
 
-if (!installed("snort")) {
-  print "PF requires snort for several functions (NAT TTL detection, worm detection). Please visit http://www.snort.org/dl/ to download and install Snort.\n";
-} else {
-  my $snort_version = `rpm -q --qf %{VERSION} snort`;
-  #print "You are running Snort 2.6.x, which is incompatible with PacketFence - please downgrade to 2.4.x.\n" if ($snort_version =~ /^2\.6/);
-}
-print "We encourage the usage of oinkmaster to manage your snort rules. If you don't have it installed yet, please visit http://oinkmaster.sourceforge.net/download.shtml to download oinkmaster. A sample oinkmaster configuration file is provided at $install_dir/contrib/oinkmaster.conf.\n";
-print "Downloading bleedingsnort rulesets\n";
-my $url = $external_deps->{'bleedingsnort'}->{'url_path'} . $external_deps->{'bleedingsnort'}->{'file_name'};
-my $local_file_name =  $external_deps->{'bleedingsnort'}->{'install_path'} . $external_deps->{'bleedingsnort'}->{'file_name'};
-`/usr/bin/wget -N $url -P $external_deps->{'bleedingsnort'}->{'install_path'}`;
-`/bin/tar zxvf $local_file_name --strip-components 1 -C $external_deps->{'bleedingsnort'}->{'install_path'}`;
-
-
 # check if modules are installed
 if (questioner("PF needs several Perl modules to function properly.  May I download and install them?","y",("y", "n"))) {
   print "Installing perl modules - note that if CPAN has not been run before it may prompt for configuration (just answer 'N')\n";
