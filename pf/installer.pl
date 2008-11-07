@@ -19,7 +19,8 @@ use Cwd;
 my $unsupported = 0;
 my $version;
 my $rc;
-my $pass;
+my $mysqlAdminUser;
+my $mysqlAdminPass;
 my $pfpass;
 my $pfuser = "pf";
 my $adminpass;
@@ -153,126 +154,115 @@ if (!`/usr/bin/getent passwd | grep "^pf:"`) {
 }
 
 
-if(questioner("PacketFence requires a MySQL server as a backend.  Would you like to use it locally?","y",("y", "n"))) {
-  $mysql_host = "localhost";
-  $mysql_port = "3306";
-} else {
-  print "  Host [localhost]: ";
+if(questioner("PacketFence requires a MySQL server as a backend.  Would you like to create the database now?","y",("y", "n"))) {
+  print "  MySQL Host [localhost]: ";
   $mysql_host = <STDIN>;
   chop $mysql_host;
   $mysql_host = "localhost" if (!$mysql_host);
-  print "  Port [3306]: ";
+  print "  MySQL Port [3306]: ";
   $mysql_port = <STDIN>;
   chop $mysql_port;
   $mysql_port = "3306" if (!$mysql_port);
-}
 
-print "Database [pf]: ";
-$mysql_db = <STDIN>;
-chop $mysql_db;
-$mysql_db = "pf" if (!$mysql_db);
+  print "Database Name [pf]: ";
+  $mysql_db = <STDIN>;
+  chop $mysql_db;
+  $mysql_db = "pf" if (!$mysql_db);
 
-# build database
-my ($times, $denied);
-do {
-  $denied = 0;
-  print "MySQL is reporting access denied, try again\n" if ($times++);
-  if (questioner("PF needs to set the MySQL administrator password - is that ok? (answer 'Y' only if this is a new MySQL install)","y",("y", "n"))) {
-    my $pass2;
-    do {
-      print "  Password: ";
-      $pass = <STDIN>;
-      print "  Confirm: ";
-      $pass2 = <STDIN>;
-      chop $pass;
-      chop $pass2;
-    } while ($pass ne $pass2);
-    $denied = 1 if (`mysqladmin -u root password '$pass' 2>&1` =~ /Access denied/);
-  } else {
-    print "  Current Password: ";
-    $pass = <STDIN>;
-    chop $pass;
-    $denied = 1 if (`echo "use pf"|mysql --host=$mysql_host --port=$mysql_port -u root -p'$pass' 2>&1` =~ /Access denied/);
-  }
-} while ($denied);
+  my $times=0;
+  my $denied=0;
+  do {
+    if ($times > 0) {
+      print "MySQL is reporting access denied, try again\n";
+    }
+    print "  Current Admin User [root]: ";
+    $mysqlAdminUser = <STDIN>;
+    chop $mysqlAdminUser;
+    $mysqlAdminUser = "root" if (!$mysqlAdminUser);
+    print "  Current Admin Password: ";
+    $mysqlAdminPass = <STDIN>;
+    chop $mysqlAdminPass;
+    $denied = ((`echo "use pf"|mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' 2>&1` =~ /Access denied/) ? 1 : 0);
+  } while ($denied);
 
-my $dropped = 1;
-my $upgraded = 0;
-my $unknown = 0;
+  # build database
+  my $dropped = 1;
+  my $upgraded = 0;
+  my $unknown = 0;
 
-if(`echo "use $mysql_db"|mysql --host=$mysql_host --port=$mysql_port -u root -p'$pass' 2>&1` !~ /Unknown database/) {
-  my $md5sum = (split(/\s+/, `/usr/bin/mysqldump --host=$mysql_host --port=$mysql_port -n -d -u root -p'$pass' $mysql_db|egrep -v '^(\/|\$|--|DROP)'|md5sum`))[0];
-  if (!$schemas{$md5sum}) {
-    print "Unable to determine current schema version!  If you're running a beta release, you'll need to manually update it.\n";
-    $unknown = 1;
-  } else {
-    my $schema_version = $schemas{$md5sum};
-    if ($schema_version ne '1.8.0') {
-      if (questioner("PF database already exists - do you want to upgrade it?","y",("y", "n"))) {
-        my $update_script = "$install_dir/db/upgrade-$schema_version-1.8.0.sql";
-        if (-e $update_script) {
-          `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u root -p'$pass' $mysql_db < $update_script`;
-          $upgraded = 1;
-        } else {
-          die "Unable to locate SQL update script for $schema_version -> $pf_release!\n";
-        }
-      }  elsif (questioner("PF database already exists - do you want to delete it?","y",("y", "n"))) {
-        `echo "y" | /usr/bin/mysqladmin --host=$mysql_host --port=$mysql_port -u root -p'$pass' drop $mysql_db`;
-      }  else {
-        print "  ** NOTE: EXISTING DATABASE MAY NOT BE COMPATIBLE WITH THIS SCHEMA **\n";
-        $dropped = 0;
-      }
+  if(`echo "use $mysql_db"|mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' 2>&1` !~ /Unknown database/) {
+    my $md5sum = (split(/\s+/, `/usr/bin/mysqldump --host=$mysql_host --port=$mysql_port -n -d -u $mysqlAdminUser -p'$mysqlAdminPass' $mysql_db|egrep -v '^(\/|\$|--|DROP)'|md5sum`))[0];
+    if (!$schemas{$md5sum}) {
+      print "Unable to determine current schema version!  If you're running a beta release, you'll need to manually update it.\n";
+      $unknown = 1;
     } else {
-      $upgraded = 1;
+      my $schema_version = $schemas{$md5sum};
+      if ($schema_version ne '1.8.0') {
+        if (questioner("PF database already exists - do you want to upgrade it?","y",("y", "n"))) {
+          my $update_script = "$install_dir/db/upgrade-$schema_version-1.8.0.sql";
+          if (-e $update_script) {
+            `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' $mysql_db < $update_script`;
+            $upgraded = 1;
+          } else {
+            die "Unable to locate SQL update script for $schema_version -> $pf_release!\n";
+          }
+        } elsif (questioner("PF database already exists - do you want to delete it?","y",("y", "n"))) {
+          `echo "y" | /usr/bin/mysqladmin --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' drop $mysql_db`;
+        } else {
+          print "  ** NOTE: EXISTING DATABASE MAY NOT BE COMPATIBLE WITH THIS SCHEMA **\n";
+          $dropped = 0;
+        }
+      } else {
+        $upgraded = 1;
+      }
     }
   }
-}
 
-if ($dropped && !$unknown && !$upgraded && questioner("PF needs to create the PF database - is that ok?","y",("y", "n"))) {
-  `/usr/bin/mysqladmin --host=$mysql_host --port=$mysql_port -u root -p'$pass' create $mysql_db`;
-  print "  Loading schema\n";
-  if (-e "$install_dir/db/pfschema.mysql.180") {
-    `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u root -p'$pass' $mysql_db < $install_dir/db/pfschema.mysql.180`
-  } else {
-    die("Where's my schema?  Nothing at $install_dir/db/pfschema.mysql.180\n");
+  if ($dropped && !$unknown && !$upgraded && questioner("PF needs to create the PF database - is that ok?","y",("y", "n"))) {
+    `/usr/bin/mysqladmin --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' create $mysql_db`;
+    print "  Loading schema\n";
+    if (-e "$install_dir/db/pfschema.mysql.180") {
+      `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' $mysql_db < $install_dir/db/pfschema.mysql.180`
+    } else {
+      die("Where's my schema?  Nothing at $install_dir/db/pfschema.mysql.180\n");
+    }
   }
-}
 
-if(questioner("PF needs to create a database user to access the PF database - is that ok?","y",("y", "n"))) {
-  if(!questioner("Can I use 'pf' as the username?","y",("y", "n"))) {
-    print "Username: ";
+  if(questioner("Do you want to create a database user to access the PF database now?","y",("y", "n"))) {
+    print "Username [pf]: ";
     $pfuser = <STDIN>;
     chop $pfuser;
-  }
-  my $pfpass2;
-  do {
-    print "  Password: ";
-    $pfpass = <STDIN>;
-    print "  Confirm: ";
-    $pfpass2 = <STDIN>;
-    chop $pfpass;
-    chop $pfpass2;
-  } while ($pfpass ne $pfpass2);
+    $pfuser = 'pf' if (! $pfuser);
+    my $pfpass2;
+    do {
+      print "  Password: ";
+      $pfpass = <STDIN>;
+      print "  Confirm: ";
+      $pfpass2 = <STDIN>;
+      chop $pfpass;
+      chop $pfpass2;
+    } while ($pfpass ne $pfpass2);
  
-   if (!`echo 'GRANT SELECT,INSERT,UPDATE,DELETE,LOCK TABLES ON $mysql_db.* TO "$pfuser"@"%" IDENTIFIED BY "$pfpass"; GRANT SELECT,INSERT,UPDATE,DELETE,LOCK TABLES ON $mysql_db.* TO "$pfuser"@"localhost" IDENTIFIED BY "$pfpass";' | mysql --host=$mysql_host --port=$mysql_port -u root -p'$pass' mysql`)      
-  {
-    if (`echo "FLUSH PRIVILEGES" | mysql --host=$mysql_host --port=$mysql_port -u root -p'$pass' mysql`) {
-      print "ERROR: UNABLE TO FLUSH PRIVILEGES!\n";
+    if (!`echo 'GRANT SELECT,INSERT,UPDATE,DELETE,LOCK TABLES ON $mysql_db.* TO "$pfuser"@"%" IDENTIFIED BY "$pfpass"; GRANT SELECT,INSERT,UPDATE,DELETE,LOCK TABLES ON $mysql_db.* TO "$pfuser"@"localhost" IDENTIFIED BY "$pfpass";' | mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' mysql`)      
+    {
+      if (`echo "FLUSH PRIVILEGES" | mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' mysql`) {
+        print "ERROR: UNABLE TO FLUSH PRIVILEGES!\n";
+      }
+      print "  ** NOTE: AFTER RUNNING THE CONFIGURATOR, BE SURE TO CHECK THAT $conf_dir/pf.conf\n";
+      print "           REFLECTS YOUR MYSQL CONFIGURATION:\n";
+      print "    - HOST: $mysql_host\n";
+      print "    - PORT: $mysql_port\n";
+      print "    - USER: $pfuser\n";
+      print "    - PASS: $pfpass\n";
+      print "    - DB  : $mysql_db\n";
+    } else {
+      print "ERROR: UNABLE TO CREATE '$pfuser' DATABASE USER!\n";
     }
-    print "  ** NOTE: AFTER RUNNING THE CONFIGURATOR, BE SURE TO CHECK THAT $conf_dir/pf.conf\n";
-    print "           REFLECTS YOUR MYSQL CONFIGURATION:\n";
-    print "    - HOST: $mysql_host\n";
-    print "    - PORT: $mysql_port\n";
-    print "    - USER: $pfuser\n";
-    print "    - PASS: $pfpass\n";
-    print "    - DB  : $mysql_db\n";
-  } else {
-    print "ERROR: UNABLE TO CREATE '$pfuser' DATABASE USER!\n";
   }
 
-} else {
-  print "  ** NOTE: THE ROOT MYSQL ACCOUNT WILL BE USED.  THIS IS NOT SECURE! **\n";
 }
+
+
 
 # check if modules are installed
 if (questioner("PF needs several Perl modules to function properly.  May I download and install them?","y",("y", "n"))) {
@@ -401,11 +391,3 @@ sub supported_os {
   return(0);
 }
 
-sub installed {
-  my ($rpm) = @_;
-  if (`rpm -q $rpm` =~ /not installed/i) {
-    return(0);
-  } else {
-    return(1);
-  }
-} 
