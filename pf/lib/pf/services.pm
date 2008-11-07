@@ -50,7 +50,7 @@ if (isenabled($Config{'trapping'}{'detection'}) && $monitor_int) {
 sub service_ctl {
   my ($daemon, $action, $quick) = @_;
   my $logger = Log::Log4perl::get_logger('pf::pfservices');
-  my $service = $Config{'services'}{$daemon};
+  my $service = ($Config{'services'}{$daemon} || "$install_dir/sbin/$daemon");
   my $exe = basename($service);
   $logger->info("$service $action");
   CASE: {

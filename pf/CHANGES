@@ -76,6 +76,8 @@
           (http://www.packetfence.org/mantis/view.php?id=442)
         install bleedingsnort rulesets in installer.pl
           (http://www.packetfence.org/mantis/view.php?id=443)
+        removed PF daemon paths from [services] in conf file
+          (http://www.packetfence.org/mantis/view.php?id=461)
 
 1.7.5
         pfsetvlan should check that MAC field is filled before
