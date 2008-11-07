@@ -25,7 +25,6 @@ my $pfuser = "pf";
 my $adminpass;
 my $adminuser = "admin";
 my $db;
-my $updater;
 my $mysql_host;
 my $mysql_port;
 my $mysql_db;
@@ -77,17 +76,6 @@ my @modules = ( "Time::HiRes",
                 "File::Spec"
               );
 
-my @rpms    = ( 
-	       "perl-DBD-MySQL",
-               "perl",
-               "perl-suidperl",
-               "httpd",
-               "php",
-               "libpcap",
-	       "php-gd",
-               "net-snmp"
-              );
-
 my @suids   = ( 
                "$install_dir/bin/pfcmd"
               );
@@ -127,19 +115,9 @@ if (-e "/etc/redhat-release") {
 my $os_type = supported_os($version);
 if (!$os_type) {
   if(questioner("PacketFence has not been tested on your system would you like to continue?","y",("y", "n"))) {
-    print " Please enter the full path to your RPM updater: ";
-    $updater = <STDIN>;
-    chop $updater;
     $unsupported = 1;
-    @rpms=();	
   } else {
     exit;
-  }
-} else {
-  if ($os_type eq 'RHEL5') {
-    $updater="/usr/bin/yum";
-  } else {
-    $updater="/usr/sbin/up2date";
   }
 }
 
@@ -174,45 +152,8 @@ if (!`/usr/bin/getent passwd | grep "^pf:"`) {
   }
 }
 
-my @notfound;
 
-# installing RPMs
-foreach my $rpm (@rpms) {
-   next if (installed($rpm));
-   if ($updater) {
-     if (questioner("PF needs $rpm - do you wish to install it?","y",("y", "n"))) {
-       if ($updater eq "/usr/bin/yum") {
-         $rc=system("$updater -y install $rpm");
-       } else {
-         $rc=system("$updater $rpm");
-       }
-       die("Error installing $rpm!\n") if ($rc);
-     }
-   } else {
-     push @notfound,$rpm;
-   }
-}
-
-if (@notfound){
-  print "Please install the following packages before proceeding:\n";
-  foreach my $mod (@notfound){
-     print "  RPM Module : $mod not found \n";
-  }
-  exit;
-}
-
-if(questioner("PacketFence requires a MySQL server as a backend.  Would you like to install it locally?","y",("y", "n"))) {
-  if (!installed("mysql-server")) {
-    `$updater mysql-server`;
-  } else {
-    print "  MySQL server already installed\n";
-  }
-  print "  (Re)starting MySQL\n";
-  my $mysql = `chkconfig --list | grep -i mysql | cut -f1`;
-  chop $mysql;
-  print `/etc/init.d/$mysql restart`;
-  `chkconfig --level 35 $mysql on`;
-
+if(questioner("PacketFence requires a MySQL server as a backend.  Would you like to use it locally?","y",("y", "n"))) {
   $mysql_host = "localhost";
   $mysql_port = "3306";
 } else {
