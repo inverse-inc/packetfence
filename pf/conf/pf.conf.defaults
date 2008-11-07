@@ -348,11 +348,6 @@ admin_netbiosname=EXAMPLE
 # 53/udp is DNS servers are defined as passthroughs are automagically added.
 allowed=
 #
-# ports.open
-#
-# Ports on the external (world-facing) interface that are open.
-open=22/tcp,80/tcp,443/tcp
-#
 # ports.redirect
 #
 # Ports to intercept and redirect for trapped and unregistered systems.  Defaults to 80/tcp (HTTP), 110/tcp (POP3), and 

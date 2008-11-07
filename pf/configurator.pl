@@ -298,7 +298,6 @@ sub configuration {
   if (!$template){
     print "\nPORTS CONFIGURATION\n";
     gatherer("Traffic on which ports should be allowed from all systems?","ports.allowed");
-    gatherer("What ports should be open externally on this system?","ports.open");
     gatherer("What captive listeners should I enable in addition HTTP?","ports.listeners");
     gatherer("Traffic on which ports should be redirected and terminated locally?","ports.redirect");
     gatherer("What port should the administrative GUI run on?","ports.admin");

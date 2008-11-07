@@ -178,14 +178,6 @@ sub iptables_generate {
   }
 
   # open ports
-  foreach my $openport (split(/\s*,\s*/, $Config{'ports'}{'open'})) {
-    my ($port, $protocol) = split("/", $openport);
-    managed_append_entry($filter,'INPUT', {
-         'protocol' => $protocol,
-         'destination-port' => $port,
-         'jump' => 'ACCEPT'
-    });
-  }
   managed_append_entry($filter,'INPUT', {
          'protocol' => 'icmp',
          'icmp-type' => 8,
