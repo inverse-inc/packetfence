@@ -174,15 +174,6 @@ if (!`/usr/bin/getent passwd | grep "^pf:"`) {
   }
 }
 
-if(questioner("Do you plan on using Nessus to scan client systems?","y",("y", "n"))) {
-  push @rpms, "openssl-devel";
-  print "  You will need to manually (force) install the following Perl modules:\n";
-  print "    IO::Socket::SSL\n";
-  print "    Net::Nessus::Client\n";
-  print "    Net::Nessus::Message\n";
-  print "    Net::Nessus::ScanLite\n";
-}
-
 my @notfound;
 
 # installing RPMs
