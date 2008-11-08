@@ -354,7 +354,7 @@ allowed=
 # 143/tcp (IMAP).  IMAP and POP3 listeners must be enabled via the listeners parameter if the redirection is to be of any use.  
 # Redirecting 443/tcp (SSL) will work, although users will get ugly and confusing pop-ups as the commonname will no longer 
 # match.  Redirecting 53/udp (DNS) seems to have issues and is also not recommended.
-redirect=80/tcp,110/tcp,143/tcp,443/tcp
+redirect=80/tcp,110/tcp,143/tcp
 #
 # ports.listeners
 #
