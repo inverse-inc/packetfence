@@ -40,7 +40,6 @@ $flags{'pfsetvlan'} = "-d &";
 $flags{'dhcpd'} = " -lf $conf_dir/dhcpd/dhcpd.leases -cf $conf_dir/dhcpd.conf ".join(" ", get_dhcp_devs());
 $flags{'named'} = "-u pf -c $conf_dir/named.conf";
 $flags{'snmptrapd'} = "-n -c $conf_dir/snmptrapd.conf -C -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/snmptrapd.pid -On";
-$flags{'nessusd'} = "-D";
 
 if (isenabled($Config{'trapping'}{'detection'}) && $monitor_int) {
   $flags{'snort'} = "-u pf -c $conf_dir/snort.conf -i ".$monitor_int." -o -N -D -l $install_dir/var";

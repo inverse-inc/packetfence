@@ -80,6 +80,8 @@
           (http://www.packetfence.org/mantis/view.php?id=75)
         removed ports.open
           (http://www.packetfence.org/mantis/view.php?id=464)
+        removed services.nessusd
+          (http://www.packetfence.org/mantis/view.php?id=473)
 
 1.7.5
         pfsetvlan should check that MAC field is filled before
