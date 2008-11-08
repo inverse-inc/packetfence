@@ -117,6 +117,8 @@
           (http://www.packetfence.org/mantis/view.php?id=466)
         Adjust ports.redirect default value
           (http://www.packetfence.org/mantis/view.php?id=470)
+        configurator.pl: simplify question for ports.listeners
+          (http://www.packetfence.org/mantis/view.php?id=468)
 
 1.7.4
         undef operator in SNMP.pm
