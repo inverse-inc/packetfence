@@ -120,10 +120,7 @@ sub dhcp_detector {
   my $opt = 1;
   my $err;
   my $pcap_t = Net::Pcap::pcap_open_live($eth, 576, 1, 0, \$err);
-  if ((Net::Pcap::lookupnet($eth, \$net, \$mask, \$err)) == -1) {
-    $logger->logdie("Net::Pcap::lookupnet failed. Error was $err");
-  }
-  if ((Net::Pcap::compile($pcap_t, \$filter_t, $filter, $opt, $net)) == -1) {
+  if ((Net::Pcap::compile($pcap_t, \$filter_t, $filter, $opt, 0)) == -1) {
     $logger->logdie("Unable to compile filter string '$filter'");
   }
   Net::Pcap::setfilter($pcap_t, $filter_t);
