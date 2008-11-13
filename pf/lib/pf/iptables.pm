@@ -145,7 +145,7 @@ sub iptables_generate {
     $logger->logdie("Unable to initialize rule: $!");
   }
 
-  #  registration/trapping server                                                                                                                      
+  # registration/trapping server
   internal_append_entry($filter,'INPUT',{
        'protocol' => 'tcp',
        'destination-port' => '80',  
