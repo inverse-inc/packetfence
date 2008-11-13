@@ -126,7 +126,6 @@
 	  }
 	  else{ 
    	    print "<table class='stats'>";
-	    $pfcmd = PFCMD("ui dashboard $nugget[cmd]");
 	    $nugget['name'] = pretty_header('status-nuggets', $nugget[cmd]);
 
 	    print "<tr class='header'><td colspan='10' class='header'>";
@@ -134,7 +133,8 @@
 	    print "</td></tr>";
 
 	    $i=0;
-            if($pfcmd){
+            if($nugget[cmd] != ''){
+	      $pfcmd = PFCMD("ui dashboard $nugget[cmd]");
 	      array_shift($pfcmd);
   	      foreach($pfcmd as $data){
     	        $parts = explode('|', $data);

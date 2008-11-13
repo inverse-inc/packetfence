@@ -128,6 +128,8 @@
         Net::Pcap::lookupnet issues
           (http://www.packetfence.org/mantis/view.php?id=476)
         support for Cisco Controller 4400
+        fixed dashboard customization
+          (http://www.packetfence.org/mantis/view.php?id=480)
 
 1.7.4
         undef operator in SNMP.pm
