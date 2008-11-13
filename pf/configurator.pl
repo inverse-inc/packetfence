@@ -152,21 +152,11 @@ sub load_template {
 
 sub config_upgrade {
     my $issues;
-    #foreach my $section (tied(%default_cfg)->Sections) {
-    #  $cfg{$section} = {} if (!exists($cfg{$section}));
-    #  foreach my $key (keys(%{$default_cfg{$section}})) {
-    #    if (!exists($cfg{$section}{$key}) && $section !~ /^(passthroughs|proxies|harvard|vlan\-int\d+)$/) {
-    #      print "  Adding new option $section.$key to existing configuration\n";
-    #      $cfg{$section}{$key} = $default_cfg{$section}{$key};
-    #      $issues++;
-    #    }
-    #  }
-    #}
     foreach my $section (tied(%cfg)->Sections) {
-      print "  Section $section is now obsolete (you may want to delete it)\n" if (!exists($default_cfg{$section}) && $section !~ /^(passthroughs|proxies|harvard|interface)/);
+      print "  Section $section is now obsolete (you may want to delete it)\n" if (!exists($default_cfg{$section}) && $section !~ /^(passthroughs|proxies|interface)/);
       foreach my $key (keys(%{$cfg{$section}})) {
         if (!exists($default_cfg{$section}{$key})) {
-          if ($section !~ /^(passthroughs|proxies|harvard|interface)/) {
+          if ($section !~ /^(passthroughs|proxies|interface)/) {
             print "  Option $section.$key is now obsolete (you may want to delete it)\n";
             $issues++;
           }

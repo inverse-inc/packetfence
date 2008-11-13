@@ -480,23 +480,6 @@ sub generate_httpd_conf {
   $logger->info("generating $conf_dir/httpd.conf");
   parse_template(\%tags, "$conf_dir/templates/httpd.conf", "$conf_dir/httpd.conf");
 
-  # append authentication code
-  #if (isenabled($Config{'trapping'}{'registration'})) {
-  #  open(HTTPDCONF, ">>$conf_dir/httpd.conf") || die "Unable to open $conf_dir/httpd.conf for append: $!\n";
-  #  foreach my $authtype (split(/\s*,\s*/, $Config{'registration'}{'auth'})) {
-  #    my $authconf = "$conf_dir/templates/${authtype}.conf";
-  #    if (-e $authconf) {
-  #      open(AUTHCONF, $authconf) || die "Unable to open authentication config file $authconf: $!\n";
-  #      while (<AUTHCONF>) {
-  #        print HTTPDCONF $_;
-  #      }
-  #      #close(AUTHCONF);
-  #    } else {
-  #      pflogger("authentication file $authconf missing!",1) if ($authtype !~ /harvard/i); 
-  #    }
-  #  }
-  #  #close(HTTPDCONF);
-  #}
 }
 
 sub switches_conf_is_valid {

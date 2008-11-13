@@ -112,12 +112,7 @@ sub generate_login_page {
     push @{$vars->{list_authentications}}, { name => 'auth', value => $auth[0] };
   } else {
     foreach my $auth (@auth) {
-      my $auth_name;
-      if ($auth ne "harvard") {
-        $auth_name = $auth;
-      } else {
-        $auth_name = "Harvard PIN Server";
-      }
+      my $auth_name = $auth;
       push @{$vars->{list_authentications}}, { name => $auth, value => $auth }
     }
   }

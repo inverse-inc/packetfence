@@ -267,7 +267,6 @@ sub iptables_generate {
   # poke passthroughs
   my %passthroughs = %{$Config{'passthroughs'}} if ($Config{'trapping'}{'passthrough'} =~ /^iptables$/i);
   $passthroughs{'trapping.redirecturl'} = $Config{'trapping'}{'redirecturl'} if ($Config{'trapping'}{'redirecturl'});
-  $passthroughs{'trapping.pinurl'} = $Config{'harvard'}{'pinurl'} if (grep(/^harvard$/i, split(/\s*,\s*/,$Config{'registration'}{'auth'})));
   foreach my $passthrough (keys %passthroughs) {
     if ($passthroughs{$passthrough} =~ /^(http|https):\/\//) {
       my $destination;
@@ -402,7 +401,6 @@ sub iptables_generate {
   %passthroughs = %{$Config{'passthroughs'}} if ($Config{'trapping'}{'passthrough'} =~ /^iptables$/i);
   $passthroughs{'trapping.redirecturl'} = $Config{'trapping'}{'redirecturl'} if ($Config{'trapping'}{'redirecturl'});
 
-  $passthroughs{'trapping.pinurl'} = $Config{'harvard'}{'pinurl'} if (grep(/^harvard$/i, split(/\s*,\s*/,$Config{'registration'}{'auth'})));
 
   foreach my $passthrough (keys %passthroughs) {
     if ($passthroughs{$passthrough} =~ /^(http|https):\/\//) {
