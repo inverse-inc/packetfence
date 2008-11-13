@@ -86,6 +86,8 @@
           (http://www.packetfence.org/mantis/view.php?id=479)
         removed harvard references
           (http://www.packetfence.org/mantis/view.php?id=478)
+        removed ports.allowed
+          (http://www.packetfence.org/mantis/view.php?id=475)
 
 1.7.5
         pfsetvlan should check that MAC field is filled before

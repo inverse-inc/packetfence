@@ -219,21 +219,6 @@ sub iptables_generate {
   }, get_internal_devs());
 
   # allowed tcp ports
-  foreach my $allowedport (split(/\s*,\s*/, $Config{'ports'}{'allowed'})) {
-    my ($port, $protocol) = split("/", $allowedport);
-    internal_append_entry($filter,'FORWARD', {
-         'protocol' => $protocol,
-         'destination-port' => $port,
-         'jump' => 'ACCEPT'
-    }, get_external_devs());
-
-    internal_append_entry($filter,'FORWARD', {
-         'protocol' => $protocol,
-         'source-port' => $port,
-         'jump' => 'ACCEPT'
-    });
-  }
-
   foreach my $dns (split(",", $Config{'general'}{'dnsservers'})) {
     internal_append_entry($filter,'FORWARD',{
       'protocol' => 'udp',

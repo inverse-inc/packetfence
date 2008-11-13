@@ -342,12 +342,6 @@ admin_netbiosname=EXAMPLE
 
 [ports]
 #
-# ports.allowed
-#
-# Ports allowed through the PacketFence system regardless of registration or violation status.  It is not necessary to define 
-# 53/udp is DNS servers are defined as passthroughs are automagically added.
-allowed=
-#
 # ports.redirect
 #
 # Ports to intercept and redirect for trapped and unregistered systems.  Defaults to 80/tcp (HTTP), 110/tcp (POP3), and 
