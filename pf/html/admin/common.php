@@ -146,49 +146,6 @@ if($sajax){
     return $filtered_array;
     }
 
-    function print_rss(){
-      if($this->is_empty()){
-        print 'No results';
-        return false;
-      }
-
-      ?>
-
-<rss version="2.0">
-<channel>
-<title>PacketFence</title>
-<link>https://pf-dev.noc.harvard.edu:1234/rss.php?adsfjasdklfj</link>
-<description>Recent updates about your Packetfence status</description>
-      ?>
-      foreach($this->rows as $row){
-        print "<item>";
-	print "<title>
-
-
-
-      }
-  
-
-#<item>
-#<title>HR Analyst - Mountain View </title>
-#<link> http://www.google.com/support/jobs/bin/topic.py?dep_id=1077&amp;loc_id=1116</link>
-#<description> We have an immediate need for an experienced analytical HR professional. 
-#The ideal candidate has a proven record of developing analytical frameworks to make 
-#fact-based decisions. </description>
-#</item>
-
-      ?>
-
-</channel>
-</rss>      
-
-      <?      
- 
-
-
-
-    } //end print_rss
-
 
     function tableprint($with_add){
       global $current_top;
