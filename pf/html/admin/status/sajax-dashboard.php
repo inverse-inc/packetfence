@@ -59,45 +59,20 @@ function get_usage(){
 function get_db_creds(){
   $db_user = $db_pass = '';  
 
-  if(file_exists(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/conf/pf.conf')){
-    $lines = file(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/conf/pf.conf');
-
-    for($i=0; $i<count($lines); $i++){
-      if(preg_match("/\[database\]/", $lines[$i])){
-        for($i=$i+1; $i<count($lines); $i++){
-          if(preg_match("/\[.+\]/", $lines[$i]) || $db_user && $db_pass){
-            break;
-          }
-          else if(preg_match("/^pass=(.+)/", $lines[$i], $matches)){
-            $db_pass =  $matches[1];
-          }
-          else if(preg_match("/^user=(.+)/", $lines[$i], $matches)){
-            $db_user =  $matches[1];
-          }
-        }
-      }
+  exec(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/bin/pfcmd config get database.user", $user);
+  if(preg_match('/^database\.user=([^|]*)\|([^|]*)\|/', $user[0], $matches)) {
+    if ($matches[1] != '') {
+      $db_user = $matches[1];
+    } else {
+      $db_user = $matches[2];
     }
   }
-
-  if(file_exists(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/conf/pf.conf.defaults') && !$db_user || !$db_pass){
-    $db_user = $db_pass = '';
-
-    $lines = file(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/conf/pf.conf.defaults');
-
-    for($i=0; $i<count($lines); $i++){
-      if(preg_match("/\[database\]/", $lines[$i])){
-        for($i=$i+1; $i<count($lines); $i++){
-          if(preg_match("/\[.+\]/", $lines[$i]) || $db_user && $db_pass){
-            break;
-          }
-          else if(preg_match("/^pass=(.+)/", $lines[$i], $matches)){
-            $db_pass =  $matches[1];
-          }
-          else if(preg_match("/^user=(.+)/", $lines[$i], $matches)){
-            $db_user =  $matches[1];
-          }
-        }
-      }
+  exec(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/bin/pfcmd config get database.pass", $pass);
+  if(preg_match('/^database\.pass=([^|]*)\|([^|]*)\|/', $pass[0], $matches)) {
+    if ($matches[1] != '') {
+      $db_pass = $matches[1];
+    } else {
+      $db_pass = $matches[2];
     }
   }
 
