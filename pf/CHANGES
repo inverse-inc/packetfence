@@ -88,6 +88,8 @@
           (http://www.packetfence.org/mantis/view.php?id=478)
         removed ports.allowed
           (http://www.packetfence.org/mantis/view.php?id=475)
+        removed network.named and services.named
+          (http://www.packetfence.org/mantis/view.php?id=472)
 
 1.7.5
         pfsetvlan should check that MAC field is filled before

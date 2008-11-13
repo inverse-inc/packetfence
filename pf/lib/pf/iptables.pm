@@ -194,14 +194,6 @@ sub iptables_generate {
          'jump' => 'ACCEPT'
   });
 
-  if (isenabled($Config{'network'}{'named'})) {
-    internal_append_entry($filter,'INPUT',{
-         'protocol' => 'udp',
-         'destination-port' => '53',
-         'jump' => 'ACCEPT'
-    });
-  }
-
   # open dhcp if network.mode=dhcp
   if ($Config{'network'}{'mode'} =~ /dhcp/i) {
     internal_append_entry($filter,'INPUT',{

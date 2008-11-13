@@ -104,19 +104,6 @@ stuffing=disabled
 # it's not 100% in catching all traffic - spurious packets can and will occasionaly get through.
 mode=arp
 #
-# network.named
-#
-# If enabled, run a nameserver locally.  Combined with a 53/udp redirection port, this can allow you redirect clients based on 
-# name resolution versus HTTP interception.  There are several caveats to keep in mind, First, many clients cache DNS 
-# responses which may interrupt connectivity even after successful registration/remediation.  Second, in practice we've 
-# noticed issues with the local nameserver refusing to answer queries in some cases - this may be related to 
-# netfilter connection tracking.
-# 
-# If you're running DHCP locally, though, it may make sense to run a nameserver locally as well rather than defining external 
-# servers to passthrough.  Not that running either DHCP or DNS on a arp deployed PF system establishes dependencies on it 
-# that are likely not wanted.
-named=disabled
-#
 # network.rogueinterval
 #
 # When rogue DHCP server detection is enabled, this parameter defines how often to email administrators.  With its default 
@@ -483,10 +470,6 @@ httpd=/usr/sbin/httpd
 #
 # Location of the dhcpd binary.  Only necessary to change if you are not running the RPMed version.  DHCP is not supported until PacketFence 1.6
 dhcpd=/usr/sbin/dhcpd
-#
-# services.named
-# Location of the named binary.  Only necessary to change if you are not using the RPMed version.
-named=/usr/sbin/named
 #
 # services.snmptrapd
 # Location of the snmptrapd binary.  Only necessary to change if you are not using the RPMed version.

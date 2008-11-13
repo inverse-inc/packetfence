@@ -190,7 +190,7 @@ fi
 %post
 echo "Adding PacketFence startup script"
 /sbin/chkconfig --add packetfence
-for service in snortd httpd named snmptrapd
+for service in snortd httpd snmptrapd
 do
   if /sbin/chkconfig --list | grep $service > /dev/null 2>&1; then
     echo "Disabling $service startup script"
@@ -338,8 +338,6 @@ fi
 /usr/local/pf/html/common/*
 %dir /usr/local/pf/conf/dhcpd
 /usr/local/pf/conf/dhcpd/dhcpd.leases
-%dir /usr/local/pf/conf/named
-/usr/local/pf/conf/named/*
 %dir /usr/local/pf/conf/snort
 /usr/local/pf/conf/snort/*
 %dir /usr/local/pf/conf/ssl
@@ -349,7 +347,6 @@ fi
 /usr/local/pf/conf/templates/httpd.conf
 /usr/local/pf/conf/templates/httpd.conf.pre_apache22
 /usr/local/pf/conf/templates/httpd.conf.apache22
-%config(noreplace) /usr/local/pf/conf/templates/named.conf
 /usr/local/pf/conf/templates/snort.conf
 %dir /usr/local/pf/conf/authentication
 %config(noreplace) /usr/local/pf/conf/authentication/local.pm

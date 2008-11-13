@@ -38,7 +38,6 @@ $flags{'pfdhcplistener'} = "-d &";
 $flags{'pfredirect'} =  "-d &";
 $flags{'pfsetvlan'} = "-d &";
 $flags{'dhcpd'} = " -lf $conf_dir/dhcpd/dhcpd.leases -cf $conf_dir/dhcpd.conf ".join(" ", get_dhcp_devs());
-$flags{'named'} = "-u pf -c $conf_dir/named.conf";
 $flags{'snmptrapd'} = "-n -c $conf_dir/snmptrapd.conf -C -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/snmptrapd.pid -On";
 
 if (isenabled($Config{'trapping'}{'detection'}) && $monitor_int) {
@@ -58,7 +57,7 @@ sub service_ctl {
       return(0) if ($exe=~/pfdhcplistener/ && !isenabled($Config{'network'}{'dhcpdetector'}));
       return(0) if ($exe=~/snmptrapd/ && !($Config{'network'}{'mode'} =~ /vlan/i));
       return(0) if ($exe=~/pfsetvlan/ && !($Config{'network'}{'mode'} =~ /vlan/i));
-      if ($daemon=~/(dhcpd|named|snort|httpd|snmptrapd)/ && !$quick){
+      if ($daemon=~/(dhcpd|snort|httpd|snmptrapd)/ && !$quick){
          my $confname="generate_".$daemon."_conf";
          $logger->info("Generating configuration file $confname for $exe");
          ($pf::services::{$confname} or sub { print "No such sub: $_\n" })->();
@@ -136,8 +135,6 @@ sub service_list {
       push @finalServiceList, $service  if ($Config{'ports'}{'listeners'});
     } elsif ($service eq "dhcpd") {
       push @finalServiceList, $service  if ($Config{'network'}{'mode'} =~ /^dhcp$/i);
-    } elsif ($service eq "named") {
-      push @finalServiceList, $service  if (isenabled($Config{'network'}{'named'}));
     } elsif ($service eq "snmptrapd") {
       push @finalServiceList, $service  if ($Config{'network'}{'mode'} =~ /vlan/i);
     } elsif ($service eq "pfsetvlan") {
@@ -354,18 +351,6 @@ sub generate_dhcpd_reg {
 }
 
 
-
-sub generate_named_conf {
-  my $logger = Log::Log4perl::get_logger('pf::services');
-  my %tags;
-  $tags{'template'}   = "$conf_dir/templates/named.conf";
-  $tags{'install_dir'} = $install_dir;
-  $tags{'dnsservers'}   = $Config{'general'}{'dnsservers'};
-  #convert comma separated list into semo-colon separated one
-  $tags{'dnsservers'} =~ s/,/; /g;
-  $logger->info("generating $conf_dir/named.conf");
-  parse_template(\%tags, "$conf_dir/templates/named.conf", "$conf_dir/named.conf");
-}
 
 sub generate_snort_conf {
   my $logger = Log::Log4perl::get_logger('pf::services');
