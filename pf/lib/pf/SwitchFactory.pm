@@ -33,6 +33,7 @@ use Log::Log4perl;
 
 
 use pf::config;
+use pf::util;
 
 =head1 METHODS
 
@@ -92,6 +93,13 @@ sub instantiate {
         $_tmp =~ s/ //g;
         push @vlans, $_tmp;
     }
+    my $switch_mode;
+    if (isenabled($Config{'trapping'}{'testing'})) {
+        $switch_mode = 'testing';
+        $logger->warn('setting switch mode to testing since trapping.testing=enabled');
+    } else {
+        $switch_mode => lc(($SwitchConfig{$requestedSwitch}{'mode'} || $SwitchConfig{'default'}{'mode'}));
+    }
     $logger->debug("creating new $type object");
     return $type->new(
         '-communityRead' => ($SwitchConfig{$requestedSwitch}{'communityRead'} || $SwitchConfig{'default'}{'communityRead'}),
@@ -107,7 +115,7 @@ sub instantiate {
         '-macDetectionVlan' => ($SwitchConfig{$requestedSwitch}{'macDetectionVlan'} || $SwitchConfig{'default'}{'macDetectionVlan'}), 
 	'-macSearchesMaxNb' => ($SwitchConfig{$requestedSwitch}{'macSearchesMaxNb'} || $SwitchConfig{'default'}{'macSearchesMaxNb'}),
 	'-macSearchesSleepInterval' => ($SwitchConfig{$requestedSwitch}{'macSearchesSleepInterval'} || $SwitchConfig{'default'}{'macSearchesSleepInterval'}),
-        '-mode' => lc(($SwitchConfig{$requestedSwitch}{'mode'} || $SwitchConfig{'default'}{'mode'})),
+        '-mode' => $switch_mode,
         '-normalVlan' => ($SwitchConfig{$requestedSwitch}{'normalVlan'} || $SwitchConfig{'default'}{'normalVlan'}), 
         '-registrationVlan' => ($SwitchConfig{$requestedSwitch}{'registrationVlan'} || $SwitchConfig{'default'}{'registrationVlan'}), 
         '-SNMPAuthPasswordRead' => ($SwitchConfig{$requestedSwitch}{'SNMPAuthPasswordRead'} || $SwitchConfig{'default'}{'SNMPAuthPasswordRead'}), 
