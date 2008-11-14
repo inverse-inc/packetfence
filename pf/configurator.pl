@@ -58,8 +58,9 @@ if (questioner("Would you like to use a template configuration or custom","t",("
                         4) Registration & Detection
                         5) Registration, Detection & Scanning
                         6) Session-based Authentication
-                        7) Registration, Detection and VLAN isolation
-             Answer: [1|2|3|4|5|6|7]: ","",("1","2","3","4","5","6","7"));
+                        7) Registration and VLAN isolation
+                        8) Registration, Detection and VLAN isolation
+             Answer: [1|2|3|4|5|6|7|8]: ","",("1","2","3","4","5","6","7","8"));
   load_template($type);
   print "Loading Template: Warning PacketFence is going LIVE - WEAPONS HOT \n" if ($type ne 1);
   if ($type ne 1 && $type ne 2){
@@ -134,6 +135,9 @@ sub load_template {
       $template_filename.="sessionauth.conf";
       last; };
     /7/ && do {
+      $template_filename.="reg-vlan.conf";
+      last; };
+    /8/ && do {
       $template_filename.="reg-detect-vlan.conf";
       last; };
   }
