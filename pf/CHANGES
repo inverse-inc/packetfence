@@ -138,6 +138,8 @@
           (http://www.packetfence.org/mantis/view.php?id=480)
         fixed issue in get_db_creds
           (http://www.packetfence.org/mantis/view.php?id=465)
+        disable skip_mode in reg-detect-vlan config template
+          (http://www.packetfence.org/mantis/view.php?id=483)
 
 1.7.4
         undef operator in SNMP.pm
