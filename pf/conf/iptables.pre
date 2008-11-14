@@ -1,7 +1,6 @@
-#de-comment (and adapt if necessary) the below lines to allow
-#snmp traps to be received
+#example iptables.pre file
 #
 #*filter
 #:INPUT ACCEPT [0:0]
-#-A INPUT -i eth0 -p udp --dport 162 -j ACCEPT
+#-A INPUT -i eth0 -p udp --dport 3306 -j ACCEPT
 #COMMIT
