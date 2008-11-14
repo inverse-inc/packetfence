@@ -55,7 +55,7 @@ sub vlan_determine_for_node {
         }
         my $node_info = node_view($mac);
         if (isenabled($Config{'trapping'}{'registration'})) {
-            if ((! defined($node_info)) || ($node_info->{'status'} ne 'reg')) {
+            if ((! defined($node_info)) || ($node_info->{'status'} eq 'unreg')) {
                 $logger->info("MAC: $mac is unregistered; belongs into registration VLAN");
                 my $switchFactory = new pf::SwitchFactory( -configFile => "$conf_dir/switches.conf");
                 my $switch = $switchFactory->instantiate($switch_ip);
