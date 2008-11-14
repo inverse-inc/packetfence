@@ -362,10 +362,14 @@ sub config_network {
 }
 
 sub config_registration{
-    print "\n** NOTE: There are several registration timers/windows to be set in pf.conf - please be sure to review them **\n\n";
-    my $auth = gatherer("How would you like users to authenticate at registration?","registration.auth",("local","ldap","radius"));
+  print "\n** NOTE: There are several registration timers/windows to be set in pf.conf - please be sure to review them **\n\n";
+  my $auth = gatherer("How would you like users to authenticate at registration?","registration.auth",("local","ldap","radius"));
 
-  gatherer("Would you like violation content accessible via iptables passthroughs or apache proxy?","trapping.passthrough",("iptables","proxy"));
+  if ($cfg{network}{mode} ne 'vlan') {
+    gatherer("Would you like violation content accessible via iptables passthroughs or apache proxy?","trapping.passthrough",("iptables","proxy"));
+  } else {
+    $cfg{'trapping'}{'passthrough'} = 'proxy';
+  } 
 }
 
 
