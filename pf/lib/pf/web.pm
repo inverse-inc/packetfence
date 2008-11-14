@@ -385,18 +385,21 @@ sub generate_registration_page {
     my $skip_allowed_until = 0;
     if (isdisabled($registration_mode)) {
       $skip_allowed_until = 0;
-    } elsif ($registration_mode eq "deadline") {
-      $skip_allowed_until = $Config{'registration'}{'skip_deadline'};
-    } elsif ($registration_mode eq "window") {
-      $skip_allowed_until = $detect_date + $Config{'registration'}{'skip_window'};
-    }
-  
-    my $skip_until = POSIX::strftime("%Y-%m-%d %H:%M:%S", POSIX::localtime($skip_allowed_until));
-    if (time < $skip_allowed_until) {
-      $logger->info($node_info->{'mac'} . " allowed to skip registration until $skip_until");
-      $vars->{'txt_skip_registration'} = gettext("register: skip registration");
+      $logger->info($node_info->{'mac'} . " is not allowed to skip registration - skip_mode is disabled");
     } else {
-      $logger->info($node_info->{'mac'} . " is not allowed to skip registration - deadline passed at $skip_until - ");
+      if ($registration_mode eq "deadline") {
+        $skip_allowed_until = $Config{'registration'}{'skip_deadline'};
+      } elsif ($registration_mode eq "window") {
+        $skip_allowed_until = $detect_date + $Config{'registration'}{'skip_window'};
+      }
+ 
+      my $skip_until = POSIX::strftime("%Y-%m-%d %H:%M:%S", POSIX::localtime($skip_allowed_until));
+      if (time < $skip_allowed_until) {
+        $logger->info($node_info->{'mac'} . " allowed to skip registration until $skip_until");
+        $vars->{'txt_skip_registration'} = gettext("register: skip registration");
+      } else {
+        $logger->info($node_info->{'mac'} . " is not allowed to skip registration - deadline passed at $skip_until - ");
+      }
     }
   }
   
