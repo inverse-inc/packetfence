@@ -37,13 +37,13 @@ if (-e "$conf_dir/pf.conf") {
   tie %cfg, 'Config::IniFiles', ( -file => "$conf_dir/pf.conf" ) or die "Unable to open existing configuration: $!";
   if (defined $cfg{'registration'}{'authentication'}){
     $cfg{'registration'}{'auth'}=$cfg{'registration'}{'authentication'};
-	delete $cfg{'registration'}{'authentication'}; 
+    delete $cfg{'registration'}{'authentication'}; 
   }
   #config_upgrade();
   write_changes() if (questioner("Would you like to modify the existing configuration","n",("y","n")));
 
 }else{
-  tie %default_cfg, 'Config::IniFiles', ( -file => "$conf_dir/pf.conf.defaults" ) or die "Unable to open default configuration file: $!\n";;
+  tie %default_cfg, 'Config::IniFiles', ( -file => "$conf_dir/pf.conf.defaults" ) or die "Unable to open default configuration file: $!\n";
   print "No existing configuration found\n";
   tie %cfg, 'Config::IniFiles', ( -import => tied(%default_cfg) );
   tied(%cfg)->SetFileName("$conf_dir/pf.conf");
@@ -309,9 +309,9 @@ sub configuration {
 sub config_general {
   # GENERAL
   print "GENERAL CONFIGURATION\n";
-  $cfg{general}{hostname}=`cat /proc/sys/kernel/hostname`;
+  $cfg{general}{hostname}=`hostname -s`;
   chop($cfg{general}{hostname});
-  $cfg{general}{domain}=`cat /proc/sys/kernel/domainname`;
+  $cfg{general}{domain}=`hostname -d`;
   chop($cfg{general}{domain});
   $cfg{general}{domain} = '<NONE>' if ($cfg{general}{domain} eq '(none)');
   $cfg{general}{dnsservers}="";
@@ -319,8 +319,8 @@ sub config_general {
     $cfg{general}{dnsservers}.="$1," if (/nameserver (\S+)/);
   }
   chop($cfg{general}{dnsservers});
-  gatherer("Domain","general.domain");
-  gatherer("Hostname","general.hostname");
+  gatherer("DNS Domain Name","general.domain");
+  gatherer("Host Name (without DNS domain name)","general.hostname");
   gatherer("DNS Servers (comma delimited)","general.dnsservers");
   gatherer("DHCP Servers (comma delimited)","general.dhcpservers"); 
 }
