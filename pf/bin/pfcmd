@@ -1332,6 +1332,12 @@ sub sanity_check {
     $logger->logdie("please set the dns servers list in pf.conf (general.dnsservers).  If this is not set users in isolation will not be able to resolve hostnames, and will not able to reach PacketFence!");
   }
 
+  # warn when scan.registration=enabled and trapping.registration=disabled
+  if (isenabled($Config{'scan'}{'registration'}) && isdisabled($Config{'trapping'}{'registration'})) {
+    $logger->logwarn("scan.registration is enabled but trapping.registration is not ... this is strang!");
+  }
+
+
   if ($Config{'registration'}{'skip_mode'} eq "deadline" && !$Config{'registration'}{'skip_deadline'}) {
     $logger->logdie("pf.conf value registration.skip_deadline is mal-formed or null! (format should be that of the 'date' command)");
   } elsif ($Config{'registration'}{'skip_mode'} eq "windows" && !$Config{'registration'}{'skip_window'}) {

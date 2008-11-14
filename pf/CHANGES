@@ -98,6 +98,9 @@
           (http://www.packetfence.org/mantis/view.php?id=488)
         trapping.registration=disabled and VLAN isolation
           (http://www.packetfence.org/mantis/view.php?id=486)
+        warn when scan.registration=enabled and 
+          trapping.registration=disabled
+          (http://www.packetfence.org/mantis/view.php?id=489)
 
 1.7.5
         pfsetvlan should check that MAC field is filled before
