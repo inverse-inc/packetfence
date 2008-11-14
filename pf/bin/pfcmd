@@ -1241,6 +1241,13 @@ sub sanity_check {
     }
   }
 
+  # make sure trapping.passthrough=proxy if
+  # network.mode is set to vlan
+  if ($Config{'network'}{'mode'} eq 'vlan') {
+    if ($Config{'trapping'}{'passthrough'} eq 'iptables') {
+      $logger->logdie("Please set trapping.passthrough to proxy while using VLAN isolation mode");
+    }
+  }
 
   # make sure dhcp information is complete and valid 
   # (if network.mode is set to dhcp)
