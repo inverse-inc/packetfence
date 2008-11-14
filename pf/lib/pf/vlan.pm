@@ -21,7 +21,8 @@ BEGIN {
 use Log::Log4perl;
 
 use pf::config;
-use pf::node qw(node_view);
+use pf::node qw(node_view node_add_simple node_exist);
+use pf::util;
 use pf::violation qw(violation_count_trap violation_exist_open);
 use pf::SwitchFactory;
 use threads;
@@ -48,15 +49,23 @@ sub vlan_determine_for_node {
             $correctVlanForThisMAC = $switch->{_isolationVlan};
        }
     } else {
-        
+        if (! node_exist($mac)) {
+            $logger->info("node $mac does not yet exist in PF database. Adding it now");
+            node_add_simple($mac);
+        }
         my $node_info = node_view($mac);
-        if ((! defined($node_info)) || ($node_info->{'status'} ne 'reg')) {
-            $logger->info("MAC: $mac is unregistered; belongs into registration VLAN");
-            my $switchFactory = new pf::SwitchFactory( -configFile => "$conf_dir/switches.conf");
-            my $switch = $switchFactory->instantiate($switch_ip);
-            $correctVlanForThisMAC = $switch->{_registrationVlan};
+        if (isenabled($Config{'trapping'}{'registration'})) {
+            if ((! defined($node_info)) || ($node_info->{'status'} ne 'reg')) {
+                $logger->info("MAC: $mac is unregistered; belongs into registration VLAN");
+                my $switchFactory = new pf::SwitchFactory( -configFile => "$conf_dir/switches.conf");
+                my $switch = $switchFactory->instantiate($switch_ip);
+                $correctVlanForThisMAC = $switch->{_registrationVlan};
+            } else {
+                $correctVlanForThisMAC = custom_getCorrectVlan($switch_ip, $ifIndex, $mac, $node_info->{status}, $node_info->{vlan}, $node_info->{pid});
+                $logger->info("MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", VLAN: $correctVlanForThisMAC");
+            }
         } else {
-            $correctVlanForThisMAC = custom_getCorrectVlan($switch_ip, $ifIndex, $mac, $node_info->{status}, $node_info->{vlan}, $node_info->{pid});
+            $correctVlanForThisMAC = custom_getCorrectVlan($switch_ip, $ifIndex, $mac, $node_info->{status}, ($node_info->{vlan} || $switch->{_normalVlan}), $node_info->{pid});
             $logger->info("MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", VLAN: $correctVlanForThisMAC");
         }
     }

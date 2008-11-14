@@ -96,6 +96,8 @@
           (http://www.packetfence.org/mantis/view.php?id=484)
         trapping.testing sets switches into testing mode
           (http://www.packetfence.org/mantis/view.php?id=488)
+        trapping.registration=disabled and VLAN isolation
+          (http://www.packetfence.org/mantis/view.php?id=486)
 
 1.7.5
         pfsetvlan should check that MAC field is filled before
