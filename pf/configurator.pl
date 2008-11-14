@@ -362,7 +362,6 @@ sub config_network {
 }
 
 sub config_registration{
-    my $rc;
     print "\n** NOTE: There are several registration timers/windows to be set in pf.conf - please be sure to review them **\n\n";
     my $auth = gatherer("How would you like users to authenticate at registration?","registration.auth",("local","ldap","radius"));
 
