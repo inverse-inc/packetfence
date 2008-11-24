@@ -68,7 +68,13 @@ sub person_delete {
     $logger->error("delete of non-existent person '$pid' failed");
     return 0;
   }
-                
+
+  my @nodes = person_nodes($pid);
+  if (scalar(@nodes) > 0) {
+    $logger->error("person $pid has " . scalar(@nodes) . " node(s) registered in its name. Person deletion prohibited");
+    return 0;
+  }
+
   $person_delete_sql->execute($pid) || return(0);
   $logger->info("person $pid deleted");
   return(1)
