@@ -153,6 +153,9 @@
           (http://www.packetfence.org/mantis/view.php?id=482)
         better way to set domain and host names
           (http://www.packetfence.org/mantis/view.php?id=487)
+        added VLAN specific warnings to sanity_check
+          (http://www.packetfence.org/mantis/view.php?id=491)
+        added support for 3COM SS4500 switch
 
 1.7.4
         undef operator in SNMP.pm
