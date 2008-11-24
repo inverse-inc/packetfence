@@ -1102,6 +1102,87 @@ sub isVoIPEnabled {
     return ($this->{_VoIPEnabled} == 1);
 }
 
+# type == 1 => startupConfig
+# type == 2 => runningConfig
+sub copyConfig {
+    my ($this, $type, $ip, $user, $pass, $filename) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $result;
+    my $random;
+
+    my $OID_ccCopyProtocol = '1.3.6.1.4.1.9.9.96.1.1.1.1.2';
+    my $OID_ccCopySourceFileType = '1.3.6.1.4.1.9.9.96.1.1.1.1.3';
+    my $OID_ccCopyDestFileType = '1.3.6.1.4.1.9.9.96.1.1.1.1.4';
+    my $OID_ccCopyServerAddress = '1.3.6.1.4.1.9.9.96.1.1.1.1.5';
+    my $OID_ccCopyFileName = '1.3.6.1.4.1.9.9.96.1.1.1.1.6';
+    my $OID_ccCopyUserName = '1.3.6.1.4.1.9.9.96.1.1.1.1.7';
+    my $OID_ccCopyUserPassword = '1.3.6.1.4.1.9.9.96.1.1.1.1.8';
+    my $OID_ccCopyState = '1.3.6.1.4.1.9.9.96.1.1.1.1.10';
+    my $OID_ccCopyEntryRowStatus = '1.3.6.1.4.1.9.9.96.1.1.1.1.14';
+
+    if (! $this->connectRead()) {
+        return 0;
+    }
+
+    if (! $this->connectWrite()) {
+        return 0;
+    }
+
+    # generate random number
+    do {
+        $random = 1+int(rand(1000));
+        $logger->trace("SNMP get_request for ccCopyEntryRowStatus: $OID_ccCopyEntryRowStatus.$random");
+        $result = $this->{_sessionRead}->get_request(
+            -varbindlist => [
+            "$OID_ccCopyEntryRowStatus.$random"
+            ]
+        );
+        if (defined($result)) {
+            $logger->debug("ccCopyTable row $random is already used - let's generate a new random number");
+        } else {
+            $logger->debug("ccCopyTable row $random is free - starting to create it");
+        }
+    } while (defined($result));
+
+
+    $logger->trace("SNMP set_request to create entry in ccCopyTable");
+    $result = $this->{_sessionWrite}->set_request(
+        -varbindlist => [
+        "$OID_ccCopyProtocol.23", Net::SNMP::INTEGER, 2,
+        "$OID_ccCopySourceFileType.23", Net::SNMP::INTEGER, 4,
+        "$OID_ccCopyDestFileType.23", Net::SNMP::INTEGER, $type,
+        "$OID_ccCopyServerAddress.23", Net::SNMP::IPADDRESS, $ip,
+        "$OID_ccCopyUserName.23", Net::SNMP::OCTET_STRING, $user,
+        "$OID_ccCopyUserPassword.23", Net::SNMP::OCTET_STRING, $pass,
+        "$OID_ccCopyFileName.23", Net::SNMP::OCTET_STRING, $filename,
+        "$OID_ccCopyEntryRowStatus.23", Net::SNMP::INTEGER, 4,
+        ]
+    );
+
+    if (defined($result)) {
+        $logger->debug("ccCopyTable row $random successfully created");
+        do {
+            $logger->trace("SNMP get_request for ccCopyState: $OID_ccCopyState.$random");
+            $result = $this->{_sessionRead}->get_request(
+                -varbindlist => [
+                "$OID_ccCopyState.$random"
+                ]
+            );
+        } while (defined($result) && ($result->{"$OID_ccCopyState.$random"} == 2));
+
+        $logger->debug("deleting ccCopyTable row $random");
+        $logger->trace("SNMP set_request for ccCopyEntryRowStatus: $OID_ccCopyEntryRowStatus.$random");
+        $result = $this->{_sessionWrite}->set_request(
+            -varbindlist => [
+            "$OID_ccCopyEntryRowStatus.$random", Net::SNMP::INTEGER, 6
+            ]
+        );
+    } else {
+        $logger->warn("could not fill ccCopyTable row $random");
+    }
+    return (defined($result));
+}
+
 1;
 
 # vim: set shiftwidth=4:
