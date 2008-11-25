@@ -1102,8 +1102,8 @@ sub isVoIPEnabled {
     return ($this->{_VoIPEnabled} == 1);
 }
 
-# type == 1 => startupConfig
-# type == 2 => runningConfig
+# type == 3 => startupConfig
+# type == 4 => runningConfig
 sub copyConfig {
     my ($this, $type, $ip, $user, $pass, $filename) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -1145,12 +1145,12 @@ sub copyConfig {
     } while (defined($result));
 
 
-    $logger->trace("SNMP set_request to create entry in ccCopyTable: $OID_ccCopyProtocol.$random i 2 $OID_ccCopySourceFileType.$random i 4 $OID_ccCopyDestFileType.$random i $type $OID_ccCopyServerAddress.$random a $ip $OID_ccCopyUserName.$random s $user $OID_ccCopyUserPassword.$random s $pass $OID_ccCopyFileName.$random s $filename $OID_ccCopyEntryRowStatus.$random i 4");
+    $logger->trace("SNMP set_request to create entry in ccCopyTable: $OID_ccCopyProtocol.$random i 2 $OID_ccCopySourceFileType.$random i $type $OID_ccCopyDestFileType.$random i 1 $OID_ccCopyServerAddress.$random a $ip $OID_ccCopyUserName.$random s $user $OID_ccCopyUserPassword.$random s $pass $OID_ccCopyFileName.$random s $filename $OID_ccCopyEntryRowStatus.$random i 4");
     $result = $this->{_sessionWrite}->set_request(
         -varbindlist => [
         "$OID_ccCopyProtocol.$random", Net::SNMP::INTEGER, 2,
-        "$OID_ccCopySourceFileType.$random", Net::SNMP::INTEGER, 4,
-        "$OID_ccCopyDestFileType.$random", Net::SNMP::INTEGER, $type,
+        "$OID_ccCopySourceFileType.$random", Net::SNMP::INTEGER, $type,
+        "$OID_ccCopyDestFileType.$random", Net::SNMP::INTEGER, 1,
         "$OID_ccCopyServerAddress.$random", Net::SNMP::IPADDRESS, $ip,
         "$OID_ccCopyUserName.$random", Net::SNMP::OCTET_STRING, $user,
         "$OID_ccCopyUserPassword.$random", Net::SNMP::OCTET_STRING, $pass,
