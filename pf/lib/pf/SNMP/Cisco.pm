@@ -1145,17 +1145,17 @@ sub copyConfig {
     } while (defined($result));
 
 
-    $logger->trace("SNMP set_request to create entry in ccCopyTable");
+    $logger->trace("SNMP set_request to create entry in ccCopyTable: $OID_ccCopyProtocol.$random i 2 $OID_ccCopySourceFileType.$random i 4 $OID_ccCopyDestFileType.$random i $type $OID_ccCopyServerAddress.$random a $ip $OID_ccCopyUserName.$random s $user $OID_ccCopyUserPassword.$random s $pass $OID_ccCopyFileName.$random s $filename $OID_ccCopyEntryRowStatus.$random i 4");
     $result = $this->{_sessionWrite}->set_request(
         -varbindlist => [
-        "$OID_ccCopyProtocol.23", Net::SNMP::INTEGER, 2,
-        "$OID_ccCopySourceFileType.23", Net::SNMP::INTEGER, 4,
-        "$OID_ccCopyDestFileType.23", Net::SNMP::INTEGER, $type,
-        "$OID_ccCopyServerAddress.23", Net::SNMP::IPADDRESS, $ip,
-        "$OID_ccCopyUserName.23", Net::SNMP::OCTET_STRING, $user,
-        "$OID_ccCopyUserPassword.23", Net::SNMP::OCTET_STRING, $pass,
-        "$OID_ccCopyFileName.23", Net::SNMP::OCTET_STRING, $filename,
-        "$OID_ccCopyEntryRowStatus.23", Net::SNMP::INTEGER, 4,
+        "$OID_ccCopyProtocol.$random", Net::SNMP::INTEGER, 2,
+        "$OID_ccCopySourceFileType.$random", Net::SNMP::INTEGER, 4,
+        "$OID_ccCopyDestFileType.$random", Net::SNMP::INTEGER, $type,
+        "$OID_ccCopyServerAddress.$random", Net::SNMP::IPADDRESS, $ip,
+        "$OID_ccCopyUserName.$random", Net::SNMP::OCTET_STRING, $user,
+        "$OID_ccCopyUserPassword.$random", Net::SNMP::OCTET_STRING, $pass,
+        "$OID_ccCopyFileName.$random", Net::SNMP::OCTET_STRING, $filename,
+        "$OID_ccCopyEntryRowStatus.$random", Net::SNMP::INTEGER, 4,
         ]
     );
 
