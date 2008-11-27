@@ -1112,6 +1112,52 @@ sub getDot1dBasePortForThisIfIndex {
     return $dot1dBasePort;
 }
 
+sub getAllIfDesc {
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $ifDescHashRef;
+    my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2'; # IF-MIB
+
+    if (! $this->connectRead()) {
+        return $ifDescHashRef;
+    }
+
+    $logger->trace("SNMP get_table for ifDesc: $OID_ifDesc");
+    my $result = $this->{_sessionRead}->get_table(
+        -baseoid => $OID_ifDesc
+    );
+    foreach my $key (keys %{$result}) {
+        my $ifDesc = $result->{$key};
+        $key =~ /^$OID_ifDesc\.(\d+)$/;
+        my $ifIndex = $1;
+        $ifDescHashRef->{$ifIndex} = $ifDesc;
+    }
+    return $ifDescHashRef;
+}
+
+sub getAllIfType {
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $ifTypeHashRef;
+    my $OID_ifType = '1.3.6.1.2.1.2.2.1.3';
+
+    if (! $this->connectRead()) {
+        return $ifTypeHashRef;
+    }
+
+    $logger->trace("SNMP get_table for ifType: $OID_ifType");
+    my $result = $this->{_sessionRead}->get_table(
+        -baseoid => $OID_ifType
+    );
+    foreach my $key (keys %{$result}) {
+        my $ifType = $result->{$key};
+        $key =~ /^$OID_ifType\.(\d+)$/;
+        my $ifIndex = $1;
+        $ifTypeHashRef->{$ifIndex} = $ifType;
+    }
+    return $ifTypeHashRef;
+}
+
 sub getAllVlans {
     my ($this, @ifIndexes) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
