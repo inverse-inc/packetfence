@@ -1129,7 +1129,9 @@ sub copyConfig {
     }
 
     # generate random number
+    my $nb = 0;
     do {
+        $nb++;
         $random = 1+int(rand(1000));
         $logger->trace("SNMP get_request for ccCopyEntryRowStatus: $OID_ccCopyEntryRowStatus.$random");
         $result = $this->{_sessionRead}->get_request(
@@ -1142,7 +1144,11 @@ sub copyConfig {
         } else {
             $logger->debug("ccCopyTable row $random is free - starting to create it");
         }
-    } while (defined($result));
+    } while (($nb <= 20) && (defined($result)));
+    if ($nb == 20) {
+        $logger->error("unable to find unused entry in ccCopyTable");
+        return 0;
+    }
 
 
     $logger->trace("SNMP set_request to create entry in ccCopyTable: $OID_ccCopyProtocol.$random i 2 $OID_ccCopySourceFileType.$random i $type $OID_ccCopyDestFileType.$random i 1 $OID_ccCopyServerAddress.$random a $ip $OID_ccCopyUserName.$random s $user $OID_ccCopyUserPassword.$random s $pass $OID_ccCopyFileName.$random s $filename $OID_ccCopyEntryRowStatus.$random i 4");
@@ -1155,20 +1161,27 @@ sub copyConfig {
         "$OID_ccCopyUserName.$random", Net::SNMP::OCTET_STRING, $user,
         "$OID_ccCopyUserPassword.$random", Net::SNMP::OCTET_STRING, $pass,
         "$OID_ccCopyFileName.$random", Net::SNMP::OCTET_STRING, $filename,
-        "$OID_ccCopyEntryRowStatus.$random", Net::SNMP::INTEGER, 4,
+        "$OID_ccCopyEntryRowStatus.$random", Net::SNMP::INTEGER, 4
         ]
     );
 
     if (defined($result)) {
         $logger->debug("ccCopyTable row $random successfully created");
+        $nb = 0;
         do {
+            $nb++;
+            sleep(1);
             $logger->trace("SNMP get_request for ccCopyState: $OID_ccCopyState.$random");
             $result = $this->{_sessionRead}->get_request(
                 -varbindlist => [
                 "$OID_ccCopyState.$random"
                 ]
             );
-        } while (defined($result) && ($result->{"$OID_ccCopyState.$random"} == 2));
+        } while (($nb <= 120) && defined($result) && ($result->{"$OID_ccCopyState.$random"} == 2));
+        if ($nb == 120) {
+            $logger->error("copy operation seems not to complete");
+            return 0;
+        }
 
         $logger->debug("deleting ccCopyTable row $random");
         $logger->trace("SNMP set_request for ccCopyEntryRowStatus: $OID_ccCopyEntryRowStatus.$random");
@@ -1178,10 +1191,12 @@ sub copyConfig {
             ]
         );
     } else {
-        $logger->warn("could not fill ccCopyTable row $random");
+        $logger->warn("could not fill ccCopyTable row $random: " . $this->{_sessionWrite}->error());
     }
     return (defined($result));
+
 }
+
 
 1;
 
