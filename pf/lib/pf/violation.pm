@@ -267,7 +267,7 @@ sub violation_add  {
   # insert violation into db
   $violation_add_sql->execute($mac,$vid,$data{start_date},$data{release_date},$data{status},$data{ticket_ref},$data{notes}) || return(0);
   $logger->info("violation $vid added for $mac");
-  action_execute($mac, $vid);
+  action_execute($mac, $vid, $data{notes});
   return(1);
 }
 

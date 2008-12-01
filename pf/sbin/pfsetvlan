@@ -789,12 +789,12 @@ sub handleTrap {
                         if (custom_isClientAlive($locationlog[0]->{'mac'}, $switch_ip, $switch_port, $vlan, $switch->{_isolationVlan}, $mysql_connection)) {
                             $logger->info("old MAC is still ALIVE so there is a hub connected on $switch_ip ifIndex $switch_port");
                             $logger->info("create one Hub violation for old MAC " . $locationlog[0]->{'mac'} . " and one for MAC $mac");
-                            my $cmd = PFCMD_FILE . " 'violation add vid=1400000, mac=" . $locationlog[0]->{'mac'} . "'";
+                            my $cmd = PFCMD_FILE . " 'violation add vid=1400000,mac=" . $locationlog[0]->{'mac'} . ",notes=\"other MAC is $mac\"'";
                             my $output = qx/$cmd/; 
-                            $logger->debug("calling " . PFCMD_FILE . " 'violation add vid=1400000,mac=" . $locationlog[0]->{'mac'} . "'");
-                            $cmd = PFCMD_FILE . " 'violation add vid=1400000, mac=$mac'";
+                            $logger->debug("calling " . PFCMD_FILE . " 'violation add vid=1400000,mac=" . $locationlog[0]->{'mac'} . ",notes=\"other MAC is $mac\"'");
+                            $cmd = PFCMD_FILE . " 'violation add vid=1400000,mac=$mac,notes=\"other MAC is " . $locationlog[0]->{'mac'} . "\"'";
                             $output = qx/$cmd/; 
-                            $logger->debug("calling " . PFCMD_FILE . " 'violation add vid=1400000,mac=$mac'");
+                            $logger->debug("calling " . PFCMD_FILE . " 'violation add vid=1400000,mac=$mac,notes=\"other MAC is " . $locationlog[0]->{'mac'} . "\"'");
                         } else {
                             $logger->info("old MAC is DEAD -> change VLAN");
                             $changeVlan = 1;

@@ -115,7 +115,7 @@ sub action_api {
 
 
 sub action_execute {
-  my($mac, $vid) = @_;
+  my($mac, $vid, $notes) = @_;
   my $logger = Log::Log4perl::get_logger('pf::action');
   my $leave_open=0;
   my @actions = class_view_actions($vid);
@@ -126,7 +126,7 @@ sub action_execute {
       $leave_open = 1;
       action_trap($mac, $vid);
     } elsif ($action =~ /^email$/i) {
-      action_email($mac, $vid);
+      action_email($mac, $vid, $notes);
     } elsif ($action =~ /^log$/i) {
       action_log($mac, $vid);
     } elsif ($action =~ /^external(\d+)$/i) {
@@ -148,7 +148,7 @@ sub action_execute {
 }
 
 sub action_email {
-  my($mac, $vid) = @_;
+  my($mac, $vid, $notes) = @_;
   my %message;
 
   push @INC, $bin_dir;
@@ -159,6 +159,7 @@ sub action_email {
   $message{'subject'}  = "$description detection on $mac";
   $message{'message'}  = "Detect  : $description\n";
   $message{'message'} .= lookup_node($mac);
+  $message{'message'} .= $notes;
 
   pfmailer(%message);
 }

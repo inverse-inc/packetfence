@@ -158,6 +158,8 @@
         added support for 3COM SS4500 switch
         person_delete and associated nodes
           (http://www.packetfence.org/mantis/view.php?id=493)
+        email after HUB violation
+          (http://www.packetfence.org/mantis/view.php?id=494)
 
 1.7.4
         undef operator in SNMP.pm
