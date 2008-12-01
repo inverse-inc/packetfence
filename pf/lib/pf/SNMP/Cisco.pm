@@ -1110,7 +1110,7 @@ sub copyConfig {
     my $result;
     my $random;
 
-    my $OID_ccCopyProtocol = '1.3.6.1.4.1.9.9.96.1.1.1.1.2';
+    my $OID_ccCopyProtocol = '1.3.6.1.4.1.9.9.96.1.1.1.1.2'; #CISCO-CONFIG-COPY-MIB
     my $OID_ccCopySourceFileType = '1.3.6.1.4.1.9.9.96.1.1.1.1.3';
     my $OID_ccCopyDestFileType = '1.3.6.1.4.1.9.9.96.1.1.1.1.4';
     my $OID_ccCopyServerAddress = '1.3.6.1.4.1.9.9.96.1.1.1.1.5';
