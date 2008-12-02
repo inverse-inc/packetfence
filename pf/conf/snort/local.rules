@@ -1,9 +1,9 @@
-pass  ip $INTERNAL_IPS any -> any any
-pass  ip $GATEWAYS any -> any any
-pass tcp $HOME_NET any -> 64.95.76.64/27 any
-pass tcp $HOME_NET any -> 64.125.138.0/24 any
-pass tcp 64.95.76.64/27 any -> $HOME_NET any
-pass tcp 64.125.138.0/24 any -> $HOME_NET any
+pass  ip $INTERNAL_IPS any -> any any (sid:1100101; rev:1;)
+pass  ip $GATEWAYS any -> any any (sid:1100102; rev:1;)
+pass tcp $HOME_NET any -> 64.95.76.64/27 any (sid:1100103; rev:1;)
+pass tcp $HOME_NET any -> 64.125.138.0/24 any (sid:1100104; rev:1;)
+pass tcp 64.95.76.64/27 any -> $HOME_NET any (sid:1100105; rev:1;)
+pass tcp 64.125.138.0/24 any -> $HOME_NET any (sid:1100106; rev:1;)
 alert tcp $HOME_NET any -> $EXTERNAL_NET 80 (msg:"Probable NATed System"; flags:S; ttl:2-63; sid:1100005; rev:1; threshold: type limit, track by_src, count 1, seconds 600;)
 alert tcp $HOME_NET any -> $EXTERNAL_NET 80 (msg:"Probable NATed System"; flags:S; ttl:65-127; sid:1100006; rev:1; threshold: type limit, track by_src, count 1, seconds 600;)
 alert tcp $HOME_NET any -> $EXTERNAL_NET 80 (msg:"Probable NATed System"; flags:S; ttl:129-254; sid:1100007; rev:1; threshold: type limit, track by_src, count 1, seconds 600;)
