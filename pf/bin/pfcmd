@@ -900,6 +900,14 @@ sub command_param {
     $logger->info("pfcmd calling $function for " . $params{mac});
     ($main::{$function} or sub { print "No such sub: $_\n" })->($params{mac},$params{vid},%params);
   }else {
+    if ($function eq "violation_delete") {
+      my @violation_data = violation_view($id);
+      if (scalar(@violation_data) == 1) {
+        $params{mac} = $violation_data[0]->{'mac'};
+      } else {
+        $params{mac} = '';
+      }
+    }
     $logger->info("pfcmd calling $function for $id");
     $returnValue = ($main::{$function} or sub { print "No such sub: $_\n" })->($id,%params);
   }
