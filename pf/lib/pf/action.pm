@@ -158,8 +158,8 @@ sub action_email {
 
   $message{'subject'}  = "$description detection on $mac";
   $message{'message'}  = "Detect  : $description\n";
+  $message{'message'} .= "$notes\n";
   $message{'message'} .= lookup_node($mac);
-  $message{'message'} .= $notes;
 
   pfmailer(%message);
 }
