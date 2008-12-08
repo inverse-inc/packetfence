@@ -50,7 +50,8 @@ my %oses    = ( "Red Hat Enterprise Linux AS release 4" => "RHEL4",
                 "Fedora Core release 4"			=> "FC4"
               );
 
-my @modules = ( "Time::HiRes",
+my @modules = ( 
+		"Time::HiRes",
                 "Config::IniFiles",
                 "Net::Netmask",
                 "Net::Ping",
