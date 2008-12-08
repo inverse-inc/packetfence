@@ -58,12 +58,12 @@ if (questioner("Would you like to use a template configuration or custom","t",("
                         4) Registration & Detection
                         5) Registration, Detection & Scanning
                         6) Session-based Authentication
-                        7) Registration and VLAN isolation
-                        8) Registration, Detection and VLAN isolation
+                        7) Registration, Detection and VLAN isolation
+                        8) PacketFence ZEN with VLAN isolation
              Answer: [1|2|3|4|5|6|7|8]: ","",("1","2","3","4","5","6","7","8"));
   load_template($type);
   print "Loading Template: Warning PacketFence is going LIVE - WEAPONS HOT \n" if ($type ne 1);
-  if ($type ne 1 && $type ne 2){
+  if ($type ne 1 && $type ne 2 && $type ne 8){
    print "Enabling host trapping!  Please make sure to review conf/violations.conf and disable any violations that don't fit your environment\n";
    $violation{defaults}{actions}="trap,email,log";
    tied(%violation)->WriteConfig("$conf_dir/violations.conf") || die "Unable to commit settings: $!\n";
@@ -135,10 +135,10 @@ sub load_template {
       $template_filename.="sessionauth.conf";
       last; };
     /7/ && do {
-      $template_filename.="reg-vlan.conf";
+      $template_filename.="reg-detect-vlan.conf";
       last; };
     /8/ && do {
-      $template_filename.="reg-detect-vlan.conf";
+      $template_filename.="zen-vlan.conf";
       last; };
   }
   die "template $template_filename not found" if (!-e $template_filename);
@@ -296,7 +296,7 @@ sub configuration {
     gatherer("What port should the administrative GUI run on?","ports.admin");
   }
  
-  if (!$upgrade){ 
+  if ((!$upgrade) && ($template ne 8)) { 
     print "\nDATABASE CONFIGURATION\n";
     gatherer("Where is my database server?","database.host");
     gatherer("What port is is listening on?","database.port");
