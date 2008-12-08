@@ -24,12 +24,15 @@ BEGIN {
 
 use Authen::Radius;
 
+my $RadiusServer = 'localhost';
+my $RadiusSecret = 'testing123';
+
 sub authenticate {
  my ($username, $password) = @_;
  my $radcheck;
  $radcheck = new Authen::Radius(
-    Host => 'localhost', 
-    Secret => 'testing123');
+    Host => $RadiusServer, 
+    Secret => $RadiusSecret);
  if ($radcheck->check_pwd($username, $password)) {
      return (1,0);
  } else {
