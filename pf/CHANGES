@@ -102,6 +102,11 @@
           trapping.registration=disabled
           (http://www.packetfence.org/mantis/view.php?id=489)
 
+1.7.6
+        violations created through bin/pfdetect do not lead to 
+          VLAN change
+          (http://www.packetfence.org/mantis/view.php?id=496)
+
 1.7.5
         pfsetvlan should check that MAC field is filled before
           calling custom_isClientAlive
