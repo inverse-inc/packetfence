@@ -38,6 +38,7 @@ if ($mac =~ /^([0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a
     $logger->logdie("Bad MAC $mac");
 }
 
+$mac = lc($mac);
 $logger->info("flip.pl called with $mac");
 
 my %switchConfig;

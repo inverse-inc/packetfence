@@ -154,7 +154,7 @@ sub help {
 #
 sub manage {
   my $option = $cmd{manage_options}[0];
-  my $mac = $cmd{manage_options}[1];
+  my $mac = lc($cmd{manage_options}[1]);
   my $id;
   $id = $cmd{manage_options}[2] if (defined $cmd{manage_options}[2]);
   my $function = "manage_" . $option;
@@ -894,6 +894,9 @@ sub command_param {
   my $assignment = $type."_assignment";
   my %params=format_assignment(@{$cmd{$assignment}});
   my $returnValue = 0;
+  if (($function eq "node_modify") || ($function eq "node_add")) {
+    $id = lc($id);
+  }
   #print Dumper(%params);
   # run update/or delete  and check return val
   if ($function eq "violation_add"){

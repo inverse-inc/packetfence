@@ -234,7 +234,7 @@ sub node_modify {
 print "$item: $data{$item}\n";
   }
 
-  my $new_mac = $existing->{'mac'};
+  my $new_mac = lc($existing->{'mac'});
   my $new_status = $existing->{'status'};
   
   if ($mac ne $new_mac && node_exist($new_mac)) {

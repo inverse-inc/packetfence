@@ -106,6 +106,8 @@
         violations created through bin/pfdetect do not lead to 
           VLAN change
           (http://www.packetfence.org/mantis/view.php?id=496)
+        issues with MAC addresses in capital
+          (http://www.packetfence.org/mantis/view.php?id=498)
 
 1.7.5
         pfsetvlan should check that MAC field is filled before
