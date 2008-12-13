@@ -64,15 +64,22 @@ if ($locationlog_entry) {
             -port => '162',
             -version => '1',
             -community => $switchConfig{'default'}{'communityTrap'});
+        if (! defined($session)) {
+            $logger->error("error creation SNMP connection: " . $err);
+        } else {
 
-        $session->trap(
-            -genericTrap => Net::SNMP::ENTERPRISE_SPECIFIC,
-            -agentaddr => $switch_ip,
-            -varbindlist => [
-            '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER, '1.3.6.1.4.1.29464.1.2',
-            "1.3.6.1.4.1.29464.1.3", Net::SNMP::OCTET_STRING, $mac,
-            ]
-        );
+            my $result = $session->trap(
+                -genericTrap => Net::SNMP::ENTERPRISE_SPECIFIC,
+                -agentaddr => $switch_ip,
+                -varbindlist => [
+                    '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER, '1.3.6.1.4.1.29464.1.2',
+                    "1.3.6.1.4.1.29464.1.3", Net::SNMP::OCTET_STRING, $mac,
+                ]
+            );
+            if (! $result) {
+                $logger->error("error sending SNMP trap: " . $session->error());
+            }
+        }
 
     } else {
         my ($session,$err) = Net::SNMP->session(
@@ -80,15 +87,22 @@ if ($locationlog_entry) {
             -port => '162',
             -version => '1',
             -community => $switchConfig{'default'}{'communityTrap'});
+        if (! defined($session)) {
+            $logger->error("error creation SNMP connection: " . $err);
+        } else {
 
-        $session->trap(
-            -genericTrap => Net::SNMP::ENTERPRISE_SPECIFIC,
-            -agentaddr => $switch_ip,
-            -varbindlist => [
-            '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER, '1.3.6.1.4.1.29464.1.1',
-            "1.3.6.1.2.1.2.2.1.1.$ifIndex", Net::SNMP::INTEGER, $ifIndex,
-            ]
-        );
+            my $result = $session->trap(
+                -genericTrap => Net::SNMP::ENTERPRISE_SPECIFIC,
+                -agentaddr => $switch_ip,
+                -varbindlist => [
+                    '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER, '1.3.6.1.4.1.29464.1.1',
+                    "1.3.6.1.2.1.2.2.1.1.$ifIndex", Net::SNMP::INTEGER, $ifIndex,
+                ]
+            );
+            if (! $result) {
+                $logger->error("error sending SNMP trap: " . $session->error());
+            }
+        }
     }
 } else {
     $logger->warn("cannot determine switch port for $mac. Flipping the ports admin status is impossible");
