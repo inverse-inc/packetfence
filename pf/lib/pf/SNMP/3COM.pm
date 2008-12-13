@@ -37,6 +37,15 @@ sub parseTrap {
     if ($trapString =~ /BEGIN TYPE ([23]) END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.2\.(\d+) = /) {
         $trapHashRef->{'trapType'} = (($1 == 2) ? "down" : "up");
         $trapHashRef->{'trapIfIndex'} = $2;
+    } elsif ($trapString =~ /BEGIN TYPE ([23]) END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = /) {
+        $trapHashRef->{'trapType'} = (($1 == 2) ? "down" : "up");
+        $trapHashRef->{'trapIfIndex'} = $2;
+    } elsif ($trapString =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.([0-9]+) = INTEGER: [0-9]+\|\.1\.3\.6\.1\.4\.1\.43\.45\.1\.10\.2\.26\.1\.2\.2\.1\.1\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.1 = Hex-STRING: ([0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2})/) {
+        $trapHashRef->{'trapType'} = 'secureMacAddrViolation';
+        $trapHashRef->{'trapIfIndex'} = $1;
+        $trapHashRef->{'trapMac'} = lc($2);
+        $trapHashRef->{'trapMac'} =~ s/ /:/g;
+        $trapHashRef->{'trapVlan'} = $this->getVlan($trapHashRef->{'trapIfIndex'});
     } else {
         $logger->debug("trap currently not handled");
         $trapHashRef->{'trapType'} = 'unknown';
@@ -73,7 +82,7 @@ sub _getMacAtIfIndex {
     my $dot1dBasePort = $this->getDot1dBasePortForThisIfIndex($ifIndex);
     foreach my $_mac (keys %macBridgePortHash) {
         if ($macBridgePortHash{$_mac} eq $dot1dBasePort) {
-            push @macArray, $_mac;
+            push @macArray, lc($_mac);
         }
     }
     return @macArray;

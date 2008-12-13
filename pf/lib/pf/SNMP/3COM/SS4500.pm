@@ -14,6 +14,8 @@
 # http://netserv.cc.psu.ac.th
 # 2008-11-21
 #
+# dgehl@inverse.ca 2208-12-10
+#
 # *** SETVLAN NOT WORK WITH DEFAULT VLAN ID 1 ***
 #
 
@@ -43,38 +45,46 @@ sub getVersion {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 	
-	my $OID_hwLswSysVersion = '1.3.6.1.4.1.43.45.1.2.23.1.18.1.4.0'; #from A3COM-HUAWEI-DEVICE-MIB
+    my $OID_hwLswSlotSoftwareVersion = '1.3.6.1.4.1.43.45.1.2.23.1.18.4.3.1.6.0.0'; #from A3COM-HUAWEI-DEVICE-MIB
     if (! $this->connectRead()) {
         return 0;
     }
 
-    $logger->trace("SNMP get_request for hwLswSysVersion: $OID_hwLswSysVersion");
+    $logger->trace("SNMP get_request for hwLswSlotSoftwareVersion: $OID_hwLswSlotSoftwareVersion");
     my $result = $this->{_sessionRead}->get_request(
-        -varbindlist => ["$OID_hwLswSysVersion"]
+        -varbindlist => ["$OID_hwLswSlotSoftwareVersion"]
     );
 
-	if ((exists($result->{"$OID_hwLswSysVersion"})) && ($result->{"$OID_hwLswSysVersion"} ne 'noSuchInstance')) {
-		return $result->{"$OID_hwLswSysVersion"};
-	} else {
-		return 0;
-	}
+    if ((exists($result->{"$OID_hwLswSlotSoftwareVersion"})) && ($result->{"$OID_hwLswSlotSoftwareVersion"} ne 'noSuchInstance')) {
+        return $result->{"$OID_hwLswSlotSoftwareVersion"};
+    } else {
+        return 0;
+    }
 }
 
-sub parseTrap {
-    my ($this, $trapString) = @_;
-    my $trapHashRef;
+sub getVlans {
+    my $this = shift;
     my $logger = Log::Log4perl::get_logger(ref($this));
-	
-	# link status trap varbind oid = 1.3.6.1.2.1.2.2.1.1  from RFC-1213-MIB
-    if ($trapString =~ /BEGIN TYPE ([23]) END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = /) {
-        $trapHashRef->{'trapType'} = (($1 == 2) ? "down" : "up");									
-        $trapHashRef->{'trapIfIndex'} = $2;
-    } else {
-        $logger->debug("trap currently not handled");
-        $trapHashRef->{'trapType'} = 'unknown';
+    my $OID_hwdot1qVlanName = '1.3.6.1.4.1.43.45.1.2.23.1.2.1.1.1.1'; #from A3COM-HUAWEI-LswVLAN-MIB
+    my $vlans = {};
+    if (! $this->connectRead()) {
+        return $vlans;
     }
-    return $trapHashRef;
+
+    $logger->trace("SNMP get_table for hwdot1qVlanName: $OID_hwdot1qVlanName");
+    my $result = $this->{_sessionRead}->get_table(
+        -baseoid => $OID_hwdot1qVlanName
+    );
+
+    if (defined($result)) {
+        foreach my $key (keys %{$result}) {
+            $key =~ /^$OID_hwdot1qVlanName\.(\d+)$/;
+            $vlans->{$1} = $result->{$key};
+        }
+    }
+    return $vlans;
 }
+
 
 sub isDefinedVlan {
     my ($this, $vlan) = @_;
@@ -138,9 +148,9 @@ sub _setVlan {
         return 0;
     }
    
-    my $dot1dBasePort = $this->getDot1dBasePortForThisIfIndex($ifIndex); 		#physical port number
-	my $OID_hwdot1qVlanName = '1.3.6.1.4.1.43.45.1.2.23.1.2.1.1.1.2'; 			# VLAN Name from A3COM-HUAWEI-LswVLAN-MIB
-	my $OID_hwdot1qVlanPortList = '1.3.6.1.4.1.43.45.1.2.23.1.2.1.1.1.3'; 		#VLAN Port List from A3COM-HUAWEI-LswVLAN-MIB
+    my $dot1dBasePort = $this->getDot1dBasePortForThisIfIndex($ifIndex); 	#physical port number
+	my $OID_hwdot1qVlanName = '1.3.6.1.4.1.43.45.1.2.23.1.2.1.1.1.2'; 	# VLAN Name from A3COM-HUAWEI-LswVLAN-MIB
+	my $OID_hwdot1qVlanPortList = '1.3.6.1.4.1.43.45.1.2.23.1.2.1.1.1.3'; 	#VLAN Port List from A3COM-HUAWEI-LswVLAN-MIB
 	
 	$this->{_sessionRead}->translate(0);
 	$logger->trace("SNMP get_request for hwdot1qVlanName: $OID_hwdot1qVlanName.$newVlan");
@@ -153,30 +163,30 @@ sub _setVlan {
 		return 0;
 	}
 	
-	my $vlanName = $result->{"$OID_hwdot1qVlanName.$newVlan"}; 						# String of VLAN Name (ex. VLAN 0001, VLAN 0100 etc.)
+	my $vlanName = $result->{"$OID_hwdot1qVlanName.$newVlan"}; 	# String of VLAN Name (ex. VLAN 0001, VLAN 0100 etc.)
 	my $vlanPortList = unpack "H*",$result->{"$OID_hwdot1qVlanPortList.$newVlan"}; 	# String of Hexadecimal
 	
 	my $byteNum = int(($dot1dBasePort-1)/8);
 	my $byteVal = substr($vlanPortList,$byteNum*2,2);
 	
 	$byteVal = hex $byteVal; 
-	$byteVal += 256; 															# add bit "1" at 9th bit
+	$byteVal += 256;					# add bit "1" at 9th bit
 
-	my $vlanPortListPrev = substr($vlanPortList,0,$byteNum*2);					# devide port list into 2 of strings
+	my $vlanPortListPrev = substr($vlanPortList,0,$byteNum*2);	# devide port list into 2 of strings
 	my $vlanPortListPost = substr($vlanPortList,$byteNum*2+2);
 
 	my $digitNum = $dot1dBasePort-(8*$byteNum)-1;
 	my $digitVal = 2**$digitNum;
 	
-	$digitVal += 256; 															# add bit '1' at 9th bit
+	$digitVal += 256;			# add bit '1' at 9th bit
 	
-	$byteVal = $byteVal | $digitVal;											# OR opearation for remain other port's member state except target port
-	$byteVal -= 256;															# remove 9th bit 
-	$byteVal = sprintf("%.2x",$byteVal); 										# convert to hex string
+	$byteVal = $byteVal | $digitVal;		# OR opearation for remain other port's member state except target port
+	$byteVal -= 256;							# remove 9th bit 
+	$byteVal = sprintf("%.2x",$byteVal); 			# convert to hex string
 
-	$vlanPortList = $vlanPortListPrev.$byteVal.$vlanPortListPost;				# recompose PortList
-	
-	my $vlanPortListHex = pack "H*", $vlanPortList;								# Reform Octet String
+	$vlanPortList = $vlanPortListPrev.$byteVal.$vlanPortListPost;		# recompose PortList
+
+	my $vlanPortListHex = pack "H*", $vlanPortList;			# Reform Octet String
 	
 	if (! $this->connectWrite()) {
         return 0;
@@ -194,6 +204,31 @@ sub _setVlan {
 	
     return (defined($result));
 }
+
+sub isPortSecurityEnabled {
+    my ($this, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    # a3com-huawei-port-security.mib
+    my $OID_h3cSecurePortSecurityControl = '1.3.6.1.4.1.43.45.1.10.2.26.1.1.1.0';
+    my $OID_h3cSecurePortMode = '1.3.6.1.4.1.43.45.1.10.2.26.1.2.1.1.1';
+    my $OID_h3cSecureIntrusionAction = '1.3.6.1.4.1.43.45.1.10.2.26.1.2.1.1.3';
+
+    if (! $this->connectRead()) {
+        return 0;
+    }
+
+    #determine if port-security if enabled
+    $logger->trace("SNMP get_request for h3cSecurePortSecurityControl, h3cSecurePortMode and h3cSecureIntrusionAction: $OID_h3cSecurePortSecurityControl, $OID_h3cSecurePortMode.$ifIndex, $OID_h3cSecureIntrusionAction.$ifIndex");
+    my $result = $this->{_sessionRead}->get_request(
+        -varbindlist => [
+        "$OID_h3cSecurePortSecurityControl",
+        "$OID_h3cSecurePortMode.$ifIndex",
+        "$OID_h3cSecureIntrusionAction.$ifIndex"
+        ]
+    );
+    return (exists($result->{"$OID_h3cSecurePortSecurityControl"}) && ($result->{"$OID_h3cSecurePortSecurityControl"} == 1) && exists($result->{"$OID_h3cSecurePortMode.$ifIndex"}) && ($result->{"$OID_h3cSecurePortMode.$ifIndex"} == 4) && exists($result->{"$OID_h3cSecureIntrusionAction.$ifIndex"}) && ($result->{"$OID_h3cSecureIntrusionAction.$ifIndex"} == 6));
+}
+
 1;
 
 # vim: set shiftwidth=4:
