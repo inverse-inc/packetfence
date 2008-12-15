@@ -1,35 +1,16 @@
 
                           PacketFence
 
-  What is it?
-  -----------
-
-  Please visit http://www.packetfence.org/dokuwiki/doku.php?id=faq#faq
-
-
   The Latest Stable Version
   ------------------
 
-  http://sourceforge.net/projects/packetfence/
-
-
-  Documentation
-  -------------
-
-  The documentation available at:
-  http://www.packetfence.org/dokuwiki/
+  http://www.packetfence.org/english/download/releases.html  
 
 
   Installation
   ------------
   
   Untar source to the directory of your choice and run installer.pl
-
-  Please see documentation available at:
-  http://www.packetfence.org/documentation/basic_setup.html
-  and
-  http://www.packetfence.org/dokuwiki/
-  in particular http://www.packetfence.org/dokuwiki/doku.php?id=1.7
 
 
   Licensing
