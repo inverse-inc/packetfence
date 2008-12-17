@@ -114,6 +114,8 @@
           (http://www.packetfence.org/mantis/view.php?id=499)
         show computername in Violation - View
           (http://www.packetfence.org/mantis/view.php?id=500)
+        show open violations in Node - View
+          (http://www.packetfence.org/mantis/view.php?id=501)
 
 1.7.5
         pfsetvlan should check that MAC field is filled before
