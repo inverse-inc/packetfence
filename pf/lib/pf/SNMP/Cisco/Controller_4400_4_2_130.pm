@@ -27,45 +27,40 @@ use diagnostics;
 use base ('pf::SNMP::Cisco');
 use Log::Log4perl;
 use Carp;
-use Net::Telnet;
 use Net::SNMP;
-use Data::Dumper;
 
 sub deauthenticateMac {
     my ($this, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
+    my $OID_bsnMobileStationDeleteAction = '1.3.6.1.4.1.14179.2.1.4.1.22';
+
+    if (! $this->isProductionMode()) {
+        $logger->info("not in production mode ... we won't write to the bnsMobileStationTable");
+        return 1;
+    }
+
+    if (! $this->connectWrite()) {
+        return 0;
+    }
 
     #format MAC
     if (length($mac) == 17) {
-        $mac =~ s/://g;
-        $mac = substr($mac,0,4) . "." . substr($mac,4,4) . "." . substr($mac,8,4);
+        my @macArray = split(/:/, $mac);
+        my $completeOid = $OID_bsnMobileStationDeleteAction;
+        foreach my $macPiece (@macArray) {
+            $completeOid .= "." . hex($macPiece);
+        }
+        $logger->trace("SNMP set_request for bsnMobileStationDeleteAction: $completeOid");
+        my $result = $this->{_sessionWrite}->set_request(
+            -varbindlist => [
+                $completeOid, Net::SNMP::INTEGER, 1
+            ]
+        );
+        return (defined($result));
     } else {
         $logger->error("ERROR: MAC format is incorrect ($mac). Should be xx:xx:xx:xx:xx:xx");
         return 1;
     }
-    
-    my $session;
-    eval {
-        $session = Net::Telnet->new(Host => $this->{_ip}, Timeout=>5, Prompt => '/[\$%#>]$/', Dump_Log => '/tmp/dgl.txt');
-        $session->waitfor('/User: /');
-        $session->put($this->{_telnetUser} . "\n");
-        $session->waitfor('/Password:/');
-        $session->put($this->{_telnetPwd} . "\n");
-        $session->waitfor($session->prompt);
-    };
-
-    if ($@) {
-        $logger->error("ERROR: Can not connect to access point $this->{'_ip'} using telnet");
-        return 1;
-    }
-    #if (! $session->enable($this->{_telnetEnablePwd})) {
-    #    $logger->error("ERROR: Can not 'enable' telnet connection");
-    #    return 1;
-    #}
-    $logger->info("Deauthenticating mac $mac");
-    $session->cmd("config");
-    $session->cmd("client deauthenticate $mac");
-    $session->close();
 }
 
 sub isLearntTrapsEnabled {
