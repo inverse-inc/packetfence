@@ -52,8 +52,8 @@ sub violation_db_prepare {
   $violation_exist_open_sql=$dbh->prepare( qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where mac=? and vid=? and status="open" order by vid asc ]);
   $violation_exist_id_sql=$dbh->prepare( qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where id=? ]);
   #$violation_view_sql=$dbh->prepare( qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where mac=? order by start_date desc ]);
-  $violation_view_sql=$dbh->prepare( qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where id=? order by start_date desc ]);
-  $violation_view_all_sql=$dbh->prepare( qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation ]);
+  $violation_view_sql=$dbh->prepare( qq [ select violation.id,violation.mac,node.computername,violation.vid,violation.start_date,violation.release_date,violation.status,violation.ticket_ref,violation.notes from violation,node where violation.mac=node.mac and violation.id=? order by start_date desc ]);
+  $violation_view_all_sql=$dbh->prepare( qq [ select violation.id,violation.mac,node.computername,violation.vid,violation.start_date,violation.release_date,violation.status,violation.ticket_ref,violation.notes from violation,node where violation.mac=node.mac ]);
   $violation_view_open_sql=$dbh->prepare( qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where mac=? and status="open" order by start_date desc ]);
   $violation_view_open_desc_sql=$dbh->prepare( qq [ select v.start_date,c.description,v.vid,v.status from violation v inner join class c on v.vid=c.vid where v.mac=? and v.status="open" order by start_date desc ]);
   $violation_view_open_uniq_sql=$dbh->prepare( qq [ select mac from violation where status="open" group by mac ]);
