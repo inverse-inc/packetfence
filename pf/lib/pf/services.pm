@@ -533,7 +533,7 @@ sub read_violations_conf {
             my ($type,$tid)=split(/::/,$trigger);
             $type=lc($type);
             if (!grep(/^$type$/i, @valid_trigger_types)) {
-               $logger->warn("invalid trigger'$type' found at $violation");
+               $logger->warn("invalid trigger '$type' found at $violation");
                next;
             } 
             if ($tid=~/(\d+)-(\d+)/){
