@@ -229,6 +229,57 @@ sub isPortSecurityEnabled {
     return (exists($result->{"$OID_h3cSecurePortSecurityControl"}) && ($result->{"$OID_h3cSecurePortSecurityControl"} == 1) && exists($result->{"$OID_h3cSecurePortMode.$ifIndex"}) && ($result->{"$OID_h3cSecurePortMode.$ifIndex"} == 4) && exists($result->{"$OID_h3cSecureIntrusionAction.$ifIndex"}) && ($result->{"$OID_h3cSecureIntrusionAction.$ifIndex"} == 6));
 }
 
+sub authorizeMac {
+    my ($this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan) = @_;
+    my $logger = Log::Log4perl::get_logger("pf::SNMP::3COM::SS4500");
+    my $session = undef;
+
+    if (! $this->isProductionMode()) {
+        $logger->info("not in production mode ... we won't modify static MAC addresses");
+        return 1;
+    }
+
+    eval {
+        $session = new Net::Telnet(Host => $this->{_ip}, Timeout => 20);
+        #$session->dump_log();
+        $session->waitfor('/Username:/');
+        $session->print($this->{_telnetUser});
+        $session->waitfor('/Password:/');
+        $session->print($this->{_telnetPwd});
+        $session->waitfor('/>/');
+    };
+    if ($@) {
+        $logger->info("ERROR: Can not connect to switch $this->{'_ip'} using Telnet");
+        return 0;
+    }
+
+    my $ifDesc = $this->getIfDesc($ifIndex);
+    if ($deauthMac) {
+        $deauthMac =~ s/://g;
+        $deauthMac = substr($deauthMac,0,4) . '-' . substr($deauthMac,4,4) . '-' . substr($deauthMac, 8,4);
+        $session->print("system-view");
+        $session->waitfor('/\]/');
+        $session->print("interface $ifDesc");
+        $session->waitfor('/\]/');
+        $session->print("undo mac-address static $deauthMac vlan $deauthVlan");
+        $session->waitfor('/\]/');
+    }
+    if ($authMac) {
+        $authMac =~ s/://g;
+        $authMac = substr($authMac,0,4) . '-' . substr($authMac,4,4) . '-' . substr($authMac, 8,4);
+        $session->print("system-view");
+        $session->waitfor('/\]/');
+        $session->print("interface $ifDesc");
+        $session->waitfor('/\]/');
+        $session->print("mac-address static $authMac vlan $deauthVlan");
+        $session->waitfor('/\]/');
+    }
+
+    $session->close();
+    return 1;
+
+}
+
 1;
 
 # vim: set shiftwidth=4:
