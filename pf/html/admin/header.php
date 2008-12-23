@@ -22,6 +22,13 @@
 
 
   ## PFCMD STUFF ##
+
+  if(isset($_REQUEST['filter']) && (substr($_REQUEST['filter'],0,9) == 'category=')) {
+    header("Location: $abs_url/node/view.php?filter_type=category&view_item=" . substr($_REQUEST['filter'],9));
+    exit;
+  }
+
+
   if(isset($_POST['commit'])){
 
     if($_POST['action'] == "delete"){

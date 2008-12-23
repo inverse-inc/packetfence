@@ -5,9 +5,13 @@
 
   require_once('../common.php');
 
-  $view_item = set_default($_REQUEST['view_item'], 'all');
-
-  $my_table=new table("node view $view_item");
+  if (array_key_exists('filter_type', $_REQUEST)) {
+    $my_table=new table("node view " . $_REQUEST['filter_type'] . '=' . $_REQUEST['view_item']);
+    $my_table->set_default_filter($_REQUEST['filter_type'] . '=' . $_REQUEST['view_item']);
+  } else {
+    $view_item = set_default($_REQUEST['view_item'], 'all');
+    $my_table=new table("node view $view_item");
+  }
   $my_table->set_editable(true);
   $is_printable=true;
 

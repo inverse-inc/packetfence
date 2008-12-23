@@ -33,6 +33,19 @@ EOT
   exit;
 }
 
+sub help_nodecategory {
+  print STDERR << "EOT";
+Usage: pfcmd nodecategory view category
+
+manipulate nodecategories
+
+examples:
+  pfcmd nodecategory view all
+  pfcmd nodecategory view myCategory
+EOT
+  exit;
+}
+
 sub help_node {
   print STDERR << "EOT";
 Usage: pfcmd node <add|view|edit|delete> mac [assignments]

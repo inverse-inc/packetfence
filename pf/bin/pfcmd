@@ -109,7 +109,7 @@ my $parser=pfcmd_pregrammar->new();
 my $result = $parser->start(join " ",@ARGV);
 my $command = $cmd{'command'}[0];
 
-if ($command =~ /^(help|traplog|history|ipmachistory|locationhistoryswitch|locationhistorymac|ifoctetshistorymac|ifoctetshistoryswitch|ifoctetshistoryuser|report|ui|graph|switchlocation)$/i) {
+if ($command =~ /^(help|history|ipmachistory|locationhistoryswitch|locationhistorymac|ifoctetshistorymac|ifoctetshistoryswitch|ifoctetshistoryuser|report|ui|graph|switchlocation|nodecategory)$/i) {
   ($main::{${$cmd{'command'}}[0]} or sub { print "No such sub: $_\n" })->();
   exit 1;
 }
@@ -247,6 +247,22 @@ sub ifoctetshistoryuser {
     $params{'end_time'} = str2time($date_params{'end_time'});
   }
   exit(print_results("ifoctetslog_history_user", $user, %params));
+}
+
+sub nodecategory {
+  require pf::nodecategory;
+  import pf::nodecategory;
+  my $type = $cmd{'nodecategory_options'}[0];
+  my $cat = $cmd{'nodecategory_options'}[1];
+  if ($type eq 'view') {
+    if ($cat eq 'all') {
+      exit(print_results("nodecategory_view_all"));
+    } else {
+      exit(print_results("nodecategory_view", $cat));
+    }
+  } else {
+    exit(print_results("nodecategory_list", $cat));
+  }
 }
 
 sub switchlocation {
@@ -879,6 +895,10 @@ sub command_param {
   if ($option eq "view") {
     $function.="_view";
     $function.="_all" if ($id=~/^all/);
+    if (defined($cmd{'node_filter'})) {
+      $function.="_with_filter";
+      $id=$cmd{'node_filter'}[2];
+    }
     exit(print_results($function,$id));
     return(0);
   } elsif ($option eq "add"){

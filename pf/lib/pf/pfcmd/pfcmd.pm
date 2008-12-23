@@ -53,6 +53,7 @@ $grammar = q {
              | 'ipmachistory' addr date_range(?)
              | 'history' addr date(?) 
              | 'person' person_options 
+             | 'nodecategory' nodecategory_options 
              | 'node' node_options 
              | 'switchlocation' switchlocation_options
              | 'violation' violation_options 
@@ -86,7 +87,9 @@ $grammar = q {
 
    person_options : 'add' value person_edit_options(?)  | 'view' value | 'edit' value person_edit_options | 'delete' value
 
-   node_options : 'add' mac node_edit_options | 'view' mac | 'edit' mac node_edit_options | 'delete' mac
+   nodecategory_options : 'view' nodecategory_id
+
+   node_options : 'add' mac node_edit_options | 'view' (mac|node_filter) | 'edit' mac node_edit_options | 'delete' mac
    
    switchlocation_options : 'view' ipaddr number
 
@@ -106,11 +109,15 @@ $grammar = q {
 
    mac : 'all' | macaddr
 
+   node_filter : 'category' '=' value
+
    vid : 'all' | /[0-9]+/
 
    addr : ipaddr | macaddr
 
    ipaddr : /(\d{1,3}\.){3}\d{1,3}/
+
+   nodecategory_id : /[a-zA-Z]+/
 
    host_range : /(\d{1,3}\.){3}\d{1,3}[\/\-0-9]*/
 
@@ -195,6 +202,7 @@ locationhistorymac   	| Switch/Port history
 locationhistoryswitch 	| Switch/Port history
 lookup          	| node or pid lookup against local data store
 node            	| node manipulation
+nodecategory       	| nodecategory manipulation
 graph           	| trending graphs 
 person          	| person manipulation
 reload          	| rebuild fingerprint or violations tables without restart

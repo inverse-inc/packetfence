@@ -21,7 +21,7 @@ use threads;
 
 our ($install_dir, $bin_dir, $conf_dir, $lib_dir, $log_dir, %Default_Config, %Config, @listen_ints, @internal_nets, @routed_nets,
      $blackholemac, @managed_nets, @external_nets, @dhcplistener_ints, $monitor_int, $unreg_mark, $reg_mark, $black_mark, $portscan_sid, 
-     $default_config_file, $config_file, $dhcp_fingerprints_file, $default_pid, $fqdn, $oui_url, $dhcp_fingerprints_url,
+     $default_config_file, $config_file, $dhcp_fingerprints_file, $node_categories_file, $default_pid, $fqdn, $oui_url, $dhcp_fingerprints_url,
      $oui_file, @valid_trigger_types, $thread);
 
 BEGIN {
@@ -30,7 +30,7 @@ BEGIN {
   @ISA    = qw(Exporter);
   @EXPORT = qw($install_dir $bin_dir $conf_dir $lib_dir %Default_Config %Config @listen_ints @internal_nets @routed_nets
                $blackholemac @managed_nets @external_nets @dhcplistener_ints $monitor_int $unreg_mark $reg_mark $black_mark $portscan_sid
-               $default_config_file $config_file $dhcp_fingerprints_file $default_pid $fqdn $oui_url $dhcp_fingerprints_url
+               $default_config_file $config_file $dhcp_fingerprints_file $node_categories_file $default_pid $fqdn $oui_url $dhcp_fingerprints_url
                $oui_file @valid_trigger_types $thread)
 }
 
@@ -53,6 +53,7 @@ $config_file = $conf_dir."/pf.conf";
 $default_config_file = $conf_dir."/pf.conf.defaults";
 $dhcp_fingerprints_file = $conf_dir."/dhcp_fingerprints.conf";
 $oui_file = $conf_dir."/oui.txt";
+$node_categories_file = $conf_dir."/node_categories.conf";
 
 $oui_url = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
