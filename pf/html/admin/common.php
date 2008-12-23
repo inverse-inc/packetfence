@@ -243,7 +243,7 @@ if($sajax){
         }
       }
 
-      if (isset($filter) && $filter != "" && substr($filter, 0, 9) != 'category=')
+      if (isset($filter) && $filter != "" && substr($filter, 0, 9) != 'category=' && substr($filter, 0, 4) != 'pid=' )
         $this->rows=$this->tablefilter($filter); 
 
 

@@ -254,14 +254,10 @@ sub nodecategory {
   import pf::nodecategory;
   my $type = $cmd{'nodecategory_options'}[0];
   my $cat = $cmd{'nodecategory_options'}[1];
-  if ($type eq 'view') {
-    if ($cat eq 'all') {
-      exit(print_results("nodecategory_view_all"));
-    } else {
-      exit(print_results("nodecategory_view", $cat));
-    }
+  if ($cat eq 'all') {
+    exit(print_results("nodecategory_view_all"));
   } else {
-    exit(print_results("nodecategory_list", $cat));
+    exit(print_results("nodecategory_view", $cat));
   }
 }
 
@@ -897,7 +893,11 @@ sub command_param {
     $function.="_all" if ($id=~/^all/);
     if (defined($cmd{'node_filter'})) {
       $function.="_with_filter";
-      $id=$cmd{'node_filter'}[2];
+      $id=$cmd{'node_filter'}[0][0];
+      my %params;
+      $params{'value'}=$cmd{'node_filter'}[0][1];
+      exit(print_results($function,$id, %params));
+      return(0);
     }
     exit(print_results($function,$id));
     return(0);

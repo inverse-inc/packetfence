@@ -27,6 +27,10 @@
     header("Location: $abs_url/node/view.php?filter_type=category&view_item=" . substr($_REQUEST['filter'],9));
     exit;
   }
+  if(isset($_REQUEST['filter']) && (substr($_REQUEST['filter'],0,4) == 'pid=')) {
+    header("Location: $abs_url/node/view.php?filter_type=pid&view_item=" . substr($_REQUEST['filter'],4));
+    exit;
+  }
 
 
   if(isset($_POST['commit'])){

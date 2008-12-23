@@ -110,6 +110,9 @@ $grammar = q {
    mac : 'all' | macaddr
 
    node_filter : 'category' '=' value
+                {push @{$main::cmd{'node_filter'}}, ['category',$item{value}] } |
+                 'pid' '=' value
+                {push @{$main::cmd{'node_filter'}}, ['pid',$item{value}] }
 
    vid : 'all' | /[0-9]+/
 

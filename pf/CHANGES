@@ -117,6 +117,7 @@
         show open violations in Node - View
           (http://www.packetfence.org/mantis/view.php?id=501)
         added node categories
+        extended node view filters from categories to pid
 
 1.7.5
         pfsetvlan should check that MAC field is filled before

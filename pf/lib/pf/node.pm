@@ -197,14 +197,21 @@ sub node_view {
 }
 
 sub node_view_with_filter {
-  my ($cat) = @_;
-  require pf::nodecategory;
-  my @catArray = pf::nodecategory::nodecategory_view($cat);
+  my ($type, %params) = @_;
   my @data;
-  if (scalar(@catArray) == 1) {
+  if ($type eq 'category') {
+    require pf::nodecategory;
+    my $cat = $params{'value'};
+    my @catArray = pf::nodecategory::nodecategory_view($cat);
+    if (scalar(@catArray) == 1) {
       my $sqlWhere = $catArray[0]->{'sql'};
       my $sth = $dbh->prepare($node_view_with_filter_sql . " WHERE " . $sqlWhere);
       @data = db_data($sth);
+    }
+  } elsif ($type eq 'pid') {
+    my $pid = $params{'value'};
+    my $sth = $dbh->prepare($node_view_with_filter_sql . " WHERE node.pid='$pid'");
+    @data = db_data($sth);
   }
   return @data;
 }
