@@ -90,6 +90,8 @@ mv packetfence.mo conf/locale/nl/LC_MESSAGES/
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/rrd
 cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
+cp -r addons $RPM_BUILD_ROOT/usr/local/pf/
+cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r cgi-bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
 #pfdetect_remote
