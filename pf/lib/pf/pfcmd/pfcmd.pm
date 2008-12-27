@@ -45,7 +45,7 @@ $grammar = q {
              | 'switchlocation' 'view' ipaddr /\d+/ /$/
              | 'violation' violation_options /$/
              | 'class' 'view' vid /$/
-             | 'trigger' trigger_options /$/
+             | 'trigger' 'view' vid ('scan' | 'detect')(?) /$/
              | 'ui' 'menus' ui_options(?) /$/
              | 'ui' 'dashboard' ('recent_violations_opened' | 'recent_violations_closed' | 'recent_violations' | 'recent_registrations') (/\d+/)(?) /$/
              | 'ui' 'dashboard' ('current_grace' | 'current_activity' | 'current_node_status') /$/
@@ -87,8 +87,6 @@ $grammar = q {
    violation_options : 'add' violation_edit_options | 'view' vid | 'edit' vid violation_edit_options | 'delete' vid 
 
    schedule_options : 'view' vid | 'now' host_range edit_options(?) | 'add' host_range edit_options | 'edit' /\d+/ edit_options | 'delete' /\d+/
-
-   trigger_options : 'view' vid ('scan' | 'detect')(?)
 
    ui_options : 'file' '=' value
 

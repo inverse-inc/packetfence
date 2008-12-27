@@ -465,13 +465,13 @@ sub class {
 #
 sub trigger {
   my ($function,$id,%params);
-  $id = $cmd{trigger_options}[1];
-  if (defined $cmd{trigger_options}[2]){
+  $id = $cmd{command}[2];
+  if ((defined $cmd{command}[3]) && ($cmd{command}[3] ne '')) {
     if ($id=~/all/){
-      $id=$cmd{trigger_options}[2];
+      $id=$cmd{command}[3];
       $function="trigger_view_type";
      }else{
-      $params{'type'} = $cmd{trigger_options}[2];
+      $params{'type'} = $cmd{command}[3];
       $function="trigger_view";
      }
   }elsif ($id && $id!~/all/){
