@@ -261,9 +261,9 @@ sub nodecategory {
 sub switchlocation {
   require pf::switchlocation;
   import pf::switchlocation;
-  my $switch = $cmd{switchlocation_options}[1];
+  my $switch = $cmd{command}[2];
   my %params;
-  $params{'ifIndex'} = $cmd{switchlocation_options}[2];
+  $params{'ifIndex'} = $cmd{command}[3];
   exit(print_results("switchlocation_view_switchport", $switch, %params))
 }
 

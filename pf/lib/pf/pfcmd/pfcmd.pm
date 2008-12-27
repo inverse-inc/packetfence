@@ -42,7 +42,7 @@ $grammar = q {
              | 'node' node_options /$/
              | 'person' person_options /$/
              | 'nodecategory' 'view' /\w+/ /$/
-             | 'switchlocation' switchlocation_options /$/
+             | 'switchlocation' 'view' ipaddr /\d+/ /$/
              | 'violation' violation_options /$/
              | 'class' 'view' vid /$/
              | 'trigger' trigger_options /$/
@@ -84,8 +84,6 @@ $grammar = q {
 
    node_options : 'add' mac node_edit_options | 'count' (mac|node_filter) | 'view' (mac|node_filter) orderby_options(?) limit_options(?) | 'edit' macaddr node_edit_options | 'delete' macaddr
    
-   switchlocation_options : 'view' ipaddr /\d+/
-
    violation_options : 'add' violation_edit_options | 'view' vid | 'edit' vid violation_edit_options | 'delete' vid 
 
    schedule_options : 'view' vid | 'now' host_range edit_options(?) | 'add' host_range edit_options | 'edit' /\d+/ edit_options | 'delete' /\d+/
