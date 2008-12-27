@@ -167,8 +167,6 @@ $grammar = q {
    class_assignment : class_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{class_view_field},$item{value}] }
 
-   description : /[a-zA-Z_]+/
-
    columname : /[a-zA-Z_]+/
 
    value : '"' /[0-9a-zA-Z_\*\.\-\:_\;\@\ ]*/ '"' {$item[2]} | /[0-9a-zA-Z_\*\.\-\:_\;\@]+/
