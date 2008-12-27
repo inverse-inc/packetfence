@@ -176,7 +176,7 @@ if($sajax){
 		global $type;
 		$t = "<input type='hidden' name='type' value='".trim($type)."'>";
 	}
-        print "<form name='filter' action='/$current_top/$current_sub.php' method='POST'>\n";
+        print "<form name='filter' action='/$current_top/$current_sub.php' method='GET'>\n";
 	print $t;
         if (isset($this->default_filter) || (isset($filter) && $filter != '')) {
           if (!isset($filter) || $filter == '') {
