@@ -38,6 +38,9 @@
     if($key == $edit_info->key){
       continue;
     }
+    if($key == "nbopenviolations") {
+      continue;
+    }
 
     $pretty_key = pretty_header("$current_top-view", $key);
     if($key == 'status'){
