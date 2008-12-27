@@ -119,6 +119,7 @@
         added node categories
         extended node view filters from categories to pid
         added node view limit clause
+        added node view order by clause
 
 1.7.5
         pfsetvlan should check that MAC field is filled before

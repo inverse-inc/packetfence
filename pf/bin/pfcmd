@@ -891,21 +891,27 @@ sub command_param {
   if ($option eq "view") {
     $function.="_view";
     $function.="_all" if ($id=~/^all/);
+    my %params;
+    #use Data::Dumper;
+    #print Dumper(%cmd);
+    if (defined($cmd{'orderby_options'})) {
+      $params{'orderby'} = 'order by ' . $cmd{'orderby_options'}[2];
+      print "scalar is " . scalar(@{$cmd{'orderby_options'}}) . "\n";
+      if (scalar(@{$cmd{'orderby_options'}}) == 4) {
+        $params{'orderby'} .= " " . $cmd{'orderby_options'}[3];
+      }
+    }
     if (defined($cmd{'limit_options'})) {
-      my %params;
       $params{'limit'} = 'limit ' . $cmd{'limit_options'}[1] . ',' . $cmd{'limit_options'}[3];
-      exit(print_results($function,$id, %params));
-      return(0);
     }
     if (defined($cmd{'node_filter'})) {
       $function.="_with_filter";
       $id=$cmd{'node_filter'}[0][0];
-      my %params;
       $params{'value'}=$cmd{'node_filter'}[0][1];
       exit(print_results($function,$id, %params));
       return(0);
     }
-    exit(print_results($function,$id));
+    exit(print_results($function,$id, %params));
     return(0);
   } elsif ($option eq "add"){
     $function.="_add"; 

@@ -219,9 +219,13 @@ sub node_view_with_filter {
 sub node_view_all {
   node_db_prepare($dbh) if (! $is_node_db_prepared);
   my ($id, %params) = @_;
+  if (defined($params{'orderby'})) {
+    $node_view_all_sql .= " " . $params{'orderby'};
+  }
   if (defined($params{'limit'})) {
     $node_view_all_sql .= " " . $params{'limit'};
   }
+  #print $node_view_all_sql . "\n";
   my $node_view_all_sth = $dbh->prepare($node_view_all_sql);
   return db_data($node_view_all_sth);
 }

@@ -89,7 +89,7 @@ $grammar = q {
 
    nodecategory_options : 'view' nodecategory_id
 
-   node_options : 'add' mac node_edit_options | 'view' (mac|node_filter) limit_options(?) | 'edit' mac node_edit_options | 'delete' mac
+   node_options : 'add' mac node_edit_options | 'view' (mac|node_filter) orderby_options(?) limit_options(?) | 'edit' mac node_edit_options | 'delete' mac
    
    switchlocation_options : 'view' ipaddr number
 
@@ -115,6 +115,8 @@ $grammar = q {
                 {push @{$main::cmd{'node_filter'}}, ['pid',$item{value}] }
 
    limit_options : 'limit' /[0-9]+/ ',' /[0-9]+/
+
+   orderby_options : 'order' 'by' node_view_field ('asc' | 'desc')(?)
    
    vid : 'all' | /[0-9]+/
 
