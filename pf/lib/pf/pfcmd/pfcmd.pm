@@ -53,7 +53,7 @@ $grammar = q {
              | 'config' ('get' | 'set' | 'help') /.+/ /$/
              | 'lookup' ('person' | 'node') value /$/
              | 'version' config_value(?) /$/
-             | 'reload' reload_options /$/
+             | 'reload' ('fingerprints' | 'violations') /$/
              | 'update' update_options /$/
              | 'manage' manage_options /$/
              | 'help' config_value /$/
@@ -81,8 +81,6 @@ $grammar = q {
    dashboard_options : 'recent_violations_opened' | 'recent_violations_closed' | 'current_grace' | 'recent_violations' | 'recent_registrations' | 'current_activity' | 'current_node_status'
 
    update_options : 'fingerprints' | 'oui'
-
-   reload_options : 'fingerprints' | 'violations'
 
    person_options : 'add' value person_edit_options(?)  | 'view' value | 'edit' value person_edit_options | 'delete' value
 
