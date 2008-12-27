@@ -50,7 +50,7 @@ $grammar = q {
              | 'ui' 'dashboard' dashboard_options vid(?) /$/
              | 'report' ('inactive' | 'active') 
              | 'report' ('unregistered' | 'registered' | 'osclass' | 'os' | 'unknownprints' | 'openviolations' | 'statics') ('all' | 'active')(?) /$/
-             | 'fingerprint' fingerprint_options /$/
+             | 'fingerprint' 'view' ('all' | /\d+(,\d+)*/) /$/
              | 'config' ('get' | 'set' | 'help') /.+/ /$/
              | 'lookup' ('person' | 'node') value /$/
              | 'version' /$/
@@ -92,8 +92,6 @@ $grammar = q {
    schedule_options : 'view' vid | 'now' host_range edit_options(?) | 'add' host_range edit_options | 'edit' number edit_options | 'delete' number
 
    trigger_options : 'view' vid ('scan' | 'detect')(?)
-
-   fingerprint_options : 'view' ('all' | /\d+(,\d+)*/)
 
    ui_options : 'file' '=' value
 

@@ -485,7 +485,7 @@ sub trigger {
 #
 sub fingerprint {
   my ($function,$id);
-  $id = $cmd{fingerprint_options}[1];
+  $id = $cmd{command}[2];
   if ($id && $id!~/all/){ 
     $function="dhcp_fingerprint_view";
   }else{                
