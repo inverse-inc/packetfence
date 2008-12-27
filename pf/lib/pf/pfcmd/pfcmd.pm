@@ -69,8 +69,8 @@ $grammar = q {
              | 'ifoctetshistoryswitch' ipaddr /\d+/ date_range(?) /$/
              | 'ifoctetshistorymac' macaddr date_range(?) /$/
              | 'ifoctetshistoryuser' value date_range(?) /$/
-             | 'ipmachistory' addr date_range(?) /$/
-             | 'history' addr date(?) /$/
+             | 'ipmachistory' (ipaddr|macaddr) date_range(?) /$/
+             | 'history' (ipaddr|macaddr) date(?) /$/
              | {main::usage()}
 
    service_options : ('pfmon' | 'pfdhcplistener' | 'pfdetect' | 'pfredirect' | 'snort' | 'httpd' | 'pfsetvlan' | 'snmptrapd' | 'pf') ('stop' | 'start' | 'restart' | 'status' | 'watch')
@@ -104,8 +104,6 @@ $grammar = q {
    orderby_options : 'order' 'by' node_view_field ('asc' | 'desc')(?)
    
    vid : 'all' | /\d+/
-
-   addr : ipaddr | macaddr
 
    ipaddr : /(\d{1,3}\.){3}\d{1,3}/
 
