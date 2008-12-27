@@ -123,7 +123,7 @@ $grammar = q {
 
    ipaddr : /(\d{1,3}\.){3}\d{1,3}/
 
-   nodecategory_id : /[a-zA-Z]+/
+   nodecategory_id : /[a-z]+/i
 
    host_range : /(\d{1,3}\.){3}\d{1,3}[\/\-0-9]*/
 
@@ -167,7 +167,7 @@ $grammar = q {
    class_assignment : class_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{class_view_field},$item{value}] }
 
-   columname : /[a-zA-Z_]+/
+   columname : /[a-z_]+/i
 
    value : '"' /[0-9a-zA-Z_\*\.\-\:_\;\@\ ]*/ '"' {$item[2]} | /[0-9a-zA-Z_\*\.\-\:_\;\@]+/
 
