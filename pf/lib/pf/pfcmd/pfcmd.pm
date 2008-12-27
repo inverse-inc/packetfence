@@ -52,7 +52,7 @@ $grammar = q {
              | 'fingerprint' fingerprint_options /$/
              | 'config' ('get' | 'set' | 'help') /.+/ /$/
              | 'lookup' ('person' | 'node') value /$/
-             | 'version' config_value(?) /$/
+             | 'version' /$/
              | 'reload' ('fingerprints' | 'violations') /$/
              | 'update' update_options /$/
              | 'manage' manage_options /$/
