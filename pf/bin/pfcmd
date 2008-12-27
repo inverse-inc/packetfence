@@ -896,7 +896,6 @@ sub command_param {
     #print Dumper(%cmd);
     if (defined($cmd{'orderby_options'})) {
       $params{'orderby'} = 'order by ' . $cmd{'orderby_options'}[2];
-      print "scalar is " . scalar(@{$cmd{'orderby_options'}}) . "\n";
       if (scalar(@{$cmd{'orderby_options'}}) == 4) {
         $params{'orderby'} .= " " . $cmd{'orderby_options'}[3];
       }
@@ -905,11 +904,9 @@ sub command_param {
       $params{'limit'} = 'limit ' . $cmd{'limit_options'}[1] . ',' . $cmd{'limit_options'}[3];
     }
     if (defined($cmd{'node_filter'})) {
-      $function.="_with_filter";
-      $id=$cmd{'node_filter'}[0][0];
-      $params{'value'}=$cmd{'node_filter'}[0][1];
-      exit(print_results($function,$id, %params));
-      return(0);
+      $function.="_all";
+      $params{'where'}{'type'}=$cmd{'node_filter'}[0][0];
+      $params{'where'}{'value'}=$cmd{'node_filter'}[0][1];
     }
     exit(print_results($function,$id, %params));
     return(0);

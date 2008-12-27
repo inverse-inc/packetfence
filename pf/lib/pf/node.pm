@@ -17,7 +17,7 @@ use Log::Log4perl::Level;
 use Net::MAC;
 
 our ($node_modify_sql, $node_exist_sql, $node_pid_sql, $node_delete_sql, $node_add_sql, $node_regdate_sql,
-     $node_view_sql, $node_view_with_filter_sql, $node_view_all_sql, $node_view_with_fingerprint_sql, $node_ungrace_sql, $node_expire_window_sql, $node_expire_deadline_sql, $node_expire_unreg_field_sql,
+     $node_view_sql, $node_view_all_sql, $node_view_with_fingerprint_sql, $node_ungrace_sql, $node_expire_window_sql, $node_expire_deadline_sql, $node_expire_unreg_field_sql,
      $node_expire_session_sql, $node_expire_lastarp_sql, $node_unregistered_sql, $nodes_unregistered_sql,
      $node_update_lastarp_sql, $nodes_active_unregistered_sql, $nodes_registered_sql, $nodes_registered_not_violators_sql,
      $nodes_active_sql, $node_cleanup_sql, $is_node_db_prepared);
@@ -26,7 +26,7 @@ BEGIN {
   use Exporter ();
   our (@ISA, @EXPORT);
   @ISA    = qw(Exporter);
-  @EXPORT = qw(node_db_prepare node_exist node_pid node_delete node_add node_add_simple node_view node_view_all node_view_with_filter node_view_with_fingerprint
+  @EXPORT = qw(node_db_prepare node_exist node_pid node_delete node_add node_add_simple node_view node_view_all node_view_with_fingerprint
                node_modify node_register_auto node_register node_deregister nodes_maintenance node_unregistered
                nodes_unregistered nodes_registered nodes_registered_not_violators nodes_active_unregistered
                node_expire_lastarp node_cleanup node_update_lastarp);
@@ -58,7 +58,6 @@ sub node_db_prepare {
   $node_view_sql=$dbh->prepare( qq[ select node.mac,node.pid,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,ifnull(openviolations.nb,0) as nbopenviolations from node left join (select violation.mac,count(*) as nb from violation where status='open' group by violation.mac) as openviolations on node.mac=openviolations.mac where node.mac=? ]);
   $node_view_with_fingerprint_sql=$dbh->prepare( qq[ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,ifnull(os_class.description, ' ') as dhcp_fingerprint,switch,port,vlan from node left join dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id where mac=? ]);
   $node_view_all_sql="select node.mac,node.pid,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,ifnull(openviolations.nb,0) as nbopenviolations from node left join (select violation.mac,count(*) as nb from violation where status='open' group by violation.mac) as openviolations on node.mac=openviolations.mac";
-  $node_view_with_filter_sql="select node.mac,node.pid,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,ifnull(openviolations.nb,0) as nbopenviolations from node left join (select violation.mac,count(*) as nb from violation where status='open' group by violation.mac) as openviolations on node.mac=openviolations.mac";
   $node_ungrace_sql=$dbh->prepare( qq [ update node set status="unreg" where status="grace" and unix_timestamp(now())-unix_timestamp(lastskip) > ] . $Config{'registration'}{'skip_reminder'} );
   $node_expire_unreg_field_sql=$dbh->prepare( qq [ update node set status="unreg" where status="reg" and unregdate != 0 and unregdate < now() ]);
   $node_expire_window_sql=$dbh->prepare(  qq [ update node set status="unreg" where status="reg" and unix_timestamp(regdate) + ] . $Config{'registration'}{'expire_window'} . qq[ < unix_timestamp(now()) ]);
@@ -196,29 +195,22 @@ sub node_view {
   return($ref);
 }
 
-sub node_view_with_filter {
-  my ($type, %params) = @_;
-  my @data;
-  if ($type eq 'category') {
-    require pf::nodecategory;
-    my $cat = $params{'value'};
-    my @catArray = pf::nodecategory::nodecategory_view($cat);
-    if (scalar(@catArray) == 1) {
-      my $sqlWhere = $catArray[0]->{'sql'};
-      my $sth = $dbh->prepare($node_view_with_filter_sql . " WHERE " . $sqlWhere);
-      @data = db_data($sth);
-    }
-  } elsif ($type eq 'pid') {
-    my $pid = $params{'value'};
-    my $sth = $dbh->prepare($node_view_with_filter_sql . " WHERE node.pid='$pid'");
-    @data = db_data($sth);
-  }
-  return @data;
-}
-
 sub node_view_all {
   node_db_prepare($dbh) if (! $is_node_db_prepared);
   my ($id, %params) = @_;
+  if (defined($params{'where'})) {
+    if ($params{'where'}{'type'} eq 'pid') {
+      $node_view_all_sql .= " WHERE node.pid='" . $params{'where'}{'value'} . "'";
+    } elsif ($params{'where'}{'type'} eq 'category') {
+      require pf::nodecategory;
+      my $cat = $params{'where'}{'value'};
+      my @catArray = pf::nodecategory::nodecategory_view($cat);
+      if (scalar(@catArray) == 1) {
+        my $sqlWhere = $catArray[0]->{'sql'};
+        $node_view_all_sql .= " WHERE " . $sqlWhere;
+      }
+    }
+  }
   if (defined($params{'orderby'})) {
     $node_view_all_sql .= " " . $params{'orderby'};
   }
