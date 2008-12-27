@@ -89,7 +89,7 @@ $grammar = q {
 
    nodecategory_options : 'view' nodecategory_id
 
-   node_options : 'add' mac node_edit_options | 'view' (mac|node_filter) orderby_options(?) limit_options(?) | 'edit' mac node_edit_options | 'delete' mac
+   node_options : 'add' mac node_edit_options | 'count' (mac|node_filter) | 'view' (mac|node_filter) orderby_options(?) limit_options(?) | 'edit' mac node_edit_options | 'delete' mac
    
    switchlocation_options : 'view' ipaddr number
 

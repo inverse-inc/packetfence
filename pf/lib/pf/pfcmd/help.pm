@@ -48,12 +48,15 @@ EOT
 
 sub help_node {
   print STDERR << "EOT";
-Usage: pfcmd node <add|view|edit|delete> mac [assignments]
+Usage: pfcmd node <add|count|view|edit|delete> mac [assignments]
 
 manipulate node entries
 
 examples:
-  pfcmd node view all   
+  pfcmd node view all
+  pfcmd node view all order by pid limit 10,20
+  pfcmd node view pid=1 order by pid desc limit 10,20
+  pfcmd node count all
   pfcmd node add 00:01:02:03:04:05 status="reg",pid=1
   pfcmd node delete 00:01:02:03:04:05 
 EOT
