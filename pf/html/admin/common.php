@@ -24,6 +24,8 @@ if($sajax){
     var $default_sort_direction;
     var $is_hidden;
     var $key;
+    var $result_count;
+    var $sql_sort_and_limit;
 
     function set_linkable($links){
       foreach($links as $link)
@@ -64,9 +66,17 @@ if($sajax){
       $this->per_page=$per_page;
     }
 
+    function set_result_count($count) {
+      $this->result_count=$count;
+    }
+
    function set_default_sort($header,$direction="DESC"){
       $this->default_sort_header=$header;
       $this->default_sort_direction=$direction;
+   }
+
+   function set_sql_sort_and_limit($sql) {
+      $this->sql_sort_and_limit = $sql;
    }
 
    function set_default_filter($filter){
@@ -116,6 +126,8 @@ if($sajax){
       $this->create_cmd=$command;
       $this->headers=explode("|", $content[0]);      
       $this->get_key();
+      $this->result_count = -1;
+      $this->sql_sort_and_limit = false;
 
       for($i=1; $i<=count($content); $i++){
         if(isset($content[$i]) && $content[$i]!=""){
@@ -333,6 +345,7 @@ if($sajax){
         print "    <td></td>\n"; 
       print "  </tr>\n";
        
+    if(!$this->sql_sort_and_limit) {
       if (isset($this->default_sort_header) || (isset($sort) && $sort != '')) {
         if (!isset($sort) || $sort == '') {
           $sort = $this->default_sort_header;
@@ -345,6 +358,7 @@ if($sajax){
         if($direction=="DESC")
           array_multisort($sortarray, SORT_DESC, $this->rows);
       }
+    }
  
   ## SET PAGE DEFAULTS ##
   if(!$this->per_page)
@@ -352,8 +366,12 @@ if($sajax){
 
   if(!$this->page_num)
 	  $this->page_num=1;
-	
-  $start=($this->page_num - 1)*$this->per_page;
+
+  if(!$this->sql_sort_and_limit) {
+      $start=($this->page_num - 1)*$this->per_page;
+  } else {
+      $start=0;
+  }
   $stop=$start+$this->per_page-1;
 
   for($i=$start; $i<=$stop; $i++){
@@ -458,8 +476,11 @@ if($sajax){
       print "</table>\n";
     
       if(!$with_add){
-        count($this->rows) == 1 ? $word='result' : $word='results';
-        print "<div id='result_count'>(".count($this->rows)." $word)</div>\n";
+        if ($this->result_count == -1) {
+          $this->result_count = count($this->rows);
+        }
+        $this->result_count == 1 ? $word='result' : $word='results';
+        print "<div id='result_count'>(".$this->result_count." $word)</div>\n";
       } 
 
    }  // End tableprint
@@ -476,8 +497,11 @@ if($sajax){
 
       $xtra_args = build_args($get_args);
 
+      if ($this->result_count == -1) {
+        $this->result_count = count($this->rows);
+      }
       if($this->per_page)
-        $num_pages=ceil(count($this->rows)/$this->per_page);
+        $num_pages=ceil($this->result_count/$this->per_page);
       $next_page=$this->page_num+1;
       $last_page=$this->page_num-1;
 	
@@ -514,7 +538,7 @@ if($sajax){
       
       if($this->per_page!=1001){   		# Because of report/history bug
         for($a=1; $a<=count($per_pages); $a++){
-          if(count($this->rows)>$per_pages[$a-1]){
+          if($this->result_count>$per_pages[$a-1]){
     	    if($this->per_page==$per_pages[$a])
               print "<a class='active' href='$current_top/$current_sub.php?sort=$sort&amp;direction=$direction&amp;per_page=$per_pages[$a]&amp;filter=" . urlencode($filter) . "&$xtra_args'>$per_pages[$a] </a>";
 	    else   

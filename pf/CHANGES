@@ -125,6 +125,8 @@
           (http://packetfence.org/mantis/view.php?id=504)
         change filter in web admin gui from POST to GET
           (http://packetfence.org/mantis/view.php?id=505)
+        adapted web admin GUI to take advantage of new node
+          SQL filters, order by and limit clauses
 
 1.7.5
         pfsetvlan should check that MAC field is filled before
