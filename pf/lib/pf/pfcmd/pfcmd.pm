@@ -82,7 +82,7 @@ $grammar = q {
 
    person_options : 'add' value person_edit_options(?)  | 'view' value | 'edit' value person_edit_options | 'delete' value
 
-   node_options : 'add' mac node_edit_options | 'count' (mac|node_filter) | 'view' (mac|node_filter) orderby_options(?) limit_options(?) | 'edit' mac node_edit_options | 'delete' mac
+   node_options : 'add' mac node_edit_options | 'count' (mac|node_filter) | 'view' (mac|node_filter) orderby_options(?) limit_options(?) | 'edit' macaddr node_edit_options | 'delete' macaddr
    
    switchlocation_options : 'view' ipaddr /\d+/
 
@@ -113,12 +113,12 @@ $grammar = q {
 
    macaddr : /(([0-9a-f]{2}[-:]){5}[0-9a-f]{2})|(([0-9a-f]{4}\.){2}[0-9a-f]{4})/i
 
-   edit_options : <leftop: assignment ',' assignment>
-
    date_range : 'start_time' '=' date ',' 'end_time' '=' date
                 {push @{$main::cmd{$item[0]}}, [$item[1],$item[3],$item[2]], [$item[5],$item[7],$item[6]] }
 
    date : /[^,=]+/
+
+   edit_options : <leftop: assignment ',' assignment>
 
    person_edit_options : <leftop: person_assignment ',' person_assignment>
 
