@@ -48,7 +48,8 @@ $grammar = q {
              | 'trigger' trigger_options /$/
              | 'ui' 'menus' ui_options(?) /$/
              | 'ui' 'dashboard' dashboard_options vid(?) /$/
-             | 'report' ('unregistered' | 'registered' | 'inactive' | 'active' | 'osclass' | 'os' | 'unknownprints' | 'openviolations' | 'statics') report_options(?) /$/
+             | 'report' ('inactive' | 'active') 
+             | 'report' ('unregistered' | 'registered' | 'osclass' | 'os' | 'unknownprints' | 'openviolations' | 'statics') ('all' | 'active')(?) /$/
              | 'fingerprint' fingerprint_options /$/
              | 'config' ('get' | 'set' | 'help') /.+/ /$/
              | 'lookup' ('person' | 'node') value /$/
@@ -125,8 +126,6 @@ $grammar = q {
 
    number : /\d+/
  
-   report_options : 'all' | 'active'
-
    edit_options : <leftop: assignment ',' assignment>
 
    date_range : 'start_time' '=' date ',' 'end_time' '=' date

@@ -127,6 +127,8 @@
           (http://packetfence.org/mantis/view.php?id=505)
         adapted web admin GUI to take advantage of new node
           SQL filters, order by and limit clauses
+        pfcmd report and grammar issues
+          (http://packetfence.org/mantis/view.php?id=506)
 
 1.7.5
         pfsetvlan should check that MAC field is filled before
