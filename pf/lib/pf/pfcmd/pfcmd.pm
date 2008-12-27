@@ -76,7 +76,7 @@ $grammar = q {
 
    traplog_options: 'most' number ('day' | 'week' | 'total')
 
-   manage_options : ('freemac'|'deregister'|'vclose'|'vopen') macaddr value(?) | 'register' macaddr value edit_options(?)
+   manage_options : ('freemac' | 'deregister') macaddr | ('vclose'|'vopen') macaddr number | 'register' macaddr value edit_options(?)
 
    dashboard_options : 'recent_violations_opened' | 'recent_violations_closed' | 'current_grace' | 'recent_violations' | 'recent_registrations' | 'current_activity' | 'current_node_status'
 
