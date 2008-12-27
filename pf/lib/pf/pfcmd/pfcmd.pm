@@ -60,13 +60,13 @@ $grammar = q {
              | 'help' /.+/ /$/
              | 'graph' ('unregistered' | 'registered' | 'violations' | 'nodes') ('day'|'month'|'year')(?)/$/
              | 'graph' 'ifoctetshistoryswitch' ipaddr number date_range /$/
-             | 'graph' 'ifoctetshistorymac' mac date_range /$/
+             | 'graph' 'ifoctetshistorymac' macaddr date_range /$/
              | 'graph' 'ifoctetshistoryuser' value date_range /$/
              | 'schedule' schedule_options /$/
              | 'locationhistoryswitch' ipaddr number date(?) /$/
-             | 'locationhistorymac' mac date(?) /$/
+             | 'locationhistorymac' macaddr date(?) /$/
              | 'ifoctetshistoryswitch' ipaddr number date_range(?) /$/
-             | 'ifoctetshistorymac' mac date_range(?) /$/
+             | 'ifoctetshistorymac' macaddr date_range(?) /$/
              | 'ifoctetshistoryuser' value date_range(?) /$/
              | 'ipmachistory' addr date_range(?) /$/
              | 'history' addr date(?) /$/
