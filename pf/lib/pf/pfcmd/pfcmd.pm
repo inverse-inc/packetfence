@@ -37,6 +37,7 @@ $::RD_AUTOACTION = q {
 
 $grammar = q {
    start : command eofile
+           { }
 
    command :   'service' service_options /$/
              | 'node' node_options /$/
