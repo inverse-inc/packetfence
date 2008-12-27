@@ -72,8 +72,8 @@ $grammar = q {
              | 'history' addr date(?) /$/
              | {main::usage()}
 
-   service_options : service ('stop' | 'start' | 'restart' | 'status' | 'watch')
-                    {[$item{service},$item[2]]}
+   service_options : ('pfmon' | 'pfdhcplistener' | 'pfdetect' | 'pfredirect' | 'snort' | 'httpd' | 'pfsetvlan' | 'snmptrapd' | 'pf') ('stop' | 'start' | 'restart' | 'status' | 'watch')
+                    {[$item[1],$item[2]]}
 
    traplog_options: 'most' number ('day' | 'week' | 'total')
 
@@ -94,8 +94,6 @@ $grammar = q {
    trigger_options : 'view' vid ('scan' | 'detect')(?)
 
    ui_options : 'file' '=' value
-
-   service : 'pfmon' | 'pfdhcplistener' | 'pfdetect' | 'pfredirect' | 'snort' | 'httpd' | 'pfsetvlan' | 'snmptrapd' | 'pf'
 
    mac : 'all' | macaddr
 
