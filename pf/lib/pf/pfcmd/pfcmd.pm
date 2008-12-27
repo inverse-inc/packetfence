@@ -39,22 +39,9 @@ $grammar = q {
    start : command eofile
 
    command :   'service' service_options /$/
-             | 'graph' (/registered\b/ | /unregistered\b/ | /violations\b/ | /nodes\b/) ('day'|'month'|'year')(?)/$/
-             | 'graph' 'ifoctetshistoryswitch' ipaddr number date_range /$/
-             | 'graph' 'ifoctetshistorymac' mac date_range /$/
-             | 'graph' 'ifoctetshistoryuser' value date_range /$/
-             | 'schedule' schedule_options /$/
-             | 'traplog' ('update' | traplog_options) /$/             
-             | 'locationhistoryswitch' ipaddr number date(?) /$/
-             | 'locationhistorymac' mac date(?) /$/
-             | 'ifoctetshistoryswitch' ipaddr number date_range(?) /$/
-             | 'ifoctetshistorymac' mac date_range(?) /$/
-             | 'ifoctetshistoryuser' value date_range(?) /$/
-             | 'ipmachistory' addr date_range(?) /$/
-             | 'history' addr date(?) /$/
+             | 'node' node_options /$/
              | 'person' person_options /$/
              | 'nodecategory' nodecategory_options /$/
-             | 'node' node_options /$/
              | 'switchlocation' switchlocation_options /$/
              | 'violation' violation_options /$/
              | 'class' class_options /$/
@@ -70,6 +57,18 @@ $grammar = q {
              | 'update' update_options /$/
              | 'manage' manage_options /$/
              | 'help' config_value /$/
+             | 'graph' (/registered\b/ | /unregistered\b/ | /violations\b/ | /nodes\b/) ('day'|'month'|'year')(?)/$/
+             | 'graph' 'ifoctetshistoryswitch' ipaddr number date_range /$/
+             | 'graph' 'ifoctetshistorymac' mac date_range /$/
+             | 'graph' 'ifoctetshistoryuser' value date_range /$/
+             | 'schedule' schedule_options /$/
+             | 'locationhistoryswitch' ipaddr number date(?) /$/
+             | 'locationhistorymac' mac date(?) /$/
+             | 'ifoctetshistoryswitch' ipaddr number date_range(?) /$/
+             | 'ifoctetshistorymac' mac date_range(?) /$/
+             | 'ifoctetshistoryuser' value date_range(?) /$/
+             | 'ipmachistory' addr date_range(?) /$/
+             | 'history' addr date(?) /$/
              | {main::usage()}
 
    service_options : service ('stop' | 'start' | 'restart' | 'status' | 'watch')
