@@ -57,7 +57,7 @@ $grammar = q {
              | 'reload' ('fingerprints' | 'violations') /$/
              | 'update' ('fingerprints' | 'oui') /$/
              | 'manage' manage_options /$/
-             | 'help' config_value /$/
+             | 'help' /.+/ /$/
              | 'graph' ('unregistered' | 'registered' | 'violations' | 'nodes') ('day'|'month'|'year')(?)/$/
              | 'graph' 'ifoctetshistoryswitch' ipaddr number date_range /$/
              | 'graph' 'ifoctetshistorymac' mac date_range /$/
@@ -133,8 +133,6 @@ $grammar = q {
 
    date : /[^,=]+/
 
-   config_value : /.+/
-   
    person_edit_options : <leftop: person_assignment ',' person_assignment>
 
    node_edit_options : <leftop: node_assignment ',' node_assignment>
