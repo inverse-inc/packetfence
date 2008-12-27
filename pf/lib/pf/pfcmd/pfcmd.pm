@@ -84,7 +84,7 @@ $grammar = q {
 
    node_options : 'add' mac node_edit_options | 'count' (mac|node_filter) | 'view' (mac|node_filter) orderby_options(?) limit_options(?) | 'edit' macaddr node_edit_options | 'delete' macaddr
    
-   violation_options : 'add' violation_edit_options | 'view' vid | 'edit' vid violation_edit_options | 'delete' vid 
+   violation_options : 'add' violation_edit_options | 'view' vid | 'edit' /\d+/ violation_edit_options | 'delete' /\d+/ 
 
    schedule_options : 'view' vid | 'now' host_range edit_options(?) | 'add' host_range edit_options | 'edit' /\d+/ edit_options | 'delete' /\d+/
 
