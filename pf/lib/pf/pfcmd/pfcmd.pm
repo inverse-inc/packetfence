@@ -142,9 +142,6 @@ $grammar = q {
    violation_assignment : violation_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{violation_view_field},$item{value}] }
 
-   class_assignment : class_view_field '=' value
-                {push @{$main::cmd{$item[0]}}, [$item{class_view_field},$item{value}] }
-
    columname : /[a-z_]+/i
 
    value : '"' /[0-9a-zA-Z_\*\.\-\:_\;\@\ ]*/ '"' {$item[2]} | /[0-9a-zA-Z_\*\.\-\:_\;\@]+/
