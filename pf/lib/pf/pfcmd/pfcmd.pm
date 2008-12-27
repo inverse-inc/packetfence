@@ -152,8 +152,6 @@ $grammar = q {
 
    violation_view_field :  'id' | 'mac' | 'vid' | 'start_date' | 'release_date' | 'status' | 'notes'
 
-   class_view_field :  'vid' | 'description' | 'auto_enable' | 'max_enables' | 'grace_period' | 'priority' | 'url' | 'max_enable_url' | 'redirect_url' | 'button_text' | 'disable'
-
    eofile: /^\Z/
 };
 
