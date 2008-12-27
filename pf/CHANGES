@@ -121,6 +121,8 @@
         added node view limit clause
         added node view order by clause
         added node count
+        pfcmd grammar allowed trailing, unmatched characters
+          (http://packetfence.org/mantis/view.php?id=504)
 
 1.7.5
         pfsetvlan should check that MAC field is filled before

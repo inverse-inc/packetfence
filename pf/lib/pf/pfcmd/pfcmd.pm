@@ -38,38 +38,38 @@ $::RD_AUTOACTION = q {
 $grammar = q {
    start : command eofile
 
-   command :   'service' service_options 
-             | 'graph' (/registered\b/ | /unregistered\b/ | /violations\b/ | /nodes\b/) ('day'|'month'|'year')(?) 
-             | 'graph' 'ifoctetshistoryswitch' ipaddr number date_range
-             | 'graph' 'ifoctetshistorymac' mac date_range
-             | 'graph' 'ifoctetshistoryuser' value date_range
-             | 'schedule' schedule_options 
-             | 'traplog' ('update' | traplog_options)
-             | 'locationhistoryswitch' ipaddr number date(?)
-             | 'locationhistorymac' mac date(?)
-             | 'ifoctetshistoryswitch' ipaddr number date_range(?)
-             | 'ifoctetshistorymac' mac date_range(?)
-             | 'ifoctetshistoryuser' value date_range(?)
-             | 'ipmachistory' addr date_range(?)
-             | 'history' addr date(?) 
-             | 'person' person_options 
-             | 'nodecategory' nodecategory_options 
-             | 'node' node_options 
-             | 'switchlocation' switchlocation_options
-             | 'violation' violation_options 
-             | 'class' class_options 
-             | 'trigger' trigger_options 
-             | 'ui' 'menus' ui_options(?)
-             | 'ui' 'dashboard' dashboard_options vid(?)
-             | 'report' (/unregistered\b/ | /registered\b/ | /active\b/ | /inactive\b/ | /os\b/ | /osclass\b/ | /unknownprints\b/ | /openviolations\b/ | /statics\b/) report_options(?)
-             | 'fingerprint' fingerprint_options 
-             | 'config' ('get' | 'set' | 'help') /.+/
-             | 'lookup' ('person' | 'node') value 
-             | 'version' config_value(?) 
-             | 'reload' reload_options
-             | 'update' update_options
-             | 'manage' manage_options
-             | 'help' config_value
+   command :   'service' service_options /$/
+             | 'graph' (/registered\b/ | /unregistered\b/ | /violations\b/ | /nodes\b/) ('day'|'month'|'year')(?)/$/
+             | 'graph' 'ifoctetshistoryswitch' ipaddr number date_range /$/
+             | 'graph' 'ifoctetshistorymac' mac date_range /$/
+             | 'graph' 'ifoctetshistoryuser' value date_range /$/
+             | 'schedule' schedule_options /$/
+             | 'traplog' ('update' | traplog_options) /$/             
+             | 'locationhistoryswitch' ipaddr number date(?) /$/
+             | 'locationhistorymac' mac date(?) /$/
+             | 'ifoctetshistoryswitch' ipaddr number date_range(?) /$/
+             | 'ifoctetshistorymac' mac date_range(?) /$/
+             | 'ifoctetshistoryuser' value date_range(?) /$/
+             | 'ipmachistory' addr date_range(?) /$/
+             | 'history' addr date(?) /$/
+             | 'person' person_options /$/
+             | 'nodecategory' nodecategory_options /$/
+             | 'node' node_options /$/
+             | 'switchlocation' switchlocation_options /$/
+             | 'violation' violation_options /$/
+             | 'class' class_options /$/
+             | 'trigger' trigger_options /$/
+             | 'ui' 'menus' ui_options(?) /$/
+             | 'ui' 'dashboard' dashboard_options vid(?) /$/
+             | 'report' (/unregistered\b/ | /registered\b/ | /active\b/ | /inactive\b/ | /os\b/ | /osclass\b/ | /unknownprints\b/ | /openviolations\b/ | /statics\b/) report_options(?) /$/
+             | 'fingerprint' fingerprint_options /$/
+             | 'config' ('get' | 'set' | 'help') /.+/ /$/
+             | 'lookup' ('person' | 'node') value /$/
+             | 'version' config_value(?) /$/
+             | 'reload' reload_options /$/
+             | 'update' update_options /$/
+             | 'manage' manage_options /$/
+             | 'help' config_value /$/
              | {main::usage()}
 
    service_options : service ('stop' | 'start' | 'restart' | 'status' | 'watch')
