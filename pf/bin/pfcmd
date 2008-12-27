@@ -131,7 +131,7 @@ import pf::os;
 require pf::iptables;
 import pf::iptables;
 require pf::rawip;
-import pf::rawip qw(trapmac freemac);
+import pf::rawip qw(freemac);
 
 if ($command =~ /^(person|node|violation)$/i) {
   command_param($command);
@@ -160,8 +160,6 @@ sub manage {
   my $function = "manage_" . $option;
   if ($option eq "freemac"){
     freemac($mac);  
-  }elsif ($option eq "trapmac"){
-    trapmac($mac);  
   }elsif ($option eq "register"){
     return(0) if (!$id);
     my %params=format_assignment(@{$cmd{assignment}});
