@@ -59,13 +59,13 @@ $grammar = q {
              | 'manage' manage_options /$/
              | 'help' /.+/ /$/
              | 'graph' ('unregistered' | 'registered' | 'violations' | 'nodes') ('day'|'month'|'year')(?)/$/
-             | 'graph' 'ifoctetshistoryswitch' ipaddr number date_range /$/
+             | 'graph' 'ifoctetshistoryswitch' ipaddr /\d+/ date_range /$/
              | 'graph' 'ifoctetshistorymac' macaddr date_range /$/
              | 'graph' 'ifoctetshistoryuser' value date_range /$/
              | 'schedule' schedule_options /$/
-             | 'locationhistoryswitch' ipaddr number date(?) /$/
+             | 'locationhistoryswitch' ipaddr /\d+/ date(?) /$/
              | 'locationhistorymac' macaddr date(?) /$/
-             | 'ifoctetshistoryswitch' ipaddr number date_range(?) /$/
+             | 'ifoctetshistoryswitch' ipaddr /\d+/ date_range(?) /$/
              | 'ifoctetshistorymac' macaddr date_range(?) /$/
              | 'ifoctetshistoryuser' value date_range(?) /$/
              | 'ipmachistory' addr date_range(?) /$/
@@ -77,7 +77,7 @@ $grammar = q {
 
    traplog_options: 'most' number ('day' | 'week' | 'total')
 
-   manage_options : ('freemac' | 'deregister') macaddr | ('vclose'|'vopen') macaddr number | 'register' macaddr value edit_options(?)
+   manage_options : ('freemac' | 'deregister') macaddr | ('vclose'|'vopen') macaddr /\d+/ | 'register' macaddr value edit_options(?)
 
    dashboard_options : 'recent_violations_opened' | 'recent_violations_closed' | 'current_grace' | 'recent_violations' | 'recent_registrations' | 'current_activity' | 'current_node_status'
 
@@ -85,11 +85,11 @@ $grammar = q {
 
    node_options : 'add' mac node_edit_options | 'count' (mac|node_filter) | 'view' (mac|node_filter) orderby_options(?) limit_options(?) | 'edit' mac node_edit_options | 'delete' mac
    
-   switchlocation_options : 'view' ipaddr number
+   switchlocation_options : 'view' ipaddr /\d+/
 
    violation_options : 'add' violation_edit_options | 'view' vid | 'edit' vid violation_edit_options | 'delete' vid 
 
-   schedule_options : 'view' vid | 'now' host_range edit_options(?) | 'add' host_range edit_options | 'edit' number edit_options | 'delete' number
+   schedule_options : 'view' vid | 'now' host_range edit_options(?) | 'add' host_range edit_options | 'edit' /\d+/ edit_options | 'delete' /\d+/
 
    trigger_options : 'view' vid ('scan' | 'detect')(?)
 
@@ -114,8 +114,6 @@ $grammar = q {
 
    macaddr : /(([0-9a-f]{2}[-:]){5}[0-9a-f]{2})|(([0-9a-f]{4}\.){2}[0-9a-f]{4})/i
 
-   number : /\d+/
- 
    edit_options : <leftop: assignment ',' assignment>
 
    date_range : 'start_time' '=' date ',' 'end_time' '=' date
