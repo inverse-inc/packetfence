@@ -108,16 +108,14 @@ $grammar = q {
 
    mac : 'all' | macaddr
 
-   node_filter : 'category' '=' value
-                {push @{$main::cmd{'node_filter'}}, ['category',$item{value}] } |
-                 'pid' '=' value
-                {push @{$main::cmd{'node_filter'}}, ['pid',$item{value}] }
+   node_filter : ('category'|'pid') '=' value
+                {push @{$main::cmd{'node_filter'}}, [$item[1],$item{value}] }
 
-   limit_options : 'limit' /[0-9]+/ ',' /[0-9]+/
+   limit_options : 'limit' /\d+/ ',' /\d+/
 
    orderby_options : 'order' 'by' node_view_field ('asc' | 'desc')(?)
    
-   vid : 'all' | /[0-9]+/
+   vid : 'all' | /\d+/
 
    addr : ipaddr | macaddr
 
@@ -129,7 +127,7 @@ $grammar = q {
 
    macaddr : /(([0-9a-f]{2}[-:]){5}[0-9a-f]{2})|(([0-9a-f]{4}\.){2}[0-9a-f]{4})/i
 
-   number : /[0-9]+/
+   number : /\d+/
  
    report_options : 'all' | 'active'
 
