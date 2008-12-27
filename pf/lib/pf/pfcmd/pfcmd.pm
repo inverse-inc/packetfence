@@ -41,7 +41,7 @@ $grammar = q {
    command :   'service' service_options /$/
              | 'node' node_options /$/
              | 'person' person_options /$/
-             | 'nodecategory' nodecategory_options /$/
+             | 'nodecategory' 'view' /\w+/ /$/
              | 'switchlocation' switchlocation_options /$/
              | 'violation' violation_options /$/
              | 'class' class_options /$/
@@ -82,8 +82,6 @@ $grammar = q {
    dashboard_options : 'recent_violations_opened' | 'recent_violations_closed' | 'current_grace' | 'recent_violations' | 'recent_registrations' | 'current_activity' | 'current_node_status'
 
    person_options : 'add' value person_edit_options(?)  | 'view' value | 'edit' value person_edit_options | 'delete' value
-
-   nodecategory_options : 'view' /\w+/
 
    node_options : 'add' mac node_edit_options | 'count' (mac|node_filter) | 'view' (mac|node_filter) orderby_options(?) limit_options(?) | 'edit' mac node_edit_options | 'delete' mac
    

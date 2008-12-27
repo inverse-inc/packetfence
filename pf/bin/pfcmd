@@ -250,8 +250,7 @@ sub ifoctetshistoryuser {
 sub nodecategory {
   require pf::nodecategory;
   import pf::nodecategory;
-  my $type = $cmd{'nodecategory_options'}[0];
-  my $cat = $cmd{'nodecategory_options'}[1];
+  my $cat = $cmd{'command'}[2];
   if ($cat eq 'all') {
     exit(print_results("nodecategory_view_all"));
   } else {
