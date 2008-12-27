@@ -453,7 +453,7 @@ sub service {
 
 sub class {
   my ($function,$id);
-  $id = $cmd{class_options}[1];
+  $id = $cmd{'command'}[2];
   if ($id && $id!~/all/){
         $function="class_view";
   }else{

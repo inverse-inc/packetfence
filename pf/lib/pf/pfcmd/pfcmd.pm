@@ -44,7 +44,7 @@ $grammar = q {
              | 'nodecategory' 'view' /\w+/ /$/
              | 'switchlocation' switchlocation_options /$/
              | 'violation' violation_options /$/
-             | 'class' class_options /$/
+             | 'class' 'view' vid /$/
              | 'trigger' trigger_options /$/
              | 'ui' 'menus' ui_options(?) /$/
              | 'ui' 'dashboard' dashboard_options vid(?) /$/
@@ -90,8 +90,6 @@ $grammar = q {
    violation_options : 'add' violation_edit_options | 'view' vid | 'edit' vid violation_edit_options | 'delete' vid 
 
    schedule_options : 'view' vid | 'now' host_range edit_options(?) | 'add' host_range edit_options | 'edit' number edit_options | 'delete' number
-
-   class_options : 'view' vid 
 
    trigger_options : 'view' vid ('scan' | 'detect')(?)
 
