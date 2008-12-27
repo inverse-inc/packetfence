@@ -83,7 +83,7 @@ $grammar = q {
 
    person_options : 'add' value person_edit_options(?)  | 'view' value | 'edit' value person_edit_options | 'delete' value
 
-   nodecategory_options : 'view' nodecategory_id
+   nodecategory_options : 'view' /\w+/
 
    node_options : 'add' mac node_edit_options | 'count' (mac|node_filter) | 'view' (mac|node_filter) orderby_options(?) limit_options(?) | 'edit' mac node_edit_options | 'delete' mac
    
@@ -117,8 +117,6 @@ $grammar = q {
    addr : ipaddr | macaddr
 
    ipaddr : /(\d{1,3}\.){3}\d{1,3}/
-
-   nodecategory_id : /[a-z]+/i
 
    host_range : /(\d{1,3}\.){3}\d{1,3}[\/\-0-9]*/
 
