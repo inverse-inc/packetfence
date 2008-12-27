@@ -47,7 +47,8 @@ $grammar = q {
              | 'class' 'view' vid /$/
              | 'trigger' trigger_options /$/
              | 'ui' 'menus' ui_options(?) /$/
-             | 'ui' 'dashboard' dashboard_options vid(?) /$/
+             | 'ui' 'dashboard' ('recent_violations_opened' | 'recent_violations_closed' | 'recent_violations' | 'recent_registrations') (/\d+/)(?) /$/
+             | 'ui' 'dashboard' ('current_grace' | 'current_activity' | 'current_node_status') /$/
              | 'report' ('inactive' | 'active') 
              | 'report' ('unregistered' | 'registered' | 'osclass' | 'os' | 'unknownprints' | 'openviolations' | 'statics') ('all' | 'active')(?) /$/
              | 'fingerprint' 'view' ('all' | /\d+(,\d+)*/) /$/
@@ -78,8 +79,6 @@ $grammar = q {
    traplog_options: 'most' number ('day' | 'week' | 'total')
 
    manage_options : ('freemac' | 'deregister') macaddr | ('vclose'|'vopen') macaddr /\d+/ | 'register' macaddr value edit_options(?)
-
-   dashboard_options : 'recent_violations_opened' | 'recent_violations_closed' | 'current_grace' | 'recent_violations' | 'recent_registrations' | 'current_activity' | 'current_node_status'
 
    person_options : 'add' value person_edit_options(?)  | 'view' value | 'edit' value person_edit_options | 'delete' value
 

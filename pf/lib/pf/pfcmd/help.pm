@@ -249,7 +249,8 @@ EOT
 sub help_ui {
   print STDERR << "EOT";
 Usage: pfcmd ui menus
-                dashboard <recent_violations|recent_violations_opened|current_grace|recent_violations_closed|recent_registrations> <interval>
+                dashboard <recent_violations|recent_violations_opened|recent_violations_closed|recent_registrations> <interval>
+                dashboard <current_grace|current_activity|current_node_status>
 
 provide UI menu details and bite-size dashboard/rss information "nuggets"
 
