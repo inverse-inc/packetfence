@@ -891,6 +891,12 @@ sub command_param {
   if ($option eq "view") {
     $function.="_view";
     $function.="_all" if ($id=~/^all/);
+    if (defined($cmd{'limit_options'})) {
+      my %params;
+      $params{'limit'} = 'limit ' . $cmd{'limit_options'}[1] . ',' . $cmd{'limit_options'}[3];
+      exit(print_results($function,$id, %params));
+      return(0);
+    }
     if (defined($cmd{'node_filter'})) {
       $function.="_with_filter";
       $id=$cmd{'node_filter'}[0][0];
