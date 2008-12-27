@@ -54,7 +54,7 @@ $grammar = q {
              | 'lookup' ('person' | 'node') value /$/
              | 'version' /$/
              | 'reload' ('fingerprints' | 'violations') /$/
-             | 'update' update_options /$/
+             | 'update' ('fingerprints' | 'oui') /$/
              | 'manage' manage_options /$/
              | 'help' config_value /$/
              | 'graph' ('unregistered' | 'registered' | 'violations' | 'nodes') ('day'|'month'|'year')(?)/$/
@@ -79,8 +79,6 @@ $grammar = q {
    manage_options : ('freemac' | 'deregister') macaddr | ('vclose'|'vopen') macaddr number | 'register' macaddr value edit_options(?)
 
    dashboard_options : 'recent_violations_opened' | 'recent_violations_closed' | 'current_grace' | 'recent_violations' | 'recent_registrations' | 'current_activity' | 'current_node_status'
-
-   update_options : 'fingerprints' | 'oui'
 
    person_options : 'add' value person_edit_options(?)  | 'view' value | 'edit' value person_edit_options | 'delete' value
 
