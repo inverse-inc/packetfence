@@ -100,7 +100,7 @@ $grammar = q {
 
    trigger_options : 'view' vid ('scan' | 'detect')(?)
 
-   fingerprint_options : 'view' config_value  
+   fingerprint_options : 'view' ('all' | /\d+(,\d+)*/)
 
    ui_options : 'file' '=' value
 
