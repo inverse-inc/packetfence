@@ -48,7 +48,7 @@ $grammar = q {
              | 'trigger' trigger_options /$/
              | 'ui' 'menus' ui_options(?) /$/
              | 'ui' 'dashboard' dashboard_options vid(?) /$/
-             | 'report' (/unregistered\b/ | /registered\b/ | /active\b/ | /inactive\b/ | /os\b/ | /osclass\b/ | /unknownprints\b/ | /openviolations\b/ | /statics\b/) report_options(?) /$/
+             | 'report' ('unregistered' | 'registered' | 'inactive' | 'active' | 'osclass' | 'os' | 'unknownprints' | 'openviolations' | 'statics') report_options(?) /$/
              | 'fingerprint' fingerprint_options /$/
              | 'config' ('get' | 'set' | 'help') /.+/ /$/
              | 'lookup' ('person' | 'node') value /$/
@@ -57,7 +57,7 @@ $grammar = q {
              | 'update' update_options /$/
              | 'manage' manage_options /$/
              | 'help' config_value /$/
-             | 'graph' (/registered\b/ | /unregistered\b/ | /violations\b/ | /nodes\b/) ('day'|'month'|'year')(?)/$/
+             | 'graph' ('unregistered' | 'registered' | 'violations' | 'nodes') ('day'|'month'|'year')(?)/$/
              | 'graph' 'ifoctetshistoryswitch' ipaddr number date_range /$/
              | 'graph' 'ifoctetshistorymac' mac date_range /$/
              | 'graph' 'ifoctetshistoryuser' value date_range /$/
@@ -78,7 +78,7 @@ $grammar = q {
 
    manage_options : ('freemac'|'deregister'|'vclose'|'vopen') macaddr value(?) | 'register' macaddr value edit_options(?)
 
-   dashboard_options : /recent_violations\b/ | /recent_violations_opened\b/ | /current_grace\b/ | /recent_violations_closed\b/ | /recent_registrations\b/ | /current_activity\b/ | /current_node_status\b/
+   dashboard_options : 'recent_violations_opened' | 'recent_violations_closed' | 'current_grace' | 'recent_violations' | 'recent_registrations' | 'current_activity' | 'current_node_status'
 
    update_options : 'fingerprints' | 'oui'
 
@@ -131,7 +131,7 @@ $grammar = q {
 
    number : /[0-9]+/
  
-   report_options : /all\b/ | /active\b/
+   report_options : 'all' | 'active'
 
    edit_options : <leftop: assignment ',' assignment>
 
