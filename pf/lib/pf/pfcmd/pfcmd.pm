@@ -39,39 +39,40 @@ $grammar = q {
    start : command eofile
            { 1; }
 
-   command :   'service' service_options /$/
-             | 'node' node_options /$/
-             | 'person' person_options /$/
-             | 'nodecategory' 'view' /\w+/ /$/
-             | 'switchlocation' 'view' ipaddr /\d+/ /$/
-             | 'violation' violation_options /$/
-             | 'class' 'view' vid /$/
-             | 'trigger' 'view' vid ('scan' | 'detect')(?) /$/
-             | 'ui' 'menus' ui_options(?) /$/
-             | 'ui' 'dashboard' ('recent_violations_opened' | 'recent_violations_closed' | 'recent_violations' | 'recent_registrations') (/\d+/)(?) /$/
-             | 'ui' 'dashboard' ('current_grace' | 'current_activity' | 'current_node_status') /$/
+   command :   'service' service_options
+             | 'node' node_options
+             | 'person' person_options
+             | 'nodecategory' 'view' /\w+/
+             | 'switchlocation' 'view' ipaddr /\d+/
+             | 'violation' violation_options
+             | 'class' 'view' vid
+             | 'trigger' 'view' vid ('scan' | 'detect')(?)
+             | 'ui' 'menus' ui_options(?)
+             | 'ui' 'dashboard' ('recent_violations_opened' | 'recent_violations_closed' | 'recent_violations' | 'recent_registrations') (/\d+/)(?)
+             | 'ui' 'dashboard' ('current_grace' | 'current_activity' | 'current_node_status')
              | 'report' ('inactive' | 'active') 
-             | 'report' ('unregistered' | 'registered' | 'osclass' | 'os' | 'unknownprints' | 'openviolations' | 'statics') ('all' | 'active')(?) /$/
-             | 'fingerprint' 'view' ('all' | /\d+(,\d+)*/) /$/
-             | 'config' ('get' | 'set' | 'help') /.+/ /$/
-             | 'lookup' ('person' | 'node') value /$/
-             | 'version' /$/
-             | 'reload' ('fingerprints' | 'violations') /$/
-             | 'update' ('fingerprints' | 'oui') /$/
-             | 'manage' manage_options /$/
-             | 'help' /.+/ /$/
-             | 'graph' ('unregistered' | 'registered' | 'violations' | 'nodes') ('day'|'month'|'year')(?)/$/
-             | 'graph' 'ifoctetshistoryswitch' ipaddr /\d+/ date_range /$/
-             | 'graph' 'ifoctetshistorymac' macaddr date_range /$/
-             | 'graph' 'ifoctetshistoryuser' value date_range /$/
-             | 'schedule' schedule_options /$/
-             | 'locationhistoryswitch' ipaddr /\d+/ date(?) /$/
-             | 'locationhistorymac' macaddr date(?) /$/
-             | 'ifoctetshistoryswitch' ipaddr /\d+/ date_range(?) /$/
-             | 'ifoctetshistorymac' macaddr date_range(?) /$/
-             | 'ifoctetshistoryuser' value date_range(?) /$/
-             | 'ipmachistory' (ipaddr|macaddr) date_range(?) /$/
-             | 'history' (ipaddr|macaddr) date(?) /$/
+             | 'report' ('unregistered' | 'registered' | 'osclass' | 'os' | 'unknownprints' | 'openviolations' | 'statics') ('all' | 'active')(?)
+             | 'fingerprint' 'view' ('all' | /\d+(,\d+)*/)
+             | 'config' ('get' | 'set' | 'help') /.+/
+             | 'lookup' ('person' | 'node') value
+             | 'version'
+             | 'reload' ('fingerprints' | 'violations')
+             | 'update' ('fingerprints' | 'oui')
+             | 'manage' manage_options
+             | 'help' /.+/
+             | 'graph' ('unregistered' | 'registered' | 'violations' | 'nodes') ('day'|'month'|'year')(?)
+             | 'graph' 'ifoctetshistoryswitch' ipaddr /\d+/ date_range 
+             | 'graph' 'ifoctetshistorymac' macaddr date_range 
+             | 'graph' 'ifoctetshistoryuser' value date_range 
+             | 'schedule' schedule_options
+             | 'traplog' ('update' | traplog_options)
+             | 'locationhistoryswitch' ipaddr /\d+/ date(?)
+             | 'locationhistorymac' macaddr date(?)
+             | 'ifoctetshistoryswitch' ipaddr /\d+/ date_range(?)
+             | 'ifoctetshistorymac' macaddr date_range(?)
+             | 'ifoctetshistoryuser' value date_range(?)
+             | 'ipmachistory' (ipaddr|macaddr) date_range(?)
+             | 'history' (ipaddr|macaddr) date(?)
 
    service_options : ('pfmon' | 'pfdhcplistener' | 'pfdetect' | 'pfredirect' | 'snort' | 'httpd' | 'pfsetvlan' | 'snmptrapd' | 'pf') ('stop' | 'start' | 'restart' | 'status' | 'watch')
                     {[$item[1],$item[2]]}
