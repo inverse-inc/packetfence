@@ -21,7 +21,7 @@ $::RD_AUTOACTION = q {
    foreach my $val (@item[1..$#item]){
       if (ref($val) eq 'ARRAY') {
         push @{$main::cmd{$item[0]}},@{$val};
-      }else{ push @{$main::cmd{$item[0]}},$val; }
+      }elsif ($val ne '') { push @{$main::cmd{$item[0]}},$val; }
    }
   }elsif ($#item==1){$item[1]}
 };
@@ -37,7 +37,7 @@ $::RD_AUTOACTION = q {
 
 $grammar = q {
    start : command eofile
-           { }
+           { 1; }
 
    command :   'service' service_options /$/
              | 'node' node_options /$/
