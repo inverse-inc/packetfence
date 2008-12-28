@@ -12,6 +12,49 @@ use strict;
 use warnings;
 use Log::Log4perl;
 
+sub usage {
+  my $command = basename($0);
+  if (defined $ARGV[0] && defined($main::{"help_".$ARGV[0]})){
+   ($main::{"help_".$ARGV[0]} or sub { print "No such sub: help_".$ARGV[0]."\n"; })->();
+   exit(1);
+  }
+
+  print STDERR << "EOF";
+Usage: $command <command> [options]
+
+class                   | view violation classes
+config                  | query, set, or get help on pf.conf configuration paramaters
+fingerprint             | view DHCP Fingerprints
+graph                   | trending graphs
+history                 | IP/MAC history
+ifoctetshistorymac      | accounting history
+ifoctetshistoryswitch   | accounting history
+ifoctetshistoryuser     | accounting history
+ipmachistory            | IP/MAC history
+locationhistorymac      | Switch/Port history
+locationhistoryswitch   | Switch/Port history
+lookup                  | node or pid lookup against local data store
+node                    | node manipulation
+nodecategory            | nodecategory manipulation
+graph                   | trending graphs
+person                  | person manipulation
+reload                  | rebuild fingerprint or violations tables without restart
+report                  | current usage reports
+schedule                | Nessus scan scheduling
+service                 | start/stop/restart and get PF daemon status
+switchlocation          | view switchport description and location
+traplog                 | update traplog RRD files and graphs or obtain switch IPs
+trigger                 | view and throw triggers
+ui                      | used by web UI to create menu hierarchies and dashboard
+update                  | download canonical fingerprint or OUI data
+version                 | get installed PF version and database MD5s
+violation               | violation manipulation
+
+Please view "$command help <command>" for details on each option
+EOF
+  exit;
+}
+
 sub help_service {
   print STDERR << "EOT";
 Usage: pfcmd service <service> [start|stop|restart|status|watch]

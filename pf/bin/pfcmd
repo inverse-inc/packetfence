@@ -107,6 +107,7 @@ if ($called_name =~ /^(start|stop|restart)$/i) {
 my $parser=pfcmd_pregrammar->new();
 
 my $result = $parser->start(join " ",@ARGV);
+defined($result) || usage();
 my $command = $cmd{'command'}[0];
 
 if ($command =~ /^(help|history|ipmachistory|locationhistoryswitch|locationhistorymac|ifoctetshistorymac|ifoctetshistoryswitch|ifoctetshistoryuser|report|ui|graph|switchlocation|nodecategory)$/i) {
