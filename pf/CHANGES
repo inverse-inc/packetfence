@@ -131,6 +131,7 @@
           (http://packetfence.org/mantis/view.php?id=506)
         ui dashboard grammar is not precise
           (http://packetfence.org/mantis/view.php?id=507)
+        major cleanup in pfcmd grammar
 
 1.7.5
         pfsetvlan should check that MAC field is filled before
