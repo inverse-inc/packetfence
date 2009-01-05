@@ -10,7 +10,6 @@
 
 use Getopt::Std;
 use File::Basename qw(basename);
-use FindBin;
 use strict;
 use warnings;
 use Log::Log4perl;
@@ -30,7 +29,7 @@ use pf::action;
 use pf::os;
 use pf::person;
 
-Log::Log4perl->init($FindBin::Bin . "/../conf/log.conf");
+Log::Log4perl->init(INSTALL_DIR . "/conf/log.conf");
 my $logger = Log::Log4perl->get_logger(basename($0));
 Log::Log4perl::MDC->put('proc', basename($0));
 Log::Log4perl::MDC->put('tid', 0);

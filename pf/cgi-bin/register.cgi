@@ -8,8 +8,8 @@ use Log::Log4perl;
 use strict;
 use warnings;
 
-use FindBin;
-use lib $FindBin::Bin . "/../lib";
+use constant INSTALL_DIR => '/usr/local/pf';
+use lib INSTALL_DIR . "/lib";
 use pf::config;
 use pf::iplog;
 use pf::util;
@@ -32,7 +32,6 @@ my $destination_url = $cgi->param("destination_url");
 
 $destination_url = $Config{'trapping'}{'redirecturl'} if (!$destination_url);
 
-$logger->info("DGL: " . $FindBin::Bin);
 if (!valid_mac($mac)) {
   $logger->info("MAC not found for $ip generating Error Page");
   generate_error_page($cgi, $session, "error: not found in the database");

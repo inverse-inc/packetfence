@@ -13,7 +13,6 @@ use strict;
 use Getopt::Std;
 use Net::Pcap 0.16;
 use File::Basename qw(basename);
-use FindBin;
 use threads;
 use threads::shared;
 use POSIX qw(:signal_h);

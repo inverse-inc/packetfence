@@ -12,7 +12,6 @@ use strict;
 use Getopt::Std;
 use IO::Socket::INET;
 use File::Basename qw(basename);
-use FindBin;
 use threads;
 use threads::shared;
 use POSIX();

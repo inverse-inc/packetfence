@@ -22,7 +22,6 @@ use POSIX();
 use Date::Parse;
 use Parse::RecDescent;
 use File::Basename qw(basename);
-use FindBin;
 use LWP;
 use CGI qw(-no_debug :standard); 
 use Log::Log4perl;

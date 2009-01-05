@@ -10,8 +10,8 @@ use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use Log::Log4perl;
 
-use FindBin;
-use lib $FindBin::Bin . "/../lib";
+use constant INSTALL_DIR => '/usr/local/pf';
+use lib INSTALL_DIR . "/lib";
 use pf::config;
 use pf::db;
 use pf::util;

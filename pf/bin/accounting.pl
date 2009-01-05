@@ -37,7 +37,6 @@ use warnings;
 use diagnostics;
 
 use Data::Dumper;
-use FindBin;
 use Net::SNMP;
 use threads;
 use threads::shared;
