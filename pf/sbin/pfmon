@@ -461,9 +461,9 @@ sub cleanup {
     }
   }
 
-  # strobe if we are not DHCP
+  # strobe if we are in ARP mode
   #
-  if ($Config{'network'}{'mode'}!~/^dhcp$/){
+  if ($Config{'network'}{'mode'} =~ /^arp$/i){
     # wait until listen_arp is ready
     sleep ($arp_interval);
 
