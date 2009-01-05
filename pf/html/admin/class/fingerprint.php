@@ -29,7 +29,7 @@
     $extra_goodness = "<div id='message_box'><table align=center><tr><td style='padding-right:20px;'>
 		 	 <a href='$current_top/$current_sub.php?menu=$_GET[menu]&amp;type=$_GET[type]&amp;upload=true'><img src='images/up.png' alt='Share Unknown Fingerprints' title='Share Unknown Fingerprints'>Share Unknown Fingerprints</a>
 		       </td><td>
-   		         <a href='$current_top/$current_sub.php?menu=$_GET[menu]&amp;type=$_GET[type]&amp;update=true'><img src='images/update.png' alt='Update Fingerprints &amp; OUI Prefixes' title='Update Fingerprints &amp; OUI Prefixes'>Update Fingerprints</a>
+   		         <a href='$current_top/$current_sub.php?menu=$_GET[menu]&amp;type=$_GET[type]&amp;update=true'><img src='images/update.png' alt='Update Fingerprints &amp; OUI Prefixes' title='Update Fingerprints &amp; OUI Prefixes'>Update Fingerprints &amp; OUI Prefixes</a>
 		       </td></tr></table></div>";
   }
 
