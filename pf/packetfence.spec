@@ -5,7 +5,7 @@
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
 Version: 1.8.0
-Release: 20081223%{?dist}
+Release: 20090105%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.packetfence.org
