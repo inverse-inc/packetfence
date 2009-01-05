@@ -22,7 +22,7 @@
   }
   asort($violations);
 
-  in_array($_REQUEST['vid'], array_keys($violations)) ? $vid = $_REQUEST['vid'] : $vid = '1200000';
+  in_array($_REQUEST['vid'], array_keys($violations)) ? $vid = $_REQUEST['vid'] : $vid = '1200001';
   $url = $vid_types[$vid];
 
   if(!$url){
