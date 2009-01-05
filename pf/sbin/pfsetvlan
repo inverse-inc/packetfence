@@ -56,7 +56,6 @@ use threads;
 use threads::shared;
 use DBI;
 use File::Basename qw(basename);
-use FindBin;
 use Log::Log4perl;
 use Getopt::Long;
 use Pod::Usage;
@@ -72,11 +71,11 @@ use constant {
 };
 
 use lib INSTALL_DIR . '/lib';
-use pf::SwitchFactory;
 
 require 5.8.8;
-require $FindBin::Bin . "/../conf/pfsetvlan.pm";
 use pf::config;
+use pf::SwitchFactory;
+require(INSTALL_DIR . "/conf/pfsetvlan.pm");
 $thread = 1;
 use pf::db;
 use pf::util;
