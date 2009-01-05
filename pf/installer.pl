@@ -53,7 +53,7 @@ my %oses    = ( "Red Hat Enterprise Linux AS release 4" => "RHEL4",
 my @modules = ( 
                 "Apache::Htpasswd",
                 "CGI",
-		"CGI::Session",
+                "CGI::Session",
                 "Config::IniFiles",
                 "Date::Parse",
                 "File::Spec",
@@ -71,11 +71,10 @@ my @modules = (
                 "Net::SNMP",
                 "Net::Telnet",
                 "Parse::RecDescent",
-                "RRDs",
                 "Template",
                 "Term::ReadKey",
                 "Thread::Pool",
-		"Time::HiRes"
+                "Time::HiRes"
               );
 
 my @suids   = ( 
