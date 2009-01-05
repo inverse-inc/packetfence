@@ -11,8 +11,12 @@ package pf::rawip;
 
 use strict;
 use warnings;
-use Net::RawIP;
 use Log::Log4perl;
+use Net::Frame::Layer::ETH qw(:consts);
+use Net::Frame::Layer::ARP qw(:consts);
+use Net::Frame::Simple;
+use Net::Write::Layer2;
+
 
 
 BEGIN {
@@ -58,40 +62,38 @@ sub freemac {
   return(0);
 }
 
-
 sub arpmac {
   my ($mymac,$myip,$destmac,$destip,$delay,$type) = @_;
   my $logger = Log::Log4perl::get_logger('pf::rawip');
 
   return 0 if (!$mymac || !$myip || !$destip || !$destmac);
 
-  my $a = new Net::RawIP;
-
   my $eth=ip2device($myip);
   if ($eth=~/:/){
     $eth=~s/(\S+):\S+/$1/;
   }
 
-  # set the src eth device to that interface
-  $a->ethnew($eth);
-  $a->ethset(source => $mymac, dest => $destmac);
- 
-  my @destmac=split(/:/,$destmac);
-  foreach my $index (0 .. 5) {$destmac[$index]=hex("00$destmac[$index]");}
-  my @mymac=split(/:/,$mymac);
-  foreach my $index (0 .. 5) {$mymac[$index]=hex("00$mymac[$index]");}
-
-  my $sip=unpack("N",pack("C4", split/\./, $myip));
-  my $dip=unpack("N",pack("C4", split/\./, $destip));
-
-  my $padding = "KevinAmorinDaveLaPorte";
-
+  my $ethLayer = Net::Frame::Layer::ETH->new(
+     type => NF_ETH_TYPE_ARP,
+     src  => $mymac,
+     dst  => $destmac,
+  );
+  my $arpLayer = Net::Frame::Layer::ARP->new(
+     opCode => ($type == 1 ? NF_ARP_OPCODE_REQUEST : NF_ARP_OPCODE_REPLY),
+     srcIp => $myip,
+     dstIp => $destip,
+     src   => $mymac,
+     dst   => $destmac,
+  );
+  my $pktToSend = Net::Frame::Simple->new(
+     layers => [ $ethLayer, $arpLayer ],
+  );
   $logger->debug("ARP type=$type src $eth $mymac $myip -> dst $destmac content: [$mymac,$myip,$destmac,$destip]");
-  my $arp=pack("nnnCCnCCCCCCNCCCCCCN",2054,1,2048,6,4,$type,@mymac,$sip,@destmac,$dip).$padding;
-
-  # don't send the frame in testing!!
   if (!isenabled($Config{'trapping'}{'testing'})) {
-    $a->send_eth_frame($arp,$delay,1);
+    my $oWrite = Net::Write::Layer2->new(dev => $eth);
+    $oWrite->open;
+    $oWrite->send($pktToSend->raw);
+    $oWrite->close;
   }else{
     $logger->warn("not sending frame, testing mode enabled");
   } 

@@ -101,6 +101,8 @@
         warn when scan.registration=enabled and 
           trapping.registration=disabled
           (http://www.packetfence.org/mantis/view.php?id=489)
+        replaced Net::RawIP
+          (http://www.packetfence.org/mantis/view.php?id=508)
 
 1.7.6
         violations created through bin/pfdetect do not lead to 
