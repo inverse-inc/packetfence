@@ -36,7 +36,6 @@ locationhistoryswitch   | Switch/Port history
 lookup                  | node or pid lookup against local data store
 node                    | node manipulation
 nodecategory            | nodecategory manipulation
-graph                   | trending graphs
 person                  | person manipulation
 reload                  | rebuild fingerprint or violations tables without restart
 report                  | current usage reports
