@@ -65,6 +65,8 @@ sub vlan_determine_for_node {
                 $logger->info("MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", VLAN: $correctVlanForThisMAC");
             }
         } else {
+            my $switchFactory = new pf::SwitchFactory( -configFile => "$conf_dir/switches.conf");
+            my $switch = $switchFactory->instantiate($switch_ip);
             $correctVlanForThisMAC = custom_getCorrectVlan($switch_ip, $ifIndex, $mac, $node_info->{status}, ($node_info->{vlan} || $switch->{_normalVlan}), $node_info->{pid});
             $logger->info("MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", VLAN: $correctVlanForThisMAC");
         }
