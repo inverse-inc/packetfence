@@ -198,6 +198,7 @@ sub node_view {
 
 sub node_count_all {
   my ($id, %params) = @_;
+  node_db_prepare($dbh) if (! $is_node_db_prepared);
   if (defined($params{'where'})) {
     if ($params{'where'}{'type'} eq 'pid') {
       $node_count_all_sql .= " WHERE node.pid='" . $params{'where'}{'value'} . "'";
