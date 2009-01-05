@@ -98,7 +98,7 @@ sub instantiate {
         $switch_mode = 'testing';
         $logger->warn('setting switch mode to testing since trapping.testing=enabled');
     } else {
-        $switch_mode => lc(($SwitchConfig{$requestedSwitch}{'mode'} || $SwitchConfig{'default'}{'mode'}));
+        $switch_mode = lc(($SwitchConfig{$requestedSwitch}{'mode'} || $SwitchConfig{'default'}{'mode'}));
     }
     $logger->debug("creating new $type object");
     return $type->new(
