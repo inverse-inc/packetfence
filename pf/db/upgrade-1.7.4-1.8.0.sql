@@ -7,3 +7,5 @@ CREATE TABLE `traplog` (
   KEY `parseTime` (`parseTime`)
 ) ENGINE=MyISAM;
 
+delete from class where vid=1200000;
+delete from class where vid=1200002;
