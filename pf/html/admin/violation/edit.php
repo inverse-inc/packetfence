@@ -35,7 +35,7 @@
   print "<div id='add'><table>";
   print "<tr><td><img src='../images/edit.png'></td><td valign='middle' colspan=2><b>Editing: ".$edit_info->rows[0][$edit_info->key]."</b></td></tr>";
   foreach($edit_info->rows[0] as $key => $val){
-    if($key == $edit_info->key){
+    if(($key == $edit_info->key)||($key == 'computername')){
       continue;
     }
 
