@@ -98,10 +98,7 @@ my $external_deps = { "jpgraph_v1" => {"url_path"     => "http://hem.bredband.ne
                                        "install_path" => "$install_dir/html/admin/common/jpgraph/jpgraph-1.26"},
                       "jpgraph_v2" => {"url_path"     => "http://hem.bredband.net/jpgraph2/",
                                        "file_name"    => "jpgraph-2.3.3.tar.gz",
-                                       "install_path" => "$install_dir/html/admin/common/jpgraph/jpgraph-2.3.3"},
-                      "bleedingsnort" => {"url_path"  => "http://www.bleedingsnort.com/",
-                                       "file_name"    => "bleeding.rules.tar.gz",
-                                       "install_path" => "$conf_dir/snort/"}
+                                       "install_path" => "$install_dir/html/admin/common/jpgraph/jpgraph-2.3.3"}
                     };
 
 $ENV{'LANG'} = "C";
