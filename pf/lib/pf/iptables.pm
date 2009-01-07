@@ -11,7 +11,7 @@ package pf::iptables;
 
 use strict;
 use warnings;
-use IPTables::IPv4;
+use IPTables::ChainMgr;
 use Log::Log4perl;
 
 BEGIN {
@@ -28,77 +28,27 @@ use pf::violation qw(violation_view_open_all violation_count);
 #use pf::rawip qw(freemac);  
 use pf::node qw(nodes_registered);
 
-sub zero_table {
-  my ($table) = @_;
-  my $logger = Log::Log4perl::get_logger('pf::iptables');
-  my $bob = IPTables::IPv4::init($table);
-  foreach my $chain ($bob->list_chains()) {
-    $logger->info("flushing $chain chain");
-    $bob->flush_entries($chain);
-    $bob->set_policy($chain, 'ACCEPT');
-  }
-  if (! $bob->commit() ) {
-   $logger->logdie("IPTables commit error: $!");
-  }
-}
-
 sub iptables_generate {
   my $logger = Log::Log4perl::get_logger('pf::iptables');
-  my $pre_file = $conf_dir.'/iptables.pre';
-  my $post_file = $conf_dir.'/iptables.post';
   my $passthroughs;
   my @vids = class_view_all();
+  my %tags = ('filter_rules' => '', 'mangle_rules' => '', 'nat_rules' => '');
 
-  zero_table("mangle");
-  zero_table("nat");
-  zero_table("filter");
-
-  if (-r $pre_file) {
-    iptables_restore($pre_file);
-  }
-
-  # INITIALIZE MANGLE TABLE
-  # MARK ALL PACKETS WITH 0x0
-  #
-
-  my $mangle = IPTables::IPv4::init('mangle');
-  $mangle->set_policy('PREROUTING', 'ACCEPT');
-  $mangle->set_policy('POSTROUTING', 'ACCEPT');
-  $mangle->set_policy('OUTPUT', 'ACCEPT');
   # mark all users
-  if (!$mangle->append_entry('PREROUTING', {
-       'jump' => 'MARK',
-       'set-mark' => "0x".$unreg_mark
-  } )) {
-    $logger->logdie("Unable to initialize rule: $!");
-  }
+  $tags{'mangle_rules'} .= "-A PREROUTING --jump MARK --set-mark 0x$unreg_mark\n";
 
   # mark all registered users
   if (isenabled($Config{'trapping'}{'registration'})) {
     my @registered = nodes_registered();
     foreach my $row (@registered) {
       my  $mac = $row->{'mac'};
-      if (!$mangle->append_entry('PREROUTING', {
-           'mac-source' => $mac,
-           'jump' => 'MARK',
-           'set-mark' => "0x".$reg_mark,
-           'matches' => ['mac']
-      } )) {
-        $logger->logdie("Unable to initialize rule: $!");
-      }
+      $tags{'mangle_rules'} .= "-A PREROUTING --match mac --mac-source $mac --jump MARK --set-mark 0x$reg_mark\n";
     }
   }
 
   # mark whitelisted users
   foreach my $mac (split(/\s*,\s*/, $Config{'trapping'}{'whitelist'})) {
-    if (!$mangle->append_entry('PREROUTING', {
-         'mac-source' => $mac,
-         'jump' => 'MARK',
-         'set-mark' => "0x".$reg_mark,
-         'matches' => ['mac']
-    } )) {
-      $logger->logdie("Unable to initialize rule: $!");
-    }
+    $tags{'mangle_rules'} .= "-A PREROUTING --match mac --mac-source $mac --jump MARK --set-mark 0x$reg_mark\n";
   }
 
   # mark all open violations
@@ -107,137 +57,61 @@ sub iptables_generate {
     foreach my $row (@macarray) {
       my $mac = $row->{'mac'};
       my $vid = $row->{'vid'};
-      if (!$mangle->append_entry('PREROUTING', {
-           'mac-source' => $mac,
-           'jump' => 'MARK',
-           'set-mark' => "0x".$vid,
-           'matches' => ['mac']
-      } )) {
-        $logger->logdie("Unable to initialize rule: $!");
-      }
+      $tags{'mangle_rules'} .= "-A PREROUTING --match mac --mac-source $mac --jump MARK --set-mark 0x$vid\n";
     }
   }
   
   # mark blacklisted users
   foreach my $mac (split(/\s*,\s*/, $Config{'trapping'}{'blacklist'})) {
-    if (!$mangle->append_entry('PREROUTING', {
-         'mac-source' => $mac,
-         'jump' => 'MARK',
-         'set-mark' => "$black_mark",
-         'matches' => ['mac']
-    } )) {
-      $logger->logdie("Unable to initialize rule: $!");
-    }
+    $tags{'mangle_rules'} .= "-A PREROUTING --match mac --mac-source $mac --jump MARK --set-mark $black_mark\n";
   }
 
 # INITIALIZE FILTER TABLE
 
-  my $filter = IPTables::IPv4::init('filter');
-  $filter->set_policy('INPUT','DROP');
-  $filter->set_policy('FORWARD','DROP');
-  $filter->set_policy('OUTPUT','ACCEPT');
-  
   # open up loopback
-  if (!$filter->append_entry('INPUT', {
-       'in-interface' => 'lo',
-       'jump' => 'ACCEPT'
-  } )) {
-    $logger->logdie("Unable to initialize rule: $!");
-  }
+  $tags{'filter_rules'} .= "-A INPUT --in-interface lo --jump ACCEPT\n";
 
   # registration/trapping server
-  internal_append_entry($filter,'INPUT',{
-       'protocol' => 'tcp',
-       'destination-port' => '80',  
-       'jump' => 'ACCEPT'
-  });
-
-  internal_append_entry($filter,'INPUT',{
-       'protocol' => 'tcp',
-       'destination-port' => '443',
-       'jump' => 'ACCEPT'
-  });
+  $tags{'filter_rules'} .= internal_append_entry("-A INPUT --protocol tcp --destination-port 80 --jump ACCEPT");
+  $tags{'filter_rules'} .= internal_append_entry("-A INPUT --protocol tcp --destination-port 443 --jump ACCEPT");
 
   my @listeners = split(/\s*,\s*/, $Config{'ports'}{'listeners'});
   foreach my $listener (@listeners) {
     my $port =  getservbyname($listener, "tcp");
-    internal_append_entry($filter,'INPUT',{
-         'protocol' => 'tcp',
-         'destination-port' => $port,
-         'jump' => 'ACCEPT'
-    });
+    $tags{'filter_rules'} .= internal_append_entry("-A INPUT --protocol tcp --destination-port $port --jump ACCEPT");
   }
 
   # allowed established sessions from pf box
-  if (!$filter->append_entry('INPUT', {
-       'matches' => ['state'],
-       'state' => ['RELATED','ESTABLISHED'],
-       'jump' => 'ACCEPT'
-  } )) {
-    $logger->logdie("Unable to initialize rule: $!");
-  }
+  $tags{'filter_rules'} .= "-A INPUT --match state --state RELATED,ESTABLISHED --jump ACCEPT\n";
 
   # open ports
-  managed_append_entry($filter,'INPUT', {
-         'protocol' => 'icmp',
-         'icmp-type' => 8,
-	      'jump' => 'ACCEPT'
-  });
-  managed_append_entry($filter,'INPUT', {
-         'protocol' => "tcp",
-         'destination-port' => $Config{'ports'}{'admin'},
-         'jump' => 'ACCEPT'
-  });
-  managed_append_entry($filter,'INPUT', {
-         'protocol' => "tcp",
-         'destination-port' => 22,
-         'jump' => 'ACCEPT'
-  });
+  $tags{'filter_rules'} .= managed_append_entry("-A INPUT --protocol icmp --icmp-type 8 --jump ACCEPT");
+  $tags{'filter_rules'} .= managed_append_entry("-A INPUT --protocol tcp --destination-port " . $Config{'ports'}{'admin'} . " --jump ACCEPT");
+  $tags{'filter_rules'} .= managed_append_entry("-A INPUT --protocol tcp --destination-port 22 --jump ACCEPT");
 
   # open dhcp if network.mode=dhcp
   if ($Config{'network'}{'mode'} =~ /dhcp/i) {
-    internal_append_entry($filter,'INPUT',{
-         'protocol' => 'udp',
-         'destination-port' => '67',
-         'jump' => 'ACCEPT'
-    });
+    $tags{'filter_rules'} .= internal_append_entry("-A INPUT --protocol udp --destination-port 67 --jump ACCEPT");
   }
 
   # accept already established connections
-  external_append_entry($filter,'FORWARD', {
-       'matches' => ['state'],
-       'state' => ['RELATED','ESTABLISHED'],
-       'jump' => 'ACCEPT'
-  }, get_internal_devs());
+  foreach my $out_dev (get_internal_devs()) {
+    $tags{'filter_rules'} .= external_append_entry("-A FORWARD --match state --state RELEATED,ESTABLISHED --out-interface $out_dev --jump ACCEPT");
+  }
 
   # allowed tcp ports
   foreach my $dns (split(",", $Config{'general'}{'dnsservers'})) {
-    internal_append_entry($filter,'FORWARD',{
-      'protocol' => 'udp',
-      'destination' => $dns,
-      'destination-port' => 53,
-      'jump' => 'ACCEPT'
-    });
+    $tags{'filter_rules'} .= internal_append_entry("-A FORWARD --protocol udp --destination $dns --destination-port 53 --jump ACCEPT");
     $logger->info("adding DNS FILTER passthrough for $dns");
   }
 
-  internal_append_entry($filter,'FORWARD',{
-      'protocol' => 'udp',
-      'destination-port' => 67,
-      'jump' => 'ACCEPT'
-  });
+  $tags{'filter_rules'} .= internal_append_entry("-A FORWARD --protocol udp --destination-port 67 --jump ACCEPT");
   $logger->info("adding DHCP FILTER passthrough");
 
   my $scan_server = $Config{'scan'}{'host'};
   if ($scan_server !~ /^127\.0\.0\.1$/ && $scan_server !~ /^localhost$/i) {
-    internal_append_entry($filter,'FORWARD',{
-      'destination' => $scan_server,
-      'jump' => 'ACCEPT'
-    });
-    external_append_entry($filter,'FORWARD',{
-      'source' => $scan_server,
-      'jump' => 'ACCEPT'
-    });
+    $tags{'filter_rules'} .= internal_append_entry("-A FORWARD --destination $scan_server --jump ACCEPT");
+    $tags{'filter_rules'} .= external_append_entry("-A FORWARD --source $scan_server --jump ACCEPT");
     $logger->info("adding Nessus FILTER passthrough for $scan_server");
   }
 
@@ -260,19 +134,11 @@ sub iptables_generate {
       }
       foreach my $addr (@addrs) {
         $destination = join(".",unpack('C4', $addr));
-        internal_append_entry($filter,'FORWARD',{
-             'protocol' => 'tcp',
-             'destination' => $destination,
-             'destination-port' => $port,
-             'jump' => 'ACCEPT'
-        });
+        $tags{'filter_rules'} .= internal_append_entry("-A FORWARD --protocol tcp --destination $destination --destination-port $port --jump ACCEPT");
         $logger->info("adding FILTER passthrough for $passthrough");
       }
     } elsif ($passthroughs{$passthrough} =~ /^(\d{1,3}.){3}\d{1,3}(\/\d+){0,1}$/) {
-      internal_append_entry($filter,'FORWARD',{
-          'destination' => $passthroughs{$passthrough},
-          'jump' => 'ACCEPT'
-      });
+      $tags{'filter_rules'} .= internal_append_entry("-A FORWARD --destination " . $passthroughs{$passthrough} . " --jump ACCEPT");
       $logger->info("adding FILTER passthrough for $passthrough");
     } else {
       $logger->error("unrecognized passthrough $passthrough");
@@ -312,14 +178,7 @@ sub iptables_generate {
         }
         foreach my $addr (@addrs) {
           $destination = join(".",unpack('C4', $addr));
-	  internal_append_entry($filter,'FORWARD',{
-               'protocol' => 'tcp',
-               'destination' => $destination,
-               'destination-port' => $port,
-               'matches' => ['mark'],                 
-               'mark' => "0x".$vid,
-               'jump' => 'ACCEPT'
-          });
+          $tags{'filter_rules'} .= internal_append_entry("-A FORWARD --protocol tcp --destination $destination --destination-port $port --match mark --mark 0x$vid --jump ACCEPT");
           $logger->info("adding FILTER passthrough for $destination:$port");
         }
       }
@@ -329,48 +188,24 @@ sub iptables_generate {
   my @trapvids = class_trappable();
   foreach my $row (@trapvids) {
     my $vid = $row->{'vid'};
-    internal_append_entry($filter,'FORWARD',{
-        'matches' => ['mark'],
-        'mark' => "0x".$vid,
-        'jump' => 'DROP'
-    });
+    $tags{'filter_rules'} .= internal_append_entry("-A FORWARD --match mark --mark 0x$vid --jump DROP");
   }    
 
 # INITIALIZE NAT TABLE
 # MASSIVE CODE REDUNDANCY
 
-  my $nat = IPTables::IPv4::init('nat');
-  $nat->set_policy('PREROUTING','ACCEPT');
-  $nat->set_policy('POSTROUTING','ACCEPT');
-  $nat->set_policy('OUTPUT','ACCEPT');
-
   foreach my $dns (split(",", $Config{'general'}{'dnsservers'})) {
-    internal_append_entry($nat,'PREROUTING',{
-      'protocol' => 'udp',
-      'destination' => $dns,
-      'destination-port' => 53,
-      'jump' => 'ACCEPT'
-    });
+    $tags{'nat_rules'} .= internal_append_entry("-A PREROUTING --protocol udp --destination $dns --destination-port 53 --jump ACCEPT");
     $logger->info("adding DNS NAT passthrough for $dns");
   }
 
-  internal_append_entry($nat,'PREROUTING',{
-      'protocol' => 'udp',
-      'destination-port' => 67,
-      'jump' => 'ACCEPT'
-  });
+  $tags{'nat_rules'} .= internal_append_entry("-A PREROUTING --protocol udp --destination-port 67 --jump ACCEPT");
   $logger->info("adding DHCP NAT passthrough");
   
 
   if ($scan_server !~ /^127\.0\.0\.1$/ && $scan_server !~ /^localhost$/i) {
-    internal_append_entry($nat,'PREROUTING',{
-      'destination' => $scan_server,
-      'jump' => 'ACCEPT'
-    });
-    internal_append_entry($nat,'PREROUTING',{
-      'source' => $scan_server,
-      'jump' => 'ACCEPT'
-    });
+    $tags{'nat_rules'} .= internal_append_entry("-A PREROUTING --destination $scan_server --jump ACCEPT");
+    $tags{'nat_rules'} .= internal_append_entry("-A PREROUTING --source $scan_server --jump ACCEPT");
     $logger->info("adding Nessus NAT passthrough for $scan_server");
   }
 
@@ -395,19 +230,11 @@ sub iptables_generate {
       }
       foreach my $addr (@addrs) {
         $destination = join(".",unpack('C4', $addr));
-        internal_append_entry($nat,'PREROUTING',{
-             'protocol' => 'tcp',
-             'destination' => $destination,
-             'destination-port' => $port,
-             'jump' => 'ACCEPT'
-        });
+        $tags{'nat_rules'} .= internal_append_entry("-A PREROUTING --protocol tcp --destination $destination --destination-port $port --jump ACCEPT");
         $logger->info("adding NAT passthrough for $passthrough");
       }
     } elsif ($passthroughs{$passthrough} =~ /^(\d{1,3}.){3}\d{1,3}(\/\d+){0,1}$/) {
-      internal_append_entry($nat,'PREROUTING',{
-          'destination' => $passthroughs{$passthrough},
-          'jump' => 'ACCEPT'
-      });
+      $tags{'nat_rules'} .= internal_append_entry("-A PREROUTING --destination " . $passthroughs{$passthrough} . " --jump ACCEPT");
       $logger->info("adding NAT passthrough for $passthrough");
     } else {
       $logger->error("unrecognized passthrough $passthrough");
@@ -447,14 +274,7 @@ sub iptables_generate {
         }
         foreach my $addr (@addrs) {
           $destination = join(".",unpack('C4', $addr));
-          internal_append_entry($nat,'PREROUTING',{
-                 'protocol' => 'tcp',
-                 'destination' => $destination,
-                 'destination-port' => $port,
-                 'matches' => ['mark'],                 
-                 'mark' => "0x".$vid,
-                 'jump' => 'ACCEPT'
-            });
+          $tags{'nat_rules'} .= internal_append_entry("-A PREROUTING --protocol tcp --destination $destination --destination-port $port --match mark --mark 0x$vid --jump ACCEPT");
           $logger->info("adding NAT passthrough for $destination:$port");
         }
       }
@@ -465,47 +285,27 @@ sub iptables_generate {
   foreach my $redirectport (split(/\s*,\s*/, $Config{'ports'}{'redirect'})) {
     my ($port, $protocol) = split("/", $redirectport);
     if (isenabled($Config{'trapping'}{'registration'})) {
-      internal_append_entry($nat,'PREROUTING',{
-           'protocol' => $protocol,
-           'destination-port' => $port,
-           'matches' => ['mark'],
-           'mark' => "0x".$unreg_mark,
-           'jump' => 'REDIRECT'
-      });
+      $tags{'nat_rules'} .= internal_append_entry("-A PREROUTING --protocol $protocol --destination-port $port --match mark --mark 0x$unreg_mark --jump REDIRECT");
     }
 
     my @trapvids = class_trappable();
 
     foreach my $row (@trapvids) {
       my $vid = $row->{'vid'};
-      internal_append_entry($nat,'PREROUTING',{
-           'protocol' => $protocol,
-           'destination-port' => $port,
-           'matches' => ['mark'],
-           'mark' => "0x".$vid,   
-           'jump' => 'REDIRECT'
-      });
+      $tags{'nat_rules'} .= internal_append_entry("-A PREROUTING --protocol $protocol --destination-port $port --match mark --mark 0x$vid --jump REDIRECT");
     }
   }
-
-  if (!$mangle->commit()) {
-    $logger->logdie("IPTables mangle table commit error: $!");
-  }
-  if (!$nat->commit()) {
-    $logger->logdie("IPTables nat table commit error: $!");
-  }
-  if (!$filter->commit()) {
-    $logger->logdie("IPTables filter table commit error: $!");
-  }
-  if (-r $post_file) {
-    iptables_restore_noflush($post_file);
-  }
+  chomp($tags{'mangle_rules'});
+  chomp($tags{'filter_rules'});
+  chomp($tags{'nat_rules'});
+  parse_template(\%tags, "$conf_dir/templates/iptables.conf", "$conf_dir/iptables.conf");
+  iptables_restore("$conf_dir/iptables.conf");
 }
 
 sub internal_append_entry {
-  my ($obj, $type, $params, @output_interfaces) = @_;
+  my ($cmd_arg) = @_;
   my $logger = Log::Log4perl::get_logger('pf::iptables');
-  #foreach my $dev (get_internal_devs()){
+  my $returnString = '';
   foreach my $internal (@internal_nets) {
     my $dev = $internal->tag("int");
     my @authorized_ips = split(/\s*,\s*/, $internal->tag("authips"));
@@ -514,29 +314,19 @@ sub internal_append_entry {
     }
     foreach my $authorized_subnet (@authorized_ips) {
       if ($authorized_subnet ne '') {
-        $params->{'source'} = $authorized_subnet;
+        $cmd_arg .= " --source $authorized_subnet";
       }
-      $params->{'in-interface'} = $dev;
-      if (scalar(@output_interfaces)) {
-        foreach my $out_dev (@output_interfaces) {
-          $params->{'out-interface'} = $out_dev;
-          if (!$obj->append_entry($type,$params) ){
-            $logger->logdie("Unable to initialize rule: $!");
-          }
-        }
-      } else {
-        if (!$obj->append_entry($type,$params) ){
-          $logger->logdie("Unable to initialize rule: $!");
-        }
-      }
+      $cmd_arg .= " --in-interface $dev";
+      $returnString .= "$cmd_arg\n";
     }
   }
+  return $returnString;
 }
 
 sub managed_append_entry {
-  my ($obj, $type, $params, @output_interfaces) = @_;
+  my ($cmd_arg) = @_;
   my $logger = Log::Log4perl::get_logger('pf::iptables');
-  #foreach my $dev (get_managed_devs()){
+  my $returnString = '';
   foreach my $managed (@managed_nets) {
     my $dev = $managed->tag("int");
     my @authorized_ips = split(/\s*,\s*/, $managed->tag("authips"));
@@ -545,61 +335,34 @@ sub managed_append_entry {
     }
     foreach my $authorized_subnet (@authorized_ips) {
       if ($authorized_subnet ne '') {
-        $params->{'source'} = $authorized_subnet;
+        $cmd_arg .= " --source $authorized_subnet";
       }
-      $params->{'in-interface'} = $dev;
-      if (scalar(@output_interfaces)) {
-        foreach my $out_dev (@output_interfaces) {
-          $params->{'out-interface'} = $out_dev;
-          if (!$obj->append_entry($type,$params) ){
-            $logger->logdie("Unable to initialize rule: $!");
-          }
-        }
-      } else {
-        if (!$obj->append_entry($type,$params) ){
-          $logger->logdie("Unable to initialize rule: $!");
-        }
-      }
+      $cmd_arg .= " --in-interface $dev";
+      $returnString .= "$cmd_arg\n";
     }
   }
+  return $returnString;
 }
 
 sub external_append_entry {
-  my ($obj, $type, $params, @output_interfaces) = @_;
+  my ($cmd_arg) = @_;
   my $logger = Log::Log4perl::get_logger('pf::iptables');
+  my $returnString = '';
   foreach my $dev (get_external_devs()){
-    $params->{'in-interface'} = $dev;
-    if (scalar(@output_interfaces)) {
-      foreach my $out_dev (@output_interfaces) {
-        $params->{'out-interface'} = $out_dev;
-        if (!$obj->append_entry($type,$params) ){
-          $logger->logdie("Unable to initialize rule: $!");
-        }
-      }
-    } else {
-      if (!$obj->append_entry($type,$params) ){
-        $logger->logdie("Unable to initialize rule: $!");
-      }
-    }
+    $cmd_arg .= " --in-interface $dev";
+    $returnString .= "$cmd_arg\n";
   }
+  return $returnString;
 }
 
 sub iptables_mark_node {
   my ($mac, $mark) = @_;
   my $logger = Log::Log4perl::get_logger('pf::iptables');
-  my $mangle = IPTables::IPv4::init('mangle');
+  my $iptables = new IPTables::ChainMgr() || logger->logdie("unable to create IPTables::ChainMgr object");
+  my $iptables_cmd = $iptables->{'_iptables'};
 
-  if (!$mangle->append_entry('PREROUTING', {
-       'mac-source' => $mac,
-       'jump' => 'MARK',
-       'set-mark' => "0x".$mark,
-       'matches' => ['mac']
-  } )) {         
+  if (!$iptables->run_ipt_cmd("$iptables_cmd -t mangle -A PREROUTING --match mac --mac-source $mac --jump MARK --set-mark 0x$mark")) {
     $logger->error("unable to mark $mac with $mark: $!");
-    return(0);
-  }
-  if (!$mangle->commit()) {
-    $logger->error("unable to commit mark=$mark for $mac: $!");
     return(0);
   }
   return(1);
@@ -608,19 +371,11 @@ sub iptables_mark_node {
 sub iptables_unmark_node {
   my ($mac, $mark) = @_;
   my $logger = Log::Log4perl::get_logger('pf::iptables');
-  my $mangle = IPTables::IPv4::init('mangle');
+  my $iptables = new IPTables::ChainMgr() || logger->logdie("unable to create IPTables::ChainMgr object");
+  my $iptables_cmd = $iptables->{'_iptables'};
 
-  if (!$mangle->delete_entry('PREROUTING', {
-       'mac-source' => $mac,
-       'jump' => 'MARK',
-       'set-mark' => "0x".$mark,
-       'matches' => ['mac']
-  } )) {         
+  if (!$iptables->run_ipt_cmd("$iptables_cmd -t mangle -D PREROUTING --match mac --mac-source $mac --jump MARK --set-mark 0x$mark")) {
     $logger->error("unable to unmark $mac with $mark: $!");
-    return(0);
-  }
-  if (!$mangle->commit()) {
-    $logger->error("unable to commit unmark=$mark for $mac: $!");
     return(0);
   }
   # let redir cgi do this... 

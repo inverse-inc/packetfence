@@ -105,6 +105,9 @@
           (http://www.packetfence.org/mantis/view.php?id=508)
         violation edit and MAC
           (http://www.packetfence.org/mantis/view.php?id=510)
+        replaced IPTables::IPv4 with IPTables::ChainMgr
+          (http://www.packetfence.org/mantis/view.php?id=509)
+
 
 1.7.6
         violations created through bin/pfdetect do not lead to 

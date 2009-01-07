@@ -5,16 +5,13 @@
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
 Version: 1.8.0
-Release: 20090105%{?dist}
+Release: 20090107%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.packetfence.org
 AutoReqProv: 0
 BuildArch: noarch
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
-
-#currently IPTables::IPv4 should be installed through CPAN
-Conflicts: perl(IPTables::IPv4) 
 
 Packager: Dominik Gehl <dgehl@inverse.ca>
 Vendor: PacketFence, http://www.packetfence.org
@@ -292,7 +289,6 @@ fi
 %dir /usr/local/pf/conf
 #%config(noreplace) /usr/local/pf/conf/pf.conf
 %config(noreplace) /usr/local/pf/conf/violations.conf
-%config(noreplace) /usr/local/pf/conf/iptables.pre
 #%config /usr/local/pf/conf/services.conf
 %config(noreplace) /usr/local/pf/conf/ui.conf
 %config(noreplace) /usr/local/pf/conf/ui-global.conf
@@ -347,6 +343,7 @@ fi
 %dir /usr/local/pf/conf/templates
 /usr/local/pf/conf/templates/dhcpd.conf
 /usr/local/pf/conf/templates/httpd.conf
+%config(noreplace) /usr/local/pf/conf/templates/iptables.conf
 /usr/local/pf/conf/templates/httpd.conf.pre_apache22
 /usr/local/pf/conf/templates/httpd.conf.apache22
 /usr/local/pf/conf/templates/snort.conf
