@@ -28,6 +28,7 @@ use base ('pf::SNMP::Cisco');
 use Log::Log4perl;
 use Carp;
 use Net::SNMP;
+use Net::Telnet;
 
 sub deauthenticateMac {
     my ($this, $mac) = @_;
@@ -60,6 +61,33 @@ sub deauthenticateMac {
     } else {
         $logger->error("ERROR: MAC format is incorrect ($mac). Should be xx:xx:xx:xx:xx:xx");
         return 1;
+    }
+}
+
+sub blacklistMac {
+    my ($this, $mac, $description) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    if (length($mac) == 17) {
+
+        my $session;
+        eval {
+            $session = Net::Telnet->new(Host => $this->{_ip}, Timeout=>5, Prompt => '/[\$%#>]$/');
+            $session->waitfor('/User: /');
+            $session->put($this->{_telnetUser} . "\n");
+            $session->waitfor('/Password:/');
+            $session->put($this->{_telnetPwd} . "\n");
+            $session->waitfor($session->prompt);
+        };
+
+        if ($@) {
+            $logger->error("ERROR: Can not connect to access point $this->{'_ip'} using telnet");
+            return 1;
+        }
+        $logger->info("Blacklisting mac $mac");
+        $session->cmd("config exclusionlist add $mac");
+        $session->cmd("config exclusionlist description $mac \"$description\"");
+        $session->close();
     }
 }
 
