@@ -103,6 +103,8 @@
           (http://www.packetfence.org/mantis/view.php?id=489)
         replaced Net::RawIP
           (http://www.packetfence.org/mantis/view.php?id=508)
+        violation edit and MAC
+          (http://www.packetfence.org/mantis/view.php?id=510)
 
 1.7.6
         violations created through bin/pfdetect do not lead to 
