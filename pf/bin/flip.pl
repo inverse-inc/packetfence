@@ -18,7 +18,7 @@ use File::Basename qw(basename);
 
 use constant INSTALL_DIR => '/usr/local/pf';
 
-use lib $INSTALL_DIR . "/lib";
+use lib INSTALL_DIR . "/lib";
 use pf::util;
 use pf::locationlog;
 use pf::config;
