@@ -58,6 +58,7 @@ my @modules = (
                 "Date::Parse",
                 "File::Spec",
                 "File::Tail",
+                "IPTables::Parse",
                 "IPTables::ChainMgr",
                 "Log::Log4perl",
                 "LWP::UserAgent",
