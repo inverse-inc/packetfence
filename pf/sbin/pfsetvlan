@@ -65,7 +65,7 @@ use POSIX ();
 use constant INSTALL_DIR => '/usr/local/pf';
 
 use constant {
-    LOG_FILE => INSTALL_DIR . "/logs/pfsetvlan.log",
+    LOG_FILE => INSTALL_DIR . "/logs/packetfence.log",
     PID_FILE => "/var/run/pfsetvlan.pid",
     PFCMD_FILE => INSTALL_DIR . "/bin/pfcmd"
 };
@@ -75,7 +75,7 @@ use lib INSTALL_DIR . '/lib';
 require 5.8.8;
 use pf::config;
 use pf::SwitchFactory;
-require(INSTALL_DIR . "/conf/pfsetvlan.pm");
+require(INSTALL_DIR . "/sbin/../conf/pfsetvlan.pm");
 $thread = 1;
 use pf::db;
 use pf::util;
