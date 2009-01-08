@@ -75,7 +75,7 @@ use lib INSTALL_DIR . '/lib';
 require 5.8.8;
 use pf::config;
 use pf::SwitchFactory;
-require(INSTALL_DIR . "/conf/pfsetvlan.pm");
+require(INSTALL_DIR . "/sbin/../conf/pfsetvlan.pm");
 $thread = 1;
 use pf::db;
 use pf::util;
