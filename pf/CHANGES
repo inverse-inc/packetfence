@@ -109,6 +109,8 @@
           (http://www.packetfence.org/mantis/view.php?id=509)
         os.pm and compatibility with Config::IniFiles v2.45
           (http://www.packetfence.org/mantis/view.php?id=512)
+        node edit and dhcp_fingerprint
+          (http://www.packetfence.org/mantis/view.php?id=514)
 
 
 1.7.6

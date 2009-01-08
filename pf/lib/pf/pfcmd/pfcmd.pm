@@ -140,7 +140,7 @@ $grammar = q {
 
    columname : /[a-z_]+/i
 
-   value : '"' /[0-9a-zA-Z_\*\.\-\:_\;\@\ ]*/ '"' {$item[2]} | /[0-9a-zA-Z_\*\.\-\:_\;\@]+/
+   value : '"' /[,0-9a-zA-Z_\*\.\-\:_\;\@\ ]*/ '"' {$item[2]} | /[0-9a-zA-Z_\*\.\-\:_\;\@]+/
 
    person_view_field : 'pid' | 'notes'
 
