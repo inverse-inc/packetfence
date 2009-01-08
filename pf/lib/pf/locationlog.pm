@@ -85,7 +85,7 @@ sub locationlog_db_prepare {
   my ($dbh) = @_;
   db_connect($dbh);
   my $logger = Log::Log4perl::get_logger('pf::locationlog');
-  $logger->info("Preparing pf::locationlog database queries");
+  $logger->debug("Preparing pf::locationlog database queries");
   $locationlog_history_mac_sql=$dbh->prepare( qq [ select mac,switch,port,vlan,start_time,end_time from locationlog where mac=? order by start_time desc, isnull(end_time) desc, end_time desc ]);
   $locationlog_history_switchport_sql=$dbh->prepare( qq [ select mac,switch,port,vlan,start_time,end_time from locationlog where switch=? and port=? order by start_time desc, isnull(end_time) desc, end_time desc ]);
   

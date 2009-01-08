@@ -40,7 +40,7 @@ sub action_db_prepare {
   my ($dbh) = @_;
   db_connect($dbh);
   my $logger = Log::Log4perl::get_logger('pf::action');
-  $logger->info("Preparing pf::action database queries");
+  $logger->debug("Preparing pf::action database queries");
   $action_add_sql=$dbh->prepare( qq[ insert into action(vid,action) values(?,?) ]);
   $action_delete_sql=$dbh->prepare( qq[ delete from action where vid=? and action=? ]);
   $action_delete_all_sql=$dbh->prepare( qq[ delete from action where vid=? ]);

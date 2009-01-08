@@ -50,7 +50,7 @@ sub switchlocation_db_prepare {
   my ($dbh) = @_;
   db_connect($dbh);
   my $logger = Log::Log4perl::get_logger('pf::switchlocation');
-  $logger->info("Preparing pf::switchlocation database queries");
+  $logger->debug("Preparing pf::switchlocation database queries");
   
   $switchlocation_view_all_sql=$dbh->prepare( qq [ select switch,port,start_time,end_time,location,description from switchlocation order by start_time desc, end_time desc]);
   $switchlocation_view_switchport_sql=$dbh->prepare( qq [ select switch,port,start_time,end_time,location,description from switchlocation where switch=? and port=? order by start_time desc, end_time desc ]);

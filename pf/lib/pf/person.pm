@@ -32,7 +32,7 @@ sub person_db_prepare {
   my ($dbh) = @_;
   db_connect($dbh);
   my $logger = Log::Log4perl::get_logger('pf::person');
-  $logger->info("Preparing pf::person database queries");
+  $logger->debug("Preparing pf::person database queries");
   $person_exist_sql=$dbh->prepare( qq[ select count(*) from person where pid=? ]);
   $person_add_sql=$dbh->prepare( qq[ insert into person(pid,notes) values(?,?) ]); 
   $person_delete_sql=$dbh->prepare( qq[ delete from person where pid=? ]);

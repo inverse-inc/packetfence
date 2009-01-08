@@ -37,7 +37,7 @@ sub trigger_db_prepare {
   my ($dbh) = @_;
   db_connect($dbh);
   my $logger = Log::Log4perl::get_logger('pf::trigger');
-  $logger->info("Preparing pf::trigger database queries");
+  $logger->debug("Preparing pf::trigger database queries");
   $trigger_desc_sql=$dbh->prepare( qq [ desc `trigger` ] );
   $trigger_view_sql=$dbh->prepare( qq[ select tid_start,tid_end,class.vid,type,description from `trigger`,class where class.vid=`trigger`.vid and tid_start<=? and tid_end>=? and type=?]);
   $trigger_view_enable_sql=$dbh->prepare( qq[ select tid_start,tid_end,class.vid,type from `trigger`,class where class.vid=`trigger`.vid and tid_start<=? and tid_end>=? and type=? and disable="N"]);

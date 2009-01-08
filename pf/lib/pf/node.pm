@@ -49,7 +49,7 @@ sub node_db_prepare {
   my ($dbh) = @_;
   db_connect($dbh);
   my $logger = Log::Log4perl::get_logger('pf::node');
-  $logger->info("Preparing pf::node database queries");
+  $logger->debug("Preparing pf::node database queries");
   $node_exist_sql=$dbh->prepare( qq[ select mac from node where mac=? ]);
   $node_pid_sql=$dbh->prepare( qq[ select count(*) from node where status='reg' and pid=? ]);
   $node_add_sql=$dbh->prepare( qq[ insert into node(mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,dhcp_fingerprint,last_dhcp,switch,port,vlan) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ]); 

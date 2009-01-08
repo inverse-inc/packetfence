@@ -44,7 +44,7 @@ sub violation_db_prepare {
   my ($dbh) = @_;
   db_connect($dbh);
   my $logger = Log::Log4perl::get_logger('pf::violation');
-  $logger->info("Preparing pf::violation database queries");
+  $logger->debug("Preparing pf::violation database queries");
   $violation_desc_sql=$dbh->prepare( qq [ desc violation ] );
   $violation_add_sql=$dbh->prepare( qq [ insert into violation(mac,vid,start_date,release_date,status,ticket_ref,notes) values(?,?,?,?,?,?,?) ]);
   $violation_modify_sql=$dbh->prepare( qq [ update violation set mac=?,vid=?,start_date=?,release_date=?,status=?,ticket_ref=?,notes=? where id=? ]);

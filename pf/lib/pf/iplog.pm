@@ -44,7 +44,7 @@ sub iplog_db_prepare {
   my ($dbh) = @_;
   db_connect($dbh);
   my $logger = Log::Log4perl::get_logger('pf::iplog');
-  $logger->info("Preparing pf::iplog database queries");
+  $logger->debug("Preparing pf::iplog database queries");
   $iplog_shutdown_sql=$dbh->prepare( qq [ update iplog set end_time=now() where end_time=0 ]);
   #$iplog_lastseen_sql=$dbh->prepare( qq [ update iplog set last_seen=from_unixtime(?) where mac=? and ip=? and end_time=0]);
   $iplog_view_open_sql=$dbh->prepare( qq [ select mac,ip,start_time,end_time from iplog where end_time=0 or end_time > now() ]);
