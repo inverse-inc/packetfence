@@ -34,7 +34,7 @@ sub os_db_prepare {
   my ($dbh) = @_;
   db_connect($dbh);
   my $logger = Log::Log4perl::get_logger('pf::os');
-  $logger->info("Preparing pf::os database queries");
+  $logger->debug("Preparing pf::os database queries");
   $os_delete_all_sql = $dbh->prepare( qq[ DELETE FROM os_type ]);
   $os_class_delete_all_sql = $dbh->prepare( qq[ DELETE FROM os_class ]);
   $dhcp_fingerprint_add_sql = $dbh->prepare( qq [ INSERT INTO dhcp_fingerprint(fingerprint,os_id) VALUES(?,?) ]); 

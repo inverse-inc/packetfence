@@ -24,7 +24,7 @@ sub dashboard_db_prepare {
   my ($dbh) = @_;
   db_connect($dbh);
   my $logger = Log::Log4perl::get_logger('pf::pfcmd::dashboard');
-  $logger->info("Preparing pf::pfcmd::dashboard database queries");
+  $logger->debug("Preparing pf::pfcmd::dashboard database queries");
   $nugget_recent_violations_sql = $dbh->prepare( qq [ select v.mac,v.start_date,c.description as violation from violation v left join class c on v.vid=c.vid where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 order by start_date desc limit 10 ]);
   $nugget_recent_violations_opened_sql = $dbh->prepare( qq [ select v.mac,v.start_date,c.description as violation from violation v left join class c on v.vid=c.vid where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 and v.status="open" order by start_date desc limit 10 ]);
   $nugget_recent_violations_closed_sql = $dbh->prepare( qq [ select v.mac,v.start_date,c.description as violation from violation v left join class c on v.vid=c.vid where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 and v.status="closed" order by start_date desc limit 10 ]);

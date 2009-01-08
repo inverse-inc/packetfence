@@ -34,7 +34,7 @@ sub class_db_prepare {
   my ($dbh) = @_;
   db_connect($dbh);
   my $logger = Log::Log4perl::get_logger('pf::class');
-  $logger->info("Preparing pf::class database queries");
+  $logger->debug("Preparing pf::class database queries");
   $class_view_sql=$dbh->prepare( qq [ select class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.disable,group_concat(action.action order by action.action asc) as action from class left join action on class.vid=action.vid where class.vid=? GROUP BY class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.disable ]);
   $class_view_all_sql=$dbh->prepare( qq [ select class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.disable,group_concat(action.action order by action.action asc) as action from class left join action on class.vid=action.vid GROUP BY class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.disable ] );
   $class_view_actions_sql=$dbh->prepare( qq [ select vid,action from action where vid=? ]);

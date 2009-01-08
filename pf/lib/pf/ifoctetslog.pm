@@ -57,7 +57,7 @@ sub ifoctetslog_db_prepare {
   my ($dbh) = @_;
   db_connect($dbh);
   my $logger = Log::Log4perl::get_logger('pf::ifoctetslog');
-  $logger->info("Preparing pf::ifoctetslog database queries");
+  $logger->debug("Preparing pf::ifoctetslog database queries");
   $ifoctetslog_history_mac_sql=$dbh->prepare( qq [ select switch,port,read_time,mac,ifInOctets,ifOutOctets from ifoctetslog where mac=? order by read_time desc ]);
   $ifoctetslog_history_mac_start_end_sql=$dbh->prepare( qq [ select switch,port,read_time,mac,ifInOctets,ifOutOctets from ifoctetslog where mac=? and read_time >= from_unixtime(?) and read_time <= from_unixtime(?) order by read_time desc ]);
   $ifoctetslog_history_user_sql=$dbh->prepare( qq [ select ifoctetslog.switch,ifoctetslog.port,read_time,ifoctetslog.mac,ifInOctets,ifOutOctets from ifoctetslog, node where ifoctetslog.mac=node.mac and pid=? order by mac asc, read_time desc ]);

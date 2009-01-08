@@ -61,7 +61,7 @@ sub traplog_db_prepare {
   my ($dbh) = @_;
   db_connect($dbh);
   my $logger = Log::Log4perl::get_logger('pf::traplog');
-  $logger->info("Preparing pf::traplog database queries");
+  $logger->debug("Preparing pf::traplog database queries");
 
   $traplog_insert_sql=$dbh->prepare( qq [ INSERT INTO traplog (switch, ifIndex, parseTime, `type`) VALUES(?,?,NOW(),?) ]);
 
