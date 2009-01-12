@@ -1388,6 +1388,11 @@ sub sanity_check {
     $logger->logdie("please set the dns servers list in pf.conf (general.dnsservers).  If this is not set users in isolation will not be able to resolve hostnames, and will not able to reach PacketFence!");
   }
 
+  # make sure that skip_mode is disabled in VLAN isolation
+  if (isenabled($Config{'network'}{'vlan'}) && (! isdisabled($Config{'registration'}{'skip_mode'}))) {
+    throw_hissy_fit("registration skip_mode is currently incompatible with VLAN isolation");
+  }
+
   # warn when scan.registration=enabled and trapping.registration=disabled
   if (isenabled($Config{'scan'}{'registration'}) && isdisabled($Config{'trapping'}{'registration'})) {
     $logger->logwarn("scan.registration is enabled but trapping.registration is not ... this is strang!");
