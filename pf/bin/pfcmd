@@ -36,6 +36,7 @@ use pf::util;
 use pf::pfcmd::pfcmd;
 use pf::pfcmd::pfcmd_pregrammar;
 use pf::pfcmd::help;
+use pf::vlan::custom;
 
 delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
 
@@ -1443,13 +1444,12 @@ sub generate_switchport_vlan_assignment {
     import pf::locationlog;
     my $locationlog_entry = locationlog_view_open_mac($mac);
     if ($locationlog_entry) {
-      require pf::vlan;
-      import pf::vlan;
       my $switch_ip = $locationlog_entry->{'switch'};
       my $ifIndex = $locationlog_entry->{'port'};
       my $currentVlan = $locationlog_entry->{'vlan'};
       $logger->info("$mac is currentlog connected at $switch_ip ifIndex $ifIndex in VLAN $currentVlan");
-      my $newCorrectVlan = vlan_determine_for_node($mac,$switch_ip,$ifIndex);
+      my $vlan_obj = new pf::vlan::custom();
+      my $newCorrectVlan = $vlan_obj->vlan_determine_for_node($mac,$switch_ip,$ifIndex);
       $logger->info("new correct VLAN for $mac is $newCorrectVlan");
       if (($currentVlan eq 'WIFI') || ($newCorrectVlan ne $currentVlan)) {
         $logger->info("calling " . $Config{'vlan'}{'adjustswitchportvlanscript'} . " for node $mac (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)");

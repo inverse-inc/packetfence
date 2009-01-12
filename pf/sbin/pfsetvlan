@@ -75,7 +75,6 @@ use lib INSTALL_DIR . '/lib';
 require 5.8.8;
 use pf::config;
 use pf::SwitchFactory;
-require(INSTALL_DIR . "/sbin/../conf/pfsetvlan.pm");
 $thread = 1;
 use pf::db;
 use pf::util;
@@ -84,7 +83,7 @@ use pf::traplog;
 use pf::node;
 use pf::violation;
 use pf::SNMP v1.7.0.6;
-use pf::vlan;
+use pf::vlan::custom;
 # }}}1
 
 Log::Log4perl->init(INSTALL_DIR . '/conf/log.conf');
@@ -623,6 +622,7 @@ sub handleTrap {
     my $logger = Log::Log4perl->get_logger('pfsetvlan::handling');
     my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
+    my $vlan_obj = new pf::vlan::custom();
     # }}}2
     
     # test if act on this trap {{{2
@@ -643,7 +643,7 @@ sub handleTrap {
         $switch->disconnectWrite();
         return;
     }
-    my $weActOnThisTrap = custom_doWeActOnThisTrap($switch, $switch_port, $trapType);
+    my $weActOnThisTrap = $vlan_obj->custom_doWeActOnThisTrap($switch, $switch_port, $trapType);
     
     if ($weActOnThisTrap == 0) {
         $logger->info("custom_doWeActOnThisTrap returns false. Stop $trapType handling");
@@ -723,7 +723,7 @@ sub handleTrap {
                 if ((@locationlog) && (scalar(@locationlog) > 0) && ($locationlog[0]->{'mac'} ne '')) {
                     if ($switch->isMacInAddressTableAtIfIndex($mac, $switch_port)) {
                         $logger->info("Removed trap for MAC $mac: MAC " . $locationlog[0]->{'mac'} . " is still present in mac-address-table; has probably already been relearned -> DO NOTHING");
-                    } elsif (custom_isClientAlive($locationlog[0]->{'mac'}, $switch_ip, $switch_port, $vlan, $switch->{_isolationVlan}, $mysql_connection)) {
+                    } elsif ($vlan_obj->custom_isClientAlive($locationlog[0]->{'mac'}, $switch_ip, $switch_port, $vlan, $switch->{_isolationVlan}, $mysql_connection)) {
                         $logger->info("Removed trap for MAC $mac: MAC " . $locationlog[0]->{'mac'} . " ALIVE -> DO NOTHING");
                     } else {
                         $logger->info("Removed trap for MAC $mac: MAC " . $locationlog[0]->{'mac'} . " DEAD -> setting data VLAN on $switch_ip ifIndex $switch_port to MAC detection VLAN");
@@ -741,7 +741,7 @@ sub handleTrap {
                     } elsif (scalar(@macArray) == 1) {
                         my $onlyMacLeft = $macArray[0];
                         $logger->debug("only MAC found is $onlyMacLeft");
-                        if ($switch->isPhoneAtIfIndex($onlyMacLeft, $switch_port) || (! custom_isClientAlive($onlyMacLeft, $switch_ip, $switch_port, $vlan, $switch->{_isolationVlan}, $mysql_connection))) {
+                        if ($switch->isPhoneAtIfIndex($onlyMacLeft, $switch_port) || (! $vlan_obj->custom_isClientAlive($onlyMacLeft, $switch_ip, $switch_port, $vlan, $switch->{_isolationVlan}, $mysql_connection))) {
                             $nothingLeftOnSwitchPort = 1;
                         }
                     } else {
@@ -777,7 +777,7 @@ sub handleTrap {
                 my @locationlog = locationlog_view_open_switchport_no_VoIP($switch_ip, $switch_port);
                 if ((@locationlog) && (scalar(@locationlog) > 0) && (defined($locationlog[0]->{'mac'})) && ($locationlog[0]->{'mac'} ne '')) {
                     if ($locationlog[0]->{'mac'} =~ /^$mac$/i) {
-                        if (($locationlog[0]->{'vlan'} == $vlan) && ($vlan == vlan_determine_for_node($mac, $switch->{_ip}, $switch_port))) {
+                        if (($locationlog[0]->{'vlan'} == $vlan) && ($vlan == $vlan_obj->vlan_determine_for_node($mac, $switch->{_ip}, $switch_port))) {
                             $logger->info("locationlog is already up2date. Do nothing");
                         } else {
                             $changeVlan = 1;
@@ -785,7 +785,7 @@ sub handleTrap {
                     } else {
                         #is the old MAC still alive ?
                         $logger->info("Learnt trap received for $mac. Old MAC " . $locationlog[0]->{'mac'} . " already connected to the port according to locationlog !");
-                        if (custom_isClientAlive($locationlog[0]->{'mac'}, $switch_ip, $switch_port, $vlan, $switch->{_isolationVlan}, $mysql_connection)) {
+                        if ($vlan_obj->custom_isClientAlive($locationlog[0]->{'mac'}, $switch_ip, $switch_port, $vlan, $switch->{_isolationVlan}, $mysql_connection)) {
                             $logger->info("old MAC is still ALIVE so there is a hub connected on $switch_ip ifIndex $switch_port");
                             $logger->info("create one Hub violation for old MAC " . $locationlog[0]->{'mac'} . " and one for MAC $mac");
                             my $cmd = PFCMD_FILE . " 'violation add vid=1400000,mac=" . $locationlog[0]->{'mac'} . ",notes=\"other MAC is $mac\"'";
@@ -890,7 +890,7 @@ sub handleTrap {
             if ((@locationlog_pc) && (defined($locationlog_pc[0]->{'mac'}))) {
                 my $oldPC = $locationlog_pc[0]->{'mac'};
                 $logger->debug("$oldPC has still open locationlog entry at $switch_ip ifIndex $switch_port");
-                if (custom_isClientAlive($oldPC, $switch_ip, $switch_port, $trapVlan, $switch->{_isolationVlan}, $mysql_connection)) {
+                if ($vlan_obj->custom_isClientAlive($oldPC, $switch_ip, $switch_port, $trapVlan, $switch->{_isolationVlan}, $mysql_connection)) {
                     $logger->info("old mac $oldPC on $switch_ip ifIndex $switch_port is still alive. Create Hub violation");
                     my $cmd = PFCMD_FILE . " 'violation add vid=1400000, mac=$oldPC'";
                     my $output = qx/$cmd/;
@@ -903,7 +903,7 @@ sub handleTrap {
                     $logger->debug("closing $oldPC locationlog entry at $switch_ip ifIndex $switch_port");
                     locationlog_update_end_mac($oldPC);
                     $logger->info("authorizing $trapMac (old entry $oldPC) at new location $switch_ip ifIndex $switch_port");
-                    $switch->authorizeMAC($switch_port, $oldPC, $trapMac, $switch->getVlan($switch_port), vlan_determine_for_node($trapMac,$switch->{_ip},$switch_port));
+                    $switch->authorizeMAC($switch_port, $oldPC, $trapMac, $switch->getVlan($switch_port), $vlan_obj->vlan_determine_for_node($trapMac,$switch->{_ip},$switch_port));
                     #set the right VLAN
                     $logger->debug("setting correct VLAN for $trapMac at new location $switch_ip ifIndex $switch_port");
                     node_determine_and_set_into_VLAN($trapMac, $switch, $switch_port);
@@ -921,10 +921,10 @@ sub handleTrap {
                 }
                 if (defined($old_mac_to_remove)) {
                     $logger->info("authorizing $trapMac (old entry $old_mac_to_remove) at new location $switch_ip ifIndex $switch_port");
-                    $switch->authorizeMAC($switch_port, $old_mac_to_remove, $trapMac, $switch->getVlan($switch_port), vlan_determine_for_node($trapMac,$switch->{_ip},$switch_port));
+                    $switch->authorizeMAC($switch_port, $old_mac_to_remove, $trapMac, $switch->getVlan($switch_port), $vlan_obj->vlan_determine_for_node($trapMac,$switch->{_ip},$switch_port));
                 } else {
                     $logger->info("authorizing $trapMac at new location $switch_ip ifIndex $switch_port");
-                    $switch->authorizeMAC($switch_port, 0, $trapMac, 0, vlan_determine_for_node($trapMac,$switch->{_ip},$switch_port));
+                    $switch->authorizeMAC($switch_port, 0, $trapMac, 0, $vlan_obj->vlan_determine_for_node($trapMac,$switch->{_ip},$switch_port));
                 }
                 #set the right VLAN
                 $logger->debug("setting correct VLAN for $trapMac at new location $switch_ip ifIndex $switch_port");
@@ -1224,6 +1224,7 @@ sub node_update_PF {
     my ($switch, $switch_port, $mac, $vlan, $isPhone, $registrationMode, $mysql_connection) = @_;
     my $logger = Log::Log4perl->get_logger('pfsetvlan');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
+    my $vlan_obj = new pf::vlan::custom();
 
     #lowercase MAC
     $mac = lc($mac);
@@ -1240,14 +1241,14 @@ sub node_update_PF {
     }
 
     #auto-register node if we are in registration mode
-    if (($registrationMode == 1) || custom_shouldAutoRegister($mac, $isPhone)) {
+    if (($registrationMode == 1) || $vlan_obj->custom_shouldAutoRegister($mac, $isPhone)) {
         if (! node_register_auto_PF($switch->{_ip}, $switch_port, $mac, $vlan, $isPhone, $mysql_connection)) {
             $logger->error("auto-registration of node $mac failed");
         }
     }
 
     #update node information in PF database
-    my $new = custom_getNodeInfo($switch->{_ip}, $switch_port, $mac, $vlan, $isPhone, $mysql_connection);
+    my $new = $vlan_obj->custom_getNodeInfo($switch->{_ip}, $switch_port, $mac, $vlan, $isPhone, $mysql_connection);
     my $old = $mysql_connection->selectrow_hashref("SELECT " . join(",", keys(%$new)) . " FROM node WHERE mac='$mac'");
     my $logMessage = '';
     my $updateSQL = '';
@@ -1277,6 +1278,7 @@ sub node_register_auto_PF {
     my ($switch_ip, $switch_port, $mac, $vlan, $isPhone, $mysql_connection) = @_;
     my $logger = Log::Log4perl->get_logger('pfsetvlan');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
+    my $vlan_obj = new pf::vlan::custom();
 
     my ($lineNumbers) = $mysql_connection->selectrow_array("SELECT count(*) FROM node where mac='$mac' and status='reg'");
     if (defined($lineNumbers) && ($lineNumbers == 1)) {
@@ -1284,7 +1286,7 @@ sub node_register_auto_PF {
         return 1;
     }
     $lineNumbers = undef;
-    my $new = custom_getNodeInfoForAutoReg($switch_ip, $switch_port, $mac, $vlan, $isPhone, $mysql_connection);
+    my $new = $vlan_obj->custom_getNodeInfoForAutoReg($switch_ip, $switch_port, $mac, $vlan, $isPhone, $mysql_connection);
     my $default_pid = $new->{'pid'};
     $lineNumbers = $mysql_connection->selectrow_array("SELECT count(*) FROM person WHERE pid='$default_pid'");
     if (! defined($lineNumbers) || ($lineNumbers == 0)) {
@@ -1309,7 +1311,9 @@ sub node_determine_and_set_into_VLAN {
     my $logger = Log::Log4perl->get_logger('pfsetvlan::handling');
     Log::Log4perl::MDC->put('tid', threads->self->tid());
 
-    $switch->setVlan($ifIndex, vlan_determine_for_node($mac,$switch->{_ip},$ifIndex), \%switch_locker, $mac);
+    my $vlan_obj = new pf::vlan::custom();
+
+    $switch->setVlan($ifIndex, $vlan_obj->vlan_determine_for_node($mac,$switch->{_ip},$ifIndex), \%switch_locker, $mac);
 }
 # }}}1
 

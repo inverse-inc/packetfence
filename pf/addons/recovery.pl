@@ -75,14 +75,13 @@ use constant {
 
 use lib LIB_DIR;
 use pf::SwitchFactory;
-require $FindBin::Bin . "/../conf/pfsetvlan.pm";
 use pf::config;
 $thread = 1;
 use pf::db;
 use pf::node;
 use pf::violation;
 use pf::locationlog;
-use pf::vlan;
+use pf::vlan::custom;
 
 my $logLevel = 0;
 my $help;
@@ -259,10 +258,11 @@ sub recoverSwitch {
                     }
                 }
                 $logger->trace("locking - unlocked completeMacAddrHashRef");
+                my $vlan_obj = new pf::vlan::custom();
                 if (scalar(@currentPcs) > 1) {
                     $correctVlan = $switch->{_isolationVlan};
                 } elsif (scalar(@currentPcs) == 1) {
-                    $correctVlan = vlan_determine_for_node($currentPcs[0], $switch->{_ip}, $currentIfIndex);
+                    $correctVlan = $vlan_obj->vlan_determine_for_node($currentPcs[0], $switch->{_ip}, $currentIfIndex);
                     my $locationlog_entry = locationlog_view_open_mac($currentPcs[0]);
                     if (! $locationlog_entry) {
                         $locationLog = 'no open entry';

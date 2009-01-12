@@ -111,6 +111,8 @@
           (http://www.packetfence.org/mantis/view.php?id=512)
         node edit and dhcp_fingerprint
           (http://www.packetfence.org/mantis/view.php?id=514)
+        conf/pfsetvlan.pm should become pf::vlan::custom.pm
+          (http://www.packetfence.org/mantis/view.php?id=515)
 
 
 1.7.6

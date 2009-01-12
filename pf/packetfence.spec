@@ -5,7 +5,7 @@
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
 Version: 1.8.0
-Release: 20090107%{?dist}
+Release: 20090112%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.packetfence.org
@@ -294,7 +294,7 @@ fi
 %config(noreplace) /usr/local/pf/conf/ui-global.conf
 %config(noreplace) /usr/local/pf/conf/switches.conf
 %config(noreplace) /usr/local/pf/conf/log.conf
-%config(noreplace) /usr/local/pf/conf/pfsetvlan.pm
+%config(noreplace) /usr/local/pf/lib/pf/vlan/custom.pm
 %config /usr/local/pf/conf/pf.conf.defaults
 %config(noreplace) /usr/local/pf/conf/templates/snmptrapd.conf
 %config /usr/local/pf/conf/documentation.conf
