@@ -1,13 +1,17 @@
 <?php
 
-  set_error_handler('pf_error');
+  set_error_handler('pf_error', (E_ALL & ~E_NOTICE & ~E_STRICT));
 
   session_start(); 
   $timeout = 3600;  // session timeout in seconds
   $abs_url="https://$HTTP_SERVER_VARS[HTTP_HOST]";
 
+  require_once 'Log.php';
+  $logger = &Log::factory('file', '/usr/local/pf/logs/admin_debug_log');
+
   if($_SESSION['ui_prefs']['ui_debug'] == 'true'){
     $ui_debug = true;
+    $logger->setMask(Log::MAX(PEAR_LOG_DEBUG));
   }
 
   if(isset($_SESSION['ip_addr']) && $_SESSION['ip_addr'] != $_SERVER['REMOTE_ADDR']){

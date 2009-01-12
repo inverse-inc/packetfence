@@ -19,7 +19,7 @@ Vendor: PacketFence, http://www.packetfence.org
 Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz
 
 BuildRequires: gettext, perl(Parse::RecDescent), httpd
-Requires: perl >= 5.8.0, perl-suidperl, httpd, mod_ssl, php, php-gd, libpcap, libxml2, zlib, zlib-devel, coreutils, net-snmp, iproute, sed
+Requires: perl >= 5.8.0, perl-suidperl, httpd, mod_ssl, php, php-gd, php-pear, libpcap, libxml2, zlib, zlib-devel, coreutils, net-snmp, iproute, sed
 Requires: mysql, perl-DBD-MySQL
 Requires: wget, tar, grep, glibc-common, chkconfig, openssl, net-tools
 Requires: perl(CPAN)

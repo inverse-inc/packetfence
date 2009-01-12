@@ -715,11 +715,13 @@ function PrintSubNav($menu){
 
   function PFCMD($command){
     global $ui_debug;
+    global $logger;
 
     $PFCMD=dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/bin/pfcmd';
     exec("ARGS=".escapeshellarg($command)." $PFCMD 2>&1", $output, $total);
 
     if($ui_debug == true){
+      $logger->debug("command " . escapeshellarg("ARGS=$command"). " $PFCMD returned\n" . print_r($output,true));
       print "<div style='border: 1px solid #aaa; background: #FFE6BF; padding:5px;'>";
       print "I ran command: ".escapeshellarg("ARGS=$command")." $PFCMD<br>";
       print "Returned: <br><pre>";
@@ -999,13 +1001,6 @@ function PrintSubNav($menu){
   function pf_error($severity, $error, $file, $line, $errcontext){
     $error_types = array('User Warning', 'User Notice', 'Warning', 'Notice', 'Core Warning', 'Compile Warning', 'User Error', 'Error', 'Parse', 'Core Error', 'Compile Error');
     
-    ## All the error types that you don't want to alert on
-    $ignore = array(8);    
-
-    if(in_array($severity, $ignore)){
-       return true;
-    }
-
     $formname = "form_$error_$line";
 
     print "<form name='$formname' action='http://www.packetfence.org/bug_report.php' method='post'>";

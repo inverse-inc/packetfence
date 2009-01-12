@@ -352,6 +352,10 @@ if (questioner("Would you like me to create an account for the web administrativ
   } while (system("htpasswd -c $conf_dir/admin.conf $adminuser"));
 }
 
+if (questioner("Would you like me to install the PHP Pear Log package ?","y",("y", "n"))) {
+  `pear install Log`;
+}
+
 print "Setting permissions\n";
 print "  Chowning $install_dir pf:pf\n";
 `chown -R pf:pf $install_dir`;
