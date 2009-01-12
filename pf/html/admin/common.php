@@ -714,22 +714,12 @@ function PrintSubNav($menu){
   } // end PrintAdd
 
   function PFCMD($command){
-    global $ui_debug;
     global $logger;
 
     $PFCMD=dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/bin/pfcmd';
     exec("ARGS=".escapeshellarg($command)." $PFCMD 2>&1", $output, $total);
 
-    if($ui_debug == true){
-      $logger->debug("command " . escapeshellarg("ARGS=$command"). " $PFCMD returned\n" . print_r($output,true));
-      print "<div style='border: 1px solid #aaa; background: #FFE6BF; padding:5px;'>";
-      print "I ran command: ".escapeshellarg("ARGS=$command")." $PFCMD<br>";
-      print "Returned: <br><pre>";
-      print_r($output);
-      print "</pre>";
-      print "</div>";
-    }
-    
+    $logger->debug("I ran command: " . escapeshellarg("ARGS=$command"). " $PFCMD\nReturned:\n" . print_r($output,true));
    
     #$ENV['ARGS']=$command; 
     #exec("$PFCMD 2>&1", $output, $total);
