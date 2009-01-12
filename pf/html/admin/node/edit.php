@@ -5,6 +5,7 @@
   include('../common.php');
 ?>
 
+<html>
 <head>
   <title>// packetfence //</title>
   <link rel="shortcut icon" href="/favicon.ico"> 
@@ -61,7 +62,6 @@
   print "<tr><td colspan=3 align=right><input type='submit' value='Edit ".ucfirst($current_top)."'></td></tr>";
   print "</table></div>";
   print "</form>";
-
-
-
 ?>
+
+</html>

@@ -117,6 +117,8 @@
           (http://www.packetfence.org/mantis/view.php?id=513)
         web admin interface debug mode
           (http://www.packetfence.org/mantis/view.php?id=481)
+        edit pages were missing standard HTML tags
+          (http://www.packetfence.org/mantis/view.php?id=516)
 
 1.7.6
         violations created through bin/pfdetect do not lead to 

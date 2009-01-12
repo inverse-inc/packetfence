@@ -4,7 +4,7 @@
 
   include('../common.php');
 ?>
-
+<html>
 <head>
   <title>// packetfence //</title>
   <link rel="shortcut icon" href="/favicon.ico"> 
@@ -47,6 +47,5 @@
   print "</table></div>";
   print "</form>";
 
-
-
 ?>
+</html>
