@@ -66,7 +66,6 @@ use constant INSTALL_DIR => '/usr/local/pf';
 
 use constant {
     LOG_FILE => INSTALL_DIR . "/logs/packetfence.log",
-    PID_FILE => "/var/run/pfsetvlan.pid",
     PFCMD_FILE => INSTALL_DIR . "/bin/pfcmd"
 };
 
@@ -136,10 +135,6 @@ my $fh = new File::Tail ('name' => INSTALL_DIR . '/logs/snmptrapd.log',
 
 if ($daemonize) {
     # Begin - Daemonize the program (see http://www.webreference.com/perl/tutorial/9/index.html)
-    if (-f PID_FILE) {
-        open (FILE, PID_FILE);
-        $logger->logdie("Daemon is probably running (process id " . <FILE> . "). Remove pid file first (" . PID_FILE . ").");
-    }
 
     chdir ('/') or $logger->logdie("Can't chdir to /: $!");
     open (STDIN, '/dev/null') or $logger->logdie("Can't read /dev/null: $!");
@@ -154,9 +149,9 @@ if ($daemonize) {
     umask 0;
 
     # Write the PID
-    open (FILE, ">" . PID_FILE) or $logger->logdie("Can't open pid file: $!");
-    print FILE "$$";
-    close(FILE);
+    if (! createpid()) {
+        $logger->logdie("unable to daemonize");
+    }
 }
 # End - Daemonize...
 
@@ -1382,9 +1377,7 @@ sub do_port_security {
 END {
     if ((! $man) && (! $help)) {
         $logger->info("stopping pfsetvlan");
-        if (-f PID_FILE) {
-            unlink(PID_FILE);
-        }
+        deletepid();
         foreach my $t (@completeThreadList) {
             $t->detach;
         }
