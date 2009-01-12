@@ -119,6 +119,8 @@
           (http://www.packetfence.org/mantis/view.php?id=481)
         edit pages were missing standard HTML tags
           (http://www.packetfence.org/mantis/view.php?id=516)
+        readline() on closed filehandle in schedule.pm
+          (http://www.packetfence.org/mantis/view.php?id=517)
 
 1.7.6
         violations created through bin/pfdetect do not lead to 

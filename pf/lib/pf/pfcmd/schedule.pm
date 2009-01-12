@@ -68,7 +68,7 @@ sub update_entry
 sub load_cron {
   my ($self,$filename) = @_;
   $filename="pf" if (!$filename);
-  open(FILE,"/var/spool/cron/".$filename);
+  open(FILE,"/var/spool/cron/".$filename) || return;
   my @array=<FILE>;
   #close(FILE);
   foreach (@array){
