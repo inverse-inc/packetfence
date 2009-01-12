@@ -294,7 +294,6 @@ fi
 %config(noreplace) /usr/local/pf/conf/ui-global.conf
 %config(noreplace) /usr/local/pf/conf/switches.conf
 %config(noreplace) /usr/local/pf/conf/log.conf
-%config(noreplace) /usr/local/pf/lib/pf/vlan/custom.pm
 %config /usr/local/pf/conf/pf.conf.defaults
 %config(noreplace) /usr/local/pf/conf/templates/snmptrapd.conf
 %config /usr/local/pf/conf/documentation.conf
@@ -380,7 +379,13 @@ fi
 %dir /usr/local/pf/var/session
 %dir /usr/local/pf/var/rrd
 %dir /usr/local/pf/lib/pf
-/usr/local/pf/lib/pf/*
+/usr/local/pf/lib/pf/*.pm
+%dir /usr/local/pf/lib/pf/SNMP
+/usr/local/pf/lib/pf/SNMP/*
+%dir /usr/local/pf/lib/pf/pfcmd
+/usr/local/pf/lib/pf/pfcmd/*
+%dir /usr/local/pf/lib/pf/vlan
+%config(noreplace) /usr/local/pf/lib/pf/vlan/custom.pm
 %dir /usr/local/pf/logs
 /usr/local/pf/configurator.pl
 /usr/local/pf/installer.pl
