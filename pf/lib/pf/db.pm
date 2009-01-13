@@ -72,7 +72,7 @@ sub db_connect {
     $dbh=$mydbh if (!$tid);
     foreach my $function (@function_list){
       $function.="_db_prepare";
-      $logger->info("db preparing $function");
+      $logger->debug("db preparing $function");
       ($main::{$function} or sub { print "No such sub $function: $_\n" })->($mydbh);
      }
     $_[0]=$mydbh;
