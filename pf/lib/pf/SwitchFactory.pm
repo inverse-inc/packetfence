@@ -72,6 +72,10 @@ sub instantiate {
     my $logger = Log::Log4perl::get_logger("pf::SwitchFactory");
     my ($this, $requestedSwitch) = @_;
     my %SwitchConfig = %{$this->{_config}};
+    if (!exists $SwitchConfig{$requestedSwitch}) {
+        $logger->error("ERROR ! Unknown switch $requestedSwitch");
+        return 0;
+    }
     my $type = "pf::SNMP::" . ($SwitchConfig{$requestedSwitch}{'type'} || $SwitchConfig{'default'}{'type'});
     eval "require $type;";
     if ($@) {

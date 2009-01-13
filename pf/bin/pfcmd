@@ -1460,11 +1460,15 @@ sub generate_switchport_vlan_assignment {
       $logger->info("$mac is currentlog connected at $switch_ip ifIndex $ifIndex in VLAN $currentVlan");
       my $vlan_obj = new pf::vlan::custom();
       my $newCorrectVlan = $vlan_obj->vlan_determine_for_node($mac,$switch_ip,$ifIndex);
-      $logger->info("new correct VLAN for $mac is $newCorrectVlan");
-      if (($currentVlan eq 'WIFI') || ($newCorrectVlan ne $currentVlan)) {
-        $logger->info("calling " . $Config{'vlan'}{'adjustswitchportvlanscript'} . " for node $mac (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)");
-        my @args = ($Config{'vlan'}{'adjustswitchportvlanscript'}, $mac);
-        system(@args);
+      if ($newCorrectVlan eq "-1") {
+        $logger->error("unable to determine correct VLAN for $mac");
+      } else {
+        $logger->info("new correct VLAN for $mac is $newCorrectVlan");
+        if (($currentVlan eq 'WIFI') || ($newCorrectVlan ne $currentVlan)) {
+          $logger->info("calling " . $Config{'vlan'}{'adjustswitchportvlanscript'} . " for node $mac (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)");
+          my @args = ($Config{'vlan'}{'adjustswitchportvlanscript'}, $mac);
+          system(@args);
+        }
       }
     } else {
       $logger->warn("no open locationlog entry for $mac");
