@@ -143,6 +143,9 @@
           (http://www.packetfence.org/mantis/view.php?id=526)
         added security checks to pfcmd violation add
           (http://www.packetfence.org/mantis/view.php?id=527)
+        removed possibility to edit violation ID in 
+          violation/edit.php
+          (http://www.packetfence.org/mantis/view.php?id=528)
 
 1.7.6
         violations created through bin/pfdetect do not lead to 
