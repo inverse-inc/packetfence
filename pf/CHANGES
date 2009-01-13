@@ -137,6 +137,8 @@
           (http://www.packetfence.org/mantis/view.php?id=524)
         violation_trigger in pfdhcplistener
           (http://www.packetfence.org/mantis/view.php?id=502)
+        pfsetvlan optimization
+          (http://www.packetfence.org/mantis/view.php?id=525)
 
 1.7.6
         violations created through bin/pfdetect do not lead to 

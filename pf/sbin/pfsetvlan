@@ -898,10 +898,11 @@ sub handleTrap {
                     $logger->debug("closing $oldPC locationlog entry at $switch_ip ifIndex $switch_port");
                     locationlog_update_end_mac($oldPC);
                     $logger->info("authorizing $trapMac (old entry $oldPC) at new location $switch_ip ifIndex $switch_port");
-                    $switch->authorizeMAC($switch_port, $oldPC, $trapMac, $switch->getVlan($switch_port), $vlan_obj->vlan_determine_for_node($trapMac,$switch->{_ip},$switch_port));
+                    my $correctVlanForThisNode = $vlan_obj->vlan_determine_for_node($trapMac,$switch->{_ip},$switch_port);
+                    $switch->authorizeMAC($switch_port, $oldPC, $trapMac, $switch->getVlan($switch_port), $correctVlanForThisNode);
                     #set the right VLAN
                     $logger->debug("setting correct VLAN for $trapMac at new location $switch_ip ifIndex $switch_port");
-                    node_determine_and_set_into_VLAN($trapMac, $switch, $switch_port);
+                    $switch->setVlan($witch_port, $correctVlanForThisNode, \%switch_locker, $trapMac);
                 }
             } else {
                 #authorize MAC
@@ -914,16 +915,17 @@ sub handleTrap {
                         $old_mac_to_remove = $old_mac;
                     }
                 }
+                my $correctVlanForThisNode = $vlan_obj->vlan_determine_for_node($trapMac,$switch->{_ip},$switch_port);
                 if (defined($old_mac_to_remove)) {
                     $logger->info("authorizing $trapMac (old entry $old_mac_to_remove) at new location $switch_ip ifIndex $switch_port");
-                    $switch->authorizeMAC($switch_port, $old_mac_to_remove, $trapMac, $switch->getVlan($switch_port), $vlan_obj->vlan_determine_for_node($trapMac,$switch->{_ip},$switch_port));
+                    $switch->authorizeMAC($switch_port, $old_mac_to_remove, $trapMac, $switch->getVlan($switch_port), $correctVlanForThisNode);
                 } else {
                     $logger->info("authorizing $trapMac at new location $switch_ip ifIndex $switch_port");
-                    $switch->authorizeMAC($switch_port, 0, $trapMac, 0, $vlan_obj->vlan_determine_for_node($trapMac,$switch->{_ip},$switch_port));
+                    $switch->authorizeMAC($switch_port, 0, $trapMac, 0, $correctVlanForThisNode);
                 }
                 #set the right VLAN
                 $logger->debug("setting correct VLAN for $trapMac at new location $switch_ip ifIndex $switch_port");
-                node_determine_and_set_into_VLAN($trapMac, $switch, $switch_port);
+                $switch->setVlan($witch_port, $correctVlanForThisNode, \%switch_locker, $trapMac);
             }
         }
         # }}}3 
