@@ -309,7 +309,7 @@ sub ipmachistory {
 sub traplog {
   require pf::traplog;
   import pf::traplog;
-  if ($cmd{command}[1] =~ /update/) {
+  if ((scalar(@{$cmd{'command'}}) == 2) && ($cmd{command}[1] =~ /update/)) {
     traplog_update_rrd();
   } else {
     my $nb = $cmd{'traplog_options'}[1];

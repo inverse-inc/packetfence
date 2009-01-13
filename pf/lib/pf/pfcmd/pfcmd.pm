@@ -78,7 +78,7 @@ $grammar = q {
    service_options : ('pfmon' | 'pfdhcplistener' | 'pfdetect' | 'pfredirect' | 'snort' | 'httpd' | 'pfsetvlan' | 'snmptrapd' | 'pf') ('stop' | 'start' | 'restart' | 'status' | 'watch')
                     {[$item[1],$item[2]]}
 
-   traplog_options: 'most' number ('day' | 'week' | 'total')
+   traplog_options: 'most' /\d+/ ('day' | 'week' | 'total')
 
    manage_options : ('freemac' | 'deregister') macaddr | ('vclose'|'vopen') macaddr /\d+/ | 'register' macaddr value edit_options(?)
 
