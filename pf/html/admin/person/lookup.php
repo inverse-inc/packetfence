@@ -23,7 +23,7 @@ if($view_item){
     $lookup['name']  = $person_view->rows[0]['pid'];
     $lookup['notes'] = $person_view->rows[0]['notes'];
 
-    $node_view = new table('node view all');
+    $node_view = new table("node view pid=$view_item");
     if($node_view->rows){
       foreach($node_view->rows as $node){
         if($node['pid'] == $view_item){
