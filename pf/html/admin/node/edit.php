@@ -7,7 +7,7 @@
 
 <html>
 <head>
-  <title>// packetfence //</title>
+  <title>PF::Node::Edit</title>
   <link rel="shortcut icon" href="/favicon.ico"> 
   <link rel="stylesheet" href="../style.php" type="text/css">
 </head>

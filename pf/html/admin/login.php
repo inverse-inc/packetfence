@@ -131,7 +131,7 @@ else {
 <html>
 
 <head>
-  <title>// packetfence //</title>
+  <title>PF::Login</title>
   <base href="<?=$abs_url?>/">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="stylesheet" href="style.php" type="text/css">  

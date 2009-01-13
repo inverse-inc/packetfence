@@ -2,7 +2,7 @@
   include("../common.php");
 ?>
 <head>
-  <title>// packetfence //</title>
+  <title>PF::Config::Help</title>
   <link rel="stylesheet" href="../style.php" type="text/css">
 </head>
 

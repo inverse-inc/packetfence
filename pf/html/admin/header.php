@@ -87,7 +87,7 @@
 
 <html>
 <head>
-  <title>// packetfence :: <?=$current_top?> :: <?=$current_sub?> //</title>
+  <title>PF::<?php echo ucfirst($current_top)?>::<?php echo ucfirst($current_sub)?></title>
   <base href="<?=$abs_url?>/">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="stylesheet" href="style.php" type="text/css"> 
