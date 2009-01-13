@@ -282,7 +282,9 @@ sub violation_trigger {
     $logger->debug("violation not added, no trigger found for ${type}::${tid} or violation is disabled");
   }
   foreach my $row (@trigger_info){
-    violation_add($mac,$row->{'vid'},%data);
+    my $vid=$row->{'vid'};
+    #violation_add($mac,$row->{'vid'},%data);
+    `/usr/local/pf/bin/pfcmd violation add vid=$vid,mac=$mac`;
   }
 }
 
