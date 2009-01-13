@@ -146,6 +146,8 @@
         removed possibility to edit violation ID in 
           violation/edit.php
           (http://www.packetfence.org/mantis/view.php?id=528)
+        show violation type dropdown in violation/edit.php
+          (http://www.packetfence.org/mantis/view.php?id=529)
 
 1.7.6
         violations created through bin/pfdetect do not lead to 
