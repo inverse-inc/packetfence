@@ -129,6 +129,8 @@
           (http://www.packetfence.org/mantis/view.php?id=520)
         fixed grammar issue for scan scheduling
           (http://www.packetfence.org/mantis/view.php?id=522)
+        fixed modifying scheduled scan in web admin GUI
+          (http://www.packetfence.org/mantis/view.php?id=518)
 
 1.7.6
         violations created through bin/pfdetect do not lead to 

@@ -111,7 +111,8 @@ if(isset($_REQUEST[action]) && $_REQUEST[action]=='add'){
 <table class="main">
 <tr>
   <td>
-<form name=schedule action='scan/scan.php?action=add' method=POST>
+<form name=schedule action='scan/scan.php' method=POST>
+<input type="hidden" name="action" value="add">
   <table>
     <tr>
       <td colspan=8>Add a Scan Schedule</td>
