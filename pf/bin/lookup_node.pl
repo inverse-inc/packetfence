@@ -41,7 +41,7 @@ sub lookup_node {
     } elsif ($status eq "grace") {
       $status = "grace";
     }
-    $owner = "unregistered" if ($owner == 1);
+    $owner = "unregistered" if ($owner eq '1');
     $return .= "Owner   : $owner\n" if ($owner);
     $return .= "Status  : $status\n" if ($status);
     $return .= "Name    : ".$node_info->{'computername'}."\n" if ($node_info->{'computername'});

@@ -123,6 +123,8 @@
           (http://www.packetfence.org/mantis/view.php?id=517)
         lookup_person.pl => unquoted string
           (http://www.packetfence.org/mantis/view.php?id=519)
+        lookup_node.pl => argument isn't numeric
+          (http://www.packetfence.org/mantis/view.php?id=521)
 
 1.7.6
         violations created through bin/pfdetect do not lead to 
