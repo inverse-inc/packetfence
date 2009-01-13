@@ -22,4 +22,4 @@ sub lookup_person {
   }
 }
 
-return(true);
+1;
