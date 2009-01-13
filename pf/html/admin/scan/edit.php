@@ -34,9 +34,9 @@
 
   print "<form method='post' action='/$current_top/edit.php?item=$edit_item'>";
   print "<div id='add'><table>";
-  print "<tr><td><img src='../images/person.png'></td><td valign='middle' colspan=2><b>Editing: ".$edit_info->rows[0][$edit_info->key]."</b></td></tr>";
+  print "<tr><td><img src='../images/person.png'></td><td valign='middle' colspan=2><b>Editing Schedule</b></td></tr>";
   foreach($edit_info->rows[0] as $key => $val){
-    if($key == $edit_info->key){
+    if($key == 'id'){
       continue;
     }
 
