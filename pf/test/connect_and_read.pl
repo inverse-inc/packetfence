@@ -57,6 +57,7 @@ use threads;
 use FindBin;
 
 use constant {
+    INSTALL_DIR => '/usr/local/pf',
     LIB_DIR => $FindBin::Bin . "/../lib",
     CONF_FILE => $FindBin::Bin . "/../conf/switches.conf",
 };
@@ -109,7 +110,7 @@ my %Config = %{$switchFactory->{_config}};
 
 my $switch_ip = undef;
 foreach my $key (sort keys %Config) {
-    if ($key ne 'default') {
+    if (($key ne '127.0.0.1') && ($key ne 'default')) {
         $switch_ip = $Config{$key}{'ip'};
         my $switch = $switchFactory->instantiate($switch_ip);
         print "$switch_ip\n";

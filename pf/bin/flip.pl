@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2007-2008 Inverse groupe conseil
+# Copyright 2007-2009 Inverse groupe conseil
 #
 # See the enclosed file COPYING for license information (GPL).
 # If you did not receive this file, see
@@ -40,69 +40,21 @@ if ($mac =~ /^([0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a
 $mac = lc($mac);
 $logger->info("flip.pl called with $mac");
 
-my %switchConfig;
-tie %switchConfig, 'Config::IniFiles', (-file => "$conf_dir/switches.conf");
-my @errors = @Config::IniFiles::errors;
-if (scalar(@errors)) {
-    $logger->error("Error reading config file: " . join("\n", @errors));
-    return 0;
-}
-
-#remove trailing spaces..
-my $SNMPCommunityTrap = ($switchConfig{'default'}{'SNMPCommunityTrap'} || $switchConfig{'default'}{'communityTrap'});
-$SNMPCommunityTrap =~ s/\s+$//;
-
-
 my $locationlog_entry = locationlog_view_open_mac($mac);
 if ($locationlog_entry) {
     my $switch_ip = $locationlog_entry->{'switch'};
     my $ifIndex = $locationlog_entry->{'port'};
     $logger->info("switch port for $mac is $switch_ip ifIndex $ifIndex");
+
+    my $switchFactory = new pf::SwitchFactory(
+        -configFile => "$conf_dir/switches.conf"
+    );
+    my $trapSender = $switchFactory->instantiate('127.0.0.1');
+
     if ($ifIndex eq 'WIFI') {
-        my ($session,$err) = Net::SNMP->session(
-            -hostname => '127.0.0.1',
-            -port => '162',
-            -version => '1',
-            -community => $SNMPCommunityTrap);
-        if (! defined($session)) {
-            $logger->error("error creation SNMP connection: " . $err);
-        } else {
-
-            my $result = $session->trap(
-                -genericTrap => Net::SNMP::ENTERPRISE_SPECIFIC,
-                -agentaddr => $switch_ip,
-                -varbindlist => [
-                    '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER, '1.3.6.1.4.1.29464.1.2',
-                    "1.3.6.1.4.1.29464.1.3", Net::SNMP::OCTET_STRING, $mac,
-                ]
-            );
-            if (! $result) {
-                $logger->error("error sending SNMP trap: " . $session->error());
-            }
-        }
-
+        $trapSender->sendLocalDesAssociateTrap($switch_ip, $mac);
     } else {
-        my ($session,$err) = Net::SNMP->session(
-            -hostname => '127.0.0.1',
-            -port => '162',
-            -version => '1',
-            -community => $SNMPCommunityTrap);
-        if (! defined($session)) {
-            $logger->error("error creation SNMP connection: " . $err);
-        } else {
-
-            my $result = $session->trap(
-                -genericTrap => Net::SNMP::ENTERPRISE_SPECIFIC,
-                -agentaddr => $switch_ip,
-                -varbindlist => [
-                    '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER, '1.3.6.1.4.1.29464.1.1',
-                    "1.3.6.1.2.1.2.2.1.1.$ifIndex", Net::SNMP::INTEGER, $ifIndex,
-                ]
-            );
-            if (! $result) {
-                $logger->error("error sending SNMP trap: " . $session->error());
-            }
-        }
+        $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex);
     }
 } else {
     $logger->warn("cannot determine switch port for $mac. Flipping the ports admin status is impossible");

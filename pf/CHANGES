@@ -157,6 +157,8 @@
           (http://www.packetfence.org/mantis/view.php?id=537)
         added example SNMP v3 switch config to switches.conf
           (http://www.packetfence.org/mantis/view.php?id=536)
+        created new SNMP::PacketFence module
+          (http://www.packetfence.org/mantis/view.php?id=539)
 
 1.7.6
         violations created through bin/pfdetect do not lead to 

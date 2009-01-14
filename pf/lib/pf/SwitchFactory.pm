@@ -125,6 +125,7 @@ sub instantiate {
         '-SNMPAuthProtocolRead' => ($SwitchConfig{$requestedSwitch}{'SNMPAuthProtocolRead'} || $SwitchConfig{'default'}{'SNMPAuthProtocolRead'}), 
         '-SNMPAuthProtocolWrite' => ($SwitchConfig{$requestedSwitch}{'SNMPAuthProtocolWrite'} || $SwitchConfig{'default'}{'SNMPAuthProtocolWrite'}), 
         '-SNMPCommunityRead' => ($SwitchConfig{$requestedSwitch}{'SNMPCommunityRead'} || $SwitchConfig{$requestedSwitch}{'communityRead'} || $SwitchConfig{'default'}{'SNMPCommunityRead'} || $SwitchConfig{'default'}{'communityRead'}),
+        '-SNMPCommunityTrap' => ($SwitchConfig{$requestedSwitch}{'SNMPCommunityTrap'} || $SwitchConfig{$requestedSwitch}{'communityTrap'} || $SwitchConfig{'default'}{'SNMPCommunityTrap'} || $SwitchConfig{'default'}{'communityTrap'}),
         '-SNMPCommunityWrite' => ($SwitchConfig{$requestedSwitch}{'SNMPCommunityWrite'} || $SwitchConfig{$requestedSwitch}{'communityWrite'} || $SwitchConfig{'default'}{'SNMPCommunityWrite'} || $SwitchConfig{'default'}{'communityWrite'}), 
         '-SNMPPrivPasswordRead' => ($SwitchConfig{$requestedSwitch}{'SNMPPrivPasswordRead'} || $SwitchConfig{'default'}{'SNMPPrivPasswordRead'}), 
         '-SNMPPrivPasswordWrite' => ($SwitchConfig{$requestedSwitch}{'SNMPPrivPasswordWrite'} || $SwitchConfig{'default'}{'SNMPPrivPasswordWrite'}), 

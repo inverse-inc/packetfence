@@ -67,6 +67,7 @@ sub new {
         '_SNMPAuthProtocolRead' => undef,
         '_SNMPAuthProtocolWrite' => undef,
         '_SNMPCommunityRead' => undef,
+        '_SNMPCommunityTrap' => undef,
         '_SNMPCommunityWrite' => undef,
         '_SNMPPrivPasswordRead' => undef,
         '_SNMPPrivPasswordWrite' => undef,
@@ -88,6 +89,8 @@ sub new {
     foreach (keys %argv) {
         if (/^-?SNMPCommunityRead$/i) {
             $this->{_SNMPCommunityRead} = $argv{$_};
+        } elsif (/^-?SNMPCommunityTrap$/i) {
+            $this->{_SNMPCommunityTrap} = $argv{$_};
         } elsif (/^-?SNMPCommunityWrite$/i) {
             $this->{_SNMPCommunityWrite} = $argv{$_};
         } elsif (/^-?dbHostname$/i) {
