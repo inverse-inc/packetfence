@@ -159,8 +159,8 @@
           (http://www.packetfence.org/mantis/view.php?id=536)
         created new SNMP::PacketFence module
           (http://www.packetfence.org/mantis/view.php?id=539)
-        receive SNMP traps only from registered switches
-          (http://www.packetfence.org/mantis/view.php?id=538)
+        snmptrapd and SNMP v3
+          (http://www.packetfence.org/mantis/view.php?id=534)
 
 1.7.6
         violations created through bin/pfdetect do not lead to 

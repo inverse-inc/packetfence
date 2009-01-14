@@ -380,14 +380,27 @@ sub generate_snmptrapd_conf {
   my $logger = Log::Log4perl::get_logger('pf::services');
   my %tags;
   $tags{'authLines'} = '';
+  $tags{'userLines'} = '';
+  my %SNMPv3Users;
+  my %SNMPCommunities;
   my $switchFactory = new pf::SwitchFactory(-configFile => "$conf_dir/switches.conf");
   my %switchConfig = %{$switchFactory->{_config}};
   foreach my $key (sort keys %switchConfig) {
     if ($key ne 'default') {
-print "key is $key\n";
       my $switch = $switchFactory->instantiate($key);
-      $tags{'authLines'} .= 'authCommunity log ' . $switch->{_SNMPCommunityTrap} . ' ' . $switch->{_ip} . "\n";
+      if ($switch->{_SNMPVersionTrap} eq '3') {
+        $SNMPv3Users{$switch->{_SNMPUserNameTrap}} = $switch->{_SNMPAuthProtocolTrap} . ' ' . $switch->{_SNMPAuthPasswordTrap} . ' ' . $switch->{_SNMPPrivProtocolTrap} . ' ' . $switch->{_SNMPPrivPasswordTrap};
+      } else {
+        $SNMPCommunities{$switch->{_SNMPCommunityTrap}} = 1;
+      }
     }
+  }
+  foreach my $userName (sort keys %SNMPv3Users) {
+    $tags{'userLines'} .= "createUser $userName " . $SNMPv3Users{$userName} . "\n";
+    $tags{'authLines'} .= "authUser log $userName priv\n";
+  }
+  foreach my $community (sort keys %SNMPCommunities) {
+    $tags{'authLines'} .= "authCommunity log $community\n";
   }
   $tags{'template'} = "$conf_dir/templates/snmptrapd.conf";
   $logger->info("generating $conf_dir/snmptrapd.conf");
