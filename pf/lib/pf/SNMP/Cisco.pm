@@ -128,7 +128,7 @@ sub parseTrap {
 
             if (exists($vlans->{$currentVlan})) {
                 #issue correct SNMP query depending on SNMP version
-                if ($this->{_version} eq '3') {
+                if ($this->{_SNMPVersion} eq '3') {
                     if ($this->connectRead()) {
                         $logger->trace("SNMP get_request for dot1dBasePortIfIndex: $OID_dot1dBasePortIfIndex.$dot1dBasePort");
                         $result = $this->{_sessionRead}->get_request(
@@ -139,10 +139,10 @@ sub parseTrap {
                 } else {
                     my ($sessionReadVlan, $sessionReadVlanError) = Net::SNMP->session(
                             -hostname => $this->{_ip},
-                            -version  => $this->{_version},
+                            -version  => $this->{_SNMPVersion},
                             -retries => 1,
                             -timeout => 2,
-                            -community=> $this->{_communityRead} . '@' . $currentVlan
+                            -community=> $this->{_SNMPCommunityRead} . '@' . $currentVlan
                             );
                     if (defined($sessionReadVlan)) {
                         $logger->trace("SNMP get_request for dot1dBasePortIfIndex: $OID_dot1dBasePortIfIndex.$dot1dBasePort");
@@ -523,7 +523,7 @@ sub getMacBridgePortHash {
     my %dot1dBasePortIfIndexHash;
 
     #issue correct SNMP query depending on SNMP version
-    if ($this->{_version} eq '3') {
+    if ($this->{_SNMPVersion} eq '3') {
         $logger->trace("SNMP v3 get_table for dot1dBasePortIfIndex: $OID_dot1dBasePortIfIndex");
         $result = $this->{_sessionRead}->get_table(
             -baseoid => $OID_dot1dBasePortIfIndex,
@@ -541,10 +541,10 @@ sub getMacBridgePortHash {
     } else {
         my ($sessionReadVlan, $sessionReadVlanError) = Net::SNMP->session(
             -hostname => $this->{_ip},
-            -version  => $this->{_version},
+            -version  => $this->{_SNMPVersion},
             -retries => 1,
             -timeout => 2,
-            -community=> $this->{_communityRead} . '@' . $vlan
+            -community=> $this->{_SNMPCommunityRead} . '@' . $vlan
         );
 
         if (defined($sessionReadVlan)) {
@@ -597,7 +597,7 @@ sub getIfIndexForThisMac {
 
         $logger->trace("SNMP get_request for dot1dTpFdbPort: $oid on switch $this->{'_ip'}, VLAN $vlan");
 
-        if ($this->{_version} eq '3') {
+        if ($this->{_SNMPVersion} eq '3') {
             $result = $this->{_sessionRead}->get_request(
                 -varbindlist => [$oid],
                 -contextname => "vlan_$vlan"
@@ -619,10 +619,10 @@ sub getIfIndexForThisMac {
             #connect to switch with the right VLAN information
             my ($sessionReadVlan, $sessionReadVlanError) = Net::SNMP->session(
                 -hostname => $this->{_ip},
-                -version  => $this->{_version},
+                -version  => $this->{_SNMPVersion},
                 -retries => 1,
                 -timeout => 2,
-                -community=> $this->{_communityRead} . '@' . $vlan
+                -community=> $this->{_SNMPCommunityRead} . '@' . $vlan
             );
 
             if (defined($sessionReadVlan)) {
@@ -660,7 +660,7 @@ sub isMacInAddressTableAtIfIndex {
     my $vlan = $this->getVlan($ifIndex);
 
 
-    if ($this->{_version} eq '3') {
+    if ($this->{_SNMPVersion} eq '3') {
         my $result = $this->{_sessionRead}->get_request(
             -varbindlist => [$oid],
             -contextname => "vlan_$vlan"
@@ -684,10 +684,10 @@ sub isMacInAddressTableAtIfIndex {
         #connect to switch with the right VLAN information
         my ($sessionReadVlan, $sessionReadVlanError) = Net::SNMP->session(
             -hostname => $this->{_ip},
-            -version  => $this->{_version},
+            -version  => $this->{_SNMPVersion},
             -retries => 1,
             -timeout => 2,
-            -community=> $this->{_communityRead} . '@' . $vlan
+            -community=> $this->{_SNMPCommunityRead} . '@' . $vlan
         );
 
         if (defined($sessionReadVlan)) {
@@ -966,7 +966,7 @@ sub getAllMacs {
             my %dot1dBasePortIfIndexHash;
 
             #issue correct SNMP query depending on SNMP version
-            if ($this->{_version} eq '3') {
+            if ($this->{_SNMPVersion} eq '3') {
                 $logger->trace("SNMP v3 get_table for dot1dBasePortIfIndex: $OID_dot1dBasePortIfIndex");
                 $result = $this->{_sessionRead}->get_table(
                     -baseoid => $OID_dot1dBasePortIfIndex,
@@ -984,10 +984,10 @@ sub getAllMacs {
             } else {
                 my ($sessionReadVlan, $sessionReadVlanError) = Net::SNMP->session(
                     -hostname => $this->{_ip},
-                    -version  => $this->{_version},
+                    -version  => $this->{_SNMPVersion},
                     -retries => 1,
                     -timeout => 2,
-                    -community=> $this->{_communityRead} . '@' . $vlan
+                    -community=> $this->{_SNMPCommunityRead} . '@' . $vlan
                 );
 
                 if (defined($sessionReadVlan)) {

@@ -44,8 +44,6 @@ use pf::node;
 sub new {
     my ($class, %argv) = @_;
     my $this = bless {
-        '_communityRead' => undef,
-        '_communityWrite' => undef,
         '_dbHostname' => undef,
         '_dbName' => undef,
         '_dbPassword' => undef,
@@ -68,28 +66,30 @@ sub new {
         '_SNMPAuthPasswordWrite' => undef,
         '_SNMPAuthProtocolRead' => undef,
         '_SNMPAuthProtocolWrite' => undef,
+        '_SNMPCommunityRead' => undef,
+        '_SNMPCommunityWrite' => undef,
         '_SNMPPrivPasswordRead' => undef,
         '_SNMPPrivPasswordWrite' => undef,
         '_SNMPPrivProtocolRead' => undef,
         '_SNMPPrivProtocolWrite' => undef,
         '_SNMPUserNameRead' => undef,
         '_SNMPUserNameWrite' => undef,
+        '_SNMPVersion' => 1,
         '_cliEnablePwd' => undef,
         '_cliPwd' => undef,
         '_cliUser' => undef,
         '_cliTransport' => undef,
         '_uplink' => undef,
-        '_version' => 1,
         '_vlans' => undef,
         '_voiceVlan' => undef,
         '_VoIPEnabled' => undef
     }, $class;
 
     foreach (keys %argv) {
-        if (/^-?communityRead$/i) {
-            $this->{_communityRead} = $argv{$_};
-        } elsif (/^-?communityWrite$/i) {
-            $this->{_communityWrite} = $argv{$_};
+        if (/^-?SNMPCommunityRead$/i) {
+            $this->{_SNMPCommunityRead} = $argv{$_};
+        } elsif (/^-?SNMPCommunityWrite$/i) {
+            $this->{_SNMPCommunityWrite} = $argv{$_};
         } elsif (/^-?dbHostname$/i) {
             $this->{_dbHostname} = $argv{$_};
         } elsif (/^-?dbName$/i) {
@@ -148,8 +148,8 @@ sub new {
             $this->{_cliTransport} = $argv{$_};
         } elsif (/^-?uplink$/i) {
             $this->{_uplink} = $argv{$_};
-        } elsif (/^-?version$/i) {
-            $this->{_version} = $argv{$_};
+        } elsif (/^-?SNMPVersion$/i) {
+            $this->{_SNMPVersion} = $argv{$_};
         } elsif (/^-?vlans$/i) {
             $this->{_vlans} = $argv{$_};
         } elsif (/^-?voiceVlan$/i) {
@@ -178,11 +178,11 @@ sub connectRead {
     if (defined($this->{_sessionRead})) {
         return 1;
     }
-    $logger->debug("opening SNMP v" . $this->{_version} . " read connection to $this->{_ip}");
-    if ($this->{_version} eq '3') {
+    $logger->debug("opening SNMP v" . $this->{_SNMPVersion} . " read connection to $this->{_ip}");
+    if ($this->{_SNMPVersion} eq '3') {
         ($this->{_sessionRead}, $this->{_error}) = Net::SNMP->session(
             -hostname  => $this->{_ip},
-            -version   => $this->{_version},
+            -version   => $this->{_SNMPVersion},
             -username  => $this->{_SNMPUserNameRead},
             -timeout => 2,
             -retries => 1,
@@ -194,14 +194,14 @@ sub connectRead {
     } else {
         ($this->{_sessionRead}, $this->{_error}) = Net::SNMP->session(
             -hostname  => $this->{_ip},
-            -version   => $this->{_version},
+            -version   => $this->{_SNMPVersion},
             -timeout => 2,
             -retries => 1,
-            -community => $this->{_communityRead}
+            -community => $this->{_SNMPCommunityRead}
         );
     }
     if (!defined($this->{_sessionRead})) {
-        $logger->error("error creating SNMP v" . $this->{_version} . " read connection to " . $this->{_ip} . ": " . $this->{_error});
+        $logger->error("error creating SNMP v" . $this->{_SNMPVersion} . " read connection to " . $this->{_ip} . ": " . $this->{_error});
         return 0;
     } else {
         my $oid_sysLocation = '1.3.6.1.2.1.1.6.0';
@@ -210,7 +210,7 @@ sub connectRead {
             -varbindlist => [$oid_sysLocation]
         );
         if (! defined($result)) {
-            $logger->error("error creating SNMP v" . $this->{_version} . " read connection to " . $this->{_ip} . ": " . $this->{_sessionRead}->error());
+            $logger->error("error creating SNMP v" . $this->{_SNMPVersion} . " read connection to " . $this->{_ip} . ": " . $this->{_sessionRead}->error());
             $this->{_sessionRead} = undef;
             return 0;
         }
@@ -227,7 +227,7 @@ sub disconnectRead {
     if (!defined($this->{_sessionRead})) {
         return 1;
     }
-    $logger->debug("closing SNMP v" . $this->{_version} . " read connection to $this->{_ip}");
+    $logger->debug("closing SNMP v" . $this->{_SNMPVersion} . " read connection to $this->{_ip}");
     $this->{_sessionRead}->close;
     return 1;
 }
@@ -241,11 +241,11 @@ sub connectWrite {
     if (defined($this->{_sessionWrite})) {
         return 1;
     }
-    $logger->debug("opening SNMP v" . $this->{_version} . " write connection to $this->{_ip}");
-    if ($this->{_version} eq '3') {
+    $logger->debug("opening SNMP v" . $this->{_SNMPVersion} . " write connection to $this->{_ip}");
+    if ($this->{_SNMPVersion} eq '3') {
         ($this->{_sessionWrite}, $this->{_error}) = Net::SNMP->session(
             -hostname  => $this->{_ip},
-            -version   => $this->{_version},
+            -version   => $this->{_SNMPVersion},
             -timeout => 2,
             -retries => 1,
             -username  => $this->{_SNMPUserNameWrite},
@@ -257,14 +257,14 @@ sub connectWrite {
     } else {
         ($this->{_sessionWrite}, $this->{_error}) = Net::SNMP->session(
             -hostname  => $this->{_ip},
-            -version   => $this->{_version},
+            -version   => $this->{_SNMPVersion},
             -timeout => 2,
             -retries => 1,
-            -community => $this->{_communityWrite}
+            -community => $this->{_SNMPCommunityWrite}
         );
     }
     if (!defined($this->{_sessionWrite})) {
-        $logger->error("error creating SNMP v" . $this->{_version} . " write connection to " . $this->{_ip} . ": " . $this->{_error});
+        $logger->error("error creating SNMP v" . $this->{_SNMPVersion} . " write connection to " . $this->{_ip} . ": " . $this->{_error});
         return 0;
     } else {
         my $oid_sysLocation = '1.3.6.1.2.1.1.6.0';
@@ -273,7 +273,7 @@ sub connectWrite {
             -varbindlist => [$oid_sysLocation]
         );
         if (! defined($result)) {
-            $logger->error("error creating SNMP v" . $this->{_version} . " write connection to " . $this->{_ip} . ": " . $this->{_sessionWrite}->error());
+            $logger->error("error creating SNMP v" . $this->{_SNMPVersion} . " write connection to " . $this->{_ip} . ": " . $this->{_sessionWrite}->error());
             $this->{_sessionWrite} = undef;
             return 0;
         } else {
@@ -285,7 +285,7 @@ sub connectWrite {
                 ]
             );
             if (! defined($result)) {
-                $logger->error("error creating SNMP v" . $this->{_version} . " write connection to " . $this->{_ip} . ": " . $this->{_sessionWrite}->error() . " it looks like you specified a read-only community instead of a read-write one");
+                $logger->error("error creating SNMP v" . $this->{_SNMPVersion} . " write connection to " . $this->{_ip} . ": " . $this->{_sessionWrite}->error() . " it looks like you specified a read-only community instead of a read-write one");
                 $this->{_sessionWrite} = undef;
                 return 0;
             }
@@ -303,7 +303,7 @@ sub disconnectWrite {
     if (!defined($this->{_sessionWrite})) {
         return 1;
     }
-    $logger->debug("closing SNMP v" . $this->{_version} . " write connection to $this->{_ip}");
+    $logger->debug("closing SNMP v" . $this->{_SNMPVersion} . " write connection to $this->{_ip}");
     $this->{_sessionWrite}->close;
     return 1;
 }

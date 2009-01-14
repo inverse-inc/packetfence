@@ -394,7 +394,7 @@ sub generate_snmptrapd_conf {
   }
 
   $tags{'template'} = "$conf_dir/templates/snmptrapd.conf";
-  $tags{'communityTrap'} = $switchConfig{'default'}{'communityTrap'};
+  $tags{'SNMPCommunityTrap'} = ($switchConfig{'default'}{'SNMPCommunityTrap'} || $switchConfig{'default'}{'communityTrap'});
   $logger->info("generating $conf_dir/snmptrapd.conf");
   parse_template(\%tags, "$conf_dir/templates/snmptrapd.conf", "$conf_dir/snmptrapd.conf");
 }

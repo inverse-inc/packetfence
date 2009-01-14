@@ -241,10 +241,10 @@ if (($getUpLinks) || ($getVersion) || ($getType) || ($getAllMacs) || ($getHubs))
         $logger->debug("start handling 'getType' command");
         my ($session, $error) = Net::SNMP->session(
             -hostname  => $switch->{_ip},
-            -version   => $switch->{_version},
+            -version   => $switch->{_SNMPVersion},
             -timeout   => 2,
             -retries   => 1,
-            -community => $switch->{_communityRead}
+            -community => $switch->{_SNMPCommunityRead}
         );
         my $type = 'unknown';
         my $version = 'unknown';

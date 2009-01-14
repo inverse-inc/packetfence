@@ -49,7 +49,8 @@ if (scalar(@errors)) {
 }
 
 #remove trailing spaces..
-$switchConfig{'default'}{'communityTrap'}=~s/\s+$//;
+my $SNMPCommunityTrap = ($switchConfig{'default'}{'SNMPCommunityTrap'} || $switchConfig{'default'}{'communityTrap'});
+$SNMPCommunityTrap =~ s/\s+$//;
 
 
 my $locationlog_entry = locationlog_view_open_mac($mac);
@@ -62,7 +63,7 @@ if ($locationlog_entry) {
             -hostname => '127.0.0.1',
             -port => '162',
             -version => '1',
-            -community => $switchConfig{'default'}{'communityTrap'});
+            -community => $SNMPCommunityTrap);
         if (! defined($session)) {
             $logger->error("error creation SNMP connection: " . $err);
         } else {
@@ -85,7 +86,7 @@ if ($locationlog_entry) {
             -hostname => '127.0.0.1',
             -port => '162',
             -version => '1',
-            -community => $switchConfig{'default'}{'communityTrap'});
+            -community => $SNMPCommunityTrap);
         if (! defined($session)) {
             $logger->error("error creation SNMP connection: " . $err);
         } else {

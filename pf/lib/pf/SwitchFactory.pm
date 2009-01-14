@@ -106,8 +106,6 @@ sub instantiate {
     }
     $logger->debug("creating new $type object");
     return $type->new(
-        '-communityRead' => ($SwitchConfig{$requestedSwitch}{'communityRead'} || $SwitchConfig{'default'}{'communityRead'}),
-        '-communityWrite' => ($SwitchConfig{$requestedSwitch}{'communityWrite'} || $SwitchConfig{'default'}{'communityWrite'}), 
         '-dbHostname' => $Config{'database'}{'host'},
         '-dbName' => $Config{'database'}{'db'},
         '-dbPassword' => $Config{'database'}{'pass'},
@@ -126,18 +124,20 @@ sub instantiate {
         '-SNMPAuthPasswordWrite' => ($SwitchConfig{$requestedSwitch}{'SNMPAuthPasswordWrite'} || $SwitchConfig{'default'}{'SNMPAuthPasswordWrite'}), 
         '-SNMPAuthProtocolRead' => ($SwitchConfig{$requestedSwitch}{'SNMPAuthProtocolRead'} || $SwitchConfig{'default'}{'SNMPAuthProtocolRead'}), 
         '-SNMPAuthProtocolWrite' => ($SwitchConfig{$requestedSwitch}{'SNMPAuthProtocolWrite'} || $SwitchConfig{'default'}{'SNMPAuthProtocolWrite'}), 
+        '-SNMPCommunityRead' => ($SwitchConfig{$requestedSwitch}{'SNMPCommunityRead'} || $SwitchConfig{$requestedSwitch}{'communityRead'} || $SwitchConfig{'default'}{'SNMPCommunityRead'} || $SwitchConfig{'default'}{'communityRead'}),
+        '-SNMPCommunityWrite' => ($SwitchConfig{$requestedSwitch}{'SNMPCommunityWrite'} || $SwitchConfig{$requestedSwitch}{'communityWrite'} || $SwitchConfig{'default'}{'SNMPCommunityWrite'} || $SwitchConfig{'default'}{'communityWrite'}), 
         '-SNMPPrivPasswordRead' => ($SwitchConfig{$requestedSwitch}{'SNMPPrivPasswordRead'} || $SwitchConfig{'default'}{'SNMPPrivPasswordRead'}), 
         '-SNMPPrivPasswordWrite' => ($SwitchConfig{$requestedSwitch}{'SNMPPrivPasswordWrite'} || $SwitchConfig{'default'}{'SNMPPrivPasswordWrite'}), 
         '-SNMPPrivProtocolRead' => ($SwitchConfig{$requestedSwitch}{'SNMPPrivProtocolRead'} || $SwitchConfig{'default'}{'SNMPPrivProtocolRead'}), 
         '-SNMPPrivProtocolWrite' => ($SwitchConfig{$requestedSwitch}{'SNMPPrivProtocolWrite'} || $SwitchConfig{'default'}{'SNMPPrivProtocolWrite'}), 
         '-SNMPUserNameRead' => ($SwitchConfig{$requestedSwitch}{'SNMPUserNameRead'} || $SwitchConfig{'default'}{'SNMPUserNameRead'}), 
         '-SNMPUserNameWrite' => ($SwitchConfig{$requestedSwitch}{'SNMPUserNameWrite'} || $SwitchConfig{'default'}{'SNMPUserNameWrite'}), 
+        '-SNMPVersion' => ($SwitchConfig{$requestedSwitch}{'SNMPVersion'} || $SwitchConfig{$requestedSwitch}{'version'} || $SwitchConfig{'default'}{'SNMPVersion'} || $SwitchConfig{'default'}{'version'}),
         '-cliEnablePwd' => ($SwitchConfig{$requestedSwitch}{'cliEnablePwd'} || $SwitchConfig{$requestedSwitch}{'telnetEnablePwd'} || $SwitchConfig{'default'}{'cliEnablePwd'} || $SwitchConfig{'default'}{'telnetEnablePwd'}),
         '-cliPwd' => ($SwitchConfig{$requestedSwitch}{'cliPwd'} || $SwitchConfig{$requestedSwitch}{'telnetPwd'} || $SwitchConfig{'default'}{'cliPwd'} || $SwitchConfig{'default'}{'telnetPwd'}),
         '-cliUser' => ($SwitchConfig{$requestedSwitch}{'cliUser'} || $SwitchConfig{$requestedSwitch}{'telnetUser'} || $SwitchConfig{'default'}{'cliUser'} || $SwitchConfig{'default'}{'telnetUser'}),
         '-cliTransport' => ($SwitchConfig{$requestedSwitch}{'cliTransport'} || $SwitchConfig{'default'}{'cliTransport'} || 'Telnet'),
         '-uplink' => \@uplink,
-        '-version' => ($SwitchConfig{$requestedSwitch}{'version'} || $SwitchConfig{'default'}{'version'}),
         '-vlans' => \@vlans,
         '-voiceVlan' => ($SwitchConfig{$requestedSwitch}{'voiceVlan'} || $SwitchConfig{'default'}{'voiceVlan'}), 
         '-VoIPEnabled' => (($SwitchConfig{$requestedSwitch}{'VoIPEnabled'} || $SwitchConfig{'default'}{'VoIPEnabled'}) =~ /^\s*(y|yes|true|enabled|1)\s*$/i ? 1 : 0)
