@@ -1390,12 +1390,12 @@ sub sanity_check {
 
   # make sure that skip_mode is disabled in VLAN isolation
   if (($Config{'network'}{'mode'} =~ /vlan/i) && (! isdisabled($Config{'registration'}{'skip_mode'}))) {
-    throw_hissy_fit("registration skip_mode is currently incompatible with VLAN isolation");
+    $logger->logdie("registration skip_mode is currently incompatible with VLAN isolation");
   }
 
   # make sure that expire_mode is disabled in VLAN isolation
   if (($Config{'network'}{'mode'} =~ /vlan/i) && (! isdisabled($Config{'registration'}{'expire_mode'}))) {
-    throw_hissy_fit("automatic node expiration is currently incompatible with VLAN isolation");
+    $logger->logdie("automatic node expiration is currently incompatible with VLAN isolation");
   }
 
   # warn when scan.registration=enabled and trapping.registration=disabled
