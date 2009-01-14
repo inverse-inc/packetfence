@@ -29,6 +29,7 @@ use pf::violation qw(violation_view_open_uniq);
 use pf::node qw(nodes_registered_not_violators);
 use pf::trigger qw(trigger_delete_all);
 use pf::class qw(class_view_all class_merge);
+use pf::SwitchFactory;
 
 my %flags;
 $flags{'httpd'}= "-f $conf_dir/httpd.conf";
@@ -378,23 +379,17 @@ sub generate_snort_conf {
 sub generate_snmptrapd_conf {
   my $logger = Log::Log4perl::get_logger('pf::services');
   my %tags;
-  my %switchConfig;
-  tie %switchConfig, 'Config::IniFiles', (-file => "$conf_dir/switches.conf");
-  my @errors = @Config::IniFiles::errors;
-  if (scalar(@errors)) {
-      $logger->error("Error reading config file: " . join("\n", @errors));
-      return 0;
+  $tags{'authLines'} = '';
+  my $switchFactory = new pf::SwitchFactory(-configFile => "$conf_dir/switches.conf");
+  my %switchConfig = %{$switchFactory->{_config}};
+  foreach my $key (sort keys %switchConfig) {
+    if ($key ne 'default') {
+print "key is $key\n";
+      my $switch = $switchFactory->instantiate($key);
+      $tags{'authLines'} .= 'authCommunity log ' . $switch->{_SNMPCommunityTrap} . ' ' . $switch->{_ip} . "\n";
+    }
   }
-
-  #remove trailing spaces..
-  foreach my $section (tied(%switchConfig)->Sections){
-      foreach my $key (keys %{$switchConfig{$section}}){
-          $switchConfig{$section}{$key}=~s/\s+$//;
-      }
-  }
-
   $tags{'template'} = "$conf_dir/templates/snmptrapd.conf";
-  $tags{'SNMPCommunityTrap'} = ($switchConfig{'default'}{'SNMPCommunityTrap'} || $switchConfig{'default'}{'communityTrap'});
   $logger->info("generating $conf_dir/snmptrapd.conf");
   parse_template(\%tags, "$conf_dir/templates/snmptrapd.conf", "$conf_dir/snmptrapd.conf");
 }
