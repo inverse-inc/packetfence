@@ -155,6 +155,8 @@
         prefixed SNMP config variables in switches.conf with 
           SNMP
           (http://www.packetfence.org/mantis/view.php?id=537)
+        added example SNMP v3 switch config to switches.conf
+          (http://www.packetfence.org/mantis/view.php?id=536)
 
 1.7.6
         violations created through bin/pfdetect do not lead to 
