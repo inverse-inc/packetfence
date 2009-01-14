@@ -150,6 +150,8 @@
           (http://www.packetfence.org/mantis/view.php?id=529)
         unified web admin GUI HTML page titles
           (http://www.packetfence.org/mantis/view.php?id=530)
+        fixed default status/reports page
+          (http://www.packetfence.org/mantis/view.php?id=532)
 
 1.7.6
         violations created through bin/pfdetect do not lead to 

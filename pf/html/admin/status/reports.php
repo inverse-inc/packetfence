@@ -8,7 +8,7 @@
   include_once('../header.php');
 
   $active_available = array('registered', 'unregistered', 'os', 'osclass', 'unknownprints', 'openviolations', 'statics');
-  $type = set_default($_REQUEST	['type'], 'ipmachistory');
+  $type = set_default($_REQUEST['type'], 'ipmachistory');
   $subtype = set_default($_GET['subtype'], '');
 
   $pid = set_default($_REQUEST['pid'], $_GET['view_item']);
@@ -26,12 +26,12 @@
 
   $extra_goodness = helper_menu($current_top, $current_sub, $type, $_GET[menu], $additional);
 
-  if(($_REQUEST['type'] == 'ipmachistory') || ($_REQUEST['type'] == 'locationhistoryswitch') || ($_REQUEST['type'] == 'locationhistorymac') || ($_REQUEST['type'] == 'ifoctetshistoryswitch') || ($_REQUEST['type'] == 'ifoctetshistorymac')) {
+  if(($type == 'ipmachistory') || ($_REQUEST['type'] == 'locationhistoryswitch') || ($_REQUEST['type'] == 'locationhistorymac') || ($_REQUEST['type'] == 'ifoctetshistoryswitch') || ($_REQUEST['type'] == 'ifoctetshistorymac')) {
     print $extra_goodness;
     unset($extra_goodness);
   }
   
-  if($_REQUEST[type] == 'ipmachistory'){
+  if($type == 'ipmachistory'){
   ?>
   <div id="ipmachistory">
   <form action="<?=$current_top?>/<?=$current_sub?>.php?type=<?=$type?>&menu=<?=$_GET[menu]?>" name="ipmachistory" method="post">
