@@ -208,7 +208,7 @@ Log::Log4perl->easy_init(
 my $logger = Log::Log4perl->get_logger('');
 
 my $switchFactory = new pf::SwitchFactory(
-    -configFile => INSTALL_DIR . '/conf/switches.conf';
+    -configFile => INSTALL_DIR . '/conf/switches.conf'
 );
 
 
@@ -239,13 +239,29 @@ if (($getUpLinks) || ($getVersion) || ($getType) || ($getAllMacs) || ($getHubs))
         $logger->debug("finished handling 'getVersion' command");
     } elsif ($getType) {
         $logger->debug("start handling 'getType' command");
-        my ($session, $error) = Net::SNMP->session(
-            -hostname  => $switch->{_ip},
-            -version   => $switch->{_SNMPVersion},
-            -timeout   => 2,
-            -retries   => 1,
-            -community => $switch->{_SNMPCommunityRead}
-        );
+        my $session;
+        my $error;
+        if ($switch->{_SNMPVersion} eq '3') {
+            ($session, $error) = Net::SNMP->session(
+                -hostname  => $switch->{_ip},
+                -version   => $switch->{_SNMPVersion},
+                -username  => $switch->{_SNMPUserNameRead},
+                -timeout => 2,
+                -retries => 1,
+                -authprotocol => $switch->{_SNMPAuthProtocolRead},
+                -authpassword => $switch->{_SNMPAuthPasswordRead},
+                -privprotocol => $switch->{_SNMPPrivProtocolRead},
+                -privpassword => $switch->{_SNMPPrivPasswordRead}
+            );
+        } else {
+            ($session, $error) = Net::SNMP->session(
+                -hostname  => $switch->{_ip},
+                -version   => $switch->{_SNMPVersion},
+                -timeout   => 2,
+                -retries   => 1,
+                -community => $switch->{_SNMPCommunityRead}
+            );
+        }
         my $type = 'unknown';
         my $version = 'unknown';
         my $versionOk = 0;
