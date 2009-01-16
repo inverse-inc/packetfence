@@ -6,7 +6,7 @@
   require('../common.php');
 
   if($_POST){
-    $options=array('font_size', 'homepage', 'cache_time', 'ui_debug');
+    $options=array('homepage', 'cache_time', 'ui_debug');
 
     foreach($_POST as $key => $val){
       if(in_array($key, $options)){
@@ -34,20 +34,9 @@
   include('../header.php');
 ?>
 
-<div id="history">
+<div id="add">
 <form method='post' action='<?=$current_top?>/<?=$current_sub?>.php'>
-<table class="main">
-  <tr>
-    <td><b>Font Size</b></td>
-  </tr>
-  <tr>  
-    <td>
-      <input type='radio' name='font_size' value='small' <? if($_SESSION['ui_prefs']['font_size']=='small') echo "checked";?> ><span style="font-size:8pt">Small</span>
-      <input type='radio' name='font_size' value='medium' <? if($_SESSION['ui_prefs']['font_size']=='medium' || !isset($_SESSION['ui_prefs']['font_size'])) echo "checked";?> ><span style="font-size:10pt">Medium</span>
-      <input type='radio' name='font_size' value='large' <? if($_SESSION['ui_prefs']['font_size']=='large')echo "checked";?> ><span style="font-size:14pt">Large</span>
-    </td>
-  </tr>
-  <tr height=10px><td><hr></td></tr>
+<table class="add">
   <tr> 
     <td><b>Select Default Homepage</b></td>
   </tr>

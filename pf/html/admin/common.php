@@ -182,14 +182,41 @@ if($sajax){
   	  $this->is_hidden=false;
         }
       }
+
+      if (isset($this->default_filter) || (isset($filter) && $filter != '')) {
+        if (!isset($filter) || $filter == '') {
+          $filter = $this->default_filter;
+        }
+      }
+
+      if (isset($filter) && $filter != "" && substr($filter, 0, 9) != 'category=' && substr($filter, 0, 4) != 'pid=' )
+        $this->rows=$this->tablefilter($filter); 
+
+
+      print $extra_goodness;
+
+      print "<table class='data_table' align='center' width='95%'>\n";
+      print "<thead>\n";
+
+      print "<tr>\n";
+      print "<td colspan=\"".count($this->headers)."\" id=\"search\">\n";
+      if($this->is_hideable){
+        if($this->is_hidden){
+	           print "<span id='show_icon' style='display:visible;'><a href='javascript:hideCells(\"\");'><img src='../images/show.gif' alt='Show Info'><br><font size=1>Show Info</font></a></span>";
+	           print "<span id='hide_icon' style='display:none;'><a href='javascript:hideCells(\"none\");'><img src='../images/hide.gif' alt='Hide Info'><br><font size=1>Hide Info</font></a></span>";
+        }
+	else{
+	           print "<span id='show_icon' style='display:none;'><a href='javascript:hideCells(\"\");'><img src='../images/show.gif' alt='Show Info'><br><font size=1>Show Info</font></a></span>";
+	           print "<span id='hide_icon' style='display:visible;'><a href='javascript:hideCells(\"none\");'><img src='../images/hide.gif' alt='Hide Info'><br><font size=1>Hide Info</font></a></span>";
+        }   
+      }
+
       ## FILTER ANNEX ##
       if(!$with_add && !$no_filter && !($current_top=="scan" && $current_sub=="scan")){
 	if($current_top == 'status' && $current_sub == 'reports'){
 		global $type;
 		$t = "<input type='hidden' name='type' value='".trim($type)."'>";
 	}
-        print "<form name='filter' action='/$current_top/$current_sub.php' method='GET'>\n";
-	print $t;
         if (isset($this->default_filter) || (isset($filter) && $filter != '')) {
           if (!isset($filter) || $filter == '') {
             $last_filter = $this->default_filter;
@@ -200,18 +227,17 @@ if($sajax){
           $last_filter="             -Filter-";
         }
 
-        ?>
-<div id="annex" align="right">
-  <table>
-    <tr>
-      <td></td><td align=center><a href='javascript:document.filter.submit();'><img src='images/search.png' alt='Search'></a></td>
-      <td><input name="filter" onfocus="this.value=''" type="text" value="<?=$last_filter?>"></td> 
-      <td width="15" align="center"><a href="<?=$current_top?>/<?=$current_sub?>.php?per_page=<?=$per_page?>">x</a></td>
-    </tr>
-        <?php if(!isset($time_filter)) print "    <tr><td><img src='images/corner.jpg' alt=''></td><td colspan=2></td></tr>\n  </table>\n"; ?>
+        print "<span id=\"searchform\">\n";
+        print "<form name='filter' action='/$current_top/$current_sub.php' method='GET'>\n";
+        print $t;
+        print "<table>\n";
+        print "<tr>\n";
+        print "<td></td><td align=center><a href='javascript:document.filter.submit();'><img src='images/search.png' alt='Search'></a></td>\n";
+        print "<td><input name=\"filter\" onfocus=\"this.value=''\" type=\"text\" value=\"$last_filter\"></td>\n";
+        print "<td width=\"15\" align=\"center\"><a href=\"<?=$current_top?>/<?=$current_sub?>.php?per_page=<?=$per_page?>\">x</a></td>\n";
+        print "</tr>\n";
+        if(!isset($time_filter)) print "    <tr><td></td><td colspan=2></td></tr>\n  </table>\n";
 
-
-          <?php
           ## TIME FILTER ##
           if(isset($time_filter)){
             if(!$starttime)
@@ -234,7 +260,7 @@ if($sajax){
 	    print "  <td></td>\n";	
 	    print "</tr>\n";
             print "<tr height='30'>";
-	    print "  <td valign='bottom'><img src='images/corner.jpg'></td>";
+	    print "  <td valign='bottom'></td>";
             print "  <td align='right'>";
             print "  <input type='submit' value='Submit'>";
             print "  </td>";
@@ -242,43 +268,11 @@ if($sajax){
             print "</table>\n";
 
           }
-          ?>
-</div>
-</form>
+        print "</form>\n";
+        print "</span>\n";
 
-      <?php
       }
-
-      if (isset($this->default_filter) || (isset($filter) && $filter != '')) {
-        if (!isset($filter) || $filter == '') {
-          $filter = $this->default_filter;
-        }
-      }
-
-      if (isset($filter) && $filter != "" && substr($filter, 0, 9) != 'category=' && substr($filter, 0, 4) != 'pid=' )
-        $this->rows=$this->tablefilter($filter); 
-
-
-      print $extra_goodness;
-
-      print "<table class='data_table' align='center' width='95%'>\n";
-
-      if($this->is_hideable){
-        print "<tr><td colspan=".count($this->headers)." align=right>";
-        if($this->is_hidden){
-	           print "<span id='show_icon' style='display:visible;'><a href='javascript:hideCells(\"\");'><img src='../images/show.gif' alt='Show Info'><br><font size=1>Show Info</font></a></span>";
-	           print "<span id='hide_icon' style='display:none;'><a href='javascript:hideCells(\"none\");'><img src='../images/hide.gif' alt='Hide Info'><br><font size=1>Hide Info</font></a></span>";
-        }
-	else{
-	           print "<span id='show_icon' style='display:none;'><a href='javascript:hideCells(\"\");'><img src='../images/show.gif' alt='Show Info'><br><font size=1>Show Info</font></a></span>";
-	           print "<span id='hide_icon' style='display:visible;'><a href='javascript:hideCells(\"none\");'><img src='../images/hide.gif' alt='Hide Info'><br><font size=1>Hide Info</font></a></span>";
-        }   
-        print "</td></tr>";
-      }
-      else{
-        print "<tr><td></td></tr>";
-      }
-
+      print "</td></tr>";
 
       print "  <tr class='header'>\n";
       if($this->is_empty()){
@@ -344,6 +338,7 @@ if($sajax){
       if($this->editable || $this->scannable) 
         print "    <td></td>\n"; 
       print "  </tr>\n";
+      print "</thead>\n";
        
     if(!$this->sql_sort_and_limit) {
       if (isset($this->default_sort_header) || (isset($sort) && $sort != '')) {
@@ -374,15 +369,13 @@ if($sajax){
   }
   $stop=$start+$this->per_page-1;
 
+  print "<tbody>\n";
   for($i=$start; $i<=$stop; $i++){
 	  if($i>=count($this->rows))
 		  break;
 
   ## ROW HIGHLIGHTING ##	
-  if($i % 2==0) 
-    print "  <tr class='even' onmouseover=\"this.className='over';\" onmouseout=\"this.className='even';\">\n";
-	else
-    print "  <tr class='odd' onmouseover=\"this.className='over';\" onmouseout=\"this.className='odd';\">\n";
+  print "<tr class=\"data\">\n";
 
   ## EDITING A ROW ##
   if($action=="edit" && !$commit && $item==$i){
@@ -433,13 +426,13 @@ if($sajax){
                strstr($this->linkable[$key], '?') ? $break = '&' : $break = '?';
 
 	       if($key == 'dhcp_fingerprint' && $_SESSION['fingerprints']["$cell"]){
-                 print "    <td $hide_tag><a href='".$this->linkable[$key].$break."view_item=$cell'>".$_SESSION['fingerprints']["$cell"]."</a></td>";
+                 print "    <td $hide_tag><a href='".$this->linkable[$key].$break."view_item=$cell'>".$_SESSION['fingerprints']["$cell"]."</a></td>\n";
 	       }
                else if($key == 'vid' && $_SESSION['violation_classes']["$cell"]){
-                 print "    <td $hide_tag><a href='".$this->linkable[$key].$break."view_item=$cell'>".$_SESSION['violation_classes']["$cell"]." </a></td>";
+                 print "    <td $hide_tag><a href='".$this->linkable[$key].$break."view_item=$cell'>".$_SESSION['violation_classes']["$cell"]." </a></td>\n";
                } 
 	       else{
-                 print "    <td $hide_tag><a href='".$this->linkable[$key].$break."view_item=$cell'>$cell</a></td>";
+                 print "    <td $hide_tag><a href='".$this->linkable[$key].$break."view_item=$cell'>$cell</a></td>\n";
 	       }
 	     }
              else{  
@@ -448,16 +441,16 @@ if($sajax){
            }
                   
            if(isset($this->editable)){
-             print "  <td align='center' style='vertical-align:middle;' nowrap>\n";
+             print "  <td class=\"action\">\n";
+	     print "  <a href=\"javascript:popUp('/$current_top/edit.php?item=$key_item',500,400)\" title='Edit this record'><img src='/images/edit.png' alt=\"[ Edit ]\"></a>\n";
+             if($this->violationable){
+               print "  <a href='violation/add.php?MAC=".$this->rows[$i]['mac']."'><img src='/images/trap.png' border='0' title='Add Violation' alt='[ Add Violation ]'></a>\n";
+             }
 	     print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page&amp;action=$action&amp;item=$item' method='post'>";
              print "  <input type='hidden' name='action' value='delete'>\n";
              print "  <input type='hidden' name='commit' value='true'>\n";
              print "  <input type='hidden' name='original' value='".implode("\t", $this->rows[$i])."'>\n";
-             print "  <input type='image' src='images/delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete ".$this->rows[$i][$this->key]."?');\">\n";
-	     print "  <a href=\"javascript:popUp('/$current_top/edit.php?item=$key_item',500,400)\" title='Edit this record'><img src='images/edit.png' alt=\"[ Edit ]\"></a>";
-             if($this->violationable){
-               print "  <a href='violation/add.php?MAC=".$this->rows[$i]['mac']."'><img src='images/trap.png' border='0' title='Add Violation' alt='[ Add Violation ]'></a>";
-             }
+             print "  <input class=\"button\" type='image' src='/images/delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete ".$this->rows[$i][$this->key]."?');\">\n";
              print "  </form>";
    	     print "</td>\n";
            }
@@ -466,13 +459,14 @@ if($sajax){
              print "<td width='45' align='right'>\n";
              $host=$this->rows[$i]['mac'];
              print "  <A HREF=\"javascript:popUp('nessus/scanner.php?host=$host')\">";
-             print "  <input type='image' align='center' src='images/delete.png' onClick=\"return confirm('Scan this host?');\"></a>\n";
+             print "  <input class=\"button\" type='image' align='center' src='/images/delete.png' onClick=\"return confirm('Scan this host?');\"></a>\n";
      	     print "</td>\n";
            }
         }
         print "  </tr>\n"; 
       }
 
+      print "</tbody>\n";
       print "</table>\n";
     
       if(!$with_add){
@@ -542,7 +536,7 @@ if($sajax){
     	    if($this->per_page==$per_pages[$a])
               print "<a class='active' href='$current_top/$current_sub.php?sort=$sort&amp;direction=$direction&amp;per_page=$per_pages[$a]&amp;filter=" . urlencode($filter) . "&$xtra_args'>$per_pages[$a] </a>";
 	    else   
-              print "<a class='inactive' href='$current_top/$current_sub.php?sort=$sort&amp;direction=$direction&amp;per_page=$per_pages[$a]&amp;filter=" . urlencode($filter) . "&$xtra_args'>$per_pages[$a] </a>";
+              print "<a href='$current_top/$current_sub.php?sort=$sort&amp;direction=$direction&amp;per_page=$per_pages[$a]&amp;filter=" . urlencode($filter) . "&$xtra_args'>$per_pages[$a] </a>";
           }
         }
       }
@@ -597,9 +591,6 @@ function PrintSubNav($menu){
 
     print "         </ul>\n";
     print "       </div>\n";
-    print "       <div class='logout'>\n";
-    print "         <a href='login.php?logout=true'><img border='0' src='images/dude2.gif' alt=''> ".ucfirst($_SESSION['user'])." Logout</a>\n";
-    print "       </div>\n";
     print "       <!-- End SubNav -->\n\n";
   }
 
@@ -611,6 +602,9 @@ function PrintSubNav($menu){
 
     print "<!-- Begin TopNav -->\n";
     print "      <div class='topnav'>\n";
+    print "       <span class='logout'>\n";
+    print "         <a href='login.php?logout=true'><img border='0' src='images/dude2.gif' alt=''> ".ucfirst($_SESSION['user'])." Logout</a>\n";
+    print "       </span>\n";
     print "        <ul>\n";
     foreach($root_menus as $menu) {
       if($current_top==$menu[0])

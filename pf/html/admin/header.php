@@ -90,7 +90,7 @@
   <title>PF::<?php echo ucfirst($current_top)?>::<?php echo ucfirst($current_sub)?></title>
   <base href="<?=$abs_url?>/">
   <link rel="shortcut icon" href="/favicon.ico">
-  <link rel="stylesheet" href="style.php" type="text/css"> 
+  <link rel="stylesheet" href="style.css" type="text/css"> 
 
   <style type="text/css">@import url(<?=$abs_url?>/calendar/calendar-pf.css);</style>
   <script type="text/javascript" src="<?=$abs_url?>/calendar/calendar.js"></script>
@@ -156,13 +156,17 @@
 
 <body>
 
-<table style="width:100%;" cellspacing="0" cellpadding="0">
-  <tr>
+<div id="container">
+
+<table id="main" style="width:100%;" cellspacing="0" cellpadding="0">
+  <tr colspan="2">
+    <td valign="top">
+      <a href="index.php"><img border="0" src="/common/packetfence.png" align="right" width="193" height="60" alt="[ Packetfence ]"></a>
+    </td>
+  </tr>
+  <tr colspan="2">
     <td valign="bottom" width="100%">
       <?php PrintTopNav() ?>
-    </td>
-    <td valign="top">
-      <a href="index.php"><img border="0" src="/common/packetfence.png" align="right" alt="[ Packetfence ]"></a>
     </td>
   </tr>
   <tr>

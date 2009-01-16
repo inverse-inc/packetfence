@@ -8,7 +8,7 @@
 <head>
   <title>PF::Person::Edit</title>
   <link rel="shortcut icon" href="/favicon.ico"> 
-  <link rel="stylesheet" href="../style.php" type="text/css">
+  <link rel="stylesheet" href="../style.css" type="text/css">
 </head>
 
 <body class=add>

@@ -39,6 +39,7 @@
     <td align="right" colspan="2"><font size="1"><?=meta("pf-version")?></font></td>
   </tr>
 </table>
+</div>
 
 </body>
 </html>

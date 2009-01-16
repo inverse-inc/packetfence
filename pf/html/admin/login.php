@@ -134,21 +134,54 @@ else {
   <title>PF::Login</title>
   <base href="<?=$abs_url?>/">
   <link rel="shortcut icon" href="/favicon.ico">
-  <link rel="stylesheet" href="style.php" type="text/css">  
+  <link rel="stylesheet" href="style.css" type="text/css">  
 </head>
 
 <body onload="document.login.<?=(isset($failed) ? "password" : "username")?>.focus();">
 
-<br><br><br>
+<div id="container">
+
+<table id="main" style="width: 100%;" cellpadding="0" cellspacing="0">
+  <tbody><tr colspan="2">
+    <td valign="top">
+      <a href="https://localhost:1443/index.php"><img src="/common/packetfence.png" alt="[ Packetfence ]" align="right" border="0" height="60" width="193"></a>
+    </td>
+  </tr>
+  <tr colspan="2">
+    <td valign="bottom" width="100%">
+      <!-- Begin TopNav -->
+      <div class="topnav">
+        <ul>
+          <li class="active"><a href="#">Login</a></li>
+        </ul>
+      </div>
+      <!-- End TopNav -->
+
+    </td>
+  </tr>
+  <tr>
+    <td class="subnav" colspan="2">
+      <!-- Begin SubNav -->
+      <div class="subnav">
+        <ul id="navlist">
+         </ul>
+       </div>
+       <!-- End SubNav -->
+
+    </td>
+  </tr>
+  <tr>
+    <td class="content" colspan="2" height="100%" valign="top">
+
+<!-- Begin Content -->
+<div id="content">
 
 <div id="login" align=center>
   <form method="post" name="login" action="<? print "$_SERVER[PHP_SELF]?p="	. (array_key_exists('p', $_GET) ? $_GET['p'] :'');?>">
   <table>
-    <tr height=30%>
-      <td colspan=4 align=center><img src="/common/packetfence.png" alt="[ PacketFence ]"></td>
-    </tr>
+    <tbody>
     <tr>
-      <td colspan=4 align=center>
+      <td colspan=2 align=center>
       <?	
 	if(isset($_GET['ip_mismatch'])){
 	  print "<div id='error'>Error!  Your IP address has changed since you logged on.  Please log in again.</div>"; 
@@ -172,28 +205,36 @@ else {
       </td>
     </tr>
     <tr valign=bottom>
-      <td width=25%></td>
-      <td width=25% align=center>Username</td>
-      <td width=25%align=left><input type="text" name="username" maxlength="20" value="<?=(isset($_POST['username']) ? $_POST['username'] : "")?>"></td>
-      <td width=25%></td>
+      <td align=right>Username</td>
+      <td align=left><input type="text" name="username" maxlength="20" value="<?=(isset($_POST['username']) ? $_POST['username'] : "")?>"></td>
     </tr>
     <tr>
-      <td></td>
-      <td align=center>Password</td>
+      <td align=right>Password</td>
       <td align=left><input type="password" maxlength="20" name="password"></td>
-      <td></td>
     </tr>
     <tr height=30% valign=top>
-      <td></td>
-      <td></td>
-      <td align=right><input type="submit" value="Login"></td>
-      <td></td>
-    </tr>
-    <tr bgcolor=#dddddd style='border-top:1px solid black;'>
-      <td style='border-top:1px solid #bbbbbb; text-align:right;padding-right:10px;' colspan=4><font color=black><i>500 shades of gray, and growing!</i></td>
+      <td colspan="2" align=right><input type="submit" value="Login"></td>
     </tr>
   </table>
   </form>
 </div>
 
-</html>
+
+      <!-- End Content -->
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="10">
+      <div id="footer">
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" align="right">&nbsp;</td>
+  </tr>
+</tbody></table>
+</div>
+
+</body></html>
+

@@ -45,9 +45,9 @@
 
 ?>
 
-  <div id=history>
+  <div id=add>
   <form action="administration/adduser.php" name="history" method="POST">
-  <table class=main>
+  <table class=add>
     <tr><td rowspan=20 valign=top><img src='images/adduser.png' alt=''></td></tr>      
     <tr>
       <td>Username</td>

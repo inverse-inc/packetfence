@@ -14,27 +14,23 @@ if($view_item){
 
 ?>
 
-<div id="history">
-  <table class="main">
+<div id='add'>
+<form action="node/lookup.php" method="get">
+  <table class="add">
     <tr>
-      <td>
-        <form action="node/lookup.php" method="post">
-        <table>
-          <tr>
-            <td colspan="2"><b>Lookup a MAC</b></td>
-          </tr>
-          <tr>
-            <td>MAC</td>
-            <td><input type="text" name="view_item" value='<?=$view_item?>' ></td>
-          </tr>
-          <tr>
-            <td colspan="2" align="right"><input type="submit" value="Lookup"></td>
-          </tr>
-        </table>
-        </form>
-      </td>
+       <td colspan="2"><b>Lookup a MAC</b></td>
+    </tr>
+    <tr>
+       <td>MAC</td>
+       <td><input type="text" name="view_item" value='<?=$view_item?>' ></td>
+    </tr>
+    <tr>
+       <td colspan="2" align="right"><input type="submit" value="Lookup"></td>
+    </tr>
+  </table>
+</form>
+
       <?if($view_item){ ?>
-      <td class="contents">
         <table>
           <tr>
             <td>
@@ -48,10 +44,7 @@ if($view_item){
             </td>
           </tr>
         </table>
-      </td>
       <?}?>
-    </tr>
-  </table>
 </div>
 
 <?

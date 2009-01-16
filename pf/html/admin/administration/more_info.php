@@ -3,7 +3,7 @@
 ?>
 <head>
   <title>PF::Config::Help</title>
-  <link rel="stylesheet" href="../style.php" type="text/css">
+  <link rel="stylesheet" href="../style.css" type="text/css">
 </head>
 
 <?
