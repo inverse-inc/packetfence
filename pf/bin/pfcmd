@@ -22,8 +22,6 @@ use POSIX();
 use Date::Parse;
 use Parse::RecDescent;
 use File::Basename qw(basename);
-use LWP;
-use CGI qw(-no_debug :standard); 
 use Log::Log4perl;
 
 use constant INSTALL_DIR => '/usr/local/pf';
@@ -36,7 +34,6 @@ use pf::util;
 use pf::pfcmd::pfcmd;
 use pf::pfcmd::pfcmd_pregrammar;
 use pf::pfcmd::help;
-use pf::vlan::custom;
 
 delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
 
@@ -80,6 +77,8 @@ my %myconfig;
 my %documentation;
 
 if (defined $ENV{GATEWAY_INTERFACE}){
+  require CGI;
+  import CGI qw(-no_debug :standard); 
   my $q = new CGI;
   if ($q->param("ARGS")) {
    @ARGV = $q->param("ARGS");
@@ -110,31 +109,22 @@ my $result = $parser->start(join " ",@ARGV);
 defined($result) || usage();
 my $command = $cmd{'command'}[0];
 
-if ($command =~ /^(help|history|ipmachistory|locationhistoryswitch|locationhistorymac|ifoctetshistorymac|ifoctetshistoryswitch|ifoctetshistoryuser|report|ui|graph|switchlocation|nodecategory)$/i) {
+if ($command =~ /^(class|help|history|ipmachistory|locationhistoryswitch|locationhistorymac|ifoctetshistorymac|ifoctetshistoryswitch|ifoctetshistoryuser|report|ui|graph|switchlocation|nodecategory|trigger)$/i) {
   ($main::{${$cmd{'command'}}[0]} or sub { print "No such sub: $_\n" })->();
   exit 1;
 }
 
-require pf::node;
-import pf::node;
-require pf::person;
-import pf::person;
-require pf::trigger;
-import pf::trigger;
-require pf::violation;
-import pf::violation;
-require pf::class;
-import pf::class;
-require pf::services;
-import pf::services;
-require pf::os;
-import pf::os;
-require pf::iptables;
-import pf::iptables;
-require pf::rawip;
-import pf::rawip qw(freemac);
-
-if ($command =~ /^(person|node|violation)$/i) {
+if ($command =~ /^person$/i) {
+  require pf::person;
+  import pf::person;
+  command_param($command);
+} elsif ($command =~ /^node$/i) {
+  require pf::node;
+  import pf::node;
+  command_param($command);
+} elsif ($command =~ /^violation$/i) {
+  require pf::violation;
+  import pf::violation;
   command_param($command);
 } else {
   ($main::{${$cmd{'command'}}[0]} or sub { print "No such sub: $_\n" })->();
@@ -160,22 +150,28 @@ sub manage {
   $id = $cmd{manage_options}[2] if (defined $cmd{manage_options}[2]);
   my $function = "manage_" . $option;
   if ($option eq "freemac"){
-    freemac($mac);  
+    require pf::rawip;
+    pf::rawip::freemac($mac);  
   }elsif ($option eq "register"){
     return(0) if (!$id);
     my %params=format_assignment(@{$cmd{assignment}});
-    node_register($mac,$id,%params);
+    require pf::node;
+    pf::node::node_register($mac,$id,%params);
   }elsif ($option eq "deregister"){
-    node_deregister($mac);
+    require pf::node;
+    pf::node::node_deregister($mac);
     if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
-      iptables_generate();
+      require pf::iptables;
+      pf::iptables::iptables_generate();
     }
   }elsif ($option eq "vclose"){
     return(-1) if (!$id);
-    print violation_close($mac,$id);
+    require pf::violation;
+    print pf::violation::violation_close($mac,$id);
   }elsif ($option eq "vopen"){
     return(-1) if (!$id);
-    print violation_add($mac,$id);
+    require pf::violation;
+    print pf::violation::violation_add($mac,$id);
   }
   generate_switchport_vlan_assignment($mac,$function);
 }
@@ -327,6 +323,8 @@ sub traplog {
 sub service {
   my $service = $cmd{command}[1];
   my $command = $cmd{command}[2];
+  require pf::services;
+  import pf::services;
 
   my @all_services=('pfdhcplistener','pfmon','pfdetect','pfredirect','snort','httpd', 'snmptrapd', 'pfsetvlan');
 
@@ -412,7 +410,8 @@ sub service {
     if ($nb_running_services == 0) {
       if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
         $logger->info("saving current iptables to var/iptables.bak");
-        iptables_save($install_dir.'/var/iptables.bak');
+        require pf::iptables;
+        pf::iptables::iptables_save($install_dir.'/var/iptables.bak');
       }
     }
   }
@@ -420,11 +419,13 @@ sub service {
   print "service|command\n";
   if ($command !~ /^stop$/){
     print "config files|$command\n";
-    read_dhcp_fingerprints_conf();
+    require pf::os;
+    pf::os::read_dhcp_fingerprints_conf();
     read_violations_conf();
     if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
       print "iptables|$command\n";
-      iptables_generate();
+      require pf::iptables;
+      pf::iptables::iptables_generate();
     }
   }
 
@@ -442,7 +443,8 @@ sub service {
     }
     if ($nb_running_services == 0) {
       if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
-        iptables_restore($install_dir.'/var/iptables.bak');
+        require pf::iptables;
+        pf::iptables::iptables_restore($install_dir.'/var/iptables.bak');
       }
     } else {
       if ($service =~ /^pf$/i) {
@@ -454,6 +456,8 @@ sub service {
 
 sub class {
   my ($function,$id);
+  require pf::class;
+  import pf::class;
   $id = $cmd{'command'}[2];
   if ($id && $id!~/all/){
         $function="class_view";
@@ -466,6 +470,8 @@ sub class {
 #
 sub trigger {
   my ($function,$id,%params);
+  require pf::trigger;
+  import pf::trigger;
   $id = $cmd{command}[2];
   if ((defined $cmd{command}[3]) && ($cmd{command}[3] ne '')) {
     if ($id=~/all/){
@@ -486,6 +492,8 @@ sub trigger {
 #
 sub fingerprint {
   my ($function,$id);
+  require pf::os;
+  import pf::os;
   $id = $cmd{command}[2];
   if ($id && $id!~/all/){ 
     $function="dhcp_fingerprint_view";
@@ -519,7 +527,8 @@ sub schedule {
 
   #scan now no cron entry
   if ($option && $option=~/^now$/){
-    my @output=trigger_scan($hostaddr,$params{tid});
+    require pf::trigger;
+    my @output=pf::trigger::trigger_scan($hostaddr,$params{tid});
     my $date=mysql_date();
     $date=~s/ /-/g;
     $hostaddr=~s/\//\\/g;
@@ -716,11 +725,13 @@ sub report {
 sub reload {
   my $option = $cmd{command}[1];
   if ($option eq "fingerprints") {
-    my $fp_total = read_dhcp_fingerprints_conf();
+    require pf::os;
+    my $fp_total = pf::os::read_dhcp_fingerprints_conf();
     $logger->info("$fp_total DHCP fingerprints reloaded");
     print "$fp_total DHCP fingerprints reloaded\n";
   } elsif ($option eq "violations") {
-    read_violations_conf();
+    require pf::services;
+    pf::services::read_violations_conf();
     $logger->info("Violation classes reloaded");
     print "Violation classes reloaded\n";
   }
@@ -729,6 +740,7 @@ sub reload {
 
 sub update {
   my $option = $cmd{command}[1];
+  require LWP::UserAgent;
   my $browser = LWP::UserAgent->new;
   if ($option eq "fingerprints") {
     my $response = $browser->get($dhcp_fingerprints_url);
@@ -743,7 +755,8 @@ sub update {
       close($fingerprints_fh);
       $logger->info("DHCP fingerprints updated via $dhcp_fingerprints_url to $version");
       print "DHCP fingerprints updated via $dhcp_fingerprints_url to $version\n";
-      my $fp_total = read_dhcp_fingerprints_conf();
+      require pf::os;
+      my $fp_total = pf::os::read_dhcp_fingerprints_conf();
       $logger->info("$fp_total DHCP fingerprints reloaded");
       print "$fp_total DHCP fingerprints reloaded\n";
     }
@@ -965,7 +978,8 @@ sub command_param {
       $logger->debug("$function was called - we don't need to recalculate iptables and switchport VLAN assignments");
     } else {
       if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
-        iptables_generate();
+        require pf::iptables;
+        pf::iptables::iptables_generate();
       }
       if ($function =~ /^violation/) {
         generate_switchport_vlan_assignment($params{mac},$function);
@@ -1022,6 +1036,7 @@ sub print_results {
   }
   return($total);
 }
+
 
 # This function has dirtied my soul.  I beg forgiveness for the disgusting code that follows.
 # I need a brillo pad and a long, long shower...
@@ -1374,7 +1389,8 @@ sub sanity_check {
   }
 
   # make sure pid 1 exists
-  if (!person_exist(1)){
+  require pf::person;
+  if (! pf::person::person_exist(1)){
     $logger->logdie("person user id 1 must exist - please reinitialize your database"); 
   }   
 
@@ -1454,6 +1470,7 @@ sub generate_switchport_vlan_assignment {
     import pf::locationlog;
     my $locationlog_entry = locationlog_view_open_mac($mac);
     if ($locationlog_entry) {
+      require pf::vlan::custom;
       my $switch_ip = $locationlog_entry->{'switch'};
       my $ifIndex = $locationlog_entry->{'port'};
       my $currentVlan = $locationlog_entry->{'vlan'};

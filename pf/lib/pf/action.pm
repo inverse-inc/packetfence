@@ -26,12 +26,7 @@ use Log::Log4perl;
 use pf::config;
 use pf::util;
 use pf::db;
-use pf::node qw(node_register_auto node_view);
 use pf::class qw(class_view class_view_actions);
-#use pf::rawip qw(trapmac); 
-use pf::violation qw(violation_force_close);
-use pf::iplog qw(mac2ip);
-use pf::iptables qw(iptables_mark_node);
 
 $action_db_prepared = 0;
 #action_db_prepare($dbh) if (!$thread);
@@ -135,7 +130,8 @@ sub action_execute {
       action_winpopup($mac, $vid);
     } elsif ($action =~ /^autoreg$/i) {
       if (isenabled($Config{'trapping'}{'registration'})) {
-        node_register_auto($mac);
+        require pf::node;
+        pf::node::node_register_auto($mac);
       } else {
         $logger->warn("autoreg action defined for violation $vid, but registration disabled");
       }
@@ -143,7 +139,10 @@ sub action_execute {
       $logger->error("unknown action '$action' for class $vid",1);
     }
   }
-  violation_force_close($mac, $vid) if (!$leave_open);
+  if (!$leave_open) {
+    require pf::violation;
+    pf::violation::violation_force_close($mac, $vid);
+  }
   return(1);
 }
 
@@ -167,7 +166,8 @@ sub action_email {
 sub action_log {
   my($mac, $vid) = @_;
   my $logger = Log::Log4perl::get_logger('pf::action');
-  my $ip = mac2ip($mac) || 0;
+  require pf::iplog;
+  my $ip = pf::iplog::mac2ip($mac) || 0;
 
   my $class_info  = class_view($vid);
   my $description = $class_info->{'description'};
@@ -187,7 +187,8 @@ sub action_trap {
   my($mac, $vid) = @_;
   my $logger = Log::Log4perl::get_logger('pf::action');
   if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
-    if (!iptables_mark_node($mac, $vid)) {
+    require pf::iptables;
+    if (!pf::iptables::iptables_mark_node($mac, $vid)) {
       $logger->error("unable to mark $mac with $vid");
       return(0);
     }

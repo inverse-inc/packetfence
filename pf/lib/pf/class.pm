@@ -24,8 +24,6 @@ BEGIN {
 
 use Log::Log4perl;
 use pf::db;
-use pf::action qw(action_delete_all action_add);
-use pf::trigger qw(trigger_add);
 
 $class_db_prepared = 0;
 #class_db_prepare($dbh) if (!$thread);
@@ -126,13 +124,14 @@ sub class_modify {
 
 sub class_merge {
   my $id = shift(@_);
-  my $logger = Log::Log4perl::get_logger('pf::class');
   my $triggers = pop(@_);
   my $actions = pop(@_);
+  my $logger = Log::Log4perl::get_logger('pf::class');
+  use pf::action;
 
   $logger->info("inserting $id");
   # delete existing violation actions
-  if (!action_delete_all($id)) {
+  if (!pf::action::action_delete_all($id)) {
     $logger->error("error deleting actions for class $id");
     return(0);
   }
@@ -148,14 +147,15 @@ sub class_merge {
 
   # add violation actions
   foreach my $action (split(/\s*,\s*/, $actions)) {
-    action_add($id,$action);
+    pf::action::action_add($id,$action);
   }
   
   #Add scan table id's -> violation class maps
   if (scalar(@{$triggers}) > 0) {
+    require pf::trigger;
     foreach my $array (@{$triggers}) {
       my ($tid_start,$tid_end,$type) = @{$array};
-      trigger_add($id,$tid_start,$tid_end,$type);
+      pf::trigger::trigger_add($id,$tid_start,$tid_end,$type);
     }
   }
 }

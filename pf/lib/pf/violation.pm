@@ -31,11 +31,6 @@ BEGIN {
 use pf::config;
 use pf::db;
 use pf::util;
-use pf::node qw(node_exist node_add_simple);
-use pf::action qw(action_execute);
-use pf::trigger qw(trigger_view_enable);
-use pf::iptables qw(iptables_unmark_node);
-use pf::class qw(class_view);
 
 $violation_db_prepared = 0;
 #violation_db_prepare($dbh) if (!$thread);
@@ -251,8 +246,9 @@ sub violation_add  {
   }
 
   #  has this mac registered if not register for violation?
-  if (!node_exist($mac)) {
-    node_add_simple($mac);
+  require pf::node;
+  if (! pf::node::node_exist($mac)) {
+    pf::node::node_add_simple($mac);
   } else {
     # not a new violation check violation
     my ($remaining_time) = violation_grace($mac, $vid);
@@ -267,7 +263,8 @@ sub violation_add  {
   # insert violation into db
   $violation_add_sql->execute($mac,$vid,$data{start_date},$data{release_date},$data{status},$data{ticket_ref},$data{notes}) || return(0);
   $logger->info("violation $vid added for $mac");
-  action_execute($mac, $vid, $data{notes});
+  require pf::action;
+  pf::action::action_execute($mac, $vid, $data{notes});
   return(1);
 }
 
@@ -277,7 +274,8 @@ sub violation_trigger {
   return(0) if (!$tid);
   $type=lc($type);
 
-  my @trigger_info=trigger_view_enable($tid,$type);
+  require pf::trigger;
+  my @trigger_info=pf::trigger::trigger_view_enable($tid,$type);
   if (!scalar(@trigger_info)) {
     $logger->debug("violation not added, no trigger found for ${type}::${tid} or violation is disabled");
   }
@@ -301,8 +299,8 @@ sub violation_close {
   my ($mac,$vid) = @_;
   violation_db_prepare($dbh) if (! $violation_db_prepared);
   my $logger = Log::Log4perl::get_logger('pf::violation');
-
-  my $class_info = class_view($vid);
+  require pf::class;
+  my $class_info = pf::class::class_view($vid);
   # check auto_enable = 'N'
   if ($class_info->{'auto_enable'} =~ /^N$/i) {
     return(-1);
@@ -314,7 +312,8 @@ sub violation_close {
 
   if ($num <= $max || $max == 0) {
     if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
-      iptables_unmark_node($mac, $vid);
+      require pf::iptables;
+      pf::iptables::iptables_unmark_node($mac, $vid);
     }
     my $grace = $class_info->{'grace_period'};
     $violation_close_sql->execute($mac,$vid) || return(0);

@@ -28,10 +28,8 @@ BEGIN {
 
 use pf::config;
 use pf::util;
-use pf::class;
 use pf::iplog qw(ip2mac);
 use pf::node qw(node_view);
-use pf::violation qw(violation_view_open);
 
 
 sub generate_release_page {
@@ -269,9 +267,11 @@ sub generate_status_page {
     { name => gettext('Status'), value => gettext($node_info->{'status'}) },
     { name => gettext('PID'), value => $node_info->{'pid'}},
   ];
-  my @violations = violation_view_open($mac);
+  require pf::violation;
+  require pf::class;
+  my @violations = pf::violation::violation_view_open($mac);
   foreach my $violation (@violations) {
-    my $class_info = class_view($violation->{'vid'});
+    my $class_info = pf::class::class_view($violation->{'vid'});
     push @{$vars->{list_violations}}, { name => $class_info->{'description'}, value => $violation->{'status'}};
   }
 

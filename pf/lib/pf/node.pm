@@ -35,11 +35,6 @@ BEGIN {
 use pf::config;
 use pf::db;
 use pf::util;
-use pf::person qw(person_nodes person_exist person_add);
-use pf::violation qw(violation_add violation_view_open);
-use pf::iptables qw(iptables_unmark_node iptables_mark_node);
-use pf::locationlog qw(locationlog_view_open_mac);
-#use pf::rawip qw(freemac trapmac);
 
 $is_node_db_prepared = 0;
 
@@ -115,7 +110,8 @@ sub node_delete {
     return 0;
   }
   if ($Config{'network'}{'mode'} =~ /vlan/i) {
-    if (defined(locationlog_view_open_mac($mac))) {
+    require pf::locationlog;
+    if (defined(pf::locationlog::locationlog_view_open_mac($mac))) {
       $logger->warn("VLAN isolation mode enabled and $mac has open locationlog entry. Node deletion prohibited");
       return 0;
     }
@@ -317,6 +313,8 @@ sub node_register_auto {
 sub node_register {
   my ($mac,$pid,%info) = @_;
   my $logger = Log::Log4perl::get_logger('pf::node');
+  require pf::person;
+  require pf::violation;
   $mac = lc($mac);
   my $auto_registered = 0;
 
@@ -327,15 +325,15 @@ sub node_register {
   
   my $max_nodes = 0;
   $max_nodes = $Config{'registration'}{'maxnodes'} if (defined $Config{'registration'}{'maxnodes'});
-  my $owned_nodes = person_nodes($pid);
+  my $owned_nodes = pf::person::person_nodes($pid);
   if ($max_nodes != 0 && $pid ne '1' && $owned_nodes >= $max_nodes) {
     $logger->error("maxnodes met or exceeded - registration of $mac to $pid failed");
     return(0);
   }
 
-  if (!person_exist($pid)) {
-    person_add($pid);
+  if (!pf::person::person_exist($pid)) {
     $logger->info("creating person $pid");
+    pf::person::person_add($pid);
   } else {
     $logger->info("person $pid already exists");
   }
@@ -367,7 +365,8 @@ sub node_register {
   }
 
   if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
-    if (!iptables_mark_node($mac, $reg_mark)) {
+    require pf::iptables;
+    if (!pf::iptables::iptables_mark_node($mac, $reg_mark)) {
       $logger->error("unable to mark node $mac as registered");
       return(0);
     }
@@ -377,12 +376,10 @@ sub node_register {
 
     #nessus code
     if (isenabled($Config{'scan'}{'registration'})) {
-      violation_add($mac,1200001);
+      pf::violation::violation_add($mac,1200001);
     }
 
   }
-
-  #freemac($mac) if ($Config{'network'}{'mode'} =~ /arp/i && !violation_view_open($mac));
 
   return(1);
 }
@@ -403,7 +400,8 @@ sub node_deregister {
   }
 
   if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
-    if (!iptables_unmark_node($mac, $reg_mark)) {
+    require pf::iptables;
+    if (!pf::iptables::iptables_unmark_node($mac, $reg_mark)) {
       $logger->error("unable to delete registration rule for $mac: $!");
       return(0);
     }
