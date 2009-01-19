@@ -35,7 +35,6 @@ BEGIN {
 use pf::config;
 use pf::db;
 use pf::util;
-use pf::node qw(node_exist node_add_simple);
 
 $iplog_db_prepared = 0;
 #iplog_db_prepare($dbh) if (!$thread);
@@ -140,8 +139,9 @@ sub iplog_open {
   my ($mac, $ip, $lease_length) = @_;
   iplog_db_prepare($dbh) if (! $iplog_db_prepared);
   my $logger = Log::Log4perl::get_logger('pf::iplog');
-  if (! node_exist($mac)) {
-    node_add_simple($mac);
+  require pf::node;
+  if (! pf::node::node_exist($mac)) {
+    pf::node::node_add_simple($mac);
   }
   if ($lease_length) {
     if (! defined(iplog_view_open_mac($mac))) {

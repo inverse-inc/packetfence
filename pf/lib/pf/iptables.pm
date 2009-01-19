@@ -26,7 +26,6 @@ use pf::util;
 use pf::class qw(class_view_all class_trappable);
 use pf::violation qw(violation_view_open_all violation_count);
 #use pf::rawip qw(freemac);  
-use pf::node qw(nodes_registered);
 
 sub iptables_generate {
   my $logger = Log::Log4perl::get_logger('pf::iptables');
@@ -39,7 +38,8 @@ sub iptables_generate {
 
   # mark all registered users
   if (isenabled($Config{'trapping'}{'registration'})) {
-    my @registered = nodes_registered();
+    require pf::node;
+    my @registered = pf::node::nodes_registered();
     foreach my $row (@registered) {
       my  $mac = $row->{'mac'};
       $tags{'mangle_rules'} .= "-A PREROUTING --match mac --mac-source $mac --jump MARK --set-mark 0x$reg_mark\n";
