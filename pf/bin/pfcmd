@@ -123,6 +123,12 @@ if ((scalar(@arguments) == 1) && ($arguments[0] eq 'version')) {
   $cmd{command}[1] = $arguments[1];
   reload();
   exit(1);
+} elsif ((scalar(@arguments) == 2) && ($arguments[0] eq 'report') && ($arguments[1] =~ /^(inactive|active|unregistered|registered|osclass|os|unknownprints|openviolations|statics)$/)) {
+  $command = $arguments[0];
+  $cmd{command}[0] = $arguments[0];
+  $cmd{command}[1] = $arguments[1];
+  report();
+  exit(1);
 } elsif ((scalar(@arguments) == 2) && ($arguments[0] eq 'update') && ($arguments[1] =~ /^(fingerprints|oui)$/)) {
   $command = 'update';
   $cmd{command}[0] = 'update';
@@ -145,6 +151,13 @@ if ((scalar(@arguments) == 1) && ($arguments[0] eq 'version')) {
   $command = 'nodecategory';
   $cmd{'command'}[2] = $arguments[2];
   nodecategory();
+  exit(1);
+} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'report') && ($arguments[1] =~ /^(unregistered|registered|osclass|os|unknownprints|openviolations|statics)$/) && ($arguments[2] =~ /^(all|active)$/)) {
+  $command = $arguments[0];
+  $cmd{'command'}[0] = $arguments[0];
+  $cmd{'command'}[1] = $arguments[1];
+  $cmd{'command'}[2] = $arguments[2];
+  report();
   exit(1);
 } elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'service') && ($arguments[1] =~ /^(pfmon|pfdhcplistener|pfdetect|pfredirect|snort|httpd|pfsetvlan|snmptrapd|pf)$/) && ($arguments[2] =~ /^(stop|start|restart|status|watch)$/)) {
   $command = $arguments[0];
