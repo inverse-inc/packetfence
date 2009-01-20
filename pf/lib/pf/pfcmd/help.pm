@@ -1,21 +1,31 @@
 #
 # Copyright 2005 David LaPorte <david@davidlaporte.org>
 # Copyright 2005 Kevin Amorin <kev@amorin.org>
-# Copyright 2008 Inverse groupe conseil <dgehl@inverse.ca>
+# Copyright 2008-2009 Inverse groupe conseil <dgehl@inverse.ca>
 #
 # See the enclosed file COPYING for license information (GPL).
 # If you did not receive this file, see
 # http://www.fsf.org/licensing/licenses/gpl.html.
 #
 
+package pf::pfcmd::help;
+
 use strict;
 use warnings;
+use File::Basename qw(basename);
 use Log::Log4perl;
+
+BEGIN {
+  use Exporter ();
+  our (@ISA, @EXPORT);
+  @ISA    = qw(Exporter);
+  @EXPORT = qw();
+}
 
 sub usage {
   my $command = basename($0);
-  if (defined $ARGV[0] && defined($main::{"help_".$ARGV[0]})){
-   ($main::{"help_".$ARGV[0]} or sub { print "No such sub: help_".$ARGV[0]."\n"; })->();
+  if (defined $ARGV[0] && defined($pf::pfcmd::help::{"help_".$ARGV[0]})){
+   ($pf::pfcmd::help::{"help_".$ARGV[0]} or sub { print "No such sub: help_".$ARGV[0]."\n"; })->();
    exit(1);
   }
 
