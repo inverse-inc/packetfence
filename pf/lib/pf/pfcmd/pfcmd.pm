@@ -42,7 +42,6 @@ $grammar = q {
    command :   'service' service_options
              | 'node' node_options
              | 'person' person_options
-             | 'nodecategory' 'view' /\w+/
              | 'switchlocation' 'view' ipaddr /\d+/
              | 'violation' violation_options
              | 'class' 'view' vid
