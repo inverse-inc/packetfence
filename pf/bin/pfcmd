@@ -100,15 +100,22 @@ if ($called_name =~ /^(start|stop|restart)$/i) {
 # dynamic grammar parsing (slow)
 #my $parser=Parse::RecDescent->new($grammar);
 
+my @arguments;
+if (scalar(@ARGV) == 1) {
+  @arguments = split (/ +/, $ARGV[0]);
+} else {
+  @arguments = @ARGV;
+}
+
 my $command;
-if ((scalar(@ARGV) == 1) && ($ARGV[0] eq 'version')) {
+if ((scalar(@arguments) == 1) && ($arguments[0] eq 'version')) {
   $command = 'version';
-} elsif ((scalar(@ARGV) == 2) && ($ARGV[0] eq 'help')) {
+} elsif ((scalar(@arguments) == 2) && ($arguments[0] eq 'help')) {
   $command = 'help';
-  $cmd{command}[1] = $ARGV[1];
-} elsif ((scalar(@ARGV) == 3) && ($ARGV[0] eq 'nodecategory') && ($ARGV[1] eq 'view') && ($ARGV[2] =~ /^\w+$/)) {
+  $cmd{command}[1] = $arguments[1];
+} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'nodecategory') && ($arguments[1] eq 'view') && ($arguments[2] =~ /^\w+$/)) {
   $command = 'nodecategory';
-  $cmd{'command'}[2] = $ARGV[2];
+  $cmd{'command'}[2] = $arguments[2];
 } else {
   # precompiled grammar (2.6x increase in speed)
   require pf::pfcmd::pfcmd_pregrammar;
