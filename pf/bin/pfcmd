@@ -105,6 +105,11 @@ if (scalar(@ARGV) == 1) {
   if ($ARGV[0] eq 'version') {
     $command = 'version';
   }
+} elsif (scalar(@ARGV) == 2) {
+  if ($ARGV[0] eq 'help') {
+    $command = 'help';
+    $cmd{command}[1] = $ARGV[1];
+  }
 } else {
   # precompiled grammar (2.6x increase in speed)
   require pf::pfcmd::pfcmd_pregrammar;

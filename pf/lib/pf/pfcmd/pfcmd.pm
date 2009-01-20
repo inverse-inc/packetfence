@@ -1,7 +1,7 @@
 #
 # Copyright 2005 David LaPorte <david@davidlaporte.org>
 # Copyright 2005 Kevin Amorin <kev@amorin.org>
-# Copyright 2008 Inverse groupe conseil <dgehl@inverse.ca>
+# Copyright 2008-2009 Inverse groupe conseil <dgehl@inverse.ca>
 #
 # See the enclosed file COPYING for license information (GPL).
 # If you did not receive this file, see
@@ -58,7 +58,6 @@ $grammar = q {
              | 'reload' ('fingerprints' | 'violations')
              | 'update' ('fingerprints' | 'oui')
              | 'manage' manage_options
-             | 'help' /.+/
              | 'graph' ('unregistered' | 'registered' | 'violations' | 'nodes') ('day'|'month'|'year')(?)
              | 'graph' 'ifoctetshistoryswitch' ipaddr /\d+/ date_range 
              | 'graph' 'ifoctetshistorymac' macaddr date_range 
