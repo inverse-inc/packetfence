@@ -166,6 +166,14 @@ if ((scalar(@arguments) == 1) && ($arguments[0] eq 'version')) {
   $cmd{'command'}[2] = $arguments[2];
   service();
   exit(1);
+} elsif ((scalar(@arguments) == 4) && ($arguments[0] eq 'switchlocation') && ($arguments[1] eq 'view') && ($arguments[2] =~ /^(\d{1,3}\.){3}\d{1,3}$/) && ($arguments[3] =~ /^\d+$/)) {
+  $command = $arguments[0];
+  $cmd{'command'}[0] = $arguments[0];
+  $cmd{'command'}[1] = $arguments[1];
+  $cmd{'command'}[2] = $arguments[2];
+  $cmd{'command'}[3] = $arguments[3];
+  switchlocation();
+  exit(1);
 } else {
   # precompiled grammar (2.6x increase in speed)
   require pf::pfcmd::pfcmd_pregrammar;

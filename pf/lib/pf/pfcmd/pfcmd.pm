@@ -41,7 +41,6 @@ $grammar = q {
 
    command : 'node' node_options
              | 'person' person_options
-             | 'switchlocation' 'view' ipaddr /\d+/
              | 'violation' violation_options
              | 'trigger' 'view' vid ('scan' | 'detect')(?)
              | 'ui' 'menus' ui_options(?)
