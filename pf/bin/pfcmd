@@ -134,6 +134,13 @@ if ((scalar(@arguments) == 1) && ($arguments[0] eq 'version')) {
   $cmd{'command'}[2] = $arguments[2];
   class();
   exit(1);
+} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'lookup') && ($arguments[1] =~ /^(person|node)$/) && ($arguments[2] =~ /^[\/,0-9a-zA-Z_\*\.\-\:_\;\@\ ]*$/)) {
+  $command = 'lookup';
+  $cmd{'command'}[0] = $arguments[0];
+  $cmd{'command'}[1] = $arguments[1];
+  $cmd{'command'}[2] = $arguments[2];
+  lookup();
+  exit(1);
 } elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'nodecategory') && ($arguments[1] eq 'view') && ($arguments[2] =~ /^\w+$/)) {
   $command = 'nodecategory';
   $cmd{'command'}[2] = $arguments[2];
@@ -869,14 +876,18 @@ sub lookup {
   my $service = $cmd{command}[1];
   my $id = $cmd{command}[2];
 
-  # this file contains the pidlookup function
-  # that can be customized to your environment
   push @INC, $bin_dir;
-  require "$bin_dir/lookup_".$service.".pl";
-
-  my $function = "lookup_".$service;
-  my $tmp_lookup = ($main::{$function} or sub { print "No such sub: $function\n" })->($id);
-  print $tmp_lookup;
+  if ($service =~ /^person$/) {
+    require pf::person;
+    import pf::person;
+    require "$bin_dir/lookup_person.pl";
+    my $tmp_lookup = lookup_person($id);
+    print $tmp_lookup;
+  } else {
+    require "$bin_dir/lookup_node.pl";
+    my $tmp_lookup = lookup_node($id);
+    print $tmp_lookup;
+  }
 }
 
 #
