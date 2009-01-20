@@ -113,6 +113,10 @@ if ((scalar(@arguments) == 1) && ($arguments[0] eq 'version')) {
 } elsif ((scalar(@arguments) == 2) && ($arguments[0] eq 'help')) {
   $command = 'help';
   $cmd{command}[1] = $arguments[1];
+} elsif ((scalar(@arguments) == 2) && ($arguments[0] eq 'reload') && ($arguments[1] =~ /^(fingerprints|violations)$/)) {
+  $command = 'reload';
+  $cmd{command}[0] = 'reload';
+  $cmd{command}[1] = $arguments[1];
 } elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'nodecategory') && ($arguments[1] eq 'view') && ($arguments[2] =~ /^\w+$/)) {
   $command = 'nodecategory';
   $cmd{'command'}[2] = $arguments[2];

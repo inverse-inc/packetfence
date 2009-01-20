@@ -53,7 +53,6 @@ $grammar = q {
              | 'fingerprint' 'view' ('all' | /\d+(,\d+)*/)
              | 'config' ('get' | 'set' | 'help') /.+/
              | 'lookup' ('person' | 'node') value
-             | 'reload' ('fingerprints' | 'violations')
              | 'update' ('fingerprints' | 'oui')
              | 'manage' manage_options
              | 'graph' ('unregistered' | 'registered' | 'violations' | 'nodes') ('day'|'month'|'year')(?)
