@@ -101,20 +101,14 @@ if ($called_name =~ /^(start|stop|restart)$/i) {
 #my $parser=Parse::RecDescent->new($grammar);
 
 my $command;
-if (scalar(@ARGV) == 1) {
-  if ($ARGV[0] eq 'version') {
-    $command = 'version';
-  }
-} elsif (scalar(@ARGV) == 2) {
-  if ($ARGV[0] eq 'help') {
-    $command = 'help';
-    $cmd{command}[1] = $ARGV[1];
-  }
-} elsif (scalar(@ARGV) == 3) {
-  if (($ARGV[0] eq 'nodecategory') && ($ARGV[1] eq 'view') && ($ARGV[2] =~ /^\w+$/)) {
-    $command = 'nodecategory';
-    $cmd{'command'}[2] = $ARGV[2];
-  }
+if ((scalar(@ARGV) == 1) && ($ARGV[0] eq 'version')) {
+  $command = 'version';
+} elsif ((scalar(@ARGV) == 2) && ($ARGV[0] eq 'help')) {
+  $command = 'help';
+  $cmd{command}[1] = $ARGV[1];
+} elsif ((scalar(@ARGV) == 3) && ($ARGV[0] eq 'nodecategory') && ($ARGV[1] eq 'view') && ($ARGV[2] =~ /^\w+$/)) {
+  $command = 'nodecategory';
+  $cmd{'command'}[2] = $ARGV[2];
 } else {
   # precompiled grammar (2.6x increase in speed)
   require pf::pfcmd::pfcmd_pregrammar;
