@@ -41,18 +41,19 @@ if($view_item){
       }
     }
 
-    $violation_view = new table('violation view all');
-    if($violation_view->rows){
-      foreach($violation_view->rows as $violation){
-        if(in_array($violation['mac'], array_keys($lookup['macs']))){
-	  $mac = $violation['mac'];
-	  unset($violation['mac']);
-          $lookup['macs'][$mac]['violations'][] = $violation;
-          $show_violations = true;
+    if (array_key_exists('macs', $lookup)) {
+      $violation_view = new table('violation view all');
+      if($violation_view->rows){
+        foreach($violation_view->rows as $violation){
+          if(in_array($violation['mac'], array_keys($lookup['macs']))){
+	    $mac = $violation['mac'];
+	    unset($violation['mac']);
+            $lookup['macs'][$mac]['violations'][] = $violation;
+            $show_violations = true;
+          }
         }
       }
     }
-
   }
   else{
     $lookup[] = "No results for '$view_item'";
