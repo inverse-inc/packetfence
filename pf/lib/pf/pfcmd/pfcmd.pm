@@ -55,8 +55,6 @@ $grammar = q {
              | 'fingerprint' 'view' ('all' | /\d+(,\d+)*/)
              | 'config' ('get' | 'set' | 'help') /.+/
              | 'lookup' ('person' | 'node') value
-             | 'version'
-               { push @{$main::cmd{$item[0]}},'version'; }
              | 'reload' ('fingerprints' | 'violations')
              | 'update' ('fingerprints' | 'oui')
              | 'manage' manage_options

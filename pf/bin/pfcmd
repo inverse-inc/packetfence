@@ -32,7 +32,6 @@ use lib INSTALL_DIR . "/lib";
 use pf::config;
 use pf::util;
 use pf::pfcmd::pfcmd;
-use pf::pfcmd::pfcmd_pregrammar;
 
 delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
 
@@ -101,18 +100,27 @@ if ($called_name =~ /^(start|stop|restart)$/i) {
 # dynamic grammar parsing (slow)
 #my $parser=Parse::RecDescent->new($grammar);
 
-# precompiled grammar (2.6x increase in speed)
-my $parser=pfcmd_pregrammar->new();
+my $command;
+if (scalar(@ARGV) == 1) {
+  if ($ARGV[0] eq 'version') {
+    $command = 'version';
+  }
+} else {
+  # precompiled grammar (2.6x increase in speed)
+  require pf::pfcmd::pfcmd_pregrammar;
+  import pf::pfcmd::pfcmd_pregrammar;
+  my $parser=pfcmd_pregrammar->new();
 
-my $result = $parser->start(join " ",@ARGV);
-if (! defined($result)) {
-  require pf::pfcmd::help;
-  pf::pfcmd::help::usage();
+  my $result = $parser->start(join " ",@ARGV);
+  if (! defined($result)) {
+    require pf::pfcmd::help;
+    pf::pfcmd::help::usage();
+  }
+  $command = $cmd{'command'}[0];
 }
-my $command = $cmd{'command'}[0];
 
-if ($command =~ /^(class|help|history|ipmachistory|locationhistoryswitch|locationhistorymac|ifoctetshistorymac|ifoctetshistoryswitch|ifoctetshistoryuser|report|ui|graph|switchlocation|nodecategory|trigger)$/i) {
-  ($main::{${$cmd{'command'}}[0]} or sub { print "No such sub: $_\n" })->();
+if ($command =~ /^(version|class|help|history|ipmachistory|locationhistoryswitch|locationhistorymac|ifoctetshistorymac|ifoctetshistoryswitch|ifoctetshistoryuser|report|ui|graph|switchlocation|nodecategory|trigger)$/i) {
+  ($main::{$command} or sub { print "No such sub: $_\n" })->();
   exit 1;
 }
 
