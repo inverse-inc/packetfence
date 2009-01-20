@@ -31,7 +31,7 @@ BEGIN {
                isdisabled getlocalmac ip2int int2ip get_all_internal_ips get_internal_nets get_routed_nets get_internal_ips 
                get_internal_devs get_internal_devs_phy get_external_devs get_managed_devs get_internal_macs 
                get_internal_info get_gateways get_dhcp_devs num_interfaces createpid readpid deletepid 
-               parse_template mysql_date util_funnyarp oui_to_vendor normalize_time);
+               parse_template mysql_date oui_to_vendor normalize_time);
 }
 
 use pf::config;
@@ -487,17 +487,6 @@ sub parse_template {
 
 sub mysql_date {
   return(POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime));
-}
-
-sub util_funnyarp {
-  my ($srcmac,$srcip,$destmac,$destip,$type);
-  my $logger = Log::Log4perl::get_logger('pf::util');
-  # Check for unicast arp packets
-  if ($destmac =~ /ff:ff:ff:ff:ff:ff/i && $destmac =~ /00:00:00:00:00:00/i  &&
-       $Config{'arp'}{'listendevice'} ne $monitor_int) {
-    $logger->warn("received unicast ARP from $srcmac ($srcip)  - indicative of a MITM attack");
-  }
-  return(0);
 }
 
 sub oui_to_vendor {
