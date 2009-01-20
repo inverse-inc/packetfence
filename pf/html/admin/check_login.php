@@ -8,16 +8,17 @@
 
   require_once 'Log.php';
   $logger_file = &Log::factory('file', '/usr/local/pf/logs/admin_debug_log');
-  $disp_conf = array('error_prepend' => '<div style="border: 1px solid #aaa; background: #FFE6BF; padding:5px;">',
-                     'error_append' => '</div>');
-  $logger_disp = &Log::factory('display', '', '', $disp_conf, PEAR_LOG_INFO);
+  //$disp_conf = array('error_prepend' => '<div style="border: 1px solid #aaa; background: #FFE6BF; padding:5px;">',
+  //                   'error_append' => '</div>');
+  //$logger_disp = &Log::factory('display', '', '', $disp_conf, PEAR_LOG_INFO);
   $logger = &Log::singleton('composite', '', '', '', PEAR_LOG_INFO);
   $logger->addChild($logger_file);
-  $logger->addChild($logger_disp);
+  //$logger->addChild($logger_disp);
 
+  $debug_log = '';
   if($_SESSION['ui_prefs']['ui_debug'] == 'true'){
     $ui_debug = true;
-    $logger_disp->setMask(Log::MAX(PEAR_LOG_DEBUG));
+    //$logger_disp->setMask(Log::MAX(PEAR_LOG_DEBUG));
     $logger_file->setMask(Log::MAX(PEAR_LOG_DEBUG));
   }
 

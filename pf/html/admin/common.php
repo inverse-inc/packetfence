@@ -709,11 +709,16 @@ function PrintSubNav($menu){
 
   function PFCMD($command){
     global $logger;
+    global $debug_log;
 
     $PFCMD=dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/bin/pfcmd';
     exec("ARGS=".escapeshellarg($command)." $PFCMD 2>&1", $output, $total);
 
     $logger->debug("I ran command: " . escapeshellarg("ARGS=$command"). " $PFCMD\nReturned:\n" . print_r($output,true));
+    if($_SESSION['ui_prefs']['ui_debug'] == 'true'){
+      $debug_log .= "I ran command: " . escapeshellarg("ARGS=$command"). " $PFCMD\nReturned:\n<pre>" . print_r($output,true) . "</pre>\n<br>";
+    }
+
    
     #$ENV['ARGS']=$command; 
     #exec("$PFCMD 2>&1", $output, $total);

@@ -41,5 +41,13 @@
 </table>
 </div>
 
+<?php
+if ($debug_log != '') {
+  print "<div style=\"border: 1px solid #aaa; background: #FFE6BF; padding:5px;\">\n";
+  print $debug_log;
+  print "</div>\n";
+}
+?>
+
 </body>
 </html>
