@@ -39,8 +39,7 @@ $grammar = q {
    start : command eofile
            { 1; }
 
-   command :   'service' service_options
-             | 'node' node_options
+   command : 'node' node_options
              | 'person' person_options
              | 'switchlocation' 'view' ipaddr /\d+/
              | 'violation' violation_options
@@ -67,9 +66,6 @@ $grammar = q {
              | 'ifoctetshistoryuser' value date_range(?)
              | 'ipmachistory' (ipaddr|macaddr) date_range(?)
              | 'history' (ipaddr|macaddr) date(?)
-
-   service_options : ('pfmon' | 'pfdhcplistener' | 'pfdetect' | 'pfredirect' | 'snort' | 'httpd' | 'pfsetvlan' | 'snmptrapd' | 'pf') ('stop' | 'start' | 'restart' | 'status' | 'watch')
-                    {[$item[1],$item[2]]}
 
    traplog_options: 'most' /\d+/ ('day' | 'week' | 'total')
 
