@@ -116,6 +116,9 @@ if ((scalar(@arguments) == 1) && ($arguments[0] eq 'version')) {
 } elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'nodecategory') && ($arguments[1] eq 'view') && ($arguments[2] =~ /^\w+$/)) {
   $command = 'nodecategory';
   $cmd{'command'}[2] = $arguments[2];
+} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'class') && ($arguments[1] eq 'view') && ($arguments[2] =~ /^(all|\d+)$/)) {
+  $command = 'class';
+  $cmd{'command'}[2] = $arguments[2];
 } else {
   # precompiled grammar (2.6x increase in speed)
   require pf::pfcmd::pfcmd_pregrammar;

@@ -44,7 +44,6 @@ $grammar = q {
              | 'person' person_options
              | 'switchlocation' 'view' ipaddr /\d+/
              | 'violation' violation_options
-             | 'class' 'view' vid
              | 'trigger' 'view' vid ('scan' | 'detect')(?)
              | 'ui' 'menus' ui_options(?)
              | 'ui' 'dashboard' ('recent_violations_opened' | 'recent_violations_closed' | 'recent_violations' | 'recent_registrations') (/\d+/)(?)
