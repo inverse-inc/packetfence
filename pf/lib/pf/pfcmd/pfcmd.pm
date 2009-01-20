@@ -53,7 +53,6 @@ $grammar = q {
              | 'fingerprint' 'view' ('all' | /\d+(,\d+)*/)
              | 'config' ('get' | 'set' | 'help') /.+/
              | 'lookup' ('person' | 'node') value
-             | 'update' ('fingerprints' | 'oui')
              | 'manage' manage_options
              | 'graph' ('unregistered' | 'registered' | 'violations' | 'nodes') ('day'|'month'|'year')(?)
              | 'graph' 'ifoctetshistoryswitch' ipaddr /\d+/ date_range 
