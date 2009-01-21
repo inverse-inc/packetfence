@@ -1344,7 +1344,12 @@ sub sanity_check {
 
   # make sure the services we start are not already running
   foreach my $service (@_) {
-    $logger->logdie("$service is already running!") if (`pidof -s -x $service` =~ /^\d/);
+    if ($service =~ /^(pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan)$/) {
+      $service = $1;
+      $logger->logdie("$service is already running!") if (`pidof -s -x $service` =~ /^\d/);
+    } else {
+      $logger->logdie("unknown service $service!");
+    }
   }
 
   #check the config file to make sure interfaces are fully defined 
