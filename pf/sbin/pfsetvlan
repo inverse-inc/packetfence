@@ -902,7 +902,7 @@ sub handleTrap {
                     $switch->authorizeMAC($switch_port, $oldPC, $trapMac, $switch->getVlan($switch_port), $correctVlanForThisNode);
                     #set the right VLAN
                     $logger->debug("setting correct VLAN for $trapMac at new location $switch_ip ifIndex $switch_port");
-                    $switch->setVlan($witch_port, $correctVlanForThisNode, \%switch_locker, $trapMac);
+                    $switch->setVlan($switch_port, $correctVlanForThisNode, \%switch_locker, $trapMac);
                 }
             } else {
                 #authorize MAC
