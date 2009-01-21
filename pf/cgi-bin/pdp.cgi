@@ -33,29 +33,34 @@ SOAP::Transport::HTTP::CGI
 
 sub event_add {
   my ($class, $date, $srcip, $type, $id) = @_;
-  $logger->info("PDP: $date - IP: $srcip - Type: $type - ID: $id");
+  $logger->info("violation: $id - IP $srcip");
   my $dbh = db_connect();
 
   my @trigger_info = trigger_view_enable($id,$type);
   if (scalar(@trigger_info)) {
     foreach my $row (@trigger_info) {
       my $vid = $row->{'vid'};
-      # do violation addition 
-      $logger->info("PDP: violation: $vid : $srcip");
-
       my $srcmac = ip2mac($srcip);
       if ($srcmac) {
-        $logger->info("PDP: violation: $srcip resolved to $srcmac [$vid]");
-        if (!whitelisted_mac($srcmac) && valid_mac($srcmac) && trappable_ip($srcip) && trappable_mac($srcmac)) {
-          `$bin_dir/pfcmd violation add vid=$vid,mac=$srcmac`;
+        $logger->info("violation: $vid - IP $srcip : IP resolved to $srcmac");
+        if (whitelisted_mac($srcmac)) {
+          $logger->info("violation: $vid - IP $srcip : violation not added, $srcmac is whitelisted !");
+        } elsif (!valid_mac($srcmac)) {
+          $logger->info("violation: $vid - IP $srcip : violation not added, $srcmac is not valid !");
+        } elsif (!trappable_ip($srcip)) {
+          $logger->info("violation: $vid - IP $srcip : violation not added, IP is not trappable !");
+        } elsif (!trappable_mac($srcmac)) {
+          $logger->info("violation: $vid - IP $srcip : violation not added, $srcmac is not trappable !");
+        } else  {
+          `/usr/local/pf/bin/pfcmd violation add vid=$vid,mac=$srcmac`;
         }
       } else {
-        $logger->info("PDP: Mac not found for IP: $srcip");
+        $logger->info("violation: $vid - IP $srcip : violation not added, can not resolve IP to mac !");
         return(0);
       }
     }
   } else {
-    $logger->info("violation not added, no trigger found for " . $type . "::" . $id . " or violation is disabled");
+    $logger->info("violation: $id - IP $srcip : violation not added, no trigger found or violation is disabled");
   }
   return (1);
 }
