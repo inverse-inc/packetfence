@@ -515,20 +515,20 @@ sub service {
   }
 
   if ($command =~ /^stop$/i) {
-    my $nb_running_services = 0;
-    foreach my $tmp (@all_services){
-      if (service_ctl($tmp, "status")) {
-        $nb_running_services++;
+    if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
+      my $nb_running_services = 0;
+      foreach my $tmp (@all_services){
+        if (service_ctl($tmp, "status")) {
+          $nb_running_services++;
+        }
       }
-    }
-    if ($nb_running_services == 0) {
-      if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
+      if ($nb_running_services == 0) {
         require pf::iptables;
         pf::iptables::iptables_restore($install_dir.'/var/iptables.bak');
-      }
-    } else {
-      if ($service =~ /^pf$/i) {
-        $logger->error("even though 'control pf stop' was called, there are still $nb_running_services services running. Can't restore iptables from var/iptables.bak");
+      } else {
+        if ($service =~ /^pf$/i) {
+          $logger->error("even though 'control pf stop' was called, there are still $nb_running_services services running. Can't restore iptables from var/iptables.bak");
+        }
       }
     }
   }
