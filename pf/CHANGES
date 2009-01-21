@@ -166,6 +166,8 @@
         fixed issue in web admin gui with person lookup
         Restarting services through web interface does now work
           (http://www.packetfence.org/mantis/view.php?id=540)
+        Stopping pfsetvlan through web admin GUI does now work
+          (http://www.packetfence.org/mantis/view.php?id=542)
 
 1.7.6
         violations created through bin/pfdetect do not lead to 

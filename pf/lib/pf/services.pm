@@ -87,20 +87,35 @@ sub service_ctl {
       last CASE;
     };
     $action eq "stop" && do {
+      if ($exe =~ /^(pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan)$/) {
+        $exe = $1;
+        open(STDERR,">/dev/null");
+        #my @debug= system('pkill','-f',$exe);
+        $logger->info("Stopping $exe with 'pkill $exe'");
+        eval {
+          `pkill $exe`;
+        };
+        if ($@) {
+          $logger->logdie("Can't stop $exe with 'pkill $exe': $@");
+          return;
+        }
+        $logger->info("After stopping $exe with 'pkill $exe'");
+        #$logger->info("pkill shows " . join(@debug));
+        my $maxWait = 10;
+        my $curWait = 0;
+        while (($curWait < $maxWait) && (service_ctl($exe,"status") != 0)) {
+          $logger->info("Waiting for $exe to stop");
+          sleep(2);
+          $curWait++;
+        }
+        if (-e $install_dir."/var/$exe.pid") {
+          $logger->info("Removing $install_dir/var/$exe.pid");
+          unlink($install_dir."/var/$exe.pid");
+        }
+      } else {
+        $logger->logdie("unknown service $exe!");
+      }
 
-      open(STDERR,">/dev/null");
-      #my @debug= system('pkill','-f',$exe);
-      my @debug= system('pkill',$exe);
-      my $maxWait = 10;
-      my $curWait = 0;
-      while (($curWait < $maxWait) && (service_ctl($exe,"status") != 0)) {
-        $logger->info("Waiting for $exe to stop");
-        sleep(2);
-        $curWait++;
-      }
-      if (-e $install_dir."/var/$exe.pid") {
-        unlink($install_dir."/var/$exe.pid");
-      }
       last CASE;
     };
     $action eq "restart" && do {
