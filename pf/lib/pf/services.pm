@@ -509,8 +509,8 @@ sub switches_conf_is_valid {
       }
       # check uplink
       my $uplink = $switches_conf{$section}{'uplink'} || $switches_conf{'default'}{'uplink'};
-      if (($uplink ne 'dynamic') && (! ($uplink =~ /(\d+,)*\d+/))) {
-        $logger->error("switch uplink ($uplink) is invalid for $section");
+      if ((! defined($uplink)) || (($uplink ne 'dynamic') && (! ($uplink =~ /(\d+,)*\d+/)))) {
+        $logger->error("switch uplink (" . (defined($uplink) ? $uplink : 'undefined') . ") is invalid for $section");
         return 0;
       }
       # check mode
