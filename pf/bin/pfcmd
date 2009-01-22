@@ -166,6 +166,13 @@ if ((scalar(@arguments) == 1) && ($arguments[0] eq 'version')) {
   $cmd{'command'}[2] = $arguments[2];
   service();
   exit(1);
+} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'switchconfig') && ($arguments[1] eq 'view') && ($arguments[2] =~ /^all$/)) {
+  $command = $arguments[0];
+  $cmd{'command'}[0] = $arguments[0];
+  $cmd{'command'}[1] = $arguments[1];
+  $cmd{'command'}[2] = $arguments[2];
+  switchconfig();
+  exit(1);
 } elsif ((scalar(@arguments) == 4) && ($arguments[0] eq 'switchlocation') && ($arguments[1] eq 'view') && ($arguments[2] =~ /^(\d{1,3}\.){3}\d{1,3}$/) && ($arguments[3] =~ /^\d+$/)) {
   $command = $arguments[0];
   $cmd{'command'}[0] = $arguments[0];
@@ -342,6 +349,39 @@ sub switchlocation {
   my %params;
   $params{'ifIndex'} = $cmd{command}[3];
   exit(print_results("switchlocation_view_switchport", $switch, %params))
+}
+
+sub switchconfig {
+  require Config::IniFiles;
+  my %switches_conf;
+  tie %switches_conf, 'Config::IniFiles', ( -file => "$conf_dir/switches.conf" );
+  my @errors = @Config::IniFiles::errors;
+  if (scalar(@errors)) {
+    $logger->error("Error reading switches.conf: " . join("\n", @errors) . "\n");
+    return 0;
+  }
+  foreach my $section (tied(%switches_conf)->Sections){
+    foreach my $key (keys %{$switches_conf{$section}}){
+      $switches_conf{$section}{$key}=~s/\s+$//;
+    }
+  }
+  my @columns = qw(ip type mode uplink communityRead communityWrite communityTrap SNMPVersionTrap SNMPVersion );
+  print join("|", @columns) . "\n";
+  foreach my $section (keys %switches_conf) {
+    my @values;
+    foreach my $column (@columns) {
+      if ($column eq 'ip') {
+        if ($section eq 'default') {
+          push @values, $section;
+        } else {
+          push @values, $switches_conf{$section}{$column};
+        }
+      } else {
+        push @values, ($switches_conf{$section}{$column} || $switches_conf{'default'}{$column} || '');
+      }
+    }
+    print join("|", @values) . "\n";
+  }
 }
 
 #
