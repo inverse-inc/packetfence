@@ -51,44 +51,44 @@ sub service_ctl {
   my $service = ($Config{'services'}{$daemon} || "$install_dir/sbin/$daemon");
   my $exe = basename($service);
   $logger->info("$service $action");
-  CASE: {
-    $action eq "start" && do {
-      return(0) if ($exe=~/dhcp/ && (! ($exe=~/pfdhcplistener/)) && $Config{'network'}{'mode'}!~/^dhcp$/);	
-      return(0) if ($exe=~/snort/ && !isenabled($Config{'trapping'}{'detection'}));
-      return(0) if ($exe=~/pfdhcplistener/ && !isenabled($Config{'network'}{'dhcpdetector'}));
-      return(0) if ($exe=~/snmptrapd/ && !($Config{'network'}{'mode'} =~ /vlan/i));
-      return(0) if ($exe=~/pfsetvlan/ && !($Config{'network'}{'mode'} =~ /vlan/i));
-      if ($daemon=~/(dhcpd|snort|httpd|snmptrapd)/ && !$quick){
-         my $confname="generate_".$daemon."_conf";
-         $logger->info("Generating configuration file $confname for $exe");
-         ($pf::services::{$confname} or sub { print "No such sub: $_\n" })->();
-      }
-      if (defined($flags{$daemon})) {
-        if ($daemon ne 'pfdhcplistener') {
-          if (($daemon eq 'pfsetvlan') && (! switches_conf_is_valid())) {
-            $logger->error("errors in switches.conf. pfsetvlan will NOT be started");
-            return 0;
-          }
-          $logger->info("Starting $exe with '$service $flags{$daemon}'");
-          return(system("$service $flags{$daemon}"));
-        } else {
-          if (isenabled($Config{'network'}{'dhcpdetector'})) {
-            my @devices = @listen_ints;
-            push @devices, @dhcplistener_ints;
-            @devices=get_dhcp_devs() if ( $Config{'network'}{'mode'} =~ /^dhcp$/i );
-            foreach my $dev (@devices){
-              $logger->info("Starting $exe with '$service -i $dev $flags{$daemon}'");
-              system("$service -i $dev $flags{$daemon}");
+  if ($exe =~ /^(pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan)$/) {
+    $exe = $1;
+    CASE: {
+      $action eq "start" && do {
+        return(0) if ($exe=~/dhcp/ && (! ($exe=~/pfdhcplistener/)) && $Config{'network'}{'mode'}!~/^dhcp$/);	
+        return(0) if ($exe=~/snort/ && !isenabled($Config{'trapping'}{'detection'}));
+        return(0) if ($exe=~/pfdhcplistener/ && !isenabled($Config{'network'}{'dhcpdetector'}));
+        return(0) if ($exe=~/snmptrapd/ && !($Config{'network'}{'mode'} =~ /vlan/i));
+        return(0) if ($exe=~/pfsetvlan/ && !($Config{'network'}{'mode'} =~ /vlan/i));
+        if ($daemon=~/(dhcpd|snort|httpd|snmptrapd)/ && !$quick){
+           my $confname="generate_".$daemon."_conf";
+           $logger->info("Generating configuration file $confname for $exe");
+           ($pf::services::{$confname} or sub { print "No such sub: $_\n" })->();
+        }
+        if (defined($flags{$daemon})) {
+          if ($daemon ne 'pfdhcplistener') {
+            if (($daemon eq 'pfsetvlan') && (! switches_conf_is_valid())) {
+              $logger->error("errors in switches.conf. pfsetvlan will NOT be started");
+              return 0;
             }
-            return 1;
+            $logger->info("Starting $exe with '$service $flags{$daemon}'");
+            return(system("$service $flags{$daemon}"));
+          } else {
+            if (isenabled($Config{'network'}{'dhcpdetector'})) {
+              my @devices = @listen_ints;
+              push @devices, @dhcplistener_ints;
+              @devices=get_dhcp_devs() if ( $Config{'network'}{'mode'} =~ /^dhcp$/i );
+              foreach my $dev (@devices){
+                $logger->info("Starting $exe with '$service -i $dev $flags{$daemon}'");
+                system("$service -i $dev $flags{$daemon}");
+              }
+              return 1;
+            }
           }
         }
-      }
-      last CASE;
-    };
-    $action eq "stop" && do {
-      if ($exe =~ /^(pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan)$/) {
-        $exe = $1;
+        last CASE;
+      };
+      $action eq "stop" && do {
         open(STDERR,">/dev/null");
         #my @debug= system('pkill','-f',$exe);
         $logger->info("Stopping $exe with 'pkill $exe'");
@@ -99,7 +99,6 @@ sub service_ctl {
           $logger->logdie("Can't stop $exe with 'pkill $exe': $@");
           return;
         }
-        $logger->info("After stopping $exe with 'pkill $exe'");
         #$logger->info("pkill shows " . join(@debug));
         my $maxWait = 10;
         my $curWait = 0;
@@ -112,28 +111,27 @@ sub service_ctl {
           $logger->info("Removing $install_dir/var/$exe.pid");
           unlink($install_dir."/var/$exe.pid");
         }
-      } else {
-        $logger->logdie("unknown service $exe!");
+        last CASE;
+      };
+      $action eq "restart" && do {
+        service_ctl("pfdetect", "stop") if ($daemon eq "snort");
+        service_ctl($daemon, "stop");
+
+        `$install_dir/bin/pfcmd service $exe start`;
+        `$install_dir/bin/pfcmd service pfdetect start` if ($daemon eq "snort");
+        last CASE;
+      };
+      $action eq "status" && do {
+        my $pid;
+        chop($pid=`pidof -x $exe`);
+        $pid=0 if (!$pid);
+        $logger->info("pidof -x $exe returned $pid");
+        return($pid);
+        last CASE;
       }
-
-      last CASE;
-    };
-    $action eq "restart" && do {
-      service_ctl("pfdetect", "stop") if ($daemon eq "snort");
-      service_ctl($daemon, "stop");
-
-      service_ctl($daemon, "start");
-      service_ctl("pfdetect", "start") if ($daemon eq "snort");
-      last CASE;
-    };
-    $action eq "status" && do {
-      my $pid;
-      chop($pid=`pidof -x $exe`);
-      $pid=0 if (!$pid);
-      $logger->info("pidof -x $exe returned $pid");
-      return($pid);
-      last CASE;
     }
+  } else {
+    $logger->logdie("unknown service $exe!");
   }
 }
 
