@@ -2,7 +2,7 @@
 
   require_once('../common.php');
 
-  $current_top="administration";
+  $current_top="configuration";
   $current_sub="instructions";
 
   include_once('../header.php');

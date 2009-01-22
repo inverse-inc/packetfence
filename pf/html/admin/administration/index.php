@@ -1,5 +1,5 @@
 <?
 
-include("configuration.php");
+include("services.php");
 
 ?>

@@ -1,7 +1,7 @@
 <?
   require_once('../common.php');
  
-  $current_top="class";
+  $current_top="configuration";
   $current_sub="fingerprint";
 
 #testprint($_SESSION);

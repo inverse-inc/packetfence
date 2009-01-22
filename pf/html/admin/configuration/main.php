@@ -1,7 +1,7 @@
 <?
 
-$current_top = "administration";
-$current_sub = "configuration";
+$current_top = "configuration";
+$current_sub = "main";
 require('../common.php');
 include('../header.php');
 

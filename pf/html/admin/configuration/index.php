@@ -1,0 +1,5 @@
+<?
+
+include("main.php");
+
+?>
