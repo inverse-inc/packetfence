@@ -17,7 +17,7 @@
     $parts = explode('|', $class);
     if($parts[6] != ''){
       $violations[$parts[0]] = $parts[1];
-      $vid_types[$parts[0]] = $parts[6];
+      $vid_types[$parts[0]] = $parts[8];
     }
   }
   asort($violations);
