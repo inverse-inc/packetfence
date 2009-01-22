@@ -854,6 +854,7 @@ sub getMacAddr {
     }
     $logger->trace("sending CLI command '$command'");
     my @tmp = $session->cmd($command);
+    $logger->trace("output of CLI command '$command':\n" . join("\n", @tmp));
 
     foreach my $line (@tmp) {
         $line =~ s/\n//;

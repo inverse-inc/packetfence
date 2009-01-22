@@ -1009,7 +1009,7 @@ sub getRegExpFromList{
         }
         $regexp .= '))';
     }
-    $regexp .= ')$';
+    $regexp .= ')[^0-9]*$';
     return $regexp;
 }
 
