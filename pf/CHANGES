@@ -171,6 +171,8 @@
         Added trace log level to test/connect_and_read
         Cisco Catalyst 2950 and getRegExpFromList
           (http://www.packetfence.org/mantis/view.php?id=544)
+        Added SNMPVersion and SNMPVersionTrap checks
+          (http://www.packetfence.org/mantis/view.php?id=543)
 
 1.7.6
         violations created through bin/pfdetect do not lead to 

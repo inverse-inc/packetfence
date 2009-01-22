@@ -520,6 +520,17 @@ sub switches_conf_is_valid {
         $logger->error("switch IP is invalid for $section");
         return 0;
       }
+      # check SNMP version
+      my $SNMPVersion = ($switches_conf{$section}{'SNMPVersion'} || $switches_conf{$section}{'version'} || $switches_conf{'default'}{'SNMPVersion'} || $switches_conf{'default'}{'version'});
+      if (! ($SNMPVersion =~ /^1|2c|3$/)) {
+        $logger->error("switch SNMP version is invalid for $section");
+        return 0;
+      }
+      my $SNMPVersionTrap = ($switches_conf{$section}{'SNMPVersionTrap'} || $switches_conf{'default'}{'SNMPVersionTrap'});
+      if (! ($SNMPVersionTrap =~ /^1|2c|3$/)) {
+        $logger->error("switch SNMP trap version is invalid for $section");
+        return 0;
+      }
       # check uplink
       my $uplink = $switches_conf{$section}{'uplink'} || $switches_conf{'default'}{'uplink'};
       if ((! defined($uplink)) || (($uplink ne 'dynamic') && (! ($uplink =~ /(\d+,)*\d+/)))) {
