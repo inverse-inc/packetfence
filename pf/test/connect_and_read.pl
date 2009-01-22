@@ -25,7 +25,8 @@ connect_and_read.pl [options]
                      0 : fatal messages
                      1 : warn messages
                      2 : info messages
-                   > 2 : full debug
+                     3 : debug
+                    >3 : trace
                  
 
 =head1 DESCRIPTION
@@ -91,8 +92,10 @@ if ($logLevel == 0) {
     $logLevel = $WARN;
 } elsif ($logLevel == 2) {
     $logLevel = $INFO;
-} else {
+} elsif ($logLevel == 3) {
     $logLevel = $DEBUG;
+} else {
+    $logLevel = $TRACE;
 }
 Log::Log4perl->easy_init(
     { 
