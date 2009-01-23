@@ -7,7 +7,7 @@
 
   $my_table=new table("violation view all");
   $my_table->set_editable(true);
-  $my_table->set_linkable(array( array('vid', 'class/violation.php'), array('mac','node/view.php')));
+  $my_table->set_linkable(array( array('vid', 'configuration/violation.php'), array('mac','node/view.php')));
   $is_printable=true;
 
   $my_table->set_page_num(set_default($_REQUEST['page_num'],1));
