@@ -41,6 +41,7 @@ $grammar = q {
 
    command : 'node' node_options
              | 'person' person_options
+             | 'switchconfig' switchconfig_options
              | 'violation' violation_options
              | 'trigger' 'view' vid ('scan' | 'detect')(?)
              | 'ui' 'menus' ui_options(?)
@@ -70,7 +71,9 @@ $grammar = q {
    person_options : 'add' value person_edit_options(?)  | 'view' value | 'edit' value person_edit_options | 'delete' value
 
    node_options : 'add' mac node_edit_options | 'count' (mac|node_filter) | 'view' (mac|node_filter) orderby_options(?) limit_options(?) | 'edit' macaddr node_edit_options | 'delete' macaddr
-   
+
+   switchconfig_options: 'edit' ('default'|ipaddr) switchconfig_edit_options
+
    violation_options : 'add' violation_edit_options | 'view' vid | 'edit' /\d+/ violation_edit_options | 'delete' /\d+/ 
 
    schedule_options : 'view' vid | 'now' host_range edit_options(?) | 'add' host_range edit_options | 'edit' /\d+/ edit_options | 'delete' /\d+/
@@ -101,6 +104,8 @@ $grammar = q {
 
    edit_options : <leftop: assignment ',' assignment>
 
+   switchconfig_edit_options : <leftop: switchconfig_assignment ',' switchconfig_assignment>
+
    person_edit_options : <leftop: person_assignment ',' person_assignment>
 
    node_edit_options : <leftop: node_assignment ',' node_assignment>
@@ -117,6 +122,9 @@ $grammar = q {
    person_assignment : person_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{person_view_field},$item{value}] }
 
+   switchconfig_assignment : switchconfig_view_field '=' value
+                {push @{$main::cmd{$item[0]}}, [$item{switchconfig_view_field},$item{value}] }
+
    node_assignment : node_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{node_view_field},$item{value}] }
 
@@ -130,6 +138,8 @@ $grammar = q {
    person_view_field : 'pid' | 'notes'
 
    node_view_field :  'mac' | 'pid' | 'detect_date' | 'regdate' | 'unregdate' | 'lastskip' | 'status' | 'user_agent' | 'computername'  | 'notes' | 'last_arp' | 'last_dhcp' | 'dhcp_fingerprint' | 'switch' | 'port' | 'vlan'
+
+   switchconfig_view_field : 'type' | 'mode' | 'uplink'
 
    violation_view_field :  'id' | 'mac' | 'vid' | 'start_date' | 'release_date' | 'status' | 'notes'
 

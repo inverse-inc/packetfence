@@ -360,7 +360,17 @@ sub switchconfig {
     $logger->error("Error reading switches.conf: " . join("\n", @errors) . "\n");
     return 0;
   }
-  if ($cmd{'command'}[1] eq 'get') {
+
+  my $mode;
+  if (scalar(@{$cmd{'command'}}) == 1) {
+    if (exists($cmd{'switchconfig_options'})) {
+      $mode = $cmd{'switchconfig_options'}[0];
+    }
+  } else {
+    $mode = $cmd{'command'}[1];
+  }
+
+  if ($mode eq 'get') {
     foreach my $section (tied(%switches_conf)->Sections){
       foreach my $key (keys %{$switches_conf{$section}}){
         $switches_conf{$section}{$key}=~s/\s+$//;
@@ -385,7 +395,7 @@ sub switchconfig {
         print join("|", @values) . "\n";
       }
     }
-  } elsif ($cmd{'command'}[1] eq 'delete') {
+  } elsif ($mode eq 'delete') {
     my $section = $cmd{'command'}[2];
     if ($section =~ /^(default|all|127.0.0.1)$/) {
       print "This switch can't be deleted\n";
@@ -399,6 +409,30 @@ sub switchconfig {
         exit;
       }
     }
+  } elsif ($mode eq 'edit') {
+    my $section = $cmd{'switchconfig_options'}[1];
+    my @assignments = @{$cmd{'switchconfig_assignment'}};
+    if (tied(%switches_conf)->SectionExists($section)) {
+      foreach my $assignment (@assignments) {
+        my ($param, $value) = @$assignment;
+        if (defined($switches_conf{$section}{$param})) {
+          if ((! exists($switches_conf{'default'}{$param})) || ($switches_conf{'default'}{$param} ne $value)) {
+            tied(%switches_conf)->setval($section,$param,$value);
+          } else {
+            tied(%switches_conf)->delval($section, $param);
+          }
+        } else {
+          if ((! exists($switches_conf{'default'}{$param})) || ($switches_conf{'default'}{$param} ne $value)) {
+            tied(%switches_conf)->newval($section,$param,$value);
+          }
+        }
+      }
+      tied(%switches_conf)->WriteConfig($conf_dir."/switches.conf");
+    } else {
+      print "Unknown switch $section!\n";
+      exit;
+    }
+
   }
 }
 
