@@ -166,7 +166,7 @@ if ((scalar(@arguments) == 1) && ($arguments[0] eq 'version')) {
   $cmd{'command'}[2] = $arguments[2];
   service();
   exit(1);
-} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'switchconfig') && ($arguments[1] eq 'view') && ($arguments[2] =~ /^all$/)) {
+} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'switchconfig') && ($arguments[1] eq 'get') && ($arguments[2] =~ /^(all|default|(\d{1,3}\.){3}\d{1,3})$/)) {
   $command = $arguments[0];
   $cmd{'command'}[0] = $arguments[0];
   $cmd{'command'}[1] = $arguments[1];
@@ -368,19 +368,21 @@ sub switchconfig {
   my @columns = qw(ip type mode uplink communityRead communityWrite communityTrap SNMPVersionTrap SNMPVersion );
   print join("|", @columns) . "\n";
   foreach my $section (keys %switches_conf) {
-    my @values;
-    foreach my $column (@columns) {
-      if ($column eq 'ip') {
-        if ($section eq 'default') {
-          push @values, $section;
+    if (($cmd{'command'}[2] eq 'all') || ($cmd{'command'}[2] eq $section)) {
+      my @values;
+      foreach my $column (@columns) {
+        if ($column eq 'ip') {
+          if ($section eq 'default') {
+            push @values, $section;
+          } else {
+            push @values, $switches_conf{$section}{$column};
+          }
         } else {
-          push @values, $switches_conf{$section}{$column};
+          push @values, ($switches_conf{$section}{$column} || $switches_conf{'default'}{$column} || '');
         }
-      } else {
-        push @values, ($switches_conf{$section}{$column} || $switches_conf{'default'}{$column} || '');
       }
+      print join("|", @values) . "\n";
     }
-    print join("|", @values) . "\n";
   }
 }
 

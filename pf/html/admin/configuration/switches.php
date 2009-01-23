@@ -6,7 +6,7 @@
 
   $view_item = set_default($_REQUEST['view_item'], 'all');
 
-  $my_table=new table("switchconfig view $view_item");
+  $my_table=new table("switchconfig get $view_item");
   $is_printable=true;
 
   $my_table->set_page_num(set_default($_REQUEST['page_num'],1));

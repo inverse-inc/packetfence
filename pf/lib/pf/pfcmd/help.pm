@@ -399,7 +399,7 @@ EOT
 
 sub help_switchconfig {
   print STDERR << "EOT";
-Usage: pfcmd switchconfig get all
+Usage: pfcmd switchconfig get <all|default|IP>
 
 query switches.conf configuration file
 EOT
