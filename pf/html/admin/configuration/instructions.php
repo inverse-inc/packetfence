@@ -15,7 +15,7 @@
 
   foreach($classes as $class){
     $parts = explode('|', $class);
-    if($parts[6] != ''){
+    if($parts[8] != ''){
       $violations[$parts[0]] = $parts[1];
       $vid_types[$parts[0]] = $parts[8];
     }
@@ -26,14 +26,30 @@
   $url = $vid_types[$vid];
 
   if(!$url){
-    print "<div id='error'>Invalid VID: '$vid'</div>";
+    print "<table style='margin:20px;'>\n";
+    print "<tr><td>\n";
+    print "<div id='error'>Invalid VID '$vid' or URL is not defined for VID '$vid'</div>";
+    print "</td></tr>\n";
+    print "<tr><td>&nbsp;</td></tr>\n";
+    print "<tr><td>&nbsp;</td></tr>\n";
+    print "</table>\n";
+    include_once('../footer.php');
+    exit;
   }
 
   $template = dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/html/user".preg_replace("/index.php\?template=/", 'violations/', $url).'.php';
 
   preg_match("/template=([a-zA-Z0-9_]+)(&admin=.+)?$/", $url, $matches);
   if(!$matches[1]){
+    print "<table style='margin:20px;'>\n";
+    print "<tr><td>\n";
     print "<div id='error'>Error: '$url' does not follow violation URL conventions, should be like: '/content/template=this_template&admin=yes'</div>";
+    print "</td></tr>\n";
+    print "<tr><td>&nbsp;</td></tr>\n";
+    print "<tr><td>&nbsp;</td></tr>\n";
+    print "</table>\n";
+    include_once('../footer.php');
+    exit;
   }
  
   if($matches[2]){
@@ -45,7 +61,14 @@
   if($_POST['update_content'] && !$_POST['preview']){
 
     if(!is_writeable($template)){
+      print "<table style='margin:20px;'>\n";
+      print "<tr><td>\n";
       print "<div id='error'>Cannot write to '$template', make sure it is writeable by user 'pf'</div>";
+      print "</td></tr>\n";
+      print "<tr><td>&nbsp;</td></tr>\n";
+      print "<tr><td>&nbsp;</td></tr>\n";
+      print "</table>\n";
+      include_once('../footer.php');
       exit;
     }
 
@@ -67,11 +90,25 @@
     $msg .= "?>";
 
     if (!$handle = fopen($template, 'w+')) {
+      print "<table style='margin:20px;'>\n";
+      print "<tr><td>\n";
       print "<div id='error'>Cannot open file '$template'</div>";
+      print "</td></tr>\n";
+      print "<tr><td>&nbsp;</td></tr>\n";
+      print "<tr><td>&nbsp;</td></tr>\n";
+      print "</table>\n";
+      include_once('../footer.php');
       exit;
     }
     if (fwrite($handle, $msg) === FALSE) {
+      print "<table style='margin:20px;'>\n";
+      print "<tr><td>\n";
       print "<div id='error'>Cannot write to file '$template'</div>";
+      print "</td></tr>\n";
+      print "<tr><td>&nbsp;</td></tr>\n";
+      print "<tr><td>&nbsp;</td></tr>\n";
+      print "</table>\n";
+      include_once('../footer.php');
       exit;
     }
    
@@ -87,7 +124,15 @@
   }
   else{
     if(!@include($template)){
+      print "<table style='margin:20px;'>\n";
+      print "<tr><td>\n";
       print "<div id='error'>Error: Could not open template file '$template'</div>";
+      print "</td></tr>\n";
+      print "<tr><td>&nbsp;</td></tr>\n";
+      print "<tr><td>&nbsp;</td></tr>\n";
+      print "</table>\n";
+      include_once('../footer.php');
+      exit;
     }
   }
 ?>
@@ -104,7 +149,7 @@
   <tr>
     <td style='border:1px solid #aaa; background: white; padding:10px; vertical-align:top; width:150px;'>
       Select a Violation:<br>
-      <form name='vid_select' method='post' action='<?=$current_top?>/<?=$current_sub?>.php'>
+      <form name='vid_select' method='get' action='<?=$current_top?>/<?=$current_sub?>.php'>
         <?printSelect($violations, 'HASH', $vid, "name='vid' onChange='document.vid_select.submit();'");?>
       </form>
     </td>
