@@ -51,7 +51,7 @@ reload                  | rebuild fingerprint or violations tables without resta
 report                  | current usage reports
 schedule                | Nessus scan scheduling
 service                 | start/stop/restart and get PF daemon status
-switchconfig            | query switches.conf configuration parameters
+switchconfig            | query/modify switches.conf configuration parameters
 switchlocation          | view switchport description and location
 traplog                 | update traplog RRD files and graphs or obtain switch IPs
 trigger                 | view and throw triggers
@@ -400,8 +400,9 @@ EOT
 sub help_switchconfig {
   print STDERR << "EOT";
 Usage: pfcmd switchconfig get <all|default|IP>
+       pfcmd switchconfig delete <IP>
 
-query switches.conf configuration file
+query/modify switches.conf configuration file
 EOT
 }
 

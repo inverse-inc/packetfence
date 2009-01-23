@@ -166,7 +166,7 @@ if ((scalar(@arguments) == 1) && ($arguments[0] eq 'version')) {
   $cmd{'command'}[2] = $arguments[2];
   service();
   exit(1);
-} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'switchconfig') && ($arguments[1] eq 'get') && ($arguments[2] =~ /^(all|default|(\d{1,3}\.){3}\d{1,3})$/)) {
+} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'switchconfig') && ($arguments[1] =~ /^(get|delete)$/) && ($arguments[2] =~ /^(all|default|(\d{1,3}\.){3}\d{1,3})$/)) {
   $command = $arguments[0];
   $cmd{'command'}[0] = $arguments[0];
   $cmd{'command'}[1] = $arguments[1];
@@ -360,28 +360,44 @@ sub switchconfig {
     $logger->error("Error reading switches.conf: " . join("\n", @errors) . "\n");
     return 0;
   }
-  foreach my $section (tied(%switches_conf)->Sections){
-    foreach my $key (keys %{$switches_conf{$section}}){
-      $switches_conf{$section}{$key}=~s/\s+$//;
-    }
-  }
-  my @columns = qw(ip type mode uplink communityRead communityWrite communityTrap SNMPVersionTrap SNMPVersion );
-  print join("|", @columns) . "\n";
-  foreach my $section (keys %switches_conf) {
-    if (($cmd{'command'}[2] eq 'all') || ($cmd{'command'}[2] eq $section)) {
-      my @values;
-      foreach my $column (@columns) {
-        if ($column eq 'ip') {
-          if ($section eq 'default') {
-            push @values, $section;
-          } else {
-            push @values, $switches_conf{$section}{$column};
-          }
-        } else {
-          push @values, ($switches_conf{$section}{$column} || $switches_conf{'default'}{$column} || '');
-        }
+  if ($cmd{'command'}[1] eq 'get') {
+    foreach my $section (tied(%switches_conf)->Sections){
+      foreach my $key (keys %{$switches_conf{$section}}){
+        $switches_conf{$section}{$key}=~s/\s+$//;
       }
-      print join("|", @values) . "\n";
+    }
+    my @columns = qw(ip type mode uplink communityRead communityWrite communityTrap SNMPVersionTrap SNMPVersion );
+    print join("|", @columns) . "\n";
+    foreach my $section (keys %switches_conf) {
+      if (($cmd{'command'}[2] eq 'all') || ($cmd{'command'}[2] eq $section)) {
+        my @values;
+        foreach my $column (@columns) {
+          if ($column eq 'ip') {
+            if ($section eq 'default') {
+              push @values, $section;
+            } else {
+              push @values, $switches_conf{$section}{$column};
+            }
+          } else {
+            push @values, ($switches_conf{$section}{$column} || $switches_conf{'default'}{$column} || '');
+          }
+        }
+        print join("|", @values) . "\n";
+      }
+    }
+  } elsif ($cmd{'command'}[1] eq 'delete') {
+    my $section = $cmd{'command'}[2];
+    if ($section =~ /^(default|all|127.0.0.1)$/) {
+      print "This switch can't be deleted\n";
+      exit;
+    } else {
+      if (tied(%switches_conf)->SectionExists($section)) {
+        tied(%switches_conf)->DeleteSection($section);
+        tied(%switches_conf)->WriteConfig($conf_dir."/switches.conf");
+      } else {
+        print "Unknown switch $section!\n";
+        exit;
+      }
     }
   }
 }
