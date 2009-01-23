@@ -446,12 +446,14 @@ if($sajax){
            if(isset($this->editable)){
              print "  <td class=\"action\">\n";
              if (($current_top == 'configuration') && ($current_sub=='switches')) {
-	       print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page&amp;action=$action&amp;item=$item' method='post'>";
-               print "  <input type='hidden' name='action' value='delete'>\n";
-               print "  <input type='hidden' name='commit' value='true'>\n";
-               print "  <input type='hidden' name='original' value='".implode("\t", $this->rows[$i])."'>\n";
-               print "  <input class=\"button\" type='image' src='/images/delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete the switch " . $this->rows[$i]['ip'] . " ?');\">\n";
-               print "  </form>";
+               if (($this->rows[$i]['ip'] != '127.0.0.1') && ($this->rows[$i]['ip'] != 'default')) {
+	         print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page&amp;action=$action&amp;item=$item' method='post'>";
+                 print "  <input type='hidden' name='action' value='delete'>\n";
+                 print "  <input type='hidden' name='commit' value='true'>\n";
+                 print "  <input type='hidden' name='original' value='".implode("\t", $this->rows[$i])."'>\n";
+                 print "  <input class=\"button\" type='image' src='/images/delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete the switch " . $this->rows[$i]['ip'] . " ?');\">\n";
+                 print "  </form>";
+               }
              } else {
 	       print "  <a href=\"javascript:popUp('/$current_top/edit.php?item=$key_item',500,400)\" title='Edit this record'><img src='/images/edit.png' alt=\"[ Edit ]\"></a>\n";
                if($this->violationable){
