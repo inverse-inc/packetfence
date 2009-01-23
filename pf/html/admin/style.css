@@ -9,7 +9,6 @@ img {
 }
 
 body {
-    background-color: white;
     margin: 0;
     font-family: arial, geneva, lucida, sans-serif;
     font-size: 8pt;
@@ -318,6 +317,7 @@ no#login table {
 
 #content tbody tr.data:hover {
     background: #d0e4f0;
+    cursor: default;
 }
 
 #status table{
@@ -573,4 +573,45 @@ tr.admin_left{
     text-align:center;
     left:0px;
     top:0px;
+}
+
+/* popup */
+
+body.popup {
+    background-color: #eee;
+    background-image: none;
+}
+
+body.popup h1 {
+    background-color: #1fa7d5;
+    color: #fff;
+    font-size: 14px;
+    line-height: 2em;
+    margin-top: 0;
+    text-align: center;
+}
+
+body.popup DIV#content {
+    height: auto;
+    width: auto;
+}
+
+body.popup table {
+    background-color: #fff;
+    width: 350px;
+}
+
+body.popup table thead th {
+    background-color: #eee;
+}
+
+body.popup table th {
+    text-align: left;
+}
+
+body.popup tr.button td {
+    background-color: #eee;
+    border-top: 2px solid #2f2400;
+    padding-top: 10px;
+    text-align: right;
 }

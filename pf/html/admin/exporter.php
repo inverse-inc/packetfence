@@ -42,22 +42,18 @@ if($_POST){
 
 
 ?>
-
+<html>
 <head>
   <title>PF::Export</title>
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="stylesheet" href="style.css" type="text/css"> 
 </head>
-<body>
+<body class="popup">
 
-<br>
-
-<div id=content style='border: 1px solid #aaa;height:150px;width:100%;'>
+<div id=content>
+<h1>Select the fields you want to export</h1>
 <form action=exporter.php method=post>
 <table class=data_table>
-  <tr height=30>
-    <td align=center colspan=<?=count($my_table->headers)?>><b>Select the fields you want to export</b></td>
-  </tr>
   <tr>
 <?
 
@@ -75,7 +71,7 @@ for($i=0; $i<count($my_table->headers); $i++){
   print "<td class=header align=center><b>".$my_table->headers[$i]."<b></td>\n";
 }
 
-print "</tr><tr class=odd>\n";
+print "</tr><tr class=data>\n";
 
 for($i=0; $i<count($my_table->headers); $i++){
   if($my_table->headers[$i]=="Edit")
@@ -113,4 +109,4 @@ for($i=0; $i<count($my_table->headers); $i++){
 </form>
 </div>
 </body>
-
+</html>
