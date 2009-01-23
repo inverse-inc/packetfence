@@ -51,6 +51,7 @@ reload                  | rebuild fingerprint or violations tables without resta
 report                  | current usage reports
 schedule                | Nessus scan scheduling
 service                 | start/stop/restart and get PF daemon status
+switchconfig            | query switches.conf configuration parameters
 switchlocation          | view switchport description and location
 traplog                 | update traplog RRD files and graphs or obtain switch IPs
 trigger                 | view and throw triggers
@@ -393,6 +394,14 @@ sub help_lookup {
 Usage: pfcmd lookup <person|node> value
 
 call bin/lookup_person.pl or bin/lookup_node.pl with the passed value
+EOT
+}
+
+sub help_switchconfig {
+  print STDERR << "EOT";
+Usage: pfcmd switchconfig get all
+
+query switches.conf configuration file
 EOT
 }
 
