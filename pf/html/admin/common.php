@@ -431,6 +431,9 @@ if($sajax){
                else if($key == 'vid' && $_SESSION['violation_classes']["$cell"]){
                  print "    <td $hide_tag><a href='".$this->linkable[$key].$break."view_item=$cell'>".$_SESSION['violation_classes']["$cell"]." </a></td>\n";
                } 
+               else if (($key == 'url') && (array_key_exists('vid', $this->rows[$i]))) {
+                 print "    <td $hide_tag><a href='".$this->linkable[$key].$break."vid=" . $this->rows[$i]['vid'] . "'>$cell</a></td>\n";
+               }
 	       else{
                  print "    <td $hide_tag><a href='".$this->linkable[$key].$break."view_item=$cell'>$cell</a></td>\n";
 	       }

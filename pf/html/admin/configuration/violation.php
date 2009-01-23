@@ -7,7 +7,7 @@
   $view_item = set_default($_REQUEST['view_item'], 'all');
 
   $my_table=new table("class view $view_item");
-  $my_table->set_linkable(array( array('url', 'configuration/redirector.php')));
+  $my_table->set_linkable(array( array('url', 'configuration/instructions.php')));
   $my_table->set_hideable(array('max_enable_url', 'redirect_url', 'grace', 'priority'));
   $is_printable=true;
 
