@@ -232,7 +232,7 @@ if($sajax){
         print $t;
         print "<table>\n";
         print "<tr>\n";
-        print "<td></td><td align=center><a href='javascript:document.filter.submit();'><img src='images/search.png' alt='Search'></a></td>\n";
+        print "<td></td><td align=center><a href='javascript:if (document.filter.filter.value != \"             -Filter-\") { document.filter.submit();}'><img src='images/search.png' alt='Search'></a></td>\n";
         print "<td><input name=\"filter\" onfocus=\"this.value=''\" type=\"text\" value=\"$last_filter\"></td>\n";
         print "<td width=\"15\" align=\"center\"><a href=\"$current_top/$current_sub.php?per_page=$per_page\">x</a></td>\n";
         print "</tr>\n";
