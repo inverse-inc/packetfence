@@ -139,6 +139,7 @@ sub instantiate {
         '-SNMPUserNameTrap' => ($SwitchConfig{$requestedSwitch}{'SNMPUserNameTrap'} || $SwitchConfig{'default'}{'SNMPUserNameTrap'}), 
         '-SNMPUserNameWrite' => ($SwitchConfig{$requestedSwitch}{'SNMPUserNameWrite'} || $SwitchConfig{'default'}{'SNMPUserNameWrite'}), 
         '-SNMPVersion' => ($SwitchConfig{$requestedSwitch}{'SNMPVersion'} || $SwitchConfig{$requestedSwitch}{'version'} || $SwitchConfig{'default'}{'SNMPVersion'} || $SwitchConfig{'default'}{'version'}),
+        '-SNMPEngineID' => ($SwitchConfig{$requestedSwitch}{'SNMPEngineID'} || $SwitchConfig{'default'}{'SNMPEngineID'}),
         '-SNMPVersionTrap' => ($SwitchConfig{$requestedSwitch}{'SNMPVersionTrap'} || $SwitchConfig{'default'}{'SNMPVersionTrap'}),
         '-cliEnablePwd' => ($SwitchConfig{$requestedSwitch}{'cliEnablePwd'} || $SwitchConfig{$requestedSwitch}{'telnetEnablePwd'} || $SwitchConfig{'default'}{'cliEnablePwd'} || $SwitchConfig{'default'}{'telnetEnablePwd'}),
         '-cliPwd' => ($SwitchConfig{$requestedSwitch}{'cliPwd'} || $SwitchConfig{$requestedSwitch}{'telnetPwd'} || $SwitchConfig{'default'}{'cliPwd'} || $SwitchConfig{'default'}{'telnetPwd'}),

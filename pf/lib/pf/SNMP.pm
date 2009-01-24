@@ -71,6 +71,7 @@ sub new {
         '_SNMPCommunityRead' => undef,
         '_SNMPCommunityTrap' => undef,
         '_SNMPCommunityWrite' => undef,
+        '_SNMPEngineID' => undef,
         '_SNMPPrivPasswordRead' => undef,
         '_SNMPPrivPasswordTrap' => undef,
         '_SNMPPrivPasswordWrite' => undef,
@@ -167,6 +168,8 @@ sub new {
             $this->{_cliTransport} = $argv{$_};
         } elsif (/^-?uplink$/i) {
             $this->{_uplink} = $argv{$_};
+        } elsif (/^-?SNMPEngineID$/i) {
+            $this->{_SNMPEngineID} = $argv{$_};
         } elsif (/^-?SNMPVersion$/i) {
             $this->{_SNMPVersion} = $argv{$_};
         } elsif (/^-?SNMPVersionTrap$/i) {

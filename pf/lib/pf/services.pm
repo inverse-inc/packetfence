@@ -402,7 +402,7 @@ sub generate_snmptrapd_conf {
     if ($key ne 'default') {
       my $switch = $switchFactory->instantiate($key);
       if ($switch->{_SNMPVersionTrap} eq '3') {
-        $SNMPv3Users{$switch->{_SNMPUserNameTrap}} = $switch->{_SNMPAuthProtocolTrap} . ' ' . $switch->{_SNMPAuthPasswordTrap} . ' ' . $switch->{_SNMPPrivProtocolTrap} . ' ' . $switch->{_SNMPPrivPasswordTrap};
+        $SNMPv3Users{$switch->{_SNMPUserNameTrap}} = '-e ' . $switch->{_SNMPEngineID} . ' ' . $switch->{_SNMPAuthProtocolTrap} . ' ' . $switch->{_SNMPAuthPasswordTrap} . ' ' . $switch->{_SNMPPrivProtocolTrap} . ' ' . $switch->{_SNMPPrivPasswordTrap};
       } else {
         $SNMPCommunities{$switch->{_SNMPCommunityTrap}} = 1;
       }
