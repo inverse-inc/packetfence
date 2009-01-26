@@ -27,6 +27,13 @@
   print helper_menu($current_top, $current_sub, $type, $_GET['menu'], $additional);
 
   if ($_REQUEST['type'] == 'traps') {
+    if (! (file_exists('/usr/local/pf/html/admin/traplog/total_total.png'))) {
+      print "<br><br><center><table class=\"main\">\n";
+      print "<tr><td>No Results. Do you run `pfcmd traplog update` ?</td></tr>\n";
+      print "</table></center>\n";
+      include_once('../footer.php');
+      exit(1);
+    }
 ?>
 <h3>All Switches</h3>
 <table border="0">
@@ -85,6 +92,7 @@
 ?>
 </table>
 <?php
+  include_once('../footer.php');
   exit(1);
   }
   if (($_REQUEST['type'] != "ifoctetshistoryuser") && ($_REQUEST['type'] != "ifoctetshistorymac") && ($_REQUEST['type'] != "ifoctetshistoryswitch")) {
