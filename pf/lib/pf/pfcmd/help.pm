@@ -24,9 +24,12 @@ BEGIN {
 
 sub usage {
   my $command = basename($0);
-  if (defined $ARGV[0] && defined($pf::pfcmd::help::{"help_".$ARGV[0]})){
-   ($pf::pfcmd::help::{"help_".$ARGV[0]} or sub { print "No such sub: help_".$ARGV[0]."\n"; })->();
-   exit(1);
+  if (defined($ARGV[0])) {
+    my $functionName = "pf::pfcmd::help::help_" . $ARGV[0];
+    if (defined(&$functionName)){
+      ($pf::pfcmd::help::{"help_".$ARGV[0]})->();
+      exit(1);
+    }
   }
 
   print STDERR << "EOF";
