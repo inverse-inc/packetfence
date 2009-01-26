@@ -181,6 +181,8 @@
         Added switch deletion to CLI and GUI
         don't allow empty filter submit in web admin gui
           (http://www.packetfence.org/mantis/view.php?id=547)
+        fixed behavior when no node categories are defined
+          (http://www.packetfence.org/mantis/view.php?id=548)
 
 1.7.6
         violations created through bin/pfdetect do not lead to 

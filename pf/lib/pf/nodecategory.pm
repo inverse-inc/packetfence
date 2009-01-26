@@ -30,11 +30,13 @@ use Config::IniFiles;
 if (-e $node_categories_file) {
     tie %nodeCategories, 'Config::IniFiles', ( -file => $node_categories_file );
 }
-foreach my $section (tied(%nodeCategories)->Sections){
-    foreach my $key (keys %{$nodeCategories{$section}}){
-        $nodeCategories{$section}{$key}=~s/\s+$//;
-    }
-} 
+if (defined(%nodeCategories)) {
+    foreach my $section (tied(%nodeCategories)->Sections){
+        foreach my $key (keys %{$nodeCategories{$section}}){
+            $nodeCategories{$section}{$key}=~s/\s+$//;
+        }
+    } 
+}
 
 sub nodecategory_view_all {
     my @catArray;
