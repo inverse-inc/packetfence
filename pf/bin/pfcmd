@@ -846,7 +846,11 @@ sub config {
       print uc($param)."\n";
       print "Default: $defaults{$section}{$parm}\n" if (defined($defaults{$section}{$parm}));
       print "Options: $documentation{$param}{'options'}\n" if (defined($documentation{$param}{'options'}));
-      print join("\n",@{$documentation{$param}{'description'}})."\n";
+      if (ref($documentation{$param}{'description'}) eq 'ARRAY') {
+        print join("\n",@{$documentation{$param}{'description'}})."\n";
+      } else {
+        print $documentation{$param}{'description'} . "\n";
+      }
     } else {
       print "No help available for $param\n";
       exit;
