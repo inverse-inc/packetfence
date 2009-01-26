@@ -220,10 +220,11 @@ if ($command =~ /^person$/i) {
 sub help {
   my $service = $cmd{command}[1];
   require pf::pfcmd::help;
-  if (!$service || !defined($pf::pfcmd::help::{"help_".$service})) {
+  my $functionName = "pf::pfcmd::help::help_$service";
+  if (!$service || !defined(&$functionName)) {
     pf::pfcmd::help::usage();
   }else {
-    ($pf::pfcmd::help::{"help_".$service} or sub { print "No such sub: help_".$service."\n"; })->();
+    ($pf::pfcmd::help::{"help_".$service})->();
   }
 }
 
