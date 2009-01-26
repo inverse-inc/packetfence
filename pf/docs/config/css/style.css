@@ -21,8 +21,12 @@ body {
 a:link, a:visited {
     text-decoration:none;
     color: #444;
-
 }
+
+a:hover {
+    border-bottom: 1px dotted #444;
+}
+
 
 td.topnav {
     margin: 0;
