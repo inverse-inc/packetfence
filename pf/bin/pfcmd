@@ -1177,7 +1177,13 @@ sub command_param {
 sub print_results {
   my ($function,$key,%params)=@_;
   my $total;
-  my @results=($main::{$function} or sub { print "No such sub $function: $_\n"; })->($key,%params);
+  my @results;
+  my $functionName = "main::$function";
+  if (! defined(&$functionName)) {
+    print "No such sub $function\n";
+  } else {
+    @results = ($main::{$function})->($key, %params);
+  }
   $total = scalar(@results);
   if ($count) {
     $offset = scalar(@results) if ($offset > scalar(@results));
