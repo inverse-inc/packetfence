@@ -1,144 +1,238 @@
 <html>
   <head>
   <title>PacketFence Configuration Reference</title>
+  <link rel="stylesheet" href="css/style.css" type="text/css">
   </head>
   <body>
-  <font 
-  <img src="/common/packetfence.png">
-  <p><b><font size=+1>Configuration Reference</font></b></p>
-<p><b>[alerting]</b><br>
-  <a href='alerting.html#admin_netbiosname'>admin_netbiosname</a><br>
-  <a href='alerting.html#emailaddr'>emailaddr</a><br>
-  <a href='alerting.html#fromaddr'>fromaddr</a><br>
-  <a href='alerting.html#log'>log</a><br>
-  <a href='alerting.html#smtpserver'>smtpserver</a><br>
-  <a href='alerting.html#subjectprefix'>subjectprefix</a><br>
-  <a href='alerting.html#wins_server'>wins_server</a><br>
-<p><b>[arp]</b><br>
-  <a href='arp.html#cleanshutdown'>cleanshutdown</a><br>
-  <a href='arp.html#dhcp_timeout'>dhcp_timeout</a><br>
-  <a href='arp.html#gw_timeout'>gw_timeout</a><br>
-  <a href='arp.html#heartbeat'>heartbeat</a><br>
-  <a href='arp.html#interval'>interval</a><br>
-  <a href='arp.html#listendevice'>listendevice</a><br>
-  <a href='arp.html#strobe'>strobe</a><br>
-  <a href='arp.html#stuffing'>stuffing</a><br>
-  <a href='arp.html#timeout'>timeout</a><br>
-<p><b>[database]</b><br>
-  <a href='database.html#db'>db</a><br>
-  <a href='database.html#host'>host</a><br>
-  <a href='database.html#pass'>pass</a><br>
-  <a href='database.html#port'>port</a><br>
-  <a href='database.html#user'>user</a><br>
-<p><b>[dhcp]</b><br>
-  <a href='dhcp.html#isolation_lease'>isolation_lease</a><br>
-  <a href='dhcp.html#isolation_scopes'>isolation_scopes</a><br>
-  <a href='dhcp.html#registered_lease'>registered_lease</a><br>
-  <a href='dhcp.html#registered_scopes'>registered_scopes</a><br>
-  <a href='dhcp.html#unregistered_lease'>unregistered_lease</a><br>
-  <a href='dhcp.html#unregistered_scopes'>unregistered_scopes</a><br>
-<p><b>[expire]</b><br>
-  <a href='expire.html#iplog'>iplog</a><br>
-  <a href='expire.html#locationlog'>locationlog</a><br>
-  <a href='expire.html#node'>node</a><br>
-  <a href='expire.html#traplog'>traplog</a><br>
-<p><b>[general]</b><br>
-  <a href='general.html#caching'>caching</a><br>
-  <a href='general.html#dhcpservers'>dhcpservers</a><br>
-  <a href='general.html#dnsservers'>dnsservers</a><br>
-  <a href='general.html#domain'>domain</a><br>
-  <a href='general.html#hostname'>hostname</a><br>
-  <a href='general.html#locale'>locale</a><br>
-  <a href='general.html#logo'>logo</a><br>
-<p><b>[interface]</b><br>
-  <a href='interface.html#authorizedips'>authorizedips</a><br>
-  <a href='interface.html#gateway'>gateway</a><br>
-  <a href='interface.html#ip'>ip</a><br>
-  <a href='interface.html#mask'>mask</a><br>
-  <a href='interface.html#type'>type</a><br>
-<p><b>[network]</b><br>
-  <a href='network.html#dhcpdetector'>dhcpdetector</a><br>
-  <a href='network.html#dhcpoption82logger'>dhcpoption82logger</a><br>
-  <a href='network.html#mode'>mode</a><br>
-  <a href='network.html#rogueinterval'>rogueinterval</a><br>
-<p><b>[passthroughs]</b><br>
-This section allows you to create passthroughs to HTML content or remote addresses/networks.  Here's an example:
-<p>
-<i>packetfence=http://www.packetfence.org</i>
-<p>
-The above will allow 80/tcp traffic to the resolved IP address (the LHS value is arbitrary).  Passthroughs can also take the 
-form of:
-<p>
-<i>test=192.168.100.10/23</i>
-<p>
+
+<div id="container">
+
+<table id="main" style="width:100%;" cellspacing="0" cellpadding="0">
+  <tr>
+    <td valign="top">
+      <a href="index.html"><img border="0" src="css/packetfence.png" align="right" width="193" height="60" alt="[ Packetfence ]"></a>
+    </td>
+  </tr>
+  <tr>
+    <td valign="bottom" width="100%">
+    <div class='topnav'>
+    <ul>
+      <li class='active'><a href="index.html">Configuration Reference</a></li>
+    </ul>
+    </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="subnav">
+      &nbsp;
+    </td>
+  </tr>
+
+
+  <tr>
+    <td class="content" height="100%" valign="top">
+
+<!-- Begin Content -->
+<div id="content">
+
+<h2>alerting</h2>
+<ul>
+<li><a href='alerting.html#admin_netbiosname'>admin_netbiosname</a></li>
+<li><a href='alerting.html#emailaddr'>emailaddr</a></li>
+<li><a href='alerting.html#fromaddr'>fromaddr</a></li>
+<li><a href='alerting.html#log'>log</a></li>
+<li><a href='alerting.html#smtpserver'>smtpserver</a></li>
+<li><a href='alerting.html#subjectprefix'>subjectprefix</a></li>
+<li><a href='alerting.html#wins_server'>wins_server</a></li>
+</ul>
+
+<h2>arp</h2>
+<ul>
+<li><a href='arp.html#cleanshutdown'>cleanshutdown</a></li>
+<li><a href='arp.html#dhcp_timeout'>dhcp_timeout</a></li>
+<li><a href='arp.html#gw_timeout'>gw_timeout</a></li>
+<li><a href='arp.html#heartbeat'>heartbeat</a></li>
+<li><a href='arp.html#interval'>interval</a></li>
+<li><a href='arp.html#listendevice'>listendevice</a></li>
+<li><a href='arp.html#strobe'>strobe</a></li>
+<li><a href='arp.html#stuffing'>stuffing</a></li>
+<li><a href='arp.html#timeout'>timeout</a></li>
+</ul>
+
+<h2>database</h2>
+<ul>
+<li><a href='database.html#db'>db</a></li>
+<li><a href='database.html#host'>host</a></li>
+<li><a href='database.html#pass'>pass</a></li>
+<li><a href='database.html#port'>port</a></li>
+<li><a href='database.html#user'>user</a></li>
+</ul>
+
+<h2>dhcp</h2>
+<ul>
+<li><a href='dhcp.html#isolation_lease'>isolation_lease</a></li>
+<li><a href='dhcp.html#isolation_scopes'>isolation_scopes</a></li>
+<li><a href='dhcp.html#registered_lease'>registered_lease</a></li>
+<li><a href='dhcp.html#registered_scopes'>registered_scopes</a></li>
+<li><a href='dhcp.html#unregistered_lease'>unregistered_lease</a></li>
+<li><a href='dhcp.html#unregistered_scopes'>unregistered_scopes</a></li>
+</ul>
+
+<h2>expire</h2>
+<ul>
+<li><a href='expire.html#iplog'>iplog</a></li>
+<li><a href='expire.html#locationlog'>locationlog</a></li>
+<li><a href='expire.html#node'>node</a></li>
+<li><a href='expire.html#traplog'>traplog</a></li>
+</ul>
+
+<h2>general</h2>
+<ul>
+<li><a href='general.html#caching'>caching</a></li>
+<li><a href='general.html#dhcpservers'>dhcpservers</a></li>
+<li><a href='general.html#dnsservers'>dnsservers</a></li>
+<li><a href='general.html#domain'>domain</a></li>
+<li><a href='general.html#hostname'>hostname</a></li>
+<li><a href='general.html#locale'>locale</a></li>
+<li><a href='general.html#logo'>logo</a></li>
+</ul>
+
+<h2>interface</h2>
+<ul>
+<li><a href='interface.html#authorizedips'>authorizedips</a></li>
+<li><a href='interface.html#gateway'>gateway</a></li>
+<li><a href='interface.html#ip'>ip</a></li>
+<li><a href='interface.html#mask'>mask</a></li>
+<li><a href='interface.html#type'>type</a></li>
+</ul>
+
+<h2>network</h2>
+<ul>
+<li><a href='network.html#dhcpdetector'>dhcpdetector</a></li>
+<li><a href='network.html#dhcpoption82logger'>dhcpoption82logger</a></li>
+<li><a href='network.html#mode'>mode</a></li>
+<li><a href='network.html#rogueinterval'>rogueinterval</a></li>
+</ul>
+
+<h2>passthroughs</h2>
+<p>This section allows you to create passthroughs to HTML content 
+or remote addresses/networks.  Here's an example:<pre><code>
+packetfence=http://www.packetfence.org
+</code></pre>
+The above will allow 80/tcp traffic to the resolved IP address 
+(the LHS value is arbitrary).  Passthroughs can also take the 
+form of:<pre><code>
+test=192.168.100.10/23
+</code></pre>
 which would allow full IP to all 512 destination addresses.
-<p><b>[ports]</b><br>
-  <a href='ports.html#admin'>admin</a><br>
-  <a href='ports.html#listeners'>listeners</a><br>
-  <a href='ports.html#redirect'>redirect</a><br>
-<p><b>[proxies]</b><br>
-This section allows you to configure locally proxied content.  We typically use this to proxy tools like Stinger rather 
-than having to continually download the latest version. Ex:
+</p>
+
+<h2>ports</h2>
+<ul>
+<li><a href='ports.html#admin'>admin</a></li>
+<li><a href='ports.html#listeners'>listeners</a></li>
+<li><a href='ports.html#redirect'>redirect</a></li>
+</ul>
+
+<h2>proxies</h2>
 <p>
-<i>tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stinger.exe</i>
-<p>
-The Stinger utility could then be accessed at https://pfhostname/proxies/tools/stinger.exe.
-<p><b>[registration]</b><br>
-  <a href='registration.html#auth'>auth</a><br>
-  <a href='registration.html#button_text'>button_text</a><br>
-  <a href='registration.html#expire_deadline'>expire_deadline</a><br>
-  <a href='registration.html#expire_mode'>expire_mode</a><br>
-  <a href='registration.html#expire_session'>expire_session</a><br>
-  <a href='registration.html#expire_window'>expire_window</a><br>
-  <a href='registration.html#maxnodes'>maxnodes</a><br>
-  <a href='registration.html#nbregpages'>nbregpages</a><br>
-  <a href='registration.html#queuesize'>queuesize</a><br>
-  <a href='registration.html#range'>range</a><br>
-  <a href='registration.html#skip_deadline'>skip_deadline</a><br>
-  <a href='registration.html#skip_mode'>skip_mode</a><br>
-  <a href='registration.html#skip_reminder'>skip_reminder</a><br>
-  <a href='registration.html#skip_window'>skip_window</a><br>
-<p><b>[routedsubnet]</b><br>
-  <a href='routedsubnet.html#gateway'>gateway</a><br>
-  <a href='routedsubnet.html#mask'>mask</a><br>
-  <a href='routedsubnet.html#network'>network</a><br>
-  <a href='routedsubnet.html#type'>type</a><br>
-<p><b>[scan]</b><br>
-  <a href='scan.html#host'>host</a><br>
-  <a href='scan.html#live_tids'>live_tids</a><br>
-  <a href='scan.html#pass'>pass</a><br>
-  <a href='scan.html#port'>port</a><br>
-  <a href='scan.html#registration'>registration</a><br>
-  <a href='scan.html#ssl'>ssl</a><br>
-  <a href='scan.html#user'>user</a><br>
-<p><b>[scope]</b><br>
-  <a href='scope.html#gateway'>gateway</a><br>
-  <a href='scope.html#network'>network</a><br>
-  <a href='scope.html#range'>range</a><br>
-<p><b>[services]</b><br>
-  <a href='services.html#dhcpd'>dhcpd</a><br>
-  <a href='services.html#httpd'>httpd</a><br>
-  <a href='services.html#snmptrapd'>snmptrapd</a><br>
-  <a href='services.html#snort'>snort</a><br>
-<p><b>[servicewatch]</b><br>
-  <a href='servicewatch.html#email'>email</a><br>
-  <a href='servicewatch.html#restart'>restart</a><br>
-<p><b>[trapping]</b><br>
-  <a href='trapping.html#blacklist'>blacklist</a><br>
-  <a href='trapping.html#detection'>detection</a><br>
-  <a href='trapping.html#immediate'>immediate</a><br>
-  <a href='trapping.html#passthrough'>passthrough</a><br>
-  <a href='trapping.html#range'>range</a><br>
-  <a href='trapping.html#redirecturl'>redirecturl</a><br>
-  <a href='trapping.html#redirtimer'>redirtimer</a><br>
-  <a href='trapping.html#registration'>registration</a><br>
-  <a href='trapping.html#testing'>testing</a><br>
-  <a href='trapping.html#whitelist'>whitelist</a><br>
-<p><b>[vlan]</b><br>
-  <a href='vlan.html#adjustswitchportvlanreasons'>adjustswitchportvlanreasons</a><br>
-  <a href='vlan.html#adjustswitchportvlanscript'>adjustswitchportvlanscript</a><br>
-  <a href='vlan.html#closelocationlogonstop'>closelocationlogonstop</a><br>
-  <a href='vlan.html#nbtraphandlerthreads'>nbtraphandlerthreads</a><br>
-  <a href='vlan.html#nbtrapparserthreads'>nbtrapparserthreads</a><br>
+This section allows you to configure locally proxied content.
+We typically use this to proxy tools like Stinger rather 
+than having to continually download the latest version. Ex:<pre><code>
+tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stinger.exe
+</code></pre>
+The Stinger utility could then be accessed at 
+https://pfhostname/proxies/tools/stinger.exe.
+</p>
+
+<h2>registration</h2>
+<ul>
+<li><a href='registration.html#auth'>auth</a></li>
+<li><a href='registration.html#button_text'>button_text</a></li>
+<li><a href='registration.html#expire_deadline'>expire_deadline</a></li>
+<li><a href='registration.html#expire_mode'>expire_mode</a></li>
+<li><a href='registration.html#expire_session'>expire_session</a></li>
+<li><a href='registration.html#expire_window'>expire_window</a></li>
+<li><a href='registration.html#maxnodes'>maxnodes</a></li>
+<li><a href='registration.html#nbregpages'>nbregpages</a></li>
+<li><a href='registration.html#queuesize'>queuesize</a></li>
+<li><a href='registration.html#range'>range</a></li>
+<li><a href='registration.html#skip_deadline'>skip_deadline</a></li>
+<li><a href='registration.html#skip_mode'>skip_mode</a></li>
+<li><a href='registration.html#skip_reminder'>skip_reminder</a></li>
+<li><a href='registration.html#skip_window'>skip_window</a></li>
+</ul>
+
+<h2>routedsubnet</h2>
+<ul>
+<li><a href='routedsubnet.html#gateway'>gateway</a></li>
+<li><a href='routedsubnet.html#mask'>mask</a></li>
+<li><a href='routedsubnet.html#network'>network</a></li>
+<li><a href='routedsubnet.html#type'>type</a></li>
+</ul>
+
+<h2>scan</h2>
+<ul>
+<li><a href='scan.html#host'>host</a></li>
+<li><a href='scan.html#live_tids'>live_tids</a></li>
+<li><a href='scan.html#pass'>pass</a></li>
+<li><a href='scan.html#port'>port</a></li>
+<li><a href='scan.html#registration'>registration</a></li>
+<li><a href='scan.html#ssl'>ssl</a></li>
+<li><a href='scan.html#user'>user</a></li>
+</ul>
+
+<h2>scope</h2>
+<ul>
+<li><a href='scope.html#gateway'>gateway</a></li>
+<li><a href='scope.html#network'>network</a></li>
+<li><a href='scope.html#range'>range</a></li>
+</ul>
+
+<h2>services</h2>
+<ul>
+<li><a href='services.html#dhcpd'>dhcpd</a></li>
+<li><a href='services.html#httpd'>httpd</a></li>
+<li><a href='services.html#snmptrapd'>snmptrapd</a></li>
+<li><a href='services.html#snort'>snort</a></li>
+</ul>
+
+<h2>servicewatch</h2>
+<ul>
+<li><a href='servicewatch.html#email'>email</a></li>
+<li><a href='servicewatch.html#restart'>restart</a></li>
+</ul>
+
+<h2>trapping</h2>
+<ul>
+<li><a href='trapping.html#blacklist'>blacklist</a></li>
+<li><a href='trapping.html#detection'>detection</a></li>
+<li><a href='trapping.html#immediate'>immediate</a></li>
+<li><a href='trapping.html#passthrough'>passthrough</a></li>
+<li><a href='trapping.html#range'>range</a></li>
+<li><a href='trapping.html#redirecturl'>redirecturl</a></li>
+<li><a href='trapping.html#redirtimer'>redirtimer</a></li>
+<li><a href='trapping.html#registration'>registration</a></li>
+<li><a href='trapping.html#testing'>testing</a></li>
+<li><a href='trapping.html#whitelist'>whitelist</a></li>
+</ul>
+
+<h2>vlan</h2>
+<ul>
+<li><a href='vlan.html#adjustswitchportvlanreasons'>adjustswitchportvlanreasons</a></li>
+<li><a href='vlan.html#adjustswitchportvlanscript'>adjustswitchportvlanscript</a></li>
+<li><a href='vlan.html#closelocationlogonstop'>closelocationlogonstop</a></li>
+<li><a href='vlan.html#nbtraphandlerthreads'>nbtraphandlerthreads</a></li>
+<li><a href='vlan.html#nbtrapparserthreads'>nbtrapparserthreads</a></li>
+</ul>
+
+
+      <!-- End Content -->
+      </div>
+    </td>
+  </tr>
+</table>
+</div>
+
   <body>
 </html>
