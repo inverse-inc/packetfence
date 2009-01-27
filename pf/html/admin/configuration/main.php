@@ -98,8 +98,12 @@ if(isset($_GET['update'])){
     }
 
     else if($value != $_POST[$option]){
-       PFCMD("config set $pf_option=$_POST[$option]");
-      $msg .= "Changed $option from '$value' to '$_POST[$option]'";
+      if ($_POST[$option] != '') {
+        PFCMD("config set $pf_option=$_POST[$option]");
+        $msg .= "Changed $option from '$value' to '$_POST[$option]'<br>\n";
+      } else {
+        $msg .= "Unable to change $option from '$value' to ''<br>\n";
+      }
     }
   }
   if(!isset($msg)){
