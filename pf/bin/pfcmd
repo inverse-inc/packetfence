@@ -805,7 +805,10 @@ sub config {
   tie %defaults, 'Config::IniFiles', ( -file => $conf_dir."/pf.conf.defaults" ) or $logger->logdie("Unable to open pf.conf.defaults: $!");
   tie %myconfig, 'Config::IniFiles', ( -file => $conf_dir."/pf.conf" ) or $logger->logdie("Unable to open pf.conf: $!");
   
-  usage("config") if ($option =~ /^set$/i && $param !~ /^.+?=.+?$/);
+  if ($option =~ /^set$/i && $param !~ /^.+?=.+?$/) {
+    require pf::pfcmd::help;
+    pf::pfcmd::help::usage("config");
+  }
   if ($option =~ /^set$/i) {
     $param =~ /^([^=]+)=(.+)$/;
     $param = $1;
