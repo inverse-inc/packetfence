@@ -8,7 +8,7 @@
 
   $my_table=new table("class view $view_item");
   $my_table->set_linkable(array( array('url', 'configuration/instructions.php')));
-  $my_table->set_hideable(array('max_enable_url', 'redirect_url', 'grace', 'priority'));
+  $my_table->set_hideable(array('max_enable_url', 'redirect_url', 'grace', 'priority', 'button_text'));
   $is_printable=true;
 
   $my_table->set_page_num(set_default($_REQUEST['page_num'],1));
