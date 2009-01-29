@@ -5,7 +5,7 @@ function get_group($user) {
 }
 
 function check_input($input){
-  if(preg_match("/^[a-zA-Z0-9\:\,\(\)]/", $input) && strlen($input) <= 15){
+  if(preg_match("/^[\@a-zA-Z0-9\:\,\(\)]/", $input) && strlen($input) <= 15){
     return true; 
   }        
   else{
