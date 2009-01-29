@@ -1,6 +1,8 @@
 1.8.1
         authorized @ as first symbol in password
           (http://www.packetfence.org/mantis/view.php?id=551)
+        daily graphs and issues with year end
+          (http://www.packetfence.org/mantis/view.php?id=553)
 
 1.8.0
         unify log management

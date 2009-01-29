@@ -1233,6 +1233,7 @@ sub print_results {
 
 sub print_graph_results {
   my ($function,$interval) = @_;
+  require Date::Parse;
 
   # TOTAL HACK, but we avoid using yet another module
   my %months = ( "01" => "31",
@@ -1283,39 +1284,19 @@ sub print_graph_results {
       for (my $r = 0; $r < scalar(@results)-1; $r++) {
         my ($start_year, $start_mon, $start_day) = split (/\//, $results[$r]->{'mydate'});
         my ($end_year, $end_mon, $end_day) = split(/\//, $results[$r+1]->{'mydate'});
-        my $mstart = $start_mon;
-        my $dstart = $start_day;
-        for (my $i = $start_year; $i <= $end_year; $i++) {
-          my $mend;
-          if ($i == $end_year) {
-            $mend = $end_mon;
-          } else {
-            $mend = "12";
-          }
-          for (my $ii = $mstart; $ii <= $mend; $ii++) {
-            my $dend;
-            if ($i == $end_year && $ii == $end_mon) {
-              $dend = $end_day;
+        my $start_time = Date::Parse::str2time("$start_year-$start_mon-$start_day" . "T00:00:00.0000000");
+        my $end_time = Date::Parse::str2time("$end_year-$end_mon-$end_day" . "T00:00:00.0000000");
+        for (my $current_time=$start_time; $current_time < $end_time; $current_time+=86400) {
+          my @values;
+          foreach my $field (@fields) {
+            if ($field eq "mydate") {
+              push(@values, POSIX::strftime("%m/%d/%Y", localtime($current_time)));
             } else {
-              $dend = $months{sprintf("%02d",$ii)};
+              push(@values, $results[$r]->{$field});
             }
-            for (my $iii = $dstart; $iii <= $dend; $iii++) {
-              if (!($i == $end_year && $ii == $end_mon && $iii == $end_day)) {
-                my @values;
-                foreach my $field (@fields) {
-                  if ($field eq "mydate") {
-                    push(@values, join("/", sprintf("%02d",$ii), sprintf("%02d",$iii), sprintf("%02d",$i)));
-                  } else {
-                    push(@values, $results[$r]->{$field});
-                  }
-                }
-                print join("|",@values)."\n";
-              }
-            }
-            $dstart = 1;
           }
+          print join("|",@values)."\n";
         }
-        $mstart = 1;
       }
       my ($year, $mon, $day) = split (/\//, $results[scalar(@results)-1]->{'mydate'});
       my @values;
