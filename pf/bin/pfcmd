@@ -411,6 +411,9 @@ sub switchconfig {
       if (tied(%switches_conf)->SectionExists($section)) {
         tied(%switches_conf)->DeleteSection($section);
         tied(%switches_conf)->WriteConfig($conf_dir."/switches.conf");
+        require pf::configfile;
+        import pf::configfile;
+        configfile_import($conf_dir."/switches.conf");
       } else {
         print "Unknown switch $section!\n";
         exit;
@@ -435,6 +438,9 @@ sub switchconfig {
         }
       }
       tied(%switches_conf)->WriteConfig($conf_dir."/switches.conf");
+      require pf::configfile;
+      import pf::configfile;
+      configfile_import($conf_dir."/switches.conf");
     } else {
       print "Unknown switch $section!\n";
       exit;
@@ -880,6 +886,9 @@ sub config {
         tied(%myconfig)->newval($section,$parm,$value);
       }
       tied(%myconfig)->WriteConfig($conf_dir."/pf.conf");
+      require pf::configfile;
+      import pf::configfile;
+      configfile_import($conf_dir . "/pf.conf");
     }
   } else {
     print "Unknown config option!\n";
@@ -910,9 +919,9 @@ sub configfiles {
   require pf::configfile;
   import pf::configfile;
   if ($option eq "push") {
-    configfile_import('/usr/local/pf/conf/pf.conf');
+    configfile_import($conf_dir . '/pf.conf');
   } elsif ($option eq "pull") {
-    configfile_export('/usr/local/pf/conf/pf.conf');
+    configfile_export($conf_dir . '/pf.conf');
   }
   exit;
 }
