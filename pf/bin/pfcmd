@@ -1260,6 +1260,85 @@ sub print_graph_results {
   my @fields=field_order();
   push @fields, keys(%{$results[0]}) if (!scalar(@fields));
   print join("|", @fields)."\n";
+
+  #determine first and last time in all series
+  my $first_time = undef;
+  my $last_time = undef;
+  foreach my $s (keys(%series)) {
+    my $start_year;
+    my $start_mon=1;
+    my $start_day=1;
+    my $end_year;
+    my $end_mon=1;
+    my $end_day=1;
+    my @results = @{$series{$s}};
+    if ($interval eq "day") {
+      ($start_year, $start_mon, $start_day) = split (/\//, $results[0]->{'mydate'});
+      ($end_year, $end_mon, $end_day) = split (/\//, $results[scalar(@results)-1]->{'mydate'});
+    } elsif ($interval eq "month") {
+      ($start_year, $start_mon) = split (/\//, $results[0]->{'mydate'});
+      ($end_year, $end_mon) = split (/\//, $results[scalar(@results)-1]->{'mydate'});
+    } elsif ($interval eq "year") {
+      $start_year = $results[0]->{'mydate'};
+      $end_year = $results[scalar(@results)-1]->{'mydate'};
+    }
+    my $start_time = Date::Parse::str2time("$start_year-$start_mon-$start_day" . "T00:00:00.0000000");
+    my $end_time = Date::Parse::str2time("$end_year-$end_mon-$end_day" . "T00:00:00.0000000");
+    if ((! defined($first_time)) || ($start_time < $first_time)) {
+      $first_time = $start_time;
+    }
+    if ((! defined($last_time)) || ($end_time > $last_time)) {
+      $last_time = $end_time;
+    }
+  }
+
+  #add, if necessary, first and last time entries to all series
+  foreach my $s (keys(%series)) {
+    my $start_year;
+    my $start_mon=1;
+    my $start_day=1;
+    my $end_year;
+    my $end_mon=1;
+    my $end_day=1;
+    my @results = @{$series{$s}};
+    if ($interval eq "day") {
+      ($start_year, $start_mon, $start_day) = split (/\//, $results[0]->{'mydate'});
+      ($end_year, $end_mon, $end_day) = split (/\//, $results[scalar(@results)-1]->{'mydate'});
+    } elsif ($interval eq "month") {
+      ($start_year, $start_mon) = split (/\//, $results[0]->{'mydate'});
+      ($end_year, $end_mon) = split (/\//, $results[scalar(@results)-1]->{'mydate'});
+    } elsif ($interval eq "year") {
+      $start_year = $results[0]->{'mydate'};
+      $end_year = $results[scalar(@results)-1]->{'mydate'};
+    }
+    my $start_time = Date::Parse::str2time("$start_year-$start_mon-$start_day" . "T00:00:00.0000000");
+    my $end_time = Date::Parse::str2time("$end_year-$end_mon-$end_day" . "T00:00:00.0000000");
+    if ($start_time > $first_time) {
+      my $new_record;
+      foreach my $field (@fields) {
+        if ($field eq "mydate") {
+          $new_record->{$field} = POSIX::strftime("%Y/%m/%d", localtime($first_time));
+        } elsif ($field eq "count") {
+          $new_record->{$field} = 0;
+        } else {
+          $new_record->{$field} = $results[scalar(@results)-1]->{$field};
+        }
+      }
+      unshift(@{$series{$s}}, $new_record);
+    }
+    if ($end_time < $last_time) {
+      my $new_record;
+      foreach my $field (@fields) {
+        if ($field eq "mydate") {
+          $new_record->{$field} = POSIX::strftime("%Y/%m/%d", localtime($last_time));
+        } else {
+          $new_record->{$field} = $results[scalar(@results)-1]->{$field};
+        }
+      }
+      push(@{$series{$s}}, $new_record);
+    }
+  }
+
   foreach my $s (keys(%series)) {
     my @results = @{$series{$s}};
     my $year = POSIX::strftime("%Y", localtime);

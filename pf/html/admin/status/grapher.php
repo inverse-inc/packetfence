@@ -284,12 +284,11 @@ function get_chart_data($cmd){
                 }
 
 		$x_labels = $temp_x_labels;
-		$x_labels[$parts[$index[mydate]]] = strtotime($parts[$index[mydate]]);
+		#$x_labels[$parts[$index[mydate]]] = strtotime($parts[$index[mydate]]);
 		$all_series[$parts[$index[series]]]=1;
 		$data[$parts[$index[mydate]]][$parts[$index[series]]]=$parts[$index[count]];
 	}
 	@asort($x_labels);
-
 
 	## To get multiseries graphs to line up
 	if($data){
