@@ -84,7 +84,8 @@ my @suids   = (
                "$install_dir/bin/pfcmd"
               );
 
-my %schemas = ( "2e8a5ce0549759080b501e0149b77ad0" => "1.8.0",
+my %schemas = ( "ad6bad46d67c569a23bdc786219a0251" => "1.8.1",
+                "2e8a5ce0549759080b501e0149b77ad0" => "1.8.0",
                 "8aeb47f80e4bf35b2427ca002cc20625" => "1.7.4",
                 "5588316d6e053eea32fe73b22ae3bde9" => "1.7.1",
                 "37929828877c2328f0146f4c76740fb4" => "1.7.0",
@@ -197,9 +198,9 @@ if(questioner("PacketFence requires a MySQL server as a backend.  Would you like
       $unknown = 1;
     } else {
       my $schema_version = $schemas{$md5sum};
-      if ($schema_version ne '1.8.0') {
+      if ($schema_version ne '1.8.1') {
         if (questioner("PF database already exists - do you want to upgrade it?","y",("y", "n"))) {
-          my $update_script = "$install_dir/db/upgrade-$schema_version-1.8.0.sql";
+          my $update_script = "$install_dir/db/upgrade-$schema_version-1.8.1.sql";
           if (-e $update_script) {
             `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' $mysql_db < $update_script`;
             $upgraded = 1;
