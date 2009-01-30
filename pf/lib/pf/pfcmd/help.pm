@@ -48,6 +48,7 @@ ipmachistory            | IP/MAC history
 locationhistorymac      | Switch/Port history
 locationhistoryswitch   | Switch/Port history
 lookup                  | node or pid lookup against local data store
+manage                  | manage node entries
 node                    | node manipulation
 nodecategory            | nodecategory manipulation
 person                  | person manipulation
@@ -66,6 +67,21 @@ violation               | violation manipulation
 
 Please view "$command help <command>" for details on each option
 EOF
+  exit;
+}
+
+sub help_manage {
+  print STDERR << "EOT";
+Usage: pfcmd manage <freemac|register|deregister|vclose|vopen> <mac> [options]
+
+manage nodes
+
+  freemac          | free MAC from ARP spoof
+  register         | register node
+  deregister       | unregister node
+  vclose           | close violation for node
+  vopen            | open new violation for node
+EOT
   exit;
 }
 
