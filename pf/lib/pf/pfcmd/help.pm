@@ -37,6 +37,7 @@ Usage: $command <command> [options]
 
 class                   | view violation classes
 config                  | query, set, or get help on pf.conf configuration paramaters
+configfiles             | push or pull configfiles into/from database
 fingerprint             | view DHCP Fingerprints
 graph                   | trending graphs
 history                 | IP/MAC history
@@ -98,6 +99,19 @@ manipulate nodecategories
 examples:
   pfcmd nodecategory view all
   pfcmd nodecategory view myCategory
+EOT
+  exit;
+}
+
+sub help_configfiles {
+  print STDERR << "EOT";
+Usage: pfcmd configfiles <push|pull>
+
+push configfiles into database or pull them from database
+
+examples:
+  pfcmd configfiles push
+  pfcmd configfiles pull
 EOT
   exit;
 }

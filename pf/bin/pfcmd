@@ -112,6 +112,12 @@ if ((scalar(@arguments) == 1) && ($arguments[0] eq 'version')) {
   $command = 'version';
   version();
   exit(1);
+} elsif ((scalar(@arguments) == 2) && ($arguments[0] eq 'configfiles') && ($arguments[1] =~ /^(push|pull)$/)) {
+  $command = 'configfiles';
+  $cmd{command}[0] = 'configfiles';
+  $cmd{command}[1] = $arguments[1];
+  configfiles();
+  exit(1);
 } elsif ((scalar(@arguments) == 2) && ($arguments[0] eq 'help')) {
   $command = 'help';
   $cmd{command}[1] = $arguments[1];
@@ -897,6 +903,18 @@ sub report {
     $type = "all"
   }
   exit(print_results("report_".$service."_".$type));
+}
+
+sub configfiles {
+  my $option = $cmd{command}[1];
+  require pf::configfile;
+  import pf::configfile;
+  if ($option eq "push") {
+    configfile_import('/usr/local/pf/conf/pf.conf');
+  } elsif ($option eq "pull") {
+    configfile_export('/usr/local/pf/conf/pf.conf');
+  }
+  exit;
 }
 
 #
