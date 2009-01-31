@@ -446,6 +446,7 @@ if($sajax){
            if(isset($this->editable)){
              print "  <td class=\"action\">\n";
              if (($current_top == 'configuration') && ($current_sub=='switches')) {
+	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['ip'] . "',500,400)\" title='Edit this record'><img src='/images/edit.png' alt=\"[ Edit ]\"></a>\n";
                if (($this->rows[$i]['ip'] != '127.0.0.1') && ($this->rows[$i]['ip'] != 'default')) {
 	         print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page&amp;action=$action&amp;item=$item' method='post'>";
                  print "  <input type='hidden' name='action' value='delete'>\n";
