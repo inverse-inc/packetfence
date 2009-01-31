@@ -383,7 +383,7 @@ sub switchconfig {
         $switches_conf{$section}{$key}=~s/\s+$//;
       }
     }
-    my @columns = qw(ip type mode uplink communityRead communityWrite communityTrap SNMPVersionTrap SNMPVersion );
+    my @columns = qw(ip type mode uplink SNMPVersion SNMPCommunityRead SNMPCommunityWrite SNMPVersionTrap SNMPCommunityTrap cliTransport cliUser cliPwd cliEnablePwd);
     print join("|", @columns) . "\n";
     foreach my $section (keys %switches_conf) {
       if (($cmd{'command'}[2] eq 'all') || ($cmd{'command'}[2] eq $section)) {
