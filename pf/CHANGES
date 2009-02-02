@@ -15,6 +15,9 @@
           (http://www.packetfence.org/mantis/view.php?id=557)
         CSS style for web admin gui edit pages
           (http://www.packetfence.org/mantis/view.php?id=558)
+        permitted switches.conf modification through CLI
+          and web admin GUI
+          (http://www.packetfence.org/mantis/view.php?id=433)
 
 1.8.0
         unify log management
