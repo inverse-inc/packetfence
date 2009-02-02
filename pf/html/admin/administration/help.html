@@ -8,55 +8,44 @@
   <title>PF::Administration::Help</title>
 </head>
 
-<body>
+<body class="popup">
 
-<div id="help">
+<div id="content">
 
-  <div align="center"><img src="../images/wire.png" alt="[ Packetfence ]"></div>
-
-  <a name="configuration"></a>
-  <div class="help_heading">Administration - Configuration</div>
-  <div class="help_content">
-    Consult and modify the Packetfence configuration<br>
-    Interface to the <code>pfcmd config</code> commands.<br>
+<h1>Administration</h1>
+<a name="configuration"><h2>Configuration</h2></a>
+<p>
+    Consult and modify the Packetfence configuration 
+    (interface to the <code>pfcmd config</code> commands).<br>
     Please note that this is equivalent to modifying the 
     Packetfence configuration file <code>&lt;conf_dir&gt;/pf.conf</code>.
     In particular, the changes are not immediately taken into account.
     You'll have to restart the affected Packetfence services in order to
     use the new configuration settings.
-  </div>
+</p>
 
-  <br>
-
-  <a name="services"></a>
-  <div class="help_heading">Administration - Services</div>
-  <div class="help_content">
+<a name="services"><h2>Services</h2></a>
+<p>
     Control which pf services are started / stopped.<br>
     Interface to the <code>pfcmd service</code> commands.
-  </div>
+</p>
 
-  <br>
-
-  <a name="adduser"></a>
-  <div class="help_heading">Administration - Add User</div>
-  <div class="help_content">
+<a name="adduser"><h2>Add User</h2></a>
+<p>
     Create a new user for the admin website. <br>
     Interface to the <code>htpasswd</code>
     command and modifies the <code>&lt;conf_dir&gt;/admin.conf</code>
     file.<br>
     Please note that the new user will have
     exactely the same privileges you have now (modifying the
-    pf configuration, adding violations to users etc.).<br>
-  </div>
+    pf configuration, adding violations to users etc.).
+</p>
 
-  <br>
-
-  <a name="ui_options"></a>
-  <div class="help_heading">Administration - UI Options</div>
-  <div class="help_content">
+<a name="ui_options"><h2>UI Options</h2></a>
+<p>
     Choose between three different font sizes for the admin website.
     Define the default page which is opened when you login.  Chose the amount of time that graph images are cached.  Setting this to 0 will disable graph caching.
-  </div>
+</p>
 
 </div>
 
