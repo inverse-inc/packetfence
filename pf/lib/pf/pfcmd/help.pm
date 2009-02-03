@@ -433,9 +433,9 @@ EOT
 
 sub help_violationconfig {
   print STDERR << "EOT";
-Usage: pfcmd violationconfig get <all|default|IP>
-       pfcmd violationconfig edit <IP> [assignments]
-       pfcmd violationconfig delete <IP>
+Usage: pfcmd violationconfig get <all|default|vid>
+       pfcmd violationconfig edit <vid> [assignments]
+       pfcmd violationconfig delete <vid>
 
 query/modify violations.conf configuration file
 EOT

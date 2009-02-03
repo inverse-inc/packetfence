@@ -42,6 +42,7 @@ $grammar = q {
    command : 'node' node_options
              | 'person' person_options
              | 'switchconfig' switchconfig_options
+             | 'violationconfig' violationconfig_options
              | 'violation' violation_options
              | 'trigger' 'view' vid ('scan' | 'detect')(?)
              | 'ui' 'menus' ui_options(?)
@@ -73,6 +74,8 @@ $grammar = q {
    node_options : 'add' mac node_edit_options | 'count' (mac|node_filter) | 'view' (mac|node_filter) orderby_options(?) limit_options(?) | 'edit' macaddr node_edit_options | 'delete' macaddr
 
    switchconfig_options: 'edit' ('default'|ipaddr) switchconfig_edit_options
+
+   violationconfig_options: 'edit' ('default'|/\d+/) violationconfig_edit_options
 
    violation_options : 'add' violation_edit_options | 'view' vid | 'edit' /\d+/ violation_edit_options | 'delete' /\d+/ 
 
@@ -106,6 +109,8 @@ $grammar = q {
 
    switchconfig_edit_options : <leftop: switchconfig_assignment ',' switchconfig_assignment>
 
+   violationconfig_edit_options : <leftop: violationconfig_assignment ',' violationconfig_assignment>
+
    person_edit_options : <leftop: person_assignment ',' person_assignment>
 
    node_edit_options : <leftop: node_assignment ',' node_assignment>
@@ -125,6 +130,9 @@ $grammar = q {
    switchconfig_assignment : switchconfig_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{switchconfig_view_field},$item{value}] }
 
+   violationconfig_assignment : violationconfig_view_field '=' value
+                {push @{$main::cmd{$item[0]}}, [$item{violationconfig_view_field},$item{value}] }
+
    node_assignment : node_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{node_view_field},$item{value}] }
 
@@ -133,13 +141,15 @@ $grammar = q {
 
    columname : /[a-z_]+/i
 
-   value : '"' /[\/,0-9a-zA-Z_\*\.\-\:_\;\@\ ]*/ '"' {$item[2]} | /[\/0-9a-zA-Z_\*\.\-\:_\;\@]+/
+   value : '"' /[=?()\/,0-9a-zA-Z_\*\.\-\:_\;\@\ ]*/ '"' {$item[2]} | /[\/0-9a-zA-Z_\*\.\-\:_\;\@]+/
 
    person_view_field : 'pid' | 'notes'
 
    node_view_field :  'mac' | 'pid' | 'detect_date' | 'regdate' | 'unregdate' | 'lastskip' | 'status' | 'user_agent' | 'computername'  | 'notes' | 'last_arp' | 'last_dhcp' | 'dhcp_fingerprint' | 'switch' | 'port' | 'vlan'
 
    switchconfig_view_field : 'type' | 'mode' | 'uplink' | 'SNMPVersionTrap' | 'SNMPCommunityRead' | 'SNMPCommunityWrite' | 'SNMPVersion' | 'SNMPCommunityTrap' | 'cliTransport' | 'cliUser' | 'cliPwd' | 'cliEnablePwd'
+
+   violationconfig_view_field : 'desc' | 'disable' | 'auto_enable' | 'actions' | 'max_enable' | 'grace' | 'priority' | 'url' | 'button_text' | 'trigger'
 
    violation_view_field :  'id' | 'mac' | 'vid' | 'start_date' | 'release_date' | 'status' | 'notes'
 

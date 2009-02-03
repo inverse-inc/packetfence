@@ -425,13 +425,13 @@ sub violationconfig {
       foreach my $assignment (@assignments) {
         my ($param, $value) = @$assignment;
         if (defined($violations_conf{$section}{$param})) {
-          if ((! exists($violations_conf{'default'}{$param})) || ($violations_conf{'default'}{$param} ne $value)) {
+          if ((! exists($violations_conf{'defaults'}{$param})) || ($violations_conf{'defaults'}{$param} ne $value)) {
             tied(%violations_conf)->setval($section,$param,$value);
           } else {
             tied(%violations_conf)->delval($section, $param);
           }
         } else {
-          if ((! exists($violations_conf{'default'}{$param})) || ($violations_conf{'default'}{$param} ne $value)) {
+          if ((! exists($violations_conf{'defaults'}{$param})) || ($violations_conf{'defaults'}{$param} ne $value)) {
             tied(%violations_conf)->newval($section,$param,$value);
           }
         }
