@@ -64,6 +64,7 @@ ui                      | used by web UI to create menu hierarchies and dashboar
 update                  | download canonical fingerprint or OUI data
 version                 | get installed PF version and database MD5s
 violation               | violation manipulation
+violationconfig         | query/modify violations.conf configuration parameters
 
 Please view "$command help <command>" for details on each option
 EOF
@@ -427,6 +428,16 @@ sub help_lookup {
 Usage: pfcmd lookup <person|node> value
 
 call bin/lookup_person.pl or bin/lookup_node.pl with the passed value
+EOT
+}
+
+sub help_violationconfig {
+  print STDERR << "EOT";
+Usage: pfcmd violationconfig get <all|default|IP>
+       pfcmd violationconfig edit <IP> [assignments]
+       pfcmd violationconfig delete <IP>
+
+query/modify violations.conf configuration file
 EOT
 }
 

@@ -179,6 +179,13 @@ if ((scalar(@arguments) == 1) && ($arguments[0] eq 'version')) {
   $cmd{'command'}[2] = $arguments[2];
   switchconfig();
   exit(1);
+} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'violationconfig') && ($arguments[1] =~ /^(get|delete)$/) && ($arguments[2] =~ /^(all|default|(\d+))$/)) {
+  $command = $arguments[0];
+  $cmd{'command'}[0] = $arguments[0];
+  $cmd{'command'}[1] = $arguments[1];
+  $cmd{'command'}[2] = $arguments[2];
+  violationconfig();
+  exit(1);
 } elsif ((scalar(@arguments) == 4) && ($arguments[0] eq 'switchlocation') && ($arguments[1] eq 'view') && ($arguments[2] =~ /^(\d{1,3}\.){3}\d{1,3}$/) && ($arguments[3] =~ /^\d+$/)) {
   $command = $arguments[0];
   $cmd{'command'}[0] = $arguments[0];
@@ -356,6 +363,88 @@ sub switchlocation {
   my %params;
   $params{'ifIndex'} = $cmd{command}[3];
   exit(print_results("switchlocation_view_switchport", $switch, %params))
+}
+
+sub violationconfig {
+  require Config::IniFiles;
+  my %violations_conf;
+  tie %violations_conf, 'Config::IniFiles', ( -file => "$conf_dir/violations.conf" );
+  my @errors = @Config::IniFiles::errors;
+  if (scalar(@errors)) {
+    $logger->error("Error reading violations.conf: " . join("\n", @errors) . "\n");
+    return 0;
+  }
+
+  my $mode;
+  if (scalar(@{$cmd{'command'}}) == 1) {
+    if (exists($cmd{'violationconfig_options'})) {
+      $mode = $cmd{'violationconfig_options'}[0];
+    }
+  } else {
+    $mode = $cmd{'command'}[1];
+  }
+
+  if ($mode eq 'get') {
+    foreach my $section (tied(%violations_conf)->Sections){
+      foreach my $key (keys %{$violations_conf{$section}}){
+        $violations_conf{$section}{$key}=~s/\s+$//;
+      }
+    }
+    my @columns = qw(priority max_enable actions auto_enable disable grace button_text desc url trigger actions);
+    print join("|", @columns) . "\n";
+    foreach my $section (keys %violations_conf) {
+      if (($cmd{'command'}[2] eq 'all') || ($cmd{'command'}[2] eq $section)) {
+        my @values;
+        foreach my $column (@columns) {
+          push @values, ($violations_conf{$section}{$column} || $violations_conf{'default'}{$column} || '');
+        }
+        print join("|", @values) . "\n";
+      }
+    }
+  } elsif ($mode eq 'delete') {
+    my $section = $cmd{'command'}[2];
+    if ($section =~ /^(default|all|1100001|1100004|1100005|1100009|1100010|1200001|1200003|1400000)$/) {
+      print "This violation can't be deleted\n";
+      exit;
+    } else {
+      if (tied(%violations_conf)->SectionExists($section)) {
+        tied(%violations_conf)->DeleteSection($section);
+        tied(%violations_conf)->WriteConfig($conf_dir."/violations.conf");
+        require pf::configfile;
+        import pf::configfile;
+        configfile_import($conf_dir."/violations.conf");
+      } else {
+        print "Unknown violation $section!\n";
+        exit;
+      }
+    }
+  } elsif ($mode eq 'edit') {
+    my $section = $cmd{'violationconfig_options'}[1];
+    my @assignments = @{$cmd{'violationconfig_assignment'}};
+    if (tied(%violations_conf)->SectionExists($section)) {
+      foreach my $assignment (@assignments) {
+        my ($param, $value) = @$assignment;
+        if (defined($violations_conf{$section}{$param})) {
+          if ((! exists($violations_conf{'default'}{$param})) || ($violations_conf{'default'}{$param} ne $value)) {
+            tied(%violations_conf)->setval($section,$param,$value);
+          } else {
+            tied(%violations_conf)->delval($section, $param);
+          }
+        } else {
+          if ((! exists($violations_conf{'default'}{$param})) || ($violations_conf{'default'}{$param} ne $value)) {
+            tied(%violations_conf)->newval($section,$param,$value);
+          }
+        }
+      }
+      tied(%violations_conf)->WriteConfig($conf_dir."/violations.conf");
+      require pf::configfile;
+      import pf::configfile;
+      configfile_import($conf_dir."/violations.conf");
+    } else {
+      print "Unknown violation $section!\n";
+      exit;
+    }
+  }
 }
 
 sub switchconfig {
