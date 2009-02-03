@@ -7,6 +7,7 @@
   $view_item = set_default($_REQUEST['view_item'], 'all');
 
   $my_table=new table("violationconfig get $view_item");
+  $my_table->set_editable(true);
   $my_table->set_linkable(array( array('url', 'configuration/instructions.php')));
   $my_table->set_hideable(array('grace', 'priority', 'button_text', 'trigger'));
   $is_printable=true;
