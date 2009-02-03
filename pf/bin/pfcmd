@@ -391,14 +391,14 @@ sub violationconfig {
       }
     }
     my @columns = qw(priority max_enable actions auto_enable disable grace button_text desc url trigger actions);
-    print join("|", @columns) . "\n";
+    print "vid|" . join("|", @columns) . "\n";
     foreach my $section (keys %violations_conf) {
       if (($cmd{'command'}[2] eq 'all') || ($cmd{'command'}[2] eq $section)) {
         my @values;
         foreach my $column (@columns) {
           push @values, ($violations_conf{$section}{$column} || $violations_conf{'default'}{$column} || '');
         }
-        print join("|", @values) . "\n";
+        print $section . "|" . join("|", @values) . "\n";
       }
     }
   } elsif ($mode eq 'delete') {
