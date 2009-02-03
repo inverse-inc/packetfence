@@ -281,10 +281,10 @@ if($sajax){
       }
 
       if($this->editable) {
-        print "    <td></td>\n"; 
+        print "    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>\n"; 
       }
       if($this->scannable) {
-        print "    <td></td>\n"; 
+        print "    <td&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;></td>\n"; 
       }
 
       if(!$current_sub){
@@ -461,6 +461,7 @@ if($sajax){
      	     print "</td>\n";
            }
 
+	   $a=-1;
            foreach($this->rows[$i] as $cell){
              $key=$this->headers[++$a];
 	
