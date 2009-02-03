@@ -390,7 +390,7 @@ sub violationconfig {
         $violations_conf{$section}{$key}=~s/\s+$//;
       }
     }
-    my @columns = qw(priority max_enable actions auto_enable disable grace button_text desc url trigger actions);
+    my @columns = qw(desc disable auto_enable actions max_enable grace priority url button_text trigger);
     print "vid|" . join("|", @columns) . "\n";
     foreach my $section (keys %violations_conf) {
       if (($cmd{'command'}[2] eq 'all') || ($cmd{'command'}[2] eq $section)) {
