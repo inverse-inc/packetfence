@@ -281,7 +281,7 @@ if($sajax){
       }
 
       if($this->editable) {
-        print "    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>\n"; 
+        print "    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>\n"; 
       }
       if($this->scannable) {
         print "    <td&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;></td>\n"; 
@@ -429,23 +429,25 @@ if($sajax){
            if(isset($this->editable)){
              print "  <td class=\"action\">\n";
              if (($current_top == 'configuration') && ($current_sub=='switches')) {
-	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['ip'] . "',500,400)\" title='Edit this record'><img src='/images/edit.png' alt=\"[ Edit ]\"></a>\n";
+	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['ip'] . "',500,400)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
+	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['ip'] . "',500,400)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
                if (($this->rows[$i]['ip'] != '127.0.0.1') && ($this->rows[$i]['ip'] != 'default')) {
 	         print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page&amp;action=$action&amp;item=$item' method='post'>";
                  print "  <input type='hidden' name='action' value='delete'>\n";
                  print "  <input type='hidden' name='commit' value='true'>\n";
                  print "  <input type='hidden' name='original' value='".implode("\t", $this->rows[$i])."'>\n";
-                 print "  <input class=\"button\" type='image' src='/images/delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete the switch " . $this->rows[$i]['ip'] . " ?');\">\n";
+                 print "  <input class=\"button\" type='image' src='/images/famfamfam_silk_icons/page_delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete the switch " . $this->rows[$i]['ip'] . " ?');\">\n";
                  print "  </form>";
                }
              } elseif (($current_top == 'configuration') && ($current_sub=='violation')) {
-	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['vid'] . "',500,400)\" title='Edit this record'><img src='/images/edit.png' alt=\"[ Edit ]\"></a>\n";
+	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['vid'] . "',500,400)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
+	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['vid'] . "',500,400)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
                if (($this->rows[$i]['vid'] != '1100001') && ($this->rows[$i]['vid'] != 1100004) && ($this->rows[$i]['vid'] != 1100005) && ($this->rows[$i]['vid'] != 1100009) && ($this->rows[$i]['vid'] != 1100010) && ($this->rows[$i]['vid'] != 1200001) && ($this->rows[$i]['vid'] != 1200003) && ($this->rows[$i]['vid'] != 1400000) && ($this->rows[$i]['vid'] != 'defaults')) {
 	         print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page&amp;action=$action&amp;item=$item' method='post'>";
                  print "  <input type='hidden' name='action' value='delete'>\n";
                  print "  <input type='hidden' name='commit' value='true'>\n";
                  print "  <input type='hidden' name='original' value='".implode("\t", $this->rows[$i])."'>\n";
-                 print "  <input class=\"button\" type='image' src='/images/delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete the violation " . $this->rows[$i]['vid'] . " ?');\">\n";
+                 print "  <input class=\"button\" type='image' src='/images/famfamfam_silk_icons/page_delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete the violation " . $this->rows[$i]['vid'] . " ?');\">\n";
                  print "  </form>";
                }
              } else {

@@ -434,6 +434,7 @@ EOT
 sub help_violationconfig {
   print STDERR << "EOT";
 Usage: pfcmd violationconfig get <all|defaults|vid>
+       pfcmd violationconfig add <vid> [assignments]
        pfcmd violationconfig edit <vid> [assignments]
        pfcmd violationconfig delete <vid>
 

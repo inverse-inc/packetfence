@@ -75,7 +75,7 @@ $grammar = q {
 
    switchconfig_options: 'edit' ('default'|ipaddr) switchconfig_edit_options
 
-   violationconfig_options: 'edit' ('defaults'|/\d+/) violationconfig_edit_options
+   violationconfig_options: ('add' | 'edit') ('defaults'|/\d+/) violationconfig_edit_options
 
    violation_options : 'add' violation_edit_options | 'view' vid | 'edit' /\d+/ violation_edit_options | 'delete' /\d+/ 
 

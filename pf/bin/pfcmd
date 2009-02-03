@@ -444,6 +444,25 @@ sub violationconfig {
       print "Unknown violation $section!\n";
       exit;
     }
+  } elsif ($mode eq 'add') {
+    my $section = $cmd{'violationconfig_options'}[1];
+    my @assignments = @{$cmd{'violationconfig_assignment'}};
+    if (! (tied(%violations_conf)->SectionExists($section))) {
+      tied(%violations_conf)->AddSection($section);
+      foreach my $assignment (@assignments) {
+        my ($param, $value) = @$assignment;
+        if ((! exists($violations_conf{'defaults'}{$param})) || ($violations_conf{'defaults'}{$param} ne $value)) {
+          tied(%violations_conf)->newval($section,$param,$value);
+        }
+      }
+      tied(%violations_conf)->WriteConfig($conf_dir."/violations.conf");
+      require pf::configfile;
+      import pf::configfile;
+      configfile_import($conf_dir."/violations.conf");
+    } else {
+      print "Violation $section already exists!\n";
+      exit;
+    }
   }
 }
 
