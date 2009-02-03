@@ -47,7 +47,7 @@ if($sajax){
     }
 
     function set_editable($value){ 
-      $this->headers[]="Actions";
+      //$this->headers[]="Actions";
       $this->editable=$value;
       if($_GET[action]=="edit")
         $this->is_hidden=false;
@@ -280,6 +280,13 @@ if($sajax){
         return; 
       }
 
+      if($this->editable) {
+        print "    <td></td>\n"; 
+      }
+      if($this->scannable) {
+        print "    <td></td>\n"; 
+      }
+
       if(!$current_sub){
 	$sub = "$current_top-view";
       }
@@ -335,8 +342,6 @@ if($sajax){
 	  print "    <td class='header' $hide_tag><div class='header'><a href='$current_top/$current_sub.php?filter=" . urlencode($filter) . "&amp;sort=$header&amp;direction=$off_direction&amp;per_page=$per_page&$xtra_args'>$pretty_header</a></div></td>\n";
       }
 
-      if($this->editable || $this->scannable) 
-        print "    <td></td>\n"; 
       print "  </tr>\n";
       print "</thead>\n";
        
@@ -419,30 +424,8 @@ if($sajax){
 	     if($key == $this->key){
 	       $key_item=$cell;
              }
-
-             isset($this->hidden_links[$key]) && $this->is_hidden == true ? $hide_tag = "id='id".++$q."' style='display:none;'" : $hide_tag = "";
-
-             if(isset($this->linkable[$key])){
-               strstr($this->linkable[$key], '?') ? $break = '&' : $break = '?';
-
-	       if($key == 'dhcp_fingerprint' && $_SESSION['fingerprints']["$cell"]){
-                 print "    <td $hide_tag><a href='".$this->linkable[$key].$break."view_item=$cell'>".$_SESSION['fingerprints']["$cell"]."</a></td>\n";
-	       }
-               else if($key == 'vid' && $_SESSION['violation_classes']["$cell"]){
-                 print "    <td $hide_tag><a href='".$this->linkable[$key].$break."view_item=$cell'>".$_SESSION['violation_classes']["$cell"]." </a></td>\n";
-               } 
-               else if (($key == 'url') && (array_key_exists('vid', $this->rows[$i]))) {
-                 print "    <td $hide_tag><a href='".$this->linkable[$key].$break."vid=" . $this->rows[$i]['vid'] . "'>$cell</a></td>\n";
-               }
-	       else{
-                 print "    <td $hide_tag><a href='".$this->linkable[$key].$break."view_item=$cell'>$cell</a></td>\n";
-	       }
-	     }
-             else{  
-               print "    <td $hide_tag>$cell</td>\n";
-             }
            }
-                  
+
            if(isset($this->editable)){
              print "  <td class=\"action\">\n";
              if (($current_top == 'configuration') && ($current_sub=='switches')) {
@@ -477,6 +460,36 @@ if($sajax){
              print "  <input class=\"button\" type='image' align='center' src='/images/delete.png' onClick=\"return confirm('Scan this host?');\"></a>\n";
      	     print "</td>\n";
            }
+
+           foreach($this->rows[$i] as $cell){
+             $key=$this->headers[++$a];
+	
+	     if($key == $this->key){
+	       $key_item=$cell;
+             }
+             isset($this->hidden_links[$key]) && $this->is_hidden == true ? $hide_tag = "id='id".++$q."' style='display:none;'" : $hide_tag = "";
+
+             if(isset($this->linkable[$key])){
+               strstr($this->linkable[$key], '?') ? $break = '&' : $break = '?';
+
+	       if($key == 'dhcp_fingerprint' && $_SESSION['fingerprints']["$cell"]){
+                 print "    <td $hide_tag><a href='".$this->linkable[$key].$break."view_item=$cell'>".$_SESSION['fingerprints']["$cell"]."</a></td>\n";
+	       }
+               else if($key == 'vid' && $_SESSION['violation_classes']["$cell"]){
+                 print "    <td $hide_tag><a href='".$this->linkable[$key].$break."view_item=$cell'>".$_SESSION['violation_classes']["$cell"]." </a></td>\n";
+               } 
+               else if (($key == 'url') && (array_key_exists('vid', $this->rows[$i]))) {
+                 print "    <td $hide_tag><a href='".$this->linkable[$key].$break."vid=" . $this->rows[$i]['vid'] . "'>$cell</a></td>\n";
+               }
+	       else{
+                 print "    <td $hide_tag><a href='".$this->linkable[$key].$break."view_item=$cell'>$cell</a></td>\n";
+	       }
+	     }
+             else{  
+               print "    <td $hide_tag>$cell</td>\n";
+             }
+           }
+                  
         }
         print "  </tr>\n"; 
       }
