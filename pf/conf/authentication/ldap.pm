@@ -28,7 +28,7 @@ use pf::util;
 
 my $LDAPUserBase = "";
 my $LDAPUserKey = "cn";
-my $LDAPUserScope = "one";
+my $LDAPUserScope = "sub";
 my $LDAPBindDN = "";
 my $LDAPBindPassword = "";
 my $LDAPServer = "";

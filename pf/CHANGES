@@ -18,6 +18,8 @@
         permitted switches.conf modification through CLI
           and web admin GUI
           (http://www.packetfence.org/mantis/view.php?id=433)
+        made default LDAPUserScope sub
+          (http://www.packetfence.org/mantis/view.php?id=561)
 
 1.8.0
         unify log management
