@@ -179,7 +179,7 @@ if ((scalar(@arguments) == 1) && ($arguments[0] eq 'version')) {
   $cmd{'command'}[2] = $arguments[2];
   switchconfig();
   exit(1);
-} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'violationconfig') && ($arguments[1] =~ /^(get|delete)$/) && ($arguments[2] =~ /^(all|default|(\d+))$/)) {
+} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'violationconfig') && ($arguments[1] =~ /^(get|delete)$/) && ($arguments[2] =~ /^(all|defaults|(\d+))$/)) {
   $command = $arguments[0];
   $cmd{'command'}[0] = $arguments[0];
   $cmd{'command'}[1] = $arguments[1];
@@ -396,7 +396,7 @@ sub violationconfig {
       if (($cmd{'command'}[2] eq 'all') || ($cmd{'command'}[2] eq $section)) {
         my @values;
         foreach my $column (@columns) {
-          push @values, ($violations_conf{$section}{$column} || $violations_conf{'default'}{$column} || '');
+          push @values, ($violations_conf{$section}{$column} || $violations_conf{'defaults'}{$column} || '');
         }
         print $section . "|" . join("|", @values) . "\n";
       }
