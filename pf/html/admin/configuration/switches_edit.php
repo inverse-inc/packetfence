@@ -26,7 +26,7 @@
 
     PFCMD($edit_cmd);
     $edited=true; 
-    print "<script type='text/javascript'>opener.location.reload();window.close();</script>";
+    print "<script type='text/javascript'>opener.focus(); opener.location.href = opener.location; self.close();</script>";
 
   }
 
