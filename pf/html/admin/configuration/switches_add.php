@@ -88,7 +88,8 @@
                          'Nortel::BayStack5520Stacked' => 'Nortel BayStack 5520 Stacked',
                          'Nortel::BPS2000' => 'Nortel BPS 2000',
                          'Nortel::ES325' => 'Nortel ES325',
-                         'PacketFence' => 'PacketFence'
+                         'PacketFence' => 'PacketFence',
+                         'SMC::TS6224M' => 'SMC TigerStack 6224M'
                     ), 
                    'hash', $val, "name='$key'");
     } elseif ($key == 'cliTransport') {
