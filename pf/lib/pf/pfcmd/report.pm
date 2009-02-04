@@ -57,14 +57,20 @@ sub report_os_all {
     $ref = $record if (!$record->{'description'});
   }
 
-  my $static_percent = sprintf("%.1f",($statics/$total)*100);
+  my $static_percent = sprintf("%.1f", 100);
+  if ($total > 0) {
+    $static_percent = sprintf("%.1f",($statics/$total)*100);
+  }
 
   if ($statics > 0) { 
     push @data, { description => "*Probable Static IP(s)", percent => $static_percent, count => $statics };
   }
 
   $ref->{'description'} = "Unknown DHCP Fingerprint";
-  $ref->{'percent'}     = sprintf("%.1f",($ref->{'count'} / $total) * 100) - $static_percent;
+  $ref->{'percent'} = sprintf("%.1f", 100);
+  if ($total > 0) {
+    $ref->{'percent'}     = sprintf("%.1f",($ref->{'count'} / $total) * 100) - $static_percent;
+  }
   $ref->{'count'}       -= $statics;
 
   push @data, { description => "Total", percent => "100", count => $total };
@@ -111,7 +117,10 @@ sub report_osclass_all {
     $total += $record->{'count'};
   }
 
-  my $static_percent = sprintf("%.1f",($statics/$total)*100);
+  my $static_percent = sprintf("%.1f", 100);
+  if ($total > 0) {
+    my $static_percent = sprintf("%.1f",($statics/$total)*100);
+  }
 
   $ref->{'description'} = "Unknown";
   $ref->{'percent'}     -= $static_percent;

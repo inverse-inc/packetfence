@@ -29,6 +29,9 @@
           (http://www.packetfence.org/mantis/view.php?id=564)
         updated web admin gui help file content
           (http://www.packetfence.org/mantis/view.php?id=556)
+        fixed pfcmd report os and report osclass crashes when 
+          no nodes were present
+          (http://www.packetfence.org/mantis/view.php?id=566)
 
 1.8.0
         unify log management
