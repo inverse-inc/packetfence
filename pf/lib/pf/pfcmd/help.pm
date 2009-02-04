@@ -445,6 +445,7 @@ EOT
 sub help_switchconfig {
   print STDERR << "EOT";
 Usage: pfcmd switchconfig get <all|default|IP>
+       pfcmd switchconfig add <IP> [assignments]
        pfcmd switchconfig edit <IP> [assignments]
        pfcmd switchconfig delete <IP>
 

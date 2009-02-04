@@ -553,7 +553,26 @@ sub switchconfig {
       print "Unknown switch $section!\n";
       exit;
     }
-
+  } elsif ($mode eq 'add') {
+    my $section = $cmd{'switchconfig_options'}[1];
+    my @assignments = @{$cmd{'switchconfig_assignment'}};
+    if (! (tied(%switches_conf)->SectionExists($section))) {
+      foreach my $assignment (@assignments) {
+        tied(%switches_conf)->AddSection($section);
+        tied(%switches_conf)->newval($section,'ip',$section);
+        my ($param, $value) = @$assignment;
+        if ((! exists($switches_conf{'default'}{$param})) || ($switches_conf{'default'}{$param} ne $value)) {
+          tied(%switches_conf)->newval($section,$param,$value);
+        }
+      }
+      tied(%switches_conf)->WriteConfig($conf_dir."/switches.conf");
+      require pf::configfile;
+      import pf::configfile;
+      configfile_import($conf_dir."/switches.conf");
+    } else {
+      print "Switch $section already exists!\n";
+      exit;
+    }
   }
 }
 

@@ -73,7 +73,7 @@ $grammar = q {
 
    node_options : 'add' macaddr node_edit_options | 'count' (mac|node_filter) | 'view' (mac|node_filter) orderby_options(?) limit_options(?) | 'edit' macaddr node_edit_options | 'delete' macaddr
 
-   switchconfig_options: 'edit' ('default'|ipaddr) switchconfig_edit_options
+   switchconfig_options: ('add' | 'edit') ('default'|ipaddr) switchconfig_edit_options
 
    violationconfig_options: ('add' | 'edit') ('defaults'|/\d+/) violationconfig_edit_options
 
