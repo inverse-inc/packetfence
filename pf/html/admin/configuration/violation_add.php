@@ -27,7 +27,6 @@
     }
     $edit_cmd = "violationconfig add $edit_item ";
     $edit_cmd.=implode(", ", $parts);
-print $edit_cmd;
 
     PFCMD($edit_cmd);
     $edited=true; 
