@@ -695,7 +695,7 @@ function PrintSubNav($menu){
       break;
 
       default:
-      $img = 'add.png';
+      $img = 'famfamfam_silk_icons/page_add.png';
       break;
     }
 
