@@ -164,30 +164,15 @@ sub _setVlan {
 	}
 	
 	my $vlanName = $result->{"$OID_hwdot1qVlanName.$newVlan"}; 	# String of VLAN Name (ex. VLAN 0001, VLAN 0100 etc.)
-	my $vlanPortList = unpack "H*",$result->{"$OID_hwdot1qVlanPortList.$newVlan"}; 	# String of Hexadecimal
-	
-	my $byteNum = int(($dot1dBasePort-1)/8);
-	my $byteVal = substr($vlanPortList,$byteNum*2,2);
-	
-	$byteVal = hex $byteVal; 
-	$byteVal += 256;					# add bit "1" at 9th bit
 
-	my $vlanPortListPrev = substr($vlanPortList,0,$byteNum*2);	# devide port list into 2 of strings
-	my $vlanPortListPost = substr($vlanPortList,$byteNum*2+2);
+    my $byteNum = int(($dot1dBasePort-1)/8);
+    $byteNum += 1;
 
-	my $digitNum = $dot1dBasePort-(8*$byteNum)-1;
-	my $digitVal = 2**$digitNum;
-	
-	$digitVal += 256;			# add bit '1' at 9th bit
-	
-	$byteVal = $byteVal | $digitVal;		# OR opearation for remain other port's member state except target port
-	$byteVal -= 256;							# remove 9th bit 
-	$byteVal = sprintf("%.2x",$byteVal); 			# convert to hex string
+    my $bitNum = (16*$byteNum)-7-$dot1dBasePort;
 
-	$vlanPortList = $vlanPortListPrev.$byteVal.$vlanPortListPost;		# recompose PortList
+    my $vlanPortList = $this->modifyBitmask($result->{"$OID_hwdot1qVlanPortList.$newVlan"}, $bitNum-1, 1);
+                                
 
-	my $vlanPortListHex = pack "H*", $vlanPortList;			# Reform Octet String
-	
 	if (! $this->connectWrite()) {
         return 0;
     }
@@ -195,7 +180,7 @@ sub _setVlan {
     $logger->trace("SNMP set_request for Pvid for new VLAN");
     $result = $this->{_sessionWrite}->set_request(								#SNMP SET
 		-varbindlist => ["$OID_hwdot1qVlanName.$newVlan",Net::SNMP::OCTET_STRING,$vlanName,
-						 "$OID_hwdot1qVlanPortList.$newVlan",Net::SNMP::OCTET_STRING,$vlanPortListHex]
+						 "$OID_hwdot1qVlanPortList.$newVlan",Net::SNMP::OCTET_STRING,$vlanPortList]
 	);
 	
     if (! defined ($result)) {
