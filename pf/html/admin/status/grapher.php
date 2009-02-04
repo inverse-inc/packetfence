@@ -214,8 +214,6 @@
 }                                                         
 
 
-include_once('../footer.php');
-
 function get_pie_chart_data($cmd){
 	$cached_data = preg_replace("/\s+/", '_', $_SERVER['DOCUMENT_ROOT'] . "/tmp/jpgraph_cache/$cmd");
 
