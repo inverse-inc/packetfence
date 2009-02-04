@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../style.css" type="text/css">
 </head>
 
-<body class="add">
+<body class="popup">
 
 <?
   $edit_item = set_default($_REQUEST['item'], '');
