@@ -288,7 +288,9 @@ function get_chart_data($cmd){
 		$all_series[$parts[$index[series]]]=1;
 		$data[$parts[$index[mydate]]][$parts[$index[series]]]=$parts[$index[count]];
 	}
-	@asort($x_labels);
+        if (isset($x_labels)) {
+	  @asort($x_labels);
+        }
 
 	## To get multiseries graphs to line up
 	if($data){
@@ -311,21 +313,25 @@ function get_chart_data($cmd){
 	}
 	
 	## sort based on key (date), and then remove key. 
-	foreach($all_series as $series => $blah){
+        if (isset($all_series)) {
+	  foreach($all_series as $series => $blah){
 		ksort($chart_data[$series]);
 		foreach($chart_data[$series] as $val){
 			$ar[] = $val;
 		}
 		$chart_data[$series] = $ar;
 		unset($ar);
-	}
+	  }
+        }
 
 	// Sort chart_data based on lowest sum for better graphs
-	asort($sizes);
+        if (isset($sizes)) {
+	  asort($sizes);
 
-	foreach($sizes as $key => $val){
+	  foreach($sizes as $key => $val){
 		$sorted_chart_data[$key] = $chart_data[$key];	
-	}
+	  }
+        }
 
 	if($x_labels && $chart_data){	
 		$data =  array('x_labels' => array_keys($x_labels), 'chart_data' => $sorted_chart_data);
