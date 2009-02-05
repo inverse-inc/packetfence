@@ -44,6 +44,7 @@ history                 | IP/MAC history
 ifoctetshistorymac      | accounting history
 ifoctetshistoryswitch   | accounting history
 ifoctetshistoryuser     | accounting history
+interfaceconfig         | query/modify interface configuration parameters
 ipmachistory            | IP/MAC history
 locationhistorymac      | Switch/Port history
 locationhistoryswitch   | Switch/Port history
@@ -439,6 +440,17 @@ Usage: pfcmd violationconfig get <all|defaults|vid>
        pfcmd violationconfig delete <vid>
 
 query/modify violations.conf configuration file
+EOT
+}
+
+sub help_interfaceconfig {
+  print STDERR << "EOT";
+Usage: pfcmd interfaceconfig get <all|interface>
+       pfcmd interfaceconfig add <interface> [assignments]
+       pfcmd interfaceconfig edit <interface> [assignments]
+       pfcmd interfaceconfig delete <interface>
+
+query/modify switches.conf configuration file
 EOT
 }
 
