@@ -38,6 +38,9 @@
           (http://www.packetfence.org/mantis/view.php?id=567)
         added support for SMC TigerStack 6224M
           (thanks to Chinasee B. <chinasee.b@psu.ac.th>)
+        show switches section in web admin GUI only in VLAN 
+          isolation mode
+          (http://www.packetfence.org/mantis/view.php?id=571)
 
 1.8.0
         unify log management

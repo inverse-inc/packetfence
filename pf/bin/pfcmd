@@ -1197,11 +1197,12 @@ sub ui {
     }
     tie %uiconfig, 'Config::IniFiles', ( -file => $ui_conf_file ) or $logger->logdie("Unable to open $ui_conf_file: $!");
 
-    my $string;  
+    my $string;
     foreach my $section (tied(%uiconfig)->Sections) {
       my @array = split(/\./,$section);
       my $service = $array[1] if ($array[1]);
       next if ((defined $service) && ($service eq "scan") && (! $scanLiteInstalled));
+      next if ((@array) && (scalar(@array) > 2) && ($service eq "configuration") && ($array[2] eq "switches") && ($Config{'network'}{'mode'} ne 'vlan'));
       $string .= join("|", @array)."|";
       my @keys;
       #print "NO SECTION $section \n" if (!defined $uiconfig{$section}{'display'});
@@ -1214,6 +1215,7 @@ sub ui {
         }               
         $key=~s/^-//;
         next if (($key eq "scan") && (! $scanLiteInstalled));
+        next if (($section eq "ui.configuration") && ($key2 eq "switches") && ($Config{'network'}{'mode'} ne 'vlan'));
         if (defined $uiconfig{$section}{$key}){
           push @keys, "$key2='$uiconfig{$section}{$key}'";
         }else{
