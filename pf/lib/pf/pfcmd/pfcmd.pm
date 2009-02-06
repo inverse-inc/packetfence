@@ -42,6 +42,7 @@ $grammar = q {
    command : 'node' node_options
              | 'person' person_options
              | 'interfaceconfig' interfaceconfig_options
+             | 'networkconfig' networkconfig_options
              | 'switchconfig' switchconfig_options
              | 'violationconfig' violationconfig_options
              | 'violation' violation_options
@@ -75,6 +76,8 @@ $grammar = q {
    node_options : 'add' macaddr node_edit_options | 'count' (mac|node_filter) | 'view' (mac|node_filter) orderby_options(?) limit_options(?) | 'edit' macaddr node_edit_options | 'delete' macaddr
 
    interfaceconfig_options: ('add' | 'edit') (/[^ ]+/) interfaceconfig_edit_options
+
+   networkconfig_options: ('add' | 'edit') ipaddr networkconfig_edit_options
 
    switchconfig_options: ('add' | 'edit') ('default'|ipaddr) switchconfig_edit_options
 
@@ -112,6 +115,8 @@ $grammar = q {
 
    interfaceconfig_edit_options : <leftop: interfaceconfig_assignment ',' interfaceconfig_assignment>
 
+   networkconfig_edit_options : <leftop: networkconfig_assignment ',' networkconfig_assignment>
+
    switchconfig_edit_options : <leftop: switchconfig_assignment ',' switchconfig_assignment>
 
    violationconfig_edit_options : <leftop: violationconfig_assignment ',' violationconfig_assignment>
@@ -135,6 +140,9 @@ $grammar = q {
    interfaceconfig_assignment : interfaceconfig_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{interfaceconfig_view_field},$item{value}] }
 
+   networkconfig_assignment : networkconfig_view_field '=' value
+                {push @{$main::cmd{$item[0]}}, [$item{networkconfig_view_field},$item{value}] }
+
    switchconfig_assignment : switchconfig_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{switchconfig_view_field},$item{value}] }
 
@@ -156,6 +164,8 @@ $grammar = q {
    node_view_field :  'mac' | 'pid' | 'detect_date' | 'regdate' | 'unregdate' | 'lastskip' | 'status' | 'user_agent' | 'computername'  | 'notes' | 'last_arp' | 'last_dhcp' | 'dhcp_fingerprint' | 'switch' | 'port' | 'vlan'
 
    interfaceconfig_view_field : 'interface' | 'ip' | 'mask' | 'type' | 'gateway'
+
+   networkconfig_view_field : 'netmask' | 'gateway' | 'domain-name' | 'dns' | 'dhcp_start' | 'dhcp_end' | 'dhcp_default_lease_time' | 'dhcp_max_lease_time'
 
    switchconfig_view_field : 'type' | 'mode' | 'uplink' | 'SNMPVersionTrap' | 'SNMPCommunityRead' | 'SNMPCommunityWrite' | 'SNMPVersion' | 'SNMPCommunityTrap' | 'cliTransport' | 'cliUser' | 'cliPwd' | 'cliEnablePwd'
 

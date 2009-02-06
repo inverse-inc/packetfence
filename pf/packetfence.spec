@@ -288,6 +288,7 @@ fi
 /usr/local/pf/cgi-bin/release.cgi
 %dir /usr/local/pf/conf
 #%config(noreplace) /usr/local/pf/conf/pf.conf
+%config(noreplace) /usr/local/pf/conf/networks.conf
 %config(noreplace) /usr/local/pf/conf/violations.conf
 #%config /usr/local/pf/conf/services.conf
 %config(noreplace) /usr/local/pf/conf/ui.conf

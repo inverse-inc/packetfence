@@ -50,6 +50,7 @@ locationhistorymac      | Switch/Port history
 locationhistoryswitch   | Switch/Port history
 lookup                  | node or pid lookup against local data store
 manage                  | manage node entries
+networkconfig           | query/modify network configuration parameters
 node                    | node manipulation
 nodecategory            | nodecategory manipulation
 person                  | person manipulation
@@ -440,6 +441,17 @@ Usage: pfcmd violationconfig get <all|defaults|vid>
        pfcmd violationconfig delete <vid>
 
 query/modify violations.conf configuration file
+EOT
+}
+
+sub help_networkconfig {
+  print STDERR << "EOT";
+Usage: pfcmd networkconfig get <all|network>
+       pfcmd networkconfig add <network> [assignments]
+       pfcmd networkconfig edit <network> [assignments]
+       pfcmd networkconfig delete <network>
+
+query/modify networks.conf configuration file
 EOT
 }
 

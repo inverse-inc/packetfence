@@ -179,6 +179,13 @@ if ((scalar(@arguments) == 1) && ($arguments[0] eq 'version')) {
   $cmd{'command'}[2] = $arguments[2];
   interfaceconfig();
   exit(1);
+} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'networkconfig') && ($arguments[1] =~ /^(get|delete)$/) && ($arguments[2] =~ /^(all|(\d{1,3}\.){3}\d{1,3})$/)) {
+  $command = $arguments[0];
+  $cmd{'command'}[0] = $arguments[0];
+  $cmd{'command'}[1] = $arguments[1];
+  $cmd{'command'}[2] = $arguments[2];
+  networkconfig();
+  exit(1);
 } elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'switchconfig') && ($arguments[1] =~ /^(get|delete)$/) && ($arguments[2] =~ /^(all|default|(\d{1,3}\.){3}\d{1,3})$/)) {
   $command = $arguments[0];
   $cmd{'command'}[0] = $arguments[0];
@@ -468,6 +475,104 @@ sub violationconfig {
       configfile_import($conf_dir."/violations.conf");
     } else {
       print "Violation $section already exists!\n";
+      exit;
+    }
+  }
+}
+
+sub networkconfig {
+  require Config::IniFiles;
+  my %network_conf;
+  tie %network_conf, 'Config::IniFiles', ( -file => "$conf_dir/networks.conf" );
+  my @errors = @Config::IniFiles::errors;
+  if (scalar(@errors)) {
+    $logger->error("Error reading networks.conf: " . join("\n", @errors) . "\n");
+    return 0;
+  }
+
+  my $mode;
+  if (scalar(@{$cmd{'command'}}) == 1) {
+    if (exists($cmd{'networkconfig_options'})) {
+      $mode = $cmd{'networkconfig_options'}[0];
+    }
+  } else {
+    $mode = $cmd{'command'}[1];
+  }
+
+  if ($mode eq 'get') {
+    foreach my $section (tied(%network_conf)->Sections){
+      foreach my $key (keys %{$network_conf{$section}}){
+        $network_conf{$section}{$key}=~s/\s+$//;
+      }
+    }
+
+    #sort the networks (http://www.sysarch.com/Perl/sort_paper.html)
+    my @sections_tmp = keys %network_conf;
+    my @sections = map  substr($_, 4) => sort map  pack('C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/) . $_ => @sections_tmp;
+
+    my @columns = qw(netmask gateway domain-name dns dhcp_start dhcp_end dhcp_default_lease_time dhcp_max_lease_time);
+    print "network|" . join("|", @columns) . "\n";
+    foreach my $section (@sections) {
+      if (($cmd{'command'}[2] eq 'all') || ($cmd{'command'}[2] eq $section)) {
+        my @values;
+        foreach my $column (@columns) {
+          push @values, ($network_conf{$section}{$column} || '');
+        }
+        print $section . '|' . join("|", @values) . "\n";
+      }
+    }
+  } elsif ($mode eq 'delete') {
+    my $section = $cmd{'command'}[2];
+    if ($section =~ /^(all)$/) {
+      print "This network can't be deleted\n";
+      exit;
+    } else {
+      if (tied(%network_conf)->SectionExists($section)) {
+        tied(%network_conf)->DeleteSection($section);
+        tied(%network_conf)->WriteConfig($conf_dir."/networks.conf");
+        require pf::configfile;
+        import pf::configfile;
+        configfile_import($conf_dir."/networks.conf");
+      } else {
+        print "Unknown network $section!\n";
+        exit;
+      }
+    }
+  } elsif ($mode eq 'edit') {
+    my $section = $cmd{'networkconfig_options'}[1];
+    my @assignments = @{$cmd{'networkconfig_assignment'}};
+    if (tied(%network_conf)->SectionExists($section)) {
+      foreach my $assignment (@assignments) {
+        my ($param, $value) = @$assignment;
+        if (defined($network_conf{$section}{$param})) {
+          tied(%network_conf)->setval($section,$param,$value);
+        } else {
+          tied(%network_conf)->newval($section,$param,$value);
+        }
+      }
+      tied(%network_conf)->WriteConfig($conf_dir."/networks.conf");
+      require pf::configfile;
+      import pf::configfile;
+      configfile_import($conf_dir."/networks.conf");
+    } else {
+      print "Unknown network $section!\n";
+      exit;
+    }
+  } elsif ($mode eq 'add') {
+    my $section = $cmd{'networkconfig_options'}[1];
+    my @assignments = @{$cmd{'networkconfig_assignment'}};
+    if (! (tied(%network_conf)->SectionExists($section))) {
+      foreach my $assignment (@assignments) {
+        tied(%network_conf)->AddSection($section);
+        my ($param, $value) = @$assignment;
+        tied(%network_conf)->newval($section,$param,$value);
+      }
+      tied(%network_conf)->WriteConfig($conf_dir."/networks.conf");
+      require pf::configfile;
+      import pf::configfile;
+      configfile_import($conf_dir."/networks.conf");
+    } else {
+      print "Network $section already exists!\n";
       exit;
     }
   }
@@ -1164,12 +1269,14 @@ sub configfiles {
     configfile_import($conf_dir . '/log.conf');
     configfile_import($conf_dir . '/switches.conf');
     configfile_import($conf_dir . '/violations.conf');
+    configfile_import($conf_dir . '/networks.conf');
     configfile_import($conf_dir . '/ui.conf');
   } elsif ($option eq "pull") {
     configfile_export($conf_dir . '/pf.conf');
     configfile_export($conf_dir . '/log.conf');
     configfile_export($conf_dir . '/switches.conf');
     configfile_export($conf_dir . '/violations.conf');
+    configfile_export($conf_dir . '/networks.conf');
     configfile_export($conf_dir . '/ui.conf');
   }
   exit;
@@ -1317,6 +1424,7 @@ sub ui {
       my $service = $array[1] if ($array[1]);
       next if ((defined $service) && ($service eq "scan") && (! $scanLiteInstalled));
       next if ((@array) && (scalar(@array) > 2) && ($service eq "configuration") && ($array[2] eq "switches") && ($Config{'network'}{'mode'} ne 'vlan'));
+      next if ((@array) && (scalar(@array) > 2) && ($service eq "configuration") && ($array[2] eq "networks") && (($Config{'network'}{'mode'} ne 'vlan') || (! -e "$conf_dir/networks.conf") || (-z "$conf_dir/networks.conf")));
       $string .= join("|", @array)."|";
       my @keys;
       #print "NO SECTION $section \n" if (!defined $uiconfig{$section}{'display'});
@@ -1330,6 +1438,7 @@ sub ui {
         $key=~s/^-//;
         next if (($key eq "scan") && (! $scanLiteInstalled));
         next if (($section eq "ui.configuration") && ($key2 eq "switches") && ($Config{'network'}{'mode'} ne 'vlan'));
+        next if (($section eq "ui.configuration") && ($key2 eq "networks") && (($Config{'network'}{'mode'} ne 'vlan') || (! -e "$conf_dir/networks.conf") || (-z "$conf_dir/networks.conf")));
         if (defined $uiconfig{$section}{$key}){
           push @keys, "$key2='$uiconfig{$section}{$key}'";
         }else{
