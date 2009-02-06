@@ -55,7 +55,7 @@ sub service_ctl {
     $exe = $1;
     CASE: {
       $action eq "start" && do {
-        return(0) if ($exe=~/dhcp/ && (! ($exe=~/pfdhcplistener/)) && $Config{'network'}{'mode'}!~/^dhcp$/);	
+        return(0) if ($exe=~/dhcpd/ && (($Config{'network'}{'mode'}=~/^arp$/) || (($Config{'network'}{'mode'} =~ /^vlan$/i) && (! isenabled($Config{'vlan'}{'dhcpd'})))));
         return(0) if ($exe=~/snort/ && !isenabled($Config{'trapping'}{'detection'}));
         return(0) if ($exe=~/pfdhcplistener/ && !isenabled($Config{'network'}{'dhcpdetector'}));
         return(0) if ($exe=~/snmptrapd/ && !($Config{'network'}{'mode'} =~ /vlan/i));
@@ -148,7 +148,7 @@ sub service_list {
     } elsif ($service eq "pfredirect") {
       push @finalServiceList, $service  if ($Config{'ports'}{'listeners'});
     } elsif ($service eq "dhcpd") {
-      push @finalServiceList, $service  if ($Config{'network'}{'mode'} =~ /^dhcp$/i);
+      push @finalServiceList, $service  if (($Config{'network'}{'mode'} =~ /^dhcp$/i) || (($Config{'network'}{'mode'} =~ /^vlan$/i) && (isenabled($Config{'vlan'}{'dhcpd'}))));
     } elsif ($service eq "snmptrapd") {
       push @finalServiceList, $service  if ($Config{'network'}{'mode'} =~ /vlan/i);
     } elsif ($service eq "pfsetvlan") {
@@ -162,8 +162,47 @@ sub service_list {
   return @finalServiceList;
 }
 
+sub generate_dhcpd_vlan_conf {
+  my $logger = Log::Log4perl::get_logger('pf::services');
+  my %tags;
+  $tags{'template'} = "$conf_dir/templates/dhcpd_vlan.conf";
+  $tags{'networks'} = '';
+
+  my %network_conf;
+  tie %network_conf, 'Config::IniFiles', ( -file => "$conf_dir/networks.conf" );
+  my @errors = @Config::IniFiles::errors;
+  if (scalar(@errors)) {
+    $logger->error("Error reading networks.conf: " . join("\n", @errors) . "\n")
+;
+    return 0;
+  }
+  foreach my $section (tied(%network_conf)->Sections){
+    $tags{'networks'} .= <<EOT;
+subnet $section netmask $network_conf{$section}{'netmask'} {
+  option routers $network_conf{$section}{'gateway'};
+  option subnet-mask $network_conf{$section}{'netmask'};
+  option domain-name "$network_conf{$section}{'domain-name'}";
+  option domain-name-servers $network_conf{$section}{'dns'};
+  range $network_conf{$section}{'dhcp_start'} $network_conf{$section}{'dhcp_end'};
+  default-lease-time $network_conf{$section}{'dhcp_default_lease_time'};
+  max-lease-time $network_conf{$section}{'dhcp_max_lease_time'};
+}
+
+EOT
+    foreach my $key (keys %{$network_conf{$section}}){
+      $network_conf{$section}{$key}=~s/\s+$//;
+    }
+  }
+
+
+  parse_template(\%tags, "$conf_dir/templates/dhcpd_vlan.conf", "$conf_dir/dhcpd.conf");
+}
 
 sub generate_dhcpd_conf {
+  if ($Config{'network'}{'mode'} =~ /vlan/i) {
+    generate_dhcpd_vlan_conf();
+    return;
+  }
   my %tags;
   my $logger = Log::Log4perl::get_logger('pf::services');
   $tags{'template'}           = "$conf_dir/templates/dhcpd.conf";

@@ -341,12 +341,13 @@ fi
 %dir /usr/local/pf/conf/ssl
 %dir /usr/local/pf/conf/users
 %dir /usr/local/pf/conf/templates
-/usr/local/pf/conf/templates/dhcpd.conf
-/usr/local/pf/conf/templates/httpd.conf
+%config /usr/local/pf/conf/templates/dhcpd.conf
+%config /usr/local/pf/conf/templates/dhcpd_vlan.conf
+%config /usr/local/pf/conf/templates/httpd.conf
 %config(noreplace) /usr/local/pf/conf/templates/iptables.conf
-/usr/local/pf/conf/templates/httpd.conf.pre_apache22
-/usr/local/pf/conf/templates/httpd.conf.apache22
-/usr/local/pf/conf/templates/snort.conf
+%config /usr/local/pf/conf/templates/httpd.conf.pre_apache22
+%config /usr/local/pf/conf/templates/httpd.conf.apache22
+%config /usr/local/pf/conf/templates/snort.conf
 %dir /usr/local/pf/conf/authentication
 %config(noreplace) /usr/local/pf/conf/authentication/local.pm
 %config(noreplace) /usr/local/pf/conf/authentication/ldap.pm
