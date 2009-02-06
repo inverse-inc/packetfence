@@ -1167,10 +1167,10 @@ sub configfiles {
     configfile_import($conf_dir . '/ui.conf');
   } elsif ($option eq "pull") {
     configfile_export($conf_dir . '/pf.conf');
-    configfile_import($conf_dir . '/log.conf');
-    configfile_import($conf_dir . '/switches.conf');
-    configfile_import($conf_dir . '/violations.conf');
-    configfile_import($conf_dir . '/ui.conf');
+    configfile_export($conf_dir . '/log.conf');
+    configfile_export($conf_dir . '/switches.conf');
+    configfile_export($conf_dir . '/violations.conf');
+    configfile_export($conf_dir . '/ui.conf');
   }
   exit;
 }
