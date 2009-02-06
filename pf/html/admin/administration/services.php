@@ -35,7 +35,7 @@ function print_status_table(){
   global $current_top;
   global $current_sub;
 
-  $ordered_service_list=array('httpd', 'pfdetect', 'pfdhcplistener', 'pfmon', 'pfredirect', 'line', 'snmptrapd', 'pfsetvlan', 'line', 'snort');
+  $ordered_service_list=array('httpd', 'pfdetect', 'pfdhcplistener', 'pfmon', 'pfredirect', 'line', 'snmptrapd', 'pfsetvlan', 'line', 'dhcpd', 'snort');
   $data=array_slice(PFCMD('service pf status'), 1); // sliced to get rid of headers
   print "<table width=75% align=center>";
   print "<tr><td><b>Service</b></td><td><b>Expected Status</b></td><td><b>Actual Status</b></td><td colspan=3 align=center><b>Action</b></td></tr>";
