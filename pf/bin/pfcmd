@@ -599,7 +599,15 @@ sub switchconfig {
     }
     my @columns = qw(ip type mode uplink SNMPVersion SNMPCommunityRead SNMPCommunityWrite SNMPVersionTrap SNMPCommunityTrap cliTransport cliUser cliPwd cliEnablePwd);
     print join("|", @columns) . "\n";
-    foreach my $section (keys %switches_conf) {
+
+    #sort the switches (http://www.sysarch.com/Perl/sort_paper.html)
+    my %switches_conf_tmp = %switches_conf;
+    delete $switches_conf_tmp{'default'};
+    my @sections_tmp = keys(%switches_conf_tmp);
+    my @sections = map  substr($_, 4) => sort map  pack('C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/) . $_ => @sections_tmp;
+    unshift(@sections, 'default');
+
+    foreach my $section (@sections) {
       if (($cmd{'command'}[2] eq 'all') || ($cmd{'command'}[2] eq $section)) {
         my @values;
         foreach my $column (@columns) {

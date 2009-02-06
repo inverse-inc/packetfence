@@ -43,6 +43,7 @@
           (http://www.packetfence.org/mantis/view.php?id=571)
         moved interface configuration into separate HTML page
           (http://www.packetfence.org/mantis/view.php?id=573)
+        switchconfig get all is no nicely sorted
 
 1.8.0
         unify log management
