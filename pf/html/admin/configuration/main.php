@@ -126,7 +126,9 @@ foreach($configs as $config){
 	$options['options'] = $parts[2];
 	$options['type']    = $parts[3];
 
-	$config_tree[$matches[2]][$matches[1]] = $options;
+	if (strncmp($matches[2], 'interface.', 10) != 0) {
+		$config_tree[$matches[2]][$matches[1]] = $options;
+	}
 }
 
 if($msg){
