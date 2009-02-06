@@ -1897,7 +1897,7 @@ sub sanity_check {
 
   # make sure the services we start are not already running
   foreach my $service (@_) {
-    if ($service =~ /^(pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan)$/) {
+    if ($service =~ /^(dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan)$/) {
       $service = $1;
       $logger->logdie("$service is already running!") if (`pidof -s -x $service` =~ /^\d/);
     } else {
