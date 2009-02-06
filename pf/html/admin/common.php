@@ -428,7 +428,16 @@ if($sajax){
 
            if(isset($this->editable)){
              print "  <td class=\"action\">\n";
-             if (($current_top == 'configuration') && ($current_sub=='switches')) {
+             if (($current_top == 'configuration') && ($current_sub=='interfaces')) {
+	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['interface'] . "',500,500)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
+	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['interface'] . "',500,500)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
+	       print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page' method='post'>";
+               print "  <input type='hidden' name='action' value='delete'>\n";
+               print "  <input type='hidden' name='commit' value='true'>\n";
+               print "  <input type='hidden' name='original' value='".implode("\t", $this->rows[$i])."'>\n";
+               print "  <input class=\"button\" type='image' src='/images/famfamfam_silk_icons/page_delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete the interface " . $this->rows[$i]['interface'] . " ?');\">\n";
+               print "  </form>";
+             } elseif (($current_top == 'configuration') && ($current_sub=='switches')) {
 	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['ip'] . "',500,500)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
 	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['ip'] . "',500,500)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
                if (($this->rows[$i]['ip'] != '127.0.0.1') && ($this->rows[$i]['ip'] != 'default')) {
