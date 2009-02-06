@@ -51,7 +51,7 @@ sub service_ctl {
   my $service = ($Config{'services'}{$daemon} || "$install_dir/sbin/$daemon");
   my $exe = basename($service);
   $logger->info("$service $action");
-  if ($exe =~ /^(pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan)$/) {
+  if ($exe =~ /^(dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan)$/) {
     $exe = $1;
     CASE: {
       $action eq "start" && do {
