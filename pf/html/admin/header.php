@@ -31,6 +31,8 @@
         $new_array[0]  = '"'.$new_array[0].'"';
       if ($current_top == "scan") {
         $cmd = "schedule $_POST[action] $new_array[0]";
+      } else if (($current_top == 'configuration') && ($current_sub=='interfaces')) {
+        $cmd = "interfaceconfig delete $new_array[0]";
       } else if (($current_top == 'configuration') && ($current_sub=='switches')) {
         $cmd = "switchconfig delete $new_array[0]";
       } else if (($current_top == 'configuration') && ($current_sub=='violation')) {

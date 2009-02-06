@@ -41,6 +41,7 @@ $grammar = q {
 
    command : 'node' node_options
              | 'person' person_options
+             | 'interfaceconfig' interfaceconfig_options
              | 'switchconfig' switchconfig_options
              | 'violationconfig' violationconfig_options
              | 'violation' violation_options
@@ -72,6 +73,8 @@ $grammar = q {
    person_options : 'add' value person_edit_options(?)  | 'view' value | 'edit' value person_edit_options | 'delete' value
 
    node_options : 'add' macaddr node_edit_options | 'count' (mac|node_filter) | 'view' (mac|node_filter) orderby_options(?) limit_options(?) | 'edit' macaddr node_edit_options | 'delete' macaddr
+
+   interfaceconfig_options: ('add' | 'edit') (/[^ ]+/) interfaceconfig_edit_options
 
    switchconfig_options: ('add' | 'edit') ('default'|ipaddr) switchconfig_edit_options
 
@@ -107,6 +110,8 @@ $grammar = q {
 
    edit_options : <leftop: assignment ',' assignment>
 
+   interfaceconfig_edit_options : <leftop: interfaceconfig_assignment ',' interfaceconfig_assignment>
+
    switchconfig_edit_options : <leftop: switchconfig_assignment ',' switchconfig_assignment>
 
    violationconfig_edit_options : <leftop: violationconfig_assignment ',' violationconfig_assignment>
@@ -127,6 +132,9 @@ $grammar = q {
    person_assignment : person_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{person_view_field},$item{value}] }
 
+   interfaceconfig_assignment : interfaceconfig_view_field '=' value
+                {push @{$main::cmd{$item[0]}}, [$item{interfaceconfig_view_field},$item{value}] }
+
    switchconfig_assignment : switchconfig_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{switchconfig_view_field},$item{value}] }
 
@@ -146,6 +154,8 @@ $grammar = q {
    person_view_field : 'pid' | 'notes'
 
    node_view_field :  'mac' | 'pid' | 'detect_date' | 'regdate' | 'unregdate' | 'lastskip' | 'status' | 'user_agent' | 'computername'  | 'notes' | 'last_arp' | 'last_dhcp' | 'dhcp_fingerprint' | 'switch' | 'port' | 'vlan'
+
+   interfaceconfig_view_field : 'interface' | 'ip' | 'mask' | 'type' | 'gateway'
 
    switchconfig_view_field : 'type' | 'mode' | 'uplink' | 'SNMPVersionTrap' | 'SNMPCommunityRead' | 'SNMPCommunityWrite' | 'SNMPVersion' | 'SNMPCommunityTrap' | 'cliTransport' | 'cliUser' | 'cliPwd' | 'cliEnablePwd'
 

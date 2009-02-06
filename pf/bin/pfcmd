@@ -506,7 +506,7 @@ sub interfaceconfig {
         if (($cmd{'command'}[2] eq 'all') || ($cmd{'command'}[2] eq $interface_name)) {
           my @values;
           foreach my $column (@columns) {
-            push @values, $pf_conf{$section}{$column};
+            push @values, ($pf_conf{$section}{$column} || '');
           }
           print $interface_name . '|' . join("|", @values) . "\n";
         }
@@ -514,12 +514,13 @@ sub interfaceconfig {
     }
   } elsif ($mode eq 'delete') {
     my $section = $cmd{'command'}[2];
+    my $section_name = "interface $section";
     if ($section =~ /^(all)$/) {
       print "This interface can't be deleted\n";
       exit;
     } else {
-      if (tied(%pf_conf)->SectionExists($section)) {
-        tied(%pf_conf)->DeleteSection($section);
+      if (tied(%pf_conf)->SectionExists($section_name)) {
+        tied(%pf_conf)->DeleteSection($section_name);
         tied(%pf_conf)->WriteConfig($conf_dir."/pf.conf");
         require pf::configfile;
         import pf::configfile;
@@ -531,14 +532,15 @@ sub interfaceconfig {
     }
   } elsif ($mode eq 'edit') {
     my $section = $cmd{'interfaceconfig_options'}[1];
+    my $section_name = "interface $section";
     my @assignments = @{$cmd{'interfaceconfig_assignment'}};
-    if (tied(%pf_conf)->SectionExists($section)) {
+    if (tied(%pf_conf)->SectionExists($section_name)) {
       foreach my $assignment (@assignments) {
         my ($param, $value) = @$assignment;
-        if (defined($pf_conf{$section}{$param})) {
-          tied(%pf_conf)->setval($section,$param,$value);
+        if (defined($pf_conf{$section_name}{$param})) {
+          tied(%pf_conf)->setval($section_name,$param,$value);
         } else {
-          tied(%pf_conf)->newval($section,$param,$value);
+          tied(%pf_conf)->newval($section_name,$param,$value);
         }
       }
       tied(%pf_conf)->WriteConfig($conf_dir."/pf.conf");
@@ -551,12 +553,13 @@ sub interfaceconfig {
     }
   } elsif ($mode eq 'add') {
     my $section = $cmd{'interfaceconfig_options'}[1];
+    my $section_name = "interface $section";
     my @assignments = @{$cmd{'interfaceconfig_assignment'}};
-    if (! (tied(%pf_conf)->SectionExists($section))) {
+    if (! (tied(%pf_conf)->SectionExists($section_name))) {
       foreach my $assignment (@assignments) {
-        tied(%pf_conf)->AddSection($section);
+        tied(%pf_conf)->AddSection($section_name);
         my ($param, $value) = @$assignment;
-        tied(%pf_conf)->newval($section,$param,$value);
+        tied(%pf_conf)->newval($section_name,$param,$value);
       }
       tied(%pf_conf)->WriteConfig($conf_dir."/pf.conf");
       require pf::configfile;
