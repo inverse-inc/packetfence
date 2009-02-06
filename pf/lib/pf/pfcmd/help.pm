@@ -450,7 +450,7 @@ Usage: pfcmd interfaceconfig get <all|interface>
        pfcmd interfaceconfig edit <interface> [assignments]
        pfcmd interfaceconfig delete <interface>
 
-query/modify switches.conf configuration file
+query/modify pf.conf configuration file
 EOT
 }
 
