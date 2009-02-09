@@ -188,10 +188,10 @@ sub generate_named_conf {
     if (exists($network_conf{$section}{'type'})) {
       if ($network_conf{$section}{'type'} =~ /^isolation$/i) {
         my $isolation_obj = new Net::Netmask($section, $network_conf{$section}{'netmask'});
-        $tags{'isolation_clients'} .= $isolation_obj->base() . "/" . $isolation_obj->bits() . "; ";
+        $tags{'isolation_clients'} .= $isolation_obj->desc() . "; ";
       } elsif ($network_conf{$section}{'type'} =~ /^registration$/i) {
         my $registration_obj = new Net::Netmask($section, $network_conf{$section}{'netmask'});
-        $tags{'registration_clients'} .= $registration_obj->base() . "/" . $registration_obj->bits() . "; ";
+        $tags{'registration_clients'} .= $registration_obj->desc() . "; ";
       }
     }
   }
