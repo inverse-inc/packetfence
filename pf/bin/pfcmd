@@ -2085,7 +2085,7 @@ sub sanity_check {
   foreach my $section (sort tied(%documentation)->Sections) {
     my($group,$item) = split(/\./, $section);
     my $type = $documentation{$section}{'type'};
-    next if ($section =~ /^(proxies|passthroughs)$/ || $group =~ /^(dhcp|scope|interface|routedsubnet|services)$/);
+    next if ($section =~ /^(proxies|passthroughs)$/ || $group =~ /^(dhcp|scope|interface|services)$/);
     next if (($group eq 'alerting') && ($item eq 'fromaddr'));
     next if (($group eq 'arp') && ($item eq 'listendevice'));
     if (defined($Config{$group}{$item})) {
