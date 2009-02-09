@@ -28,7 +28,7 @@ BEGIN {
   @ISA    = qw(Exporter);
   @EXPORT = qw(valid_date valid_ip clean_mac valid_mac whitelisted_mac trappable_mac trappable_ip reggable_ip
                inrange_ip ip2gateway ip2interface ip2device isinternal pfmailer isenabled
-               isdisabled getlocalmac ip2int int2ip get_all_internal_ips get_internal_nets get_routed_nets get_internal_ips 
+               isdisabled getlocalmac ip2int int2ip get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_internal_ips 
                get_internal_devs get_internal_devs_phy get_external_devs get_managed_devs get_internal_macs 
                get_internal_info get_gateways get_dhcp_devs num_interfaces createpid readpid deletepid 
                parse_template mysql_date oui_to_vendor normalize_time);
@@ -321,9 +321,17 @@ sub get_internal_nets {
   return(@nets);
 }
 
-sub get_routed_nets {
+sub get_routed_isolation_nets {
   my @nets;
-  foreach my $interface (@routed_nets) {
+  foreach my $interface (@routed_isolation_nets) {
+    push @nets, $interface->desc();
+  }
+  return(@nets);
+}
+
+sub get_routed_registration_nets {
+  my @nets;
+  foreach my $interface (@routed_registration_nets) {
     push @nets, $interface->desc();
   }
   return(@nets);

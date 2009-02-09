@@ -19,18 +19,18 @@ use Log::Log4perl;
 use File::Basename qw(basename);
 use threads;
 
-our ($install_dir, $bin_dir, $conf_dir, $lib_dir, $log_dir, %Default_Config, %Config, @listen_ints, @internal_nets, @routed_nets,
+our ($install_dir, $bin_dir, $conf_dir, $lib_dir, $log_dir, %Default_Config, %Config, @listen_ints, @internal_nets, @routed_isolation_nets, @routed_registration_nets,
      $blackholemac, @managed_nets, @external_nets, @dhcplistener_ints, $monitor_int, $unreg_mark, $reg_mark, $black_mark, $portscan_sid, 
-     $default_config_file, $config_file, $dhcp_fingerprints_file, $node_categories_file, $default_pid, $fqdn, $oui_url, $dhcp_fingerprints_url,
+     $default_config_file, $config_file, $network_config_file, $dhcp_fingerprints_file, $node_categories_file, $default_pid, $fqdn, $oui_url, $dhcp_fingerprints_url,
      $oui_file, @valid_trigger_types, $thread);
 
 BEGIN {
   use Exporter ();
   our (@ISA, @EXPORT);
   @ISA    = qw(Exporter);
-  @EXPORT = qw($install_dir $bin_dir $conf_dir $lib_dir %Default_Config %Config @listen_ints @internal_nets @routed_nets
+  @EXPORT = qw($install_dir $bin_dir $conf_dir $lib_dir %Default_Config %Config @listen_ints @internal_nets @routed_isolation_nets @routed_registration_nets
                $blackholemac @managed_nets @external_nets @dhcplistener_ints $monitor_int $unreg_mark $reg_mark $black_mark $portscan_sid
-               $default_config_file $config_file $dhcp_fingerprints_file $node_categories_file $default_pid $fqdn $oui_url $dhcp_fingerprints_url
+               $default_config_file $config_file $network_config_file $dhcp_fingerprints_file $node_categories_file $default_pid $fqdn $oui_url $dhcp_fingerprints_url
                $oui_file @valid_trigger_types $thread)
 }
 
@@ -51,6 +51,7 @@ my $logger = Log::Log4perl->get_logger('pf::config');
 
 $config_file = $conf_dir."/pf.conf";
 $default_config_file = $conf_dir."/pf.conf.defaults";
+$network_config_file = $conf_dir."/networks.conf";
 $dhcp_fingerprints_file = $conf_dir."/dhcp_fingerprints.conf";
 $oui_file = $conf_dir."/oui.txt";
 $node_categories_file = $conf_dir."/node_categories.conf";
@@ -128,19 +129,32 @@ foreach my $val ("vlan.adjustswitchportvlanscript") {
 
 $fqdn = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
 
-foreach my $routedSubnet (tied(%Config)->GroupMembers("routedsubnet")) {
-  my $routed_obj;
+# read & load in network configuration file
+my %ConfigNetworks;
+tie %ConfigNetworks, 'Config::IniFiles', ( -file => $network_config_file);
+@errors = @Config::IniFiles::errors;
+if (scalar(@errors)) {
+ $logger->logdie(join("\n",@errors));
+}
 
-  my $mask    = $Config{$routedSubnet}{'mask'};
-  my $gateway = $Config{$routedSubnet}{'gateway'};
-  my $type    = $Config{$routedSubnet}{'type'};
-  my $network = $Config{$routedSubnet}{'network'};
-
-  if (defined($network) && defined($mask)) {
-    $routed_obj = new Net::Netmask($network, $mask);
-    $routed_obj->tag("gw", $gateway);
+#remove trailing spaces..
+foreach my $section (tied(%ConfigNetworks)->Sections){
+  foreach my $key (keys %{$ConfigNetworks{$section}}){
+    $ConfigNetworks{$section}{$key}=~s/\s+$//;
   }
-  push @routed_nets, $routed_obj;
+} 
+
+
+foreach my $section (tied(%ConfigNetworks)->Sections) {
+  if (exists($ConfigNetworks{$section}{'type'})) {
+    if ($ConfigNetworks{$section}{'type'} =~ /^isolation$/i) {
+      my $isolation_obj = new Net::Netmask($section, $ConfigNetworks{$section}{'netmask'});
+      push @routed_isolation_nets, $isolation_obj;
+    } elsif ($ConfigNetworks{$section}{'type'} =~ /^registration$/i) {
+      my $registration_obj = new Net::Netmask($section, $ConfigNetworks{$section}{'netmask'});
+      push @routed_registration_nets, $registration_obj;
+    }
+  }
 }
 
 foreach my $interface (tied(%Config)->GroupMembers("interface")) {

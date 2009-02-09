@@ -174,26 +174,13 @@ sub generate_named_conf {
   $tags{'template'}   = "$conf_dir/templates/named_vlan.conf";
   $tags{'install_dir'} = $install_dir;
 
-  my %network_conf;
-  tie %network_conf, 'Config::IniFiles', ( -file => "$conf_dir/networks.conf" );
-  my @errors = @Config::IniFiles::errors;
-  if (scalar(@errors)) {
-    $logger->error("Error reading networks.conf: " . join("\n", @errors) . "\n")
-;
-    return 0;
-  }
   $tags{'registration_clients'} = "";
+  foreach my $net (get_routed_registration_nets()) {
+    $tags{'registration_clients'} .= $net . "; ";
+  }
   $tags{'isolation_clients'} = "";
-  foreach my $section (tied(%network_conf)->Sections){
-    if (exists($network_conf{$section}{'type'})) {
-      if ($network_conf{$section}{'type'} =~ /^isolation$/i) {
-        my $isolation_obj = new Net::Netmask($section, $network_conf{$section}{'netmask'});
-        $tags{'isolation_clients'} .= $isolation_obj->desc() . "; ";
-      } elsif ($network_conf{$section}{'type'} =~ /^registration$/i) {
-        my $registration_obj = new Net::Netmask($section, $network_conf{$section}{'netmask'});
-        $tags{'registration_clients'} .= $registration_obj->desc() . "; ";
-      }
-    }
+  foreach my $net (get_routed_isolation_nets()) {
+    $tags{'isolation_clients'} .= $net . "; ";
   }
   parse_template(\%tags, "$conf_dir/templates/named_vlan.conf", "$install_dir/conf/named.conf");
 
@@ -512,7 +499,7 @@ sub generate_httpd_conf {
   my $logger = Log::Log4perl::get_logger('pf::services');
   $tags{'template'}        = "$conf_dir/templates/httpd.conf";
   $tags{'internal-nets'}   = join(" ",get_internal_nets());
-  $tags{'routed-nets'}     = join(" ",get_routed_nets());
+  $tags{'routed-nets'}     = join(" ",get_routed_isolation_nets()) . " " . join(" ", get_routed_registration_nets());
   $tags{'hostname'}        = $Config{'general'}{'hostname'};
   $tags{'domain'}          = $Config{'general'}{'domain'};
   $tags{'admin_port'}      = $Config{'ports'}{'admin'};
