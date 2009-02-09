@@ -165,7 +165,7 @@ if ((scalar(@arguments) == 1) && ($arguments[0] eq 'version')) {
   $cmd{'command'}[2] = $arguments[2];
   report();
   exit(1);
-} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'service') && ($arguments[1] =~ /^(dhcpd|pfmon|pfdhcplistener|pfdetect|pfredirect|snort|httpd|pfsetvlan|snmptrapd|pf)$/) && ($arguments[2] =~ /^(stop|start|restart|status|watch)$/)) {
+} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'service') && ($arguments[1] =~ /^(named|dhcpd|pfmon|pfdhcplistener|pfdetect|pfredirect|snort|httpd|pfsetvlan|snmptrapd|pf)$/) && ($arguments[2] =~ /^(stop|start|restart|status|watch)$/)) {
   $command = $arguments[0];
   $cmd{'command'}[0] = $arguments[0];
   $cmd{'command'}[1] = $arguments[1];
@@ -857,7 +857,7 @@ sub service {
   require pf::services;
   import pf::services;
 
-  my @all_services=('dhcpd', 'pfdhcplistener','pfmon','pfdetect','pfredirect','snort','httpd', 'snmptrapd', 'pfsetvlan');
+  my @all_services=('named', 'dhcpd', 'pfdhcplistener','pfmon','pfdetect','pfredirect','snort','httpd', 'snmptrapd', 'pfsetvlan');
 
   if ($command =~ /^status$/i) {
     my @services;
@@ -1897,7 +1897,7 @@ sub sanity_check {
 
   # make sure the services we start are not already running
   foreach my $service (@_) {
-    if ($service =~ /^(dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan)$/) {
+    if ($service =~ /^(named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan)$/) {
       $service = $1;
       $logger->logdie("$service is already running!") if (`pidof -s -x $service` =~ /^\d/);
     } else {

@@ -462,8 +462,13 @@ httpd=/usr/sbin/httpd
 #
 # services.dhcpd
 #
-# Location of the dhcpd binary.  Only necessary to change if you are not running the RPMed version.  DHCP is not supported until PacketFence 1.6
+# Location of the dhcpd binary.  Only necessary to change if you are not running the RPMed version.
 dhcpd=/usr/sbin/dhcpd
+#
+# services.named
+#
+# Location of the named binary.  Only necessary to change if you are not running the RPMed version.
+named=/usr/sbin/named
 #
 # services.snmptrapd
 # Location of the snmptrapd binary.  Only necessary to change if you are not using the RPMed version.
@@ -515,6 +520,13 @@ closelocationlogonstop=disabled
 # Should DHCPd be started ?
 #
 dhcpd=disabled
+#
+#
+# vlan.named
+#
+# Should named be started ?
+#
+named=disabled
 #
 # vlan.nbtraphandlerthreads
 #

@@ -39,6 +39,7 @@ $flags{'pfdhcplistener'} = "-d &";
 $flags{'pfredirect'} =  "-d &";
 $flags{'pfsetvlan'} = "-d &";
 $flags{'dhcpd'} = " -lf $conf_dir/dhcpd/dhcpd.leases -cf $conf_dir/dhcpd.conf ".join(" ", get_dhcp_devs());
+$flags{'named'} = "-u pf -c $install_dir/conf/named.conf";
 $flags{'snmptrapd'} = "-n -c $conf_dir/snmptrapd.conf -C -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/snmptrapd.pid -On";
 
 if (isenabled($Config{'trapping'}{'detection'}) && $monitor_int) {
@@ -51,7 +52,7 @@ sub service_ctl {
   my $service = ($Config{'services'}{$daemon} || "$install_dir/sbin/$daemon");
   my $exe = basename($service);
   $logger->info("$service $action");
-  if ($exe =~ /^(dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan)$/) {
+  if ($exe =~ /^(named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan)$/) {
     $exe = $1;
     CASE: {
       $action eq "start" && do {
@@ -60,7 +61,8 @@ sub service_ctl {
         return(0) if ($exe=~/pfdhcplistener/ && !isenabled($Config{'network'}{'dhcpdetector'}));
         return(0) if ($exe=~/snmptrapd/ && !($Config{'network'}{'mode'} =~ /vlan/i));
         return(0) if ($exe=~/pfsetvlan/ && !($Config{'network'}{'mode'} =~ /vlan/i));
-        if ($daemon=~/(dhcpd|snort|httpd|snmptrapd)/ && !$quick){
+        return(0) if ($exe=~/named/ && !(($Config{'network'}{'mode'} =~ /vlan/i) && (isenabled($Config{'vlan'}{'named'}))));
+        if ($daemon=~/(named|dhcpd|snort|httpd|snmptrapd)/ && !$quick){
            my $confname="generate_".$daemon."_conf";
            $logger->info("Generating configuration file $confname for $exe");
            ($pf::services::{$confname} or sub { print "No such sub: $_\n" })->();
@@ -151,6 +153,8 @@ sub service_list {
       push @finalServiceList, $service  if (($Config{'network'}{'mode'} =~ /^dhcp$/i) || (($Config{'network'}{'mode'} =~ /^vlan$/i) && (isenabled($Config{'vlan'}{'dhcpd'}))));
     } elsif ($service eq "snmptrapd") {
       push @finalServiceList, $service  if ($Config{'network'}{'mode'} =~ /vlan/i);
+    } elsif ($service eq "named") {
+      push @finalServiceList, $service  if (($Config{'network'}{'mode'} =~ /vlan/i) && (isenabled($Config{'vlan'}{'named'})));
     } elsif ($service eq "pfsetvlan") {
       push @finalServiceList, $service  if ($Config{'network'}{'mode'} =~ /vlan/i);
     } else {
@@ -160,6 +164,14 @@ sub service_list {
   #add snort last
   push @finalServiceList, "snort"  if ($snortflag);
   return @finalServiceList;
+}
+
+sub generate_named_conf {
+  my %tags;
+  $tags{'template'}   = "$conf_dir/templates/named_vlan.conf";
+  $tags{'install_dir'} = $install_dir;
+  $tags{'dnsservers'}   = $Config{'general'}{'dnsservers'};
+  parse_template(\%tags, "$conf_dir/templates/named_vlan.conf", "$install_dir/conf/named.conf");
 }
 
 sub generate_dhcpd_vlan_conf {
