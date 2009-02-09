@@ -48,7 +48,7 @@ if (isenabled($Config{'trapping'}{'detection'}) && $monitor_int) {
 
 sub service_ctl {
   my ($daemon, $action, $quick) = @_;
-  my $logger = Log::Log4perl::get_logger('pf::pfservices');
+  my $logger = Log::Log4perl::get_logger('pf::services');
   my $service = ($Config{'services'}{$daemon} || "$install_dir/sbin/$daemon");
   my $exe = basename($service);
   $logger->info("$service $action");
@@ -167,11 +167,47 @@ sub service_list {
 }
 
 sub generate_named_conf {
+  my $logger = Log::Log4perl::get_logger('pf::services');
+  require Net::Netmask;
+  import Net::Netmask;
   my %tags;
   $tags{'template'}   = "$conf_dir/templates/named_vlan.conf";
   $tags{'install_dir'} = $install_dir;
-  $tags{'dnsservers'}   = $Config{'general'}{'dnsservers'};
+
+  my %network_conf;
+  tie %network_conf, 'Config::IniFiles', ( -file => "$conf_dir/networks.conf" );
+  my @errors = @Config::IniFiles::errors;
+  if (scalar(@errors)) {
+    $logger->error("Error reading networks.conf: " . join("\n", @errors) . "\n")
+;
+    return 0;
+  }
+  $tags{'registration_clients'} = "";
+  $tags{'isolation_clients'} = "";
+  foreach my $section (tied(%network_conf)->Sections){
+    if (exists($network_conf{$section}{'type'})) {
+      if ($network_conf{$section}{'type'} =~ /^isolation$/i) {
+        my $isolation_obj = new Net::Netmask($section, $network_conf{$section}{'netmask'});
+        $tags{'isolation_clients'} .= $isolation_obj->base() . "/" . $isolation_obj->bits() . "; ";
+      } elsif ($network_conf{$section}{'type'} =~ /^registration$/i) {
+        my $registration_obj = new Net::Netmask($section, $network_conf{$section}{'netmask'});
+        $tags{'registration_clients'} .= $registration_obj->base() . "/" . $registration_obj->bits() . "; ";
+      }
+    }
+  }
   parse_template(\%tags, "$conf_dir/templates/named_vlan.conf", "$install_dir/conf/named.conf");
+
+  my %tags_isolation;
+  $tags_isolation{'template'}   = "$conf_dir/templates/named-isolation.ca";
+  $tags_isolation{'hostname'} = $Config{'general'}{'hostname'};
+  $tags_isolation{'incharge'} = "pf." . $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
+  parse_template(\%tags_isolation, "$conf_dir/templates/named-isolation.ca", "$install_dir/conf/named/named-isolation.ca");
+
+  my %tags_registration;
+  $tags_registration{'template'}   = "$conf_dir/templates/named-registration.ca";
+  $tags_registration{'hostname'} = $Config{'general'}{'hostname'};
+  $tags_registration{'incharge'} = "pf." . $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
+  parse_template(\%tags_registration, "$conf_dir/templates/named-registration.ca", "$install_dir/conf/named/named-registration.ca");
 }
 
 sub generate_dhcpd_vlan_conf {

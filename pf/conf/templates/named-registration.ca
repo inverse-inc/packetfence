@@ -1,0 +1,15 @@
+$TTL 3600
+. IN SOA %%hostname%%. %%incharge%% (
+    2009020901  ; serial
+    10800       ; refresh
+    3600        ; retry
+    604800      ; expire
+    86400       ; default_ttl
+)
+
+       IN      NS      %%hostname%%.
+*.     IN      A       192.168.2.1
+       IN      MX      5       %%hostname%%.
+
+1.2.168.192.in-addr.arpa.     IN      PTR       %%hostname%%
+

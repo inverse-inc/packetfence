@@ -54,17 +54,11 @@
     $pretty_key = pretty_header("configuration-networks", $key);
     if ($key == 'type') {
       print "<tr><td></td><td>$pretty_key:</td><td>";
-      print "\n<select multiple name='$key" .  "[]'>";
-      $my_values = explode(",", $val);
-      $my_options = array('dhcplistener' => 'dhcplistener', 'internal' => 'internal', 'managed' => 'managed', 'monitor' => 'monitor');
-      foreach ($my_options as $option_val => $option_txt) {
-        if (in_array($option_val, $my_values)) {
-          print "<option value='$option_val' SELECTED>$option_txt</option>\n";
-        } else {
-          print "<option value='$option_val'>$option_txt</option>\n";
-        }
-      }
-      print "</select>\n";
+      printSelect( array('' => 'please choose',
+                         'isolation' => 'Isolation',
+                         'registration' => 'Registration',
+                    ),
+                   'hash', $val, "name='$key'");
     } else {
       print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val'>";
     }

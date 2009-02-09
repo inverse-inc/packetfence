@@ -510,7 +510,7 @@ sub networkconfig {
     my @sections_tmp = keys %network_conf;
     my @sections = map  substr($_, 4) => sort map  pack('C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/) . $_ => @sections_tmp;
 
-    my @columns = qw(netmask gateway domain-name dns dhcp_start dhcp_end dhcp_default_lease_time dhcp_max_lease_time);
+    my @columns = qw(type netmask gateway domain-name dns dhcp_start dhcp_end dhcp_default_lease_time dhcp_max_lease_time);
     print "network|" . join("|", @columns) . "\n";
     foreach my $section (@sections) {
       if (($cmd{'command'}[2] eq 'all') || ($cmd{'command'}[2] eq $section)) {
