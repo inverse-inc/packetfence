@@ -482,8 +482,11 @@ sub help_traplog {
 Usage: pfcmd traplog update
        pfcmd traplog most <number> {day|week|total}
 
-update traplog RRD files and graphs
 obtain the switch IPs of the <n> switches having sent the most traps
+update traplog RRD files and graphs - this command should not be
+  run by hand but executed through a crontab in 5 minute intervals; for
+  example
+  */5 * * * * /usr/local/pf/bin/pfcmd traplog update
 EOT
 }
 
