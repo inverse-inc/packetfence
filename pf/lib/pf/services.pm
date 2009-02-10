@@ -204,7 +204,7 @@ sub generate_dhcpd_vlan_conf {
   $tags{'networks'} = '';
 
   my %network_conf;
-  tie %network_conf, 'Config::IniFiles', ( -file => "$conf_dir/networks.conf" );
+  tie %network_conf, 'Config::IniFiles', ( -file => "$conf_dir/networks.conf", -allowempty => 1);
   my @errors = @Config::IniFiles::errors;
   if (scalar(@errors)) {
     $logger->error("Error reading networks.conf: " . join("\n", @errors) . "\n")

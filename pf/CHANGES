@@ -57,6 +57,8 @@
           (http://www.packetfence.org/mantis/view.php?id=574)
         determine default gateway in configurator
           (http://www.packetfence.org/mantis/view.php?id=577)
+        fixed startup error when networks.conf was empty
+          (http://www.packetfence.org/mantis/view.php?id=578)
 
 1.8.0
         unify log management

@@ -131,7 +131,7 @@ $fqdn = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
 
 # read & load in network configuration file
 my %ConfigNetworks;
-tie %ConfigNetworks, 'Config::IniFiles', ( -file => $network_config_file);
+tie %ConfigNetworks, 'Config::IniFiles', ( -file => $network_config_file, -allowempty => 1);
 @errors = @Config::IniFiles::errors;
 if (scalar(@errors)) {
  $logger->logdie(join("\n",@errors));
