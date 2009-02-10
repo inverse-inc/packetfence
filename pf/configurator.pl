@@ -361,6 +361,13 @@ sub config_network {
   $tmp_net = new Net::Netmask($cfg{"interface $int"}{"ip"}, $cfg{"interface $int"}{"mask"});
   $cfg{"interface $int"}{"gateway"} = $tmp_net->nth(1);
 
+  #try to determine default gateway
+  open(PROC, "/sbin/route -n|") || die "Can't open ifconfig $!\n";
+  while(<PROC>) {
+    if (/^0\.0\.0\.0\s+(\d+\.\d+\.\d+\.\d+)\s+0\.0\.0\.0\s+UG.+$int$/) {
+      $cfg{"interface $int"}{"gateway"} = $1;
+    }
+  }
   gatherer("What is my gateway?","interface $int.gateway");
 
   print "\n** NOTE: You must manually set testing=disabled in pf.conf to allow PF to send ARPs **\n\n" if (!$template);
