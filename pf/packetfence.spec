@@ -1,11 +1,11 @@
 #rpmbuild should be done in several steps:
 #1) rpmbuild -bs SPECS/packetfence.spec
 #on each target distribution
-#2) rpmbuild --rebuild --define 'dist .el5' SRPMS/packetfence-1.8.1-20090209.src.rpm
+#2) rpmbuild --rebuild --define 'dist .el5' SRPMS/packetfence-1.8.1-20090210.src.rpm
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
 Version: 1.8.1
-Release: 20090209%{?dist}
+Release: 20090210%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.packetfence.org
