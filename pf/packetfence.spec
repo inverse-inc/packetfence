@@ -344,8 +344,8 @@ fi
 %config /usr/local/pf/conf/templates/dhcpd.conf
 %config /usr/local/pf/conf/templates/dhcpd_vlan.conf
 %config /usr/local/pf/conf/templates/named_vlan.conf
-%config(noreplace) /usr/local/pf/conf/templates/named-registration.conf
-%config(noreplace) /usr/local/pf/conf/templates/named-isolation.conf
+%config(noreplace) /usr/local/pf/conf/templates/named-registration.ca
+%config(noreplace) /usr/local/pf/conf/templates/named-isolation.ca
 %dir /usr/local/pf/conf/named
 %config /usr/local/pf/conf/templates/httpd.conf
 %config(noreplace) /usr/local/pf/conf/templates/iptables.conf
