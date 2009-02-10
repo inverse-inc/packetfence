@@ -348,7 +348,11 @@ sub config_network {
   $int = gatherer("What is my management interface?","tmp.managed",get_interfaces());
   delete($cfg{'tmp'});
 
-  gatherer("What is its IP address?","interface $int.ip");
+  my $managementIP = gatherer("What is its IP address?","interface $int.ip");
+  while ($managementIP eq '') {
+    print "\n** ERROR: management interface IP address can't be empty **\n\n";
+    $managementIP = gatherer("What is its IP address?","interface $int.ip");
+  }
   gatherer("What is its mask?","interface $int.mask");
   $cfg{"interface $int"}{"type"} = "internal,managed";
   $cfg{"interface $int"}{"authorizedips"} = "";
