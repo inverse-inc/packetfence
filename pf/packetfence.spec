@@ -24,6 +24,7 @@ Requires: mysql, perl-DBD-MySQL
 Requires: wget, tar, grep, glibc-common, chkconfig, openssl, net-tools
 Requires: perl(CPAN)
 Requires: perl(Time::HiRes), perl(Net::IPv4Addr), perl(Config::IniFiles), perl(Net::Netmask), perl(Date::Parse), perl(Parse::RecDescent), perl(Net::Pcap) >= 0.16, perl(CGI), perl(CGI::Session), perl(Term::ReadKey), perl(File::Tail), perl(Net::MAC::Vendor), perl(Net::SNMP), perl(LWP::UserAgent), perl(Net::Telnet), perl(Log::Log4perl) >= 1.11, perl(Thread::Pool), perl(Locale::gettext), perl(Template), perl(Apache::Htpasswd), perl(Net::MAC), perl(RRDs), perl(File::Spec), perl(Test::Pod::Coverage), perl(Test::Pod), perl(UNIVERSAL::require), perl(Class::Data::Inheritable)
+Requires: perl(Bit::Vector), perl(Class::Gomor), perl(Net::IPv6Addr)
 
 %description
 
