@@ -175,7 +175,9 @@ sub gatherer {
   my $choices;
   my $response;
   my $default;
-  $choices = join("|", @choices) if (@choices);
+  $param =~ /^(.+)\.([^\.]+)$/;
+  my $section = $1;
+  my $element = $2;
   my($section, $element) = split(/\./, $param);
   do {
     $default = $cfg{$section}{$element} if (defined($section) && defined($element));
