@@ -61,6 +61,9 @@
           (http://www.packetfence.org/mantis/view.php?id=578)
         configurator had issues with VLAN interfaces
           (http://www.packetfence.org/mantis/view.php?id=582)
+        in installer.pl make sure that perl modules could be 
+          installed
+          (http://www.packetfence.org/mantis/view.php?id=583)
 
 1.8.0
         unify log management

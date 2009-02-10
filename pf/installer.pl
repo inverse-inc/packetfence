@@ -276,6 +276,8 @@ if (questioner("PF needs several Perl modules to function properly.  May I downl
         if (questioner("Module $module is installed (version " . $mod->inst_version . ") but not up to date (CPAN has version " . $mod->cpan_version . ") - do you wish to upgrade it?","y",("y", "n"))) {
           print "    Upgrading module $module\n";
           my $obj = CPAN::Shell->install($module);
+          my $current_mod = CPAN::Shell->expand("Module",$module);
+          print "    Installed version is now " . $current_mod->inst_version . "\n";
         }
       }
     } else {
@@ -283,6 +285,11 @@ if (questioner("PF needs several Perl modules to function properly.  May I downl
         if (questioner("Module $module is not installed (CPAN has version " . $mod->cpan_version . ") - do you wish to install it?","y",("y", "n"))) {
           print "    Installing module $module\n";
           my $obj = CPAN::Shell->install($module);
+          my $current_mod = CPAN::Shell->expand("Module",$module);
+          if (! $current_mod->inst_file) {
+            print "    Unable to install module $module\n";
+            die;
+          }
         }
       }
     }
