@@ -53,6 +53,8 @@
           VLAN isolation mode
           (http://www.packetfence.org/mantis/view.php?id=569)
           (http://www.packetfence.org/mantis/view.php?id=572)
+        management IP address in configurator.pl
+          (http://www.packetfence.org/mantis/view.php?id=574)
 
 1.8.0
         unify log management
