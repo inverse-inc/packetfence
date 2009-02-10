@@ -75,6 +75,9 @@ if(isset($_GET['update'])){
     $options_ar=preg_split("/=/", $parts_ar[0]);
     $pf_option=array_shift($options_ar);
     $option=preg_replace("/\.|\s/", "_", $pf_option);
+    if (strncmp($option, 'interface_', 10) == 0) {
+      continue;
+    }
     $value=implode("=", $options_ar);
     if(!$value){
       $value = $parts_ar[1];
