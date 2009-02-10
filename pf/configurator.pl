@@ -334,6 +334,7 @@ sub config_network {
     $int = $net->{device};
     $ip = $net->{ip};
     $mask = $net->{mask};
+    %{$cfg{"interface $int"}} = ();
     $cfg{"interface $int"}{'ip'} = $ip;
     $cfg{"interface $int"}{'mask'} = $mask;
     $cfg{"interface $int"}{'type'} = "internal";
