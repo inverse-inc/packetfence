@@ -116,7 +116,8 @@ sub iptables_generate {
   }
 
   # poke passthroughs
-  my %passthroughs = %{$Config{'passthroughs'}} if ($Config{'trapping'}{'passthrough'} =~ /^iptables$/i);
+  my %passthroughs;
+  %passthroughs = %{$Config{'passthroughs'}} if ($Config{'trapping'}{'passthrough'} =~ /^iptables$/i);
   $passthroughs{'trapping.redirecturl'} = $Config{'trapping'}{'redirecturl'} if ($Config{'trapping'}{'redirecturl'});
   foreach my $passthrough (keys %passthroughs) {
     if ($passthroughs{$passthrough} =~ /^(http|https):\/\//) {
