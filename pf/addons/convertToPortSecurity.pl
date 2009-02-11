@@ -134,8 +134,8 @@ if (! ($switchType =~ /Cisco::Catalyst_29(50|60|70)|Cisco::Catalyst_35(50|60)/))
   $logger->logdie("port security is not supported on $switchType");
 }
 
-
-open BACKUP, '>', "$backup_config" or 
+my $backup_fh
+open $backup_fh, '>', "$backup_config" or 
   $logger->logdie("can't open config backup file $backup_config");
 
 $logger->debug("instantiating switch object");
@@ -252,7 +252,7 @@ foreach my $ifIndex (sort { $a <=> $b } keys %$ifDescHashRef) {
       } else {
         $macToSecure = "02:00:00:00:00:" . ((length($ifIndex) == 1) ? "0" . substr($ifIndex,-1,1) : substr($ifIndex,-2,2));
       }
-      print BACKUP $config;
+      print {$backup_fh} $config;
       $logger->debug("current switchport config is:\n$config");
       my @modLines;
       if ($config =~ /snmp trap mac-notification added/) {
@@ -297,7 +297,7 @@ foreach my $ifIndex (sort { $a <=> $b } keys %$ifDescHashRef) {
   }
 }
 
-close BACKUP;
+close $backup_fh;
 
 @tmp = $session->cmd("show run | include snmp-server");
 if (grep(/snmp-server enable traps mac-notification$/i, @tmp) > 0) {
