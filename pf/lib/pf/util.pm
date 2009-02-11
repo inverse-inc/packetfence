@@ -473,7 +473,7 @@ sub parse_template {
   my ($tags, $template, $destination) = @_;
   my $logger = Log::Log4perl::get_logger('pf::util');
   my (@parsed);
-  open(TEMPLATE, $template) || $logger->logdie("Unable to open template $template: $!");  
+  open(TEMPLATE, '<', $template) || $logger->logdie("Unable to open template $template: $!");  
   while (<TEMPLATE>) {
     study $_;
     foreach my $tag (keys %{$tags}) {
@@ -483,7 +483,7 @@ sub parse_template {
   }
   #close(TEMPLATE);
   if ($destination) {
-    open(DESTINATION, ">".$destination) || $logger->logdie("Unable to open template destination $destination: $!");
+    open(DESTINATION, ">", $destination) || $logger->logdie("Unable to open template destination $destination: $!");
     foreach my $line (@parsed) {
       print DESTINATION $line;
     }

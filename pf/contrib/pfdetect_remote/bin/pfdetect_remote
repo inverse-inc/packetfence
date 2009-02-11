@@ -133,8 +133,8 @@ exit(0);
 
 sub daemonize {
   chdir '/'               or die "Can't chdir to /: $!";
-  open STDIN, '/dev/null' or die "Can't read /dev/null: $!";  
-  open STDOUT, '>/dev/null' or die "Can't write to /dev/null: $!";
+  open STDIN, '<', '/dev/null' or die "Can't read /dev/null: $!";  
+  open STDOUT, '>', '/dev/null' or die "Can't write to /dev/null: $!";
 
   defined(my $pid = fork) or die "pfdetect_remote: could not fork: $!";
   POSIX::_exit(0) if ($pid);

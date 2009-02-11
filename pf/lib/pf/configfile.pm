@@ -108,7 +108,7 @@ sub configfile_add {
   my ($filename) = @_;
   configfile_db_prepare($dbh) if (! $configfile_db_prepared);
   my $lastMod = (stat($filename))[9];
-  open CONFIGFILE, $filename;
+  open CONFIGFILE, '<', $filename;
   my @content = <CONFIGFILE>;
   close CONFIGFILE;
   $configfile_add_sql->execute($filename,join('', @content),$lastMod) || return(0);
@@ -119,7 +119,7 @@ sub configfile_update {
   my ($filename) = @_;
   configfile_db_prepare($dbh) if (! $configfile_db_prepared);
   my $lastMod = (stat($filename))[9];
-  open CONFIGFILE, $filename;
+  open CONFIGFILE, '<', $filename;
   my @content = <CONFIGFILE>;
   close CONFIGFILE;
   $configfile_update_sql->execute(join('', @content),$lastMod, $filename) || return(0);

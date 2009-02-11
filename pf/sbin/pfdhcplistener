@@ -379,9 +379,9 @@ sub update_iplog {
 
 sub daemonize {
   chdir '/'               or $logger->logdie("Can't chdir to /: $!");
-  open STDIN, '/dev/null' or $logger->logdie("Can't read /dev/null: $!");
+  open STDIN, '<', '/dev/null' or $logger->logdie("Can't read /dev/null: $!");
   my $log_file = "$install_dir/logs/pfdhcplistener_$interface";
-  open STDOUT, ">>$log_file" or $logger->logdie("Can't write to $log_file: $!");
+  open STDOUT, '>>', "$log_file" or $logger->logdie("Can't write to $log_file: $!");
 
   defined(my $pid = fork) or $logger->logdie("pfdhcplistener: could not fork: $!");
   POSIX::_exit(0) if ($pid);

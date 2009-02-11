@@ -179,7 +179,7 @@ sub xlat {
         &radiusd::radlog(1, "From xlat $filename ");
         &radiusd::radlog(1,"From xlat $a $b $c $d ");
         local *FH;
-        open FH, $filename or die "open '$filename' $!";
+        open FH, '<', $filename or die "open '$filename' $!";
         local($/) = undef;
         my $sub = <FH>;
         close FH;
