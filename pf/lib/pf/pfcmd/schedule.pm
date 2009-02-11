@@ -68,9 +68,9 @@ sub update_entry
 sub load_cron {
   my ($self,$filename) = @_;
   $filename="pf" if (!$filename);
-  open(FILE,'<', "/var/spool/cron/".$filename) || return;
-  my @array=<FILE>;
-  #close(FILE);
+  my $file_fh;
+  open($file_fh,'<', "/var/spool/cron/".$filename) || return;
+  my @array=<file_fh>;
   foreach (@array){
      my ($min,$hour,$dmon,$month,$dweek,$rest) = split (/\s+/,$_,6);
      $rest=~s/\\//g;  
@@ -86,13 +86,13 @@ sub load_cron {
 sub write_cron {
   my ($self,$filename) = @_;
   $filename="pf" if (!$filename);
-  open(FILE, '>', "/var/spool/cron/".$filename);
-  flock(FILE,2);
+  my $file_fh;
+  open($file_fh, '>', "/var/spool/cron/".$filename);
+  flock($file_fh,2);
   foreach my $ref ($self->list_entries()){
     $ref->{args}=~s/;/\\;/g;   
-    print FILE "$ref->{time}\t$ref->{args}\n";
+    print {$file_fh} "$ref->{time}\t$ref->{args}\n";
   }
-  #close(FILE);
 }
 
 # return all entries in table
