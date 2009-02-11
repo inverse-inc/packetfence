@@ -68,9 +68,9 @@ sub configfile_export {
       $logger->info("config file $filename is outdated on filesystem; updating dfile");
       copy($filename,"$filename-" . time());
       my $data = configfile_view($filename);
-      open EXPORT, '>', $filename;
-      print EXPORT $data->{'filecontent'};
-      close EXPORT;
+      open my $export_fh, '>', $filename;
+      print {$export_fh} $data->{'filecontent'};
+      close $export_fh;
     }
   }
 }
@@ -108,9 +108,9 @@ sub configfile_add {
   my ($filename) = @_;
   configfile_db_prepare($dbh) if (! $configfile_db_prepared);
   my $lastMod = (stat($filename))[9];
-  open CONFIGFILE, $filename;
-  my @content = <CONFIGFILE>;
-  close CONFIGFILE;
+  open my $configfile_fh, '<', $filename;
+  my @content = <$configfile_fh>;
+  close $configfile_fh;
   $configfile_add_sql->execute($filename,join('', @content),$lastMod) || return(0);
   return(1);
 }
@@ -119,9 +119,9 @@ sub configfile_update {
   my ($filename) = @_;
   configfile_db_prepare($dbh) if (! $configfile_db_prepared);
   my $lastMod = (stat($filename))[9];
-  open CONFIGFILE, $filename;
-  my @content = <CONFIGFILE>;
-  close CONFIGFILE;
+  open my $configfile_fh, '<', $filename;
+  my @content = <$configfile_fh>;
+  close $configfile_fh;
   $configfile_update_sql->execute(join('', @content),$lastMod, $filename) || return(0);
   return(1);
 }

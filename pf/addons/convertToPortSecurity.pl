@@ -135,7 +135,7 @@ if (! ($switchType =~ /Cisco::Catalyst_29(50|60|70)|Cisco::Catalyst_35(50|60)/))
 }
 
 
-open BACKUP, ">$backup_config" or 
+open BACKUP, '>', "$backup_config" or 
   $logger->logdie("can't open config backup file $backup_config");
 
 $logger->debug("instantiating switch object");
