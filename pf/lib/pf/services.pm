@@ -297,18 +297,19 @@ sub generate_dhcpd_conf {
   }
 
   #open dhcpd.conf file
-  open(DHCPDCONF,'>>', "$conf_dir/dhcpd.conf") || $logger->logdie("Unable to append to $conf_dir/dhcpd.conf: $!");
+  my $dhcpdconf_fh;
+  open($dhcpdconf_fh,'>>', "$conf_dir/dhcpd.conf") || $logger->logdie("Unable to append to $conf_dir/dhcpd.conf: $!");
   foreach my $internal_interface (get_internal_devs_phy()) {
     my $dhcp_interface = get_internal_info($internal_interface);
-    print DHCPDCONF "subnet ".$dhcp_interface->base()." netmask ".$dhcp_interface->mask()." {\n  not authoritative;\n}\n";
+    print {$dhcpdconf_fh} "subnet ".$dhcp_interface->base()." netmask ".$dhcp_interface->mask()." {\n  not authoritative;\n}\n";
   }
   foreach my $shared_net (keys(%shared_nets)) {
     my $printable_shared = $shared_net;
     $printable_shared =~ s/dhcp //;
-    print DHCPDCONF "shared-network $printable_shared {\n";
+    print {$dhcpdconf_fh} "shared-network $printable_shared {\n";
     foreach my $key (keys(%{$shared_nets{$shared_net}})) {
       my $tmp_obj = new Net::Netmask($key);
-      print DHCPDCONF "  subnet ".$tmp_obj->base()." netmask ".$tmp_obj->mask()." {\n";
+      print {$dhcpdconf_fh} "  subnet ".$tmp_obj->base()." netmask ".$tmp_obj->mask()." {\n";
 
       if (defined(@{$shared_nets{$shared_net}{$key}{'registered'}})) {    
         foreach my $reg (@{$shared_nets{$shared_net}{$key}{'registered'}}) {
@@ -317,11 +318,11 @@ sub generate_dhcpd_conf {
           if (!$range) {
             $logger->logdie("Invalid scope range: ".$Config{'scope '.$reg->tag("scope")}{'range'});
           }
-          print DHCPDCONF "    pool {\n";
-          print DHCPDCONF "      # I AM A REGISTERED SCOPE\n";
-          print DHCPDCONF "      deny unknown clients;\n";
-          print DHCPDCONF "      allow members of \"registered\";\n";
-          print DHCPDCONF "      option routers ".$Config{'scope '.$reg->tag("scope")}{'gateway'}.";\n";
+          print {$dhcpdconf_fh} "    pool {\n";
+          print {$dhcpdconf_fh} "      # I AM A REGISTERED SCOPE\n";
+          print {$dhcpdconf_fh} "      deny unknown clients;\n";
+          print {$dhcpdconf_fh} "      allow members of \"registered\";\n";
+          print {$dhcpdconf_fh} "      option routers ".$Config{'scope '.$reg->tag("scope")}{'gateway'}.";\n";
 
           my $lease_time;
           if (defined($Config{$shared_net}{'registered_lease'})) {
@@ -330,10 +331,10 @@ sub generate_dhcpd_conf {
             $lease_time = 7200;
           }
 
-          print DHCPDCONF "      max-lease-time $lease_time;\n";
-          print DHCPDCONF "      default-lease-time $lease_time;\n";
-          print DHCPDCONF "      range $range;\n";
-          print DHCPDCONF "    }\n";
+          print {$dhcpdconf_fh} "      max-lease-time $lease_time;\n";
+          print {$dhcpdconf_fh} "      default-lease-time $lease_time;\n";
+          print {$dhcpdconf_fh} "      range $range;\n";
+          print {$dhcpdconf_fh} "    }\n";
         }
       }
 
@@ -345,11 +346,11 @@ sub generate_dhcpd_conf {
             $logger->logdie("Invalid scope range: ".$Config{'scope '.$iso->tag("scope")}{'range'});
           }
 
-          print DHCPDCONF "    pool {\n";
-          print DHCPDCONF "      # I AM AN ISOLATION SCOPE\n";
-          print DHCPDCONF "      deny unknown clients;\n";
-          print DHCPDCONF "      allow members of \"isolated\";\n";
-          print DHCPDCONF "      option routers ".$Config{'scope '.$iso->tag("scope")}{'gateway'}.";\n";
+          print {$dhcpdconf_fh} "    pool {\n";
+          print {$dhcpdconf_fh} "      # I AM AN ISOLATION SCOPE\n";
+          print {$dhcpdconf_fh} "      deny unknown clients;\n";
+          print {$dhcpdconf_fh} "      allow members of \"isolated\";\n";
+          print {$dhcpdconf_fh} "      option routers ".$Config{'scope '.$iso->tag("scope")}{'gateway'}.";\n";
 
           my $lease_time;
           if (defined($Config{$shared_net}{'isolation_lease'})) {
@@ -358,10 +359,10 @@ sub generate_dhcpd_conf {
             $lease_time = 120;
           }
 
-          print DHCPDCONF "      max-lease-time $lease_time;\n";
-          print DHCPDCONF "      default-lease-time $lease_time;\n";
-          print DHCPDCONF "      range $range;\n";
-          print DHCPDCONF "    }\n";
+          print {$dhcpdconf_fh} "      max-lease-time $lease_time;\n";
+          print {$dhcpdconf_fh} "      default-lease-time $lease_time;\n";
+          print {$dhcpdconf_fh} "      range $range;\n";
+          print {$dhcpdconf_fh} "    }\n";
         }
       }
 
@@ -373,10 +374,10 @@ sub generate_dhcpd_conf {
             $logger->logdie("Invalid scope range: ".$Config{'scope '.$unreg->tag("scope")}{'range'});
           }
 
-          print DHCPDCONF "    pool {\n";
-          print DHCPDCONF "      # I AM AN UNREGISTERED SCOPE\n";
-          print DHCPDCONF "      allow unknown clients;\n";
-          print DHCPDCONF "      option routers ".$Config{'scope '.$unreg->tag("scope")}{'gateway'}.";\n";
+          print {$dhcpdconf_fh} "    pool {\n";
+          print {$dhcpdconf_fh} "      # I AM AN UNREGISTERED SCOPE\n";
+          print {$dhcpdconf_fh} "      allow unknown clients;\n";
+          print {$dhcpdconf_fh} "      option routers ".$Config{'scope '.$unreg->tag("scope")}{'gateway'}.";\n";
 
           my $lease_time;
           if (defined($Config{$shared_net}{'unregistered_lease'})) {
@@ -385,19 +386,19 @@ sub generate_dhcpd_conf {
             $lease_time = 120;
           }
 
-          print DHCPDCONF "      max-lease-time $lease_time;\n";
-          print DHCPDCONF "      default-lease-time $lease_time;\n";
-          print DHCPDCONF "      range $range;\n";
-          print DHCPDCONF "    }\n";
+          print {$dhcpdconf_fh} "      max-lease-time $lease_time;\n";
+          print {$dhcpdconf_fh} "      default-lease-time $lease_time;\n";
+          print {$dhcpdconf_fh} "      range $range;\n";
+          print {$dhcpdconf_fh} "    }\n";
         }
       }
 
-      print DHCPDCONF "  }\n";
+      print {$dhcpdconf_fh} "  }\n";
     }
-    print DHCPDCONF "}\n";
+    print {$dhcpdconf_fh} "}\n";
   }
-  print DHCPDCONF "include \"$conf_dir/isolated.mac\";\n";
-  print DHCPDCONF "include \"$conf_dir/registered.mac\";\n";
+  print {$dhcpdconf_fh} "include \"$conf_dir/isolated.mac\";\n";
+  print {$dhcpdconf_fh} "include \"$conf_dir/registered.mac\";\n";
   #close(DHCPDCONF);
 
   generate_dhcpd_iso();
@@ -407,14 +408,15 @@ sub generate_dhcpd_conf {
 #open isolated.mac file
 sub generate_dhcpd_iso {
   my $logger = Log::Log4perl::get_logger('pf::services');
-  open(ISOMAC, '>', "$conf_dir/isolated.mac") || $logger->logdie("Unable to open $conf_dir/isolated.mac : $!"); 
+  my $isomac_fh;
+  open($isomac_fh, '>', "$conf_dir/isolated.mac") || $logger->logdie("Unable to open $conf_dir/isolated.mac : $!"); 
   my @isolated = violation_view_open_uniq();
   my @isolatednodes;
   foreach my $row (@isolated) {
       my $mac = $row->{'mac'};
       my $hostname = $mac;
       $hostname =~ s/://g;
-      print ISOMAC "host $hostname { hardware ethernet $mac; } subclass \"isolated\" 01:$mac;";
+      print {$isomac_fh} "host $hostname { hardware ethernet $mac; } subclass \"isolated\" 01:$mac;";
   }
   #close(ISOMAC);
 }
@@ -424,15 +426,15 @@ sub generate_dhcpd_iso {
 sub generate_dhcpd_reg {
   my $logger = Log::Log4perl::get_logger('pf::services');
   if (isenabled($Config{'trapping'}{'registration'})){
-	my $regmac_fh;
-    open(REGMAC,'>', "$conf_dir/registered.mac") || $logger->logdie("Unable to open $conf_dir/registered.mac : $!");  
+    my $regmac_fh;
+    open($regmac_fh, '>', "$conf_dir/registered.mac") || $logger->logdie("Unable to open $conf_dir/registered.mac : $!");  
     my @registered = nodes_registered_not_violators();
     my @registerednodes;
     foreach my $row (@registered) {
       my $mac = $row->{'mac'};
       my $hostname = $mac;
       $hostname =~ s/://g;
-      print REGMAC "host $hostname { hardware ethernet $mac; } subclass \"registered\" 01:$mac;";
+      print {$regmac_fh} "host $hostname { hardware ethernet $mac; } subclass \"registered\" 01:$mac;";
     }
     #close(REGMAC);
   } 
