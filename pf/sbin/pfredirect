@@ -71,7 +71,7 @@ my $msg       = "$conf_dir/templates/listener.msg";
 my $date      = POSIX::strftime("%a, %d %b %Y %T %z", localtime);
 
 # Build message
-open(MSG, $msg) || $logger->logdie("Unable to open message: $!");
+open(MSG, '<', $msg) || $logger->logdie("Unable to open message: $!");
 my $message = join('',<MSG>);
 #close(MSG);
 
@@ -194,8 +194,8 @@ sub normal_handler {
 sub daemonize {
   createpid();
   chdir '/'               or $logger->logdie("Can't chdir to /: $!");
-  open STDIN, '/dev/null' or $logger->logdie("Can't read /dev/null: $!");  
-  open STDOUT, '>/dev/null' or $logger->logdie("Can't write to /dev/null: $!");
+  open STDIN, '<', '/dev/null' or $logger->logdie("Can't read /dev/null: $!");  
+  open STDOUT, '>', '/dev/null' or $logger->logdie("Can't write to /dev/null: $!");
 
   defined(my $pid = fork) or $logger->logdie("pfredirect: could not fork: $!");
   POSIX::_exit(0) if ($pid);

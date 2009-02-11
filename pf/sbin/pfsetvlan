@@ -137,7 +137,7 @@ if ($daemonize) {
     # Begin - Daemonize the program (see http://www.webreference.com/perl/tutorial/9/index.html)
 
     chdir ('/') or $logger->logdie("Can't chdir to /: $!");
-    open (STDIN, '/dev/null') or $logger->logdie("Can't read /dev/null: $!");
+    open (STDIN, '<', '/dev/null') or $logger->logdie("Can't read /dev/null: $!");
     open STDERR, '>>', LOG_FILE or $logger->logdie("Can't open " . LOG_FILE);
     open STDOUT, '>>', LOG_FILE or $logger->logdie("Can't open " . LOG_FILE);
 

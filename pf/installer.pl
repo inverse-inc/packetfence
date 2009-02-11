@@ -36,9 +36,10 @@ my $conf_dir = "$install_dir/conf";
 #  check if user is root
 die("You must be root to run the installer!\n") if ($< != 0);
 
-open(PFRELEASE,"$conf_dir/pf-release");
-$version = <PFRELEASE>;
-close(PFRELEASE);   
+my $pfrelease_fh;
+open($pfrelease_fh,'<', "$conf_dir/pf-release");
+$version = <$pfrelease_fh>;
+close($pfrelease_fh);   
 my $pf_release = (split(/\s+/, $version))[1];
 
 my %oses    = ( "Red Hat Enterprise Linux AS release 4" => "RHEL4",
@@ -108,9 +109,10 @@ $ENV{'LANG'} = "C";
 
 # can we install RPMs?
 if (-e "/etc/redhat-release") {
-  open(RHRELEASE,"/etc/redhat-release");
-  $version = <RHRELEASE>;
-  close(RHRELEASE);
+  my $rhrelease_fh;
+  open($rhrelease_fh,'<', "/etc/redhat-release");
+  $version = <$rhrelease_fh>;
+  close($rhrelease_fh);
 } else {
   $version = "X";
 }
