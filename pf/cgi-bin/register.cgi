@@ -69,7 +69,8 @@ if (defined($params{'mode'})) {
     $maxnodes = $Config{'registration'}{'maxnodes'} if (defined $Config{'registration'}{'maxnodes'});
     my $pid = $session->param("login");
 
-    my $node_count = node_pid($pid) if ($pid ne '1');
+    my $node_count = 0;
+    $node_count = node_pid($pid) if ($pid ne '1');
 
     if ($pid ne '1' && $maxnodes !=0 && $node_count >= $maxnodes ) {
       $logger->info("$maxnodes are already registered to $pid");

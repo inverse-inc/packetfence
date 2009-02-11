@@ -278,7 +278,8 @@ sub listen_dhcp {
 
       if (defined($option_82{'1'}) && scalar(@{$option_82{'1'}})) {
         my ($vlan, $mod, $port) = unpack('nCC', pack("C*",@{$option_82{'1'}}));
-        my $switch = clean_mac(join(":", unpack("H*", pack("C*",@{$option_82{'2'}})))) if (defined($option_82{'2'}));
+        my $switch = '';
+        $switch = clean_mac(join(":", unpack("H*", pack("C*",@{$option_82{'2'}})))) if (defined($option_82{'2'}));
         delete($options{'82'});
         push @{$options{'82'}}, "port ".$mod.'/'.$port." (VLAN $vlan) on switch $switch";
       }
