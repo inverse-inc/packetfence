@@ -62,7 +62,7 @@ var action = function()
 EOT
   }
   if (-r "$conf_dir/templates/release.pl") {
-    open INCLUDE, "<$conf_dir/templates/release.pl";
+    open INCLUDE, '<', "$conf_dir/templates/release.pl";
     while (<INCLUDE>) {
       eval $_;
     }
@@ -118,7 +118,7 @@ sub generate_login_page {
   my $cookie = $cgi->cookie(CGISESSID => $session->id );
   print $cgi->header(-cookie => $cookie);
   if (-r "$conf_dir/templates/login.pl") {
-    open INCLUDE, "<$conf_dir/templates/login.pl";
+    open INCLUDE, '<', "$conf_dir/templates/login.pl";
     while (<INCLUDE>) {
       eval $_;
     }
@@ -147,7 +147,7 @@ sub generate_enabler_page {
   my $cookie = $cgi->cookie(CGISESSID => $session->id );
   print $cgi->header(-cookie => $cookie);
   if (-r "$conf_dir/templates/enabler.pl") {
-    open INCLUDE, "<$conf_dir/templates/enabler.pl";
+    open INCLUDE, '<', "$conf_dir/templates/enabler.pl";
     while (<INCLUDE>) {
       eval $_;
     }
@@ -174,7 +174,7 @@ sub generate_redirect_page {
   my $cookie = $cgi->cookie(CGISESSID => $session->id );
   print $cgi->header(-cookie => $cookie);
   if (-r "$conf_dir/templates/redirect.pl") {
-    open INCLUDE, "<$conf_dir/templates/redirect.pl";
+    open INCLUDE, '<', "$conf_dir/templates/redirect.pl";
     while (<INCLUDE>) {
       eval $_;
     }
@@ -216,7 +216,7 @@ sub generate_error_page {
   my $cookie = $cgi->cookie(CGISESSID => $session->id );
   print $cgi->header(-cookie => $cookie);
   if (-r "$conf_dir/templates/error.pl") {
-    open INCLUDE, "<$conf_dir/templates/error.pl";
+    open INCLUDE, '<', "$conf_dir/templates/error.pl";
     while (<INCLUDE>) {
       eval $_;
     }
@@ -276,7 +276,7 @@ sub generate_status_page {
   }
 
   if (-r "$conf_dir/templates/status.pl") {
-    open INCLUDE, "<$conf_dir/templates/status.pl";
+    open INCLUDE, '<', "$conf_dir/templates/status.pl";
     while (<INCLUDE>) {
       eval $_;
     }
@@ -404,7 +404,7 @@ sub generate_registration_page {
   }
   
   if (-r "$conf_dir/templates/register.pl") {
-    open INCLUDE, "<$conf_dir/templates/register.pl";
+    open INCLUDE, '<', "$conf_dir/templates/register.pl";
     while (<INCLUDE>) {
       eval $_;
     }

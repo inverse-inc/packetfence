@@ -91,7 +91,7 @@ sub service_ctl {
         last CASE;
       };
       $action eq "stop" && do {
-        open(STDERR,">/dev/null");
+        open(STDERR,'>', "/dev/null");
         #my @debug= system('pkill','-f',$exe);
         $logger->info("Stopping $exe with 'pkill $exe'");
         eval {
@@ -297,7 +297,7 @@ sub generate_dhcpd_conf {
   }
 
   #open dhcpd.conf file
-  open(DHCPDCONF,">>$conf_dir/dhcpd.conf") || $logger->logdie("Unable to append to $conf_dir/dhcpd.conf: $!");
+  open(DHCPDCONF,'>>', "$conf_dir/dhcpd.conf") || $logger->logdie("Unable to append to $conf_dir/dhcpd.conf: $!");
   foreach my $internal_interface (get_internal_devs_phy()) {
     my $dhcp_interface = get_internal_info($internal_interface);
     print DHCPDCONF "subnet ".$dhcp_interface->base()." netmask ".$dhcp_interface->mask()." {\n  not authoritative;\n}\n";
@@ -407,7 +407,7 @@ sub generate_dhcpd_conf {
 #open isolated.mac file
 sub generate_dhcpd_iso {
   my $logger = Log::Log4perl::get_logger('pf::services');
-  open(ISOMAC, ">$conf_dir/isolated.mac") || $logger->logdie("Unable to open $conf_dir/isolated.mac : $!"); 
+  open(ISOMAC, '>', "$conf_dir/isolated.mac") || $logger->logdie("Unable to open $conf_dir/isolated.mac : $!"); 
   my @isolated = violation_view_open_uniq();
   my @isolatednodes;
   foreach my $row (@isolated) {
@@ -425,7 +425,7 @@ sub generate_dhcpd_reg {
   my $logger = Log::Log4perl::get_logger('pf::services');
   if (isenabled($Config{'trapping'}{'registration'})){
 	my $regmac_fh;
-    open(REGMAC,">$conf_dir/registered.mac") || $logger->logdie("Unable to open $conf_dir/registered.mac : $!");  
+    open(REGMAC,'>', "$conf_dir/registered.mac") || $logger->logdie("Unable to open $conf_dir/registered.mac : $!");  
     my @registered = nodes_registered_not_violators();
     my @registerednodes;
     foreach my $row (@registered) {

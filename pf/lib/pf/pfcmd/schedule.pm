@@ -68,7 +68,7 @@ sub update_entry
 sub load_cron {
   my ($self,$filename) = @_;
   $filename="pf" if (!$filename);
-  open(FILE,"/var/spool/cron/".$filename) || return;
+  open(FILE,'<', "/var/spool/cron/".$filename) || return;
   my @array=<FILE>;
   #close(FILE);
   foreach (@array){
@@ -86,7 +86,7 @@ sub load_cron {
 sub write_cron {
   my ($self,$filename) = @_;
   $filename="pf" if (!$filename);
-  open(FILE, ">/var/spool/cron/".$filename);
+  open(FILE, '>', "/var/spool/cron/".$filename);
   flock(FILE,2);
   foreach my $ref ($self->list_entries()){
     $ref->{args}=~s/;/\\;/g;   
