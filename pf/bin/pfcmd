@@ -49,9 +49,9 @@ if (defined($ENV{'PATH'})) {
     }
     if ($pos < scalar(@PATH)) {
         my $enforcing = `$PATH[$pos]/getenforce`;
-        if ($enforcing =~ /^Enforcing$/) {
-            $logger->fatal("SELinux is in enforcing mode. This is currently not supported in PacketFence");
-            $logger->logdie("SELinux is in enforcing mode. This is currently not supported in PacketFence");
+        if ($enforcing eq 'Enforcing') {
+            $logger->fatal('SELinux is in enforcing mode. This is currently not supported in PacketFence');
+            $logger->logdie('SELinux is in enforcing mode. This is currently not supported in PacketFence');
         }
     }
 }
@@ -76,13 +76,13 @@ my %documentation;
 
 if (defined $ENV{GATEWAY_INTERFACE}){
   require CGI;
-  import CGI qw(-no_debug :standard); 
+  import CGI qw(-no_debug :standard);
   my $q = new CGI;
-  if ($q->param("ARGS")) {
+  if ($q->param('ARGS')) {
    @ARGV = $q->param("ARGS");
    print $q->header;
   } elsif (scalar(@ARGV) == 0) {
-    print "ERROR in parameters";
+    print 'ERROR in parameters';
     return(0);
   }
 }
@@ -90,7 +90,7 @@ if (defined $ENV{GATEWAY_INTERFACE}){
 # legacy mode - allow ./start|./stop|./restart symlinks
 my $called_name = basename($0);
 if ($called_name =~ /^(start|stop|restart)$/i) {
-  @ARGV = ("service", "pf", $called_name);
+  @ARGV = ('service', 'pf', $called_name);
 }
 
 # generate pre-compiled grammar
