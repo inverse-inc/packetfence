@@ -71,9 +71,10 @@ my $msg       = "$conf_dir/templates/listener.msg";
 my $date      = POSIX::strftime("%a, %d %b %Y %T %z", localtime);
 
 # Build message
-open(MSG, '<', $msg) || $logger->logdie("Unable to open message: $!");
-my $message = join('',<MSG>);
-#close(MSG);
+my $msg_fh;
+open($msg_fh, '<', $msg) || $logger->logdie("Unable to open message: $!");
+my $message = join('',<$msg_fh>);
+close($msg_fh);
 
 my $dateline = "Date: $date\n";
 my $from     = "From: PacketFence <do not reply to this email!>\n";
