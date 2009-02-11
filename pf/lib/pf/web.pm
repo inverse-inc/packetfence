@@ -62,11 +62,12 @@ var action = function()
 EOT
   }
   if (-r "$conf_dir/templates/release.pl") {
-    open INCLUDE, '<', "$conf_dir/templates/release.pl";
-    while (<INCLUDE>) {
+    my $include_fh;
+    open $include_fh, '<', "$conf_dir/templates/release.pl";
+    while (<$include_fh>) {
       eval $_;
     }
-    close INCLUDE;
+    close $include_fh;
   }
   my $html_txt;
   my $template=Template->new({
@@ -118,11 +119,12 @@ sub generate_login_page {
   my $cookie = $cgi->cookie(CGISESSID => $session->id );
   print $cgi->header(-cookie => $cookie);
   if (-r "$conf_dir/templates/login.pl") {
-    open INCLUDE, '<', "$conf_dir/templates/login.pl";
-    while (<INCLUDE>) {
+    my $include_fh;
+    open $include_fh, '<', "$conf_dir/templates/login.pl";
+    while (<$include_fh>) {
       eval $_;
     }
-    close INCLUDE;
+    close $include_fh;
   }
   my $template=Template->new({
     INCLUDE_PATH => ["$install_dir/html/user/content/templates"],
@@ -147,11 +149,12 @@ sub generate_enabler_page {
   my $cookie = $cgi->cookie(CGISESSID => $session->id );
   print $cgi->header(-cookie => $cookie);
   if (-r "$conf_dir/templates/enabler.pl") {
-    open INCLUDE, '<', "$conf_dir/templates/enabler.pl";
-    while (<INCLUDE>) {
+    my $include_fh;
+    open $include_fh, '<', "$conf_dir/templates/enabler.pl";
+    while (<$include_fh>) {
       eval $_;
     }
-    close INCLUDE;
+    close $include_fh;
   }
   my $template=Template->new({
     INCLUDE_PATH => ["$install_dir/html/user/content/templates"],
@@ -174,11 +177,12 @@ sub generate_redirect_page {
   my $cookie = $cgi->cookie(CGISESSID => $session->id );
   print $cgi->header(-cookie => $cookie);
   if (-r "$conf_dir/templates/redirect.pl") {
-    open INCLUDE, '<', "$conf_dir/templates/redirect.pl";
-    while (<INCLUDE>) {
+    my $include_fh;
+    open $include_fh, '<', "$conf_dir/templates/redirect.pl";
+    while (<$include_fh>) {
       eval $_;
     }
-    close INCLUDE;
+    close $include_fh;
   }
   my $template=Template->new({
     INCLUDE_PATH => ["$install_dir/html/user/content/templates"],
@@ -216,11 +220,12 @@ sub generate_error_page {
   my $cookie = $cgi->cookie(CGISESSID => $session->id );
   print $cgi->header(-cookie => $cookie);
   if (-r "$conf_dir/templates/error.pl") {
-    open INCLUDE, '<', "$conf_dir/templates/error.pl";
-    while (<INCLUDE>) {
+    my $include_fh;
+    open $include_fh, '<', "$conf_dir/templates/error.pl";
+    while (<$include_fh>) {
       eval $_;
     }
-    close INCLUDE;
+    close $include_fh;
   }
   my $template=Template->new({
     INCLUDE_PATH => ["$install_dir/html/user/content/templates"],
@@ -276,11 +281,12 @@ sub generate_status_page {
   }
 
   if (-r "$conf_dir/templates/status.pl") {
-    open INCLUDE, '<', "$conf_dir/templates/status.pl";
-    while (<INCLUDE>) {
+    my $include_fh;
+    open $include_fh, '<', "$conf_dir/templates/status.pl";
+    while (<$include_fh>) {
       eval $_;
     }
-    close INCLUDE;
+    close $include_fh;
   }
 
   my $cookie = $cgi->cookie(CGISESSID => $session->id );
@@ -404,11 +410,12 @@ sub generate_registration_page {
   }
   
   if (-r "$conf_dir/templates/register.pl") {
-    open INCLUDE, '<', "$conf_dir/templates/register.pl";
-    while (<INCLUDE>) {
+    my $include_fh;
+    open $include_fh, '<', "$conf_dir/templates/register.pl";
+    while (<$include_fh>) {
       eval $_;
     }
-    close INCLUDE;
+    close $include_fh;
   }
   my $template=Template->new({
     INCLUDE_PATH => ["$install_dir/html/user/content/templates"],
