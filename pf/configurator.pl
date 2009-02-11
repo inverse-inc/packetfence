@@ -37,10 +37,10 @@ if (-e "$conf_dir/pf.conf") {
   tie %cfg, 'Config::IniFiles', ( -file => "$conf_dir/pf.conf" ) or die "Unable to open existing configuration: $!";
   if (defined $cfg{'registration'}{'authentication'}){
     $cfg{'registration'}{'auth'}=$cfg{'registration'}{'authentication'};
-    delete $cfg{'registration'}{'authentication'}; 
+    delete $cfg{'registration'}{'authentication'};
   }
   #config_upgrade();
-  write_changes() if (questioner("Would you like to modify the existing configuration","n",("y","n")));
+  write_changes() if (questioner('Would you like to modify the existing configuration','n',('y','n')));
 
 }else{
   tie %default_cfg, 'Config::IniFiles', ( -file => "$conf_dir/pf.conf.defaults" ) or die "Unable to open default configuration file: $!\n";
@@ -50,8 +50,9 @@ if (-e "$conf_dir/pf.conf") {
 }
 
 # template configuration or custom?
-if (questioner("Would you like to use a template configuration or custom","t",("t","c"))){
-  my $type= questioner("Which template would you like:
+if (questioner('Would you like to use a template configuration or custom','t',('t','c'))){
+  my $template_txt = << "END_TEMPLATE_TXT";
+Which template would you like:
                         1) Test mode
                         2) Registration
                         3) Detection
@@ -60,10 +61,11 @@ if (questioner("Would you like to use a template configuration or custom","t",("
                         6) Session-based Authentication
                         7) Registration, Detection and VLAN isolation
                         8) PacketFence ZEN with VLAN isolation
-             Answer: [1|2|3|4|5|6|7|8]: ","",("1","2","3","4","5","6","7","8"));
+END_TEMPLATE_TXT
+  my $type= questioner($template_txt,'',("1","2","3","4","5","6","7","8"));
   load_template($type);
-  print "Loading Template: Warning PacketFence is going LIVE - WEAPONS HOT \n" if ($type ne 1);
-  if ($type ne 1 && $type ne 2 && $type ne 8){
+  print "Loading Template: Warning PacketFence is going LIVE - WEAPONS HOT \n" if ($type ne '1');
+  if ($type ne '1' && $type ne '2' && $type ne '8'){
    print "Enabling host trapping!  Please make sure to review conf/violations.conf and disable any violations that don't fit your environment\n";
    $violation{defaults}{actions}="trap,email,log";
    tied(%violation)->WriteConfig("$conf_dir/violations.conf") || die "Unable to commit settings: $!\n";
@@ -178,7 +180,6 @@ sub gatherer {
   $param =~ /^(.+)\.([^\.]+)$/;
   my $section = $1;
   my $element = $2;
-  my($section, $element) = split(/\./, $param);
   do {
     $default = $cfg{$section}{$element} if (defined($section) && defined($element));
     $default = '<NONE>' if (!$default);
