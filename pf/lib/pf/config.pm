@@ -37,7 +37,7 @@ BEGIN {
 
 $thread=0;
 
-$install_dir = main::INSTALL_DIR;
+$install_dir = '/usr/local/pf';
 $bin_dir = File::Spec->catdir($install_dir, "bin");
 $conf_dir = File::Spec->catdir($install_dir, "conf");
 $lib_dir = File::Spec->catdir($install_dir, "lib");
