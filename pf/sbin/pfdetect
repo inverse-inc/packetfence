@@ -54,14 +54,15 @@ daemonize() if ($daemonize);
 
 $logger->info("initialized");
 
-if (!open(SNORTPIPE, '<', "$snortpipe")) {
+my $snortpipe_fh;
+if (!open($snortpipe_fh, '<', "$snortpipe")) {
   $logger->logdie("unable to open snort pipe: $!");
 } else {
   $logger->info("listening on $snortpipe");
   print "pfdetect: listening on $snortpipe\n" if ($verbose);
 }
 
-while (<SNORTPIPE>) {
+while (<$snortpipe_fh>) {
 
   $logger->info("alert received: $_");
   if ($_ =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+(.+?)\s+.+?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}\s+\-\>\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}/) {
@@ -106,7 +107,7 @@ while (<SNORTPIPE>) {
 END {
   deletepid();
   $logger->info("stopping pfdetect");
-  #close(SNORTPIPE);
+  close($snortpipe_fh);
 }
 
 exit(0);
