@@ -43,6 +43,7 @@ sub report_db_prepare {
   $report_openviolations_all_sql=$dbh->prepare( qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as violation from violation v LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.vid=v.vid WHERE v.status="open" order by n.pid ]);
   $report_openviolations_active_sql=$dbh->prepare( qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as violation from (violation v, iplog i) LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.vid=v.vid WHERE v.status="open" and n.mac=i.mac and (i.end_time=0 or i.end_time > now()) order by n.pid ]);
   $is_report_db_prepared = 1;
+  return 1;
 }
 
 sub report_os_all {

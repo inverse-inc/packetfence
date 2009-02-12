@@ -40,6 +40,7 @@ sub graph_db_prepare {
 # graph_nodes_current
 # graph_violations_current
   $graph_db_prepared = 1;
+  return 1;
 }
 
 sub graph_unregistered {

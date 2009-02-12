@@ -230,6 +230,7 @@ sub traplog_get_switches_with_most_traps {
     }
     return db_data($traplog_switches_with_most_traps_date_sql,$startTime,$nb);
   }
+  return;
 }
 
 sub fill_RRDs {
@@ -303,6 +304,7 @@ sub generate_graphs {
       }
     }
   }
+  return 1;
 }
 
 1;

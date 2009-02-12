@@ -19,6 +19,7 @@ sub add_entry {
      time => $time,
      args => $args
     };
+   return 1;
 }
 
 sub list_entries {
@@ -80,6 +81,7 @@ sub load_cron {
         $self->add_entry($date,$rest);
      }
   }
+  return 1;
 }
 
 # load cron from $filename
@@ -93,6 +95,7 @@ sub write_cron {
     $ref->{args}=~s/;/\\;/g;   
     print {$file_fh} "$ref->{time}\t$ref->{args}\n";
   }
+  return 1;
 }
 
 # return all entries in table

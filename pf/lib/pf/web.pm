@@ -311,6 +311,7 @@ sub web_node_register {
     $logger->info("calling $bin_dir/pfcmd 'manage register $mac \"$pid\" $info'");
     my $cmd = $bin_dir."/pfcmd 'manage register $mac \"$pid\" $info'";
     my $output = qx/$cmd/;
+    return 1;
 }
 
 sub web_user_authenticate {

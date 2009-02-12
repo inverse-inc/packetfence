@@ -63,6 +63,7 @@ sub violation_db_prepare {
   $violation_count_trap_sql=$dbh->prepare( qq [ select count(*) from violation, action where violation.vid=action.vid and action.action='trap' and mac=? and status="open" ]);
   $violation_count_vid_sql=$dbh->prepare( qq [ select count(*) from violation where mac=? and vid=? ]);
   $violation_db_prepared = 1;
+  return 1;
 }
 
 #
@@ -284,6 +285,7 @@ sub violation_trigger {
     #violation_add($mac,$row->{'vid'},%data);
     `/usr/local/pf/bin/pfcmd violation add vid=$vid,mac=$mac`;
   }
+  return 1;
 }
 
 sub violation_delete {

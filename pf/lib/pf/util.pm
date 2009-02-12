@@ -265,6 +265,7 @@ sub pfmailer {
   }else{
     $logger->error("can not connect to SMTP server $smtpserver!");
   }
+  return 1;
 }
 
 sub isenabled {
@@ -394,6 +395,7 @@ sub get_internal_info {
   foreach my $interface (@internal_nets) {
     return($interface) if ($interface->tag("int") eq $device);
   }
+  return;
 }
 
 sub get_gateways {
@@ -493,6 +495,7 @@ sub parse_template {
   } else {
     return(@parsed);
   }
+  return 1;
 }
 
 sub mysql_date {

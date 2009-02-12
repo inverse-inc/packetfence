@@ -32,6 +32,7 @@ sub dashboard_db_prepare {
   $nugget_recent_registrations_sql = $dbh->prepare( qq [ select n.pid,n.mac,n.regdate from node n where n.status="reg" and unix_timestamp(regdate) > unix_timestamp(now()) - ? * 3600 order by regdate desc limit 10 ]);
   $nugget_current_grace_sql = $dbh->prepare( qq [ select n.pid,n.lastskip from node n where status="grace" order by n.lastskip desc limit 10 ]);
   $is_dashboard_db_prepared = 1;
+  return 1;
 }
 
 sub nugget_recent_violations {

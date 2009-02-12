@@ -50,6 +50,7 @@ sub trigger_db_prepare {
   $trigger_delete_vid_sql=$dbh->prepare( qq [ delete from `trigger` where vid=? ]);
   $trigger_delete_all_sql=$dbh->prepare( qq [ delete from `trigger` ]);
   $trigger_db_prepared = 1;
+  return 1;
 }
 
 sub trigger_desc {
@@ -216,6 +217,7 @@ sub trigger_scan_add {
   }else {
     $logger->warn("NOT ADDING Trigger - $tid for $srcmac (".$info->Host.") please add $tid to scan.live_tids if you would like this done");
   }
+  return 1;
 }
 
 
@@ -233,6 +235,7 @@ sub trigger_in_range {
       return(0);
     }            
   }
+  return;
 }
 
 1;

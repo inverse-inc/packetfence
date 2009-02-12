@@ -70,7 +70,7 @@ violationconfig         | query/modify violations.conf configuration parameters
 
 Please view "$command help <command>" for details on each option
 EOF
-  exit;
+  return 1;
 }
 
 sub help_manage {
@@ -85,7 +85,7 @@ manage nodes
   vclose           | close violation for node
   vopen            | open new violation for node
 EOT
-  exit;
+  return 1;
 }
 
 sub help_service {
@@ -106,7 +106,7 @@ watch acts as a service watcher which can send email/restart the services
   snmptrapd        | SNMP trap receiver daemon
   snort            | if stopped or restarted, pfredirect must also be restarted
 EOT
-  exit;
+  return 1;
 }
 
 sub help_nodecategory {
@@ -119,7 +119,7 @@ examples:
   pfcmd nodecategory view all
   pfcmd nodecategory view myCategory
 EOT
-  exit;
+  return 1;
 }
 
 sub help_configfiles {
@@ -132,7 +132,7 @@ examples:
   pfcmd configfiles push
   pfcmd configfiles pull
 EOT
-  exit;
+  return 1;
 }
 
 sub help_node {
@@ -149,7 +149,7 @@ examples:
   pfcmd node add 00:01:02:03:04:05 status="reg",pid=1
   pfcmd node delete 00:01:02:03:04:05 
 EOT
-  exit;
+  return 1;
 }
 
 sub help_person {
@@ -163,7 +163,7 @@ examples:
   pfcmd person add bjenkins notes="Bob Jenkins"
   pfcmd person delete bjenkins
 EOT
-  exit;
+  return 1;
 }
 
 sub help_violation {
@@ -179,7 +179,7 @@ examples:
   pfcmd violation add vid=1200003,mac=00:01:02:03:04:05
   pfcmd violation delete 4
 EOT
-  exit;
+  return 1;
 }
 
 sub help_schedule {
@@ -196,6 +196,7 @@ examples:
   pfcmd schedule add 128.11.23.2/24 tid=11808;11835;11890;12209,date="0 3 * * *"
   pfcmd schedule delete 2
 EOT
+  return 1;
 }
 
 sub help_locationhistoryswitch {
@@ -208,6 +209,7 @@ examples:
   pfcmd locationhistoryswitch 192.168.0.1 10
   pfcmd locationhistoryswitch 192.168.0.1 6 2006-10-12 15:00:00
 EOT
+  return 1;
 }
 
 sub help_locationhistorymac {
@@ -220,6 +222,7 @@ examples:
   pfcmd locationhistorymac 00:11:22:33:44:55
   pfcmd locationhistorymac 00:11:22:33:44:55 2006-10-12 15:00:00
 EOT
+  return 1;
 }
 
 sub help_ifoctetshistoryswitch {
@@ -232,6 +235,7 @@ examples:
   pfcmd ifoctetshistoryswitch 192.168.0.1 10
   pfcmd ifoctetshistoryswitch 192.168.0.1 10 start_time=2007-10-12 10:00:00,end_time=2007-10-13 10:00:00
 EOT
+  return 1;
 }
 
 sub help_ifoctetshistorymac {
@@ -245,6 +249,7 @@ examples:
   pfcmd ifoctetshistorymac 00:11:22:33:44:55 start_time=2007-10-12 10:00:00,end_time=2007-10-13 10:00:00
 
 EOT
+  return 1;
 }
 
 sub help_ifoctetshistoryuser {
@@ -258,6 +263,7 @@ examples:
   pfcmd ifoctetshistoryuser testUser start_time=2007-10-12 10:00:00,end_time=2007-10-13 10:00:00
 
 EOT
+  return 1;
 }
 
 sub help_ipmachistory {
@@ -270,6 +276,7 @@ examples:
   pfcmd ipmachistory 192.168.1.100
   pfcmd ipmachistory 192.168.1.100 start_time=2006-10-12 15:00:00,end_time=2006-10-18 12:00:00
 EOT
+  return 1;
 }
 
 sub help_history {
@@ -282,6 +289,7 @@ examples:
   pfcmd history 192.168.1.100
   pfcmd history 192.168.1.100 2006-10-12 15:00:00
 EOT
+  return 1;
 }
 
 sub help_report {
@@ -300,6 +308,7 @@ unknownprints  | show DHCP fingerprints without a known OS mapping
 openviolations | show all open violations
 statics        | show probable static IPs
 EOT
+  return 1;
 }
 
 sub help_graph {
@@ -320,6 +329,7 @@ ifoctetshistoryswitch | history of traffic usage for a given switchport
 ifoctetshistorymac    | history of traffic usage for a given MAC
 ifoctetshistoryuser   | history of traffic usage for a given user
 EOT
+  return 1;
 }
 
 sub help_config {
@@ -333,6 +343,7 @@ examples:
   pfcmd config set general.hostname=new_hostname
   pfcmd config help general.hostname
 EOT
+  return 1;
 }
 
 sub help_ui {
@@ -352,6 +363,7 @@ current_grace            | show nodes (up to 10) currently in "grace"
 current_activity         | show active vs inactive nodes
 current_node_status      | show registered vs unregistered active nodes
 EOT
+  return 1;
 }
 
 sub help_class {
@@ -360,6 +372,7 @@ Usage: pfcmd class view <vid>
 
 view violation classification - to edit, use violations.conf and "pfcmd reload violations"
 EOT
+  return 1;
 }
 
 sub help_trigger {
@@ -373,6 +386,7 @@ examples:
 	pfcmd trigger view 12
 	pfcmd trigger view all scan
 EOT
+  return 1;
 }
 
 sub help_update {
@@ -384,6 +398,7 @@ download canonical fingerprint or OUI data
 fingerprints | update dhcp_fingerprints.conf from packetfence.org
 oui          | update OUI prefixes from IEEE
 EOT
+  return 1;
 }
 
 sub help_reload {
@@ -392,6 +407,7 @@ Usage: pfcmd reload <fingerprints|violations>
 
 reload fingerprints or violations database tables without restart
 EOT
+  return 1;
 }
 
 sub help_version {
@@ -400,6 +416,7 @@ Usage: pfcmd version
 
 get installed PF version and database MD5s
 EOT
+  return 1;
 }
 
 sub help_fingerprint {
@@ -412,6 +429,7 @@ examples:
   pfcmd fingerprint view all
   pfcmd fingerprint view 1,6,15,44,3,33
 EOT
+  return 1;
 }
 
 sub help_switchlocation {
@@ -423,6 +441,7 @@ show switchlocation information stored in database
 examples:
   pfcmd switchlocation view 192.168.70.1 3
 EOT
+  return 1;
 }
 
 sub help_lookup {
@@ -431,6 +450,7 @@ Usage: pfcmd lookup <person|node> value
 
 call bin/lookup_person.pl or bin/lookup_node.pl with the passed value
 EOT
+  return 1;
 }
 
 sub help_violationconfig {
@@ -442,6 +462,7 @@ Usage: pfcmd violationconfig get <all|defaults|vid>
 
 query/modify violations.conf configuration file
 EOT
+  return 1;
 }
 
 sub help_networkconfig {
@@ -453,6 +474,7 @@ Usage: pfcmd networkconfig get <all|network>
 
 query/modify networks.conf configuration file
 EOT
+  return 1;
 }
 
 sub help_interfaceconfig {
@@ -464,6 +486,7 @@ Usage: pfcmd interfaceconfig get <all|interface>
 
 query/modify pf.conf configuration file
 EOT
+  return 1;
 }
 
 sub help_switchconfig {
@@ -475,6 +498,7 @@ Usage: pfcmd switchconfig get <all|default|IP>
 
 query/modify switches.conf configuration file
 EOT
+  return 1;
 }
 
 sub help_traplog {
@@ -488,6 +512,7 @@ update traplog RRD files and graphs - this command should not be
   example
   */5 * * * * /usr/local/pf/bin/pfcmd traplog update
 EOT
+  return 1;
 }
 
 1;

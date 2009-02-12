@@ -143,6 +143,7 @@ sub daemonize {
   }
   open STDERR, '>&STDOUT' or die "Can't dup stdout: $!";
   createpid();
+  return 1;
 }
 
 sub normal_sighandler {

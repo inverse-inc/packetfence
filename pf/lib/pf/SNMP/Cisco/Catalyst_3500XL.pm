@@ -114,7 +114,7 @@ sub clearMacAddressTable {
     };
     if ($@) {
         $logger->error("ERROR: Can not connect to switch $this->{'_ip'} using " . $this->{_cliTransport});
-        return;
+        return 0;
     }
 
     # First we fetch ifDescr(ifIndex)
@@ -138,6 +138,7 @@ sub clearMacAddressTable {
         return;
     }
     $session->close();
+    return 1;
 }
 
 sub getMaxMacAddresses {
