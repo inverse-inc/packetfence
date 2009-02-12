@@ -190,7 +190,7 @@ sub new {
 =cut 
 sub isUpLink {
     my ($this, $ifIndex) = @_;
-    return ((defined($this->{_uplink})) && (grep({ /^$ifIndex$/ } @{$this->{_uplink}}) == 1));
+    return ((defined($this->{_uplink})) && (grep({ $_ == $ifIndex } @{$this->{_uplink}}) == 1));
 }
 
 =item connectRead - establish read connection to switch
@@ -380,7 +380,7 @@ sub setVlan {
     locationlog_synchronize($this->{_ip}, $ifIndex, $vlan, $presentPCMac);
 
     #handle some exceptions
-    if (grep({ /^$newVlan$/ } @{$this->{_vlans}}) == 0) { #unmanaged VLAN ?
+    if (grep({ $_ == $newVlan } @{$this->{_vlans}}) == 0) { #unmanaged VLAN ?
         $logger->warn("new VLAN $newVlan is not a managed VLAN -> replacing VLAN $newVlan with MAC detection VLAN " . $this->{_macDetectionVlan});
         $newVlan = $this->{_macDetectionVlan};
     }
@@ -398,7 +398,7 @@ sub setVlan {
         }
     }
 
-    if (grep({ /^$vlan$/ } @{$this->{_vlans}}) == 0) { #unmanaged VLAN ?
+    if (grep({ $_ == $vlan } @{$this->{_vlans}}) == 0) { #unmanaged VLAN ?
         $logger->warn("old VLAN $vlan is not a managed VLAN -> Do nothing");
         return 1;
     }
@@ -590,7 +590,7 @@ sub getManagedIfIndexes {
         # skip non ethernetCsmacd port type
         if ($ifTypeHashRef->{$ifIndex} == 6 ) {
             # skip UpLinks
-            if ( grep({ /^$ifIndex$/ } @UpLinks) == 0 ) {
+            if ( grep({ $_ == $ifIndex } @UpLinks) == 0 ) {
                 my $ifOperStatus = $ifOperStatusHashRef->{$ifIndex};
                 # skip ports with ifOperStatus not present
                 if ( (defined $ifOperStatus) && ($ifOperStatusHashRef->{$ifIndex} != 6)) {
@@ -611,7 +611,7 @@ sub getManagedIfIndexes {
         my $portVlan = $vlanHashRef->{$ifIndex};
         if (defined $portVlan) { # skip port with no VLAN
 
-            if ( grep( { /^$portVlan$/ } @{$this->{_vlans}}) != 0 ) { # skip port in a non-managed VLAN
+            if ( grep( { $_ == $portVlan } @{$this->{_vlans}}) != 0 ) { # skip port in a non-managed VLAN
                 push @managedIfIndexes, $ifIndex;
             } else {
                 $logger->debug("ifIndex $ifIndex excluded from managed ifIndexes since it's not in a managed VLAN");
@@ -930,7 +930,7 @@ sub isPhoneAtIfIndex {
     }
     $logger->trace("determining if $mac is VoIP phone through discovery protocols");
     my @phones = $this->getPhonesDPAtIfIndex($ifIndex);
-    return (grep({ /^mac$/i } @phones) != 0);
+    return (grep({ lc($_) eq lc($mac) } @phones) != 0);
 }
 
 sub getMinOSVersion {
@@ -1101,7 +1101,7 @@ sub getAllDot1dBasePorts {
     my $dot1dBasePort = undef;
     foreach my $key (keys %{$result}) {
         my $ifIndex = $result->{$key};
-        if (grep({ /^$ifIndex$/ } @ifIndexes) > 0) {
+        if (grep({ $_ == $ifIndex } @ifIndexes) > 0) {
             $key =~ /^$OID_dot1dBasePortIfIndex\.(\d+)$/;
             $dot1dBasePort = $1;
             $logger->debug("dot1dBasePort corresponding to ifIndex $ifIndex is $dot1dBasePort");
@@ -1343,10 +1343,10 @@ sub getHubs {
             # been learned but that the device does have some
             # forwarding/filtering information about this address
             # (e.g. in the dot1qStaticUnicastTable).
-            if (grep({ /^$ifIndex$/ } @upLinks) == 0) {
+            if (grep({ $_ == $ifIndex } @upLinks) == 0) {
                 # the port is not a upLink
                 my $portVlan = $this->getVlan($ifIndex);
-                if ( grep({ /^$portVlan$/ } @{$this->{_vlans}}) != 0 ) {
+                if ( grep({ $_ == $portVlan } @{$this->{_vlans}}) != 0 ) {
                     # the port is in a VLAN we manage
                     push @{$hubPorts->{$ifIndex}}, $mac;
                 }
@@ -1408,9 +1408,9 @@ sub getMacAddrVlan {
 
     if (defined($result)) {
         foreach my $key (keys %{$result}) {
-            if (grep({ /^$result->{$key}$/ } @upLinks) == 0) {
+            if (grep({ $_ == $result->{$key} } @upLinks) == 0) {
                 my $portVlan = $this->getVlan($result->{$key});
-                if ( grep({ /^$portVlan$/ } @{$this->{_vlans}}) != 0 ) {  # the port is in a VLAN we manage
+                if ( grep({ $_ == $portVlan } @{$this->{_vlans}}) != 0 ) {  # the port is in a VLAN we manage
                     push @{ $ifIndexMac{$result->{$key}} } ,$key;
                 }
             }
@@ -1457,7 +1457,7 @@ sub getAllMacs {
     if ($this->isVoIPEnabled()) {
         if (defined($this->{_voiceVlan})) {
             my $voiceVlan = $this->{_voiceVlan};
-            if (grep({ /^$voiceVlan$/ } @vlansToConsider) == 0) {
+            if (grep({ $_ == $voiceVlan } @vlansToConsider) == 0) {
                 push @vlansToConsider, $voiceVlan;
             }
         }
@@ -1465,10 +1465,10 @@ sub getAllMacs {
     if (defined($result)) {
         foreach my $key (keys %{$result}) {
             my $ifIndex = $result->{$key};
-            if (grep({ /^$ifIndex$/ } @ifIndexes) > 0) {
+            if (grep({ $_ == $ifIndex } @ifIndexes) > 0) {
                 $key =~ /^$OID_dot1qTpFdbPort\.(\d+)\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
                 my $vlan = $1;
-                if (grep({ /^$vlan$/ } @vlansToConsider) > 0) {     
+                if (grep({ $_ == $vlan } @vlansToConsider) > 0) {     
                     my $mac = sprintf("%02X:%02X:%02X:%02X:%02X:%02X", $2, $3, $4, $5, $6, $7);
                     push @{$ifIndexVlanMacHashRef->{$ifIndex}->{$vlan}}, $mac;
                 }
@@ -1500,7 +1500,7 @@ sub getAllIfOctets {
     foreach my $key (sort keys %$result) {
         if ($key =~ /^$oid_ifInOctets\.(\d+)$/) {
             my $ifIndex = $1;
-            if (grep({ /^$ifIndex$/ } @ifIndexes) > 0) {
+            if (grep({ $_ == $ifIndex } @ifIndexes) > 0) {
                 $ifOctetsHashRef->{$ifIndex}->{'in'} = $result->{$key};
             }
         } else {
@@ -1514,7 +1514,7 @@ sub getAllIfOctets {
     foreach my $key (sort keys %$result) {
         if ($key =~ /^$oid_ifOutOctets\.(\d+)$/) {
             my $ifIndex = $1;
-            if (grep({ /^$ifIndex$/ } @ifIndexes) > 0) {
+            if (grep({ $_ == $ifIndex } @ifIndexes) > 0) {
                 $ifOctetsHashRef->{$ifIndex}->{'out'} = $result->{$key};
             }
         } else {

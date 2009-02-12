@@ -222,7 +222,7 @@ sub listen_dhcp {
 
       # ignore DHCPOFFER from gateways
       # avoid rogue DHCP false positives
-      if (grep({ /^$src$/ } get_gateways()) || grep({ /^$src$/ } split(/\s*,\s*/, $Config{'general'}{'dhcpservers'}))) {
+      if (grep({ $_ eq $src } get_gateways()) || grep({ $_ eq $src } split(/\s*,\s*/, $Config{'general'}{'dhcpservers'}))) {
         $logger->debug("$src ($smac) appears to be a DHCP server or relay, adding $chaddr ($yiaddr) to hash");
         #update_iplog($chaddr,$yiaddr);
         return;

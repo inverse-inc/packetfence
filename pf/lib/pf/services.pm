@@ -616,7 +616,7 @@ sub switches_conf_is_valid {
       # check mode
       my @valid_switch_modes = ('testing', 'ignore', 'production', 'registration', 'discovery');
       my $mode = $switches_conf{$section}{'mode'} || $switches_conf{'default'}{'mode'};
-      if (! grep({ /^$mode$/i } @valid_switch_modes)) {
+      if (! grep({ lc($_) eq lc($mode) } @valid_switch_modes)) {
         $logger->error("switch mode ($mode) is invalid for $section");
         return 0;
       }
@@ -640,7 +640,7 @@ sub read_violations_conf {
         foreach my $trigger (split(/\s*,\s*/,$violations{$violation}{'trigger'})){
             my ($type,$tid)=split(/::/,$trigger);
             $type=lc($type);
-            if (!grep({ /^$type$/i } @valid_trigger_types)) {
+            if (!grep({ lc($_) eq lc($type) } @valid_trigger_types)) {
                $logger->warn("invalid trigger '$type' found at $violation");
                next;
             } 

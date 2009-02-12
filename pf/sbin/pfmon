@@ -258,7 +258,7 @@ sub listen_arp {
     if (valid_ip($srcip) && valid_ip($gip) && ($srcip eq $gip)) {
       if ($destmac =~ /ff:ff:ff:ff:ff:ff/i || $destmac =~ /00:00:00:00:00:00/i) {
         $logger->info("broadcast arp request from router for $destip - re-trapping all nodes");
-	  }elsif (!grep({ /^$monitor_int$/ } @listen_ints)){
+	  }elsif (!grep({ $_ eq $monitor_int } @listen_ints)){
         $logger->info("flooded arp request from router for $destmac ($destip) - re-trapping all nodes");
       } else {
         $logger->debug("arp request from router for $destmac ($destip)");

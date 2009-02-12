@@ -120,7 +120,7 @@ sub get_unused_ips {
   my @used_ips = $self->get_used_ips();
   my @unused_ips;
   foreach my $ip (get_all_internal_ips()) {
-    push(@unused_ips, $ip) if (scalar(grep({ /^$ip$/ } @used_ips)) == 0);
+    push(@unused_ips, $ip) if (scalar(grep({ $_ eq $ip } @used_ips)) == 0);
   }
   return @unused_ips;
 }
@@ -168,7 +168,7 @@ sub set_ip {
 
 sub add_ip {
   my ($self,$mac,$ip,$lease_length)= @_;
-  return (1) if (grep({ /^$ip$/ } @{$self->{macip}->{$mac}})); 
+  return (1) if (grep({ $_ eq $ip } @{$self->{macip}->{$mac}})); 
   if (defined $self->{macip}->{$mac}){
     push @{$self->{macip}->{$mac}},$ip;
   }else{

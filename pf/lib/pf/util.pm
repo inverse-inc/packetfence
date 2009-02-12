@@ -111,7 +111,7 @@ sub trappable_mac {
   return(0) if (!$mac);
   $mac = clean_mac($mac);
   #if (!valid_mac($mac) || whitelisted_mac($mac) || $mac eq getlocalmac(ip2device(mac2ip($mac))) || $mac eq $blackholemac) {
-  if (!valid_mac($mac) || whitelisted_mac($mac) || grep({ /^$mac$/ } get_internal_macs()) || $mac eq $blackholemac ) {
+  if (!valid_mac($mac) || whitelisted_mac($mac) || grep({ $_ eq $mac } get_internal_macs()) || $mac eq $blackholemac ) {
     $logger->info("$mac is not trappable, skipping");
     return(0);
   } else {
@@ -139,11 +139,11 @@ sub inrange_ip {
   my ($ip,$network_range) = @_;
   my $logger = Log::Log4perl::get_logger('pf::util');
 
-  if (grep({ /^$ip$/ } get_gateways())) {
+  if (grep({ $_ eq $ip } get_gateways())) {
     $logger->info("$ip is a gateway, skipping");
     return(0);
   }
-  if (grep({ /^$ip$/ } get_internal_ips())) {
+  if (grep({ $_ eq $ip } get_internal_ips())) {
     $logger->info("$ip is a local int, skipping");
     return(0);
   }
