@@ -503,11 +503,6 @@ adjustswitchportvlanreasons=node_modify,manage_register,manage_deregister,manage
 #
 # Which script do we have to execute to adjust the switchport VLAN
 adjustswitchportvlanscript=flip.pl
-# 
-# vlan.bind
-#
-# Should bind be started ?
-bind=disabled
 #
 # vlan.closelocationlogonstop
 #
