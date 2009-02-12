@@ -6,6 +6,9 @@
   <link rel="stylesheet" href="../style.css" type="text/css">
 </head>
 
+<body class="popup">
+
+<div id="content">
 <?
 if(!isset($_GET['option']))
   die("No option selected");
@@ -19,10 +22,9 @@ $title=array_shift($lines);
 $default=array_shift($lines);
 $message=implode(" ", $lines);
 
-
-print "<div class=\"help_heading\" align=\"center\"><font size=5>$title</font></div>";
-print "<div class=\"help_content\"><font size=3>$default<br><Br></font></div>";
-print "<div class=\"help_content\"><font size=3>$message</font></div>";
+print "<h1>$title</h1>\n";
+print "<p>$default</p>\n";
+print "<p>$message</p>\n";
 
 
 ?>

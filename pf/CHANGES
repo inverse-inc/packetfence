@@ -66,6 +66,8 @@
           (http://www.packetfence.org/mantis/view.php?id=583)
         removed legacy vlan.bind
           (http://www.packetfence.org/mantis/view.php?id=585)
+        fixed help info in web admin GUI
+          (http://www.packetfence.org/mantis/view.php?id=584)
 
 1.8.0
         unify log management
