@@ -61,6 +61,7 @@ sub deauthenticateMac {
     $logger->info("Deauthenticating mac $mac");
     $session->cmd("clear dot11 client $mac");
     $session->close();
+    return 1;
 }
 
 sub isLearntTrapsEnabled {

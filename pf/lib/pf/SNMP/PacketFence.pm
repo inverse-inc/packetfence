@@ -66,6 +66,7 @@ sub sendLocalReAssignVlanTrap {
     if (! $result) {
         $logger->error("error sending SNMP trap: " . $this->{_sessionWrite}->error());
     }
+    return 1;
 }
 
 sub sendLocalDesAssociateTrap {
@@ -85,6 +86,7 @@ sub sendLocalDesAssociateTrap {
     if (! $result) {
         $logger->error("error sending SNMP trap: " . $this->{_sessionWrite}->error());
     }
+    return 1;
 }
 
 1;

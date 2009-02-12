@@ -161,6 +161,7 @@ sub authorizeMAC {
             -varbindlist => \@oid_value
         );
     }
+    return 1;
 }
 
 sub getAllSecureMacAddresses {

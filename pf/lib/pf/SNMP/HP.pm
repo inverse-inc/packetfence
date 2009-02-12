@@ -235,6 +235,7 @@ sub authorizeMAC {
     if (($authMac) && (! $this->isFakeMac($authMac))) {
         $this->_authorizeMAC($ifIndex, $authMac, 1);
     }
+    return 1;
 }
 
 #called with $authorized set to true, creates a new line to authorize the MAC
