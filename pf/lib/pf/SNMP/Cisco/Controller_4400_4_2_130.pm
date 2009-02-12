@@ -89,6 +89,7 @@ sub blacklistMac {
         $session->cmd("config exclusionlist description $mac \"$description\"");
         $session->close();
     }
+    return 1;
 }
 
 sub isLearntTrapsEnabled {

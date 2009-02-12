@@ -62,6 +62,8 @@ sub deauthenticateMac {
     #}
     $session->cmd("client deauthenticate $mac");
     $session->close();
+
+    return 1;
 }
 
 sub isLearntTrapsEnabled {
