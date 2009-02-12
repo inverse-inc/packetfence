@@ -65,4 +65,4 @@ sub nodecategory_view {
     return @catArray;
 }
 
-1
+1;

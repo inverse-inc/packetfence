@@ -237,4 +237,4 @@ sub report_unknownprints_active {
   return(@data);
 }
 
-1
+1;

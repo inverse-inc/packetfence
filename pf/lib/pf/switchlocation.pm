@@ -99,4 +99,4 @@ sub switchlocation_update_end {
 }
 
 
-1
+1;

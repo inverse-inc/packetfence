@@ -298,5 +298,4 @@ sub locationlog_cleanup {
   return(0);
 }
 
-1
-
+1;

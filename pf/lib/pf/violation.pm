@@ -335,4 +335,4 @@ sub violation_force_close {
   return(1);
 } 
 
-1
+1;

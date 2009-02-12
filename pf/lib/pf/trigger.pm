@@ -235,4 +235,4 @@ sub trigger_in_range {
   }
 }
 
-1
+1;

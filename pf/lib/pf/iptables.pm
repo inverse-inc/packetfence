@@ -410,4 +410,4 @@ sub iptables_restore_noflush {
     `/sbin/iptables-restore -n < $restore_file`;
   }
 }
-1
+1;

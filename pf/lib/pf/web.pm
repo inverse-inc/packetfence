@@ -424,4 +424,4 @@ sub generate_registration_page {
   exit;
 }
 
-1
+1;

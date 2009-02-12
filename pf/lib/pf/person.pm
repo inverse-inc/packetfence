@@ -150,4 +150,4 @@ sub person_nodes {
   return db_data($person_nodes_sql,$pid);
 }
 
-1
+1;

@@ -219,4 +219,4 @@ sub normalize_time {
   }
 }
 
-1
+1;

@@ -490,4 +490,4 @@ update traplog RRD files and graphs - this command should not be
 EOT
 }
 
-1
+1;

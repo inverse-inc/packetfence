@@ -99,4 +99,4 @@ sub read_dhcp_fingerprints_conf {
   return($fp_total);
 }
 
-1
+1;

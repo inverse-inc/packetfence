@@ -160,4 +160,4 @@ sub class_merge {
   }
 }
 
-1
+1;

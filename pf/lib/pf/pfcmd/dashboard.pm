@@ -77,4 +77,4 @@ sub nugget_current_node_status {
   return(@return);
 }
 
-1
+1;

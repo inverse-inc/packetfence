@@ -305,5 +305,4 @@ sub generate_graphs {
   }
 }
 
-1
-
+1;

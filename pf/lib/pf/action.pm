@@ -226,4 +226,4 @@ sub action_winpopup {
   }
 
 }
-1
+1;

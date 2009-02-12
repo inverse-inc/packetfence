@@ -139,4 +139,4 @@ sub update_index {
     return $self->update_entry($idx,$entry);
 } 
 
-1 
+1; 

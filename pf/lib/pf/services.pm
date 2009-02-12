@@ -692,4 +692,4 @@ sub normalize_dhcpd_range {
   }   
 }
 
-1
+1;

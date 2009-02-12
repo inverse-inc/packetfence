@@ -277,4 +277,4 @@ sub getFirstAndLastPosInRange {
   return @firstAndLastPos;
 }
 
-1
+1;

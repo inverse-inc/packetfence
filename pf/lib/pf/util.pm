@@ -607,4 +607,4 @@ sub preload_is_internal {
   return(%is_internal);
 }
 
-1
+1;

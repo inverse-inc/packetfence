@@ -304,4 +304,4 @@ sub mac2allips {
   }
   return @all_ips;
 }
-1
+1;
