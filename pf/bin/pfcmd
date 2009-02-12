@@ -170,8 +170,7 @@ if ((scalar(@arguments) == 1) && ($arguments[0] eq 'version')) {
   $cmd{'command'}[0] = $arguments[0];
   $cmd{'command'}[1] = $arguments[1];
   $cmd{'command'}[2] = $arguments[2];
-  service();
-  exit(1);
+  exit service();
 } elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'interfaceconfig') && ($arguments[1] =~ /^(get|delete)$/) && ($arguments[2] =~ /^(all|[^ ]+)$/)) {
   $command = $arguments[0];
   $cmd{'command'}[0] = $arguments[0];
@@ -869,14 +868,18 @@ sub service {
     } else {
       push(@services, $service);
     }
+    my @incorrectly_stopped_services = ();
     my @services_which_should_be_started = service_list(@services);
     print "service|shouldBeStarted|pid\n";
     foreach my $tmp (@services){
       my $should_be_started = ((grep({ $_ eq $tmp } @services_which_should_be_started) > 0) ? 1 : 0);
       my $pid = service_ctl($tmp, 'status');
+      if (($should_be_started) && (! $pid)) {
+        push @incorrectly_stopped_services, $tmp;
+      }
       print "$tmp|$should_be_started|$pid\n";
     }
-    return;
+    return ((scalar(@incorrectly_stopped_services) > 0) ? 3 : 0);
   }
 
   if ($command =~ /^watch$/i) {
@@ -933,12 +936,14 @@ sub service {
     @services = service_list(@all_services);
   }
 
+  my @alreadyRunningServices = ();
   if ($command =~ /^start$/i) {
     sanity_check(@services);
     my $nb_running_services = 0;
     foreach my $tmp (@all_services){
       if (service_ctl($tmp, "status")) {
         $nb_running_services++;
+        push @alreadyRunningServices, $tmp;
       }
     }
     if ($nb_running_services == 0) {
@@ -964,8 +969,12 @@ sub service {
   }
 
   foreach my $srv (@services){
-    service_ctl($srv, $command);
-    print "$srv|$command\n";
+    if (($command eq 'start') && (grep({ $_ eq $srv} @alreadyRunningServices) == 1)) {
+      print "$srv|already running\n";
+    } else {
+      service_ctl($srv, $command);
+      print "$srv|$command\n";
+    }
   }
 
   if ($command =~ /^stop$/i) {
@@ -986,6 +995,7 @@ sub service {
       }
     }
   }
+  return 0;
 }
 
 sub class {
@@ -1903,14 +1913,14 @@ sub sanity_check {
   print "Checking configuration sanity...\n";
 
   # make sure the services we start are not already running
-  foreach my $service (@_) {
-    if ($service =~ /^(named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan)$/) {
-      $service = $1;
-      $logger->logdie("$service is already running!") if (`pidof -s -x $service` =~ /^\d/);
-    } else {
-      $logger->logdie("unknown service $service!");
-    }
-  }
+  #foreach my $service (@_) {
+  #  if ($service =~ /^(named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan)$/) {
+  #    $service = $1;
+  #    $logger->logdie("$service is already running!") if (`pidof -s -x $service` =~ /^\d/);
+  #  } else {
+  #    $logger->logdie("unknown service $service!");
+  #  }
+  #}
 
   #check the config file to make sure interfaces are fully defined 
   foreach my $interface (tied(%Config)->GroupMembers("interface")) {
