@@ -212,6 +212,7 @@ sub create_missing_RRDs {
       );
     }
   }
+  return 1;
 }
 
 sub traplog_get_switches_with_most_traps {
