@@ -82,8 +82,11 @@ sub read_dhcp_fingerprints_conf {
           $dhcp_fingerprint_add_sql->execute($dhcp_fingerprint, $os_id);
         }
       } else {
-        $fp_total++;
-        $dhcp_fingerprint_add_sql->execute($dhcp_fingerprints{$os}{"fingerprints"}, $os_id);
+        foreach my $dhcp_fingerprint (split(/\n/, $dhcp_fingerprints{$os}{"finge
+rprints"})) {
+          $fp_total++;
+          $dhcp_fingerprint_add_sql->execute($dhcp_fingerprint, $os_id);
+        }
       }
     }
     foreach my $class (tied(%dhcp_fingerprints)->GroupMembers("class")) {
