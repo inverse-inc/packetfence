@@ -178,7 +178,7 @@ sub getAllVlans {
         my $vlan = $result->{$key};
         $key =~ /^$OID_rcVlanPortDefaultVlanId\.(\d+)$/;
         my $ifIndex = $1;
-        if (grep(/^$ifIndex$/, @ifIndexes) > 0) {
+        if (grep({ /^$ifIndex$/ } @ifIndexes) > 0) {
             $vlanHashRef->{$ifIndex} = $vlan;
         }
     }

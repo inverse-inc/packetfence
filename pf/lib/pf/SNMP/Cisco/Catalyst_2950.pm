@@ -60,7 +60,7 @@ sub getManagedPorts {
             if ($ifTypes->{$port} == 6 ) { # skip non ethernetCsmacd port type
 
                 $port =~ /^$oid_ifType\.(\d+)$/;
-                if ( grep(/^$1$/, @UpLinks) == 0 ) { # skip UpLinks
+                if ( grep({ /^$1$/ } @UpLinks) == 0 ) { # skip UpLinks
 
                     my $portVlan = $this->getVlan($1);
                     if (defined $portVlan) { # skip port with no VLAN
@@ -68,7 +68,7 @@ sub getManagedPorts {
                         my $port_type = $this->getVmVlanType($1);
                         if (($port_type == 1) || ($port_type == 4)) { # skip non static
 
-                            if ( grep(/^$portVlan$/, @{$this->{_vlans}}) != 0 ) {   # skip port in a non-managed VLAN
+                            if ( grep({ /^$portVlan$/ } @{$this->{_vlans}}) != 0 ) {   # skip port in a non-managed VLAN
                                 $logger->trace("SNMP get_request for ifName: $oid_ifName.$1");
                                 my $ifNames = $this->{_sessionRead}->get_request(
                                     -varbindlist => ["$oid_ifName.$1"]   # MIB: ifNames
@@ -88,7 +88,7 @@ sub getManagedPorts {
 sub _getIfDescMacVlan {
     my ($this, @macAddr) = @_;
     my $ifDescMacVlan;
-    foreach my $line (grep(/DYNAMIC/, @macAddr)) {
+    foreach my $line (grep({ /DYNAMIC/ } @macAddr)) {
         my($vlan, $mac, $ifDesc) = unpack("A4x4A14x16A*", $line);
         $mac =~ s/\./:/g;
         $mac = uc(substr($mac,0,2) . ':' . substr($mac,2,5) . ':' . substr($mac,7,5) . ':' . substr($mac,12,2));

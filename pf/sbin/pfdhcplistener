@@ -222,7 +222,7 @@ sub listen_dhcp {
 
       # ignore DHCPOFFER from gateways
       # avoid rogue DHCP false positives
-      if (grep(/^$src$/, get_gateways()) || grep(/^$src$/, split(/\s*,\s*/, $Config{'general'}{'dhcpservers'}))) {
+      if (grep({ /^$src$/ } get_gateways()) || grep({ /^$src$/ } split(/\s*,\s*/, $Config{'general'}{'dhcpservers'}))) {
         $logger->debug("$src ($smac) appears to be a DHCP server or relay, adding $chaddr ($yiaddr) to hash");
         #update_iplog($chaddr,$yiaddr);
         return;
@@ -402,7 +402,7 @@ sub normal_sighandler {
 sub restart_handler {
   deletepid("pfdhcplistener_$interface");
   $logger->info("caught SIG".$_[0]." - restarting");
-  push @ORIG_ARGV, "-r" if(!grep(/^\-r$/,@ORIG_ARGV));
+  push @ORIG_ARGV, "-r" if(!grep({ /^\-r$/ } @ORIG_ARGV));
   if (!exec($0, @ORIG_ARGV)) {
     $logger->logdie("could not restart: $!");
   }

@@ -179,7 +179,7 @@ if (! $session->in_privileged_mode()) {
 $logger->debug("obtaining current config");
 
 my @tmp = $session->cmd("show run | include snmp-server");
-if (grep(/snmp-server enable traps port-security$/i, @tmp) > 0) {
+if (grep({ /snmp-server enable traps port-security$/i } @tmp) > 0) {
   $logger->debug("snmp-server enable traps port-security alread present");
 } else {
   $logger->info("adding 'snmp-server enable traps port-security' to switch config");
@@ -189,7 +189,7 @@ if (grep(/snmp-server enable traps port-security$/i, @tmp) > 0) {
     $session->cmd("end");
   }
 }
-if (grep(/^snmp-server enable traps port-security trap-rate 1$/i, @tmp) > 0) {
+if (grep({ /^snmp-server enable traps port-security trap-rate 1$/i } @tmp) > 0) {
   $logger->debug("snmp-server enable traps port-security trap rate alread present");
 } else {
   $logger->info("adding 'snmp-server enable traps port-security trap-rate 1' to switch config");
@@ -199,7 +199,7 @@ if (grep(/^snmp-server enable traps port-security trap-rate 1$/i, @tmp) > 0) {
     $session->cmd("end");
   }
 }
-if (grep(/^snmp-server host $snmp_server .+ port-security/i, @tmp) > 0) {
+if (grep({ /^snmp-server host $snmp_server .+ port-security/i } @tmp) > 0) {
   $logger->debug("snmp-server host port-security alread present");
 } else {
   $logger->info("adding 'snmp-server host $snmp_server version 2c public port-security' to switch config");
@@ -227,9 +227,9 @@ foreach my $ifIndex (sort { $a <=> $b } keys %$ifDescHashRef) {
   }
 
   #exclude some ports:
-  if (grep(/^$ifIndex$/, @uplinks) > 0) {
+  if (grep({ /^$ifIndex$/ } @uplinks) > 0) {
     $logger->info("ifIndex $ifIndex excluded since defined as uplink");
-  } elsif ( ($config =~ /switchport access vlan (\d+)/i) && (grep(/^$1$/, @{$switch->{_vlans}}) == 0 )) {
+  } elsif ( ($config =~ /switchport access vlan (\d+)/i) && (grep({ /^$1$/ } @{$switch->{_vlans}}) == 0 )) {
     $logger->info("ifIndex $ifIndex excluded since access VLAN $1 is not a managed VLAN");
   } elsif ($config =~ /switchport mode trunk/i) {
     $logger->info("ifIndex $ifIndex excluded since trunk");
@@ -300,7 +300,7 @@ foreach my $ifIndex (sort { $a <=> $b } keys %$ifDescHashRef) {
 close $backup_fh;
 
 @tmp = $session->cmd("show run | include snmp-server");
-if (grep(/snmp-server enable traps mac-notification$/i, @tmp) > 0) {
+if (grep({ /snmp-server enable traps mac-notification$/i } @tmp) > 0) {
   $logger->debug("snmp-server enable traps mac-notification still present");
   $logger->info("removing 'snmp-server enable traps mac-notification' from switch config");
   if ($doit) {
@@ -309,7 +309,7 @@ if (grep(/snmp-server enable traps mac-notification$/i, @tmp) > 0) {
     $session->cmd("end");
   }
 }
-if (grep(/snmp-server enable traps snmp.+linkdown/i, @tmp) > 0) {
+if (grep({ /snmp-server enable traps snmp.+linkdown/i } @tmp) > 0) {
   $logger->debug("snmp-server enable traps snmp linkdown still present");
   $logger->info("removing 'snmp-server enable traps snmp linkdown' from switch config");
   if ($doit) {
@@ -318,7 +318,7 @@ if (grep(/snmp-server enable traps snmp.+linkdown/i, @tmp) > 0) {
     $session->cmd("end");
   }
 }
-if (grep(/snmp-server enable traps snmp.+linkup/i, @tmp) > 0) {
+if (grep({ /snmp-server enable traps snmp.+linkup/i } @tmp) > 0) {
   $logger->debug("snmp-server enable traps snmp linkup still present");
   $logger->info("removing 'snmp-server enable traps snmp linkup' from switch config");
   if ($doit) {
@@ -329,7 +329,7 @@ if (grep(/snmp-server enable traps snmp.+linkup/i, @tmp) > 0) {
 }
 
 @tmp = $session->cmd("show run | include mac-address-table");
-if (grep(/mac-address-table notification interval 0$/i, @tmp) > 0) {
+if (grep({ /mac-address-table notification interval 0$/i } @tmp) > 0) {
   $logger->debug("mac-address-table notification interval 0 still present");
   $logger->info("removing 'mac-address-table notification interval 0' from switch config");
   if ($doit) {
@@ -338,7 +338,7 @@ if (grep(/mac-address-table notification interval 0$/i, @tmp) > 0) {
     $session->cmd("end");
   }
 }
-if (grep(/mac-address-table notification$/i, @tmp) > 0) {
+if (grep({ /mac-address-table notification$/i } @tmp) > 0) {
   $logger->debug("mac-address-table notification still present");
   $logger->info("removing 'mac-address-table notification' from switch config");
   if ($doit) {

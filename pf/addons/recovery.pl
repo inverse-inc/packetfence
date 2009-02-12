@@ -228,7 +228,7 @@ sub recoverSwitch {
                 my @currentMacs;
                 foreach my $vlan (keys %{$allMacs->{$currentIfIndex}}) {
                     foreach my $mac (@{$allMacs->{$currentIfIndex}->{$vlan}}) {
-                        if ((! $switch->isFakeMac($mac)) && (! $switch->isFakeVoIPMac($mac)) && (grep(/^$mac$/,@currentMacs) == 0)) {
+                        if ((! $switch->isFakeMac($mac)) && (! $switch->isFakeVoIPMac($mac)) && (grep({ /^$mac$/ } @currentMacs) == 0)) {
                             push @currentMacs, $mac;
                         }
                     }
@@ -236,7 +236,7 @@ sub recoverSwitch {
                 foreach my $mac (keys %{$allSecMacs}) {
                     if (exists($allSecMacs->{$mac}->{$currentIfIndex})) {
                     $mac = uc($mac);
-                        if ((! $switch->isFakeMac($mac)) && (! $switch->isFakeVoIPMac($mac)) && (grep(/^$mac$/,@currentMacs) == 0)) {
+                        if ((! $switch->isFakeMac($mac)) && (! $switch->isFakeVoIPMac($mac)) && (grep({ /^$mac$/ } @currentMacs) == 0)) {
                             push @currentMacs, $mac;
                         }
                     }
@@ -244,7 +244,7 @@ sub recoverSwitch {
                 @currentPhones = $switch->getPhonesDPAtIfIndex($currentIfIndex);
                 foreach my $mac (@currentMacs) {
                     my $node_info = node_view_with_fingerprint($mac);
-                    my $isPhone = ((grep(/^$mac$/i, @currentPhones) != 0) || (defined($node_info) && $node_info->{dhcp_fingerprint} =~ /VoIP Phone/));
+                    my $isPhone = ((grep({ /^$mac$/i } @currentPhones) != 0) || (defined($node_info) && $node_info->{dhcp_fingerprint} =~ /VoIP Phone/));
                     if (! $isPhone) {
                         push @currentPcs, $mac;
                     }

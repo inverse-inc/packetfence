@@ -327,7 +327,7 @@ sub web_user_authenticate {
   if ($cgi->param("login") && $cgi->param("password") && $cgi->param("auth")) {
     my $auth = $cgi->param("auth");
     my @auth_choices=split(/\s*,\s*/,$Config{'registration'}{'auth'});
-    if (grep(/^$auth$/, @auth_choices) == 0) {
+    if (grep({ /^$auth$/ } @auth_choices) == 0) {
       return (0,2);
     }
     #validate login and password

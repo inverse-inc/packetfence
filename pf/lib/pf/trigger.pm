@@ -203,7 +203,7 @@ sub trigger_scan_add {
     $logger->error("MAC address for ".$info->Host." not found can not add violation");
     return;
   }
-  if (defined $Config{'scan'}{'live_tids'} && grep(/^$tid$/,split(/\s*,\s*/, $Config{'scan'}{'live_tids'}))){
+  if (defined $Config{'scan'}{'live_tids'} && grep({ /^$tid$/ } split(/\s*,\s*/, $Config{'scan'}{'live_tids'}))){
     $logger->info("Trying to add trigger $tid for ($srcmac) (".$info->Host.")");
     my @trigger_info=trigger_view_enable($tid,"scan");
     if (!scalar(@trigger_info)) {

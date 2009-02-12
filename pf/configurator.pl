@@ -199,7 +199,7 @@ sub gatherer {
         }
       }
       $response = $default if (!$response);
-    } while (@choices && ($response && !grep(/^$response$/, @choices)) || $response =~/^\?$/);
+    } while (@choices && ($response && !grep({ /^$response$/ } @choices)) || $response =~/^\?$/);
   } while (!confirm($response));
   $response = "" if ($response eq "<NONE>");
   if (defined($section) && defined($element)) {

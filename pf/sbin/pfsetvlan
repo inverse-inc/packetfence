@@ -365,9 +365,9 @@ sub signalHandlerTrapListQueued {
                         $logger->debug("validating if parsed trapLine $trapLine should be added to threadList_queued");
                         my ($switch_ip, $switch_port, $trapType, $trapVlan, $trapOperation, $trapMac) = split(/\|/, $trapLine);
                         my $switch = $switchFactory->instantiate($switch_ip);
-                        if (($trapType eq 'secureMacAddrViolation') && (grep(/\Q$switch_ip|$switch_port|$trapType|\E/, @threadList_queued) != 0)) {
+                        if (($trapType eq 'secureMacAddrViolation') && (grep({ /\Q$switch_ip|$switch_port|$trapType|\E/ } @threadList_queued) != 0)) {
                             $logger->info("$trapType trap already in the queue for $switch_ip ifIndex $switch_port. Won't add another one");
-                        } elsif ( ($trapType eq 'mac') && ( grep(/^$trapVlan$/, @{$switch->{_vlans}}) == 0) ) {
+                        } elsif ( ($trapType eq 'mac') && ( grep({ /^$trapVlan$/ } @{$switch->{_vlans}}) == 0) ) {
                             $logger->info("$trapType trap for VLAN $trapVlan on $switch_ip ifIndex $switch_port. We don't manage this VLAN. Flush the trap");
                         } elsif ( ($trapType eq 'mac') && ($trapVlan ne $switch->getVlan($switch_port)) ) {
                             $logger->info("$trapOperation trap for VLAN $trapVlan on $switch_ip ifIndex $switch_port. This port is no longer in this VLAN. Flush the trap");
@@ -390,7 +390,7 @@ sub signalHandlerTrapListQueued {
             }
             
             #signal if we still have 'raw' entries in trapList_queued
-            if (grep (/^raw\|/, @trapList_queued) > 0) {
+            if (grep ({ /^raw\|/ } @trapList_queued) > 0) {
                 $lockLogger->trace("locking - sending signal for trapList_queued in signalHanderTrapListQueued");
                 cond_signal(@trapList_queued);
             }
@@ -865,7 +865,7 @@ sub handleTrap {
             my $old_mac_to_remove = undef;
             foreach my $old_mac (keys %$secureMacAddrHashRef) {
                 my $old_isPhone = $switch->isPhoneAtIfIndex($old_mac, $switch_port);
-                if ((grep(/^$voiceVlan$/, @{$secureMacAddrHashRef->{$old_mac}}) >= 1) || $old_isPhone) {
+                if ((grep({ /^$voiceVlan$/ } @{$secureMacAddrHashRef->{$old_mac}}) >= 1) || $old_isPhone) {
                     $old_mac_to_remove = $old_mac;
                 }
             }
@@ -911,7 +911,7 @@ sub handleTrap {
                 my $old_mac_to_remove = undef;
                 foreach my $old_mac (keys %$secureMacAddrHashRef) {
                     my $old_isPhone = $switch->isPhoneAtIfIndex($old_mac, $switch_port);
-                    if ((grep(/^$voiceVlan$/, @{$secureMacAddrHashRef->{$old_mac}}) == 0) && (! $old_isPhone)) {
+                    if ((grep({ /^$voiceVlan$/ } @{$secureMacAddrHashRef->{$old_mac}}) == 0) && (! $old_isPhone)) {
                         $old_mac_to_remove = $old_mac;
                     }
                 }

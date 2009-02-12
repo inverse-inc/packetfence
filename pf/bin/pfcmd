@@ -872,7 +872,7 @@ sub service {
     my @services_which_should_be_started = service_list(@services);
     print "service|shouldBeStarted|pid\n";
     foreach my $tmp (@services){
-      my $should_be_started = ((grep(/^$tmp$/,@services_which_should_be_started) > 0) ? 1 : 0);
+      my $should_be_started = ((grep({ /^$tmp$/ } @services_which_should_be_started) > 0) ? 1 : 0);
       my $pid = service_ctl($tmp, 'status');
       print "$tmp|$should_be_started|$pid\n";
     }
@@ -889,7 +889,7 @@ sub service {
     my @services_which_should_be_started = service_list(@services);
     my @incorrectly_stopped_services = ();
     foreach my $tmp (@services){
-      my $should_be_started = ((grep(/^$tmp$/,@services_which_should_be_started) > 0) ? 1 : 0);
+      my $should_be_started = ((grep({ /^$tmp$/ } @services_which_should_be_started) > 0) ? 1 : 0);
       my $pid = service_ctl($tmp, 'status');
       if (($should_be_started) && (! $pid)) {
         push @incorrectly_stopped_services, $tmp;
@@ -2115,7 +2115,7 @@ sub sanity_check {
 
 sub generate_switchport_vlan_assignment {
   my ($mac,$function) = @_;
-  if (($Config{'network'}{'mode'} =~ /vlan/i) && grep(/^$function$/,split(/\s*,\s*/,$Config{'vlan'}{'adjustswitchportvlanreasons'})) > 0) {
+  if (($Config{'network'}{'mode'} =~ /vlan/i) && grep({ /^$function$/ } split(/\s*,\s*/,$Config{'vlan'}{'adjustswitchportvlanreasons'})) > 0) {
     $logger->info("VLAN isolation is enabled and $function is part of adjustswitchportvlanreasons");
     require pf::locationlog;
     import pf::locationlog;

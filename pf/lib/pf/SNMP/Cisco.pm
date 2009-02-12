@@ -227,7 +227,7 @@ sub getAllVlans {
         my $vlan = $result->{$key};
         $key =~ /^$OID_vmVlan\.(\d+)$/;
         my $ifIndex = $1;
-        if (($vlan ne 'noSuchInstance') && (grep(/^$ifIndex$/, @ifIndexes) > 0)) {
+        if (($vlan ne 'noSuchInstance') && (grep({ /^$ifIndex$/ } @ifIndexes) > 0)) {
             $vlanHashRef->{$ifIndex} = $vlan;
         }
     }
@@ -240,7 +240,7 @@ sub getAllVlans {
             my $vlan = $result->{$key};
             $key =~ /^$OID_vlanTrunkPortNativeVlan\.(\d+)$/;
             my $ifIndex = $1;
-            if (($vlan ne 'noSuchInstance') && (! exists($vlanHashRef->{$ifIndex})) && (grep(/^$ifIndex$/, @ifIndexes) > 0)) {
+            if (($vlan ne 'noSuchInstance') && (! exists($vlanHashRef->{$ifIndex})) && (grep({ /^$ifIndex$/ } @ifIndexes) > 0)) {
                 $vlanHashRef->{$ifIndex} = $vlan;
             }
         }
@@ -609,7 +609,7 @@ sub getIfIndexForThisMac {
                     -varbindlist => [$oid],
                     -contextname => "vlan_$vlan"
                 );
-                if ((defined($result)) && (grep(/^$result->{$oid}/, @uplinks) == 0)) {
+                if ((defined($result)) && (grep({ /^$result->{$oid}/ } @uplinks) == 0)) {
                     return $result->{$oid};
                 }
             }
@@ -635,7 +635,7 @@ sub getIfIndexForThisMac {
                     my $result = $sessionReadVlan->get_request(
                         -varbindlist => [$oid]
                     );
-                    if ((defined($result)) && (grep(/^$result->{$oid}/, @uplinks) == 0)) {
+                    if ((defined($result)) && (grep({ /^$result->{$oid}/ } @uplinks) == 0)) {
                         return $result->{$oid};
                     }
                 }
@@ -771,7 +771,7 @@ sub isDefinedVlan {
 
 sub isNotUpLink {
     my ($this, $ifIndex) = @_;
-    return (grep(/^$ifIndex$/, $this->getUpLinks()) == 0);
+    return (grep({ /^$ifIndex$/ } $this->getUpLinks()) == 0);
 }
 
 sub getUpLinks {
@@ -954,13 +954,13 @@ sub getAllMacs {
             -baseoid => $OID_vmVoiceVlanId
         );
         foreach my $vlan (values %{$result}) {
-           if (grep(/^$vlan$/, @vlansToConsider) == 0) {
+           if (grep({ /^$vlan$/ } @vlansToConsider) == 0) {
                push @vlansToConsider, $vlan;
            }
         }
     }
     foreach my $vlan (@vlansToConsider) {
-        if (grep(/^$vlan$/,@vlansOnSwitch) > 0) {
+        if (grep({ /^$vlan$/ } @vlansOnSwitch) > 0) {
 
             #connect to switch with the right VLAN information
             $result = undef;
@@ -1017,7 +1017,7 @@ sub getAllMacs {
                         my $mac = sprintf("%02X:%02X:%02X:%02X:%02X:%02X", $1, $2, $3, $4, $5, $6);
                         if (! exists($ifPhysAddressHash{$mac})) {
                             my $ifIndex = $dot1dBasePortIfIndexHash{$result->{$key}};
-                            if (grep(/^$ifIndex$/, @ifIndexes) > 0) {
+                            if (grep({ /^$ifIndex$/ } @ifIndexes) > 0) {
                                 push @{$ifIndexVlanMacHashRef->{$ifIndex}->{$vlan}}, $mac;
                             }
                         }
