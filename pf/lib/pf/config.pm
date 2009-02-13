@@ -176,11 +176,11 @@ foreach my $section ( tied(%ConfigNetworks)->Sections ) {
 
 foreach my $section ( tied(%ConfigNetworks)->Sections ) {
     if ( exists( $ConfigNetworks{$section}{'type'} ) ) {
-        if ( $ConfigNetworks{$section}{'type'} =~ /^isolation$/i ) {
+        if ( lc($ConfigNetworks{$section}{'type'}) eq 'isolation' ) {
             my $isolation_obj = new Net::Netmask( $section,
                 $ConfigNetworks{$section}{'netmask'} );
             push @routed_isolation_nets, $isolation_obj;
-        } elsif ( $ConfigNetworks{$section}{'type'} =~ /^registration$/i ) {
+        } elsif ( lc($ConfigNetworks{$section}{'type'}) eq 'registration' ) {
             my $registration_obj = new Net::Netmask( $section,
                 $ConfigNetworks{$section}{'netmask'} );
             push @routed_registration_nets, $registration_obj;
@@ -209,16 +209,16 @@ foreach my $interface ( tied(%Config)->GroupMembers("interface") ) {
         $int_obj->tag( "authips", $authorized_ips );
     }
     foreach my $type ( split( /\s*,\s*/, $type ) ) {
-        if ( $type eq "internal" ) {
+        if ( $type eq 'internal' ) {
             push @internal_nets, $int_obj;
             push @listen_ints, $int if ( $int !~ /:\d+$/ );
-        } elsif ( $type eq "managed" ) {
+        } elsif ( $type eq 'managed' ) {
             push @managed_nets, $int_obj;
-        } elsif ( $type eq "external" ) {
+        } elsif ( $type eq 'external' ) {
             push @external_nets, $int_obj;
-        } elsif ( $type eq "monitor" ) {
+        } elsif ( $type eq 'monitor' ) {
             $monitor_int = $int;
-        } elsif ( $type eq "dhcplistener" ) {
+        } elsif ( $type eq 'dhcplistener' ) {
             push @dhcplistener_ints, $int;
         }
     }
