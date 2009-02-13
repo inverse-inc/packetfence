@@ -72,6 +72,8 @@
           (http://www.packetfence.org/mantis/view.php?id=588)
         compatibility with Config::IniFiles 2.47
           (http://www.packetfence.org/mantis/view.php?id=590)
+        removed switchTypesToExclude parameter
+          (http://www.packetfence.org/mantis/view.php?id=592)
 
 1.8.0
         unify log management
