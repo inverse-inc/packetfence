@@ -109,10 +109,7 @@ sub read_dhcp_fingerprints_conf {
                 foreach my $dhcp_fingerprint (
                     split(
                         /\n/,
-                        $dhcp_fingerprints{$os}{
-                            "finge
-rprints"
-                            }
+                        $dhcp_fingerprints{$os}{"fingerprints"}
                     )
                     )
                 {
