@@ -16,6 +16,7 @@ use FindBin;
 use Config::IniFiles;
 use Cwd;
 use Net::Netmask;
+use Carp;
 
 my $install_dir = $FindBin::Bin;
 my $conf_dir    = "$install_dir/conf";
@@ -81,8 +82,7 @@ Which template would you like:
                         7) Registration, Detection and VLAN isolation
                         8) PacketFence ZEN with VLAN isolation
 END_TEMPLATE_TXT
-    my $type = questioner( $template_txt, '',
-        ( "1", "2", "3", "4", "5", "6", "7", "8" ) );
+    my $type = questioner( $template_txt, '', (1 .. 8) );
     load_template($type);
     print
         "Loading Template: Warning PacketFence is going LIVE - WEAPONS HOT \n"
@@ -144,43 +144,23 @@ sub write_changes {
 }
 
 sub load_template {
-    $_ = shift @_;
+    my ($template_nb) = @_;
     my %template_cfg;
-    my $template_filename = "$conf_dir/templates/configurator/";
-SWITCH: {
-        /1/ && do {
-            $template_filename .= "testmode.conf";
-            last;
-        };
-        /2/ && do {
-            $template_filename .= "registration.conf";
-            last;
-        };
-        /3/ && do {
-            $template_filename .= "detection.conf";
-            last;
-        };
-        /4/ && do {
-            $template_filename .= "reg-detect.conf";
-            last;
-        };
-        /5/ && do {
-            $template_filename .= "reg-detect-scan.conf";
-            last;
-        };
-        /6/ && do {
-            $template_filename .= "sessionauth.conf";
-            last;
-        };
-        /7/ && do {
-            $template_filename .= "reg-detect-vlan.conf";
-            last;
-        };
-        /8/ && do {
-            $template_filename .= "zen-vlan.conf";
-            last;
-        };
+    my %template_hash = ( 
+        1 => 'testmode.conf',
+        2 => 'registration.conf',
+        3 => 'detection.conf',
+        4 => 'reg-detect.conf',
+        5 => 'reg-detect-scan.conf',
+        6 => 'sessionauth.conf',
+        7 => 'reg-detect-vlan.conf',
+        8 => 'zen-vlan.conf'
+    );
+    if ( ! defined($template_hash{$template_nb}) ) {
+        croak("Invalid template number $template_nb");
     }
+    my $template_filename = "$conf_dir/templates/configurator/"
+        . $template_hash{$template_nb};
     die "template $template_filename not found" if ( !-e $template_filename );
     tie %template_cfg, 'Config::IniFiles', ( -file => $template_filename );
 
@@ -188,7 +168,7 @@ SWITCH: {
         $cfg{$section} = {} if ( !exists( $cfg{$section} ) );
         foreach my $key ( keys( %{ $template_cfg{$section} } ) ) {
             print
-                "  Setting option $key to template value $template_cfg{$section}{$key} \n";
+                "  Setting option $section.$key to template value $template_cfg{$section}{$key} \n";
             $cfg{$section}{$key} = $template_cfg{$section}{$key};
         }
     }
