@@ -293,15 +293,15 @@ if ( ( scalar(@arguments) == 1 ) && ( $arguments[0] eq 'version' ) ) {
 #  exit 1;
 #}
 
-if ( $command =~ /^person$/i ) {
+if ( lc($command) eq 'person' ) {
     require pf::person;
     import pf::person;
     command_param($command);
-} elsif ( $command =~ /^node$/i ) {
+} elsif ( lc($command) eq 'node' ) {
     require pf::node;
     import pf::node;
     command_param($command);
-} elsif ( $command =~ /^violation$/i ) {
+} elsif ( lc($command) eq 'violation' ) {
     require pf::violation;
     import pf::violation;
     command_param($command);
@@ -343,7 +343,7 @@ sub manage {
     } elsif ( $option eq "deregister" ) {
         require pf::node;
         pf::node::node_deregister($mac);
-        if ( !( $Config{'network'}{'mode'} =~ /vlan/i ) ) {
+        if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
             require pf::iptables;
             pf::iptables::iptables_generate();
         }
@@ -637,7 +637,7 @@ sub networkconfig {
         }
     } elsif ( $mode eq 'delete' ) {
         my $section = $cmd{'command'}[2];
-        if ( $section =~ /^(all)$/ ) {
+        if ( $section eq 'all' ) {
             print "This network can't be deleted\n";
             exit;
         } else {
@@ -738,7 +738,7 @@ sub interfaceconfig {
     } elsif ( $mode eq 'delete' ) {
         my $section      = $cmd{'command'}[2];
         my $section_name = "interface $section";
-        if ( $section =~ /^(all)$/ ) {
+        if ( $section eq 'all' ) {
             print "This interface can't be deleted\n";
             exit;
         } else {
@@ -978,7 +978,7 @@ sub traplog {
     require pf::traplog;
     import pf::traplog;
     if (   ( scalar( @{ $cmd{'command'} } ) == 2 )
-        && ( $cmd{command}[1] =~ /update/ ) )
+        && ( $cmd{command}[1] eq 'update' ) )
     {
         traplog_update_rrd();
     } else {
@@ -1011,9 +1011,9 @@ sub service {
         'snmptrapd', 'pfsetvlan'
     );
 
-    if ( $command =~ /^status$/i ) {
+    if ( lc($command) eq 'status' ) {
         my @services;
-        if ( $service eq "pf" ) {
+        if ( $service eq 'pf' ) {
             @services = @all_services;
         } else {
             push( @services, $service );
@@ -1036,7 +1036,7 @@ sub service {
         return ( ( scalar(@incorrectly_stopped_services) > 0 ) ? 3 : 0 );
     }
 
-    if ( $command =~ /^watch$/i ) {
+    if ( lc($command) eq 'watch' ) {
         my @services;
         if ( $service eq "pf" ) {
             @services = @all_services;
@@ -1075,8 +1075,8 @@ sub service {
         }
     }
 
-    if ( $command =~ /^restart$/i ) {
-        if ( $service =~ /^pf$/i ) {
+    if ( lc($command) eq 'restart' ) {
+        if ( lc($service) eq 'pf' ) {
             $logger->info(
                 "packetfence restart ... executing stop followed by start");
             local $cmd{command}[2] = "stop";
@@ -1092,14 +1092,14 @@ sub service {
     }
 
     my @services;
-    if ( $service !~ /^pf$/ ) {
+    if ( $service ne 'pf' ) {
         push @services, $service;
     } else {
         @services = service_list(@all_services);
     }
 
     my @alreadyRunningServices = ();
-    if ( $command =~ /^start$/i ) {
+    if ( lc($command) eq 'start' ) {
         sanity_check(@services);
         my $nb_running_services = 0;
         foreach my $tmp (@all_services) {
@@ -1109,7 +1109,7 @@ sub service {
             }
         }
         if ( $nb_running_services == 0 ) {
-            if ( !( $Config{'network'}{'mode'} =~ /vlan/i ) ) {
+            if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
                 $logger->info("saving current iptables to var/iptables.bak");
                 require pf::iptables;
                 pf::iptables::iptables_save(
@@ -1119,12 +1119,12 @@ sub service {
     }
 
     print "service|command\n";
-    if ( $command !~ /^stop$/ ) {
+    if ( $command eq 'stop' ) {
         print "config files|$command\n";
         require pf::os;
         pf::os::read_dhcp_fingerprints_conf();
         read_violations_conf();
-        if ( !( $Config{'network'}{'mode'} =~ /vlan/i ) ) {
+        if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
             print "iptables|$command\n";
             require pf::iptables;
             pf::iptables::iptables_generate();
@@ -1142,8 +1142,8 @@ sub service {
         }
     }
 
-    if ( $command =~ /^stop$/i ) {
-        if ( !( $Config{'network'}{'mode'} =~ /vlan/i ) ) {
+    if ( lc($command) eq 'stop' ) {
+        if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
             my $nb_running_services = 0;
             foreach my $tmp (@all_services) {
                 if ( service_ctl( $tmp, "status" ) ) {
@@ -1155,7 +1155,7 @@ sub service {
                 pf::iptables::iptables_restore(
                     $install_dir . '/var/iptables.bak' );
             } else {
-                if ( $service =~ /^pf$/i ) {
+                if ( lc($service) eq 'pf' ) {
                     $logger->error(
                         "even though 'control pf stop' was called, there are still $nb_running_services services running. Can't restore iptables from var/iptables.bak"
                     );
@@ -1186,7 +1186,7 @@ sub trigger {
     import pf::trigger;
     $id = $cmd{command}[2];
     if ( ( defined $cmd{command}[3] ) && ( $cmd{command}[3] ne '' ) ) {
-        if ( $id =~ /all/ ) {
+        if ( $id eq 'all' ) {
             $id       = $cmd{command}[3];
             $function = "trigger_view_type";
         } else {
@@ -1207,7 +1207,7 @@ sub fingerprint {
     require pf::os;
     import pf::os;
     $id = $cmd{command}[2];
-    if ( $id && $id !~ /all/ ) {
+    if ( $id && $id ne 'all' ) {
         $function = "dhcp_fingerprint_view";
     } else {
         $function = "dhcp_fingerprint_view_all";
@@ -1248,7 +1248,7 @@ sub schedule {
     my %params   = format_assignment( @{ $cmd{assignment} } );
 
     #scan now no cron entry
-    if ( $option && $option =~ /^now$/ ) {
+    if ( $option && $option eq 'now' ) {
         require pf::trigger;
         my @output = pf::trigger::trigger_scan( $hostaddr, $params{tid} );
         my $date = mysql_date();
@@ -1276,14 +1276,14 @@ sub schedule {
     my $cron = new schedule();
     $cron->load_cron("pf");
     print join( $delimiter, ( "id", "date", "hosts", "tid" ) ) . "\n";
-    if ( $option =~ /^view$/ ) {
-        if ( $hostaddr =~ /^all$/ ) {
+    if ( $option eq 'view' ) {
+        if ( $hostaddr eq 'all' ) {
             print $cron->get_indexes();
         } else {
             print join( $delimiter, $cron->get_index($hostaddr) ) . "\n";
         }
         return (1);
-    } elsif ( $option =~ /^add$/ ) {
+    } elsif ( $option eq 'add' ) {
         my @fields = split( /\s+/, $date );
         if (   !$date
             || scalar(@fields) != 5
@@ -1297,9 +1297,9 @@ sub schedule {
             $cron->add_index( $date,
                 $bin_dir . "/pfcmd schedule now $hostaddr tid=$tid" );
         }
-    } elsif ( $option =~ /^delete$/ ) {
+    } elsif ( $option eq 'delete' ) {
         $cron->delete_index($hostaddr);
-    } elsif ( $option =~ /^edit$/ ) {
+    } elsif ( $option eq 'edit' ) {
         my $id = $hostaddr;
         my ( $oldate, $oldaddr, $oldtid )
             = ( $cron->get_index($id) )[ 1, 2, 3 ];
@@ -1374,11 +1374,11 @@ sub config {
     tie %myconfig, 'Config::IniFiles', ( -file => $conf_dir . "/pf.conf" )
         or $logger->logdie("Unable to open pf.conf: $!");
 
-    if ( $option =~ /^set$/i && $param !~ /^.+?=.+?$/ ) {
+    if ( lc($option) eq 'set' && $param !~ /^.+?=.+?$/ ) {
         require pf::pfcmd::help;
         pf::pfcmd::help::usage("config");
     }
-    if ( $option =~ /^set$/i ) {
+    if ( lc($option) eq 'set' ) {
         $param =~ /^([^=]+)=(.+)$/;
         $param = $1;
         $value = $2;
@@ -1399,8 +1399,8 @@ sub config {
         $section = join( " ", @stuff );
     }
 
-    if ( $option =~ /^get$/i ) {
-        if ( $param =~ /^all$/ ) {
+    if ( lc($option) eq 'get' ) {
+        if ( $param eq 'all' ) {
             foreach my $a ( sort keys(%Config) ) {
                 foreach my $b ( keys( %{ $Config{$a} } ) ) {
                     print config_entry( $a, $b );
@@ -1414,7 +1414,7 @@ sub config {
             print "Unknown configuration parameter: $param!\n";
             exit;
         }
-    } elsif ( $option =~ /^help$/i ) {
+    } elsif ( lc($option) eq 'help' ) {
         if ( defined( $documentation{$param}{'description'} ) ) {
             print uc($param) . "\n";
             print "Default: $defaults{$section}{$parm}\n"
@@ -1431,7 +1431,7 @@ sub config {
             print "No help available for $param\n";
             exit;
         }
-    } elsif ( $option =~ /^set$/i ) {
+    } elsif ( lc($option) eq 'set' ) {
         if ( !defined( $Config{$section}{$parm} ) ) {
             print "Unknown configuration parameter!\n";
             exit;
@@ -1473,7 +1473,7 @@ sub report {
     if ( ( defined $cmd{command}[2] ) && ( $cmd{command}[2] ne '' ) ) {
         $type = $cmd{command}[2];
     } else {
-        $type = "all";
+        $type = 'all';
     }
     exit( print_results( "report_" . $service . "_" . $type ) );
 }
@@ -1613,7 +1613,7 @@ sub lookup {
     my $id      = $cmd{command}[2];
 
     push @INC, $bin_dir;
-    if ( $service =~ /^person$/ ) {
+    if ( $service eq 'person' ) {
         require pf::person;
         import pf::person;
         require "$bin_dir/lookup_person.pl";
@@ -1743,7 +1743,7 @@ sub command_param {
     my $function = $type;
     if ( $option eq "view" ) {
         $function .= "_view";
-        $function .= "_all" if ( $id =~ /^all/ );
+        $function .= "_all" if ( $id eq 'all' );
         my %params;
 
         #use Data::Dumper;
@@ -1830,11 +1830,11 @@ sub command_param {
                 "$function was called - we don't need to recalculate iptables and switchport VLAN assignments"
             );
         } else {
-            if ( !( $Config{'network'}{'mode'} =~ /vlan/i ) ) {
+            if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
                 require pf::iptables;
                 pf::iptables::iptables_generate();
             }
-            if ( $function =~ /^violation/ ) {
+            if ( $function eq 'violation' ) {
                 generate_switchport_vlan_assignment( $params{mac},
                     $function );
             } else {
@@ -2441,7 +2441,7 @@ sub sanity_check {
     }
 
     # make sure that skip_mode is disabled in VLAN isolation
-    if (   ( $Config{'network'}{'mode'} =~ /vlan/i )
+    if (   ( lc($Config{'network'}{'mode'}) eq 'vlan' )
         && ( !isdisabled( $Config{'registration'}{'skip_mode'} ) ) )
     {
         $logger->logdie(
@@ -2450,7 +2450,7 @@ sub sanity_check {
     }
 
     # make sure that expire_mode is disabled in VLAN isolation
-    if (   ( $Config{'network'}{'mode'} =~ /vlan/i )
+    if (   ( lc($Config{'network'}{'mode'}) eq 'vlan' )
         && ( !isdisabled( $Config{'registration'}{'expire_mode'} ) ) )
     {
         $logger->logdie(
@@ -2538,7 +2538,7 @@ sub sanity_check {
 
 sub generate_switchport_vlan_assignment {
     my ( $mac, $function ) = @_;
-    if (( $Config{'network'}{'mode'} =~ /vlan/i )
+    if (( lc($Config{'network'}{'mode'}) eq 'vlan' )
         && grep( { $_ eq $function } split(
                 /\s*,\s*/, $Config{'vlan'}{'adjustswitchportvlanreasons'}
                 ) ) > 0
@@ -2583,4 +2583,5 @@ sub generate_switchport_vlan_assignment {
             $logger->warn("no open locationlog entry for $mac");
         }
     }
+    return 1;
 }
