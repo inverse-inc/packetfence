@@ -10,6 +10,7 @@
 
 use strict;
 use warnings;
+use diagnostics;
 
 use FindBin;
 use Config::IniFiles;
@@ -229,7 +230,8 @@ sub gatherer {
             if ( @choices < 1 ) {
                 print "$query (default: $default [?]): ";
             } else {
-                print "$query (default: $default) [$choices|?]: ";
+                print "$query (default: $default) " . "["
+                    . join( "|", @choices ) . "|?]: ";
             }
             $response = <STDIN>;
             chop $response;
@@ -327,9 +329,10 @@ sub configuration {
     }
 
     # DETECTION
-    my $detection = gatherer( "Do you wish to enable worm detection?",
-        "trapping.detection", ( "enabled", "disabled" ) )
-        if ( !$template );
+    if ( !$template ) {
+        gatherer( "Do you wish to enable worm detection?",
+            "trapping.detection", ( "enabled", "disabled" ) );
+    }
     if ( $cfg{'trapping'}{'detection'} =~ /^enabled$/ ) {
         $cfg{'tmp'}{'monitor'} = "eth1";
         my $int = gatherer( "What is my monitor interface?",
@@ -439,12 +442,14 @@ sub config_network {
     $cfg{"interface $int"}{"gateway"} = $tmp_net->nth(1);
 
     #try to determine default gateway
-    open( PROC, "/sbin/route -n|" ) || die "Can't open ifconfig $!\n";
-    while (<PROC>) {
+    open( my $proc_fh, '-|', "/sbin/route -n" )
+        || die "Can't open /sbin/route $!\n";
+    while (<$proc_fh>) {
         if (/^0\.0\.0\.0\s+(\d+\.\d+\.\d+\.\d+)\s+0\.0\.0\.0\s+UG.+$int$/) {
             $cfg{"interface $int"}{"gateway"} = $1;
         }
     }
+    close $proc_fh;
     gatherer( "What is my gateway?", "interface $int.gateway" );
 
     print
@@ -476,12 +481,13 @@ sub config_registration {
 sub get_networkinfo {
     my $mode = shift @_;
     my @ints;
-    open( PROC, "/sbin/ifconfig -a|" ) || die "Can't open ifconfig $!\n";
-    while (<PROC>) {
+    open( my $proc_fh, '-|', "/sbin/ifconfig -a" )
+        || die "Can't open ifconfig $!\n";
+    while (<$proc_fh>) {
         if (/^(\S+)\s+Link/) {
             my $int = $1;
             next if ( $int eq "lo" );
-            $_ = <PROC>;
+            $_ = <$proc_fh>;
             my %ref;
             if (/inet addr:((?:\d{1,3}\.){3}\d{1,3}).+Mask:((?:\d{1,3}\.){3}\d{1,3})/
                 )
@@ -491,6 +497,7 @@ sub get_networkinfo {
             push @ints, \%ref if (%ref);
         }
     }
+    close $proc_fh;
     return @ints;
 }
 
