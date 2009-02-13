@@ -74,6 +74,8 @@
           (http://www.packetfence.org/mantis/view.php?id=590)
         removed switchTypesToExclude parameter
           (http://www.packetfence.org/mantis/view.php?id=592)
+        updated zen-vlan configurator template
+          (http://www.packetfence.org/mantis/view.php?id=593)
 
 1.8.0
         unify log management
