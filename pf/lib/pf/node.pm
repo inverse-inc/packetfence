@@ -134,6 +134,7 @@ sub node_db_prepare {
 #$node_lookup_person_sql = $dbh->prepare( qq [ select mac,pid,description,user_agent,computername from node where pid=? ] );
 #$node_lookup_node_sql = $dbh->prepare( qq [ select mac,pid,description,user_agent,computername from node where mac=? ] );
     $is_node_db_prepared = 1;
+    return 1;
 }
 
 #
@@ -173,7 +174,7 @@ sub node_delete {
         $logger->error("delete of non-existent node '$mac' failed");
         return 0;
     }
-    if ( $Config{'network'}{'mode'} =~ /vlan/i ) {
+    if ( lc($Config{'network'}{'mode'}) eq 'vlan' ) {
         require pf::locationlog;
         if ( defined( pf::locationlog::locationlog_view_open_mac($mac) ) ) {
             $logger->warn(
@@ -384,14 +385,14 @@ sub node_modify {
             "changed registration status for mac $new_mac from $old_status to $new_status; unregdate has not been specified -> calculating it now"
         );
         my $expire_mode = $Config{'registration'}{'expire_mode'};
-        if (   ( $expire_mode =~ /^window$/i )
+        if (   ( lc($expire_mode) eq 'window' )
             && ( $Config{'registration'}{'expire_window'} > 0 ) )
         {
             $existing->{'unregdate'} = POSIX::strftime(
                 "%Y-%m-%d %H:%M:%S",
                 localtime( time + $Config{'registration'}{'expire_window'} )
             );
-        } elsif ( $expire_mode =~ /^deadline$/i
+        } elsif (  ( lc($expire_mode) eq 'deadline' )
             && ( $Config{'registration'}{'expire_deadline'} - time > 0 ) )
         {
             $existing->{'unregdate'} = POSIX::strftime( "%Y-%m-%d %H:%M:%S",
@@ -418,7 +419,7 @@ sub node_register_auto {
     my %tmp;
     $tmp{'user_agent'} = "AUTOREGISTERED " . mysql_date();
     $tmp{'force'}      = 1;
-    node_register( $mac, $default_pid, %tmp );
+    return node_register( $mac, $default_pid, %tmp );
 }
 
 sub node_register {
@@ -456,14 +457,14 @@ sub node_register {
 
     if ( ( !$info{'unregdate'} ) || ( !valid_date( $info{'unregdate'} ) ) ) {
         my $expire_mode = $Config{'registration'}{'expire_mode'};
-        if (   ( $expire_mode =~ /^window$/i )
+        if (   ( lc($expire_mode) eq 'window' )
             && ( $Config{'registration'}{'expire_window'} > 0 ) )
         {
             $info{'unregdate'} = POSIX::strftime(
                 "%Y-%m-%d %H:%M:%S",
                 localtime( time + $Config{'registration'}{'expire_window'} )
             );
-        } elsif ( $expire_mode =~ /^deadline$/i
+        } elsif (  ( lc($expire_mode) eq 'deadline' )
             && ( $Config{'registration'}{'expire_deadline'} - time > 0 ) )
         {
             $info{'unregdate'} = POSIX::strftime( "%Y-%m-%d %H:%M:%S",
@@ -471,7 +472,7 @@ sub node_register {
         }
     }
 
-    if ( $Config{'network'}{'mode'} =~ /vlan/i ) {
+    if ( lc($Config{'network'}{'mode'})  eq 'vlan' ) {
         if ( !defined( $info{'vlan'} ) ) {
             my %ConfigVlan;
             tie %ConfigVlan, 'Config::IniFiles',
@@ -486,7 +487,7 @@ sub node_register {
         return (0);
     }
 
-    if ( !( $Config{'network'}{'mode'} =~ /vlan/i ) ) {
+    if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
         require pf::iptables;
         if ( !pf::iptables::iptables_mark_node( $mac, $reg_mark ) ) {
             $logger->error("unable to mark node $mac as registered");
@@ -521,7 +522,7 @@ sub node_deregister {
         return (0);
     }
 
-    if ( !( $Config{'network'}{'mode'} =~ /vlan/i ) ) {
+    if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
         require pf::iptables;
         if ( !pf::iptables::iptables_unmark_node( $mac, $reg_mark ) ) {
             $logger->error("unable to delete registration rule for $mac: $!");
@@ -555,7 +556,7 @@ sub nodes_maintenance {
             ( ( $rows > 0 ) ? $INFO : $DEBUG ),
             "modified $rows nodes from status 'reg' to 'unreg' based on unregdate column"
         );
-        if (   $expire_mode =~ /^window$/i
+        if (  ( lc($expire_mode) eq 'window' )
             && $Config{'registration'}{'expire_window'} > 0 )
         {
             $node_expire_window_sql->execute() || return (0);
@@ -564,7 +565,7 @@ sub nodes_maintenance {
                 ( ( $rows > 0 ) ? $INFO : $DEBUG ),
                 "modified $rows nodes from status 'reg' to 'unreg' based on expiration window"
             );
-        } elsif ( $expire_mode =~ /^deadline$/i
+        } elsif (  ( lc($expire_mode) eq 'deadline' )
             && ( time - $Config{'registration'}{'expire_deadline'} > 0 ) )
         {
             $node_expire_deadline_sql->execute() || return (0);
@@ -573,7 +574,7 @@ sub nodes_maintenance {
                 ( ( $rows > 0 ) ? $INFO : $DEBUG ),
                 "modified $rows nodes from status 'reg' to 'unreg' based on expiration deadline"
             );
-        } elsif ( $expire_mode =~ /^session$/i ) {
+        } elsif ( lc($expire_mode) eq 'session' ) {
             $node_expire_session_sql->execute() || return (0);
             $rows = $node_expire_session_sql->rows;
             $logger->log(
