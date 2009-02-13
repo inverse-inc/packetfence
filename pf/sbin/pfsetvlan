@@ -1420,7 +1420,7 @@ sub handleTrap {
         # }}}2
 
         # trapType eq 'secureDynamicMacAddrViolation' {{{2
-    } elsif ( $trapType =~ /secureDynamicMacAddrViolation/ ) {
+    } elsif ( $trapType eq 'secureDynamicMacAddrViolation' ) {
 
         $logger->warn(
             "ERROR: secureDynamicMacAddrViolation traps are currently not supported by PacketFence. Please check our website frequently regarding upgrades !"
