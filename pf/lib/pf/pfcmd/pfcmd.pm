@@ -14,7 +14,7 @@ use Log::Log4perl;
 
 use vars qw/%cmd %table2key $grammar $delimiter/;
 
-$delimiter="|";
+$delimiter = "|";
 
 $::RD_AUTOACTION = q {
   if ($#item>1 ){
@@ -27,13 +27,13 @@ $::RD_AUTOACTION = q {
 };
 
 %table2key = (
-  "person"          => "pid",
-  "node"            => "mac",
-  "violation"       => "id",
-  "class"           => "vid",
-  "trigger"         => "trigger",
-  "scan"            => "id",
-); 
+    "person"    => "pid",
+    "node"      => "mac",
+    "violation" => "id",
+    "class"     => "vid",
+    "trigger"   => "trigger",
+    "scan"      => "id",
+);
 
 $grammar = q {
    start : command eofile
@@ -175,7 +175,5 @@ $grammar = q {
 
    eofile: /^\Z/
 };
-
-
 
 1;

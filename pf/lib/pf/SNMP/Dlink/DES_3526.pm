@@ -27,6 +27,7 @@ use Net::SNMP;
 use base ('pf::SNMP::Dlink');
 
 1;
+
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:

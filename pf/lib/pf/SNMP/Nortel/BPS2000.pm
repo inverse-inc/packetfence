@@ -28,11 +28,13 @@ use Net::SNMP;
 use base ('pf::SNMP::Nortel');
 
 sub getPhonesLLDPAtIfIndex {
-    my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
     my @phones;
-    if (! $this->isVoIPEnabled()) {
-        $logger->debug("VoIP not enabled on switch " . $this->{_ip} . ". getPhonesLLDPAtIfIndex will return empty list.");
+    if ( !$this->isVoIPEnabled() ) {
+        $logger->debug( "VoIP not enabled on switch "
+                . $this->{_ip}
+                . ". getPhonesLLDPAtIfIndex will return empty list." );
         return @phones;
     }
     $logger->debug("LLDP is not available on BPS2000");

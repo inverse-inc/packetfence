@@ -32,28 +32,43 @@ use Net::SNMP;
 use Data::Dumper;
 
 sub deauthenticateMac {
-    my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $this, $mac ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
 
     #format MAC
-    if (length($mac) == 17) {
+    if ( length($mac) == 17 ) {
         $mac =~ s/://g;
-        $mac = substr($mac,0,4) . "." . substr($mac,4,4) . "." . substr($mac,8,4);
+        $mac
+            = substr( $mac, 0, 4 ) . "."
+            . substr( $mac, 4, 4 ) . "."
+            . substr( $mac, 8, 4 );
     } else {
-        $logger->error("ERROR: MAC format is incorrect ($mac). Should be xx:xx:xx:xx:xx:xx");
+        $logger->error(
+            "ERROR: MAC format is incorrect ($mac). Should be xx:xx:xx:xx:xx:xx"
+        );
         return 1;
     }
-    
+
     my $session;
     eval {
-        $session = Net::Appliance::Session->new(Host => $this->{_ip}, Timeout=>5, Transport => $this->{_cliTransport});
-        $session->connect(User => $this->{_cliUser}, Password => $this->{_cliPwd});
+        $session = Net::Appliance::Session->new(
+            Host      => $this->{_ip},
+            Timeout   => 5,
+            Transport => $this->{_cliTransport}
+        );
+        $session->connect(
+            User     => $this->{_cliUser},
+            Password => $this->{_cliPwd}
+        );
     };
 
     if ($@) {
-        $logger->error("ERROR: Can not connect to access point $this->{'_ip'} using " . $this->{_cliTransport});
+        $logger->error(
+            "ERROR: Can not connect to access point $this->{'_ip'} using "
+                . $this->{_cliTransport} );
         return 1;
     }
+
     #if (! $session->enable($this->{_telnetEnablePwd})) {
     #    $logger->error("ERROR: Can not 'enable' telnet connection");
     #    return 1;
@@ -65,71 +80,73 @@ sub deauthenticateMac {
 }
 
 sub isLearntTrapsEnabled {
-    my ($this, $ifIndex) = @_;
-    return (0==1);
+    my ( $this, $ifIndex ) = @_;
+    return ( 0 == 1 );
 }
 
 sub setLearntTrapsEnabled {
-    my ($this, $ifIndex, $trueFalse) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $this, $ifIndex, $trueFalse ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub isRemovedTrapsEnabled {
-    my ($this, $ifIndex) = @_;
-    return (0==1);
+    my ( $this, $ifIndex ) = @_;
+    return ( 0 == 1 );
 }
 
 sub setRemovedTrapsEnabled {
-    my ($this, $ifIndex, $trueFalse) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $this, $ifIndex, $trueFalse ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub getVmVlanType {
-    my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub setVmVlanType {
-    my ($this, $ifIndex, $type) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $this, $ifIndex, $type ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub isTrunkPort {
-    my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub getVlans {
     my ($this) = @_;
-    my $vlans = {};
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $vlans  = {};
+    my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->error("function is NOT implemented");
     return $vlans;
 }
 
 sub isDefinedVlan {
-    my ($this, $vlan) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $this, $vlan ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->error("function is NOT implemented");
     return 0;
 }
 
 sub getPhonesDPAtIfIndex {
-    my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
     my @phones = ();
-    if (! $this->isVoIPEnabled()) {
-        $logger->debug("VoIP not enabled on switch " . $this->{_ip} . ". getPhonesDPAtIfIndex will return empty list.");
+    if ( !$this->isVoIPEnabled() ) {
+        $logger->debug( "VoIP not enabled on switch "
+                . $this->{_ip}
+                . ". getPhonesDPAtIfIndex will return empty list." );
         return @phones;
     }
     $logger->debug("no DP is available on Aironet");

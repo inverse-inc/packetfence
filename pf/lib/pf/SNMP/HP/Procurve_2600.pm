@@ -27,7 +27,6 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::HP');
 
-
 1;
 
 # vim: set shiftwidth=4:

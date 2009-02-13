@@ -29,119 +29,141 @@ use pf::action;
 use pf::os;
 use pf::person;
 
-Log::Log4perl->init(INSTALL_DIR . "/conf/log.conf");
-my $logger = Log::Log4perl->get_logger(basename($0));
-Log::Log4perl::MDC->put('proc', basename($0));
-Log::Log4perl::MDC->put('tid', 0);
+Log::Log4perl->init( INSTALL_DIR . "/conf/log.conf" );
+my $logger = Log::Log4perl->get_logger( basename($0) );
+Log::Log4perl::MDC->put( 'proc', basename($0) );
+Log::Log4perl::MDC->put( 'tid',  0 );
 
-
-$SIG{'HUP'}=\&restart_handler;
+$SIG{'HUP'} = \&restart_handler;
 
 my @ORIG_ARGV = @ARGV;
 my %args;
-getopts('dhvp:', \%args);
+getopts( 'dhvp:', \%args );
 
-usage() if ($args{h} || !$args{p});
+usage() if ( $args{h} || !$args{p} );
 
 my $daemonize = $args{d};
 my $verbose   = $args{v};
 my $snortpipe = $args{p};
 my $script    = basename($0);
 
-my ($line, $sid, $descr, $priority, $date, $srcmac, $srcip, $dstip, $mydbh);
+my ( $line, $sid, $descr, $priority, $date, $srcmac, $srcip, $dstip, $mydbh );
 
 daemonize() if ($daemonize);
 
 $logger->info("initialized");
 
 my $snortpipe_fh;
-if (!open($snortpipe_fh, '<', "$snortpipe")) {
-  $logger->logdie("unable to open snort pipe: $!");
+if ( !open( $snortpipe_fh, '<', "$snortpipe" ) ) {
+    $logger->logdie("unable to open snort pipe: $!");
 } else {
-  $logger->info("listening on $snortpipe");
-  print "pfdetect: listening on $snortpipe\n" if ($verbose);
+    $logger->info("listening on $snortpipe");
+    print "pfdetect: listening on $snortpipe\n" if ($verbose);
 }
 
 while (<$snortpipe_fh>) {
 
-  $logger->info("alert received: $_");
-  if ($_ =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+(.+?)\s+.+?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}\s+\-\>\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}/) {
-    $date  = $1;
-    $sid   = $2;
-    $descr = $3;
-    $srcip = $4;
-    $dstip = $6;
-  } elsif ($_ =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+Portscan\s+detected\s+from\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
-    $date   = $1;
-    $sid    = $portscan_sid;
-    $srcip  = $3;
-    $descr = "PORTSCAN";
-  } elsif ($_ =~ /^(.+?)\[\*\*\] \[\d+:(\d+):\d+\]\s+\(spp_portscan2\) Portscan detected from (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
-    $date  = $1;
-    $sid   = $portscan_sid;
-    $srcip = $3;
-    $descr = "PORTSCAN";
-  } else {
-    $logger->warn("unknown input: $_ ");
-    next;
-  }
-
-  db_connect($mydbh,'iplog','violation','trigger','node','action','class','os','person');
-  $srcmac = ip2mac($srcip);
-  
-  if ($srcmac) {
-    $logger->info("pfdetect: violation $sid [$descr]: $srcmac");
-    if (valid_mac($srcmac) && !whitelisted_mac($srcmac) && 
-        trappable_ip($srcip) && trappable_mac($srcmac)) {
-      #violation_trigger($srcmac, $sid, "detect");
-      `/usr/local/pf/bin/pfcmd violation add vid=$sid,mac=$srcmac`;
-    }else{
-     $logger->info("violation $sid [$descr]: $srcmac not added, host is not trappable, or whitelisted");
+    $logger->info("alert received: $_");
+    if ( $_
+        =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+(.+?)\s+.+?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}\s+\-\>\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}/
+        )
+    {
+        $date  = $1;
+        $sid   = $2;
+        $descr = $3;
+        $srcip = $4;
+        $dstip = $6;
+    } elsif ( $_
+        =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+Portscan\s+detected\s+from\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/
+        )
+    {
+        $date  = $1;
+        $sid   = $portscan_sid;
+        $srcip = $3;
+        $descr = "PORTSCAN";
+    } elsif ( $_
+        =~ /^(.+?)\[\*\*\] \[\d+:(\d+):\d+\]\s+\(spp_portscan2\) Portscan detected from (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/
+        )
+    {
+        $date  = $1;
+        $sid   = $portscan_sid;
+        $srcip = $3;
+        $descr = "PORTSCAN";
+    } else {
+        $logger->warn("unknown input: $_ ");
+        next;
     }
-  }else{
-    $logger->warn("pfdetect: $srcip MAC NOT FOUND for violation $sid [$descr]");
-  }
+
+    db_connect(
+        $mydbh, 'iplog',  'violation', 'trigger',
+        'node', 'action', 'class',     'os',
+        'person'
+    );
+    $srcmac = ip2mac($srcip);
+
+    if ($srcmac) {
+        $logger->info("pfdetect: violation $sid [$descr]: $srcmac");
+        if (   valid_mac($srcmac)
+            && !whitelisted_mac($srcmac)
+            && trappable_ip($srcip)
+            && trappable_mac($srcmac) )
+        {
+
+            #violation_trigger($srcmac, $sid, "detect");
+            `/usr/local/pf/bin/pfcmd violation add vid=$sid,mac=$srcmac`;
+        } else {
+            $logger->info(
+                "violation $sid [$descr]: $srcmac not added, host is not trappable, or whitelisted"
+            );
+        }
+    } else {
+        $logger->warn(
+            "pfdetect: $srcip MAC NOT FOUND for violation $sid [$descr]");
+    }
 
 }
 
 END {
-  deletepid();
-  $logger->info("stopping pfdetect");
-  close($snortpipe_fh);
+    deletepid();
+    $logger->info("stopping pfdetect");
+    close($snortpipe_fh);
 }
 
 exit(0);
 
 sub daemonize {
-  createpid();
-  chdir '/'               or $logger->logdie("Can't chdir to /: $!");
-  open STDIN, '<', '/dev/null' or $logger->logdie("Can't read /dev/null: $!");  
-  open STDOUT, '>', '/dev/null' or $logger->logdie("Can't write to /dev/null: $!");
+    createpid();
+    chdir '/' or $logger->logdie("Can't chdir to /: $!");
+    open STDIN, '<', '/dev/null'
+        or $logger->logdie("Can't read /dev/null: $!");
+    open STDOUT, '>', '/dev/null'
+        or $logger->logdie("Can't write to /dev/null: $!");
 
-  defined(my $pid = fork) or $logger->logdie("pfdetect: could not fork: $!");
-  POSIX::_exit(0) if ($pid);
-  if (!POSIX::setsid()) {
-    $logger->warn("could not start a new session: $!");
-  }
-  open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
+    defined( my $pid = fork )
+        or $logger->logdie("pfdetect: could not fork: $!");
+    POSIX::_exit(0) if ($pid);
+    if ( !POSIX::setsid() ) {
+        $logger->warn("could not start a new session: $!");
+    }
+    open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
 }
 
 sub normal_sighandler {
-  deletepid();
-  $logger->logdie("caught SIG".$_[0]." - terminating");
+    deletepid();
+    $logger->logdie( "caught SIG" . $_[0] . " - terminating" );
 }
 
 sub restart_handler {
-  deletepid();
-  $logger->info("caught SIG".$_[0]." - restarting");
-  if (!exec($0, @ORIG_ARGV)) {
-    logger->logdie("could not restart: #!");
-  }
+    deletepid();
+    $logger->info( "caught SIG" . $_[0] . " - restarting" );
+    if ( !exec( $0, @ORIG_ARGV ) ) {
+        logger->logdie("could not restart: #!");
+    }
 }
 
 sub usage {
-  my $cmd = basename($0);
-  print STDERR << "EOF";
+    my $cmd = basename($0);
+    print STDERR << "EOF";
   Usage: $cmd -p snortpipe [OPTIONS]
 
   Options:
@@ -149,5 +171,5 @@ sub usage {
         -v  Verbose
         -h  Help
 EOF
-  exit;
+    exit;
 }

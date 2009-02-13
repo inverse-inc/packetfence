@@ -31,133 +31,145 @@ use Net::SNMP;
 use Net::Telnet;
 
 sub deauthenticateMac {
-    my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $this, $mac ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
     my $OID_bsnMobileStationDeleteAction = '1.3.6.1.4.1.14179.2.1.4.1.22';
 
-    if (! $this->isProductionMode()) {
-        $logger->info("not in production mode ... we won't write to the bnsMobileStationTable");
+    if ( !$this->isProductionMode() ) {
+        $logger->info(
+            "not in production mode ... we won't write to the bnsMobileStationTable"
+        );
         return 1;
     }
 
-    if (! $this->connectWrite()) {
+    if ( !$this->connectWrite() ) {
         return 0;
     }
 
     #format MAC
-    if (length($mac) == 17) {
-        my @macArray = split(/:/, $mac);
+    if ( length($mac) == 17 ) {
+        my @macArray = split( /:/, $mac );
         my $completeOid = $OID_bsnMobileStationDeleteAction;
         foreach my $macPiece (@macArray) {
             $completeOid .= "." . hex($macPiece);
         }
-        $logger->trace("SNMP set_request for bsnMobileStationDeleteAction: $completeOid");
-        my $result = $this->{_sessionWrite}->set_request(
-            -varbindlist => [
-                $completeOid, Net::SNMP::INTEGER, 1
-            ]
+        $logger->trace(
+            "SNMP set_request for bsnMobileStationDeleteAction: $completeOid"
         );
-        return (defined($result));
+        my $result = $this->{_sessionWrite}->set_request(
+            -varbindlist => [ $completeOid, Net::SNMP::INTEGER, 1 ] );
+        return ( defined($result) );
     } else {
-        $logger->error("ERROR: MAC format is incorrect ($mac). Should be xx:xx:xx:xx:xx:xx");
+        $logger->error(
+            "ERROR: MAC format is incorrect ($mac). Should be xx:xx:xx:xx:xx:xx"
+        );
         return 1;
     }
 }
 
 sub blacklistMac {
-    my ($this, $mac, $description) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $this, $mac, $description ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    if (length($mac) == 17) {
+    if ( length($mac) == 17 ) {
 
         my $session;
         eval {
-            $session = Net::Telnet->new(Host => $this->{_ip}, Timeout=>5, Prompt => '/[\$%#>]$/');
+            $session = Net::Telnet->new(
+                Host    => $this->{_ip},
+                Timeout => 5,
+                Prompt  => '/[\$%#>]$/'
+            );
             $session->waitfor('/User: /');
-            $session->put($this->{_telnetUser} . "\n");
+            $session->put( $this->{_telnetUser} . "\n" );
             $session->waitfor('/Password:/');
-            $session->put($this->{_telnetPwd} . "\n");
-            $session->waitfor($session->prompt);
+            $session->put( $this->{_telnetPwd} . "\n" );
+            $session->waitfor( $session->prompt );
         };
 
         if ($@) {
-            $logger->error("ERROR: Can not connect to access point $this->{'_ip'} using telnet");
+            $logger->error(
+                "ERROR: Can not connect to access point $this->{'_ip'} using telnet"
+            );
             return 1;
         }
         $logger->info("Blacklisting mac $mac");
         $session->cmd("config exclusionlist add $mac");
-        $session->cmd("config exclusionlist description $mac \"$description\"");
+        $session->cmd(
+            "config exclusionlist description $mac \"$description\"");
         $session->close();
     }
     return 1;
 }
 
 sub isLearntTrapsEnabled {
-    my ($this, $ifIndex) = @_;
-    return (0==1);
+    my ( $this, $ifIndex ) = @_;
+    return ( 0 == 1 );
 }
 
 sub setLearntTrapsEnabled {
-    my ($this, $ifIndex, $trueFalse) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $this, $ifIndex, $trueFalse ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub isRemovedTrapsEnabled {
-    my ($this, $ifIndex) = @_;
-    return (0==1);
+    my ( $this, $ifIndex ) = @_;
+    return ( 0 == 1 );
 }
 
 sub setRemovedTrapsEnabled {
-    my ($this, $ifIndex, $trueFalse) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $this, $ifIndex, $trueFalse ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub getVmVlanType {
-    my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub setVmVlanType {
-    my ($this, $ifIndex, $type) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $this, $ifIndex, $type ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub isTrunkPort {
-    my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub getVlans {
     my ($this) = @_;
-    my $vlans = {};
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $vlans  = {};
+    my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->error("function is NOT implemented");
     return $vlans;
 }
 
 sub isDefinedVlan {
-    my ($this, $vlan) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $this, $vlan ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->error("function is NOT implemented");
     return 0;
 }
 
 sub getPhonesDPAtIfIndex {
-    my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
     my @phones = ();
-    if (! $this->isVoIPEnabled()) {
-        $logger->debug("VoIP not enabled on switch " . $this->{_ip} . ". getPhonesDPAtIfIndex will return empty list.");
+    if ( !$this->isVoIPEnabled() ) {
+        $logger->debug( "VoIP not enabled on switch "
+                . $this->{_ip}
+                . ". getPhonesDPAtIfIndex will return empty list." );
         return @phones;
     }
     $logger->debug("no DP is available on Controller 4400");

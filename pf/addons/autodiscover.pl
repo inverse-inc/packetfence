@@ -35,7 +35,6 @@ This program is available under the GPL.
 
 =cut
 
-
 use strict;
 use warnings;
 use diagnostics;
@@ -48,7 +47,7 @@ use Net::SNMP;
 use Data::Dumper;
 
 use constant {
-    LIB_DIR => $FindBin::Bin . "/../lib",
+    LIB_DIR   => $FindBin::Bin . "/../lib",
     CONF_FILE => $FindBin::Bin . "/../conf/switches.conf",
 };
 
@@ -64,93 +63,108 @@ my $help;
 my $man;
 my $logLevel = 0;
 GetOptions(
-    "help|?" => \$help,
-    "man" => \$man,
+    "help|?"    => \$help,
+    "man"       => \$man,
     "verbose:i" => \$logLevel,
-) or pod2usage( -verbose => 1);
-        
-pod2usage( -verbose => 2) if $man;
-pod2usage( -verbose => 1) if $help;
+) or pod2usage( -verbose => 1 );
 
-if ($logLevel == 0) {
+pod2usage( -verbose => 2 ) if $man;
+pod2usage( -verbose => 1 ) if $help;
+
+if ( $logLevel == 0 ) {
     $logLevel = $FATAL;
-} elsif ($logLevel == 1) {
+} elsif ( $logLevel == 1 ) {
     $logLevel = $WARN;
-} elsif ($logLevel == 2) {
+} elsif ( $logLevel == 2 ) {
     $logLevel = $INFO;
 } else {
     $logLevel = $DEBUG;
 }
 Log::Log4perl->easy_init(
-    {
-        level => $logLevel,
+    {   level  => $logLevel,
         layout => '%d (%r) %M  %m %n'
     }
 );
 my $logger = Log::Log4perl->get_logger('');
 
+my $switchFactory = new pf::SwitchFactory( -configFile => CONF_FILE );
 
-my $switchFactory = new pf::SwitchFactory(
-    -configFile => CONF_FILE
-);
-
-foreach my $switchDesc (sort keys %{$switchFactory->{'_config'}}) {
-    if (($switchDesc ne 'default') && ($switchFactory->{'_config'}->{$switchDesc}->{'mode'} =~ /^discovery/)) {
+foreach my $switchDesc ( sort keys %{ $switchFactory->{'_config'} } ) {
+    if (( $switchDesc ne 'default' )
+        && ( $switchFactory->{'_config'}->{$switchDesc}->{'mode'}
+            =~ /^discovery/ )
+        )
+    {
         my $switch = $switchFactory->instantiate($switchDesc);
         print "$switchDesc\n";
         my $allMacs = $switch->getAllMacs();
-        foreach my $ifIndex (sort keys %$allMacs) {
+        foreach my $ifIndex ( sort keys %$allMacs ) {
             print "ifIndex $ifIndex\n";
             my $nbPhones = 0;
-            my $nbPCs = 0;
-            foreach my $vlan (sort keys %{$allMacs->{$ifIndex}}) {
+            my $nbPCs    = 0;
+            foreach my $vlan ( sort keys %{ $allMacs->{$ifIndex} } ) {
                 print " -> vlan $vlan\n";
-                foreach my $mac (@{$allMacs->{$ifIndex}->{$vlan}}) {
+                foreach my $mac ( @{ $allMacs->{$ifIndex}->{$vlan} } ) {
                     print "    - MAC: $mac";
                     my $isFake = 0;
-                    if ($switch->isFakeMac($mac)) {
+                    if ( $switch->isFakeMac($mac) ) {
                         print " (fake PC MAC)";
                         $isFake = 1;
-                    };
-                    if ($switch->isFakeVoIPMac($mac)) {
+                    }
+                    if ( $switch->isFakeVoIPMac($mac) ) {
                         print " (fake VoIP MAC)";
                         $isFake = 1;
-                    };
-                    if (! $isFake) {
-                        if ($switch->isPhoneAtIfIndex($mac, $ifIndex)) {
+                    }
+                    if ( !$isFake ) {
+                        if ( $switch->isPhoneAtIfIndex( $mac, $ifIndex ) ) {
                             print " (real VoIP MAC)";
-                            $nbPhones++;                        
+                            $nbPhones++;
                         } else {
                             $nbPCs++;
                             print " (real PC MAC)";
                         }
-                        if (node_exist($mac)) {
+                        if ( node_exist($mac) ) {
                             my $node_info = node_view($mac);
-                            if (($node_info->{'switch'} ne $switch->{_ip}) || ($node_info->{'port'} ne $ifIndex)) {
-                                print "\n       node switch and port not up2date (old info is " . $node_info->{'switch'} . " ifIndex " . $node_info->{'port'} . ")\n";
-                                node_modify($mac, (switch => $switch->{_ip}, port => $ifIndex));
+                            if ( ( $node_info->{'switch'} ne $switch->{_ip} )
+                                || ( $node_info->{'port'} ne $ifIndex ) )
+                            {
+                                print
+                                    "\n       node switch and port not up2date (old info is "
+                                    . $node_info->{'switch'}
+                                    . " ifIndex "
+                                    . $node_info->{'port'} . ")\n";
+                                node_modify(
+                                    $mac,
+                                    (   switch => $switch->{_ip},
+                                        port   => $ifIndex
+                                    )
+                                );
                             }
                         } else {
-                            print "\n       node $mac doesn't exist in node table\n";
+                            print
+                                "\n       node $mac doesn't exist in node table\n";
                             node_add_simple($mac);
-                            node_modify($mac, (switch => $switch->{_ip}, port => $ifIndex));
+                            node_modify(
+                                $mac,
+                                (   switch => $switch->{_ip},
+                                    port   => $ifIndex
+                                )
+                            );
                         }
                     }
                     print "\n";
                 }
             }
-            if ($nbPhones > 1) {
+            if ( $nbPhones > 1 ) {
                 print "found more than 1 phone on this switchport\n";
             }
-            if ($nbPCs > 1) {
+            if ( $nbPCs > 1 ) {
                 print "found more than 1 PC on this switchport\n";
             }
         }
         print "\n";
     }
 }
-
-
 
 # vim: set shiftwidth=4:
 # vim: set expandtab:

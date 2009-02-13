@@ -28,7 +28,6 @@ use constant INSTALL_DIR => '/usr/local/pf';
 
 use lib INSTALL_DIR . "/lib";
 
-
 use pf::config;
 use pf::util;
 use pf::pfcmd::pfcmd;
@@ -36,61 +35,63 @@ use pf::pfcmd::pfcmd;
 delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
 
 Log::Log4perl->init("$conf_dir/log.conf");
-my $logger = Log::Log4perl->get_logger(basename($0));
-Log::Log4perl::MDC->put('proc', basename($0));
-Log::Log4perl::MDC->put('tid', 0);
+my $logger = Log::Log4perl->get_logger( basename($0) );
+Log::Log4perl::MDC->put( 'proc', basename($0) );
+Log::Log4perl::MDC->put( 'tid',  0 );
 
-
-if (defined($ENV{'PATH'})) {
-    my @PATH = split(/:/,$ENV{'PATH'});
+if ( defined( $ENV{'PATH'} ) ) {
+    my @PATH = split( /:/, $ENV{'PATH'} );
     my $pos = 0;
-    while (($pos < scalar(@PATH)) && (! ( -x "$PATH[$pos]/getenforce" ))) {
+    while ( ( $pos < scalar(@PATH) ) && ( !( -x "$PATH[$pos]/getenforce" ) ) )
+    {
         $pos++;
     }
-    if ($pos < scalar(@PATH)) {
+    if ( $pos < scalar(@PATH) ) {
         my $enforcing = `$PATH[$pos]/getenforce`;
-        if ($enforcing eq 'Enforcing') {
-            $logger->fatal('SELinux is in enforcing mode. This is currently not supported in PacketFence');
-            $logger->logdie('SELinux is in enforcing mode. This is currently not supported in PacketFence');
+        if ( $enforcing eq 'Enforcing' ) {
+            $logger->fatal(
+                'SELinux is in enforcing mode. This is currently not supported in PacketFence'
+            );
+            $logger->logdie(
+                'SELinux is in enforcing mode. This is currently not supported in PacketFence'
+            );
         }
     }
 }
-
-
 
 $ENV{PATH} = "/bin:/sbin:/usr/bin:/usr/sbin";
 
 my $count  = $ENV{PER_PAGE};
 my $offset = $ENV{PAGE_NUM};
 
-@ARGV = ($ENV{ARGS}) if ($ENV{ARGS});
+@ARGV = ( $ENV{ARGS} ) if ( $ENV{ARGS} );
 
-if ($offset && $offset > 0) {
-  $offset = $offset - 1;
-  $offset = $offset * $count;
+if ( $offset && $offset > 0 ) {
+    $offset = $offset - 1;
+    $offset = $offset * $count;
 }
 
 my %defaults;
 my %myconfig;
 my %documentation;
 
-if (defined $ENV{GATEWAY_INTERFACE}){
-  require CGI;
-  import CGI qw(-no_debug :standard);
-  my $q = new CGI;
-  if ($q->param('ARGS')) {
-   @ARGV = $q->param("ARGS");
-   print $q->header;
-  } elsif (scalar(@ARGV) == 0) {
-    print 'ERROR in parameters';
-    return(0);
-  }
+if ( defined $ENV{GATEWAY_INTERFACE} ) {
+    require CGI;
+    import CGI qw(-no_debug :standard);
+    my $q = new CGI;
+    if ( $q->param('ARGS') ) {
+        @ARGV = $q->param("ARGS");
+        print $q->header;
+    } elsif ( scalar(@ARGV) == 0 ) {
+        print 'ERROR in parameters';
+        return (0);
+    }
 }
 
 # legacy mode - allow ./start|./stop|./restart symlinks
 my $called_name = basename($0);
-if ($called_name =~ /^(start|stop|restart)$/i) {
-  @ARGV = ('service', 'pf', $called_name);
+if ( $called_name =~ /^(start|stop|restart)$/i ) {
+    @ARGV = ( 'service', 'pf', $called_name );
 }
 
 # generate pre-compiled grammar
@@ -101,124 +102,190 @@ if ($called_name =~ /^(start|stop|restart)$/i) {
 #my $parser=Parse::RecDescent->new($grammar);
 
 my @arguments;
-if (scalar(@ARGV) == 1) {
-  @arguments = split (/ +/, $ARGV[0]);
+if ( scalar(@ARGV) == 1 ) {
+    @arguments = split( / +/, $ARGV[0] );
 } else {
-  @arguments = @ARGV;
+    @arguments = @ARGV;
 }
 
 my $command;
-if ((scalar(@arguments) == 1) && ($arguments[0] eq 'version')) {
-  $command = 'version';
-  version();
-  exit(1);
-} elsif ((scalar(@arguments) == 2) && ($arguments[0] eq 'configfiles') && ($arguments[1] =~ /^(push|pull)$/)) {
-  $command = 'configfiles';
-  $cmd{command}[0] = 'configfiles';
-  $cmd{command}[1] = $arguments[1];
-  configfiles();
-  exit(1);
-} elsif ((scalar(@arguments) == 2) && ($arguments[0] eq 'help')) {
-  $command = 'help';
-  $cmd{command}[1] = $arguments[1];
-  help();
-  exit(1);
-} elsif ((scalar(@arguments) == 2) && ($arguments[0] eq 'reload') && ($arguments[1] =~ /^(fingerprints|violations)$/)) {
-  $command = 'reload';
-  $cmd{command}[0] = 'reload';
-  $cmd{command}[1] = $arguments[1];
-  reload();
-  exit(1);
-} elsif ((scalar(@arguments) == 2) && ($arguments[0] eq 'report') && ($arguments[1] =~ /^(inactive|active|unregistered|registered|osclass|os|unknownprints|openviolations|statics)$/)) {
-  $command = $arguments[0];
-  $cmd{command}[0] = $arguments[0];
-  $cmd{command}[1] = $arguments[1];
-  report();
-  exit(1);
-} elsif ((scalar(@arguments) == 2) && ($arguments[0] eq 'update') && ($arguments[1] =~ /^(fingerprints|oui)$/)) {
-  $command = 'update';
-  $cmd{command}[0] = 'update';
-  $cmd{command}[1] = $arguments[1];
-  update();
-  exit(1);
-} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'class') && ($arguments[1] eq 'view') && ($arguments[2] =~ /^(all|\d+)$/)) {
-  $command = 'class';
-  $cmd{'command'}[2] = $arguments[2];
-  class();
-  exit(1);
-} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'lookup') && ($arguments[1] =~ /^(person|node)$/) && ($arguments[2] =~ /^[\/,0-9a-zA-Z_\*\.\-\:_\;\@\ ]*$/)) {
-  $command = 'lookup';
-  $cmd{'command'}[0] = $arguments[0];
-  $cmd{'command'}[1] = $arguments[1];
-  $cmd{'command'}[2] = $arguments[2];
-  lookup();
-  exit(1);
-} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'nodecategory') && ($arguments[1] eq 'view') && ($arguments[2] =~ /^\w+$/)) {
-  $command = 'nodecategory';
-  $cmd{'command'}[2] = $arguments[2];
-  nodecategory();
-  exit(1);
-} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'report') && ($arguments[1] =~ /^(unregistered|registered|osclass|os|unknownprints|openviolations|statics)$/) && ($arguments[2] =~ /^(all|active)$/)) {
-  $command = $arguments[0];
-  $cmd{'command'}[0] = $arguments[0];
-  $cmd{'command'}[1] = $arguments[1];
-  $cmd{'command'}[2] = $arguments[2];
-  report();
-  exit(1);
-} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'service') && ($arguments[1] =~ /^(named|dhcpd|pfmon|pfdhcplistener|pfdetect|pfredirect|snort|httpd|pfsetvlan|snmptrapd|pf)$/) && ($arguments[2] =~ /^(stop|start|restart|status|watch)$/)) {
-  $command = $arguments[0];
-  $cmd{'command'}[0] = $arguments[0];
-  $cmd{'command'}[1] = $arguments[1];
-  $cmd{'command'}[2] = $arguments[2];
-  exit service();
-} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'interfaceconfig') && ($arguments[1] =~ /^(get|delete)$/) && ($arguments[2] =~ /^(all|[^ ]+)$/)) {
-  $command = $arguments[0];
-  $cmd{'command'}[0] = $arguments[0];
-  $cmd{'command'}[1] = $arguments[1];
-  $cmd{'command'}[2] = $arguments[2];
-  interfaceconfig();
-  exit(1);
-} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'networkconfig') && ($arguments[1] =~ /^(get|delete)$/) && ($arguments[2] =~ /^(all|(\d{1,3}\.){3}\d{1,3})$/)) {
-  $command = $arguments[0];
-  $cmd{'command'}[0] = $arguments[0];
-  $cmd{'command'}[1] = $arguments[1];
-  $cmd{'command'}[2] = $arguments[2];
-  networkconfig();
-  exit(1);
-} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'switchconfig') && ($arguments[1] =~ /^(get|delete)$/) && ($arguments[2] =~ /^(all|default|(\d{1,3}\.){3}\d{1,3})$/)) {
-  $command = $arguments[0];
-  $cmd{'command'}[0] = $arguments[0];
-  $cmd{'command'}[1] = $arguments[1];
-  $cmd{'command'}[2] = $arguments[2];
-  switchconfig();
-  exit(1);
-} elsif ((scalar(@arguments) == 3) && ($arguments[0] eq 'violationconfig') && ($arguments[1] =~ /^(get|delete)$/) && ($arguments[2] =~ /^(all|defaults|(\d+))$/)) {
-  $command = $arguments[0];
-  $cmd{'command'}[0] = $arguments[0];
-  $cmd{'command'}[1] = $arguments[1];
-  $cmd{'command'}[2] = $arguments[2];
-  violationconfig();
-  exit(1);
-} elsif ((scalar(@arguments) == 4) && ($arguments[0] eq 'switchlocation') && ($arguments[1] eq 'view') && ($arguments[2] =~ /^(\d{1,3}\.){3}\d{1,3}$/) && ($arguments[3] =~ /^\d+$/)) {
-  $command = $arguments[0];
-  $cmd{'command'}[0] = $arguments[0];
-  $cmd{'command'}[1] = $arguments[1];
-  $cmd{'command'}[2] = $arguments[2];
-  $cmd{'command'}[3] = $arguments[3];
-  switchlocation();
-  exit(1);
+if ( ( scalar(@arguments) == 1 ) && ( $arguments[0] eq 'version' ) ) {
+    $command = 'version';
+    version();
+    exit(1);
+} elsif ( ( scalar(@arguments) == 2 )
+    && ( $arguments[0] eq 'configfiles' )
+    && ( $arguments[1] =~ /^(push|pull)$/ ) )
+{
+    $command         = 'configfiles';
+    $cmd{command}[0] = 'configfiles';
+    $cmd{command}[1] = $arguments[1];
+    configfiles();
+    exit(1);
+} elsif ( ( scalar(@arguments) == 2 ) && ( $arguments[0] eq 'help' ) ) {
+    $command = 'help';
+    $cmd{command}[1] = $arguments[1];
+    help();
+    exit(1);
+} elsif ( ( scalar(@arguments) == 2 )
+    && ( $arguments[0] eq 'reload' )
+    && ( $arguments[1] =~ /^(fingerprints|violations)$/ ) )
+{
+    $command         = 'reload';
+    $cmd{command}[0] = 'reload';
+    $cmd{command}[1] = $arguments[1];
+    reload();
+    exit(1);
+} elsif (
+    ( scalar(@arguments) == 2 )
+    && ( $arguments[0] eq 'report' )
+    && ( $arguments[1]
+        =~ /^(inactive|active|unregistered|registered|osclass|os|unknownprints|openviolations|statics)$/
+    )
+    )
+{
+    $command         = $arguments[0];
+    $cmd{command}[0] = $arguments[0];
+    $cmd{command}[1] = $arguments[1];
+    report();
+    exit(1);
+} elsif ( ( scalar(@arguments) == 2 )
+    && ( $arguments[0] eq 'update' )
+    && ( $arguments[1] =~ /^(fingerprints|oui)$/ ) )
+{
+    $command         = 'update';
+    $cmd{command}[0] = 'update';
+    $cmd{command}[1] = $arguments[1];
+    update();
+    exit(1);
+} elsif ( ( scalar(@arguments) == 3 )
+    && ( $arguments[0] eq 'class' )
+    && ( $arguments[1] eq 'view' )
+    && ( $arguments[2] =~ /^(all|\d+)$/ ) )
+{
+    $command = 'class';
+    $cmd{'command'}[2] = $arguments[2];
+    class();
+    exit(1);
+} elsif ( ( scalar(@arguments) == 3 )
+    && ( $arguments[0] eq 'lookup' )
+    && ( $arguments[1] =~ /^(person|node)$/ )
+    && ( $arguments[2] =~ /^[\/,0-9a-zA-Z_\*\.\-\:_\;\@\ ]*$/ ) )
+{
+    $command           = 'lookup';
+    $cmd{'command'}[0] = $arguments[0];
+    $cmd{'command'}[1] = $arguments[1];
+    $cmd{'command'}[2] = $arguments[2];
+    lookup();
+    exit(1);
+} elsif ( ( scalar(@arguments) == 3 )
+    && ( $arguments[0] eq 'nodecategory' )
+    && ( $arguments[1] eq 'view' )
+    && ( $arguments[2] =~ /^\w+$/ ) )
+{
+    $command = 'nodecategory';
+    $cmd{'command'}[2] = $arguments[2];
+    nodecategory();
+    exit(1);
+} elsif (
+    ( scalar(@arguments) == 3 )
+    && ( $arguments[0] eq 'report' )
+    && ( $arguments[1]
+        =~ /^(unregistered|registered|osclass|os|unknownprints|openviolations|statics)$/
+    )
+    && ( $arguments[2] =~ /^(all|active)$/ )
+    )
+{
+    $command           = $arguments[0];
+    $cmd{'command'}[0] = $arguments[0];
+    $cmd{'command'}[1] = $arguments[1];
+    $cmd{'command'}[2] = $arguments[2];
+    report();
+    exit(1);
+} elsif (
+    ( scalar(@arguments) == 3 )
+    && ( $arguments[0] eq 'service' )
+    && ( $arguments[1]
+        =~ /^(named|dhcpd|pfmon|pfdhcplistener|pfdetect|pfredirect|snort|httpd|pfsetvlan|snmptrapd|pf)$/
+    )
+    && ( $arguments[2] =~ /^(stop|start|restart|status|watch)$/ )
+    )
+{
+    $command           = $arguments[0];
+    $cmd{'command'}[0] = $arguments[0];
+    $cmd{'command'}[1] = $arguments[1];
+    $cmd{'command'}[2] = $arguments[2];
+    exit service();
+} elsif ( ( scalar(@arguments) == 3 )
+    && ( $arguments[0] eq 'interfaceconfig' )
+    && ( $arguments[1] =~ /^(get|delete)$/ )
+    && ( $arguments[2] =~ /^(all|[^ ]+)$/ ) )
+{
+    $command           = $arguments[0];
+    $cmd{'command'}[0] = $arguments[0];
+    $cmd{'command'}[1] = $arguments[1];
+    $cmd{'command'}[2] = $arguments[2];
+    interfaceconfig();
+    exit(1);
+} elsif ( ( scalar(@arguments) == 3 )
+    && ( $arguments[0] eq 'networkconfig' )
+    && ( $arguments[1] =~ /^(get|delete)$/ )
+    && ( $arguments[2] =~ /^(all|(\d{1,3}\.){3}\d{1,3})$/ ) )
+{
+    $command           = $arguments[0];
+    $cmd{'command'}[0] = $arguments[0];
+    $cmd{'command'}[1] = $arguments[1];
+    $cmd{'command'}[2] = $arguments[2];
+    networkconfig();
+    exit(1);
+} elsif ( ( scalar(@arguments) == 3 )
+    && ( $arguments[0] eq 'switchconfig' )
+    && ( $arguments[1] =~ /^(get|delete)$/ )
+    && ( $arguments[2] =~ /^(all|default|(\d{1,3}\.){3}\d{1,3})$/ ) )
+{
+    $command           = $arguments[0];
+    $cmd{'command'}[0] = $arguments[0];
+    $cmd{'command'}[1] = $arguments[1];
+    $cmd{'command'}[2] = $arguments[2];
+    switchconfig();
+    exit(1);
+} elsif ( ( scalar(@arguments) == 3 )
+    && ( $arguments[0] eq 'violationconfig' )
+    && ( $arguments[1] =~ /^(get|delete)$/ )
+    && ( $arguments[2] =~ /^(all|defaults|(\d+))$/ ) )
+{
+    $command           = $arguments[0];
+    $cmd{'command'}[0] = $arguments[0];
+    $cmd{'command'}[1] = $arguments[1];
+    $cmd{'command'}[2] = $arguments[2];
+    violationconfig();
+    exit(1);
+} elsif ( ( scalar(@arguments) == 4 )
+    && ( $arguments[0] eq 'switchlocation' )
+    && ( $arguments[1] eq 'view' )
+    && ( $arguments[2] =~ /^(\d{1,3}\.){3}\d{1,3}$/ )
+    && ( $arguments[3] =~ /^\d+$/ ) )
+{
+    $command           = $arguments[0];
+    $cmd{'command'}[0] = $arguments[0];
+    $cmd{'command'}[1] = $arguments[1];
+    $cmd{'command'}[2] = $arguments[2];
+    $cmd{'command'}[3] = $arguments[3];
+    switchlocation();
+    exit(1);
 } else {
-  # precompiled grammar (2.6x increase in speed)
-  require pf::pfcmd::pfcmd_pregrammar;
-  import pf::pfcmd::pfcmd_pregrammar;
-  my $parser=pfcmd_pregrammar->new();
 
-  my $result = $parser->start(join " ",@ARGV);
-  if (! defined($result)) {
-    require pf::pfcmd::help;
-    pf::pfcmd::help::usage();
-  }
-  $command = $cmd{'command'}[0];
+    # precompiled grammar (2.6x increase in speed)
+    require pf::pfcmd::pfcmd_pregrammar;
+    import pf::pfcmd::pfcmd_pregrammar;
+    my $parser = pfcmd_pregrammar->new();
+
+    my $result = $parser->start( join " ", @ARGV );
+    if ( !defined($result) ) {
+        require pf::pfcmd::help;
+        pf::pfcmd::help::usage();
+    }
+    $command = $cmd{'command'}[0];
 }
 
 #if ($command =~ /^(version|class|help|history|ipmachistory|locationhistoryswitch|locationhistorymac|ifoctetshistorymac|ifoctetshistoryswitch|ifoctetshistoryuser|report|ui|graph|switchlocation|nodecategory|trigger)$/i) {
@@ -226,627 +293,706 @@ if ((scalar(@arguments) == 1) && ($arguments[0] eq 'version')) {
 #  exit 1;
 #}
 
-if ($command =~ /^person$/i) {
-  require pf::person;
-  import pf::person;
-  command_param($command);
-} elsif ($command =~ /^node$/i) {
-  require pf::node;
-  import pf::node;
-  command_param($command);
-} elsif ($command =~ /^violation$/i) {
-  require pf::violation;
-  import pf::violation;
-  command_param($command);
+if ( $command =~ /^person$/i ) {
+    require pf::person;
+    import pf::person;
+    command_param($command);
+} elsif ( $command =~ /^node$/i ) {
+    require pf::node;
+    import pf::node;
+    command_param($command);
+} elsif ( $command =~ /^violation$/i ) {
+    require pf::violation;
+    import pf::violation;
+    command_param($command);
 } else {
-  ($main::{${$cmd{'command'}}[0]} or sub { print "No such sub: $_\n" })->();
+    (   $main::{ ${ $cmd{'command'} }[0] }
+            or sub { print "No such sub: $_\n" }
+    )->();
 }
+
 # END MAIN
 
 sub help {
-  my $service = $cmd{command}[1];
-  require pf::pfcmd::help;
-  my $functionName = "pf::pfcmd::help::help_$service";
-  if (!$service || !defined(&$functionName)) {
-    pf::pfcmd::help::usage();
-  }else {
-    ($pf::pfcmd::help::{"help_".$service})->();
-  }
+    my $service = $cmd{command}[1];
+    require pf::pfcmd::help;
+    my $functionName = "pf::pfcmd::help::help_$service";
+    if ( !$service || !defined(&$functionName) ) {
+        pf::pfcmd::help::usage();
+    } else {
+        ( $pf::pfcmd::help::{ "help_" . $service } )->();
+    }
 }
-
 
 # will be replaced in 1.6ish with SOAP
 #
 sub manage {
-  my $option = $cmd{manage_options}[0];
-  my $mac = lc($cmd{manage_options}[1]);
-  my $id;
-  $id = $cmd{manage_options}[2] if (defined $cmd{manage_options}[2]);
-  my $function = "manage_" . $option;
-  if ($option eq "freemac"){
-    require pf::rawip;
-    pf::rawip::freemac($mac);  
-  }elsif ($option eq "register"){
-    return(0) if (!$id);
-    my %params=format_assignment(@{$cmd{assignment}});
-    require pf::node;
-    pf::node::node_register($mac,$id,%params);
-  }elsif ($option eq "deregister"){
-    require pf::node;
-    pf::node::node_deregister($mac);
-    if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
-      require pf::iptables;
-      pf::iptables::iptables_generate();
+    my $option = $cmd{manage_options}[0];
+    my $mac    = lc( $cmd{manage_options}[1] );
+    my $id;
+    $id = $cmd{manage_options}[2] if ( defined $cmd{manage_options}[2] );
+    my $function = "manage_" . $option;
+    if ( $option eq "freemac" ) {
+        require pf::rawip;
+        pf::rawip::freemac($mac);
+    } elsif ( $option eq "register" ) {
+        return (0) if ( !$id );
+        my %params = format_assignment( @{ $cmd{assignment} } );
+        require pf::node;
+        pf::node::node_register( $mac, $id, %params );
+    } elsif ( $option eq "deregister" ) {
+        require pf::node;
+        pf::node::node_deregister($mac);
+        if ( !( $Config{'network'}{'mode'} =~ /vlan/i ) ) {
+            require pf::iptables;
+            pf::iptables::iptables_generate();
+        }
+    } elsif ( $option eq "vclose" ) {
+        return (-1) if ( !$id );
+        require pf::violation;
+        print pf::violation::violation_close( $mac, $id );
+    } elsif ( $option eq "vopen" ) {
+        return (-1) if ( !$id );
+        require pf::violation;
+        print pf::violation::violation_add( $mac, $id );
     }
-  }elsif ($option eq "vclose"){
-    return(-1) if (!$id);
-    require pf::violation;
-    print pf::violation::violation_close($mac,$id);
-  }elsif ($option eq "vopen"){
-    return(-1) if (!$id);
-    require pf::violation;
-    print pf::violation::violation_add($mac,$id);
-  }
-  generate_switchport_vlan_assignment($mac,$function);
+    generate_switchport_vlan_assignment( $mac, $function );
 }
 
 sub locationhistoryswitch {
-  require pf::locationlog;
-  import pf::locationlog;
-  my $switch = $cmd{command}[1];
-  my $ifIndex = $cmd{command}[2];
-  my $date;
-  $date = str2time($cmd{command}[3]) if (defined $cmd{command}[1]);
-  my %params;
-  $params{'ifIndex'} = $ifIndex;
-  if ($date) {
-    $params{'date'} = $date;
-  }
-  exit(print_results("locationlog_history_switchport", $switch, %params));
+    require pf::locationlog;
+    import pf::locationlog;
+    my $switch  = $cmd{command}[1];
+    my $ifIndex = $cmd{command}[2];
+    my $date;
+    $date = str2time( $cmd{command}[3] ) if ( defined $cmd{command}[1] );
+    my %params;
+    $params{'ifIndex'} = $ifIndex;
+
+    if ($date) {
+        $params{'date'} = $date;
+    }
+    exit(
+        print_results( "locationlog_history_switchport", $switch, %params ) );
 }
 
 sub locationhistorymac {
-  require pf::locationlog;
-  import pf::locationlog;
-  my $mac = $cmd{command}[1];
-  my $date;
-  $date = str2time($cmd{command}[2]) if (defined $cmd{command}[1]);
-  my %params;
-  $params{'mac'} = $mac;
-  if ($date) {
-    $params{'date'} = $date;
-  }
-  exit(print_results("locationlog_history_mac", $mac, %params));
+    require pf::locationlog;
+    import pf::locationlog;
+    my $mac = $cmd{command}[1];
+    my $date;
+    $date = str2time( $cmd{command}[2] ) if ( defined $cmd{command}[1] );
+    my %params;
+    $params{'mac'} = $mac;
+    if ($date) {
+        $params{'date'} = $date;
+    }
+    exit( print_results( "locationlog_history_mac", $mac, %params ) );
 }
 
 sub ifoctetshistoryswitch {
-  require pf::ifoctetslog;
-  import pf::ifoctetslog;
-  my $switch = $cmd{command}[1];
-  my $ifIndex = $cmd{command}[2];
-  my %params;
-  $params{'ifIndex'} = $ifIndex;
-  if (exists($cmd{'date_range'}) && (scalar(@{$cmd{'date_range'}}) > 0)) {
-    my %date_params=format_assignment(@{$cmd{'date_range'}});
-    $params{'start_time'} = str2time($date_params{'start_time'});
-    $params{'end_time'} = str2time($date_params{'end_time'});
-  }
-  exit(print_results("ifoctetslog_history_switchport", $switch, %params));
+    require pf::ifoctetslog;
+    import pf::ifoctetslog;
+    my $switch  = $cmd{command}[1];
+    my $ifIndex = $cmd{command}[2];
+    my %params;
+    $params{'ifIndex'} = $ifIndex;
+    if ( exists( $cmd{'date_range'} )
+        && ( scalar( @{ $cmd{'date_range'} } ) > 0 ) )
+    {
+        my %date_params = format_assignment( @{ $cmd{'date_range'} } );
+        $params{'start_time'} = str2time( $date_params{'start_time'} );
+        $params{'end_time'}   = str2time( $date_params{'end_time'} );
+    }
+    exit(
+        print_results( "ifoctetslog_history_switchport", $switch, %params ) );
 }
 
 sub ifoctetshistorymac {
-  require pf::ifoctetslog;
-  import pf::ifoctetslog;
-  my $mac = $cmd{command}[1];
-  my %params;
-  if (exists($cmd{'date_range'}) && (scalar(@{$cmd{'date_range'}}) > 0)) {
-    my %date_params=format_assignment(@{$cmd{'date_range'}});
-    $params{'start_time'} = str2time($date_params{'start_time'});
-    $params{'end_time'} = str2time($date_params{'end_time'});
-  }
-  exit(print_results("ifoctetslog_history_mac", $mac, %params));
+    require pf::ifoctetslog;
+    import pf::ifoctetslog;
+    my $mac = $cmd{command}[1];
+    my %params;
+    if ( exists( $cmd{'date_range'} )
+        && ( scalar( @{ $cmd{'date_range'} } ) > 0 ) )
+    {
+        my %date_params = format_assignment( @{ $cmd{'date_range'} } );
+        $params{'start_time'} = str2time( $date_params{'start_time'} );
+        $params{'end_time'}   = str2time( $date_params{'end_time'} );
+    }
+    exit( print_results( "ifoctetslog_history_mac", $mac, %params ) );
 }
 
 sub ifoctetshistoryuser {
-  require pf::ifoctetslog;
-  import pf::ifoctetslog;
-  my $user = $cmd{command}[1];
-  my %params;
-  if (exists($cmd{'date_range'}) && (scalar(@{$cmd{'date_range'}}) > 0)) {
-    my %date_params=format_assignment(@{$cmd{'date_range'}});
-    $params{'start_time'} = str2time($date_params{'start_time'});
-    $params{'end_time'} = str2time($date_params{'end_time'});
-  }
-  exit(print_results("ifoctetslog_history_user", $user, %params));
+    require pf::ifoctetslog;
+    import pf::ifoctetslog;
+    my $user = $cmd{command}[1];
+    my %params;
+    if ( exists( $cmd{'date_range'} )
+        && ( scalar( @{ $cmd{'date_range'} } ) > 0 ) )
+    {
+        my %date_params = format_assignment( @{ $cmd{'date_range'} } );
+        $params{'start_time'} = str2time( $date_params{'start_time'} );
+        $params{'end_time'}   = str2time( $date_params{'end_time'} );
+    }
+    exit( print_results( "ifoctetslog_history_user", $user, %params ) );
 }
 
 sub nodecategory {
-  require pf::nodecategory;
-  import pf::nodecategory;
-  my $cat = $cmd{'command'}[2];
-  if ($cat eq 'all') {
-    exit(print_results("nodecategory_view_all"));
-  } else {
-    exit(print_results("nodecategory_view", $cat));
-  }
+    require pf::nodecategory;
+    import pf::nodecategory;
+    my $cat = $cmd{'command'}[2];
+    if ( $cat eq 'all' ) {
+        exit( print_results("nodecategory_view_all") );
+    } else {
+        exit( print_results( "nodecategory_view", $cat ) );
+    }
 }
 
 sub switchlocation {
-  require pf::switchlocation;
-  import pf::switchlocation;
-  my $switch = $cmd{command}[2];
-  my %params;
-  $params{'ifIndex'} = $cmd{command}[3];
-  exit(print_results("switchlocation_view_switchport", $switch, %params))
+    require pf::switchlocation;
+    import pf::switchlocation;
+    my $switch = $cmd{command}[2];
+    my %params;
+    $params{'ifIndex'} = $cmd{command}[3];
+    exit(
+        print_results( "switchlocation_view_switchport", $switch, %params ) );
 }
 
 sub violationconfig {
-  require Config::IniFiles;
-  my %violations_conf;
-  tie %violations_conf, 'Config::IniFiles', ( -file => "$conf_dir/violations.conf" );
-  my @errors = @Config::IniFiles::errors;
-  if (scalar(@errors)) {
-    $logger->error("Error reading violations.conf: " . join("\n", @errors) . "\n");
-    return 0;
-  }
-
-  my $mode;
-  if (scalar(@{$cmd{'command'}}) == 1) {
-    if (exists($cmd{'violationconfig_options'})) {
-      $mode = $cmd{'violationconfig_options'}[0];
+    require Config::IniFiles;
+    my %violations_conf;
+    tie %violations_conf, 'Config::IniFiles',
+        ( -file => "$conf_dir/violations.conf" );
+    my @errors = @Config::IniFiles::errors;
+    if ( scalar(@errors) ) {
+        $logger->error( "Error reading violations.conf: "
+                . join( "\n", @errors )
+                . "\n" );
+        return 0;
     }
-  } else {
-    $mode = $cmd{'command'}[1];
-  }
 
-  if ($mode eq 'get') {
-    foreach my $section (tied(%violations_conf)->Sections){
-      foreach my $key (keys %{$violations_conf{$section}}){
-        $violations_conf{$section}{$key}=~s/\s+$//;
-      }
-    }
-    my @columns = qw(desc disable auto_enable actions max_enable grace priority url button_text trigger);
-    print "vid|" . join("|", @columns) . "\n";
-    foreach my $section (keys %violations_conf) {
-      if (($cmd{'command'}[2] eq 'all') || ($cmd{'command'}[2] eq $section)) {
-        my @values;
-        foreach my $column (@columns) {
-          push @values, ($violations_conf{$section}{$column} || $violations_conf{'defaults'}{$column} || '');
+    my $mode;
+    if ( scalar( @{ $cmd{'command'} } ) == 1 ) {
+        if ( exists( $cmd{'violationconfig_options'} ) ) {
+            $mode = $cmd{'violationconfig_options'}[0];
         }
-        print $section . "|" . join("|", @values) . "\n";
-      }
-    }
-  } elsif ($mode eq 'delete') {
-    my $section = $cmd{'command'}[2];
-    if ($section =~ /^(default|all|1100001|1100004|1100005|1100009|1100010|1200001|1200003|1400000)$/) {
-      print "This violation can't be deleted\n";
-      exit;
     } else {
-      if (tied(%violations_conf)->SectionExists($section)) {
-        tied(%violations_conf)->DeleteSection($section);
-        tied(%violations_conf)->WriteConfig($conf_dir."/violations.conf");
-        require pf::configfile;
-        import pf::configfile;
-        configfile_import($conf_dir."/violations.conf");
-      } else {
-        print "Unknown violation $section!\n";
-        exit;
-      }
+        $mode = $cmd{'command'}[1];
     }
-  } elsif ($mode eq 'edit') {
-    my $section = $cmd{'violationconfig_options'}[1];
-    my @assignments = @{$cmd{'violationconfig_assignment'}};
-    if (tied(%violations_conf)->SectionExists($section)) {
-      foreach my $assignment (@assignments) {
-        my ($param, $value) = @$assignment;
-        if (defined($violations_conf{$section}{$param})) {
-          if ((! exists($violations_conf{'defaults'}{$param})) || ($violations_conf{'defaults'}{$param} ne $value)) {
-            tied(%violations_conf)->setval($section,$param,$value);
-          } else {
-            tied(%violations_conf)->delval($section, $param);
-          }
+
+    if ( $mode eq 'get' ) {
+        foreach my $section ( tied(%violations_conf)->Sections ) {
+            foreach my $key ( keys %{ $violations_conf{$section} } ) {
+                $violations_conf{$section}{$key} =~ s/\s+$//;
+            }
+        }
+        my @columns
+            = qw(desc disable auto_enable actions max_enable grace priority url button_text trigger);
+        print "vid|" . join( "|", @columns ) . "\n";
+        foreach my $section ( keys %violations_conf ) {
+            if (   ( $cmd{'command'}[2] eq 'all' )
+                || ( $cmd{'command'}[2] eq $section ) )
+            {
+                my @values;
+                foreach my $column (@columns) {
+                    push @values,
+                        (      $violations_conf{$section}{$column}
+                            || $violations_conf{'defaults'}{$column}
+                            || '' );
+                }
+                print $section . "|" . join( "|", @values ) . "\n";
+            }
+        }
+    } elsif ( $mode eq 'delete' ) {
+        my $section = $cmd{'command'}[2];
+        if ( $section
+            =~ /^(default|all|1100001|1100004|1100005|1100009|1100010|1200001|1200003|1400000)$/
+            )
+        {
+            print "This violation can't be deleted\n";
+            exit;
         } else {
-          if ((! exists($violations_conf{'defaults'}{$param})) || ($violations_conf{'defaults'}{$param} ne $value)) {
-            tied(%violations_conf)->newval($section,$param,$value);
-          }
+            if ( tied(%violations_conf)->SectionExists($section) ) {
+                tied(%violations_conf)->DeleteSection($section);
+                tied(%violations_conf)
+                    ->WriteConfig( $conf_dir . "/violations.conf" );
+                require pf::configfile;
+                import pf::configfile;
+                configfile_import( $conf_dir . "/violations.conf" );
+            } else {
+                print "Unknown violation $section!\n";
+                exit;
+            }
         }
-      }
-      tied(%violations_conf)->WriteConfig($conf_dir."/violations.conf");
-      require pf::configfile;
-      import pf::configfile;
-      configfile_import($conf_dir."/violations.conf");
-    } else {
-      print "Unknown violation $section!\n";
-      exit;
-    }
-  } elsif ($mode eq 'add') {
-    my $section = $cmd{'violationconfig_options'}[1];
-    my @assignments = @{$cmd{'violationconfig_assignment'}};
-    if (! (tied(%violations_conf)->SectionExists($section))) {
-      tied(%violations_conf)->AddSection($section);
-      foreach my $assignment (@assignments) {
-        my ($param, $value) = @$assignment;
-        if ((! exists($violations_conf{'defaults'}{$param})) || ($violations_conf{'defaults'}{$param} ne $value)) {
-          tied(%violations_conf)->newval($section,$param,$value);
+    } elsif ( $mode eq 'edit' ) {
+        my $section     = $cmd{'violationconfig_options'}[1];
+        my @assignments = @{ $cmd{'violationconfig_assignment'} };
+        if ( tied(%violations_conf)->SectionExists($section) ) {
+            foreach my $assignment (@assignments) {
+                my ( $param, $value ) = @$assignment;
+                if ( defined( $violations_conf{$section}{$param} ) ) {
+                    if (   ( !exists( $violations_conf{'defaults'}{$param} ) )
+                        || ( $violations_conf{'defaults'}{$param} ne $value )
+                        )
+                    {
+                        tied(%violations_conf)
+                            ->setval( $section, $param, $value );
+                    } else {
+                        tied(%violations_conf)->delval( $section, $param );
+                    }
+                } else {
+                    if (   ( !exists( $violations_conf{'defaults'}{$param} ) )
+                        || ( $violations_conf{'defaults'}{$param} ne $value )
+                        )
+                    {
+                        tied(%violations_conf)
+                            ->newval( $section, $param, $value );
+                    }
+                }
+            }
+            tied(%violations_conf)
+                ->WriteConfig( $conf_dir . "/violations.conf" );
+            require pf::configfile;
+            import pf::configfile;
+            configfile_import( $conf_dir . "/violations.conf" );
+        } else {
+            print "Unknown violation $section!\n";
+            exit;
         }
-      }
-      tied(%violations_conf)->WriteConfig($conf_dir."/violations.conf");
-      require pf::configfile;
-      import pf::configfile;
-      configfile_import($conf_dir."/violations.conf");
-    } else {
-      print "Violation $section already exists!\n";
-      exit;
+    } elsif ( $mode eq 'add' ) {
+        my $section     = $cmd{'violationconfig_options'}[1];
+        my @assignments = @{ $cmd{'violationconfig_assignment'} };
+        if ( !( tied(%violations_conf)->SectionExists($section) ) ) {
+            tied(%violations_conf)->AddSection($section);
+            foreach my $assignment (@assignments) {
+                my ( $param, $value ) = @$assignment;
+                if (   ( !exists( $violations_conf{'defaults'}{$param} ) )
+                    || ( $violations_conf{'defaults'}{$param} ne $value ) )
+                {
+                    tied(%violations_conf)
+                        ->newval( $section, $param, $value );
+                }
+            }
+            tied(%violations_conf)
+                ->WriteConfig( $conf_dir . "/violations.conf" );
+            require pf::configfile;
+            import pf::configfile;
+            configfile_import( $conf_dir . "/violations.conf" );
+        } else {
+            print "Violation $section already exists!\n";
+            exit;
+        }
     }
-  }
 }
 
 sub networkconfig {
-  require Config::IniFiles;
-  my %network_conf;
-  tie %network_conf, 'Config::IniFiles', ( -file => "$conf_dir/networks.conf", -allowempty=> 1);
-  my @errors = @Config::IniFiles::errors;
-  if (scalar(@errors)) {
-    $logger->error("Error reading networks.conf: " . join("\n", @errors) . "\n");
-    return 0;
-  }
-
-  my $mode;
-  if (scalar(@{$cmd{'command'}}) == 1) {
-    if (exists($cmd{'networkconfig_options'})) {
-      $mode = $cmd{'networkconfig_options'}[0];
-    }
-  } else {
-    $mode = $cmd{'command'}[1];
-  }
-
-  if ($mode eq 'get') {
-    foreach my $section (tied(%network_conf)->Sections){
-      foreach my $key (keys %{$network_conf{$section}}){
-        $network_conf{$section}{$key}=~s/\s+$//;
-      }
+    require Config::IniFiles;
+    my %network_conf;
+    tie %network_conf, 'Config::IniFiles',
+        ( -file => "$conf_dir/networks.conf", -allowempty => 1 );
+    my @errors = @Config::IniFiles::errors;
+    if ( scalar(@errors) ) {
+        $logger->error(
+            "Error reading networks.conf: " . join( "\n", @errors ) . "\n" );
+        return 0;
     }
 
-    #sort the networks (http://www.sysarch.com/Perl/sort_paper.html)
-    my @sections_tmp = keys %network_conf;
-    my @sections = map  substr($_, 4) => sort map  pack('C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/) . $_ => @sections_tmp;
-
-    my @columns = qw(type netmask gateway domain-name dns dhcp_start dhcp_end dhcp_default_lease_time dhcp_max_lease_time);
-    print "network|" . join("|", @columns) . "\n";
-    foreach my $section (@sections) {
-      if (($cmd{'command'}[2] eq 'all') || ($cmd{'command'}[2] eq $section)) {
-        my @values;
-        foreach my $column (@columns) {
-          push @values, ($network_conf{$section}{$column} || '');
+    my $mode;
+    if ( scalar( @{ $cmd{'command'} } ) == 1 ) {
+        if ( exists( $cmd{'networkconfig_options'} ) ) {
+            $mode = $cmd{'networkconfig_options'}[0];
         }
-        print $section . '|' . join("|", @values) . "\n";
-      }
-    }
-  } elsif ($mode eq 'delete') {
-    my $section = $cmd{'command'}[2];
-    if ($section =~ /^(all)$/) {
-      print "This network can't be deleted\n";
-      exit;
     } else {
-      if (tied(%network_conf)->SectionExists($section)) {
-        tied(%network_conf)->DeleteSection($section);
-        tied(%network_conf)->WriteConfig($conf_dir."/networks.conf");
-        require pf::configfile;
-        import pf::configfile;
-        configfile_import($conf_dir."/networks.conf");
-      } else {
-        print "Unknown network $section!\n";
-        exit;
-      }
+        $mode = $cmd{'command'}[1];
     }
-  } elsif ($mode eq 'edit') {
-    my $section = $cmd{'networkconfig_options'}[1];
-    my @assignments = @{$cmd{'networkconfig_assignment'}};
-    if (tied(%network_conf)->SectionExists($section)) {
-      foreach my $assignment (@assignments) {
-        my ($param, $value) = @$assignment;
-        if (defined($network_conf{$section}{$param})) {
-          tied(%network_conf)->setval($section,$param,$value);
+
+    if ( $mode eq 'get' ) {
+        foreach my $section ( tied(%network_conf)->Sections ) {
+            foreach my $key ( keys %{ $network_conf{$section} } ) {
+                $network_conf{$section}{$key} =~ s/\s+$//;
+            }
+        }
+
+        #sort the networks (http://www.sysarch.com/Perl/sort_paper.html)
+        my @sections_tmp = keys %network_conf;
+        my @sections
+            = map substr( $_, 4 ) => sort
+            map pack( 'C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/ )
+            . $_ => @sections_tmp;
+
+        my @columns
+            = qw(type netmask gateway domain-name dns dhcp_start dhcp_end dhcp_default_lease_time dhcp_max_lease_time);
+        print "network|" . join( "|", @columns ) . "\n";
+        foreach my $section (@sections) {
+            if (   ( $cmd{'command'}[2] eq 'all' )
+                || ( $cmd{'command'}[2] eq $section ) )
+            {
+                my @values;
+                foreach my $column (@columns) {
+                    push @values, ( $network_conf{$section}{$column} || '' );
+                }
+                print $section . '|' . join( "|", @values ) . "\n";
+            }
+        }
+    } elsif ( $mode eq 'delete' ) {
+        my $section = $cmd{'command'}[2];
+        if ( $section =~ /^(all)$/ ) {
+            print "This network can't be deleted\n";
+            exit;
         } else {
-          tied(%network_conf)->newval($section,$param,$value);
+            if ( tied(%network_conf)->SectionExists($section) ) {
+                tied(%network_conf)->DeleteSection($section);
+                tied(%network_conf)
+                    ->WriteConfig( $conf_dir . "/networks.conf" );
+                require pf::configfile;
+                import pf::configfile;
+                configfile_import( $conf_dir . "/networks.conf" );
+            } else {
+                print "Unknown network $section!\n";
+                exit;
+            }
         }
-      }
-      tied(%network_conf)->WriteConfig($conf_dir."/networks.conf");
-      require pf::configfile;
-      import pf::configfile;
-      configfile_import($conf_dir."/networks.conf");
-    } else {
-      print "Unknown network $section!\n";
-      exit;
+    } elsif ( $mode eq 'edit' ) {
+        my $section     = $cmd{'networkconfig_options'}[1];
+        my @assignments = @{ $cmd{'networkconfig_assignment'} };
+        if ( tied(%network_conf)->SectionExists($section) ) {
+            foreach my $assignment (@assignments) {
+                my ( $param, $value ) = @$assignment;
+                if ( defined( $network_conf{$section}{$param} ) ) {
+                    tied(%network_conf)->setval( $section, $param, $value );
+                } else {
+                    tied(%network_conf)->newval( $section, $param, $value );
+                }
+            }
+            tied(%network_conf)->WriteConfig( $conf_dir . "/networks.conf" );
+            require pf::configfile;
+            import pf::configfile;
+            configfile_import( $conf_dir . "/networks.conf" );
+        } else {
+            print "Unknown network $section!\n";
+            exit;
+        }
+    } elsif ( $mode eq 'add' ) {
+        my $section     = $cmd{'networkconfig_options'}[1];
+        my @assignments = @{ $cmd{'networkconfig_assignment'} };
+        if ( !( tied(%network_conf)->SectionExists($section) ) ) {
+            foreach my $assignment (@assignments) {
+                tied(%network_conf)->AddSection($section);
+                my ( $param, $value ) = @$assignment;
+                tied(%network_conf)->newval( $section, $param, $value );
+            }
+            tied(%network_conf)->WriteConfig( $conf_dir . "/networks.conf" );
+            require pf::configfile;
+            import pf::configfile;
+            configfile_import( $conf_dir . "/networks.conf" );
+        } else {
+            print "Network $section already exists!\n";
+            exit;
+        }
     }
-  } elsif ($mode eq 'add') {
-    my $section = $cmd{'networkconfig_options'}[1];
-    my @assignments = @{$cmd{'networkconfig_assignment'}};
-    if (! (tied(%network_conf)->SectionExists($section))) {
-      foreach my $assignment (@assignments) {
-        tied(%network_conf)->AddSection($section);
-        my ($param, $value) = @$assignment;
-        tied(%network_conf)->newval($section,$param,$value);
-      }
-      tied(%network_conf)->WriteConfig($conf_dir."/networks.conf");
-      require pf::configfile;
-      import pf::configfile;
-      configfile_import($conf_dir."/networks.conf");
-    } else {
-      print "Network $section already exists!\n";
-      exit;
-    }
-  }
 }
 
 sub interfaceconfig {
-  require Config::IniFiles;
-  my %pf_conf;
-  tie %pf_conf, 'Config::IniFiles', ( -file => "$conf_dir/pf.conf" );
-  my @errors = @Config::IniFiles::errors;
-  if (scalar(@errors)) {
-    $logger->error("Error reading pf.conf: " . join("\n", @errors) . "\n");
-    return 0;
-  }
-
-  my $mode;
-  if (scalar(@{$cmd{'command'}}) == 1) {
-    if (exists($cmd{'interfaceconfig_options'})) {
-      $mode = $cmd{'interfaceconfig_options'}[0];
+    require Config::IniFiles;
+    my %pf_conf;
+    tie %pf_conf, 'Config::IniFiles', ( -file => "$conf_dir/pf.conf" );
+    my @errors = @Config::IniFiles::errors;
+    if ( scalar(@errors) ) {
+        $logger->error(
+            "Error reading pf.conf: " . join( "\n", @errors ) . "\n" );
+        return 0;
     }
-  } else {
-    $mode = $cmd{'command'}[1];
-  }
 
-  if ($mode eq 'get') {
-    foreach my $section (tied(%pf_conf)->Sections){
-      foreach my $key (keys %{$pf_conf{$section}}){
-        $pf_conf{$section}{$key}=~s/\s+$//;
-      }
-    }
-    my @columns = qw(ip mask type gateway);
-    print "interface|" . join("|", @columns) . "\n";
-    foreach my $section (keys %pf_conf) {
-      if ($section =~ /^interface (.+)$/) {
-        my $interface_name = $1;
-        if (($cmd{'command'}[2] eq 'all') || ($cmd{'command'}[2] eq $interface_name)) {
-          my @values;
-          foreach my $column (@columns) {
-            push @values, ($pf_conf{$section}{$column} || '');
-          }
-          print $interface_name . '|' . join("|", @values) . "\n";
+    my $mode;
+    if ( scalar( @{ $cmd{'command'} } ) == 1 ) {
+        if ( exists( $cmd{'interfaceconfig_options'} ) ) {
+            $mode = $cmd{'interfaceconfig_options'}[0];
         }
-      }
-    }
-  } elsif ($mode eq 'delete') {
-    my $section = $cmd{'command'}[2];
-    my $section_name = "interface $section";
-    if ($section =~ /^(all)$/) {
-      print "This interface can't be deleted\n";
-      exit;
     } else {
-      if (tied(%pf_conf)->SectionExists($section_name)) {
-        tied(%pf_conf)->DeleteSection($section_name);
-        tied(%pf_conf)->WriteConfig($conf_dir."/pf.conf");
-        require pf::configfile;
-        import pf::configfile;
-        configfile_import($conf_dir."/pf.conf");
-      } else {
-        print "Unknown interface $section!\n";
-        exit;
-      }
+        $mode = $cmd{'command'}[1];
     }
-  } elsif ($mode eq 'edit') {
-    my $section = $cmd{'interfaceconfig_options'}[1];
-    my $section_name = "interface $section";
-    my @assignments = @{$cmd{'interfaceconfig_assignment'}};
-    if (tied(%pf_conf)->SectionExists($section_name)) {
-      foreach my $assignment (@assignments) {
-        my ($param, $value) = @$assignment;
-        if (defined($pf_conf{$section_name}{$param})) {
-          tied(%pf_conf)->setval($section_name,$param,$value);
+
+    if ( $mode eq 'get' ) {
+        foreach my $section ( tied(%pf_conf)->Sections ) {
+            foreach my $key ( keys %{ $pf_conf{$section} } ) {
+                $pf_conf{$section}{$key} =~ s/\s+$//;
+            }
+        }
+        my @columns = qw(ip mask type gateway);
+        print "interface|" . join( "|", @columns ) . "\n";
+        foreach my $section ( keys %pf_conf ) {
+            if ( $section =~ /^interface (.+)$/ ) {
+                my $interface_name = $1;
+                if (   ( $cmd{'command'}[2] eq 'all' )
+                    || ( $cmd{'command'}[2] eq $interface_name ) )
+                {
+                    my @values;
+                    foreach my $column (@columns) {
+                        push @values, ( $pf_conf{$section}{$column} || '' );
+                    }
+                    print $interface_name . '|' . join( "|", @values ) . "\n";
+                }
+            }
+        }
+    } elsif ( $mode eq 'delete' ) {
+        my $section      = $cmd{'command'}[2];
+        my $section_name = "interface $section";
+        if ( $section =~ /^(all)$/ ) {
+            print "This interface can't be deleted\n";
+            exit;
         } else {
-          tied(%pf_conf)->newval($section_name,$param,$value);
+            if ( tied(%pf_conf)->SectionExists($section_name) ) {
+                tied(%pf_conf)->DeleteSection($section_name);
+                tied(%pf_conf)->WriteConfig( $conf_dir . "/pf.conf" );
+                require pf::configfile;
+                import pf::configfile;
+                configfile_import( $conf_dir . "/pf.conf" );
+            } else {
+                print "Unknown interface $section!\n";
+                exit;
+            }
         }
-      }
-      tied(%pf_conf)->WriteConfig($conf_dir."/pf.conf");
-      require pf::configfile;
-      import pf::configfile;
-      configfile_import($conf_dir."/pf.conf");
-    } else {
-      print "Unknown interface $section!\n";
-      exit;
+    } elsif ( $mode eq 'edit' ) {
+        my $section      = $cmd{'interfaceconfig_options'}[1];
+        my $section_name = "interface $section";
+        my @assignments  = @{ $cmd{'interfaceconfig_assignment'} };
+        if ( tied(%pf_conf)->SectionExists($section_name) ) {
+            foreach my $assignment (@assignments) {
+                my ( $param, $value ) = @$assignment;
+                if ( defined( $pf_conf{$section_name}{$param} ) ) {
+                    tied(%pf_conf)->setval( $section_name, $param, $value );
+                } else {
+                    tied(%pf_conf)->newval( $section_name, $param, $value );
+                }
+            }
+            tied(%pf_conf)->WriteConfig( $conf_dir . "/pf.conf" );
+            require pf::configfile;
+            import pf::configfile;
+            configfile_import( $conf_dir . "/pf.conf" );
+        } else {
+            print "Unknown interface $section!\n";
+            exit;
+        }
+    } elsif ( $mode eq 'add' ) {
+        my $section      = $cmd{'interfaceconfig_options'}[1];
+        my $section_name = "interface $section";
+        my @assignments  = @{ $cmd{'interfaceconfig_assignment'} };
+        if ( !( tied(%pf_conf)->SectionExists($section_name) ) ) {
+            foreach my $assignment (@assignments) {
+                tied(%pf_conf)->AddSection($section_name);
+                my ( $param, $value ) = @$assignment;
+                tied(%pf_conf)->newval( $section_name, $param, $value );
+            }
+            tied(%pf_conf)->WriteConfig( $conf_dir . "/pf.conf" );
+            require pf::configfile;
+            import pf::configfile;
+            configfile_import( $conf_dir . "/pf.conf" );
+        } else {
+            print "Interface $section already exists!\n";
+            exit;
+        }
     }
-  } elsif ($mode eq 'add') {
-    my $section = $cmd{'interfaceconfig_options'}[1];
-    my $section_name = "interface $section";
-    my @assignments = @{$cmd{'interfaceconfig_assignment'}};
-    if (! (tied(%pf_conf)->SectionExists($section_name))) {
-      foreach my $assignment (@assignments) {
-        tied(%pf_conf)->AddSection($section_name);
-        my ($param, $value) = @$assignment;
-        tied(%pf_conf)->newval($section_name,$param,$value);
-      }
-      tied(%pf_conf)->WriteConfig($conf_dir."/pf.conf");
-      require pf::configfile;
-      import pf::configfile;
-      configfile_import($conf_dir."/pf.conf");
-    } else {
-      print "Interface $section already exists!\n";
-      exit;
-    }
-  }
 }
 
 sub switchconfig {
-  require Config::IniFiles;
-  my %switches_conf;
-  tie %switches_conf, 'Config::IniFiles', ( -file => "$conf_dir/switches.conf" );
-  my @errors = @Config::IniFiles::errors;
-  if (scalar(@errors)) {
-    $logger->error("Error reading switches.conf: " . join("\n", @errors) . "\n");
-    return 0;
-  }
-
-  my $mode;
-  if (scalar(@{$cmd{'command'}}) == 1) {
-    if (exists($cmd{'switchconfig_options'})) {
-      $mode = $cmd{'switchconfig_options'}[0];
+    require Config::IniFiles;
+    my %switches_conf;
+    tie %switches_conf, 'Config::IniFiles',
+        ( -file => "$conf_dir/switches.conf" );
+    my @errors = @Config::IniFiles::errors;
+    if ( scalar(@errors) ) {
+        $logger->error(
+            "Error reading switches.conf: " . join( "\n", @errors ) . "\n" );
+        return 0;
     }
-  } else {
-    $mode = $cmd{'command'}[1];
-  }
 
-  if ($mode eq 'get') {
-    foreach my $section (tied(%switches_conf)->Sections){
-      foreach my $key (keys %{$switches_conf{$section}}){
-        $switches_conf{$section}{$key}=~s/\s+$//;
-      }
+    my $mode;
+    if ( scalar( @{ $cmd{'command'} } ) == 1 ) {
+        if ( exists( $cmd{'switchconfig_options'} ) ) {
+            $mode = $cmd{'switchconfig_options'}[0];
+        }
+    } else {
+        $mode = $cmd{'command'}[1];
     }
-    my @columns = qw(ip type mode uplink SNMPVersion SNMPCommunityRead SNMPCommunityWrite SNMPVersionTrap SNMPCommunityTrap cliTransport cliUser cliPwd cliEnablePwd);
-    print join("|", @columns) . "\n";
 
-    #sort the switches (http://www.sysarch.com/Perl/sort_paper.html)
-    my %switches_conf_tmp = %switches_conf;
-    delete $switches_conf_tmp{'default'};
-    my @sections_tmp = keys(%switches_conf_tmp);
-    my @sections = map  substr($_, 4) => sort map  pack('C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/) . $_ => @sections_tmp;
-    unshift(@sections, 'default');
-
-    foreach my $section (@sections) {
-      if (($cmd{'command'}[2] eq 'all') || ($cmd{'command'}[2] eq $section)) {
-        my @values;
-        foreach my $column (@columns) {
-          if ($column eq 'ip') {
-            if ($section eq 'default') {
-              push @values, $section;
-            } else {
-              push @values, $switches_conf{$section}{$column};
+    if ( $mode eq 'get' ) {
+        foreach my $section ( tied(%switches_conf)->Sections ) {
+            foreach my $key ( keys %{ $switches_conf{$section} } ) {
+                $switches_conf{$section}{$key} =~ s/\s+$//;
             }
-          } else {
-            push @values, ($switches_conf{$section}{$column} || $switches_conf{'default'}{$column} || '');
-          }
         }
-        print join("|", @values) . "\n";
-      }
-    }
-  } elsif ($mode eq 'delete') {
-    my $section = $cmd{'command'}[2];
-    if ($section =~ /^(default|all|127.0.0.1)$/) {
-      print "This switch can't be deleted\n";
-      exit;
-    } else {
-      if (tied(%switches_conf)->SectionExists($section)) {
-        tied(%switches_conf)->DeleteSection($section);
-        tied(%switches_conf)->WriteConfig($conf_dir."/switches.conf");
-        require pf::configfile;
-        import pf::configfile;
-        configfile_import($conf_dir."/switches.conf");
-      } else {
-        print "Unknown switch $section!\n";
-        exit;
-      }
-    }
-  } elsif ($mode eq 'edit') {
-    my $section = $cmd{'switchconfig_options'}[1];
-    my @assignments = @{$cmd{'switchconfig_assignment'}};
-    if (tied(%switches_conf)->SectionExists($section)) {
-      foreach my $assignment (@assignments) {
-        my ($param, $value) = @$assignment;
-        if (defined($switches_conf{$section}{$param})) {
-          if ((! exists($switches_conf{'default'}{$param})) || ($switches_conf{'default'}{$param} ne $value)) {
-            tied(%switches_conf)->setval($section,$param,$value);
-          } else {
-            tied(%switches_conf)->delval($section, $param);
-          }
+        my @columns
+            = qw(ip type mode uplink SNMPVersion SNMPCommunityRead SNMPCommunityWrite SNMPVersionTrap SNMPCommunityTrap cliTransport cliUser cliPwd cliEnablePwd);
+        print join( "|", @columns ) . "\n";
+
+        #sort the switches (http://www.sysarch.com/Perl/sort_paper.html)
+        my %switches_conf_tmp = %switches_conf;
+        delete $switches_conf_tmp{'default'};
+        my @sections_tmp = keys(%switches_conf_tmp);
+        my @sections
+            = map substr( $_, 4 ) => sort
+            map pack( 'C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/ )
+            . $_ => @sections_tmp;
+        unshift( @sections, 'default' );
+
+        foreach my $section (@sections) {
+            if (   ( $cmd{'command'}[2] eq 'all' )
+                || ( $cmd{'command'}[2] eq $section ) )
+            {
+                my @values;
+                foreach my $column (@columns) {
+                    if ( $column eq 'ip' ) {
+                        if ( $section eq 'default' ) {
+                            push @values, $section;
+                        } else {
+                            push @values, $switches_conf{$section}{$column};
+                        }
+                    } else {
+                        push @values,
+                            (      $switches_conf{$section}{$column}
+                                || $switches_conf{'default'}{$column}
+                                || '' );
+                    }
+                }
+                print join( "|", @values ) . "\n";
+            }
+        }
+    } elsif ( $mode eq 'delete' ) {
+        my $section = $cmd{'command'}[2];
+        if ( $section =~ /^(default|all|127.0.0.1)$/ ) {
+            print "This switch can't be deleted\n";
+            exit;
         } else {
-          if ((! exists($switches_conf{'default'}{$param})) || ($switches_conf{'default'}{$param} ne $value)) {
-            tied(%switches_conf)->newval($section,$param,$value);
-          }
+            if ( tied(%switches_conf)->SectionExists($section) ) {
+                tied(%switches_conf)->DeleteSection($section);
+                tied(%switches_conf)
+                    ->WriteConfig( $conf_dir . "/switches.conf" );
+                require pf::configfile;
+                import pf::configfile;
+                configfile_import( $conf_dir . "/switches.conf" );
+            } else {
+                print "Unknown switch $section!\n";
+                exit;
+            }
         }
-      }
-      tied(%switches_conf)->WriteConfig($conf_dir."/switches.conf");
-      require pf::configfile;
-      import pf::configfile;
-      configfile_import($conf_dir."/switches.conf");
-    } else {
-      print "Unknown switch $section!\n";
-      exit;
-    }
-  } elsif ($mode eq 'add') {
-    my $section = $cmd{'switchconfig_options'}[1];
-    my @assignments = @{$cmd{'switchconfig_assignment'}};
-    if (! (tied(%switches_conf)->SectionExists($section))) {
-      foreach my $assignment (@assignments) {
-        tied(%switches_conf)->AddSection($section);
-        tied(%switches_conf)->newval($section,'ip',$section);
-        my ($param, $value) = @$assignment;
-        if ((! exists($switches_conf{'default'}{$param})) || ($switches_conf{'default'}{$param} ne $value)) {
-          tied(%switches_conf)->newval($section,$param,$value);
+    } elsif ( $mode eq 'edit' ) {
+        my $section     = $cmd{'switchconfig_options'}[1];
+        my @assignments = @{ $cmd{'switchconfig_assignment'} };
+        if ( tied(%switches_conf)->SectionExists($section) ) {
+            foreach my $assignment (@assignments) {
+                my ( $param, $value ) = @$assignment;
+                if ( defined( $switches_conf{$section}{$param} ) ) {
+                    if (   ( !exists( $switches_conf{'default'}{$param} ) )
+                        || ( $switches_conf{'default'}{$param} ne $value ) )
+                    {
+                        tied(%switches_conf)
+                            ->setval( $section, $param, $value );
+                    } else {
+                        tied(%switches_conf)->delval( $section, $param );
+                    }
+                } else {
+                    if (   ( !exists( $switches_conf{'default'}{$param} ) )
+                        || ( $switches_conf{'default'}{$param} ne $value ) )
+                    {
+                        tied(%switches_conf)
+                            ->newval( $section, $param, $value );
+                    }
+                }
+            }
+            tied(%switches_conf)->WriteConfig( $conf_dir . "/switches.conf" );
+            require pf::configfile;
+            import pf::configfile;
+            configfile_import( $conf_dir . "/switches.conf" );
+        } else {
+            print "Unknown switch $section!\n";
+            exit;
         }
-      }
-      tied(%switches_conf)->WriteConfig($conf_dir."/switches.conf");
-      require pf::configfile;
-      import pf::configfile;
-      configfile_import($conf_dir."/switches.conf");
-    } else {
-      print "Switch $section already exists!\n";
-      exit;
+    } elsif ( $mode eq 'add' ) {
+        my $section     = $cmd{'switchconfig_options'}[1];
+        my @assignments = @{ $cmd{'switchconfig_assignment'} };
+        if ( !( tied(%switches_conf)->SectionExists($section) ) ) {
+            foreach my $assignment (@assignments) {
+                tied(%switches_conf)->AddSection($section);
+                tied(%switches_conf)->newval( $section, 'ip', $section );
+                my ( $param, $value ) = @$assignment;
+                if (   ( !exists( $switches_conf{'default'}{$param} ) )
+                    || ( $switches_conf{'default'}{$param} ne $value ) )
+                {
+                    tied(%switches_conf)->newval( $section, $param, $value );
+                }
+            }
+            tied(%switches_conf)->WriteConfig( $conf_dir . "/switches.conf" );
+            require pf::configfile;
+            import pf::configfile;
+            configfile_import( $conf_dir . "/switches.conf" );
+        } else {
+            print "Switch $section already exists!\n";
+            exit;
+        }
     }
-  }
 }
 
 #
 #  host history
 #
 sub history {
-  require pf::iplog;
-  import pf::iplog;
-  my $addr = $cmd{command}[1];
-  my $date;
-  $date = str2time($cmd{command}[2]) if (defined $cmd{command}[1]);
-  my($function,%params);
-  if ($addr =~ /^(\d{1,3}\.){3}\d{1,3}$/) {
-     $function="iplog_history_ip";
-  } else {
-     $function="iplog_history_mac";
-  }
-  if ($date){
-    $params{'date'}=$date;
-  }
-  exit(print_results($function,$addr,%params));
+    require pf::iplog;
+    import pf::iplog;
+    my $addr = $cmd{command}[1];
+    my $date;
+    $date = str2time( $cmd{command}[2] ) if ( defined $cmd{command}[1] );
+    my ( $function, %params );
+    if ( $addr =~ /^(\d{1,3}\.){3}\d{1,3}$/ ) {
+        $function = "iplog_history_ip";
+    } else {
+        $function = "iplog_history_mac";
+    }
+    if ($date) {
+        $params{'date'} = $date;
+    }
+    exit( print_results( $function, $addr, %params ) );
 }
 
 sub ipmachistory {
-  require pf::iplog;
-  import pf::iplog;
-  my $addr = $cmd{command}[1];
-  my ($function,%params);
-  if ($addr =~ /^(\d{1,3}\.){3}\d{1,3}$/) {
-     $function="iplog_history_ip";
-  } else {
-     $function="iplog_history_mac";
-  }
-  if (exists($cmd{'date_range'}) && (scalar(@{$cmd{'date_range'}}) > 0)) {
-    my %date_params=format_assignment(@{$cmd{'date_range'}});
-    $params{'start_time'} = str2time($date_params{'start_time'});
-    $params{'end_time'} = str2time($date_params{'end_time'});
-  }
-  exit(print_results($function,$addr,%params));
+    require pf::iplog;
+    import pf::iplog;
+    my $addr = $cmd{command}[1];
+    my ( $function, %params );
+    if ( $addr =~ /^(\d{1,3}\.){3}\d{1,3}$/ ) {
+        $function = "iplog_history_ip";
+    } else {
+        $function = "iplog_history_mac";
+    }
+    if ( exists( $cmd{'date_range'} )
+        && ( scalar( @{ $cmd{'date_range'} } ) > 0 ) )
+    {
+        my %date_params = format_assignment( @{ $cmd{'date_range'} } );
+        $params{'start_time'} = str2time( $date_params{'start_time'} );
+        $params{'end_time'}   = str2time( $date_params{'end_time'} );
+    }
+    exit( print_results( $function, $addr, %params ) );
 }
 
 sub traplog {
-  require pf::traplog;
-  import pf::traplog;
-  if ((scalar(@{$cmd{'command'}}) == 2) && ($cmd{command}[1] =~ /update/)) {
-    traplog_update_rrd();
-  } else {
-    my $nb = $cmd{'traplog_options'}[1];
-    my %params;
-    $params{'timespan'} = $cmd{'traplog_options'}[2];
-    exit(print_results('traplog_get_switches_with_most_traps',$nb,%params));
-  }
-  exit;
+    require pf::traplog;
+    import pf::traplog;
+    if (   ( scalar( @{ $cmd{'command'} } ) == 2 )
+        && ( $cmd{command}[1] =~ /update/ ) )
+    {
+        traplog_update_rrd();
+    } else {
+        my $nb = $cmd{'traplog_options'}[1];
+        my %params;
+        $params{'timespan'} = $cmd{'traplog_options'}[2];
+        exit(
+            print_results(
+                'traplog_get_switches_with_most_traps',
+                $nb, %params
+            )
+        );
+    }
+    exit;
 }
 
 #
@@ -854,732 +1000,852 @@ sub traplog {
 # return service status
 #
 sub service {
-  my $service = $cmd{command}[1];
-  my $command = $cmd{command}[2];
-  require pf::services;
-  import pf::services;
+    my $service = $cmd{command}[1];
+    my $command = $cmd{command}[2];
+    require pf::services;
+    import pf::services;
 
-  my @all_services=('named', 'dhcpd', 'pfdhcplistener','pfmon','pfdetect','pfredirect','snort','httpd', 'snmptrapd', 'pfsetvlan');
+    my @all_services = (
+        'named',     'dhcpd',      'pfdhcplistener', 'pfmon',
+        'pfdetect',  'pfredirect', 'snort',          'httpd',
+        'snmptrapd', 'pfsetvlan'
+    );
 
-  if ($command =~ /^status$/i) {
-    my @services;
-    if ($service eq "pf") {
-      @services=@all_services;
-    } else {
-      push(@services, $service);
-    }
-    my @incorrectly_stopped_services = ();
-    my @services_which_should_be_started = service_list(@services);
-    print "service|shouldBeStarted|pid\n";
-    foreach my $tmp (@services){
-      my $should_be_started = ((grep({ $_ eq $tmp } @services_which_should_be_started) > 0) ? 1 : 0);
-      my $pid = service_ctl($tmp, 'status');
-      if (($should_be_started) && (! $pid)) {
-        push @incorrectly_stopped_services, $tmp;
-      }
-      print "$tmp|$should_be_started|$pid\n";
-    }
-    return ((scalar(@incorrectly_stopped_services) > 0) ? 3 : 0);
-  }
-
-  if ($command =~ /^watch$/i) {
-    my @services;
-    if ($service eq "pf") {
-      @services=@all_services;
-    } else {
-      push(@services, $service);
-    }
-    my @services_which_should_be_started = service_list(@services);
-    my @incorrectly_stopped_services = ();
-    foreach my $tmp (@services){
-      my $should_be_started = ((grep({ $_ eq $tmp } @services_which_should_be_started) > 0) ? 1 : 0);
-      my $pid = service_ctl($tmp, 'status');
-      if (($should_be_started) && (! $pid)) {
-        push @incorrectly_stopped_services, $tmp;
-      }
-    }
-    if (scalar(@incorrectly_stopped_services) > 0) {
-      print "The following processes are not running:\n" . " - " . join("\n - ", @incorrectly_stopped_services) . "\n";
-      if (isenabled($Config{'servicewatch'}{'email'})) {
-        my %message;
-        $message{'subject'}  = "PF WATCHER ALERT";
-        $message{'message'} = "The following processes are not running:\n" . " - " . join("\n - ", @incorrectly_stopped_services) . "\n";
-        pfmailer(%message);
-      }
-      if (isenabled($Config{'servicewatch'}{'restart'})) {
-        $command = 'restart';
-      } else {
-        return;
-      }
-    }
-  }
-
-  if ($command =~ /^restart$/i) {
-    if ($service =~ /^pf$/i) {
-      $logger->info("packetfence restart ... executing stop followed by start");
-      local $cmd{command}[2] = "stop";
-      service();
-      local $cmd{command}[2] = "start";
-      service();
-      return;
-    } else {
-      if (! service_ctl($service, "status")) {
-        $command = "start";
-      }
-    }
-  }
-
-  my @services;
-  if ($service !~ /^pf$/) {
-    push @services, $service;
-  } else {
-    @services = service_list(@all_services);
-  }
-
-  my @alreadyRunningServices = ();
-  if ($command =~ /^start$/i) {
-    sanity_check(@services);
-    my $nb_running_services = 0;
-    foreach my $tmp (@all_services){
-      if (service_ctl($tmp, "status")) {
-        $nb_running_services++;
-        push @alreadyRunningServices, $tmp;
-      }
-    }
-    if ($nb_running_services == 0) {
-      if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
-        $logger->info("saving current iptables to var/iptables.bak");
-        require pf::iptables;
-        pf::iptables::iptables_save($install_dir.'/var/iptables.bak');
-      }
-    }
-  }
-
-  print "service|command\n";
-  if ($command !~ /^stop$/){
-    print "config files|$command\n";
-    require pf::os;
-    pf::os::read_dhcp_fingerprints_conf();
-    read_violations_conf();
-    if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
-      print "iptables|$command\n";
-      require pf::iptables;
-      pf::iptables::iptables_generate();
-    }
-  }
-
-  foreach my $srv (@services){
-    if (($command eq 'start') && (grep({ $_ eq $srv} @alreadyRunningServices) == 1)) {
-      print "$srv|already running\n";
-    } else {
-      service_ctl($srv, $command);
-      print "$srv|$command\n";
-    }
-  }
-
-  if ($command =~ /^stop$/i) {
-    if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
-      my $nb_running_services = 0;
-      foreach my $tmp (@all_services){
-        if (service_ctl($tmp, "status")) {
-          $nb_running_services++;
+    if ( $command =~ /^status$/i ) {
+        my @services;
+        if ( $service eq "pf" ) {
+            @services = @all_services;
+        } else {
+            push( @services, $service );
         }
-      }
-      if ($nb_running_services == 0) {
-        require pf::iptables;
-        pf::iptables::iptables_restore($install_dir.'/var/iptables.bak');
-      } else {
-        if ($service =~ /^pf$/i) {
-          $logger->error("even though 'control pf stop' was called, there are still $nb_running_services services running. Can't restore iptables from var/iptables.bak");
+        my @incorrectly_stopped_services     = ();
+        my @services_which_should_be_started = service_list(@services);
+        print "service|shouldBeStarted|pid\n";
+        foreach my $tmp (@services) {
+            my $should_be_started = (
+                (   grep( { $_ eq $tmp } @services_which_should_be_started )
+                        > 0
+                ) ? 1 : 0
+            );
+            my $pid = service_ctl( $tmp, 'status' );
+            if ( ($should_be_started) && ( !$pid ) ) {
+                push @incorrectly_stopped_services, $tmp;
+            }
+            print "$tmp|$should_be_started|$pid\n";
         }
-      }
+        return ( ( scalar(@incorrectly_stopped_services) > 0 ) ? 3 : 0 );
     }
-  }
-  return 0;
+
+    if ( $command =~ /^watch$/i ) {
+        my @services;
+        if ( $service eq "pf" ) {
+            @services = @all_services;
+        } else {
+            push( @services, $service );
+        }
+        my @services_which_should_be_started = service_list(@services);
+        my @incorrectly_stopped_services     = ();
+        foreach my $tmp (@services) {
+            my $should_be_started = (
+                (   grep( { $_ eq $tmp } @services_which_should_be_started )
+                        > 0
+                ) ? 1 : 0
+            );
+            my $pid = service_ctl( $tmp, 'status' );
+            if ( ($should_be_started) && ( !$pid ) ) {
+                push @incorrectly_stopped_services, $tmp;
+            }
+        }
+        if ( scalar(@incorrectly_stopped_services) > 0 ) {
+            print "The following processes are not running:\n" . " - "
+                . join( "\n - ", @incorrectly_stopped_services ) . "\n";
+            if ( isenabled( $Config{'servicewatch'}{'email'} ) ) {
+                my %message;
+                $message{'subject'} = "PF WATCHER ALERT";
+                $message{'message'}
+                    = "The following processes are not running:\n" . " - "
+                    . join( "\n - ", @incorrectly_stopped_services ) . "\n";
+                pfmailer(%message);
+            }
+            if ( isenabled( $Config{'servicewatch'}{'restart'} ) ) {
+                $command = 'restart';
+            } else {
+                return;
+            }
+        }
+    }
+
+    if ( $command =~ /^restart$/i ) {
+        if ( $service =~ /^pf$/i ) {
+            $logger->info(
+                "packetfence restart ... executing stop followed by start");
+            local $cmd{command}[2] = "stop";
+            service();
+            local $cmd{command}[2] = "start";
+            service();
+            return;
+        } else {
+            if ( !service_ctl( $service, "status" ) ) {
+                $command = "start";
+            }
+        }
+    }
+
+    my @services;
+    if ( $service !~ /^pf$/ ) {
+        push @services, $service;
+    } else {
+        @services = service_list(@all_services);
+    }
+
+    my @alreadyRunningServices = ();
+    if ( $command =~ /^start$/i ) {
+        sanity_check(@services);
+        my $nb_running_services = 0;
+        foreach my $tmp (@all_services) {
+            if ( service_ctl( $tmp, "status" ) ) {
+                $nb_running_services++;
+                push @alreadyRunningServices, $tmp;
+            }
+        }
+        if ( $nb_running_services == 0 ) {
+            if ( !( $Config{'network'}{'mode'} =~ /vlan/i ) ) {
+                $logger->info("saving current iptables to var/iptables.bak");
+                require pf::iptables;
+                pf::iptables::iptables_save(
+                    $install_dir . '/var/iptables.bak' );
+            }
+        }
+    }
+
+    print "service|command\n";
+    if ( $command !~ /^stop$/ ) {
+        print "config files|$command\n";
+        require pf::os;
+        pf::os::read_dhcp_fingerprints_conf();
+        read_violations_conf();
+        if ( !( $Config{'network'}{'mode'} =~ /vlan/i ) ) {
+            print "iptables|$command\n";
+            require pf::iptables;
+            pf::iptables::iptables_generate();
+        }
+    }
+
+    foreach my $srv (@services) {
+        if (   ( $command eq 'start' )
+            && ( grep( { $_ eq $srv } @alreadyRunningServices ) == 1 ) )
+        {
+            print "$srv|already running\n";
+        } else {
+            service_ctl( $srv, $command );
+            print "$srv|$command\n";
+        }
+    }
+
+    if ( $command =~ /^stop$/i ) {
+        if ( !( $Config{'network'}{'mode'} =~ /vlan/i ) ) {
+            my $nb_running_services = 0;
+            foreach my $tmp (@all_services) {
+                if ( service_ctl( $tmp, "status" ) ) {
+                    $nb_running_services++;
+                }
+            }
+            if ( $nb_running_services == 0 ) {
+                require pf::iptables;
+                pf::iptables::iptables_restore(
+                    $install_dir . '/var/iptables.bak' );
+            } else {
+                if ( $service =~ /^pf$/i ) {
+                    $logger->error(
+                        "even though 'control pf stop' was called, there are still $nb_running_services services running. Can't restore iptables from var/iptables.bak"
+                    );
+                }
+            }
+        }
+    }
+    return 0;
 }
 
 sub class {
-  my ($function,$id);
-  require pf::class;
-  import pf::class;
-  $id = $cmd{'command'}[2];
-  if ($id && $id!~/all/){
-        $function="class_view";
-  }else{
-      $function="class_view_all";
-  }
-  exit(print_results($function,$id));
-}   
+    my ( $function, $id );
+    require pf::class;
+    import pf::class;
+    $id = $cmd{'command'}[2];
+    if ( $id && $id !~ /all/ ) {
+        $function = "class_view";
+    } else {
+        $function = "class_view_all";
+    }
+    exit( print_results( $function, $id ) );
+}
 
 #
 sub trigger {
-  my ($function,$id,%params);
-  require pf::trigger;
-  import pf::trigger;
-  $id = $cmd{command}[2];
-  if ((defined $cmd{command}[3]) && ($cmd{command}[3] ne '')) {
-    if ($id=~/all/){
-      $id=$cmd{command}[3];
-      $function="trigger_view_type";
-     }else{
-      $params{'type'} = $cmd{command}[3];
-      $function="trigger_view";
-     }
-  }elsif ($id && $id!~/all/){
-      $function="trigger_view_tid";
-  }else{
-      $function="trigger_view_all";
-  }
-  exit(print_results($function,$id,%params));
-}  
+    my ( $function, $id, %params );
+    require pf::trigger;
+    import pf::trigger;
+    $id = $cmd{command}[2];
+    if ( ( defined $cmd{command}[3] ) && ( $cmd{command}[3] ne '' ) ) {
+        if ( $id =~ /all/ ) {
+            $id       = $cmd{command}[3];
+            $function = "trigger_view_type";
+        } else {
+            $params{'type'} = $cmd{command}[3];
+            $function = "trigger_view";
+        }
+    } elsif ( $id && $id !~ /all/ ) {
+        $function = "trigger_view_tid";
+    } else {
+        $function = "trigger_view_all";
+    }
+    exit( print_results( $function, $id, %params ) );
+}
 
 #
 sub fingerprint {
-  my ($function,$id);
-  require pf::os;
-  import pf::os;
-  $id = $cmd{command}[2];
-  if ($id && $id!~/all/){ 
-    $function="dhcp_fingerprint_view";
-  }else{                
-    $function="dhcp_fingerprint_view_all";
-  }
-  exit(print_results($function,$id));
-}   
+    my ( $function, $id );
+    require pf::os;
+    import pf::os;
+    $id = $cmd{command}[2];
+    if ( $id && $id !~ /all/ ) {
+        $function = "dhcp_fingerprint_view";
+    } else {
+        $function = "dhcp_fingerprint_view_all";
+    }
+    exit( print_results( $function, $id ) );
+}
 
 sub version {
-  my($pfrelease_fh, $release);
-  open($pfrelease_fh,'<', "$conf_dir/pf-release") || $logger->logdie("Unable to open $conf_dir/pf-release: $!"); 
-  $release = <$pfrelease_fh>;
-  close($pfrelease_fh);
-  print $release;
-  
-  my $md5sum = (split(/\s+/, `/usr/bin/mysqldump -n -d --host=$Config{'database'}{'host'} --port=$Config{'database'}{'port'} -n -d -u $Config{'database'}{'user'} -p'$Config{'database'}{'pass'}' $Config{'database'}{'db'} | egrep -v '(^/|^\$|^--|^DROP)'|md5sum`))[0];
-  print "DB MD5SUM: $md5sum\n";
+    my ( $pfrelease_fh, $release );
+    open( $pfrelease_fh, '<', "$conf_dir/pf-release" )
+        || $logger->logdie("Unable to open $conf_dir/pf-release: $!");
+    $release = <$pfrelease_fh>;
+    close($pfrelease_fh);
+    print $release;
+
+    my $md5sum = (
+        split(
+            /\s+/,
+            `/usr/bin/mysqldump -n -d --host=$Config{'database'}{'host'} --port=$Config{'database'}{'port'} -n -d -u $Config{'database'}{'user'} -p'$Config{'database'}{'pass'}' $Config{'database'}{'db'} | egrep -v '(^/|^\$|^--|^DROP)'|md5sum`
+        )
+    )[0];
+    print "DB MD5SUM: $md5sum\n";
 }
 
 #
 #  schedule a host scan
 #
 sub schedule {
-  eval "use Net::Nessus::ScanLite; 1" || $logger->logdie("Net::Nessus::ScanLite not found, please install for Nessus schedule functionality");
-  my $command = $cmd{command}[0];
-  my $service;
-  $service = $cmd{command}[1] if (defined $cmd{command}[1]);
-  my $option = $cmd{schedule_options}[0];
-  my $hostaddr = $cmd{schedule_options}[1];
-  my %params=format_assignment(@{$cmd{assignment}});
+    eval "use Net::Nessus::ScanLite; 1"
+        || $logger->logdie(
+        "Net::Nessus::ScanLite not found, please install for Nessus schedule functionality"
+        );
+    my $command = $cmd{command}[0];
+    my $service;
+    $service = $cmd{command}[1] if ( defined $cmd{command}[1] );
+    my $option   = $cmd{schedule_options}[0];
+    my $hostaddr = $cmd{schedule_options}[1];
+    my %params   = format_assignment( @{ $cmd{assignment} } );
 
-  #scan now no cron entry
-  if ($option && $option=~/^now$/){
-    require pf::trigger;
-    my @output=pf::trigger::trigger_scan($hostaddr,$params{tid});
-    my $date=mysql_date();
-    $date=~s/ /-/g;
-    $hostaddr=~s/\//\\/g;
-    my $file_fh;
-    open($file_fh,'>', "$install_dir/html/admin/scan/results/dump_${hostaddr}_$date");
-    print {$file_fh} shift(@output)."\n";  
-    print {$file_fh} join($delimiter, ("vulnerable","mac","ip","tid","sid","port","description"))."\n";
-    print {$file_fh} @output;  
-    #close(FILE);
-    return(1); 
-  }
-  use pf::pfcmd::schedule;
+    #scan now no cron entry
+    if ( $option && $option =~ /^now$/ ) {
+        require pf::trigger;
+        my @output = pf::trigger::trigger_scan( $hostaddr, $params{tid} );
+        my $date = mysql_date();
+        $date     =~ s/ /-/g;
+        $hostaddr =~ s/\//\\/g;
+        my $file_fh;
+        open( $file_fh, '>',
+            "$install_dir/html/admin/scan/results/dump_${hostaddr}_$date" );
+        print {$file_fh} shift(@output) . "\n";
+        print {$file_fh} join(
+            $delimiter,
+            (   "vulnerable", "mac", "ip", "tid", "sid", "port", "description"
+            )
+        ) . "\n";
+        print {$file_fh} @output;
 
-  my $tid=$params{tid} || "all";
-  my $date=$params{date} || 0;
-
-  my $cron = new schedule();
-  $cron->load_cron("pf");
-  print join($delimiter, ("id","date","hosts","tid"))."\n";
-  if ($option=~/^view$/){
-    if ($hostaddr=~/^all$/){
-      print $cron->get_indexes();
-    }else {
-      print join($delimiter,$cron->get_index($hostaddr))."\n";
+        #close(FILE);
+        return (1);
     }
-    return(1);
-  }elsif ($option=~/^add$/){
-     my @fields=split(/\s+/,$date); 
-     if (!$date || scalar(@fields)!=5 || $date!~/^([\d\-\,\/\* ])+$/ || !$tid){
-        print "Date format incorrect $date or tid incorrect $tid\n";
-        $logger->error("date format incorrect");  
-	return(0);
-     } else{
-        $cron->add_index($date,$bin_dir."/pfcmd schedule now $hostaddr tid=$tid");
-     }  
-  }elsif ($option=~/^delete$/){
-    $cron->delete_index($hostaddr);
-  }elsif ($option=~/^edit$/){
-    my $id=$hostaddr;
-    my ($oldate,$oldaddr,$oldtid)=($cron->get_index($id))[1,2,3];
-    $hostaddr=$oldaddr;
-    $hostaddr=$params{hosts} if ($params{hosts});
-    $tid=$oldtid if (!$tid);
-    $date=$oldate if (!$date);
-    $logger->info("updating schedule number $id to date=$date,hostaddr=$hostaddr,tid=$tid");
-    $cron->update_index($id,$date,$bin_dir."/pfcmd schedule now $hostaddr tid=$tid");
-  }else{
-    $logger->error("Schedule Failed");
-    return(0);
-  }
+    use pf::pfcmd::schedule;
 
- print $cron->get_indexes();
- $cron->write_cron("pf");
+    my $tid  = $params{tid}  || "all";
+    my $date = $params{date} || 0;
+
+    my $cron = new schedule();
+    $cron->load_cron("pf");
+    print join( $delimiter, ( "id", "date", "hosts", "tid" ) ) . "\n";
+    if ( $option =~ /^view$/ ) {
+        if ( $hostaddr =~ /^all$/ ) {
+            print $cron->get_indexes();
+        } else {
+            print join( $delimiter, $cron->get_index($hostaddr) ) . "\n";
+        }
+        return (1);
+    } elsif ( $option =~ /^add$/ ) {
+        my @fields = split( /\s+/, $date );
+        if (   !$date
+            || scalar(@fields) != 5
+            || $date !~ /^([\d\-\,\/\* ])+$/
+            || !$tid )
+        {
+            print "Date format incorrect $date or tid incorrect $tid\n";
+            $logger->error("date format incorrect");
+            return (0);
+        } else {
+            $cron->add_index( $date,
+                $bin_dir . "/pfcmd schedule now $hostaddr tid=$tid" );
+        }
+    } elsif ( $option =~ /^delete$/ ) {
+        $cron->delete_index($hostaddr);
+    } elsif ( $option =~ /^edit$/ ) {
+        my $id = $hostaddr;
+        my ( $oldate, $oldaddr, $oldtid )
+            = ( $cron->get_index($id) )[ 1, 2, 3 ];
+        $hostaddr = $oldaddr;
+        $hostaddr = $params{hosts} if ( $params{hosts} );
+        $tid      = $oldtid if ( !$tid );
+        $date     = $oldate if ( !$date );
+        $logger->info(
+            "updating schedule number $id to date=$date,hostaddr=$hostaddr,tid=$tid"
+        );
+        $cron->update_index( $id, $date,
+            $bin_dir . "/pfcmd schedule now $hostaddr tid=$tid" );
+    } else {
+        $logger->error("Schedule Failed");
+        return (0);
+    }
+
+    print $cron->get_indexes();
+    $cron->write_cron("pf");
 }
-
 
 #
 #
 #
 sub config_entry {
-  my($param, $value) = @_;
-  my($default, $orig_param, $dot_param, $param2, $type, $options, $val);
-  
-  $orig_param = $param;
-  $dot_param = $param;
-  $dot_param =~ s/\s+/\./g;
-  ($param, $param2) = split(" ", $param) if ($param =~ /\s/);
+    my ( $param, $value ) = @_;
+    my ( $default, $orig_param, $dot_param, $param2, $type, $options, $val );
 
-  if (defined($defaults{$orig_param}{$value})) {
-    $default = $defaults{$orig_param}{$value};
-  } else {
-    $default = "";
-  }
-  if (defined($documentation{"$param.$value"}{'options'})) {
-    $options = $documentation{"$param.$value"}{'options'};
-    $options =~ s/\|/;/g;
-  } else {
-    $options = "";
-  }
-  if (defined($documentation{"$param.$value"}{'type'})) {
-    $type = $documentation{"$param.$value"}{'type'};
-  } else {
-    $type = "text";
-  }
-  if (defined($myconfig{$orig_param}{$value})) {
-    $val = "$dot_param.$value=$myconfig{$orig_param}{$value}";
-  } else {
-    $val = "$dot_param.$value=";
-  }
-  return join("|",$val,$default,$options,$type)."\n";
+    $orig_param = $param;
+    $dot_param  = $param;
+    $dot_param =~ s/\s+/\./g;
+    ( $param, $param2 ) = split( " ", $param ) if ( $param =~ /\s/ );
+
+    if ( defined( $defaults{$orig_param}{$value} ) ) {
+        $default = $defaults{$orig_param}{$value};
+    } else {
+        $default = "";
+    }
+    if ( defined( $documentation{"$param.$value"}{'options'} ) ) {
+        $options = $documentation{"$param.$value"}{'options'};
+        $options =~ s/\|/;/g;
+    } else {
+        $options = "";
+    }
+    if ( defined( $documentation{"$param.$value"}{'type'} ) ) {
+        $type = $documentation{"$param.$value"}{'type'};
+    } else {
+        $type = "text";
+    }
+    if ( defined( $myconfig{$orig_param}{$value} ) ) {
+        $val = "$dot_param.$value=$myconfig{$orig_param}{$value}";
+    } else {
+        $val = "$dot_param.$value=";
+    }
+    return join( "|", $val, $default, $options, $type ) . "\n";
 }
 
 #
 # parse pf.conf and also defaults template/pf.conf
 #
 sub config {
-  my $option = $cmd{command}[1];
-  my $param = $cmd{command}[2];
-  my $value = "";
+    my $option = $cmd{command}[1];
+    my $param  = $cmd{command}[2];
+    my $value  = "";
 
-  tie %documentation, 'Config::IniFiles', ( -file => $conf_dir."/documentation.conf" ) or $logger->logdie("Unable to open documentation.conf: $!");
-  tie %defaults, 'Config::IniFiles', ( -file => $conf_dir."/pf.conf.defaults" ) or $logger->logdie("Unable to open pf.conf.defaults: $!");
-  tie %myconfig, 'Config::IniFiles', ( -file => $conf_dir."/pf.conf" ) or $logger->logdie("Unable to open pf.conf: $!");
-  
-  if ($option =~ /^set$/i && $param !~ /^.+?=.+?$/) {
-    require pf::pfcmd::help;
-    pf::pfcmd::help::usage("config");
-  }
-  if ($option =~ /^set$/i) {
-    $param =~ /^([^=]+)=(.+)$/;
-    $param = $1;
-    $value = $2;
-  }
-  # get rid of spaces (a la [interface X])
-  #$param =~ s/\s+/./g;
+    tie %documentation, 'Config::IniFiles',
+        ( -file => $conf_dir . "/documentation.conf" )
+        or $logger->logdie("Unable to open documentation.conf: $!");
+    tie %defaults, 'Config::IniFiles',
+        ( -file => $conf_dir . "/pf.conf.defaults" )
+        or $logger->logdie("Unable to open pf.conf.defaults: $!");
+    tie %myconfig, 'Config::IniFiles', ( -file => $conf_dir . "/pf.conf" )
+        or $logger->logdie("Unable to open pf.conf: $!");
 
-  my $parm;
-  my $section;
-  
-  if ($param =~ /^(interface)\.(.+)+\.([^.]+)$/) {
-    $parm = $3;
-    $section = "$1 $2";
-  } else {
-    my @stuff = split(/\./, $param);
-    $parm = pop(@stuff);
-    $section = join(" ",@stuff);
-  }
+    if ( $option =~ /^set$/i && $param !~ /^.+?=.+?$/ ) {
+        require pf::pfcmd::help;
+        pf::pfcmd::help::usage("config");
+    }
+    if ( $option =~ /^set$/i ) {
+        $param =~ /^([^=]+)=(.+)$/;
+        $param = $1;
+        $value = $2;
+    }
 
-  if ($option =~ /^get$/i) {
-    if ($param =~ /^all$/) {
-      foreach my $a (sort keys(%Config)) {
-        foreach my $b (keys(%{$Config{$a}})) {
-          print config_entry($a,$b);
+    # get rid of spaces (a la [interface X])
+    #$param =~ s/\s+/./g;
+
+    my $parm;
+    my $section;
+
+    if ( $param =~ /^(interface)\.(.+)+\.([^.]+)$/ ) {
+        $parm    = $3;
+        $section = "$1 $2";
+    } else {
+        my @stuff = split( /\./, $param );
+        $parm = pop(@stuff);
+        $section = join( " ", @stuff );
+    }
+
+    if ( $option =~ /^get$/i ) {
+        if ( $param =~ /^all$/ ) {
+            foreach my $a ( sort keys(%Config) ) {
+                foreach my $b ( keys( %{ $Config{$a} } ) ) {
+                    print config_entry( $a, $b );
+                }
+            }
+            exit;
         }
-      }
-      exit;
-    }
-    if (defined($Config{$section}{$parm})) {
-      print config_entry($section,$parm);
-    } else {
-      print "Unknown configuration parameter: $param!\n";
-      exit;
-    }
-  } elsif ($option =~ /^help$/i) {
-    if (defined($documentation{$param}{'description'})) {
-      print uc($param)."\n";
-      print "Default: $defaults{$section}{$parm}\n" if (defined($defaults{$section}{$parm}));
-      print "Options: $documentation{$param}{'options'}\n" if (defined($documentation{$param}{'options'}));
-      if (ref($documentation{$param}{'description'}) eq 'ARRAY') {
-        print join("\n",@{$documentation{$param}{'description'}})."\n";
-      } else {
-        print $documentation{$param}{'description'} . "\n";
-      }
-    } else {
-      print "No help available for $param\n";
-      exit;
-    }
-  } elsif ($option =~ /^set$/i) {
-    if (!defined($Config{$section}{$parm})) {
-      print "Unknown configuration parameter!\n";
-      exit;
-    } else {
-      #write out the local config only - with the new value.
-      if (defined($myconfig{$section}{$parm})) {
-        if ((!defined($myconfig{$section}{$param})) || ($defaults{$section}{$parm} ne $value)) {
-          tied(%myconfig)->setval($section,$parm,$value);
+        if ( defined( $Config{$section}{$parm} ) ) {
+            print config_entry( $section, $parm );
         } else {
-          tied(%myconfig)->delval($section, $parm);
+            print "Unknown configuration parameter: $param!\n";
+            exit;
         }
-      } elsif ($defaults{$section}{$parm} ne $value) {
-        tied(%myconfig)->newval($section,$parm,$value);
-      }
-      tied(%myconfig)->WriteConfig($conf_dir."/pf.conf");
-      require pf::configfile;
-      import pf::configfile;
-      configfile_import($conf_dir . "/pf.conf");
+    } elsif ( $option =~ /^help$/i ) {
+        if ( defined( $documentation{$param}{'description'} ) ) {
+            print uc($param) . "\n";
+            print "Default: $defaults{$section}{$parm}\n"
+                if ( defined( $defaults{$section}{$parm} ) );
+            print "Options: $documentation{$param}{'options'}\n"
+                if ( defined( $documentation{$param}{'options'} ) );
+            if ( ref( $documentation{$param}{'description'} ) eq 'ARRAY' ) {
+                print join( "\n", @{ $documentation{$param}{'description'} } )
+                    . "\n";
+            } else {
+                print $documentation{$param}{'description'} . "\n";
+            }
+        } else {
+            print "No help available for $param\n";
+            exit;
+        }
+    } elsif ( $option =~ /^set$/i ) {
+        if ( !defined( $Config{$section}{$parm} ) ) {
+            print "Unknown configuration parameter!\n";
+            exit;
+        } else {
+
+            #write out the local config only - with the new value.
+            if ( defined( $myconfig{$section}{$parm} ) ) {
+                if (   ( !defined( $myconfig{$section}{$param} ) )
+                    || ( $defaults{$section}{$parm} ne $value ) )
+                {
+                    tied(%myconfig)->setval( $section, $parm, $value );
+                } else {
+                    tied(%myconfig)->delval( $section, $parm );
+                }
+            } elsif ( $defaults{$section}{$parm} ne $value ) {
+                tied(%myconfig)->newval( $section, $parm, $value );
+            }
+            tied(%myconfig)->WriteConfig( $conf_dir . "/pf.conf" );
+            require pf::configfile;
+            import pf::configfile;
+            configfile_import( $conf_dir . "/pf.conf" );
+        }
+    } else {
+        print "Unknown config option!\n";
+        exit;
     }
-  } else {
-    print "Unknown config option!\n";
-    exit;
-  }
 }
 
-
-# 
+#
 # run reports
-# 
+#
 sub report {
-  require pf::pfcmd::report;
-  import pf::pfcmd::report;
-  my $option = $cmd{command}[0];
-  my $service;
-  $service = $cmd{command}[1] if (defined $cmd{command}[1]);
-  my $type;
-  if ((defined $cmd{command}[2]) && ($cmd{command}[2] ne '')) {
-    $type = $cmd{command}[2];
-  } else {
-    $type = "all"
-  }
-  exit(print_results("report_".$service."_".$type));
+    require pf::pfcmd::report;
+    import pf::pfcmd::report;
+    my $option = $cmd{command}[0];
+    my $service;
+    $service = $cmd{command}[1] if ( defined $cmd{command}[1] );
+    my $type;
+    if ( ( defined $cmd{command}[2] ) && ( $cmd{command}[2] ne '' ) ) {
+        $type = $cmd{command}[2];
+    } else {
+        $type = "all";
+    }
+    exit( print_results( "report_" . $service . "_" . $type ) );
 }
 
 sub configfiles {
-  my $option = $cmd{command}[1];
-  require pf::configfile;
-  import pf::configfile;
-  if ($option eq "push") {
-    configfile_import($conf_dir . '/pf.conf');
-    configfile_import($conf_dir . '/log.conf');
-    configfile_import($conf_dir . '/switches.conf');
-    configfile_import($conf_dir . '/violations.conf');
-    configfile_import($conf_dir . '/networks.conf');
-    configfile_import($conf_dir . '/ui.conf');
-  } elsif ($option eq "pull") {
-    configfile_export($conf_dir . '/pf.conf');
-    configfile_export($conf_dir . '/log.conf');
-    configfile_export($conf_dir . '/switches.conf');
-    configfile_export($conf_dir . '/violations.conf');
-    configfile_export($conf_dir . '/networks.conf');
-    configfile_export($conf_dir . '/ui.conf');
-  }
-  exit;
+    my $option = $cmd{command}[1];
+    require pf::configfile;
+    import pf::configfile;
+    if ( $option eq "push" ) {
+        configfile_import( $conf_dir . '/pf.conf' );
+        configfile_import( $conf_dir . '/log.conf' );
+        configfile_import( $conf_dir . '/switches.conf' );
+        configfile_import( $conf_dir . '/violations.conf' );
+        configfile_import( $conf_dir . '/networks.conf' );
+        configfile_import( $conf_dir . '/ui.conf' );
+    } elsif ( $option eq "pull" ) {
+        configfile_export( $conf_dir . '/pf.conf' );
+        configfile_export( $conf_dir . '/log.conf' );
+        configfile_export( $conf_dir . '/switches.conf' );
+        configfile_export( $conf_dir . '/violations.conf' );
+        configfile_export( $conf_dir . '/networks.conf' );
+        configfile_export( $conf_dir . '/ui.conf' );
+    }
+    exit;
 }
 
 #
 #
 #
 sub reload {
-  my $option = $cmd{command}[1];
-  if ($option eq "fingerprints") {
-    require pf::os;
-    my $fp_total = pf::os::read_dhcp_fingerprints_conf();
-    $logger->info("$fp_total DHCP fingerprints reloaded");
-    print "$fp_total DHCP fingerprints reloaded\n";
-  } elsif ($option eq "violations") {
-    require pf::services;
-    pf::services::read_violations_conf();
-    $logger->info("Violation classes reloaded");
-    print "Violation classes reloaded\n";
-  }
-  exit;
+    my $option = $cmd{command}[1];
+    if ( $option eq "fingerprints" ) {
+        require pf::os;
+        my $fp_total = pf::os::read_dhcp_fingerprints_conf();
+        $logger->info("$fp_total DHCP fingerprints reloaded");
+        print "$fp_total DHCP fingerprints reloaded\n";
+    } elsif ( $option eq "violations" ) {
+        require pf::services;
+        pf::services::read_violations_conf();
+        $logger->info("Violation classes reloaded");
+        print "Violation classes reloaded\n";
+    }
+    exit;
 }
 
 sub update {
-  my $option = $cmd{command}[1];
-  require LWP::UserAgent;
-  my $browser = LWP::UserAgent->new;
-  if ($option eq "fingerprints") {
-    my $response = $browser->get($dhcp_fingerprints_url);
-    if (!$response->is_success) {
-      $logger->logdie("Unable to update DHCP fingerprints: ".$response->status_line);
-    } else {
-      my($fingerprints_fh);
-      open($fingerprints_fh,'>', "$dhcp_fingerprints_file") || $logger->logdie("Unable to open $dhcp_fingerprints_file: $!");
-      my $fingerprints = $response->content;
-      my ($version) = $fingerprints =~ /^#\s+dhcp_fingerprints.conf:\s+(version.+?)\n/;
-      print $fingerprints_fh $fingerprints;
-      close($fingerprints_fh);
-      $logger->info("DHCP fingerprints updated via $dhcp_fingerprints_url to $version");
-      print "DHCP fingerprints updated via $dhcp_fingerprints_url to $version\n";
-      require pf::os;
-      my $fp_total = pf::os::read_dhcp_fingerprints_conf();
-      $logger->info("$fp_total DHCP fingerprints reloaded");
-      print "$fp_total DHCP fingerprints reloaded\n";
+    my $option = $cmd{command}[1];
+    require LWP::UserAgent;
+    my $browser = LWP::UserAgent->new;
+    if ( $option eq "fingerprints" ) {
+        my $response = $browser->get($dhcp_fingerprints_url);
+        if ( !$response->is_success ) {
+            $logger->logdie( "Unable to update DHCP fingerprints: "
+                    . $response->status_line );
+        } else {
+            my ($fingerprints_fh);
+            open( $fingerprints_fh, '>', "$dhcp_fingerprints_file" )
+                || $logger->logdie(
+                "Unable to open $dhcp_fingerprints_file: $!");
+            my $fingerprints = $response->content;
+            my ($version)
+                = $fingerprints
+                =~ /^#\s+dhcp_fingerprints.conf:\s+(version.+?)\n/;
+            print $fingerprints_fh $fingerprints;
+            close($fingerprints_fh);
+            $logger->info(
+                "DHCP fingerprints updated via $dhcp_fingerprints_url to $version"
+            );
+            print
+                "DHCP fingerprints updated via $dhcp_fingerprints_url to $version\n";
+            require pf::os;
+            my $fp_total = pf::os::read_dhcp_fingerprints_conf();
+            $logger->info("$fp_total DHCP fingerprints reloaded");
+            print "$fp_total DHCP fingerprints reloaded\n";
+        }
+    } elsif ( $option eq "oui" ) {
+        my $response = $browser->get($oui_url);
+        if ( !$response->is_success ) {
+            $logger->logdie(
+                "Unable to update OUI prefixes: " . $response->status_line );
+        } else {
+            my ($oui_fh);
+            open( $oui_fh, '>', "$oui_file" )
+                || $logger->logdie("Unable to open $oui_file: $!");
+            print $oui_fh $response->content;
+            close($oui_fh);
+            $logger->info("OUI prefixes updated via $oui_url");
+            print "OUI prefixes updated via $oui_url\n";
+        }
     }
-  } elsif ($option eq "oui") {
-    my $response = $browser->get($oui_url);
-    if (!$response->is_success) {
-      $logger->logdie("Unable to update OUI prefixes: ".$response->status_line);
-    } else {
-      my($oui_fh);
-      open($oui_fh,'>', "$oui_file") || $logger->logdie("Unable to open $oui_file: $!");
-      print $oui_fh $response->content;
-      close($oui_fh);
-      $logger->info("OUI prefixes updated via $oui_url");
-      print "OUI prefixes updated via $oui_url\n";
-    }
-  }
-  exit;
+    exit;
 }
 
 sub graph {
-  my $graph = $cmd{command}[1];
-  if (($graph ne 'ifoctetshistoryuser') && ($graph ne 'ifoctetshistorymac') && ($graph ne 'ifoctetshistoryswitch')) {
-    require pf::pfcmd::graph;
-    import pf::pfcmd::graph;
-    my $interval;
-    if (defined $cmd{command}[2]) {
-      $interval = $cmd{command}[2];
+    my $graph = $cmd{command}[1];
+    if (   ( $graph ne 'ifoctetshistoryuser' )
+        && ( $graph ne 'ifoctetshistorymac' )
+        && ( $graph ne 'ifoctetshistoryswitch' ) )
+    {
+        require pf::pfcmd::graph;
+        import pf::pfcmd::graph;
+        my $interval;
+        if ( defined $cmd{command}[2] ) {
+            $interval = $cmd{command}[2];
+        } else {
+            $interval = "day";
+        }
+        exit( print_graph_results( "graph_" . $graph, $interval ) );
     } else {
-      $interval = "day";
+        require pf::ifoctetslog;
+        import pf::ifoctetslog;
+        my %params;
+        my %date_params = format_assignment( @{ $cmd{'date_range'} } );
+        $params{'start_time'} = str2time( $date_params{'start_time'} );
+        $params{'end_time'}   = str2time( $date_params{'end_time'} );
+        my @results;
+        if ( $graph eq 'ifoctetshistoryuser' ) {
+            @results = ifoctetslog_graph_user( $cmd{command}[2], %params );
+        } elsif ( $graph eq 'ifoctetshistorymac' ) {
+            @results = ifoctetslog_graph_mac( $cmd{command}[2], %params );
+        } elsif ( $graph eq 'ifoctetshistoryswitch' ) {
+            $params{'ifIndex'} = $cmd{command}[3];
+            @results
+                = ifoctetslog_graph_switchport( $cmd{command}[2], %params );
+        }
+        print "count|mydate|series\n";
+        foreach my $set (@results) {
+            print $set->{'throughPutIn'} . "|" . $set->{'mydate'} . "|in\n";
+            print $set->{'throughPutOut'} . "|" . $set->{'mydate'} . "|out\n";
+        }
     }
-    exit(print_graph_results("graph_".$graph, $interval));
-  } else {
-    require pf::ifoctetslog;
-    import pf::ifoctetslog;
-    my %params;
-    my %date_params=format_assignment(@{$cmd{'date_range'}});
-    $params{'start_time'} = str2time($date_params{'start_time'});
-    $params{'end_time'} = str2time($date_params{'end_time'});
-    my @results;
-    if ($graph eq 'ifoctetshistoryuser') {
-      @results=ifoctetslog_graph_user($cmd{command}[2], %params);
-    } elsif ($graph eq 'ifoctetshistorymac') {
-      @results=ifoctetslog_graph_mac($cmd{command}[2], %params);
-    } elsif ($graph eq 'ifoctetshistoryswitch') {
-      $params{'ifIndex'} = $cmd{command}[3];
-      @results=ifoctetslog_graph_switchport($cmd{command}[2], %params);
-    }
-    print "count|mydate|series\n";
-    foreach my $set (@results) {
-      print $set->{'throughPutIn'} . "|" . $set->{'mydate'} . "|in\n";
-      print $set->{'throughPutOut'} . "|" . $set->{'mydate'} . "|out\n";
-    }
-  }
 }
 
 sub lookup {
-  my $option = $cmd{command}[0];
-  my $service = $cmd{command}[1];
-  my $id = $cmd{command}[2];
+    my $option  = $cmd{command}[0];
+    my $service = $cmd{command}[1];
+    my $id      = $cmd{command}[2];
 
-  push @INC, $bin_dir;
-  if ($service =~ /^person$/) {
-    require pf::person;
-    import pf::person;
-    require "$bin_dir/lookup_person.pl";
-    my $tmp_lookup = lookup_person($id);
-    print $tmp_lookup;
-  } else {
-    require "$bin_dir/lookup_node.pl";
-    my $tmp_lookup = lookup_node($id);
-    print $tmp_lookup;
-  }
+    push @INC, $bin_dir;
+    if ( $service =~ /^person$/ ) {
+        require pf::person;
+        import pf::person;
+        require "$bin_dir/lookup_person.pl";
+        my $tmp_lookup = lookup_person($id);
+        print $tmp_lookup;
+    } else {
+        require "$bin_dir/lookup_node.pl";
+        my $tmp_lookup = lookup_node($id);
+        print $tmp_lookup;
+    }
 }
 
 #
 # parse ui.conf config file
 #
 sub ui {
-  my ($type) = @_;
-  my $service = $cmd{command}[1];
-  my $option = $cmd{command}[2];
-  my $interval = $cmd{command}[3];
+    my ($type)   = @_;
+    my $service  = $cmd{command}[1];
+    my $option   = $cmd{command}[2];
+    my $interval = $cmd{command}[3];
 
-  if ($service eq "menus") {
-    # check if Net::Nessus::ScanLite is installed
-    my $scanLiteInstalled = 1;
-    eval "use Net::Nessus::ScanLite";
-    if ($@) {
-      $scanLiteInstalled = 0;
-    }
-    # read in configuration file
-    my %uiconfig;
-    my $ui_conf_file = $conf_dir."/ui.conf";
-    if (defined($cmd{'ui_options'})) {
-      $ui_conf_file= $conf_dir."/" . $cmd{'ui_options'}[2];
-    }
-    tie %uiconfig, 'Config::IniFiles', ( -file => $ui_conf_file ) or $logger->logdie("Unable to open $ui_conf_file: $!");
+    if ( $service eq "menus" ) {
 
-    my $string;
-    foreach my $section (tied(%uiconfig)->Sections) {
-      my @array = split(/\./,$section);
-      my $service;
-      $service = $array[1] if ($array[1]);
-      next if ((defined $service) && ($service eq "scan") && (! $scanLiteInstalled));
-      next if ((@array) && (scalar(@array) > 2) && ($service eq "configuration") && ($array[2] eq "switches") && ($Config{'network'}{'mode'} ne 'vlan'));
-      next if ((@array) && (scalar(@array) > 2) && ($service eq "configuration") && ($array[2] eq "networks") && (($Config{'network'}{'mode'} ne 'vlan') || (! -e "$conf_dir/networks.conf") || (-z "$conf_dir/networks.conf")));
-      $string .= join("|", @array)."|";
-      my @keys;
-      #print "NO SECTION $section \n" if (!defined $uiconfig{$section}{'display'});
-      foreach my $key (split(/\s*,\s*/,$uiconfig{$section}{'display'})) {
-        my $key2;   
-        if (defined $service && defined($table2key{$service}) && $table2key{$service} eq $key) {
-          $key2 = $key."*";
-        } else {
-          $key2 = $key;
-        }               
-        $key=~s/^-//;
-        next if (($key eq "scan") && (! $scanLiteInstalled));
-        next if (($section eq "ui.configuration") && ($key2 eq "switches") && ($Config{'network'}{'mode'} ne 'vlan'));
-        next if (($section eq "ui.configuration") && ($key2 eq "networks") && (($Config{'network'}{'mode'} ne 'vlan') || (! -e "$conf_dir/networks.conf") || (-z "$conf_dir/networks.conf")));
-        if (defined $uiconfig{$section}{$key}){
-          push @keys, "$key2='$uiconfig{$section}{$key}'";
-        }else{
-          #print "NO SECTION $section $key \n" if (!defined $uiconfig{$section}{$key});
-          push @keys, "$key2='$key2'";
+        # check if Net::Nessus::ScanLite is installed
+        my $scanLiteInstalled = 1;
+        eval "use Net::Nessus::ScanLite";
+        if ($@) {
+            $scanLiteInstalled = 0;
         }
-      }
-      $string .= join(":", @keys)."\n";
+
+        # read in configuration file
+        my %uiconfig;
+        my $ui_conf_file = $conf_dir . "/ui.conf";
+        if ( defined( $cmd{'ui_options'} ) ) {
+            $ui_conf_file = $conf_dir . "/" . $cmd{'ui_options'}[2];
+        }
+        tie %uiconfig, 'Config::IniFiles', ( -file => $ui_conf_file )
+            or $logger->logdie("Unable to open $ui_conf_file: $!");
+
+        my $string;
+        foreach my $section ( tied(%uiconfig)->Sections ) {
+            my @array = split( /\./, $section );
+            my $service;
+            $service = $array[1] if ( $array[1] );
+            next
+                if ( ( defined $service )
+                && ( $service eq "scan" )
+                && ( !$scanLiteInstalled ) );
+            next
+                if ( (@array)
+                && ( scalar(@array) > 2 )
+                && ( $service eq "configuration" )
+                && ( $array[2] eq "switches" )
+                && ( $Config{'network'}{'mode'} ne 'vlan' ) );
+            next
+                if (
+                   (@array)
+                && ( scalar(@array) > 2 )
+                && ( $service eq "configuration" )
+                && ( $array[2] eq "networks" )
+                && (   ( $Config{'network'}{'mode'} ne 'vlan' )
+                    || ( !-e "$conf_dir/networks.conf" )
+                    || ( -z "$conf_dir/networks.conf" ) )
+                );
+            $string .= join( "|", @array ) . "|";
+            my @keys;
+
+ #print "NO SECTION $section \n" if (!defined $uiconfig{$section}{'display'});
+            foreach
+                my $key ( split( /\s*,\s*/, $uiconfig{$section}{'display'} ) )
+            {
+                my $key2;
+                if (   defined $service
+                    && defined( $table2key{$service} )
+                    && $table2key{$service} eq $key )
+                {
+                    $key2 = $key . "*";
+                } else {
+                    $key2 = $key;
+                }
+                $key =~ s/^-//;
+                next if ( ( $key eq "scan" ) && ( !$scanLiteInstalled ) );
+                next
+                    if ( ( $section eq "ui.configuration" )
+                    && ( $key2 eq "switches" )
+                    && ( $Config{'network'}{'mode'} ne 'vlan' ) );
+                next
+                    if (
+                       ( $section eq "ui.configuration" )
+                    && ( $key2 eq "networks" )
+                    && (   ( $Config{'network'}{'mode'} ne 'vlan' )
+                        || ( !-e "$conf_dir/networks.conf" )
+                        || ( -z "$conf_dir/networks.conf" ) )
+                    );
+                if ( defined $uiconfig{$section}{$key} ) {
+                    push @keys, "$key2='$uiconfig{$section}{$key}'";
+                } else {
+
+ #print "NO SECTION $section $key \n" if (!defined $uiconfig{$section}{$key});
+                    push @keys, "$key2='$key2'";
+                }
+            }
+            $string .= join( ":", @keys ) . "\n";
+        }
+        print $string;
+    } elsif ( $service eq "dashboard" ) {
+        require pf::pfcmd::dashboard;
+        import pf::pfcmd::dashboard;
+        $interval = 3 unless ($interval);
+        exit( print_results( "nugget_" . $option, $interval ) );
+    } else {
+        usage("help");
     }
-    print $string;
-  } elsif ($service eq "dashboard") {
-    require pf::pfcmd::dashboard;
-    import pf::pfcmd::dashboard;
-    $interval = 3 unless ($interval);
-    exit(print_results("nugget_".$option, $interval));
-  } else {
-    usage("help");
-  }
 }
 
 #
 # node,person,violation parser
 #
 sub command_param {
-  my ($type) = @_;
-  my $options = $type."_options";
-  my $option = $cmd{$options}[0];
-  my $id = $cmd{$options}[1];
-  # strip out the delimiter
-  $id =~ s/$delimiter//g;
-  my $function=$type;
-  if ($option eq "view") {
-    $function.="_view";
-    $function.="_all" if ($id=~/^all/);
-    my %params;
-    #use Data::Dumper;
-    #print Dumper(%cmd);
-    if (defined($cmd{'orderby_options'})) {
-      $params{'orderby'} = 'order by ' . $cmd{'orderby_options'}[2];
-      if (scalar(@{$cmd{'orderby_options'}}) == 4) {
-        $params{'orderby'} .= " " . $cmd{'orderby_options'}[3];
-      }
-    }
-    if (defined($cmd{'limit_options'})) {
-      $params{'limit'} = 'limit ' . $cmd{'limit_options'}[1] . ',' . $cmd{'limit_options'}[3];
-    }
-    if (defined($cmd{'node_filter'})) {
-      $function.="_all";
-      $params{'where'}{'type'}=$cmd{'node_filter'}[0][0];
-      $params{'where'}{'value'}=$cmd{'node_filter'}[0][1];
-    }
-    exit(print_results($function,$id, %params));
-    return(0);
-  } elsif ($option eq "count") {
-    $function .= "_count_all";
-    my %params;
-    if (defined($cmd{'node_filter'})) {
-      $params{'where'}{'type'}=$cmd{'node_filter'}[0][0];
-      $params{'where'}{'value'}=$cmd{'node_filter'}[0][1];
-    }
-    exit(print_results($function,$id, %params));
-    return(0);
-  } elsif ($option eq "add"){
-    $function.="_add"; 
-  } elsif ($option eq "edit") {
-    $function.="_modify";       
-  } elsif ($option eq "delete") {
-    $function.="_delete"; 
-  } else {
-    usage("param");
-  }
+    my ($type)  = @_;
+    my $options = $type . "_options";
+    my $option  = $cmd{$options}[0];
+    my $id      = $cmd{$options}[1];
 
-  my $assignment = $type."_assignment";
-  my %params=format_assignment(@{$cmd{$assignment}});
-  my $returnValue = 0;
-  if (($function eq "node_modify") || ($function eq "node_add")) {
-    $id = lc($id);
-  }
-  #print Dumper(%params);
-  # run update/or delete  and check return val
-  if ($function eq "violation_add"){
-    $logger->info("pfcmd calling $function for " . $params{mac});
-    ($main::{$function} or sub { print "No such sub: $_\n" })->($params{mac},$params{vid},%params);
-  }else {
-    if ($function eq "violation_delete") {
-      my @violation_data = violation_view($id);
-      if (scalar(@violation_data) == 1) {
-        $params{mac} = $violation_data[0]->{'mac'};
-      } else {
-        $params{mac} = '';
-      }
-    } elsif ($function eq "violation_modify") {
-      if ((! exists($params{'mac'})) || ($params{'mac'} eq '')) {
-        my @violation_data = violation_view($id);
-        if (scalar(@violation_data) == 1) {
-          $params{mac} = $violation_data[0]->{'mac'};
-        } else {
-          $params{mac} = '';
+    # strip out the delimiter
+    $id =~ s/$delimiter//g;
+    my $function = $type;
+    if ( $option eq "view" ) {
+        $function .= "_view";
+        $function .= "_all" if ( $id =~ /^all/ );
+        my %params;
+
+        #use Data::Dumper;
+        #print Dumper(%cmd);
+        if ( defined( $cmd{'orderby_options'} ) ) {
+            $params{'orderby'} = 'order by ' . $cmd{'orderby_options'}[2];
+            if ( scalar( @{ $cmd{'orderby_options'} } ) == 4 ) {
+                $params{'orderby'} .= " " . $cmd{'orderby_options'}[3];
+            }
         }
-      }
-    }
-    $logger->info("pfcmd calling $function for $id");
-    $returnValue = ($main::{$function} or sub { print "No such sub: $_\n" })->($id,%params);
-  }
-  if ($returnValue != 2) {
-    #print "$function updated\n";
-    if ($function =~ /^person_add|person_modify$/) {
-      $logger->debug("$function was called - we don't need to recalculate iptables and switchport VLAN assignments");
+        if ( defined( $cmd{'limit_options'} ) ) {
+            $params{'limit'}
+                = 'limit '
+                . $cmd{'limit_options'}[1] . ','
+                . $cmd{'limit_options'}[3];
+        }
+        if ( defined( $cmd{'node_filter'} ) ) {
+            $function .= "_all";
+            $params{'where'}{'type'}  = $cmd{'node_filter'}[0][0];
+            $params{'where'}{'value'} = $cmd{'node_filter'}[0][1];
+        }
+        exit( print_results( $function, $id, %params ) );
+        return (0);
+    } elsif ( $option eq "count" ) {
+        $function .= "_count_all";
+        my %params;
+        if ( defined( $cmd{'node_filter'} ) ) {
+            $params{'where'}{'type'}  = $cmd{'node_filter'}[0][0];
+            $params{'where'}{'value'} = $cmd{'node_filter'}[0][1];
+        }
+        exit( print_results( $function, $id, %params ) );
+        return (0);
+    } elsif ( $option eq "add" ) {
+        $function .= "_add";
+    } elsif ( $option eq "edit" ) {
+        $function .= "_modify";
+    } elsif ( $option eq "delete" ) {
+        $function .= "_delete";
     } else {
-      if (! ($Config{'network'}{'mode'} =~ /vlan/i)) {
-        require pf::iptables;
-        pf::iptables::iptables_generate();
-      }
-      if ($function =~ /^violation/) {
-        generate_switchport_vlan_assignment($params{mac},$function);
-      } else {
-        generate_switchport_vlan_assignment($id,$function);
-      }
+        usage("param");
     }
-    return(0);
-  } else {
-    print "error: please consult log for more information\n";
-    return(2);
-  }
+
+    my $assignment  = $type . "_assignment";
+    my %params      = format_assignment( @{ $cmd{$assignment} } );
+    my $returnValue = 0;
+    if ( ( $function eq "node_modify" ) || ( $function eq "node_add" ) ) {
+        $id = lc($id);
+    }
+
+    #print Dumper(%params);
+    # run update/or delete  and check return val
+    if ( $function eq "violation_add" ) {
+        $logger->info( "pfcmd calling $function for " . $params{mac} );
+        ( $main::{$function} or sub { print "No such sub: $_\n" } )
+            ->( $params{mac}, $params{vid}, %params );
+    } else {
+        if ( $function eq "violation_delete" ) {
+            my @violation_data = violation_view($id);
+            if ( scalar(@violation_data) == 1 ) {
+                $params{mac} = $violation_data[0]->{'mac'};
+            } else {
+                $params{mac} = '';
+            }
+        } elsif ( $function eq "violation_modify" ) {
+            if ( ( !exists( $params{'mac'} ) ) || ( $params{'mac'} eq '' ) ) {
+                my @violation_data = violation_view($id);
+                if ( scalar(@violation_data) == 1 ) {
+                    $params{mac} = $violation_data[0]->{'mac'};
+                } else {
+                    $params{mac} = '';
+                }
+            }
+        }
+        $logger->info("pfcmd calling $function for $id");
+        $returnValue
+            = ( $main::{$function} or sub { print "No such sub: $_\n" } )
+            ->( $id, %params );
+    }
+    if ( $returnValue != 2 ) {
+
+        #print "$function updated\n";
+        if ( $function =~ /^person_add|person_modify$/ ) {
+            $logger->debug(
+                "$function was called - we don't need to recalculate iptables and switchport VLAN assignments"
+            );
+        } else {
+            if ( !( $Config{'network'}{'mode'} =~ /vlan/i ) ) {
+                require pf::iptables;
+                pf::iptables::iptables_generate();
+            }
+            if ( $function =~ /^violation/ ) {
+                generate_switchport_vlan_assignment( $params{mac},
+                    $function );
+            } else {
+                generate_switchport_vlan_assignment( $id, $function );
+            }
+        }
+        return (0);
+    } else {
+        print "error: please consult log for more information\n";
+        return (2);
+    }
 }
 
 #
@@ -1587,569 +1853,734 @@ sub command_param {
 # example: print_results("node","node_view_all");
 #
 sub print_results {
-  my ($function,$key,%params)=@_;
-  my $total;
-  my @results;
-  my $functionName = "main::$function";
-  if (! defined(&$functionName)) {
-    print "No such sub $function\n";
-  } else {
-    @results = ($main::{$function})->($key, %params);
-  }
-  $total = scalar(@results);
-  if ($count) {
-    $offset = scalar(@results) if ($offset > scalar(@results));
-    $count = scalar(@results) - $offset if ($offset  + $count > scalar(@results));
-    @results = splice(@results, $offset, $count);
-  }
-
-  my @fields=field_order();
-  push @fields, keys(%{$results[0]}) if (!scalar(@fields));   
-
-  if (scalar(@fields)) {
-    print join($delimiter, @fields)."\n";
-    foreach my $row (@results) {
-      next if (defined($row->{'mydate'}) && $row->{'mydate'} =~ /^00/);
-      my @values = ();
-      foreach my $field (@fields) {
-        my $value = $row->{$field};
-        if (defined($value) && $value!~/^0000-00-00 00:00:00$/) {
-          # little hack to reverse dates
-          if ($value =~ /^(\d+)\/(\d+)$/) {
-            $value = "$2/$1";
-          } elsif ($value =~ /^(\d+)\/(\d+)\/(\d+)$/) {
-             $value = "$2/$3/$1";
-          }
-          push @values, $value;
-        } else {
-          push @values, "";
-        }
-      }
-      print join($delimiter,@values)."\n";
+    my ( $function, $key, %params ) = @_;
+    my $total;
+    my @results;
+    my $functionName = "main::$function";
+    if ( !defined(&$functionName) ) {
+        print "No such sub $function\n";
+    } else {
+        @results = ( $main::{$function} )->( $key, %params );
     }
-  }
-  return($total);
-}
+    $total = scalar(@results);
+    if ($count) {
+        $offset = scalar(@results) if ( $offset > scalar(@results) );
+        $count = scalar(@results) - $offset
+            if ( $offset + $count > scalar(@results) );
+        @results = splice( @results, $offset, $count );
+    }
 
+    my @fields = field_order();
+    push @fields, keys( %{ $results[0] } ) if ( !scalar(@fields) );
+
+    if ( scalar(@fields) ) {
+        print join( $delimiter, @fields ) . "\n";
+        foreach my $row (@results) {
+            next
+                if ( defined( $row->{'mydate'} )
+                && $row->{'mydate'} =~ /^00/ );
+            my @values = ();
+            foreach my $field (@fields) {
+                my $value = $row->{$field};
+                if ( defined($value) && $value !~ /^0000-00-00 00:00:00$/ ) {
+
+                    # little hack to reverse dates
+                    if ( $value =~ /^(\d+)\/(\d+)$/ ) {
+                        $value = "$2/$1";
+                    } elsif ( $value =~ /^(\d+)\/(\d+)\/(\d+)$/ ) {
+                        $value = "$2/$3/$1";
+                    }
+                    push @values, $value;
+                } else {
+                    push @values, "";
+                }
+            }
+            print join( $delimiter, @values ) . "\n";
+        }
+    }
+    return ($total);
+}
 
 # This function has dirtied my soul.  I beg forgiveness for the disgusting code that follows.
 # I need a brillo pad and a long, long shower...
 
 sub print_graph_results {
-  my ($function,$interval) = @_;
-  require Date::Parse;
+    my ( $function, $interval ) = @_;
+    require Date::Parse;
 
-  # TOTAL HACK, but we avoid using yet another module
-  my %months = ( "01" => "31",
-                 "02" => "28",
-                 "03" => "31",
-                 "04" => "30",
-                 "05" => "31",
-                 "06" => "30",
-                 "07" => "31",
-                 "08" => "31",
-                 "09" => "30",
-                 "10" => "31",
-                 "11" => "30",
-                 "12" => "31"
-               );
+    # TOTAL HACK, but we avoid using yet another module
+    my %months = (
+        "01" => "31",
+        "02" => "28",
+        "03" => "31",
+        "04" => "30",
+        "05" => "31",
+        "06" => "30",
+        "07" => "31",
+        "08" => "31",
+        "09" => "30",
+        "10" => "31",
+        "11" => "30",
+        "12" => "31"
+    );
 
-  my @results=($main::{$function} or sub { print "No such sub $function: $_\n"; })->($interval);
-  my %series;
-  foreach my $result (@results) {
-    next if ($result->{'mydate'} =~ /0000/);
-    my $s = $result->{'series'};
-    push(@{$series{$s}}, $result);
-  }
-  my @fields=field_order();
-  push @fields, keys(%{$results[0]}) if (!scalar(@fields));
-  print join("|", @fields)."\n";
+    my @results = (
+        $main::{$function}
+            or sub { print "No such sub $function: $_\n"; }
+    )->($interval);
+    my %series;
+    foreach my $result (@results) {
+        next if ( $result->{'mydate'} =~ /0000/ );
+        my $s = $result->{'series'};
+        push( @{ $series{$s} }, $result );
+    }
+    my @fields = field_order();
+    push @fields, keys( %{ $results[0] } ) if ( !scalar(@fields) );
+    print join( "|", @fields ) . "\n";
 
-  #determine first and last time in all series
-  my $first_time = undef;
-  my $last_time = undef;
-  foreach my $s (keys(%series)) {
-    my $start_year;
-    my $start_mon=1;
-    my $start_day=1;
-    my $end_year;
-    my $end_mon=1;
-    my $end_day=1;
-    my @results = @{$series{$s}};
-    if ($interval eq "day") {
-      ($start_year, $start_mon, $start_day) = split (/\//, $results[0]->{'mydate'});
-      ($end_year, $end_mon, $end_day) = split (/\//, $results[scalar(@results)-1]->{'mydate'});
-    } elsif ($interval eq "month") {
-      ($start_year, $start_mon) = split (/\//, $results[0]->{'mydate'});
-      ($end_year, $end_mon) = split (/\//, $results[scalar(@results)-1]->{'mydate'});
-    } elsif ($interval eq "year") {
-      $start_year = $results[0]->{'mydate'};
-      $end_year = $results[scalar(@results)-1]->{'mydate'};
-    }
-    my $start_time = Date::Parse::str2time("$start_year-$start_mon-$start_day" . "T00:00:00.0000000");
-    my $end_time = Date::Parse::str2time("$end_year-$end_mon-$end_day" . "T00:00:00.0000000");
-    if ((! defined($first_time)) || ($start_time < $first_time)) {
-      $first_time = $start_time;
-    }
-    if ((! defined($last_time)) || ($end_time > $last_time)) {
-      $last_time = $end_time;
-    }
-  }
-
-  #add, if necessary, first and last time entries to all series
-  foreach my $s (keys(%series)) {
-    my $start_year;
-    my $start_mon=1;
-    my $start_day=1;
-    my $end_year;
-    my $end_mon=1;
-    my $end_day=1;
-    my @results = @{$series{$s}};
-    if ($interval eq "day") {
-      ($start_year, $start_mon, $start_day) = split (/\//, $results[0]->{'mydate'});
-      ($end_year, $end_mon, $end_day) = split (/\//, $results[scalar(@results)-1]->{'mydate'});
-    } elsif ($interval eq "month") {
-      ($start_year, $start_mon) = split (/\//, $results[0]->{'mydate'});
-      ($end_year, $end_mon) = split (/\//, $results[scalar(@results)-1]->{'mydate'});
-    } elsif ($interval eq "year") {
-      $start_year = $results[0]->{'mydate'};
-      $end_year = $results[scalar(@results)-1]->{'mydate'};
-    }
-    my $start_time = Date::Parse::str2time("$start_year-$start_mon-$start_day" . "T00:00:00.0000000");
-    my $end_time = Date::Parse::str2time("$end_year-$end_mon-$end_day" . "T00:00:00.0000000");
-    if ($start_time > $first_time) {
-      my $new_record;
-      foreach my $field (@fields) {
-        if ($field eq "mydate") {
-          $new_record->{$field} = POSIX::strftime("%Y/%m/%d", localtime($first_time));
-        } elsif ($field eq "count") {
-          $new_record->{$field} = 0;
-        } else {
-          $new_record->{$field} = $results[scalar(@results)-1]->{$field};
+    #determine first and last time in all series
+    my $first_time = undef;
+    my $last_time  = undef;
+    foreach my $s ( keys(%series) ) {
+        my $start_year;
+        my $start_mon = 1;
+        my $start_day = 1;
+        my $end_year;
+        my $end_mon = 1;
+        my $end_day = 1;
+        my @results = @{ $series{$s} };
+        if ( $interval eq "day" ) {
+            ( $start_year, $start_mon, $start_day )
+                = split( /\//, $results[0]->{'mydate'} );
+            ( $end_year, $end_mon, $end_day )
+                = split( /\//, $results[ scalar(@results) - 1 ]->{'mydate'} );
+        } elsif ( $interval eq "month" ) {
+            ( $start_year, $start_mon )
+                = split( /\//, $results[0]->{'mydate'} );
+            ( $end_year, $end_mon )
+                = split( /\//, $results[ scalar(@results) - 1 ]->{'mydate'} );
+        } elsif ( $interval eq "year" ) {
+            $start_year = $results[0]->{'mydate'};
+            $end_year   = $results[ scalar(@results) - 1 ]->{'mydate'};
         }
-      }
-      unshift(@{$series{$s}}, $new_record);
-    }
-    if ($end_time < $last_time) {
-      my $new_record;
-      foreach my $field (@fields) {
-        if ($field eq "mydate") {
-          $new_record->{$field} = POSIX::strftime("%Y/%m/%d", localtime($last_time));
-        } else {
-          $new_record->{$field} = $results[scalar(@results)-1]->{$field};
+        my $start_time = Date::Parse::str2time(
+            "$start_year-$start_mon-$start_day" . "T00:00:00.0000000" );
+        my $end_time = Date::Parse::str2time(
+            "$end_year-$end_mon-$end_day" . "T00:00:00.0000000" );
+        if ( ( !defined($first_time) ) || ( $start_time < $first_time ) ) {
+            $first_time = $start_time;
         }
-      }
-      push(@{$series{$s}}, $new_record);
-    }
-  }
-
-  foreach my $s (keys(%series)) {
-    my @results = @{$series{$s}};
-    my $year = POSIX::strftime("%Y", localtime);
-    my $month = POSIX::strftime("%m", localtime);
-    my $day = POSIX::strftime("%d", localtime);
-    my $date;
-    if ($interval eq "day") {
-      $date = "$year/$month/$day";
-    } elsif ($interval eq "month") {
-      $date = "$year/$month";
-    } elsif ($interval eq "year") {
-      $date = "$year";
-    } else {
-    }
-    if ($results[scalar(@results)-1]->{'mydate'} ne $date) {
-      my %tmp = %{$results[scalar(@results)-1]};
-      $tmp{'mydate'} = $date;
-      push(@results, \%tmp);
-    }
-    push(@results, $results[0]) if (scalar(@results) == 1);
-    if ($interval eq "day") {
-      for (my $r = 0; $r < scalar(@results)-1; $r++) {
-        my ($start_year, $start_mon, $start_day) = split (/\//, $results[$r]->{'mydate'});
-        my ($end_year, $end_mon, $end_day) = split(/\//, $results[$r+1]->{'mydate'});
-        my $start_time = Date::Parse::str2time("$start_year-$start_mon-$start_day" . "T00:00:00.0000000");
-        my $end_time = Date::Parse::str2time("$end_year-$end_mon-$end_day" . "T00:00:00.0000000");
-        for (my $current_time=$start_time; $current_time < $end_time; $current_time+=86400) {
-          my @values;
-          foreach my $field (@fields) {
-            if ($field eq "mydate") {
-              push(@values, POSIX::strftime("%m/%d/%Y", localtime($current_time)));
-            } else {
-              push(@values, $results[$r]->{$field});
-            }
-          }
-          print join("|",@values)."\n";
+        if ( ( !defined($last_time) ) || ( $end_time > $last_time ) ) {
+            $last_time = $end_time;
         }
-      }
-      my ($year, $mon, $day) = split (/\//, $results[scalar(@results)-1]->{'mydate'});
-      my @values;
-      foreach my $field (@fields) {
-        if ($field eq "mydate") {
-          push(@values, join("/", sprintf("%02d", $mon), sprintf("%02d", $day), sprintf("%02d",$year)));
-        } else {
-          push(@values, $results[scalar(@results)-1]->{$field});
-       }                 
-     }      
-     print join("|",@values)."\n";
+    }
 
-
-    } elsif ($interval eq "month") {
-      for (my $r = 0; $r < scalar(@results)-1; $r++) {
-        my ($start_year, $start_mon) = split (/\//, $results[$r]->{'mydate'});
-        my ($end_year, $end_mon) = split(/\//, $results[$r+1]->{'mydate'});
-        my $mstart = $start_mon;
-        for (my $i = $start_year; $i <= $end_year; $i++) {
-          my $mend;
-          if ($i == $end_year) {
-            $mend = $end_mon;
-          } else {
-            $mend = "12";
-          }
-          for (my $ii = $mstart; $ii <= $mend; $ii++) {
-            if (!($i == $end_year && $ii == $end_mon)) {
-              my @values;
-              foreach my $field (@fields) {
-                if ($field eq "mydate") {
-                  push(@values, join("/", sprintf("%02d",$ii), sprintf("%02d",$i)));
+    #add, if necessary, first and last time entries to all series
+    foreach my $s ( keys(%series) ) {
+        my $start_year;
+        my $start_mon = 1;
+        my $start_day = 1;
+        my $end_year;
+        my $end_mon = 1;
+        my $end_day = 1;
+        my @results = @{ $series{$s} };
+        if ( $interval eq "day" ) {
+            ( $start_year, $start_mon, $start_day )
+                = split( /\//, $results[0]->{'mydate'} );
+            ( $end_year, $end_mon, $end_day )
+                = split( /\//, $results[ scalar(@results) - 1 ]->{'mydate'} );
+        } elsif ( $interval eq "month" ) {
+            ( $start_year, $start_mon )
+                = split( /\//, $results[0]->{'mydate'} );
+            ( $end_year, $end_mon )
+                = split( /\//, $results[ scalar(@results) - 1 ]->{'mydate'} );
+        } elsif ( $interval eq "year" ) {
+            $start_year = $results[0]->{'mydate'};
+            $end_year   = $results[ scalar(@results) - 1 ]->{'mydate'};
+        }
+        my $start_time = Date::Parse::str2time(
+            "$start_year-$start_mon-$start_day" . "T00:00:00.0000000" );
+        my $end_time = Date::Parse::str2time(
+            "$end_year-$end_mon-$end_day" . "T00:00:00.0000000" );
+        if ( $start_time > $first_time ) {
+            my $new_record;
+            foreach my $field (@fields) {
+                if ( $field eq "mydate" ) {
+                    $new_record->{$field} = POSIX::strftime( "%Y/%m/%d",
+                        localtime($first_time) );
+                } elsif ( $field eq "count" ) {
+                    $new_record->{$field} = 0;
                 } else {
-                  push(@values, $results[$r]->{$field});
+                    $new_record->{$field}
+                        = $results[ scalar(@results) - 1 ]->{$field};
                 }
-              }
-              print join("|",@values)."\n";
             }
-          }
-          $mstart = 1;
+            unshift( @{ $series{$s} }, $new_record );
         }
-      }
-      my ($year, $mon) = split (/\//, $results[scalar(@results)-1]->{'mydate'});
-      my @values;
-      foreach my $field (@fields) {
-        if ($field eq "mydate") {
-          push(@values, join("/", sprintf("%02d", $mon), sprintf("%02d",$year)));
+        if ( $end_time < $last_time ) {
+            my $new_record;
+            foreach my $field (@fields) {
+                if ( $field eq "mydate" ) {
+                    $new_record->{$field} = POSIX::strftime( "%Y/%m/%d",
+                        localtime($last_time) );
+                } else {
+                    $new_record->{$field}
+                        = $results[ scalar(@results) - 1 ]->{$field};
+                }
+            }
+            push( @{ $series{$s} }, $new_record );
+        }
+    }
+
+    foreach my $s ( keys(%series) ) {
+        my @results = @{ $series{$s} };
+        my $year    = POSIX::strftime( "%Y", localtime );
+        my $month   = POSIX::strftime( "%m", localtime );
+        my $day     = POSIX::strftime( "%d", localtime );
+        my $date;
+        if ( $interval eq "day" ) {
+            $date = "$year/$month/$day";
+        } elsif ( $interval eq "month" ) {
+            $date = "$year/$month";
+        } elsif ( $interval eq "year" ) {
+            $date = "$year";
         } else {
-          push(@values, $results[scalar(@results)-1]->{$field});
-       }                 
-     }      
-     print join("|",@values)."\n";
-    } elsif ($interval eq "year") {
-      for (my $r = 0; $r < scalar(@results)-1; $r++) {
-        my ($start_year) = $results[$r]->{'mydate'};
-        my ($end_year) = $results[$r+1]->{'mydate'};
-        for (my $i = $start_year; $i <= $end_year; $i++) {
-          if (!($i == $end_year)) {
+        }
+        if ( $results[ scalar(@results) - 1 ]->{'mydate'} ne $date ) {
+            my %tmp = %{ $results[ scalar(@results) - 1 ] };
+            $tmp{'mydate'} = $date;
+            push( @results, \%tmp );
+        }
+        push( @results, $results[0] ) if ( scalar(@results) == 1 );
+        if ( $interval eq "day" ) {
+            for ( my $r = 0; $r < scalar(@results) - 1; $r++ ) {
+                my ( $start_year, $start_mon, $start_day )
+                    = split( /\//, $results[$r]->{'mydate'} );
+                my ( $end_year, $end_mon, $end_day )
+                    = split( /\//, $results[ $r + 1 ]->{'mydate'} );
+                my $start_time
+                    = Date::Parse::str2time(
+                          "$start_year-$start_mon-$start_day"
+                        . "T00:00:00.0000000" );
+                my $end_time = Date::Parse::str2time(
+                    "$end_year-$end_mon-$end_day" . "T00:00:00.0000000" );
+                for (
+                    my $current_time = $start_time;
+                    $current_time < $end_time;
+                    $current_time += 86400
+                    )
+                {
+                    my @values;
+                    foreach my $field (@fields) {
+                        if ( $field eq "mydate" ) {
+                            push(
+                                @values,
+                                POSIX::strftime(
+                                    "%m/%d/%Y", localtime($current_time)
+                                )
+                            );
+                        } else {
+                            push( @values, $results[$r]->{$field} );
+                        }
+                    }
+                    print join( "|", @values ) . "\n";
+                }
+            }
+            my ( $year, $mon, $day )
+                = split( /\//, $results[ scalar(@results) - 1 ]->{'mydate'} );
             my @values;
             foreach my $field (@fields) {
-              if ($field eq "mydate") {
-                push(@values, sprintf("%02d",$i));
-              } else {
-                push(@values, $results[$r]->{$field});
-              }
+                if ( $field eq "mydate" ) {
+                    push(
+                        @values,
+                        join( "/",
+                            sprintf( "%02d", $mon ),
+                            sprintf( "%02d", $day ),
+                            sprintf( "%02d", $year ) )
+                    );
+                } else {
+                    push( @values,
+                        $results[ scalar(@results) - 1 ]->{$field} );
+                }
             }
-            print join("|",@values)."\n";
-          }
+            print join( "|", @values ) . "\n";
+
+        } elsif ( $interval eq "month" ) {
+            for ( my $r = 0; $r < scalar(@results) - 1; $r++ ) {
+                my ( $start_year, $start_mon )
+                    = split( /\//, $results[$r]->{'mydate'} );
+                my ( $end_year, $end_mon )
+                    = split( /\//, $results[ $r + 1 ]->{'mydate'} );
+                my $mstart = $start_mon;
+                for ( my $i = $start_year; $i <= $end_year; $i++ ) {
+                    my $mend;
+                    if ( $i == $end_year ) {
+                        $mend = $end_mon;
+                    } else {
+                        $mend = "12";
+                    }
+                    for ( my $ii = $mstart; $ii <= $mend; $ii++ ) {
+                        if ( !( $i == $end_year && $ii == $end_mon ) ) {
+                            my @values;
+                            foreach my $field (@fields) {
+                                if ( $field eq "mydate" ) {
+                                    push(
+                                        @values,
+                                        join( "/",
+                                            sprintf( "%02d", $ii ),
+                                            sprintf( "%02d", $i ) )
+                                    );
+                                } else {
+                                    push( @values, $results[$r]->{$field} );
+                                }
+                            }
+                            print join( "|", @values ) . "\n";
+                        }
+                    }
+                    $mstart = 1;
+                }
+            }
+            my ( $year, $mon )
+                = split( /\//, $results[ scalar(@results) - 1 ]->{'mydate'} );
+            my @values;
+            foreach my $field (@fields) {
+                if ( $field eq "mydate" ) {
+                    push(
+                        @values,
+                        join( "/",
+                            sprintf( "%02d", $mon ),
+                            sprintf( "%02d", $year ) )
+                    );
+                } else {
+                    push( @values,
+                        $results[ scalar(@results) - 1 ]->{$field} );
+                }
+            }
+            print join( "|", @values ) . "\n";
+        } elsif ( $interval eq "year" ) {
+            for ( my $r = 0; $r < scalar(@results) - 1; $r++ ) {
+                my ($start_year) = $results[$r]->{'mydate'};
+                my ($end_year)   = $results[ $r + 1 ]->{'mydate'};
+                for ( my $i = $start_year; $i <= $end_year; $i++ ) {
+                    if ( !( $i == $end_year ) ) {
+                        my @values;
+                        foreach my $field (@fields) {
+                            if ( $field eq "mydate" ) {
+                                push( @values, sprintf( "%02d", $i ) );
+                            } else {
+                                push( @values, $results[$r]->{$field} );
+                            }
+                        }
+                        print join( "|", @values ) . "\n";
+                    }
+                }
+            }
+            my ($year) = $results[ scalar(@results) - 1 ]->{'mydate'};
+            my @values;
+            foreach my $field (@fields) {
+                if ( $field eq "mydate" ) {
+                    push( @values, sprintf( "%02d", $year ) );
+                } else {
+                    push( @values,
+                        $results[ scalar(@results) - 1 ]->{$field} );
+                }
+            }
+            print join( "|", @values ) . "\n";
         }
-      }
-      my ($year) = $results[scalar(@results)-1]->{'mydate'};
-      my @values;
-      foreach my $field (@fields) {
-        if ($field eq "mydate") {
-          push(@values, sprintf("%02d", $year));
-        } else {
-          push(@values, $results[scalar(@results)-1]->{$field});
-       }                 
-     }      
-     print join("|",@values)."\n";
     }
-  }
 }
 
 #
 # format a hash of assignments based on the grammar
-# example: format_assignment($cmd{node_assignment); 
+# example: format_assignment($cmd{node_assignment);
 #
 sub format_assignment {
-  my @fields=@_;
-  my (@columns, @values, @assignment, %return);
-  foreach my $array (@fields){
-    my $column = $array->[0];
-    my $value = $array->[1];
-    my $assignment=$array->[2];
-    $column =~ s/$delimiter//g;
-    $value =~ s/$delimiter//g;
-    $return{$column}=$value;
-  }
-  return(%return);
+    my @fields = @_;
+    my ( @columns, @values, @assignment, %return );
+    foreach my $array (@fields) {
+        my $column     = $array->[0];
+        my $value      = $array->[1];
+        my $assignment = $array->[2];
+        $column =~ s/$delimiter//g;
+        $value  =~ s/$delimiter//g;
+        $return{$column} = $value;
+    }
+    return (%return);
 }
-
 
 # return the correct field order listed in ui.conf Display
 #
 sub field_order {
-  my %uiconfig;
-  tie %uiconfig, 'Config::IniFiles', ( -file => $conf_dir."/ui.conf" ) or $logger->logdie("Unable to open ui.conf: $!");
-  my @fields;
-  foreach my $section (sort tied(%uiconfig)->Sections) {
-    if (defined $uiconfig{$section}{'command'}  && join(" ",@ARGV)=~/^$uiconfig{$section}{'command'}/){
-      foreach my $val (split(/\s*,\s*/,$uiconfig{$section}{'display'})){
-        $val=~s/-//;
-        push @fields, $val;
-      }
-      last;
+    my %uiconfig;
+    tie %uiconfig, 'Config::IniFiles', ( -file => $conf_dir . "/ui.conf" )
+        or $logger->logdie("Unable to open ui.conf: $!");
+    my @fields;
+    foreach my $section ( sort tied(%uiconfig)->Sections ) {
+        if ( defined $uiconfig{$section}{'command'}
+            && join( " ", @ARGV ) =~ /^$uiconfig{$section}{'command'}/ )
+        {
+            foreach
+                my $val ( split( /\s*,\s*/, $uiconfig{$section}{'display'} ) )
+            {
+                $val =~ s/-//;
+                push @fields, $val;
+            }
+            last;
+        }
     }
-  }
-  untie %uiconfig;
-  return (@fields);
+    untie %uiconfig;
+    return (@fields);
 }
 
 sub sanity_check {
-  my (@services) = @_;
+    my (@services) = @_;
 
-  foreach my $service (@services){
-    my $exe = ($Config{'services'}{$service} || "$install_dir/sbin/$service");
-   $logger->logdie("$exe for $service does not exist !") if (!-e $exe);
-  }
-  
-  my %seen;
-  print "Checking configuration sanity...\n";
-
-  # make sure the services we start are not already running
-  #foreach my $service (@_) {
-  #  if ($service =~ /^(named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan)$/) {
-  #    $service = $1;
-  #    $logger->logdie("$service is already running!") if (`pidof -s -x $service` =~ /^\d/);
-  #  } else {
-  #    $logger->logdie("unknown service $service!");
-  #  }
-  #}
-
-  #check the config file to make sure interfaces are fully defined 
-  foreach my $interface (tied(%Config)->GroupMembers("interface")) {
-    if ($Config{$interface}{'type'} !~ /monitor|dhcplistener/){
-      if (!defined $Config{$interface}{'ip'} || !defined $Config{$interface}{'mask'} ||!defined $Config{$interface}{'gateway'}){
-          $logger->logdie("incomplete network information for $interface ");
-      }
-    }
-  }
-
-  # check the Netmask objs and make sure a managed and internal interface exist 
-  my @tmp_nets;
-  push @tmp_nets, @internal_nets;
-  push @tmp_nets, @managed_nets;
-  if (!scalar(@internal_nets)) {
-    $logger->logdie("internal network(s) not defined!");
-  }
-  if (scalar(@managed_nets) != 1) {
-    $logger->logdie("please define exactly one managed interace");
-  }
-  foreach my $interface (@tmp_nets) {
-    my $device = "interface ".$interface->tag("int");
-    if (!($Config{$device}{'mask'} && $Config{$device}{'ip'} && $Config{$device}{'gateway'} && $Config{$device}{'type'}) && !$seen{$interface}) {
-      $logger->logdie("incomplete network information for $device");
-    }
-    $seen{$interface} = 1;
-  }
-
-
-  if (isenabled($Config{'trapping'}{'detection'})) {
-    # make sure a monitor device is present if snort is enabled
-    if (!$monitor_int) {
-      $logger->logdie("monitor interface not defined, please disable trapping.dectection or set an interface type=...,monitor in pf.conf");
+    foreach my $service (@services) {
+        my $exe = ( $Config{'services'}{$service}
+                || "$install_dir/sbin/$service" );
+        $logger->logdie("$exe for $service does not exist !") if ( !-e $exe );
     }
 
-    # make sure named pipe 'alert' is present if snort is enabled
-    my $snortpipe = "$install_dir/var/alert";
-    if (! -p $snortpipe) {
-      if (! POSIX::mkfifo($snortpipe, 0666)) {
-        $logger->logdie("snort alert pipe ($snortpipe) does not exist and unable to create it");
-      }
-    }
-  }
-  
-  if (isenabled($Config{'trapping'}{'detection'})) {
-    if (! -x $Config{'services'}{'snort'}) {
-        $logger->logdie("snort binary is not executable / does not exist!");
-    }
-  }
+    my %seen;
+    print "Checking configuration sanity...\n";
 
-  # make sure trapping.passthrough=proxy if
-  # network.mode is set to vlan
-  if ($Config{'network'}{'mode'} eq 'vlan') {
-    if ($Config{'trapping'}{'passthrough'} eq 'iptables') {
-      $logger->logdie("Please set trapping.passthrough to proxy while using VLAN isolation mode");
-    }
-  }
+# make sure the services we start are not already running
+#foreach my $service (@_) {
+#  if ($service =~ /^(named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan)$/) {
+#    $service = $1;
+#    $logger->logdie("$service is already running!") if (`pidof -s -x $service` =~ /^\d/);
+#  } else {
+#    $logger->logdie("unknown service $service!");
+#  }
+#}
 
-  # make sure dhcp information is complete and valid 
-  # (if network.mode is set to dhcp)
-  if ($Config{'network'}{'mode'} eq 'dhcp') {
-    my @dhcp_scopes;
-    foreach my $dhcp (tied(%Config)->GroupMembers("dhcp")) {
-      if (defined($Config{$dhcp}{'registered_scopes'})) {
-        @dhcp_scopes = split(/\s*,\s*/, $Config{$dhcp}{'registered_scopes'});
-      }
-      if (defined($Config{$dhcp}{'unregistered_scopes'})) {
-        push @dhcp_scopes, split(/\s+/, $Config{$dhcp}{'unregistered_scopes'});
-      }
-      if (defined($Config{$dhcp}{'isolation_scopes'})) {
-        push @dhcp_scopes, split(/\s+/, $Config{$dhcp}{'isolation_scopes'});
-      }
-    }
-
-    if (scalar(@dhcp_scopes) == 0) {
-      $logger->logdie("missing dhcp scope information");
-    }
-
-    foreach my $scope (@dhcp_scopes) {
-      if (!defined $Config{'scope '.$scope}{'network'} || !defined $Config{'scope '.$scope}{'gateway'} ||!defined $Config{'scope ' .$scope}{'range'}){
-          $logger->logdie("incomplete dhcp scope information for $scope ");
-      }
-
-      my $found = 0;
-      foreach my $int (@internal_nets) {
-        if ($Config{'interface '.$int->tag('int')}{'ip'} eq $Config{'scope '.$scope}{'gateway'}) {
-          $found = 1;
-          next;
+    #check the config file to make sure interfaces are fully defined
+    foreach my $interface ( tied(%Config)->GroupMembers("interface") ) {
+        if ( $Config{$interface}{'type'} !~ /monitor|dhcplistener/ ) {
+            if (   !defined $Config{$interface}{'ip'}
+                || !defined $Config{$interface}{'mask'}
+                || !defined $Config{$interface}{'gateway'} )
+            {
+                $logger->logdie(
+                    "incomplete network information for $interface ");
+            }
         }
-      }
-      if (! $found) {
-        $logger->logdie("dhcp scope $scope gateway ($Config{'scope '.$scope}{'gateway'}) is not bound to internal interface ","WARNING");
-      }
     }
-    if (!-e "$conf_dir/registered.mac"){
-                my $file_fh;
-		open $file_fh, '>>', "$conf_dir/registered.mac";
-		print {$file_fh} "#autogenerated";
-		close $file_fh;
-	}
-    if (!-e "$conf_dir/isolated.mac"){
-                my $file_fh;
-		open $file_fh, '>>', "$conf_dir/isolated.mac";
-		print {$file_fh} "#autogenerated";
-		close $file_fh;
-	}
-  }
 
-  # network size warning
-  my $internal_total;
-  foreach my $internal_net (@internal_nets) {
-    if ($internal_net->bits() < 22) {
-      $logger->logwarn("network $internal_net is larger than a /22 - you may want to consider registration queueing!");
+ # check the Netmask objs and make sure a managed and internal interface exist
+    my @tmp_nets;
+    push @tmp_nets, @internal_nets;
+    push @tmp_nets, @managed_nets;
+    if ( !scalar(@internal_nets) ) {
+        $logger->logdie("internal network(s) not defined!");
     }
-    if ($internal_net->bits() < 16 && isenabled($Config{'general'}{'caching'})) {
-      $logger->logdie("network $internal_net is larger than a /16 - you must disable general.caching!");
+    if ( scalar(@managed_nets) != 1 ) {
+        $logger->logdie("please define exactly one managed interace");
     }
-    $internal_total += $internal_net->size();
-  }
-  if ($internal_total >= 1536) {
-    $logger->logwarn("internal IP space is very large - you may want to consider registration queueing!");
-  }
-
-  # stuffing warning
-  if (isenabled($Config{'arp'}{'stuffing'})) {
-    $logger->logwarn("ARP stuffing is enabled...this is dangerous!");
-  }
-
-  # make sure pid 1 exists
-  require pf::person;
-  if (! pf::person::person_exist(1)){
-    $logger->logdie("person user id 1 must exist - please reinitialize your database"); 
-  }   
-
-  # make sure admin port exists
-  if (!$Config{'ports'}{'admin'}){
-    $logger->logdie("please set the web admin port in pf.conf (ports.admin)");
-  }
-
-  # make sure dns servers exist
-  if (!$Config{'general'}{'dnsservers'}){
-    $logger->logdie("please set the dns servers list in pf.conf (general.dnsservers).  If this is not set users in isolation will not be able to resolve hostnames, and will not able to reach PacketFence!");
-  }
-
-  # make sure that skip_mode is disabled in VLAN isolation
-  if (($Config{'network'}{'mode'} =~ /vlan/i) && (! isdisabled($Config{'registration'}{'skip_mode'}))) {
-    $logger->logdie("registration skip_mode is currently incompatible with VLAN isolation");
-  }
-
-  # make sure that expire_mode is disabled in VLAN isolation
-  if (($Config{'network'}{'mode'} =~ /vlan/i) && (! isdisabled($Config{'registration'}{'expire_mode'}))) {
-    $logger->logdie("automatic node expiration is currently incompatible with VLAN isolation");
-  }
-
-  # warn when scan.registration=enabled and trapping.registration=disabled
-  if (isenabled($Config{'scan'}{'registration'}) && isdisabled($Config{'trapping'}{'registration'})) {
-    $logger->logwarn("scan.registration is enabled but trapping.registration is not ... this is strang!");
-  }
-
-
-  if ($Config{'registration'}{'skip_mode'} eq "deadline" && !$Config{'registration'}{'skip_deadline'}) {
-    $logger->logdie("pf.conf value registration.skip_deadline is mal-formed or null! (format should be that of the 'date' command)");
-  } elsif ($Config{'registration'}{'skip_mode'} eq "windows" && !$Config{'registration'}{'skip_window'}) {
-    $logger->logdie("pf.conf value registration.skip_window is not defined!");
-  }
-
-  if ($Config{'registration'}{'expire_mode'} eq "deadline" && !$Config{'registration'}{'expire_deadline'}) {
-    $logger->logdie("pf.conf value registration.expire_deadline is mal-formed or null! (format should be that of the 'date' command)");
-  } elsif ($Config{'registration'}{'expire_mode'} eq "window" && !$Config{'registration'}{'expire_window'}) {
-    $logger->logdie("pf.conf value registration.expire_window is not defined!");
-  }
-
-  tie %myconfig, 'Config::IniFiles', ( -file => $config_file, -import => Config::IniFiles->new( -file => $default_config_file ) );
-  tie %documentation, 'Config::IniFiles', ( -file => $conf_dir."/documentation.conf" );
-  my @errors = @Config::IniFiles::errors;
-  if (scalar(@errors)) {
-    print STDERR join("\n",@errors)."\n";
-    exit;
-  }
-
-  foreach my $section (sort tied(%documentation)->Sections) {
-    my($group,$item) = split(/\./, $section);
-    my $type = $documentation{$section}{'type'};
-    next if ($section =~ /^(proxies|passthroughs)$/ || $group =~ /^(dhcp|scope|interface|services)$/);
-    next if (($group eq 'alerting') && ($item eq 'fromaddr'));
-    next if (($group eq 'arp') && ($item eq 'listendevice'));
-    if (defined($Config{$group}{$item})) {
-      if ($type eq "toggle") {
-        if ($Config{$group}{$item} !~ /^$documentation{$section}{'options'}$/) {
-          $logger->logdie("pf.conf value $group\.$item must be one of the following: ".$documentation{$section}{'options'});
+    foreach my $interface (@tmp_nets) {
+        my $device = "interface " . $interface->tag("int");
+        if (!(     $Config{$device}{'mask'}
+                && $Config{$device}{'ip'}
+                && $Config{$device}{'gateway'}
+                && $Config{$device}{'type'}
+            )
+            && !$seen{$interface}
+            )
+        {
+            $logger->logdie("incomplete network information for $device");
         }
-      } elsif ($type eq "time") {
-        if ($myconfig{$group}{$item} !~ /\d+[smhdw]$/) {
-	  $logger->logdie("pf.conf value $group\.$item does not explicity define interval (eg. 7200s, 120m, 2h) - please define it before running packetfence");
-        }
-      }
-    } elsif ($Config{$group}{$item} ne "0") {
-      $logger->logdie("pf.conf value $group\.$item is not defined!");
+        $seen{$interface} = 1;
     }
-  }
+
+    if ( isenabled( $Config{'trapping'}{'detection'} ) ) {
+
+        # make sure a monitor device is present if snort is enabled
+        if ( !$monitor_int ) {
+            $logger->logdie(
+                "monitor interface not defined, please disable trapping.dectection or set an interface type=...,monitor in pf.conf"
+            );
+        }
+
+        # make sure named pipe 'alert' is present if snort is enabled
+        my $snortpipe = "$install_dir/var/alert";
+        if ( !-p $snortpipe ) {
+            if ( !POSIX::mkfifo( $snortpipe, 0666 ) ) {
+                $logger->logdie(
+                    "snort alert pipe ($snortpipe) does not exist and unable to create it"
+                );
+            }
+        }
+    }
+
+    if ( isenabled( $Config{'trapping'}{'detection'} ) ) {
+        if ( !-x $Config{'services'}{'snort'} ) {
+            $logger->logdie(
+                "snort binary is not executable / does not exist!");
+        }
+    }
+
+    # make sure trapping.passthrough=proxy if
+    # network.mode is set to vlan
+    if ( $Config{'network'}{'mode'} eq 'vlan' ) {
+        if ( $Config{'trapping'}{'passthrough'} eq 'iptables' ) {
+            $logger->logdie(
+                "Please set trapping.passthrough to proxy while using VLAN isolation mode"
+            );
+        }
+    }
+
+    # make sure dhcp information is complete and valid
+    # (if network.mode is set to dhcp)
+    if ( $Config{'network'}{'mode'} eq 'dhcp' ) {
+        my @dhcp_scopes;
+        foreach my $dhcp ( tied(%Config)->GroupMembers("dhcp") ) {
+            if ( defined( $Config{$dhcp}{'registered_scopes'} ) ) {
+                @dhcp_scopes
+                    = split( /\s*,\s*/, $Config{$dhcp}{'registered_scopes'} );
+            }
+            if ( defined( $Config{$dhcp}{'unregistered_scopes'} ) ) {
+                push @dhcp_scopes,
+                    split( /\s+/, $Config{$dhcp}{'unregistered_scopes'} );
+            }
+            if ( defined( $Config{$dhcp}{'isolation_scopes'} ) ) {
+                push @dhcp_scopes,
+                    split( /\s+/, $Config{$dhcp}{'isolation_scopes'} );
+            }
+        }
+
+        if ( scalar(@dhcp_scopes) == 0 ) {
+            $logger->logdie("missing dhcp scope information");
+        }
+
+        foreach my $scope (@dhcp_scopes) {
+            if (   !defined $Config{ 'scope ' . $scope }{'network'}
+                || !defined $Config{ 'scope ' . $scope }{'gateway'}
+                || !defined $Config{ 'scope ' . $scope }{'range'} )
+            {
+                $logger->logdie(
+                    "incomplete dhcp scope information for $scope ");
+            }
+
+            my $found = 0;
+            foreach my $int (@internal_nets) {
+                if ( $Config{ 'interface ' . $int->tag('int') }{'ip'} eq
+                    $Config{ 'scope ' . $scope }{'gateway'} )
+                {
+                    $found = 1;
+                    next;
+                }
+            }
+            if ( !$found ) {
+                $logger->logdie(
+                    "dhcp scope $scope gateway ($Config{'scope '.$scope}{'gateway'}) is not bound to internal interface ",
+                    "WARNING"
+                );
+            }
+        }
+        if ( !-e "$conf_dir/registered.mac" ) {
+            my $file_fh;
+            open $file_fh, '>>', "$conf_dir/registered.mac";
+            print {$file_fh} "#autogenerated";
+            close $file_fh;
+        }
+        if ( !-e "$conf_dir/isolated.mac" ) {
+            my $file_fh;
+            open $file_fh, '>>', "$conf_dir/isolated.mac";
+            print {$file_fh} "#autogenerated";
+            close $file_fh;
+        }
+    }
+
+    # network size warning
+    my $internal_total;
+    foreach my $internal_net (@internal_nets) {
+        if ( $internal_net->bits() < 22 ) {
+            $logger->logwarn(
+                "network $internal_net is larger than a /22 - you may want to consider registration queueing!"
+            );
+        }
+        if ( $internal_net->bits() < 16
+            && isenabled( $Config{'general'}{'caching'} ) )
+        {
+            $logger->logdie(
+                "network $internal_net is larger than a /16 - you must disable general.caching!"
+            );
+        }
+        $internal_total += $internal_net->size();
+    }
+    if ( $internal_total >= 1536 ) {
+        $logger->logwarn(
+            "internal IP space is very large - you may want to consider registration queueing!"
+        );
+    }
+
+    # stuffing warning
+    if ( isenabled( $Config{'arp'}{'stuffing'} ) ) {
+        $logger->logwarn("ARP stuffing is enabled...this is dangerous!");
+    }
+
+    # make sure pid 1 exists
+    require pf::person;
+    if ( !pf::person::person_exist(1) ) {
+        $logger->logdie(
+            "person user id 1 must exist - please reinitialize your database"
+        );
+    }
+
+    # make sure admin port exists
+    if ( !$Config{'ports'}{'admin'} ) {
+        $logger->logdie(
+            "please set the web admin port in pf.conf (ports.admin)");
+    }
+
+    # make sure dns servers exist
+    if ( !$Config{'general'}{'dnsservers'} ) {
+        $logger->logdie(
+            "please set the dns servers list in pf.conf (general.dnsservers).  If this is not set users in isolation will not be able to resolve hostnames, and will not able to reach PacketFence!"
+        );
+    }
+
+    # make sure that skip_mode is disabled in VLAN isolation
+    if (   ( $Config{'network'}{'mode'} =~ /vlan/i )
+        && ( !isdisabled( $Config{'registration'}{'skip_mode'} ) ) )
+    {
+        $logger->logdie(
+            "registration skip_mode is currently incompatible with VLAN isolation"
+        );
+    }
+
+    # make sure that expire_mode is disabled in VLAN isolation
+    if (   ( $Config{'network'}{'mode'} =~ /vlan/i )
+        && ( !isdisabled( $Config{'registration'}{'expire_mode'} ) ) )
+    {
+        $logger->logdie(
+            "automatic node expiration is currently incompatible with VLAN isolation"
+        );
+    }
+
+    # warn when scan.registration=enabled and trapping.registration=disabled
+    if (   isenabled( $Config{'scan'}{'registration'} )
+        && isdisabled( $Config{'trapping'}{'registration'} ) )
+    {
+        $logger->logwarn(
+            "scan.registration is enabled but trapping.registration is not ... this is strang!"
+        );
+    }
+
+    if ( $Config{'registration'}{'skip_mode'} eq "deadline"
+        && !$Config{'registration'}{'skip_deadline'} )
+    {
+        $logger->logdie(
+            "pf.conf value registration.skip_deadline is mal-formed or null! (format should be that of the 'date' command)"
+        );
+    } elsif ( $Config{'registration'}{'skip_mode'} eq "windows"
+        && !$Config{'registration'}{'skip_window'} )
+    {
+        $logger->logdie(
+            "pf.conf value registration.skip_window is not defined!");
+    }
+
+    if ( $Config{'registration'}{'expire_mode'} eq "deadline"
+        && !$Config{'registration'}{'expire_deadline'} )
+    {
+        $logger->logdie(
+            "pf.conf value registration.expire_deadline is mal-formed or null! (format should be that of the 'date' command)"
+        );
+    } elsif ( $Config{'registration'}{'expire_mode'} eq "window"
+        && !$Config{'registration'}{'expire_window'} )
+    {
+        $logger->logdie(
+            "pf.conf value registration.expire_window is not defined!");
+    }
+
+    tie %myconfig, 'Config::IniFiles',
+        (
+        -file   => $config_file,
+        -import => Config::IniFiles->new( -file => $default_config_file )
+        );
+    tie %documentation, 'Config::IniFiles',
+        ( -file => $conf_dir . "/documentation.conf" );
+    my @errors = @Config::IniFiles::errors;
+    if ( scalar(@errors) ) {
+        print STDERR join( "\n", @errors ) . "\n";
+        exit;
+    }
+
+    foreach my $section ( sort tied(%documentation)->Sections ) {
+        my ( $group, $item ) = split( /\./, $section );
+        my $type = $documentation{$section}{'type'};
+        next
+            if ( $section =~ /^(proxies|passthroughs)$/
+            || $group =~ /^(dhcp|scope|interface|services)$/ );
+        next if ( ( $group eq 'alerting' ) && ( $item eq 'fromaddr' ) );
+        next if ( ( $group eq 'arp' )      && ( $item eq 'listendevice' ) );
+        if ( defined( $Config{$group}{$item} ) ) {
+            if ( $type eq "toggle" ) {
+                if ( $Config{$group}{$item}
+                    !~ /^$documentation{$section}{'options'}$/ )
+                {
+                    $logger->logdie(
+                        "pf.conf value $group\.$item must be one of the following: "
+                            . $documentation{$section}{'options'} );
+                }
+            } elsif ( $type eq "time" ) {
+                if ( $myconfig{$group}{$item} !~ /\d+[smhdw]$/ ) {
+                    $logger->logdie(
+                        "pf.conf value $group\.$item does not explicity define interval (eg. 7200s, 120m, 2h) - please define it before running packetfence"
+                    );
+                }
+            }
+        } elsif ( $Config{$group}{$item} ne "0" ) {
+            $logger->logdie("pf.conf value $group\.$item is not defined!");
+        }
+    }
 }
 
 sub generate_switchport_vlan_assignment {
-  my ($mac,$function) = @_;
-  if (($Config{'network'}{'mode'} =~ /vlan/i) && grep({ $_ eq $function } split(/\s*,\s*/,$Config{'vlan'}{'adjustswitchportvlanreasons'})) > 0) {
-    $logger->info("VLAN isolation is enabled and $function is part of adjustswitchportvlanreasons");
-    require pf::locationlog;
-    import pf::locationlog;
-    my $locationlog_entry = locationlog_view_open_mac($mac);
-    if ($locationlog_entry) {
-      require pf::vlan::custom;
-      my $switch_ip = $locationlog_entry->{'switch'};
-      my $ifIndex = $locationlog_entry->{'port'};
-      my $currentVlan = $locationlog_entry->{'vlan'};
-      $logger->info("$mac is currentlog connected at $switch_ip ifIndex $ifIndex in VLAN $currentVlan");
-      my $vlan_obj = new pf::vlan::custom();
-      my $newCorrectVlan = $vlan_obj->vlan_determine_for_node($mac,$switch_ip,$ifIndex);
-      if ($newCorrectVlan eq "-1") {
-        $logger->error("unable to determine correct VLAN for $mac");
-      } else {
-        $logger->info("new correct VLAN for $mac is $newCorrectVlan");
-        if (($currentVlan eq 'WIFI') || ($newCorrectVlan ne $currentVlan)) {
-          $logger->info("calling " . $Config{'vlan'}{'adjustswitchportvlanscript'} . " for node $mac (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)");
-          my @args = ($Config{'vlan'}{'adjustswitchportvlanscript'}, $mac);
-          system(@args);
+    my ( $mac, $function ) = @_;
+    if (( $Config{'network'}{'mode'} =~ /vlan/i )
+        && grep( { $_ eq $function } split(
+                /\s*,\s*/, $Config{'vlan'}{'adjustswitchportvlanreasons'}
+                ) ) > 0
+        )
+    {
+        $logger->info(
+            "VLAN isolation is enabled and $function is part of adjustswitchportvlanreasons"
+        );
+        require pf::locationlog;
+        import pf::locationlog;
+        my $locationlog_entry = locationlog_view_open_mac($mac);
+        if ($locationlog_entry) {
+            require pf::vlan::custom;
+            my $switch_ip   = $locationlog_entry->{'switch'};
+            my $ifIndex     = $locationlog_entry->{'port'};
+            my $currentVlan = $locationlog_entry->{'vlan'};
+            $logger->info(
+                "$mac is currentlog connected at $switch_ip ifIndex $ifIndex in VLAN $currentVlan"
+            );
+            my $vlan_obj = new pf::vlan::custom();
+            my $newCorrectVlan
+                = $vlan_obj->vlan_determine_for_node( $mac, $switch_ip,
+                $ifIndex );
+            if ( $newCorrectVlan eq "-1" ) {
+                $logger->error("unable to determine correct VLAN for $mac");
+            } else {
+                $logger->info("new correct VLAN for $mac is $newCorrectVlan");
+                if (   ( $currentVlan eq 'WIFI' )
+                    || ( $newCorrectVlan ne $currentVlan ) )
+                {
+                    $logger->info( "calling "
+                            . $Config{'vlan'}{'adjustswitchportvlanscript'}
+                            . " for node $mac (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
+                    );
+                    my @args = (
+                        $Config{'vlan'}{'adjustswitchportvlanscript'}, $mac
+                    );
+                    system(@args);
+                }
+            }
+        } else {
+            $logger->warn("no open locationlog entry for $mac");
         }
-      }
-    } else {
-      $logger->warn("no open locationlog entry for $mac");
     }
-  }
 }

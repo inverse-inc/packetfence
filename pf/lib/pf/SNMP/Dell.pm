@@ -30,27 +30,34 @@ use Log::Log4perl;
 
 sub getVersion {
     my ($this) = @_;
-    my $oid_productIdentificationBuildNumber = '1.3.6.1.4.1.674.10895.3000.1.2.100.5.0'; # Dell-Vendor-MIB
-    my $logger = Log::Log4perl::get_logger(ref($this));
-    if (! $this->connectRead()) {
+    my $oid_productIdentificationBuildNumber
+        = '1.3.6.1.4.1.674.10895.3000.1.2.100.5.0';    # Dell-Vendor-MIB
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    if ( !$this->connectRead() ) {
         return '';
     }
-    $logger->debug("SNMP get_request for productIdentificationBuildNumber: $oid_productIdentificationBuildNumber");
-    my $result = $this->{_sessionRead}->get_request(
-        -varbindlist => [$oid_productIdentificationBuildNumber]
+    $logger->debug(
+        "SNMP get_request for productIdentificationBuildNumber: $oid_productIdentificationBuildNumber"
     );
-    return ($result->{$oid_productIdentificationBuildNumber} || '');
+    my $result = $this->{_sessionRead}->get_request(
+        -varbindlist => [$oid_productIdentificationBuildNumber] );
+    return ( $result->{$oid_productIdentificationBuildNumber} || '' );
 }
 
 sub parseTrap {
-    my ($this, $trapString) = @_;
+    my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-    if ($trapString =~ /OID: \.1\.3\.6\.1\.6\.3\.1\.1\.5\.([34])\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = INTEGER/) {
-        $trapHashRef->{'trapType'} = (($1 == 3) ? "down" : "up");
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    if ( $trapString
+        =~ /OID: \.1\.3\.6\.1\.6\.3\.1\.1\.5\.([34])\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = INTEGER/
+        )
+    {
+        $trapHashRef->{'trapType'} = ( ( $1 == 3 ) ? "down" : "up" );
         $trapHashRef->{'trapIfIndex'} = $2;
-    } elsif ($trapString =~ /\.1\.3\.6\.1\.2\.1\.2\.2\.1\.8\.(\d+) = INTEGER: (down|up)/) {
-        $trapHashRef->{'trapType'} = $2;
+    } elsif ( $trapString
+        =~ /\.1\.3\.6\.1\.2\.1\.2\.2\.1\.8\.(\d+) = INTEGER: (down|up)/ )
+    {
+        $trapHashRef->{'trapType'}    = $2;
         $trapHashRef->{'trapIfIndex'} = $1;
     } else {
         $logger->debug("trap currently not handled");
@@ -62,17 +69,24 @@ sub parseTrap {
 # 1 => static
 # 2 => dynamic
 sub getVmVlanType {
-    my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-    if (! $this->connectRead()) {
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    if ( !$this->connectRead() ) {
         return 0;
     }
-    my $OID_vlanPortModeExtStatus = '1.3.6.1.4.1.674.10895.5000.2.89.48.40.1.2'; #RADLAN-vlan-MIB
-    $logger->trace("SNMP get_request for vlanPortModeExtStatus: $OID_vlanPortModeExtStatus.$ifIndex");
-    my $result = $this->{_sessionRead}->get_request(
-        -varbindlist => ["$OID_vlanPortModeExtStatus.$ifIndex"]
+    my $OID_vlanPortModeExtStatus
+        = '1.3.6.1.4.1.674.10895.5000.2.89.48.40.1.2';    #RADLAN-vlan-MIB
+    $logger->trace(
+        "SNMP get_request for vlanPortModeExtStatus: $OID_vlanPortModeExtStatus.$ifIndex"
     );
-    if ((exists($result->{"$OID_vlanPortModeExtStatus.$ifIndex"})) && ($result->{"$OID_vlanPortModeExtStatus.$ifIndex"} ne 'noSuchInstance') && ($result->{"$OID_vlanPortModeExtStatus.$ifIndex"} == 1)) {
+    my $result = $this->{_sessionRead}->get_request(
+        -varbindlist => ["$OID_vlanPortModeExtStatus.$ifIndex"] );
+    if (( exists( $result->{"$OID_vlanPortModeExtStatus.$ifIndex"} ) )
+        && ( $result->{"$OID_vlanPortModeExtStatus.$ifIndex"} ne
+            'noSuchInstance' )
+        && ( $result->{"$OID_vlanPortModeExtStatus.$ifIndex"} == 1 )
+        )
+    {
         return 2;
     } else {
         return 1;
@@ -80,7 +94,6 @@ sub getVmVlanType {
 }
 
 1;
-
 
 # vim: set shiftwidth=4:
 # vim: set expandtab:

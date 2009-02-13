@@ -29,7 +29,7 @@ use base ('pf::SNMP::Accton');
 
 sub getMinOSVersion {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = Log::Log4perl::get_logger( ref($this) );
     return '2.3.3.5';
 }
 

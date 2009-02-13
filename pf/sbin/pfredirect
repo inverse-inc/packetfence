@@ -23,41 +23,38 @@ use lib INSTALL_DIR . "/lib";
 use pf::config;
 use pf::util;
 
-Log::Log4perl->init(INSTALL_DIR . "/conf/log.conf");
-my $logger = Log::Log4perl->get_logger(basename($0));
-Log::Log4perl::MDC->put('proc', basename($0));
-Log::Log4perl::MDC->put('tid', 0);
+Log::Log4perl->init( INSTALL_DIR . "/conf/log.conf" );
+my $logger = Log::Log4perl->get_logger( basename($0) );
+Log::Log4perl::MDC->put( 'proc', basename($0) );
+Log::Log4perl::MDC->put( 'tid',  0 );
 
-POSIX::sigaction(&POSIX::SIGHUP,
-          POSIX::SigAction->new(
-                                'restart_handler',
-                                POSIX::SigSet->new(),
-                                &POSIX::SA_NODEFER
-                               )
-         ) or $logger->logdie("pfredirect: could not set SIGHUP handler: $!");
+POSIX::sigaction(
+    &POSIX::SIGHUP,
+    POSIX::SigAction->new(
+        'restart_handler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pfredirect: could not set SIGHUP handler: $!");
 
-POSIX::sigaction(&POSIX::SIGTERM,
-          POSIX::SigAction->new(
-                                'normal_sighandler',
-                                POSIX::SigSet->new(),
-                                &POSIX::SA_NODEFER
-                               )
-         ) or $logger->logdie("pfredirect: could not set SIGTERM handler: $!");
+POSIX::sigaction(
+    &POSIX::SIGTERM,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pfredirect: could not set SIGTERM handler: $!");
 
-POSIX::sigaction(&POSIX::SIGINT,
-          POSIX::SigAction->new(
-                                'normal_sighandler',
-                                POSIX::SigSet->new(),
-                                &POSIX::SA_NODEFER
-                               )
-         ) or $logger->logdie("pfredirect: could not set SIGINT handler: $!");
+POSIX::sigaction(
+    &POSIX::SIGINT,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pfredirect: could not set SIGINT handler: $!");
 
 my @ORIG_ARGV = @ARGV;
 
 my %args;
-getopts('dhv', \%args);
+getopts( 'dhv', \%args );
 
-usage() if ($args{h});
+usage() if ( $args{h} );
 my $daemonize = $args{d};
 my $verbose   = $args{v};
 
@@ -66,14 +63,15 @@ $logger->info("initialized");
 
 my $pop3_port = 110;
 my $imap_port = 143;
-my $hostname  = $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
-my $msg       = "$conf_dir/templates/listener.msg";
-my $date      = POSIX::strftime("%a, %d %b %Y %T %z", localtime);
+my $hostname
+    = $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
+my $msg = "$conf_dir/templates/listener.msg";
+my $date = POSIX::strftime( "%a, %d %b %Y %T %z", localtime );
 
 # Build message
 my $msg_fh;
-open($msg_fh, '<', $msg) || $logger->logdie("Unable to open message: $!");
-my $message = join('',<$msg_fh>);
+open( $msg_fh, '<', $msg ) || $logger->logdie("Unable to open message: $!");
+my $message = join( '', <$msg_fh> );
 close($msg_fh);
 
 my $dateline = "Date: $date\n";
@@ -83,147 +81,154 @@ my $email    = $dateline . $from . $subject . "\n" . $message . ".\n";
 my $length   = length($email);
 
 my $kid1;
-$kid1 = threads->create(\&pop3_director);
+$kid1 = threads->create( \&pop3_director );
 
 imap_director();
 
 sub imap_director {
-  my $sock = new IO::Socket::INET
-  (
-    LocalPort     => $imap_port,
-    Proto         => 'tcp',
-    Listen        => 1,
-    Reuse         => 1,
-  );
-  if (!$sock) {
-    $logger->error("can't create IMAP socket: $!");
-    $logger->logdie("Can't create IMAP socket: $!");
-  }
-
-  $sock->autoflush(1);
-  while (my $sock_handle = $sock->accept()) {
-    my $client_ip = $sock_handle->peerhost();
-    print "Accepting connection from $client_ip\n" if ($verbose);
-    $logger->info("IMAP connection from $client_ip");
-    print $sock_handle "* OK [CAPABILITY IMAP4REV1 AUTH=LOGIN] $hostname IMAP4rev1 at $date\n";
-    while ( my $request = <$sock_handle> ) {
-      chomp $request;
-      print "\tClient request: $request\n" if ($verbose);
-      if ($request =~ /logout/i) {
-        print $sock_handle "* BYE $hostname IMAP4rev1 server terminating connection\n";
-        close $sock_handle;
-      } elsif ($request =~ /capability/i) {
-        print $sock_handle "* CAPABILITY IMAP4REV1 AUTH=LOGIN\n";
-      } else {
-        print $sock_handle "* OK [ALERT] $message";
-        print $sock_handle "* BYE $hostname IMAP4rev1 server terminating connection\n";
-        close $sock_handle;
-      }
+    my $sock = new IO::Socket::INET(
+        LocalPort => $imap_port,
+        Proto     => 'tcp',
+        Listen    => 1,
+        Reuse     => 1,
+    );
+    if ( !$sock ) {
+        $logger->error("can't create IMAP socket: $!");
+        $logger->logdie("Can't create IMAP socket: $!");
     }
-  }
-  close ($sock);
+
+    $sock->autoflush(1);
+    while ( my $sock_handle = $sock->accept() ) {
+        my $client_ip = $sock_handle->peerhost();
+        print "Accepting connection from $client_ip\n" if ($verbose);
+        $logger->info("IMAP connection from $client_ip");
+        print $sock_handle
+            "* OK [CAPABILITY IMAP4REV1 AUTH=LOGIN] $hostname IMAP4rev1 at $date\n";
+        while ( my $request = <$sock_handle> ) {
+            chomp $request;
+            print "\tClient request: $request\n" if ($verbose);
+            if ( $request =~ /logout/i ) {
+                print $sock_handle
+                    "* BYE $hostname IMAP4rev1 server terminating connection\n";
+                close $sock_handle;
+            } elsif ( $request =~ /capability/i ) {
+                print $sock_handle "* CAPABILITY IMAP4REV1 AUTH=LOGIN\n";
+            } else {
+                print $sock_handle "* OK [ALERT] $message";
+                print $sock_handle
+                    "* BYE $hostname IMAP4rev1 server terminating connection\n";
+                close $sock_handle;
+            }
+        }
+    }
+    close($sock);
 }
 
 sub pop3_director {
-  my $sock = new IO::Socket::INET
-  (
-    LocalPort     => $pop3_port,
-    Proto         => 'tcp',
-    Listen        => 1,
-    Reuse         => 1,
-  );
-  Logger->logdie("Can't create socket: $!") unless $sock;
+    my $sock = new IO::Socket::INET(
+        LocalPort => $pop3_port,
+        Proto     => 'tcp',
+        Listen    => 1,
+        Reuse     => 1,
+    );
+    Logger->logdie("Can't create socket: $!") unless $sock;
 
-  $sock->autoflush(1);
-  while (my $sock_handle = $sock->accept()) {
-    my $client_ip = $sock_handle->peerhost();
+    $sock->autoflush(1);
+    while ( my $sock_handle = $sock->accept() ) {
+        my $client_ip = $sock_handle->peerhost();
 
-    print "Accepting connection from $client_ip\n" if ($verbose);
-    logger->info("POP3 connection from $client_ip");
+        print "Accepting connection from $client_ip\n" if ($verbose);
+        logger->info("POP3 connection from $client_ip");
 
-    print $sock_handle "+OK POP3 $hostname server ready\n";
+        print $sock_handle "+OK POP3 $hostname server ready\n";
 
-    while ( my $request = <$sock_handle> ) {
-      chomp $request;
-      print "\tClient request: $request\n" if ($verbose);
-      if ($request =~ /^QUIT/i) {
-        print $sock_handle "+OK I'm out!\n";
-        close $sock_handle;
-      } elsif ($request =~ /^STAT/i) {
-        print $sock_handle "+OK 1 $length\n";
-      } elsif ($request =~ /^CAPA/i) {
-        print $sock_handle "+OK Capability list follows:\nUSER\n.\n";
-      } elsif ($request =~ /^LIST/i) {
-        print $sock_handle "+OK Mailbox scan listing follows\n1 $length\n.\n";
-      } elsif ($request =~ /^(RETR|TOP)/i) {
-        print $sock_handle "+OK $length octets\n";
-        print $sock_handle $email;
-      } elsif ($request =~ /^USER/i) {
-        print $sock_handle "+OK User name accepted, password please\n";
-      } elsif ($request =~ /^PASS/i) {
-        print $sock_handle "+OK Mailbox open, 1 message\n";
-      } elsif ($request =~ /^DELE/i) {
-        print $sock_handle "+OK Message deleted\n";
-      } elsif ($request =~ /^AUTH LOGIN/i) {
-        my $tmp;
-        print $sock_handle "+ XXXXXXXXXXXXXXXX\n";
-        $tmp = <$sock_handle>;
-        print $sock_handle "+ XXXXXXXXXXXXXXXX\n";
-        $tmp = <$sock_handle>;
-        print $sock_handle "+OK Mailbox open, 1 message\n";
-      } else {
-        print $sock_handle "-ERR\n";
-      }
+        while ( my $request = <$sock_handle> ) {
+            chomp $request;
+            print "\tClient request: $request\n" if ($verbose);
+            if ( $request =~ /^QUIT/i ) {
+                print $sock_handle "+OK I'm out!\n";
+                close $sock_handle;
+            } elsif ( $request =~ /^STAT/i ) {
+                print $sock_handle "+OK 1 $length\n";
+            } elsif ( $request =~ /^CAPA/i ) {
+                print $sock_handle "+OK Capability list follows:\nUSER\n.\n";
+            } elsif ( $request =~ /^LIST/i ) {
+                print $sock_handle
+                    "+OK Mailbox scan listing follows\n1 $length\n.\n";
+            } elsif ( $request =~ /^(RETR|TOP)/i ) {
+                print $sock_handle "+OK $length octets\n";
+                print $sock_handle $email;
+            } elsif ( $request =~ /^USER/i ) {
+                print $sock_handle
+                    "+OK User name accepted, password please\n";
+            } elsif ( $request =~ /^PASS/i ) {
+                print $sock_handle "+OK Mailbox open, 1 message\n";
+            } elsif ( $request =~ /^DELE/i ) {
+                print $sock_handle "+OK Message deleted\n";
+            } elsif ( $request =~ /^AUTH LOGIN/i ) {
+                my $tmp;
+                print $sock_handle "+ XXXXXXXXXXXXXXXX\n";
+                $tmp = <$sock_handle>;
+                print $sock_handle "+ XXXXXXXXXXXXXXXX\n";
+                $tmp = <$sock_handle>;
+                print $sock_handle "+OK Mailbox open, 1 message\n";
+            } else {
+                print $sock_handle "-ERR\n";
+            }
+        }
     }
-  }
-  close ($sock);
+    close($sock);
 }
 
 sub restart_handler {
-  deletepid();
-  $logger->info("caught SIG".$_[0]." - restarting");
-  if (!exec($0, @ORIG_ARGV)) {
-    $logger->logdie("could not restart: $!");
-  }
+    deletepid();
+    $logger->info( "caught SIG" . $_[0] . " - restarting" );
+    if ( !exec( $0, @ORIG_ARGV ) ) {
+        $logger->logdie("could not restart: $!");
+    }
 }
 
 sub normal_handler {
-  deletepid();
-  $logger->info("caught SIG".$_[0]." - terminating");
+    deletepid();
+    $logger->info( "caught SIG" . $_[0] . " - terminating" );
 }
 
 sub daemonize {
-  createpid();
-  chdir '/'               or $logger->logdie("Can't chdir to /: $!");
-  open STDIN, '<', '/dev/null' or $logger->logdie("Can't read /dev/null: $!");  
-  open STDOUT, '>', '/dev/null' or $logger->logdie("Can't write to /dev/null: $!");
+    createpid();
+    chdir '/' or $logger->logdie("Can't chdir to /: $!");
+    open STDIN, '<', '/dev/null'
+        or $logger->logdie("Can't read /dev/null: $!");
+    open STDOUT, '>', '/dev/null'
+        or $logger->logdie("Can't write to /dev/null: $!");
 
-  defined(my $pid = fork) or $logger->logdie("pfredirect: could not fork: $!");
-  POSIX::_exit(0) if ($pid);
-  if (!POSIX::setsid()) {
-    $logger->warn("could not start a new session: $!");
-  }
-  open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
-}    
+    defined( my $pid = fork )
+        or $logger->logdie("pfredirect: could not fork: $!");
+    POSIX::_exit(0) if ($pid);
+    if ( !POSIX::setsid() ) {
+        $logger->warn("could not start a new session: $!");
+    }
+    open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
+}
 
 sub usage {
-  print STDERR << "EOF";
+    print STDERR << "EOF";
   Usage: $0 [OPTIONS]
         -d      Daemonize       
         -v      Verbose
         -h      Help
 EOF
-  exit;
+    exit;
 }
 
 END {
-  if (!$args{h}) {
-    deletepid();
-    $logger->info("stopping pfredirect");
-    $kid1->detach;
-    # kill kids...
-    kill 6,-$$;
-  }
+    if ( !$args{h} ) {
+        deletepid();
+        $logger->info("stopping pfredirect");
+        $kid1->detach;
+
+        # kill kids...
+        kill 6, -$$;
+    }
 }
 
 exit(0);

@@ -14,12 +14,12 @@
 # have a look at contrib/lookup/lookup_person.pl.ldap for an LDAP example
 
 sub lookup_person {
-  my($pid) = @_;
-  if (person_exist($pid)) {
-    return($pid);
-  } else {
-    return("Person $pid is not a registered user!\n");
-  }
+    my ($pid) = @_;
+    if ( person_exist($pid) ) {
+        return ($pid);
+    } else {
+        return ("Person $pid is not a registered user!\n");
+    }
 }
 
 1;

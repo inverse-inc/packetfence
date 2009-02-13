@@ -28,7 +28,6 @@ use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
 
-
 use base ('pf::SNMP::Cisco::Aironet');
 
 1;

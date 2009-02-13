@@ -29,11 +29,14 @@ use base ('pf::SNMP');
 use Log::Log4perl;
 
 sub parseTrap {
-    my ($this, $trapString) = @_;
+    my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-    if ($trapString =~ /^BEGIN TYPE ([23]) END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = INTEGER: \d+ END VARIABLEBINDINGS$/) {
-        $trapHashRef->{'trapType'} = (($1 == 2) ? "down" : "up");
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    if ( $trapString
+        =~ /^BEGIN TYPE ([23]) END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = INTEGER: \d+ END VARIABLEBINDINGS$/
+        )
+    {
+        $trapHashRef->{'trapType'} = ( ( $1 == 2 ) ? "down" : "up" );
         $trapHashRef->{'trapIfIndex'} = $2;
     } else {
         $logger->debug("trap currently not handled");
@@ -43,17 +46,16 @@ sub parseTrap {
 }
 
 sub getAlias {
-    my ($this, $ifIndex) = @_;
+    my ( $this, $ifIndex ) = @_;
     return "This function is not supported by Intel switches";
 }
 
 sub setAlias {
-    my ($this, $ifIndex, $alias) = @_;
+    my ( $this, $ifIndex, $alias ) = @_;
     return 1;
 }
 
 1;
-
 
 # vim: set shiftwidth=4:
 # vim: set expandtab:

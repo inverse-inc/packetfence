@@ -27,7 +27,6 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::Linksys');
 
-
 1;
 
 # vim: set shiftwidth=4:

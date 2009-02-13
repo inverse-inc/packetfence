@@ -30,61 +30,66 @@ use Log::Log4perl;
 use Net::SNMP;
 
 sub connectWrite {
-    my $this = shift;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-    if (defined($this->{_sessionWrite})) {
+    my $this   = shift;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    if ( defined( $this->{_sessionWrite} ) ) {
         return 1;
     }
     $logger->debug("opening SNMP v1 connection to 127.0.0.1");
-    ($this->{_sessionWrite}, $this->{_error}) = Net::SNMP->session(
+    ( $this->{_sessionWrite}, $this->{_error} ) = Net::SNMP->session(
         -hostname  => '127.0.0.1',
         -version   => 1,
-        -port => '162',
+        -port      => '162',
         -community => $this->{_SNMPCommunityTrap}
     );
-    if (!defined($this->{_sessionWrite})) {
-        $logger->error("error creating SNMP v1 connection to 127.0.0.1: " . $this->{_error});
+    if ( !defined( $this->{_sessionWrite} ) ) {
+        $logger->error( "error creating SNMP v1 connection to 127.0.0.1: "
+                . $this->{_error} );
         return 0;
     }
     return 1;
 }
 
 sub sendLocalReAssignVlanTrap {
-    my ($this, $switch_ip, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-    if (! $this->connectWrite()) {
+    my ( $this, $switch_ip, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    if ( !$this->connectWrite() ) {
         return 0;
     }
     my $result = $this->{_sessionWrite}->trap(
         -genericTrap => Net::SNMP::ENTERPRISE_SPECIFIC,
-        -agentaddr => $switch_ip,
+        -agentaddr   => $switch_ip,
         -varbindlist => [
-            '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER, '1.3.6.1.4.1.29464.1.1',
-            "1.3.6.1.2.1.2.2.1.1.$ifIndex", Net::SNMP::INTEGER, $ifIndex,
+            '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER,
+            '1.3.6.1.4.1.29464.1.1', "1.3.6.1.2.1.2.2.1.1.$ifIndex",
+            Net::SNMP::INTEGER,      $ifIndex,
         ]
     );
-    if (! $result) {
-        $logger->error("error sending SNMP trap: " . $this->{_sessionWrite}->error());
+    if ( !$result ) {
+        $logger->error(
+            "error sending SNMP trap: " . $this->{_sessionWrite}->error() );
     }
     return 1;
 }
 
 sub sendLocalDesAssociateTrap {
-    my ($this, $switch_ip, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-    if (! $this->connectWrite()) {
+    my ( $this, $switch_ip, $mac ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    if ( !$this->connectWrite() ) {
         return 0;
     }
     my $result = $this->{_sessionWrite}->trap(
         -genericTrap => Net::SNMP::ENTERPRISE_SPECIFIC,
-        -agentaddr => $switch_ip,
+        -agentaddr   => $switch_ip,
         -varbindlist => [
-            '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER, '1.3.6.1.4.1.29464.1.2',
-            "1.3.6.1.4.1.29464.1.3", Net::SNMP::OCTET_STRING, $mac,
+            '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER,
+            '1.3.6.1.4.1.29464.1.2', "1.3.6.1.4.1.29464.1.3",
+            Net::SNMP::OCTET_STRING, $mac,
         ]
     );
-    if (! $result) {
-        $logger->error("error sending SNMP trap: " . $this->{_sessionWrite}->error());
+    if ( !$result ) {
+        $logger->error(
+            "error sending SNMP trap: " . $this->{_sessionWrite}->error() );
     }
     return 1;
 }

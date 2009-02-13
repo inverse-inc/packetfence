@@ -5,12 +5,12 @@
 # If you did not receive this file, see
 # http://www.fsf.org/licensing/licenses/gpl.html
 #
-#  Modified for supporting 3COM  switches 
-#   Model SuperStack 3 Switch - 4200 
+#  Modified for supporting 3COM  switches
+#   Model SuperStack 3 Switch - 4200
 #
 #  Chinasee BOONYATANG          [chinasee.b@psu.ac.th]
 #
-#  Prince of Songkla University , Thailand 
+#  Prince of Songkla University , Thailand
 #  http://netserv.cc.psu.ac.th
 #  2009-01-29
 #
@@ -43,19 +43,22 @@ use base ('pf::SNMP::ThreeCom');
 
 sub getVersion {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    my $OID_StackUnitSWVersion = '1.3.6.1.4.1.43.10.27.1.1.1.12.1'; #from A3COM-0352-STACK-CONFIG
-    if (! $this->connectRead()) {
+    my $OID_StackUnitSWVersion
+        = '1.3.6.1.4.1.43.10.27.1.1.1.12.1';    #from A3COM-0352-STACK-CONFIG
+    if ( !$this->connectRead() ) {
         return 0;
     }
 
-    $logger->trace("SNMP get_request for StackUnitSWVersion: $OID_StackUnitSWVersion");
-    my $result = $this->{_sessionRead}->get_request(
-        -varbindlist => ["$OID_StackUnitSWVersion"]
-    );
+    $logger->trace(
+        "SNMP get_request for StackUnitSWVersion: $OID_StackUnitSWVersion");
+    my $result = $this->{_sessionRead}
+        ->get_request( -varbindlist => ["$OID_StackUnitSWVersion"] );
 
-    if ((exists($result->{"$OID_StackUnitSWVersion"})) && ($result->{"$OID_StackUnitSWVersion"} ne 'noSuchInstance')) {
+    if (   ( exists( $result->{"$OID_StackUnitSWVersion"} ) )
+        && ( $result->{"$OID_StackUnitSWVersion"} ne 'noSuchInstance' ) )
+    {
         return $result->{"$OID_StackUnitSWVersion"};
     } else {
         return 0;
@@ -63,53 +66,59 @@ sub getVersion {
 }
 
 sub getDot1dBasePortForThisIfIndex {
-    my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    if (! $this->connectRead()) {
+    if ( !$this->connectRead() ) {
         return 0;
     }
-                                    
+
     #get Physical port amount
-    my $OID_dot1dBaseNumPort = '1.3.6.1.2.1.17.1.2.0';          #from BRIDGE-MIB
+    my $OID_dot1dBaseNumPort = '1.3.6.1.2.1.17.1.2.0';    #from BRIDGE-MIB
 
-    $logger->trace("SNMP get_request for dot1dBaseNumPort : $OID_dot1dBaseNumPort");
-    my $result = $this->{_sessionRead}->get_request(
-        -varbindlist => ["$OID_dot1dBaseNumPort"]
-    );
+    $logger->trace(
+        "SNMP get_request for dot1dBaseNumPort : $OID_dot1dBaseNumPort");
+    my $result = $this->{_sessionRead}
+        ->get_request( -varbindlist => ["$OID_dot1dBaseNumPort"] );
 
-
-    if (!(exists($result->{"$OID_dot1dBaseNumPort"}))){
+    if ( !( exists( $result->{"$OID_dot1dBaseNumPort"} ) ) ) {
         return 0;
     }
 
-    my $dot1dBaseNumPort =  $result->{$OID_dot1dBaseNumPort};
+    my $dot1dBaseNumPort = $result->{$OID_dot1dBaseNumPort};
 
-    my $OID_dot1dBasePort = '1.3.6.1.2.1.17.1.4.1.1';           #from BRIDGE-MIB
-    my $OID_dot1dBasePortIfIndex = '1.3.6.1.2.1.17.1.4.1.2';    #from BRIDGE-MIB
+    my $OID_dot1dBasePort        = '1.3.6.1.2.1.17.1.4.1.1';  #from BRIDGE-MIB
+    my $OID_dot1dBasePortIfIndex = '1.3.6.1.2.1.17.1.4.1.2';  #from BRIDGE-MIB
 
-    my $baseOid = $OID_dot1dBasePort;
-    my $nextOid = $OID_dot1dBasePort;
+    my $baseOid        = $OID_dot1dBasePort;
+    my $nextOid        = $OID_dot1dBasePort;
     my $baseOidIfIndex = $OID_dot1dBasePortIfIndex;
     my $nextOidIfIndex = $OID_dot1dBasePortIfIndex;
 
     my $ifIndexVal;
     my $phyPortVal;
 
-    my $ifIndexDot1dBasePortHash = {};                      #create hash of ifIndex to bridgePort;
+    my $ifIndexDot1dBasePortHash = {};  #create hash of ifIndex to bridgePort;
 
-    $logger->trace("SNMP get_next_request for dot1dBasePort, dot1dBasePortIfIndex : $OID_dot1dBasePort, $OID_dot1dBasePortIfIndex");
+    $logger->trace(
+        "SNMP get_next_request for dot1dBasePort, dot1dBasePortIfIndex : $OID_dot1dBasePort, $OID_dot1dBasePortIfIndex"
+    );
 
-    for(my $i = 1; $i <= $dot1dBaseNumPort; $i++){
+    for ( my $i = 1; $i <= $dot1dBaseNumPort; $i++ ) {
         my $result = $this->{_sessionRead}->get_next_request(
-            -varbindlist => ["$nextOid","$nextOidIfIndex"]
-        );
+            -varbindlist => [ "$nextOid", "$nextOidIfIndex" ] );
 
-        my $returnOid_0 = (keys(%$result))[0];
-        my $returnOid_1 = (keys(%$result))[1];
+        my $returnOid_0 = ( keys(%$result) )[0];
+        my $returnOid_1 = ( keys(%$result) )[1];
 
-        $nextOid = Net::SNMP::oid_base_match($baseOid,$returnOid_0) ? $returnOid_0 : $returnOid_1;
-        $nextOidIfIndex = Net::SNMP::oid_base_match($baseOidIfIndex,$returnOid_1) ? $returnOid_1 : $returnOid_0;
+        $nextOid
+            = Net::SNMP::oid_base_match( $baseOid, $returnOid_0 )
+            ? $returnOid_0
+            : $returnOid_1;
+        $nextOidIfIndex
+            = Net::SNMP::oid_base_match( $baseOidIfIndex, $returnOid_1 )
+            ? $returnOid_1
+            : $returnOid_0;
 
         $phyPortVal = $result->{$nextOid};
         $ifIndexVal = $result->{$nextOidIfIndex};
@@ -117,126 +126,188 @@ sub getDot1dBasePortForThisIfIndex {
         $ifIndexDot1dBasePortHash->{$ifIndexVal} = $phyPortVal;
     }
 
-    return defined($ifIndexDot1dBasePortHash->{$ifIndex}) ? $ifIndexDot1dBasePortHash->{$ifIndex} : 0; 
+    return
+        defined( $ifIndexDot1dBasePortHash->{$ifIndex} )
+        ? $ifIndexDot1dBasePortHash->{$ifIndex}
+        : 0;
 }
 
 sub getVlan {
-    my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    my $OID_dot1qPvid = '1.3.6.1.2.1.17.7.1.4.5.1.1'; # Q-BRIDGE-MIB
-    if (! $this->connectRead()) {
+    my $OID_dot1qPvid = '1.3.6.1.2.1.17.7.1.4.5.1.1';    # Q-BRIDGE-MIB
+    if ( !$this->connectRead() ) {
         return 0;
     }
 
-    my $dot1dBasePort = $this->getDot1dBasePortForThisIfIndex($ifIndex); 
+    my $dot1dBasePort = $this->getDot1dBasePortForThisIfIndex($ifIndex);
 
-    $logger->trace("SNMP get_request for dot1qPvid: $OID_dot1qPvid.$dot1dBasePort");
-    my $result = $this->{_sessionRead}->get_request(
-        -varbindlist => ["$OID_dot1qPvid.$dot1dBasePort"]
-    );
+    $logger->trace(
+        "SNMP get_request for dot1qPvid: $OID_dot1qPvid.$dot1dBasePort");
+    my $result = $this->{_sessionRead}
+        ->get_request( -varbindlist => ["$OID_dot1qPvid.$dot1dBasePort"] );
 
-    return exists($result->{"$OID_dot1qPvid.$dot1dBasePort"}) ? $result->{"$OID_dot1qPvid.$dot1dBasePort"} : 0;
+    return
+        exists( $result->{"$OID_dot1qPvid.$dot1dBasePort"} )
+        ? $result->{"$OID_dot1qPvid.$dot1dBasePort"}
+        : 0;
 }
-                                        
-sub _setVlan {
-    my ($this,$ifIndex,$newVlan,$oldVlan,$switch_locker_ref) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
 
-    if (! $this->connectRead()) {
+sub _setVlan {
+    my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    if ( !$this->connectRead() ) {
         return 0;
     }
 
-    my $dot1dBasePort = $this->getDot1dBasePortForThisIfIndex($ifIndex);     #physical port number
-    my $portVlan = $this->getVlan($ifIndex);                #current port's VLAN PVID
+    my $dot1dBasePort = $this->getDot1dBasePortForThisIfIndex($ifIndex)
+        ;    #physical port number
+    my $portVlan = $this->getVlan($ifIndex);    #current port's VLAN PVID
 
     $this->{_sessionRead}->translate(0);
 
     #get current VLAN Untagged & Egress Port List
-    my $OID_dot1qPvid = "1.3.6.1.2.1.17.7.1.4.5.1.1";           #from Q-BRIDGE-MIB
-    my $OID_dot1qVlanStaticName = "1.3.6.1.2.1.17.7.1.4.3.1.1";     #from Q-BRIDGE-MIB
-    my $OID_dot1qVlanStaticEgressPorts = "1.3.6.1.2.1.17.7.1.4.3.1.2";  #from Q-BRIDGE-MIB
-    my $OID_dot1qVlanStaticUntaggedPorts = "1.3.6.1.2.1.17.7.1.4.3.1.4";    #from Q-BRIDGE-MIB
-    my $OID_dot1qVlanStaticRowStatus = "1.3.6.1.2.1.17.7.1.4.3.1.5";    #from Q-BRIDGE-MIB
+    my $OID_dot1qPvid = "1.3.6.1.2.1.17.7.1.4.5.1.1";    #from Q-BRIDGE-MIB
+    my $OID_dot1qVlanStaticName
+        = "1.3.6.1.2.1.17.7.1.4.3.1.1";                  #from Q-BRIDGE-MIB
+    my $OID_dot1qVlanStaticEgressPorts
+        = "1.3.6.1.2.1.17.7.1.4.3.1.2";                  #from Q-BRIDGE-MIB
+    my $OID_dot1qVlanStaticUntaggedPorts
+        = "1.3.6.1.2.1.17.7.1.4.3.1.4";                  #from Q-BRIDGE-MIB
+    my $OID_dot1qVlanStaticRowStatus
+        = "1.3.6.1.2.1.17.7.1.4.3.1.5";                  #from Q-BRIDGE-MIB
 
-    $logger->trace("SNMP get_request for dot1qVlanStaticName,EgressPorts,UntaggedPorts: $OID_dot1qVlanStaticName.$portVlan");
-
-    my $result = $this->{_sessionRead}->get_request(
-        -varbindlist => ["$OID_dot1qVlanStaticName.$portVlan",
-                         "$OID_dot1qVlanStaticEgressPorts.$portVlan",
-                         "$OID_dot1qVlanStaticUntaggedPorts.$portVlan"]
+    $logger->trace(
+        "SNMP get_request for dot1qVlanStaticName,EgressPorts,UntaggedPorts: $OID_dot1qVlanStaticName.$portVlan"
     );
 
-    if (!((exists($result->{"$OID_dot1qVlanStaticName.$portVlan"})) && 
-            (exists($result->{"$OID_dot1qVlanStaticEgressPorts.$portVlan"})) && 
-            (exists($result->{"$OID_dot1qVlanStaticUntaggedPorts.$portVlan"})))){
+    my $result = $this->{_sessionRead}->get_request(
+        -varbindlist => [
+            "$OID_dot1qVlanStaticName.$portVlan",
+            "$OID_dot1qVlanStaticEgressPorts.$portVlan",
+            "$OID_dot1qVlanStaticUntaggedPorts.$portVlan"
+        ]
+    );
+
+    if (!(  ( exists( $result->{"$OID_dot1qVlanStaticName.$portVlan"} ) )
+            && (exists(
+                    $result->{"$OID_dot1qVlanStaticEgressPorts.$portVlan"}
+                )
+            )
+            && (exists(
+                    $result->{"$OID_dot1qVlanStaticUntaggedPorts.$portVlan"}
+                )
+            )
+        )
+        )
+    {
         return 0;
     }
 
     # manipulate VLAN port list
     my $dot1qVlanStaticName = $result->{"$OID_dot1qVlanStaticName.$portVlan"};
-    my $dot1qVlanEgressPorts = $this->modifyBitmask($result->{"$OID_dot1qVlanStaticEgressPorts.$portVlan"}, $dot1dBasePort-1, 0);
-    my $dot1qVlanUntaggedPorts = $this->modifyBitmask($result->{"$OID_dot1qVlanStaticUntaggedPorts.$portVlan"}, $dot1dBasePort-1, 0);
+    my $dot1qVlanEgressPorts
+        = $this->modifyBitmask(
+        $result->{"$OID_dot1qVlanStaticEgressPorts.$portVlan"},
+        $dot1dBasePort - 1, 0 );
+    my $dot1qVlanUntaggedPorts
+        = $this->modifyBitmask(
+        $result->{"$OID_dot1qVlanStaticUntaggedPorts.$portVlan"},
+        $dot1dBasePort - 1, 0 );
 
     # Unset port from current VLAN
-    if (! $this->connectWrite()) {
+    if ( !$this->connectWrite() ) {
         return 0;
     }
 
     $logger->trace("SNMP set_request for unset VLAN");
-    $result = $this->{_sessionWrite}->set_request(              #SNMP SET
-        -varbindlist => ["$OID_dot1qVlanStaticUntaggedPorts.$portVlan",Net::SNMP::OCTET_STRING,$dot1qVlanUntaggedPorts,     #Untagged Portlist
-                         "$OID_dot1qVlanStaticEgressPorts.$portVlan",Net::SNMP::OCTET_STRING,$dot1qVlanEgressPorts, #Egress Portlist
-                         "$OID_dot1qVlanStaticRowStatus.$portVlan",Net::SNMP::INTEGER,1]                #vLAN Status
+    $result = $this->{_sessionWrite}->set_request(    #SNMP SET
+        -varbindlist => [
+            "$OID_dot1qVlanStaticUntaggedPorts.$portVlan",
+            Net::SNMP::OCTET_STRING,
+            $dot1qVlanUntaggedPorts,                  #Untagged Portlist
+            "$OID_dot1qVlanStaticEgressPorts.$portVlan",
+            Net::SNMP::OCTET_STRING, $dot1qVlanEgressPorts,   #Egress Portlist
+            "$OID_dot1qVlanStaticRowStatus.$portVlan", Net::SNMP::INTEGER, 1
+            ]                                                 #vLAN Status
     );
 
-    if (! defined ($result)) {
-        $logger->error("error unsetting Pvid: " . $this->{_sessionWrite}->error);
+    if ( !defined($result) ) {
+        $logger->error(
+            "error unsetting Pvid: " . $this->{_sessionWrite}->error );
     }
 
     # get destination VLAN port list
-    $logger->trace("SNMP get_request for dot1qVlanStaticName,EgressPorts,UntaggedPorts   : $OID_dot1qVlanStaticName.$newVlan");
-
-    $result = $this->{_sessionRead}->get_request(
-        -varbindlist => ["$OID_dot1qVlanStaticName.$newVlan",
-        "$OID_dot1qVlanStaticEgressPorts.$newVlan",
-        "$OID_dot1qVlanStaticUntaggedPorts.$newVlan"]
+    $logger->trace(
+        "SNMP get_request for dot1qVlanStaticName,EgressPorts,UntaggedPorts   : $OID_dot1qVlanStaticName.$newVlan"
     );
 
-    if (!((exists($result->{"$OID_dot1qVlanStaticName.$newVlan"})) && 
-            (exists($result->{"$OID_dot1qVlanStaticEgressPorts.$newVlan"})) && 
-            (exists($result->{"$OID_dot1qVlanStaticUntaggedPorts.$newVlan"})))){
+    $result = $this->{_sessionRead}->get_request(
+        -varbindlist => [
+            "$OID_dot1qVlanStaticName.$newVlan",
+            "$OID_dot1qVlanStaticEgressPorts.$newVlan",
+            "$OID_dot1qVlanStaticUntaggedPorts.$newVlan"
+        ]
+    );
+
+    if (!(  ( exists( $result->{"$OID_dot1qVlanStaticName.$newVlan"} ) )
+            && (exists(
+                    $result->{"$OID_dot1qVlanStaticEgressPorts.$newVlan"}
+                )
+            )
+            && (exists(
+                    $result->{"$OID_dot1qVlanStaticUntaggedPorts.$newVlan"}
+                )
+            )
+        )
+        )
+    {
         return 0;
     }
 
     # manipulate destination VLAN Port List
     $dot1qVlanStaticName = $result->{"$OID_dot1qVlanStaticName.$newVlan"};
-    $dot1qVlanEgressPorts = $this->modifyBitmask($result->{"$OID_dot1qVlanStaticEgressPorts.$newVlan"}, $dot1dBasePort-1, 1);
-    $dot1qVlanUntaggedPorts = $this->modifyBitmask($result->{"$OID_dot1qVlanStaticUntaggedPorts.$newVlan"}, $dot1dBasePort-1, 1);
+    $dot1qVlanEgressPorts
+        = $this->modifyBitmask(
+        $result->{"$OID_dot1qVlanStaticEgressPorts.$newVlan"},
+        $dot1dBasePort - 1, 1 );
+    $dot1qVlanUntaggedPorts
+        = $this->modifyBitmask(
+        $result->{"$OID_dot1qVlanStaticUntaggedPorts.$newVlan"},
+        $dot1dBasePort - 1, 1 );
 
-    # SNMP Set request for set VLAN 
+    # SNMP Set request for set VLAN
     $logger->trace("SNMP set_request for new VLAN");
-    $result = $this->{_sessionWrite}->set_request(              #SNMP SET
-        -varbindlist => ["$OID_dot1qVlanStaticUntaggedPorts.$newVlan",Net::SNMP::OCTET_STRING,$dot1qVlanUntaggedPorts,      #Untagged Portlist
-                         "$OID_dot1qVlanStaticEgressPorts.$newVlan",Net::SNMP::OCTET_STRING,$dot1qVlanEgressPorts,  #Egress Portlist
-                         "$OID_dot1qVlanStaticRowStatus.$newVlan",Net::SNMP::INTEGER,1]                 #vLAN Status
+    $result = $this->{_sessionWrite}->set_request(    #SNMP SET
+        -varbindlist => [
+            "$OID_dot1qVlanStaticUntaggedPorts.$newVlan",
+            Net::SNMP::OCTET_STRING,
+            $dot1qVlanUntaggedPorts,                  #Untagged Portlist
+            "$OID_dot1qVlanStaticEgressPorts.$newVlan",
+            Net::SNMP::OCTET_STRING, $dot1qVlanEgressPorts,   #Egress Portlist
+            "$OID_dot1qVlanStaticRowStatus.$newVlan", Net::SNMP::INTEGER, 1
+            ]                                                 #vLAN Status
     );
 
-    if (! defined ($result)) {
-        $logger->error("error setting new Vlan: " . $this->{_sessionWrite}->error);
+    if ( !defined($result) ) {
+        $logger->error(
+            "error setting new Vlan: " . $this->{_sessionWrite}->error );
     }
 
     # SNMP Set request for Update PVID
-    $result = $this->{_sessionWrite}->set_request(  
-        -varbindlist => ["$OID_dot1qPvid.$dot1dBasePort",Net::SNMP::GAUGE,$newVlan]                         #Set Port PVID
+    $result = $this->{_sessionWrite}->set_request(
+        -varbindlist => [ "$OID_dot1qPvid.$dot1dBasePort", Net::SNMP::GAUGE,
+            $newVlan ]                                        #Set Port PVID
     );
-    if (! defined ($result)) {
-        $logger->error("error setting Pvid: " . $this->{_sessionWrite}->error);
+    if ( !defined($result) ) {
+        $logger->error(
+            "error setting Pvid: " . $this->{_sessionWrite}->error );
     }
 
-    return (defined($result));
+    return ( defined($result) );
 }
-
 
 1;
 

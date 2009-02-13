@@ -30,35 +30,37 @@ use base ('pf::SNMP::Dell');
 
 sub getMinOSVersion {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = Log::Log4perl::get_logger( ref($this) );
     return '112';
 }
 
 sub _setVlan {
-    my ($this,$ifIndex,$newVlan,$oldVlan,$switch_locker_ref) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
     my $session;
 
     eval {
-        $session = new Net::Telnet(Host => $this->{_ip}, Timeout => 20);
+        $session = new Net::Telnet( Host => $this->{_ip}, Timeout => 20 );
+
         #$session->dump_log();
         $session->waitfor('/Password:/');
-        $session->print($this->{_cliPwd});
+        $session->print( $this->{_cliPwd} );
         $session->waitfor('/>/');
     };
     if ($@) {
-        $logger->logdie("ERROR: Can not connect to switch $this->{'_ip'} using Telnet");
+        $logger->logdie(
+            "ERROR: Can not connect to switch $this->{'_ip'} using Telnet");
     }
 
     $session->print('enable');
     $session->waitfor('/Password:/');
-    $session->print($this->{_cliEnablePwd});
+    $session->print( $this->{_cliEnablePwd} );
     $session->waitfor('/#/');
     $session->print('configure');
     $session->waitfor('/\(config\)#/');
-    $session->print('interface ethernet e' . $ifIndex);
+    $session->print( 'interface ethernet e' . $ifIndex );
     $session->waitfor('/\(config-if\)#/');
-    $session->print('switchport access vlan ' .$newVlan);
+    $session->print( 'switchport access vlan ' . $newVlan );
     $session->waitfor('/\(config-if\)#/');
     $session->print("end");
     $session->waitfor('/#/');
