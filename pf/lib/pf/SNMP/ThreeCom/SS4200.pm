@@ -17,16 +17,16 @@
 # *** SETVLAN NOT WORK WITH DEFAULT VLAN ID 1 ***
 #
 
-package pf::SNMP::3COM::SS4200;
+package pf::SNMP::ThreeCom::SS4200;
 
 =head1 NAME
 
-pf::SNMP::3COM::SS4200 - Object oriented module to access SNMP enabled 3COM Huawei SuperStack 3 Switch - 4200 switches
+pf::SNMP::ThreeCom::SS4200 - Object oriented module to access SNMP enabled 3COM Huawei SuperStack 3 Switch - 4200 switches
 
 
 =head1 SYNOPSIS
 
-The pf::SNMP::3COM::SS4200 module implements an object 
+The pf::SNMP::ThreeCom::SS4200 module implements an object 
 oriented interface to access SNMP enabled 
 3COM Huawei SuperStack 3 Switch - 4200 switches.
 
@@ -39,11 +39,11 @@ use Log::Log4perl;
 use Net::SNMP;
 
 use lib '/usr/local/pf/lib';
-use base ('pf::SNMP::3COM');
+use base ('pf::SNMP::ThreeCom');
 
 sub getVersion {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::3COM::SS4200");
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     my $OID_StackUnitSWVersion = '1.3.6.1.4.1.43.10.27.1.1.1.12.1'; #from A3COM-0352-STACK-CONFIG
     if (! $this->connectRead()) {

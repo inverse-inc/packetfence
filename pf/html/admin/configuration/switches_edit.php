@@ -53,9 +53,9 @@
     } elseif ($key == 'type') {
       print "<tr><td></td><td>$pretty_key:</td><td>";
       printSelect( array('' => 'please choose',
-                         '3COM::NJ220' => '3COM NJ220', 
-                         '3COM::SS4200' => '3COM SS4200', 
-                         '3COM::SS4500' => '3COM SS4500', 
+                         'ThreeCom::NJ220' => '3COM NJ220', 
+                         'ThreeCom::SS4200' => '3COM SS4200', 
+                         'ThreeCom::SS4500' => '3COM SS4500', 
                          'Accton::ES3526XA' => 'Accton ES3526XA', 
                          'Accton::ES3528M' => 'Accton ES3528M', 
                          'Cisco::Aironet_1130' => 'Cisco Aironet 1130', 

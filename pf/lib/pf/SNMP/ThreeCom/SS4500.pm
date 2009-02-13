@@ -19,16 +19,16 @@
 # *** SETVLAN NOT WORK WITH DEFAULT VLAN ID 1 ***
 #
 
-package pf::SNMP::3COM::SS4500;
+package pf::SNMP::ThreeCom::SS4500;
 
 =head1 NAME
 
-pf::SNMP::3COM::SS4500 - Object oriented module to access SNMP enabled 3COM Huawei SuperStack 3 Switch - 4500 switches
+pf::SNMP::ThreeCom::SS4500 - Object oriented module to access SNMP enabled 3COM Huawei SuperStack 3 Switch - 4500 switches
 
 
 =head1 SYNOPSIS
 
-The pf::SNMP::3COM::SS4500 module implements an object 
+The pf::SNMP::ThreeCom::SS4500 module implements an object 
 oriented interface to access SNMP enabled 
 3COM Huawei SuperStack 3 Switch - 4500 switches.
 
@@ -39,7 +39,7 @@ use warnings;
 use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
-use base ('pf::SNMP::3COM');
+use base ('pf::SNMP::ThreeCom');
 
 sub getVersion {
     my ($this) = @_;
@@ -216,7 +216,7 @@ sub isPortSecurityEnabled {
 
 sub authorizeMac {
     my ($this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SNMP::3COM::SS4500");
+    my $logger = Log::Log4perl::get_logger(ref($this));
     my $session = undef;
 
     if (! $this->isProductionMode()) {

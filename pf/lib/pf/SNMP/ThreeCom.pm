@@ -7,17 +7,17 @@
 #
 #
 
-package pf::SNMP::3COM;
+package pf::SNMP::ThreeCom;
 
 =head1 NAME
 
-pf::SNMP::3COM - Object oriented module to access SNMP enabled 3COM
+pf::SNMP::ThreeCom - Object oriented module to access SNMP enabled 3COM
 switches
 
 
 =head1 SYNOPSIS
 
-The pf::SNMP::3COM module implements an object oriented interface
+The pf::SNMP::ThreeCom module implements an object oriented interface
 to access SNMP enabled 3COM switches.
 
 =cut

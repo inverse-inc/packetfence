@@ -6,16 +6,16 @@
 # http://www.fsf.org/licensing/licenses/gpl.html
 #
 
-package pf::SNMP::3COM::NJ220;
+package pf::SNMP::ThreeCom::NJ220;
 
 =head1 NAME
 
-pf::SNMP::3COM::NJ220 - Object oriented module to access SNMP enabled 3COM NJ220 switches
+pf::SNMP::ThreeCom::NJ220 - Object oriented module to access SNMP enabled 3COM NJ220 switches
 
 
 =head1 SYNOPSIS
 
-The pf::SNMP::3COM::NJ220 module implements an object 
+The pf::SNMP::ThreeCom::NJ220 module implements an object 
 oriented interface to access SNMP enabled 3COM NJ220 switches.
 
 =cut
@@ -25,7 +25,7 @@ use warnings;
 use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
-use base ('pf::SNMP::3COM');
+use base ('pf::SNMP::ThreeCom');
 
 sub getMinOSVersion {
     my ($this) = @_;
