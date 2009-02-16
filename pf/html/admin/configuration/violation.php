@@ -11,7 +11,6 @@
   include_once('../header.php');
 
   $my_table->set_editable(true);
-  $my_table->set_linkable(array( array('url', 'configuration/instructions.php')));
   $my_table->set_hideable(array('grace', 'priority', 'button_text', 'trigger'));
   $is_printable=true;
 
