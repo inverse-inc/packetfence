@@ -56,7 +56,7 @@
 
 ?>
 
-
+<html>
 <title><?=$title?></title>
 
 <head>
@@ -118,4 +118,4 @@
 </div>
 </body>
 
-
+</html>
