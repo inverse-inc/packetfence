@@ -123,3 +123,61 @@ msgstr "Nom d'utilisateur"
 
 msgid  "Violations"
 msgstr "Violations"
+
+msgid  "Quarantine Established!"
+msgstr "Quarantaine &eacute;tablie"
+
+msgid  "Registration Notification"
+msgstr "Avertissement d'enregistrement"
+
+msgid  "Additional Assistance"
+msgstr "Assistance suppl&eacute;mentaire"
+
+msgid  "If your network connectivity becomes permanently disabled or you are unable to follow the instructions above, please contact your local IT support staff for assistance."
+msgstr  "Si votre connexion r&eacute;seau devient d&eacute;faillante de fa&ccedil;on permanente ou si vous ne pouvez pas suivre les instructions ci-dessus, veuillez contacter votre &eacute;quipe de soutien technique."
+
+msgid  "The following information should be provided upon request:"
+msgstr "Si n&eacute;cessaire, veuillez fournir les informations suivantes:"
+
+msgid  "IP Address"
+msgstr "Adresse IP"
+
+msgid  "MAC Address"
+msgstr "Adresse MAC"
+
+msgid  "Banned Operating System"
+msgstr "Syst&egrave;me d'exploitation non autoris&eacute;"
+
+msgid  "You have been detected using an operating system not allowed on the network. Please install a more recent operating system"
+msgstr "Nous avons d&eacute;tect&eacute; une version de syst&egrave;me d'exploitation (OS) non autoris&eacute;e sur ce r&eacute;seau. Veuillez installer ou faire installer un syst&egrave;me d'exploitation plus r&eacute;cent et plus s&eacute;curitaire"
+
+msgid  "Your system will likely need to be rebuilt. Please contact your local support staff for more information."
+msgstr "Il est probablement n&eacute;cessaire de reinstaller votre ordinateur. Veuillez contacter votre &eacute;quipe de soutien technique pour plus d'informations."
+
+msgid  "Windows patches are not up to date"
+msgstr "Vous n'avez pas install&eacute; toutes les mises-&agrave;-jour Windows n&eacute;cessaires"
+
+msgid  "Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken. Instructions for disinfection are below:"
+msgstr "Du au danger de cette probl&eacutematique pour tous les autres ordinateurs du r&eacute;seau, votre acc&egrave; a &eacute;t&eacute; d&eacute;sactiv&eacute;"
+
+msgid  "Generic"
+msgstr "G&eacute;n&eacute;rique"
+
+msgid  "Network connectivity has been disabled."
+msgstr "Acc&egrave;s r&eacute;seau d&eacute;sactive."
+
+msgid  "Please contact your support staff for more information."
+msgstr "Veuillez contacter votre &eacute;quipe de soutien technique."
+
+msgid  "Hub Detection"
+msgstr "P&eacute;riph&eacute;rique r&eacute;seau probl&eacute;matique"
+
+msgid  "You have been detected using a hub. Such device is not permitted on the network.  Please remove it."
+msgstr "Il se peut qu'un (que des) &eacute;quipement(s) de connectivit&eacute;(s) r&eacute;seau de votre appareil fasse d&eacute;faut ou que vous ayez branch&eacute; un appareil de type commutateur/routeur/\"hub\". Pour une mise &agrave; jour, contactez votre technicien(ne) ou d&eacute;branchez l'appareil fautif."
+
+msgid  "Peer-to-Peer"
+msgstr "Poste-&agrave;-Poste"
+
+msgid  "You have been detected using a peer-to-peer file sharing application. Such software is not permitted on the network.  Please uninstall the infringing software."
+msgstr "Nous avons d&eacute;tect&eacute; l'utilisation d'un logiciel de type poste-&agrave;-poste (peer-to-peer). Veuillez d&eacute;sinstaller le logiciel en question."
+

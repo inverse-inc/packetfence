@@ -123,3 +123,78 @@ msgstr "Username"
 
 msgid  "Violations"
 msgstr "Violations"
+
+msgid  "Quarantine Established!"
+msgstr "Quarantine Established!"
+
+msgid  "Registration Notification"
+msgstr "Registration Notification"
+
+msgid  "Additional Assistance"
+msgstr "Additional Assistance"
+
+msgid  "If your network connectivity becomes permanently disabled or you are unable to follow the instructions above, please contact your local IT support staff for assistance."
+msgstr  "If your network connectivity becomes permanently disabled or you are unable to follow the instructions above, please contact your local IT support staff for assistance."
+
+msgid  "The following information should be provided upon request:"
+msgstr "The following information should be provided upon request:"
+
+msgid  "IP Address"
+msgstr "IP Address"
+
+msgid  "MAC Address"
+msgstr "MAC Address"
+
+msgid  "Banned Operating System"
+msgstr "Banned Operating System"
+
+msgid  "You have been detected using an operating system not allowed on the network. Please install a more recent operating system"
+msgstr "You have been detected using an operating system not allowed on the network. Please install a more recent operating system"
+
+msgid  "Darknet Violation"
+msgstr "Your system has been detected sending traffic to a network known to be unused (darknet). This is often indicative of a worm/virus infection."
+
+msgid  "Your system will likely need to be rebuilt. Please contact your local support staff for more information."
+msgstr "Your system will likely need to be rebuilt. Please contact your local support staff for more information."
+
+msgid  "Windows patches are not up to date"
+msgstr "Windows patches are not up to date"
+
+msgid  "Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken. Instructions for disinfection are below:"
+msgstr "Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken. Instructions for disinfection are below:"
+
+msgid  "Generic"
+msgstr "Generic"
+
+msgid  "Network connectivity has been disabled."
+msgstr "Network connectivity has been disabled."
+
+msgid  "Please contact your support staff for more information."
+msgstr "Please contact your support staff for more information."
+
+msgid  "Hub Detection"
+msgstr "Hub Detection"
+
+msgid  "You have been detected using a hub. Such device is not permitted on the network.  Please remove it."
+msgstr "You have been detected using a hub. Such device is not permitted on the network.  Please remove it."
+
+msgid  "Peer-to-Peer"
+msgstr "Peer-to-Peer"
+
+msgid  "You have been detected using a peer-to-peer file sharing application. Such software is not permitted on the network.  Please uninstall the infringing software."
+msgstr "You have been detected using a peer-to-peer file sharing application. Such software is not permitted on the network.  Please uninstall the infringing software."
+
+msgid  "System Scanning"
+msgstr "System Scanning"
+
+msgid  "Your system has been found to be scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgstr "Your system has been found to be scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+
+msgid  "Spamming"
+msgstr "Spamming"
+
+msgid  "Your system has been found to be sending unsolicited commercial email (UCE, or \"spam\") to other systems. Due to the threat this poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgstr "Your system has been found to be sending unsolicited commercial email (UCE, or \"spam\") to other systems. Due to the threat this poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+
+msgid  "Your system may need to be rebuilt. Please contact your local support staff for more information."
+msgstr "Your system may need to be rebuilt. Please contact your local support staff for more information."

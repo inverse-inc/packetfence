@@ -8,6 +8,10 @@
     }
   }
 
+  setlocale(LC_ALL, 'en_US');
+  bindtextdomain("packetfence", "/usr/local/pf/conf/locale");
+  textdomain("packetfence");
+
   $user_data['ip'] = $_SERVER['REMOTE_ADDR'];
 
   $PFCMD=dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/bin/pfcmd';
@@ -52,12 +56,12 @@
     $custom_footer = file_get_contents('footer.html'); 
   }
 
-  $_GET['admin'] ? $title = "Registration Notification" : $title = "Quarantine Established";
+  $_GET['admin'] ? $title = "Registration Notification" : $title = "Quarantine Established!";
 
 ?>
 
 <html>
-<title><?=$title?></title>
+<title><?php echo _($title)?></title>
 
 <head>
 	<? $abs_url="https://$_SERVER[HTTP_HOST]"; ?>
@@ -77,7 +81,7 @@
 				<img src='<?=$abs_url?>/<?=$logo_src?>' id='logo'>  
 			</td>
 			<td class='title' id='title'>
-				Quarantine Established!
+<?php echo _("Quarantine Established!") ?>
 			</td>
 		</tr>
 	</table>
@@ -88,26 +92,26 @@
 <?=$custom_header?>
 
 <div id='description'>
-	<p id='description_header' class='sub_header'><?=$description_header?></p>
-	<span class='description_text'> <?=$description_text?> </span>
+	<p id='description_header' class='sub_header'><?php echo _($description_header) ?></p>
+	<span class='description_text'> <?php echo _($description_text) ?> </span>
 </div>
 
 <div id='remediation'>
-	<p class='sub_header'><?=$remediation_header?></p>
-	<span class='remediation_text'>	<?=$remediation_text?> </span>
+	<p class='sub_header'><?php echo _($remediation_header) ?></p>
+	<span class='remediation_text'><?php echo _($remediation_text) ?> </span>
 </div>
 
 <?if(!$_GET['admin']){ // start non-admin section ?>
 <div id='user_info'>
-	<p class='sub_header'>Additional Assistance</p>
+	<p class='sub_header'><?php echo _("Additional Assistance") ?></p>
 
-	If your network connectivity becomes permanently disabled or you are unable to follow the instructions above, please contact your local IT support staff for assistance.
+	<?php echo _("If your network connectivity becomes permanently disabled or you are unable to follow the instructions above, please contact your local IT support staff for assistance.") ?>
 
-	The following information should be provided upon request:
+	<?php echo _("The following information should be provided upon request:") ?>
 
 	<ul>
-		<li>IP Address - <?=$user_data['ip']?></li>
-		<li>MAC Address - <?=strtoupper($user_data['mac'])?></li>
+		<li><?php echo _("IP Address") ?> - <?=$user_data['ip']?></li>
+		<li><?php echo _("MAC Address") ?> - <?=strtoupper($user_data['mac'])?></li>
 	
 	</ul>
 
