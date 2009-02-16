@@ -2458,6 +2458,28 @@ sub sanity_check {
         );
     }
 
+    # make sure that networks.conf is not empty when vlan.dhcpd
+    # is enabled
+    if (   ( isenabled($Config{'vlan'}{'dhcpd'}) )
+        && (    ( !-e "$conf_dir/networks.conf" )
+             || ( -z  "$conf_dir/networks.conf") )  )
+    {
+        $logger->logdie(
+            "networks.conf cannot be empty when vlan.dhcpd is enabled"
+        );
+    }
+
+    # make sure that networks.conf is not empty when vlan.named
+    # is enabled
+    if (   ( isenabled($Config{'vlan'}{'named'}) )
+        && (    ( !-e "$conf_dir/networks.conf" )
+             || ( -z  "$conf_dir/networks.conf") )  )
+    {
+        $logger->logdie(
+            "networks.conf cannot be empty when vlan.named is enabled"
+        );
+    }
+
     # warn when scan.registration=enabled and trapping.registration=disabled
     if (   isenabled( $Config{'scan'}{'registration'} )
         && isdisabled( $Config{'trapping'}{'registration'} ) )
