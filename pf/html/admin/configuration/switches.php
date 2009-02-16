@@ -11,7 +11,7 @@
 
   $is_printable=true;
   $my_table->set_editable(true);
-  $my_table->set_hideable(array('SNMPVersion', 'SNMPCommunityRead', 'SNMPCommunityWrite', 'SNMPVersionTrap', 'SNMPCommunityTrap', 'cliTransport', 'cliUser', 'cliPwd', 'cliEnablePwd'));
+  $my_table->set_hideable(array('SNMPVersion', 'SNMPCommunityRead', 'SNMPCommunityWrite', 'SNMPVersionTrap', 'SNMPCommunityTrap', 'cliTransport', 'cliUser', 'cliPwd', 'cliEnablePwd', 'vlans', 'normalVlan', 'registrationVlan', 'isolationVlan', 'macDetectionVlan', 'macSearchesMaxNb', 'macSearchesSleepInterval', 'VoIPEnabled', 'voiceVlan', 'SNMPEngineID', 'SNMPUserNameRead', 'SNMPAuthProtocolRead', 'SNMPAuthPasswordRead', 'SNMPPrivProtocolRead', 'SNMPPrivPasswordRead', 'SNMPUserNameWrite', 'SNMPAuthProtocolWrite', 'SNMPAuthPasswordWrite', 'SNMPPrivProtocolWrite', 'SNMPPrivPasswordWrite', 'SNMPAuthProtocolTrap', 'SNMPAuthPasswordTrap', 'SNMPPrivProtocolTrap', 'SNMPPrivPasswordTrap'));
   $my_table->set_page_num(set_default($_REQUEST['page_num'],1));
   $my_table->set_per_page(set_default($_REQUEST['per_page'],25));
 

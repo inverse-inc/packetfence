@@ -823,7 +823,7 @@ sub switchconfig {
             }
         }
         my @columns
-            = qw(ip type mode uplink SNMPVersion SNMPCommunityRead SNMPCommunityWrite SNMPVersionTrap SNMPCommunityTrap cliTransport cliUser cliPwd cliEnablePwd);
+            = qw(ip type mode uplink SNMPVersion SNMPCommunityRead SNMPCommunityWrite SNMPVersionTrap SNMPCommunityTrap cliTransport cliUser cliPwd cliEnablePwd vlans normalVlan registrationVlan isolationVlan macDetectionVlan macSearchesMaxNb macSearchesSleepInterval VoIPEnabled voiceVlan SNMPEngineID SNMPUserNameRead SNMPAuthProtocolRead SNMPAuthPasswordRead SNMPPrivProtocolRead SNMPPrivPasswordRead SNMPUserNameWrite SNMPAuthProtocolWrite SNMPAuthPasswordWrite SNMPPrivProtocolWrite SNMPPrivPasswordWrite SNMPAuthProtocolTrap SNMPAuthPasswordTrap SNMPPrivProtocolTrap SNMPPrivPasswordTrap);
         print join( "|", @columns ) . "\n";
 
         #sort the switches (http://www.sysarch.com/Perl/sort_paper.html)
