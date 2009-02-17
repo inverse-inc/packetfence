@@ -81,6 +81,8 @@
         internationalize remediation pages
           (http://www.packetfence.org/mantis/view.php?id=596)
         added automatic test scripts
+        remove 'ip' parameter from switches.conf
+          (http://www.packetfence.org/mantis/view.php?id=597)
 
 1.8.0
         unify log management

@@ -140,7 +140,7 @@ sub instantiate {
                    $SwitchConfig{$requestedSwitch}{'htaccessUser'}
                 || $SwitchConfig{'default'}{'htaccessUser'}
         ),
-        '-ip'            => $SwitchConfig{$requestedSwitch}{'ip'},
+        '-ip'            => $requestedSwitch,
         '-isolationVlan' => (
                    $SwitchConfig{$requestedSwitch}{'isolationVlan'}
                 || $SwitchConfig{'default'}{'isolationVlan'}
