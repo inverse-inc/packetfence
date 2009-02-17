@@ -67,7 +67,7 @@ sub load_cron {
     $filename = "pf" if ( !$filename );
     my $file_fh;
     open( $file_fh, '<', "/var/spool/cron/" . $filename ) || return;
-    my @array = <file_fh>;
+    my @array = <$file_fh>;
     foreach (@array) {
         my ( $min, $hour, $dmon, $month, $dweek, $rest )
             = split( /\s+/, $_, 6 );
