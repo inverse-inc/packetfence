@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 92;
+use Test::More tests => 90;
 use lib '/usr/local/pf/lib';
 
 BEGIN { use_ok('pf::SNMP') }

@@ -5,4 +5,4 @@ use warnings;
 use diagnostics;
 
 use Test::Harness;
-runtests(qw(pf.t SNMP.t));
+runtests(qw(pf.t SNMP.t SwitchFactory.t));
