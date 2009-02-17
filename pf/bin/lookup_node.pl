@@ -11,6 +11,10 @@
 # it's called via "pfcmd lookup node <mac>", through the administrative GUI,
 # or as the content of a violation action
 
+use strict;
+use warnings;
+use diagnostics;
+
 use pf::util;
 use pf::iplog;
 use pf::node;
@@ -32,8 +36,8 @@ sub lookup_node {
             $return .= "\n";
         }
 
-        $owner  = $node_info->{'pid'};
-        $status = $node_info->{'status'};
+        my $owner  = $node_info->{'pid'};
+        my $status = $node_info->{'status'};
         if ( $status eq "reg" ) {
             $status = "registered";
         } elsif ( $status eq "unreg" ) {

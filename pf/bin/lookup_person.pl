@@ -13,6 +13,10 @@
 
 # have a look at contrib/lookup/lookup_person.pl.ldap for an LDAP example
 
+use strict;
+use warnings;
+use diagnostics;
+
 sub lookup_person {
     my ($pid) = @_;
     if ( person_exist($pid) ) {

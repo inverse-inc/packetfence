@@ -43,4 +43,4 @@ sub lookup_person {
   return $return;
 }
 
-1
+1;
