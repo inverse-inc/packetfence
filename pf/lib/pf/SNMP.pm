@@ -158,7 +158,7 @@ sub new {
             $this->{_SNMPUserNameTrap} = $argv{$_};
         } elsif (/^-?SNMPUserNameWrite$/i) {
             $this->{_SNMPUserNameWrite} = $argv{$_};
-        } elsif (/^-?clieEnablePwd$/i) {
+        } elsif (/^-?cliEnablePwd$/i) {
             $this->{_cliEnablePwd} = $argv{$_};
         } elsif (/^-?cliPwd$/i) {
             $this->{_cliPwd} = $argv{$_};

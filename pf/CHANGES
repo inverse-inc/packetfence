@@ -83,6 +83,8 @@
         added automatic test scripts
         remove 'ip' parameter from switches.conf
           (http://www.packetfence.org/mantis/view.php?id=597)
+        switches.conf and cliEnabledPwd
+          (http://www.packetfence.org/mantis/view.php?id=598)
 
 1.8.0
         unify log management
