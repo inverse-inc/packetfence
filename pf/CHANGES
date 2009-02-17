@@ -80,6 +80,7 @@
           (http://www.packetfence.org/mantis/view.php?id=594)
         internationalize remediation pages
           (http://www.packetfence.org/mantis/view.php?id=596)
+        added automatic test scripts
 
 1.8.0
         unify log management
