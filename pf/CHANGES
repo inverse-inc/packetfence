@@ -85,6 +85,8 @@
           (http://www.packetfence.org/mantis/view.php?id=597)
         switches.conf and cliEnabledPwd
           (http://www.packetfence.org/mantis/view.php?id=598)
+        make maximal column width of contents in web admin
+          GUI 30 characters
 
 1.8.0
         unify log management

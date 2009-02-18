@@ -510,14 +510,14 @@ if($sajax){
                  print "    <td $hide_tag><a href='".$this->linkable[$key].$break."view_item=$cell'>".$_SESSION['violation_classes']["$cell"]." </a></td>\n";
                } 
                else if (($key == 'url') && (array_key_exists('vid', $this->rows[$i]))) {
-                 print "    <td $hide_tag><a href='".$this->linkable[$key].$break."vid=" . $this->rows[$i]['vid'] . "'>$cell</a></td>\n";
+                 print "    <td $hide_tag><a href='".$this->linkable[$key].$break."vid=" . $this->rows[$i]['vid'] . "'>" . ((strlen($cell) > 30) ? (substr($cell, 0, 30) . ' ...') : $cell) . "</a></td>\n";
                }
 	       else{
-                 print "    <td $hide_tag><a href='".$this->linkable[$key].$break."view_item=$cell'>$cell</a></td>\n";
+                 print "    <td $hide_tag><a href='".$this->linkable[$key].$break."view_item=$cell'>" . ((strlen($cell) > 30) ? (substr($cell, 0, 30) . ' ...') : $cell) . "</a></td>\n";
 	       }
 	     }
              else{  
-               print "    <td $hide_tag>$cell</td>\n";
+               print "    <td $hide_tag>" . ((strlen($cell) > 30) ? (substr($cell, 0, 30) . ' ...') : $cell) . "</td>\n";
              }
            }
                   
