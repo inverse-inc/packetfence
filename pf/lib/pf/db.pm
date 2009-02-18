@@ -11,7 +11,7 @@ package pf::db;
 
 use strict;
 use warnings;
-use DBD::mysql;
+use DBI;
 use File::Basename;
 use Log::Log4perl;
 use threads;
