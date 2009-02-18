@@ -530,24 +530,34 @@ sub violationconfig {
         my @assignments = @{ $cmd{'violationconfig_assignment'} };
         if ( tied(%violations_conf)->SectionExists($section) ) {
             foreach my $assignment (@assignments) {
-                my ( $param, $value ) = @$assignment;
-                if ( defined( $violations_conf{$section}{$param} ) ) {
-                    if (   ( !exists( $violations_conf{'defaults'}{$param} ) )
-                        || ( $violations_conf{'defaults'}{$param} ne $value )
-                        )
-                    {
+                if ($section eq 'defaults') {
+                    if ( defined( $violations_conf{$section}{$param} ) ) {
                         tied(%violations_conf)
                             ->setval( $section, $param, $value );
                     } else {
-                        tied(%violations_conf)->delval( $section, $param );
-                    }
-                } else {
-                    if (   ( !exists( $violations_conf{'defaults'}{$param} ) )
-                        || ( $violations_conf{'defaults'}{$param} ne $value )
-                        )
-                    {
                         tied(%violations_conf)
                             ->newval( $section, $param, $value );
+                    }
+                } else {
+                    my ( $param, $value ) = @$assignment;
+                    if ( defined( $violations_conf{$section}{$param} ) ) {
+                        if (   ( !exists( $violations_conf{'defaults'}{$param} ) )
+                            || ( $violations_conf{'defaults'}{$param} ne $value )
+                            )
+                        {
+                            tied(%violations_conf)
+                                ->setval( $section, $param, $value );
+                        } else {
+                            tied(%violations_conf)->delval( $section, $param );
+                        }
+                    } else {
+                        if (   ( !exists( $violations_conf{'defaults'}{$param} ) )
+                            || ( $violations_conf{'defaults'}{$param} ne $value )
+                            )
+                        {
+                            tied(%violations_conf)
+                                ->newval( $section, $param, $value );
+                        }
                     }
                 }
             }
@@ -877,22 +887,33 @@ sub switchconfig {
         my @assignments = @{ $cmd{'switchconfig_assignment'} };
         if ( tied(%switches_conf)->SectionExists($section) ) {
             foreach my $assignment (@assignments) {
-                my ( $param, $value ) = @$assignment;
-                if ( defined( $switches_conf{$section}{$param} ) ) {
-                    if (   ( !exists( $switches_conf{'default'}{$param} ) )
-                        || ( $switches_conf{'default'}{$param} ne $value ) )
-                    {
+                if ($section eq 'default') {
+                    my ( $param, $value ) = @$assignment;
+                    if ( defined( $switches_conf{$section}{$param} ) ) {
                         tied(%switches_conf)
                             ->setval( $section, $param, $value );
                     } else {
-                        tied(%switches_conf)->delval( $section, $param );
-                    }
-                } else {
-                    if (   ( !exists( $switches_conf{'default'}{$param} ) )
-                        || ( $switches_conf{'default'}{$param} ne $value ) )
-                    {
                         tied(%switches_conf)
                             ->newval( $section, $param, $value );
+                    }
+                } else {
+                    my ( $param, $value ) = @$assignment;
+                    if ( defined( $switches_conf{$section}{$param} ) ) {
+                        if (   ( !exists( $switches_conf{'default'}{$param} ) )
+                            || ( $switches_conf{'default'}{$param} ne $value ) )
+                        {
+                            tied(%switches_conf)
+                                ->setval( $section, $param, $value );
+                        } else {
+                            tied(%switches_conf)->delval( $section, $param );
+                        }
+                    } else {
+                        if (   ( !exists( $switches_conf{'default'}{$param} ) )
+                            || ( $switches_conf{'default'}{$param} ne $value ) )
+                        {
+                            tied(%switches_conf)
+                                ->newval( $section, $param, $value );
+                        }
                     }
                 }
             }
