@@ -1,11 +1,11 @@
 #rpmbuild should be done in several steps:
 #1) rpmbuild -bs SPECS/packetfence.spec
 #on each target distribution
-#2) rpmbuild --rebuild --define 'dist .el5' SRPMS/packetfence-1.8.1-20090216.src.rpm
+#2) rpmbuild --rebuild --define 'dist .el5' SRPMS/packetfence-1.8.1-20090218.src.rpm
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
 Version: 1.8.1
-Release: 20090216%{?dist}
+Release: 20090218%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.packetfence.org
@@ -16,7 +16,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Packager: Dominik Gehl <dgehl@inverse.ca>
 Vendor: PacketFence, http://www.packetfence.org
 
-Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}-20090216.tar.gz
+Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}-20090218.tar.gz
 
 BuildRequires: gettext, perl(Parse::RecDescent), httpd
 Requires: perl >= 5.8.0, perl-suidperl, httpd, mod_ssl, php, php-gd, php-pear, libpcap, libxml2, zlib, zlib-devel, coreutils, net-snmp, iproute, sed
@@ -112,6 +112,7 @@ rmdir contrib/pfdhcplistener_remote
 #end remote pfdhcplistener
 cp -r contrib $RPM_BUILD_ROOT/usr/local/pf/
 cp -r test $RPM_BUILD_ROOT/usr/local/pf/
+cp -r t $RPM_BUILD_ROOT/usr/local/pf/
 cp -r db $RPM_BUILD_ROOT/usr/local/pf/
 cp -r docs $RPM_BUILD_ROOT/usr/local/pf/
 cp -r html $RPM_BUILD_ROOT/usr/local/pf/
@@ -306,6 +307,8 @@ fi
 %dir /usr/local/pf/test
 /usr/local/pf/test/dhcp_dumper
 /usr/local/pf/test/connect_and_read.pl
+%dir /usr/local/pf/t
+/usr/local/pf/t/*
 %dir /usr/local/pf/contrib/lookup
 /usr/local/pf/contrib/lookup/*
 %dir /usr/local/pf/contrib/mrtg
