@@ -45,8 +45,6 @@ sub person_db_prepare {
     $person_delete_sql = $dbh->prepare(qq[ delete from person where pid=? ]);
     $person_modify_sql
         = $dbh->prepare(qq[ update person set pid=?,notes=? where pid=? ]);
-    $person_view_sql
-        = $dbh->prepare(qq[ select pid,notes from person where pid=? ]);
     $person_view_all_sql = $dbh->prepare(qq[ select pid,notes from person ]);
     $person_nodes_sql
         = $dbh->prepare(
@@ -117,6 +115,8 @@ sub person_add {
 sub person_view {
     my ($pid) = @_;
     person_db_prepare($dbh) if ( !$person_db_prepared );
+    $person_view_sql
+        = $dbh->prepare("select pid,notes from person where pid=?");
     $person_view_sql->execute($pid) || return (0);
     my $ref = $person_view_sql->fetchrow_hashref();
 
