@@ -1,11 +1,11 @@
 #rpmbuild should be done in several steps:
 #1) rpmbuild -bs SPECS/packetfence.spec
 #on each target distribution
-#2) rpmbuild --rebuild --define 'dist .el5' SRPMS/packetfence-1.8.1-20090218.src.rpm
+#2) rpmbuild --rebuild --define 'dist .el5' SRPMS/packetfence-1.8.1-20090224.src.rpm
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
 Version: 1.8.1
-Release: 20090218%{?dist}
+Release: 20090224%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.packetfence.org
@@ -16,7 +16,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Packager: Dominik Gehl <dgehl@inverse.ca>
 Vendor: PacketFence, http://www.packetfence.org
 
-Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}-20090218.tar.gz
+Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}-20090224.tar.gz
 
 BuildRequires: gettext, perl(Parse::RecDescent), httpd
 Requires: perl >= 5.8.0, perl-suidperl, httpd, mod_ssl, php, php-gd, php-pear, libpcap, libxml2, zlib, zlib-devel, coreutils, net-snmp, iproute, sed
