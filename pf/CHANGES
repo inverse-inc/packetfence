@@ -87,6 +87,8 @@
           (http://www.packetfence.org/mantis/view.php?id=598)
         make maximal column width of contents in web admin
           GUI 30 characters
+        converted some fields in web admin GUI configuration
+          from text to textarea
 
 1.8.0
         unify log management

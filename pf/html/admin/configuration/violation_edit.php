@@ -64,6 +64,8 @@
         }
       }
       print "</select>\n";
+    } elseif ($key == 'trigger') {
+      print "<tr><td></td><td>$pretty_key:</td><td><textarea name='$key'>$val</textarea>";
     } else {
       print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val'>";
     }

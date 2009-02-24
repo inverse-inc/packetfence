@@ -47,6 +47,8 @@
     if (($key == 'SNMPVersion') || ($key == 'SNMPVersionTrap')) {
       print "<tr><td></td><td>$pretty_key:</td><td>";
       printSelect( array('' => 'please choose', '1' => '1', '2c' => '2c', '3' => '3'), 'hash', $val, "name='$key'");
+    } elseif (($key == 'uplink') || ($key == 'vlans')) {
+      print "<tr><td></td><td>$pretty_key:</td><td><textarea name='$key'>$val</textarea>";
     } elseif ($key == 'mode') {
       print "<tr><td></td><td>$pretty_key:</td><td>";
       printSelect( array('' => 'please choose', 'discovery' => 'discovery', 'ignore' => 'ignore', 'production' => 'production', 'registration' => 'registration', 'testing' => 'testing'), 'hash', $val, "name='$key'");

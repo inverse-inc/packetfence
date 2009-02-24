@@ -244,8 +244,10 @@ foreach($config_tree as $section => $settings){
 
 			if (($setting =="database_pass") || ($setting == "scan_pass")) {
 				print "<input type='password' name='$setting'  value='$value'>";
+                        } elseif (($setting=='trapping_range') || ($setting=='trapping_blacklist') || ($setting=='trapping_whitelist') || ($setting == 'trapping_redirecturl')) {
+                                print "<textarea name='$setting'>$value</textarea>\n";
 			} else {
-				print "<input type='text' name='$setting'  value='$value'>";
+				print "<input type='text' name='$setting'  value='$value'>\n";
 			}
 			break;
 		}
