@@ -89,6 +89,7 @@
           GUI 30 characters
         converted some fields in web admin GUI configuration
           from text to textarea
+        removed start/stop symlinks from RPM
 
 1.8.0
         unify log management

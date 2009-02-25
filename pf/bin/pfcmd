@@ -88,12 +88,6 @@ if ( defined $ENV{GATEWAY_INTERFACE} ) {
     }
 }
 
-# legacy mode - allow ./start|./stop|./restart symlinks
-my $called_name = basename($0);
-if ( $called_name =~ /^(start|stop|restart)$/i ) {
-    @ARGV = ( 'service', 'pf', $called_name );
-}
-
 # generate pre-compiled grammar
 #Parse::RecDescent->Precompile($grammar, "pfcmd_pregrammar");
 #exit 1;

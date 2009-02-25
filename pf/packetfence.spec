@@ -127,11 +127,6 @@ cp -r COPYING $RPM_BUILD_ROOT/usr/local/pf/
 #start create symlinks
 curdir=`pwd`
 
-#start and stop symlinks
-cd $RPM_BUILD_ROOT/usr/local/pf/bin
-ln -s pfcmd ./start
-ln -s pfcmd ./stop
-
 #pfschema symlink
 cd $RPM_BUILD_ROOT/usr/local/pf/db
 ln -s pfschema.mysql.180 ./pfschema.mysql
