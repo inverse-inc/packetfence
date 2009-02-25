@@ -284,6 +284,7 @@ if ( ( scalar(@arguments) == 1 ) && ( $arguments[0] eq 'version' ) ) {
     if ( !defined($result) ) {
         require pf::pfcmd::help;
         pf::pfcmd::help::usage();
+        exit(1);
     }
     $command = $cmd{'command'}[0];
 }
