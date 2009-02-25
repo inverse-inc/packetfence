@@ -45,7 +45,6 @@ sub person_db_prepare {
     $person_delete_sql = $dbh->prepare(qq[ delete from person where pid=? ]);
     $person_modify_sql
         = $dbh->prepare(qq[ update person set pid=?,notes=? where pid=? ]);
-    $person_view_all_sql = $dbh->prepare(qq[ select pid,notes from person ]);
     $person_nodes_sql
         = $dbh->prepare(
         qq[ select mac,pid,regdate,unregdate,lastskip,status,user_agent,computername,dhcp_fingerprint from node where pid=? ]
@@ -127,6 +126,8 @@ sub person_view {
 
 sub person_view_all {
     person_db_prepare($dbh) if ( !$person_db_prepared );
+    $person_view_all_sql 
+        = $dbh->prepare("select pid,notes from person");
     return db_data($person_view_all_sql);
 }
 
