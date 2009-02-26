@@ -121,6 +121,12 @@ sub parseTrap {
         $trapHashRef->{'trapType'} = ( ( $1 == 3 ) ? "down" : "up" );
         $trapHashRef->{'trapIfIndex'} = $2;
 
+    } elsif ( $trapString
+        =~ /^BEGIN TYPE ([23]) END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = INTEGER: /
+        )
+    {
+        $trapHashRef->{'trapType'} = ( ( $1 == 2 ) ? "down" : "up" );
+        $trapHashRef->{'trapIfIndex'} = $2;
         # CISCO-MAC-NOTIFICATION-MIB cmnHistMacChangedMsg
     } elsif ( $trapString
         =~ /BEGIN VARIABLEBINDINGS [^|]+[|]\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.9\.9\.215\.2\.0\.1\|\.1\.3\.6\.1\.4\.1\.9\.9\.215\.1\.1\.8\.1\.2\.[0-9]+ = Hex-STRING: ([0-9A-Z]{2}) ([0-9A-Z]{2} [0-9A-Z]{2}) ([0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2}) ([0-9A-Z]{2} [0-9A-Z]{2})/
