@@ -19,6 +19,7 @@ $< = 0;
 
 use Data::Dumper;
 use POSIX();
+use Readonly;
 use Date::Parse;
 use Parse::RecDescent;
 use File::Basename qw(basename);
@@ -1647,6 +1648,15 @@ sub ui {
     my $interval = $cmd{command}[3];
 
     if ( $service eq "menus" ) {
+
+        Readonly my %table2key => (
+            'person'    => 'pid',
+            'node'      => 'mac',
+            'violation' => 'id',
+            'class'     => 'vid',
+            'trigger'   => 'trigger',
+            'scan'      => 'id',
+        );
 
         # check if Net::Nessus::ScanLite is installed
         my $scanLiteInstalled = 1;

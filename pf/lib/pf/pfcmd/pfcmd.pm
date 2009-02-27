@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use Log::Log4perl;
 
-use vars qw/%cmd %table2key $grammar $delimiter/;
+use vars qw/%cmd $grammar $delimiter/;
 
 $delimiter = "|";
 
@@ -25,15 +25,6 @@ $::RD_AUTOACTION = q {
    }
   }elsif ($#item==1){$item[1]}
 };
-
-%table2key = (
-    "person"    => "pid",
-    "node"      => "mac",
-    "violation" => "id",
-    "class"     => "vid",
-    "trigger"   => "trigger",
-    "scan"      => "id",
-);
 
 $grammar = q {
    start : command eofile
