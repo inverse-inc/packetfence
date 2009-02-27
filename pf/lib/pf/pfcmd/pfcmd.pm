@@ -12,9 +12,7 @@ use strict;
 use warnings;
 use Log::Log4perl;
 
-use vars qw/%cmd $grammar $delimiter/;
-
-$delimiter = "|";
+use vars qw/%cmd $grammar/;
 
 $::RD_AUTOACTION = q {
   if ($#item>1 ){
