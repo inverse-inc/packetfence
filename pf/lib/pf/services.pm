@@ -99,12 +99,23 @@ sub service_ctl {
                 {
                     my $confname = "generate_" . $daemon . "_conf";
                     $logger->info(
-                        "Generating configuration file $confname for $exe");
-                    (   $pf::services::{$confname}
-                            or sub { print "No such sub: $_\n" }
-                    )->();
+                        "Generating configuration file for $exe ($confname)");
+                    my %serviceHash = (
+                        'named' => \&generate_named_conf,
+                        'dhcpd' => \&generate_dhcpd_conf,
+                        'snort' => \&generate_snort_conf,
+                        'httpd' => \&generate_httpd_conf,
+                        'snmptrapd' => \&generate_snmptrapd_conf
+                    );
+                    if ( $serviceHash{$daemon} ) {
+                        $serviceHash{$daemon}->();
+                    } else {
+                        print "No such sub: $confname\n";
+                    }
                 }
-                if ( defined( $flags{$daemon} ) ) {
+                if (  ( $service =~ /named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan/ )
+                      && ( $daemon =~ /named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan/ )
+                      && ( defined( $flags{$daemon} ) ) ) {
                     if ( $daemon ne 'pfdhcplistener' ) {
                         if (   ( $daemon eq 'pfsetvlan' )
                             && ( !switches_conf_is_valid() ) )
@@ -116,7 +127,11 @@ sub service_ctl {
                         }
                         $logger->info(
                             "Starting $exe with '$service $flags{$daemon}'");
-                        return ( system("$service $flags{$daemon}") );
+                        my $cmd_line = "$service $flags{$daemon}";
+                        if ($cmd_line =~ /(.+)/) {
+                            $cmd_line = $1;
+                            return ( system($cmd_line) );
+                        }
                     } else {
                         if ( isenabled( $Config{'network'}{'dhcpdetector'} ) )
                         {
