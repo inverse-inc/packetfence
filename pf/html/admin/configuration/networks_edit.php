@@ -55,6 +55,13 @@
                          'registration' => 'Registration',
                     ),
                    'hash', $val, "name='$key'");
+    } elseif (($key == 'named') || ($key == 'dhcpd')) {
+      print "<tr><td></td><td>$pretty_key:</td><td>";
+      printSelect( array('' => 'please choose',
+                         'enabled' => 'enabled',
+                         'disabled' => 'disabled',
+                    ),
+                   'hash', $val, "name='$key'");
     } else {
       print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val'>";
     }

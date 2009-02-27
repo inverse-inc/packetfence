@@ -252,12 +252,42 @@ sub generate_named_conf {
     $tags{'template'}    = "$conf_dir/templates/named_vlan.conf";
     $tags{'install_dir'} = $install_dir;
 
+    my %network_conf;
+    tie %network_conf, 'Config::IniFiles',
+        ( -file => "$conf_dir/networks.conf", -allowempty => 1 );
+    my @errors = @Config::IniFiles::errors;
+    if ( scalar(@errors) ) {
+        $logger->error(
+            "Error reading networks.conf: " . join( "\n", @errors ) . "\n" );
+        return 0;
+    }
+
+    my @routed_isolation_nets_named;
+    my @routed_registration_nets_named;
+    foreach my $section ( tied(%network_conf)->Sections ) {
+        foreach my $key ( keys %{ $network_conf{$section} } ) {
+            $network_conf{$section}{$key} =~ s/\s+$//;
+        }
+        if ( ( $network_conf{$section}{'named'} eq 'enabled' ) 
+          && ( exists( $network_conf{$section}{'type'} ) ) ) {
+            if ( lc($network_conf{$section}{'type'}) eq 'isolation' ) {
+                my $isolation_obj = new Net::Netmask( $section,
+                    $network_conf{$section}{'netmask'} );
+                push @routed_isolation_nets_named, $isolation_obj;
+            } elsif ( lc($network_conf{$section}{'type'}) eq 'registration' ) {
+                my $registration_obj = new Net::Netmask( $section,
+                    $network_conf{$section}{'netmask'} );
+                push @routed_registration_nets_named, $registration_obj;
+            }
+        }
+    }
+
     $tags{'registration_clients'} = "";
-    foreach my $net ( get_routed_registration_nets() ) {
+    foreach my $net ( @routed_registration_nets_named ) {
         $tags{'registration_clients'} .= $net . "; ";
     }
     $tags{'isolation_clients'} = "";
-    foreach my $net ( get_routed_isolation_nets() ) {
+    foreach my $net ( @routed_isolation_nets_named ) {
         $tags{'isolation_clients'} .= $net . "; ";
     }
     parse_template(
@@ -310,7 +340,11 @@ sub generate_dhcpd_vlan_conf {
         return 0;
     }
     foreach my $section ( tied(%network_conf)->Sections ) {
-        $tags{'networks'} .= <<EOT;
+        foreach my $key ( keys %{ $network_conf{$section} } ) {
+            $network_conf{$section}{$key} =~ s/\s+$//;
+        }
+        if ( $network_conf{$section}{'dhcpd'} eq 'enabled' ) {
+            $tags{'networks'} .= <<EOT;
 subnet $section netmask $network_conf{$section}{'netmask'} {
   option routers $network_conf{$section}{'gateway'};
   option subnet-mask $network_conf{$section}{'netmask'};
@@ -322,8 +356,6 @@ subnet $section netmask $network_conf{$section}{'netmask'} {
 }
 
 EOT
-        foreach my $key ( keys %{ $network_conf{$section} } ) {
-            $network_conf{$section}{$key} =~ s/\s+$//;
         }
     }
 
