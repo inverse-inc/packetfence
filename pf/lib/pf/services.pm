@@ -795,14 +795,7 @@ sub switches_conf_is_valid {
                 return 0;
             }
 
-            # check IP
-            if ( $section ne $switches_conf{$section}{'ip'} ) {
-                $logger->error(
-                    "switch IP and switch section do not match for $section!"
-                );
-                return 0;
-            }
-            if ( !valid_ip( $switches_conf{$section}{'ip'} ) ) {
+            if ( !valid_ip($section) ) {
                 $logger->error("switch IP is invalid for $section");
                 return 0;
             }
