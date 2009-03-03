@@ -274,8 +274,6 @@ fi
 %config(noreplace) /usr/local/pf/bin/lookup_node.pl
 %config(noreplace) /usr/local/pf/bin/lookup_person.pl
 /usr/local/pf/sbin/pfsetvlan
-/usr/local/pf/bin/start
-/usr/local/pf/bin/stop
 %dir /usr/local/pf/cgi-bin
 #%attr(6755, root, root) /usr/local/pf/cgi-bin/redir.cgi
 #%attr(6755, root, root) /usr/local/pf/cgi-bin/register.cgi
