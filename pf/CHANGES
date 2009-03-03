@@ -97,6 +97,8 @@
           (http://www.packetfence.org/mantis/view.php?id=601)
         fixed oinkmaster.conf file
           (http://www.packetfence.org/mantis/view.php?id=603)
+        better pfcmd service pf watch output
+          (http://www.packetfence.org/mantis/view.php?id=604)
 
 1.8.0
         unify log management
