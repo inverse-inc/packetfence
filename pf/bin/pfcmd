@@ -1084,7 +1084,7 @@ sub service {
             if ( isenabled( $Config{'servicewatch'}{'restart'} ) ) {
                 $command = 'restart';
             } else {
-                return;
+                return 1;
             }
         }
     }
