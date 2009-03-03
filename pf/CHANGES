@@ -101,6 +101,8 @@
           (http://www.packetfence.org/mantis/view.php?id=604)
         fixed issues in lookup_node.pl
           (http://www.packetfence.org/mantis/view.php?id=605)
+        fixed calculations in OS reports
+          (http://www.packetfence.org/mantis/view.php?id=606)
 
 1.8.0
         unify log management

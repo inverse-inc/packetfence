@@ -100,38 +100,35 @@ sub report_os_all {
     my @data    = db_data($report_os_all_sql);
     my $statics = scalar( db_data($report_statics_all_sql) );
     my $total   = 0;
+    my @return_data;
 
-    my $ref;
     foreach my $record (@data) {
         $total += $record->{'count'};
-        $ref = $record if ( !$record->{'description'} );
+    }
+    foreach my $record (@data) {
+        if ( !$record->{'description'} ) { #this includes static and unknown prints
+            $record->{'description'} = 'Unknown DHCP Fingerprint';
+            if ( $statics > 0 ) {
+                $record->{'count'} -= $statics;
+                $record->{'percent'} = sprintf("%.1f", ( $record->{'count'} / $total ) * 100 );
+
+                my $static_percent = sprintf( "%.1f", ( $statics / $total ) * 100 );
+                push @return_data,
+                    {
+                    description => "*Probable Static IP(s)",
+                    percent     => $static_percent,
+                    count       => $statics
+                    };
+                
+            }
+        }
+        if ( $record->{'count'} > 0 ) {
+            push @return_data, $record;
+        }
     }
 
-    my $static_percent = sprintf( "%.1f", 100 );
-    if ( $total > 0 ) {
-        $static_percent = sprintf( "%.1f", ( $statics / $total ) * 100 );
-    }
-
-    if ( $statics > 0 ) {
-        push @data,
-            {
-            description => "*Probable Static IP(s)",
-            percent     => $static_percent,
-            count       => $statics
-            };
-    }
-
-    $ref->{'description'} = "Unknown DHCP Fingerprint";
-    $ref->{'percent'} = sprintf( "%.1f", 100 );
-    if ( $total > 0 ) {
-        $ref->{'percent'}
-            = sprintf( "%.1f", ( $ref->{'count'} / $total ) * 100 )
-            - $static_percent;
-    }
-    $ref->{'count'} -= $statics;
-
-    push @data, { description => "Total", percent => "100", count => $total };
-    return (@data);
+    push @return_data, { description => "Total", percent => "100", count => $total };
+    return (@return_data);
 }
 
 sub report_os_active {
@@ -139,31 +136,36 @@ sub report_os_active {
     my @data    = db_data($report_os_active_sql);
     my $statics = scalar( db_data($report_statics_active_sql) );
     my $total   = 0;
+    my @return_data;
 
-    my $ref;
     foreach my $record (@data) {
         $total += $record->{'count'};
-        $ref = $record if ( !$record->{'description'} );
     }
 
-    my $static_percent = sprintf( "%.1f", ( $statics / $total ) * 100 );
+    foreach my $record (@data) {
+        if ( !$record->{'description'} ) { #this includes static and unknown prints
+            $record->{'description'} = 'Unknown DHCP Fingerprint';
+            if ( $statics > 0 ) {
+                $record->{'count'} -= $statics;
+                $record->{'percent'} = sprintf("%.1f", ( $record->{'count'} / $total ) * 100 );
 
-    if ( $statics > 0 ) {
-        push @data,
-            {
-            description => "*Probable Static IP(s)",
-            percent     => $static_percent,
-            count       => $statics
-            };
+                my $static_percent = sprintf( "%.1f", ( $statics / $total ) * 100 );
+                push @return_data,
+                    {
+                    description => "*Probable Static IP(s)",
+                    percent     => $static_percent,
+                    count       => $statics
+                    };
+
+            }
+        }
+        if ( $record->{'count'} > 0 ) {
+            push @return_data, $record;
+        }
     }
 
-    $ref->{'description'} = "Unknown DHCP Fingerprint";
-    $ref->{'percent'} = sprintf( "%.1f", ( $ref->{'count'} / $total ) * 100 )
-        - $static_percent;
-    $ref->{'count'} -= $statics;
-
-    push @data, { description => "Total", percent => "100", count => $total };
-    return (@data);
+    push @return_data, { description => "Total", percent => "100", count => $total };
+    return (@return_data);
 }
 
 sub report_osclass_all {
@@ -171,35 +173,36 @@ sub report_osclass_all {
     my @data    = db_data($report_osclass_all_sql);
     my $statics = scalar( db_data($report_statics_all_sql) );
     my $total   = 0;
-    my $ref;
+    my @return_data;
 
     foreach my $record (@data) {
-        if ( !$record->{'description'} ) {
-            $ref = $record;
-        }
         $total += $record->{'count'};
     }
 
-    my $static_percent = sprintf( "%.1f", 100 );
-    if ( $total > 0 ) {
-        my $static_percent = sprintf( "%.1f", ( $statics / $total ) * 100 );
+    foreach my $record (@data) {
+        if ( !$record->{'description'} ) { #this includes static and unknown prints
+            $record->{'description'} = 'Unknown DHCP Fingerprint';
+            if ( $statics > 0 ) {
+                $record->{'count'} -= $statics;
+                $record->{'percent'} = sprintf("%.1f", ( $record->{'count'} / $total ) * 100 );
+
+                my $static_percent = sprintf( "%.1f", ( $statics / $total ) * 100 );
+                push @return_data,
+                    {
+                    description => "*Probable Static IP(s)",
+                    percent     => $static_percent,
+                    count       => $statics
+                    };
+
+            }
+        }
+        if ( $record->{'count'} > 0 ) {
+            push @return_data, $record;
+        }
     }
 
-    $ref->{'description'} = "Unknown";
-    $ref->{'percent'} -= $static_percent;
-    $ref->{'count'}   -= $statics;
-
-    if ( $statics > 0 ) {
-        push @data,
-            {
-            description => "*Probable Static IP(s)",
-            percent     => $static_percent,
-            count       => $statics
-            };
-    }
-
-    push @data, { description => "Total", percent => "100", count => $total };
-    return (@data);
+    push @return_data, { description => "Total", percent => "100", count => $total };
+    return (@return_data);
 }
 
 sub report_osclass_active {
@@ -207,32 +210,33 @@ sub report_osclass_active {
     my @data    = db_data($report_osclass_active_sql);
     my $statics = scalar( db_data($report_statics_active_sql) );
     my $total   = 0;
-    my $ref;
+    my @return_data;
 
     foreach my $record (@data) {
-        if ( !$record->{'description'} ) {
-            $ref = $record;
-        }
         $total += $record->{'count'};
     }
 
-    my $static_percent = sprintf( "%.1f", ( $statics / $total ) * 100 );
+    foreach my $record (@data) {
+        if ( !$record->{'description'} ) { #this includes static and unknown prints
+            $record->{'description'} = 'Unknown DHCP Fingerprint';
+            if ( $statics > 0 ) {
+                $record->{'count'} -= $statics;
+                $record->{'percent'} = sprintf("%.1f", ( $record->{'count'} / $total ) * 100 );
 
-    $ref->{'description'} = "Unknown";
-    $ref->{'percent'} -= $static_percent;
-    $ref->{'count'}   -= $statics;
+                my $static_percent = sprintf( "%.1f", ( $statics / $total ) * 100 );
+                push @return_data,
+                    {
+                    description => "*Probable Static IP(s)",
+                    percent     => $static_percent,
+                    count       => $statics
+                    };
 
-    if ( $statics > 0 ) {
-        push @data,
-            {
-            description => "*Probable Static IP(s)",
-            percent     => $static_percent,
-            count       => $statics
-            };
+            }
+        }
+        if ( $record->{'count'} > 0 ) {
+            push @return_data, $record;
+        }
     }
-
-    push @data, { description => "Total", percent => "100", count => $total };
-    return (@data);
 }
 
 sub report_active_all {
