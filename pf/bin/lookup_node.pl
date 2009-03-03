@@ -62,10 +62,13 @@ sub lookup_node {
             if ( $node_info->{'user_agent'} );
 
         if ( $node_info->{'dhcp_fingerprint'} ) {
-            my $fingerprint_info
+            my @fingerprint_info_array
                 = dhcp_fingerprint_view( $node_info->{'dhcp_fingerprint'} );
-            my $os = $fingerprint_info->{'description'};
-            $return .= "OS      : $os\n" if ( defined($os) );
+            if ( scalar(@fingerprint_info_array == 1) ) {
+                my $fingerprint_info = $fingerprint_info_array[0];
+                my $os = $fingerprint_info->{'os'};
+                $return .= "OS      : $os\n" if ( defined($os) );
+            }
         }
 
         my $port   = $node_info->{'port'};

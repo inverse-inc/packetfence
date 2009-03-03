@@ -99,6 +99,8 @@
           (http://www.packetfence.org/mantis/view.php?id=603)
         better pfcmd service pf watch output
           (http://www.packetfence.org/mantis/view.php?id=604)
+        fixed issues in lookup_node.pl
+          (http://www.packetfence.org/mantis/view.php?id=605)
 
 1.8.0
         unify log management
