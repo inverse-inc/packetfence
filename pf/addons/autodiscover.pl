@@ -91,6 +91,7 @@ my $switchFactory = new pf::SwitchFactory( -configFile => CONF_FILE );
 
 foreach my $switchDesc ( sort keys %{ $switchFactory->{'_config'} } ) {
     if (( $switchDesc ne 'default' )
+        && ( $switchDesc ne '127.0.0.1' )
         && ( $switchFactory->{'_config'}->{$switchDesc}->{'mode'}
             =~ /^discovery/ )
         )

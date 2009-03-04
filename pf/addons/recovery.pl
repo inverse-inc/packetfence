@@ -126,6 +126,7 @@ my $switchFactory = new pf::SwitchFactory( -configFile => CONF_FILE );
 my @switchDescriptions;
 foreach my $key ( sort keys %{ $switchFactory->{_config} } ) {
     if (( $key ne 'default' )
+        && ( $key ne '127.0.0.1' )
         && ( $switchFactory->{_config}->{$key}->{type} ne
             'Cisco::Aironet_1242' )
         )
@@ -154,8 +155,7 @@ if (   ( $switchDescriptionRegExp ne '' )
 my %switch_locker : shared;
 my $completeMacAddrHashRef = &share( {} );
 
-foreach my $switchDesc ( sort @switchDescriptions ) {
-    my $switch_ip = $switchFactory->{_config}{$switchDesc}{'ip'};
+foreach my $switch_ip ( sort @switchDescriptions ) {
     $switch_locker{$switch_ip} = &share( {} );
 }
 

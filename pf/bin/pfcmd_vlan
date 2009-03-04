@@ -541,6 +541,7 @@ if (   ($getUpLinks)
         $switchDescRegExp = '.';
     }
     delete $Config{'default'};
+    delete $Config{'127.0.0.1'};
 
     my @switchDescList = sort keys %Config;
     for ( my $i = 0; $i < scalar(@switchDescList); $i++ ) {
@@ -558,8 +559,8 @@ if (   ($getUpLinks)
     while ( ( $i < scalar(@switchList) ) && ( !$found ) ) {
         my $key = $switchList[$i];
         $i++;
-        if ( $key ne 'default' ) {
-            $switch_ip = $Config{$key}{'ip'};
+        if ( ( $key ne 'default' ) && ( $key ne '127.0.0.1') ) {
+            $switch_ip = $key;
             my $switch = $switchFactory->instantiate($switch_ip);
             $ifIndex = $switch->getIfIndexForThisMac($mac);
             if ( $ifIndex != -1 ) {
@@ -587,8 +588,8 @@ if (   ($getUpLinks)
     my $switch_ip   = undef;
     my $switch_port = undef;
     foreach my $key ( sort keys %Config ) {
-        if ( $key ne 'default' ) {
-            $switch_ip = $Config{$key}{'ip'};
+        if ( ( $key ne 'default' ) && ( $key ne '127.0.0.1' ) ) {
+            $switch_ip = $key;
             my $switch = $switchFactory->instantiate($switch_ip);
             if ( $switch->isProductionMode() ) {
                 my %switch_locker : shared;

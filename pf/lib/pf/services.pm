@@ -828,7 +828,8 @@ sub switches_conf_is_valid {
         }
     }
     foreach my $section ( keys %switches_conf ) {
-        if ( $section ne 'default' ) {
+        if ( ( $section ne 'default' )
+            && ( $section ne '127.0.0.1' ) ) {
 
             # check type
             my $type

@@ -173,9 +173,8 @@ my $switchFactory_locker : shared;
 my @completeThreadList;
 
 my %switch_locker : shared;
-foreach my $switch_key ( sort keys %{ $switchFactory->{_config} } ) {
-    if ( $switch_key ne 'default' ) {
-        my $switch_ip = $switchFactory->{_config}{$switch_key}{'ip'};
+foreach my $switch_ip ( sort keys %{ $switchFactory->{_config} } ) {
+    if ( $switch_ip ne 'default' ) {
         $switch_locker{$switch_ip} = &share( {} );
     }
 }

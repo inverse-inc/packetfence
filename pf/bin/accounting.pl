@@ -114,6 +114,7 @@ my $pool = Thread::Pool->new(
 
 my %Config = %{ $switchFactory->{_config} };
 delete $Config{'default'};
+delete $Config{'127.0.0.1'};
 
 my %switchJobHash;
 foreach my $switchDesc ( sort keys %Config ) {

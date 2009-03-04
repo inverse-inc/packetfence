@@ -108,10 +108,8 @@ my $switchFactory = new pf::SwitchFactory( -configFile => CONF_FILE );
 
 my %Config = %{ $switchFactory->{_config} };
 
-my $switch_ip = undef;
-foreach my $key ( sort keys %Config ) {
-    if ( ( $key ne '127.0.0.1' ) && ( $key ne 'default' ) ) {
-        $switch_ip = $Config{$key}{'ip'};
+foreach my $switch_ip ( sort keys %Config ) {
+    if ( ( $switch_ip ne '127.0.0.1' ) && ( $switch_ip ne 'default' ) ) {
         my $switch = $switchFactory->instantiate($switch_ip);
         print "$switch_ip\n";
         print " - sysUptime: " . $switch->getSysUptime() . "\n";
