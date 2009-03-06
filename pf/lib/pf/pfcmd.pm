@@ -29,6 +29,10 @@ sub parseCommandLine {
     my %regexp = (
         'class'           => qr{ ^ (view) \s+ ( all | \d+ ) $ }xms,
         'configfiles'     => qr{ ^ ( push | pull ) $ }xms,
+        'fingerprint'     => qr{ ^ (view) 
+                                   \s+ 
+                                   ( all | \d+ (?: ,\d+)* ) 
+                                 $ }xms,
         'help'            => qr{ ^ ( [a-z]* ) $ }xms,
         'interfaceconfig' => qr{ ^ ( get | delete )
                                    \s+

@@ -39,7 +39,6 @@ $grammar = q {
              | 'ui' 'menus' ui_options(?)
              | 'ui' 'dashboard' ('recent_violations_opened' | 'recent_violations_closed' | 'recent_violations' | 'recent_registrations') (/\d+/)(?)
              | 'ui' 'dashboard' ('current_grace' | 'current_activity' | 'current_node_status')
-             | 'fingerprint' 'view' ('all' | /\d+(,\d+)*/)
              | 'config' ('get' | 'set' | 'help') /.+/
              | 'manage' manage_options
              | 'graph' ('unregistered' | 'registered' | 'violations' | 'nodes') ('day'|'month'|'year')(?)

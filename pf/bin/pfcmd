@@ -106,6 +106,7 @@ if (! exists($cmd_tmp{'grammar'})) {
     my %commands = (
         'class'           => sub { class();           exit(1); },
         'configfiles'     => sub { configfiles();     exit(1); },
+        'fingerprint'     => sub { fingerprint();     exit(1); },
         'help'            => sub { help();            exit(1); },
         'interfaceconfig' => sub { interfaceconfig(); exit(1); },
         'lookup'          => sub { lookup();          exit(1); },
