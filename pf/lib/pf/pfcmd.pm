@@ -81,6 +81,14 @@ sub parseCommandLine {
                                    \s+
                                    (\d+)
                                  $  /xms,
+        'trigger'         => qr{ ^ ( view ) 
+                                   \s+
+                                   ( all | \d+ )
+                                   (?:
+                                     \s+
+                                     ( scan | detect )
+                                   )?
+                                 $ }xms,
         'update'          => qr{ ^ ( fingerprints | oui ) $  }xms,
         'version'         => qr{ ^ $ }xms,
         'violationconfig' => qr{ ^ ( get | delete )
@@ -99,7 +107,7 @@ sub parseCommandLine {
             if ($main =~ m{ ^ (?:
                             node | person | interfaceconfig | networkconfig
                             | switchconfig | violationconfig | violation
-                            | trigger | ui | fingerprint | config 
+                            | ui | config 
                             | manage | graph | schedule | traplog |
                             | locationhistoryswitch | locationhistorymac
                             | ifoctetshistoryswitch | ifoctetshistorymac

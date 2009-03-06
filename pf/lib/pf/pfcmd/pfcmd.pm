@@ -35,7 +35,6 @@ $grammar = q {
              | 'switchconfig' switchconfig_options
              | 'violationconfig' violationconfig_options
              | 'violation' violation_options
-             | 'trigger' 'view' vid ('scan' | 'detect')(?)
              | 'ui' 'menus' ui_options(?)
              | 'ui' 'dashboard' ('recent_violations_opened' | 'recent_violations_closed' | 'recent_violations' | 'recent_registrations') (/\d+/)(?)
              | 'ui' 'dashboard' ('current_grace' | 'current_activity' | 'current_node_status')
