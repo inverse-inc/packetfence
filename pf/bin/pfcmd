@@ -161,7 +161,7 @@ if ( lc($command) eq 'person' ) {
 # END MAIN
 
 sub help {
-    my $service = $cmd{command}[1];
+    my $service = ($cmd{command}[1] || '');
     require pf::pfcmd::help;
     my $functionName = "pf::pfcmd::help::help_$service";
     if ( !$service || !defined(&$functionName) ) {
