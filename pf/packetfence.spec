@@ -441,6 +441,7 @@ fi
 %attr(0755, pf, pf) /usr/local/pf/sbin/pfdhcplistener
 %config(noreplace) /usr/local/pf/bin/lookup_node.pl
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
+/usr/local/pf/lib/pf/pfcmd.pm
 %dir /usr/local/pf/lib/pf/pfcmd
 /usr/local/pf/lib/pf/pfcmd/pfcmd.pm
 /usr/local/pf/lib/pf/pfcmd/help.pm
