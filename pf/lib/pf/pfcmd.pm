@@ -89,6 +89,11 @@ sub parseCommandLine {
                                      ( scan | detect )
                                    )?
                                  $ }xms,
+        'ui'              => qr{ ^ ( dashboard )
+                                   \s+
+                                   ( current_grace | current_activity 
+                                     | current_node_status )
+                                 $  }xms,
         'update'          => qr{ ^ ( fingerprints | oui ) $  }xms,
         'version'         => qr{ ^ $ }xms,
         'violationconfig' => qr{ ^ ( get | delete )

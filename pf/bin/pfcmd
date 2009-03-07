@@ -118,6 +118,7 @@ if (! exists($cmd_tmp{'grammar'})) {
         'switchconfig'    => sub { switchconfig();    exit(1); },
         'switchlocation'  => sub { switchlocation();  exit(1); },
         'trigger'         => sub { trigger();         exit(1); },
+        'ui'              => sub { ui();              exit(1); },
         'update'          => sub { update();          exit(1); },
         'version'         => sub { version();         exit(1); },
         'violationconfig' => sub { violationconfig(); exit(1); },
