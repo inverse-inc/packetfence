@@ -35,7 +35,6 @@ $grammar = q {
              | 'switchconfig' switchconfig_options
              | 'violationconfig' violationconfig_options
              | 'violation' violation_options
-             | 'ui' 'dashboard' ('recent_violations_opened' | 'recent_violations_closed' | 'recent_violations' | 'recent_registrations') (/\d+/)(?)
              | 'manage' manage_options
              | 'graph' ('unregistered' | 'registered' | 'violations' | 'nodes') ('day'|'month'|'year')(?)
              | 'graph' 'ifoctetshistoryswitch' ipaddr /\d+/ date_range 

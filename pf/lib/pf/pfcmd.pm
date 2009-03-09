@@ -103,6 +103,18 @@ sub parseCommandLine {
                                      )
                                      |
                                      (?:
+                                       ( dashboard )
+                                       \s+
+                                       ( recent_violations_opened
+                                         | recent_violations_closed
+                                         | recent_violations
+                                         | recent_registrations )
+                                       (?:
+                                         \s+ ( \d+ )
+                                       )?
+                                     )
+                                     |
+                                     (?:
                                        ( menus )
                                        (?:
                                          \s+ file \s* [=] \s* 
@@ -126,13 +138,13 @@ sub parseCommandLine {
             push @{$cmd{'command'}}, $2 if ($2);
             push @{$cmd{'command'}}, $3 if ($3);
             push @{$cmd{'command'}}, $4 if ($4);
+            push @{$cmd{'command'}}, $5 if ($5);
             use Data::Dumper;
             print Dumper(%cmd);
         } else {
             if ($main =~ m{ ^ (?:
                             node | person | interfaceconfig | networkconfig
                             | switchconfig | violationconfig | violation
-                            | ui 
                             | manage | graph | schedule | traplog |
                             | locationhistoryswitch | locationhistorymac
                             | ifoctetshistoryswitch | ifoctetshistorymac
