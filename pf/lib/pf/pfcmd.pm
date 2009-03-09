@@ -48,6 +48,13 @@ sub parseCommandLine {
                                    )
                                  $ }xms,
         'help'            => qr{ ^ ( [a-z]* ) $ }xms,
+        'history'         => qr{ ^
+                                   ( $RE{net}{IPv4} | $RE{net}{MAC} )
+                                   (?:
+                                     \s+
+                                     ( [^,=]+ )
+                                   )?
+                                 $ }xms,
         'interfaceconfig' => qr{ ^ ( get | delete )
                                    \s+
                                    ( all | [a-z0-9\.\:]+ )
@@ -169,7 +176,6 @@ sub parseCommandLine {
                             | locationhistoryswitch | locationhistorymac
                             | ifoctetshistoryswitch | ifoctetshistorymac
                             | ifoctetshistoryuser | ipmachistory
-                            | history
                               ) $ }xms ) {
                 return parseWithGrammar($commandLine);
             }

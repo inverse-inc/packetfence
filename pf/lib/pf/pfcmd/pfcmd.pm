@@ -46,7 +46,6 @@ $grammar = q {
              | 'ifoctetshistorymac' macaddr date_range(?)
              | 'ifoctetshistoryuser' value date_range(?)
              | 'ipmachistory' (ipaddr|macaddr) date_range(?)
-             | 'history' (ipaddr|macaddr) date(?)
 
    manage_options : ('freemac' | 'deregister') macaddr | ('vclose'|'vopen') macaddr /\d+/ | 'register' macaddr value edit_options(?)
 
