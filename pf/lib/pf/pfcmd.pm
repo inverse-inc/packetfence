@@ -95,7 +95,16 @@ sub parseCommandLine {
                                    \s+
                                    (\d+)
                                  $  /xms,
-        'traplog'         => qr{ ^ ( update ) $ }xms,
+        'traplog'         => qr{ ^ (?:
+                                     ( update )
+                                     |
+                                     (?:
+                                       most \s+
+                                       ( \d+ ) \s+
+                                       ( day | week | total )
+                                     )
+                                   )
+                                 $ }xms,
         'trigger'         => qr{ ^ ( view ) 
                                    \s+
                                    ( all | \d+ )
@@ -156,7 +165,7 @@ sub parseCommandLine {
             if ($main =~ m{ ^ (?:
                             node | person | interfaceconfig | networkconfig
                             | switchconfig | violationconfig | violation
-                            | manage | graph | schedule | traplog |
+                            | manage | graph | schedule | 
                             | locationhistoryswitch | locationhistorymac
                             | ifoctetshistoryswitch | ifoctetshistorymac
                             | ifoctetshistoryuser | ipmachistory

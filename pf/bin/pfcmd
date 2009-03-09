@@ -850,9 +850,9 @@ sub traplog {
     {
         traplog_update_rrd();
     } else {
-        my $nb = $cmd{'traplog_options'}[1];
+        my $nb = $cmd{'command'}[1];
         my %params;
-        $params{'timespan'} = $cmd{'traplog_options'}[2];
+        $params{'timespan'} = $cmd{'command'}[2];
         exit(
             print_results(
                 'traplog_get_switches_with_most_traps',
