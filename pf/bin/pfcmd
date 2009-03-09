@@ -1524,8 +1524,8 @@ sub ui {
         # read in configuration file
         my %uiconfig;
         my $ui_conf_file = $conf_dir . "/ui.conf";
-        if ( defined( $cmd{'ui_options'} ) ) {
-            $ui_conf_file = $conf_dir . "/" . $cmd{'ui_options'}[2];
+        if ( defined( $option ) ) {
+            $ui_conf_file = $conf_dir . "/" . $option;
         }
         tie %uiconfig, 'Config::IniFiles', ( -file => $ui_conf_file )
             or $logger->logdie("Unable to open $ui_conf_file: $!");

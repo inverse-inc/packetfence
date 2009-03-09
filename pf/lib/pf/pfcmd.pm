@@ -93,10 +93,23 @@ sub parseCommandLine {
                                      ( scan | detect )
                                    )?
                                  $ }xms,
-        'ui'              => qr{ ^ ( dashboard )
-                                   \s+
-                                   ( current_grace | current_activity 
-                                     | current_node_status )
+        'ui'              => qr{ ^ 
+                                   (?:
+                                     (?:
+                                       ( dashboard )
+                                       \s+
+                                       ( current_grace | current_activity 
+                                         | current_node_status )
+                                     )
+                                     |
+                                     (?:
+                                       ( menus )
+                                       (?:
+                                         \s+ file \s* [=] \s* 
+                                         ( [a-zA-Z\-_.]+ )
+                                       )?
+                                     )
+                                   )
                                  $  }xms,
         'update'          => qr{ ^ ( fingerprints | oui ) $  }xms,
         'version'         => qr{ ^ $ }xms,
@@ -112,6 +125,9 @@ sub parseCommandLine {
             push @{$cmd{'command'}}, $1 if ($1);
             push @{$cmd{'command'}}, $2 if ($2);
             push @{$cmd{'command'}}, $3 if ($3);
+            push @{$cmd{'command'}}, $4 if ($4);
+            use Data::Dumper;
+            print Dumper(%cmd);
         } else {
             if ($main =~ m{ ^ (?:
                             node | person | interfaceconfig | networkconfig
@@ -127,8 +143,6 @@ sub parseCommandLine {
             }
             @{$cmd{'command'}} = ('help', $main);
         }
-        use Data::Dumper;
-        print Dumper(%cmd);
         return %cmd;
     }
     

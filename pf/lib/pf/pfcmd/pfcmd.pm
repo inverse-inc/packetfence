@@ -35,7 +35,6 @@ $grammar = q {
              | 'switchconfig' switchconfig_options
              | 'violationconfig' violationconfig_options
              | 'violation' violation_options
-             | 'ui' 'menus' ui_options(?)
              | 'ui' 'dashboard' ('recent_violations_opened' | 'recent_violations_closed' | 'recent_violations' | 'recent_registrations') (/\d+/)(?)
              | 'manage' manage_options
              | 'graph' ('unregistered' | 'registered' | 'violations' | 'nodes') ('day'|'month'|'year')(?)
@@ -71,8 +70,6 @@ $grammar = q {
    violation_options : 'add' violation_edit_options | 'view' vid | 'edit' /\d+/ violation_edit_options | 'delete' /\d+/ 
 
    schedule_options : 'view' vid | 'now' host_range edit_options(?) | 'add' host_range edit_options | 'edit' /\d+/ edit_options | 'delete' /\d+/
-
-   ui_options : 'file' '=' value
 
    mac : 'all' | macaddr
 
