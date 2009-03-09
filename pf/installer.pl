@@ -64,9 +64,12 @@ my @modules = (
     "Net::IPv4Addr",
     "IPTables::Parse",
     "IPTables::ChainMgr",
+    "List::MoreUtils",
+    "Locale::gettext"
     "Log::Log4perl",
     "LWP::UserAgent",
     "Net::Appliance::Session",
+    "Net::IPv4Addr",
     "Net::MAC",
     "Net::MAC::Vendor",
     "Net::Netmask",
