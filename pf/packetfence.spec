@@ -47,6 +47,7 @@ Requires: perl(Net::Pcap) >= 0.16
 Requires: perl(Net::SNMP)
 Requires: perl(Net::Telnet)
 Requires: perl(Parse::RecDescent)
+Requires: perl(Readonly)
 Requires: perl(RRDs)
 Requires: perl(Template)
 Requires: perl(Term::ReadKey)
