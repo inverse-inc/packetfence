@@ -53,20 +53,34 @@ my %oses = (
 );
 
 my @modules = (
-    "Apache::Htpasswd",        "CGI",
-    "CGI::Session",            "Config::IniFiles",
-    "Date::Parse",             "File::Spec",
-    "File::Tail",              "Net::IPv4Addr",
-    "IPTables::Parse",         "IPTables::ChainMgr",
-    "Log::Log4perl",           "LWP::UserAgent",
-    "Net::Appliance::Session", "Net::MAC",
-    "Net::MAC::Vendor",        "Net::Netmask",
-    "Net::Pcap",               "Net::Ping",
-    "Net::Frame",              "Net::Frame::Simple",
-    "Net::Write",              "Net::SNMP",
-    "Net::Telnet",             "Parse::RecDescent",
-    "Template",                "Term::ReadKey",
-    "Thread::Pool",            "Time::HiRes"
+    "Apache::Htpasswd",
+    "CGI",
+    "CGI::Session",
+    "Config::IniFiles",
+    "Date::Parse",
+    "File::Spec",
+    "File::Tail",
+    "Net::IPv4Addr",
+    "IPTables::Parse",
+    "IPTables::ChainMgr",
+    "Log::Log4perl",
+    "LWP::UserAgent",
+    "Net::Appliance::Session",
+    "Net::MAC",
+    "Net::MAC::Vendor",
+    "Net::Netmask",
+    "Net::Pcap",
+    "Net::Ping",
+    "Net::Frame",
+    "Net::Frame::Simple",
+    "Net::Write",
+    "Net::SNMP",
+    "Net::Telnet",
+    "Parse::RecDescent",
+    "Template",
+    "Term::ReadKey",
+    "Thread::Pool",
+    "Time::HiRes"
 );
 
 my @suids = ( "$install_dir/bin/pfcmd" );

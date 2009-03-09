@@ -19,13 +19,42 @@ Vendor: PacketFence, http://www.packetfence.org
 Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz
 
 BuildRequires: gettext, perl(Parse::RecDescent), httpd
-Requires: perl >= 5.8.0, perl-suidperl, httpd, mod_ssl, php, php-gd, php-pear, libpcap, libxml2, zlib, zlib-devel, coreutils, net-snmp, iproute, sed
+Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget
+Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
+Requires: httpd, mod_ssl, php, php-gd, php-pear
+Requires: net-tools, net-snmp
 Requires: mysql, perl-DBD-MySQL
-Requires: wget, tar, grep, glibc-common, chkconfig, openssl, net-tools
+Requires: perl >= 5.8.0, perl-suidperl
+Requires: perl(Apache::Htpasswd)
+Requires: perl(Bit::Vector)
+Requires: perl(CGI), perl(CGI::Session)
+Requires: perl(Config::IniFiles)
+Requires: perl(Class::Data::Inheritable)
+Requires: perl(Class::Gomor)
 Requires: perl(CPAN)
-Requires: perl(Time::HiRes), perl(Net::IPv4Addr), perl(Config::IniFiles), perl(Net::Netmask), perl(Date::Parse), perl(Parse::RecDescent), perl(Net::Pcap) >= 0.16, perl(CGI), perl(CGI::Session), perl(Term::ReadKey), perl(File::Tail), perl(Net::MAC::Vendor), perl(Net::SNMP), perl(LWP::UserAgent), perl(Net::Telnet), perl(Log::Log4perl) >= 1.11, perl(Thread::Pool), perl(Locale::gettext), perl(Template), perl(Apache::Htpasswd), perl(Net::MAC), perl(RRDs), perl(File::Spec), perl(Test::Pod::Coverage), perl(Test::Pod), perl(UNIVERSAL::require), perl(Class::Data::Inheritable)
-Requires: perl(Bit::Vector), perl(Class::Gomor), perl(Net::IPv6Addr)
-Requires: perl(YAML), perl(List::MoreUtils), perl(Data::Phrasebook), perl(Data::Phrasebook::Loader::YAML)
+Requires: perl(Data::Phrasebook), perl(Data::Phrasebook::Loader::YAML)
+Requires: perl(Date::Parse)
+Requires: perl(File::Spec)
+Requires: perl(File::Tail)
+Requires: perl(List::MoreUtils)
+Requires: perl(Locale::gettext)
+Requires: perl(Log::Log4perl) >= 1.11
+Requires: perl(LWP::UserAgent)
+Requires: perl(Net::IPv4Addr), perl(Net::IPv6Addr)
+Requires: perl(Net::MAC), perl(Net::MAC::Vendor)
+Requires: perl(Net::Netmask)
+Requires: perl(Net::Pcap) >= 0.16
+Requires: perl(Net::SNMP)
+Requires: perl(Net::Telnet)
+Requires: perl(Parse::RecDescent)
+Requires: perl(RRDs)
+Requires: perl(Template)
+Requires: perl(Term::ReadKey)
+Requires: perl(Test::Pod), perl(Test::Pod::Coverage)
+Requires: perl(Thread::Pool)
+Requires: perl(Time::HiRes)
+Requires: perl(UNIVERSAL::require)
+Requires: perl(YAML)
 
 %description
 
