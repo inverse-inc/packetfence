@@ -59,6 +59,13 @@ sub parseCommandLine {
                                    \s+
                                    ( all | [a-z0-9\.\:]+ )
                                  $  }xms,
+        'locationhistorymac' => qr{ ^
+                                   ( $RE{net}{MAC} )
+                                   (?:
+                                     \s+
+                                     ( [^,=]+ )
+                                   )?
+                                 $ }xms,
         'lookup'          => qr{ ^ ( person | node ) 
                                    \s+
                                    ( [0-9a-zA-Z_\-\.\:]+ )
@@ -173,7 +180,7 @@ sub parseCommandLine {
                             node | person | interfaceconfig | networkconfig
                             | switchconfig | violationconfig | violation
                             | manage | graph | schedule | 
-                            | locationhistoryswitch | locationhistorymac
+                            | locationhistoryswitch
                             | ifoctetshistoryswitch | ifoctetshistorymac
                             | ifoctetshistoryuser | ipmachistory
                               ) $ }xms ) {

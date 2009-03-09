@@ -112,6 +112,7 @@ if (! exists($cmd_tmp{'grammar'})) {
         'help'            => sub { help();            exit(1); },
         'history'         => sub { history();         exit(1); },
         'interfaceconfig' => sub { interfaceconfig(); exit(1); },
+        'locationhistorymac' => sub { locationhistorymac();  exit(1); },
         'lookup'          => sub { lookup();          exit(1); },
         'networkconfig'   => sub { networkconfig();   exit(1); },
         'nodecategory'    => sub { nodecategory();    exit(1); },
