@@ -28,6 +28,10 @@ sub parseCommandLine {
 
     my %regexp = (
         'class'           => qr{ ^ (view) \s+ ( all | \d+ ) $ }xms,
+        'config'          => qr{ ^ ( get | set | help )
+                                   \s+
+                                   ( [a-zA-Z0-9_\.\:=]+)
+                                 $ }xms,
         'configfiles'     => qr{ ^ ( push | pull ) $ }xms,
         'fingerprint'     => qr{ ^ (view) 
                                    \s+ 
@@ -112,7 +116,7 @@ sub parseCommandLine {
             if ($main =~ m{ ^ (?:
                             node | person | interfaceconfig | networkconfig
                             | switchconfig | violationconfig | violation
-                            | ui | config 
+                            | ui 
                             | manage | graph | schedule | traplog |
                             | locationhistoryswitch | locationhistorymac
                             | ifoctetshistoryswitch | ifoctetshistorymac

@@ -37,7 +37,6 @@ $grammar = q {
              | 'violation' violation_options
              | 'ui' 'menus' ui_options(?)
              | 'ui' 'dashboard' ('recent_violations_opened' | 'recent_violations_closed' | 'recent_violations' | 'recent_registrations') (/\d+/)(?)
-             | 'config' ('get' | 'set' | 'help') /.+/
              | 'manage' manage_options
              | 'graph' ('unregistered' | 'registered' | 'violations' | 'nodes') ('day'|'month'|'year')(?)
              | 'graph' 'ifoctetshistoryswitch' ipaddr /\d+/ date_range 
