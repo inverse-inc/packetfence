@@ -54,6 +54,7 @@ my %oses = (
 
 my @modules = (
     "Apache::Htpasswd",
+    "Bit::Vector",
     "CGI",
     "CGI::Session",
     "Config::IniFiles",
