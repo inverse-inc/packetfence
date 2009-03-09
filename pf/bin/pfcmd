@@ -1454,7 +1454,7 @@ sub graph {
         } else {
             $interval = "day";
         }
-        exit( print_graph_results( "graph_" . $graph, $interval ) );
+        exit( print_graph_results( \&{"main::graph_$graph"}, $interval ) );
     } else {
         require pf::ifoctetslog;
         import pf::ifoctetslog;
@@ -1805,10 +1805,13 @@ sub print_graph_results {
         "12" => "31"
     );
 
-    my @results = (
-        $main::{$function}
-            or sub { print "No such sub $function: $_\n"; }
-    )->($interval);
+    my @results;
+    if ($function) {
+        @results = $function->($interval);
+    } else {
+        print "No such sub $function\n";
+        exit;
+    }
     my %series;
     foreach my $result (@results) {
         next if ( $result->{'mydate'} =~ /0000/ );
