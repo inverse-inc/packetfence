@@ -19,7 +19,7 @@ use Regexp::Common qw(net);
 sub parseCommandLine {
     my ($commandLine) = @_;
     my $logger = Log::Log4perl::get_logger("pf::pfcmd");
-    $logger->debug("starting to parse '$commandLine'");
+    $logger->info("starting to parse '$commandLine'");
 
     $commandLine =~ s/\s+$//;
     my ($main, $params) = split( / +/, $commandLine, 2 );
@@ -173,6 +173,7 @@ sub parseCommandLine {
                                    ( all | defaults | \d+ )
                                  $  }xms,
     );
+    $logger->info("main is $main");
     if ( exists($regexp{$main}) ) {
         my %cmd;
         if ($params =~ $regexp{$main}) {
@@ -182,8 +183,11 @@ sub parseCommandLine {
             push @{$cmd{'command'}}, $3 if ($3);
             push @{$cmd{'command'}}, $4 if ($4);
             push @{$cmd{'command'}}, $5 if ($5);
+            push @{$cmd{'command'}}, $6 if ($6);
+            push @{$cmd{'command'}}, $7 if ($7);
+            push @{$cmd{'command'}}, $8 if ($8);
             use Data::Dumper;
-            print Dumper(%cmd);
+            $logger->info("returning " . Dumper(%cmd));
         } else {
             if ($main =~ m{ ^ (?:
                             node | person | interfaceconfig | networkconfig

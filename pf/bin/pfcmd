@@ -1503,11 +1503,9 @@ sub lookup {
 # parse ui.conf config file
 #
 sub ui {
-    my ($type)   = @_;
     my $service  = $cmd{command}[1];
     my $option   = $cmd{command}[2];
     my $interval = $cmd{command}[3];
-
     if ( $service eq "menus" ) {
 
         Readonly my %table2key => (
@@ -1607,7 +1605,8 @@ sub ui {
         $interval = 3 unless ($interval);
         exit( print_results( "nugget_" . $option, $interval ) );
     } else {
-        usage("help");
+        require pf::pfcmd::help;
+        pf::pfcmd::help::usage("help");
     }
 }
 
