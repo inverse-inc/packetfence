@@ -36,7 +36,6 @@ $grammar = q {
              | 'violationconfig' violationconfig_options
              | 'violation' violation_options
              | 'manage' manage_options
-             | 'graph' ('unregistered' | 'registered' | 'violations' | 'nodes') ('day'|'month'|'year')(?)
              | 'graph' 'ifoctetshistoryswitch' ipaddr /\d+/ date_range 
              | 'graph' 'ifoctetshistorymac' macaddr date_range 
              | 'graph' 'ifoctetshistoryuser' value date_range 

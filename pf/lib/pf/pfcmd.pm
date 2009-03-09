@@ -37,6 +37,16 @@ sub parseCommandLine {
                                    \s+ 
                                    ( all | \d+ (?: ,\d+)* ) 
                                  $ }xms,
+        'graph'           => qr{ ^ (?:
+                                     ( nodes | registered
+                                       | unregistered
+                                       | violations ) 
+                                     (?:
+                                       \s+
+                                       ( day | month | year )
+                                     )?
+                                   )
+                                 $ }xms,
         'help'            => qr{ ^ ( [a-z]* ) $ }xms,
         'interfaceconfig' => qr{ ^ ( get | delete )
                                    \s+

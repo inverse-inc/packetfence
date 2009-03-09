@@ -108,6 +108,7 @@ if (! exists($cmd_tmp{'grammar'})) {
         'config'          => sub { config();          exit(1); },
         'configfiles'     => sub { configfiles();     exit(1); },
         'fingerprint'     => sub { fingerprint();     exit(1); },
+        'graph'           => sub { graph();           exit(1); },
         'help'            => sub { help();            exit(1); },
         'interfaceconfig' => sub { interfaceconfig(); exit(1); },
         'lookup'          => sub { lookup();          exit(1); },
