@@ -40,7 +40,7 @@ $grammar = q {
              | 'graph' 'ifoctetshistorymac' macaddr date_range 
              | 'graph' 'ifoctetshistoryuser' value date_range 
              | 'schedule' schedule_options
-             | 'traplog' ('update' | traplog_options)
+             | 'traplog' traplog_options
              | 'locationhistoryswitch' ipaddr /\d+/ date(?)
              | 'locationhistorymac' macaddr date(?)
              | 'ifoctetshistoryswitch' ipaddr /\d+/ date_range(?)

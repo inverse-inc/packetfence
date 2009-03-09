@@ -95,6 +95,7 @@ sub parseCommandLine {
                                    \s+
                                    (\d+)
                                  $  /xms,
+        'traplog'         => qr{ ^ ( update ) $ }xms,
         'trigger'         => qr{ ^ ( view ) 
                                    \s+
                                    ( all | \d+ )
