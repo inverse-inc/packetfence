@@ -84,6 +84,12 @@ sub parseCommandLine {
                                      ( freemac | deregister )
                                      \s+
                                      ( $RE{net}{MAC} )
+                                     |
+                                     ( vclose | vopen )
+                                     \s+
+                                     ( $RE{net}{MAC} )
+                                     \s+
+                                     ( \d+ )
                                    )
                                  $ }xms,
         'networkconfig'   => qr/ ^ ( get | delete )
@@ -196,6 +202,7 @@ sub parseCommandLine {
             if ($main eq 'manage') {
                 push @{$cmd{'manage_options'}}, $cmd{'command'}[1];
                 push @{$cmd{'manage_options'}}, $cmd{'command'}[2];
+                push @{$cmd{'manage_options'}}, $cmd{'command'}[3] if ($cmd{'command'}[3]);
             }
             use Data::Dumper;
             $logger->info("returning " . Dumper(%cmd));

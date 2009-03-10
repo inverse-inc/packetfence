@@ -188,8 +188,6 @@ sub manage {
     my $mac    = lc( $cmd{manage_options}[1] );
     my $id;
     $id = $cmd{manage_options}[2] if ( defined $cmd{manage_options}[2] );
-print "options is $option, mac is $mac, id is $id\n";
-exit;
     my $function = "manage_" . $option;
     if ( $option eq "freemac" ) {
         require pf::rawip;
