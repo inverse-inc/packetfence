@@ -115,6 +115,7 @@ if (! exists($cmd_tmp{'grammar'})) {
         'locationhistorymac' => sub { locationhistorymac();  exit(1); },
         'locationhistoryswitch' => sub { locationhistoryswitch();  exit(1); },
         'lookup'          => sub { lookup();          exit(1); },
+        'manage'          => sub { manage();          exit(1); },
         'networkconfig'   => sub { networkconfig();   exit(1); },
         'nodecategory'    => sub { nodecategory();    exit(1); },
         'reload'          => sub { reload();          exit(1); },
@@ -187,6 +188,8 @@ sub manage {
     my $mac    = lc( $cmd{manage_options}[1] );
     my $id;
     $id = $cmd{manage_options}[2] if ( defined $cmd{manage_options}[2] );
+print "options is $option, mac is $mac, id is $id\n";
+exit;
     my $function = "manage_" . $option;
     if ( $option eq "freemac" ) {
         require pf::rawip;
