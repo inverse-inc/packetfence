@@ -100,6 +100,19 @@ sub parseCommandLine {
                                    \s+
                                    ( all | [a-z0-9\.\:]+ )
                                  $  }xms,
+        'ipmachistory'    => qr{ ^
+                                   ( $RE{net}{IPv4} | $RE{net}{MAC} )
+                                   (?:
+                                     \s+
+                                     start_time \s* [=] \s*
+                                     ( [^,=]+ )
+
+                                     \s* [,] \s*
+
+                                     end_time \s* [=] \s*
+                                     ( [^,=]+ )
+                                   )?
+                                 $ }xms,
         'locationhistorymac' => qr{ ^
                                    ( $RE{net}{MAC} )
                                    (?:
@@ -266,7 +279,6 @@ sub parseCommandLine {
                             node | person | interfaceconfig | networkconfig
                             | switchconfig | violationconfig | violation
                             | manage | graph | schedule | 
-                            | ipmachistory
                               ) $ }xms ) {
                 return parseWithGrammar($commandLine);
             }

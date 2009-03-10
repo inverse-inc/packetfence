@@ -115,6 +115,7 @@ if (! exists($cmd_tmp{'grammar'})) {
         'ifoctetshistoryswitch' => sub { ifoctetshistoryswitch(); exit(1); },
         'ifoctetshistoryuser' => sub { ifoctetshistoryuser(); exit(1); },
         'interfaceconfig' => sub { interfaceconfig(); exit(1); },
+        'ipmachistory'    => sub { ipmachistory();    exit(1); },
         'locationhistorymac' => sub { locationhistorymac();  exit(1); },
         'locationhistoryswitch' => sub { locationhistoryswitch();  exit(1); },
         'lookup'          => sub { lookup();          exit(1); },
@@ -831,12 +832,9 @@ sub ipmachistory {
     } else {
         $function = "iplog_history_mac";
     }
-    if ( exists( $cmd{'date_range'} )
-        && ( scalar( @{ $cmd{'date_range'} } ) > 0 ) )
-    {
-        my %date_params = format_assignment( @{ $cmd{'date_range'} } );
-        $params{'start_time'} = str2time( $date_params{'start_time'} );
-        $params{'end_time'}   = str2time( $date_params{'end_time'} );
+    if (scalar(@{$cmd{command}}) == 4) {
+        $params{'start_time'} = str2time( $cmd{command}[2] );
+        $params{'end_time'}   = str2time( $cmd{command}[3] );
     }
     exit( print_results( $function, $addr, %params ) );
 }
