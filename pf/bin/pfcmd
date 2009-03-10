@@ -122,6 +122,10 @@ if (! exists($cmd_tmp{'grammar'})) {
         'manage'          => sub { manage();          exit(1); },
         'networkconfig'   => sub { networkconfig();   exit(1); },
         'nodecategory'    => sub { nodecategory();    exit(1); },
+        'person'          => sub { require pf::person; 
+                                   import pf::person;
+                                   command_param('person');
+                                                      exit(1); },
         'reload'          => sub { reload();          exit(1); },
         'report'          => sub { report();          exit(1); },
         'schedule'        => sub { schedule();        exit(1); },

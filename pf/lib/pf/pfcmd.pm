@@ -183,6 +183,10 @@ sub parseCommandLine {
                                    ( all | $RE{net}{IPv4} )
                                  $  /xms,
         'nodecategory'    => qr{ ^ (view) \s+ (\w+) $  }xms,
+        'person'          => qr{ ^ (view)
+                                   \s+
+                                   ( [a-zA-Z0-9\-\_\.\@]+ )
+                                 $ }xms,
         'reload'          => qr{ ^ ( fingerprints | violations ) $  }xms,
         'report'          => qr{ ^ (?: #for grouping only
                                      ( active | inactive | openviolations 
@@ -306,6 +310,10 @@ sub parseCommandLine {
                 push @{$cmd{'manage_options'}}, $cmd{'command'}[1];
                 push @{$cmd{'manage_options'}}, $cmd{'command'}[2];
                 push @{$cmd{'manage_options'}}, $cmd{'command'}[3] if ($cmd{'command'}[3]);
+            }
+            if ($main eq 'person') {
+                push @{$cmd{'person_options'}}, $cmd{'command'}[1];
+                push @{$cmd{'person_options'}}, $cmd{'command'}[2];
             }
             if ($main eq 'schedule') {
                 push @{$cmd{'schedule_options'}}, $cmd{'command'}[1];

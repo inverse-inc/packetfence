@@ -40,7 +40,7 @@ $grammar = q {
 
    manage_options : 'register' macaddr value edit_options(?)
 
-   person_options : 'add' value person_edit_options(?)  | 'view' value | 'edit' value person_edit_options | 'delete' value
+   person_options : 'add' value person_edit_options(?)  | 'edit' value person_edit_options | 'delete' value
 
    node_options : 'add' macaddr node_edit_options | 'count' (mac|node_filter) | 'view' (mac|node_filter) orderby_options(?) limit_options(?) | 'edit' macaddr node_edit_options | 'delete' macaddr
 
