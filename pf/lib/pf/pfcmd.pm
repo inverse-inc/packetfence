@@ -83,6 +83,19 @@ sub parseCommandLine {
                                      ( [^,=]+ )
                                    )?
                                  $ }xms,
+        'ifoctetshistoryuser' => qr{ ^
+                                   ( [a-zA-Z0-9\-\_\.\@]+ )
+                                   (?:
+                                     \s+
+                                     start_time \s* [=] \s*
+                                     ( [^,=]+ )
+
+                                     \s* [,] \s*
+
+                                     end_time \s* [=] \s*
+                                     ( [^,=]+ )
+                                   )?
+                                 $ }xms,
         'interfaceconfig' => qr{ ^ ( get | delete )
                                    \s+
                                    ( all | [a-z0-9\.\:]+ )
@@ -253,7 +266,7 @@ sub parseCommandLine {
                             node | person | interfaceconfig | networkconfig
                             | switchconfig | violationconfig | violation
                             | manage | graph | schedule | 
-                            | ifoctetshistoryuser | ipmachistory
+                            | ipmachistory
                               ) $ }xms ) {
                 return parseWithGrammar($commandLine);
             }
