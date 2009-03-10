@@ -113,9 +113,15 @@ sub parseCommandLine {
                                      )
                                    )
                                  $  }xms,
-        'schedule'        => qr{ ^ ( view )
-                                   \s+
-                                   ( all | \d+ )
+        'schedule'        => qr{ ^ (?:
+                                     ( view )
+                                     \s+
+                                     ( all | \d+ )
+                                     |
+                                     ( delete )
+                                     \s+
+                                     ( \d+ )
+                                   )
                                  $ }xms,
         'service'         => qr{ ^ ( dhcpd | httpd | named | pfdetect 
                                      | pf | pfdhcplistener | pfmon 
