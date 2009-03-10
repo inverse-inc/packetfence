@@ -282,8 +282,8 @@ sub parseCommandLine {
                                    ( all | defaults | \d+ )
                                  $  }xms,
     );
-    $logger->info("main is $main");
-    if ( exists($regexp{$main}) ) {
+    $logger->info("main is " . ($main || 'undefined'));
+    if ( defined($main) && exists($regexp{$main}) ) {
         my %cmd;
         if ($params =~ $regexp{$main}) {
             $cmd{'command'}[0] = $main;
