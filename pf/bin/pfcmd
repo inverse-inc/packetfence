@@ -1449,9 +1449,8 @@ sub graph {
         require pf::ifoctetslog;
         import pf::ifoctetslog;
         my %params;
-        my %date_params = format_assignment( @{ $cmd{'date_range'} } );
-        $params{'start_time'} = str2time( $date_params{'start_time'} );
-        $params{'end_time'}   = str2time( $date_params{'end_time'} );
+        $params{'start_time'} = str2time( $cmd{command}[-2] );
+        $params{'end_time'}   = str2time( $cmd{command}[-1] );
         my @results;
         if ( $graph eq 'ifoctetshistoryuser' ) {
             @results = ifoctetslog_graph_user( $cmd{command}[2], %params );

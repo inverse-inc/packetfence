@@ -45,6 +45,38 @@ sub parseCommandLine {
                                        \s+
                                        ( day | month | year )
                                      )?
+                                     |
+                                     ( ifoctetshistorymac )
+                                     \s+
+                                     ( $RE{net}{MAC} )
+                                     \s+
+                                     start_time \s* [=] \s*
+                                     ( [^,=]+ )
+                                     \s* [,] \s*
+                                     end_time \s* [=] \s*
+                                     ( [^,=]+ )
+                                     |
+                                     ( ifoctetshistoryswitch )
+                                     \s+
+                                     ( $RE{net}{IPv4} )
+                                     \s+
+                                     ( \d+)
+                                     \s+
+                                     start_time \s* [=] \s*
+                                     ( [^,=]+ )
+                                     \s* [,] \s*
+                                     end_time \s* [=] \s*
+                                     ( [^,=]+ )
+                                     |
+                                     ( ifoctetshistoryuser )
+                                     \s+
+                                     ( [a-zA-Z0-9\-\_\.\@]+ )
+                                     \s+
+                                     start_time \s* [=] \s*
+                                     ( [^,=]+ )
+                                     \s* [,] \s*
+                                     end_time \s* [=] \s*
+                                     ( [^,=]+ )
                                    )
                                  $ }xms,
         'help'            => qr{ ^ ( [a-z]* ) $ }xms,
@@ -263,6 +295,13 @@ sub parseCommandLine {
             push @{$cmd{'command'}}, $6 if ($6);
             push @{$cmd{'command'}}, $7 if ($7);
             push @{$cmd{'command'}}, $8 if ($8);
+            push @{$cmd{'command'}}, $9 if ($9);
+            push @{$cmd{'command'}}, $10 if ($10);
+            push @{$cmd{'command'}}, $11 if ($11);
+            push @{$cmd{'command'}}, $12 if ($12);
+            push @{$cmd{'command'}}, $13 if ($13);
+            push @{$cmd{'command'}}, $14 if ($14);
+            push @{$cmd{'command'}}, $15 if ($15);
             if ($main eq 'manage') {
                 push @{$cmd{'manage_options'}}, $cmd{'command'}[1];
                 push @{$cmd{'manage_options'}}, $cmd{'command'}[2];
@@ -278,7 +317,7 @@ sub parseCommandLine {
             if ($main =~ m{ ^ (?:
                             node | person | interfaceconfig | networkconfig
                             | switchconfig | violationconfig | violation
-                            | manage | graph | schedule | 
+                            | manage | schedule | 
                               ) $ }xms ) {
                 return parseWithGrammar($commandLine);
             }

@@ -36,9 +36,6 @@ $grammar = q {
              | 'violationconfig' violationconfig_options
              | 'violation' violation_options
              | 'manage' manage_options
-             | 'graph' 'ifoctetshistoryswitch' ipaddr /\d+/ date_range 
-             | 'graph' 'ifoctetshistorymac' macaddr date_range 
-             | 'graph' 'ifoctetshistoryuser' value date_range 
              | 'schedule' schedule_options
 
    manage_options : 'register' macaddr value edit_options(?)
@@ -75,9 +72,6 @@ $grammar = q {
    host_range : /(\d{1,3}\.){3}\d{1,3}[\/\-0-9]*/
 
    macaddr : /(([0-9a-f]{2}[-:]){5}[0-9a-f]{2})|(([0-9a-f]{4}\.){2}[0-9a-f]{4})/i
-
-   date_range : 'start_time' '=' date ',' 'end_time' '=' date
-                {push @{$main::cmd{$item[0]}}, [$item[1],$item[3],$item[2]], [$item[5],$item[7],$item[6]] }
 
    date : /[^,=]+/
 
