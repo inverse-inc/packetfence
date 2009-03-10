@@ -42,7 +42,7 @@ $grammar = q {
 
    person_options : 'add' value person_edit_options(?)  | 'edit' value person_edit_options | 'delete' value
 
-   node_options : 'add' macaddr node_edit_options | 'count' (mac|node_filter) | 'edit' macaddr node_edit_options 
+   node_options : 'add' macaddr node_edit_options | 'edit' macaddr node_edit_options 
 
    interfaceconfig_options: ('add' | 'edit') (/[^ ]+/) interfaceconfig_edit_options
 
@@ -57,9 +57,6 @@ $grammar = q {
    schedule_options : 'now' host_range edit_options(?) | 'add' host_range edit_options | 'edit' /\d+/ edit_options |
 
    mac : 'all' | macaddr
-
-   node_filter : ('category'|'pid') '=' value
-                {push @{$main::cmd{'node_filter'}}, [$item[1],$item{value}] }
 
    ipaddr : /(\d{1,3}\.){3}\d{1,3}/
 

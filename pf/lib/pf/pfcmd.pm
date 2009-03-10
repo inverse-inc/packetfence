@@ -206,7 +206,12 @@ sub parseCommandLine {
                                      |
                                      ( count )
                                      \s+
-                                     ( all | $RE{net}{MAC} )
+                                     (?:   ( all )
+                                         | ( $RE{net}{MAC} )
+                                         | ( category | pid )
+                                           \s* [=] \s*
+                                           ( [0-9a-zA-Z_\-\.\:]+ )
+                                     )
                                      |
                                      ( delete )
                                      \s+ ( $RE{net}{MAC} )
@@ -341,6 +346,10 @@ sub parseCommandLine {
             push @{$cmd{'command'}}, $14 if (defined($14));
             push @{$cmd{'command'}}, $15 if (defined($15));
             push @{$cmd{'command'}}, $16 if (defined($16));
+            push @{$cmd{'command'}}, $17 if (defined($17));
+            push @{$cmd{'command'}}, $18 if (defined($18));
+            push @{$cmd{'command'}}, $19 if (defined($19));
+            push @{$cmd{'command'}}, $20 if (defined($20));
             if ($main eq 'manage') {
                 push @{$cmd{'manage_options'}}, $cmd{'command'}[1];
                 push @{$cmd{'manage_options'}}, $cmd{'command'}[2];
@@ -349,14 +358,21 @@ sub parseCommandLine {
             if ($main eq 'node') {
                 push @{$cmd{'node_options'}}, $cmd{'command'}[1];
                 push @{$cmd{'node_options'}}, $cmd{'command'}[2];
-                if (defined($4)) {
-                    push @{$cmd{'node_filter'}}, [$4, $5];
+                if ($cmd{'command'}[1] eq 'view') {
+                    if (defined($4)) {
+                        push @{$cmd{'node_filter'}}, [$4, $5];
+                    }
+                    if (defined($6)) {
+                        push @{$cmd{'orderby_options'}}, ($6, $7, $8, $9);
+                    }
+                    if (defined($10)) {
+                        push @{$cmd{'limit_options'}}, ($10, $11, ',', $12);
+                    }
                 }
-                if (defined($6)) {
-                    push @{$cmd{'orderby_options'}}, ($6, $7, $8, $9);
-                }
-                if (defined($10)) {
-                    push @{$cmd{'limit_options'}}, ($10, $11, ',', $12);
+                if ($cmd{'command'}[1] eq 'count') {
+                    if (defined($16)) {
+                        push @{$cmd{'node_filter'}}, [$16, $17];
+                    }
                 }
             }
             if ($main eq 'person') {
