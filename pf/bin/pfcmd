@@ -137,6 +137,10 @@ if (! exists($cmd_tmp{'grammar'})) {
         'ui'              => sub { ui();              exit(1); },
         'update'          => sub { update();          exit(1); },
         'version'         => sub { version();         exit(1); },
+        'violation'       => sub { require pf::violation; 
+                                   import pf::violation;
+                                   command_param('violation');
+                                                      exit(1); },
         'violationconfig' => sub { violationconfig(); exit(1); },
     );
     if ( $commands{ $cmd{'command'}[0] } ) {

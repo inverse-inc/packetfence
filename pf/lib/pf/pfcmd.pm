@@ -281,6 +281,10 @@ sub parseCommandLine {
                                  $  }xms,
         'update'          => qr{ ^ ( fingerprints | oui ) $  }xms,
         'version'         => qr{ ^ $ }xms,
+        'violation'       => qr{ ^ ( view )
+                                   \s+
+                                   ( all | \d+ )
+                                 $ }xms,
         'violationconfig' => qr{ ^ ( get | delete )
                                    \s+
                                    ( all | defaults | \d+ )
@@ -318,6 +322,10 @@ sub parseCommandLine {
             if ($main eq 'schedule') {
                 push @{$cmd{'schedule_options'}}, $cmd{'command'}[1];
                 push @{$cmd{'schedule_options'}}, $cmd{'command'}[2];
+            }
+            if ($main eq 'violation') {
+                push @{$cmd{'violation_options'}}, $cmd{'command'}[1];
+                push @{$cmd{'violation_options'}}, $cmd{'command'}[2];
             }
             use Data::Dumper;
             $logger->info("returning " . Dumper(%cmd));

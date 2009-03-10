@@ -52,7 +52,7 @@ $grammar = q {
 
    violationconfig_options: ('add' | 'edit') ('defaults'|/\d+/) violationconfig_edit_options
 
-   violation_options : 'add' violation_edit_options | 'view' vid | 'edit' /\d+/ violation_edit_options | 'delete' /\d+/ 
+   violation_options : 'add' violation_edit_options | 'edit' /\d+/ violation_edit_options | 'delete' /\d+/ 
 
    schedule_options : 'now' host_range edit_options(?) | 'add' host_range edit_options | 'edit' /\d+/ edit_options |
 
@@ -65,8 +65,6 @@ $grammar = q {
 
    orderby_options : 'order' 'by' node_view_field ('asc' | 'desc')(?)
    
-   vid : 'all' | /\d+/
-
    ipaddr : /(\d{1,3}\.){3}\d{1,3}/
 
    host_range : /(\d{1,3}\.){3}\d{1,3}[\/\-0-9]*/
