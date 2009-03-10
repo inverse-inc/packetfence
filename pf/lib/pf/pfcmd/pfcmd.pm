@@ -42,7 +42,7 @@ $grammar = q {
 
    person_options : 'add' value person_edit_options(?)  | 'edit' value person_edit_options | 'delete' value
 
-   node_options : 'add' macaddr node_edit_options | 'count' (mac|node_filter) | 'edit' macaddr node_edit_options | 'delete' macaddr
+   node_options : 'add' macaddr node_edit_options | 'count' (mac|node_filter) | 'edit' macaddr node_edit_options 
 
    interfaceconfig_options: ('add' | 'edit') (/[^ ]+/) interfaceconfig_edit_options
 

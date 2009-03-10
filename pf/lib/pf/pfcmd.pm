@@ -204,9 +204,12 @@ sub parseCommandLine {
                                        ( \d+ )
                                      )?
                                      |
-                                     ( count)
+                                     ( count )
                                      \s+
                                      ( all | $RE{net}{MAC} )
+                                     |
+                                     ( delete )
+                                     \s+ ( $RE{net}{MAC} )
                                    )
                                  $ /xms,
         'nodecategory'    => qr{ ^ (view) \s+ (\w+) $  }xms,
@@ -337,6 +340,7 @@ sub parseCommandLine {
             push @{$cmd{'command'}}, $13 if (defined($13));
             push @{$cmd{'command'}}, $14 if (defined($14));
             push @{$cmd{'command'}}, $15 if (defined($15));
+            push @{$cmd{'command'}}, $16 if (defined($16));
             if ($main eq 'manage') {
                 push @{$cmd{'manage_options'}}, $cmd{'command'}[1];
                 push @{$cmd{'manage_options'}}, $cmd{'command'}[2];
