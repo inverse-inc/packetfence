@@ -120,6 +120,7 @@ if (! exists($cmd_tmp{'grammar'})) {
         'nodecategory'    => sub { nodecategory();    exit(1); },
         'reload'          => sub { reload();          exit(1); },
         'report'          => sub { report();          exit(1); },
+        'schedule'        => sub { schedule();        exit(1); },
         'service'         => sub { exit service();             },
         'switchconfig'    => sub { switchconfig();    exit(1); },
         'switchlocation'  => sub { switchlocation();  exit(1); },

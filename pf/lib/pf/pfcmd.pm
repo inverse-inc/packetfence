@@ -113,6 +113,10 @@ sub parseCommandLine {
                                      )
                                    )
                                  $  }xms,
+        'schedule'        => qr{ ^ ( view )
+                                   \s+
+                                   ( all | \d+ )
+                                 $ }xms,
         'service'         => qr{ ^ ( dhcpd | httpd | named | pfdetect 
                                      | pf | pfdhcplistener | pfmon 
                                      | pfredirect | pfsetvlan | snmptrapd 
@@ -203,6 +207,10 @@ sub parseCommandLine {
                 push @{$cmd{'manage_options'}}, $cmd{'command'}[1];
                 push @{$cmd{'manage_options'}}, $cmd{'command'}[2];
                 push @{$cmd{'manage_options'}}, $cmd{'command'}[3] if ($cmd{'command'}[3]);
+            }
+            if ($main eq 'schedule') {
+                push @{$cmd{'schedule_options'}}, $cmd{'command'}[1];
+                push @{$cmd{'schedule_options'}}, $cmd{'command'}[2];
             }
             use Data::Dumper;
             $logger->info("returning " . Dumper(%cmd));
