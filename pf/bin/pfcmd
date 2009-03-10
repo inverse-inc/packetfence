@@ -121,6 +121,10 @@ if (! exists($cmd_tmp{'grammar'})) {
         'lookup'          => sub { lookup();          exit(1); },
         'manage'          => sub { manage();          exit(1); },
         'networkconfig'   => sub { networkconfig();   exit(1); },
+        'node'            => sub { require pf::node; 
+                                   import pf::node;
+                                   command_param('node');
+                                                      exit(1); },
         'nodecategory'    => sub { nodecategory();    exit(1); },
         'person'          => sub { require pf::person; 
                                    import pf::person;

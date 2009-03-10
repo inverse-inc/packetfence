@@ -37,7 +37,7 @@ sub parseCommandLine {
                                    \s+ 
                                    ( all | \d+ (?: ,\d+)* ) 
                                  $ }xms,
-        'graph'           => qr{ ^ (?:
+        'graph'           => qr/ ^ (?:
                                      ( nodes | registered
                                        | unregistered
                                        | violations ) 
@@ -78,16 +78,16 @@ sub parseCommandLine {
                                      end_time \s* [=] \s*
                                      ( [^,=]+ )
                                    )
-                                 $ }xms,
+                                 $ /xms,
         'help'            => qr{ ^ ( [a-z]* ) $ }xms,
-        'history'         => qr{ ^
+        'history'         => qr/ ^
                                    ( $RE{net}{IPv4} | $RE{net}{MAC} )
                                    (?:
                                      \s+
                                      ( [^,=]+ )
                                    )?
-                                 $ }xms,
-        'ifoctetshistorymac' => qr{ ^
+                                 $ /xms,
+        'ifoctetshistorymac' => qr/ ^
                                    ( $RE{net}{MAC} )
                                    (?:
                                      \s+
@@ -99,8 +99,8 @@ sub parseCommandLine {
                                      end_time \s* [=] \s*
                                      ( [^,=]+ )
                                    )?
-                                 $ }xms,
-        'ifoctetshistoryswitch' => qr{ ^
+                                 $ /xms,
+        'ifoctetshistoryswitch' => qr/ ^
                                    ( $RE{net}{IPv4} )
                                    \s+
                                    ( \d+)
@@ -114,7 +114,7 @@ sub parseCommandLine {
                                      end_time \s* [=] \s*
                                      ( [^,=]+ )
                                    )?
-                                 $ }xms,
+                                 $ /xms,
         'ifoctetshistoryuser' => qr{ ^
                                    ( [a-zA-Z0-9\-\_\.\@]+ )
                                    (?:
@@ -132,7 +132,7 @@ sub parseCommandLine {
                                    \s+
                                    ( all | [a-z0-9\.\:]+ )
                                  $  }xms,
-        'ipmachistory'    => qr{ ^
+        'ipmachistory'    => qr/ ^
                                    ( $RE{net}{IPv4} | $RE{net}{MAC} )
                                    (?:
                                      \s+
@@ -144,15 +144,15 @@ sub parseCommandLine {
                                      end_time \s* [=] \s*
                                      ( [^,=]+ )
                                    )?
-                                 $ }xms,
-        'locationhistorymac' => qr{ ^
+                                 $ /xms,
+        'locationhistorymac' => qr/ ^
                                    ( $RE{net}{MAC} )
                                    (?:
                                      \s+
                                      ( [^,=]+ )
                                    )?
-                                 $ }xms,
-        'locationhistoryswitch' => qr{ ^
+                                 $ /xms,
+        'locationhistoryswitch' => qr/ ^
                                    ( $RE{net}{IPv4} )
                                    \s+
                                    ( \d+ )
@@ -160,12 +160,12 @@ sub parseCommandLine {
                                      \s+
                                      ( [^,=]+ )
                                    )?
-                                 $ }xms,
+                                 $ /xms,
         'lookup'          => qr{ ^ ( person | node ) 
                                    \s+
                                    ( [0-9a-zA-Z_\-\.\:]+ )
                                  $  }xms,
-        'manage'          => qr{ ^ 
+        'manage'          => qr/ ^ 
                                    (?:
                                      ( freemac | deregister )
                                      \s+
@@ -177,11 +177,15 @@ sub parseCommandLine {
                                      \s+
                                      ( \d+ )
                                    )
-                                 $ }xms,
+                                 $ /xms,
         'networkconfig'   => qr/ ^ ( get | delete )
                                    \s+
                                    ( all | $RE{net}{IPv4} )
                                  $  /xms,
+        'node'            => qr/ ^ ( view )
+                                   \s+
+                                   ( all | $RE{net}{MAC} )
+                                 $ /xms,
         'nodecategory'    => qr{ ^ (view) \s+ (\w+) $  }xms,
         'person'          => qr{ ^ (view)
                                    \s+
@@ -314,6 +318,10 @@ sub parseCommandLine {
                 push @{$cmd{'manage_options'}}, $cmd{'command'}[1];
                 push @{$cmd{'manage_options'}}, $cmd{'command'}[2];
                 push @{$cmd{'manage_options'}}, $cmd{'command'}[3] if ($cmd{'command'}[3]);
+            }
+            if ($main eq 'node') {
+                push @{$cmd{'node_options'}}, $cmd{'command'}[1];
+                push @{$cmd{'node_options'}}, $cmd{'command'}[2];
             }
             if ($main eq 'person') {
                 push @{$cmd{'person_options'}}, $cmd{'command'}[1];
