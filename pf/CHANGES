@@ -3,6 +3,8 @@
           (http://www.packetfence.org/mantis/view.php?id=608)
         added missing header.selected.png
           (http://www.packetfence.org/mantis/view.php?id=609)
+        date initialization in locationhistorymac command
+          (http://www.packetfence.org/mantis/view.php?id=610)
 
 1.8.1
         authorized @ as first symbol in password

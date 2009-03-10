@@ -242,13 +242,9 @@ sub locationhistorymac {
     require pf::locationlog;
     import pf::locationlog;
     my $mac = $cmd{command}[1];
-    my $date;
-    $date = str2time( $cmd{command}[2] ) if ( defined $cmd{command}[1] );
     my %params;
     $params{'mac'} = $mac;
-    if ($date) {
-        $params{'date'} = $date;
-    }
+    $params{'date'} = str2time( $cmd{command}[2] ) if ( defined $cmd{command}[2] );
     exit( print_results( "locationlog_history_mac", $mac, %params ) );
 }
 
