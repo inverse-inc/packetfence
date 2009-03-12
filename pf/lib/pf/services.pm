@@ -707,8 +707,8 @@ sub generate_snmptrapd_conf {
             my $switch = $switchFactory->instantiate($key);
             if ( $switch->{_SNMPVersionTrap} eq '3' ) {
                 $SNMPv3Users{ $switch->{_SNMPUserNameTrap} }
-                    = '-e '
-                    . $switch->{_SNMPEngineID} . ' '
+                    = '-e ' . $switch->{_SNMPEngineID} . ' '
+                    . $switch->{_SNMPUserNameTrap} . ' '
                     . $switch->{_SNMPAuthProtocolTrap} . ' '
                     . $switch->{_SNMPAuthPasswordTrap} . ' '
                     . $switch->{_SNMPPrivProtocolTrap} . ' '
@@ -720,7 +720,7 @@ sub generate_snmptrapd_conf {
     }
     foreach my $userName ( sort keys %SNMPv3Users ) {
         $tags{'userLines'}
-            .= "createUser $userName " . $SNMPv3Users{$userName} . "\n";
+            .= "createUser " . $SNMPv3Users{$userName} . "\n";
         $tags{'authLines'} .= "authUser log $userName priv\n";
     }
     foreach my $community ( sort keys %SNMPCommunities ) {
