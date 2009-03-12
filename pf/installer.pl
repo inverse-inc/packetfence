@@ -55,11 +55,9 @@ my %oses = (
 my @modules = (
     "Apache::Htpasswd",
     "Bit::Vector",
-    "CGI",
     "CGI::Session",
     "Config::IniFiles",
     "Date::Parse",
-    "File::Spec",
     "File::Tail",
     "Net::IPv4Addr",
     "IPTables::Parse",
@@ -74,7 +72,6 @@ my @modules = (
     "Net::MAC::Vendor",
     "Net::Netmask",
     "Net::Pcap",
-    "Net::Ping",
     "Net::Frame",
     "Net::Frame::Simple",
     "Net::Write",
@@ -86,7 +83,6 @@ my @modules = (
     "Template",
     "Term::ReadKey",
     "Thread::Pool",
-    "Time::HiRes"
 );
 
 my @suids = ( "$install_dir/bin/pfcmd" );

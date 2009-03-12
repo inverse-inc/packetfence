@@ -5,6 +5,8 @@
           (http://www.packetfence.org/mantis/view.php?id=609)
         date initialization in locationhistorymac command
           (http://www.packetfence.org/mantis/view.php?id=610)
+        removed core perl modules from dependency lists
+          (http://www.packetfence.org/mantis/view.php?id=613)
 
 1.8.1
         authorized @ as first symbol in password
