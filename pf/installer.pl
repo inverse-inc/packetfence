@@ -81,6 +81,7 @@ my @modules = (
     "Net::SNMP",
     "Net::Telnet",
     "Parse::RecDescent",
+    "Regexp::Common",
     "Readonly",
     "Template",
     "Term::ReadKey",
