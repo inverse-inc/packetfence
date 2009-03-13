@@ -11,7 +11,7 @@ include_once('../header.php');
 
   foreach($vids_pfcmd as $line){
     $parts=preg_split("/\|/", $line);
-    $vids[]=array('vid' => $parts[0], 'desc' => $parts[1]);
+    $vids[]=array('vid' => $parts[2], 'desc' => $parts[4]);
   }
   array_shift($vids);
   

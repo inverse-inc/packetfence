@@ -9,6 +9,8 @@
           (http://www.packetfence.org/mantis/view.php?id=613)
         fixed SNMPv3 createUser command
           (http://www.packetfence.org/mantis/view.php?id=612)
+        fixed Web Admin GUI - violation add
+          (http://www.packetfence.org/mantis/view.php?id=615)
 
 1.8.1
         authorized @ as first symbol in password
