@@ -323,7 +323,7 @@ sub getlocalmac {
     my ($dev) = @_;
     return (-1) if ( !$dev );
     return ( $local_mac{$dev} ) if ( defined $local_mac{$dev} );
-    foreach (`/sbin/ifconfig -a`) {
+    foreach (`LC_ALL=C /sbin/ifconfig -a`) {
         return ( clean_mac($1) )
             if (/^$dev.+HWaddr\s+(\w\w:\w\w:\w\w:\w\w:\w\w:\w\w)/i);
     }
@@ -553,7 +553,7 @@ sub preload_getlocalmac {
     my $logger = Log::Log4perl::get_logger('pf::util');
     $logger->info("preloading local mac addresses");
     my %hash;
-    my @iflist = `/sbin/ifconfig -a`;
+    my @iflist = `LC_ALL=C /sbin/ifconfig -a`;
     foreach my $dev ( get_internal_devs() ) {
         my @line = grep(
             {/^$dev .+HWaddr\s+\w\w:\w\w:\w\w:\w\w:\w\w:\w\w/} @iflist );
