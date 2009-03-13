@@ -256,7 +256,7 @@ if (questioner(
                         $upgraded = 1;
                     } else {
                         die
-                            "Unable to locate SQL update script for $schema_version -> $pf_release!\n";
+                            "Unable to locate SQL update script for $schema_version -> 1.8.1!\n";
                     }
                 } elsif (
                     questioner(
