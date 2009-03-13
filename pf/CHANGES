@@ -15,6 +15,8 @@
           (http://www.packetfence.org/mantis/view.php?id=618)
         fixed pf.conf example in ZEN installation guide
           (http://www.packetfence.org/mantis/view.php?id=619)
+        fixed comments in BIND zone file templates
+          (http://www.packetfence.org/mantis/view.php?id=617)
 
 1.8.1
         authorized @ as first symbol in password

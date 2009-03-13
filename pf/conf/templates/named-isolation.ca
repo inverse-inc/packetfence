@@ -1,5 +1,5 @@
-# This file is generated from a template at %%template%%
-# Any changes made to this file will be lost on restart 
+; This file is generated from a template at %%template%%
+; Any changes made to this file will be lost on restart 
 
 $TTL 3600
 . IN SOA %%hostname%%. %%incharge%% (
