@@ -13,6 +13,8 @@
           (http://www.packetfence.org/mantis/view.php?id=615)
         fixed configurator walkthrough in ZEN installation guide
           (http://www.packetfence.org/mantis/view.php?id=618)
+        fixed pf.conf example in ZEN installation guide
+          (http://www.packetfence.org/mantis/view.php?id=619)
 
 1.8.1
         authorized @ as first symbol in password
