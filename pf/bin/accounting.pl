@@ -56,7 +56,7 @@ Log::Log4perl->init( INSTALL_DIR . '/conf/log.conf' );
 my $logger = Log::Log4perl->get_logger('');
 
 my $switchFactory = new pf::SwitchFactory(
-    -configFile => INSTALL_DIR . '/conf/switches.conf';
+    -configFile => INSTALL_DIR . '/conf/switches.conf'
 );
 
 my $pool = Thread::Pool->new(
