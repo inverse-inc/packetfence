@@ -38,7 +38,8 @@
           (http://www.packetfence.org/mantis/view.php?id=629)
         fixed presentation of proxies config in web admin GUI
           (http://www.packetfence.org/mantis/view.php?id=628)
-        added Test::Perl::Critic test
+        added Test::Perl::Critic tests
+        added tests for compilation of PHP scripts
 
 1.8.1
         authorized @ as first symbol in password

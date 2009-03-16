@@ -13,5 +13,6 @@ runtests( qw(
               SwitchFactory.t
               binaries.t
               critic.t
+              php.t
             )
 );
