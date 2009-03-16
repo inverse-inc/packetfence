@@ -1268,6 +1268,9 @@ sub config {
     if ( $param =~ /^(interface)\.(.+)+\.([^.]+)$/ ) {
         $parm    = $3;
         $section = "$1 $2";
+    } elsif ( $param =~ /^(proxies)\.(.+)$/ ) {
+        $parm = $2;
+        $section = $1;
     } else {
         my @stuff = split( /\./, $param );
         $parm = pop(@stuff);
@@ -1286,7 +1289,7 @@ sub config {
         if ( defined( $Config{$section}{$parm} ) ) {
             print config_entry( $section, $parm );
         } else {
-            print "Unknown configuration parameter: $param!\n";
+            print "Unknown configuration parameter: $section.$param!\n";
             exit;
         }
     } elsif ( lc($option) eq 'help' ) {
@@ -1308,7 +1311,7 @@ sub config {
         }
     } elsif ( lc($option) eq 'set' ) {
         if ( !defined( $Config{$section}{$parm} ) ) {
-            print "Unknown configuration parameter!\n";
+            print "Unknown configuration parameter $section.$parm!\n";
             exit;
         } else {
 

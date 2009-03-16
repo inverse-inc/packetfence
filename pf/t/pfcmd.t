@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 33;
+use Test::More tests => 35;
 use Log::Log4perl;
 use File::Basename qw(basename);
 use lib '/usr/local/pf/lib';
@@ -32,6 +32,16 @@ is_deeply(\%cmd,
 is_deeply(\%cmd,
           { 'command' => [ 'config', 'help', 'general.hostname' ] },
           'pfcmd config help general.hostname');
+
+%cmd = pf::pfcmd::parseCommandLine('config set general.hostname=packetfence');
+is_deeply(\%cmd,
+          { 'command' => [ 'config', 'set', 'general.hostname=packetfence' ] },
+          'pfcmd config set general.hostname=packetfence');
+
+%cmd = pf::pfcmd::parseCommandLine('config set proxies.tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stng260.bin');
+is_deeply(\%cmd,
+          { 'command' => [ 'config', 'set', 'proxies.tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stng260.bin' ] },
+          'pfcmd config set proxies.tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stng260.bin');
 
 %cmd = pf::pfcmd::parseCommandLine('configfiles pull');
 is_deeply(\%cmd,
