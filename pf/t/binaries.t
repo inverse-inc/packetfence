@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 17;
+use Test::More tests => 20;
 
 my @binaries = (
     '/usr/local/pf/addons/autodiscover.pl',
@@ -14,6 +14,9 @@ my @binaries = (
     '/usr/local/pf/bin/accounting.pl',
     '/usr/local/pf/bin/flip.pl',
     '/usr/local/pf/bin/pfcmd_vlan',
+    '/usr/local/pf/cgi-bin/redir.cgi',
+    '/usr/local/pf/cgi-bin/register.cgi',
+    '/usr/local/pf/cgi-bin/release.cgi',
     '/usr/local/pf/contrib/802.1X/pfcmd_ap.pl',
     '/usr/local/pf/contrib/802.1X/rlm_perl_packetfence.pl',
     '/usr/local/pf/contrib/mrtg/mrtg-wrapper.pl',
