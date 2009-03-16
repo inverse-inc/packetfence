@@ -194,7 +194,13 @@ foreach($config_tree as $section => $settings){
 
 	print "<table align=center style='margin-top:10px;overflow:auto;'>";
 	foreach($settings as $setting => $options){
-		print "<tr'><td style='width:200px;'><a class='no_hover' HREF=\"javascript:popUp('$current_top/more_info.php?option=$setting', '100', '500');\">$setting</a></td><td style='text-align:right;'>";
+		print "<tr><td style='width:200px;'>";
+        if (substr_compare('proxies', $setting, 0, 7) == 0) {
+          print $setting;
+        } else {
+          print "<a class='no_hover' HREF=\"javascript:popUp('$current_top/more_info.php?option=$setting', '100', '500');\">$setting</a>";
+        }
+        print "</td><td style='text-align:right;'>";
 		$setting = preg_replace("/\./", "_", $setting);
 		switch($options['type']){
 			case "date":
