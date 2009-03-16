@@ -118,7 +118,7 @@ if(isset($_GET['update'])){
 $current_heading = '';
 
 foreach($configs as $config){
-	preg_match("/^(([^=]+)\.[^=]+)=(.+)$/", $config, $matches);
+	preg_match("/^(([^.=]+)\.[^=]+)=(.+)$/", $config, $matches);
 	$parts = explode('|', $matches[3]);
 
 	$options = array();
@@ -129,7 +129,7 @@ foreach($configs as $config){
 	$options['options'] = $parts[2];
 	$options['type']    = $parts[3];
 
-	if (strncmp($matches[2], 'interface.', 10) != 0) {
+	if (strncmp($matches[2], 'interface', 9) != 0) {
 		$config_tree[$matches[2]][$matches[1]] = $options;
 	}
 }
