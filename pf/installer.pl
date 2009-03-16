@@ -82,6 +82,7 @@ my @modules = (
     "Readonly",
     "Template",
     "Term::ReadKey",
+    "Test::Perl::Critic",
     "Thread::Pool",
 );
 

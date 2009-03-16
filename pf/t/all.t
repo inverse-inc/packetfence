@@ -12,5 +12,6 @@ runtests( qw(
               SNMP.t 
               SwitchFactory.t
               binaries.t
+              critic.t
             )
 );
