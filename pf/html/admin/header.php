@@ -105,8 +105,6 @@
   <script type="text/javascript" src="<?=$abs_url?>/calendar/lang/calendar-en.js"></script>
   <script type="text/javascript" src="<?=$abs_url?>/calendar/calendar-setup.js"></script>
 
-  <meta http-equiv="refresh" content="2000">
-
   <!--[if lt IE 7.]>
     <script defer type="text/javascript" src="pngfix.js"></script>
   <![endif]-->
