@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Perl::Critic;
-use Test::More tests => 86;
+use Test::More tests => 88;
 
 my @files = (
     '/usr/local/pf/addons/autodiscover.pl',
@@ -41,7 +41,7 @@ my @files = (
     '/usr/local/pf/lib/pf/pfcmd/report.pm',
     #'/usr/local/pf/lib/pf/pfcmd/schedule.pm',
     '/usr/local/pf/lib/pf/rawip.pm',
-    #'/usr/local/pf/lib/pf/services.pm',
+    '/usr/local/pf/lib/pf/services.pm',
     '/usr/local/pf/lib/pf/SNMP/Accton/ES3526XA.pm',
     '/usr/local/pf/lib/pf/SNMP/Accton/ES3528M.pm',
     '/usr/local/pf/lib/pf/SNMP/Accton.pm',
@@ -89,7 +89,7 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP/ThreeCom.pm',
     '/usr/local/pf/lib/pf/SNMP/ThreeCom/SS4200.pm',
     '/usr/local/pf/lib/pf/SNMP/ThreeCom/SS4500.pm',
-    #'/usr/local/pf/lib/pf/SwitchFactory.pm',
+    '/usr/local/pf/lib/pf/SwitchFactory.pm',
     '/usr/local/pf/lib/pf/switchlocation.pm',
     '/usr/local/pf/lib/pf/traplog.pm',
     #'/usr/local/pf/lib/pf/trigger.pm',

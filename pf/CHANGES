@@ -41,6 +41,8 @@
         added Test::Perl::Critic tests
         added tests for compilation of PHP scripts
         added tests for compilation of CGI scripts
+        usage of UNIVERSAL::require
+          (http://www.packetfence.org/mantis/view.php?id=631)
 
 1.8.1
         authorized @ as first symbol in password

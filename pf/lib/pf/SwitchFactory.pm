@@ -29,6 +29,7 @@ use diagnostics;
 
 use Carp;
 use Config::IniFiles;
+use UNIVERSAL::require;
 use Log::Log4perl;
 
 use pf::config;
@@ -80,8 +81,7 @@ sub instantiate {
         = "pf::SNMP::"
         . (    $SwitchConfig{$requestedSwitch}{'type'}
             || $SwitchConfig{'default'}{'type'} );
-    eval "require $type;";
-    if ($@) {
+    if ( !  $type->require() ) {
         $logger->error(
             "ERROR ! Unknown switch type: $type for switch $requestedSwitch: $@"
         );

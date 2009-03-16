@@ -14,6 +14,7 @@ use warnings;
 use File::Basename;
 use Config::IniFiles;
 use Log::Log4perl;
+use UNIVERSAL::require;
 
 BEGIN {
     use Exporter ();
@@ -836,8 +837,7 @@ sub switches_conf_is_valid {
                 = "pf::SNMP::"
                 . (    $switches_conf{$section}{'type'}
                     || $switches_conf{'default'}{'type'} );
-            eval "require $type;";
-            if ($@) {
+            if ( ! $type->require() ) {
                 $logger->error(
                     "Unknown switch type: $type for switch $section: $@");
                 return 0;

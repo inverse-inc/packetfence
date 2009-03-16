@@ -84,6 +84,7 @@ my @modules = (
     "Term::ReadKey",
     "Test::Perl::Critic",
     "Thread::Pool",
+    "UNIVERSAL::require",
 );
 
 my @suids = ( "$install_dir/bin/pfcmd" );
