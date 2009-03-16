@@ -195,8 +195,10 @@
     $select .= "<option value=''>Select a Graph Type";
     foreach($meta as $graph){
       foreach($spans as $key => $val){
-	("$default[type]-$default[span]" == "$graph[0]-$key") ? $selected='SELECTED' : $selected='';
-        $select.="<option value='$graph[0]-$key' $selected>$graph[1] ($val)";
+        if (($graph[0] != 'traps') && ($graph[0] != 'ifoctetshistoryswitch') && ($graph[0] != 'ifoctetshistorymac') && ($graph[0] != 'ifoctetshistoryuser')) {
+	      ("$default[type]-$default[span]" == "$graph[0]-$key") ? $selected='SELECTED' : $selected='';
+          $select.="<option value='$graph[0]-$key' $selected>$graph[1] ($val)";
+        }
       }
     }
     $select.="</select>";
