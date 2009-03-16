@@ -26,6 +26,8 @@
         fixed compilation error in bin/accounting.pl
           (http://www.packetfence.org/mantis/view.php?id=623)
         added tests for compilation of binaries
+        fixed compilation error in addons/convertToPortSecurity.pl
+          (http://www.packetfence.org/mantis/view.php?id=624)
 
 1.8.1
         authorized @ as first symbol in password

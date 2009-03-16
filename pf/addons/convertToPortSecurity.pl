@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2008 Inverse groupe conseil
+# Copyright 2008-2009 Inverse groupe conseil
 #
 # See the enclosed file COPYING for license information (GPL).
 # If you did not receive this file, see
@@ -134,7 +134,8 @@ if (!(  $switchType
     $logger->logdie("port security is not supported on $switchType");
 }
 
-my $backup_fh open $backup_fh, '>', "$backup_config"
+my $backup_fh;
+open $backup_fh, '>', "$backup_config"
     or $logger->logdie("can't open config backup file $backup_config");
 
 $logger->debug("instantiating switch object");
