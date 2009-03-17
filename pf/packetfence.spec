@@ -28,7 +28,7 @@ Requires: perl >= 5.8.0, perl-suidperl
 Requires: perl(Apache::Htpasswd)
 Requires: perl(Bit::Vector)
 Requires: perl(CGI::Session)
-Requires: perl(Config::IniFiles)
+Requires: perl(Config::IniFiles) >= 2.40
 Requires: perl(Class::Data::Inheritable)
 Requires: perl(Class::Gomor)
 Requires: perl(Data::Phrasebook), perl(Data::Phrasebook::Loader::YAML)
