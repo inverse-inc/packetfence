@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# Copyright 2007-2008 Inverse groupe conseil
+# Copyright 2007-2009 Inverse groupe conseil
 #
 # See the enclosed file COPYING for license information (GPL).
 # If you did not receive this file, see
@@ -13,6 +13,7 @@ use diagnostics;
 use FindBin;
 use DBI;
 use Data::Dumper;
+use Sys::Syslog;
 
 require 5.8.8;
 
@@ -30,6 +31,8 @@ my $switch_ip = $ARGV[0];
 my $mac = lc($ARGV[1]);
 my $is_eap_request = $ARGV[2];
 
+syslog("info", "pfcmd_ap.pl called with switch_ip $switch_ip, mac $mac, is_eap_request $is_eap_request");
+
 # create database connection
 my $mysql_connection = DBI->connect("dbi:mysql:dbname=$database_dbname;host=$database_hostname", $database_user, $database_password, {PrintError => 0});
 
@@ -37,6 +40,7 @@ my $mysql_connection = DBI->connect("dbi:mysql:dbname=$database_dbname;host=$dat
 # if not, create the node
 my $nodeExists = $mysql_connection->selectrow_array("SELECT count(*) FROM node WHERE mac='$mac'");
 if ($nodeExists == 0) {
+  syslog("info", "node $mac does not yet exist in database -> will be created now");
   $mysql_connection->do("INSERT INTO node(mac,detect_date,status,last_arp) VALUES('$mac',now(),'unreg',now())");
 }
 
@@ -69,11 +73,15 @@ if ($is_eap_request == 0) {
 }
 
 # update locationlog
+syslog("info", "closing previous open locationlog entries for $mac");
 $mysql_connection->do("UPDATE locationlog SET end_time=now() WHERE mac='$mac' and (end_time = 0 OR isnull(end_time))");
+syslog("info", "inserting new open locationlog entry for $mac");
 $mysql_connection->do("INSERT INTO locationlog(mac,switch,port,vlan,start_time) VALUES('$mac','$switch_ip','WIFI',$correctVlan,now())");
+syslog("info", "updating node entry (switch and port) for mac $mac");
 $mysql_connection->do("UPDATE node SET switch='$switch_ip', port='WIFI' WHERE mac='$mac'");
 
 # return the correct VLAN
+syslog("info", "returning VLAN $correctVlan for $mac");
 print $correctVlan;
 
 $mysql_connection->disconnect();
