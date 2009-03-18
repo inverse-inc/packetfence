@@ -100,10 +100,10 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="stylesheet" href="style.css" type="text/css"> 
 
-  <style type="text/css">@import url(<?=$abs_url?>/calendar/calendar-pf.css);</style>
-  <script type="text/javascript" src="<?=$abs_url?>/calendar/calendar.js"></script>
-  <script type="text/javascript" src="<?=$abs_url?>/calendar/lang/calendar-en.js"></script>
-  <script type="text/javascript" src="<?=$abs_url?>/calendar/calendar-setup.js"></script>
+  <style type="text/css">@import url(<?=$abs_url?>/3rdparty/calendar/calendar-pf.css);</style>
+  <script type="text/javascript" src="<?=$abs_url?>/3rdparty/calendar/calendar.js"></script>
+  <script type="text/javascript" src="<?=$abs_url?>/3rdparty/calendar/lang/calendar-en.js"></script>
+  <script type="text/javascript" src="<?=$abs_url?>/3rdparty/calendar/calendar-setup.js"></script>
 
   <!--[if lt IE 7.]>
     <script defer type="text/javascript" src="pngfix.js"></script>
