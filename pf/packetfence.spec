@@ -412,8 +412,8 @@ fi
 %dir /usr/local/pf/lib/pf
 /usr/local/pf/lib/pf/*.pm
 %dir /usr/local/pf/lib/pf/lookup
-%config(noreplace) /usr/local/pf/lib/pf/lookup/lookup_node.pm
-%config(noreplace) /usr/local/pf/lib/pf/lookup/lookup_person.pm
+%config(noreplace) /usr/local/pf/lib/pf/lookup/node.pm
+%config(noreplace) /usr/local/pf/lib/pf/lookup/person.pm
 %dir /usr/local/pf/lib/pf/SNMP
 /usr/local/pf/lib/pf/SNMP/*
 %dir /usr/local/pf/lib/pf/pfcmd
@@ -470,7 +470,7 @@ fi
 /usr/local/pf/lib/pf/locationlog.pm
 %attr(0755, pf, pf) /usr/local/pf/sbin/pfdhcplistener
 %dir /usr/local/pf/lib/pf/lookup
-%config(noreplace) /usr/local/pf/lib/pf/lookup/lookup_node.pm
+%config(noreplace) /usr/local/pf/lib/pf/lookup/node.pm
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 /usr/local/pf/lib/pf/pfcmd.pm
 %dir /usr/local/pf/lib/pf/pfcmd

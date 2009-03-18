@@ -1,6 +1,7 @@
 #
 # Copyright 2005 Dave Laporte <dave@laportestyle.org>
 # Copyright 2005 Kevin Amorin <kev@amorin.org>
+# Copyright 2009 Inverse groupe conseil <dgehl@inverse.ca>
 #
 # See the enclosed file COPYING for license information (GPL).
 # If you did not receive this file, see
@@ -13,9 +14,13 @@
 
 # have a look at contrib/lookup/lookup_person.pl.ldap for an LDAP example
 
+package pf::lookup::person;
+
 use strict;
 use warnings;
 use diagnostics;
+
+use pf::person;
 
 sub lookup_person {
     my ($pid) = @_;

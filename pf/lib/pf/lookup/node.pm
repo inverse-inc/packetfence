@@ -1,6 +1,7 @@
 #
 # Copyright 2005 Dave Laporte <dave@laportestyle.org>
 # Copyright 2005 Kevin Amorin <kev@amorin.org>
+# Copyright 2009 Inverse groupe conseil <dgehl@inverse.ca>
 #
 # See the enclosed file COPYING for license information (GPL).
 # If you did not receive this file, see
@@ -10,6 +11,8 @@
 # define this function to return whatever data you'd like
 # it's called via "pfcmd lookup node <mac>", through the administrative GUI,
 # or as the content of a violation action
+
+package pf::lookup::node;
 
 use strict;
 use warnings;
