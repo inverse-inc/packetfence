@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 27;
+use Test::More tests => 29;
 use lib '/usr/local/pf/lib';
 
 BEGIN { use_ok('pf::action') }
@@ -14,6 +14,8 @@ BEGIN { use_ok('pf::db') }
 BEGIN { use_ok('pf::ifoctetslog') }
 BEGIN { use_ok('pf::iplog') }
 BEGIN { use_ok('pf::locationlog') }
+BEGIN { use_ok('pf::lookup::node') }
+BEGIN { use_ok('pf::lookup::person') }
 BEGIN { use_ok('pf::nodecache') }
 BEGIN { use_ok('pf::nodecategory') }
 BEGIN { use_ok('pf::node') }

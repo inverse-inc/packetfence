@@ -167,15 +167,14 @@ sub action_email {
     my ( $mac, $vid, $notes ) = @_;
     my %message;
 
-    push @INC, $bin_dir;
-    require "lookup_node.pl";
+    require pf::lookup::node;
     my $class_info  = class_view($vid);
     my $description = $class_info->{'description'};
 
     $message{'subject'} = "$description detection on $mac";
     $message{'message'} = "Detect  : $description\n";
     $message{'message'} .= "$notes\n";
-    $message{'message'} .= lookup_node($mac);
+    $message{'message'} .= pf::lookup::node::lookup_node($mac);
 
     pfmailer(%message);
 }
@@ -226,14 +225,11 @@ sub action_winpopup {
     eval "use Net::NetSend qw(:all); 1" || return (0);
     eval "use Net::NBName; 1"           || return (0);
 
-    #  use Net::NetSend qw(:all);
-    #  use Net::NBName;
-
-    push @INC, $bin_dir;
-    require "lookup_node.pl";
+    require pf::lookup::node;
     my $class_info  = class_view($vid);
     my $description = $class_info->{'description'};
-    my $message     = "$description detection on $mac " . lookup_node($mac);
+    my $message     = "$description detection on $mac " 
+                      . pf::lookup::node::lookup_node($mac);
 
     my $nb = Net::NBName->new;
     my $nq = $nb->name_query( $Config{'alerting'}{'wins_server'},

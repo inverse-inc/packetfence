@@ -300,8 +300,6 @@ fi
 /usr/local/pf/sbin/pfmon
 /usr/local/pf/bin/accounting.pl
 %attr(0755, pf, pf) /usr/local/pf/sbin/pfdhcplistener
-%config(noreplace) /usr/local/pf/bin/lookup_node.pl
-%config(noreplace) /usr/local/pf/bin/lookup_person.pl
 /usr/local/pf/sbin/pfsetvlan
 %dir /usr/local/pf/cgi-bin
 #%attr(6755, root, root) /usr/local/pf/cgi-bin/redir.cgi
@@ -413,6 +411,9 @@ fi
 %dir /usr/local/pf/var/rrd
 %dir /usr/local/pf/lib/pf
 /usr/local/pf/lib/pf/*.pm
+%dir /usr/local/pf/lib/pf/lookup
+%config(noreplace) /usr/local/pf/lib/pf/lookup/lookup_node.pm
+%config(noreplace) /usr/local/pf/lib/pf/lookup/lookup_person.pm
 %dir /usr/local/pf/lib/pf/SNMP
 /usr/local/pf/lib/pf/SNMP/*
 %dir /usr/local/pf/lib/pf/pfcmd
@@ -468,7 +469,8 @@ fi
 /usr/local/pf/lib/pf/rawip.pm
 /usr/local/pf/lib/pf/locationlog.pm
 %attr(0755, pf, pf) /usr/local/pf/sbin/pfdhcplistener
-%config(noreplace) /usr/local/pf/bin/lookup_node.pl
+%dir /usr/local/pf/lib/pf/lookup
+%config(noreplace) /usr/local/pf/lib/pf/lookup/lookup_node.pm
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 /usr/local/pf/lib/pf/pfcmd.pm
 %dir /usr/local/pf/lib/pf/pfcmd

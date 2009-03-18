@@ -1493,12 +1493,12 @@ sub lookup {
     if ( $service eq 'person' ) {
         require pf::person;
         import pf::person;
-        require "$bin_dir/lookup_person.pl";
-        my $tmp_lookup = lookup_person($id);
+        require pf::lookup::person;
+        my $tmp_lookup = pf::lookup::person::lookup_person($id);
         print $tmp_lookup;
     } else {
-        require "$bin_dir/lookup_node.pl";
-        my $tmp_lookup = lookup_node($id);
+        require pf::lookup::node;
+        my $tmp_lookup = pf::lookup::node::lookup_node($id);
         print $tmp_lookup;
     }
 }
