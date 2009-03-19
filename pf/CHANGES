@@ -49,6 +49,8 @@
           (http://www.packetfence.org/mantis/view.php?id=635)
         moved lookup_node and lookup_person into libraries
           (http://www.packetfence.org/mantis/view.php?id=633)
+        cleaned contrib directory
+          (http://www.packetfence.org/mantis/view.php?id=634)
 
 1.8.1
         authorized @ as first symbol in password

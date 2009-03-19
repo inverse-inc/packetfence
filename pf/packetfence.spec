@@ -123,21 +123,21 @@ cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r cgi-bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
 #pfdetect_remote
-mv contrib/pfdetect_remote/initrd/pfdetectd $RPM_BUILD_ROOT%{_initrddir}/
-mv contrib/pfdetect_remote/bin/pfdetect_remote $RPM_BUILD_ROOT/usr/local/pf/bin
-mv contrib/pfdetect_remote/conf/pfdetect_remote.conf $RPM_BUILD_ROOT/usr/local/pf/conf
-rmdir contrib/pfdetect_remote/bin
-rmdir contrib/pfdetect_remote/initrd
-rmdir contrib/pfdetect_remote/conf
-rmdir contrib/pfdetect_remote
+mv addons/pfdetect_remote/initrd/pfdetectd $RPM_BUILD_ROOT%{_initrddir}/
+mv addons/pfdetect_remote/bin/pfdetect_remote $RPM_BUILD_ROOT/usr/local/pf/bin
+mv addons/pfdetect_remote/conf/pfdetect_remote.conf $RPM_BUILD_ROOT/usr/local/pf/conf
+rmdir addons/pfdetect_remote/bin
+rmdir addons/pfdetect_remote/initrd
+rmdir addons/pfdetect_remote/conf
+rmdir addons/pfdetect_remote
 #end pfdetect_remote
 #remote pfdhcplistener
-mv contrib/pfdhcplistener_remote/initrd/pfdhcplistenerd $RPM_BUILD_ROOT%{_initrddir}/
+mv addons/pfdhcplistener_remote/initrd/pfdhcplistenerd $RPM_BUILD_ROOT%{_initrddir}/
 mkdir $RPM_BUILD_ROOT/etc/sysconfig
-mv contrib/pfdhcplistener_remote/sysconfig/pfdhcplistener $RPM_BUILD_ROOT/etc/sysconfig/
-rmdir contrib/pfdhcplistener_remote/initrd
-rmdir contrib/pfdhcplistener_remote/sysconfig
-rmdir contrib/pfdhcplistener_remote
+mv addons/pfdhcplistener_remote/sysconfig/pfdhcplistener $RPM_BUILD_ROOT/etc/sysconfig/
+rmdir addons/pfdhcplistener_remote/initrd
+rmdir addons/pfdhcplistener_remote/sysconfig
+rmdir addons/pfdhcplistener_remote
 #end remote pfdhcplistener
 cp -r contrib $RPM_BUILD_ROOT/usr/local/pf/
 cp -r test $RPM_BUILD_ROOT/usr/local/pf/
@@ -331,12 +331,13 @@ fi
 /usr/local/pf/t/*
 %dir /usr/local/pf/contrib/lookup
 /usr/local/pf/contrib/lookup/*
-%dir /usr/local/pf/contrib/mrtg
-/usr/local/pf/contrib/mrtg/*
-%dir /usr/local/pf/contrib/802.1X
-/usr/local/pf/contrib/802.1X/*
-/usr/local/pf/contrib/oinkmaster.conf
 %dir /usr/local/pf/addons
+%dir /usr/local/pf/addons/mrtg
+/usr/local/pf/addons/mrtg/*
+%dir /usr/local/pf/addons/802.1X
+/usr/local/pf/addons/802.1X/*
+%dir /usr/local/pf/addons/snort
+/usr/local/pf/addons/snort/oinkmaster.conf
 /usr/local/pf/addons/recovery.pl
 /usr/local/pf/addons/monitorpfsetvlan.pl
 /usr/local/pf/addons/autodiscover.pl
