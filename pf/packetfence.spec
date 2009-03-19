@@ -139,7 +139,6 @@ rmdir addons/pfdhcplistener_remote/initrd
 rmdir addons/pfdhcplistener_remote/sysconfig
 rmdir addons/pfdhcplistener_remote
 #end remote pfdhcplistener
-cp -r contrib $RPM_BUILD_ROOT/usr/local/pf/
 cp -r test $RPM_BUILD_ROOT/usr/local/pf/
 cp -r t $RPM_BUILD_ROOT/usr/local/pf/
 cp -r db $RPM_BUILD_ROOT/usr/local/pf/
@@ -329,8 +328,6 @@ fi
 /usr/local/pf/test/connect_and_read.pl
 %dir /usr/local/pf/t
 /usr/local/pf/t/*
-%dir /usr/local/pf/contrib/lookup
-/usr/local/pf/contrib/lookup/*
 %dir /usr/local/pf/addons
 %dir /usr/local/pf/addons/mrtg
 /usr/local/pf/addons/mrtg/*
