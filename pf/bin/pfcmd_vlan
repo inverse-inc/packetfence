@@ -55,7 +55,6 @@ pfcmd_vlan command [options]
                    	  2 : info messages
                    	> 2 : full debug
    -vlan           	VLAN
-                 
 
 =head1 DESCRIPTION
 

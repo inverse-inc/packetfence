@@ -21,7 +21,6 @@ pfsetvlan
    -daemonize      daemonize
    -help           brief help message
    -man            full documentation
-                                                                                      
 
 =head1 DESCRIPTION
 
@@ -35,6 +34,8 @@ the discovered MACs status in packetfence.
 =item Dominik Gehl <dgehl@inverse.ca>
 
 =item Regis Balzard <rbalzard@inverse.ca>
+
+=back
 
 =head1 COPYRIGHT
 
