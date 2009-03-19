@@ -12,7 +12,6 @@ package pf::SNMP::Accton::ES3526XA;
 
 pf::SNMP::Accton::ES3526XA - Object oriented module to access SNMP enabled Accton ES3526XA switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Accton::ES3526XA module implements an object oriented interface

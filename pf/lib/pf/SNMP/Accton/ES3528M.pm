@@ -12,7 +12,6 @@ package pf::SNMP::Accton::ES3528M;
 
 pf::SNMP::Accton::ES3528M - Object oriented module to access SNMP enabled Accton ES3528M switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Accton::ES3528M module implements an object oriented interface

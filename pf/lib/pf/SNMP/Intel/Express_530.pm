@@ -12,7 +12,6 @@ package pf::SNMP::Intel::Express_530;
 
 pf::SNMP::Intel::Express_530 - Object oriented module to access SNMP enabled Intel Express 530 switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Intel::Express_530 module implements an object oriented interface

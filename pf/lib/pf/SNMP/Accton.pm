@@ -13,7 +13,6 @@ package pf::SNMP::Accton;
 
 pf::SNMP::Accton - Object oriented module to access SNMP enabled Accton switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Accton module implements an object oriented interface

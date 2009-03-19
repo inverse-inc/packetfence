@@ -12,7 +12,6 @@ package pf::SNMP::Cisco::Catalyst_2960;
 
 pf::SNMP::Cisco::Catalyst_2960 - Object oriented module to access SNMP enabled Cisco Catalyst 2960 switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Cisco::Catalyst_2960 module implements an object oriented interface

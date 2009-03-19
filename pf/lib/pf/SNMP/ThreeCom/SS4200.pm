@@ -23,7 +23,6 @@ package pf::SNMP::ThreeCom::SS4200;
 
 pf::SNMP::ThreeCom::SS4200 - Object oriented module to access SNMP enabled 3COM Huawei SuperStack 3 Switch - 4200 switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::ThreeCom::SS4200 module implements an object 

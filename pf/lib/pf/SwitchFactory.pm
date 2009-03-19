@@ -13,7 +13,6 @@ package pf::SwitchFactory;
 
 pf::SwitchFactory - Object oriented factory to instantiate objects
 
-
 =head1 SYNOPSIS
 
 The pf::SwitchFactory module implements an object oriented factory to

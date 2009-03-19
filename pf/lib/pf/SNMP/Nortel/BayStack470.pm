@@ -12,7 +12,6 @@ package pf::SNMP::Nortel::BayStack470;
 
 pf::SNMP::Nortel::BayStack470 - Object oriented module to access SNMP enabled Nortel BayStack470 switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Nortel::BayStack470 module implements an object 

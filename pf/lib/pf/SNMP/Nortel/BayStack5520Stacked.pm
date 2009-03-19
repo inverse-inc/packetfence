@@ -14,7 +14,6 @@ package pf::SNMP::Nortel::BayStack5520Stacked;
 
 pf::SNMP::Nortel::BayStack5520Stacked - Object oriented module to access SNMP enabled Nortel BayStack5520 switches in a stacked environment
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Nortel::BayStack5520Stacked module implements an object 

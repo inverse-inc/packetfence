@@ -13,7 +13,6 @@ package pf::SNMP::Nortel;
 
 pf::SNMP::Nortel - Object oriented module to access SNMP enabled Nortel switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Nortel module implements an object oriented interface

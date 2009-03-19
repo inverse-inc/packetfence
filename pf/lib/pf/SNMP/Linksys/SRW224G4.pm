@@ -12,7 +12,6 @@ package pf::SNMP::Linksys::SRW224G4;
 
 pf::SNMP::Linksys::SRW224G4 - Object oriented module to access SNMP enabled Linksys SRW224G4 switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Linksys::SRW224G4 module implements an object 

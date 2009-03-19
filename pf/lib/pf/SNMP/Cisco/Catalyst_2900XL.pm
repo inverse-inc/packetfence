@@ -12,7 +12,6 @@ package pf::SNMP::Cisco::Catalyst_2900XL;
 
 pf::SNMP::Cisco::Catalyst_2900XL - Object oriented module to access SNMP enabled Cisco Catalyst 2900XL switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Cisco::Catalyst_2900XL module implements an object oriented interface

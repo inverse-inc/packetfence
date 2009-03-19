@@ -12,7 +12,6 @@ package pf::vlan::custom;
 
 pf::vlan::custom - Object oriented module for VLAN isolation oriented functions 
 
-
 =head1 SYNOPSIS
 
 The pf::vlan::custom module implements VLAN isolation 

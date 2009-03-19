@@ -12,7 +12,6 @@ package pf::SNMP::HP::Procurve_2500;
 
 pf::SNMP::HP::Procurve_2500 - Object oriented module to access SNMP enabled HP Procurve 2500 switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::HP::Procurve_2500 module implements an object 

@@ -12,7 +12,6 @@ package pf::SNMP::Nortel::BayStack5520;
 
 pf::SNMP::Nortel::BayStack5520 - Object oriented module to access SNMP enabled Nortel BayStack5520 switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Nortel::BayStack5520 module implements an object 

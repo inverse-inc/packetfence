@@ -12,7 +12,6 @@ package pf::SNMP::ThreeCom::NJ220;
 
 pf::SNMP::ThreeCom::NJ220 - Object oriented module to access SNMP enabled 3COM NJ220 switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::ThreeCom::NJ220 module implements an object 

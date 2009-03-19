@@ -12,7 +12,6 @@ package pf::SNMP::Dell::PowerConnect3424;
 
 pf::SNMP::Dell::PowerConnect3424 - Object oriented module to access SNMP enabled Dell PowerConnect3424 switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Dell::PowerConnect3424 module implements an object oriented interface to access SNMP enabled Dell:PowerConnect3424 switches.

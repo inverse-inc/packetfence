@@ -12,7 +12,6 @@ package pf::SNMP::Cisco::Catalyst_3560;
 
 pf::SNMP::Cisco::Catalyst_3560 - Object oriented module to access SNMP enabled Cisco Catalyst 3560 switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Cisco::Catalyst_3560 module implements an object oriented interface

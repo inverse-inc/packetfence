@@ -13,7 +13,6 @@ package pf::SNMP::Dell;
 
 pf::SNMP::Dell - Object oriented module to access SNMP enabled Dell switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Dell module implements an object oriented interface

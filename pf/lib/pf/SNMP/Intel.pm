@@ -13,7 +13,6 @@ package pf::SNMP::Intel;
 
 pf::SNMP::Intel - Object oriented module to access SNMP enabled Intel switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Intel module implements an object oriented interface

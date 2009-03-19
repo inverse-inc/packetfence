@@ -12,7 +12,6 @@ package pf::SNMP::Cisco::WLC_2106;
 
 pf::SNMP::Cisco::WLC_2106 - Object oriented module to access SNMP enabled Cisco WLC
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Cisco::WLC_2106 module implements an object oriented interface

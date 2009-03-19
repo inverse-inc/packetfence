@@ -12,7 +12,6 @@ package pf::SNMP::Nortel::BPS2000;
 
 pf::SNMP::Nortel::BPS2000 - Object oriented module to access SNMP enabled Nortel BPS2000 switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Nortel::BPS2000 module implements an object 

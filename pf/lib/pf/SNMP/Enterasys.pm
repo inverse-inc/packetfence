@@ -14,7 +14,6 @@ package pf::SNMP::Enterasys;
 pf::SNMP::Enterasys - Object oriented module to access SNMP enabled 
 Enterasys switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Enterasys module implements an object oriented interface

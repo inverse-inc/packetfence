@@ -22,7 +22,6 @@ package pf::SNMP::SMC::TS6224M;
 pf::SNMP::SMC::TS6224M - Object oriented module to access SNMP 
 enabled SMC Switch - TigerStack 6224M switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::SMC::TS6224M module implements an object 

@@ -12,7 +12,6 @@ package pf::SNMP::Enterasys::SecureStack_C2;
 
 pf::SNMP::Enterasys::SecureStack_C2 - Object oriented module to access SNMP enabled Enterasys SecureStack C2 switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Enterasys::SecureStack_C2 module implements an object 

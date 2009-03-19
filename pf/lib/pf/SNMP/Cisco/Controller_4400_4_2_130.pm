@@ -12,7 +12,6 @@ package pf::SNMP::Cisco::Controller_4400_4_2_130;
 
 pf::SNMP::Cisco::Controller_4400_4_2_130 - Object oriented module to access SNMP enabled Cisco Controller 4400 with IOS version 4.2.130
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Cisco::Controller_4400_4_2_130 module implements an object oriented interface

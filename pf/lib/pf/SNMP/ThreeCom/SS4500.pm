@@ -25,7 +25,6 @@ package pf::SNMP::ThreeCom::SS4500;
 
 pf::SNMP::ThreeCom::SS4500 - Object oriented module to access SNMP enabled 3COM Huawei SuperStack 3 Switch - 4500 switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::ThreeCom::SS4500 module implements an object 

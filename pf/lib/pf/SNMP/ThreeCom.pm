@@ -14,7 +14,6 @@ package pf::SNMP::ThreeCom;
 pf::SNMP::ThreeCom - Object oriented module to access SNMP enabled 3COM
 switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::ThreeCom module implements an object oriented interface

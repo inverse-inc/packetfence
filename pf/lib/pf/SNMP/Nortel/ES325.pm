@@ -12,7 +12,6 @@ package pf::SNMP::Nortel::ES325;
 
 pf::SNMP::Nortel::ES325 - Object oriented module to access SNMP enabled Nortel 325 switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Nortel::ES325 module implements an object 

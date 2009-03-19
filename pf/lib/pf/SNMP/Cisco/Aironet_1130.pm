@@ -12,7 +12,6 @@ package pf::SNMP::Cisco::Aironet_1130;
 
 pf::SNMP::Cisco::Aironet_1130 - Object oriented module to access SNMP enabled Cisco Aironet 1130 APs
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Cisco::Aironet_1130 module implements an object oriented interface

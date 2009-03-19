@@ -13,7 +13,6 @@ package pf::SNMP::PacketFence;
 
 pf::SNMP::PacketFence - Object oriented module to send local traps to snmptrapd
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::PacketFence module implements an object oriented interface

@@ -12,7 +12,6 @@ package pf::SNMP;
 
 pf::SNMP - Object oriented module to access SNMP enabled network switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP module implements an object oriented interface to access
@@ -739,7 +738,7 @@ sub getMode {
     return $this->{_mode};
 }
 
-=item isTestingMode - return True if $switch->{_mode} eq 'testing'
+=item isTestingMode - return True if $switch-E<gt>{_mode} eq 'testing'
 
 =cut
 
@@ -748,7 +747,7 @@ sub isTestingMode {
     return ( $this->getMode() eq 'testing' );
 }
 
-=item isIgnoreMode - return True if $switch->{_mode} eq 'ignore'
+=item isIgnoreMode - return True if $switch-E<gt>{_mode} eq 'ignore'
 
 =cut
 
@@ -757,7 +756,7 @@ sub isIgnoreMode {
     return ( $this->getMode() eq 'ignore' );
 }
 
-=item isRegistrationMode - return True if $switch->{_mode} eq 'registration'
+=item isRegistrationMode - return True if $switch-E<gt>{_mode} eq 'registration'
 
 =cut
 
@@ -766,7 +765,7 @@ sub isRegistrationMode {
     return ( $this->getMode() eq 'registration' );
 }
 
-=item isProductionMode - return True if $switch->{_mode} eq 'production'
+=item isProductionMode - return True if $switch-E<gt>{_mode} eq 'production'
 
 =cut
 
@@ -775,7 +774,7 @@ sub isProductionMode {
     return ( $this->getMode() eq 'production' );
 }
 
-=item isDiscoveryMode - return True if $switch->{_mode} eq 'discory'
+=item isDiscoveryMode - return True if $switch-E<gt>{_mode} eq 'discory'
 
 =cut
 
@@ -784,7 +783,7 @@ sub isDiscoveryMode {
     return ( $this->getMode() eq 'discovery' );
 }
 
-=item isVoIPEnabled - return true if $switch->{_VoIPEnabled} == 1
+=item isVoIPEnabled - return true if $switch-E<gt>{_VoIPEnabled} == 1
 
 =cut
 
@@ -926,7 +925,7 @@ sub getIfName {
     return '';
 }
 
-=item getIfNameIfIndexHash - return ifName => ifIndex hash
+=item getIfNameIfIndexHash - return ifName =E<gt> ifIndex hash
 
 =cut
 
@@ -1764,7 +1763,7 @@ sub getVlanFdbId {
     return $vlan;
 }
 
-=over
+=back
 
 =cut
 

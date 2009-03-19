@@ -12,7 +12,6 @@ package pf::SNMP::Nortel::BayStack4550;
 
 pf::SNMP::Nortel::BayStack4550 - Object oriented module to access SNMP enabled Nortel BayStack4550 switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Nortel::BayStack4550 module implements an object 

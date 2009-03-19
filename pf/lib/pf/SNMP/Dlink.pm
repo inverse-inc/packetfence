@@ -12,7 +12,6 @@ package pf::SNMP::Dlink;
 
 pf::SNMP::Dlink - Object oriented module to access SNMP enabled Dlink switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Dlink module implements an object oriented interface

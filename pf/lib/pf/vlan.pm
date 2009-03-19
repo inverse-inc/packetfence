@@ -12,7 +12,6 @@ package pf::vlan;
 
 pf::vlan - Object oriented module for VLAN isolation oriented functions 
 
-
 =head1 SYNOPSIS
 
 The pf::vlan module implements VLAN isolation oriented functions.

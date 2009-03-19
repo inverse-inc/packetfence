@@ -12,7 +12,6 @@ package pf::SNMP::HP::Procurve_4100;
 
 pf::SNMP::HP::Procurve_4100 - Object oriented module to access SNMP enabled HP Procurve 4100 switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::HP::Procurve_4100 module implements an object 

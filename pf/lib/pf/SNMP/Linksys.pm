@@ -14,7 +14,6 @@ package pf::SNMP::Linksys;
 pf::SNMP::Linksys - Object oriented module to access SNMP enabled Linksys
 switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Linksys module implements an object oriented interface

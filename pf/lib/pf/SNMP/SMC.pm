@@ -22,7 +22,6 @@ package pf::SNMP::SMC;
 
 pf::SNMP::SMC - Object oriented module to access SNMP enabled SMC switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::SMC module implements an object oriented interface

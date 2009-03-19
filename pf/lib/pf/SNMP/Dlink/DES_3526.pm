@@ -11,7 +11,6 @@ package pf::SNMP::Dlink::DES_3526;
 
 pf::SNMP::Dlink::DES_3526 - Object oriented module to access SNMP enabled Dlink DES 3526 switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Dlink::DES_3526 module implements an object oriented interface

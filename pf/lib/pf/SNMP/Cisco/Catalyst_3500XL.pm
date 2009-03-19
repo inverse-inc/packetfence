@@ -12,7 +12,6 @@ package pf::SNMP::Cisco::Catalyst_3500XL;
 
 pf::SNMP::Cisco::Catalyst_3500XL - Object oriented module to access SNMP enabled Cisco Catalyst 3500XL switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Cisco::Catalyst_3500XL module implements an object oriented interface

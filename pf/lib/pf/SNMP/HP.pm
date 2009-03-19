@@ -13,7 +13,6 @@ package pf::SNMP::HP;
 
 pf::SNMP::HP- Object oriented module to access SNMP enabled HP switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::HP module implements an object oriented interface

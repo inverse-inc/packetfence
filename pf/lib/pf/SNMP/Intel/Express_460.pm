@@ -12,7 +12,6 @@ package pf::SNMP::Intel::Express_460;
 
 pf::SNMP::Intel::Express_460 - Object oriented module to access SNMP enabled Intel Express 460 switches
 
-
 =head1 SYNOPSIS
 
 The pf::SNMP::Intel::Express_460 module implements an object oriented interface
