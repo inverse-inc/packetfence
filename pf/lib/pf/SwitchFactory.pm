@@ -1,12 +1,3 @@
-#
-# Copyright 2006-2008 Inverse groupe conseil
-#
-# See the enclosed file COPYING for license information (GPL).
-# If you did not receive this file, see
-# http://www.fsf.org/licensing/licenses/gpl.html
-#
-#
-
 package pf::SwitchFactory;
 
 =head1 NAME
@@ -329,6 +320,14 @@ sub readConfig {
 }
 
 =back
+
+=head1 COPYRIGHT
+
+Copyright 2006-2008 Inverse groupe conseil
+
+See the enclosed file COPYING for license information (GPL).
+If you did not receive this file, see
+F<http://www.fsf.org/licensing/licenses/gpl.html>
 
 =cut
 

@@ -1,13 +1,10 @@
 #!/usr/bin/perl 
-#
-# Copyright 2005 Dave Laporte <dave@laportestyle.org>
-# Copyright 2005 Kevin Amorin <kev@amorin.org>
-# Copyright 2007-2008 Inverse consulting <dgehl@inverse.ca>
-#
-# See the enclosed file COPYING for license information (GPL).
-# If you did not receive this file, see
-# http://www.fsf.org/licensing/licenses/gpl.html.
-#
+
+=head1 NAME
+
+pfdhcplistener - listen to DHCP requests
+
+=cut
 
 use warnings;
 use strict;
@@ -495,3 +492,19 @@ sub usage {
 EOF
     exit;
 }
+
+
+=head1 COPYRIGHT
+
+Copyright 2005 Dave Laporte <dave@laportestyle.org>
+
+Copyright 2005 Kevin Amorin <kev@amorin.org>
+
+Copyright 2007-2008 Inverse consulting <dgehl@inverse.ca>
+
+See the enclosed file COPYING for license information (GPL).
+If you did not receive this file, see
+F<http://www.fsf.org/licensing/licenses/gpl.html>.
+
+=cut
+

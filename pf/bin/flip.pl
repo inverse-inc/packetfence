@@ -1,11 +1,10 @@
 #!/usr/bin/perl -w
 
-# Copyright 2007-2009 Inverse groupe conseil
-#
-# See the enclosed file COPYING for license information (GPL).
-# If you did not receive this file, see
-# http://www.fsf.org/licensing/licenses/gpl.html
-#
+=head1 NAME
+
+flip.pl - send local SNMP traps in order to flip a VLAN assignment
+
+=cut
 
 use strict;
 use warnings;
@@ -65,6 +64,20 @@ if ($locationlog_entry) {
 }
 
 exit 1;
+
+=head1 AUTHOR
+
+Dominik Gehl <dgehl@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright 2007-2009 Inverse groupe conseil
+
+See the enclosed file COPYING for license information (GPL).
+If you did not receive this file, see
+F<http://www.fsf.org/licensing/licenses/gpl.html>
+
+=cut
 
 # vim: set shiftwidth=4:
 # vim: set expandtab:

@@ -1,14 +1,10 @@
-#
-# Copyright 2005 David Laporte <david@davidlaporte.org>
-# Copyright 2005 Kevin Amorin <kev@amorin.org>
-# Copyright 2007-2009 Inverse groupe conseil <dgehl@inverse.ca>
-#
-# See the enclosed file COPYING for license information (GPL).
-# If you did not receive this file, see
-# http://www.fsf.org/licensing/licenses/gpl.html.
-#
-
 package pf::configfile;
+
+=head1 NAME
+
+pf::configfile
+
+=cut
 
 use strict;
 use warnings;
@@ -169,5 +165,15 @@ sub configfile_view {
     $configfile_view_sql->finish();
     return ($ref);
 }
+
+=head1 COPYRIGHT
+
+Copyright 2007-2009 Inverse groupe conseil <dgehl@inverse.ca>
+
+See the enclosed file COPYING for license information (GPL).
+If you did not receive this file, see
+F<http://www.fsf.org/licensing/licenses/gpl.html>.
+
+=cut
 
 1;

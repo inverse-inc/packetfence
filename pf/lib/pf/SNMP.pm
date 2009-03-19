@@ -1,11 +1,3 @@
-#
-# Copyright 2006-2008 Inverse groupe conseil
-#
-# See the enclosed file COPYING for license information (GPL).
-# If you did not receive this file, see
-# http://www.fsf.org/licensing/licenses/gpl.html
-#
-
 package pf::SNMP;
 
 =head1 NAME
@@ -1764,6 +1756,19 @@ sub getVlanFdbId {
 }
 
 =back
+
+=head1 AUTHOR
+
+Dominik Gehl <dgehl@inverse.ca>
+
+
+=head1 COPYRIGHT
+
+Copyright 2006-2008 Inverse groupe conseil
+
+See the enclosed file COPYING for license information (GPL).
+If you did not receive this file, see
+F<http://www.fsf.org/licensing/licenses/gpl.html>
 
 =cut
 
