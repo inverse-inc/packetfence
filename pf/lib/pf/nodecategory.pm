@@ -1,12 +1,10 @@
-#
-# Copyright 2008 Inverse <dgehl@inverse.ca>
-#
-# See the enclosed file COPYING for license information (GPL).
-# If you did not receive this file, see
-# http://www.fsf.org/licensing/licenses/gpl.html.
-#
-
 package pf::nodecategory;
+
+=head1 NAME
+
+pf::nodecategory
+
+=cut
 
 use strict;
 use warnings;
@@ -64,5 +62,15 @@ sub nodecategory_view {
     }
     return @catArray;
 }
+
+=head1 COPYRIGHT
+
+Copyright 2008 Inverse <dgehl@inverse.ca>
+
+See the enclosed file COPYING for license information (GPL).
+If you did not receive this file, see
+F<http://www.fsf.org/licensing/licenses/gpl.html>.
+
+=cut
 
 1;

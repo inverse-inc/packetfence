@@ -1,11 +1,3 @@
-#
-# Copyright 2007-2009 Inverse <support@inverse.ca>
-#
-# See the enclosed file COPYING for license information (GPL).
-# If you did not receive this file, see
-# http://www.fsf.org/licensing/licenses/gpl.html.
-#
-
 package pf::vlan;
 
 =head1 NAME
@@ -263,6 +255,16 @@ sub custom_shouldAutoRegister {
     my ( $this, $mac, $isPhone ) = @_;
     return $isPhone;
 }
+
+=head1 COPYRIGHT
+
+Copyright 2007-2009 Inverse <support@inverse.ca>
+
+See the enclosed file COPYING for license information (GPL).
+If you did not receive this file, see
+F<http://www.fsf.org/licensing/licenses/gpl.html>.
+
+=cut
 
 1;
 

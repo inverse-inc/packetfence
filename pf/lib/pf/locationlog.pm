@@ -1,14 +1,10 @@
-#
-# Copyright 2005 David LaPorte <david@davidlaporte.org>
-# Copyright 2005 Kevin Amorin <kev@amorin.org>
-# Copyright 2007-2008 Inverse groupe conseil <dgehl@inverse.ca>
-#
-# See the enclosed file COPYING for license information (GPL).
-# If you did not receive this file, see
-# http://www.fsf.org/licensing/licenses/gpl.html.
-#
-
 package pf::locationlog;
+
+=head1 NAME
+
+pf::locationlog
+
+=cut
 
 use strict;
 use warnings;
@@ -391,5 +387,19 @@ sub locationlog_cleanup {
         "deleted $rows entries from locationlog during locationlog cleanup" );
     return (0);
 }
+
+=head1 COPYRIGHT
+
+Copyright 2005 David LaPorte <david@davidlaporte.org>
+
+Copyright 2005 Kevin Amorin <kev@amorin.org>
+
+Copyright 2007-2008 Inverse groupe conseil <dgehl@inverse.ca>
+
+See the enclosed file COPYING for license information (GPL).
+If you did not receive this file, see
+F<http://www.fsf.org/licensing/licenses/gpl.html>.
+
+=cut
 
 1;

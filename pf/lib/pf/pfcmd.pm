@@ -1,13 +1,10 @@
-#
-# Copyright 2009 Inverse groupe conseil
-#
-# See the enclosed file COPYING for license information (GPL).
-# If you did not receive this file, see
-# http://www.fsf.org/licensing/licenses/gpl.html
-#
-#
-
 package pf::pfcmd;
+
+=head1 NAME
+
+pf::pfcmd
+
+=cut
 
 use strict;
 use warnings;
@@ -417,6 +414,16 @@ sub parseWithGrammar {
     $cmd{'grammar'} = ( defined($result) ? 1 : 0 );
     return %cmd;
 }
+
+=head1 COPYRIGHT
+
+Copyright 2009 Inverse groupe conseil
+
+See the enclosed file COPYING for license information (GPL).
+If you did not receive this file, see
+http://www.fsf.org/licensing/licenses/gpl.html
+
+=cut
 
 1;
 

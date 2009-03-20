@@ -1,13 +1,3 @@
-#
-# Copyright 2005 Dave Laporte <dave@laportestyle.org>
-# Copyright 2005 Kevin Amorin <kev@amorin.org>
-# Copyright 2009 Inverse groupe conseil <dgehl@inverse.ca>
-#
-# See the enclosed file COPYING for license information (GPL).
-# If you did not receive this file, see
-# http://www.fsf.org/licensing/licenses/gpl.html.
-#
-
 package pf::lookup::person;
 
 =head1 NAME
@@ -94,5 +84,19 @@ sub lookup_person {
         return ("Person $pid is not a registered user!\n");
     }
 }
+
+=head1 COPYRIGHT
+
+Copyright 2005 Dave Laporte <dave@laportestyle.org>
+
+Copyright 2005 Kevin Amorin <kev@amorin.org>
+
+Copyright 2009 Inverse groupe conseil <dgehl@inverse.ca>
+
+See the enclosed file COPYING for license information (GPL).
+If you did not receive this file, see
+http://www.fsf.org/licensing/licenses/gpl.html.
+
+=cut
 
 1;

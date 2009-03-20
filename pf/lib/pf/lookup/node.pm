@@ -1,18 +1,17 @@
-#
-# Copyright 2005 Dave Laporte <dave@laportestyle.org>
-# Copyright 2005 Kevin Amorin <kev@amorin.org>
-# Copyright 2009 Inverse groupe conseil <dgehl@inverse.ca>
-#
-# See the enclosed file COPYING for license information (GPL).
-# If you did not receive this file, see
-# http://www.fsf.org/licensing/licenses/gpl.html.
-#
-
-# define this function to return whatever data you'd like
-# it's called via "pfcmd lookup node <mac>", through the administrative GUI,
-# or as the content of a violation action
-
 package pf::lookup::node;
+
+=head1 NAME
+
+pf::lookup::node
+
+=head1 SYNOPSYS
+
+define this function to return whatever data you'd like
+it's called via "pfcmd lookup node <mac>", through the administrative GUI,
+or as the content of a violation action
+
+=cut
+
 
 use strict;
 use warnings;
@@ -103,5 +102,19 @@ sub lookup_node {
     }
     return ($return);
 }
+
+=head1 COPYRIGHT
+
+Copyright 2005 Dave Laporte <dave@laportestyle.org>
+
+Copyright 2005 Kevin Amorin <kev@amorin.org>
+
+Copyright 2009 Inverse groupe conseil <dgehl@inverse.ca>
+
+See the enclosed file COPYING for license information (GPL).
+If you did not receive this file, see
+http://www.fsf.org/licensing/licenses/gpl.html.
+
+=cut
 
 1;

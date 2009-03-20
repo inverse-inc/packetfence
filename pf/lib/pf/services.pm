@@ -1,13 +1,10 @@
-#
-# Copyright 2005 David LaPorte <david@davidlaporte.org>
-# Copyright 2005 Kevin Amorin <kev@amorin.org>
-#
-# See the enclosed file COPYING for license information (GPL).
-# If you did not receive this file, see
-# http://www.fsf.org/licensing/licenses/gpl.html.
-#
-
 package pf::services;
+
+=head1 NAME
+
+pf::services
+
+=cut
 
 use strict;
 use warnings;
@@ -985,5 +982,17 @@ sub normalize_dhcpd_range {
         return;
     }
 }
+
+=head1 COPYRIGHT
+
+Copyright 2005 David LaPorte <david@davidlaporte.org>
+
+Copyright 2005 Kevin Amorin <kev@amorin.org>
+
+See the enclosed file COPYING for license information (GPL).
+If you did not receive this file, see
+F<http://www.fsf.org/licensing/licenses/gpl.html>.
+
+=cut
 
 1;
