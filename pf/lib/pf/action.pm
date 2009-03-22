@@ -247,13 +247,21 @@ sub action_winpopup {
 
 }
 
+=head1 AUTHOR
+
+David Laporte <david@davidlaporte.org>
+
+Kevin Amorin <kev@amorin.org>
+
+Dominik Gehl <dgehl@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005 David Laporte <david@davidlaporte.org>
+Copyright (C) 2005 David Laporte
 
-Copyright (C) 2005 Kevin Amorin <kev@amorin.org>
+Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2007-2008 Inverse groupe conseil <dgehl@inverse.ca>
+Copyright (C) 2007-2008 Inverse groupe conseil
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
