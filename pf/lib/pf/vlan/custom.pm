@@ -20,6 +20,10 @@ use Log::Log4perl;
 
 use base ('pf::vlan');
 
+=head1 AUTHOR
+
+Dominik Gehl <dgehl@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2006-2009 Inverse groupe conseil

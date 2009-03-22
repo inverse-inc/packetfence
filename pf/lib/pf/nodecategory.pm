@@ -63,9 +63,13 @@ sub nodecategory_view {
     return @catArray;
 }
 
+=head1 AUTHOR
+
+Dominik Gehl <dgehl@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2008 Inverse <dgehl@inverse.ca>
+Copyright (C) 2008 Inverse groupe conseil
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

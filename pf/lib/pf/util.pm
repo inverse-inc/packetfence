@@ -653,11 +653,17 @@ sub preload_is_internal {
     return (%is_internal);
 }
 
+=head1 AUTHOR
+
+David LaPorte <david@davidlaporte.org>
+
+Kevin Amorin <kev@amorin.org>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005 David LaPorte <david@davidlaporte.org>
+Copyright (C) 2005 David LaPorte
 
-Copyright (C) 2005 Kevin Amorin <kev@amorin.org>
+Copyright (C) 2005 Kevin Amorin
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

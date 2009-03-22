@@ -85,13 +85,21 @@ sub lookup_person {
     }
 }
 
+=head1 AUTHOR
+
+Dave Laporte <dave@laportestyle.org>
+
+Kevin Amorin <kev@amorin.org>
+
+Dominik Gehl <dgehl@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005 Dave Laporte <dave@laportestyle.org>
+Copyright (C) 2005 Dave Laported
 
-Copyright (C) 2005 Kevin Amorin <kev@amorin.org>
+Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009 Inverse groupe conseil <dgehl@inverse.ca>
+Copyright (C) 2009 Inverse groupe conseil
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
