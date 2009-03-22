@@ -1,12 +1,10 @@
-#
-# Copyright 2006-2008 Inverse groupe conseil
-#
-# See the enclosed file COPYING for license information (GPL).
-# If you did not receive this file, see
-# http://www.fsf.org/licensing/licenses/gpl.html
-#
-
 package pf::SNMP::Cisco;
+
+=head1 NAME
+
+pf::SNMP::Cisco
+
+=cut
 
 use strict;
 use warnings;
@@ -1473,6 +1471,16 @@ sub copyConfig {
     return ( defined($result) );
 
 }
+
+=head1 COPYRIGHT
+
+Copyright 2006-2008 Inverse groupe conseil
+
+See the enclosed file COPYING for license information (GPL).
+If you did not receive this file, see
+F<http://www.fsf.org/licensing/licenses/gpl.html>
+
+=cut
 
 1;
 

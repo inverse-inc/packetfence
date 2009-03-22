@@ -1,14 +1,10 @@
-#
-# Copyright 2005 David LaPorte <david@davidlaporte.org>
-# Copyright 2005 Kevin Amorin <kev@amorin.org>
-# Copyright 2008-2009 Inverse groupe conseil <dgehl@inverse.ca>
-#
-# See the enclosed file COPYING for license information (GPL).
-# If you did not receive this file, see
-# http://www.fsf.org/licensing/licenses/gpl.html.
-#
-
 package pf::pfcmd::help;
+
+=head1 NAME
+
+pf::pfcmd::help - usage messages
+
+=cut
 
 use strict;
 use warnings;
@@ -514,5 +510,17 @@ update traplog RRD files and graphs - this command should not be
 EOT
     return 1;
 }
+
+=head1 COPYRIGHT
+
+Copyright 2005 David LaPorte <david@davidlaporte.org>
+Copyright 2005 Kevin Amorin <kev@amorin.org>
+Copyright 2008-2009 Inverse groupe conseil <dgehl@inverse.ca>
+
+See the enclosed file COPYING for license information (GPL).
+If you did not receive this file, see
+F<http://www.fsf.org/licensing/licenses/gpl.html>.
+
+=cut
 
 1;

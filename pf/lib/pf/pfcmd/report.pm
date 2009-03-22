@@ -1,12 +1,3 @@
-#
-# Copyright 2005 David LaPorte <david@davidlaporte.org>
-# Copyright 2005 Kevin Amorin <kev@amorin.org>
-#
-# See the enclosed file COPYING for license information (GPL).
-# If you did not receive this file, see
-# http://www.fsf.org/licensing/licenses/gpl.html.
-#
-
 use strict;
 use warnings;
 use Log::Log4perl;
@@ -311,5 +302,17 @@ sub report_unknownprints_active {
     }
     return (@data);
 }
+
+=head1 COPYRIGHT
+
+Copyright 2005 David LaPorte <david@davidlaporte.org>
+
+Copyright 2005 Kevin Amorin <kev@amorin.org>
+
+See the enclosed file COPYING for license information (GPL).
+If you did not receive this file, see
+F<http://www.fsf.org/licensing/licenses/gpl.html>.
+
+=cut
 
 1;

@@ -1,11 +1,3 @@
-#
-# Copyright 2006-2009 Inverse groupe conseil
-#
-# See the enclosed file COPYING for license information (GPL).
-# If you did not receive this file, see
-# http://www.fsf.org/licensing/licenses/gpl.html
-#
-
 package pf::vlan::custom;
 
 =head1 NAME
@@ -27,6 +19,16 @@ use diagnostics;
 use Log::Log4perl;
 
 use base ('pf::vlan');
+
+=head1 COPYRIGHT
+
+Copyright 2006-2009 Inverse groupe conseil
+
+See the enclosed file COPYING for license information (GPL).
+If you did not receive this file, see
+F<http://www.fsf.org/licensing/licenses/gpl.html>
+
+=cut
 
 1;
 

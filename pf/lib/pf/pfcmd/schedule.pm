@@ -140,4 +140,10 @@ sub update_index {
     return $self->update_entry( $idx, $entry );
 }
 
+=head1 COPYRIGHT
+
+GPL
+
+=cut
+
 1;
