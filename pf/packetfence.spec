@@ -1,11 +1,11 @@
 #rpmbuild should be done in several steps:
 #1) rpmbuild -bs SPECS/packetfence.spec
 #on each target distribution
-#2) rpmbuild --rebuild --define 'dist .el5' SRPMS/packetfence-1.8.2-20090315.src.rpm
+#2) rpmbuild --rebuild --define 'dist .el5' SRPMS/packetfence-1.8.2-20090323.src.rpm
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
 Version: 1.8.2
-Release: 20090315%{?dist}
+Release: 20090323%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.packetfence.org
@@ -16,7 +16,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Packager: Dominik Gehl <dgehl@inverse.ca>
 Vendor: PacketFence, http://www.packetfence.org
 
-Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}-20090315.tar.gz
+Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}-20090323.tar.gz
 
 BuildRequires: gettext, perl(Parse::RecDescent), httpd
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget
@@ -117,8 +117,12 @@ mv packetfence.mo conf/locale/nl/LC_MESSAGES/
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/logs
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/rrd
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
-cp -r addons $RPM_BUILD_ROOT/usr/local/pf/
+cp -r addons/802.1X/ $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp -r addons/mrtg/ $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r cgi-bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/

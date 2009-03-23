@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 74;
+use Test::More tests => 73;
 
 my @php_files = (
     '/usr/local/pf/html/admin/administration/adduser.php',
@@ -60,7 +60,6 @@ my @php_files = (
     '/usr/local/pf/html/admin/status/index.php',
     '/usr/local/pf/html/admin/status/reports.php',
     '/usr/local/pf/html/admin/status/sajax-dashboard.php',
-    '/usr/local/pf/html/admin/tmp/bug_report.php',
     '/usr/local/pf/html/admin/violation/add.php',
     '/usr/local/pf/html/admin/violation/edit.php',
     '/usr/local/pf/html/admin/violation/index.php',
