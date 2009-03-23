@@ -79,6 +79,8 @@ my @modules = (
     "Template",
     "Term::ReadKey",
     "Test::Perl::Critic",
+    "Test::Pod",
+    "Test::Pod::Coverage",
     "Thread::Pool",
     "UNIVERSAL::require",
 );

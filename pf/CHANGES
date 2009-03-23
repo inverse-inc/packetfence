@@ -53,6 +53,7 @@
           (http://www.packetfence.org/mantis/view.php?id=634)
         fixed POD warnings and errors
           (http://www.packetfence.org/mantis/view.php?id=636)
+        added Test::POD tests
 
 1.8.1
         authorized @ as first symbol in password
