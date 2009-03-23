@@ -1,7 +1,3 @@
-#
-# *** SETVLAN NOT WORK WITH DEFAULT VLAN ID 1 ***
-#
-
 package pf::SNMP::ThreeCom::SS4500;
 
 =head1 NAME
@@ -303,6 +299,10 @@ sub authorizeMac {
     return 1;
 
 }
+
+=head1 BUGS AND LIMITATIONS
+
+setvlan does not work with default VLAN ID 1
 
 =head1 AUTHOR
 

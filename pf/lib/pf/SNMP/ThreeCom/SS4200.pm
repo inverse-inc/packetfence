@@ -1,7 +1,3 @@
-#
-# *** SETVLAN NOT WORK WITH DEFAULT VLAN ID 1 ***
-#
-
 package pf::SNMP::ThreeCom::SS4200;
 
 =head1 NAME
@@ -292,6 +288,10 @@ sub _setVlan {
 
     return ( defined($result) );
 }
+
+=head1 BUGS AND LIMITATIONS
+
+setvlan does not work with default VLAN ID 1
 
 =head1 AUTHOR
 
