@@ -20,7 +20,7 @@ connect_and_read.pl [options]
                      2 : info messages
                      3 : debug
                     >3 : trace
-                 
+
 
 =head1 DESCRIPTION
 

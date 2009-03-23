@@ -1,21 +1,4 @@
 #
-# Copyright 2007-2008 Inverse groupe conseil
-#
-# See the enclosed file COPYING for license information (GPL).
-# If you did not receive this file, see
-# http://www.fsf.org/licensing/licenses/gpl.html
-#
-# Modified for supporting 3COM  Hauwei switches
-# Model SuperStack 3 Switch - 4500
-#
-# Mr. Chinasee BOONYATANG <chinasee.b@psu.ac.th>
-# Mr.Ponpitak SANTIPAPTAWON	<ponpitak.s@psu.ac.th>
-# Prince of Songkla University , Thailand
-# http://netserv.cc.psu.ac.th
-# 2008-11-21
-#
-# dgehl@inverse.ca 2208-12-10
-#
 # *** SETVLAN NOT WORK WITH DEFAULT VLAN ID 1 ***
 #
 
@@ -320,6 +303,38 @@ sub authorizeMac {
     return 1;
 
 }
+
+=head1 AUTHOR
+
+Mr. Chinasee BOONYATANG <chinasee.b@psu.ac.th>
+
+Mr.Ponpitak SANTIPAPTAWON	<ponpitak.s@psu.ac.th>
+
+  Prince of Songkla University, Thailand
+  http://netserv.cc.psu.ac.th
+
+Dominik Gehl <dgehl@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2006-2008 Inverse groupe conseil
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
 
 1;
 

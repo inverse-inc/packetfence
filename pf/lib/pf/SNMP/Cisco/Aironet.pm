@@ -149,6 +149,10 @@ sub isVoIPEnabled {
     return 0;
 }
 
+=head1 AUTHOR
+
+Dominik Gehl <dgehl@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2007-2008 Inverse groupe conseil

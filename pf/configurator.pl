@@ -498,11 +498,19 @@ sub installed {
     return ( !`rpm -q $rpm` !~ /not installed/ );
 }
 
+=head1 AUTHOR
+
+Dave Laporte <dave@laportestyle.org>
+
+Kevin Amorin <kev@amorin.org>
+
+Dominik Gehl <dgehl@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005 Dave Laporte <dave@laportestyle.org>
+Copyright (C) 2005 Dave Laporte
 
-Copyright (C) 2005 Kevin Amorin <kev@amorin.org>
+Copyright (C) 2005 Kevin Amorin
 
 Copyright (C) 2008-2009 Inverse groupe conseil
 

@@ -179,9 +179,13 @@ sub isLearntTrapsEnabled {
     return 1;
 }
 
+=head1 AUTHOR
+
+Treker Chen <treker.chen@gmail.com>
+
 =head1 COPYRIGHT
 
-Copyright 2008 Treker Chen treker.chen@gmail.com
+Copyright (C) 2008 Treker Chen
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

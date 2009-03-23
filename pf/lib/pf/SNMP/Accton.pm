@@ -223,6 +223,10 @@ sub _setVlan {
     return ( defined($result) );
 }
 
+=head1 AUTHOR
+
+Dominik Gehl <dgehl@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2006-2008 Inverse groupe conseil

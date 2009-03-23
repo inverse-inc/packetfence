@@ -139,6 +139,12 @@ $monitorSnmpThread->join();
 $monitorSetVlanThread->join();
 $monitorConcurrencyThread->join();
 
+=head1 AUTHOR
+
+Regis Balzard <rbalzard@inverse.ca>
+
+Dominik Gehl <dgehl@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2006-2008 Inverse groupe conseil
