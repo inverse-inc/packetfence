@@ -8,6 +8,8 @@ use Test::Pod;
 use Test::More tests => 92;
 
 my @files = (
+    '/usr/local/pf/configurator.pl',
+    '/usr/local/pf/installer.pl',
     '/usr/local/pf/addons/autodiscover.pl',
     '/usr/local/pf/addons/convertToPortSecurity.pl',
     '/usr/local/pf/addons/monitorpfsetvlan.pl',

@@ -59,7 +59,7 @@ my @modules = (
     "IPTables::Parse",
     "IPTables::ChainMgr",
     "List::MoreUtils",
-    "Locale::gettext"
+    "Locale::gettext",
     "Log::Log4perl",
     "LWP::UserAgent",
     "Net::Appliance::Session",
