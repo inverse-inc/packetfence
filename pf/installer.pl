@@ -8,9 +8,9 @@ installer.pl
 
 use strict;
 use warnings;
+use diagnostics;
 use FindBin;
 use CPAN;
-use Cwd;
 
 my $unsupported = 0;
 my $version;
