@@ -202,7 +202,6 @@ sub normal_handler {
 }
 
 sub daemonize {
-    createpid();
     chdir '/' or $logger->logdie("Can't chdir to /: $!");
     open STDIN, '<', '/dev/null'
         or $logger->logdie("Can't read /dev/null: $!");
@@ -216,6 +215,7 @@ sub daemonize {
         $logger->warn("could not start a new session: $!");
     }
     open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
+    createpid();
 }
 
 END {
