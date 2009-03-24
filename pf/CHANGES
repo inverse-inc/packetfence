@@ -65,6 +65,8 @@
           (http://www.packetfence.org/mantis/view.php?id=639)
         fixed wrong PID written to pid file in pfredirect
           (http://www.packetfence.org/mantis/view.php?id=642)
+        corrected startup of imap and pop3 redirectors
+          (http://www.packetfence.org/mantis/view.php?id=643)
 
 1.8.1
         authorized @ as first symbol in password

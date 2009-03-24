@@ -89,9 +89,20 @@ my $email    = $dateline . $from . $subject . "\n" . $message . ".\n";
 my $length   = length($email);
 
 my $kid1;
-$kid1 = threads->create( \&pop3_director );
-
-imap_director();
+my @listeners = split( /\s*,\s*/, $Config{'ports'}{'listeners'} );
+if (scalar(@listeners) == 1) {
+    if ($listeners[0] eq 'pop3') {
+        $logger->info("starting pop3 redirector");
+        pop3_director();
+    } else {
+        $logger->info("starting imap redirector");
+        imap_director();
+    }
+} else {
+    $logger->info("starting pop3 and imap redirector");
+    $kid1 = threads->create( \&pop3_director );
+    imap_director();
+}
 
 sub imap_director {
     my $sock = new IO::Socket::INET(
@@ -222,10 +233,12 @@ END {
     if ( !$args{h} ) {
         deletepid();
         $logger->info("stopping pfredirect");
-        $kid1->detach;
+        if ( defined($kid1) ) {
+            $kid1->detach;
 
-        # kill kids...
-        kill 6, -$$;
+            # kill kids...
+            kill 6, -$$;
+        }
     }
 }
 
