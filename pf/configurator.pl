@@ -1,12 +1,57 @@
 #!/usr/bin/perl -w
 
+=head1 NAME
+
+configurator.pl - configure PacketFence
+
+=head1 USAGE
+
+  cd /usr/local/pf && ./configurator.pl
+
+Then answer the questions ...
+
+=head1 DESCRIPTION
+
+configurator.pl will help you configure 
+F</usr/local/pf/conf/pf.conf> according to your needs. In
+particular, it tries to achieve the following tasks:
+
+=over
+
+=item * choice between template and custom configuration
+
+=item * choice of isolation mode (C<arp>, C<dhcp> or C<vlan>)
+
+=item * database connection parameters
+
+=item * hostname and IP address
+
+=item * network configuration (management interfaces)
+
+=back
+
+=head1 DEPENDENCIES
+
+=over
+
+=item * Carp
+
+=item * Config::IniFiles
+
+=item * FindBin
+
+=item * Net::Netmask
+
+=back
+
+=cut
+
 use strict;
 use warnings;
 use diagnostics;
 
 use FindBin;
 use Config::IniFiles;
-use Cwd;
 use Net::Netmask;
 use Carp;
 
@@ -497,6 +542,10 @@ sub installed {
     my ($rpm) = @_;
     return ( !`rpm -q $rpm` !~ /not installed/ );
 }
+
+=head1 SEE ALSO
+
+L<installer.pl>
 
 =head1 AUTHOR
 

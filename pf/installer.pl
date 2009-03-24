@@ -2,7 +2,55 @@
 
 =head1 NAME
 
-installer.pl
+installer.pl - install PacketFence and dependencies
+
+=head1 USAGE
+
+  cd /usr/local/pf && ./installer.pl
+
+Then answer the questions ...
+
+=head1 DESCRIPTION
+
+installer.pl will help you with the following tasks:
+
+=over
+
+=item * creation of the C<pf> user
+
+=item * creation of the database and database user
+
+=item * installation of Perl module dependencies
+
+=item * installation of JPGraph
+
+=item * update of DHCP fingerprints to latest version
+
+=item * update of OUI prefixes to the latest version
+
+=item * compilation of pfcmd grammar
+
+=item * compilation of message catalogue (i18n)
+
+=item * creation of a self-signed SSL certificate
+
+=item * account creation for the Web Admin GUI
+
+=item * installation of the PHP Pear Log package
+
+=item * permissions and ownerships of files in F</usr/local/pf>
+
+=back
+
+=head1 DEPENDENCIES
+
+=over
+
+=item * CPAN
+
+=item * FindBin
+
+=back
 
 =cut
 
@@ -552,6 +600,10 @@ sub supported_os {
     }
     return (0);
 }
+
+=head1 SEE ALSO
+
+L<configurator.pl>
 
 =head1 AUTHOR
 
