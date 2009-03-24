@@ -19,6 +19,7 @@ use File::Basename qw(basename);
 use strict;
 use warnings;
 use Log::Log4perl;
+use Pod::Usage;
 
 use constant INSTALL_DIR => '/usr/local/pf';
 
@@ -51,7 +52,7 @@ my $snortpipe = $args{p};
 my $snortpipe_fh;
 my $script    = basename($0);
 
-usage() if ( $args{h} || !$args{p} );
+pod2usage( -verbose => 1 ) if ( $args{h} || !$args{p} );
 
 my ( $line, $sid, $descr, $priority, $date, $srcmac, $srcip, $dstip, $mydbh );
 
@@ -167,17 +168,6 @@ sub restart_handler {
     }
 }
 
-sub usage {
-    my $cmd = basename($0);
-    print STDERR << "EOF";
-  Usage: $cmd -p snortpipe [OPTIONS]
-
-  Options:
-        -d  Daemonize
-        -h  Help
-EOF
-    exit;
-}
 
 =head1 AUTHOR
 
