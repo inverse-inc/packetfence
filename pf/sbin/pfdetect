@@ -14,10 +14,10 @@ pfdetect -p <snortpipe> [options]
 
 =cut
 
-use Getopt::Std;
-use File::Basename qw(basename);
 use strict;
 use warnings;
+use Getopt::Std;
+use File::Basename qw(basename);
 use Log::Log4perl;
 use Pod::Usage;
 
@@ -139,7 +139,6 @@ END {
 exit(0);
 
 sub daemonize {
-    createpid();
     chdir '/' or $logger->logdie("Can't chdir to /: $!");
     open STDIN, '<', '/dev/null'
         or $logger->logdie("Can't read /dev/null: $!");
@@ -153,6 +152,7 @@ sub daemonize {
         $logger->warn("could not start a new session: $!");
     }
     open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
+    createpid();
 }
 
 sub normal_sighandler {
