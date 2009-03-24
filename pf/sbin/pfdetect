@@ -46,11 +46,12 @@ my @ORIG_ARGV = @ARGV;
 my %args;
 getopts( 'dhp:', \%args );
 
-usage() if ( $args{h} || !$args{p} );
-
 my $daemonize = $args{d};
 my $snortpipe = $args{p};
+my $snortpipe_fh;
 my $script    = basename($0);
+
+usage() if ( $args{h} || !$args{p} );
 
 my ( $line, $sid, $descr, $priority, $date, $srcmac, $srcip, $dstip, $mydbh );
 
@@ -58,9 +59,8 @@ daemonize() if ($daemonize);
 
 $logger->info("initialized");
 
-my $snortpipe_fh;
 if ( !open( $snortpipe_fh, '<', "$snortpipe" ) ) {
-    $logger->logdie("unable to open snort pipe: $!");
+    $logger->logdie("unable to open snort pipe ($snortpipe): $!");
 } else {
     $logger->info("listening on $snortpipe");
 }
@@ -129,8 +129,10 @@ while (<$snortpipe_fh>) {
 
 END {
     deletepid();
-    $logger->info("stopping pfdetect");
-    close($snortpipe_fh);
+    if (defined($snortpipe_fh)) {
+        $logger->info("stopping pfdetect");
+        close($snortpipe_fh);
+    }
 }
 
 exit(0);
