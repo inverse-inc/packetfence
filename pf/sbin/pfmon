@@ -710,11 +710,6 @@ sub restart_handler {
     }
 }
 
-=head1 BUGS AND LIMITATIONS
-
-C<pfmon -h> executes some code in lib/pf/util.pm which is not 
-necessary
-
 =head1 AUTHOR
 
 Dave Laporte <dave@laportestyle.org>
