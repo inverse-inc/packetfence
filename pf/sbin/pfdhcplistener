@@ -64,12 +64,12 @@ my @ORIG_ARGV = @ARGV;
 my %args;
 getopts( 'dhvri:', \%args );
 
-usage() if ( $args{h} );
-usage() if ( !$args{i} );
-
 my $daemonize = $args{d};
 my $restart   = $args{r};
 my $interface = $args{i};
+
+usage() if ( $args{h} );
+usage() if ( !$args{i} );
 
 my %rogue_servers;
 
@@ -93,8 +93,10 @@ if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
 }
 
 END {
-    deletepid("pfdhcplistener_$interface");
-    $logger->info("stopping pfdhcplistener for interface $interface");
+    if ( defined($interface) ) {
+        deletepid("pfdhcplistener_$interface");
+        $logger->info("stopping pfdhcplistener for interface $interface");
+    }
 }
 
 exit(0);
