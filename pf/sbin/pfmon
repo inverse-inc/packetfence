@@ -82,6 +82,8 @@ getopts( 'dhvr', \%args );
 
 pod2usage( -verbose => 1 ) if ( $args{h} );
 
+pfmon_preload();
+
 my $daemonize = $args{d};
 my $verbose   = $args{v};
 my $restart   = $args{r};

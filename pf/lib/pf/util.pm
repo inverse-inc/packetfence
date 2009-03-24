@@ -29,16 +29,19 @@ BEGIN {
         isdisabled getlocalmac ip2int int2ip get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_internal_ips
         get_internal_devs get_internal_devs_phy get_external_devs get_managed_devs get_internal_macs
         get_internal_info get_gateways get_dhcp_devs num_interfaces createpid readpid deletepid
+        pfmon_preload
         parse_template mysql_date oui_to_vendor normalize_time);
 }
 
 use pf::config;
 
-if ( basename($0) eq "pfmon" && isenabled( $Config{'general'}{'caching'} ) ) {
-    %trappable_ip = preload_trappable_ip();
-    %reggable_ip  = preload_reggable_ip();
-    %is_internal  = preload_is_internal();
-    %local_mac    = preload_getlocalmac();
+sub pfmon_preload {
+    if ( basename($0) eq "pfmon" && isenabled( $Config{'general'}{'caching'} ) ) {
+        %trappable_ip = preload_trappable_ip();
+        %reggable_ip  = preload_reggable_ip();
+        %is_internal  = preload_is_internal();
+        %local_mac    = preload_getlocalmac();
+    }
 }
 
 sub valid_date {
