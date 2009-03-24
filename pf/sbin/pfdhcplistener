@@ -4,6 +4,14 @@
 
 pfdhcplistener - listen to DHCP requests
 
+=head1 SYNOPSIS
+
+pfdhcplistener -i <interface> [options]
+
+ Options:
+   -d     Daemonize
+   -h     Help
+
 =cut
 
 use warnings;
@@ -13,6 +21,7 @@ use Net::Pcap 0.16;
 use POSIX qw(:signal_h);
 use File::Basename qw(basename);
 use Log::Log4perl;
+use Pod::Usage;
 
 use constant INSTALL_DIR => '/usr/local/pf';
 
@@ -67,8 +76,7 @@ getopts( 'dhi:', \%args );
 my $daemonize = $args{d};
 my $interface = $args{i};
 
-usage() if ( $args{h} );
-usage() if ( !$args{i} );
+pod2usage( -verbose => 1 ) if ( $args{h} || !$args{i} );
 
 my %rogue_servers;
 
@@ -485,15 +493,6 @@ sub restart_handler {
     }
 }
 
-sub usage {
-    print STDERR << "EOF";
-  Usage: $0 -i <interface> [OPTIONS]
-        -d      Daemonize
-        -h      Help
-EOF
-    exit;
-}
-
 =head1 BUGS AND LIMITATIONS
 
 http://packetfence.org/mantis/view.php?id=637
@@ -512,7 +511,7 @@ Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2007-2008 Inverse groupe conseil
+Copyright (C) 2007-2009 Inverse groupe conseil
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
