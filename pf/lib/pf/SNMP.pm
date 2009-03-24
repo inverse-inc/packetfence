@@ -4,7 +4,7 @@ package pf::SNMP;
 
 pf::SNMP - Object oriented module to access SNMP enabled network switches
 
-=head1 SYNOPSIS
+=head1 DESCRIPTION
 
 The pf::SNMP module implements an object oriented interface to access
 SNMP enabled network switches. This module only contains some basic
@@ -586,7 +586,7 @@ sub setNormalVlan {
         $switch_locker_ref );
 }
 
-=item getAlias - get the port descritpion
+=item getAlias - get the port description
 
 =cut
 
@@ -603,7 +603,7 @@ sub getAlias {
     return $result->{"$OID_ifAlias.$ifIndex"};
 }
 
-=item setAlias - set the port descritpion
+=item setAlias - set the port description
 
 =cut
 

@@ -2,7 +2,19 @@ package pf::trigger;
 
 =head1 NAME
 
-pf::trigger
+pf::trigger - module to manage the triggers related to the violations or
+the Nessus scans (if enabled).
+
+=cut
+
+=head1 DESCRIPTION
+
+pf::trigger contains the functions necessary to manage the different 
+triggers related to the violations or the Nessus scans.
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Read the F<pf.conf> configuration file.
 
 =cut
 

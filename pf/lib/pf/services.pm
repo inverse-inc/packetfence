@@ -2,7 +2,19 @@ package pf::services;
 
 =head1 NAME
 
-pf::services
+pf::services - module to manage the PacketFence services and daemons.
+
+=cut
+
+=head1 DESCRIPTION
+
+pf::services contains the functions necessary to control the different 
+PacketFence services and daemons. It also contains the functions used 
+to generate or validate some configuration files.
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Read the F<pf.conf> configuration file.
 
 =cut
 

@@ -6,6 +6,18 @@ pf::action - module to handle violation actions
 
 =cut
 
+=head1 DESCRIPTION
+
+pf::action contains the functions necessary to manage all the different 
+actions (email, log, trap, ...) triggered when a violation is created, 
+opened, closed or deleted.
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Read the F<pf.conf> configuration file.
+
+=cut
+
 use strict;
 use warnings;
 

@@ -2,7 +2,18 @@ package pf::nodecategory;
 
 =head1 NAME
 
-pf::nodecategory
+pf::nodecategory - module to view the node categories.
+
+=cut
+
+=head1 DESCRIPTION
+
+pf::nodecategories contains the functions necessary to view one or all
+the node categories.
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Read the F<pf.conf> configuration file.
 
 =cut
 

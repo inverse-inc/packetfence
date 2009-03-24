@@ -2,7 +2,13 @@ package pf::class;
 
 =head1 NAME
 
-pf::class - violation classes
+pf::class - module to manage the violation classes.
+
+=cut
+
+=head1 DESCRIPTION
+
+pf::class contains the functions necessary to manage the violation classes.
 
 =cut
 

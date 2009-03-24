@@ -2,7 +2,18 @@ package pf::iplog;
 
 =head1 NAME
 
-pf::iplog
+pf::iplog - module to manage the DHCP information and history. 
+
+=cut
+
+=head1 DESCRIPTION
+
+pf::iplog contains the functions necessary to read and manage the DHCP
+information gathered by PacketFence on the network. 
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Read the F<pf.conf> configuration file.
 
 =cut
 
