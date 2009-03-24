@@ -493,6 +493,10 @@ EOF
     exit;
 }
 
+=head1 BUGS AND LIMITATIONS
+
+http://packetfence.org/mantis/view.php?id=637
+
 =head1 AUTHOR
 
 Dave Laporte <dave@laportestyle.org>
