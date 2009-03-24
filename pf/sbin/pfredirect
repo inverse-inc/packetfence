@@ -2,7 +2,16 @@
 
 =head1 NAME
 
-pfredirect
+pfredirect - IMAP and POP3 redirectors
+
+=head1 SYNOPSIS
+
+pfredirect [options]
+
+ Options:
+   -d      Daemonize       
+   -h      Help
+   -v      Verbose
 
 =cut
 
@@ -14,6 +23,7 @@ use threads;
 use threads::shared;
 use POSIX();
 use Log::Log4perl;
+use Pod::Usage;
 
 use constant INSTALL_DIR => '/usr/local/pf';
 
@@ -52,7 +62,7 @@ my @ORIG_ARGV = @ARGV;
 my %args;
 getopts( 'dhv', \%args );
 
-usage() if ( $args{h} );
+pod2usage( -verbose => 1 ) if ( $args{h} );
 my $daemonize = $args{d};
 my $verbose   = $args{v};
 
@@ -206,16 +216,6 @@ sub daemonize {
         $logger->warn("could not start a new session: $!");
     }
     open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
-}
-
-sub usage {
-    print STDERR << "EOF";
-  Usage: $0 [OPTIONS]
-        -d      Daemonize       
-        -v      Verbose
-        -h      Help
-EOF
-    exit;
 }
 
 END {
