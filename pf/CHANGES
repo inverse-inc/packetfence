@@ -67,6 +67,8 @@
           (http://www.packetfence.org/mantis/view.php?id=642)
         corrected startup of imap and pop3 redirectors
           (http://www.packetfence.org/mantis/view.php?id=643)
+        fixed crash in pop3 redirector
+          (http://www.packetfence.org/mantis/view.php?id=644)
 
 1.8.1
         authorized @ as first symbol in password

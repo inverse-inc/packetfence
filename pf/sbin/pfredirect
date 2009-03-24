@@ -150,14 +150,14 @@ sub pop3_director {
         Listen    => 1,
         Reuse     => 1,
     );
-    Logger->logdie("Can't create socket: $!") unless $sock;
+    $logger->logdie("Can't create socket: $!") unless $sock;
 
     $sock->autoflush(1);
     while ( my $sock_handle = $sock->accept() ) {
         my $client_ip = $sock_handle->peerhost();
 
         print "Accepting connection from $client_ip\n" if ($verbose);
-        logger->info("POP3 connection from $client_ip");
+        $logger->info("POP3 connection from $client_ip");
 
         print $sock_handle "+OK POP3 $hostname server ready\n";
 
