@@ -39,9 +39,6 @@ BEGIN {
 use Net::LDAP;
 use Log::Log4perl;
 
-use pf::config;
-use pf::util;
-
 my $LDAPUserBase = "";
 my $LDAPUserKey = "cn";
 my $LDAPUserScope = "sub";
@@ -117,10 +114,6 @@ sub authenticate {
 =item * Log::Log4perl
 
 =item * Net::LDAP
-
-=item * pf::config
-
-=item * pf::util
 
 =back
 

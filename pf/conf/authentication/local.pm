@@ -33,7 +33,6 @@ use Apache::Htpasswd;
 use Log::Log4perl;
 
 use pf::config;
-use pf::util;
 
 =head1 SUBROUTINES
 
@@ -79,8 +78,6 @@ sub authenticate {
 =item * Log::Log4perl
 
 =item * pf::config
-
-=item * pf::util
 
 =back
 
