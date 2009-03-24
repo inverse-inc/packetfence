@@ -62,10 +62,9 @@ POSIX::sigaction(
 my @ORIG_ARGV = @ARGV;
 
 my %args;
-getopts( 'dhvri:', \%args );
+getopts( 'dhi:', \%args );
 
 my $daemonize = $args{d};
-my $restart   = $args{r};
 my $interface = $args{i};
 
 usage() if ( $args{h} );
