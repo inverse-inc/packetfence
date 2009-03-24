@@ -2,7 +2,18 @@ package pf::os;
 
 =head1 NAME
 
-pf::os
+pf::os - module for DHCP fingerprints management.
+
+=cut
+
+=head1 DESCRIPTION
+
+pf::os contains the functions necessary to read the DHCP fingerprints from
+the fingerprint flat file and load them into the database.
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Read the F<dhcp_fingerprints.conf> configuration file.
 
 =cut
 

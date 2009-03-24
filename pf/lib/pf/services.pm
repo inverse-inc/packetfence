@@ -14,7 +14,12 @@ to generate or validate some configuration files.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-Read the F<pf.conf> configuration file.
+Read the following configuration files: F<dhcpd_vlan.conf>, 
+F<named-vlan.conf>, F<named-isolation.ca>, F<named-registration.ca>, 
+F<networks.conf>, F<violations.conf> and F<switches.conf>.
+
+Generate the following configuration files: F<dhcpd.conf>, F<named.conf>, 
+F<snort.conf>, F<httpd.conf>, F<snmptrapd.conf>.
 
 =cut
 

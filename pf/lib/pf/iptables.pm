@@ -2,7 +2,18 @@ package pf::iptables;
 
 =head1 NAME
 
-pf::iptables
+pf::iptables - module for iptables rules management.
+
+=cut
+
+=head1 DESCRIPTION
+
+pf::iptables contains the functions necessary to manipulate the 
+iptables rules used when using PacketFence in ARP or DHCP mode.
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Read the F<pf.conf> configuration file.
 
 =cut
 

@@ -2,12 +2,6 @@ package pf::db;
 
 =head1 NAME
 
-pf::db - database abstraction and utilities
-
-=cut
-
-=head1 NAME
-
 pf::db - module for database abstraction and utilities.
 
 =cut
