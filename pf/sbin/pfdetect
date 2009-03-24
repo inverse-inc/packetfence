@@ -4,6 +4,14 @@
 
 pfdetect - listen to snort alerts and create PF violations
 
+=head1 SYNOPSIS
+
+pfdetect -p <snortpipe> [options]
+
+ Options:
+   -d     Daemonize
+   -h     Help
+
 =cut
 
 use Getopt::Std;
@@ -36,12 +44,11 @@ $SIG{'HUP'} = \&restart_handler;
 
 my @ORIG_ARGV = @ARGV;
 my %args;
-getopts( 'dhvp:', \%args );
+getopts( 'dhp:', \%args );
 
 usage() if ( $args{h} || !$args{p} );
 
 my $daemonize = $args{d};
-my $verbose   = $args{v};
 my $snortpipe = $args{p};
 my $script    = basename($0);
 
@@ -56,7 +63,6 @@ if ( !open( $snortpipe_fh, '<', "$snortpipe" ) ) {
     $logger->logdie("unable to open snort pipe: $!");
 } else {
     $logger->info("listening on $snortpipe");
-    print "pfdetect: listening on $snortpipe\n" if ($verbose);
 }
 
 while (<$snortpipe_fh>) {
@@ -166,7 +172,6 @@ sub usage {
 
   Options:
         -d  Daemonize
-        -v  Verbose
         -h  Help
 EOF
     exit;
