@@ -2,7 +2,16 @@
 
 =head1 NAME
 
-pfmon
+pfmon - ARP listener and maintenance threads
+
+=head1 SYNOPSIS
+
+pfmon [options]
+
+ Options:
+   -d      Daemonize
+   -h      Help
+   -v      Verbose
 
 =cut
 
@@ -14,6 +23,7 @@ use File::Basename qw(basename);
 use threads;
 use threads::shared;
 use POSIX qw(:signal_h);
+use Pod::Usage;
 
 use constant INSTALL_DIR => '/usr/local/pf';
 
@@ -70,7 +80,7 @@ my @ORIG_ARGV = @ARGV;
 my %args;
 getopts( 'dhvr', \%args );
 
-usage() if ( $args{h} );
+pod2usage( -verbose => 1 ) if ( $args{h} );
 
 my $daemonize = $args{d};
 my $verbose   = $args{v};
@@ -126,18 +136,20 @@ $kids[$#kids]->join();
 $logger->error("cleanup thread finished - this is bad");
 
 END {
-    deletepid();
-    $logger->info("stopping pfmon");
-    if ( $Config{'network'}{'mode'} =~ /arp/i ) {
+    if ( !$args{h} ) {
+        deletepid();
+        $logger->info("stopping pfmon");
+        if ( $Config{'network'}{'mode'} =~ /arp/i ) {
 
-        # wake up the arpgun... then kill him
-        foreach my $kid (@kids) {
-            $kid->detach;
+            # wake up the arpgun... then kill him
+            foreach my $kid (@kids) {
+                $kid->detach;
+            }
         }
-    }
 
-    # killing kids ain't fun, but somebody's got to do it...
-    kill 6, -$$;
+        # killing kids ain't fun, but somebody's got to do it...
+        kill 6, -$$;
+    }
 }
 
 exit(0);
@@ -696,15 +708,10 @@ sub restart_handler {
     }
 }
 
-sub usage {
-    print STDERR << "EOF";
-  Usage: $0 [OPTIONS]
-        -d      Daemonize
-        -v      Verbose
-        -h      Help
-EOF
-    exit;
-}
+=head1 BUGS AND LIMITATIONS
+
+C<pfmon -h> executes some code in lib/pf/util.pm which is not 
+necessary
 
 =head1 AUTHOR
 
