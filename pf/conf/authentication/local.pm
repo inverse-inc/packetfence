@@ -2,13 +2,20 @@ package authentication::local;
 
 =head1 NAME
 
-authentication::local
+authentication::local - htaccess file authentication
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
-  return (1,0) for successfull authentication
-  return (0,2) for inability to check credentials
-  return (0,1) for wrong login/password
+  use authentication::local;
+  my ( $authReturn, $err ) = authenticate ( 
+                                $login, 
+                                $password 
+                                          );
+
+=head1 DESCRIPTION
+
+authentication::local allows to validate a username/password
+combination using the htaccess file F<conf/user.conf>
 
 =cut
 
@@ -27,6 +34,20 @@ use Log::Log4perl;
 
 use pf::config;
 use pf::util;
+
+=head1 SUBROUTINES
+
+=over
+
+=item * authenticate( $login, $password )
+
+  return (1,0) for successfull authentication
+  return (0,2) for inability to check credentials
+  return (0,1) for wrong login/password
+
+=back
+
+=cut
 
 
 sub authenticate {
@@ -48,6 +69,20 @@ sub authenticate {
       return (1,0);
   }
 }
+
+=head1 DEPENDENCIES
+
+=over
+
+=item * Apache::Htpasswd
+
+=item * Log::Log4perl
+
+=item * pf::config
+
+=item * pf::util
+
+=back
 
 =head1 AUTHOR
 

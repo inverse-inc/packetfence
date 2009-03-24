@@ -2,13 +2,25 @@ package authentication::radius;
 
 =head1 NAME
 
-authentication::radius
+authentication::radius - radius authentication
 
 =head1 SYNOPSYS
 
-  return (1,0) for successfull authentication
-  return (0,2) for inability to check credentials
-  return (0,1) for wrong login/password
+  use authentication::radius;
+  my ( $authReturn, $err ) = authenticate (
+                                 $login,
+                                 $password
+                                          );
+
+=head1 DESCRIPTION
+
+authentication::radius allows to validate a username/password
+combination using RADIUS
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Define the variables C<RadiusServer> and C<RadiusSecret> at the
+top of the module.
 
 =cut
 
@@ -27,6 +39,20 @@ use Authen::Radius;
 my $RadiusServer = 'localhost';
 my $RadiusSecret = 'testing123';
 
+=head1 SUBROUTINES
+
+=over
+
+=item * authenticate ($login, $password)
+
+  return (1,0) for successfull authentication
+  return (0,2) for inability to check credentials
+  return (0,1) for wrong login/password
+
+=back
+
+=cut
+
 sub authenticate {
  my ($username, $password) = @_;
  my $radcheck;
@@ -39,6 +65,14 @@ sub authenticate {
      return (0,1);
  }
 }
+
+=head1 DEPENDENCIES
+
+=over
+
+=item * Authen::Radius
+
+=back
 
 =head1 AUTHOR
 

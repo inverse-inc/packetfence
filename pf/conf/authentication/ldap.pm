@@ -2,18 +2,32 @@ package authentication::ldap;
 
 =head1 NAME
 
-authentication::ldap
+authentication::ldap - LDAP authentication
 
 =head1 SYNOPSYS
 
-  return (1,0) for successfull authentication
-  return (0,2) for inability to check credentials
-  return (0,1) for wrong login/password
+  use authentication::ldap;
+  my ( $authReturn, $err ) = authenticate ( 
+                                 $login, 
+                                 $password 
+                                           );
+
+=head1 DESCRIPTION
+
+authentication::ldap allows to validate a username/password
+combination using LDAP
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Define the variables C<LDAPUserBase>, C<LDAPUserKey>, 
+C<LDAPUserScope>, C<LDAPBindDN>, C<LDAPBindPassword>
+and C<LDAPServer> at the top of the module.
 
 =cut
 
 use strict;
 use warnings;
+use diagnostics;
 
 BEGIN {
   use Exporter ();
@@ -34,6 +48,20 @@ my $LDAPUserScope = "sub";
 my $LDAPBindDN = "";
 my $LDAPBindPassword = "";
 my $LDAPServer = "";
+
+=head1 SUBROUTINES
+
+=over 
+
+=item * authenticate ($login, $password)
+
+  return (1,0) for successfull authentication
+  return (0,2) for inability to check credentials
+  return (0,1) for wrong login/password
+
+=back
+
+=cut
 
 sub authenticate {
   my ($username, $password) = @_;
@@ -81,6 +109,20 @@ sub authenticate {
   $connection->unbind;
   return (1,0);
 }
+
+=head1 DEPENDENCIES
+
+=over
+
+=item * Log::Log4perl
+
+=item * Net::LDAP
+
+=item * pf::config
+
+=item * pf::util
+
+=back
 
 =head1 AUTHOR
 
