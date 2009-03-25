@@ -14,7 +14,7 @@ PacketFence configuration files.
 =head1 CONFIGURATION AND ENVIRONMENT
 
 Read the following configuration files: F<log.conf>, F<pf.conf>, 
-F<pf.conf.defaults>, F<networks.conf>", F<dhcp_fingerprints.conf>, F<oui.txt>, 
+F<pf.conf.defaults>, F<networks.conf>, F<dhcp_fingerprints.conf>, F<oui.txt>, 
 F<node_categories.conf>.
 
 =cut

@@ -2,12 +2,6 @@ package pf::web;
 
 =head1 NAME
 
-pf::web
-
-=cut
-
-=head1 NAME
-
 pf::web - module to generate the different web pages.
 
 =cut

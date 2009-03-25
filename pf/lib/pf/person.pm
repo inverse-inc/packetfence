@@ -8,7 +8,7 @@ pf::person - module for person management.
 
 =head1 DESCRIPTION
 
-pf::node contains the functions necessary to manage a person: creation, 
+pf::person contains the functions necessary to manage a person: creation, 
 deletion, read info, ...
 
 =cut

@@ -8,12 +8,8 @@ pf::db - module for database abstraction and utilities.
 
 =head1 DESCRIPTION
 
-pf::db contains the functions necessary to store/read a 
-configuration file to the database. PacketFence stores the 
-configuration files in the database after every configuration change
-through the web interface or a C<pfcmd> call. In a redundancy setup, in 
-case of a failover, you need to manually pull the configuration files 
-out of the database in order to be up-to-date.
+pf::db contains the database utility functions used by the other
+Packetfence modules
 
 =head1 CONFIGURATION AND ENVIRONMENT
 

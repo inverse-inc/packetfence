@@ -2,12 +2,6 @@ package pf::nodecache;
 
 =head1 NAME
 
-pf::nodecache
-
-=cut
-
-=head1 NAME
-
 pf::nodecache - module to cache some information about the nodes.
 
 =cut
