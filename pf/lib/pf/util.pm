@@ -36,9 +36,9 @@ BEGIN {
         inrange_ip ip2gateway ip2interface ip2device isinternal pfmailer isenabled
         isdisabled getlocalmac ip2int int2ip get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_internal_ips
         get_internal_devs get_internal_devs_phy get_external_devs get_managed_devs get_internal_macs
-        get_internal_info get_gateways get_dhcp_devs num_interfaces createpid readpid deletepid
+        get_internal_info get_gateways get_dhcp_devs createpid readpid deletepid
         pfmon_preload
-        parse_template mysql_date oui_to_vendor normalize_time);
+        parse_template mysql_date oui_to_vendor);
 }
 
 use pf::config;
@@ -458,13 +458,6 @@ sub get_dhcp_devs {
         }
     }
     return ( keys(%dhcp_devices) );
-}
-
-# return 0 if no interfaces
-# otherwie return the number of interfaces
-#
-sub num_interfaces {
-    return ( scalar( tied(%Config)->GroupMembers("interface") ) );
 }
 
 sub createpid {
