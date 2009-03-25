@@ -105,10 +105,6 @@
   <script type="text/javascript" src="<?=$abs_url?>/3rdparty/calendar/lang/calendar-en.js"></script>
   <script type="text/javascript" src="<?=$abs_url?>/3rdparty/calendar/calendar-setup.js"></script>
 
-  <!--[if lt IE 7.]>
-    <script defer type="text/javascript" src="pngfix.js"></script>
-  <![endif]-->
-
   <script type="text/javascript">
     <?
       if($sajax){
