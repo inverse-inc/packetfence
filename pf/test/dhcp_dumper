@@ -1,10 +1,39 @@
 #!/usr/bin/perl 
 
+=head1 NAME
+
+dhcp_dumper - listen to DHCP packets
+
+=head1 SYNOPSIS
+
+dhcp_dumper [options]
+
+ Options:
+   -i      Interface (eg. "eth0")
+   -f      Filter (eg. "host 128.103.1.1")
+   -c      CHADDR (show requests from specific client)
+   -t      DHCP message type
+             Value   Message Type
+             -----   ------------
+               1     DHCPDISCOVER
+               2     DHCPOFFER
+               3     DHCPREQUEST
+               4     DHCPDECLINE
+               5     DHCPACK
+               6     DHCPNAK
+               7     DHCPRELEASE
+               8     DHCPINFORM
+   -u      Only show packets with unknown DHCP prints
+   -h      Help
+
+=cut
+
 use Net::Pcap 0.16;
 use Getopt::Std;
 use Config::IniFiles;
 use File::Basename qw(basename);
 use FindBin;
+use Pod::Usage;
 use Log::Log4perl;
 use strict;
 use warnings;
@@ -63,7 +92,7 @@ if ( -r $prints_file ) {
 }
 
 if ( $args{h} || !$interface ) {
-    usage();
+    pod2usage( -verbose => 1 );
 }
 
 my %msg_types;
@@ -125,29 +154,6 @@ sub clean_mac {
     $mac =~ s/([a-f0-9]{2})(?!$)/$1:/g if ( $mac =~ /^[a-f0-9]{12}$/i );
     $mac = join q {:} => map { sprintf "%02x" => hex } split m {:|\-} => $mac;
     return ($mac);
-}
-
-sub usage {
-    print STDERR << "EOF";
-  Usage: $0 [OPTIONS]
-        -i      Interface (eg. "eth0")
-        -f      Filter (eg. "host 128.103.1.1")
-        -c      CHADDR (show requests from specific client)
-        -t      DHCP message type
-                  Value   Message Type
-                  -----   ------------
-                    1     DHCPDISCOVER
-                    2     DHCPOFFER
-                    3     DHCPREQUEST
-                    4     DHCPDECLINE
-                    5     DHCPACK
-                    6     DHCPNAK
-                    7     DHCPRELEASE
-                    8     DHCPINFORM
-        -u      Only show packets with unknown DHCP prints
-        -h      Help
-EOF
-    exit;
 }
 
 sub listen_dhcp {
