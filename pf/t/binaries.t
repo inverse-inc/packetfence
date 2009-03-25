@@ -9,6 +9,7 @@ use Test::More tests => 20;
 my @binaries = (
     '/usr/local/pf/configurator.pl',
     '/usr/local/pf/installer.pl',
+    '/usr/local/pf/addons/accounting.pl',
     '/usr/local/pf/addons/autodiscover.pl',
     '/usr/local/pf/addons/convertToPortSecurity.pl',
     '/usr/local/pf/addons/monitorpfsetvlan.pl',
@@ -16,7 +17,6 @@ my @binaries = (
     '/usr/local/pf/addons/802.1X/pfcmd_ap.pl',
     '/usr/local/pf/addons/802.1X/rlm_perl_packetfence.pl',
     '/usr/local/pf/addons/mrtg/mrtg-wrapper.pl',
-    '/usr/local/pf/bin/accounting.pl',
     '/usr/local/pf/bin/flip.pl',
     '/usr/local/pf/bin/pfcmd_vlan',
     '/usr/local/pf/cgi-bin/redir.cgi',

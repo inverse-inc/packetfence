@@ -8,6 +8,7 @@ use Test::Perl::Critic;
 use Test::More tests => 88;
 
 my @files = (
+    '/usr/local/pf/addons/accounting.pl',
     '/usr/local/pf/addons/autodiscover.pl',
     '/usr/local/pf/addons/convertToPortSecurity.pl',
     '/usr/local/pf/addons/monitorpfsetvlan.pl',
@@ -15,7 +16,6 @@ my @files = (
     '/usr/local/pf/addons/802.1X/pfcmd_ap.pl',
     #'/usr/local/pf/addons/802.1X/rlm_perl_packetfence.pl',
     '/usr/local/pf/addons/mrtg/mrtg-wrapper.pl',
-    '/usr/local/pf/bin/accounting.pl',
     '/usr/local/pf/bin/flip.pl',
     #'/usr/local/pf/bin/pfcmd',
     '/usr/local/pf/bin/pfcmd_vlan',

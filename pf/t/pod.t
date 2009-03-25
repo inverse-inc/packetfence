@@ -10,11 +10,11 @@ use Test::More tests => 92;
 my @files = (
     '/usr/local/pf/configurator.pl',
     '/usr/local/pf/installer.pl',
+    '/usr/local/pf/addons/accounting.pl',
     '/usr/local/pf/addons/autodiscover.pl',
     '/usr/local/pf/addons/convertToPortSecurity.pl',
     '/usr/local/pf/addons/monitorpfsetvlan.pl',
     '/usr/local/pf/addons/recovery.pl',
-    '/usr/local/pf/bin/accounting.pl',
     '/usr/local/pf/bin/flip.pl',
     #'/usr/local/pf/bin/pfcmd',
     '/usr/local/pf/bin/pfcmd_vlan',

@@ -301,7 +301,6 @@ fi
 /usr/local/pf/sbin/pfdetect
 /usr/local/pf/sbin/pfredirect
 /usr/local/pf/sbin/pfmon
-/usr/local/pf/bin/accounting.pl
 %attr(0755, pf, pf) /usr/local/pf/sbin/pfdhcplistener
 /usr/local/pf/sbin/pfsetvlan
 %dir /usr/local/pf/cgi-bin
@@ -339,6 +338,7 @@ fi
 /usr/local/pf/addons/802.1X/*
 %dir /usr/local/pf/addons/snort
 /usr/local/pf/addons/snort/oinkmaster.conf
+/usr/local/pf/addons/accounting.pl
 /usr/local/pf/addons/recovery.pl
 /usr/local/pf/addons/monitorpfsetvlan.pl
 /usr/local/pf/addons/autodiscover.pl

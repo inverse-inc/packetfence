@@ -69,6 +69,7 @@
           (http://www.packetfence.org/mantis/view.php?id=643)
         fixed crash in pop3 redirector
           (http://www.packetfence.org/mantis/view.php?id=644)
+        moved accounting.pl into addons
 
 1.8.1
         authorized @ as first symbol in password
