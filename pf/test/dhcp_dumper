@@ -40,7 +40,7 @@ my %prints;
 if ( $args{o} ) {
     $prints_file = $args{o};
 } else {
-    $prints_file = "./dhcp_fingerprints.conf";
+    $prints_file = "/usr/local/pf/conf/dhcp_fingerprints.conf";
 }
 
 if ( -r $prints_file ) {
