@@ -47,6 +47,11 @@ my %args;
 getopts( 't:i:f:c:o:hu', \%args );
 
 my $interface = $args{i} || "eth0";
+
+if ( $args{h} || !$interface ) {
+    pod2usage( -verbose => 1 );
+}
+
 my $chaddr_filter;
 if ( $args{c} ) {
     $chaddr_filter = clean_mac( $args{c} );
@@ -89,10 +94,6 @@ if ( -r $prints_file ) {
             }
         }
     }
-}
-
-if ( $args{h} || !$interface ) {
-    pod2usage( -verbose => 1 );
 }
 
 my %msg_types;
@@ -361,11 +362,15 @@ Dave Laporte <dave@laportestyle.org>
 
 Kevin Amorin <kev@amorin.org>
 
+Dominik Gehl <dgehl@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
+
+Copyright (C) 2009 Inverse groupe conseil
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
