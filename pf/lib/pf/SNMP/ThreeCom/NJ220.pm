@@ -9,6 +9,12 @@ pf::SNMP::ThreeCom::NJ220 - Object oriented module to access SNMP enabled 3COM N
 The pf::SNMP::ThreeCom::NJ220 module implements an object 
 oriented interface to access SNMP enabled 3COM NJ220 switches.
 
+The minimum required firmware version is 2.0.23.
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+F<conf/switches.conf>
+
 =cut
 
 use strict;

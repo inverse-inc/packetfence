@@ -9,6 +9,12 @@ pf::SNMP::Intel::Express_530 - Object oriented module to access SNMP enabled Int
 The pf::SNMP::Intel::Express_530 module implements an object oriented interface
 to access SNMP enabled Intel Express 530 switches.
 
+The minimum required firmware version is 1.00.23.
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+F<conf/switches.conf>
+
 =cut
 
 use strict;

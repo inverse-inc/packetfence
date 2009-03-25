@@ -9,6 +9,12 @@ pf::SNMP::Accton::ES3526XA - Object oriented module to access SNMP enabled Accto
 The pf::SNMP::Accton::ES3526XA module implements an object oriented interface
 to access SNMP enabled Accton::ES3526XA switches.
 
+The minimum required firmware version is 2.3.3.5.
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+F<conf/switches.conf>
+
 =cut
 
 use strict;

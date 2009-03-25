@@ -9,7 +9,11 @@ pf::SNMP::Cisco::Catalyst_3500XL - Object oriented module to access SNMP enabled
 The pf::SNMP::Cisco::Catalyst_3500XL module implements an object oriented interface
 to access SNMP enabled Cisco::Catalyst_3500XL switches.
 
-NOTE: the following modules are identical: Cisco::Catalyst_2924; Cisco::Catalyst_3500XL
+The minimum required firmware version is 12.0(5)WC15.
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+F<conf/switches.conf>
 
 =cut
 

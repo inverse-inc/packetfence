@@ -9,6 +9,12 @@ pf::SNMP::Intel::Express_460 - Object oriented module to access SNMP enabled Int
 The pf::SNMP::Intel::Express_460 module implements an object oriented interface
 to access SNMP enabled Cisco switches.
 
+The minimum required firmware version is 4.60.89.
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+F<conf/switches.conf>
+
 =cut
 
 use strict;

@@ -8,6 +8,12 @@ pf::SNMP::Dell::PowerConnect3424 - Object oriented module to access SNMP enabled
 
 The pf::SNMP::Dell::PowerConnect3424 module implements an object oriented interface to access SNMP enabled Dell:PowerConnect3424 switches.
 
+The minimum required firmware version is 112.
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+F<conf/switches.conf>
+
 =cut
 
 use strict;
