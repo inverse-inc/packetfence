@@ -71,6 +71,8 @@
           (http://www.packetfence.org/mantis/view.php?id=644)
         moved accounting.pl into addons
         removed pngfix.js
+        dhcp_dumper compatibility with Config::IniFiles 2.47
+          (http://www.packetfence.org/mantis/view.php?id=645)
 
 1.8.1
         authorized @ as first symbol in password

@@ -47,8 +47,17 @@ if ( -r $prints_file ) {
     my %prints_ini;
     tie %prints_ini, 'Config::IniFiles', ( -file => $prints_file );
     foreach my $os ( tied(%prints_ini)->GroupMembers("os") ) {
-        foreach my $print ( @{ $prints_ini{$os}{'fingerprints'} } ) {
-            $prints{$print} = $prints_ini{$os}{'description'};
+        if ( exists( $prints_ini{$os}{'fingerprints'} ) ) {
+            if ( ref( $prints_ini{$os}{'fingerprints'} ) eq "ARRAY" ) {
+                foreach my $print ( @{ $prints_ini{$os}{'fingerprints'} } ) {
+                    $prints{$print} = $prints_ini{$os}{'description'};
+                }
+            } else {
+                foreach my $print (
+                    split( /\n/, $prints_ini{$os}{'fingerprints'} ) ) {
+                        $prints{$print} = $prints_ini{$os}{'description'};
+                }
+            }
         }
     }
 }
