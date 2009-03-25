@@ -2,7 +2,18 @@ package pf::rawip;
 
 =head1 NAME
 
-pf::rawip
+pf::rawip - module for ARP spoofing.
+
+=cut
+
+=head1 DESCRIPTION
+
+pf::rawip contains the functions used for ARP spoofing when PacketFence
+is configured in ARP mode.
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Read the F<pf.conf> configuration file.
 
 =cut
 

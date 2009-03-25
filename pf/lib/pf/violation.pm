@@ -2,7 +2,18 @@ package pf::violation;
 
 =head1 NAME
 
-pf::violation
+pf::violation - module for violation management.
+
+=cut
+
+=head1 DESCRIPTION
+
+pf::violation contains the functions necessary to manage violations: creation, 
+deletion, expiration, read info, ...
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Read the F<pf.conf> configuration file.
 
 =cut
 

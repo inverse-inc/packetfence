@@ -2,7 +2,14 @@ package pf::pfcmd;
 
 =head1 NAME
 
-pf::pfcmd
+pf::pfcmd - module for the PacketFence command line interface.
+
+=cut
+
+=head1 DESCRIPTION
+
+pf::pfcmd contains the functions necessary for the command line interface
+F</usr/local/pf/bin/pfcmd> to parse the options.
 
 =cut
 

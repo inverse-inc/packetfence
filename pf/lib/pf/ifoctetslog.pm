@@ -2,7 +2,18 @@ package pf::ifoctetslog;
 
 =head1 NAME
 
-pf::ifoctetslog
+pf::ifoctetslog - module for SNMP counters.
+
+=cut
+
+=head1 DESCRIPTION
+
+pf::ifoctetslog contains the functions related to the SNMP counters: 
+inbound and outbound octets counters included in the ifTable.
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Read the F<pf.conf> configuration file.
 
 =cut
 

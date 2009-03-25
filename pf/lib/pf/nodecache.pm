@@ -6,6 +6,19 @@ pf::nodecache
 
 =cut
 
+=head1 NAME
+
+pf::nodecache - module to cache some information about the nodes.
+
+=cut
+
+=head1 DESCRIPTION
+
+pf::nodecache contains the functions used to cache some information about
+the nodes like the IP-MAC association,...
+
+=cut
+
 use strict;
 use warnings;
 use File::Basename;

@@ -6,6 +6,19 @@ pf::config - PacketFence configuration
 
 =cut
 
+=head1 DESCRIPTION
+
+pf::config contains the code necessary to read and manipulate the 
+PacketFence configuration files.
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Read the following configuration files: F<log.conf>, F<pf.conf>, 
+F<pf.conf.defaults>, F<networks.conf>", F<dhcp_fingerprints.conf>, F<oui.txt>, 
+F<node_categories.conf>.
+
+=cut
+
 use strict;
 use warnings;
 use Config::IniFiles;

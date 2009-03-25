@@ -2,7 +2,14 @@ package pf::switchlocation;
 
 =head1 NAME
 
-pf::switchlocation
+pf::switchlocation - module for the switch location history.
+
+=cut
+
+=head1 DESCRIPTION
+
+pf::switchlocation contains the functions necessary to manage the 
+switch location history.
 
 =cut
 

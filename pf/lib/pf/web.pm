@@ -6,6 +6,25 @@ pf::web
 
 =cut
 
+=head1 NAME
+
+pf::web - module to generate the different web pages.
+
+=cut
+
+=head1 DESCRIPTION
+
+pf::web contains the functions necessary to generate different web pages:
+based on pre-defined templates: login, registration, release, error, status.  
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Read the following template files: F<release.html>, 
+F<login.html>, F<enabler.html>, F<error.html>, F<status.html>, 
+F<register.html>.
+
+=cut
+
 use strict;
 use warnings;
 use Date::Parse;

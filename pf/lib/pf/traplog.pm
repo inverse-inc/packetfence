@@ -2,7 +2,14 @@ package pf::traplog;
 
 =head1 NAME
 
-pf::traplog
+pf::traplog - module to manage the SNMP traps history. 
+
+=cut
+
+=head1 DESCRIPTION
+
+pf::traplog contains the functions necessary to read and manage the SNMP 
+traps history gathered by PacketFence from the switches on the network. 
 
 =cut
 

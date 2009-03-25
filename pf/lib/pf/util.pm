@@ -2,7 +2,15 @@ package pf::util;
 
 =head1 NAME
 
-pf::util
+pf::util - module for generic functions and utilities used by all the 
+modules.
+
+=cut
+
+=head1 DESCRIPTION
+
+pf::util contains many functions and utilities used by the other different
+modules. 
 
 =cut
 
