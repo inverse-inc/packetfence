@@ -46,9 +46,7 @@ use lib LIB_DIR;
 
 use Getopt::Long;
 use Pod::Usage;
-use Net::MAC::Vendor;
 use Log::Log4perl qw(:easy);
-use Data::Dumper;
 
 use pf::SwitchFactory;
 
