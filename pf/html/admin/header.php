@@ -1,4 +1,7 @@
 <?php
+/**
+ * @licence http://opensource.org/licenses/gpl-2.0.php GPL
+ */
 
   ## HEADERS FOR DOWNLOADING CSV ##
   if(isset($download) && $download==true){

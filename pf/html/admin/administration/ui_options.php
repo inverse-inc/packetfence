@@ -1,4 +1,8 @@
 <?php
+/**
+ * @licence http://opensource.org/licenses/gpl-2.0.php GPL
+ */
+
   session_start();
   $current_top="administration";
   $current_sub="ui_options";

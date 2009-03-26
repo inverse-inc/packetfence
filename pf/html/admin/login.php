@@ -1,4 +1,7 @@
-<? 
+<?php
+/**
+ * @licence http://opensource.org/licenses/gpl-2.0.php GPL
+ */
 
 function get_group($user) {
   return 'admin';

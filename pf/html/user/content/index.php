@@ -1,4 +1,8 @@
-<?
+<?php
+/**
+ * @licence http://opensource.org/licenses/gpl-2.0.php GPL
+ */
+
   if(!function_exists("set_default")){
     function set_default($value, $default){
       if(isset($value))

@@ -1,4 +1,8 @@
 <?php
+/**
+ * @licence http://opensource.org/licenses/gpl-2.0.php GPL
+ */
+
 
   set_error_handler('pf_error', (E_ALL & ~E_NOTICE & ~E_STRICT));
 

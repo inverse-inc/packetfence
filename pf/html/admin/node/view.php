@@ -1,4 +1,8 @@
-<?
+<?php
+/**
+ * @licence http://opensource.org/licenses/gpl-2.0.php GPL
+ */
+
 
   if(isset($_REQUEST['filter']) && (substr($_REQUEST['filter'],0,9) == 'category=')) {
     header("Location: $abs_url/node/view.php?filter_type=category&view_item=" . substr($_REQUEST['filter'],9) . "&sort=" . $_REQUEST['sort'] . "&direction=" . $_REQUEST['direction'] . "&per_page=" . $_REQUEST['per_page'] . "&page_num=" . $_REQUEST['page_num']);

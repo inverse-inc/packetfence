@@ -1,4 +1,8 @@
 <?php
+/**
+ * @licence http://opensource.org/licenses/gpl-2.0.php GPL
+ */
+
 $current_top="scan";
 $current_sub="results";
 require_once('../common.php');

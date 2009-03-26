@@ -1,4 +1,8 @@
 <?php
+/**
+ * @licence http://opensource.org/licenses/gpl-2.0.php GPL
+ */
+
 $current_top="scan";
 $current_sub="scan";
 

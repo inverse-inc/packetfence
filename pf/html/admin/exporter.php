@@ -1,4 +1,8 @@
 <?
+/**
+ * @licence http://opensource.org/licenses/gpl-2.0.php GPL
+ */
+
 include('common.php');
 session_start();
 

@@ -1,4 +1,8 @@
 <?php
+/**
+ * @licence http://opensource.org/licenses/gpl-2.0.php GPL
+ */
+
 
   session_start();
   header('Content-type: text/css');
