@@ -57,6 +57,14 @@ if ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int ) {
         . " -o -N -D -l $install_dir/var";
 }
 
+=head1 SUBROUTINES
+
+=over
+
+=item * service_ctl
+
+=cut
+
 sub service_ctl {
     my ( $daemon, $action, $quick ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::services');
@@ -158,8 +166,6 @@ sub service_ctl {
                 last CASE;
             };
             $action eq "stop" && do {
-                open( STDERR, '>', "/dev/null" );
-
                 #my @debug= system('pkill','-f',$exe);
                 $logger->info("Stopping $exe with 'pkill $exe'");
                 eval { `pkill $exe`; };
@@ -172,7 +178,7 @@ sub service_ctl {
                 my $maxWait = 10;
                 my $curWait = 0;
                 while (( $curWait < $maxWait )
-                    && ( service_ctl( $exe, "status" ) != 0 ) )
+                    && ( service_ctl( $exe, "status" ) ne "0" ) )
                 {
                     $logger->info("Waiting for $exe to stop");
                     sleep(2);
@@ -199,15 +205,21 @@ sub service_ctl {
                 $pid = 0 if ( !$pid );
                 $logger->info("pidof -x $exe returned $pid");
                 return ($pid);
-                last CASE;
-                }
+            }
         }
     } else {
         $logger->logdie("unknown service $exe!");
+        return 0;
     }
+    return 1;
 }
 
-#return an array of enabled services
+=item * service_list
+
+return an array of enabled services
+
+=cut
+
 sub service_list {
     my @services         = @_;
     my @finalServiceList = ();
@@ -248,6 +260,10 @@ sub service_list {
     push @finalServiceList, "snort" if ($snortflag);
     return @finalServiceList;
 }
+
+=item * generate_named_conf
+
+=cut
 
 sub generate_named_conf {
     my $logger = Log::Log4perl::get_logger('pf::services');
@@ -327,7 +343,13 @@ sub generate_named_conf {
         "$conf_dir/templates/named-registration.ca",
         "$install_dir/conf/named/named-registration.ca"
     );
+
+    return 1;
 }
+
+=item * generate_dhcpd_vlan_conf
+
+=cut
 
 sub generate_dhcpd_vlan_conf {
     my $logger = Log::Log4perl::get_logger('pf::services');
@@ -349,7 +371,7 @@ sub generate_dhcpd_vlan_conf {
             $network_conf{$section}{$key} =~ s/\s+$//;
         }
         if ( $network_conf{$section}{'dhcpd'} eq 'enabled' ) {
-            $tags{'networks'} .= <<EOT;
+            $tags{'networks'} .= <<"EOT";
 subnet $section netmask $network_conf{$section}{'netmask'} {
   option routers $network_conf{$section}{'gateway'};
   option subnet-mask $network_conf{$section}{'netmask'};
@@ -366,7 +388,13 @@ EOT
 
     parse_template( \%tags, "$conf_dir/templates/dhcpd_vlan.conf",
         "$conf_dir/dhcpd.conf" );
+
+    return 1;
 }
+
+=item * generate_dhcpd_conf
+
+=cut
 
 sub generate_dhcpd_conf {
     if ( $Config{'network'}{'mode'} =~ /vlan/i ) {
@@ -619,14 +647,22 @@ sub generate_dhcpd_conf {
     }
     print {$dhcpdconf_fh} "include \"$conf_dir/isolated.mac\";\n";
     print {$dhcpdconf_fh} "include \"$conf_dir/registered.mac\";\n";
+    close $dhcpdconf_fh;
 
     #close(DHCPDCONF);
 
     generate_dhcpd_iso();
     generate_dhcpd_reg();
+
+    return 1;
 }
 
-#open isolated.mac file
+=item * generate_dhcpd_iso
+
+open isolated.mac file
+
+=cut
+
 sub generate_dhcpd_iso {
     my $logger = Log::Log4perl::get_logger('pf::services');
     my $isomac_fh;
@@ -642,10 +678,16 @@ sub generate_dhcpd_iso {
             "host $hostname { hardware ethernet $mac; } subclass \"isolated\" 01:$mac;";
     }
 
-    #close(ISOMAC);
+    close( $isomac_fh );
+    return 1;
 }
 
-#open registered.mac file
+=item * generate_dhcpd_reg
+
+open registered.mac file
+
+=cut
+
 sub generate_dhcpd_reg {
     my $logger = Log::Log4perl::get_logger('pf::services');
     if ( isenabled( $Config{'trapping'}{'registration'} ) ) {
@@ -663,9 +705,14 @@ sub generate_dhcpd_reg {
                 "host $hostname { hardware ethernet $mac; } subclass \"registered\" 01:$mac;";
         }
 
-        #close(REGMAC);
+        close( $regmac_fh );
     }
+    return 1;
 }
+
+=item * generate_snort_conf
+
+=cut
 
 sub generate_snort_conf {
     my $logger = Log::Log4perl::get_logger('pf::services');
@@ -694,7 +741,12 @@ sub generate_snort_conf {
     $logger->info("generating $conf_dir/snort.conf");
     parse_template( \%tags, "$conf_dir/templates/snort.conf",
         "$conf_dir/snort.conf" );
+    return 1;
 }
+
+=item * generate_snmptrapd_conf
+
+=cut
 
 sub generate_snmptrapd_conf {
     my $logger = Log::Log4perl::get_logger('pf::services');
@@ -735,7 +787,12 @@ sub generate_snmptrapd_conf {
     $logger->info("generating $conf_dir/snmptrapd.conf");
     parse_template( \%tags, "$conf_dir/templates/snmptrapd.conf",
         "$conf_dir/snmptrapd.conf" );
+    return 1;
 }
+
+=item * generate_httpd_conf
+
+=cut
 
 sub generate_httpd_conf {
     my ( %tags, $httpdconf_fh, $authconf_fh );
@@ -813,8 +870,12 @@ sub generate_httpd_conf {
     $logger->info("generating $conf_dir/httpd.conf");
     parse_template( \%tags, "$conf_dir/templates/httpd.conf",
         "$conf_dir/httpd.conf" );
-
+    return 1;
 }
+
+=item * switches_conf_is_valid
+
+=cut
 
 sub switches_conf_is_valid {
     my $logger = Log::Log4perl::get_logger('pf::services');
@@ -901,6 +962,10 @@ sub switches_conf_is_valid {
     return 1;
 }
 
+=item * read_violations_conf
+
+=cut
+
 sub read_violations_conf {
     my $logger = Log::Log4perl::get_logger('pf::services');
     my %violations_conf;
@@ -950,7 +1015,12 @@ sub read_violations_conf {
             \@triggers
         );
     }
+    return 1;
 }
+
+=item * class_set_defaults
+
+=cut
 
 sub class_set_defaults {
     my %violations_conf = @_;
@@ -967,6 +1037,10 @@ sub class_set_defaults {
     delete( $violations{'defaults'} );
     return (%violations);
 }
+
+=item * normalize_dhcpd_range
+
+=cut
 
 sub normalize_dhcpd_range {
     my ($range) = @_;
@@ -989,6 +1063,8 @@ sub normalize_dhcpd_range {
         return;
     }
 }
+
+=back
 
 =head1 AUTHOR
 
