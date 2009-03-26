@@ -111,7 +111,7 @@ if ( -e $default_config_file ) {
 }
 my @errors = @Config::IniFiles::errors;
 if ( scalar(@errors) ) {
-    $logger->logdie( join( "\n", @errors ) );
+    $logger->logcroak( join( "\n", @errors ) );
 }
 
 #remove trailing spaces..
@@ -174,7 +174,7 @@ tie %ConfigNetworks, 'Config::IniFiles',
     ( -file => $network_config_file, -allowempty => 1 );
 @errors = @Config::IniFiles::errors;
 if ( scalar(@errors) ) {
-    $logger->logdie( join( "\n", @errors ) );
+    $logger->logcroak( join( "\n", @errors ) );
 }
 
 #remove trailing spaces..

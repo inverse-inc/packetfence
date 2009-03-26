@@ -45,7 +45,7 @@ sub _setVlan {
         $session->waitfor('/>/');
     };
     if ($@) {
-        $logger->logdie(
+        $logger->logcroak(
             "ERROR: Can not connect to switch $this->{'_ip'} using Telnet");
     }
 

@@ -453,7 +453,7 @@ sub iptables_mark_node {
     my ( $mac, $mark ) = @_;
     my $logger   = Log::Log4perl::get_logger('pf::iptables');
     my $iptables = new IPTables::ChainMgr()
-        || logger->logdie("unable to create IPTables::ChainMgr object");
+        || logger->logcroak("unable to create IPTables::ChainMgr object");
     my $iptables_cmd = $iptables->{'_iptables'};
 
     if (!$iptables->run_ipt_cmd(
@@ -471,7 +471,7 @@ sub iptables_unmark_node {
     my ( $mac, $mark ) = @_;
     my $logger   = Log::Log4perl::get_logger('pf::iptables');
     my $iptables = new IPTables::ChainMgr()
-        || logger->logdie("unable to create IPTables::ChainMgr object");
+        || logger->logcroak("unable to create IPTables::ChainMgr object");
     my $iptables_cmd = $iptables->{'_iptables'};
 
     if (!$iptables->run_ipt_cmd(

@@ -509,7 +509,7 @@ sub parse_template {
     my (@parsed);
     my $template_fh;
     open( $template_fh, '<', $template )
-        || $logger->logdie("Unable to open template $template: $!");
+        || $logger->logcroak("Unable to open template $template: $!");
     while (<$template_fh>) {
         study $_;
         foreach my $tag ( keys %{$tags} ) {
@@ -522,7 +522,7 @@ sub parse_template {
     if ($destination) {
         my $destination_fh;
         open( $destination_fh, ">", $destination )
-            || $logger->logdie(
+            || $logger->logcroak(
             "Unable to open template destination $destination: $!");
         foreach my $line (@parsed) {
             print {$destination_fh} $line;

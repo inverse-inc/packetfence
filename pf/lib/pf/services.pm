@@ -170,7 +170,7 @@ sub service_ctl {
                 $logger->info("Stopping $exe with 'pkill $exe'");
                 eval { `pkill $exe`; };
                 if ($@) {
-                    $logger->logdie("Can't stop $exe with 'pkill $exe': $@");
+                    $logger->logcroak("Can't stop $exe with 'pkill $exe': $@");
                     return;
                 }
 
@@ -208,7 +208,7 @@ sub service_ctl {
             }
         }
     } else {
-        $logger->logdie("unknown service $exe!");
+        $logger->logcroak("unknown service $exe!");
         return 0;
     }
     return 1;
@@ -440,7 +440,7 @@ sub generate_dhcpd_conf {
                     && defined(
                         $shared_nets{$shared_net}{ $reg_obj->desc() } ) )
                 {
-                    $logger->logdie( "Network "
+                    $logger->logcroak( "Network "
                             . $reg_obj->desc()
                             . " is defined in another shared-network!\n" );
                 }
@@ -459,7 +459,7 @@ sub generate_dhcpd_conf {
                     && defined(
                         $shared_nets{$shared_net}{ $iso_obj->desc() } ) )
                 {
-                    $logger->logdie( "Network "
+                    $logger->logcroak( "Network "
                             . $iso_obj->desc()
                             . " is defined in another shared-network!\n" );
                 }
@@ -480,7 +480,7 @@ sub generate_dhcpd_conf {
                     )
                     )
                 {
-                    $logger->logdie( "Network "
+                    $logger->logcroak( "Network "
                             . $unreg_obj->desc()
                             . " is defined in another shared-network!\n" );
                 }
@@ -496,7 +496,7 @@ sub generate_dhcpd_conf {
     #open dhcpd.conf file
     my $dhcpdconf_fh;
     open( $dhcpdconf_fh, '>>', "$conf_dir/dhcpd.conf" )
-        || $logger->logdie("Unable to append to $conf_dir/dhcpd.conf: $!");
+        || $logger->logcroak("Unable to append to $conf_dir/dhcpd.conf: $!");
     foreach my $internal_interface ( get_internal_devs_phy() ) {
         my $dhcp_interface = get_internal_info($internal_interface);
         print {$dhcpdconf_fh} "subnet "
@@ -526,7 +526,7 @@ sub generate_dhcpd_conf {
                     my $range = normalize_dhcpd_range(
                         $Config{ 'scope ' . $reg->tag("scope") }{'range'} );
                     if ( !$range ) {
-                        $logger->logdie( "Invalid scope range: "
+                        $logger->logcroak( "Invalid scope range: "
                                 . $Config{ 'scope ' . $reg->tag("scope") }
                                 {'range'} );
                     }
@@ -566,7 +566,7 @@ sub generate_dhcpd_conf {
                     my $range = normalize_dhcpd_range(
                         $Config{ 'scope ' . $iso->tag("scope") }{'range'} );
                     if ( !$range ) {
-                        $logger->logdie( "Invalid scope range: "
+                        $logger->logcroak( "Invalid scope range: "
                                 . $Config{ 'scope ' . $iso->tag("scope") }
                                 {'range'} );
                     }
@@ -609,7 +609,7 @@ sub generate_dhcpd_conf {
                     my $range = normalize_dhcpd_range(
                         $Config{ 'scope ' . $unreg->tag("scope") }{'range'} );
                     if ( !$range ) {
-                        $logger->logdie( "Invalid scope range: "
+                        $logger->logcroak( "Invalid scope range: "
                                 . $Config{ 'scope ' . $unreg->tag("scope") }
                                 {'range'} );
                     }
@@ -667,7 +667,7 @@ sub generate_dhcpd_iso {
     my $logger = Log::Log4perl::get_logger('pf::services');
     my $isomac_fh;
     open( $isomac_fh, '>', "$conf_dir/isolated.mac" )
-        || $logger->logdie("Unable to open $conf_dir/isolated.mac : $!");
+        || $logger->logcroak("Unable to open $conf_dir/isolated.mac : $!");
     my @isolated = violation_view_open_uniq();
     my @isolatednodes;
     foreach my $row (@isolated) {
@@ -693,7 +693,7 @@ sub generate_dhcpd_reg {
     if ( isenabled( $Config{'trapping'}{'registration'} ) ) {
         my $regmac_fh;
         open( $regmac_fh, '>', "$conf_dir/registered.mac" )
-            || $logger->logdie(
+            || $logger->logcroak(
             "Unable to open $conf_dir/registered.mac : $!");
         my @registered = nodes_registered_not_violators();
         my @registerednodes;

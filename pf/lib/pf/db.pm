@@ -79,7 +79,7 @@ sub db_connect {
     my $db   = $Config{'database'}{'db'};
 
     $mydbh = DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port",
-        $user, $pass, { RaiseError => 0 } );
+        $user, $pass, { RaiseError => 0, PrintError => 0 } );
 
     # make sure we have a database handle
     if ($mydbh) {
@@ -96,7 +96,8 @@ sub db_connect {
         $_[0] = $mydbh;
         return ($mydbh);
     } else {
-        $logger->logdie("ERROR: unable to connect to database!");
+        $logger->logcroak("ERROR: unable to connect to database: "
+            .  $DBI::errstr);
         return ();
     }
 }

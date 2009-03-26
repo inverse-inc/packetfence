@@ -205,7 +205,7 @@ sub action_log {
         "$logfile $date: $description ($vid) detected on node $mac ($ip)");
     my $log_fh;
     open( $log_fh, '>>', "$logfile" )
-        || $logger->logdie("Unable to open $logfile for append: $!");
+        || $logger->logcroak("Unable to open $logfile for append: $!");
     print {$log_fh}
         "$date: $description ($vid) detected on node $mac ($ip)\n";
     close($log_fh);

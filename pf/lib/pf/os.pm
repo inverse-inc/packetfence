@@ -96,7 +96,7 @@ sub read_dhcp_fingerprints_conf {
     my @errors = @Config::IniFiles::errors;
 
     if ( scalar(@errors) ) {
-        $logger->logdie( join( "\n", @errors ) );
+        $logger->logcroak( join( "\n", @errors ) );
     }
     my %seen_class;
     foreach my $os ( tied(%dhcp_fingerprints)->GroupMembers("os") ) {
