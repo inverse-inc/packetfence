@@ -1,6 +1,5 @@
 #!/usr/bin/perl
 
-use Date::Parse;
 use CGI::Carp qw( fatalsToBrowser );
 use CGI;
 use CGI::Session;
