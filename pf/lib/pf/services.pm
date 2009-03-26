@@ -4,8 +4,6 @@ package pf::services;
 
 pf::services - module to manage the PacketFence services and daemons.
 
-=cut
-
 =head1 DESCRIPTION
 
 pf::services contains the functions necessary to control the different 
