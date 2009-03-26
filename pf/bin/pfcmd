@@ -2394,6 +2394,7 @@ sub sanity_check {
             "pf.conf value registration.expire_window is not defined!");
     }
 
+    #compare configuration with documentation
     tie %myconfig, 'Config::IniFiles',
         (
         -file   => $config_file,
@@ -2407,6 +2408,9 @@ sub sanity_check {
         exit;
     }
 
+    #starting with documentation vs configuration
+    #i.e. make sure that pf.conf contains everything defined in
+    #documentation.conf
     foreach my $section ( sort tied(%documentation)->Sections ) {
         my ( $group, $item ) = split( /\./, $section );
         my $type = $documentation{$section}{'type'};
@@ -2433,6 +2437,22 @@ sub sanity_check {
             }
         } elsif ( $Config{$group}{$item} ne "0" ) {
             $logger->logdie("pf.conf value $group\.$item is not defined!");
+        }
+    }
+
+    #and now the opposite way around
+    #i.e. make sure that pf.conf does not contain more
+    #than what is documented in documentation.conf
+    foreach my $section (keys %Config) {
+        next if ( ($section eq "proxies")
+                  || ($section eq "passthroughs")
+                  || ($section eq "")
+                  || ($section =~ /^(services|interface|dhcp|scope)/)
+                );
+        foreach my $item  (keys %{$Config{$section}}) {
+            if ( !defined( $documentation{"$section.$item"} ) ) {
+                $logger->logdie("unknown configuration parameter $section.$item");
+            }
         }
     }
 }
