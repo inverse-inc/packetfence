@@ -198,7 +198,7 @@ sub dhcp_scoper {
     my $isoflag = 0;
     my $regflag = 0;
 
-    if ( service_ctl( "dhcpd", "status" ) == 0 ) {
+    if ( pf::services::service_ctl( "dhcpd", "status" ) == 0 ) {
         $logger->error("ERROR - DHCP IS NOT RUNNING - EXIT");
         exit 1;
     }
@@ -237,16 +237,16 @@ sub dhcp_scoper {
 
             #regen files if necessary
             $logger->info("Regen DHCP Reg/Iso Files and Restart");
-            generate_dhcpd_reg() if ($regflag);
-            generate_dhcpd_iso() if ($isoflag);
+            pf::services::generate_dhcpd_reg() if ($regflag);
+            pf::services::generate_dhcpd_iso() if ($isoflag);
 
             # stop dhcp - DIE DIE
-            do { service_ctl( "dhcpd", "stop" ); sleep(2); }
-                while ( service_ctl( "dhcpd", "status" ) != 0 );
+            do { pf::services::service_ctl( "dhcpd", "stop" ); sleep(2); }
+                while ( pf::services::service_ctl( "dhcpd", "status" ) != 0 );
 
             # start dhcp
-            do { service_ctl( "dhcpd", "start", 1 ); sleep(2); }
-                while ( service_ctl( "dhcpd", "status" ) == 0 );
+            do { pf::services::service_ctl( "dhcpd", "start", 1 ); sleep(2); }
+                while ( pf::services::service_ctl( "dhcpd", "status" ) == 0 );
         }
 
         #reset vars for loop

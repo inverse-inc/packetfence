@@ -883,7 +883,7 @@ sub service {
             push( @services, $service );
         }
         my @incorrectly_stopped_services     = ();
-        my @services_which_should_be_started = service_list(@services);
+        my @services_which_should_be_started = pf::services::service_list(@services);
         print "service|shouldBeStarted|pid\n";
         foreach my $tmp (@services) {
             my $should_be_started = (
@@ -891,7 +891,7 @@ sub service {
                         > 0
                 ) ? 1 : 0
             );
-            my $pid = service_ctl( $tmp, 'status' );
+            my $pid = pf::services::service_ctl( $tmp, 'status' );
             if ( ($should_be_started) && ( !$pid ) ) {
                 push @incorrectly_stopped_services, $tmp;
             }
@@ -907,7 +907,7 @@ sub service {
         } else {
             push( @services, $service );
         }
-        my @services_which_should_be_started = service_list(@services);
+        my @services_which_should_be_started = pf::services::service_list(@services);
         my @incorrectly_stopped_services     = ();
         foreach my $tmp (@services) {
             my $should_be_started = (
@@ -915,7 +915,7 @@ sub service {
                         > 0
                 ) ? 1 : 0
             );
-            my $pid = service_ctl( $tmp, 'status' );
+            my $pid = pf::services::service_ctl( $tmp, 'status' );
             if ( ($should_be_started) && ( !$pid ) ) {
                 push @incorrectly_stopped_services, $tmp;
             }
@@ -951,7 +951,7 @@ sub service {
             service();
             return;
         } else {
-            if ( !service_ctl( $service, "status" ) ) {
+            if ( !pf::services::service_ctl( $service, "status" ) ) {
                 $command = "start";
             }
         }
@@ -961,7 +961,7 @@ sub service {
     if ( $service ne 'pf' ) {
         push @services, $service;
     } else {
-        @services = service_list(@all_services);
+        @services = pf::services::service_list(@all_services);
     }
 
     my @alreadyRunningServices = ();
@@ -969,7 +969,7 @@ sub service {
         sanity_check(@services);
         my $nb_running_services = 0;
         foreach my $tmp (@all_services) {
-            if ( service_ctl( $tmp, "status" ) ) {
+            if ( pf::services::service_ctl( $tmp, "status" ) ) {
                 $nb_running_services++;
                 push @alreadyRunningServices, $tmp;
             }
@@ -989,7 +989,7 @@ sub service {
         print "config files|$command\n";
         require pf::os;
         pf::os::read_dhcp_fingerprints_conf();
-        read_violations_conf();
+        pf::services::read_violations_conf();
         if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
             print "iptables|$command\n";
             require pf::iptables;
@@ -1003,7 +1003,7 @@ sub service {
         {
             print "$srv|already running\n";
         } else {
-            service_ctl( $srv, $command );
+            pf::services::service_ctl( $srv, $command );
             print "$srv|$command\n";
         }
     }
@@ -1012,7 +1012,7 @@ sub service {
         if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
             my $nb_running_services = 0;
             foreach my $tmp (@all_services) {
-                if ( service_ctl( $tmp, "status" ) ) {
+                if ( pf::services::service_ctl( $tmp, "status" ) ) {
                     $nb_running_services++;
                 }
             }

@@ -30,14 +30,6 @@ use Config::IniFiles;
 use Log::Log4perl;
 use UNIVERSAL::require;
 
-BEGIN {
-    use Exporter ();
-    our ( @ISA, @EXPORT );
-    @ISA    = qw(Exporter);
-    @EXPORT = qw(service_list service_ctl read_violations_conf
-        generate_dhcpd_reg generate_dhcpd_iso);
-}
-
 use pf::config;
 use pf::util;
 use pf::violation qw(violation_view_open_uniq);
