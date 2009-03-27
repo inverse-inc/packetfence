@@ -77,6 +77,7 @@
           (http://www.packetfence.org/mantis/view.php?id=646)
         fixed comparison in line 180 of services.pm
           (http://www.packetfence.org/mantis/view.php?id=647)
+        enhanced jpgraph installation
 
 1.8.1
         authorized @ as first symbol in password

@@ -447,46 +447,6 @@ if (questioner(
     }
 }
 
-# check if external dependencies should be installed
-if (questioner(
-        "PF needs JPGraph for its administrative Web GUI.  May I download and install it?",
-        "y",
-        ( "y", "n" )
-    )
-    )
-{
-    foreach my $name ( keys %$external_deps ) {
-        if ( $name =~ /^jpgraph/ ) {
-            my $url = $external_deps->{$name}->{'url_path'}
-                . $external_deps->{$name}->{'file_name'};
-            my $local_file_name = "$install_dir/html/admin/common/jpgraph/"
-                . $external_deps->{$name}->{'file_name'};
-            `/usr/bin/wget -N $url -P $install_dir/html/admin/common/jpgraph/`;
-            `/bin/tar zxvf $local_file_name --strip-components 1 -C $external_deps->{$name}->{'install_path'}`;
-        }
-    }
-}
-
-if (questioner(
-        "Do you want me to update the DHCP fingerprints to the latest available version ?",
-        "y",
-        ( "y", "n" )
-    )
-    )
-{
-    `/usr/bin/wget -N http://www.packetfence.org/dhcp_fingerprints.conf -P $conf_dir`;
-}
-
-if (questioner(
-        "Do you want me to update the OUI prefixes to the latest available version ?",
-        "y",
-        ( "y", "n" )
-    )
-    )
-{
-    `/usr/bin/wget -N http://standards.ieee.org/regauth/oui/oui.txt -P $conf_dir`;
-}
-
 print "Pre-compiling pfcmd grammar\n";
 `/usr/bin/perl -w -e 'use strict; use warnings; use diagnostics; use Parse::RecDescent; use lib "$install_dir/lib"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile(\$grammar, "pfcmd_pregrammar");'`;
 rename "pfcmd_pregrammar.pm", "$install_dir/lib/pf/pfcmd/pfcmd_pregrammar.pm";
@@ -509,6 +469,26 @@ foreach my $locale_dir (@locale_dirs) {
         "$locale_start_dir/$locale_dir/LC_MESSAGES/packetfence.mo";
 }
 
+my $jpgraphVersionToInstall;
+if ( !( -e "$conf_dir/templates/httpd.conf" ) ) {
+    print "$conf_dir/templates/httpd.conf symlink does not yet exist\n";
+    if ( `httpd -v` =~ /Apache\/2\.[2-9]\./ ) {
+        print "creating symlink to httpd.conf.apache22\n";
+        `ln -s $conf_dir/templates/httpd.conf.apache22 $conf_dir/templates/httpd.conf`;
+        $jpgraphVersionToInstall = 'jpgraph_v2';
+    } else {
+        print "creating symlink to httpd.conf.pre_apache22\n";
+        `ln -s $conf_dir/templates/httpd.conf.pre_apache22 $conf_dir/templates/httpd.conf`;
+        $jpgraphVersionToInstall = 'jpgraph_v1';
+    }
+} else {
+    if ( `httpd -v` =~ /Apache\/2\.[2-9]\./ ) {
+        $jpgraphVersionToInstall = 'jpgraph_v2';
+    } else {
+        $jpgraphVersionToInstall = 'jpgraph_v1';
+    }
+}
+
 if ( !( -e "$conf_dir/ssl/server.crt" ) ) {
     if (questioner(
             "Would you like me to create a self-signed SSL certificate for the PacketFence web pages?",
@@ -523,17 +503,6 @@ if ( !( -e "$conf_dir/ssl/server.crt" ) ) {
     } else {
         print
             "You must save your SSL certificates as $conf_dir/ssl/server.crt and $conf_dir/ssl/server.key before starting PacketFence";
-    }
-}
-
-if ( !( -e "$conf_dir/templates/httpd.conf" ) ) {
-    print "$conf_dir/templates/httpd.conf symlink does not yet exist\n";
-    if ( `httpd -v` =~ /Apache\/2\.[2-9]\./ ) {
-        print "creating symlink to httpd.conf.apache22\n";
-        `ln -s $conf_dir/templates/httpd.conf.apache22 $conf_dir/templates/httpd.conf`;
-    } else {
-        print "creating symlink to httpd.conf.pre_apache22\n";
-        `ln -s $conf_dir/templates/httpd.conf.pre_apache22 $conf_dir/templates/httpd.conf`;
     }
 }
 
@@ -552,13 +521,52 @@ if (questioner(
     } while ( system("htpasswd -c $conf_dir/admin.conf $adminuser") );
 }
 
+# check if external dependencies should be installed
+my $jpgraphFileNameToCheckFor = $external_deps->{$jpgraphVersionToInstall}->{'install_path'}
+                                . "/README";
+if ( !( -e $jpgraphFileNameToCheckFor ) ) {
+    if (questioner(
+        "PF needs JPGraph for its administrative Web GUI.  May I download and install it?",
+        "y",
+        ( "y", "n" )
+        )
+    ) {
+        my $url = $external_deps->{$jpgraphVersionToInstall}->{'url_path'}
+                  . $external_deps->{$jpgraphVersionToInstall}->{'file_name'};
+        my $local_file_name = "$install_dir/html/admin/common/jpgraph/"
+                  . $external_deps->{$jpgraphVersionToInstall}->{'file_name'};
+        `/usr/bin/wget -N $url -P $install_dir/html/admin/common/jpgraph/`;
+        `/bin/tar zxvf $local_file_name --strip-components 1 -C $external_deps->{$jpgraphVersionToInstall}->{'install_path'}`;
+    }
+}
+
 if (questioner(
-        "Would you like me to install the PHP Pear Log package ?",
+        "PF needs PHP Pear Log for its administrative Web GUI. May I download and install it ?",
         "y", ( "y", "n" )
     )
     )
 {
     `pear install Log`;
+}
+
+if (questioner(
+        "Do you want me to update the DHCP fingerprints to the latest available version ?",
+        "y",
+        ( "y", "n" )
+    )
+    )
+{
+    `/usr/bin/wget -N http://www.packetfence.org/dhcp_fingerprints.conf -P $conf_dir`;
+}
+
+if (questioner(
+        "Do you want me to update the OUI prefixes to the latest available version ?",
+        "y",
+        ( "y", "n" )
+    )
+    )
+{
+    `/usr/bin/wget -N http://standards.ieee.org/regauth/oui/oui.txt -P $conf_dir`;
 }
 
 print "Setting permissions\n";
