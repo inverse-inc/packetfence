@@ -603,6 +603,24 @@ sub getAlias {
     return $result->{"$OID_ifAlias.$ifIndex"};
 }
 
+=item getSwitchLocation - get the switch location string
+
+=cut
+
+sub getSwitchLocation {
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    if ( !$this->connectRead() ) {
+        return '';
+    }
+    my $OID_sysLocation = '1.3.6.1.2.1.1.6.0';
+    $logger->trace("SNMP get_request for sysLocation: $OID_sysLocation");
+    my $result = $this->{_sessionRead}
+        ->get_request( -varbindlist => ["$OID_sysLocation"] );
+    return $result->{"$OID_sysLocation"};
+}
+        
+
 =item setAlias - set the port description
 
 =cut
