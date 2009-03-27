@@ -105,6 +105,9 @@ my $last_goodbye;
 
 my $arp_interval = $Config{'arp'}{'interval'};
 
+# Maintenance interval tasks timer
+my $maintenance_interval = $Config{'general'}{'maintenance_interval'};
+
 #my $eth = $Config{'arp'}{'listendevice'};
 my @kids;
 
@@ -530,11 +533,13 @@ sub cleanup {
 
         #
         # delete expired nodes
-        $cache->delete_expired( $Config{'arp'}{'timeout'} );
+        if ( $Config{'network'}{'mode'} !~ /^vlan$/ ) {
+            $cache->delete_expired( $Config{'arp'}{'timeout'} );
+        }
 
         #
         # say hello before expiring nodes
-        if ( $Config{'network'}{'mode'} !~ /^dhcp$/ ) {
+        if ( $Config{'network'}{'mode'} !~ /^dhcp|vlan$/ ) {
             my @macs = $cache->hello_macs( $Config{'arp'}{'timeout'},
                 $arp_interval );
             foreach my $mac (@macs) {
@@ -543,7 +548,7 @@ sub cleanup {
         }
 
         #
-        # run these functions every $arp_interval * 10
+        # run these functions every $maintenance_interval * 10
         if ( $counter == 0 ) {
             $logger->info("running expire check");
             iplog_cleanup( $Config{'expire'}{'iplog'} )
@@ -558,8 +563,8 @@ sub cleanup {
             nodes_maintenance();
         }
 
-        sleep $arp_interval;
-        if ( $Config{'network'}{'mode'} !~ /^dhcp$/i ) {
+        sleep $maintenance_interval;
+        if ( $Config{'network'}{'mode'} !~ /^(dhcp|vlan)$/i ) {
             $logger->trace(
                 "trying to obtain lock on arp_signal in cleanup sub");
             lock($arp_signal);

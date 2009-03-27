@@ -137,7 +137,8 @@ foreach my $val (
     "arp.timeout",                "arp.dhcp_timeout",
     "arp.heartbeat",              "trapping.redirtimer",
     "registration.skip_window",   "registration.skip_reminder",
-    "registration.expire_window", "registration.expire_session"
+    "registration.expire_window", "registration.expire_session",
+    "general.maintenance_interval"
     )
 {
     my ( $group, $item ) = split( /\./, $val );

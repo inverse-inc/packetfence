@@ -34,6 +34,11 @@ caching=enabled
 #
 # Locale used for message translation
 locale=en_US
+#
+# general.maintenance_interval
+#
+# Interval at which Packetfence runs its maintenance tasks.
+maintenance_interval=60s
 
 [arp]
 #
