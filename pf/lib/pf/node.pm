@@ -88,20 +88,20 @@ sub node_db_prepare {
     $node_count_all_sql = "select count(*) as nb from node";
     $node_ungrace_sql
         = $dbh->prepare(
-        qq [ update node set status="unreg" where status="grace" and unix_timestamp(now())-unix_timestamp(lastskip) > ]
+        qq [ select mac from node where status="grace" and unix_timestamp(now())-unix_timestamp(lastskip) > ]
             . $Config{'registration'}{'skip_reminder'} );
     $node_expire_unreg_field_sql
         = $dbh->prepare(
-        qq [ update node set status="unreg" where status="reg" and unregdate != 0 and unregdate < now() ]
+        qq [ select mac from node where status="reg" and unregdate != 0 and unregdate < now() ]
         );
     $node_expire_window_sql
         = $dbh->prepare(
-        qq [ update node set status="unreg" where status="reg" and unix_timestamp(regdate) + ]
+        qq [ select mac from node where status="reg" and unix_timestamp(regdate) + ]
             . $Config{'registration'}{'expire_window'}
             . qq[ < unix_timestamp(now()) ] );
     $node_expire_deadline_sql
         = $dbh->prepare(
-        qq [ update node set status="unreg" where status="reg" and regdate < ]
+        qq [ select mac from node where status="reg" and regdate < ]
             . $Config{'registration'}{'expire_deadline'} );
     $node_expire_session_sql
         = $dbh->prepare(
@@ -550,40 +550,48 @@ sub nodes_maintenance {
     $logger->debug("nodes_maintenance called with expire_mode=$expire_mode");
 
     $node_ungrace_sql->execute() || return (0);
-    my $rows = $node_ungrace_sql->rows;
-    $logger->log( ( ( $rows > 0 ) ? $INFO : $DEBUG ),
-        "modified $rows nodes from status 'grace' to 'unreg'" );
+    while (my $row = $node_ungrace_sql->fetchrow_hashref()) {
+        my $currentMac = $row->{mac};
+        `/usr/local/pf/bin/pfcmd manage deregister $currentMac`;
+        $logger->info("modified $currentMac from status 'grace' to 'unreg'" );
+    };
 
     if ( isdisabled($expire_mode) ) {
         return (1);
     } else {
         $node_expire_unreg_field_sql->execute() || return (0);
-        $rows = $node_expire_unreg_field_sql->rows;
-        $logger->log(
-            ( ( $rows > 0 ) ? $INFO : $DEBUG ),
-            "modified $rows nodes from status 'reg' to 'unreg' based on unregdate column"
-        );
+        while (my $row = $node_expire_unreg_field_sql->fetchrow_hashref()) {
+            my $currentMac = $row->{mac};
+            `/usr/local/pf/bin/pfcmd manage deregister $currentMac`;
+            $logger->info("modified $currentMac from status 'reg' to 'unreg' based on unregdate colum" );
+        };
+
         if (  ( lc($expire_mode) eq 'window' )
             && $Config{'registration'}{'expire_window'} > 0 )
         {
             $node_expire_window_sql->execute() || return (0);
-            $rows = $node_expire_window_sql->rows;
-            $logger->log(
-                ( ( $rows > 0 ) ? $INFO : $DEBUG ),
-                "modified $rows nodes from status 'reg' to 'unreg' based on expiration window"
-            );
+            while (my $row = $node_expire_window_sql->fetchrow_hashref()) {
+                my $currentMac = $row->{mac};
+                `/usr/local/pf/bin/pfcmd manage deregister $currentMac`;
+                $logger->info("modified $currentMac from status 'reg' to 'unreg' based on expiration window" );
+            };
+
         } elsif (  ( lc($expire_mode) eq 'deadline' )
-            && ( time - $Config{'registration'}{'expire_deadline'} > 0 ) )
+            && ( time - $Config{'registration'}{'expire_deadline'} > 0 ) 
+            &&  !( $Config{'network'}{'mode'} =~ /vlan/i ) )
         {
             $node_expire_deadline_sql->execute() || return (0);
-            $rows = $node_expire_deadline_sql->rows;
-            $logger->log(
-                ( ( $rows > 0 ) ? $INFO : $DEBUG ),
-                "modified $rows nodes from status 'reg' to 'unreg' based on expiration deadline"
-            );
-        } elsif ( lc($expire_mode) eq 'session' ) {
+            while (my $row = $node_expire_deadline_sql->fetchrow_hashref()) {
+                my $currentMac = $row->{mac};
+                `/usr/local/pf/bin/pfcmd manage deregister $currentMac`;
+                $logger->info("modified $currentMac from status 'reg' to 'unreg' based on expiration deadline" );
+            };
+
+        } elsif ( ( lc($expire_mode) eq 'session' ) 
+            &&  !( $Config{'network'}{'mode'} =~ /vlan/i ) )
+        {
             $node_expire_session_sql->execute() || return (0);
-            $rows = $node_expire_session_sql->rows;
+            my $rows = $node_expire_session_sql->rows;
             $logger->log(
                 ( ( $rows > 0 ) ? $INFO : $DEBUG ),
                 "modified $rows nodes from status 'reg' to 'unreg' based on session expiration"
@@ -668,6 +676,8 @@ David LaPorte <david@davidlaporte.org>
 Kevin Amorin <kev@amorin.org>
 
 Dominik Gehl <dgehl@inverse.ca>
+
+Maikel van der Roest <mvdroest@utelisys.com>
 
 =head1 COPYRIGHT
 
