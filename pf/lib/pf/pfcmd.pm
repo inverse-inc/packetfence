@@ -391,8 +391,6 @@ sub parseCommandLine {
                 push @{$cmd{'violation_options'}}, $cmd{'command'}[1];
                 push @{$cmd{'violation_options'}}, $cmd{'command'}[2];
             }
-            use Data::Dumper;
-            $logger->info("returning " . Dumper(%cmd));
         } else {
             if ($main =~ m{ ^ (?:
                             node | person | interfaceconfig | networkconfig
