@@ -992,7 +992,7 @@ sub service {
     }
 
     print "service|command\n";
-    if ( $command eq 'stop' ) {
+    if ( $command ne 'stop' ) {
         print "config files|$command\n";
         require pf::os;
         pf::os::read_dhcp_fingerprints_conf();
