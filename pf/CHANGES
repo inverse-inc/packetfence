@@ -85,6 +85,8 @@
         fixed read_dhcp_fingerprints_conf() and 
           read_violations_conf() calls during service stop
           (http://www.packetfence.org/mantis/view.php?id=649)
+        fixed error messages layout in adduser.php
+          (http://www.packetfence.org/mantis/view.php?id=650)
 
 1.8.1
         authorized @ as first symbol in password
