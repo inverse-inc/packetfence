@@ -959,6 +959,13 @@ sub service {
 
     my @services;
     if ( $service ne 'pf' ) {
+        # make sure that snort is not started without pfdetect
+        if ($service eq 'snort') {
+            if ( !pf::services::service_ctl( 'pfdetect', 'status' ) ) {
+                $logger->info('addind pfdetect to list of services so that snort can be started');
+                push @services, 'pfdetect';
+            }
+        }
         push @services, $service;
     } else {
         @services = pf::services::service_list(@all_services);
