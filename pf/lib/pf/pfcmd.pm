@@ -23,7 +23,7 @@ use Regexp::Common qw(net);
 sub parseCommandLine {
     my ($commandLine) = @_;
     my $logger = Log::Log4perl::get_logger("pf::pfcmd");
-    $logger->info("starting to parse '$commandLine'");
+    $logger->debug("starting to parse '$commandLine'");
 
     $commandLine =~ s/\s+$//;
     my ($main, $params) = split( / +/, $commandLine, 2 );
@@ -329,7 +329,7 @@ sub parseCommandLine {
                                    ( all | defaults | \d+ )
                                  $  }xms,
     );
-    $logger->info("main is " . ($main || 'undefined'));
+    $logger->debug("main cmd argument is " . ($main || 'undefined'));
     if ( defined($main) && exists($regexp{$main}) ) {
         my %cmd;
         if ($params =~ $regexp{$main}) {
