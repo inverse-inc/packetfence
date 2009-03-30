@@ -34,7 +34,13 @@
 
   }
 
-  $edit_info = new table("$current_top view \"$edit_item\"");
+  if (! preg_match("/^[a-zA-Z0-9\-\_\.\@]+$/", $edit_item)) {
+    print "<div id='error' style='text-align:left;padding:10px;background:#FF7575;'><b>";
+    print "Error: Username contains invalid characters";
+    print "</b></div>\n";
+    exit;
+  }
+  $edit_info = new table("$current_top view $edit_item");
 
   print "<form method='post' action='/$current_top/edit.php?item=$edit_item'>";
   print "<div id='add'><table>";
