@@ -97,6 +97,8 @@
           (http://www.packetfence.org/mantis/view.php?id=655)
         Web admin GUI - show configured hostname in services
           (http://www.packetfence.org/mantis/view.php?id=654)
+        insecure dependency while starting pfdhcplistener
+          (http://www.packetfence.org/mantis/view.php?id=656)
 
 1.8.1
         authorized @ as first symbol in password

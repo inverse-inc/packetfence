@@ -154,10 +154,14 @@ sub service_ctl {
                                 if (
                                 $Config{'network'}{'mode'} =~ /^dhcp$/i );
                             foreach my $dev (@devices) {
-                                $logger->info(
-                                    "Starting $exe with '$service -i $dev $flags{$daemon}'"
-                                );
-                                system("$service -i $dev $flags{$daemon}");
+                                my $cmd_line = "$service -i $dev $flags{$daemon}";
+                                if ($cmd_line =~ /^(.+)$/) {
+                                    $cmd_line = $1;
+                                    $logger->info(
+                                        "Starting $exe with '$cmd_line'"
+                                    );
+                                    system($cmd_line);
+                                }
                             }
                             return 1;
                         }
