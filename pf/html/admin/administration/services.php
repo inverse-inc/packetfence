@@ -14,6 +14,27 @@
     PFCMD("service {$_GET['service']} {$_GET['action']}");
   }
 
+  $configs = PFCMD('config get all');
+  $hostname = '';
+  $domainname = '';
+  foreach ($configs as $config) {
+    $parts_ar=preg_split("/\|/",$config);
+    $type = array_pop($parts_ar);
+    $options_ar=preg_split("/=/", $parts_ar[0]);
+    $pf_option=array_shift($options_ar);
+    if ( ($pf_option == 'general.hostname')
+        || ($pf_option == 'general.domain') ) {
+        $value = implode("=", $options_ar);
+        if (!$value) {
+            $value = $pars_ar[1];
+        }
+        if ($pf_option == 'general.hostname') {
+            $hostname = $value;
+        } else {
+            $domainname = $value;
+        }
+    }
+  }
 ?>
 
 <div id=status> 
@@ -23,7 +44,7 @@
     <td class=header align=center>Services</td>
   </tr>
   <tr class=content>
-    <td class=system><img src="../images/wire.png"><br><?system('uname -n')?></td>
+    <td class=system><img src="../images/wire.png"><br><?php echo "$hostname.$domainname"; ?></td>
     <td class=services>
 	<? print_status_table() ?>
     </td>
