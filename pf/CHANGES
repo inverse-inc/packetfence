@@ -91,6 +91,8 @@
           (http://www.packetfence.org/mantis/view.php?id=651)
         fixed web admin GUI - violation edit
           (http://www.packetfence.org/mantis/view.php?id=652)
+        fixed web admin GUI - node and person edit
+          (http://www.packetfence.org/mantis/view.php?id=653)
 
 1.8.1
         authorized @ as first symbol in password
