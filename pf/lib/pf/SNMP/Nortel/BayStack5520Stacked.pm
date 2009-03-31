@@ -135,7 +135,7 @@ Thanks to Matt Ashfield for the board/port calculation !
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2008 Inverse groupe conseil
+Copyright (C) 2007-2008 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

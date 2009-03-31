@@ -10,7 +10,7 @@ inverse         OBJECT IDENTIFIER ::= { enterprises 29464 }
 
 inversePacketFenceNotificationMIB MODULE-IDENTITY
   LAST-UPDATED "200804242100Z"
-  ORGANIZATION "Inverse Inc."
+  ORGANIZATION "Inverse inc."
   CONTACT-INFO
     "Inverse
      email: dgehl@inverse.ca"

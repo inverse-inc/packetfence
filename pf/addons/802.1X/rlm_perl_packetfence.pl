@@ -16,7 +16,7 @@
 #
 #  Copyright 2002  The FreeRADIUS server project
 #  Copyright 2002  Boian Jordanov <bjordanov@orbitel.bg>
-#  Copyright 2006-2008  Inverse <dgehl@inverse.ca>
+#  Copyright 2006-2008  Inverse Inc. <dgehl@inverse.ca>
 #
 
 #
