@@ -61066,6 +61066,76 @@ company_id			Organization
 				Round Rock TX 78665
 				UNITED STATES
 
+00-25-B1   (hex)		Maya-Creation Corporation
+0025B1     (base 16)		Maya-Creation Corporation
+				3F, Building M-10, Centre od Hi-Tech Ind. Dist.
+				Shenzhen  518057
+				CHINA
+
+00-25-B2   (hex)		OPE2
+0025B2     (base 16)		OPE2
+				Landshuter Straﬂe  26
+				Unterschleiﬂheim Bavaria 85716
+				GERMANY
+
+00-25-B3   (hex)		Hewlett Packard
+0025B3     (base 16)		Hewlett Packard
+				11445 Compaq Center Drive
+				MS 6.3.049
+				Houston Texas 77070
+				UNITED STATES
+
+00-25-B4   (hex)		Cisco Systems
+0025B4     (base 16)		Cisco Systems
+				80 West Tasman Dr.
+				SJC-M/1
+				San Jose CA 95134
+				UNITED STATES
+
+00-25-B5   (hex)		Cisco Systems
+0025B5     (base 16)		Cisco Systems
+				80 West Tasman Dr.
+				SJC-M/1
+				San Jose CA 95134
+				UNITED STATES
+
+00-25-B6   (hex)		Telecom FM
+0025B6     (base 16)		Telecom FM
+				895 Plymouth Road
+				Slough Berks SL1 4LP
+				UNITED KINGDOM
+
+00-25-B7   (hex)		Costar  electronics, inc.,
+0025B7     (base 16)		Costar  electronics, inc.,
+				3fl,-1 no 13,lane 120,nei-hu road sec.1,
+				Taipei  114
+				TAIWAN, REPUBLIC OF CHINA
+
+00-25-B8   (hex)		Agile Communications, Inc.
+0025B8     (base 16)		Agile Communications, Inc.
+				12427 Renwick Dr
+				Rancho Cucamonga California 91739
+				UNITED STATES
+
+00-25-B9   (hex)		Agilink Systems Corp.
+0025B9     (base 16)		Agilink Systems Corp.
+				#300-1275 West 6th Ave
+				Vancouver BC V6H 1A6
+				CANADA
+
+00-25-BA   (hex)		Alcatel-Lucent IPD
+0025BA     (base 16)		Alcatel-Lucent IPD
+				701 E. Middlefield Rd.
+				Mountain View CA 94043
+				UNITED STATES
+
+00-25-BB   (hex)		INNERINT Co., Ltd.
+0025BB     (base 16)		INNERINT Co., Ltd.
+				Dongyoung CentralTower #202, Geumjung-dong,
+				Gunpo-si,Kyunggi-do,435-050 South KOREA.
+				Gunpo-si Kyunggi-do 430050
+				KOREA, REPUBLIC OF
+
 00-26-54   (hex)		3Com Corporation
 002654     (base 16)		3Com Corporation
 				5353 Betsy Ross Drive
