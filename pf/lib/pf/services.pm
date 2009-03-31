@@ -198,9 +198,8 @@ sub service_ctl {
                 service_ctl( "pfdetect", "stop" ) if ( $daemon eq "snort" );
                 service_ctl( $daemon, "stop" );
 
-                `$install_dir/bin/pfcmd service $exe start`;
-                `$install_dir/bin/pfcmd service pfdetect start`
-                    if ( $daemon eq "snort" );
+                service_ctl( "pfdetect", "start" ) if ( $daemon eq "snort" );
+                service_ctl( $daemon, "start" );
                 last CASE;
             };
             $action eq "status" && do {
