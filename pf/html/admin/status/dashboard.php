@@ -62,7 +62,10 @@
       <?
         if($_GET['customize']){
           print "<form method='post' action='$current_top/$current_sub.php'>";
-	  $nuggets[]=array('cmd'=>'');  $nuggets[]=array('cmd'=>'');  // for extra rows
+          # add extra rows up to a maximum number of 9
+          for ($emptyNuggets =  count($nuggets); $emptyNuggets <=9; $emptyNuggets++) {
+            $nuggets[]=array('cmd'=>'');
+          }
         }
 
 	## Nuggets ##
@@ -157,7 +160,8 @@
         <?
 	   ## Graphs ##
 	   if($_GET['customize']){
-	     for($i=0; $i<count($graphs)+2; $i++){
+          # 9 rows
+	     for($i=0; $i<9; $i++){
                if($graphs[$i]){
   	         print "<div style='width:450px;padding-top:155px;padding-bottom:155px;text-align:center;margin-bottom:10px;background-image:url(\"status/grapher.php?type=".$graphs[$i][type]."&span=".$graphs[$i][span]."&size=small\");background-repeat:no-repeat;'>";
 	       }
