@@ -15,7 +15,7 @@
 #source pfdhcplistener configuration
 . /etc/sysconfig/pfdhcplistener
 
-prog="/usr/local/pf/bin/pfdhcplistener"
+prog="/usr/local/pf/sbin/pfdhcplistener"
 prog_base="$(basename ${prog})"
 
 RETVAL=0
