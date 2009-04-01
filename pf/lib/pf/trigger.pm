@@ -140,7 +140,7 @@ sub trigger_delete_vid {
     trigger_db_prepare($dbh) if ( !$trigger_db_prepared );
     my $logger = Log::Log4perl::get_logger('pf::trigger');
     $trigger_delete_vid_sql->execute($vid) || return (0);
-    $logger->info("triggers vid $vid deleted");
+    $logger->debug("triggers vid $vid deleted");
     return (1);
 }
 
@@ -148,7 +148,7 @@ sub trigger_delete_all {
     my $logger = Log::Log4perl::get_logger('pf::trigger');
     trigger_db_prepare($dbh) if ( !$trigger_db_prepared );
     $trigger_delete_all_sql->execute() || return (0);
-    $logger->info("All triggers deleted");
+    $logger->debug("All triggers deleted");
     return (1);
 }
 
@@ -176,7 +176,7 @@ sub trigger_add {
     }
     $trigger_add_sql->execute( $vid, $tid_start, $tid_end, $type )
         || return (0);
-    $logger->info("trigger $tid_start $tid_end added");
+    $logger->debug("trigger $tid_start $tid_end added");
     return (1);
 }
 
@@ -225,7 +225,7 @@ sub trigger_scan {
         }
     );
     $trigger->plugin_set($pluginlist);
-    $logger->info(
+    $logger->debug(
         "plug = $pluginlist addr = $addr user =$user port = $port host = $host ssl = $ssl\n"
     );
     if ( $trigger->login( $user, $pass ) ) {

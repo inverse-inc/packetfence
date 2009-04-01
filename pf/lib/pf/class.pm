@@ -117,7 +117,7 @@ sub class_add {
         return (2);
     }
     $class_add_sql->execute(@_) || return (0);
-    $logger->info("class $id added");
+    $logger->debug("class $id added");
     return (1);
 }
 
@@ -126,7 +126,7 @@ sub class_delete {
     class_db_prepare($dbh) if ( !$class_db_prepared );
     my $logger = Log::Log4perl::get_logger('pf::class');
     $class_delete_sql->execute($id) || return (0);
-    $logger->info("class $id deleted");
+    $logger->debug("class $id deleted");
     return (1);
 }
 
@@ -134,7 +134,7 @@ sub class_cleanup {
     class_db_prepare($dbh) if ( !$class_db_prepared );
     my $logger = Log::Log4perl::get_logger('pf::class');
     $class_cleanup_sql->execute() || return (0);
-    $logger->info("class cleanup completed");
+    $logger->debug("class cleanup completed");
     return (1);
 }
 
@@ -144,10 +144,10 @@ sub class_modify {
     my $logger = Log::Log4perl::get_logger('pf::class');
     push( @_, $id );
     if ( class_exist($id) ) {
-        $logger->info("modify existing existing class $id");
+        $logger->debug("modify existing existing class $id");
     }
     $class_modify_sql->execute(@_) || return (0);
-    $logger->info("class $id modified");
+    $logger->debug("class $id modified");
     return (1);
 }
 
@@ -158,7 +158,7 @@ sub class_merge {
     my $logger   = Log::Log4perl::get_logger('pf::class');
     use pf::action;
 
-    $logger->info("inserting $id");
+    $logger->debug("inserting $id");
 
     # delete existing violation actions
     if ( !pf::action::action_delete_all($id) ) {

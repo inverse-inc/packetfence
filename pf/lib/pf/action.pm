@@ -79,11 +79,11 @@ sub action_add {
     action_db_prepare($dbh) if ( !$action_db_prepared );
     my $logger = Log::Log4perl::get_logger('pf::action');
     if ( action_exist( $vid, $action ) ) {
-        $logger->info("attempt to add existing action $action to class $vid");
+        $logger->warn("attempt to add existing action $action to class $vid");
         return (2);
     }
     $action_add_sql->execute( $vid, $action ) || return (0);
-    $logger->info("action $action added to class $vid");
+    $logger->debug("action $action added to class $vid");
     return (1);
 }
 
@@ -109,7 +109,7 @@ sub action_delete {
     action_db_prepare($dbh) if ( !$action_db_prepared );
     my $logger = Log::Log4perl::get_logger('pf::action');
     $action_delete_sql->execute( $vid, $action ) || return (0);
-    $logger->info("action $action deleted from class $vid");
+    $logger->debug("action $action deleted from class $vid");
     return (1);
 }
 
@@ -118,7 +118,7 @@ sub action_delete_all {
     action_db_prepare($dbh) if ( !$action_db_prepared );
     my $logger = Log::Log4perl::get_logger('pf::action');
     $action_delete_all_sql->execute($vid) || return (0);
-    $logger->info("all actions for class $vid deleted");
+    $logger->debug("all actions for class $vid deleted");
     return (1);
 }
 
