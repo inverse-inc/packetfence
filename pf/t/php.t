@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 73;
+use Test::More tests => 72;
 
 my @php_files = (
     '/usr/local/pf/html/admin/administration/adduser.php',
@@ -26,7 +26,6 @@ my @php_files = (
     '/usr/local/pf/html/admin/configuration/networks_add.php',
     '/usr/local/pf/html/admin/configuration/networks_edit.php',
     '/usr/local/pf/html/admin/configuration/networks.php',
-    '/usr/local/pf/html/admin/configuration/redirector.php',
     '/usr/local/pf/html/admin/configuration/switches_add.php',
     '/usr/local/pf/html/admin/configuration/switches_edit.php',
     '/usr/local/pf/html/admin/configuration/switches.php',
