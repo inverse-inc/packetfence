@@ -12,7 +12,6 @@ use diagnostics;
 
 use Net::SNMP;
 use Log::Log4perl;
-use Config::IniFiles;
 use File::Basename qw(basename);
 
 use constant INSTALL_DIR => '/usr/local/pf';
