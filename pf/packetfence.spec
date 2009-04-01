@@ -80,19 +80,6 @@ The packetfence-remote-snort-sensor package contains the files needed
 for sending snort alerts from a remote snort sensor to a PacketFence
 server.
 
-%package remote-dhcp-listener
-Group: System Environment/Daemons
-Requires: perl >= 5.8.0, perl(Config::IniFiles), libpcap, perl-DBD-MySQL, perl(Net::Pcap)
-Conflicts: packetfence
-AutoReqProv: 0
-Summary: Files needed for the dhcp listener on a remote machine
-
-%description remote-dhcp-listener
-The packetfence-remote-dhcp-listener package contains the files needed
-for running the dhcp listener on a remote machine. This service will
-inject the IP-MAC associations and DHCP fingerprints directly into the
-main PacketFence database.
-
 %prep
 %setup -n pf
 
@@ -135,14 +122,6 @@ rmdir addons/pfdetect_remote/initrd
 rmdir addons/pfdetect_remote/conf
 rmdir addons/pfdetect_remote
 #end pfdetect_remote
-#remote pfdhcplistener
-mv addons/pfdhcplistener_remote/initrd/pfdhcplistenerd $RPM_BUILD_ROOT%{_initrddir}/
-mkdir $RPM_BUILD_ROOT/etc/sysconfig
-mv addons/pfdhcplistener_remote/sysconfig/pfdhcplistener $RPM_BUILD_ROOT/etc/sysconfig/
-rmdir addons/pfdhcplistener_remote/initrd
-rmdir addons/pfdhcplistener_remote/sysconfig
-rmdir addons/pfdhcplistener_remote
-#end remote pfdhcplistener
 cp -r test $RPM_BUILD_ROOT/usr/local/pf/
 cp -r t $RPM_BUILD_ROOT/usr/local/pf/
 cp -r db $RPM_BUILD_ROOT/usr/local/pf/
@@ -209,13 +188,6 @@ if ! /usr/bin/id pf &>/dev/null; then
 		echo Unexpected error adding user "pf" && exit
 fi
 
-%pre remote-dhcp-listener
-
-if ! /usr/bin/id pf &>/dev/null; then
-	/usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
-		echo Unexpected error adding user "pf" && exit
-fi
-
 %post
 echo "Adding PacketFence startup script"
 /sbin/chkconfig --add packetfence
@@ -246,10 +218,6 @@ echo "  * Please cd /usr/local/pf && ./installer.pl to install necessary Perl mo
 echo "Adding PacketFence remote Snort Sensor startup script"
 /sbin/chkconfig --add pfdetectd
 
-%post remote-dhcp-listener
-echo "Adding PacketFence remote DHCP listener startup script"
-/sbin/chkconfig --add pfdhcplistenerd
-
 %preun
 if [ $1 -eq 0 ] ; then
 	/sbin/service packetfence stop &>/dev/null || :
@@ -263,12 +231,6 @@ if [ $1 -eq 0 ] ; then
 	/sbin/chkconfig --del pfdetectd
 fi
 
-%preun remote-dhcp-listener
-if [ $1 -eq 0 ] ; then
-	/sbin/service pfdhcplistenerd stop &>/dev/null || :
-	/sbin/chkconfig --del pfdhcplistenerd
-fi
-
 %postun
 if [ $1 -eq 0 ]; then
 	/usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
@@ -278,11 +240,6 @@ if [ $1 -eq 0 ]; then
 fi
 
 %postun remote-snort-sensor
-if [ $1 -eq 0 ]; then
-	/usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
-fi
-
-%postun remote-dhcp-listener
 if [ $1 -eq 0 ]; then
 	/usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
 fi
@@ -440,45 +397,6 @@ fi
 %attr(0755, pf, pf) /usr/local/pf/sbin/pfdetect_remote
 %config(noreplace) /usr/local/pf/conf/pfdetect_remote.conf
 
-%files remote-dhcp-listener
-%defattr(-, pf, pf)
-%attr(0755, root, root) %{_initrddir}/pfdhcplistenerd
-%config(noreplace) /etc/sysconfig/pfdhcplistener
-%dir /usr/local/pf
-%dir /usr/local/pf/var
-%dir /usr/local/pf/bin
-%dir /usr/local/pf/sbin
-%dir /usr/local/pf/conf
-%config /usr/local/pf/conf/pf.conf.defaults
-%config /usr/local/pf/conf/documentation.conf
-%dir /usr/local/pf/logs
-%dir /usr/local/pf/lib
-%dir /usr/local/pf/lib/pf
-/usr/local/pf/lib/pf/config.pm
-/usr/local/pf/lib/pf/iplog.pm
-/usr/local/pf/lib/pf/traplog.pm
-/usr/local/pf/lib/pf/db.pm
-/usr/local/pf/lib/pf/util.pm
-/usr/local/pf/lib/pf/person.pm
-/usr/local/pf/lib/pf/node.pm
-/usr/local/pf/lib/pf/class.pm
-/usr/local/pf/lib/pf/violation.pm
-/usr/local/pf/lib/pf/trigger.pm
-/usr/local/pf/lib/pf/services.pm
-/usr/local/pf/lib/pf/os.pm
-/usr/local/pf/lib/pf/action.pm
-/usr/local/pf/lib/pf/iptables.pm
-/usr/local/pf/lib/pf/rawip.pm
-/usr/local/pf/lib/pf/locationlog.pm
-%attr(0755, pf, pf) /usr/local/pf/sbin/pfdhcplistener
-%dir /usr/local/pf/lib/pf/lookup
-%config(noreplace) /usr/local/pf/lib/pf/lookup/node.pm
-%attr(6755, root, root) /usr/local/pf/bin/pfcmd
-/usr/local/pf/lib/pf/pfcmd.pm
-%dir /usr/local/pf/lib/pf/pfcmd
-/usr/local/pf/lib/pf/pfcmd/pfcmd.pm
-/usr/local/pf/lib/pf/pfcmd/help.pm
-/usr/local/pf/lib/pf/pfcmd/pfcmd_pregrammar.pm
 
 %changelog
 * Mon Apr 30 2008 - Dominik Gehl
