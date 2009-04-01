@@ -199,7 +199,8 @@ sub load_template {
     my $template_filename = "$conf_dir/templates/configurator/"
         . $template_hash{$template_nb};
     die "template $template_filename not found" if ( !-e $template_filename );
-    tie %template_cfg, 'Config::IniFiles', ( -file => $template_filename );
+    tie %template_cfg, 'Config::IniFiles', ( -file => $template_filename )
+        or die "Unable to open $template_filename: $!\n";
 
     foreach my $section ( tied(%template_cfg)->Sections ) {
         $cfg{$section} = {} if ( !exists( $cfg{$section} ) );

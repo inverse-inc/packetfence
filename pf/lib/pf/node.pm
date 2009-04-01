@@ -485,8 +485,14 @@ sub node_register {
             my %ConfigVlan;
             tie %ConfigVlan, 'Config::IniFiles',
                 ( -file => "$conf_dir/switches.conf" );
-            $info{'vlan'} = $ConfigVlan{'default'}{'normalVlan'};
-            $logger->info( "auto-configured VLAN to " . $info{'vlan'} );
+            my @errors = @Config::IniFiles::errors;
+            if ( scalar(@errors) ) {
+                $logger->error( "Error reading switches.conf: " 
+                                . join( "\n", @errors ) .  "\n" );
+            } else {
+                $info{'vlan'} = $ConfigVlan{'default'}{'normalVlan'};
+                $logger->info( "auto-configured VLAN to " . $info{'vlan'} );
+            }
         }
     }
 

@@ -730,6 +730,13 @@ sub generate_snort_conf {
     my %violations_conf;
     tie %violations_conf, 'Config::IniFiles',
         ( -file => "$conf_dir/violations.conf" );
+    my @errors = @Config::IniFiles::errors;
+    if ( scalar(@errors) ) {
+        $logger->error( "Error reading violations.conf: " 
+                        .  join( "\n", @errors ) . "\n" );
+        return 0;
+    }
+
     my @rules;
 
     foreach my $rule (
@@ -974,6 +981,12 @@ sub read_violations_conf {
     my %violations_conf;
     tie %violations_conf, 'Config::IniFiles',
         ( -file => "$conf_dir/violations.conf" );
+    my @errors = @Config::IniFiles::errors;
+    if ( scalar(@errors) ) {
+        $logger->error( "Error reading violations.conf: " 
+                        .  join( "\n", @errors ) . "\n" );
+        return 0;
+    }
     my %violations = class_set_defaults(%violations_conf);
 
     #clear all triggers at startup

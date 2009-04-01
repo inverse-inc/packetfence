@@ -80,6 +80,12 @@ if ( $args{o} ) {
 if ( -r $prints_file ) {
     my %prints_ini;
     tie %prints_ini, 'Config::IniFiles', ( -file => $prints_file );
+    my @errors = @Config::IniFiles::errors;
+    if ( scalar(@errors) ) {
+        die( "Error reading $prints_file: " 
+             . join( "\n", @errors ) . "\n" );
+    }
+
     foreach my $os ( tied(%prints_ini)->GroupMembers("os") ) {
         if ( exists( $prints_ini{$os}{'fingerprints'} ) ) {
             if ( ref( $prints_ini{$os}{'fingerprints'} ) eq "ARRAY" ) {

@@ -34,10 +34,17 @@ use pf::config;
 use pf::util;
 use pf::db;
 use Config::IniFiles;
+use Log::Log4perl;
 
+my $logger = Log::Log4perl::get_logger('pf::nodecategory');
 if ( -e $node_categories_file ) {
     tie %nodeCategories, 'Config::IniFiles',
         ( -file => $node_categories_file );
+    my @errors = @Config::IniFiles::errors;
+    if ( scalar(@errors) ) {
+        $logger->error( "Error reading $node_categories_file: "
+                       . join( "\n", @errors ) . "\n" );
+    }
 }
 if ( defined(%nodeCategories) ) {
     foreach my $section ( tied(%nodeCategories)->Sections ) {
