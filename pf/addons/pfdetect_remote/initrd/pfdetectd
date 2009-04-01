@@ -12,7 +12,7 @@
 
 . /etc/rc.d/init.d/functions
 
-prog="/usr/local/pf/bin/pfdetect_remote"
+prog="/usr/local/pf/sbin/pfdetect_remote"
 prog_base="$(basename ${prog})"
 
 RETVAL=0

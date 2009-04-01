@@ -128,9 +128,9 @@ cp -r cgi-bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
 #pfdetect_remote
 mv addons/pfdetect_remote/initrd/pfdetectd $RPM_BUILD_ROOT%{_initrddir}/
-mv addons/pfdetect_remote/bin/pfdetect_remote $RPM_BUILD_ROOT/usr/local/pf/bin
+mv addons/pfdetect_remote/sbin/pfdetect_remote $RPM_BUILD_ROOT/usr/local/pf/sbin
 mv addons/pfdetect_remote/conf/pfdetect_remote.conf $RPM_BUILD_ROOT/usr/local/pf/conf
-rmdir addons/pfdetect_remote/bin
+rmdir addons/pfdetect_remote/sbin
 rmdir addons/pfdetect_remote/initrd
 rmdir addons/pfdetect_remote/conf
 rmdir addons/pfdetect_remote
@@ -437,7 +437,7 @@ fi
 %dir /usr/local/pf/var
 %dir /usr/local/pf/bin
 %dir /usr/local/pf/conf
-%attr(0755, pf, pf) /usr/local/pf/bin/pfdetect_remote
+%attr(0755, pf, pf) /usr/local/pf/sbin/pfdetect_remote
 %config(noreplace) /usr/local/pf/conf/pfdetect_remote.conf
 
 %files remote-dhcp-listener
