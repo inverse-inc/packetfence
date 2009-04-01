@@ -61136,6 +61136,31 @@ company_id			Organization
 				Gunpo-si Kyunggi-do 430050
 				KOREA, REPUBLIC OF
 
+00-25-BC   (hex)		Apple, Inc
+0025BC     (base 16)		Apple, Inc
+				1 Infinite Loop
+				Cupertino CA 95014
+				UNITED STATES
+
+00-25-BD   (hex)		Italdata Ingegneria dell'Idea S.p.A.
+0025BD     (base 16)		Italdata Ingegneria dell'Idea S.p.A.
+				viale Eroi di Cefalonia 123
+				Roma  00128
+				ITALY
+
+00-25-BE   (hex)		Tektrap Systems Inc.
+0025BE     (base 16)		Tektrap Systems Inc.
+				15 Buteau St.
+				Suite 230-9
+				Gatineau Quebec J8Z 1V4
+				CANADA
+
+00-25-BF   (hex)		Wireless Cables Inc.
+0025BF     (base 16)		Wireless Cables Inc.
+				2880 Zanker Rd, Ste 203
+				San Jose CA 95134
+				UNITED STATES
+
 00-26-54   (hex)		3Com Corporation
 002654     (base 16)		3Com Corporation
 				5353 Betsy Ross Drive
