@@ -481,6 +481,7 @@ sub node_register {
 
     if ( lc($Config{'network'}{'mode'})  eq 'vlan' ) {
         if ( !defined( $info{'vlan'} ) ) {
+            require Config::IniFiles;
             my %ConfigVlan;
             tie %ConfigVlan, 'Config::IniFiles',
                 ( -file => "$conf_dir/switches.conf" );

@@ -106,6 +106,8 @@
           (http://www.packetfence.org/mantis/view.php?id=658)
         fixed number of rows in dashboard customization
           (http://www.packetfence.org/mantis/view.php?id=659)
+        added Config::IniFiles requirement in node.pm
+          (http://www.packetfence.org/mantis/view.php?id=661)
 
 1.8.1
         authorized @ as first symbol in password
