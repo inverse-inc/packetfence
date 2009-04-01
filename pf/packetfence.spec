@@ -435,7 +435,7 @@ fi
 %attr(0755, root, root) %{_initrddir}/pfdetectd
 %dir /usr/local/pf
 %dir /usr/local/pf/var
-%dir /usr/local/pf/bin
+%dir /usr/local/pf/sbin
 %dir /usr/local/pf/conf
 %attr(0755, pf, pf) /usr/local/pf/sbin/pfdetect_remote
 %config(noreplace) /usr/local/pf/conf/pfdetect_remote.conf
