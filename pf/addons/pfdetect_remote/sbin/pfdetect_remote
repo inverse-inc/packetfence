@@ -1,5 +1,19 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+pfdetect-remote - listen to snort alerts and send them to PF server
+
+=head1 SYNOPSIS
+
+pfdetect -p <snortpipe> [options]
+
+  Options:
+    -d  Daemonize
+    -h  Help
+
+=cut
+
 use Getopt::Std;
 use File::Basename;
 use File::Tail;
@@ -9,6 +23,7 @@ use SOAP::Lite;
 use Sys::Syslog;
 use Config::IniFiles;
 use Data::Dumper;
+use Pod::Usage;
 use strict;
 use warnings;
 
@@ -43,10 +58,9 @@ my @ORIG_ARGV = @ARGV;
 my %args;
 getopts('dhvp:', \%args);
 
-usage() if ($args{h} || !$args{p});
+pod2usage( -verbose => 1 ) if ($args{h} || !$args{p});
 
 my $daemonize = $args{d};
-my $verbose   = $args{v};
 my $snortpipe = $args{p};
 my $script    = File::Basename::basename($0);
 my $portscan_sid = 1200003;
@@ -68,7 +82,6 @@ my $fh = new File::Tail ('name' => $snortpipe,
 	'reset_tail' => 0,
 	'maxinterval' => 2);
 syslog("info", "listening on $snortpipe");
-print "$script: listening on $snortpipe\n" if ($verbose);
 
 my $currentLine;
 while (defined($currentLine=$fh->read)) {
@@ -152,19 +165,6 @@ sub restart_handler {
   }
 }
 
-sub usage {
-  my $cmd = File::Basename::basename($0);
-  print STDERR << "EOF";
-  Usage: $cmd -p snortpipe [OPTIONS]
-
-  Options:
-         -d  Daemonize
-         -v  Verbose
-         -h  Help
-EOF
-  exit;
-}
-
 
 sub createpid {
   my $pname = basename($0);
@@ -204,7 +204,7 @@ Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2006-2008 Inverse inc.
+Copyright (C) 2006-2009 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
