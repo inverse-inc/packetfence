@@ -117,6 +117,8 @@
         removed remote DHCP listener
         snmptrapd now appends to log file (instead of trunkating)
           (http://www.packetfence.org/mantis/view.php?id=668)
+        web admin gui - filename for scan result download
+          (http://www.packetfence.org/mantis/view.php?id=669)
 
 1.8.1
         authorized @ as first symbol in password

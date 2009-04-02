@@ -23,7 +23,7 @@ if (isset($_GET['action']) && $_GET['action']=="save") {
     die("bad filename");
   }
   header("Content-type: application/text");
-  header("Content-Disposition: attachment; filename=$view_item");
+  header("Content-Disposition: attachment; filename=$view_item.txt");
   echo file_get_contents("$current_sub/$view_item");
   exit();
 }
