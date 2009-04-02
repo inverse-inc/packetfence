@@ -1175,6 +1175,8 @@ sub schedule {
         }
     } elsif ( $option eq 'delete' ) {
         $cron->delete_index($hostaddr);
+        $cron->write_cron("pf");
+        return 1;
     } elsif ( $option eq 'edit' ) {
         my $id = $hostaddr;
         my ( $oldate, $oldaddr, $oldtid )
