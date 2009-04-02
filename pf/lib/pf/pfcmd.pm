@@ -34,7 +34,7 @@ sub parseCommandLine {
         'class'           => qr{ ^ (view) \s+ ( all | \d+ ) $ }xms,
         'config'          => qr{ ^ ( get | set | help )
                                    \s+
-                                   ( [a-zA-Z0-9_\.\:=/\-]+)
+                                   ( [ a-zA-Z0-9_@\.\:=/\-,?]+)
                                  $ }xms,
         'configfiles'     => qr{ ^ ( push | pull ) $ }xms,
         'fingerprint'     => qr{ ^ (view) 
