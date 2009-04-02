@@ -10,6 +10,15 @@ pf::schedule - module for scan schedule management
   _index wrapper functions for later move to Schedule::Cron
   we only need %10 of what Schedule::Cron does
 
+=head1 BUGS AND LIMITATIONS
+
+Currently, when used to schedule Nessus scans, there can't be
+any other crontab entries for the 'pf' user. The module has
+not yet the necessary logic to handle these different kinds
+of scheduled tasks.
+
+See http://packetfence.org/mantis/view.php?id=674
+
 =cut
 
 sub new {
