@@ -140,7 +140,7 @@ curdir=`pwd`
 
 #pfschema symlink
 cd $RPM_BUILD_ROOT/usr/local/pf/db
-ln -s pfschema.mysql.180 ./pfschema.mysql
+ln -s pfschema.mysql.181 ./pfschema.mysql
 
 #httpd.conf symlink
 cd $RPM_BUILD_ROOT/usr/local/pf/conf/templates

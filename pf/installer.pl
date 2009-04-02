@@ -337,10 +337,10 @@ if (questioner(
     {
         `/usr/bin/mysqladmin --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' create $mysql_db`;
         print "  Loading schema\n";
-        if ( -e "$install_dir/db/pfschema.mysql.180" ) {
-            `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' $mysql_db < $install_dir/db/pfschema.mysql.180`;
+        if ( -e "$install_dir/db/pfschema.mysql.181" ) {
+            `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' $mysql_db < $install_dir/db/pfschema.mysql.181`;
         } else {
-            die("Where's my schema?  Nothing at $install_dir/db/pfschema.mysql.180\n"
+            die("Where's my schema?  Nothing at $install_dir/db/pfschema.mysql.181\n"
             );
         }
     }
