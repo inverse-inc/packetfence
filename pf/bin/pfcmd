@@ -1153,7 +1153,10 @@ sub schedule {
         if ( $hostaddr eq 'all' ) {
             print $cron->get_indexes();
         } else {
-            print join( $delimiter, $cron->get_index($hostaddr) ) . "\n";
+            my $cronref = $cron->get_index($hostaddr);
+            if (defined($cronref)) {
+                print join( $delimiter, $cron->get_index($hostaddr) ) . "\n";
+            }
         }
         return (1);
     } elsif ( $option eq 'add' ) {

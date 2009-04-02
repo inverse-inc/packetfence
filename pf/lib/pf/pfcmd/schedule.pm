@@ -124,8 +124,12 @@ sub get_index {
     my ( $self, $idx ) = @_;
     my @array;
     my $ref = $self->get_entry($idx);
-    $ref->{args} =~ /now\s+(\S+).+tid=(\S+)/;
-    return ( $idx, $ref->{time}, $1, $2 );
+    if (defined($ref)) {
+        $ref->{args} =~ /now\s+(\S+).+tid=(\S+)/;
+        return ( $idx, $ref->{time}, $1, $2 );
+    } else {
+        return;
+    }
 }
 
 # update index int in table with time/args
