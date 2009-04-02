@@ -61161,6 +61161,24 @@ company_id			Organization
 				San Jose CA 95134
 				UNITED STATES
 
+00-25-C0   (hex)		ZillionTV Corporation
+0025C0     (base 16)		ZillionTV Corporation
+				1170 Kifer Road
+				Sunnyvale CA 94086
+				UNITED STATES
+
+00-25-C1   (hex)		Nawoo Korea Corp.
+0025C1     (base 16)		Nawoo Korea Corp.
+				4Fl., Hanwon Bldg., 6-1, Sunae-dong, Bundang-gu,
+				Seongnam-si Gyeonggi-do 463-825
+				KOREA, REPUBLIC OF
+
+00-25-C2   (hex)		RingBell Co.,Ltd.
+0025C2     (base 16)		RingBell Co.,Ltd.
+				10586 KingGeorge Hwy
+				Surrey B.C V3T 2X3
+				CANADA
+
 00-26-54   (hex)		3Com Corporation
 002654     (base 16)		3Com Corporation
 				5353 Betsy Ross Drive
