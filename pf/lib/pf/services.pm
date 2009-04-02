@@ -48,7 +48,7 @@ $flags{'dhcpd'}
     . join( " ", get_dhcp_devs() );
 $flags{'named'} = "-u pf -c $install_dir/conf/named.conf";
 $flags{'snmptrapd'}
-    = "-n -c $conf_dir/snmptrapd.conf -C -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/snmptrapd.pid -On";
+    = "-n -c $conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/snmptrapd.pid -On";
 
 if ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int ) {
     $flags{'snort'}

@@ -115,6 +115,8 @@
         moved pfdetect_remote into sbin directory
           (http://www.packetfence.org/mantis/view.php?id=666)
         removed remote DHCP listener
+        snmptrapd now appends to log file (instead of trunkating)
+          (http://www.packetfence.org/mantis/view.php?id=668)
 
 1.8.1
         authorized @ as first symbol in password
