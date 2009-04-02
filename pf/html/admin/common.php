@@ -987,7 +987,10 @@ function PrintSubNav($menu){
       $my_table = new table("report unknownprints");
       $new_unknowns = set_default($my_table->rows, array());
     }
-
+    if (! is_array($new_unknowns)) {
+      $new_unknowns = array();
+    }
+    $new = array();
     foreach($new_unknowns as $new_unknown){
       $new[$new_unknown['dhcp_fingerprint']] = $new_unknown['vendor'];
     }
