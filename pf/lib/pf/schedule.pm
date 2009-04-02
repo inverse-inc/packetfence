@@ -1,8 +1,16 @@
-#  small cron obj
-#  _index wrapper functions for later move to Schedule::Cron
-#  we only need %10 of what Schedule::Cron does
-#
-package schedule;
+package pf::schedule;
+
+=head1 NAME
+
+pf::schedule - module for scan schedule management
+
+=head1 DESCRIPTION
+
+  small cron obj
+  _index wrapper functions for later move to Schedule::Cron
+  we only need %10 of what Schedule::Cron does
+
+=cut
 
 sub new {
     my ($class) = @_;

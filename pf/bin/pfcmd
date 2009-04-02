@@ -1141,12 +1141,12 @@ sub schedule {
         #close(FILE);
         return (1);
     }
-    use pf::pfcmd::schedule;
+    require pf::schedule;
 
     my $tid  = $params{tid}  || "all";
     my $date = $params{date} || 0;
 
-    my $cron = new schedule();
+    my $cron = new pf::schedule();
     $cron->load_cron("pf");
     print join( $delimiter, ( "id", "date", "hosts", "tid" ) ) . "\n";
     if ( $option eq 'view' ) {

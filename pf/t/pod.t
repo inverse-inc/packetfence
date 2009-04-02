@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 94;
+use Test::More tests => 95;
 
 my @files = (
     '/usr/local/pf/configurator.pl',
@@ -41,8 +41,8 @@ my @files = (
     '/usr/local/pf/lib/pf/pfcmd/pfcmd.pm',
     '/usr/local/pf/lib/pf/pfcmd.pm',
     '/usr/local/pf/lib/pf/pfcmd/report.pm',
-    #'/usr/local/pf/lib/pf/pfcmd/schedule.pm',
     '/usr/local/pf/lib/pf/rawip.pm',
+    '/usr/local/pf/lib/pf/schedule.pm',
     '/usr/local/pf/lib/pf/services.pm',
     '/usr/local/pf/lib/pf/SNMP/Accton/ES3526XA.pm',
     '/usr/local/pf/lib/pf/SNMP/Accton/ES3528M.pm',

@@ -26,8 +26,8 @@ BEGIN { use_ok('pf::pfcmd::graph') }
 BEGIN { use_ok('pf::pfcmd::help') }
 BEGIN { use_ok('pf::pfcmd::pfcmd') }
 BEGIN { use_ok('pf::pfcmd::report') }
-BEGIN { use_ok('pf::pfcmd::schedule') }
 BEGIN { use_ok('pf::rawip') }
+BEGIN { use_ok('pf::schedule') }
 BEGIN { use_ok('pf::services') }
 BEGIN { use_ok('pf::switchlocation') }
 BEGIN { use_ok('pf::traplog') }
