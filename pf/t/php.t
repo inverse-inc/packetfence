@@ -82,6 +82,6 @@ my @php_files = (
 );
 
 foreach my $currentPHPFile (@php_files) {
-    ok( system("/usr/bin/php -l $currentPHPFile 2&>1") == 0,
+    ok( system("/usr/bin/php -l $currentPHPFile 2>&1") == 0,
         "$currentPHPFile compiles" );
 }

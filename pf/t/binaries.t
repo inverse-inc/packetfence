@@ -32,6 +32,6 @@ my @binaries = (
 );
 
 foreach my $currentBinary (@binaries) {
-    ok( system("/usr/bin/perl -c $currentBinary 2&>1") == 0,
+    ok( system("/usr/bin/perl -c $currentBinary 2>&1") == 0,
         "$currentBinary compiles" );
 }
