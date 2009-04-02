@@ -84,10 +84,11 @@ server.
 %setup -n pf
 
 %build
-#bug 745
+# generate pfcmd_pregrammar
 /usr/bin/perl -w -e 'use strict; use warnings; use diagnostics; use Parse::RecDescent; use lib "./lib"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile($grammar, "pfcmd_pregrammar");'
 mv pfcmd_pregrammar.pm lib/pf/pfcmd/
-#fin bug 745
+
+# generate translations
 /usr/bin/msgfmt conf/locale/en/LC_MESSAGES/packetfence.po
 mv packetfence.mo conf/locale/en/LC_MESSAGES/
 /usr/bin/msgfmt conf/locale/es/LC_MESSAGES/packetfence.po
@@ -253,21 +254,18 @@ fi
 %dir /usr/local/pf/bin
 %dir /usr/local/pf/sbin
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
-/usr/local/pf/bin/pfcmd_vlan
-/usr/local/pf/bin/flip.pl
-/usr/local/pf/sbin/pfdetect
-/usr/local/pf/sbin/pfredirect
-/usr/local/pf/sbin/pfmon
+%attr(0755, pf, pf) /usr/local/pf/bin/pfcmd_vlan
+%attr(0755, pf, pf) /usr/local/pf/bin/flip.pl
+%attr(0755, pf, pf) /usr/local/pf/sbin/pfdetect
+%attr(0755, pf, pf) /usr/local/pf/sbin/pfredirect
+%attr(0755, pf, pf) /usr/local/pf/sbin/pfmon
 %attr(0755, pf, pf) /usr/local/pf/sbin/pfdhcplistener
-/usr/local/pf/sbin/pfsetvlan
+%attr(0755, pf, pf) /usr/local/pf/sbin/pfsetvlan
 %dir /usr/local/pf/cgi-bin
-#%attr(6755, root, root) /usr/local/pf/cgi-bin/redir.cgi
-#%attr(6755, root, root) /usr/local/pf/cgi-bin/register.cgi
-#%attr(6755, root, root) /usr/local/pf/cgi-bin/release.cgi
-/usr/local/pf/cgi-bin/pdp.cgi
-/usr/local/pf/cgi-bin/redir.cgi
-/usr/local/pf/cgi-bin/register.cgi
-/usr/local/pf/cgi-bin/release.cgi
+%attr(0755, pf, pf) /usr/local/pf/cgi-bin/pdp.cgi
+%attr(0755, pf, pf) /usr/local/pf/cgi-bin/redir.cgi
+%attr(0755, pf, pf) /usr/local/pf/cgi-bin/register.cgi
+%attr(0755, pf, pf) /usr/local/pf/cgi-bin/release.cgi
 %dir /usr/local/pf/conf
 #%config(noreplace) /usr/local/pf/conf/pf.conf
 %config(noreplace) /usr/local/pf/conf/networks.conf
@@ -284,22 +282,36 @@ fi
 %config /usr/local/pf/conf/dhcp_fingerprints.conf
 %config /usr/local/pf/conf/oui.txt
 %dir /usr/local/pf/test
-/usr/local/pf/test/dhcp_dumper
-/usr/local/pf/test/connect_and_read.pl
+%attr(0755, pf, pf) /usr/local/pf/test/dhcp_dumper
+%attr(0755, pf, pf) /usr/local/pf/test/connect_and_read.pl
 %dir /usr/local/pf/t
-/usr/local/pf/t/*
+%attr(0755, pf, pf) /usr/local/pf/t/all.t
+%attr(0755, pf, pf) /usr/local/pf/t/binaries.t
+%attr(0755, pf, pf) /usr/local/pf/t/critic.t
+%attr(0755, pf, pf) /usr/local/pf/t/person.t
+%attr(0755, pf, pf) /usr/local/pf/t/pfcmd.t
+%attr(0755, pf, pf) /usr/local/pf/t/pf.t
+%attr(0755, pf, pf) /usr/local/pf/t/php.t
+%attr(0755, pf, pf) /usr/local/pf/t/pod.t
+%attr(0755, pf, pf) /usr/local/pf/t/SNMP.t
+%attr(0755, pf, pf) /usr/local/pf/t/SwitchFactory.t
+%dir /usr/local/pf/t/data
+/usr/local/pf/t/data/switches.conf
 %dir /usr/local/pf/addons
 %dir /usr/local/pf/addons/mrtg
 /usr/local/pf/addons/mrtg/*
 %dir /usr/local/pf/addons/802.1X
-/usr/local/pf/addons/802.1X/*
+%doc /usr/local/pf/addons/802.1X/README
+%attr(0755, pf, pf) /usr/local/pf/addons/802.1X/pfcmd_ap.pl
+%attr(0755, pf, pf) /usr/local/pf/addons/802.1X/rlm_perl_packetfence.pl
 %dir /usr/local/pf/addons/snort
 /usr/local/pf/addons/snort/oinkmaster.conf
-/usr/local/pf/addons/accounting.pl
-/usr/local/pf/addons/recovery.pl
-/usr/local/pf/addons/monitorpfsetvlan.pl
-/usr/local/pf/addons/autodiscover.pl
-/usr/local/pf/addons/convertToPortSecurity.pl
+%attr(0755, pf, pf) /usr/local/pf/addons/accounting.pl
+%attr(0755, pf, pf) /usr/local/pf/addons/recovery.pl
+%attr(0755, pf, pf) /usr/local/pf/addons/monitorpfsetvlan.pl
+%attr(0755, pf, pf) /usr/local/pf/addons/autodiscover.pl
+%attr(0755, pf, pf) /usr/local/pf/addons/convertToPortSecurity.pl
+%dir /usr/local/pf/html
 %dir /usr/local/pf/html/user
 %dir /usr/local/pf/html/user/3rdparty
 /usr/local/pf/html/user/3rdparty/timerbar.js
@@ -364,8 +376,11 @@ fi
 %dir /usr/local/pf/db
 /usr/local/pf/db/*
 %dir /usr/local/pf/docs
-/usr/local/pf/docs/*
+%doc /usr/local/pf/docs/*.odt
+%dir /usr/local/pf/docs/MIB
+%doc /usr/local/pf/docs/MIB/Inverse-PacketFence-Notification.mib
 %dir /usr/local/pf/lib
+%dir /usr/local/pf/var
 %dir /usr/local/pf/var/session
 %dir /usr/local/pf/var/rrd
 %dir /usr/local/pf/lib/pf
@@ -380,8 +395,8 @@ fi
 %dir /usr/local/pf/lib/pf/vlan
 %config(noreplace) /usr/local/pf/lib/pf/vlan/custom.pm
 %dir /usr/local/pf/logs
-/usr/local/pf/configurator.pl
-/usr/local/pf/installer.pl
+%attr(0755, pf, pf) /usr/local/pf/configurator.pl
+%attr(0755, pf, pf) /usr/local/pf/installer.pl
 %doc /usr/local/pf/CHANGES
 %doc /usr/local/pf/COPYING
 %doc /usr/local/pf/README
