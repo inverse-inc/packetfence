@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 95;
+use Test::More tests => 96;
 
 my @files = (
     '/usr/local/pf/configurator.pl',
@@ -21,7 +21,7 @@ my @files = (
     '/usr/local/pf/addons/802.1X/pfcmd_ap.pl',
     #'/usr/local/pf/addons/802.1X/rlm_perl_packetfence.pl',
     '/usr/local/pf/addons/mrtg/mrtg-wrapper.pl',
-    #'/usr/local/pf/lib/pf/action.pm',
+    '/usr/local/pf/lib/pf/action.pm',
     '/usr/local/pf/lib/pf/class.pm',
     '/usr/local/pf/lib/pf/configfile.pm',
     '/usr/local/pf/lib/pf/config.pm',
