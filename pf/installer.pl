@@ -569,6 +569,15 @@ if (questioner(
     `/usr/bin/wget -N http://standards.ieee.org/regauth/oui/oui.txt -P $conf_dir`;
 }
 
+print "Creating empty log files\n";
+`touch $install_dir/logs/packetfence.log`;
+`touch $install_dir/logs/snmptrapd.log`;
+`touch $install_dir/logs/access_log`;
+`touch $install_dir/logs/error_log`;
+`touch $install_dir/logs/admin_access_log`;
+`touch $install_dir/logs/admin_error_log`;
+`touch $install_dir/logs/admin_debug_log`;
+
 print "Setting permissions\n";
 print "  Chowning $install_dir pf:pf\n";
 `chown -R pf:pf $install_dir`;
