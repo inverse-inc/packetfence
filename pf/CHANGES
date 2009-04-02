@@ -119,6 +119,8 @@
           (http://www.packetfence.org/mantis/view.php?id=668)
         web admin gui - filename for scan result download
           (http://www.packetfence.org/mantis/view.php?id=669)
+        fixed issues in pfcmd schedule call
+          (http://www.packetfence.org/mantis/view.php?id=670)
 
 1.8.1
         authorized @ as first symbol in password
