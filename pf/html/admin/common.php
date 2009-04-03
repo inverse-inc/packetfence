@@ -694,7 +694,15 @@ function PrintSubNav($menu){
 
     foreach($heading_info as $heading){
       $headings[]=$heading[0];
-      $values[]=$heading[1];
+      if (($current_top == 'node') && ($current_sub == 'add') && ($heading[0] == 'Status') ) {
+        if (preg_match("/input type='text' name='(val\d+)'/", $heading[1], $regmatches)) {
+          $values[] = "<select name='" . $regmatches[1] . "'><option value='grace' >Grace</option><option value='reg'>Registered</option><option selected value='unreg'>Unregistered</option></select>";
+        } else {
+          $values[]=$heading[1];
+        }
+      } else {
+        $values[]=$heading[1];
+      }
     }
     print "<div id='add'>\n";
     print "<form action='/$current_top/$current_sub.php' method='POST'>\n";
