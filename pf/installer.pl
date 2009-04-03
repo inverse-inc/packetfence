@@ -580,6 +580,9 @@ print "Creating empty log files\n";
 `touch $install_dir/logs/admin_access_log`;
 `touch $install_dir/logs/admin_error_log`;
 `touch $install_dir/logs/admin_debug_log`;
+`touch $install_dir/logs/pfdetect`;
+`touch $install_dir/logs/pfmon`;
+`touch $install_dir/logs/pfredirect`;
 
 print "Setting permissions\n";
 print "  Chowning $install_dir pf:pf\n";
@@ -639,7 +642,7 @@ Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2007-2008 Inverse inc.
+Copyright (C) 2007-2009 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

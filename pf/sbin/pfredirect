@@ -216,8 +216,9 @@ sub daemonize {
     chdir '/' or $logger->logdie("Can't chdir to /: $!");
     open STDIN, '<', '/dev/null'
         or $logger->logdie("Can't read /dev/null: $!");
-    open STDOUT, '>', '/dev/null'
-        or $logger->logdie("Can't write to /dev/null: $!");
+    my $log_file = "$install_dir/logs/pfredirect";
+    open STDOUT, '>>', $log_file
+        or $logger->logdie("Can't write to $log_file: $!");
 
     defined( my $pid = fork )
         or $logger->logdie("pfredirect: could not fork: $!");
