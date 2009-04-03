@@ -128,6 +128,7 @@ my @modules = (
     "Readonly",
     "Template",
     "Term::ReadKey",
+    "Test::MockDBI",
     "Test::Perl::Critic",
     "Test::Pod",
     "Test::Pod::Coverage",
