@@ -30,7 +30,7 @@
 
   $extra_goodness = helper_menu($current_top, $current_sub, $type, $_GET[menu], $additional);
 
-  if(($type == 'ipmachistory') || ($_REQUEST['type'] == 'locationhistoryswitch') || ($_REQUEST['type'] == 'locationhistorymac') || ($_REQUEST['type'] == 'ifoctetshistoryswitch') || ($_REQUEST['type'] == 'ifoctetshistorymac')) {
+  if(($type == 'ipmachistory') || ($_REQUEST['type'] == 'locationhistoryswitch') || ($_REQUEST['type'] == 'locationhistorymac') || ($_REQUEST['type'] == 'ifoctetshistoryuser') || ($_REQUEST['type'] == 'ifoctetshistoryswitch') || ($_REQUEST['type'] == 'ifoctetshistorymac')) {
     print $extra_goodness;
     unset($extra_goodness);
   }
