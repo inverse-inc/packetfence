@@ -1722,7 +1722,8 @@ sub command_param {
                 require pf::iptables;
                 pf::iptables::iptables_generate();
             }
-            if (    ( $function eq 'violation_delete' ) 
+            if (    ($function eq 'violation_add')
+                 || ( $function eq 'violation_delete' ) 
                  || ( $function eq 'violation_modify' ) ) {
                 generate_switchport_vlan_assignment( $params{mac},
                     $function );

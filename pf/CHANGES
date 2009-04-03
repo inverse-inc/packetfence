@@ -152,6 +152,8 @@
         fixed issues in OS report graphs when no nodes are 
           present
           (http://www.packetfence.org/mantis/view.php?id=685)
+        fixed issues with violation add
+          (http://www.packetfence.org/mantis/view.php?id=687)
 
 1.8.1
         authorized @ as first symbol in password
