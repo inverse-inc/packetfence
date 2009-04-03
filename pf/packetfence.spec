@@ -377,6 +377,7 @@ fi
 /usr/local/pf/db/*
 %dir /usr/local/pf/docs
 %doc /usr/local/pf/docs/*.odt
+%doc /usr/local/pf/docs/fdl-1.2.txt
 %dir /usr/local/pf/docs/MIB
 %doc /usr/local/pf/docs/MIB/Inverse-PacketFence-Notification.mib
 %dir /usr/local/pf/lib
