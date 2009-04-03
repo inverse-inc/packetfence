@@ -61179,6 +61179,19 @@ company_id			Organization
 				Surrey B.C V3T 2X3
 				CANADA
 
+00-25-C3   (hex)		Nortel Networks
+0025C3     (base 16)		Nortel Networks
+				CARRETERA BASE AEREA # 5850
+				Zapopan Jalisco 44130
+				MEXICO
+
+00-25-C4   (hex)		Ruckus Wireless
+0025C4     (base 16)		Ruckus Wireless
+				880 West Maude Ave.
+				Suite 101
+				Sunnyvale CA 94085
+				UNITED STATES
+
 00-26-54   (hex)		3Com Corporation
 002654     (base 16)		3Com Corporation
 				5353 Betsy Ross Drive
