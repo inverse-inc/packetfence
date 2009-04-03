@@ -50,7 +50,7 @@ Log::Log4perl::MDC->put( 'tid',  0 );
 POSIX::sigaction(
     &POSIX::SIGHUP,
     POSIX::SigAction->new(
-        'restart_handler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
     )
 ) or $logger->logdie("pfdhcplistener: could not set SIGHUP handler: $!");
 
@@ -68,7 +68,6 @@ POSIX::sigaction(
     )
 ) or $logger->logdie("pfdhcplistener: could not set SIGINT handler: $!");
 
-my @ORIG_ARGV = @ARGV;
 
 my %args;
 getopts( 'dhi:', \%args );
@@ -481,15 +480,6 @@ sub normal_sighandler {
     if ( threads->self->tid() == 0 ) {
         $logger->logdie(
             "pfdhcplistener: caught SIG" . $_[0] . " - terminating" );
-    }
-}
-
-sub restart_handler {
-    deletepid("pfdhcplistener_$interface");
-    $logger->info( "caught SIG" . $_[0] . " - restarting" );
-    push @ORIG_ARGV, "-r" if ( !grep( {/^\-r$/} @ORIG_ARGV ) );
-    if ( !exec( $0, @ORIG_ARGV ) ) {
-        $logger->logdie("could not restart: $!");
     }
 }
 

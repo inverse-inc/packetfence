@@ -57,7 +57,7 @@ use pf::traplog;
 POSIX::sigaction(
     &POSIX::SIGHUP,
     POSIX::SigAction->new(
-        'restart_handler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
     )
 ) or $logger->logdie("pfmon: could not set SIGHUP handler: $!");
 
@@ -75,7 +75,6 @@ POSIX::sigaction(
     )
 ) or $logger->logdie("pfmon: could not set SIGINT handler: $!");
 
-my @ORIG_ARGV = @ARGV;
 
 my %args;
 getopts( 'dhvr', \%args );
@@ -706,26 +705,21 @@ sub normal_sighandler {
     }
 }
 
-sub restart_handler {
-    deletepid();
-    $logger->info( "caught SIG" . $_[0] . " - restarting" );
-    push @ORIG_ARGV, "-r" if ( !grep( {/^\-r$/} @ORIG_ARGV ) );
-    if ( !exec( $0, @ORIG_ARGV ) ) {
-        $logger->logdie("could not restart: #!");
-    }
-}
-
 =head1 AUTHOR
 
 Dave Laporte <dave@laportestyle.org>
 
 Kevin Amorin <kev@amorin.org>
 
+Dominik Gehl <dgehl@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
+
+Copyright (C) 2009 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

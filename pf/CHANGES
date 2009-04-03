@@ -156,6 +156,8 @@
           (http://www.packetfence.org/mantis/view.php?id=687)
         new log files for pfdetect and pfredirect
           (http://www.packetfence.org/mantis/view.php?id=688)
+        corrected handling of SIGHUP in daemons
+          (http://www.packetfence.org/mantis/view.php?id=689)
 
 1.8.1
         authorized @ as first symbol in password

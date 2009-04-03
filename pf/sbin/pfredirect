@@ -39,7 +39,7 @@ Log::Log4perl::MDC->put( 'tid',  0 );
 POSIX::sigaction(
     &POSIX::SIGHUP,
     POSIX::SigAction->new(
-        'restart_handler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
     )
 ) or $logger->logdie("pfredirect: could not set SIGHUP handler: $!");
 
@@ -57,7 +57,6 @@ POSIX::sigaction(
     )
 ) or $logger->logdie("pfredirect: could not set SIGINT handler: $!");
 
-my @ORIG_ARGV = @ARGV;
 
 my %args;
 getopts( 'dhv', \%args );
@@ -199,14 +198,6 @@ sub pop3_director {
     close($sock);
 }
 
-sub restart_handler {
-    deletepid();
-    $logger->info( "caught SIG" . $_[0] . " - restarting" );
-    if ( !exec( $0, @ORIG_ARGV ) ) {
-        $logger->logdie("could not restart: $!");
-    }
-}
-
 sub normal_handler {
     deletepid();
     $logger->info( "caught SIG" . $_[0] . " - terminating" );
@@ -251,11 +242,15 @@ Dave Laporte <dave@laportestyle.org>
 
 Kevin Amorin <kev@amorin.org>
 
+Dominik Gehl <dgehl@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
+
+Copyright (C) 2009 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
