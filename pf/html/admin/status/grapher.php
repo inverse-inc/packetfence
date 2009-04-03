@@ -236,8 +236,12 @@ function get_pie_chart_data($cmd){
 		$x_labels[$parts[0]]=1;
 		$chart_data['values'][]=$parts[2];
 	}
-   
+
+    if (count($rows) > 0) {
         $data = array('x_labels' => array_keys($x_labels), 'chart_data' => $chart_data);
+    } else {
+        $data = array();
+    }
 
 	if(is_writeable($cached_data)){
 		$handle = fopen($cached_data, 'w');
