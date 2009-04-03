@@ -102,6 +102,8 @@ my @modules = (
     "CGI::Session",
     "Config::IniFiles",
     "Date::Parse",
+    "DBI",
+    "DBD::mysql",
     "File::Tail",
     "Net::IPv4Addr",
     "IPTables::Parse",
