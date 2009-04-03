@@ -111,7 +111,7 @@
         better Config::IniFile error handling
           (http://www.packetfence.org/mantis/view.php?id=660)
         fixed file path in remote dhcp listener startup
-          (http://www.packetfence.org/mantis/view.php?id=661)
+          (http://www.packetfence.org/mantis/view.php?id=662)
         moved pfdetect_remote into sbin directory
           (http://www.packetfence.org/mantis/view.php?id=666)
         removed remote DHCP listener
