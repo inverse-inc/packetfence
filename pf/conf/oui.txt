@@ -33130,10 +33130,9 @@ company_id			Organization
 
 00-14-71   (hex)		Eastern Asia Technology Limited
 001471     (base 16)		Eastern Asia Technology Limited
-				5611, North Bridge Road,
-				#22-03, Eng Cheong Tower
-				198782
-				SINGAPORE
+				13F, No. 99, Sec. 1, Nankan Road,
+				Luchu, Taoyuan 338
+				TAIWAN, REPUBLIC OF CHINA
 
 00-14-72   (hex)		China Broadband Wireless IP Standard Group
 001472     (base 16)		China Broadband Wireless IP Standard Group
@@ -61192,6 +61191,25 @@ company_id			Organization
 				Sunnyvale CA 94085
 				UNITED STATES
 
+00-25-C5   (hex)		Star Link Communication Pvt. Ltd.
+0025C5     (base 16)		Star Link Communication Pvt. Ltd.
+				HR114/6 & Hr132/6, Pulprehladpur,
+				Suraj kund Road, Near Badarpur,
+				New Delhi  110044
+				INDIA
+
+00-25-C6   (hex)		kasercorp, ltd
+0025C6     (base 16)		kasercorp, ltd
+				South 20,Gaobu Road,Gaobu Town
+				Dongwan Guangdong 523000
+				CHINA
+
+00-25-C7   (hex)		altek Corporation
+0025C7     (base 16)		altek Corporation
+				6F, 396, Ne-Hu Rd, Sec. 1
+				Taipei  114
+				TAIWAN, REPUBLIC OF CHINA
+
 00-26-54   (hex)		3Com Corporation
 002654     (base 16)		3Com Corporation
 				5353 Betsy Ross Drive
@@ -71266,10 +71284,10 @@ company_id			Organization
 				WESTFORD MA 01886-4133
 				UNITED STATES
 
-00-A0-37   (hex)		Datascope Corporation
-00A037     (base 16)		Datascope Corporation
+00-A0-37   (hex)		Mindray DS USA, Inc.
+00A037     (base 16)		Mindray DS USA, Inc.
 				800 Macarthur Blvd.
-				Mahwah NJ 07430-0619
+				Mahwah NJ 07430
 				UNITED STATES
 
 00-A0-38   (hex)		EMAIL ELECTRONICS
@@ -71871,10 +71889,10 @@ company_id			Organization
 				FREMONT CA 94538-6343
 				UNITED STATES
 
-00-A0-98   (hex)		NETWORK APPLIANCE CORP.
-00A098     (base 16)		NETWORK APPLIANCE CORP.
-				2770 SAN TOMAS EXPRESSWAY
-				SANTA CLARA CA 95051
+00-A0-98   (hex)		NetApp
+00A098     (base 16)		NetApp
+				495 East Java Drive
+				Sunnyvale, CA 94089
 				UNITED STATES
 
 00-A0-99   (hex)		K-NET LTD.
