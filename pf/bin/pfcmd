@@ -949,7 +949,7 @@ sub service {
             service();
             local $cmd{command}[2] = "start";
             service();
-            return;
+            return 1;
         } else {
             if ( !pf::services::service_ctl( $service, "status" ) ) {
                 $command = "start";
