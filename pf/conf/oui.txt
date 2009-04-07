@@ -61210,6 +61210,12 @@ company_id			Organization
 				Taipei  114
 				TAIWAN, REPUBLIC OF CHINA
 
+00-25-C8   (hex)		S-Access GmbH
+0025C8     (base 16)		S-Access GmbH
+				Oberhausenstrasse 47
+				Wettswil a/A Zuerich 8907
+				SWITZERLAND
+
 00-26-54   (hex)		3Com Corporation
 002654     (base 16)		3Com Corporation
 				5353 Betsy Ross Drive
