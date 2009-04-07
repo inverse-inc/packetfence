@@ -4,6 +4,7 @@
 #
 # Written by David LaPorte <dlaporte@packetfence.org>
 # Adapted from script by Dag Wieers <dag@wieers.com>
+# Last changes: Dominik Gehl <dgehl@inverse.ca> 2009-04-06
 #
 # chkconfig: - 90 10
 # description: PacketFence network registration / worm mitigation system
@@ -62,7 +63,7 @@ case "$1" in
         fi
         ;;
   *)
-	echo $"Usage: $0 {start|stop|restart|condrestart|reload|status}"
+	echo $"Usage: $0 {start|stop|restart|condrestart|status}"
 	RETVAL=1
 esac
 
