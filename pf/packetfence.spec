@@ -22,7 +22,8 @@ BuildRequires: gettext, perl(Parse::RecDescent), httpd
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl, php, php-gd, php-pear
-Requires: net-tools, net-snmp
+Requires: net-tools
+Requires: net-snmp
 Requires: mysql, perl-DBD-MySQL
 Requires: perl >= 5.8.0, perl-suidperl
 Requires: perl(Apache::Htpasswd)
