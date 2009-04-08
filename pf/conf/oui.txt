@@ -61206,8 +61206,8 @@ company_id			Organization
 
 00-25-C7   (hex)		altek Corporation
 0025C7     (base 16)		altek Corporation
-				6F, 396, Ne-Hu Rd, Sec. 1
-				Taipei  114
+				3F, No. 10, Li-Hsin Road, Science-Based Industrial Park,
+				Hsinchu  
 				TAIWAN, REPUBLIC OF CHINA
 
 00-25-C8   (hex)		S-Access GmbH
@@ -61215,6 +61215,57 @@ company_id			Organization
 				Oberhausenstrasse 47
 				Wettswil a/A Zuerich 8907
 				SWITZERLAND
+
+00-25-C9   (hex)		SHENZHEN HUAPU DIGITAL CO., LTD
+0025C9     (base 16)		SHENZHEN HUAPU DIGITAL CO., LTD
+				Futian District,Chegongmiao,TianAn Cyberpark
+				17/F East,High-Tech Plaza, Phase ¢ò
+				ShenZhen Guangdong Province 518040
+				CHINA
+
+00-25-CA   (hex)		LS Research, LLC
+0025CA     (base 16)		LS Research, LLC
+				W66 N220 Commerce Court
+				Cedarburg WI 53012
+				UNITED STATES
+
+00-25-CB   (hex)		Reiner SCT
+0025CB     (base 16)		Reiner SCT
+				Reiner Kartengeräte GmbH & Co. KG.
+				Goethestr. 14
+				Furtwangen  78120
+				GERMANY
+
+00-25-CC   (hex)		Mobile Communications Korea Incorporated
+0025CC     (base 16)		Mobile Communications Korea Incorporated
+				1011-1012, Suwon High Venture Valley,
+				958 Gosaek-dong, Gwonseon-gu,
+				Suwon-si, Gyeonggi-do, 441-360
+				KOREA, REPUBLIC OF
+
+00-25-CD   (hex)		Skylane Optics
+0025CD     (base 16)		Skylane Optics
+				Rue d'Arlon, 6
+				Windhof  8399
+				LUXEMBOURG
+
+00-25-CE   (hex)		InnerSpace
+0025CE     (base 16)		InnerSpace
+				PO Box 2186
+				Grand Rapids MI 49501
+				UNITED STATES
+
+00-25-CF   (hex)		Nokia Danmark A/S
+0025CF     (base 16)		Nokia Danmark A/S
+				Frederikskaj
+				Copenhagen V  DK-1790
+				DENMARK
+
+00-25-D0   (hex)		Nokia Danmark A/S
+0025D0     (base 16)		Nokia Danmark A/S
+				Frederikskaj
+				 Copenhagen V  DK-1790
+				DENMARK
 
 00-26-54   (hex)		3Com Corporation
 002654     (base 16)		3Com Corporation
