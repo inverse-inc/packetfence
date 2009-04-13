@@ -61267,6 +61267,95 @@ company_id			Organization
 				 Copenhagen V  DK-1790
 				DENMARK
 
+00-25-D1   (hex)		Eastech Electronics (Taiwan) Inc.
+0025D1     (base 16)		Eastech Electronics (Taiwan) Inc.
+				13F, No. 99, Sec. 1, Nankan Road, Luchu Shiang
+				Taoyuan Hsien 338
+				TAIWAN, REPUBLIC OF CHINA
+
+00-25-D2   (hex)		InpegVision Co., Ltd
+0025D2     (base 16)		InpegVision Co., Ltd
+				226-3, Bugok-dong, Geumjeong-gu,
+				Busan  609-320
+				KOREA, REPUBLIC OF
+
+00-25-D3   (hex)		AzureWave Technologies, Inc
+0025D3     (base 16)		AzureWave Technologies, Inc
+				8F ., No.94, Baozhong Rd.
+				Xindian City  231
+				TAIWAN, REPUBLIC OF CHINA
+
+00-25-D4   (hex)		Fortress Technologies
+0025D4     (base 16)		Fortress Technologies
+				2 Technology Park Dr
+				Westford MA 01886
+				UNITED STATES
+
+00-25-D5   (hex)		Robonica (Pty) Ltd
+0025D5     (base 16)		Robonica (Pty) Ltd
+				41 Park Avenue North
+				Highway Business Park
+				Centurion Gauteng 0046
+				SOUTH AFRICA
+
+00-25-D6   (hex)		The Kroger Co.
+0025D6     (base 16)		The Kroger Co.
+				11450 Grooms Road
+				Blue Ash OH 45242
+				UNITED STATES
+
+00-25-D7   (hex)		CEDO
+0025D7     (base 16)		CEDO
+				Videnska 127
+				BRNO  61900
+				CZECH REPUBLIC
+
+00-25-D8   (hex)		KOREA MAINTENANCE
+0025D8     (base 16)		KOREA MAINTENANCE
+				3F HAELIM BUIDING 103-7, GURO-5DONG
+				GURO-GU,
+				SEOUL  152-842
+				KOREA, REPUBLIC OF
+
+00-25-D9   (hex)		DataFab Systems Inc.
+0025D9     (base 16)		DataFab Systems Inc.
+				385-3 Hongzun Road
+				Pingzhen City Taoyuan County 32466
+				TAIWAN, REPUBLIC OF CHINA
+
+00-25-DA   (hex)		Secura Key
+0025DA     (base 16)		Secura Key
+				20301 Nordhoff St.
+				Chatsworth CA 91311
+				UNITED STATES
+
+00-25-DB   (hex)		ATI Electronics(Shenzhen) Co., LTD
+0025DB     (base 16)		ATI Electronics(Shenzhen) Co., LTD
+				2F,1st Buliding,Tangyanshan Industrial Park,
+				Tangkeng Village,Shiyan Town,
+				Shenzhen Guangdong 518108
+				CHINA
+
+00-25-DC   (hex)		Sumitomo Electric Networks, Inc
+0025DC     (base 16)		Sumitomo Electric Networks, Inc
+				1-1-3, Shimaya, Konohana-ku
+				Osaka Osaka Prefecture 554-0024
+				JAPAN
+
+00-25-DD   (hex)		SUNNYTEK INFORMATION CO., LTD.
+0025DD     (base 16)		SUNNYTEK INFORMATION CO., LTD.
+				12F, NO. 88, HSIN-TE ROAD
+				SAN CHUNG CITY
+				TAIPEI HSIEN  241
+				TAIWAN, REPUBLIC OF CHINA
+
+00-25-DE   (hex)		Probits Co., LTD.
+0025DE     (base 16)		Probits Co., LTD.
+				#1502, Kolon Science Valley II, 811
+				Guro-Dong, Guro-Gu,
+				Seoul  152-878
+				KOREA, REPUBLIC OF
+
 00-26-54   (hex)		3Com Corporation
 002654     (base 16)		3Com Corporation
 				5353 Betsy Ross Drive
