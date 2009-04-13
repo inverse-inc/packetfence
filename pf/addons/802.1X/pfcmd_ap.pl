@@ -3,9 +3,7 @@
 use strict;
 use warnings;
 use diagnostics;
-use FindBin;
 use DBI;
-use Data::Dumper;
 use Sys::Syslog;
 
 require 5.8.8;
