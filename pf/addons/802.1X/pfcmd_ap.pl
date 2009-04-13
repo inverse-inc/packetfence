@@ -1,5 +1,16 @@
 #!/usr/bin/perl -w
 
+=head1 NAME
+
+pfcmd_ap.pl - determine correct VLAN for node
+
+=head1 DESCRIPTION
+
+pfcmd_ap.pl is called from rlm_perl_packetfence and should return
+the correct VLAN for this node
+
+=cut
+
 use strict;
 use warnings;
 use diagnostics;
