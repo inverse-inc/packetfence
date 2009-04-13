@@ -14,6 +14,7 @@ runtests( qw(
               binaries.t
               critic.t
               pod.t
+              podCoverage.t
               php.t
             )
 );
