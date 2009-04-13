@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use lib qw(
-   /Users/dgehl/pf/org.packetfence.1_8/pf/conf
+   /usr/local/pf/conf
 );
 
 use Test::Pod::Coverage tests => 3;
