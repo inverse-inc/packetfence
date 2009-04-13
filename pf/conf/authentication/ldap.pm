@@ -19,9 +19,36 @@ combination using LDAP
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-Define the variables C<LDAPUserBase>, C<LDAPUserKey>, 
-C<LDAPUserScope>, C<LDAPBindDN>, C<LDAPBindPassword>
-and C<LDAPServer> at the top of the module.
+Define the variables C<LDAPServer>, C<LDAPBindDN>, 
+C<LDAPBindPassword>, C<LDAPUserBase>, C<LDAPUserKey>
+and C<LDAPUserScope> at the top of the module.
+
+=over
+
+=item * C<LDAPServer>
+
+LDAPServer hostname of IP address to connect to
+
+=item * C<LDAPBindDN> and C<LDAPBindPassword>
+
+DN and password of a user which is allowed to search for
+user accounts
+
+=item * C<LDAPUserKey> 
+
+The name of the parameter you would like to find your users
+by (in order to retrieve their DN).
+
+=item * C<LDAPUserBase>
+
+LDAP branch your users are in
+
+=item * C<LDAPUserScope>
+
+Do you want to search the whole subbranch of $LDAPUserBase 
+for users or only direct entries at $LDAPUserBase ?
+
+=back
 
 =cut
 
