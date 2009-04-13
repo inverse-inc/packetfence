@@ -50,6 +50,32 @@ for users or only direct entries at $LDAPUserBase ?
 
 =back
 
+=head1 EXAMPLES
+
+Here's an example modification in order to test several 
+LDAP servers:
+
+  my @LDAPServers = ('ad1.example.com', 'ad2.example.com', 'ad3.example.com');
+
+  sub authenticate {
+    my ($username, $password) = @_;
+    my $logger = Log::Log4perl::get_logger('authentication::ldap');
+
+    my $connection = undef;
+    my $i = 0;
+    while ( ( $i < scalar(@LDAPServers) ) && ( !defined($connection) ) ) {
+       $connection = Net::LDAP->new($LDAPServers[$i]);
+       if (! defined($connection)) {
+         $logger->warn("Unable to connect to '$LDAPServers[$i]'");
+       }
+    }
+
+    if (! defined($connection)) {
+       return (0,2);
+    }
+
+    [...]
+
 =cut
 
 use strict;
