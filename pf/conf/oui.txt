@@ -61356,6 +61356,71 @@ company_id			Organization
 				Seoul  152-878
 				KOREA, REPUBLIC OF
 
+00-25-DF   (hex)		PRIVATE
+0025DF     (base 16)		 
+				 
+00-25-E0   (hex)		CeedTec Sdn Bhd
+0025E0     (base 16)		CeedTec Sdn Bhd
+				303-4-5, Krystal Point Business Center
+				Bayan Lepas Penang 11900
+				MALAYSIA
+
+00-25-E1   (hex)		SHANGHAI SEEYOO ELECTRONIC & TECHNOLOGY CO., LTD
+0025E1     (base 16)		SHANGHAI SEEYOO ELECTRONIC & TECHNOLOGY CO., LTD
+				RM701,XIN'AN BUILDING,99 TIANZHOU RD,XUHUI DISTRICT,SHANGHAI
+				SHANGHAI  200233
+				CHINA
+
+00-25-E2   (hex)		Everspring Industry Co., Ltd.
+0025E2     (base 16)		Everspring Industry Co., Ltd.
+				7F., No. 609, Sec 1, Wanshou Rd.
+				Gueishan Township Taoyuan County 333
+				TAIWAN, REPUBLIC OF CHINA
+
+00-25-E3   (hex)		Hanshinit Inc.
+0025E3     (base 16)		Hanshinit Inc.
+				Dong-Won Bld 3F, 395-13, Gal-Ma 2, Seo-Gu
+				Daejeon  302-809
+				KOREA, REPUBLIC OF
+
+00-25-E4   (hex)		OMNI-WiFi, LLC
+0025E4     (base 16)		OMNI-WiFi, LLC
+				107 Pine Hill Road
+				Berwick Maine 03901
+				UNITED STATES
+
+00-25-E5   (hex)		LG Electronics Inc
+0025E5     (base 16)		LG Electronics Inc
+				60-39 ,Gasan-Dong
+				Gumchon-gu
+				Seoul  153-023
+				KOREA, REPUBLIC OF
+
+00-25-E6   (hex)		Belgian Monitoring Systems bvba
+0025E6     (base 16)		Belgian Monitoring Systems bvba
+				Th. Sevenslaan 106
+				Kortrijk WVL 8500
+				BELGIUM
+
+00-25-E7   (hex)		Sony Ericsson Mobile Communications
+0025E7     (base 16)		Sony Ericsson Mobile Communications
+				Nya Vattentornet
+				Lund  22188
+				SWEDEN
+
+00-25-E8   (hex)		Idaho Technology
+0025E8     (base 16)		Idaho Technology
+				390 Wakara way
+				Salt lake City UT 84108
+				UNITED STATES
+
+00-25-E9   (hex)		i-mate Development, Inc.
+0025E9     (base 16)		i-mate Development, Inc.
+				8383 158th Ave. N.E., Suite 300, Redmond,
+				WA 98052-3871
+				Washington WA 98052-3871
+				UNITED STATES
+
 00-26-54   (hex)		3Com Corporation
 002654     (base 16)		3Com Corporation
 				5353 Betsy Ross Drive
