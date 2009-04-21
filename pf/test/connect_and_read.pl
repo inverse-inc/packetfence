@@ -89,6 +89,7 @@ foreach my $switch_ip ( sort keys %Config ) {
     if ( ( $switch_ip ne '127.0.0.1' ) && ( $switch_ip ne 'default' ) ) {
         my $switch = $switchFactory->instantiate($switch_ip);
         print "$switch_ip\n";
+        next if (ref($switch) =~ /Aironet/);
         print " - sysUptime: " . $switch->getSysUptime() . "\n";
         my $vlanHashRef = $switch->getVlans();
         print " - nb Vlans : " . scalar( keys %$vlanHashRef ) . "\n";
