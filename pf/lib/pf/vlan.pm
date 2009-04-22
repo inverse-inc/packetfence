@@ -233,7 +233,7 @@ sub custom_getNodeInfo {
     $new->{'switch'} = $switch_ip;
     $new->{'port'}   = $switch_port;
     if ($isPhone) {
-        $new->{'dhcp_fingerprint'} = '1,3,6,15,42,66,150';
+        #$new->{'dhcp_fingerprint'} = '1,3,6,15,42,66,150';
     }
 
     return $new;
