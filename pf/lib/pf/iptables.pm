@@ -407,11 +407,12 @@ sub internal_append_entry {
             push @authorized_ips, '';
         }
         foreach my $authorized_subnet (@authorized_ips) {
+            my $cmd_arg_tmp = $cmd_arg;
             if ( $authorized_subnet ne '' ) {
-                $cmd_arg .= " --source $authorized_subnet";
+                $cmd_arg_tmp .= " --source $authorized_subnet";
             }
-            $cmd_arg      .= " --in-interface $dev";
-            $returnString .= "$cmd_arg\n";
+            $cmd_arg_tmp  .= " --in-interface $dev";
+            $returnString .= "$cmd_arg_tmp\n";
         }
     }
     return $returnString;
@@ -428,11 +429,12 @@ sub managed_append_entry {
             push @authorized_ips, '';
         }
         foreach my $authorized_subnet (@authorized_ips) {
+            my $cmd_arg_tmp = $cmd_arg;
             if ( $authorized_subnet ne '' ) {
-                $cmd_arg .= " --source $authorized_subnet";
+                $cmd_arg_tmp .= " --source $authorized_subnet";
             }
-            $cmd_arg      .= " --in-interface $dev";
-            $returnString .= "$cmd_arg\n";
+            $cmd_arg_tmp  .= " --in-interface $dev";
+            $returnString .= "$cmd_arg_tmp\n";
         }
     }
     return $returnString;
@@ -443,8 +445,9 @@ sub external_append_entry {
     my $logger       = Log::Log4perl::get_logger('pf::iptables');
     my $returnString = '';
     foreach my $dev ( get_external_devs() ) {
-        $cmd_arg      .= " --in-interface $dev";
-        $returnString .= "$cmd_arg\n";
+        my $cmd_arg_tmp = $cmd_arg;
+        $cmd_arg_tmp  .= " --in-interface $dev";
+        $returnString .= "$cmd_arg_tmp\n";
     }
     return $returnString;
 }
