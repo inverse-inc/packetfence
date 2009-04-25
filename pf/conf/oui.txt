@@ -61421,6 +61421,90 @@ company_id			Organization
 				Washington WA 98052-3871
 				UNITED STATES
 
+00-25-EA   (hex)		Iphion BV
+0025EA     (base 16)		Iphion BV
+				Willemstraat 106
+				Eindhoven  5616GE
+				NETHERLANDS
+
+00-25-EB   (hex)		Reutech Radar Systems (PTY) Ltd
+0025EB     (base 16)		Reutech Radar Systems (PTY) Ltd
+				35 Electron Avenue
+				Technopark
+				Stellenbosch Western Cape 7600
+				SOUTH AFRICA
+
+00-25-EC   (hex)		Humanware
+0025EC     (base 16)		Humanware
+				445 rue du Parc Industriel
+				Longueuil Québec J4H 3V7
+				CANADA
+
+00-25-ED   (hex)		NuVo Technologies LLC
+0025ED     (base 16)		NuVo Technologies LLC
+				3015 Kustom Drive
+				Hebron KY 41048
+				UNITED STATES
+
+00-25-EE   (hex)		Avtex Ltd
+0025EE     (base 16)		Avtex Ltd
+				Unit G5 Capital Business Park
+				Parkway
+				Cardiff  CF3 2PX
+				UNITED KINGDOM
+
+00-25-EF   (hex)		I-TEC Co., Ltd.
+0025EF     (base 16)		I-TEC Co., Ltd.
+				7/F,KAWARAMACHI KOYO BLDG.3-4-3,KAWARAMCHI,CHUO-KU,
+				OSAKA  541-0048
+				JAPAN
+
+00-25-F0   (hex)		Suga Electronics Limited
+0025F0     (base 16)		Suga Electronics Limited
+				Units 1904-1907, Chevalier Commercial Centre,
+				8 Wang Hoi Road, ,
+				Kowloon Bay Hong Kong 
+				CHINA
+
+00-25-F1   (hex)		Motorola CHS
+0025F1     (base 16)		Motorola CHS
+				6450 Sequence Drive
+				San Diego CA 92121
+				UNITED STATES
+
+00-25-F2   (hex)		Motorola CHS
+0025F2     (base 16)		Motorola CHS
+				6450 Sequence Drive
+				San Diego CA 92121
+				UNITED STATES
+
+00-25-F3   (hex)		Nordwestdeutsche Zählerrevision
+0025F3     (base 16)		Nordwestdeutsche Zählerrevision
+				Ing. Aug. Knemeyer GmbH & Co. KG
+				Heideweg 33
+				Bad Laer Niedersachsen 49196
+				GERMANY
+
+00-25-F4   (hex)		KoCo Connector AG
+0025F4     (base 16)		KoCo Connector AG
+				Marienstraße 12
+				Berlin  10117
+				GERMANY
+
+00-25-F5   (hex)		DVS Korea, Co., Ltd
+0025F5     (base 16)		DVS Korea, Co., Ltd
+				497-3, SangHa-Dong, Giheung-gu
+				R&D Hardware 2Team
+				Yong-In city Gyeonggi-do 446-914
+				KOREA, REPUBLIC OF
+
+00-25-F6   (hex)		netTALK.com, Inc.
+0025F6     (base 16)		netTALK.com, Inc.
+				1100 NW 163RD DRIVE
+				SUITE B-4
+				NORTH MIAMI BEACH FL 33169
+				UNITED STATES
+
 00-26-54   (hex)		3Com Corporation
 002654     (base 16)		3Com Corporation
 				5353 Betsy Ross Drive
