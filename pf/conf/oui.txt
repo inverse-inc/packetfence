@@ -61505,6 +61505,44 @@ company_id			Organization
 				NORTH MIAMI BEACH FL 33169
 				UNITED STATES
 
+00-25-F7   (hex)		Ansaldo STS USA
+0025F7     (base 16)		Ansaldo STS USA
+				1000 Technology Drive
+				Union Switch & Signal Building
+				Pittsburgh PA 15219
+				UNITED STATES
+
+00-25-F8   (hex)		Zamir Recognition Systems Ltd.
+0025F8     (base 16)		Zamir Recognition Systems Ltd.
+				Manachat Tech Park 1/22
+				Jerusalem  96951
+				ISRAEL
+
+00-25-F9   (hex)		GMK electronic design GmbH
+0025F9     (base 16)		GMK electronic design GmbH
+				Daimlerstr. 8
+				Wernberg-Koeblitz Bavaria D-92533
+				GERMANY
+
+00-25-FA   (hex)		J&M Analytik AG
+0025FA     (base 16)		J&M Analytik AG
+				Willy-Messerschmitt-Strasse 8
+				Essingen BW 73457
+				GERMANY
+
+00-25-FB   (hex)		Tunstall Healthcare A/S
+0025FB     (base 16)		Tunstall Healthcare A/S
+				Stroemmen 6
+				Noerresundby  9400
+				DENMARK
+
+00-25-FC   (hex)		ENDA ENDUSTRIYEL ELEKTRONIK LTD. STI.
+0025FC     (base 16)		ENDA ENDUSTRIYEL ELEKTRONIK LTD. STI.
+				Y. Dudullu Barbaros C. Kutup S. No. 20
+				Umraniye
+				Istanbul  34775
+				TURKEY
+
 00-26-54   (hex)		3Com Corporation
 002654     (base 16)		3Com Corporation
 				5353 Betsy Ross Drive
