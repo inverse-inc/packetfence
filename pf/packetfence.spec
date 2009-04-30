@@ -98,6 +98,8 @@ mv packetfence.mo conf/locale/en/LC_MESSAGES/
 mv packetfence.mo conf/locale/es/LC_MESSAGES/
 /usr/bin/msgfmt conf/locale/fr/LC_MESSAGES/packetfence.po
 mv packetfence.mo conf/locale/fr/LC_MESSAGES/
+/usr/bin/msgfmt conf/locale/it/LC_MESSAGES/packetfence.po
+mv packetfence.mo conf/locale/it/LC_MESSAGES/
 /usr/bin/msgfmt conf/locale/nl/LC_MESSAGES/packetfence.po
 mv packetfence.mo conf/locale/nl/LC_MESSAGES/
 
@@ -367,6 +369,7 @@ fi
 %dir /usr/local/pf/conf/locale/en/LC_MESSAGES
 %dir /usr/local/pf/conf/locale/es/LC_MESSAGES
 %dir /usr/local/pf/conf/locale/fr/LC_MESSAGES
+%dir /usr/local/pf/conf/locale/it/LC_MESSAGES
 %dir /usr/local/pf/conf/locale/nl/LC_MESSAGES
 %config(noreplace) /usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.po
 %config(noreplace) /usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.mo
@@ -374,6 +377,8 @@ fi
 %config(noreplace) /usr/local/pf/conf/locale/es/LC_MESSAGES/packetfence.mo
 %config(noreplace) /usr/local/pf/conf/locale/fr/LC_MESSAGES/packetfence.po
 %config(noreplace) /usr/local/pf/conf/locale/fr/LC_MESSAGES/packetfence.mo
+%config(noreplace) /usr/local/pf/conf/locale/it/LC_MESSAGES/packetfence.po
+%config(noreplace) /usr/local/pf/conf/locale/it/LC_MESSAGES/packetfence.mo
 %config(noreplace) /usr/local/pf/conf/locale/nl/LC_MESSAGES/packetfence.po
 %config(noreplace) /usr/local/pf/conf/locale/nl/LC_MESSAGES/packetfence.mo
 %dir /usr/local/pf/db
