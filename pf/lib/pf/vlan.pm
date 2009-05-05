@@ -115,6 +115,9 @@ sub custom_doWeActOnThisTrap {
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     my $weActOnThisTrap = 0;
+    if ( $trapType eq 'desAssociate' ) {
+        return 1;
+    }
     if ( $trapType eq 'dot11Deauthentication' ) {
         return 1;
     }
