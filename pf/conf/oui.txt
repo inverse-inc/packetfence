@@ -2136,8 +2136,8 @@ company_id			Organization
 
 00-01-4A   (hex)		Sony Corporation
 00014A     (base 16)		Sony Corporation
-				Engineering Standardization Office:MONO-ZUKURI Technology Div.
-				Gotenyama Tec 5-1-2 Kitashinagawa,
+				Gotenyama Tec 5-1-2
+				Kitashinagawa,
 				Tokyo Shinagawa-ku 141-0001
 				JAPAN
 
@@ -3869,9 +3869,9 @@ company_id			Organization
 
 00-02-51   (hex)		Soma Networks, Inc.
 000251     (base 16)		Soma Networks, Inc.
-				185 Berry Street
-				Suite 2000
-				San Francisco CA 94107
+				650 Townsend St.
+				Suite 305
+				San Francisco CA 94103
 				UNITED STATES
 
 00-02-52   (hex)		Carrier Corporation
@@ -26059,10 +26059,10 @@ company_id			Organization
 				BANGALORE 560 025  
 				INDIA
 
-00-10-13   (hex)		Kontron
-001013     (base 16)		Kontron
-				6260 Sequence Drive
-				San Diego CA 92121
+00-10-13   (hex)		Kontron America, Inc.
+001013     (base 16)		Kontron America, Inc.
+				14118 Stowe Drive
+				Poway, CA 9206
 				UNITED STATES
 
 00-10-14   (hex)		CISCO SYSTEMS, INC.
@@ -31844,8 +31844,8 @@ company_id			Organization
 
 00-13-A9   (hex)		Sony Corporation
 0013A9     (base 16)		Sony Corporation
-				Engineering Standardization Office:MONO-ZUKURI Technology Div.
-				Gotenyama Tec 5-1-2 Kitashinagawa,
+				Gotenyama Tec 5-1-2
+				Kitashinagawa,
 				Shinagawa-ku Tokyo 141-0001
 				JAPAN
 
@@ -41482,8 +41482,8 @@ company_id			Organization
 				SAITAMA-SHI SAITAMA 330-0852
 				JAPAN
 
-00-19-99   (hex)		Fujitsu Siemens Computers
-001999     (base 16)		Fujitsu Siemens Computers
+00-19-99   (hex)		Fujitsu Technology Solutions
+001999     (base 16)		Fujitsu Technology Solutions
 				Buergermeister-Ulrich-Strasse 100
 				Augsburg  86199
 				GERMANY
@@ -42952,8 +42952,8 @@ company_id			Organization
 
 00-1A-80   (hex)		Sony Corporation
 001A80     (base 16)		Sony Corporation
-				Engineering Standardization Office:MONO-ZUKURI Technology Div
-				Gotenyama Tec 5-1-2 Kitashinagawa
+				Gotenyama Tec 5-1-2
+				Kitashinagawa
 				Shinagawa-ku Tokyo 141-0001
 				JAPAN
 
@@ -48209,9 +48209,9 @@ company_id			Organization
 
 00-1D-BA   (hex)		Sony Corporation
 001DBA     (base 16)		Sony Corporation
-				Engineering Standardization Office:MONO-ZUKURI Technology Div.
-				Gotenyama Tec. 5-1-12 Kitashinagawa Shinagawa-ku
-				Tokyo  141-0001
+				Gotenyama Tec,5-1-12,
+				Kitashinagawa
+				Shinagawa-ku Tokyo 141-0001
 				JAPAN
 
 00-1D-BB   (hex)		Dynamic System Electronics Corp.
@@ -55047,8 +55047,8 @@ company_id			Organization
 				Hong Kong  999077
 				CHINA
 
-00-21-F3   (hex)		M31 SpA
-0021F3     (base 16)		M31 SpA
+00-21-F3   (hex)		Si14 SpA
+0021F3     (base 16)		Si14 SpA
 				Via Tommaseo 77
 				Padova PD 35131
 				ITALY
@@ -61543,6 +61543,213 @@ company_id			Organization
 				Istanbul  34775
 				TURKEY
 
+00-25-FD   (hex)		OBR Centrum Techniki Morskiej S.A.
+0025FD     (base 16)		OBR Centrum Techniki Morskiej S.A.
+				Dickmana 62
+				Gdynia  81-109
+				POLAND
+
+00-25-FE   (hex)		Pilot Electronics Corporation
+0025FE     (base 16)		Pilot Electronics Corporation
+				No. 2, Tzu-Chiang 3rd Road, Chung-Li Industrial Zone,
+				Taoyuan  Hsien 32063
+				TAIWAN, REPUBLIC OF CHINA
+
+00-25-FF   (hex)		CreNova Technology GmbH
+0025FF     (base 16)		CreNova Technology GmbH
+				An der Schindhohl 7
+				Sulzbach Hessen 65843
+				GERMANY
+
+00-26-00   (hex)		TEAC Australia Pty Ltd.
+002600     (base 16)		TEAC Australia Pty Ltd.
+				75 Northgate Drive
+				Thomastown Victoria 3074
+				AUSTRALIA
+
+00-26-01   (hex)		PRIVATE
+002601     (base 16)		 
+				 
+00-26-02   (hex)		SMART Temps LLC
+002602     (base 16)		SMART Temps LLC
+				303 S Byrkit St
+				Mishawaka IN 46544
+				UNITED STATES
+
+00-26-03   (hex)		Shenzhen Wistar Technology Co., Ltd
+002603     (base 16)		Shenzhen Wistar Technology Co., Ltd
+				Rm919, Science &Technology Service Center
+				No.1 Qilin Rd
+				Shenzhen Guang Dong 518000
+				CHINA
+
+00-26-04   (hex)		Audio Processing Technology Ltd
+002604     (base 16)		Audio Processing Technology Ltd
+				Whiterock Business Park
+				729 Springfield Road
+				Belfast County Antrim BT12 7FP
+				UNITED KINGDOM
+
+00-26-05   (hex)		CC Systems AB
+002605     (base 16)		CC Systems AB
+				Box 83
+				Alfta Sweden 82222
+				SWEDEN
+
+00-26-06   (hex)		RAUMFELD GmbH
+002606     (base 16)		RAUMFELD GmbH
+				Reichenberger Str. 124
+				Berlin  10999
+				GERMANY
+
+00-26-07   (hex)		Enabling Technology Pty Ltd
+002607     (base 16)		Enabling Technology Pty Ltd
+				23/44 Kings Park Road
+				West Perth Western Australia 6005
+				AUSTRALIA
+
+00-26-08   (hex)		Apple, Inc
+002608     (base 16)		Apple, Inc
+				1 Infinite Loop
+				Cupertino CA 95014
+				UNITED STATES
+
+00-26-09   (hex)		Phyllis Co., Ltd.
+002609     (base 16)		Phyllis Co., Ltd.
+				9th Fl., Room 3/4, No. 52, Sec. 2, Chung Shan North Road,
+				Taipei  104
+				TAIWAN, REPUBLIC OF CHINA
+
+00-26-0A   (hex)		Cisco Systems
+00260A     (base 16)		Cisco Systems
+				80 West Tasman Dr.
+				SJC-M/1
+				San Jose CA 95134
+				UNITED STATES
+
+00-26-0B   (hex)		Cisco Systems
+00260B     (base 16)		Cisco Systems
+				80 West Tasman Dr.
+				SJC-M/1
+				San Jose CA 95134
+				UNITED STATES
+
+00-26-0C   (hex)		Dataram
+00260C     (base 16)		Dataram
+				186 Princeton Rd.
+				Bldg. 3A
+				West Windsor NJ 08550
+				UNITED STATES
+
+00-26-0D   (hex)		Micronetics, Inc.
+00260D     (base 16)		Micronetics, Inc.
+				26 Hampshire Dr
+				Hudson NH 03051
+				UNITED STATES
+
+00-26-0E   (hex)		Ablaze Systems, LLC
+00260E     (base 16)		Ablaze Systems, LLC
+				523 West Valley Road
+				Wayne Pennsylvania 19087
+				UNITED STATES
+
+00-26-0F   (hex)		Linn Products Ltd
+00260F     (base 16)		Linn Products Ltd
+				Glasgow Road
+				Waterfoot
+				Glasgow  G76 0EQ
+				UNITED KINGDOM
+
+00-26-10   (hex)		Apacewave Technologies
+002610     (base 16)		Apacewave Technologies
+				48389 Fremont Blvd, STE#100
+				Fremont CA 94538
+				UNITED STATES
+
+00-26-11   (hex)		Licera AB
+002611     (base 16)		Licera AB
+				Teknikringen 1C
+				Linköping  58330
+				SWEDEN
+
+00-26-12   (hex)		Space Exploration Technologies
+002612     (base 16)		Space Exploration Technologies
+				1 Rocket Road
+				Hawthorne CA 90250
+				UNITED STATES
+
+00-26-13   (hex)		Engel Axil S.L.
+002613     (base 16)		Engel Axil S.L.
+				Puig dels Tudons, 6
+				Pol. Industrial Santiga
+				Barbera del Valles Barcelona 08210
+				SPAIN
+
+00-26-14   (hex)		KTNF
+002614     (base 16)		KTNF
+				204,Daeryungtechnotown1,327,Gasan-Dong,
+				Geumcheon-Gu,
+				Seoul  153-771
+				KOREA, REPUBLIC OF
+
+00-26-15   (hex)		Teracom Limited
+002615     (base 16)		Teracom Limited
+				B-84
+				Sector - 60
+				Noida Uttar Pradesh 201301
+				INDIA
+
+00-26-16   (hex)		Rosemount Inc.
+002616     (base 16)		Rosemount Inc.
+				8200 Market Boulevard
+				Chanhassen MN 55317
+				UNITED STATES
+
+00-26-17   (hex)		OEM Worldwide
+002617     (base 16)		OEM Worldwide
+				2920 Kelly Ave
+				Watertown SD 57201
+				UNITED STATES
+
+00-26-18   (hex)		ASUSTek COMPUTER INC.
+002618     (base 16)		ASUSTek COMPUTER INC.
+				15,Li-Te Rd.,Peitou
+				Taipei Taiwan 112
+				TAIWAN, REPUBLIC OF CHINA
+
+00-26-19   (hex)		FRC
+002619     (base 16)		FRC
+				1511 South Benjamin Avenue
+				Mason City IA 50401
+				UNITED STATES
+
+00-26-1A   (hex)		Femtocomm System Technology Corp.
+00261A     (base 16)		Femtocomm System Technology Corp.
+				2F.-2,No.28, Taiyuan St.,
+				Jhubei City, Hsinchu Country, 30288
+				TAIWAN, REPUBLIC OF CHINA
+
+00-26-1B   (hex)		LAUREL BANK MACHINES CO., LTD.
+00261B     (base 16)		LAUREL BANK MACHINES CO., LTD.
+				12-6
+				hitashitabata 1-Chome
+				Kita-Ku Tokyo 114-0013
+				JAPAN
+
+00-26-1C   (hex)		NEOVIA INC.
+00261C     (base 16)		NEOVIA INC.
+				503 LOTTE IT CASTLE 1DONG,550-1
+				GASAN-DONG, GEUMCHEON-GU
+				SEOUL  153-768
+				KOREA, REPUBLIC OF
+
+00-26-1D   (hex)		COP SECURITY SYSTEM CORP.
+00261D     (base 16)		COP SECURITY SYSTEM CORP.
+				4~7F, No.5, Lane 130, Min-Chung Rd.,
+				Hsin Tien City
+				Taipei  23141
+				TAIWAN, REPUBLIC OF CHINA
+
 00-26-54   (hex)		3Com Corporation
 002654     (base 16)		3Com Corporation
 				5353 Betsy Ross Drive
@@ -61855,8 +62062,8 @@ company_id			Organization
 				30659 Hannover  
 				GERMANY
 
-00-30-2F   (hex)		Smiths Industries
-00302F     (base 16)		Smiths Industries
+00-30-2F   (hex)		GE Aviation System
+00302F     (base 16)		GE Aviation System
 				3290 Patterson Ave., S.E.
 				Grand Rapids MI 49512
 				UNITED STATES
@@ -72742,10 +72949,11 @@ company_id			Organization
 				FREEMONT CA 94539
 				UNITED STATES
 
-00-A0-EB   (hex)		Encore Networks
-00A0EB     (base 16)		Encore Networks
-				45472 Holiday Drive
-				Dulles VA 20166
+00-A0-EB   (hex)		Encore Networks, Inc.
+00A0EB     (base 16)		Encore Networks, Inc.
+				3800 Concorde Parkway,
+				Suite 1500
+				Chantilly, VA 20151
 				UNITED STATES
 
 00-A0-EC   (hex)		TRANSMITTON LTD.
@@ -78709,7 +78917,7 @@ company_id			Organization
 
 08-00-46   (hex)		Sony Corporation
 080046     (base 16)		Sony Corporation
-				5-1-2 Kitashinagawa
+				Gotenyama Tec, 5-1-2 Kitashinagawa
 				Shinagawa-ku
 				Tokyo  141-0001
 				JAPAN
