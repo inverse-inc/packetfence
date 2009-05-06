@@ -48,7 +48,7 @@ sub deauthenticateMac {
             Transport => $this->{_cliTransport}
         );
         $session->connect(
-            User     => $this->{_cliUser},
+            Name     => $this->{_cliUser},
             Password => $this->{_cliPwd}
         );
     };
