@@ -2477,6 +2477,18 @@ sub sanity_check {
 
 sub generate_switchport_vlan_assignment {
     my ( $mac, $function ) = @_;
+    # untaint MAC
+    if ( $mac
+        =~
+        /^([0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2})$/
+            )
+    {
+        $mac = $1;
+    } else {
+        $logger->warn("Bad MAC $mac");
+        return 0;
+    }
+
     if (( lc($Config{'network'}{'mode'}) eq 'vlan' )
         && grep( { $_ eq $function } split(
                 /\s*,\s*/, $Config{'vlan'}{'adjustswitchportvlanreasons'}
