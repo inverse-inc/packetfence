@@ -294,11 +294,19 @@ sub trigger_scan {
 sub trigger_scan_add {
     my ($info) = @_;
     my $logger = Log::Log4perl::get_logger('pf::trigger');
-    my $tid    = $info->ScanID;
-    my $srcmac = ip2mac( $info->Host );
+    my $tid;
+    my $host;
+    if ( ref($info) eq 'HASH' ) {
+        $tid  = $info->{'ScanID'};
+        $host = $info->{'Host'};
+    } else {
+        $tid  = $info->ScanID;
+        $host = $info->Host;
+    }
+    my $srcmac = ip2mac( $host );
     if ( !$srcmac ) {
         $logger->error( "MAC address for "
-                . $info->Host
+                . $host
                 . " not found can not add violation" );
         return;
     }
@@ -308,7 +316,7 @@ sub trigger_scan_add {
         )
     {
         $logger->info( "Trying to add trigger $tid for ($srcmac) ("
-                . $info->Host
+                . $host
                 . ")" );
         my @trigger_info = trigger_view_enable( $tid, "scan" );
         if ( !scalar(@trigger_info) ) {
@@ -322,7 +330,7 @@ sub trigger_scan_add {
         }
     } else {
         $logger->warn( "NOT ADDING Trigger - $tid for $srcmac ("
-                . $info->Host
+                . $host
                 . ") please add $tid to scan.live_tids if you would like this done"
         );
     }
@@ -352,11 +360,15 @@ David LaPorte <david@davidlaporte.org>
 
 Kevin Amorin <kev@amorin.org>
 
+Dominik Gehl <dgehl@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
+
+Copyright (C) 2009 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

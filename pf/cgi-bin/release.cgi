@@ -80,6 +80,18 @@ if (defined($cgi->param('mode'))) {
 
 my $violations = violation_view_top($mac); 
 my $vid = $violations->{'vid'}; 
+if ($vid==1100001){
+    my $cmd = $bin_dir."/pfcmd manage vopen $mac 1200001";
+    $logger->info("calling $cmd");
+    my $grace = qx/$cmd/;
+    $cmd = $bin_dir."/pfcmd manage vclose $mac $vid";
+    $logger->info("calling $cmd");
+    $grace = qx/$cmd/;
+    $vid=1200001;
+    print $cgi->redirect("/cgi-bin/redir.cgi");
+    exit(0);
+}
+
 my $class=class_view($vid);
 
 my $class_violation_url = $class->{'url'};
@@ -88,7 +100,7 @@ my $class_max_enable_url = $class->{'max_enable_url'};
 
 #scan code...
 if ($vid==1200001){
-  my $cmd = $bin_dir."/pfcmd schedule now $ip";
+  my $cmd = $bin_dir."/pfcmd schedule now $ip tid=99999";
   $logger->info("scanning $ip by calling $cmd");
   my $scan = qx/$cmd/;
 }

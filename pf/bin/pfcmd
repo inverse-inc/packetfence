@@ -1123,10 +1123,47 @@ sub schedule {
     #scan now no cron entry
     if ( $option && $option eq 'now' ) {
         require pf::trigger;
-        my @output = pf::trigger::trigger_scan( $hostaddr, $params{tid} );
         my $date = mysql_date();
         $date     =~ s/ /-/g;
         $hostaddr =~ s/\//\\/g;
+
+        # scan with scan.nessusclient_file file
+        if ( exists($params{'tid'}) && ( $params{'tid'} eq '99999' ) ) {
+            my $host = $Config{'scan'}{'host'};
+            my $port = $Config{'scan'}{'port'};
+            my $user = $Config{'scan'}{'user'};
+            my $pass = $Config{'scan'}{'pass'};
+            my $nessusclient_file = "$install_dir/conf/nessus/" . $Config{'scan'}{'nessusclient_file'};
+            my $nessusclient_policy = $Config{'scan'}{'nessusclient_policy'};
+            my $infileName = "/tmp/pf_nessus_${hostaddr}_$date.txt";
+            my $outfileName = "$install_dir/html/admin/scan/results/dump_${hostaddr}_$date.nbe";
+            my $infile_fh;
+            open( $infile_fh, '>', $infileName );
+            print {$infile_fh} $hostaddr;
+            close( $infile_fh );
+            $logger->info("executing /opt/nessus/bin/nessus -q -V -x --dot-nessus $nessusclient_file --policy-name $nessusclient_policy $host $port $user $pass --target-file $infileName $outfileName");
+            `/opt/nessus/bin/nessus -q -V -x --dot-nessus $nessusclient_file --policy-name $nessusclient_policy $host $port $user $pass --target-file $infileName $outfileName`;
+            unlink($infileName);
+            if ( ! -r $outfileName ) {
+                $logger->warn("unable to open $outfileName for reading; Nessus scan might have failed");
+                return 1;
+            }
+            require Parse::Nessus::NBE;
+            open( $infile_fh, '<', $outfileName);
+            my @nessusdata = <$infile_fh>;
+            close( $infile_fh );
+            my @countvulns = Parse::Nessus::NBE::nstatvulns(@nessusdata, 1);
+            foreach my $current_vul (@countvulns) {
+                my ($scanID, $number) = split(/\|/, $current_vul);
+                my $info;
+                $info->{'Host'} = $hostaddr;
+                $info->{'ScanID'} = $scanID;
+                $logger->info("calling trigger_scan_add for $hostaddr Nessus ScanID $scanID");
+                pf::trigger::trigger_scan_add($info);
+            };
+            return 1;
+        }
+        my @output = pf::trigger::trigger_scan( $hostaddr, $params{tid} );
         my $file_fh;
         open( $file_fh, '>',
             "$install_dir/html/admin/scan/results/dump_${hostaddr}_$date" );

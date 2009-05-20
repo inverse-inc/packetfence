@@ -298,6 +298,7 @@ fi
 %attr(0755, pf, pf) /usr/local/pf/t/pf.t
 %attr(0755, pf, pf) /usr/local/pf/t/php.t
 %attr(0755, pf, pf) /usr/local/pf/t/pod.t
+%attr(0755, pf, pf) /usr/local/pf/t/podCoverage.t
 %attr(0755, pf, pf) /usr/local/pf/t/SNMP.t
 %attr(0755, pf, pf) /usr/local/pf/t/SwitchFactory.t
 %dir /usr/local/pf/t/data
@@ -337,6 +338,8 @@ fi
 /usr/local/pf/html/common/*
 %dir /usr/local/pf/conf/dhcpd
 /usr/local/pf/conf/dhcpd/dhcpd.leases
+%dir /usr/local/pf/conf/nessus
+%config(noreplace) /usr/local/pf/conf/nessus/remotescan.nessus
 %dir /usr/local/pf/conf/snort
 /usr/local/pf/conf/snort/*
 %dir /usr/local/pf/conf/ssl

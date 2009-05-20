@@ -389,6 +389,18 @@ registration=disabled
 #only.  This is used to test Nessus plugins before going live.
 live_tids=
 #
+# scan.nessusclient_file
+#
+# Name of the NessusClient file; the file format is documented at
+# http://www.nessus.org/documentation/dot_nessus_file_format.pdf
+# This file must be found in conf/nessus/
+nessusclient_file=remotescan.nessus
+#
+# scan.nessusclient_policy
+#
+# Name of the policy inside the NessusClient file
+nessusclient_policy=RemoteScan
+#
 
 [database]
 #
