@@ -123,6 +123,7 @@ my @modules = (
     "Net::Write",
     "Net::SNMP",
     "Net::Telnet",
+    "Parse::Nessus::NBE",
     "Parse::RecDescent",
     "Regexp::Common",
     "Readonly",
