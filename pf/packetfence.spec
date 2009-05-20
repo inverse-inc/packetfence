@@ -4,8 +4,8 @@
 #2) rpmbuild --rebuild --define 'dist .el5' SRPMS/packetfence-1.8.2-1.src.rpm
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 1.8.2
-Release: 1%{?dist}
+Version: 1.8.3
+Release: 20090520%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.packetfence.org
@@ -16,7 +16,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Packager: Dominik Gehl <dgehl@inverse.ca>
 Vendor: PacketFence, http://www.packetfence.org
 
-Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz
+Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}-20090520.tar.gz
 
 BuildRequires: gettext, perl(Parse::RecDescent), httpd
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget
