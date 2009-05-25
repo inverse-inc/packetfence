@@ -9023,9 +9023,9 @@ company_id			Organization
 				S-41121 Goteborg
 				SWEDEN
 
-00-05-69   (hex)		VMWARE, Inc.
-000569     (base 16)		VMWARE, Inc.
-				3145 Porter Dr., Bldg. F
+00-05-69   (hex)		VMware, Inc.
+000569     (base 16)		VMware, Inc.
+				3401 Hillview Avenue
 				Palo Alto CA 94304
 				UNITED STATES
 
@@ -15870,9 +15870,12 @@ company_id			Organization
 				Silkeborg  DK-8600
 				DENMARK
 
-00-09-C2   (hex)		PRIVATE
-0009C2     (base 16)		 
-				 
+00-09-C2   (hex)		Onity, Inc.
+0009C2     (base 16)		Onity, Inc.
+				2232 Northmont Parkway
+				Duluth GA 30096
+				UNITED STATES
+
 00-09-C3   (hex)		NETAS
 0009C3     (base 16)		NETAS
 				Alemdag Cad. No 171
@@ -19751,7 +19754,7 @@ company_id			Organization
 
 00-0C-29   (hex)		VMware, Inc.
 000C29     (base 16)		VMware, Inc.
-				3145 Porter Dr.
+				3401 Hillview Avenue
 				Palo Alto CA 94304
 				UNITED STATES
 
@@ -45536,7 +45539,7 @@ company_id			Organization
 
 00-1C-14   (hex)		VMware, Inc
 001C14     (base 16)		VMware, Inc
-				3145 Porter Drive
+				3401 Hillview Avenue
 				Palo Alto CA 94304
 				UNITED STATES
 
@@ -49325,8 +49328,8 @@ company_id			Organization
 				Lawrenceville GA 30044
 				UNITED STATES
 
-00-1E-6C   (hex)		Spliced Networks LLC
-001E6C     (base 16)		Spliced Networks LLC
+00-1E-6C   (hex)		Carbon Mountain LLC
+001E6C     (base 16)		Carbon Mountain LLC
 				4820 Fisher Road
 				Athens OH 45701
 				UNITED STATES
@@ -61986,6 +61989,86 @@ company_id			Organization
 				Alameda CA 94501
 				UNITED STATES
 
+00-26-43   (hex)		Alps Electric Co., Ltd
+002643     (base 16)		Alps Electric Co., Ltd
+				1-2-1,Okinouchi
+				Soma-city Fukushima-ken 976-8501
+				JAPAN
+
+00-26-44   (hex)		Thomson Telecom Belgium
+002644     (base 16)		Thomson Telecom Belgium
+				Prins Boudewijnlaan 47
+				Edegem Antwerp B-2650
+				BELGIUM
+
+00-26-45   (hex)		Circontrol S.A.
+002645     (base 16)		Circontrol S.A.
+				Lepant 43
+				Terrassa Barcelona 08223
+				SPAIN
+
+00-26-46   (hex)		SHENYANG TONGFANG MULTIMEDIA TECHNOLOGY COMPANY LIMITED
+002646     (base 16)		SHENYANG TONGFANG MULTIMEDIA TECHNOLOGY COMPANY LIMITED
+				No.10 Ping Nan East Road
+				Hunnan New District.
+				Shenyang Liao Ning 110014
+				CHINA
+
+00-26-47   (hex)		WFE TECHNOLOGY CORP.
+002647     (base 16)		WFE TECHNOLOGY CORP.
+				17F NO.238,Chin-Hua N Rd,
+				Taichung  404
+				TAIWAN, REPUBLIC OF CHINA
+
+00-26-48   (hex)		Emitech Corp.
+002648     (base 16)		Emitech Corp.
+				No. 156-5A, ChengGong 1st St.,
+				Jhubei City Hsinchu County 302
+				TAIWAN, REPUBLIC OF CHINA
+
+00-26-49   (hex)		PRIVATE
+002649     (base 16)		 
+				 
+00-26-4A   (hex)		Apple, Inc
+00264A     (base 16)		Apple, Inc
+				1 Infinite Loop
+				San Francisco CA 95014
+				UNITED STATES
+
+00-26-4B   (hex)		PRIVATE
+00264B     (base 16)		 
+				 
+00-26-4C   (hex)		Shanghai DigiVision Technology Co., Ltd.
+00264C     (base 16)		Shanghai DigiVision Technology Co., Ltd.
+				No. 333 Guangji Rd.
+				Shanghai  200083
+				CHINA
+
+00-26-4D   (hex)		Arcadyan Technology Corporation
+00264D     (base 16)		Arcadyan Technology Corporation
+				4F., No. 9 , Park Avenue II ,
+				Hsinchu Science Park ,
+				Hsinchu Taiwan 300
+				TAIWAN, REPUBLIC OF CHINA
+
+00-26-4E   (hex)		Rail & Road Protec GmbH
+00264E     (base 16)		Rail & Road Protec GmbH
+				Norderhofenden 12-13
+				Flensburg  24937
+				GERMANY
+
+00-26-4F   (hex)		Krüger&Gothe GmbH
+00264F     (base 16)		Krüger&Gothe GmbH
+				Atzendorfer Strasse 19
+				Stassfurt Sachsen Anhalt 39418
+				GERMANY
+
+00-26-50   (hex)		2Wire
+002650     (base 16)		2Wire
+				1764 Automation Parkway
+				San Jose CA 95131
+				UNITED STATES
+
 00-26-54   (hex)		3Com Corporation
 002654     (base 16)		3Com Corporation
 				5353 Betsy Ross Drive
@@ -62929,10 +63012,10 @@ company_id			Organization
 				CH-8840 Einsledeln  
 				SWITZERLAND
 
-00-30-93   (hex)		SONNET TECHNOLOGIES, INC.
-003093     (base 16)		SONNET TECHNOLOGIES, INC.
-				3390 BUFORD DRIVE - STE. #7
-				BUFORD GA 30519
+00-30-93   (hex)		Sonnet Technologies, Inc
+003093     (base 16)		Sonnet Technologies, Inc
+				8 Autry
+				Irvine, CA 92618
 				UNITED STATES
 
 00-30-94   (hex)		Cisco Systems, Inc.
@@ -65801,10 +65884,10 @@ company_id			Organization
 				DENMARK
 				DENMARK
 
-00-50-56   (hex)		VMWare, Inc.
-005056     (base 16)		VMWare, Inc.
-				44 ENCINA AVENUE
-				PALO ALTO CA 94301
+00-50-56   (hex)		VMware, Inc.
+005056     (base 16)		VMware, Inc.
+				3401 Hillview Avenue
+				PALO ALTO CA 94304
 				UNITED STATES
 
 00-50-57   (hex)		BROADBAND ACCESS SYSTEMS
