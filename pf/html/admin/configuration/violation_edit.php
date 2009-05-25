@@ -34,7 +34,7 @@
 
     PFCMD($edit_cmd);
     $edited=true; 
-    print "<script type='text/javascript'>opener.focus(); opener.ocation.href = opener.location; self.close();</script>";
+    print "<script type='text/javascript'>opener.focus(); opener.location.href = opener.location; self.close();</script>";
 
   }
 
