@@ -24,6 +24,9 @@
           (http://www.packetfence.org/mantis/view.php?id=607)
         GET instead of POST requests in reports.php
           (http://www.packetfence.org/mantis/view.php?id=531)
+        fixed issue in pfsetvlan when a switch was removed 
+          from the switch config
+          (http://www.packetfence.org/mantis/view.php?id=690)
 
 1.8.2
         added Readonly to dependencies

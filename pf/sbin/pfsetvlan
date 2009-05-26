@@ -1974,7 +1974,9 @@ sub do_port_security {
 
     #determine if $mac is authorized elsewhere
     my $locationlog_mac = locationlog_view_open_mac($mac);
-    if ( defined($locationlog_mac) ) {
+    if ( defined($locationlog_mac) && 
+         ( exists($switchFactory->{_config}{$locationlog_mac->{'switch'}}) )
+       ) {
         my $old_switch = $locationlog_mac->{'switch'};
         my $old_port   = $locationlog_mac->{'port'};
         my $old_vlan   = $locationlog_mac->{'vlan'};
