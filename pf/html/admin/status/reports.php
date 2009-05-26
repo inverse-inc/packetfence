@@ -38,7 +38,9 @@
   if($type == 'ipmachistory'){
   ?>
   <div id="ipmachistory">
-  <form action="<?=$current_top?>/<?=$current_sub?>.php?type=<?=$type?>&menu=<?=$_GET[menu]?>" name="ipmachistory" method="post">
+  <form action="<?=$current_top?>/<?=$current_sub?>.php" name="ipmachistory" method="get">
+  <input type="hidden" name="type" value="<?=$type?>">
+  <input type="hidden" name="menu" value="<?=$_GET['menu']?>">
   <table class="main">
     <tr><td rowspan=20 valign=top><img src='images/report.png'></td></tr>
     <tr>
@@ -85,7 +87,9 @@
 } elseif ($_REQUEST['type'] == "locationhistoryswitch") {
   ?>
   <div id="history">
-  <form action="<?=$current_top?>/<?=$current_sub?>.php?type=<?=$type?>&menu=<?=$_GET[menu]?>" name="history" method="post">
+  <form action="<?=$current_top?>/<?=$current_sub?>.php" name="history" method="get">
+  <input type="hidden" name="type" value="<?=$type?>">
+  <input type="hidden" name="menu" value="<?=$_GET['menu']?>">
   <table class="main">
     <tr><td rowspan=20 valign=top><img src='images/report.png'></td></tr>
     <tr>
@@ -124,7 +128,9 @@
 } elseif ($_REQUEST['type'] == "locationhistorymac") {
   ?>
   <div id="history">
-  <form action="<?=$current_top?>/<?=$current_sub?>.php?type=<?=$type?>&menu=<?=$_GET[menu]?>" name="history" method="post">
+  <form action="<?=$current_top?>/<?=$current_sub?>.php" name="history" method="get">
+  <input type="hidden" name="type" value="<?=$type?>">
+  <input type="hidden" name="menu" value="<?=$_GET['menu']?>">
   <table class="main">
     <tr><td rowspan=20 valign=top><img src='images/report.png'></td></tr>
     <tr>
@@ -157,7 +163,9 @@
 } elseif ($_REQUEST['type'] == "ifoctetshistoryswitch") {
   ?>
   <div id="history">
-  <form action="<?=$current_top?>/<?=$current_sub?>.php?type=<?=$type?>&menu=<?=$_GET[menu]?>" name="history" method="post">
+  <form action="<?=$current_top?>/<?=$current_sub?>.php" name="history" method="get">
+  <input type="hidden" name="type" value="<?=$type?>">
+  <input type="hidden" name="menu" value="<?=$_GET['menu']?>">
   <table class="main">
     <tr><td rowspan=20 valign=top><img src='images/report.png'></td></tr>
     <tr>
@@ -206,7 +214,9 @@
 } elseif ($_REQUEST['type'] == "ifoctetshistorymac") {
   ?>
   <div id="history">
-  <form action="<?=$current_top?>/<?=$current_sub?>.php?type=<?=$type?>&menu=<?=$_GET[menu]?>" name="history" method="post">
+  <form action="<?=$current_top?>/<?=$current_sub?>.php" name="history" method="get">
+  <input type="hidden" name="type" value="<?=$type?>">
+  <input type="hidden" name="menu" value="<?=$_GET['menu']?>">
   <table class="main">
     <tr><td rowspan=20 valign=top><img src='images/report.png'></td></tr>
     <tr>
@@ -249,7 +259,9 @@
 } elseif ($_REQUEST['type'] == "ifoctetshistoryuser") {
   ?>
   <div id="history">
-  <form action="<?=$current_top?>/<?=$current_sub?>.php?type=<?=$type?>&menu=<?=$_GET[menu]?>" name="history" method="post">
+  <form action="<?=$current_top?>/<?=$current_sub?>.php" name="history" method="get">
+  <input type="hidden" name="type" value="<?=$type?>">
+  <input type="hidden" name="menu" value="<?=$_GET['menu']?>">
   <table class="main">
     <tr><td rowspan=20 valign=top><img src='images/report.png'></td></tr>
     <tr>
