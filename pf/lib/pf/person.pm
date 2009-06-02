@@ -45,10 +45,10 @@ sub person_db_prepare {
     $person_exist_sql
         = $dbh->prepare(qq[ select count(*) from person where pid=? ]);
     $person_add_sql
-        = $dbh->prepare(qq[ insert into person(pid,notes) values(?,?) ]);
+        = $dbh->prepare(qq[ insert into person(pid,firstname,lastname,email,telephone,company,address,notes) values(?,?,?,?,?,?,?,?) ]);
     $person_delete_sql = $dbh->prepare(qq[ delete from person where pid=? ]);
     $person_modify_sql
-        = $dbh->prepare(qq[ update person set pid=?,notes=? where pid=? ]);
+        = $dbh->prepare(qq[ update person set pid=?,firstname=?,lastname=?,email=?,telephone=?,company=?,address=?,notes=? where pid=? ]);
     $person_nodes_sql
         = $dbh->prepare(
         qq[ select mac,pid,regdate,unregdate,lastskip,status,user_agent,computername,dhcp_fingerprint from node where pid=? ]
@@ -107,7 +107,7 @@ sub person_add {
         $logger->error("attempt to add existing person $pid");
         return (2);
     }
-    $person_add_sql->execute( $pid, $data{'notes'} ) || return (0);
+    $person_add_sql->execute( $pid, $data{'firstname'},$data{'lastname'},$data{'email'}, $data{'telephone'}, $data{'company'}, $data{'address'}, $data{'notes'} ) || return (0);
     $logger->info("person $pid added");
     return (1);
 }
@@ -119,7 +119,7 @@ sub person_view {
     my ($pid) = @_;
     person_db_prepare($dbh) if ( !$person_db_prepared );
     $person_view_sql
-        = $dbh->prepare("select pid,notes from person where pid=?");
+        = $dbh->prepare("select pid,firstname,lastname,email,telephone,company,address,notes from person where pid=?");
     $person_view_sql->execute($pid) || return (0);
     my $ref = $person_view_sql->fetchrow_hashref();
 
@@ -131,12 +131,14 @@ sub person_view {
 sub person_view_all {
     person_db_prepare($dbh) if ( !$person_db_prepared );
     $person_view_all_sql 
-        = $dbh->prepare("select pid,notes from person");
+        = $dbh->prepare("select pid,firstname,lastname,email,telephone,company,address,notes from person");
     return db_data($person_view_all_sql);
 }
 
 sub person_modify {
     my ( $pid, %data ) = @_;
+    use Data::Dumper;
+    print Dumper(%data);
     person_db_prepare($dbh) if ( !$person_db_prepared );
     my $logger = Log::Log4perl::get_logger('pf::person');
     if ( !person_exist($pid) ) {
@@ -156,6 +158,7 @@ sub person_modify {
     foreach my $item ( keys(%data) ) {
         $existing->{$item} = $data{$item};
     }
+    print Dumper($existing);
     my $new_pid   = $existing->{'pid'};
     my $new_notes = $existing->{'notes'};
 
@@ -164,8 +167,14 @@ sub person_modify {
             "modify of pid $pid to $new_pid conflicts with existing person");
         return (0);
     }
-
-    $person_modify_sql->execute( $new_pid, $new_notes, $pid ) || return (0);
+print "calling person_modify_sql\n";
+    $person_modify_sql->execute( 
+        $new_pid,                 $existing->{'firstname'},
+        $existing->{'lastname'},  $existing->{'email'},
+        $existing->{'telephone'}, $existing->{'company'},
+        $existing->{'address'},   $new_notes, 
+        $pid 
+    ) || return (0);
     $logger->info("person $pid modified to $new_pid");
     return (1);
 }
@@ -182,11 +191,15 @@ David LaPorte <david@davidlaporte.org>
 
 Kevin Amorin <kev@amorin.org>
 
+Dominik Gehl <dgehl@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
+
+Copyright (C) 2009 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
