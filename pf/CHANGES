@@ -29,6 +29,8 @@
           (http://www.packetfence.org/mantis/view.php?id=690)
         added new fields to person table
           (http://www.packetfence.org/mantis/view.php?id=701)
+        fixed last column display in printer.php
+          (http://www.packetfence.org/mantis/view.php?id=704)
 
 1.8.2
         added Readonly to dependencies

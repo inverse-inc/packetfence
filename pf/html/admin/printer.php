@@ -23,9 +23,9 @@
 
   else if($_SESSION['table']){
     $table = unserialize($_SESSION['table']);
-    if($table->editable){
-      array_pop($table->headers);
-    }
+    #if($table->editable){
+    #  array_pop($table->headers);
+    #}
 
     print "<div id='printer'>";
     $font_size = set_default($_GET['font_size'], 3);
