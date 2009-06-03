@@ -96,6 +96,10 @@ sub clean_mac {
 sub valid_mac {
     my ($mac) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
+    if (! ($mac =~ /^[0-9a-f:\.]+$/i)) {
+        $logger->error("invalid MAC: $mac");
+        return (0);
+    }
     $mac = clean_mac($mac);
     if (   $mac =~ /^ff:ff:ff:ff:ff:ff$/
         || $mac =~ /^00:00:00:00:00:00$/
