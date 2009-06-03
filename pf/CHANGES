@@ -31,6 +31,8 @@
           (http://www.packetfence.org/mantis/view.php?id=701)
         fixed last column display in printer.php
           (http://www.packetfence.org/mantis/view.php?id=704)
+        fixed editing of last_arp column in node table
+          (http://www.packetfence.org/mantis/view.php?id=705)
 
 1.8.2
         added Readonly to dependencies

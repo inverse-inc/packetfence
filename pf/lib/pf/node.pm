@@ -68,12 +68,12 @@ sub node_db_prepare {
         qq[ select count(*) from node where status='reg' and pid=? ]);
     $node_add_sql
         = $dbh->prepare(
-        qq[ insert into node(mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,dhcp_fingerprint,last_dhcp,switch,port,vlan) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ]
+        qq[ insert into node(mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,dhcp_fingerprint,last_arp,last_dhcp,switch,port,vlan) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ]
         );
     $node_delete_sql = $dbh->prepare(qq[ delete from node where mac=? ]);
     $node_modify_sql
         = $dbh->prepare(
-        qq[ update node set mac=?,pid=?,detect_date=?,regdate=?,unregdate=?,lastskip=?,status=?,user_agent=?,computername=?,notes=?,dhcp_fingerprint=?,last_dhcp=?,switch=?,port=?,vlan=? where mac=? ]
+        qq[ update node set mac=?,pid=?,detect_date=?,regdate=?,unregdate=?,lastskip=?,status=?,user_agent=?,computername=?,notes=?,dhcp_fingerprint=?,last_arp=?,last_dhcp=?,switch=?,port=?,vlan=? where mac=? ]
         );
     $node_view_sql
         = $dbh->prepare(
@@ -221,8 +221,8 @@ sub node_add {
     foreach my $field (
         'pid',      'detect_date',      'regdate',    'unregdate',
         'lastskip', 'status',           'user_agent', 'computername',
-        'notes',    'dhcp_fingerprint', 'last_dhcp',  'switch',
-        'port',     'vlan'
+        'notes',    'dhcp_fingerprint', 'last_arp',   'last_dhcp', 
+        'switch',   'port',             'vlan'
         )
     {
         $data{$field} = "" if ( !defined $data{$field} );
@@ -232,11 +232,12 @@ sub node_add {
     }
 
     $node_add_sql->execute(
-        $mac,           $data{pid},              $data{detect_date},
-        $data{regdate}, $data{unregdate},        $data{lastskip},
-        $data{status},  $data{user_agent},       $data{computername},
-        $data{notes},   $data{dhcp_fingerprint}, $data{last_dhcp},
-        $data{switch},  $data{port},             $data{vlan}
+        $mac,             $data{pid},              $data{detect_date},
+        $data{regdate},   $data{unregdate},        $data{lastskip},
+        $data{status},    $data{user_agent},       $data{computername},
+        $data{notes},     $data{dhcp_fingerprint}, $data{last_arp},
+        $data{last_dhcp}, $data{switch},           $data{port},
+        $data{vlan}
     ) || return (0);
     return (1);
 }
@@ -413,9 +414,10 @@ sub node_modify {
         $existing->{unregdate},        $existing->{lastskip},
         $existing->{status},           $existing->{user_agent},
         $existing->{computername},     $existing->{notes},
-        $existing->{dhcp_fingerprint}, $existing->{last_dhcp},
-        $existing->{switch},           $existing->{port},
-        $existing->{vlan},             $mac
+        $existing->{dhcp_fingerprint}, $existing->{last_arp},
+        $existing->{last_dhcp},        $existing->{switch},
+        $existing->{port},             $existing->{vlan},
+        $mac
     ) || return (0);
 
     return (1);
@@ -692,7 +694,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2007-2008 Inverse inc.
+Copyright (C) 2007-2009 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
