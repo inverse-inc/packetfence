@@ -24,7 +24,13 @@ if($view_item){
   $person_view = new table("person view $view_item");
 
   if($person_view->rows[0]['pid'] == $view_item){
-    $lookup['name']  = $person_view->rows[0]['pid'];
+    $lookup['pid']  = $person_view->rows[0]['pid'];
+    $lookup['firstname']  = $person_view->rows[0]['firstname'];
+    $lookup['lastname']  = $person_view->rows[0]['lastname'];
+    $lookup['email']  = $person_view->rows[0]['email'];
+    $lookup['telephone']  = $person_view->rows[0]['telephone'];
+    $lookup['company']  = $person_view->rows[0]['company'];
+    $lookup['address']  = $person_view->rows[0]['address'];
     $lookup['notes'] = $person_view->rows[0]['notes'];
 
     $node_view = new table("node view pid=$view_item");
