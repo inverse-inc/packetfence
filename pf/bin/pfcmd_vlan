@@ -435,7 +435,7 @@ if (   ($getUpLinks)
             if ($showPF) {
                 my @pfcmd = `$bin_dir/pfcmd node view $currentMac`;
                 @pfcmd = split( /[|]/, $pfcmd[1] );
-                print ", $pfcmd[7]" unless ( $pfcmd[7] eq '' );
+                print ", $pfcmd[8]" unless ( $pfcmd[8] eq '' );
                 print ", $pfcmd[1]" unless ( $pfcmd[1] eq '' );
             }
             print "\n";
