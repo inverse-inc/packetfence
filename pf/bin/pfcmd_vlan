@@ -21,7 +21,7 @@ pfcmd_vlan command [options]
    -getUpLinks      	show the upLinks of the specified switch
    -getVersion      	show switch OS version
    -getVlan         	show the VLAN on the specified switch port
-   -getVlanType     	show the type of the specified port
+   -getVlanType     	show the VLAN type on the specified port
    -help            	brief help message
    -isolate         	set the switch port to the isolation VLAN
    -man             	full documentation
