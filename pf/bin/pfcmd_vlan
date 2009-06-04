@@ -538,6 +538,9 @@ if (   ($getUpLinks)
 
 } elsif ($getLocation) {
 
+    if ($mac eq '') {
+       pod2usage("The MAC argument is necessary");
+    }
     $logger->debug("start handling 'getLocation' command");
     my %Config = %{ $switchFactory->{_config} };
 
