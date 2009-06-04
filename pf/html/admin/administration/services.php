@@ -111,7 +111,7 @@ function print_status_table(){
   print "<td>&nbsp;</td>\n";
   print "<td align=center>&nbsp;</td>\n";
   print "<td align=center><a href=$current_top/$current_sub.php?service=pf&action=stop><img src='images/stop.png' title='Stop All' border=0></a></td>\n";
-  print "<td align=center><a href=$current_top/$current_sub.php?service=pf&action=restart><img src='images/restart.png' title='Restart All' border=0></a></td>";
+  print "<td align=center>&nbsp;</td>";
   print "</tr>\n";
   print "</table>";
 
