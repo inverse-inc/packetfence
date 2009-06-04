@@ -2489,6 +2489,19 @@ sub sanity_check {
                         "pf.conf value $group\.$item does not explicity define interval (eg. 7200s, 120m, 2h) - please define it before running packetfence"
                     );
                 }
+            } elsif ( $type eq "multi" ) {
+                my @selectedOptions = split( /\s*,\s*/, $myconfig{$group}{$item} );
+                my @availableOptions = split( /\s*[;\|]\s*/, $documentation{$section}{'options'} );
+                foreach my $currentSelectedOption (@selectedOptions) {
+                    if ( grep(/^$currentSelectedOption$/, @availableOptions) == 0 ) {
+                        $logger->logdie( 
+                            "pf.conf values for $group\.$item must be among the following: " .
+                            $documentation{$section}{'options'}
+                            . " but you used $currentSelectedOption"
+                            . ". If you are sure of this choice, please "
+                            . " update conf/documentation.conf");
+                    }
+                }
             }
         } elsif ( $Config{$group}{$item} ne "0" ) {
             $logger->logdie("pf.conf value $group\.$item is not defined!");
