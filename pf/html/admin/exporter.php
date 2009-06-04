@@ -84,7 +84,7 @@ for($i=0; $i<count($my_table->headers); $i++){
   if($my_table->headers[$i]=="Edit")
     continue;
   foreach($my_table->rows as $row){
-    if($row[$my_table->headers[$i]]){
+    if(isset($row[$my_table->headers[$i]])){
       $filler=$row[$my_table->headers[$i]]; 
       break;
     }

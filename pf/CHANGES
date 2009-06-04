@@ -37,6 +37,8 @@
           (http://www.packetfence.org/mantis/view.php?id=706)
         added pretty headers to exporter.php
           (http://www.packetfence.org/mantis/view.php?id=708)
+        fixed sample column display in exporter.php
+          (http://www.packetfence.org/mantis/view.php?id=707)
 
 1.8.2
         added Readonly to dependencies
