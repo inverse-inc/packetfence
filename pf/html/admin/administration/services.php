@@ -85,7 +85,7 @@ function print_status_table(){
           }
           print ">$services[0]</td>\n";
           print "<td>" . (($services[1] == 0) ? 'Stopped' : 'Running') . "</td>\n";
-          print "<td>" . (($services[2] == 0) ? 'Stopped' : 'Running') . "</td>\n";
+          print "<td>" . (($services[2] == 0) ? 'Stopped' : 'Running (pid: ' . $services[2] . ')') . "</td>\n";
           if (($services[1] == 1) && ($services[2] == 0)) {
             print "<td align=center><a href=$current_top/$current_sub.php?service=$services[0]&action=start><img src='images/start.png' title='Start $services[0]' border=0></a></td>";
           } else {

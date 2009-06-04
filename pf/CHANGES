@@ -39,6 +39,8 @@
           (http://www.packetfence.org/mantis/view.php?id=708)
         fixed sample column display in exporter.php
           (http://www.packetfence.org/mantis/view.php?id=707)
+        show processID in services.php
+          (http://www.packetfence.org/mantis/view.php?id=709)
 
 1.8.2
         added Readonly to dependencies
