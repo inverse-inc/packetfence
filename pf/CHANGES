@@ -35,6 +35,8 @@
           (http://www.packetfence.org/mantis/view.php?id=705)
         enhanced valid_mac sub
           (http://www.packetfence.org/mantis/view.php?id=706)
+        added pretty headers to exporter.php
+          (http://www.packetfence.org/mantis/view.php?id=708)
 
 1.8.2
         added Readonly to dependencies

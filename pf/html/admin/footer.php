@@ -26,7 +26,7 @@
 	  	 print "<a href='$current_top/$current_sub.php?menu=$_GET[menu]&amp;type=$_GET[type]&amp;upload=true'><img src='images/up.png' alt='Share Unknown Fingerprints' title='Share Unknown Fingerprints'></a> ";
 	  	 print "<a href='$current_top/$current_sub.php?menu=$_GET[menu]&amp;type=$_GET[type]&amp;update=true'><img src='images/update.png' alt='Update Fingerprints &amp; OUI Prefixes' title='Update Fingerprints &amp; OUI Prefixes'></a> ";
 	       }
-               print "<a href=\"javascript:popUp('/exporter.php', '175', '1200')\"><img border=0 src='images/csv.png' alt='Download CSV of this data' title='Download CSV of this data'></a>";
+               print "<a href=\"javascript:popUp('/exporter.php?current_top=$current_top&amp;current_sub=$current_sub','175','1200')\"><img border=0 src='images/csv.png' alt='Download CSV of this data' title='Download CSV of this data'></a>";
             }
 	    if(isset($is_printable) && $is_printable){
                print "<a href='/printer.php?current_top=$current_top&amp;current_sub=$current_sub&amp;img_src=".urlencode($img_src)."' target=_NEW><img border=0 src='images/printer.png' alt='View a Printer Friendly Version' title='View a Printer Friendly Version'></a>";

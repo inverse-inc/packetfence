@@ -19,8 +19,10 @@ if($_POST){
 
   ## HEADERS ##
   foreach($my_table->headers as $header){
-    if($_POST[$header])
+    if($_POST[$header]) {
       $my_headers[]=$header;
+      $my_pretty_headers[]=pretty_header("$_POST[current_top]-$_POST[current_sub]",$header);
+    }
   }
 
 
@@ -34,7 +36,7 @@ if($_POST){
     $my_rows[]=$temp_row;
   }
 
-  $csv_output.=implode(",",$my_headers)."\n";
+  $csv_output.=implode(",",$my_pretty_headers)."\n";
 
   foreach($my_rows as $my_row)
     $csv_output.=implode(",",$my_row)."\n";
@@ -57,10 +59,11 @@ if($_POST){
 <div id=content>
 <h1>Select the fields you want to export</h1>
 <form action=exporter.php method=post>
+<input type="hidden" name="current_top" value="<? print $_GET[current_top] ?>">
+<input type="hidden" name="current_sub" value="<? print $_GET[current_sub] ?>">
 <table class=data_table>
   <tr>
 <?
-
 for($i=0; $i<count($my_table->headers); $i++){
   if($my_table->headers[$i]=="Edit")
     continue;
@@ -72,7 +75,7 @@ print "</tr><tr>\n";
 for($i=0; $i<count($my_table->headers); $i++){
   if($my_table->headers[$i]=="Edit")
     continue;
-  print "<td class=header align=center><b>".$my_table->headers[$i]."<b></td>\n";
+  print "<td class=header align=center><b>".pretty_header("$_GET[current_top]-$_GET[current_sub]", $my_table->headers[$i])."<b></td>\n";
 }
 
 print "</tr><tr class=data>\n";
