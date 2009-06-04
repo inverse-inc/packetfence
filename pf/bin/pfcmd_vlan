@@ -538,7 +538,7 @@ if (   ($getUpLinks)
 
 } elsif ($getLocation) {
 
-    if ($mac eq '') {
+    if (! defined($mac) || ($mac eq '')) {
        pod2usage("The MAC argument is necessary");
     }
     $logger->debug("start handling 'getLocation' command");
