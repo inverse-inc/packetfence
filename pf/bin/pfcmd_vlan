@@ -39,7 +39,6 @@ pfcmd_vlan command [options]
    -ifAdminStatus  	ifAdminStatus
    -ifIndex        	switch port ifIndex
    -mac            	MAC address
-   -showMACVendor  	show the MAC vendor
    -showPF         	show additional information available in PF
    -switch         	switch description
    -verbose        	log verbosity level
