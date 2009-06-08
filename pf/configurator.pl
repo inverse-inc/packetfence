@@ -323,6 +323,14 @@ sub configuration {
         gatherer( "Mode (arp|dhcp|vlan)",
             "network.mode", ( "arp", "dhcp", "vlan" ) );
     }
+
+    if ($cfg{network}{mode} eq 'vlan') {
+        print "Your isolation mode is " . $cfg{network}{mode}
+            . ". If you are interested in SNMP trap statistics"
+            . " please create the following crontab entry\n\n"
+            . "*/5 * * * * /usr/local/pf/bin/pfcmd traplog update\n";
+    }
+
     config_network( $cfg{network}{mode} );
 
 # ARP
