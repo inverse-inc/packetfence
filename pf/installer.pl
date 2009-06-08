@@ -556,6 +556,25 @@ if (questioner(
 }
 
 if (questioner(
+        "Do you want me to download the latest Emergingthreats rule files ?"
+        . " This is only necessary if you intent to use Snort.",
+        "y", ( "y", "n" )
+    )
+    )
+{
+    my @rule_files = (
+        'emerging-attack_response.rules',
+        'emerging-exploit.rules',
+        'emerging-p2p.rules',
+        'emerging-scan.rules',
+        'emerging-virus.rules'
+    );
+    foreach my $current_rule_file (@rule_files) {
+        `/usr/bin/wget -N http://www.emergingthreats.net/rules/$current_rule_file -P $conf_dir/snort`;
+    }
+}
+
+if (questioner(
         "Do you want me to update the DHCP fingerprints to the latest available version ?",
         "y",
         ( "y", "n" )

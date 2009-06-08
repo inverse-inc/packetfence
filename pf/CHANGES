@@ -1,4 +1,6 @@
 1.8.4
+        installer.pl asks to install Emerging Threats rule files
+          (http://www.packetfence.org/mantis/view.php?id=717)
 
 
 1.8.3
