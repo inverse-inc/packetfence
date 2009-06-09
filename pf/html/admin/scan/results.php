@@ -11,7 +11,7 @@ require_once('../common.php');
 $view_item_ok = false;
 if (isset($_GET['view_item'])) {
   $view_item = $_GET['view_item'];
-  if ((preg_match("/^dump_\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}([-\\\\]\d+)?_\d{4}-\d{2}-\d{2}-\d{2}:\d{2}:\d{2}$/", $view_item)) &&
+  if ((preg_match("/^dump_\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}([-\\\\]\d+)?_\d{4}-\d{2}-\d{2}-\d{2}:\d{2}:\d{2}(\.nbe)?$/", $view_item)) &&
       (is_readable("$current_sub/$view_item"))) {
     $view_item_ok = true;
   } else {
@@ -46,7 +46,7 @@ if (isset($_GET['action']) && $_GET['action']=="delete") {
 $files = array();
 $handle = opendir('results');
 while (false !== ($file = readdir($handle))) {
-  if (preg_match("/^dump.+(\d{4}-\d{2}-\d{2}-\d{2}:\d{2}:\d{2})$/", $file, $matches)){
+  if (preg_match("/^dump.+(\d{4}-\d{2}-\d{2}-\d{2}:\d{2}:\d{2})(\.nbe)?$/", $file, $matches)){
     $files[$matches[1]] = $file;
   }
 }
