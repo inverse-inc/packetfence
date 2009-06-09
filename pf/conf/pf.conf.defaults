@@ -33,6 +33,7 @@ caching=enabled
 # general.locale
 #
 # Locale used for message translation
+# more than 1 can be specified
 locale=en_US
 #
 # general.maintenance_interval

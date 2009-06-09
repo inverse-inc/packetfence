@@ -32,6 +32,9 @@ msgid  "help: provide info"
 msgstr "Si vous avez des questions par rapport &agrave; cette page, veuillez contacter votre &eacute;quipe informatique et leur fournir les informations suivantes: "
 
 
+msgid  "Register"
+msgstr "Enregistrer"
+
 msgid  "register: all systems must be registered"
 msgstr "Comme nous pourrions devoir contacter les usager des ordinateurs, tous les ordinateurs de ce r&eacute;seau doivent &ecirc;tre enregistr&eacute;s."
 

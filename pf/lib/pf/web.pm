@@ -41,9 +41,32 @@ use pf::util;
 use pf::iplog qw(ip2mac);
 use pf::node qw(node_view);
 
+sub web_get_locale {
+    my ($cgi,$session) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web');
+    my $authorized_locale_txt = $Config{'general'}{'locale'};
+    my @authorized_locale_array = split(/,/, $authorized_locale_txt);
+    if ( defined($cgi->url_param('lang')) ) {
+        $logger->info("url_param('lang') is " . $cgi->url_param('lang'));
+        my $user_chosen_language = $cgi->url_param('lang');
+        if (grep(/^$user_chosen_language$/, @authorized_locale_array) == 1) {
+            $logger->info("setting language to user chosen language "
+                 . $user_chosen_language);
+            $session->param("lang", $user_chosen_language);
+            return $user_chosen_language;
+        }
+    }
+    if ( defined($session->param("lang")) ) {
+        $logger->info("returning language " . $session->param("lang")
+            . " from session");
+        return $session->param("lang");
+    }
+    return $authorized_locale_array[0];
+}
+
 sub generate_release_page {
     my ( $cgi, $session, $destination_url ) = @_;
-    setlocale( LC_MESSAGES, $Config{'general'}{'locale'} );
+    setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
     my $vars = {
@@ -99,7 +122,7 @@ EOT
 
 sub generate_login_page {
     my ( $cgi, $session, $post_uri, $destination_url, $err ) = @_;
-    setlocale( LC_MESSAGES, $Config{'general'}{'locale'} );
+    setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
     my $vars = {
@@ -157,7 +180,7 @@ sub generate_login_page {
 
 sub generate_enabler_page {
     my ( $cgi, $session, $destination_url, $violation_id, $enable_text ) = @_;
-    setlocale( LC_MESSAGES, $Config{'general'}{'locale'} );
+    setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
     my $vars = {
@@ -186,7 +209,7 @@ sub generate_enabler_page {
 
 sub generate_redirect_page {
     my ( $cgi, $session, $violation_url, $destination_url ) = @_;
-    setlocale( LC_MESSAGES, $Config{'general'}{'locale'} );
+    setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
     my $vars = {
@@ -213,7 +236,7 @@ sub generate_redirect_page {
 
 sub generate_error_page {
     my ( $cgi, $session, $error_msg ) = @_;
-    setlocale( LC_MESSAGES, $Config{'general'}{'locale'} );
+    setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
     my $vars = {
@@ -270,7 +293,7 @@ sub generate_status_page {
             "error: access denied not owner" );
         exit(0);
     }
-    setlocale( LC_MESSAGES, $Config{'general'}{'locale'} );
+    setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
     my $ip   = $cgi->remote_addr;
@@ -395,7 +418,7 @@ sub web_user_authenticate {
 sub generate_registration_page {
     my ( $cgi, $session, $destination_url, $mac, $pagenumber ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
-    setlocale( LC_MESSAGES, $Config{'general'}{'locale'} );
+    setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
@@ -420,8 +443,21 @@ sub generate_registration_page {
         reg_page_content_file => "register_$pagenumber.html",
     };
 
+    # generate list of locales
+    my $authorized_locale_txt = $Config{'general'}{'locale'};
+    my @authorized_locale_array = split(/,/, $authorized_locale_txt);
+    if ( scalar(@authorized_locale_array) == 1 ) {
+        push @{ $vars->{list_locales} },
+            { name => 'locale', value => $authorized_locale_array[0] };
+    } else {
+        foreach my $authorized_locale (@authorized_locale_array) {
+            push @{ $vars->{list_locales} },
+                { name => 'locale', value => $authorized_locale };
+        }
+    }
+
     if ( $pagenumber == $Config{'registration'}{'nbregpages'} ) {
-        $vars->{'button_text'} = $Config{'registration'}{'button_text'};
+        $vars->{'button_text'} = gettext($Config{'registration'}{'button_text'});
         $vars->{'form_action'} = '/cgi-bin/register.cgi?mode=register';
     } else {
         $vars->{'button_text'} = ( int($pagenumber) + 1 ) . " / "
@@ -476,6 +512,8 @@ sub generate_registration_page {
         }
         close $include_fh;
     }
+    #my $cookie = $cgi->cookie( CGISESSID => $session->id );
+    #print $cgi->header( -cookie => $cookie );
     my $template = Template->new(
         { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
     $template->process( "register.html", $vars );
@@ -496,7 +534,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2008 Inverse inc.
+Copyright (C) 2008-2009 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

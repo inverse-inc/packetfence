@@ -1,3 +1,26 @@
+<script type="text/javascript">
+function reloadLanguage(languageCode) {
+    var currentRef = window.location.href;
+    if (window.location.search.length == 0) {
+        window.location.replace(currentRef + '?lang=' + languageCode);
+    } else {
+        if (window.location.search.indexOf('lang=') == -1) {
+            window.location.replace(currentRef + '&lang=' + languageCode);
+        } else {
+            window.location.replace(currentRef.replace(/lang=.{5}/, 'lang=' + languageCode));
+        }
+    }
+}
+</script>
+<p align="justify"><font face="Arial">
+[% IF list_locales.size > 1 %]
+[% FOREACH locale_info IN list_locales %]
+<a href="javascript:reloadLanguage('[% locale_info.value %]')">
+  [% locale_info.value %]
+</a>&nbsp;
+[% END %]
+[% END %]
+</p>
 <p align="justify"><font face="Arial">
 [% txt_all_systems_must_be_registered %]
 </p>
