@@ -7,6 +7,9 @@
         configurator.pl now shows default and current configuration
           when upgrading existing configuration
           (http://www.packetfence.org/mantis/view.php?id=718)
+        fixed Config::Inifiles compatibility issue in
+          configurator.pl
+          (http://www.packetfence.org/mantis/view.php?id=721)
 
 
 1.8.3

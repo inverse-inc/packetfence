@@ -259,7 +259,13 @@ sub gatherer {
             chop $response;
             if ( $response =~ /^\?$/ ) {
                 if ( defined $doc{$param} ) {
-                    print "Detail: @{$doc{$param}{description}}\n";
+                    if (ref($doc{$param}{description}) eq "ARRAY") {
+                        print "Detail: "
+                           . join( "\n", @{$doc{$param}{description}} );
+                    } else {
+                        print "Detail: " . $doc{$param}{description};
+                    }
+                    print "\n";
                 } else {
                     print "Sorry no further details, take a guess\n";
                 }
