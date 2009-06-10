@@ -12,6 +12,9 @@
           (http://www.packetfence.org/mantis/view.php?id=721)
         enhanced presentation in more_info.php
           (http://www.packetfence.org/mantis/view.php?id=722)
+        added check that documentation.conf and pf.conf.defaults 
+          contain same set of options
+          (http://www.packetfence.org/mantis/view.php?id=723)
 
 
 1.8.3

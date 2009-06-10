@@ -12,6 +12,7 @@ runtests( qw(
               SNMP.t 
               SwitchFactory.t
               binaries.t
+              config.t
               critic.t
               pod.t
               podCoverage.t
