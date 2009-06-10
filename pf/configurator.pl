@@ -260,10 +260,10 @@ sub gatherer {
             if ( $response =~ /^\?$/ ) {
                 if ( defined $doc{$param} ) {
                     if (ref($doc{$param}{description}) eq "ARRAY") {
-                        print "Detail: "
+                        print "Detail:\n"
                            . join( "\n", @{$doc{$param}{description}} );
                     } else {
-                        print "Detail: " . $doc{$param}{description};
+                        print "Detail:\n" . $doc{$param}{description};
                     }
                     print "\n";
                 } else {
