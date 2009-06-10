@@ -1148,6 +1148,7 @@ sub schedule {
                 $logger->warn("unable to open $outfileName for reading; Nessus scan might have failed");
                 return 1;
             }
+            chmod 0644, $outfileName;
             require Parse::Nessus::NBE;
             open( $infile_fh, '<', $outfileName);
             my @nessusdata = <$infile_fh>;

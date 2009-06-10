@@ -50,16 +50,8 @@ if(isset($_REQUEST[action]) && $_REQUEST[action]=='add'){
     $no_hosts=true;
   }
 
-  ## VULNS ##
-  $all_on=true;
-  foreach($vulns_ar as $vuln){   
-    if($_POST['tid' . $vuln['tid']]=="on")
-      $tids[]=$vuln['tid'];
-    else
-      $all_on=false;
-  }
-
-  $tids=join(";", $tids);
+  ## SCAN TYPE
+  $tid = $_POST[tid];
 
   ## TIME ##
   if($_POST[scan_freq]=="now") 
@@ -85,8 +77,8 @@ if(isset($_REQUEST[action]) && $_REQUEST[action]=='add'){
     }
   }
 
-  if(!$tids)
-    $errors[]="No vulnerabilities have been selected<br>";
+  if(!$tid)
+    $errors[]="No scan type has been selected<br>";
   if(!$date)
     $errors[]="No scan time has been selected<br>";
   if(isset($no_hosts))
@@ -102,9 +94,9 @@ if(isset($_REQUEST[action]) && $_REQUEST[action]=='add'){
   }
   else{
     if($date=="now") {
-      PFCMD("schedule now $valid_hosts tid=$tids");
+      PFCMD("schedule now $valid_hosts tid=$tid");
     } else {
-      PFCMD("schedule add $valid_hosts date=\"$date\",tid=$tids");
+      PFCMD("schedule add $valid_hosts date=\"$date\",tid=$tid");
     }
     $my_table->refresh();
   }
@@ -128,26 +120,20 @@ if(isset($_REQUEST[action]) && $_REQUEST[action]=='add'){
       <td></td><td><input type=text size=20 name=host></td> 
     </tr>
     <tr class=title>
-      <td><br><b><u>Scan For</u></b></td>
+      <td><br><b><u>Scan Using</u></b></td>
     </tr>
     <tr>
-      <td></td>
+      <td>&nbsp;</td>
       <td>
         <table>
-          <?
-	    for($i=0; $i<count($vulns_ar); $i++){
-	      if($i % 3 == 0) {
-                if ($i!=0 ) {
-                  print "</tr>";
-                }
-                print "<tr>";
-              }
-              echo "        <td><input type=\"checkbox\" name=\"tid{$vulns_ar[$i]['tid']}\" checked>";
-              echo "{$vulns_ar[$i]['desc']} (";
-              echo "<a href=\"http://www.nessus.org/plugins/index.php?view=single&id={$vulns_ar[$i]['tid']}\" target=\"_blank\">";
-              echo "{$vulns_ar[$i]['tid']}</a>)</td>\n";
-	    }
-          ?>
+        <tr>
+          <td><input type="radio" name="tid" value="all" checked></td>
+          <td>Net::Nessus::Scanlite</td>
+        </tr>
+        <tr>
+          <td><input type="radio" name="tid" value="99999"></td>
+          <td>NessusClient</td>
+        </tr>
         </table>
       </td>
     </tr>
