@@ -292,6 +292,7 @@ fi
 %dir /usr/local/pf/t
 %attr(0755, pf, pf) /usr/local/pf/t/all.t
 %attr(0755, pf, pf) /usr/local/pf/t/binaries.t
+%attr(0755, pf, pf) /usr/local/pf/t/config.t
 %attr(0755, pf, pf) /usr/local/pf/t/critic.t
 %attr(0755, pf, pf) /usr/local/pf/t/person.t
 %attr(0755, pf, pf) /usr/local/pf/t/pfcmd.t
