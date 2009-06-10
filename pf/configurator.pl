@@ -93,9 +93,6 @@ if ( -e "$conf_dir/pf.conf" ) {
         );
 
 } else {
-    tie %default_cfg, 'Config::IniFiles',
-        ( -file => "$conf_dir/pf.conf.defaults" )
-        or die "Unable to open default configuration file: $!\n";
     print "No existing configuration found\n";
     tie %cfg, 'Config::IniFiles', ( -import => tied(%default_cfg) );
     tied(%cfg)->SetFileName("$conf_dir/pf.conf");
@@ -241,14 +238,21 @@ sub gatherer {
     my $section = $1;
     my $element = $2;
     do {
-        $default = $cfg{$section}{$element}
+        $default = $default_cfg{$section}{$element}
             if ( defined($section) && defined($element) );
         $default = '<NONE>' if ( !$default );
+        my $current = $cfg{$section}{$element}
+            if ( defined($section) && defined($element) );
+        $current = undef if (defined($current) && ($current eq $default));
         do {
+            print "$query (";
+            if (defined($current)) {
+                print "current: $current, ";
+            }
             if ( @choices < 1 ) {
-                print "$query (default: $default [?]): ";
+                print "default: $default [?]): ";
             } else {
-                print "$query (default: $default) " . "["
+                print "default: $default) " . "["
                     . join( "|", @choices ) . "|?]: ";
             }
             $response = <STDIN>;
@@ -260,8 +264,14 @@ sub gatherer {
                     print "Sorry no further details, take a guess\n";
                 }
             }
-            $response = $default if ( !$response );
-            } while ( @choices
+            if ( !$response ) {
+                if (defined($current)) {
+                    $response = $current;
+                } else {
+                    $response = $default;
+                }
+            }
+        } while ( @choices
             && ( $response && !grep( {/^$response$/} @choices ) )
             || $response =~ /^\?$/ );
     } while ( !confirm($response) );

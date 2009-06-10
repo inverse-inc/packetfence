@@ -4,6 +4,9 @@
         allowed to specify several languages for user registration
         Nessus scan nbe files are not shown in the web admin GUI
           (http://www.packetfence.org/mantis/view.php?id=720)
+        configurator.pl now shows default and current configuration
+          when upgrading existing configuration
+          (http://www.packetfence.org/mantis/view.php?id=718)
 
 
 1.8.3
