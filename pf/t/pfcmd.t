@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 35;
+use Test::More tests => 67;
 use Log::Log4perl;
 use File::Basename qw(basename);
 use lib '/usr/local/pf/lib';
@@ -220,3 +220,18 @@ is_deeply(\%cmd,
           { 'command' => [ 'violationconfig', 'get', 'all' ] },
           'pfcmd violationconfig get all');
 
+
+# test command line help
+my @output = `/usr/local/pf/bin/pfcmd help 2>&1`;
+my @main_args;
+foreach my $line (@output) {
+    if ($line =~ /^([^ ]+) +\|/) {
+        push @main_args, $1;
+    }
+}
+
+foreach my $help_arg (@main_args) {
+    my @output = `/usr/local/pf/bin/pfcmd help $help_arg 2>&1`;
+    like ( $output[0], qr/^Usage: pfcmd $help_arg/,
+         "pfcmd $help_arg is documented" );
+}
