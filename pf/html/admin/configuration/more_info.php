@@ -22,9 +22,15 @@ if(!preg_match("/\!|\@|\#|\$|\%|\^|\&|\*|\:|\;|\"\|\'/", $_GET['option']))
 
 $lines=PFCMD("config help {$_GET['option']}");
 
-$title=array_shift($lines);
-$default=array_shift($lines);
-$message=implode(" ", $lines);
+$title=htmlspecialchars(array_shift($lines));
+$default=htmlspecialchars(array_shift($lines));
+$message='';
+foreach ($lines as $line) {
+    if ($message != '') {
+        $message .= "<br>\n";
+    }
+    $message .= htmlspecialchars($line);
+}
 
 print "<h1>$title</h1>\n";
 print "<p>$default</p>\n";

@@ -10,6 +10,8 @@
         fixed Config::Inifiles compatibility issue in
           configurator.pl
           (http://www.packetfence.org/mantis/view.php?id=721)
+        enhanced presentation in more_info.php
+          (http://www.packetfence.org/mantis/view.php?id=722)
 
 
 1.8.3
