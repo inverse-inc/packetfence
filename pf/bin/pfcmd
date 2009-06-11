@@ -44,7 +44,7 @@ if ( defined( $ENV{'PATH'} ) ) {
     }
     if ( $pos < scalar(@PATH) ) {
         my $enforcing = `$PATH[$pos]/getenforce`;
-        if ( $enforcing eq 'Enforcing' ) {
+        if ( $enforcing eq "Enforcing\n" ) {
             $logger->fatal(
                 'SELinux is in enforcing mode. This is currently not supported in PacketFence'
             );
