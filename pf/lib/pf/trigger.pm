@@ -326,7 +326,8 @@ sub trigger_scan_add {
         }
         foreach my $row (@trigger_info) {
             my $vid = $row->{'vid'};
-            violation_add( $srcmac, $vid );
+            #violation_add( $srcmac, $vid );
+            `/usr/local/pf/bin/pfcmd violation add vid=$vid,mac=$srcmac`;
         }
     } else {
         $logger->warn( "NOT ADDING Trigger - $tid for $srcmac ("

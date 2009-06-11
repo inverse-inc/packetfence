@@ -19,6 +19,8 @@
           (http://www.packetfence.org/mantis/view.php?id=724)
         fixed check for SELinux enforcing mode
           (http://www.packetfence.org/mantis/view.php?id=725)
+        fixed schedule now and VLAN isolation integration
+          (http://www.packetfence.org/mantis/view.php?id=726)
 
 
 1.8.3
