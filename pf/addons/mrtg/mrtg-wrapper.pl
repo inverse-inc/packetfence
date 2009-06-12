@@ -72,7 +72,7 @@ if ($report eq "registration") {
   print get_total("report inactive")."\n";
 } elsif ($report eq "violations") {
   print get_total("report openviolations active")."\n";
-  print get_total("report openviolations active")."\n";
+  print get_total("report openviolations all")."\n";
 }
 print "NONE\n";
 print $pf_host."\n";
