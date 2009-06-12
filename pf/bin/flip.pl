@@ -4,6 +4,10 @@
 
 flip.pl - send local SNMP traps in order to flip a VLAN assignment
 
+=head1 SYNOPSIS
+
+flip.pl <MAC>
+
 =cut
 
 use strict;
