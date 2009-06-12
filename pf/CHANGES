@@ -25,6 +25,8 @@
           (http://www.packetfence.org/mantis/view.php?id=727)
         fixed violation report in mrtg_wrapper.pl
           (http://www.packetfence.org/mantis/view.php?id=729)
+        fixed missing header line for openviolations report
+          (http://www.packetfence.org/mantis/view.php?id=728)
 
 
 1.8.3
