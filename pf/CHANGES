@@ -21,6 +21,8 @@
           (http://www.packetfence.org/mantis/view.php?id=725)
         fixed schedule now and VLAN isolation integration
           (http://www.packetfence.org/mantis/view.php?id=726)
+        fixed logfile name in monitorpfsetvlan.pl
+          (http://www.packetfence.org/mantis/view.php?id=727)
 
 
 1.8.3

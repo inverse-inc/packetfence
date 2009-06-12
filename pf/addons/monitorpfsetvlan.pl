@@ -25,7 +25,7 @@ use Data::Dumper;
 
 use constant {
     SNMPLOG_FILE => $FindBin::Bin . "/../logs/snmptrapd.log",
-    LOG_FILE     => $FindBin::Bin . "/../logs/pfsetvlan.log",
+    LOG_FILE     => $FindBin::Bin . "/../logs/packetfence.log",
 };
 
 print "SNMP : " . SNMPLOG_FILE . "\n";
@@ -119,7 +119,7 @@ sub monitorConcurrency {
                     #                    print time() . "\n";
                     my $trapAge = time() - $trapsReceivedSNMP{$trap};
                     print
-                        "cannot find trap $trap, $trapAge seconds old, in pfsetvlan\n";
+                        "cannot find trap $trap, $trapAge seconds old, in packetfence.log\n";
                     if ( $trapAge > 120 ) {
                         print
                             "pfsetvlan does not seem to respond any more.\n";
