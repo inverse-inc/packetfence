@@ -4,6 +4,10 @@
 
 pfcmd_ap.pl - determine correct VLAN for node
 
+=head1 SYNOPSYS
+
+pfcmd_ap.pl <switch_ip> <MAC> <IS_EAP>
+
 =head1 DESCRIPTION
 
 pfcmd_ap.pl is called from rlm_perl_packetfence and should return
