@@ -27,6 +27,8 @@
           (http://www.packetfence.org/mantis/view.php?id=729)
         fixed missing header line for openviolations report
           (http://www.packetfence.org/mantis/view.php?id=728)
+        removed invalid reports from conf/ui.conf
+          (http://www.packetfence.org/mantis/view.php?id=730)
 
 
 1.8.3
