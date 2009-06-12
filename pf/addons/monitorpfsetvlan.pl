@@ -1,5 +1,15 @@
 #!/usr/bin/perl -w
 
+=head1 NAME
+
+monitorpfsetvlan.pl - check if pfsetvlan is in sync with traps
+
+=head1 SYNOPSYS
+
+monitorpfsetvlan.pl
+
+=cut
+
 use strict;
 use warnings;
 use diagnostics;
