@@ -52,6 +52,7 @@ BEGIN { use_ok('pf::SNMP::ThreeCom') }
 BEGIN { use_ok('pf::SNMP::ThreeCom::NJ220') }
 BEGIN { use_ok('pf::SNMP::ThreeCom::SS4200') }
 BEGIN { use_ok('pf::SNMP::ThreeCom::SS4500') }
+BEGIN { use_ok('pf::SNMP::ThreeCom::Switch_4200G') }
 
 my @SNMPobjects = qw(
     pf::SNMP
@@ -99,6 +100,7 @@ my @SNMPobjects = qw(
     pf::SNMP::ThreeCom::NJ220
     pf::SNMP::ThreeCom::SS4200
     pf::SNMP::ThreeCom::SS4500
+    pf::SNMP::ThreeCom::Switch_4200G
 );
 
 foreach my $obj_name (@SNMPobjects) {

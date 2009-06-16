@@ -89,6 +89,7 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP/ThreeCom.pm',
     '/usr/local/pf/lib/pf/SNMP/ThreeCom/SS4200.pm',
     '/usr/local/pf/lib/pf/SNMP/ThreeCom/SS4500.pm',
+    '/usr/local/pf/lib/pf/SNMP/ThreeCom/Switch_4200G.pm',
     '/usr/local/pf/lib/pf/SwitchFactory.pm',
     '/usr/local/pf/lib/pf/switchlocation.pm',
     '/usr/local/pf/lib/pf/traplog.pm',
