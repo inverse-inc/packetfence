@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 100;
+use Test::More tests => 102;
 
 my @files = (
     '/usr/local/pf/configurator.pl',

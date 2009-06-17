@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Perl::Critic;
-use Test::More tests => 88;
+use Test::More tests => 90;
 
 my @files = (
     '/usr/local/pf/addons/accounting.pl',
