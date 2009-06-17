@@ -62,6 +62,7 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP/Dell.pm',
     '/usr/local/pf/lib/pf/SNMP/Dell/PowerConnect3424.pm',
     '/usr/local/pf/lib/pf/SNMP/Dlink/DES_3526.pm',
+    '/usr/local/pf/lib/pf/SNMP/Dlink/DWS_3026.pm',
     '/usr/local/pf/lib/pf/SNMP/Dlink.pm',
     '/usr/local/pf/lib/pf/SNMP/Enterasys.pm',
     '/usr/local/pf/lib/pf/SNMP/Enterasys/SecureStack_C2.pm',

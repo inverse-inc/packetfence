@@ -28,6 +28,7 @@ BEGIN { use_ok('pf::SNMP::Dell') }
 BEGIN { use_ok('pf::SNMP::Dell::PowerConnect3424') }
 BEGIN { use_ok('pf::SNMP::Dlink') }
 BEGIN { use_ok('pf::SNMP::Dlink::DES_3526') }
+BEGIN { use_ok('pf::SNMP::Dlink::DWS_3026') }
 BEGIN { use_ok('pf::SNMP::Enterasys') }
 BEGIN { use_ok('pf::SNMP::Enterasys::SecureStack_C2') }
 BEGIN { use_ok('pf::SNMP::HP') }
@@ -76,6 +77,7 @@ my @SNMPobjects = qw(
     pf::SNMP::Dell::PowerConnect3424
     pf::SNMP::Dlink
     pf::SNMP::Dlink::DES_3526
+    pf::SNMP::Dlink::DWS_3026
     pf::SNMP::Enterasys
     pf::SNMP::Enterasys::SecureStack_C2
     pf::SNMP::HP

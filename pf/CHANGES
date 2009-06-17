@@ -32,7 +32,7 @@
         added trace log level to pfcmd_vlan
           (http://www.packetfence.org/mantis/view.php?id=733)
         added support for 3COM 4200G switch
-
+        added support for Dlink DWS 3026 Wireless controler
 
 1.8.3
         fixed issue between connect_and_read.pl and
