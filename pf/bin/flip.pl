@@ -14,7 +14,6 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Net::SNMP;
 use Log::Log4perl;
 use File::Basename qw(basename);
 

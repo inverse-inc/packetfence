@@ -35,6 +35,8 @@
         added support for Dlink DWS 3026 Wireless controler
         added Dlink DES 3526 to web admin GUI
           (http://www.packetfence.org/mantis/view.php?id=737)
+        removed Net::SNMP inclusion from bin/flip.pl
+          (http://www.packetfence.org/mantis/view.php?id=736)
 
 1.8.3
         fixed issue between connect_and_read.pl and
