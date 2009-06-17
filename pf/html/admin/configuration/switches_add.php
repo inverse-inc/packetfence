@@ -82,6 +82,7 @@
                          'Cisco::Controller_4400_42_130' => 'Cisco Controller 4400', 
                          'Cisco::WLC_2106' => 'Cisco WLC 2106', 
                          'Dell::PowerConnect3424' => 'Dell PowerConnect 3424', 
+                         'Dlink::DES_3526' => 'D-Link DES 3526',
                          'Dlink::DWS_3026' => 'D-Link DWS 3026',
                          'Enterasys::SecureStack_C2' => 'Enterasys SecureStack C2', 
                          'HP::Procurve_2500' => 'HP Procurve 2500', 
