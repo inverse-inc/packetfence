@@ -37,6 +37,7 @@
           (http://www.packetfence.org/mantis/view.php?id=737)
         removed Net::SNMP inclusion from bin/flip.pl
           (http://www.packetfence.org/mantis/view.php?id=736)
+        added support for Foundry FastIron 4802 switch
 
 1.8.3
         fixed issue between connect_and_read.pl and

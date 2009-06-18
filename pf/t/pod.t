@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 102;
+use Test::More tests => 104;
 
 my @files = (
     '/usr/local/pf/configurator.pl',
@@ -71,6 +71,8 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP/Dlink.pm',
     '/usr/local/pf/lib/pf/SNMP/Enterasys.pm',
     '/usr/local/pf/lib/pf/SNMP/Enterasys/SecureStack_C2.pm',
+    '/usr/local/pf/lib/pf/SNMP/Foundry.pm',
+    '/usr/local/pf/lib/pf/SNMP/Foundry/FastIron_4802.pm',
     '/usr/local/pf/lib/pf/SNMP/HP.pm',
     '/usr/local/pf/lib/pf/SNMP/HP/Procurve_2500.pm',
     '/usr/local/pf/lib/pf/SNMP/HP/Procurve_2600.pm',

@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Perl::Critic;
-use Test::More tests => 90;
+use Test::More tests => 92;
 
 my @files = (
     '/usr/local/pf/addons/accounting.pl',
@@ -66,6 +66,8 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP/Dlink.pm',
     '/usr/local/pf/lib/pf/SNMP/Enterasys.pm',
     '/usr/local/pf/lib/pf/SNMP/Enterasys/SecureStack_C2.pm',
+    '/usr/local/pf/lib/pf/SNMP/Foundry.pm',
+    '/usr/local/pf/lib/pf/SNMP/Foundry/FastIron_4802.pm',
     '/usr/local/pf/lib/pf/SNMP/HP.pm',
     '/usr/local/pf/lib/pf/SNMP/HP/Procurve_2500.pm',
     '/usr/local/pf/lib/pf/SNMP/HP/Procurve_2600.pm',

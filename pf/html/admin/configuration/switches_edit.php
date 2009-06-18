@@ -81,6 +81,7 @@
                          'Dlink::DES_3526' => 'D-Link DES 3526',
                          'Dlink::DWS_3026' => 'D-Link DWS 3026',
                          'Enterasys::SecureStack_C2' => 'Enterasys SecureStack C2', 
+                         'Foundry::FastIron_4802' => 'Foundry FastIron 4802',
                          'HP::Procurve_2500' => 'HP Procurve 2500', 
                          'HP::Procurve_2600' => 'HP Procurve 2600', 
                          'HP::Procurve4100' => 'HP Procurve 4100',
