@@ -53,6 +53,11 @@ sub parseTrap {
     {
         $trapHashRef->{'trapType'} = ( ( $1 == 3 ) ? "down" : "up" );
         $trapHashRef->{'trapIfIndex'} = $2;
+    } elsif ( $trapString =~ /\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.1991\.0\.77\|\.1\.3\.6\.1\.4\.1\.1991\.1\.1\.2\.1\.44\.0 = STRING: "Security: Port security violation at interface ethernet (\d+), address ([0-9A-Fa-f]{2})([0-9A-Fa-z]{2})\.([0-9A-Fa-f]{2})([0-9A-Fa-z]{2})\.([0-9A-Fa-f]{2})([0-9A-Fa-z]{2}), vlan (\d+)/ ) {
+        $trapHashRef->{'trapType'} = 'secureMacAddrViolation';
+        $trapHashRef->{'trapIfIndex'} = $1;
+        $trapHashRef->{'trapMac'} = lc("$2:$3:$4:$5:$6:$7");
+        $trapHashRef->{'trapVlan'} = $8;
     } else {
         $logger->debug("trap currently not handled");
         $trapHashRef->{'trapType'} = 'unknown';
