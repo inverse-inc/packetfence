@@ -185,6 +185,14 @@ sub _setVlan {
         return 0;
     }
 
+    my $currentMAC = undef;
+    if ($this->isPortSecurityEnabled($ifIndex)) {
+        my @MACs = $this->_getMacAtIfIndex($ifIndex);
+        if (scalar(@MACs) == 1) {
+            $currentMAC = $MACs[0];
+        }
+    }
+
     $logger->trace("SNMP set_request for Pvid for new VLAN");
     $result = $this->{_sessionWrite}->set_request(    #SNMP SET
         -varbindlist => [
@@ -200,6 +208,10 @@ sub _setVlan {
     if ( !defined($result) ) {
         $logger->error(
             "error setting Pvid: " . $this->{_sessionWrite}->error );
+    } else {
+        if (defined( $currentMAC )) {
+            $this->authorizeMAC($ifIndex,0,$currentMAC,$newVlan,$newVlan);
+        }
     }
 
     return ( defined($result) );
@@ -239,7 +251,7 @@ sub isPortSecurityEnabled {
             && ( $result->{"$OID_h3cSecureIntrusionAction.$ifIndex"} == 6 ) );
 }
 
-sub authorizeMac {
+sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
     my $logger  = Log::Log4perl::get_logger( ref($this) );
     my $session = undef;
@@ -254,7 +266,7 @@ sub authorizeMac {
     eval {
         $session = new Net::Telnet( Host => $this->{_ip}, Timeout => 20 );
 
-        #$session->dump_log();
+        #$session->input_log('/tmp/test.txt');
         $session->waitfor('/Username:/');
         $session->print( $this->{_cliUser} );
         $session->waitfor('/Password:/');
@@ -274,13 +286,19 @@ sub authorizeMac {
             = substr( $deauthMac, 0, 4 ) . '-'
             . substr( $deauthMac, 4, 4 ) . '-'
             . substr( $deauthMac, 8, 4 );
+        $logger->trace("system-view");
         $session->print("system-view");
         $session->waitfor('/\]/');
+        $logger->trace("interface $ifDesc");
         $session->print("interface $ifDesc");
         $session->waitfor('/\]/');
+        $logger->trace("undo mac-address static $deauthMac vlan $deauthVlan");
         $session->print(
             "undo mac-address static $deauthMac vlan $deauthVlan");
         $session->waitfor('/\]/');
+        $logger->trace("return");
+        $session->print("return");
+        $session->waitfor('/>/');
     }
     if ($authMac) {
         $authMac =~ s/://g;
@@ -288,17 +306,22 @@ sub authorizeMac {
             = substr( $authMac, 0, 4 ) . '-'
             . substr( $authMac, 4, 4 ) . '-'
             . substr( $authMac, 8, 4 );
+        $logger->trace("system-view");
         $session->print("system-view");
         $session->waitfor('/\]/');
+        $logger->trace("interface $ifDesc");
         $session->print("interface $ifDesc");
         $session->waitfor('/\]/');
+        $logger->trace("mac-address static $authMac vlan $deauthVlan");
         $session->print("mac-address static $authMac vlan $deauthVlan");
         $session->waitfor('/\]/');
+        $logger->trace("return");
+        $session->print("return");
+        $session->waitfor('/>/');
     }
 
     $session->close();
     return 1;
-
 }
 
 =head1 BUGS AND LIMITATIONS
@@ -318,7 +341,7 @@ Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008 Inverse inc.
+Copyright (C) 2006-2009 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
