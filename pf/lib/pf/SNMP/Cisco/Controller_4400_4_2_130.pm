@@ -72,9 +72,9 @@ sub blacklistMac {
                 Prompt  => '/[\$%#>]$/'
             );
             $session->waitfor('/User: /');
-            $session->put( $this->{_telnetUser} . "\n" );
+            $session->put( $this->{_cliUser} . "\n" );
             $session->waitfor('/Password:/');
-            $session->put( $this->{_telnetPwd} . "\n" );
+            $session->put( $this->{_cliPwd} . "\n" );
             $session->waitfor( $session->prompt );
         };
 

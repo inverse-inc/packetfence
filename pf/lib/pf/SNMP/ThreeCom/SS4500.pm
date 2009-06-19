@@ -256,9 +256,9 @@ sub authorizeMac {
 
         #$session->dump_log();
         $session->waitfor('/Username:/');
-        $session->print( $this->{_telnetUser} );
+        $session->print( $this->{_cliUser} );
         $session->waitfor('/Password:/');
-        $session->print( $this->{_telnetPwd} );
+        $session->print( $this->{_cliPwd} );
         $session->waitfor('/>/');
     };
     if ($@) {

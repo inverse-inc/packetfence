@@ -40,6 +40,8 @@
         added support for Foundry FastIron 4802 switch
         added missing use Net::Telnet to SS4500.pm
           (http://www.packetfence.org/mantis/view.php?id=742)
+        fixed usage of _telnet variables
+          (http://www.packetfence.org/mantis/view.php?id=741)
 
 1.8.3
         fixed issue between connect_and_read.pl and

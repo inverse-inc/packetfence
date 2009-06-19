@@ -61,7 +61,7 @@ sub deauthenticateMac {
         return 1;
     }
 
-    #if (! $session->enable($this->{_telnetEnablePwd})) {
+    #if (! $session->enable($this->{_cliEnablePwd})) {
     #    $logger->error("ERROR: Can not 'enable' telnet connection");
     #    return 1;
     #}
