@@ -17,6 +17,7 @@ use warnings;
 use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
+use Net::Telnet;
 use base ('pf::SNMP::ThreeCom');
 
 sub getVersion {
