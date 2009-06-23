@@ -80,7 +80,7 @@
                          'Enterasys::SecureStack_C2' => 'Enterasys SecureStack C2', 
                          'HP::Procurve_2500' => 'HP Procurve 2500', 
                          'HP::Procurve_2600' => 'HP Procurve 2600', 
-                         'HP::Procurve4100' => 'HP Procurve 4100',
+                         'HP::Procurve_4100' => 'HP Procurve 4100',
                          'Intel::Express_460' => 'Intel Express 460',
                          'Intel::Express_530' => 'Intel Express 530',
                          'Linksys::SRW224G4' => 'Linksys SRW224G4',
