@@ -472,32 +472,32 @@ sub getSecureMacAddresses {
     return $secureMacAddrHashRef;
 }
 
-sub getAllSecureMacAddresses {
-    my ($this)               = @_;
-    my $logger               = Log::Log4perl::get_logger( ref($this) );
-    my $secureMacAddrHashRef = {};
-    my %ifNameIfIndexHash    = $this->getIfNameIfIndexHash();
-    my $telnetConnection     = $this->connectTelnet();
-    if ( !$telnetConnection ) {
-        return $secureMacAddrHashRef;
-    }
-
-    my @lines = $telnetConnection->cmd("show bridge address-table static");
-    foreach my $line (@lines) {
-        if ( $line
-            =~ /(\d+)\s+([0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2})\s+([eg]\d+)\s+secure/
-            )
-        {
-            my $vlan    = $1;
-            my $mac     = $2;
-            my $ifName  = $3;
-            my $ifIndex = $ifNameIfIndexHash{$ifName};
-            push @{ $secureMacAddrHashRef->{$mac}->{$ifIndex} }, $vlan;
-        }
-    }
-    $telnetConnection->close();
-    return $secureMacAddrHashRef;
-}
+#sub getAllSecureMacAddresses {
+#    my ($this)               = @_;
+#    my $logger               = Log::Log4perl::get_logger( ref($this) );
+#    my $secureMacAddrHashRef = {};
+#    my %ifNameIfIndexHash    = $this->getIfNameIfIndexHash();
+#    my $telnetConnection     = $this->connectTelnet();
+#    if ( !$telnetConnection ) {
+#        return $secureMacAddrHashRef;
+#    }
+#
+#    my @lines = $telnetConnection->cmd("show bridge address-table static");
+#    foreach my $line (@lines) {
+#        if ( $line
+#            =~ /(\d+)\s+([0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2})\s+([eg]\d+)\s+secure/
+#            )
+#        {
+#            my $vlan    = $1;
+#            my $mac     = $2;
+#            my $ifName  = $3;
+#            my $ifIndex = $ifNameIfIndexHash{$ifName};
+#            push @{ $secureMacAddrHashRef->{$mac}->{$ifIndex} }, $vlan;
+#        }
+#    }
+#    $telnetConnection->close();
+#    return $secureMacAddrHashRef;
+#}
 
 sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
