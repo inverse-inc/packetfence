@@ -1,0 +1,6 @@
+pf/logs
+pf/html/admin/tmp/jpgraph_cache/
+pf/var/.*\.pid
+pf/var/session/.*
+pf/var/ssl_scache.dir
+pf/var/ssl_scache.pag
