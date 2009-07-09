@@ -33,7 +33,7 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT
-        = qw(generate_release_page generate_login_page generate_enabler_page generate_redirect_page generate_error_page generate_status_page generate_registration_page web_node_register web_user_authenticate);
+        = qw(generate_release_page generate_login_page generate_enabler_page generate_redirect_page generate_error_page generate_status_page generate_registration_page web_node_register sub web_node_record_user_agent web_user_authenticate);
 }
 
 use pf::config;
@@ -368,6 +368,16 @@ sub web_node_register {
     $logger->info(
         "calling $bin_dir/pfcmd 'manage register $mac \"$pid\" $info'");
     my $cmd    = $bin_dir . "/pfcmd 'manage register $mac \"$pid\" $info'";
+    my $output = qx/$cmd/;
+    return 1;
+}
+
+sub web_node_record_user_agent {
+    my ( $mac, $user_agent ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web');
+    
+    $logger->info("calling $bin_dir/pfcmd 'node edit $mac user_agent=\"$user_agent\"'");
+    my $cmd    = $bin_dir . "/pfcmd 'node edit $mac user_agent=\"$user_agent\"'";
     my $output = qx/$cmd/;
     return 1;
 }

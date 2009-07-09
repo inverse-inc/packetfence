@@ -44,6 +44,9 @@ if (!valid_mac($mac)) {
 }
 $logger->info("$mac being redirected");
 
+# recording user agent for this mac in node table
+web_node_record_user_agent($mac,$cgi->user_agent);
+
 # registration auth request?
 if (defined($cgi->param('mode')) && $cgi->param('auth')) {
  my $type=$cgi->param('auth');
