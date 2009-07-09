@@ -5,6 +5,8 @@
 # /usr/bin/perl -w -e 'use strict; use warnings; use diagnostics; use Parse::RecDescent; use lib "./lib"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile($grammar, "pfcmd_pregrammar");'
 # then put the resulting pfcmd_pregrammar.pm file in /usr/local/pf/lib/pf/pfcmd/.
 #
+# For more information about the grammar syntax: http://search.cpan.org/~dconway/Parse-RecDescent-1.96.0/lib/Parse/RecDescent.pm#DESCRIPTION
+#
 use strict;
 use warnings;
 use Log::Log4perl;
