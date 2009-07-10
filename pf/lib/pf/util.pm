@@ -32,7 +32,7 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT
-        = qw(valid_date valid_ip clean_mac valid_mac whitelisted_mac trappable_mac trappable_ip reggable_ip
+        = qw(valid_date valid_ip clean_mac valid_mac get_decimal_oui_from_mac whitelisted_mac trappable_mac trappable_ip reggable_ip
         inrange_ip ip2gateway ip2interface ip2device isinternal pfmailer isenabled
         isdisabled getlocalmac ip2int int2ip get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_internal_ips
         get_internal_devs get_internal_devs_phy get_external_devs get_managed_devs get_internal_macs
@@ -110,6 +110,24 @@ sub valid_mac {
     } else {
         return (1);
     }
+}
+
+#
+# Extract the OUI (Organizational Unique Identifier) from a MAC address then
+# converts it into a decimal value. This is meant to be used to generate mac
+# address violations.
+# in: mac address (xx:xx:xx:xx:xx)
+# out: an int
+#
+sub get_decimal_oui_from_mac {
+    my ($mac) = @_;
+
+    return (0) if ( !valid_mac($mac) );
+    $mac = clean_mac($mac);
+
+    my $oui = substr($mac, 0, 8);
+    $oui =~ s/://g;
+    return hex($oui);
 }
 
 sub whitelisted_mac {

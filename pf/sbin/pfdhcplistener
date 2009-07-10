@@ -180,6 +180,11 @@ sub listen_dhcp {
         return;
     }
 
+    # Is there a violation trigger on this MAC vendor?
+    my $dec_oui = get_decimal_oui_from_mac($chaddr);
+    $logger->debug( "sending MAC::$dec_oui ($chaddr) trigger" );
+    violation_trigger( $chaddr, $dec_oui, "MAC" );
+
     # decode DHCP options
     # valid DHCP options field begins with 99,130,83,99...
     if ( !join( ":", splice( @options, 0, 4 ) ) =~ /^99:130:83:99$/ ) {
