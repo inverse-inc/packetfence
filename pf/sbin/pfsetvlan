@@ -1851,6 +1851,9 @@ sub node_update_PF {
         node_add_simple($mac);
     }
 
+    # There is activity from that mac, call node wakeup
+    node_mac_wakeup($mac);
+
     #auto-register node if we are in registration mode
     if ( ( $registrationMode == 1 )
         || $vlan_obj->custom_shouldAutoRegister( $mac, $isPhone ) )
