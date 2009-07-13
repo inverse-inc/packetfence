@@ -47,7 +47,7 @@ BEGIN {
         = qw(node_db_prepare node_exist node_pid node_delete node_add node_add_simple node_view node_count_all node_view_all node_view_with_fingerprint
         node_modify node_register_auto node_register node_deregister nodes_maintenance node_unregistered
         nodes_unregistered nodes_registered nodes_registered_not_violators nodes_active_unregistered
-        node_expire_lastarp node_cleanup node_update_lastarp);
+        node_expire_lastarp node_cleanup node_update_lastarp node_mac_wakeup);
 }
 
 use pf::config;
@@ -55,6 +55,14 @@ use pf::db;
 use pf::util;
 
 $is_node_db_prepared = 0;
+
+=head1 SUBROUTINES
+
+=over
+
+TODO: This list is incomlete
+
+=cut
 
 #node_db_prepare($dbh) if (!$thread);
 
@@ -666,6 +674,27 @@ sub node_update_lastarp {
     node_db_prepare($dbh) if ( !$is_node_db_prepared );
     $node_update_lastarp_sql->execute($mac) || return (0);
     return (1);
+}
+
+=item * node_mac_wakeup
+
+Sub invoked each time a MAC as activity (eiher from dhcp or traps).
+
+in: mac address
+
+out: void
+
+=cut
+
+sub node_mac_wakeup {
+    my ($mac) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::node');
+
+    # Is there a violation for the Vendor of this MAC?
+    require pf::violation;
+    my $dec_oui = get_decimal_oui_from_mac($mac);
+    $logger->debug( "sending MAC::$dec_oui ($mac) trigger" );
+    pf::violation::violation_trigger( $mac, $dec_oui, "MAC" );
 }
 
 #sub node_lookup_person {
