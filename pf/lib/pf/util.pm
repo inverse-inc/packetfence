@@ -43,6 +43,14 @@ BEGIN {
 
 use pf::config;
 
+=head1 SUBROUTINES
+
+=over
+
+TODO: This list is incomplete.
+
+=cut
+
 sub pfmon_preload {
     if ( basename($0) eq "pfmon" && isenabled( $Config{'general'}{'caching'} ) ) {
         %trappable_ip = preload_trappable_ip();
@@ -112,13 +120,17 @@ sub valid_mac {
     }
 }
 
-#
-# Extract the OUI (Organizational Unique Identifier) from a MAC address then
-# converts it into a decimal value. This is meant to be used to generate mac
-# address violations.
-# in: mac address (xx:xx:xx:xx:xx)
-# out: an int
-#
+=item * get_decimal_oui_from_mac
+
+Extract the OUI (Organizational Unique Identifier) from a MAC address then
+converts it into a decimal value. To be used to generate mac address violations.
+
+in: mac address (xx:xx:xx:xx:xx)
+
+out: an int
+
+=cut
+
 sub get_decimal_oui_from_mac {
     my ($mac) = @_;
 
