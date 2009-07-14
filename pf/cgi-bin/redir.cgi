@@ -63,6 +63,7 @@ if (defined($cgi->param('mode')) && $cgi->param('auth')) {
 #
 my $violation = violation_view_top($mac);
 if ($violation){
+  # There is a violation, redirect the user
   my $vid=$violation->{'vid'};
   my $class=class_view($vid);
   # enable button
@@ -77,16 +78,8 @@ if ($violation){
     # no enable button 
     print $cgi->redirect($class->{'url'});
   }
-} else {
-  $logger->info("$mac already registered or registration disabled, freeing mac");
-  if ($Config{'network'}{'mode'} =~ /arp/i) {
-    my $cmd = $bin_dir."/pfcmd manage freemac $mac";
-    my $output = qx/$cmd/;
-  }
-  $logger->info("freed $mac and redirecting to ".$Config{'trapping'}{'redirecturl'});
-  print $cgi->redirect($Config{'trapping'}{'redirecturl'});
+  exit(0);
 }
-
 
 #check to see if node needs to be registered
 #
@@ -95,5 +88,16 @@ if ($unreg && isenabled($Config{'trapping'}{'registration'})){
   $logger->info("$mac redirected to registration page");
   generate_registration_page($cgi, $session, $destination_url,$mac,1);
   exit(0);
-} 
+}
+
+# 
+$logger->info("$mac already registered or registration disabled, freeing mac");
+if ($Config{'network'}{'mode'} =~ /arp/i) {
+  $logger->info("$mac already registered or registration disabled, freeing mac");
+  my $cmd = $bin_dir."/pfcmd manage freemac $mac";
+  my $output = qx/$cmd/;
+  $logger->info("freed $mac");
+}
+$logger->info("redirecting to ".$Config{'trapping'}{'redirecturl'});
+print $cgi->redirect($Config{'trapping'}{'redirecturl'});
 
