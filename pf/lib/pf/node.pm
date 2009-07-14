@@ -717,6 +717,8 @@ Dominik Gehl <dgehl@inverse.ca>
 
 Maikel van der Roest <mvdroest@utelisys.com>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 David LaPorte
