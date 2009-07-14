@@ -379,7 +379,9 @@ sub violation_trigger {
         my $vid = $row->{'vid'};
 
         #violation_add($mac,$row->{'vid'},%data);
+        # TODO: fix hardcoded path, should use installdir something instead
         `/usr/local/pf/bin/pfcmd violation add vid=$vid,mac=$mac`;
+        $logger->info("calling /usr/local/pf/bin/pfcmd violation add vid=$vid,mac=$mac");
     }
     return 1;
 }
