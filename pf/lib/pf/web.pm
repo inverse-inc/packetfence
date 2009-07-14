@@ -40,6 +40,7 @@ use pf::config;
 use pf::util;
 use pf::iplog qw(ip2mac);
 use pf::node qw(node_view);
+use pf::useragent;
 
 sub web_get_locale {
     my ($cgi,$session) = @_;
@@ -376,9 +377,25 @@ sub web_node_record_user_agent {
     my ( $mac, $user_agent ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
     
+    # Recording useragent
     $logger->info("calling $bin_dir/pfcmd 'node edit $mac user_agent=\"$user_agent\"'");
     my $cmd    = $bin_dir . "/pfcmd 'node edit $mac user_agent=\"$user_agent\"'";
     my $output = qx/$cmd/;
+
+    # match provided useragent in useragent database
+    my @user_agent_info = useragent_match($user_agent);
+    if ( scalar(@user_agent_info) && ( ref( $user_agent_info[0] ) eq 'HASH' ) ) {
+
+        # is there a violation on this user agent?
+        $logger->debug("sending USERAGENT::".$user_agent_info[0]->{'useragent_id'}." (".$user_agent_info[0]->{'useragent'}.") trigger");
+        require pf::violation;
+        pf::violation::violation_trigger( $mac, $user_agent_info[0]->{'useragent_id'}, "USERAGENT" );
+
+    } else {
+        $logger->warn("unknown User-Agent: $user_agent");
+        # TODO: record unknown useragents here? (how does dhcp fingerprint does it?)
+    }
+
     return 1;
 }
 
