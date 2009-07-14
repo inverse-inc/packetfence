@@ -60,6 +60,8 @@ sub lookup_node {
             $return .= "Vendor  : $vendor\n";
         }
 
+        # TODO: output useragent class like in dhcp fingerprint
+
         $return .= "Browser : " . $node_info->{'user_agent'} . "\n"
             if ( $node_info->{'user_agent'} );
 
