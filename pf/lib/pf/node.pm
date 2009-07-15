@@ -694,7 +694,7 @@ sub node_mac_wakeup {
     require pf::violation;
     my $dec_oui = get_decimal_oui_from_mac($mac);
     $logger->debug( "sending MAC::$dec_oui ($mac) trigger" );
-    pf::violation::violation_trigger( $mac, $dec_oui, "MAC" );
+    pf::violation::violation_trigger( $mac, $dec_oui, "VENDORMAC" );
 }
 
 #sub node_lookup_person {

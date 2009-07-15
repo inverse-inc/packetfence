@@ -83,7 +83,7 @@ $node_categories_file   = $conf_dir . "/node_categories.conf";
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
 
-@valid_trigger_types = ( "scan", "detect", "internal", "os", "mac", "useragent" );
+@valid_trigger_types = ( "scan", "detect", "internal", "os", "vendormac", "useragent" );
 
 $portscan_sid = 1200003;
 $default_pid  = 1;
