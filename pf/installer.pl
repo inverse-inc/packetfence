@@ -139,7 +139,9 @@ my @modules = (
 
 my @suids = ( "$install_dir/bin/pfcmd" );
 
+# TODO: we might have something to do here in regards of the database script fix we put in mtn
 my %schemas = (
+    "63376e905d425b9258af4a7f88cd1a58" => "1.8.4",
     "de911c990735fd5a6339830830010368" => "1.8.3",
     "ad6bad46d67c569a23bdc786219a0251" => "1.8.1",
     "2e8a5ce0549759080b501e0149b77ad0" => "1.8.0",
@@ -295,7 +297,7 @@ if (questioner(
             $unknown = 1;
         } else {
             my $schema_version = $schemas{$md5sum};
-            if ( $schema_version ne '1.8.3' ) {
+            if ( $schema_version ne '1.8.4' ) {
                 if (questioner(
                         "PF database already exists - do you want to upgrade it?",
                         "y",
@@ -303,14 +305,16 @@ if (questioner(
                     )
                     )
                 {
+                    # TODO: if upgrading from an old version, this will always fail
+                    # what we should do here is replay all the upgrade script from $schema_version
                     my $update_script
-                        = "$install_dir/db/upgrade-$schema_version-1.8.3.sql";
+                        = "$install_dir/db/upgrade-$schema_version-1.8.4.sql";
                     if ( -e $update_script ) {
                         `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' $mysql_db < $update_script`;
                         $upgraded = 1;
                     } else {
                         die
-                            "Unable to locate SQL update script for $schema_version -> 1.8.3!\n";
+                            "Unable to locate SQL update script for $schema_version -> 1.8.4!\n";
                     }
                 } elsif (
                     questioner(
@@ -343,10 +347,10 @@ if (questioner(
     {
         `/usr/bin/mysqladmin --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' create $mysql_db`;
         print "  Loading schema\n";
-        if ( -e "$install_dir/db/pfschema.mysql.183" ) {
-            `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' $mysql_db < $install_dir/db/pfschema.mysql.183`;
+        if ( -e "$install_dir/db/pfschema.mysql.184" ) {
+            `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' $mysql_db < $install_dir/db/pfschema.mysql.184`;
         } else {
-            die("Where's my schema?  Nothing at $install_dir/db/pfschema.mysql.183\n"
+            die("Where's my schema?  Nothing at $install_dir/db/pfschema.mysql.184\n"
             );
         }
     }
