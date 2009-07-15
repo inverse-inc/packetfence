@@ -139,7 +139,6 @@ my @modules = (
 
 my @suids = ( "$install_dir/bin/pfcmd" );
 
-# TODO: we might have something to do here in regards of the database script fix we put in mtn
 my %schemas = (
     "63376e905d425b9258af4a7f88cd1a58" => "1.8.4",
     "de911c990735fd5a6339830830010368" => "1.8.3",
