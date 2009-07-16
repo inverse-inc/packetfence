@@ -69,7 +69,7 @@
                          'ThreeCom::Switch_4200G' => '3COM 4200G',
                          'Accton::ES3526XA' => 'Accton ES3526XA', 
                          'Accton::ES3528M' => 'Accton ES3528M',
-			 'Aruba::Controller_200' => 'Aruba Controler 200', 
+                         'Aruba::Controller_200' => 'Aruba Controller 200', 
                          'Cisco::Aironet_1130' => 'Cisco Aironet 1130',
                          'Cisco::Aironet_1242' => 'Cisco Aironet 1242',
                          'Cisco::Aironet_1250' => 'Cisco Aironet 1250',
