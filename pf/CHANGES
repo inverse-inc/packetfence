@@ -42,7 +42,28 @@
           (http://www.packetfence.org/mantis/view.php?id=742)
         fixed usage of _telnet variables
           (http://www.packetfence.org/mantis/view.php?id=741)
-
+        fixed support of Linksys switches (removed support of
+          buggy Port Security because of firmware problems)
+        registering User-Agent in the node each time a browser
+          reaches the captive portal
+        added support for Aruba controller 200
+        the character + is now allowed as a value in pfcmd command
+        added a new violation type: MAC Vendor
+        prefer to show a violation page over the registration page
+          (http://packetfence.org/mantis/view.php?id=746)
+        more logging in violation_trigger
+        added a new violation type: UserAgents
+        updated documentation in violations.conf
+        added examples in violations.conf
+        database schema upgrade and updated installer for UserAgent
+          change
+        you can now specify a destination vlan on a violation in
+          violations.conf
+        added examples in violations.conf
+        updated dhcp fingerprints (added Android and iPhone)
+          (http://packetfence.org/mantis/view.php?id=745)
+        several updates to developer documentation and TODO tasks
+        
 1.8.3
         fixed issue between connect_and_read.pl and
           Aironet
