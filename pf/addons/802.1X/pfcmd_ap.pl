@@ -15,6 +15,8 @@ the correct VLAN for this node
 
 =cut
 
+# TODO: raw SQL is evil, we should port this over to a more suited application-level API
+
 use strict;
 use warnings;
 use diagnostics;
@@ -29,14 +31,15 @@ my $database_user = 'pf';
 my $database_password = 'pf';
 
 my $visitorVlan = 5;
-my $registrationVlan = 3;
-my $isolationVlan = 2;
+my $registrationVlan = 2;
+my $isolationVlan = 3;
 my $normalVlan = 1;
 
 my $switch_ip = $ARGV[0];
 my $mac = lc($ARGV[1]);
 my $is_eap_request = $ARGV[2];
 
+openlog("pfcmd-ap", "perror,pid","user");
 syslog("info", "pfcmd_ap.pl called with switch_ip $switch_ip, mac $mac, is_eap_request $is_eap_request");
 
 # create database connection
@@ -66,12 +69,22 @@ if ($is_eap_request == 0) {
     $correctVlan = $registrationVlan;
   }
 } else {
+  # TODO: this is buggy: we don't fetch the vlan information from the switch config
   my $isVisitor = $mysql_connection->selectrow_array("SELECT count(*) FROM node WHERE mac='$mac' AND pid='visitor'");
   if ($isVisitor == 0) {
     # check if violations
     my $nbOpenViolations = $mysql_connection->selectrow_array("SELECT count(*) FROM violation WHERE mac='$mac' and status='open'");
     if ($nbOpenViolations > 0) {
-      $correctVlan = $isolationVlan;
+      my $vlanToGoTo = $mysql_connection->selectrow_array("SELECT c.vlan from violation v, class c where v.vid=c.vid and mac='$mac' and status='open' order by priority desc limit 1");
+      syslog("info:","this violation says that it should go in vlan $vlanToGoTo");
+      if ($vlanToGoTo eq 'registrationVlan') {
+        $correctVlan = $registrationVlan;
+      } elsif ($vlanToGoTo eq 'normalVlan') {
+        $correctVlan = $normalVlan;
+      } else {
+        # I could test only for isolation but there is no other value left so lets catch it all
+        $correctVlan = $isolationVlan;
+      }
     } else {
       $correctVlan = $normalVlan;
     }
@@ -90,6 +103,8 @@ $mysql_connection->do("UPDATE node SET switch='$switch_ip', port='WIFI' WHERE ma
 syslog("info", "returning VLAN $correctVlan for $mac");
 print $correctVlan;
 
+closelog();
+
 $mysql_connection->disconnect();
 
 exit;
@@ -97,6 +112,8 @@ exit;
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
