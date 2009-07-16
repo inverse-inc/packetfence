@@ -276,6 +276,8 @@ sub custom_shouldAutoRegister {
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2007-2009 Inverse inc.
