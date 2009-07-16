@@ -385,7 +385,7 @@ sub violationconfig {
             }
         }
         my @columns
-            = qw(desc disable auto_enable actions max_enable grace priority url button_text trigger);
+            = qw(desc disable auto_enable actions max_enable grace priority url button_text trigger vlan);
         print "vid|" . join( "|", @columns ) . "\n";
         foreach my $section ( keys %violations_conf ) {
             if (   ( $cmd{'command'}[2] eq 'all' )

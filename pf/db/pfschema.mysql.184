@@ -14,6 +14,7 @@ CREATE TABLE class (
   redirect_url varchar(255),
   button_text varchar(255),
   disable char(1) NOT NULL default "Y",
+  vlan varchar(255),
   PRIMARY KEY (vid)
 ) TYPE=InnoDB;
 

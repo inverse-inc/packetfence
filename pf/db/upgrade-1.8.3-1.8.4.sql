@@ -34,3 +34,9 @@ CREATE TABLE `useragent_mapping` (
   CONSTRAINT `0_69` FOREIGN KEY (`useragent_class`) REFERENCES `useragent_class` (`class_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Add vlan parameter to the class table
+--
+
+ALTER TABLE `class` ADD vlan varchar(255) after `disable`;
+

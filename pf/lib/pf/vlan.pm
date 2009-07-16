@@ -18,7 +18,7 @@ use Log::Log4perl;
 use pf::config;
 use pf::node qw(node_view node_add_simple node_exist);
 use pf::util;
-use pf::violation qw(violation_count_trap violation_exist_open);
+use pf::violation qw(violation_count_trap violation_exist_open violation_view_top);
 use pf::SwitchFactory;
 use Net::Ping;
 use threads;
@@ -39,26 +39,36 @@ sub vlan_determine_for_node {
 
     my $correctVlanForThisMAC;
     my $open_violation_count = violation_count_trap($mac);
+
     if ( $open_violation_count > 0 ) {
-        if (   ( $open_violation_count == 1 )
-            && ( violation_exist_open( $mac, 1200001 ) ) )
-        {
-            $logger->info(
-                "$mac has scan reg violation open; belongs into registration VLAN."
-            );
-            my $switchFactory = new pf::SwitchFactory(
-                -configFile => "$conf_dir/switches.conf" );
-            my $switch = $switchFactory->instantiate($switch_ip);
-            $correctVlanForThisMAC = $switch->{_registrationVlan};
-        } else {
-            $logger->info(
-                "$mac has $open_violation_count open violations(s) with action=trap; belongs into isolation VLAN."
-            );
-            my $switchFactory = new pf::SwitchFactory(
-                -configFile => "$conf_dir/switches.conf" );
-            my $switch = $switchFactory->instantiate($switch_ip);
-            $correctVlanForThisMAC = $switch->{_isolationVlan};
+        $logger->info("$mac has $open_violation_count open violations(s) with action=trap; it might belong into another VLAN (isolation or other).");
+        # fetch top violation
+        $logger->debug("What is the highest priority violation for this host?");
+        my $top_violation = violation_view_top($mac);
+        if (!$top_violation) {
+            $logger->error("Could not find open violation for $mac");
         }
+
+        # get violation id
+        my $vid=$top_violation->{'vid'};
+
+        # find violation class based on violation id
+        require pf::class;
+        my $class=pf::class::class_view($vid);
+        if (!$class) {
+            $logger->error("Could not find class entry for violation $vid");
+        }
+
+        # get violation destination vlan
+        my $vlan = $class->{'vlan'};
+        $logger->debug("Found target vlan parameter for this violation: $vlan");
+
+        # Asking the switch to give us its configured vlan number for the vlan returned for the violation
+        my $switchFactory = new pf::SwitchFactory(
+            -configFile => "$conf_dir/switches.conf" );
+        my $switch = $switchFactory->instantiate($switch_ip);
+        # TODO: get rid of the _ character for the vlan variables (refactoring)
+        $correctVlanForThisMAC = $switch->{"_".$vlan};
     } else {
         if ( !node_exist($mac) ) {
             $logger->info(

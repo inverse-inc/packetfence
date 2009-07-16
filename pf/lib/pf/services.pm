@@ -1027,6 +1027,8 @@ sub read_violations_conf {
             $violations{$violation}{'redirect_url'},
             $violations{$violation}{'button_text'},
             $violations{$violation}{'disable'},
+            $violations{$violation}{'vlan'},
+            # actions are expected to be in this position (handled in a special way)
             $violations{$violation}{'actions'},
             \@triggers
         );
