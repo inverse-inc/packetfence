@@ -211,7 +211,7 @@ of business, etc) arising out of the use or inability to use this software.
     );
 
 print
-    "\nPlease not that the ARP-based registration code is currently disabled.\n\n";
+    "\nPlease note that the ARP-based registration code is currently disabled.\n\n";
 
 # create pf account
 if ( !`/usr/bin/getent passwd | grep "^pf:"` ) {
