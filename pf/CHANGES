@@ -1,5 +1,6 @@
 1.8.5
-        added support for Amer SS2R24i switch
+        added support for Amer SS2R24i switch in linkUp/linkDown
+          mode
 
 1.8.4
         installer.pl asks to install Emerging Threats rule files
