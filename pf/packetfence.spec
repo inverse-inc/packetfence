@@ -4,8 +4,8 @@
 #2) rpmbuild --rebuild --define 'dist .el5' SRPMS/packetfence-1.8.4-1.src.rpm
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 1.8.4
-Release: 1%{?dist}
+Version: 1.8.5
+Release: dev%{?dist}
 # in snapshot mode, usually it is:
 # Release: 20090717%{?dist}
 # TODO: i don't think its right since upgrading from a snapshot to a release would fail
