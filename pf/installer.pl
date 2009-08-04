@@ -140,7 +140,7 @@ my @modules = (
 my @suids = ( "$install_dir/bin/pfcmd" );
 
 my %schemas = (
-    "d6c62495107a52034c213068f762bbac" => "1.8.4",
+    "55ec69a0e574dac8eada8b65a8cbd4f5" => "1.8.4",
     "de911c990735fd5a6339830830010368" => "1.8.3",
     "ad6bad46d67c569a23bdc786219a0251" => "1.8.1",
     "2e8a5ce0549759080b501e0149b77ad0" => "1.8.0",
@@ -211,7 +211,7 @@ of business, etc) arising out of the use or inability to use this software.
     );
 
 print
-    "\nPlease not that the ARP-based registration code is currently disabled.\n\n";
+    "\nPlease note that the ARP-based registration code is currently disabled.\n\n";
 
 # create pf account
 if ( !`/usr/bin/getent passwd | grep "^pf:"` ) {
