@@ -68,7 +68,6 @@ Requires: perl-TimeDate
 Requires: perl-UNIVERSAL-require
 Requires: perl-YAML
 Requires: php-jpgraph
-Requires: rrdtool, perl-rrdtool
 
 %description
 

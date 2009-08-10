@@ -398,63 +398,64 @@ if (questioner(
 
 }
 
+# TODO cleanup commented stuff regarding the packaging of the perl deps in rpms
 # check if modules are installed
-if (questioner(
-        "PF needs several Perl modules to function properly.  May I download and install them?",
-        "y",
-        ( "y", "n" )
-    )
-    )
-{
-    print
-        "Installing perl modules - note that if CPAN has not been run before it may prompt for configuration (just answer 'N')\n";
-    foreach my $module (@modules) {
-        my $mod = CPAN::Shell->expand( "Module", $module );
-        if ( $mod->inst_file ) {
-            if ( !$mod->uptodate ) {
-                if (questioner(
-                        "Module $module is installed (version "
-                            . $mod->inst_version
-                            . ") but not up to date (CPAN has version "
-                            . $mod->cpan_version
-                            . ") - do you wish to upgrade it?",
-                        "y",
-                        ( "y", "n" )
-                    )
-                    )
-                {
-                    print "    Upgrading module $module\n";
-                    my $obj = CPAN::Shell->install($module);
-                    my $current_mod
-                        = CPAN::Shell->expand( "Module", $module );
-                    print "    Installed version is now "
-                        . $current_mod->inst_version . "\n";
-                }
-            }
-        } else {
-            if ( !$mod->uptodate ) {
-                if (questioner(
-                        "Module $module is not installed (CPAN has version "
-                            . $mod->cpan_version
-                            . ") - do you wish to install it?",
-                        "y",
-                        ( "y", "n" )
-                    )
-                    )
-                {
-                    print "    Installing module $module\n";
-                    my $obj = CPAN::Shell->install($module);
-                    my $current_mod
-                        = CPAN::Shell->expand( "Module", $module );
-                    if ( !$current_mod->inst_file ) {
-                        print "    Unable to install module $module\n";
-                        die;
-                    }
-                }
-            }
-        }
-    }
-}
+#if (questioner(
+#        "PF needs several Perl modules to function properly.  May I download and install them?",
+#        "y",
+#        ( "y", "n" )
+#    )
+#    )
+#{
+#    print
+#        "Installing perl modules - note that if CPAN has not been run before it may prompt for configuration (just answer 'N')\n";
+#    foreach my $module (@modules) {
+#        my $mod = CPAN::Shell->expand( "Module", $module );
+#        if ( $mod->inst_file ) {
+#            if ( !$mod->uptodate ) {
+#                if (questioner(
+#                        "Module $module is installed (version "
+#                            . $mod->inst_version
+#                            . ") but not up to date (CPAN has version "
+#                            . $mod->cpan_version
+#                            . ") - do you wish to upgrade it?",
+#                        "y",
+#                        ( "y", "n" )
+#                    )
+#                    )
+#                {
+#                    print "    Upgrading module $module\n";
+#                    my $obj = CPAN::Shell->install($module);
+#                    my $current_mod
+#                        = CPAN::Shell->expand( "Module", $module );
+ #                   print "    Installed version is now "
+ #                       . $current_mod->inst_version . "\n";
+ #               }
+ #           }
+ #       } else {
+#            if ( !$mod->uptodate ) {
+#                if (questioner(
+#                        "Module $module is not installed (CPAN has version "
+#                            . $mod->cpan_version
+#                            . ") - do you wish to install it?",
+#                        "y",
+#                        ( "y", "n" )
+#                    )
+#                    )
+#                {
+#                    print "    Installing module $module\n";
+#                    my $obj = CPAN::Shell->install($module);
+#                    my $current_mod
+#                        = CPAN::Shell->expand( "Module", $module );
+#                    if ( !$current_mod->inst_file ) {
+#                        print "    Unable to install module $module\n";
+#                        die;
+#                    }
+#                }
+#            }
+#        }
+#    }
+#}
 
 print "Pre-compiling pfcmd grammar\n";
 `/usr/bin/perl -w -e 'use strict; use warnings; use diagnostics; use Parse::RecDescent; use lib "$install_dir/lib"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile(\$grammar, "pfcmd_pregrammar");'`;
@@ -478,24 +479,25 @@ foreach my $locale_dir (@locale_dirs) {
         "$locale_start_dir/$locale_dir/LC_MESSAGES/packetfence.mo";
 }
 
-my $jpgraphVersionToInstall;
+# TODO cleanup commented stuff regarding the packaging of jpgraph in an rpm
+#my $jpgraphVersionToInstall;
 if ( !( -e "$conf_dir/templates/httpd.conf" ) ) {
     print "$conf_dir/templates/httpd.conf symlink does not yet exist\n";
     if ( `httpd -v` =~ /Apache\/2\.[2-9]\./ ) {
         print "creating symlink to httpd.conf.apache22\n";
         `ln -s $conf_dir/templates/httpd.conf.apache22 $conf_dir/templates/httpd.conf`;
-        $jpgraphVersionToInstall = 'jpgraph_v2';
+#        $jpgraphVersionToInstall = 'jpgraph_v2';
     } else {
         print "creating symlink to httpd.conf.pre_apache22\n";
         `ln -s $conf_dir/templates/httpd.conf.pre_apache22 $conf_dir/templates/httpd.conf`;
-        $jpgraphVersionToInstall = 'jpgraph_v1';
+#        $jpgraphVersionToInstall = 'jpgraph_v1';
     }
-} else {
-    if ( `httpd -v` =~ /Apache\/2\.[2-9]\./ ) {
-        $jpgraphVersionToInstall = 'jpgraph_v2';
-    } else {
-        $jpgraphVersionToInstall = 'jpgraph_v1';
-    }
+#} else {
+#    if ( `httpd -v` =~ /Apache\/2\.[2-9]\./ ) {
+#        $jpgraphVersionToInstall = 'jpgraph_v2';
+#    } else {
+#        $jpgraphVersionToInstall = 'jpgraph_v1';
+#    }
 }
 
 if ( !( -e "$conf_dir/ssl/server.crt" ) ) {
@@ -530,24 +532,25 @@ if (questioner(
     } while ( system("htpasswd -c $conf_dir/admin.conf $adminuser") );
 }
 
+# TODO cleanup commented stuff regarding the packaging of jpgraph in an rpm
 # check if external dependencies should be installed
-my $jpgraphFileNameToCheckFor = $external_deps->{$jpgraphVersionToInstall}->{'install_path'}
-                                . "/README";
-if ( !( -e $jpgraphFileNameToCheckFor ) ) {
-    if (questioner(
-        "PF needs JPGraph for its administrative Web GUI.  May I download and install it?",
-        "y",
-        ( "y", "n" )
-        )
-    ) {
-        my $url = $external_deps->{$jpgraphVersionToInstall}->{'url_path'}
-                  . $external_deps->{$jpgraphVersionToInstall}->{'file_name'};
-        my $local_file_name = "$install_dir/html/admin/common/jpgraph/"
-                  . $external_deps->{$jpgraphVersionToInstall}->{'file_name'};
-        `/usr/bin/wget -N $url -P $install_dir/html/admin/common/jpgraph/`;
-        `/bin/tar zxvf $local_file_name --strip-components 1 -C $external_deps->{$jpgraphVersionToInstall}->{'install_path'}`;
-    }
-}
+#my $jpgraphFileNameToCheckFor = $external_deps->{$jpgraphVersionToInstall}->{'install_path'}
+#                                . "/README";
+#if ( !( -e $jpgraphFileNameToCheckFor ) ) {
+#    if (questioner(
+#        "PF needs JPGraph for its administrative Web GUI.  May I download and install it?",
+#        "y",
+#        ( "y", "n" )
+#        )
+#    ) {
+#        my $url = $external_deps->{$jpgraphVersionToInstall}->{'url_path'}
+#                  . $external_deps->{$jpgraphVersionToInstall}->{'file_name'};
+#        my $local_file_name = "$install_dir/html/admin/common/jpgraph/"
+#                  . $external_deps->{$jpgraphVersionToInstall}->{'file_name'};
+#        `/usr/bin/wget -N $url -P $install_dir/html/admin/common/jpgraph/`;
+#        `/bin/tar zxvf $local_file_name --strip-components 1 -C $external_deps->{$jpgraphVersionToInstall}->{'install_path'}`;
+#    }
+#}
 
 if (questioner(
         "PF needs PHP Pear Log for its administrative Web GUI. May I download and install it ?",

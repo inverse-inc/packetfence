@@ -1,6 +1,9 @@
 1.8.5
         added support for Amer SS2R24i switch in linkUp/linkDown
           mode
+        PacketFence is now distributed as a yum repository instead
+          of the installer pulling a lot of cpan modules and 
+          jpgraph
 
 1.8.4
         installer.pl asks to install Emerging Threats rule files
