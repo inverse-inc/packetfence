@@ -28,40 +28,47 @@ Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl, php, php-gd, php-pear
 Requires: net-tools
 Requires: net-snmp >= 5.3.2.2
-Requires: mysql, perl-DBD-MySQL
+Requires: mysql, perl-DBD-mysql
 Requires: perl >= 5.8.0, perl-suidperl
-Requires: perl(Apache::Htpasswd)
-Requires: perl(Bit::Vector)
-Requires: perl(CGI::Session)
-Requires: perl(Config::IniFiles) >= 2.40
-Requires: perl(Class::Data::Inheritable)
-Requires: perl(Class::Gomor)
-Requires: perl(Data::Phrasebook), perl(Data::Phrasebook::Loader::YAML)
-Requires: perl(Date::Parse)
-Requires: perl(DBI)
-Requires: perl(DBD::mysql)
-Requires: perl(File::Tail)
-Requires: perl(List::MoreUtils)
-Requires: perl(Locale::gettext)
-Requires: perl(Log::Log4perl) >= 1.11
-Requires: perl(LWP::UserAgent)
-Requires: perl(Net::IPv4Addr), perl(Net::IPv6Addr)
-Requires: perl(Net::MAC), perl(Net::MAC::Vendor)
-Requires: perl(Net::Netmask)
-Requires: perl(Net::Pcap) >= 0.16
-Requires: perl(Net::SNMP)
-Requires: perl(Net::Telnet)
-Requires: perl(Parse::RecDescent)
-Requires: perl(Readonly)
-Requires: perl(Regexp::Common)
-Requires: perl(RRDs)
-Requires: perl(Template)
-Requires: perl(Term::ReadKey)
-Requires: perl(Test::Perl::Critic)
-Requires: perl(Test::Pod), perl(Test::Pod::Coverage)
-Requires: perl(Thread::Pool)
-Requires: perl(UNIVERSAL::require)
-Requires: perl(YAML)
+Requires: perl-Apache-Htpasswd
+Requires: perl-Bit-Vector
+Requires: perl-CGI-Session
+Requires: perl-Class-Data-Inheritable
+Requires: perl-Class-Gomor
+Requires: perl-Config-IniFiles >= 2.40
+Requires: perl-Data-Phrasebook, perl-Data-Phrasebook-Loader-YAML
+Requires: perl-DBI
+Requires: perl-File-Tail
+Requires: perl-IPTables-ChainMgr
+Requires: perl-IPTables-Parse
+Requires: perl-libwww-perl
+Requires: perl-List-MoreUtils
+Requires: perl-Locale-gettext
+Requires: perl-Log-Log4perl >= 1.11
+Requires: perl-Net-Appliance-Session
+Requires: perl-Net-Frame, perl-Net-Frame-Simple
+Requires: perl-Net-MAC, perl-Net-MAC-Vendor
+Requires: perl-Net-Netmask
+Requires: perl-Net-Pcap >= 0.16
+Requires: perl-Net-SNMP
+Requires: perl-Net-Telnet
+Requires: perl-Net-Write
+Requires: perl-Parse-Nessus-NBE
+Requires: perl-Parse-RecDescent
+Requires: perl-Readonly
+Requires: perl-Regexp-Common
+Requires: rrdtool, perl-rrdtool
+Requires: perl-Template-Toolkit
+Requires: perl-TermReadKey
+Requires: perl-Test-MockDBI
+Requires: perl-Test-Perl-Critic
+Requires: perl-Test-Pod, perl-Test-Pod-Coverage
+Requires: perl-Thread-Pool
+Requires: perl-TimeDate
+Requires: perl-UNIVERSAL-require
+Requires: perl-YAML
+Requires: php-jpgraph
+Requires: rrdtool, perl-rrdtool
 
 %description
 
