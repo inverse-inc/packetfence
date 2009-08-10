@@ -5,3 +5,5 @@ pf/var/session/.*
 pf/var/rrd/.*
 pf/var/ssl_scache.dir
 pf/var/ssl_scache.pag
+pf/test/
+pf/html/admin/common/jpgraph/
