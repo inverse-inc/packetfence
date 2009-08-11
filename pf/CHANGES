@@ -3,6 +3,10 @@
           mode
         PacketFence is now distributed as a yum repository (avoids 
           having the installer pull a lot of cpan modules and jpgraph)
+        normal/correct VLAN returned by custom_getCorrectVlan is 
+          now based on switch (switches.conf) instead of node
+        new UPGRADE document that documents things to look out for
+          when upgrading versions
 
 1.8.4
         installer.pl asks to install Emerging Threats rule files

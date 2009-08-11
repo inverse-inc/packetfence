@@ -1,0 +1,29 @@
+                         PacketFence
+
+http://www.packetfence.org/
+
+Notes on upgrading from an older release
+----------------------------------------
+
+o Upgrading from a version prior to 1.8.5:
+
+    - Source of Correct/Normal VLAN changed
+    Correct/Normal VLAN no longer comes from the database's node entry but from
+    switches.conf. This is a modified behavior when returning the correct (aka 
+    normal) VLAN (in custom_getCorrectVlan). This behavior is redefined by most
+    users in lib/pf/vlan/custom.pm (or conf/pfsetvlan.pm in 1.7.x) so it should
+    not have any impact for most of you. However, if you relied on the node 
+    entry specifying which VLAN is the normal VLAN, this is no longer the case. 
+    Now, the correct/normal VLAN is defined by the normalVlan variable in the 
+    switch's entry or the default entry in switches.conf. This makes more sense
+    for most new installs.
+
+
+o Upgrading from a version prior to 1.8.4:
+
+    There was no upgrade-specific documentation done prior to 1.8.5.
+
+    - Database schema
+    Always make sure that your database schema is up to date. See if upgrade 
+    scripts are available in db/.
+

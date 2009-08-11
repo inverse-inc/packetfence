@@ -24,6 +24,14 @@ use Net::Ping;
 use threads;
 use threads::shared;
 
+=head1 SUBROUTINES
+
+Warning: The list of subroutine is incomplete
+
+=over
+
+=cut
+
 sub new {
     my $logger = Log::Log4perl::get_logger("pf::vlan");
     $logger->debug("instantiating new pf::vlan object");
@@ -156,6 +164,14 @@ sub custom_doWeActOnThisTrap {
     return $weActOnThisTrap;
 }
 
+=item custom_getCorrectVlan - returns normal vlan
+
+This sub is meant to be overloaded in lib/pf/vlan/custom.pm if the default 
+version doesn't do the right thing for you. By default it will return the 
+normal vlan for the given switch if defined, otherwise it will return the normal
+vlan for the whole network.
+
+=cut
 sub custom_getCorrectVlan {
 
     #$switch_ip is the ip of the switch
@@ -168,11 +184,12 @@ sub custom_getCorrectVlan {
     my $logger = Log::Log4perl->get_logger();
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
-#   if ($vlan eq '') {
-#        $logger->info("MAC: $mac is registered but VLAN is not set; setting into registration VLAN");
-#        $vlan = $switch->{_registrationVlan};
-#    }
-    return $vlan;
+    # Grab switch config
+    my $switchFactory = new pf::SwitchFactory(-configFile => "$conf_dir/switches.conf");
+    my %Config = %{$switchFactory->{_config}};
+
+    # return switch-specific normal vlan or default normal vlan (if switch-specific normal vlan not defined)
+    return ($Config{$switch_ip}{'normalVlan'} || $Config{'default'}{'normalVlan'});
 }
 
 sub custom_isClientAlive {
@@ -271,6 +288,8 @@ sub custom_shouldAutoRegister {
     my ( $this, $mac, $isPhone ) = @_;
     return $isPhone;
 }
+
+=back
 
 =head1 AUTHOR
 
