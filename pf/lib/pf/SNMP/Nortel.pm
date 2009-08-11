@@ -398,6 +398,7 @@ sub _authorizeMAC {
     my $cfgStatus = ($authorize) ? 2 : 3;
 
     #convert MAC into decimal
+    #TODO extract this logic into a MAC2OID sub in util
     my @MACArray = split( /:/, $MACHexString );
     my $MACDecString = '';
     foreach my $hexPiece (@MACArray) {
