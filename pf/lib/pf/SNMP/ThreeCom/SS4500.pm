@@ -19,6 +19,13 @@ use Log::Log4perl;
 use Net::SNMP;
 use Net::Telnet;
 use base ('pf::SNMP::ThreeCom');
+use constant MAC_TYPE_STATIC => 6;
+
+=head1 SUBROUTINES
+
+=over
+
+=cut
 
 sub getVersion {
     my ($this) = @_;
@@ -113,6 +120,31 @@ sub getDot1dBasePortForThisIfIndex {
             "$OID_hwifXXBasePortIndex"};    #return port number (Integer)
     } else {
         return 0;                           #no port return
+    }
+}
+
+=item * getIfIndexForThisDot1dBasePort - returns ifIndex for a given "normal" port number (dot1d)
+
+=cut
+sub getIfIndexForThisDot1dBasePort {
+    my ( $this, $dot1dBasePort ) = @_; 
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    # port number into ifIndex
+    my $OID_dot1dBasePortIfIndex = '.1.3.6.1.2.1.17.1.4.1.2.'.$dot1dBasePort; # from BRIDGE-MIB
+
+    if ( !$this->connectRead() ) {
+        return 0;
+    }
+
+    $logger->trace(
+        "SNMP get_request for dot1dBasePortIfIndex: $OID_dot1dBasePortIfIndex");
+    my $result = $this->{_sessionRead}
+        ->get_request( -varbindlist => ["$OID_dot1dBasePortIfIndex"] );
+
+    if (exists($result->{"$OID_dot1dBasePortIfIndex"})) {   
+        return $result->{"$OID_dot1dBasePortIfIndex"};    #return ifIndex (Integer)
+    } else {
+        return 0; #no ifIndex returned
     }
 }
 
@@ -281,48 +313,175 @@ sub authorizeMAC {
 
     my $ifDesc = $this->getIfDesc($ifIndex);
     if ($deauthMac) {
-        $deauthMac =~ s/://g;
-        $deauthMac
-            = substr( $deauthMac, 0, 4 ) . '-'
-            . substr( $deauthMac, 4, 4 ) . '-'
-            . substr( $deauthMac, 8, 4 );
-        $logger->trace("system-view");
-        $session->print("system-view");
-        $session->waitfor('/\]/');
-        $logger->trace("interface $ifDesc");
-        $session->print("interface $ifDesc");
-        $session->waitfor('/\]/');
-        $logger->trace("undo mac-address static $deauthMac vlan $deauthVlan");
-        $session->print(
-            "undo mac-address static $deauthMac vlan $deauthVlan");
-        $session->waitfor('/\]/');
-        $logger->trace("return");
-        $session->print("return");
-        $session->waitfor('/>/');
+        # do not deauthorize a fake MAC. It is useless for this switch.
+        if (!$this->isFakeMac($deauthMac)) {
+            
+            $deauthMac =~ s/://g;
+            $deauthMac
+                = substr( $deauthMac, 0, 4 ) . '-'
+                . substr( $deauthMac, 4, 4 ) . '-'
+                . substr( $deauthMac, 8, 4 );
+            $logger->trace("system-view");
+            $session->print("system-view");
+            $session->waitfor('/\]/');
+            $logger->trace("interface $ifDesc");
+            $session->print("interface $ifDesc");
+            $session->waitfor('/\]/');
+            $logger->trace("undo mac-address static $deauthMac vlan $deauthVlan");
+            $session->print(
+                "undo mac-address static $deauthMac vlan $deauthVlan");
+            $session->waitfor('/\]/');
+            $logger->trace("return");
+            $session->print("return");
+            $session->waitfor('/>/');
+        }
     }
     if ($authMac) {
-        $authMac =~ s/://g;
-        $authMac
-            = substr( $authMac, 0, 4 ) . '-'
-            . substr( $authMac, 4, 4 ) . '-'
-            . substr( $authMac, 8, 4 );
-        $logger->trace("system-view");
-        $session->print("system-view");
-        $session->waitfor('/\]/');
-        $logger->trace("interface $ifDesc");
-        $session->print("interface $ifDesc");
-        $session->waitfor('/\]/');
-        $logger->trace("mac-address static $authMac vlan $deauthVlan");
-        $session->print("mac-address static $authMac vlan $deauthVlan");
-        $session->waitfor('/\]/');
-        $logger->trace("return");
-        $session->print("return");
-        $session->waitfor('/>/');
+        # do not authorize a fake MAC. It is useless for this switch.
+        if (!$this->isFakeMac($authMac)) {
+
+            $authMac =~ s/://g;
+            $authMac
+                = substr( $authMac, 0, 4 ) . '-'
+                . substr( $authMac, 4, 4 ) . '-'
+                . substr( $authMac, 8, 4 );
+            $logger->trace("system-view");
+            $session->print("system-view");
+            $session->waitfor('/\]/');
+            $logger->trace("interface $ifDesc");
+            $session->print("interface $ifDesc");
+            $session->waitfor('/\]/');
+            $logger->trace("mac-address static $authMac vlan $authVlan");
+            $session->print("mac-address static $authMac vlan $authVlan");
+            $session->waitfor('/\]/');
+            $logger->trace("return");
+            $session->print("return");
+            $session->waitfor('/>/');
+        }
     }
 
     $session->close();
     return 1;
 }
+
+=item * getAllSecureMacAddresses
+
+Method that fetches all the secure (staticly assigned) MAC addresses for a given switch.
+
+Returns a hash table with mac, ifIndex, vlan
+
+=cut
+# TODO this method does a lot of lookups and could be optimized further by breaking some interface contracts
+sub getAllSecureMacAddresses {
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    # Status of all MAC addresses
+    my $OID_hwdot1qTpFdbSetStatus = '1.3.6.1.4.1.43.45.1.2.23.1.3.2.1.3'; # from A3COM-HUAWEI-LswMAM-MIB
+    # Port number of all MAC addresses
+    my $OID_hwdot1qTpFdbSetPort = '1.3.6.1.4.1.43.45.1.2.23.1.3.2.1.2'; # from A3COM-HUAWEI-LswMAM-MIB
+
+    my $secureMacAddrHashRef = {};
+    if ( !$this->connectRead() ) {
+        return $secureMacAddrHashRef;
+    }
+    $logger->trace("SNMP get_table for hwdot1qTpFdbSetStatus: $OID_hwdot1qTpFdbSetStatus");
+
+    # read the whole mac to port association and put it in a hashmap for later
+    my $result = $this->{_sessionRead}->get_table( -baseoid => "$OID_hwdot1qTpFdbSetPort" );
+    my $macPort = {};
+    foreach my $macOidPort ( keys %{$result} ) {
+        if ($macOidPort =~ /^$OID_hwdot1qTpFdbSetPort\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)$/) {
+            my $mac = sprintf( "%02x:%02x:%02x:%02x:%02x:%02x", $2, $3, $4, $5, $6, $7 );
+            $macPort->{$mac} = $result->{$macOidPort};
+        }
+    }
+    
+    if (!%{$macPort}) {
+        $logger->error("Something went wrong fetching the MAC to port association table");
+        return $secureMacAddrHashRef;
+    }
+    
+    $result = $this->{_sessionRead}->get_table( -baseoid => "$OID_hwdot1qTpFdbSetStatus" );
+    foreach my $vlanMacOidStatus ( keys %{$result} ) {
+
+        # we are only interested by static entries
+        if ( $result->{$vlanMacOidStatus} ==  MAC_TYPE_STATIC) {
+
+            if ( $vlanMacOidStatus =~ /^$OID_hwdot1qTpFdbSetStatus\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)$/) {   
+
+                # TODO: consider building an oid2mac in util
+                my $oldMac = sprintf( "%02x:%02x:%02x:%02x:%02x:%02x", $2, $3, $4, $5, $6, $7 );
+                my $oldVlan = $1;
+                my $ifIndex = $this->getIfIndexForThisDot1dBasePort($macPort->{$oldMac});
+                push @{ $secureMacAddrHashRef->{$oldMac}->{$ifIndex} }, $oldVlan;
+            }
+        }
+    }
+
+    return $secureMacAddrHashRef;
+}
+
+=item * getSecureMacAddresses
+
+Method that fetches all the secure (staticly assigned) MAC addresses for a given ifIndex.
+
+Returns a hash table with mac, vlan
+
+=cut
+sub getSecureMacAddresses {
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    # OID holds Vlan and MAC. The result is dot1dPort
+    my $OID_hwdot1qTpFdbSetPort = '1.3.6.1.4.1.43.45.1.2.23.1.3.2.1.2'; #from A3COM-HUAWEI-LswMAM-MIB
+    # OID holds Vlan and MAC. The result is mac type
+    my $OID_hwdot1qTpFdbSetStatus = '1.3.6.1.4.1.43.45.1.2.23.1.3.2.1.3'; #from A3COM-HUAWEI-LswMAM-MIB
+
+    my $secureMacAddrHashRef = {};
+    if ( !$this->connectRead() ) {
+        return $secureMacAddrHashRef;
+    }
+
+    my $dot1dBasePort = $this->getDot1dBasePortForThisIfIndex($ifIndex);
+
+    # fetch all the MACs based on port
+    my @macOnTargetPort;
+    $logger->trace("SNMP get_table for hwdot1qTpFdbSetPort: $OID_hwdot1qTpFdbSetPort");
+    my $result = $this->{_sessionRead}->get_table(-baseoid => "$OID_hwdot1qTpFdbSetPort");
+    foreach my $macOidPort (keys %{$result}) {
+        if ($result->{$macOidPort} == $dot1dBasePort) {
+            $macOidPort =~ /^$OID_hwdot1qTpFdbSetPort\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)$/;
+            # TODO: consider building an oid2mac in util
+            my $mac = sprintf( "%02x:%02x:%02x:%02x:%02x:%02x", $2, $3, $4, $5, $6, $7 );
+            $logger->trace("Interested by MAC: $mac on Port $dot1dBasePort (ifIndex: $ifIndex)");
+            push(@macOnTargetPort,$mac);
+        }
+    }
+
+    # Grab all vlans, MACs and status (static, dynamic, etc.)
+    $logger->trace("SNMP get_table for hwdot1qTpFdbSetStatus: $OID_hwdot1qTpFdbSetStatus");
+    $result = $this->{_sessionRead}->get_table(-baseoid => "$OID_hwdot1qTpFdbSetStatus");
+    foreach my $vlanMacOidStatus ( keys %{$result} ) {
+        # we are only interested by static entries
+        if ( $result->{$vlanMacOidStatus} ==  MAC_TYPE_STATIC) {
+            # grabbing Vlan and Mac
+            if ( $vlanMacOidStatus =~ /^$OID_hwdot1qTpFdbSetStatus\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)$/) {   
+                # TODO: consider building an oid2mac in util
+                my $oldMac = sprintf( "%02x:%02x:%02x:%02x:%02x:%02x", $2, $3, $4, $5, $6, $7 );
+                my $oldVlan = $1;
+
+                # we were interested by that port and port is in secure mode
+                if (grep($_ eq $oldMac, @macOnTargetPort)) { #this means "Is $oldMac in @macOnTargetPort array?"
+
+                    $logger->trace("On ifIndex $ifIndex, MAC: $oldMac is in secure mode on vlan $oldVlan (Port $dot1dBasePort)");
+                    push @{ $secureMacAddrHashRef->{$oldMac} }, int($oldVlan);
+                }
+            }
+        }
+    }
+
+    return $secureMacAddrHashRef;
+}
+=back
 
 =head1 BUGS AND LIMITATIONS
 
@@ -338,6 +497,8 @@ Mr.Ponpitak SANTIPAPTAWON	<ponpitak.s@psu.ac.th>
   http://netserv.cc.psu.ac.th
 
 Dominik Gehl <dgehl@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
