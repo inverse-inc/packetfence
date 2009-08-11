@@ -7,6 +7,8 @@
           now based on switch (switches.conf) instead of node
         new UPGRADE document that documents things to look out for
           when upgrading versions
+        added support for 3Com Switch 4200G and SS4500 in 
+          port-security mode
 
 1.8.4
         installer.pl asks to install Emerging Threats rule files
