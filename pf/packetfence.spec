@@ -4,8 +4,8 @@
 #2) rpmbuild --rebuild --define 'dist .el5' SRPMS/packetfence-1.8.4-1.src.rpm
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 1.8.5
-Release: dev%{?dist}
+Version: 1.8.4
+Release: test%{?dist}
 # in snapshot mode, usually it is:
 # Release: 20090717%{?dist}
 # TODO: i don't think its right since upgrading from a snapshot to a release would fail
@@ -14,12 +14,12 @@ Group: System Environment/Daemons
 URL: http://www.packetfence.org
 AutoReqProv: 0
 BuildArch: noarch
-BuildRoot: %{_tmppath}/%{name}-%{version}-root
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 Packager: Olivier Bilodeau <obilodeau@inverse.ca>
 Vendor: PacketFence, http://www.packetfence.org
 
-Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz
+Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}-%{release}.tar.gz
 # Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}-20090717.tar.gz
 
 BuildRequires: gettext, perl(Parse::RecDescent), httpd
@@ -33,6 +33,8 @@ Requires: perl >= 5.8.0, perl-suidperl
 Requires: perl-Apache-Htpasswd
 Requires: perl-Bit-Vector
 Requires: perl-CGI-Session
+Requires: perl-Class-Accessor
+Requires: perl-Class-Accessor-Fast-Contained
 Requires: perl-Class-Data-Inheritable
 Requires: perl-Class-Gomor
 Requires: perl-Config-IniFiles >= 2.40
@@ -67,7 +69,7 @@ Requires: perl-Thread-Pool
 Requires: perl-TimeDate
 Requires: perl-UNIVERSAL-require
 Requires: perl-YAML
-Requires: php-jpgraph
+Requires: php-jpgraph-packetfence = 2.3.4
 
 %description
 
