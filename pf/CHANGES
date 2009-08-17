@@ -9,6 +9,9 @@
           when upgrading versions
         added support for 3Com Switch 4200G and SS4500 in 
           port-security mode
+        added support for Extreme Networks Summit X250e in
+          linkUp/linkDown mode
+        added more warning messages
 
 1.8.4
         installer.pl asks to install Emerging Threats rule files
