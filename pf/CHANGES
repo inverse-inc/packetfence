@@ -12,6 +12,8 @@
         added support for Extreme Networks Summit X250e in
           linkUp/linkDown mode
         added more warning messages
+	fixed SNMPv3 trap-handling for HP Procurve
+	  (http://www.packetfence.org/mantis/view.php?id=744)
 
 1.8.4
         installer.pl asks to install Emerging Threats rule files

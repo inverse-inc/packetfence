@@ -42,6 +42,8 @@ sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
     my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    #-- secureMacAddrViolation SNMP v1 & v2c
     if ( $trapString
         =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.2\.1\.\d+ = INTEGER: 1\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.3\.1\.(\d+) = INTEGER: \d+\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.4\.1\.\d+ = Hex-STRING: ([0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2})/
         )
@@ -53,7 +55,19 @@ sub parseTrap {
         $trapHashRef->{'trapVlan'}
             = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
 
-        #link up/down
+    #-- secureMacAddrViolation SNMP v3
+    } elsif ( $trapString
+        =~ /BEGIN VARIABLEBINDINGS.*OID: \.1\.3\.6\.1\.4\.1\.11\.2\.14\.12\.4\.0\.\d+\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.2\.1\.\d+ = INTEGER: 1\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.3\.1\.(\d+) = INTEGER: \d+\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.4\.1\.\d+ = Hex-STRING: ([0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2})/          
+        )   
+    {   
+        $trapHashRef->{'trapType'}    = 'secureMacAddrViolation';
+        $trapHashRef->{'trapIfIndex'} = $1;
+        $trapHashRef->{'trapMac'}     = lc($2);
+        $trapHashRef->{'trapMac'} =~ s/ /:/g;
+        $trapHashRef->{'trapVlan'}
+            = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
+
+    #link up/down
     } elsif ( $trapString
         =~ /BEGIN TYPE ([23]) END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.([0-9]+) = INTEGER: [0-9]+ END VARIABLEBINDINGS/
         )
@@ -446,7 +460,7 @@ Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2008 Inverse inc.
+Copyright (C) 2007-2009 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
