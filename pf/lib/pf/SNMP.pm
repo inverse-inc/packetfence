@@ -1184,6 +1184,16 @@ sub getRegExpFromList {
     return $regexp;
 }
 
+=item getBitAtPosition - returns the bit at the position specified
+
+The input must be the untranslated raw result of an snmp get_table
+
+=cut
+sub getBitAtPosition {
+   my ($this, $bitStream, $position) = @_;
+   return substr(unpack('B*', $bitStream), $position, 1);
+}
+
 =item modifyBitmask - replaces the specified bit in a packed bitmask and returns the modified bitmask, re-packed
 
 =cut
@@ -1193,6 +1203,20 @@ sub modifyBitmask {
     my $bitMaskString = unpack( 'B*', $bitMask );
     substr( $bitMaskString, $offset, 1, $replacement );
     return pack( 'B*', $bitMaskString );
+}
+
+=item createPortListWithOneItem - generate a PortList (Bitmask) with one bit turned on at the specified index value
+
+The output is a packed binary representation useful to snmp::set_request
+
+=cut
+
+sub createPortListWithOneItem {
+    my ($this, $position) = @_;
+    
+    # output zeros up to position -1 and put a 1 in position
+    my $numZeros = $position - 1;
+    return pack("B*",0 x $numZeros . 1);
 }
 
 =item getSysUptime - returns the sysUpTime
@@ -1248,6 +1272,9 @@ sub _getMacAtIfIndex {
         if ( $macBridgePortHash{$_mac} eq $ifIndex ) {
             push @macArray, $_mac;
         }
+    }
+    if (!@macArray) {
+        $logger->warn("couldn't get MAC at ifIndex $ifIndex. This is a problem.");
     }
     return @macArray;
 }
@@ -1779,10 +1806,11 @@ sub getVlanFdbId {
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008 Inverse inc.
+Copyright (C) 2006-2009 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
