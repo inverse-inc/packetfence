@@ -1051,16 +1051,6 @@ function PrintSubNav($menu){
     return true;
   }
 
-  function check_input($input){
-    if(preg_match("/^[a-zA-Z0-9\:\,\(\)]/", $input) && strlen($input) <= 15){
-      return true;
-    }
-    else{
-      print "Invalid parameter: $input<br>";
-      return false;
-    }
-  }
-
   function pf_error($severity, $error, $file, $line, $errcontext){
     $error_types = array('User Warning', 'User Notice', 'Warning', 'Notice', 'Core Warning', 'Compile Warning', 'User Error', 'Error', 'Parse', 'Core Error', 'Compile Error');
     
