@@ -14,6 +14,8 @@
         added more warning messages
 	fixed SNMPv3 trap-handling for HP Procurve
 	  (http://www.packetfence.org/mantis/view.php?id=744)
+        SECURITY: fixed sensitive information leak in admin login.
+          When password were considered invalid they were displayed
 
 1.8.4
         installer.pl asks to install Emerging Threats rule files

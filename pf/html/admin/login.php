@@ -8,7 +8,7 @@ function get_group($user) {
 }
 
 function check_input($input){
-  if(preg_match("/^[\@a-zA-Z0-9\:\,\(\)]/", $input) && strlen($input) <= 15){
+  if(preg_match("/^[\@a-zA-Z0-9_\:\,\(\)]/", $input) && strlen($input) <= 15){
     return true; 
   }        
   else{
@@ -16,6 +16,17 @@ function check_input($input){
     return false;           
   }
 } 
+
+//TODO are we being too difficult on what we accept as a password? ie: pass starting with ; is invalid
+function check_sensitive_input($input){
+  if(preg_match("/^[\@a-zA-Z0-9_\:\,\(\)]/", $input) && strlen($input) <= 15){
+    return true;
+  }
+  else{
+    print "Invalid sensitive parameter<br>";
+    return false;
+  }
+}
 
 //function validate_user($user,$pass,$hash='') {
 //  include(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/admin_ldap.conf");
@@ -104,7 +115,7 @@ else {
     }
   }
 
-  if (isset($_POST['username'], $_POST['password']) && check_input($_POST['username']) && check_input($_POST['password'])) {
+  if (isset($_POST['username'], $_POST['password']) && check_input($_POST['username']) && check_sensitive_input($_POST['password'])) {
     $hash = validate_user($_POST['username'], $_POST['password']);
     if(!$hash || !isset($_COOKIE['test'])){
       $failed = true;
