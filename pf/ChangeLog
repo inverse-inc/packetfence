@@ -1,0 +1,7 @@
+2009-08-19	Ludovic Marcotte <lmarcotte@inverse.ca>
+
+	* Renamed CHANGES to NEWS and updated the spec
+	file to reflect this change
+	* packetfence.spec and
+	pf/docs/MIB/Inverse-PacketFence-Notification.mib
+	Modified to use support@inverse.ca as the contact information

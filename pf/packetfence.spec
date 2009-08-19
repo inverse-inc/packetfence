@@ -16,7 +16,7 @@ AutoReqProv: 0
 BuildArch: noarch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
-Packager: Olivier Bilodeau <obilodeau@inverse.ca>
+Packager: Inverse inc. <support@inverse.ca>
 Vendor: PacketFence, http://www.packetfence.org
 
 Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}-%{release}.tar.gz
@@ -150,7 +150,8 @@ cp -r configurator.pl $RPM_BUILD_ROOT/usr/local/pf/
 cp -r installer.pl $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README_SWITCHES $RPM_BUILD_ROOT/usr/local/pf/
-cp -r CHANGES $RPM_BUILD_ROOT/usr/local/pf/
+cp -r NEWS $RPM_BUILD_ROOT/usr/local/pf/
+cp -r ChangeLog $RPM_BUILD_ROOT/usr/local/pf/
 cp -r COPYING $RPM_BUILD_ROOT/usr/local/pf/
 
 #start create symlinks

@@ -13,7 +13,7 @@ inversePacketFenceNotificationMIB MODULE-IDENTITY
   ORGANIZATION "Inverse inc."
   CONTACT-INFO
     "Inverse
-     email: dgehl@inverse.ca"
+     email: support@inverse.ca"
   DESCRIPTION
     "Definition of PacketFence SNMP Notification"
   ::= { inverse 1 }
