@@ -1,3 +1,25 @@
+2009-08-25	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Installation_Guide.odt: Install Guide updated
+	Details
+	- version bump
+	- yum update before rpmforge install
+	- removed priorities requirement (not sure about this one)
+	- updated installation procedure to reflect new yum repo
+	- re-generated ToC so that updating the table works with OpenOffice 3.1
+	- added index links to the ToC elements, it now creates a linkified PDF
+	- switch setup now points to the Admin Guide for more switch config
+	samples and supported devices list
+	- re-org: switches definition before custom trap handling functions 
+	since pf's new behavior is based on switch definition rather than 
+	per-node
+	- explained new correctVlan behavior
+	- modifed switches definition to outline the fact that vlan number can
+	be overloaded in a specific switch from the default
+	- some minor prettification
+	- mentionned new support packages and added meat in commecial support 
+	section
+
+
 2009-08-19	Ludovic Marcotte <lmarcotte@inverse.ca>
 
 	* Renamed CHANGES to NEWS and updated the spec
