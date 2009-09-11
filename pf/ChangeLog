@@ -1,3 +1,10 @@
+2009-09-11	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/sbin/pfsetvlan: pfsetvlan stops on SIGALRM signal
+	Die is properly sent to log4perl. No more misterious stops without any
+	error. Alarm signals are known to be buggy with threaded perl. Fixes 
+	bug #796;
+	http://www.packetfence.org/mantis/view.php?id=796
+
 2009-08-25	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/docs/PacketFence_Installation_Guide.odt: Install Guide updated
 	Details

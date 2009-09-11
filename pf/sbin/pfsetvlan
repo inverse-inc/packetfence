@@ -112,6 +112,14 @@ POSIX::sigaction(
     )
 ) or $logger->logdie("pfsetvlan: could not set SIGINT handler: $!");
 
+POSIX::sigaction(
+    &POSIX::SIGALRM,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pfsetvlan: could not set SIGALRM handler: $!");
+
+
 # }}}1
 
 # command line options {{{1
@@ -1824,7 +1832,13 @@ sub normal_sighandler {
             locationlog_close_all();
         }
     }
-    $logger->logdie( "pfsetvlan: caught SIG" . $_[0] . " - terminating" );
+    if ( $_[0] eq "ALRM" ) {
+        # alarm signals are known to be buggy with threaded perl
+        # ref: http://rt.perl.org/rt3/Public/Bug/Display.html?id=16807
+        $logger->logcroak("pfsetvlan: caught SIG".$_[0].". This is likely caused by a module using alarm() and threaded perl doesn't like that - terminating");
+    } else {
+        $logger->logdie( "pfsetvlan: caught SIG" . $_[0] . " - terminating" );
+    }
 }
 
 # }}}1
