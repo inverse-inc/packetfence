@@ -1,4 +1,10 @@
 2009-09-11	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Linksys.pm: Deactivated port security on Linksys
+	Known to be broken and the telnet code was sending SIGALRM and crashing
+	pfsetvlan.
+	Also added some trace level logging statements. Fixes bug #797;
+	http://www.packetfence.org/mantis/view.php?id=797
+
 	* pf/sbin/pfsetvlan: pfsetvlan stops on SIGALRM signal
 	Die is properly sent to log4perl. No more misterious stops without any
 	error. Alarm signals are known to be buggy with threaded perl. Fixes 
