@@ -144,6 +144,12 @@ SetEnvIf User-Agent ".*MSIE.*" \
   #RewriteRule ^/remupd/cidsync.upd$ - [F,L]
   #RewriteRule ^/NTInst/i386/cidsync.upd$ - [F,L]
 
+  # Some UserAgents we don't want to mess with
+  RewriteCond %{HTTP_USER_AGENT} ^Microsoft-CryptoAPI.* [OR]
+  RewriteCond %{HTTP_USER_AGENT} ^WinHttp-Autoproxy-Service.* [OR]
+  RewriteCond %{HTTP_USER_AGENT} ^Windows-Update-Agent.*
+  RewriteRule ^.*$ - [L,forbidden]
+
   RewriteCond %{REQUEST_URI} !^/favicon.ico
   RewriteCond %{REQUEST_URI} !^/msdownload/update/v3/static/trustedr/en/authrootseq.txt$
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
@@ -193,6 +199,11 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteEngine On
   #RewriteLogLevel 3
   #RewriteLog %%install_dir%%/logs/rewrite_log
+
+  # Some UserAgents we don't want to mess with
+  RewriteCond %{HTTP_USER_AGENT} ^Microsoft-CryptoAPI.* [OR]
+  RewriteCond %{HTTP_USER_AGENT} ^Windows-Update-Agent.*
+  RewriteRule ^.*$ - [L,forbidden]
 
   RewriteCond %{REQUEST_URI} !^/favicon.ico
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi

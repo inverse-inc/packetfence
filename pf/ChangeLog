@@ -1,4 +1,11 @@
 2009-09-11	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/templates/httpd.conf.apache22 and 
+	pf/conf/templates/httpd.conf.pre_apache22: Block misbehaving User Agents
+	Block at the apache level some User Agents that we don't care about
+	such as Windows Update, etc. We give them a 403 error (forbidden).
+	Fixes bug #790;
+	http://www.packetfence.org/mantis/view.php?id=790
+
 	* pf/lib/pf/SNMP/Linksys.pm: Deactivated port security on Linksys
 	Known to be broken and the telnet code was sending SIGALRM and crashing
 	pfsetvlan.
