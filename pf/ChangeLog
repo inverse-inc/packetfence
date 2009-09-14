@@ -1,4 +1,8 @@
 2009-09-14	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/high-availability/mysqld-init-script-lsb-fix.patch, 
+	pf/addons/high-availability/named-init-script-lsb-fix.patch: LSB 
+	compliance patches for MySQL and Bind
+
 	* pf/addons/database-backup-and-maintenance.sh: Added basic database
 	maintenance and backup script
 
