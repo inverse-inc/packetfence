@@ -12,17 +12,15 @@
 #
 # Licensed under the GPL
 #
+# Installation: make sure you created locationlog_history (based on locationlog) and edit DB_PWD to fit your password.
 
 NB_DAYS_TO_KEEP=70
-HOST_NAME=`/bin/hostname -a | /bin/egrep -o 'pf[12]' | /bin/sort | /usr/bin/uniq`
 DB_USER='pf';
 # make sure access to this file is properly secured! (chmod a=,u=rw)
 DB_PWD='';
 DB_NAME='pf';
 BACKUP_DIRECTORY='/root/backup'
 BACKUP_DB_FILENAME='packetfence-db-dump'
-BACKUP_HOST=''
-BACKUP_USER=root
 
 # is MySQL running? meaning we are the live packetfence
 if [ -f /var/run/mysqld/mysqld.pid ]; then
