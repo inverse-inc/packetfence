@@ -1,3 +1,7 @@
+2009-09-14	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/logrotate: Added a basic logrotate sample script for 
+	packetfence
+
 2009-09-11	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/conf/templates/httpd.conf.apache22 and 
 	pf/conf/templates/httpd.conf.pre_apache22: Block misbehaving User Agents
