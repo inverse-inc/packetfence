@@ -1,3 +1,9 @@
+2009-09-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* Renamed pf/addons/high-availability/named-init-script-lsb-fix.patch
+	to pf/addons/high-availability/named-9.2-init-script-lsb-fix.patch:
+	bind 9.2 exposed wrong behavior but bind 9.3 is fine and patch doesn't
+	apply anyway
+
 2009-09-14	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/addons/high-availability/mysqld-init-script-lsb-fix.patch, 
 	pf/addons/high-availability/named-init-script-lsb-fix.patch: LSB 
