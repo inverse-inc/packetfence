@@ -1,4 +1,10 @@
 2009-09-16	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFenceZEN_Installation_Guide.odt: Documentation update
+	- updated commercial support section
+	- version bump
+	- ToC now linked internally
+	- fixed a few typos
+
 	* pf/docs/PacketFence_Developers_Guide.odt: Documentation update
 	- updated custom_getCorrectVlan sub according to new 1.8.5 behavior
 	- updated commercial support section
