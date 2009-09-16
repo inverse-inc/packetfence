@@ -1,3 +1,17 @@
+2009-09-16	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Documentation update
+	- updated supported switch list
+	- added how to configure 3Com NJ220
+	- added how to configure Amer SS2R24i
+	- added how to configure Extreme Networks switches
+	- integrated all the switches that we support in config section
+	- added a MySQL performance optimization tip 
+	- updated commercial support section
+	- fixed several typos
+	- removed whitespace
+	- version bump
+	- ToC now linked internally
+
 2009-09-15	Olivier Bilodeau <obilodeau@inverse.ca>
 	* Renamed pf/addons/high-availability/named-init-script-lsb-fix.patch
 	to pf/addons/high-availability/named-9.2-init-script-lsb-fix.patch:
