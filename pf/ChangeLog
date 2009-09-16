@@ -1,4 +1,11 @@
 2009-09-16	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Developers_Guide.odt: Documentation update
+	- updated custom_getCorrectVlan sub according to new 1.8.5 behavior
+	- updated commercial support section
+	- version bump
+	- ToC now linked internally
+	- fixed three typos
+
 	* pf/docs/PacketFence_Administration_Guide.odt: Documentation update
 	- updated supported switch list
 	- added how to configure 3Com NJ220
