@@ -371,9 +371,10 @@ sub violation_trigger {
     require pf::trigger;
     my @trigger_info = pf::trigger::trigger_view_enable( $tid, $type );
     if ( !scalar(@trigger_info) ) {
-        $logger->debug(
+        $logger->info(
             "violation not added, no trigger found for ${type}::${tid} or violation is disabled"
         );
+        return 0;
     }
     foreach my $row (@trigger_info) {
         my $vid = $row->{'vid'};

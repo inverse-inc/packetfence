@@ -1,4 +1,9 @@
 2009-09-18	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/violation.pm: Crash fix
+	If we attempted to trigger a violation but no trigger for the violation
+	existed, we still tried to move on and add the violation which caused
+	the use of a 0 in an hash reference thus a crash.
+
 	* pf/lib/pf/vlan.pm: Fix a crash that happens if violation classes are
 	corrupted and a vlan change is required (like when a violation is
 	created)
