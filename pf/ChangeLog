@@ -1,4 +1,8 @@
 2009-09-18	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: New switch config
+	Added configuration information for SMC TigerStack 6224M. Thanks to
+	Chinasee B. <chinasee.b@psu.ac.th> who provided his config.
+
 	* pf/lib/pf/violation.pm: Crash fix
 	If we attempted to trigger a violation but no trigger for the violation
 	existed, we still tried to move on and add the violation which caused
