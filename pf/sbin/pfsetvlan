@@ -964,8 +964,8 @@ sub handleTrap {
         my $mac  = lc($trapMac);
         my $vlan = $trapVlan;
         $logger->info(
-            "$trapOperation trap for MAC $mac in VLAN $vlan on $switch_ip ifIndex $switch_port"
-        );
+            "$trapOperation trap received on $switch_ip ifIndex $switch_port for $mac in VLAN $vlan"
+    );
 
         # }}}3
 
@@ -1194,7 +1194,7 @@ sub handleTrap {
         # trapType eq 'secureMacAddrViolation' (with STATIC MACs) {{{2
     } elsif ( $trapType eq 'secureMacAddrViolation' ) {
         $logger->info(
-            "$trapType trap for MAC $trapMac on $switch_ip ifIndex $switch_port"
+	    "$trapType trap received on $switch_ip ifIndex $switch_port for $trapMac"
         );
 
         # generic port security handling {{{3
@@ -1713,7 +1713,7 @@ sub handleTrap {
     } elsif ( $trapType eq 'dot11Deauthentication' ) {
         my $mac = $trapMac;
         $logger->info(
-            "$trapType trap received on AP $switch_ip for MAC $mac");
+            "$trapType trap received on $switch_ip ifIndex WIFI for $mac");
 
 # we close the line opened for the mac. If there is no line, this won't do anything
         locationlog_update_end( $switch_ip, $switch_port, $mac );
