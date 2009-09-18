@@ -1,3 +1,8 @@
+2009-09-18	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/vlan.pm: Fix a crash that happens if violation classes are
+	corrupted and a vlan change is required (like when a violation is 
+	created)
+
 2009-09-15	Olivier Bilodeau <obilodeau@inverse.ca>
 	* Renamed pf/addons/high-availability/named-init-script-lsb-fix.patch
 	to pf/addons/high-availability/named-9.2-init-script-lsb-fix.patch:
