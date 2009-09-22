@@ -94,11 +94,6 @@ sub _setVlan {
         = '1.3.6.1.2.1.17.7.1.4.3.1.2';                  # Q-BRIDGE-MIB
     my $result;
 
-    my $dot1dBasePort = $this->getDot1dBasePortForThisIfIndex($ifIndex);
-    if ( !defined($dot1dBasePort) ) {
-        return 0;
-    }
-
     $logger->trace( "locking - trying to lock \$switch_locker{"
             . $this->{_ip}
             . "} in _setVlan" );

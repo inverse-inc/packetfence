@@ -1,3 +1,6 @@
+2009-09-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/HP.pm: Removed unused code
+
 2009-09-18	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/docs/PacketFence_Administration_Guide.odt: New switch config
 	Added configuration information for SMC TigerStack 6224M. Thanks to
