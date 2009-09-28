@@ -1,4 +1,11 @@
 2009-09-28	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Enterasys/Matrix_N3.pm, pf/README_SWITCHES,
+	pf/docs/PacketFence_Administration_Guide.odt: Added support for
+	Enterasys Matrix N3 Switch (Chassis)
+	It works in linkUp/linkDown mode and port-security (called maclock on
+	Enterasys hardware). Talks to the switch using SNMP.
+	Documentation on how to configure was added to the admin guide.
+
 	* pf/lib/pf/SNMP/Enterasys.pm: Fix for maclock support (Enterasys' port
 	security): Trap string had a typo in parseTrap()
 
