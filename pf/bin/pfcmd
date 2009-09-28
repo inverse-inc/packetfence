@@ -2168,7 +2168,7 @@ sub print_graph_results {
 
 #
 # format a hash of assignments based on the grammar
-# example: format_assignment($cmd{node_assignment);
+# example: format_assignment($cmd{node_assignment});
 #
 sub format_assignment {
     my @fields = @_;
