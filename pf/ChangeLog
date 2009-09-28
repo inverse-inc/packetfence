@@ -1,4 +1,7 @@
 2009-09-28	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Enterasys.pm: Fix for maclock support (Enterasys' port
+	security): Trap string had a typo in parseTrap()
+
 	* pf/bin/pfcmd: Fixed a typo in a comment
 
 2009-09-24	Olivier Bilodeau <obilodeau@inverse.ca>
