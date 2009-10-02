@@ -1,4 +1,8 @@
 2009-10-02	Olivier Bilodeau <obilodeau@inverse.ca>
+	* Added pf/addons/high-availability/dhcpd-3.0.5-init-script-lsb-fix.patch:
+	Little patch to fix LSB compliance of dhcpd's init script. Non-compliant init 
+	scripts generate scary error messages in Heartbeat. 
+
 	* pf/conf/log.conf: Logging priority now shown in log files
 
 	* pf/lib/pf/SNMP/Enterasys/SecureStack_C3.pm, pf/README_SWITCHES: Added
