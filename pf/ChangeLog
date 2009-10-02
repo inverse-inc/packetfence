@@ -1,4 +1,6 @@
 2009-10-02	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/log.conf: Logging priority now shown in log files
+
 	* pf/lib/pf/SNMP/Enterasys/SecureStack_C3.pm, pf/README_SWITCHES: Added
 	support for Enterasys SecureStack C3 Switch
 	It works in linkUp/linkDown mode and port-security (called maclock on
