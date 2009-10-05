@@ -33,7 +33,7 @@ msgstr "If you have questions about this page, contact your local support staff 
 
 
 msgid  "register: all systems must be registered"
-msgstr "As we may need to contact users regarding  individual systems, all systems on this network must be registered."
+msgstr "As we may need to contact users regarding individual systems, all systems on this network must be registered."
 
 msgid  "register: aup"
 msgstr "The registration process will require acceptance of an Acceptable Use Policy (AUP).  If you wish to read this policy before beginning the registration process, please visit:"
