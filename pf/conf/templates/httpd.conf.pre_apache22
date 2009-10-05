@@ -202,6 +202,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
   # Some UserAgents we don't want to mess with
   RewriteCond %{HTTP_USER_AGENT} ^Microsoft-CryptoAPI.* [OR]
+  RewriteCond %{HTTP_USER_AGENT} ^WinHttp-Autoproxy-Service.* [OR]
   RewriteCond %{HTTP_USER_AGENT} ^Windows-Update-Agent.*
   RewriteRule ^.*$ - [L,forbidden]
 
