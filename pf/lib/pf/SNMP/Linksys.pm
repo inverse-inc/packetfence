@@ -97,7 +97,7 @@ sub getTrunkPorts {
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     if ( !$this->connectRead() ) {
-        return @trunkPorts;
+        return -1;
     }
     $logger->trace(
         "SNMP get_table for vlanPortModeState: $OID_vlanPortModeState");
@@ -115,6 +115,7 @@ sub getTrunkPorts {
     } else {
         $logger->error( "Problem while reading vlanPortModeState for switch "
                 . $this->{_ip} );
+        return -1;
     }
     return @trunkPorts;
 }

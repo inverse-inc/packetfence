@@ -971,7 +971,7 @@ sub getUpLinks {
     if ( @{ $this->{_uplink} }[0] eq 'Dynamic' ) {
 
         if ( !$this->connectRead() ) {
-            return @upLinks;
+            return -1;
         }
 
         my $oid_cdpGlobalRun

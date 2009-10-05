@@ -1786,6 +1786,7 @@ sub getUpLinks {
                 . $this->{_ip}
                 . ", 'uplink = Dynamic' in config file but this is not supported !"
         );
+        return -1;
     } else {
         @upLinks = @{ $this->{_uplink} };
     }
