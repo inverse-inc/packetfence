@@ -1781,7 +1781,7 @@ sub getUpLinks {
     my @upLinks;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    if ( @{ $this->{_uplink} }[0] eq 'Dynamic' ) {
+    if ( lc(@{ $this->{_uplink} }[0]) eq 'dynamic' ) {
         $logger->warn( "Warning: for switch "
                 . $this->{_ip}
                 . ", 'uplink = Dynamic' in config file but this is not supported !"

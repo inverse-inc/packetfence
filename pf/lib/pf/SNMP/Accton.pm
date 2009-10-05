@@ -105,7 +105,7 @@ sub getUpLinks {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my @upLinks;
 
-    if ( @{ $this->{_uplink} }[0] eq 'Dynamic' ) {
+    if ( lc(@{ $this->{_uplink} }[0]) eq 'dynamic' ) {
         @upLinks = $this->getTrunkPorts();
     } else {
         @upLinks = @{ $this->{_uplink} };

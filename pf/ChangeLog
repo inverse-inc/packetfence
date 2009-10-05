@@ -1,4 +1,12 @@
 2009-10-05	Olivier Bilodeau <obilodeau@inverse.ca>
+	* UPGRADING: Added notes about the last two uplink fixes since someone
+	could rely on the bug's behaviour without his knowledge.
+
+	* pf/lib/pf/SNMP/Accton.pm, pf/lib/pf/SNMP/Cisco.pm, 
+	pf/lib/pf/SNMP/Linksys.pm, pf/lib/pf/SNMP/Nortel.pm, pf/lib/pf/SNMP.pm:
+	switches.conf's uplink=dynamic is now case-insensitive. Fixes #809;
+	http://www.packetfence.org/mantis/view.php?id=809
+
 	* pf/lib/pf/SNMP/Accton.pm, pf/lib/pf/SNMP/Cisco.pm, 
 	pf/lib/pf/SNMP/Linksys.pm, pf/lib/pf/SNMP/Nortel.pm, pf/lib/pf/SNMP.pm:
 	Various getUpLinks() subs didn't respect the "return -1 on failure" 

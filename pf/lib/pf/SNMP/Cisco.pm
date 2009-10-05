@@ -968,7 +968,7 @@ sub getUpLinks {
     my $result;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    if ( @{ $this->{_uplink} }[0] eq 'Dynamic' ) {
+    if ( lc(@{ $this->{_uplink} }[0]) eq 'dynamic' ) {
 
         if ( !$this->connectRead() ) {
             return -1;

@@ -7,6 +7,13 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to 1.8.5:
 
+    - Dynamic uplink fixes
+    In certain cases, PacketFence took action on switches where dynamic uplinks
+    couldn't be found. The bug is fixed but you might have relied on that 
+    behaviour.
+    http://www.packetfence.org/mantis/view.php?id=795
+    http://www.packetfence.org/mantis/view.php?id=809
+
     - Source of Correct/Normal VLAN changed
     Correct/Normal VLAN no longer comes from the database's node entry but from
     switches.conf. This is a modified behavior when returning the correct (aka 
