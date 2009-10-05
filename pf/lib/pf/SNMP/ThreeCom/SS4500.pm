@@ -54,6 +54,7 @@ sub getVersion {
     }
 }
 
+#TODO this implementation is broken, it returns an integer instead of vlan name
 sub getVlans {
     my $this                = shift;
     my $logger              = Log::Log4perl::get_logger( ref($this) );
