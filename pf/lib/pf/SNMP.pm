@@ -1219,6 +1219,26 @@ sub createPortListWithOneItem {
     return pack("B*",0 x $numZeros . 1);
 }
 
+=item reverseBitmask - reverses all the bits (0 to 1, 1 to 0) from a packed bitmask and returns this new bitmask re-packed
+
+Works on byte blocks since perl's bitewise not operates at the arithmetic level and some hardware have so many ports that I could overflow integers.
+
+=cut
+
+sub reverseBitmask {
+    my ($this, $bitMask) = @_;
+
+    # reverse byte chunks since we don't know if input will be an int too large
+    my $flippedBitMask = "";
+    for (my $i = 0; $i < length($bitMask); $i++) {
+
+       # chop string; convert string to byte; bitewise not (arithmetic); convert number to byte (& 255 avoids a warning)
+       $flippedBitMask .= pack("C", ~ unpack("C", substr($bitMask,$i,$i+1)) & 255);
+    }
+
+    return $flippedBitMask;
+}
+
 =item getSysUptime - returns the sysUpTime
 
 =cut

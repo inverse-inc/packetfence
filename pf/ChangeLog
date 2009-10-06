@@ -1,3 +1,13 @@
+2009-10-06	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Enterasys/D2.pm, pf/README_SWITCHES: Added support for
+	Enterasys Standalone D2 Switch
+	It works in linkUp/linkDown mode and port-security (called maclock on
+	Enterasys hardware). Talks to the switch using SNMP.
+
+	* pf/README_SWITCHES, pf/docs/PacketFence_Administration_Guide.odt: 
+	Added instructions to setup the D2
+	Updated supported switches list
+
 2009-10-05	Olivier Bilodeau <obilodeau@inverse.ca>
 	* UPGRADING: Added notes about the last two uplink fixes since someone
 	could rely on the bug's behaviour without his knowledge.
