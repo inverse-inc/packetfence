@@ -1,3 +1,6 @@
+2009-10-08	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/util.pm: Removed commented code
+
 2009-10-06	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/SNMP/Enterasys/D2.pm, pf/README_SWITCHES: Added support for
 	Enterasys Standalone D2 Switch

@@ -164,7 +164,6 @@ sub trappable_mac {
     return (0) if ( !$mac );
     $mac = clean_mac($mac);
 
-#if (!valid_mac($mac) || whitelisted_mac($mac) || $mac eq getlocalmac(ip2device(mac2ip($mac))) || $mac eq $blackholemac) {
     if (  !valid_mac($mac)
         || whitelisted_mac($mac)
         || grep( { $_ eq $mac } get_internal_macs() )
