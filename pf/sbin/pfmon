@@ -402,7 +402,8 @@ sub hello {
         #  arp from my ip please
         my $intip = ip2interface($ip);
         my $mymac = getlocalmac( ip2device($ip) );
-        if ( $mac =~ /ff:ff:ff:ff:ff:ff/ || trappable_mac($mac) ) {
+        # if broadcast or (is not whitelisted and trappable)
+        if ( $mac =~ /ff:ff:ff:ff:ff:ff/ || !whitelisted_mac($mac) && trappable_mac($mac) ) {
             arpmac( $mymac, $intip, $mac, $ip, 0, 1 );
             $logger->debug("heartbeat sent to $mac ($ip)");
         }
@@ -421,7 +422,7 @@ sub goodbye {
         my $mac = $row->{'mac'};
         my $ip  = $row->{'ip'};
 
-        if ( trappable_ip($ip) && trappable_mac($mac) ) {
+        if ( trappable_ip($ip) && !whitelisted_mac($mac) && trappable_mac($mac) ) {
             my $diff = $cache->get_arptime($mac);
             if ( $diff <= $heartbeat ) {
                 $logger->info("trapping $mac last seen $diff seconds ago");

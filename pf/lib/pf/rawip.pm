@@ -42,7 +42,7 @@ sub trapmac {
     foreach my $ip ( mac2allips($mac) ) {
         my $gip  = ip2gateway($ip);
         my $gmac = getlocalmac( ip2device($ip) );
-        if ( !trappable_mac($mac) || !trappable_ip($ip) ) {
+        if ( whitelisted_mac($mac) || !trappable_mac($mac) || !trappable_ip($ip) ) {
             $all_ok = 0;
         } else {
             $logger->info(

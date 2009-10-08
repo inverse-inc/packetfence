@@ -1,4 +1,9 @@
 2009-10-08	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/rawip.pm, pf/lib/pf/util.pm, pf/sbin/pfmon: Testing for 
+	whitelisted_mac is no longer called inside trappable_mac sub.
+	Modified callers so they do the test themselves.
+	Whitelisting validation was called two times because of that.
+
 	* pf/lib/util.pm: Removed commented code
 
 2009-10-06	Olivier Bilodeau <obilodeau@inverse.ca>
