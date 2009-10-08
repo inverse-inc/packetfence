@@ -4,7 +4,7 @@
 	Modified callers so they do the test themselves.
 	Whitelisting validation was called two times because of that.
 
-	* pf/lib/util.pm: Removed commented code
+	* pf/lib/pf/util.pm: Removed commented code
 
 2009-10-06	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/SNMP/Enterasys/D2.pm, pf/README_SWITCHES: Added support for
