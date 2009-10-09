@@ -1,3 +1,10 @@
+2009-10-09	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/violations.conf: Added device banning templates for iPod 
+	touch, iPhone, BlackBerries, PlayStation 3, PSP and Slingbox. 
+
+	* pf/conf/dhcp_fingerprints.conf: PlayStation 3 also detects
+	PlayStation Portable (PSP)
+
 2009-10-09      Regis Balzard <rbalzard@inverse.ca>
 	* pf/lib/pf/vlan.pm: Removed isClientAlive() since we remove the Hub violation
 	that creates too many false positives. 
