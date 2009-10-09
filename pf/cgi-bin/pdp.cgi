@@ -16,7 +16,7 @@ use pf::config;
 use pf::db;
 use pf::util;
 use pf::iplog;
-use pf::trigger;
+use pf::violation;
 
 use SOAP::Transport::HTTP;
 
@@ -34,33 +34,17 @@ SOAP::Transport::HTTP::CGI
 sub event_add {
   my ($class, $date, $srcip, $type, $id) = @_;
   $logger->info("violation: $id - IP $srcip");
-  my $dbh = db_connect();
 
-  my @trigger_info = trigger_view_enable($id,$type);
-  if (scalar(@trigger_info)) {
-    foreach my $row (@trigger_info) {
-      my $vid = $row->{'vid'};
-      my $srcmac = ip2mac($srcip);
-      if ($srcmac) {
-        $logger->info("violation: $vid - IP $srcip : IP resolved to $srcmac");
-        if (whitelisted_mac($srcmac)) {
-          $logger->info("violation: $vid - IP $srcip : violation not added, $srcmac is whitelisted !");
-        } elsif (!valid_mac($srcmac)) {
-          $logger->info("violation: $vid - IP $srcip : violation not added, $srcmac is not valid !");
-        } elsif (!trappable_ip($srcip)) {
-          $logger->info("violation: $vid - IP $srcip : violation not added, IP is not trappable !");
-        } elsif (!trappable_mac($srcmac)) {
-          $logger->info("violation: $vid - IP $srcip : violation not added, $srcmac is not trappable !");
-        } else  {
-          `/usr/local/pf/bin/pfcmd violation add vid=$vid,mac=$srcmac`;
-        }
-      } else {
-        $logger->info("violation: $vid - IP $srcip : violation not added, can not resolve IP to mac !");
-        return(0);
-      }
-    }
+  # fetch IP associated to MAC
+  my $srcmac = ip2mac($srcip);
+  if ($srcmac) {
+
+    # trigger a violation
+    violation_trigger($srcmac, $id, $type, { ip => $srcip });
+
   } else {
-    $logger->info("violation: $id - IP $srcip : violation not added, no trigger found or violation is disabled");
+    $logger->info("violation on IP $srcip with trigger $type::$id : violation not added, cannot resolve IP to mac !");
+    return(0);
   }
   return (1);
 }

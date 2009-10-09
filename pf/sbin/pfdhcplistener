@@ -265,6 +265,7 @@ sub listen_dhcp {
             $logger->warn(
                 "$src ($smac) was detected offering $yiaddr to $chaddr on $eth"
             );
+            #TODO: merge this hackish violation into standard violation management in a new violation type
             `$bin_dir/pfcmd 'violation add vid=1100010, mac=$smac'`;
             if (scalar( @{ $rogue_servers{$smac} } )
                 == $Config{'network'}{'rogueinterval'} )

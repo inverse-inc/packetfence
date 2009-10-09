@@ -1,3 +1,9 @@
+2009-10-09	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/cgi-bin/pdp.cgi, pf/lib/pf/violation.pm, pf/sbin/pfdetect,
+	pf/sbin/pfdhcplistener: The validation that the violation is applicable
+	is now done in violation_trigger removing duplicate code. Fixes #801;
+	http://www.packetfence.org/mantis/view.php?id=801
+
 2009-10-08	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/rawip.pm, pf/lib/pf/util.pm, pf/sbin/pfmon: Testing for 
 	whitelisted_mac is no longer called inside trappable_mac sub.

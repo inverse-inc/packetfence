@@ -128,25 +128,13 @@ while (<$snortpipe_fh>) {
     $srcmac = ip2mac($srcip);
 
     if ($srcmac) {
-        $logger->info("pfdetect: violation $sid [$descr]: $srcmac");
-        if (   valid_mac($srcmac)
-            && !whitelisted_mac($srcmac)
-            && trappable_ip($srcip)
-            && trappable_mac($srcmac) )
-        {
 
-            #violation_trigger($srcmac, $sid, "detect");
-            `/usr/local/pf/bin/pfcmd violation add vid=$sid,mac=$srcmac`;
-        } else {
-            $logger->info(
-                "violation $sid [$descr]: $srcmac not added, host is not trappable, or whitelisted"
-            );
-        }
+        $logger->info("pfdetect: violation $sid [$descr]: $srcmac");
+        violation_trigger($srcmac, $sid, "detect");
     } else {
         $logger->warn(
             "pfdetect: $srcip MAC NOT FOUND for violation $sid [$descr]");
     }
-
 }
 
 END {

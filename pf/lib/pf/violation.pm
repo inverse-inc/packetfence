@@ -379,10 +379,26 @@ sub violation_trigger {
     foreach my $row (@trigger_info) {
         my $vid = $row->{'vid'};
 
-        #violation_add($mac,$row->{'vid'},%data);
-        # TODO: fix hardcoded path, should use installdir something instead
-        `/usr/local/pf/bin/pfcmd violation add vid=$vid,mac=$mac`;
-        $logger->info("calling /usr/local/pf/bin/pfcmd violation add vid=$vid,mac=$mac");
+        if (whitelisted_mac($mac)) {
+            $logger->info("violation: $vid - MAC $mac : violation not added, $mac is whitelisted !");
+
+        } elsif (!valid_mac($mac)) {
+            $logger->info("violation: $vid - MAC $mac : violation not added, $mac is not valid !");
+
+        } elsif (!trappable_mac($mac)) {
+            $logger->info("violation: $vid - MAC $mac : violation not added, $mac is not trappable !");
+
+        # if we were given an IP as additionnal violation trigger info
+        # test whether this ip is trappable or not
+        } elsif (defined($data{ip}) && !trappable_ip($data{ip})) {
+            $logger->info("violation: $vid - MAC $mac : violation not added, IP ".$data{ip}." is not trappable !");
+
+        } else  {
+            # TODO: fix hardcoded path, should use installdir something instead
+            $logger->info("calling /usr/local/pf/bin/pfcmd violation add vid=$vid,mac=$mac");
+            # forking a pfcmd because it will call a vlan flip if needed
+            `/usr/local/pf/bin/pfcmd violation add vid=$vid,mac=$mac`;
+        }
     }
     return 1;
 }
