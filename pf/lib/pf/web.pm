@@ -392,7 +392,7 @@ sub web_node_record_user_agent {
         pf::violation::violation_trigger( $mac, $user_agent_info[0]->{'useragent_id'}, "USERAGENT" );
 
     } else {
-        $logger->warn("unknown User-Agent: $user_agent");
+        $logger->info("unknown User-Agent: $user_agent");
         # TODO: record unknown useragents here? (how does dhcp fingerprint does it?)
     }
 

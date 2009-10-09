@@ -1,4 +1,7 @@
 2009-10-09	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/web.pm: Changed priority of unknown User-Agent log message
+	Was WARN is now INFO which is less scary and makes a lot more sense. 
+
 	* pf/conf/documentation.conf, pf/conf/pf.conf.defaults: Documentation
 	for the whitelist parameter is now more accurate.
 	
