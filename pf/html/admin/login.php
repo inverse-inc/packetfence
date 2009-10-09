@@ -28,38 +28,60 @@ function check_sensitive_input($input){
   }
 }
 
-//function validate_user($user,$pass,$hash='') {
-//  include(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/admin_ldap.conf");
-//
-//  if ($hash != '') {
-//    return $hash;
-//  }
-//
-//  $ldap = ldap_connect($ldap_host);
-//  if (!$ldap) {
-//    return false;
-//  }
-//  $bind = ldap_bind($ldap, $ldap_bind_dn, $ldap_bind_pwd);
-//  if (!$bind) {
-//    return false;
-//  }
-//  $result = ldap_search($ldap, $ldap_user_base, "$ldap_user_key=$user", array("dn"));
-//  $info = ldap_get_entries($ldap, $result);
-//  if (!$result) {
-//    return false;
-//  }
-//  if ($info["count"] != 1) {
-//    return false;
-//  }
-//  $user_dn = $info[0]["dn"];
-//  $bind = ldap_bind($ldap, $user_dn, $pass);
-//  if (!$bind) {
-//    return false;
-//  }
-//  return md5($pass);
-//}
 
-function validate_user($user, $pass, $hash = ''){
+// First we try to authenticate users through LDAP if LDAP config file is there
+// if the LDAP config file is not defined or if the LDAP auth fails then we authenticate through the local file
+function validate_user($user,$pass,$hash='') {
+    $result = false;
+
+    $result = validate_user_ldap($user,$pass,$hash);
+
+    if (!$result) {
+        $result = validate_user_flat_file($user,$pass,$hash);
+    }
+
+    return $result;
+}
+
+function validate_user_ldap($user,$pass,$hash='') {
+  include(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/admin_ldap.conf");
+
+  if ($hash != '') {
+    return $hash;
+  }
+  if (!isset($ldap_host) {
+    return false;
+  }
+  $ldap = ldap_connect($ldap_host);
+  if (!$ldap) {
+    return false;
+  }
+  $bind = ldap_bind($ldap, $ldap_bind_dn, $ldap_bind_pwd);
+  if (!$bind) {
+    return false;
+  }
+  if (isset($ldap_group_member_key) && isset($ldap_group_dn)) {
+    $filter="(&($ldap_user_key=$user)($ldap_group_member_key=$ldap_group_dn))";
+  } else {
+    $filter="$ldap_user_key=$user";
+  }
+  $result = ldap_search($ldap, $ldap_user_base, $filter, array("dn"));
+  $info = ldap_get_entries($ldap, $result);
+  if (!$result) {
+    return false;
+  }
+  if ($info["count"] != 1) {
+    return false;
+  }
+  $user_dn = $info[0]["dn"];
+  $bind = ldap_bind($ldap, $user_dn, $pass);
+  if (!$bind) {
+    return false;
+  }
+  return md5($pass);
+}
+
+function validate_user_flat_file($user, $pass, $hash = ''){
   $file = file(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/conf/admin.conf');
   foreach($file as $line){
     $line = rtrim($line);
