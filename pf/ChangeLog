@@ -1,4 +1,7 @@
 2009-10-09	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/documentation.conf, pf/conf/pf.conf.defaults: Documentation
+	for the whitelist parameter is now more accurate.
+	
 	* pf/cgi-bin/pdp.cgi, pf/lib/pf/violation.pm, pf/sbin/pfdetect,
 	pf/sbin/pfdhcplistener: The validation that the violation is applicable
 	is now done in violation_trigger removing duplicate code. Fixes #801;

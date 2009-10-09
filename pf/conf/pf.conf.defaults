@@ -182,8 +182,8 @@ blacklist=
 #
 # trapping.whitelist
 #
-# Comma-delimited list of MAC addresses that are immune to registration/trapping and are always allowed to pass.  Useful for
-# monitored switches, etc.
+# Comma-delimited list of MAC addresses that are immune to isolation. 
+# Additionally, in ARP mode no registration/trapping is performed so whitelisted hosts are always allowed to pass.
 whitelist=
 #
 # trapping.redirecturl
