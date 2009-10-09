@@ -1017,17 +1017,6 @@ sub handleTrap {
                                 . $locationlog[0]->{'mac'}
                                 . " is still present in mac-address-table; has probably already been relearned -> DO NOTHING"
                         );
-                    } elsif (
-                        $vlan_obj->custom_isClientAlive(
-                            $locationlog[0]->{'mac'},  $switch_ip,
-                            $switch_port,              $vlan,
-                            $switch->{_isolationVlan}, $mysql_connection
-                        )
-                        )
-                    {
-                        $logger->info( "Removed trap for MAC $mac: MAC "
-                                . $locationlog[0]->{'mac'}
-                                . " ALIVE -> DO NOTHING" );
                     } else {
                         $logger->info( "Removed trap for MAC $mac: MAC "
                                 . $locationlog[0]->{'mac'}
@@ -1052,15 +1041,6 @@ sub handleTrap {
                         $logger->debug("only MAC found is $onlyMacLeft");
                         if ($switch->isPhoneAtIfIndex( $onlyMacLeft,
                                 $switch_port )
-                            || (!$vlan_obj->custom_isClientAlive(
-                                    $onlyMacLeft,
-                                    $switch_ip,
-                                    $switch_port,
-                                    $vlan,
-                                    $switch->{_isolationVlan},
-                                    $mysql_connection
-                                )
-                            )
                             )
                         {
                             $nothingLeftOnSwitchPort = 1;
@@ -1129,54 +1109,12 @@ sub handleTrap {
                         }
                     } else {
 
-                        #is the old MAC still alive ?
                         $logger->info(
                                   "Learnt trap received for $mac. Old MAC "
                                 . $locationlog[0]->{'mac'}
                                 . " already connected to the port according to locationlog !"
                         );
-                        if ($vlan_obj->custom_isClientAlive(
-                                $locationlog[0]->{'mac'},
-                                $switch_ip,
-                                $switch_port,
-                                $vlan,
-                                $switch->{_isolationVlan},
-                                $mysql_connection
-                            )
-                            )
-                        {
-                            $logger->info(
-                                "old MAC is still ALIVE so there is a hub connected on $switch_ip ifIndex $switch_port"
-                            );
-                            $logger->info(
-                                      "create one Hub violation for old MAC "
-                                    . $locationlog[0]->{'mac'}
-                                    . " and one for MAC $mac" );
-                            my $cmd
-                                = PFCMD_FILE
-                                . " 'violation add vid=1400000,mac="
-                                . $locationlog[0]->{'mac'}
-                                . ",notes=\"other MAC is $mac\"'";
-                            my $output = qx/$cmd/;
-                            $logger->debug( "calling "
-                                    . PFCMD_FILE
-                                    . " 'violation add vid=1400000,mac="
-                                    . $locationlog[0]->{'mac'}
-                                    . ",notes=\"other MAC is $mac\"'" );
-                            $cmd
-                                = PFCMD_FILE
-                                . " 'violation add vid=1400000,mac=$mac,notes=\"other MAC is "
-                                . $locationlog[0]->{'mac'} . "\"'";
-                            $output = qx/$cmd/;
-                            $logger->debug( "calling "
-                                    . PFCMD_FILE
-                                    . " 'violation add vid=1400000,mac=$mac,notes=\"other MAC is "
-                                    . $locationlog[0]->{'mac'}
-                                    . "\"'" );
-                        } else {
-                            $logger->info("old MAC is DEAD -> change VLAN");
-                            $changeVlan = 1;
-                        }
+                        $changeVlan = 1;
                     }
                 } else {
                     $changeVlan = 1;
@@ -1332,56 +1270,15 @@ sub handleTrap {
                 && ( defined( $locationlog_pc[0]->{'mac'} ) ) )
             {
                 my $oldPC = $locationlog_pc[0]->{'mac'};
-                $logger->debug(
-                    "$oldPC has still open locationlog entry at $switch_ip ifIndex $switch_port"
-                );
-                if ($vlan_obj->custom_isClientAlive(
-                        $oldPC,                    $switch_ip,
-                        $switch_port,              $trapVlan,
-                        $switch->{_isolationVlan}, $mysql_connection
-                    )
-                    )
-                {
-                    $logger->info(
-                        "old mac $oldPC on $switch_ip ifIndex $switch_port is still alive. Create Hub violation"
-                    );
-                    my $cmd = PFCMD_FILE
-                        . " 'violation add vid=1400000, mac=$oldPC'";
-                    my $output = qx/$cmd/;
-                    $logger->debug( "calling "
-                            . PFCMD_FILE
-                            . " 'violation add vid=1400000,mac=$oldPC'" );
-                    $cmd = PFCMD_FILE
-                        . " 'violation add vid=1400000, mac=$trapMac'";
-                    $output = qx/$cmd/;
-                    $logger->debug( "calling "
-                            . PFCMD_FILE
-                            . " 'violation add vid=1400000,mac=$trapMac'" );
-                } else {
-                    $logger->info(
-                        "old mac $oldPC on $switch_ip ifIndex $switch_port is dead."
-                    );
-                    $logger->debug(
-                        "closing $oldPC locationlog entry at $switch_ip ifIndex $switch_port"
-                    );
-                    locationlog_update_end_mac($oldPC);
-                    $logger->info(
-                        "authorizing $trapMac (old entry $oldPC) at new location $switch_ip ifIndex $switch_port"
-                    );
-                    my $correctVlanForThisNode
-                        = $vlan_obj->vlan_determine_for_node( $trapMac,
-                        $switch->{_ip}, $switch_port );
-                    $switch->authorizeMAC( $switch_port, $oldPC, $trapMac,
-                        $switch->getVlan($switch_port),
-                        $correctVlanForThisNode );
+                $logger->debug("$oldPC has still open locationlog entry at $switch_ip ifIndex $switch_port. Closing it");
+                locationlog_update_end_mac($oldPC);
+                $logger->info("authorizing $trapMac (old entry $oldPC) at new location $switch_ip ifIndex $switch_port");
+                my $correctVlanForThisNode = $vlan_obj->vlan_determine_for_node( $trapMac, $switch->{_ip}, $switch_port );
+                $switch->authorizeMAC( $switch_port, $oldPC, $trapMac, $switch->getVlan($switch_port), $correctVlanForThisNode );
 
-                    #set the right VLAN
-                    $logger->debug(
-                        "setting correct VLAN for $trapMac at new location $switch_ip ifIndex $switch_port"
-                    );
-                    $switch->setVlan( $switch_port, $correctVlanForThisNode,
-                        \%switch_locker, $trapMac );
-                }
+                #set the right VLAN
+                $logger->debug("setting correct VLAN for $trapMac at new location $switch_ip ifIndex $switch_port");
+                $switch->setVlan( $switch_port, $correctVlanForThisNode, \%switch_locker, $trapMac );
             } else {
 
                 #authorize MAC
@@ -1720,38 +1617,7 @@ sub handleTrap {
 
         # }}}2
 
-        # trapType eq 'c2900AddressViolation' {{{2
-    } elsif ( $trapType eq 'c2900AddressViolation' ) {
-        $logger->info(
-            "$trapType trap received on $switch_ip ifIndex $switch_port");
-        my $maxMacAddresses = $switch->getMaxMacAddresses($switch_port);
-        if ( $maxMacAddresses == 1 ) {
-            my @macArray = $switch->_getMacAtIfIndex($switch_port);
-            if ( (@macArray) && ( scalar(@macArray) == 1 ) ) {
-
-                #generate PF 'hub' violation
-                $logger->info(
-                    "old MAC is $macArray[0] -> create Hub violation for this MAC"
-                );
-                my $cmd = PFCMD_FILE
-                    . " 'violation add vid=1400000, mac=$macArray[0]'";
-                my $output = qx/$cmd/;
-                $logger->debug( "calling "
-                        . PFCMD_FILE
-                        . " 'violation add vid=1400000,mac=$macArray[0]'" );
-            } else {
-                $logger->info(
-                    "no secure MAC found on this switchport; security violation is probably caused by someone moving a laptop too fast from one switchport to another -> do nothing"
-                );
-            }
-        } else {
-            $logger->info(
-                "Max MAC address is $maxMacAddresses. Should not receive a c2900 Address Violation trap on this port. Configuration problem -> Do nothing"
-            );
-        }
     }
-
-    # }}}2
 
     # cleanupAfterThread {{{2
     cleanupAfterThread( $switch_ip, $switch_port );

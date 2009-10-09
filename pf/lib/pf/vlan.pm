@@ -20,7 +20,6 @@ use pf::node qw(node_view node_add_simple node_exist);
 use pf::util;
 use pf::violation qw(violation_count_trap violation_exist_open violation_view_top);
 use pf::SwitchFactory;
-use Net::Ping;
 use threads;
 use threads::shared;
 
@@ -200,69 +199,6 @@ sub custom_getCorrectVlan {
 
     # return switch-specific normal vlan or default normal vlan (if switch-specific normal vlan not defined)
     return ($Config{$switch_ip}{'normalVlan'} || $Config{'default'}{'normalVlan'});
-}
-
-sub custom_isClientAlive {
-    my ( $this, $mac, $switch_ip, $ifIndex, $currentVlan, $isolationVlan,
-        $mysql_connection )
-        = @_;
-    my $logger = Log::Log4perl->get_logger();
-    Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
-
-    my $ip;
-    my $returnValue = 0;
-    my $src_ip      = undef;
-
-    # find ip for oldMac
-    my @ipLog
-        = $mysql_connection->selectrow_array(
-        "SELECT ip FROM iplog WHERE mac='$mac' AND start_time <> 0 AND (end_time = 0 OR end_time > now())"
-        );
-    if (@ipLog) {
-        $ip = $ipLog[0];
-        $logger->debug("mac $mac has IP $ip");
-    } else {
-        $logger->error("coudn't find ip for $mac in table iplog.");
-        return 0;
-    }
-
-    my @lines  = `/sbin/ip address show`;
-    my $lineNb = 0;
-    while ( ( $lineNb < scalar(@lines) ) && ( !defined($src_ip) ) ) {
-        my $line = $lines[$lineNb];
-        if ( $line
-            =~ /inet ([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})\/([0-9]+)/
-            )
-        {
-            my $tmp_src_ip   = $1;
-            my $tmp_src_bits = $2;
-            my $block        = new Net::Netmask("$tmp_src_ip/$tmp_src_bits");
-            if ( $block->match($ip) ) {
-                $src_ip = $tmp_src_ip;
-                $logger->debug(
-                    "found $ip in Network $tmp_src_ip/$tmp_src_bits");
-            }
-        }
-        $lineNb++;
-    }
-
-    my $count = 1;
-    while ( ( $returnValue != 1 ) && ( $count < 6 ) ) {
-        my $ping = Net::Ping->new();
-        if ( defined($src_ip) ) {
-            $ping->bind($src_ip);
-            $logger->debug("binding ping src IP to $src_ip for icmp ping");
-        }
-
-        if ( $ping->ping( $ip, 2 ) ) {
-            $returnValue = 1;
-            $logger->debug("$ip is alive (ping).");
-        }
-        $ping->close();
-        $count++;
-    }
-
-    return $returnValue;
 }
 
 sub custom_getNodeInfo {

@@ -1,3 +1,12 @@
+2009-10-09      Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/vlan.pm: Removed isClientAlive() since we remove the Hub violation
+	that creates too many false positives. 
+	* pf/sbin/pfsetvlan: Removed calls to isClientAlive().
+	* pf/conf/violations.conf: Removed Hub violation definition.
+	* pf/html/user/content/violations/hub.php: Removed this file.
+	* pf/lib/pf/SNMP/Cisco.pm: Removed the parsing of c2900AddressViolation
+	traps which only purpose what to generate Hub violations.
+
 2009-10-09	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/web.pm: Changed priority of unknown User-Agent log message
 	Was WARN is now INFO which is less scary and makes a lot more sense. 
