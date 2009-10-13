@@ -41,8 +41,10 @@ Requires: perl-Config-IniFiles >= 2.40
 Requires: perl-Data-Phrasebook, perl-Data-Phrasebook-Loader-YAML
 Requires: perl-DBI
 Requires: perl-File-Tail
+Requires: perl-IPC-Cmd
 Requires: perl-IPTables-ChainMgr
 Requires: perl-IPTables-Parse
+Requires: perl-LDAP
 Requires: perl-libwww-perl
 Requires: perl-List-MoreUtils
 Requires: perl-Locale-gettext
@@ -60,6 +62,7 @@ Requires: perl-Parse-RecDescent
 Requires: perl-Readonly
 Requires: perl-Regexp-Common
 Requires: rrdtool, perl-rrdtool
+Requires: perl-SOAP-Lite
 Requires: perl-Template-Toolkit
 Requires: perl-TermReadKey
 Requires: perl-Test-MockDBI
@@ -70,6 +73,7 @@ Requires: perl-TimeDate
 Requires: perl-UNIVERSAL-require
 Requires: perl-YAML
 Requires: php-jpgraph-packetfence = 2.3.4
+Requires: php-ldap
 
 %description
 
