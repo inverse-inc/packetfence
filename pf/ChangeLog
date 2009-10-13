@@ -24,7 +24,8 @@
 	http://www.packetfence.org/mantis/view.php?id=798
 	- seting the perl-parse-RecDescent version to 1.94 in order to avoid issues
 	with the newer versions that causes the pfcmd_pregrammar.pm generation to fail
-	Fixes #
+	Fixes #806;
+	http://www.packetfence.org/mantis/view.php?id=806
 
 2009-10-13	Regis Balzard <rbalzard@inverse.ca>
 	* pf/addons/pfcmd_ap.pl: In order to avoid unnecessary WIFI entries in
