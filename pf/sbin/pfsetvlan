@@ -1006,6 +1006,7 @@ sub handleTrap {
                     $switch_port );
                 if (   (@locationlog)
                     && ( scalar(@locationlog) > 0 )
+		    && ( defined($locationlog[0]->{'mac'}) )
                     && ( $locationlog[0]->{'mac'} ne '' ) )
                 {
                     if ($switch->isMacInAddressTableAtIfIndex(
