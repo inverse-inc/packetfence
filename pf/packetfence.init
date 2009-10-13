@@ -53,14 +53,18 @@ case "$1" in
 	;;
   status)
 	/usr/local/pf/bin/pfcmd service pf status
-  if [ ! -f /usr/local/pf/var/pfmon.pid ]; then
-    RETVAL=3
-  fi
+  	if [ ! -f /usr/local/pf/var/pfmon.pid ]; then
+    	    RETVAL=3
+  	fi
 	;;
   condrestart)
         if [ -f /usr/local/pf/var/pfmon.pid ]; then
+            restart
+        else
+            if [ -f /usr/local/pf/var/pfsetvlan.pid ]; then
                 restart
-        fi
+            fi
+	fi
         ;;
   *)
 	echo $"Usage: $0 {start|stop|restart|condrestart|status}"
