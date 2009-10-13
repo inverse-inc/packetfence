@@ -49,7 +49,7 @@ function validate_user_ldap($user,$pass,$hash='') {
   if ($hash != '') {
     return $hash;
   }
-  if (!isset($ldap_host) {
+  if (!isset($ldap_host)) {
     return false;
   }
   $ldap = ldap_connect($ldap_host);
