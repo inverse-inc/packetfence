@@ -58,7 +58,7 @@ Requires: perl-Net-SNMP
 Requires: perl-Net-Telnet
 Requires: perl-Net-Write
 Requires: perl-Parse-Nessus-NBE
-Requires: perl-Parse-RecDescent
+Requires: perl-Parse-RecDescent = 1.94
 Requires: perl-Readonly
 Requires: perl-Regexp-Common
 Requires: rrdtool, perl-rrdtool
