@@ -1,3 +1,8 @@
+2009-10-13	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Updated configuration 
+	parameter reference with documentation.conf's changes for 
+	trapping.whitelist.
+
 2009-10-09	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/conf/violations.conf: Added device banning templates for iPod 
 	touch, iPhone, BlackBerries, PlayStation 3, PSP and Slingbox. 
