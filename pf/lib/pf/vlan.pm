@@ -153,8 +153,7 @@ sub custom_doWeActOnThisTrap {
     if ( ( $ifType == 6 ) || ( $ifType == 117 ) ) {
         my @upLinks = $switch->getUpLinks();
         if ( $upLinks[0] == -1 ) {
-            $logger->info(
-                "can not determine uplinks for the switch -> do nothing");
+            $logger->warn("Can't determine Uplinks for the switch -> do nothing");
         } else {
             if ( grep( { $_ == $ifIndex } @upLinks ) == 0 ) {
                 $weActOnThisTrap = 1;
