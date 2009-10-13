@@ -1,4 +1,9 @@
 2009-10-13	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/vlan.pm: Increased logging severity for the "Can't
+	determine Uplinks for the switch" message (from info to warn).
+	The problem is that at this point nothing gets done by packetfence so
+	it is rather important to see this message.
+
 	* pf/conf/violations.conf: Added a new UserAgent statement to block
 	PSPs
 
