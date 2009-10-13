@@ -91,13 +91,21 @@ if ($is_eap_request == 0) {
   }
 }
 
-# update locationlog
-syslog("info", "closing previous open locationlog entries for $mac");
-$mysql_connection->do("UPDATE locationlog SET end_time=now() WHERE mac='$mac' and (end_time = 0 OR isnull(end_time))");
-syslog("info", "inserting new open locationlog entry for $mac");
-$mysql_connection->do("INSERT INTO locationlog(mac,switch,port,vlan,start_time) VALUES('$mac','$switch_ip','WIFI',$correctVlan,now())");
-syslog("info", "updating node entry (switch and port) for mac $mac");
+# update locationlog if necessary:
+# in order to avoid unnecessary WIFI entries in locationlog (since authentication->reauthentication occurs very often), we don't add a new entry if there is already one.
+#
+# In some setups we don't use VLAN IDs but VLAN Names. Since the vlan field in the locationlog table is varchar(4), we need to truncate the VLAN name and take only the first 4 characters.
+
+#my $locationlogExists = $mysql_connection->selectrow_array("SELECT count(*) FROM locationlog WHERE mac='$mac' AND switch='$switch_ip' AND port='WIFI' and vlan='" . substr($correctVlan, 0, 4) . "' AND (end_time = 0 OR isnull(end_time))");
+my $locationlogExists = $mysql_connection->selectrow_array("SELECT count(*) FROM locationlog WHERE mac='$mac' AND switch='$switch_ip' AND port='WIFI' and vlan='$correctVlan' AND (end_time = 0 OR isnull(end_time))");
+if ($locationlogExists == 0) {
+    $mysql_connection->do("UPDATE locationlog SET end_time=now() WHERE mac='$mac' and (end_time = 0 OR isnull(end_time))");
+    $mysql_connection->do("INSERT INTO locationlog(mac,switch,port,vlan,start_time) VALUES('$mac','$switch_ip','WIFI',$correctVlan,now())");
+    #$mysql_connection->do("INSERT INTO locationlog(mac,switch,port,vlan,start_time) VALUES('$mac','$switch_ip','WIFI','" . substr($correctVlan, 0, 4) . "',now())");
+}
 $mysql_connection->do("UPDATE node SET switch='$switch_ip', port='WIFI' WHERE mac='$mac'");
+
+
 
 # return the correct VLAN
 syslog("info", "returning VLAN $correctVlan for $mac");
