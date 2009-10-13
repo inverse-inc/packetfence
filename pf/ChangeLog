@@ -1,3 +1,7 @@
+2009-10-13	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/violations.conf: Added a new UserAgent statement to block
+	PSPs
+
 2009-10-13      Regis Balzard <rbalzard@inverse.ca>
 	* pf/packetfence.init: Added test in condrestart to check if pfsetvlan.pid
 	exists. If so, restart packetfence. Fixes #805;
