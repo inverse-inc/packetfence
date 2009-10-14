@@ -7,7 +7,7 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to 1.8.5:
 
-    - Adding new dependencies on 
+    - Added new dependencies:
 	- perl-LDAP (used to authenticate users trough LDAP during 
 	  registration)
 	- php-ldap (used to authenticate users connecting to the 
@@ -16,8 +16,8 @@ o Upgrading from a version prior to 1.8.5:
 	  isolation routed VLANs)
 	- perl-SOAP-Lite (used when receiving alerts from Snort)
 
-    - HUB violations have been removed since they create a lot of false 
-    positives.
+    - HUB violation removal
+    HUB violations have been removed since they create a lot of false positives.
     http://www.packetfence.org/mantis/view.php?id=793
 
     - Dynamic uplink fixes

@@ -21,22 +21,21 @@ Hardware support
 - Extreme Networks Summit X250e in linkUp/linkDown mode
 
 Features
-- removed Hub violation that creates too many false positives.
-- remove support for c2900AddressViolation (Cisco Catalyst 2900 only) traps 
-  which only purpose what to generate Hub violations.
+- removed Hub violation that creates too many false positives
+- removed support for c2900AddressViolation (Cisco Catalyst 2900 only) traps 
+  which only purpose was to generate Hub violations
 - added a few utilities in addons/
 - PacketFence is now distributed as a yum repository (avoids having the
   installer pull a lot of cpan modules and jpgraph)
-- normal/correct VLAN returned by custom_getCorrectVlan is now based on switch
-  (switches.conf) instead of node
+- normal/correct VLAN default behavior changed (see UPGRADE for details)
 
 Bugfix
-- SECURITY: fixed sensitive information leak in admin login. When password were
+- SECURITY: fixed sensitive information leak in admin login: When password were
   considered invalid they were displayed
 - fixed crashes in corner cases (violations without triggers, config not 
   upgraded, etc.)
 - fixed SNMPv3 trap-handling for HP Procurve
-- added missing dependancies
+- added missing dependencies
 - stability and error reporting fixes
 
 
