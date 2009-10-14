@@ -66,20 +66,20 @@ if ($violation){
   # There is a violation, redirect the user
   my $vid=$violation->{'vid'};
   my $class=class_view($vid);
+  $logger->info("captive portal redirect on violation vid: $vid, redirect url: ".$class->{'url'});
 
   # The little redirect dance here is controlled by frames which are inherently alterable by the user
   # TODO: We need to validate that a user cannot request a frame with the enable button activated
 
   # enable button
   if ($enable_menu) {
-    $logger->info("enter enable_menu");
+    $logger->debug("violation redirect: generating enable button frame (enable_menu = 1)");
     generate_enabler_page($cgi, $session, $destination_url, $vid, $class->{'button_text'});
   } elsif  ($class->{'auto_enable'} eq 'Y'){
-    $logger->info("auth_enable =  Y");
+    $logger->debug("violation redirect: generating redirect frame");
     generate_redirect_page($cgi, $session, $class->{'url'}, $destination_url);
   } else {
-    $logger->info("no button");
-    # no enable button 
+    $logger->debug("violation redirect: showing violation url directly since there is no enable button");
     print $cgi->redirect($class->{'url'});
   }
   exit(0);

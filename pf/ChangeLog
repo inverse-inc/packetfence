@@ -1,3 +1,7 @@
+2009-10-14	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/cgi-bin/redir.cgi: Logging improvement in redir.cgi
+	Messages and log priority makes more sense now
+
 2009-10-13	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/vlan.pm: Increased logging severity for the "Can't
 	determine Uplinks for the switch" message (from info to warn).
