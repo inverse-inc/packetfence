@@ -66,6 +66,10 @@ if ($violation){
   # There is a violation, redirect the user
   my $vid=$violation->{'vid'};
   my $class=class_view($vid);
+
+  # The little redirect dance here is controlled by frames which are inherently alterable by the user
+  # TODO: We need to validate that a user cannot request a frame with the enable button activated
+
   # enable button
   if ($enable_menu) {
     $logger->info("enter enable_menu");
