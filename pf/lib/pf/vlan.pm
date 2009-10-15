@@ -48,8 +48,7 @@ sub vlan_determine_for_node {
     my $open_violation_count = violation_count_trap($mac);
 
     if ( $open_violation_count > 0 ) {
-        $logger->info("$mac has $open_violation_count open violations(s) with action=trap;
-                      it might belong into another VLAN (isolation or other).");
+        $logger->info("$mac has $open_violation_count open violations(s) with action=trap; it might belong into another VLAN (isolation or other).");
 
         # By default we assume that we put the user in isolationVlan unless proven otherwise
         my $vlan = "isolationVlan";
@@ -72,12 +71,10 @@ sub vlan_determine_for_node {
                 $logger->debug("Found target vlan parameter for this violation: $vlan");
 
             } else {
-                $logger->warn("Could not find class entry for violation $vid.
-                              Setting target vlan to switches.conf's isolationVlan");
+                $logger->warn("Could not find class entry for violation $vid. Setting target vlan to switches.conf's isolationVlan");
             }
         } else {
-            $logger->warn("Could not find highest priority open violation for $mac.
-                          Setting target vlan to switches.conf's isolationVlan");
+            $logger->warn("Could not find highest priority open violation for $mac. Setting target vlan to switches.conf's isolationVlan");
         }
 
         # Asking the switch to give us its configured vlan number for the vlan returned for the violation
