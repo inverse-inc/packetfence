@@ -81,15 +81,18 @@ sub vlan_determine_for_node {
         }
 
         # Asking the switch to give us its configured vlan number for the vlan returned for the violation
-        my $switchFactory = new pf::SwitchFactory(
-            -configFile => "$conf_dir/switches.conf" );
+        my $switchFactory = new pf::SwitchFactory( -configFile => "$conf_dir/switches.conf" );
         my $switch = $switchFactory->instantiate($switch_ip);
-        # TODO: get rid of the _ character for the vlan variables (refactoring)
-        $correctVlanForThisMAC = $switch->{"_".$vlan};
+        if (!$switch) {
+            $logger->error("Can not instantiate switch $switch_ip !");
+            return -1;
+        } else {
+            # TODO: get rid of the _ character for the vlan variables (refactoring)
+            $correctVlanForThisMAC = $switch->{"_".$vlan};
+        }
     } else {
         if ( !node_exist($mac) ) {
-            $logger->info(
-                "node $mac does not yet exist in PF database. Adding it now");
+            $logger->info("node $mac does not yet exist in PF database. Adding it now");
             node_add_simple($mac);
         }
         my $node_info = node_view($mac);
@@ -97,39 +100,30 @@ sub vlan_determine_for_node {
             if (   ( !defined($node_info) )
                 || ( $node_info->{'status'} eq 'unreg' ) )
             {
-                $logger->info(
-                    "MAC: $mac is unregistered; belongs into registration VLAN"
-                );
-                my $switchFactory = new pf::SwitchFactory(
-                    -configFile => "$conf_dir/switches.conf" );
-                my $switch = $switchFactory->instantiate($switch_ip)
-                    || return -1;
-                $correctVlanForThisMAC = $switch->{_registrationVlan};
+                $logger->info("MAC: $mac is unregistered; belongs into registration VLAN");
+                my $switchFactory = new pf::SwitchFactory( -configFile => "$conf_dir/switches.conf" );
+                my $switch = $switchFactory->instantiate($switch_ip);
+                if (!$switch) {
+                    $logger->error("Can not instantiate switch $switch_ip !");
+                    return -1;
+                } else {
+                    $correctVlanForThisMAC = $switch->{_registrationVlan};
+                }
             } else {
-                $correctVlanForThisMAC
-                    = $this->custom_getCorrectVlan( $switch_ip, $ifIndex,
-                    $mac, $node_info->{status}, $node_info->{vlan},
-                    $node_info->{pid} );
-                $logger->info( "MAC: $mac, PID: "
-                        . $node_info->{pid}
-                        . ", Status: "
-                        . $node_info->{status}
-                        . ", VLAN: $correctVlanForThisMAC" );
+                $correctVlanForThisMAC = $this->custom_getCorrectVlan( $switch_ip, $ifIndex, $mac, $node_info->{status}, $node_info->{vlan}, $node_info->{pid} );
+                $logger->info( "MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", VLAN: $correctVlanForThisMAC" );
             }
         } else {
-            my $switchFactory = new pf::SwitchFactory(
-                -configFile => "$conf_dir/switches.conf" );
-            my $switch = $switchFactory->instantiate($switch_ip) || return -1;
-            $correctVlanForThisMAC
-                = $this->custom_getCorrectVlan( $switch_ip, $ifIndex, $mac,
-                $node_info->{status},
-                ( $node_info->{vlan} || $switch->{_normalVlan} ),
-                $node_info->{pid} );
-            $logger->info( "MAC: $mac, PID: "
-                    . $node_info->{pid}
-                    . ", Status: "
-                    . $node_info->{status}
-                    . ", VLAN: $correctVlanForThisMAC" );
+            my $switchFactory = new pf::SwitchFactory( -configFile => "$conf_dir/switches.conf" );
+            my $switch = $switchFactory->instantiate($switch_ip);
+            if (!$switch) {
+                $logger->error("Can not instantiate switch $switch_ip !");
+                return -1;
+            } else {
+                $correctVlanForThisMAC = $this->custom_getCorrectVlan( $switch_ip, $ifIndex, $mac, $node_info->{status},
+                    ( $node_info->{vlan} || $switch->{_normalVlan} ), $node_info->{pid} );
+                $logger->info( "MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", VLAN: $correctVlanForThisMAC" );
+            }
         }
     }
     return $correctVlanForThisMAC;

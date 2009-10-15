@@ -55,6 +55,10 @@ my $pool = Thread::Pool->new(
             person_db_prepare($mysql_connection);
             ifoctetslog_db_prepare($mysql_connection);
             my $switch = $switchFactory->instantiate($switchDesc);
+            if (!$switch) {
+                $logger->error("Can not instantiate switch $switchDesc !");
+                return 0;
+            }
             if ( !$switch->isProductionMode() ) {
                 return 0;
             }

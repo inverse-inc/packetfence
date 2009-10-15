@@ -37,7 +37,8 @@ Bugfix
 - fixed SNMPv3 trap-handling for HP Procurve
 - added missing dependencies
 - stability and error reporting fixes
-
+- fixed unhelpfull error messages when a switch module does not compile or 
+  switches.conf is corrupted
 
 --------------------------------------------------------------------------------
 Verion 1.8.4

@@ -1,3 +1,19 @@
+2009-10-15      Regis Balzard <rbalzard@inverse.ca>
+	* pf/addons/accounting.pl 
+	* pf/addons/autodiscover.pl 
+	* pf/addons/convertToPortSecurity.pl 
+	* pf/addons/recovery.pl 
+	* pf/bin/flip.pl 
+	* pf/bin/pfcmd_vlan 
+	* pf/lib/pf/vlan.pm 
+	* pf/lib/pf/services.pm 
+	* pf/test/connect_and_read.pl 
+	* pf/sbin/pfsetvlan: Adding missing test after call to 
+	switch->instantiate(). If it returns 0 then stop executing more code
+	and log an error. Fixes #755 and #813
+	http://www.packetfence.org/mantis/view.php?id=755
+	http://www.packetfence.org/mantis/view.php?id=813 
+
 2009-10-14	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/cgi-bin/redir.cgi: Logging improvement in redir.cgi
 	Messages and log priority makes more sense now

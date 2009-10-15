@@ -215,6 +215,10 @@ sub recoverSwitch {
     locationlog_db_prepare($mysql_connection);
     violation_db_prepare($mysql_connection);
     my $switch = $switchFactory->instantiate($switchDesc);
+    if (!$switch) {
+        return "Can not instantiate switch $switchDesc\n";
+    }
+
     if ( $switch->isProductionMode() ) {
         $txt .= "------------------------------\n";
         $txt .= "$switchDesc\n";
