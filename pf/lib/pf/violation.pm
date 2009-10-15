@@ -377,6 +377,7 @@ sub violation_trigger {
         return 0;
     }
     foreach my $row (@trigger_info) {
+	next unless (ref($row) eq 'HASH');
         my $vid = $row->{'vid'};
 
         if (whitelisted_mac($mac)) {
