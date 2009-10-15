@@ -1,4 +1,9 @@
 2009-10-15      Regis Balzard <rbalzard@inverse.ca>
+	* pf/conf/authentication/local.pm: Fixed test to validate if user/pwd is ok
+	for local authentication during registration process. Fixes #779
+	http://www.packetfence.org/mantis/view.php?id=779
+
+2009-10-15      Regis Balzard <rbalzard@inverse.ca>
 	* pf/lib/pf/web.om: Fixed redir.cgi crash when upgrading useragent. Fixes #782
 	http://www.packetfence.org/mantis/view.php?id=782
 
