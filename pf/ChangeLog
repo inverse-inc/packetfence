@@ -1,4 +1,8 @@
 2009-10-15      Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/web.om: Fixed redir.cgi crash when upgrading useragent. Fixes #782
+	http://www.packetfence.org/mantis/view.php?id=782
+
+2009-10-15      Regis Balzard <rbalzard@inverse.ca>
 	* pf/lib/pf/violation.pm: "violation not added, no trigger found for.."
 	messages too noisy in logs so we decreased log level from INFO to 
 	DEBUG. Fixes #812
