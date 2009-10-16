@@ -1,25 +1,26 @@
 2009-10-16      Regis Balzard <rbalzard@inverse.ca>
-        * pf/conf/ui.conf:
-        * pf/bin/pfcmd:
-        * pf/lib/pf/pfcmd/pfcmd.pm:
-        * pf/lib/pf/services.pm: Added the pf_gateway field in networks.conf used to
-        store the PacketFence gateway for a routed VLAN. This is field is only
-        used with routed Registration and Isolation VLANs.
-        Added code to allow PacketFence to dynamically create static routes for
-        routed Registration and Isolation VLANs. We use the pf_gateway field.
+	* pf/conf/ui.conf:
+	* pf/bin/pfcmd:
+	* pf/lib/pf/pfcmd/pfcmd.pm:
+	* pf/lib/pf/services.pm: Added the pf_gateway field in networks.conf 
+	used to store the PacketFence gateway for a routed VLAN. This is field 
+	is only used with routed Registration and Isolation VLANs.
+	Added code to allow PacketFence to dynamically create static routes for
+	routed Registration and Isolation VLANs. We use the pf_gateway field.
 
 2009-10-16      Regis Balzard <rbalzard@inverse.ca>
-        * pf/bin/pfcmd: Added a fix to show a message when trying to delete a node
-        having open locationlog entries. Fixes #807
-        http://www.packetfence.org/mantis/view.php?id=807
+	* pf/bin/pfcmd: Added a fix to show a message when trying to delete a 
+	node having open locationlog entries. Fixes #807
+	http://www.packetfence.org/mantis/view.php?id=807
 
 2009-10-15      Regis Balzard <rbalzard@inverse.ca>
-	* pf/conf/authentication/local.pm: Fixed test to validate if user/pwd is ok
-	for local authentication during registration process. Fixes #779
+	* pf/conf/authentication/local.pm: Fixed test to validate if user/pwd 
+	is ok for local authentication during registration process. Fixes #779
 	http://www.packetfence.org/mantis/view.php?id=779
 
 2009-10-15      Regis Balzard <rbalzard@inverse.ca>
-	* pf/lib/pf/web.om: Fixed redir.cgi crash when upgrading useragent. Fixes #782
+	* pf/lib/pf/web.om: Fixed redir.cgi crash when upgrading useragent. 
+	Fixes #782
 	http://www.packetfence.org/mantis/view.php?id=782
 
 2009-10-15      Regis Balzard <rbalzard@inverse.ca>
@@ -58,13 +59,13 @@
 	PSPs
 
 2009-10-13      Regis Balzard <rbalzard@inverse.ca>
-	* pf/packetfence.init: Added test in condrestart to check if pfsetvlan.pid
-	exists. If so, restart packetfence. Fixes #805;
+	* pf/packetfence.init: Added test in condrestart to check if 
+	pfsetvlan.pid exists. If so, restart packetfence. Fixes #805;
 	http://www.packetfence.org/mantis/view.php?id=805
 
 2009-10-13      Regis Balzard <rbalzard@inverse.ca>
-	* pf/sbin/pfsetvlan.pm: Added missing test in pfsetvlan in order to avoid 
-	warning messages. Fixes #792;
+	* pf/sbin/pfsetvlan.pm: Added missing test in pfsetvlan in order to 
+	avoid warning messages. Fixes #792;
 	http://www.packetfence.org/mantis/view.php?id=792
 
 2009-10-13      Regis Balzard <rbalzard@inverse.ca>
@@ -77,9 +78,9 @@
 	- perl-SOAP-Lite (used when receiving alerts from Snort)
 	Fixes #798;
 	http://www.packetfence.org/mantis/view.php?id=798
-	- seting the perl-parse-RecDescent version to 1.94 in order to avoid issues
-	with the newer versions that causes the pfcmd_pregrammar.pm generation to fail
-	Fixes #806;
+	- seting the perl-parse-RecDescent version to 1.94 in order to avoid 
+	issues with the newer versions that causes the pfcmd_pregrammar.pm 
+	generation to fail. Fixes #806;
 	http://www.packetfence.org/mantis/view.php?id=806
 
 2009-10-13	Regis Balzard <rbalzard@inverse.ca>
@@ -101,8 +102,8 @@
 	PlayStation Portable (PSP)
 
 2009-10-09      Regis Balzard <rbalzard@inverse.ca>
-	* pf/lib/pf/vlan.pm: Removed isClientAlive() since we remove the Hub violation
-	that creates too many false positives. 
+	* pf/lib/pf/vlan.pm: Removed isClientAlive() since we remove the Hub 
+	violation that creates too many false positives. 
 	* pf/sbin/pfsetvlan: Removed calls to isClientAlive().
 	* pf/conf/violations.conf: Removed Hub violation definition.
 	* pf/html/user/content/violations/hub.php: Removed this file.
@@ -161,8 +162,8 @@
 
 2009-10-02	Olivier Bilodeau <obilodeau@inverse.ca>
 	* Added pf/addons/high-availability/dhcpd-3.0.5-init-script-lsb-fix.patch:
-	Little patch to fix LSB compliance of dhcpd's init script. Non-compliant init 
-	scripts generate scary error messages in Heartbeat. 
+	Little patch to fix LSB compliance of dhcpd's init script. 
+	Non-compliant init scripts generate scary error messages in Heartbeat. 
 
 	* pf/conf/log.conf: Logging priority now shown in log files
 
