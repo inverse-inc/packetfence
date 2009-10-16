@@ -1,6 +1,4 @@
 2009-10-16	Olivier Bilodeau <obilodeau@inverse.ca>
-	* pf/conf/violations.conf: Working Nessus config sample
-
 	* pf/lib/pf/action.pm, pf/lib/pf/violation.pm: Slight logging changes to
 	better represent what is actually going on.
 
