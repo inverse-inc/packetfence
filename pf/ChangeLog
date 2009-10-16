@@ -1,3 +1,8 @@
+2009-10-16	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/trigger.pm: trigger_add_scan now follows a contract: returns
+	1 if a violation was added by the trigger and 0 otherwise
+	a litle POD doc as a bonus
+
 2009-10-16      Regis Balzard <rbalzard@inverse.ca>
 	* pf/conf/ui.conf:
 	* pf/bin/pfcmd:

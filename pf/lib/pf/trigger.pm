@@ -48,6 +48,14 @@ use pf::iplog qw(ip2mac);
 
 $trigger_db_prepared = 0;
 
+=head1 SUBROUTINES
+
+This list is incomplete.
+        
+=over   
+        
+=cut    
+
 #trigger_db_prepare($dbh) if (!$thread);
 
 sub trigger_db_prepare {
@@ -291,6 +299,12 @@ sub trigger_scan {
     return (@return);
 }
 
+=item trigger_scan_add - Evaluates violation triggers for Scan 
+
+Returns 1 if a violation is added, 0 otherwise.
+
+=cut 
+
 sub trigger_scan_add {
     my ($info) = @_;
     my $logger = Log::Log4perl::get_logger('pf::trigger');
@@ -308,34 +322,31 @@ sub trigger_scan_add {
         $logger->error( "MAC address for "
                 . $host
                 . " not found can not add violation" );
-        return;
+        return 0;
     }
     if ( defined $Config{'scan'}{'live_tids'}
         && grep(
             { $_ eq $tid } split( /\s*,\s*/, $Config{'scan'}{'live_tids'} ) )
         )
     {
-        $logger->info( "Trying to add trigger $tid for ($srcmac) ("
-                . $host
-                . ")" );
+        $logger->info("Trying to add trigger $tid for ($srcmac) (".$host.")");
         my @trigger_info = trigger_view_enable( $tid, "scan" );
         if ( !scalar(@trigger_info) ) {
-            $logger->info(
-                "violation not added, no trigger found for scan::${tid} or violation is disabled"
-            );
+            $logger->info("violation not added, no trigger found for scan::${tid} or violation is disabled");
+            return 0;
         }
         foreach my $row (@trigger_info) {
             my $vid = $row->{'vid'};
             #violation_add( $srcmac, $vid );
             `/usr/local/pf/bin/pfcmd violation add vid=$vid,mac=$srcmac`;
+            return 1;
         }
     } else {
-        $logger->warn( "NOT ADDING Trigger - $tid for $srcmac ("
-                . $host
-                . ") please add $tid to scan.live_tids if you would like this done"
+        $logger->warn("NOT ADDING Trigger id: $tid for $srcmac (" . $host . 
+                      ") please add $tid to scan.live_tids if you would like this done"
         );
     }
-    return 1;
+    return 0;
 }
 
 sub trigger_in_range {
@@ -362,6 +373,8 @@ David LaPorte <david@davidlaporte.org>
 Kevin Amorin <kev@amorin.org>
 
 Dominik Gehl <dgehl@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
