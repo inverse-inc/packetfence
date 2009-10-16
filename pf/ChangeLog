@@ -1,4 +1,8 @@
 2009-10-16	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd: Work torwards Nessus integration
+	pfcmd now handles by itself the fact that it needs to close the 
+	system scan violation if the scan was successfull
+
 	* pf/lib/pf/action.pm, pf/lib/pf/violation.pm: Slight logging changes to
 	better represent what is actually going on.
 
