@@ -131,8 +131,8 @@ sub service_ctl {
                       && ( defined( $flags{$daemon} ) ) ) {
                     if ( $daemon ne 'pfdhcplistener' ) {
                         if ( $daemon eq 'named' ) {
-                           manage_Static_Route(1);
-                       	}
+                            manage_Static_Route(1);
+                        }
                         if (   ( $daemon eq 'pfsetvlan' )
                             && ( !switches_conf_is_valid() ) )
                         {
@@ -182,7 +182,7 @@ sub service_ctl {
                 }
 
                 if ( $service =~ /(named)/) {
-                   manage_Static_Route();
+                    manage_Static_Route();
                 }
 
                 #$logger->info("pkill shows " . join(@debug));
