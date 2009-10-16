@@ -130,6 +130,9 @@ sub service_ctl {
                       && ( $daemon =~ /named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan/ )
                       && ( defined( $flags{$daemon} ) ) ) {
                     if ( $daemon ne 'pfdhcplistener' ) {
+                        if ( $daemon eq 'named' ) {
+                           manage_Static_Route(1);
+                       	}
                         if (   ( $daemon eq 'pfsetvlan' )
                             && ( !switches_conf_is_valid() ) )
                         {
@@ -176,6 +179,10 @@ sub service_ctl {
                 if ($@) {
                     $logger->logcroak("Can't stop $exe with 'pkill $exe': $@");
                     return;
+                }
+
+                if ( $service =~ /(named)/) {
+                   manage_Static_Route();
                 }
 
                 #$logger->info("pkill shows " . join(@debug));
@@ -348,6 +355,43 @@ sub generate_named_conf {
     );
 
     return 1;
+}
+
+# Adding or removing static routes for Registration and Isolation VLANs
+sub manage_Static_Route {
+    my $add_Route = @_;
+    my $logger = Log::Log4perl::get_logger('pf::services');
+    my %tags;
+    $tags{'template'}    = "$conf_dir/templates/named_vlan.conf";
+    $tags{'install_dir'} = $install_dir;
+
+    my %network_conf;
+    tie %network_conf, 'Config::IniFiles', ( -file => "$conf_dir/networks.conf", -allowempty => 1 );
+    my @errors = @Config::IniFiles::errors;
+    if ( scalar(@errors) ) {
+        $logger->error("Error reading networks.conf: " . join( "\n", @errors ) . "\n" );
+        return 0;
+    }
+
+    foreach my $section ( tied(%network_conf)->Sections ) {
+        foreach my $key ( keys %{ $network_conf{$section} } ) {
+            $network_conf{$section}{$key} =~ s/\s+$//;
+        }
+
+        if ( ( $network_conf{$section}{'named'} eq 'enabled' ) && ( exists( $network_conf{$section}{'type'} ) ) ) {
+            if ( ( lc($network_conf{$section}{'type'}) eq 'isolation' ) || ( lc($network_conf{$section}{'type'}) eq 'registration' ) ) {
+                my $add_del = $add_Route ? 'add' : 'del';
+                my $full_path = can_run('route') or $logger->error("route is not installed! Can not add static routes to routed Registration and Isolation VLANs");
+                my $cmd = "$full_path $add_del -net $section netmask " . $network_conf{$section}{'netmask'} . " gw " . $network_conf{$section}{'pf_gateway'};
+                my( $success, $error_code, $full_buf, $stdout_buf, $stderr_buf ) = run( command => $cmd, verbose => 0 );
+                if( $success ) {
+                    $logger->info("Command `$cmd` succedeed !");
+                } else {
+                    $logger->error("Command `$cmd` failed !");
+                }
+            }
+        }
+    }
 }
 
 =item * generate_dhcpd_vlan_conf

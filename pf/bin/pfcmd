@@ -529,7 +529,7 @@ sub networkconfig {
             . $_ => @sections_tmp;
 
         my @columns
-            = qw(type netmask gateway named dhcpd domain-name dns dhcp_start dhcp_end dhcp_default_lease_time dhcp_max_lease_time);
+            = qw(type netmask gateway pf_gateway named dhcpd domain-name dns dhcp_start dhcp_end dhcp_default_lease_time dhcp_max_lease_time);
         print "network|" . join( "|", @columns ) . "\n";
         foreach my $section (@sections) {
             if (   ( $cmd{'command'}[2] eq 'all' )

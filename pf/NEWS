@@ -24,6 +24,8 @@ Features
 - removed Hub violation that creates too many false positives
 - removed support for c2900AddressViolation (Cisco Catalyst 2900 only) traps 
   which only purpose was to generate Hub violations
+- added a field to store the PacketFence gateway for routed Registration and
+  isolation VLANs. See conf/networks.conf
 - added a few utilities in addons/
 - PacketFence is now distributed as a yum repository (avoids having the
   installer pull a lot of cpan modules and jpgraph)

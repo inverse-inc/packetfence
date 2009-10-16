@@ -1,7 +1,17 @@
 2009-10-16      Regis Balzard <rbalzard@inverse.ca>
-	* pf/bin/pfcmd: Added a fix to show a message when trying to delete a node
+        * pf/conf/ui.conf:
+        * pf/bin/pfcmd:
+        * pf/lib/pf/pfcmd/pfcmd.pm:
+        * pf/lib/pf/services.pm: Added the pf_gateway field in networks.conf used to
+        store the PacketFence gateway for a routed VLAN. This is field is only
+        used with routed Registration and Isolation VLANs.
+        Added code to allow PacketFence to dynamically create static routes for
+        routed Registration and Isolation VLANs. We use the pf_gateway field.
+
+2009-10-16      Regis Balzard <rbalzard@inverse.ca>
+        * pf/bin/pfcmd: Added a fix to show a message when trying to delete a node
         having open locationlog entries. Fixes #807
-	http://www.packetfence.org/mantis/view.php?id=807
+        http://www.packetfence.org/mantis/view.php?id=807
 
 2009-10-15      Regis Balzard <rbalzard@inverse.ca>
 	* pf/conf/authentication/local.pm: Fixed test to validate if user/pwd is ok
