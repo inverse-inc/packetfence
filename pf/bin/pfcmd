@@ -1801,6 +1801,10 @@ sub command_param {
                 "$function was called - we don't need to recalculate iptables and switchport VLAN assignments"
             );
         } else {
+            if ( ($function =~ /^node_delete$/) and ($returnValue == 0) ) {
+                print "Cannot delete this node since there are some records in locationlog table indicating that this node might still be connected and active on the network (pfcmd line 1824.)";
+                exit;
+            }
             if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
                 require pf::iptables;
                 pf::iptables::iptables_generate();
