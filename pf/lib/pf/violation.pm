@@ -375,7 +375,10 @@ sub violation_trigger {
         return 0;
     }
     foreach my $row (@trigger_info) {
-	next unless (ref($row) eq 'HASH');
+        if (!defined($row->{'vid'})) {
+            $logger->warn("Invalid violation / trigger configuration. Error on trigger ${type}::${tid}");
+            next;
+        }
         my $vid = $row->{'vid'};
 
         if (whitelisted_mac($mac)) {
