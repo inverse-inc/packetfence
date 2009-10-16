@@ -440,7 +440,8 @@ sub violation_close {
     return (-1);
 }
 
-# use force close on non-trap violations
+# use force close to definitely shut a violation
+# used for non-trap violation and to close scan violations
 #
 sub violation_force_close {
     my ( $mac, $vid ) = @_;
@@ -449,8 +450,7 @@ sub violation_force_close {
 
     #iptables_unmark_node($mac, $vid);
     $violation_close_sql->execute( $mac, $vid ) || return (0);
-    $logger->warn(
-        "violation $vid closed for $mac since it's a non-trap violation");
+    $logger->info("violation $vid force-closed for $mac");
     return (1);
 }
 
