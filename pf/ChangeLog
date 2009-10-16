@@ -1,4 +1,14 @@
 2009-10-16	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/violation.pm: Improved error-handling in violation_trigger
+	Reverted fix in revision 5abfb5911a05dc03e9646eb79a48653155e39278
+	because it was too convoluted and replaced it with something clearer.
+
+	* pf/conf/violations.conf: Working Nessus config sample
+
+	* pf/bin/pfcmd: Work torwards Nessus integration
+	pfcmd now handles by itself the fact that it needs to close the 
+	system scan violation if the scan was successfull
+
 	* pf/lib/pf/action.pm, pf/lib/pf/violation.pm: Slight logging changes to
 	better represent what is actually going on.
 
