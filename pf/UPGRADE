@@ -7,6 +7,17 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to 1.8.5:
 
+    - whitelisting MAC addresses is now more consistent across violation types
+    Certain types of violation triggers (OS, USERAGENT, VENDORMAC) were not
+    honoring the whitelist parameter. The bug is fixed but you might have 
+    relied on that behaviour.
+    http://www.packetfence.org/mantis/view.php?id=801
+
+    - logging priority now shown in log files
+    To improve logging readability, we now include logging priority (ex: DEBUG,
+    INFO, WARN, etc.). If you use scripts to parse PacketFence's logs you will
+    need to update them.
+
     - Added new dependencies:
 	- perl-LDAP (used to authenticate users trough LDAP during 
 	  registration)

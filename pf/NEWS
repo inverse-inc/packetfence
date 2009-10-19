@@ -15,32 +15,37 @@ For a list of compability related changes see UPGRADE.
 --------------------------------------------------------------------------------
 Version 1.8.5 - <codename>, released on <date>
 
-Hardware support
+New Hardware Support
 - Amer SS2R24i switch in linkUp/linkDown mode
-- 3Com Switch 4200G and SS4500 in port-security mode
+- 3Com Switch 4200G and SuperStack 4500 in port-security mode
+- Enterasys D2, Matrix N3 and SecureStack C3 in linkUp/linkDown and maclock 
+  (port-security)
 - Extreme Networks Summit X250e in linkUp/linkDown mode
 
 Features
-- removed Hub violation that creates too many false positives
-- removed support for c2900AddressViolation (Cisco Catalyst 2900 only) traps 
-  which only purpose was to generate Hub violations
-- added a field to store the PacketFence gateway for routed Registration and
-  isolation VLANs. See conf/networks.conf
-- added a few utilities in addons/
 - PacketFence is now distributed as a yum repository (avoids having the
   installer pull a lot of cpan modules and jpgraph)
 - normal/correct VLAN default behavior changed (see UPGRADE for details)
+- massive documentation update (how to configure hardware, new install method, 
+  new support packages and more...)
+- blocking misbehaving user-agents on captive portal (avoid unnecessary load)
+- logging priority (INFO, WARN, ERROR) shown in log files
+- added a field to store the PacketFence gateway for routed Registration and
+  isolation VLANs. See conf/networks.conf
+- added a few utilities in addons/
 
 Bugfix
 - SECURITY: fixed sensitive information leak in admin login: When password were
   considered invalid they were displayed
+- removed Hub violation that caused too many false positives (#793)
+- whitelisting MAC addresses more consistent across violation types (#801)
+- init script more robust (#805)
 - fixed crashes in corner cases (violations without triggers, config not 
   upgraded, etc.)
 - fixed SNMPv3 trap-handling for HP Procurve
+- fixed maclock (port-security) support on Enterasys
 - added missing dependencies
 - stability and error reporting fixes
-- fixed unhelpfull error messages when a switch module does not compile or 
-  switches.conf is corrupted
 
 --------------------------------------------------------------------------------
 Verion 1.8.4

@@ -1,3 +1,7 @@
+2009-10-19	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/UPGRADE, pf/NEWS: Updated NEWS and UPGRADE with all the work done
+	since 1.8.4
+
 2009-10-16	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/violation.pm: Improved error-handling in violation_trigger
 	Reverted fix in revision 5abfb5911a05dc03e9646eb79a48653155e39278
