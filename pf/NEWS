@@ -26,12 +26,12 @@ Features
 - PacketFence is now distributed as a yum repository (avoids having the
   installer pull a lot of cpan modules and jpgraph)
 - normal/correct VLAN default behavior changed (see UPGRADE for details)
+- PacketFence is now able to automatically create static routes for routed 
+  registration and isolation VLANs
 - massive documentation update (how to configure hardware, new install method, 
   new support packages and more...)
 - blocking misbehaving user-agents on captive portal (avoid unnecessary load)
 - logging priority (INFO, WARN, ERROR) shown in log files
-- added a field to store the PacketFence gateway for routed Registration and
-  isolation VLANs. See conf/networks.conf
 - added a few utilities in addons/
 
 Bugfix
