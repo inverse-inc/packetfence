@@ -7,6 +7,18 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to 1.8.5:
 
+    - 802.1X freeradius module updated 
+    pfcmd_ap.pl's code has been integrated in rlm_perl_packetfence.pl. If you 
+    need the performance benefit from this transition, you have two options:
+      1) Replace completely your rlm_perl_packetfence.pl with the new one
+      2) Migrate your pfcmd_ap.pl manually
+         To do so, copy all of pfcmd_ap.pl's code into a sub in 
+         rlm_perl_packetfence.pl. Change all the print calls into return calls.
+         Remove all exit and make sure you free resources before returning.
+    If you don't need the performance improvement, leave things as they are. 
+    We will be deprecating the MySQL interface in favor of a better SOAP 
+    interface soon.
+
     - whitelisting MAC addresses is now more consistent across violation types
     Certain types of violation triggers (OS, USERAGENT, VENDORMAC) were not
     honoring the whitelist parameter. The bug is fixed but you might have 

@@ -11,15 +11,28 @@ integrate PacketFence and FreeRADIUS
 
 =cut
 
-
-#
-# Example code for use with rlm_perl
-#
-# You can use every module that comes with your perl distribution!
-#
-
 use strict;
-# use ...
+use warnings;
+use diagnostics;
+use DBI;
+use Sys::Syslog;
+
+# Configuration parameters
+use constant {
+    # Database connection settings
+    DB_HOSTNAME => 'localhost',
+    DB_NAME     => 'pf',
+    DB_USER     => 'pf',
+    DB_PASS     => 'pf',
+    # VLAN configuration
+    VLAN_VISITOR      => 5,
+    VLAN_REGISTRATION => 2,
+    VLAN_ISOLATION    => 3,
+    VLAN_NORMAL       => 1
+};
+
+require 5.8.8;
+
 # This is very important ! Without this script will not get the filled hashesh from main.
 use vars qw(%RAD_REQUEST %RAD_REPLY %RAD_CHECK);
 #use Data::Dumper;
@@ -73,8 +86,8 @@ sub authorize {
         &radiusd::radlog(1, "PacketFence USER: $user_name");
 
         if (length($mac) == 17) {
-            my $result = `/usr/bin/perl /etc/raddb/pfcmd_ap.pl $switch_ip $mac $is_eap_request 2>/dev/null`;
-            if ($result =~ /^$/) {
+            my $result = getVlan($switch_ip, $mac, $is_eap_request);
+            if (!defined($result) || $result =~ /^$/) {
                 &radiusd::radlog(1, "PacketFence RESULT VLAN COULD NOT BE DETERMINED");
             } elsif ($result > 0) {
                 &radiusd::radlog(1, "PacketFence RESULT VLAN: $result");
@@ -206,6 +219,95 @@ sub log_request_attributes {
         }
 }
 
+# Here, we included all the code that was pfcmd_ap.pl to avoid costly forks for each request
+# TODO: raw SQL is evil, we should port this over to a more suited application-level API
+sub getVlan {
+
+    my ($switch_ip, $mac, $is_eap_request) = @_;
+    $mac = lc($mac);
+    
+    openlog("pfcmd-ap", "perror,pid","user");
+    syslog("info", "getVlan called with switch_ip $switch_ip, mac $mac, is_eap_request $is_eap_request");
+    
+    # create database connection
+    my $mysql_connection = DBI->connect("dbi:mysql:dbname=".DB_NAME.";host=".DB_HOSTNAME, 
+                                        DB_USER, DB_PASS, {PrintError => 0});
+
+    if (!defined($mysql_connection)) { 
+      syslog("info", "Can't connect to the database.");
+      return undef;
+    }
+
+    # check if mac exists already in database
+    # if not, create the node
+    my $nodeExists = $mysql_connection->selectrow_array("SELECT count(*) FROM node WHERE mac='$mac'");
+    if ($nodeExists == 0) {
+      syslog("info", "node $mac does not yet exist in database -> will be created now");
+      $mysql_connection->do("INSERT INTO node(mac,detect_date,status,last_arp) VALUES('$mac',now(),'unreg',now())");
+    }
+    
+    # determine correct VLAN
+    my $correctVlan = -1;
+    
+    # check if registered
+    if ($is_eap_request == 0) {
+      my $registrationExists = $mysql_connection->selectrow_array("SELECT count(*) FROM node WHERE mac='$mac' AND status='reg'");
+      if ($registrationExists != 0) {
+        # check if 'visitor'
+        my $isVisitor = $mysql_connection->selectrow_array("SELECT count(*) FROM node WHERE mac='$mac' AND pid='visitor'");
+        if ($isVisitor == 1) {
+          $correctVlan = VLAN_VISITOR;
+        }
+      } else {
+        $correctVlan = VLAN_REGISTRATION;
+      }
+    } else {
+      # TODO: this is buggy: we don't fetch the vlan information from the switch config
+      my $isVisitor = $mysql_connection->selectrow_array("SELECT count(*) FROM node WHERE mac='$mac' AND pid='visitor'");
+      if ($isVisitor == 0) {
+        # check if violations
+        my $nbOpenViolations = $mysql_connection->selectrow_array("SELECT count(*) FROM violation WHERE mac='$mac' and status='open'");
+        if ($nbOpenViolations > 0) {
+          my $vlanToGoTo = $mysql_connection->selectrow_array("SELECT c.vlan from violation v, class c where v.vid=c.vid and mac='$mac' and status='open' order by priority desc limit 1");
+          syslog("info:","this violation says that it should go in vlan $vlanToGoTo");
+          if ($vlanToGoTo eq 'registrationVlan') {
+            $correctVlan = VLAN_REGISTRATION;
+          } elsif ($vlanToGoTo eq 'normalVlan') {
+            $correctVlan = VLAN_NORMAL;
+          } else {
+            # I could test only for isolation but there is no other value left so lets catch it all
+            $correctVlan = VLAN_ISOLATION;
+          }
+        } else {
+          $correctVlan = VLAN_NORMAL;
+        }
+      }
+    }
+    
+    # update locationlog if necessary:
+    # in order to avoid unnecessary WIFI entries in locationlog (since authentication->reauthentication 
+    # occurs very often), we don't add a new entry if there is already one.
+    #
+    # In some setups we don't use VLAN IDs but VLAN Names. Since the vlan field in the locationlog table 
+    # is varchar(4), we need to truncate the VLAN name and take only the first 4 characters.
+    #my $locationlogExists = $mysql_connection->selectrow_array("SELECT count(*) FROM locationlog WHERE mac='$mac' AND switch='$switch_ip' AND port='WIFI' and vlan='" . substr($correctVlan, 0, 4) . "' AND (end_time = 0 OR isnull(end_time))");
+    my $locationlogExists = $mysql_connection->selectrow_array("SELECT count(*) FROM locationlog WHERE mac='$mac' AND switch='$switch_ip' AND port='WIFI' and vlan='$correctVlan' AND (end_time = 0 OR isnull(end_time))");
+    if ($locationlogExists == 0) {
+        $mysql_connection->do("UPDATE locationlog SET end_time=now() WHERE mac='$mac' and (end_time = 0 OR isnull(end_time))");
+        $mysql_connection->do("INSERT INTO locationlog(mac,switch,port,vlan,start_time) VALUES('$mac','$switch_ip','WIFI',$correctVlan,now())");
+        #$mysql_connection->do("INSERT INTO locationlog(mac,switch,port,vlan,start_time) VALUES('$mac','$switch_ip','WIFI','" . substr($correctVlan, 0, 4) . "',now())");
+    }
+    $mysql_connection->do("UPDATE node SET switch='$switch_ip', port='WIFI' WHERE mac='$mac'");
+    
+    
+    
+    # return the correct VLAN, close resources
+    syslog("info", "returning VLAN $correctVlan for $mac");
+    closelog();
+    $mysql_connection->disconnect();
+    return $correctVlan;
+}
+
 
 =head1 SEE ALSO
 
@@ -217,7 +319,7 @@ Copyright (C) 2002  The FreeRADIUS server project
 
 Copyright (C) 2002  Boian Jordanov <bjordanov@orbitel.bg>
 
-Copyright (C) 2006-2008  Inverse inc. <dgehl@inverse.ca>
+Copyright (C) 2006-2009  Inverse inc. <support@inverse.ca>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

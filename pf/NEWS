@@ -28,6 +28,7 @@ Features
 - normal/correct VLAN default behavior changed (see UPGRADE for details)
 - PacketFence is now able to automatically create static routes for routed 
   registration and isolation VLANs
+- significant performance improvement in 802.1X
 - massive documentation update (how to configure hardware, new install method, 
   new support packages and more...)
 - blocking misbehaving user-agents on captive portal (avoid unnecessary load)

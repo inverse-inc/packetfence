@@ -1,3 +1,11 @@
+2009-10-20	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/802.1X/pfcmd_ap.pl: Deleted
+	* pf/addons/802.1X/rlm_perl_packetfence.pl, pf/addons/802.1X/README:
+	Performance improvement in the freeradius PacketFence module
+	Merged the content of pfcmd_ap.pl into rlm_perl_packetfence.pl. This 
+	avoids costly forks for each radius request.
+	Also took the opportunity to add validation of the db handle.
+
 2009-10-19	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/UPGRADE, pf/NEWS: Updated NEWS and UPGRADE with all the work done
 	since 1.8.4
