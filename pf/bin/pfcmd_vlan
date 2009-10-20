@@ -256,6 +256,7 @@ if ($getUpLinks) {
 
 } elsif ($getType) {
 
+    # TODO: remove this feature or add all switches we support (saying Oops if we can't tell)
     if ( $switchDescRegExp eq '' ) {
         pod2usage("the switch argument is necessary");
     }
@@ -337,7 +338,7 @@ if ($getUpLinks) {
             }
         }
         print "\n";
-        $logger->debug("start handling 'getType' command");
+        $logger->debug("finished handling 'getType' command");
 
     }
 
