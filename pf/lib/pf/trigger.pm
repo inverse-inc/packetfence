@@ -37,7 +37,7 @@ BEGIN {
     @ISA = qw(Exporter);
     @EXPORT
         = qw(trigger_db_prepare trigger_view trigger_view_enable trigger_view_all trigger_delete_all
-        trigger_in_range trigger_add trigger_view_type trigger_view_tid trigger_scan);
+        trigger_in_range trigger_add trigger_view_type trigger_view_tid trigger_scan trigger_scan_add);
 }
 
 use pf::config;
