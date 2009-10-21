@@ -1262,12 +1262,11 @@ sub schedule {
     }
     require pf::schedule;
 
-    my $tid  = $params{tid}  || "all";
     my $date = $params{date} || 0;
 
     my $cron = new pf::schedule();
     $cron->load_cron("pf");
-    print join( $delimiter, ( "id", "date", "hosts", "tid" ) ) . "\n";
+    print join( $delimiter, ( "id", "date", "hosts" ) ) . "\n";
     if ( $option eq 'view' ) {
         if ( $hostaddr eq 'all' ) {
             print $cron->get_indexes();
@@ -1279,18 +1278,18 @@ sub schedule {
         }
         return (1);
     } elsif ( $option eq 'add' ) {
+        $logger->trace("Adding scheduled scan cron entry with date: $date");
         my @fields = split( /\s+/, $date );
         if (   !$date
             || scalar(@fields) != 5
-            || $date !~ /^([\d\-\,\/\* ])+$/
-            || !$tid )
+            || $date !~ /^([\d\-\,\/\* ])+$/)
         {
-            print "Date format incorrect $date or tid incorrect $tid\n";
+            print "Date format incorrect $date\n";
             $logger->error("date format incorrect");
             return (0);
         } else {
             $cron->add_index( $date,
-                $bin_dir . "/pfcmd schedule now $hostaddr tid=$tid" );
+                $bin_dir . "/pfcmd schedule now $hostaddr" );
         }
     } elsif ( $option eq 'delete' ) {
         $cron->delete_index($hostaddr);
@@ -1298,17 +1297,13 @@ sub schedule {
         return 1;
     } elsif ( $option eq 'edit' ) {
         my $id = $hostaddr;
-        my ( $oldate, $oldaddr, $oldtid )
-            = ( $cron->get_index($id) )[ 1, 2, 3 ];
+        my ( $oldate, $oldaddr )
+            = ( $cron->get_index($id) )[ 1, 2 ];
         $hostaddr = $oldaddr;
         $hostaddr = $params{hosts} if ( $params{hosts} );
-        $tid      = $oldtid if ( !$tid );
         $date     = $oldate if ( !$date );
-        $logger->info(
-            "updating schedule number $id to date=$date,hostaddr=$hostaddr,tid=$tid"
-        );
-        $cron->update_index( $id, $date,
-            $bin_dir . "/pfcmd schedule now $hostaddr tid=$tid" );
+        $logger->info("updating schedule number $id to date=$date,hostaddr=$hostaddr");
+        $cron->update_index($id, $date, $bin_dir."/pfcmd schedule now $hostaddr");
     } else {
         $logger->error("Schedule Failed");
         return (0);

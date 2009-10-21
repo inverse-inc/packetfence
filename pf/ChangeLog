@@ -1,4 +1,7 @@
 2009-10-21	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd, pf/lib/pf/schedule.pm: Nessus scan integration
+	Removed all references of trigger id (tid) regarding scanning
+
 	* pf/lib/pf/pfcmd/help.pm: pfcmd schedule documentation now accurate
 
 	* pf/bin/pfcmd, pf/cgi-bin/release.cgi, pf/html/admin/scan/scan.php:
