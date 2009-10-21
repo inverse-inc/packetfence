@@ -338,6 +338,7 @@ sub trigger_scan_add {
         foreach my $row (@trigger_info) {
             my $vid = $row->{'vid'};
             #violation_add( $srcmac, $vid );
+            # TODO should call violation_trigger instead here to honor whitelist, untrappable MACs, etc.
             `/usr/local/pf/bin/pfcmd violation add vid=$vid,mac=$srcmac`;
             return 1;
         }
