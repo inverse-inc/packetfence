@@ -1,4 +1,7 @@
 2009-10-21	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/sbin/pfdetect: pfdetect now sends IP when calling violation_trigger
+	since the information is already available to it anyway
+
 	* pf/lib/pf/violation.pm: Using $bin_dir instead of hardcoded path
 	to call pfcmd. Closes a TODO task.
 
