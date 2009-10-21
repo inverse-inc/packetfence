@@ -397,10 +397,9 @@ sub violation_trigger {
             $logger->info("violation: $vid - MAC $mac : violation not added, IP ".$data{ip}." is not trappable !");
 
         } else  {
-            # TODO: fix hardcoded path, should use installdir something instead
-            $logger->info("calling /usr/local/pf/bin/pfcmd violation add vid=$vid,mac=$mac");
+            $logger->info("calling $bin_dir/bin/pfcmd violation add vid=$vid,mac=$mac");
             # forking a pfcmd because it will call a vlan flip if needed
-            `/usr/local/pf/bin/pfcmd violation add vid=$vid,mac=$mac`;
+            `$bin_dir/pfcmd violation add vid=$vid,mac=$mac`;
         }
     }
     return 1;

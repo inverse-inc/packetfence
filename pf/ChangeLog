@@ -1,4 +1,10 @@
 2009-10-21	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/violation.pm: Using $bin_dir instead of hardcoded path
+	to call pfcmd. Closes a TODO task.
+
+	* pf/lib/pf/scan.pm, pf/bin/pfcmd, pf/lib/pf/trigger.pm: Refactoring
+	Moved all scanning code out of pfcmd into a new scan module
+
 	* pf/bin/pfcmd, pf/lib/pf/schedule.pm: Nessus scan integration
 	Removed all references of trigger id (tid) regarding scanning
 
