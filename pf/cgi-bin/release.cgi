@@ -100,9 +100,11 @@ my $class_max_enable_url = $class->{'max_enable_url'};
 
 #scan code...
 if ($vid==1200001){
-  my $cmd = $bin_dir."/pfcmd schedule now $ip tid=99999";
+  my $cmd = $bin_dir."/pfcmd schedule now $ip";
   $logger->info("scanning $ip by calling $cmd");
   my $scan = qx/$cmd/;
+  # TODO send to a nice page talking about the scanning process
+  exit(0);
 }
 
 my $cmd = $bin_dir."/pfcmd manage vclose $mac $vid";

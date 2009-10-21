@@ -1,3 +1,19 @@
+2009-10-21	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd, pf/cgi-bin/release.cgi, pf/html/admin/scan/scan.php:
+	Nessus Scan integration
+	No more special scans with tid=99999 carrying a special meaning. All
+	scanning is done with command line nessus client instead of 
+	Nessus::ScanLite (which lacked plugin configuration capabilities). Other
+	fixes includes:
+	- Removing the 1200001 violation only if one exists (fix a problem when
+	  scanning from Web admin)
+	- Set HOME= env before calling nessus to conf/nessus/ so the .nessusrc 
+	  file is created at a location accessible from CLI and web interfaces
+	- Capturing the output of the nessus call and logging it if nessus 
+	  returns a non-zero exit code
+	- trigger_scan is deprecated
+	- Updated web admin accordingly and explicitly disabled scheduled scans
+
 2009-10-20	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/addons/802.1X/pfcmd_ap.pl: Deleted
 	* pf/addons/802.1X/rlm_perl_packetfence.pl, pf/addons/802.1X/README:
