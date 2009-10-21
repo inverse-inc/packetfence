@@ -41,8 +41,9 @@ BEGIN {
     @ISA = qw(Exporter);
     @EXPORT
         = qw(violation_force_close violation_close violation_view violation_view_all violation_view_all_active
-        violation_view_open_all violation_add violation_view_open violation_view_open_desc violation_view_open_uniq violation_modify
-        violation_trigger violation_count violation_count_trap violation_view_top violation_db_prepare violation_delete violation_exist_open);
+             violation_view_open_all violation_add violation_view_open violation_view_open_desc violation_view_open_uniq
+             violation_modify violation_trigger violation_count violation_count_trap violation_view_top 
+             violation_db_prepare violation_delete violation_exist_open);
 }
 
 use pf::config;
