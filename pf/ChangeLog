@@ -1,4 +1,6 @@
 2009-10-21	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/pfcmd/help.pm: pfcmd schedule documentation now accurate
+
 	* pf/bin/pfcmd, pf/cgi-bin/release.cgi, pf/html/admin/scan/scan.php:
 	Nessus Scan integration
 	No more special scans with tid=99999 carrying a special meaning. All
