@@ -29,9 +29,8 @@ BEGIN {
 
 use pf::config;
 use pf::util;
-use pf::violation qw(violation_exist_open);
+use pf::violation qw(violation_exist_open violation_trigger);
 use pf::iplog qw(ip2mac);
-use pf::trigger qw(trigger_scan_add);
 use Parse::Nessus::NBE;
 
 use constant {
@@ -54,6 +53,13 @@ sub runScan {
     my $date = mysql_date();
     $date     =~ s/ /-/g;
     $hostaddr =~ s/\//\\/g; # escape slashes 
+
+    # resolve MAC address
+    my $mac = ip2mac ($hostaddr);
+    if (!$mac) {
+        $logger->warn("Unable to find MAC for the scanned host $hostaddr. Scan aborted!");
+        return 0;
+    }
 
     # nessus scan setup
     my $host = $Config{'scan'}{'host'};
@@ -96,13 +102,12 @@ sub runScan {
     # for each vuln, trigger the violation
     my $failedScan = 0;
     foreach my $current_vul (@countvulns) {
-        my ($scanID, $number) = split(/\|/, $current_vul);
-        my $info;
-        $info->{'Host'} = $hostaddr;
-        $info->{'ScanID'} = $scanID;
-        $logger->info("calling trigger_scan_add for $hostaddr Nessus ScanID $scanID");
-        # TODO move over violation_scan_trigger if its more cohesive
-        my $violationAdded = trigger_scan_add($info);
+        # Parse nstatvulns format
+        my ($tid, $number) = split(/\|/, $current_vul);
+
+        $logger->info("calling violation_trigger for ip: $hostaddr, mac: $mac, Nessus ScanID: $tid");
+        my $violationAdded = violation_trigger($mac, $tid, "scan", ( ip => $hostaddr ));
+
         # if a violation has been added consider the scan failed
         if ($violationAdded) {
             $failedScan = 1;
@@ -119,14 +124,6 @@ sub runScan {
     # The way we accomplish the above workflow is to differentiate by checking if 1200001 exists or not
     if (!$failedScan) {
         $logger->info("Nessus scan did not detect any high severity vulnerabilities on $hostaddr");
-
-        # but first, we need the mac to do that
-        my $mac = ip2mac ($hostaddr);
-        if (!$mac) {
-            $logger->warn("Unable to find MAC for the scanned host $hostaddr." . 
-                          "The scan violation (if any) will stay open.");
-            return 0;
-        } 
 
         # is there a 1200001 violation open for this mac?, if so close it
         if (violation_exist_open($mac, SCAN_VID)) {

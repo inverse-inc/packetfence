@@ -1,4 +1,7 @@
 2009-10-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/scan.pm: Scan using violation_trigger mechanism now
+	Also moved IP to MAC test earlier and quit if it can't resolve
+
 	* pf/lib/pf/violation.pm: Preparing violation_trigger to handle scan 
 	violations
 	- new test: scan violation id not authorized in config
