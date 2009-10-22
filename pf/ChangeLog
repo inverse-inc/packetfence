@@ -1,4 +1,6 @@
 2009-10-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/cgi-bin/release.cgi: Removed vid hack for Nessus scan violation
+
 	* pf/lib/pf/trigger.pm: Removed deprecated code: trigger_scan and 
 	trigger_scan_add subs
 

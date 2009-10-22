@@ -82,17 +82,6 @@ if (defined($cgi->param('mode'))) {
 # FIXME: we do not validate the result of our calls anywhere..
 my $violations = violation_view_top($mac); 
 my $vid = $violations->{'vid'}; 
-if ($vid==1100001){
-    my $cmd = $bin_dir."/pfcmd manage vopen $mac 1200001";
-    $logger->info("calling $cmd");
-    my $grace = qx/$cmd/;
-    $cmd = $bin_dir."/pfcmd manage vclose $mac $vid";
-    $logger->info("calling $cmd");
-    $grace = qx/$cmd/;
-    $vid=1200001;
-    print $cgi->redirect("/cgi-bin/redir.cgi");
-    exit(0);
-}
 
 my $class=class_view($vid);
 
