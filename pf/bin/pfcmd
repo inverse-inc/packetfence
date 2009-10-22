@@ -403,6 +403,7 @@ sub violationconfig {
         }
     } elsif ( $mode eq 'delete' ) {
         my $section = $cmd{'command'}[2];
+        # TODO: this seems wrong. 1st: hardcoded violation id, 2nd: how does the web react to that print?
         if ( $section
             =~ /^(default|all|1100001|1100004|1100005|1100009|1100010|1200001|1200003)$/
             )
