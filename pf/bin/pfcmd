@@ -1161,7 +1161,7 @@ sub schedule {
     my $hostaddr = $cmd{schedule_options}[1];
     my %params   = format_assignment( @{ $cmd{assignment} } );
 
-    #scan now no cron entry
+    #scan now, no cron entry
     if ( $option && $option eq 'now' ) {
 
         require pf::scan;
