@@ -1,4 +1,12 @@
 2009-10-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/violation.pm: Preparing violation_trigger to handle scan 
+	violations
+	- new test: scan violation id not authorized in config
+	- took out of the trigger id loop various one time tests (inefficient)
+	- violation trigger returns 1 if at least one violation is added 0 
+	  otherwise
+	- bonus POD doc
+
 	* pf/cgi-bin/pdp.cgi, pf/sbin/pfdetect: Fixed trappable ip test to add
 	a violation.
 

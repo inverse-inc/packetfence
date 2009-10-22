@@ -52,6 +52,14 @@ use pf::util;
 
 $violation_db_prepared = 0;
 
+=head1 SUBROUTINES
+
+This list is incomplete.
+        
+=over   
+        
+=cut
+
 #violation_db_prepare($dbh) if (!$thread);
 
 sub violation_db_prepare {
@@ -363,11 +371,40 @@ sub violation_add {
     return (1);
 }
 
+=item * violation_trigger 
+
+Evaluates a candidate violation and if its valid, will add it to the node and trigger a VLAN change if required 
+        
+Returns 1 if at least one violation is added, 0 otherwise.
+
+=cut    
 sub violation_trigger {
     my ( $mac, $tid, $type, %data ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::violation');
     return (0) if ( !$tid );
     $type = lc($type);
+
+    if (whitelisted_mac($mac)) {
+        $logger->info("violation not added, $mac is whitelisted! trigger id: $tid");
+        return 0;
+    } 
+
+    if (!valid_mac($mac)) {
+        $logger->info("violation not added, MAC $mac is whitelisted! trigger id: $tid");
+        return 0;
+    } 
+
+    if (!trappable_mac($mac)) {
+        $logger->info("violation not added, MAC $mac is not trappable! trigger id: $tid");
+        return 0;
+    }
+
+    # if we were given an IP as additionnal violation trigger info
+    # test whether this ip is trappable or not
+    if (defined($data{ip}) && !trappable_ip($data{ip})) {
+        $logger->info("violation not added, IP ".$data{ip}." is not trappable! trigger id: $tid, MAC: $mac");
+        return 0;
+    }
 
     require pf::trigger;
     my @trigger_info = pf::trigger::trigger_view_enable( $tid, $type );
@@ -375,6 +412,15 @@ sub violation_trigger {
         $logger->debug("violation not added, no trigger found for ${type}::${tid} or violation is disabled");
         return 0;
     }
+
+    # scan violation and scan violation id not authorized in config
+    if ($type eq 'scan' && ! _scanTriggerIdEnabled($tid)) {   
+        $logger->warn("violation not added, Scan trigger id is not enabled! ". 
+                      "Please add $tid to scan.live_tids for the violation to trigger. MAC: $mac, IP: ".$data{'ip'});
+        return 0;
+    }
+
+    my $addedViolation = 0;
     foreach my $row (@trigger_info) {
         if (!defined($row->{'vid'})) {
             $logger->warn("Invalid violation / trigger configuration. Error on trigger ${type}::${tid}");
@@ -382,26 +428,24 @@ sub violation_trigger {
         }
         my $vid = $row->{'vid'};
 
-        if (whitelisted_mac($mac)) {
-            $logger->info("violation: $vid - MAC $mac : violation not added, $mac is whitelisted !");
-
-        } elsif (!valid_mac($mac)) {
-            $logger->info("violation: $vid - MAC $mac : violation not added, $mac is not valid !");
-
-        } elsif (!trappable_mac($mac)) {
-            $logger->info("violation: $vid - MAC $mac : violation not added, $mac is not trappable !");
-
-        # if we were given an IP as additionnal violation trigger info
-        # test whether this ip is trappable or not
-        } elsif (defined($data{ip}) && !trappable_ip($data{ip})) {
-            $logger->info("violation: $vid - MAC $mac : violation not added, IP ".$data{ip}." is not trappable !");
-
-        } else  {
-            $logger->info("calling $bin_dir/bin/pfcmd violation add vid=$vid,mac=$mac");
-            # forking a pfcmd because it will call a vlan flip if needed
-            `$bin_dir/pfcmd violation add vid=$vid,mac=$mac`;
-        }
+        $logger->info("calling $bin_dir/bin/pfcmd violation add vid=$vid,mac=$mac");
+        # forking a pfcmd because it will call a vlan flip if needed
+        `$bin_dir/pfcmd violation add vid=$vid,mac=$mac`;
+        $addedViolation = 1;
     }
+    return $addedViolation;
+}
+
+# test wrapper for: Is this scan tid authorized in scan.live_tids
+sub _scanTriggerIdEnabled {
+    my ($tid) = @_;
+
+    #if scan.live_tids is not set assume nothing is allowed
+    return 0 if (!defined $Config{'scan'}{'live_tids'});
+
+    #read: return 0 if its not in the list
+    return 0 if (!grep({$_ eq $tid} split(/\s*,\s*/, $Config{'scan'}{'live_tids'})));
+
     return 1;
 }
 
