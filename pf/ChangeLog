@@ -1,3 +1,7 @@
+2009-10-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/cgi-bin/pdp.cgi, pf/sbin/pfdetect: Fixed trappable ip test to add
+	a violation.
+
 2009-10-21	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/sbin/pfdetect: pfdetect now sends IP when calling violation_trigger
 	since the information is already available to it anyway
