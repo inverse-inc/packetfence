@@ -32,8 +32,9 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
-    @EXPORT
-        = qw(generate_release_page generate_login_page generate_enabler_page generate_redirect_page generate_error_page generate_status_page generate_registration_page web_node_register sub web_node_record_user_agent web_user_authenticate);
+    @EXPORT = qw(generate_release_page generate_login_page generate_enabler_page generate_redirect_page 
+                 generate_error_page generate_status_page generate_registration_page web_node_register 
+                 web_node_record_user_agent web_user_authenticate generate_scan_progress_page);
 }
 
 use pf::config;
@@ -120,6 +121,43 @@ EOT
     print STDOUT $html_txt;
     exit;
 }
+
+sub generate_scan_progress_page {
+    my ( $cgi, $session, $destination_url ) = @_;
+    setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
+    bindtextdomain( "packetfence", "$conf_dir/locale" );
+    textdomain("packetfence");
+    my $vars = {
+        logo            => $Config{'general'}{'logo'},
+        timer           => $Config{'scan'}{'duration'},
+        destination_url => $destination_url,
+        txt_page_title  => gettext("scan: scan in progress"),
+        txt_message     => sprintf(
+            gettext("system scan in progress"),
+            $Config{'scan'}{'duration'}
+        ),
+        txt_enabling => gettext("Scanning ..."),
+    };
+    # TODO: start the refreshes once we are done
+    $vars->{js_action} = "var action = function() { hidebar();"
+                         ."  var toReplace=document.getElementById('toReplace');"
+                         ."  toReplace.innerHTML = '<font face=\"Arial\">"
+                         . gettext("release: reopen browser")
+                         ."</font>'; }";
+    my $html_txt;
+    my $template = Template->new(
+        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    $template->process( "release.html", $vars, \$html_txt );
+    my $cookie = $cgi->cookie( CGISESSID => $session->id );
+    print $cgi->header(
+        -cookie         => $cookie,
+        -Content_length => length($html_txt),
+        -Connection     => 'Close'
+    );
+    print STDOUT $html_txt;
+    exit;
+}
+
 
 sub generate_login_page {
     my ( $cgi, $session, $post_uri, $destination_url, $err ) = @_;

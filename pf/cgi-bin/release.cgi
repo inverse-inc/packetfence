@@ -91,11 +91,27 @@ my $class_max_enable_url = $class->{'max_enable_url'};
 
 #scan code...
 if ($vid==1200001){
-  my $cmd = $bin_dir."/pfcmd schedule now $ip";
+  # TODO: we need to find out if a scan is in progress already and if so, present a page to the user
+  my $cmd = $bin_dir."/pfcmd schedule now $ip 1>/dev/null 2>&1";
   $logger->info("scanning $ip by calling $cmd");
-  my $scan = qx/$cmd/;
-  # TODO send to a nice page talking about the scanning process
-  exit(0);
+
+  # forking to avoid browser to hang on connection
+  if (my $pid = fork) {
+
+    $logger->trace("parent part, redirecting to scan in progress page");
+    generate_scan_progress_page($cgi, $session, $destination_url);
+    exit(0);
+
+  } elsif (defined $pid) {
+
+    $logger->trace("child part, forking $cmd");
+    my $scan = qx/$cmd/;
+    exit(0);
+
+  } else {
+    # unexpected error
+    $logger->logdie("Cannot fork: $!");
+  }
 }
 
 my $cmd = $bin_dir."/pfcmd manage vclose $mac $vid";

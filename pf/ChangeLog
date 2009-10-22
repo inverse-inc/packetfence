@@ -1,4 +1,15 @@
 2009-10-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/cgi-bin/release.cgi, pf/conf/documentation.conf, 
+	pf/conf/locale/en/LC_MESSAGES/packetfence.po, 
+	pf/conf/locale/fr/LC_MESSAGES/packetfence.po, pf/conf/pf.conf.defaults,
+	pf/lib/pf/config.pm, pf/lib/pf/web.pm: Nessus scan integration
+	- Forking in the background when calling a scan to pfcmd and redirecting
+	  to a scan in progress page
+	- New parameter scan.duration to control the length of the scan progress
+	  bar
+	- French and English translations of the new scan in progress page
+	- New generate_scan_progress_page() in lib/pf/web.pm
+
 	* pf/cgi-bin/release.cgi: Removed vid hack for Nessus scan violation
 
 	* pf/lib/pf/trigger.pm: Removed deprecated code: trigger_scan and 

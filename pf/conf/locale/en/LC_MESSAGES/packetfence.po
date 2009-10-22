@@ -54,6 +54,8 @@ msgstr "Enabling network access"
 msgid  "release: reopen browser"
 msgstr "You might have to re-open your browser"
 
+msgid  "scan: scan in progress"
+msgstr "Your system is being scanned"
 
 msgid  "Acceptable Use Policy"
 msgstr "Acceptable Use Policy"
@@ -66,6 +68,9 @@ msgstr "De-register node"
 
 msgid  "Enabling ..."
 msgstr "Enabling ..."
+
+msgid  "Scanning ..."
+msgstr "Scanning ..."
 
 msgid  "Gateway"
 msgstr "Gateway"
@@ -87,6 +92,9 @@ msgstr "MAC"
 
 msgid  "network access is being enabled"
 msgstr "Your network access is currently being enabled - this process will take approximately %s seconds."
+
+msgid  "system scan in progress"
+msgstr "Your system is being scanned - this process will take approximately %s seconds."
 
 msgid  "Node"
 msgstr "Node"

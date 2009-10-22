@@ -402,6 +402,12 @@ nessusclient_file=remotescan.nessus
 # Name of the policy inside the NessusClient file
 nessusclient_policy=RemoteScan
 #
+# scan.duration
+#
+# Approximate duration of a scan. User being scanned are presented a progress bar for this duration, afterwards 
+# the browser refreshes until scan is complete.
+duration=60s
+#
 
 [database]
 #
