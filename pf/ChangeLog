@@ -1,4 +1,7 @@
 2009-10-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/trigger.pm: Removed deprecated code: trigger_scan and 
+	trigger_scan_add subs
+
 	* pf/lib/pf/scan.pm: Scan using violation_trigger mechanism now
 	Also moved IP to MAC test earlier and quit if it can't resolve
 
