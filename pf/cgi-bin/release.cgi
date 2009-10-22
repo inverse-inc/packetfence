@@ -44,6 +44,7 @@ if (!valid_mac($mac)) {
 # release on skip registration
 #
 if (defined($cgi->param('mode'))) {
+  # TODO: Validate that this mode = skip can't be tricked client side to create adverse effects
   if ($cgi->param('mode') eq "skip") {
 
     my $node_info = node_view($mac);
@@ -78,6 +79,7 @@ if (defined($cgi->param('mode'))) {
   }
 }
 
+# FIXME: we do not validate the result of our calls anywhere..
 my $violations = violation_view_top($mac); 
 my $vid = $violations->{'vid'}; 
 if ($vid==1100001){
