@@ -23,6 +23,7 @@ New Hardware Support
 - Extreme Networks Summit X250e in linkUp/linkDown mode
 
 Features
+- Nessus integration with captive portal for scanning on registration
 - PacketFence is now distributed as a yum repository (avoids having the
   installer pull a lot of cpan modules and jpgraph)
 - normal/correct VLAN default behavior changed (see UPGRADE for details)
