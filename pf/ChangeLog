@@ -1,4 +1,8 @@
 2009-10-23	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/scan/index.php, pf/html/admin/scan/scan.php: Disabled
+	scans from the web admin and made the result page the default page when
+	clicking on the scan tab
+
 	* Added pf/html/user/content/templates/scan-in-progress.html.
 	* Modified pf/cgi-bin/redir.cgi, pf/cgi-bin/release.cgi, 
 	pf/conf/locale/en/LC_MESSAGES/packetfence.po, 

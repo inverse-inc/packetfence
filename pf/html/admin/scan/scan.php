@@ -100,11 +100,14 @@ if(isset($_REQUEST[action]) && $_REQUEST[action]=='add'){
     <tr>
       <td colspan=8>Add a Scan Schedule</td>
     </tr>
+    <tr>
+      <td colspan=8><center><font color="red">System scanning from the Web Admin is disabled</font></center></td>
+    </tr>
     <tr class=title>
       <td><br><b><u>Host/Range</u></b></td>
     </tr>
     <tr>
-      <td></td><td><input type=text size=20 name=host></td> 
+      <td></td><td><input type=text size=20 name=host disabled></td> 
     </tr>
     <tr class=title>
       <td><br><b><u>Schedule</u></b></td>
@@ -113,9 +116,6 @@ if(isset($_REQUEST[action]) && $_REQUEST[action]=='add'){
       <td></td>
       <td>
         <table>
-          <tr>
-             <td colspan=3><font color="darkred">'Scan now' is the only option for the time being</font></td>
-          </tr>
 	  <tr>
             <td><input type=radio name=scan_freq value=now checked disabled></td>
 	    <td colspan=2>Scan Now</td>
@@ -189,7 +189,7 @@ for ($i=1; $i<=28; $i++) {
       </td>
     </tr>
     <tr>
-      <td colspan=8 align=right><input type=submit value="Add Schedule"></td>
+      <td colspan=8 align=right><input type=submit value="Add Schedule" disabled></td>
     </tr>
   </table>
 </form>

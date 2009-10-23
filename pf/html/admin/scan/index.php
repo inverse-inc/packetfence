@@ -4,6 +4,6 @@
  */
 
 
-include("scan.php");
+include("results.php");
 
 ?>
