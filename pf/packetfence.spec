@@ -1,26 +1,50 @@
-#rpmbuild should be done in several steps:
-#1) rpmbuild -bs SPECS/packetfence.spec
-#on each target distribution
-#2) rpmbuild --rebuild --define 'dist .el5' SRPMS/packetfence-1.8.4-1.src.rpm
+# PacketFence RPM SPEC
+# 
+# BUILDING FOR RELEASE
+# 
+# - source_release field should be set to a greater than 0 numeric value. Start with 1.
+#   If doing a package revision, change the 1 to a 2, etc.
+#
+# - Create release tarball from monotone head, ex:
+# mtn --db ~/pf.mtn checkout --branch org.packetfence.1_8
+# cd org.packetfence.1_8/
+# tar czvf packetfence-1.8.5-1.tar.gz pf/
+# 
+# - Build (change dist based on target distro)
+# cd /usr/src/redhat/
+# rpmbuild -ba --define 'dist .el5' SPECS/packetfence.spec
+#
+# BUILDING FOR A SNAPSHOT (PRE-RELEASE)
+#
+# - source_release field should be set to 0.<date> this way one can upgrade from snapshot to release easily.
+# ex: 0.20091022
+#
+# - Create release tarball from monotone head, ex:
+# mtn --db ~/pf.mtn checkout --branch org.packetfence.1_8
+# cd org.packetfence.1_8/
+# tar czvf packetfence-1.8.5-0.20091023.tar.gz pf/
+#
+# - Build (change dist based on target distro)
+# cd /usr/src/redhat/
+# rpmbuild -ba --define 'dist .el5' SPECS/packetfence.spec
+#
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
 Version: 1.8.5
-Release: 0.20091022%{?dist}
-# in snapshot mode, usually it is:
-# Release: 20090717%{?dist}
-# TODO: i don't think its right since upgrading from a snapshot to a release would fail
+# Update here on each release/snapshot
+%define source_release 0.20091023
+Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.packetfence.org
 AutoReqProv: 0
 BuildArch: noarch
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{source_release}-root
 
 Packager: Inverse inc. <support@inverse.ca>
 Vendor: PacketFence, http://www.packetfence.org
 
-Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}-%{release}.tar.gz
-# Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}-20090717.tar.gz
+Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}-%{source_release}.tar.gz
 
 BuildRequires: gettext, perl(Parse::RecDescent), httpd
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget
@@ -129,9 +153,12 @@ mv packetfence.mo conf/locale/nl/LC_MESSAGES/
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r addons/802.1X/ $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp -r addons/high-availability/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/mrtg/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp addons/logrotate $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r cgi-bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
@@ -167,6 +194,7 @@ cd $RPM_BUILD_ROOT/usr/local/pf/db
 ln -s pfschema.mysql.184 ./pfschema.mysql
 
 #httpd.conf symlink
+#TODO: isn't it stupid to decide what Apache version is there at rpm build time?
 cd $RPM_BUILD_ROOT/usr/local/pf/conf/templates
 if (/usr/sbin/httpd -v | egrep 'Apache/2\.[2-9]\.' > /dev/null)
 then
@@ -236,7 +264,8 @@ if [ -d /usr/local/pf/html/user/content/docs ]; then
 fi
 
 echo Installation complete
-echo "  * Please cd /usr/local/pf && ./installer.pl to install necessary Perl modules and configure PF"
+#TODO: consider renaming installer.pl to setup.pl?
+echo "  * Please cd /usr/local/pf && ./installer.pl to finish installation and configure PF"
 
 %post remote-snort-sensor
 echo "Adding PacketFence remote Snort Sensor startup script"
@@ -279,6 +308,10 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/addons/accounting.pl
 %attr(0755, pf, pf)     /usr/local/pf/addons/autodiscover.pl
 %attr(0755, pf, pf)     /usr/local/pf/addons/convertToPortSecurity.pl
+%attr(0755, pf, pf)	/usr/local/pf/addons/database-backup-and-maintenance.sh
+%dir                    /usr/local/pf/addons/high-availability/
+			/usr/local/pf/addons/high-availability/*
+			/usr/local/pf/addons/logrotate
 %attr(0755, pf, pf)     /usr/local/pf/addons/monitorpfsetvlan.pl
 %dir                    /usr/local/pf/addons/mrtg
                         /usr/local/pf/addons/mrtg/*
@@ -286,7 +319,6 @@ fi
 %dir                    /usr/local/pf/addons/snort
                         /usr/local/pf/addons/snort/oinkmaster.conf
 %dir                    /usr/local/pf/addons/802.1X
-%attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/pfcmd_ap.pl
 %doc                    /usr/local/pf/addons/802.1X/README
 %attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/rlm_perl_packetfence.pl
 %dir                    /usr/local/pf/bin
@@ -425,10 +457,7 @@ fi
 %dir                    /usr/local/pf/var/rrd
 %dir                    /usr/local/pf/var/session
 
-#####
-# ??????????????????
+# Remote snort sensor file list
 %files remote-snort-sensor
 %defattr(-, pf, pf)
 %attr(0755, root, root) %{_initrddir}/pfdetectd
-# ??????????????????
-#####

@@ -1,4 +1,10 @@
 2009-10-23	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec: Improvements to the RPM SPEC file
+	- New complete build instructions
+	- New source_release tag that allow us to do multi distro release with 
+	the same source tarball
+	- Updated list of files to include new stuff
+
 	* pf/html/admin/scan/index.php, pf/html/admin/scan/scan.php: Disabled
 	scans from the web admin and made the result page the default page when
 	clicking on the scan tab
