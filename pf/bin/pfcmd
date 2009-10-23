@@ -1164,9 +1164,13 @@ sub schedule {
 
     #scan now, no cron entry
     if ( $option && $option eq 'now' ) {
+        
+        $logger->trace("pcmd schedule now called");
 
         require pf::scan;
         pf::scan::runScan($hostaddr, %params);
+
+        $logger->trace("leaving pfcmd schedule now");
 
     # or modify cron
     } else {
