@@ -1,3 +1,16 @@
+2009-10-23	Olivier Bilodeau <obilodeau@inverse.ca>
+	* Added pf/html/user/content/templates/scan-in-progress.html.
+	* Modified pf/cgi-bin/redir.cgi, pf/cgi-bin/release.cgi, 
+	pf/conf/locale/en/LC_MESSAGES/packetfence.po, 
+	pf/conf/locale/fr/LC_MESSAGES/packetfence.po, pf/lib/pf/scan.pm, 
+	pf/lib/pf/web.pm: Nessus scan integration
+	- Tracking the state of registration scans
+	- New "scan in progress" page
+	- redir.cgi and release.cgi will redirect to the new scan in progress
+	  page if a scan is in progress
+	- Not showing Nessus server's password in the logs anymore
+	- Scanning page now redirect once the progress bar is over
+
 2009-10-22	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/cgi-bin/release.cgi, pf/conf/documentation.conf, 
 	pf/conf/locale/en/LC_MESSAGES/packetfence.po, 

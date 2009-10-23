@@ -57,6 +57,12 @@ msgstr "You might have to re-open your browser"
 msgid  "scan: scan in progress"
 msgstr "Your system is being scanned"
 
+msgid  "scan in progress contact support if too long"
+msgstr "Your system is still being scanned right now. The process started at %s. Usually this process takes a few minutes. If it has been much longer than that, contact your local support staff. Please provide the following information:"
+
+msgid  "automatically refresh"
+msgstr "This page automatically refreshes every %s seconds to verify if scan has completed."
+
 msgid  "Acceptable Use Policy"
 msgstr "Acceptable Use Policy"
 

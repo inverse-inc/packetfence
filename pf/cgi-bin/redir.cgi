@@ -9,6 +9,7 @@ use CGI::Session;
 use Log::Log4perl;
 
 use constant INSTALL_DIR => '/usr/local/pf';
+use constant SCAN_VID => 1200001;
 use lib INSTALL_DIR . "/lib";
 
 use pf::config;
@@ -64,8 +65,17 @@ if (defined($cgi->param('mode')) && $cgi->param('auth')) {
 my $violation = violation_view_top($mac);
 if ($violation){
   # There is a violation, redirect the user
+  # FIXME: there is not enough validation below
   my $vid=$violation->{'vid'};
   my $class=class_view($vid);
+
+  # detect if a system scan is in progress, if so redirect to scan in progress page
+  if ($vid == SCAN_VID && $violation->{'ticket_ref'} =~ /^Scan in progress, started at: (.*)$/) {
+    $logger->info("captive portal redirect to the scan in progress page");
+    generate_scan_status_page($cgi, $session, $1, $destination_url);
+    exit(0);
+  }
+
   $logger->info("captive portal redirect on violation vid: $vid, redirect url: ".$class->{'url'});
 
   # The little redirect dance here is controlled by frames which are inherently alterable by the user

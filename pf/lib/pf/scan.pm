@@ -29,7 +29,7 @@ BEGIN {
 
 use pf::config;
 use pf::util;
-use pf::violation qw(violation_exist_open violation_trigger);
+use pf::violation qw(violation_exist_open violation_trigger violation_modify);
 use pf::iplog qw(ip2mac);
 use Parse::Nessus::NBE;
 
@@ -79,7 +79,7 @@ sub runScan {
     close( $infile_fh );
 
     # the scan
-    $logger->info("executing $nessusRcHome /opt/nessus/bin/nessus -q -V -x --dot-nessus $nessusclient_file --policy-name $nessusclient_policy $host $port $user $pass --target-file $infileName $outfileName");
+    $logger->info("executing $nessusRcHome /opt/nessus/bin/nessus -q -V -x --dot-nessus $nessusclient_file --policy-name $nessusclient_policy $host $port $user <password> --target-file $infileName $outfileName");
     my $output = `$nessusRcHome /opt/nessus/bin/nessus -q -V -x --dot-nessus $nessusclient_file --policy-name $nessusclient_policy $host $port $user $pass --target-file $infileName $outfileName 2>&1`;
     unlink($infileName);
 
@@ -112,21 +112,23 @@ sub runScan {
         if ($violationAdded) {
             $failedScan = 1;
         }
-    };
+    }
+
+    if (!$failedScan) {
+        $logger->info("Nessus scan did not detect any high severity vulnerabilities on $hostaddr");
+    }
 
     # If scan is requested because of registration scanning
     #   Clear scan violation if the host didn't generate any violation
-    #   Otherwise we keep the violation so that if the user tries to remediate and re-scan the portal will
-    #     send him to the 1200001 page again
+    #   Otherwise we keep the violation and clear the ticket_ref. (so we can re-scan once he remediates)
     # If scan came from elsewhere
     #   Do nothing
     #
     # The way we accomplish the above workflow is to differentiate by checking if 1200001 exists or not
-    if (!$failedScan) {
-        $logger->info("Nessus scan did not detect any high severity vulnerabilities on $hostaddr");
-
-        # is there a 1200001 violation open for this mac?, if so close it
-        if (violation_exist_open($mac, SCAN_VID)) {
+    if (my $violationId = violation_exist_open($mac, SCAN_VID)) {
+        $logger->trace("Scan is completed and there is an open scan violation. We have something to do!");
+        # we passed the scan so we can close the scan violation
+        if (!$failedScan) {
 
             my $cmd = $bin_dir."/pfcmd manage vclose $mac ".SCAN_VID;
             $logger->info("calling $bin_dir/pfcmd manage vclose $mac ".SCAN_VID);
@@ -135,6 +137,11 @@ sub runScan {
                 $logger->warn("problem trying to close scan violation");
                 return 0;
             }
+        # scan completed but it found a violation
+        # HACK: we empty the violation's ticket_ref field which we use to track if scan is in progress or not
+        } else {
+           $logger->debug("Modifying violation id $violationId to empty its ticket_ref field.");
+           violation_modify($violationId, (ticket_ref => "" ));
         }
     }
     return 1;

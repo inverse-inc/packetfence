@@ -34,7 +34,7 @@ BEGIN {
     @ISA = qw(Exporter);
     @EXPORT = qw(generate_release_page generate_login_page generate_enabler_page generate_redirect_page 
                  generate_error_page generate_status_page generate_registration_page web_node_register 
-                 web_node_record_user_agent web_user_authenticate generate_scan_progress_page);
+                 web_node_record_user_agent web_user_authenticate generate_scan_start_page generate_scan_status_page);
 }
 
 use pf::config;
@@ -122,7 +122,7 @@ EOT
     exit;
 }
 
-sub generate_scan_progress_page {
+sub generate_scan_start_page {
     my ( $cgi, $session, $destination_url ) = @_;
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
@@ -138,12 +138,8 @@ sub generate_scan_progress_page {
         ),
         txt_enabling => gettext("Scanning ..."),
     };
-    # TODO: start the refreshes once we are done
-    $vars->{js_action} = "var action = function() { hidebar();"
-                         ."  var toReplace=document.getElementById('toReplace');"
-                         ."  toReplace.innerHTML = '<font face=\"Arial\">"
-                         . gettext("release: reopen browser")
-                         ."</font>'; }";
+    # Once the progress bar is over, try redirecting
+    $vars->{js_action} = "var action = function() { top.location.href=destination_url; }";
     my $html_txt;
     my $template = Template->new(
         { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
@@ -273,6 +269,47 @@ sub generate_redirect_page {
     exit;
 }
 
+sub generate_scan_status_page {
+    my ( $cgi, $session, $scan_start_time, $destination_url ) = @_;
+    my $refresh_timer = 10; # page will refresh each 10 seconds
+    setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
+    bindtextdomain( "packetfence", "$conf_dir/locale" );
+    textdomain("packetfence");
+    my $vars = {
+        logo             => $Config{'general'}{'logo'},
+        txt_page_title   => gettext('scan: scan in progress'),
+        txt_page_header  => gettext('scan: scan in progress'),
+        txt_message      => sprintf(gettext('scan in progress contact support if too long'), $scan_start_time),
+        txt_auto_refresh => sprintf(gettext('automatically refresh'), $refresh_timer),
+        destination_url  => $destination_url,
+        refresh_timer    => $refresh_timer
+    };
+
+    my $ip = $cgi->remote_addr;
+    push @{ $vars->{list_help_info} },
+        { name => gettext('IP'), value => $ip };
+    my $mac = ip2mac($ip);
+    if ($mac) {
+        push @{ $vars->{list_help_info} },
+            { name => gettext('MAC'), value => $mac };
+    }
+
+    my $cookie = $cgi->cookie( CGISESSID => $session->id );
+    print $cgi->header( -cookie => $cookie );
+    if ( -r "$conf_dir/templates/scan-in-progress.pl" ) {
+        my $include_fh;
+        open $include_fh, '<', "$conf_dir/templates/scan-in-progress.pl";
+        while (<$include_fh>) {
+            eval $_;
+        }
+        close $include_fh;
+    }
+    my $template = Template->new(
+        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    $template->process( "scan-in-progress.html", $vars );
+    exit;
+}
+
 sub generate_error_page {
     my ( $cgi, $session, $error_msg ) = @_;
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
@@ -284,6 +321,7 @@ sub generate_error_page {
         txt_page_header => gettext('Sorry'),
         txt_help        => gettext('help: provide info'),
     };
+    # TODO: this is ugly, we shouldn't do something based on error message provided
     if ( $error_msg eq 'error: only register max nodes' ) {
         my $maxnodes = 0;
         $maxnodes = $Config{'registration'}{'maxnodes'}
