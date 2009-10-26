@@ -4,12 +4,13 @@ Project homepage: https://www.packetfence.org/
 
 Please report bugs to: http://www.packetfence.org/mantis/
 
-Interested in contributing? Check the following link:
+Interested in contributing to the project? Check the following link:
+
 http://www.packetfence.org/support/community.html
 
-This is a list of noteworthy changes. 
-For more details and developer visible changes see the ChangeLog.
-For a list of compability related changes see UPGRADE.
+This is a list of noteworthy changes across releases. 
+For more details and developer visible changes see the ChangeLog file.
+For a list of compability related changes see the UPGRADE file.
 
 
 --------------------------------------------------------------------------------
@@ -22,13 +23,14 @@ New Hardware Support
   (port-security)
 - Extreme Networks Summit X250e in linkUp/linkDown mode
 
-Features
+New Features
 - PacketFence is now distributed as a yum repository (avoids having the
   installer pull a lot of cpan modules and jpgraph)
 - normal/correct VLAN default behavior changed (see UPGRADE for details)
 - PacketFence is now able to automatically create static routes for routed 
   registration and isolation VLANs
-- significant performance improvement in 802.1X
+- significant performance improvement in 802.1X mode (wired and wireless) or
+  in MAC authentication on wireless networks
 - massive documentation update (how to configure hardware, new install method, 
   new support packages and more...)
 - blocking misbehaving user-agents on captive portal (avoid unnecessary load)
@@ -43,7 +45,7 @@ Bugfix
 - init script more robust (#805)
 - fixed crashes in corner cases (violations without triggers, config not 
   upgraded, etc.)
-- fixed SNMPv3 trap-handling for HP Procurve
+- fixed SNMPv3 trap-handling for HP ProCurve
 - fixed maclock (port-security) support on Enterasys
 - added missing dependencies
 - stability and error reporting fixes
