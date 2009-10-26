@@ -79,6 +79,8 @@ Requires: perl-Net-MAC, perl-Net-MAC-Vendor
 Requires: perl-Net-Netmask
 Requires: perl-Net-Pcap >= 0.16
 Requires: perl-Net-SNMP
+# for SNMPv3 AES as privacy protocol
+Requires: perl-Crypt-Rijndael
 Requires: perl-Net-Telnet
 Requires: perl-Net-Write
 Requires: perl-Parse-Nessus-NBE
