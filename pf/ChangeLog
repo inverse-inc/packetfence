@@ -1,3 +1,7 @@
+2009-10-26	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Updated Nessus
+	documentation
+
 2009-10-23	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec: Improvements to the RPM SPEC file
 	- New complete build instructions
