@@ -1,4 +1,5 @@
 # PacketFence RPM SPEC
+# DO NOT FORGET TO UPDATE CHANGELOG AT THE END OF THE FILE WHENEVER IT IS MODIFIED!
 # 
 # BUILDING FOR RELEASE
 # 
@@ -32,7 +33,7 @@ Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
 Version: 1.8.5
 # Update here on each release/snapshot
-%define source_release 0.20091023
+%define source_release 0.20091026
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -46,10 +47,14 @@ Vendor: PacketFence, http://www.packetfence.org
 
 Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}-%{source_release}.tar.gz
 
-BuildRequires: gettext, perl(Parse::RecDescent), httpd
+BuildRequires: gettext, httpd
+# install follow dep with: yum install perl-Parse-RecDescent-1.94
+BuildRequires: perl(Parse::RecDescent) = 1.94
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
-Requires: httpd, mod_ssl, php, php-gd, php-pear
+Requires: httpd, mod_ssl, php, php-gd
+# php-pear-Log required not php-pear, fixes #804
+Requires: php-pear-Log
 Requires: net-tools
 Requires: net-snmp >= 5.3.2.2
 Requires: mysql, perl-DBD-mysql
@@ -79,12 +84,11 @@ Requires: perl-Net-MAC, perl-Net-MAC-Vendor
 Requires: perl-Net-Netmask
 Requires: perl-Net-Pcap >= 0.16
 Requires: perl-Net-SNMP
-# for SNMPv3 AES as privacy protocol
+# for SNMPv3 AES as privacy protocol, fixes #775
 Requires: perl-Crypt-Rijndael
 Requires: perl-Net-Telnet
 Requires: perl-Net-Write
 Requires: perl-Parse-Nessus-NBE
-Requires: perl-Parse-RecDescent = 1.94
 Requires: perl-Readonly
 Requires: perl-Regexp-Common
 Requires: rrdtool, perl-rrdtool
@@ -463,3 +467,15 @@ fi
 %files remote-snort-sensor
 %defattr(-, pf, pf)
 %attr(0755, root, root) %{_initrddir}/pfdetectd
+
+%changelog
+* Mon Oct 26 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.5-0.20091026
+- Parse::RecDescent is a build dependency not a runtime one. Fixes #806;
+  http://packetfence.org/mantis/view.php?id=806
+- Pulling php-pear-Log instead of php-pear. Fixes #804
+  http://packetfence.org/mantis/view.php?id=804
+- New dependency for SNMPv3 support with AES: perl-Crypt-Rijndael. Fixes #775;
+  http://packetfence.org/mantis/view.php?id=775
+
+* Fri Oct 23 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.5-0.20091023
+- Major improvements to the SPEC file. Starting changelog

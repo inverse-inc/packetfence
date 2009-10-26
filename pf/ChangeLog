@@ -1,4 +1,13 @@
 2009-10-26	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec, pf/installer.pl: Packaging and installer fixes
+	- Parse::RecDescent is a build dependency not a runtime one. Fixes #806;
+	  http://packetfence.org/mantis/view.php?id=806
+	- Pulling php-pear-Log instead of php-pear. Fixes #804
+	  http://packetfence.org/mantis/view.php?id=804
+	- jpgraph is no longer installed by installer.pl (is a dep of the rpm)
+	- php-pear-Log is no longer installed by installer
+	- Lots of new TODO task for installer
+
 	* pf/lib/pf/pfcmd/pfcmd.pm: Removed use of Log::Log4perl
 	This removes a lot of unnecessary build requirements and it wasn't even
 	used anywhere in this file. Fixes #826;
