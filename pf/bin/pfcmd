@@ -1553,6 +1553,7 @@ sub ui {
             'scan'      => 'id',
         );
 
+        # TODO: remove this test when we will reactivate Scan from web admin, it is no longer valid
         # check if Net::Nessus::ScanLite is installed
         my $scanLiteInstalled = 1;
         eval "use Net::Nessus::ScanLite";
