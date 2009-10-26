@@ -1,4 +1,8 @@
 2009-10-26	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec: Parse::RecDescent is a build dependency AND a 
+	runtime one. Hopefully fixes #806 for good;
+	http://packetfence.org/mantis/view.php?id=806
+
 	* pf/packetfence.spec, pf/installer.pl: Packaging and installer fixes
 	- Parse::RecDescent is a build dependency not a runtime one. Fixes #806;
 	  http://packetfence.org/mantis/view.php?id=806

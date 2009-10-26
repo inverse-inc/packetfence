@@ -89,6 +89,7 @@ Requires: perl-Crypt-Rijndael
 Requires: perl-Net-Telnet
 Requires: perl-Net-Write
 Requires: perl-Parse-Nessus-NBE
+Requires: perl(Parse::RecDescent) = 1.94
 Requires: perl-Readonly
 Requires: perl-Regexp-Common
 Requires: rrdtool, perl-rrdtool
@@ -470,7 +471,7 @@ fi
 
 %changelog
 * Mon Oct 26 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.5-0.20091026
-- Parse::RecDescent is a build dependency not a runtime one. Fixes #806;
+- Parse::RecDescent is a build dependency AND a runtime one. Fixes #806;
   http://packetfence.org/mantis/view.php?id=806
 - Pulling php-pear-Log instead of php-pear. Fixes #804
   http://packetfence.org/mantis/view.php?id=804
