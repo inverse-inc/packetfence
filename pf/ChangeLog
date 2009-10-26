@@ -1,4 +1,8 @@
 2009-10-26	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/configuration/switches_add.php, 
+	pf/html/admin/configuration/switches_edit.php: Added newly supported
+	switches to the Web Admin
+
 	* pf/conf/templates/httpd.conf.apache22,
 	pf/conf/templates/httpd.conf.pre_apache22: Using temporary redirects
 	instead of permanent ones in the captive portal. Fixes #757;
