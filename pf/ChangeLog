@@ -1,4 +1,9 @@
 2009-10-26	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/pfcmd/pfcmd.pm: Removed use of Log::Log4perl
+	This removes a lot of unnecessary build requirements and it wasn't even
+	used anywhere in this file. Fixes #826;
+	http://packetfence.org/mantis/view.php?id=826
+
 	* pf/packetfence.spec: Added dependency to enable SNMPv3 AES encryption
 	support. Fixes #775; http://packetfence.org/mantis/view.php?id=775
 
