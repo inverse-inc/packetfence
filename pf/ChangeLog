@@ -1,4 +1,7 @@
 2009-10-26	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/documentation.conf, pf/conf/pf.conf.defaults: Clarified 
+	Nessus Scan parameters
+
 	* pf/docs/PacketFence_Administration_Guide.odt: Updated Nessus
 	documentation
 

@@ -384,10 +384,9 @@ registration=disabled
 #
 # scan.live_tids
 #
-#
-#If a host fails a scan AND the tid is listed in live_tids the corresponding violation will
-#be added.   If the tid is not listed here the event will be logged
-#only.  This is used to test Nessus plugins before going live.
+# If a host fails a scan AND the tid is listed in live_tids the corresponding violation will
+# be added. If the tid is not listed here the event will be logged only. This is used to test 
+# Nessus plugins before going live. The tid is the Nessus plugin Id.
 live_tids=
 #
 # scan.nessusclient_file
@@ -404,8 +403,8 @@ nessusclient_policy=RemoteScan
 #
 # scan.duration
 #
-# Approximate duration of a scan. User being scanned are presented a progress bar for this duration, afterwards 
-# the browser refreshes until scan is complete.
+# Approximate duration of a scan. User being scanned on registration are presented a progress bar 
+# for this duration, afterwards the browser refreshes until scan is complete.
 duration=60s
 #
 
