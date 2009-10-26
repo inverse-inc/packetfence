@@ -3,6 +3,7 @@
 	pf/conf/templates/httpd.conf.pre_apache22: Using temporary redirects
 	instead of permanent ones in the captive portal. Fixes #757;
 	http://packetfence.org/mantis/view.php?id=757
+	Reported by Josh Ward (he also suggested the fix) Many thanks!
 
 	* pf/packetfence.spec: Parse::RecDescent is a build dependency AND a 
 	runtime one. Hopefully fixes #806 for good;

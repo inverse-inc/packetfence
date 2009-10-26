@@ -44,6 +44,7 @@ Bugfix
 - removed Hub violation that caused too many false positives (#793)
 - whitelisting MAC addresses more consistent across violation types (#801)
 - init script more robust (#805)
+- using temporary redirects instead of permanent ones (#757)
 - fixed crashes in corner cases (violations without triggers, config not 
   upgraded, etc.)
 - fixed SNMPv3 trap-handling for HP ProCurve
