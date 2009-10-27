@@ -112,21 +112,6 @@ my %schemas = (
     "b125feaa50bc9c1fdf591e7c9caabf91" => "1.4.4p1"
 );
 
-my $external_deps = {
-    "jpgraph_v1" => {
-        "url_path"  => "http://hem.bredband.net/jpgraph/",
-        "file_name" => "jpgraph-1.27.tar.gz",
-        "install_path" =>
-            "$install_dir/html/admin/common/jpgraph/jpgraph-1.27"
-    },
-    "jpgraph_v2" => {
-        "url_path"  => "http://hem.bredband.net/jpgraph2/",
-        "file_name" => "jpgraph-2.3.4.tar.gz",
-        "install_path" =>
-            "$install_dir/html/admin/common/jpgraph/jpgraph-2.3.4"
-    }
-};
-
 $ENV{'LANG'} = "C";
 
 # can we install RPMs?

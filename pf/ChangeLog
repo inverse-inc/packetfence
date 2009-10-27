@@ -1,4 +1,6 @@
 2009-10-27	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/installer.pl: Got rid of dead installer code
+
 	* pf/t/SNMP.t, pf/t/critic.t, pf/t/pf.t, pf/t/pfcmd.t, pf/t/php.t,
 	 pf/t/pod.t: Test file list update
 
