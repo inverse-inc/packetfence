@@ -10,7 +10,7 @@ http://www.packetfence.org/support/community.html
 
 This is a list of noteworthy changes across releases. 
 For more details and developer visible changes see the ChangeLog file.
-For a list of compability related changes see the UPGRADE file.
+For a list of compatibility related changes see the UPGRADE file.
 
 
 --------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ New Features
 - Nessus integration with captive portal for scanning on registration
 - PacketFence is now distributed as a yum repository (avoids having the
   installer pull a lot of cpan modules and jpgraph)
-- normal/correct VLAN default behavior changed (see UPGRADE for details)
+- normal/correct VLAN default behaviour changed (see UPGRADE for details)
 - PacketFence is now able to automatically create static routes for routed 
   registration and isolation VLANs
 - significant performance improvement in 802.1X mode (wired and wireless) or
