@@ -1,4 +1,9 @@
 2009-10-27	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Decided to get rid of
+	the release notes section (avoids manual data duplication)
+	Added a pointer to NEWS, UPGRADE and ChangeLog in "About this guide"
+	section.
+
 	* pf/conf/pf-release: Version bump to 1.8.5
 
 	* pf/docs/PacketFence_Administration_Guide.odt: Integrated release
