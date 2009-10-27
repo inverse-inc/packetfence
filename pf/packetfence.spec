@@ -6,10 +6,12 @@
 # - source_release field should be set to a greater than 0 numeric value. Start with 1.
 #   If doing a package revision, change the 1 to a 2, etc.
 #
+# - Make sure that the correct Source: statement is uncommented
+#
 # - Create release tarball from monotone head, ex:
 # mtn --db ~/pf.mtn checkout --branch org.packetfence.1_8
 # cd org.packetfence.1_8/
-# tar czvf packetfence-1.8.5-1.tar.gz pf/
+# tar czvf packetfence-1.8.5.tar.gz pf/
 # 
 # - Build (change dist based on target distro)
 # cd /usr/src/redhat/
@@ -19,6 +21,8 @@
 #
 # - source_release field should be set to 0.<date> this way one can upgrade from snapshot to release easily.
 # ex: 0.20091022
+#
+# - Make sure that the correct Source: statement is uncommented
 #
 # - Create release tarball from monotone head, ex:
 # mtn --db ~/pf.mtn checkout --branch org.packetfence.1_8
@@ -45,7 +49,10 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{source_release}-root
 Packager: Inverse inc. <support@inverse.ca>
 Vendor: PacketFence, http://www.packetfence.org
 
+# for snapshot releases
 Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}-%{source_release}.tar.gz
+# for official releases
+#Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz
 
 BuildRequires: gettext, httpd
 # install follow dep with: yum install perl-Parse-RecDescent-1.94
@@ -471,6 +478,7 @@ fi
 
 %changelog
 * Mon Oct 27 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.5-0.20091027
+- Added build instructions to avoid badly named release tarball
 - Version bump to snapshot 20091027
 
 * Mon Oct 26 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.5-0.20091026
