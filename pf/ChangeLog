@@ -1,3 +1,7 @@
+2009-10-27	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/t/SNMP.t, pf/t/critic.t, pf/t/pf.t, pf/t/pfcmd.t, pf/t/php.t,
+	 pf/t/pod.t: Test file list update
+
 2009-10-26	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/html/admin/configuration/switches_add.php, 
 	pf/html/admin/configuration/switches_edit.php: Added newly supported
