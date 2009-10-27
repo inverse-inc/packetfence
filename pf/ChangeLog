@@ -1,4 +1,6 @@
 2009-10-27	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/pf-release: Version bump to 1.8.5
+
 	* pf/docs/PacketFence_Administration_Guide.odt: Integrated release
 	notes
 	
