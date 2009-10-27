@@ -33,7 +33,7 @@ Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
 Version: 1.8.5
 # Update here on each release/snapshot
-%define source_release 0.20091026
+%define source_release 0.20091027
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -470,6 +470,9 @@ fi
 %attr(0755, root, root) %{_initrddir}/pfdetectd
 
 %changelog
+* Mon Oct 27 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.5-0.20091027
+- Version bump to snapshot 20091027
+
 * Mon Oct 26 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.5-0.20091026
 - Parse::RecDescent is a build dependency AND a runtime one. Fixes #806;
   http://packetfence.org/mantis/view.php?id=806
