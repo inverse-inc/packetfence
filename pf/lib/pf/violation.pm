@@ -422,7 +422,8 @@ sub violation_trigger {
 
     my $addedViolation = 0;
     foreach my $row (@trigger_info) {
-        if (!defined($row->{'vid'})) {
+        # if trigger row is not an hash reference, has no vid or its vid is non numeric, we report and skip
+        if (ref($row) ne 'HASH' || !defined($row->{'vid'}) || $row->{'vid'} !~ /^\d+$/) {
             $logger->warn("Invalid violation / trigger configuration. Error on trigger ${type}::${tid}");
             next;
         }

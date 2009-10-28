@@ -1,3 +1,8 @@
+2009-10-28	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/violation.pm: Tighter validation in violation_trigger when
+	database query returns a non-empty array (which is a bigger problem yet
+	to be identified)
+
 2009-10-27	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/conf/pf-release: Version bump to 1.8.5
 
