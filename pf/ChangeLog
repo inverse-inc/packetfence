@@ -1,4 +1,10 @@
 2009-10-28	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/violation.pm: performance: verifying if violation already 
+	exists in violation_trigger. Improves performance in situation where 
+	there are a lot of devices repetively generating violation (ex: blocked
+	iPods) because we detect it before launching `pfcmd violation add`.
+	Also decreased logging prority from WARN to INFO
+
 	* pf/lib/pf/violation.pm: Tighter validation in violation_trigger when
 	database query returns a non-empty array (which is a bigger problem yet
 	to be identified)

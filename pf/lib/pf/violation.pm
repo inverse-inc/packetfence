@@ -318,7 +318,7 @@ sub violation_add {
 
     # Is this MAC and ID aready in DB?  if so don't add another
     if ( violation_exist_open( $mac, $vid ) ) {
-        $logger->warn("violation $vid already exists for $mac");
+        $logger->info("violation $vid already exists for $mac, not adding again");
         return (1);
     }
 
@@ -429,9 +429,15 @@ sub violation_trigger {
         }
         my $vid = $row->{'vid'};
 
-        $logger->info("calling $bin_dir/pfcmd violation add vid=$vid,mac=$mac");
-        # forking a pfcmd because it will call a vlan flip if needed
-        `$bin_dir/pfcmd violation add vid=$vid,mac=$mac`;
+        # Is this MAC and ID aready in DB?  if so don't add another
+        # we test here AND in violation_add because here we avoid a fork (and violation_add is called from elsewhere)
+        if ( violation_exist_open( $mac, $vid ) ) {
+            $logger->info("violation $vid already exists for $mac, not adding again");
+        } else {
+            $logger->info("calling $bin_dir/pfcmd violation add vid=$vid,mac=$mac");
+            # forking a pfcmd because it will call a vlan flip if needed
+            `$bin_dir/pfcmd violation add vid=$vid,mac=$mac`;
+        }
         $addedViolation = 1;
     }
     return $addedViolation;
