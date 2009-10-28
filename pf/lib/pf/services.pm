@@ -994,7 +994,7 @@ sub switches_conf_is_valid {
             my $uplink = $switches_conf{$section}{'uplink'}
                 || $switches_conf{'default'}{'uplink'};
             if (( !defined($uplink) )
-                || (   ( $uplink ne 'dynamic' )
+                || (   ( lc($uplink) ne 'dynamic' )
                     && ( !( $uplink =~ /(\d+,)*\d+/ ) ) )
                 )
             {

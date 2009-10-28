@@ -1,4 +1,8 @@
 2009-10-28	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/services.pm: In conf/switches.conf uplink=dynamic is no
+	longer case-sensitive. Fixes #831;
+	http://packetfence.org/mantis/view.php?id=831
+
 	* pf/lib/pf/violation.pm: performance: verifying if violation already 
 	exists in violation_trigger. Improves performance in situation where 
 	there are a lot of devices repetively generating violation (ex: blocked
