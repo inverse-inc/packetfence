@@ -38,7 +38,7 @@ Name: packetfence
 Version: 1.8.5
 # Update here on each release/snapshot
 #%define source_release 0.20091027
-%define source_release 1
+%define source_release 2
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -57,7 +57,7 @@ Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz
 
 BuildRequires: gettext, httpd
 # install follow dep with: yum install perl-Parse-RecDescent-1.94
-BuildRequires: perl(Parse::RecDescent) = 1.94
+BuildRequires: perl-Parse-RecDescent = 1.94
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl, php, php-gd
@@ -97,7 +97,7 @@ Requires: perl-Crypt-Rijndael
 Requires: perl-Net-Telnet
 Requires: perl-Net-Write
 Requires: perl-Parse-Nessus-NBE
-Requires: perl(Parse::RecDescent) = 1.94
+Requires: perl-Parse-RecDescent = 1.94
 Requires: perl-Readonly
 Requires: perl-Regexp-Common
 Requires: rrdtool, perl-rrdtool
@@ -478,10 +478,14 @@ fi
 %attr(0755, root, root) %{_initrddir}/pfdetectd
 
 %changelog
-* Mon Oct 27 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.5-0.20091027
+* Fri Oct 30 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.5-2
+- Modifications made to the dependencies to avoid installing Parse::RecDescent 
+  that doesn't work with PacketFence
+
+* Wed Oct 28 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.5-1
 - Version bump to 1.8.5
 
-* Mon Oct 27 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.5-0.20091027
+* Tue Oct 27 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.5-0.20091027
 - Added build instructions to avoid badly named release tarball
 - Version bump to snapshot 20091027
 
