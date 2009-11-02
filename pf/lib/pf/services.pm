@@ -27,6 +27,7 @@ use File::Basename;
 use Config::IniFiles;
 use Log::Log4perl;
 use UNIVERSAL::require;
+use IPC::Cmd qw[can_run run];
 
 use pf::config;
 use pf::util;
