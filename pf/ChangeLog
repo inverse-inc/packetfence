@@ -1,4 +1,10 @@
 2009-11-02	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/node/lookup.php, pf/lib/pf/lookup/node.pm, 
+	pf/lib/pf/pfcmd/help.pm: Node lookup now gives information about IP
+	and DHCP status (from iplog)
+	Updated pfcmd's help
+	Output in Web Admin is no longer right-aligned
+
 	* pf/html/admin/common.php: Fixed alignment of the filter input dialog 
 
 	* pf/lib/pf/SNMP.pm, pf/lib/pf/vlan.pm: Removed dead code, added POD
