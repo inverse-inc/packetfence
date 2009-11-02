@@ -1,3 +1,6 @@
+2009-11-02	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/NEWS, pf/conf/pf-release: bumped to 1.9.0dev
+
 2009-10-30	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec: Correctly pinned Parse::RecDescent dependency to
 	version 1.94 which is known to work. Fixes #806;
