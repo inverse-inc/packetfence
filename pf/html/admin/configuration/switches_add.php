@@ -62,6 +62,7 @@
       printSelect( array('' => 'please choose', 'discovery' => 'discovery', 'ignore' => 'ignore', 'production' => 'production', 'registration' => 'registration', 'testing' => 'testing'), 'hash', $val, "name='$key'");
     } elseif ($key == 'type') {
       print "<tr><td></td><td>$pretty_key:</td><td>";
+      # to list all modules under SNMP: find . -type f | sed 's/^\.\///' | sed 's/\//::/' | sed 's/.pm$//'
       printSelect( array('' => 'please choose',
                          'ThreeCom::NJ220' => '3COM NJ220', 
                          'ThreeCom::SS4200' => '3COM SS4200', 
@@ -81,7 +82,7 @@
                          'Cisco::Catalyst_3500XL' => 'Cisco Catalyst 3500XL',
                          'Cisco::Catalyst_3550' => 'Cisco Catalyst 3550',
                          'Cisco::Catalyst_3560' => 'Cisco Catalyst 3560',
-                         'Cisco::Controller_4400_42_130' => 'Cisco Controller 4400',
+                         'Cisco::Controller_4400_4_2_130' => 'Cisco Controller 4400',
                          'Cisco::WLC_2106' => 'Cisco WLC 2106',
                          'Dell::PowerConnect3424' => 'Dell PowerConnect 3424',
                          'Dlink::DES_3526' => 'D-Link DES 3526',
