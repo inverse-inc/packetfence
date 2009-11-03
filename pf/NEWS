@@ -20,6 +20,8 @@ New Features
 - More information available in Node Lookup (IP, DHCP lease)
 
 Bugfix
+- Fixed a problem when adding or editing a Cisco Catalyst 2970 or 3500XL from 
+  the Web Admin interface (closes #836)
 - Minor corrections to the Admin Web UI
 
 --------------------------------------------------------------------------------
