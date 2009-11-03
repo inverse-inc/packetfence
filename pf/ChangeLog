@@ -1,4 +1,9 @@
 2009-11-03	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/lookup/node.pm, pf/UPGRADE: Added more information about 
+	past IP in node lookup.
+	Added UPGRADE warning that scripts relying on the output of lookup node
+	could break.
+
 	* pf/html/admin/configuration/switches_add.php,
 	pf/html/admin/configuration/switches_edit.php: Fixed typo in switch
 	definition in the Web Admin causing problems adding or editing a Cisco

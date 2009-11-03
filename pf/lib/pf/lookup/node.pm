@@ -36,14 +36,21 @@ sub lookup_node {
         my $node_iplog_info = iplog_view_open_mac($mac);
         if (defined($node_iplog_info->{'ip'})) {
 
-            $return .= "IP Address : ".$node_iplog_info->{'ip'}."\n";
+            $return .= "IP Address : ".$node_iplog_info->{'ip'}." (active)\n";
             $return .= "IP Info    : IP active since " . $node_iplog_info->{'start_time'} .
                        " and DHCP lease valid until ".$node_iplog_info->{'end_time'}."\n";
             
         } else {
-            $return .= "IP Address : Unknown\n";
-            $return .= "IP Info    : No IP information available\n";
-            
+            my @node_iplog_history_info = iplog_history_mac($mac);
+            if (ref($node_iplog_history_info[0]) eq 'HASH' && defined($node_iplog_history_info[0]->{'ip'})) {
+                my $latest_iplog = $node_iplog_history_info[0];
+                $return .= "IP Address : ".$latest_iplog->{'ip'}." (inactive)\n";
+                $return .= "IP Info    : IP was last seen active between " . $latest_iplog->{'start_time'} .
+                           " and ". $latest_iplog->{'end_time'} . "\n";
+            } else {
+                $return .= "IP Address : Unknown\n";
+                $return .= "IP Info    : No IP information available\n";
+            }
         }
 
         # DHCP history
