@@ -2,7 +2,7 @@
 	* pf/html/admin/configuration/switches_add.php,
 	pf/html/admin/configuration/switches_edit.php: Fixed typo in switch
 	definition in the Web Admin causing problems adding or editing a Cisco
-	Catalyst 2970 or 3500XL. Fixes 836;
+	Catalyst 2970, 3500XL and wireless controller 4400. Fixes 836;
 	http://www.packetfence.org/mantis/view.php?id=836
 
 2009-11-02	Olivier Bilodeau <obilodeau@inverse.ca>
