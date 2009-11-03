@@ -22,6 +22,7 @@ New Features
 Bugfix
 - Fixed a problem when adding or editing a Cisco Catalyst 2970, 3500XL and 
   Wireless Controller 4400 from the Web Admin interface (closes #836)
+- Fixed missing library requirement when using PacketFence with routed VLANs
 - Minor corrections to the Admin Web UI
 
 --------------------------------------------------------------------------------

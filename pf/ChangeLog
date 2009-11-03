@@ -5,6 +5,10 @@
 	Catalyst 2970, 3500XL and wireless controller 4400. Fixes 836;
 	http://www.packetfence.org/mantis/view.php?id=836
 
+2009-11-02      Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/services.pm: Fixed missing library requirement when using
+	PacketFence with routed VLANs
+
 2009-11-02	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/html/admin/node/lookup.php, pf/lib/pf/lookup/node.pm, 
 	pf/lib/pf/pfcmd/help.pm: Node lookup now gives information about IP
