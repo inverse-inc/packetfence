@@ -1,3 +1,6 @@
+2009-11-05	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/TODO: Added a TODO list to track some tasks
+
 2009-11-03	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/lookup/node.pm, pf/UPGRADE: Added more information about 
 	past IP in node lookup.
