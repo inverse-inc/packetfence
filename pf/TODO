@@ -1,0 +1,23 @@
+PacketFence TODO
+
+Project homepage: https://www.packetfence.org/
+
+Please report bugs to: http://www.packetfence.org/mantis/
+
+Interested in contributing to the project? Check the following link:
+http://www.packetfence.org/support/community.html
+
+This is a list of tasks that are too broad to be filed as bugs.
+
+Cleanup / Bugfix
+- Deal with TODO and FIXME tags in the code
+- Extract all hardcoded strings and numbers into constants
+- Regroup code for all switches using Q-BRIDGE-MIB style code in something like
+  SNMP::QBridgeMIB::getMacBridgeDot1dPortHash or similar
+- configurator.pl: fix or destroy 
+
+Features
+- Passthrough in vlan isolation mode
+- 802.1X calling code on PacketFence's server instead of doing database queries
+- Nessus scan from web admin
+- Nessus scan schedules
