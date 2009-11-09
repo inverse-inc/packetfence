@@ -1,3 +1,12 @@
+2009-11-09	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/802.1X/rlm_perl_packetfence.pl: Rewrite of our freeradius
+	802.1x perl module. Resolving problems with guests (visitors) and 
+	registered users in secure SSID. Fixes 839, 841;
+	Also, VISITOR is now called GUEST and improved documentation while I 
+	was at it.
+	http://www.packetfence.org/mantis/view.php?id=839
+	http://www.packetfence.org/mantis/view.php?id=841
+
 2009-11-03	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/html/admin/configuration/switches_add.php,
 	pf/html/admin/configuration/switches_edit.php: Fixed typo in switch 

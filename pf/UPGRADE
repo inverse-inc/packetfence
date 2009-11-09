@@ -5,6 +5,14 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to 1.8.6:
+
+    - 802.1x module expects 'guest' instead of 'visitor' in node.pid
+    We changed the naming of the guest concept from visitor to guest. If you
+    allow guests on your network, doublecheck your rlm_perl_packetfence.pl 
+    module and align it on your naming (update all to guest or change back to 
+    visitor).
+
 o Upgrading from a version prior to 1.8.5:
 
     - 802.1X freeradius module updated 
