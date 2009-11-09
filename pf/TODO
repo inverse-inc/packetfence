@@ -19,5 +19,5 @@ Cleanup / Bugfix
 Features
 - Passthrough in vlan isolation mode
 - 802.1X calling code on PacketFence's server instead of doing database queries
-- Nessus scan from web admin
+- Nessus scan from web admin (and show when a scan is in progress)
 - Nessus scan schedules
