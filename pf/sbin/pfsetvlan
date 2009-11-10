@@ -1514,7 +1514,9 @@ sub handleTrap {
         $logger->info(
             "$trapType trap received on $switch_ip ifIndex $switch_port for $trapMac"
         );
-        $switch->deauthenticateMac($trapMac);
+        #$switch->deauthenticateMac($trapMac);
+        my $switchIp = $switch->{_ip};
+        `/usr/local/pf/bin/pfcmd_vlan -deauthenticate -switch $switchIp -mac $trapMac`;
 
         # }}}2
 
