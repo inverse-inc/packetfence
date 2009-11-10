@@ -1,3 +1,12 @@
+2009-11-10      Regis Balzard <rbalzard@inverse.ca>
+	* pf/html/admin/configuration/switches_edit.php: 
+	* pf/html/admin/configuration/switches_add.php: Fixed issues with SSH
+	for CLI transport. Should be set to 'SSH' rather than 'ssh'
+
+	* pf/sbin/pfsetvlan: Fixed issues with desAssociate trap for Wireless.
+	Threads don't support SSH CLI transport mode. So we fork a call to 
+	'pfcmd_vlan -deauthenticate ...'
+
 2009-11-09	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/addons/802.1X/rlm_perl_packetfence.pl: Rewrite of our freeradius
 	802.1x perl module. Resolving problems with guests (visitors) and 

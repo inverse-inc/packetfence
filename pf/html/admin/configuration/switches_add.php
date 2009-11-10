@@ -111,7 +111,7 @@
                    'hash', $val, "name='$key'");
     } elseif ($key == 'cliTransport') {
       print "<tr><td></td><td>$pretty_key:</td><td>";
-      printSelect( array('' => 'please choose', 'Telnet' => 'Telnet', 'ssh' => 'SSH'), 'hash', $val, "name='$key'");
+      printSelect( array('' => 'please choose', 'Telnet' => 'Telnet', 'SSH' => 'SSH'), 'hash', $val, "name='$key'");
     } else {
       print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val'>";
     }
