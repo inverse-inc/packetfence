@@ -21,3 +21,7 @@ Features
 - 802.1X calling code on PacketFence's server instead of doing database queries
 - Nessus scan from web admin
 - Nessus scan schedules
+
+Tests
+- Detect use of non thread-safe modules like Net::Appliance::Session (look for
+  ->new() calls)

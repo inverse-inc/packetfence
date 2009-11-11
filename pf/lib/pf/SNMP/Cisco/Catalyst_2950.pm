@@ -28,6 +28,14 @@ use Net::Appliance::Session;
 use Net::SNMP;
 use Data::Dumper;
 
+=head1 SUBROUTINES
+
+TODO: This list is incomplete
+
+=over
+
+=cut
+
 sub getMinOSVersion {
     my $this   = shift;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -110,6 +118,14 @@ sub _getIfDescMacVlan {
     return $ifDescMacVlan;
 }
 
+=item clearMacAddressTable
+
+Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread 
+safe: 
+
+L<http://www.cpanforum.com/threads/6909/>
+
+=cut
 sub clearMacAddressTable {
     my ( $this, $ifIndex, $vlan ) = @_;
     my $command;
@@ -371,6 +387,14 @@ sub getMaxMacAddresses {
 
 }
 
+=item ping
+
+Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread 
+safe: 
+
+L<http://www.cpanforum.com/threads/6909/>
+
+=cut
 sub ping {
     my ( $this, $ip ) = @_;
     my $session;
@@ -406,6 +430,8 @@ sub ping {
 
     return 1;
 }
+
+=back
 
 =head1 AUTHOR
 

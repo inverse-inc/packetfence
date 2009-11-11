@@ -16,6 +16,13 @@ use Log::Log4perl;
 use Net::SNMP;
 use Net::Appliance::Session;
 
+=head1 SUBROUTINES
+
+TODO: This list is incomplete
+
+=over
+
+=cut
 sub getVersion {
     my ($this)       = @_;
     my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';
@@ -1024,6 +1031,14 @@ sub getUpLinks {
     return @upLinks;
 }
 
+=item getMacAddr
+
+Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread 
+safe: 
+
+L<http://www.cpanforum.com/threads/6909/>
+
+=cut
 sub getMacAddr {
     my ( $this, @managedPorts ) = @_;
     my $command;
@@ -1463,6 +1478,8 @@ sub copyConfig {
     return ( defined($result) );
 
 }
+
+=back
 
 =head1 AUTHOR
 

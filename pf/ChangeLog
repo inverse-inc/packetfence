@@ -1,3 +1,11 @@
+2009-11-11	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Cisco/Aironet.pm, 
+	pf/lib/pf/SNMP/Cisco/Catalyst_2950.pm, 
+	pf/lib/pf/SNMP/Cisco/Catalyst_3500XL.pm, 
+	pf/lib/pf/SNMP/Cisco/WLC_2106.pm, pf/lib/pf/SNMP/Cisco.pm, 
+	pf/sbin/pfsetvlan: Properly documented thread-safety problems with
+	Net::Appliance::Session
+
 2009-11-10      Regis Balzard <rbalzard@inverse.ca>
 	* pf/html/admin/configuration/switches_edit.php: 
 	* pf/html/admin/configuration/switches_add.php: Fixed issues with SSH
