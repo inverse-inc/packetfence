@@ -62,9 +62,6 @@
 
 	* pf/NEWS, pf/conf/pf-release: bumped to 1.9.0dev
 
-	http://www.packetfence.org/mantis/view.php?id=839
-	http://www.packetfence.org/mantis/view.php?id=841
-
 2009-10-30	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec: Correctly pinned Parse::RecDescent dependency to
 	version 1.94 which is known to work. Fixes #806;
