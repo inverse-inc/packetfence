@@ -23,6 +23,7 @@ Bugfix
   Wireless Controller 4400 from the Web Admin interface (closes #836)
 - Fixed missing library requirement when using PacketFence with routed VLANs
   (closes #838)
+- Removed some unnecessary warnings (closes #850)
 
 --------------------------------------------------------------------------------
 Version 1.8.5 released on 2009-10-28
