@@ -21,6 +21,17 @@ o Upgrading from a version prior to <version>:
     parsing scripts (if any). This also affects the Node lookup section of the
     Web Admin interface.
 
+o Upgrading from a version prior to 1.8.6:
+
+    - Fixed an issue with CLI transport for switches/APs: for SSH make sure you
+    have 'SSH' and not 'ssh'. Look into the 'Configuration->Switches' or edit
+    /usr/local/pf/conf/switches.conf
+    - 802.1x module expects 'guest' instead of 'visitor' in node.pid
+    We changed the naming of the guest concept from visitor to guest. If you
+    allow guests on your network, doublecheck your rlm_perl_packetfence.pl 
+    module and align it on your naming (update all to guest or change back to 
+    visitor).
+
 o Upgrading from a version prior to 1.8.5:
 
     - 802.1X freeradius module updated 

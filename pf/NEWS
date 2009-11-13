@@ -29,6 +29,18 @@ Bugfix
 - Minor corrections to the Admin Web UI
 
 --------------------------------------------------------------------------------
+Version 1.8.6 - <codename> released on <releaseDate>
+
+Bugfix
+- Fixed issues with SSH as CLI transport
+- Fixed broken 802.1x behaviour (closes #839, #841)
+- Fixed a problem when adding or editing a Cisco Catalyst 2970, 3500XL and 
+  Wireless Controller 4400 from the Web Admin interface (closes #836)
+- Fixed missing library requirement when using PacketFence with routed VLANs
+  (closes #838)
+- Removed some unnecessary warnings (closes #850)
+
+--------------------------------------------------------------------------------
 Version 1.8.5 released on 2009-10-28
 
 New Hardware Support
