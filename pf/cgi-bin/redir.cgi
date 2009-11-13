@@ -45,7 +45,12 @@ if (!valid_mac($mac)) {
 $logger->info("$mac being redirected");
 
 # recording user agent for this mac in node table
-web_node_record_user_agent($mac,$cgi->user_agent);
+# TODO: this validation will not be required if shipped CGI module is > 3.45, see bug #850
+if (defined($cgi->user_agent)) {
+  web_node_record_user_agent($mac,$cgi->user_agent);
+} else {
+  $logger->warn("$mac has no user agent");
+}
 
 # registration auth request?
 if (defined($cgi->param('mode')) && $cgi->param('auth')) {
