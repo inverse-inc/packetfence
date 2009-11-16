@@ -4,6 +4,9 @@
 	at the beginning of logger calls and commented out very verbose dumper 
 	debug code.
 
+	* pf/conf/violations.conf: Added new UserAgent sample string to block
+	more iPods and reindexed the BlackBerry one
+
 2009-11-13	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/cgi-bin/redir.cgi: Validating if $cgi->user_agent is defined. 
 	Fixes #850;

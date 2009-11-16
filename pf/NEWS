@@ -16,6 +16,9 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version 1.8.6 - <codename> released on <releaseDate>
 
+New Features
+- New iPod UserAgent blocking strings examples
+
 Bugfix
 - Fixed issues with SSH as CLI transport
 - Fixed broken 802.1x behaviour (closes #839, #841)
