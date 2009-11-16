@@ -1,5 +1,11 @@
+2009-11-16	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Aruba.pm: Fixed string concatenation problem.
+	Also took the opportunity to removed duplicated ERROR: string appended
+	at the beginning of logger calls and commented out very verbose dumper 
+	debug code.
+
 2009-11-13	Olivier Bilodeau <obilodeau@inverse.ca>
-	* pf/cgi-bin/redir.cgi: Validating if $cgi->user_agent is defined.
+	* pf/cgi-bin/redir.cgi: Validating if $cgi->user_agent is defined. 
 	Fixes #850;
 	http://www.packetfence.org/mantis/view.php?id=850
 
