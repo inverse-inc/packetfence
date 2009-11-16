@@ -1,4 +1,4 @@
-2009-11-13      Olivier Bilodeau <obilodeau@inverse.ca>
+2009-11-13	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/cgi-bin/redir.cgi: Validating if $cgi->user_agent is defined.
 	Fixes #850;
 	http://www.packetfence.org/mantis/view.php?id=850
@@ -11,7 +11,7 @@
 	pf/sbin/pfsetvlan: Properly documented thread-safety problems with
 	Net::Appliance::Session
 
-2009-11-10      Regis Balzard <rbalzard@inverse.ca>
+2009-11-10	Regis Balzard <rbalzard@inverse.ca>
 	* pf/html/admin/configuration/switches_edit.php: 
 	* pf/html/admin/configuration/switches_add.php: Fixed issues with SSH
 	for CLI transport. Should be set to 'SSH' rather than 'ssh'
@@ -44,7 +44,7 @@
 	Catalyst 2970, 3500XL and wireless controller 4400. Fixes 836;
 	http://www.packetfence.org/mantis/view.php?id=836
 
-2009-11-02      Regis Balzard <rbalzard@inverse.ca>
+2009-11-02	Regis Balzard <rbalzard@inverse.ca>
 	* pf/lib/pf/services.pm: Fixed missing library requirement when using
 	PacketFence with routed VLANs
 
