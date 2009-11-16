@@ -148,6 +148,7 @@ sub custom_doWeActOnThisTrap {
     my $ifType = $switch->getIfType($ifIndex);
     if ( ( $ifType == 6 ) || ( $ifType == 117 ) ) {
         my @upLinks = $switch->getUpLinks();
+        # TODO: need to validate for empty array here to avoid warning
         if ( $upLinks[0] == -1 ) {
             $logger->warn("Can't determine Uplinks for the switch -> do nothing");
         } else {
