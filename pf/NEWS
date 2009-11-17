@@ -18,6 +18,7 @@ Version 1.8.6 - <codename> released on <releaseDate>
 
 New Features
 - New iPod UserAgent blocking strings examples
+- Installation guide updated
 
 Bugfix
 - Fixed issues with SSH as CLI transport

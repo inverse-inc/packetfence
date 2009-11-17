@@ -1,4 +1,10 @@
 2009-11-17	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Installation_Guide.odt: Added repositories in
+	OS requirements section of the install guide:
+	- CentOS need extras which is enabled by default
+	- RedHat needs EPEL (extra packages for enterprise linux) which is 
+	disabled by default
+
 	* pf/bin/pfcmd, pf/conf/ui.conf
 	pf/html/admin/configuration/switches.php, pf/lib/pf/pfcmd/pfcmd.pm:
 	Fixed SNMPv3 configuration from pfcmd and Web admin interface
