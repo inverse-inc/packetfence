@@ -1,4 +1,12 @@
 2009-11-17	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd, pf/conf/ui.conf
+	pf/html/admin/configuration/switches.php, pf/lib/pf/pfcmd/pfcmd.pm:
+	Fixed SNMPv3 configuration from pfcmd and Web admin interface
+	The SNMPUserNameTrap parameter was not exposed. Thanks to
+	Jean-Francois Laporte for reporting this. Fixes #853;
+	http://www.packetfence.org/mantis/view.php?id=853
+	
+2009-11-17	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/node.pm: commented code
 
 2009-11-16	Olivier Bilodeau <obilodeau@inverse.ca>
