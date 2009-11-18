@@ -1,3 +1,7 @@
+2009-11-18	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd_vlan, pf/lib/pf/SNMP/Cisco.pm, pf/lib/pf/violation.pm,
+	pf/sbin/pfdhcplistener: New TODO and FIXME tasks
+
 2009-11-17	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/docs/PacketFence_Installation_Guide.odt: Added repositories in
 	OS requirements section of the install guide:

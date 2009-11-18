@@ -429,6 +429,8 @@ sub violation_trigger {
         }
         my $vid = $row->{'vid'};
 
+        # TODO: performance improvement: validate for grace here also will avoid a spawned process only to check grace
+
         # Is this MAC and ID aready in DB?  if so don't add another
         # we test here AND in violation_add because here we avoid a fork (and violation_add is called from elsewhere)
         if ( violation_exist_open( $mac, $vid ) ) {

@@ -367,6 +367,8 @@ sub getVoiceVlan {
     }
 }
 
+# TODO: if ifIndex doesn't exist, an error should be given
+# to reproduce: bin/pfcmd_vlan -getVlan -ifIndex 999 -switch <ip>
 sub getVlan {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
