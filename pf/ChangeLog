@@ -1,4 +1,10 @@
-2009-11-1	Olivier Bilodeau <obilodeau@inverse.ca>
+2009-11-18	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/t/log.conf, pf/t/pfcmd.t, pf/t/services.t: Tests are now using
+	their own target logfile: logs/packetfence-tests.log
+
+	* pf/t/all.t, pf/t/services.t: Added tests to check if snort starts 
+	successfully and if pfdetect can bind to it
+
 	* Copied pf/conf/templates/snort.conf to 
 	pf/conf/templates/snort.conf.pre_snort-2.8
 	Modified pf/conf/templates/snort.conf, pf/lib/pf/services.pm: snort

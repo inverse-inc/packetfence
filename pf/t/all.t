@@ -17,5 +17,6 @@ runtests( qw(
               pod.t
               podCoverage.t
               php.t
+              services.t
             )
 );
