@@ -7,6 +7,10 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to 1.8.6:
 
+    - New Snort default configuration
+    Default configuration for snort changed. Old config can still be found at 
+    conf/templates/snort.conf.pre_snort-2.8.
+
     - Output of pfcmd switchconfig changed
     The output of `pfcmd switchconfig get <ip|all>` changed. Make sure you 
     update your scripts that relies on that output (if any). This also affects 

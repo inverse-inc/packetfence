@@ -55,7 +55,7 @@ if ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int ) {
     $flags{'snort'}
         = "-u pf -c $conf_dir/snort.conf -i "
         . $monitor_int
-        . " -o -N -D -l $install_dir/var";
+        . " -N -D -l $install_dir/var";
 }
 
 =head1 SUBROUTINES

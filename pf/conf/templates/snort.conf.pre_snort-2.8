@@ -22,16 +22,7 @@ var RULE_PATH %%install_dir%%/conf/snort
 
 output alert_fast: %%install_dir%%/var/alert
 
-# updated several preprocessor for snort 2.8.5 (values taken from /etc/snort/snort.conf)
-preprocessor stream5_global: max_tcp 8192, track_tcp yes, \
-                              track_udp no
-preprocessor stream5_tcp: policy first, use_static_footprint_sizes
-
-preprocessor http_inspect: global \
-    iis_unicode_map /etc/snort/unicode.map 1252
-
-preprocessor http_inspect_server: server default \
-    profile all ports { 80 8080 8180 } oversize_dir_length 500
+preprocessor flow: memcap 262144000, stats_interval 0, hash 2
 
 #preprocessor conversation: timeout 120, max_conversations 65335
 #preprocessor portscan2: scanners_max 10000, targets_max 10000, target_limit 400, port_limit 400, timeout 60, log /dev/null

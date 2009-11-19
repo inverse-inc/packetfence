@@ -18,6 +18,7 @@ Version 1.8.6 - <codename> released on <releaseDate>
 
 New Features
 - New iPod UserAgent blocking strings examples
+- Snort 2.8.5 compatibility (closes #581, #846, #849)
 - Installation guide updated
 
 Bugfix
