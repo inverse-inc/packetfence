@@ -444,7 +444,8 @@ sub help_lookup {
     print STDERR << "EOT";
 Usage: pfcmd lookup <person|node> value
 
-call bin/lookup_person.pl or bin/lookup_node.pl with the passed value
+show information about a person entry (searching by pid) 
+or a node entry (searching by mac)
 EOT
     return 1;
 }

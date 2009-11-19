@@ -34,6 +34,14 @@ sub getMinOSVersion {
     return '12.0(5)WC15';
 }
 
+=head1 SUBROUTINES
+
+TODO: This list is incomplete
+
+=over
+
+=cut
+
 # return the list of managed ports
 sub getManagedPorts {
     my $this        = shift;
@@ -111,6 +119,14 @@ sub _getIfDescMacVlan {
     return $ifDescMacVlan;
 }
 
+=item clearMacAddressTable
+
+Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread 
+safe: 
+
+L<http://www.cpanforum.com/threads/6909/>
+
+=cut
 sub clearMacAddressTable {
     my ( $this, $ifIndex, $vlan ) = @_;
     my $command;
@@ -388,6 +404,8 @@ sub ping {
 
     return 1;
 }
+
+=back
 
 =head1 AUTHOR
 
