@@ -21,6 +21,10 @@
 	http://www.packetfence.org/mantis/view.php?id=846
 	http://www.packetfence.org/mantis/view.php?id=849
 
+2009-11-18	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd_vlan, pf/lib/pf/SNMP/Cisco.pm, pf/lib/pf/violation.pm,
+	pf/sbin/pfdhcplistener: New TODO and FIXME tasks
+
 2009-11-17	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/docs/PacketFence_Installation_Guide.odt: Added repositories in
 	OS requirements section of the install guide:
@@ -35,6 +39,8 @@
 	Jean-Francois Laporte for reporting this. Fixes #853;
 	http://www.packetfence.org/mantis/view.php?id=853
 	
+	* pf/lib/pf/node.pm: commented code
+
 2009-11-16	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/SNMP/Aruba.pm: Fixed string concatenation problem.
 	Also took the opportunity to removed duplicated ERROR: string appended
@@ -48,6 +54,14 @@
 	* pf/cgi-bin/redir.cgi: Validating if $cgi->user_agent is defined. 
 	Fixes #850;
 	http://www.packetfence.org/mantis/view.php?id=850
+
+2009-11-11	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Cisco/Aironet.pm, 
+	pf/lib/pf/SNMP/Cisco/Catalyst_2950.pm, 
+	pf/lib/pf/SNMP/Cisco/Catalyst_3500XL.pm, 
+	pf/lib/pf/SNMP/Cisco/WLC_2106.pm, pf/lib/pf/SNMP/Cisco.pm, 
+	pf/sbin/pfsetvlan: Properly documented thread-safety problems with
+	Net::Appliance::Session
 
 2009-11-10	Regis Balzard <rbalzard@inverse.ca>
 	* pf/html/admin/configuration/switches_edit.php: 
@@ -67,17 +81,38 @@
 	http://www.packetfence.org/mantis/view.php?id=839
 	http://www.packetfence.org/mantis/view.php?id=841
 
+2009-11-05	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/TODO: Added a TODO list to track some tasks
+
 2009-11-03	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/lookup/node.pm, pf/UPGRADE: Added more information about 
+	past IP in node lookup.
+	Added UPGRADE warning that scripts relying on the output of lookup node
+	could break.
+
 	* pf/html/admin/configuration/switches_add.php,
-	pf/html/admin/configuration/switches_edit.php: Fixed typo in switch 
-	definition in the Web Admin causing problems adding or editing a Cisco 
-	Catalyst 2970, 3500XL and wireless Controller 4400. Fixes 836; 
+	pf/html/admin/configuration/switches_edit.php: Fixed typo in switch
+	definition in the Web Admin causing problems adding or editing a Cisco
+	Catalyst 2970, 3500XL and wireless Controller 4400. Fixes 836;
 	http://www.packetfence.org/mantis/view.php?id=836
-	Backported from the 1.9 branch.
 
 2009-11-02	Regis Balzard <rbalzard@inverse.ca>
 	* pf/lib/pf/services.pm: Fixed missing library requirement when using
 	PacketFence with routed VLANs
+
+2009-11-02	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/node/lookup.php, pf/lib/pf/lookup/node.pm, 
+	pf/lib/pf/pfcmd/help.pm: Node lookup now gives information about IP
+	and DHCP status (from iplog)
+	Updated pfcmd's help
+	Output in Web Admin is no longer right-aligned
+
+	* pf/html/admin/common.php: Fixed alignment of the filter input dialog 
+
+	* pf/lib/pf/SNMP.pm, pf/lib/pf/vlan.pm: Removed dead code, added POD
+	doc, added TODO tasks
+
+	* pf/NEWS, pf/conf/pf-release: bumped to 1.9.0dev
 
 2009-10-30	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec: Correctly pinned Parse::RecDescent dependency to

@@ -146,8 +146,6 @@ sub node_db_prepare {
     $node_update_lastarp_sql
         = $dbh->prepare(qq [ update node set last_arp=now() where mac=? ]);
 
-#$node_lookup_person_sql = $dbh->prepare( qq [ select mac,pid,description,user_agent,computername from node where pid=? ] );
-#$node_lookup_node_sql = $dbh->prepare( qq [ select mac,pid,description,user_agent,computername from node where mac=? ] );
     $is_node_db_prepared = 1;
     return 1;
 }
@@ -696,16 +694,6 @@ sub node_mac_wakeup {
     $logger->debug( "sending MAC::$dec_oui ($mac) trigger" );
     pf::violation::violation_trigger( $mac, $dec_oui, "VENDORMAC" );
 }
-
-#sub node_lookup_person {
-#  my ($pid) = @_;
-#  return(db_data($node_lookup_person_sql,$pid));
-#}
-
-#sub node_lookup_node {
-#  my ($mac) = @_;
-#  return(db_data($node_lookup_node_sql,$mac));
-#}
 
 =back
 
