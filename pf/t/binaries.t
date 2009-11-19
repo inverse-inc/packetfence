@@ -14,7 +14,6 @@ my @binaries = (
     '/usr/local/pf/addons/convertToPortSecurity.pl',
     '/usr/local/pf/addons/monitorpfsetvlan.pl',
     '/usr/local/pf/addons/recovery.pl',
-    '/usr/local/pf/addons/802.1X/pfcmd_ap.pl',
     '/usr/local/pf/addons/802.1X/rlm_perl_packetfence.pl',
     '/usr/local/pf/addons/mrtg/mrtg-wrapper.pl',
     '/usr/local/pf/bin/flip.pl',
