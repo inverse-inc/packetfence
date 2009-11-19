@@ -1,4 +1,4 @@
-2009-11-18	Olivier Bilodeau <obilodeau@inverse.ca>
+2009-11-19	Olivier Bilodeau <obilodeau@inverse.ca>
 	* Copied pf/conf/templates/snort.conf to 
 	pf/conf/templates/snort.conf.pre_snort-2.8
 	Modified pf/conf/templates/snort.conf, pf/lib/pf/services.pm: snort
