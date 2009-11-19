@@ -1,3 +1,6 @@
+2009-11-19	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/t/binaries.t: Fixed test case: we removed pfcmd_ap.pl
+
 2009-10-20	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/addons/802.1X/pfcmd_ap.pl: Deleted
 	* pf/addons/802.1X/rlm_perl_packetfence.pl, pf/addons/802.1X/README:
