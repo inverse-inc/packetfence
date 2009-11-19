@@ -508,6 +508,8 @@ sub violation_force_close {
     return (1);
 }
 
+=back
+
 =head1 AUTHOR
 
 David LaPorte <david@davidlaporte.org>

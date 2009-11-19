@@ -45,9 +45,9 @@ use pf::config;
 
 =head1 SUBROUTINES
 
-=over
-
 TODO: This list is incomplete.
+
+=over
 
 =cut
 
@@ -688,6 +688,8 @@ sub preload_is_internal {
         scalar( keys(%is_internal) ) . " is_internal entries cached" );
     return (%is_internal);
 }
+
+=back
 
 =head1 AUTHOR
 

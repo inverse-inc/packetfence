@@ -1,4 +1,7 @@
 2009-11-19	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/node.pm, pf/lib/pf/trigger.pm, pf/lib/pf/util.pm,
+	pf/lib/pf/violation.pm: Fixed POD doc so that test passes
+
 	* pf/t/binaries.t: Fixed test case: we removed pfcmd_ap.pl
 
 	* pf/t/log.conf, pf/t/pfcmd.t, pf/t/services.t: Tests are now using

@@ -205,6 +205,8 @@ sub trigger_in_range {
     return;
 }
 
+=back
+
 =head1 AUTHOR
 
 David LaPorte <david@davidlaporte.org>

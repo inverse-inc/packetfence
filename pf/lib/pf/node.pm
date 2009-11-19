@@ -58,9 +58,9 @@ $is_node_db_prepared = 0;
 
 =head1 SUBROUTINES
 
-=over
-
 TODO: This list is incomlete
+
+=over
 
 =cut
 
@@ -706,6 +706,8 @@ sub node_mac_wakeup {
 #  my ($mac) = @_;
 #  return(db_data($node_lookup_node_sql,$mac));
 #}
+
+=back
 
 =head1 AUTHOR
 
