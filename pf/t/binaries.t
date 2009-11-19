@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 22;
+use Test::More tests => 21;
 
 my @binaries = (
     '/usr/local/pf/configurator.pl',
