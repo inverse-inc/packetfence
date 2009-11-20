@@ -35,10 +35,10 @@
 #
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 1.8.5
+Version: 1.8.6
 # Update here on each release/snapshot
-#%define source_release 0.20091027
-%define source_release 2
+%define source_release 0.20091119
+#%define source_release 2
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -51,9 +51,9 @@ Packager: Inverse inc. <support@inverse.ca>
 Vendor: PacketFence, http://www.packetfence.org
 
 # for snapshot releases
-#Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}-%{source_release}.tar.gz
+Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}-%{source_release}.tar.gz
 # for official releases
-Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz
+#Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz
 
 BuildRequires: gettext, httpd
 # install follow dep with: yum install perl-Parse-RecDescent-1.94
@@ -389,7 +389,9 @@ fi
                         /usr/local/pf/conf/pf-release
 #%config                 /usr/local/pf/conf/services.conf
 %dir                    /usr/local/pf/conf/snort
-                        /usr/local/pf/conf/snort/*
+%config(noreplace)	/usr/local/pf/conf/snort/classification.config
+%config(noreplace)	/usr/local/pf/conf/snort/local.rules
+%config(noreplace)	/usr/local/pf/conf/snort/reference.config
 %dir                    /usr/local/pf/conf/ssl
 %config(noreplace)      /usr/local/pf/conf/switches.conf
 %dir                    /usr/local/pf/conf/templates
@@ -407,8 +409,9 @@ fi
 %config                 /usr/local/pf/conf/templates/named_vlan.conf
 %config(noreplace)      /usr/local/pf/conf/templates/popup.msg
 %config(noreplace)      /usr/local/pf/conf/templates/snmptrapd.conf
-%config                 /usr/local/pf/conf/templates/snort.conf
-%config(noreplace)      /usr/local/pf/conf/ui.conf
+%config(noreplace)	/usr/local/pf/conf/templates/snort.conf
+%config(noreplace)	/usr/local/pf/conf/templates/snort.conf.pre_snort-2.8
+%config			/usr/local/pf/conf/ui.conf
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
 %dir                    /usr/local/pf/conf/users
 %config(noreplace)      /usr/local/pf/conf/violations.conf
@@ -478,6 +481,10 @@ fi
 %attr(0755, root, root) %{_initrddir}/pfdetectd
 
 %changelog
+* Fri Nov 20 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.6-0.20091120
+- Version bump to snapshot 20091120
+- Changed some default behavior for overwriting config files (for the better)
+
 * Fri Oct 30 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.5-2
 - Modifications made to the dependencies to avoid installing Parse::RecDescent 
   that doesn't work with PacketFence
