@@ -7,6 +7,12 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to 1.8.6:
 
+    - Updated conf/ui.conf
+    To fix a bug we had to change ui.conf. By default an rpm upgrade will 
+    replace ui.conf and save a backup of the previous file to ui.conf.rpmsave.
+    If you modified your ui.conf, do not forget to merge your old version with
+    this new one.
+    
     - New Snort default configuration
     Default configuration for snort changed. Old config can still be found at 
     conf/templates/snort.conf.pre_snort-2.8.
