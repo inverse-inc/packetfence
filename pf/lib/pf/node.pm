@@ -557,6 +557,11 @@ sub node_deregister {
     #return(trapmac($mac)) if ($Config{'network'}{'mode'} =~ /arp/i);
 }
 
+=item * nodes_maintenance - handling deregistration on node expiration and node grace 
+
+called by pfmon daemon every 10 maintenance interval (usually each 10 minutes)
+
+=cut
 sub nodes_maintenance {
     my $logger = Log::Log4perl::get_logger('pf::node');
     node_db_prepare($dbh) if ( !$is_node_db_prepared );

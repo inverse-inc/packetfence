@@ -1,3 +1,6 @@
+2009-11-27	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/node.pm: Added POD doc
+
 2009-11-20	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/UPGRADE, pf/packetfence.spec: Changed some default behavior for 
 	overwriting config files (for the better)
