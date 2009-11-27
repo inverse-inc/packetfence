@@ -38,7 +38,6 @@ Name: packetfence
 Version: 1.8.6
 # Update here on each release/snapshot
 %define source_release 0.20091120
-#%define source_release 2
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
