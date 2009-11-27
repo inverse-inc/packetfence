@@ -117,6 +117,7 @@ if ($Config{'network'}{'mode'} =~ /arp/i) {
   my $output = qx/$cmd/;
   $logger->info("freed $mac");
 }
+#TODO: I think the below here is what's causing redirect loops, need to confirm first then fix
 $logger->info("redirecting to ".$Config{'trapping'}{'redirecturl'});
 print $cgi->redirect($Config{'trapping'}{'redirecturl'});
 
