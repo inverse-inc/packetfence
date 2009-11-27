@@ -52,7 +52,10 @@ TODO: This list is incomplete.
 =cut
 
 sub pfmon_preload {
-    if ( basename($0) eq "pfmon" && isenabled( $Config{'general'}{'caching'} ) ) {
+    # we don't preload (cache) except in arp mode. 
+    # This is a hack for bug #861 because on large networks (like 10.0.0.0/8) pfmon runs out of memory preloading
+    # TODO: it should be implemented more efficiently (b-tree?) or simplify removed if pfmon doesn't need it that much
+    if (basename($0) eq "pfmon" && isenabled($Config{'general'}{'caching'}) && $Config{'network'}{'mode'} =~ /^arp$/i) {
         %trappable_ip = preload_trappable_ip();
         %reggable_ip  = preload_reggable_ip();
         %is_internal  = preload_is_internal();

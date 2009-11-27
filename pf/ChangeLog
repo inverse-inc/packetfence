@@ -1,4 +1,9 @@
 2009-11-27	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/util.pm: Disabled unnecessary caching in vlan isolation
+	mode. Prevents out of memory crashes in pfmon on large networks. Fixes 
+	#861;
+	http://www.packetfence.org/mantis/view.php?id=861
+
 	* pf/packetfence.spec: Removed the commented out %define macro for
 	our versionning. It seems that macro in comments are also interpreted. 
 
