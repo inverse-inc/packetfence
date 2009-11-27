@@ -1,3 +1,6 @@
+2009-11-27	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/node.pm: Added POD doc
+
 2009-11-19	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/node.pm, pf/lib/pf/trigger.pm, pf/lib/pf/util.pm,
 	pf/lib/pf/violation.pm: Fixed POD doc so that test passes
