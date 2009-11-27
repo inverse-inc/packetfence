@@ -1,4 +1,6 @@
 2009-11-27	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Developers_Guide.odt: fixed a typo
+
 	* pf/lib/pf/util.pm: Disabled unnecessary caching in vlan isolation
 	mode. Prevents out of memory crashes in pfmon on large networks. Fixes 
 	#861;
