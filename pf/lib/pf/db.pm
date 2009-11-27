@@ -96,8 +96,7 @@ sub db_connect {
         $_[0] = $mydbh;
         return ($mydbh);
     } else {
-        $logger->logcroak("ERROR: unable to connect to database: "
-            .  $DBI::errstr);
+        $logger->logcroak("unable to connect to database: " . $DBI::errstr);
         return ();
     }
 }
