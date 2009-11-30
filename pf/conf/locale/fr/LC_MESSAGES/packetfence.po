@@ -57,6 +57,14 @@ msgstr "Activation de l'acc&egrave;s au r&eacute;seau"
 msgid  "release: reopen browser"
 msgstr "Vous devez possiblement fermer votre navigateur"
 
+msgid  "scan: scan in progress"
+msgstr "Votre syst&egrave;me est en cours d'analyse"
+
+msgid  "scan in progress contact support if too long"
+msgstr "Votre syst&egrave;me est toujours en cours d'analyse. Le processus a d&eacute;but&eacute; le %s. Ce proc&eacute;d&eacute; prend habituellement quelques minutes. Par contre, s'il n'est toujours pas termin&eacute; apr&egrave;s ce d&eacute;lai, contacter votre &eacute;quipe informatique. Ayez en main les information suivantes:"
+
+msgid  "automatically refresh"
+msgstr "Cette page se rafra&icirc;chit automatiquement &agrave toutes les %s secondes pour v&eacute;rifier si l'analyse est compl&eacute;t&eacute;e."
 
 msgid  "Acceptable Use Policy"
 msgstr "Politique d'utilisation du r&eacute;seau"
@@ -69,6 +77,9 @@ msgstr "D&eacute;senregistrer le noeud"
 
 msgid  "Enabling ..."
 msgstr "Activation ..."
+
+msgid  "Scanning ..."
+msgstr "Analyse en cours ..."
 
 msgid  "Gateway"
 msgstr "Passerelle"
@@ -90,6 +101,9 @@ msgstr "MAC"
 
 msgid  "network access is being enabled"
 msgstr "Votre acc&egrave;s au r&eacute;seau est en cours d'activation - ce processus prendra approximativement %s secondes."
+
+msgid  "system scan in progress"
+msgstr "Analyse de votre syst&egrave;me en cours - ce processus prendra approximativement %s secondes."
 
 msgid  "Node"
 msgstr "Noeud"

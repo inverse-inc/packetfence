@@ -29,14 +29,6 @@ if (isset($per_page)) {
 
 include_once('../header.php');
 
-$scan_table=new table("trigger view all scan");
-
-foreach($scan_table->rows as $row){
-  $vulns_ar[]=array('tid' => $row['tid_start'], 'desc' => $row['description']);
-}
-$_SESSION['vulns']=serialize($vulns_ar);
-
-
 if(isset($_REQUEST[action]) && $_REQUEST[action]=='add'){
   ## HOSTS ##
   if(isset($_POST[host])) {
@@ -50,11 +42,8 @@ if(isset($_REQUEST[action]) && $_REQUEST[action]=='add'){
     $no_hosts=true;
   }
 
-  ## SCAN TYPE
-  $tid = $_POST[tid];
-
   ## TIME ##
-  if($_POST[scan_freq]=="now") 
+  if($_POST[scan_freq]=="now" || !isset($_POST[scan_freq])) 
     $date="now";
   else{
     if($_POST[daily]){
@@ -77,8 +66,6 @@ if(isset($_REQUEST[action]) && $_REQUEST[action]=='add'){
     }
   }
 
-  if(!$tid)
-    $errors[]="No scan type has been selected<br>";
   if(!$date)
     $errors[]="No scan time has been selected<br>";
   if(isset($no_hosts))
@@ -94,9 +81,9 @@ if(isset($_REQUEST[action]) && $_REQUEST[action]=='add'){
   }
   else{
     if($date=="now") {
-      PFCMD("schedule now $valid_hosts tid=$tid");
+      PFCMD("schedule now $valid_hosts");
     } else {
-      PFCMD("schedule add $valid_hosts date=\"$date\",tid=$tid");
+      PFCMD("schedule add $valid_hosts date=\"$date\"");
     }
     $my_table->refresh();
   }
@@ -113,29 +100,14 @@ if(isset($_REQUEST[action]) && $_REQUEST[action]=='add'){
     <tr>
       <td colspan=8>Add a Scan Schedule</td>
     </tr>
+    <tr>
+      <td colspan=8><center><font color="red">System scanning from the Web Admin is disabled</font></center></td>
+    </tr>
     <tr class=title>
       <td><br><b><u>Host/Range</u></b></td>
     </tr>
     <tr>
-      <td></td><td><input type=text size=20 name=host></td> 
-    </tr>
-    <tr class=title>
-      <td><br><b><u>Scan Using</u></b></td>
-    </tr>
-    <tr>
-      <td>&nbsp;</td>
-      <td>
-        <table>
-        <tr>
-          <td><input type="radio" name="tid" value="all" checked></td>
-          <td>Net::Nessus::Scanlite</td>
-        </tr>
-        <tr>
-          <td><input type="radio" name="tid" value="99999"></td>
-          <td>NessusClient</td>
-        </tr>
-        </table>
-      </td>
+      <td></td><td><input type=text size=20 name=host disabled></td> 
     </tr>
     <tr class=title>
       <td><br><b><u>Schedule</u></b></td>
@@ -145,11 +117,11 @@ if(isset($_REQUEST[action]) && $_REQUEST[action]=='add'){
       <td>
         <table>
 	  <tr>
-            <td><input type=radio name=scan_freq value=now checked></td>
+            <td><input type=radio name=scan_freq value=now checked disabled></td>
 	    <td colspan=2>Scan Now</td>
           </tr>
 	  <tr>
-            <td><input type=radio name=scan_freq value=schedule></td>
+            <td><input type=radio name=scan_freq value=schedule disabled></td>
 	    <td colspan=2>Repeating Schedule</td>
           </tr>
           <tr class=title>
@@ -159,7 +131,7 @@ if(isset($_REQUEST[action]) && $_REQUEST[action]=='add'){
   	    <td></td>
 	    <td>Daily</td>
 	    <td>
-              <select name="daily" onclick="document.schedule.scan_freq[1].checked=true">
+              <select name="daily" onclick="document.schedule.scan_freq[1].checked=true" disabled>
                 <option value="">---------</option>
 <?php print_time_options() ?>
               </select>
@@ -172,7 +144,7 @@ if(isset($_REQUEST[action]) && $_REQUEST[action]=='add'){
   	    <td></td>
 	    <td>Weekly</td>
 	    <td>
-              <select name=weekly onclick="document.schedule.scan_freq[1].checked=true">
+              <select name=weekly onclick="document.schedule.scan_freq[1].checked=true" disabled>
                 <option value="">---------</option>   
 		<option value=7>Sun.</option>
 		<option value=1>Mon.</option>
@@ -184,7 +156,7 @@ if(isset($_REQUEST[action]) && $_REQUEST[action]=='add'){
               </select>
 	    </td>
 	    <td>
-              <select name="weekly_time" onclick="document.schedule.scan_freq[1].checked=true">
+              <select name="weekly_time" onclick="document.schedule.scan_freq[1].checked=true" disabled>
                 <option value="">---------</option>
 <?php print_time_options() ?>
               </select>
@@ -197,7 +169,7 @@ if(isset($_REQUEST[action]) && $_REQUEST[action]=='add'){
   	    <td></td>
 	    <td>Monthly</td>
 	    <td>
-              <select name=monthly onclick="document.schedule.scan_freq[1].checked=true">
+              <select name=monthly onclick="document.schedule.scan_freq[1].checked=true" disabled>
                 <option value="">---------</option>       
 <?php
 for ($i=1; $i<=28; $i++) {
@@ -207,7 +179,7 @@ for ($i=1; $i<=28; $i++) {
               </select>
 	    </td>
  	    <td>
-              <select name="monthly_time" onclick="document.schedule.scan_freq[1].checked=true">
+              <select name="monthly_time" onclick="document.schedule.scan_freq[1].checked=true" disabled>
                 <option value="">---------</option>
 		  <?php print_time_options() ?>
               </select>
@@ -217,7 +189,7 @@ for ($i=1; $i<=28; $i++) {
       </td>
     </tr>
     <tr>
-      <td colspan=8 align=right><input type=submit value="Add Schedule"></td>
+      <td colspan=8 align=right><input type=submit value="Add Schedule" disabled></td>
     </tr>
   </table>
 </form>

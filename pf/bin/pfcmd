@@ -403,8 +403,9 @@ sub violationconfig {
         }
     } elsif ( $mode eq 'delete' ) {
         my $section = $cmd{'command'}[2];
+        # TODO: this seems wrong. 1st: hardcoded violation id, 2nd: how does the web react to that print?
         if ( $section
-            =~ /^(default|all|1100001|1100004|1100005|1100009|1100010|1200001|1200003|1400000)$/
+            =~ /^(default|all|1100001|1100004|1100005|1100009|1100010|1200001|1200003)$/
             )
         {
             print "This violation can't be deleted\n";
@@ -529,7 +530,7 @@ sub networkconfig {
             . $_ => @sections_tmp;
 
         my @columns
-            = qw(type netmask gateway named dhcpd domain-name dns dhcp_start dhcp_end dhcp_default_lease_time dhcp_max_lease_time);
+            = qw(type netmask gateway pf_gateway named dhcpd domain-name dns dhcp_start dhcp_end dhcp_default_lease_time dhcp_max_lease_time);
         print "network|" . join( "|", @columns ) . "\n";
         foreach my $section (@sections) {
             if (   ( $cmd{'command'}[2] eq 'all' )
@@ -729,8 +730,9 @@ sub switchconfig {
                 $switches_conf{$section}{$key} =~ s/\s+$//;
             }
         }
+        #TODO: information duplicated from ui.conf, consider refactoring (what do we do elsewhere?)
         my @columns
-            = qw(ip type mode vlans normalVlan registrationVlan isolationVlan macDetectionVlan VoIPEnabled voiceVlan uplink cliTransport cliUser cliPwd cliEnablePwd SNMPVersionTrap SNMPCommunityTrap SNMPAuthProtocolTrap SNMPAuthPasswordTrap SNMPPrivProtocolTrap SNMPPrivPasswordTrap SNMPVersion SNMPCommunityRead SNMPCommunityWrite SNMPEngineID SNMPUserNameRead SNMPAuthProtocolRead SNMPAuthPasswordRead SNMPPrivProtocolRead SNMPPrivPasswordRead SNMPUserNameWrite SNMPAuthProtocolWrite SNMPAuthPasswordWrite SNMPPrivProtocolWrite SNMPPrivPasswordWrite macSearchesMaxNb macSearchesSleepInterval);
+            = qw(ip type mode vlans normalVlan registrationVlan isolationVlan macDetectionVlan VoIPEnabled voiceVlan uplink cliTransport cliUser cliPwd cliEnablePwd SNMPVersionTrap SNMPCommunityTrap SNMPUserNameTrap SNMPAuthProtocolTrap SNMPAuthPasswordTrap SNMPPrivProtocolTrap SNMPPrivPasswordTrap SNMPVersion SNMPCommunityRead SNMPCommunityWrite SNMPEngineID SNMPUserNameRead SNMPAuthProtocolRead SNMPAuthPasswordRead SNMPPrivProtocolRead SNMPPrivPasswordRead SNMPUserNameWrite SNMPAuthProtocolWrite SNMPAuthPasswordWrite SNMPPrivProtocolWrite SNMPPrivPasswordWrite macSearchesMaxNb macSearchesSleepInterval);
         print join( "|", @columns ) . "\n";
 
         #sort the switches (http://www.sysarch.com/Perl/sort_paper.html)
@@ -1154,10 +1156,6 @@ sub version {
 #  schedule a host scan
 #
 sub schedule {
-    eval "use Net::Nessus::ScanLite; 1"
-        || $logger->logdie(
-        "Net::Nessus::ScanLite not found, please install for Nessus schedule functionality"
-        );
     my $command = $cmd{command}[0];
     my $service;
     $service = $cmd{command}[1] if ( defined $cmd{command}[1] );
@@ -1165,121 +1163,70 @@ sub schedule {
     my $hostaddr = $cmd{schedule_options}[1];
     my %params   = format_assignment( @{ $cmd{assignment} } );
 
-    #scan now no cron entry
+    #scan now, no cron entry
     if ( $option && $option eq 'now' ) {
-        require pf::trigger;
-        my $date = mysql_date();
-        $date     =~ s/ /-/g;
-        $hostaddr =~ s/\//\\/g;
+        
+        $logger->trace("pcmd schedule now called");
 
-        # scan with scan.nessusclient_file file
-        if ( exists($params{'tid'}) && ( $params{'tid'} eq '99999' ) ) {
-            my $host = $Config{'scan'}{'host'};
-            my $port = $Config{'scan'}{'port'};
-            my $user = $Config{'scan'}{'user'};
-            my $pass = $Config{'scan'}{'pass'};
-            my $nessusclient_file = "$install_dir/conf/nessus/" . $Config{'scan'}{'nessusclient_file'};
-            my $nessusclient_policy = $Config{'scan'}{'nessusclient_policy'};
-            my $infileName = "/tmp/pf_nessus_${hostaddr}_$date.txt";
-            my $outfileName = "$install_dir/html/admin/scan/results/dump_${hostaddr}_$date.nbe";
-            my $infile_fh;
-            open( $infile_fh, '>', $infileName );
-            print {$infile_fh} $hostaddr;
-            close( $infile_fh );
-            $logger->info("executing /opt/nessus/bin/nessus -q -V -x --dot-nessus $nessusclient_file --policy-name $nessusclient_policy $host $port $user $pass --target-file $infileName $outfileName");
-            `/opt/nessus/bin/nessus -q -V -x --dot-nessus $nessusclient_file --policy-name $nessusclient_policy $host $port $user $pass --target-file $infileName $outfileName`;
-            unlink($infileName);
-            if ( ! -r $outfileName ) {
-                $logger->warn("unable to open $outfileName for reading; Nessus scan might have failed");
-                return 1;
-            }
-            chmod 0644, $outfileName;
-            require Parse::Nessus::NBE;
-            open( $infile_fh, '<', $outfileName);
-            my @nessusdata = <$infile_fh>;
-            close( $infile_fh );
-            my @countvulns = Parse::Nessus::NBE::nstatvulns(@nessusdata, 1);
-            foreach my $current_vul (@countvulns) {
-                my ($scanID, $number) = split(/\|/, $current_vul);
-                my $info;
-                $info->{'Host'} = $hostaddr;
-                $info->{'ScanID'} = $scanID;
-                $logger->info("calling trigger_scan_add for $hostaddr Nessus ScanID $scanID");
-                pf::trigger::trigger_scan_add($info);
-            };
-            return 1;
-        }
-        my @output = pf::trigger::trigger_scan( $hostaddr, $params{tid} );
-        my $file_fh;
-        open( $file_fh, '>',
-            "$install_dir/html/admin/scan/results/dump_${hostaddr}_$date" );
-        print {$file_fh} shift(@output) . "\n";
-        print {$file_fh} join(
-            $delimiter,
-            (   "vulnerable", "mac", "ip", "tid", "sid", "port", "description"
-            )
-        ) . "\n";
-        print {$file_fh} @output;
+        require pf::scan;
+        pf::scan::runScan($hostaddr, %params);
 
-        #close(FILE);
-        return (1);
-    }
-    require pf::schedule;
+        $logger->trace("leaving pfcmd schedule now");
 
-    my $tid  = $params{tid}  || "all";
-    my $date = $params{date} || 0;
-
-    my $cron = new pf::schedule();
-    $cron->load_cron("pf");
-    print join( $delimiter, ( "id", "date", "hosts", "tid" ) ) . "\n";
-    if ( $option eq 'view' ) {
-        if ( $hostaddr eq 'all' ) {
-            print $cron->get_indexes();
-        } else {
-            my $cronref = $cron->get_index($hostaddr);
-            if (defined($cronref)) {
-                print join( $delimiter, $cron->get_index($hostaddr) ) . "\n";
-            }
-        }
-        return (1);
-    } elsif ( $option eq 'add' ) {
-        my @fields = split( /\s+/, $date );
-        if (   !$date
-            || scalar(@fields) != 5
-            || $date !~ /^([\d\-\,\/\* ])+$/
-            || !$tid )
-        {
-            print "Date format incorrect $date or tid incorrect $tid\n";
-            $logger->error("date format incorrect");
-            return (0);
-        } else {
-            $cron->add_index( $date,
-                $bin_dir . "/pfcmd schedule now $hostaddr tid=$tid" );
-        }
-    } elsif ( $option eq 'delete' ) {
-        $cron->delete_index($hostaddr);
-        $cron->write_cron("pf");
-        return 1;
-    } elsif ( $option eq 'edit' ) {
-        my $id = $hostaddr;
-        my ( $oldate, $oldaddr, $oldtid )
-            = ( $cron->get_index($id) )[ 1, 2, 3 ];
-        $hostaddr = $oldaddr;
-        $hostaddr = $params{hosts} if ( $params{hosts} );
-        $tid      = $oldtid if ( !$tid );
-        $date     = $oldate if ( !$date );
-        $logger->info(
-            "updating schedule number $id to date=$date,hostaddr=$hostaddr,tid=$tid"
-        );
-        $cron->update_index( $id, $date,
-            $bin_dir . "/pfcmd schedule now $hostaddr tid=$tid" );
+    # or modify cron
     } else {
-        $logger->error("Schedule Failed");
-        return (0);
+        require pf::schedule;
+    
+        my $date = $params{date} || 0;
+    
+        my $cron = new pf::schedule();
+        $cron->load_cron("pf");
+        print join( $delimiter, ( "id", "date", "hosts" ) ) . "\n";
+        if ( $option eq 'view' ) {
+            if ( $hostaddr eq 'all' ) {
+                print $cron->get_indexes();
+            } else {
+                my $cronref = $cron->get_index($hostaddr);
+                if (defined($cronref)) {
+                    print join( $delimiter, $cron->get_index($hostaddr) ) . "\n";
+                }
+            }
+            return (1);
+        } elsif ( $option eq 'add' ) {
+            $logger->trace("Adding scheduled scan cron entry with date: $date");
+            my @fields = split( /\s+/, $date );
+            if (   !$date
+                || scalar(@fields) != 5
+                || $date !~ /^([\d\-\,\/\* ])+$/)
+            {
+                print "Date format incorrect $date\n";
+                $logger->error("date format incorrect");
+                return (0);
+            } else {
+                $cron->add_index( $date,
+                    $bin_dir . "/pfcmd schedule now $hostaddr" );
+            }
+        } elsif ( $option eq 'delete' ) {
+            $cron->delete_index($hostaddr);
+            $cron->write_cron("pf");
+            return 1;
+        } elsif ( $option eq 'edit' ) {
+            my $id = $hostaddr;
+            my ( $oldate, $oldaddr )
+                = ( $cron->get_index($id) )[ 1, 2 ];
+            $hostaddr = $oldaddr;
+            $hostaddr = $params{hosts} if ( $params{hosts} );
+            $date     = $oldate if ( !$date );
+            $logger->info("updating schedule number $id to date=$date,hostaddr=$hostaddr");
+            $cron->update_index($id, $date, $bin_dir."/pfcmd schedule now $hostaddr");
+        } else {
+            $logger->error("Schedule Failed");
+            return (0);
+        }
+    
+        print $cron->get_indexes();
+        $cron->write_cron("pf");
     }
-
-    print $cron->get_indexes();
-    $cron->write_cron("pf");
 }
 
 #
@@ -1607,6 +1554,7 @@ sub ui {
             'scan'      => 'id',
         );
 
+        # TODO: remove this test when we will reactivate Scan from web admin, it is no longer valid
         # check if Net::Nessus::ScanLite is installed
         my $scanLiteInstalled = 1;
         eval "use Net::Nessus::ScanLite";
@@ -1801,6 +1749,10 @@ sub command_param {
                 "$function was called - we don't need to recalculate iptables and switchport VLAN assignments"
             );
         } else {
+            if ( ($function =~ /^node_delete$/) and ($returnValue == 0) ) {
+                print "Cannot delete this node since there are some records in locationlog table indicating that this node might still be connected and active on the network (pfcmd line 1824.)";
+                exit;
+            }
             if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
                 require pf::iptables;
                 pf::iptables::iptables_generate();

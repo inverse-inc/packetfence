@@ -9,7 +9,7 @@ use Log::Log4perl;
 use File::Basename qw(basename);
 use lib '/usr/local/pf/lib';
 
-Log::Log4perl->init("/usr/local/pf/conf/log.conf");
+Log::Log4perl->init("/usr/local/pf/t/log.conf");
 my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
@@ -238,7 +238,7 @@ foreach my $help_arg (@main_args) {
 
 # test version
 @output = `/usr/local/pf/bin/pfcmd version`;
-like ( $output[0], qr/^PacketFence 1.8.4/,
-       "pfcmd version is 1.8.4" );
-like ( $output[1], qr/^DB MD5SUM: de911c990735fd5a6339830830010368/,
+like ( $output[0], qr/^PacketFence 1.8.5/,
+       "pfcmd version is 1.8.5" );
+like ( $output[1], qr/^DB MD5SUM: 55ec69a0e574dac8eada8b65a8cbd4f5/,
        "DB MD5SUM" );

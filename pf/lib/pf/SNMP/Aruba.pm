@@ -70,12 +70,12 @@ sub deauthenticateMac {
     }
 
     if ( !$this->connectRead() ) {
-        $logger->error("ERROR: Can not connect using SNMP to Aruba Controller " . $this->{_ip});
+        $logger->error("Can not connect using SNMP to Aruba Controller " . $this->{_ip});
         return 1;
     }
 
     if ( length($mac) != 17 ) {
-        $logger->error("ERROR: MAC format is incorrect ($mac). Should be xx:xx:xx:xx:xx:xx");
+        $logger->error("MAC format is incorrect ($mac). Should be xx:xx:xx:xx:xx:xx");
         return 1;
     }
 
@@ -97,7 +97,7 @@ sub deauthenticateMac {
     require pf::iplog;
     my $ip = pf::iplog::mac2ip($mac) || 0;
     if ($ip eq 0) {
-        $logger->error("ERROR: Can not find open entry in iplog for $mac");
+        $logger->error("Can not find open entry in iplog for $mac");
         return 1;
     }
     $completeOid .= "." . $ip;
@@ -110,7 +110,7 @@ sub deauthenticateMac {
         if ($apSSID =~ /0x([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})/i) {
             $apSSID = uc("$1:$2:$3:$4:$5:$6");
         } else {
-            $logger->error("ERROR: The MAC address format of the SSID is invalid: $apSSID");
+            $logger->error("The MAC address format of the SSID is invalid: $apSSID");
             return 1;
         }
 
@@ -134,18 +134,18 @@ sub deauthenticateMac {
         };
 
         if ($@) {
-            $logger->error( "ERROR: Can not connect to Aruba Controller $this->{'_ip'} using " . $this->{_cliTransport} );
-            $logger->error( Dumper($@));
+            $logger->error("Can't connect to Aruba Controller ".$this->{'_ip'}." using ".$this->{_cliTransport});
+            #$logger->error( Dumper($@));
             return 1;
         }
 
         my $cmd = "stm kick-off-sta $mac $apSSID";
-        $logger->debug( "DEBUG: deauthenticating $mac from SSID $apSSID with `$cmd`");
+        $logger->debug("deauthenticating $mac from SSID $apSSID with `$cmd`");
         $session->cmd($cmd);
         $session->close();
         return 1;
     } else {
-        $logger->error("ERROR: Can not get AP SSID from Aruba Controller for MAC $mac");
+        $logger->error("Can not get AP SSID from Aruba Controller for MAC $mac");
     }
 
 }

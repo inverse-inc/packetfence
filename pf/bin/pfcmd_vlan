@@ -217,12 +217,7 @@ my $logger = Log::Log4perl->get_logger('');
 my $switchFactory = new pf::SwitchFactory(
     -configFile => INSTALL_DIR . '/conf/switches.conf' );
 
-if (   ($getUpLinks)
-    || ($getVersion)
-    || ($getType)
-    || ($getAllMacs)
-    || ($getHubs) )
-{
+if ($getUpLinks) {
 
     if ( $switchDescRegExp eq '' ) {
         pod2usage("the switch argument is necessary");
@@ -231,23 +226,47 @@ if (   ($getUpLinks)
         pod2usage("unknown switch $switchDescRegExp");
     }
     my $switch = $switchFactory->instantiate($switchDescRegExp);
-
-    if ($getUpLinks) {
+    if (!$switch) {
+        print "Can not instantiate switch $switchDescRegExp ! See log files for details\n";
+    } else {
         $logger->debug("start handling 'getUpLinks' command");
-
         my @upLinks = $switch->getUpLinks();
-
         foreach my $currentIfIndex (@upLinks) {
             print "- $currentIfIndex\n";
         }
         $logger->debug("finished handling 'getUpLinks' command");
-    } elsif ($getVersion) {
+    }
+
+} elsif ($getVersion) {
+
+    if ( $switchDescRegExp eq '' ) {
+        pod2usage("the switch argument is necessary");
+    }
+    if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
+        pod2usage("unknown switch $switchDescRegExp");
+    }
+    my $switch = $switchFactory->instantiate($switchDescRegExp);
+    if (!$switch) {
+        print "Can not instantiate switch $switchDescRegExp ! See log files for details\n";
+    } else {
         $logger->debug("start handling 'getVersion' command");
-
         print $switchDescRegExp . "," . $switch->getVersion() . "\n";
-
         $logger->debug("finished handling 'getVersion' command");
-    } elsif ($getType) {
+    }
+
+} elsif ($getType) {
+
+    # TODO: remove this feature or add all switches we support (saying Oops if we can't tell)
+    if ( $switchDescRegExp eq '' ) {
+        pod2usage("the switch argument is necessary");
+    }
+    if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
+        pod2usage("unknown switch $switchDescRegExp");
+    }
+    my $switch = $switchFactory->instantiate($switchDescRegExp);
+    if (!$switch) {
+        print "Can not instantiate switch $switchDescRegExp ! See log files for details\n";
+    } else {
         $logger->debug("start handling 'getType' command");
         my $session;
         my $error;
@@ -277,8 +296,7 @@ if (   ($getUpLinks)
         my $versionOk = 0;
         if ( defined($session) ) {
             my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';    #SNMPv2-MIB
-            my $result
-                = $session->get_request( -varbindlist => [$oid_sysDescr] );
+            my $result       = $session->get_request( -varbindlist => [$oid_sysDescr] );
             if ( defined( $result->{$oid_sysDescr} ) ) {
                 my $sysDescr = $result->{$oid_sysDescr};
                 $type = $sysDescr;
@@ -286,73 +304,81 @@ if (   ($getUpLinks)
                     $type = "Cisco::Catalyst_$1";
                 } elsif ( $sysDescr =~ /IOS Software, C(\w+) / ) {
                     $type = "Cisco::Catalyst_$1";
-                } elsif (
-                    $sysDescr =~ /Intel Express 460T Standalone Switch/ )
-                {
+                } elsif ( $sysDescr =~ /Intel Express 460T Standalone Switch/ ) {
                     $type = "Intel::Express_460";
                 } elsif ( $sysDescr =~ /Intel\(R\) Express 530T Switch/ ) {
                     $type = "Intel::Express_530";
                 } elsif ( $sysDescr =~ /Switch ES3526XA/ ) {
                     $type = "Accton::ES3526XA";
                 } elsif ( $sysDescr =~ /^Ethernet Switch$/ ) {
-                    my $oid_productIdentificationDisplayName
-                        = '1.3.6.1.4.1.674.10895.3000.1.2.100.1.0';
-                    $result = $session->get_request( -varbindlist =>
-                            [$oid_productIdentificationDisplayName] );
-                    if (defined(
-                            $result->{$oid_productIdentificationDisplayName}
-                        )
-                        )
-                    {
-                        if ( $result->{$oid_productIdentificationDisplayName}
-                            =~ /PowerConnect 3424/ )
-                        {
+                    my $oid_productIdentificationDisplayName = '1.3.6.1.4.1.674.10895.3000.1.2.100.1.0';
+                    $result = $session->get_request( -varbindlist => [$oid_productIdentificationDisplayName] );
+                    if ( defined( $result->{$oid_productIdentificationDisplayName} ) ) {
+                        if ( $result->{$oid_productIdentificationDisplayName} ==~ /PowerConnect 3424/ ) {
                             $type = "Dell::PowerConnect3424";
                         } else {
-                            $type = $result
-                                ->{$oid_productIdentificationDisplayName};
+                            $type = $result->{$oid_productIdentificationDisplayName};
                         }
                     }
                 }
-                if ( $type eq
-                    $switchFactory->{_config}{$switchDescRegExp}{'type'} )
-                {
+                if ( $type eq $switchFactory->{_config}{$switchDescRegExp}{'type'} ) {
                     $version   = $switch->getVersion();
-                    $versionOk = $switch->isNewerVersionThan(
-                        $switch->getMinOSVersion() );
+                    $versionOk = $switch->isNewerVersionThan( $switch->getMinOSVersion() );
                 }
             }
         }
         print "$switchDescRegExp, $type, $version, ";
         if ( $type ne $switchFactory->{_config}{$switchDescRegExp}{'type'} ) {
-            print "typeProblem, configuration file tells us "
-                . $switchFactory->{_config}{$switchDescRegExp}{'type'};
+            print "typeProblem, configuration file tells us " . $switchFactory->{_config}{$switchDescRegExp}{'type'};
         } else {
             if ( !$versionOk ) {
-                print "versionProblem: minOSVersion is "
-                    . $switch->getMinOSVersion();
+                print "versionProblem: minOSVersion is " . $switch->getMinOSVersion();
             } else {
                 print "ok";
             }
         }
         print "\n";
-        $logger->debug("start handling 'getType' command");
-    } elsif ($getAllMacs) {
+        $logger->debug("finished handling 'getType' command");
+
+    }
+
+} elsif ($getAllMacs) {
+
+    if ( $switchDescRegExp eq '' ) {
+        pod2usage("the switch argument is necessary");
+    }
+    if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
+        pod2usage("unknown switch $switchDescRegExp");
+    }
+    my $switch = $switchFactory->instantiate($switchDescRegExp);
+    if (!$switch) {
+        print "Can not instantiate switch $switchDescRegExp ! See log files for details\n";
+    } else {
         $logger->debug("start handling 'getAllMacs' command");
         my $ifIndexVlanMacHashRef = $switch->getAllMacs();
         foreach my $ifIndex ( %{$ifIndexVlanMacHashRef} ) {
             foreach my $vlan ( %{ $ifIndexVlanMacHashRef->{$ifIndex} } ) {
-                foreach my $mac (
-                    @{ $ifIndexVlanMacHashRef->{$ifIndex}->{$vlan} } )
-                {
+                foreach my $mac ( @{ $ifIndexVlanMacHashRef->{$ifIndex}->{$vlan} } ) {
                     print "$ifIndex\t$vlan\t$mac\n";
                 }
             }
         }
         $logger->debug("finished handling 'getAllMacs' command");
-    } elsif ($getHubs) {
-        $logger->debug("start handling 'getHubs' command");
+    }
 
+} elsif ($getHubs) {
+
+    if ( $switchDescRegExp eq '' ) {
+        pod2usage("the switch argument is necessary");
+    }
+    if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
+        pod2usage("unknown switch $switchDescRegExp");
+    }
+    my $switch = $switchFactory->instantiate($switchDescRegExp);
+    if (!$switch) {
+        print "Can not instantiate switch $switchDescRegExp ! See log files for details\n";
+    } else {
+        $logger->debug("start handling 'getHubs' command");
         my $hubPorts;
         eval { $hubPorts = $switch->getHubs(); };
         foreach my $port ( sort keys %$hubPorts ) {
@@ -364,7 +390,6 @@ if (   ($getUpLinks)
                     print ", " . ( $$oui_info[0] || 'unknown' );
                 }
                 if ($showPF) {
-
                     my @pfcmd = `$bin_dir/pfcmd node view $mac`;
                     @pfcmd = split( /[|]/, $pfcmd[1] );
                     print ", $pfcmd[7]" unless ( $pfcmd[7] eq '' );
@@ -389,12 +414,13 @@ if (   ($getUpLinks)
         pod2usage("unknown switch $switchDescRegExp");
     }
     my $switch = $switchFactory->instantiate($switchDescRegExp);
-
-    $logger->debug("start handling 'deauthenticate' command");
-
-    $switch->deauthenticateMac($mac);
-
-    $logger->debug("finished handling 'deauthenticate' command");
+    if (!$switch) {
+        print "Can not instantiate switch $switchDescRegExp ! See log files for details\n";
+    } else {
+        $logger->debug("start handling 'deauthenticate' command");
+        $switch->deauthenticateMac($mac);
+        $logger->debug("finished handling 'deauthenticate' command");
+    }   
 
 } elsif ( $getMac
     || $getAlias
@@ -424,118 +450,121 @@ if (   ($getUpLinks)
         pod2usage("unknown switch $switchDescRegExp");
     }
     my $switch = $switchFactory->instantiate($switchDescRegExp);
-
-    if ($getMac) {
-
-        $logger->debug("start handling 'getMac' command");
-
-        foreach my $currentMac ( $switch->getMacAtIfIndex($ifIndex) ) {
-            print "$currentMac";
-            if ($showMacVendor) {
-                my $oui_info = Net::MAC::Vendor::lookup($currentMac);
-                print ", " . ( $$oui_info[0] || 'unknown' );
+    if (!$switch) {
+        print "Can not instantiate switch $switchDescRegExp ! See log files for details\n";
+    } else {    
+        if ($getMac) {
+    
+            $logger->debug("start handling 'getMac' command");
+    
+            foreach my $currentMac ( $switch->getMacAtIfIndex($ifIndex) ) {
+                print "$currentMac";
+                if ($showMacVendor) {
+                    my $oui_info = Net::MAC::Vendor::lookup($currentMac);
+                    print ", " . ( $$oui_info[0] || 'unknown' );
+                }
+                if ($showPF) {
+                    my @pfcmd = `$bin_dir/pfcmd node view $currentMac`;
+                    @pfcmd = split( /[|]/, $pfcmd[1] );
+                    print ", $pfcmd[8]" unless ( $pfcmd[8] eq '' );
+                    print ", $pfcmd[1]" unless ( $pfcmd[1] eq '' );
+                }
+                print "\n";
             }
-            if ($showPF) {
-                my @pfcmd = `$bin_dir/pfcmd node view $currentMac`;
-                @pfcmd = split( /[|]/, $pfcmd[1] );
-                print ", $pfcmd[8]" unless ( $pfcmd[8] eq '' );
-                print ", $pfcmd[1]" unless ( $pfcmd[1] eq '' );
+            $logger->debug("finished handling 'getMac' command");
+    
+        } elsif ($getIfOperStatus) {
+            $logger->debug("start handling 'getIfOperStatus' command");
+            print $switch->getIfOperStatus($ifIndex) . "\n";
+            $logger->debug("finished handling 'getIfOperStatus' command");
+        } elsif ($getIfType) {
+            $logger->debug("start handling 'getIfType' command");
+            print $switch->getIfType($ifIndex) . "\n";
+            $logger->debug("finished handling 'getIfType' command");
+        } elsif ($getVlan) {
+            $logger->debug("start handling 'getVlan' command");
+            print $switch->getVlan($ifIndex) . "\n";
+            $logger->debug("finished handling 'getVlan' command");
+        } elsif ($reAssignVlan) {
+            $logger->debug("start handling 'reAssignVlan' command");
+            my ( $session, $err ) = Net::SNMP->session(
+                -hostname  => '127.0.0.1',
+                -port      => '162',
+                -version   => '1',
+                -community => 'public'
+            );
+    
+            $session->trap(
+                -genericTrap => Net::SNMP::ENTERPRISE_SPECIFIC,
+                -agentaddr   => $switch->{_ip},
+                -varbindlist => [
+                    '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER,
+                    '1.3.6.1.4.1.29464.1.1', "1.3.6.1.2.1.2.2.1.1.$ifIndex",
+                    Net::SNMP::INTEGER,      $ifIndex,
+                ]
+            );
+            $logger->debug("finished handling 'reAssignVlan' command");
+        } elsif ($setVlan) {
+            if ( $vlan == 0 ) {
+                pod2usage("you must specify the VLAN to set");
             }
-            print "\n";
+            $logger->debug("start handling 'setVlan' command");
+            my %switch_locker : shared;
+            $switch_locker{ $switch->{_ip} } = &share( {} );
+            $switch->setVlan( $ifIndex, $vlan, \%switch_locker );
+            print "new VLAN: " . $switch->getVlan($ifIndex) . "\n";
+            $logger->debug("finished handling 'setVlan' command");
+        } elsif ($setIfAdminStatus) {
+            $logger->debug("start handling 'setIfAdminStatus' command");
+            $switch->setAdminStatus( $ifIndex, $ifAdminStatus );
+            $logger->debug("finished handling 'setIfAdminStatus' command");
+        } elsif ($getAlias) {
+            $logger->debug("start handling 'getAlias' command");
+            print $switch->getAlias($ifIndex) . "\n";
+            $logger->debug("finished handling 'getAlias' command");
+        } elsif ($setAlias) {
+            if ( $alias == '' ) {
+                pod2usage("you must specify the description to set");
+            }
+            $logger->debug("start handling 'setAlias' command");
+            $switch->setAlias( $ifIndex, $alias );
+            print "new alias: " . $switch->getAlias($ifIndex) . "\n";
+            $logger->debug("finished handling 'setAlias' command");
+        } elsif ($resetVlanAllPort) {
+            $logger->debug("start handling 'resetVlanAllPort' command");
+            my %switch_locker : shared;
+            $switch_locker{ $switch->{_ip} } = &share( {} );
+            $switch->resetVlanAllPort( \%switch_locker );
+            print "finished handling 'resetVlanAllPort' command\n";
+        } elsif ($setVlanAllPort) {
+            if ( $vlan == 0 ) {
+                pod2usage("you must specify the VLAN to set");
+            }
+            $logger->debug("start handling 'setVlanAllPort' command");
+            my %switch_locker : shared;
+            $switch_locker{ $switch->{_ip} } = &share( {} );
+            $switch->setVlanAllPort( $vlan, \%switch_locker );
+            print "finished handling 'setVlanAllPort' command\n";
+            $logger->debug("finished handling 'setVlan' command");
+        } elsif ($getVlanType) {
+            $logger->debug("start handling 'getVlanType' command");
+            print $switch->getVmVlanType($ifIndex) . "\n";
+            $logger->debug("finished handling 'getVlantype' command");
+        } elsif ($isolate) {
+            $logger->debug("start handling 'isolate' command");
+            my %switch_locker : shared;
+            $switch_locker{ $switch->{_ip} } = &share( {} );
+            $switch->setIsolationVlan( $ifIndex, \%switch_locker );
+            print "new VLAN: " . $switch->getVlan($ifIndex) . "\n";
+            $logger->debug("finished handling 'isolate' command");
+        } elsif ($setDefaultVlan) {
+            $logger->debug("start handling 'setDefaultVlan' command");
+            my %switch_locker : shared;
+            $switch_locker{ $switch->{_ip} } = &share( {} );
+            $switch->setNormalVlan( $ifIndex, \%switch_locker );
+            print "new VLAN: " . $switch->getVlan($ifIndex) . "\n";
+            $logger->debug("finished handling 'setDefaultVlan' command");
         }
-        $logger->debug("finished handling 'getMac' command");
-
-    } elsif ($getIfOperStatus) {
-        $logger->debug("start handling 'getIfOperStatus' command");
-        print $switch->getIfOperStatus($ifIndex) . "\n";
-        $logger->debug("finished handling 'getIfOperStatus' command");
-    } elsif ($getIfType) {
-        $logger->debug("start handling 'getIfType' command");
-        print $switch->getIfType($ifIndex) . "\n";
-        $logger->debug("finished handling 'getIfType' command");
-    } elsif ($getVlan) {
-        $logger->debug("start handling 'getVlan' command");
-        print $switch->getVlan($ifIndex) . "\n";
-        $logger->debug("finished handling 'getVlan' command");
-    } elsif ($reAssignVlan) {
-        $logger->debug("start handling 'reAssignVlan' command");
-        my ( $session, $err ) = Net::SNMP->session(
-            -hostname  => '127.0.0.1',
-            -port      => '162',
-            -version   => '1',
-            -community => 'public'
-        );
-
-        $session->trap(
-            -genericTrap => Net::SNMP::ENTERPRISE_SPECIFIC,
-            -agentaddr   => $switch->{_ip},
-            -varbindlist => [
-                '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER,
-                '1.3.6.1.4.1.29464.1.1', "1.3.6.1.2.1.2.2.1.1.$ifIndex",
-                Net::SNMP::INTEGER,      $ifIndex,
-            ]
-        );
-        $logger->debug("finished handling 'reAssignVlan' command");
-    } elsif ($setVlan) {
-        if ( $vlan == 0 ) {
-            pod2usage("you must specify the VLAN to set");
-        }
-        $logger->debug("start handling 'setVlan' command");
-        my %switch_locker : shared;
-        $switch_locker{ $switch->{_ip} } = &share( {} );
-        $switch->setVlan( $ifIndex, $vlan, \%switch_locker );
-        print "new VLAN: " . $switch->getVlan($ifIndex) . "\n";
-        $logger->debug("finished handling 'setVlan' command");
-    } elsif ($setIfAdminStatus) {
-        $logger->debug("start handling 'setIfAdminStatus' command");
-        $switch->setAdminStatus( $ifIndex, $ifAdminStatus );
-        $logger->debug("finished handling 'setIfAdminStatus' command");
-    } elsif ($getAlias) {
-        $logger->debug("start handling 'getAlias' command");
-        print $switch->getAlias($ifIndex) . "\n";
-        $logger->debug("finished handling 'getAlias' command");
-    } elsif ($setAlias) {
-        if ( $alias == '' ) {
-            pod2usage("you must specify the description to set");
-        }
-        $logger->debug("start handling 'setAlias' command");
-        $switch->setAlias( $ifIndex, $alias );
-        print "new alias: " . $switch->getAlias($ifIndex) . "\n";
-        $logger->debug("finished handling 'setAlias' command");
-    } elsif ($resetVlanAllPort) {
-        $logger->debug("start handling 'resetVlanAllPort' command");
-        my %switch_locker : shared;
-        $switch_locker{ $switch->{_ip} } = &share( {} );
-        $switch->resetVlanAllPort( \%switch_locker );
-        print "finished handling 'resetVlanAllPort' command\n";
-    } elsif ($setVlanAllPort) {
-        if ( $vlan == 0 ) {
-            pod2usage("you must specify the VLAN to set");
-        }
-        $logger->debug("start handling 'setVlanAllPort' command");
-        my %switch_locker : shared;
-        $switch_locker{ $switch->{_ip} } = &share( {} );
-        $switch->setVlanAllPort( $vlan, \%switch_locker );
-        print "finished handling 'setVlanAllPort' command\n";
-        $logger->debug("finished handling 'setVlan' command");
-    } elsif ($getVlanType) {
-        $logger->debug("start handling 'getVlanType' command");
-        print $switch->getVmVlanType($ifIndex) . "\n";
-        $logger->debug("finished handling 'getVlantype' command");
-    } elsif ($isolate) {
-        $logger->debug("start handling 'isolate' command");
-        my %switch_locker : shared;
-        $switch_locker{ $switch->{_ip} } = &share( {} );
-        $switch->setIsolationVlan( $ifIndex, \%switch_locker );
-        print "new VLAN: " . $switch->getVlan($ifIndex) . "\n";
-        $logger->debug("finished handling 'isolate' command");
-    } elsif ($setDefaultVlan) {
-        $logger->debug("start handling 'setDefaultVlan' command");
-        my %switch_locker : shared;
-        $switch_locker{ $switch->{_ip} } = &share( {} );
-        $switch->setNormalVlan( $ifIndex, \%switch_locker );
-        print "new VLAN: " . $switch->getVlan($ifIndex) . "\n";
-        $logger->debug("finished handling 'setDefaultVlan' command");
     }
 
 } elsif ($getLocation) {
@@ -572,10 +601,14 @@ if (   ($getUpLinks)
         if ( ( $key ne 'default' ) && ( $key ne '127.0.0.1') ) {
             $switch_ip = $key;
             my $switch = $switchFactory->instantiate($switch_ip);
-            $ifIndex = $switch->getIfIndexForThisMac($mac);
-            if ( $ifIndex != -1 ) {
-                $found  = 1;
-                $ifDesc = $switch->getIfDesc($ifIndex);
+            if (!$switch) { 
+                print "Can not instantiate switch $switch_ip ! See log files for details\n";
+            } else {
+                $ifIndex = $switch->getIfIndexForThisMac($mac);
+                if ( $ifIndex != -1 ) {
+                    $found  = 1;
+                    $ifDesc = $switch->getIfDesc($ifIndex);
+                }
             }
         }
     }
@@ -601,10 +634,14 @@ if (   ($getUpLinks)
         if ( ( $key ne 'default' ) && ( $key ne '127.0.0.1' ) ) {
             $switch_ip = $key;
             my $switch = $switchFactory->instantiate($switch_ip);
-            if ( $switch->isProductionMode() ) {
-                my %switch_locker : shared;
-                $switch_locker{ $switch->{_ip} } = &share( {} );
-                $switch->resetVlanAllPort( \%switch_locker );
+            if (!$switch) {
+                print "Can not instantiate switch $switch_ip ! See log files for details\n";
+            } else {
+                if ( $switch->isProductionMode() ) {
+                    my %switch_locker : shared;
+                    $switch_locker{ $switch->{_ip} } = &share( {} );
+                    $switch->resetVlanAllPort( \%switch_locker );
+                }
             }
         }
     }

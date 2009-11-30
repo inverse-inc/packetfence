@@ -88,18 +88,21 @@ my %Config = %{ $switchFactory->{_config} };
 foreach my $switch_ip ( sort keys %Config ) {
     if ( ( $switch_ip ne '127.0.0.1' ) && ( $switch_ip ne 'default' ) ) {
         my $switch = $switchFactory->instantiate($switch_ip);
-        print "$switch_ip\n";
-        next if (ref($switch) =~ /Aironet/);
-        print " - sysUptime: " . $switch->getSysUptime() . "\n";
-        my $vlanHashRef = $switch->getVlans();
-        print " - nb Vlans : " . scalar( keys %$vlanHashRef ) . "\n";
-        my @upLinks = $switch->getUpLinks();
-        print " - Uplinks: " . join( ", ", @upLinks ) . "\n";
-        my %macVlan = $switch->getMacAddrVlan();
+        if (!$switch) {
+            print "Can not instantiate switch $switch_ip ! See log for details\n";
+        } else {
+            print "$switch_ip\n";
+            next if (ref($switch) =~ /Aironet/);
+            print " - sysUptime: " . $switch->getSysUptime() . "\n";
+            my $vlanHashRef = $switch->getVlans();
+            print " - nb Vlans : " . scalar( keys %$vlanHashRef ) . "\n";
+            my @upLinks = $switch->getUpLinks();
+            print " - Uplinks: " . join( ", ", @upLinks ) . "\n";
+            my %macVlan = $switch->getMacAddrVlan();
 
-        foreach my $mac ( keys %macVlan ) {
-            print
-                " - $mac\tvlan: $macVlan{$mac}{'vlan'}\tport: $macVlan{$mac}{'ifIndex'}\n";
+            foreach my $mac ( keys %macVlan ) {
+                print " - $mac\tvlan: $macVlan{$mac}{'vlan'}\tport: $macVlan{$mac}{'ifIndex'}\n";
+            }
         }
     }
 }

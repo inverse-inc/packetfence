@@ -119,9 +119,9 @@ sub get_indexes {
     my $i         = 0;
     my $delimiter = "|";
     foreach my $ref ( $self->list_entries() ) {
-        $ref->{args} =~ /now\s+(\S+).+tid=(\S+)/;
+        $ref->{args} =~ /now\s+(\S+).*/;
         push @array,
-            join( $delimiter, ( $i++, $ref->{time}, $1, $2 ) ) . "\n";
+            join( $delimiter, ( $i++, $ref->{time}, $1 ) ) . "\n";
     }
     return @array;
 }
@@ -142,8 +142,8 @@ sub get_index {
     my @array;
     my $ref = $self->get_entry($idx);
     if (defined($ref)) {
-        $ref->{args} =~ /now\s+(\S+).+tid=(\S+)/;
-        return ( $idx, $ref->{time}, $1, $2 );
+        $ref->{args} =~ /now\s+(\S+).*/;
+        return ( $idx, $ref->{time}, $1 );
     } else {
         return;
     }

@@ -73,7 +73,7 @@ sub instantiate {
             || $SwitchConfig{'default'}{'type'} );
     if ( !  $type->require() ) {
         $logger->error(
-            "ERROR ! Unknown switch type: $type for switch $requestedSwitch: $@"
+            "Can not load perl module for switch $requestedSwitch, type: $type. Either the type is unknown or the perl module has compilation errors. Read the following message for details: $@"
         );
         return 0;
     }

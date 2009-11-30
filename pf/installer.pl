@@ -96,47 +96,6 @@ my %oses = (
     "Fedora Core release 4"                     => "FC4"
 );
 
-my @modules = (
-    "Apache::Htpasswd",
-    "Bit::Vector",
-    "CGI::Session",
-    "Config::IniFiles",
-    "Date::Parse",
-    "DBI",
-    "DBD::mysql",
-    "File::Tail",
-    "Net::IPv4Addr",
-    "IPTables::Parse",
-    "IPTables::ChainMgr",
-    "List::MoreUtils",
-    "Locale::gettext",
-    "Log::Log4perl",
-    "LWP::UserAgent",
-    "Net::Appliance::Session",
-    "Net::IPv4Addr",
-    "Net::MAC",
-    "Net::MAC::Vendor",
-    "Net::Netmask",
-    "Net::Pcap",
-    "Net::Frame",
-    "Net::Frame::Simple",
-    "Net::Write",
-    "Net::SNMP",
-    "Net::Telnet",
-    "Parse::Nessus::NBE",
-    "Parse::RecDescent",
-    "Regexp::Common",
-    "Readonly",
-    "Template",
-    "Term::ReadKey",
-    "Test::MockDBI",
-    "Test::Perl::Critic",
-    "Test::Pod",
-    "Test::Pod::Coverage",
-    "Thread::Pool",
-    "UNIVERSAL::require",
-);
-
 my @suids = ( "$install_dir/bin/pfcmd" );
 
 my %schemas = (
@@ -152,21 +111,6 @@ my %schemas = (
     "e997a9969f196762859b9505e08d0459" => "1.5.0",
     "b125feaa50bc9c1fdf591e7c9caabf91" => "1.4.4p1"
 );
-
-my $external_deps = {
-    "jpgraph_v1" => {
-        "url_path"  => "http://hem.bredband.net/jpgraph/",
-        "file_name" => "jpgraph-1.27.tar.gz",
-        "install_path" =>
-            "$install_dir/html/admin/common/jpgraph/jpgraph-1.27"
-    },
-    "jpgraph_v2" => {
-        "url_path"  => "http://hem.bredband.net/jpgraph2/",
-        "file_name" => "jpgraph-2.3.4.tar.gz",
-        "install_path" =>
-            "$install_dir/html/admin/common/jpgraph/jpgraph-2.3.4"
-    }
-};
 
 $ENV{'LANG'} = "C";
 
@@ -346,10 +290,10 @@ if (questioner(
     {
         `/usr/bin/mysqladmin --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' create $mysql_db`;
         print "  Loading schema\n";
-        if ( -e "$install_dir/db/pfschema.mysql.184" ) {
-            `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' $mysql_db < $install_dir/db/pfschema.mysql.184`;
+        if ( -e "$install_dir/db/pfschema.mysql" ) {
+            `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' $mysql_db < $install_dir/db/pfschema.mysql`;
         } else {
-            die("Where's my schema?  Nothing at $install_dir/db/pfschema.mysql.184\n"
+            die("Where's my schema?  Nothing at $install_dir/db/pfschema.mysql\n"
             );
         }
     }
@@ -398,65 +342,6 @@ if (questioner(
 
 }
 
-# TODO cleanup commented stuff regarding the packaging of the perl deps in rpms
-# check if modules are installed
-#if (questioner(
-#        "PF needs several Perl modules to function properly.  May I download and install them?",
-#        "y",
-#        ( "y", "n" )
-#    )
-#    )
-#{
-#    print
-#        "Installing perl modules - note that if CPAN has not been run before it may prompt for configuration (just answer 'N')\n";
-#    foreach my $module (@modules) {
-#        my $mod = CPAN::Shell->expand( "Module", $module );
-#        if ( $mod->inst_file ) {
-#            if ( !$mod->uptodate ) {
-#                if (questioner(
-#                        "Module $module is installed (version "
-#                            . $mod->inst_version
-#                            . ") but not up to date (CPAN has version "
-#                            . $mod->cpan_version
-#                            . ") - do you wish to upgrade it?",
-#                        "y",
-#                        ( "y", "n" )
-#                    )
-#                    )
-#                {
-#                    print "    Upgrading module $module\n";
-#                    my $obj = CPAN::Shell->install($module);
-#                    my $current_mod
-#                        = CPAN::Shell->expand( "Module", $module );
- #                   print "    Installed version is now "
- #                       . $current_mod->inst_version . "\n";
- #               }
- #           }
- #       } else {
-#            if ( !$mod->uptodate ) {
-#                if (questioner(
-#                        "Module $module is not installed (CPAN has version "
-#                            . $mod->cpan_version
-#                            . ") - do you wish to install it?",
-#                        "y",
-#                        ( "y", "n" )
-#                    )
-#                    )
-#                {
-#                    print "    Installing module $module\n";
-#                    my $obj = CPAN::Shell->install($module);
-#                    my $current_mod
-#                        = CPAN::Shell->expand( "Module", $module );
-#                    if ( !$current_mod->inst_file ) {
-#                        print "    Unable to install module $module\n";
-#                        die;
-#                    }
-#                }
-#            }
-#        }
-#    }
-#}
-
 print "Pre-compiling pfcmd grammar\n";
 `/usr/bin/perl -w -e 'use strict; use warnings; use diagnostics; use Parse::RecDescent; use lib "$install_dir/lib"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile(\$grammar, "pfcmd_pregrammar");'`;
 rename "pfcmd_pregrammar.pm", "$install_dir/lib/pf/pfcmd/pfcmd_pregrammar.pm";
@@ -480,24 +365,15 @@ foreach my $locale_dir (@locale_dirs) {
 }
 
 # TODO cleanup commented stuff regarding the packaging of jpgraph in an rpm
-#my $jpgraphVersionToInstall;
 if ( !( -e "$conf_dir/templates/httpd.conf" ) ) {
     print "$conf_dir/templates/httpd.conf symlink does not yet exist\n";
     if ( `httpd -v` =~ /Apache\/2\.[2-9]\./ ) {
         print "creating symlink to httpd.conf.apache22\n";
         `ln -s $conf_dir/templates/httpd.conf.apache22 $conf_dir/templates/httpd.conf`;
-#        $jpgraphVersionToInstall = 'jpgraph_v2';
     } else {
         print "creating symlink to httpd.conf.pre_apache22\n";
         `ln -s $conf_dir/templates/httpd.conf.pre_apache22 $conf_dir/templates/httpd.conf`;
-#        $jpgraphVersionToInstall = 'jpgraph_v1';
     }
-#} else {
-#    if ( `httpd -v` =~ /Apache\/2\.[2-9]\./ ) {
-#        $jpgraphVersionToInstall = 'jpgraph_v2';
-#    } else {
-#        $jpgraphVersionToInstall = 'jpgraph_v1';
-#    }
 }
 
 if ( !( -e "$conf_dir/ssl/server.crt" ) ) {
@@ -517,6 +393,10 @@ if ( !( -e "$conf_dir/ssl/server.crt" ) ) {
     }
 }
 
+# TODO: créer un compte par défaut et ajouter une section dans la doc qui dit:
+# 1) c koi le pwd par défaut de admin
+# 2) comment maj le pwd de admin ou mieux: rajouter une section dans l'interface web pour maj le pwd de admin
+# et supprimer cette section
 if (questioner(
         "Would you like me to create an account for the web administrative interface?\n** NOTE: this will overwrite any existing accounts **",
         "y",
@@ -532,35 +412,8 @@ if (questioner(
     } while ( system("htpasswd -c $conf_dir/admin.conf $adminuser") );
 }
 
-# TODO cleanup commented stuff regarding the packaging of jpgraph in an rpm
-# check if external dependencies should be installed
-#my $jpgraphFileNameToCheckFor = $external_deps->{$jpgraphVersionToInstall}->{'install_path'}
-#                                . "/README";
-#if ( !( -e $jpgraphFileNameToCheckFor ) ) {
-#    if (questioner(
-#        "PF needs JPGraph for its administrative Web GUI.  May I download and install it?",
-#        "y",
-#        ( "y", "n" )
-#        )
-#    ) {
-#        my $url = $external_deps->{$jpgraphVersionToInstall}->{'url_path'}
-#                  . $external_deps->{$jpgraphVersionToInstall}->{'file_name'};
-#        my $local_file_name = "$install_dir/html/admin/common/jpgraph/"
-#                  . $external_deps->{$jpgraphVersionToInstall}->{'file_name'};
-#        `/usr/bin/wget -N $url -P $install_dir/html/admin/common/jpgraph/`;
-#        `/bin/tar zxvf $local_file_name --strip-components 1 -C $external_deps->{$jpgraphVersionToInstall}->{'install_path'}`;
-#    }
-#}
-
-if (questioner(
-        "PF needs PHP Pear Log for its administrative Web GUI. May I download and install it ?",
-        "y", ( "y", "n" )
-    )
-    )
-{
-    `pear install Log`;
-}
-
+# TODO: ajouter une section dans la doc qui explique comment télécharger ces fichiers
+# et supprimer cette section
 if (questioner(
         "Do you want me to download the latest Emergingthreats rule files ?"
         . " This is only necessary if you intent to use Snort.",
@@ -580,6 +433,8 @@ if (questioner(
     }
 }
 
+# TODO: ajouter une section dans la doc pour MAJ les fingerprints
+# et supprimer cette section
 if (questioner(
         "Do you want me to update the DHCP fingerprints to the latest available version ?",
         "y",
@@ -590,6 +445,8 @@ if (questioner(
     `/usr/bin/wget -N http://www.packetfence.org/dhcp_fingerprints.conf -P $conf_dir`;
 }
 
+# TODO: ajouter une section dans la doc pour MAJ les OUI
+# et supprimer cette section
 if (questioner(
         "Do you want me to update the OUI prefixes to the latest available version ?",
         "y",
@@ -600,6 +457,8 @@ if (questioner(
     `/usr/bin/wget -N http://standards.ieee.org/regauth/oui/oui.txt -P $conf_dir`;
 }
 
+# TODO: au démarrage de PF, créer les logs si les fichiers n'existent pas
+# et supprimer cette section
 print "Creating empty log files\n";
 `touch $install_dir/logs/packetfence.log`;
 `touch $install_dir/logs/snmptrapd.log`;

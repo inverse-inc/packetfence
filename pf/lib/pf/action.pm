@@ -165,6 +165,7 @@ sub action_execute {
         }
     }
     if ( !$leave_open ) {
+        $logger->info("this is a non-trap violation, closing violation entry now");
         require pf::violation;
         pf::violation::violation_force_close( $mac, $vid );
     }
@@ -267,13 +268,15 @@ Kevin Amorin <kev@amorin.org>
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 David Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2007-2008 Inverse inc.
+Copyright (C) 2007-2009 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

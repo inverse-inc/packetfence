@@ -20,7 +20,6 @@ use pf::node qw(node_view node_add_simple node_exist);
 use pf::util;
 use pf::violation qw(violation_count_trap violation_exist_open violation_view_top);
 use pf::SwitchFactory;
-use Net::Ping;
 use threads;
 use threads::shared;
 
@@ -49,8 +48,8 @@ sub vlan_determine_for_node {
     my $open_violation_count = violation_count_trap($mac);
 
     if ( $open_violation_count > 0 ) {
-        $logger->info("$mac has $open_violation_count open violations(s) with action=trap;
-                      it might belong into another VLAN (isolation or other).");
+        $logger->info("$mac has $open_violation_count open violations(s) with action=trap; ". 
+                      "it might belong into another VLAN (isolation or other).");
 
         # By default we assume that we put the user in isolationVlan unless proven otherwise
         my $vlan = "isolationVlan";
@@ -73,24 +72,27 @@ sub vlan_determine_for_node {
                 $logger->debug("Found target vlan parameter for this violation: $vlan");
 
             } else {
-                $logger->warn("Could not find class entry for violation $vid.
-                              Setting target vlan to switches.conf's isolationVlan");
+                $logger->warn("Could not find class entry for violation $vid. ".
+                              "Setting target vlan to switches.conf's isolationVlan");
             }
         } else {
-            $logger->warn("Could not find highest priority open violation for $mac.
-                          Setting target vlan to switches.conf's isolationVlan");
+            $logger->warn("Could not find highest priority open violation for $mac. ".
+                          "Setting target vlan to switches.conf's isolationVlan");
         }
 
         # Asking the switch to give us its configured vlan number for the vlan returned for the violation
-        my $switchFactory = new pf::SwitchFactory(
-            -configFile => "$conf_dir/switches.conf" );
+        my $switchFactory = new pf::SwitchFactory( -configFile => "$conf_dir/switches.conf" );
         my $switch = $switchFactory->instantiate($switch_ip);
-        # TODO: get rid of the _ character for the vlan variables (refactoring)
-        $correctVlanForThisMAC = $switch->{"_".$vlan};
+        if (!$switch) {
+            $logger->error("Can not instantiate switch $switch_ip !");
+            return -1;
+        } else {
+            # TODO: get rid of the _ character for the vlan variables (refactoring)
+            $correctVlanForThisMAC = $switch->{"_".$vlan};
+        }
     } else {
         if ( !node_exist($mac) ) {
-            $logger->info(
-                "node $mac does not yet exist in PF database. Adding it now");
+            $logger->info("node $mac does not yet exist in PF database. Adding it now");
             node_add_simple($mac);
         }
         my $node_info = node_view($mac);
@@ -98,39 +100,32 @@ sub vlan_determine_for_node {
             if (   ( !defined($node_info) )
                 || ( $node_info->{'status'} eq 'unreg' ) )
             {
-                $logger->info(
-                    "MAC: $mac is unregistered; belongs into registration VLAN"
-                );
-                my $switchFactory = new pf::SwitchFactory(
-                    -configFile => "$conf_dir/switches.conf" );
-                my $switch = $switchFactory->instantiate($switch_ip)
-                    || return -1;
-                $correctVlanForThisMAC = $switch->{_registrationVlan};
+                $logger->info("MAC: $mac is unregistered; belongs into registration VLAN");
+                my $switchFactory = new pf::SwitchFactory( -configFile => "$conf_dir/switches.conf" );
+                my $switch = $switchFactory->instantiate($switch_ip);
+                if (!$switch) {
+                    $logger->error("Can not instantiate switch $switch_ip !");
+                    return -1;
+                } else {
+                    $correctVlanForThisMAC = $switch->{_registrationVlan};
+                }
             } else {
-                $correctVlanForThisMAC
-                    = $this->custom_getCorrectVlan( $switch_ip, $ifIndex,
-                    $mac, $node_info->{status}, $node_info->{vlan},
-                    $node_info->{pid} );
-                $logger->info( "MAC: $mac, PID: "
-                        . $node_info->{pid}
-                        . ", Status: "
-                        . $node_info->{status}
-                        . ", VLAN: $correctVlanForThisMAC" );
+                #TODO: find a way to cleanly wrap this
+                $correctVlanForThisMAC = $this->custom_getCorrectVlan( $switch_ip, $ifIndex, $mac, $node_info->{status}, $node_info->{vlan}, $node_info->{pid} );
+                $logger->info( "MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", VLAN: $correctVlanForThisMAC" );
             }
         } else {
-            my $switchFactory = new pf::SwitchFactory(
-                -configFile => "$conf_dir/switches.conf" );
-            my $switch = $switchFactory->instantiate($switch_ip) || return -1;
-            $correctVlanForThisMAC
-                = $this->custom_getCorrectVlan( $switch_ip, $ifIndex, $mac,
-                $node_info->{status},
-                ( $node_info->{vlan} || $switch->{_normalVlan} ),
-                $node_info->{pid} );
-            $logger->info( "MAC: $mac, PID: "
-                    . $node_info->{pid}
-                    . ", Status: "
-                    . $node_info->{status}
-                    . ", VLAN: $correctVlanForThisMAC" );
+            my $switchFactory = new pf::SwitchFactory( -configFile => "$conf_dir/switches.conf" );
+            my $switch = $switchFactory->instantiate($switch_ip);
+            if (!$switch) {
+                $logger->error("Can not instantiate switch $switch_ip !");
+                return -1;
+            } else {
+                #TODO: find a way to cleanly wrap this
+                $correctVlanForThisMAC = $this->custom_getCorrectVlan( $switch_ip, $ifIndex, $mac, $node_info->{status},
+                    ( $node_info->{vlan} || $switch->{_normalVlan} ), $node_info->{pid} );
+                $logger->info( "MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", VLAN: $correctVlanForThisMAC" );
+            }
         }
     }
     return $correctVlanForThisMAC;
@@ -154,8 +149,7 @@ sub custom_doWeActOnThisTrap {
     if ( ( $ifType == 6 ) || ( $ifType == 117 ) ) {
         my @upLinks = $switch->getUpLinks();
         if ( $upLinks[0] == -1 ) {
-            $logger->info(
-                "can not determine uplinks for the switch -> do nothing");
+            $logger->warn("Can't determine Uplinks for the switch -> do nothing");
         } else {
             if ( grep( { $_ == $ifIndex } @upLinks ) == 0 ) {
                 $weActOnThisTrap = 1;
@@ -200,69 +194,6 @@ sub custom_getCorrectVlan {
 
     # return switch-specific normal vlan or default normal vlan (if switch-specific normal vlan not defined)
     return ($Config{$switch_ip}{'normalVlan'} || $Config{'default'}{'normalVlan'});
-}
-
-sub custom_isClientAlive {
-    my ( $this, $mac, $switch_ip, $ifIndex, $currentVlan, $isolationVlan,
-        $mysql_connection )
-        = @_;
-    my $logger = Log::Log4perl->get_logger();
-    Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
-
-    my $ip;
-    my $returnValue = 0;
-    my $src_ip      = undef;
-
-    # find ip for oldMac
-    my @ipLog
-        = $mysql_connection->selectrow_array(
-        "SELECT ip FROM iplog WHERE mac='$mac' AND start_time <> 0 AND (end_time = 0 OR end_time > now())"
-        );
-    if (@ipLog) {
-        $ip = $ipLog[0];
-        $logger->debug("mac $mac has IP $ip");
-    } else {
-        $logger->error("coudn't find ip for $mac in table iplog.");
-        return 0;
-    }
-
-    my @lines  = `/sbin/ip address show`;
-    my $lineNb = 0;
-    while ( ( $lineNb < scalar(@lines) ) && ( !defined($src_ip) ) ) {
-        my $line = $lines[$lineNb];
-        if ( $line
-            =~ /inet ([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})\/([0-9]+)/
-            )
-        {
-            my $tmp_src_ip   = $1;
-            my $tmp_src_bits = $2;
-            my $block        = new Net::Netmask("$tmp_src_ip/$tmp_src_bits");
-            if ( $block->match($ip) ) {
-                $src_ip = $tmp_src_ip;
-                $logger->debug(
-                    "found $ip in Network $tmp_src_ip/$tmp_src_bits");
-            }
-        }
-        $lineNb++;
-    }
-
-    my $count = 1;
-    while ( ( $returnValue != 1 ) && ( $count < 6 ) ) {
-        my $ping = Net::Ping->new();
-        if ( defined($src_ip) ) {
-            $ping->bind($src_ip);
-            $logger->debug("binding ping src IP to $src_ip for icmp ping");
-        }
-
-        if ( $ping->ping( $ip, 2 ) ) {
-            $returnValue = 1;
-            $logger->debug("$ip is alive (ping).");
-        }
-        $ping->close();
-        $count++;
-    }
-
-    return $returnValue;
 }
 
 sub custom_getNodeInfo {

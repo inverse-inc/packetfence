@@ -104,6 +104,11 @@ foreach my $switchDesc ( sort keys %{ $switchFactory->{'_config'} } ) {
         )
     {
         my $switch = $switchFactory->instantiate($switchDesc);
+        if (!$switch) {
+            print "Can not instantiate switch $switchDesc\n";
+            next;
+        }
+
         print "$switchDesc\n";
         my $allMacs = $switch->getAllMacs();
         foreach my $ifIndex ( sort keys %$allMacs ) {

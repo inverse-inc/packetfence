@@ -41,8 +41,9 @@ BEGIN {
     @ISA = qw(Exporter);
     @EXPORT
         = qw(violation_force_close violation_close violation_view violation_view_all violation_view_all_active
-        violation_view_open_all violation_add violation_view_open violation_view_open_desc violation_view_open_uniq violation_modify
-        violation_trigger violation_count violation_count_trap violation_view_top violation_db_prepare violation_delete violation_exist_open);
+             violation_view_open_all violation_add violation_view_open violation_view_open_desc violation_view_open_uniq
+             violation_modify violation_trigger violation_count violation_count_trap violation_view_top 
+             violation_db_prepare violation_delete violation_exist_open);
 }
 
 use pf::config;
@@ -50,6 +51,14 @@ use pf::db;
 use pf::util;
 
 $violation_db_prepared = 0;
+
+=head1 SUBROUTINES
+
+This list is incomplete.
+        
+=over   
+        
+=cut
 
 #violation_db_prepare($dbh) if (!$thread);
 
@@ -309,7 +318,7 @@ sub violation_add {
 
     # Is this MAC and ID aready in DB?  if so don't add another
     if ( violation_exist_open( $mac, $vid ) ) {
-        $logger->warn("violation $vid already exists for $mac");
+        $logger->info("violation $vid already exists for $mac, not adding again");
         return (1);
     }
 
@@ -362,44 +371,88 @@ sub violation_add {
     return (1);
 }
 
+=item * violation_trigger 
+
+Evaluates a candidate violation and if its valid, will add it to the node and trigger a VLAN change if required 
+        
+Returns 1 if at least one violation is added, 0 otherwise.
+
+=cut    
 sub violation_trigger {
     my ( $mac, $tid, $type, %data ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::violation');
     return (0) if ( !$tid );
     $type = lc($type);
 
+    if (whitelisted_mac($mac)) {
+        $logger->info("violation not added, $mac is whitelisted! trigger id: $tid");
+        return 0;
+    } 
+
+    if (!valid_mac($mac)) {
+        $logger->info("violation not added, MAC $mac is whitelisted! trigger id: $tid");
+        return 0;
+    } 
+
+    if (!trappable_mac($mac)) {
+        $logger->info("violation not added, MAC $mac is not trappable! trigger id: $tid");
+        return 0;
+    }
+
+    # if we were given an IP as additionnal violation trigger info
+    # test whether this ip is trappable or not
+    if (defined($data{ip}) && !trappable_ip($data{ip})) {
+        $logger->info("violation not added, IP ".$data{ip}." is not trappable! trigger id: $tid, MAC: $mac");
+        return 0;
+    }
+
     require pf::trigger;
     my @trigger_info = pf::trigger::trigger_view_enable( $tid, $type );
     if ( !scalar(@trigger_info) ) {
-        $logger->info(
-            "violation not added, no trigger found for ${type}::${tid} or violation is disabled"
-        );
+        $logger->debug("violation not added, no trigger found for ${type}::${tid} or violation is disabled");
         return 0;
     }
+
+    # scan violation and scan violation id not authorized in config
+    if ($type eq 'scan' && ! _scanTriggerIdEnabled($tid)) {   
+        $logger->warn("violation not added, Scan trigger id is not enabled! ". 
+                      "Please add $tid to scan.live_tids for the violation to trigger. MAC: $mac, IP: ".$data{'ip'});
+        return 0;
+    }
+
+    my $addedViolation = 0;
     foreach my $row (@trigger_info) {
+        # if trigger row is not an hash reference, has no vid or its vid is non numeric, we report and skip
+        if (ref($row) ne 'HASH' || !defined($row->{'vid'}) || $row->{'vid'} !~ /^\d+$/) {
+            $logger->warn("Invalid violation / trigger configuration. Error on trigger ${type}::${tid}");
+            next;
+        }
         my $vid = $row->{'vid'};
 
-        if (whitelisted_mac($mac)) {
-            $logger->info("violation: $vid - MAC $mac : violation not added, $mac is whitelisted !");
-
-        } elsif (!valid_mac($mac)) {
-            $logger->info("violation: $vid - MAC $mac : violation not added, $mac is not valid !");
-
-        } elsif (!trappable_mac($mac)) {
-            $logger->info("violation: $vid - MAC $mac : violation not added, $mac is not trappable !");
-
-        # if we were given an IP as additionnal violation trigger info
-        # test whether this ip is trappable or not
-        } elsif (defined($data{ip}) && !trappable_ip($data{ip})) {
-            $logger->info("violation: $vid - MAC $mac : violation not added, IP ".$data{ip}." is not trappable !");
-
-        } else  {
-            # TODO: fix hardcoded path, should use installdir something instead
-            $logger->info("calling /usr/local/pf/bin/pfcmd violation add vid=$vid,mac=$mac");
+        # Is this MAC and ID aready in DB?  if so don't add another
+        # we test here AND in violation_add because here we avoid a fork (and violation_add is called from elsewhere)
+        if ( violation_exist_open( $mac, $vid ) ) {
+            $logger->info("violation $vid already exists for $mac, not adding again");
+        } else {
+            $logger->info("calling $bin_dir/pfcmd violation add vid=$vid,mac=$mac");
             # forking a pfcmd because it will call a vlan flip if needed
-            `/usr/local/pf/bin/pfcmd violation add vid=$vid,mac=$mac`;
+            `$bin_dir/pfcmd violation add vid=$vid,mac=$mac`;
         }
+        $addedViolation = 1;
     }
+    return $addedViolation;
+}
+
+# test wrapper for: Is this scan tid authorized in scan.live_tids
+sub _scanTriggerIdEnabled {
+    my ($tid) = @_;
+
+    #if scan.live_tids is not set assume nothing is allowed
+    return 0 if (!defined $Config{'scan'}{'live_tids'});
+
+    #read: return 0 if its not in the list
+    return 0 if (!grep({$_ eq $tid} split(/\s*,\s*/, $Config{'scan'}{'live_tids'})));
+
     return 1;
 }
 
@@ -441,7 +494,8 @@ sub violation_close {
     return (-1);
 }
 
-# use force close on non-trap violations
+# use force close to definitely shut a violation
+# used for non-trap violation and to close scan violations
 #
 sub violation_force_close {
     my ( $mac, $vid ) = @_;
@@ -450,10 +504,11 @@ sub violation_force_close {
 
     #iptables_unmark_node($mac, $vid);
     $violation_close_sql->execute( $mac, $vid ) || return (0);
-    $logger->warn(
-        "violation $vid closed for $mac since it's a non-trap violation");
+    $logger->info("violation $vid force-closed for $mac");
     return (1);
 }
+
+=back
 
 =head1 AUTHOR
 

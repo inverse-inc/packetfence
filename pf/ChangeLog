@@ -2,7 +2,416 @@
 	* pf/cgi-bin/pdp.cgi: Fixed invalid string concatenation. Fixes #862;
 	http://www.packetfence.org/mantis/view.php?id=862
 
+2009-11-27	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/util.pm: Disabled unnecessary caching in vlan isolation
+	mode. Prevents out of memory crashes in pfmon on large networks. Fixes 
+	#861;
+	http://www.packetfence.org/mantis/view.php?id=861
+
+	* pf/packetfence.spec: Removed the commented out %define macro for
+	our versionning. It seems that macro in comments are also interpreted. 
+
+2009-11-20	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/UPGRADE, pf/packetfence.spec: Changed some default behavior for 
+	overwriting config files (for the better)
+	RPM spec version bump to snapshot 20091120
+
+2009-11-19	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/node.pm, pf/lib/pf/trigger.pm, pf/lib/pf/util.pm,
+	pf/lib/pf/violation.pm: Fixed POD doc so that test passes
+
+	* pf/t/binaries.t: Fixed test case: we removed pfcmd_ap.pl
+
+	* pf/t/log.conf, pf/t/pfcmd.t, pf/t/services.t: Tests are now using
+	their own target logfile: logs/packetfence-tests.log
+
+	* pf/t/all.t, pf/t/services.t: Added tests to check if snort starts 
+	successfully and if pfdetect can bind to it
+
+	* Copied pf/conf/templates/snort.conf to 
+	pf/conf/templates/snort.conf.pre_snort-2.8
+	Modified pf/conf/templates/snort.conf, pf/lib/pf/services.pm: snort
+	fixes
+	Removed -o flag to snort startup string (deprecated in snort)
+	Updated default snort.conf
+	Fixes #581, #846, #849;
+	http://www.packetfence.org/mantis/view.php?id=581
+	http://www.packetfence.org/mantis/view.php?id=846
+	http://www.packetfence.org/mantis/view.php?id=849
+
+2009-11-17	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Installation_Guide.odt: Added repositories in
+	OS requirements section of the install guide:
+	- CentOS need extras which is enabled by default
+	- RedHat needs EPEL (extra packages for enterprise linux) which is 
+	disabled by default
+
+	* pf/bin/pfcmd, pf/conf/ui.conf
+	pf/html/admin/configuration/switches.php, pf/lib/pf/pfcmd/pfcmd.pm:
+	Fixed SNMPv3 configuration from pfcmd and Web admin interface
+	The SNMPUserNameTrap parameter was not exposed. Thanks to
+	Jean-Francois Laporte for reporting this. Fixes #853;
+	http://www.packetfence.org/mantis/view.php?id=853
+	
+2009-11-16	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Aruba.pm: Fixed string concatenation problem.
+	Also took the opportunity to removed duplicated ERROR: string appended
+	at the beginning of logger calls and commented out very verbose dumper 
+	debug code.
+
+	* pf/conf/violations.conf: Added new UserAgent sample string to block
+	more iPods and reindexed the BlackBerry one
+
+2009-11-13	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/cgi-bin/redir.cgi: Validating if $cgi->user_agent is defined. 
+	Fixes #850;
+	http://www.packetfence.org/mantis/view.php?id=850
+
+2009-11-10	Regis Balzard <rbalzard@inverse.ca>
+	* pf/html/admin/configuration/switches_edit.php: 
+	* pf/html/admin/configuration/switches_add.php: Fixed issues with SSH
+	for CLI transport. Should be set to 'SSH' rather than 'ssh'
+
+	* pf/sbin/pfsetvlan: Fixed issues with desAssociate trap for Wireless.
+	Threads don't support SSH CLI transport mode. So we fork a call to 
+	'pfcmd_vlan -deauthenticate ...'
+
+2009-11-09	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/802.1X/rlm_perl_packetfence.pl: Rewrite of our freeradius
+	802.1x perl module. Resolving problems with guests (visitors) and 
+	registered users in secure SSID. Fixes 839, 841;
+	Also, VISITOR is now called GUEST and improved documentation while I 
+	was at it.
+	http://www.packetfence.org/mantis/view.php?id=839
+	http://www.packetfence.org/mantis/view.php?id=841
+
+2009-11-03	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/configuration/switches_add.php,
+	pf/html/admin/configuration/switches_edit.php: Fixed typo in switch 
+	definition in the Web Admin causing problems adding or editing a Cisco 
+	Catalyst 2970, 3500XL and wireless Controller 4400. Fixes 836; 
+	http://www.packetfence.org/mantis/view.php?id=836
+	Backported from the 1.9 branch.
+
+2009-11-02	Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/services.pm: Fixed missing library requirement when using
+	PacketFence with routed VLANs
+
+2009-10-30	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec: Correctly pinned Parse::RecDescent dependency to
+	version 1.94 which is known to work. Fixes #806;
+	http://www.packetfence.org/mantis/view.php?id=806
+
+2009-10-28	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/NEWS, pf/packetfence.spec: 1.8.5 ready
+
+	* pf/lib/pf/services.pm: In conf/switches.conf uplink=dynamic is no
+	longer case-sensitive. Fixes #831;
+	http://packetfence.org/mantis/view.php?id=831
+
+	* pf/lib/pf/violation.pm: performance: verifying if violation already 
+	exists in violation_trigger. Improves performance in situation where 
+	there are a lot of devices repetively generating violation (ex: blocked
+	iPods) because we detect it before launching `pfcmd violation add`.
+	Also decreased logging prority from WARN to INFO
+
+	* pf/lib/pf/violation.pm: Tighter validation in violation_trigger when
+	database query returns a non-empty array (which is a bigger problem yet
+	to be identified)
+
+2009-10-27	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Decided to get rid of
+	the release notes section (avoids manual data duplication)
+	Added a pointer to NEWS, UPGRADE and ChangeLog in "About this guide"
+	section.
+
+	* pf/conf/pf-release: Version bump to 1.8.5
+
+	* pf/docs/PacketFence_Administration_Guide.odt: Integrated release
+	notes
+	
+	* pf/docs/PacketFence_Developers_Guide.odt,
+	pf/docs/PacketFence_Installation_Guide.odt: Bumped release month
+
+	* pf/installer.pl: Refer to database schema symlink instead of using a
+	hardcoded version number
+
+	* pf/installer.pl: Got rid of dead installer code
+
+	* pf/t/SNMP.t, pf/t/critic.t, pf/t/pf.t, pf/t/pfcmd.t, pf/t/php.t,
+	 pf/t/pod.t: Test file list update
+
+2009-10-26	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/configuration/switches_add.php, 
+	pf/html/admin/configuration/switches_edit.php: Added newly supported
+	switches to the Web Admin
+
+	* pf/conf/templates/httpd.conf.apache22,
+	pf/conf/templates/httpd.conf.pre_apache22: Using temporary redirects
+	instead of permanent ones in the captive portal. Fixes #757;
+	http://packetfence.org/mantis/view.php?id=757
+	Reported by Josh Ward (he also suggested the fix) Many thanks!
+
+	* pf/packetfence.spec: Parse::RecDescent is a build dependency AND a 
+	runtime one. Hopefully fixes #806 for good;
+	http://packetfence.org/mantis/view.php?id=806
+
+	* pf/packetfence.spec, pf/installer.pl: Packaging and installer fixes
+	- Parse::RecDescent is a build dependency not a runtime one. Fixes #806;
+	  http://packetfence.org/mantis/view.php?id=806
+	- Pulling php-pear-Log instead of php-pear. Fixes #804
+	  http://packetfence.org/mantis/view.php?id=804
+	- jpgraph is no longer installed by installer.pl (is a dep of the rpm)
+	- php-pear-Log is no longer installed by installer
+	- Lots of new TODO task for installer
+
+	* pf/lib/pf/pfcmd/pfcmd.pm: Removed use of Log::Log4perl
+	This removes a lot of unnecessary build requirements and it wasn't even
+	used anywhere in this file. Fixes #826;
+	http://packetfence.org/mantis/view.php?id=826
+
+	* pf/packetfence.spec: Added dependency to enable SNMPv3 AES encryption
+	support. Fixes #775; http://packetfence.org/mantis/view.php?id=775
+
+	* pf/conf/documentation.conf, pf/conf/pf.conf.defaults: Clarified 
+	Nessus Scan parameters
+
+	* pf/docs/PacketFence_Administration_Guide.odt: Updated Nessus
+	documentation
+
+2009-10-23	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec: Improvements to the RPM SPEC file
+	- New complete build instructions
+	- New source_release tag that allow us to do multi distro release with 
+	the same source tarball
+	- Updated list of files to include new stuff
+
+	* pf/html/admin/scan/index.php, pf/html/admin/scan/scan.php: Disabled
+	scans from the web admin and made the result page the default page when
+	clicking on the scan tab
+
+	* Added pf/html/user/content/templates/scan-in-progress.html.
+	* Modified pf/cgi-bin/redir.cgi, pf/cgi-bin/release.cgi, 
+	pf/conf/locale/en/LC_MESSAGES/packetfence.po, 
+	pf/conf/locale/fr/LC_MESSAGES/packetfence.po, pf/lib/pf/scan.pm, 
+	pf/lib/pf/web.pm: Nessus scan integration
+	- Tracking the state of registration scans
+	- New "scan in progress" page
+	- redir.cgi and release.cgi will redirect to the new scan in progress
+	  page if a scan is in progress
+	- Not showing Nessus server's password in the logs anymore
+	- Scanning page now redirect once the progress bar is over
+
+2009-10-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/cgi-bin/release.cgi, pf/conf/documentation.conf, 
+	pf/conf/locale/en/LC_MESSAGES/packetfence.po, 
+	pf/conf/locale/fr/LC_MESSAGES/packetfence.po, pf/conf/pf.conf.defaults,
+	pf/lib/pf/config.pm, pf/lib/pf/web.pm: Nessus scan integration
+	- Forking in the background when calling a scan to pfcmd and redirecting
+	  to a scan in progress page
+	- New parameter scan.duration to control the length of the scan progress
+	  bar
+	- French and English translations of the new scan in progress page
+	- New generate_scan_progress_page() in lib/pf/web.pm
+
+	* pf/cgi-bin/release.cgi: Removed vid hack for Nessus scan violation
+
+	* pf/lib/pf/trigger.pm: Removed deprecated code: trigger_scan and 
+	trigger_scan_add subs
+
+	* pf/lib/pf/scan.pm: Scan using violation_trigger mechanism now
+	Also moved IP to MAC test earlier and quit if it can't resolve
+
+	* pf/lib/pf/violation.pm: Preparing violation_trigger to handle scan 
+	violations
+	- new test: scan violation id not authorized in config
+	- took out of the trigger id loop various one time tests (inefficient)
+	- violation trigger returns 1 if at least one violation is added 0 
+	  otherwise
+	- bonus POD doc
+
+	* pf/cgi-bin/pdp.cgi, pf/sbin/pfdetect: Fixed trappable ip test to add
+	a violation.
+
+2009-10-21	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/sbin/pfdetect: pfdetect now sends IP when calling violation_trigger
+	since the information is already available to it anyway
+
+	* pf/lib/pf/violation.pm: Using $bin_dir instead of hardcoded path
+	to call pfcmd. Closes a TODO task.
+
+	* pf/lib/pf/scan.pm, pf/bin/pfcmd, pf/lib/pf/trigger.pm: Refactoring
+	Moved all scanning code out of pfcmd into a new scan module
+
+	* pf/bin/pfcmd, pf/lib/pf/schedule.pm: Nessus scan integration
+	Removed all references of trigger id (tid) regarding scanning
+
+	* pf/lib/pf/pfcmd/help.pm: pfcmd schedule documentation now accurate
+
+	* pf/bin/pfcmd, pf/cgi-bin/release.cgi, pf/html/admin/scan/scan.php:
+	Nessus Scan integration
+	No more special scans with tid=99999 carrying a special meaning. All
+	scanning is done with command line nessus client instead of 
+	Nessus::ScanLite (which lacked plugin configuration capabilities). Other
+	fixes includes:
+	- Removing the 1200001 violation only if one exists (fix a problem when
+	  scanning from Web admin)
+	- Set HOME= env before calling nessus to conf/nessus/ so the .nessusrc 
+	  file is created at a location accessible from CLI and web interfaces
+	- Capturing the output of the nessus call and logging it if nessus 
+	  returns a non-zero exit code
+	- trigger_scan is deprecated
+	- Updated web admin accordingly and explicitly disabled scheduled scans
+
+2009-10-20	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/802.1X/pfcmd_ap.pl: Deleted
+	* pf/addons/802.1X/rlm_perl_packetfence.pl, pf/addons/802.1X/README:
+	Performance improvement in the freeradius PacketFence module
+	Merged the content of pfcmd_ap.pl into rlm_perl_packetfence.pl. This 
+	avoids costly forks for each radius request.
+	Also took the opportunity to add validation of the db handle.
+
+2009-10-19	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/UPGRADE, pf/NEWS: Updated NEWS and UPGRADE with all the work done
+	since 1.8.4
+
+2009-10-16	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/violation.pm: Improved error-handling in violation_trigger
+	Reverted fix in revision 5abfb5911a05dc03e9646eb79a48653155e39278
+	because it was too convoluted and replaced it with something clearer.
+
+	* pf/conf/violations.conf: Working Nessus config sample
+
+	* pf/bin/pfcmd: Work torwards Nessus integration
+	pfcmd now handles by itself the fact that it needs to close the 
+	system scan violation if the scan was successfull
+
+	* pf/lib/pf/action.pm, pf/lib/pf/violation.pm: Slight logging changes to
+	better represent what is actually going on.
+
+	* pf/lib/pf/trigger.pm: trigger_add_scan now follows a contract: returns
+	1 if a violation was added by the trigger and 0 otherwise
+	a litle POD doc as a bonus
+
+2009-10-16      Regis Balzard <rbalzard@inverse.ca>
+	* pf/conf/ui.conf:
+	* pf/bin/pfcmd:
+	* pf/lib/pf/pfcmd/pfcmd.pm:
+	* pf/lib/pf/services.pm: Added the pf_gateway field in networks.conf 
+	used to store the PacketFence gateway for a routed VLAN. This is field 
+	is only used with routed Registration and Isolation VLANs.
+	Added code to allow PacketFence to dynamically create static routes for
+	routed Registration and Isolation VLANs. We use the pf_gateway field.
+
+2009-10-16      Regis Balzard <rbalzard@inverse.ca>
+	* pf/bin/pfcmd: Added a fix to show a message when trying to delete a 
+	node having open locationlog entries. Fixes #807
+	http://www.packetfence.org/mantis/view.php?id=807
+
+2009-10-15      Regis Balzard <rbalzard@inverse.ca>
+	* pf/conf/authentication/local.pm: Fixed test to validate if user/pwd 
+	is ok for local authentication during registration process. Fixes #779
+	http://www.packetfence.org/mantis/view.php?id=779
+
+2009-10-15      Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/web.om: Fixed redir.cgi crash when upgrading useragent. 
+	Fixes #782
+	http://www.packetfence.org/mantis/view.php?id=782
+
+2009-10-15      Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/violation.pm: "violation not added, no trigger found for.."
+	messages too noisy in logs so we decreased log level from INFO to 
+	DEBUG. Fixes #812
+	http://www.packetfence.org/mantis/view.php?id=812
+
+2009-10-15      Regis Balzard <rbalzard@inverse.ca>
+	* pf/addons/accounting.pl 
+	* pf/addons/autodiscover.pl 
+	* pf/addons/convertToPortSecurity.pl 
+	* pf/addons/recovery.pl 
+	* pf/bin/flip.pl 
+	* pf/bin/pfcmd_vlan 
+	* pf/lib/pf/vlan.pm 
+	* pf/lib/pf/services.pm 
+	* pf/test/connect_and_read.pl 
+	* pf/sbin/pfsetvlan: Adding missing test after call to 
+	switch->instantiate(). If it returns 0 then stop executing more code
+	and log an error. Fixes #755 and #813
+	http://www.packetfence.org/mantis/view.php?id=755
+	http://www.packetfence.org/mantis/view.php?id=813 
+
+2009-10-14	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/cgi-bin/redir.cgi: Logging improvement in redir.cgi
+	Messages and log priority makes more sense now
+
+2009-10-13	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/vlan.pm: Increased logging severity for the "Can't
+	determine Uplinks for the switch" message (from info to warn).
+	The problem is that at this point nothing gets done by packetfence so
+	it is rather important to see this message.
+
+	* pf/conf/violations.conf: Added a new UserAgent statement to block
+	PSPs
+
+2009-10-13      Regis Balzard <rbalzard@inverse.ca>
+	* pf/packetfence.init: Added test in condrestart to check if 
+	pfsetvlan.pid exists. If so, restart packetfence. Fixes #805;
+	http://www.packetfence.org/mantis/view.php?id=805
+
+2009-10-13      Regis Balzard <rbalzard@inverse.ca>
+	* pf/sbin/pfsetvlan.pm: Added missing test in pfsetvlan in order to 
+	avoid warning messages. Fixes #792;
+	http://www.packetfence.org/mantis/view.php?id=792
+
+2009-10-13      Regis Balzard <rbalzard@inverse.ca>
+	* pf/packetfence.spec: Added new dependencies on
+	- perl-LDAP (used to authenticate users trough LDAP during registration)
+	- php-ldap (used to authenticate users connecting to the Web interface 
+	through LDAP)
+	- perl-IPC-Cmd (used to generate static routes for registration and 
+	isolation routed VLANs)
+	- perl-SOAP-Lite (used when receiving alerts from Snort)
+	Fixes #798;
+	http://www.packetfence.org/mantis/view.php?id=798
+	- seting the perl-parse-RecDescent version to 1.94 in order to avoid 
+	issues with the newer versions that causes the pfcmd_pregrammar.pm 
+	generation to fail. Fixes #806;
+	http://www.packetfence.org/mantis/view.php?id=806
+
+2009-10-13	Regis Balzard <rbalzard@inverse.ca>
+	* pf/addons/pfcmd_ap.pl: In order to avoid unnecessary WIFI entries in
+	locationlog (since authentication->reauthentication occurs very often), 
+	we don't add new entries anymore if there is already one.i Fixes #788
+	http://www.packetfence.org/mantis/view.php?id=788
+
+2009-10-13	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Updated configuration 
+	parameter reference with documentation.conf's changes for 
+	trapping.whitelist.
+
 2009-10-09	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/violations.conf: Added device banning templates for iPod 
+	touch, iPhone, BlackBerries, PlayStation 3, PSP and Slingbox. 
+
+	* pf/conf/dhcp_fingerprints.conf: PlayStation 3 also detects
+	PlayStation Portable (PSP)
+
+2009-10-09      Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/vlan.pm: Removed isClientAlive() since we remove the Hub 
+	violation that creates too many false positives. 
+	* pf/sbin/pfsetvlan: Removed calls to isClientAlive().
+	* pf/conf/violations.conf: Removed Hub violation definition.
+	* pf/html/user/content/violations/hub.php: Removed this file.
+	* pf/lib/pf/SNMP/Cisco.pm: Removed the parsing of c2900AddressViolation
+	traps which only purpose what to generate Hub violations.
+
+2009-10-09	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/web.pm: Changed priority of unknown User-Agent log message
+	Was WARN is now INFO which is less scary and makes a lot more sense. 
+
+	* pf/conf/documentation.conf, pf/conf/pf.conf.defaults: Documentation
+	for the whitelist parameter is now more accurate.
+	
 	* pf/cgi-bin/pdp.cgi, pf/lib/pf/violation.pm, pf/sbin/pfdetect,
 	pf/sbin/pfdhcplistener: The validation that the violation is applicable
 	is now done in violation_trigger removing duplicate code. Fixes #801;
@@ -48,10 +457,12 @@
 
 2009-10-02	Olivier Bilodeau <obilodeau@inverse.ca>
 	* Added pf/addons/high-availability/dhcpd-3.0.5-init-script-lsb-fix.patch:
-	Little patch to fix LSB compliance of dhcpd's init script. Non-compliant init 
-	scripts generate scary error messages in Heartbeat. 
+	Little patch to fix LSB compliance of dhcpd's init script. 
+	Non-compliant init scripts generate scary error messages in Heartbeat. 
 
-	* pf/conf/log.conf: Logging priority now shown in log files
+	* pf/conf/log.conf: Logging priority now shown in log files. Fixes
+	#771;
+	http://www.packetfence.org/mantis/view.php?id=771
 
 	* pf/lib/pf/SNMP/Enterasys/SecureStack_C3.pm, pf/README_SWITCHES: Added
 	support for Enterasys SecureStack C3 Switch

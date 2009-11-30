@@ -130,7 +130,7 @@ while (<$snortpipe_fh>) {
     if ($srcmac) {
 
         $logger->info("pfdetect: violation $sid [$descr]: $srcmac");
-        violation_trigger($srcmac, $sid, "detect");
+        violation_trigger($srcmac, $sid, "detect", ( ip => $srcip ));
     } else {
         $logger->warn(
             "pfdetect: $srcip MAC NOT FOUND for violation $sid [$descr]");

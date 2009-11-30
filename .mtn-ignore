@@ -1,9 +1,9 @@
-pf/logs
+pf/html/admin/common/jpgraph/
 pf/html/admin/tmp/jpgraph_cache/
+pf/html/admin/scan/results/
+pf/logs
 pf/var/.*\.pid
 pf/var/session/.*
 pf/var/rrd/.*
 pf/var/ssl_scache.dir
 pf/var/ssl_scache.pag
-pf/test/
-pf/html/admin/common/jpgraph/

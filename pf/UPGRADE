@@ -5,7 +5,70 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to 1.8.6:
+
+    - Updated conf/ui.conf
+    To fix a bug we had to change ui.conf. By default an rpm upgrade will 
+    replace ui.conf and save a backup of the previous file to ui.conf.rpmsave.
+    If you modified your ui.conf, do not forget to merge your old version with
+    this new one.
+    
+    - New Snort default configuration
+    Default configuration for snort changed. Old config can still be found at 
+    conf/templates/snort.conf.pre_snort-2.8.
+
+    - Output of pfcmd switchconfig changed
+    The output of `pfcmd switchconfig get <ip|all>` changed. Make sure you 
+    update your scripts that relies on that output (if any). This also affects 
+    the Configuration->Switches section of the Web Admin interface.
+
+    - Fixed an issue with CLI transport for switches/APs: for SSH make sure you
+    have 'SSH' and not 'ssh'. Look into the 'Configuration->Switches' or edit
+    /usr/local/pf/conf/switches.conf
+
+    - 802.1x module expects 'guest' instead of 'visitor' in node.pid
+    We changed the naming of the guest concept from visitor to guest. If you
+    allow guests on your network, doublecheck your rlm_perl_packetfence.pl 
+    module and align it on your naming (update all to guest or change back to 
+    visitor).
+
 o Upgrading from a version prior to 1.8.5:
+
+    - 802.1X freeradius module updated 
+    pfcmd_ap.pl's code has been integrated in rlm_perl_packetfence.pl. If you 
+    need the performance benefit from this transition, you have two options:
+      1) Replace completely your rlm_perl_packetfence.pl with the new one
+      2) Migrate your pfcmd_ap.pl manually
+         To do so, copy all of pfcmd_ap.pl's code into a sub in 
+         rlm_perl_packetfence.pl. Change all the print calls into return calls.
+         Remove all exit and make sure you free resources before returning.
+    If you don't need the performance improvement, leave things as they are. 
+    We will be deprecating the MySQL interface in favor of a better SOAP 
+    interface soon.
+
+    - whitelisting MAC addresses is now more consistent across violation types
+    Certain types of violation triggers (OS, USERAGENT, VENDORMAC) were not
+    honoring the whitelist parameter. The bug is fixed but you might have 
+    relied on that behaviour.
+    http://www.packetfence.org/mantis/view.php?id=801
+
+    - logging priority now shown in log files
+    To improve logging readability, we now include logging priority (ex: DEBUG,
+    INFO, WARN, etc.). If you use scripts to parse PacketFence's logs you will
+    need to update them.
+
+    - Added new dependencies:
+	- perl-LDAP (used to authenticate users trough LDAP during 
+	  registration)
+	- php-ldap (used to authenticate users connecting to the 
+	  Web interface through LDAP)
+	- perl-IPC-Cmd (used to generate static routes for registration and
+	  isolation routed VLANs)
+	- perl-SOAP-Lite (used when receiving alerts from Snort)
+
+    - HUB violation removal
+    HUB violations have been removed since they create a lot of false positives.
+    http://www.packetfence.org/mantis/view.php?id=793
 
     - Dynamic uplink fixes
     In certain cases, PacketFence took action on switches where dynamic uplinks

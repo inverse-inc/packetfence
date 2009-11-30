@@ -1,3 +1,165 @@
+PacketFence NEWS
+
+Project homepage: https://www.packetfence.org/
+
+Please report bugs to: http://www.packetfence.org/mantis/
+
+Interested in contributing to the project? Check the following link:
+
+http://www.packetfence.org/support/community.html
+
+This is a list of noteworthy changes across releases. 
+For more details and developer visible changes see the ChangeLog file.
+For a list of compatibility related changes see the UPGRADE file.
+
+
+--------------------------------------------------------------------------------
+Version 1.8.6 - <codename> released on <releaseDate>
+
+New Features
+- New iPod UserAgent blocking strings examples
+- Snort 2.8.5 compatibility (closes #581, #846, #849)
+- Installation guide updated
+
+Bugfix
+- Fixed issues with SSH as CLI transport
+- Fixed broken 802.1x behaviour (closes #839, #841)
+- Fixed pfmon Out of Memory! crash when trappable network is very large ie: /8  
+  (closes #861)
+- Fixed a problem when adding or editing a Cisco Catalyst 2970, 3500XL and 
+  Wireless Controller 4400 from the Web Admin interface (closes #836)
+- Fixed SNMPv3 configuration from Web Admin interface and pfcmd. Missing 
+  SNMPUserNameTrap parameter. Did not affect flat file config. (closes #853)
+- Fixed missing library requirement when using PacketFence with routed VLANs
+  (closes #838)
+- Removed some unnecessary warnings (closes #850)
+
+--------------------------------------------------------------------------------
+Version 1.8.5 released on 2009-10-28
+
+New Hardware Support
+- Amer SS2R24i switch in linkUp/linkDown mode
+- 3Com Switch 4200G and SuperStack 4500 in port-security mode
+- Enterasys D2, Matrix N3 and SecureStack C3 in linkUp/linkDown and maclock 
+  (port-security)
+- Extreme Networks Summit X250e in linkUp/linkDown mode
+
+New Features
+- Nessus integration with captive portal for scanning on registration
+- PacketFence is now distributed as a yum repository (avoids having the
+  installer pull a lot of cpan modules and jpgraph)
+- normal/correct VLAN default behaviour changed (see UPGRADE for details)
+- PacketFence is now able to automatically create static routes for routed 
+  registration and isolation VLANs
+- significant performance improvement in 802.1X mode (wired and wireless) or
+  in MAC authentication on wireless networks
+- massive documentation update (how to configure hardware, new install method, 
+  new support packages and more...)
+- blocking misbehaving user-agents on captive portal (avoid unnecessary load)
+- logging priority (INFO, WARN, ERROR) shown in log files
+- added a few utilities in addons/
+
+Bugfix
+- SECURITY: fixed sensitive information leak in admin login: When password were
+  considered invalid they were displayed
+- removed Hub violation that caused too many false positives (#793)
+- whitelisting MAC addresses more consistent across violation types (#801)
+- init script more robust (#805)
+- using temporary redirects instead of permanent ones (#757)
+- fixed crashes in corner cases (violations without triggers, config not 
+  upgraded, etc.)
+- fixed SNMPv3 trap-handling for HP ProCurve
+- fixed maclock (port-security) support on Enterasys
+- added missing dependencies
+- stability and error reporting fixes
+
+--------------------------------------------------------------------------------
+Verion 1.8.4
+
+- added code to generate violations on MAC vendors (to ban a device category)
+- added code to generate violations on Web browser's User-Agent information (to
+  ban a browser)
+- added a specific VLAN for each violation (node with this violation will be put
+  in the specified VLAN)
+- added support for Aruba Networks wireless controllers
+- added support for Foundry (Brocade) FastIron 4802
+- added support for 3COM 4200G
+- added support for D-Link DES-3526 (in the Web interface)
+
+
+--------------------------------------------------------------------------------
+Version 1.8.3
+
+- added italian translation
+- added new fields to person table
+- new nessus scans using nessusclient files
+- fixed iptables generation with multiple internal interfaces
+- fixed start date and end date in reports
+- fixed desAssociate trap handling
+- added necessary taint check to pfcmd generate_switchport_vlan_assignment
+- enhanced configuration sanity check
+
+
+--------------------------------------------------------------------------------
+Version 1.8.2
+- enhanced integration of expire_mode and VLAN isolation (thanks to Maikel Van
+  Der Roest)
+- added many tests using Test::More (in the t subdirectory)
+- correct process ID is now written into pid file by pfmon and pfredirect
+- adjusted dependency checks in installer and the RPM spec file
+- fixed SNMPv3 createUser command
+- better handling of non-english installations
+- removed unused icons and HTML files from web admin GUI
+- renamed passive mode into arp mode in configurator templates
+
+
+--------------------------------------------------------------------------------
+Version 1.8.1
+- added support for SMC TigerStack 6224M (thanks to Chinasee B. 
+  <chinasee.b@psu.ac.th>)
+- switch configuration (switches.conf) can now be done from the CLI and from the
+  Web interface
+- violation modification (violations.conf) can now be done from the CLI and from
+  the Web interface
+- added support for starting and configuring DHCPd and bind in VLAN isolation
+  mode
+- added push and pull commands for configuration files
+- added scripts for automated testing (using Test::More)
+- internationalization of remediation pages
+- compatibility with Config::IniFiles 2.47
+- LSB compliance of service script
+- various bugfixes in reports and graphs
+
+
+--------------------------------------------------------------------------------
+1.8.0
+- major performance improvements in pfcmd and in the Web administrative interface
+- redesigned the Web administrative interface
+- added support for SSH CLI sessions on Cisco switches
+- added support for SNMP version 3
+- added support for categories of nodes
+- added a view on switches.conf to the Web administrative interface
+
+
+--------------------------------------------------------------------------------
+1.7.5
+- added support for stacked Nortel BayStack 5520 (contribution from Matt Ashfeld)
+- added support for Enterasys SecureStack C2
+- added support for Cisco Controller 4400
+- added support for 3COM SS4500
+
+
+--------------------------------------------------------------------------------
+1.7.0
+- added support for VLAN isolation
+- added support for 802.1X
+- added support for wireless access points and controllers
+- temporarily disabled support for ARP-based registration (please consult the
+  May 2008 archive of the packetfence-devel mailing list for more information)
+- many bug fixes and general enhancements 
+
+===============================================================================
+
 1.8.5
         added support for Amer SS2R24i switch in linkUp/linkDown
           mode

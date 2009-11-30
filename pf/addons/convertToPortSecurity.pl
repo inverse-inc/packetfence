@@ -125,6 +125,10 @@ open $backup_fh, '>', "$backup_config"
 
 $logger->debug("instantiating switch object");
 my $switch = $switchFactory->instantiate($switch_ip);
+if (!$switch) {
+    $logger->logdie("Can not instantiate switch $switch_ip");
+}
+
 if ( !$switch->connectRead() ) {
     $logger->logdie("unable to connect");
 }

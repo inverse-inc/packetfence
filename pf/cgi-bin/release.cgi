@@ -44,6 +44,7 @@ if (!valid_mac($mac)) {
 # release on skip registration
 #
 if (defined($cgi->param('mode'))) {
+  # TODO: Validate that this mode = skip can't be tricked client side to create adverse effects
   if ($cgi->param('mode') eq "skip") {
 
     my $node_info = node_view($mac);
@@ -78,19 +79,9 @@ if (defined($cgi->param('mode'))) {
   }
 }
 
+# FIXME: we do not validate the result of our calls anywhere..
 my $violations = violation_view_top($mac); 
 my $vid = $violations->{'vid'}; 
-if ($vid==1100001){
-    my $cmd = $bin_dir."/pfcmd manage vopen $mac 1200001";
-    $logger->info("calling $cmd");
-    my $grace = qx/$cmd/;
-    $cmd = $bin_dir."/pfcmd manage vclose $mac $vid";
-    $logger->info("calling $cmd");
-    $grace = qx/$cmd/;
-    $vid=1200001;
-    print $cgi->redirect("/cgi-bin/redir.cgi");
-    exit(0);
-}
 
 my $class=class_view($vid);
 
@@ -100,9 +91,40 @@ my $class_max_enable_url = $class->{'max_enable_url'};
 
 #scan code...
 if ($vid==1200001){
-  my $cmd = $bin_dir."/pfcmd schedule now $ip tid=99999";
+
+  # detect if a system scan is in progress, if so redirect to scan in progress page
+  # this should only happen if the user explicitly put release.cgi in his browser address
+  if ($violations->{'ticket_ref'} =~ /^Scan in progress, started at: (.*)$/) {
+    $logger->info("captive portal redirect to the scan in progress page");
+    generate_scan_status_page($cgi, $session, $1, $destination_url);
+    exit(0);
+  }
+
+  my $cmd = $bin_dir."/pfcmd schedule now $ip 1>/dev/null 2>&1";
   $logger->info("scanning $ip by calling $cmd");
-  my $scan = qx/$cmd/;
+
+  # forking to avoid browser to hang on connection
+  if (my $pid = fork) {
+
+    $logger->trace("parent part, redirecting to scan started page");
+    generate_scan_start_page($cgi, $session, $destination_url);
+    exit(0);
+
+  } elsif (defined $pid) {
+
+    # HACK: add a start date in the violation's ticket_ref to track the fact that the scan is in progress
+    my $currentScanViolationId = $violations->{'id'};
+    violation_modify($currentScanViolationId, (ticket_ref => "Scan in progress, started at: ".mysql_date()));
+
+    # requesting the scan
+    $logger->trace("child part, forking $cmd");
+    my $scan = qx/$cmd/;
+    exit(0);
+
+  } else {
+    # unexpected error
+    $logger->logdie("Cannot fork: $!");
+  }
 }
 
 my $cmd = $bin_dir."/pfcmd manage vclose $mac $vid";

@@ -510,6 +510,10 @@ sub signalHandlerTrapListQueued {
                             $trapOperation, $trapMac )
                             = split( /\|/, $trapLine );
                         my $switch = $switchFactory->instantiate($switch_ip);
+                        if (!$switch) {
+                            $logger->error("Can not instantiate switch $switch_ip !");
+                            next;
+                        }
                         if (( $trapType eq 'secureMacAddrViolation' )
                             && (grep( { /\Q$switch_ip|$switch_port|$trapType|\E/
                                     } @threadList_queued ) != 0
@@ -586,53 +590,41 @@ sub parseTrap {
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     $logger->debug("parsing trap $trapLine");
-    if ( $trapLine
-        =~ /^\d{4}-\d{2}-\d{2}\|\d{2}:\d{2}:\d{2}\|(?:UDP: \[)?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?:\]:\d+)?\|([^|]*)\|(.+)$/
-        )
-    {
+    if ( $trapLine =~ /^\d{4}-\d{2}-\d{2}\|\d{2}:\d{2}:\d{2}\|(?:UDP: \[)?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?:\]:\d+)?\|([^|]*)\|(.+)$/ ) {
 
         #test if this is a 'normal' trap (i.e. a trap sent from a switch
         #or a local trap (INVERSE-PACKETFENCE-NOTIFICATION-MIB)
         my $switch;
-        my $isLocalTrap = (
-            ( $1 eq '127.0.0.1' )
-                || ( $3
-                =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.29464\.1/
-                )
-        );
-        $lockLogger->trace(
-            "locking - trying to lock switchFactory_locker in parseTrap");
+        my $switch_ip;
+        my $isLocalTrap = ( ( $1 eq '127.0.0.1' ) || ( $3 =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.29464\.1/ ) );
+        $lockLogger->trace("locking - trying to lock switchFactory_locker in parseTrap");
         if ($isLocalTrap) {
             lock $switchFactory_locker;
-            $lockLogger->trace(
-                "locking - obtained lock on switchFactory_locker in parseTrap"
-            );
-            $logger->info("local (127.0.0.1) trap for switch $2");
-            $switch = $switchFactory->instantiate($2);
+            $lockLogger->trace("locking - obtained lock on switchFactory_locker in parseTrap");
+            $switch_ip = $2;
+            $logger->info("local (127.0.0.1) trap for switch $switch_ip");
+            $switch = $switchFactory->instantiate($switch_ip);
         } else {
             lock $switchFactory_locker;
-            $lockLogger->trace(
-                "locking - obtained lock on switchFactory_locker in parseTrap"
-            );
+            $lockLogger->trace("locking - obtained lock on switchFactory_locker in parseTrap");
             my %config = %{ $switchFactory->{_config} };
-            if ( !exists $config{$1} ) {
-                $logger->warn(
-                    "ALERT !!!!! we have received a trap from switch $1. This switch is UNREGISTERED. Flush the trap"
-                );
+            $switch_ip = $1;
+            if ( !exists $config{$switch_ip} ) {
+                $logger->warn("We have received a trap from switch $switch_ip. This switch is UNREGISTERED. Flush the trap");
                 return;
             }
-            if ( $config{$1}{'mode'} eq 'ignore' ) {
-                $logger->info(
-                    "We have received a trap from switch $1. This switch is in 'ignore' mode. Flush the trap"
-                );
+            if ( $config{$switch_ip}{'mode'} eq 'ignore' ) {
+                $logger->info("We have received a trap from switch $switch_ip. This switch is in 'ignore' mode. Flush the trap");
                 return;
             }
-            $switch = $switchFactory->instantiate($1);
+            $switch = $switchFactory->instantiate($switch_ip);
         }
         $lockLogger->trace(
             "locking - unlocked switchFactory_locker in parseTrap");
 
-        if ($switch) {
+        if (!$switch) {
+            $logger->error("Can not instantiate switch $switch_ip !");
+        } else {
             my $trapHashRef;
             if ($isLocalTrap) {
                 my $trapLine = $3;
@@ -705,8 +697,6 @@ sub parseTrap {
             } else {
                 $logger->info("ignoring unknown trap: $trapLine");
             }
-        } else {
-            $logger->error("can't instatiate an object for switch $1");
         }
     } else {
         $logger->info("ignoring non trap line: $trapLine");
@@ -889,16 +879,19 @@ sub handleTrap {
 
     # test if act on this trap {{{2
     my $switch;
-    $lockLogger->trace(
-        "locking - trying to lock switchFactory_locker in handleTrap");
+    $lockLogger->trace("locking - trying to lock switchFactory_locker in handleTrap");
     {
         lock $switchFactory_locker;
-        $lockLogger->trace(
-            "locking - obtained lock on switchFactory_locker in handleTrap");
+        $lockLogger->trace("locking - obtained lock on switchFactory_locker in handleTrap");
         $switch = $switchFactory->instantiate($switch_ip);
     }
-    $lockLogger->trace(
-        "locking - unlocked switchFactory_locker in handleTrap");
+    $lockLogger->trace("locking - unlocked switchFactory_locker in handleTrap");
+
+    if (!$switch) {
+        $logger->error("Can not instantiate switch $switch_ip !");
+        cleanupAfterThread( $switch_ip, $switch_port );
+        return;
+    }
 
     # do we actually act on this trap ?
     if ( defined($trapMac) && $switch->isFakeMac($trapMac) ) {
@@ -1006,6 +999,7 @@ sub handleTrap {
                     $switch_port );
                 if (   (@locationlog)
                     && ( scalar(@locationlog) > 0 )
+		    && ( defined($locationlog[0]->{'mac'}) )
                     && ( $locationlog[0]->{'mac'} ne '' ) )
                 {
                     if ($switch->isMacInAddressTableAtIfIndex(
@@ -1017,17 +1011,6 @@ sub handleTrap {
                                 . $locationlog[0]->{'mac'}
                                 . " is still present in mac-address-table; has probably already been relearned -> DO NOTHING"
                         );
-                    } elsif (
-                        $vlan_obj->custom_isClientAlive(
-                            $locationlog[0]->{'mac'},  $switch_ip,
-                            $switch_port,              $vlan,
-                            $switch->{_isolationVlan}, $mysql_connection
-                        )
-                        )
-                    {
-                        $logger->info( "Removed trap for MAC $mac: MAC "
-                                . $locationlog[0]->{'mac'}
-                                . " ALIVE -> DO NOTHING" );
                     } else {
                         $logger->info( "Removed trap for MAC $mac: MAC "
                                 . $locationlog[0]->{'mac'}
@@ -1052,15 +1035,6 @@ sub handleTrap {
                         $logger->debug("only MAC found is $onlyMacLeft");
                         if ($switch->isPhoneAtIfIndex( $onlyMacLeft,
                                 $switch_port )
-                            || (!$vlan_obj->custom_isClientAlive(
-                                    $onlyMacLeft,
-                                    $switch_ip,
-                                    $switch_port,
-                                    $vlan,
-                                    $switch->{_isolationVlan},
-                                    $mysql_connection
-                                )
-                            )
                             )
                         {
                             $nothingLeftOnSwitchPort = 1;
@@ -1129,54 +1103,12 @@ sub handleTrap {
                         }
                     } else {
 
-                        #is the old MAC still alive ?
                         $logger->info(
                                   "Learnt trap received for $mac. Old MAC "
                                 . $locationlog[0]->{'mac'}
                                 . " already connected to the port according to locationlog !"
                         );
-                        if ($vlan_obj->custom_isClientAlive(
-                                $locationlog[0]->{'mac'},
-                                $switch_ip,
-                                $switch_port,
-                                $vlan,
-                                $switch->{_isolationVlan},
-                                $mysql_connection
-                            )
-                            )
-                        {
-                            $logger->info(
-                                "old MAC is still ALIVE so there is a hub connected on $switch_ip ifIndex $switch_port"
-                            );
-                            $logger->info(
-                                      "create one Hub violation for old MAC "
-                                    . $locationlog[0]->{'mac'}
-                                    . " and one for MAC $mac" );
-                            my $cmd
-                                = PFCMD_FILE
-                                . " 'violation add vid=1400000,mac="
-                                . $locationlog[0]->{'mac'}
-                                . ",notes=\"other MAC is $mac\"'";
-                            my $output = qx/$cmd/;
-                            $logger->debug( "calling "
-                                    . PFCMD_FILE
-                                    . " 'violation add vid=1400000,mac="
-                                    . $locationlog[0]->{'mac'}
-                                    . ",notes=\"other MAC is $mac\"'" );
-                            $cmd
-                                = PFCMD_FILE
-                                . " 'violation add vid=1400000,mac=$mac,notes=\"other MAC is "
-                                . $locationlog[0]->{'mac'} . "\"'";
-                            $output = qx/$cmd/;
-                            $logger->debug( "calling "
-                                    . PFCMD_FILE
-                                    . " 'violation add vid=1400000,mac=$mac,notes=\"other MAC is "
-                                    . $locationlog[0]->{'mac'}
-                                    . "\"'" );
-                        } else {
-                            $logger->info("old MAC is DEAD -> change VLAN");
-                            $changeVlan = 1;
-                        }
+                        $changeVlan = 1;
                     }
                 } else {
                     $changeVlan = 1;
@@ -1332,56 +1264,15 @@ sub handleTrap {
                 && ( defined( $locationlog_pc[0]->{'mac'} ) ) )
             {
                 my $oldPC = $locationlog_pc[0]->{'mac'};
-                $logger->debug(
-                    "$oldPC has still open locationlog entry at $switch_ip ifIndex $switch_port"
-                );
-                if ($vlan_obj->custom_isClientAlive(
-                        $oldPC,                    $switch_ip,
-                        $switch_port,              $trapVlan,
-                        $switch->{_isolationVlan}, $mysql_connection
-                    )
-                    )
-                {
-                    $logger->info(
-                        "old mac $oldPC on $switch_ip ifIndex $switch_port is still alive. Create Hub violation"
-                    );
-                    my $cmd = PFCMD_FILE
-                        . " 'violation add vid=1400000, mac=$oldPC'";
-                    my $output = qx/$cmd/;
-                    $logger->debug( "calling "
-                            . PFCMD_FILE
-                            . " 'violation add vid=1400000,mac=$oldPC'" );
-                    $cmd = PFCMD_FILE
-                        . " 'violation add vid=1400000, mac=$trapMac'";
-                    $output = qx/$cmd/;
-                    $logger->debug( "calling "
-                            . PFCMD_FILE
-                            . " 'violation add vid=1400000,mac=$trapMac'" );
-                } else {
-                    $logger->info(
-                        "old mac $oldPC on $switch_ip ifIndex $switch_port is dead."
-                    );
-                    $logger->debug(
-                        "closing $oldPC locationlog entry at $switch_ip ifIndex $switch_port"
-                    );
-                    locationlog_update_end_mac($oldPC);
-                    $logger->info(
-                        "authorizing $trapMac (old entry $oldPC) at new location $switch_ip ifIndex $switch_port"
-                    );
-                    my $correctVlanForThisNode
-                        = $vlan_obj->vlan_determine_for_node( $trapMac,
-                        $switch->{_ip}, $switch_port );
-                    $switch->authorizeMAC( $switch_port, $oldPC, $trapMac,
-                        $switch->getVlan($switch_port),
-                        $correctVlanForThisNode );
+                $logger->debug("$oldPC has still open locationlog entry at $switch_ip ifIndex $switch_port. Closing it");
+                locationlog_update_end_mac($oldPC);
+                $logger->info("authorizing $trapMac (old entry $oldPC) at new location $switch_ip ifIndex $switch_port");
+                my $correctVlanForThisNode = $vlan_obj->vlan_determine_for_node( $trapMac, $switch->{_ip}, $switch_port );
+                $switch->authorizeMAC( $switch_port, $oldPC, $trapMac, $switch->getVlan($switch_port), $correctVlanForThisNode );
 
-                    #set the right VLAN
-                    $logger->debug(
-                        "setting correct VLAN for $trapMac at new location $switch_ip ifIndex $switch_port"
-                    );
-                    $switch->setVlan( $switch_port, $correctVlanForThisNode,
-                        \%switch_locker, $trapMac );
-                }
+                #set the right VLAN
+                $logger->debug("setting correct VLAN for $trapMac at new location $switch_ip ifIndex $switch_port");
+                $switch->setVlan( $switch_port, $correctVlanForThisNode, \%switch_locker, $trapMac );
             } else {
 
                 #authorize MAC
@@ -1623,7 +1514,9 @@ sub handleTrap {
         $logger->info(
             "$trapType trap received on $switch_ip ifIndex $switch_port for $trapMac"
         );
-        $switch->deauthenticateMac($trapMac);
+        #$switch->deauthenticateMac($trapMac);
+        my $switchIp = $switch->{_ip};
+        `/usr/local/pf/bin/pfcmd_vlan -deauthenticate -switch $switchIp -mac $trapMac`;
 
         # }}}2
 
@@ -1720,38 +1613,7 @@ sub handleTrap {
 
         # }}}2
 
-        # trapType eq 'c2900AddressViolation' {{{2
-    } elsif ( $trapType eq 'c2900AddressViolation' ) {
-        $logger->info(
-            "$trapType trap received on $switch_ip ifIndex $switch_port");
-        my $maxMacAddresses = $switch->getMaxMacAddresses($switch_port);
-        if ( $maxMacAddresses == 1 ) {
-            my @macArray = $switch->_getMacAtIfIndex($switch_port);
-            if ( (@macArray) && ( scalar(@macArray) == 1 ) ) {
-
-                #generate PF 'hub' violation
-                $logger->info(
-                    "old MAC is $macArray[0] -> create Hub violation for this MAC"
-                );
-                my $cmd = PFCMD_FILE
-                    . " 'violation add vid=1400000, mac=$macArray[0]'";
-                my $output = qx/$cmd/;
-                $logger->debug( "calling "
-                        . PFCMD_FILE
-                        . " 'violation add vid=1400000,mac=$macArray[0]'" );
-            } else {
-                $logger->info(
-                    "no secure MAC found on this switchport; security violation is probably caused by someone moving a laptop too fast from one switchport to another -> do nothing"
-                );
-            }
-        } else {
-            $logger->info(
-                "Max MAC address is $maxMacAddresses. Should not receive a c2900 Address Violation trap on this port. Configuration problem -> Do nothing"
-            );
-        }
     }
-
-    # }}}2
 
     # cleanupAfterThread {{{2
     cleanupAfterThread( $switch_ip, $switch_port );
@@ -2012,48 +1874,34 @@ sub do_port_security {
             if ( $old_switch eq $switch->{_ip} ) {
                 $oldSwitch = $switch;
             } else {
-                $lockLogger->trace(
-                    "locking - trying to lock switchFactory_locker in $trapType handling"
-                );
+                $lockLogger->trace("locking - trying to lock switchFactory_locker in $trapType handling");
                 {
                     lock $switchFactory_locker;
-                    $lockLogger->trace(
-                        "locking - obtained lock on switchFactory_locker in $trapType handling"
-                    );
+                    $lockLogger->trace("locking - obtained lock on switchFactory_locker in $trapType handling");
                     $oldSwitch = $switchFactory->instantiate($old_switch);
                 }
-                $lockLogger->trace(
-                    "locking - unlocked switchFactory_locker in $trapType handling"
-                );
+                $lockLogger->trace("locking - unlocked switchFactory_locker in $trapType handling");
             }
-            my $secureMacAddrHashRef
-                = $oldSwitch->getSecureMacAddresses($old_port);
-            if ( exists( $secureMacAddrHashRef->{$mac} ) ) {
-                if (   ( $old_switch eq $switch->{_ip} )
-                    && ( $old_port == $switch_port )
-                    && ( $trapType eq 'secureMacAddrViolation' ) )
-                {
-                    return 'stopTrapHandling';
+
+            if (!$oldSwitch) {
+                $logger->error("Can not instantiate switch $old_switch !");
+            } else {
+                my $secureMacAddrHashRef = $oldSwitch->getSecureMacAddresses($old_port);
+                if ( exists( $secureMacAddrHashRef->{$mac} ) ) {
+                    if (   ( $old_switch eq $switch->{_ip} )
+                        && ( $old_port == $switch_port )
+                        && ( $trapType eq 'secureMacAddrViolation' ) )
+                    {   
+                        return 'stopTrapHandling';
+                    }
+                    my $fakeMac = $oldSwitch->generateFakeMac( $old_vlan, $old_port );
+                    $logger->info("de-authorizing $mac (new entry $fakeMac) at old location $old_switch ifIndex $old_port");
+                    $oldSwitch->authorizeMAC( $old_port, $mac, $fakeMac,
+                        ( $old_vlan eq 'VoIP' ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port) ),
+                        ( $old_vlan eq 'VoIP' ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port) ) );
                 }
-                my $fakeMac
-                    = $oldSwitch->generateFakeMac( $old_vlan, $old_port );
-                $logger->info(
-                    "de-authorizing $mac (new entry $fakeMac) at old location $old_switch ifIndex $old_port"
-                );
-                $oldSwitch->authorizeMAC(
-                    $old_port,
-                    $mac, $fakeMac,
-                    (     $old_vlan eq 'VoIP'
-                        ? $oldSwitch->getVoiceVlan($old_port)
-                        : $oldSwitch->getVlan($old_port)
-                    ),
-                    (     $old_vlan eq 'VoIP'
-                        ? $oldSwitch->getVoiceVlan($old_port)
-                        : $oldSwitch->getVlan($old_port)
-                    )
-                );
+                locationlog_update_end_mac($mac);
             }
-            locationlog_update_end_mac($mac);
         }
     }
 

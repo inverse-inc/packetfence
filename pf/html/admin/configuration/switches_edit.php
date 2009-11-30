@@ -58,6 +58,7 @@
       printSelect( array('' => 'please choose', 'discovery' => 'discovery', 'ignore' => 'ignore', 'production' => 'production', 'registration' => 'registration', 'testing' => 'testing'), 'hash', $val, "name='$key'");
     } elseif ($key == 'type') {
       print "<tr><td></td><td>$pretty_key:</td><td>";
+      # to list all modules under SNMP: find . -type f | sed 's/^\.\///' | sed 's/\//::/' | sed 's/.pm$//'
       printSelect( array('' => 'please choose',
                          'ThreeCom::NJ220' => '3COM NJ220',
                          'ThreeCom::SS4200' => '3COM SS4200',
@@ -65,6 +66,7 @@
                          'ThreeCom::Switch_4200G' => '3COM 4200G',
                          'Accton::ES3526XA' => 'Accton ES3526XA',
                          'Accton::ES3528M' => 'Accton ES3528M',
+                         'Amer::SS2R24i' => 'Amer SS2R24i',
                          'Aruba::Controller_200' => 'Aruba Controller 200',
                          'Cisco::Aironet_1130' => 'Cisco Aironet 1130',
                          'Cisco::Aironet_1242' => 'Cisco Aironet 1242',
@@ -72,16 +74,20 @@
                          'Cisco::Catalyst_2900XL' => 'Cisco Catalyst 2900XL',
                          'Cisco::Catalyst_2950' => 'Cisco Catalyst 2950',
                          'Cisco::Catalyst_2960' => 'Cisco Catalyst 2960',
-                         'Cisco::Catalyst 2970' => 'Cisco Catalyst 2970',
-                         'Cisco::Catalyst 3500XL' => 'Cisco Catalyst 3500XL',
+                         'Cisco::Catalyst_2970' => 'Cisco Catalyst 2970',
+                         'Cisco::Catalyst_3500XL' => 'Cisco Catalyst 3500XL',
                          'Cisco::Catalyst_3550' => 'Cisco Catalyst 3550',
                          'Cisco::Catalyst_3560' => 'Cisco Catalyst 3560',
-                         'Cisco::Controller_4400_42_130' => 'Cisco Controller 4400',
+                         'Cisco::Controller_4400_4_2_130' => 'Cisco Controller 4400',
                          'Cisco::WLC_2106' => 'Cisco WLC 2106',
                          'Dell::PowerConnect3424' => 'Dell PowerConnect 3424',
                          'Dlink::DES_3526' => 'D-Link DES 3526',
                          'Dlink::DWS_3026' => 'D-Link DWS 3026',
+                         'Enterasys::Matrix_N3' => 'Enterasys Matrix N3',
                          'Enterasys::SecureStack_C2' => 'Enterasys SecureStack C2',
+                         'Enterasys::SecureStack_C3' => 'Enterasys SecureStack C3',
+                         'Enterasys::D2' => 'Enterasys Standalone D2',
+                         'Extreme::Summit_X250e' => 'Extreme Networks Summit X250e',
                          'Foundry::FastIron_4802' => 'Foundry FastIron 4802',
                          'HP::Procurve_2500' => 'HP Procurve 2500',
                          'HP::Procurve_2600' => 'HP Procurve 2600',
@@ -101,7 +107,7 @@
                    'hash', $val, "name='$key'");
     } elseif ($key == 'cliTransport') {
       print "<tr><td></td><td>$pretty_key:</td><td>";
-      printSelect( array('' => 'please choose', 'Telnet' => 'Telnet', 'ssh' => 'SSH'), 'hash', $val, "name='$key'");
+      printSelect( array('' => 'please choose', 'Telnet' => 'Telnet', 'SSH' => 'SSH'), 'hash', $val, "name='$key'");
     } else {
       print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val'>";
     }

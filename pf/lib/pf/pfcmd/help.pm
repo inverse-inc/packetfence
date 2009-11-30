@@ -180,16 +180,16 @@ EOT
 
 sub help_schedule {
     print STDERR << "EOT";
-Usage: pfcmd schedule <view|add|edit|delete> [number|ip-range|ipaddress/cidr] [assignments]
+Usage: pfcmd schedule <view|now|add|edit|delete> [number|ip-range|ipaddress/cidr|all] [assignments]
 
 use nessus to scan ip(s).  IP address can be specified as IP, Start-EndIP, IP/xx Cidr format.
 
 examples:
   pfcmd schedule view all
   pfcmd schedule view 1
-  pfcmd schedule now 128.11.23.2/24 tid=11808;11835;11890;12209
-  pfcmd schedule add 128.11.23.7/24 tid=all,date="0 3 * * *"
-  pfcmd schedule add 128.11.23.2/24 tid=11808;11835;11890;12209,date="0 3 * * *"
+  pfcmd schedule now 128.11.23.2/24 
+  pfcmd schedule add 128.11.23.7/24 date="0 3 * * *"
+  pfcmd schedule add 128.11.23.2/24 date="0 3 * * *"
   pfcmd schedule delete 2
 EOT
     return 1;

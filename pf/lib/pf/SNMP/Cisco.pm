@@ -273,14 +273,6 @@ sub parseTrap {
         $trapHashRef->{'trapVlan'}
             = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
 
-        # CISCO-C2900-MIB c2900AddressViolation
-    } elsif ( $trapString
-        =~ /[|]\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.9\.9\.87\.2\.0\.1[|]\.1\.3\.6\.1\.4\.1\.9\.9\.87\.1\.4\.1\.1\.25\.[0-9]+\.[0-9]+ = INTEGER: ([0-9]+)/
-        )
-    {
-        $trapHashRef->{'trapType'}    = 'c2900AddressViolation';
-        $trapHashRef->{'trapIfIndex'} = $1;
-
     #  IEEE802dot11-MIB dot11DeauthenticateReason + dot11DeauthenticateStation
     } elsif ( $trapString
         =~ /\.1\.2\.840\.10036\.1\.1\.1\.17\.[0-9]+ = INTEGER: [0-9]+[|]\.1\.2\.840\.10036\.1\.1\.1\.18\.[0-9]+ = Hex-STRING: ([0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2})/

@@ -32,10 +32,7 @@ Log::Log4perl::MDC->put( 'tid',  0 );
 
 my $mac = $ARGV[0];
 
-if ( $mac
-    =~ /^([0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2})$/
-    )
-{
+if ($mac =~ /^([0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2})$/) {
     $mac = $1;
 } else {
     $logger->logdie("Bad MAC $mac");
@@ -50,19 +47,20 @@ if ($locationlog_entry) {
     my $ifIndex   = $locationlog_entry->{'port'};
     $logger->info("switch port for $mac is $switch_ip ifIndex $ifIndex");
 
-    my $switchFactory
-        = new pf::SwitchFactory( -configFile => "$conf_dir/switches.conf" );
-    my $trapSender = $switchFactory->instantiate('127.0.0.1');
-
-    if ( $ifIndex eq 'WIFI' ) {
-        $trapSender->sendLocalDesAssociateTrap( $switch_ip, $mac );
+    my $switchFactory = new pf::SwitchFactory( -configFile => "$conf_dir/switches.conf" );
+    my $trapSender    = $switchFactory->instantiate('127.0.0.1');
+    if ($trapSender) {
+        if ( $ifIndex eq 'WIFI' ) {
+            $trapSender->sendLocalDesAssociateTrap( $switch_ip, $mac );
+        } else {
+            $trapSender->sendLocalReAssignVlanTrap( $switch_ip, $ifIndex );
+        }
     } else {
-        $trapSender->sendLocalReAssignVlanTrap( $switch_ip, $ifIndex );
+        $logger->error("Can not instantiate switch 127.0.0.1 !");
     }
+
 } else {
-    $logger->warn(
-        "cannot determine switch port for $mac. Flipping the ports admin status is impossible"
-    );
+    $logger->warn("cannot determine switch port for $mac. Flipping the ports admin status is impossible");
 }
 
 exit 1;

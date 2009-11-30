@@ -9,6 +9,7 @@ use CGI::Session;
 use Log::Log4perl;
 
 use constant INSTALL_DIR => '/usr/local/pf';
+use constant SCAN_VID => 1200001;
 use lib INSTALL_DIR . "/lib";
 
 use pf::config;
@@ -45,7 +46,12 @@ if (!valid_mac($mac)) {
 $logger->info("$mac being redirected");
 
 # recording user agent for this mac in node table
-web_node_record_user_agent($mac,$cgi->user_agent);
+# TODO: this validation will not be required if shipped CGI module is > 3.45, see bug #850
+if (defined($cgi->user_agent)) {
+  web_node_record_user_agent($mac,$cgi->user_agent);
+} else {
+  $logger->warn("$mac has no user agent");
+}
 
 # registration auth request?
 if (defined($cgi->param('mode')) && $cgi->param('auth')) {
@@ -64,18 +70,31 @@ if (defined($cgi->param('mode')) && $cgi->param('auth')) {
 my $violation = violation_view_top($mac);
 if ($violation){
   # There is a violation, redirect the user
+  # FIXME: there is not enough validation below
   my $vid=$violation->{'vid'};
   my $class=class_view($vid);
+
+  # detect if a system scan is in progress, if so redirect to scan in progress page
+  if ($vid == SCAN_VID && $violation->{'ticket_ref'} =~ /^Scan in progress, started at: (.*)$/) {
+    $logger->info("captive portal redirect to the scan in progress page");
+    generate_scan_status_page($cgi, $session, $1, $destination_url);
+    exit(0);
+  }
+
+  $logger->info("captive portal redirect on violation vid: $vid, redirect url: ".$class->{'url'});
+
+  # The little redirect dance here is controlled by frames which are inherently alterable by the user
+  # TODO: We need to validate that a user cannot request a frame with the enable button activated
+
   # enable button
   if ($enable_menu) {
-    $logger->info("enter enable_menu");
+    $logger->debug("violation redirect: generating enable button frame (enable_menu = 1)");
     generate_enabler_page($cgi, $session, $destination_url, $vid, $class->{'button_text'});
   } elsif  ($class->{'auto_enable'} eq 'Y'){
-    $logger->info("auth_enable =  Y");
+    $logger->debug("violation redirect: generating redirect frame");
     generate_redirect_page($cgi, $session, $class->{'url'}, $destination_url);
   } else {
-    $logger->info("no button");
-    # no enable button 
+    $logger->debug("violation redirect: showing violation url directly since there is no enable button");
     print $cgi->redirect($class->{'url'});
   }
   exit(0);

@@ -62,7 +62,7 @@ sub authenticate {
   my $htpasswd = new Apache::Htpasswd({
       passwdFile => $passwdFile,
       ReadOnly   => 1});
-  if ($htpasswd->htCheckPassword($username, $password) == 0) {
+  if ( (!defined($htpasswd->htCheckPassword($username, $password))) or ($htpasswd->htCheckPassword($username, $password) == 0) ) {
       return (0,1);
   } else {
       return (1,0);

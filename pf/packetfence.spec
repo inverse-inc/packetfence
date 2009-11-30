@@ -1,31 +1,67 @@
-#rpmbuild should be done in several steps:
-#1) rpmbuild -bs SPECS/packetfence.spec
-#on each target distribution
-#2) rpmbuild --rebuild --define 'dist .el5' SRPMS/packetfence-1.8.4-1.src.rpm
+# PacketFence RPM SPEC
+# DO NOT FORGET TO UPDATE CHANGELOG AT THE END OF THE FILE WHENEVER IT IS MODIFIED!
+# 
+# BUILDING FOR RELEASE
+# 
+# - source_release field should be set to a greater than 0 numeric value. Start with 1.
+#   If doing a package revision, change the 1 to a 2, etc.
+#
+# - Make sure that the correct Source: statement is uncommented
+#
+# - Create release tarball from monotone head, ex:
+# mtn --db ~/pf.mtn checkout --branch org.packetfence.1_8
+# cd org.packetfence.1_8/
+# tar czvf packetfence-1.8.5.tar.gz pf/
+# 
+# - Build (change dist based on target distro)
+# cd /usr/src/redhat/
+# rpmbuild -ba --define 'dist .el5' SPECS/packetfence.spec
+#
+# BUILDING FOR A SNAPSHOT (PRE-RELEASE)
+#
+# - source_release field should be set to 0.<date> this way one can upgrade from snapshot to release easily.
+# ex: 0.20091022
+#
+# - Make sure that the correct Source: statement is uncommented
+#
+# - Create release tarball from monotone head, ex:
+# mtn --db ~/pf.mtn checkout --branch org.packetfence.1_8
+# cd org.packetfence.1_8/
+# tar czvf packetfence-1.8.5-0.20091023.tar.gz pf/
+#
+# - Build (change dist based on target distro)
+# cd /usr/src/redhat/
+# rpmbuild -ba --define 'dist .el5' SPECS/packetfence.spec
+#
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 1.8.4
-Release: test%{?dist}
-# in snapshot mode, usually it is:
-# Release: 20090717%{?dist}
-# TODO: i don't think its right since upgrading from a snapshot to a release would fail
+Version: 1.8.6
+# Update here on each release/snapshot
+%define source_release 0.20091120
+Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.packetfence.org
 AutoReqProv: 0
 BuildArch: noarch
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{source_release}-root
 
 Packager: Inverse inc. <support@inverse.ca>
 Vendor: PacketFence, http://www.packetfence.org
 
-Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}-%{release}.tar.gz
-# Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}-20090717.tar.gz
+# for snapshot releases
+Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}-%{source_release}.tar.gz
+# for official releases
+#Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz
 
-BuildRequires: gettext, perl(Parse::RecDescent), httpd
+BuildRequires: gettext, httpd
+# install follow dep with: yum install perl-Parse-RecDescent-1.94
+BuildRequires: perl-Parse-RecDescent = 1.94
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
-Requires: httpd, mod_ssl, php, php-gd, php-pear
+Requires: httpd, mod_ssl, php, php-gd
+# php-pear-Log required not php-pear, fixes #804
+Requires: php-pear-Log
 Requires: net-tools
 Requires: net-snmp >= 5.3.2.2
 Requires: mysql, perl-DBD-mysql
@@ -41,8 +77,10 @@ Requires: perl-Config-IniFiles >= 2.40
 Requires: perl-Data-Phrasebook, perl-Data-Phrasebook-Loader-YAML
 Requires: perl-DBI
 Requires: perl-File-Tail
+Requires: perl-IPC-Cmd
 Requires: perl-IPTables-ChainMgr
 Requires: perl-IPTables-Parse
+Requires: perl-LDAP
 Requires: perl-libwww-perl
 Requires: perl-List-MoreUtils
 Requires: perl-Locale-gettext
@@ -53,13 +91,16 @@ Requires: perl-Net-MAC, perl-Net-MAC-Vendor
 Requires: perl-Net-Netmask
 Requires: perl-Net-Pcap >= 0.16
 Requires: perl-Net-SNMP
+# for SNMPv3 AES as privacy protocol, fixes #775
+Requires: perl-Crypt-Rijndael
 Requires: perl-Net-Telnet
 Requires: perl-Net-Write
 Requires: perl-Parse-Nessus-NBE
-Requires: perl-Parse-RecDescent
+Requires: perl-Parse-RecDescent = 1.94
 Requires: perl-Readonly
 Requires: perl-Regexp-Common
 Requires: rrdtool, perl-rrdtool
+Requires: perl-SOAP-Lite
 Requires: perl-Template-Toolkit
 Requires: perl-TermReadKey
 Requires: perl-Test-MockDBI
@@ -70,6 +111,7 @@ Requires: perl-TimeDate
 Requires: perl-UNIVERSAL-require
 Requires: perl-YAML
 Requires: php-jpgraph-packetfence = 2.3.4
+Requires: php-ldap
 
 %description
 
@@ -125,9 +167,12 @@ mv packetfence.mo conf/locale/nl/LC_MESSAGES/
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r addons/802.1X/ $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp -r addons/high-availability/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/mrtg/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp addons/logrotate $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r cgi-bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
@@ -140,28 +185,30 @@ rmdir addons/pfdetect_remote/initrd
 rmdir addons/pfdetect_remote/conf
 rmdir addons/pfdetect_remote
 #end pfdetect_remote
-cp -r test $RPM_BUILD_ROOT/usr/local/pf/
-cp -r t $RPM_BUILD_ROOT/usr/local/pf/
+cp -r ChangeLog $RPM_BUILD_ROOT/usr/local/pf/
+cp -r configurator.pl $RPM_BUILD_ROOT/usr/local/pf/
+cp -r COPYING $RPM_BUILD_ROOT/usr/local/pf/
 cp -r db $RPM_BUILD_ROOT/usr/local/pf/
 cp -r docs $RPM_BUILD_ROOT/usr/local/pf/
 cp -r html $RPM_BUILD_ROOT/usr/local/pf/
-cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
-cp -r configurator.pl $RPM_BUILD_ROOT/usr/local/pf/
 cp -r installer.pl $RPM_BUILD_ROOT/usr/local/pf/
+cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
+cp -r NEWS $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README_SWITCHES $RPM_BUILD_ROOT/usr/local/pf/
-cp -r NEWS $RPM_BUILD_ROOT/usr/local/pf/
-cp -r ChangeLog $RPM_BUILD_ROOT/usr/local/pf/
-cp -r COPYING $RPM_BUILD_ROOT/usr/local/pf/
+cp -r UPGRADE $RPM_BUILD_ROOT/usr/local/pf/
+#cp -r t $RPM_BUILD_ROOT/usr/local/pf/
+cp -r test $RPM_BUILD_ROOT/usr/local/pf/
 
 #start create symlinks
 curdir=`pwd`
 
 #pfschema symlink
 cd $RPM_BUILD_ROOT/usr/local/pf/db
-ln -s pfschema.mysql.181 ./pfschema.mysql
+ln -s pfschema.mysql.184 ./pfschema.mysql
 
 #httpd.conf symlink
+#TODO: isn't it stupid to decide what Apache version is there at rpm build time?
 cd $RPM_BUILD_ROOT/usr/local/pf/conf/templates
 if (/usr/sbin/httpd -v | egrep 'Apache/2\.[2-9]\.' > /dev/null)
 then
@@ -231,7 +278,8 @@ if [ -d /usr/local/pf/html/user/content/docs ]; then
 fi
 
 echo Installation complete
-echo "  * Please cd /usr/local/pf && ./installer.pl to install necessary Perl modules and configure PF"
+#TODO: consider renaming installer.pl to setup.pl?
+echo "  * Please cd /usr/local/pf && ./installer.pl to finish installation and configure PF"
 
 %post remote-snort-sensor
 echo "Adding PacketFence remote Snort Sensor startup script"
@@ -268,179 +316,192 @@ fi
 %defattr(-, pf, pf)
 #%config %{_initrddir}/packetfence
 %attr(0755, root, root) %{_initrddir}/packetfence
-%dir /usr/local/pf
-%dir /usr/local/pf/bin
-%dir /usr/local/pf/sbin
-%attr(6755, root, root) /usr/local/pf/bin/pfcmd
-%attr(0755, pf, pf) /usr/local/pf/bin/pfcmd_vlan
-%attr(0755, pf, pf) /usr/local/pf/bin/flip.pl
-%attr(0755, pf, pf) /usr/local/pf/sbin/pfdetect
-%attr(0755, pf, pf) /usr/local/pf/sbin/pfredirect
-%attr(0755, pf, pf) /usr/local/pf/sbin/pfmon
-%attr(0755, pf, pf) /usr/local/pf/sbin/pfdhcplistener
-%attr(0755, pf, pf) /usr/local/pf/sbin/pfsetvlan
-%dir /usr/local/pf/cgi-bin
-%attr(0755, pf, pf) /usr/local/pf/cgi-bin/pdp.cgi
-%attr(0755, pf, pf) /usr/local/pf/cgi-bin/redir.cgi
-%attr(0755, pf, pf) /usr/local/pf/cgi-bin/register.cgi
-%attr(0755, pf, pf) /usr/local/pf/cgi-bin/release.cgi
-%dir /usr/local/pf/conf
-#%config(noreplace) /usr/local/pf/conf/pf.conf
-%config(noreplace) /usr/local/pf/conf/networks.conf
-%config(noreplace) /usr/local/pf/conf/violations.conf
-#%config /usr/local/pf/conf/services.conf
-%config(noreplace) /usr/local/pf/conf/ui.conf
-%config(noreplace) /usr/local/pf/conf/ui-global.conf
-%config(noreplace) /usr/local/pf/conf/switches.conf
-%config(noreplace) /usr/local/pf/conf/log.conf
-%config /usr/local/pf/conf/pf.conf.defaults
-%config(noreplace) /usr/local/pf/conf/templates/snmptrapd.conf
-%config /usr/local/pf/conf/documentation.conf
-/usr/local/pf/conf/pf-release
-%config /usr/local/pf/conf/dhcp_fingerprints.conf
-%config /usr/local/pf/conf/oui.txt
-%dir /usr/local/pf/test
-%attr(0755, pf, pf) /usr/local/pf/test/dhcp_dumper
-%attr(0755, pf, pf) /usr/local/pf/test/connect_and_read.pl
-%dir /usr/local/pf/t
-%attr(0755, pf, pf) /usr/local/pf/t/all.t
-%attr(0755, pf, pf) /usr/local/pf/t/binaries.t
-%attr(0755, pf, pf) /usr/local/pf/t/config.t
-%attr(0755, pf, pf) /usr/local/pf/t/critic.t
-%attr(0755, pf, pf) /usr/local/pf/t/person.t
-%attr(0755, pf, pf) /usr/local/pf/t/pfcmd.t
-%attr(0755, pf, pf) /usr/local/pf/t/pf.t
-%attr(0755, pf, pf) /usr/local/pf/t/php.t
-%attr(0755, pf, pf) /usr/local/pf/t/pod.t
-%attr(0755, pf, pf) /usr/local/pf/t/podCoverage.t
-%attr(0755, pf, pf) /usr/local/pf/t/SNMP.t
-%attr(0755, pf, pf) /usr/local/pf/t/SwitchFactory.t
-%dir /usr/local/pf/t/data
-/usr/local/pf/t/data/switches.conf
-%dir /usr/local/pf/addons
-%dir /usr/local/pf/addons/mrtg
-/usr/local/pf/addons/mrtg/*
-%dir /usr/local/pf/addons/802.1X
-%doc /usr/local/pf/addons/802.1X/README
-%attr(0755, pf, pf) /usr/local/pf/addons/802.1X/pfcmd_ap.pl
-%attr(0755, pf, pf) /usr/local/pf/addons/802.1X/rlm_perl_packetfence.pl
-%dir /usr/local/pf/addons/snort
-/usr/local/pf/addons/snort/oinkmaster.conf
-%attr(0755, pf, pf) /usr/local/pf/addons/accounting.pl
-%attr(0755, pf, pf) /usr/local/pf/addons/recovery.pl
-%attr(0755, pf, pf) /usr/local/pf/addons/monitorpfsetvlan.pl
-%attr(0755, pf, pf) /usr/local/pf/addons/autodiscover.pl
-%attr(0755, pf, pf) /usr/local/pf/addons/convertToPortSecurity.pl
-%dir /usr/local/pf/html
-%dir /usr/local/pf/html/user
-%dir /usr/local/pf/html/user/3rdparty
-/usr/local/pf/html/user/3rdparty/timerbar.js
-%dir /usr/local/pf/html/user/content
-%config(noreplace) /usr/local/pf/html/user/content/header.html
-%config(noreplace) /usr/local/pf/html/user/content/footer.html
-/usr/local/pf/html/user/content/index.php
-/usr/local/pf/html/user/content/style.php
-%dir /usr/local/pf/html/user/content/images
-/usr/local/pf/html/user/content/images/*
-%dir /usr/local/pf/html/user/content/templates
-%config(noreplace) /usr/local/pf/html/user/content/templates/*
-%dir /usr/local/pf/html/user/content/violations
-%config(noreplace) /usr/local/pf/html/user/content/violations/*
-%dir /usr/local/pf/html/admin
-/usr/local/pf/html/admin/*
-%dir /usr/local/pf/html/common
-/usr/local/pf/html/common/*
-%dir /usr/local/pf/conf/dhcpd
-/usr/local/pf/conf/dhcpd/dhcpd.leases
-%dir /usr/local/pf/conf/nessus
-%config(noreplace) /usr/local/pf/conf/nessus/remotescan.nessus
-%dir /usr/local/pf/conf/snort
-/usr/local/pf/conf/snort/*
-%dir /usr/local/pf/conf/ssl
-%dir /usr/local/pf/conf/users
-%dir /usr/local/pf/conf/templates
-%config /usr/local/pf/conf/templates/dhcpd.conf
-%config /usr/local/pf/conf/templates/dhcpd_vlan.conf
-%config /usr/local/pf/conf/templates/named_vlan.conf
-%config(noreplace) /usr/local/pf/conf/templates/named-registration.ca
-%config(noreplace) /usr/local/pf/conf/templates/named-isolation.ca
-%dir /usr/local/pf/conf/named
-%config /usr/local/pf/conf/templates/httpd.conf
-%config(noreplace) /usr/local/pf/conf/templates/iptables.conf
-%config /usr/local/pf/conf/templates/httpd.conf.pre_apache22
-%config /usr/local/pf/conf/templates/httpd.conf.apache22
-%config /usr/local/pf/conf/templates/snort.conf
-%dir /usr/local/pf/conf/authentication
-%config(noreplace) /usr/local/pf/conf/authentication/local.pm
-%config(noreplace) /usr/local/pf/conf/authentication/ldap.pm
-%config(noreplace) /usr/local/pf/conf/authentication/radius.pm
-%dir /usr/local/pf/conf/templates/configurator
-/usr/local/pf/conf/templates/configurator/*
-%config(noreplace) /usr/local/pf/conf/templates/popup.msg
-%config(noreplace) /usr/local/pf/conf/templates/listener.msg
-%dir /usr/local/pf/conf/locale
-%dir /usr/local/pf/conf/locale/en
-%dir /usr/local/pf/conf/locale/es
-%dir /usr/local/pf/conf/locale/fr
-%dir /usr/local/pf/conf/locale/nl
-%dir /usr/local/pf/conf/locale/en/LC_MESSAGES
-%dir /usr/local/pf/conf/locale/es/LC_MESSAGES
-%dir /usr/local/pf/conf/locale/fr/LC_MESSAGES
-%dir /usr/local/pf/conf/locale/it/LC_MESSAGES
-%dir /usr/local/pf/conf/locale/nl/LC_MESSAGES
-%config(noreplace) /usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.po
-%config(noreplace) /usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.mo
-%config(noreplace) /usr/local/pf/conf/locale/es/LC_MESSAGES/packetfence.po
-%config(noreplace) /usr/local/pf/conf/locale/es/LC_MESSAGES/packetfence.mo
-%config(noreplace) /usr/local/pf/conf/locale/fr/LC_MESSAGES/packetfence.po
-%config(noreplace) /usr/local/pf/conf/locale/fr/LC_MESSAGES/packetfence.mo
-%config(noreplace) /usr/local/pf/conf/locale/it/LC_MESSAGES/packetfence.po
-%config(noreplace) /usr/local/pf/conf/locale/it/LC_MESSAGES/packetfence.mo
-%config(noreplace) /usr/local/pf/conf/locale/nl/LC_MESSAGES/packetfence.po
-%config(noreplace) /usr/local/pf/conf/locale/nl/LC_MESSAGES/packetfence.mo
-%dir /usr/local/pf/db
-/usr/local/pf/db/*
-%dir /usr/local/pf/docs
-%doc /usr/local/pf/docs/*.odt
-%doc /usr/local/pf/docs/fdl-1.2.txt
-%dir /usr/local/pf/docs/MIB
-%doc /usr/local/pf/docs/MIB/Inverse-PacketFence-Notification.mib
-%dir /usr/local/pf/lib
-%dir /usr/local/pf/var
-%dir /usr/local/pf/var/session
-%dir /usr/local/pf/var/rrd
-%dir /usr/local/pf/lib/pf
-/usr/local/pf/lib/pf/*.pm
-%dir /usr/local/pf/lib/pf/lookup
-%config(noreplace) /usr/local/pf/lib/pf/lookup/node.pm
-%config(noreplace) /usr/local/pf/lib/pf/lookup/person.pm
-%dir /usr/local/pf/lib/pf/SNMP
-/usr/local/pf/lib/pf/SNMP/*
-%dir /usr/local/pf/lib/pf/pfcmd
-/usr/local/pf/lib/pf/pfcmd/*
-%dir /usr/local/pf/lib/pf/vlan
-%config(noreplace) /usr/local/pf/lib/pf/vlan/custom.pm
-%dir /usr/local/pf/logs
-%attr(0755, pf, pf) /usr/local/pf/configurator.pl
-%attr(0755, pf, pf) /usr/local/pf/installer.pl
-%doc /usr/local/pf/CHANGES
-%doc /usr/local/pf/COPYING
-%doc /usr/local/pf/README
-%doc /usr/local/pf/README_SWITCHES
 
+%dir                    /usr/local/pf
+%dir                    /usr/local/pf/addons
+%attr(0755, pf, pf)     /usr/local/pf/addons/accounting.pl
+%attr(0755, pf, pf)     /usr/local/pf/addons/autodiscover.pl
+%attr(0755, pf, pf)     /usr/local/pf/addons/convertToPortSecurity.pl
+%attr(0755, pf, pf)	/usr/local/pf/addons/database-backup-and-maintenance.sh
+%dir                    /usr/local/pf/addons/high-availability/
+			/usr/local/pf/addons/high-availability/*
+			/usr/local/pf/addons/logrotate
+%attr(0755, pf, pf)     /usr/local/pf/addons/monitorpfsetvlan.pl
+%dir                    /usr/local/pf/addons/mrtg
+                        /usr/local/pf/addons/mrtg/*
+%attr(0755, pf, pf)     /usr/local/pf/addons/recovery.pl
+%dir                    /usr/local/pf/addons/snort
+                        /usr/local/pf/addons/snort/oinkmaster.conf
+%dir                    /usr/local/pf/addons/802.1X
+%doc                    /usr/local/pf/addons/802.1X/README
+%attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/rlm_perl_packetfence.pl
+%dir                    /usr/local/pf/bin
+%attr(0755, pf, pf)     /usr/local/pf/bin/flip.pl
+%attr(6755, root, root) /usr/local/pf/bin/pfcmd
+%attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
+%dir                    /usr/local/pf/cgi-bin
+%attr(0755, pf, pf)     /usr/local/pf/cgi-bin/pdp.cgi
+%attr(0755, pf, pf)     /usr/local/pf/cgi-bin/redir.cgi
+%attr(0755, pf, pf)     /usr/local/pf/cgi-bin/register.cgi
+%attr(0755, pf, pf)     /usr/local/pf/cgi-bin/release.cgi
+%doc                    /usr/local/pf/ChangeLog
+%dir                    /usr/local/pf/conf
+%config(noreplace)      /usr/local/pf/conf/admin_ldap.conf
+%dir                    /usr/local/pf/conf/authentication
+%config(noreplace)      /usr/local/pf/conf/authentication/local.pm
+%config(noreplace)      /usr/local/pf/conf/authentication/ldap.pm
+%config(noreplace)      /usr/local/pf/conf/authentication/radius.pm
+%config                 /usr/local/pf/conf/dhcp_fingerprints.conf
+%dir                    /usr/local/pf/conf/dhcpd
+                        /usr/local/pf/conf/dhcpd/dhcpd.leases
+%config                 /usr/local/pf/conf/documentation.conf
+%dir                    /usr/local/pf/conf/locale
+%dir                    /usr/local/pf/conf/locale/en
+%dir                    /usr/local/pf/conf/locale/en/LC_MESSAGES
+%config(noreplace)      /usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.po
+%config(noreplace)      /usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.mo
+%dir                    /usr/local/pf/conf/locale/es
+%dir                    /usr/local/pf/conf/locale/es/LC_MESSAGES
+%config(noreplace)      /usr/local/pf/conf/locale/es/LC_MESSAGES/packetfence.po
+%config(noreplace)      /usr/local/pf/conf/locale/es/LC_MESSAGES/packetfence.mo
+%dir                    /usr/local/pf/conf/locale/fr
+%dir                    /usr/local/pf/conf/locale/fr/LC_MESSAGES
+%config(noreplace)      /usr/local/pf/conf/locale/fr/LC_MESSAGES/packetfence.po
+%config(noreplace)      /usr/local/pf/conf/locale/fr/LC_MESSAGES/packetfence.mo
+%dir                    /usr/local/pf/conf/locale/it
+%dir                    /usr/local/pf/conf/locale/it/LC_MESSAGES
+%config(noreplace)      /usr/local/pf/conf/locale/it/LC_MESSAGES/packetfence.po
+%config(noreplace)      /usr/local/pf/conf/locale/it/LC_MESSAGES/packetfence.mo
+%dir                    /usr/local/pf/conf/locale/nl
+%dir                    /usr/local/pf/conf/locale/nl/LC_MESSAGES
+%config(noreplace)      /usr/local/pf/conf/locale/nl/LC_MESSAGES/packetfence.po
+%config(noreplace)      /usr/local/pf/conf/locale/nl/LC_MESSAGES/packetfence.mo
+%config(noreplace)      /usr/local/pf/conf/log.conf
+%dir                    /usr/local/pf/conf/named
+%dir                    /usr/local/pf/conf/nessus
+%config(noreplace)      /usr/local/pf/conf/nessus/remotescan.nessus
+%config(noreplace)      /usr/local/pf/conf/networks.conf
+%config                 /usr/local/pf/conf/oui.txt
+#%config(noreplace)      /usr/local/pf/conf/pf.conf
+%config                 /usr/local/pf/conf/pf.conf.defaults
+%config(noreplace)      /usr/local/pf/conf/pfdetect_remote.conf
+                        /usr/local/pf/conf/pf-release
+#%config                 /usr/local/pf/conf/services.conf
+%dir                    /usr/local/pf/conf/snort
+%config(noreplace)	/usr/local/pf/conf/snort/classification.config
+%config(noreplace)	/usr/local/pf/conf/snort/local.rules
+%config(noreplace)	/usr/local/pf/conf/snort/reference.config
+%dir                    /usr/local/pf/conf/ssl
+%config(noreplace)      /usr/local/pf/conf/switches.conf
+%dir                    /usr/local/pf/conf/templates
+%dir                    /usr/local/pf/conf/templates/configurator
+                        /usr/local/pf/conf/templates/configurator/*
+%config                 /usr/local/pf/conf/templates/dhcpd.conf
+%config                 /usr/local/pf/conf/templates/dhcpd_vlan.conf
+%config                 /usr/local/pf/conf/templates/httpd.conf
+%config                 /usr/local/pf/conf/templates/httpd.conf.apache22
+%config                 /usr/local/pf/conf/templates/httpd.conf.pre_apache22
+%config(noreplace)      /usr/local/pf/conf/templates/iptables.conf
+%config(noreplace)      /usr/local/pf/conf/templates/listener.msg
+%config(noreplace)      /usr/local/pf/conf/templates/named-registration.ca
+%config(noreplace)      /usr/local/pf/conf/templates/named-isolation.ca
+%config                 /usr/local/pf/conf/templates/named_vlan.conf
+%config(noreplace)      /usr/local/pf/conf/templates/popup.msg
+%config(noreplace)      /usr/local/pf/conf/templates/snmptrapd.conf
+%config(noreplace)	/usr/local/pf/conf/templates/snort.conf
+%config(noreplace)	/usr/local/pf/conf/templates/snort.conf.pre_snort-2.8
+%config			/usr/local/pf/conf/ui.conf
+%config(noreplace)      /usr/local/pf/conf/ui-global.conf
+%dir                    /usr/local/pf/conf/users
+%config(noreplace)      /usr/local/pf/conf/violations.conf
+%attr(0755, pf, pf)     /usr/local/pf/configurator.pl
+%doc                    /usr/local/pf/COPYING
+%dir                    /usr/local/pf/db
+                        /usr/local/pf/db/*
+%dir                    /usr/local/pf/docs
+%doc                    /usr/local/pf/docs/*.odt
+%doc                    /usr/local/pf/docs/fdl-1.2.txt
+%dir                    /usr/local/pf/docs/MIB
+%doc                    /usr/local/pf/docs/MIB/Inverse-PacketFence-Notification.mib
+%dir                    /usr/local/pf/html
+%dir                    /usr/local/pf/html/admin
+                        /usr/local/pf/html/admin/*
+%dir                    /usr/local/pf/html/common
+                        /usr/local/pf/html/common/*
+%dir                    /usr/local/pf/html/user
+%dir                    /usr/local/pf/html/user/3rdparty
+                        /usr/local/pf/html/user/3rdparty/timerbar.js
+%dir                    /usr/local/pf/html/user/content
+%config(noreplace)      /usr/local/pf/html/user/content/footer.html
+%config(noreplace)      /usr/local/pf/html/user/content/header.html
+%dir                    /usr/local/pf/html/user/content/images
+                        /usr/local/pf/html/user/content/images/*
+                        /usr/local/pf/html/user/content/index.php
+                        /usr/local/pf/html/user/content/style.php
+%dir                    /usr/local/pf/html/user/content/templates
+%config(noreplace)      /usr/local/pf/html/user/content/templates/*
+%dir                    /usr/local/pf/html/user/content/violations
+%config(noreplace)      /usr/local/pf/html/user/content/violations/*
+%attr(0755, pf, pf)     /usr/local/pf/installer.pl
+%dir                    /usr/local/pf/lib
+%dir                    /usr/local/pf/lib/pf
+                        /usr/local/pf/lib/pf/*.pm
+%dir                    /usr/local/pf/lib/pf/lookup
+%config(noreplace)      /usr/local/pf/lib/pf/lookup/node.pm
+%config(noreplace)      /usr/local/pf/lib/pf/lookup/person.pm
+%dir                    /usr/local/pf/lib/pf/pfcmd
+                        /usr/local/pf/lib/pf/pfcmd/*
+%dir                    /usr/local/pf/lib/pf/SNMP
+                        /usr/local/pf/lib/pf/SNMP/*
+%dir                    /usr/local/pf/lib/pf/vlan
+%config(noreplace)      /usr/local/pf/lib/pf/vlan/custom.pm
+%dir                    /usr/local/pf/logs
+%doc                    /usr/local/pf/NEWS
+%doc                    /usr/local/pf/README
+%doc                    /usr/local/pf/README_SWITCHES
+%dir                    /usr/local/pf/sbin
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect_remote
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfmon
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfredirect
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetvlan
+%dir                    /usr/local/pf/test
+%attr(0755, pf, pf)     /usr/local/pf/test/connect_and_read.pl
+%attr(0755, pf, pf)     /usr/local/pf/test/dhcp_dumper
+%doc                    /usr/local/pf/UPGRADE
+%dir                    /usr/local/pf/var
+%dir                    /usr/local/pf/var/rrd
+%dir                    /usr/local/pf/var/session
+
+# Remote snort sensor file list
 %files remote-snort-sensor
 %defattr(-, pf, pf)
 %attr(0755, root, root) %{_initrddir}/pfdetectd
-%dir /usr/local/pf
-%dir /usr/local/pf/var
-%dir /usr/local/pf/sbin
-%dir /usr/local/pf/conf
-%attr(0755, pf, pf) /usr/local/pf/sbin/pfdetect_remote
-%config(noreplace) /usr/local/pf/conf/pfdetect_remote.conf
-
 
 %changelog
-* Mon Apr 30 2008 - Dominik Gehl
-- 1.7.0 rc4
-* Wed Oct 10 2007 - Dominik Gehl
-- 1.7.0 v1
+* Fri Nov 20 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.6-0.20091120
+- Version bump to snapshot 20091120
+- Changed some default behavior for overwriting config files (for the better)
+
+* Fri Oct 30 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.5-2
+- Modifications made to the dependencies to avoid installing Parse::RecDescent 
+  that doesn't work with PacketFence
+
+* Wed Oct 28 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.5-1
+- Version bump to 1.8.5
+
+* Tue Oct 27 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.5-0.20091027
+- Added build instructions to avoid badly named release tarball
+- Version bump to snapshot 20091027
+
+* Mon Oct 26 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.5-0.20091026
+- Parse::RecDescent is a build dependency AND a runtime one. Fixes #806;
+  http://packetfence.org/mantis/view.php?id=806
+- Pulling php-pear-Log instead of php-pear. Fixes #804
+  http://packetfence.org/mantis/view.php?id=804
+- New dependency for SNMPv3 support with AES: perl-Crypt-Rijndael. Fixes #775;
+  http://packetfence.org/mantis/view.php?id=775
+
+* Fri Oct 23 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.5-0.20091023
+- Major improvements to the SPEC file. Starting changelog

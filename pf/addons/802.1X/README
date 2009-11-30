@@ -7,8 +7,10 @@
      mode = production
 
 2) Configure Freeradius
-   Copy the files rlm_perl_packetfence.pl and pfcmd_ap.pl into the Freeradius
-   configuration directory. Then modify radiusd.conf so that it uses 
-   rlm_perl_packetfence.pl (follow the instructions at 
-   http://wiki.freeradius.org/Rlm_perl) 
+   Copy the files rlm_perl_packetfence.pl into the Freeradius configuration
+   directory. Then modify radiusd.conf so that it uses rlm_perl_packetfence.pl
+   (follow the instructions at http://wiki.freeradius.org/Rlm_perl) 
 
+3) Configure rlm_perl_packetfence.pl
+   Edit rlm_perl_packetfence.pl specifying your database connection settings
+   and your VLAN configuration.
