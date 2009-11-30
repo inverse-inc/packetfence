@@ -213,13 +213,13 @@ CREATE TABLE `traplog` (
   `type` varchar(30) NOT NULL default '',
   KEY `switch` (`switch`,`ifIndex`),
   KEY `parseTime` (`parseTime`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 CREATE TABLE `configfile` (
   `filename` varchar(255) NOT NULL,
   `filecontent` text NOT NULL,
   `lastmodified` datetime NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `useragent_class`

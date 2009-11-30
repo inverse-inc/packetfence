@@ -1,4 +1,8 @@
 2009-11-30	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/db/pfschema.mysql.186, pf/installer.pl, pf/t/pfcmd.t, NEWS, 
+	pf/UPGRADE: All database tables are now of InnoDB format. Fixes #747;
+	http://www.packetfence.org/mantis/view.php?id=747
+
 	* added pf/db/pfschema.mysql.186 and pf/db/upgrade-1.8.4-1.8.6.sql,
 	pf/NEWS, pf/UPGRADE, pf/addons/database-backup-and-maintenance.sh
 	pf/installer.pl, pf/t/pfcmd.t: Now providing a locationlog_history

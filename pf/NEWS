@@ -34,6 +34,7 @@ Bugfix
   (closes #838)
 - Database schema updated for our backup script in addons/ (closes #800)
 - Backup script keeps more location history by default
+- Got rid of the non-InnoDB tables (closes #747)
 - Removed some unnecessary warnings (closes #850, #862)
 
 --------------------------------------------------------------------------------

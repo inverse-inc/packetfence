@@ -7,6 +7,12 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to 1.8.6:
 
+    - Table format changed
+    Migrated tables `configfiles` and `traplog` from type MyISAM to InnoDB. You
+    are not required to change the format but if you want, run (at night):  
+    mysql> alter table configfile ENGINE = InnoDB;
+    mysql> alter table traplog ENGINE = InnoDB;
+
     - Backup script less aggressive about history
     We are now keeping 15 days of locationlog instead of 2 with the database
     backup script. Makes more sense for most users.
