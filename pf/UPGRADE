@@ -14,6 +14,21 @@ o Upgrading from a version prior to <version>:
 
 o Upgrading from a version prior to 1.8.6:
 
+    - Table format changed
+    Migrated tables `configfiles` and `traplog` from type MyISAM to InnoDB. You
+    are not required to change the format but if you want, run (at night):  
+    mysql> alter table configfile ENGINE = InnoDB;
+    mysql> alter table traplog ENGINE = InnoDB;
+
+    - Backup script less aggressive about history
+    We are now keeping 15 days of locationlog instead of 2 with the database
+    backup script. Makes more sense for most users.
+
+    - Database schema update
+    A new table `locationlog_history` has been added to the database schema. If
+    you upgrade an existing database, make sure that you update your database 
+    schema with: mysql -u root -p pf < db/upgrade-1.8.4-1.8.6.sql
+
     - Updated conf/ui.conf
     To fix a bug we had to change ui.conf. By default an rpm upgrade will 
     replace ui.conf and save a backup of the previous file to ui.conf.rpmsave.

@@ -41,6 +41,9 @@ Bugfix
   SNMPUserNameTrap parameter. Did not affect flat file config. (closes #853)
 - Fixed missing library requirement when using PacketFence with routed VLANs
   (closes #838)
+- Database schema updated for our backup script in addons/ (closes #800)
+- Backup script keeps more location history by default
+- Got rid of the non-InnoDB tables (closes #747)
 - Removed some unnecessary warnings (closes #850, #862)
 
 --------------------------------------------------------------------------------
@@ -59,7 +62,7 @@ New Features
   installer pull a lot of cpan modules and jpgraph)
 - normal/correct VLAN default behaviour changed (see UPGRADE for details)
 - PacketFence is now able to automatically create static routes for routed 
-  registration and isolation VLANs
+  registration and isolation VLANs (closes #794)
 - significant performance improvement in 802.1X mode (wired and wireless) or
   in MAC authentication on wireless networks
 - massive documentation update (how to configure hardware, new install method, 

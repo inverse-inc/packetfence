@@ -12,7 +12,7 @@
 #
 # Licensed under the GPL
 #
-# Installation: make sure you created locationlog_history (based on locationlog) and edit DB_PWD to fit your password.
+# Installation: make sure you have locationlog_history (based on locationlog) and edit DB_PWD to fit your password.
 
 NB_DAYS_TO_KEEP=70
 DB_USER='pf';
@@ -25,10 +25,10 @@ BACKUP_DB_FILENAME='packetfence-db-dump'
 # is MySQL running? meaning we are the live packetfence
 if [ -f /var/run/mysqld/mysqld.pid ]; then
 
-   # locationlog cleanup: all the closed entries older than 2 days are moved to locationlog_history
+   # locationlog cleanup: all the closed entries older than 15 days are moved to locationlog_history
    # in order to keep locationlog small
-   mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "INSERT INTO locationlog_history SELECT * FROM locationlog WHERE ((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_SUB(CURDATE(), INTERVAL 2 DAY));"
-   mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "DELETE FROM locationlog WHERE ((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_SUB(CURDATE(), INTERVAL 2 DAY));"
+   mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "INSERT INTO locationlog_history SELECT * FROM locationlog WHERE ((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_SUB(CURDATE(), INTERVAL 15 DAY));"
+   mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "DELETE FROM locationlog WHERE ((end_time IS NOT NULL OR end_time <> 0) AND end_time < DATE_SUB(CURDATE(), INTERVAL 15 DAY));"
 
    # lets optimize on Sunday
    DOW=`date +%w`
