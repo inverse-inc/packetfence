@@ -32,7 +32,7 @@ Bugfix
   SNMPUserNameTrap parameter. Did not affect flat file config. (closes #853)
 - Fixed missing library requirement when using PacketFence with routed VLANs
   (closes #838)
-- Removed some unnecessary warnings (closes #850)
+- Removed some unnecessary warnings (closes #850, #862)
 
 --------------------------------------------------------------------------------
 Version 1.8.5 released on 2009-10-28
