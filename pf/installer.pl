@@ -99,6 +99,7 @@ my %oses = (
 my @suids = ( "$install_dir/bin/pfcmd" );
 
 my %schemas = (
+    "5bd686679efb9407a8d4b7ce15a14074" => "1.8.6",
     "55ec69a0e574dac8eada8b65a8cbd4f5" => "1.8.4",
     "de911c990735fd5a6339830830010368" => "1.8.3",
     "ad6bad46d67c569a23bdc786219a0251" => "1.8.1",
@@ -240,7 +241,7 @@ if (questioner(
             $unknown = 1;
         } else {
             my $schema_version = $schemas{$md5sum};
-            if ( $schema_version ne '1.8.4' ) {
+            if ( $schema_version ne '1.8.6' ) {
                 if (questioner(
                         "PF database already exists - do you want to upgrade it?",
                         "y",
@@ -251,13 +252,13 @@ if (questioner(
                     # TODO: if upgrading from an old version, this will always fail
                     # what we should do here is replay all the upgrade script from $schema_version
                     my $update_script
-                        = "$install_dir/db/upgrade-$schema_version-1.8.4.sql";
+                        = "$install_dir/db/upgrade-$schema_version-1.8.6.sql";
                     if ( -e $update_script ) {
                         `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' $mysql_db < $update_script`;
                         $upgraded = 1;
                     } else {
                         die
-                            "Unable to locate SQL update script for $schema_version -> 1.8.4!\n";
+                            "Unable to locate SQL update script for $schema_version -> 1.8.6!\n";
                     }
                 } elsif (
                     questioner(

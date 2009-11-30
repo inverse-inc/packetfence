@@ -1,4 +1,14 @@
 2009-11-30	Olivier Bilodeau <obilodeau@inverse.ca>
+	* added pf/db/pfschema.mysql.186 and pf/db/upgrade-1.8.4-1.8.6.sql,
+	pf/NEWS, pf/UPGRADE, pf/addons/database-backup-and-maintenance.sh
+	pf/installer.pl, pf/t/pfcmd.t: Now providing a locationlog_history
+	table by default and locationlog rotation after 15 days (instead of 2).
+	Simplifies deployment (no need to create table by hand anymore)
+	Added new schema and schema upgrade script and instructions
+	Updated installer and tests
+	Fixes #800;
+	http://www.packetfence.org/mantis/view.php?id=800
+
 	* pf/cgi-bin/pdp.cgi: Fixed invalid string concatenation. Fixes #862;
 	http://www.packetfence.org/mantis/view.php?id=862
 

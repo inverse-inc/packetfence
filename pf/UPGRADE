@@ -7,6 +7,15 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to 1.8.6:
 
+    - Backup script less aggressive about history
+    We are now keeping 15 days of locationlog instead of 2 with the database
+    backup script. Makes more sense for most users.
+
+    - Database schema update
+    A new table `locationlog_history` has been added to the database schema. If
+    you upgrade an existing database, make sure that you update your database 
+    schema with: mysql -u root -p pf < db/upgrade-1.8.4-1.8.6.sql
+
     - Updated conf/ui.conf
     To fix a bug we had to change ui.conf. By default an rpm upgrade will 
     replace ui.conf and save a backup of the previous file to ui.conf.rpmsave.
