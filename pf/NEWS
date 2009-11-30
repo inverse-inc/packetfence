@@ -50,7 +50,7 @@ New Features
   installer pull a lot of cpan modules and jpgraph)
 - normal/correct VLAN default behaviour changed (see UPGRADE for details)
 - PacketFence is now able to automatically create static routes for routed 
-  registration and isolation VLANs
+  registration and isolation VLANs (closes #794)
 - significant performance improvement in 802.1X mode (wired and wireless) or
   in MAC authentication on wireless networks
 - massive documentation update (how to configure hardware, new install method, 
