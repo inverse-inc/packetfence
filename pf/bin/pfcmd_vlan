@@ -473,6 +473,8 @@ if ($getUpLinks) {
             }
             $logger->debug("finished handling 'getMac' command");
     
+        # FIXME: error handling please? all the calls below will generate warnings if the methods return undef or 0
+        # illegal concatenation of undef and str
         } elsif ($getIfOperStatus) {
             $logger->debug("start handling 'getIfOperStatus' command");
             print $switch->getIfOperStatus($ifIndex) . "\n";

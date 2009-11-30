@@ -277,6 +277,7 @@ sub listen_dhcp {
                     . " ($src) ON "
                     . uc($eth) . "\n";
                 push @INC, $bin_dir;
+                #FIXME: This most likely fails, do it like we do it in action.pm (maybe we should move all there)
                 require "lookup_node.pl";
                 $rogue_message{'message'} = lookup_node($smac) . "\n";
                 $rogue_message{'message'}

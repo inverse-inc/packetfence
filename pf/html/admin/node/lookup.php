@@ -34,18 +34,19 @@ if($view_item){
     </tr>
   </table>
 </form>
+</div>
 
       <?if($view_item){ ?>
         <table>
           <tr>
-            <td>
-            <?php
+            <td><pre><?php
             if($lookup)
             foreach($lookup as $line)
               print "$line<br>";
             else
  	      print "No results found!";
             ?>
+            </pre>
             </td>
           </tr>
         </table>
