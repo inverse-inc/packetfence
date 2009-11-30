@@ -1,5 +1,7 @@
 2009-10-02	Olivier Bilodeau <obilodeau@inverse.ca>
-	* pf/conf/log.conf: Logging priority now shown in log files
+	* pf/conf/log.conf: Logging priority now shown in log files. Fixes
+	#771;
+	http://www.packetfence.org/mantis/view.php?id=771
 
 	* pf/lib/pf/SNMP/Enterasys/SecureStack_C3.pm, pf/README_SWITCHES: Added
 	support for Enterasys SecureStack C3 Switch
