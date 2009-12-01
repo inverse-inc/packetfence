@@ -1,3 +1,7 @@
+2009-12-01	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/migrate-to-locationlog_history.sh: New script to help with
+	smoothly migrating entries in locationlog to locationlog_history.
+
 2009-11-30	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/db/pfschema.mysql.186, pf/installer.pl, pf/t/pfcmd.t, NEWS, 
 	pf/UPGRADE: All database tables are now of InnoDB format. Fixes #747;

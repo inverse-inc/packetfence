@@ -14,13 +14,16 @@ o Upgrading from a version prior to 1.8.6:
     mysql> alter table traplog ENGINE = InnoDB;
 
     - Backup script less aggressive about history
-    We are now keeping 15 days of locationlog instead of 2 with the database
-    backup script. Makes more sense for most users.
+    We are now keeping 15 days of locationlog instead of 2 with the optional 
+    database backup script in addons/. Makes more sense for most users.
 
     - Database schema update
-    A new table `locationlog_history` has been added to the database schema. If
-    you upgrade an existing database, make sure that you update your database 
-    schema with: mysql -u root -p pf < db/upgrade-1.8.4-1.8.6.sql
+    A new table `locationlog_history` has been added to the database schema. It
+    should be useful for people with big locationlog tables. Upgrading your 
+    schema is not required but recommended. You can update your schema with:
+    mysql -u root -p pf < db/upgrade-1.8.4-1.8.6.sql
+    The script migrate-to-locationlog_history.sh in addons/ can help you 
+    transition your old records to this new table.
 
     - Updated conf/ui.conf
     To fix a bug we had to change ui.conf. By default an rpm upgrade will 

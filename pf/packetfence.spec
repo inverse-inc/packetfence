@@ -326,6 +326,7 @@ fi
 %dir                    /usr/local/pf/addons/high-availability/
 			/usr/local/pf/addons/high-availability/*
 			/usr/local/pf/addons/logrotate
+%attr(0755, pf, pf)	/usr/local/pf/addons/migrate-to-locationlog_history.sh
 %attr(0755, pf, pf)     /usr/local/pf/addons/monitorpfsetvlan.pl
 %dir                    /usr/local/pf/addons/mrtg
                         /usr/local/pf/addons/mrtg/*
