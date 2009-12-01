@@ -1,4 +1,9 @@
 2009-12-01	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd, pf/conf/documentation.conf, pf/conf/pf.conf.defaults,
+	pf/lib/pf/node.pm: Expire mode deadline now works in vlan isolation
+	mode. Fixes #865;
+	http://www.packetfence.org/mantis/view.php?id=865
+
 	* pf/addons/migrate-to-locationlog_history.sh: New script to help with
 	smoothly migrating entries in locationlog to locationlog_history.
 
