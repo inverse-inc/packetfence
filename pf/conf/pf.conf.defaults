@@ -264,6 +264,7 @@ expire_window=52w
 # If expire_mode is set to "session", this is the amount of time after
 # a node's iplog entry is closed that it reverts to an unregistered
 # state.
+# Warning: Does not work in vlan isolation mode!
 expire_session=5m
 #
 # registration.queuesize

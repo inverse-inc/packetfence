@@ -593,10 +593,7 @@ sub nodes_maintenance {
                 $logger->info("modified $currentMac from status 'reg' to 'unreg' based on expiration window" );
             };
 
-        } elsif (  ( lc($expire_mode) eq 'deadline' )
-            && ( time - $Config{'registration'}{'expire_deadline'} > 0 ) 
-            &&  !( $Config{'network'}{'mode'} =~ /vlan/i ) )
-        {
+        } elsif ((lc($expire_mode) eq 'deadline' ) && ( time - $Config{'registration'}{'expire_deadline'} > 0 )) {
             $node_expire_deadline_sql->execute() || return (0);
             while (my $row = $node_expire_deadline_sql->fetchrow_hashref()) {
                 my $currentMac = $row->{mac};

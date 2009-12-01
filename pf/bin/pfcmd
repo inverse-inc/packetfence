@@ -2377,17 +2377,11 @@ sub sanity_check {
         );
     }
 
-    # make sure that expire_modes deadline and session
-    # are disabled in VLAN isolation
-    if (   ( lc($Config{'network'}{'mode'}) eq 'vlan' )
-        && ( ( lc($Config{'registration'}{'expire_mode'}) eq 'deadline' )
-           || ( lc($Config{'registration'}{'expire_mode'}) eq 'session' ) )
-        )
-    {
-        $logger->logdie("automatic node expiration mode "
-            . $Config{'registration'}{'expire_mode'}
-            . " is currently incompatible with VLAN isolation"
-        );
+    # make sure that expire_mode session is disabled in VLAN isolation
+    if ((lc($Config{'network'}{'mode'}) eq 'vlan') && (lc($Config{'registration'}{'expire_mode'}) eq 'session')) {
+
+        $logger->logdie("automatic node expiration mode ".$Config{'registration'}{'expire_mode'}
+            . " is currently incompatible with VLAN isolation");
     }
 
     # make sure that networks.conf is not empty when vlan.dhcpd
