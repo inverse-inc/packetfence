@@ -37,7 +37,7 @@ Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
 Version: 1.8.6
 # Update here on each release/snapshot
-%define source_release 0.20091120
+%define source_release 1
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -50,9 +50,9 @@ Packager: Inverse inc. <support@inverse.ca>
 Vendor: PacketFence, http://www.packetfence.org
 
 # for snapshot releases
-Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}-%{source_release}.tar.gz
+#Source: http://www.packetfence.org/downloads/%{name}-%{version}-%{source_release}.tar.gz
 # for official releases
-#Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz
+Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz
 
 BuildRequires: gettext, httpd
 # install follow dep with: yum install perl-Parse-RecDescent-1.94
@@ -481,6 +481,10 @@ fi
 %attr(0755, root, root) %{_initrddir}/pfdetectd
 
 %changelog
+* Tue Dec 01 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.6-1
+- Version bump to 1.8.6
+- Changed Source of the snapshot releases to packetfence.org
+
 * Fri Nov 20 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.6-0.20091120
 - Version bump to snapshot 20091120
 - Changed some default behavior for overwriting config files (for the better)

@@ -240,9 +240,12 @@ auth=local
 #
 # registration.expire_mode
 #
-# If set to "deadline", the expire_deadline option defines the date at which a node reverts to an unregistered 
-# state.  If set to "window", the window is used to determine the length of time  after first # network access that a node
-# remains registered.
+# If set to "deadline", the expire_deadline option defines the date at
+# which a node reverts to an unregistered state.  If set to "window",
+# the window is used to determine the length of time after registration
+# that a node remains registered.  If set to "session", it specifies
+# that a client should be unregistered as soon as its iplog entry closes
+# (or with a bit of latency - check regitration.expire_session).
 expire_mode=disabled
 #
 # registration.expire_deadline
@@ -253,12 +256,15 @@ expire_deadline=Mon Nov 12 12:00:00 EST 2012
 #
 # registration.expire_window
 #
-# If expire_mode is set to "window", this is length of time after first network access that a node reverts to an unregistered state.
+# If expire_mode is set to "window", this is length of time after
+# registration that a node reverts to an unregistered state.
 expire_window=52w
 #
 # registration.expire_session
-# If expire_mode is set to "session", this is the length of time after a node's iplog entry closes that it will revert to an
-# unregistered state.
+# If expire_mode is set to "session", this is the amount of time after
+# a node's iplog entry is closed that it reverts to an unregistered
+# state.
+# Warning: Does not work in vlan isolation mode!
 expire_session=5m
 #
 # registration.queuesize
