@@ -1,4 +1,10 @@
 2009-12-01	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/ChangeLog, pf/NEWS, pf/conf/pf-release, pf/installer.pl, 
+	pf/packetfence.spec, pf/t/pfcmd.t, 
+	pf/docs/PacketFence_Administration_Guide.odt,
+	pf/docs/PacketFence_Developers_Guide.odt,
+	pf/docs/PacketFence_Installation_Guide.odt: Bump to version 1.8.6
+
 	* pf/bin/pfcmd, pf/conf/documentation.conf, pf/conf/pf.conf.defaults,
 	pf/lib/pf/node.pm: Expire mode deadline now works in vlan isolation
 	mode. Fixes #865;

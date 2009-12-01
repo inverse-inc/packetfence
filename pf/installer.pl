@@ -99,7 +99,7 @@ my %oses = (
 my @suids = ( "$install_dir/bin/pfcmd" );
 
 my %schemas = (
-    "9ed395fe2db85ee887d390cebcd7f491" => "1.8.6",
+    "a3ad9f52b7d31c8d4b5e9b0c2c3dd559" => "1.8.6",
     "55ec69a0e574dac8eada8b65a8cbd4f5" => "1.8.4",
     "de911c990735fd5a6339830830010368" => "1.8.3",
     "ad6bad46d67c569a23bdc786219a0251" => "1.8.1",
