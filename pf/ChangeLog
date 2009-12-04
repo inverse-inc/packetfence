@@ -1,4 +1,7 @@
 2009-12-04	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFenceZEN_Installation_Guide.odt: Updated ZEN guide for
+	upcomming PacketFence ZEN release 1.8.6
+
 	* pf/packetfence.spec: Updated RPM spec with link to correct database
 	schema. Rebuilt packages: 1.8.6-2
 
