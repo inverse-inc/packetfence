@@ -1,3 +1,10 @@
+2009-12-04	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec: Updated RPM spec with link to correct database
+	schema. Rebuilt packages: 1.8.6-2
+
+2009-12-03	Regis Balzard <rbalzard@inverse.ca>
+	* pf/html/admin/login.php: Added optional LDAP params for admin login
+
 2009-12-01	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/ChangeLog, pf/NEWS, pf/conf/pf-release, pf/installer.pl, 
 	pf/packetfence.spec, pf/t/pfcmd.t, 

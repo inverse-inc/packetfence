@@ -37,7 +37,7 @@ Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
 Version: 1.8.6
 # Update here on each release/snapshot
-%define source_release 1
+%define source_release 2
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -205,7 +205,7 @@ curdir=`pwd`
 
 #pfschema symlink
 cd $RPM_BUILD_ROOT/usr/local/pf/db
-ln -s pfschema.mysql.184 ./pfschema.mysql
+ln -s pfschema.mysql.186 ./pfschema.mysql
 
 #httpd.conf symlink
 #TODO: isn't it stupid to decide what Apache version is there at rpm build time?
@@ -481,6 +481,10 @@ fi
 %attr(0755, root, root) %{_initrddir}/pfdetectd
 
 %changelog
+* Tue Dec 04 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.6-2
+- Fixed link to database schema
+- Rebuilt packages
+
 * Tue Dec 01 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.6-1
 - Version bump to 1.8.6
 - Changed Source of the snapshot releases to packetfence.org
