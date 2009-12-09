@@ -1,4 +1,12 @@
 2009-12-08	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Aruba.pm: Improving Aruba code
+	Doesn't rely on an open iplog entry to work
+	Extracted generic code in util.pm
+	Paved the way for 802.1x deauth support
+	Improved POD doc
+	Doesn't rely on an open iplog entry to work: Fixes #871;
+	http://www.packetfence.org/mantis/view.php?id=871
+
 	* pf/lib/pf/util.pm: Two new util subroutines: mac2oid and oid2mac
 
 2009-12-04	Olivier Bilodeau <obilodeau@inverse.ca>

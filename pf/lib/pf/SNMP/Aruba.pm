@@ -19,7 +19,17 @@ use base ('pf::SNMP');
 use POSIX;
 use Log::Log4perl;
 use Net::Telnet;
+use pf::util;
 
+=head1 SUBROUTINES
+
+TODO: this list is incomplete
+
+=over
+
+=item getVersion - obtain image version information from switch
+
+=cut
 sub getVersion {
     my ($this)       = @_;
     my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';
@@ -59,6 +69,9 @@ sub parseTrap {
     return $trapHashRef;
 }
 
+=item deauthenticateMac - deauthenticate a MAC address from wireless network (including 802.1x)
+
+=cut
 sub deauthenticateMac {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -79,80 +92,119 @@ sub deauthenticateMac {
         return 1;
     }
 
-    # In order to deauthenticate a client we need to retrieve the SSID (actually it is the MAC address of the AP) to which it is connected.
-    # We find this information in the nUserApBSSID entry of the WLSX-USER-MIB mib.
-    # The entry looks like:
-    # 1.3.6.1.4.1.14823.2.2.1.4.1.2.1.10.0.30.194.172.28.94.192.168.1.124 = STRING: 00:0b:86:cc:64:68';
-    # which is actually:
-    #        $OID_nUserApBSSID          .       mac        .      ip      = STRING: 00:0b:86:cc:64:68';
+    $this->_deauthenticateMAC($mac);
+}
 
-    #format MAC
-    my @macArray = split( /:/, $mac );
-    my $completeOid = $OID_nUserApBSSID;
-    foreach my $macPiece (@macArray) {
-        $completeOid .= "." . hex($macPiece);
-    }
-
-    # Add the client IP
-    require pf::iplog;
-    my $ip = pf::iplog::mac2ip($mac) || 0;
-    if ($ip eq 0) {
-        $logger->error("Can not find open entry in iplog for $mac");
-        return 1;
-    }
-    $completeOid .= "." . $ip;
-
-    # Query the controler to get the MAC address of the AP to which the client is associated
-    $logger->trace("SNMP get_request for nUserApBSSID: $completeOid");
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$completeOid] );
-    if (defined($result)) {
-        my $apSSID = $result->{$completeOid};
-        if ($apSSID =~ /0x([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})/i) {
-            $apSSID = uc("$1:$2:$3:$4:$5:$6");
-        } else {
-            $logger->error("The MAC address format of the SSID is invalid: $apSSID");
-            return 1;
-        }
-
-        # use telnet to deauthenticate the client
-        my $session;
-        eval {
-            $session = Net::Telnet->new(
-                Host    => $this->{_ip},
-                Timeout => 5,
-                Prompt  => '/[\$%#>]$/'
-            );
-            $session->waitfor('/User: /');
-            $session->put( $this->{_cliUser} . "\n" );
-            $session->waitfor('/Password:/');
-            $session->put( $this->{_cliPwd} . "\n" );
-            $session->waitfor( $session->prompt );
-            $session->put( "en\n" );
-            $session->waitfor('/Password:/');
-            $session->put( $this->{_cliEnablePwd} . "\n" );
-            $session->waitfor( $session->prompt );
-        };
-
-        if ($@) {
-            $logger->error("Can't connect to Aruba Controller ".$this->{'_ip'}." using ".$this->{_cliTransport});
-            #$logger->error( Dumper($@));
-            return 1;
-        }
-
-        my $cmd = "stm kick-off-sta $mac $apSSID";
-        $logger->debug("deauthenticating $mac from SSID $apSSID with `$cmd`");
-        $session->cmd($cmd);
-        $session->close();
-        return 1;
-    } else {
-        $logger->error("Can not get AP SSID from Aruba Controller for MAC $mac");
-    }
+sub dot1xDeauthenticateMAC {
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
 }
+
+=item _deauthenticateMAC - deauthenticate a MAC from controller if user is not in 802.1x mode
+
+Here we used to specify MAC and IP in the OID but it doesn't work in a lot of 
+cases. As soon as the client stops doing activity for a little while, the IP 
+is forgotten but you can still access the good BSSID with 0.0.0.0 appended at 
+the end of the OID (no IP).
+
+What we are doing now is fetching the table instead of only one entry and
+issuing deauth on the matching MAC in OID format. Worked in my tests with 
+and without an IP in the table.
+
+* Private: don't call outside of same object, use deauthenticateMac externally *
+
+=cut
+sub _deauthenticateMAC {
+    my ($this, $mac) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $OID_nUserApBSSID = '1.3.6.1.4.1.14823.2.2.1.4.1.2.1.11'; # from WLSX-USER-MIB
+
+    # Query the controller to get the MAC address of the AP to which the client is associated
+    $logger->trace("SNMP get_table for nUserApBSSID: $OID_nUserApBSSID");
+    my $result = $this->{_sessionRead}->get_table(-baseoid => "$OID_nUserApBSSID");
+    if (keys %{$result}) {
+
+        my $session = $this->getTelnetSession;
+        if (!$session) {
+            $logger->error("Can't connect to Aruba Controller ".$this->{'_ip'}." using ".$this->{_cliTransport});
+            return;
+        }
+
+        # keep track of how many BSSID we grabbed for this MAC
+        my $count;
+
+        # convert MAC into oid format
+        my $macOID = mac2oid($mac);
+
+        foreach my $macIpToBSSID (keys %{$result}) {
+            if ($macIpToBSSID =~ /^$OID_nUserApBSSID\.$macOID/) { 
+                # TODO: move over clean_mac or valid_mac?
+                if ($result->{$macIpToBSSID} =~ /0x([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})/i) {
+                    my $apSSID = uc("$1:$2:$3:$4:$5:$6");
+                    my $cmd = "stm kick-off-sta $mac $apSSID";
+
+                    $logger->debug("deauthenticating $mac from SSID $apSSID with `$cmd`");
+                    $session->cmd($cmd);
+                    $count++;
+                } else {
+                    $logger->error("The MAC address format of the SSID is invalid: $macIpToBSSID");
+                }
+            }
+        }
+
+        $session->close();
+        if ($count > 1) {
+            $logger->warn("We deauthenticated more than one client with mac $mac");
+        } elsif ($count == 0) {
+            $logger->info("no one was deauthenticated (request with mac $mac)");
+        }
+    } else {
+        $logger->error("Can not get AP SSID from Aruba Controller for MAC $mac");
+        return;
+    }
+}
+
+# TODO: extract in a more generic place?
+sub getTelnetSession {
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    # use telnet to deauthenticate the client
+    # FIXME: we do not honor the $this->{_cliTransport} parameter
+    my $session;
+    eval {
+        $session = Net::Telnet->new(
+            Host    => $this->{_ip},
+            Timeout => 5,
+            Prompt  => '/[\$%#>]$/'
+        );
+        $session->waitfor('/User: /');
+        $session->put( $this->{_cliUser} . "\n" );
+        $session->waitfor('/Password:/');
+        $session->put( $this->{_cliPwd} . "\n" );
+        $session->waitfor( $session->prompt );
+        $session->put( "en\n" );
+        $session->waitfor('/Password:/');
+        $session->put( $this->{_cliEnablePwd} . "\n" );
+        $session->waitfor( $session->prompt );
+    };
+
+    if ($@) {
+        #$logger->error( Dumper($@));
+        return;
+    }
+
+    return $session;
+}
+
+=back
 
 =head1 AUTHOR
 
 Regis Balzard <rbalzard@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
