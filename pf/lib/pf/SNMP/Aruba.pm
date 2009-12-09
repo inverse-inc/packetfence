@@ -21,6 +21,8 @@ use Log::Log4perl;
 use Net::Telnet;
 use pf::util;
 
+use constant AUTH_DOT1X => 4;
+
 =head1 SUBROUTINES
 
 TODO: this list is incomplete
@@ -71,11 +73,13 @@ sub parseTrap {
 
 =item deauthenticateMac - deauthenticate a MAC address from wireless network (including 802.1x)
 
+Here, we find out what submodule to call _dot1xDeauthenticateMAC or _deauthenticateMAC and call accordingly.
+
 =cut
 sub deauthenticateMac {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
-    my $OID_nUserApBSSID = '1.3.6.1.4.1.14823.2.2.1.4.1.2.1.11';
+    my $OID_nUserAuthenticationMethod = '1.3.6.1.4.1.14823.2.2.1.4.1.2.1.6'; # from WLSX-USER-MIB
 
     if ( !$this->isProductionMode() ) {
         $logger->info("not in production mode ... we won't write to the bnsMobileStationTable");
@@ -92,12 +96,62 @@ sub deauthenticateMac {
         return 1;
     }
 
-    $this->_deauthenticateMAC($mac);
+    # Query the controller to get the type of authentication the user is using
+    $logger->trace("SNMP get_table for nUserAuthenticationMethod: $OID_nUserAuthenticationMethod");
+    my $result = $this->{_sessionRead}->get_table(-baseoid => "$OID_nUserAuthenticationMethod");
+    # is there at least one result?
+    if (keys %{$result}) {
+
+        # convert MAC into oid format
+        my $macOID = mac2oid($mac);
+
+        # Fetch Auth Method for the MAC we are interested in
+        my $count = 0;
+        foreach my $macIpToUserAuthMethod (keys %{$result}) {
+            if ($macIpToUserAuthMethod =~ /^$OID_nUserAuthenticationMethod\.$macOID/) {
+                if ($count > 1) { 
+                    $logger->warn("MAC: $mac returned two authentication method, it should not happen!" .
+                                  " Please file a bug with steps to reproduce");
+                    return;
+                } else {
+                    if ($result->{$macIpToUserAuthMethod} == AUTH_DOT1X) {
+                        $logger->trace("using 802.1x deauth method");
+                        $this->_dot1xDeauthenticateMAC($mac);
+                    } else {
+                        # Any other authentication method lets kick out with traditionnal approach
+                        $logger->trace("using non-802.1x deauth method");
+                        $this->_deauthenticateMAC($mac);
+                    }
+                    $count++;
+                }
+           }
+        }
+    } else {
+        $logger->error("was not able to find user authentication type for mac $mac, unable to deauthenticate");
+    }
 }
 
-sub dot1xDeauthenticateMAC {
-    my ($this) = @_;
+=item _dot1xDeauthenticateMAC - deauthenticate a MAC from controller when user is in 802.1x mode
+
+* Private: don't call outside of same object, use deauthenticateMac externally *
+
+=cut
+sub _dot1xDeauthenticateMAC {
+    my ($this, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
+
+    my $session = $this->getTelnetSession;
+    if (!$session) {
+        $logger->error("Can't connect to Aruba Controller ".$this->{'_ip'}." using ".$this->{_cliTransport});
+        return;
+    }
+
+    my $cmd = "aaa user delete mac $mac";
+
+    $logger->debug("deauthenticating 802.1x $mac with `$cmd`");
+    $session->cmd($cmd);
+
+    $session->close();
 
 }
 
@@ -132,7 +186,7 @@ sub _deauthenticateMAC {
         }
 
         # keep track of how many BSSID we grabbed for this MAC
-        my $count;
+        my $count = 0;
 
         # convert MAC into oid format
         my $macOID = mac2oid($mac);
