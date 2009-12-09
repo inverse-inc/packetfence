@@ -37,8 +37,7 @@ BEGIN {
         isdisabled getlocalmac ip2int int2ip get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_internal_ips
         get_internal_devs get_internal_devs_phy get_external_devs get_managed_devs get_internal_macs
         get_internal_info get_gateways get_dhcp_devs createpid readpid deletepid
-        pfmon_preload
-        parse_template mysql_date oui_to_vendor);
+        pfmon_preload parse_template mysql_date oui_to_vendor mac2oid oid2mac);
 }
 
 use pf::config;
@@ -312,6 +311,42 @@ sub isinternal {
         }
     }
     return (0);
+}
+
+=item * oid2mac - convert a MAC in oid format to a MAC in usual format 
+
+in: 6 dot-separated digits (ex: 0.18.240.19.50.186)
+
+out: comma-separated MAC address (ex: 00:12:f0:13:32:ba)
+
+=cut
+sub oid2mac {
+    my ($oid) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::util');
+    if ($oid =~ /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/) {
+        return lc(sprintf( "%02X:%02X:%02X:%02X:%02X:%02X", $1, $2, $3, $4, $5, $6));
+    } else { 
+        $logger->warn("$oid is not a MAC in oid format");
+        return;
+    }
+}
+
+=item * mac2oid - convert a MAC in usual pf format into a MAC in oid format
+
+in: comma-separated MAC address (ex: 00:12:f0:13:32:ba). Use clean_mac() if you need.
+
+out: 6 dot-separated digits (ex: 0.18.240.19.50.186)
+
+=cut
+sub mac2oid {
+    my ($mac) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::util');
+    if ($mac =~ /^([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2})$/i) {
+        return hex($1).".".hex($2).".".hex($3).".".hex($4).".".hex($5).".".hex($6);
+    } else {
+        $logger->warn("$mac is not a valid MAC");
+        return;
+    }
 }
 
 sub pfmailer {
