@@ -18,6 +18,7 @@ Version <release> - <codename> released on <releaseDate>
 
 Bug fixes
 - Fixed issues with Aruba Controller (#871, #873)
+- Fixed issues with multiple registration in same browser session (#761)
 
 --------------------------------------------------------------------------------
 Version 1.8.6 released on 2009-12-01

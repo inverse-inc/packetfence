@@ -484,9 +484,6 @@ sub web_user_authenticate {
 
     my ( $cgi, $session ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
-    if ( $session->param("login") ) {
-        return ( 1, 0 );    # if logged in, don't bother going further
-    }
     if (   $cgi->param("login")
         && $cgi->param("password")
         && $cgi->param("auth") )

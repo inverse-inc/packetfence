@@ -5,6 +5,16 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to <release>:
+
+    - Registration login no longer kept in browser session
+    We fixed a bug that changes the behavior of the registration login. Before
+    if you registered and deregistered while keeping your browser open, you
+    would not be presented with the login page if you tried to register again. 
+    You would have been automatically authenticated. This is no longer the case.
+    You will need to re-authenticate now. You might have relied on that 
+    behavior.
+
 o Upgrading from a version prior to 1.8.6:
 
     - Table format changed

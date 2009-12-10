@@ -1,3 +1,10 @@
+2009-12-10	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/web.pm: We no longer bindly accept someone who is 
+	authenticated based on session information. In effect, this prevents
+	users from re-registering without entering username / password again.
+	Fixes #761;
+	http://www.packetfence.org/mantis/view.php?id=761
+
 2009-12-08	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/SNMP/Aruba.pm: 802.1x deauthentication support and
 	deauthenticateMac() appropriately call right deauth based on the
