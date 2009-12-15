@@ -2573,7 +2573,7 @@ sub generate_switchport_vlan_assignment {
                 }
             }
         } else {
-            $logger->warn("no open locationlog entry for $mac");
+            $logger->warn("Can't change VLAN for mac $mac because no open locationlog entry was found");
         }
     }
     return 1;

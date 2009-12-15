@@ -20,6 +20,7 @@ Bug fixes
 - Fixed issues with Aruba Controller (#871, #873)
 - Fixed issues with multiple registration in same browser session (#761)
 - Fixed situation where a Windows 7 client would slow down captive portal
+- Clarified some error messages
 
 --------------------------------------------------------------------------------
 Version 1.8.6 released on 2009-12-01
