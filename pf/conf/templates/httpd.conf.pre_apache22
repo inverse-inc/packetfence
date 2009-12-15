@@ -144,7 +144,10 @@ SetEnvIf User-Agent ".*MSIE.*" \
   #RewriteRule ^/remupd/cidsync.upd$ - [F,L]
   #RewriteRule ^/NTInst/i386/cidsync.upd$ - [F,L]
 
-  # Some UserAgents we don't want to mess with
+  # return 403 to Windows Proxy Autodetection (avoid server load)
+  RewriteRule ^/wpad.dat$ - [F,L]
+
+  # Some UserAgents we don't want to mess with (avoid server load)
   RewriteCond %{HTTP_USER_AGENT} ^Microsoft-CryptoAPI.* [OR]
   RewriteCond %{HTTP_USER_AGENT} ^WinHttp-Autoproxy-Service.* [OR]
   RewriteCond %{HTTP_USER_AGENT} ^Windows-Update-Agent.*
@@ -200,7 +203,10 @@ SetEnvIf User-Agent ".*MSIE.*" \
   #RewriteLogLevel 3
   #RewriteLog %%install_dir%%/logs/rewrite_log
 
-  # Some UserAgents we don't want to mess with
+  # return 403 to Windows Proxy Autodetection (avoid server load)
+  RewriteRule ^/wpad.dat$ - [F,L]
+
+  # Some UserAgents we don't want to mess with (avoid server load)
   RewriteCond %{HTTP_USER_AGENT} ^Microsoft-CryptoAPI.* [OR]
   RewriteCond %{HTTP_USER_AGENT} ^WinHttp-Autoproxy-Service.* [OR]
   RewriteCond %{HTTP_USER_AGENT} ^Windows-Update-Agent.*

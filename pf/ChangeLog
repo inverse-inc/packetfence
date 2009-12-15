@@ -1,3 +1,8 @@
+2009-12-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/templates/httpd.conf.pre_apache22,
+	pf/conf/templates/httpd.conf.apache22: Windows Proxy autoconfiguration 
+	gets a forbidden on captive portal (reduce load)
+
 2009-12-10	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/web.pm: We no longer bindly accept someone who is 
 	authenticated based on session information. In effect, this prevents
