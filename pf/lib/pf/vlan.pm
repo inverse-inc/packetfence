@@ -142,7 +142,9 @@ sub custom_doWeActOnThisTrap {
         return 1;
     }
     if ( $trapType eq 'dot11Deauthentication' ) {
-        return 1;
+        # we no longer act on dot11Deauth traps see bug #880
+        # http://www.packetfence.org/mantis/view.php?id=880
+        return 0;
     }
 
     my $ifType = $switch->getIfType($ifIndex);

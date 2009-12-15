@@ -7,6 +7,11 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <release>:
 
+    - No action on wireless deauthentication traps
+    PacketFence no longer close locationlog entries based on wireless 
+    deauthencation traps. It was causing more problems than anything. See bug
+    #880 for details: http://www.packetfence.org/mantis/view.php?id=880
+
     - Registration login no longer kept in browser session
     We fixed a bug that changes the behavior of the registration login. Before
     if you registered and deregistered while keeping your browser open, you
