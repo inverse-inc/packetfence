@@ -129,6 +129,7 @@ as
 Group: System Environment/Daemons
 Requires: perl >= 5.8.0, snort, perl(File::Tail), perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay)
 Requires: perl-SOAP-Lite
+Requires: perl-LWP-UserAgent-Determined
 Conflicts: packetfence
 AutoReqProv: 0
 Summary: Files needed for sending snort alerts to packetfence
@@ -485,6 +486,9 @@ fi
 * Thu Dec 17 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.6-3
 - Added perl-SOAP-Lite as a dependency of remote-snort-sensor. Fixes #881;
   http://www.packetfence.org/mantis/view.php?id=881
+- Added perl-LWP-UserAgent-Determined as a dependency of remote-snort-sensor.
+  Fixes #882;
+  http://www.packetfence.org/mantis/view.php?id=882
 
 * Tue Dec 04 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.6-2
 - Fixed link to database schema

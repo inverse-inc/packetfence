@@ -21,7 +21,7 @@ Bug fixes
 - Fixed issues with multiple registration in same browser session (#761)
 - Fixed issues in some wireless scenarios (#880)
 - Fixed situation where a Windows 7 client would slow down captive portal
-- Fixed missing dependency in packetfence-remote-snort-sensor RPM (#881)
+- Fixed missing dependencies in packetfence-remote-snort-sensor RPM (#881, #882)
 - Clarified some error messages
 
 --------------------------------------------------------------------------------

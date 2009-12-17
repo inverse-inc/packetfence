@@ -1,4 +1,8 @@
 2009-12-17	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec: Added perl-LWP-UserAgent-Determined as a 
+	dependency of remote-snort-sensor. Fixes #882;
+	http://www.packetfence.org/mantis/view.php?id=882
+
 	* pf/packetfence.spec: Added perl-SOAP-Lite as a dependency of 
 	remote-snort-sensor. Fixes #881;
 	http://www.packetfence.org/mantis/view.php?id=881
