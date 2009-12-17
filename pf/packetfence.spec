@@ -37,7 +37,7 @@ Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
 Version: 1.8.6
 # Update here on each release/snapshot
-%define source_release 2
+%define source_release 3
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -128,6 +128,7 @@ as
 %package remote-snort-sensor
 Group: System Environment/Daemons
 Requires: perl >= 5.8.0, snort, perl(File::Tail), perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay)
+Requires: perl-SOAP-Lite
 Conflicts: packetfence
 AutoReqProv: 0
 Summary: Files needed for sending snort alerts to packetfence
@@ -481,6 +482,10 @@ fi
 %attr(0755, root, root) %{_initrddir}/pfdetectd
 
 %changelog
+* Thu Dec 17 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.6-3
+- Added perl-SOAP-Lite as a dependency of remote-snort-sensor. Fixes #881;
+  http://www.packetfence.org/mantis/view.php?id=881
+
 * Tue Dec 04 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.6-2
 - Fixed link to database schema
 - Rebuilt packages
