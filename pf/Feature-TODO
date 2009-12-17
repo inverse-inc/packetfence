@@ -1,0 +1,4 @@
+- Pragmatically test for memory leaks (since we can't realistically check all the code, modules)
+10 threads with millions of jobs each should do it
+
+- Update NEWS and UPGRADE on feature merge
