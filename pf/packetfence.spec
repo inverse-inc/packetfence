@@ -60,6 +60,7 @@ BuildRequires: perl-Parse-RecDescent = 1.94
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl, php, php-gd
+Requires: mod_perl
 # php-pear-Log required not php-pear, fixes #804
 Requires: php-pear-Log
 Requires: net-tools
@@ -483,6 +484,9 @@ fi
 %attr(0755, root, root) %{_initrddir}/pfdetectd
 
 %changelog
+* Thu Dec 17 2009 Olivier Bilodeau <obilodeau@inverse.ca> - <version>
+- Added mod_perl as a dependency
+
 * Thu Dec 17 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.6-3
 - Added perl-SOAP-Lite as a dependency of remote-snort-sensor. Fixes #881;
   http://www.packetfence.org/mantis/view.php?id=881

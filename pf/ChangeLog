@@ -1,4 +1,11 @@
 2009-12-17	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/templates/httpd.conf.apache22, 
+	pf/conf/templates/httpd.conf.pre_apache22: pdp.cgi uses mod_perl 
+	instead of being a simple cgi. Big performance gain (6x in my tests)
+
+	* pf/packetfence.spec: mod_perl as a packetfence dependency
+
+2009-12-17	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec: Added perl-LWP-UserAgent-Determined as a 
 	dependency of remote-snort-sensor. Fixes #882;
 	http://www.packetfence.org/mantis/view.php?id=882

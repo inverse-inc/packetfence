@@ -77,7 +77,10 @@ DirectoryIndex index.html index.cgi index.php
   #LoadModule php5_module modules/libphp5.so
   LoadModule php4_module modules/libphp4.so
 </IfModule>
-
+<IfModule !mod_perl.c>
+  LoadModule perl_module modules/mod_perl.so
+</IfModule>
+ 
 AddType application/x-httpd-php .php
 #<Files *.php>
 #    SetOutputFilter PHP
@@ -265,7 +268,9 @@ SetEnvIf User-Agent ".*MSIE.*" \
   </Location>
 
   <Location /cgi-bin/pdp.cgi>
-    SetHandler cgi-script
+    SetHandler perl-script
+    PerlResponseHandler ModPerl::PerlRun
+    PerlOptions +ParseHeaders
     Options Indexes FollowSymLinks ExecCGI
   </Location>
 
