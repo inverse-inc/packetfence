@@ -58,7 +58,7 @@ sub vlan_determine_for_node {
         # fetch top violation
         $logger->debug("What is the highest priority violation for this host?");
         my $top_violation = violation_view_top($mac);
-        if ($top_violation) {
+        if ($top_violation && defined($top_violation->{'vid'})) {
 
             # get violation id
             my $vid=$top_violation->{'vid'};
@@ -66,7 +66,7 @@ sub vlan_determine_for_node {
             # find violation class based on violation id
             require pf::class;
             my $class=pf::class::class_view($vid);
-            if ($class) {
+            if ($class && defined($class->{'vlan'})) {
 
                 # override violation destination vlan
                 $vlan = $class->{'vlan'};

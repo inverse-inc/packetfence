@@ -1,6 +1,6 @@
 2009-12-18	Olivier Bilodeau <obilodeau@inverse.ca>
-	* pf/lib/vlan.pm: Removed warning when $switch_ip is not defined in
-	configuration file
+	* pf/lib/vlan.pm: Removed several warnings discovered while building a
+	vlan test
 
 2009-12-17	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/conf/templates/httpd.conf.apache22, 
