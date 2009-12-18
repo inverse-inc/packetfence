@@ -7,6 +7,7 @@ pf::vlan - Object oriented module for VLAN isolation oriented functions
 =head1 SYNOPSIS
 
 The pf::vlan module contains the functions necessary for the VLAN isolation.
+All the behavior contained here can be overloaded in lib/pf/vlan/custom.pm.
 
 =cut
 
