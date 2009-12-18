@@ -23,6 +23,7 @@ Bug fixes
 - Fixed situation where a Windows 7 client would slow down captive portal
 - Fixed missing dependencies in packetfence-remote-snort-sensor RPM (#881, #882)
 - Clarified some error messages
+- Removed some unnecessary warnings
 
 --------------------------------------------------------------------------------
 Version 1.8.6 released on 2009-12-01

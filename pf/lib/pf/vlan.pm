@@ -195,6 +195,9 @@ sub custom_getCorrectVlan {
     my $switchFactory = new pf::SwitchFactory(-configFile => "$conf_dir/switches.conf");
     my %Config = %{$switchFactory->{_config}};
 
+    # empty hash reference avoidance (return normal vlan if switch doesn't exist)
+    return $Config{'default'}{'normalVlan'} unless $switch_ip;
+
     # return switch-specific normal vlan or default normal vlan (if switch-specific normal vlan not defined)
     return ($Config{$switch_ip}{'normalVlan'} || $Config{'default'}{'normalVlan'});
 }
