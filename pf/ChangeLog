@@ -1,4 +1,8 @@
 2009-12-18	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/t/vlan.t, pf/t/data/switches.conf: New vlan.t testsuite that tests
+	lib/pf/vlan.pm. Some pretty interesting learning made there, definitely
+	more to come on the test front.
+
 	* pf/lib/vlan.pm: Removed several warnings discovered while building a
 	vlan test
 
