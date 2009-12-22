@@ -1,4 +1,7 @@
 2009-12-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* renamed pf/t/SNMP.t to pf/t/hardware-snmp-objects.t, modified 
+	t/SNMP.t: Added tests specific to lib/SNMP.pm (renamed other tests)
+
 	* pf/bin/pfcmd, pf/conf/switches.conf, pf/conf/ui.conf, 
 	pf/conf/violations.conf, pf/html/admin/configuration/switches.php, 
 	pf/lib/pf/SNMP.pm, pf/lib/pf/pfcmd/pfcmd.pm:
