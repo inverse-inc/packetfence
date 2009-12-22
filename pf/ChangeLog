@@ -1,3 +1,25 @@
+2009-12-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd, pf/conf/switches.conf, pf/conf/ui.conf, 
+	pf/conf/violations.conf, pf/html/admin/configuration/switches.php, 
+	pf/lib/pf/SNMP.pm, pf/lib/pf/pfcmd/pfcmd.pm:
+	added fields guestVlan customVlan1 customVlan2 customVlan3 customVlan4 
+	customVlan5 as valid vlan definitions in switches.conf
+
+	* pf/bin/pfcmd_vlan:
+	- realigned spacing of pod2usage (was broken by tabs)
+	- updated copyright, authors
+	- new parameter -vlanName
+	- using setVlanByName instead of newly deprecated setIsolationVlan and
+	  setNormalVlan
+
+	* pf/lib/pf/SNMP.pm: 
+	- new sub setVlanByName, sets switch/ifIndex a vlan according to what's
+	  defined in switches.conf
+	- new sub placeholder for the future: setVlanWithName
+	- deprecated setIsolationVlan, setRegistrationVlan, setNormalVlan
+	- setVlanAllPort now sets vlan according to # or name based on what the
+	  value of vlan is
+
 2009-12-18	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/t/vlan.t, pf/t/data/switches.conf: New vlan.t testsuite that tests
 	lib/pf/vlan.pm. Some pretty interesting learning made there, definitely
