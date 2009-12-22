@@ -563,22 +563,23 @@ sub _setVlanByOnlyModifyingPvid {
 Input: ifIndex, vlan name (as in switches.conf), switch lock
 
 =cut
+# TODO: get rid of the _ character in front of the vlan variables (refactoring)
 sub setVlanByName {
     my ($this, $ifIndex, $vlanName, $switch_locker_ref) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    if (!defined($this->{_$vlanName})) {
+    if (!exists($this->{"_".$vlanName})) {
         # VLAN name doesn't exist
         $logger->warn("VLAN $vlanName is not a valid VLAN identifier (see switches.conf)");
         return;
     }
 
-    if ($this->{_$vlanName} !~ /^\d+$/) {
+    if ($this->{"_".$vlanName} !~ /^\d+$/) {
         # is not resolved to a valid VLAN number
         $logger->warn("VLAN $vlanName is not properly configured in switches.conf, not a vlan number");
         return;
     }
-    return $this->setVlan($ifIndex, $this->{_$vlanName}, $switch_locker_ref);
+    return $this->setVlan($ifIndex, $this->{"_".$vlanName}, $switch_locker_ref);
 }
 
 =item setIsolationVlan - set the port VLAN to the isolation VLAN
