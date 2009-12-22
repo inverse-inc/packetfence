@@ -18,5 +18,6 @@ runtests( qw(
               podCoverage.t
               php.t
               services.t
+              vlan.t
             )
 );
