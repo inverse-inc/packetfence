@@ -6,8 +6,8 @@ test pfcmd_vlan setVlan with a string
 test pfcmd_vlan setAllVlan with a string
 test pfcmd_vlan setDefaultVlan
 test pfcmd_vlan isolate
-test pfcmd_vlan setVlan with -vlan AND -vlanName (expect error)
-test pfcmd_vlan setVlan without -vlan or -vlanName (expect error)
+DONE: test pfcmd_vlan setVlan with -vlan AND -vlanName (expect error)
+DONE: test pfcmd_vlan setVlan without -vlan nor -vlanName (expect error)
 DONE: add tests to setVlanByName and test error conditions
 on parse config bail if a vlan in switches.conf is not numeric (unless if empty)
 
