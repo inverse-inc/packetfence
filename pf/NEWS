@@ -17,6 +17,7 @@ For a list of compatibility related changes see the UPGRADE file.
 Version <release> - <codename> released on <releaseDate>
 
 Bug fixes
+- SECURITY: Fixed "username" Cross-Site Scripting Vulnerability (#884)
 - Fixed issues with Aruba Controller (#871, #873)
 - Fixed issues with multiple registration in same browser session (#761)
 - Fixed issues in some wireless scenarios (#880)

@@ -12,7 +12,7 @@ function check_input($input){
     return true; 
   }        
   else{
-    print "Invalid parameter: $input<br>";
+    print "Invalid parameter: ".htmlentities($input)."<br>";
     return false;           
   }
 } 
@@ -247,7 +247,7 @@ else {
     </tr>
     <tr valign=bottom>
       <td align=right>Username</td>
-      <td align=left><input type="text" name="username" maxlength="20" value="<?=(isset($_POST['username']) ? $_POST['username'] : "")?>"></td>
+      <td align=left><input type="text" name="username" maxlength="20" value="<?=(isset($_POST['username']) ? htmlentities($_POST['username']) : "")?>"></td>
     </tr>
     <tr>
       <td align=right>Password</td>
