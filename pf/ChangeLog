@@ -1,4 +1,7 @@
 2009-12-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/pfdetect_remote/sbin/pfdetect_remote, pf/cgi-bin/pdp.cgi:
+	Changed SOAP URI identifier to http://www.packetfence.org/PFAPI
+
 	* renamed pf/t/SNMP.t to pf/t/hardware-snmp-objects.t, modified 
 	t/SNMP.t: Added tests specific to lib/SNMP.pm (renamed other tests)
 

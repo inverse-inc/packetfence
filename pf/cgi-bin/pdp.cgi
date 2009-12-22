@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-package PFEvents;
+package PFAPI;
 
 #use Data::Dumper;
 use strict;
@@ -27,7 +27,7 @@ Log::Log4perl::MDC->put('tid', 0);
 
 
 SOAP::Transport::HTTP::CGI
-    -> dispatch_to('PFEvents')
+    -> dispatch_to('PFAPI')
     -> handle;
 
 
