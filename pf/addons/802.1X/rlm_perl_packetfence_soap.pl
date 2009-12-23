@@ -97,15 +97,19 @@ sub authorize {
             $request_is_eap = 1;
         }
 
-        #format MAC
-        $mac =~ s/ /0/g;
-        $mac =~ s/-/:/g;
-        $mac =~ s/\.//g;
-        if (length($mac) == 12) {
-            $mac = substr($mac,0,2) . ":" . substr($mac,2,2) . ":" . substr($mac,4,2) . ":" . 
-                   substr($mac,6,2) . ":" . substr($mac,8,2) . ":" . substr($mac,10,2);
+        if (defined($mac) && $mac ne '') {
+            #format MAC
+            $mac =~ s/ /0/g;
+            $mac =~ s/-/:/g;
+            $mac =~ s/\.//g;
+            if (length($mac) == 12) {
+                $mac = substr($mac,0,2) . ":" . substr($mac,2,2) . ":" . substr($mac,4,2) . ":" . 
+                       substr($mac,6,2) . ":" . substr($mac,8,2) . ":" . substr($mac,10,2);
+            }
+            $mac = lc($mac);
+        } else {
+            syslog("info", "warning: mac address is empty in this request");
         }
-        $mac = lc($mac);
 
         # some debugging (shown when running radius with -X)
         &radiusd::radlog(1, "PacketFence REQUEST-TYPE: $request_type");
