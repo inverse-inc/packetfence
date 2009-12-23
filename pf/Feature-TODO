@@ -11,6 +11,7 @@ DONE: test pfcmd_vlan setVlan without -vlan nor -vlanName (expect error)
 DONE: add tests to setVlanByName and test error conditions
 on parse config bail if a vlan in switches.conf is not numeric (unless if empty)
 worried about SOAP::Lite client thread safety, need to do extensive testing on rlm_perl_packetfence (might have to surround the whole SOAP thing with an eval which would be dirty dirty)
+Performance testing with radclient / radtest (simulate a lot of radius clients)
 
 - Update NEWS and UPGRADE on feature merge
 NEWS
