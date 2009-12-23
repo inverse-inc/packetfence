@@ -1,3 +1,11 @@
+2009-12-23	Olivier Bilodeau <obilodeau@inverse.ca>
+	* renamed pf/addons/802.1X/rlm_perl_packetfence.pl to 
+	pf/addons/802.1X/rlm_perl_packetfence_sql.pl, added 
+	pf/addons/802.1X/rlm_perl_packetfence_soap.pl, modified 
+	pf/cgi-bin/pdp.cgi, pf/addons/802.1X/README: Added full SOAP client for
+	freeradius (rlm_perl_packetfence_soap.pl) and server side placeholder 
+	sub.
+
 2009-12-22	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/addons/pfdetect_remote/sbin/pfdetect_remote, pf/cgi-bin/pdp.cgi:
 	Changed SOAP URI identifier to http://www.packetfence.org/PFAPI

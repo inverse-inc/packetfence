@@ -49,3 +49,13 @@ sub event_add {
   return (1);
 }
 
+sub radius_authorize {
+  my ($class, $request_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid) = @_;
+
+  #TODO change to trace level once done
+  $logger->info("received a radius authorization request with parameters: ".
+           "request type => $request_type, switch_ip => $switch_ip, EAP => $request_is_eap, ".
+           "mac => $mac, port => $port, username => $user_name, ssid => $ssid");
+
+  return 100;
+}
