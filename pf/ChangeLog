@@ -1,3 +1,7 @@
+2009-12-24	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/radius.pm, pf/lib/radius/custom.pm: Layed the foundation
+	for our new integrated way of assigning VLANs through SOAP calls.
+
 2009-12-23	Olivier Bilodeau <obilodeau@inverse.ca>
 	* renamed pf/addons/802.1X/rlm_perl_packetfence.pl to 
 	pf/addons/802.1X/rlm_perl_packetfence_sql.pl, added 
