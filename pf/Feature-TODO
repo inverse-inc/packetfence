@@ -1,5 +1,4 @@
-- Pragmatically test for memory leaks (since we can't realistically check all the code, modules)
-10 threads with millions of jobs each should do it
+DONE: - Pragmatically test for memory leaks (since we can't realistically check all the code, modules)
 
 Tests
 test pfcmd_vlan setVlan with a string 
@@ -13,6 +12,7 @@ on parse config bail if a vlan in switches.conf is not numeric (unless if empty)
 worried about SOAP::Lite client thread safety, need to do extensive testing on rlm_perl_packetfence (might have to surround the whole SOAP thing with an eval which would be dirty dirty)
 Performance testing with radclient / radtest (simulate a lot of radius clients)
 
+- Adjust minimum memory requirements for our PacketFence-ZEN virtual machine (because of mod_perl's memory footprint)
 - Update NEWS and UPGRADE on feature merge
 NEWS
 - pfcmd_vlan now allows you to specify -vlanName for -setVlan and -setAllVlan (where vlan name is the same as what is defined in switches.conf)
