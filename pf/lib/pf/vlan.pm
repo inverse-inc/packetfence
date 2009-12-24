@@ -7,7 +7,7 @@ pf::vlan - Object oriented module for VLAN isolation oriented functions
 =head1 SYNOPSIS
 
 The pf::vlan module contains the functions necessary for the VLAN isolation.
-All the behavior contained here can be overloaded in lib/pf/vlan/custom.pm.
+All the behavior contained here can be overridden in lib/pf/vlan/custom.pm.
 
 =cut
 
@@ -173,7 +173,7 @@ sub custom_doWeActOnThisTrap {
 
 =item custom_getCorrectVlan - returns normal vlan
 
-This sub is meant to be overloaded in lib/pf/vlan/custom.pm if the default 
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
 version doesn't do the right thing for you. By default it will return the 
 normal vlan for the given switch if defined, otherwise it will return the normal
 vlan for the whole network.

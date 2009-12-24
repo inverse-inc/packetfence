@@ -6,10 +6,10 @@ pf::vlan::custom - Object oriented module for VLAN isolation oriented functions
 
 =head1 SYNOPSIS
 
-The pf::vlan::custom module implements VLAN isolation 
-oriented functions.
+The pf::vlan::custom module implements VLAN isolation oriented functions that are custom 
+to a particular setup.
 
-This modules extends pf::vlan
+This module extends pf::vlan
 
 =cut
 
