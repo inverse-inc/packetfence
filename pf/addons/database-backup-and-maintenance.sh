@@ -16,7 +16,7 @@
 
 NB_DAYS_TO_KEEP=70
 DB_USER='pf';
-# make sure access to this file is properly secured! (chmod a=,u=rw)
+# make sure access to this file is properly secured! (chmod a=,u=rwx)
 DB_PWD='';
 DB_NAME='pf';
 BACKUP_DIRECTORY='/root/backup'
