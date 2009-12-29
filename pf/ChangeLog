@@ -1,3 +1,7 @@
+2009-12-28	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/user/content/templates/register_1.html: Fixed missing
+	closing html tags
+
 2009-12-22	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/html/admin/login.php: Fixed "username" Cross-Site Scripting
 	Vulnerability as reported by Secunia advisory 37844 available at:
