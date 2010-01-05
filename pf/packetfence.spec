@@ -35,9 +35,9 @@
 #
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 1.8.6
+Version: 1.8.7
 # Update here on each release/snapshot
-%define source_release 3
+%define source_release 1
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -483,6 +483,9 @@ fi
 %attr(0755, root, root) %{_initrddir}/pfdetectd
 
 %changelog
+* Tue Jan 05 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.7-1
+- Version bump to 1.8.7
+
 * Thu Dec 17 2009 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.6-3
 - Added perl-SOAP-Lite as a dependency of remote-snort-sensor. Fixes #881;
   http://www.packetfence.org/mantis/view.php?id=881

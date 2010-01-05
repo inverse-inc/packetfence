@@ -1,3 +1,12 @@
+2010-01-05	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/NEWS, pf/UPGRADE, pf/packetfence.spec, pf/conf/pf-release,
+	pf/t/pfcmd.t, pf/docs/PacketFence_Administration_Guide.odt,
+	pf/docs/PacketFence_Developers_Guide.odt,
+	pf/docs/PacketFence_Installation_Guide.odt,
+	pf/docs/PacketFenceZEN_Installation_Guide.odt: 
+	Version bump to 1.8.7
+	Copyright bump to 2010 in documentation
+
 2009-12-28	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/html/user/content/templates/register_1.html: Fixed missing
 	closing html tags
