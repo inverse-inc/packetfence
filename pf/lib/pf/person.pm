@@ -137,8 +137,6 @@ sub person_view_all {
 
 sub person_modify {
     my ( $pid, %data ) = @_;
-    use Data::Dumper;
-    print Dumper(%data);
     person_db_prepare($dbh) if ( !$person_db_prepared );
     my $logger = Log::Log4perl::get_logger('pf::person');
     if ( !person_exist($pid) ) {
@@ -158,7 +156,6 @@ sub person_modify {
     foreach my $item ( keys(%data) ) {
         $existing->{$item} = $data{$item};
     }
-    print Dumper($existing);
     my $new_pid   = $existing->{'pid'};
     my $new_notes = $existing->{'notes'};
 
@@ -167,7 +164,7 @@ sub person_modify {
             "modify of pid $pid to $new_pid conflicts with existing person");
         return (0);
     }
-print "calling person_modify_sql\n";
+
     $person_modify_sql->execute( 
         $new_pid,                 $existing->{'firstname'},
         $existing->{'lastname'},  $existing->{'email'},
