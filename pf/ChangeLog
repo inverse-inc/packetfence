@@ -1,4 +1,9 @@
 2010-01-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/login.php: Added a new way to do admin authentication:
+	verify user locally but verify password on AD server. Commented out by
+	default but could be enabled
+	Also added a TODO task
+
 	* Added
 	pf/addons/high-availability/heartbeat-2.x-drbd-8.3-support-fix.patch:
 	Patch required for heartbeat 2.x and drbd 8.3 compatibility. Took from

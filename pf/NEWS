@@ -22,6 +22,10 @@ New
 New Features
 - @ character now allowed in person id (pid). This is very common in Active 
   Directory environment.
+- New admin authentication mechanism added (disabled by default)
+
+Bug fixes
+- Misc. stability fixes
 
 --------------------------------------------------------------------------------
 Version 1.8.7 released on 2010-01-06

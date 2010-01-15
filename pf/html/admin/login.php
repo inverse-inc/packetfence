@@ -31,8 +31,19 @@ function check_sensitive_input($input){
 
 // First we try to authenticate users through LDAP if LDAP config file is there
 // if the LDAP config file is not defined or if the LDAP auth fails then we authenticate through the local file
+# TODO: have a better integration of admin auth parameters in config files or admin interface
 function validate_user($user,$pass,$hash='') {
     $result = false;
+
+    # standard ldap auth mechanism
+    $result = validate_user_ldap($user,$pass,$hash);
+
+    # alternative way to do ldap auth: if username exist in local config then validate against ldap
+    # allows admins to better control who has access without needing to involve their AD teams
+    # localuser+ldappass
+    #if (validate_user_present_in_flat_file($user)) {
+    #  $result = validate_user_ldap($user,$pass,$hash);
+    #}
 
     $result = validate_user_ldap($user,$pass,$hash);
 
@@ -84,6 +95,18 @@ function validate_user_ldap($user,$pass,$hash='') {
     return false;
   }
   return md5($pass);
+}
+
+function validate_user_present_in_flat_file($user){
+  $file = file(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/conf/admin.conf');
+  foreach($file as $line){
+    $line = rtrim($line);
+    $info = explode(":", $line);
+    if ($user == $info[0]) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function validate_user_flat_file($user, $pass, $hash = ''){
