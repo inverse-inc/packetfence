@@ -1,4 +1,6 @@
 2010-01-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/lookup/person.pm: Improved custom example
+
 	* pf/html/admin/login.php: Added a new way to do admin authentication:
 	verify user locally but verify password on AD server. Commented out by
 	default but could be enabled
