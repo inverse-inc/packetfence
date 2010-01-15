@@ -1,3 +1,7 @@
+2010-01-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/person.pm: Removed debugging code that was left out by
+	mistake it would seem
+
 2010-01-05	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/NEWS, pf/UPGRADE, pf/packetfence.spec, pf/conf/pf-release,
 	pf/t/pfcmd.t, pf/docs/PacketFence_Administration_Guide.odt,
