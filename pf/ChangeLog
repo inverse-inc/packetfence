@@ -1,4 +1,6 @@
 2010-01-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/pfcmd.pm: Now accepting @ in a person's pid
+
 	* pf/lib/pf/person.pm: Removed debugging code that was left out by
 	mistake it would seem
 
