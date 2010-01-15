@@ -1,4 +1,9 @@
 2010-01-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* Added
+	pf/addons/high-availability/heartbeat-2.x-drbd-8.3-support-fix.patch:
+	Patch required for heartbeat 2.x and drbd 8.3 compatibility. Took from
+	http://hg.linux-ha.org/dev/rev/6467be4d4cb7
+
 	* pf/lib/pf/pfcmd.pm: Now accepting @ in a person's pid
 
 	* pf/lib/pf/person.pm: Removed debugging code that was left out by
