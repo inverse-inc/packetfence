@@ -190,13 +190,15 @@ Kevin Amorin <kev@amorin.org>
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009 Inverse inc.
+Copyright (C) 2009, 2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
