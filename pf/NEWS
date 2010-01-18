@@ -21,6 +21,7 @@ New Features
 
 Bugfix
 - Minor corrections to the Admin Web UI
+- Correct VLAN information shown in Node Lookup (#893)
 
 --------------------------------------------------------------------------------
 Version <release> - <codename> released on <releaseDate>

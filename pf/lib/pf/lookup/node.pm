@@ -21,6 +21,8 @@ use pf::util;
 use pf::iplog;
 use pf::node;
 use pf::os;
+use pf::config;
+use pf::locationlog;
 
 sub lookup_node {
     my ($mac) = @_;
@@ -93,26 +95,48 @@ sub lookup_node {
             }
         }
 
-        my $port   = $node_info->{'port'};
-        my $switch = $node_info->{'switch'};
-        my $vlan   = $node_info->{'vlan'};
-        my $switch_ip;
-        my $switch_mac;
-        if ($switch) {
-            if ( valid_ip($switch) ) {
-                $switch_ip = $switch;
-            } elsif ( valid_mac($switch) ) {
-                $switch_mac = $switch;
-                $switch_ip  = mac2ip($switch);
+        if (lc($Config{'network'}{'mode'}) eq 'vlan') {
+            my @last_locationlog_entry = locationlog_history_mac($mac);
+            if ($last_locationlog_entry[0]) {
+                my $is_entry_active = 1;
+                # if end_time is null or is set to 0
+                if (defined($last_locationlog_entry[0]->{'end_time'}) && $last_locationlog_entry[0]->{'end_time'} !~ /0000/) {
+                    $is_entry_active = 0;
+                }
+                $return .= "Location: port ". $last_locationlog_entry[0]->{'port'}." "
+                        .  " (vlan " . $last_locationlog_entry[0]->{'vlan'}.")"
+                        .  " on switch ".$last_locationlog_entry[0]->{'switch'}
+                        .  "\n";
+                if ($is_entry_active) {
+                    $return .= "Last activity: currently active\n";
+                } else {
+                    $return .= "Last activity: ".$last_locationlog_entry[0]->{'end_time'}."\n";
+                }
+            } else {
+                $return .= "No connectivity information available (We probably only saw a DHCP request)\n";
             }
-        }
-        if ( $port && ( $switch_ip || $switch_mac ) && $vlan ) {
-            $return .= "Location   : port $port (vlan $vlan) on switch "
-                . ( $switch_ip || $switch_mac );
-            if ( $switch_ip && $switch_mac ) {
-                $return .= " ($switch_mac)";
+        } else {
+            my $port   = $node_info->{'port'};
+            my $switch = $node_info->{'switch'};
+            my $vlan   = $node_info->{'vlan'};
+            my $switch_ip;
+            my $switch_mac;
+            if ($switch) {
+                if ( valid_ip($switch) ) {
+                    $switch_ip = $switch;
+                } elsif ( valid_mac($switch) ) {
+                    $switch_mac = $switch;
+                    $switch_ip  = mac2ip($switch);
+                }
             }
-            $return .= "\n";
+            if ( $port && ( $switch_ip || $switch_mac ) && $vlan ) {
+                $return .= "Location: port $port (vlan $vlan) on switch "
+                    . ( $switch_ip || $switch_mac );
+                if ( $switch_ip && $switch_mac ) {
+                    $return .= " ($switch_mac)";
+                }
+                $return .= "\n";
+            }
         }
 
     } else {
@@ -131,13 +155,15 @@ Kevin Amorin <kev@amorin.org>
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009 Inverse inc.
+Copyright (C) 2009, 2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

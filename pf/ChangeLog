@@ -1,3 +1,8 @@
+2010-01-18	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/lookup/node.pm: Added correct VLAN information to node
+	lookup. Fixes #893;
+	http://www.packetfence.org/mantis/view.php?id=893
+
 2009-12-10	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/web.pm: We no longer bindly accept someone who is 
 	authenticated based on session information. In effect, this prevents
