@@ -83,6 +83,7 @@
                          'Cisco::Catalyst_3550' => 'Cisco Catalyst 3550',
                          'Cisco::Catalyst_3560' => 'Cisco Catalyst 3560',
                          'Cisco::Controller_4400_4_2_130' => 'Cisco Controller 4400',
+                         'Cisco::WiSM' => 'Cisco Wireless Services Module (WiSM)',
                          'Cisco::WLC_2106' => 'Cisco WLC 2106',
                          'Dell::PowerConnect3424' => 'Dell PowerConnect 3424',
                          'Dlink::DES_3526' => 'D-Link DES 3526',

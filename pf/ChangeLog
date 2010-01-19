@@ -1,4 +1,13 @@
 2010-01-19	Olivier Bilodeau <obilodeau@inverse.ca>
+	* Adding pf/lib/pf/SNMP/Cisco/WiSM.pm, modified pf/README_SWITCHES, 
+	pf/docs/PacketFence_Administration_Guide.odt,
+	pf/html/admin/configuration/switches_add.php, 
+	pf/html/admin/configuration/switches_edit.php, pf/t/SNMP.t,
+	pf/t/critic.t, pf/t/pod.t: Added module for Cisco Wireless Services
+	Module (WiSM) and all required references for new hardware support
+	Internally module is referring to Cisco Controller 4200's
+	implementation.
+
 	* pf/conf/templates/httpd.conf.pre_apache22, 
 	pf/conf/templates/httpd.conf.apache22: Blocking Microsoft NCSI user
 	agent from reaching captive portal.

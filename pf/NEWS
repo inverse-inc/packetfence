@@ -19,6 +19,9 @@ Version <version> - <codename> released on <releaseDate>
 New
 - Official Linux 64 bit support (TODO: change documentation and symlink in yum repo)
 
+New Hardware Support
+- Cisco Wireless Services Module (WiSM) support
+
 New Features
 - @ character now allowed in person id (pid). This is very common in Active 
   Directory environment.

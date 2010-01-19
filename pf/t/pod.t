@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 119;
+use Test::More tests => 120;
 
 # file list copied from critic.t
 my @files = (
@@ -70,6 +70,7 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP/Cisco/Catalyst_3560.pm',
     '/usr/local/pf/lib/pf/SNMP/Cisco/Controller_4400_4_2_130.pm',
     '/usr/local/pf/lib/pf/SNMP/Cisco.pm',
+    '/usr/local/pf/lib/pf/SNMP/Cisco/WiSM.pm',
     '/usr/local/pf/lib/pf/SNMP/Cisco/WLC_2106.pm',
     '/usr/local/pf/lib/pf/SNMP/Dell.pm',
     '/usr/local/pf/lib/pf/SNMP/Dell/PowerConnect3424.pm',

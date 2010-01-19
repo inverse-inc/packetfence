@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 120;
+use Test::More tests => 122;
 use lib '/usr/local/pf/lib';
 
 BEGIN { use_ok('pf::SNMP') }
@@ -28,6 +28,7 @@ BEGIN { use_ok('pf::SNMP::Cisco::Catalyst_3500XL') }
 BEGIN { use_ok('pf::SNMP::Cisco::Catalyst_3550') }
 BEGIN { use_ok('pf::SNMP::Cisco::Catalyst_3560') }
 BEGIN { use_ok('pf::SNMP::Cisco::Controller_4400_4_2_130') }
+BEGIN { use_ok('pf::SNMP::Cisco::WiSM') }
 BEGIN { use_ok('pf::SNMP::Cisco::WLC_2106') }
 BEGIN { use_ok('pf::SNMP::Dell') }
 BEGIN { use_ok('pf::SNMP::Dell::PowerConnect3424') }
@@ -91,6 +92,7 @@ my @SNMPobjects = qw(
     pf::SNMP::Cisco::Catalyst_3550
     pf::SNMP::Cisco::Catalyst_3560
     pf::SNMP::Cisco::Controller_4400_4_2_130
+    pf::SNMP::Cisco::WiSM
     pf::SNMP::Cisco::WLC_2106
     pf::SNMP::Dell
     pf::SNMP::Dell::PowerConnect3424
