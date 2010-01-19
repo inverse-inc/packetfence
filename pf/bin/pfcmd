@@ -2511,7 +2511,8 @@ sub sanity_check {
                 );
         foreach my $item  (keys %{$Config{$section}}) {
             if ( !defined( $documentation{"$section.$item"} ) ) {
-                $logger->logdie("unknown configuration parameter $section.$item");
+                $logger->logdie("unknown configuration parameter $section.$item ".
+                    "if you added the parameter yourself make sure it is present in conf/documentation.conf");
             }
         }
     }
