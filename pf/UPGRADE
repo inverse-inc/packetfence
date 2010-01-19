@@ -7,6 +7,11 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <version>:
 
+    - Cisco Controller 4400 now named WLC_4400
+    To be more consistent, we renamed Cisco::Controller_4400_4_2_130 to 
+    Cisco::WLC_4400. If you upgrade make sure you update your conf/switches.conf
+    or Configuration -> Switches (in web admin)
+
     - Output of node lookup changed
     The output of `pfcmd lookup node <mac>` changed. Make sure you update your 
     parsing scripts (if any). This also affects the Node lookup section of the

@@ -16,7 +16,7 @@ use warnings;
 use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
-use base ('pf::SNMP::Cisco::Controller_4400_4_2_130');
+use base ('pf::SNMP::Cisco::WLC_4400');
 
 =head1 BUGS AND LIMITATIONS
 
