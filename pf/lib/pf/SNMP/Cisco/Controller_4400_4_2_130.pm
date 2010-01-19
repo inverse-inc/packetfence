@@ -49,6 +49,8 @@ sub deauthenticateMac {
         );
         my $result = $this->{_sessionWrite}->set_request(
             -varbindlist => [ $completeOid, Net::SNMP::INTEGER, 1 ] );
+        # TODO: validate result
+        $logger->info("deauthenticate mac $mac from controller: ".$this->{_ip});
         return ( defined($result) );
     } else {
         $logger->error(

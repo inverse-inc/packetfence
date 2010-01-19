@@ -18,6 +18,7 @@ Version <version> - <codename> released on <releaseDate>
 
 New Features
 - More information available in Node Lookup (IP, DHCP lease)
+- More logging information available
 
 Bugfix
 - Minor corrections to the Admin Web UI

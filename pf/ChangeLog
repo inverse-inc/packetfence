@@ -1,4 +1,7 @@
 2010-01-19	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Cisco/Controller_4400_4_2_130.pm: Added more verbose
+	logging and a TODO task
+
 	* pf/bin/pfcmd: Clarified an error message about missing config
 	element.
 	Now reminding users to change conf/documentation.conf if they
