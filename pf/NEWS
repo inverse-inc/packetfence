@@ -25,6 +25,7 @@ New Features
 - New admin authentication mechanism added (disabled by default)
 
 Bug fixes
+- Captive portal stability fixes (#892)
 - Misc. stability fixes
 
 --------------------------------------------------------------------------------

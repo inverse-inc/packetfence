@@ -1,3 +1,13 @@
+2010-01-19	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/templates/httpd.conf.pre_apache22, 
+	pf/conf/templates/httpd.conf.apache22: Blocking Microsoft NCSI user
+	agent from reaching captive portal.
+	Windows Vista and 7 use the NCSI in background to detect connectivity,
+	there is no need to waste resources capturing these web requests.
+	http://technet.microsoft.com/en-us/library/cc766017(WS.10).aspx.
+	Fixes #892;
+	http://www.packetfence.org/mantis/view.php?id=892
+
 2010-01-15	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/lookup/person.pm: Improved custom example
 
