@@ -1,3 +1,8 @@
+2010-01-21	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/dhcp_fingerprints.conf: Added a projectors class and an
+	Epson projector fingerprint to the DHCP fingerprint database.
+	Contributed by Roelof Hoekstra.
+	
 2010-01-19	Olivier Bilodeau <obilodeau@inverse.ca>
 	* Adding pf/lib/pf/SNMP/Cisco/WiSM.pm, modified pf/README_SWITCHES, 
 	pf/docs/PacketFence_Administration_Guide.odt,
