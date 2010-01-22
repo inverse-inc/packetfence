@@ -71,6 +71,11 @@ use pf::pfcmd;
 
 delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
 
+# Uncomment the following line to enable tracing in the grammar
+# Warning: doing so will break the web admin
+# TODO: this parameter should be exposed to the CLI
+#our $RD_TRACE = 1;
+
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );

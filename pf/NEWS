@@ -26,6 +26,7 @@ New Features
 - @ character now allowed in person id (pid). This is very common in Active 
   Directory environment.
 - New admin authentication mechanism added (disabled by default)
+- New debugging features (disabled by default)
 - New DHCP fingerprints
 
 Bug fixes

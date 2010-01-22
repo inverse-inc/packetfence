@@ -1,3 +1,7 @@
+2010-01-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd: New grammar tracing flag in pfcmd (disabled by
+	default)
+
 2010-01-21	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/conf/dhcp_fingerprints.conf: Added a projectors class and an
 	Epson projector fingerprint to the DHCP fingerprint database.
