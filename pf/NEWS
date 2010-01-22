@@ -31,6 +31,7 @@ New Features
 
 Bug fixes
 - Captive portal stability fixes (#892)
+- Improved error reporting in the web administration panel and cli (#898)
 - Misc. stability fixes
 
 --------------------------------------------------------------------------------

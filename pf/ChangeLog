@@ -1,4 +1,10 @@
 2010-01-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd: Validate for successful write to conf/switches.conf 
+	when adding, deleting and editing a switch. Fixes #898;
+	http://www.packetfence.org/mantis/view.php?id=898
+	Pushed in a little print to logdie conversion at another spot too.
+	Hard-coded line numbers are to get the web admin to display the error.
+
 	* pf/bin/pfcmd: New grammar tracing flag in pfcmd (disabled by
 	default)
 
