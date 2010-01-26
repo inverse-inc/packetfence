@@ -28,6 +28,7 @@ New Features
 - New admin authentication mechanism added (disabled by default)
 - New debugging features (disabled by default)
 - New DHCP fingerprints
+- Install guide more accurate
 
 Bug fixes
 - Captive portal stability fixes (#892)

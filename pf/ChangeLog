@@ -1,3 +1,8 @@
+2010-01-26	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Installation_Guide.odt: Default web admin
+	account is not admin / qwerty anymore, it is defined by user when
+	running installer.pl. Corrected that mistake in the install guide.
+
 2010-01-22	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/bin/pfcmd: Validate for successful write to conf/switches.conf 
 	when adding, deleting and editing a switch. Fixes #898;
