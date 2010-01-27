@@ -2,14 +2,19 @@ package pf::SNMP::Cisco::ISR_1800;
 
 =head1 NAME
 
-pf::SNMP::Cisco::ISR_1800 - Object oriented module to access SNMP enabled Cisco 1800 routers
+pf::SNMP::Cisco::ISR_1800
 
 =head1 SYNOPSIS
 
-The pf::SNMP::Cisco::ISR_1800 module implements an object oriented interface
-to access SNMP enabled Cisco 1800 routers.
+Object oriented module to parse SNMP traps and manage Cisco 1800 routers
+
+=head1 STATUS
 
 No documented minimum required firmware version.
+
+Developed and tested on Cisco 1811 12.4(15)T6
+
+Version 12.4(24)T1 and 12.4(15)T6 doesn't support VTP MIB 
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -46,14 +51,59 @@ use Net::SNMP;
 #sub getMaxMacAddresses {
 #}
 
+sub isDefinedVlan {
+    my ($this, $vlan) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    # port assigned to VLAN (VLAN membership)
+    my $oid_vmMembershipSummaryMemberPorts = "1.3.6.1.4.1.9.9.68.1.2.1.1.2"; #from CISCO-VLAN-MEMBERSHIP-MIB
+
+    if ( !$this->connectRead() ) {
+        return 0;
+    }
+
+    $logger->trace("SNMP get_request for vmMembershipSummaryMemberPorts: $oid_vmMembershipSummaryMemberPorts.$vlan");
+
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => ["$oid_vmMembershipSummaryMemberPorts.$vlan"] );
+
+    return (
+            defined($result)
+            && exists( $result->{"$oid_vmMembershipSummaryMemberPorts.$vlan"} )
+            && ($result->{"$oid_vmMembershipSummaryMemberPorts.$vlan"} ne 'noSuchInstance' )
+    );
+}
+
+sub getVlan {
+    my ($this, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    if (!$this->connectRead()) {
+        return 0;
+    }
+
+    my $OID_vmVlan = '1.3.6.1.4.1.9.9.68.1.2.2.1.2';    #CISCO-VLAN-MEMBERSHIP-MIB
+
+    $logger->trace("SNMP get_request for vmVlan: $OID_vmVlan.$ifIndex");
+
+    my $result = $this->{_sessionRead} ->get_request( -varbindlist => ["$OID_vmVlan.$ifIndex"] );
+    return (
+            defined($result)
+            && exists( $result->{"$OID_vmVlan.$ifIndex"})
+            && ( $result->{"$OID_vmVlan.$ifIndex"} ne 'noSuchInstance' )
+           )
+}
+
+
 
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2009 Inverse inc.
+Copyright (C) 2009, 2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

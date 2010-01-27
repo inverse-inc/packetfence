@@ -1,3 +1,7 @@
+2010-01-27	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Cisco/ISR_1800.pm: Implemented isDefinedVlan and
+	getVlan for the ISR 1800
+
 2010-01-26	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/docs/PacketFence_Installation_Guide.odt: Default web admin
 	account is not admin / qwerty anymore, it is defined by user when
