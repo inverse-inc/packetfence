@@ -1,3 +1,6 @@
+2010-01-27	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Cisco.pm: Added POD doc
+
 2010-01-19	Olivier Bilodeau <obilodeau@inverse.ca>
 	* Renamed pf/lib/pf/SNMP/Cisco/Controller_4400_4_2_130.pm to 
 	pf/lib/pf/SNMP/Cisco/WLC_4400.pm, modified pf/UPGRADE, 

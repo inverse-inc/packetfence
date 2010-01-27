@@ -628,6 +628,13 @@ sub setVmVlanType {
     return ( defined($result) );
 }
 
+=item getMacBridgePortHash
+
+Cisco is very fancy about fetching it's VLAN information. In SNMPv3 the context 
+is used to specify a VLAN and in SNMPv1/2c an @<vlan> is appended to the 
+read-only community name when reading.
+
+=cut
 sub getMacBridgePortHash {
     my $this              = shift;
     my $vlan              = shift || '';
