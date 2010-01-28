@@ -1,3 +1,8 @@
+2010-01-28	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/t/podCoverage.t: Forcing 100% POD coverage for SNMP.pm since it's
+	the base switch module contract and we often don't know what's expected
+	when we re-implement subs
+
 2010-01-27	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/SNMP/Cisco.pm: Added POD doc
 
