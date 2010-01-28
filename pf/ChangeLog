@@ -1,4 +1,7 @@
 2010-01-28	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Cisco/ISR_1800.pm: getVlan was returning true or false
+	instead of requested VLAN, now fixed
+
 	* pf/lib/pf/SNMP/Cisco/ISR_1800.pm: More work to support ISR1800 series
 	- Implemented getMacBridgePortHash and it relies on CLI :(
 	- Implemented _getAllIfIndexForThisVlan (used by getMacBridgePortHash)
