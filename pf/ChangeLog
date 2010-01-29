@@ -1,4 +1,8 @@
 2010-01-29	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Added documentation
+	on how to configure the ISR 1800 with PacketFence and added it to
+	the supported switches section
+
 	* pf/NEWS, pf/README_SWITCHES, 
 	pf/html/admin/configuration/switches_add.php,
 	pf/html/admin/configuration/switches_edit.php, pf/t/SNMP.t,
