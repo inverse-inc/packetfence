@@ -1516,6 +1516,8 @@ sub handleTrap {
         );
         #$switch->deauthenticateMac($trapMac);
         my $switchIp = $switch->{_ip};
+        # workaround a thread safety bug in Net::Appliance::Session when using SSH transport
+        # http://www.cpanforum.com/threads/6909
         `/usr/local/pf/bin/pfcmd_vlan -deauthenticate -switch $switchIp -mac $trapMac`;
 
         # }}}2

@@ -1,12 +1,13 @@
-package pf::SNMP::Cisco::Controller_4400_4_2_130;
+package pf::SNMP::Cisco::WLC_4400;
 
 =head1 NAME
 
-pf::SNMP::Cisco::Controller_4400_4_2_130 - Object oriented module to access SNMP enabled Cisco Controller 4400 with IOS version 4.2.130
+pf::SNMP::Cisco::WLC_4400 - Object oriented module to access SNMP enabled Cisco 
+Wireless Controller (WLC) 4400 with IOS version 4.2.130
 
 =head1 SYNOPSIS
 
-The pf::SNMP::Cisco::Controller_4400_4_2_130 module implements an object oriented interface
+The pf::SNMP::Cisco::WLC_4400 module implements an object oriented interface
 to access SNMP enabled Cisco Controller 4400 with IOS version 4.2.130
 
 =cut
@@ -49,6 +50,8 @@ sub deauthenticateMac {
         );
         my $result = $this->{_sessionWrite}->set_request(
             -varbindlist => [ $completeOid, Net::SNMP::INTEGER, 1 ] );
+        # TODO: validate result
+        $logger->info("deauthenticate mac $mac from controller: ".$this->{_ip});
         return ( defined($result) );
     } else {
         $logger->error(
@@ -180,9 +183,11 @@ Controller issue with Windows 7: It only works with IOS > 6.x in 802.1x+WPA2. It
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2008 Inverse inc.
+Copyright (C) 2007-2008, 2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
