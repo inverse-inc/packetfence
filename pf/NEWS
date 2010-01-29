@@ -20,7 +20,8 @@ New
 - Official Linux 64 bit support (TODO: change documentation and symlink in yum repo)
 
 New Hardware Support
-- Cisco Wireless Services Module (WiSM) support
+- Cisco Wireless Services Module (WiSM)
+- Cisco Integrated Services Routers (ISR) 1800 Series
 
 New Features
 - @ character now allowed in person id (pid). This is very common in Active 

@@ -1,4 +1,9 @@
 2010-01-29	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/NEWS, pf/README_SWITCHES, 
+	pf/html/admin/configuration/switches_add.php,
+	pf/html/admin/configuration/switches_edit.php, pf/t/SNMP.t,
+	pf/t/critic.t, pf/t/pod.t: Cisco ISR 1800 officially supported
+
 	* pf/lib/pf/SNMP/Cisco/Controller_4400_4_2_130.pm,
 	pf/lib/pf/SNMP/Cisco/WLC_2106.pm, pf/lib/pf/SNMP/Cisco/WiSM.pm: 
 	Documented an issue with Windows 7 and certain IOSes
