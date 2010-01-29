@@ -20,11 +20,7 @@ use base ('pf::SNMP::Cisco::Controller_4400_4_2_130');
 
 =head1 BUGS AND LIMITATIONS
 
-=over
-
-Nothing was brought up to our attention.
-
-=back
+Controller issue with Windows 7: It only works with IOS > 6.x in 802.1x+WPA2. It's not a PacketFence issue.
 
 =head1 AUTHOR
 

@@ -172,6 +172,10 @@ sub isVoIPEnabled {
     return 0;
 }
 
+=head1 BUGS AND LIMITATIONS
+
+Controller issue with Windows 7: It only works with IOS > 6.x in 802.1x+WPA2. It's not a PacketFence issue.
+
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>

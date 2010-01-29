@@ -1,3 +1,8 @@
+2010-01-29	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Cisco/Controller_4400_4_2_130.pm,
+	pf/lib/pf/SNMP/Cisco/WLC_2106.pm, pf/lib/pf/SNMP/Cisco/WiSM.pm: 
+	Documented an issue with Windows 7 and certain IOSes
+
 2010-01-28	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/SNMP/Cisco/ISR_1800.pm: getVlan was returning true or false
 	instead of requested VLAN, now fixed
