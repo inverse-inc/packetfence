@@ -5,6 +5,16 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to <release>:
+
+    - Backup script archives locationlog_history records older than a year
+    Archives are an SQL dump of the records placed in /root/backup/ by default 
+    and never deleted. It will run the first day of each month.
+
+    - Backup script less aggressive about history
+    We are now keeping 1 month of locationlog instead of 15 days with the 
+    optional database backup script in addons/. Makes more sense for most users.
+
 o Upgrading from a version prior to 1.8.7:
 
     - No action on wireless deauthentication traps

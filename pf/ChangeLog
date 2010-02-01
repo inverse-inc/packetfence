@@ -1,3 +1,7 @@
+2010-02-01	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/database-backup-and-maintenance.sh: Added a once-a-month
+	archiving of locationlog_history entries older than a year.
+
 2010-01-29	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/docs/PacketFence_Administration_Guide.odt: Added documentation
 	on how to configure the ISR 1800 with PacketFence and added it to

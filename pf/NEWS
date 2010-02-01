@@ -29,6 +29,7 @@ New Features
 - New admin authentication mechanism added (disabled by default)
 - New debugging features (disabled by default)
 - New DHCP fingerprints
+- Optional backup script in addons/ now archives old records
 - Install guide more accurate
 
 Bug fixes
