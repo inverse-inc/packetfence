@@ -36,7 +36,12 @@
     $edit_cmd = "interfaceconfig add $edit_item ";
     $edit_cmd.=implode(", ", $parts);
 
-    PFCMD($edit_cmd);
+    # I REALLLLYY mean false (avoids 0, empty strings and empty arrays to pass here)
+    if (PFCMD($edit_cmd) === false) {
+      # an error was shown by PFCMD now die to avoid closing the popup
+      exit();
+    }
+    # no errors from pfcmd, go on
     $edited=true; 
     print "<script type='text/javascript'>opener.focus(); opener.location.href = opener.location; self.close();</script>";
 

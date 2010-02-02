@@ -1,3 +1,18 @@
+2010-02-02	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/configuration/interfaces_add.php, 
+	pf/html/admin/configuration/interfaces_edit.php,
+	pf/html/admin/configuration/networks_add.php,
+	pf/html/admin/configuration/networks_edit.php,
+	pf/html/admin/configuration/switches_add.php, 
+	pf/html/admin/configuration/switches_edit.php,
+	pf/html/admin/configuration/violation_add.php, 
+	pf/html/admin/configuration/violation_edit.php, 
+	pf/html/admin/node/edit.php, pf/html/admin/person/edit.php, 
+	pf/html/admin/scan/edit.php, pf/html/admin/violation/edit.php: Errors
+	are now shown in Web admin's popups instead of automatically closing 
+	the popups without checking return status. Fixes #899;
+	http://www.packetfence.org/mantis/view.php?id=899
+
 2010-02-01	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/addons/database-backup-and-maintenance.sh: Added a once-a-month
 	archiving of locationlog_history entries older than a year.
