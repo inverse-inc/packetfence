@@ -1,3 +1,9 @@
+2010-02-03	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Cisco/Controller_4400_4_2_130.pm,
+	pf/lib/pf/SNMP/Cisco/WLC_2106.pm, pf/lib/pf/SNMP/Cisco/WiSM.pm:
+	Documented problematic behavior on the WLC's and WiSM's with DHCP
+	Proxying activated.
+
 2010-02-02	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/html/admin/configuration/interfaces_add.php, 
 	pf/html/admin/configuration/interfaces_edit.php,

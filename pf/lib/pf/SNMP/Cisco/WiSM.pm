@@ -22,6 +22,8 @@ use base ('pf::SNMP::Cisco::Controller_4400_4_2_130');
 
 Controller issue with Windows 7: It only works with IOS > 6.x in 802.1x+WPA2. It's not a PacketFence issue.
 
+With IOS 6.0.182.0 we had intermittent issues with DHCP. Disabling DHCP Proxy resolved it. Not a PacketFence issue.
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
