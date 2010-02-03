@@ -27,10 +27,10 @@ BEGIN { use_ok('pf::SNMP::Cisco::Catalyst_2970') }
 BEGIN { use_ok('pf::SNMP::Cisco::Catalyst_3500XL') }
 BEGIN { use_ok('pf::SNMP::Cisco::Catalyst_3550') }
 BEGIN { use_ok('pf::SNMP::Cisco::Catalyst_3560') }
-BEGIN { use_ok('pf::SNMP::Cisco::Controller_4400_4_2_130') }
 BEGIN { use_ok('pf::SNMP::Cisco::ISR_1800') }
 BEGIN { use_ok('pf::SNMP::Cisco::WiSM') }
 BEGIN { use_ok('pf::SNMP::Cisco::WLC_2106') }
+BEGIN { use_ok('pf::SNMP::Cisco::WLC_4400') }
 BEGIN { use_ok('pf::SNMP::Dell') }
 BEGIN { use_ok('pf::SNMP::Dell::PowerConnect3424') }
 BEGIN { use_ok('pf::SNMP::Dlink') }
@@ -92,10 +92,9 @@ my @SNMPobjects = qw(
     pf::SNMP::Cisco::Catalyst_3500XL
     pf::SNMP::Cisco::Catalyst_3550
     pf::SNMP::Cisco::Catalyst_3560
-    pf::SNMP::Cisco::Controller_4400_4_2_130
-    pf::SNMP::Cisco::ISR_1800
     pf::SNMP::Cisco::WiSM
     pf::SNMP::Cisco::WLC_2106
+    pf::SNMP::Cisco::WLC_4400
     pf::SNMP::Dell
     pf::SNMP::Dell::PowerConnect3424
     pf::SNMP::Dlink

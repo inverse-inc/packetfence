@@ -77,7 +77,7 @@ function validate_user_ldap($user,$pass,$hash='') {
     $filter="$ldap_user_key=$user";
   }
 
-  # We may need these 2 options
+  # We may have to set these 2 options
   #ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
   #ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
 
