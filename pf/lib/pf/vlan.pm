@@ -138,6 +138,7 @@ sub custom_doWeActOnThisTrap {
     my $logger = Log::Log4perl->get_logger();
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
+    # TODO we should rethink the position of this code, it's in the wrong test but at the good spot in the flow
     my $weActOnThisTrap = 0;
     if ( $trapType eq 'desAssociate' ) {
         return 1;
