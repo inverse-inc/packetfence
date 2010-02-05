@@ -54,7 +54,7 @@ use vars qw(%RAD_REQUEST %RAD_REPLY %RAD_CHECK);
 
 use SOAP::Lite
     # SOAP global error handler (mostly transport or server errors)
-    # here we only log then on each SOAP method calls we OR them to trap errors
+    # here we only log, the or on soap method calls will take care of returning
     on_fault => sub {   
         my($soap, $res) = @_;
         my $errmsg;
@@ -66,6 +66,12 @@ use SOAP::Lite
         syslog("info", "Error in SOAP communication with server: $errmsg");
         &radiusd::radlog(1, "PacketFence DENIED CONNECTION because of SOAP error see syslog for details.");
     };  
+
+#TODO format well and document the fact that we might need re-create the object on error or something
+            my $soap = new SOAP::Lite(
+                uri   => API_URI,
+                proxy => 'https://'.ADMIN_USER.':'.ADMIN_PASS.'@'.WEBADMIN_HOST.'/cgi-bin/pdp.cgi'
+            ) or return server_error_handler();
 
 =head1 SUBROUTINES
 
@@ -88,9 +94,14 @@ sub authorize {
         # networkelement_ip? networkdevice_ip?
         my $switch_ip = $RAD_REQUEST{'Client-IP-Address'};
         my $user_name = $RAD_REQUEST{'User-Name'};
-        my $request_type = $RAD_REQUEST{'NAS-Port-Type'};
+        my $nas_port_type = $RAD_REQUEST{'NAS-Port-Type'};
         my $port = $RAD_REQUEST{'NAS-Port'};
         my $ssid = find_ssid();
+        if (!defined($ssid)) {
+            # We were not able to parse SSID. For now, I don't think it's important enough to even log
+            # syslog("info", "Unable to parse SSID from request.");
+            $ssid = "";
+        }
 
         my $request_is_eap = 0;
         if (exists($RAD_REQUEST{'EAP-Type'})) {
@@ -112,27 +123,21 @@ sub authorize {
         }
 
         # some debugging (shown when running radius with -X)
-        &radiusd::radlog(1, "PacketFence REQUEST-TYPE: $request_type");
+        &radiusd::radlog(1, "PacketFence REQUEST-TYPE: ".$nas_port_type);
         &radiusd::radlog(1, "PacketFence SWITCH: $switch_ip");
         &radiusd::radlog(1, "PacketFence REQUEST IS EAP?: $request_is_eap");
-        &radiusd::radlog(1, "PacketFence MAC: $mac");
-        &radiusd::radlog(1, "PacketFence PORT: $port");
-        &radiusd::radlog(1, "PacketFence USER: $user_name");
-        &radiusd::radlog(1, "PacketFence SSID: $ssid");
+        &radiusd::radlog(1, "PacketFence MAC: ".$mac);
+        &radiusd::radlog(1, "PacketFence PORT: ".$port);
+        &radiusd::radlog(1, "PacketFence USER: ".$user_name);
+        &radiusd::radlog(1, "PacketFence SSID: ".$ssid);
 
         if (length($mac) == 17) {
             # uncomment following for output of all parameters to syslog (affects performance)
-            # syslog("info", "request type => $request_type, switch_ip => $switch_ip, EAP => $request_is_eap, ".
+            # syslog("info", "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP => $request_is_eap, ".
             #        "mac => $mac, port => $port, username => $user_name, ssid => $ssid");
 
-            # TODO performance: I should try to keep object alive and do method calls instead of new / use / destroy
-            my $soap = new SOAP::Lite(
-                uri   => API_URI,
-                proxy => 'https://'.ADMIN_USER.':'.ADMIN_PASS.'@'.WEBADMIN_HOST.'/cgi-bin/pdp.cgi'
-            ) or return server_error_handler(); 
-
             # TODO: switch_ip is no longer a good name, it needs to change
-            my $som = $soap->radius_authorize($request_type, $switch_ip, $request_is_eap, 
+            my $som = $soap->radius_authorize($nas_port_type, $switch_ip, $request_is_eap, 
                                               $mac, $port, $user_name, $ssid)
                 or return server_error_handler();
 
@@ -203,8 +208,11 @@ sub find_ssid {
             return $1;
         } else {
             syslog("info", "Unable to parse SSID out of Cisco-AVPair: ".$RAD_REQUEST{'Cisco-AVPair'});
+            return;
         }
-    }
+    } else {
+        return;
+    } 
 }
 
 # Function to handle authenticate
