@@ -300,9 +300,7 @@ sub recoverSwitch {
                 if ( scalar(@currentPcs) > 1 ) {
                     $correctVlan = $switch->{_isolationVlan};
                 } elsif ( scalar(@currentPcs) == 1 ) {
-                    $correctVlan
-                        = $vlan_obj->vlan_determine_for_node( $currentPcs[0],
-                        $switch->{_ip}, $currentIfIndex );
+                    $correctVlan = $vlan_obj->vlan_determine_for_node( $currentPcs[0], $switch, $currentIfIndex );
                     my $locationlog_entry
                         = locationlog_view_open_mac( $currentPcs[0] );
                     if ( !$locationlog_entry ) {
