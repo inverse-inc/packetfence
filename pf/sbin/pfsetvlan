@@ -115,7 +115,7 @@ POSIX::sigaction(
 POSIX::sigaction(
     &POSIX::SIGALRM,
     POSIX::SigAction->new(
-        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+        'ignore_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
     )
 ) or $logger->logdie("pfsetvlan: could not set SIGALRM handler: $!");
 
@@ -1694,13 +1694,18 @@ sub normal_sighandler {
             locationlog_close_all();
         }
     }
-    if ( $_[0] eq "ALRM" ) {
-        # alarm signals are known to be buggy with threaded perl
-        # ref: http://rt.perl.org/rt3/Public/Bug/Display.html?id=16807
-        $logger->logcroak("pfsetvlan: caught SIG".$_[0].". This is likely caused by a module using alarm() and threaded perl doesn't like that - terminating");
-    } else {
-        $logger->logdie( "pfsetvlan: caught SIG" . $_[0] . " - terminating" );
-    }
+    $logger->logcroak("pfsetvlan: caught SIG" . $_[0] . " - terminating");
+}
+
+# alarm signals are known to be buggy with threaded perl, to fix we create a handler that does nothing
+# ref: http://rt.perl.org/rt3/Public/Bug/Display.html?id=16807
+# bug: http://www.packetfence.org/mantis/view.php?id=907
+sub ignore_sighandler {
+    my $logger     = Log::Log4perl->get_logger('pfsetvlan');
+
+    $logger->error("caught SIG" . $_[0] . ". This is probably a telnet or ssh management attempt that timed out. "
+        ."THIS WILL HANG A PACKETFENCE THREAD FOR SEVERAL MINUTES! Doublecheck your config or the network between "
+        ."packetfence and the problematic device. Look for Can't connect messages in the logs to find the culprit.");
 }
 
 # }}}1
