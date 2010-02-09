@@ -1405,6 +1405,7 @@ sub handleTrap {
 
         # try to determine MAC address(es) {{{3
         my $nbAttempts = 0;
+        my $start      = time;
         my @macArray   = ();
         my $secureMacAddrHashRef;
         do {
@@ -1445,8 +1446,17 @@ sub handleTrap {
                     . " to obtain MAC at $switch_ip ifIndex $switch_port" );
             @macArray = $switch->_getMacAtIfIndex($switch_port);
             $nbAttempts++;
-            } while ( ( $nbAttempts < $switch->{_macSearchesMaxNb} )
-            && ( scalar(@macArray) == 0 ) );
+            } while (($nbAttempts < $switch->{_macSearchesMaxNb}) && ((time-$start) < 120) && (scalar(@macArray) == 0));
+
+            if (scalar(@macArray) == 0) {
+                if ($nbAttempts >= $switch->{_macSearchesMaxNb}) {
+                    $logger->warn("Tried to grab MAC address at ifIndex $switch_port "
+                        ."on switch ".$switch->{_ip}." ".$switch->{_macSearchesMaxNb}." times and failed");
+                } else {
+                    $logger->warn("Tried to grab MAC address at ifIndex $switch_port "
+                        ."on switch ".$switch->{_ip}." for 2 minutes and failed");
+                }
+            }
 
         # }}}3
 

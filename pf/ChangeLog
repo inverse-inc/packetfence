@@ -1,4 +1,14 @@
 2010-02-09	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP.pm, pf/sbin/pfsetvlan: When a 'UP' trap is received
+	PacketFence will try to get the MAC address 30 times or for 2 minutes 
+	whichever condition is first met. Fixes #903;
+	http://www.packetfence.org/mantis/view.php?id=903
+	
+	This prevent the following condition: telnet timeouts take three 
+	minutes for the thread to recover so 30 times 3 minutes would hang a 
+	thread (and the switch) for 90 minutes. Now since it's longer than the 2
+	minutes limit, it only hang it for 3 minutes.
+
 	* pf/lib/pf/web.pm: In web_node_record_user_agent call node_modify() 
 	directly instead of pfcmd node edit. It's more performant (avoids 
 	spawning a shell) and it'll avoid trying to adjust vlan. Fixes #908;
