@@ -1,4 +1,9 @@
 2010-02-09	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/web.pm: In web_node_record_user_agent call node_modify() 
+	directly instead of pfcmd node edit. It's more performant (avoids 
+	spawning a shell) and it'll avoid trying to adjust vlan. Fixes #908;
+	http://www.packetfence.org/mantis/view.php?id=908
+
 	* pf/sbin/pfsetvlan: Created an ALRM signal handler that report an
 	error and does nothing else. This is a workaround to prevent pfsetvlan
 	to crash when a Net::Telnet or a Net::Appliance::Session call times out,
