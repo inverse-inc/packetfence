@@ -412,8 +412,8 @@ sub isLearntTrapsEnabled {
         -varbindlist => [ "$OID_cmnMacAddrLearntEnable.$ifIndex" ] );
     return (
         exists( $result->{"$OID_cmnMacAddrLearntEnable.$ifIndex"} )
-            && ( $result->{"$OID_cmnMacAddrLearntEnable.$ifIndex"} ne
-            'noSuchInstance' )
+            && ( $result->{"$OID_cmnMacAddrLearntEnable.$ifIndex"} ne 'noSuchInstance' )
+            && ( $result->{"$OID_cmnMacAddrLearntEnable.$ifIndex"} ne 'noSuchObject' )
             && ( $result->{"$OID_cmnMacAddrLearntEnable.$ifIndex"} == 1 )
     );
 }

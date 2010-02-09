@@ -1,3 +1,7 @@
+2010-02-09	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Cisco.pm: Added a noSuchObject test to 
+	isLearntTrapsEnabled
+
 2010-02-03	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/SNMP/Cisco/Controller_4400_4_2_130.pm,
 	pf/lib/pf/SNMP/Cisco/WLC_2106.pm, pf/lib/pf/SNMP/Cisco/WiSM.pm:
