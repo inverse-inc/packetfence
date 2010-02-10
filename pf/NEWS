@@ -51,6 +51,7 @@ Bug fixes
 - Fixed missing dependencies in packetfence-remote-snort-sensor RPM (#881, #882)
 - Fixed bad HTML in registration pages
 - Clarified some error messages
+- Removed some unnecessary warnings
 
 --------------------------------------------------------------------------------
 Version 1.8.6 released on 2009-12-01

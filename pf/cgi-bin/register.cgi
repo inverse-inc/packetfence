@@ -88,6 +88,8 @@ if (defined($params{'mode'})) {
              $logger->error( "Error reading switches.conf: " 
                              .join( "\n", @errors ) . "\n" );
          } else {
+             # insert code for vlan assignation on registration here
+             # (but also make sure you override custom_getCorrectVlan)
              $info{'vlan'}=$ConfigVlan{'default'}{'normalVlan'};
          }
       }

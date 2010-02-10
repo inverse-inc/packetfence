@@ -7,6 +7,7 @@ pf::vlan - Object oriented module for VLAN isolation oriented functions
 =head1 SYNOPSIS
 
 The pf::vlan module contains the functions necessary for the VLAN isolation.
+All the behavior contained here can be overridden in lib/pf/vlan/custom.pm.
 
 =cut
 
@@ -56,7 +57,7 @@ sub vlan_determine_for_node {
         # fetch top violation
         $logger->debug("What is the highest priority violation for this host?");
         my $top_violation = violation_view_top($mac);
-        if ($top_violation) {
+        if ($top_violation && defined($top_violation->{'vid'})) {
 
             # get violation id
             my $vid=$top_violation->{'vid'};
@@ -64,7 +65,7 @@ sub vlan_determine_for_node {
             # find violation class based on violation id
             require pf::class;
             my $class=pf::class::class_view($vid);
-            if ($class) {
+            if ($class && defined($class->{'vlan'})) {
 
                 # override violation destination vlan
                 $vlan = $class->{'vlan'};
@@ -115,6 +116,7 @@ sub custom_doWeActOnThisTrap {
     my $logger = Log::Log4perl->get_logger();
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
+    # TODO we should rethink the position of this code, it's in the wrong test but at the good spot in the flow
     my $weActOnThisTrap = 0;
     if ( $trapType eq 'desAssociate' ) {
         return 1;
@@ -150,7 +152,7 @@ sub custom_doWeActOnThisTrap {
 
 =item custom_getCorrectVlan - returns normal vlan
 
-This sub is meant to be overloaded in lib/pf/vlan/custom.pm if the default 
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
 version doesn't do the right thing for you. By default it will return the 
 normal vlan for the given switch if defined, otherwise it will return the normal
 vlan for the whole network.
