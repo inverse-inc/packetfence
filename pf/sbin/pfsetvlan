@@ -115,7 +115,7 @@ POSIX::sigaction(
 POSIX::sigaction(
     &POSIX::SIGALRM,
     POSIX::SigAction->new(
-        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+        'ignore_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
     )
 ) or $logger->logdie("pfsetvlan: could not set SIGALRM handler: $!");
 
@@ -1090,12 +1090,8 @@ sub handleTrap {
                 {
                     if ( $locationlog[0]->{'mac'} =~ /^$mac$/i ) {
                         if (( $locationlog[0]->{'vlan'} == $vlan )
-                            && ($vlan == $vlan_obj->vlan_determine_for_node(
-                                    $mac, $switch->{_ip}, $switch_port
-                                )
-                            )
-                            )
-                        {
+                            && ($vlan == $vlan_obj->vlan_determine_for_node($mac, $switch, $switch_port))
+                           ) {
                             $logger->info(
                                 "locationlog is already up2date. Do nothing");
                         } else {
@@ -1267,7 +1263,7 @@ sub handleTrap {
                 $logger->debug("$oldPC has still open locationlog entry at $switch_ip ifIndex $switch_port. Closing it");
                 locationlog_update_end_mac($oldPC);
                 $logger->info("authorizing $trapMac (old entry $oldPC) at new location $switch_ip ifIndex $switch_port");
-                my $correctVlanForThisNode = $vlan_obj->vlan_determine_for_node( $trapMac, $switch->{_ip}, $switch_port );
+                my $correctVlanForThisNode = $vlan_obj->vlan_determine_for_node($trapMac, $switch, $switch_port);
                 $switch->authorizeMAC( $switch_port, $oldPC, $trapMac, $switch->getVlan($switch_port), $correctVlanForThisNode );
 
                 #set the right VLAN
@@ -1292,9 +1288,7 @@ sub handleTrap {
                         $old_mac_to_remove = $old_mac;
                     }
                 }
-                my $correctVlanForThisNode
-                    = $vlan_obj->vlan_determine_for_node( $trapMac,
-                    $switch->{_ip}, $switch_port );
+                my $correctVlanForThisNode = $vlan_obj->vlan_determine_for_node($trapMac, $switch, $switch_port);
                 if ( defined($old_mac_to_remove) ) {
                     $logger->info(
                         "authorizing $trapMac (old entry $old_mac_to_remove) at new location $switch_ip ifIndex $switch_port"
@@ -1405,6 +1399,7 @@ sub handleTrap {
 
         # try to determine MAC address(es) {{{3
         my $nbAttempts = 0;
+        my $start      = time;
         my @macArray   = ();
         my $secureMacAddrHashRef;
         do {
@@ -1445,8 +1440,17 @@ sub handleTrap {
                     . " to obtain MAC at $switch_ip ifIndex $switch_port" );
             @macArray = $switch->_getMacAtIfIndex($switch_port);
             $nbAttempts++;
-            } while ( ( $nbAttempts < $switch->{_macSearchesMaxNb} )
-            && ( scalar(@macArray) == 0 ) );
+            } while (($nbAttempts < $switch->{_macSearchesMaxNb}) && ((time-$start) < 120) && (scalar(@macArray) == 0));
+
+            if (scalar(@macArray) == 0) {
+                if ($nbAttempts >= $switch->{_macSearchesMaxNb}) {
+                    $logger->warn("Tried to grab MAC address at ifIndex $switch_port "
+                        ."on switch ".$switch->{_ip}." ".$switch->{_macSearchesMaxNb}." times and failed");
+                } else {
+                    $logger->warn("Tried to grab MAC address at ifIndex $switch_port "
+                        ."on switch ".$switch->{_ip}." for 2 minutes and failed");
+                }
+            }
 
         # }}}3
 
@@ -1694,13 +1698,18 @@ sub normal_sighandler {
             locationlog_close_all();
         }
     }
-    if ( $_[0] eq "ALRM" ) {
-        # alarm signals are known to be buggy with threaded perl
-        # ref: http://rt.perl.org/rt3/Public/Bug/Display.html?id=16807
-        $logger->logcroak("pfsetvlan: caught SIG".$_[0].". This is likely caused by a module using alarm() and threaded perl doesn't like that - terminating");
-    } else {
-        $logger->logdie( "pfsetvlan: caught SIG" . $_[0] . " - terminating" );
-    }
+    $logger->logcroak("pfsetvlan: caught SIG" . $_[0] . " - terminating");
+}
+
+# alarm signals are known to be buggy with threaded perl, to fix we create a handler that does nothing
+# ref: http://rt.perl.org/rt3/Public/Bug/Display.html?id=16807
+# bug: http://www.packetfence.org/mantis/view.php?id=907
+sub ignore_sighandler {
+    my $logger     = Log::Log4perl->get_logger('pfsetvlan');
+
+    $logger->error("caught SIG" . $_[0] . ". This is probably a telnet or ssh management attempt that timed out. "
+        ."THIS WILL HANG A PACKETFENCE THREAD FOR SEVERAL MINUTES! Doublecheck your config or the network between "
+        ."packetfence and the problematic device. Look for Can't connect messages in the logs to find the culprit.");
 }
 
 # }}}1
@@ -1838,7 +1847,7 @@ sub node_determine_and_set_into_VLAN {
 
     $switch->setVlan(
         $ifIndex,
-        $vlan_obj->vlan_determine_for_node( $mac, $switch->{_ip}, $ifIndex ),
+        $vlan_obj->vlan_determine_for_node($mac, $switch, $ifIndex),
         \%switch_locker,
         $mac
     );

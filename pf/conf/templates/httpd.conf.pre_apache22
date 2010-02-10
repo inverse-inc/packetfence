@@ -153,6 +153,8 @@ SetEnvIf User-Agent ".*MSIE.*" \
   # Some UserAgents we don't want to mess with (avoid server load)
   RewriteCond %{HTTP_USER_AGENT} ^Microsoft-CryptoAPI.* [OR]
   RewriteCond %{HTTP_USER_AGENT} ^WinHttp-Autoproxy-Service.* [OR]
+  # Microsoft Windows Vista / 7 Network Connectivity Status Indicator (NCSI)
+  RewriteCond %{HTTP_USER_AGENT} ^Microsoft NCSI$ [OR]
   RewriteCond %{HTTP_USER_AGENT} ^Windows-Update-Agent.*
   RewriteRule ^.*$ - [L,forbidden]
 
@@ -212,6 +214,8 @@ SetEnvIf User-Agent ".*MSIE.*" \
   # Some UserAgents we don't want to mess with (avoid server load)
   RewriteCond %{HTTP_USER_AGENT} ^Microsoft-CryptoAPI.* [OR]
   RewriteCond %{HTTP_USER_AGENT} ^WinHttp-Autoproxy-Service.* [OR]
+  # Microsoft Windows Vista / 7 Network Connectivity Status Indicator (NCSI)
+  RewriteCond %{HTTP_USER_AGENT} ^Microsoft NCSI$ [OR]
   RewriteCond %{HTTP_USER_AGENT} ^Windows-Update-Agent.*
   RewriteRule ^.*$ - [L,forbidden]
 

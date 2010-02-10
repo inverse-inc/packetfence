@@ -16,9 +16,11 @@ Define this function to return whatever data you'd like.
 =head1 EXAMPLE
 
   use Net::LDAP;
+  use Log::Log4perl;
 
   sub lookup_person {
       my ($pid) = @_;
+      my $logger = Log::Log4perl::get_logger('pf::lookup::person');
 
       my $ldapserver = $Config{'lookup'}{'ldapserver'};
       my $userdn     = $Config{'lookup'}{'userdn'};
@@ -57,6 +59,12 @@ Define this function to return whatever data you'd like.
               $return .= "Address : $address\n" if ($address =~ /\W/);
               $return .= "Phone : $phone\n" if ($phone =~ /\W/);
               $return .= "Email : $email\n" if ($email =~ /\W/);
+	      
+              # If you want to alter the database, you can call person_modify here
+              #if ($name =~ /^(.+), (.+)$/) {
+              #     person_modify($pid, (firstname => $2, lastname => $1));
+              #}
+
           }
           $ldap->unbind();
       }
@@ -93,13 +101,15 @@ Kevin Amorin <kev@amorin.org>
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 Dave Laported
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009 Inverse inc.
+Copyright (C) 2009, 2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

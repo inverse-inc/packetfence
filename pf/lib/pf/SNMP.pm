@@ -951,7 +951,10 @@ sub getMacAtIfIndex {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $i      = 0;
+    my $start  = time;
     my @macArray;
+
+    # we try to get the MAC 30 times or for 2 minutes whichever comes first
     do {
         sleep(2) unless ( $i == 0 );
         $logger->debug( "attempt "
@@ -961,7 +964,17 @@ sub getMacAtIfIndex {
                 . " ifIndex $ifIndex" );
         @macArray = $this->_getMacAtIfIndex($ifIndex);
         $i++;
-    } while ( ( $i < 30 ) && ( scalar(@macArray) == 0 ) );
+    } while (($i < 30) && ((time-$start) < 120) && (scalar(@macArray) == 0));
+
+    if (scalar(@macArray) == 0) {
+        if ($i >= 30) {
+            $logger->warn("Tried to grab MAC address at ifIndex $ifIndex "
+                ."on switch ".$this->{_ip}." 30 times and failed");
+        } else {
+            $logger->warn("Tried to grab MAC address at ifIndex $ifIndex "
+                ."on switch ".$this->{_ip}." for 2 minutes and failed");
+        }
+    }
     return @macArray;
 }
 

@@ -20,7 +20,6 @@ use pf::config;
 use pf::node qw(node_view node_add_simple node_exist);
 use pf::util;
 use pf::violation qw(violation_count_trap violation_exist_open violation_view_top);
-use pf::SwitchFactory;
 use threads;
 use threads::shared;
 
@@ -41,7 +40,7 @@ sub new {
 }
 
 sub vlan_determine_for_node {
-    my ( $this, $mac, $switch_ip, $ifIndex ) = @_;
+    my ( $this, $mac, $switch, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::vlan');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
@@ -82,15 +81,8 @@ sub vlan_determine_for_node {
         }
 
         # Asking the switch to give us its configured vlan number for the vlan returned for the violation
-        my $switchFactory = new pf::SwitchFactory( -configFile => "$conf_dir/switches.conf" );
-        my $switch = $switchFactory->instantiate($switch_ip);
-        if (!$switch) {
-            $logger->error("Can not instantiate switch $switch_ip !");
-            return -1;
-        } else {
-            # TODO: get rid of the _ character for the vlan variables (refactoring)
-            $correctVlanForThisMAC = $switch->{"_".$vlan};
-        }
+        # TODO: get rid of the _ character for the vlan variables (refactoring)
+        $correctVlanForThisMAC = $switch->{"_".$vlan};
     } else {
         if ( !node_exist($mac) ) {
             $logger->info("node $mac does not yet exist in PF database. Adding it now");
@@ -102,31 +94,17 @@ sub vlan_determine_for_node {
                 || ( $node_info->{'status'} eq 'unreg' ) )
             {
                 $logger->info("MAC: $mac is unregistered; belongs into registration VLAN");
-                my $switchFactory = new pf::SwitchFactory( -configFile => "$conf_dir/switches.conf" );
-                my $switch = $switchFactory->instantiate($switch_ip);
-                if (!$switch) {
-                    $logger->error("Can not instantiate switch $switch_ip !");
-                    return -1;
-                } else {
-                    $correctVlanForThisMAC = $switch->{_registrationVlan};
-                }
+                $correctVlanForThisMAC = $switch->{_registrationVlan};
             } else {
+
                 #TODO: find a way to cleanly wrap this
-                $correctVlanForThisMAC = $this->custom_getCorrectVlan( $switch_ip, $ifIndex, $mac, $node_info->{status}, $node_info->{vlan}, $node_info->{pid} );
+                $correctVlanForThisMAC = $this->custom_getCorrectVlan( $switch, $ifIndex, $mac, $node_info->{status}, $node_info->{vlan}, $node_info->{pid} );
                 $logger->info( "MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", VLAN: $correctVlanForThisMAC" );
             }
         } else {
-            my $switchFactory = new pf::SwitchFactory( -configFile => "$conf_dir/switches.conf" );
-            my $switch = $switchFactory->instantiate($switch_ip);
-            if (!$switch) {
-                $logger->error("Can not instantiate switch $switch_ip !");
-                return -1;
-            } else {
-                #TODO: find a way to cleanly wrap this
-                $correctVlanForThisMAC = $this->custom_getCorrectVlan( $switch_ip, $ifIndex, $mac, $node_info->{status},
-                    ( $node_info->{vlan} || $switch->{_normalVlan} ), $node_info->{pid} );
-                $logger->info( "MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", VLAN: $correctVlanForThisMAC" );
-            }
+            #TODO: find a way to cleanly wrap this
+            $correctVlanForThisMAC = $this->custom_getCorrectVlan( $switch, $ifIndex, $mac, $node_info->{status}, ( $node_info->{vlan} || $switch->{_normalVlan} ), $node_info->{pid} );
+            $logger->info( "MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", VLAN: $correctVlanForThisMAC" );
         }
     }
     return $correctVlanForThisMAC;
@@ -182,25 +160,29 @@ vlan for the whole network.
 =cut
 sub custom_getCorrectVlan {
 
-    #$switch_ip is the ip of the switch
+    #$switch is the switch object (pf::SNMP)
     #$ifIndex is the ifIndex of the computer connected to
     #$mac is the mac connected
     #$status is the node's status in the database
     #$vlan is the vlan set for this node in the database
     #$pid is the owner of this node in the database
-    my ( $this, $switch_ip, $ifIndex, $mac, $status, $vlan, $pid ) = @_;
+    my ( $this, $switch, $ifIndex, $mac, $status, $vlan, $pid ) = @_;
     my $logger = Log::Log4perl->get_logger();
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
-    # Grab switch config
-    my $switchFactory = new pf::SwitchFactory(-configFile => "$conf_dir/switches.conf");
-    my %Config = %{$switchFactory->{_config}};
+    # if switch object not correct, return default vlan
+    if (ref($switch) ne 'HASH' || !defined($switch->{_normalVlan})) {
+        $logger->warn("Did not return correct VLAN: Invalid switch. Will return default VLAN as a fallback");
 
-    # empty hash reference avoidance (return normal vlan if switch doesn't exist)
-    return $Config{'default'}{'normalVlan'} unless $switch_ip;
+        # Grab switch config
+        my $switchFactory = new pf::SwitchFactory(-configFile => "$conf_dir/switches.conf");
+        my %Config = %{$switchFactory->{_config}};
+
+        return $Config{'default'}{'normalVlan'};
+    }
 
     # return switch-specific normal vlan or default normal vlan (if switch-specific normal vlan not defined)
-    return ($Config{$switch_ip}{'normalVlan'} || $Config{'default'}{'normalVlan'});
+    return $switch->{_normalVlan};
 }
 
 sub custom_getNodeInfo {

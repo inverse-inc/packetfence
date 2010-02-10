@@ -14,14 +14,42 @@ For a list of compatibility related changes see the UPGRADE file.
 
 
 --------------------------------------------------------------------------------
-Version <release> - <codename> released on <releaseDate>
+Version <version> - <codename> released on <releaseDate>
+
+New
+- Official Linux 64 bit support (TODO: change documentation and symlink in yum repo)
+
+New Hardware Support
+- Cisco Wireless Services Module (WiSM)
+- Cisco Integrated Services Routers (ISR) 1800 Series
+
+New Features
+- @ character now allowed in person id (pid). This is very common in Active 
+  Directory environment.
+- New admin authentication mechanism added (disabled by default)
+- New debugging features (disabled by default)
+- New DHCP fingerprints
+- Optional backup script in addons/ now archives old records
+- Install guide more accurate
 
 Bug fixes
+- Performance fixes (#908, #910)
+- Captive portal stability fixes (#892)
+- Improved error reporting in the web administration panel and cli (#898, #899)
+- Mitigated Net::Telnet problems with perl threads (#903, #907)
+- Misc. stability fixes
+
+--------------------------------------------------------------------------------
+Version 1.8.7 released on 2010-01-06
+
+Bug fixes
+- SECURITY: Fixed "username" Cross-Site Scripting Vulnerability (#884)
 - Fixed issues with Aruba Controller (#871, #873)
 - Fixed issues with multiple registration in same browser session (#761)
 - Fixed issues in some wireless scenarios (#880)
 - Fixed situation where a Windows 7 client would slow down captive portal
 - Fixed missing dependencies in packetfence-remote-snort-sensor RPM (#881, #882)
+- Fixed bad HTML in registration pages
 - Clarified some error messages
 - Removed some unnecessary warnings
 

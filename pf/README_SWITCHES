@@ -7,6 +7,7 @@ Packetfence supports the following access points and wireless controlers:
 - Cisco 1130AG
 - Cisco 1240AG
 - Cisco 1250
+- Cisco Wireless Services Module (WiSM)
 - Cisco WLC 2106
 - Cisco WLC 4400
 - Dlink DWS_3026
@@ -56,6 +57,8 @@ Cisco 3500XL                 |    XX    |    XX    |    XX    |    XX    |
 Cisco 3550                   |    XX    |    XX    |    XX    |    XX    |
 -----------------------------|----------|----------|----------|----------|
 Cisco 3560                   |    XX    |    XX    |    XX    |    XX    |
+-----------------------------|----------|----------|----------|----------|
+Cisco ISR 1800 Series        |    XX    |    --    |    --    |    ??    |
 -----------------------------|----------|----------|----------|----------|
 Dell PowerConnect 3424       |    XX    |    --    |    --    |    --    |
 -----------------------------|----------|----------|----------|----------|

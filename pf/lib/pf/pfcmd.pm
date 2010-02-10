@@ -167,7 +167,7 @@ sub parseCommandLine {
                                  $ /xms,
         'lookup'          => qr{ ^ ( person | node ) 
                                    \s+
-                                   ( [0-9a-zA-Z_\-\.\:]+ )
+                                   ( [0-9a-zA-Z_\-\.\:@]+ )
                                  $  }xms,
         'manage'          => qr/ ^ 
                                    (?:
@@ -424,9 +424,11 @@ sub parseWithGrammar {
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2009 Inverse inc.
+Copyright (C) 2009, 2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

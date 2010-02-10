@@ -40,7 +40,7 @@ BEGIN {
 use pf::config;
 use pf::util;
 use pf::iplog qw(ip2mac);
-use pf::node qw(node_view);
+use pf::node qw(node_view node_modify);
 use pf::useragent;
 
 sub web_get_locale {
@@ -454,9 +454,10 @@ sub web_node_record_user_agent {
     my $logger = Log::Log4perl::get_logger('pf::web');
     
     # Recording useragent
-    $logger->info("calling $bin_dir/pfcmd 'node edit $mac user_agent=\"" . $user_agent . "\"'");
-    my $cmd    = $bin_dir . "/pfcmd 'node edit $mac user_agent=\"" . $user_agent . "\"'";
-    my $output = qx/$cmd/;
+    $logger->info("Updating node $mac user_agent");
+    $logger->debug("Updating node $mac user_agent with useragent: '$user_agent'");
+    # call node_modify directly instead of pfcmd node edit. it's more performant and it'll avoid trying to adjust vlan 
+    node_modify($mac, ('user_agent' => $user_agent));
 
     # match provided useragent in useragent database
     my @user_agent_info = useragent_match($user_agent);
