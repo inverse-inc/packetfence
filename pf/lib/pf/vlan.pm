@@ -168,6 +168,17 @@ sub custom_getCorrectVlan {
     my $logger = Log::Log4perl->get_logger();
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
+    # if switch object not correct, return default vlan
+    if (ref($switch) ne 'HASH' || !defined($switch->{_normalVlan})) {
+        $logger->warn("Did not return correct VLAN: Invalid switch. Will return default VLAN as a fallback");
+
+        # Grab switch config
+        my $switchFactory = new pf::SwitchFactory(-configFile => "$conf_dir/switches.conf");
+        my %Config = %{$switchFactory->{_config}};
+
+        return $Config{'default'}{'normalVlan'};
+    }
+
     # return switch-specific normal vlan or default normal vlan (if switch-specific normal vlan not defined)
     return $switch->{_normalVlan};
 }

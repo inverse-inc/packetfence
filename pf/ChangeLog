@@ -1,3 +1,8 @@
+2010-02-10	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/vlan.pm: Added validation to custom_getCorrectVlan.
+	If the switch object is not correct, return the default VLAN and log a 
+	warning.
+
 2010-02-09	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/addons/recovery.pl, pf/bin/pfcmd, pf/lib/pf/vlan.pm, 
 	pf/sbin/pfsetvlan, pf/UPGRADE: Avoid loading the entire SwitchFactory 
