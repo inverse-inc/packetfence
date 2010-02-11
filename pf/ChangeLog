@@ -1,3 +1,8 @@
+2010-02-11	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/pfcmd/pfcmd.pm: Allow ! in value field when quoted. Fixes
+	#911;
+	http://www.packetfence.org/mantis/view.php?id=911
+
 2010-02-10	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/vlan.pm: Added validation to custom_getCorrectVlan.
 	If the switch object is not correct, return the default VLAN and log a 
