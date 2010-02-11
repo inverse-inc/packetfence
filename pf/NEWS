@@ -24,6 +24,7 @@ New Hardware Support
 - Cisco Integrated Services Routers (ISR) 1800 Series
 
 New Features
+- Improved error reporting in the web administration panel and cli (#898, #899)
 - @ character now allowed in person id (pid). This is very common in Active 
   Directory environment.
 - New admin authentication mechanism added (disabled by default)
@@ -31,11 +32,11 @@ New Features
 - New DHCP fingerprints
 - Optional backup script in addons/ now archives old records
 - Install guide more accurate
+- Little improvements (#911)
 
 Bug fixes
 - Performance fixes (#908, #910)
 - Captive portal stability fixes (#892)
-- Improved error reporting in the web administration panel and cli (#898, #899)
 - Mitigated Net::Telnet problems with perl threads (#903, #907)
 - Misc. stability fixes
 
