@@ -1,5 +1,10 @@
 DONE: - Pragmatically test for memory leaks (since we can't realistically check all the code, modules)
 
+- What can we do that is better than returning -1 to a radius client?
+- We'll have to think about how to close locationlog entries for radius authorize requests.. (after a day?)
+
+- If we are in MAB or wired 802.1x do we still get traps? If so, we must find a way to ignore them I guess?
+
 Tests
 test pfcmd_vlan setVlan with a string 
 test pfcmd_vlan setAllVlan with a string
@@ -18,6 +23,9 @@ NEWS
 - pfcmd_vlan now allows you to specify -vlanName for -setVlan and -setAllVlan (where vlan name is the same as what is defined in switches.conf)
 
 UPGRADE
+- lib/pf/vlan.pm interface changed
+custom_getNodeInfo() renamed to getNodeUpdatedInfo() and signature changed
+
 - deprecated subs
 lib/pf/SNMP.pm's setIsolationVlan, setRegistrationVlan and setNormalVlan are now deprecated and will be removed in the future. Use setVlanByName($ifIndex, $switch_locker_ref, $vlanName) instead. For example: setVlanByName($ifIndex, \%switch_locker, 'guestVlan'); 
 

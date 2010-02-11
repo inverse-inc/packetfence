@@ -1755,38 +1755,11 @@ sub node_update_PF {
         }
     }
 
-    #update node information in PF database
-    my $new
-        = $vlan_obj->custom_getNodeInfo( $switch->{_ip}, $switch_port, $mac,
-        $vlan, $isPhone, $mysql_connection );
-    my $old
-        = $mysql_connection->selectrow_hashref( "SELECT "
-            . join( ",", keys(%$new) )
-            . " FROM node WHERE mac='$mac'" );
-    my $logMessage = '';
-    my $updateSQL  = '';
-    foreach my $key ( keys %$old ) {
-        if ( !defined( $old->{$key} ) ) {
-            $old->{$key} = '';
-        }
-        if ( $old->{$key} ne $new->{$key} ) {
-            if ( $logMessage ne '' ) {
-                $logMessage .= ", ";
-                $updateSQL  .= ", ";
-            }
-            $logMessage
-                .= "$key from '"
-                . $old->{$key}
-                . "' to '"
-                . $new->{$key} . "'";
-            $updateSQL .= "$key = '" . $new->{$key} . "'";
-        }
-    }
-    if ( $logMessage ne '' ) {
-        $logger->debug("updating $mac in PF database: $logMessage");
-        $mysql_connection->do("UPDATE node SET $updateSQL WHERE mac='$mac'")
-            || return 0;
-    }
+    #update node information in PF database and use VLAN object to allow customization
+    $logger->debug("updating $mac in PF database");
+    node_modify($mac, $vlan_obj->getNodeUpdatedInfo($switch->{_ip}, $switch_port, $mac, $vlan, $isPhone))
+        or return 0;
+
     return 1;
 }
 

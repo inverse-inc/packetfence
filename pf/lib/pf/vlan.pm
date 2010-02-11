@@ -185,18 +185,27 @@ sub custom_getCorrectVlan {
     return $switch->{_normalVlan};
 }
 
-sub custom_getNodeInfo {
-    my ( $this, $switch_ip, $switch_port, $mac, $vlan, $isPhone,
-        $mysql_connection )
-        = @_;
-    my $new = {};
-    $new->{'switch'} = $switch_ip;
-    $new->{'port'}   = $switch_port;
-    if ($isPhone) {
-        #$new->{'dhcp_fingerprint'} = '1,3,6,15,42,66,150';
-    }
+=item getNodeUpdatedInfo - updated fields when a node changed status
 
-    return $new;
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
+version doesn't do the right thing for you. By default it will return the 
+switch_ip and the switch_port to update the node table entry.
+
+=cut
+sub getNodeUpdatedInfo {
+    my ($this, $switch_ip, $switch_port, $mac, $vlan, $isPhone) = @_;
+
+    my %node_info = (
+        switch => $switch_ip,
+        port   => $switch_port,
+    );
+
+    # example of customization: set dhcpfingerprint when isPhone is == 1
+    # if ($isPhone) {
+    #    $node_info{'dhcp_fingerprint'} = '1,3,6,15,42,66,150';
+    #}
+
+    return %node_info;
 }
 
 sub custom_getNodeInfoForAutoReg {
