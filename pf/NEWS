@@ -31,6 +31,7 @@ New Features
 - New DHCP fingerprints
 - Optional backup script in addons/ now archives old records
 - Install guide more accurate
+- Little improvements (#911)
 
 Bug fixes
 - Performance fixes (#908, #910)
