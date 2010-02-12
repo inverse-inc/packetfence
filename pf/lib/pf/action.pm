@@ -153,8 +153,22 @@ sub action_execute {
             action_winpopup( $mac, $vid );
         } elsif ( $action =~ /^autoreg$/i ) {
             if ( isenabled( $Config{'trapping'}{'registration'} ) ) {
-                require pf::node;
-                pf::node::node_register_auto($mac);
+                require pf::vlan::custom;
+                my $vlan_obj = new pf::vlan::custom();
+                if ($vlan_obj->shouldAutoRegister($mac, 'violation')) {
+                    # auto-register
+                    my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg(undef, undef,
+                        $mac, undef, 'violation');
+                    $logger->debug("auto-registering node $mac because of violation action=autoreg");
+                    require pf::node;
+                    if (!pf::node::node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
+                        $logger->error("auto-registration of node $mac failed");
+                        return 0;
+                    }
+                } else {
+                    $logger->info("autoreg action defined for violation $vid, "
+                        ."but won't do it: custom config said not to");
+                } 
             } else {
                 $logger->warn(
                     "autoreg action defined for violation $vid, but registration disabled"
@@ -276,7 +290,7 @@ Copyright (C) 2005 David Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2007-2009 Inverse inc.
+Copyright (C) 2007-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

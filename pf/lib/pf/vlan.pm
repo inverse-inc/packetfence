@@ -208,24 +208,79 @@ sub getNodeUpdatedInfo {
     return %node_info;
 }
 
-sub custom_getNodeInfoForAutoReg {
-    my ( $this, $switch_ip, $switch_port, $mac, $vlan, $isPhone,
-        $mysql_connection )
-        = @_;
-    my $new;
-    $new->{'pid'}        = 'PF';
-    $new->{'user_agent'} = 'AUTO-REGISTERED';
-    $new->{'status'}     = 'reg';
-    $new->{'vlan'}       = 1;
-    if ($isPhone) {
-        $new->{'dhcp_fingerprint'} = '1,3,6,15,42,66,150';
+=item getNodeInfoForAutoReg - basic information returned for auto-registered node
+
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
+version doesn't do the right thing for you.
+
+$origin is the string representing where the autoregistration is comming from. Possibles values are:
+switch-config or violation.
+
+$isPhone is set to 1 if device is considered an IP Phone.
+
+=cut 
+sub getNodeInfoForAutoReg {
+    my ($this, $switch_ip, $switch_port, $mac, $vlan, $origin, $isPhone) = @_;
+
+    # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
+    my %node_info = (
+        pid             => $default_pid,
+        notes           => 'AUTO-REGISTERED',
+        status          => 'reg',
+        auto_registered => 1, # tells node_register to autoreg
+    );
+
+    # if we are called from pfsetvlan (autoreg for switch-config), we can set switch and vlan info
+    if ($origin =~ /^switch-config$/) {
+        $node_info{'switch'} = $switch_ip;
+        $node_info{'port'}   = $switch_port;
+        $node_info{'vlan'}   = $vlan;
     }
-    return $new;
+
+    # put a phone dhcp fingerprint if it's a phone
+    if ($isPhone) {
+        $node_info{'dhcp_fingerprint'} = '1,3,6,15,42,66,150';
+    }
+
+    return %node_info;
 }
 
-sub custom_shouldAutoRegister {
-    my ( $this, $mac, $isPhone ) = @_;
-    return $isPhone;
+=item shouldAutoRegister - do we auto-register this node?
+
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
+version doesn't do the right thing for you.
+
+$origin is the string representing where the autoregistration is comming from. Possibles values are:
+switch-config or violation.
+
+$isPhone is set to 1 if device is considered a IP Phone.
+
+returns 1 if we should register, 0 otherwise
+
+=cut
+sub shouldAutoRegister {
+    my ($this, $mac, $origin, $isPhone) = @_;
+    my $logger = Log::Log4perl->get_logger();
+
+    $logger->trace("asked if should auto-register device");
+    # handling switch-config first because I think it's the most important to honor
+    if (defined($origin) && $origin =~ /^switch-config$/) {
+        $logger->trace("returned yes because it's from the switch's config");
+        return 1;
+
+    # if we have a violation action set to autoreg
+    } elsif (defined($origin) && $origin =~ /^violation$/) {
+        $logger->trace("returned yes because it's from a violation");
+        return 1;
+    }
+
+    if ($isPhone) {
+        $logger->trace("returned yes because it's an ip phone");
+        return $isPhone;
+    }
+
+    # otherwise don't autoreg
+    return 0;
 }
 
 =back
@@ -238,7 +293,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2009 Inverse inc.
+Copyright (C) 2007-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

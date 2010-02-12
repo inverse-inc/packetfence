@@ -353,8 +353,16 @@ sub node_modify {
     my $tmpMAC = Net::MAC->new( 'mac' => $mac );
     $mac = $tmpMAC->as_IEEE();
     my $logger = Log::Log4perl::get_logger('pf::node');
+    my $auto_registered = 0;
+
     $mac = lc($mac);
     return (0) if ( !valid_mac($mac) );
+
+    # hack to support an additional autoreg param to the sub without changing the hash to a reference everywhere
+    if (defined($data{'auto_registered'})) {
+        $auto_registered = 1;
+        delete($data{'auto_registered'});
+    }
 
     if ( !node_exist($mac) ) {
         if ( node_add_simple($mac) ) {
@@ -391,7 +399,8 @@ sub node_modify {
         $existing->{regdate} = mysql_date();
     }
 
-    if (   ( $new_status eq 'reg' )
+    # set unregdate if status changed to registered, is not an auto-registration and old unregdate is unset or 0
+    if ( !$auto_registered &&  ( $new_status eq 'reg' )
         && ( $old_status ne 'reg' )
         && (   $existing->{unregdate} eq '0000-00-00 00:00:00'
             || $existing->{unregdate} eq '' )
@@ -431,57 +440,64 @@ sub node_modify {
     return (1);
 }
 
-sub node_register_auto {
-    my ($mac) = @_;
-    my %tmp;
-    $tmp{'user_agent'} = "AUTOREGISTERED " . mysql_date();
-    $tmp{'force'}      = 1;
-    return node_register( $mac, $default_pid, %tmp );
-}
-
 sub node_register {
     my ( $mac, $pid, %info ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::node');
-    require pf::person;
-    require pf::violation;
     $mac = lc($mac);
     my $auto_registered = 0;
 
-    if ( defined( $info{'force'} ) ) {
+    # hack to support an additional autoreg param to the sub without changing the hash to a reference everywhere
+    if (defined($info{'auto_registered'})) {
         $auto_registered = 1;
-        delete( $info{'force'} );
     }
 
-    my $max_nodes = 0;
-    $max_nodes = $Config{'registration'}{'maxnodes'}
-        if ( defined $Config{'registration'}{'maxnodes'} );
-    my $owned_nodes = pf::person::person_nodes($pid);
-    if ( $max_nodes != 0 && $pid ne '1' && $owned_nodes >= $max_nodes ) {
-        $logger->error(
-            "maxnodes met or exceeded - registration of $mac to $pid failed");
-        return (0);
+    # if it's for auto-registration and mac is already registered, we are done
+    if ($auto_registered) {
+       my $node_info = node_view($mac);
+       if (defined($node_info) && (ref($node_info) eq 'HASH') && $node_info->{'status'} eq 'reg') {
+           $logger->info("autoregister a node that is already registered, do nothing.");
+           return 1;
+       }
     }
 
+    require pf::person;
+    # do not check for max_node is it's for auto-register
+    if (!$auto_registered) {
+        # checks to enforce max number of nodes per person id (pid) if enabled
+        my $max_nodes = 0;
+        $max_nodes = $Config{'registration'}{'maxnodes'}
+            if ( defined $Config{'registration'}{'maxnodes'} );
+        my $owned_nodes = pf::person::person_nodes($pid);
+        if ( $max_nodes != 0 && $pid ne '1' && $owned_nodes >= $max_nodes ) {
+            $logger->error(
+                "maxnodes met or exceeded - registration of $mac to $pid failed");
+            return (0);
+        }
+    }
+
+    # create a person entry for pid if it doesn't exist
     if ( !pf::person::person_exist($pid) ) {
-        $logger->info("creating person $pid");
+        $logger->info("creating person $pid because it doesn't exist");
         pf::person::person_add($pid);
     } else {
-        $logger->info("person $pid already exists");
+        $logger->debug("person $pid already exists");
     }
+
     $info{'pid'}     = $pid;
     $info{'status'}  = 'reg';
     $info{'regdate'} = mysql_date();
 
+    # note: we ignore expire modes on auto-registration
     if ( ( !$info{'unregdate'} ) || ( !valid_date( $info{'unregdate'} ) ) ) {
         my $expire_mode = $Config{'registration'}{'expire_mode'};
-        if (   ( lc($expire_mode) eq 'window' )
+        if ( !$auto_registered && ( lc($expire_mode) eq 'window' )
             && ( $Config{'registration'}{'expire_window'} > 0 ) )
         {
             $info{'unregdate'} = POSIX::strftime(
                 "%Y-%m-%d %H:%M:%S",
                 localtime( time + $Config{'registration'}{'expire_window'} )
             );
-        } elsif (  ( lc($expire_mode) eq 'deadline' )
+        } elsif ( !$auto_registered && ( lc($expire_mode) eq 'deadline' )
             && ( $Config{'registration'}{'expire_deadline'} - time > 0 ) )
         {
             $info{'unregdate'} = POSIX::strftime( "%Y-%m-%d %H:%M:%S",
@@ -523,6 +539,7 @@ sub node_register {
 
         #nessus code
         if ( isenabled( $Config{'scan'}{'registration'} ) ) {
+            require pf::violation;
             pf::violation::violation_add( $mac, 1200001 );
         }
 
@@ -724,7 +741,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2007-2009 Inverse inc.
+Copyright (C) 2007-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

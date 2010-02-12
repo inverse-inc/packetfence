@@ -38,9 +38,9 @@ can_ok($vlan_obj, qw(
     vlan_determine_for_node
     custom_doWeActOnThisTrap
     custom_getCorrectVlan
-    custom_getNodeInfo
-    custom_getNodeInfoForAutoReg
-    custom_shouldAutoRegister
+    getNodeUpdatedInfo
+    getNodeInfoForAutoReg
+    shouldAutoRegister
   ));
 
 # Return 0 violation on first query and 1 on second one

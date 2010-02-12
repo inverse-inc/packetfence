@@ -30,7 +30,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2009 Inverse inc.
+Copyright (C) 2006-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -979,8 +979,7 @@ sub handleTrap {
         # node_updatePF {{{3
         my $isPhone = $switch->isPhoneAtIfIndex( $mac, $switch_port );
         node_update_PF( $switch, $switch_port, $mac, $vlan, $isPhone,
-            $switch->isRegistrationMode(),
-            $mysql_connection );
+            $switch->isRegistrationMode() );
 
         # }}}3
 
@@ -1145,8 +1144,7 @@ sub handleTrap {
         # node_update_PF {{{3
         my $isPhone = $switch->isPhoneAtIfIndex( $trapMac, $switch_port );
         node_update_PF( $switch, $switch_port, $trapMac, $trapVlan, $isPhone,
-            $switch->isRegistrationMode(),
-            $mysql_connection );
+            $switch->isRegistrationMode() );
 
         #}}}3
 
@@ -1467,13 +1465,11 @@ sub handleTrap {
                     #this Mac is a phone
                     $logger->debug("$currentMac is a phone");
                     node_update_PF( $switch, $switch_port, $currentMac, '', 1,
-                        $switch->isRegistrationMode(),
-                        $mysql_connection );
+                        $switch->isRegistrationMode() );
                 } else {
                     push( @tmpMacArray, $currentMac );
                     node_update_PF( $switch, $switch_port, $currentMac, '', 0,
-                        $switch->isRegistrationMode(),
-                        $mysql_connection );
+                        $switch->isRegistrationMode() );
                 }
             }
         }
@@ -1716,9 +1712,7 @@ sub ignore_sighandler {
 
 # sub node_update_PF {{{1
 sub node_update_PF {
-    my ( $switch, $switch_port, $mac, $vlan, $isPhone, $registrationMode,
-        $mysql_connection )
-        = @_;
+    my ($switch, $switch_port, $mac, $vlan, $isPhone, $registrationMode) = @_;
     my $logger = Log::Log4perl->get_logger('pfsetvlan');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
     my $vlan_obj = new pf::vlan::custom();
@@ -1741,69 +1735,31 @@ sub node_update_PF {
     # There is activity from that mac, call node wakeup
     node_mac_wakeup($mac);
 
-    #auto-register node if we are in registration mode
-    if ( ( $registrationMode == 1 )
-        || $vlan_obj->custom_shouldAutoRegister( $mac, $isPhone ) )
-    {
-        if (!node_register_auto_PF(
-                $switch->{_ip}, $switch_port, $mac,
-                $vlan,          $isPhone,     $mysql_connection
-            )
-            )
-        {
+    #should we auto-register?
+    # TODO: push up this test into the callers (if switch is regist then set switch-config directly)
+    my $autoreg_for;
+    if ($registrationMode == 1) {
+        $autoreg_for = 'switch-config';
+    }
+
+    if ($vlan_obj->shouldAutoRegister($mac, $autoreg_for, $isPhone)) {
+        # auto-register
+        my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch->{_ip}, $switch_port, 
+            $mac, $vlan, 'switch-config', $isPhone);
+        $logger->debug("auto-registering node $mac");
+        if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
             $logger->error("auto-registration of node $mac failed");
+            return 0;
+        }
+    } else {
+
+        #update node information in PF database and use VLAN object to allow customization
+        $logger->debug("updating $mac in PF database");
+        if (!node_modify($mac, $vlan_obj->getNodeUpdatedInfo($switch->{_ip}, $switch_port, $mac, $vlan, $isPhone))) {
+            $logger->error("update of node $mac failed");
+            return 0;
         }
     }
-
-    #update node information in PF database and use VLAN object to allow customization
-    $logger->debug("updating $mac in PF database");
-    node_modify($mac, $vlan_obj->getNodeUpdatedInfo($switch->{_ip}, $switch_port, $mac, $vlan, $isPhone))
-        or return 0;
-
-    return 1;
-}
-
-# }}}1
-
-# sub node_register_auto_PF {{{1
-sub node_register_auto_PF {
-    my ( $switch_ip, $switch_port, $mac, $vlan, $isPhone, $mysql_connection )
-        = @_;
-    my $logger = Log::Log4perl->get_logger('pfsetvlan');
-    Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
-    my $vlan_obj = new pf::vlan::custom();
-
-    my ($lineNumbers)
-        = $mysql_connection->selectrow_array(
-        "SELECT count(*) FROM node where mac='$mac' and status='reg'");
-    if ( defined($lineNumbers) && ( $lineNumbers == 1 ) ) {
-        $logger->debug(
-            "node $mac is already registered. Skipping auto-registration");
-        return 1;
-    }
-    $lineNumbers = undef;
-    my $new
-        = $vlan_obj->custom_getNodeInfoForAutoReg( $switch_ip, $switch_port,
-        $mac, $vlan, $isPhone, $mysql_connection );
-    my $default_pid = $new->{'pid'};
-    $lineNumbers = $mysql_connection->selectrow_array(
-        "SELECT count(*) FROM person WHERE pid='$default_pid'");
-    if ( !defined($lineNumbers) || ( $lineNumbers == 0 ) ) {
-        $logger->debug(
-            "person $default_pid does not yet exist in PF database. Adding it now"
-        );
-        $mysql_connection->do(
-            "INSERT INTO person(pid,notes) VALUES ('$default_pid', 'pfsetvlan auto-registration user - do not delete')"
-        ) || return 0;
-    }
-
-    my $updateSQL = 'regdate=now()';
-    foreach my $key ( keys %$new ) {
-        $updateSQL .= ", $key = '" . $new->{$key} . "'";
-    }
-    $logger->debug("auto-registering node $mac ($updateSQL)");
-    $mysql_connection->do("UPDATE node set $updateSQL WHERE mac='$mac'")
-        || return 0;
     return 1;
 }
 
