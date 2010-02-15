@@ -1,4 +1,8 @@
 2010-02-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/sbin/pfsetvlan: Cleaning up direct MySQL leftovers
+	Removing DBI and pf::db deps
+	Removed all manual mysql connections
+
 	* pf/lib/pf/action.pm: Minor refactoring: Extracted action autoreg into
 	it's own sub.
 
