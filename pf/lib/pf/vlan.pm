@@ -253,7 +253,7 @@ version doesn't do the right thing for you.
 $origin is the string representing where the autoregistration is comming from. Possibles values are:
 switch-config or violation.
 
-$isPhone is set to 1 if device is considered a IP Phone.
+$isPhone is set to 1 if device is considered an IP Phone.
 
 returns 1 if we should register, 0 otherwise
 
