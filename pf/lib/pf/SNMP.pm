@@ -1166,10 +1166,13 @@ sub isPhoneAtIfIndex {
             return 0;
         }
     }
-    $logger->trace(
-        "determining if $mac is VoIP phone through discovery protocols");
-    my @phones = $this->getPhonesDPAtIfIndex($ifIndex);
-    return ( grep( { lc($_) eq lc($mac) } @phones ) != 0 );
+    if (defined($ifIndex)) {
+        $logger->debug("determining if $mac is VoIP phone through discovery protocols");
+        my @phones = $this->getPhonesDPAtIfIndex($ifIndex);
+        return ( grep( { lc($_) eq lc($mac) } @phones ) != 0 );
+    } else {
+        return 0;
+    }
 }
 
 sub getMinOSVersion {
