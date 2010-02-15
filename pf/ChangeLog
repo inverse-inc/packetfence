@@ -1,3 +1,7 @@
+2010-02-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/action.pm: Minor refactoring: Extracted action autoreg into
+	it's own sub.
+
 2010-02-12	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/action.pm, pf/lib/pf/node.pm, pf/lib/pf/vlan.pm, 
 	pf/sbin/pfsetvlan, pf/t/vlan.t: Refactoring
