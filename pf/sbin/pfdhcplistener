@@ -373,6 +373,7 @@ sub listen_dhcp {
                 $logger->warn("unknown DHCP fingerprint: $dhcp_fingerprint");
             }
         }
+        # TODO why rely on mysql_date, we should use time instead
         $tmp{'last_dhcp'} = mysql_date();
         $tmp{'computername'} = join( "", @{ $options{'12'} } )
             if ( defined( $options{'12'} ) );
@@ -402,6 +403,7 @@ sub listen_dhcp {
                 my ( $vlan, $mod, $port )
                     = unpack( 'nCC', pack( "C*", @{ $option_82{'1'} } ) );
                 $tmp{'port'} = $mod . '/' . $port;
+                # TODO: I think this badly assumes that node.vlan is a last_vlan type of field instead of good_vlan
                 $tmp{'vlan'} = $vlan;
             }
             $tmp{'switch'} = clean_mac(
@@ -507,7 +509,7 @@ Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2007-2009 Inverse inc.
+Copyright (C) 2007-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

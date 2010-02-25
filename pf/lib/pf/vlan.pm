@@ -171,7 +171,7 @@ sub custom_getCorrectVlan {
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     # if switch object not correct, return default vlan
-    if (ref($switch) ne 'HASH' || !defined($switch->{_normalVlan})) {
+    if (!$switch->isa('pf::SNMP') || !defined($switch->{_normalVlan})) {
         $logger->warn("Did not return correct VLAN: Invalid switch. Will return default VLAN as a fallback");
 
         # Grab switch config
@@ -193,12 +193,18 @@ switch_ip and the switch_port to update the node table entry.
 
 =cut
 sub getNodeUpdatedInfo {
-    my ($this, $switch_ip, $switch_port, $mac, $vlan, $isPhone) = @_;
+    my ($this, $mac, $switch_ip, $switch_port, $vlan, $voip_status, $connection_type) = @_;
 
     my %node_info = (
-        switch => $switch_ip,
-        port   => $switch_port,
+        switch          => $switch_ip,
+        port            => $switch_port,
+        connection_type => connection_type_to_str($connection_type)
     );
+
+    # Remember that voip_status is set by isPhoneAtIfIndex and that this checks the node's voip field (circular crap)
+    if ($voip_status eq VOIP) {
+        $node_info{'voip'} = VOIP;
+    }
 
     # example of customization: set dhcpfingerprint when isPhone is == 1
     # if ($isPhone) {
@@ -219,6 +225,7 @@ switch-config or violation.
 $isPhone is set to 1 if device is considered an IP Phone.
 
 =cut 
+# TODO origin expressed as a constant
 sub getNodeInfoForAutoReg {
     my ($this, $switch_ip, $switch_port, $mac, $vlan, $origin, $isPhone) = @_;
 
@@ -240,6 +247,7 @@ sub getNodeInfoForAutoReg {
     # put a phone dhcp fingerprint if it's a phone
     if ($isPhone) {
         $node_info{'dhcp_fingerprint'} = '1,3,6,15,42,66,150';
+        $node_info{'voip'} = 'yes';
     }
 
     return %node_info;
@@ -316,4 +324,3 @@ USA.
 
 # vim: set shiftwidth=4:
 # vim: set expandtab:
-# vim: set backspace=indent,eol,start:

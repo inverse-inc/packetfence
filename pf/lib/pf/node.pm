@@ -76,23 +76,23 @@ sub node_db_prepare {
         qq[ select count(*) from node where status='reg' and pid=? ]);
     $node_add_sql
         = $dbh->prepare(
-        qq[ insert into node(mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,dhcp_fingerprint,last_arp,last_dhcp,switch,port,vlan) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ]
+        qq[ insert into node(mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,dhcp_fingerprint,last_arp,last_dhcp,switch,port,vlan,voip,connection_type) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ]
         );
     $node_delete_sql = $dbh->prepare(qq[ delete from node where mac=? ]);
     $node_modify_sql
         = $dbh->prepare(
-        qq[ update node set mac=?,pid=?,detect_date=?,regdate=?,unregdate=?,lastskip=?,status=?,user_agent=?,computername=?,notes=?,dhcp_fingerprint=?,last_arp=?,last_dhcp=?,switch=?,port=?,vlan=? where mac=? ]
+        qq[ update node set mac=?,pid=?,detect_date=?,regdate=?,unregdate=?,lastskip=?,status=?,user_agent=?,computername=?,notes=?,dhcp_fingerprint=?,last_arp=?,last_dhcp=?,switch=?,port=?,vlan=?,voip=?,connection_type=? where mac=? ]
         );
     $node_view_sql
         = $dbh->prepare(
-        qq[ select node.mac,node.pid,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,ifnull(openviolations.nb,0) as nbopenviolations from node left join (select violation.mac,count(*) as nb from violation where status='open' group by violation.mac) as openviolations on node.mac=openviolations.mac where node.mac=? ]
+        qq[ select node.mac,node.pid,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,ifnull(openviolations.nb,0) as nbopenviolations,node.voip,node.connection_type from node left join (select violation.mac,count(*) as nb from violation where status='open' group by violation.mac) as openviolations on node.mac=openviolations.mac where node.mac=? ]
         );
     $node_view_with_fingerprint_sql
         = $dbh->prepare(
-        qq[ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,ifnull(os_class.description, ' ') as dhcp_fingerprint,switch,port,vlan from node left join dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id where mac=? ]
+        qq[ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,ifnull(os_class.description, ' ') as dhcp_fingerprint,switch,port,vlan,node.voip,node.connection_type from node left join dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id where mac=? ]
         );
     $node_view_all_sql
-        = "select node.mac,node.pid,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,ifnull(openviolations.nb,0) as nbopenviolations from node left join (select violation.mac,count(*) as nb from violation where status='open' group by violation.mac) as openviolations on node.mac=openviolations.mac";
+        = "select node.mac,node.pid,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,ifnull(openviolations.nb,0) as nbopenviolations,node.voip,node.connection_type from node left join (select violation.mac,count(*) as nb from violation where status='open' group by violation.mac) as openviolations on node.mac=openviolations.mac";
     $node_count_all_sql = "select count(*) as nb from node";
     $node_ungrace_sql
         = $dbh->prepare(
@@ -121,15 +121,15 @@ sub node_db_prepare {
         );
     $node_unregistered_sql
         = $dbh->prepare(
-        qq [ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,switch,port,vlan from node where status="unreg" and mac=? ]
+        qq [ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,switch,port,vlan,voip,connection_type from node where status="unreg" and mac=? ]
         );
     $nodes_unregistered_sql
         = $dbh->prepare(
-        qq [ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,switch,port,vlan from node where status="unreg" ]
+        qq [ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,switch,port,vlan,voip,connection_type from node where status="unreg" ]
         );
     $nodes_registered_sql
         = $dbh->prepare(
-        qq [ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,switch,port,vlan from node where status="reg" ]
+        qq [ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,switch,port,vlan,voip,connection_type from node where status="reg" ]
         );
     $nodes_registered_not_violators_sql
         = $dbh->prepare(
@@ -210,6 +210,8 @@ sub node_add {
     my ( $mac, %data ) = @_;
     node_db_prepare($dbh) if ( !$is_node_db_prepared );
     my $logger = Log::Log4perl::get_logger('pf::node');
+    $logger->trace("node add called");
+
     my $tmpMAC = Net::MAC->new( 'mac' => $mac );
     $mac = $tmpMAC->as_IEEE();
     $mac = lc($mac);
@@ -230,7 +232,8 @@ sub node_add {
         'pid',      'detect_date',      'regdate',    'unregdate',
         'lastskip', 'status',           'user_agent', 'computername',
         'notes',    'dhcp_fingerprint', 'last_arp',   'last_dhcp', 
-        'switch',   'port',             'vlan'
+        'switch',   'port',             'vlan',       'voip',
+        'connection_type'
         )
     {
         $data{$field} = "" if ( !defined $data{$field} );
@@ -245,8 +248,8 @@ sub node_add {
         $data{status},    $data{user_agent},       $data{computername},
         $data{notes},     $data{dhcp_fingerprint}, $data{last_arp},
         $data{last_dhcp}, $data{switch},           $data{port},
-        $data{vlan}
-    ) || return (0);
+        $data{vlan},      $data{voip},             $data{connection_type}
+    ) || ($logger->warn("node add failed with: $DBI::errstr. (errno: $DBI::err)") && return (0));
     return (1);
 }
 
@@ -263,7 +266,8 @@ sub node_add_simple {
         'unregdate'   => 0,
         'last_skip'   => 0,
         'status'      => 'unreg',
-        'last_dhcp'   => 0
+        'last_dhcp'   => 0,
+        'voip'        => 'no'
     );
     if ( !node_add( $mac, %tmp ) ) {
         return (0);
@@ -375,11 +379,11 @@ sub node_modify {
             return (0);
         }
     }
+
     my $existing   = node_view($mac);
     my $old_status = $existing->{status};
     foreach my $item ( keys(%data) ) {
         $existing->{$item} = $data{$item};
-        print "$item: $data{$item}\n";
     }
 
     my $new_mac    = lc( $existing->{'mac'} );
@@ -434,6 +438,7 @@ sub node_modify {
         $existing->{dhcp_fingerprint}, $existing->{last_arp},
         $existing->{last_dhcp},        $existing->{switch},
         $existing->{port},             $existing->{vlan},
+        $existing->{voip},             $existing->{connection_type},
         $mac
     ) || return (0);
 

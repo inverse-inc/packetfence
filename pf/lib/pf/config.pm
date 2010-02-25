@@ -45,22 +45,29 @@ our (
     $node_categories_file,     $default_pid,
     $fqdn,                     $oui_url,
     $dhcp_fingerprints_url,    $oui_file,
-    @valid_trigger_types,      $thread
+    @valid_trigger_types,      $thread,
+    %connection_type,          %connection_type_to_str,
+    %connection_type_explained
 );
 
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
-    @EXPORT
-        = qw($install_dir $bin_dir $conf_dir $lib_dir %Default_Config %Config @listen_ints @internal_nets @routed_isolation_nets @routed_registration_nets
-        $blackholemac @managed_nets @external_nets @dhcplistener_ints $monitor_int $unreg_mark $reg_mark $black_mark $portscan_sid
-        $default_config_file $config_file $network_config_file $dhcp_fingerprints_file $node_categories_file $default_pid $fqdn $oui_url $dhcp_fingerprints_url
-        $oui_file @valid_trigger_types $thread);
+    @EXPORT = qw(
+        $install_dir $bin_dir $conf_dir $lib_dir %Default_Config %Config @listen_ints @internal_nets 
+        @routed_isolation_nets @routed_registration_nets $blackholemac @managed_nets @external_nets @dhcplistener_ints 
+        $monitor_int $unreg_mark $reg_mark $black_mark $portscan_sid $default_config_file $config_file 
+        $network_config_file $dhcp_fingerprints_file $node_categories_file $default_pid $fqdn $oui_url 
+        $dhcp_fingerprints_url $oui_file @valid_trigger_types $thread WIRELESS_802_1X WIRELESS_MAC_AUTH WIRED_802_1X
+        WIRED_MAC_AUTH_BYPASS WIRED_SNMP_TRAPS WIRELESS WIRED EAP %connection_type %connection_type_to_str 
+        %connection_type_explained VOIP NO_VOIP
+    );
 }
 
 $thread = 0;
 
+# TODO bug#920 all application config data should use Readonly to avoid accidental post-startup alterration
 $install_dir = '/usr/local/pf';
 $bin_dir     = File::Spec->catdir( $install_dir, "bin" );
 $conf_dir    = File::Spec->catdir( $install_dir, "conf" );
@@ -87,6 +94,53 @@ $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
 
 $portscan_sid = 1200003;
 $default_pid  = 1;
+
+# connection type constants
+use constant WIRELESS_802_1X       => 0b11000001;
+use constant WIRELESS_MAC_AUTH     => 0b10000010;
+use constant WIRED_802_1X          => 0b01000100;
+use constant WIRED_MAC_AUTH_BYPASS => 0b00001000;
+use constant WIRED_SNMP_TRAPS      => 0b00010000;
+# masks to be used on connection types
+use constant WIRELESS => 0b10000000;
+use constant WIRED    => 0b00000000;
+use constant EAP      => 0b01000000;
+
+# TODO we should build a connection data class with these hashes and related constants
+# String to constant hash
+%connection_type = (
+    'Wireless-802.11-EAP'   => WIRELESS_802_1X,
+    'Wireless-802.11-NoEAP' => WIRELESS_MAC_AUTH,
+    'Ethernet-EAP'          => WIRED_802_1X,
+    'Ethernet-NoEAP'        => WIRED_MAC_AUTH_BYPASS,
+    'SNMP-Traps'            => WIRED_SNMP_TRAPS,
+);
+
+# Note that the () in the hashes below is a trick to prevent bareword quoting so I can store 
+# my constant values as keys of the hashes. See CAVEATS section of perldoc constant.
+# Their string equivalent for database storage
+%connection_type_to_str = (
+    WIRELESS_802_1X()       => 'Wireless-802.11-EAP',
+    WIRELESS_MAC_AUTH()     => 'Wireless-802.11-NoEAP',
+    WIRED_802_1X()          => 'Ethernet-EAP',
+    WIRED_MAC_AUTH_BYPASS() => 'Ethernet-NoEAP',
+    WIRED_SNMP_TRAPS()      => 'SNMP-Traps',
+);
+
+# String to constant hash
+# these duplicated in html/admin/common.php for web admin display
+# changes here should be reflected there
+%connection_type_explained = (
+    WIRELESS_802_1X()       => 'Secure Wireless (802.1x + WPA2 Enterprise)',
+    WIRELESS_MAC_AUTH()     => 'Open Wireless (mac-authentication)',
+    WIRED_802_1X()          => 'Wired 802.1x',
+    WIRED_MAC_AUTH_BYPASS() => 'Wired mac-authentication-bypass (MAB)',
+    WIRED_SNMP_TRAPS()      => 'Managed by PacketFence with SNMP',
+);
+
+# VoIP constants
+use constant VOIP    => 'yes';
+use constant NO_VOIP => 'no';
 
 # to shut up strict warnings
 $ENV{PATH} = '/sbin:/bin:/usr/bin:/usr/sbin';
@@ -279,7 +333,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009 Inverse, inc.
+Copyright (C) 2009,2010 Inverse, inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

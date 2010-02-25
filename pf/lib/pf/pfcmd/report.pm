@@ -1,8 +1,26 @@
+=head1 NAME
+
+pf::pfcmd::report - all about reports
+
+=cut
+
+=head1 DESCRIPTION
+
+TBD
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Read the F<pf.conf> configuration file.
+
+=cut
+
 use strict;
 use warnings;
 use Log::Log4perl;
 
+use pf::config;
 use pf::db;
+use pf::util;
 
 use vars
     qw/$report_active_all_sql $report_inactive_all_sql $report_unregistered_active_sql $report_unregistered_all_sql
@@ -14,6 +32,13 @@ $is_report_db_prepared = 0;
 
 #report_db_prepare($dbh);
 
+=head1 SUBROUTINES
+
+TODO: list incomplete
+
+=over
+
+=cut
 sub report_db_prepare {
     my ($dbh) = @_;
     db_connect($dbh);
@@ -277,12 +302,12 @@ sub report_openviolations_active {
 
 sub report_statics_all {
     report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    return db_data($report_statics_all_sql);
+    return _translate_connection_type(db_data($report_statics_all_sql));
 }
 
 sub report_statics_active {
     report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    return db_data($report_statics_active_sql);
+    return _translate_connection_type(db_data($report_statics_active_sql));
 }
 
 sub report_unknownprints_all {
@@ -303,17 +328,40 @@ sub report_unknownprints_active {
     return (@data);
 }
 
+=item * _translate_connection_type
+
+Translates connection_type database string into a human-understandable string
+
+=cut
+# TODO we can probably be more efficient than that by passing references and stuff
+sub _translate_connection_type {
+    my (@data) = @_;
+
+    # change connection_type into its meaningful to humans counterpart
+    foreach my $datum (@data) {
+
+        my $conn_type = str_to_connection_type($datum->{'connection_type'});
+        if (defined($conn_type)) {                                                                                                  $datum->{'connection_type'} = $connection_type_explained{$conn_type};                                               } else {                                                                                                                    $datum->{'connection_type'} = "UNKNOWN";
+        }
+    }
+    return (@data);
+}
+
 =head1 AUTHOR
 
 David LaPorte <david@davidlaporte.org>
 
 Kevin Amorin <kev@amorin.org>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
+
+Copyright (C) 2010 Olivier Bilodeau
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

@@ -1,9 +1,16 @@
 DONE: - Pragmatically test for memory leaks (since we can't realistically check all the code, modules)
 
+- rename all node fields in ui.conf to point out that switch, port, voip andd connection_type are Last seen values
+- rename all node vlan fields in ui.conf to point out the fact that VLAN is "My VLAN" and hide from node view by default
+
+- Upgrade rlm_perl_packetfence_sql.pl to use new database
 - What can we do that is better than returning -1 to a radius client?
 - We'll have to think about how to close locationlog entries for radius authorize requests.. (after a day?)
 
 - If we are in MAB or wired 802.1x do we still get traps? If so, we must find a way to ignore them I guess?
+- think about easy guest support wired / wireless and pick between, etc
+
+File bug once merged
 
 Tests
 test pfcmd_vlan setVlan with a string 
@@ -19,10 +26,17 @@ Performance testing with radclient / radtest (simulate a lot of radius clients)
 
 - Adjust minimum memory requirements for our PacketFence-ZEN virtual machine (because of mod_perl's memory footprint)
 - Update NEWS and UPGRADE on feature merge
+
+FUTURE
+- consider renaming locationlog to connectionlog
+
 NEWS
 - pfcmd_vlan now allows you to specify -vlanName for -setVlan and -setAllVlan (where vlan name is the same as what is defined in switches.conf)
 
 UPGRADE
+- bin/pfcmd output changed (bin/pfcmd locationhistorymac, bin/pfcmd locationhistoryswitch, 
+update your scripts
+
 - lib/pf/vlan.pm interface changed
 custom_getNodeInfo() renamed to getNodeUpdatedInfo() and signature changed
 

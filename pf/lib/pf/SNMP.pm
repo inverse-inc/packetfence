@@ -23,6 +23,7 @@ use Data::Dumper;
 
 our $VERSION = v1.7.0.6;
 
+use pf::config;
 use pf::locationlog;
 use pf::node;
 
@@ -420,9 +421,7 @@ sub connectMySQL {
 =cut
 
 sub setVlan {
-    my ( $this, $ifIndex, $newVlan, $switch_locker_ref, $presentPCMac,
-        $closeAllOpenLocationlogEntries )
-        = @_;
+    my ($this, $ifIndex, $newVlan, $switch_locker_ref, $presentPCMac) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     if ( !$this->isProductionMode() ) {
@@ -443,9 +442,6 @@ sub setVlan {
         }
     }
 
-    #synchronize locationlog if necessary
-    locationlog_synchronize( $this->{_ip}, $ifIndex, $vlan, $presentPCMac );
-
     #handle some exceptions
     if ( grep( { $_ == $newVlan } @{ $this->{_vlans} } ) == 0 )
     {    #unmanaged VLAN ?
@@ -454,6 +450,9 @@ sub setVlan {
                 . $this->{_macDetectionVlan} );
         $newVlan = $this->{_macDetectionVlan};
     }
+
+    #closes old locationlog entries and create a new one if required
+    locationlog_synchronize($this->{_ip}, $ifIndex, $newVlan, $presentPCMac, NO_VOIP, WIRED_SNMP_TRAPS);
 
     if ( !$this->isDefinedVlan($newVlan) ) {    #new VLAN is not defined
         if ( $newVlan == $this->{_macDetectionVlan} ) {
@@ -491,22 +490,20 @@ sub setVlan {
                 . " ifIndex $ifIndex to VLAN $newVlan but it is already in this VLAN -> Do nothing"
         );
 
-   #        if ($closeAllOpenLocationlogEntries) {
-   #            locationlog_update_end($this->{_ip}, $ifIndex, $presentPCMac);
-   #        }
         return 1;
     }
 
+    # so far so good, you can get rid of the below lines after I did a lot of tests
     #update locationlog
-    $logger->debug(
-        "updating locationlog for " . $this->{_ip} . " ifIndex $ifIndex" );
-    if ($closeAllOpenLocationlogEntries) {
-        locationlog_update_end( $this->{_ip}, $ifIndex, $presentPCMac );
-    } else {
-        locationlog_update_end_switchport_no_VoIP( $this->{_ip}, $ifIndex );
-    }
-    locationlog_insert_start( $this->{_ip}, $ifIndex, $newVlan,
-        $presentPCMac );
+    # - not sure this is useful after locationlog_synchronize
+    # - test with it disabled
+    #$logger->debug("updating locationlog for " . $this->{_ip} . " ifIndex $ifIndex" );
+    #if ($closeAllOpenLocationlogEntries) {
+    #    locationlog_update_end( $this->{_ip}, $ifIndex, $presentPCMac );
+    #} else {
+    #    locationlog_update_end_switchport_no_VoIP( $this->{_ip}, $ifIndex );
+    #}
+    #locationlog_insert_start($this->{_ip}, $ifIndex, $newVlan, $presentPCMac, NO_VOIP, WIRED_SNMP_TRAPS);
 
     #and finally set the VLAN
     $logger->info( "setting VLAN at "
@@ -1118,10 +1115,12 @@ sub hasPhoneAtIfIndex {
         = $this->_getMacAtIfIndex( $ifIndex, $this->getVoiceVlan($ifIndex) );
     foreach my $mac (@macArray) {
         if ( !$this->isFakeMac($mac) ) {
-            $logger->trace("determining DHCP fingerprint info for $mac");
+            $logger->trace("determining if node $mac is VoIP");
             my $node_info = node_view_with_fingerprint($mac);
+
+            # is node voip or does it have a phone dhcp fingerprint?
             if ( defined($node_info)
-                && ( $node_info->{dhcp_fingerprint} =~ /VoIP Phone/ ) )
+                && ( ($node_info->{dhcp_fingerprint} =~ /VoIP Phone/)||($node_info->{voip} eq 'yes')) )
             {
                 return 1;
             }
@@ -1152,7 +1151,12 @@ sub isPhoneAtIfIndex {
     my $node_info = node_view_with_fingerprint($mac);
 
     #do we have node information
-    if ( defined($node_info) ) {
+    if (defined($node_info)) {
+        if ($node_info->{voip} eq 'yes') {
+            $logger->debug("This is a VoIP phone according to node.voip");
+            return 1;
+        }
+
         if ( $node_info->{dhcp_fingerprint} =~ /VoIP Phone/ ) {
             $logger->debug("DHCP fingerprint for $mac indicates VoIP phone");
             return 1;
@@ -1921,7 +1925,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2009 Inverse inc.
+Copyright (C) 2006-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

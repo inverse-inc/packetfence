@@ -1,3 +1,9 @@
+2010-02-25	Olivier Bilodeau <obilodeau@inverse.ca>
+	On the road towards radius and traps unification.
+	- Major overhaul of the way we think about nodes: two new fields 
+	connection_type and voip
+	- Updated all affected components
+	
 2010-02-15	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/sbin/pfsetvlan: Cleaning up direct MySQL leftovers
 	Removing DBI and pf::db deps

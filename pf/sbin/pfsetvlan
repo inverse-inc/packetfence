@@ -1034,8 +1034,8 @@ sub handleTrap {
                 $logger->info(
                     "MAC $mac is a VoIP phone -> Do nothing besides updating locationlog"
                 );
-                locationlog_insert_start( $switch_ip, $switch_port, 'VoIP',
-                    $mac );
+                locationlog_synchronize($switch_ip, $switch_port, 
+                    $switch->getVoiceVlan($switch_port), $mac, VOIP, WIRED_SNMP_TRAPS);
             } else {
 
                 my $changeVlan = 0;
@@ -1128,6 +1128,7 @@ sub handleTrap {
             )
             )
         {
+            # TODO: not so sure about this behavior
             $logger->debug( $locationlog_phone->{'mac'}
                     . " (VoIP phone) has open locationlog entry at $switch_ip ifIndex $switch_port but is not a secure MAC address. Closing locationlog entry"
             );
@@ -1207,8 +1208,8 @@ sub handleTrap {
                 $switch->authorizeMAC( $switch_port, 0, $trapMac, 0,
                     $voiceVlan );
             }
-            locationlog_insert_start( $switch_ip, $switch_port, 'VoIP',
-                $trapMac );
+
+            locationlog_synchronize($switch_ip, $switch_port, $voiceVlan, $trapMac, VOIP, WIRED_SNMP_TRAPS);
 
             # }}}3
 
@@ -1696,14 +1697,17 @@ sub node_update_PF {
             $logger->error("auto-registration of node $mac failed");
             return 0;
         }
-    } else {
+    # FIXME get rid of the following lines once testing is complete
+    #} else {
 
+    
         #update node information in PF database and use VLAN object to allow customization
-        $logger->debug("updating $mac in PF database");
-        if (!node_modify($mac, $vlan_obj->getNodeUpdatedInfo($switch->{_ip}, $switch_port, $mac, $vlan, $isPhone))) {
-            $logger->error("update of node $mac failed");
-            return 0;
-        }
+        # verify that locationlog_synchronize is doing the right thing
+        #$logger->debug("updating $mac in PF database");
+        #if (!node_modify($mac, $vlan_obj->getNodeUpdatedInfo($mac, $switch->{_ip}, $switch_port, $vlan, $isPhone))) {
+        #    $logger->error("update of node $mac failed");
+        #    return 0;
+        #}
     }
     return 1;
 }
@@ -1744,6 +1748,7 @@ sub do_port_security {
         my $old_switch = $locationlog_mac->{'switch'};
         my $old_port   = $locationlog_mac->{'port'};
         my $old_vlan   = $locationlog_mac->{'vlan'};
+        my $old_voip   = $locationlog_mac->{'voip'};
 
     #we have to enter to 'if' always when trapType eq 'secureMacAddrViolation'
         if (   ( $old_switch ne $switch->{_ip} )
@@ -1780,8 +1785,8 @@ sub do_port_security {
                     my $fakeMac = $oldSwitch->generateFakeMac( $old_vlan, $old_port );
                     $logger->info("de-authorizing $mac (new entry $fakeMac) at old location $old_switch ifIndex $old_port");
                     $oldSwitch->authorizeMAC( $old_port, $mac, $fakeMac,
-                        ( $old_vlan eq 'VoIP' ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port) ),
-                        ( $old_vlan eq 'VoIP' ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port) ) );
+                        ( $old_voip eq VOIP ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port) ),
+                        ( $old_voip eq VOIP ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port) ) );
                 }
                 locationlog_update_end_mac($mac);
             }
