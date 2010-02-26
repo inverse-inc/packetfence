@@ -135,7 +135,7 @@ use constant EAP      => 0b01000000;
     WIRELESS_MAC_AUTH()     => 'Open Wireless (mac-authentication)',
     WIRED_802_1X()          => 'Wired 802.1x',
     WIRED_MAC_AUTH_BYPASS() => 'Wired mac-authentication-bypass (MAB)',
-    WIRED_SNMP_TRAPS()      => 'Managed by PacketFence with SNMP',
+    WIRED_SNMP_TRAPS()      => 'Wired (discovered by SNMP-Traps)',
 );
 
 # VoIP constants
