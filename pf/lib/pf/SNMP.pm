@@ -1870,6 +1870,7 @@ sub isNewerVersionThan {
     return 0;
 }
 
+# FIXME: this will need to be changed since we no longer rely on vlan being equal to VoIP
 sub generateFakeMac {
     my ( $this, $vlan, $ifIndex ) = @_;
     return
