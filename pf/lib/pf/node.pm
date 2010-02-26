@@ -313,6 +313,12 @@ sub node_count_all {
     return db_data($node_count_all_sth);
 }
 
+
+=item * node_view_all - view all nodes based on several criterias
+
+Warning: The connection_type field is translated into its human form before return.
+
+=cut
 sub node_view_all {
     node_db_prepare($dbh) if ( !$is_node_db_prepared );
     my ( $id, %params ) = @_;
@@ -337,7 +343,10 @@ sub node_view_all {
         $node_view_all_sql .= " " . $params{'limit'};
     }
     my $node_view_all_sth = $dbh->prepare($node_view_all_sql);
-    return db_data($node_view_all_sth);
+
+    require pf::pfcmd::report;
+    import pf::pfcmd::report;
+    return translate_connection_type(db_data($node_view_all_sth));
 }
 
 sub node_view_with_fingerprint {

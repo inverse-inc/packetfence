@@ -1,3 +1,4 @@
+package pf::pfcmd::report;
 =head1 NAME
 
 pf::pfcmd::report - all about reports
@@ -22,11 +23,55 @@ use pf::config;
 use pf::db;
 use pf::util;
 
-use vars
-    qw/$report_active_all_sql $report_inactive_all_sql $report_unregistered_active_sql $report_unregistered_all_sql
-    $report_registered_active_sql $report_registered_all_sql $report_os_active_sql $report_os_all_sql $report_osclass_all_sql
-    $report_osclass_active_sql $report_unknownprints_all_sql $report_unknownprints_active_sql $report_openviolations_all_sql
-    $report_openviolations_active_sql $report_statics_all_sql $report_statics_active_sql $is_report_db_prepared @ISA @EXPORT/;
+our (
+    $is_report_db_prepared,
+
+    $report_active_all_sql,
+    $report_inactive_all_sql,
+    $report_unregistered_active_sql,
+    $report_unregistered_all_sql,
+    $report_registered_active_sql,
+    $report_registered_all_sql,
+    $report_os_active_sql,
+    $report_os_all_sql,
+    $report_osclass_all_sql,
+    $report_osclass_active_sql,
+    $report_unknownprints_all_sql,
+    $report_unknownprints_active_sql,
+    $report_openviolations_all_sql,
+    $report_openviolations_active_sql,
+    $report_statics_all_sql,
+    $report_statics_active_sql
+);
+
+BEGIN {
+    use Exporter ();
+    our ( @ISA, @EXPORT );
+    @ISA    = qw(Exporter);
+    @EXPORT = qw(
+        $is_report_db_prepared
+        report_db_prepare
+        report_os_all
+        report_os_active
+        report_osclass_all
+        report_osclass_active
+        report_active_all
+        report_inactive_all
+        report_unregistered_active
+        report_unregistered_all
+        report_active_reg
+        report_registered_all
+        report_registered_active
+        report_openviolations_all
+        report_openviolations_active
+        report_statics_all
+        report_statics_active
+        report_unknownprints_all
+        report_unknownprints_active
+
+        translate_connection_type
+    );
+}
 
 $is_report_db_prepared = 0;
 
@@ -302,12 +347,12 @@ sub report_openviolations_active {
 
 sub report_statics_all {
     report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    return _translate_connection_type(db_data($report_statics_all_sql));
+    return translate_connection_type(db_data($report_statics_all_sql));
 }
 
 sub report_statics_active {
     report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    return _translate_connection_type(db_data($report_statics_active_sql));
+    return translate_connection_type(db_data($report_statics_active_sql));
 }
 
 sub report_unknownprints_all {
@@ -328,13 +373,13 @@ sub report_unknownprints_active {
     return (@data);
 }
 
-=item * _translate_connection_type
+=item * translate_connection_type
 
 Translates connection_type database string into a human-understandable string
 
 =cut
 # TODO we can probably be more efficient than that by passing references and stuff
-sub _translate_connection_type {
+sub translate_connection_type {
     my (@data) = @_;
 
     # change connection_type into its meaningful to humans counterpart

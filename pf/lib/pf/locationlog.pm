@@ -181,31 +181,41 @@ sub locationlog_db_prepare {
     $locationlog_db_prepared = 1;
 }
 
+# TODO: extract this out of here and into pf::pfcmd::report
+# think about web ui and pfcmd
 sub locationlog_history_mac {
     my ( $mac, %params ) = @_;
     locationlog_db_prepare($dbh) if ( !$locationlog_db_prepared );
+
+    require pf::pfcmd::report;
+    import pf::pfcmd::report;
     my $tmpMAC = Net::MAC->new( 'mac' => $mac );
     $mac = $tmpMAC->as_IEEE();
     if ( defined( $params{'date'} ) ) {
-        return db_data( $locationlog_history_mac_date_sql,
-            $mac, $params{'date'}, $params{'date'} );
+        return translate_connection_type(db_data( $locationlog_history_mac_date_sql,
+            $mac, $params{'date'}, $params{'date'} ));
     } else {
         $locationlog_history_mac_sql->execute($mac) || return (0);
-        return db_data($locationlog_history_mac_sql);
+        return translate_connection_type(db_data($locationlog_history_mac_sql));
     }
 }
 
+# TODO: extract this out of here and into pf::pfcmd::report
+# think about web ui and pfcmd
 sub locationlog_history_switchport {
     my ( $switch, %params ) = @_;
     locationlog_db_prepare($dbh) if ( !$locationlog_db_prepared );
+
+    require pf::pfcmd::report;
+    import pf::pfcmd::report;
     if ( defined( $params{'date'} ) ) {
-        return db_data( $locationlog_history_switchport_date_sql,
-            $switch, $params{'ifIndex'}, $params{'date'}, $params{'date'} );
+        return translate_connection_type(db_data( $locationlog_history_switchport_date_sql,
+            $switch, $params{'ifIndex'}, $params{'date'}, $params{'date'} ));
     } else {
         $locationlog_history_switchport_sql->execute( $switch,
             $params{'ifIndex'} )
             || return (0);
-        return db_data($locationlog_history_switchport_sql);
+        return translate_connection_type(db_data($locationlog_history_switchport_sql));
     }
 }
 
