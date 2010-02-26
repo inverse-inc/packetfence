@@ -7,6 +7,11 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <version>:
 
+    - pfcmd output change
+    pfcmd will print "Command not understood. (pfcmd grammar test failed at 
+    line 200.)" to STDERR on unrecognized input before showing the usage 
+    message. You might have to change your scripts to handle that.
+
     - Cisco Controller 4400 now named WLC_4400
     To be more consistent, we renamed Cisco::Controller_4400_4_2_130 to 
     Cisco::WLC_4400. If you upgrade make sure you update your conf/switches.conf
@@ -16,6 +21,16 @@ o Upgrading from a version prior to <version>:
     The output of `pfcmd lookup node <mac>` changed. Make sure you update your 
     parsing scripts (if any). This also affects the Node lookup section of the
     Web Admin interface.
+
+o Upgrading from a version prior to <release>:
+
+    - Backup script archives locationlog_history records older than a year
+    Archives are an SQL dump of the records placed in /root/backup/ by default 
+    and never deleted. It will run the first day of each month.
+
+    - Backup script less aggressive about history
+    We are now keeping 1 month of locationlog instead of 15 days with the 
+    optional database backup script in addons/. Makes more sense for most users.
 
 o Upgrading from a version prior to 1.8.7:
 

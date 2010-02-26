@@ -495,6 +495,7 @@ if($sajax){
    	     print "</td>\n";
            }
        
+           # FIXME: this is broken, nessus/scanner.php doesn't exist
            if($this->scannable){
              print "<td width='45' align='right'>\n";
              $host=$this->rows[$i]['mac'];

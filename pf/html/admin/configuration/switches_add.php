@@ -32,10 +32,14 @@
     $edit_cmd = "switchconfig add $edit_item ";
     $edit_cmd.=implode(", ", $parts);
 
-    PFCMD($edit_cmd);
+    # I REALLLLYY mean false (avoids 0, empty strings and empty arrays to pass here)
+    if (PFCMD($edit_cmd) === false) {
+      # an error was shown by PFCMD now die to avoid closing the popup
+      exit();
+    }
+    # no errors from pfcmd, go on
     $edited=true; 
     print "<script type='text/javascript'>opener.focus(); opener.location.href = opener.location; self.close();</script>";
-
   }
 
   $edit_info = new table("switchconfig get $edit_item");
@@ -82,6 +86,7 @@
                          'Cisco::Catalyst_3500XL' => 'Cisco Catalyst 3500XL',
                          'Cisco::Catalyst_3550' => 'Cisco Catalyst 3550',
                          'Cisco::Catalyst_3560' => 'Cisco Catalyst 3560',
+                         'Cisco::ISR_1800' => 'Cisco Integrated Services Routers (ISR) 1800 Series',
                          'Cisco::WiSM' => 'Cisco Wireless Services Module (WiSM)',
                          'Cisco::WLC_2106' => 'Cisco Wireless Controller (WLC) 2106',
                          'Cisco::WLC_4400' => 'Cisco Wireless Controller (WLC) 4400',

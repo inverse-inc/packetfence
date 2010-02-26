@@ -3,13 +3,93 @@
 	pf/addons/high-availability/rdiff: New sync tools that I've been using
 	to compare installations
 
+2010-02-12	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd: Report an error to STDERR if the grammar doesn't
+	successfully parse the given command. We also include a line # in the
+	output so that it will be shown in the Web admin. Fixes #847;
+	http://www.packetfence.org/mantis/view.php?id=847
+
+2010-02-09	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Cisco.pm: Added a noSuchObject test to 
+	isLearntTrapsEnabled
+
+2010-02-03	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Cisco/Controller_4400_4_2_130.pm,
+	pf/lib/pf/SNMP/Cisco/WLC_2106.pm, pf/lib/pf/SNMP/Cisco/WiSM.pm:
+	Documented problematic behavior on the WLC's and WiSM's with DHCP
+	Proxying activated.
+
+2010-02-02	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/configuration/interfaces_add.php, 
+	pf/html/admin/configuration/interfaces_edit.php,
+	pf/html/admin/configuration/networks_add.php,
+	pf/html/admin/configuration/networks_edit.php,
+	pf/html/admin/configuration/switches_add.php, 
+	pf/html/admin/configuration/switches_edit.php,
+	pf/html/admin/configuration/violation_add.php, 
+	pf/html/admin/configuration/violation_edit.php, 
+	pf/html/admin/node/edit.php, pf/html/admin/person/edit.php, 
+	pf/html/admin/scan/edit.php, pf/html/admin/violation/edit.php: Errors
+	are now shown in Web admin's popups instead of automatically closing 
+	the popups without checking return status. Fixes #899;
+	http://www.packetfence.org/mantis/view.php?id=899
+
+2010-02-01	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/database-backup-and-maintenance.sh: Added a once-a-month
+	archiving of locationlog_history entries older than a year.
+
+2010-01-29	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Added documentation
+	on how to configure the ISR 1800 with PacketFence and added it to
+	the supported switches section
+
+	* pf/NEWS, pf/README_SWITCHES, 
+	pf/html/admin/configuration/switches_add.php,
+	pf/html/admin/configuration/switches_edit.php, pf/t/SNMP.t,
+	pf/t/critic.t, pf/t/pod.t: Cisco ISR 1800 officially supported
+
+	* pf/lib/pf/SNMP/Cisco/Controller_4400_4_2_130.pm,
+	pf/lib/pf/SNMP/Cisco/WLC_2106.pm, pf/lib/pf/SNMP/Cisco/WiSM.pm: 
+	Documented an issue with Windows 7 and certain IOSes
+
 2010-01-28	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/t/podCoverage.t: Forcing 100% POD coverage for SNMP.pm since it's
 	the base switch module contract and we often don't know what's expected
 	when we re-implement subs
 
+	* pf/lib/pf/SNMP/Cisco/ISR_1800.pm: getVlan was returning true or false
+	instead of requested VLAN, now fixed
+
+	* pf/lib/pf/SNMP/Cisco/ISR_1800.pm: More work to support ISR1800 series
+	- Implemented getMacBridgePortHash and it relies on CLI :(
+	- Implemented _getAllIfIndexForThisVlan (used by getMacBridgePortHash)
+	- Added mandatory POD sections
+
 2010-01-27	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Cisco/ISR_1800.pm: Implemented isDefinedVlan and
+	getVlan for the ISR 1800
+
 	* pf/lib/pf/SNMP/Cisco.pm: Added POD doc
+
+2010-01-26	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Installation_Guide.odt: Default web admin
+	account is not admin / qwerty anymore, it is defined by user when
+	running installer.pl. Corrected that mistake in the install guide.
+
+2010-01-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd: Validate for successful write to conf/switches.conf 
+	when adding, deleting and editing a switch. Fixes #898;
+	http://www.packetfence.org/mantis/view.php?id=898
+	Pushed in a little print to logdie conversion at another spot too.
+	Hard-coded line numbers are to get the web admin to display the error.
+
+	* pf/bin/pfcmd: New grammar tracing flag in pfcmd (disabled by
+	default)
+
+2010-01-21	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/dhcp_fingerprints.conf: Added a projectors class and an
+	Epson projector fingerprint to the DHCP fingerprint database.
+	Contributed by Roelof Hoekstra.
 
 2010-01-19	Olivier Bilodeau <obilodeau@inverse.ca>
 	* Renamed pf/lib/pf/SNMP/Cisco/Controller_4400_4_2_130.pm to 

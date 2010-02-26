@@ -71,6 +71,11 @@ use pf::pfcmd;
 
 delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
 
+# Uncomment the following line to enable tracing in the grammar
+# Warning: doing so will break the web admin
+# TODO: this parameter should be exposed to the CLI
+#our $RD_TRACE = 1;
+
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
@@ -191,6 +196,8 @@ if (! exists($cmd_tmp{'grammar'})) {
 
 } else {
     if ($cmd_tmp{'grammar'} == 0) {
+        # line number is a hack for web admin error output
+        print STDERR "Command not understood. (pfcmd grammar test failed at line 200.)\n";
         require pf::pfcmd::help;
         pf::pfcmd::help::usage();
         exit(1);
@@ -771,8 +778,10 @@ sub switchconfig {
         } else {
             if ( tied(%switches_conf)->SectionExists($section) ) {
                 tied(%switches_conf)->DeleteSection($section);
-                tied(%switches_conf)
-                    ->WriteConfig( $conf_dir . "/switches.conf" );
+                my $tied_switch = tied(%switches_conf);
+                $tied_switch->WriteConfig($conf_dir . "/switches.conf")
+                    or $logger->logdie("Unable to write config to $conf_dir/switches.conf. "
+                                      ."You might want to check the file's permissions. (pfcmd line 782.)"); # hack
                 require pf::configfile;
                 import pf::configfile;
                 configfile_import( $conf_dir . "/switches.conf" );
@@ -815,7 +824,10 @@ sub switchconfig {
                     }
                 }
             }
-            tied(%switches_conf)->WriteConfig( $conf_dir . "/switches.conf" );
+            my $tied_switch = tied(%switches_conf);
+            $tied_switch->WriteConfig($conf_dir . "/switches.conf")
+                or $logger->logdie("Unable to write config to $conf_dir/switches.conf. "
+                                  ."You might want to check the file's permissions. (pfcmd line 828.)"); # web ui hack
             require pf::configfile;
             import pf::configfile;
             configfile_import( $conf_dir . "/switches.conf" );
@@ -836,7 +848,10 @@ sub switchconfig {
                     tied(%switches_conf)->newval( $section, $param, $value );
                 }
             }
-            tied(%switches_conf)->WriteConfig( $conf_dir . "/switches.conf" );
+            my $tied_switch = tied(%switches_conf);
+            $tied_switch->WriteConfig($conf_dir . "/switches.conf")
+                or $logger->logdie("Unable to write config to $conf_dir/switches.conf. "
+                                  ."You might want to check the file's permissions. (pfcmd line 852.)"); # web ui hack
             require pf::configfile;
             import pf::configfile;
             configfile_import( $conf_dir . "/switches.conf" );
@@ -1750,8 +1765,7 @@ sub command_param {
             );
         } else {
             if ( ($function =~ /^node_delete$/) and ($returnValue == 0) ) {
-                print "Cannot delete this node since there are some records in locationlog table indicating that this node might still be connected and active on the network (pfcmd line 1824.)";
-                exit;
+                $logger->logdie("Cannot delete this node since there are some records in locationlog table indicating that this node might still be connected and active on the network (pfcmd line 1824.)");
             }
             if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
                 require pf::iptables;

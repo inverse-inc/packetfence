@@ -1,0 +1,267 @@
+package pf::SNMP::Cisco::ISR_1800;
+
+=head1 NAME
+
+pf::SNMP::Cisco::ISR_1800
+
+=head1 SYNOPSIS
+
+Object oriented module to parse SNMP traps and manage Cisco 1800 routers
+
+=head1 STATUS
+
+No documented minimum required firmware version. Lowest tested is 12.3(14)YT1.
+
+Developed and tested on Cisco 1811 12.4(15)T6
+
+=head1 SUBROUTINES
+
+=over
+
+=cut
+
+use strict;
+use warnings;
+use diagnostics;
+
+use base ('pf::SNMP::Cisco');
+use Log::Log4perl;
+use Carp;
+use Net::SNMP;
+use Net::Appliance::Session;
+
+#sub getMinOSVersion {
+#    my $this   = shift;
+#    my $logger = Log::Log4perl::get_logger( ref($this) );
+#    return '';
+#}
+
+# return the list of managed ports
+#sub getManagedPorts {
+#}
+
+#obtain hashref from result of getMacAddr
+#sub _getIfDescMacVlan {
+#}
+
+#sub clearMacAddressTable {
+#}
+
+#sub getMaxMacAddresses {
+#}
+
+sub isDefinedVlan {
+    my ($this, $vlan) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    # port assigned to VLAN (VLAN membership)
+    my $oid_vmMembershipSummaryMemberPorts = "1.3.6.1.4.1.9.9.68.1.2.1.1.2"; #from CISCO-VLAN-MEMBERSHIP-MIB
+
+    if ( !$this->connectRead() ) {
+        return 0;
+    }
+
+    $logger->trace("SNMP get_request for vmMembershipSummaryMemberPorts: $oid_vmMembershipSummaryMemberPorts.$vlan");
+
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => ["$oid_vmMembershipSummaryMemberPorts.$vlan"] );
+
+    return (
+            defined($result)
+            && exists( $result->{"$oid_vmMembershipSummaryMemberPorts.$vlan"} )
+            && ($result->{"$oid_vmMembershipSummaryMemberPorts.$vlan"} ne 'noSuchInstance' )
+    );
+}
+
+sub getVlan {
+    my ($this, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    if (!$this->connectRead()) {
+        return 0;
+    }
+
+    my $OID_vmVlan = '1.3.6.1.4.1.9.9.68.1.2.2.1.2';    #CISCO-VLAN-MEMBERSHIP-MIB
+
+    $logger->trace("SNMP get_request for vmVlan: $OID_vmVlan.$ifIndex");
+
+    my $result = $this->{_sessionRead} ->get_request( -varbindlist => ["$OID_vmVlan.$ifIndex"] );
+    if (defined($result) 
+        && exists($result->{"$OID_vmVlan.$ifIndex"})
+        && ($result->{"$OID_vmVlan.$ifIndex"} ne 'noSuchInstance')) {
+
+        return $result->{"$OID_vmVlan.$ifIndex"};
+    } else {
+        $logger->error("Unable to get VLAN on ifIndex $ifIndex for ip: ".$this->{'ip'});
+        return;
+    }
+}
+
+=item getMacBridgePortHash
+
+We need to override Cisco's implementation because BRIDGE-MIB is very limited on the 1811
+
+=cut 
+sub getMacBridgePortHash {
+    my $this   = shift;
+    my $vlan   = shift || '';
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    my %macBridgePortHash  = ();
+
+    if ($vlan eq '') {
+        $logger->error("Cannot query MAC table information on ".$this->{'_ip'}.": No VLAN provided");
+        return %macBridgePortHash;
+    }
+
+    # before starting telnet let's get all the info we need
+    my @ifIndexes = $this->_getAllIfIndexForThisVlan($vlan);
+    my $ifDescrHashRef = $this->getAllIfDesc();
+
+    my $session;
+    eval {
+        $session = Net::Appliance::Session->new(
+            Host      => $this->{_ip},
+            Timeout   => 5,
+            Transport => $this->{_cliTransport}
+        );
+        $session->connect(
+            Name     => $this->{_cliUser},
+            Password => $this->{_cliPwd}
+        );
+    };
+
+    if ($@) {
+        $logger->error("Cannot connect to ".$this->{'_ip'}." using ".$this->{_cliTransport});
+        return %macBridgePortHash;
+    }
+
+    # are we in enabled mode?
+    if (!$session->in_privileged_mode()) {
+
+        # let's try to enable
+        if (!$session->enable($this->{_cliEnablePwd})) {
+            $logger->error("Cannot get into privileged mode on ".$this->{'ip'}.
+                           ". Are you sure you provided enable password in configuration?");
+            $session->close();
+            return %macBridgePortHash;
+        }
+    }
+
+    # command that allows us to get MAC to ifIndex information 
+    my $command = "show mac-address-table";
+
+    $logger->trace("sending CLI command '$command'");
+    my @output;
+    eval { @output = $session->cmd(String => $command, Timeout => '10');};
+    if ($@) {
+        $logger->error("Error getting MAC Address table for ".$this->{'_ip'}.". Failed with $@");
+        $session->close();
+        return;
+    }
+
+    $logger->trace("output received:\n". join("\n",@output));
+
+    foreach my $line (@output) {
+        # Matching output like:
+        # Destination Address  Address Type  VLAN  Destination Port
+        # -------------------  ------------  ----  --------------------
+        # 0003.47a5.09e8          Dynamic       1     FastEthernet6
+        # 0007.e9e6.dbf2          Dynamic       1     FastEthernet6
+
+        if ($line =~ /^
+            ([0-9a-f]{2})([0-9a-f]{2})\.([0-9a-f]{2})([0-9a-f]{2})\.([0-9a-f]{2})([0-9a-f]{2}) # mac-address
+            \s+\w+\s+\d+\s+ # stuff we don't care about
+            (\w+)           # ifDescr
+            \s*             # whitespace at the end
+            $/x) {
+            # if ifDescr is in @IfIndexes were are interested in, then add to MacBridgePortHash
+            foreach my $ifIndex (keys %{$ifDescrHashRef}) {
+                if ($ifDescrHashRef->{$ifIndex} eq $7 && grep(/$ifIndex/, @ifIndexes)) {
+                    $macBridgePortHash{"$1:$2:$3:$4:$5:$6"} = $ifIndex;
+                }
+            }
+        }
+    }
+    $session->close();
+    return %macBridgePortHash;
+}
+
+=item _getAllIfIndexForThisVlan
+
+Returns a list of all IfIndex part of a given VLAN
+
+=cut
+sub _getAllIfIndexForThisVlan {
+    my ($this, $vlan) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    
+    if (!$this->connectRead()) {
+        return 0;
+    }
+
+    my $OID_vmVlan = '1.3.6.1.4.1.9.9.68.1.2.2.1.2'; #from CISCO-VLAN-MEMBERSHIP-MIB
+    
+    $logger->trace("SNMP get_table for vmVlan: $OID_vmVlan");
+    my @ifIndexes;
+    my $result = $this->{_sessionRead}->get_table(-baseoid => $OID_vmVlan);
+    foreach my $key (keys %{$result}) {
+        # format matches and grab the ifIndex
+        if ($key =~ /^$OID_vmVlan\.(\d+)$/) {
+            # for the correct vlan
+            if ($result->{$key} == $vlan) {
+                push(@ifIndexes, $1);
+            }
+        }
+    }
+    return @ifIndexes;
+}
+
+=back
+
+=head1 BUGS AND LIMITATIONS
+
+Version 12.4(24)T1, 12.4(15)T6 and 12.3(14)YT1 doesn't support VTP MIB or 
+BRIDGE-MIB in a comprehensive way.
+
+Right now it needs CLI access to get the mac address table but that could be 
+resolved in the future with IOS 15.1T. See https://supportforums.cisco.com/message/3009429 
+for details.
+
+SNMPv3 support was not tested.
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+F<conf/switches.conf>
+
+=head1 AUTHOR
+
+Dominik Gehl <dgehl@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2009, 2010 Inverse inc.
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
+1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
+

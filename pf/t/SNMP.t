@@ -27,6 +27,7 @@ BEGIN { use_ok('pf::SNMP::Cisco::Catalyst_2970') }
 BEGIN { use_ok('pf::SNMP::Cisco::Catalyst_3500XL') }
 BEGIN { use_ok('pf::SNMP::Cisco::Catalyst_3550') }
 BEGIN { use_ok('pf::SNMP::Cisco::Catalyst_3560') }
+BEGIN { use_ok('pf::SNMP::Cisco::ISR_1800') }
 BEGIN { use_ok('pf::SNMP::Cisco::WiSM') }
 BEGIN { use_ok('pf::SNMP::Cisco::WLC_2106') }
 BEGIN { use_ok('pf::SNMP::Cisco::WLC_4400') }
