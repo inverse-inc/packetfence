@@ -1,3 +1,12 @@
+2010-02-26	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/locationlog.pm, pf/lib/pf/node.pm, 
+	pf/lib/pf/pfcmd/report.pm: locationlog and node views are now returning
+	the human translated connection_type instead of straight from database
+	Also took the opportunity to turn report.pm into a real module.
+
+	* pf/html/admin/common.php, pf/lib/pf/config.pm: Changed the long name
+	of the SNMP-based connection type.
+
 2010-02-25	Olivier Bilodeau <obilodeau@inverse.ca>
 	On the road towards radius and traps unification.
 	- Major overhaul of the way we think about nodes: two new fields 
