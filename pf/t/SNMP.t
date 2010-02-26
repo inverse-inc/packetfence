@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 122;
+use Test::More tests => 134;
 use lib '/usr/local/pf/lib';
 
 BEGIN { use_ok('pf::SNMP') }
@@ -139,3 +139,57 @@ foreach my $obj_name (@SNMPobjects) {
     my $obj = $obj_name->new();
     isa_ok( $obj, $obj_name, $obj_name );
 }
+
+# basic SNMP functions
+my $SNMP = pf::SNMP->new();
+
+# -- variables to avoid repetition --
+# VLAN is irrelevant unless it's 'VoIP'
+my $non_voip_vlan = 10;
+my $voip_vlan = 'VoIP';
+
+my $fake_mac_prefix = '02:00:';
+my $fake_mac_voip = '01:';
+my $fake_mac_non_voip = '00:';
+
+my $real_mac = "00:1f:5b:e8:b8:4f";
+
+# generateFakeMac
+is($SNMP->generateFakeMac($non_voip_vlan, 13),
+    $fake_mac_prefix.$fake_mac_non_voip."00:00:13",
+    "Generate fake MAC non-VoIP normal case");
+
+is($SNMP->generateFakeMac($non_voip_vlan, 10001), 
+    $fake_mac_prefix.$fake_mac_non_voip."01:00:01", 
+    "Generate fake MAC non-VoIP big ifIndex case");
+
+is($SNMP->generateFakeMac($non_voip_vlan, 1110001),
+    $fake_mac_prefix.$fake_mac_non_voip."99:99:99",
+    "Generate fake MAC non-VoIP too large case");
+
+is($SNMP->generateFakeMac($voip_vlan, 13),
+    $fake_mac_prefix.$fake_mac_voip."00:00:13",
+    "Generate fake MAC VoIP normal case");
+
+is($SNMP->generateFakeMac($voip_vlan, 10001),
+    $fake_mac_prefix.$fake_mac_voip."01:00:01",
+    "Generate fake MAC VoIP big ifIndex case");
+
+is($SNMP->generateFakeMac($voip_vlan, 1110001),
+    $fake_mac_prefix.$fake_mac_voip."99:99:99",
+    "Generate fake MAC non-VoIP too large case");
+
+# isFakeMac
+ok($SNMP->isFakeMac($fake_mac_prefix.$fake_mac_non_voip."00:00:13"),
+    "Is fake MAC with a fake MAC");
+
+ok(!$SNMP->isFakeMac($real_mac),
+    "Is fake MAC with a real MAC");
+
+# isFakeVoIPMac
+ok($SNMP->isFakeVoIPMac($fake_mac_prefix.$fake_mac_voip."00:00:13"),
+    "Is VoIP fake MAC with a VoIP fake MAC");
+
+ok(!$SNMP->isFakeVoIPMac($real_mac),
+    "Is VoIP fake MAC with a real MAC");
+

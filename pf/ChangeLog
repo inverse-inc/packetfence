@@ -1,3 +1,8 @@
+2010-02-26	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP.pm, pf/t/SNMP.t: Modified generateFakeMac() to allow
+	ifIndex larger than two digits to appear in fake MAC. Fixes #921;
+	http://www.packetfence.org/mantis/view.php?id=921
+
 2010-02-11	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/pfcmd/pfcmd.pm: Allow ! in value field when quoted. Fixes
 	#911;

@@ -1791,12 +1791,22 @@ sub isNewerVersionThan {
 
 sub generateFakeMac {
     my ( $this, $vlan, $ifIndex ) = @_;
-    return
-          "02:00:00:00:"
-        . ( ( $vlan eq 'VoIP' ) ? "01" : "00" ) . ":"
-        . ( ( length($ifIndex) == 1 )
-        ? "0" . substr( $ifIndex, -1, 1 )
-        : substr( $ifIndex, -2, 2 ) );
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    # generating a fixed 6 digit string with ifIndex (zero filled)
+    my $zero_filled_ifIndex = sprintf('%06d', $ifIndex);
+    my $mac_suffix;
+    if ($zero_filled_ifIndex !~ /^\d{6}$/) {
+         $logger->warn("Unexpected ifIndex to generate a fake MAC for. "
+             . "This could cause port-security problems. ifIndex: $zero_filled_ifIndex");
+         $mac_suffix = "99:99:99";
+    } else {
+         $zero_filled_ifIndex =~ /(\d{2})(\d{2})(\d{2})/;
+         $mac_suffix = "$1:$2:$3";
+    }
+
+    # VoIP will be different than non-VoIP
+    return "02:00:" . ( ( $vlan eq 'VoIP' ) ? "01" : "00" ) . ":" . $mac_suffix;
 }
 
 sub isFakeMac {
@@ -1806,7 +1816,7 @@ sub isFakeMac {
 
 sub isFakeVoIPMac {
     my ( $this, $mac ) = @_;
-    return ( $mac =~ /^02:00:00:00:01/ );
+    return ( $mac =~ /^02:00:01/ );
 }
 
 sub getUpLinks {
