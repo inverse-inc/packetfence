@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# Convenient little wrapper to remotely diff files
+
+if [[ -z "$1" || -z "$2" ]]; then
+	echo "$0: Remote diff"
+	echo "Compares a local file with the same one on another server"
+	echo
+	echo "Usage is: rdiff [user@]host filename"
+	exit 0
+else
+	ssh $1 "cat $2" | diff -u $2 -
+fi

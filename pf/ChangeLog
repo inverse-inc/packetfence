@@ -1,3 +1,8 @@
+2010-02-26	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/high-availability/pf-diff, 
+	pf/addons/high-availability/rdiff: New sync tools that I've been using
+	to compare installations
+
 2010-01-28	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/t/podCoverage.t: Forcing 100% POD coverage for SNMP.pm since it's
 	the base switch module contract and we often don't know what's expected
