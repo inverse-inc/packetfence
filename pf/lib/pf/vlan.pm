@@ -168,19 +168,20 @@ sub custom_getCorrectVlan {
     my $logger = Log::Log4perl->get_logger();
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
-    # if switch object not correct, return default vlan
-    if (ref($switch) ne 'HASH' || !defined($switch->{_normalVlan})) {
-        $logger->warn("Did not return correct VLAN: Invalid switch. Will return default VLAN as a fallback");
+    # switch object correct, return normal vlan
+    if ($switch->isa('pf::SNMP') && defined($switch->{_normalVlan})) {
 
-        # Grab switch config
-        my $switchFactory = new pf::SwitchFactory(-configFile => "$conf_dir/switches.conf");
-        my %Config = %{$switchFactory->{_config}};
-
-        return $Config{'default'}{'normalVlan'};
+        # return switch-specific normal vlan or default normal vlan (if switch-specific normal vlan not defined)
+        return $switch->{_normalVlan};
     }
 
-    # return switch-specific normal vlan or default normal vlan (if switch-specific normal vlan not defined)
-    return $switch->{_normalVlan};
+    # if switch object not correct, return default vlan
+    $logger->warn("Did not return correct VLAN: Invalid switch. Will return default VLAN as a fallback");
+    # Grab switch config
+    my $switchFactory = new pf::SwitchFactory(-configFile => "$conf_dir/switches.conf");
+    my %Config = %{$switchFactory->{_config}};
+
+    return $Config{'default'}{'normalVlan'};
 }
 
 sub custom_getNodeInfo {
@@ -227,7 +228,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2009 Inverse inc.
+Copyright (C) 2007-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
