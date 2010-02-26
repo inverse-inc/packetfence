@@ -22,6 +22,7 @@ use diagnostics;
 use Log::Log4perl;
 
 use pf::config;
+use pf::node;
 use pf::SNMP;
 use pf::SwitchFactory;
 
@@ -55,7 +56,6 @@ Returns VLAN string, VLAN number or undef. undef means the user is not authorize
 sub authorize {
     my ($this, $nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
-    $logger->debug("TEST");
 
     # FIXME: this here won't scale.. :(
     # potential avenues: 
@@ -84,11 +84,81 @@ sub authorize {
 
     if ($weActOnThisCall == 0) {
         $logger->info("We decided not to act on this radius call. Stop handling request from $switch_ip.");
+        $switch->disconnectRead();
+        $switch->disconnectWrite();
         return;
     }
 
-    # TODO i'm here: identify request
+    # we go on with this call
+    $switch->connectMySQL();
 
+    #add node if necessary
+    if ( !node_exist($mac) ) {
+        $logger->info("node $mac does not yet exist in database. Adding it now");
+        node_add_simple($mac);
+    }
+
+    # There is activity from that mac, call node wakeup
+    node_mac_wakeup($mac);
+
+    # determine if we need to perform automatic registration
+    my $isPhone = $switch->isPhoneAtIfIndex($mac);
+
+    # IP Phones Discovery not supported
+    # FIXME connection_type
+    if (($connection_type & WIRELESS) == WIRELESS && $switch->isVoIPEnabled() && !$isPhone) {
+        $logger->warn("Automatic detection of Wireless IP Phones is not implemented. "
+            ."However they can be recognized by dhcp fingerprint. "
+            ."Automatic registration of the phones may have failed..");
+    }
+    # FIXME connection_type
+    if ($this->shouldAutoRegister($mac, $switch->isRegistrationMode(), $isPhone, $connection_type)) {
+
+        # automatic registration
+        # FIXME: several tasks here:
+        # - instatiate vlan object
+        # - change upstream sub to include connection type (and fix calls from pfsetvlan)
+        my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch->{_ip}, $switch_port,
+            $mac, $vlan, 'switch-config', $isPhone);
+        $logger->debug("auto-registering node $mac");
+        if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
+            $logger->error("auto-registration of node $mac failed");
+            return 0;
+        }
+    }
+
+    # extract in another sub
+    # if isPhone : insert in locationlog then bail saying unimplemented
+    # we would probably need to change the Tunnel-Medium-Type or Tunnel-Type for proper VoIP 802.1x or VoIP MAB
+    # $RAD_REPLY{'Tunnel-Medium-Type'} = 6;
+    # $RAD_REPLY{'Tunnel-Type'} = 13;
+    # $RAD_REPLY{'Tunnel-Private-Group-ID'} = $result;
+
+    # check if locationlog_view_open_switchport (or no_VoIP) is accurate and open new entry if not
+    # use $vlan_obj->vlan_determine_for_node for the check
+    # TODO: actually, depending on my test results, it might be better to do locationlog_sync (and it would update the node also)
+
+    # node_determine_and_set_into_VLAN {
+#       $switch->setVlan(
+#           $ifIndex,
+#           $vlan_obj->vlan_determine_for_node($mac, $switch, $ifIndex),
+#           \%switch_locker,
+#           $mac
+#       );
+#}
+
+    # dans SNMP->setVlan
+    # if not isInProduction bail
+    # locationlog_sync
+    # is new VLAN part of $this->{_vlans} (grab code from setVlan)
+    # TODO to match wired behavior we should do a $switch->isDefinedVlan($newVlan) 
+    # again some locationlog stuff
+    # return VLAN
+
+    # cleanup
+    $switch->disconnectRead();
+    $switch->disconnectWrite();
+    return $vlan;
 }
 
 =item * doWeActOnThisCall - is this request of any interest?
@@ -163,7 +233,7 @@ sub doWeActOnThisCall_wired {
 }
 
 
-=item * identify_request_type - identify is the request is wired or wireless
+=item * _identify_request_type - identify is the request is wired or wireless
 
 Provide radius' NAS-Port-Type
 
@@ -196,6 +266,43 @@ sub _identify_request_type {
     }
 }
 =back
+
+=item * shouldAutoRegister - do we auto-register this node?
+
+By default we register automatically when the switch is configured to (registration mode)
+and when the device is a phone.
+
+This sub is meant to be overridden in lib/pf/radius/custom.pm if the defaults
+are not right for your environment.
+
+$isSwitchInRegMode is set to 1 if switch is in registration mode.
+
+$isPhone is set to 1 if device is considered an IP Phone.
+
+$conn_type is the connection type constant as exported and described in pf::config.
+
+returns 1 if we should register, 0 otherwise
+
+=cut
+sub shouldAutoRegister {
+    my ($this, $mac, $isSwitchInRegMode, $isPhone, $conn_type) = @_;
+    my $logger = Log::Log4perl->get_logger();
+
+    $logger->trace("asked if should auto-register device");
+    # handling isSwitchInRegMode first because I think it's the most important to honor
+    if ($isSwitchInRegMode) {
+        $logger->trace("returned yes because it's from the switch's config");
+        return $isSwitchInRegMode;
+    }
+
+    if ($isPhone) {
+        $logger->trace("returned yes because it's an ip phone");
+        return $isPhone;
+    }
+
+    # otherwise don't autoreg
+    return 0;
+}
 
 =head1 AUTHOR
 
