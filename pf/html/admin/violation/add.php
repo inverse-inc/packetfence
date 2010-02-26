@@ -15,7 +15,7 @@ include_once('../header.php');
 
   foreach($vids_pfcmd as $line){
     $parts=preg_split("/\|/", $line);
-    $vids[]=array('vid' => $parts[2], 'desc' => $parts[5]);
+    $vids[]=array('vid' => $parts[2], 'desc' => $_SESSION['violation_classes'][$parts[2]]);
   }
   array_shift($vids);
   
