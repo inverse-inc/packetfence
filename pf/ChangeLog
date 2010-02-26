@@ -1,4 +1,9 @@
 2010-02-26	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/vlan.pm: Fixed validation in custom_getCorrectVlan. I was
+	testing against a hashref instead of a switch object. Cleaned up the 
+	sub to make the normal case obvious.
+	Problem introduced in rev 53a220abaf38f45b6b7f9948dd2d365135354fab.
+
 	* pf/lib/pf/SNMP.pm, pf/t/SNMP.t: Modified generateFakeMac() to allow
 	ifIndex larger than two digits to appear in fake MAC. Fixes #921;
 	http://www.packetfence.org/mantis/view.php?id=921
