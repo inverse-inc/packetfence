@@ -133,7 +133,7 @@ sub node_db_prepare {
         );
     $nodes_registered_not_violators_sql
         = $dbh->prepare(
-        qq [ select mac from node where status="reg" and mac not in (select mac from violation where status="open" group by mac) ]
+        qq [ select node.mac from node left join violation on node.mac=violation.mac and violation.status='open' where node.status='reg' group by node.mac having count(violation.mac)=0 ]
         );
     $nodes_active_unregistered_sql
         = $dbh->prepare(
