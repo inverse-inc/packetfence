@@ -85,13 +85,14 @@ sub node_db_prepare {
         );
     $node_view_sql
         = $dbh->prepare(
-        qq[ select node.*,count(violation.mac) as nbopenviolations from node left join violation on node.mac=violation.mac and violation.status='open' where node.mac=?]
+        qq[ select node.mac,node.pid,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,count(violation.mac) as nbopenviolations from node left join violation on node.mac=violation.mac and violation.status='open' where node.mac=? group by node.mac ]
         );
     $node_view_with_fingerprint_sql
         = $dbh->prepare(
         qq[ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,ifnull(os_class.description, ' ') as dhcp_fingerprint,switch,port,vlan from node left join dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id where mac=? ]
         );
-    $node_view_all_sql = "select node.*,count(violation.mac) as nbopenviolations from node left join violation on node.mac=violation.mac and violation.status='open' group by node.mac";
+    $node_view_all_sql
+        = "select node.mac,node.pid,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,count(violation.mac) as nbopenviolations from node left join violation on node.mac=violation.mac and violation.status='open' group by node.mac";
     $node_count_all_sql = "select count(*) as nb from node";
     $node_ungrace_sql
         = $dbh->prepare(
@@ -136,7 +137,8 @@ sub node_db_prepare {
         );
     $nodes_active_unregistered_sql
         = $dbh->prepare(
-	qq [ select node.mac from node left join violation on node.mac=violation.mac and violation.status='open' where node.status='reg' group by node.mac having count(violation.mac)=0 ]
+        qq [ select n.mac,n.pid,n.detect_date,n.regdate,n.unregdate,n.lastskip,n.status,n.user_agent,n.computername,n.notes,i.ip,i.start_time,i.end_time,n.last_arp from node n left join iplog i on n.mac=i.mac where n.status="unreg" and (i.end_time=0 or i.end_time >
+now()) ]
         );
     $nodes_active_sql
         = $dbh->prepare(
