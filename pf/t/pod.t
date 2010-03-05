@@ -68,6 +68,7 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP/Cisco/Catalyst_3500XL.pm',
     '/usr/local/pf/lib/pf/SNMP/Cisco/Catalyst_3550.pm',
     '/usr/local/pf/lib/pf/SNMP/Cisco/Catalyst_3560.pm',
+    '/usr/local/pf/lib/pf/SNMP/Cisco/Catalyst_3750.pm',
     '/usr/local/pf/lib/pf/SNMP/Cisco/Controller_4400_4_2_130.pm',
     '/usr/local/pf/lib/pf/SNMP/Cisco.pm',
     '/usr/local/pf/lib/pf/SNMP/Cisco/ISR_1800.pm',

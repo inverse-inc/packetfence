@@ -82,7 +82,7 @@
                          'Cisco::Catalyst_2970' => 'Cisco Catalyst 2970',
                          'Cisco::Catalyst_3500XL' => 'Cisco Catalyst 3500XL',
                          'Cisco::Catalyst_3550' => 'Cisco Catalyst 3550',
-                         'Cisco::Catalyst_3560' => 'Cisco Catalyst 3560',
+                         'Cisco::Catalyst_3750' => 'Cisco Catalyst 3750',
                          'Cisco::Controller_4400_4_2_130' => 'Cisco Controller 4400',
                          'Cisco::ISR_1800' => 'Cisco Integrated Services Routers (ISR) 1800 Series',
                          'Cisco::WiSM' => 'Cisco Wireless Services Module (WiSM)',

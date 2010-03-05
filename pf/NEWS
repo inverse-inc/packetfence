@@ -22,6 +22,7 @@ New
 New Hardware Support
 - Cisco Wireless Services Module (WiSM)
 - Cisco Integrated Services Routers (ISR) 1800 Series
+- Cisco Catalyst 3750 Series
 
 New Features
 - Improved error reporting in the web administration panel and cli (#898, #899)
