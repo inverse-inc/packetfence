@@ -1,3 +1,5 @@
+package pf::pfcmd::dashboard;
+
 use strict;
 use warnings;
 use Log::Log4perl;
@@ -5,9 +7,33 @@ use Log::Log4perl;
 use pf::db;
 use pf::pfcmd::report;
 
-use vars
-    qw/$nugget_recent_violations_sql $nugget_recent_violations_opened_sql $nugget_current_grace_sql
-    $nugget_recent_violations_closed_sql $nugget_recent_registrations_sql $is_dashboard_db_prepared /;
+our (
+    $is_dashboard_db_prepared,
+
+    $nugget_recent_violations_sql,
+    $nugget_recent_violations_opened_sql,
+    $nugget_current_grace_sql,
+    $nugget_recent_violations_closed_sql,
+    $nugget_recent_registrations_sql
+);
+
+BEGIN {
+    use Exporter ();
+    our ( @ISA, @EXPORT );
+    @ISA    = qw(Exporter);
+    @EXPORT = qw(
+        $is_dashboard_db_prepared
+
+        dashboard_db_prepare
+        nugget_recent_violations
+        nugget_recent_violations_opened
+        nugget_recent_violations_closed
+        nugget_recent_registrations
+        nugget_current_grace
+        nugget_current_activity
+        nugget_current_node_status
+    );
+};
 
 $is_dashboard_db_prepared = 0;
 
@@ -113,11 +139,15 @@ David LaPorte <david@davidlaporte.org>
 
 Kevin Amorin <kev@amorin.org>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
+
+Copyright (C) 2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

@@ -1,14 +1,32 @@
+package pf::pfcmd::graph;
+
 use strict;
 use warnings;
 use Log::Log4perl;
 
 use pf::db;
 
-use vars
-    qw/$graph_registered_day_sql $graph_registered_month_sql $graph_registered_year_sql
-    $graph_unregistered_day_sql $graph_unregistered_month_sql $graph_unregistered_year_sql
-    $graph_violations_day_sql $graph_violations_month_sql $graph_violations_year_sql
-    $graph_nodes_day_sql  $graph_nodes_month_sql  $graph_nodes_year_sql $graph_db_prepared /;
+our (
+    $graph_registered_day_sql, $graph_registered_month_sql, $graph_registered_year_sql,
+    $graph_unregistered_day_sql, $graph_unregistered_month_sql, $graph_unregistered_year_sql,
+    $graph_violations_day_sql, $graph_violations_month_sql, $graph_violations_year_sql,
+    $graph_nodes_day_sql, $graph_nodes_month_sql, $graph_nodes_year_sql, $graph_db_prepared
+);
+
+BEGIN {
+    use Exporter ();
+    our ( @ISA, @EXPORT );
+    @ISA    = qw(Exporter);
+    @EXPORT = qw(
+        $graph_db_prepared
+
+        graph_db_prepare
+        graph_unregistered
+        graph_registered
+        graph_violations
+        graph_nodes
+    );
+}
 
 $graph_db_prepared = 0;
 
@@ -104,11 +122,15 @@ David LaPorte <david@davidlaporte.org>
 
 Kevin Amorin <kev@amorin.org>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

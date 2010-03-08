@@ -1,3 +1,7 @@
+2010-03-08	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/pfcmd/dashboard.pm, pf/lib/pf/pfcmd/graph.pm,
+	pf/lib/pf/pfcmd/report.pm: These files are now a module.
+
 2010-02-26	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/html/admin/violation/add.php, pf/html/admin/violation/edit.php:
 	Fixed a regression where the violation edit page on the web admin would

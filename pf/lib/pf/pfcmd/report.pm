@@ -1,14 +1,58 @@
+package pf::pfcmd::report;
+
 use strict;
 use warnings;
 use Log::Log4perl;
 
 use pf::db;
 
-use vars
-    qw/$report_active_all_sql $report_inactive_all_sql $report_unregistered_active_sql $report_unregistered_all_sql
-    $report_registered_active_sql $report_registered_all_sql $report_os_active_sql $report_os_all_sql $report_osclass_all_sql
-    $report_osclass_active_sql $report_unknownprints_all_sql $report_unknownprints_active_sql $report_openviolations_all_sql
-    $report_openviolations_active_sql $report_statics_all_sql $report_statics_active_sql $is_report_db_prepared @ISA @EXPORT/;
+our (
+    $is_report_db_prepared,
+
+    $report_active_all_sql,
+    $report_inactive_all_sql,
+    $report_unregistered_active_sql,
+    $report_unregistered_all_sql,
+    $report_registered_active_sql,
+    $report_registered_all_sql,
+    $report_os_active_sql,
+    $report_os_all_sql,
+    $report_osclass_all_sql,
+    $report_osclass_active_sql,
+    $report_unknownprints_all_sql,
+    $report_unknownprints_active_sql,
+    $report_openviolations_all_sql,
+    $report_openviolations_active_sql,
+    $report_statics_all_sql,
+    $report_statics_active_sql
+);
+
+BEGIN {
+    use Exporter ();
+    our ( @ISA, @EXPORT );
+    @ISA    = qw(Exporter);
+    @EXPORT = qw(
+        $is_report_db_prepared
+        report_db_prepare
+        report_os_all
+        report_os_active
+        report_osclass_all
+        report_osclass_active
+        report_active_all
+        report_inactive_all
+        report_unregistered_active
+        report_unregistered_all
+        report_active_reg
+        report_registered_all
+        report_registered_active
+        report_openviolations_all
+        report_openviolations_active
+        report_statics_all
+        report_statics_active
+        report_unknownprints_all
+        report_unknownprints_active
+    );
+}
 
 $is_report_db_prepared = 0;
 
@@ -309,11 +353,15 @@ David LaPorte <david@davidlaporte.org>
 
 Kevin Amorin <kev@amorin.org>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
+
+Copyright (C) 2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
