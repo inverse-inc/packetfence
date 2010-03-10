@@ -26,6 +26,7 @@ New Hardware Support
 
 New Features
 - Improved error reporting in the web administration panel and cli (#898, #899)
+- Improved database layer (simpler to use, more robust and reports errors)
 - @ character now allowed in person id (pid). This is very common in Active 
   Directory environment.
 - New admin authentication mechanism added (disabled by default)

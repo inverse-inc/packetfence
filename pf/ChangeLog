@@ -1,3 +1,23 @@
+2010-03-10	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/accounting.pl, pf/addons/recovery.pl, pf/lib/pf/action.pm,
+	pf/lib/pf/class.pm, pf/lib/pf/configfile.pm, pf/lib/pf/db.pm, 
+	pf/lib/pf/ifoctetslog.pm, pf/lib/pf/iplog.pm, pf/lib/pf/locationlog.pm,
+	pf/lib/pf/node.pm, pf/lib/pf/os.pm, pf/lib/pf/person.pm, 
+	pf/lib/pf/pfcmd/dashboard.pm, pf/lib/pf/pfcmd/graph.pm, 
+	pf/lib/pf/pfcmd/report.pm, pf/lib/pf/switchlocation.pm, 
+	pf/lib/pf/traplog.pm, pf/lib/pf/trigger.pm, pf/lib/pf/useragent.pm, 
+	pf/lib/pf/violation.pm, pf/sbin/pfdetect, pf/sbin/pfdhcplistener, 
+	pf/sbin/pfmon, pf/sbin/pfsetvlan, pf/t/all.t, pf/t/data.t, 
+	pf/t/config.t, pf/t/person.t: Improvements in the database layer
+	- new db_query_execute() that handles retrying queries, rebuilding 
+	  prepared statements and better error reporting
+	- new way to store db handlers, they are now stored in a hash that expose 
+	  them per thread
+	- use get_db_handle() to get database handle
+	- db_connect no longer has a way to force the preparation of statements
+	This all means overall use simplification and better error-handling and 
+	reporting.
+
 2010-03-08	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/pfcmd/dashboard.pm, pf/lib/pf/pfcmd/graph.pm,
 	pf/lib/pf/pfcmd/report.pm: These files are now a module.

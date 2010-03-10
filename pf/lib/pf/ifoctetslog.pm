@@ -19,25 +19,18 @@ Read the F<pf.conf> configuration file.
 
 use strict;
 use warnings;
+use Date::Parse;
+use Log::Log4perl;
+use Net::MAC;
 
-our (
-    $ifoctetslog_history_mac_sql,
-    $ifoctetslog_history_mac_start_end_sql,
-    $ifoctetslog_history_user_sql,
-    $ifoctetslog_history_user_start_end_sql,
-    $ifoctetslog_history_switchport_sql,
-    $ifoctetslog_history_switchport_start_end_sql,
-
-    $ifoctetslog_insert_sql,
-
-    $ifoctetslog_db_prepared
-);
+use constant IFOCTETSLOG => 'ifoctetslogs';
 
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA    = qw(Exporter);
     @EXPORT = qw(
+        $ifoctetslog_db_prepared
         ifoctetslog_db_prepare
 
         ifoctetslog_history_mac
@@ -52,70 +45,56 @@ BEGIN {
     );
 }
 
-use Date::Parse;
-use Log::Log4perl;
-use Net::MAC;
 use pf::db;
 
-$ifoctetslog_db_prepared = 0;
-
-#ifoctetslog_db_prepare($dbh) if (!$thread);
+# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
+our $ifoctetslog_db_prepared = 0;
+# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
+# the hash if required
+our $ifoctetslog_statements = {};
 
 sub ifoctetslog_db_prepare {
-    my ($dbh) = @_;
-    db_connect($dbh);
     my $logger = Log::Log4perl::get_logger('pf::ifoctetslog');
     $logger->debug("Preparing pf::ifoctetslog database queries");
-    $ifoctetslog_history_mac_sql
-        = $dbh->prepare(
-        qq [ select switch,port,read_time,mac,ifInOctets,ifOutOctets from ifoctetslog where mac=? order by read_time desc ]
-        );
-    $ifoctetslog_history_mac_start_end_sql
-        = $dbh->prepare(
-        qq [ select switch,port,read_time,mac,ifInOctets,ifOutOctets from ifoctetslog where mac=? and read_time >= from_unixtime(?) and read_time <= from_unixtime(?) order by read_time desc ]
-        );
-    $ifoctetslog_history_user_sql
-        = $dbh->prepare(
-        qq [ select ifoctetslog.switch,ifoctetslog.port,read_time,ifoctetslog.mac,ifInOctets,ifOutOctets from ifoctetslog, node where ifoctetslog.mac=node.mac and pid=? order by mac asc, read_time desc ]
-        );
-    $ifoctetslog_history_user_start_end_sql
-        = $dbh->prepare(
-        qq [ select ifoctetslog.switch,ifoctetslog.port,read_time,ifoctetslog.mac,ifInOctets,ifOutOctets from ifoctetslog, node where ifoctetslog.mac=node.mac and pid=? and read_time >= from_unixtime(?) and read_time <= from_unixtime(?) order by mac asc, read_time desc ]
-        );
 
-    $ifoctetslog_history_switchport_sql
-        = $dbh->prepare(
-        qq [ select switch,port,read_time,mac,ifInOctets,ifOutOctets from ifoctetslog where switch=? and port=? order by read_time desc ]
-        );
-    $ifoctetslog_history_switchport_start_end_sql
-        = $dbh->prepare(
-        qq [ select switch,port,read_time,mac,ifInOctets,ifOutOctets from ifoctetslog where switch=? and port=? and read_time >= from_unixtime(?) and read_time <= from_unixtime(?) order by read_time desc ]
-        );
+    $ifoctetslog_statements->{'ifoctetslog_history_mac_sql'} = get_db_handle()->prepare(
+        qq [ select switch,port,read_time,mac,ifInOctets,ifOutOctets from ifoctetslog where mac=? order by read_time desc ]);
 
-    $ifoctetslog_insert_sql
-        = $dbh->prepare(
-        qq [ INSERT INTO ifoctetslog (switch, port, read_time, mac, ifInOctets, ifOutOctets) VALUES(?,?,NOW(),?,?,?) ]
-        );
+    $ifoctetslog_statements->{'ifoctetslog_history_mac_start_end_sql'} = get_db_handle()->prepare(
+        qq [ select switch,port,read_time,mac,ifInOctets,ifOutOctets from ifoctetslog where mac=? and read_time >= from_unixtime(?) and read_time <= from_unixtime(?) order by read_time desc ]);
+
+    $ifoctetslog_statements->{'ifoctetslog_history_user_sql'} = get_db_handle()->prepare(
+        qq [ select ifoctetslog.switch,ifoctetslog.port,read_time,ifoctetslog.mac,ifInOctets,ifOutOctets from ifoctetslog, node where ifoctetslog.mac=node.mac and pid=? order by mac asc, read_time desc ]);
+
+    $ifoctetslog_statements->{'ifoctetslog_history_user_start_end_sql'} = get_db_handle()->prepare(
+        qq [ select ifoctetslog.switch,ifoctetslog.port,read_time,ifoctetslog.mac,ifInOctets,ifOutOctets from ifoctetslog, node where ifoctetslog.mac=node.mac and pid=? and read_time >= from_unixtime(?) and read_time <= from_unixtime(?) order by mac asc, read_time desc ]);
+
+    $ifoctetslog_statements->{'ifoctetslog_history_switchport_sql'} = get_db_handle()->prepare(
+        qq [ select switch,port,read_time,mac,ifInOctets,ifOutOctets from ifoctetslog where switch=? and port=? order by read_time desc ]);
+
+    $ifoctetslog_statements->{'ifoctetslog_history_switchport_start_end_sql'} = get_db_handle()->prepare(
+        qq [ select switch,port,read_time,mac,ifInOctets,ifOutOctets from ifoctetslog where switch=? and port=? and read_time >= from_unixtime(?) and read_time <= from_unixtime(?) order by read_time desc ]);
+
+    $ifoctetslog_statements->{'ifoctetslog_insert_sql'} = get_db_handle()->prepare(
+        qq [ INSERT INTO ifoctetslog (switch, port, read_time, mac, ifInOctets, ifOutOctets) VALUES(?,?,NOW(),?,?,?) ]);
 
     $ifoctetslog_db_prepared = 1;
-
 }
 
 sub ifoctetslog_history_mac {
     my ( $mac, %params ) = @_;
-    ifoctetslog_db_prepare($dbh) if ( !$ifoctetslog_db_prepared );
+
     my $tmpMAC = Net::MAC->new( 'mac' => $mac );
     $mac = $tmpMAC->as_IEEE();
     my @raw_data;
     my @data;
     if ( exists( $params{'start_time'} ) && exists( $params{'end_time'} ) ) {
-        $ifoctetslog_history_mac_start_end_sql->execute( $mac,
-            $params{'start_time'}, $params{'end_time'} )
+        @raw_data = db_data(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_history_mac_start_end_sql',
+            $mac, $params{'start_time'}, $params{'end_time'})
             || return (0);
-        @raw_data = db_data($ifoctetslog_history_mac_start_end_sql);
     } else {
-        $ifoctetslog_history_mac_sql->execute($mac) || return (0);
-        @raw_data = db_data($ifoctetslog_history_mac_sql);
+        @raw_data = db_data(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_history_mac_sql', $mac)
+            || return (0);
     }
     my $previousLine;
     foreach my $line ( reverse @raw_data ) {
@@ -143,18 +122,18 @@ sub ifoctetslog_history_mac {
 
 sub ifoctetslog_history_user {
     my ( $user, %params ) = @_;
-    ifoctetslog_db_prepare($dbh) if ( !$ifoctetslog_db_prepared );
+
     my @raw_data;
     my @data;
     if ( exists( $params{'start_time'} ) && exists( $params{'end_time'} ) ) {
-        $ifoctetslog_history_user_start_end_sql->execute( $user,
-            $params{'start_time'}, $params{'end_time'} )
+        @raw_data = db_data(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_history_user_start_end_sql',
+            $user, $params{'start_time'}, $params{'end_time'})
             || return (0);
-        @raw_data = db_data($ifoctetslog_history_user_start_end_sql);
     } else {
-        $ifoctetslog_history_user_sql->execute($user) || return (0);
-        @raw_data = db_data($ifoctetslog_history_user_sql);
+        @raw_data = db_data(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_history_user_start_end_sql', $user) 
+            || return (0);
     }
+
     my $previousLine;
     foreach my $line ( reverse @raw_data ) {
         $line->{'throughPutIn'}  = 0;
@@ -206,19 +185,17 @@ sub ifoctetslog_graph_user {
 
 sub ifoctetslog_history_switchport {
     my ( $switch, %params ) = @_;
-    ifoctetslog_db_prepare($dbh) if ( !$ifoctetslog_db_prepared );
+
     my @raw_data;
     my @data;
     if ( exists( $params{'start_time'} ) && exists( $params{'end_time'} ) ) {
-        $ifoctetslog_history_switchport_start_end_sql->execute( $switch,
-            $params{'ifIndex'}, $params{'start_time'}, $params{'end_time'} )
+        @raw_data = db_data(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_history_switchport_start_end_sql', 
+            $switch, $params{'ifIndex'}, $params{'start_time'}, $params{'end_time'})
             || return (0);
-        @raw_data = db_data($ifoctetslog_history_switchport_start_end_sql);
     } else {
-        $ifoctetslog_history_switchport_sql->execute( $switch,
-            $params{'ifIndex'} )
+        @raw_data = db_data(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_history_switchport_sql', 
+            $switch, $params{'ifIndex'})
             || return (0);
-        @raw_data = db_data($ifoctetslog_history_switchport_sql);
     }
     my $previousLine;
     foreach my $line ( reverse @raw_data ) {
@@ -242,9 +219,9 @@ sub ifoctetslog_history_switchport {
 
 sub ifoctetslog_insert {
     my ( $switch, $ifIndex, $mac, $ifInOctets, $ifOutOctets ) = @_;
-    ifoctetslog_db_prepare($dbh) if ( !$ifoctetslog_db_prepared );
-    $ifoctetslog_insert_sql->execute( $switch, $ifIndex, $mac, $ifInOctets,
-        $ifOutOctets )
+
+    db_query_execute(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_insert_sql', 
+        $switch, $ifIndex, $mac, $ifInOctets, $ifOutOctets)
         || return (0);
     return (1);
 }
@@ -397,13 +374,15 @@ Kevin Amorin <kev@amorin.org>
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2007-2008 Inverse inc.
+Copyright (C) 2007-2008,2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

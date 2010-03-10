@@ -14,139 +14,130 @@ pf::class contains the functions necessary to manage the violation classes.
 
 use strict;
 use warnings;
+use Log::Log4perl;
 
-our (
-    $class_view_sql,     $class_exist_sql,        $class_add_sql,
-    $class_delete_sql,   $class_cleanup_sql,      $class_modify_sql,
-    $class_view_all_sql, $class_view_actions_sql, $class_trappable_sql,
-    $class_db_prepared
-);
+use constant CLASS => 'class';
 
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
-    @EXPORT
-        = qw(class_db_prepare class_view class_view_all class_trappable class_view_actions class_add class_delete class_merge);
+    @EXPORT = qw(
+        class_db_prepare
+        $class_db_prepared
+
+        class_view       class_view_all
+        class_trappable  class_view_actions 
+        class_add        class_delete 
+        class_merge
+    );
 }
 
-use Log::Log4perl;
 use pf::db;
 
-$class_db_prepared = 0;
-
-#class_db_prepare($dbh) if (!$thread);
+# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
+our $class_db_prepared = 0;
+# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
+# the hash if required
+our $class_statements = {};
 
 sub class_db_prepare {
-    my ($dbh) = @_;
-    db_connect($dbh);
     my $logger = Log::Log4perl::get_logger('pf::class');
     $logger->debug("Preparing pf::class database queries");
-    $class_view_sql
-        = $dbh->prepare(
-        qq [ select class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.disable,class.vlan,group_concat(action.action order by action.action asc) as action from class left join action on class.vid=action.vid where class.vid=? GROUP BY class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.disable ]
-        );
-    $class_view_all_sql
-        = $dbh->prepare(
-        qq [ select class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.disable,class.vlan,group_concat(action.action order by action.action asc) as action from class left join action on class.vid=action.vid GROUP BY class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.disable ]
-        );
-    $class_view_actions_sql
-        = $dbh->prepare(qq [ select vid,action from action where vid=? ]);
-    $class_exist_sql
-        = $dbh->prepare(qq [ select vid from class where vid=? ]);
-    $class_delete_sql = $dbh->prepare(qq [ delete from class where vid=? ]);
-    $class_add_sql
-        = $dbh->prepare(
-        qq [ insert into class(vid,description,auto_enable,max_enables,grace_period,priority,url,max_enable_url,redirect_url,button_text,disable,vlan) values(?,?,?,?,?,?,?,?,?,?,?,?) ]
-        );
-    $class_modify_sql
-        = $dbh->prepare(
-        qq [ update class set description=?,auto_enable=?,max_enables=?,grace_period=?,priority=?,url=?,max_enable_url=?,redirect_url=?,button_text=?,disable=?,vlan=? where vid=? ]
-        );
-    $class_cleanup_sql
-        = $dbh->prepare(
-        qq [ delete from class where vid not in (?) and vid < 1200000 and vid > 1200100 ]
-        );
-    $class_trappable_sql
-        = $dbh->prepare(
-        qq [select c.vid,c.description,c.auto_enable,c.max_enables,c.grace_period,c.priority,c.url,c.max_enable_url,c.redirect_url,c.button_text,c.disable,c.vlan from class c left join action a on c.vid=a.vid where a.action="trap" ]
-        );
+
+    $class_statements->{'class_view_sql'} = get_db_handle()->prepare(
+        qq [ select class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.disable,class.vlan,group_concat(action.action order by action.action asc) as action from class left join action on class.vid=action.vid where class.vid=? GROUP BY class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.disable ]);
+
+    $class_statements->{'class_view_all_sql'} = get_db_handle()->prepare(
+        qq [ select class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.disable,class.vlan,group_concat(action.action order by action.action asc) as action from class left join action on class.vid=action.vid GROUP BY class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.disable ]);
+
+    $class_statements->{'class_view_actions_sql'} = get_db_handle()->prepare(qq [ select vid,action from action where vid=? ]);
+
+    $class_statements->{'class_exist_sql'} = get_db_handle()->prepare(qq [ select vid from class where vid=? ]);
+
+    $class_statements->{'class_delete_sql'} = get_db_handle()->prepare(qq [ delete from class where vid=? ]);
+
+    $class_statements->{'class_add_sql'} = get_db_handle()->prepare(
+        qq [ insert into class(vid,description,auto_enable,max_enables,grace_period,priority,url,max_enable_url,redirect_url,button_text,disable,vlan) values(?,?,?,?,?,?,?,?,?,?,?,?) ]);
+
+    $class_statements->{'class_modify_sql'} = get_db_handle()->prepare(
+        qq [ update class set description=?,auto_enable=?,max_enables=?,grace_period=?,priority=?,url=?,max_enable_url=?,redirect_url=?,button_text=?,disable=?,vlan=? where vid=? ]);
+
+    $class_statements->{'class_cleanup_sql'} = get_db_handle()->prepare(
+        qq [ delete from class where vid not in (?) and vid < 1200000 and vid > 1200100 ]);
+
+    $class_statements->{'class_trappable_sql'} = get_db_handle()->prepare(
+        qq [select c.vid,c.description,c.auto_enable,c.max_enables,c.grace_period,c.priority,c.url,c.max_enable_url,c.redirect_url,c.button_text,c.disable,c.vlan from class c left join action a on c.vid=a.vid where a.action="trap" ]);
+
     $class_db_prepared = 1;
 }
 
 sub class_exist {
     my ($id) = @_;
-    class_db_prepare($dbh) if ( !$class_db_prepared );
-    $class_exist_sql->execute($id) || return (0);
-    my ($val) = $class_exist_sql->fetchrow_hashref();
-    $class_exist_sql->finish();
+
+    my $query = db_query_execute(CLASS, $class_statements, 'class_exist_sql', $id) || return (0);
+    my ($val) = $query->fetchrow_hashref();
+    $query->finish();
     return ($val);
 }
 
 sub class_view {
     my ($id) = @_;
-    class_db_prepare($dbh) if ( !$class_db_prepared );
-    $class_view_sql->execute($id) || return (0);
-    my ($val) = $class_view_sql->fetchrow_hashref();
-    $class_view_sql->finish();
+
+    my $query = db_query_execute(CLASS, $class_statements, 'class_view_sql', $id) || return (0);
+    my ($val) = $query->fetchrow_hashref();
+    $query->finish();
     return ($val);
 }
 
 sub class_view_all {
-    class_db_prepare($dbh) if ( !$class_db_prepared );
-    return db_data($class_view_all_sql);
+    return db_data(CLASS, $class_statements, 'class_view_all_sql');
 }
 
 sub class_trappable {
-    class_db_prepare($dbh) if ( !$class_db_prepared );
-    return db_data($class_trappable_sql);
+    return db_data(CLASS, $class_statements, 'class_trappable_sql');
 }
 
 sub class_view_actions {
     my ($id) = @_;
-    class_db_prepare($dbh) if ( !$class_db_prepared );
-    return db_data( $class_view_actions_sql, $id );
+    return db_data(CLASS, $class_statements, 'class_view_actions_sql', $id);
 }
 
 sub class_add {
     my $id = $_[0];
-    class_db_prepare($dbh) if ( !$class_db_prepared );
     my $logger = Log::Log4perl::get_logger('pf::class');
     if ( class_exist($id) ) {
         $logger->warn("attempt to add existing class $id");
         return (2);
     }
-    $class_add_sql->execute(@_) || return (0);
+    db_query_execute(CLASS, $class_statements, 'class_add_sql', @_) || return (0);
     $logger->debug("class $id added");
     return (1);
 }
 
 sub class_delete {
     my ($id) = @_;
-    class_db_prepare($dbh) if ( !$class_db_prepared );
     my $logger = Log::Log4perl::get_logger('pf::class');
-    $class_delete_sql->execute($id) || return (0);
+    db_query_execute(CLASS, $class_statements, 'class_delete_sql', $id) || return (0);
     $logger->debug("class $id deleted");
     return (1);
 }
 
 sub class_cleanup {
-    class_db_prepare($dbh) if ( !$class_db_prepared );
     my $logger = Log::Log4perl::get_logger('pf::class');
-    $class_cleanup_sql->execute() || return (0);
+    db_query_execute(CLASS, $class_statements, 'class_cleanup_sql') || return (0);
     $logger->debug("class cleanup completed");
     return (1);
 }
 
 sub class_modify {
     my $id = shift(@_);
-    class_db_prepare($dbh) if ( !$class_db_prepared );
     my $logger = Log::Log4perl::get_logger('pf::class');
     push( @_, $id );
     if ( class_exist($id) ) {
         $logger->debug("modify existing existing class $id");
     }
-    $class_modify_sql->execute(@_) || return (0);
+    db_query_execute(CLASS, $class_statements, 'class_modify_sql', @_) || return (0);
     $logger->debug("class $id modified");
     return (1);
 }
@@ -207,7 +198,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009 Inverse inc.
+Copyright (C) 2009,2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

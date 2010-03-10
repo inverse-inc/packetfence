@@ -33,9 +33,11 @@ in production to the calculated VLAN assignment.
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2007,2008 Inverse inc.
+Copyright (C) 2007,2008,2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -207,13 +209,6 @@ sub recoverSwitch {
     my $switchDesc = shift();
     my $txt        = '';
     my $format     = "%-2.2s %7.7s %-7.7s %-7.7s %-7.7s %-20.20s %-20.20s\n";
-    my $mysql_connection = db_connect();
-    if ( !$mysql_connection ) {
-        return "unable to connect to database\n";
-    }
-    node_db_prepare($mysql_connection);
-    locationlog_db_prepare($mysql_connection);
-    violation_db_prepare($mysql_connection);
     my $switch = $switchFactory->instantiate($switchDesc);
     if (!$switch) {
         return "Can not instantiate switch $switchDesc\n";

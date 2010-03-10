@@ -30,7 +30,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2009 Inverse inc.
+Copyright (C) 2006-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -544,14 +544,7 @@ sub signalHandlerTrapListQueued {
                             $logger->debug(
                                 "added trap $trapType at $switch_ip ifindex $switch_port to queued threadList"
                             );
-                            my $mysql_connection = db_connect();
-                            if ( !$mysql_connection ) {
-                                $logger->error(
-                                    "coudn't connect to MySQL server: "
-                                        . DBI->errstr );
-                            }
-                            $logger->trace("calling traplog_db_prepare");
-                            traplog_db_prepare($mysql_connection);
+
                             traplog_insert( $switch_ip, $switch_port,
                                 $trapType );
                             $lockLogger->trace(
@@ -939,13 +932,6 @@ sub handleTrap {
         return;
     }
 
-    $logger->trace("calling node_db_prepare");
-    node_db_prepare($mysql_connection);
-    $logger->trace("calling locationlog_db_prepare");
-    locationlog_db_prepare($mysql_connection);
-    $logger->trace("calling violation_db_prepare");
-    violation_db_prepare($mysql_connection);
-
     $switch->connectMySQL();
 
     # }}}2
@@ -968,7 +954,6 @@ sub handleTrap {
                 "$switch_ip ifIndex $switch_port is no longer in this VLAN -> Do nothing"
             );
             cleanupAfterThread( $switch_ip, $switch_port );
-            $mysql_connection->disconnect;
             $switch->disconnectRead();
             $switch->disconnectWrite();
             return;
@@ -1323,7 +1308,6 @@ sub handleTrap {
             "ERROR: secureDynamicMacAddrViolation traps are currently not supported by PacketFence. Please check our website frequently regarding upgrades !"
         );
         cleanupAfterThread( $switch_ip, $switch_port );
-        $mysql_connection->disconnect;
         $switch->disconnectRead();
         $switch->disconnectWrite();
         return;
@@ -1341,7 +1325,6 @@ sub handleTrap {
                 "security traps are configured on this switch port. Stopping DOWN trap handling here"
             );
             cleanupAfterThread( $switch_ip, $switch_port );
-            $mysql_connection->disconnect;
             $switch->disconnectRead();
             $switch->disconnectWrite();
             return;
@@ -1368,7 +1351,6 @@ sub handleTrap {
                 "security traps are configured on this switch port. Stopping UP trap handling here"
             );
             cleanupAfterThread( $switch_ip, $switch_port );
-            $mysql_connection->disconnect;
             $switch->disconnectRead();
             $switch->disconnectWrite();
             return;
@@ -1389,7 +1371,6 @@ sub handleTrap {
                 "MAC learnt traps are configured on this switch port. Stopping UP trap handling here"
             );
             cleanupAfterThread( $switch_ip, $switch_port );
-            $mysql_connection->disconnect;
             $switch->disconnectRead();
             $switch->disconnectWrite();
             return;
@@ -1430,7 +1411,6 @@ sub handleTrap {
                 "locking - unlocked threadLists_toBeKilled in handleTrap");
             if ( $mustRunCleanupAfterThread == 1 ) {
                 cleanupAfterThread( $switch_ip, $switch_port );
-                $mysql_connection->disconnect;
                 $switch->disconnectRead();
                 $switch->disconnectWrite();
                 return;
@@ -1621,7 +1601,6 @@ sub handleTrap {
 
     # cleanupAfterThread {{{2
     cleanupAfterThread( $switch_ip, $switch_port );
-    $mysql_connection->disconnect;
     $switch->disconnectRead();
     $switch->disconnectWrite();
 
@@ -1694,7 +1673,6 @@ sub normal_sighandler {
                 "coudn't connect to MySQL server: " . DBI->errstr );
         } else {
             $logger->trace("calling locationlog_db_prepare");
-            locationlog_db_prepare($mysql_connection);
             locationlog_close_all();
         }
     }

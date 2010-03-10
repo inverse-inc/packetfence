@@ -12,7 +12,15 @@ use lib '/usr/local/pf/lib';
 BEGIN { use_ok('pf::person') }
 
 my $md = Test::MockDBI::get_instance();
-$pf::db::dbh = DBI->connect( "", "", "" );
+$pf::db::dbh{0} = DBI->connect( "", "", "" );
+
+# TODO this used to work in the days where person_view(1) and person_view_all re-did their statement handlers in their
+# context (check mtn log). Probably some Test::MockDBI magic causing a problem.
+# this in the person_view sub worked:
+# my $query = get_db_handle()->prepare("select pid,firstname,lastname,email,telephone,company,address,notes from person where pid=?");
+# then my $ref = $query->fetchrow_...
+# also note that in pf::db::db_query_handler DBI::st will need to change in ref($db_statement) eq 'DBI::st') 
+# because ref() on the MockDBI returns DBI instead of DBI::st
 
 # Set of return values for given sql query
 $md->set_retval_scalar(

@@ -4,36 +4,16 @@ use strict;
 use warnings;
 use Log::Log4perl;
 
-use pf::db;
-
-our (
-    $is_report_db_prepared,
-
-    $report_active_all_sql,
-    $report_inactive_all_sql,
-    $report_unregistered_active_sql,
-    $report_unregistered_all_sql,
-    $report_registered_active_sql,
-    $report_registered_all_sql,
-    $report_os_active_sql,
-    $report_os_all_sql,
-    $report_osclass_all_sql,
-    $report_osclass_active_sql,
-    $report_unknownprints_all_sql,
-    $report_unknownprints_active_sql,
-    $report_openviolations_all_sql,
-    $report_openviolations_active_sql,
-    $report_statics_all_sql,
-    $report_statics_active_sql
-);
+use constant REPORT => 'pfcmd::report';
 
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA    = qw(Exporter);
     @EXPORT = qw(
-        $is_report_db_prepared
+        $report_db_prepared
         report_db_prepare
+
         report_os_all
         report_os_active
         report_osclass_all
@@ -54,86 +34,73 @@ BEGIN {
     );
 }
 
-$is_report_db_prepared = 0;
+use pf::db;
 
-#report_db_prepare($dbh);
+# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
+our $report_db_prepared = 0;
+# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
+# the hash if required
+our $report_statements = {};
 
 sub report_db_prepare {
-    my ($dbh) = @_;
-    db_connect($dbh);
     my $logger = Log::Log4perl::get_logger('pf::pfcmd::report');
-    $report_inactive_all_sql
-        = $dbh->prepare(
-        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os from node n LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.mac not in (select i.mac from iplog i where i.end_time=0 or i.end_time > now()) ]
-        );
-    $report_active_all_sql
-        = $dbh->prepare(
-        qq [ select n.mac,ip,start_time,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os from (node n,iplog i) LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]
-        );
-    $report_unregistered_all_sql
-        = $dbh->prepare(
-        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os FROM node n LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.status='unreg' ]
-        );
-    $report_unregistered_active_sql
-        = $dbh->prepare(
-        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os FROM (node n,iplog i) LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.status='unreg' and i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]
-        );
-    $report_registered_all_sql
-        = $dbh->prepare(
-        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os FROM node n LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.status='reg' ]
-        );
-    $report_registered_active_sql
-        = $dbh->prepare(
-        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os FROM (node n,iplog i) LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.status='reg' and i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]
-        );
-    $report_os_active_sql
-        = $dbh->prepare(
-        qq [ select o.description,n.dhcp_fingerprint,count(*) as count,ROUND(COUNT(*)/(SELECT COUNT(*) FROM node)*100,1) as percent FROM (node n,iplog i) LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.mac=i.mac and (i.end_time=0 or i.end_time > now()) group by o.description order by percent desc ]
-        );
-    $report_os_all_sql
-        = $dbh->prepare(
-        qq [select o.description,n.dhcp_fingerprint,count(*) as count,ROUND(COUNT(*)/(SELECT COUNT(*) FROM node)*100,1) as percent FROM node n LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id group by o.description order by percent desc ]
-        );
-    $report_osclass_all_sql
-        = $dbh->prepare(
-        qq [ select c.description,count(*) as count,ROUND(COUNT(*)/(SELECT COUNT(*) FROM node)*100,1) as percent from node n LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint left join os_mapping m on m.os_type=d.os_id left join os_class c on m.os_class=c.class_id group by c.description order by percent desc ]
-        );
-    $report_osclass_active_sql
-        = $dbh->prepare(
-        qq [ select c.description,count(*) as count,ROUND(COUNT(*)/(SELECT COUNT(*) FROM node,iplog where node.mac=iplog.mac and (iplog.end_time=0 or iplog.end_time > now()))*100,1) as percent from (node n,iplog i) LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint left join os_mapping m on m.os_type=d.os_id left join os_class c on m.os_class=c.class_id where n.mac=i.mac and (i.end_time=0 or i.end_time > now()) group by c.description order by percent desc ]
-        );
-    $report_unknownprints_all_sql
-        = $dbh->prepare(
-        qq [SELECT mac,dhcp_fingerprint,computername,user_agent FROM node WHERE dhcp_fingerprint NOT IN (SELECT fingerprint FROM dhcp_fingerprint) and dhcp_fingerprint!=0 ORDER BY dhcp_fingerprint, mac ]
-        );
-    $report_unknownprints_active_sql
-        = $dbh->prepare(
-        qq [SELECT node.mac,dhcp_fingerprint,computername,user_agent FROM node,iplog WHERE dhcp_fingerprint NOT IN (SELECT fingerprint FROM dhcp_fingerprint) and dhcp_fingerprint!=0 and node.mac=iplog.mac and (iplog.end_time=0 or iplog.end_time > now()) ORDER BY dhcp_fingerprint, mac]
-        );
-    $report_statics_all_sql
-        = $dbh->prepare(
-        qq [SELECT * FROM node WHERE dhcp_fingerprint="" OR dhcp_fingerprint IS NULL]
-        );
-    $report_statics_active_sql
-        = $dbh->prepare(
-        qq [SELECT * FROM node,iplog WHERE (dhcp_fingerprint="" OR dhcp_fingerprint IS NULL) AND node.mac=iplog.mac and (iplog.end_time=0 or iplog.end_time > now()) ]
-        );
-    $report_openviolations_all_sql
-        = $dbh->prepare(
-        qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as violation from violation v LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.vid=v.vid WHERE v.status="open" order by n.pid ]
-        );
-    $report_openviolations_active_sql
-        = $dbh->prepare(
-        qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as violation from (violation v, iplog i) LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.vid=v.vid WHERE v.status="open" and n.mac=i.mac and (i.end_time=0 or i.end_time > now()) order by n.pid ]
-        );
-    $is_report_db_prepared = 1;
+
+    $report_statements->{'report_inactive_all_sql'} = get_db_handle()->prepare(
+        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os from node n LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.mac not in (select i.mac from iplog i where i.end_time=0 or i.end_time > now()) ]);
+
+    $report_statements->{'report_active_all_sql'} = get_db_handle()->prepare(
+        qq [ select n.mac,ip,start_time,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os from (node n,iplog i) LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
+
+    $report_statements->{'report_unregistered_all_sql'} = get_db_handle()->prepare(
+        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os FROM node n LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.status='unreg' ]);
+
+    $report_statements->{'report_unregistered_active_sql'} = get_db_handle()->prepare(
+        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os FROM (node n,iplog i) LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.status='unreg' and i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
+
+    $report_statements->{'report_registered_all_sql'} = get_db_handle()->prepare(
+        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os FROM node n LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.status='reg' ]);
+
+    $report_statements->{'report_registered_active_sql'} = get_db_handle()->prepare(
+        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os FROM (node n,iplog i) LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.status='reg' and i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
+
+    $report_statements->{'report_os_active_sql'} = get_db_handle()->prepare(
+        qq [ select o.description,n.dhcp_fingerprint,count(*) as count,ROUND(COUNT(*)/(SELECT COUNT(*) FROM node)*100,1) as percent FROM (node n,iplog i) LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.mac=i.mac and (i.end_time=0 or i.end_time > now()) group by o.description order by percent desc ]);
+
+    $report_statements->{'report_os_all_sql'} = get_db_handle()->prepare(
+        qq [select o.description,n.dhcp_fingerprint,count(*) as count,ROUND(COUNT(*)/(SELECT COUNT(*) FROM node)*100,1) as percent FROM node n LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id group by o.description order by percent desc ]);
+
+    $report_statements->{'report_osclass_all_sql'} = get_db_handle()->prepare(
+        qq [ select c.description,count(*) as count,ROUND(COUNT(*)/(SELECT COUNT(*) FROM node)*100,1) as percent from node n LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint left join os_mapping m on m.os_type=d.os_id left join os_class c on m.os_class=c.class_id group by c.description order by percent desc ]);
+
+    $report_statements->{'report_osclass_active_sql'} = get_db_handle()->prepare(
+        qq [ select c.description,count(*) as count,ROUND(COUNT(*)/(SELECT COUNT(*) FROM node,iplog where node.mac=iplog.mac and (iplog.end_time=0 or iplog.end_time > now()))*100,1) as percent from (node n,iplog i) LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint left join os_mapping m on m.os_type=d.os_id left join os_class c on m.os_class=c.class_id where n.mac=i.mac and (i.end_time=0 or i.end_time > now()) group by c.description order by percent desc ]);
+
+    $report_statements->{'report_unknownprints_all_sql'} = get_db_handle()->prepare(
+        qq [SELECT mac,dhcp_fingerprint,computername,user_agent FROM node WHERE dhcp_fingerprint NOT IN (SELECT fingerprint FROM dhcp_fingerprint) and dhcp_fingerprint!=0 ORDER BY dhcp_fingerprint, mac ]);
+
+    $report_statements->{'report_unknownprints_active_sql'} = get_db_handle()->prepare(
+        qq [SELECT node.mac,dhcp_fingerprint,computername,user_agent FROM node,iplog WHERE dhcp_fingerprint NOT IN (SELECT fingerprint FROM dhcp_fingerprint) and dhcp_fingerprint!=0 and node.mac=iplog.mac and (iplog.end_time=0 or iplog.end_time > now()) ORDER BY dhcp_fingerprint, mac]);
+
+    $report_statements->{'report_statics_all_sql'} = get_db_handle()->prepare(
+        qq [SELECT * FROM node WHERE dhcp_fingerprint="" OR dhcp_fingerprint IS NULL]);
+
+    $report_statements->{'report_statics_active_sql'} = get_db_handle()->prepare(
+        qq [SELECT * FROM node,iplog WHERE (dhcp_fingerprint="" OR dhcp_fingerprint IS NULL) AND node.mac=iplog.mac and (iplog.end_time=0 or iplog.end_time > now()) ]);
+
+    $report_statements->{'report_openviolations_all_sql'} = get_db_handle()->prepare(
+        qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as violation from violation v LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.vid=v.vid WHERE v.status="open" order by n.pid ]);
+
+    $report_statements->{'report_openviolations_active_sql'} = get_db_handle()->prepare(
+        qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as violation from (violation v, iplog i) LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.vid=v.vid WHERE v.status="open" and n.mac=i.mac and (i.end_time=0 or i.end_time > now()) order by n.pid ]);
+
+    $report_db_prepared = 1;
     return 1;
 }
 
 sub report_os_all {
-    report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    my @data    = db_data($report_os_all_sql);
-    my $statics = scalar( db_data($report_statics_all_sql) );
+
+    my @data    = db_data(REPORT, $report_statements, 'report_os_all_sql');
+    my $statics = scalar(db_data(REPORT, $report_statements, 'report_statics_all_sql'));
     my $total   = 0;
     my @return_data;
 
@@ -167,9 +134,8 @@ sub report_os_all {
 }
 
 sub report_os_active {
-    report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    my @data    = db_data($report_os_active_sql);
-    my $statics = scalar( db_data($report_statics_active_sql) );
+    my @data    = db_data(REPORT, $report_statements, 'report_os_active_sql');
+    my $statics = scalar(db_data(REPORT, $report_statements, 'report_statics_active_sql'));
     my $total   = 0;
     my @return_data;
 
@@ -204,9 +170,9 @@ sub report_os_active {
 }
 
 sub report_osclass_all {
-    report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    my @data    = db_data($report_osclass_all_sql);
-    my $statics = scalar( db_data($report_statics_all_sql) );
+
+    my @data    = db_data(REPORT, $report_statements, 'report_osclass_all_sql');
+    my $statics = scalar(db_data(REPORT, $report_statements, 'report_statics_all_sql'));
     my $total   = 0;
     my @return_data;
 
@@ -241,9 +207,9 @@ sub report_osclass_all {
 }
 
 sub report_osclass_active {
-    report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    my @data    = db_data($report_osclass_active_sql);
-    my $statics = scalar( db_data($report_statics_active_sql) );
+
+    my @data    = db_data(REPORT, $report_statements, 'report_osclass_active_sql');
+    my $statics = scalar(db_data(REPORT, $report_statements, 'report_statics_active_sql'));
     my $total   = 0;
     my @return_data;
 
@@ -275,63 +241,51 @@ sub report_osclass_active {
 }
 
 sub report_active_all {
-    report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    return db_data($report_active_all_sql);
+    return db_data(REPORT, $report_statements, 'report_active_all_sql');
 }
 
 sub report_inactive_all {
-    report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    return db_data($report_inactive_all_sql);
+    return db_data(REPORT, $report_statements, 'report_inactive_all_sql');
 }
 
 sub report_unregistered_active {
-    report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    return db_data($report_unregistered_active_sql);
+    return db_data(REPORT, $report_statements, 'report_unregistered_active_sql');
 }
 
 sub report_unregistered_all {
-    report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    return db_data($report_unregistered_all_sql);
+    return db_data(REPORT, $report_statements, 'report_unregistered_all_sql');
 }
 
 sub report_active_reg {
-    report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    return db_data($report_registered_active_sql);
+    return db_data(REPORT, $report_statements, 'report_registered_active_sql');
 }
 
 sub report_registered_all {
-    report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    return db_data($report_registered_all_sql);
+    return db_data(REPORT, $report_statements, 'report_registered_all_sql');
 }
 
 sub report_registered_active {
-    report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    return db_data($report_registered_active_sql);
+    return db_data(REPORT, $report_statements, 'report_registered_active_sql');
 }
 
 sub report_openviolations_all {
-    report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    return db_data($report_openviolations_all_sql);
+    return db_data(REPORT, $report_statements, 'report_openviolations_all_sql');
 }
 
 sub report_openviolations_active {
-    report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    return db_data($report_openviolations_active_sql);
+    return db_data(REPORT, $report_statements, 'report_openviolations_active_sql');
 }
 
 sub report_statics_all {
-    report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    return db_data($report_statics_all_sql);
+    return db_data(REPORT, $report_statements, 'report_statics_all_sql');
 }
 
 sub report_statics_active {
-    report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    return db_data($report_statics_active_sql);
+    return db_data(REPORT, $report_statements, 'report_statics_active_sql');
 }
 
 sub report_unknownprints_all {
-    report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    my @data = db_data($report_unknownprints_all_sql);
+    my @data = db_data(REPORT, $report_statements, 'report_unknownprints_all_sql');
     foreach my $datum (@data) {
         $datum->{'vendor'} = oui_to_vendor( $datum->{'mac'} );
     }
@@ -339,8 +293,7 @@ sub report_unknownprints_all {
 }
 
 sub report_unknownprints_active {
-    report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    my @data = db_data($report_unknownprints_active_sql);
+    my @data = db_data(REPORT, $report_statements, 'report_unknownprints_active_sql');
     foreach my $datum (@data) {
         $datum->{'vendor'} = oui_to_vendor( $datum->{'mac'} );
     }

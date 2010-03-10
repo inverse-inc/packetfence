@@ -182,16 +182,12 @@ sub arp_detector {
 
 sub process_packet {
     my ( $user_data, $header, $packet ) = @_;
-    my $mydbh = 0;
-    db_connect( $mydbh, 'iplog', 'node' );
     listen_arp($packet) if ($packet);
 }
 
 sub dhcp_scoper {
-    my $mydbh;
     my $logger = Log::Log4perl::get_logger('pfmon::dhcp_scoper');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
-    db_connect( $mydbh, 'node', 'violation' );
 
     my %isolated;
     my %oldisolated;
@@ -359,7 +355,6 @@ sub arp_gun {
     $logger->info("Starting ARP gun thread");
 
     #lock($arp_signal);
-    my $mydbh = 0;
 
     $last_goodbye = time();
 
@@ -367,7 +362,6 @@ sub arp_gun {
     sleep($arp_interval);
 
     while (1) {
-        db_connect( $mydbh, 'iplog', 'node', 'violation' );
 
         #reset the flag as we are going to arp now
         if ($rearp_flag) {
@@ -490,8 +484,6 @@ sub cleanup {
     my $logger = Log::Log4perl::get_logger('pfmon::cleanup');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
     $logger->info("Starting cleanup thread");
-    my $mydbh;
-    db_connect( $mydbh, 'iplog', 'node', 'locationlog', 'traplog' );
 
     if ( !$restart ) {
         $logger->info("closing open iplogs (just in case)");
@@ -528,7 +520,6 @@ sub cleanup {
 
     my $counter = 0;
     while (1) {
-        db_connect( $mydbh, 'iplog', 'node', 'locationlog' );
         $counter = ( $counter + 1 ) % 10;
 
         #
@@ -692,9 +683,6 @@ sub normal_sighandler {
         $logger->info(
             "caught SIG" . $_[0] . " - closing open iplogs and untrapping" );
 
-        my $mydbh;
-        db_connect( $mydbh, 'iplog', 'node', 'violation' );
-
         if ( isenabled( $Config{'arp'}{'cleanshutdown'} ) ) {
             my @violators = violation_view_all_active();
             foreach my $violator (@violators) {
@@ -714,13 +702,15 @@ Kevin Amorin <kev@amorin.org>
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009 Inverse inc.
+Copyright (C) 2009,2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

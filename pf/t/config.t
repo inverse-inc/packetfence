@@ -76,3 +76,5 @@ foreach my $section ( tied(%doc)->Sections ) {
         }
     }
 }
+
+# TODO add tests for configfile import / export
