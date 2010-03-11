@@ -46,7 +46,42 @@
 	ifIndex larger than two digits to appear in fake MAC. Fixes #921;
 	http://www.packetfence.org/mantis/view.php?id=921
 
+	* pf/lib/pf/locationlog.pm, pf/lib/pf/node.pm, 
+	pf/lib/pf/pfcmd/report.pm: locationlog and node views are now returning
+	the human translated connection_type instead of straight from database
+	Also took the opportunity to turn report.pm into a real module.
+
+	* pf/html/admin/common.php, pf/lib/pf/config.pm: Changed the long name
+	of the SNMP-based connection type.
+
+2010-02-25	Olivier Bilodeau <obilodeau@inverse.ca>
+	On the road towards radius and traps unification.
+	- Major overhaul of the way we think about nodes: two new fields 
+	connection_type and voip
+	- Updated all affected components
+	
+2010-02-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/sbin/pfsetvlan: Cleaning up direct MySQL leftovers
+	Removing DBI and pf::db deps
+	Removed all manual mysql connections
+
+	* pf/lib/pf/action.pm: Minor refactoring: Extracted action autoreg into
+	it's own sub.
+
+2010-02-12	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/action.pm, pf/lib/pf/node.pm, pf/lib/pf/vlan.pm, 
+	pf/sbin/pfsetvlan, pf/t/vlan.t: Refactoring
+	Merged the different auto-registration mechanisms into node.pm and 
+	vlan.pm out of pfsetvlan.
+	Removed duplicated code and raw SQL from pfsetvlan. 
+	Massive POD doc and refactoring of vlan.pm.
+	Updated associated copyrights.
+
 2010-02-11	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/vlan.pm, pf/sbin/pfsetvlan: Avoided duplicated code, 
+	renamed vlan.pm's custom_getNodeInfo to getNodeUpdatedInfo and modified
+	it.
+
 	* pf/lib/pf/pfcmd/pfcmd.pm: Allow ! in value field when quoted. Fixes
 	#911;
 	http://www.packetfence.org/mantis/view.php?id=911
@@ -214,11 +249,66 @@
 	* pf/html/user/content/templates/register_1.html: Fixed missing
 	closing html tags
 
+2009-12-24	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/radius.pm, pf/lib/radius/custom.pm: Layed the foundation
+	for our new integrated way of assigning VLANs through SOAP calls.
+
+2009-12-23	Olivier Bilodeau <obilodeau@inverse.ca>
+	* renamed pf/addons/802.1X/rlm_perl_packetfence.pl to 
+	pf/addons/802.1X/rlm_perl_packetfence_sql.pl, added 
+	pf/addons/802.1X/rlm_perl_packetfence_soap.pl, modified 
+	pf/cgi-bin/pdp.cgi, pf/addons/802.1X/README: Added full SOAP client for
+	freeradius (rlm_perl_packetfence_soap.pl) and server side placeholder 
+	sub.
+
+2009-12-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/pfdetect_remote/sbin/pfdetect_remote, pf/cgi-bin/pdp.cgi:
+	Changed SOAP URI identifier to http://www.packetfence.org/PFAPI
+
+	* renamed pf/t/SNMP.t to pf/t/hardware-snmp-objects.t, modified 
+	t/SNMP.t: Added tests specific to lib/SNMP.pm (renamed other tests)
+
+	* pf/bin/pfcmd, pf/conf/switches.conf, pf/conf/ui.conf, 
+	pf/conf/violations.conf, pf/html/admin/configuration/switches.php, 
+	pf/lib/pf/SNMP.pm, pf/lib/pf/pfcmd/pfcmd.pm, pf/lib/pf/SwitchFactory.pm:
+	added fields guestVlan customVlan1 customVlan2 customVlan3 customVlan4 
+	customVlan5 as valid vlan definitions in switches.conf
+
+	* pf/bin/pfcmd_vlan:
+	- realigned spacing of pod2usage (was broken by tabs)
+	- updated copyright, authors
+	- new parameter -vlanName
+	- using setVlanByName instead of newly deprecated setIsolationVlan and
+	  setNormalVlan
+
+	* pf/lib/pf/SNMP.pm: 
+	- new sub setVlanByName, sets switch/ifIndex a vlan according to what's
+	  defined in switches.conf
+	- new sub placeholder for the future: setVlanWithName
+	- deprecated setIsolationVlan, setRegistrationVlan, setNormalVlan
+	- setVlanAllPort now sets vlan according to # or name based on what the
+	  value of vlan is
+
 2009-12-22	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/html/admin/login.php: Fixed "username" Cross-Site Scripting
 	Vulnerability as reported by Secunia advisory 37844 available at:
 	http://secunia.com/advisories/37844/. Fixes #884;
 	http://www.packetfence.org/mantis/view.php?id=884
+
+2009-12-18	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/t/vlan.t, pf/t/data/switches.conf: New vlan.t testsuite that tests
+	lib/pf/vlan.pm. Some pretty interesting learning made there, definitely
+	more to come on the test front.
+
+	* pf/lib/vlan.pm: Removed several warnings discovered while building a
+	vlan test
+
+2009-12-17	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/templates/httpd.conf.apache22, 
+	pf/conf/templates/httpd.conf.pre_apache22: pdp.cgi uses mod_perl 
+	instead of being a simple cgi. Big performance gain (6x in my tests)
+
+	* pf/packetfence.spec: mod_perl as a packetfence dependency
 
 2009-12-17	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec: Added perl-LWP-UserAgent-Determined as a 

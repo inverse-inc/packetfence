@@ -1,4 +1,19 @@
 package pf::pfcmd::report;
+=head1 NAME
+
+pf::pfcmd::report - all about reports
+
+=cut
+
+=head1 DESCRIPTION
+
+TBD
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Read the F<pf.conf> configuration file.
+
+=cut
 
 use strict;
 use warnings;
@@ -31,6 +46,8 @@ BEGIN {
         report_statics_active
         report_unknownprints_all
         report_unknownprints_active
+
+        translate_connection_type
     );
 }
 
@@ -42,6 +59,13 @@ our $report_db_prepared = 0;
 # the hash if required
 our $report_statements = {};
 
+=head1 SUBROUTINES
+
+TODO: list incomplete
+
+=over
+
+=cut
 sub report_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::pfcmd::report');
 
@@ -61,8 +85,6 @@ sub report_db_prepare {
         qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os FROM node n LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.status='reg' ]);
 
     $report_statements->{'report_registered_active_sql'} = get_db_handle()->prepare(
-        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os FROM (node n,iplog i) LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.status='reg' and i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
-
     $report_statements->{'report_os_active_sql'} = get_db_handle()->prepare(
         qq [ select o.description,n.dhcp_fingerprint,count(*) as count,ROUND(COUNT(*)/(SELECT COUNT(*) FROM node)*100,1) as percent FROM (node n,iplog i) LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.mac=i.mac and (i.end_time=0 or i.end_time > now()) group by o.description order by percent desc ]);
 
@@ -94,6 +116,8 @@ sub report_db_prepare {
         qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as violation from (violation v, iplog i) LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.vid=v.vid WHERE v.status="open" and n.mac=i.mac and (i.end_time=0 or i.end_time > now()) order by n.pid ]);
 
     $report_db_prepared = 1;
+        );
+    $is_report_db_prepared = 1;
     return 1;
 }
 
@@ -268,20 +292,20 @@ sub report_registered_active {
     return db_data(REPORT, $report_statements, 'report_registered_active_sql');
 }
 
-sub report_openviolations_all {
-    return db_data(REPORT, $report_statements, 'report_openviolations_all_sql');
+    return translate_connection_type(db_data(REPORT, $report_statements, 'report_statics_all_sql'));
 }
 
 sub report_openviolations_active {
-    return db_data(REPORT, $report_statements, 'report_openviolations_active_sql');
-}
+    return translate_connection_type(db_data(REPORT, $report_statements, 'report_statics_active_sql'));
 
 sub report_statics_all {
-    return db_data(REPORT, $report_statements, 'report_statics_all_sql');
+    report_db_prepare($dbh) if ( !$is_report_db_prepared );
+    return translate_connection_type(db_data($report_statics_all_sql));
 }
 
 sub report_statics_active {
-    return db_data(REPORT, $report_statements, 'report_statics_active_sql');
+    report_db_prepare($dbh) if ( !$is_report_db_prepared );
+    return translate_connection_type(db_data($report_statics_active_sql));
 }
 
 sub report_unknownprints_all {
@@ -299,6 +323,30 @@ sub report_unknownprints_active {
     }
     return (@data);
 }
+
+=item * translate_connection_type
+
+Translates connection_type database string into a human-understandable string
+
+=cut
+# TODO we can probably be more efficient than that by passing references and stuff
+sub translate_connection_type {
+    my (@data) = @_;
+
+    # change connection_type into its meaningful to humans counterpart
+    foreach my $datum (@data) {
+
+        my $conn_type = str_to_connection_type($datum->{'connection_type'});
+        if (defined($conn_type)) {
+            $datum->{'connection_type'} = $connection_type_explained{$conn_type};
+        } else {
+            $datum->{'connection_type'} = "UNKNOWN";
+        }
+    }
+    return (@data);
+}
+
+=back
 
 =head1 AUTHOR
 
