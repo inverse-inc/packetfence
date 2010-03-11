@@ -68,33 +68,29 @@ sub graph_unregistered {
     my ($interval) = @_;
 
     my $graph = "graph_unregistered_" . $interval . "_sql";
-    no strict 'refs';
-    return (db_data(GRAPH, $graph_statements, $$graph));
+    return (db_data(GRAPH, $graph_statements, $graph));
 }
 
 sub graph_registered {
     my ($interval) = @_;
 
     my $graph = "graph_registered_" . $interval . "_sql";
-    no strict 'refs';
-    return (db_data(GRAPH, $graph_statements, $$graph));
+    return (db_data(GRAPH, $graph_statements, $graph));
 }
 
 sub graph_violations {
     my ($interval) = @_;
     my $graph = "graph_violations_" . $interval . "_sql";
-    no strict 'refs';
-    return (db_data(GRAPH, $graph_statements, $$graph));
+    return (db_data(GRAPH, $graph_statements, $graph));
 }
 
 sub graph_nodes {
     my ($interval) = @_;
 
-    no strict 'refs';
     my $graph  = "graph_registered_" . $interval . "_sql";
-    my @return = db_data(GRAPH, $graph_statements, $$graph);
+    my @return = db_data(GRAPH, $graph_statements, $graph);
     $graph = "graph_unregistered_" . $interval . "_sql";
-    push( @return, db_data(GRAPH, $graph_statements, $$graph) );
+    push( @return, db_data(GRAPH, $graph_statements, $graph) );
     return ( sort { $a->{'mydate'} cmp $b->{'mydate'} } @return );
 
 }

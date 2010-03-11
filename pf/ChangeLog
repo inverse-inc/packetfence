@@ -1,3 +1,8 @@
+2010-03-11	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/pfcmd/graph.pm, pf/t/all.t, pf/t/graph.t: Fixed problem 
+	introduced in the database improvements concerning graphs
+	Added a test case to validate it
+
 2010-03-10	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/addons/accounting.pl, pf/addons/recovery.pl, pf/lib/pf/action.pm,
 	pf/lib/pf/class.pm, pf/lib/pf/configfile.pm, pf/lib/pf/db.pm, 

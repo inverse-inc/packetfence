@@ -19,5 +19,6 @@ runtests( qw(
               php.t
               services.t
               data.t
+              graph.t
             )
 );
