@@ -17,6 +17,12 @@ couldn't find an easy way to determine (using SNMP) if a given
 VLAN is defined or not ... VLANs which don't have ports assigned to
 them simply don't seem to appear using SNMP
 
+=head1 STATUS
+
+Currently only supports linkUp / linkDown mode
+
+Developed and tested on FastIron 4802 running on image version 07.8.04aT53
+
 =cut
 
 use strict;
@@ -68,6 +74,7 @@ sub parseTrap {
 sub isDefinedVlan {
     my ( $this, $vlan ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
+    # TODO ideally we should implement that
     $logger->debug("isDefinedVlan called for Foundry switch. "
                    . "returning true even though we don't know !");
     return 1;
@@ -168,13 +175,21 @@ sub getMaxMacAddresses {
     }
 }
 
+=head1 BUGS AND LIMITATIONS
+    
+You cannot run a network with VLAN 1 as your normal VLAN with these switches.
+ 
+SNMPv3 support was not tested.
+
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2009 Inverse inc.
+Copyright (C) 2009,2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

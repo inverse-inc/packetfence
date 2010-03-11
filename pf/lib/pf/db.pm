@@ -174,6 +174,10 @@ sub db_data {
 =cut
 #TODO we should mesure the performance and security benefit of using prepared statements because they 
 # cause a lot of complexity
+# TODO refactoring: getrid of all the module discovery magic and have the clients pass a reference to 
+# the module itself and call is_db_prepared() and db_prepare_sub(). 
+# this would remove most magic and unneeded string magic
+# afterwards: remove export of $<module>_db_prepared and <module>_db_prepare()
 sub db_query_execute {
     my ($from_module, $module_statements_ref, $query, @params) = @_;
     my $logger = Log::Log4perl::get_logger('pf::db');
