@@ -80,94 +80,62 @@ TODO: This list is incomlete
 sub node_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::node');
     $logger->debug("Preparing pf::node database queries");
-    $node_exist_sql = $dbh->prepare(qq[ select mac from node where mac=? ]);
-    $node_pid_sql   = $dbh->prepare(
-        qq[ select count(*) from node where status='reg' and pid=? ]);
-    $node_add_sql
-        = $dbh->prepare(
-        qq[ insert into node(mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,dhcp_fingerprint,last_arp,last_dhcp,switch,port,vlan,voip,connection_type) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ]
-        );
-    $node_delete_sql = $dbh->prepare(qq[ delete from node where mac=? ]);
-    $node_modify_sql
-        = $dbh->prepare(
-        qq[ update node set mac=?,pid=?,detect_date=?,regdate=?,unregdate=?,lastskip=?,status=?,user_agent=?,computername=?,notes=?,dhcp_fingerprint=?,last_arp=?,last_dhcp=?,switch=?,port=?,vlan=?,voip=?,connection_type=? where mac=? ]
-        );
-    $node_view_sql
-        = $dbh->prepare(
-        qq[ select node.mac,node.pid,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,ifnull(openviolations.nb,0) as nbopenviolations,node.voip,node.connection_type from node left join (select violation.mac,count(*) as nb from violation where status='open' group by violation.mac) as openviolations on node.mac=openviolations.mac where node.mac=? ]
-        );
-    $node_view_with_fingerprint_sql
-        = $dbh->prepare(
-        qq[ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,ifnull(os_class.description, ' ') as dhcp_fingerprint,switch,port,vlan,node.voip,node.connection_type from node left join dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id where mac=? ]
-        );
-    $node_view_all_sql
-        = "select node.mac,node.pid,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,ifnull(openviolations.nb,0) as nbopenviolations,node.voip,node.connection_type from node left join (select violation.mac,count(*) as nb from violation where status='open' group by violation.mac) as openviolations on node.mac=openviolations.mac";
+
+    $node_statements->{'node_exist_sql'} = get_db_handle()->prepare(qq[ select mac from node where mac=? ]);
+
+    $node_statements->{'node_pid_sql'} = get_db_handle()->prepare( qq[ select count(*) from node where status='reg' and pid=? ]);
+
+    $node_statements->{'node_add_sql'} = get_db_handle()->prepare(
+        qq[ insert into node(mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,dhcp_fingerprint,last_arp,last_dhcp,switch,port,vlan,voip,connection_type) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ]);
+
+    $node_statements->{'node_delete_sql'} = get_db_handle()->prepare(qq[ delete from node where mac=? ]);
+
+    $node_statements->{'node_modify_sql'} = get_db_handle()->prepare(
+        qq[ update node set mac=?,pid=?,detect_date=?,regdate=?,unregdate=?,lastskip=?,status=?,user_agent=?,computername=?,notes=?,dhcp_fingerprint=?,last_arp=?,last_dhcp=?,switch=?,port=?,vlan=?,voip=?,connection_type=? where mac=? ]);
+
+    $node_statements->{'node_view_sql'} = get_db_handle()->prepare(
+        qq[ select node.mac,node.pid,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,count(violation.mac) as nbopenviolations,node.voip,node.connection_type from node left join violation on node.mac=violation.mac and violation.status='open' where node.mac=? group by node.mac ]);
+
+    $node_statements->{'node_view_with_fingerprint_sql'} = get_db_handle()->prepare(
+        qq[ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,ifnull(os_class.description, ' ') as dhcp_fingerprint,switch,port,vlan,node.voip,node.connection_type from node left join dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id where mac=? ]);
+
+    # This guy here is special, have a look in node_view_all to see why
+    $node_statements->{'node_view_all_sql'}
+        = "select node.mac,node.pid,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,count(violation.mac) as nbopenviolations,,node.voip,node.connection_type from node left join violation on node.mac=violation.mac and violation.status='open' group by node.mac";
+
+    # This guy here is special, have a look in node_view_all to see why
     $node_count_all_sql = "select count(*) as nb from node";
-    $node_ungrace_sql
-        = $dbh->prepare(
+
+    $node_statements->{'node_ungrace_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where status="grace" and unix_timestamp(now())-unix_timestamp(lastskip) > ]
-            . $Config{'registration'}{'skip_reminder'} );
+            . $Config{'registration'}{'skip_reminder'});
 
     $node_statements->{'node_expire_unreg_field_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where status="reg" and unregdate != 0 and unregdate < now() ]);
 
     $node_statements->{'node_expire_window_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where status="reg" and unix_timestamp(regdate) + ]
-            . $Config{'registration'}{'expire_window'}
-            . qq[ < unix_timestamp(now()) ] );
+            . $Config{'registration'}{'expire_window'} . qq[ < unix_timestamp(now()) ] );
 
     $node_statements->{'node_expire_deadline_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where status="reg" and regdate < ]
             . $Config{'registration'}{'expire_deadline'} );
-    $node_expire_session_sql
-        = $dbh->prepare(
-        qq [ update node n set n.status="unreg" where n.status="reg" and n.mac not in (select i.mac from iplog i where (i.end_time=0 or i.end_time > now())) and n.mac not in (select i.mac from iplog i where end_time!=0 and unix_timestamp(now())-unix_timestamp(i.end_time) < ]
-            . $Config{'registration'}{'expire_session'} );
-    $node_expire_lastarp_sql
-        = $dbh->prepare(
-        qq [ select mac from node where unix_timestamp(last_arp) < (unix_timestamp(now()) - ?) and last_arp!=0 ]
-        );
-    $node_unregistered_sql
-        = $dbh->prepare(
-        qq [ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,switch,port,vlan,voip,connection_type from node where status="unreg" and mac=? ]
-        );
-    $nodes_unregistered_sql
-        = $dbh->prepare(
-        qq [ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,switch,port,vlan,voip,connection_type from node where status="unreg" ]
-        );
-    $nodes_registered_sql
-        = $dbh->prepare(
-        qq [ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,switch,port,vlan,voip,connection_type from node where status="reg" ]
-        );
-    $nodes_registered_not_violators_sql
-        = $dbh->prepare(
-        qq [ select mac from node where status="reg" and mac not in (select mac from violation where status="open" group by mac) ]
-        );
-    $nodes_active_unregistered_sql
-        = $dbh->prepare(
-        qq [ select n.mac,n.pid,n.detect_date,n.regdate,n.unregdate,n.lastskip,n.status,n.user_agent,n.computername,n.notes,i.ip,i.start_time,i.end_time,n.last_arp from node n left join iplog i on n.mac=i.mac where n.status="unreg" and (i.end_time=0 or i.end_time > now()) ]
-        );
-    $nodes_active_sql
-        = $dbh->prepare(
-        qq [ select n.mac,n.pid,n.detect_date,n.regdate,n.unregdate,n.lastskip,n.status,n.user_agent,n.computername,n.notes,n.dhcp_fingerprint,i.ip,i.start_time,i.end_time,n.last_arp from node n, iplog i where n.mac=i.mac and (i.end_time=0 or i.end_time > now()) ]
-        );
-    $node_update_lastarp_sql
-        = $dbh->prepare(qq [ update node set last_arp=now() where mac=? ]);
 
     $node_statements->{'node_expire_session_sql'} = get_db_handle()->prepare(
-        qq [ update node n set n.status="unreg" where n.status="reg" and n.mac not in (select i.mac from iplog i where (i.end_time=0 or i.end_time > now())) and n.mac not in (select i.mac from iplog i where end_time!=0 and unix_timestamp(now())-unix_timestamp(i.end_time) < ] . $Config{'registration'}{'expire_session'} );
+        qq [ update node n set n.status="unreg" where n.status="reg" and n.mac not in (select i.mac from iplog i where (i.end_time=0 or i.end_time > now())) and n.mac not in (select i.mac from iplog i where end_time!=0 and unix_timestamp(now())-unix_timestamp(i.end_time) < ]
+            . $Config{'registration'}{'expire_session'} );
 
     $node_statements->{'node_expire_lastarp_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where unix_timestamp(last_arp) < (unix_timestamp(now()) - ?) and last_arp!=0 ]);
 
     $node_statements->{'node_unregistered_sql'} = get_db_handle()->prepare(
-        qq [ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,switch,port,vlan from node where status="unreg" and mac=? ]);
+        qq [ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,switch,port,vlan,voip,connection_type from node where status="unreg" and mac=? ]);
 
     $node_statements->{'nodes_unregistered_sql'} = get_db_handle()->prepare(
-        qq [ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,switch,port,vlan from node where status="unreg" ]);
+        qq [ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,switch,port,vlan,voip,connection_type from node where status="unreg" ]);
 
     $node_statements->{'nodes_registered_sql'} = get_db_handle()->prepare(
-        qq [ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,switch,port,vlan from node where status="reg" ]);
+        qq [ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,switch,port,vlan,voip,connection_type from node where status="reg" ]);
 
     $node_statements->{'nodes_registered_not_violators_sql'} = get_db_handle()->prepare(
         qq [ select node.mac from node left join violation on node.mac=violation.mac and violation.status='open' where node.status='reg' group by node.mac having count(violation.mac)=0 ]);
@@ -178,7 +146,8 @@ sub node_db_prepare {
     $node_statements->{'nodes_active_sql'} = get_db_handle()->prepare(
         qq [ select n.mac,n.pid,n.detect_date,n.regdate,n.unregdate,n.lastskip,n.status,n.user_agent,n.computername,n.notes,n.dhcp_fingerprint,i.ip,i.start_time,i.end_time,n.last_arp from node n, iplog i where n.mac=i.mac and (i.end_time=0 or i.end_time > now()) ]);
 
-    $node_statements->{'node_update_lastarp_sql'} = get_db_handle()->prepare(qq [ update node set last_arp=now() where mac=? ]);
+    $node_statements->{'node_update_lastarp_sql'}
+        = get_db_handle()->prepare(qq [ update node set last_arp=now() where mac=? ]);
 
     $node_db_prepared = 1;
     return 1;
@@ -345,7 +314,11 @@ sub node_count_all {
     # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
     # and pf::db will recognize it and prepare it as such
     $node_statements->{'node_count_all_sql_custom'} = $node_count_all_sql;
-    return db_data(NODE, $node_statements, 'node_count_all_sql_custom');
+
+    require pf::pfcmd::report;
+    import pf::pfcmd::report;
+
+    return translate_connection_type(db_data(NODE, $node_statements, 'node_view_all_sql_custom'));
 }
 
 =item * node_view_all

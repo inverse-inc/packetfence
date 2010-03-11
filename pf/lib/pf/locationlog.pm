@@ -75,58 +75,58 @@ sub locationlog_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::locationlog');
     $logger->debug("Preparing pf::locationlog database queries");
 
-    $locationlog_statements->{'locationlog_history_mac_sql'} = $dbh->prepare(
+    $locationlog_statements->{'locationlog_history_mac_sql'} = get_db_handle()->prepare(
         qq [ select mac,switch,port,vlan,voip,connection_type,start_time,end_time from locationlog where mac=? order by start_time desc, isnull(end_time) desc, end_time desc ]);
 
-    $locationlog_statements->{'locationlog_history_switchport_sql'} = $dbh->prepare(
+    $locationlog_statements->{'locationlog_history_switchport_sql'} = get_db_handle()->prepare(
         qq [ select mac,switch,port,vlan,voip,connection_type,start_time,end_time from locationlog where switch=? and port=? order by start_time desc, isnull(end_time) desc, end_time desc ]);
 
-    $locationlog_statements->{'locationlog_history_mac_date_sql'} = $dbh->prepare(
+    $locationlog_statements->{'locationlog_history_mac_date_sql'} = get_db_handle()->prepare(
         qq [ select mac,switch,port,vlan,voip,connection_type,start_time,end_time from locationlog where mac=? and start_time < from_unixtime(?) and (end_time > from_unixtime(?) or isnull(end_time)) order by start_time desc, isnull(end_time) desc, end_time desc ]);
 
-    $locationlog_statements->{'locationlog_history_switchport_date_sql'} = $dbh->prepare(
+    $locationlog_statements->{'locationlog_history_switchport_date_sql'} = get_db_handle()->prepare(
         qq [ select mac,switch,port,vlan,voip,connection_type,start_time,end_time from locationlog where switch=? and port=? and start_time < from_unixtime(?) and (end_time > from_unixtime(?) or isnull(end_time)) order by start_time desc, isnull(end_time) desc, end_time desc ]);
 
-    $locationlog_statements->{'locationlog_view_all_sql'} = $dbh->prepare(
+    $locationlog_statements->{'locationlog_view_all_sql'} = get_db_handle()->prepare(
         qq [ select mac,switch,port,vlan,voip,connection_type,start_time,end_time from locationlog order by start_time desc, end_time desc]);
 
-    $locationlog_statements->{'locationlog_view_open_sql'} = $dbh->prepare(
+    $locationlog_statements->{'locationlog_view_open_sql'} = get_db_handle()->prepare(
         qq [ select mac,switch,port,vlan,voip,connection_type,start_time,end_time from locationlog where isnull(end_time) or end_time=0 order by start_time desc ]);
 
-    $locationlog_statements->{'locationlog_view_open_mac_sql'} = $dbh->prepare(
+    $locationlog_statements->{'locationlog_view_open_mac_sql'} = get_db_handle()->prepare(
         qq [ select mac,switch,port,vlan,voip,connection_type,start_time,end_time from locationlog where mac=? and (isnull(end_time) or end_time=0) order by start_time desc]);
 
-    $locationlog_statements->{'locationlog_view_open_switchport_sql'} = $dbh->prepare(
+    $locationlog_statements->{'locationlog_view_open_switchport_sql'} = get_db_handle()->prepare(
         qq [ select mac,switch,port,vlan,voip,connection_type,start_time,end_time from locationlog where switch=? and port=? and voip=? and (isnull(end_time) or end_time = 0) order by start_time desc]);
 
-    $locationlog_statements->{'locationlog_view_open_switchport_no_VoIP_sql'} = $dbh->prepare(
+    $locationlog_statements->{'locationlog_view_open_switchport_no_VoIP_sql'} = get_db_handle()->prepare(
         qq [ select mac,switch,port,vlan,voip,connection_type,start_time,end_time from locationlog where switch=? and port=? and (voip='no' or voip='') and (isnull(end_time) or end_time = 0) order by start_time desc]);
 
-    $locationlog_statements->{'locationlog_view_open_switchport_only_VoIP_sql'} = $dbh->prepare(
+    $locationlog_statements->{'locationlog_view_open_switchport_only_VoIP_sql'} = get_db_handle()->prepare(
         qq [ select mac,switch,port,vlan,voip,connection_type,start_time,end_time from locationlog where switch=? and port=? and voip='yes' and (isnull(end_time) or end_time = 0) order by start_time desc]);
 
-    $locationlog_statements->{'locationlog_insert_start_no_mac_sql'} = $dbh->prepare(
+    $locationlog_statements->{'locationlog_insert_start_no_mac_sql'} = get_db_handle()->prepare(
         qq [ INSERT INTO locationlog (mac, switch, port, vlan, voip, connection_type, start_time) VALUES(NULL,?,?,?,?,?,NOW())]);
 
-    $locationlog_statements->{'locationlog_insert_start_with_mac_sql'} = $dbh->prepare(
+    $locationlog_statements->{'locationlog_insert_start_with_mac_sql'} = get_db_handle()->prepare(
         qq [ INSERT INTO locationlog (mac, switch, port, vlan, voip, connection_type, start_time) VALUES(?,?,?,?,?,?,NOW())]);
 
-    $locationlog_statements->{'locationlog_update_end_switchport_sql'} = $dbh->prepare(
+    $locationlog_statements->{'locationlog_update_end_switchport_sql'} = get_db_handle()->prepare(
         qq [ UPDATE locationlog SET end_time = now() WHERE switch = ? AND port = ? AND (ISNULL(end_time) or end_time = 0) ]);
 
-    $locationlog_statements->{'locationlog_update_end_switchport_no_VoIP_sql'} = $dbh->prepare(
+    $locationlog_statements->{'locationlog_update_end_switchport_no_VoIP_sql'} = get_db_handle()->prepare(
         qq [ UPDATE locationlog SET end_time = now() WHERE switch = ? AND port = ? AND (voip='no' or voip='') AND (ISNULL(end_time) or end_time = 0) ]);
 
-    $locationlog_statements->{'locationlog_update_end_switchport_only_VoIP_sql'} = $dbh->prepare(
+    $locationlog_statements->{'locationlog_update_end_switchport_only_VoIP_sql'} = get_db_handle()->prepare(
         qq [ UPDATE locationlog SET end_time = now() WHERE switch = ? AND port = ? AND voip='yes' AND (ISNULL(end_time) or end_time = 0) ]);
 
-    $locationlog_statements->{'locationlog_update_end_mac_sql'} = $dbh->prepare(
+    $locationlog_statements->{'locationlog_update_end_mac_sql'} = get_db_handle()->prepare(
         qq [ UPDATE locationlog SET end_time = now() WHERE mac = ? AND (ISNULL(end_time) or end_time = 0)]);
 
-    $locationlog_statements->{'locationlog_close_sql'} = $dbh->prepare(
+    $locationlog_statements->{'locationlog_close_sql'} = get_db_handle()->prepare(
         qq [ UPDATE locationlog SET end_time = now() WHERE (ISNULL(end_time) or end_time = 0)]);
 
-    $locationlog_statements->{'locationlog_cleanup_sql'} = $dbh->prepare(
+    $locationlog_statements->{'locationlog_cleanup_sql'} = get_db_handle()->prepare(
         qq [ delete from locationlog where unix_timestamp(end_time) < (unix_timestamp(now()) - ?) and end_time != 0 ]);
 
     $locationlog_db_prepared = 1;
