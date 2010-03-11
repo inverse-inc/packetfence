@@ -29,6 +29,21 @@
 	* pf/lib/pf/pfcmd/dashboard.pm, pf/lib/pf/pfcmd/graph.pm,
 	pf/lib/pf/pfcmd/report.pm: These files are now a module.
 
+2010-03-05	Regis Balzard <rbalzard@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Routed VLANs 
+	documentation and a schema to explain
+
+	* pf/README_SWITCHES, pf/docs/PacketFence_Administration_Guide.odt,
+	pf/html/admin/configuration/switches_add.php, 
+	pf/html/admin/configuration/switches_edit.php, pf/t/SNMP.t,
+	pf/lib/pf/SNMP/Cisco/Catalyst_3750.pm, pf/t/critic.t, pf/t/pod.t: 
+	Added support for Cisco Catalyst 3750
+
+2010-03-04	Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/node.pm: Query optimization (avoid sub-selects)
+	Massive improvement of query duration: from a couple of minutes to 
+	sub-second on a 25 000 nodes setup.
+
 2010-02-26	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/html/admin/violation/add.php, pf/html/admin/violation/edit.php:
 	Fixed a regression where the violation edit page on the web admin would
