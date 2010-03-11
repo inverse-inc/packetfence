@@ -35,9 +35,9 @@
 #
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 1.8.7
+Version: 1.8.8
 # Update here on each release/snapshot
-%define source_release 1
+%define source_release 0.20100311
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -50,9 +50,9 @@ Packager: Inverse inc. <support@inverse.ca>
 Vendor: PacketFence, http://www.packetfence.org
 
 # for snapshot releases
-#Source: http://www.packetfence.org/downloads/%{name}-%{version}-%{source_release}.tar.gz
+Source: http://www.packetfence.org/downloads/%{name}-%{version}-%{source_release}.tar.gz
 # for official releases
-Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz
+#Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz
 
 BuildRequires: gettext, httpd
 # install follow dep with: yum install perl-Parse-RecDescent-1.94
