@@ -10,18 +10,22 @@ Foundry switches
 The pf::SNMP::Foundry module implements an object oriented interface
 to access SNMP enabled Foundry switches.
 
-=head1 BUGS AND LIMITATIONS
-
-The isDefinedVlan function currently always returns true since I
-couldn't find an easy way to determine (using SNMP) if a given
-VLAN is defined or not ... VLANs which don't have ports assigned to
-them simply don't seem to appear using SNMP
-
 =head1 STATUS
 
 Currently only supports linkUp / linkDown mode
 
 Developed and tested on FastIron 4802 running on image version 07.8.04aT53
+
+=head1 BUGS AND LIMITATIONS
+    
+You cannot run a network with VLAN 1 as your normal VLAN with these switches.
+ 
+SNMPv3 support was not tested.
+    
+The isDefinedVlan function currently always returns true since I
+couldn't find an easy way to determine (using SNMP) if a given
+VLAN is defined or not ... VLANs which don't have ports assigned to
+them simply don't seem to appear using SNMP
 
 =cut
 
@@ -174,12 +178,6 @@ sub getMaxMacAddresses {
         return -1;
     }
 }
-
-=head1 BUGS AND LIMITATIONS
-    
-You cannot run a network with VLAN 1 as your normal VLAN with these switches.
- 
-SNMPv3 support was not tested.
 
 =head1 AUTHOR
 
