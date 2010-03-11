@@ -273,8 +273,7 @@ sub recoverSwitch {
                     my $isPhone   = (
                         ( grep( {/^$mac$/i} @currentPhones ) != 0 )
                             || ( defined($node_info)
-                            && $node_info->{dhcp_fingerprint}
-                            =~ /VoIP Phone/ )
+                            && (($node_info->{dhcp_fingerprint} =~ /VoIP Phone/) || ($node_info->{voip} eq 'yes')) )
                     );
                     if ( !$isPhone ) {
                         push @currentPcs, $mac;
@@ -304,7 +303,7 @@ sub recoverSwitch {
                         if ($synchronize) {
                             locationlog_synchronize(
                                 $switch->{_ip}, $currentIfIndex,
-                                $currentVlan,   $currentPcs[0],
+                                $currentVlan,   $currentPcs[0], NO_VOIP, WIRED_SNMP_TRAPS
                             );
                         }
                     } else {
@@ -325,7 +324,7 @@ sub recoverSwitch {
                             if ($synchronize) {
                                 locationlog_synchronize(
                                     $switch->{_ip}, $currentIfIndex,
-                                    $currentVlan,   $currentPcs[0],
+                                    $currentVlan,   $currentPcs[0], NO_VOIP, WIRED_SNMP_TRAPS
                                 );
                             }
                         }
