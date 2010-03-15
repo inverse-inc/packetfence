@@ -169,7 +169,8 @@ sub custom_getCorrectVlan {
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     # switch object correct, return normal vlan
-    if ($switch->isa('pf::SNMP') && defined($switch->{_normalVlan})) {
+    my $valid_switch_object = (defined($switch) && ref($switch) && $switch->isa('pf::SNMP'));
+    if ($valid_switch_object && defined($switch->{_normalVlan})) {
 
         # return switch-specific normal vlan or default normal vlan (if switch-specific normal vlan not defined)
         return $switch->{_normalVlan};
