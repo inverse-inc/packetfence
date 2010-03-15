@@ -104,7 +104,7 @@ sub node_db_prepare {
         = "select node.mac,node.pid,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,count(violation.mac) as nbopenviolations,,node.voip,node.connection_type from node left join violation on node.mac=violation.mac and violation.status='open' group by node.mac";
 
     # This guy here is special, have a look in node_view_all to see why
-    $node_count_all_sql = "select count(*) as nb from node";
+    $node_statements->{'node_count_all_sql'} = "select count(*) as nb from node";
 
     $node_statements->{'node_ungrace_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where status="grace" and unix_timestamp(now())-unix_timestamp(lastskip) > ]

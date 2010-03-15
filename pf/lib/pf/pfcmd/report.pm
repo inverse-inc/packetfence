@@ -51,6 +51,7 @@ BEGIN {
     );
 }
 
+use pf::config;
 use pf::db;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -85,6 +86,8 @@ sub report_db_prepare {
         qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os FROM node n LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.status='reg' ]);
 
     $report_statements->{'report_registered_active_sql'} = get_db_handle()->prepare(
+        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os FROM (node n,iplog i) LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.status='reg' and i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
+
     $report_statements->{'report_os_active_sql'} = get_db_handle()->prepare(
         qq [ select o.description,n.dhcp_fingerprint,count(*) as count,ROUND(COUNT(*)/(SELECT COUNT(*) FROM node)*100,1) as percent FROM (node n,iplog i) LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.mac=i.mac and (i.end_time=0 or i.end_time > now()) group by o.description order by percent desc ]);
 
@@ -116,8 +119,6 @@ sub report_db_prepare {
         qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as violation from (violation v, iplog i) LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.vid=v.vid WHERE v.status="open" and n.mac=i.mac and (i.end_time=0 or i.end_time > now()) order by n.pid ]);
 
     $report_db_prepared = 1;
-        );
-    $is_report_db_prepared = 1;
     return 1;
 }
 
@@ -292,20 +293,20 @@ sub report_registered_active {
     return db_data(REPORT, $report_statements, 'report_registered_active_sql');
 }
 
+sub report_openviolations_all {
     return translate_connection_type(db_data(REPORT, $report_statements, 'report_statics_all_sql'));
 }
 
 sub report_openviolations_active {
     return translate_connection_type(db_data(REPORT, $report_statements, 'report_statics_active_sql'));
+}
 
 sub report_statics_all {
-    report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    return translate_connection_type(db_data($report_statics_all_sql));
+    return translate_connection_type(db_data(REPORT, $report_statements, 'report_statics_all_sql'));
 }
 
 sub report_statics_active {
-    report_db_prepare($dbh) if ( !$is_report_db_prepared );
-    return translate_connection_type(db_data($report_statics_active_sql));
+    return translate_connection_type(db_data(REPORT, $report_statements, 'report_statics_active_sql'));
 }
 
 sub report_unknownprints_all {

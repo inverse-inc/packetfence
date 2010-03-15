@@ -421,7 +421,6 @@ sub _update_node_if_not_accurate {
     my $logger = Log::Log4perl::get_logger('pf::locationlog');
 
     # is node entry accurate?
-    # TODO: refactor into it's own sub
     my $node_data          = node_view($mac);
     my $vlanChanged        = ($node_data->{vlan} != $vlan);
     my $switchChanged      = ($node_data->{switch} ne $switch);
