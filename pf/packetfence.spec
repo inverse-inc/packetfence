@@ -104,15 +104,14 @@ Requires: rrdtool, perl-rrdtool
 Requires: perl-SOAP-Lite
 Requires: perl-Template-Toolkit
 Requires: perl-TermReadKey
-Requires: perl-Test-MockDBI
-Requires: perl-Test-Perl-Critic
-Requires: perl-Test-Pod, perl-Test-Pod-Coverage
 Requires: perl-Thread-Pool
 Requires: perl-TimeDate
 Requires: perl-UNIVERSAL-require
 Requires: perl-YAML
 Requires: php-jpgraph-packetfence = 2.3.4
 Requires: php-ldap
+# Required for testing
+BuildRequires: perl-Test-MockModule, perl-Test-MockDBI, perl-Test-Perl-Critic, perl-Test-Pod, perl-Test-Pod-Coverage
 
 %description
 
@@ -485,6 +484,9 @@ fi
 
 %changelog
 * <date> Olivier Bilodeau <obilodeau@inverse.ca> - <version>
+- Added perl-Test-MockModule as a build dependency (required for tests)
+- Test modules are now required for building instead of required for package 
+  intall.
 - Added mod_perl as a dependency
 
 * Tue Mar 11 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.8-0.20100311

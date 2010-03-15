@@ -1,3 +1,11 @@
+2010-03-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec, pf/t/vlan.t: Updated vlan tests so that rework
+	done in 1.8 branch passes the tests. 
+	RPM Spec:
+	- Added perl-Test-MockModule as a build dependency (required for tests)
+	- Test modules are now required for building instead of required for 
+	  package intall.
+
 2010-03-11	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec: Snapshot 1.8.8-0.20100311
 

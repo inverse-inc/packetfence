@@ -11,6 +11,7 @@ Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
 
 use Test::More tests => 9;
+use Test::MockModule;
 
 # DBI injection
 BEGIN { push @ARGV, "--dbitest"; }
@@ -20,14 +21,13 @@ $pf::db::dbh = DBI->connect( "", "", "" );
 
 use lib '/usr/local/pf/lib';
 use pf::config;
+use pf::SwitchFactory;
 
+BEGIN { use pf::violation; }
 BEGIN { 
     use_ok('pf::vlan'); 
     use_ok('pf::vlan::custom');
 }
-
-# overload conf_dir from pf::config so that SwitchFactory will use data/switches.conf
-$conf_dir = 'data/';
 
 # test the object
 my $vlan_obj = new pf::vlan::custom();
@@ -43,69 +43,40 @@ can_ok($vlan_obj, qw(
     shouldAutoRegister
   ));
 
-# Return 0 violation on first query and 1 on second one
-my $qid = 0;
-sub violation_count {
-    $qid++;
-    if ($qid == 1) {
-        return (1);
-    } elsif ($qid == 2) {
-        return (0);
-    } else {
-        return ();
-    }
-}
+# setup a fake switch object
+my $switchFactory = new pf::SwitchFactory( -configFile => './data/switches.conf' );
+my $switch = $switchFactory->instantiate('192.168.0.1');
 
-# violation_count_trap
-$md->set_retval_array(
-    MOCKDBI_WILDCARD,
-    "count.*violation.*mac.*",
-    \&violation_count
-);
+# redefining violation functions (we stay in pf::vlan's context because methods are imported there from pf::violation)
+my $mock = new Test::MockModule('pf::vlan');
+# violation_count_trap will return 1
+$mock->mock('violation_count_trap', sub { return (1); });
 
 my $vlan;
-$vlan = $vlan_obj->vlan_determine_for_node('bb:bb:cc:dd:ee:ff', '192.168.0.1', '1001');
+$vlan = $vlan_obj->vlan_determine_for_node('bb:bb:cc:dd:ee:ff', $switch, '1001');
 is($vlan, 2, "determine vlan for node with violation");
 
-# violation_count_trap return 0
-$md->set_retval_array(
-    MOCKDBI_WILDCARD,
-    "count.*violation.*mac.*",
-    ( 0 )
-);
+# violation_count_trap will return 0
+$mock->mock('violation_count_trap', sub { return (0); });
 
-# result of node_exist
-$md->set_retval_array(
-    MOCKDBI_WILDCARD,
-    "select mac from node where mac=?",
-    ('aa:bb:cc:dd:ee:ff')
-);
-
-my $node_entry = [
-    { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '',
-      lastskip => '', status => 'reg', user_agent => '', computername => '', notes => '', last_arp => '',
-      last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', vlan => 1, nbopenviolations => ''
-    },
-    { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, status => 'reg' },
-];
-
-$md->set_retval_scalar(
-    MOCKDBI_WILDCARD,
-    # TODO this does't work
-    #".*node.*node\.mac=.*",
-    ".*",
-    sub { shift @$node_entry }
-);
+# mocking used node method calls
+$mock->mock('node_exist', sub { return (1); });
+$mock->mock('node_view', sub { 
+    return { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '',
+        lastskip => '', status => 'reg', user_agent => '', computername => '', notes => '', last_arp => '',
+        last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', vlan => 1, nbopenviolations => ''}
+});
 
 # TODO: complete the test suite with more tests above the other cases
-$vlan = $vlan_obj->vlan_determine_for_node('aa:bb:cc:dd:ee:ff', '10.0.0.1', '1001');
+my $switch_vlan_override = $switchFactory->instantiate('10.0.0.1');
+$vlan = $vlan_obj->vlan_determine_for_node('aa:bb:cc:dd:ee:ff', $switch_vlan_override, '1001');
 is($vlan, 15, "determine vlan for registered user on custom switch");
 
 $vlan = $vlan_obj->custom_getCorrectVlan();
 is($vlan, 1, "obtain normalVlan with no switch ip");
 
-$vlan = $vlan_obj->custom_getCorrectVlan('192.168.0.1');
+$vlan = $vlan_obj->custom_getCorrectVlan($switch);
 is($vlan, 1, "obtain normalVlan on a switch with no normalVlan override");
 
-$vlan = $vlan_obj->custom_getCorrectVlan('10.0.0.1');
+$vlan = $vlan_obj->custom_getCorrectVlan($switch_vlan_override);
 is($vlan, 15, "obtain normalVlan on a switch with normalVlan override");
