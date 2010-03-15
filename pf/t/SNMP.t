@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 3;
+use Test::More tests => 6;
 use lib '/usr/local/pf/lib';
 
 use File::Basename qw(basename);
