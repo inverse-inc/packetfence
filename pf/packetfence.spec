@@ -483,6 +483,9 @@ fi
 %attr(0755, root, root) %{_initrddir}/pfdetectd
 
 %changelog
+* Tue Mar 11 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.8-0.20100311
+- Version bump to snapshot 20100311
+
 * Tue Jan 05 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.7-1
 - Version bump to 1.8.7
 
