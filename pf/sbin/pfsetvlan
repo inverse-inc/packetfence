@@ -1783,7 +1783,8 @@ sub do_port_security {
                     {   
                         return 'stopTrapHandling';
                     }
-                    my $fakeMac = $oldSwitch->generateFakeMac( $old_vlan, $old_port );
+                    my $is_voice_vlan = ($old_voip eq VOIP);
+                    my $fakeMac = $oldSwitch->generateFakeMac( $is_voice_vlan, $old_port );
                     $logger->info("de-authorizing $mac (new entry $fakeMac) at old location $old_switch ifIndex $old_port");
                     $oldSwitch->authorizeMAC( $old_port, $mac, $fakeMac,
                         ( $old_voip eq VOIP ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port) ),
@@ -1804,13 +1805,8 @@ sub do_port_security {
                 foreach my $vlan (
                     @{ $secureMacAddrHashRef->{$mac}->{$ifIndex} } )
                 {
-                    my $fakeMac = $switch->generateFakeMac(
-                        (   $vlan == $switch->getVoiceVlan($ifIndex)
-                            ? 'VoIP'
-                            : $vlan
-                        ),
-                        $ifIndex
-                    );
+                    my $is_voice_vlan = ($vlan == $switch->getVoiceVlan($ifIndex);
+                    my $fakeMac = $switch->generateFakeMac($is_voice_vlan, $ifIndex);
                     $logger->info( "$mac is a secure MAC address at "
                             . $switch->{_ip}
                             . " ifIndex $ifIndex VLAN $vlan. De-authorizing (new entry $fakeMac)"

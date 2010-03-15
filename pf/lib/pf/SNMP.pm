@@ -1870,9 +1870,8 @@ sub isNewerVersionThan {
     return 0;
 }
 
-# FIXME: this will need to be changed since we no longer rely on vlan being equal to VoIP
 sub generateFakeMac {
-    my ( $this, $vlan, $ifIndex ) = @_;
+    my ($this, $is_voice_vlan, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     # generating a fixed 6 digit string with ifIndex (zero filled)
@@ -1888,7 +1887,7 @@ sub generateFakeMac {
     }
 
     # VoIP will be different than non-VoIP
-    return "02:00:" . ( ( $vlan eq 'VoIP' ) ? "01" : "00" ) . ":" . $mac_suffix;
+    return "02:00:" . ( ($is_voice_vlan) ? "01" : "00" ) . ":" . $mac_suffix;
 }
 
 sub isFakeMac {
