@@ -1,3 +1,9 @@
+2010-03-16	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec: Fix upgrade bug introduced in 1.8.5: Changed
+	perl-Locale-gettext dependency to use the perl namespace version 
+	perl(Locale-gettext). Fixes #931;
+	http://www.packetfence.org/mantis/view.php?id=931
+
 2010-03-11	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec: Snapshot 1.8.8-0.20100311
 

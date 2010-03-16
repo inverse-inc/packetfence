@@ -83,7 +83,8 @@ Requires: perl-IPTables-Parse
 Requires: perl-LDAP
 Requires: perl-libwww-perl
 Requires: perl-List-MoreUtils
-Requires: perl-Locale-gettext
+# Changed perl-Locale-gettext dependency to use the perl namespace version: perl(Locale-gettext), fixes #931
+Requires: perl(Locale::gettext)
 Requires: perl-Log-Log4perl >= 1.11
 Requires: perl-Net-Appliance-Session
 Requires: perl-Net-Frame, perl-Net-Frame-Simple
@@ -483,6 +484,11 @@ fi
 %attr(0755, root, root) %{_initrddir}/pfdetectd
 
 %changelog
+* Tue Mar 16 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.7-2
+- Fix upgrade bug from 1.8.4: Changed perl-Locale-gettext dependency to use the
+  perl namespace version perl(Locale-gettext). Fixes #931;
+  http://www.packetfence.org/mantis/view.php?id=931
+
 * Tue Mar 11 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.8-0.20100311
 - Version bump to snapshot 20100311
 
