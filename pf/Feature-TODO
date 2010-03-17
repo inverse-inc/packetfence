@@ -10,9 +10,14 @@ DONE: - Pragmatically test for memory leaks (since we can't realistically check 
 - If we are in MAB or wired 802.1x do we still get traps? If so, we must find a way to ignore them I guess?
 - think about easy guest support wired / wireless and pick between, etc
 
+- create a connection type chart like the OS one
+
 File bug once merged
 
 Tests
+- switch in mode registration, MAB and 802.1x should not interfere with VLAN already set in config
+- Don't act on trap answer: what happens?
+- Switch doesn't exist in switches.conf: what happens?
 test pfcmd_vlan setVlan with a string 
 test pfcmd_vlan setAllVlan with a string
 test pfcmd_vlan setDefaultVlan
@@ -23,6 +28,7 @@ DONE: add tests to setVlanByName and test error conditions
 on parse config bail if a vlan in switches.conf is not numeric (unless if empty)
 worried about SOAP::Lite client thread safety, need to do extensive testing on rlm_perl_packetfence (might have to surround the whole SOAP thing with an eval which would be dirty dirty)
 Performance testing with radclient / radtest (simulate a lot of radius clients)
+- Test a setup with a Cisco Voice VLAN (stimulate the getVoiceVlan code path)
 
 - Adjust minimum memory requirements for our PacketFence-ZEN virtual machine (because of mod_perl's memory footprint)
 - Update NEWS and UPGRADE on feature merge
