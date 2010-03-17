@@ -1,4 +1,7 @@
 2010-03-17	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/radius.pm: A big chunk of pf::radius rework and general
+	improvements, hopefully really close to tests
+
 	* pf/lib/pf/actions.pm, pf/lib/pf/vlan.pm, pf/sbin/pfsetvlan: 
 	generalized pf::vlan's shouldAutoRegister and getNodeInfoForAutoReg to 
 	work with both pfsetvlan and pf::radius

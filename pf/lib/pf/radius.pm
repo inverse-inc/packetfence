@@ -26,10 +26,18 @@ use pf::node;
 use pf::SNMP;
 use pf::SwitchFactory;
 
-# Constants for request types
-use constant WIRED    => 1;
-use constant WIRELESS => 2;
-# FIXME also have some for 802.1x, MAB?
+# Constants copied out of the radius rlm_perl module
+
+use constant    RLM_MODULE_REJECT=>    0;#  /* immediately reject the request */
+use constant    RLM_MODULE_FAIL=>      1;#  /* module failed, don't reply */
+use constant    RLM_MODULE_OK=>        2;#  /* the module is OK, continue */
+use constant    RLM_MODULE_HANDLED=>   3;#  /* the module handled the request, so stop. */
+use constant    RLM_MODULE_INVALID=>   4;#  /* the module considers the request invalid. */
+use constant    RLM_MODULE_USERLOCK=>  5;#  /* reject the request (user is locked out) */
+use constant    RLM_MODULE_NOTFOUND=>  6;#  /* user not found */
+use constant    RLM_MODULE_NOOP=>      7;#  /* module succeeded without doing anything */
+use constant    RLM_MODULE_UPDATED=>   8;#  /* OK (pairs modified) */
+use constant    RLM_MODULE_NUMCODES=>  9;#  /* How many return codes there are */
 
 =head1 SUBROUTINES
 
@@ -50,12 +58,39 @@ sub new {
 
 =item * authorize - handling the radius authorize call
 
-Returns VLAN string, VLAN number or undef. undef means the user is not authorized or the correct VLAN could not be found
+Returns an array (tuple) with response code for Radius and RAD_REPLY hash
 
 =cut
 sub authorize {
     my ($this, $nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
+
+    $logger->trace("received a radius authorization request with parameters: ".
+        "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP => $request_is_eap, ".
+        "mac => $mac, port => $port, username => $user_name, ssid => $ssid");
+
+    my $connection_type = $this->_identify_connection_type($nas_port_type, $request_is_eap);
+
+    # FIXME maybe it's in there that we should do all the magic that happened in rlm_perl_packetfence_sql
+    # meaning: the return should be decided by doWeActOnThisCall, not always RLM_MODULE_NOOP
+    my $weActOnThisCall = $this->doWeActOnThisCall($connection_type, $switch_ip, $mac, $port, $user_name, $ssid);
+    if ($weActOnThisCall == 0) {
+        $logger->info("We decided not to act on this radius call. Stop handling request from $switch_ip.");
+        return [RLM_MODULE_NOOP, undef];
+    }
+
+    $logger->info("handling radius autz request: from switch_ip => $switch_ip, " 
+        . "connection_type =>" . connection_type_to_str($connection_type) . " "
+        . "mac => $mac, port => $port, username => $user_name, ssid => $ssid");
+
+    #add node if necessary
+    if ( !node_exist($mac) ) {
+        $logger->info("node $mac does not yet exist in database. Adding it now");
+        node_add_simple($mac);
+    }
+
+    # There is activity from that mac, call node wakeup
+    node_mac_wakeup($mac);
 
     # FIXME: this here won't scale.. :(
     # potential avenues: 
@@ -67,98 +102,68 @@ sub authorize {
     # http://www.slideshare.net/acme/scaling-with-memcached
     my $switchFactory = new pf::SwitchFactory(-configFile => $install_dir.'/conf/switches.conf');
 
-    $logger->trace("received a radius authorization request with parameters: ".
-        "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP => $request_is_eap, ".
-        "mac => $mac, port => $port, username => $user_name, ssid => $ssid");
-
     $logger->debug("instantiating switch");
     my $switch = $switchFactory->instantiate($switch_ip);
           
     if (!$switch) {
-        $logger->error("Can't instantiate switch $switch_ip!");
-        return;
+        $logger->error("Can't instantiate switch $switch_ip! "
+                      ."Are you sure your network equipement configuration is complete?");
+        return [RLM_MODULE_FAIL, undef];
     }
-
-    my $weActOnThisCall = $this->doWeActOnThisCall($nas_port_type, $switch_ip, $request_is_eap, $mac, 
-        $port, $user_name, $ssid);
-
-    if ($weActOnThisCall == 0) {
-        $logger->info("We decided not to act on this radius call. Stop handling request from $switch_ip.");
-        $switch->disconnectRead();
-        $switch->disconnectWrite();
-        return;
-    }
-
-    # we go on with this call
-    $switch->connectMySQL();
-
-    #add node if necessary
-    if ( !node_exist($mac) ) {
-        $logger->info("node $mac does not yet exist in database. Adding it now");
-        node_add_simple($mac);
-    }
-
-    # There is activity from that mac, call node wakeup
-    node_mac_wakeup($mac);
 
     # determine if we need to perform automatic registration
     my $isPhone = $switch->isPhoneAtIfIndex($mac);
 
-    # IP Phones Discovery not supported
-    # FIXME connection_type
-    if (($connection_type & WIRELESS) == WIRELESS && $switch->isVoIPEnabled() && !$isPhone) {
-        $logger->warn("Automatic detection of Wireless IP Phones is not implemented. "
-            ."However they can be recognized by dhcp fingerprint. "
-            ."Automatic registration of the phones may have failed..");
-    }
-    # FIXME connection_type
-    if ($this->shouldAutoRegister($mac, $switch->isRegistrationMode(), $isPhone, $connection_type)) {
+    my $vlan_obj = new pf::vlan::custom();
+    # should we auto-register? let's ask the VLAN object
+    if ($vlan_obj->shouldAutoRegister($mac, $switch->isRegistrationMode(), 0, $isPhone, $connection_type)) {
 
         # automatic registration
-        # FIXME: several tasks here:
-        # - instatiate vlan object
-        # - change upstream sub to include connection type (and fix calls from pfsetvlan)
-        my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch->{_ip}, $switch_port,
-            $mac, $vlan, 'switch-config', $isPhone);
+        my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch->{_ip}, $port,
+            $mac, undef, $switch->isRegistrationMode(), $isPhone, $connection_type);
+
         $logger->debug("auto-registering node $mac");
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
             $logger->error("auto-registration of node $mac failed");
-            return 0;
         }
     }
 
-    # extract in another sub
-    # if isPhone : insert in locationlog then bail saying unimplemented
-    # we would probably need to change the Tunnel-Medium-Type or Tunnel-Type for proper VoIP 802.1x or VoIP MAB
-    # $RAD_REPLY{'Tunnel-Medium-Type'} = 6;
-    # $RAD_REPLY{'Tunnel-Type'} = 13;
-    # $RAD_REPLY{'Tunnel-Private-Group-ID'} = $result;
+    # TODO IP Phones authentication over Radius not supported
+    if ($switch->isVoIPEnabled() && $isPhone) {
 
-    # check if locationlog_view_open_switchport (or no_VoIP) is accurate and open new entry if not
-    # use $vlan_obj->vlan_determine_for_node for the check
-    # TODO: actually, depending on my test results, it might be better to do locationlog_sync (and it would update the node also)
+        # we would probably need to change the Tunnel-Medium-Type or Tunnel-Type for proper VoIP 802.1x or VoIP MAB
+        $logger->warn("Radius authentication of IP Phones is not supported yet. ");
+        return [RLM_MODULE_FAIL, undef];
+    }
 
-    # node_determine_and_set_into_VLAN {
-#       $switch->setVlan(
-#           $ifIndex,
-#           $vlan_obj->vlan_determine_for_node($mac, $switch, $ifIndex),
-#           \%switch_locker,
-#           $mac
-#       );
-#}
+    my $vlan = $vlan_obj->vlan_determine_for_node($mac, $switch, $port);
 
-    # dans SNMP->setVlan
-    # if not isInProduction bail
-    # locationlog_sync
-    # is new VLAN part of $this->{_vlans} (grab code from setVlan)
-    # TODO to match wired behavior we should do a $switch->isDefinedVlan($newVlan) 
-    # again some locationlog stuff
-    # return VLAN
+    # if switch is not in production, we don't interfere with it: we log and we return OK
+    if (!$switch->isProductionMode()) {
+        $logger->warn("Should return VLAN $vlan to mac $mac but the switch is not in production -> Returning ACCEPT");
+        return [RLM_MODULE_OK, undef];
+    }
+
+    if (!$switch->isManagedVlan($vlan)) {
+        $logger->warn("new VLAN $vlan is not a managed VLAN -> Returning FAIL. "
+                     ."Is the target vlan in the vlans=... list?");
+        return [RLM_MODULE_FAIL, undef];
+    }
+
+    #closes old locationlog entries and create a new one if required
+    locationlog_synchronize($switch_ip, $port, $vlan, $mac, NO_VOIP, $connection_type);
+
+    # we are all set now
 
     # cleanup
     $switch->disconnectRead();
     $switch->disconnectWrite();
-    return $vlan;
+
+    my %RAD_REPLY;
+    $RAD_REPLY{'Tunnel-Medium-Type'} = 6;
+    $RAD_REPLY{'Tunnel-Type'} = 13;
+    $RAD_REPLY{'Tunnel-Private-Group-ID'} = $vlan;
+    return [RLM_MODULE_OK, %RAD_REPLY];
 }
 
 =item * doWeActOnThisCall - is this request of any interest?
@@ -169,7 +174,7 @@ returns 0 for no, 1 for yes
 
 =cut
 sub doWeActOnThisCall {
-    my ($this, $nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid) = @_;
+    my ($this, $connection_type, $switch_ip, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     $logger->trace("doWeActOnThisCall called");
 
@@ -179,16 +184,14 @@ sub doWeActOnThisCall {
     # TODO we could implement some way to know if the same request is being worked on and drop right here
 
     # is it wired or wireless? call sub accordingly
-    my $request_type = $this->_identify_request_type($nas_port_type);
-    if (defined($request_type)) {
+    if (defined($connection_type)) {
 
-        if ($request_type == WIRELESS) {
-            $do_we_act = $this->doWeActOnThisCall_wireless($nas_port_type, $switch_ip, $request_is_eap, $mac, 
+        if (($connection_type & WIRELESS) == WIRELESS) {
+            $do_we_act = $this->doWeActOnThisCall_wireless($connection_type, $switch_ip, $mac, 
                 $port, $user_name, $ssid);
 
-        } elsif ($request_type == WIRED) {
-            $do_we_act = $this->doWeActOnThisCall_wired($nas_port_type, $switch_ip, $request_is_eap, $mac, 
-                $port, $user_name, $ssid);
+        } elsif (($connection_type & WIRED) == WIRED) {
+            $do_we_act = $this->doWeActOnThisCall_wired($connection_type, $switch_ip, $mac, $port, $user_name, $ssid);
         } else {
             $do_we_act = 0;
         } 
@@ -233,30 +236,39 @@ sub doWeActOnThisCall_wired {
 }
 
 
-=item * _identify_request_type - identify is the request is wired or wireless
+=item * _identify_connection_type - identify the connection type based information provided by radius call
 
-Provide radius' NAS-Port-Type
+Need radius' NAS-Port-Type and EAP-Type
 
 Returns the constants WIRED or WIRELESS. Undef if unable to identify.
 
 =cut
-sub _identify_request_type {
-    my ($this, $nas_port_type) = @_;
+sub _identify_connection_type {
+    my ($this, $nas_port_type, $request_is_eap) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
+    $request_is_eap = 0 if (not defined($request_is_eap));
     if (defined($nas_port_type)) {
     
         if ($nas_port_type =~ /^Wireless-802\.11$/) {
 
-            return $this->WIRELESS;
+            if ($request_is_eap) {
+                return WIRELESS_802_1X;
+            } else {
+                return WIRELESS_MAC_AUTH;
+            }
     
         } elsif ($nas_port_type =~ /^Ethernet$/) {
 
-            return $this->WIRED;
+            if ($request_is_eap) {
+                return WIRED_802_1X;
+            } else {
+                return WIRED_MAC_AUTH_BYPASS;
+            }
 
         } else {
             # we didn't recognize request_type, this is a problem
-            $logger->warn("Unknown request_type: $nas_port_type.");
+            $logger->warn("Unknown connection_type. NAS-Port-Type: $nas_port_type, EAP-Type: $request_is_eap.");
             return;
         }
     } else {
@@ -267,42 +279,9 @@ sub _identify_request_type {
 }
 =back
 
-=item * shouldAutoRegister - do we auto-register this node?
+=head1 BUGS AND LIMITATIONS
 
-By default we register automatically when the switch is configured to (registration mode)
-and when the device is a phone.
-
-This sub is meant to be overridden in lib/pf/radius/custom.pm if the defaults
-are not right for your environment.
-
-$isSwitchInRegMode is set to 1 if switch is in registration mode.
-
-$isPhone is set to 1 if device is considered an IP Phone.
-
-$conn_type is the connection type constant as exported and described in pf::config.
-
-returns 1 if we should register, 0 otherwise
-
-=cut
-sub shouldAutoRegister {
-    my ($this, $mac, $isSwitchInRegMode, $isPhone, $conn_type) = @_;
-    my $logger = Log::Log4perl->get_logger();
-
-    $logger->trace("asked if should auto-register device");
-    # handling isSwitchInRegMode first because I think it's the most important to honor
-    if ($isSwitchInRegMode) {
-        $logger->trace("returned yes because it's from the switch's config");
-        return $isSwitchInRegMode;
-    }
-
-    if ($isPhone) {
-        $logger->trace("returned yes because it's an ip phone");
-        return $isPhone;
-    }
-
-    # otherwise don't autoreg
-    return 0;
-}
+Authentication of IP Phones (VoIP) over radius is not supported yet.
 
 =head1 AUTHOR
 
