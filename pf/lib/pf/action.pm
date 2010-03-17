@@ -262,10 +262,11 @@ sub action_autoregister {
 
         require pf::vlan::custom;
         my $vlan_obj = new pf::vlan::custom();
-        if ($vlan_obj->shouldAutoRegister($mac, 'violation')) {
+        if ($vlan_obj->shouldAutoRegister($mac, 0, 1)) {
 
             # auto-register
-            my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg(undef, undef, $mac, undef, 'violation');
+            # sorry for the weird call, check pf::vlan for this sub's parameters
+            my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg(undef, undef, $mac, undef, 0, 1);
             $logger->debug("auto-registering node $mac because of violation action=autoreg");
 
             require pf::node;

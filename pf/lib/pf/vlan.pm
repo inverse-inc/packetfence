@@ -216,20 +216,25 @@ sub getNodeUpdatedInfo {
     return %node_info;
 }
 
-=item getNodeInfoForAutoReg - basic information returned for auto-registered node
+=item getNodeInfoForAutoReg - basic information returned for an auto-registered node
 
 This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
 version doesn't do the right thing for you.
 
-$origin is the string representing where the autoregistration is comming from. Possibles values are:
-switch-config or violation.
+$switch_in_autoreg_mode is set to 1 if switch is in registration mode
+
+$violation_autoreg is set to 1 if called from a violation with autoreg action
 
 $isPhone is set to 1 if device is considered an IP Phone.
 
+$conn_type is set to the connnection type expressed as the constant in pf::config
+
+Returns an anonymous hash that is meant for node_register()
+
 =cut 
-# TODO origin expressed as a constant
 sub getNodeInfoForAutoReg {
-    my ($this, $switch_ip, $switch_port, $mac, $vlan, $origin, $isPhone) = @_;
+    my ($this, $switch_ip, $switch_port, $mac, $vlan, 
+        $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type) = @_;
 
     # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
     my %node_info = (
@@ -239,17 +244,20 @@ sub getNodeInfoForAutoReg {
         auto_registered => 1, # tells node_register to autoreg
     );
 
-    # if we are called from pfsetvlan (autoreg for switch-config), we can set switch and vlan info
-    if ($origin =~ /^switch-config$/) {
+    # if we are called because switch is in registration mode, we can set switch and vlan info
+    if (defined($switch_in_autoreg_mode) && $switch_in_autoreg_mode) {
         $node_info{'switch'} = $switch_ip;
         $node_info{'port'}   = $switch_port;
-        $node_info{'vlan'}   = $vlan;
     }
 
     # put a phone dhcp fingerprint if it's a phone
     if ($isPhone) {
         $node_info{'dhcp_fingerprint'} = '1,3,6,15,42,66,150';
-        $node_info{'voip'} = 'yes';
+        $node_info{'voip'} = VOIP;
+    }
+
+    if (defined($conn_type)) {
+        $node_info{'connection_type'} = connection_type_to_str($conn_type);
     }
 
     return %node_info;
@@ -257,30 +265,36 @@ sub getNodeInfoForAutoReg {
 
 =item shouldAutoRegister - do we auto-register this node?
 
+By default we register automatically when the switch is configured to (registration mode),
+when there is a violation with action autoreg and when the device is a phone.
+
 This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
 version doesn't do the right thing for you.
 
-$origin is the string representing where the autoregistration is comming from. Possibles values are:
-switch-config or violation.
+$switch_in_autoreg_mode is set to 1 if switch is in registration mode
+
+$violation_autoreg is set to 1 if called from a violation with autoreg action
 
 $isPhone is set to 1 if device is considered an IP Phone.
+
+$conn_type is set to the connnection type expressed as the constant in pf::config
 
 returns 1 if we should register, 0 otherwise
 
 =cut
 sub shouldAutoRegister {
-    my ($this, $mac, $origin, $isPhone) = @_;
+    my ($this, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type) = @_;
     my $logger = Log::Log4perl->get_logger();
 
     $logger->trace("asked if should auto-register device");
     # handling switch-config first because I think it's the most important to honor
-    if (defined($origin) && $origin =~ /^switch-config$/) {
+    if (defined($switch_in_autoreg_mode) && $switch_in_autoreg_mode) {
         $logger->trace("returned yes because it's from the switch's config");
         return 1;
 
     # if we have a violation action set to autoreg
-    } elsif (defined($origin) && $origin =~ /^violation$/) {
-        $logger->trace("returned yes because it's from a violation");
+    } elsif (defined($violation_autoreg) && $violation_autoreg) {
+        $logger->trace("returned yes because it's from a violation with action autoreg");
         return 1;
     }
 
@@ -288,6 +302,12 @@ sub shouldAutoRegister {
         $logger->trace("returned yes because it's an ip phone");
         return $isPhone;
     }
+
+    # example: auto-register 802.1x users (since they already have validated credentials to do 802.1x)
+    #if (defined($conn_type) && ($conn_type == WIRELESS_802_1X || $conn_type == WIRED_802_1X)) {
+    #    $logger->trace("returned yes because it's a 802.1x client that successfully authenticated already");
+    #    return 1;
+    #}
 
     # otherwise don't autoreg
     return 0;

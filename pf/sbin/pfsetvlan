@@ -908,12 +908,6 @@ sub handleTrap {
 
     # }}}2
 
-    # create database connection {{{2
-    # TODO not sure this is required, we need to validate
-    $switch->connectMySQL();
-
-    # }}}2
-
     # trapType eq 'mac' {{{2
     if ( $trapType eq 'mac' ) {
 
@@ -1683,16 +1677,10 @@ sub node_update_PF {
     node_mac_wakeup($mac);
 
     #should we auto-register?
-    # TODO: push up this test into the callers (if switch is regist then set switch-config directly)
-    my $autoreg_for;
-    if ($registrationMode == 1) {
-        $autoreg_for = 'switch-config';
-    }
-
-    if ($vlan_obj->shouldAutoRegister($mac, $autoreg_for, $isPhone)) {
+    if ($vlan_obj->shouldAutoRegister($mac, $registrationMode, 0, $isPhone, WIRED_SNMP_TRAPS)) {
         # auto-register
         my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch->{_ip}, $switch_port, 
-            $mac, $vlan, 'switch-config', $isPhone);
+            $mac, $vlan, $registrationMode, 0, $isPhone, WIRED_SNMP_TRAPS);
         $logger->debug("auto-registering node $mac");
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
             $logger->error("auto-registration of node $mac failed");
@@ -1805,7 +1793,7 @@ sub do_port_security {
                 foreach my $vlan (
                     @{ $secureMacAddrHashRef->{$mac}->{$ifIndex} } )
                 {
-                    my $is_voice_vlan = ($vlan == $switch->getVoiceVlan($ifIndex);
+                    my $is_voice_vlan = ($vlan == $switch->getVoiceVlan($ifIndex));
                     my $fakeMac = $switch->generateFakeMac($is_voice_vlan, $ifIndex);
                     $logger->info( "$mac is a secure MAC address at "
                             . $switch->{_ip}
