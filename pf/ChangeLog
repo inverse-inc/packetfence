@@ -1,3 +1,7 @@
+2010-03-17	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP.pm, pf/t/SNMP.t: minor refactoring: extracted code 
+	into isManagedVlan() and some tests against it
+
 2010-03-15	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec, pf/t/vlan.t: Updated vlan tests so that rework
 	done in 1.8 branch passes the tests. 

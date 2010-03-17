@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 6;
+use Test::More tests => 8;
 use lib '/usr/local/pf/lib';
 
 use File::Basename qw(basename);
@@ -26,15 +26,24 @@ isa_ok($snmp_obj, 'pf::SNMP');
 can_ok($snmp_obj, qw(
     connectRead
     connectWrite
+    isManagedVlan
     setVlan
     _setVlanByOnlyModifyingPvid
     setVlanByName
     setMacDetectionVlan
   ));
 
+# BE CAREFUL: if you change the configuration files, tests will break!
 # getting a switch instance (pf::SNMP::PacketFence but still inherit most subs from pf::SNMP)
 my $switchFactory = new pf::SwitchFactory( -configFile => './data/switches.conf' );
 my $switch = $switchFactory->instantiate('127.0.0.1');
+
+# isManagedVlan
+ok($switch->isManagedVlan(4),
+    "isManagedVlan: positive test for a managed VLAN");
+
+ok(!$switch->isManagedVlan(5),
+    "isManagedVlan: negative test for a managed VLAN");
 
 # setVlanByName
 ok(!defined($switch->setVlanByName(1001, 'inexistantVlan', {})), 

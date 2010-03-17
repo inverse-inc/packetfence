@@ -443,7 +443,7 @@ sub setVlan {
     }
 
     #handle some exceptions
-    if ( grep( { $_ == $newVlan } @{ $this->{_vlans} } ) == 0 )
+    if (!$this->isManagedVlan($vlan))
     {    #unmanaged VLAN ?
         $logger->warn(
             "new VLAN $newVlan is not a managed VLAN -> replacing VLAN $newVlan with MAC detection VLAN "
@@ -802,6 +802,20 @@ sub getManagedIfIndexes {
         }
     }
     return @managedIfIndexes;
+}
+
+=item isManagedVlan - is the VLAN in the list of VLANs managed by the switch?
+
+=cut
+sub isManagedVlan {
+    my ($this, $vlan) = @_;
+
+    # can I find $vlan in _vlans ?
+    if (grep({$_ == $vlan} @{$this->{_vlans}}) == 0) {
+        #unmanaged VLAN
+        return 0;
+    }
+    return 1;
 }
 
 =item getMode - get the mode
