@@ -108,8 +108,8 @@ sub authorize {
         $request_is_eap = 1;
     }
 
+    #format MAC
     if (defined($mac) && $mac ne '') {
-        #format MAC
         $mac =~ s/ /0/g;
         $mac =~ s/-/:/g;
         $mac =~ s/\.//g;
@@ -118,8 +118,6 @@ sub authorize {
                    substr($mac,6,2) . ":" . substr($mac,8,2) . ":" . substr($mac,10,2);
         }
         $mac = lc($mac);
-    } else {
-        syslog("info", "warning: mac address is empty in this request");
     }
 
     # some debugging (shown when running radius with -X)
@@ -131,69 +129,77 @@ sub authorize {
     &radiusd::radlog(1, "PacketFence USER: ".$user_name);
     &radiusd::radlog(1, "PacketFence SSID: ".$ssid);
 
-    if (length($mac) == 17) {
-        # uncomment following for output of all parameters to syslog (affects performance)
-        # syslog("info", "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP => $request_is_eap, ".
-        #        "mac => $mac, port => $port, username => $user_name, ssid => $ssid");
-
-        # TODO: switch_ip is no longer a good name, it needs to change
-        my $som = $soap->radius_authorize($nas_port_type, $switch_ip, $request_is_eap, 
-                                          $mac, $port, $user_name, $ssid)
-            or return server_error_handler();
-
-        # did SOAP server returned a fault in the request?
-        if ($som->fault) {
-            # TODO should we also output $som->faultdetail and $som->faultactor?
-            syslog("info", "Error in SOAP communication with server. Error no: ".
-                   $som->faultcode." Error msg: ".$som->faultstring);
-            &radiusd::radlog(1, "PacketFence DENIED CONNECTION because of SOAP error see syslog for details.");
-            return server_error_handler();
-
-        } else {
-
-            # grabbing the result
-            # we expect an ARRAY ref from the server
-            # The server returns a tuple with element 0 being a response code for Radius and second element 
-            # an hash meant to fill the Radius reply (RAD_REPLY). The arrayref is to workaround a quirk 
-            # in SOAP::Lite and have everything in result().
-            # See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMETERS_AND_AUTOBINDING
-            my $result = $som->result() or return server_error_handler();
-            if (defined($result) && (ref($result) eq 'ARRAY')) {
-                my $radius_return_code = shift @$result; # first param 
-                my %radius_reply       = @$result; # the rest goes to fill the hash
-
-                if (!defined($radius_return_code)) {
-                    syslog("info","No reply in SOAP communication with server. Check server side logs for details.");
-                    &radiusd::radlog(1, "PacketFence UNDEFINED RESULT RESPONSE CODE");
-                    &radiusd::radlog(1, "PacketFence RESULT VLAN COULD NOT BE DETERMINED");
-                    closelog;
-                    return RLM_MODULE_FAIL;
-                }
-
-                # Assigning returned values to RAD_REPLY
-                %RAD_REPLY = %radius_reply;
-
-                if ($radius_return_code == 2 && defined($RAD_REPLY{'Tunnel-Private-Group-ID'})) {
-                    syslog("info", "returning vlan ".$RAD_REPLY{'Tunnel-Private-Group-ID'}." "
-                        . "to request from $mac port $port");
-                    &radiusd::radlog(1, "PacketFence RESULT VLAN: ".$RAD_REPLY{'Tunnel-Private-Group-ID'});
-                } else {
-                    syslog("info", "request from $mac port $port was not accepted. Check server logs for details");
-                    &radiusd::radlog(1, "PacketFence RESULT VLAN COULD NOT BE DETERMINED");
-                }
-
-                &radiusd::radlog(1, "PacketFence RESULT RESPONSE CODE: $radius_return_code (2 means OK)");
-                # Uncomment for verbose debugging with radius -X
-                # use Data::Dumper;
-                # $Data::Dumper::Terse = 1; $Data::Dumper::Indent = 0; # pretty output for rad logs
-                # &radiusd::radlog(1, "PacketFence COMPLETE REPLY: ". Dumper(\%radius_reply));
-                return $radius_return_code;
-            }
-        }
+    # invalid MAC, this certainly happens on some type of radius calls, we accept so it'll go on and ask other modules
+    # TODO: is our default radius setup misconfigured, is it normal that this module is triggered without a MAC?
+    if (length($mac) != 17) {
+        syslog("info", "warning: mac address is empty or invalid in this request. "
+            . "It could be normal on certain radius calls");
+        closelog();
+        return RLM_MODULE_OK;
     }
-    syslog("info", "could not identify MAC in request, returning OK");
+
+    # uncomment following for output of all parameters to syslog (for debugging)
+    # syslog("info", "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP => $request_is_eap, ".
+    #        "mac => $mac, port => $port, username => $user_name, ssid => $ssid");
+
+    # TODO: switch_ip is no longer a good name, it needs to change
+    my $som = $soap->radius_authorize($nas_port_type, $switch_ip, $request_is_eap, 
+                                      $mac, $port, $user_name, $ssid)
+        or return server_error_handler();
+
+    # did SOAP server returned a fault in the request?
+    if ($som->fault) {
+        # TODO should we also output $som->faultdetail and $som->faultactor?
+        syslog("info", "Error in SOAP communication with server. Error no: ".
+               $som->faultcode." Error msg: ".$som->faultstring);
+        &radiusd::radlog(1, "PacketFence DENIED CONNECTION because of SOAP error see syslog for details.");
+        return server_error_handler();
+    }
+
+    # grabbing the result
+    my $result = $som->result() 
+        or return server_error_handler();
+
+    # we expect an ARRAY ref from the server
+    # The server returns a tuple with element 0 being a response code for Radius and second element 
+    # an hash meant to fill the Radius reply (RAD_REPLY). The arrayref is to workaround a quirk 
+    # in SOAP::Lite and have everything in result().
+    # See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMETERS_AND_AUTOBINDING
+    if (!defined($result) || !(ref($result) eq 'ARRAY')) {
+
+        # invalid answer
+        return invalid_answer_handler();
+    }
+
+    # is return code valid?
+    my $radius_return_code = shift @$result;
+    if (!defined($radius_return_code) || !($radius_return_code > 0 && $radius_return_code < RLM_MODULE_NUMCODES)) {
+        return invalid_answer_handler();
+    }
+
+    # NORMAL CASE
+    # At this point, everything went well and the reply from the server is accepted
+
+    # Assigning returned values to RAD_REPLY
+    %RAD_REPLY       = @$result; # the rest of result is the reply hash passed by the radius_authorize
+
+    if ($radius_return_code == 2 && defined($RAD_REPLY{'Tunnel-Private-Group-ID'})) {
+        syslog("info", "returning vlan ".$RAD_REPLY{'Tunnel-Private-Group-ID'}." "
+            . "to request from $mac port $port");
+        &radiusd::radlog(1, "PacketFence RESULT VLAN: ".$RAD_REPLY{'Tunnel-Private-Group-ID'});
+    } else {
+        syslog("info", "request from $mac port $port was not accepted but a proper error code was provided. "
+            . "Check server side logs for details");
+        &radiusd::radlog(1, "PacketFence RESULT VLAN COULD NOT BE DETERMINED");
+    }
+
+    &radiusd::radlog(1, "PacketFence RESULT RESPONSE CODE: $radius_return_code (2 means OK)");
+    # Uncomment for verbose debugging with radius -X
+    # use Data::Dumper;
+    # $Data::Dumper::Terse = 1; $Data::Dumper::Indent = 0; # pretty output for rad logs
+    # &radiusd::radlog(1, "PacketFence COMPLETE REPLY: ". Dumper(\%radius_reply));
     closelog();
-    return RLM_MODULE_OK;
+    return $radius_return_code;
 }
 
 =item * server_error_handler - called whenever there is a server error beyond PacketFence's control (401, 404, 500)
@@ -212,6 +218,17 @@ sub server_error_handler {
 
    # or to fail open:
    # return RLM_MODULE_OK
+}
+
+=item * invalid_answer_handler - called whenever an invalid answer is returned from the server
+
+=cut
+sub invalid_answer_handler {
+    syslog("info","No or invalid reply in SOAP communication with server. Check server side logs for details.");
+    &radiusd::radlog(1, "PacketFence UNDEFINED RESULT RESPONSE CODE");
+    &radiusd::radlog(1, "PacketFence RESULT VLAN COULD NOT BE DETERMINED");
+    closelog;
+    return RLM_MODULE_FAIL;
 }
 
 =item * find_ssid - translate radius SSID parameter into a string
