@@ -82,6 +82,7 @@ Of interest to the PacketFence users / developers
 =item * authorize - radius calls this method to authorize clients
 
 =cut
+# TODO trim that sub by 4 spaces
 sub authorize {
         # For debugging purposes only
         #&log_request_attributes;
@@ -152,23 +153,46 @@ sub authorize {
             } else {
 
                 # grabbing the result
+                # we expect an ARRAY ref from the server
+                # The server returns a tuple with element 0 being a response code for Radius and second element 
+                # an hash meant to fill the Radius reply (RAD_REPLY). The arrayref is to workaround a quirk 
+                # in SOAP::Lite and have everything in result().
+                # See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMETERS_AND_AUTOBINDING
                 my $result = $som->result() or return server_error_handler();
-                if ($result =~ /^$/) {
-                    syslog("info", "No reply in SOAP communication with server. Check server side logs for details.");
-                    &radiusd::radlog(1, "PacketFence RESULT VLAN COULD NOT BE DETERMINED");
-                } elsif ($result =~ /^\d+$/ && $result > 0) {
-                    &radiusd::radlog(1, "PacketFence RESULT VLAN: $result");
-                    $RAD_REPLY{'Tunnel-Medium-Type'} = 6;
-                    $RAD_REPLY{'Tunnel-Type'} = 13;
-                    $RAD_REPLY{'Tunnel-Private-Group-ID'} = $result;
-                } else {
-                    &radiusd::radlog(1, "PacketFence RESULT VLAN: $result");
-                    &radiusd::radlog(1, "PacketFence DENIED CONNECTION");
-                    closelog();
-                    return RLM_MODULE_REJECT;
+                if (defined($result) && (ref($result) eq 'ARRAY')) {
+                    my $radius_return_code = shift @$result; # first param 
+                    my %radius_reply       = @$result; # the rest goes to fill the hash
+
+                    if (!defined($radius_return_code)) {
+                        syslog("info","No reply in SOAP communication with server. Check server side logs for details.");
+                        &radiusd::radlog(1, "PacketFence UNDEFINED RESULT RESPONSE CODE");
+                        &radiusd::radlog(1, "PacketFence RESULT VLAN COULD NOT BE DETERMINED");
+                        closelog;
+                        return RLM_MODULE_FAIL;
+                    }
+
+                    # Assigning returned values to RAD_REPLY
+                    %RAD_REPLY = %radius_reply;
+
+                    if ($radius_return_code == 2 && defined($RAD_REPLY{'Tunnel-Private-Group-ID'})) {
+                        syslog("info", "returning vlan ".$RAD_REPLY{'Tunnel-Private-Group-ID'}." "
+                            . "to request from $mac port $port");
+                        &radiusd::radlog(1, "PacketFence RESULT VLAN: ".$RAD_REPLY{'Tunnel-Private-Group-ID'});
+                    } else {
+                        syslog("info", "request from $mac port $port was not accepted. Check server logs for details");
+                        &radiusd::radlog(1, "PacketFence RESULT VLAN COULD NOT BE DETERMINED");
+                    }
+
+                    &radiusd::radlog(1, "PacketFence RESULT RESPONSE CODE: $radius_return_code (2 means OK)");
+                    # Uncomment for verbose debugging with radius -X
+                    # use Data::Dumper;
+                    # $Data::Dumper::Terse = 1; $Data::Dumper::Indent = 0; # pretty output for rad logs
+                    # &radiusd::radlog(1, "PacketFence COMPLETE REPLY: ". Dumper(\%radius_reply));
+                    return $radius_return_code;
                 }
             }
         }
+        syslog("info", "could not identify MAC in request, returning OK");
         closelog();
         return RLM_MODULE_OK;
 }
@@ -180,7 +204,7 @@ If a customer wants to degrade gracefully, he should put some logic here to assi
 =cut
 sub server_error_handler {
    closelog();
-   return RLM_MODULE_REJECT; 
+   return RLM_MODULE_FAIL; 
 
    # for example:
    # send an email
@@ -348,7 +372,7 @@ Copyright (C) 2002  The FreeRADIUS server project
 
 Copyright (C) 2002  Boian Jordanov <bjordanov@orbitel.bg>
 
-Copyright (C) 2006-2009  Inverse inc. <support@inverse.ca>
+Copyright (C) 2006-2010  Inverse inc. <support@inverse.ca>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

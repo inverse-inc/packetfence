@@ -22,9 +22,11 @@ use diagnostics;
 use Log::Log4perl;
 
 use pf::config;
+use pf::locationlog;
 use pf::node;
 use pf::SNMP;
 use pf::SwitchFactory;
+use pf::util;
 
 # Constants copied out of the radius rlm_perl module
 
@@ -58,9 +60,16 @@ sub new {
 
 =item * authorize - handling the radius authorize call
 
-Returns an array (tuple) with response code for Radius and RAD_REPLY hash
+Returns an arrayref (tuple) with element 0 being a response code for Radius and second element an hash meant 
+to fill the Radius reply (RAD_REPLY). The arrayref is to workaround a quirk in SOAP::Lite and have everything in result()
+
+See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMETERS_AND_AUTOBINDING
 
 =cut
+# WARNING: You cannot change the return value of this sub unless you also update its clients (like the SOAP 802.1x 
+# module). This is because of the way perl mangles a returned hash as a list. Clients would get confused if you add a
+# scalar return without updating the clients.
+# FIXME: no way of saying DENY on violation, more refactoring out of pf::vlan to come
 sub authorize {
     my ($this, $nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -163,6 +172,7 @@ sub authorize {
     $RAD_REPLY{'Tunnel-Medium-Type'} = 6;
     $RAD_REPLY{'Tunnel-Type'} = 13;
     $RAD_REPLY{'Tunnel-Private-Group-ID'} = $vlan;
+    $logger->info("Returning ACCEPT with VLAN: $vlan");
     return [RLM_MODULE_OK, %RAD_REPLY];
 }
 

@@ -59,5 +59,5 @@ sub radius_authorize {
            "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP => $request_is_eap, ".
            "mac => $mac, port => $port, username => $user_name, ssid => $ssid");
 
-  $radius->authorize($nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid);
+  return $radius->authorize($nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid);
 }

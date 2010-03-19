@@ -1,3 +1,14 @@
+2010-03-18	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/802.1X/rlm_perl_packetfence_soap.pl, pf/cgi-bin/pdp.cgi,
+	pf/lib/pf/radius.pm: Client - Server SOAP interface changes
+	Now passing a tuple with radius return code and radius reply for radius
+	rlm client soap call. Allows greater flexibility of radius answers from
+	the server side without modifying clients.
+	Reworked all validation and returned codes in rlm_perl_packetfence 
+	module.
+	Little modifications required to server side components so it'll all 
+	work.
+
 2010-03-17	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/radius.pm: A big chunk of pf::radius rework and general
 	improvements, hopefully really close to tests
