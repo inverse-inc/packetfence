@@ -101,7 +101,7 @@ sub node_db_prepare {
 
     # This guy here is special, have a look in node_view_all to see why
     $node_statements->{'node_view_all_sql'}
-        = "select node.mac,node.pid,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,count(violation.mac) as nbopenviolations,,node.voip,node.connection_type from node left join violation on node.mac=violation.mac and violation.status='open' group by node.mac";
+        = "select node.mac,node.pid,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,count(violation.mac) as nbopenviolations,node.voip,node.connection_type from node left join violation on node.mac=violation.mac and violation.status='open' group by node.mac";
 
     # This guy here is special, have a look in node_view_all to see why
     $node_statements->{'node_count_all_sql'} = "select count(*) as nb from node";
@@ -314,14 +314,12 @@ sub node_count_all {
     # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
     # and pf::db will recognize it and prepare it as such
     $node_statements->{'node_count_all_sql_custom'} = $node_count_all_sql;
-
-    require pf::pfcmd::report;
-    import pf::pfcmd::report;
-
-    return translate_connection_type(db_data(NODE, $node_statements, 'node_view_all_sql_custom'));
+    return db_data(NODE, $node_statements, 'node_count_all_sql_custom');
 }
 
-=item * node_view_all
+=item * node_view_all - view all nodes based on several criterias
+
+Warning: The connection_type field is translated into its human form before return.
 
 =cut
 sub node_view_all {
@@ -354,7 +352,10 @@ sub node_view_all {
     # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
     # and pf::db will recognize it and prepare it as such
     $node_statements->{'node_view_all_sql_custom'} = $node_view_all_sql;
-    return db_data(NODE, $node_statements, 'node_view_all_sql_custom');
+
+    require pf::pfcmd::report;
+    import pf::pfcmd::report;
+    return translate_connection_type(db_data(NODE, $node_statements, 'node_view_all_sql_custom'));
 }
 
 sub node_view_with_fingerprint {
