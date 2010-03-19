@@ -53,6 +53,7 @@ BEGIN {
 
 use pf::config;
 use pf::db;
+use pf::util;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $report_db_prepared = 0;
@@ -294,11 +295,11 @@ sub report_registered_active {
 }
 
 sub report_openviolations_all {
-    return translate_connection_type(db_data(REPORT, $report_statements, 'report_statics_all_sql'));
+    return db_data(REPORT, $report_statements, 'report_openviolations_all_sql');
 }
 
 sub report_openviolations_active {
-    return translate_connection_type(db_data(REPORT, $report_statements, 'report_statics_active_sql'));
+    return db_data(REPORT, $report_statements, 'report_openviolations_active_sql');
 }
 
 sub report_statics_all {
