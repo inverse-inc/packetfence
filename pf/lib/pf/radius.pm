@@ -142,27 +142,35 @@ sub authorize {
 
         # we would probably need to change the Tunnel-Medium-Type or Tunnel-Type for proper VoIP 802.1x or VoIP MAB
         $logger->warn("Radius authentication of IP Phones is not supported yet. ");
+        $switch->disconnectRead();
+        $switch->disconnectWrite();
         return [RLM_MODULE_FAIL, undef];
-    }
+    } elsif (!$switch->isVoIPEnabled() && $isPhone) {
 
-    my $vlan = $vlan_obj->vlan_determine_for_node($mac, $switch, $port);
+        $logger->info("Device is an IP Phone but switch says VoIP is not enabled. "
+            . "Anyway, it's not supported through radius authentication yet. Ignoring...");
+    }
 
     # if switch is not in production, we don't interfere with it: we log and we return OK
     if (!$switch->isProductionMode()) {
-        $logger->warn("Should return VLAN $vlan to mac $mac but the switch is not in production -> Returning ACCEPT");
+        $logger->warn("Should perform access control on switch $switch_ip for mac $mac but the switch "
+            ."is not in production -> Returning ACCEPT");
+        $switch->disconnectRead();
+        $switch->disconnectWrite();
         return [RLM_MODULE_OK, undef];
     }
 
+    my $vlan = $vlan_obj->vlan_determine_for_node($mac, $switch, $port);
     if (!$switch->isManagedVlan($vlan)) {
         $logger->warn("new VLAN $vlan is not a managed VLAN -> Returning FAIL. "
                      ."Is the target vlan in the vlans=... list?");
+        $switch->disconnectRead();
+        $switch->disconnectWrite();
         return [RLM_MODULE_FAIL, undef];
     }
 
     #closes old locationlog entries and create a new one if required
     locationlog_synchronize($switch_ip, $port, $vlan, $mac, NO_VOIP, $connection_type);
-
-    # we are all set now
 
     # cleanup
     $switch->disconnectRead();
