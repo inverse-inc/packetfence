@@ -178,15 +178,21 @@ sub authorize {
     }
 
     # NORMAL CASE
-    # At this point, everything went well and the reply from the server is accepted
+    # At this point, everything went well and the reply from the server is valid
 
     # Assigning returned values to RAD_REPLY
     %RAD_REPLY       = @$result; # the rest of result is the reply hash passed by the radius_authorize
 
-    if ($radius_return_code == 2 && defined($RAD_REPLY{'Tunnel-Private-Group-ID'})) {
-        syslog("info", "returning vlan ".$RAD_REPLY{'Tunnel-Private-Group-ID'}." "
-            . "to request from $mac port $port");
-        &radiusd::radlog(1, "PacketFence RESULT VLAN: ".$RAD_REPLY{'Tunnel-Private-Group-ID'});
+    if ($radius_return_code == 2) {
+        if (defined($RAD_REPLY{'Tunnel-Private-Group-ID'})) {
+            syslog("info", "returning vlan ".$RAD_REPLY{'Tunnel-Private-Group-ID'}." "
+                . "to request from $mac port $port");
+            &radiusd::radlog(1, "PacketFence RESULT VLAN: ".$RAD_REPLY{'Tunnel-Private-Group-ID'});
+	} else {
+            syslog("info", "request from $mac port $port was accepted but no VLAN returned. "
+                . "See server logs for details");
+            &radiusd::radlog(1, "PacketFence NO RESULT VLAN");
+        }
     } else {
         syslog("info", "request from $mac port $port was not accepted but a proper error code was provided. "
             . "Check server side logs for details");
