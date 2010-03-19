@@ -422,7 +422,7 @@ sub _update_node_if_not_accurate {
 
     # is node entry accurate?
     my $node_data          = node_view($mac);
-    my $vlanChanged        = ($node_data->{vlan} != $vlan);
+    my $vlanChanged        = (!defined($node_data->{vlan}) || $node_data->{vlan} != $vlan);
     my $switchChanged      = ($node_data->{switch} ne $switch);
     my $voip_statusChanged = ($node_data->{voip} ne $voip_status);
     my $conn_typeChanged   = ($node_data->{connection_type} ne connection_type_to_str($connection_type));
