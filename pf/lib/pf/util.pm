@@ -22,6 +22,7 @@ use POSIX();
 use Net::SMTP;
 use Net::MAC::Vendor;
 use Log::Log4perl;
+# TODO these look like they are not required.. get rid of them?
 use threads;
 use threads::shared;
 
