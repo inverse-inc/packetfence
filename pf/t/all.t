@@ -22,5 +22,6 @@ runtests( qw(
               vlan.t
               data.t
               graph.t
+              radius.t
             )
 );

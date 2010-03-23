@@ -109,7 +109,7 @@ sub authorize {
     # - shared mem (IPC::MM)
     # - memcached
     # http://www.slideshare.net/acme/scaling-with-memcached
-    my $switchFactory = new pf::SwitchFactory(-configFile => $install_dir.'/conf/switches.conf');
+    my $switchFactory = new pf::SwitchFactory(-configFile => $conf_dir.'/switches.conf');
 
     $logger->debug("instantiating switch");
     my $switch = $switchFactory->instantiate($switch_ip);
@@ -137,15 +137,9 @@ sub authorize {
         }
     }
 
-    # FIXME: two test cases, 
-    # 1. isPhone and switch not VoIP enabled expect regist
-    # 2. isPhone and switch VoIP enabled expect FAIL
-    # if it's a phone, let authorize_voip decide (extension point)
+    # if it's an IP Phone, let authorize_voip decide (extension point)
     if ($isPhone) {
-        my $voip_reply = $this->authorize_voip($connection_type, $switch, $mac, $port, $user_name, $ssid);
-        if (defined($voip_reply)) {
-            return $voip_reply;
-        }
+        return $this->authorize_voip($connection_type, $switch, $mac, $port, $user_name, $ssid);
     }
 
     # if switch is not in production, we don't interfere with it: we log and we return OK
@@ -307,19 +301,11 @@ sub authorize_voip {
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     # TODO IP Phones authentication over Radius not supported
-    if ($switch->isVoIPEnabled()) {
-
-        # we would probably need to change the Tunnel-Medium-Type or Tunnel-Type for proper VoIP 802.1x or VoIP MAB
-        $logger->warn("Radius authentication of IP Phones is not supported yet. ");
-        $switch->disconnectRead();
-        $switch->disconnectWrite();
-        return [RLM_MODULE_FAIL, undef];
-    } elsif (!$switch->isVoIPEnabled()) {
-
-        $logger->info("Device is an IP Phone but switch says VoIP is not enabled. "
-            . "Anyway, it's not supported through radius authentication yet. Ignoring...");
-    }
-    return;
+    # we would probably need to change the Tunnel-Medium-Type or Tunnel-Type for proper VoIP 802.1x or VoIP MAB
+    $logger->warn("Radius authentication of IP Phones is not supported yet. Returning failure.");
+    $switch->disconnectRead();
+    $switch->disconnectWrite();
+    return [RLM_MODULE_FAIL, undef];
 }
 =back
 

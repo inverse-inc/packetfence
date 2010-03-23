@@ -1,3 +1,12 @@
+2010-03-23	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/radius.pm: Removed code that I realized was run two times
+	for nothing (outlined when I did the tests)
+
+	* pf/t/all.t, pf/t/radius.t: Test for pf::radius
+
+	* pf/lib/pf/radius.pm: Refactoring pf::radius according to review
+	- extracted out VoIP handling into its own sub
+
 2010-03-18	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/addons/802.1X/rlm_perl_packetfence_soap.pl, pf/cgi-bin/pdp.cgi,
 	pf/lib/pf/radius.pm: Client - Server SOAP interface changes
