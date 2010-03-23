@@ -3,6 +3,8 @@
 	- Extracted get_violation_vlan out of vlan_determine_for_node for 
 	future use by pf::radius
 	- Removing node_exist()/node_add_simple condition: it never happens
+	- Extracted get_registration_vlan out of vlan_determine_for_node for 
+	future use by pf::radius. Created test case in t/vlan.t too.
 
 	* pf/lib/pf/radius.pm: Removed code that I realized was run two times
 	for nothing (outlined when I did the tests)

@@ -10,7 +10,7 @@ my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
 
-use Test::More tests => 9;
+use Test::More tests => 10;
 use Test::MockModule;
 
 use lib '/usr/local/pf/lib';
@@ -65,6 +65,16 @@ $mock->mock('node_view', sub {
 my $switch_vlan_override = $switchFactory->instantiate('10.0.0.1');
 $vlan = $vlan_obj->vlan_determine_for_node('aa:bb:cc:dd:ee:ff', $switch_vlan_override, '1001');
 is($vlan, 15, "determine vlan for registered user on custom switch");
+
+# mocked node_view returns unreg node
+$mock->mock('node_view', sub {
+    return { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '',
+        lastskip => '', status => 'unreg', user_agent => '', computername => '', notes => '', last_arp => '',
+        last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', vlan => 1, nbopenviolations => ''}
+});
+
+$vlan = $vlan_obj->vlan_determine_for_node('aa:bb:cc:dd:ee:ff', $switch, '1001');
+is($vlan, 3, "obtain registrationVlan for an unreg node");
 
 $vlan = $vlan_obj->custom_getCorrectVlan();
 is($vlan, 1, "obtain normalVlan with no switch ip");

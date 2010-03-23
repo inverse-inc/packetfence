@@ -59,25 +59,17 @@ sub vlan_determine_for_node {
 
     # if we are here, there was no violation
 
-    my $correctVlanForThisMAC;
-        my $node_info = node_view($mac);
-        if ( isenabled( $Config{'trapping'}{'registration'} ) ) {
-            if (   ( !defined($node_info) )
-                || ( $node_info->{'status'} eq 'unreg' ) )
-            {
-                $logger->info("MAC: $mac is unregistered; belongs into registration VLAN");
-                $correctVlanForThisMAC = $switch->{_registrationVlan};
-            } else {
+    # registration handling
+    my $node_info = node_view($mac);
+    my $registration = $this->get_registration_vlan($mac, $switch, $node_info);
+    if (defined($registration) && $registration != 0) {
+        return $registration;
+    }
 
+    my $correctVlanForThisMAC;
                 #TODO: find a way to cleanly wrap this
                 $correctVlanForThisMAC = $this->custom_getCorrectVlan( $switch, $ifIndex, $mac, $node_info->{status}, $node_info->{vlan}, $node_info->{pid} );
                 $logger->info( "MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", VLAN: $correctVlanForThisMAC" );
-            }
-        } else {
-            #TODO: find a way to cleanly wrap this
-            $correctVlanForThisMAC = $this->custom_getCorrectVlan( $switch, $ifIndex, $mac, $node_info->{status}, ( $node_info->{vlan} || $switch->{_normalVlan} ), $node_info->{pid} );
-            $logger->info( "MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", VLAN: $correctVlanForThisMAC" );
-        }
     return $correctVlanForThisMAC;
 }
 
@@ -356,6 +348,38 @@ sub get_violation_vlan {
     # Asking the switch to give us its configured vlan number for the vlan returned for the violation
     # TODO: get rid of the _ character for the vlan variables (refactoring)
     return $switch->{"_".$vlan};
+}
+
+
+=item get_registration_vlan - returns the registration vlan for a node if he is unregistered
+
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if you have specific registration needs.
+
+Return values:
+
+=over 6
+
+=item * 0 means node is already registered
+
+=item * anything else is either a VLAN name string or a VLAN number
+
+=back
+
+=cut
+sub get_registration_vlan {
+    my ($this, $mac, $switch, $node_info) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    # trapping on registration is enabled
+    if (!isenabled($Config{'trapping'}{'registration'})) {
+        $logger->debug("Registration trapping disabled: skipping node is registered test");
+        return 0;
+    }
+
+    if (!defined($node_info) || ($node_info->{'status'} eq 'unreg')) {   
+        $logger->info("MAC: $mac is unregistered; belongs into registration VLAN");
+        return $switch->{_registrationVlan};
+    }
 }
 =back
 
