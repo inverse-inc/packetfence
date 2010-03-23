@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 123;
+use Test::More tests => 125;
 
 # file list copied from critic.t
 my @files = (
@@ -47,6 +47,8 @@ my @files = (
     '/usr/local/pf/lib/pf/pfcmd/pfcmd.pm',
     '/usr/local/pf/lib/pf/pfcmd.pm',
     '/usr/local/pf/lib/pf/pfcmd/report.pm',
+    '/usr/local/pf/lib/pf/radius.pm',
+    '/usr/local/pf/lib/pf/radius/custom.pm',
     '/usr/local/pf/lib/pf/rawip.pm',
     '/usr/local/pf/lib/pf/scan.pm',
     '/usr/local/pf/lib/pf/schedule.pm',
