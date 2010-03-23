@@ -13,12 +13,6 @@ Log::Log4perl::MDC->put( 'tid',  0 );
 use Test::More tests => 9;
 use Test::MockModule;
 
-# DBI injection
-BEGIN { push @ARGV, "--dbitest"; }
-use Test::MockDBI qw( :all );
-my $md = Test::MockDBI::get_instance();
-$pf::db::dbh = DBI->connect( "", "", "" );
-
 use lib '/usr/local/pf/lib';
 use pf::config;
 use pf::SwitchFactory;
