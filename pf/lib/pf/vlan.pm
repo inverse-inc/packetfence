@@ -44,46 +44,22 @@ sub vlan_determine_for_node {
     my $logger = Log::Log4perl::get_logger('pf::vlan');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
-    my $correctVlanForThisMAC;
-    my $open_violation_count = violation_count_trap($mac);
-
-    if ( $open_violation_count > 0 ) {
-        $logger->info("$mac has $open_violation_count open violations(s) with action=trap; ". 
-                      "it might belong into another VLAN (isolation or other).");
-
-        # By default we assume that we put the user in isolationVlan unless proven otherwise
-        my $vlan = "isolationVlan";
-
-        # fetch top violation
-        $logger->debug("What is the highest priority violation for this host?");
-        my $top_violation = violation_view_top($mac);
-        if ($top_violation && defined($top_violation->{'vid'})) {
-
-            # get violation id
-            my $vid=$top_violation->{'vid'};
-
-            # find violation class based on violation id
-            require pf::class;
-            my $class=pf::class::class_view($vid);
-            if ($class && defined($class->{'vlan'})) {
-
-                # override violation destination vlan
-                $vlan = $class->{'vlan'};
-                $logger->debug("Found target vlan parameter for this violation: $vlan");
-
-            } else {
-                $logger->warn("Could not find class entry for violation $vid. ".
-                              "Setting target vlan to switches.conf's isolationVlan");
-            }
-        } else {
-            $logger->warn("Could not find highest priority open violation for $mac. ".
-                          "Setting target vlan to switches.conf's isolationVlan");
+    # violation handling
+    my $violation = $this->get_violation_vlan($mac, $switch);
+    if (defined($violation) && $violation != 0) {
+        if ($violation == -1) {
+            $logger->warn("Kicking out nodes on violation is not supported in SNMP-Traps mode. "
+                . "Returning the switch's isolation VLAN.");
+            return $switch->{'_isolationVlan'};
         }
 
-        # Asking the switch to give us its configured vlan number for the vlan returned for the violation
-        # TODO: get rid of the _ character for the vlan variables (refactoring)
-        $correctVlanForThisMAC = $switch->{"_".$vlan};
-    } else {
+        # returning proper violation vlan
+        return $violation;
+    }
+
+    # if we are here, there was no violation
+
+    my $correctVlanForThisMAC;
         if ( !node_exist($mac) ) {
             $logger->info("node $mac does not yet exist in PF database. Adding it now");
             node_add_simple($mac);
@@ -106,7 +82,6 @@ sub vlan_determine_for_node {
             $correctVlanForThisMAC = $this->custom_getCorrectVlan( $switch, $ifIndex, $mac, $node_info->{status}, ( $node_info->{vlan} || $switch->{_normalVlan} ), $node_info->{pid} );
             $logger->info( "MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", VLAN: $correctVlanForThisMAC" );
         }
-    }
     return $correctVlanForThisMAC;
 }
 
@@ -313,6 +288,79 @@ sub shouldAutoRegister {
     return 0;
 }
 
+=item get_violation_vlan - returns the violation vlan for a node (if any)
+
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if you have specific isolation needs.
+
+Return values:
+
+=over 6
+
+=item * -1 means kick-out the node (not always supported)
+
+=item * 0 means no violation for this node
+
+=item * anything else is either a VLAN name string or a VLAN number
+
+=back
+
+=cut
+sub get_violation_vlan {
+    my ($this, $mac, $switch) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    my $open_violation_count = violation_count_trap($mac);
+    if ($open_violation_count == 0) {
+        return 0;
+    }
+
+    $logger->debug("$mac has $open_violation_count open violations(s) with action=trap; ".
+                   "it might belong into another VLAN (isolation or other).");
+    
+    # By default we assume that we put the user in isolationVlan unless proven otherwise
+    my $vlan = "isolationVlan";
+
+    # fetch top violation
+    $logger->trace("What is the highest priority violation for this host?");
+    my $top_violation = violation_view_top($mac);
+    # fetching top violation failed
+    if (!$top_violation || !defined($top_violation->{'vid'})) {
+    
+        $logger->warn("Could not find highest priority open violation for $mac. ".
+                      "Setting target vlan to switches.conf's isolationVlan");
+        # TODO: get rid of the _ character for the vlan variables (refactoring)
+        return $switch->{"_".$vlan};
+    }
+
+    # get violation id
+    my $vid=$top_violation->{'vid'};
+
+    # find violation class based on violation id
+    require pf::class;
+    my $class=pf::class::class_view($vid);
+    # finding violation class based on violation id failed
+    if (!$class || !defined($class->{'vlan'})) {
+
+        $logger->warn("Could not find class entry for violation $vid. ".
+                      "Setting target vlan to switches.conf's isolationVlan");
+        # TODO: get rid of the _ character for the vlan variables (refactoring)
+        return $switch->{"_".$vlan};
+    }           
+
+    # override violation destination vlan
+    $vlan = $class->{'vlan'};
+
+    $logger->info("highest priority violation for $mac is $vid. "
+        . "Target VLAN for violation: $vlan (".$switch->{"_".$vlan}.")");
+
+    # example of a specific violation that packetfence should block instead of isolate
+    # ex: block iPods / iPhones because they tend to overload controllers, radius and captive portal in isolation vlan
+    # if ($vid == '1100004') { return -1; }
+
+    # Asking the switch to give us its configured vlan number for the vlan returned for the violation
+    # TODO: get rid of the _ character for the vlan variables (refactoring)
+    return $switch->{"_".$vlan};
+}
 =back
 
 =head1 AUTHOR
