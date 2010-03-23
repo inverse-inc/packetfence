@@ -60,10 +60,6 @@ sub vlan_determine_for_node {
     # if we are here, there was no violation
 
     my $correctVlanForThisMAC;
-        if ( !node_exist($mac) ) {
-            $logger->info("node $mac does not yet exist in PF database. Adding it now");
-            node_add_simple($mac);
-        }
         my $node_info = node_view($mac);
         if ( isenabled( $Config{'trapping'}{'registration'} ) ) {
             if (   ( !defined($node_info) )
