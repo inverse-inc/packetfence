@@ -246,7 +246,7 @@ sub node_add {
         $data{status},    $data{user_agent},       $data{computername},
         $data{notes},     $data{dhcp_fingerprint}, $data{last_arp},
         $data{last_dhcp}, $data{switch},           $data{port},
-        $data{vlan}
+        $data{vlan},      $data{voip},             $data{connection_type}
     ) || return (0);
     return (1);
 }
