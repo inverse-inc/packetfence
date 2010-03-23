@@ -137,18 +137,15 @@ sub authorize {
         }
     }
 
-    # TODO IP Phones authentication over Radius not supported
-    if ($switch->isVoIPEnabled() && $isPhone) {
-
-        # we would probably need to change the Tunnel-Medium-Type or Tunnel-Type for proper VoIP 802.1x or VoIP MAB
-        $logger->warn("Radius authentication of IP Phones is not supported yet. ");
-        $switch->disconnectRead();
-        $switch->disconnectWrite();
-        return [RLM_MODULE_FAIL, undef];
-    } elsif (!$switch->isVoIPEnabled() && $isPhone) {
-
-        $logger->info("Device is an IP Phone but switch says VoIP is not enabled. "
-            . "Anyway, it's not supported through radius authentication yet. Ignoring...");
+    # FIXME: two test cases, 
+    # 1. isPhone and switch not VoIP enabled expect regist
+    # 2. isPhone and switch VoIP enabled expect FAIL
+    # if it's a phone, let authorize_voip decide (extension point)
+    if ($isPhone) {
+        my $voip_reply = $this->authorize_voip($connection_type, $switch, $mac, $port, $user_name, $ssid);
+        if (defined($voip_reply)) {
+            return $voip_reply;
+        }
     }
 
     # if switch is not in production, we don't interfere with it: we log and we return OK
@@ -294,6 +291,35 @@ sub _identify_connection_type {
             ."or rlm_perl_packetfence module.");
         return;
     }
+}
+
+=item * authorize_voip - radius authorization of VoIP
+
+All of the parameters from the authorize method call are passed just in case someone who override this sub 
+need it. However, connection_type is passed instead of nas_port_type and request_is_eap and the switch object 
+instead of switch_ip.
+
+Returns the same structure as authorize(), see it's POD doc for details.
+
+=cut
+sub authorize_voip {
+    my ($this, $connection_type, $switch, $mac, $port, $user_name, $ssid) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    # TODO IP Phones authentication over Radius not supported
+    if ($switch->isVoIPEnabled()) {
+
+        # we would probably need to change the Tunnel-Medium-Type or Tunnel-Type for proper VoIP 802.1x or VoIP MAB
+        $logger->warn("Radius authentication of IP Phones is not supported yet. ");
+        $switch->disconnectRead();
+        $switch->disconnectWrite();
+        return [RLM_MODULE_FAIL, undef];
+    } elsif (!$switch->isVoIPEnabled()) {
+
+        $logger->info("Device is an IP Phone but switch says VoIP is not enabled. "
+            . "Anyway, it's not supported through radius authentication yet. Ignoring...");
+    }
+    return;
 }
 =back
 
