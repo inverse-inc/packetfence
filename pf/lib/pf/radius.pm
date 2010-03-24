@@ -160,8 +160,18 @@ sub authorize {
         return [RLM_MODULE_OK, undef];
     }
 
-    my $vlan = $this->vlan_determine_for_node($vlan_obj, $mac, $switch, $port);
-    # FIXME if vlan == -1 insert dead entry in locationlog and return REJECT
+    # grab vlan
+    my $vlan = $this->vlan_determine_for_node($vlan_obj, $mac, $switch, $port, $connection_type, $ssid);
+
+    # should this node be kicked out?
+    if (defined($vlan) && $vlan == -1) {
+        $logger->info("According to rules in vlan_determine_for_node this node must be kicked out. Returning USERLOCK");
+        $switch->disconnectRead();
+        $switch->disconnectWrite();
+        # FIXME make sure this works before next release
+        return [RLM_MODULE_USERLOCK, undef];
+    }
+
     if (!$switch->isManagedVlan($vlan)) {
         $logger->warn("new VLAN $vlan is not a managed VLAN -> Returning FAIL. "
                      ."Is the target vlan in the vlans=... list?");
@@ -194,7 +204,7 @@ get_registration_vlan or get_normal_vlan.
     
 =cut    
 sub vlan_determine_for_node {
-    my ($this, $vlan_obj, $mac, $switch, $port) = @_;
+    my ($this, $vlan_obj, $mac, $switch, $port, $connection_type, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     # violation handling
@@ -214,7 +224,7 @@ sub vlan_determine_for_node {
     }
 
     # no violation, not unregistered, we are now handling a normal vlan
-    my $vlan = $vlan_obj->get_normal_vlan($switch, $port, $mac, $node_info);
+    my $vlan = $vlan_obj->get_normal_vlan($switch, $port, $mac, $node_info, $connection_type, $ssid);
     $logger->info("MAC: $mac, PID: " .$node_info->{pid}. ", Status: " .$node_info->{status}. ". Returned VLAN: $vlan");
     return $vlan;
 }

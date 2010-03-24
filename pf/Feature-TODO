@@ -16,6 +16,7 @@ File bug once merged
 
 Tests
 - switch in mode registration, MAB and 802.1x should not interfere with VLAN already set in config
+- test the RLM_MODULE_USERLOCK return if user must be kicked out (does this work?)
 - Don't act on trap answer: what happens?
 - Switch doesn't exist in switches.conf: what happens?
 test pfcmd_vlan setVlan with a string 

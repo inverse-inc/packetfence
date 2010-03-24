@@ -90,7 +90,7 @@ sub vlan_determine_for_node {
     }
 
     # no violation, not unregistered, we are now handling a normal vlan
-    my $vlan = $this->get_normal_vlan($switch, $ifIndex, $mac, $node_info);
+    my $vlan = $this->get_normal_vlan($switch, $ifIndex, $mac, $node_info, WIRED_SNMP_TRAPS);
     $logger->info("MAC: $mac, PID: " .$node_info->{pid}. ", Status: " .$node_info->{status}. ". Returned VLAN: $vlan");
     if (defined($vlan) && $vlan == -1) {
         $logger->warn("Kicking out nodes on violation is not supported in SNMP-Traps mode. "
@@ -271,14 +271,15 @@ Return values:
 =back
 
 =cut
-#FIXME pass some additional stuff relevant to radius requests (connection_type, ssid, any others?)
 sub get_normal_vlan {
 
     #$switch is the switch object (pf::SNMP)
     #$ifIndex is the ifIndex of the computer connected to
     #$mac is the mac connected
     #$node_info is the node info hashref (result of pf::node's node_view on $mac)
-    my ($this, $switch, $ifIndex, $mac, $node_info) = @_;
+    #$conn_type is set to the connnection type expressed as the constant in pf::config 
+    #$ssid is the name of the SSID (Be careful: will be undef if not called from wireless connection)
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $ssid) = @_;
     my $logger = Log::Log4perl->get_logger();
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
@@ -286,6 +287,12 @@ sub get_normal_vlan {
     # return guestVlan for pid=guest
     #if ($node_info->{pid} =~ /^guest$/i) {
     #    return $switch->getVlanByName('guestVlan');
+    #}
+
+    # custom example
+    # kick guests out of the secure wireless (won't work if the above is uncommented)
+    #if ($connection_type == WIRELESS_802.1X && $node_info->{pid} =~ /^guest$/i) {
+    #    return -1;
     #}
 
     return $switch->getVlanByName('normalVlan');
