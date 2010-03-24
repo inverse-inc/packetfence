@@ -44,7 +44,20 @@ sub vlan_determine_for_node {
     my $logger = Log::Log4perl::get_logger('pf::vlan');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
-    # FIXME: validate switch object here (and remove validation in get_normal_vlan) 
+    # is switch object correct?
+    my $valid_switch_object = (defined($switch) && ref($switch) && $switch->isa('pf::SNMP'));
+    if (!$valid_switch_object) {
+        # FIXME revisit this assumption depending on what we do with SwitchFactory caching
+        $logger->warn("Invalid switch object passed. I will use the default switch for now. "
+            ."Are you sure your switches.conf is correct?");
+        my $switchFactory = new pf::SwitchFactory(-configFile => $conf_dir.'/switches.conf');
+        $switch = $switchFactory->instantiate('default');
+        if (!$switch) {
+            $logger->error("Can't instantiate default switch! Check switches.conf. "
+                . "Don't expect PacketFence to run fine");
+        }
+    }
+
     # violation handling
     my $violation = $this->get_violation_vlan($mac, $switch);
     if (defined($violation) && $violation != 0) {
@@ -136,21 +149,7 @@ sub get_normal_vlan {
     my $logger = Log::Log4perl->get_logger();
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
-    # switch object correct, return normal vlan
-    my $valid_switch_object = (defined($switch) && ref($switch) && $switch->isa('pf::SNMP'));
-    if ($valid_switch_object && defined($switch->{_normalVlan})) {
-
-        # return switch-specific normal vlan or default normal vlan (if switch-specific normal vlan not defined)
-        return $switch->{_normalVlan};
-    }
-
-    # if switch object not correct, return default vlan
-    $logger->warn("Did not return correct VLAN: Invalid switch. Will return default VLAN as a fallback");
-    # Grab switch config
-    my $switchFactory = new pf::SwitchFactory(-configFile => "$conf_dir/switches.conf");
-    my %Config = %{$switchFactory->{_config}};
-
-    return $Config{'default'}{'normalVlan'};
+    return $switch->getVlanByName('normalVlan');
 }
 
 =item getNodeUpdatedInfo - updated fields when a node changed status

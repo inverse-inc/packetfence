@@ -68,6 +68,13 @@ my $switch_vlan_override = $switchFactory->instantiate('10.0.0.1');
 $vlan = $vlan_obj->vlan_determine_for_node('aa:bb:cc:dd:ee:ff', $switch_vlan_override, '1001');
 is($vlan, 15, "determine vlan for registered user on custom switch");
 
+# modify global $conf_dir so that t/data/switches.conf will be loaded instead of conf/switches.conf
+my $conf_dir = $main::pf::config::conf_dir;
+$main::pf::config::conf_dir = "/usr/local/pf/t/data";
+$vlan = $vlan_obj->vlan_determine_for_node('aa:bb:cc:dd:ee:ff', undef, '1001');
+is($vlan, 1, "determine vlan for a broken switch");
+$main::pf::config::conf_dir = $conf_dir;
+
 # mocked node_view returns unreg node
 $mock->mock('node_view', sub {
     return { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '',
@@ -77,9 +84,6 @@ $mock->mock('node_view', sub {
 
 $vlan = $vlan_obj->vlan_determine_for_node('aa:bb:cc:dd:ee:ff', $switch, '1001');
 is($vlan, 3, "obtain registrationVlan for an unreg node");
-
-$vlan = $vlan_obj->get_normal_vlan();
-is($vlan, 1, "obtain normalVlan with no switch ip");
 
 $vlan = $vlan_obj->get_normal_vlan($switch);
 is($vlan, 1, "obtain normalVlan on a switch with no normalVlan override");

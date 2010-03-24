@@ -8,6 +8,9 @@
 	- Pass node_info hashref instead of individual node information to 
 	  get_normal_vlan()
 	- Now using the new getVlanByName() call
+	- Pushed up the testing of the switch object into 
+	  determine_vlan_for_node and we are now degrading gracefully if object
+	  is wrong
 
 	* pf/lib/pf/SwitchFactory.pm: Modified the factory so it can produce
 	switches of the 'default' type.
