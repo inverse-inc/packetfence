@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 8;
+use Test::More tests => 13;
 use lib '/usr/local/pf/lib';
 
 use File::Basename qw(basename);
@@ -55,5 +55,23 @@ ok(!defined($switch->setVlanByName(1001, 'customVlan1', {})),
 ok(!defined($switch->setVlanByName(1001, 'customVlan2', {})), 
     "call setVlanByName with a vlan that exists but with an undef value");
 
-# TODO: one day we should do a positive test for setVlanByName 
-# but current architecture doesn't allow without redefining subs
+# TODO: one day we should do a positive test for setVlanByName (mocking setVlan)
+
+# getVlanByName
+$switch = $switchFactory->instantiate('10.0.0.1');
+my $vlan = $switch->getVlanByName('normalVlan');
+is($vlan, 15, 
+    "call getVlanByName with a VLAN that is overloaded in the switch");
+
+$vlan = $switch->getVlanByName('guestVlan');
+is($vlan, 5,
+    "call getVlanByName with a VLAN that is defined by default config");
+
+ok(!defined($switch->getVlanByName('inexistantVlan')),
+    "call getVlanByName with a vlan that doesn't exist in switches.conf");
+
+ok(!defined($switch->getVlanByName('customVlan1')),
+    "call getVlanByName with a vlan that exists but with a non-numeric value");
+
+ok(!defined($switch->getVlanByName('customVlan2')),
+    "call getVlanByName with a vlan that exists but with an undef value");

@@ -1,4 +1,8 @@
 2010-03-24	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP.pm: Added getVlanByName to resolve VLAN names from 
+	switches.conf into VLAN numbers and do appropriate validation and error
+	handling. Test case included.
+
 	* pf/lib/pf/vlan.pm: Refactoring pf::vlan according to review
 	- custom_getCorrectVlan renamed to get_normal_vlan
 	- Pass node_info hashref instead of individual node information to 
