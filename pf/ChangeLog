@@ -1,4 +1,6 @@
 2010-03-24	Olivier Bilodeau <obilodeau@inverse.ca>
+	Minor refactorings all over the place based on review comments
+
 	* pf/lib/pf/radius.pm: - Graceful recovery if switches.conf is broken
 	- Created vlan_determine_for_node and calling the get_xxx_vlan from 
 	  pf::vlan

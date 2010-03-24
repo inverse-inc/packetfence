@@ -103,9 +103,9 @@ sub authorize {
         $ssid = "";
     }
 
-    my $request_is_eap = 0;
+    my $eap_type = 0;
     if (exists($RAD_REQUEST{'EAP-Type'})) {
-        $request_is_eap = 1;
+        $eap_type = 1;
     }
 
     #format MAC
@@ -123,7 +123,7 @@ sub authorize {
     # some debugging (shown when running radius with -X)
     &radiusd::radlog(1, "PacketFence REQUEST-TYPE: ".$nas_port_type);
     &radiusd::radlog(1, "PacketFence SWITCH: $switch_ip");
-    &radiusd::radlog(1, "PacketFence REQUEST IS EAP?: $request_is_eap");
+    &radiusd::radlog(1, "PacketFence EAP-TYPE: $eap_type");
     &radiusd::radlog(1, "PacketFence MAC: ".$mac);
     &radiusd::radlog(1, "PacketFence PORT: ".$port);
     &radiusd::radlog(1, "PacketFence USER: ".$user_name);
@@ -139,11 +139,11 @@ sub authorize {
     }
 
     # uncomment following for output of all parameters to syslog (for debugging)
-    # syslog("info", "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP => $request_is_eap, ".
+    # syslog("info", "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP-Type => $eap_type, ".
     #        "mac => $mac, port => $port, username => $user_name, ssid => $ssid");
 
     # TODO: switch_ip is no longer a good name, it needs to change
-    my $som = $soap->radius_authorize($nas_port_type, $switch_ip, $request_is_eap, 
+    my $som = $soap->radius_authorize($nas_port_type, $switch_ip, $eap_type, 
                                       $mac, $port, $user_name, $ssid)
         or return server_error_handler();
 

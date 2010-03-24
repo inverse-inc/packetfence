@@ -71,16 +71,16 @@ See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMET
 # scalar return without updating the clients.
 # FIXME: no way of saying DENY on violation, more refactoring out of pf::vlan to come
 sub authorize {
-    my ($this, $nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid) = @_;
+    my ($this, $nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     # TODO this is an entry point, maybe I need something like:
     # Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     $logger->trace("received a radius authorization request with parameters: ".
-        "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP => $request_is_eap, ".
+        "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP-Type => $eap_type, ".
         "mac => $mac, port => $port, username => $user_name, ssid => $ssid");
 
-    my $connection_type = $this->_identify_connection_type($nas_port_type, $request_is_eap);
+    my $connection_type = $this->_identify_connection_type($nas_port_type, $eap_type);
 
     # FIXME maybe it's in there that we should do all the magic that happened in rlm_perl_packetfence_sql
     # meaning: the return should be decided by doWeActOnThisCall, not always RLM_MODULE_NOOP
@@ -274,7 +274,7 @@ returns 0 for no, 1 for yes
 
 =cut
 sub doWeActOnThisCall_wireless {
-    my ($this, $nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid) = @_;
+    my ($this, $nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     $logger->trace("doWeActOnThisCall_wireless called");
 
@@ -290,7 +290,7 @@ returns 0 for no, 1 for yes
     
 =cut
 sub doWeActOnThisCall_wired {
-    my ($this, $nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid) = @_;
+    my ($this, $nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     $logger->trace("doWeActOnThisCall_wired called");
 
@@ -307,15 +307,15 @@ Returns the constants WIRED or WIRELESS. Undef if unable to identify.
 
 =cut
 sub _identify_connection_type {
-    my ($this, $nas_port_type, $request_is_eap) = @_;
+    my ($this, $nas_port_type, $eap_type) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    $request_is_eap = 0 if (not defined($request_is_eap));
+    $eap_type = 0 if (not defined($eap_type));
     if (defined($nas_port_type)) {
     
         if ($nas_port_type =~ /^Wireless-802\.11$/) {
 
-            if ($request_is_eap) {
+            if ($eap_type) {
                 return WIRELESS_802_1X;
             } else {
                 return WIRELESS_MAC_AUTH;
@@ -323,7 +323,7 @@ sub _identify_connection_type {
     
         } elsif ($nas_port_type =~ /^Ethernet$/) {
 
-            if ($request_is_eap) {
+            if ($eap_type) {
                 return WIRED_802_1X;
             } else {
                 return WIRED_MAC_AUTH_BYPASS;
@@ -331,7 +331,7 @@ sub _identify_connection_type {
 
         } else {
             # we didn't recognize request_type, this is a problem
-            $logger->warn("Unknown connection_type. NAS-Port-Type: $nas_port_type, EAP-Type: $request_is_eap.");
+            $logger->warn("Unknown connection_type. NAS-Port-Type: $nas_port_type, EAP-Type: $eap_type.");
             return;
         }
     } else {
@@ -344,7 +344,7 @@ sub _identify_connection_type {
 =item * authorize_voip - radius authorization of VoIP
 
 All of the parameters from the authorize method call are passed just in case someone who override this sub 
-need it. However, connection_type is passed instead of nas_port_type and request_is_eap and the switch object 
+need it. However, connection_type is passed instead of nas_port_type and eap_type and the switch object 
 instead of switch_ip.
 
 Returns the same structure as authorize(), see it's POD doc for details.

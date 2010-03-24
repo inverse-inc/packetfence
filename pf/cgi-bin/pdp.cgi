@@ -51,13 +51,13 @@ sub event_add {
 }
 
 sub radius_authorize {
-  my ($class, $nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid) = @_;
+  my ($class, $nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name, $ssid) = @_;
   my $radius = new pf::radius::custom();
 
   #TODO change to trace level once done
   $logger->info("received a radius authorization request with parameters: ".
-           "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP => $request_is_eap, ".
+           "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP-Type => $eap_type, ".
            "mac => $mac, port => $port, username => $user_name, ssid => $ssid");
 
-  return $radius->authorize($nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid);
+  return $radius->authorize($nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name, $ssid);
 }
