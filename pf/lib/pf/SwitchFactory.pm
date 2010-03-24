@@ -30,7 +30,7 @@ use pf::util;
 =over
 
 =cut
-
+#TODO: transform into a singleton? http://perldesignpatterns.com/?SingletonPattern
 sub new {
     my $logger = Log::Log4perl::get_logger("pf::SwitchFactory");
     $logger->debug("instantiating new SwitchFactory object");
