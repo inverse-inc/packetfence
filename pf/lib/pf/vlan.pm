@@ -44,6 +44,7 @@ sub vlan_determine_for_node {
     my $logger = Log::Log4perl::get_logger('pf::vlan');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
+    # FIXME: validate switch object here (and remove validation in get_normal_vlan) 
     # violation handling
     my $violation = $this->get_violation_vlan($mac, $switch);
     if (defined($violation) && $violation != 0) {
@@ -66,11 +67,11 @@ sub vlan_determine_for_node {
         return $registration;
     }
 
-    my $correctVlanForThisMAC;
-                #TODO: find a way to cleanly wrap this
-                $correctVlanForThisMAC = $this->custom_getCorrectVlan( $switch, $ifIndex, $mac, $node_info->{status}, $node_info->{vlan}, $node_info->{pid} );
-                $logger->info( "MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", VLAN: $correctVlanForThisMAC" );
-    return $correctVlanForThisMAC;
+    # no violation, not unregistered, we are now handling a normal vlan
+    my $vlan;
+    $vlan = $this->get_normal_vlan($switch, $ifIndex, $mac, $node_info->{status}, $node_info->{vlan}, $node_info->{pid});
+    $logger->info("MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", VLAN: $vlan");
+    return $vlan;
 }
 
 # don't act on configured uplinks
@@ -113,7 +114,7 @@ sub custom_doWeActOnThisTrap {
     return $weActOnThisTrap;
 }
 
-=item custom_getCorrectVlan - returns normal vlan
+=item get_normal_vlan - returns normal vlan
 
 This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
 version doesn't do the right thing for you. By default it will return the 
@@ -121,7 +122,10 @@ normal vlan for the given switch if defined, otherwise it will return the normal
 vlan for the whole network.
 
 =cut
-sub custom_getCorrectVlan {
+#FIXME put return guestVlan if pid='guest' commented example
+#FIXME pass node_info hashref instead of individual node information
+#FIXME pass some additional stuff relevant to radius requests (connection_type, ssid, any others?)
+sub get_normal_vlan {
 
     #$switch is the switch object (pf::SNMP)
     #$ifIndex is the ifIndex of the computer connected to
@@ -293,6 +297,7 @@ Return values:
 =back
 
 =cut
+#FIXME add a defined($switch->{"_".$vlan}) test and complain if it doesn't exist
 sub get_violation_vlan {
     my ($this, $mac, $switch) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -366,6 +371,7 @@ Return values:
 =back
 
 =cut
+#FIXME add a defined($switch->{"_".$vlan}) test and complain if it doesn't exist
 sub get_registration_vlan {
     my ($this, $mac, $switch, $node_info) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));

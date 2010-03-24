@@ -1,5 +1,9 @@
+2010-03-24	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/vlan.pm: Refactoring pf::vlan according to review
+	- custom_getCorrectVlan renamed to get_normal_vlan
+
 2010-03-23	Olivier Bilodeau <obilodeau@inverse.ca>
-	* pf/lib/pf/vlan.pm: Refactoring pf::radius according to review
+	* pf/lib/pf/vlan.pm: Refactoring pf::vlan according to review
 	- Extracted get_violation_vlan out of vlan_determine_for_node for 
 	future use by pf::radius
 	- Removing node_exist()/node_add_simple condition: it never happens

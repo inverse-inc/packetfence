@@ -89,7 +89,7 @@ if (defined($params{'mode'})) {
                              .join( "\n", @errors ) . "\n" );
          } else {
              # insert code for vlan assignation on registration here
-             # (but also make sure you override custom_getCorrectVlan)
+             # (but also make sure you override pf::vlan's get_normal_vlan)
              $info{'vlan'}=$ConfigVlan{'default'}{'normalVlan'};
          }
       }
