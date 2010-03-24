@@ -274,7 +274,7 @@ returns 0 for no, 1 for yes
 
 =cut
 sub doWeActOnThisCall_wireless {
-    my ($this, $nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name, $ssid) = @_;
+    my ($this, $connection_type, $switch_ip, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     $logger->trace("doWeActOnThisCall_wireless called");
 
@@ -290,7 +290,7 @@ returns 0 for no, 1 for yes
     
 =cut
 sub doWeActOnThisCall_wired {
-    my ($this, $nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name, $ssid) = @_;
+    my ($this, $connection_type, $switch_ip, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     $logger->trace("doWeActOnThisCall_wired called");
 
