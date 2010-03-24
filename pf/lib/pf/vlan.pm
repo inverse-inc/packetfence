@@ -69,8 +69,8 @@ sub vlan_determine_for_node {
 
     # no violation, not unregistered, we are now handling a normal vlan
     my $vlan;
-    $vlan = $this->get_normal_vlan($switch, $ifIndex, $mac, $node_info->{status}, $node_info->{vlan}, $node_info->{pid});
-    $logger->info("MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", VLAN: $vlan");
+    $vlan = $this->get_normal_vlan($switch, $ifIndex, $mac, $node_info);
+    $logger->info("MAC: $mac, PID: " .$node_info->{pid}. ", Status: " .$node_info->{status}. ". Returned VLAN: $vlan");
     return $vlan;
 }
 
@@ -123,17 +123,14 @@ vlan for the whole network.
 
 =cut
 #FIXME put return guestVlan if pid='guest' commented example
-#FIXME pass node_info hashref instead of individual node information
 #FIXME pass some additional stuff relevant to radius requests (connection_type, ssid, any others?)
 sub get_normal_vlan {
 
     #$switch is the switch object (pf::SNMP)
     #$ifIndex is the ifIndex of the computer connected to
     #$mac is the mac connected
-    #$status is the node's status in the database
-    #$vlan is the vlan set for this node in the database
-    #$pid is the owner of this node in the database
-    my ( $this, $switch, $ifIndex, $mac, $status, $vlan, $pid ) = @_;
+    #$node_info is the node info hashref (result of pf::node's node_view on $mac)
+    my ($this, $switch, $ifIndex, $mac, $node_info) = @_;
     my $logger = Log::Log4perl->get_logger();
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
