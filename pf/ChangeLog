@@ -11,6 +11,7 @@
 	- Pushed up the testing of the switch object into 
 	  determine_vlan_for_node and we are now degrading gracefully if object
 	  is wrong
+	- Allowing a -1 return from get_normal_vlan to kick out users
 
 	* pf/lib/pf/SwitchFactory.pm: Modified the factory so it can produce
 	switches of the 'default' type.

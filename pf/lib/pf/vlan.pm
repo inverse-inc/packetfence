@@ -64,6 +64,7 @@ sub vlan_determine_for_node {
             $logger->error("Can't instantiate default switch! Check switches.conf. "
                 . "Don't expect PacketFence to run fine");
         }
+        $switch->{_mode} = 'production'; # set this switch instance in production
     }
 
     # violation handling
@@ -89,9 +90,13 @@ sub vlan_determine_for_node {
     }
 
     # no violation, not unregistered, we are now handling a normal vlan
-    my $vlan;
-    $vlan = $this->get_normal_vlan($switch, $ifIndex, $mac, $node_info);
+    my $vlan = $this->get_normal_vlan($switch, $ifIndex, $mac, $node_info);
     $logger->info("MAC: $mac, PID: " .$node_info->{pid}. ", Status: " .$node_info->{status}. ". Returned VLAN: $vlan");
+    if (defined($vlan) && $vlan == -1) {
+        $logger->warn("Kicking out nodes on violation is not supported in SNMP-Traps mode. "
+            . "Returning the switch's isolation VLAN.");
+        return $switch->getVlanByName('isolationVlan');
+    }
     return $vlan;
 }
 
@@ -250,6 +255,20 @@ This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default
 version doesn't do the right thing for you. By default it will return the 
 normal vlan for the given switch if defined, otherwise it will return the normal
 vlan for the whole network.
+
+Return values:
+
+=over 6
+
+=item * -1 means kick-out the node (not always supported)
+
+=item * 0 means node is already registered
+
+=item * undef means there was an error
+
+=item * anything else is either a VLAN name string or a VLAN number
+    
+=back
 
 =cut
 #FIXME pass some additional stuff relevant to radius requests (connection_type, ssid, any others?)
