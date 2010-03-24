@@ -134,11 +134,11 @@ sub authorize {
 
     my $vlan_obj = new pf::vlan::custom();
     # should we auto-register? let's ask the VLAN object
-    if ($vlan_obj->shouldAutoRegister($mac, $switch->isRegistrationMode(), 0, $isPhone, $connection_type)) {
+    if ($vlan_obj->shouldAutoRegister($mac, $switch->isRegistrationMode(), 0, $isPhone, $connection_type, $ssid)) {
 
         # automatic registration
         my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch->{_ip}, $port,
-            $mac, undef, $switch->isRegistrationMode(), $isPhone, $connection_type);
+            $mac, undef, $switch->isRegistrationMode(), $isPhone, $connection_type, $ssid);
 
         $logger->debug("auto-registering node $mac");
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {

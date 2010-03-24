@@ -278,7 +278,7 @@ sub get_normal_vlan {
     #$mac is the mac connected
     #$node_info is the node info hashref (result of pf::node's node_view on $mac)
     #$conn_type is set to the connnection type expressed as the constant in pf::config 
-    #$ssid is the name of the SSID (Be careful: will be undef if not called from wireless connection)
+    #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $ssid) = @_;
     my $logger = Log::Log4perl->get_logger();
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
@@ -340,12 +340,14 @@ $isPhone is set to 1 if device is considered an IP Phone.
 
 $conn_type is set to the connnection type expressed as the constant in pf::config
 
+$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
+
 Returns an anonymous hash that is meant for node_register()
 
 =cut 
 sub getNodeInfoForAutoReg {
     my ($this, $switch_ip, $switch_port, $mac, $vlan, 
-        $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type) = @_;
+        $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $ssid) = @_;
 
     # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
     my %node_info = (
@@ -390,11 +392,13 @@ $isPhone is set to 1 if device is considered an IP Phone.
 
 $conn_type is set to the connnection type expressed as the constant in pf::config
 
+$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
+
 returns 1 if we should register, 0 otherwise
 
 =cut
 sub shouldAutoRegister {
-    my ($this, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type) = @_;
+    my ($this, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $ssid) = @_;
     my $logger = Log::Log4perl->get_logger();
 
     $logger->trace("asked if should auto-register device");
