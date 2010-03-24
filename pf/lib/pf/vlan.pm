@@ -56,6 +56,8 @@ sub vlan_determine_for_node {
 
         # returning proper violation vlan
         return $violation;
+    } elsif (!defined($violation)) {
+        $logger->warn("There was a problem identifying vlan for violation. Will act as if there was no violation.");
     }
 
     # if we are here, there was no violation
@@ -289,12 +291,13 @@ Return values:
 
 =item * 0 means no violation for this node
 
+=item * undef means there was an error
+
 =item * anything else is either a VLAN name string or a VLAN number
 
 =back
 
 =cut
-#FIXME add a defined($switch->{"_".$vlan}) test and complain if it doesn't exist
 sub get_violation_vlan {
     my ($this, $mac, $switch) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -318,8 +321,7 @@ sub get_violation_vlan {
     
         $logger->warn("Could not find highest priority open violation for $mac. ".
                       "Setting target vlan to switches.conf's isolationVlan");
-        # TODO: get rid of the _ character for the vlan variables (refactoring)
-        return $switch->{"_".$vlan};
+        return $switch->getVlanByName($vlan);
     }
 
     # get violation id
@@ -333,23 +335,22 @@ sub get_violation_vlan {
 
         $logger->warn("Could not find class entry for violation $vid. ".
                       "Setting target vlan to switches.conf's isolationVlan");
-        # TODO: get rid of the _ character for the vlan variables (refactoring)
-        return $switch->{"_".$vlan};
+        return $switch->getVlanByName($vlan);
     }           
 
     # override violation destination vlan
     $vlan = $class->{'vlan'};
-
-    $logger->info("highest priority violation for $mac is $vid. "
-        . "Target VLAN for violation: $vlan (".$switch->{"_".$vlan}.")");
 
     # example of a specific violation that packetfence should block instead of isolate
     # ex: block iPods / iPhones because they tend to overload controllers, radius and captive portal in isolation vlan
     # if ($vid == '1100004') { return -1; }
 
     # Asking the switch to give us its configured vlan number for the vlan returned for the violation
-    # TODO: get rid of the _ character for the vlan variables (refactoring)
-    return $switch->{"_".$vlan};
+    my $vlan_number = $switch->getVlanByName($vlan);
+    if (defined($vlan_number)) {
+        $logger->info("highest priority violation for $mac is $vid. Target VLAN for violation: $vlan ($vlan_number)");
+    }
+    return $vlan_number;
 }
 
 
@@ -363,12 +364,13 @@ Return values:
 
 =item * 0 means node is already registered
 
+=item * undef means there was an error
+
 =item * anything else is either a VLAN name string or a VLAN number
 
 =back
 
 =cut
-#FIXME add a defined($switch->{"_".$vlan}) test and complain if it doesn't exist
 sub get_registration_vlan {
     my ($this, $mac, $switch, $node_info) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -381,8 +383,9 @@ sub get_registration_vlan {
 
     if (!defined($node_info) || ($node_info->{'status'} eq 'unreg')) {   
         $logger->info("MAC: $mac is unregistered; belongs into registration VLAN");
-        return $switch->{_registrationVlan};
+        return $switch->getVlanByName('registrationVlan');
     }
+    return 0;
 }
 =back
 

@@ -7,6 +7,7 @@
 	- custom_getCorrectVlan renamed to get_normal_vlan
 	- Pass node_info hashref instead of individual node information to 
 	  get_normal_vlan()
+	- Now using the new getVlanByName() call
 
 2010-03-23	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/vlan.pm: Refactoring pf::vlan according to review
