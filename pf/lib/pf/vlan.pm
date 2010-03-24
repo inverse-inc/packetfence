@@ -135,7 +135,6 @@ normal vlan for the given switch if defined, otherwise it will return the normal
 vlan for the whole network.
 
 =cut
-#FIXME put return guestVlan if pid='guest' commented example
 #FIXME pass some additional stuff relevant to radius requests (connection_type, ssid, any others?)
 sub get_normal_vlan {
 
@@ -146,6 +145,12 @@ sub get_normal_vlan {
     my ($this, $switch, $ifIndex, $mac, $node_info) = @_;
     my $logger = Log::Log4perl->get_logger();
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
+
+    # custom example
+    # return guestVlan for pid=guest
+    #if ($node_info->{pid} =~ /^guest$/i) {
+    #    return $switch->getVlanByName('guestVlan');
+    #}
 
     return $switch->getVlanByName('normalVlan');
 }
