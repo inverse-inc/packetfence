@@ -105,7 +105,7 @@ sub authorize {
     # potential avenues: 
     # - HEAP MySQL table
     # - Cache::FileCache
-    # - proper mod_perl
+    # - proper mod_perl (or another daemon and we pass our requests to it via IPC)
     # - shared mem (IPC::MM)
     # - memcached
     # http://www.slideshare.net/acme/scaling-with-memcached
