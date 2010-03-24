@@ -9,6 +9,9 @@
 	  get_normal_vlan()
 	- Now using the new getVlanByName() call
 
+	* pf/lib/pf/SwitchFactory.pm: Modified the factory so it can produce
+	switches of the 'default' type.
+
 2010-03-23	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/vlan.pm: Refactoring pf::vlan according to review
 	- Extracted get_violation_vlan out of vlan_determine_for_node for 
