@@ -64,7 +64,7 @@ sub vlan_determine_for_node {
         if ($violation == -1) {
             $logger->warn("Kicking out nodes on violation is not supported in SNMP-Traps mode. "
                 . "Returning the switch's isolation VLAN.");
-            return $switch->{'_isolationVlan'};
+            return $switch->getVlanByName('isolationVlan');
         }
 
         # returning proper violation vlan
@@ -73,9 +73,7 @@ sub vlan_determine_for_node {
         $logger->warn("There was a problem identifying vlan for violation. Will act as if there was no violation.");
     }
 
-    # if we are here, there was no violation
-
-    # registration handling
+    # there were no violation, now onto registration handling
     my $node_info = node_view($mac);
     my $registration = $this->get_registration_vlan($mac, $switch, $node_info);
     if (defined($registration) && $registration != 0) {
