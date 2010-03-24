@@ -39,6 +39,14 @@ sub new {
     return $this;
 }
 
+=item vlan_determine_for_node - what VLAN should a node be put into
+
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
+version doesn't do the right thing for you. However it is very generic, 
+maybe what you are looking for needs to be done in get_violation_vlan, 
+get_registration_vlan or get_normal_vlan.
+
+=cut
 sub vlan_determine_for_node {
     my ( $this, $mac, $switch, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::vlan');
@@ -125,6 +133,115 @@ sub custom_doWeActOnThisTrap {
                 . " ifindex $ifIndex which is not ethernetCsmacd" );
     }
     return $weActOnThisTrap;
+}
+
+=item get_violation_vlan - returns the violation vlan for a node (if any)
+        
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if you have specific isolation needs.
+    
+Return values:
+    
+=over 6 
+        
+=item * -1 means kick-out the node (not always supported)
+    
+=item * 0 means no violation for this node
+    
+=item * undef means there was an error
+    
+=item * anything else is either a VLAN name string or a VLAN number
+    
+=back
+
+=cut
+sub get_violation_vlan {
+    my ($this, $mac, $switch) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    my $open_violation_count = violation_count_trap($mac);
+    if ($open_violation_count == 0) {
+        return 0;
+    }
+
+    $logger->debug("$mac has $open_violation_count open violations(s) with action=trap; ".
+                   "it might belong into another VLAN (isolation or other).");
+    
+    # By default we assume that we put the user in isolationVlan unless proven otherwise
+    my $vlan = "isolationVlan";
+
+    # fetch top violation
+    $logger->trace("What is the highest priority violation for this host?");
+    my $top_violation = violation_view_top($mac);
+    # fetching top violation failed
+    if (!$top_violation || !defined($top_violation->{'vid'})) {
+    
+        $logger->warn("Could not find highest priority open violation for $mac. ".
+                      "Setting target vlan to switches.conf's isolationVlan");
+        return $switch->getVlanByName($vlan);
+    }   
+        
+    # get violation id
+    my $vid=$top_violation->{'vid'};
+    
+    # find violation class based on violation id
+    require pf::class;
+    my $class=pf::class::class_view($vid);
+    # finding violation class based on violation id failed
+    if (!$class || !defined($class->{'vlan'})) {
+
+        $logger->warn("Could not find class entry for violation $vid. ".
+                      "Setting target vlan to switches.conf's isolationVlan");
+        return $switch->getVlanByName($vlan);
+    }
+
+    # override violation destination vlan
+    $vlan = $class->{'vlan'};
+
+    # example of a specific violation that packetfence should block instead of isolate
+    # ex: block iPods / iPhones because they tend to overload controllers, radius and captive portal in isolation vlan
+    # if ($vid == '1100004') { return -1; }
+
+    # Asking the switch to give us its configured vlan number for the vlan returned for the violation
+    my $vlan_number = $switch->getVlanByName($vlan);
+    if (defined($vlan_number)) {
+        $logger->info("highest priority violation for $mac is $vid. Target VLAN for violation: $vlan ($vlan_number)");
+    }
+    return $vlan_number;
+}
+
+
+=item get_registration_vlan - returns the registration vlan for a node if he is unregistered
+
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if you have specific registration needs.
+
+Return values:
+
+=over 6
+
+=item * 0 means node is already registered
+
+=item * undef means there was an error
+
+=item * anything else is either a VLAN name string or a VLAN number
+    
+=back
+
+=cut
+sub get_registration_vlan {
+    my ($this, $mac, $switch, $node_info) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    # trapping on registration is enabled
+    if (!isenabled($Config{'trapping'}{'registration'})) {
+        $logger->debug("Registration trapping disabled: skipping node is registered test");
+        return 0;
+    }
+
+    if (!defined($node_info) || ($node_info->{'status'} eq 'unreg')) {
+        $logger->info("MAC: $mac is unregistered; belongs into registration VLAN");
+        return $switch->getVlanByName('registrationVlan');
+    }
+    return 0;
 }
 
 =item get_normal_vlan - returns normal vlan
@@ -278,115 +395,6 @@ sub shouldAutoRegister {
     #}
 
     # otherwise don't autoreg
-    return 0;
-}
-
-=item get_violation_vlan - returns the violation vlan for a node (if any)
-
-This sub is meant to be overridden in lib/pf/vlan/custom.pm if you have specific isolation needs.
-
-Return values:
-
-=over 6
-
-=item * -1 means kick-out the node (not always supported)
-
-=item * 0 means no violation for this node
-
-=item * undef means there was an error
-
-=item * anything else is either a VLAN name string or a VLAN number
-
-=back
-
-=cut
-sub get_violation_vlan {
-    my ($this, $mac, $switch) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-
-    my $open_violation_count = violation_count_trap($mac);
-    if ($open_violation_count == 0) {
-        return 0;
-    }
-
-    $logger->debug("$mac has $open_violation_count open violations(s) with action=trap; ".
-                   "it might belong into another VLAN (isolation or other).");
-    
-    # By default we assume that we put the user in isolationVlan unless proven otherwise
-    my $vlan = "isolationVlan";
-
-    # fetch top violation
-    $logger->trace("What is the highest priority violation for this host?");
-    my $top_violation = violation_view_top($mac);
-    # fetching top violation failed
-    if (!$top_violation || !defined($top_violation->{'vid'})) {
-    
-        $logger->warn("Could not find highest priority open violation for $mac. ".
-                      "Setting target vlan to switches.conf's isolationVlan");
-        return $switch->getVlanByName($vlan);
-    }
-
-    # get violation id
-    my $vid=$top_violation->{'vid'};
-
-    # find violation class based on violation id
-    require pf::class;
-    my $class=pf::class::class_view($vid);
-    # finding violation class based on violation id failed
-    if (!$class || !defined($class->{'vlan'})) {
-
-        $logger->warn("Could not find class entry for violation $vid. ".
-                      "Setting target vlan to switches.conf's isolationVlan");
-        return $switch->getVlanByName($vlan);
-    }           
-
-    # override violation destination vlan
-    $vlan = $class->{'vlan'};
-
-    # example of a specific violation that packetfence should block instead of isolate
-    # ex: block iPods / iPhones because they tend to overload controllers, radius and captive portal in isolation vlan
-    # if ($vid == '1100004') { return -1; }
-
-    # Asking the switch to give us its configured vlan number for the vlan returned for the violation
-    my $vlan_number = $switch->getVlanByName($vlan);
-    if (defined($vlan_number)) {
-        $logger->info("highest priority violation for $mac is $vid. Target VLAN for violation: $vlan ($vlan_number)");
-    }
-    return $vlan_number;
-}
-
-
-=item get_registration_vlan - returns the registration vlan for a node if he is unregistered
-
-This sub is meant to be overridden in lib/pf/vlan/custom.pm if you have specific registration needs.
-
-Return values:
-
-=over 6
-
-=item * 0 means node is already registered
-
-=item * undef means there was an error
-
-=item * anything else is either a VLAN name string or a VLAN number
-
-=back
-
-=cut
-sub get_registration_vlan {
-    my ($this, $mac, $switch, $node_info) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-
-    # trapping on registration is enabled
-    if (!isenabled($Config{'trapping'}{'registration'})) {
-        $logger->debug("Registration trapping disabled: skipping node is registered test");
-        return 0;
-    }
-
-    if (!defined($node_info) || ($node_info->{'status'} eq 'unreg')) {   
-        $logger->info("MAC: $mac is unregistered; belongs into registration VLAN");
-        return $switch->getVlanByName('registrationVlan');
-    }
     return 0;
 }
 =back
