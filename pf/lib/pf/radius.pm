@@ -73,6 +73,8 @@ See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMET
 sub authorize {
     my ($this, $nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
+    # TODO this is an entry point, maybe I need something like:
+    # Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     $logger->trace("received a radius authorization request with parameters: ".
         "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP => $request_is_eap, ".
@@ -113,11 +115,18 @@ sub authorize {
 
     $logger->debug("instantiating switch");
     my $switch = $switchFactory->instantiate($switch_ip);
-          
+
+    # is switch object correct?
     if (!$switch) {
-        $logger->error("Can't instantiate switch $switch_ip! "
-                      ."Are you sure your network equipement configuration is complete?");
-        return [RLM_MODULE_FAIL, undef];
+        $logger->warn("Can't instantiate switch $switch_ip. I will use the default switch for now. "
+            ."Are you sure your switches.conf is correct?");
+        $switch = $switchFactory->instantiate('default');
+        if (!$switch) {
+            $logger->error("Can't instantiate default switch! Check switches.conf. "
+                . "Don't expect PacketFence to run fine");
+            return [RLM_MODULE_FAIL, undef];
+        }
+        $switch->{_mode} = 'production'; # set this switch instance in production
     }
 
     # determine if we need to perform automatic registration
@@ -151,7 +160,8 @@ sub authorize {
         return [RLM_MODULE_OK, undef];
     }
 
-    my $vlan = $vlan_obj->vlan_determine_for_node($mac, $switch, $port);
+    my $vlan = $this->vlan_determine_for_node($vlan_obj, $mac, $switch, $port);
+    # FIXME if vlan == -1 insert dead entry in locationlog and return REJECT
     if (!$switch->isManagedVlan($vlan)) {
         $logger->warn("new VLAN $vlan is not a managed VLAN -> Returning FAIL. "
                      ."Is the target vlan in the vlans=... list?");
@@ -173,6 +183,40 @@ sub authorize {
     $RAD_REPLY{'Tunnel-Private-Group-ID'} = $vlan;
     $logger->info("Returning ACCEPT with VLAN: $vlan");
     return [RLM_MODULE_OK, %RAD_REPLY];
+}
+
+=item * vlan_determine_for_node - what VLAN should a node be put into
+        
+This sub is meant to be overridden in lib/pf/radius/custom.pm if the default 
+version doesn't do the right thing for you. However it is very generic, 
+maybe what you are looking for needs to be done in pf::vlan's get_violation_vlan, 
+get_registration_vlan or get_normal_vlan.
+    
+=cut    
+sub vlan_determine_for_node {
+    my ($this, $vlan_obj, $mac, $switch, $port) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    # violation handling
+    my $violation = $vlan_obj->get_violation_vlan($mac, $switch);
+    if (defined($violation) && $violation != 0) {
+        # returning proper violation vlan
+        return $violation;
+    } elsif (!defined($violation)) {
+        $logger->warn("There was a problem identifying vlan for violation. Will act as if there was no violation.");
+    }
+
+    # there were no violation, now onto registration handling
+    my $node_info = node_view($mac);
+    my $registration = $vlan_obj->get_registration_vlan($mac, $switch, $node_info);
+    if (defined($registration) && $registration != 0) {
+        return $registration;
+    }
+
+    # no violation, not unregistered, we are now handling a normal vlan
+    my $vlan = $vlan_obj->get_normal_vlan($switch, $port, $mac, $node_info);
+    $logger->info("MAC: $mac, PID: " .$node_info->{pid}. ", Status: " .$node_info->{status}. ". Returned VLAN: $vlan");
+    return $vlan;
 }
 
 =item * doWeActOnThisCall - is this request of any interest?

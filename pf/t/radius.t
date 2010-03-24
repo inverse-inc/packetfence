@@ -76,8 +76,11 @@ is_deeply($radius_response,
 $switch_ip = "10.0.0.100";
 $radius_response = $radius->authorize($nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid);
 is_deeply($radius_response, 
-    [RLM_MODULE_FAIL, undef],
-    "expect failure: switch doesn't exist"
+    [RLM_MODULE_OK, (
+        'Tunnel-Private-Group-ID'=> $regist_vlan,
+        'Tunnel-Type'            => 13,
+        'Tunnel-Medium-Type'     => 6)],
+    "expect graceful failure: switch doesn't exist but it will return default registration VLAN"
 );
 
 # VoIP tests

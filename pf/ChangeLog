@@ -1,4 +1,8 @@
 2010-03-24	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/radius.pm: - Graceful recovery if switches.conf is broken
+	- Created vlan_determine_for_node and calling the get_xxx_vlan from 
+	  pf::vlan
+
 	* pf/lib/pf/SNMP.pm: Added getVlanByName to resolve VLAN names from 
 	switches.conf into VLAN numbers and do appropriate validation and error
 	handling. Test case included.
