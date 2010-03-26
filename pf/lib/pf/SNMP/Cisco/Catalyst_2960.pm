@@ -205,13 +205,28 @@ sub authorizeMAC {
     return 1;
 }
 
+sub NASport_to_ifIndex {
+    my ($this, $NAS_port) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    if ($NAS_port =~ s/^5/1/) {
+        return $NAS_port;
+    } else {
+        $logger->warn("Unknown NAS-Port format. ifIndex translation could have failed. "
+            ."VLAN re-assignment and switch/port accounting will be affected.");
+    }
+    return $NAS_port;
+}
+
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008 Inverse inc.
+Copyright (C) 2006-2008,2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

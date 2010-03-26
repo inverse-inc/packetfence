@@ -1,4 +1,20 @@
 2010-03-26	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/flip.pl, pf/bin/pfcmd_vlan, 
+	pf/docs/MIB/Inverse-PacketFence-Notification.mib, 
+	pf/lib/pf/SNMP/Aruba.pm, pf/lib/pf/SNMP/Cisco/Catalyst_2960.pm,
+	pf/lib/pf/SNMP/PacketFence.pm, pf/lib/pf/SNMP.pm, pf/lib/pf/radius.pm,
+	pf/sbin/pfsetvlan: flip.pl can now handle all Radius connection types
+	- modified flip to deal with new connection types
+	- added a -deauthenticateDot1x to pfcmd_vlan
+	- our local SNMP Traps now carry the connection type (and pfsetvlan 
+	  interprets it)
+	- Aruba module no longer detects 802.1x on deauth since it's known 
+	  when requested now
+	- New mechanism to translate NAS-Port to ifIndexes and support for it
+	  in the 2960 code
+	- pfsetvlan supports new dot1x wireless de-association and issues a 
+	  warning on wired dot1x then shut / no shut the port
+
 	* pf/bin/pfcmd,  pf/lib/pf/SNMP/Aruba.pm, pf/lib/pf/SNMP/Cisco.pm,
 	pf/lib/pf/SNMP/Dlink.pm, pf/sbin/pfsetvlan: Removed remaining 
 	references to hardcoded 'WIFI' ifIndex.

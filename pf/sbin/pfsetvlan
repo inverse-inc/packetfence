@@ -617,23 +617,41 @@ sub parseTrap {
             $logger->error("Can not instantiate switch $switch_ip !");
         } else {
             my $trapHashRef;
+            # TODO push this out in pf::SNMP::PacketFence, no?
             if ($isLocalTrap) {
                 my $trapLine = $3;
-                if ( $trapLine
-                    =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.29464\.1\.1\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = INTEGER:/
-                    )
-                {
+                if ($trapLine =~ /BEGIN VARIABLEBINDINGS\                                        # metadata
+                    \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0\ =\ OID:\ \.1\.3\.6\.1\.4\.1\.29464\.1\.1  # metadata
+                    \|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+)\ =\ INTEGER:\ \d+\                   # ifIndex
+                    \|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.\d+\ =\ INTEGER:\ (\d+)                    # connection type
+                    /x) {
+                    # WARNING: using trap operation for something it is not meant to
+                    $trapHashRef = {
+                        'trapType'       => 'reAssignVlan',
+                        'trapIfIndex'    => $1,
+                        'trapOperation'  => $2,
+                    };
+                } elsif ($trapLine =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.29464\.1\.1\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = INTEGER:/) {
                     $trapHashRef = {
                         'trapType'    => 'reAssignVlan',
                         'trapIfIndex' => $1,
                     };
-                } elsif ( $trapLine
-                    =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.29464\.1\.2\|\.1\.3\.6\.1\.4\.1\.29464\.1\.3 = STRING: \"(.+)\" END VARIABLEBINDINGS/
-                    )
-                {
+
+                } elsif ($trapLine =~ /BEGIN VARIABLEBINDINGS\                                    # metadata
+                    \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0\ =\ OID:\ \.1\.3\.6\.1\.4\.1\.29464\.1\.2\  # metadata
+                    \|\.1\.3\.6\.1\.4\.1\.29464\.1\.3\ =\ STRING:\ \"(.+)\"\                      # mac
+                    \|\.1\.3\.6\.1\.4\.1\.29464\.1\.4\ =\ INTEGER:\ (\d+)\                        # connection_type
+                    END VARIABLEBINDINGS/x) {   
                     $trapHashRef = {
                         'trapType'    => 'desAssociate',
                         'trapMac'     => $1
+                    };
+                } elsif ($trapLine =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.29464\.1\.2\|\.1\.3\.6\.1\.4\.1\.29464\.1\.3 = STRING: \"(.+)\" END VARIABLEBINDINGS/) {
+                    # WARNING: using trap operation for something it is not meant to
+                    $trapHashRef = {
+                        'trapType'      => 'desAssociate',
+                        'trapMac'       => $1,
+                        'trapOperation' => $2,
                     };
                 } elsif ( $trapLine
                     =~ /\.1\.3\.6\.1\.4\.1\.45\.1\.6\.5\.3\.12\.1\.3\.(\d+)\.(\d+) = STRING: "([0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2})"/
@@ -677,8 +695,13 @@ sub parseTrap {
                 {
                     $trapMac  = $trapHashRef->{'trapMac'};
                     $trapVlan = $trapHashRef->{'trapVlan'};
+
                 } elsif ( $trapType eq 'desAssociate' ) {
                     $trapMac  = $trapHashRef->{'trapMac'};
+                    $trapOperation = $trapHashRef->{'trapOperation'};
+
+                } elsif ($trapType eq 'reAssignVlan') {
+                    $trapOperation = $trapHashRef->{'trapOperation'};
                 }
                 return
                     "$switch_ip|$switch_port|$trapType|$trapVlan|$trapOperation|$trapMac";
@@ -1460,19 +1483,28 @@ sub handleTrap {
 
         # trapType eq 'desAssociate' {{{2
     } elsif ( $trapType eq 'desAssociate' ) {
-        $logger->info(
-            "$trapType trap received on $switch_ip for wireless client $trapMac"
-        );
+        my $connection_type = $trapOperation; # WARNING: I used trapOperation to carry the connection type
+        $logger->info("$trapType trap received on $switch_ip for wireless client $trapMac");
         #$switch->deauthenticateMac($trapMac);
         my $switchIp = $switch->{_ip};
-        `/usr/local/pf/bin/pfcmd_vlan -deauthenticate -switch $switchIp -mac $trapMac`;
+        if ($connection_type == WIRELESS_802_1X) {
+            `/usr/local/pf/bin/pfcmd_vlan -deauthenticateDot1x -switch $switchIp -mac $trapMac`;
+        } else {
+            `/usr/local/pf/bin/pfcmd_vlan -deauthenticate -switch $switchIp -mac $trapMac`;
+        }
 
         # }}}2
 
         # trapType eq 'reAssignVlan' {{{2
     } elsif ( $trapType eq 'reAssignVlan' ) {
+        my $connection_type = $trapOperation; # WARNING: I used trapOperation to carry the connection type
         $logger->info(
             "$trapType trap received on $switch_ip ifIndex $switch_port");
+
+        if (defined($connection_type) && $connection_type == WIRED_802_1X) {
+            $logger->info("We will shutdown and re-open the port. This is a very basic way of "
+                . "disconnecting a 802.1x user we could do something better depending on your hardware.");
+        }
 
         my @locationlog
             = locationlog_view_open_switchport_no_VoIP( $switch_ip,

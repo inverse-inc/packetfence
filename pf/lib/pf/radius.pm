@@ -129,6 +129,9 @@ sub authorize {
         $switch->{_mode} = 'production'; # set this switch instance in production
     }
 
+    # translate NAS-Port to real port (ifIndex)
+    $port = $this->translate_NASport_to_ifIndex($connection_type, $switch, $port);
+
     # determine if we need to perform automatic registration
     my $isPhone = $switch->isPhoneAtIfIndex($mac);
 
@@ -361,6 +364,21 @@ sub authorize_voip {
     $switch->disconnectWrite();
     return [RLM_MODULE_FAIL, undef];
 }
+
+=item * translate_NASport_to_ifIndex - convert the number in NAS-Port into an ifIndex only when relevant
+
+=cut
+sub translate_NASport_to_ifIndex {
+    my ($this, $conn_type, $switch, $port) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    if (($conn_type & WIRED) == WIRED) {
+        $logger->trace("translating NAS-Port to ifIndex for proper accounting");
+        return $switch->NASport_to_ifIndex($port);
+    }
+    return $port;
+}
+
 =back
 
 =head1 BUGS AND LIMITATIONS

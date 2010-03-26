@@ -1961,6 +1961,32 @@ sub getVlanFdbId {
     return $vlan;
 }
 
+=item deauthenticateMac - performs wireless deauthentication
+
+mac - mac address to deauthenticate
+
+is_dot1x - set to 1 if special dot1x de-authentication is required
+
+=cut
+sub deauthenticateMac {
+    my ($this, $mac, $is_dot1x) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    $logger->warn("Unimplemented! First, make sure your configuration is ok. "
+        . "If it is then we don't support your hardware. Open a bug report with your hardware type.");
+}
+
+=item NASport_to_ifIndex - translate Radius NAS-Port into the physical port ifIndex
+
+=cut
+sub NASport_to_ifIndex {
+    my ($this, $NAS_port) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    $logger->warn("This switch model doesn't seem to implement 802.1X or a degraded variant "
+        . "like mac-authentication-bypass (MAB). Please let us know what hardware you are using");
+    return $NAS_port;
+}
 =back
 
 =head1 AUTHOR
