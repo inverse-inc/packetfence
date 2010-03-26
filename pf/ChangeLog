@@ -1,4 +1,6 @@
 2010-03-26	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/t/hardware-snmp-objects.t: fixed some broken tests
+
 	* pf/bin/flip.pl, pf/bin/pfcmd_vlan, 
 	pf/docs/MIB/Inverse-PacketFence-Notification.mib, 
 	pf/lib/pf/SNMP/Aruba.pm, pf/lib/pf/SNMP/Cisco/Catalyst_2960.pm,
