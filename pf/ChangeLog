@@ -1,3 +1,8 @@
+2010-03-26	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd,  pf/lib/pf/SNMP/Aruba.pm, pf/lib/pf/SNMP/Cisco.pm,
+	pf/lib/pf/SNMP/Dlink.pm, pf/sbin/pfsetvlan: Removed remaining 
+	references to hardcoded 'WIFI' ifIndex.
+
 2010-03-24	Olivier Bilodeau <obilodeau@inverse.ca>
 	Minor refactorings all over the place based on review comments
 

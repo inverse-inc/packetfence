@@ -633,7 +633,6 @@ sub parseTrap {
                 {
                     $trapHashRef = {
                         'trapType'    => 'desAssociate',
-                        'trapIfIndex' => 'WIFI',
                         'trapMac'     => $1
                     };
                 } elsif ( $trapLine
@@ -673,7 +672,6 @@ sub parseTrap {
                     }
                 } elsif ( $trapType eq 'dot11Deauthentication' ) {
                     $trapMac  = $trapHashRef->{'trapMac'};
-                    $trapVlan = 'WIFI';
                 } elsif ( ( $trapType eq 'secureMacAddrViolation' )
                     || ( $trapType eq 'secureDynamicMacAddrViolation' ) )
                 {
@@ -681,7 +679,6 @@ sub parseTrap {
                     $trapVlan = $trapHashRef->{'trapVlan'};
                 } elsif ( $trapType eq 'desAssociate' ) {
                     $trapMac  = $trapHashRef->{'trapMac'};
-                    $trapVlan = 'WIFI';
                 }
                 return
                     "$switch_ip|$switch_port|$trapType|$trapVlan|$trapOperation|$trapMac";
@@ -1464,7 +1461,7 @@ sub handleTrap {
         # trapType eq 'desAssociate' {{{2
     } elsif ( $trapType eq 'desAssociate' ) {
         $logger->info(
-            "$trapType trap received on $switch_ip ifIndex $switch_port for $trapMac"
+            "$trapType trap received on $switch_ip for wireless client $trapMac"
         );
         #$switch->deauthenticateMac($trapMac);
         my $switchIp = $switch->{_ip};
@@ -1557,10 +1554,9 @@ sub handleTrap {
         # trapType eq 'dot11Deauthentication' {{{2
     } elsif ( $trapType eq 'dot11Deauthentication' ) {
         my $mac = $trapMac;
-        $logger->info(
-            "$trapType trap received on $switch_ip ifIndex WIFI for $mac");
+        $logger->info("$trapType trap received on $switch_ip for wireless client $mac. closing locationlog entry");
 
-# we close the line opened for the mac. If there is no line, this won't do anything
+        # we close the line opened for the mac. If there is no line, this won't do anything
         locationlog_update_end( $switch_ip, $switch_port, $mac );
 
         # }}}2

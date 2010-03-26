@@ -2578,9 +2578,7 @@ sub generate_switchport_vlan_assignment {
                 $logger->error("unable to determine correct VLAN for $mac");
             } else {
                 $logger->info("new correct VLAN for $mac is $newCorrectVlan");
-                if (   ( $currentVlan eq 'WIFI' )
-                    || ( $newCorrectVlan ne $currentVlan ) )
-                {
+                if ($newCorrectVlan ne $currentVlan) {
                     $logger->info( "calling "
                             . $Config{'vlan'}{'adjustswitchportvlanscript'}
                             . " for node $mac (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
