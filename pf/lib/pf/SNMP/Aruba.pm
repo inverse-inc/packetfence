@@ -11,6 +11,14 @@ to access SNMP enabled Aruba switches.
 
 =cut
 
+=head1 BUGS AND LIMITATIONS
+
+Wireless deauthentication (deassociation) uses the CLI (telnet or ssh) which is expensive (doesn't scale very well).
+
+Wireless deauthentication (deassociation) works only in Telnet
+
+=cut
+
 use strict;
 use warnings;
 use diagnostics;
@@ -75,6 +83,7 @@ sub parseTrap {
 Here, we find out what submodule to call _dot1xDeauthenticateMAC or _deauthenticateMAC and call accordingly.
 
 =cut
+#TODO: we should modify flip to send in its trap if the user is 802.1x or not and avoid to look for it at this time
 sub deauthenticateMac {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );

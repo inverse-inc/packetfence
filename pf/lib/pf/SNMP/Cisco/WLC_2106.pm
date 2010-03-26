@@ -11,6 +11,12 @@ to access SNMP enabled Wireless LAN Controllers.
 
 =cut
 
+=head1 BUGS AND LIMITATIONS
+
+Wireless deauthentication (deassociation) uses the CLI (telnet or ssh) which is expensive (doesn't scale very well).
+
+=cut
+
 use strict;
 use warnings;
 use diagnostics;
