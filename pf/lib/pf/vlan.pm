@@ -17,7 +17,7 @@ use diagnostics;
 
 use Log::Log4perl;
 use pf::config;
-use pf::node qw(node_view node_add_simple node_exist);
+use pf::node qw(node_view node_add_simple node_exist node_modify);
 use pf::util;
 use pf::violation qw(violation_count_trap violation_exist_open violation_view_top);
 use threads;
@@ -296,6 +296,42 @@ sub get_normal_vlan {
     #}
 
     return $switch->getVlanByName('normalVlan');
+}
+
+=item update_node_if_not_accurate - update a node entry if parameters considered important changed
+
+Uses getNodeUpdatedInfo to determine what to update.
+
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
+version doesn't do the right thing for you. By default it will return the 
+switch_ip and the switch_port to update the node table entry.
+
+=cut
+sub update_node_if_not_accurate {
+    my ($this, $switch, $ifIndex, $vlan, $mac, $voip_status, $connection_type) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    # is node entry accurate?
+    my $node_data          = node_view($mac);
+    my $vlanChanged        = (!defined($node_data->{vlan}) || $node_data->{vlan} != $vlan);
+    my $switchChanged      = ($node_data->{switch} ne $switch);
+    my $voip_statusChanged = ($node_data->{voip} ne $voip_status);
+    my $conn_typeChanged   = ($node_data->{connection_type} ne connection_type_to_str($connection_type));
+    # ifIndex on wireless is not important
+    my $ifIndexChanged = 0;
+    if (($connection_type & WIRED) == WIRED) {
+        $ifIndexChanged = ($node_data->{port} != $ifIndex);
+    }
+
+    # Note that we avoid checking vlanChanged here. This is default behavior.
+    if ($switchChanged || $voip_statusChanged || $conn_typeChanged || $ifIndexChanged) {
+
+        $logger->debug("calling node_modify with getNodeUpdatedInfo's answers");
+        node_modify( $mac,
+            $this->getNodeUpdatedInfo($mac, $switch, $ifIndex, $vlan, $voip_status, $connection_type));
+        return 1;
+    }
+    return 0;
 }
 
 =item getNodeUpdatedInfo - updated fields when a node changed status

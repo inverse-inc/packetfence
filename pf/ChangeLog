@@ -1,3 +1,9 @@
+2010-03-29	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/locationlog.pm, pf/lib/pf/vlan.pm: Moved 
+	update_node_if_not_accurate out of locationlog because it something
+	that people might need to customized. I changed default behavior not
+	to call node_modify if node's VLAN field haven't changed.
+
 2010-03-26	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/t/hardware-snmp-objects.t: fixed some broken tests
 

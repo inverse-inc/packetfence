@@ -326,7 +326,8 @@ sub locationlog_synchronize {
             node_add_simple($mac);
         }
 
-        _update_node_if_not_accurate($switch, $ifIndex, $vlan, $mac, $voip_status, $connection_type);
+        my $vlan_obj = new pf::vlan::custom();
+        $vlan_obj->update_node_if_not_accurate($switch, $ifIndex, $vlan, $mac, $voip_status, $connection_type);
     }
 
     # if we are in a wired environment, close any conflicting switchport entry
@@ -346,8 +347,8 @@ sub locationlog_synchronize {
                 db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_update_end_switchport_no_VoIP_sql', 
                     $switch, $ifIndex);
             } else {
-                db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_update_end_switchport_only_VoIP_sql', 
-                    $switch, $ifIndex);
+                db_query_execute(LOCATIONLOG, $locationlog_statements, 
+                    'locationlog_update_end_switchport_only_VoIP_sql', $switch, $ifIndex);
             }
             $mustInsert = 1;
         }
@@ -408,39 +409,6 @@ sub _is_locationlog_accurate {
         $logger->debug("latest locationlog entry is still accurate");
         return 1;
     }
-}
-
-=item * _update_node_if_not_accurate 
-
-Updates the node entry if node position changed. 
-Uses vlan extension point to determine what to update.
-
-=cut
-sub _update_node_if_not_accurate {
-    my ($switch, $ifIndex, $vlan, $mac, $voip_status, $connection_type) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::locationlog');
-
-    # is node entry accurate?
-    my $node_data          = node_view($mac);
-    my $vlanChanged        = (!defined($node_data->{vlan}) || $node_data->{vlan} != $vlan);
-    my $switchChanged      = ($node_data->{switch} ne $switch);
-    my $voip_statusChanged = ($node_data->{voip} ne $voip_status);
-    my $conn_typeChanged   = ($node_data->{connection_type} ne connection_type_to_str($connection_type));
-    # ifIndex on wireless is not important
-    my $ifIndexChanged = 0;
-    if (($connection_type & WIRED) == WIRED) {
-        $ifIndexChanged = ($node_data->{port} != $ifIndex);
-    }
-
-    if ($vlanChanged || $switchChanged || $voip_statusChanged || $conn_typeChanged || $ifIndexChanged) {
-
-        $logger->debug("calling node_modify with vlan getNodeUpdatedInfo's answers");
-        # node_modiify (we redirect node update to vlan extension point)
-        my $vlan_obj = new pf::vlan::custom();
-        node_modify( $mac,
-            $vlan_obj->getNodeUpdatedInfo($mac, $switch, $ifIndex, $vlan, $voip_status, $connection_type));
-    }
-    return 1;
 }
 
 =back
