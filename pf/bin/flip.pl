@@ -65,7 +65,6 @@ if ($locationlog_entry) {
             $trapSender->sendLocalDesAssociateTrap($switch_ip, $mac, $conn_type);
 
         } elsif ($conn_type == WIRELESS_802_1X) {
-            # TODO connection_type should be sent in the trap
             $logger->debug("sending a local desAssociate trap to force deassociation "
                 ."(client will reconnect getting a new VLAN)");
             $logger->info("trying to dissociate a wireless 802.1x user, "
@@ -74,8 +73,6 @@ if ($locationlog_entry) {
 
         } elsif ($conn_type == WIRED_802_1X) {
             $logger->debug("sending a local reAssignVlan trap to force VLAN change");
-            $logger->info("trying to re-assign the VLAN of a wired 802.1x user (mac $mac switchport: $switch_ip:$ifIndex"
-                . "), right now we shut / no shut the port but we could do something friendlier."); 
             $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type);
 
         } elsif ($conn_type == WIRED_MAC_AUTH_BYPASS) {
