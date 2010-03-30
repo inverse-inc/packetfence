@@ -641,17 +641,17 @@ sub parseTrap {
                     \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0\ =\ OID:\ \.1\.3\.6\.1\.4\.1\.29464\.1\.2   # metadata
                     \|\.1\.3\.6\.1\.4\.1\.29464\.1\.3\ =\ STRING:\ \"(.+)\"                       # mac
                     \|\.1\.3\.6\.1\.4\.1\.29464\.1\.4\ =\ INTEGER:\ (\d+)\                        # connection_type
-                    END VARIABLEBINDINGS/x) {   
+                    END\ VARIABLEBINDINGS/x) {   
                     # WARNING: using trap operation for something it is not meant to
                     $trapHashRef = {
-                        'trapType'    => 'desAssociate',
-                        'trapMac'     => $1,
-                        'trapOperation' => $2,
+                        'trapType'      => 'desAssociate',
+                        'trapMac'       => $1,
+                        'trapOperation' => $2
                     };
                 } elsif ($trapLine =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.29464\.1\.2\|\.1\.3\.6\.1\.4\.1\.29464\.1\.3 = STRING: \"(.+)\" END VARIABLEBINDINGS/) {
                     $trapHashRef = {
                         'trapType'      => 'desAssociate',
-                        'trapMac'       => $1,
+                        'trapMac'       => $1
                     };
                 } elsif ( $trapLine
                     =~ /\.1\.3\.6\.1\.4\.1\.45\.1\.6\.5\.3\.12\.1\.3\.(\d+)\.(\d+) = STRING: "([0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2})"/
