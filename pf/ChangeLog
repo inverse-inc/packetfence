@@ -1,3 +1,10 @@
+2010-03-30	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd_vlan, pf/lib/pf/SNMP.pm: Proper 802.1X re-authentication
+	pfcmd_vlan's -deauthenticateDot1x now forces re-authentication on wired
+	802.1X if an ifIndex is provided on CLI.
+	Generic 802.1X re-authentication was done using standard IEEE8021-PAE
+	MIB (oid dot1xPaePortReauthenticate).
+
 2010-03-29	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/locationlog.pm, pf/lib/pf/vlan.pm: Moved 
 	update_node_if_not_accurate out of locationlog because it something

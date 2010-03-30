@@ -1974,6 +1974,37 @@ sub deauthenticateMac {
 
     $logger->warn("Unimplemented! First, make sure your configuration is ok. "
         . "If it is then we don't support your hardware. Open a bug report with your hardware type.");
+    return;
+}
+
+=item dot1xPortReauthenticate - forces 802.1x re-authentication of a given ifIndex
+
+ifIndex - ifIndex to force re-authentication on
+
+=cut
+sub dot1xPortReauthenticate {
+    my ($this, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    $logger->info("Trying generic MIB to force 802.1x port re-authentication. Your mileage may vary. "
+        . "If it doesn't work open a bug report with your hardware type.");
+ 
+    my $oid_dot1xPaePortReauthenticate = "1.0.8802.1.1.1.1.1.2.1.5"; # from IEEE8021-PAE-MIB
+
+    if (!$this->connectWrite()) {
+        return 0;
+    }
+
+    $logger->trace("SNMP set_request force dot1xPaePortReauthenticate on ifIndex: $ifIndex");
+    my $result = $this->{_sessionWrite}->set_request(-varbindlist => [
+        "$oid_dot1xPaePortReauthenticate.$ifIndex", Net::SNMP::INTEGER, 1
+    ]);
+
+    if (!defined($result)) {
+        $logger->error("got an SNMP error trying to force 802.1x re-authentication: ".$this->{_sessionWrite}->error);
+    }
+
+    return (defined($result));
 }
 
 =item NASport_to_ifIndex - translate Radius NAS-Port into the physical port ifIndex

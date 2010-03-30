@@ -10,7 +10,7 @@ pfcmd_vlan command [options]
 
  Command:
    -deauthenticate      de-authenticate a dot11 client
-   -deauthenticateDot1x de-authenticate a dot11 dot1x client
+   -deauthenticateDot1x de-authenticate a dot1x client (pass ifIndex for wired 802.1x and mac for wireless 802.1x)
    -getAlias            show the description of the specified switch port
    -getAllMACs          show all MACS on all switch ports
    -getHubs             show switch ports with several MACs
@@ -432,9 +432,11 @@ if ($getUpLinks) {
 
 } elsif ($deauthenticateDot1x) {
 
-    if ($mac eq '') {
-        pod2usage("the MAC argument is necessary");
-    }       
+    my $macUndefOrEmpty     = (!defined($mac) || $mac eq '');
+    my $ifIndexUndefOrEmpty = (!defined($ifIndex) || $ifIndex == 0);
+    if ($macUndefOrEmpty && $ifIndexUndefOrEmpty) {
+        pod2usage("Please provide a MAC for wireless 802.1x or an ifIndex for wired 802.1x");
+    }
     if ($switchDescRegExp eq '') {
         pod2usage("the switch argument is necessary");
     }
@@ -446,7 +448,15 @@ if ($getUpLinks) {
         print "Can not instantiate switch $switchDescRegExp ! See log files for details\n";
     } else {
         $logger->debug("start handling 'deauthenticateDot1x' command");
-        $switch->deauthenticateMac($mac, 1);
+        if (defined($mac) && $mac ne '') {
+            $logger->info("wireless deauthentication of a 802.1x MAC");
+            $switch->deauthenticateMac($mac, 1);
+        } elsif (defined($ifIndex) && $ifIndex != 0) {
+            $logger->info("wired deauthentication of a 802.1x MAC");
+            $switch->dot1xPortReauthenticate($ifIndex);
+        } else {
+            pod2usage("Please provide a MAC for wireless 802.1x or an ifIndex for wired 802.1x");
+        }
         $logger->debug("finished handling 'deauthenticateDot1x' command");
     }
 
