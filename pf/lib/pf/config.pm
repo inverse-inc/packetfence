@@ -98,12 +98,12 @@ $default_pid  = 1;
 # connection type constants
 use constant WIRELESS_802_1X       => 0b11000001;
 use constant WIRELESS_MAC_AUTH     => 0b10000010;
-use constant WIRED_802_1X          => 0b01000100;
-use constant WIRED_MAC_AUTH_BYPASS => 0b00001000;
-use constant WIRED_SNMP_TRAPS      => 0b00010000;
+use constant WIRED_802_1X          => 0b01100100;
+use constant WIRED_MAC_AUTH_BYPASS => 0b00101000;
+use constant WIRED_SNMP_TRAPS      => 0b00110000;
 # masks to be used on connection types
 use constant WIRELESS => 0b10000000;
-use constant WIRED    => 0b00000000;
+use constant WIRED    => 0b00100000;
 use constant EAP      => 0b01000000;
 
 # TODO we should build a connection data class with these hashes and related constants
