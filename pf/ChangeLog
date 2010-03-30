@@ -1,4 +1,6 @@
 2010-03-30	Olivier Bilodeau <obilodeau@inverse.ca>
+	Lots of small fixes to issues found during functionnal testing.
+
 	* pf/sbin/pfsetvlan: Now calling proper 802.1X wired re-authentication
 	through pfcmd_vlan
 	Also fixed some problems in the parsing of the new traps
