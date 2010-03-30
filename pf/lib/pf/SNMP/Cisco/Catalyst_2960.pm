@@ -205,7 +205,7 @@ sub authorizeMAC {
     return 1;
 }
 
-sub NASport_to_ifIndex {
+sub NasPortToIfIndex {
     my ($this, $NAS_port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 

@@ -69,7 +69,6 @@ See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMET
 # WARNING: You cannot change the return value of this sub unless you also update its clients (like the SOAP 802.1x 
 # module). This is because of the way perl mangles a returned hash as a list. Clients would get confused if you add a
 # scalar return without updating the clients.
-# FIXME: no way of saying DENY on violation, more refactoring out of pf::vlan to come
 sub authorize {
     my ($this, $nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -91,7 +90,7 @@ sub authorize {
     }
 
     $logger->info("handling radius autz request: from switch_ip => $switch_ip, " 
-        . "connection_type =>" . connection_type_to_str($connection_type) . " "
+        . "connection_type => " . connection_type_to_str($connection_type) . " "
         . "mac => $mac, port => $port, username => $user_name, ssid => $ssid");
 
     #add node if necessary
@@ -129,8 +128,7 @@ sub authorize {
         $switch->{_mode} = 'production'; # set this switch instance in production
     }
 
-    # translate NAS-Port to real port (ifIndex)
-    $port = $this->translate_NASport_to_ifIndex($connection_type, $switch, $port);
+    $port = $this->translate_NasPort_to_ifIndex($connection_type, $switch, $port);
 
     # determine if we need to perform automatic registration
     my $isPhone = $switch->isPhoneAtIfIndex($mac);
@@ -365,16 +363,16 @@ sub authorize_voip {
     return [RLM_MODULE_FAIL, undef];
 }
 
-=item * translate_NASport_to_ifIndex - convert the number in NAS-Port into an ifIndex only when relevant
+=item * translate_NasPort_to_ifIndex - convert the number in NAS-Port into an ifIndex only when relevant
 
 =cut
-sub translate_NASport_to_ifIndex {
+sub translate_NasPort_to_ifIndex {
     my ($this, $conn_type, $switch, $port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     if (($conn_type & WIRED) == WIRED) {
         $logger->trace("translating NAS-Port to ifIndex for proper accounting");
-        return $switch->NASport_to_ifIndex($port);
+        return $switch->NasPortToIfIndex($port);
     }
     return $port;
 }

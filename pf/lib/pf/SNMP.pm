@@ -2007,10 +2007,10 @@ sub dot1xPortReauthenticate {
     return (defined($result));
 }
 
-=item NASport_to_ifIndex - translate Radius NAS-Port into the physical port ifIndex
+=item NasPortToIfIndex - translate Radius NAS-Port into the physical port ifIndex
 
 =cut
-sub NASport_to_ifIndex {
+sub NasPortToIfIndex {
     my ($this, $NAS_port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
