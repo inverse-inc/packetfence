@@ -50,7 +50,6 @@ if ($locationlog_entry) {
         . "connection type: " . $connection_type_explained{$conn_type});
 
     # TODO we could try to avoid the need of flip create a switch factory each time..
-    # why even bother with a 127.0.0.1 entry in conf/switches.conf and not create a pf::SNMP::PacketFence switch directly
     my $switchFactory = new pf::SwitchFactory( -configFile => "$conf_dir/switches.conf" );
     my $trapSender    = $switchFactory->instantiate('127.0.0.1');
 
