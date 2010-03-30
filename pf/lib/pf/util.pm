@@ -769,6 +769,11 @@ sub str_to_connection_type {
     if (defined($conn_type_str) && $conn_type_str ne '' && defined($connection_type{$conn_type_str})) {
 
         return $connection_type{$conn_type_str};
+    } elsif (defined($conn_type_str) && $conn_type_str eq '') {
+
+        $logger->debug("got an empty connection_type, this happens if we discovered the node but it never connected");
+        return 'Unknown';
+
     } else {
         my ($package, undef, undef, $routine) = caller(1);
         $logger->warn("unable to parse string into a connection_type constant. called from $package $routine");
