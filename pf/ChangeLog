@@ -1,3 +1,9 @@
+2010-03-31	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/db.pm: Database is now reconnecting on failed queries
+
+	* pf/lib/pf/SNMP/ThreeCom/Switch_4200G.pm: Imported bugs and
+	limitations section from parent (pf::SNMP::ThreeCom::SS4500).
+
 2010-03-30	Olivier Bilodeau <obilodeau@inverse.ca>
 	Lots of small fixes to issues found during functionnal testing.
 
@@ -106,13 +112,19 @@
 	* pf/lib/pf/SNMP.pm, pf/t/SNMP.t: minor refactoring: extracted code 
 	into isManagedVlan() and some tests against it
 
+2010-03-16	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec: Fix upgrade bug introduced in 1.8.5: Changed
+	perl-Locale-gettext dependency to use the perl namespace version 
+	perl(Locale-gettext). Fixes #931;
+	http://www.packetfence.org/mantis/view.php?id=931
+
 2010-03-15	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec, pf/t/vlan.t: Updated vlan tests so that rework
 	done in 1.8 branch passes the tests. 
 	RPM Spec:
 	- Added perl-Test-MockModule as a build dependency (required for tests)
 	- Test modules are now required for building instead of required for 
-	  package intall.
+	  package install.
 
 2010-03-11	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec: Snapshot 1.8.8-0.20100311
