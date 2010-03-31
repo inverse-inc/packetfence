@@ -1,4 +1,6 @@
 2010-03-31	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/db.pm: Database is now reconnecting on failed queries
+
 	* pf/lib/pf/SNMP/ThreeCom/Switch_4200G.pm: Imported bugs and
 	limitations section from parent (pf::SNMP::ThreeCom::SS4500).
 

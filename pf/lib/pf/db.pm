@@ -68,7 +68,7 @@ sub db_connect {
 
     my $recently_connected = (defined($last_connect{$tid}) && $last_connect{$tid} && (time()-$last_connect{$tid} < 30));
     if ($recently_connected && $mydbh) {
-        $logger->debug("not checking db handle, it has less than 30 sec from last time");
+        $logger->debug("not checking db handle, it has been less than 30 sec from last connection");
         return $mydbh;
     }
 
@@ -255,6 +255,7 @@ sub db_query_execute {
 
             # this forces real reconnection by invalidating last_connect timer for this thread
             $last_connect{threads->self->tid} = 0; 
+            db_connect();
 
             # invalidate prepared database statements, forces a new preparation on next iteration
             {
