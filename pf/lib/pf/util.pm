@@ -22,6 +22,7 @@ use POSIX();
 use Net::SMTP;
 use Net::MAC::Vendor;
 use Log::Log4perl;
+# TODO these look like they are not required.. get rid of them?
 use threads;
 use threads::shared;
 
@@ -37,7 +38,9 @@ BEGIN {
         isdisabled getlocalmac ip2int int2ip get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_internal_ips
         get_internal_devs get_internal_devs_phy get_external_devs get_managed_devs get_internal_macs
         get_internal_info get_gateways get_dhcp_devs createpid readpid deletepid
-        pfmon_preload parse_template mysql_date oui_to_vendor mac2oid oid2mac);
+        pfmon_preload parse_template mysql_date oui_to_vendor mac2oid oid2mac str_to_connection_type 
+        connection_type_to_str
+    );
 }
 
 use pf::config;
@@ -727,6 +730,52 @@ sub preload_is_internal {
     return (%is_internal);
 }
 
+=item * connection_type_to_str
+
+In the database we store the connection type as a string but we use a constant binary value internally. 
+This converts from the constant binary value to the string.
+
+return connection_type string (as defined in pf::config) or an empty string if connection type not found
+
+=cut 
+sub connection_type_to_str {
+    my ($conn_type) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::util');
+
+    # convert connection_type constant into a string for database
+    if (defined($conn_type) && $conn_type ne '' && defined($connection_type_to_str{$conn_type})) {
+
+        return $connection_type_to_str{$conn_type};
+    } else {
+        my ($package, undef, undef, $routine) = caller(1);
+        $logger->warn("unable to convert connection_type to string. called from $package $routine");
+        return '';
+    }
+}
+
+=item * str_to_connection_type
+
+In the database we store the connection type as a string but we use a constant binary value internally. 
+This parses the string from the database into the the constant binary value.
+
+return connection_type constant (as defined in pf::config) or undef if connection type not found
+
+=cut
+sub str_to_connection_type {
+    my ($conn_type_str) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::util');
+
+    # convert database string into connection_type constant
+    if (defined($conn_type_str) && $conn_type_str ne '' && defined($connection_type{$conn_type_str})) {
+
+        return $connection_type{$conn_type_str};
+    } else {
+        my ($package, undef, undef, $routine) = caller(1);
+        $logger->warn("unable to parse string into a connection_type constant. called from $package $routine");
+        return undef;
+    }
+}
+
 =back
 
 =head1 AUTHOR
@@ -743,7 +792,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009 Inverse inc.
+Copyright (C) 2009,2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

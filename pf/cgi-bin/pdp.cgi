@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-package PFEvents;
+package PFAPI;
 
 #use Data::Dumper;
 use strict;
@@ -16,6 +16,7 @@ use pf::config;
 use pf::db;
 use pf::util;
 use pf::iplog;
+use pf::radius::custom;
 use pf::violation;
 
 use SOAP::Transport::HTTP;
@@ -27,7 +28,7 @@ Log::Log4perl::MDC->put('tid', 0);
 
 
 SOAP::Transport::HTTP::CGI
-    -> dispatch_to('PFEvents')
+    -> dispatch_to('PFAPI')
     -> handle;
 
 
@@ -49,3 +50,14 @@ sub event_add {
   return (1);
 }
 
+sub radius_authorize {
+  my ($class, $nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid) = @_;
+  my $radius = new pf::radius::custom();
+
+  #TODO change to trace level once done
+  $logger->info("received a radius authorization request with parameters: ".
+           "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP => $request_is_eap, ".
+           "mac => $mac, port => $port, username => $user_name, ssid => $ssid");
+
+  return $radius->authorize($nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid);
+}

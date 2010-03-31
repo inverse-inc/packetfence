@@ -49,6 +49,7 @@ if ($locationlog_entry) {
 
     my $switchFactory = new pf::SwitchFactory( -configFile => "$conf_dir/switches.conf" );
     my $trapSender    = $switchFactory->instantiate('127.0.0.1');
+    # FIXME adjust that with new field
     if ($trapSender) {
         if ( $ifIndex eq 'WIFI' ) {
             $trapSender->sendLocalDesAssociateTrap( $switch_ip, $mac );
@@ -71,7 +72,7 @@ Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2009 Inverse inc.
+Copyright (C) 2007-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

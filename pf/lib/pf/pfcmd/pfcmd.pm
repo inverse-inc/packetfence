@@ -114,13 +114,13 @@ $grammar = q {
 
    person_view_field : 'pid' | 'firstname' | 'lastname' | 'email' | 'telephone' | 'company' | 'address' | 'notes'
 
-   node_view_field :  'mac' | 'pid' | 'detect_date' | 'regdate' | 'unregdate' | 'lastskip' | 'status' | 'user_agent' | 'computername'  | 'notes' | 'last_arp' | 'last_dhcp' | 'dhcp_fingerprint' | 'switch' | 'port' | 'vlan'
+   node_view_field :  'mac' | 'pid' | 'detect_date' | 'regdate' | 'unregdate' | 'lastskip' | 'status' | 'user_agent' | 'computername'  | 'notes' | 'last_arp' | 'last_dhcp' | 'dhcp_fingerprint' | 'switch' | 'port' | 'vlan' | 'voip' | 'connection_type'
 
    interfaceconfig_view_field : 'interface' | 'ip' | 'mask' | 'type' | 'gateway'
 
    networkconfig_view_field : 'type' | 'netmask' | 'named' | 'dhcpd' | 'gateway' | 'domain-name' | 'dns' | 'dhcp_start' | 'dhcp_end' | 'dhcp_default_lease_time' | 'dhcp_max_lease_time' | 'pf_gateway'
 
-   switchconfig_view_field : 'type' | 'mode' | 'uplink' | 'SNMPVersionTrap' | 'SNMPCommunityRead' | 'SNMPCommunityWrite' | 'SNMPVersion' | 'SNMPCommunityTrap' | 'cliTransport' | 'cliUser' | 'cliPwd' | 'cliEnablePwd' | 'vlans' | 'normalVlan' | 'registrationVlan' | 'isolationVlan' | 'macDetectionVlan' | 'macSearchesMaxNb' | 'macSearchesSleepInterval' | 'VoIPEnabled' | 'voiceVlan' | 'SNMPEngineID' | 'SNMPUserNameRead' | 'SNMPAuthProtocolRead' | 'SNMPAuthPasswordRead' | 'SNMPPrivProtocolRead' | 'SNMPPrivPasswordRead' | 'SNMPUserNameWrite' | 'SNMPAuthProtocolWrite' | 'SNMPAuthPasswordWrite' | 'SNMPPrivProtocolWrite' | 'SNMPPrivPasswordWrite' | 'SNMPUserNameTrap' | 'SNMPAuthProtocolTrap' | 'SNMPAuthPasswordTrap' | 'SNMPPrivProtocolTrap' | 'SNMPPrivPasswordTrap'
+   switchconfig_view_field : 'type' | 'mode' | 'uplink' | 'SNMPVersionTrap' | 'SNMPCommunityRead' | 'SNMPCommunityWrite' | 'SNMPVersion' | 'SNMPCommunityTrap' | 'cliTransport' | 'cliUser' | 'cliPwd' | 'cliEnablePwd' | 'vlans' | 'normalVlan' | 'registrationVlan' | 'isolationVlan' | 'macDetectionVlan' | 'guestVlan' | 'customVlan1' | 'customVlan2' | 'customVlan3' | 'customVlan4' | 'customVlan5' | 'macSearchesMaxNb' | 'macSearchesSleepInterval' | 'VoIPEnabled' | 'voiceVlan' | 'SNMPEngineID' | 'SNMPUserNameRead' | 'SNMPAuthProtocolRead' | 'SNMPAuthPasswordRead' | 'SNMPPrivProtocolRead' | 'SNMPPrivPasswordRead' | 'SNMPUserNameWrite' | 'SNMPAuthProtocolWrite' | 'SNMPAuthPasswordWrite' | 'SNMPPrivProtocolWrite' | 'SNMPPrivPasswordWrite' | 'SNMPUserNameTrap' | 'SNMPAuthProtocolTrap' | 'SNMPAuthPasswordTrap' | 'SNMPPrivProtocolTrap' | 'SNMPPrivPasswordTrap'
 
    violationconfig_view_field : 'desc' | 'disable' | 'auto_enable' | 'actions' | 'max_enable' | 'grace' | 'priority' | 'url' | 'button_text' | 'trigger' | 'vlan'
 
@@ -145,7 +145,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2008-2009 Inverse inc.
+Copyright (C) 2008-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

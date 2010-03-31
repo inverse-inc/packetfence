@@ -59,7 +59,7 @@
 
   $my_table->set_violationable(true);
   $my_table->set_linkable(array( array('pid', 'person/lookup.php'), array('mac', 'node/lookup.php'), array('dhcp_fingerprint','configuration/fingerprint.php') ));
-  $my_table->set_hideable(array('lastskp', 'user_agent', 'last_dhcp', 'lastskip', 'last_arp', 'last_arp', 'port', 'switch', 'vlan'));
+  $my_table->set_hideable(array('lastskp', 'user_agent', 'last_dhcp', 'lastskip', 'last_arp', 'last_arp', 'port', 'switch', 'vlan', 'voip', 'connection_type'));
 
   $my_table->set_page_num($page_num);
   $my_table->set_per_page($per_page);

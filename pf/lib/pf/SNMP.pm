@@ -23,6 +23,7 @@ use Data::Dumper;
 
 our $VERSION = v1.7.0.6;
 
+use pf::config;
 use pf::locationlog;
 use pf::node;
 
@@ -35,11 +36,17 @@ use pf::node;
 sub new {
     my ( $class, %argv ) = @_;
     my $this = bless {
+        '_customVlan1'              => undef,
+        '_customVlan2'              => undef,
+        '_customVlan3'              => undef,
+        '_customVlan4'              => undef,
+        '_customVlan5'              => undef,
         '_dbHostname'               => undef,
         '_dbName'                   => undef,
         '_dbPassword'               => undef,
         '_dbUser'                   => undef,
         '_error'                    => undef,
+        '_guestVlan'                => undef,
         '_htaccessPwd'              => undef,
         '_htaccessUser'             => undef,
         '_ip'                       => undef,
@@ -91,6 +98,18 @@ sub new {
             $this->{_SNMPCommunityTrap} = $argv{$_};
         } elsif (/^-?SNMPCommunityWrite$/i) {
             $this->{_SNMPCommunityWrite} = $argv{$_};
+        } elsif (/^-?customVlan1$/i) {
+                    $this->{_customVlan1} = $argv{$_};
+        } elsif (/^-?customVlan2$/i) {
+                    $this->{_customVlan2} = $argv{$_};
+        } elsif (/^-?customVlan2$/i) {
+                    $this->{_customVlan2} = $argv{$_};
+        } elsif (/^-?customVlan3$/i) {
+                    $this->{_customVlan3} = $argv{$_};
+        } elsif (/^-?customVlan4$/i) {
+                    $this->{_customVlan4} = $argv{$_};
+        } elsif (/^-?customVlan5$/i) {
+                    $this->{_customVlan5} = $argv{$_};
         } elsif (/^-?dbHostname$/i) {
             $this->{_dbHostname} = $argv{$_};
         } elsif (/^-?dbName$/i) {
@@ -99,6 +118,8 @@ sub new {
             $this->{_dbPassword} = $argv{$_};
         } elsif (/^-?dbUser$/i) {
             $this->{_dbUser} = $argv{$_};
+        } elsif (/^-?guestVlan$/i) {
+            $this->{_guestVlan} = $argv{$_};
         } elsif (/^-?htaccessPwd$/i) {
             $this->{_htaccessPwd} = $argv{$_};
         } elsif (/^-?htaccessUser$/i) {
@@ -400,9 +421,7 @@ sub connectMySQL {
 =cut
 
 sub setVlan {
-    my ( $this, $ifIndex, $newVlan, $switch_locker_ref, $presentPCMac,
-        $closeAllOpenLocationlogEntries )
-        = @_;
+    my ($this, $ifIndex, $newVlan, $switch_locker_ref, $presentPCMac) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     if ( !$this->isProductionMode() ) {
@@ -423,17 +442,17 @@ sub setVlan {
         }
     }
 
-    #synchronize locationlog if necessary
-    locationlog_synchronize( $this->{_ip}, $ifIndex, $vlan, $presentPCMac );
-
     #handle some exceptions
-    if ( grep( { $_ == $newVlan } @{ $this->{_vlans} } ) == 0 )
+    if (!$this->isManagedVlan($vlan))
     {    #unmanaged VLAN ?
         $logger->warn(
             "new VLAN $newVlan is not a managed VLAN -> replacing VLAN $newVlan with MAC detection VLAN "
                 . $this->{_macDetectionVlan} );
         $newVlan = $this->{_macDetectionVlan};
     }
+
+    #closes old locationlog entries and create a new one if required
+    locationlog_synchronize($this->{_ip}, $ifIndex, $newVlan, $presentPCMac, NO_VOIP, WIRED_SNMP_TRAPS);
 
     if ( !$this->isDefinedVlan($newVlan) ) {    #new VLAN is not defined
         if ( $newVlan == $this->{_macDetectionVlan} ) {
@@ -471,28 +490,38 @@ sub setVlan {
                 . " ifIndex $ifIndex to VLAN $newVlan but it is already in this VLAN -> Do nothing"
         );
 
-   #        if ($closeAllOpenLocationlogEntries) {
-   #            locationlog_update_end($this->{_ip}, $ifIndex, $presentPCMac);
-   #        }
         return 1;
     }
 
+    # so far so good, you can get rid of the below lines after I did a lot of tests
     #update locationlog
-    $logger->debug(
-        "updating locationlog for " . $this->{_ip} . " ifIndex $ifIndex" );
-    if ($closeAllOpenLocationlogEntries) {
-        locationlog_update_end( $this->{_ip}, $ifIndex, $presentPCMac );
-    } else {
-        locationlog_update_end_switchport_no_VoIP( $this->{_ip}, $ifIndex );
-    }
-    locationlog_insert_start( $this->{_ip}, $ifIndex, $newVlan,
-        $presentPCMac );
+    # - not sure this is useful after locationlog_synchronize
+    # - test with it disabled
+    #$logger->debug("updating locationlog for " . $this->{_ip} . " ifIndex $ifIndex" );
+    #if ($closeAllOpenLocationlogEntries) {
+    #    locationlog_update_end( $this->{_ip}, $ifIndex, $presentPCMac );
+    #} else {
+    #    locationlog_update_end_switchport_no_VoIP( $this->{_ip}, $ifIndex );
+    #}
+    #locationlog_insert_start($this->{_ip}, $ifIndex, $newVlan, $presentPCMac, NO_VOIP, WIRED_SNMP_TRAPS);
 
     #and finally set the VLAN
     $logger->info( "setting VLAN at "
             . $this->{_ip}
             . " ifIndex $ifIndex from $vlan to $newVlan" );
     return $this->_setVlan( $ifIndex, $newVlan, $vlan, $switch_locker_ref );
+}
+
+=item setVlanWithName - set the ifIndex VLAN to the VLAN name in the switch instead of vlan number
+
+TODO: not implemented, currently only a nameholder
+
+=cut
+sub setVlanWithName {
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    $logger->warn("not implemented!");
+    return;
 }
 
 =item _setVlanByOnlyModifyingPvid
@@ -526,22 +555,54 @@ sub _setVlanByOnlyModifyingPvid {
     return ( defined($result) );
 }
 
-=item setIsolationVlan - set the port VLAN to the isolation VLAN
+=item setVlanByName - set the ifIndex VLAN to the VLAN identified by given name in switches.conf
+
+Input: ifIndex, vlan name (as in switches.conf), switch lock
 
 =cut
+# TODO: get rid of the _ character in front of the vlan variables (refactoring)
+sub setVlanByName {
+    my ($this, $ifIndex, $vlanName, $switch_locker_ref) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
+    if (!exists($this->{"_".$vlanName})) {
+        # VLAN name doesn't exist
+        $logger->warn("VLAN $vlanName is not a valid VLAN identifier (see switches.conf)");
+        return;
+    }
+
+    if ($this->{"_".$vlanName} !~ /^\d+$/) {
+        # is not resolved to a valid VLAN number
+        $logger->warn("VLAN $vlanName is not properly configured in switches.conf, not a vlan number");
+        return;
+    }
+    return $this->setVlan($ifIndex, $this->{"_".$vlanName}, $switch_locker_ref);
+}
+
+=item setIsolationVlan - set the port VLAN to the isolation VLAN
+
+DEPRECATED: use setVlanByName($ifIndex, $switch_locker_ref, 'isolationVlan') instead 
+
+=cut
+# TODO deprecated in 1.8.7 remove for 1.9 / 2.0 ?
 sub setIsolationVlan {
     my ( $this, $ifIndex, $switch_locker_ref ) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    $logger->warn("this method is deprecated, please update your code to use setVlanByName instead");
     return $this->setVlan( $ifIndex, $this->{_isolationVlan},
         $switch_locker_ref );
 }
 
 =item setRegistrationVlan - set the port VLAN to the registration VLAN
 
-=cut
+DEPRECATED: use setVlanByName($ifIndex, $switch_locker_ref, 'registrationVlan') instead 
 
+=cut
+# TODO deprecated in 1.8.7 remove for 1.9 / 2.0 ?
 sub setRegistrationVlan {
     my ( $this, $ifIndex, $switch_locker_ref ) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    $logger->warn("this method is deprecated, please update your code to use setVlanByName instead");
     return $this->setVlan( $ifIndex, $this->{_registrationVlan},
         $switch_locker_ref );
 }
@@ -578,10 +639,14 @@ sub setMacDetectionVlan {
 
 =item setNormalVlan - set the port VLAN to the 'normal' VLAN
 
-=cut
+DEPRECATED: use setVlanByName($ifIndex, $switch_locker_ref, 'normalVlan') instead
 
+=cut
+# TODO deprecated in 1.8.7 remove for 1.9 / 2.0 ?
 sub setNormalVlan {
     my ( $this, $ifIndex, $switch_locker_ref ) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    $logger->warn("this method is deprecated, please update your code to use setVlanByName instead");
     return $this->setVlan( $ifIndex, $this->{_normalVlan},
         $switch_locker_ref );
 }
@@ -739,6 +804,20 @@ sub getManagedIfIndexes {
     return @managedIfIndexes;
 }
 
+=item isManagedVlan - is the VLAN in the list of VLANs managed by the switch?
+
+=cut
+sub isManagedVlan {
+    my ($this, $vlan) = @_;
+
+    # can I find $vlan in _vlans ?
+    if (grep({$_ == $vlan} @{$this->{_vlans}}) == 0) {
+        #unmanaged VLAN
+        return 0;
+    }
+    return 1;
+}
+
 =item getMode - get the mode
 
 =cut
@@ -828,7 +907,13 @@ sub setVlanAllPort {
     foreach my $ifIndex (@managedIfIndexes) {
         $logger->debug(
             "setting " . $this->{_ip} . " ifIndex $ifIndex to VLAN $vlan" );
-        $this->setVlan( $ifIndex, $vlan, $switch_locker_ref );
+        if ($vlan =~ /^\d+$/) {
+            # if vlan is an integer, then assume its a vlan number
+            $this->setVlan( $ifIndex, $vlan, $switch_locker_ref );
+        } else {
+            # otherwise its a vlan name
+            $this->setVlanByName($ifIndex, $vlan, $switch_locker_ref);
+        }
     }
 }
 
@@ -1044,10 +1129,12 @@ sub hasPhoneAtIfIndex {
         = $this->_getMacAtIfIndex( $ifIndex, $this->getVoiceVlan($ifIndex) );
     foreach my $mac (@macArray) {
         if ( !$this->isFakeMac($mac) ) {
-            $logger->trace("determining DHCP fingerprint info for $mac");
+            $logger->trace("determining if node $mac is VoIP");
             my $node_info = node_view_with_fingerprint($mac);
+
+            # is node voip or does it have a phone dhcp fingerprint?
             if ( defined($node_info)
-                && ( $node_info->{dhcp_fingerprint} =~ /VoIP Phone/ ) )
+                && ( ($node_info->{dhcp_fingerprint} =~ /VoIP Phone/)||($node_info->{voip} eq 'yes')) )
             {
                 return 1;
             }
@@ -1078,7 +1165,12 @@ sub isPhoneAtIfIndex {
     my $node_info = node_view_with_fingerprint($mac);
 
     #do we have node information
-    if ( defined($node_info) ) {
+    if (defined($node_info)) {
+        if ($node_info->{voip} eq 'yes') {
+            $logger->debug("This is a VoIP phone according to node.voip");
+            return 1;
+        }
+
         if ( $node_info->{dhcp_fingerprint} =~ /VoIP Phone/ ) {
             $logger->debug("DHCP fingerprint for $mac indicates VoIP phone");
             return 1;
@@ -1092,10 +1184,13 @@ sub isPhoneAtIfIndex {
             return 0;
         }
     }
-    $logger->trace(
-        "determining if $mac is VoIP phone through discovery protocols");
-    my @phones = $this->getPhonesDPAtIfIndex($ifIndex);
-    return ( grep( { lc($_) eq lc($mac) } @phones ) != 0 );
+    if (defined($ifIndex)) {
+        $logger->debug("determining if $mac is VoIP phone through discovery protocols");
+        my @phones = $this->getPhonesDPAtIfIndex($ifIndex);
+        return ( grep( { lc($_) eq lc($mac) } @phones ) != 0 );
+    } else {
+        return 0;
+    }
 }
 
 sub getMinOSVersion {
@@ -1790,7 +1885,7 @@ sub isNewerVersionThan {
 }
 
 sub generateFakeMac {
-    my ( $this, $vlan, $ifIndex ) = @_;
+    my ($this, $is_voice_vlan, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     # generating a fixed 6 digit string with ifIndex (zero filled)
@@ -1806,7 +1901,7 @@ sub generateFakeMac {
     }
 
     # VoIP will be different than non-VoIP
-    return "02:00:" . ( ( $vlan eq 'VoIP' ) ? "01" : "00" ) . ":" . $mac_suffix;
+    return "02:00:" . ( ($is_voice_vlan) ? "01" : "00" ) . ":" . $mac_suffix;
 }
 
 sub isFakeMac {

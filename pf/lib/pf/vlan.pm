@@ -7,6 +7,7 @@ pf::vlan - Object oriented module for VLAN isolation oriented functions
 =head1 SYNOPSIS
 
 The pf::vlan module contains the functions necessary for the VLAN isolation.
+All the behavior contained here can be overridden in lib/pf/vlan/custom.pm.
 
 =cut
 
@@ -56,7 +57,7 @@ sub vlan_determine_for_node {
         # fetch top violation
         $logger->debug("What is the highest priority violation for this host?");
         my $top_violation = violation_view_top($mac);
-        if ($top_violation) {
+        if ($top_violation && defined($top_violation->{'vid'})) {
 
             # get violation id
             my $vid=$top_violation->{'vid'};
@@ -64,7 +65,7 @@ sub vlan_determine_for_node {
             # find violation class based on violation id
             require pf::class;
             my $class=pf::class::class_view($vid);
-            if ($class) {
+            if ($class && defined($class->{'vlan'})) {
 
                 # override violation destination vlan
                 $vlan = $class->{'vlan'};
@@ -115,6 +116,7 @@ sub custom_doWeActOnThisTrap {
     my $logger = Log::Log4perl->get_logger();
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
+    # TODO we should rethink the position of this code, it's in the wrong test but at the good spot in the flow
     my $weActOnThisTrap = 0;
     if ( $trapType eq 'desAssociate' ) {
         return 1;
@@ -150,7 +152,7 @@ sub custom_doWeActOnThisTrap {
 
 =item custom_getCorrectVlan - returns normal vlan
 
-This sub is meant to be overloaded in lib/pf/vlan/custom.pm if the default 
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
 version doesn't do the right thing for you. By default it will return the 
 normal vlan for the given switch if defined, otherwise it will return the normal
 vlan for the whole network.
@@ -185,38 +187,130 @@ sub custom_getCorrectVlan {
     return $Config{'default'}{'normalVlan'};
 }
 
-sub custom_getNodeInfo {
-    my ( $this, $switch_ip, $switch_port, $mac, $vlan, $isPhone,
-        $mysql_connection )
-        = @_;
-    my $new = {};
-    $new->{'switch'} = $switch_ip;
-    $new->{'port'}   = $switch_port;
-    if ($isPhone) {
-        #$new->{'dhcp_fingerprint'} = '1,3,6,15,42,66,150';
+=item getNodeUpdatedInfo - updated fields when a node changed status
+
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
+version doesn't do the right thing for you. By default it will return the 
+switch_ip and the switch_port to update the node table entry.
+
+=cut
+sub getNodeUpdatedInfo {
+    my ($this, $mac, $switch_ip, $switch_port, $vlan, $voip_status, $connection_type) = @_;
+
+    my %node_info = (
+        switch          => $switch_ip,
+        port            => $switch_port,
+        connection_type => connection_type_to_str($connection_type)
+    );
+
+    # Remember that voip_status is set by isPhoneAtIfIndex and that this checks the node's voip field (circular crap)
+    if ($voip_status eq VOIP) {
+        $node_info{'voip'} = VOIP;
     }
 
-    return $new;
+    # example of customization: set dhcpfingerprint when isPhone is == 1
+    # if ($isPhone) {
+    #    $node_info{'dhcp_fingerprint'} = '1,3,6,15,42,66,150';
+    #}
+
+    return %node_info;
 }
 
-sub custom_getNodeInfoForAutoReg {
-    my ( $this, $switch_ip, $switch_port, $mac, $vlan, $isPhone,
-        $mysql_connection )
-        = @_;
-    my $new;
-    $new->{'pid'}        = 'PF';
-    $new->{'user_agent'} = 'AUTO-REGISTERED';
-    $new->{'status'}     = 'reg';
-    $new->{'vlan'}       = 1;
-    if ($isPhone) {
-        $new->{'dhcp_fingerprint'} = '1,3,6,15,42,66,150';
+=item getNodeInfoForAutoReg - basic information returned for an auto-registered node
+
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
+version doesn't do the right thing for you.
+
+$switch_in_autoreg_mode is set to 1 if switch is in registration mode
+
+$violation_autoreg is set to 1 if called from a violation with autoreg action
+
+$isPhone is set to 1 if device is considered an IP Phone.
+
+$conn_type is set to the connnection type expressed as the constant in pf::config
+
+Returns an anonymous hash that is meant for node_register()
+
+=cut 
+sub getNodeInfoForAutoReg {
+    my ($this, $switch_ip, $switch_port, $mac, $vlan, 
+        $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type) = @_;
+
+    # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
+    my %node_info = (
+        pid             => $default_pid,
+        notes           => 'AUTO-REGISTERED',
+        status          => 'reg',
+        auto_registered => 1, # tells node_register to autoreg
+    );
+
+    # if we are called because switch is in registration mode, we can set switch and vlan info
+    if (defined($switch_in_autoreg_mode) && $switch_in_autoreg_mode) {
+        $node_info{'switch'} = $switch_ip;
+        $node_info{'port'}   = $switch_port;
     }
-    return $new;
+
+    # put a phone dhcp fingerprint if it's a phone
+    if ($isPhone) {
+        $node_info{'dhcp_fingerprint'} = '1,3,6,15,42,66,150';
+        $node_info{'voip'} = VOIP;
+    }
+
+    if (defined($conn_type)) {
+        $node_info{'connection_type'} = connection_type_to_str($conn_type);
+    }
+
+    return %node_info;
 }
 
-sub custom_shouldAutoRegister {
-    my ( $this, $mac, $isPhone ) = @_;
-    return $isPhone;
+=item shouldAutoRegister - do we auto-register this node?
+
+By default we register automatically when the switch is configured to (registration mode),
+when there is a violation with action autoreg and when the device is a phone.
+
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
+version doesn't do the right thing for you.
+
+$switch_in_autoreg_mode is set to 1 if switch is in registration mode
+
+$violation_autoreg is set to 1 if called from a violation with autoreg action
+
+$isPhone is set to 1 if device is considered an IP Phone.
+
+$conn_type is set to the connnection type expressed as the constant in pf::config
+
+returns 1 if we should register, 0 otherwise
+
+=cut
+sub shouldAutoRegister {
+    my ($this, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type) = @_;
+    my $logger = Log::Log4perl->get_logger();
+
+    $logger->trace("asked if should auto-register device");
+    # handling switch-config first because I think it's the most important to honor
+    if (defined($switch_in_autoreg_mode) && $switch_in_autoreg_mode) {
+        $logger->trace("returned yes because it's from the switch's config");
+        return 1;
+
+    # if we have a violation action set to autoreg
+    } elsif (defined($violation_autoreg) && $violation_autoreg) {
+        $logger->trace("returned yes because it's from a violation with action autoreg");
+        return 1;
+    }
+
+    if ($isPhone) {
+        $logger->trace("returned yes because it's an ip phone");
+        return $isPhone;
+    }
+
+    # example: auto-register 802.1x users (since they already have validated credentials to do 802.1x)
+    #if (defined($conn_type) && ($conn_type == WIRELESS_802_1X || $conn_type == WIRED_802_1X)) {
+    #    $logger->trace("returned yes because it's a 802.1x client that successfully authenticated already");
+    #    return 1;
+    #}
+
+    # otherwise don't autoreg
+    return 0;
 }
 
 =back
