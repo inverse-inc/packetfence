@@ -643,14 +643,18 @@ sub parseTrap {
                     \|\.1\.3\.6\.1\.4\.1\.29464\.1\.4\ =\ INTEGER:\ (\d+)\                        # connection_type
                     END\ VARIABLEBINDINGS/x) {   
                     # WARNING: using trap operation for something it is not meant to
+                    # WARNING: always leave trapIfIndex because the trapLine parser expects it
                     $trapHashRef = {
                         'trapType'      => 'desAssociate',
+                        'trapIfIndex'   => 'WIFI',
                         'trapMac'       => $1,
                         'trapOperation' => $2
                     };
                 } elsif ($trapLine =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.29464\.1\.2\|\.1\.3\.6\.1\.4\.1\.29464\.1\.3 = STRING: \"(.+)\" END VARIABLEBINDINGS/) {
+                    # WARNING: always leave trapIfIndex because the trapLine parser expects it
                     $trapHashRef = {
                         'trapType'      => 'desAssociate',
+                        'trapIfIndex'   => 'WIFI',
                         'trapMac'       => $1
                     };
                 } elsif ( $trapLine
@@ -697,7 +701,7 @@ sub parseTrap {
                     $trapVlan = $trapHashRef->{'trapVlan'};
 
                 } elsif ( $trapType eq 'desAssociate' ) {
-                    $trapMac  = $trapHashRef->{'trapMac'};
+                    $trapMac       = $trapHashRef->{'trapMac'};
                     $trapOperation = $trapHashRef->{'trapOperation'};
 
                 } elsif ($trapType eq 'reAssignVlan') {
