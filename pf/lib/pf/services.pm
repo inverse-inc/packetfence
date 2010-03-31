@@ -131,7 +131,7 @@ sub service_ctl {
                       && ( $daemon =~ /named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan/ )
                       && ( defined( $flags{$daemon} ) ) ) {
                     if ( $daemon ne 'pfdhcplistener' ) {
-                        if ( $daemon eq 'named' ) {
+                        if ( $daemon eq 'dhcpd' ) {
                             manage_Static_Route(1);
                         }
                         if (   ( $daemon eq 'pfsetvlan' )
@@ -182,7 +182,7 @@ sub service_ctl {
                     return;
                 }
 
-                if ( $service =~ /(named)/) {
+                if ( $service =~ /(dhcpd)/) {
                     manage_Static_Route();
                 }
 
@@ -379,7 +379,7 @@ sub manage_Static_Route {
             $network_conf{$section}{$key} =~ s/\s+$//;
         }
 
-        if ( ( $network_conf{$section}{'named'} eq 'enabled' ) && ( exists( $network_conf{$section}{'type'} ) ) ) {
+        if ( ($network_conf{$section}{'dhcpd'} eq 'enabled') && (exists($network_conf{$section}{'type'})) && ($network_conf{$section}{'pf_gateway'} =~ /^(?:\d{1,3}\.){3}\d{1,3}$/) ) {
             if ( ( lc($network_conf{$section}{'type'}) eq 'isolation' ) || ( lc($network_conf{$section}{'type'}) eq 'registration' ) ) {
                 my $add_del = $add_Route ? 'add' : 'del';
                 my $full_path = can_run('route') or $logger->error("route is not installed! Can not add static routes to routed Registration and Isolation VLANs");
