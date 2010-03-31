@@ -1,4 +1,6 @@
 2010-03-31	Olivier Bilodeau <obilodeau@inverse.ca>
+	Small fixes to issues found during functionnal testing.
+
 	* pf/lib/pf/db.pm: Database is now reconnecting on failed queries
 
 	* pf/lib/pf/SNMP/ThreeCom/Switch_4200G.pm: Imported bugs and
