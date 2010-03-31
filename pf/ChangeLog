@@ -1,3 +1,7 @@
+2010-03-31	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/ThreeCom/Switch_4200G.pm: Imported bugs and
+	limitations section from parent (pf::SNMP::ThreeCom::SS4500).
+
 2010-03-16	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec: Fix upgrade bug introduced in 1.8.5: Changed
 	perl-Locale-gettext dependency to use the perl namespace version 
