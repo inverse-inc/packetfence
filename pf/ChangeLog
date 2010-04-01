@@ -1,3 +1,9 @@
+2010-04-01	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/cgi-bin/pdp.cgi: Exception handling in radius authorize so we 
+	collect errors in the server logs and in the client logs.
+	Also took out CGI::Carp fatalsToBrowser since I've read it's not 
+	compatible with mod_perl
+
 2010-03-31	Olivier Bilodeau <obilodeau@inverse.ca>
 	Small fixes to issues found during functionnal testing.
 

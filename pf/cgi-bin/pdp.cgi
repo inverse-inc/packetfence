@@ -7,7 +7,6 @@ use strict;
 use warnings;
 
 use CGI;
-use CGI::Carp qw( fatalsToBrowser );
 use Log::Log4perl;
 
 use constant INSTALL_DIR => '/usr/local/pf';
@@ -59,5 +58,12 @@ sub radius_authorize {
            "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP-Type => $eap_type, ".
            "mac => $mac, port => $port, username => $user_name, ssid => $ssid");
 
-  return $radius->authorize($nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name, $ssid);
+  my $return;
+  eval {
+      $return = $radius->authorize($nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name, $ssid);
+  };
+  if ($@) {
+      $logger->logdie("radius authorize failed with error: $@");
+  }
+  return $return;
 }
