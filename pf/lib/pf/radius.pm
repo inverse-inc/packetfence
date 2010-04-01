@@ -81,7 +81,7 @@ sub authorize {
 
     my $connection_type = $this->_identify_connection_type($nas_port_type, $eap_type);
 
-    # FIXME maybe it's in there that we should do all the magic that happened in rlm_perl_packetfence_sql
+    # TODO maybe it's in there that we should do all the magic that happened in rlm_perl_packetfence_sql
     # meaning: the return should be decided by doWeActOnThisCall, not always RLM_MODULE_NOOP
     my $weActOnThisCall = $this->doWeActOnThisCall($connection_type, $switch_ip, $mac, $port, $user_name, $ssid);
     if ($weActOnThisCall == 0) {

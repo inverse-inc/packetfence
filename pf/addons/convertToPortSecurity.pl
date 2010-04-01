@@ -281,7 +281,7 @@ foreach my $ifIndex ( sort { $a <=> $b } keys %$ifDescHashRef ) {
                 push @modLines,
                     "switchport access vlan " . $switch->{_macDetectionVlan};
             } else {
-                # FIXME: we should provide a flag to offer either setting vlan by node or by switch
+                # TODO: we should provide a flag to offer either setting vlan by node or by switch
                 if ( $config =~ /switchport access vlan dynamic/ ) {
                     my $node_info = node_view($macToSecure);
                     if ( $node_info->{'vlan'} ne '' ) {
