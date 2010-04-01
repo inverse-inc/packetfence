@@ -149,10 +149,6 @@ sub authorize {
 
     # did SOAP server returned a fault in the request?
     if ($som->fault) {
-        # TODO should we also output $som->faultdetail and $som->faultactor?
-        syslog("info", "Error in SOAP communication with server. Error no: ".
-               $som->faultcode." Error msg: ".$som->faultstring);
-        &radiusd::radlog(1, "PacketFence DENIED CONNECTION because of SOAP error see syslog for details.");
         return server_error_handler();
     }
 
