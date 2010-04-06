@@ -1,3 +1,9 @@
+2010-04-06	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/ifoctetslog.pm, pf/lib/pf/locationlog.pm: Fixed a context
+	issue with database queries related to mac history, switchport history
+	and user bandwidth accounting. Also fixed a slight mistake with 
+	ifoctet's db queries in general.
+
 2010-03-31	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/db.pm: Database is now reconnecting on failed queries
 

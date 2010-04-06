@@ -132,11 +132,9 @@ sub locationlog_history_mac {
     $mac = $tmpMAC->as_IEEE();
     if ( defined( $params{'date'} ) ) {
         return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_history_mac_date_sql',
-            $mac, $params{'date'}, $params{'date'})
-            || return (0);
+            $mac, $params{'date'}, $params{'date'});
     } else {
-        return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_history_mac_sql', $mac)
-            || return (0);
+        return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_history_mac_sql', $mac);
     }
 }
 
@@ -145,12 +143,10 @@ sub locationlog_history_switchport {
 
     if ( defined( $params{'date'} ) ) {
         return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_history_switchport_date_sql',
-            $switch, $params{'ifIndex'}, $params{'date'}, $params{'date'})
-            || return (0);
+            $switch, $params{'ifIndex'}, $params{'date'}, $params{'date'});
     } else {
         return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_history_switchport_sql', 
-            $switch, $params{'ifIndex'})
-            || return (0);
+            $switch, $params{'ifIndex'});
     }
 }
 
