@@ -10,6 +10,8 @@ rlm_perl_packetfence.pl contains the functions necessary to
 integrate PacketFence and FreeRADIUS
 
 =cut
+# FIXME this no longer works starting with the feature.rlm-soap branch. 
+# It could be made to work, we haven't considered it yet.
 
 use strict;
 use warnings;

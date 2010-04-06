@@ -60,6 +60,7 @@ BuildRequires: perl-Parse-RecDescent = 1.94
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl, php, php-gd
+Requires: mod_perl
 # php-pear-Log required not php-pear, fixes #804
 Requires: php-pear-Log
 Requires: net-tools
@@ -104,15 +105,14 @@ Requires: rrdtool, perl-rrdtool
 Requires: perl-SOAP-Lite
 Requires: perl-Template-Toolkit
 Requires: perl-TermReadKey
-Requires: perl-Test-MockDBI
-Requires: perl-Test-Perl-Critic
-Requires: perl-Test-Pod, perl-Test-Pod-Coverage
 Requires: perl-Thread-Pool
 Requires: perl-TimeDate
 Requires: perl-UNIVERSAL-require
 Requires: perl-YAML
 Requires: php-jpgraph-packetfence = 2.3.4
 Requires: php-ldap
+# Required for testing
+BuildRequires: perl-Test-MockModule, perl-Test-MockDBI, perl-Test-Perl-Critic, perl-Test-Pod, perl-Test-Pod-Coverage
 
 %description
 
@@ -484,6 +484,12 @@ fi
 %attr(0755, root, root) %{_initrddir}/pfdetectd
 
 %changelog
+* <date> Olivier Bilodeau <obilodeau@inverse.ca> - <version>
+- Added perl-Test-MockModule as a build dependency (required for tests)
+- Test modules are now required for building instead of required for package 
+  install.
+- Added mod_perl as a dependency
+
 * Tue Mar 16 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.7-2
 - Fix upgrade bug from 1.8.4: Changed perl-Locale-gettext dependency to use the
   perl namespace version perl(Locale-gettext). Fixes #931;
