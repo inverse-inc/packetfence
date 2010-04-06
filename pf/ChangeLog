@@ -12,6 +12,11 @@
 	* pf/lib/pf/SNMP/ThreeCom/Switch_4200G.pm: Imported bugs and
 	limitations section from parent (pf::SNMP::ThreeCom::SS4500).
 
+2010-03-24      Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/services.pm: PF now creates static routes to routed Vlans 
+	when dhcpd is enabled in networks.conf. It used to be when named was 
+	enabled.
+
 2010-03-16	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec: Fix upgrade bug introduced in 1.8.5: Changed
 	perl-Locale-gettext dependency to use the perl namespace version 
