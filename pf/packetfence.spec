@@ -327,8 +327,9 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/addons/convertToPortSecurity.pl
 %attr(0755, pf, pf)	/usr/local/pf/addons/database-backup-and-maintenance.sh
 %dir                    /usr/local/pf/addons/high-availability/
-			/usr/local/pf/addons/high-availability/*
-			/usr/local/pf/addons/logrotate
+                        /usr/local/pf/addons/high-availability/*
+%attr(0755, pf, pf)     /usr/local/pf/addons/loadMACintoDB.pl
+                        /usr/local/pf/addons/logrotate
 %attr(0755, pf, pf)	/usr/local/pf/addons/migrate-to-locationlog_history.sh
 %attr(0755, pf, pf)     /usr/local/pf/addons/monitorpfsetvlan.pl
 %dir                    /usr/local/pf/addons/mrtg

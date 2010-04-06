@@ -1,5 +1,6 @@
 2010-04-06	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec: Snapshot 1.8.8-0.20100311
+	- Added addons/loadMACintoDB.pl to rpm spec
 
 	* pf/conf/pf-release: Version bump to 1.8.8dev (forgot to do earlier)
 
