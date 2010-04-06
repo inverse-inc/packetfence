@@ -1,3 +1,11 @@
+2010-04-06	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/pf-release: Version bump to 1.8.8dev (forgot to do earlier)
+
+	* pf/lib/pf/ifoctetslog.pm, pf/lib/pf/locationlog.pm: Fixed a context
+	issue with database queries related to mac history, switchport history
+	and user bandwidth accounting. Also fixed a slight mistake with 
+	ifoctet's db queries in general.
+
 2010-04-01	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/cgi-bin/pdp.cgi: Exception handling in radius authorize so we 
 	collect errors in the server logs and in the client logs.
@@ -53,6 +61,11 @@
 	* pf/bin/pfcmd,  pf/lib/pf/SNMP/Aruba.pm, pf/lib/pf/SNMP/Cisco.pm,
 	pf/lib/pf/SNMP/Dlink.pm, pf/sbin/pfsetvlan: Removed remaining 
 	references to hardcoded 'WIFI' ifIndex.
+
+2010-03-24	Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/services.pm: PF now creates static routes to routed Vlans 
+	when dhcpd is enabled in networks.conf. It used to be when named was 
+	enabled.
 
 2010-03-24	Olivier Bilodeau <obilodeau@inverse.ca>
 	Minor refactorings all over the place based on review comments

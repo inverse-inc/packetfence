@@ -23,7 +23,7 @@ use Date::Parse;
 use Log::Log4perl;
 use Net::MAC;
 
-use constant IFOCTETSLOG => 'ifoctetslogs';
+use constant IFOCTETSLOG => 'ifoctetslog';
 
 BEGIN {
     use Exporter ();
@@ -90,11 +90,9 @@ sub ifoctetslog_history_mac {
     my @data;
     if ( exists( $params{'start_time'} ) && exists( $params{'end_time'} ) ) {
         @raw_data = db_data(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_history_mac_start_end_sql',
-            $mac, $params{'start_time'}, $params{'end_time'})
-            || return (0);
+            $mac, $params{'start_time'}, $params{'end_time'});
     } else {
-        @raw_data = db_data(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_history_mac_sql', $mac)
-            || return (0);
+        @raw_data = db_data(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_history_mac_sql', $mac);
     }
     my $previousLine;
     foreach my $line ( reverse @raw_data ) {
@@ -127,11 +125,9 @@ sub ifoctetslog_history_user {
     my @data;
     if ( exists( $params{'start_time'} ) && exists( $params{'end_time'} ) ) {
         @raw_data = db_data(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_history_user_start_end_sql',
-            $user, $params{'start_time'}, $params{'end_time'})
-            || return (0);
+            $user, $params{'start_time'}, $params{'end_time'});
     } else {
-        @raw_data = db_data(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_history_user_start_end_sql', $user) 
-            || return (0);
+        @raw_data = db_data(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_history_user_start_end_sql', $user);
     }
 
     my $previousLine;
@@ -190,12 +186,10 @@ sub ifoctetslog_history_switchport {
     my @data;
     if ( exists( $params{'start_time'} ) && exists( $params{'end_time'} ) ) {
         @raw_data = db_data(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_history_switchport_start_end_sql', 
-            $switch, $params{'ifIndex'}, $params{'start_time'}, $params{'end_time'})
-            || return (0);
+            $switch, $params{'ifIndex'}, $params{'start_time'}, $params{'end_time'});
     } else {
         @raw_data = db_data(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_history_switchport_sql', 
-            $switch, $params{'ifIndex'})
-            || return (0);
+            $switch, $params{'ifIndex'});
     }
     my $previousLine;
     foreach my $line ( reverse @raw_data ) {
