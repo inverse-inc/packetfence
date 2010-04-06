@@ -37,7 +37,7 @@ Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
 Version: 1.8.8
 # Update here on each release/snapshot
-%define source_release 0.20100311
+%define source_release 0.20100406
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -484,6 +484,9 @@ fi
 %attr(0755, root, root) %{_initrddir}/pfdetectd
 
 %changelog
+* Tue Apr 06 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.8-0.20100406
+- Version bump to snapshot 20100406
+
 * Tue Mar 16 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.7-2
 - Fix upgrade bug from 1.8.4: Changed perl-Locale-gettext dependency to use the
   perl namespace version perl(Locale-gettext). Fixes #931;
