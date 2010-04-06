@@ -1,4 +1,6 @@
 2010-04-06	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/pf-release: Version bump to 1.8.8dev (forgot to do earlier)
+
 	* pf/lib/pf/ifoctetslog.pm, pf/lib/pf/locationlog.pm: Fixed a context
 	issue with database queries related to mac history, switchport history
 	and user bandwidth accounting. Also fixed a slight mistake with 
