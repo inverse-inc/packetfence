@@ -203,7 +203,7 @@ sub isPortSecurityEnabled {
     }
 }
 
-=item getSecureMacAddresses - return all MAC addresses in security table and their VLAN
+=item getSecureMacAddresses - return all MAC addresses in security table and their VLAN for a given ifIndex
 
 Returns an hashref with MAC => Array(VLANs)
 
@@ -240,6 +240,47 @@ sub getSecureMacAddresses {
 
     return $secureMacAddrHashRef;
 }
+
+=item getAllSecureMacAddresses - return all MAC addresses in security table and their VLAN
+
+Returns an hashref with MAC => ifIndex => Array(VLANs)
+
+=cut
+sub getAllSecureMacAddresses {
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    # from FOUNDRY-SN-SWITCH-GROUP-MIB
+    my $oid_snPortMacSecurityIntfMacVlanId = '1.3.6.1.4.1.1991.1.1.3.24.1.1.4.1.3';
+
+    my $secureMacAddrHashRef = {};
+    if (!$this->connectRead()) {
+        return $secureMacAddrHashRef;
+    }
+
+    # fetch the information
+    $logger->trace("SNMP get_table for snPortMacSecurityIntfMacVlanId: $oid_snPortMacSecurityIntfMacVlanId");
+    my $result = $this->{_sessionRead}->get_table(-baseoid => "$oid_snPortMacSecurityIntfMacVlanId");
+
+    foreach my $oid_including_mac (keys %{$result}) {
+        if ($oid_including_mac =~ /^$oid_snPortMacSecurityIntfMacVlanId             # the question part
+            \.([0-9]+)                                                              # ifIndex
+            \.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)            # MAC address in OID format
+            $/x) {
+
+            my $ifIndex = $1;
+            # oid to mac
+            my $mac = sprintf("%02x:%02x:%02x:%02x:%02x:%02x", $2, $3, $4, $5, $6, $7);
+            my $vlan = $result->{$oid_including_mac};
+
+            # add mac => vlan to hashref
+            push @{$secureMacAddrHashRef->{$mac}->{$ifIndex}}, $vlan;
+        }
+    }
+
+    return $secureMacAddrHashRef;
+}
+
 
 sub getMaxMacAddresses {
     my ( $this, $ifIndex ) = @_;
