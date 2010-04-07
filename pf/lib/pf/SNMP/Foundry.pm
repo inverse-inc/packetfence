@@ -31,6 +31,12 @@ couldn't find an easy way to determine (using SNMP) if a given
 VLAN is defined or not ... VLANs which don't have ports assigned to
 them simply don't seem to appear using SNMP
 
+=head1 SUBROUTINES
+
+TODO: this list is incomplete
+
+=over
+
 =cut
 
 use strict;
@@ -165,7 +171,7 @@ sub isLearntTrapsEnabled {
 }
 
 sub isPortSecurityEnabled {
-    my ( $this, $ifIndex ) = @_;
+    my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     if (!$this->connectRead()) {
@@ -197,6 +203,44 @@ sub isPortSecurityEnabled {
     }
 }
 
+=item getSecureMacAddresses - return all MAC addresses in security table and their VLAN
+
+Returns an hashref with MAC => Array(VLANs)
+
+=cut
+sub getSecureMacAddresses {
+    my ($this, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    # from FOUNDRY-SN-SWITCH-GROUP-MIB
+    my $oid_snPortMacSecurityIntfMacVlanId = '1.3.6.1.4.1.1991.1.1.3.24.1.1.4.1.3';
+
+    my $secureMacAddrHashRef = {};
+    if (!$this->connectRead()) {
+        return $secureMacAddrHashRef;
+    }
+
+    # fetch the information
+    $logger->trace("SNMP get_table for snPortMacSecurityIntfMacVlanId: $oid_snPortMacSecurityIntfMacVlanId.$ifIndex");
+    my $result = $this->{_sessionRead}->get_table(-baseoid => "$oid_snPortMacSecurityIntfMacVlanId.$ifIndex");
+
+    foreach my $oid_including_mac (keys %{$result}) {
+        if ($oid_including_mac =~ /^$oid_snPortMacSecurityIntfMacVlanId\.$ifIndex   # the question part
+            \.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)            # MAC address in OID format
+            $/x) {
+
+            # oid to mac
+            my $mac = sprintf("%02x:%02x:%02x:%02x:%02x:%02x", $1, $2, $3, $4, $5, $6);
+            my $vlan = $result->{$oid_including_mac};
+
+            # add mac => vlan to hashref
+            push @{$secureMacAddrHashRef->{$mac}}, $vlan;
+        }
+    }
+
+    return $secureMacAddrHashRef;
+}
+
 sub getMaxMacAddresses {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -209,6 +253,8 @@ sub getMaxMacAddresses {
         return -1;
     }
 }
+
+=back
 
 =head1 AUTHOR
 
