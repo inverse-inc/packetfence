@@ -14,12 +14,16 @@ to access SNMP enabled Foundry switches.
 
 Currently only supports linkUp / linkDown mode
 
-Developed and tested on FastIron 4802 running on image version 07.8.04aT53
+Developed and tested on FastIron 4802 running on image version 04.0.00
 
 =head1 BUGS AND LIMITATIONS
     
+Port security works with an OS version of 4 or greater.
+
+FastIron with a JetCore chipset cannot work in port-security mode (check show version)
+
 You cannot run a network with VLAN 1 as your normal VLAN with these switches.
- 
+
 SNMPv3 support was not tested.
     
 The isDefinedVlan function currently always returns true since I
@@ -40,9 +44,9 @@ use Net::SNMP;
 
 
 sub getVersion {
-    my ($this)       = @_;
+    my ($this)         = @_;
     my $oid_snAgImgVer = '1.3.6.1.4.1.1991.1.1.2.1.11.0';
-    my $logger       = Log::Log4perl::get_logger( ref($this) );
+    my $logger         = Log::Log4perl::get_logger( ref($this) );
 
     if ( !$this->connectRead() ) {
         return '';
@@ -162,8 +166,35 @@ sub isLearntTrapsEnabled {
 
 sub isPortSecurityEnabled {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    return 0;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    if (!$this->connectRead()) {
+        return 0;
+    }
+
+    # from FOUNDRY-SN-SWITCH-GROUP-MIB
+    my $oid_snPortMacSecurityIntfContentSecurity = "1.3.6.1.4.1.1991.1.1.3.24.1.1.3.1.2"; 
+
+    #determine if port security is enabled
+    $logger->trace("SNMP get_request for snPortMacSecurityIntfContentSecurity: "
+        . "$oid_snPortMacSecurityIntfContentSecurity.$ifIndex");
+
+    # snmp request
+    my $result = $this->{_sessionRead}->get_request(
+        -varbindlist => [ "$oid_snPortMacSecurityIntfContentSecurity.$ifIndex" ] );
+
+    # validating answer
+    my $valid_answer = (defined($result->{"$oid_snPortMacSecurityIntfContentSecurity.$ifIndex"}) 
+        && ($result->{"$oid_snPortMacSecurityIntfContentSecurity.$ifIndex"} ne 'noSuchInstance')
+        && ($result->{"$oid_snPortMacSecurityIntfContentSecurity.$ifIndex"} ne 'noSuchObject'));
+
+    # if valid return answer, otherwise assume there's no port-security
+    if ($valid_answer) {
+        return $result->{"$oid_snPortMacSecurityIntfContentSecurity.$ifIndex"};
+    } else {
+        $logger->debug("there was a problem grabbing port-security status, it's probably only deactivated");
+        return 0;
+    }
 }
 
 sub getMaxMacAddresses {
