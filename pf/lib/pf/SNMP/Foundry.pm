@@ -31,6 +31,10 @@ couldn't find an easy way to determine (using SNMP) if a given
 VLAN is defined or not ... VLANs which don't have ports assigned to
 them simply don't seem to appear using SNMP
 
+Not so sure how often the security violation traps are sent.
+If PacketFence misses the trap you might be out of luck.
+We should check with the documentation but I can't find detailed SNMP options right now.
+
 =head1 SUBROUTINES
 
 TODO: this list is incomplete
@@ -48,6 +52,10 @@ use POSIX;
 use Log::Log4perl;
 use Net::SNMP;
 
+use pf::util;
+
+use constant DELETE => 3;
+use constant CREATE => 4;
 
 sub getVersion {
     my ($this)         = @_;
@@ -73,7 +81,13 @@ sub parseTrap {
     {
         $trapHashRef->{'trapType'} = ( ( $1 == 3 ) ? "down" : "up" );
         $trapHashRef->{'trapIfIndex'} = $2;
-    } elsif ( $trapString =~ /\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.1991\.0\.77\|\.1\.3\.6\.1\.4\.1\.1991\.1\.1\.2\.1\.44\.0 = STRING: "Security: Port security violation at interface ethernet (\d+), address ([0-9A-Fa-f]{2})([0-9A-Fa-z]{2})\.([0-9A-Fa-f]{2})([0-9A-Fa-z]{2})\.([0-9A-Fa-f]{2})([0-9A-Fa-z]{2}), vlan (\d+)/ ) {
+    # trap has been generalized from previous version to work with 4.00 OS
+    } elsif ($trapString =~ /\.1\.3\.6\.1\.4\.1\.1991\.1\.1\.2\.1\.44\.0\ =\              # Notification OID
+        STRING:\ "Security:\ Port\ security\ violation\ at\                               # Trap string
+        interface\ ethernet\ (\d+),\ address\                                             # ifIndex
+        ([0-9A-Fa-f]{2})([0-9A-Fa-z]{2})\.([0-9A-Fa-f]{2})([0-9A-Fa-z]{2})\.([0-9A-Fa-f]{2})([0-9A-Fa-z]{2}) # MAC
+        ,\ vlan\ (\d+)                                                                    # VLAN
+        /x ) {
         $trapHashRef->{'trapType'} = 'secureMacAddrViolation';
         $trapHashRef->{'trapIfIndex'} = $1;
         $trapHashRef->{'trapMac'} = lc("$2:$3:$4:$5:$6:$7");
@@ -281,6 +295,69 @@ sub getAllSecureMacAddresses {
     return $secureMacAddrHashRef;
 }
 
+=item authorizeMAC - authorize a MAC address and de-authorize the previous one if required
+
+=cut
+sub authorizeMAC {
+    my ($this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    # TODO consider pushing this up to caller (especially if we do it in every authorizeMAC)
+    if (!$this->isProductionMode()) {
+        $logger->info("not in production mode ... we won't add an entry to the SecureMacAddrTable");
+        return 1;
+    }
+
+    if (!$this->connectWrite()) {
+        return 0;
+    }
+
+    # FIXME validate VoIP behavior
+    my $voiceVlan = $this->getVoiceVlan($ifIndex);
+    if (($deauthVlan == $voiceVlan) || ($authVlan == $voiceVlan)) {
+        $logger->error("authorizeMAC called with voice VLAN .... this should not have happened ... "
+             . "we won't add an entry to the SecureMacAddrTable");
+        return 1;
+    }
+
+    # building set request
+    my $oid_snPortMacSecurityIntfMacRowStatus = '1.3.6.1.4.1.1991.1.1.3.24.1.1.4.1.4';
+    my $oid_snPortMacSecurityIntfMacVlanId    = '1.3.6.1.4.1.1991.1.1.3.24.1.1.4.1.3';
+    my @oid_to_set;
+    if ($deauthMac) {
+        # VLAN
+        my $vlan_deassign_oid = "$oid_snPortMacSecurityIntfMacVlanId.$ifIndex.".mac2oid($deauthMac);
+        push @oid_to_set, ($vlan_deassign_oid, Net::SNMP::GAUGE32, 0); # VLAN 0 is a special value: force removal
+
+        # MAC
+        my $deauth_oid = "$oid_snPortMacSecurityIntfMacRowStatus.$ifIndex.".mac2oid($deauthMac);
+        push @oid_to_set, ($deauth_oid, Net::SNMP::INTEGER, DELETE);
+    }
+    if ($authMac) {
+        # VLAN
+        my $vlan_assign_oid = "$oid_snPortMacSecurityIntfMacVlanId.$ifIndex.".mac2oid($authMac);
+        push @oid_to_set, ($vlan_assign_oid, Net::SNMP::GAUGE32, $authVlan);
+
+        # MAC
+        my $auth_oid = "$oid_snPortMacSecurityIntfMacRowStatus.$ifIndex.".mac2oid($authMac);
+        push @oid_to_set, ($auth_oid, Net::SNMP::INTEGER, CREATE);
+    }
+
+    # if there's something to do
+    if (@oid_to_set) {
+        $logger->trace("SNMP set_request for snPortMacSecurityIntfMacRowStatus. Values: \n"
+            . $oid_to_set[0] . "(" . $oid_to_set[1]  . ") => " . $oid_to_set[2]  . "\n"
+            . $oid_to_set[3] . "(" . $oid_to_set[4]  . ") => " . $oid_to_set[5]  . "\n"
+            . $oid_to_set[6] . "(" . $oid_to_set[7]  . ") => " . $oid_to_set[8]  . "\n"
+            . $oid_to_set[9] . "(" . $oid_to_set[10] . ") => " . $oid_to_set[11] . "\n");
+        my $result = $this->{_sessionWrite}->set_request(-varbindlist => \@oid_to_set);
+        if (!defined($result)) {
+            $logger->error("SNMP error tyring to perform de-auth/auth. "
+                . "Error message: ".$this->{_sessionWrite}->error());
+        }
+    }
+    return 1;
+}
 
 sub getMaxMacAddresses {
     my ( $this, $ifIndex ) = @_;

@@ -1,3 +1,6 @@
+2010-04-07	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Foundry.pm: Port security implementation
+
 2010-04-06	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec: Snapshot 1.8.8-0.20100311
 	- Added addons/loadMACintoDB.pl to rpm spec
