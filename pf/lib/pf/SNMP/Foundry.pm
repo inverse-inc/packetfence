@@ -12,7 +12,7 @@ to access SNMP enabled Foundry switches.
 
 =head1 STATUS
 
-Currently only supports linkUp / linkDown mode
+Supports linkUp / linkDown and Port Security modes
 
 Developed and tested on FastIron 4802 running on image version 04.0.00
 
@@ -26,11 +26,6 @@ You cannot run a network with VLAN 1 as your normal VLAN with these switches.
 
 SNMPv3 support was not tested.
     
-The isDefinedVlan function currently always returns true since I
-couldn't find an easy way to determine (using SNMP) if a given
-VLAN is defined or not ... VLANs which don't have ports assigned to
-them simply don't seem to appear using SNMP
-
 Not so sure how often the security violation traps are sent.
 If PacketFence misses the trap you might be out of luck.
 We should check with the documentation but I can't find detailed SNMP options right now.
@@ -99,13 +94,30 @@ sub parseTrap {
     return $trapHashRef;
 }
 
+=item isDefinedVlan - returns 1 (true) if requested vlan exists or 0 (false) otherwise
+
+=cut
 sub isDefinedVlan {
-    my ( $this, $vlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    # TODO ideally we should implement that
-    $logger->debug("isDefinedVlan called for Foundry switch. "
-                   . "returning true even though we don't know !");
-    return 1;
+    my ($this, $vlan) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    # vlanIfIndex to vlan number (vlan tag)
+    my $oid_snVLanByPortVLanId = '1.3.6.1.4.1.1991.1.1.3.2.1.1.2'; #from FOUNDRY-SN-SWITCH-GROUP-MIB
+
+    if (!$this->connectRead()) {
+        return 0;
+    }
+
+    $logger->trace("SNMP get_table for extremeVlanIfVlanId: $oid_snVLanByPortVLanId");
+    my $result = $this->{_sessionRead}->get_table(-baseoid => "$oid_snVLanByPortVLanId");
+
+    # loop on all vlans
+    foreach my $vlanIfIndex (keys %{$result}) {
+        if ($result->{$vlanIfIndex} == $vlan) {
+            return 1;
+        }
+    }
+    $logger->warn("could not find vlan $vlan on this switch");
+    return 0;
 }
 
 sub getVlans {
