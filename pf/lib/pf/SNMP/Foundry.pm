@@ -187,6 +187,26 @@ sub _setVlan {
                  4 ]
             );
     }
+
+    if (!defined($result)) {
+        # something went wrong: report it
+        $logger->error("changing VLAN failed with: " . $this->{_sessionWrite}->error);
+    } else {
+
+        # if we are in port security mode we need to authorize the MAC in the new VLAN (and deauthorize the old stuff)
+        if ($this->isPortSecurityEnabled($ifIndex)) {
+
+            my $secureTableHashRef = $this->getSecureMacAddresses($ifIndex);
+            # hash is valid and has one MAC
+            if (ref($secureTableHashRef) eq 'HASH' && scalar(keys %{$secureTableHashRef}) == 1) {
+
+                my $mac = (keys %{$secureTableHashRef})[0]; # grab MAC 
+                $this->authorizeMAC($ifIndex, $mac, $mac, $oldVlan, $newVlan);
+            } else {
+                $logger->warn("couldn't authorize MAC for new VLAN: no secure mac or more than one already there");
+            }
+        }
+    }
     return (defined($result));
 }
 
@@ -332,39 +352,55 @@ sub authorizeMAC {
         return 1;
     }
 
-    # building set request
+    # OID information
     my $oid_snPortMacSecurityIntfMacRowStatus = '1.3.6.1.4.1.1991.1.1.3.24.1.1.4.1.4';
     my $oid_snPortMacSecurityIntfMacVlanId    = '1.3.6.1.4.1.1991.1.1.3.24.1.1.4.1.3';
-    my @oid_to_set;
+
+    # WARNING: deauth/auth was splitted into two set requests because the switch couldn't handle both in the same set
+    # deauthentication set request
+    my @deauth_oid_to_set;
     if ($deauthMac) {
         # VLAN
         my $vlan_deassign_oid = "$oid_snPortMacSecurityIntfMacVlanId.$ifIndex.".mac2oid($deauthMac);
-        push @oid_to_set, ($vlan_deassign_oid, Net::SNMP::GAUGE32, 0); # VLAN 0 is a special value: force removal
+        push @deauth_oid_to_set, ($vlan_deassign_oid, Net::SNMP::GAUGE32, $deauthVlan);
 
         # MAC
         my $deauth_oid = "$oid_snPortMacSecurityIntfMacRowStatus.$ifIndex.".mac2oid($deauthMac);
-        push @oid_to_set, ($deauth_oid, Net::SNMP::INTEGER, DELETE);
-    }
-    if ($authMac) {
-        # VLAN
-        my $vlan_assign_oid = "$oid_snPortMacSecurityIntfMacVlanId.$ifIndex.".mac2oid($authMac);
-        push @oid_to_set, ($vlan_assign_oid, Net::SNMP::GAUGE32, $authVlan);
-
-        # MAC
-        my $auth_oid = "$oid_snPortMacSecurityIntfMacRowStatus.$ifIndex.".mac2oid($authMac);
-        push @oid_to_set, ($auth_oid, Net::SNMP::INTEGER, CREATE);
+        push @deauth_oid_to_set, ($deauth_oid, Net::SNMP::INTEGER, DELETE);
     }
 
     # if there's something to do
-    if (@oid_to_set) {
-        $logger->trace("SNMP set_request for snPortMacSecurityIntfMacRowStatus. Values: \n"
-            . $oid_to_set[0] . "(" . $oid_to_set[1]  . ") => " . $oid_to_set[2]  . "\n"
-            . $oid_to_set[3] . "(" . $oid_to_set[4]  . ") => " . $oid_to_set[5]  . "\n"
-            . $oid_to_set[6] . "(" . $oid_to_set[7]  . ") => " . $oid_to_set[8]  . "\n"
-            . $oid_to_set[9] . "(" . $oid_to_set[10] . ") => " . $oid_to_set[11] . "\n");
-        my $result = $this->{_sessionWrite}->set_request(-varbindlist => \@oid_to_set);
+    if (@deauth_oid_to_set) {
+        $logger->trace("De-auth SNMP set_request for snPortMacSecurityIntfMacRowStatus. Values: \n"
+            . $deauth_oid_to_set[0] . "(" . $deauth_oid_to_set[1]  . ") => " . $deauth_oid_to_set[2]  . "\n"
+            . $deauth_oid_to_set[3] . "(" . $deauth_oid_to_set[4]  . ") => " . $deauth_oid_to_set[5]  . "\n");
+        my $result = $this->{_sessionWrite}->set_request(-varbindlist => \@deauth_oid_to_set);
         if (!defined($result)) {
-            $logger->error("SNMP error tyring to perform de-auth/auth. "
+            $logger->warn("SNMP error tyring to perform de-auth. This could be normal. "
+                . "Error message: ".$this->{_sessionWrite}->error());
+        }
+    }
+
+    # deauthentication set request
+    my @auth_oid_to_set;
+    if ($authMac) {
+        # VLAN
+        my $vlan_assign_oid = "$oid_snPortMacSecurityIntfMacVlanId.$ifIndex.".mac2oid($authMac);
+        push @auth_oid_to_set, ($vlan_assign_oid, Net::SNMP::GAUGE32, $authVlan);
+
+        # MAC
+        my $auth_oid = "$oid_snPortMacSecurityIntfMacRowStatus.$ifIndex.".mac2oid($authMac);
+        push @auth_oid_to_set, ($auth_oid, Net::SNMP::INTEGER, CREATE);
+    }
+
+    # if there's something to do
+    if (@auth_oid_to_set) {
+        $logger->trace("Auth SNMP set_request for snPortMacSecurityIntfMacRowStatus. Values: \n"
+            . $auth_oid_to_set[0] . "(" . $auth_oid_to_set[1]  . ") => " . $auth_oid_to_set[2]  . "\n"
+            . $auth_oid_to_set[3] . "(" . $auth_oid_to_set[4]  . ") => " . $auth_oid_to_set[5]  . "\n");
+        my $result = $this->{_sessionWrite}->set_request(-varbindlist => \@auth_oid_to_set);
+        if (!defined($result)) {
+            $logger->warn("SNMP error tyring to perform auth. This could be normal. "
                 . "Error message: ".$this->{_sessionWrite}->error());
         }
     }

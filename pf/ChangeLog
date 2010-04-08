@@ -1,6 +1,11 @@
 2010-04-08	Regis Balzard <rbalzard@inverse.ca>
 	* pf/sbin/pfdhcplistener: Fix call to non-existing script lookup_node.pl
+	Fixes 858;
 	http://www.packetfence.org/mantis/view.php?id=858
+
+2010-04-08	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Foundry.pm: Fixed a couple of issues with port-security
+	and VLAN changes if ifIndex doesn't change
 
 2010-04-07	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/SNMP/Foundry.pm: Port security implementation
