@@ -44,6 +44,7 @@ Bug fixes
 - Fixed PacketFence RPM upgrade bug if your version is lower than 1.8.5 (#931)
 - Fixed rare port-security problems with stacked switches or switches with 
   large ifIndex (#921)
+- Fixed call to non-existing script lookup_node.pl in pfdhcplistener (#858)
 - Misc. stability fixes
 
 --------------------------------------------------------------------------------

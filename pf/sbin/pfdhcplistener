@@ -270,8 +270,8 @@ sub listen_dhcp {
                     . " ($src) ON "
                     . uc($eth) . "\n";
                 push @INC, $bin_dir;
-                require "lookup_node.pl";
-                $rogue_message{'message'} = lookup_node($smac) . "\n";
+                require pf::lookup::node;
+                $rogue_message{'message'} = pf::lookup::node::lookup_node($smac) . "\n";
                 $rogue_message{'message'}
                     = "Detected Offers\n---------------\n";
                 while ( @{ $rogue_servers{$smac} } ) {
