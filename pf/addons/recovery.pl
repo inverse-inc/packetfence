@@ -65,6 +65,7 @@ use DBI;
 use threads;
 use threads::shared;
 use Log::Log4perl qw(:easy);
+use Log::Log4perl::Appender::File; # HACK: compile tests failed on build env. without that
 use Getopt::Long;
 use Pod::Usage;
 use Thread::Pool;

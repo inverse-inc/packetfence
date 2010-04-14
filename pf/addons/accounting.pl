@@ -29,6 +29,8 @@ use Net::SNMP;
 use threads;
 use threads::shared;
 use Thread::Pool;
+use Log::Log4perl;
+use Log::Log4perl::Appender::File; # HACK: compile tests failed on build env. without that
 
 use constant INSTALL_DIR => '/usr/local/pf';
 

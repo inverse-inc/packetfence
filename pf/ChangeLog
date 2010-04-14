@@ -2,6 +2,10 @@
 	* pf/lib/pf/SNMP/Cisco/Catalyst_2950.pm: Added a note that SNMPv3 
 	support doesn't work
 
+2010-04-09	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/accounting.pl, pf/addons/recovery.pl: hack to make tests
+	work successfully in our new build env.
+
 2010-04-08	Regis Balzard <rbalzard@inverse.ca>
 	* pf/sbin/pfdhcplistener: Fix call to non-existing script lookup_node.pl
 	Fixes 858;
