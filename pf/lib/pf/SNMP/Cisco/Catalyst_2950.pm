@@ -9,7 +9,13 @@ pf::SNMP::Cisco::Catalyst_2950 - Object oriented module to access SNMP enabled C
 The pf::SNMP::Cisco::Catalyst_2950 module implements an object oriented interface
 to access SNMP enabled Cisco::Catalyst_2950 switches.
 
+=head1 STATUS
+
 The minimum required firmware version is 12.1(22)EA10.
+
+=head1 BUGS AND LIMITATIONS
+ 
+We got reports that it doesn't work with SNMPv3
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -413,7 +419,7 @@ Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008 Inverse inc.
+Copyright (C) 2006-2008,2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
