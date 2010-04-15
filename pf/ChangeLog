@@ -1,4 +1,8 @@
 2010-04-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/login.php: Link on the PacketFence logo on the login
+	page now longer links to localhost. Fixes 885;
+	http://www.packetfence.org/mantis/view.php?id=885
+
 	* pf/html/admin/status/sajax-dashboard.php: Memory display in the 
 	dashboard no longer includes buffers and cache. We were getting too
 	many complains about 99% usage when the linux memory manager was doing

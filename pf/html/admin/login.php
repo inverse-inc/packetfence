@@ -208,7 +208,7 @@ else {
 <table id="main" style="width: 100%;" cellpadding="0" cellspacing="0">
   <tbody><tr colspan="2">
     <td valign="top">
-      <a href="https://localhost:1443/index.php"><img src="/common/packetfence.png" alt="[ Packetfence ]" align="right" border="0" height="60" width="193"></a>
+      <a href="index.php"><img src="/common/packetfence.png" alt="[ Packetfence ]" align="right" border="0" height="60" width="193"></a>
     </td>
   </tr>
   <tr colspan="2">
