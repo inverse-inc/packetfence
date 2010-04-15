@@ -1,4 +1,10 @@
 2010-04-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/status/sajax-dashboard.php: Memory display in the 
+	dashboard no longer includes buffers and cache. We were getting too
+	many complains about 99% usage when the linux memory manager was doing
+	its job right. Fixes #916;
+	http://www.packetfence.org/mantis/view.php?id=916
+
 	* pf/lib/pf/SNMP/Foundry.pm: Got port security + VoIP to work!
 
 2010-04-14	Olivier Bilodeau <obilodeau@inverse.ca>

@@ -17,17 +17,24 @@ function get_usage(){
   $load_3 = $loads[2];
 
   ## MEMORY USAGE
+  # now updated to remove memory in cache and buffers because clients kept saying they are running out of memory
   $meminfo = file('/proc/meminfo');
   foreach($meminfo as $line){
     if(preg_match("/^MemTotal:\s+(\d+)/", $line, $matches)){
       $memtotal = $matches[1];
-    }
-    else if(preg_match("/^MemFree:\s+(\d+)/", $line, $matches)){
+
+    } else if(preg_match("/^MemFree:\s+(\d+)/", $line, $matches)){
       $memfree = $matches[1];
+
+    } else if(preg_match("/^Buffers:\s+(\d+)/", $line, $matches)){
+      $membuffers = $matches[1];
+
+    } else if(preg_match("/^Cached:\s+(\d+)/", $line, $matches)){
+      $memcache = $matches[1];
     }
     
-    if($memfree && $memtotal){
-      $mem_usage = round(($memtotal-$memfree) / $memtotal * 100);
+    if($memfree && $memtotal && $membuffers && $memcache){
+      $mem_usage = round(($memtotal-($memfree+$membuffers+$memcache)) / $memtotal * 100);
       continue;
     }
   }
