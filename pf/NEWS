@@ -23,6 +23,8 @@ New Hardware Support
 - Cisco Wireless Services Module (WiSM)
 - Cisco Integrated Services Routers (ISR) 1800 Series
 - Cisco Catalyst 3750 Series
+- Port security and Voice over IP support for Foundry FastIron 4802 (sponsored 
+  by ICTU)
 
 New Features
 - Improved error reporting in the web administration panel and cli (#898, #899)

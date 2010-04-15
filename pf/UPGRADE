@@ -7,6 +7,12 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <release>:
 
+    - Foundry module change
+    In order to support port-security some aspects of the Foundry module had
+    to change. We are not 100% that the module will still work since we don't
+    have the original switch on which linkUp/linkDown support was developped.
+    If you experience a regression, please file an issue into our bugtracker.
+
     - lib/pf/vlan.pm interface changed
     If you built a customized version of vlan.pm in lib/pf/vlan/custom.pm be 
     aware that the parameters expected by vlan_determine_for_node() and 
