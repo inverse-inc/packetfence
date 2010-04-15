@@ -1,3 +1,6 @@
+2010-04-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Foundry.pm: Got port security + VoIP to work!
+
 2010-04-14	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/SNMP/Cisco/Catalyst_2950.pm: Added a note that SNMPv3 
 	support doesn't work

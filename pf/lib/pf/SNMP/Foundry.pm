@@ -14,6 +14,8 @@ to access SNMP enabled Foundry switches.
 
 Supports linkUp / linkDown and Port Security modes
 
+Supports IP Telephony
+
 Developed and tested on FastIron 4802 running on image version 04.0.00
 
 =head1 BUGS AND LIMITATIONS
@@ -29,6 +31,11 @@ SNMPv3 support was not tested.
 Not so sure how often the security violation traps are sent.
 If PacketFence misses the trap you might be out of luck.
 We should check with the documentation but I can't find detailed SNMP options right now.
+
+mac-detection VLAN needs to have at least one port where it is tagged on the switch.
+Otherwise the VLAN doesn't show up through SNMP and we can't add ports to it.
+
+IP Telephony support requires dual-mode support
 
 =head1 SUBROUTINES
 
@@ -49,8 +56,11 @@ use Net::SNMP;
 
 use pf::util;
 
+# snPortMacSecurityIntfMacRowStatus value constants
 use constant DELETE => 3;
 use constant CREATE => 4;
+# snSwIfInfoTagMode value constants
+use constant DUAL_MODE => 3;
 
 sub getVersion {
     my ($this)         = @_;
@@ -76,6 +86,15 @@ sub parseTrap {
     {
         $trapHashRef->{'trapType'} = ( ( $1 == 3 ) ? "down" : "up" );
         $trapHashRef->{'trapIfIndex'} = $2;
+
+    # new linkup / linkdown trap format found with 4.00 OS
+    } elsif ($trapString =~ /^BEGIN\ TYPE\ ([23])\                                          # 2=down and 3=up
+        END\ TYPE\ BEGIN\ SUBTYPE\ 0\ END\ SUBTYPE\ BEGIN\ VARIABLEBINDINGS\                # nothing of interest
+        \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+)\                                              # ifIndex
+        =\ INTEGER:\ /x) {
+        $trapHashRef->{'trapType'} = ( ($1 == 2) ? "down" : "up" );
+        $trapHashRef->{'trapIfIndex'} = $2;
+
     # trap has been generalized from previous version to work with 4.00 OS
     } elsif ($trapString =~ /\.1\.3\.6\.1\.4\.1\.1991\.1\.1\.2\.1\.44\.0\ =\              # Notification OID
         STRING:\ "Security:\ Port\ security\ violation\ at\                               # Trap string
@@ -107,7 +126,7 @@ sub isDefinedVlan {
         return 0;
     }
 
-    $logger->trace("SNMP get_table for extremeVlanIfVlanId: $oid_snVLanByPortVLanId");
+    $logger->trace("SNMP get_table for snVLanByPortVLanId: $oid_snVLanByPortVLanId");
     my $result = $this->{_sessionRead}->get_table(-baseoid => "$oid_snVLanByPortVLanId");
 
     # loop on all vlans
@@ -116,6 +135,7 @@ sub isDefinedVlan {
             return 1;
         }
     }
+
     $logger->warn("could not find vlan $vlan on this switch");
     return 0;
 }
@@ -188,26 +208,46 @@ sub _setVlan {
             );
     }
 
-    if (!defined($result)) {
-        # something went wrong: report it
-        $logger->error("changing VLAN failed with: " . $this->{_sessionWrite}->error);
-    } else {
+    # At this point, in my tests, $result is almost always in error state but the operation did work on the switch
+    # So don't check the error and move on
 
-        # if we are in port security mode we need to authorize the MAC in the new VLAN (and deauthorize the old stuff)
-        if ($this->isPortSecurityEnabled($ifIndex)) {
+    # if we are in port security mode we need to authorize the MAC in the new VLAN (and deauthorize the old stuff)
+    # because this switch's port-security secure MAC address table is VLAN aware
+    if ($this->isPortSecurityEnabled($ifIndex)) {
 
-            my $secureTableHashRef = $this->getSecureMacAddresses($ifIndex);
-            # hash is valid and has one MAC
-            if (ref($secureTableHashRef) eq 'HASH' && scalar(keys %{$secureTableHashRef}) == 1) {
+        my $auth_result = _authorizeCurrentMacWithNewVlan($ifIndex, $newVlan, $oldVlan);
+        if (!defined($auth_result) || $auth_result != 1) {
+            $logger->warn("couldn't authorize MAC for new VLAN: no secure mac or more than one already there");
+        }
+    }
 
-                my $mac = (keys %{$secureTableHashRef})[0]; # grab MAC 
-                $this->authorizeMAC($ifIndex, $mac, $mac, $oldVlan, $newVlan);
-            } else {
-                $logger->warn("couldn't authorize MAC for new VLAN: no secure mac or more than one already there");
-            }
+    # if VoIP is enabled, we need to play with the dual-mode stuff
+    if ($this->isVoIPEnabled()) {
+        my $dualmode_result = $this->_setDualModeVlan($ifIndex, $newVlan);
+        if (!defined($dualmode_result)) {
+            $logger->warn("there was a problem trying to set the correct untagged VLAN for VoIP support");
         }
     }
     return (defined($result));
+}
+
+=item _authorizeCurrentMacWithNewVlan - authorize MAC already in secure table on a new VLAN (and deauth on old)
+
+=cut
+# Could there be a problem here if we have a secure phone and a secure PC?
+sub _authorizeCurrentMacWithNewVlan {
+    my ($this, $ifIndex, $newVlan, $oldVlan) = @_;
+
+    my $secureTableHashRef = $this->getSecureMacAddresses($ifIndex);
+    # hash is valid and has one MAC
+    if (ref($secureTableHashRef) eq 'HASH' && scalar(keys %{$secureTableHashRef}) == 1) {
+
+        # grab MAC
+        my $mac = (keys %{$secureTableHashRef})[0];
+        $this->authorizeMAC($ifIndex, $mac, $mac, $oldVlan, $newVlan);
+        return 1;
+    }
+    return;
 }
 
 sub isLearntTrapsEnabled {
@@ -344,17 +384,9 @@ sub authorizeMAC {
         return 0;
     }
 
-    # FIXME validate VoIP behavior
-    my $voiceVlan = $this->getVoiceVlan($ifIndex);
-    if (($deauthVlan == $voiceVlan) || ($authVlan == $voiceVlan)) {
-        $logger->error("authorizeMAC called with voice VLAN .... this should not have happened ... "
-             . "we won't add an entry to the SecureMacAddrTable");
-        return 1;
-    }
-
     # OID information
     my $oid_snPortMacSecurityIntfMacRowStatus = '1.3.6.1.4.1.1991.1.1.3.24.1.1.4.1.4';
-    my $oid_snPortMacSecurityIntfMacVlanId    = '1.3.6.1.4.1.1991.1.1.3.24.1.1.4.1.3';
+    my $oid_snPortMacSecurityIntfMacVlanId = '1.3.6.1.4.1.1991.1.1.3.24.1.1.4.1.3';
 
     # WARNING: deauth/auth was splitted into two set requests because the switch couldn't handle both in the same set
     # deauthentication set request
@@ -373,7 +405,8 @@ sub authorizeMAC {
     if (@deauth_oid_to_set) {
         $logger->trace("De-auth SNMP set_request for snPortMacSecurityIntfMacRowStatus. Values: \n"
             . $deauth_oid_to_set[0] . "(" . $deauth_oid_to_set[1]  . ") => " . $deauth_oid_to_set[2]  . "\n"
-            . $deauth_oid_to_set[3] . "(" . $deauth_oid_to_set[4]  . ") => " . $deauth_oid_to_set[5]  . "\n");
+            . $deauth_oid_to_set[3] . "(" . $deauth_oid_to_set[4]  . ") => " . $deauth_oid_to_set[5]  . "\n"
+        );
         my $result = $this->{_sessionWrite}->set_request(-varbindlist => \@deauth_oid_to_set);
         if (!defined($result)) {
             $logger->warn("SNMP error tyring to perform de-auth. This could be normal. "
@@ -381,7 +414,7 @@ sub authorizeMAC {
         }
     }
 
-    # deauthentication set request
+    # authentication set request
     my @auth_oid_to_set;
     if ($authMac) {
         # VLAN
@@ -397,7 +430,8 @@ sub authorizeMAC {
     if (@auth_oid_to_set) {
         $logger->trace("Auth SNMP set_request for snPortMacSecurityIntfMacRowStatus. Values: \n"
             . $auth_oid_to_set[0] . "(" . $auth_oid_to_set[1]  . ") => " . $auth_oid_to_set[2]  . "\n"
-            . $auth_oid_to_set[3] . "(" . $auth_oid_to_set[4]  . ") => " . $auth_oid_to_set[5]  . "\n");
+            . $auth_oid_to_set[3] . "(" . $auth_oid_to_set[4]  . ") => " . $auth_oid_to_set[5]  . "\n"
+        );
         my $result = $this->{_sessionWrite}->set_request(-varbindlist => \@auth_oid_to_set);
         if (!defined($result)) {
             $logger->warn("SNMP error tyring to perform auth. This could be normal. "
@@ -419,6 +453,71 @@ sub getMaxMacAddresses {
         return -1;
     }
 }
+
+=item isVoIPEnabled - is Voice over IP enabled on that switch?
+
+=cut
+sub isVoIPEnabled {
+    my ($this) = @_;
+    return ( $this->{_VoIPEnabled} == 1 );
+}
+
+=item _setDualModeVlan - set the dual-mode of the specified ifIndex to the given VLAN
+
+dual-mode is required when there is IP Telephony on the switch. 
+Dual-mode allows an ifIndex to support an untagged vlan along with a tagged one (ie: voice vlan).
+
+=cut
+sub _setDualModeVlan {
+    my ($this, $ifIndex, $vlan) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    if ( !$this->connectWrite() ) {
+        return 0;
+    }
+
+    # from FOUNDRY-SN-SWITCH-GROUP-MIB
+    my $oid_snSwIfInfoTagMode = '1.3.6.1.4.1.1991.1.1.3.3.5.1.4';
+    my $oid_snSwIfVlanId = '1.3.6.1.4.1.1991.1.1.3.3.5.1.24';
+    $logger->trace("SNMP set_request for dual-mode (snSwIfInfoTagMode and snSwIfVlanId): "
+        . "$oid_snSwIfInfoTagMode and $oid_snSwIfVlanId"
+    );
+
+    # get rid of the specific dual-mode vlan id (required otherwise setting a new one gives an error)
+    my $result = $this->{_sessionWrite}->set_request(
+        -varbindlist => [
+            "$oid_snSwIfInfoTagMode.$ifIndex", Net::SNMP::INTEGER, DUAL_MODE,
+            "$oid_snSwIfVlanId.$ifIndex", Net::SNMP::INTEGER, 0
+        ]
+    );
+
+    # set dual-mode to allow specified vlan as the untagged vlan for this ifIndex
+    $result = $this->{_sessionWrite}->set_request(
+        -varbindlist => [
+            "$oid_snSwIfInfoTagMode.$ifIndex", Net::SNMP::INTEGER, DUAL_MODE,
+            "$oid_snSwIfVlanId.$ifIndex", Net::SNMP::INTEGER, $vlan
+        ]
+    );
+
+    return (defined($result));
+}
+
+=item getVoiceVlan - in what VLAN should a VoIP device be
+
+=cut
+sub getVoiceVlan {
+    my ($this, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    if (defined($this->{_voiceVlan})) {
+        return ($this->{_voiceVlan});
+    }
+
+    # otherwise say it didn't work
+    $logger->warn("Voice VLAN was requested but it's not configured!");
+    return -1;
+}
+
 
 =back
 
