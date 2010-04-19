@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 8;
+use Test::More tests => 10;
 use Log::Log4perl;
 use File::Basename qw(basename);
 use lib '/usr/local/pf/lib';
@@ -17,6 +17,21 @@ Log::Log4perl::MDC->put( 'tid',  0 );
 BEGIN { use_ok('pf::services') }
 
 my $return_value;
+
+# CONFIGURATION VALIDATION
+
+# switches_conf_is_valid()
+
+# modify global $conf_dir so that t/data/switches.conf will be loaded instead of conf/switches.conf
+my $conf_dir = $main::pf::config::conf_dir;
+$main::pf::config::conf_dir = "/usr/local/pf/t/data/";
+ok(pf::services::switches_conf_is_valid(), "switches.conf validation with a good file");
+# modify global $conf_dir so that t/data/bug766/switches.conf will be loaded instead of conf/switches.conf
+$main::pf::config::conf_dir = "/usr/local/pf/t/data/bug766/";
+ok(!pf::services::switches_conf_is_valid(), "switches.conf validation with a broken file (duplicate IP)");
+$main::pf::config::conf_dir = $conf_dir;
+# TODO add more tests around switches_conf_is_valid to test all cases
+
 
 # SNORT
 

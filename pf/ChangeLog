@@ -1,4 +1,15 @@
 2010-04-19	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/services.pm: Improved error-handling with broken switch
+	configuration. Fixes #766;
+	- switches_conf_is_valid() is now able to tell if the same switch was 
+	  specified more than once and will give helpful error message (in 
+	  logs/packetfence.log).
+	- in generate_snmptrapd_conf() we now avoid bad switch with duplicated 
+	  IPs
+	- pfsetvlan will start even if errors were detected in switches.conf
+	- with test case
+	http://www.packetfence.org/mantis/view.php?id=766
+
 	* pf/html/admin/common.php: Regular expression in web admin has been
 	losen up so that a logwarn is reported as an error. Fixes 964;
 	http://www.packetfence.org/mantis/view.php?id=964

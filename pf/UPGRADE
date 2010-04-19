@@ -7,6 +7,11 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <release>:
 
+    - pfsetvlan and conf/switches.conf validation
+    If there is a problem in the conf/switches.conf file PacketFence will say 
+    so at startup but will still try to run. Before this release, pfsetvlan 
+    wouldn't start with a bad config file.
+
     - Foundry module change
     In order to support port-security some aspects of the Foundry module had
     to change. We are not 100% that the module will still work since we don't
