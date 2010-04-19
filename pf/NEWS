@@ -45,6 +45,7 @@ Bug fixes
 - Captive portal stability fixes (#892)
 - Mitigated Net::Telnet problems with perl threads (#903, #907)
 - Proper violation description shown in violation edit (#922)
+- Fixed RPM spec to create package packetfence-remote-snort-sensor again (#888)
 - Fixed PacketFence RPM upgrade bug if your version is lower than 1.8.5 (#931)
 - Fixed rare port-security problems with stacked switches or switches with 
   large ifIndex (#921)

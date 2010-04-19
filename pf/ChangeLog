@@ -1,4 +1,8 @@
 2010-04-19	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec: packetfence-remote-snort-sensor package is back!
+	Fixes #888;
+	http://www.packetfence.org/mantis/view.php?id=888
+
 	* pf/lib/pf/services.pm: Improved error-handling with broken switch
 	configuration. Fixes #766;
 	- switches_conf_is_valid() is now able to tell if the same switch was 

@@ -317,7 +317,6 @@ fi
 %files
 
 %defattr(-, pf, pf)
-#%config %{_initrddir}/packetfence
 %attr(0755, root, root) %{_initrddir}/packetfence
 
 %dir                    /usr/local/pf
@@ -389,7 +388,6 @@ fi
 %config                 /usr/local/pf/conf/oui.txt
 #%config(noreplace)      /usr/local/pf/conf/pf.conf
 %config                 /usr/local/pf/conf/pf.conf.defaults
-%config(noreplace)      /usr/local/pf/conf/pfdetect_remote.conf
                         /usr/local/pf/conf/pf-release
 #%config                 /usr/local/pf/conf/services.conf
 %dir                    /usr/local/pf/conf/snort
@@ -466,7 +464,6 @@ fi
 %doc                    /usr/local/pf/README_SWITCHES
 %dir                    /usr/local/pf/sbin
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect_remote
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfmon
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfredirect
@@ -483,8 +480,18 @@ fi
 %files remote-snort-sensor
 %defattr(-, pf, pf)
 %attr(0755, root, root) %{_initrddir}/pfdetectd
+%dir                    /usr/local/pf
+%dir                    /usr/local/pf/conf
+%config(noreplace)      /usr/local/pf/conf/pfdetect_remote.conf
+%dir                    /usr/local/pf/sbin
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect_remote
+%dir                    /usr/local/pf/var
 
 %changelog
+* <date> Olivier Bilodeau <obilodeau@inverse.ca> - <version>
+- packetfence-remote-snort-sensor back to life. Fixes #888;
+  http://www.packetfence.org/mantis/view.php?id=888
+
 * Tue Apr 06 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.8-0.20100406
 - Version bump to snapshot 20100406
 
