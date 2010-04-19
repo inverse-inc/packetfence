@@ -799,8 +799,9 @@ function PrintSubNav($menu){
       return false;	
     }
 
+    # HACK: when the output of pfcmd has a "line 999" in it, we assume it's an error and we display it
     foreach($output as $line){
-      if(preg_match("/line\s+\d+\./", $line)){
+      if(preg_match("/line\s+\d+/", $line)){
         $errors[]=$line;
       }
     }

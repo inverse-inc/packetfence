@@ -17,7 +17,7 @@ For a list of compatibility related changes see the UPGRADE file.
 Version <version> - <codename> released on <releaseDate>
 
 New
-- Official Linux 64 bit support (TODO: change documentation and symlink in yum repo)
+- Official Linux 64 bit support (TODO: change documentation and symlink in yum repo and build system)
 
 New Hardware Support
 - Cisco Wireless Services Module (WiSM)
@@ -27,7 +27,8 @@ New Hardware Support
   by ICTU)
 
 New Features
-- Improved error reporting in the web administration panel and cli (#898, #899)
+- Improved error reporting in the web administration panel and cli (#898, #899,
+  #964)
 - Improved database layer (simpler to use, more robust and reports errors)
 - @ character now allowed in person id (pid). This is very common in Active 
   Directory environment.
