@@ -42,7 +42,7 @@ New Features
 
 Bug fixes
 - Performance fixes (#908, #910)
-- Captive portal stability fixes (#892)
+- Captive portal stability fixes (#892, #961)
 - Mitigated Net::Telnet problems with perl threads (#903, #907)
 - Proper violation description shown in violation edit (#922)
 - Fixed RPM spec to create package packetfence-remote-snort-sensor again (#888)
