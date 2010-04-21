@@ -488,7 +488,7 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
-* <date> Olivier Bilodeau <obilodeau@inverse.ca> - <version>
+* Mon Apr 19 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - packetfence-remote-snort-sensor back to life. Fixes #888;
   http://www.packetfence.org/mantis/view.php?id=888
 
