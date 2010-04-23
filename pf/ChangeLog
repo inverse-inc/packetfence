@@ -1,3 +1,7 @@
+2010-04-23	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec: Added perl(Readonly::XS) as a dependency. 
+	Readonly becomes faster with it.
+
 2010-04-20	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/cgi-bin/release.cgi: Added validation in release.cgi and displays
 	error if something unexpected happens (if user messes with POST data)

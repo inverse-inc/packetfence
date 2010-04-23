@@ -98,7 +98,8 @@ Requires: perl-Net-Telnet
 Requires: perl-Net-Write
 Requires: perl-Parse-Nessus-NBE
 Requires: perl-Parse-RecDescent = 1.94
-Requires: perl-Readonly
+# TODO: portability for non-x86 is questionnable for Readonly::XS
+Requires: perl-Readonly, perl(Readonly::XS)
 Requires: perl-Regexp-Common
 Requires: rrdtool, perl-rrdtool
 Requires: perl-SOAP-Lite
@@ -488,6 +489,9 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Fri Apr 23 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added perl(Readonly::XS) as a dependency. Readonly becomes faster with it. 
+
 * Mon Apr 19 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - packetfence-remote-snort-sensor back to life. Fixes #888;
   http://www.packetfence.org/mantis/view.php?id=888
