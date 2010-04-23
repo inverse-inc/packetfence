@@ -1,4 +1,7 @@
 2010-04-23	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/integration-testing/replay-snmptrapd-logs.pl: Created a new
+	tool that will be used for load testing / integration testing.
+
 	* pf/packetfence.spec: Added perl(Readonly::XS) as a dependency. 
 	Readonly becomes faster with it.
 
