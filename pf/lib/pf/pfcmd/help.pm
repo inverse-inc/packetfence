@@ -107,13 +107,16 @@ EOT
 
 sub help_nodecategory {
     print STDERR << "EOT";
-Usage: pfcmd nodecategory view category
+Usage: pfcmd nodecategory <view|edit|delete> id [assignments]
+             nodecategory add [assignments]
 
 manipulate nodecategories
 
 examples:
   pfcmd nodecategory view all
-  pfcmd nodecategory view myCategory
+  pfcmd nodecategory view 2
+  pfcmd nodecategory add name=smartphones
+  pfcmd nodecategory delete 2
 EOT
     return 1;
 }
@@ -519,13 +522,15 @@ Kevin Amorin <kev@amorin.org>
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2008-2009 Inverse inc.
+Copyright (C) 2008-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

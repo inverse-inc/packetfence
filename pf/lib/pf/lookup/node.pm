@@ -39,6 +39,10 @@ sub lookup_node {
         }
 
         my $owner  = $node_info->{'pid'};
+        my $category = $node_info->{'category'};
+        if (!defined($category) || $category eq '') {
+            $category = 'No category';
+        }
         my $status = $node_info->{'status'};
         if ( $status eq "reg" ) {
             $status = "registered";
@@ -49,6 +53,7 @@ sub lookup_node {
         }
         $owner = "unregistered" if ( $owner eq '1' );
         $return .= "Owner   : $owner\n"  if ($owner);
+        $return .= "Category: $category\n" if ($category);
         $return .= "Status  : $status\n" if ($status);
         $return .= "Name    : " . $node_info->{'computername'} . "\n"
             if ( $node_info->{'computername'} );
@@ -113,13 +118,15 @@ Kevin Amorin <kev@amorin.org>
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009 Inverse inc.
+Copyright (C) 2009,2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

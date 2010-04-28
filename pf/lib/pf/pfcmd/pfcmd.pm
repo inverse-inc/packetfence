@@ -7,6 +7,8 @@
 #
 # For more information about the grammar syntax: http://search.cpan.org/~dconway/Parse-RecDescent-1.96.0/lib/Parse/RecDescent.pm#DESCRIPTION
 #
+# NOTE: always remember that this file is only part of the story, lib/pf/pfcmd.pm is always parsed first!
+#
 use strict;
 use warnings;
 
@@ -27,6 +29,7 @@ $grammar = q {
            { 1; }
 
    command : 'node' node_options
+             | 'nodecategory' nodecategory_options
              | 'person' person_options
              | 'interfaceconfig' interfaceconfig_options
              | 'networkconfig' networkconfig_options
@@ -41,6 +44,9 @@ $grammar = q {
    person_options : 'add' value person_edit_options(?)  | 'edit' value person_edit_options | 'delete' value
 
    node_options : 'add' macaddr node_edit_options | 'edit' macaddr node_edit_options 
+
+   # nodecategory add is without an id and edit is with one
+   nodecategory_options : 'add' nodecategory_edit_options | 'edit' /\d+/ nodecategory_edit_options | 'delete' /\d+/
 
    interfaceconfig_options: ('add' | 'edit') (/[^ ]+/) interfaceconfig_edit_options
 
@@ -78,6 +84,8 @@ $grammar = q {
 
    node_edit_options : <leftop: node_assignment ',' node_assignment>
 
+   nodecategory_edit_options : <leftop: nodecategory_assignment ',' nodecategory_assignment>
+
    violation_edit_options : <leftop: violation_assignment ',' violation_assignment>
 
    assignment : columname '=' value
@@ -105,6 +113,9 @@ $grammar = q {
    node_assignment : node_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{node_view_field},$item{value}] }
 
+   nodecategory_assignment : nodecategory_view_field '=' value
+                {push @{$main::cmd{$item[0]}}, [$item{nodecategory_view_field},$item{value}] }
+
    violation_assignment : violation_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{violation_view_field},$item{value}] }
 
@@ -114,7 +125,9 @@ $grammar = q {
 
    person_view_field : 'pid' | 'firstname' | 'lastname' | 'email' | 'telephone' | 'company' | 'address' | 'notes'
 
-   node_view_field :  'mac' | 'pid' | 'detect_date' | 'regdate' | 'unregdate' | 'lastskip' | 'status' | 'user_agent' | 'computername'  | 'notes' | 'last_arp' | 'last_dhcp' | 'dhcp_fingerprint' | 'switch' | 'port' | 'vlan'
+   node_view_field :  'mac' | 'pid' | 'category' | 'detect_date' | 'regdate' | 'unregdate' | 'lastskip' | 'status' | 'user_agent' | 'computername'  | 'notes' | 'last_arp' | 'last_dhcp' | 'dhcp_fingerprint' | 'switch' | 'port' | 'vlan'
+
+   nodecategory_view_field :  'name' | 'notes'
 
    interfaceconfig_view_field : 'interface' | 'ip' | 'mask' | 'type' | 'gateway'
 
@@ -122,7 +135,7 @@ $grammar = q {
 
    switchconfig_view_field : 'type' | 'mode' | 'uplink' | 'SNMPVersionTrap' | 'SNMPCommunityRead' | 'SNMPCommunityWrite' | 'SNMPVersion' | 'SNMPCommunityTrap' | 'cliTransport' | 'cliUser' | 'cliPwd' | 'cliEnablePwd' | 'vlans' | 'normalVlan' | 'registrationVlan' | 'isolationVlan' | 'macDetectionVlan' | 'macSearchesMaxNb' | 'macSearchesSleepInterval' | 'VoIPEnabled' | 'voiceVlan' | 'SNMPEngineID' | 'SNMPUserNameRead' | 'SNMPAuthProtocolRead' | 'SNMPAuthPasswordRead' | 'SNMPPrivProtocolRead' | 'SNMPPrivPasswordRead' | 'SNMPUserNameWrite' | 'SNMPAuthProtocolWrite' | 'SNMPAuthPasswordWrite' | 'SNMPPrivProtocolWrite' | 'SNMPPrivPasswordWrite' | 'SNMPUserNameTrap' | 'SNMPAuthProtocolTrap' | 'SNMPAuthPasswordTrap' | 'SNMPPrivProtocolTrap' | 'SNMPPrivPasswordTrap'
 
-   violationconfig_view_field : 'desc' | 'disable' | 'auto_enable' | 'actions' | 'max_enable' | 'grace' | 'priority' | 'url' | 'button_text' | 'trigger' | 'vlan'
+   violationconfig_view_field : 'desc' | 'disable' | 'auto_enable' | 'actions' | 'max_enable' | 'grace' | 'priority' | 'url' | 'button_text' | 'trigger' | 'vlan' | 'whitelisted_categories'
 
    violation_view_field :  'id' | 'mac' | 'vid' | 'start_date' | 'release_date' | 'status' | 'notes'
 
@@ -145,7 +158,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2008-2009 Inverse inc.
+Copyright (C) 2008-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

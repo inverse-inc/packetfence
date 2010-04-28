@@ -461,6 +461,18 @@ if($sajax){
                  print "  <input class=\"button\" type='image' src='/images/famfamfam_silk_icons/page_delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete the switch " . $this->rows[$i]['ip'] . " ?');\">\n";
                  print "  </form>";
                }
+             } elseif (($current_top == 'node') && ($current_sub=='categories')) {
+               // NODE CATEGORIES 
+	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['category_id'] . "',500,500)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
+	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['category_id'] . "',500,500)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
+               if ($this->rows[$i]['category_id'] != '1') {
+	         print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page' method='post'>";
+                 print "  <input type='hidden' name='action' value='delete'>\n";
+                 print "  <input type='hidden' name='commit' value='true'>\n";
+                 print "  <input type='hidden' name='original' value='".implode("\t", $this->rows[$i])."'>\n";
+                 print "  <input class=\"button\" type='image' src='/images/famfamfam_silk_icons/page_delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete the switch " . $this->rows[$i]['category_id'] . " ?');\">\n";
+                 print "  </form>";
+               }
              } elseif (($current_top == 'configuration') && ($current_sub=='violation')) {
 	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['vid'] . "',500,400)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
 	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['vid'] . "',500,400)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
@@ -701,6 +713,21 @@ function PrintSubNav($menu){
         } else {
           $values[]=$heading[1];
         }
+      } elseif (($current_top == 'node') && ($current_sub == 'add') && ($heading[0] == 'Category') ) {
+
+        if (preg_match("/input type='text' name='(val\d+)'/", $heading[1], $regmatches)) {
+          # TODO: if printSelect would return a string instead of print directly this would be less ugly
+          $value_string = "<select name='" . $regmatches[1] . "'>";
+          $nodecategories = get_nodecategories_for_dropdown();
+          foreach ($nodecategories as $cat_id => $cat_name) {
+              $value_string .= "<option value='$cat_id'>$cat_name</option>";
+          }
+          $value_string .= "</select>";
+          $values[] = $value_string;
+        } else {
+          $values[]=$heading[1];
+        }
+
       } else {
         $values[]=$heading[1];
       }
@@ -1047,6 +1074,35 @@ function PrintSubNav($menu){
       else{
         $default == $val ? $default='SELECTED' : $default = '';
         print "  <option value='$val' $default>$val\n";     
+      }
+    }
+    print "</select>";
+    return true;
+  }
+
+  function printMultiSelect($values, $type, $defaults = false , $extra = false){
+    if(!is_array($values)){
+      print "<select $extra>\n";
+      print "  <option value='0'>No Options\n";
+      print "</select>";
+      return false;
+    }
+
+    // setting selected values expects an array so if we got a scalar we convert to array
+    if(!is_array($defaults)) {
+        $defaults = array($defaults);
+    }
+
+    print "<select $extra>\n";
+    if (strtolower($type) == 'hash') {
+      foreach ($values as $key => $val) {
+        in_array($key, $defaults) ? $selected='SELECTED' : $selected = '';
+        print "  <option value='$key' $selected>$val\n";
+      }
+    } else {
+      foreach ($values as $key => $val) {
+        in_array($val, $defaults) ? $selected='SELECTED' : $selected = '';
+        print "  <option value='$val' $default>$val\n";
       }
     }
     print "</select>";

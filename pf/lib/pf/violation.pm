@@ -53,6 +53,7 @@ BEGIN {
 
 use pf::config;
 use pf::db;
+use pf::node;
 use pf::util;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -329,9 +330,8 @@ sub violation_add {
     }
 
     #  has this mac registered if not register for violation?
-    require pf::node;
-    if ( !pf::node::node_exist($mac) ) {
-        pf::node::node_add_simple($mac);
+    if ( !node_exist($mac) ) {
+        node_add_simple($mac);
     } else {
 
         # not a new violation check violation
@@ -414,15 +414,22 @@ sub violation_trigger {
         }
         my $vid = $row->{'vid'};
 
+        # if the node's category is whitelisted, skip
+        if (_is_node_category_whitelisted($row, $mac)) {
+            $logger->info("Not adding violation ${vid} node $mac is immune because of its category");
+            next;
+        }
+
         # Is this MAC and ID aready in DB?  if so don't add another
         # we test here AND in violation_add because here we avoid a fork (and violation_add is called from elsewhere)
         if ( violation_exist_open( $mac, $vid ) ) {
             $logger->info("violation $vid already exists for $mac, not adding again");
-        } else {
-            $logger->info("calling $bin_dir/pfcmd violation add vid=$vid,mac=$mac");
-            # forking a pfcmd because it will call a vlan flip if needed
-            `$bin_dir/pfcmd violation add vid=$vid,mac=$mac`;
+            next;
         }
+
+        $logger->info("calling $bin_dir/pfcmd violation add vid=$vid,mac=$mac");
+        # forking a pfcmd because it will call a vlan flip if needed
+        `$bin_dir/pfcmd violation add vid=$vid,mac=$mac`;
         $addedViolation = 1;
     }
     return $addedViolation;
@@ -490,6 +497,38 @@ sub violation_force_close {
         || return (0);
     $logger->info("violation $vid force-closed for $mac");
     return (1);
+}
+
+=item * _is_node_category_whitelisted - is a node immune to a given violation based on its category
+
+=cut
+sub _is_node_category_whitelisted {
+    my ($trigger_info, $mac) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::violation');
+
+    # if whitelist is empty, node is not whitelisted
+    if (!defined($trigger_info->{'whitelisted_categories'}) || $trigger_info->{'whitelisted_categories'} eq '') {
+        return 0;
+    }
+
+    # Grabbing the node's informations (incl. category)
+    # Note: consider extracting out of here and putting in violation_trigger and passing node_info hashref instead
+    my $node_info = node_view($mac);
+    if(!defined($node_info) || ref($node_info) ne 'HASH') {
+        $logger->warn("Something went wrong trying to fetch the node info");
+        return 0;
+    }
+
+    # trying to match node's category on whitelisted categories
+    my $category_found = 0;
+    # whitelisted_categories is of the form "cat1,cat2,cat3,etc."
+    foreach my $category (split(",", $trigger_info->{'whitelisted_categories'})) {
+        if (lc($category) eq lc($node_info->{'category'})) {
+            $category_found = 1;
+        }
+    }
+
+    return $category_found;
 }
 
 =back

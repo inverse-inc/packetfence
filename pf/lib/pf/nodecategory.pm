@@ -2,14 +2,15 @@ package pf::nodecategory;
 
 =head1 NAME
 
-pf::nodecategory - module to view the node categories.
+pf::nodecategory - module to view, query and manage the node categories.
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::nodecategories contains the functions necessary to view one or all
-the node categories.
+pf::nodecategories contains the functions necessary to manage all aspects
+of node categories: creation, deletion, updates, etc. It also includes utility
+methods to get information about node categories.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -19,75 +20,196 @@ Read the F<pf.conf> configuration file.
 
 use strict;
 use warnings;
+use lib qw(/usr/local/pf/lib);
+use Config::IniFiles;
+use Log::Log4perl;
 
-our (%nodeCategories);
+use constant NODECATEGORY => 'nodecategory';
 
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
-    @ISA    = qw(Exporter);
-    @EXPORT = qw(nodecategory_view_all nodecategory_view);
+    @ISA = qw(Exporter);
+    @EXPORT = qw(
+        nodecategory_db_prepare
+        $nodecategory_db_prepared
+
+        nodecategory_view_all
+        nodecategory_view
+        nodecategory_view_by_name
+        nodecategory_add
+        nodecategory_modify
+        nodecategory_delete
+        nodecategory_exist
+        nodecategory_lookup
+    );
 }
 
-use lib qw(/usr/local/pf/lib);
 use pf::config;
-use pf::util;
 use pf::db;
-use Config::IniFiles;
-use Log::Log4perl;
+use pf::util;
 
-my $logger = Log::Log4perl::get_logger('pf::nodecategory');
-if ( -e $node_categories_file ) {
-    tie %nodeCategories, 'Config::IniFiles',
-        ( -file => $node_categories_file );
-    my @errors = @Config::IniFiles::errors;
-    if ( scalar(@errors) ) {
-        $logger->error( "Error reading $node_categories_file: "
-                       . join( "\n", @errors ) . "\n" );
-    }
-}
-if ( defined(%nodeCategories) ) {
-    foreach my $section ( tied(%nodeCategories)->Sections ) {
-        foreach my $key ( keys %{ $nodeCategories{$section} } ) {
-            $nodeCategories{$section}{$key} =~ s/\s+$//;
-        }
-    }
+# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
+our $nodecategory_db_prepared = 0;
+# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
+# the hash if required
+our $nodecategory_statements = {};
+
+=head1 SUBROUTINES
+
+TODO: This list is incomlete
+
+=over
+
+=cut
+
+sub nodecategory_db_prepare {
+    my $logger = Log::Log4perl::get_logger('pf::nodecategory');
+    $logger->debug("Preparing pf::nodecategory database queries");
+
+    $nodecategory_statements->{'nodecategory_view_all_sql'} = get_db_handle()->prepare(
+        qq [ SELECT category_id, name, notes FROM node_category ]
+    );
+
+    $nodecategory_statements->{'nodecategory_view_sql'} = get_db_handle()->prepare(
+        qq [ SELECT category_id, name, notes FROM node_category WHERE category_id = ? ]
+    );
+
+    $nodecategory_statements->{'nodecategory_view_by_name_sql'} = get_db_handle()->prepare(
+        qq [ SELECT category_id, name, notes FROM node_category WHERE name = ? ]
+    );
+
+    $nodecategory_statements->{'nodecategory_add_sql'} = get_db_handle()->prepare(
+        qq [ INSERT INTO node_category (name, notes) VALUES (?, ?) ]
+    );
+
+    $nodecategory_statements->{'nodecategory_modify_sql'} = get_db_handle()->prepare(
+        qq [ UPDATE node_category SET name=?, notes=? WHERE category_id = ? ]
+    );
+
+    $nodecategory_statements->{'nodecategory_delete_sql'} = get_db_handle()->prepare(
+        qq [ DELETE FROM node_category WHERE category_id = ? ]
+    );
+
+    $nodecategory_statements->{'nodecategory_exist_sql'} = get_db_handle()->prepare(
+        qq [ SELECT category_id FROM node_category WHERE category_id = ? ]
+    );
+
+    $nodecategory_db_prepared = 1;
 }
 
+=item nodecategory_view_all - view all categories, returns an hashref
+
+=cut
 sub nodecategory_view_all {
-    my @catArray;
-    foreach my $catName ( sort keys %nodeCategories ) {
-        push @catArray,
-            {
-            'name'        => $catName,
-            'sql'         => $nodeCategories{$catName}->{'sql'},
-            'description' => $nodeCategories{$catName}->{'description'}
-            };
-    }
-    return @catArray;
+    return db_data(NODECATEGORY, $nodecategory_statements, 'nodecategory_view_all_sql');
 }
 
+=item nodecategory_view - view a node category, returns an hashref
+
+=cut
 sub nodecategory_view {
-    my ($catName) = @_;
-    my @catArray;
-    if ( exists( $nodeCategories{$catName} ) ) {
-        push @catArray,
-            {
-            'name'        => $catName,
-            'sql'         => $nodeCategories{$catName}->{'sql'},
-            'description' => $nodeCategories{$catName}->{'description'}
-            };
-    }
-    return @catArray;
+    my ($cat_id) = @_;
+    my $query = db_query_execute(NODECATEGORY, $nodecategory_statements, 'nodecategory_view_sql', $cat_id);
+    my $ref = $query->fetchrow_hashref();
+
+    # just get one row and finish
+    $query->finish();
+    return ($ref);
 }
+
+=item nodecategory_view_by_name - view a node category by name. Returns an hashref
+
+=cut
+sub nodecategory_view_by_name {
+    my ($name) = @_;
+    my $query = db_query_execute(NODECATEGORY, $nodecategory_statements, 'nodecategory_view_by_name_sql', $name);
+    my $ref = $query->fetchrow_hashref();
+
+    # just get one row and finish
+    $query->finish();
+    return ($ref);
+}
+
+=item nodecategory_add - add a node category
+
+=cut
+sub nodecategory_add {
+    my (%data) = @_;
+
+    if (!defined($data{'name'})) {
+        die("name missing: Category name is mandatory when adding a category.");
+    }
+
+    return(db_data(NODECATEGORY, $nodecategory_statements, 'nodecategory_add_sql', $data{'name'}, $data{'notes'}));
+}
+
+=item nodecategory_modify - modify a node category
+
+=cut
+sub nodecategory_modify {
+    my ($cat_id, %data) = @_;
+
+    if (!defined($data{'name'})) {
+        die("name missing: Category name is mandatory when editing a category.");
+    }
+
+    return(db_data(NODECATEGORY, $nodecategory_statements, 'nodecategory_modify_sql', 
+        $data{'name'}, $data{'notes'}, $cat_id));
+}
+
+=item nodecategory_delete - delete a node category
+
+=cut
+sub nodecategory_delete {
+    my ($id) = @_;
+
+    my $result = db_query_execute(NODECATEGORY, $nodecategory_statements, 'nodecategory_delete_sql', $id);
+    if (!defined($result)) {
+        die("database query failed! Are you trying to delete a category with nodes in it? See logs for details.");
+    }
+    return (0);
+}
+
+=item nodecategory_exist - does a node category exists? returns 1 if so, 0 otherwise
+
+=cut
+sub nodecategory_exist {
+    my ($cat_id) = @_;
+    my $query = db_query_execute(NODECATEGORY, $nodecategory_statements, 'nodecategory_exist_sql', $cat_id);
+    my ($val) = $query->fetchrow_array();
+    $query->finish();
+    return ($val);
+}
+
+=item nodecategory_lookup - returns category_id from a category name if it exists, undef otherwise
+
+Just a small convenience wrapper
+
+=cut
+sub nodecategory_lookup {
+    my ($category_name) = @_;
+
+    my $nodecategory = nodecategory_view_by_name($category_name);
+    my $valid_db_result = (defined($nodecategory) && ref($nodecategory) eq 'HASH');
+
+    if ($valid_db_result && defined($nodecategory->{'category_id'})) {
+        return $nodecategory->{'category_id'};
+    } else {
+        return;
+    }
+}
+=back
 
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2008 Inverse inc.
+Copyright (C) 2008,2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

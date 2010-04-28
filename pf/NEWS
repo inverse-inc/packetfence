@@ -27,9 +27,11 @@ New Hardware Support
   by ICTU)
 
 New Features
+- New node category support, you can assign different VLANs or whitelist 
+  violations based on a node's category (#968)
 - Improved error reporting in the web administration panel and cli (#898, #899,
   #964)
-- Improved database layer (simpler to use, more robust and reports errors)
+- Improved database layer (simpler to use, more robust and logs errors)
 - pfsetvlan is more resistant to configuration mistakes and reports them (#766)
 - @ character now allowed in person id (pid). This is very common in Active 
   Directory environment.

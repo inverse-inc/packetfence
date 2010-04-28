@@ -142,10 +142,12 @@ sub class_modify {
     return (1);
 }
 
+# TODO this is written in another style than most of pf, it should be streamlined
 sub class_merge {
     my $id       = shift(@_);
     my $triggers = pop(@_);
     my $actions  = pop(@_);
+    my $whitelisted_categories = pop(@_);
     my $logger   = Log::Log4perl::get_logger('pf::class');
     use pf::action;
 
@@ -179,7 +181,7 @@ sub class_merge {
         require pf::trigger;
         foreach my $array ( @{$triggers} ) {
             my ( $tid_start, $tid_end, $type ) = @{$array};
-            pf::trigger::trigger_add( $id, $tid_start, $tid_end, $type );
+            pf::trigger::trigger_add($id, $tid_start, $tid_end, $type, $whitelisted_categories);
         }
     }
 }

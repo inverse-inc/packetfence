@@ -61,6 +61,7 @@ BEGIN {
 
 use pf::config;
 use pf::db;
+use pf::nodecategory;
 use pf::util;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -86,22 +87,22 @@ sub node_db_prepare {
     $node_statements->{'node_pid_sql'} = get_db_handle()->prepare(qq[ select count(*) from node where status='reg' and pid=? ]);
 
     $node_statements->{'node_add_sql'} = get_db_handle()->prepare(
-        qq[ insert into node(mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,dhcp_fingerprint,last_arp,last_dhcp,switch,port,vlan) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ]);
+        qq[ insert into node(mac,pid,category_id,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,dhcp_fingerprint,last_arp,last_dhcp,switch,port,vlan) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ]);
 
     $node_statements->{'node_delete_sql'} = get_db_handle()->prepare(qq[ delete from node where mac=? ]);
 
     $node_statements->{'node_modify_sql'} = get_db_handle()->prepare(
-        qq[ update node set mac=?,pid=?,detect_date=?,regdate=?,unregdate=?,lastskip=?,status=?,user_agent=?,computername=?,notes=?,dhcp_fingerprint=?,last_arp=?,last_dhcp=?,switch=?,port=?,vlan=? where mac=? ]);
+        qq[ update node set mac=?,pid=?,category_id=?,detect_date=?,regdate=?,unregdate=?,lastskip=?,status=?,user_agent=?,computername=?,notes=?,dhcp_fingerprint=?,last_arp=?,last_dhcp=?,switch=?,port=?,vlan=? where mac=? ]);
 
     $node_statements->{'node_view_sql'} = get_db_handle()->prepare(
-        qq[ select node.mac,node.pid,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,count(violation.mac) as nbopenviolations from node left join violation on node.mac=violation.mac and violation.status='open' where node.mac=? group by node.mac ]);
+        qq[ SELECT node.mac,node.pid,node_category.name as category,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,count(violation.mac) as nbopenviolations FROM node LEFT JOIN node_category USING (category_id) LEFT JOIN violation on node.mac=violation.mac AND violation.status='open' WHERE node.mac=? GROUP BY node.mac ]);
 
     $node_statements->{'node_view_with_fingerprint_sql'} = get_db_handle()->prepare(
-        qq[ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,ifnull(os_class.description, ' ') as dhcp_fingerprint,switch,port,vlan from node left join dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id where mac=? ]);
+        qq[ SELECT mac,pid,node_category.name as category,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,ifnull(os_class.description, ' ') as dhcp_fingerprint,switch,port,vlan FROM node LEFT JOIN node_category USING (category_id) LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id where mac=? ]);
 
     # This guy here is special, have a look in node_view_all to see why
     $node_statements->{'node_view_all_sql'}
-        = "select node.mac,node.pid,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,count(violation.mac) as nbopenviolations from node left join violation on node.mac=violation.mac and violation.status='open' group by node.mac";
+        = "SELECT node.mac,node.pid,node_category.name as category,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,count(violation.mac) as nbopenviolations FROM node LEFT JOIN node_category USING (category_id) LEFT JOIN violation ON node.mac=violation.mac AND violation.status='open' GROUP BY node.mac";
 
     # This guy here is special, have a look in node_count_all to see why
     $node_statements->{'node_count_all_sql'} = "select count(*) as nb from node";
@@ -236,13 +237,17 @@ sub node_add {
         $data{regdate} = mysql_date();
     }
 
+    # category handling
+    $data{'category_id'} = _node_category_handling(%data);
+    if ($data{'category_id'} == 0) {
+        $logger->error("Unable to insert node because specified category doesn't exist");
+        return (0);
+    }
+
     db_query_execute(NODE, $node_statements, 'node_add_sql',
-        $mac,             $data{pid},              $data{detect_date},
-        $data{regdate},   $data{unregdate},        $data{lastskip},
-        $data{status},    $data{user_agent},       $data{computername},
-        $data{notes},     $data{dhcp_fingerprint}, $data{last_arp},
-        $data{last_dhcp}, $data{switch},           $data{port},
-        $data{vlan}
+        $mac, $data{pid}, $data{category_id}, $data{detect_date}, $data{regdate}, $data{unregdate}, $data{lastskip},
+        $data{status}, $data{user_agent}, $data{computername}, $data{notes}, $data{dhcp_fingerprint}, $data{last_arp},
+        $data{last_dhcp}, $data{switch}, $data{port}, $data{vlan}
     ) || return (0);
     return (1);
 }
@@ -287,6 +292,8 @@ sub node_view {
 
 sub node_count_all {
     my ( $id, %params ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::node');
+
     # Hack! we prepare the statement here so that $node_view_all_sql is pre-filled
     node_db_prepare() if (!$node_db_prepared);
     my $node_count_all_sql = $node_statements->{'node_count_all_sql'};
@@ -296,13 +303,15 @@ sub node_count_all {
             $node_count_all_sql
                 .= " WHERE node.pid='" . $params{'where'}{'value'} . "'";
         } elsif ( $params{'where'}{'type'} eq 'category' ) {
-            require pf::nodecategory;
-            my $cat      = $params{'where'}{'value'};
-            my @catArray = pf::nodecategory::nodecategory_view($cat);
-            if ( scalar(@catArray) == 1 ) {
-                my $sqlWhere = $catArray[0]->{'sql'};
-                $node_count_all_sql .= " WHERE " . $sqlWhere;
+
+            my $cat_id = nodecategory_lookup($params{'where'}{'value'});
+            if (!defined($cat_id)) {
+                # lets be nice and issue a warning if the category doesn't exist
+                $logger->warn("there was a problem looking up category ".$params{'where'}{'value'});
+                # put cat_id to 0 so it'll return 0 results (achieving the count ok)
+                $cat_id = 0;
             }
+            $node_count_all_sql .= " WHERE category_id =" . $cat_id;
         }
     }
 
@@ -317,6 +326,8 @@ sub node_count_all {
 =cut
 sub node_view_all {
     my ( $id, %params ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::node');
+
     # Hack! we prepare the statement here so that $node_view_all_sql is pre-filled
     node_db_prepare() if (!$node_db_prepared);
     my $node_view_all_sql = $node_statements->{'node_view_all_sql'};
@@ -325,14 +336,15 @@ sub node_view_all {
         if ( $params{'where'}{'type'} eq 'pid' ) {
             $node_view_all_sql
                 .= " HAVING node.pid='" . $params{'where'}{'value'} . "'";
+
         } elsif ( $params{'where'}{'type'} eq 'category' ) {
-            require pf::nodecategory;
-            my $cat      = $params{'where'}{'value'};
-            my @catArray = pf::nodecategory::nodecategory_view($cat);
-            if ( scalar(@catArray) == 1 ) {
-                my $sqlWhere = $catArray[0]->{'sql'};
-                $node_view_all_sql .= " HAVING " . $sqlWhere;
+
+            if (!nodecategory_lookup($params{'where'}{'value'})) {
+                # lets be nice and issue a warning if the category doesn't exist
+                $logger->warn("there was a problem looking up category ".$params{'where'}{'value'});
             }
+            $node_view_all_sql .= " HAVING category='" . $params{'where'}{'value'} . "'";
+
         }
     }
     if ( defined( $params{'orderby'} ) ) {
@@ -378,6 +390,16 @@ sub node_modify {
             return (0);
         }
     }
+
+    # category handling
+    $data{'category_id'} = _node_category_handling(%data);
+    if ($data{'category_id'} == 0) {
+        $logger->error("Unable to insert node because specified category doesn't exist");
+        return (0);
+    }
+    # once the category conversion is complete, I delete the category entry to avoid complicating things
+    delete $data{'category'} if defined($data{'category'});
+
     my $existing   = node_view($mac);
     my $old_status = $existing->{status};
     foreach my $item ( keys(%data) ) {
@@ -428,15 +450,10 @@ sub node_modify {
     }
 
     db_query_execute(NODE, $node_statements, 'node_modify_sql',
-        $new_mac,                      $existing->{pid},
-        $existing->{detect_date},      $existing->{regdate},
-        $existing->{unregdate},        $existing->{lastskip},
-        $existing->{status},           $existing->{user_agent},
-        $existing->{computername},     $existing->{notes},
-        $existing->{dhcp_fingerprint}, $existing->{last_arp},
-        $existing->{last_dhcp},        $existing->{switch},
-        $existing->{port},             $existing->{vlan},
-        $mac
+        $new_mac, $existing->{pid}, $existing->{category_id}, $existing->{detect_date}, $existing->{regdate},
+        $existing->{unregdate}, $existing->{lastskip}, $existing->{status}, $existing->{user_agent},
+        $existing->{computername}, $existing->{notes}, $existing->{dhcp_fingerprint}, $existing->{last_arp},
+        $existing->{last_dhcp}, $existing->{switch}, $existing->{port}, $existing->{vlan}, $mac
     ) || return (0);
 
     return (1);
@@ -697,6 +714,42 @@ sub node_mac_wakeup {
     my $dec_oui = get_decimal_oui_from_mac($mac);
     $logger->debug( "sending MAC::$dec_oui ($mac) trigger" );
     pf::violation::violation_trigger( $mac, $dec_oui, "VENDORMAC" );
+}
+
+
+=item * node_category_handling - assigns category_id based on provided data
+
+expects category_id or category name in the form of category => 'name' or category_id => id
+
+returns category_id, undef if no category was required or 0 if no category is found (which is a problem)
+
+=cut
+sub _node_category_handling {
+    my (%data) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::node');
+
+    if (defined($data{'category_id'})) {
+        # category_id has priority over category
+        if (!nodecategory_exist($data{'category_id'})) {
+            $logger->debug("Unable to insert node because specified category doesn't exist: ".$data{'category_id'});
+            return 0; 
+        }
+
+    # web node add will always push category="" so we need to explicitly ignore it
+    } elsif (defined($data{'category'}) && $data{'category'} ne '')  {
+
+        # category name into id conversion
+        $data{'category_id'} = nodecategory_lookup($data{'category'});
+        if (!defined($data{'category_id'}))  {
+            $logger->debug("Unable to insert node because specified category doesn't exist: ".$data{'category'});
+            return 0;
+        }
+
+    } else {
+        # if no category is specified then we set to undef so that DBI will insert a NULL
+        $data{'category_id'} = undef;
+    }
+    return $data{'category_id'};
 }
 
 =back

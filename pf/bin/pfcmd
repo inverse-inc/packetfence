@@ -59,6 +59,7 @@ use Readonly;
 use Date::Parse;
 use File::Basename qw(basename);
 use Log::Log4perl;
+use Try::Tiny;
 
 use constant INSTALL_DIR => '/usr/local/pf';
 
@@ -344,12 +345,44 @@ sub ifoctetshistoryuser {
 sub nodecategory {
     require pf::nodecategory;
     import pf::nodecategory;
-    my $cat = $cmd{'command'}[2];
-    if ( $cat eq 'all' ) {
-        exit( print_results("nodecategory_view_all") );
-    } else {
-        exit( print_results( "nodecategory_view", $cat ) );
-    }
+    my $sub_cmd = $cmd{'nodecategory_options'}[0];
+    my $id = $cmd{'nodecategory_options'}[1];
+
+    if ($sub_cmd eq 'view') {
+
+        if ($id eq 'all') {
+            exit(print_results("nodecategory_view_all"));
+
+        } else {
+            exit(print_results("nodecategory_view", $id));
+        }
+
+    } elsif ($sub_cmd eq 'add') {
+
+        my %params = format_assignment(@{$cmd{'nodecategory_assignment'}});
+        try {
+            nodecategory_add(%params);
+        } catch {
+            $logger->logcarp("$_");
+        }
+ 
+    } elsif ($sub_cmd eq 'edit') {
+
+        my %params = format_assignment(@{$cmd{'nodecategory_assignment'}});
+        try {
+            nodecategory_modify($id, %params);
+        } catch {
+            $logger->logcarp("$_");
+        }
+ 
+    } elsif ($sub_cmd eq 'delete') {
+
+        try {
+            nodecategory_delete($id);
+        } catch {
+            $logger->logcarp("$_");
+        }
+    } 
 }
 
 sub switchlocation {
@@ -390,8 +423,10 @@ sub violationconfig {
                 $violations_conf{$section}{$key} =~ s/\s+$//;
             }
         }
-        my @columns
-            = qw(desc disable auto_enable actions max_enable grace priority url button_text trigger vlan);
+        # TODO columns should be auto-detected a la conf/ui.conf
+        my @columns = qw(desc disable auto_enable actions max_enable grace priority url button_text trigger vlan 
+                whitelisted_categories
+        );
         print "vid|" . join( "|", @columns ) . "\n";
         foreach my $section ( keys %violations_conf ) {
             if (   ( $cmd{'command'}[2] eq 'all' )
@@ -2614,7 +2649,7 @@ Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2008-2009 Inverse inc.
+Copyright (C) 2008-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

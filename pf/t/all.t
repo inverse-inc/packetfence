@@ -20,5 +20,6 @@ runtests( qw(
               services.t
               data.t
               graph.t
+              nodecategory.t
             )
 );

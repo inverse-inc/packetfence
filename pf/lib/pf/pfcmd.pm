@@ -221,7 +221,14 @@ sub parseCommandLine {
                                      \s+ ( $RE{net}{MAC} )
                                    )
                                  $ /xms,
-        'nodecategory'    => qr{ ^ (view) \s+ (\w+) $  }xms,
+        'nodecategory'    => qr{ ^ (?:
+                                     (view) \s+ (all|\d+)
+                                   )
+                                   |
+                                   (?:
+                                     (delete) \s+ (\s+)
+                                   )
+                                 $  }xms,
         'person'          => qr{ ^ (view)
                                    \s+
                                    ( [a-zA-Z0-9\-\_\.\@]+ )
@@ -379,6 +386,10 @@ sub parseCommandLine {
                     }
                 }
             }
+            if ($main eq 'nodecategory') {
+                push @{$cmd{'nodecategory_options'}}, $cmd{'command'}[1];
+                push @{$cmd{'nodecategory_options'}}, $cmd{'command'}[2];
+            }
             if ($main eq 'person') {
                 push @{$cmd{'person_options'}}, $cmd{'command'}[1];
                 push @{$cmd{'person_options'}}, $cmd{'command'}[2];
@@ -395,7 +406,7 @@ sub parseCommandLine {
             if ($main =~ m{ ^ (?:
                             node | person | interfaceconfig | networkconfig
                             | switchconfig | violationconfig | violation
-                            | manage | schedule | 
+                            | manage | schedule | nodecategory
                               ) $ }xms ) {
                 return parseWithGrammar($commandLine);
             }

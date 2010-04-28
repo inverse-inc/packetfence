@@ -140,7 +140,11 @@ is_deeply(\%cmd,
 
 %cmd = pf::pfcmd::parseCommandLine('nodecategory view all');
 is_deeply(\%cmd,
-          { 'command' => [ 'nodecategory', 'view', 'all' ] },
+          { 'command' 
+                => [ 'nodecategory', 'view', 'all' ],
+            'nodecategory_options'
+              => [ 'view', 'all' ]
+          },
           'pfcmd nodecategory view all');
 
 %cmd = pf::pfcmd::parseCommandLine('person view all');

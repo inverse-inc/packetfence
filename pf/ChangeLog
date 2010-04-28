@@ -1,3 +1,24 @@
+2010-04-28	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/common/helpers.inc, pf/html/admin/images/category.png,
+	pf/html/admin/node/categories_add.php, 
+	pf/html/admin/node/categories_edit.php, pf/t/nodecategory.t, pf/NEWS,
+	pf/UPGRADE, pf/bin/pfcmd, pf/conf/ui.conf, pf/conf/violations.conf,
+	pf/docs/PacketFence_Administration_Guide.odt, 
+	pf/html/admin/check_login.php, pf/html/admin/common.php, 
+	pf/html/admin/configuration/violation_add.php, 
+	pf/html/admin/configuration/violation_edit.php, 
+	pf/html/admin/header.php, pf/html/admin/node/categories.php, 
+	pf/html/admin/node/edit.php, pf/html/admin/node/help.html, 
+	pf/installer.pl, pf/lib/pf/class.pm, pf/lib/pf/config.pm, 
+	pf/lib/pf/lookup/node.pm, pf/lib/pf/node.pm, pf/lib/pf/nodecategory.pm,
+	pf/lib/pf/pfcmd/help.pm, pf/lib/pf/pfcmd/pfcmd.pm, pf/lib/pf/pfcmd.pm, 
+	pf/lib/pf/services.pm, pf/lib/pf/trigger.pm, pf/lib/pf/violation.pm, 
+	pf/packetfence.spec, pf/t/all.t, pf/t/data.t, pf/t/pfcmd.t, pf/t/php.t:
+	Node categorization support. You know have the ability to assign VLANs
+	or whitelist violations based on the category of a node. Fixes #968;
+	Includes tests, docs, config, etc.
+	http://www.packetfence.org/mantis/view.php?id=968
+
 2010-04-23	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/addons/integration-testing/replay-snmptrapd-logs.pl: Created a new
 	tool that will be used for load testing / integration testing.

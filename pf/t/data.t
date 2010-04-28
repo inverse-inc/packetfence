@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 86;
+use Test::More tests => 91;
 use lib '/usr/local/pf/lib';
 
 # Test all modules that provides data
@@ -17,6 +17,7 @@ BEGIN {
     use_ok('pf::iplog');
     use_ok('pf::locationlog');
     use_ok('pf::node');
+    use_ok('pf::nodecategory');
     use_ok('pf::os');
     use_ok('pf::person');
     use_ok('pf::switchlocation');
@@ -37,6 +38,7 @@ my @data_modules = qw(
     pf::iplog
     pf::locationlog
     pf::node
+    pf::nodecategory
     pf::os
     pf::person
     pf::switchlocation

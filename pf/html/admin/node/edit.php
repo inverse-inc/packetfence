@@ -56,8 +56,10 @@
     if($key == 'status'){
       print "<tr><td></td><td>$pretty_key:</td><td>";
       printSelect( array('unreg' => 'Unregistered', 'reg' => 'Registered', 'grace' => 'Grace'), 'hash', $val, "name='$key'");
-    }
-    else{
+    } elseif ($key == 'category'){
+      print "<tr><td></td><td>$pretty_key:</td><td>";
+      printSelect(get_nodecategories_for_dropdown(), 'hash', $val, "name='$key'");
+    } else{
       print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val'>";
     }
 

@@ -107,13 +107,14 @@ Requires: perl-Template-Toolkit
 Requires: perl-TermReadKey
 Requires: perl-Test-MockDBI
 Requires: perl-Test-Perl-Critic
-Requires: perl-Test-Pod, perl-Test-Pod-Coverage
+Requires: perl-Test-Pod, perl-Test-Pod-Coverage, perl(Test::Exception)
 Requires: perl-Thread-Pool
 Requires: perl-TimeDate
 Requires: perl-UNIVERSAL-require
 Requires: perl-YAML
 Requires: php-jpgraph-packetfence = 2.3.4
 Requires: php-ldap
+Requires: perl(Try::Tiny)
 
 %description
 
@@ -210,7 +211,7 @@ curdir=`pwd`
 
 #pfschema symlink
 cd $RPM_BUILD_ROOT/usr/local/pf/db
-ln -s pfschema.mysql.186 ./pfschema.mysql
+ln -s pfschema.mysql.190 ./pfschema.mysql
 
 #httpd.conf symlink
 #TODO: isn't it stupid to decide what Apache version is there at rpm build time?
@@ -492,6 +493,11 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Wed Apr 28 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added perl(Try::Tiny) and perl(Test::Exception) as a dependency used for 
+  exception-handling and its testing
+- Linking to new database schema
+
 * Fri Apr 23 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - New addons/integration-testing folder with integration-testing scripts. More
   to come!

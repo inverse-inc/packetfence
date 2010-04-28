@@ -73,7 +73,8 @@ sub trigger_db_prepare {
         qq[ select tid_start,tid_end,class.vid,type,description from `trigger`,class where class.vid=`trigger`.vid and tid_start<=? and tid_end>=? and type=?]);
 
     $trigger_statements->{'trigger_view_enable_sql'} = get_db_handle()->prepare(
-        qq[ select tid_start,tid_end,class.vid,type from `trigger`,class where class.vid=`trigger`.vid and tid_start<=? and tid_end>=? and type=? and disable="N"]);
+        qq[ select tid_start,tid_end,class.vid,type,whitelisted_categories from `trigger`,class where class.vid=`trigger`.vid and tid_start<=? and tid_end>=? and type=? and disable="N" ]
+    );
 
     $trigger_statements->{'trigger_view_vid_sql'} = get_db_handle()->prepare(
         qq[ select tid_start,tid_end,class.vid,description from `trigger`,class where class.vid=`trigger`.vid and class.vid=?]);
@@ -88,10 +89,12 @@ sub trigger_db_prepare {
         qq[ select tid_start,tid_end,class.vid,type,description from `trigger`,class where class.vid=`trigger`.vid and type=?]);
 
     $trigger_statements->{'trigger_exist_sql'} = get_db_handle()->prepare(
-        qq [ select vid,tid_start,tid_end,type from `trigger` where vid=? and tid_start<=? and tid_end>=? and type=?]);
+        qq [ select vid,tid_start,tid_end,type,whitelisted_categories from `trigger` where vid=? and tid_start<=? and tid_end>=? and type=? and whitelisted_categories=? ]
+   );
 
     $trigger_statements->{'trigger_add_sql'} = get_db_handle()->prepare(
-        qq [ insert into `trigger`(vid,tid_start,tid_end,type) values(?,?,?,?) ]);
+        qq [ insert into `trigger`(vid,tid_start,tid_end,type,whitelisted_categories) values(?,?,?,?,?) ]
+    );
 
     $trigger_statements->{'trigger_delete_vid_sql'} = get_db_handle()->prepare(qq [ delete from `trigger` where vid=? ]);
 
@@ -151,9 +154,10 @@ sub trigger_delete_all {
 }
 
 sub trigger_exist {
-    my ( $vid, $tid_start, $tid_end, $type ) = @_;
+    my ($vid, $tid_start, $tid_end, $type, $whitelisted_categories) = @_;
 
-    my $query = db_query_execute(TRIGGER, $trigger_statements, 'trigger_exist_sql', $vid, $tid_start, $tid_end, $type)
+    my $query = db_query_execute(TRIGGER, $trigger_statements, 'trigger_exist_sql', 
+        $vid, $tid_start, $tid_end, $type, $whitelisted_categories)
         || return (0);
     my ($val) = $query->fetchrow_array();
     $query->finish();
@@ -164,14 +168,15 @@ sub trigger_exist {
 # clean input parameters and add to trigger table
 #
 sub trigger_add {
-    my ( $vid, $tid_start, $tid_end, $type ) = @_;
+    my ($vid, $tid_start, $tid_end, $type, $whitelisted_categories) = @_;
     my $logger = Log::Log4perl::get_logger('pf::trigger');
-    if ( trigger_exist( $vid, $tid_start, $tid_end, $type ) ) {
+    if ( trigger_exist( $vid, $tid_start, $tid_end, $type, $whitelisted_categories) ) {
         $logger->error(
             "attempt to add existing trigger $tid_start $tid_end [$type]");
         return (2);
     }
-    db_query_execute(TRIGGER, $trigger_statements, 'trigger_add_sql', $vid, $tid_start, $tid_end, $type)
+    db_query_execute(TRIGGER, $trigger_statements, 'trigger_add_sql', 
+        $vid, $tid_start, $tid_end, $type, $whitelisted_categories)
         || return (0);
     $logger->debug("trigger $tid_start $tid_end added");
     return (1);

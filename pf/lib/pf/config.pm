@@ -14,8 +14,7 @@ PacketFence configuration files.
 =head1 CONFIGURATION AND ENVIRONMENT
 
 Read the following configuration files: F<log.conf>, F<pf.conf>, 
-F<pf.conf.defaults>, F<networks.conf>, F<dhcp_fingerprints.conf>, F<oui.txt>, 
-F<node_categories.conf>.
+F<pf.conf.defaults>, F<networks.conf>, F<dhcp_fingerprints.conf>, F<oui.txt> 
 
 =cut
 
@@ -42,10 +41,10 @@ our (
     $black_mark,               $portscan_sid,
     $default_config_file,      $config_file,
     $network_config_file,      $dhcp_fingerprints_file,
-    $node_categories_file,     $default_pid,
-    $fqdn,                     $oui_url,
-    $dhcp_fingerprints_url,    $oui_file,
-    @valid_trigger_types,      $thread
+    $default_pid,              $fqdn,
+    $oui_url,                  $dhcp_fingerprints_url,
+    $oui_file,                 @valid_trigger_types,
+    $thread
 );
 
 BEGIN {
@@ -55,7 +54,7 @@ BEGIN {
     @EXPORT
         = qw($install_dir $bin_dir $conf_dir $lib_dir %Default_Config %Config @listen_ints @internal_nets @routed_isolation_nets @routed_registration_nets
         $blackholemac @managed_nets @external_nets @dhcplistener_ints $monitor_int $unreg_mark $reg_mark $black_mark $portscan_sid
-        $default_config_file $config_file $network_config_file $dhcp_fingerprints_file $node_categories_file $default_pid $fqdn $oui_url $dhcp_fingerprints_url
+        $default_config_file $config_file $network_config_file $dhcp_fingerprints_file $default_pid $fqdn $oui_url $dhcp_fingerprints_url
         $oui_file @valid_trigger_types $thread);
 }
 
@@ -78,7 +77,6 @@ $default_config_file    = $conf_dir . "/pf.conf.defaults";
 $network_config_file    = $conf_dir . "/networks.conf";
 $dhcp_fingerprints_file = $conf_dir . "/dhcp_fingerprints.conf";
 $oui_file               = $conf_dir . "/oui.txt";
-$node_categories_file   = $conf_dir . "/node_categories.conf";
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
@@ -279,7 +277,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009 Inverse, inc.
+Copyright (C) 2009,2010 Inverse, inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

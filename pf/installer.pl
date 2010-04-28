@@ -99,6 +99,7 @@ my %oses = (
 my @suids = ( "$install_dir/bin/pfcmd" );
 
 my %schemas = (
+    "d0c0eb41fd26358bb1f208133a17f770" => "1.9.0",
     "a3ad9f52b7d31c8d4b5e9b0c2c3dd559" => "1.8.6",
     "55ec69a0e574dac8eada8b65a8cbd4f5" => "1.8.4",
     "de911c990735fd5a6339830830010368" => "1.8.3",
@@ -241,7 +242,7 @@ if (questioner(
             $unknown = 1;
         } else {
             my $schema_version = $schemas{$md5sum};
-            if ( $schema_version ne '1.8.6' ) {
+            if ( $schema_version ne '1.9.0' ) {
                 if (questioner(
                         "PF database already exists - do you want to upgrade it?",
                         "y",
@@ -252,13 +253,13 @@ if (questioner(
                     # TODO: if upgrading from an old version, this will always fail
                     # what we should do here is replay all the upgrade script from $schema_version
                     my $update_script
-                        = "$install_dir/db/upgrade-$schema_version-1.8.6.sql";
+                        = "$install_dir/db/upgrade-$schema_version-1.9.0.sql";
                     if ( -e $update_script ) {
                         `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' $mysql_db < $update_script`;
                         $upgraded = 1;
                     } else {
                         die
-                            "Unable to locate SQL update script for $schema_version -> 1.8.6!\n";
+                            "Unable to locate SQL update script for $schema_version -> 1.9.0!\n";
                     }
                 } elsif (
                     questioner(
@@ -532,7 +533,7 @@ Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2007-2009 Inverse inc.
+Copyright (C) 2007-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

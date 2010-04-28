@@ -7,6 +7,16 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <release>:
 
+    - New perl dependencies Try::Tiny and Test::Exception
+
+    - New parameter in conf/violations.conf: whitelisted_categories
+    Node in a whitelisted category will not be isolated on a given violation.
+
+    - Database change
+    A new table and a few fields were added for the new node categorization 
+    feature. To upgrade your schema, run:
+    mysql -u root -p pf -v < db/upgrade-1.8.6-1.9.0.sql
+
     - pfsetvlan and conf/switches.conf validation
     If there is a problem in the conf/switches.conf file PacketFence will say 
     so at startup but will still try to run. Before this release, pfsetvlan 
