@@ -171,6 +171,7 @@ mv packetfence.mo conf/locale/nl/LC_MESSAGES/
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r addons/802.1X/ $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp -r addons/integration-testing/ $RPM_BUILD_ROOT/usr/local/pf/integration-testing/
 cp -r addons/high-availability/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/mrtg/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -328,6 +329,8 @@ fi
 %attr(0755, pf, pf)	/usr/local/pf/addons/database-backup-and-maintenance.sh
 %dir                    /usr/local/pf/addons/high-availability/
                         /usr/local/pf/addons/high-availability/*
+%dir                    /usr/local/pf/addons/integration-testing/
+                        /usr/local/pf/addons/integration-testing/*
 %attr(0755, pf, pf)     /usr/local/pf/addons/loadMACintoDB.pl
                         /usr/local/pf/addons/logrotate
 %attr(0755, pf, pf)	/usr/local/pf/addons/migrate-to-locationlog_history.sh
@@ -490,6 +493,8 @@ fi
 
 %changelog
 * Fri Apr 23 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- New addons/integration-testing folder with integration-testing scripts. More
+  to come!
 - Added perl(Readonly::XS) as a dependency. Readonly becomes faster with it. 
 
 * Mon Apr 19 2010 Olivier Bilodeau <obilodeau@inverse.ca>
