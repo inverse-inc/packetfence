@@ -13,7 +13,8 @@
 	pf/lib/pf/lookup/node.pm, pf/lib/pf/node.pm, pf/lib/pf/nodecategory.pm,
 	pf/lib/pf/pfcmd/help.pm, pf/lib/pf/pfcmd/pfcmd.pm, pf/lib/pf/pfcmd.pm, 
 	pf/lib/pf/services.pm, pf/lib/pf/trigger.pm, pf/lib/pf/violation.pm, 
-	pf/packetfence.spec, pf/t/all.t, pf/t/data.t, pf/t/pfcmd.t, pf/t/php.t:
+	pf/packetfence.spec, pf/t/all.t, pf/t/data.t, pf/t/pfcmd.t, pf/t/php.t,
+	pf/db/pfschema.mysql.190, pf/db/upgrade-1.8.6-1.9.0.sql:
 	Node categorization support. You know have the ability to assign VLANs
 	or whitelist violations based on the category of a node. Fixes #968;
 	Includes tests, docs, config, etc.
