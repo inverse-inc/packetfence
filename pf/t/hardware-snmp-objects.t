@@ -94,6 +94,7 @@ my @SNMPobjects = qw(
     pf::SNMP::Cisco::Catalyst_3550
     pf::SNMP::Cisco::Catalyst_3560
     pf::SNMP::Cisco::Catalyst_3750
+    pf::SNMP::Cisco::ISR_1800
     pf::SNMP::Cisco::WiSM
     pf::SNMP::Cisco::WLC_2106
     pf::SNMP::Cisco::WLC_4400
@@ -142,6 +143,7 @@ foreach my $obj_name (@SNMPobjects) {
 }
 
 # basic SNMP functions
+# TODO move these tests in SNMP.t instead
 my $SNMP = pf::SNMP->new();
 
 # -- variables to avoid repetition --
