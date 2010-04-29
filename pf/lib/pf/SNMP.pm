@@ -521,6 +521,7 @@ TODO: not implemented, currently only a nameholder
 
 =cut
 sub setVlanWithName {
+    my ($this) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->warn("not implemented!");
     return;

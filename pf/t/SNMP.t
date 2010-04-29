@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 13;
+use Test::More tests => 6;
 use lib '/usr/local/pf/lib';
 
 use File::Basename qw(basename);
@@ -26,7 +26,6 @@ isa_ok($snmp_obj, 'pf::SNMP');
 can_ok($snmp_obj, qw(
     connectRead
     connectWrite
-    isManagedVlan
     setVlan
     _setVlanByOnlyModifyingPvid
     setVlanByName
@@ -37,13 +36,6 @@ can_ok($snmp_obj, qw(
 # getting a switch instance (pf::SNMP::PacketFence but still inherit most subs from pf::SNMP)
 my $switchFactory = new pf::SwitchFactory( -configFile => './data/switches.conf' );
 my $switch = $switchFactory->instantiate('127.0.0.1');
-
-# isManagedVlan
-ok($switch->isManagedVlan(4),
-    "isManagedVlan: positive test for a managed VLAN");
-
-ok(!$switch->isManagedVlan(5),
-    "isManagedVlan: negative test for a managed VLAN");
 
 # setVlanByName
 ok(!defined($switch->setVlanByName(1001, 'inexistantVlan', {})), 
@@ -57,21 +49,3 @@ ok(!defined($switch->setVlanByName(1001, 'customVlan2', {})),
 
 # TODO: one day we should do a positive test for setVlanByName (mocking setVlan)
 
-# getVlanByName
-$switch = $switchFactory->instantiate('10.0.0.1');
-my $vlan = $switch->getVlanByName('normalVlan');
-is($vlan, 15, 
-    "call getVlanByName with a VLAN that is overloaded in the switch");
-
-$vlan = $switch->getVlanByName('guestVlan');
-is($vlan, 5,
-    "call getVlanByName with a VLAN that is defined by default config");
-
-ok(!defined($switch->getVlanByName('inexistantVlan')),
-    "call getVlanByName with a vlan that doesn't exist in switches.conf");
-
-ok(!defined($switch->getVlanByName('customVlan1')),
-    "call getVlanByName with a vlan that exists but with a non-numeric value");
-
-ok(!defined($switch->getVlanByName('customVlan2')),
-    "call getVlanByName with a vlan that exists but with an undef value");
