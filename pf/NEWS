@@ -16,6 +16,20 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <version> - <codename> released on <releaseDate>
 
+New Features
+- More information available in Node Lookup (IP, DHCP lease)
+- More logging information available
+- Improved error-handling (#847)
+- New synchronization scripts in addons/high-availability
+
+Bugfix
+- Minor corrections to the Admin Web UI
+- Correct VLAN information shown in Node Lookup (#893)
+- Clarified some error messages
+
+--------------------------------------------------------------------------------
+Version <version> - <codename> released on <releaseDate>
+
 New
 - Official Linux 64 bit support (TODO: change documentation and symlink in yum repo and build system)
 

@@ -414,6 +414,8 @@ sub violation_trigger {
         }
         my $vid = $row->{'vid'};
 
+        # TODO: performance improvement: validate for grace here also will avoid a spawned process only to check grace
+
         # if the node's category is whitelisted, skip
         if (_is_node_category_whitelisted($row, $mac)) {
             $logger->info("Not adding violation ${vid} node $mac is immune because of its category");

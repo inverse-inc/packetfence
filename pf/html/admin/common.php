@@ -87,6 +87,14 @@ if($sajax){
       $this->default_filter=$filter;
    }
 
+   /**
+    * Returns the number of displayed column in the table. 
+    */
+   function get_displayable_column_count(){
+      // adding 1 because of the clone, edit, delete column on the left
+      return count($this->headers) + 1;
+   }
+
    function refresh(){
      #$this=new table($this->create_cmd);
 
@@ -203,7 +211,7 @@ if($sajax){
       print "<thead>\n";
 
       print "<tr>\n";
-      print "<td colspan=\"".count($this->headers)."\" id=\"search\">\n";
+      print "<td colspan=\"".$this->get_displayable_column_count()."\" id=\"search\">\n";
       if($this->is_hideable){
         if($this->is_hidden){
 	           print "<span id='show_icon' style='display:visible;'><a href='javascript:hideCells(\"\");'><img src='../images/show.gif' alt='Show Info'><br><font size=1>Show Info</font></a></span>";
@@ -890,6 +898,7 @@ function PrintSubNav($menu){
     print "</pre></div>";
   }
 
+  # TODO consider deprecating jpgraph 1.27
   function jpgraph_dir(){
     if(preg_match("/^4/", phpversion())){
       return '../common/jpgraph/jpgraph-1.27/src';   

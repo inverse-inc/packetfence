@@ -587,6 +587,11 @@ sub node_deregister {
     #return(trapmac($mac)) if ($Config{'network'}{'mode'} =~ /arp/i);
 }
 
+=item * nodes_maintenance - handling deregistration on node expiration and node grace 
+
+called by pfmon daemon every 10 maintenance interval (usually each 10 minutes)
+
+=cut
 sub nodes_maintenance {
     my $logger = Log::Log4perl::get_logger('pf::node');
 
@@ -714,42 +719,6 @@ sub node_mac_wakeup {
     my $dec_oui = get_decimal_oui_from_mac($mac);
     $logger->debug( "sending MAC::$dec_oui ($mac) trigger" );
     pf::violation::violation_trigger( $mac, $dec_oui, "VENDORMAC" );
-}
-
-
-=item * node_category_handling - assigns category_id based on provided data
-
-expects category_id or category name in the form of category => 'name' or category_id => id
-
-returns category_id, undef if no category was required or 0 if no category is found (which is a problem)
-
-=cut
-sub _node_category_handling {
-    my (%data) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::node');
-
-    if (defined($data{'category_id'})) {
-        # category_id has priority over category
-        if (!nodecategory_exist($data{'category_id'})) {
-            $logger->debug("Unable to insert node because specified category doesn't exist: ".$data{'category_id'});
-            return 0; 
-        }
-
-    # web node add will always push category="" so we need to explicitly ignore it
-    } elsif (defined($data{'category'}) && $data{'category'} ne '')  {
-
-        # category name into id conversion
-        $data{'category_id'} = nodecategory_lookup($data{'category'});
-        if (!defined($data{'category_id'}))  {
-            $logger->debug("Unable to insert node because specified category doesn't exist: ".$data{'category'});
-            return 0;
-        }
-
-    } else {
-        # if no category is specified then we set to undef so that DBI will insert a NULL
-        $data{'category_id'} = undef;
-    }
-    return $data{'category_id'};
 }
 
 =back

@@ -810,7 +810,6 @@ sub setVlanAllPort {
     my ( $this, $vlan, $switch_locker_ref ) = @_;
     my $oid_ifType = '1.3.6.1.2.1.2.2.1.3';    # MIB: ifTypes
     my @ports;
-    my @UpLinks = $this->getUpLinks();         # fetch the UpLink list
 
     my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->info("setting all ports of switch $this->{_ip} to VLAN $vlan");
@@ -839,7 +838,6 @@ sub setVlanAllPort {
 sub resetVlanAllPort {
     my ( $this, $switch_locker_ref ) = @_;
     my $oid_ifType = '1.3.6.1.2.1.2.2.1.3';    # MIB: ifTypes
-    my @UpLinks    = $this->getUpLinks();      # fetch the UpLink list
 
     my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->info("resetting all ports of switch $this->{_ip}");
@@ -1818,6 +1816,12 @@ sub isFakeVoIPMac {
     my ( $this, $mac ) = @_;
     return ( $mac =~ /^02:00:01/ );
 }
+
+=item  getUpLinks - get the list of port marked as uplink in configuration
+
+Returns an array of port ifIndex or -1 on failure
+
+=cut
 
 sub getUpLinks {
     my ($this) = @_;
