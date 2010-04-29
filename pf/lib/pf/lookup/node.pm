@@ -17,6 +17,7 @@ use strict;
 use warnings;
 use diagnostics;
 
+use pf::config;
 use pf::util;
 use pf::iplog;
 use pf::node;
@@ -30,7 +31,7 @@ sub lookup_node {
     if ( node_exist($mac) ) {
 
         my $node_info = node_view($mac);
-        $return .= "Address : $mac";
+        $return .= "Address        : $mac";
 
         if ( mac2ip($mac) ) {
             $return .= " (" . mac2ip($mac) . ")\n";
@@ -52,22 +53,34 @@ sub lookup_node {
             $status = "grace";
         }
         $owner = "unregistered" if ( $owner eq '1' );
-        $return .= "Owner   : $owner\n"  if ($owner);
-        $return .= "Category: $category\n" if ($category);
-        $return .= "Status  : $status\n" if ($status);
-        $return .= "Name    : " . $node_info->{'computername'} . "\n"
+        $return .= "Owner          : $owner\n"  if ($owner);
+        $return .= "Category       : $category\n" if ($category);
+        $return .= "Status         : $status\n" if ($status);
+        $return .= "Name           : " . $node_info->{'computername'} . "\n"
             if ( $node_info->{'computername'} );
-        $return .= "Notes   : " . $node_info->{'notes'} . "\n"
+        $return .= "Notes          : " . $node_info->{'notes'} . "\n"
             if ( $node_info->{'notes'} );
 
         my $vendor = oui_to_vendor($mac);
         if ($vendor) {
-            $return .= "Vendor  : $vendor\n";
+            $return .= "Vendor         : $vendor\n";
         }
+
+        $return .= "\nLast known state\n";
+
+        my $conn_type = str_to_connection_type($node_info->{'connection_type'});
+        if (defined($conn_type)) {
+            $return .= "Connection type: ".$connection_type_explained{$conn_type}."\n";
+        } else {
+            $return .= "Connection type: UNKNOWN\n";
+        }
+
+        my $voip = $node_info->{'voip'};
+        $return .= "VoIP           : $voip\n" if ($voip);
 
         # TODO: output useragent class like in dhcp fingerprint
 
-        $return .= "Browser : " . $node_info->{'user_agent'} . "\n"
+        $return .= "Browser        : " . $node_info->{'user_agent'} . "\n"
             if ( $node_info->{'user_agent'} );
 
         if ( $node_info->{'dhcp_fingerprint'} ) {
@@ -76,7 +89,7 @@ sub lookup_node {
             if ( scalar(@fingerprint_info_array == 1) ) {
                 my $fingerprint_info = $fingerprint_info_array[0];
                 my $os = $fingerprint_info->{'os'};
-                $return .= "OS      : $os\n" if ( defined($os) );
+                $return .= "OS             : $os\n" if ( defined($os) );
             }
         }
 
@@ -94,7 +107,7 @@ sub lookup_node {
             }
         }
         if ( $port && ( $switch_ip || $switch_mac ) && $vlan ) {
-            $return .= "Location: port $port (vlan $vlan) on switch "
+            $return .= "Location       : port $port (vlan $vlan) on switch "
                 . ( $switch_ip || $switch_mac );
             if ( $switch_ip && $switch_mac ) {
                 $return .= " ($switch_mac)";

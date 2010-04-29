@@ -60,6 +60,7 @@ BuildRequires: perl-Parse-RecDescent = 1.94
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl, php, php-gd
+Requires: mod_perl
 # php-pear-Log required not php-pear, fixes #804
 Requires: php-pear-Log
 Requires: net-tools
@@ -105,9 +106,6 @@ Requires: rrdtool, perl-rrdtool
 Requires: perl-SOAP-Lite
 Requires: perl-Template-Toolkit
 Requires: perl-TermReadKey
-Requires: perl-Test-MockDBI
-Requires: perl-Test-Perl-Critic
-Requires: perl-Test-Pod, perl-Test-Pod-Coverage, perl(Test::Exception)
 Requires: perl-Thread-Pool
 Requires: perl-TimeDate
 Requires: perl-UNIVERSAL-require
@@ -115,6 +113,8 @@ Requires: perl-YAML
 Requires: php-jpgraph-packetfence = 2.3.4
 Requires: php-ldap
 Requires: perl(Try::Tiny)
+# Required for testing
+BuildRequires: perl-Test-MockModule, perl-Test-MockDBI, perl-Test-Perl-Critic, perl-Test-Pod, perl-Test-Pod-Coverage, perl(Test::Exception)
 
 %description
 
@@ -493,6 +493,12 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Thu Apr 29 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added perl-Test-MockModule as a build dependency (required for tests)
+- Test modules are now required for building instead of required for package 
+  install.
+- Added mod_perl as a dependency
+
 * Wed Apr 28 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added perl(Try::Tiny) and perl(Test::Exception) as a dependency used for 
   exception-handling and its testing

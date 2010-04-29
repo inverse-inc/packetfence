@@ -7,6 +7,7 @@ pf::vlan - Object oriented module for VLAN isolation oriented functions
 =head1 SYNOPSIS
 
 The pf::vlan module contains the functions necessary for the VLAN isolation.
+All the behavior contained here can be overridden in lib/pf/vlan/custom.pm.
 
 =cut
 
@@ -16,7 +17,7 @@ use diagnostics;
 
 use Log::Log4perl;
 use pf::config;
-use pf::node qw(node_view node_add_simple node_exist);
+use pf::node qw(node_view node_add_simple node_exist node_modify);
 use pf::util;
 use pf::violation qw(violation_count_trap violation_exist_open violation_view_top);
 use threads;
@@ -38,75 +39,65 @@ sub new {
     return $this;
 }
 
+=item vlan_determine_for_node - what VLAN should a node be put into
+
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
+version doesn't do the right thing for you. However it is very generic, 
+maybe what you are looking for needs to be done in get_violation_vlan, 
+get_registration_vlan or get_normal_vlan.
+
+=cut
 sub vlan_determine_for_node {
     my ( $this, $mac, $switch, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::vlan');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
-    my $correctVlanForThisMAC;
-    my $open_violation_count = violation_count_trap($mac);
-
-    if ( $open_violation_count > 0 ) {
-        $logger->info("$mac has $open_violation_count open violations(s) with action=trap; ". 
-                      "it might belong into another VLAN (isolation or other).");
-
-        # By default we assume that we put the user in isolationVlan unless proven otherwise
-        my $vlan = "isolationVlan";
-
-        # fetch top violation
-        $logger->debug("What is the highest priority violation for this host?");
-        my $top_violation = violation_view_top($mac);
-        if ($top_violation) {
-
-            # get violation id
-            my $vid=$top_violation->{'vid'};
-
-            # find violation class based on violation id
-            require pf::class;
-            my $class=pf::class::class_view($vid);
-            if ($class) {
-
-                # override violation destination vlan
-                $vlan = $class->{'vlan'};
-                $logger->debug("Found target vlan parameter for this violation: $vlan");
-
-            } else {
-                $logger->warn("Could not find class entry for violation $vid. ".
-                              "Setting target vlan to switches.conf's isolationVlan");
-            }
-        } else {
-            $logger->warn("Could not find highest priority open violation for $mac. ".
-                          "Setting target vlan to switches.conf's isolationVlan");
+    # is switch object correct?
+    my $valid_switch_object = (defined($switch) && ref($switch) && $switch->isa('pf::SNMP'));
+    if (!$valid_switch_object) {
+        # FIXME revisit this assumption depending on what we do with SwitchFactory caching
+        $logger->warn("Invalid switch object passed. I will use the default switch for now. "
+            ."Are you sure your switches.conf is correct?");
+        my $switchFactory = new pf::SwitchFactory(-configFile => $conf_dir.'/switches.conf');
+        $switch = $switchFactory->instantiate('default');
+        if (!$switch) {
+            $logger->error("Can't instantiate default switch! Check switches.conf. "
+                . "Don't expect PacketFence to run fine");
         }
-
-        # Asking the switch to give us its configured vlan number for the vlan returned for the violation
-        # TODO: get rid of the _ character for the vlan variables (refactoring)
-        $correctVlanForThisMAC = $switch->{"_".$vlan};
-    } else {
-        if ( !node_exist($mac) ) {
-            $logger->info("node $mac does not yet exist in PF database. Adding it now");
-            node_add_simple($mac);
-        }
-        my $node_info = node_view($mac);
-        if ( isenabled( $Config{'trapping'}{'registration'} ) ) {
-            if (   ( !defined($node_info) )
-                || ( $node_info->{'status'} eq 'unreg' ) )
-            {
-                $logger->info("MAC: $mac is unregistered; belongs into registration VLAN");
-                $correctVlanForThisMAC = $switch->{_registrationVlan};
-            } else {
-
-                #TODO: find a way to cleanly wrap this
-                $correctVlanForThisMAC = $this->custom_getCorrectVlan( $switch, $ifIndex, $mac, $node_info->{status}, $node_info->{vlan}, $node_info->{pid} );
-                $logger->info( "MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", VLAN: $correctVlanForThisMAC" );
-            }
-        } else {
-            #TODO: find a way to cleanly wrap this
-            $correctVlanForThisMAC = $this->custom_getCorrectVlan( $switch, $ifIndex, $mac, $node_info->{status}, ( $node_info->{vlan} || $switch->{_normalVlan} ), $node_info->{pid} );
-            $logger->info( "MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", VLAN: $correctVlanForThisMAC" );
-        }
+        $switch->{_mode} = 'production'; # set this switch instance in production
     }
-    return $correctVlanForThisMAC;
+
+    # violation handling
+    my $violation = $this->get_violation_vlan($mac, $switch);
+    if (defined($violation) && $violation != 0) {
+        if ($violation == -1) {
+            $logger->warn("Kicking out nodes on violation is not supported in SNMP-Traps mode. "
+                . "Returning the switch's isolation VLAN.");
+            return $switch->getVlanByName('isolationVlan');
+        }
+
+        # returning proper violation vlan
+        return $violation;
+    } elsif (!defined($violation)) {
+        $logger->warn("There was a problem identifying vlan for violation. Will act as if there was no violation.");
+    }
+
+    # there were no violation, now onto registration handling
+    my $node_info = node_view($mac);
+    my $registration = $this->get_registration_vlan($mac, $switch, $node_info);
+    if (defined($registration) && $registration != 0) {
+        return $registration;
+    }
+
+    # no violation, not unregistered, we are now handling a normal vlan
+    my $vlan = $this->get_normal_vlan($switch, $ifIndex, $mac, $node_info, WIRED_SNMP_TRAPS);
+    $logger->info("MAC: $mac, PID: " .$node_info->{pid}. ", Status: " .$node_info->{status}. ". Returned VLAN: $vlan");
+    if (defined($vlan) && $vlan == -1) {
+        $logger->warn("Kicking out nodes on violation is not supported in SNMP-Traps mode. "
+            . "Returning the switch's isolation VLAN.");
+        return $switch->getVlanByName('isolationVlan');
+    }
+    return $vlan;
 }
 
 # don't act on configured uplinks
@@ -115,6 +106,7 @@ sub custom_doWeActOnThisTrap {
     my $logger = Log::Log4perl->get_logger();
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
+    # TODO we should rethink the position of this code, it's in the wrong test but at the good spot in the flow
     my $weActOnThisTrap = 0;
     if ( $trapType eq 'desAssociate' ) {
         return 1;
@@ -148,77 +140,329 @@ sub custom_doWeActOnThisTrap {
     return $weActOnThisTrap;
 }
 
-=item custom_getCorrectVlan - returns normal vlan
+=item get_violation_vlan - returns the violation vlan for a node (if any)
+        
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if you have specific isolation needs.
+    
+Return values:
+    
+=over 6 
+        
+=item * -1 means kick-out the node (not always supported)
+    
+=item * 0 means no violation for this node
+    
+=item * undef means there was an error
+    
+=item * anything else is either a VLAN name string or a VLAN number
+    
+=back
 
-This sub is meant to be overloaded in lib/pf/vlan/custom.pm if the default 
+=cut
+sub get_violation_vlan {
+    my ($this, $mac, $switch) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    my $open_violation_count = violation_count_trap($mac);
+    if ($open_violation_count == 0) {
+        return 0;
+    }
+
+    $logger->debug("$mac has $open_violation_count open violations(s) with action=trap; ".
+                   "it might belong into another VLAN (isolation or other).");
+    
+    # By default we assume that we put the user in isolationVlan unless proven otherwise
+    my $vlan = "isolationVlan";
+
+    # fetch top violation
+    $logger->trace("What is the highest priority violation for this host?");
+    my $top_violation = violation_view_top($mac);
+    # fetching top violation failed
+    if (!$top_violation || !defined($top_violation->{'vid'})) {
+    
+        $logger->warn("Could not find highest priority open violation for $mac. ".
+                      "Setting target vlan to switches.conf's isolationVlan");
+        return $switch->getVlanByName($vlan);
+    }   
+        
+    # get violation id
+    my $vid=$top_violation->{'vid'};
+    
+    # find violation class based on violation id
+    require pf::class;
+    my $class=pf::class::class_view($vid);
+    # finding violation class based on violation id failed
+    if (!$class || !defined($class->{'vlan'})) {
+
+        $logger->warn("Could not find class entry for violation $vid. ".
+                      "Setting target vlan to switches.conf's isolationVlan");
+        return $switch->getVlanByName($vlan);
+    }
+
+    # override violation destination vlan
+    $vlan = $class->{'vlan'};
+
+    # example of a specific violation that packetfence should block instead of isolate
+    # ex: block iPods / iPhones because they tend to overload controllers, radius and captive portal in isolation vlan
+    # if ($vid == '1100004') { return -1; }
+
+    # Asking the switch to give us its configured vlan number for the vlan returned for the violation
+    my $vlan_number = $switch->getVlanByName($vlan);
+    if (defined($vlan_number)) {
+        $logger->info("highest priority violation for $mac is $vid. Target VLAN for violation: $vlan ($vlan_number)");
+    }
+    return $vlan_number;
+}
+
+
+=item get_registration_vlan - returns the registration vlan for a node if he is unregistered
+
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if you have specific registration needs.
+
+Return values:
+
+=over 6
+
+=item * 0 means node is already registered
+
+=item * undef means there was an error
+
+=item * anything else is either a VLAN name string or a VLAN number
+    
+=back
+
+=cut
+sub get_registration_vlan {
+    my ($this, $mac, $switch, $node_info) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    # trapping on registration is enabled
+    if (!isenabled($Config{'trapping'}{'registration'})) {
+        $logger->debug("Registration trapping disabled: skipping node is registered test");
+        return 0;
+    }
+
+    if (!defined($node_info) || ($node_info->{'status'} eq 'unreg')) {
+        $logger->info("MAC: $mac is unregistered; belongs into registration VLAN");
+        return $switch->getVlanByName('registrationVlan');
+    }
+    return 0;
+}
+
+=item get_normal_vlan - returns normal vlan
+
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
 version doesn't do the right thing for you. By default it will return the 
 normal vlan for the given switch if defined, otherwise it will return the normal
 vlan for the whole network.
 
+Return values:
+
+=over 6
+
+=item * -1 means kick-out the node (not always supported)
+
+=item * 0 means node is already registered
+
+=item * undef means there was an error
+
+=item * anything else is either a VLAN name string or a VLAN number
+    
+=back
+
 =cut
-sub custom_getCorrectVlan {
+sub get_normal_vlan {
 
     #$switch is the switch object (pf::SNMP)
     #$ifIndex is the ifIndex of the computer connected to
     #$mac is the mac connected
-    #$status is the node's status in the database
-    #$vlan is the vlan set for this node in the database
-    #$pid is the owner of this node in the database
-    my ( $this, $switch, $ifIndex, $mac, $status, $vlan, $pid ) = @_;
+    #$node_info is the node info hashref (result of pf::node's node_view on $mac)
+    #$conn_type is set to the connnection type expressed as the constant in pf::config 
+    #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $ssid) = @_;
     my $logger = Log::Log4perl->get_logger();
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
-    # switch object correct, return normal vlan
-    my $valid_switch_object = (defined($switch) && ref($switch) && $switch->isa('pf::SNMP'));
-    if ($valid_switch_object && defined($switch->{_normalVlan})) {
+    # custom example
+    # return guestVlan for pid=guest
+    #if ($node_info->{pid} =~ /^guest$/i) {
+    #    return $switch->getVlanByName('guestVlan');
+    #}
 
-        # return switch-specific normal vlan or default normal vlan (if switch-specific normal vlan not defined)
-        return $switch->{_normalVlan};
-    }
+    # custom example
+    # kick guests out of the secure wireless (won't work if the above is uncommented)
+    #if ($connection_type == WIRELESS_802.1X && $node_info->{pid} =~ /^guest$/i) {
+    #    return -1;
+    #}
 
-    # if switch object not correct, return default vlan
-    $logger->warn("Did not return correct VLAN: Invalid switch. Will return default VLAN as a fallback");
-    # Grab switch config
-    my $switchFactory = new pf::SwitchFactory(-configFile => "$conf_dir/switches.conf");
-    my %Config = %{$switchFactory->{_config}};
-
-    return $Config{'default'}{'normalVlan'};
+    return $switch->getVlanByName('normalVlan');
 }
 
-sub custom_getNodeInfo {
-    my ( $this, $switch_ip, $switch_port, $mac, $vlan, $isPhone,
-        $mysql_connection )
-        = @_;
-    my $new = {};
-    $new->{'switch'} = $switch_ip;
-    $new->{'port'}   = $switch_port;
+=item update_node_if_not_accurate - update a node entry if parameters considered important changed
+
+Uses getNodeUpdatedInfo to determine what to update.
+
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
+version doesn't do the right thing for you. By default it will return the 
+switch_ip and the switch_port to update the node table entry.
+
+=cut
+sub update_node_if_not_accurate {
+    my ($this, $switch, $ifIndex, $vlan, $mac, $voip_status, $connection_type) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    # is node entry accurate?
+    my $node_data          = node_view($mac);
+    my $vlanChanged        = (!defined($node_data->{vlan}) || $node_data->{vlan} != $vlan);
+    my $switchChanged      = ($node_data->{switch} ne $switch);
+    my $voip_statusChanged = ($node_data->{voip} ne $voip_status);
+    my $conn_typeChanged   = ($node_data->{connection_type} ne connection_type_to_str($connection_type));
+    # ifIndex on wireless is not important
+    my $ifIndexChanged = 0;
+    if (($connection_type & WIRED) == WIRED) {
+        $ifIndexChanged = ($node_data->{port} != $ifIndex);
+    }
+
+    # Note that we avoid checking vlanChanged here. This is default behavior.
+    if ($switchChanged || $voip_statusChanged || $conn_typeChanged || $ifIndexChanged) {
+
+        $logger->debug("calling node_modify with getNodeUpdatedInfo's answers");
+        node_modify( $mac,
+            $this->getNodeUpdatedInfo($mac, $switch, $ifIndex, $vlan, $voip_status, $connection_type));
+        return 1;
+    }
+    return 0;
+}
+
+=item getNodeUpdatedInfo - updated fields when a node changed status
+
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
+version doesn't do the right thing for you. By default it will return the 
+switch_ip and the switch_port to update the node table entry.
+
+=cut
+sub getNodeUpdatedInfo {
+    my ($this, $mac, $switch_ip, $switch_port, $vlan, $voip_status, $connection_type) = @_;
+
+    my %node_info = (
+        switch          => $switch_ip,
+        port            => $switch_port,
+        connection_type => connection_type_to_str($connection_type)
+    );
+
+    # Remember that voip_status is set by isPhoneAtIfIndex and that this checks the node's voip field (circular crap)
+    if ($voip_status eq VOIP) {
+        $node_info{'voip'} = VOIP;
+    }
+
+    # example of customization: set dhcpfingerprint when isPhone is == 1
+    # if ($isPhone) {
+    #    $node_info{'dhcp_fingerprint'} = '1,3,6,15,42,66,150';
+    #}
+
+    return %node_info;
+}
+
+=item getNodeInfoForAutoReg - basic information returned for an auto-registered node
+
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
+version doesn't do the right thing for you.
+
+$switch_in_autoreg_mode is set to 1 if switch is in registration mode
+
+$violation_autoreg is set to 1 if called from a violation with autoreg action
+
+$isPhone is set to 1 if device is considered an IP Phone.
+
+$conn_type is set to the connnection type expressed as the constant in pf::config
+
+$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
+
+Returns an anonymous hash that is meant for node_register()
+
+=cut 
+sub getNodeInfoForAutoReg {
+    my ($this, $switch_ip, $switch_port, $mac, $vlan, 
+        $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $ssid) = @_;
+
+    # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
+    my %node_info = (
+        pid             => $default_pid,
+        notes           => 'AUTO-REGISTERED',
+        status          => 'reg',
+        auto_registered => 1, # tells node_register to autoreg
+    );
+
+    # if we are called because switch is in registration mode, we can set switch and vlan info
+    if (defined($switch_in_autoreg_mode) && $switch_in_autoreg_mode) {
+        $node_info{'switch'} = $switch_ip;
+        $node_info{'port'}   = $switch_port;
+    }
+
+    # put a phone dhcp fingerprint if it's a phone
     if ($isPhone) {
-        #$new->{'dhcp_fingerprint'} = '1,3,6,15,42,66,150';
+        $node_info{'dhcp_fingerprint'} = '1,3,6,15,42,66,150';
+        $node_info{'voip'} = VOIP;
     }
 
-    return $new;
+    if (defined($conn_type)) {
+        $node_info{'connection_type'} = connection_type_to_str($conn_type);
+    }
+
+    return %node_info;
 }
 
-sub custom_getNodeInfoForAutoReg {
-    my ( $this, $switch_ip, $switch_port, $mac, $vlan, $isPhone,
-        $mysql_connection )
-        = @_;
-    my $new;
-    $new->{'pid'}        = 'PF';
-    $new->{'user_agent'} = 'AUTO-REGISTERED';
-    $new->{'status'}     = 'reg';
-    $new->{'vlan'}       = 1;
+=item shouldAutoRegister - do we auto-register this node?
+
+By default we register automatically when the switch is configured to (registration mode),
+when there is a violation with action autoreg and when the device is a phone.
+
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
+version doesn't do the right thing for you.
+
+$switch_in_autoreg_mode is set to 1 if switch is in registration mode
+
+$violation_autoreg is set to 1 if called from a violation with autoreg action
+
+$isPhone is set to 1 if device is considered an IP Phone.
+
+$conn_type is set to the connnection type expressed as the constant in pf::config
+
+$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
+
+returns 1 if we should register, 0 otherwise
+
+=cut
+sub shouldAutoRegister {
+    my ($this, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $ssid) = @_;
+    my $logger = Log::Log4perl->get_logger();
+
+    $logger->trace("asked if should auto-register device");
+    # handling switch-config first because I think it's the most important to honor
+    if (defined($switch_in_autoreg_mode) && $switch_in_autoreg_mode) {
+        $logger->trace("returned yes because it's from the switch's config");
+        return 1;
+
+    # if we have a violation action set to autoreg
+    } elsif (defined($violation_autoreg) && $violation_autoreg) {
+        $logger->trace("returned yes because it's from a violation with action autoreg");
+        return 1;
+    }
+
     if ($isPhone) {
-        $new->{'dhcp_fingerprint'} = '1,3,6,15,42,66,150';
+        $logger->trace("returned yes because it's an ip phone");
+        return $isPhone;
     }
-    return $new;
-}
 
-sub custom_shouldAutoRegister {
-    my ( $this, $mac, $isPhone ) = @_;
-    return $isPhone;
-}
+    # example: auto-register 802.1x users (since they already have validated credentials to do 802.1x)
+    #if (defined($conn_type) && ($conn_type == WIRELESS_802_1X || $conn_type == WIRED_802_1X)) {
+    #    $logger->trace("returned yes because it's a 802.1x client that successfully authenticated already");
+    #    return 1;
+    #}
 
+    # otherwise don't autoreg
+    return 0;
+}
 =back
 
 =head1 AUTHOR
