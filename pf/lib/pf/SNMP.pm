@@ -35,11 +35,17 @@ use pf::node;
 sub new {
     my ( $class, %argv ) = @_;
     my $this = bless {
+        '_customVlan1'              => undef,
+        '_customVlan2'              => undef,
+        '_customVlan3'              => undef,
+        '_customVlan4'              => undef,
+        '_customVlan5'              => undef,
         '_dbHostname'               => undef,
         '_dbName'                   => undef,
         '_dbPassword'               => undef,
         '_dbUser'                   => undef,
         '_error'                    => undef,
+        '_guestVlan'                => undef,
         '_htaccessPwd'              => undef,
         '_htaccessUser'             => undef,
         '_ip'                       => undef,
@@ -91,6 +97,18 @@ sub new {
             $this->{_SNMPCommunityTrap} = $argv{$_};
         } elsif (/^-?SNMPCommunityWrite$/i) {
             $this->{_SNMPCommunityWrite} = $argv{$_};
+        } elsif (/^-?customVlan1$/i) {
+                    $this->{_customVlan1} = $argv{$_};
+        } elsif (/^-?customVlan2$/i) {
+                    $this->{_customVlan2} = $argv{$_};
+        } elsif (/^-?customVlan2$/i) {
+                    $this->{_customVlan2} = $argv{$_};
+        } elsif (/^-?customVlan3$/i) {
+                    $this->{_customVlan3} = $argv{$_};
+        } elsif (/^-?customVlan4$/i) {
+                    $this->{_customVlan4} = $argv{$_};
+        } elsif (/^-?customVlan5$/i) {
+                    $this->{_customVlan5} = $argv{$_};
         } elsif (/^-?dbHostname$/i) {
             $this->{_dbHostname} = $argv{$_};
         } elsif (/^-?dbName$/i) {
@@ -99,6 +117,8 @@ sub new {
             $this->{_dbPassword} = $argv{$_};
         } elsif (/^-?dbUser$/i) {
             $this->{_dbUser} = $argv{$_};
+        } elsif (/^-?guestVlan$/i) {
+            $this->{_guestVlan} = $argv{$_};
         } elsif (/^-?htaccessPwd$/i) {
             $this->{_htaccessPwd} = $argv{$_};
         } elsif (/^-?htaccessUser$/i) {
@@ -495,6 +515,17 @@ sub setVlan {
     return $this->_setVlan( $ifIndex, $newVlan, $vlan, $switch_locker_ref );
 }
 
+=item setVlanWithName - set the ifIndex VLAN to the VLAN name in the switch instead of vlan number
+
+TODO: not implemented, currently only a nameholder
+
+=cut
+sub setVlanWithName {
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    $logger->warn("not implemented!");
+    return;
+}
+
 =item _setVlanByOnlyModifyingPvid
 
 =cut
@@ -526,22 +557,53 @@ sub _setVlanByOnlyModifyingPvid {
     return ( defined($result) );
 }
 
-=item setIsolationVlan - set the port VLAN to the isolation VLAN
+=item setVlanByName - set the ifIndex VLAN to the VLAN identified by given name in switches.conf
+
+Input: ifIndex, vlan name (as in switches.conf), switch lock
 
 =cut
+sub setVlanByName {
+    my ($this, $ifIndex, $vlanName, $switch_locker_ref) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
+    if (!defined($this->{_$vlanName})) {
+        # VLAN name doesn't exist
+        $logger->warn("VLAN $vlanName is not a valid VLAN identifier (see switches.conf)");
+        return;
+    }
+
+    if ($this->{_$vlanName} !~ /^\d+$/) {
+        # is not resolved to a valid VLAN number
+        $logger->warn("VLAN $vlanName is not properly configured in switches.conf, not a vlan number");
+        return;
+    }
+    return $this->setVlan($ifIndex, $this->{_$vlanName}, $switch_locker_ref);
+}
+
+=item setIsolationVlan - set the port VLAN to the isolation VLAN
+
+DEPRECATED: use setVlanByName($ifIndex, $switch_locker_ref, 'isolationVlan') instead 
+
+=cut
+# TODO deprecated in 1.8.7 remove for 1.9 / 2.0 ?
 sub setIsolationVlan {
     my ( $this, $ifIndex, $switch_locker_ref ) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    $logger->warn("this method is deprecated, please update your code to use setVlanByName instead");
     return $this->setVlan( $ifIndex, $this->{_isolationVlan},
         $switch_locker_ref );
 }
 
 =item setRegistrationVlan - set the port VLAN to the registration VLAN
 
-=cut
+DEPRECATED: use setVlanByName($ifIndex, $switch_locker_ref, 'registrationVlan') instead 
 
+=cut
+# TODO deprecated in 1.8.7 remove for 1.9 / 2.0 ?
 sub setRegistrationVlan {
     my ( $this, $ifIndex, $switch_locker_ref ) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    $logger->warn("this method is deprecated, please update your code to use setVlanByName instead");
     return $this->setVlan( $ifIndex, $this->{_registrationVlan},
         $switch_locker_ref );
 }
@@ -578,10 +640,14 @@ sub setMacDetectionVlan {
 
 =item setNormalVlan - set the port VLAN to the 'normal' VLAN
 
-=cut
+DEPRECATED: use setVlanByName($ifIndex, $switch_locker_ref, 'normalVlan') instead
 
+=cut
+# TODO deprecated in 1.8.7 remove for 1.9 / 2.0 ?
 sub setNormalVlan {
     my ( $this, $ifIndex, $switch_locker_ref ) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    $logger->warn("this method is deprecated, please update your code to use setVlanByName instead");
     return $this->setVlan( $ifIndex, $this->{_normalVlan},
         $switch_locker_ref );
 }
@@ -827,7 +893,13 @@ sub setVlanAllPort {
     foreach my $ifIndex (@managedIfIndexes) {
         $logger->debug(
             "setting " . $this->{_ip} . " ifIndex $ifIndex to VLAN $vlan" );
-        $this->setVlan( $ifIndex, $vlan, $switch_locker_ref );
+        if ($vlan =~ /^\d+$/) {
+            # if vlan is an integer, then assume its a vlan number
+            $this->setVlan( $ifIndex, $vlan, $switch_locker_ref );
+        } else {
+            # otherwise its a vlan name
+            $this->setVlanByName($ifIndex, $vlan, $switch_locker_ref);
+        }
     }
 }
 
