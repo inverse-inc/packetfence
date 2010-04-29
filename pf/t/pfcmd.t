@@ -238,7 +238,7 @@ foreach my $help_arg (@main_args) {
 
 # test version
 @output = `/usr/local/pf/bin/pfcmd version`;
-like ( $output[0], qr/^PacketFence 1.8.7/,
-       "pfcmd version is 1.8.7" );
+like ( $output[0], qr/^PacketFence trunk/,
+       "pfcmd version is correct" );
 like ( $output[1], qr/^DB MD5SUM: a3ad9f52b7d31c8d4b5e9b0c2c3dd559/,
        "DB MD5SUM" );

@@ -22,6 +22,7 @@
   $page_num = set_default($_REQUEST['page_num'], 1);
   $per_page = set_default($_REQUEST['per_page'],25);
 
+  # TODO change the default sort values to something meaningful
   $sort = set_default($_GET['sort'], 'mac');
   $direction = strtolower(set_default($_GET['direction'], 'asc'));
 

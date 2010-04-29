@@ -745,7 +745,7 @@ sub signalHandlerThreadListQueued {
 
 # }}}1
 
-# sub startTrapLandlers {{{1
+# sub startTrapHandlers {{{1
 sub startTrapHandlers {
     my $logger     = Log::Log4perl->get_logger('pfsetvlan::handling');
     my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
@@ -918,6 +918,7 @@ sub handleTrap {
     # }}}2
 
     # create database connection {{{2
+    # FIXME worst error reporting ever!
     my $mysql_connection = db_connect();
     if ( !$mysql_connection ) {
         $logger->error( "coudn't connect to MySQL server: " . DBI->errstr );
@@ -946,6 +947,7 @@ sub handleTrap {
     $logger->trace("calling violation_db_prepare");
     violation_db_prepare($mysql_connection);
 
+    # FIXME the following statement does the exact same thing we just did above.. wtf?
     $switch->connectMySQL();
 
     # }}}2

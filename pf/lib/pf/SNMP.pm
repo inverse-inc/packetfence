@@ -363,7 +363,7 @@ sub disconnectWrite {
 =item connectMySQL - create MySQL database connection
 
 =cut
-
+# FIXME a connect but no disconnect? is this here useful at all?
 sub connectMySQL {
     my $this   = shift;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -1187,6 +1187,7 @@ sub getRegExpFromList {
 The input must be the untranslated raw result of an snmp get_table
 
 =cut
+# TODO move out to a util package
 sub getBitAtPosition {
    my ($this, $bitStream, $position) = @_;
    return substr(unpack('B*', $bitStream), $position, 1);
@@ -1195,7 +1196,7 @@ sub getBitAtPosition {
 =item modifyBitmask - replaces the specified bit in a packed bitmask and returns the modified bitmask, re-packed
 
 =cut
-
+# TODO move out to a util package
 sub modifyBitmask {
     my ( $this, $bitMask, $offset, $replacement ) = @_;
     my $bitMaskString = unpack( 'B*', $bitMask );
@@ -1208,7 +1209,7 @@ sub modifyBitmask {
 The output is a packed binary representation useful to snmp::set_request
 
 =cut
-
+# TODO move out to a util package
 sub createPortListWithOneItem {
     my ($this, $position) = @_;
     
@@ -1222,7 +1223,7 @@ sub createPortListWithOneItem {
 Works on byte blocks since perl's bitewise not operates at the arithmetic level and some hardware have so many ports that I could overflow integers.
 
 =cut
-
+# TODO move out to a util package
 sub reverseBitmask {
     my ($this, $bitMask) = @_;
 
@@ -1774,6 +1775,7 @@ sub isNewerVersionThan {
     return 0;
 }
 
+# TODO move out to a util package
 sub generateFakeMac {
     my ( $this, $vlan, $ifIndex ) = @_;
     return
@@ -1784,11 +1786,13 @@ sub generateFakeMac {
         : substr( $ifIndex, -2, 2 ) );
 }
 
+# TODO move out to a util package
 sub isFakeMac {
     my ( $this, $mac ) = @_;
     return ( $mac =~ /^02:00:00/ );
 }
 
+# TODO move out to a util package
 sub isFakeVoIPMac {
     my ( $this, $mac ) = @_;
     return ( $mac =~ /^02:00:00:00:01/ );

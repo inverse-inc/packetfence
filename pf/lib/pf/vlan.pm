@@ -91,6 +91,8 @@ sub vlan_determine_for_node {
             $correctVlanForThisMAC = $switch->{"_".$vlan};
         }
     } else {
+        # FIXME: validate that this test is duplicated in every possible vlan_determine call and get rid of it
+        # (remember to check pfcmd and pfcmd_vlan)
         if ( !node_exist($mac) ) {
             $logger->info("node $mac does not yet exist in PF database. Adding it now");
             node_add_simple($mac);

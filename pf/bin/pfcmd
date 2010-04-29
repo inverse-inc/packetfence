@@ -1666,6 +1666,7 @@ sub ui {
 #
 # node,person,violation parser
 #
+# TODO: this method could be streamlined to remove all corner cases that grew in it over time
 sub command_param {
     my ($type)  = @_;
     my $options = $type . "_options";

@@ -54,6 +54,8 @@ Vendor: PacketFence, http://www.packetfence.org
 # for official releases
 Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz
 
+# FIXME change all perl Requires: into their namespace counterpart, see what happened in #931 and
+# http://www.rpm.org/wiki/PackagerDocs/Dependencies#InterpretersandShells for discussion on why
 BuildRequires: gettext, httpd
 # install follow dep with: yum install perl-Parse-RecDescent-1.94
 BuildRequires: perl-Parse-RecDescent = 1.94
@@ -103,7 +105,8 @@ Requires: rrdtool, perl-rrdtool
 Requires: perl-SOAP-Lite
 Requires: perl-Template-Toolkit
 Requires: perl-TermReadKey
-Requires: perl-Test-MockDBI
+# TODO: I noticed that we provide perl-Test-MockDBI in our repo, maybe we made a poo poo with the deps
+BuildRequires: perl-Test-MockDBI
 Requires: perl-Test-Perl-Critic
 Requires: perl-Test-Pod, perl-Test-Pod-Coverage
 Requires: perl-Thread-Pool
@@ -483,6 +486,9 @@ fi
 %attr(0755, root, root) %{_initrddir}/pfdetectd
 
 %changelog
+* ... Olivier Bilodeau <obilodeau@inverse.ca> - ...
+- perl-Test-MockDBI no longer required as a dep but as a builddep
+
 * Tue Jan 05 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.7-1
 - Version bump to 1.8.7
 
