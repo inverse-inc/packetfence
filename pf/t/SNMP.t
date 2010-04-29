@@ -94,6 +94,7 @@ my @SNMPobjects = qw(
     pf::SNMP::Cisco::Catalyst_3550
     pf::SNMP::Cisco::Catalyst_3560
     pf::SNMP::Cisco::Catalyst_3750
+    pf::SNMP::Cisco::ISR_1800
     pf::SNMP::Cisco::WiSM
     pf::SNMP::Cisco::WLC_2106
     pf::SNMP::Cisco::WLC_4400
