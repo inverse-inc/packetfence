@@ -20,6 +20,7 @@ New Features
 - More information available in Node Lookup (IP, DHCP lease)
 - More logging information available
 - Improved error-handling (#847)
+- New synchronization scripts in addons/high-availability
 
 Bugfix
 - Minor corrections to the Admin Web UI
