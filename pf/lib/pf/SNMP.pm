@@ -384,7 +384,7 @@ sub disconnectWrite {
 =item connectMySQL - create MySQL database connection
 
 =cut
-
+# FIXME a connect but no disconnect? is this here useful at all?
 sub connectMySQL {
     my $this   = shift;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -911,7 +911,6 @@ sub setVlanAllPort {
     my ( $this, $vlan, $switch_locker_ref ) = @_;
     my $oid_ifType = '1.3.6.1.2.1.2.2.1.3';    # MIB: ifTypes
     my @ports;
-    my @UpLinks = $this->getUpLinks();         # fetch the UpLink list
 
     my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->info("setting all ports of switch $this->{_ip} to VLAN $vlan");
@@ -946,7 +945,6 @@ sub setVlanAllPort {
 sub resetVlanAllPort {
     my ( $this, $switch_locker_ref ) = @_;
     my $oid_ifType = '1.3.6.1.2.1.2.2.1.3';    # MIB: ifTypes
-    my @UpLinks    = $this->getUpLinks();      # fetch the UpLink list
 
     my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->info("resetting all ports of switch $this->{_ip}");
@@ -1319,6 +1317,7 @@ sub getRegExpFromList {
 The input must be the untranslated raw result of an snmp get_table
 
 =cut
+# TODO move out to a util package
 sub getBitAtPosition {
    my ($this, $bitStream, $position) = @_;
    return substr(unpack('B*', $bitStream), $position, 1);
@@ -1327,7 +1326,7 @@ sub getBitAtPosition {
 =item modifyBitmask - replaces the specified bit in a packed bitmask and returns the modified bitmask, re-packed
 
 =cut
-
+# TODO move out to a util package
 sub modifyBitmask {
     my ( $this, $bitMask, $offset, $replacement ) = @_;
     my $bitMaskString = unpack( 'B*', $bitMask );
@@ -1340,7 +1339,7 @@ sub modifyBitmask {
 The output is a packed binary representation useful to snmp::set_request
 
 =cut
-
+# TODO move out to a util package
 sub createPortListWithOneItem {
     my ($this, $position) = @_;
     
@@ -1354,7 +1353,7 @@ sub createPortListWithOneItem {
 Works on byte blocks since perl's bitewise not operates at the arithmetic level and some hardware have so many ports that I could overflow integers.
 
 =cut
-
+# TODO move out to a util package
 sub reverseBitmask {
     my ($this, $bitMask) = @_;
 
@@ -1906,6 +1905,7 @@ sub isNewerVersionThan {
     return 0;
 }
 
+# TODO move out to a util package
 sub generateFakeMac {
     my ($this, $is_voice_vlan, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -1926,15 +1926,23 @@ sub generateFakeMac {
     return "02:00:" . ( ($is_voice_vlan) ? "01" : "00" ) . ":" . $mac_suffix;
 }
 
+# TODO move out to a util package
 sub isFakeMac {
     my ( $this, $mac ) = @_;
     return ( $mac =~ /^02:00:00/ );
 }
 
+# TODO move out to a util package
 sub isFakeVoIPMac {
     my ( $this, $mac ) = @_;
     return ( $mac =~ /^02:00:01/ );
 }
+
+=item  getUpLinks - get the list of port marked as uplink in configuration
+
+Returns an array of port ifIndex or -1 on failure
+
+=cut
 
 sub getUpLinks {
     my ($this) = @_;

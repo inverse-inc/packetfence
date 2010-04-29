@@ -198,6 +198,8 @@ if (! exists($cmd_tmp{'grammar'})) {
 
 } else {
     if ($cmd_tmp{'grammar'} == 0) {
+        # line number is a hack for web admin error output
+        print STDERR "Command not understood. (pfcmd grammar test failed at line 200.)\n";
         require pf::pfcmd::help;
         pf::pfcmd::help::usage();
         exit(1);
@@ -1700,6 +1702,7 @@ sub ui {
 #
 # node,person,violation parser
 #
+# TODO: this method could be streamlined to remove all corner cases that grew in it over time
 sub command_param {
     my ($type)  = @_;
     my $options = $type . "_options";
@@ -2559,7 +2562,8 @@ sub sanity_check {
                 );
         foreach my $item  (keys %{$Config{$section}}) {
             if ( !defined( $documentation{"$section.$item"} ) ) {
-                $logger->logdie("unknown configuration parameter $section.$item");
+                $logger->logdie("unknown configuration parameter $section.$item ".
+                    "if you added the parameter yourself make sure it is present in conf/documentation.conf");
             }
         }
     }

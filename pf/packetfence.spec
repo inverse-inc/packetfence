@@ -54,6 +54,8 @@ Source: http://www.packetfence.org/downloads/%{name}-%{version}-%{source_release
 # for official releases
 #Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz
 
+# FIXME change all perl Requires: into their namespace counterpart, see what happened in #931 and
+# http://www.rpm.org/wiki/PackagerDocs/Dependencies#InterpretersandShells for discussion on why
 BuildRequires: gettext, httpd
 # install follow dep with: yum install perl-Parse-RecDescent-1.94
 BuildRequires: perl-Parse-RecDescent = 1.94
@@ -114,6 +116,7 @@ Requires: php-jpgraph-packetfence = 2.3.4
 Requires: php-ldap
 Requires: perl(Try::Tiny)
 # Required for testing
+# TODO: I noticed that we provide perl-Test-MockDBI in our repo, maybe we made a poo poo with the deps
 BuildRequires: perl-Test-MockModule, perl-Test-MockDBI, perl-Test-Perl-Critic, perl-Test-Pod, perl-Test-Pod-Coverage, perl(Test::Exception)
 
 %description
@@ -492,7 +495,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect_remote
 %dir                    /usr/local/pf/var
 
-%changelog
 * Thu Apr 29 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added perl-Test-MockModule as a build dependency (required for tests)
 - Test modules are now required for building instead of required for package 

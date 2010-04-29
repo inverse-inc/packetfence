@@ -16,6 +16,13 @@ use Log::Log4perl;
 use Net::SNMP;
 use Net::Appliance::Session;
 
+=head1 SUBROUTINES
+
+TODO: This list is incomplete
+
+=over
+
+=cut
 sub getVersion {
     my ($this)       = @_;
     my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';
@@ -359,6 +366,8 @@ sub getVoiceVlan {
     }
 }
 
+# TODO: if ifIndex doesn't exist, an error should be given
+# to reproduce: bin/pfcmd_vlan -getVlan -ifIndex 999 -switch <ip>
 sub getVlan {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -402,8 +411,8 @@ sub isLearntTrapsEnabled {
         -varbindlist => [ "$OID_cmnMacAddrLearntEnable.$ifIndex" ] );
     return (
         exists( $result->{"$OID_cmnMacAddrLearntEnable.$ifIndex"} )
-            && ( $result->{"$OID_cmnMacAddrLearntEnable.$ifIndex"} ne
-            'noSuchInstance' )
+            && ( $result->{"$OID_cmnMacAddrLearntEnable.$ifIndex"} ne 'noSuchInstance' )
+            && ( $result->{"$OID_cmnMacAddrLearntEnable.$ifIndex"} ne 'noSuchObject' )
             && ( $result->{"$OID_cmnMacAddrLearntEnable.$ifIndex"} == 1 )
     );
 }
@@ -618,6 +627,13 @@ sub setVmVlanType {
     return ( defined($result) );
 }
 
+=item getMacBridgePortHash
+
+Cisco is very fancy about fetching it's VLAN information. In SNMPv3 the context 
+is used to specify a VLAN and in SNMPv1/2c an @<vlan> is appended to the 
+read-only community name when reading.
+
+=cut
 sub getMacBridgePortHash {
     my $this              = shift;
     my $vlan              = shift || '';
@@ -1023,6 +1039,14 @@ sub getUpLinks {
     return @upLinks;
 }
 
+=item getMacAddr
+
+Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread 
+safe: 
+
+L<http://www.cpanforum.com/threads/6909/>
+
+=cut
 sub getMacAddr {
     my ( $this, @managedPorts ) = @_;
     my $command;
@@ -1462,6 +1486,8 @@ sub copyConfig {
     return ( defined($result) );
 
 }
+
+=back
 
 =head1 AUTHOR
 

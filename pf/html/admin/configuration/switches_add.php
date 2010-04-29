@@ -87,10 +87,10 @@
                          'Cisco::Catalyst_3550' => 'Cisco Catalyst 3550',
                          'Cisco::Catalyst_3560' => 'Cisco Catalyst 3560',
                          'Cisco::Catalyst_3750' => 'Cisco Catalyst 3750',
-                         'Cisco::Controller_4400_4_2_130' => 'Cisco Controller 4400',
                          'Cisco::ISR_1800' => 'Cisco ISR 1800 Series',
                          'Cisco::WiSM' => 'Cisco WiSM',
-                         'Cisco::WLC_2106' => 'Cisco WLC 2106',
+                         'Cisco::WLC_2106' => 'Cisco Wireless Controller (WLC) 2106',
+                         'Cisco::WLC_4400' => 'Cisco Wireless Controller (WLC) 4400',
                          'Dell::PowerConnect3424' => 'Dell PowerConnect 3424',
                          'Dlink::DES_3526' => 'D-Link DES 3526',
                          'Dlink::DWS_3026' => 'D-Link DWS 3026',
@@ -123,6 +123,7 @@
       print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val'>";
     }
 
+    # TODO: remove this, it was a bad copy / pasted left over
     if(($key == 'regdate')||($key == 'unregdate')){
       $now = date('Y-m-d H:i:s');
       print  " <img src='../images/date.png' onClick=\"document.edit.$key.value='$now';return false;\" title='Insert Current Time' style='cursor:pointer;'>";

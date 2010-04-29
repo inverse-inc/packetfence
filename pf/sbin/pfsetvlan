@@ -760,7 +760,7 @@ sub signalHandlerThreadListQueued {
 
 # }}}1
 
-# sub startTrapLandlers {{{1
+# sub startTrapHandlers {{{1
 sub startTrapHandlers {
     my $logger     = Log::Log4perl->get_logger('pfsetvlan::handling');
     my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
@@ -1492,8 +1492,12 @@ sub handleTrap {
         #$switch->deauthenticateMac($trapMac);
         my $switchIp = $switch->{_ip};
         if ($connection_type == WIRELESS_802_1X) {
+            # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
+            # http://www.cpanforum.com/threads/6909
             `/usr/local/pf/bin/pfcmd_vlan -deauthenticateDot1x -switch $switchIp -mac $trapMac`;
         } else {
+            # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
+            # http://www.cpanforum.com/threads/6909
             `/usr/local/pf/bin/pfcmd_vlan -deauthenticate -switch $switchIp -mac $trapMac`;
         }
 
