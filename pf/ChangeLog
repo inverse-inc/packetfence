@@ -1,3 +1,7 @@
+2010-04-30	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/vlan.pm: VLAN assignment sample for node categorization.
+	Changed the custom_getCorrectVlan interface again.
+
 2010-04-28	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/html/admin/common/helpers.inc, pf/html/admin/images/category.png,
 	pf/html/admin/node/categories_add.php, 
