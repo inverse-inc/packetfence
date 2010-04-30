@@ -57,8 +57,10 @@ o Upgrading from a version prior to <release>:
 
     - lib/pf/vlan.pm interface changed
     If you built a customized version of vlan.pm in lib/pf/vlan/custom.pm be 
-    aware that there were a lot of changes. We strongly recommend you rewrite 
-    your custom.pm on top of these new changes instead keeping your old.
+    aware that the parameters expected by vlan_determine_for_node() and 
+    custom_getCorrectVlan() changed. Instead of the switch's IP, a switch 
+    object (pf::SNMP) is expected. Also, the whole node_info is passed to 
+    custom_getCorrectVlan() instead of scalars of node_info's content.
 
     - Backup script archives locationlog_history records older than a year
     Archives are an SQL dump of the records placed in /root/backup/ by default 
