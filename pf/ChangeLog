@@ -1,3 +1,8 @@
+2010-05-03	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Manual merge of 1.8 
+	and trunk branches. Added small fixes on top of that (whitespace and
+	wording)
+
 2010-04-30	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/vlan.pm: VLAN assignment sample for node categorization.
 	Changed the custom_getCorrectVlan interface again.
