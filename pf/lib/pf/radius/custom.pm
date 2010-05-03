@@ -1,15 +1,18 @@
-package pf::vlan::custom;
+package pf::radius::custom;
 
 =head1 NAME
 
-pf::vlan::custom - Object oriented module for VLAN isolation oriented functions 
+pf::radius::custom - Module that deals with everything radius related
 
 =head1 SYNOPSIS
 
-The pf::vlan::custom module implements VLAN isolation oriented functions that are custom 
-to a particular setup.
+The pf::radius module contains the functions necessary for answering radius queries.
+Radius is the network access component known as AAA used in 802.1x, MAC authentication, 
+MAC authentication bypass (MAB), etc. This module acts as a proxy between our radius 
+perl module's SOAP requests (rlm_perl_packetfence.pl) and PacketFence core modules.
 
-This module extends pf::vlan
+This modules extends pf::radius. Override methods for which you want to customize
+behavior here.
 
 =cut
 
@@ -18,15 +21,15 @@ use warnings;
 use diagnostics;
 use Log::Log4perl;
 
-use base ('pf::vlan');
+use base ('pf::radius');
 
 =head1 AUTHOR
 
-Dominik Gehl <dgehl@inverse.ca>
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2009 Inverse inc.
+Copyright (C) 2009 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
