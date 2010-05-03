@@ -53,8 +53,12 @@ New Features
 - New debugging features (disabled by default)
 - New DHCP fingerprints
 - Optional backup script in addons/ now archives old records
-- Install guide more accurate
 - Little improvements (#911, #916)
+
+Documentation
+- Install guide more accurate
+- Added directions to configure PacketFence in a routed environment to the 
+  admin guide
 
 Bug fixes
 - Performance fixes (#908, #910)
@@ -66,7 +70,7 @@ Bug fixes
 - Fixed rare port-security problems with stacked switches or switches with 
   large ifIndex (#921)
 - Fixed call to non-existing script lookup_node.pl in pfdhcplistener (#858)
-- Misc. stability and general fixes (#885, #923)
+- Misc. stability and general fixes (#885, #923, #950)
 
 --------------------------------------------------------------------------------
 Version 1.8.7 released on 2010-01-06
