@@ -1,4 +1,6 @@
 2010-05-04	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/installer.pl, pf/t/pfcmd.t: New 1.9.0 database hashes
+
 	* pf/bin/pfcmd: Now ignoring AUTO_INCREMENT= when calculating database
 	hash since this value will always be different for each database.
 
