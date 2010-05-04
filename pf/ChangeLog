@@ -1,4 +1,7 @@
 2010-05-04	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/TODO: dropping TODO in favor of tracking everything in our
+	public bugtracker
+
 	* pf/installer.pl, pf/t/pfcmd.t: New 1.9.0 database hashes
 
 	* pf/bin/pfcmd: Now ignoring AUTO_INCREMENT= when calculating database
