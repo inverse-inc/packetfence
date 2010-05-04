@@ -1,4 +1,17 @@
 2010-05-04	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/configuration/switches_add.php, 
+	pf/html/admin/configuration/switches_edit.php: VoIPEnabled parameter
+	is now a Yes/No dropdown instead of an input text. Fixes #952;
+	Also took the opportunity to turn the whole thing into a switch/case
+	http://www.packetfence.org/mantis/view.php?id=952
+
+	* pf/bin/pfcmd: Not saying 'Command not understood' anymore if no 
+	command was passed to pfcmd. Fixes #972;
+	http://www.packetfence.org/mantis/view.php?id=972
+
+	* pf/TODO: dropping TODO in favor of tracking everything in our
+	public bugtracker
+
 	* pf/db/pfschema.mysql.188dev, pf/db/upgrade-1.8.6-1.8.8dev.sql,
 	pf/db/upgrade-1.9.0-1.10.0.sql, pf/db/pf-schema-1.10.0.sql:
 	Databases changes from the feature.rlm-soap branch were on top of 
