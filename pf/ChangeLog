@@ -1,4 +1,11 @@
 2010-05-04	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/db/pfschema.mysql.188dev, pf/db/upgrade-1.8.6-1.8.8dev.sql,
+	pf/db/upgrade-1.9.0-1.10.0.sql, pf/db/pf-schema-1.10.0.sql:
+	Databases changes from the feature.rlm-soap branch were on top of 
+	1.8.7, since then other changes went in for 1.9.0. I rebased the 
+	database changes for feature.rlm-soap on top of 1.9.0. For now,
+	targeted at a 1.10.0 release later this year.
+
 	* pf/installer.pl, pf/t/pfcmd.t: New 1.9.0 database hashes
 
 	* pf/bin/pfcmd: Now ignoring AUTO_INCREMENT= when calculating database

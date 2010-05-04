@@ -26,6 +26,7 @@ CREATE TABLE `trigger` (
   tid_start int(11) NOT NULL,
   tid_end int(11) NOT NULL,
   type varchar(255) default NULL,
+  whitelisted_categories varchar(255) NOT NULL default '',
   PRIMARY KEY (vid,tid_start,tid_end,type),
   KEY `trigger` (tid_start,tid_end,type),
   CONSTRAINT `0_64` FOREIGN KEY (`vid`) REFERENCES `class` (`vid`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -47,6 +48,24 @@ CREATE TABLE person (
   PRIMARY KEY (pid)
 ) TYPE=InnoDB;
 
+
+--
+-- Table structure for table `node_category`
+--
+
+CREATE TABLE `node_category` (
+  `category_id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `notes` varchar(255) default NULL,
+  PRIMARY KEY (`category_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Insert 'default' category
+--
+
+INSERT INTO `node_category` (category_id,name,notes) VALUES ("1","default","Placeholder category, feel free to edit");
+
 --
 -- Table structure for table `node`
 --
@@ -54,6 +73,7 @@ CREATE TABLE person (
 CREATE TABLE node (
   mac varchar(17) NOT NULL,
   pid varchar(255) NOT NULL default "1",
+  category_id int default NULL,
   detect_date datetime NOT NULL default "0000-00-00 00:00:00",
   regdate datetime NOT NULL default "0000-00-00 00:00:00",
   unregdate datetime NOT NULL default "0000-00-00 00:00:00",
@@ -72,9 +92,11 @@ CREATE TABLE node (
   `connection_type` varchar(50) NOT NULL default '',
   PRIMARY KEY (mac),
   KEY pid (pid),
+  KEY category_id (category_id),
   KEY `node_status` (`status`, `unregdate`),
   KEY `node_dhcpfingerprint` (`dhcp_fingerprint`),
-  CONSTRAINT `0_57` FOREIGN KEY (`pid`) REFERENCES `person` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `0_57` FOREIGN KEY (`pid`) REFERENCES `person` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `node_category_key` FOREIGN KEY (`category_id`) REFERENCES `node_category` (`category_id`)
 ) TYPE=InnoDB;
 
 --
