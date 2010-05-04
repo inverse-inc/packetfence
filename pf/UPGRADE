@@ -5,7 +5,19 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
-o Upgrading from a version prior to <version>:
+o Upgrading from a version prior to <release>:
+
+    - Database schema update
+    New fields were added as a part of the Radius unification. You can update
+    your schema with:
+    mysql -u root -p pf -v < db/upgrade-1.8.6-1.8.8dev.sql
+
+    - lib/pf/vlan.pm interface changed
+    If you built a customized version of vlan.pm in lib/pf/vlan/custom.pm be 
+    aware that there were a lot of changes. We strongly recommend you rewrite 
+    your custom.pm on top of these new changes instead keeping your old.
+
+o Upgrading from a version prior to 1.9.0:
 
     - pfcmd output change
     pfcmd will print "Command not understood. (pfcmd grammar test failed at 
@@ -21,18 +33,6 @@ o Upgrading from a version prior to <version>:
     The output of `pfcmd lookup node <mac>` changed. Make sure you update your 
     parsing scripts (if any). This also affects the Node lookup section of the
     Web Admin interface.
-
-o Upgrading from a version prior to <release>:
-
-    - Database schema update
-    New fields were added as a part of the Radius unification. You can update
-    your schema with:
-    mysql -u root -p pf -v < db/upgrade-1.8.6-1.8.8dev.sql
-
-    - lib/pf/vlan.pm interface changed
-    If you built a customized version of vlan.pm in lib/pf/vlan/custom.pm be 
-    aware that there were a lot of changes. We strongly recommend you rewrite 
-    your custom.pm on top of these new changes instead keeping your old.
 
     - New perl dependencies Try::Tiny and Test::Exception
 

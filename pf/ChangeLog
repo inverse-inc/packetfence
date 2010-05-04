@@ -1,3 +1,13 @@
+2010-05-04	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/installer.pl, pf/t/pfcmd.t: New 1.9.0 database hashes
+
+	* pf/bin/pfcmd: Now ignoring AUTO_INCREMENT= when calculating database
+	hash since this value will always be different for each database.
+
+	* pf/docs/PacketFence_Developers_Guide.odt, 
+	pf/docs/PacketFence_Installation_Guide.odt: Mark x86_64 as officially
+	supported
+
 2010-05-03	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/docs/PacketFence_Administration_Guide.odt: Manual merge of 1.8 
 	and trunk branches. Added small fixes on top of that (whitespace and
