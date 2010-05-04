@@ -14,24 +14,10 @@ For a list of compatibility related changes see the UPGRADE file.
 
 
 --------------------------------------------------------------------------------
-Version <version> - <codename> released on <releaseDate>
-
-New Features
-- More information available in Node Lookup (IP, DHCP lease)
-- More logging information available
-- Improved error-handling (#847)
-- New synchronization scripts in addons/high-availability
-
-Bugfix
-- Minor corrections to the Admin Web UI
-- Correct VLAN information shown in Node Lookup (#893)
-- Clarified some error messages
-
---------------------------------------------------------------------------------
-Version <version> - <codename> released on <releaseDate>
+Version 1.9.0 - <codename> released on <releaseDate>
 
 New
-- Official Linux 64 bit support (TODO: change documentation and symlink in yum repo and build system)
+- Official Linux 64 bit support
 
 New Hardware Support
 - Cisco Wireless Services Module (WiSM)
@@ -41,11 +27,14 @@ New Hardware Support
   by ICTU)
 
 New Features
-- New node category support, you can assign different VLANs or whitelist 
-  violations based on a node's category (#968)
-- Improved error reporting in the web administration panel and cli (#898, #899,
-  #964)
-- Improved database layer (simpler to use, more robust and logs errors)
+- Node category support, you can assign different VLANs or whitelist violations
+  based on a node's category (#968)
+
+Enhancements
+- Improved error reporting in the web administration panel and cli (#847, #898,
+  #899, #964)
+- More information available in Node Lookup (IP, DHCP lease)
+- Improved database layer (more robust and logs errors)
 - pfsetvlan is more resistant to configuration mistakes and reports them (#766)
 - @ character now allowed in person id (pid). This is very common in Active 
   Directory environment.
@@ -53,9 +42,10 @@ New Features
 - New debugging features (disabled by default)
 - New DHCP fingerprints
 - Optional backup script in addons/ now archives old records
+- New helper synchronization scripts in addons/high-availability
 - Little improvements (#911, #916)
 
-Documentation
+Documentation improvements
 - Install guide more accurate
 - Added directions to configure PacketFence in a routed environment to the 
   admin guide
@@ -70,6 +60,9 @@ Bug fixes
 - Fixed rare port-security problems with stacked switches or switches with 
   large ifIndex (#921)
 - Fixed call to non-existing script lookup_node.pl in pfdhcplistener (#858)
+- Correct VLAN information shown in Node Lookup (#893)
+- Minor corrections to the Admin Web UI
+- Clarified some error messages
 - Misc. stability and general fixes (#885, #923, #950)
 
 --------------------------------------------------------------------------------
