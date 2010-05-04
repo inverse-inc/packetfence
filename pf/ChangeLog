@@ -1,4 +1,8 @@
 2010-05-04	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/ui.conf: Renamed VLAN to Alternate dest. VLAN makes its
+	purpose clearer. Fixes #927;
+	http://www.packetfence.org/mantis/view.php?id=927
+
 	* pf/html/admin/configuration/switches_add.php, 
 	pf/html/admin/configuration/switches_edit.php: VoIPEnabled parameter
 	is now a Yes/No dropdown instead of an input text. Fixes #952;
