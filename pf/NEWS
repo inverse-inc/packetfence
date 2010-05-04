@@ -49,6 +49,7 @@ Documentation improvements
 - Install guide more accurate
 - Added directions to configure PacketFence in a routed environment to the 
   admin guide
+- More MySQL tips (#951)
 
 Bug fixes
 - Performance fixes (#908, #910)

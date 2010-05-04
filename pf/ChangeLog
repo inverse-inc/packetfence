@@ -3,6 +3,13 @@
 	purpose clearer. Fixes #927;
 	http://www.packetfence.org/mantis/view.php?id=927
 
+	* pf/docs/PacketFence_Administration_Guide.odt: Added two paragraph to
+	the admin guide under MySQL optimizations: 
+	- Avoid 'Too many connections' problems
+	- Avoid 'Host <hostname> is blocked' problems
+	Fixes #951;
+	http://www.packetfence.org/mantis/view.php?id=951
+
 	* pf/html/admin/configuration/switches_add.php, 
 	pf/html/admin/configuration/switches_edit.php: VoIPEnabled parameter
 	is now a Yes/No dropdown instead of an input text. Fixes #952;
