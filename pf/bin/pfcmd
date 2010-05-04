@@ -198,8 +198,12 @@ if (! exists($cmd_tmp{'grammar'})) {
 
 } else {
     if ($cmd_tmp{'grammar'} == 0) {
-        # line number is a hack for web admin error output
-        print STDERR "Command not understood. (pfcmd grammar test failed at line 200.)\n";
+
+        # if argument list is not empty then it's a command not understood
+        if (@ARGV) {
+            # line number is a hack for web admin error output
+            print STDERR "Command not understood. (pfcmd grammar test failed at line 205.)\n";
+        }
         require pf::pfcmd::help;
         pf::pfcmd::help::usage();
         exit(1);

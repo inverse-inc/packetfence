@@ -1,4 +1,8 @@
 2010-05-04	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd: Not saying 'Command not understood' anymore if no 
+	command was passed to pfcmd. Fixes #972;
+	http://www.packetfence.org/mantis/view.php?id=972
+
 	* pf/TODO: dropping TODO in favor of tracking everything in our
 	public bugtracker
 
