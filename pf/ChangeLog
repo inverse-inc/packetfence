@@ -1,4 +1,10 @@
 2010-05-04	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/node.pm: Fixed a couple of issues with node category 
+	support I encountered:
+	- One crasher (missing sub because of a bad merge) 
+	- Fixed a bug where a missing category would always result in an error
+	- Fixed an unnecessary warning on node_modify
+
 	* pf/conf/ui.conf: Renamed VLAN to Alternate dest. VLAN makes its
 	purpose clearer. Fixes #927;
 	http://www.packetfence.org/mantis/view.php?id=927
