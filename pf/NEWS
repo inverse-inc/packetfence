@@ -65,7 +65,7 @@ Bug fixes
 - Correct VLAN information shown in Node Lookup (#893)
 - Minor corrections to the Admin Web UI
 - Clarified some error messages
-- Misc. stability and general fixes (#885, #896, #923, #927, #950)
+- Misc. stability and general fixes (#885, #869, #896, #923, #927, #950)
 
 --------------------------------------------------------------------------------
 Version 1.8.7 released on 2010-01-06
