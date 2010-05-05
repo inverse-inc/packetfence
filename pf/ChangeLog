@@ -1,6 +1,6 @@
 2010-05-04	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/installer.pl: The installer now refers to the UPGRADE document
-	instead of trying to upgrade the database. Fixes 869;
+	instead of trying to upgrade the database. Fixes #869;
 	http://www.packetfence.org/bugs/view.php?id=869
 
 	* pf/sbin/pfsetvlan, pf/t/all.t, pf/t/pfsetvlan.t: Now parsing new
