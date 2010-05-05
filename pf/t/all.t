@@ -22,5 +22,6 @@ runtests( qw(
               data.t
               graph.t
               nodecategory.t
+              pfsetvlan.t
             )
 );

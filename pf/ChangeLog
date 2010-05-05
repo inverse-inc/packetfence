@@ -1,4 +1,11 @@
 2010-05-04	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/sbin/pfsetvlan, pf/t/all.t, pf/t/pfsetvlan.t: Now parsing new
+	Net-SNMP 5.4 traplog format. Fixes #940;
+	Took the opportunity to do it cleanly with a compiled and re-used regexp
+	that is full of comments.
+	Now testing the various traplog format in t/pfsetvlan.t.
+	Thanks to Maikel for the report and regexp draft.
+
 	* pf/conf/dhcp_fingerprints.conf: Re-labeled some devices to avoid 
 	problems with VoIP autodetection. Fixes #896;
 	http://www.packetfence.org/bugs/view.php?id=896
