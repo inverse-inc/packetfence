@@ -7,6 +7,13 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to 1.9.0:
 
+    - pfdhcplistener logging in logs/packetfence.log
+    We reduced the number of INFO messages that pfdhcplistener was producing
+    because it was too verbose. Now only INFORM / OFFER / ACK messages are 
+    logged and the fingerprint and node modification messages were 
+    consolidated. If you are troubleshooting and need the other messages, make
+    sure you increase log verbosity to DEBUG.
+
     - pfcmd output change
     pfcmd will print "Command not understood. (pfcmd grammar test failed at 
     line 200.)" to STDERR on unrecognized input before showing the usage 

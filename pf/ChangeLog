@@ -1,4 +1,8 @@
 2010-05-04	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/sbin/pfdhcplistener: Reduced DHCP logging at INFO level. Now we 
+	are only logging ACK / OFFER / INFORM and I consolidated fingerprint
+	and node modification messages.
+
 	* pf/lib/pf/node.pm: Fixed a couple of issues with node category 
 	support I encountered:
 	- One crasher (missing sub because of a bad merge) 
