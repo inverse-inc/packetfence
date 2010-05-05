@@ -7,6 +7,12 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to 1.9.0:
 
+    - Changes to some OS violations
+    Some DHCP fingerprint have been re-labeled to avoid problems with VoIP 
+    autodetection. OS::311 is now OS:1102 and OS::315 is now OS::1103. These
+    devices (iPhone and HTC Android) are now categorized under Smartphone 
+    instead of VoIP phones. Update your configuration accordingly.
+
     - pfdhcplistener logging in logs/packetfence.log
     We reduced the number of INFO messages that pfdhcplistener was producing
     because it was too verbose. Now only INFORM / OFFER / ACK messages are 
