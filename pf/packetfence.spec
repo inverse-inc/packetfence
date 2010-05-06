@@ -33,7 +33,7 @@
 #
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 1.8.8
+Version: 1.9.0
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
