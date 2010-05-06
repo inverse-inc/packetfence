@@ -347,7 +347,8 @@ fi
                         /usr/local/pf/addons/snort/oinkmaster.conf
 %dir                    /usr/local/pf/addons/802.1X
 %doc                    /usr/local/pf/addons/802.1X/README
-%attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/rlm_perl_packetfence.pl
+%attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/rlm_perl_packetfence_sql.pl
+%attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/rlm_perl_packetfence_soap.pl
 %dir                    /usr/local/pf/bin
 %attr(0755, pf, pf)     /usr/local/pf/bin/flip.pl
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
@@ -498,6 +499,7 @@ fi
 
 %changelog
 * Thu May 06 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Fixed packaging of 802.1x rlm_perl_packetfence_* files
 - Removing the pinned perl(Parse::RecDescent) version. Fixes #833;
 - Snapshot vs releases is now defined by an rpmbuild argument
 - source_release should now be passed as an argument to simplify our nightly 
