@@ -464,6 +464,8 @@ fi
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/person.pm
 %dir                    /usr/local/pf/lib/pf/pfcmd
                         /usr/local/pf/lib/pf/pfcmd/*
+%dir                    /usr/local/pf/lib/pf/radius
+%config(noreplace)      /usr/local/pf/lib/pf/radius/custom.pm
 %dir                    /usr/local/pf/lib/pf/SNMP
                         /usr/local/pf/lib/pf/SNMP/*
 %dir                    /usr/local/pf/lib/pf/vlan
@@ -499,7 +501,7 @@ fi
 
 %changelog
 * Thu May 06 2010 Olivier Bilodeau <obilodeau@inverse.ca>
-- Fixed packaging of 802.1x rlm_perl_packetfence_* files
+- Fixed packaging of 802.1x rlm_perl_packetfence_* files and new radius files
 - Removing the pinned perl(Parse::RecDescent) version. Fixes #833;
 - Snapshot vs releases is now defined by an rpmbuild argument
 - source_release should now be passed as an argument to simplify our nightly 

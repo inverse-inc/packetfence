@@ -1,6 +1,6 @@
 2010-05-06	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec: Fixed packaging of 802.1x 
-	rlm_perl_packetfence_* files.
+	rlm_perl_packetfence_* and new radius files.
 
 	* pf/packetfence.spec: Removing the pinned perl(Parse::RecDescent) 
 	version from the RPM spec. Fixes #833;
