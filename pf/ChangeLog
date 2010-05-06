@@ -1,4 +1,7 @@
 2010-05-06	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec: Fixed a problem with addons/integration-testing
+	files in the RPM spec file
+
 	* pf/packetfence.spec: Perl required version is now 5.8.8 since a lot 
 	of our source files explictly ask for 5.8.8. Fixes #868;
 	http://www.packetfence.org/bugs/view.php?id=868

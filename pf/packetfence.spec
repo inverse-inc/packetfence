@@ -173,7 +173,7 @@ mv packetfence.mo conf/locale/nl/LC_MESSAGES/
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r addons/802.1X/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/integration-testing/ $RPM_BUILD_ROOT/usr/local/pf/integration-testing/
+cp -r addons/integration-testing/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/high-availability/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/mrtg/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -495,6 +495,7 @@ fi
 
 %changelog
 * Thu May 06 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Fixed a problem with addons/integration-testing files
 - Perl required version is now 5.8.8 since a lot of our source files explictly
   ask for 5.8.8. Fixes #868;
 - Added perl(Test::MockModule) as a build dependency (required for tests)
