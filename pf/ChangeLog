@@ -1,4 +1,9 @@
-2010-05-04	Olivier Bilodeau <obilodeau@inverse.ca>
+2010-05-06	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec: perl modules required for testing are now build
+	dependencies instead of runtime dependencies. Fixes #866;
+	http://www.packetfence.org/bugs/view.php?id=866
+
+2010-05-05	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/installer.pl: The installer now refers to the UPGRADE document
 	instead of trying to upgrade the database. Fixes #869;
 	http://www.packetfence.org/bugs/view.php?id=869
@@ -24,6 +29,7 @@
 	- Fixed a bug where a missing category would always result in an error
 	- Fixed an unnecessary warning on node_modify
 
+2010-05-04	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/conf/ui.conf: Renamed VLAN to Alternate dest. VLAN makes its
 	purpose clearer. Fixes #927;
 	http://www.packetfence.org/mantis/view.php?id=927
