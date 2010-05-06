@@ -1,4 +1,10 @@
 2010-05-06	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec: Changes to RPM spec file
+	- Snapshot vs releases is now defined by an rpmbuild argument
+	- source_release should now be passed as an argument to simplify our 
+	nightly build system. Fixes #946;
+	http://www.packetfence.org/bugs/view.php?id=946
+
 	* pf/packetfence.spec: Fixed a problem with addons/integration-testing
 	files in the RPM spec file
 
