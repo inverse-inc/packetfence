@@ -65,7 +65,7 @@ Requires: php-pear-Log
 Requires: net-tools
 Requires: net-snmp >= 5.3.2.2
 Requires: mysql, perl-DBD-mysql
-Requires: perl >= 5.8.0, perl-suidperl
+Requires: perl >= 5.8.8, perl-suidperl
 Requires: perl-Apache-Htpasswd
 Requires: perl-Bit-Vector
 Requires: perl-CGI-Session
@@ -495,9 +495,11 @@ fi
 
 %changelog
 * Thu May 06 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Perl required version is now 5.8.8 since a lot of our source files explictly
+  ask for 5.8.8. Fixes #868;
 - Added perl(Test::MockModule) as a build dependency (required for tests)
 - Test modules are now required for building instead of required for package
-  install.
+  install. Fixes #866;
 
 * Wed Apr 28 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added perl(Try::Tiny) and perl(Test::Exception) as a dependency used for 
