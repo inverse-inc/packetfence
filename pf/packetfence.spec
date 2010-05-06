@@ -56,8 +56,7 @@ Source: http://www.packetfence.org/downloads/%{name}-%{version}-%{source_release
 %endif
 
 BuildRequires: gettext, httpd
-# install follow dep with: yum install perl-Parse-RecDescent-1.94
-BuildRequires: perl-Parse-RecDescent = 1.94
+BuildRequires: perl(Parse::RecDescent)
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl, php, php-gd
@@ -98,7 +97,7 @@ Requires: perl-Crypt-Rijndael
 Requires: perl-Net-Telnet
 Requires: perl-Net-Write
 Requires: perl-Parse-Nessus-NBE
-Requires: perl-Parse-RecDescent = 1.94
+Requires: perl(Parse::RecDescent)
 # TODO: portability for non-x86 is questionnable for Readonly::XS
 Requires: perl-Readonly, perl(Readonly::XS)
 Requires: perl-Regexp-Common
@@ -496,6 +495,7 @@ fi
 
 %changelog
 * Thu May 06 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Removing the pinned perl(Parse::RecDescent) version. Fixes #833;
 - Snapshot vs releases is now defined by an rpmbuild argument
 - source_release should now be passed as an argument to simplify our nightly 
   build system. Fixes #946;

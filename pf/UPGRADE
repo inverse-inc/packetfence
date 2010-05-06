@@ -7,6 +7,12 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to 1.9.0:
 
+    - Library update: steps required on manual upgrade
+    PacketFence no longer relies on a specific version of the Parse-RecDescent
+    library. If you upgraded manually, you should re-generate the precompiled
+    grammar by running installer.pl. If you upgraded using the RPM package the
+    grammar already comes precompiled.
+
     - Changes to some OS violations
     Some DHCP fingerprint have been re-labeled to avoid problems with VoIP 
     autodetection. OS::311 is now OS:1102 and OS::315 is now OS::1103. These

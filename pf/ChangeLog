@@ -1,4 +1,8 @@
 2010-05-06	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec: Removing the pinned perl(Parse::RecDescent) 
+	version from the RPM spec. Fixes #833;
+	http://www.packetfence.org/bugs/view.php?id=833
+
 	* pf/packetfence.spec: Changes to RPM spec file
 	- Snapshot vs releases is now defined by an rpmbuild argument
 	- source_release should now be passed as an argument to simplify our 
