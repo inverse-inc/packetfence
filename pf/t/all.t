@@ -25,5 +25,6 @@ runtests( qw(
               nodecategory.t
               pfsetvlan.t
               radius.t
+              report.t
             )
 );

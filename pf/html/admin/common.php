@@ -1051,15 +1051,16 @@ function PrintSubNav($menu){
       $new[$new_unknown['dhcp_fingerprint']] = $new_unknown['vendor'];
     }
 
-#  These next few lines kept track of what fingerprints have been submitted.
-#    $old = set_default($_SESSION['ui_global_prefs']['shared_fingerprints'], array());
-#    if(!$old){
-      $old = array();
-#    }
-    $diff = array_diff_assoc($new, $old);
+    # These next few lines kept track of what fingerprints have been submitted.
+    if (isset($_SESSION['ui_global_prefs']['shared_fingerprints'])) {
+      $current = $_SESSION['ui_global_prefs']['shared_fingerprints'];
+    } else {
+      $current = array();
+    }
+    $diff = array_diff_assoc($new, $current);
 
     if(count($diff)>0){
-     $_SESSION['ui_global_prefs']['shared_fingerprints']=array_merge($_SESSION['ui_global_prefs']['shared_fingerprints'], $diff);
+     $_SESSION['ui_global_prefs']['shared_fingerprints']=array_merge($current, $diff);
       save_global_prefs_to_file();
       foreach($diff as $fprint => $vendor){
         $content.= "$fprint:$vendor\n";

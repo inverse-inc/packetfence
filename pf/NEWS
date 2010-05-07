@@ -61,6 +61,7 @@ Bug fixes
 - Fixed PacketFence RPM upgrade bug if your version is lower than 1.8.5 (#931)
 - Fixed rare port-security problems with stacked switches or switches with 
   large ifIndex (#921)
+- Fixed problems with DHCP Fingerprint submission
 - Fixed call to non-existing script lookup_node.pl in pfdhcplistener (#858)
 - Correct VLAN information shown in Node Lookup (#893)
 - Minor corrections to the Admin Web UI

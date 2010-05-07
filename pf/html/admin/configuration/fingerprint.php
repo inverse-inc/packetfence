@@ -8,7 +8,7 @@
   $current_top="configuration";
   $current_sub="fingerprint";
 
-#testprint($_SESSION);
+  include_once('../header.php');
 
   get_global_conf();
 
@@ -44,8 +44,6 @@
 
   $my_table->set_page_num(set_default($_REQUEST['page_num'],1));
   $my_table->set_per_page(set_default($_REQUEST['per_page'],100));
-
-  include_once('../header.php');
 
   $my_table->tableprint(false);
 

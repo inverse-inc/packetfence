@@ -264,6 +264,7 @@ sub report_osclass_active {
             push @return_data, $record;
         }
     }
+    return (@return_data);
 }
 
 sub report_active_all {

@@ -53,7 +53,8 @@ o Upgrading from a version prior to 1.9.0:
     parsing scripts (if any). This also affects the Node lookup section of the
     Web Admin interface.
 
-    - New perl dependencies Try::Tiny and Test::Exception
+    - New run-time perl dependencies Try::Tiny and Readonly::XS (optional but
+    will improve performance)
 
     - New parameter in conf/violations.conf: whitelisted_categories
     Node in a whitelisted category will not be isolated on a given violation.

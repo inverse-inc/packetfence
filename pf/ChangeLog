@@ -1,3 +1,26 @@
+2010-05-07	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/dhcp_fingerprints.conf: New DHCP fingerprints:
+	- Ruckus Wireless
+	- Ubuntu 9.10
+	- a new HP Procurve fingerprint
+	- Toshiba Multifunction Printer
+	- Xerox
+
+	* pf/conf/oui.txt: Updated oui.txt (MAC address vendors) to latest 
+	version (2010-05-07)
+
+	* pf/html/admin/common.php, pf/html/admin/configuration/fingerprint.php:
+	Fixed two problems with DHCP fingerprint submissions:
+	- if submitted list empty, array_merge error
+	- submitting fingerprints via Configuration -> Fingerprint looked like
+	  it never worked. Fixed that.
+
+	* pf/lib/pf/pfcmd/report.pm: Fixed a couple of non-working reports. 
+	Fixes #984;
+	Added test cases for all of pf::pfcmd::report's subs.
+	Added Test::NoWarnings as a build dependency.
+	http://www.packetfence.org/bugs/view.php?id=984
+
 2010-05-06	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec: Fixed packaging of 802.1x 
 	rlm_perl_packetfence_* and new radius files.
