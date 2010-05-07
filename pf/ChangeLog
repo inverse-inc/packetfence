@@ -1,4 +1,10 @@
 2010-05-07	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/common.php, pf/html/admin/configuration/fingerprint.php:
+	Fixed two problems with DHCP fingerprint submissions:
+	- if submitted list empty, array_merge error
+	- submitting fingerprints via Configuration -> Fingerprint looked like
+	  it never worked. Fixed that.
+
 	* pf/lib/pf/pfcmd/report.pm: Fixed a couple of non-working reports. 
 	Fixes #984;
 	Added test cases for all of pf::pfcmd::report's subs.
