@@ -23,5 +23,6 @@ runtests( qw(
               graph.t
               nodecategory.t
               pfsetvlan.t
+              report.t
             )
 );

@@ -115,7 +115,7 @@ Requires: perl(Try::Tiny)
 # Required for testing
 # TODO: I noticed that we provide perl-Test-MockDBI in our repo, maybe we made a poo poo with the deps
 BuildRequires: perl(Test::MockModule), perl(Test::MockDBI), perl(Test::Perl::Critic)
-BuildRequires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception)
+BuildRequires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception), perl(Test::NoWarnings)
 
 %description
 
@@ -494,6 +494,9 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Thu May 07 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added perl(Test::NoWarnings) as a build-time dependency (used for tests)
+
 * Thu May 06 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Removing the pinned perl(Parse::RecDescent) version. Fixes #833;
 - Snapshot vs releases is now defined by an rpmbuild argument

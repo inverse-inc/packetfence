@@ -35,6 +35,7 @@ BEGIN {
 }
 
 use pf::db;
+use pf::util;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $report_db_prepared = 0;
@@ -238,6 +239,7 @@ sub report_osclass_active {
             push @return_data, $record;
         }
     }
+    return (@return_data);
 }
 
 sub report_active_all {

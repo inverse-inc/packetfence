@@ -1,3 +1,10 @@
+2010-05-07	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/pfcmd/report.pm: Fixed a couple of non-working reports. 
+	Fixes #984;
+	Added test cases for all of pf::pfcmd::report's subs.
+	Added Test::NoWarnings as a build dependency.
+	http://www.packetfence.org/bugs/view.php?id=984
+
 2010-05-06	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec: Removing the pinned perl(Parse::RecDescent) 
 	version from the RPM spec. Fixes #833;
