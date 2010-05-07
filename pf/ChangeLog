@@ -1,4 +1,11 @@
 2010-05-07	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/dhcp_fingerprints.conf: New DHCP fingerprints:
+	- Ruckus Wireless
+	- Ubuntu 9.10
+	- a new HP Procurve fingerprint
+	- Toshiba Multifunction Printer
+	- Xerox
+
 	* pf/conf/oui.txt: Updated oui.txt (MAC address vendors) to latest 
 	version (2010-05-07)
 
