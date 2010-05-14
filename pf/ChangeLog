@@ -1,4 +1,8 @@
 2010-05-14	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/t/pod.t: New type of test that check for pod sections.
+	First commit with lots more to do but still in this first test a lot
+	of our files fail.
+
 	* pf/sbin/pfsetvlan: Merging into trunk required some removal of
 	deprecated cleanup calls in sbin/pfsetvlan (db disconnection)
 
