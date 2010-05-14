@@ -133,7 +133,7 @@ $grammar = q {
 
    person_view_field : 'pid' | 'firstname' | 'lastname' | 'email' | 'telephone' | 'company' | 'address' | 'notes'
 
-   node_view_field :  'mac' | 'pid' | 'category' | 'detect_date' | 'regdate' | 'unregdate' | 'lastskip' | 'status' | 'user_agent' | 'computername'  | 'notes' | 'last_arp' | 'last_dhcp' | 'dhcp_fingerprint' | 'switch' | 'port' | 'vlan'
+   node_view_field :  'mac' | 'pid' | 'category' | 'detect_date' | 'regdate' | 'unregdate' | 'lastskip' | 'status' | 'user_agent' | 'computername'  | 'notes' | 'last_arp' | 'last_dhcp' | 'dhcp_fingerprint' | 'switch' | 'port' | 'vlan' | 'voip' | 'connection_type'
 
    nodecategory_view_field :  'name' | 'notes'
 
