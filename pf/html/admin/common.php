@@ -463,14 +463,26 @@ if($sajax){
                }
              } elseif (($current_top == 'node') && ($current_sub=='categories')) {
                // NODE CATEGORIES 
-	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['category_id'] . "',500,500)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
-	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['category_id'] . "',500,500)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
+               print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['category_id'] . "',500,500)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
+               print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['category_id'] . "',500,500)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
                if ($this->rows[$i]['category_id'] != '1') {
-	         print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page' method='post'>";
+                 print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page' method='post'>";
                  print "  <input type='hidden' name='action' value='delete'>\n";
                  print "  <input type='hidden' name='commit' value='true'>\n";
                  print "  <input type='hidden' name='original' value='".implode("\t", $this->rows[$i])."'>\n";
-                 print "  <input class=\"button\" type='image' src='/images/famfamfam_silk_icons/page_delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete the switch " . $this->rows[$i]['category_id'] . " ?');\">\n";
+                 print "  <input class=\"button\" type='image' src='/images/famfamfam_silk_icons/page_delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete the category " . $this->rows[$i]['name'] . "?');\">\n";
+                 print "  </form>";
+               }
+             } elseif (($current_top == 'configuration') && ($current_sub=='floatingnetworkdevice')) {
+               // FLOATING DEVICES
+               print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['floatingnetworkdevice'] . "',500,500)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
+               if ($this->rows[$i]['floatingnetworkdevice'] != 'stub') {
+                 print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['floatingnetworkdevice'] . "',500,500)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
+                 print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page' method='post'>";
+                 print "  <input type='hidden' name='action' value='delete'>\n";
+                 print "  <input type='hidden' name='commit' value='true'>\n";
+                 print "  <input type='hidden' name='original' value='".implode("\t", $this->rows[$i])."'>\n";
+                 print "  <input class=\"button\" type='image' src='/images/famfamfam_silk_icons/page_delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete the floating network device " . $this->rows[$i]['floatingnetworkdevice'] . "?');\">\n";
                  print "  </form>";
                }
              } elseif (($current_top == 'configuration') && ($current_sub=='violation')) {

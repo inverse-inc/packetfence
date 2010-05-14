@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 33;
+use Test::More tests => 36;
 use lib '/usr/local/pf/lib';
 
 BEGIN { use_ok('pf::action') }
@@ -12,6 +12,8 @@ BEGIN { use_ok('pf::class') }
 BEGIN { use_ok('pf::configfile') }
 BEGIN { use_ok('pf::config') }
 BEGIN { use_ok('pf::db') }
+BEGIN { use_ok('pf::floatingdevice') }
+BEGIN { use_ok('pf::floatingdevice::custom') }
 BEGIN { use_ok('pf::ifoctetslog') }
 BEGIN { use_ok('pf::iplog') }
 BEGIN { use_ok('pf::locationlog') }
@@ -30,6 +32,7 @@ BEGIN { use_ok('pf::pfcmd::report') }
 BEGIN { use_ok('pf::rawip') }
 BEGIN { use_ok('pf::scan') }
 BEGIN { use_ok('pf::schedule') }
+BEGIN { use_ok('pf::SNMP::constants') }
 BEGIN { use_ok('pf::services') }
 BEGIN { use_ok('pf::switchlocation') }
 BEGIN { use_ok('pf::traplog') }

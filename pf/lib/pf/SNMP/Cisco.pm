@@ -6,6 +6,10 @@ pf::SNMP::Cisco
 
 =cut
 
+=head1 DESCRIPTION
+
+=cut
+
 use strict;
 use warnings;
 use diagnostics;
@@ -15,6 +19,18 @@ use base ('pf::SNMP');
 use Log::Log4perl;
 use Net::SNMP;
 use Net::Appliance::Session;
+
+use pf::config;
+# importing switch constants
+use pf::SNMP::constants;
+
+=head1 SUBROUTINES
+
+Note: This list is incomplete
+
+=over
+
+=cut
 
 sub getVersion {
     my ($this)       = @_;
@@ -498,25 +514,6 @@ sub isPortSecurityEnabled {
     );
 }
 
-sub setPortSecurityDisabled {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    if ( !$this->connectWrite() ) {
-        return 0;
-    }
-    my $OID_cpsIfPortSecurityEnable = '1.3.6.1.4.1.9.9.315.1.2.1.1.1';
-
-    $logger->trace(
-        "SNMP set_request for cpsIfPortSecurityEnable: $OID_cpsIfPortSecurityEnable"
-    );
-    my $result = $this->{_sessionWrite}->set_request(
-        -varbindlist => [
-            "$OID_cpsIfPortSecurityEnable.$ifIndex", Net::SNMP::INTEGER, 2
-        ]
-    );
-    return ( defined($result) );
-}
-
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -527,45 +524,53 @@ sub _setVlan {
 
     my $removedTrapsEnabled = $this->isRemovedTrapsEnabled($ifIndex);
     if ($removedTrapsEnabled) {
-        $logger->debug(
-            "disabling removed traps for port $ifIndex before VLAN change");
-        $this->setRemovedTrapsEnabled( $ifIndex, 2 );
+        $logger->debug("disabling removed traps for port $ifIndex before VLAN change");
+        $this->setRemovedTrapsEnabled( $ifIndex, $SNMP::FALSE );
     }
 
     my $result;
     if ( $this->isTrunkPort($ifIndex) ) {
 
-        my $OID_vlanTrunkPortNativeVlan
-            = '1.3.6.1.4.1.9.9.46.1.6.1.1.5';    #CISCO-VTP-MIB
-        $logger->trace(
-            "SNMP set_request for vlanTrunkPortNativeVlan: $OID_vlanTrunkPortNativeVlan"
-        );
-        $result = $this->{_sessionWrite}->set_request(
-            -varbindlist => [
-                "$OID_vlanTrunkPortNativeVlan.$ifIndex", Net::SNMP::INTEGER,
-                $newVlan
-            ]
-        );
+        $result = $this->setTrunkPortNativeVlan($ifIndex, $newVlan);
 
         #expirer manuellement la mac-address-table
         $this->clearMacAddressTable( $ifIndex, $oldVlan );
 
     } else {
-        my $OID_vmVlan
-            = '1.3.6.1.4.1.9.9.68.1.2.2.1.2';    #CISCO-VLAN-MEMBERSHIP-MIB
+        my $OID_vmVlan = '1.3.6.1.4.1.9.9.68.1.2.2.1.2';    #CISCO-VLAN-MEMBERSHIP-MIB
         $logger->trace("SNMP set_request for vmVlan: $OID_vmVlan");
-        $result = $this->{_sessionWrite}->set_request( -varbindlist =>
-                [ "$OID_vmVlan.$ifIndex", Net::SNMP::INTEGER, $newVlan ] );
+        $result = $this->{_sessionWrite}->set_request( -varbindlist =>[ 
+            "$OID_vmVlan.$ifIndex", Net::SNMP::INTEGER, $newVlan ] );
     }
     my $returnValue = ( defined($result) );
 
     if ($removedTrapsEnabled) {
-        $logger->debug(
-            "re-enabling removed traps for port $ifIndex after VLAN change");
-        $this->setRemovedTrapsEnabled( $ifIndex, 1 );
+        $logger->debug("re-enabling removed traps for port $ifIndex after VLAN change");
+        $this->setRemovedTrapsEnabled( $ifIndex, $SNMP::TRUE );
     }
 
     return $returnValue;
+}
+
+=item setTrunkPortNativeVlan - sets PVID on a trunk port
+
+=cut
+sub setTrunkPortNativeVlan {
+    my ( $this, $ifIndex, $newVlan ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    if ( !$this->connectWrite() ) {
+        return 0;
+    }
+
+    my $result;
+    my $OID_vlanTrunkPortNativeVlan = '1.3.6.1.4.1.9.9.46.1.6.1.1.5';    #CISCO-VTP-MIB
+    $logger->trace("SNMP set_request for vlanTrunkPortNativeVlan: $OID_vlanTrunkPortNativeVlan");
+    $result = $this->{_sessionWrite}->set_request( -varbindlist => [
+        "$OID_vlanTrunkPortNativeVlan.$ifIndex", Net::SNMP::INTEGER, $newVlan] );
+
+    return $result;
+
 }
 
 # fetch port type
@@ -906,6 +911,32 @@ sub isTrunkPort {
             'noSuchInstance' )
             && ( $result->{"$OID_vlanTrunkPortDynamicState.$ifIndex"} == 1 )
     );
+}
+
+=item setModeTrunk - sets a port as mode access or mode trunk
+
+=cut
+sub setModeTrunk {
+    my ( $this, $ifIndex, $enable ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $OID_vlanTrunkPortDynamicState = "1.3.6.1.4.1.9.9.46.1.6.1.1.13";    #CISCO-VTP-MIB
+
+    # $mode = 1 -> switchport mode trunk
+    # $mode = 2 -> switchport mode access
+
+    if ( !$this->isProductionMode() ) {
+        $logger->info("not in production mode ... we won't change this port vlanTrunkPortDynamicState");
+        return 1;
+    }
+    if ( !$this->connectWrite() ) {
+        return 0;
+    }
+
+    my $truthValue = $enable ? $SNMP::TRUE : $SNMP::FALSE;
+    $logger->trace("SNMP set_request for vlanTrunkPortDynamicState: $OID_vlanTrunkPortDynamicState");
+    my $result = $this->{_sessionWrite}->set_request( -varbindlist => [ "$OID_vlanTrunkPortDynamicState.$ifIndex", 
+        Net::SNMP::INTEGER, $truthValue ] );
+    return ( defined($result) );
 }
 
 sub getVlans {
@@ -1464,13 +1495,17 @@ sub copyConfig {
 
 }
 
+=back
+
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Regis Balzard <rbalzard@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008 Inverse inc.
+Copyright (C) 2006-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

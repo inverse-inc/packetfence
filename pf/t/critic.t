@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Perl::Critic;
-use Test::More tests => 120;
+use Test::More tests => 123;
 
 # To generate this list, start with this: find lib/pf/ -exec echo "    '/usr/local/pf/{}'," \; | sort
 # TODO: should these really be absolute PATHs? I don't think so!
@@ -30,6 +30,8 @@ my @files = (
     '/usr/local/pf/lib/pf/configfile.pm',
     '/usr/local/pf/lib/pf/config.pm',
     '/usr/local/pf/lib/pf/db.pm',
+    '/usr/local/pf/lib/pf/floatingdevice.pm',
+    '/usr/local/pf/lib/pf/floatingdevice/custom.pm',
     '/usr/local/pf/lib/pf/ifoctetslog.pm',
     '/usr/local/pf/lib/pf/iplog.pm',
     '/usr/local/pf/lib/pf/iptables.pm',
@@ -71,10 +73,11 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP/Cisco/Catalyst_3560.pm',
     '/usr/local/pf/lib/pf/SNMP/Cisco/Catalyst_3750.pm',
     '/usr/local/pf/lib/pf/SNMP/Cisco/Controller_4400_4_2_130.pm',
-    '/usr/local/pf/lib/pf/SNMP/Cisco.pm',
     '/usr/local/pf/lib/pf/SNMP/Cisco/ISR_1800.pm',
     '/usr/local/pf/lib/pf/SNMP/Cisco/WiSM.pm',
     '/usr/local/pf/lib/pf/SNMP/Cisco/WLC_2106.pm',
+    '/usr/local/pf/lib/pf/SNMP/Cisco.pm',
+    '/usr/local/pf/lib/pf/SNMP/constants.pm',
     '/usr/local/pf/lib/pf/SNMP/Dell.pm',
     '/usr/local/pf/lib/pf/SNMP/Dell/PowerConnect3424.pm',
     '/usr/local/pf/lib/pf/SNMP/Dlink/DES_3526.pm',

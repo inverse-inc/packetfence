@@ -21,5 +21,7 @@ runtests( qw(
               data.t
               graph.t
               nodecategory.t
+              floatingdevice.t
+              network-devices/cisco.t
             )
 );

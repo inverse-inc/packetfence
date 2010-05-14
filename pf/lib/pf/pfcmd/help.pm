@@ -31,38 +31,39 @@ sub usage {
     print STDERR << "EOF";
 Usage: $command <command> [options]
 
-class                   | view violation classes
-config                  | query, set, or get help on pf.conf configuration paramaters
-configfiles             | push or pull configfiles into/from database
-fingerprint             | view DHCP Fingerprints
-graph                   | trending graphs
-history                 | IP/MAC history
-ifoctetshistorymac      | accounting history
-ifoctetshistoryswitch   | accounting history
-ifoctetshistoryuser     | accounting history
-interfaceconfig         | query/modify interface configuration parameters
-ipmachistory            | IP/MAC history
-locationhistorymac      | Switch/Port history
-locationhistoryswitch   | Switch/Port history
-lookup                  | node or pid lookup against local data store
-manage                  | manage node entries
-networkconfig           | query/modify network configuration parameters
-node                    | node manipulation
-nodecategory            | nodecategory manipulation
-person                  | person manipulation
-reload                  | rebuild fingerprint or violations tables without restart
-report                  | current usage reports
-schedule                | Nessus scan scheduling
-service                 | start/stop/restart and get PF daemon status
-switchconfig            | query/modify switches.conf configuration parameters
-switchlocation          | view switchport description and location
-traplog                 | update traplog RRD files and graphs or obtain switch IPs
-trigger                 | view and throw triggers
-ui                      | used by web UI to create menu hierarchies and dashboard
-update                  | download canonical fingerprint or OUI data
-version                 | get installed PF version and database MD5s
-violation               | violation manipulation
-violationconfig         | query/modify violations.conf configuration parameters
+class                        | view violation classes
+config                       | query, set, or get help on pf.conf configuration paramaters
+configfiles                  | push or pull configfiles into/from database
+floatingnetworkdeviceconfig  | query/modify floating network device configuration parameters
+fingerprint                  | view DHCP Fingerprints
+graph                        | trending graphs
+history                      | IP/MAC history
+ifoctetshistorymac           | accounting history
+ifoctetshistoryswitch        | accounting history
+ifoctetshistoryuser          | accounting history
+interfaceconfig              | query/modify interface configuration parameters
+ipmachistory                 | IP/MAC history
+locationhistorymac           | Switch/Port history
+locationhistoryswitch        | Switch/Port history
+lookup                       | node or pid lookup against local data store
+manage                       | manage node entries
+networkconfig                | query/modify network configuration parameters
+node                         | node manipulation
+nodecategory                 | nodecategory manipulation
+person                       | person manipulation
+reload                       | rebuild fingerprint or violations tables without restart
+report                       | current usage reports
+schedule                     | Nessus scan scheduling
+service                      | start/stop/restart and get PF daemon status
+switchconfig                 | query/modify switches.conf configuration parameters
+switchlocation               | view switchport description and location
+traplog                      | update traplog RRD files and graphs or obtain switch IPs
+trigger                      | view and throw triggers
+ui                           | used by web UI to create menu hierarchies and dashboard
+update                       | download canonical fingerprint or OUI data
+version                      | get installed PF version and database MD5s
+violation                    | violation manipulation
+violationconfig              | query/modify violations.conf configuration parameters
 
 Please view "$command help <command>" for details on each option
 EOF
@@ -514,6 +515,18 @@ EOT
     return 1;
 }
 
+sub help_floatingnetworkdeviceconfig {
+    print STDERR << "EOT";
+Usage: pfcmd floatingnetworkdeviceconfig get <all|floatingnetworkdevice>
+       pfcmd floatingnetworkdeviceconfig add <floatingnetworkdevice> [assignments]
+       pfcmd floatingnetworkdeviceconfig edit <floatingnetworkdevice> [assignments]
+       pfcmd floatingnetworkdeviceconfig delete <floatingnetworkdevice>
+
+query/modify floating_network_device.conf configuration file
+EOT
+    return 1;
+}   
+
 =head1 AUTHOR
 
 David LaPorte <david@davidlaporte.org>
@@ -523,6 +536,8 @@ Kevin Amorin <kev@amorin.org>
 Dominik Gehl <dgehl@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Regis Balzard <rbalzard@inverse.ca>
 
 =head1 COPYRIGHT
 

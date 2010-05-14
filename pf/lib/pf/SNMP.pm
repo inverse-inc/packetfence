@@ -23,10 +23,13 @@ use Data::Dumper;
 
 our $VERSION = v1.7.0.6;
 
+use pf::config;
 use pf::locationlog;
 use pf::node;
+# SNMP constants
+use pf::SNMP::constants;
 
-=head1 METHODS
+=head1 SUBROUTINES
 
 =over
 
@@ -856,15 +859,11 @@ sub resetVlanAllPort {
     foreach my $ifIndex (@managedIfIndexes) {
         if ( $this->isPortSecurityEnabled($ifIndex) )
         {    # disabling port-security
-            $logger->debug(
-                "disabling port-security on ifIndex $ifIndex before resetting to vlan "
-                    . $this->{_normalVlan} );
-            $this->setPortSecurityDisabled($ifIndex);
+            $logger->debug("disabling port-security on ifIndex $ifIndex before resetting to vlan " . 
+                           $this->{_normalVlan} );
+            $this->setPortSecurityEnableByIfIndex($ifIndex, $FALSE);
         }
-        $logger->debug( "setting "
-                . $this->{_ip}
-                . " ifIndex $ifIndex to VLAN "
-                . $this->{_normalVlan} );
+        $logger->debug( "setting " . $this->{_ip} . " ifIndex $ifIndex to VLAN " . $this->{_normalVlan} );
         $this->setVlan( $ifIndex, $this->{_normalVlan}, $switch_locker_ref );
     }
 }
@@ -977,6 +976,12 @@ sub setAdminStatus {
     my ( $this, $ifIndex, $enabled ) = @_;
     my $logger            = Log::Log4perl::get_logger( ref($this) );
     my $OID_ifAdminStatus = '1.3.6.1.2.1.2.2.1.7';
+
+    if ( !$this->isProductionMode() ) {
+        $logger->info("not in production mode ... we won't change this port ifAdminStatus");
+        return 1;
+    }
+
     if ( !$this->connectWrite() ) {
         return 0;
     }
@@ -1007,8 +1012,83 @@ sub isPortSecurityEnabled {
     return ( 0 == 1 );
 }
 
-sub setPortSecurityDisabled {
+sub setPortSecurityEnableByIfIndex {
     my ( $this, $ifIndex, $trueFalse ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("Function not implemented for switch type " . ref($this));
+    return ( 0 == 1 );
+}
+
+sub setPortSecurityMaxSecureMacAddrByIfIndex {
+    my ( $this, $ifIndex, $maxSecureMac ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("Function not implemented for switch type " . ref($this));
+    return ( 0 == 1 );
+}
+
+sub setPortSecurityViolationActionByIfIndex {
+    my ( $this, $ifIndex, $action ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("Function not implemented for switch type " . ref($this));
+    return ( 0 == 1 );
+}
+
+sub supportsFloatingDevice {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("Floating devices are not supported on switch type " . ref($this));
+    return 0;
+}   
+
+sub enablePortSecurityByIfIndex {
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("Function not implemented for switch type " . ref($this));
+    return ( 0 == 1 );
+}   
+
+sub disablePortSecurityByIfIndex {
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("Function not implemented for switch type " . ref($this));
+    return ( 0 == 1 );
+}   
+
+sub setModeTrunk {
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("Function not implemented for switch type " . ref($this));
+    return ( 0 == 1 );
+}   
+
+sub setTaggedVlan {
+    my ( $this, $ifIndex, $taggedVlans ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("Function not implemented for switch type " . ref($this));
+    return ( 0 == 1 );
+}   
+
+sub resetTaggedVlan {
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("Function not implemented for switch type " . ref($this));
+    return ( 0 == 1 );
+}   
+
+sub isTrunkPort {
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->debug("Unimplemented. Are you sure you are using the right switch module? Switch type: " . ref($this));
     return ( 0 == 1 );
 }
 
@@ -1844,6 +1924,41 @@ sub getVlanFdbId {
     return $vlan;
 }
 
+sub isIfLinkUpDownTrapEnable { 
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    if ( !$this->connectRead() ) {
+        return 0;
+    }
+    my $OID_ifLinkUpDownTrapEnable = '1.3.6.1.2.1.31.1.1.1.14'; # from IF-MIB
+    $logger->trace("SNMP get_request for ifLinkUpDownTrapEnable: $OID_ifLinkUpDownTrapEnable"); 
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => [ "$OID_ifLinkUpDownTrapEnable.$ifIndex" ] );
+    return ( exists( $result->{"$OID_ifLinkUpDownTrapEnable.$ifIndex"} )
+                && ( $result->{"$OID_ifLinkUpDownTrapEnable.$ifIndex"} ne 'noSuchInstance' )
+                && ( $result->{"$OID_ifLinkUpDownTrapEnable.$ifIndex"} == 1 ) );
+}       
+
+sub setIfLinkUpDownTrapEnable {
+    my ( $this, $ifIndex, $enable ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    if ( !$this->isProductionMode() ) {
+        $logger->info("not in production mode ... we won't change this port ifLinkUpDownTrapEnable");
+        return 1;
+    }   
+
+    if ( !$this->connectWrite() ) {
+        return 0;
+    }
+    my $OID_ifLinkUpDownTrapEnable = '1.3.6.1.2.1.31.1.1.1.14'; # from IF-MIB
+    my $truthValue = $enable ? $SNMP::TRUE : $SNMP::FALSE;
+
+    $logger->trace("SNMP set_request for ifLinkUpDownTrapEnable: $OID_ifLinkUpDownTrapEnable");
+    my $result = $this->{_sessionWrite}->set_request( -varbindlist => [ 
+            "$OID_ifLinkUpDownTrapEnable.$ifIndex", Net::SNMP::INTEGER, $truthValue ] );
+    return ( defined($result) );
+}
+
 =back
 
 =head1 AUTHOR
@@ -1851,6 +1966,8 @@ sub getVlanFdbId {
 Dominik Gehl <dgehl@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Regis Balzard <rbalzard@inverse.ca>
 
 =head1 COPYRIGHT
 

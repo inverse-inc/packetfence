@@ -41,6 +41,11 @@ sub parseCommandLine {
                                    \s+ 
                                    ( all | \d+ (?: ,\d+)* ) 
                                  $ }xms,
+        'floatingnetworkdeviceconfig'
+                          => qr/ ^ ( get | delete )
+                                   \s+
+                                   ( all | $RE{net}{MAC} | stub )
+                                 $  /xms,
         'graph'           => qr/ ^ (?:
                                      ( nodes | registered
                                        | unregistered
@@ -407,6 +412,7 @@ sub parseCommandLine {
                             node | person | interfaceconfig | networkconfig
                             | switchconfig | violationconfig | violation
                             | manage | schedule | nodecategory
+                            | floatingnetworkdeviceconfig
                               ) $ }xms ) {
                 return parseWithGrammar($commandLine);
             }
@@ -436,6 +442,8 @@ sub parseWithGrammar {
 Dominik Gehl <dgehl@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Regis Balzard <rbalzard@inverse.ca>
 
 =head1 COPYRIGHT
 

@@ -1,3 +1,22 @@
+2010-05-14	Regis Balzard <rbalzard@inverse.ca>
+	* pf/bin/pfcmd, pf/conf/floating_network_device.conf, pf/conf/ui.conf,
+	pf/html/admin/common.php, 
+	pf/html/admin/configuration/floatingnetworkdevice_add.php,
+	pf/html/admin/configuration/floatingnetworkdevice_edit.php,
+	pf/html/admin/configuration/floatingnetworkdevice.php,
+	pf/html/admin/header.php, pf/lib/pf/config.pm, pf/lib/pf/floatingdevice,
+	pf/lib/pf/floatingdevice/custom.pm, pf/lib/pf/floatingdevice.pm,
+	pf/lib/pf/pfcmd/help.pm, pf/lib/pf/pfcmd/pfcmd.pm, pf/lib/pf/pfcmd.pm,
+	pf/lib/pf/SNMP/Cisco/Catalyst_2950.pm, 
+	pf/lib/pf/SNMP/Cisco/Catalyst_2960.pm, pf/lib/pf/SNMP/Cisco.pm, 
+	pf/lib/pf/SNMP/constants.pm, pf/lib/pf/SNMP/HP.pm, 
+	pf/lib/pf/SNMP/Nortel.pm, pf/lib/pf/SNMP.pm, pf/NEWS, 
+	pf/packetfence.spec, pf/README, pf/sbin/pfsetvlan, pf/t/all.t, 
+	pf/t/critic.t, pf/t/data/switches.conf, pf/t/floatingdevice.t,
+	pf/t/network-devices/cisco.t, pf/t/pfcmd.t, pf/t/pf.t,
+	pf/t/podCoverage.t, pf/t/pod.t: Added support for Floating Network 
+	Devices (See Admin Guide for details). Minor improvements by Olivier.
+
 2010-04-28	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/html/admin/common/helpers.inc, pf/html/admin/images/category.png,
 	pf/html/admin/node/categories_add.php, 

@@ -34,6 +34,7 @@ $grammar = q {
              | 'interfaceconfig' interfaceconfig_options
              | 'networkconfig' networkconfig_options
              | 'switchconfig' switchconfig_options
+             | 'floatingnetworkdeviceconfig' floatingnetworkdeviceconfig_options
              | 'violationconfig' violationconfig_options
              | 'violation' violation_options
              | 'manage' manage_options
@@ -53,6 +54,8 @@ $grammar = q {
    networkconfig_options: ('add' | 'edit') ipaddr networkconfig_edit_options
 
    switchconfig_options: ('add' | 'edit') ('default'|ipaddr) switchconfig_edit_options
+
+   floatingnetworkdeviceconfig_options: ('add' | 'edit') macaddr floatingnetworkdeviceconfig_edit_options
 
    violationconfig_options: ('add' | 'edit') ('defaults'|/\d+/) violationconfig_edit_options
 
@@ -77,6 +80,8 @@ $grammar = q {
    networkconfig_edit_options : <leftop: networkconfig_assignment ',' networkconfig_assignment>
 
    switchconfig_edit_options : <leftop: switchconfig_assignment ',' switchconfig_assignment>
+
+   floatingnetworkdeviceconfig_edit_options : <leftop: floatingnetworkdeviceconfig_assignment ',' floatingnetworkdeviceconfig_assignment>
 
    violationconfig_edit_options : <leftop: violationconfig_assignment ',' violationconfig_assignment>
 
@@ -107,6 +112,9 @@ $grammar = q {
    switchconfig_assignment : switchconfig_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{switchconfig_view_field},$item{value}] }
 
+   floatingnetworkdeviceconfig_assignment : floatingnetworkdeviceconfig_view_field '=' value
+                {push @{$main::cmd{$item[0]}}, [$item{floatingnetworkdeviceconfig_view_field},$item{value}] }
+
    violationconfig_assignment : violationconfig_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{violationconfig_view_field},$item{value}] }
 
@@ -135,6 +143,8 @@ $grammar = q {
 
    switchconfig_view_field : 'type' | 'mode' | 'uplink' | 'SNMPVersionTrap' | 'SNMPCommunityRead' | 'SNMPCommunityWrite' | 'SNMPVersion' | 'SNMPCommunityTrap' | 'cliTransport' | 'cliUser' | 'cliPwd' | 'cliEnablePwd' | 'vlans' | 'normalVlan' | 'registrationVlan' | 'isolationVlan' | 'macDetectionVlan' | 'macSearchesMaxNb' | 'macSearchesSleepInterval' | 'VoIPEnabled' | 'voiceVlan' | 'SNMPEngineID' | 'SNMPUserNameRead' | 'SNMPAuthProtocolRead' | 'SNMPAuthPasswordRead' | 'SNMPPrivProtocolRead' | 'SNMPPrivPasswordRead' | 'SNMPUserNameWrite' | 'SNMPAuthProtocolWrite' | 'SNMPAuthPasswordWrite' | 'SNMPPrivProtocolWrite' | 'SNMPPrivPasswordWrite' | 'SNMPUserNameTrap' | 'SNMPAuthProtocolTrap' | 'SNMPAuthPasswordTrap' | 'SNMPPrivProtocolTrap' | 'SNMPPrivPasswordTrap'
 
+   floatingnetworkdeviceconfig_view_field : 'ip' | 'trunkPort' | 'pvid' | 'taggedVlan'
+
    violationconfig_view_field : 'desc' | 'disable' | 'auto_enable' | 'actions' | 'max_enable' | 'grace' | 'priority' | 'url' | 'button_text' | 'trigger' | 'vlan' | 'whitelisted_categories'
 
    violation_view_field :  'id' | 'mac' | 'vid' | 'start_date' | 'release_date' | 'status' | 'notes'
@@ -151,6 +161,8 @@ Kevin Amorin <kev@amorin.org>
 Dominik Gehl <dgehl@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Regis Balzard <rbalzard@inverse.ca>
 
 =head1 COPYRIGHT
 

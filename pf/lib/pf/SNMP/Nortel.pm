@@ -454,7 +454,7 @@ sub isStaticPortSecurityEnabled {
     return 1;
 }
 
-sub setPortSecurityDisabled {
+sub setPortSecurityEnableByIfIndex {
     my ( $this, $ifIndex, $trueFalse ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 

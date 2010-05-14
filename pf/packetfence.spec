@@ -454,6 +454,8 @@ fi
 %dir                    /usr/local/pf/lib
 %dir                    /usr/local/pf/lib/pf
                         /usr/local/pf/lib/pf/*.pm
+%dir                    /usr/local/pf/lib/pf/floatingdevice
+%config(noreplace)      /usr/local/pf/lib/pf/floatingdevice/custom.pm
 %dir                    /usr/local/pf/lib/pf/lookup
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/node.pm
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/person.pm
@@ -493,6 +495,9 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Fri May 07 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added new files for Floating Network Device support
+
 * Wed Apr 28 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added perl(Try::Tiny) and perl(Test::Exception) as a dependency used for 
   exception-handling and its testing
