@@ -478,7 +478,7 @@ if($sajax){
                  print "  <input type='hidden' name='action' value='delete'>\n";
                  print "  <input type='hidden' name='commit' value='true'>\n";
                  print "  <input type='hidden' name='original' value='".implode("\t", $this->rows[$i])."'>\n";
-                 print "  <input class=\"button\" type='image' src='/images/famfamfam_silk_icons/page_delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete the switch " . $this->rows[$i]['category_id'] . " ?');\">\n";
+                 print "  <input class=\"button\" type='image' src='/images/famfamfam_silk_icons/page_delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete the category " . $this->rows[$i]['name'] . "?');\">\n";
                  print "  </form>";
                }
              } elseif (($current_top == 'configuration') && ($current_sub=='violation')) {

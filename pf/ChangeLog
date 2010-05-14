@@ -1,3 +1,7 @@
+2010-05-14	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/common.php: Small mistake when deleting a node category.
+	It says switch and shows the category_id. It's fixed now.
+
 2010-05-07	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/conf/oui.txt: Updated oui.txt (MAC address vendors) to latest 
 	version (2010-05-07)
