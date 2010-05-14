@@ -26,14 +26,6 @@ use pf::SNMP::constants;
 
 =head1 SUBROUTINES
 
-Note: This list is incomplete
-
-=over
-
-=cut
-
-=head1 SUBROUTINES
-
 TODO: This list is incomplete
 
 =over
