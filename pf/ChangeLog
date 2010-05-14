@@ -26,6 +26,9 @@
 	http://www.packetfence.org/bugs/view.php?id=984
 
 2010-05-06	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec: Fixed packaging of 802.1x 
+	rlm_perl_packetfence_* and new radius files.
+
 	* pf/packetfence.spec: Removing the pinned perl(Parse::RecDescent) 
 	version from the RPM spec. Fixes #833;
 	http://www.packetfence.org/bugs/view.php?id=833
@@ -97,6 +100,13 @@
 
 	* pf/TODO: dropping TODO in favor of tracking everything in our
 	public bugtracker
+
+	* pf/db/pfschema.mysql.188dev, pf/db/upgrade-1.8.6-1.8.8dev.sql,
+	pf/db/upgrade-1.9.0-1.10.0.sql, pf/db/pf-schema-1.10.0.sql:
+	Databases changes from the feature.rlm-soap branch were on top of 
+	1.8.7, since then other changes went in for 1.9.0. I rebased the 
+	database changes for feature.rlm-soap on top of 1.9.0. For now,
+	targeted at a 1.10.0 release later this year.
 
 	* pf/installer.pl, pf/t/pfcmd.t: New 1.9.0 database hashes
 
@@ -222,22 +232,146 @@
 	and user bandwidth accounting. Also fixed a slight mistake with 
 	ifoctet's db queries in general.
 
+2010-04-01	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/cgi-bin/pdp.cgi: Exception handling in radius authorize so we 
+	collect errors in the server logs and in the client logs.
+	Also took out CGI::Carp fatalsToBrowser since I've read it's not 
+	compatible with mod_perl
+
 2010-03-31	Olivier Bilodeau <obilodeau@inverse.ca>
+	Small fixes to issues found during functionnal testing.
+
 	* pf/lib/pf/db.pm: Database is now reconnecting on failed queries
 
 	* pf/lib/pf/SNMP/ThreeCom/Switch_4200G.pm: Imported bugs and
 	limitations section from parent (pf::SNMP::ThreeCom::SS4500).
 
-2010-03-24      Regis Balzard <rbalzard@inverse.ca>
+2010-03-30	Olivier Bilodeau <obilodeau@inverse.ca>
+	Lots of small fixes to issues found during functionnal testing.
+
+	* pf/sbin/pfsetvlan: Now calling proper 802.1X wired re-authentication
+	through pfcmd_vlan
+	Also fixed some problems in the parsing of the new traps
+
+	* pf/bin/pfcmd_vlan, pf/lib/pf/SNMP.pm: Proper 802.1X re-authentication
+	pfcmd_vlan's -deauthenticateDot1x now forces re-authentication on wired
+	802.1X if an ifIndex is provided on CLI.
+	Generic 802.1X re-authentication was done using standard IEEE8021-PAE
+	MIB (oid dot1xPaePortReauthenticate).
+
+2010-03-29	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/locationlog.pm, pf/lib/pf/vlan.pm: Moved 
+	update_node_if_not_accurate out of locationlog because it something
+	that people might need to customized. I changed default behavior not
+	to call node_modify if node's VLAN field haven't changed.
+
+2010-03-26	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/t/hardware-snmp-objects.t: fixed some broken tests
+
+	* pf/bin/flip.pl, pf/bin/pfcmd_vlan, 
+	pf/docs/MIB/Inverse-PacketFence-Notification.mib, 
+	pf/lib/pf/SNMP/Aruba.pm, pf/lib/pf/SNMP/Cisco/Catalyst_2960.pm,
+	pf/lib/pf/SNMP/PacketFence.pm, pf/lib/pf/SNMP.pm, pf/lib/pf/radius.pm,
+	pf/sbin/pfsetvlan: flip.pl can now handle all Radius connection types
+	- modified flip to deal with new connection types
+	- added a -deauthenticateDot1x to pfcmd_vlan
+	- our local SNMP Traps now carry the connection type (and pfsetvlan 
+	  interprets it)
+	- Aruba module no longer detects 802.1x on deauth since it's known 
+	  when requested now
+	- New mechanism to translate NAS-Port to ifIndexes and support for it
+	  in the 2960 code
+	- pfsetvlan supports new dot1x wireless de-association and issues a 
+	  warning on wired dot1x then shut / no shut the port
+
+	* pf/bin/pfcmd,  pf/lib/pf/SNMP/Aruba.pm, pf/lib/pf/SNMP/Cisco.pm,
+	pf/lib/pf/SNMP/Dlink.pm, pf/sbin/pfsetvlan: Removed remaining 
+	references to hardcoded 'WIFI' ifIndex.
+
+2010-03-24	Regis Balzard <rbalzard@inverse.ca>
 	* pf/lib/pf/services.pm: PF now creates static routes to routed Vlans 
 	when dhcpd is enabled in networks.conf. It used to be when named was 
 	enabled.
+
+2010-03-24	Olivier Bilodeau <obilodeau@inverse.ca>
+	Minor refactorings all over the place based on review comments
+
+	* pf/lib/pf/radius.pm: - Graceful recovery if switches.conf is broken
+	- Created vlan_determine_for_node and calling the get_xxx_vlan from 
+	  pf::vlan
+	- Returning radius user is locked return code if vlan_determine_for_node
+	  returns -1
+
+	* pf/lib/pf/SNMP.pm: Added getVlanByName to resolve VLAN names from 
+	switches.conf into VLAN numbers and do appropriate validation and error
+	handling. Test case included.
+
+	* pf/lib/pf/vlan.pm: Refactoring pf::vlan according to review
+	- custom_getCorrectVlan renamed to get_normal_vlan
+	- Pass node_info hashref instead of individual node information to 
+	  get_normal_vlan()
+	- Now using the new getVlanByName() call
+	- Pushed up the testing of the switch object into 
+	  determine_vlan_for_node and we are now degrading gracefully if object
+	  is wrong
+	- Allowing a -1 return from get_normal_vlan to kick out users
+	- get_normal_vlan now takes connection_type and ssid as parameters
+
+	* pf/lib/pf/SwitchFactory.pm: Modified the factory so it can produce
+	switches of the 'default' type.
+
+2010-03-23	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/vlan.pm: Refactoring pf::vlan according to review
+	- Extracted get_violation_vlan out of vlan_determine_for_node for 
+	future use by pf::radius
+	- Removing node_exist()/node_add_simple condition: it never happens
+	- Extracted get_registration_vlan out of vlan_determine_for_node for 
+	future use by pf::radius. Created test case in t/vlan.t too.
+
+	* pf/lib/pf/radius.pm: Removed code that I realized was run two times
+	for nothing (outlined when I did the tests)
+
+	* pf/t/all.t, pf/t/radius.t: Test for pf::radius
+
+	* pf/lib/pf/radius.pm: Refactoring pf::radius according to review
+	- extracted out VoIP handling into its own sub
+
+2010-03-18	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/802.1X/rlm_perl_packetfence_soap.pl, pf/cgi-bin/pdp.cgi,
+	pf/lib/pf/radius.pm: Client - Server SOAP interface changes
+	Now passing a tuple with radius return code and radius reply for radius
+	rlm client soap call. Allows greater flexibility of radius answers from
+	the server side without modifying clients.
+	Reworked all validation and returned codes in rlm_perl_packetfence 
+	module.
+	Little modifications required to server side components so it'll all 
+	work.
+
+2010-03-17	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/radius.pm: A big chunk of pf::radius rework and general
+	improvements, hopefully really close to tests
+
+	* pf/lib/pf/actions.pm, pf/lib/pf/vlan.pm, pf/sbin/pfsetvlan: 
+	generalized pf::vlan's shouldAutoRegister and getNodeInfoForAutoReg to 
+	work with both pfsetvlan and pf::radius
+	Changed all callers
+
+	* pf/lib/pf/SNMP.pm, pf/t/SNMP.t: minor refactoring: extracted code 
+	into isManagedVlan() and some tests against it
 
 2010-03-16	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec: Fix upgrade bug introduced in 1.8.5: Changed
 	perl-Locale-gettext dependency to use the perl namespace version 
 	perl(Locale-gettext). Fixes #931;
 	http://www.packetfence.org/mantis/view.php?id=931
+
+2010-03-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec, pf/t/vlan.t: Updated vlan tests so that rework
+	done in 1.8 branch passes the tests. 
+	RPM Spec:
+	- Added perl-Test-MockModule as a build dependency (required for tests)
+	- Test modules are now required for building instead of required for 
+	  package install.
 
 2010-03-11	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec: Snapshot 1.8.8-0.20100311
@@ -302,17 +436,51 @@
 	ifIndex larger than two digits to appear in fake MAC. Fixes #921;
 	http://www.packetfence.org/mantis/view.php?id=921
 
+	* pf/lib/pf/locationlog.pm, pf/lib/pf/node.pm, 
+	pf/lib/pf/pfcmd/report.pm: locationlog and node views are now returning
+	the human translated connection_type instead of straight from database
+	Also took the opportunity to turn report.pm into a real module.
+
+	* pf/html/admin/common.php, pf/lib/pf/config.pm: Changed the long name
+	of the SNMP-based connection type.
+
 	* pf/addons/high-availability/pf-diff, 
 	pf/addons/high-availability/rdiff: New sync tools that I've been using
 	to compare installations
 
+2010-02-25	Olivier Bilodeau <obilodeau@inverse.ca>
+	On the road towards radius and traps unification.
+	- Major overhaul of the way we think about nodes: two new fields 
+	connection_type and voip
+	- Updated all affected components
+	
+2010-02-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/sbin/pfsetvlan: Cleaning up direct MySQL leftovers
+	Removing DBI and pf::db deps
+	Removed all manual mysql connections
+
+	* pf/lib/pf/action.pm: Minor refactoring: Extracted action autoreg into
+	it's own sub.
+
 2010-02-12	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/action.pm, pf/lib/pf/node.pm, pf/lib/pf/vlan.pm, 
+	pf/sbin/pfsetvlan, pf/t/vlan.t: Refactoring
+	Merged the different auto-registration mechanisms into node.pm and 
+	vlan.pm out of pfsetvlan.
+	Removed duplicated code and raw SQL from pfsetvlan. 
+	Massive POD doc and refactoring of vlan.pm.
+	Updated associated copyrights.
+
 	* pf/bin/pfcmd: Report an error to STDERR if the grammar doesn't
 	successfully parse the given command. We also include a line # in the
 	output so that it will be shown in the Web admin. Fixes #847;
 	http://www.packetfence.org/mantis/view.php?id=847
 
 2010-02-11	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/vlan.pm, pf/sbin/pfsetvlan: Avoided duplicated code, 
+	renamed vlan.pm's custom_getNodeInfo to getNodeUpdatedInfo and modified
+	it.
+
 	* pf/lib/pf/pfcmd/pfcmd.pm: Allow ! in value field when quoted. Fixes
 	#911;
 	http://www.packetfence.org/mantis/view.php?id=911
@@ -512,11 +680,21 @@
 	* pf/html/user/content/templates/register_1.html: Fixed missing
 	closing html tags
 
+2009-12-24	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/radius.pm, pf/lib/radius/custom.pm: Layed the foundation
+	for our new integrated way of assigning VLANs through SOAP calls.
+
+2009-12-23	Olivier Bilodeau <obilodeau@inverse.ca>
+	* renamed pf/addons/802.1X/rlm_perl_packetfence.pl to 
+	pf/addons/802.1X/rlm_perl_packetfence_sql.pl, added 
+	pf/addons/802.1X/rlm_perl_packetfence_soap.pl, modified 
+	pf/cgi-bin/pdp.cgi, pf/addons/802.1X/README: Added full SOAP client for
+	freeradius (rlm_perl_packetfence_soap.pl) and server side placeholder 
+	sub.
+
 2009-12-22	Olivier Bilodeau <obilodeau@inverse.ca>
-	* pf/html/admin/login.php: Fixed "username" Cross-Site Scripting
-	Vulnerability as reported by Secunia advisory 37844 available at:
-	http://secunia.com/advisories/37844/. Fixes #884;
-	http://www.packetfence.org/mantis/view.php?id=884
+	* pf/addons/pfdetect_remote/sbin/pfdetect_remote, pf/cgi-bin/pdp.cgi:
+	Changed SOAP URI identifier to http://www.packetfence.org/PFAPI
 
 	* renamed pf/t/SNMP.t to pf/t/hardware-snmp-objects.t, modified 
 	t/SNMP.t: Added tests specific to lib/SNMP.pm (renamed other tests)
@@ -542,7 +720,26 @@
 	- setVlanAllPort now sets vlan according to # or name based on what the
 	  value of vlan is
 
+	* pf/html/admin/login.php: Fixed "username" Cross-Site Scripting
+	Vulnerability as reported by Secunia advisory 37844 available at:
+	http://secunia.com/advisories/37844/. Fixes #884;
+	http://www.packetfence.org/mantis/view.php?id=884
+
+2009-12-18	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/t/vlan.t, pf/t/data/switches.conf: New vlan.t testsuite that tests
+	lib/pf/vlan.pm. Some pretty interesting learning made there, definitely
+	more to come on the test front.
+
+	* pf/lib/vlan.pm: Removed several warnings discovered while building a
+	vlan test
+
 2009-12-17	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/templates/httpd.conf.apache22, 
+	pf/conf/templates/httpd.conf.pre_apache22: pdp.cgi uses mod_perl 
+	instead of being a simple cgi. Big performance gain (6x in my tests)
+
+	* pf/packetfence.spec: mod_perl as a packetfence dependency
+
 	* pf/packetfence.spec: Added perl-LWP-UserAgent-Determined as a 
 	dependency of remote-snort-sensor. Fixes #882;
 	http://www.packetfence.org/mantis/view.php?id=882

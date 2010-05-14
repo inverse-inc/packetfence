@@ -1,4 +1,19 @@
 package pf::pfcmd::report;
+=head1 NAME
+
+pf::pfcmd::report - all about reports
+
+=cut
+
+=head1 DESCRIPTION
+
+TBD
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Read the F<pf.conf> configuration file.
+
+=cut
 
 use strict;
 use warnings;
@@ -31,9 +46,12 @@ BEGIN {
         report_statics_active
         report_unknownprints_all
         report_unknownprints_active
+
+        translate_connection_type
     );
 }
 
+use pf::config;
 use pf::db;
 use pf::util;
 
@@ -43,6 +61,13 @@ our $report_db_prepared = 0;
 # the hash if required
 our $report_statements = {};
 
+=head1 SUBROUTINES
+
+TODO: list incomplete
+
+=over
+
+=cut
 sub report_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::pfcmd::report');
 
@@ -279,11 +304,11 @@ sub report_openviolations_active {
 }
 
 sub report_statics_all {
-    return db_data(REPORT, $report_statements, 'report_statics_all_sql');
+    return translate_connection_type(db_data(REPORT, $report_statements, 'report_statics_all_sql'));
 }
 
 sub report_statics_active {
-    return db_data(REPORT, $report_statements, 'report_statics_active_sql');
+    return translate_connection_type(db_data(REPORT, $report_statements, 'report_statics_active_sql'));
 }
 
 sub report_unknownprints_all {
@@ -301,6 +326,30 @@ sub report_unknownprints_active {
     }
     return (@data);
 }
+
+=item * translate_connection_type
+
+Translates connection_type database string into a human-understandable string
+
+=cut
+# TODO we can probably be more efficient than that by passing references and stuff
+sub translate_connection_type {
+    my (@data) = @_;
+
+    # change connection_type into its meaningful to humans counterpart
+    foreach my $datum (@data) {
+
+        my $conn_type = str_to_connection_type($datum->{'connection_type'});
+        if (defined($conn_type)) {
+            $datum->{'connection_type'} = $connection_type_explained{$conn_type};
+        } else {
+            $datum->{'connection_type'} = "UNKNOWN";
+        }
+    }
+    return (@data);
+}
+
+=back
 
 =head1 AUTHOR
 
