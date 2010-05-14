@@ -1,3 +1,7 @@
+2010-05-14	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/sbin/pfsetvlan: Merging into trunk required some removal of
+	deprecated cleanup calls in sbin/pfsetvlan (db disconnection)
+
 2010-05-14	Regis Balzard <rbalzard@inverse.ca>
 	* pf/bin/pfcmd, pf/conf/floating_network_device.conf, pf/conf/ui.conf,
 	pf/html/admin/common.php, 

@@ -1126,7 +1126,6 @@ sub handleTrap {
             }
 
             cleanupAfterThread( $switch_ip, $switch_port );
-            $mysql_connection->disconnect;
             $switch->disconnectRead();
             $switch->disconnectWrite();
             return;
@@ -1366,7 +1365,6 @@ sub handleTrap {
                               "$switch_port. The port may not work!");
             }
             cleanupAfterThread( $switch_ip, $switch_port );
-            $mysql_connection->disconnect;
             $switch->disconnectRead();
             $switch->disconnectWrite();
             return;
@@ -1429,7 +1427,6 @@ sub handleTrap {
             }
  
             cleanupAfterThread( $switch_ip, $switch_port );
-            $mysql_connection->disconnect;
             $switch->disconnectRead();
             $switch->disconnectWrite(); 
             return;
