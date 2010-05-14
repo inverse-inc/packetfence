@@ -127,6 +127,14 @@ sub _getIfDescMacVlan {
     return $ifDescMacVlan;
 }
 
+=item clearMacAddressTable
+
+Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread 
+safe: 
+
+L<http://www.cpanforum.com/threads/6909/>
+
+=cut
 sub clearMacAddressTable {
     my ( $this, $ifIndex, $vlan ) = @_;
     my $command;
@@ -388,6 +396,14 @@ sub getMaxMacAddresses {
 
 }
 
+=item ping
+
+Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread 
+safe: 
+
+L<http://www.cpanforum.com/threads/6909/>
+
+=cut
 sub ping {
     my ( $this, $ip ) = @_;
     my $session;

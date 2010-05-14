@@ -14,6 +14,7 @@ runtests( qw(
               binaries.t
               config.t
               critic.t
+              hardware-snmp-objects.t
               pod.t
               podCoverage.t
               php.t
@@ -23,5 +24,7 @@ runtests( qw(
               nodecategory.t
               floatingdevice.t
               network-devices/cisco.t
+              pfsetvlan.t
+              report.t
             )
 );

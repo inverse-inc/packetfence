@@ -96,14 +96,16 @@ sub vlan_determine_for_node {
                 $correctVlanForThisMAC = $switch->{_registrationVlan};
             } else {
 
-                #TODO: find a way to cleanly wrap this
-                $correctVlanForThisMAC = $this->custom_getCorrectVlan( $switch, $ifIndex, $mac, $node_info->{status}, $node_info->{vlan}, $node_info->{pid} );
-                $logger->info( "MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", VLAN: $correctVlanForThisMAC" );
+                $correctVlanForThisMAC = $this->custom_getCorrectVlan($switch, $ifIndex, $mac, $node_info);
+                $logger->info("MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", "
+                    . "Category: ". $node_info->{category} . " VLAN: $correctVlanForThisMAC"
+                );
             }
         } else {
-            #TODO: find a way to cleanly wrap this
-            $correctVlanForThisMAC = $this->custom_getCorrectVlan( $switch, $ifIndex, $mac, $node_info->{status}, ( $node_info->{vlan} || $switch->{_normalVlan} ), $node_info->{pid} );
-            $logger->info( "MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", VLAN: $correctVlanForThisMAC" );
+            $correctVlanForThisMAC = $this->custom_getCorrectVlan($switch, $ifIndex, $mac, $node_info);
+            $logger->info("MAC: $mac, PID: " . $node_info->{pid} . ", Status: " . $node_info->{status} . ", "
+                . "Category: ". $node_info->{category} . " VLAN: $correctVlanForThisMAC"
+            );
         }
     }
     return $correctVlanForThisMAC;
@@ -128,6 +130,7 @@ sub custom_doWeActOnThisTrap {
     my $ifType = $switch->getIfType($ifIndex);
     if ( ( $ifType == 6 ) || ( $ifType == 117 ) ) {
         my @upLinks = $switch->getUpLinks();
+        # TODO: need to validate for empty array here to avoid warning
         if ( $upLinks[0] == -1 ) {
             $logger->warn("Can't determine Uplinks for the switch -> do nothing");
         } else {
@@ -161,16 +164,24 @@ sub custom_getCorrectVlan {
     #$switch is the switch object (pf::SNMP)
     #$ifIndex is the ifIndex of the computer connected to
     #$mac is the mac connected
-    #$status is the node's status in the database
-    #$vlan is the vlan set for this node in the database
-    #$pid is the owner of this node in the database
-    my ( $this, $switch, $ifIndex, $mac, $status, $vlan, $pid ) = @_;
+    #$node_info is the node info hashref (result of pf::node's node_view on $mac)
+    my ($this, $switch, $ifIndex, $mac, $node_info) = @_;
     my $logger = Log::Log4perl->get_logger();
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
-    # switch object correct, return normal vlan
+    # is switch object correct?
     my $valid_switch_object = (defined($switch) && ref($switch) && $switch->isa('pf::SNMP'));
-    if ($valid_switch_object && defined($switch->{_normalVlan})) {
+    if ($valid_switch_object) {
+
+        # exemple of VLAN assignment based on node category using switches.conf's custom VLANs
+        #if (ref($node_info) eq 'HASH' && defined($node_info->{'category'})) {
+        #    my $category = lc($node_info->{'category'});
+        #    if ($category eq 'engineering') {
+        #        return $switch->{_customVlan2};
+        #    } elsif ($category eq 'guests') {
+        #        return $switch->{_guestVlan};
+        #    }
+        #}
 
         # return switch-specific normal vlan or default normal vlan (if switch-specific normal vlan not defined)
         return $switch->{_normalVlan};

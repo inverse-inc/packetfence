@@ -142,6 +142,17 @@ pod2usage( -verbose => 1 ) if $help;
 my $switchFactory = new pf::SwitchFactory(
     -configFile => INSTALL_DIR . '/conf/switches.conf' );
 
+# building trap-matcher regexp
+my $TRAP_PATTERN = qr/
+    ^\d{4}-\d{2}-\d{2}\|\d{2}:\d{2}:\d{2}\|             # date|time
+    (?:UDP:\ \[)?                                       # Optional "UDP: [" (since v2 traps I think)
+    (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})                # network device ip address
+    (?:\]:\d+)?                                         # Optional "]:port" (since v2 traps I think)
+    (?:\-\>\[\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\])?     # Optional "->[ip address]" (since net-snmp 5.4)
+    \|([^|]*)\|                                         # Used to carry network device ip if it's a local trap
+    (.+)$                                               # Trap message
+/x;
+
 my $fh = new File::Tail(
     'name'        => INSTALL_DIR . '/logs/snmptrapd.log',
     'interval'    => 2,
@@ -448,10 +459,7 @@ sub signalHandlerTrapListQueued {
                         = substr( $trapList_queued[$i], length($prefix) );
                     if ( $prefix =~ /^inparse/ ) {
                         push @tmpTrapList_queued, $trapList_queued[$i];
-                        if ( $trapLine
-                            =~ /^\d{4}-\d{2}-\d{2}\|\d{2}:\d{2}:\d{2}\|(?:UDP: \[)?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?:\]:\d+)?\|([^|]*)\|(.+)$/
-                            )
-                        {
+                        if ($trapLine =~ /$TRAP_PATTERN/) {
                             my $switch_ip = $1;
                             $logger->trace(
                                 "adding $switch_ip to switchesWithUnfinishedParse"
@@ -585,7 +593,7 @@ sub parseTrap {
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     $logger->debug("parsing trap $trapLine");
-    if ( $trapLine =~ /^\d{4}-\d{2}-\d{2}\|\d{2}:\d{2}:\d{2}\|(?:UDP: \[)?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?:\]:\d+)?\|([^|]*)\|(.+)$/ ) {
+    if ( $trapLine =~ /$TRAP_PATTERN/ ) {
 
         #test if this is a 'normal' trap (i.e. a trap sent from a switch
         #or a local trap (INVERSE-PACKETFENCE-NOTIFICATION-MIB)
@@ -1576,6 +1584,8 @@ sub handleTrap {
         );
         #$switch->deauthenticateMac($trapMac);
         my $switchIp = $switch->{_ip};
+        # workaround a thread safety bug in Net::Appliance::Session when using SSH transport
+        # http://www.cpanforum.com/threads/6909
         `/usr/local/pf/bin/pfcmd_vlan -deauthenticate -switch $switchIp -mac $trapMac`;
 
         # }}}2

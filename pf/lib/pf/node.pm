@@ -239,7 +239,7 @@ sub node_add {
 
     # category handling
     $data{'category_id'} = _node_category_handling(%data);
-    if ($data{'category_id'} == 0) {
+    if (defined($data{'category_id'}) && $data{'category_id'} == 0) {
         $logger->error("Unable to insert node because specified category doesn't exist");
         return (0);
     }
@@ -391,21 +391,21 @@ sub node_modify {
         }
     }
 
-    # category handling
-    $data{'category_id'} = _node_category_handling(%data);
-    if ($data{'category_id'} == 0) {
-        $logger->error("Unable to insert node because specified category doesn't exist");
-        return (0);
-    }
-    # once the category conversion is complete, I delete the category entry to avoid complicating things
-    delete $data{'category'} if defined($data{'category'});
-
     my $existing   = node_view($mac);
     my $old_status = $existing->{status};
     foreach my $item ( keys(%data) ) {
         $existing->{$item} = $data{$item};
         print "$item: $data{$item}\n";
     }
+
+    # category handling
+    $data{'category_id'} = _node_category_handling(%data);
+    if (defined($data{'category_id'}) && $data{'category_id'} == 0) {
+        $logger->error("Unable to modify node because specified category doesn't exist");
+        return (0);
+    }
+    # once the category conversion is complete, I delete the category entry to avoid complicating things
+    delete $data{'category'} if defined($data{'category'});
 
     my $new_mac    = lc( $existing->{'mac'} );
     my $new_status = $existing->{'status'};
@@ -587,6 +587,11 @@ sub node_deregister {
     #return(trapmac($mac)) if ($Config{'network'}{'mode'} =~ /arp/i);
 }
 
+=item * nodes_maintenance - handling deregistration on node expiration and node grace 
+
+called by pfmon daemon every 10 maintenance interval (usually each 10 minutes)
+
+=cut
 sub nodes_maintenance {
     my $logger = Log::Log4perl::get_logger('pf::node');
 

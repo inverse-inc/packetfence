@@ -17,6 +17,126 @@
 	pf/t/podCoverage.t, pf/t/pod.t: Added support for Floating Network 
 	Devices (See Admin Guide for details). Minor improvements by Olivier.
 
+2010-05-14	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/common.php: Small mistake when deleting a node category.
+	It says switch and shows the category_id. It's fixed now.
+
+2010-05-07	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/dhcp_fingerprints.conf: New DHCP fingerprints:
+	- Ruckus Wireless
+	- Ubuntu 9.10
+	- a new HP Procurve fingerprint
+	- Toshiba Multifunction Printer
+	- Xerox
+
+	* pf/conf/oui.txt: Updated oui.txt (MAC address vendors) to latest 
+	version (2010-05-07)
+
+	* pf/html/admin/common.php, pf/html/admin/configuration/fingerprint.php:
+	Fixed two problems with DHCP fingerprint submissions:
+	- if submitted list empty, array_merge error
+	- submitting fingerprints via Configuration -> Fingerprint looked like
+	  it never worked. Fixed that.
+
+	* pf/lib/pf/pfcmd/report.pm: Fixed a couple of non-working reports. 
+	Fixes #984;
+	Added test cases for all of pf::pfcmd::report's subs.
+	Added Test::NoWarnings as a build dependency.
+	http://www.packetfence.org/bugs/view.php?id=984
+
+2010-05-06	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec: Removing the pinned perl(Parse::RecDescent) 
+	version from the RPM spec. Fixes #833;
+	http://www.packetfence.org/bugs/view.php?id=833
+
+	* pf/packetfence.spec: Changes to RPM spec file
+	- Snapshot vs releases is now defined by an rpmbuild argument
+	- source_release should now be passed as an argument to simplify our 
+	nightly build system. Fixes #946;
+	http://www.packetfence.org/bugs/view.php?id=946
+
+	* pf/packetfence.spec: Fixed a problem with addons/integration-testing
+	files in the RPM spec file
+
+	* pf/packetfence.spec: Perl required version is now 5.8.8 since a lot 
+	of our source files explictly ask for 5.8.8. Fixes #868;
+	http://www.packetfence.org/bugs/view.php?id=868
+
+	* pf/packetfence.spec: perl modules required for testing are now build
+	dependencies instead of runtime dependencies. Fixes #866;
+	http://www.packetfence.org/bugs/view.php?id=866
+
+2010-05-05	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/installer.pl: The installer now refers to the UPGRADE document
+	instead of trying to upgrade the database. Fixes #869;
+	http://www.packetfence.org/bugs/view.php?id=869
+
+	* pf/sbin/pfsetvlan, pf/t/all.t, pf/t/pfsetvlan.t: Now parsing new
+	Net-SNMP 5.4 traplog format. Fixes #940;
+	Took the opportunity to do it cleanly with a compiled and re-used regexp
+	that is full of comments.
+	Now testing the various traplog format in t/pfsetvlan.t.
+	Thanks to Maikel for the report and regexp draft.
+
+	* pf/conf/dhcp_fingerprints.conf: Re-labeled some devices to avoid 
+	problems with VoIP autodetection. Fixes #896;
+	http://www.packetfence.org/bugs/view.php?id=896
+
+	* pf/sbin/pfdhcplistener: Reduced DHCP logging at INFO level. Now we 
+	are only logging ACK / OFFER / INFORM and I consolidated fingerprint
+	and node modification messages.
+
+	* pf/lib/pf/node.pm: Fixed a couple of issues with node category 
+	support I encountered:
+	- One crasher (missing sub because of a bad merge) 
+	- Fixed a bug where a missing category would always result in an error
+	- Fixed an unnecessary warning on node_modify
+
+2010-05-04	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/ui.conf: Renamed VLAN to Alternate dest. VLAN makes its
+	purpose clearer. Fixes #927;
+	http://www.packetfence.org/mantis/view.php?id=927
+
+	* pf/docs/PacketFence_Administration_Guide.odt: Added two paragraph to
+	the admin guide under MySQL optimizations: 
+	- Avoid 'Too many connections' problems
+	- Avoid 'Host <hostname> is blocked' problems
+	Fixes #951;
+	http://www.packetfence.org/mantis/view.php?id=951
+
+	* pf/html/admin/configuration/switches_add.php, 
+	pf/html/admin/configuration/switches_edit.php: VoIPEnabled parameter
+	is now a Yes/No dropdown instead of an input text. Fixes #952;
+	Also took the opportunity to turn the whole thing into a switch/case
+	http://www.packetfence.org/mantis/view.php?id=952
+
+	* pf/bin/pfcmd: Not saying 'Command not understood' anymore if no 
+	command was passed to pfcmd. Fixes #972;
+	http://www.packetfence.org/mantis/view.php?id=972
+
+	* pf/TODO: dropping TODO in favor of tracking everything in our
+	public bugtracker
+
+	* pf/installer.pl, pf/t/pfcmd.t: New 1.9.0 database hashes
+
+	* pf/bin/pfcmd: Now ignoring AUTO_INCREMENT= when calculating database
+	hash since this value will always be different for each database.
+
+	* pf/docs/PacketFence_Developers_Guide.odt, 
+	pf/docs/PacketFence_Installation_Guide.odt: Mark x86_64 as officially
+	supported
+
+2010-05-03	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Manual merge of 1.8 
+	and trunk branches. Added small fixes on top of that (whitespace and
+	wording)
+	- Small corrections. Fixes #950;
+	http://www.packetfence.org/mantis/view.php?id=950
+
+2010-04-30	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/vlan.pm: VLAN assignment sample for node categorization.
+	Changed the custom_getCorrectVlan interface again.
+
 2010-04-28	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/html/admin/common/helpers.inc, pf/html/admin/images/category.png,
 	pf/html/admin/node/categories_add.php, 
@@ -201,6 +321,16 @@
 	ifIndex larger than two digits to appear in fake MAC. Fixes #921;
 	http://www.packetfence.org/mantis/view.php?id=921
 
+	* pf/addons/high-availability/pf-diff, 
+	pf/addons/high-availability/rdiff: New sync tools that I've been using
+	to compare installations
+
+2010-02-12	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd: Report an error to STDERR if the grammar doesn't
+	successfully parse the given command. We also include a line # in the
+	output so that it will be shown in the Web admin. Fixes #847;
+	http://www.packetfence.org/mantis/view.php?id=847
+
 2010-02-11	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/pfcmd/pfcmd.pm: Allow ! in value field when quoted. Fixes
 	#911;
@@ -247,6 +377,9 @@
 	Local bug to track upstream: 
 	http://www.packetfence.org/mantis/view.php?id=902
 
+	* pf/lib/pf/SNMP/Cisco.pm: Added a noSuchObject test to 
+	isLearntTrapsEnabled
+
 2010-02-03	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/SNMP/Cisco/Controller_4400_4_2_130.pm,
 	pf/lib/pf/SNMP/Cisco/WLC_2106.pm, pf/lib/pf/SNMP/Cisco/WiSM.pm:
@@ -287,6 +420,10 @@
 	Documented an issue with Windows 7 and certain IOSes
 
 2010-01-28	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/t/podCoverage.t: Forcing 100% POD coverage for SNMP.pm since it's
+	the base switch module contract and we often don't know what's expected
+	when we re-implement subs
+
 	* pf/lib/pf/SNMP/Cisco/ISR_1800.pm: getVlan was returning true or false
 	instead of requested VLAN, now fixed
 
@@ -298,6 +435,8 @@
 2010-01-27	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/SNMP/Cisco/ISR_1800.pm: Implemented isDefinedVlan and
 	getVlan for the ISR 1800
+
+	* pf/lib/pf/SNMP/Cisco.pm: Added POD doc
 
 2010-01-26	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/docs/PacketFence_Installation_Guide.odt: Default web admin
@@ -318,8 +457,26 @@
 	* pf/conf/dhcp_fingerprints.conf: Added a projectors class and an
 	Epson projector fingerprint to the DHCP fingerprint database.
 	Contributed by Roelof Hoekstra.
-	
+
 2010-01-19	Olivier Bilodeau <obilodeau@inverse.ca>
+	* Renamed pf/lib/pf/SNMP/Cisco/Controller_4400_4_2_130.pm to 
+	pf/lib/pf/SNMP/Cisco/WLC_4400.pm, modified pf/UPGRADE, 
+	pf/docs/PacketFence_Administration_Guide.odt,
+	pf/html/admin/configuration/switches_add.php,
+	pf/html/admin/configuration/switches_edit.php, 
+	pf/lib/pf/SNMP/Cisco/WLC_4400.pm, pf/lib/pf/SNMP/Cisco/WiSM.pm,
+	pf/packetfence.spec, pf/t/SNMP.t, pf/t/critic.t, pf/t/pod.t: Renamed
+	wireless module for Cisco Wireless Controller 4400 to WLC_4400
+	Updated all associated entries accordingly.
+
+	* pf/lib/pf/SNMP/Cisco/Controller_4400_4_2_130.pm: Added more verbose
+	logging and a TODO task
+
+	* pf/bin/pfcmd: Clarified an error message about missing config
+	element.
+	Now reminding users to change conf/documentation.conf if they
+	added new stuff in pf.conf.
+
 	* Adding pf/lib/pf/SNMP/Cisco/WiSM.pm, modified pf/README_SWITCHES, 
 	pf/docs/PacketFence_Administration_Guide.odt,
 	pf/html/admin/configuration/switches_add.php, 
@@ -337,6 +494,11 @@
 	http://technet.microsoft.com/en-us/library/cc766017(WS.10).aspx.
 	Fixes #892;
 	http://www.packetfence.org/mantis/view.php?id=892
+
+2010-01-18	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/lookup/node.pm: Added correct VLAN information to node
+	lookup. Fixes #893;
+	http://www.packetfence.org/mantis/view.php?id=893
 
 2010-01-15	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/lookup/person.pm: Improved custom example
@@ -374,6 +536,30 @@
 	Vulnerability as reported by Secunia advisory 37844 available at:
 	http://secunia.com/advisories/37844/. Fixes #884;
 	http://www.packetfence.org/mantis/view.php?id=884
+
+	* renamed pf/t/SNMP.t to pf/t/hardware-snmp-objects.t, modified 
+	t/SNMP.t: Added tests specific to lib/SNMP.pm (renamed other tests)
+
+	* pf/bin/pfcmd, pf/conf/switches.conf, pf/conf/ui.conf, 
+	pf/conf/violations.conf, pf/html/admin/configuration/switches.php, 
+	pf/lib/pf/SNMP.pm, pf/lib/pf/pfcmd/pfcmd.pm, pf/lib/pf/SwitchFactory.pm:
+	added fields guestVlan customVlan1 customVlan2 customVlan3 customVlan4 
+	customVlan5 as valid vlan definitions in switches.conf
+
+	* pf/bin/pfcmd_vlan:
+	- realigned spacing of pod2usage (was broken by tabs)
+	- updated copyright, authors
+	- new parameter -vlanName
+	- using setVlanByName instead of newly deprecated setIsolationVlan and
+	  setNormalVlan
+
+	* pf/lib/pf/SNMP.pm: 
+	- new sub setVlanByName, sets switch/ifIndex a vlan according to what's
+	  defined in switches.conf
+	- new sub placeholder for the future: setVlanWithName
+	- deprecated setIsolationVlan, setRegistrationVlan, setNormalVlan
+	- setVlanAllPort now sets vlan according to # or name based on what the
+	  value of vlan is
 
 2009-12-17	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec: Added perl-LWP-UserAgent-Determined as a 
@@ -464,10 +650,14 @@
 	http://www.packetfence.org/mantis/view.php?id=862
 
 2009-11-27	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Developers_Guide.odt: fixed a typo
+
 	* pf/lib/pf/util.pm: Disabled unnecessary caching in vlan isolation
 	mode. Prevents out of memory crashes in pfmon on large networks. Fixes 
 	#861;
 	http://www.packetfence.org/mantis/view.php?id=861
+
+	* pf/lib/node.pm: Added POD doc
 
 	* pf/packetfence.spec: Removed the commented out %define macro for
 	our versionning. It seems that macro in comments are also interpreted. 
@@ -500,6 +690,10 @@
 	http://www.packetfence.org/mantis/view.php?id=846
 	http://www.packetfence.org/mantis/view.php?id=849
 
+2009-11-18	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd_vlan, pf/lib/pf/SNMP/Cisco.pm, pf/lib/pf/violation.pm,
+	pf/sbin/pfdhcplistener: New TODO and FIXME tasks
+
 2009-11-17	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/docs/PacketFence_Installation_Guide.odt: Added repositories in
 	OS requirements section of the install guide:
@@ -514,6 +708,8 @@
 	Jean-Francois Laporte for reporting this. Fixes #853;
 	http://www.packetfence.org/mantis/view.php?id=853
 	
+	* pf/lib/pf/node.pm: commented code
+
 2009-11-16	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/SNMP/Aruba.pm: Fixed string concatenation problem.
 	Also took the opportunity to removed duplicated ERROR: string appended
@@ -527,6 +723,14 @@
 	* pf/cgi-bin/redir.cgi: Validating if $cgi->user_agent is defined. 
 	Fixes #850;
 	http://www.packetfence.org/mantis/view.php?id=850
+
+2009-11-11	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Cisco/Aironet.pm, 
+	pf/lib/pf/SNMP/Cisco/Catalyst_2950.pm, 
+	pf/lib/pf/SNMP/Cisco/Catalyst_3500XL.pm, 
+	pf/lib/pf/SNMP/Cisco/WLC_2106.pm, pf/lib/pf/SNMP/Cisco.pm, 
+	pf/sbin/pfsetvlan: Properly documented thread-safety problems with
+	Net::Appliance::Session
 
 2009-11-10	Regis Balzard <rbalzard@inverse.ca>
 	* pf/html/admin/configuration/switches_edit.php: 
@@ -546,17 +750,38 @@
 	http://www.packetfence.org/mantis/view.php?id=839
 	http://www.packetfence.org/mantis/view.php?id=841
 
+2009-11-05	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/TODO: Added a TODO list to track some tasks
+
 2009-11-03	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/lookup/node.pm, pf/UPGRADE: Added more information about 
+	past IP in node lookup.
+	Added UPGRADE warning that scripts relying on the output of lookup node
+	could break.
+
 	* pf/html/admin/configuration/switches_add.php,
-	pf/html/admin/configuration/switches_edit.php: Fixed typo in switch 
-	definition in the Web Admin causing problems adding or editing a Cisco 
-	Catalyst 2970, 3500XL and wireless Controller 4400. Fixes 836; 
+	pf/html/admin/configuration/switches_edit.php: Fixed typo in switch
+	definition in the Web Admin causing problems adding or editing a Cisco
+	Catalyst 2970, 3500XL and wireless Controller 4400. Fixes 836;
 	http://www.packetfence.org/mantis/view.php?id=836
-	Backported from the 1.9 branch.
 
 2009-11-02	Regis Balzard <rbalzard@inverse.ca>
 	* pf/lib/pf/services.pm: Fixed missing library requirement when using
 	PacketFence with routed VLANs
+
+2009-11-02	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/node/lookup.php, pf/lib/pf/lookup/node.pm, 
+	pf/lib/pf/pfcmd/help.pm: Node lookup now gives information about IP
+	and DHCP status (from iplog)
+	Updated pfcmd's help
+	Output in Web Admin is no longer right-aligned
+
+	* pf/html/admin/common.php: Fixed alignment of the filter input dialog 
+
+	* pf/lib/pf/SNMP.pm, pf/lib/pf/vlan.pm: Removed dead code, added POD
+	doc, added TODO tasks
+
+	* pf/NEWS, pf/conf/pf-release: bumped to 1.9.0dev
 
 2009-10-30	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec: Correctly pinned Parse::RecDescent dependency to

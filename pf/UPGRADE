@@ -5,9 +5,44 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
-o Upgrading from a version prior to <release>:
+o Upgrading from a version prior to 1.9.0:
 
-    - New perl dependencies Try::Tiny and Test::Exception
+    - Library update: steps required on manual upgrade
+    PacketFence no longer relies on a specific version of the Parse-RecDescent
+    library. If you upgraded manually, you should re-generate the precompiled
+    grammar by running installer.pl. If you upgraded using the RPM package the
+    grammar already comes precompiled.
+
+    - Changes to some OS violations
+    Some DHCP fingerprint have been re-labeled to avoid problems with VoIP 
+    autodetection. OS::311 is now OS:1102 and OS::315 is now OS::1103. These
+    devices (iPhone and HTC Android) are now categorized under Smartphone 
+    instead of VoIP phones. Update your configuration accordingly.
+
+    - pfdhcplistener logging in logs/packetfence.log
+    We reduced the number of INFO messages that pfdhcplistener was producing
+    because it was too verbose. Now only INFORM / OFFER / ACK messages are 
+    logged and the fingerprint and node modification messages were 
+    consolidated. If you are troubleshooting and need the other messages, make
+    sure you increase log verbosity to DEBUG.
+
+    - pfcmd output change
+    pfcmd will print "Command not understood. (pfcmd grammar test failed at 
+    line 200.)" to STDERR on unrecognized input before showing the usage 
+    message. You might have to change your scripts to handle that.
+
+    - Cisco Controller 4400 now named WLC_4400
+    To be more consistent, we renamed Cisco::Controller_4400_4_2_130 to 
+    Cisco::WLC_4400. If you upgrade make sure you update your conf/switches.conf
+    or Configuration -> Switches (in web admin)
+
+    - Output of node lookup changed
+    The output of `pfcmd lookup node <mac>` changed. Make sure you update your 
+    parsing scripts (if any). This also affects the Node lookup section of the
+    Web Admin interface.
+
+    - New run-time perl dependencies Try::Tiny and Readonly::XS (optional but
+    will improve performance)
 
     - New parameter in conf/violations.conf: whitelisted_categories
     Node in a whitelisted category will not be isolated on a given violation.
@@ -32,7 +67,8 @@ o Upgrading from a version prior to <release>:
     If you built a customized version of vlan.pm in lib/pf/vlan/custom.pm be 
     aware that the parameters expected by vlan_determine_for_node() and 
     custom_getCorrectVlan() changed. Instead of the switch's IP, a switch 
-    object (pf::SNMP) is expected.
+    object (pf::SNMP) is expected. Also, the whole node_info is passed to 
+    custom_getCorrectVlan() instead of scalars of node_info's content.
 
     - Backup script archives locationlog_history records older than a year
     Archives are an SQL dump of the records placed in /root/backup/ by default 
