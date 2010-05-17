@@ -238,9 +238,14 @@ if ( lc($command) eq 'person' ) {
     import pf::violation;
     command_param($command);
 } else {
-    (   $main::{ ${ $cmd{'command'} }[0] }
-            or sub { print "No such sub: $_\n" }
-    )->();
+
+    # execute sub represented by the $command string in current namespace
+    $logger->debug("executing sub " . $command . "()");
+    {
+        no strict 'refs';
+        &{$command}()
+            or print "No such sub: $command\n";
+    }
 }
 
 # END MAIN
