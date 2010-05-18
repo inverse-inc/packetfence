@@ -3,6 +3,9 @@
 	left out of the RPM spec for Floating Network Device support. This has 
 	been fixed.
 
+	* pf/bin/pfcmd: Changed other soft-referenced function calls that were
+	failing with the updated Parse::RecDescent module.
+
 	* pf/bin/pfcmd: Replaced all hard-coded line numbers with __LINE__ perl
 	construct since web admin uses a regexp on "line xxx" to be aware about
 	errors (as a hack).

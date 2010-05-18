@@ -238,7 +238,6 @@ if ( lc($command) eq 'person' ) {
     import pf::violation;
     command_param($command);
 } else {
-
     # execute sub represented by the $command string in current namespace
     $logger->debug("executing sub " . $command . "()");
     {
@@ -1901,8 +1900,12 @@ sub command_param {
     # run update/or delete  and check return val
     if ( $function eq "violation_add" ) {
         $logger->info( "pfcmd calling $function for " . $params{mac} );
-        ( $main::{$function} or sub { print "No such sub: $_\n" } )
-            ->( $params{mac}, $params{vid}, %params );
+        # execute sub represented by the $function string in current namespace
+        {   
+            no strict 'refs';
+            &{$function}($params{mac}, $params{vid}, %params)
+                or print "No such sub: $function or sub returned 0 or undef at line ".__LINE__.".\n";
+        }
     } else {
         if ( $function eq "violation_delete" ) {
             my @violation_data = violation_view($id);
@@ -1922,9 +1925,12 @@ sub command_param {
             }
         }
         $logger->info("pfcmd calling $function for $id");
-        $returnValue
-            = ( $main::{$function} or sub { print "No such sub: $_\n" } )
-            ->( $id, %params );
+        # execute sub represented by the $function string in current namespace
+        {   
+            no strict 'refs';
+            $returnValue = &{$function}($id, %params)
+                or print "No such sub: $function or sub returned 0 or undef at line ".__LINE__.".\n";
+        }
     }
     if ( $returnValue != 2 ) {
 
@@ -1972,7 +1978,12 @@ sub print_results {
     if ( !defined(&$functionName) ) {
         print "No such sub $function\n";
     } else {
-        @results = ( $main::{$function} )->( $key, %params );
+        # execute sub represented by the $function string in current namespace
+        {   
+            no strict 'refs';
+            @results = &{$function}($key, %params)
+                or print "No such sub: $function or sub returned 0 or undef at line ".__LINE__.".\n";
+        }
     }
     $total = scalar(@results);
     if ($count) {
