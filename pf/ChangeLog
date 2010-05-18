@@ -1,3 +1,8 @@
+2010-05-18	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec: A file (conf/floating_network_device.conf) was 
+	left out of the RPM spec for Floating Network Device support. This has 
+	been fixed.
+
 2010-05-17	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/bin/pfcmd: Changed the way we dynamically call pfcmd commands that
 	we parsed. Something changed with upstream Parse::RecDescent that 

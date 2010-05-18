@@ -365,6 +365,7 @@ fi
 %dir                    /usr/local/pf/conf/dhcpd
                         /usr/local/pf/conf/dhcpd/dhcpd.leases
 %config                 /usr/local/pf/conf/documentation.conf
+%config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
 %dir                    /usr/local/pf/conf/locale
 %dir                    /usr/local/pf/conf/locale/en
 %dir                    /usr/local/pf/conf/locale/en/LC_MESSAGES
@@ -496,6 +497,10 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Tue May 18 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added missing file for Floating Network Device support: 
+  floating_network_device.conf
+
 * Fri May 07 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added new files for Floating Network Device support
 - Added perl(Test::NoWarnings) as a build-time dependency (used for tests)
