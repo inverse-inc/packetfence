@@ -3,6 +3,10 @@
 	left out of the RPM spec for Floating Network Device support. This has 
 	been fixed.
 
+	* pf/bin/pfcmd: Since yesterday's fix, pfcmd commands need a true 
+	return value otherwise pfcmd would report that sub didn't exist. I 
+	fixed that.
+
 2010-05-17	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/bin/pfcmd: Changed the way we dynamically call pfcmd commands that
 	we parsed. Something changed with upstream Parse::RecDescent that 

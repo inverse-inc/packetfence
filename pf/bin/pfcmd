@@ -244,7 +244,7 @@ if ( lc($command) eq 'person' ) {
     {
         no strict 'refs';
         &{$command}()
-            or print "No such sub: $command\n";
+            or print "No such sub: $command or sub returned 0 or undef at line 246.\n";
     }
 }
 
@@ -403,6 +403,7 @@ sub nodecategory {
             $logger->logcarp("$_");
         }
     } 
+    return 1;
 }
 
 sub switchlocation {
