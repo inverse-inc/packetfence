@@ -398,14 +398,17 @@ sub node_modify {
         print "$item: $data{$item}\n";
     }
 
-    # category handling
-    $data{'category_id'} = _node_category_handling(%data);
-    if (defined($data{'category_id'}) && $data{'category_id'} == 0) {
-        $logger->error("Unable to modify node because specified category doesn't exist");
-        return (0);
+    # category handling 
+    # if category was updated, resolve it correctly
+    if (defined($data{'category'}) || defined($data{'category_id'})) {
+       $existing->{'category_id'} = _node_category_handling(%data);
+       if (defined($existing->{'category_id'}) && $existing->{'category_id'} == 0) {
+           $logger->error("Unable to modify node because specified category doesn't exist");
+           return (0);
+       }   
+       # once the category conversion is complete, I delete the category entry to avoid complicating things
+       delete $existing->{'category'} if defined($existing->{'category'});
     }
-    # once the category conversion is complete, I delete the category entry to avoid complicating things
-    delete $data{'category'} if defined($data{'category'});
 
     my $new_mac    = lc( $existing->{'mac'} );
     my $new_status = $existing->{'status'};

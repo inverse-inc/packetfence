@@ -1,4 +1,8 @@
 2010-05-18	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/node.pm: Fixed a regression I introduced in revno 
+	a7c168dcd6e42180e15dc166feb7167ddc36bc8f in node_modify (pfcmd node 
+	edit). Now fixed so its properly updating nodes again.
+
 	* pf/packetfence.spec: A file (conf/floating_network_device.conf) was 
 	left out of the RPM spec for Floating Network Device support. This has 
 	been fixed.
