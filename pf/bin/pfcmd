@@ -211,7 +211,7 @@ if (! exists($cmd_tmp{'grammar'})) {
         # if argument list is not empty then it's a command not understood
         if (@ARGV) {
             # line number is a hack for web admin error output
-            print STDERR "Command not understood. (pfcmd grammar test failed at line 205.)\n";
+            print STDERR "Command not understood. (pfcmd grammar test failed at line ".__LINE__.".)\n";
         }
         require pf::pfcmd::help;
         pf::pfcmd::help::usage();
@@ -244,7 +244,7 @@ if ( lc($command) eq 'person' ) {
     {
         no strict 'refs';
         &{$command}()
-            or print "No such sub: $command or sub returned 0 or undef at line 246.\n";
+            or print "No such sub: $command or sub returned 0 or undef at line ".__LINE__.".\n";
     }
 }
 
@@ -470,7 +470,7 @@ sub violationconfig {
             =~ /^(default|all|1100001|1100004|1100005|1100009|1100010|1200001|1200003)$/
             )
         {
-            print "This violation can't be deleted (Error at line 0 in pfcmd)\n";
+            print "This violation can't be deleted (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         } else {
             if ( tied(%violations_conf)->SectionExists($section) ) {
@@ -481,7 +481,7 @@ sub violationconfig {
                 import pf::configfile;
                 configfile_import( $conf_dir . "/violations.conf" );
             } else {
-                print "Unknown violation $section! (Error at line 0 in pfcmd)\n";
+                print "Unknown violation $section! (Error at line ".__LINE__." in pfcmd)\n";
                 exit;
             }
         }
@@ -527,7 +527,7 @@ sub violationconfig {
             import pf::configfile;
             configfile_import( $conf_dir . "/violations.conf" );
         } else {
-            print "Unknown violation $section! (Error at line 0 in pfcmd)\n";
+            print "Unknown violation $section! (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         }
     } elsif ( $mode eq 'add' ) {
@@ -550,7 +550,7 @@ sub violationconfig {
             import pf::configfile;
             configfile_import( $conf_dir . "/violations.conf" );
         } else {
-            print "Violation $section already exists! (Error at line 0 in pfcmd)\n";
+            print "Violation $section already exists! (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         }
     }
@@ -604,7 +604,7 @@ sub floatingnetworkdeviceconfig {
     } elsif ( $mode eq 'delete' ) {
         my $section = $cmd{'command'}[2];
         if ( $section =~ /^(all|stub)$/ ) {
-            print "This floating network device can't be deleted. (Error at line 0 in pfcmd)\n";
+            print "This floating network device can't be deleted. (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         } else {
             if ( tied(%floatingnetworkdevice_conf)->SectionExists($section) ) {
@@ -617,7 +617,7 @@ sub floatingnetworkdeviceconfig {
                 import pf::configfile;
                 configfile_import($configFile);
             } else {
-                print "Unknown floating network device $section! (Error at line 0 in pfcmd)\n";
+                print "Unknown floating network device $section! (Error at line ".__LINE__." in pfcmd)\n";
                 exit;
             }
         }
@@ -641,7 +641,7 @@ sub floatingnetworkdeviceconfig {
             import pf::configfile;
             configfile_import($configFile);
         } else {
-            print "Unknown floating network device $section! (Error at line 0 in pfcmd)\n";
+            print "Unknown floating network device $section! (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         }
     } elsif ( $mode eq 'add' ) {
@@ -661,7 +661,7 @@ sub floatingnetworkdeviceconfig {
             import pf::configfile;
             configfile_import($configFile);
         } else {
-            print "Floating network device $section already exists! (Error at line 0 in pfcmd)\n";
+            print "Floating network device $section already exists! (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         }
     }
@@ -716,7 +716,7 @@ sub networkconfig {
     } elsif ( $mode eq 'delete' ) {
         my $section = $cmd{'command'}[2];
         if ( $section eq 'all' ) {
-            print "This network can't be deleted (Error at line 0 in pfcmd)\n";
+            print "This network can't be deleted (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         } else {
             if ( tied(%network_conf)->SectionExists($section) ) {
@@ -729,7 +729,7 @@ sub networkconfig {
                 import pf::configfile;
                 configfile_import( $conf_dir . "/networks.conf" );
             } else {
-                print "Unknown network $section! (Error at line 0 in pfcmd)\n";
+                print "Unknown network $section! (Error at line ".__LINE__." in pfcmd)\n";
                 exit;
             }
         }
@@ -753,7 +753,7 @@ sub networkconfig {
             import pf::configfile;
             configfile_import( $conf_dir . "/networks.conf" );
         } else {
-            print "Unknown network $section! (Error at line 0 in pfcmd)\n";
+            print "Unknown network $section! (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         }
     } elsif ( $mode eq 'add' ) {
@@ -773,7 +773,7 @@ sub networkconfig {
             import pf::configfile;
             configfile_import( $conf_dir . "/networks.conf" );
         } else {
-            print "Network $section already exists! (Error at line 0 in pfcmd)\n";
+            print "Network $section already exists! (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         }
     }
@@ -825,7 +825,7 @@ sub interfaceconfig {
         my $section      = $cmd{'command'}[2];
         my $section_name = "interface $section";
         if ( $section eq 'all' ) {
-            print "This interface can't be deleted (Error at line 0 in pfcmd)\n";
+            print "This interface can't be deleted (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         } else {
             if ( tied(%pf_conf)->SectionExists($section_name) ) {
@@ -835,7 +835,7 @@ sub interfaceconfig {
                 import pf::configfile;
                 configfile_import( $conf_dir . "/pf.conf" );
             } else {
-                print "Unknown interface $section! (Error at line 0 in pfcmd)\n";
+                print "Unknown interface $section! (Error at line ".__LINE__." in pfcmd)\n";
                 exit;
             }
         }
@@ -857,7 +857,7 @@ sub interfaceconfig {
             import pf::configfile;
             configfile_import( $conf_dir . "/pf.conf" );
         } else {
-            print "Unknown interface $section! (Error at line 0 in pfcmd)\n";
+            print "Unknown interface $section! (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         }
     } elsif ( $mode eq 'add' ) {
@@ -875,7 +875,7 @@ sub interfaceconfig {
             import pf::configfile;
             configfile_import( $conf_dir . "/pf.conf" );
         } else {
-            print "Interface $section already exists! (Error at line 0 in pfcmd)\n";
+            print "Interface $section already exists! (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         }
     }
@@ -944,7 +944,7 @@ sub switchconfig {
     } elsif ( $mode eq 'delete' ) {
         my $section = $cmd{'command'}[2];
         if ( $section =~ /^(default|all|127.0.0.1)$/ ) {
-            print "This switch can't be deleted (Error at line 0 in pfcmd)\n";
+            print "This switch can't be deleted (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         } else {
             if ( tied(%switches_conf)->SectionExists($section) ) {
@@ -952,12 +952,12 @@ sub switchconfig {
                 my $tied_switch = tied(%switches_conf);
                 $tied_switch->WriteConfig($conf_dir . "/switches.conf")
                     or $logger->logdie("Unable to write config to $conf_dir/switches.conf. "
-                                      ."You might want to check the file's permissions. (pfcmd line 782.)"); # hack
+                        ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # hack
                 require pf::configfile;
                 import pf::configfile;
                 configfile_import( $conf_dir . "/switches.conf" );
             } else {
-                print "Unknown switch $section! (Error at line 0 in pfcmd)\n";
+                print "Unknown switch $section! (Error at line ".__LINE__." in pfcmd)\n";
                 exit;
             }
         }
@@ -998,12 +998,12 @@ sub switchconfig {
             my $tied_switch = tied(%switches_conf);
             $tied_switch->WriteConfig($conf_dir . "/switches.conf")
                 or $logger->logdie("Unable to write config to $conf_dir/switches.conf. "
-                                  ."You might want to check the file's permissions. (pfcmd line 828.)"); # web ui hack
+                    ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
             import pf::configfile;
             configfile_import( $conf_dir . "/switches.conf" );
         } else {
-            print "Unknown switch $section! (Error at line 0 in pfcmd)\n";
+            print "Unknown switch $section! (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         }
     } elsif ( $mode eq 'add' ) {
@@ -1022,12 +1022,12 @@ sub switchconfig {
             my $tied_switch = tied(%switches_conf);
             $tied_switch->WriteConfig($conf_dir . "/switches.conf")
                 or $logger->logdie("Unable to write config to $conf_dir/switches.conf. "
-                                  ."You might want to check the file's permissions. (pfcmd line 852.)"); # web ui hack
+                    ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
             import pf::configfile;
             configfile_import( $conf_dir . "/switches.conf" );
         } else {
-            print "Switch $section already exists! (Error at line 0 in pfcmd)\n";
+            print "Switch $section already exists! (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         }
     }
@@ -1935,7 +1935,10 @@ sub command_param {
             );
         } else {
             if ( ($function =~ /^node_delete$/) and ($returnValue == 0) ) {
-                $logger->logdie("Cannot delete this node since there are some records in locationlog table indicating that this node might still be connected and active on the network (pfcmd line 1824.)");
+                $logger->logdie("Cannot delete this node since there are some records in locationlog table "
+                    . "indicating that this node might still be connected and active on the network "
+                    . "(pfcmd line ".__LINE__.".)"
+                );
             }
             if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
                 require pf::iptables;
