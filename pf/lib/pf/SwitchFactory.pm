@@ -30,7 +30,7 @@ use pf::util;
 =over
 
 =cut
-
+#TODO: transform into a singleton? http://perldesignpatterns.com/?SingletonPattern
 sub new {
     my $logger = Log::Log4perl::get_logger("pf::SwitchFactory");
     $logger->debug("instantiating new SwitchFactory object");
@@ -67,16 +67,22 @@ sub instantiate {
         $logger->error("ERROR ! Unknown switch $requestedSwitch");
         return 0;
     }
-    my $type
-        = "pf::SNMP::"
-        . (    $SwitchConfig{$requestedSwitch}{'type'}
-            || $SwitchConfig{'default'}{'type'} );
-    if ( !  $type->require() ) {
-        $logger->error(
-            "Can not load perl module for switch $requestedSwitch, type: $type. Either the type is unknown or the perl module has compilation errors. Read the following message for details: $@"
-        );
+
+    # find the module to instantiate
+    my $type;
+    if ($requestedSwitch ne 'default') {
+        $type = "pf::SNMP::" . ($SwitchConfig{$requestedSwitch}{'type'} || $SwitchConfig{'default'}{'type'});
+    } else {
+        $type = "pf::SNMP";
+    }
+    # load the module to instantiate
+    if (!$type->require()) {
+        $logger->error("Can not load perl module for switch $requestedSwitch, type: $type. "
+            . "Either the type is unknown or the perl module has compilation errors. "
+            . "Read the following message for details: $@");
         return 0;
     }
+
     my @uplink = ();
     if (   $SwitchConfig{$requestedSwitch}{'uplink'}
         || $SwitchConfig{'default'}{'uplink'} )

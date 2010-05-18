@@ -442,6 +442,7 @@ port=3306
 host=localhost
 
 [expire]
+# TODO: validate that this only works in ARP mode or not
 #
 # expire.node
 #
