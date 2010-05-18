@@ -1976,13 +1976,12 @@ sub print_results {
     my @results;
     my $functionName = "main::$function";
     if ( !defined(&$functionName) ) {
-        print "No such sub $function\n";
+        print "No such sub $function at line ". __LINE__ .".\n";
     } else {
         # execute sub represented by the $function string in current namespace
         {   
             no strict 'refs';
-            @results = &{$function}($key, %params)
-                or print "No such sub: $function or sub returned 0 or undef at line ".__LINE__.".\n";
+            @results = &{$function}($key, %params);
         }
     }
     $total = scalar(@results);
