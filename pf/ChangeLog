@@ -1,3 +1,19 @@
+2010-05-25	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/node.pm: Fixed a bug with new node categories where a node
+	edit without a category would remove the category.
+
+	* pf/lib/services.pm: Added validation and proper error message on 
+	startup when SNMPVersion or SNMPVersionTrap is missing from 
+	conf/switches.conf. Fixes #993;
+	http://www.packetfence.org/bugs/view.php?id=993
+
+	* pf/t/all.t, pf/t/node.t: Added tests to prevent regressions in subs
+	that reads data in pf::node
+
+2010-05-25	Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/node.pm: Fixed a bug introduced with new node categories in
+	node_view_with_fingerprint.
+	
 2010-05-18	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/node.pm: Fixed a regression I introduced in revno 
 	a7c168dcd6e42180e15dc166feb7167ddc36bc8f in node_modify (pfcmd node 
