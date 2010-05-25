@@ -1,4 +1,7 @@
 2010-05-25	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/node.pm: Fixed a bug with new node categories where a node
+	edit without a category would remove the category.
+
 	* pf/lib/services.pm: Added validation and proper error message on 
 	startup when SNMPVersion or SNMPVersionTrap is missing from 
 	conf/switches.conf. Fixes #993;

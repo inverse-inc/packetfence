@@ -392,7 +392,10 @@ sub node_modify {
     }
 
     my $existing   = node_view($mac);
+    # keep track of status
     my $old_status = $existing->{status};
+    # special handling for category to category_id conversion
+    $existing->{'category_id'} = nodecategory_lookup($existing->{'category'});
     foreach my $item ( keys(%data) ) {
         $existing->{$item} = $data{$item};
         print "$item: $data{$item}\n";
