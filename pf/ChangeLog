@@ -1,3 +1,7 @@
+2010-05-25	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/t/all.t, pf/t/node.t: Added tests to prevent regressions in subs
+	that reads data in pf::node
+
 2010-05-25	Regis Balzard <rbalzard@inverse.ca>
 	* pf/lib/pf/node.pm: Fixed a bug introduced with new node categories in
 	node_view_with_fingerprint.

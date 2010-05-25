@@ -26,5 +26,6 @@ runtests( qw(
               network-devices/cisco.t
               pfsetvlan.t
               report.t
+              node.t
             )
 );
