@@ -1,4 +1,7 @@
 2010-05-25	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd: Fixed bug #833 again using hard-references this time. 
+	Tricky perl stuff...
+
 	* pf/lib/pf/node.pm: Fixed a bug with new node categories where a node
 	edit without a category would remove the category.
 
