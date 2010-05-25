@@ -1,4 +1,9 @@
 2010-05-25	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/services.pm: Added validation and proper error message on 
+	startup when SNMPVersion or SNMPVersionTrap is missing from 
+	conf/switches.conf. Fixes #993;
+	http://www.packetfence.org/bugs/view.php?id=993
+
 	* pf/t/all.t, pf/t/node.t: Added tests to prevent regressions in subs
 	that reads data in pf::node
 

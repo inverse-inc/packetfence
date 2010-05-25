@@ -988,21 +988,27 @@ sub switches_conf_is_valid {
             }
 
             # check SNMP version
-            my $SNMPVersion
-                = (    $switches_conf{$section}{'SNMPVersion'}
-                    || $switches_conf{$section}{'version'}
-                    || $switches_conf{'default'}{'SNMPVersion'}
-                    || $switches_conf{'default'}{'version'} );
-            if ( !( $SNMPVersion =~ /^1|2c|3$/ ) ) {
+            my $SNMPVersion = ($switches_conf{$section}{'SNMPVersion'}
+                || $switches_conf{$section}{'version'}
+                || $switches_conf{'default'}{'SNMPVersion'}
+                || $switches_conf{'default'}{'version'}
+            );
+
+            if (!defined($SNMPVersion)) {
+                $logger->error("Switch SNMP version is missing. Please provide one specific to switch or in default. Config section: $section");
+                $parsing_successful_flag = 0;
+            } elsif ( !( $SNMPVersion =~ /^1|2c|3$/ ) ) {
                 $logger->error("switch SNMP version is invalid for $section");
                 $parsing_successful_flag = 0;
             }
-            my $SNMPVersionTrap
-                = (    $switches_conf{$section}{'SNMPVersionTrap'}
-                    || $switches_conf{'default'}{'SNMPVersionTrap'} );
-            if ( !( $SNMPVersionTrap =~ /^1|2c|3$/ ) ) {
-                $logger->error(
-                    "switch SNMP trap version is invalid for $section");
+
+            # check SNMP Trap version
+            my $SNMPVersionTrap = ($switches_conf{$section}{'SNMPVersionTrap'} || $switches_conf{'default'}{'SNMPVersionTrap'});
+            if (!defined($SNMPVersionTrap)) {
+                $logger->error("Switch SNMP Trap version is missing. Please provide one specific to switch or in default. Config section: $section");
+                $parsing_successful_flag = 0;
+            } elsif ( !( $SNMPVersionTrap =~ /^1|2c|3$/ ) ) {
+                $logger->error("switch SNMP Trap version is invalid for $section");
                 $parsing_successful_flag = 0;
             }
 

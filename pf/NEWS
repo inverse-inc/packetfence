@@ -33,7 +33,7 @@ New Features
 
 Enhancements
 - Improved error reporting in the web administration panel and cli (#847, #898,
-  #899, #964)
+  #899, #964, #993)
 - More information available in Node Lookup (IP, DHCP lease)
 - Improved database layer (more robust and logs errors)
 - pfsetvlan is more resistant to configuration mistakes and reports them (#766)
