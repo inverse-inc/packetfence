@@ -1,3 +1,7 @@
+2010-05-25	Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/node.pm: Fixed a bug introduced with new node categories in
+	node_view_with_fingerprint.
+	
 2010-05-18	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/node.pm: Fixed a regression I introduced in revno 
 	a7c168dcd6e42180e15dc166feb7167ddc36bc8f in node_modify (pfcmd node 
