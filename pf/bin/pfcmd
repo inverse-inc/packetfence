@@ -238,12 +238,13 @@ if ( lc($command) eq 'person' ) {
     import pf::violation;
     command_param($command);
 } else {
-    # execute sub represented by the $command string in current namespace
-    $logger->debug("executing sub " . $command . "()");
-    {
-        no strict 'refs';
-        &{$command}()
-            or print "No such sub: $command or sub returned 0 or undef at line ".__LINE__.".\n";
+    # calling a function looked up dynamically: first test coderef existence
+    if (!exists(&{$main::{$command}})) {
+        print "No such sub: $command at line ".__LINE__.".\n";
+    } else {
+        # then execute main::$command sub
+        $logger->debug("executing sub " . $command . "()");
+        &{$main::{$command}}();
     }
 }
 
@@ -1899,12 +1900,13 @@ sub command_param {
     #print Dumper(%params);
     # run update/or delete  and check return val
     if ( $function eq "violation_add" ) {
-        $logger->info( "pfcmd calling $function for " . $params{mac} );
-        # execute sub represented by the $function string in current namespace
-        {   
-            no strict 'refs';
-            &{$function}($params{mac}, $params{vid}, %params)
-                or print "No such sub: $function or sub returned 0 or undef at line ".__LINE__.".\n";
+        # test coderef existence
+        if (!exists(&{$main::{$function}})) {
+            print "No such sub: $function at line ".__LINE__.".\n";
+        } else {
+            # execute coderef main::$function sub
+            $logger->info( "pfcmd calling $function for " . $params{mac} );
+            &{$main::{$function}}($params{mac}, $params{vid}, %params);
         }
     } else {
         if ( $function eq "violation_delete" ) {
@@ -1924,12 +1926,14 @@ sub command_param {
                 }
             }
         }
-        $logger->info("pfcmd calling $function for $id");
-        # execute sub represented by the $function string in current namespace
-        {   
-            no strict 'refs';
-            $returnValue = &{$function}($id, %params)
-                or print "No such sub: $function or sub returned 0 or undef at line ".__LINE__.".\n";
+        # test coderef existence
+        if (!exists(&{$main::{$function}})) {
+            print "No such sub: $function at line ".__LINE__.".\n";
+        } else {
+
+            # execute coderef main::$function sub
+            $logger->info("pfcmd calling $function for $id");
+            $returnValue = &{$main::{$function}}($id, %params);
         }
     }
     if ( $returnValue != 2 ) {
@@ -1974,15 +1978,13 @@ sub print_results {
     my ( $function, $key, %params ) = @_;
     my $total;
     my @results;
+    # calling a function looked up dynamically: first test coderef existence
     my $functionName = "main::$function";
     if ( !defined(&$functionName) ) {
         print "No such sub $function at line ". __LINE__ .".\n";
     } else {
-        # execute sub represented by the $function string in current namespace
-        {   
-            no strict 'refs';
-            @results = &{$function}($key, %params);
-        }
+        # then execute the method (looking up using main::..)
+        @results = &{$main::{$function}}($key, %params);
     }
     $total = scalar(@results);
     if ($count) {
