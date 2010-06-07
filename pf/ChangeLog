@@ -1,3 +1,7 @@
+2010-06-08	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP.pm: Refactoring: using constants instead of hardcoded
+	string: VOIP
+
 2010-06-01	Olivier Bilodeau <obilodeau@inverse.ca>
 	PacketFence 1.9.0-0.20100601 aka PacketFence 1.9.0rc1
 	

@@ -1233,8 +1233,7 @@ sub hasPhoneAtIfIndex {
 
             # is node voip or does it have a phone dhcp fingerprint?
             if ( defined($node_info)
-                && ( ($node_info->{dhcp_fingerprint} =~ /VoIP Phone/)||($node_info->{voip} eq 'yes')) )
-            {
+                && ( ($node_info->{dhcp_fingerprint} =~ /VoIP Phone/) || ($node_info->{voip} eq VOIP)) ) {
                 return 1;
             }
         }
@@ -1265,7 +1264,7 @@ sub isPhoneAtIfIndex {
 
     #do we have node information
     if (defined($node_info)) {
-        if ($node_info->{voip} eq 'yes') {
+        if ($node_info->{voip} eq VOIP) {
             $logger->debug("This is a VoIP phone according to node.voip");
             return 1;
         }
