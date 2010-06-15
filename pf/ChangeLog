@@ -1,4 +1,9 @@
 2010-06-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/dev-helpers/radius-hook.pl, pf/t/stress-test/radius-calls,
+	pf/t/stress-test/soap-calls-radius_authorize, 
+	pf/t/stress-test/soap-calls-snort, pf/t/stress-test/soap-server.conf: 
+	Added a bunch of scripts to help tests (integration, stress) and devel
+
 	* pf/addons/802.1X/rlm_perl_packetfence_soap.pl: Ported below fix to
 	new radius SOAP module.
 
