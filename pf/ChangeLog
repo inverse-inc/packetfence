@@ -1,4 +1,6 @@
 2010-06-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/sbin/pfsetvlan: Avoiding warnings in unpleasant situations
+
 	* pf/addons/dev-helpers/radius-hook.pl, pf/t/stress-test/radius-calls,
 	pf/t/stress-test/soap-calls-radius_authorize, 
 	pf/t/stress-test/soap-calls-snort, pf/t/stress-test/soap-server.conf: 

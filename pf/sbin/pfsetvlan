@@ -801,9 +801,11 @@ sub startTrapHandlers {
         foreach my $trapLineWithAdditionalInfo (@threadList_queued) {
 
             #extract information from trap line
-            $trapLineWithAdditionalInfo
-                =~ /^([^|]+)\|([^|]+)\|([^|]+)\|(.+)$/;
-            $threadList_queued_txt .= "\n$1\t$2\t$3";
+            if ($trapLineWithAdditionalInfo =~ /^([^|]+)\|([^|]+)\|([^|]+)\|(.+)$/) {
+                $threadList_queued_txt .= "\n$1\t$2\t$3";
+            } else {
+                $logger->warn("unable to parse trapLine.. here's the line: $trapLineWithAdditionalInfo");
+            }
         }
         my $threadList_running_txt = '';
         foreach my $threadList_running_tmp ( keys %threadList_running ) {
@@ -1806,7 +1808,6 @@ sub node_update_PF {
     # FIXME get rid of the following lines once testing is complete
     #} else {
 
-    
         #update node information in PF database and use VLAN object to allow customization
         # verify that locationlog_synchronize is doing the right thing
         #$logger->debug("updating $mac in PF database");
