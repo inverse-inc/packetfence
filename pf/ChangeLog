@@ -1,6 +1,12 @@
+2010-06-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/802.1X/rlm_perl_packetfence_soap.pl: Using NAS-IP-Address, 
+	a radius standard attribute, instead of Client-IP-Address as the switch
+	IP address. Module now works with freeradius2. Fixes #1007;
+	http://www.packetfence.org/bugs/view.php?id=1007
+
 2010-06-01	Olivier Bilodeau <obilodeau@inverse.ca>
 	PacketFence 1.9.0-0.20100601 aka PacketFence 1.9.0rc1
-	
+
 2010-05-25	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/bin/pfcmd: Fixed bug #833 again using hard-references this time. 
 	Tricky perl stuff...

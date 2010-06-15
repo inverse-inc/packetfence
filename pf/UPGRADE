@@ -7,6 +7,11 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to 1.9.0:
 
+    - Freeradius 2.x
+    We now recommend using freeradius 2.x instead of 1.x for wireless, 802.1x
+    or MAC authentication Bypass authentication mechanisms. Freeradius 1.x 
+    still works but we are seeing more hang cases with AD 2008, Vista and Win 7.
+
     - Library update: steps required on manual upgrade
     PacketFence no longer relies on a specific version of the Parse-RecDescent
     library. If you upgraded manually, you should re-generate the precompiled
