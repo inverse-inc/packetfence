@@ -386,7 +386,7 @@ sub disconnectWrite {
 =item connectMySQL - create MySQL database connection
 
 =cut
-
+# FIXME a connect but no disconnect? is this here useful at all?
 sub connectMySQL {
     my $this   = shift;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -423,9 +423,7 @@ sub connectMySQL {
 =cut
 
 sub setVlan {
-    my ( $this, $ifIndex, $newVlan, $switch_locker_ref, $presentPCMac,
-        $closeAllOpenLocationlogEntries )
-        = @_;
+    my ($this, $ifIndex, $newVlan, $switch_locker_ref, $presentPCMac) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     if ( !$this->isProductionMode() ) {
@@ -446,17 +444,17 @@ sub setVlan {
         }
     }
 
-    #synchronize locationlog if necessary
-    locationlog_synchronize( $this->{_ip}, $ifIndex, $vlan, $presentPCMac );
-
     #handle some exceptions
-    if ( grep( { $_ == $newVlan } @{ $this->{_vlans} } ) == 0 )
+    if (!$this->isManagedVlan($vlan))
     {    #unmanaged VLAN ?
         $logger->warn(
             "new VLAN $newVlan is not a managed VLAN -> replacing VLAN $newVlan with MAC detection VLAN "
                 . $this->{_macDetectionVlan} );
         $newVlan = $this->{_macDetectionVlan};
     }
+
+    #closes old locationlog entries and create a new one if required
+    locationlog_synchronize($this->{_ip}, $ifIndex, $newVlan, $presentPCMac, NO_VOIP, WIRED_SNMP_TRAPS);
 
     if ( !$this->isDefinedVlan($newVlan) ) {    #new VLAN is not defined
         if ( $newVlan == $this->{_macDetectionVlan} ) {
@@ -494,22 +492,20 @@ sub setVlan {
                 . " ifIndex $ifIndex to VLAN $newVlan but it is already in this VLAN -> Do nothing"
         );
 
-   #        if ($closeAllOpenLocationlogEntries) {
-   #            locationlog_update_end($this->{_ip}, $ifIndex, $presentPCMac);
-   #        }
         return 1;
     }
-
+    # FIXME get rid of this if everything works fine
+    # so far so good, you can get rid of the below lines after I did a lot of tests
     #update locationlog
-    $logger->debug(
-        "updating locationlog for " . $this->{_ip} . " ifIndex $ifIndex" );
-    if ($closeAllOpenLocationlogEntries) {
-        locationlog_update_end( $this->{_ip}, $ifIndex, $presentPCMac );
-    } else {
-        locationlog_update_end_switchport_no_VoIP( $this->{_ip}, $ifIndex );
-    }
-    locationlog_insert_start( $this->{_ip}, $ifIndex, $newVlan,
-        $presentPCMac );
+    # - not sure this is useful after locationlog_synchronize
+    # - test with it disabled
+    #$logger->debug("updating locationlog for " . $this->{_ip} . " ifIndex $ifIndex" );
+    #if ($closeAllOpenLocationlogEntries) {
+    #    locationlog_update_end( $this->{_ip}, $ifIndex, $presentPCMac );
+    #} else {
+    #    locationlog_update_end_switchport_no_VoIP( $this->{_ip}, $ifIndex );
+    #}
+    #locationlog_insert_start($this->{_ip}, $ifIndex, $newVlan, $presentPCMac, NO_VOIP, WIRED_SNMP_TRAPS);
 
     #and finally set the VLAN
     $logger->info( "setting VLAN at "
@@ -561,12 +557,34 @@ sub _setVlanByOnlyModifyingPvid {
     return ( defined($result) );
 }
 
+=item getVlanByName - get the VLAN number of a given name in switches.conf
+ 
+Input: vlan name (as in switches.conf)
+
+=cut                    
+sub getVlanByName {
+    my ($this, $vlanName) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    if (!exists($this->{"_".$vlanName})) {
+        # VLAN name doesn't exist
+        $logger->warn("VLAN $vlanName is not a valid VLAN identifier (see switches.conf)");
+        return;
+    }
+    
+    if ($this->{"_".$vlanName} !~ /^\d+$/) {
+        # is not resolved to a valid VLAN number
+        $logger->warn("VLAN $vlanName is not properly configured in switches.conf, not a vlan number");
+        return;
+    }   
+    return $this->{"_".$vlanName};
+}
+
 =item setVlanByName - set the ifIndex VLAN to the VLAN identified by given name in switches.conf
 
 Input: ifIndex, vlan name (as in switches.conf), switch lock
 
 =cut
-# TODO: get rid of the _ character in front of the vlan variables (refactoring)
 sub setVlanByName {
     my ($this, $ifIndex, $vlanName, $switch_locker_ref) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -808,6 +826,20 @@ sub getManagedIfIndexes {
         }
     }
     return @managedIfIndexes;
+}
+
+=item isManagedVlan - is the VLAN in the list of VLANs managed by the switch?
+
+=cut
+sub isManagedVlan {
+    my ($this, $vlan) = @_;
+
+    # can I find $vlan in _vlans ?
+    if (grep({$_ == $vlan} @{$this->{_vlans}}) == 0) {
+        #unmanaged VLAN
+        return 0;
+    }
+    return 1;
 }
 
 =item getMode - get the mode
@@ -1196,11 +1228,12 @@ sub hasPhoneAtIfIndex {
         = $this->_getMacAtIfIndex( $ifIndex, $this->getVoiceVlan($ifIndex) );
     foreach my $mac (@macArray) {
         if ( !$this->isFakeMac($mac) ) {
-            $logger->trace("determining DHCP fingerprint info for $mac");
+            $logger->trace("determining if node $mac is VoIP");
             my $node_info = node_view_with_fingerprint($mac);
+
+            # is node voip or does it have a phone dhcp fingerprint?
             if ( defined($node_info)
-                && ( $node_info->{dhcp_fingerprint} =~ /VoIP Phone/ ) )
-            {
+                && ( ($node_info->{dhcp_fingerprint} =~ /VoIP Phone/) || ($node_info->{voip} eq VOIP)) ) {
                 return 1;
             }
         }
@@ -1230,7 +1263,12 @@ sub isPhoneAtIfIndex {
     my $node_info = node_view_with_fingerprint($mac);
 
     #do we have node information
-    if ( defined($node_info) ) {
+    if (defined($node_info)) {
+        if ($node_info->{voip} eq VOIP) {
+            $logger->debug("This is a VoIP phone according to node.voip");
+            return 1;
+        }
+
         if ( $node_info->{dhcp_fingerprint} =~ /VoIP Phone/ ) {
             $logger->debug("DHCP fingerprint for $mac indicates VoIP phone");
             return 1;
@@ -1244,10 +1282,13 @@ sub isPhoneAtIfIndex {
             return 0;
         }
     }
-    $logger->trace(
-        "determining if $mac is VoIP phone through discovery protocols");
-    my @phones = $this->getPhonesDPAtIfIndex($ifIndex);
-    return ( grep( { lc($_) eq lc($mac) } @phones ) != 0 );
+    if (defined($ifIndex)) {
+        $logger->debug("determining if $mac is VoIP phone through discovery protocols");
+        my @phones = $this->getPhonesDPAtIfIndex($ifIndex);
+        return ( grep( { lc($_) eq lc($mac) } @phones ) != 0 );
+    } else {
+        return 0;
+    }
 }
 
 sub getMinOSVersion {
@@ -1354,6 +1395,7 @@ sub getRegExpFromList {
 The input must be the untranslated raw result of an snmp get_table
 
 =cut
+# TODO move out to a util package
 sub getBitAtPosition {
    my ($this, $bitStream, $position) = @_;
    return substr(unpack('B*', $bitStream), $position, 1);
@@ -1362,7 +1404,7 @@ sub getBitAtPosition {
 =item modifyBitmask - replaces the specified bit in a packed bitmask and returns the modified bitmask, re-packed
 
 =cut
-
+# TODO move out to a util package
 sub modifyBitmask {
     my ( $this, $bitMask, $offset, $replacement ) = @_;
     my $bitMaskString = unpack( 'B*', $bitMask );
@@ -1375,7 +1417,7 @@ sub modifyBitmask {
 The output is a packed binary representation useful to snmp::set_request
 
 =cut
-
+# TODO move out to a util package
 sub createPortListWithOneItem {
     my ($this, $position) = @_;
     
@@ -1389,7 +1431,7 @@ sub createPortListWithOneItem {
 Works on byte blocks since perl's bitewise not operates at the arithmetic level and some hardware have so many ports that I could overflow integers.
 
 =cut
-
+# TODO move out to a util package
 sub reverseBitmask {
     my ($this, $bitMask) = @_;
 
@@ -1941,8 +1983,9 @@ sub isNewerVersionThan {
     return 0;
 }
 
+# TODO move out to a util package
 sub generateFakeMac {
-    my ( $this, $vlan, $ifIndex ) = @_;
+    my ($this, $is_voice_vlan, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     # generating a fixed 6 digit string with ifIndex (zero filled)
@@ -1958,14 +2001,16 @@ sub generateFakeMac {
     }
 
     # VoIP will be different than non-VoIP
-    return "02:00:" . ( ( $vlan eq 'VoIP' ) ? "01" : "00" ) . ":" . $mac_suffix;
+    return "02:00:" . ( ($is_voice_vlan) ? "01" : "00" ) . ":" . $mac_suffix;
 }
 
+# TODO move out to a util package
 sub isFakeMac {
     my ( $this, $mac ) = @_;
     return ( $mac =~ /^02:00:00/ );
 }
 
+# TODO move out to a util package
 sub isFakeVoIPMac {
     my ( $this, $mac ) = @_;
     return ( $mac =~ /^02:00:01/ );
@@ -2037,6 +2082,63 @@ sub setIfLinkUpDownTrapEnable {
     return ( defined($result) );
 }
 
+=item deauthenticateMac - performs wireless deauthentication
+
+mac - mac address to deauthenticate
+
+is_dot1x - set to 1 if special dot1x de-authentication is required
+
+=cut
+sub deauthenticateMac {
+    my ($this, $mac, $is_dot1x) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    $logger->warn("Unimplemented! First, make sure your configuration is ok. "
+        . "If it is then we don't support your hardware. Open a bug report with your hardware type.");
+    return;
+}
+
+=item dot1xPortReauthenticate - forces 802.1x re-authentication of a given ifIndex
+
+ifIndex - ifIndex to force re-authentication on
+
+=cut
+sub dot1xPortReauthenticate {
+    my ($this, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    $logger->info("Trying generic MIB to force 802.1x port re-authentication. Your mileage may vary. "
+        . "If it doesn't work open a bug report with your hardware type.");
+ 
+    my $oid_dot1xPaePortReauthenticate = "1.0.8802.1.1.1.1.1.2.1.5"; # from IEEE8021-PAE-MIB
+
+    if (!$this->connectWrite()) {
+        return 0;
+    }
+
+    $logger->trace("SNMP set_request force dot1xPaePortReauthenticate on ifIndex: $ifIndex");
+    my $result = $this->{_sessionWrite}->set_request(-varbindlist => [
+        "$oid_dot1xPaePortReauthenticate.$ifIndex", Net::SNMP::INTEGER, 1
+    ]);
+
+    if (!defined($result)) {
+        $logger->error("got an SNMP error trying to force 802.1x re-authentication: ".$this->{_sessionWrite}->error);
+    }
+
+    return (defined($result));
+}
+
+=item NasPortToIfIndex - translate Radius NAS-Port into the physical port ifIndex
+
+=cut
+sub NasPortToIfIndex {
+    my ($this, $NAS_port) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    $logger->warn("This switch model doesn't seem to implement 802.1X or a degraded variant "
+        . "like mac-authentication-bypass (MAB). Please let us know what hardware you are using");
+    return $NAS_port;
+}
 =back
 
 =head1 AUTHOR
