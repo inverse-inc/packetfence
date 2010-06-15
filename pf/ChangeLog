@@ -1,5 +1,8 @@
 2010-06-15	Olivier Bilodeau <obilodeau@inverse.ca>
-	* pf/addons/802.1X/rlm_perl_packetfence.pl: Using NAS-IP-Address, a 
+	* pf/addons/802.1X/rlm_perl_packetfence_soap.pl: Ported below fix to
+	new radius SOAP module.
+
+	* pf/addons/802.1X/rlm_perl_packetfence_sql.pl: Using NAS-IP-Address, a 
 	radius standard attribute, instead of Client-IP-Address as the switch IP
 	address. Module now works with freeradius2. Fixes #1007;
 	http://www.packetfence.org/bugs/view.php?id=1007
