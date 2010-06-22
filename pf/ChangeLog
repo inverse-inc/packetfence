@@ -1,3 +1,7 @@
+2010-06-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/db/upgrade-1.9.0-1.10.0.sql: Fixed small mistake in upgrade
+	script (was --- instead of -- for comments).
+
 2010-06-15	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/addons/802.1X/rlm_perl_packetfence_soap.pl: Ported below fix to
 	new radius SOAP module.

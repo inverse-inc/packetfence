@@ -20,9 +20,9 @@ ALTER TABLE node
 	ADD `connection_type` varchar(50) NOT NULL default '' AFTER `voip`
 ;
 
----
---- Modify indexes
----
+--
+-- Modify indexes
+--
 
 ALTER TABLE locationlog
   DROP KEY `locationlog_view_switchport`,
