@@ -623,19 +623,26 @@ sub setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
             Name     => $this->{_cliUser},
             Password => $this->{_cliPwd}
         );
-        $session->begin_privileged( $this->{_cliEnablePwd} );
-        $session->begin_configure();
-        $session->cmd( String => "int $ifName", Timeout => '10' );
-        $session->cmd( String => "switchport port-security max $maxSecureMac vlan access", Timeout => '10' );
-        $session->end_configure();
-        $session->close();
+    };
+    if ($@) {
+        $logger->error("Error while connecting. Error message: $!");
+    }
+
+    eval {
+        $session->cmd( "conf t" );
+        $session->cmd( "int $ifName" );
+        $session->cmd( "switchport port-security maximum $maxSecureMac vlan access");
+        $session->cmd( "end" );
     };
 
     if ($@) {
-        $logger->error("Error while configuring switchport port-security max $maxSecureMac vlan access on ifIndex "
+        $logger->error("Error while configuring switchport port-security maximum $maxSecureMac vlan access on ifIndex "
                        . "$ifIndex. Error message: $!");
+        $session->close();
         return 0;
     }
+
+    $session->close();
     return 1;
 }
 
@@ -692,16 +699,18 @@ sub setTaggedVlan {
     my $OID_vlanTrunkPortVlansEnabled2k = '1.3.6.1.4.1.9.9.46.1.6.1.1.17';
     my $OID_vlanTrunkPortVlansEnabled3k = '1.3.6.1.4.1.9.9.46.1.6.1.1.18';
     my $OID_vlanTrunkPortVlansEnabled4k = '1.3.6.1.4.1.9.9.46.1.6.1.1.19';
-        
-    @vlans = sort(@vlans);
-        
-    # we support only vlans <= 1024 on Cisco's
-    if ($vlans[length(@vlans) - 1] > 1024) {
-        $logger->warn("We do not support Tagged Vlans > 1024 for now on Cisco switches. Sorry... but we could support" .
-                      " them, interested in sponsoring the feature?");
-    }  
+    
+    my @bits = split //, ("0" x 1024);
+    foreach my $t (@vlans) {
+        if ($t > 1024) {
+            $logger->warn("We do not support Tagged Vlans > 1024 for now on Cisco switches. Sorry... but we could! " .
+                      "interested in sponsoring the feature?");
+        } else {
+            $bits[$t] = "1";
+        }
+    }
+    my $bitString = join ('', @bits);
 
-    my $bitString = $this->_buildBitString(@vlans);
     my $taggedVlanMembers = pack("B*", $bitString);
         
     $logger->trace("SNMP set_request for OID_vlanTrunkPortVlansEnabled: $OID_vlanTrunkPortVlansEnabled");
