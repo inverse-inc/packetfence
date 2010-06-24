@@ -102,14 +102,7 @@ sub authorize {
     # There is activity from that mac, call node wakeup
     node_mac_wakeup($mac);
 
-    # FIXME: this here won't scale.. :(
-    # potential avenues: 
-    # - HEAP MySQL table
-    # - Cache::FileCache
-    # - proper mod_perl (or another daemon and we pass our requests to it via IPC)
-    # - shared mem (IPC::MM)
-    # - memcached
-    # http://www.slideshare.net/acme/scaling-with-memcached
+    # TODO: the following statement and the switch instantiation account for a third of the time spent in a radius query
     my $switchFactory = new pf::SwitchFactory(-configFile => $conf_dir.'/switches.conf');
 
     $logger->debug("instantiating switch");

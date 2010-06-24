@@ -1,0 +1,94 @@
+#!/usr/bin/perl
+
+use Getopt::Std;
+use SOAP::Lite;
+use Config::IniFiles;
+use threads;
+use strict;
+use warnings;
+
+my $nb_threads = $ARGV[0];
+my $nb_requests_per_thread = $ARGV[1];
+
+my ($sid, $descr, $date, $srcmac, $srcip, $dstip);
+
+my $cfg = new Config::IniFiles( -file => "soap-server.conf" );
+my $ADMIN_USER = $cfg->val('server','user');
+my $ADMIN_PWD = $cfg->val('server','password');
+my $PF_HOST = $cfg->val('server','host');
+
+die "SOAP calls: please specify the number of threads and the number of requests per thread on the command line" if (!($nb_threads && $nb_requests_per_thread));
+
+print "about to launch $nb_threads threads sending each $nb_requests_per_thread SOAP calls...\n";
+
+# worker launcher
+my @threads;
+for (my $i = 0; $i<$nb_threads; $i++) {
+
+  # create the thread
+  push @threads, threads->create( \&soap_requests, $i);
+}
+
+# wait for everyone
+foreach my $thread (@threads) {
+  $thread->join();
+}
+
+sub soap_requests {
+
+  my ($tid) = @_;
+
+  for(my $i=0; $i<$nb_requests_per_thread; $i++) {
+  
+    $date = time;
+    $srcip = "192.168.$tid.$i";
+    $sid = "2000334";
+  
+    print "thread $tid connection #$i: about to launch SOAP call\n";
+  
+    eval {
+      my $soap = new SOAP::Lite(
+        #uri => 'http://www.packetfence.org/PFEvents',
+        uri => 'http://www.packetfence.org/PFAPI',
+        proxy => 'https://' . $ADMIN_USER . ':' . $ADMIN_PWD . '@' . $PF_HOST . '/cgi-bin/pdp.cgi'
+      );
+      my $result = $soap->event_add($date, $srcip, "detect", $sid);
+      if ($result->fault) {
+        print ("warning thread $tid connection #$i violation could not be added: " . $result->faultcode . " - " . $result->faultstring . " - " . $result->faultdetail."\n");
+      } else {
+        # syslog("info", "added violation $sid for $srcip");
+      }
+    };
+    if ($@) {
+      print ("warning thread $tid connection #$i to $PF_HOST with username $ADMIN_USER was NOT successful: $@\n");
+      next;
+    }
+  
+  }
+}
+
+=head1 AUTHOR
+
+Olivier Bilodeau <obilodeau@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2009 Inverse inc.
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
