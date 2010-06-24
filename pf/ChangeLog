@@ -1,3 +1,6 @@
+2010-06-24	Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/SNMP/Cisco/Catalyst_4500.pm: Added support for 4500 Series 
+
 2010-06-24	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/SNMP/Cisco/Catalyst_2960.pm: Documented a bug with IOS 
 	12.2(25r) and VoIP. Also filed as #1200 for reference.
