@@ -1,3 +1,8 @@
+2010-06-24	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Cisco/Catalyst_2960.pm: Documented a bug with IOS 
+	12.2(25r) and VoIP. Also filed as #1200 for reference.
+	http://www.packetfence.org/bugs/view.php?id=1020
+
 2010-06-15	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/addons/802.1X/rlm_perl_packetfence.pl: Using NAS-IP-Address, a 
 	radius standard attribute, instead of Client-IP-Address as the switch IP
