@@ -1,15 +1,15 @@
-package pf::SNMP::SMC::TS6224M;
+package pf::SNMP::SMC::SMC8800M;
 
 =head1 NAME
 
-pf::SNMP::SMC::TS6224M - Object oriented module to access SNMP 
-enabled SMC Switch - TigerStack 6224M switches
+pf::SNMP::SMC::SMC8800M - Object oriented module to access SNMP 
+enabled SMC Switch - TigerStack II SMC8824M and SMC8848M switches
 
 =head1 SYNOPSIS
 
-The pf::SNMP::SMC::TS6224M module implements an object 
+The pf::SNMP::SMC::SMC8800M module implements an object 
 oriented interface to access SNMP enabled 
-SMC Switch - TigerStack 6224M switches.
+SMC Switch - TigerStack II 8824M and 8848M switches.
 
 =cut
 
@@ -22,7 +22,7 @@ use base ('pf::SNMP::SMC');
 
 sub getVersion {
     my ($this) = @_;
-    my $OID_swProdVersion = '1.3.6.1.4.1.202.20.43.1.1.5.4.0';    #swProdVersion
+    my $OID_swProdVersion = '1.3.6.1.4.1.202.20.57.1.1.5.4.0';    #swProdVersion
     my $logger = Log::Log4perl::get_logger( ref($this) );
     if ( !$this->connectRead() ) {
         return '';
@@ -40,7 +40,7 @@ sub isPortSecurityEnabled {
     # portSecPortStatus
     # by looking at other SMC MIBS, I noticed that portSecPortStatus is always like .1.3.6.1.4.1.202.20.yy.1.17.2.1.1.2
     # Only yy is different from one SMC switch type to another
-    my $OID_portSecPortStatus = '1.3.6.1.4.1.202.20.43.1.17.2.1.1.2';
+    my $OID_portSecPortStatus = '1.3.6.1.4.1.202.20.57.1.17.2.1.1.2';
 
     if ( !$this->connectRead() ) {
         return 0;
@@ -58,14 +58,11 @@ sub isPortSecurityEnabled {
 
 =head1 AUTHOR
 
-Mr. Chinasee BOONYATANG <chinasee.b@psu.ac.th>
-
-  Prince of Songkla University, Thailand
-  http://netserv.cc.psu.ac.th
+Regis Balzard <rbalzard@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008 Inverse inc.
+Copyright (C) 2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

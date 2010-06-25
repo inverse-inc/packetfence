@@ -1,3 +1,9 @@
+2010-06-25	Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/SNMP/SMC.pm 
+	* pf/lib/pf/SNMP/SMC/SMC8800.pm 
+	* pf/lib/pf/SNMP/SMC/TS6224M.pm: Added support for SMC8824M and SMC8848M
+	TigerStack II with port-security. Moved some code between SMC modules.
+
 2010-06-24	Regis Balzard <rbalzard@inverse.ca>
 	* pf/lib/pf/SNMP/Cisco/Catalyst_4500.pm: Added support for 4500 Series 
 

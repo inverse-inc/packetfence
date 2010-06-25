@@ -113,6 +113,7 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP.pm',
     '/usr/local/pf/lib/pf/SNMP/SMC.pm',
     '/usr/local/pf/lib/pf/SNMP/SMC/TS6224M.pm',
+    '/usr/local/pf/lib/pf/SNMP/SMC/SMC8800M.pm',
     '/usr/local/pf/lib/pf/SNMP/ThreeCom/NJ220.pm',
     '/usr/local/pf/lib/pf/SNMP/ThreeCom.pm',
     '/usr/local/pf/lib/pf/SNMP/ThreeCom/SS4200.pm',
