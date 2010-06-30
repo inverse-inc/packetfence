@@ -1,3 +1,8 @@
+2010-06-30	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Fixes to routing
+	documentation (missing pf_gateway). Fixes #998;
+	http://www.packetfence.org/bugs/view.php?id=998
+
 2010-06-25	Regis Balzard <rbalzard@inverse.ca>
 	* pf/lib/pf/SNMP/SMC.pm 
 	* pf/lib/pf/SNMP/SMC/SMC8800.pm 
