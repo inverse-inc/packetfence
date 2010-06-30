@@ -24,9 +24,9 @@ New Hardware Support
 - Cisco Integrated Services Routers (ISR) 1800 Series
 - Cisco Catalyst 3750 Series
 - Cisco Catalyst 4500 Series
-- SMC SMC8824M and SMC8848M
-- Port security and Voice over IP support for Foundry FastIron 4802 (feature 
-  sponsored by an entity who prefered to remain anonymous)
+- Foundry FastIron 4802 Port security and Voice over IP support (feature 
+  sponsored by an entity who preferred to remain anonymous)
+- SMC SMC8824M and SMC8848M in Port Security
 
 New Features
 - Node category support, you can assign different VLANs or whitelist violations
