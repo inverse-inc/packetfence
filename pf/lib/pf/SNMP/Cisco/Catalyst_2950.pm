@@ -624,15 +624,28 @@ sub setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
             Password => $this->{_cliPwd}
         );
     };
+
     if ($@) {
-        $logger->error("Error while connecting. Error message: $!");
+        $logger->error("Error connecting to " . $this->{'_ip'} . " using ".$this->{_cliTransport} . ". Error: $!");
+    }
+
+    # are we in enabled mode?
+    if (!$session->in_privileged_mode()) {
+
+        # let's try to enable
+        if (!$session->enable($this->{_cliEnablePwd})) {
+            $logger->error("Cannot get into privileged mode on ".$this->{'ip'}.
+                           ". Are you sure you provided enable password in configuration?");
+            $session->close();
+            return 0;
+        }
     }
 
     eval {
-        $session->cmd( "conf t" );
-        $session->cmd( "int $ifName" );
-        $session->cmd( "switchport port-security maximum $maxSecureMac vlan access");
-        $session->cmd( "end" );
+        $session->cmd(String => "conf t", Timeout => '10');
+        $session->cmd(String => "int $ifName", Timeout => '10');
+        $session->cmd(String => "switchport port-security maximum $maxSecureMac vlan access", Timeout => '10');
+        $session->cmd(String => "end", Timeout => '10');
     };
 
     if ($@) {
@@ -721,26 +734,6 @@ sub setTaggedVlan {
             "$OID_vlanTrunkPortVlansEnabled4k.$ifIndex", Net::SNMP::OCTET_STRING, pack("B*", 0 x 1024) ] );
     return defined($result);
 }   
-
-=item _buildBitString - generates bitString to allow Vlans on a port. 
-
-To allow Vlan 1 we need to set 40 00 00 00 00 00 ... 00 so we output zeros everywhere but at vlans position
-
-=cut
-sub _buildBitString {
-    my ($this, @vlans ) = @_;
-    my $bitString = '0';
-
-    for (my $i = 1; $i < 1024; $i++) {
-        if ($vlans[0] == $i) {
-            $bitString .= '1';
-            shift(@vlans);
-        } else {
-            $bitString .= '0';
-        }
-    }
-    return $bitString;
-}
 
 =item removeAllTaggedVlan 
 
