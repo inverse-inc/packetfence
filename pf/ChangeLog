@@ -1,4 +1,15 @@
 2010-07-01	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/UPGRADE, pf/conf/documentation.conf, pf/conf/pf.conf.defaults, 
+	pf/conf/templates/configurator/reg-detect-vlan.conf, 
+	pf/conf/templates/configurator/reg-vlan.conf, 
+	pf/conf/templates/configurator/zen-vlan.conf, pf/configurator.pl:
+	Added a new option under trapping.passthrough: disabled. By default 
+	passthrough is now disabled and must be explicitly enabled. Fixes #886;
+	- New note in UPGRADE about that change
+	- Updated configuration templates for VLAN isolation mode
+	- Added TODO tasks to improve configurator.pl
+	http://www.packetfence.org/bugs/view.php?id=886
+
 	* pf/configurator.pl: Clarified various templates available in the 
 	configurator script. Also added a new one: VLAN isolation mode with 
 	Registration. Fixes #975;

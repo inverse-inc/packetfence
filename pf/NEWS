@@ -48,7 +48,7 @@ Enhancements
 - New DHCP fingerprints
 - Optional backup script in addons/ now archives old records
 - New helper synchronization scripts in addons/high-availability
-- Little improvements (#866, #911, #916, #952, #975)
+- Little improvements (#866, #886, #911, #916, #952, #975)
 
 Documentation improvements
 - Install guide more accurate

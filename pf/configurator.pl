@@ -510,12 +510,14 @@ sub config_registration {
         "registration.auth", ( "local", "ldap", "radius" ) );
 
     if ( $cfg{network}{mode} ne 'vlan' ) {
+        # TODO offer: proxy, iptables or disable
         gatherer(
             "Would you like violation content accessible via iptables passthroughs or apache proxy?",
             "trapping.passthrough",
             ( "iptables", "proxy" )
         );
     } else {
+        # TODO offer: proxy or disable
         $cfg{'trapping'}{'passthrough'} = 'proxy';
     }
 }
