@@ -1,3 +1,9 @@
+2010-07-01	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/configurator.pl: Clarified various templates available in the 
+	configurator script. Also added a new one: VLAN isolation mode with 
+	Registration. Fixes #975;
+	http://www.packetfence.org/bugs/view.php?id=975
+
 2010-06-30	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/docs/PacketFence_Administration_Guide.odt: Fixes to routing
 	documentation (missing pf_gateway). Fixes #998;
