@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 136;
+use Test::More tests => 142;
 use lib '/usr/local/pf/lib';
 
 BEGIN { use_ok('pf::SNMP') }
@@ -51,6 +51,7 @@ BEGIN { use_ok('pf::SNMP::Foundry::FastIron_4802') }
 BEGIN { use_ok('pf::SNMP::HP') }
 BEGIN { use_ok('pf::SNMP::HP::Procurve_2500') }
 BEGIN { use_ok('pf::SNMP::HP::Procurve_2600') }
+BEGIN { use_ok('pf::SNMP::HP::Procurve_3400cl') }
 BEGIN { use_ok('pf::SNMP::HP::Procurve_4100') }
 BEGIN { use_ok('pf::SNMP::Intel') }
 BEGIN { use_ok('pf::SNMP::Intel::Express_460') }
@@ -117,6 +118,7 @@ my @SNMPobjects = qw(
     pf::SNMP::HP
     pf::SNMP::HP::Procurve_2500
     pf::SNMP::HP::Procurve_2600
+    pf::SNMP::HP::Procurve_3400cl
     pf::SNMP::HP::Procurve_4100
     pf::SNMP::Intel
     pf::SNMP::Intel::Express_460
