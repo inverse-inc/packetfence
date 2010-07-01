@@ -1,4 +1,7 @@
 2010-07-01	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/t/hardware-snmp-objects.t, pf/t/SNMP.t: Moved some tests from 
+	hardware-snmp-objects.t into SNMP.t.
+
 	* pf/lib/pf/SNMP/HP/Procurve_3400cl.pm, pf/README_SWITCHES, 
 	pf/html/admin/configuration/switches_add.php,
 	pf/html/admin/configuration/switches_edit.php, pf/t/critic.t, 
