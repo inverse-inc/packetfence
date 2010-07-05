@@ -9,7 +9,9 @@ pf::SNMP::Cisco::Catalyst_4500 - Object oriented module to access SNMP enabled C
 The pf::SNMP::Cisco::Catalyst_4500 module implements an object oriented interface
 to access SNMP enabled Cisco::Catalyst_4500 switches.
 
-This modules extends pf::SNMP::Cisco::Catalyst_4500.
+=head1 STATUS
+
+This modules extends pf::SNMP::Cisco::Catalyst_2960.
 
 We do not know the minimum required firmware version.
 
