@@ -1,4 +1,6 @@
 2010-07-05	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Fixed small mistakes 
+
 	* Renamed pf/lib/pf/SNMP/SMC/SMC8800M.pm to 
 	pf/lib/pf/SNMP/SMC/TS8800M.pm, modified pf/lib/pf/SNMP/SMC/TS8800M.pm,
 	pf/lib/pf/SNMP/SMC.pm, pf/t/critic.t, pf/t/data.t, 
