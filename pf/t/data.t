@@ -13,6 +13,7 @@ BEGIN {
     use_ok('pf::action');
     use_ok('pf::class');
     use_ok('pf::configfile');
+    use_ok('pf::email_activation');
     use_ok('pf::ifoctetslog');
     use_ok('pf::iplog');
     use_ok('pf::locationlog');
@@ -34,6 +35,7 @@ my @data_modules = qw(
     pf::action
     pf::class
     pf::configfile
+    pf::email_activation
     pf::ifoctetslog
     pf::iplog
     pf::locationlog

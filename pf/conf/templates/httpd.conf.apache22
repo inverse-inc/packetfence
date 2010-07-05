@@ -31,7 +31,8 @@ AddHandler cgi-script .cgi
 TypesConfig /etc/mime.types
 AddType .gif image/gif binary
 AddType .jpg image/jpg binary
-Options Indexes
+# Warning - added the FollowSymLinks options only for development mode (/usr/local/pf/ is a symlink)
+Options Indexes FollowSymLinks
 DirectoryIndex index.html index.cgi index.php
 
 <IfModule !mod_auth_basic.c>
@@ -225,7 +226,14 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteCond %{HTTP_USER_AGENT} ^Windows-Update-Agent.*
   RewriteRule ^.*$ - [L,forbidden]
 
+  # Email activation clean URL to cgi conversion
+  RewriteCond %{REQUEST_URI} ^/activate/.+$
+  # [PT] here allows us to mix ScriptAlias and mod_rewrite stuff
+  RewriteRule ^/activate/([0-9a-z]+)$ https://%%hostname%%.%%domain%%/cgi-bin/email_activation.cgi?code=$1 [PT]
+
   RewriteCond %{REQUEST_URI} !^/favicon.ico
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/email_activation.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/register.+\.cgi
