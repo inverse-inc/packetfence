@@ -31,8 +31,7 @@ AddHandler cgi-script .cgi
 TypesConfig /etc/mime.types
 AddType .gif image/gif binary
 AddType .jpg image/jpg binary
-# Warning - added the FollowSymLinks options only for development mode (/usr/local/pf/ is a symlink)
-Options Indexes FollowSymLinks
+Options Indexes
 DirectoryIndex index.html index.cgi index.php
 
 <IfModule !mod_auth_basic.c>
