@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 125;
+use Test::More tests => 128;
 
 # file list copied from critic.t
 my @files = (
@@ -96,6 +96,7 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP/HP.pm',
     '/usr/local/pf/lib/pf/SNMP/HP/Procurve_2500.pm',
     '/usr/local/pf/lib/pf/SNMP/HP/Procurve_2600.pm',
+    '/usr/local/pf/lib/pf/SNMP/HP/Procurve_3400cl.pm',
     '/usr/local/pf/lib/pf/SNMP/HP/Procurve_4100.pm',
     '/usr/local/pf/lib/pf/SNMP/Intel/Express_460.pm',
     '/usr/local/pf/lib/pf/SNMP/Intel/Express_530.pm',

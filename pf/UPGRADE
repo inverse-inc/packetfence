@@ -7,6 +7,13 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to 1.9.0:
 
+    - Passthrough
+    Passthrough is now set to disabled by default. If you need it, make sure
+    you re-enable it in your conf/pf.conf. As a reminder, passthrough is the
+    mechanism used to allow users trapped in registration or isolation to reach
+    certain external URLs or custom violation pages hosted externally. It is 
+    not used in a default install.
+
     - Freeradius 2.x
     We now recommend using freeradius 2.x instead of 1.x for wireless, 802.1x
     or MAC authentication Bypass authentication mechanisms. Freeradius 1.x 

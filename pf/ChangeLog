@@ -1,3 +1,30 @@
+2010-07-01	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/t/hardware-snmp-objects.t, pf/t/SNMP.t: Moved some tests from 
+	hardware-snmp-objects.t into SNMP.t.
+
+	* pf/lib/pf/SNMP/HP/Procurve_3400cl.pm, pf/README_SWITCHES, 
+	pf/html/admin/configuration/switches_add.php,
+	pf/html/admin/configuration/switches_edit.php, pf/t/critic.t, 
+	pf/t/hardware-snmp-objects.t, pf/t/pod.t: Added support for HP Procurve
+	3400cl. Fixes #906;
+	http://www.packetfence.org/bugs/view.php?id=906
+
+	* pf/UPGRADE, pf/conf/documentation.conf, pf/conf/pf.conf.defaults, 
+	pf/conf/templates/configurator/reg-detect-vlan.conf, 
+	pf/conf/templates/configurator/reg-vlan.conf, 
+	pf/conf/templates/configurator/zen-vlan.conf, pf/configurator.pl:
+	Added a new option under trapping.passthrough: disabled. By default 
+	passthrough is now disabled and must be explicitly enabled. Fixes #886;
+	- New note in UPGRADE about that change
+	- Updated configuration templates for VLAN isolation mode
+	- Added TODO tasks to improve configurator.pl
+	http://www.packetfence.org/bugs/view.php?id=886
+
+	* pf/configurator.pl: Clarified various templates available in the 
+	configurator script. Also added a new one: VLAN isolation mode with 
+	Registration. Fixes #975;
+	http://www.packetfence.org/bugs/view.php?id=975
+
 2010-06-30	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/docs/PacketFence_Administration_Guide.odt: Fixes to routing
 	documentation (missing pf_gateway). Fixes #998;
