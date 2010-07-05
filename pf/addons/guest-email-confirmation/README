@@ -8,6 +8,8 @@
   RewriteCond %{REQUEST_URI} ^/activate/.+$
   # [PT] here allows us to mix ScriptAlias and mod_rewrite stuff
   RewriteRule ^/activate/([0-9a-z]+)$ https://%%hostname%%.%%domain%%/cgi-bin/email_activation.cgi?code=$1 [PT]
+ * Create new database table. Run:
+  mysql -u root -p pf -v < addons/guest-email-confirmation/schema.sql
  * Redirect the user to cgi-bin/guest.cgi for guest registration
  * Activate node expiration in conf/pf.conf. As a workaround for a bug, we need to set a ridiculous long window expiration. This will be fixed in the future. Under [registration] add:
   # Workaround to activate expiration
