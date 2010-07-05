@@ -68,7 +68,7 @@ BEGIN { use_ok('pf::SNMP::Nortel::ES325') }
 BEGIN { use_ok('pf::SNMP::PacketFence') }
 BEGIN { use_ok('pf::SNMP::SMC') }
 BEGIN { use_ok('pf::SNMP::SMC::TS6224M') }
-BEGIN { use_ok('pf::SNMP::SMC::SMC8800M') }
+BEGIN { use_ok('pf::SNMP::SMC::TS8800M') }
 BEGIN { use_ok('pf::SNMP::ThreeCom') }
 BEGIN { use_ok('pf::SNMP::ThreeCom::NJ220') }
 BEGIN { use_ok('pf::SNMP::ThreeCom::SS4200') }
@@ -135,7 +135,7 @@ my @SNMPobjects = qw(
     pf::SNMP::PacketFence
     pf::SNMP::SMC
     pf::SNMP::SMC::TS6224M
-    pf::SNMP::SMC::SMC8800M
+    pf::SNMP::SMC::TS8800M
     pf::SNMP::ThreeCom
     pf::SNMP::ThreeCom::NJ220
     pf::SNMP::ThreeCom::SS4200

@@ -1,15 +1,25 @@
-package pf::SNMP::SMC::SMC8800M;
+package pf::SNMP::SMC::TS8800M;
 
 =head1 NAME
 
-pf::SNMP::SMC::SMC8800M - Object oriented module to access SNMP 
+pf::SNMP::SMC::TS8800M - Object oriented module to access SNMP 
 enabled SMC Switch - TigerStack II SMC8824M and SMC8848M switches
 
 =head1 SYNOPSIS
 
-The pf::SNMP::SMC::SMC8800M module implements an object 
+The pf::SNMP::SMC::TS8800M module implements an object 
 oriented interface to access SNMP enabled 
 SMC Switch - TigerStack II 8824M and 8848M switches.
+
+=head1 STATUS
+
+Supports linkUp / linkDown and port-security modes.
+
+Developed and tested on SMC 8824M running on firmware (Operation Code) version 2.4.5.7.
+
+=head1 BUGS AND LIMITATIONS
+
+Minimum required firmware (Operation Code version) for Port-security is 2.4.5.7.
 
 =cut
 

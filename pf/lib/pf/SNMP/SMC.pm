@@ -20,6 +20,12 @@ use POSIX;
 use Log::Log4perl;
 use Data::Dumper;
 
+=head1 SUBROUTINES
+            
+=over   
+
+=cut
+
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
@@ -136,7 +142,9 @@ sub _setVlan {
 }
 
 =item _authorizeCurrentMacWithNewVlan - authorize MAC already in secure table on a new VLAN (and deauth on old)
+
 Same code as in Foundry.pm
+
 =cut
 sub _authorizeCurrentMacWithNewVlan {
     my ($this, $ifIndex, $newVlan, $oldVlan) = @_;
@@ -351,6 +359,8 @@ sub authorizeMAC {
     }
     return 1;
 }
+
+=back
 
 =head1 AUTHOR
 

@@ -121,7 +121,7 @@
                            'Nortel::BPS2000' => 'Nortel BPS 2000',
                            'Nortel::ES325' => 'Nortel ES325',
                            'PacketFence' => 'PacketFence',
-			   'SMC::SMC8800M' => 'SMC TigerStack 8824-48M',
+			   'SMC::TS8800M' => 'SMC TigerStack 8824-48M',
                            'SMC::TS6224M' => 'SMC TigerStack 6224M'
                       ), 
                      'hash', $val, "name='$key'");
