@@ -1,3 +1,13 @@
+2010-07-05	Olivier Bilodeau <obilodeau@inverse.ca>
+	* Renamed pf/lib/pf/SNMP/SMC/SMC8800M.pm to 
+	pf/lib/pf/SNMP/SMC/TS8800M.pm, modified pf/lib/pf/SNMP/SMC/TS8800M.pm,
+	pf/lib/pf/SNMP/SMC.pm, pf/t/critic.t, pf/t/data.t, 
+	pf/t/hardware-snmp-objects.t, pf/t/pod.t,
+	pf/html/admin/configuration/switches_add.php, 
+	pf/html/admin/configuration/switches_edit.php: Renamed pf::SMC::SMC8800M
+	to pf::SMC::TS8800M to align more with current naming of the SMC 
+	modules. Also fixed POD doc in pf::SMC.
+
 2010-07-01	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/t/hardware-snmp-objects.t, pf/t/SNMP.t: Moved some tests from 
 	hardware-snmp-objects.t into SNMP.t.
