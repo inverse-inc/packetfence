@@ -1,4 +1,8 @@
 2010-07-05	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Added documentation to
+	configure the Foundry FastIron 4802 in port-security with or without
+	VoIP (IPT)
+
 	* pf/docs/PacketFence_Administration_Guide.odt: Fixed small mistakes 
 
 	* Renamed pf/lib/pf/SNMP/SMC/SMC8800M.pm to 
