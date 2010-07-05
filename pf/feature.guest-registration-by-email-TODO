@@ -9,10 +9,10 @@ TODOs
 - write basic unit tests pf::email_activation
 - review POD doc
 
-Before merge in trunk:
+Before merge in 1.9:
 - Re-assess all TODO, FIXME and XXX tasks
 
-Once merged in trunk:
+Once merged in 1.9:
 - File all out-standing items in issue tracker
 - Copy this into the wiki
 - Delete this file
