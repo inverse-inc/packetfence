@@ -1,4 +1,8 @@
 2010-07-06	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt, 
+	pf/docs/PacketFence_Developers_Guide.odt,
+	pf/docs/PacketFence_Installation_Guide.odt: Version bump
+
 	* pf/docs/PacketFence_Developers_Guide.odt: Fixed bad propagation from
 	1_8 branch (copied document from 1_8 branch and re-did changes since
 	then).
