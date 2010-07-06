@@ -1,4 +1,8 @@
 2010-07-06	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Developers_Guide.odt: Fixed bad propagation from
+	1_8 branch (copied document from 1_8 branch and re-did changes since
+	then).
+
 	* pf/docs/PacketFence_Administration_Guide.odt: Added doc for HP 
 	ProCruve 3400cl (same as ProCurve 2600).
 
