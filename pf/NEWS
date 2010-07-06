@@ -56,6 +56,7 @@ Documentation improvements
 - Install guide more accurate
 - Added directions to configure PacketFence in a routed environment to the 
   admin guide
+- Updated the High-Availability section with details about DRBD and HeartBeat v1
 - More MySQL tips (#951)
 
 Bug fixes
