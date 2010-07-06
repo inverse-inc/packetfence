@@ -1,4 +1,8 @@
 2010-07-06	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/README_SWITHCES, pf/html/admin/configuration/switches_add.php, 
+	pf/html/admin/configuration/switches_edit.php: Renamed Procurve to
+	ProCurve in the user visible locations since it's the official HP way.
+
 	* pf/docs/PacketFence_Administration_Guide.odt: Fixed Procurve 2600
 	SNMP configuration (Thanks to Andrew Niemantsverdriet for pointing it
 	out!)
