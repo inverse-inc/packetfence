@@ -1007,6 +1007,28 @@ sub getMacAtIfIndex {
     return @macArray;
 }
 
+=item getSysName - return the administratively-assigned name of the switch. By convention, this is the switch's 
+fully-qualified domain name
+    
+=cut
+        
+sub getSysName {
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $OID_sysName = '1.3.6.1.2.1.1.5';                     # mib-2
+    if ( !$this->connectRead() ) {
+        return '';
+    }
+    $logger->trace("SNMP get_request for sysName: $OID_sysName");
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$OID_sysName] );
+    if ( exists( $result->{$OID_sysName} )
+        && ( $result->{$OID_sysName} ne 'noSuchInstance' ) )
+    {                      
+        return $result->{$OID_sysName};
+    }   
+    return '';
+}       
+
 =item getIfDesc - return ifDesc given ifIndex
 
 =cut

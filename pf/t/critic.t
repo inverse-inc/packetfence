@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Perl::Critic;
-use Test::More tests => 123;
+use Test::More tests => 128;
 
 # To generate this list, start with this: find lib/pf/ -exec echo "    '/usr/local/pf/{}'," \; | sort
 # TODO: should these really be absolute PATHs? I don't think so!
@@ -74,6 +74,7 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP/Cisco/Catalyst_3550.pm',
     '/usr/local/pf/lib/pf/SNMP/Cisco/Catalyst_3560.pm',
     '/usr/local/pf/lib/pf/SNMP/Cisco/Catalyst_3750.pm',
+    '/usr/local/pf/lib/pf/SNMP/Cisco/Catalyst_4500.pm',
     '/usr/local/pf/lib/pf/SNMP/Cisco/ISR_1800.pm',
     '/usr/local/pf/lib/pf/SNMP/Cisco/WiSM.pm',
     '/usr/local/pf/lib/pf/SNMP/Cisco/WLC_2106.pm',
@@ -97,6 +98,7 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP/HP.pm',
     '/usr/local/pf/lib/pf/SNMP/HP/Procurve_2500.pm',
     '/usr/local/pf/lib/pf/SNMP/HP/Procurve_2600.pm',
+    '/usr/local/pf/lib/pf/SNMP/HP/Procurve_3400cl.pm',
     '/usr/local/pf/lib/pf/SNMP/HP/Procurve_4100.pm',
     '/usr/local/pf/lib/pf/SNMP/Intel/Express_460.pm',
     '/usr/local/pf/lib/pf/SNMP/Intel/Express_530.pm',
@@ -114,6 +116,7 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP.pm',
     '/usr/local/pf/lib/pf/SNMP/SMC.pm',
     '/usr/local/pf/lib/pf/SNMP/SMC/TS6224M.pm',
+    '/usr/local/pf/lib/pf/SNMP/SMC/TS8800M.pm',
     '/usr/local/pf/lib/pf/SNMP/ThreeCom/NJ220.pm',
     '/usr/local/pf/lib/pf/SNMP/ThreeCom.pm',
     '/usr/local/pf/lib/pf/SNMP/ThreeCom/SS4200.pm',

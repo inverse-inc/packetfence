@@ -11,7 +11,12 @@ to access SNMP enabled Cisco::Catalyst_2960 switches.
 
 This modules extends pf::SNMP::Cisco::Catalyst_2950.
 
+=head1 BUGS AND LIMITATIONS
+
 The minimum required firmware version is 12.2(25)SEE2.
+
+Port-security + VoIP support doesn't work with IOS version 12.2(25r). 
+This is a Cisco issue. Upgrade your IOS. See issue #1020 for details.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 

@@ -1,3 +1,77 @@
+2010-07-06	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Added doc for HP 
+	ProCruve 3400cl (same as ProCurve 2600).
+
+	* pf/README_SWITHCES, pf/html/admin/configuration/switches_add.php, 
+	pf/html/admin/configuration/switches_edit.php: Renamed Procurve to
+	ProCurve in the user visible locations since it's the official HP way.
+
+	* pf/docs/PacketFence_Administration_Guide.odt: Fixed Procurve 2600
+	SNMP configuration (Thanks to Andrew Niemantsverdriet for pointing it
+	out!)
+
+2010-07-05	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Added documentation to
+	configure the Foundry FastIron 4802 in port-security with or without
+	VoIP (IPT)
+
+	* pf/docs/PacketFence_Administration_Guide.odt: Fixed small mistakes 
+
+	* Renamed pf/lib/pf/SNMP/SMC/SMC8800M.pm to 
+	pf/lib/pf/SNMP/SMC/TS8800M.pm, modified pf/lib/pf/SNMP/SMC/TS8800M.pm,
+	pf/lib/pf/SNMP/SMC.pm, pf/t/critic.t, pf/t/data.t, 
+	pf/t/hardware-snmp-objects.t, pf/t/pod.t,
+	pf/html/admin/configuration/switches_add.php, 
+	pf/html/admin/configuration/switches_edit.php: Renamed pf::SMC::SMC8800M
+	to pf::SMC::TS8800M to align more with current naming of the SMC 
+	modules. Also fixed POD doc in pf::SMC.
+
+2010-07-01	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/t/hardware-snmp-objects.t, pf/t/SNMP.t: Moved some tests from 
+	hardware-snmp-objects.t into SNMP.t.
+
+	* pf/lib/pf/SNMP/HP/Procurve_3400cl.pm, pf/README_SWITCHES, 
+	pf/html/admin/configuration/switches_add.php,
+	pf/html/admin/configuration/switches_edit.php, pf/t/critic.t, 
+	pf/t/hardware-snmp-objects.t, pf/t/pod.t: Added support for HP Procurve
+	3400cl. Fixes #906;
+	http://www.packetfence.org/bugs/view.php?id=906
+
+	* pf/UPGRADE, pf/conf/documentation.conf, pf/conf/pf.conf.defaults, 
+	pf/conf/templates/configurator/reg-detect-vlan.conf, 
+	pf/conf/templates/configurator/reg-vlan.conf, 
+	pf/conf/templates/configurator/zen-vlan.conf, pf/configurator.pl:
+	Added a new option under trapping.passthrough: disabled. By default 
+	passthrough is now disabled and must be explicitly enabled. Fixes #886;
+	- New note in UPGRADE about that change
+	- Updated configuration templates for VLAN isolation mode
+	- Added TODO tasks to improve configurator.pl
+	http://www.packetfence.org/bugs/view.php?id=886
+
+	* pf/configurator.pl: Clarified various templates available in the 
+	configurator script. Also added a new one: VLAN isolation mode with 
+	Registration. Fixes #975;
+	http://www.packetfence.org/bugs/view.php?id=975
+
+2010-06-30	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Fixes to routing
+	documentation (missing pf_gateway). Fixes #998;
+	http://www.packetfence.org/bugs/view.php?id=998
+
+2010-06-25	Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/SNMP/SMC.pm 
+	* pf/lib/pf/SNMP/SMC/SMC8800.pm 
+	* pf/lib/pf/SNMP/SMC/TS6224M.pm: Added support for SMC8824M and SMC8848M
+	TigerStack II with port-security. Moved some code between SMC modules.
+
+2010-06-24	Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/SNMP/Cisco/Catalyst_4500.pm: Added support for 4500 Series 
+
+2010-06-24	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Cisco/Catalyst_2960.pm: Documented a bug with IOS 
+	12.2(25r) and VoIP. Also filed as #1200 for reference.
+	http://www.packetfence.org/bugs/view.php?id=1020
+
 2010-06-22	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/db/upgrade-1.9.0-1.10.0.sql: Fixed small mistake in upgrade
 	script (was --- instead of -- for comments).

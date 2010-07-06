@@ -23,8 +23,12 @@ New Hardware Support
 - Cisco Wireless Services Module (WiSM)
 - Cisco Integrated Services Routers (ISR) 1800 Series
 - Cisco Catalyst 3750 Series
-- Port security and Voice over IP support for Foundry FastIron 4802 (feature 
-  sponsored by an entity who prefered to remain anonymous)
+- Cisco Catalyst 4500 Series
+- Foundry FastIron 4802 Port security and Voice over IP support (feature 
+  sponsored by an entity who preferred to remain anonymous)
+- HP Procurve 3400cl (tested by roelof)
+- SMC SMC8824M and SMC8848M in Port Security (feature sponsored by Seattle 
+  Pacific University developed with the help of SMC)
 
 New Features
 - Node category support, you can assign different VLANs or whitelist violations
@@ -46,13 +50,15 @@ Enhancements
 - New DHCP fingerprints
 - Optional backup script in addons/ now archives old records
 - New helper synchronization scripts in addons/high-availability
-- Little improvements (#866, #911, #916, #952)
+- Little improvements (#866, #886, #911, #916, #952, #975)
 
 Documentation improvements
 - Install guide more accurate
 - Added directions to configure PacketFence in a routed environment to the 
   admin guide
+- Updated the High-Availability section with details about DRBD and HeartBeat v1
 - More MySQL tips (#951)
+- Fixed Procurve 2600 switch configuration (Thanks to Andrew Niemantsverdriet!)
 
 Bug fixes
 - Performance fixes (#908, #910)

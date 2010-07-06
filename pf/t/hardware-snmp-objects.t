@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 136;
+use Test::More tests => 142;
 use lib '/usr/local/pf/lib';
 
 BEGIN { use_ok('pf::SNMP') }
@@ -28,6 +28,7 @@ BEGIN { use_ok('pf::SNMP::Cisco::Catalyst_3500XL') }
 BEGIN { use_ok('pf::SNMP::Cisco::Catalyst_3550') }
 BEGIN { use_ok('pf::SNMP::Cisco::Catalyst_3560') }
 BEGIN { use_ok('pf::SNMP::Cisco::Catalyst_3750') }
+BEGIN { use_ok('pf::SNMP::Cisco::Catalyst_4500') }
 BEGIN { use_ok('pf::SNMP::Cisco::ISR_1800') }
 BEGIN { use_ok('pf::SNMP::Cisco::WiSM') }
 BEGIN { use_ok('pf::SNMP::Cisco::WLC_2106') }
@@ -50,6 +51,7 @@ BEGIN { use_ok('pf::SNMP::Foundry::FastIron_4802') }
 BEGIN { use_ok('pf::SNMP::HP') }
 BEGIN { use_ok('pf::SNMP::HP::Procurve_2500') }
 BEGIN { use_ok('pf::SNMP::HP::Procurve_2600') }
+BEGIN { use_ok('pf::SNMP::HP::Procurve_3400cl') }
 BEGIN { use_ok('pf::SNMP::HP::Procurve_4100') }
 BEGIN { use_ok('pf::SNMP::Intel') }
 BEGIN { use_ok('pf::SNMP::Intel::Express_460') }
@@ -66,6 +68,7 @@ BEGIN { use_ok('pf::SNMP::Nortel::ES325') }
 BEGIN { use_ok('pf::SNMP::PacketFence') }
 BEGIN { use_ok('pf::SNMP::SMC') }
 BEGIN { use_ok('pf::SNMP::SMC::TS6224M') }
+BEGIN { use_ok('pf::SNMP::SMC::TS8800M') }
 BEGIN { use_ok('pf::SNMP::ThreeCom') }
 BEGIN { use_ok('pf::SNMP::ThreeCom::NJ220') }
 BEGIN { use_ok('pf::SNMP::ThreeCom::SS4200') }
@@ -94,6 +97,7 @@ my @SNMPobjects = qw(
     pf::SNMP::Cisco::Catalyst_3550
     pf::SNMP::Cisco::Catalyst_3560
     pf::SNMP::Cisco::Catalyst_3750
+    pf::SNMP::Cisco::Catalyst_4500
     pf::SNMP::Cisco::ISR_1800
     pf::SNMP::Cisco::WiSM
     pf::SNMP::Cisco::WLC_2106
@@ -114,6 +118,7 @@ my @SNMPobjects = qw(
     pf::SNMP::HP
     pf::SNMP::HP::Procurve_2500
     pf::SNMP::HP::Procurve_2600
+    pf::SNMP::HP::Procurve_3400cl
     pf::SNMP::HP::Procurve_4100
     pf::SNMP::Intel
     pf::SNMP::Intel::Express_460
@@ -130,6 +135,7 @@ my @SNMPobjects = qw(
     pf::SNMP::PacketFence
     pf::SNMP::SMC
     pf::SNMP::SMC::TS6224M
+    pf::SNMP::SMC::TS8800M
     pf::SNMP::ThreeCom
     pf::SNMP::ThreeCom::NJ220
     pf::SNMP::ThreeCom::SS4200
