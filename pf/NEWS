@@ -58,6 +58,7 @@ Documentation improvements
   admin guide
 - Updated the High-Availability section with details about DRBD and HeartBeat v1
 - More MySQL tips (#951)
+- Fixed Procurve 2600 switch configuration (Thanks to Andrew Niemantsverdriet!)
 
 Bug fixes
 - Performance fixes (#908, #910)
