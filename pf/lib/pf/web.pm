@@ -671,6 +671,10 @@ sub generate_guest_registration_page {
             $vars->{'txt_auth_error'} = gettext( 'error: unable to validate credentials at the moment');
         } elsif ( $err == 3 ) {
             $vars->{'txt_auth_error'} = "Missing mandatory parameter or malformed entry.";
+        } elsif ( $err == 4 ) {
+            my $localdomain = $Config{'general'}{'domain'};
+            $vars->{'txt_auth_error'} = "You can't register as a guest with a $localdomain email address. "
+                . "Please register as a regular user using your email address instead.";
         }
     }
 
@@ -713,6 +717,14 @@ sub web_guest_authenticate {
         my $valid_name = ($cgi->param("firstname") =~ /\w/ && $cgi->param("lastname") =~ /\w/);
 
         if ($valid_email && $valid_name && $cgi->param("phone") ne '') {
+
+            # make sure that they are not local users
+            # You should not register as a guest if you are part of the local network
+            my $localdomain = $Config{'general'}{'domain'};
+            if ($cgi->param('email') =~ /[@.]$localdomain$/i) {
+                return (0, 4);
+            }
+
             # auth accepted, save login information in session (we will use them to put the guest in the db)
             $session->param("firstname", $cgi->param("firstname"));
             $session->param("lastname", $cgi->param("lastname"));
