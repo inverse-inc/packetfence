@@ -707,6 +707,7 @@ sub web_guest_authenticate {
     # return (1,0) for successfull authentication
     # return (0,2) for inability to check credentials
     # return (0,3) for wrong guest info
+    # return (0,4) for invalid domain for guests
     # return (0,0) for first attempt
             
     my ($cgi, $session) = @_;
