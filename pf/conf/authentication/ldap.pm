@@ -98,6 +98,8 @@ my $LDAPUserScope = "sub";
 my $LDAPBindDN = "";
 my $LDAPBindPassword = "";
 my $LDAPServer = "";
+#my $LDAPGroupMemberKey = "memberOf";
+#my $LDAPGroupDN = "";
 
 =head1 SUBROUTINES
 
@@ -133,6 +135,7 @@ sub authenticate {
   $result = $connection->search(
     base => $LDAPUserBase,
     filter => "($LDAPUserKey=$username)",
+#    filter => "(&($LDAPUserKey=$username)($LDAPGroupMemberKey=$LDAPGroupDN))",
     scope => $LDAPUserScope,
     #attrs => ['dn']
   );
