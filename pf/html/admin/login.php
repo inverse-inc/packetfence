@@ -65,6 +65,11 @@ function validate_user_ldap($user,$pass,$hash='') {
   if (!$ldap) {
     return false;
   }
+
+  # We may have to set these 2 options
+  #ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
+  #ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
+
   $bind = ldap_bind($ldap, $ldap_bind_dn, $ldap_bind_pwd);
   if (!$bind) {
     return false;
@@ -75,15 +80,38 @@ function validate_user_ldap($user,$pass,$hash='') {
     $filter="$ldap_user_key=$user";
   }
 
-  # We may have to set these 2 options
-  #ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
-  #ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
-
+  # Here we look only into one DN ($ldap_user_base)
   $result = ldap_search($ldap, $ldap_user_base, $filter, array("dn"));
   $info = ldap_get_entries($ldap, $result);
   if (!$result) {
     return false;
   }
+
+  # If we want to search in more than one DN (multiple DNs):
+#  $dn[]=$ldap_user_base;
+#  $dn[]=$ldap_user_base2;
+#  $dn[]=$ldap_user_base3;
+#
+#  $id[] = $ldap;
+#  $id[] = $ldap;
+#  $id[] = $ldap;
+#
+#  $result = ldap_search($id, $dn, $filter, array("dn"));
+#  $search = false;
+#
+#  foreach ($result as $value) {
+#    if (ldap_count_entries($ldap, $value) > 0) {
+#      $search = $value;
+#      break;
+#    }
+#  }
+#
+#  if ($search) {
+#    $info = ldap_get_entries($ldap, $search);
+#  } else {
+#    return false;
+#  }
+
   if ($info["count"] != 1) {
     return false;
   }
