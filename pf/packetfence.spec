@@ -497,6 +497,9 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Tue Jul 15 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- New upstream release 1.9.0
+
 * Tue May 18 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added missing file for Floating Network Device support: 
   floating_network_device.conf

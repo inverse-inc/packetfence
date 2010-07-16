@@ -1,4 +1,6 @@
 2010-07-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec, pf/NEWS: 1.9.0 released!
+	
 	* pf/docs/PacketFence_Administration_Guide.odt: Added network and
 	components diagrams
 
