@@ -1,3 +1,9 @@
+2010-07-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/lookup/node.pm: Output of node lookup is aligned. Fixes
+	#1006;
+	http://www.packetfence.org/bugs/view.php?id=1006
+	Also added vim modelines to force proper whitespace
+
 2010-07-15	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec, pf/NEWS: 1.9.0 released!
 	
