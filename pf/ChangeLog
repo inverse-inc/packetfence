@@ -1,4 +1,22 @@
+2010-07-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec, pf/NEWS: 1.9.0 released!
+	
+	* pf/docs/PacketFence_Administration_Guide.odt: Added network and
+	components diagrams
+
+2010-07-14	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Replaced feature
+	intro text with updated one
+
 2010-07-06	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt, 
+	pf/docs/PacketFence_Developers_Guide.odt,
+	pf/docs/PacketFence_Installation_Guide.odt: Version bump
+
+	* pf/docs/PacketFence_Developers_Guide.odt: Fixed bad propagation from
+	1_8 branch (copied document from 1_8 branch and re-did changes since
+	then).
+
 	* pf/docs/PacketFence_Administration_Guide.odt: Added doc for HP 
 	ProCruve 3400cl (same as ProCurve 2600).
 
