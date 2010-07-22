@@ -93,7 +93,7 @@
                            'Cisco::Catalyst_3550' => 'Cisco Catalyst 3550',
                            'Cisco::Catalyst_3560' => 'Cisco Catalyst 3560',
                            'Cisco::Catalyst_3750' => 'Cisco Catalyst 3750',
-			   'Cisco::Catalyst_4500' => 'Cisco Catalyst 4500',
+                           'Cisco::Catalyst_4500' => 'Cisco Catalyst 4500',
                            'Cisco::ISR_1800' => 'Cisco ISR 1800 Series',
                            'Cisco::WiSM' => 'Cisco WiSM',
                            'Cisco::WLC_2106' => 'Cisco Wireless Controller (WLC) 2106',
@@ -121,7 +121,7 @@
                            'Nortel::BPS2000' => 'Nortel BPS 2000',
                            'Nortel::ES325' => 'Nortel ES325',
                            'PacketFence' => 'PacketFence',
-			   'SMC::TS8800M' => 'SMC TigerStack 8824-48M',
+                           'SMC::TS8800M' => 'SMC TigerStack 8824-48M',
                            'SMC::TS6224M' => 'SMC TigerStack 6224M'
                       ), 
                      'hash', $val, "name='$key'");
@@ -150,3 +150,8 @@
 ?>
 
 </html>
+<?php
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
+?>

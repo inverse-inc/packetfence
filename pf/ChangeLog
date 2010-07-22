@@ -1,3 +1,10 @@
+2010-07-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/configuration/switches_add.php, 
+	pf/html/admin/configuration/switches_edit.php: Corrected bad whitespace
+	again...
+	Now, to fix it for good, instead of asking people to behave, I'm 
+	forcing vim parameters to enforce them! mouhahahhaa! :)
+
 2010-07-15	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec, pf/NEWS: 1.9.0 released!
 	
