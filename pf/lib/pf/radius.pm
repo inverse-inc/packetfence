@@ -348,9 +348,17 @@ sub authorize_voip {
     my ($this, $connection_type, $switch, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    # TODO IP Phones authentication over Radius not supported
-    # we would probably need to change the Tunnel-Medium-Type or Tunnel-Type for proper VoIP 802.1x or VoIP MAB
-    $logger->warn("Radius authentication of IP Phones is not supported yet. Returning failure.");
+    # we got Avaya phones working on Cisco switches with the following
+    # if you want to do it, copy this whole sub into radius/custom.pm and uncomment the following lines
+    #my %RAD_REPLY; 
+    #$RAD_REPLY{'Cisco-AVPair'} = "device-traffic-class=voice";
+    #$switch->disconnectRead();
+    #$switch->disconnectWrite();
+    #return [RLM_MODULE_OK, %RAD_REPLY];
+
+    # TODO IP Phones authentication over Radius not supported by default because it seems vendor dependent
+    $logger->warn("Radius authentication of IP Phones is not enabled by default. Returning failure. See pf::radius's authorize_voip for details on how to activate it.");
+
     $switch->disconnectRead();
     $switch->disconnectWrite();
     return [RLM_MODULE_FAIL, undef];
@@ -405,4 +413,5 @@ USA.
 
 # vim: set shiftwidth=4:
 # vim: set expandtab:
+# vim: set tabstop=4:
 # vim: set backspace=indent,eol,start:
