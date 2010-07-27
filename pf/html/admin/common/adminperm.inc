@@ -42,7 +42,11 @@ if ($users[$usertype]<$pages[$current_top]) {
 
     // echo "BAD HIT";
     if ($current_top!="status") {
-        header("Location: /login.php");
+
+	// insufficient permissions, we notice them
+        echo "<div id='message_box'>You have insufficient permissions to view this page.</div>";
+        include_once('../footer.php');
+
     } else {
         echo "<html><head><meta http-equiv='refresh' content='0;url=/login.php?'></head><body></body></html>";
     }
