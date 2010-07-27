@@ -1,0 +1,24 @@
+This feature will be gradually improved.
+
+Feature first merge
+- Default permissions should do the right thing(tm) and not introduce regression where users are confused otherwise they should be disabled by default
+- Opening a file on each page hit, it should be cached in session on login instead
+- Not conforming to our usual ini-style config files
+- Needs a 'You don't have sufficient permissions' page instead of a redirect
+- Menus should be hidden if you don't have permissions for it
+
+Feature second merge
+- No way to edit rights through web
+
+Unclassified
+- there a notion of groups in the admin web code, what could be done regarding that?
+- Because it's done in header.php, can the security be circumvented if you already know the right POST or point directly to a popup URL?
+
+Before final merge in 1.9:
+- Re-assess all TODO, FIXME and XXX tasks
+
+Once final merge in 1.9 is done:
+- File all out-standing items in issue tracker
+- Move this into the wiki
+- Delete this file
+

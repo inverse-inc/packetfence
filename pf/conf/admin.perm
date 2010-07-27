@@ -1,0 +1,23 @@
+# PacketFence Granular Access Control
+#
+# User Definitions
+# Syntax:
+#       u,<username>,{1|2|3|4|5}
+#
+# username MUST be an exact match to username in conf/admin.conf
+
+u,admin,5
+u,staff,4
+u,helpdesk1,2
+
+# Page Definitions
+# Syntax:
+#       p,<pagename>,{1|2|3|4|5}
+
+p,status,1
+p,person,4
+p,node,1
+p,violation,3
+p,configuration,4
+p,administration,4
+

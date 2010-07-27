@@ -349,6 +349,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/cgi-bin/release.cgi
 %doc                    /usr/local/pf/ChangeLog
 %dir                    /usr/local/pf/conf
+%config(noreplace)      /usr/local/pf/conf/admin.perm
 %config(noreplace)      /usr/local/pf/conf/admin_ldap.conf
 %dir                    /usr/local/pf/conf/authentication
 %config(noreplace)      /usr/local/pf/conf/authentication/local.pm
@@ -483,6 +484,9 @@ fi
 %attr(0755, root, root) %{_initrddir}/pfdetectd
 
 %changelog
+* Tue Jul 27 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added conf/admin.perm file to the files manifest
+
 * Tue Jan 05 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.7-1
 - Version bump to 1.8.7
 

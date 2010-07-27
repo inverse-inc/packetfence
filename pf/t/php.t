@@ -15,6 +15,7 @@ my @php_files = (
     '/usr/local/pf/html/admin/3rdparty/calendar/calendar.php',
     '/usr/local/pf/html/admin/check_login.php',
     '/usr/local/pf/html/admin/common.php',
+    '/usr/local/pf/html/admin/common/adminperm.inc',
     '/usr/local/pf/html/admin/common/sajax/Sajax.php',
     '/usr/local/pf/html/admin/configuration/fingerprint.php',
     '/usr/local/pf/html/admin/configuration/index.php',

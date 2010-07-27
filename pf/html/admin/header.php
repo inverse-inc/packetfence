@@ -185,4 +185,5 @@
 <!-- Begin Content -->
 <div id="content">
 
-<?
+<?php
+include("common/adminperm.inc");
