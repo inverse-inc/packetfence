@@ -9,6 +9,7 @@ Feature first merge
 x Needs a 'You don't have sufficient permissions' page instead of a redirect
 - Menus should be hidden if you don't have permissions for it
 x Popups don't include header.php so something has to be done for these pages too
+- Include some notion of read vs write (add, edit)
 
 Feature second merge
 - No way to edit rights through web
