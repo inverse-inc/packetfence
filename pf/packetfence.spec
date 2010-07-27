@@ -497,7 +497,7 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
-* Tue Jul 15 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+* Tue Jul 15 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.9.0
 - New upstream release 1.9.0
 
 * Tue May 18 2010 Olivier Bilodeau <obilodeau@inverse.ca>
