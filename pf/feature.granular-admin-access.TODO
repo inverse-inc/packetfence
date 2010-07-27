@@ -9,10 +9,17 @@ Feature first merge
 x Needs a 'You don't have sufficient permissions' page instead of a redirect
 - Menus should be hidden if you don't have permissions for it
 x Popups don't include header.php so something has to be done for these pages too
-- Include some notion of read vs write (add, edit)
+- Documentation
 
 Feature second merge
 - No way to edit rights through web
+- full permission stack (or stop at the permission level)
+  Users have Roles
+     ex of roles: level1, level2, admin, maintenance
+        Roles are a bunch of Permissions
+            ex of permissions: violation-view, violation-modify, person-view, person-modify, configuration view
+               Permissions affect access on Objects
+                   ex of objects: violation-list, violation-view, violation-edit, violation-add, violation-create, violation-close, violation-delete
 
 Unclassified
 - there a notion of groups in the admin web code, what could be done regarding that?
