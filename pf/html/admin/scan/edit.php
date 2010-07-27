@@ -18,6 +18,8 @@
 <body class="popup">
 
 <?
+  perform_access_control_in_popup();
+
   $edit_item = '';
   if (isset($_REQUEST['item']) && is_numeric($_REQUEST['item']) && ($_REQUEST['item'] >= 0)) {
     $edit_item = $_REQUEST['item'];

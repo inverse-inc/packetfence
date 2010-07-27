@@ -12,7 +12,7 @@
 /*
  * Test user rights and perform actual access prevention if user doesn't have sufficient rights
  */
-function perform_access_control() {
+function perform_access_control($is_popup=0) {
     // holds current page, required to perform the access control
     global $current_top;
 
@@ -51,9 +51,13 @@ function perform_access_control() {
         // echo "BAD HIT";
         if ($current_top!="status") {
     
-    	// insufficient permissions, we notice them
+            // insufficient permissions, we notice them
             echo "<div id='message_box'>You have insufficient permissions to view this page.</div>";
-            include_once('../footer.php');
+
+            // in a popup we don't need the footer
+            if (!$is_popup) {
+                include_once('../footer.php');
+            }
     
         } else {
             echo "<html><head><meta http-equiv='refresh' content='0;url=/login.php?'></head><body></body></html>";
@@ -62,6 +66,12 @@ function perform_access_control() {
     }
 }
 
+/*
+ * Helper to encapsulate the fact that we are using the same underlying code for now
+ */ 
+function perform_access_control_in_popup() {
+    perform_access_control(1);
+}
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:

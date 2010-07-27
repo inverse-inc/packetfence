@@ -8,7 +8,7 @@ Feature first merge
 - Not conforming to our usual ini-style config files
 x Needs a 'You don't have sufficient permissions' page instead of a redirect
 - Menus should be hidden if you don't have permissions for it
-- Popups don't include header.php so something has to be done for these pages too
+x Popups don't include header.php so something has to be done for these pages too
 
 Feature second merge
 - No way to edit rights through web

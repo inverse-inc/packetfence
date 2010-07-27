@@ -18,6 +18,8 @@
 <body class="popup">
 
 <?
+  perform_access_control_in_popup();
+
   $edit_item = set_default($_REQUEST['item'], '');
 
   if($_POST){
