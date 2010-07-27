@@ -10,6 +10,7 @@
   $timeout = 3600;  // session timeout in seconds
   $abs_url="https://$HTTP_SERVER_VARS[HTTP_HOST]";
 
+  require_once 'common/adminperm.inc';
   require_once 'Log.php';
   $logger_file = &Log::factory('file', '/usr/local/pf/logs/admin_debug_log');
   //$disp_conf = array('error_prepend' => '<div style="border: 1px solid #aaa; background: #FFE6BF; padding:5px;">',

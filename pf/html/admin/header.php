@@ -186,4 +186,4 @@
 <div id="content">
 
 <?php
-include("common/adminperm.inc");
+perform_access_control();
