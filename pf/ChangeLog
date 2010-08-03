@@ -1,3 +1,7 @@
+2010-08-03	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/dhcp_fingerprints.conf: New DHCP fingerprints: Cisco
+	Wireless Access Point and FortiOS
+
 2010-07-22	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/html/admin/configuration/switches_add.php, 
 	pf/html/admin/configuration/switches_edit.php: Corrected bad whitespace
