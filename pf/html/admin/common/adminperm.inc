@@ -29,8 +29,6 @@ function perform_access_control($is_popup=0) {
     global $current_top;
     $user = $_SESSION['user'];
 
-    parse_permission_file();
-
     // assigning into easier to read variables
     $users = $_SESSION[ADMIN_PERMISSIONS_SESSION_PREFIX][ADMIN_USERS];
     $roles = $_SESSION[ADMIN_PERMISSIONS_SESSION_PREFIX][ADMIN_ROLES];
@@ -104,7 +102,7 @@ function perform_access_control_in_popup() {
 /*
  * Parses the permission configuration and put it in $_SESSION
  */
-function parse_permission_file() {
+function parse_and_cache_permission_file() {
 
     $perms_file_content = parse_ini_file(ADMIN_PERMISSIONS_FILE, true);
 
@@ -126,6 +124,18 @@ function parse_permission_file() {
 
     return true;
 }
+
+/*
+ * Invalidates permission configuration in session
+ */
+function invalidate_permission_cache() {
+    global $logger;
+    if (isset($_SESSION[ADMIN_PERMISSIONS_SESSION_PREFIX])) {
+        $logger->debug("permission cache invalidated, it will need to be explicitly reloaded");
+        unset($_SESSION[ADMIN_PERMISSIONS_SESSION_PREFIX]);
+    }
+}
+
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:

@@ -104,6 +104,9 @@
             $_SESSION['ui_prefs']=unserialize(file_get_contents(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/users/" . $_SESSION['user']));
             get_global_conf();
     }
+
+    # Admin Permission Caching
+    parse_and_cache_permission_file();
   } // end caching
 
 ?>
