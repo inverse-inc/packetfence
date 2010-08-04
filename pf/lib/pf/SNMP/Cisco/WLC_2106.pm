@@ -22,6 +22,20 @@ use Net::Appliance::Session;
 use Net::SNMP;
 use Data::Dumper;
 
+=head1 SUBROUTINES
+
+TODO: This list is incomplete
+
+=over
+
+=item deauthenticateMac
+
+Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread 
+safe: 
+
+L<http://www.cpanforum.com/threads/6909/>
+
+=cut
 sub deauthenticateMac {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -149,6 +163,14 @@ sub isVoIPEnabled {
     my ($this) = @_;
     return 0;
 }
+
+=back
+
+=head1 BUGS AND LIMITATIONS
+
+Controller issue with Windows 7: It only works with IOS > 6.x in 802.1x+WPA2. It's not a PacketFence issue.
+
+With IOS 6.0.182.0 we had intermittent issues with DHCP. Disabling DHCP Proxy resolved it. Not a PacketFence issue.
 
 =head1 AUTHOR
 

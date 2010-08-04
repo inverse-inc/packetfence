@@ -29,7 +29,12 @@
     }
     $edit_cmd.=implode(", ", $parts);
 
-    PFCMD($edit_cmd);
+    # I REALLLLYY mean false (avoids 0, empty strings and empty arrays to pass here)
+    if (PFCMD($edit_cmd) === false) {
+      # an error was shown by PFCMD now die to avoid closing the popup
+      exit();
+    }
+    # no errors from pfcmd, go on
     $edited=true; 
     print "<script type='text/javascript'>opener.location.reload();window.close();</script>";
 
@@ -39,7 +44,7 @@
 
   foreach($vids_pfcmd as $line){
     $parts=preg_split("/\|/", $line);
-    $vids[]=array('vid' => $parts[2], 'desc' => $parts[4]);
+    $vids[]=array('vid' => $parts[2], 'desc' => $_SESSION['violation_classes'][$parts[2]]);
   }
   array_shift($vids);
 

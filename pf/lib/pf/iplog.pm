@@ -26,233 +26,226 @@ use Date::Parse;
 use Log::Log4perl;
 use Log::Log4perl::Level;
 
-our (
-    $iplog_shutdown_sql,               $iplog_lastseen_sql,
-    $iplog_view_open_sql,              $iplog_view_all_sql,
-    $iplog_history_ip_sql,             $iplog_history_mac_sql,
-    $iplog_history_ip_date_sql,        $iplog_history_mac_date_sql,
-    $iplog_close_sql,                  $iplog_close_now_sql,
-    $iplog_open_with_lease_length_sql, $iplog_open_update_end_time_sql,
-    $iplog_open_sql,                   $iplog_view_open_ip_sql,
-    $iplog_view_open_mac_sql,          $iplog_cleanup_sql,
-    $iplog_expire_sql,                 $iplog_db_prepared
-);
+use constant IPLOG => 'iplog';
 
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
-    @EXPORT
-        = qw(iplog_db_prepare iplog_shutdown iplog_history_ip iplog_history_mac iplog_view_open iplog_view_open_ip
-        iplog_view_open_mac iplog_view_all iplog_open iplog_close iplog_close_now iplog_cleanup iplog_expire mac2ip mac2allips ip2mac);
+    @EXPORT = qw(
+        iplog_db_prepare
+        $iplog_db_prepared
+
+        iplog_expire          iplog_shutdown
+        iplog_history_ip      iplog_history_mac 
+        iplog_view_open       iplog_view_open_ip
+        iplog_view_open_mac   iplog_view_all 
+        iplog_open            iplog_close 
+        iplog_close_now       iplog_cleanup 
+
+        mac2ip 
+        mac2allips
+        ip2mac
+    );
 }
 
 use pf::config;
 use pf::db;
 use pf::util;
 
-$iplog_db_prepared = 0;
-
-#iplog_db_prepare($dbh) if (!$thread);
+# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
+our $iplog_db_prepared = 0;
+# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
+# the hash if required
+our $iplog_statements = {};
 
 sub iplog_db_prepare {
-    my ($dbh) = @_;
-    db_connect($dbh);
     my $logger = Log::Log4perl::get_logger('pf::iplog');
     $logger->debug("Preparing pf::iplog database queries");
-    $iplog_shutdown_sql = $dbh->prepare(
+
+    $iplog_statements->{'iplog_shutdown_sql'} = get_db_handle()->prepare(
         qq [ update iplog set end_time=now() where end_time=0 ]);
 
-#$iplog_lastseen_sql=$dbh->prepare( qq [ update iplog set last_seen=from_unixtime(?) where mac=? and ip=? and end_time=0]);
-    $iplog_view_open_sql
-        = $dbh->prepare(
-        qq [ select mac,ip,start_time,end_time from iplog where end_time=0 or end_time > now() ]
-        );
-    $iplog_view_open_ip_sql
-        = $dbh->prepare(
-        qq [ select mac,ip,start_time,end_time from iplog where ip=? and (end_time=0 or end_time > now()) limit 1]
-        );
-    $iplog_view_open_mac_sql
-        = $dbh->prepare(
-        qq [ select mac,ip,start_time,end_time from iplog where mac=? and (end_time=0 or end_time > now()) order by start_time desc]
-        );
-    $iplog_view_all_sql
-        = $dbh->prepare(qq [ select mac,ip,start_time,end_time from iplog ]);
-    $iplog_history_ip_date_sql
-        = $dbh->prepare(
-        qq [ select mac,ip,start_time,end_time from iplog where ip=? and start_time < from_unixtime(?) and (end_time > from_unixtime(?) or end_time=0) order by start_time desc ]
-        );
-    $iplog_history_mac_date_sql
-        = $dbh->prepare(
-        qq [ select mac,ip,start_time,end_time from iplog where mac=? and start_time < from_unixtime(?) and (end_time > from_unixtime(?) or end_time=0) order by start_time desc ]
-        );
-    $iplog_history_ip_sql
-        = $dbh->prepare(
-        qq [ select mac,ip,start_time,end_time from iplog where ip=? order by start_time desc ]
-        );
-    $iplog_history_mac_sql
-        = $dbh->prepare(
-        qq [ select mac,ip,start_time,end_time from iplog where mac=? order by start_time desc ]
-        );
-    $iplog_open_sql = $dbh->prepare(
+    $iplog_statements->{'iplog_view_open_sql'} = get_db_handle()->prepare(
+        qq [ select mac,ip,start_time,end_time from iplog where end_time=0 or end_time > now() ]);
+
+    $iplog_statements->{'iplog_view_open_ip_sql'} = get_db_handle()->prepare(
+        qq [ select mac,ip,start_time,end_time from iplog where ip=? and (end_time=0 or end_time > now()) limit 1]);
+
+    $iplog_statements->{'iplog_view_open_mac_sql'} = get_db_handle()->prepare(
+        qq [ select mac,ip,start_time,end_time from iplog where mac=? and (end_time=0 or end_time > now()) order by start_time desc]);
+
+    $iplog_statements->{'iplog_view_open_mac_sql'} = get_db_handle()->prepare(
+        qq [select mac,ip,start_time,end_time from iplog where mac=? and (end_time=0 or end_time > now()) order by start_time desc]);
+
+    $iplog_statements->{'iplog_view_all_sql'} = get_db_handle()->prepare(qq [ select mac,ip,start_time,end_time from iplog ]);
+
+    $iplog_statements->{'iplog_history_ip_date_sql'} = get_db_handle()->prepare(
+        qq [ select mac,ip,start_time,end_time from iplog where ip=? and start_time < from_unixtime(?) and (end_time > from_unixtime(?) or end_time=0) order by start_time desc ]);
+
+    $iplog_statements->{'iplog_history_mac_date_sql'} = get_db_handle()->prepare(
+        qq [ select mac,ip,start_time,end_time from iplog where mac=? and start_time < from_unixtime(?) and (end_time > from_unixtime(?) or end_time=0) order by start_time desc ]);
+
+    $iplog_statements->{'iplog_history_ip_sql'} = get_db_handle()->prepare(
+        qq [ select mac,ip,start_time,end_time from iplog where ip=? order by start_time desc ]);
+
+    $iplog_statements->{'iplog_history_mac_sql'} = get_db_handle()->prepare(
+        qq [ select mac,ip,start_time,end_time from iplog where mac=? order by start_time desc ]);
+
+    $iplog_statements->{'iplog_open_sql'} = get_db_handle()->prepare(
         qq [ insert into iplog(mac,ip,start_time) values(?,?,now()) ]);
-    $iplog_open_with_lease_length_sql
-        = $dbh->prepare(
-        qq [ insert into iplog(mac,ip,start_time,end_time) values(?,?,now(),adddate(now(), interval ? second)) ]
-        );
-    $iplog_open_update_end_time_sql
-        = $dbh->prepare(
-        qq [ update iplog set end_time = adddate(now(), interval ? second) where mac=? and ip=? and (end_time = 0 or end_time > now()) ]
-        );
-    $iplog_close_sql = $dbh->prepare(
+
+    $iplog_statements->{'iplog_open_with_lease_length_sql'} = get_db_handle()->prepare(
+        qq [ insert into iplog(mac,ip,start_time,end_time) values(?,?,now(),adddate(now(), interval ? second)) ]);
+
+    $iplog_statements->{'iplog_open_update_end_time_sql'} = get_db_handle()->prepare(
+        qq [ update iplog set end_time = adddate(now(), interval ? second) where mac=? and ip=? and (end_time = 0 or end_time > now()) ]);
+
+    $iplog_statements->{'iplog_close_sql'} = get_db_handle()->prepare(
         qq [ update iplog set end_time=now() where ip=? and end_time=0 ]);
-    $iplog_close_now_sql
-        = $dbh->prepare(
-        qq [ update iplog set end_time=now() where ip=? and (end_time=0 or end_time > now())]
-        );
-    $iplog_cleanup_sql
-        = $dbh->prepare(
-        qq [ delete from iplog where unix_timestamp(end_time) < (unix_timestamp(now()) - ?) and end_time!=0 ]
-        );
+
+    $iplog_statements->{'iplog_close_now_sql'} = get_db_handle()->prepare(
+        qq [ update iplog set end_time=now() where ip=? and (end_time=0 or end_time > now())]);
+
+    $iplog_statements->{'iplog_cleanup_sql'} = get_db_handle()->prepare(
+        qq [ delete from iplog where unix_timestamp(end_time) < (unix_timestamp(now()) - ?) and end_time!=0 ]);
+
     $iplog_db_prepared = 1;
 }
 
 sub iplog_shutdown {
     my $logger = Log::Log4perl::get_logger('pf::iplog');
-    iplog_db_prepare($dbh) if ( !$iplog_db_prepared );
     $logger->info("closing open iplogs");
-    $iplog_shutdown_sql->execute() || return (0);
+
+    db_query_execute(IPLOG, $iplog_statements, 'iplog_shutdown_sql') || return (0);
     return (1);
 }
 
 sub iplog_history_ip {
     my ( $ip, %params ) = @_;
-    iplog_db_prepare($dbh) if ( !$iplog_db_prepared );
+
     if ( defined( $params{'start_time'} ) && defined( $params{'end_time'} ) )
     {
-        return db_data( $iplog_history_ip_date_sql, $ip, $params{'end_time'},
-            $params{'start_time'} );
-    } elsif ( defined( $params{'date'} ) ) {
-        return db_data( $iplog_history_ip_date_sql, $ip, $params{'date'},
-            $params{'date'} );
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_ip_date_sql', 
+            $ip, $params{'end_time'}, $params{'start_time'});
+
+    } elsif (defined($params{'date'})) {
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_ip_date_sql', $ip, $params{'date'}, $params{'date'});
+
     } else {
-        $iplog_history_ip_sql->execute($ip) || return (0);
-        return db_data($iplog_history_ip_sql);
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_ip_sql', $ip);
     }
 }
 
 sub iplog_history_mac {
     my ( $mac, %params ) = @_;
+
     my $tmpMAC = Net::MAC->new( 'mac' => $mac );
     $mac = $tmpMAC->as_IEEE();
-    iplog_db_prepare($dbh) if ( !$iplog_db_prepared );
+
     if ( defined( $params{'start_time'} ) && defined( $params{'end_time'} ) )
     {
-        return db_data( $iplog_history_mac_date_sql, $mac,
-            $params{'end_time'}, $params{'start_time'} );
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_mac_date_sql', $mac, 
+            $params{'end_time'}, $params{'start_time'});
+
     } elsif ( defined( $params{'date'} ) ) {
-        return db_data( $iplog_history_mac_date_sql, $mac, $params{'date'},
-            $params{'date'} );
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_mac_date_sql', $mac, 
+            $params{'date'}, $params{'date'});
+
     } else {
-        $iplog_history_mac_sql->execute($mac) || return (0);
-        return db_data($iplog_history_mac_sql);
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_mac_sql', $mac);
     }
 }
 
 sub iplog_view_open {
-    iplog_db_prepare($dbh) if ( !$iplog_db_prepared );
-    return db_data($iplog_view_open_sql);
+    return db_data(IPLOG, $iplog_statements, 'iplog_view_open_sql');
 }
 
 sub iplog_view_open_ip {
     my ($ip) = @_;
-    iplog_db_prepare($dbh) if ( !$iplog_db_prepared );
-    $iplog_view_open_ip_sql->execute($ip) || return (0);
-    my $ref = $iplog_view_open_ip_sql->fetchrow_hashref();
+
+    my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_view_open_ip_sql', $ip) || return (0);
+    my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
-    $iplog_view_open_ip_sql->finish();
+    $query->finish();
     return ($ref);
 }
 
 sub iplog_view_open_mac {
     my ($mac) = @_;
-    iplog_db_prepare($dbh) if ( !$iplog_db_prepared );
-    $iplog_view_open_mac_sql->execute($mac) || return (0);
-    my $ref = $iplog_view_open_mac_sql->fetchrow_hashref();
+
+    my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_view_open_mac_sql', $mac) || return (0);
+    my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
-    $iplog_view_open_mac_sql->finish();
+    $query->finish();
     return ($ref);
 }
 
 sub iplog_view_all_open_mac {
     my ($mac) = @_;
-    iplog_db_prepare($dbh) if ( !$iplog_db_prepared );
-    return db_data( $iplog_view_open_mac_sql, $mac );
+    return db_data(IPLOG, $iplog_statements, 'iplog_view_open_mac_sql', $mac);
 }
 
 sub iplog_view_all {
-    iplog_db_prepare($dbh) if ( !$iplog_db_prepared );
-    return db_data($iplog_view_all_sql);
+    return db_data(IPLOG, $iplog_statements, 'iplog_view_all_sql');
 }
 
 sub iplog_open {
     my ( $mac, $ip, $lease_length ) = @_;
-    iplog_db_prepare($dbh) if ( !$iplog_db_prepared );
     my $logger = Log::Log4perl::get_logger('pf::iplog');
+
     require pf::node;
     if ( !pf::node::node_exist($mac) ) {
         pf::node::node_add_simple($mac);
     }
+
     if ($lease_length) {
         if ( !defined( iplog_view_open_mac($mac) ) ) {
             $logger->debug("creating new entry for ($mac - $ip)");
-            $iplog_open_with_lease_length_sql->execute( $mac, $ip,
-                $lease_length );
+            db_query_execute(IPLOG, $iplog_statements, 'iplog_open_with_lease_length_sql', $mac, $ip, $lease_length);
+
         } else {
             $logger->debug("updating end_time for ($mac - $ip)");
-            $iplog_open_update_end_time_sql->execute( $lease_length, $mac,
-                $ip );
+            db_query_execute(IPLOG, $iplog_statements, 'iplog_open_update_end_time_sql', $lease_length, $mac, $ip);
         }
+
     } elsif ( !defined( iplog_view_open_mac($mac) ) ) {
-        $logger->debug(
-            "creating new entry for ($mac - $ip) with empty end_time");
-        $iplog_open_sql->execute( $mac, $ip ) || return (0);
+        $logger->debug("creating new entry for ($mac - $ip) with empty end_time");
+        db_query_execute(IPLOG, $iplog_statements, 'iplog_open_sql', $mac, $ip) || return (0);
     }
     return (0);
 }
 
 sub iplog_close {
     my ($ip) = @_;
-    iplog_db_prepare($dbh) if ( !$iplog_db_prepared );
-    $iplog_close_sql->execute($ip) || return (0);
+
+    db_query_execute(IPLOG, $iplog_statements, 'iplog_close_sql', $ip);
     return (0);
 }
 
 sub iplog_close_now {
     my ($ip) = @_;
-    iplog_db_prepare($dbh) if ( !$iplog_db_prepared );
-    $iplog_close_now_sql->execute($ip) || return (0);
+
+    db_query_execute(IPLOG, $iplog_statements, 'iplog_close_now_sql', $ip);
     return (0);
 }
 
 sub iplog_cleanup {
     my ($time) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iplog');
-    iplog_db_prepare($dbh) if ( !$iplog_db_prepared );
+
     $logger->debug("calling iplog_cleanup with time=$time");
-    $iplog_cleanup_sql->execute($time) || return (0);
-    my $rows = $iplog_cleanup_sql->rows;
-    $logger->log( ( ( $rows > 0 ) ? $INFO : $DEBUG ),
-        "deleted $rows entries from iplog during iplog cleanup" );
+    my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_cleanup_sql', $time) || return (0);
+    my $rows = $query->rows;
+    $logger->log((($rows > 0) ? $INFO : $DEBUG), "deleted $rows entries from iplog during iplog cleanup");
     return (0);
 }
 
 sub iplog_expire {
     my ($time) = @_;
-    iplog_db_prepare($dbh) if ( !$iplog_db_prepared );
-    return db_data( $iplog_expire_sql, $time );
+    return db_data(IPLOG, $iplog_statements, 'iplog_expire_sql', $time);
 }
 
 sub ip2mac {
@@ -305,9 +298,8 @@ sub ip2mac {
                     $ping->close();
                     $mac = ip2macinarp($ip);
                 } else {
-                    $logger->debug(
-                        "unable to find an IP address on PF host in the same broadcast domain than $ip -> won't send ping"
-                    );
+                    $logger->debug("unable to find an IP address on PF host in the same broadcast domain than $ip "
+                        . "-> won't send ping");
                 }
             }
             if ($mac) {
@@ -384,6 +376,7 @@ sub mac2allips {
     return @all_ips;
 }
 
+
 =head1 AUTHOR
 
 David LaPorte <david@davidlaporte.org>
@@ -392,13 +385,15 @@ Kevin Amorin <kev@amorin.org>
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2008 Inverse inc.
+Copyright (C) 2008,2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

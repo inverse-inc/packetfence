@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 72;
+use Test::More tests => 76;
 
 my @php_files = (
     '/usr/local/pf/html/admin/administration/adduser.php',
@@ -16,6 +16,7 @@ my @php_files = (
     '/usr/local/pf/html/admin/check_login.php',
     '/usr/local/pf/html/admin/common.php',
     '/usr/local/pf/html/admin/common/adminperm.inc',
+    '/usr/local/pf/html/admin/common/helpers.inc',
     '/usr/local/pf/html/admin/common/sajax/Sajax.php',
     '/usr/local/pf/html/admin/configuration/fingerprint.php',
     '/usr/local/pf/html/admin/configuration/index.php',
@@ -40,6 +41,8 @@ my @php_files = (
     '/usr/local/pf/html/admin/login.php',
     '/usr/local/pf/html/admin/node/add.php',
     '/usr/local/pf/html/admin/node/categories.php',
+    '/usr/local/pf/html/admin/node/categories_add.php',
+    '/usr/local/pf/html/admin/node/categories_edit.php',
     '/usr/local/pf/html/admin/node/edit.php',
     '/usr/local/pf/html/admin/node/index.php',
     '/usr/local/pf/html/admin/node/lookup.php',

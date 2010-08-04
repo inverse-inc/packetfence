@@ -7,6 +7,8 @@
 #
 # For more information about the grammar syntax: http://search.cpan.org/~dconway/Parse-RecDescent-1.96.0/lib/Parse/RecDescent.pm#DESCRIPTION
 #
+# NOTE: always remember that this file is only part of the story, lib/pf/pfcmd.pm is always parsed first!
+#
 use strict;
 use warnings;
 
@@ -27,10 +29,12 @@ $grammar = q {
            { 1; }
 
    command : 'node' node_options
+             | 'nodecategory' nodecategory_options
              | 'person' person_options
              | 'interfaceconfig' interfaceconfig_options
              | 'networkconfig' networkconfig_options
              | 'switchconfig' switchconfig_options
+             | 'floatingnetworkdeviceconfig' floatingnetworkdeviceconfig_options
              | 'violationconfig' violationconfig_options
              | 'violation' violation_options
              | 'manage' manage_options
@@ -42,11 +46,16 @@ $grammar = q {
 
    node_options : 'add' macaddr node_edit_options | 'edit' macaddr node_edit_options 
 
+   # nodecategory add is without an id and edit is with one
+   nodecategory_options : 'add' nodecategory_edit_options | 'edit' /\d+/ nodecategory_edit_options | 'delete' /\d+/
+
    interfaceconfig_options: ('add' | 'edit') (/[^ ]+/) interfaceconfig_edit_options
 
    networkconfig_options: ('add' | 'edit') ipaddr networkconfig_edit_options
 
    switchconfig_options: ('add' | 'edit') ('default'|ipaddr) switchconfig_edit_options
+
+   floatingnetworkdeviceconfig_options: ('add' | 'edit') macaddr floatingnetworkdeviceconfig_edit_options
 
    violationconfig_options: ('add' | 'edit') ('defaults'|/\d+/) violationconfig_edit_options
 
@@ -72,11 +81,15 @@ $grammar = q {
 
    switchconfig_edit_options : <leftop: switchconfig_assignment ',' switchconfig_assignment>
 
+   floatingnetworkdeviceconfig_edit_options : <leftop: floatingnetworkdeviceconfig_assignment ',' floatingnetworkdeviceconfig_assignment>
+
    violationconfig_edit_options : <leftop: violationconfig_assignment ',' violationconfig_assignment>
 
    person_edit_options : <leftop: person_assignment ',' person_assignment>
 
    node_edit_options : <leftop: node_assignment ',' node_assignment>
+
+   nodecategory_edit_options : <leftop: nodecategory_assignment ',' nodecategory_assignment>
 
    violation_edit_options : <leftop: violation_assignment ',' violation_assignment>
 
@@ -99,30 +112,40 @@ $grammar = q {
    switchconfig_assignment : switchconfig_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{switchconfig_view_field},$item{value}] }
 
+   floatingnetworkdeviceconfig_assignment : floatingnetworkdeviceconfig_view_field '=' value
+                {push @{$main::cmd{$item[0]}}, [$item{floatingnetworkdeviceconfig_view_field},$item{value}] }
+
    violationconfig_assignment : violationconfig_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{violationconfig_view_field},$item{value}] }
 
    node_assignment : node_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{node_view_field},$item{value}] }
 
+   nodecategory_assignment : nodecategory_view_field '=' value
+                {push @{$main::cmd{$item[0]}}, [$item{nodecategory_view_field},$item{value}] }
+
    violation_assignment : violation_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{violation_view_field},$item{value}] }
 
    columname : /[a-z_]+/i
 
-   value : '"' /[&=?()\/,0-9a-zA-Z_\*\.\-\:_\;\@\ \+]*/ '"' {$item[2]} | /[\/0-9a-zA-Z_\*\.\-\:_\;\@]+/
+   value : '"' /[&=?()\/,0-9a-zA-Z_\*\.\-\:_\;\@\ \+\!]*/ '"' {$item[2]} | /[\/0-9a-zA-Z_\*\.\-\:_\;\@]+/
 
    person_view_field : 'pid' | 'firstname' | 'lastname' | 'email' | 'telephone' | 'company' | 'address' | 'notes'
 
-   node_view_field :  'mac' | 'pid' | 'detect_date' | 'regdate' | 'unregdate' | 'lastskip' | 'status' | 'user_agent' | 'computername'  | 'notes' | 'last_arp' | 'last_dhcp' | 'dhcp_fingerprint' | 'switch' | 'port' | 'vlan'
+   node_view_field :  'mac' | 'pid' | 'category' | 'detect_date' | 'regdate' | 'unregdate' | 'lastskip' | 'status' | 'user_agent' | 'computername'  | 'notes' | 'last_arp' | 'last_dhcp' | 'dhcp_fingerprint' | 'switch' | 'port' | 'vlan'
+
+   nodecategory_view_field :  'name' | 'notes'
 
    interfaceconfig_view_field : 'interface' | 'ip' | 'mask' | 'type' | 'gateway'
 
    networkconfig_view_field : 'type' | 'netmask' | 'named' | 'dhcpd' | 'gateway' | 'domain-name' | 'dns' | 'dhcp_start' | 'dhcp_end' | 'dhcp_default_lease_time' | 'dhcp_max_lease_time' | 'pf_gateway'
 
-   switchconfig_view_field : 'type' | 'mode' | 'uplink' | 'SNMPVersionTrap' | 'SNMPCommunityRead' | 'SNMPCommunityWrite' | 'SNMPVersion' | 'SNMPCommunityTrap' | 'cliTransport' | 'cliUser' | 'cliPwd' | 'cliEnablePwd' | 'vlans' | 'normalVlan' | 'registrationVlan' | 'isolationVlan' | 'macDetectionVlan' | 'macSearchesMaxNb' | 'macSearchesSleepInterval' | 'VoIPEnabled' | 'voiceVlan' | 'SNMPEngineID' | 'SNMPUserNameRead' | 'SNMPAuthProtocolRead' | 'SNMPAuthPasswordRead' | 'SNMPPrivProtocolRead' | 'SNMPPrivPasswordRead' | 'SNMPUserNameWrite' | 'SNMPAuthProtocolWrite' | 'SNMPAuthPasswordWrite' | 'SNMPPrivProtocolWrite' | 'SNMPPrivPasswordWrite' | 'SNMPUserNameTrap' | 'SNMPAuthProtocolTrap' | 'SNMPAuthPasswordTrap' | 'SNMPPrivProtocolTrap' | 'SNMPPrivPasswordTrap'
+   switchconfig_view_field : 'type' | 'mode' | 'uplink' | 'SNMPVersionTrap' | 'SNMPCommunityRead' | 'SNMPCommunityWrite' | 'SNMPVersion' | 'SNMPCommunityTrap' | 'cliTransport' | 'cliUser' | 'cliPwd' | 'cliEnablePwd' | 'vlans' | 'normalVlan' | 'registrationVlan' | 'isolationVlan' | 'macDetectionVlan' | 'guestVlan' | 'customVlan1' | 'customVlan2' | 'customVlan3' | 'customVlan4' | 'customVlan5' | 'macSearchesMaxNb' | 'macSearchesSleepInterval' | 'VoIPEnabled' | 'voiceVlan' | 'SNMPEngineID' | 'SNMPUserNameRead' | 'SNMPAuthProtocolRead' | 'SNMPAuthPasswordRead' | 'SNMPPrivProtocolRead' | 'SNMPPrivPasswordRead' | 'SNMPUserNameWrite' | 'SNMPAuthProtocolWrite' | 'SNMPAuthPasswordWrite' | 'SNMPPrivProtocolWrite' | 'SNMPPrivPasswordWrite' | 'SNMPUserNameTrap' | 'SNMPAuthProtocolTrap' | 'SNMPAuthPasswordTrap' | 'SNMPPrivProtocolTrap' | 'SNMPPrivPasswordTrap'
 
-   violationconfig_view_field : 'desc' | 'disable' | 'auto_enable' | 'actions' | 'max_enable' | 'grace' | 'priority' | 'url' | 'button_text' | 'trigger' | 'vlan'
+   floatingnetworkdeviceconfig_view_field : 'ip' | 'trunkPort' | 'pvid' | 'taggedVlan'
+
+   violationconfig_view_field : 'desc' | 'disable' | 'auto_enable' | 'actions' | 'max_enable' | 'grace' | 'priority' | 'url' | 'button_text' | 'trigger' | 'vlan' | 'whitelisted_categories'
 
    violation_view_field :  'id' | 'mac' | 'vid' | 'start_date' | 'release_date' | 'status' | 'notes'
 
@@ -139,13 +162,15 @@ Dominik Gehl <dgehl@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
+Regis Balzard <rbalzard@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2008-2009 Inverse inc.
+Copyright (C) 2008-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

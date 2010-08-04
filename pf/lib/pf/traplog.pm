@@ -19,26 +19,14 @@ use Log::Log4perl;
 use Log::Log4perl::Level;
 use RRDs;
 
-our (
-    $traplog_cleanup_sql,
-
-    $traplog_insert_sql,
-
-    $traplog_first_TimeStamp_sql,
-    $traplog_all_switches_sql,
-    $traplog_type_count_sql,
-    $traplog_switch_type_count_sql,
-    $traplog_switches_with_most_traps_sql,
-    $traplog_switches_with_most_traps_date_sql,
-
-    $traplog_db_prepared
-);
+use constant TRAPLOG => 'traplog';
 
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA    = qw(Exporter);
     @EXPORT = qw(
+        $traplog_db_prepared
         traplog_db_prepare
 
         traplog_cleanup
@@ -58,64 +46,55 @@ BEGIN {
 use pf::config;
 use pf::db;
 
-$traplog_db_prepared = 0;
+# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
+our $traplog_db_prepared = 0;
+# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
+# the hash if required
+our $traplog_statements = {};
 
 sub traplog_db_prepare {
-    my ($dbh) = @_;
-    db_connect($dbh);
     my $logger = Log::Log4perl::get_logger('pf::traplog');
     $logger->debug("Preparing pf::traplog database queries");
 
-    $traplog_insert_sql
-        = $dbh->prepare(
-        qq [ INSERT INTO traplog (switch, ifIndex, parseTime, `type`) VALUES(?,?,NOW(),?) ]
-        );
+    $traplog_statements->{'traplog_insert_sql'} = get_db_handle()->prepare(
+        qq [ INSERT INTO traplog (switch, ifIndex, parseTime, `type`) VALUES(?,?,NOW(),?) ]);
 
-    $traplog_cleanup_sql
-        = $dbh->prepare(
-        qq [ delete from traplog where parseTime < from_unixtime(unix_timestamp(now()) - ?) ]
-        );
+    $traplog_statements->{'traplog_cleanup_sql'} = get_db_handle()->prepare(
+        qq [ delete from traplog where parseTime < from_unixtime(unix_timestamp(now()) - ?) ]);
 
-    $traplog_first_TimeStamp_sql
-        = $dbh->prepare(
-        qq [ SELECT unix_timestamp(parseTime) AS firstInsert FROM traplog ORDER BY parseTime ASC LIMIT 1 ]
-        );
-    $traplog_all_switches_sql
-        = $dbh->prepare(qq [ SELECT distinct switch FROM traplog ]);
-    $traplog_type_count_sql
-        = $dbh->prepare(
-        qq[ select `type`, count(*) as nb from traplog where parseTime >= from_unixtime(?) and parseTime < from_unixtime(?) group by `type` ]
-        );
-    $traplog_switch_type_count_sql
-        = $dbh->prepare(
-        qq[ select switch, `type`, count(*) as nb from traplog where parseTime >= from_unixtime(?) and parseTime < from_unixtime(?) group by switch, `type` ]
-        );
-    $traplog_switches_with_most_traps_sql
-        = $dbh->prepare(
-        qq [ select switch, count(*) as nb from traplog group by switch order by nb DESC limit ? ]
-        );
-    $traplog_switches_with_most_traps_date_sql
-        = $dbh->prepare(
-        qq [ select switch, count(*) as nb from traplog where parseTime >= from_unixtime(?) group by switch order by nb DESC limit ? ]
-        );
+    $traplog_statements->{'traplog_first_TimeStamp_sql'} = get_db_handle()->prepare(
+        qq [ SELECT unix_timestamp(parseTime) AS firstInsert FROM traplog ORDER BY parseTime ASC LIMIT 1 ]);
+
+    $traplog_statements->{'traplog_all_switches_sql'} = get_db_handle()->prepare(qq [ SELECT distinct switch FROM traplog ]);
+
+    $traplog_statements->{'traplog_type_count_sql'} = get_db_handle()->prepare(
+        qq[ select `type`, count(*) as nb from traplog where parseTime >= from_unixtime(?) and parseTime < from_unixtime(?) group by `type` ]);
+
+    $traplog_statements->{'traplog_switch_type_count_sql'} = get_db_handle()->prepare(
+        qq[ select switch, `type`, count(*) as nb from traplog where parseTime >= from_unixtime(?) and parseTime < from_unixtime(?) group by switch, `type` ]);
+
+    $traplog_statements->{'traplog_switches_with_most_traps_sql'} = get_db_handle()->prepare(
+        qq [ select switch, count(*) as nb from traplog group by switch order by nb DESC limit ? ]);
+
+    $traplog_statements->{'traplog_switches_with_most_traps_date_sql'} = get_db_handle()->prepare(
+        qq [ select switch, count(*) as nb from traplog where parseTime >= from_unixtime(?) group by switch order by nb DESC limit ? ]);
 
     $traplog_db_prepared = 1;
 }
 
 sub traplog_insert {
     my ( $switch, $ifIndex, $type ) = @_;
-    traplog_db_prepare($dbh) if ( !$traplog_db_prepared );
-    $traplog_insert_sql->execute( $switch, $ifIndex, $type ) || return (0);
+    db_query_execute(TRAPLOG, $traplog_statements, 'traplog_insert_sql', $switch, $ifIndex, $type) || return (0);
     return (1);
 }
 
 sub traplog_cleanup {
     my ($time) = @_;
     my $logger = Log::Log4perl::get_logger('pf::traplog');
-    traplog_db_prepare($dbh) if ( !$traplog_db_prepared );
+
     $logger->debug("calling traplog_cleanup with time=$time");
-    $traplog_cleanup_sql->execute($time) || return (0);
-    my $rows = $traplog_cleanup_sql->rows;
+    my $query = db_query_execute(TRAPLOG, $traplog_statements, 'traplog_cleanup_sql', $time) || return (0);
+    my $rows = $query->rows;
     $logger->log( ( ( $rows > 0 ) ? $INFO : $DEBUG ),
         "deleted $rows entries from traplog during traplog cleanup" );
     return (0);
@@ -123,13 +102,13 @@ sub traplog_cleanup {
 
 sub traplog_get_first_timestamp {
     my $logger = Log::Log4perl::get_logger('pf::traplog');
-    traplog_db_prepare($dbh) if ( !$traplog_db_prepared );
-    $traplog_first_TimeStamp_sql->execute();
-    if ( my $ref = $traplog_first_TimeStamp_sql->fetchrow_hashref() ) {
+
+    my $query = db_query_execute(TRAPLOG, $traplog_statements, 'traplog_first_TimeStamp_sql');
+    if ( my $ref = $query->fetchrow_hashref() ) {
         $logger->debug( "returning first timestamp ("
                 . $ref->{'firstInsert'}
                 . ") from traplog table" );
-        $traplog_first_TimeStamp_sql->finish();
+        $query->finish();
         return $ref->{'firstInsert'};
     } else {
         $logger->info("traplog table doesn't have any entries.");
@@ -138,19 +117,18 @@ sub traplog_get_first_timestamp {
 }
 
 sub traplog_get_all_switches {
-    traplog_db_prepare($dbh) if ( !$traplog_db_prepared );
     my @switches;
-    $traplog_all_switches_sql->execute() || return @switches;
-    while ( my $row = $traplog_all_switches_sql->fetchrow_hashref() ) {
+    my $query = db_query_execute(TRAPLOG, $traplog_statements, 'traplog_all_switches_sql') || return @switches;
+    while ( my $row = $query->fetchrow_hashref() ) {
         push @switches, $row->{'switch'};
     }
-    $traplog_all_switches_sql->finish();
+    $query->finish();
     return @switches;
 }
 
 sub traplog_get_type_count {
     my ($startTime) = @_;
-    traplog_db_prepare($dbh) if ( !$traplog_db_prepared );
+
     my $traplog_type_count = {
         'total'                  => 0,
         'up'                     => 0,
@@ -159,20 +137,20 @@ sub traplog_get_type_count {
         'secureMacAddrViolation' => 0,
         'reAssignVlan'           => 0
     };
-    $traplog_type_count_sql->execute( $startTime, $startTime + 300 )
+    my $query = db_query_execute(TRAPLOG, $traplog_statements, 'traplog_type_count_sql', $startTime, $startTime + 300)
         || return $traplog_type_count;
-    while ( my $ref = $traplog_type_count_sql->fetchrow_hashref() ) {
+    while ( my $ref = $query->fetchrow_hashref() ) {
         $traplog_type_count->{ $ref->{'type'} } = $ref->{'nb'};
         $traplog_type_count->{'total'} += $ref->{'nb'};
     }
-    $traplog_type_count_sql->finish();
+    $query->finish();
     return $traplog_type_count;
 }
 
 sub traplog_get_switch_type_count {
     my ( $startTime, @switches ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::traplog');
-    traplog_db_prepare($dbh) if ( !$traplog_db_prepared );
+
     my $traplog_switch_type_count = {};
     foreach my $switch (@switches) {
         $traplog_switch_type_count->{$switch} = {
@@ -184,15 +162,17 @@ sub traplog_get_switch_type_count {
             'reAssignVlan'           => 0
         };
     }
-    $traplog_switch_type_count_sql->execute( $startTime, $startTime + 300 )
+    my $query = db_query_execute(TRAPLOG, $traplog_statements, 
+        'traplog_switch_type_count_sql', $startTime, $startTime + 300)
         || return $traplog_switch_type_count;
-    while ( my $ref = $traplog_switch_type_count_sql->fetchrow_hashref() ) {
+
+    while ( my $ref = $query->fetchrow_hashref() ) {
         $traplog_switch_type_count->{ $ref->{'switch'} }->{ $ref->{'type'} }
             = $ref->{'nb'};
         $traplog_switch_type_count->{ $ref->{'switch'} }->{'total'}
             += $ref->{'nb'};
     }
-    $traplog_switch_type_count_sql->finish();
+    $query->finish();
     return $traplog_switch_type_count;
 }
 
@@ -255,9 +235,9 @@ sub traplog_get_switches_with_most_traps {
     my ( $nb, %params ) = @_;
     my $timeSpan = $params{'timespan'};
     my $logger   = Log::Log4perl::get_logger('pf::traplog');
-    traplog_db_prepare($dbh) if ( !$traplog_db_prepared );
+
     if ( $timeSpan =~ /total/ ) {
-        return db_data( $traplog_switches_with_most_traps_sql, $nb );
+        return db_data(TRAPLOG, $traplog_statements, 'traplog_switches_with_most_traps_sql', $nb);
     } else {
         my $startTime = 0;
         if ( $timeSpan =~ /day/ ) {
@@ -265,8 +245,7 @@ sub traplog_get_switches_with_most_traps {
         } elsif ( $timeSpan =~ /week/ ) {
             $startTime = time() - 7 * 24 * 60 * 60;
         }
-        return db_data( $traplog_switches_with_most_traps_date_sql,
-            $startTime, $nb );
+        return db_data(TRAPLOG, $traplog_statements, 'traplog_switches_with_most_traps_date_sql', $startTime, $nb);
     }
     return;
 }
@@ -372,13 +351,15 @@ sub generate_graphs {
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2008 Inverse inc.
+Copyright (C) 2008,2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

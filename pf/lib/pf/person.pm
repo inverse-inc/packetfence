@@ -17,42 +17,57 @@ use strict;
 use warnings;
 use Log::Log4perl;
 
-our (
-    $person_modify_sql, $person_exist_sql, $person_delete_sql,
-    $person_add_sql,    $person_view_sql,  $person_view_all_sql,
-    $person_nodes_sql,  $person_db_prepared
-);
+use constant PERSON => 'person';
 
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
-    @EXPORT
-        = qw(person_db_prepare person_exist person_delete person_add person_view person_view_all person_modify person_nodes);
+    @EXPORT = qw(
+        $person_db_prepared
+        person_db_prepare
+
+        person_exist
+        person_delete
+        person_add
+        person_view
+        person_view_all
+        person_modify
+        person_nodes
+    );
 }
 
 use pf::db;
 
-$person_db_prepared = 0;
-
-#person_db_prepare($dbh) if (!$thread);
+# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
+our $person_db_prepared = 0;
+# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
+# the hash if required
+our $person_statements = {};
 
 sub person_db_prepare {
-    my ($dbh) = @_;
-    db_connect($dbh);
     my $logger = Log::Log4perl::get_logger('pf::person');
     $logger->debug("Preparing pf::person database queries");
-    $person_exist_sql
-        = $dbh->prepare(qq[ select count(*) from person where pid=? ]);
-    $person_add_sql
-        = $dbh->prepare(qq[ insert into person(pid,firstname,lastname,email,telephone,company,address,notes) values(?,?,?,?,?,?,?,?) ]);
-    $person_delete_sql = $dbh->prepare(qq[ delete from person where pid=? ]);
-    $person_modify_sql
-        = $dbh->prepare(qq[ update person set pid=?,firstname=?,lastname=?,email=?,telephone=?,company=?,address=?,notes=? where pid=? ]);
-    $person_nodes_sql
-        = $dbh->prepare(
-        qq[ select mac,pid,regdate,unregdate,lastskip,status,user_agent,computername,dhcp_fingerprint from node where pid=? ]
-        );
+
+    $person_statements->{'person_exist_sql'} = get_db_handle()->prepare(qq[ select count(*) from person where pid=? ]);
+
+    $person_statements->{'person_add_sql'} = get_db_handle()->prepare(
+        qq[ insert into person(pid,firstname,lastname,email,telephone,company,address,notes) values(?,?,?,?,?,?,?,?) ]);
+
+    $person_statements->{'person_view_sql'} = get_db_handle()->prepare(
+        qq[ select pid,firstname,lastname,email,telephone,company,address,notes from person where pid=? ]);
+
+    $person_statements->{'person_view_all_sql'} = get_db_handle()->prepare(
+        qq[ select pid,firstname,lastname,email,telephone,company,address,notes from person ]);
+
+    $person_statements->{'person_delete_sql'} = get_db_handle()->prepare(qq[ delete from person where pid=? ]);
+
+    $person_statements->{'person_modify_sql'} = get_db_handle()->prepare(
+        qq[ update person set pid=?,firstname=?,lastname=?,email=?,telephone=?,company=?,address=?,notes=? where pid=? ]);
+
+    $person_statements->{'person_nodes_sql'} = get_db_handle()->prepare(
+        qq[ select mac,pid,regdate,unregdate,lastskip,status,user_agent,computername,dhcp_fingerprint from node where pid=? ]);
+
     $person_db_prepared = 1;
 }
 
@@ -61,10 +76,9 @@ sub person_db_prepare {
 #
 sub person_exist {
     my ($pid) = @_;
-    person_db_prepare($dbh) if ( !$person_db_prepared );
-    $person_exist_sql->execute($pid) || return (0);
-    my ($val) = $person_exist_sql->fetchrow_array();
-    $person_exist_sql->finish();
+    my $query = db_query_execute(PERSON, $person_statements, 'person_exist_sql', $pid) || return (0);
+    my ($val) = $query->fetchrow_array();
+    $query->finish();
     return ($val);
 }
 
@@ -73,7 +87,7 @@ sub person_exist {
 #
 sub person_delete {
     my ($pid) = @_;
-    person_db_prepare($dbh) if ( !$person_db_prepared );
+
     my $logger = Log::Log4perl::get_logger('pf::person');
     return (0) if ( $pid eq "1" );
 
@@ -91,7 +105,7 @@ sub person_delete {
         return 0;
     }
 
-    $person_delete_sql->execute($pid) || return (0);
+    db_query_execute(PERSON, $person_statements, 'person_delete_sql', $pid) || return (0);
     $logger->info("person $pid deleted");
     return (1);
 }
@@ -101,13 +115,13 @@ sub person_delete {
 #
 sub person_add {
     my ( $pid, %data ) = @_;
-    person_db_prepare($dbh) if ( !$person_db_prepared );
     my $logger = Log::Log4perl::get_logger('pf::person');
+
     if ( person_exist($pid) ) {
         $logger->error("attempt to add existing person $pid");
         return (2);
     }
-    $person_add_sql->execute( $pid, $data{'firstname'},$data{'lastname'},$data{'email'}, $data{'telephone'}, $data{'company'}, $data{'address'}, $data{'notes'} ) || return (0);
+    db_query_execute(PERSON, $person_statements, 'person_add_sql', $pid, $data{'firstname'},$data{'lastname'},$data{'email'}, $data{'telephone'}, $data{'company'}, $data{'address'}, $data{'notes'}) || return (0);
     $logger->info("person $pid added");
     return (1);
 }
@@ -117,29 +131,24 @@ sub person_add {
 #
 sub person_view {
     my ($pid) = @_;
-    person_db_prepare($dbh) if ( !$person_db_prepared );
-    $person_view_sql
-        = $dbh->prepare("select pid,firstname,lastname,email,telephone,company,address,notes from person where pid=?");
-    $person_view_sql->execute($pid) || return (0);
-    my $ref = $person_view_sql->fetchrow_hashref();
+
+    my $query  = db_query_execute(PERSON, $person_statements, 'person_view_sql', $pid) 
+        || return (0);
+    my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
-    $person_view_sql->finish();
+    $query->finish();
     return ($ref);
 }
 
 sub person_view_all {
-    person_db_prepare($dbh) if ( !$person_db_prepared );
-    $person_view_all_sql 
-        = $dbh->prepare("select pid,firstname,lastname,email,telephone,company,address,notes from person");
-    return db_data($person_view_all_sql);
+
+    return db_data(PERSON, $person_statements, 'person_view_all_sql');
 }
 
 sub person_modify {
     my ( $pid, %data ) = @_;
-    use Data::Dumper;
-    print Dumper(%data);
-    person_db_prepare($dbh) if ( !$person_db_prepared );
+
     my $logger = Log::Log4perl::get_logger('pf::person');
     if ( !person_exist($pid) ) {
         if ( person_add( $pid, %data ) ) {
@@ -158,7 +167,6 @@ sub person_modify {
     foreach my $item ( keys(%data) ) {
         $existing->{$item} = $data{$item};
     }
-    print Dumper($existing);
     my $new_pid   = $existing->{'pid'};
     my $new_notes = $existing->{'notes'};
 
@@ -167,8 +175,8 @@ sub person_modify {
             "modify of pid $pid to $new_pid conflicts with existing person");
         return (0);
     }
-print "calling person_modify_sql\n";
-    $person_modify_sql->execute( 
+
+    db_query_execute(PERSON, $person_statements, 'person_modify_sql', 
         $new_pid,                 $existing->{'firstname'},
         $existing->{'lastname'},  $existing->{'email'},
         $existing->{'telephone'}, $existing->{'company'},
@@ -181,8 +189,8 @@ print "calling person_modify_sql\n";
 
 sub person_nodes {
     my ($pid) = @_;
-    person_db_prepare($dbh) if ( !$person_db_prepared );
-    return db_data( $person_nodes_sql, $pid );
+
+    return db_data(PERSON, $person_statements, 'person_nodes_sql', $pid);
 }
 
 =head1 AUTHOR
@@ -193,13 +201,15 @@ Kevin Amorin <kev@amorin.org>
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009 Inverse inc.
+Copyright (C) 2009, 2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

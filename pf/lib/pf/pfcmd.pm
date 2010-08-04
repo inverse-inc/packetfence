@@ -41,6 +41,11 @@ sub parseCommandLine {
                                    \s+ 
                                    ( all | \d+ (?: ,\d+)* ) 
                                  $ }xms,
+        'floatingnetworkdeviceconfig'
+                          => qr/ ^ ( get | delete )
+                                   \s+
+                                   ( all | $RE{net}{MAC} | stub )
+                                 $  /xms,
         'graph'           => qr/ ^ (?:
                                      ( nodes | registered
                                        | unregistered
@@ -167,7 +172,7 @@ sub parseCommandLine {
                                  $ /xms,
         'lookup'          => qr{ ^ ( person | node ) 
                                    \s+
-                                   ( [0-9a-zA-Z_\-\.\:]+ )
+                                   ( [0-9a-zA-Z_\-\.\:@]+ )
                                  $  }xms,
         'manage'          => qr/ ^ 
                                    (?:
@@ -221,7 +226,14 @@ sub parseCommandLine {
                                      \s+ ( $RE{net}{MAC} )
                                    )
                                  $ /xms,
-        'nodecategory'    => qr{ ^ (view) \s+ (\w+) $  }xms,
+        'nodecategory'    => qr{ ^ (?:
+                                     (view) \s+ (all|\d+)
+                                   )
+                                   |
+                                   (?:
+                                     (delete) \s+ (\s+)
+                                   )
+                                 $  }xms,
         'person'          => qr{ ^ (view)
                                    \s+
                                    ( [a-zA-Z0-9\-\_\.\@]+ )
@@ -379,6 +391,10 @@ sub parseCommandLine {
                     }
                 }
             }
+            if ($main eq 'nodecategory') {
+                push @{$cmd{'nodecategory_options'}}, $cmd{'command'}[1];
+                push @{$cmd{'nodecategory_options'}}, $cmd{'command'}[2];
+            }
             if ($main eq 'person') {
                 push @{$cmd{'person_options'}}, $cmd{'command'}[1];
                 push @{$cmd{'person_options'}}, $cmd{'command'}[2];
@@ -395,7 +411,8 @@ sub parseCommandLine {
             if ($main =~ m{ ^ (?:
                             node | person | interfaceconfig | networkconfig
                             | switchconfig | violationconfig | violation
-                            | manage | schedule | 
+                            | manage | schedule | nodecategory
+                            | floatingnetworkdeviceconfig
                               ) $ }xms ) {
                 return parseWithGrammar($commandLine);
             }
@@ -424,9 +441,13 @@ sub parseWithGrammar {
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
+Regis Balzard <rbalzard@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2009 Inverse inc.
+Copyright (C) 2009, 2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

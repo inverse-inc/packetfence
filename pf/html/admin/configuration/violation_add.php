@@ -38,7 +38,12 @@
     $edit_cmd = "violationconfig add $edit_item ";
     $edit_cmd.=implode(", ", $parts);
 
-    PFCMD($edit_cmd);
+    # I REALLLLYY mean false (avoids 0, empty strings and empty arrays to pass here)
+    if (PFCMD($edit_cmd) === false) {
+      # an error was shown by PFCMD now die to avoid closing the popup
+      exit();
+    }
+    # no errors from pfcmd, go on
     $edited=true; 
     print "<script type='text/javascript'>opener.focus(); opener.location.href = opener.location; self.close();</script>";
 
@@ -64,6 +69,7 @@
 ");
     } elseif ($key == 'actions') {
       print "<tr><td></td><td>$pretty_key:</td><td>";
+      # TODO: port to printMultiSelect (and look for others to port too)
       print "\n<select multiple name='$key" .  "[]'>";
       $my_values = explode(",", $val);
       $my_options = array('autoreg' => 'Autoreg', 'email' => 'Email', 'log' => 'Log', 'trap' => 'Trap');
@@ -75,6 +81,10 @@
         }
       }
       print "</select>\n";
+    } elseif ($key == 'whitelisted_categories') {
+        print "<tr><td></td><td>$pretty_key:</td><td>";
+        $selected = explode(",", $val);
+        printMultiSelect(get_nodecategories_for_dropdown(), 'hash', $selected, "multiple name='{$key}[]'");
     } elseif ($key == 'trigger') {
       print "<tr><td></td><td>$pretty_key:</td><td><textarea name='$key'>$val</textarea>";
     } else {

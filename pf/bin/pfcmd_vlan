@@ -9,45 +9,46 @@ pfcmd_vlan - packetfence commands for VLAN isolation
 pfcmd_vlan command [options]
 
  Command:
-   -deauthenticate  	de-authenticate a dot11 client
-   -getAlias        	show the description of the specified switch port
-   -getAllMACs      	show all MACS on all switch ports
-   -getHubs         	show switch ports with several MACs
-   -getIfOperStatus 	show the operational status of the specified switch port
-   -getIfType       	show the ifType on the specified switch port
-   -getLocation     	show at which switch port the MAC is found
-   -getMAC          	show all MACs on the specified switch port
-   -getType         	show switch type
-   -getUpLinks      	show the upLinks of the specified switch
-   -getVersion      	show switch OS version
-   -getVlan         	show the VLAN on the specified switch port
-   -getVlanType     	show the VLAN type on the specified port
-   -help            	brief help message
-   -isolate         	set the switch port to the isolation VLAN
-   -man             	full documentation
-   -reAssignVlan    	re-assign a switch port VLAN
-   -resetVlanAllPort  	reset VLAN on all non-UpLink ports of the specified switch
-   -resetVlanNetwork	reset VLAN on all non-UpLink ports of all managed switches
-   -setAlias        	set the description of the specified switch port
-   -setDefaultVlan  	set the switch port to the default VLAN
-   -setIfAdminStatus 	set the admin status of the specified switch port
-   -setVlan         	set VLAN on the specified switch port 
-   -setVlanAllPort  	set VLAN on all non-UpLink ports of the specified switch
+   -deauthenticate      de-authenticate a dot11 client
+   -getAlias            show the description of the specified switch port
+   -getAllMACs          show all MACS on all switch ports
+   -getHubs             show switch ports with several MACs
+   -getIfOperStatus     show the operational status of the specified switch port
+   -getIfType           show the ifType on the specified switch port
+   -getLocation         show at which switch port the MAC is found
+   -getMAC              show all MACs on the specified switch port
+   -getType             show switch type
+   -getUpLinks          show the upLinks of the specified switch
+   -getVersion          show switch OS version
+   -getVlan             show the VLAN on the specified switch port
+   -getVlanType         show the VLAN type on the specified port
+   -help                brief help message
+   -isolate             set the switch port to the isolation VLAN
+   -man                 full documentation
+   -reAssignVlan        re-assign a switch port VLAN
+   -resetVlanAllPort    reset VLAN on all non-UpLink ports of the specified switch
+   -resetVlanNetwork    reset VLAN on all non-UpLink ports of all managed switches
+   -setAlias            set the description of the specified switch port
+   -setDefaultVlan      set the switch port to the default VLAN
+   -setIfAdminStatus    set the admin status of the specified switch port
+   -setVlan             set VLAN on the specified switch port 
+   -setVlanAllPort      set VLAN on all non-UpLink ports of the specified switch
 
  Options:
-   -alias          	switch port description
-   -ifAdminStatus  	ifAdminStatus
-   -ifIndex        	switch port ifIndex
-   -mac            	MAC address
-   -showPF         	show additional information available in PF
-   -switch         	switch description
-   -verbose        	log verbosity level
-                   	  0 : fatal messages
-                   	  1 : warn messages
-                   	  2 : info messages
-                   	  3 : debug
-                      4 : trace
-   -vlan           	VLAN
+   -alias               switch port description
+   -ifAdminStatus       ifAdminStatus
+   -ifIndex             switch port ifIndex
+   -mac                 MAC address
+   -showPF              show additional information available in PF
+   -switch              switch description
+   -verbose             log verbosity level
+                         0 : fatal messages
+                         1 : warn messages
+                         2 : info messages
+                         3 : debug
+                         4 : trace
+   -vlan                VLAN id
+   -vlanName            VLAN name (as in switches.conf)
 
 =head1 DESCRIPTION
 
@@ -73,11 +74,13 @@ This script allows to execute the following commands related to switches and VLA
 
 =item Regis Balzard <rbalzard@inverse.ca>
 
+=item Olivier Bilodeau <obilodeau@inverse.ca>
+
 =back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2008 Inverse inc.
+Copyright (C) 2007-2009 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -125,6 +128,7 @@ my $threadBlocker : shared;
 my $switchDescRegExp = '';
 my $ifIndex          = 0;
 my $vlan             = 0;
+my $vlanName         = '';
 my $mac              = undef;
 my $alias            = '';
 my $cmd              = '';
@@ -190,7 +194,8 @@ GetOptions(
     "showPF"           => \$showPF,
     "switch:s"         => \$switchDescRegExp,
     "verbose:i"        => \$logLevel,
-    "vlan:i"           => \$vlan
+    "vlan:i"           => \$vlan,
+    "vlanName:s"       => \$vlanName
 ) or pod2usage( -verbose => 1 );
 
 pod2usage( -verbose => 2 ) if $man;
@@ -473,6 +478,8 @@ if ($getUpLinks) {
             }
             $logger->debug("finished handling 'getMac' command");
     
+        # FIXME: error handling please? all the calls below will generate warnings if the methods return undef or 0
+        # illegal concatenation of undef and str
         } elsif ($getIfOperStatus) {
             $logger->debug("start handling 'getIfOperStatus' command");
             print $switch->getIfOperStatus($ifIndex) . "\n";
@@ -505,13 +512,20 @@ if ($getUpLinks) {
             );
             $logger->debug("finished handling 'reAssignVlan' command");
         } elsif ($setVlan) {
-            if ( $vlan == 0 ) {
-                pod2usage("you must specify the VLAN to set");
+            if ( $vlan == 0 && $vlanName eq '' ) {
+                pod2usage("you must specify the VLAN to set (either with -vlan or -vlanName)");
+            }
+            if ($vlan != 0 && $vlanName ne '') {
+                pod2usage("you must specify only one way to set VLAN (-vlan or -vlanName)");
             }
             $logger->debug("start handling 'setVlan' command");
             my %switch_locker : shared;
             $switch_locker{ $switch->{_ip} } = &share( {} );
-            $switch->setVlan( $ifIndex, $vlan, \%switch_locker );
+            if ($vlan) {
+                $switch->setVlan( $ifIndex, $vlan, \%switch_locker );
+            } else {
+                $switch->setVlanByName($ifIndex, $vlanName, \%switch_locker);
+            }
             print "new VLAN: " . $switch->getVlan($ifIndex) . "\n";
             $logger->debug("finished handling 'setVlan' command");
         } elsif ($setIfAdminStatus) {
@@ -554,14 +568,14 @@ if ($getUpLinks) {
             $logger->debug("start handling 'isolate' command");
             my %switch_locker : shared;
             $switch_locker{ $switch->{_ip} } = &share( {} );
-            $switch->setIsolationVlan( $ifIndex, \%switch_locker );
+            $switch->setVlanByName($ifIndex, 'isolationVlan', \%switch_locker);
             print "new VLAN: " . $switch->getVlan($ifIndex) . "\n";
             $logger->debug("finished handling 'isolate' command");
         } elsif ($setDefaultVlan) {
             $logger->debug("start handling 'setDefaultVlan' command");
             my %switch_locker : shared;
             $switch_locker{ $switch->{_ip} } = &share( {} );
-            $switch->setNormalVlan( $ifIndex, \%switch_locker );
+            $switch->setVlanByName($ifIndex, 'normalVlan', \%switch_locker);
             print "new VLAN: " . $switch->getVlan($ifIndex) . "\n";
             $logger->debug("finished handling 'setDefaultVlan' command");
         }

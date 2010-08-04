@@ -79,15 +79,26 @@ if (defined($cgi->param('mode'))) {
   }
 }
 
-# FIXME: we do not validate the result of our calls anywhere..
 my $violations = violation_view_top($mac); 
+# is violations valid
+if (!defined($violations) || ref($violations) ne 'HASH' || !defined($violations->{'vid'})) {
+
+  # not valid, we should not be here then, lets tell the user to re-open his browser
+  generate_error_page($cgi, $session, "release: reopen browser");
+  return(0);
+}
+
 my $vid = $violations->{'vid'}; 
 
+# is class valid? if so, let's grab some related info that we will need
+my ($class_violation_url, $class_redirect_url, $class_max_enable_url);
 my $class=class_view($vid);
+if (defined($class) && ref($class) eq 'HASH') { 
 
-my $class_violation_url = $class->{'url'};
-my $class_redirect_url = $class->{'redirect_url'};
-my $class_max_enable_url = $class->{'max_enable_url'};
+  $class_violation_url = $class->{'url'} if defined($class->{'url'});
+  $class_redirect_url = $class->{'redirect_url'} if defined($class->{'redirect_url'});
+  $class_max_enable_url = $class->{'max_enable_url'} if defined($class->{'max_enable_url'});
+}
 
 #scan code...
 if ($vid==1200001){
@@ -157,7 +168,7 @@ if ($grace != -1) {
   $logger->info("$mac enabled for $grace minutes");
 } else {
   $logger->info("$mac reached maximum violations");
-  if ($class->{'max_enable_url'}) {
+  if ($class_max_enable_url) {
     print $cgi->redirect($class_max_enable_url);
   } else {
     generate_error_page($cgi, $session, "error: max re-enables reached");

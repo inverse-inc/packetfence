@@ -30,7 +30,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2009 Inverse inc.
+Copyright (C) 2006-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -89,6 +89,7 @@ use pf::node;
 use pf::violation;
 use pf::SNMP v1.7.0.6;
 use pf::vlan::custom;
+use pf::floatingdevice::custom;
 
 # }}}1
 
@@ -115,7 +116,7 @@ POSIX::sigaction(
 POSIX::sigaction(
     &POSIX::SIGALRM,
     POSIX::SigAction->new(
-        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+        'ignore_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
     )
 ) or $logger->logdie("pfsetvlan: could not set SIGALRM handler: $!");
 
@@ -140,6 +141,17 @@ pod2usage( -verbose => 1 ) if $help;
 # startup {{{1
 my $switchFactory = new pf::SwitchFactory(
     -configFile => INSTALL_DIR . '/conf/switches.conf' );
+
+# building trap-matcher regexp
+my $TRAP_PATTERN = qr/
+    ^\d{4}-\d{2}-\d{2}\|\d{2}:\d{2}:\d{2}\|             # date|time
+    (?:UDP:\ \[)?                                       # Optional "UDP: [" (since v2 traps I think)
+    (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})                # network device ip address
+    (?:\]:\d+)?                                         # Optional "]:port" (since v2 traps I think)
+    (?:\-\>\[\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\])?     # Optional "->[ip address]" (since net-snmp 5.4)
+    \|([^|]*)\|                                         # Used to carry network device ip if it's a local trap
+    (.+)$                                               # Trap message
+/x;
 
 my $fh = new File::Tail(
     'name'        => INSTALL_DIR . '/logs/snmptrapd.log',
@@ -447,10 +459,7 @@ sub signalHandlerTrapListQueued {
                         = substr( $trapList_queued[$i], length($prefix) );
                     if ( $prefix =~ /^inparse/ ) {
                         push @tmpTrapList_queued, $trapList_queued[$i];
-                        if ( $trapLine
-                            =~ /^\d{4}-\d{2}-\d{2}\|\d{2}:\d{2}:\d{2}\|(?:UDP: \[)?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?:\]:\d+)?\|([^|]*)\|(.+)$/
-                            )
-                        {
+                        if ($trapLine =~ /$TRAP_PATTERN/) {
                             my $switch_ip = $1;
                             $logger->trace(
                                 "adding $switch_ip to switchesWithUnfinishedParse"
@@ -515,23 +524,24 @@ sub signalHandlerTrapListQueued {
                             next;
                         }
                         if (( $trapType eq 'secureMacAddrViolation' )
-                            && (grep( { /\Q$switch_ip|$switch_port|$trapType|\E/
-                                    } @threadList_queued ) != 0
-                            )
-                            )
-                        {
+                            && (grep( { /\Q$switch_ip|$switch_port|$trapType|\E/ } @threadList_queued ) != 0) ) {
                             $logger->info(
-                                "$trapType trap already in the queue for $switch_ip ifIndex $switch_port. Won't add another one"
-                            );
-                        } elsif (
-                            ( $trapType eq 'mac' )
-                            && (grep( { $_ == $trapVlan }
-                                    @{ $switch->{_vlans} } ) == 0 )
-                            )
-                        {
+                                "$trapType trap already in the queue for $switch_ip ifIndex $switch_port. Won't add another one");
+
+                        # we had some side effects while testing the floating device thing. So we added this. 
+                        # this is necessary as long as we have not fixed the ugly sleep(5) patch. See floatingdevice.pm
+                        # and pf::SNMP::Cisco::Catalyst_2950
+                        } elsif (( $trapType eq 'secureMacAddrViolation' )
+                            && (! $switch->isPortSecurityEnabled($switch_port)) ) {
+                            $logger->info("$trapType trap on $switch_ip ifIndex $switch_port. Port Security is no " . 
+                                          "longer configured on the port. Flush the trap");
+
+                        } elsif (( $trapType eq 'mac' )
+                                 && (grep( { $_ == $trapVlan } @{ $switch->{_vlans} } ) == 0 ) ) {
                             $logger->info(
                                 "$trapType trap for VLAN $trapVlan on $switch_ip ifIndex $switch_port. We don't manage this VLAN. Flush the trap"
                             );
+
                         } elsif ( ( $trapType eq 'mac' )
                             && ( $trapVlan ne $switch->getVlan($switch_port) )
                             )
@@ -544,14 +554,7 @@ sub signalHandlerTrapListQueued {
                             $logger->debug(
                                 "added trap $trapType at $switch_ip ifindex $switch_port to queued threadList"
                             );
-                            my $mysql_connection = db_connect();
-                            if ( !$mysql_connection ) {
-                                $logger->error(
-                                    "coudn't connect to MySQL server: "
-                                        . DBI->errstr );
-                            }
-                            $logger->trace("calling traplog_db_prepare");
-                            traplog_db_prepare($mysql_connection);
+
                             traplog_insert( $switch_ip, $switch_port,
                                 $trapType );
                             $lockLogger->trace(
@@ -590,7 +593,7 @@ sub parseTrap {
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     $logger->debug("parsing trap $trapLine");
-    if ( $trapLine =~ /^\d{4}-\d{2}-\d{2}\|\d{2}:\d{2}:\d{2}\|(?:UDP: \[)?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?:\]:\d+)?\|([^|]*)\|(.+)$/ ) {
+    if ( $trapLine =~ /$TRAP_PATTERN/ ) {
 
         #test if this is a 'normal' trap (i.e. a trap sent from a switch
         #or a local trap (INVERSE-PACKETFENCE-NOTIFICATION-MIB)
@@ -939,13 +942,6 @@ sub handleTrap {
         return;
     }
 
-    $logger->trace("calling node_db_prepare");
-    node_db_prepare($mysql_connection);
-    $logger->trace("calling locationlog_db_prepare");
-    locationlog_db_prepare($mysql_connection);
-    $logger->trace("calling violation_db_prepare");
-    violation_db_prepare($mysql_connection);
-
     $switch->connectMySQL();
 
     # }}}2
@@ -968,7 +964,6 @@ sub handleTrap {
                 "$switch_ip ifIndex $switch_port is no longer in this VLAN -> Do nothing"
             );
             cleanupAfterThread( $switch_ip, $switch_port );
-            $mysql_connection->disconnect;
             $switch->disconnectRead();
             $switch->disconnectWrite();
             return;
@@ -1090,12 +1085,8 @@ sub handleTrap {
                 {
                     if ( $locationlog[0]->{'mac'} =~ /^$mac$/i ) {
                         if (( $locationlog[0]->{'vlan'} == $vlan )
-                            && ($vlan == $vlan_obj->vlan_determine_for_node(
-                                    $mac, $switch->{_ip}, $switch_port
-                                )
-                            )
-                            )
-                        {
+                            && ($vlan == $vlan_obj->vlan_determine_for_node($mac, $switch, $switch_port))
+                           ) {
                             $logger->info(
                                 "locationlog is already up2date. Do nothing");
                         } else {
@@ -1126,8 +1117,25 @@ sub handleTrap {
         # trapType eq 'secureMacAddrViolation' (with STATIC MACs) {{{2
     } elsif ( $trapType eq 'secureMacAddrViolation' ) {
         $logger->info(
-	    "$trapType trap received on $switch_ip ifIndex $switch_port for $trapMac"
+            "$trapType trap received on $switch_ip ifIndex $switch_port for $trapMac"
         );
+
+        # floating network devices handling {{{3
+        if (exists($ConfigFloatingDevices{$trapMac})) {
+            $logger->info("The floating network device $trapMac has just plugged into $switch_ip  port $switch_port. Enabling floating network device configuration on the port.");
+            my $floatingDeviceManager = new pf::floatingdevice::custom();
+
+            my $result = $floatingDeviceManager->enablePortConfig($trapMac, $switch, $switch_port, \%switch_locker);
+            if (! $result) {
+                $logger->info("An error occured while enabling floating network device configuration on port $switch_port. It may not work!");
+            }
+
+            cleanupAfterThread( $switch_ip, $switch_port );
+            $mysql_connection->disconnect;
+            $switch->disconnectRead();
+            $switch->disconnectWrite();
+            return;
+        }
 
         # generic port security handling {{{3
         my $secureMacAddrHashRef;
@@ -1267,7 +1275,7 @@ sub handleTrap {
                 $logger->debug("$oldPC has still open locationlog entry at $switch_ip ifIndex $switch_port. Closing it");
                 locationlog_update_end_mac($oldPC);
                 $logger->info("authorizing $trapMac (old entry $oldPC) at new location $switch_ip ifIndex $switch_port");
-                my $correctVlanForThisNode = $vlan_obj->vlan_determine_for_node( $trapMac, $switch->{_ip}, $switch_port );
+                my $correctVlanForThisNode = $vlan_obj->vlan_determine_for_node($trapMac, $switch, $switch_port);
                 $switch->authorizeMAC( $switch_port, $oldPC, $trapMac, $switch->getVlan($switch_port), $correctVlanForThisNode );
 
                 #set the right VLAN
@@ -1292,9 +1300,7 @@ sub handleTrap {
                         $old_mac_to_remove = $old_mac;
                     }
                 }
-                my $correctVlanForThisNode
-                    = $vlan_obj->vlan_determine_for_node( $trapMac,
-                    $switch->{_ip}, $switch_port );
+                my $correctVlanForThisNode = $vlan_obj->vlan_determine_for_node($trapMac, $switch, $switch_port);
                 if ( defined($old_mac_to_remove) ) {
                     $logger->info(
                         "authorizing $trapMac (old entry $old_mac_to_remove) at new location $switch_ip ifIndex $switch_port"
@@ -1329,7 +1335,6 @@ sub handleTrap {
             "ERROR: secureDynamicMacAddrViolation traps are currently not supported by PacketFence. Please check our website frequently regarding upgrades !"
         );
         cleanupAfterThread( $switch_ip, $switch_port );
-        $mysql_connection->disconnect;
         $switch->disconnectRead();
         $switch->disconnectWrite();
         return;
@@ -1338,16 +1343,12 @@ sub handleTrap {
 
         # trapType eq 'down' {{{2
     } elsif ( $trapType eq 'down' ) {
-        $logger->info(
-            "$trapType trap received on $switch_ip ifIndex $switch_port");
+        $logger->info("$trapType trap received on $switch_ip ifIndex $switch_port");
 
         # continue only if security traps are not available on this port {{{3
         if ( $switch->isPortSecurityEnabled($switch_port) ) {
-            $logger->info(
-                "security traps are configured on this switch port. Stopping DOWN trap handling here"
-            );
+            $logger->info("security traps are configured on this switch port. Stopping DOWN trap handling here");
             cleanupAfterThread( $switch_ip, $switch_port );
-            $mysql_connection->disconnect;
             $switch->disconnectRead();
             $switch->disconnectWrite();
             return;
@@ -1355,9 +1356,32 @@ sub handleTrap {
 
         # }}}3
 
+        # floating network devices handling {{{3
+        # if the last device pluggoed in that port is a floating network device then we handle it
+        my @locationlog_switchport = locationlog_view_open_switchport_no_VoIP($switch_ip, $switch_port);
+        my $valid_locationlog_entry = (@locationlog_switchport && ref($locationlog_switchport[0]) eq 'HASH');
+        if ($valid_locationlog_entry && (exists($ConfigFloatingDevices{$locationlog_switchport[0]->{mac}}))) {
+            my $mac = $locationlog_switchport[0]->{mac};
+            $logger->info("The floating network device $mac has just unplugged from $switch_ip port $switch_port. " . 
+                          "Disabling floating network device configuration on the port.");
+            my $floatingDeviceManager = new pf::floatingdevice::custom();
+
+            my $result = $floatingDeviceManager->disablePortConfig($mac, $switch, $switch_port, \%switch_locker);
+            if (!$result) {
+                $logger->info("An error occured while disabling floating network device configuration on port " .
+                              "$switch_port. The port may not work!");
+            }
+            cleanupAfterThread( $switch_ip, $switch_port );
+            $mysql_connection->disconnect;
+            $switch->disconnectRead();
+            $switch->disconnectWrite();
+            return;
+        }
+        # }}}3
+
+
         # set into MAC detection VLAN {{{3
-        $logger->info(
-            "setting $switch_ip port $switch_port to MAC detection VLAN");
+        $logger->info("setting $switch_ip port $switch_port to MAC detection VLAN");
         $switch->setMacDetectionVlan( $switch_port, \%switch_locker, 1 );
 
         # }}}3
@@ -1374,13 +1398,49 @@ sub handleTrap {
                 "security traps are configured on this switch port. Stopping UP trap handling here"
             );
             cleanupAfterThread( $switch_ip, $switch_port );
-            $mysql_connection->disconnect;
             $switch->disconnectRead();
             $switch->disconnectWrite();
             return;
         }
 
         # }}}3
+
+        # floating network devices handling {{{3
+        # if the last device pluggoed in that port is a floating network device then we handle it
+        my @locationlog_switchport = locationlog_view_open_switchport_no_VoIP($switch_ip, $switch_port);
+        my $valid_locationlog_entry = (@locationlog_switchport && ref($locationlog_switchport[0]) eq 'HASH');
+        if ($valid_locationlog_entry && (exists($ConfigFloatingDevices{$locationlog_switchport[0]->{mac}}))) {
+            $logger->info("The logs shows that the last device pluged was a floating network device. We may have missed"
+                          . "the LinkDown trap. Disabling floating network device configuration on the port.");
+            my $floatingDeviceManager = new pf::floatingdevice::custom();
+
+            # shut the port down
+            $logger->debug("Shuting down port $switch_port");
+            if (! $switch->setAdminStatus( $switch_port, $FALSE )) {
+                $logger->error("An error occured while shuting down port $switch_port. The port may not work!");
+            }
+
+            my $result = $floatingDeviceManager->disablePortConfig(
+                $locationlog_switchport[0]->{mac}, $switch, $switch_port, \%switch_locker);
+
+            if (!$result) {
+                $logger->error("An error occured while disabling floating network device configuration on port " .
+                               " $switch_port. The port may not work!");
+            }
+
+            # open the port            
+            $logger->debug("Re-opening port $switch_port");
+            if (! $switch->setAdminStatus( $switch_port, $TRUE )) {
+                $logger->error("An error occured while opening port $switch_port. The port may not work!");
+            }
+ 
+            cleanupAfterThread( $switch_ip, $switch_port );
+            $mysql_connection->disconnect;
+            $switch->disconnectRead();
+            $switch->disconnectWrite(); 
+            return;
+        }   
+        # }}}3  
 
         # set into MAC detection VLAN {{{3
         $logger->info(
@@ -1395,7 +1455,6 @@ sub handleTrap {
                 "MAC learnt traps are configured on this switch port. Stopping UP trap handling here"
             );
             cleanupAfterThread( $switch_ip, $switch_port );
-            $mysql_connection->disconnect;
             $switch->disconnectRead();
             $switch->disconnectWrite();
             return;
@@ -1405,6 +1464,7 @@ sub handleTrap {
 
         # try to determine MAC address(es) {{{3
         my $nbAttempts = 0;
+        my $start      = time;
         my @macArray   = ();
         my $secureMacAddrHashRef;
         do {
@@ -1435,7 +1495,6 @@ sub handleTrap {
                 "locking - unlocked threadLists_toBeKilled in handleTrap");
             if ( $mustRunCleanupAfterThread == 1 ) {
                 cleanupAfterThread( $switch_ip, $switch_port );
-                $mysql_connection->disconnect;
                 $switch->disconnectRead();
                 $switch->disconnectWrite();
                 return;
@@ -1445,8 +1504,17 @@ sub handleTrap {
                     . " to obtain MAC at $switch_ip ifIndex $switch_port" );
             @macArray = $switch->_getMacAtIfIndex($switch_port);
             $nbAttempts++;
-            } while ( ( $nbAttempts < $switch->{_macSearchesMaxNb} )
-            && ( scalar(@macArray) == 0 ) );
+            } while (($nbAttempts < $switch->{_macSearchesMaxNb}) && ((time-$start) < 120) && (scalar(@macArray) == 0));
+
+            if (scalar(@macArray) == 0) {
+                if ($nbAttempts >= $switch->{_macSearchesMaxNb}) {
+                    $logger->warn("Tried to grab MAC address at ifIndex $switch_port "
+                        ."on switch ".$switch->{_ip}." ".$switch->{_macSearchesMaxNb}." times and failed");
+                } else {
+                    $logger->warn("Tried to grab MAC address at ifIndex $switch_port "
+                        ."on switch ".$switch->{_ip}." for 2 minutes and failed");
+                }
+            }
 
         # }}}3
 
@@ -1516,6 +1584,8 @@ sub handleTrap {
         );
         #$switch->deauthenticateMac($trapMac);
         my $switchIp = $switch->{_ip};
+        # workaround a thread safety bug in Net::Appliance::Session when using SSH transport
+        # http://www.cpanforum.com/threads/6909
         `/usr/local/pf/bin/pfcmd_vlan -deauthenticate -switch $switchIp -mac $trapMac`;
 
         # }}}2
@@ -1617,7 +1687,6 @@ sub handleTrap {
 
     # cleanupAfterThread {{{2
     cleanupAfterThread( $switch_ip, $switch_port );
-    $mysql_connection->disconnect;
     $switch->disconnectRead();
     $switch->disconnectWrite();
 
@@ -1690,17 +1759,21 @@ sub normal_sighandler {
                 "coudn't connect to MySQL server: " . DBI->errstr );
         } else {
             $logger->trace("calling locationlog_db_prepare");
-            locationlog_db_prepare($mysql_connection);
             locationlog_close_all();
         }
     }
-    if ( $_[0] eq "ALRM" ) {
-        # alarm signals are known to be buggy with threaded perl
-        # ref: http://rt.perl.org/rt3/Public/Bug/Display.html?id=16807
-        $logger->logcroak("pfsetvlan: caught SIG".$_[0].". This is likely caused by a module using alarm() and threaded perl doesn't like that - terminating");
-    } else {
-        $logger->logdie( "pfsetvlan: caught SIG" . $_[0] . " - terminating" );
-    }
+    $logger->logcroak("pfsetvlan: caught SIG" . $_[0] . " - terminating");
+}
+
+# alarm signals are known to be buggy with threaded perl, to fix we create a handler that does nothing
+# ref: http://rt.perl.org/rt3/Public/Bug/Display.html?id=16807
+# bug: http://www.packetfence.org/mantis/view.php?id=907
+sub ignore_sighandler {
+    my $logger     = Log::Log4perl->get_logger('pfsetvlan');
+
+    $logger->error("caught SIG" . $_[0] . ". This is probably a telnet or ssh management attempt that timed out. "
+        ."THIS WILL HANG A PACKETFENCE THREAD FOR SEVERAL MINUTES! Doublecheck your config or the network between "
+        ."packetfence and the problematic device. Look for Can't connect messages in the logs to find the culprit.");
 }
 
 # }}}1
@@ -1838,7 +1911,7 @@ sub node_determine_and_set_into_VLAN {
 
     $switch->setVlan(
         $ifIndex,
-        $vlan_obj->vlan_determine_for_node( $mac, $switch->{_ip}, $ifIndex ),
+        $vlan_obj->vlan_determine_for_node($mac, $switch, $ifIndex),
         \%switch_locker,
         $mac
     );

@@ -21,36 +21,46 @@ use strict;
 use warnings;
 use Log::Log4perl;
 
-our (
-    $violation_desc_sql,            $violation_add_sql,
-    $violation_exist_sql,           $violation_exist_open_sql,
-    $violation_exist_id_sql,        $violation_view_sql,
-    $violation_view_all_sql,        $violation_view_top_sql,
-    $violation_view_open_sql,       $violation_view_open_desc_sql,
-    $violation_view_open_uniq_sql,  $violation_view_open_all_sql,
-    $violation_view_all_active_sql, $violation_close_sql,
-    $violation_delete_sql,          $violation_modify_sql,
-    $violation_grace_sql,           $violation_count_sql,
-    $violation_count_trap_sql,      $violation_count_vid_sql,
-    $violation_db_prepared
-);
+use constant VIOLATION => 'violation';
 
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
-    @EXPORT
-        = qw(violation_force_close violation_close violation_view violation_view_all violation_view_all_active
-             violation_view_open_all violation_add violation_view_open violation_view_open_desc violation_view_open_uniq
-             violation_modify violation_trigger violation_count violation_count_trap violation_view_top 
-             violation_db_prepare violation_delete violation_exist_open);
+    @EXPORT = qw(
+        violation_db_prepare
+        $violation_db_prepared
+        
+        violation_force_close
+        violation_close
+        violation_view
+        violation_view_all
+        violation_view_all_active
+        violation_view_open_all
+        violation_add
+        violation_view_open
+        violation_view_open_desc
+        violation_view_open_uniq
+        violation_modify
+        violation_trigger
+        violation_count
+        violation_count_trap
+        violation_view_top
+        violation_delete
+        violation_exist_open
+    );
 }
 
 use pf::config;
 use pf::db;
+use pf::node;
 use pf::util;
 
-$violation_db_prepared = 0;
+# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
+our $violation_db_prepared = 0;
+# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
+# the hash if required
+our $violation_statements = {};
 
 =head1 SUBROUTINES
 
@@ -60,86 +70,68 @@ This list is incomplete.
         
 =cut
 
-#violation_db_prepare($dbh) if (!$thread);
-
 sub violation_db_prepare {
-    my ($dbh) = @_;
-    db_connect($dbh);
     my $logger = Log::Log4perl::get_logger('pf::violation');
     $logger->debug("Preparing pf::violation database queries");
-    $violation_desc_sql = $dbh->prepare(qq [ desc violation ]);
-    $violation_add_sql
-        = $dbh->prepare(
-        qq [ insert into violation(mac,vid,start_date,release_date,status,ticket_ref,notes) values(?,?,?,?,?,?,?) ]
-        );
-    $violation_modify_sql
-        = $dbh->prepare(
-        qq [ update violation set mac=?,vid=?,start_date=?,release_date=?,status=?,ticket_ref=?,notes=? where id=? ]
-        );
-    $violation_exist_sql
-        = $dbh->prepare(
-        qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where mac=? and vid=? and start_date=? ]
-        );
-    $violation_exist_open_sql
-        = $dbh->prepare(
-        qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where mac=? and vid=? and status="open" order by vid asc ]
-        );
-    $violation_exist_id_sql
-        = $dbh->prepare(
-        qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where id=? ]
-        );
 
-#$violation_view_sql=$dbh->prepare( qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where mac=? order by start_date desc ]);
-    $violation_view_sql
-        = $dbh->prepare(
-        qq [ select violation.id,violation.mac,node.computername,violation.vid,violation.start_date,violation.release_date,violation.status,violation.ticket_ref,violation.notes from violation,node where violation.mac=node.mac and violation.id=? order by start_date desc ]
-        );
-    $violation_view_all_sql
-        = $dbh->prepare(
-        qq [ select violation.id,violation.mac,node.computername,violation.vid,violation.start_date,violation.release_date,violation.status,violation.ticket_ref,violation.notes from violation,node where violation.mac=node.mac ]
-        );
-    $violation_view_open_sql
-        = $dbh->prepare(
-        qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where mac=? and status="open" order by start_date desc ]
-        );
-    $violation_view_open_desc_sql
-        = $dbh->prepare(
-        qq [ select v.start_date,c.description,v.vid,v.status from violation v inner join class c on v.vid=c.vid where v.mac=? and v.status="open" order by start_date desc ]
-        );
-    $violation_view_open_uniq_sql = $dbh->prepare(
+    $violation_statements->{'violation_desc_sql'} = get_db_handle()->prepare(qq [ desc violation ]);
+
+    $violation_statements->{'violation_add_sql'} = get_db_handle()->prepare(
+        qq [ insert into violation(mac,vid,start_date,release_date,status,ticket_ref,notes) values(?,?,?,?,?,?,?) ]);
+
+    $violation_statements->{'violation_modify_sql'} = get_db_handle()->prepare(
+        qq [ update violation set mac=?,vid=?,start_date=?,release_date=?,status=?,ticket_ref=?,notes=? where id=? ]);
+
+    $violation_statements->{'violation_exist_sql'} = get_db_handle()->prepare(
+        qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where mac=? and vid=? and start_date=? ]);
+
+    $violation_statements->{'violation_exist_open_sql'} = get_db_handle()->prepare(
+        qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where mac=? and vid=? and status="open" order by vid asc ]);
+
+    $violation_statements->{'violation_exist_id_sql'} = get_db_handle()->prepare(
+        qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where id=? ]);
+
+    $violation_statements->{'violation_view_sql'} = get_db_handle()->prepare(
+        qq [ select violation.id,violation.mac,node.computername,violation.vid,violation.start_date,violation.release_date,violation.status,violation.ticket_ref,violation.notes from violation,node where violation.mac=node.mac and violation.id=? order by start_date desc ]);
+
+    $violation_statements->{'violation_view_all_sql'} = get_db_handle()->prepare(
+        qq [ select violation.id,violation.mac,node.computername,violation.vid,violation.start_date,violation.release_date,violation.status,violation.ticket_ref,violation.notes from violation,node where violation.mac=node.mac ]);
+
+    $violation_statements->{'violation_view_open_sql'} = get_db_handle()->prepare(
+        qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where mac=? and status="open" order by start_date desc ]);
+
+    $violation_statements->{'violation_view_open_desc_sql'} = get_db_handle()->prepare(
+        qq [ select v.start_date,c.description,v.vid,v.status from violation v inner join class c on v.vid=c.vid where v.mac=? and v.status="open" order by start_date desc ]);
+
+    $violation_statements->{'violation_view_open_uniq_sql'} = get_db_handle()->prepare(
         qq [ select mac from violation where status="open" group by mac ]);
-    $violation_view_open_all_sql
-        = $dbh->prepare(
-        qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where status="open" ]
-        );
 
-#$violation_view_top_sql=$dbh->prepare( qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where mac=? and status="open" order by start_date desc  limit 1]);
-    $violation_view_top_sql
-        = $dbh->prepare(
-        qq [ select id,mac,v.vid,start_date,release_date,status,ticket_ref,notes from violation v, class c where v.vid=c.vid and mac=? and status="open" order by priority desc limit 1]
-        );
-    $violation_view_all_active_sql
-        = $dbh->prepare(
-        qq [ select v.mac,v.vid,v.start_date,v.release_date,v.status,v.ticket_ref,v.notes,i.ip,i.start_time,i.end_time from violation v left join iplog i on v.mac=i.mac where v.status="open" and i.end_time=0 group by v.mac]
-        );
-    $violation_delete_sql
-        = $dbh->prepare(qq [ delete from violation where id=? ]);
-    $violation_close_sql
-        = $dbh->prepare(
-        qq [ update violation set release_date=now(),status="closed" where mac=? and vid=? and status="open" ]
-        );
-    $violation_grace_sql
-        = $dbh->prepare(
-        qq [ select unix_timestamp(start_date)+grace_period-unix_timestamp(now()) from violation v left join class c on v.vid=c.vid where mac=? and v.vid=? and status="closed" order by start_date desc ]
-        );
-    $violation_count_sql = $dbh->prepare(
+    $violation_statements->{'violation_view_open_all_sql'} = get_db_handle()->prepare(
+        qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where status="open" ]);
+
+    $violation_statements->{'violation_view_top_sql'} = get_db_handle()->prepare(
+        qq [ select id,mac,v.vid,start_date,release_date,status,ticket_ref,notes from violation v, class c where v.vid=c.vid and mac=? and status="open" order by priority desc limit 1]);
+
+    $violation_statements->{'violation_view_all_active_sql'} = get_db_handle()->prepare(
+        qq [ select v.mac,v.vid,v.start_date,v.release_date,v.status,v.ticket_ref,v.notes,i.ip,i.start_time,i.end_time from violation v left join iplog i on v.mac=i.mac where v.status="open" and i.end_time=0 group by v.mac]);
+
+    $violation_statements->{'violation_delete_sql'} = get_db_handle()->prepare(qq [ delete from violation where id=? ]);
+
+    $violation_statements->{'violation_close_sql'} = get_db_handle()->prepare(
+        qq [ update violation set release_date=now(),status="closed" where mac=? and vid=? and status="open" ]);
+
+    $violation_statements->{'violation_grace_sql'} = get_db_handle()->prepare(
+        qq [ select unix_timestamp(start_date)+grace_period-unix_timestamp(now()) from violation v left join class c on v.vid=c.vid where mac=? and v.vid=? and status="closed" order by start_date desc ]);
+
+    $violation_statements->{'violation_count_sql'} = get_db_handle()->prepare(
         qq [ select count(*) from violation where mac=? and status="open" ]);
-    $violation_count_trap_sql
-        = $dbh->prepare(
-        qq [ select count(*) from violation, action where violation.vid=action.vid and action.action='trap' and mac=? and status="open" ]
-        );
-    $violation_count_vid_sql = $dbh->prepare(
+
+    $violation_statements->{'violation_count_trap_sql'} = get_db_handle()->prepare(
+        qq [ select count(*) from violation, action where violation.vid=action.vid and action.action='trap' and mac=? and status="open" ]);
+
+    $violation_statements->{'violation_count_vid_sql'} = get_db_handle()->prepare(
         qq [ select count(*) from violation where mac=? and vid=? ]);
+
     $violation_db_prepared = 1;
     return 1;
 }
@@ -147,15 +139,14 @@ sub violation_db_prepare {
 #
 #
 sub violation_desc {
-    violation_db_prepare($dbh) if ( !$violation_db_prepared );
-    return db_data($violation_desc_sql);
+    return db_data(VIOLATION, $violation_statements, 'violation_desc_sql');
 }
 
 #
 sub violation_modify {
     my ( $id, %data ) = @_;
-    violation_db_prepare($dbh) if ( !$violation_db_prepared );
     my $logger = Log::Log4perl::get_logger('pf::violation');
+
     return (0) if ( !$id );
     my $existing = violation_exist_id($id);
 
@@ -180,7 +171,7 @@ sub violation_modify {
             . $existing->{mac} . " vid "
             . $existing->{vid}
             . " modified" );
-    $violation_modify_sql->execute(
+    db_query_execute(VIOLATION, $violation_statements, 'violation_modify_sql',
         $existing->{mac},        $existing->{vid},
         $existing->{start_date}, $existing->{release_date},
         $existing->{status},     $existing->{ticket_ref},
@@ -191,119 +182,114 @@ sub violation_modify {
 
 sub violation_grace {
     my ( $mac, $vid ) = @_;
-    violation_db_prepare($dbh) if ( !$violation_db_prepared );
-    $violation_grace_sql->execute( $mac, $vid ) || return (0);
-    my ($val) = $violation_grace_sql->fetchrow_array();
-    $violation_grace_sql->finish();
+
+    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_grace_sql', $mac, $vid)
+        || return (0);
+    my ($val) = $query->fetchrow_array();
+    $query->finish();
     $val = 0 if ( !$val );
     return ($val);
 }
 
 sub violation_count {
     my ($mac) = @_;
-    violation_db_prepare($dbh) if ( !$violation_db_prepared );
-    $violation_count_sql->execute($mac) || return (0);
-    my ($val) = $violation_count_sql->fetchrow_array();
-    $violation_count_sql->finish();
+
+    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_count_sql', $mac)
+        || return (0);
+    my ($val) = $query->fetchrow_array();
+    $query->finish();
     return ($val);
 }
 
 sub violation_count_trap {
     my ($mac) = @_;
-    violation_db_prepare($dbh) if ( !$violation_db_prepared );
-    $violation_count_trap_sql->execute($mac) || return (0);
-    my ($val) = $violation_count_trap_sql->fetchrow_array();
-    $violation_count_trap_sql->finish();
+
+    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_count_trap_sql', $mac)
+        || return (0);
+    my ($val) = $query->fetchrow_array();
+    $query->finish();
     return ($val);
 }
 
 sub violation_count_vid {
     my ( $mac, $vid ) = @_;
-    violation_db_prepare($dbh) if ( !$violation_db_prepared );
-    $violation_count_vid_sql->execute( $mac, $vid ) || return (0);
-    my ($val) = $violation_count_vid_sql->fetchrow_array();
-    $violation_count_vid_sql->finish();
+    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_count_vid_sql', $mac, $vid)
+        || return (0);
+    my ($val) = $query->fetchrow_array();
+    $query->finish();
     return ($val);
 }
 
 sub violation_exist {
     my ( $mac, $vid, $start_date ) = @_;
-    violation_db_prepare($dbh) if ( !$violation_db_prepared );
-    $violation_exist_sql->execute( $mac, $vid, $start_date ) || return (0);
-    my $val = $violation_exist_sql->fetchrow_hashref();
-    $violation_exist_sql->finish();
+
+    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_exist_sql', $mac, $vid, $start_date)
+        || return (0);
+    my $val = $query->fetchrow_hashref();
+    $query->finish();
     return ($val);
 }
 
 sub violation_exist_id {
     my ($id) = @_;
-    violation_db_prepare($dbh) if ( !$violation_db_prepared );
-    $violation_exist_id_sql->execute($id) || return (0);
-    my $val = $violation_exist_id_sql->fetchrow_hashref();
-    $violation_exist_id_sql->finish();
+    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_exist_id_sql', $id)
+        || return (0);
+    my $val = $query->fetchrow_hashref();
+    $query->finish();
     return ($val);
 }
 
 sub violation_exist_open {
     my ( $mac, $vid ) = @_;
-    violation_db_prepare($dbh) if ( !$violation_db_prepared );
-    $violation_exist_open_sql->execute( $mac, $vid ) || return (0);
-    my ($val) = $violation_exist_open_sql->fetchrow_array();
-    $violation_exist_open_sql->finish();
+    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_exist_open_sql', $mac, $vid)
+        || return (0);
+    my ($val) = $query->fetchrow_array();
+    $query->finish();
     return ($val);
 }
 
 sub violation_view {
     my ($id) = @_;
-    violation_db_prepare($dbh) if ( !$violation_db_prepared );
-    return db_data( $violation_view_sql, $id );
+    return db_data(VIOLATION, $violation_statements, 'violation_view_sql', $id);
 }
 
 sub violation_view_all {
-    violation_db_prepare($dbh) if ( !$violation_db_prepared );
-    return db_data($violation_view_all_sql);
+    return db_data(VIOLATION, $violation_statements, 'violation_view_all_sql');
 }
 
 sub violation_view_top {
     my ($mac) = @_;
-    violation_db_prepare($dbh) if ( !$violation_db_prepared );
-    $violation_view_top_sql->execute($mac) || return (0);
-    my $ref = $violation_view_top_sql->fetchrow_hashref();
-    $violation_view_top_sql->finish();
+    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_view_top_sql', $mac) || return (0);
+    my $ref = $query->fetchrow_hashref();
+    $query->finish();
     return ($ref);
 }
 
 sub violation_view_open {
     my ($mac) = @_;
-    violation_db_prepare($dbh) if ( !$violation_db_prepared );
-    return db_data( $violation_view_open_sql, $mac );
+    return db_data(VIOLATION, $violation_statements, 'violation_view_open_sql', $mac);
 }
 
 sub violation_view_open_desc {
     my ($mac) = @_;
-    violation_db_prepare($dbh) if ( !$violation_db_prepared );
-    return db_data( $violation_view_open_desc_sql, $mac );
+    return db_data(VIOLATION, $violation_statements, 'violation_view_open_desc_sql', $mac);
 }
 
 sub violation_view_open_uniq {
-    violation_db_prepare($dbh) if ( !$violation_db_prepared );
-    return db_data($violation_view_open_uniq_sql);
+    return db_data(VIOLATION, $violation_statements, 'violation_view_open_uniq_sql');
 }
 
 sub violation_view_open_all {
-    violation_db_prepare($dbh) if ( !$violation_db_prepared );
-    return db_data($violation_view_open_all_sql);
+    return db_data(VIOLATION, $violation_statements, 'violation_view_open_all_sql');
 }
 
 sub violation_view_all_active {
-    violation_db_prepare($dbh) if ( !$violation_db_prepared );
-    return db_data($violation_view_all_active_sql);
+    return db_data(VIOLATION, $violation_statements, 'violation_view_all_active_sql');
 }
 
 #
 sub violation_add {
     my ( $mac, $vid, %data ) = @_;
-    violation_db_prepare($dbh) if ( !$violation_db_prepared );
     my $logger = Log::Log4perl::get_logger('pf::violation');
     return (0) if ( !$vid );
 
@@ -344,9 +330,8 @@ sub violation_add {
     }
 
     #  has this mac registered if not register for violation?
-    require pf::node;
-    if ( !pf::node::node_exist($mac) ) {
-        pf::node::node_add_simple($mac);
+    if ( !node_exist($mac) ) {
+        node_add_simple($mac);
     } else {
 
         # not a new violation check violation
@@ -362,8 +347,8 @@ sub violation_add {
     }
 
     # insert violation into db
-    $violation_add_sql->execute( $mac, $vid, $data{start_date},
-        $data{release_date}, $data{status}, $data{ticket_ref}, $data{notes} )
+    db_query_execute(VIOLATION, $violation_statements, 'violation_add_sql',
+        $mac, $vid, $data{start_date}, $data{release_date}, $data{status}, $data{ticket_ref}, $data{notes})
         || return (0);
     $logger->info("violation $vid added for $mac");
     require pf::action;
@@ -429,15 +414,24 @@ sub violation_trigger {
         }
         my $vid = $row->{'vid'};
 
+        # TODO: performance improvement: validate for grace here also will avoid a spawned process only to check grace
+
+        # if the node's category is whitelisted, skip
+        if (_is_node_category_whitelisted($row, $mac)) {
+            $logger->info("Not adding violation ${vid} node $mac is immune because of its category");
+            next;
+        }
+
         # Is this MAC and ID aready in DB?  if so don't add another
         # we test here AND in violation_add because here we avoid a fork (and violation_add is called from elsewhere)
         if ( violation_exist_open( $mac, $vid ) ) {
             $logger->info("violation $vid already exists for $mac, not adding again");
-        } else {
-            $logger->info("calling $bin_dir/pfcmd violation add vid=$vid,mac=$mac");
-            # forking a pfcmd because it will call a vlan flip if needed
-            `$bin_dir/pfcmd violation add vid=$vid,mac=$mac`;
+            next;
         }
+
+        $logger->info("calling $bin_dir/pfcmd violation add vid=$vid,mac=$mac");
+        # forking a pfcmd because it will call a vlan flip if needed
+        `$bin_dir/pfcmd violation add vid=$vid,mac=$mac`;
         $addedViolation = 1;
     }
     return $addedViolation;
@@ -458,8 +452,7 @@ sub _scanTriggerIdEnabled {
 
 sub violation_delete {
     my ($id) = @_;
-    violation_db_prepare($dbh) if ( !$violation_db_prepared );
-    $violation_delete_sql->execute($id) || return (0);
+    db_query_execute(VIOLATION, $violation_statements, 'violation_delete_sql', $id);
     return (0);
 }
 
@@ -467,7 +460,6 @@ sub violation_delete {
 #
 sub violation_close {
     my ( $mac, $vid ) = @_;
-    violation_db_prepare($dbh) if ( !$violation_db_prepared );
     my $logger = Log::Log4perl::get_logger('pf::violation');
     require pf::class;
     my $class_info = pf::class::class_view($vid);
@@ -487,7 +479,8 @@ sub violation_close {
             pf::iptables::iptables_unmark_node( $mac, $vid );
         }
         my $grace = $class_info->{'grace_period'};
-        $violation_close_sql->execute( $mac, $vid ) || return (0);
+        db_query_execute(VIOLATION, $violation_statements, 'violation_close_sql', $mac, $vid)
+            || return (0);
         $logger->info("violation $vid closed for $mac");
         return ($grace);
     }
@@ -499,13 +492,45 @@ sub violation_close {
 #
 sub violation_force_close {
     my ( $mac, $vid ) = @_;
-    violation_db_prepare($dbh) if ( !$violation_db_prepared );
     my $logger = Log::Log4perl::get_logger('pf::violation');
 
     #iptables_unmark_node($mac, $vid);
-    $violation_close_sql->execute( $mac, $vid ) || return (0);
+    db_query_execute(VIOLATION, $violation_statements, 'violation_close_sql', $mac, $vid)
+        || return (0);
     $logger->info("violation $vid force-closed for $mac");
     return (1);
+}
+
+=item * _is_node_category_whitelisted - is a node immune to a given violation based on its category
+
+=cut
+sub _is_node_category_whitelisted {
+    my ($trigger_info, $mac) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::violation');
+
+    # if whitelist is empty, node is not whitelisted
+    if (!defined($trigger_info->{'whitelisted_categories'}) || $trigger_info->{'whitelisted_categories'} eq '') {
+        return 0;
+    }
+
+    # Grabbing the node's informations (incl. category)
+    # Note: consider extracting out of here and putting in violation_trigger and passing node_info hashref instead
+    my $node_info = node_view($mac);
+    if(!defined($node_info) || ref($node_info) ne 'HASH') {
+        $logger->warn("Something went wrong trying to fetch the node info");
+        return 0;
+    }
+
+    # trying to match node's category on whitelisted categories
+    my $category_found = 0;
+    # whitelisted_categories is of the form "cat1,cat2,cat3,etc."
+    foreach my $category (split(",", $trigger_info->{'whitelisted_categories'})) {
+        if (lc($category) eq lc($node_info->{'category'})) {
+            $category_found = 1;
+        }
+    }
+
+    return $category_found;
 }
 
 =back
@@ -524,7 +549,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009 Inverse inc.
+Copyright (C) 2009,2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

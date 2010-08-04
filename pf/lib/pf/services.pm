@@ -131,16 +131,14 @@ sub service_ctl {
                       && ( $daemon =~ /named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan/ )
                       && ( defined( $flags{$daemon} ) ) ) {
                     if ( $daemon ne 'pfdhcplistener' ) {
-                        if ( $daemon eq 'named' ) {
+                        if ( $daemon eq 'dhcpd' ) {
                             manage_Static_Route(1);
                         }
                         if (   ( $daemon eq 'pfsetvlan' )
                             && ( !switches_conf_is_valid() ) )
                         {
-                            $logger->error(
-                                "errors in switches.conf. pfsetvlan will NOT be started"
-                            );
-                            return 0;
+                            $logger->error_warn("Errors in switches.conf. This can be problematic for "
+                                . "pfsetvlan's operation. Check logs for details.");
                         }
                         $logger->info(
                             "Starting $exe with '$service $flags{$daemon}'");
@@ -182,7 +180,7 @@ sub service_ctl {
                     return;
                 }
 
-                if ( $service =~ /(named)/) {
+                if ( $service =~ /(dhcpd)/) {
                     manage_Static_Route();
                 }
 
@@ -379,7 +377,7 @@ sub manage_Static_Route {
             $network_conf{$section}{$key} =~ s/\s+$//;
         }
 
-        if ( ( $network_conf{$section}{'named'} eq 'enabled' ) && ( exists( $network_conf{$section}{'type'} ) ) ) {
+        if ( ($network_conf{$section}{'dhcpd'} eq 'enabled') && (exists($network_conf{$section}{'type'})) && ($network_conf{$section}{'pf_gateway'} =~ /^(?:\d{1,3}\.){3}\d{1,3}$/) ) {
             if ( ( lc($network_conf{$section}{'type'}) eq 'isolation' ) || ( lc($network_conf{$section}{'type'}) eq 'registration' ) ) {
                 my $add_del = $add_Route ? 'add' : 'del';
                 my $full_path = can_run('route') or $logger->error("route is not installed! Can not add static routes to routed Registration and Isolation VLANs");
@@ -816,6 +814,11 @@ sub generate_snmptrapd_conf {
 
     foreach my $key ( sort keys %switchConfig ) {
         if ( $key ne 'default' ) {
+            if (ref($switchConfig{$key}{'type'}) eq 'ARRAY') {
+                $logger->warn("There is an error in your $conf_dir/switches.conf. "
+                    . "I will skip $key from snmptrapd config");
+                next;
+            }
             my $switch = $switchFactory->instantiate($key);
             if (!$switch) {
                 $logger->error("Can not instantiate switch $key!");
@@ -947,14 +950,26 @@ sub switches_conf_is_valid {
             "Error reading switches.conf: " . join( "\n", @errors ) . "\n" );
         return 0;
     }
+
+    # trimming trailing whitespace
     foreach my $section ( tied(%switches_conf)->Sections ) {
         foreach my $key ( keys %{ $switches_conf{$section} } ) {
             $switches_conf{$section}{$key} =~ s/\s+$//;
         }
     }
+
+    my $parsing_successful_flag = 1;
     foreach my $section ( keys %switches_conf ) {
         if ( ( $section ne 'default' )
             && ( $section ne '127.0.0.1' ) ) {
+
+            # validate that switches are not duplicated (we check for type and mode specifically) fixes #766
+            if (ref($switches_conf{$section}{'type'}) eq 'ARRAY' || ref($switches_conf{$section}{'mode'}) eq 'ARRAY') {
+                $logger->error("There is an error in the switches.conf configuration file around $section. "
+                    . "Did you define the same switch twice?");
+                $parsing_successful_flag = 0;
+                next;
+            }
 
             # check type
             my $type
@@ -964,31 +979,37 @@ sub switches_conf_is_valid {
             if ( ! $type->require() ) {
                 $logger->error(
                     "Unknown switch type: $type for switch $section: $@");
-                return 0;
+                $parsing_successful_flag = 0;
             }
 
             if ( !valid_ip($section) ) {
                 $logger->error("switch IP is invalid for $section");
-                return 0;
+                $parsing_successful_flag = 0;
             }
 
             # check SNMP version
-            my $SNMPVersion
-                = (    $switches_conf{$section}{'SNMPVersion'}
-                    || $switches_conf{$section}{'version'}
-                    || $switches_conf{'default'}{'SNMPVersion'}
-                    || $switches_conf{'default'}{'version'} );
-            if ( !( $SNMPVersion =~ /^1|2c|3$/ ) ) {
+            my $SNMPVersion = ($switches_conf{$section}{'SNMPVersion'}
+                || $switches_conf{$section}{'version'}
+                || $switches_conf{'default'}{'SNMPVersion'}
+                || $switches_conf{'default'}{'version'}
+            );
+
+            if (!defined($SNMPVersion)) {
+                $logger->error("Switch SNMP version is missing. Please provide one specific to switch or in default. Config section: $section");
+                $parsing_successful_flag = 0;
+            } elsif ( !( $SNMPVersion =~ /^1|2c|3$/ ) ) {
                 $logger->error("switch SNMP version is invalid for $section");
-                return 0;
+                $parsing_successful_flag = 0;
             }
-            my $SNMPVersionTrap
-                = (    $switches_conf{$section}{'SNMPVersionTrap'}
-                    || $switches_conf{'default'}{'SNMPVersionTrap'} );
-            if ( !( $SNMPVersionTrap =~ /^1|2c|3$/ ) ) {
-                $logger->error(
-                    "switch SNMP trap version is invalid for $section");
-                return 0;
+
+            # check SNMP Trap version
+            my $SNMPVersionTrap = ($switches_conf{$section}{'SNMPVersionTrap'} || $switches_conf{'default'}{'SNMPVersionTrap'});
+            if (!defined($SNMPVersionTrap)) {
+                $logger->error("Switch SNMP Trap version is missing. Please provide one specific to switch or in default. Config section: $section");
+                $parsing_successful_flag = 0;
+            } elsif ( !( $SNMPVersionTrap =~ /^1|2c|3$/ ) ) {
+                $logger->error("switch SNMP Trap version is invalid for $section");
+                $parsing_successful_flag = 0;
             }
 
             # check uplink
@@ -1002,7 +1023,7 @@ sub switches_conf_is_valid {
                 $logger->error( "switch uplink ("
                         . ( defined($uplink) ? $uplink : 'undefined' )
                         . ") is invalid for $section" );
-                return 0;
+                $parsing_successful_flag = 0;
             }
 
             # check mode
@@ -1014,11 +1035,15 @@ sub switches_conf_is_valid {
                 || $switches_conf{'default'}{'mode'};
             if ( !grep( { lc($_) eq lc($mode) } @valid_switch_modes ) ) {
                 $logger->error("switch mode ($mode) is invalid for $section");
-                return 0;
+                $parsing_successful_flag = 0;
             }
         }
     }
-    return 1;
+    if ($parsing_successful_flag == 1) {
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 =item * read_violations_conf
@@ -1064,6 +1089,7 @@ sub read_violations_conf {
         }
 
         #print Dumper(@triggers);
+        # be careful of the way parameters are passed, whitelists, actions and triggers are expected at the end
         class_merge(
             $violation,
             $violations{$violation}{'desc'},
@@ -1077,7 +1103,7 @@ sub read_violations_conf {
             $violations{$violation}{'button_text'},
             $violations{$violation}{'disable'},
             $violations{$violation}{'vlan'},
-            # actions are expected to be in this position (handled in a special way)
+            $violations{$violation}{'whitelisted_categories'},
             $violations{$violation}{'actions'},
             \@triggers
         );
@@ -1147,7 +1173,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009 Inverse inc.
+Copyright (C) 2009,2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

@@ -87,6 +87,14 @@ if($sajax){
       $this->default_filter=$filter;
    }
 
+   /**
+    * Returns the number of displayed column in the table. 
+    */
+   function get_displayable_column_count(){
+      // adding 1 because of the clone, edit, delete column on the left
+      return count($this->headers) + 1;
+   }
+
    function refresh(){
      #$this=new table($this->create_cmd);
 
@@ -203,7 +211,7 @@ if($sajax){
       print "<thead>\n";
 
       print "<tr>\n";
-      print "<td colspan=\"".count($this->headers)."\" id=\"search\">\n";
+      print "<td colspan=\"".$this->get_displayable_column_count()."\" id=\"search\">\n";
       if($this->is_hideable){
         if($this->is_hidden){
 	           print "<span id='show_icon' style='display:visible;'><a href='javascript:hideCells(\"\");'><img src='../images/show.gif' alt='Show Info'><br><font size=1>Show Info</font></a></span>";
@@ -461,6 +469,30 @@ if($sajax){
                  print "  <input class=\"button\" type='image' src='/images/famfamfam_silk_icons/page_delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete the switch " . $this->rows[$i]['ip'] . " ?');\">\n";
                  print "  </form>";
                }
+             } elseif (($current_top == 'node') && ($current_sub=='categories')) {
+               // NODE CATEGORIES 
+           print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['category_id'] . "',500,500)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
+           print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['category_id'] . "',500,500)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
+               if ($this->rows[$i]['category_id'] != '1') {
+                 print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page' method='post'>";
+                 print "  <input type='hidden' name='action' value='delete'>\n";
+                 print "  <input type='hidden' name='commit' value='true'>\n";
+                 print "  <input type='hidden' name='original' value='".implode("\t", $this->rows[$i])."'>\n";
+                 print "  <input class=\"button\" type='image' src='/images/famfamfam_silk_icons/page_delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete the category " . $this->rows[$i]['name'] . "?');\">\n";
+                 print "  </form>";
+               }
+             } elseif (($current_top == 'configuration') && ($current_sub=='floatingnetworkdevice')) {
+               // FLOATING DEVICES
+               print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['floatingnetworkdevice'] . "',500,500)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
+               if ($this->rows[$i]['floatingnetworkdevice'] != 'stub') {
+                 print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['floatingnetworkdevice'] . "',500,500)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
+                 print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page' method='post'>";
+                 print "  <input type='hidden' name='action' value='delete'>\n";
+                 print "  <input type='hidden' name='commit' value='true'>\n";
+                 print "  <input type='hidden' name='original' value='".implode("\t", $this->rows[$i])."'>\n";
+                 print "  <input class=\"button\" type='image' src='/images/famfamfam_silk_icons/page_delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete the floating network device " . $this->rows[$i]['floatingnetworkdevice'] . "?');\">\n";
+                 print "  </form>";
+               }
              } elseif (($current_top == 'configuration') && ($current_sub=='violation')) {
 	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['vid'] . "',500,400)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
 	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['vid'] . "',500,400)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
@@ -487,6 +519,7 @@ if($sajax){
    	     print "</td>\n";
            }
        
+           # FIXME: this is broken, nessus/scanner.php doesn't exist
            if($this->scannable){
              print "<td width='45' align='right'>\n";
              $host=$this->rows[$i]['mac'];
@@ -700,6 +733,21 @@ function PrintSubNav($menu){
         } else {
           $values[]=$heading[1];
         }
+      } elseif (($current_top == 'node') && ($current_sub == 'add') && ($heading[0] == 'Category') ) {
+
+        if (preg_match("/input type='text' name='(val\d+)'/", $heading[1], $regmatches)) {
+          # TODO: if printSelect would return a string instead of print directly this would be less ugly
+          $value_string = "<select name='" . $regmatches[1] . "'>";
+          $nodecategories = get_nodecategories_for_dropdown();
+          foreach ($nodecategories as $cat_id => $cat_name) {
+              $value_string .= "<option value='$cat_id'>$cat_name</option>";
+          }
+          $value_string .= "</select>";
+          $values[] = $value_string;
+        } else {
+          $values[]=$heading[1];
+        }
+
       } else {
         $values[]=$heading[1];
       }
@@ -798,8 +846,9 @@ function PrintSubNav($menu){
       return false;	
     }
 
+    # HACK: when the output of pfcmd has a "line 999" in it, we assume it's an error and we display it
     foreach($output as $line){
-      if(preg_match("/line\s+\d+\./", $line)){
+      if(preg_match("/line\s+\d+/", $line)){
         $errors[]=$line;
       }
     }
@@ -861,6 +910,7 @@ function PrintSubNav($menu){
     print "</pre></div>";
   }
 
+  # TODO consider deprecating jpgraph 1.27
   function jpgraph_dir(){
     if(preg_match("/^4/", phpversion())){
       return '../common/jpgraph/jpgraph-1.27/src';   
@@ -1003,15 +1053,16 @@ function PrintSubNav($menu){
       $new[$new_unknown['dhcp_fingerprint']] = $new_unknown['vendor'];
     }
 
-#  These next few lines kept track of what fingerprints have been submitted.
-#    $old = set_default($_SESSION['ui_global_prefs']['shared_fingerprints'], array());
-#    if(!$old){
-      $old = array();
-#    }
-    $diff = array_diff_assoc($new, $old);
+    # These next few lines kept track of what fingerprints have been submitted.
+    if (isset($_SESSION['ui_global_prefs']['shared_fingerprints'])) {
+      $current = $_SESSION['ui_global_prefs']['shared_fingerprints'];
+    } else {
+      $current = array();
+    }
+    $diff = array_diff_assoc($new, $current);
 
     if(count($diff)>0){
-     $_SESSION['ui_global_prefs']['shared_fingerprints']=array_merge($_SESSION['ui_global_prefs']['shared_fingerprints'], $diff);
+     $_SESSION['ui_global_prefs']['shared_fingerprints']=array_merge($current, $diff);
       save_global_prefs_to_file();
       foreach($diff as $fprint => $vendor){
         $content.= "$fprint:$vendor\n";
@@ -1045,6 +1096,35 @@ function PrintSubNav($menu){
       else{
         $default == $val ? $default='SELECTED' : $default = '';
         print "  <option value='$val' $default>$val\n";     
+      }
+    }
+    print "</select>";
+    return true;
+  }
+
+  function printMultiSelect($values, $type, $defaults = false , $extra = false){
+    if(!is_array($values)){
+      print "<select $extra>\n";
+      print "  <option value='0'>No Options\n";
+      print "</select>";
+      return false;
+    }
+
+    // setting selected values expects an array so if we got a scalar we convert to array
+    if(!is_array($defaults)) {
+        $defaults = array($defaults);
+    }
+
+    print "<select $extra>\n";
+    if (strtolower($type) == 'hash') {
+      foreach ($values as $key => $val) {
+        in_array($key, $defaults) ? $selected='SELECTED' : $selected = '';
+        print "  <option value='$key' $selected>$val\n";
+      }
+    } else {
+      foreach ($values as $key => $val) {
+        in_array($val, $defaults) ? $selected='SELECTED' : $selected = '';
+        print "  <option value='$val' $default>$val\n";
       }
     }
     print "</select>";

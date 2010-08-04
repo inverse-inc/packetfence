@@ -64,7 +64,9 @@ sub authorize {
         #&log_request_attributes;
 
         my $mac = $RAD_REQUEST{'Calling-Station-Id'};
-        my $switch_ip = $RAD_REQUEST{'Client-IP-Address'};
+        # freeradius 2 provides the switch_ip in NAS-IP-Address not Client-IP-Address 
+        # Client-IP-Address is a non-standard freeradius1 attribute
+        my $switch_ip = $RAD_REQUEST{'NAS-IP-Address'} || $RAD_REQUEST{'Client-IP-Address'};
         my $user_name = $RAD_REQUEST{'User-Name'};
         my $is_eap_request = 0;
         if (exists($RAD_REQUEST{'EAP-Type'})) {

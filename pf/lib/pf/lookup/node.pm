@@ -21,6 +21,8 @@ use pf::util;
 use pf::iplog;
 use pf::node;
 use pf::os;
+use pf::config;
+use pf::locationlog;
 
 sub lookup_node {
     my ($mac) = @_;
@@ -30,15 +32,37 @@ sub lookup_node {
     if ( node_exist($mac) ) {
 
         my $node_info = node_view($mac);
-        $return .= "Address : $mac";
+        $return .= "MAC Address: $mac\n";
 
-        if ( mac2ip($mac) ) {
-            $return .= " (" . mac2ip($mac) . ")\n";
+        # fetch IP and DHCP information
+        my $node_iplog_info = iplog_view_open_mac($mac);
+        if (defined($node_iplog_info->{'ip'})) {
+
+            $return .= "IP Address : ".$node_iplog_info->{'ip'}." (active)\n";
+            $return .= "IP Info    : IP active since " . $node_iplog_info->{'start_time'} .
+                       " and DHCP lease valid until ".$node_iplog_info->{'end_time'}."\n";
+            
         } else {
-            $return .= "\n";
+            my @node_iplog_history_info = iplog_history_mac($mac);
+            if (ref($node_iplog_history_info[0]) eq 'HASH' && defined($node_iplog_history_info[0]->{'ip'})) {
+                my $latest_iplog = $node_iplog_history_info[0];
+                $return .= "IP Address : ".$latest_iplog->{'ip'}." (inactive)\n";
+                $return .= "IP Info    : IP was last seen active between " . $latest_iplog->{'start_time'} .
+                           " and ". $latest_iplog->{'end_time'} . "\n";
+            } else {
+                $return .= "IP Address : Unknown\n";
+                $return .= "IP Info    : No IP information available\n";
+            }
         }
 
+        # DHCP history
+        $return .= "DHCP Info  : Last DHCP request at ".$node_info->{'last_dhcp'}."\n";
+
         my $owner  = $node_info->{'pid'};
+        my $category = $node_info->{'category'};
+        if (!defined($category) || $category eq '') {
+            $category = 'No category';
+        }
         my $status = $node_info->{'status'};
         if ( $status eq "reg" ) {
             $status = "registered";
@@ -48,21 +72,22 @@ sub lookup_node {
             $status = "grace";
         }
         $owner = "unregistered" if ( $owner eq '1' );
-        $return .= "Owner   : $owner\n"  if ($owner);
-        $return .= "Status  : $status\n" if ($status);
-        $return .= "Name    : " . $node_info->{'computername'} . "\n"
+        $return .= "Owner      : $owner\n"  if ($owner);
+        $return .= "Category   : $category\n" if ($category);
+        $return .= "Status     : $status\n" if ($status);
+        $return .= "Name       : " . $node_info->{'computername'} . "\n"
             if ( $node_info->{'computername'} );
-        $return .= "Notes   : " . $node_info->{'notes'} . "\n"
+        $return .= "Notes      : " . $node_info->{'notes'} . "\n"
             if ( $node_info->{'notes'} );
 
         my $vendor = oui_to_vendor($mac);
         if ($vendor) {
-            $return .= "Vendor  : $vendor\n";
+            $return .= "MAC Vendor : $vendor\n";
         }
 
         # TODO: output useragent class like in dhcp fingerprint
 
-        $return .= "Browser : " . $node_info->{'user_agent'} . "\n"
+        $return .= "Browser    : " . $node_info->{'user_agent'} . "\n"
             if ( $node_info->{'user_agent'} );
 
         if ( $node_info->{'dhcp_fingerprint'} ) {
@@ -71,30 +96,52 @@ sub lookup_node {
             if ( scalar(@fingerprint_info_array == 1) ) {
                 my $fingerprint_info = $fingerprint_info_array[0];
                 my $os = $fingerprint_info->{'os'};
-                $return .= "OS      : $os\n" if ( defined($os) );
+                $return .= "OS         : $os\n" if ( defined($os) );
             }
         }
 
-        my $port   = $node_info->{'port'};
-        my $switch = $node_info->{'switch'};
-        my $vlan   = $node_info->{'vlan'};
-        my $switch_ip;
-        my $switch_mac;
-        if ($switch) {
-            if ( valid_ip($switch) ) {
-                $switch_ip = $switch;
-            } elsif ( valid_mac($switch) ) {
-                $switch_mac = $switch;
-                $switch_ip  = mac2ip($switch);
+        if (lc($Config{'network'}{'mode'}) eq 'vlan') {
+            my @last_locationlog_entry = locationlog_history_mac($mac);
+            if ($last_locationlog_entry[0]) {
+                my $is_entry_active = 1;
+                # if end_time is null or is set to 0
+                if (defined($last_locationlog_entry[0]->{'end_time'}) && $last_locationlog_entry[0]->{'end_time'} !~ /0000/) {
+                    $is_entry_active = 0;
+                }
+                $return .= "Location: port ". $last_locationlog_entry[0]->{'port'}." "
+                        .  " (vlan " . $last_locationlog_entry[0]->{'vlan'}.")"
+                        .  " on switch ".$last_locationlog_entry[0]->{'switch'}
+                        .  "\n";
+                if ($is_entry_active) {
+                    $return .= "Last activity: currently active\n";
+                } else {
+                    $return .= "Last activity: ".$last_locationlog_entry[0]->{'end_time'}."\n";
+                }
+            } else {
+                $return .= "No connectivity information available (We probably only saw a DHCP request)\n";
             }
-        }
-        if ( $port && ( $switch_ip || $switch_mac ) && $vlan ) {
-            $return .= "Location: port $port (vlan $vlan) on switch "
-                . ( $switch_ip || $switch_mac );
-            if ( $switch_ip && $switch_mac ) {
-                $return .= " ($switch_mac)";
+        } else {
+            my $port   = $node_info->{'port'};
+            my $switch = $node_info->{'switch'};
+            my $vlan   = $node_info->{'vlan'};
+            my $switch_ip;
+            my $switch_mac;
+            if ($switch) {
+                if ( valid_ip($switch) ) {
+                    $switch_ip = $switch;
+                } elsif ( valid_mac($switch) ) {
+                    $switch_mac = $switch;
+                    $switch_ip  = mac2ip($switch);
+                }
             }
-            $return .= "\n";
+            if ( $port && ( $switch_ip || $switch_mac ) && $vlan ) {
+                $return .= "Location: port $port (vlan $vlan) on switch "
+                    . ( $switch_ip || $switch_mac );
+                if ( $switch_ip && $switch_mac ) {
+                    $return .= " ($switch_mac)";
+                }
+                $return .= "\n";
+            }
         }
 
     } else {
@@ -113,13 +160,15 @@ Kevin Amorin <kev@amorin.org>
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009 Inverse inc.
+Copyright (C) 2009,2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

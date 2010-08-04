@@ -20,6 +20,10 @@ use Net::SNMP;
 
 use base ('pf::SNMP::ThreeCom::SS4500');
 
+=head1 BUGS AND LIMITATIONS
+
+setvlan does not work with default VLAN ID 1
+
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>

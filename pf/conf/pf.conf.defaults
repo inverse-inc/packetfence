@@ -168,12 +168,14 @@ redirtimer=10s
 #
 # trapping.passthrough
 #
-# Method by which content is delivered to trapped systems.  When set to "proxy", PacketFence uses Apache's reverse proxy 
-# functionality and the mod_proxy_html module to rewrite links.  Note that links external servers will not be properly 
-# rewritten.  When set to "iptables", PacketFence creates passthroughs to the content for only those nodes trapped with the
-# corresponding violation.  Be aware that an iptables passthrough is based on IP address and clients will be able to get to
-# ALL content on the destination site.
-passthrough=iptables
+# Method by which content is delivered to trapped systems. When set to "proxy", PacketFence uses Apache's reverse proxy 
+# functionality and the mod_proxy_html module to rewrite links. Note that links external servers will not be properly 
+# rewritten.
+# When set to "iptables", PacketFence creates passthroughs to the content for only those nodes trapped with the 
+# corresponding violation.  Be aware that an iptables passthrough is based on IP address and clients will be able to 
+# get to ALL content on the destination site.
+# When set to "disabled" passthrough is disabled.
+passthrough=disabled
 #
 # trapping.blacklist
 #

@@ -16,6 +16,8 @@ Obtain ifInOctets and ifOutOctets from switches using SNMP
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =cut
 
 use strict;
@@ -27,6 +29,8 @@ use Net::SNMP;
 use threads;
 use threads::shared;
 use Thread::Pool;
+use Log::Log4perl;
+use Log::Log4perl::Appender::File; # HACK: compile tests failed on build env. without that
 
 use constant INSTALL_DIR => '/usr/local/pf';
 
@@ -49,11 +53,6 @@ my $pool = Thread::Pool->new(
     {   workers => 10,
         do      => sub {
             my ($switchDesc) = @_;
-            my $mysql_connection = db_connect();
-            node_db_prepare($mysql_connection);
-            locationlog_db_prepare($mysql_connection);
-            person_db_prepare($mysql_connection);
-            ifoctetslog_db_prepare($mysql_connection);
             my $switch = $switchFactory->instantiate($switchDesc);
             if (!$switch) {
                 $logger->error("Can not instantiate switch $switchDesc !");
@@ -125,7 +124,7 @@ foreach my $switchDesc ( keys %switchJobHash ) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2008 Inverse inc.
+Copyright (C) 2007-2008,2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

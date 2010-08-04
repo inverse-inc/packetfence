@@ -118,10 +118,34 @@ sub instantiate {
     }
     $logger->debug("creating new $type object");
     return $type->new(
+        '-customVlan1' => (
+                   $SwitchConfig{$requestedSwitch}{'customVlan1'}
+                || $SwitchConfig{'default'}{'customVlan1'}
+        ),
+        '-customVlan2' => (
+                   $SwitchConfig{$requestedSwitch}{'customVlan2'}
+                || $SwitchConfig{'default'}{'customVlan2'}
+        ),
+        '-customVlan3' => (
+                   $SwitchConfig{$requestedSwitch}{'customVlan3'}
+                || $SwitchConfig{'default'}{'customVlan3'}
+        ),
+        '-customVlan4' => (
+                   $SwitchConfig{$requestedSwitch}{'customVlan4'}
+                || $SwitchConfig{'default'}{'customVlan4'}
+        ),
+        '-customVlan5' => (
+                   $SwitchConfig{$requestedSwitch}{'customVlan5'}
+                || $SwitchConfig{'default'}{'customVlan5'}
+        ),
         '-dbHostname'  => $Config{'database'}{'host'},
         '-dbName'      => $Config{'database'}{'db'},
         '-dbPassword'  => $Config{'database'}{'pass'},
         '-dbUser'      => $Config{'database'}{'user'},
+        '-guestVlan' => (
+                   $SwitchConfig{$requestedSwitch}{'guestVlan'}
+                || $SwitchConfig{'default'}{'guestVlan'}
+        ),
         '-htaccessPwd' => (
                    $SwitchConfig{$requestedSwitch}{'htaccessPwd'}
                 || $SwitchConfig{'default'}{'htaccessPwd'}
@@ -325,11 +349,13 @@ sub readConfig {
 
 Regis Balzard <rbalzard@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008 Inverse inc.
+Copyright (C) 2006-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

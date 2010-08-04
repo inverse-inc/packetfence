@@ -14,8 +14,7 @@ PacketFence configuration files.
 =head1 CONFIGURATION AND ENVIRONMENT
 
 Read the following configuration files: F<log.conf>, F<pf.conf>, 
-F<pf.conf.defaults>, F<networks.conf>, F<dhcp_fingerprints.conf>, F<oui.txt>, 
-F<node_categories.conf>.
+F<pf.conf.defaults>, F<networks.conf>, F<dhcp_fingerprints.conf>, F<oui.txt>, F<floating_network_device.conf>.
 
 =cut
 
@@ -28,35 +27,42 @@ use Date::Parse;
 use Log::Log4perl;
 use File::Basename qw(basename);
 use threads;
+use Readonly;
 
+# Categorized by feature, pay attention when modifying
 our (
-    $install_dir,              $bin_dir,
-    $conf_dir,                 $lib_dir,
-    $log_dir,                  %Default_Config,
-    %Config,                   @listen_ints,
-    @internal_nets,            @routed_isolation_nets,
-    @routed_registration_nets, $blackholemac,
-    @managed_nets,             @external_nets,
-    @dhcplistener_ints,        $monitor_int,
-    $unreg_mark,               $reg_mark,
-    $black_mark,               $portscan_sid,
-    $default_config_file,      $config_file,
-    $network_config_file,      $dhcp_fingerprints_file,
-    $node_categories_file,     $default_pid,
-    $fqdn,                     $oui_url,
-    $dhcp_fingerprints_url,    $oui_file,
-    @valid_trigger_types,      $thread
+    $install_dir, $bin_dir, $conf_dir, $lib_dir, $log_dir, 
+    @listen_ints, @internal_nets, @routed_isolation_nets, @routed_registration_nets, @managed_nets, @external_nets,
+    @dhcplistener_ints, $monitor_int,
+    $unreg_mark, $reg_mark, $black_mark,
+    $default_config_file, %Default_Config, 
+    $config_file, %Config, 
+    $network_config_file, 
+    $dhcp_fingerprints_file, $dhcp_fingerprints_url,
+    $oui_file, $oui_url,
+    $floating_devices_file, %ConfigFloatingDevices,
+    $blackholemac, $portscan_sid, @valid_trigger_types, $thread, $default_pid, $fqdn
 );
 
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
-    @EXPORT
-        = qw($install_dir $bin_dir $conf_dir $lib_dir %Default_Config %Config @listen_ints @internal_nets @routed_isolation_nets @routed_registration_nets
-        $blackholemac @managed_nets @external_nets @dhcplistener_ints $monitor_int $unreg_mark $reg_mark $black_mark $portscan_sid
-        $default_config_file $config_file $network_config_file $dhcp_fingerprints_file $node_categories_file $default_pid $fqdn $oui_url $dhcp_fingerprints_url
-        $oui_file @valid_trigger_types $thread);
+    # Categorized by feature, pay attention when modifying
+    @EXPORT = qw(
+        $install_dir $bin_dir $conf_dir $lib_dir 
+        @listen_ints @internal_nets @routed_isolation_nets @routed_registration_nets @managed_nets @external_nets 
+        @dhcplistener_ints $monitor_int 
+        $unreg_mark $reg_mark $black_mark 
+        $default_config_file %Default_Config
+        $config_file %Config
+        $network_config_file 
+        $dhcp_fingerprints_file $dhcp_fingerprints_url 
+        $oui_file $oui_url
+        $floating_devices_file %ConfigFloatingDevices
+        $blackholemac $portscan_sid @valid_trigger_types $thread $default_pid $fqdn
+        $FALSE $TRUE
+    );
 }
 
 $thread = 0;
@@ -73,12 +79,16 @@ Log::Log4perl::MDC->put( 'tid',  threads->self->tid() );
 
 my $logger = Log::Log4perl->get_logger('pf::config');
 
+# some global constants
+Readonly::Scalar our $FALSE => 0;
+Readonly::Scalar our $TRUE => 1;
+
 $config_file            = $conf_dir . "/pf.conf";
 $default_config_file    = $conf_dir . "/pf.conf.defaults";
 $network_config_file    = $conf_dir . "/networks.conf";
 $dhcp_fingerprints_file = $conf_dir . "/dhcp_fingerprints.conf";
 $oui_file               = $conf_dir . "/oui.txt";
-$node_categories_file   = $conf_dir . "/node_categories.conf";
+$floating_devices_file  = $conf_dir . "/floating_network_device.conf";
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
@@ -99,147 +109,186 @@ $black_mark = "2";
 # this is broken NIC on Dave's desk - it better be unique!
 $blackholemac = "00:60:8c:83:d7:34";
 
-# read & load in configuration file
-if ( -e $default_config_file ) {
-    tie %Config, 'Config::IniFiles',
-        (
-        -file   => $config_file,
-        -import => Config::IniFiles->new( -file => $default_config_file )
-        );
-} else {
-    tie %Config, 'Config::IniFiles', ( -file => $config_file );
-}
-my @errors = @Config::IniFiles::errors;
-if ( scalar(@errors) ) {
-    $logger->logcroak( join( "\n", @errors ) );
-}
+readPfConfigFiles();
 
-#remove trailing spaces..
-foreach my $section ( tied(%Config)->Sections ) {
-    foreach my $key ( keys %{ $Config{$section} } ) {
-        $Config{$section}{$key} =~ s/\s+$//;
+readNetworkConfigFile();
+
+readFloatingNetworkDeviceFile();
+
+
+=over
+
+=item readPfConfigFiles -  pf.conf.defaults & pf.conf
+
+=cut
+sub readPfConfigFiles {
+
+    if ( -e $default_config_file ) {
+        tie %Config, 'Config::IniFiles',
+            (
+            -file   => $config_file,
+            -import => Config::IniFiles->new( -file => $default_config_file )
+            );
+    } else {
+        tie %Config, 'Config::IniFiles', ( -file => $config_file );
     }
-}
-
-#normalize time
-#tie %documentation, 'Config::IniFiles', ( -file => $conf_dir."/documentation.conf" );
-#foreach my $section (sort tied(%documentation)->Sections) {
-#   my($group,$item) = split(/\./, $section);
-#   my $type = $documentation{$section}{'type'};
-#   $Config{$group}{$item}=normalize_time($Config{$group}{$item}) if ($type eq "time");
-#}
-
-#normalize time
-foreach my $val (
-    "expire.iplog",               "expire.traplog",
-    "expire.locationlog",         "expire.node",
-    "arp.interval",               "arp.gw_timeout",
-    "arp.timeout",                "arp.dhcp_timeout",
-    "arp.heartbeat",              "trapping.redirtimer",
-    "registration.skip_window",   "registration.skip_reminder",
-    "registration.expire_window", "registration.expire_session",
-    "general.maintenance_interval", "scan.duration",
-    "dhcp.isolation_lease",       "dhcp.registered_lease",
-    "dhcp.unregistered_lease"
-    )
-{
-    my ( $group, $item ) = split( /\./, $val );
-    $Config{$group}{$item} = normalize_time( $Config{$group}{$item} );
-}
-foreach
-    my $val ( "registration.skip_deadline", "registration.expire_deadline" )
-{
-    my ( $group, $item ) = split( /\./, $val );
-    $Config{$group}{$item} = str2time( $Config{$group}{$item} );
-}
-
-#determine absolute paths
-foreach my $val ("alerting.log") {
-    my ( $group, $item ) = split( /\./, $val );
-    if ( !File::Spec->file_name_is_absolute( $Config{$group}{$item} ) ) {
-        $Config{$group}{$item}
-            = File::Spec->catfile( $log_dir, $Config{$group}{$item} );
+    my @errors = @Config::IniFiles::errors;
+    if ( scalar(@errors) ) {
+        $logger->logcroak( join( "\n", @errors ) );
     }
-}
-foreach my $val ("vlan.adjustswitchportvlanscript") {
-    my ( $group, $item ) = split( /\./, $val );
-    if ( !File::Spec->file_name_is_absolute( $Config{$group}{$item} ) ) {
-        $Config{$group}{$item}
-            = File::Spec->catfile( $bin_dir, $Config{$group}{$item} );
+
+    #remove trailing spaces..
+    foreach my $section ( tied(%Config)->Sections ) {
+        foreach my $key ( keys %{ $Config{$section} } ) {
+            $Config{$section}{$key} =~ s/\s+$//;
+        }
     }
-}
 
-$fqdn = $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
+    #normalize time
+    #tie %documentation, 'Config::IniFiles', ( -file => $conf_dir."/documentation.conf" );
+    #foreach my $section (sort tied(%documentation)->Sections) {
+    #   my($group,$item) = split(/\./, $section);
+    #   my $type = $documentation{$section}{'type'};
+    #   $Config{$group}{$item}=normalize_time($Config{$group}{$item}) if ($type eq "time");
+    #}
 
-# read & load in network configuration file
-my %ConfigNetworks;
-tie %ConfigNetworks, 'Config::IniFiles',
-    ( -file => $network_config_file, -allowempty => 1 );
-@errors = @Config::IniFiles::errors;
-if ( scalar(@errors) ) {
-    $logger->logcroak( join( "\n", @errors ) );
-}
-
-#remove trailing spaces..
-foreach my $section ( tied(%ConfigNetworks)->Sections ) {
-    foreach my $key ( keys %{ $ConfigNetworks{$section} } ) {
-        $ConfigNetworks{$section}{$key} =~ s/\s+$//;
+    #normalize time
+    foreach my $val (
+        "expire.iplog",               "expire.traplog",
+        "expire.locationlog",         "expire.node",
+        "arp.interval",               "arp.gw_timeout",
+        "arp.timeout",                "arp.dhcp_timeout",
+        "arp.heartbeat",              "trapping.redirtimer",
+        "registration.skip_window",   "registration.skip_reminder",
+        "registration.expire_window", "registration.expire_session",
+        "general.maintenance_interval", "scan.duration",
+        "dhcp.isolation_lease",       "dhcp.registered_lease",
+        "dhcp.unregistered_lease"
+        )
+    {
+        my ( $group, $item ) = split( /\./, $val );
+        $Config{$group}{$item} = normalize_time( $Config{$group}{$item} );
     }
+    foreach my $val ( "registration.skip_deadline", "registration.expire_deadline" )
+    {
+        my ( $group, $item ) = split( /\./, $val );
+        $Config{$group}{$item} = str2time( $Config{$group}{$item} );
+    }
+
+    #determine absolute paths
+    foreach my $val ("alerting.log") {
+        my ( $group, $item ) = split( /\./, $val );
+        if ( !File::Spec->file_name_is_absolute( $Config{$group}{$item} ) ) {
+            $Config{$group}{$item} = File::Spec->catfile( $log_dir, $Config{$group}{$item} );
+        }
+    }
+    foreach my $val ("vlan.adjustswitchportvlanscript") {
+        my ( $group, $item ) = split( /\./, $val );
+        if ( !File::Spec->file_name_is_absolute( $Config{$group}{$item} ) ) {
+            $Config{$group}{$item} = File::Spec->catfile( $bin_dir, $Config{$group}{$item} );
+        }
+    }
+
+    $fqdn = $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
+
+    foreach my $interface ( tied(%Config)->GroupMembers("interface") ) {
+        my $int_obj;
+        my $int = $interface;
+        $int =~ s/interface //;
+
+        my $ip             = $Config{$interface}{'ip'};
+        my $mask           = $Config{$interface}{'mask'};
+        my $gateway        = $Config{$interface}{'gateway'};
+        my $type           = $Config{$interface}{'type'};
+        my $authorized_ips = $Config{$interface}{'authorizedips'} || '';
+
+        if ( defined($ip) && defined($mask) ) {
+            $ip   =~ s/ //g;
+            $mask =~ s/ //g;
+            $int_obj = new Net::Netmask( $ip, $mask );
+            $int_obj->tag( "gw",      $gateway );
+            $int_obj->tag( "ip",      $ip );
+            $int_obj->tag( "int",     $int );
+            $int_obj->tag( "authips", $authorized_ips );
+        }
+        foreach my $type ( split( /\s*,\s*/, $type ) ) {
+            if ( $type eq 'internal' ) {
+                push @internal_nets, $int_obj;
+                push @listen_ints, $int if ( $int !~ /:\d+$/ );
+            } elsif ( $type eq 'managed' ) {
+                push @managed_nets, $int_obj;
+            } elsif ( $type eq 'external' ) {
+                push @external_nets, $int_obj;
+            } elsif ( $type eq 'monitor' ) {
+                $monitor_int = $int;
+            } elsif ( $type eq 'dhcplistener' ) {
+                push @dhcplistener_ints, $int;
+            }
+        }
+    }
+
+    @listen_ints = split( /\s*,\s*/, $Config{'arp'}{'listendevice'} )
+        if ( defined $Config{'arp'}{'listendevice'} );
 }
 
-foreach my $section ( tied(%ConfigNetworks)->Sections ) {
-    if ( exists( $ConfigNetworks{$section}{'type'} ) ) {
-        if ( lc($ConfigNetworks{$section}{'type'}) eq 'isolation' ) {
-            my $isolation_obj = new Net::Netmask( $section,
-                $ConfigNetworks{$section}{'netmask'} );
-            push @routed_isolation_nets, $isolation_obj;
-        } elsif ( lc($ConfigNetworks{$section}{'type'}) eq 'registration' ) {
-            my $registration_obj = new Net::Netmask( $section,
-                $ConfigNetworks{$section}{'netmask'} );
-            push @routed_registration_nets, $registration_obj;
+=item readNetworkConfigFiles - networks.conf
+
+=cut
+sub readNetworkConfigFile {
+
+    my %ConfigNetworks;
+    tie %ConfigNetworks, 'Config::IniFiles', ( -file => $network_config_file, -allowempty => 1 );
+    my @errors = @Config::IniFiles::errors;
+    if ( scalar(@errors) ) {
+        $logger->logcroak( join( "\n", @errors ) );
+    }   
+
+    #remove trailing spaces..
+    foreach my $section ( tied(%ConfigNetworks)->Sections ) {
+        foreach my $key ( keys %{ $ConfigNetworks{$section} } ) {
+            $ConfigNetworks{$section}{$key} =~ s/\s+$//;
+        }
+    }
+
+    foreach my $section ( tied(%ConfigNetworks)->Sections ) {
+        if ( exists( $ConfigNetworks{$section}{'type'} ) ) {
+            if ( lc($ConfigNetworks{$section}{'type'}) eq 'isolation' ) {
+                my $isolation_obj = new Net::Netmask( $section, $ConfigNetworks{$section}{'netmask'} );
+                push @routed_isolation_nets, $isolation_obj;
+            } elsif ( lc($ConfigNetworks{$section}{'type'}) eq 'registration' ) {
+                my $registration_obj = new Net::Netmask( $section, $ConfigNetworks{$section}{'netmask'} );
+                push @routed_registration_nets, $registration_obj;
+            }
+        }
+    }   
+}
+
+=item readFloatingNetworkDeviceFile - floating_network_device.conf
+
+=cut
+sub readFloatingNetworkDeviceFile {
+
+    tie %ConfigFloatingDevices, 'Config::IniFiles', ( -file => $floating_devices_file, -allowempty => 1 );
+    my @errors = @Config::IniFiles::errors;
+    if ( scalar(@errors) ) {
+        $logger->logcroak( join( "\n", @errors ) );
+    }
+
+    #remove trailing spaces..
+    foreach my $section ( tied(%ConfigFloatingDevices)->Sections ) {   
+        foreach my $key ( keys %{ $ConfigFloatingDevices{$section} } ) {
+            if (($key eq 'trunkPort') && ($ConfigFloatingDevices{$section}{$key} =~ /^\s*(y|yes|true|enabled|1)\s*$/i)){
+                $ConfigFloatingDevices{$section}{$key} = '1';
+            } else {
+                $ConfigFloatingDevices{$section}{$key} =~ s/\s+$//;
+            }
         }
     }
 }
 
-foreach my $interface ( tied(%Config)->GroupMembers("interface") ) {
-    my $int_obj;
-    my $int = $interface;
-    $int =~ s/interface //;
+=item normalize_time - formats date
 
-    my $ip             = $Config{$interface}{'ip'};
-    my $mask           = $Config{$interface}{'mask'};
-    my $gateway        = $Config{$interface}{'gateway'};
-    my $type           = $Config{$interface}{'type'};
-    my $authorized_ips = $Config{$interface}{'authorizedips'} || '';
-
-    if ( defined($ip) && defined($mask) ) {
-        $ip   =~ s/ //g;
-        $mask =~ s/ //g;
-        $int_obj = new Net::Netmask( $ip, $mask );
-        $int_obj->tag( "gw",      $gateway );
-        $int_obj->tag( "ip",      $ip );
-        $int_obj->tag( "int",     $int );
-        $int_obj->tag( "authips", $authorized_ips );
-    }
-    foreach my $type ( split( /\s*,\s*/, $type ) ) {
-        if ( $type eq 'internal' ) {
-            push @internal_nets, $int_obj;
-            push @listen_ints, $int if ( $int !~ /:\d+$/ );
-        } elsif ( $type eq 'managed' ) {
-            push @managed_nets, $int_obj;
-        } elsif ( $type eq 'external' ) {
-            push @external_nets, $int_obj;
-        } elsif ( $type eq 'monitor' ) {
-            $monitor_int = $int;
-        } elsif ( $type eq 'dhcplistener' ) {
-            push @dhcplistener_ints, $int;
-        }
-    }
-}
-
-@listen_ints = split( /\s*,\s*/, $Config{'arp'}{'listendevice'} )
-    if ( defined $Config{'arp'}{'listendevice'} );
-
+=cut
 sub normalize_time {
     my ($date) = @_;
     if ( $date =~ /^\d+$/ ) {
@@ -265,6 +314,8 @@ sub normalize_time {
     }
 }
 
+=back
+
 =head1 AUTHOR
 
 David LaPorte <david@davidlaporte.org>
@@ -273,13 +324,15 @@ Kevin Amorin <kev@amorin.org>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
+Regis Balzard <rbalzard@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009 Inverse, inc.
+Copyright (C) 2009,2010 Inverse, inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

@@ -9,39 +9,40 @@ pfcmd - PacketFence command line interface
 pfcmd <command> [options]
 
  Command:
- class                   | view violation classes
- config                  | query, set, or get help on pf.conf configuration paramaters
- configfiles             | push or pull configfiles into/from database
- fingerprint             | view DHCP Fingerprints
- graph                   | trending graphs
- history                 | IP/MAC history
- ifoctetshistorymac      | accounting history
- ifoctetshistoryswitch   | accounting history
- ifoctetshistoryuser     | accounting history
- interfaceconfig         | query/modify interface configuration parameters
- ipmachistory            | IP/MAC history
- locationhistorymac      | Switch/Port history
- locationhistoryswitch   | Switch/Port history
- lookup                  | node or pid lookup against local data store
- manage                  | manage node entries
- networkconfig           | query/modify network configuration parameters
- node                    | node manipulation
- nodecategory            | nodecategory manipulation
- person                  | person manipulation
- reload                  | rebuild fingerprint or violations tables without restart
- report                  | current usage reports
- schedule                | Nessus scan scheduling
- service                 | start/stop/restart and get PF daemon status
- switchconfig            | query/modify switches.conf configuration parameters
- switchlocation          | view switchport description and location
- traplog                 | update traplog RRD files and graphs or obtain
+ class                       | view violation classes
+ config                      | query, set, or get help on pf.conf configuration paramaters
+ configfiles                 | push or pull configfiles into/from database
+ floatingnetworkdeviceconfig | query/modify floating network devices configuration parameters
+ fingerprint                 | view DHCP Fingerprints
+ graph                       | trending graphs
+ history                     | IP/MAC history
+ ifoctetshistorymac          | accounting history
+ ifoctetshistoryswitch       | accounting history
+ ifoctetshistoryuser         | accounting history
+ interfaceconfig             | query/modify interface configuration parameters
+ ipmachistory                | IP/MAC history
+ locationhistorymac          | Switch/Port history
+ locationhistoryswitch       | Switch/Port history
+ lookup                      | node or pid lookup against local data store
+ manage                      | manage node entries
+ networkconfig               | query/modify network configuration parameters
+ node                        | node manipulation
+ nodecategory                | nodecategory manipulation
+ person                      | person manipulation
+ reload                      | rebuild fingerprint or violations tables without restart
+ report                      | current usage reports
+ schedule                    | Nessus scan scheduling
+ service                     | start/stop/restart and get PF daemon status
+ switchconfig                | query/modify switches.conf configuration parameters
+ switchlocation              | view switchport description and location
+ traplog                     | update traplog RRD files and graphs or obtain
  switch IPs
- trigger                 | view and throw triggers
- ui                      | used by web UI to create menu hierarchies and dashboard
- update                  | download canonical fingerprint or OUI data
- version                 | get installed PF version and database MD5s
- violation               | violation manipulation
- violationconfig         | query/modify violations.conf configuration parameters
+ trigger                     | view and throw triggers
+ ui                          | used by web UI to create menu hierarchies and dashboard
+ update                      | download canonical fingerprint or OUI data
+ version                     | get installed PF version and database MD5s
+ violation                   | violation manipulation
+ violationconfig             | query/modify violations.conf configuration parameters
 
 =cut
 
@@ -59,6 +60,7 @@ use Readonly;
 use Date::Parse;
 use File::Basename qw(basename);
 use Log::Log4perl;
+use Try::Tiny;
 
 use constant INSTALL_DIR => '/usr/local/pf';
 
@@ -67,9 +69,15 @@ use lib INSTALL_DIR . "/lib";
 use pf::config;
 use pf::util;
 use pf::pfcmd;
+use pf::SwitchFactory;
 
 
 delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
+
+# Uncomment the following line to enable tracing in the grammar
+# Warning: doing so will break the web admin
+# TODO: this parameter should be exposed to the CLI
+#our $RD_TRACE = 1;
 
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger( basename($0) );
@@ -139,48 +147,56 @@ if ( defined $ENV{GATEWAY_INTERFACE} ) {
 my %cmd_tmp = pf::pfcmd::parseCommandLine( join(' ', @ARGV) );
 if (! exists($cmd_tmp{'grammar'})) {
     %cmd = %cmd_tmp;
+    # TODO minor refactoring: call method using exit( method() ) instead of appending an exit(1)
     my %commands = (
-        'class'           => sub { class();           exit(1); },
-        'config'          => sub { config();          exit(1); },
-        'configfiles'     => sub { configfiles();     exit(1); },
-        'fingerprint'     => sub { fingerprint();     exit(1); },
-        'graph'           => sub { graph();           exit(1); },
-        'help'            => sub { help();            exit(1); },
-        'history'         => sub { history();         exit(1); },
+        'class' => sub { class(); exit(1); },
+        'config' => sub { config(); exit(1); },
+        'configfiles' => sub { configfiles(); exit(1); },
+        'floatingnetworkdeviceconfig' => sub { floatingnetworkdeviceconfig(); exit(1); },
+        'fingerprint' => sub { fingerprint(); exit(1); },
+        'graph' => sub { graph(); exit(1); },
+        'help' => sub { help(); exit(1); },
+        'history' => sub { history(); exit(1); },
         'ifoctetshistorymac' => sub { ifoctetshistorymac(); exit(1); },
         'ifoctetshistoryswitch' => sub { ifoctetshistoryswitch(); exit(1); },
         'ifoctetshistoryuser' => sub { ifoctetshistoryuser(); exit(1); },
         'interfaceconfig' => sub { interfaceconfig(); exit(1); },
-        'ipmachistory'    => sub { ipmachistory();    exit(1); },
-        'locationhistorymac' => sub { locationhistorymac();  exit(1); },
-        'locationhistoryswitch' => sub { locationhistoryswitch();  exit(1); },
-        'lookup'          => sub { lookup();          exit(1); },
-        'manage'          => sub { manage();          exit(1); },
-        'networkconfig'   => sub { networkconfig();   exit(1); },
-        'node'            => sub { require pf::node; 
-                                   import pf::node;
-                                   command_param('node');
-                                                      exit(1); },
-        'nodecategory'    => sub { nodecategory();    exit(1); },
-        'person'          => sub { require pf::person; 
-                                   import pf::person;
-                                   command_param('person');
-                                                      exit(1); },
-        'reload'          => sub { reload();          exit(1); },
-        'report'          => sub { report();          exit(1); },
-        'schedule'        => sub { schedule();        exit(1); },
-        'service'         => sub { exit service();             },
-        'switchconfig'    => sub { switchconfig();    exit(1); },
-        'switchlocation'  => sub { switchlocation();  exit(1); },
-        'traplog'         => sub { traplog();         exit(1); },
-        'trigger'         => sub { trigger();         exit(1); },
-        'ui'              => sub { ui();              exit(1); },
-        'update'          => sub { update();          exit(1); },
-        'version'         => sub { version();         exit(1); },
-        'violation'       => sub { require pf::violation; 
-                                   import pf::violation;
-                                   command_param('violation');
-                                                      exit(1); },
+        'ipmachistory' => sub { ipmachistory(); exit(1); },
+        'locationhistorymac' => sub { locationhistorymac(); exit(1); },
+        'locationhistoryswitch' => sub { locationhistoryswitch(); exit(1); },
+        'lookup' => sub { lookup(); exit(1); },
+        'manage' => sub { manage(); exit(1); },
+        'networkconfig' => sub { networkconfig(); exit(1); },
+        'node' => sub {
+            require pf::node; 
+            import pf::node;
+            command_param('node');
+            exit(1);
+        },
+        'nodecategory' => sub { nodecategory(); exit(1); },
+        'person' => sub { 
+            require pf::person; 
+            import pf::person;
+            command_param('person');
+            exit(1);
+        },
+        'reload' => sub { reload(); exit(1); },
+        'report' => sub { report(); exit(1); },
+        'schedule' => sub { schedule(); exit(1); },
+        'service' => sub { exit service(); },
+        'switchconfig' => sub { switchconfig(); exit(1); },
+        'switchlocation' => sub { switchlocation(); exit(1); },
+        'traplog' => sub { traplog(); exit(1); },
+        'trigger' => sub { trigger(); exit(1); },
+        'ui' => sub { ui(); exit(1); },
+        'update' => sub { update(); exit(1); },
+        'version' => sub { version(); exit(1); },
+        'violation' => sub {
+            require pf::violation; 
+            import pf::violation;
+            command_param('violation');
+            exit(1);
+        },
         'violationconfig' => sub { violationconfig(); exit(1); },
     );
     if ( $commands{ $cmd{'command'}[0] } ) {
@@ -191,6 +207,12 @@ if (! exists($cmd_tmp{'grammar'})) {
 
 } else {
     if ($cmd_tmp{'grammar'} == 0) {
+
+        # if argument list is not empty then it's a command not understood
+        if (@ARGV) {
+            # line number is a hack for web admin error output
+            print STDERR "Command not understood. (pfcmd grammar test failed at line ".__LINE__.".)\n";
+        }
         require pf::pfcmd::help;
         pf::pfcmd::help::usage();
         exit(1);
@@ -216,9 +238,14 @@ if ( lc($command) eq 'person' ) {
     import pf::violation;
     command_param($command);
 } else {
-    (   $main::{ ${ $cmd{'command'} }[0] }
-            or sub { print "No such sub: $_\n" }
-    )->();
+    # calling a function looked up dynamically: first test coderef existence
+    if (!exists(&{$main::{$command}})) {
+        print "No such sub: $command at line ".__LINE__.".\n";
+    } else {
+        # then execute main::$command sub
+        $logger->debug("executing sub " . $command . "()");
+        &{$main::{$command}}();
+    }
 }
 
 # END MAIN
@@ -338,12 +365,45 @@ sub ifoctetshistoryuser {
 sub nodecategory {
     require pf::nodecategory;
     import pf::nodecategory;
-    my $cat = $cmd{'command'}[2];
-    if ( $cat eq 'all' ) {
-        exit( print_results("nodecategory_view_all") );
-    } else {
-        exit( print_results( "nodecategory_view", $cat ) );
-    }
+    my $sub_cmd = $cmd{'nodecategory_options'}[0];
+    my $id = $cmd{'nodecategory_options'}[1];
+
+    if ($sub_cmd eq 'view') {
+
+        if ($id eq 'all') {
+            exit(print_results("nodecategory_view_all"));
+
+        } else {
+            exit(print_results("nodecategory_view", $id));
+        }
+
+    } elsif ($sub_cmd eq 'add') {
+
+        my %params = format_assignment(@{$cmd{'nodecategory_assignment'}});
+        try {
+            nodecategory_add(%params);
+        } catch {
+            $logger->logcarp("$_");
+        }
+ 
+    } elsif ($sub_cmd eq 'edit') {
+
+        my %params = format_assignment(@{$cmd{'nodecategory_assignment'}});
+        try {
+            nodecategory_modify($id, %params);
+        } catch {
+            $logger->logcarp("$_");
+        }
+ 
+    } elsif ($sub_cmd eq 'delete') {
+
+        try {
+            nodecategory_delete($id);
+        } catch {
+            $logger->logcarp("$_");
+        }
+    } 
+    return 1;
 }
 
 sub switchlocation {
@@ -384,8 +444,10 @@ sub violationconfig {
                 $violations_conf{$section}{$key} =~ s/\s+$//;
             }
         }
-        my @columns
-            = qw(desc disable auto_enable actions max_enable grace priority url button_text trigger vlan);
+        # TODO columns should be auto-detected a la conf/ui.conf
+        my @columns = qw(desc disable auto_enable actions max_enable grace priority url button_text trigger vlan 
+                whitelisted_categories
+        );
         print "vid|" . join( "|", @columns ) . "\n";
         foreach my $section ( keys %violations_conf ) {
             if (   ( $cmd{'command'}[2] eq 'all' )
@@ -408,7 +470,7 @@ sub violationconfig {
             =~ /^(default|all|1100001|1100004|1100005|1100009|1100010|1200001|1200003)$/
             )
         {
-            print "This violation can't be deleted\n";
+            print "This violation can't be deleted (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         } else {
             if ( tied(%violations_conf)->SectionExists($section) ) {
@@ -419,7 +481,7 @@ sub violationconfig {
                 import pf::configfile;
                 configfile_import( $conf_dir . "/violations.conf" );
             } else {
-                print "Unknown violation $section!\n";
+                print "Unknown violation $section! (Error at line ".__LINE__." in pfcmd)\n";
                 exit;
             }
         }
@@ -465,7 +527,7 @@ sub violationconfig {
             import pf::configfile;
             configfile_import( $conf_dir . "/violations.conf" );
         } else {
-            print "Unknown violation $section!\n";
+            print "Unknown violation $section! (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         }
     } elsif ( $mode eq 'add' ) {
@@ -488,7 +550,118 @@ sub violationconfig {
             import pf::configfile;
             configfile_import( $conf_dir . "/violations.conf" );
         } else {
-            print "Violation $section already exists!\n";
+            print "Violation $section already exists! (Error at line ".__LINE__." in pfcmd)\n";
+            exit;
+        }
+    }
+}
+
+sub floatingnetworkdeviceconfig {
+    require Config::IniFiles;
+    my $configFile = $floating_devices_file;
+    my %floatingnetworkdevice_conf;
+
+    tie %floatingnetworkdevice_conf, 'Config::IniFiles', ( -file => $configFile, -allowempty => 1 );
+    my @errors = @Config::IniFiles::errors;
+    if ( scalar(@errors) ) {
+        $logger->error("Error reading $configFile: " . join( "\n", @errors ) . "\n" );
+        return 0;
+    }
+
+    my $mode;
+    if ( scalar( @{ $cmd{'command'} } ) == 1 ) {
+        if ( exists( $cmd{'floatingnetworkdeviceconfig_options'} ) ) {
+            $mode = $cmd{'floatingnetworkdeviceconfig_options'}[0];
+        }
+    } else {
+        $mode = $cmd{'command'}[1];
+    }
+
+    if ( $mode eq 'get' ) {
+        foreach my $section ( tied(%floatingnetworkdevice_conf)->Sections ) {
+            foreach my $key ( keys %{ $floatingnetworkdevice_conf{$section} } ) {
+                $floatingnetworkdevice_conf{$section}{$key} =~ s/\s+$//;
+            }
+        }
+
+        my @sections_tmp = keys %floatingnetworkdevice_conf;
+        my @sections = map substr( $_, 4 ) => sort map pack( 'C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/ ) 
+            . $_ => @sections_tmp;
+        my @columns = qw(ip trunkPort pvid taggedVlan);
+        print "floatingnetworkdevice|" . join( "|", @columns ) . "\n";
+        foreach my $section (@sections) {
+            if (   ( $cmd{'command'}[2] eq 'all' )
+                || ( $cmd{'command'}[2] eq $section ) )
+            {
+                my @values;
+                foreach my $column (@columns) {
+                    push @values, ( $floatingnetworkdevice_conf{$section}{$column} || '' );
+                }
+                print $section . '|' . join( "|", @values ) . "\n";
+            }
+        }
+
+    } elsif ( $mode eq 'delete' ) {
+        my $section = $cmd{'command'}[2];
+        if ( $section =~ /^(all|stub)$/ ) {
+            print "This floating network device can't be deleted. (Error at line ".__LINE__." in pfcmd)\n";
+            exit;
+        } else {
+            if ( tied(%floatingnetworkdevice_conf)->SectionExists($section) ) {
+                tied(%floatingnetworkdevice_conf)->DeleteSection($section);
+                my $tied_floatingnetworkdevice = tied(%floatingnetworkdevice_conf);
+                $tied_floatingnetworkdevice->WriteConfig($configFile)
+                    or $logger->logdie("Unable to write config to $configFile. "
+                                  ."You might want to check the file's permissions. (see pfcmd)"); # web ui hack
+                require pf::configfile;
+                import pf::configfile;
+                configfile_import($configFile);
+            } else {
+                print "Unknown floating network device $section! (Error at line ".__LINE__." in pfcmd)\n";
+                exit;
+            }
+        }
+    } elsif ( $mode eq 'edit' ) {
+        my $section     = $cmd{'floatingnetworkdeviceconfig_options'}[1];
+        my @assignments = @{ $cmd{'floatingnetworkdeviceconfig_assignment'} };
+        if ( tied(%floatingnetworkdevice_conf)->SectionExists($section) ) {
+            foreach my $assignment (@assignments) {
+                my ( $param, $value ) = @$assignment;
+                if ( defined( $floatingnetworkdevice_conf{$section}{$param} ) ) {
+                    tied(%floatingnetworkdevice_conf)->setval( $section, $param, $value );
+                } else {
+                    tied(%floatingnetworkdevice_conf)->newval( $section, $param, $value );
+                }
+            }
+            my $tied_floatingnetworkdevice = tied(%floatingnetworkdevice_conf);
+            $tied_floatingnetworkdevice->WriteConfig($configFile)
+                or $logger->logdie("Unable to write config to $configFile. "
+                                  ."You might want to check the file's permissions. (see pfcmd)"); # web ui hack
+            require pf::configfile;
+            import pf::configfile;
+            configfile_import($configFile);
+        } else {
+            print "Unknown floating network device $section! (Error at line ".__LINE__." in pfcmd)\n";
+            exit;
+        }
+    } elsif ( $mode eq 'add' ) {
+        my $section     = $cmd{'floatingnetworkdeviceconfig_options'}[1];
+        my @assignments = @{ $cmd{'floatingnetworkdeviceconfig_assignment'} };
+        if ( !( tied(%floatingnetworkdevice_conf)->SectionExists($section) ) ) {
+            foreach my $assignment (@assignments) {
+                tied(%floatingnetworkdevice_conf)->AddSection($section);
+                my ( $param, $value ) = @$assignment;
+                tied(%floatingnetworkdevice_conf)->newval( $section, $param, $value );
+            }
+            my $tied_floatingnetworkdevice = tied(%floatingnetworkdevice_conf);
+            $tied_floatingnetworkdevice->WriteConfig($configFile)
+                or $logger->logdie("Unable to write config to $configFile. "
+                                  ."You might want to check the file's permissions. (see pfcmd)"); # web ui hack
+            require pf::configfile;
+            import pf::configfile;
+            configfile_import($configFile);
+        } else {
+            print "Floating network device $section already exists! (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         }
     }
@@ -497,12 +670,10 @@ sub violationconfig {
 sub networkconfig {
     require Config::IniFiles;
     my %network_conf;
-    tie %network_conf, 'Config::IniFiles',
-        ( -file => "$conf_dir/networks.conf", -allowempty => 1 );
+    tie %network_conf, 'Config::IniFiles', ( -file => "$conf_dir/networks.conf", -allowempty => 1 );
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {
-        $logger->error(
-            "Error reading networks.conf: " . join( "\n", @errors ) . "\n" );
+        $logger->error("Error reading networks.conf: " . join( "\n", @errors ) . "\n" );
         return 0;
     }
 
@@ -524,13 +695,12 @@ sub networkconfig {
 
         #sort the networks (http://www.sysarch.com/Perl/sort_paper.html)
         my @sections_tmp = keys %network_conf;
-        my @sections
-            = map substr( $_, 4 ) => sort
-            map pack( 'C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/ )
+        my @sections = map substr( $_, 4 ) => sort map pack( 'C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/ ) 
             . $_ => @sections_tmp;
 
         my @columns
-            = qw(type netmask gateway pf_gateway named dhcpd domain-name dns dhcp_start dhcp_end dhcp_default_lease_time dhcp_max_lease_time);
+            = qw(type netmask gateway pf_gateway named dhcpd domain-name dns dhcp_start dhcp_end dhcp_default_lease_time
+                 dhcp_max_lease_time);
         print "network|" . join( "|", @columns ) . "\n";
         foreach my $section (@sections) {
             if (   ( $cmd{'command'}[2] eq 'all' )
@@ -546,18 +716,20 @@ sub networkconfig {
     } elsif ( $mode eq 'delete' ) {
         my $section = $cmd{'command'}[2];
         if ( $section eq 'all' ) {
-            print "This network can't be deleted\n";
+            print "This network can't be deleted (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         } else {
             if ( tied(%network_conf)->SectionExists($section) ) {
                 tied(%network_conf)->DeleteSection($section);
-                tied(%network_conf)
-                    ->WriteConfig( $conf_dir . "/networks.conf" );
+                my $tied_network = tied(%network_conf);
+                $tied_network->WriteConfig($conf_dir . "/networks.conf")
+                    or $logger->logdie("Unable to write config to $conf_dir/networks.conf. "
+                                      ."You might want to check the file's permissions. (see pfcmd)"); # web ui hack
                 require pf::configfile;
                 import pf::configfile;
                 configfile_import( $conf_dir . "/networks.conf" );
             } else {
-                print "Unknown network $section!\n";
+                print "Unknown network $section! (Error at line ".__LINE__." in pfcmd)\n";
                 exit;
             }
         }
@@ -573,12 +745,15 @@ sub networkconfig {
                     tied(%network_conf)->newval( $section, $param, $value );
                 }
             }
-            tied(%network_conf)->WriteConfig( $conf_dir . "/networks.conf" );
+            my $tied_network = tied(%network_conf);
+            $tied_network->WriteConfig($conf_dir . "/networks.conf")
+                or $logger->logdie("Unable to write config to $conf_dir/networks.conf. "
+                                  ."You might want to check the file's permissions. (see pfcmd)"); # web ui hack
             require pf::configfile;
             import pf::configfile;
             configfile_import( $conf_dir . "/networks.conf" );
         } else {
-            print "Unknown network $section!\n";
+            print "Unknown network $section! (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         }
     } elsif ( $mode eq 'add' ) {
@@ -590,12 +765,15 @@ sub networkconfig {
                 my ( $param, $value ) = @$assignment;
                 tied(%network_conf)->newval( $section, $param, $value );
             }
-            tied(%network_conf)->WriteConfig( $conf_dir . "/networks.conf" );
+            my $tied_network = tied(%network_conf);
+            $tied_network->WriteConfig($conf_dir . "/networks.conf")
+                or $logger->logdie("Unable to write config to $conf_dir/networks.conf. "
+                                  ."You might want to check the file's permissions. (see pfcmd)"); # web ui hack
             require pf::configfile;
             import pf::configfile;
             configfile_import( $conf_dir . "/networks.conf" );
         } else {
-            print "Network $section already exists!\n";
+            print "Network $section already exists! (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         }
     }
@@ -647,7 +825,7 @@ sub interfaceconfig {
         my $section      = $cmd{'command'}[2];
         my $section_name = "interface $section";
         if ( $section eq 'all' ) {
-            print "This interface can't be deleted\n";
+            print "This interface can't be deleted (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         } else {
             if ( tied(%pf_conf)->SectionExists($section_name) ) {
@@ -657,7 +835,7 @@ sub interfaceconfig {
                 import pf::configfile;
                 configfile_import( $conf_dir . "/pf.conf" );
             } else {
-                print "Unknown interface $section!\n";
+                print "Unknown interface $section! (Error at line ".__LINE__." in pfcmd)\n";
                 exit;
             }
         }
@@ -679,7 +857,7 @@ sub interfaceconfig {
             import pf::configfile;
             configfile_import( $conf_dir . "/pf.conf" );
         } else {
-            print "Unknown interface $section!\n";
+            print "Unknown interface $section! (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         }
     } elsif ( $mode eq 'add' ) {
@@ -697,7 +875,7 @@ sub interfaceconfig {
             import pf::configfile;
             configfile_import( $conf_dir . "/pf.conf" );
         } else {
-            print "Interface $section already exists!\n";
+            print "Interface $section already exists! (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         }
     }
@@ -732,7 +910,7 @@ sub switchconfig {
         }
         #TODO: information duplicated from ui.conf, consider refactoring (what do we do elsewhere?)
         my @columns
-            = qw(ip type mode vlans normalVlan registrationVlan isolationVlan macDetectionVlan VoIPEnabled voiceVlan uplink cliTransport cliUser cliPwd cliEnablePwd SNMPVersionTrap SNMPCommunityTrap SNMPUserNameTrap SNMPAuthProtocolTrap SNMPAuthPasswordTrap SNMPPrivProtocolTrap SNMPPrivPasswordTrap SNMPVersion SNMPCommunityRead SNMPCommunityWrite SNMPEngineID SNMPUserNameRead SNMPAuthProtocolRead SNMPAuthPasswordRead SNMPPrivProtocolRead SNMPPrivPasswordRead SNMPUserNameWrite SNMPAuthProtocolWrite SNMPAuthPasswordWrite SNMPPrivProtocolWrite SNMPPrivPasswordWrite macSearchesMaxNb macSearchesSleepInterval);
+            = qw(ip type mode vlans normalVlan registrationVlan isolationVlan macDetectionVlan guestVlan customVlan1 customVlan2 customVlan3 customVlan4 customVlan5 VoIPEnabled voiceVlan uplink cliTransport cliUser cliPwd cliEnablePwd SNMPVersionTrap SNMPCommunityTrap SNMPUserNameTrap SNMPAuthProtocolTrap SNMPAuthPasswordTrap SNMPPrivProtocolTrap SNMPPrivPasswordTrap SNMPVersion SNMPCommunityRead SNMPCommunityWrite SNMPEngineID SNMPUserNameRead SNMPAuthProtocolRead SNMPAuthPasswordRead SNMPPrivProtocolRead SNMPPrivPasswordRead SNMPUserNameWrite SNMPAuthProtocolWrite SNMPAuthPasswordWrite SNMPPrivProtocolWrite SNMPPrivPasswordWrite macSearchesMaxNb macSearchesSleepInterval);
         print join( "|", @columns ) . "\n";
 
         #sort the switches (http://www.sysarch.com/Perl/sort_paper.html)
@@ -766,18 +944,20 @@ sub switchconfig {
     } elsif ( $mode eq 'delete' ) {
         my $section = $cmd{'command'}[2];
         if ( $section =~ /^(default|all|127.0.0.1)$/ ) {
-            print "This switch can't be deleted\n";
+            print "This switch can't be deleted (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         } else {
             if ( tied(%switches_conf)->SectionExists($section) ) {
                 tied(%switches_conf)->DeleteSection($section);
-                tied(%switches_conf)
-                    ->WriteConfig( $conf_dir . "/switches.conf" );
+                my $tied_switch = tied(%switches_conf);
+                $tied_switch->WriteConfig($conf_dir . "/switches.conf")
+                    or $logger->logdie("Unable to write config to $conf_dir/switches.conf. "
+                        ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # hack
                 require pf::configfile;
                 import pf::configfile;
                 configfile_import( $conf_dir . "/switches.conf" );
             } else {
-                print "Unknown switch $section!\n";
+                print "Unknown switch $section! (Error at line ".__LINE__." in pfcmd)\n";
                 exit;
             }
         }
@@ -815,12 +995,15 @@ sub switchconfig {
                     }
                 }
             }
-            tied(%switches_conf)->WriteConfig( $conf_dir . "/switches.conf" );
+            my $tied_switch = tied(%switches_conf);
+            $tied_switch->WriteConfig($conf_dir . "/switches.conf")
+                or $logger->logdie("Unable to write config to $conf_dir/switches.conf. "
+                    ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
             import pf::configfile;
             configfile_import( $conf_dir . "/switches.conf" );
         } else {
-            print "Unknown switch $section!\n";
+            print "Unknown switch $section! (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         }
     } elsif ( $mode eq 'add' ) {
@@ -836,12 +1019,15 @@ sub switchconfig {
                     tied(%switches_conf)->newval( $section, $param, $value );
                 }
             }
-            tied(%switches_conf)->WriteConfig( $conf_dir . "/switches.conf" );
+            my $tied_switch = tied(%switches_conf);
+            $tied_switch->WriteConfig($conf_dir . "/switches.conf")
+                or $logger->logdie("Unable to write config to $conf_dir/switches.conf. "
+                    ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
             import pf::configfile;
             configfile_import( $conf_dir . "/switches.conf" );
         } else {
-            print "Switch $section already exists!\n";
+            print "Switch $section already exists! (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         }
     }
@@ -1143,11 +1329,8 @@ sub version {
     close($pfrelease_fh);
     print $release;
 
-    my $md5sum = (
-        split(
-            /\s+/,
-            `/usr/bin/mysqldump -n -d --host=$Config{'database'}{'host'} --port=$Config{'database'}{'port'} -n -d -u $Config{'database'}{'user'} -p'$Config{'database'}{'pass'}' $Config{'database'}{'db'} | egrep -v '(^/|^\$|^--|^DROP)'|md5sum`
-        )
+    my $md5sum = ( split(
+         /\s+/, `/usr/bin/mysqldump -n -d --host=$Config{'database'}{'host'} --port=$Config{'database'}{'port'} -n -d -u $Config{'database'}{'user'} -p'$Config{'database'}{'pass'}' $Config{'database'}{'db'} | egrep -v '(^/|^\$|^--|^DROP)'| sed 's/\\sAUTO_INCREMENT=[0-9]*\\b//'|md5sum`)
     )[0];
     print "DB MD5SUM: $md5sum\n";
 }
@@ -1400,6 +1583,7 @@ sub configfiles {
         configfile_import( $conf_dir . '/violations.conf' );
         configfile_import( $conf_dir . '/networks.conf' );
         configfile_import( $conf_dir . '/ui.conf' );
+        configfile_import( $conf_dir . '/floating_network_device.conf' );
     } elsif ( $option eq "pull" ) {
         configfile_export( $conf_dir . '/pf.conf' );
         configfile_export( $conf_dir . '/log.conf' );
@@ -1407,6 +1591,7 @@ sub configfiles {
         configfile_export( $conf_dir . '/violations.conf' );
         configfile_export( $conf_dir . '/networks.conf' );
         configfile_export( $conf_dir . '/ui.conf' );
+        configfile_export( $conf_dir . '/floating_network_device.conf' );
     }
     exit;
 }
@@ -1715,9 +1900,14 @@ sub command_param {
     #print Dumper(%params);
     # run update/or delete  and check return val
     if ( $function eq "violation_add" ) {
-        $logger->info( "pfcmd calling $function for " . $params{mac} );
-        ( $main::{$function} or sub { print "No such sub: $_\n" } )
-            ->( $params{mac}, $params{vid}, %params );
+        # test coderef existence
+        if (!exists(&{$main::{$function}})) {
+            print "No such sub: $function at line ".__LINE__.".\n";
+        } else {
+            # execute coderef main::$function sub
+            $logger->info( "pfcmd calling $function for " . $params{mac} );
+            &{$main::{$function}}($params{mac}, $params{vid}, %params);
+        }
     } else {
         if ( $function eq "violation_delete" ) {
             my @violation_data = violation_view($id);
@@ -1736,10 +1926,15 @@ sub command_param {
                 }
             }
         }
-        $logger->info("pfcmd calling $function for $id");
-        $returnValue
-            = ( $main::{$function} or sub { print "No such sub: $_\n" } )
-            ->( $id, %params );
+        # test coderef existence
+        if (!exists(&{$main::{$function}})) {
+            print "No such sub: $function at line ".__LINE__.".\n";
+        } else {
+
+            # execute coderef main::$function sub
+            $logger->info("pfcmd calling $function for $id");
+            $returnValue = &{$main::{$function}}($id, %params);
+        }
     }
     if ( $returnValue != 2 ) {
 
@@ -1750,8 +1945,10 @@ sub command_param {
             );
         } else {
             if ( ($function =~ /^node_delete$/) and ($returnValue == 0) ) {
-                print "Cannot delete this node since there are some records in locationlog table indicating that this node might still be connected and active on the network (pfcmd line 1824.)";
-                exit;
+                $logger->logdie("Cannot delete this node since there are some records in locationlog table "
+                    . "indicating that this node might still be connected and active on the network "
+                    . "(pfcmd line ".__LINE__.".)"
+                );
             }
             if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
                 require pf::iptables;
@@ -1781,11 +1978,13 @@ sub print_results {
     my ( $function, $key, %params ) = @_;
     my $total;
     my @results;
+    # calling a function looked up dynamically: first test coderef existence
     my $functionName = "main::$function";
     if ( !defined(&$functionName) ) {
-        print "No such sub $function\n";
+        print "No such sub $function at line ". __LINE__ .".\n";
     } else {
-        @results = ( $main::{$function} )->( $key, %params );
+        # then execute the method (looking up using main::..)
+        @results = &{$main::{$function}}($key, %params);
     }
     $total = scalar(@results);
     if ($count) {
@@ -2511,7 +2710,8 @@ sub sanity_check {
                 );
         foreach my $item  (keys %{$Config{$section}}) {
             if ( !defined( $documentation{"$section.$item"} ) ) {
-                $logger->logdie("unknown configuration parameter $section.$item");
+                $logger->logdie("unknown configuration parameter $section.$item ".
+                    "if you added the parameter yourself make sure it is present in conf/documentation.conf");
             }
         }
     }
@@ -2551,10 +2751,16 @@ sub generate_switchport_vlan_assignment {
             $logger->info(
                 "$mac is currentlog connected at $switch_ip ifIndex $ifIndex in VLAN $currentVlan"
             );
+
             my $vlan_obj = new pf::vlan::custom();
-            my $newCorrectVlan
-                = $vlan_obj->vlan_determine_for_node( $mac, $switch_ip,
-                $ifIndex );
+            my $switchFactory = new pf::SwitchFactory(-configFile => "$conf_dir/switches.conf");
+            my $switch = $switchFactory->instantiate($switch_ip);
+            if (!$switch) {
+                $logger->error("Can not instantiate switch $switch_ip ! Won't change VLAN");
+                return 0;
+            }
+
+            my $newCorrectVlan = $vlan_obj->vlan_determine_for_node($mac, $switch, $ifIndex);
             if ( $newCorrectVlan eq "-1" ) {
                 $logger->error("unable to determine correct VLAN for $mac");
             } else {
@@ -2589,13 +2795,15 @@ Dominik Gehl <dgehl@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
+Regis Balzard <rbalzard@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2008-2009 Inverse inc.
+Copyright (C) 2008-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

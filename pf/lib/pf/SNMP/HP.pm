@@ -377,8 +377,8 @@ sub isStaticPortSecurityEnabled {
     return $this->isPortSecurityEnabled($ifIndex);
 }
 
-sub setPortSecurityDisabled {
-    my ( $this, $ifIndex ) = @_;
+sub setPortSecurityEnableByIfIndex {
+    my ( $this, $ifIndex, $trueFalse ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     $logger->info("function not implemented yet");

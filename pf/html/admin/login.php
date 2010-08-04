@@ -31,14 +31,23 @@ function check_sensitive_input($input){
 
 // First we try to authenticate users through LDAP if LDAP config file is there
 // if the LDAP config file is not defined or if the LDAP auth fails then we authenticate through the local file
+# TODO: have a better integration of admin auth parameters in config files or admin interface
 function validate_user($user,$pass,$hash='') {
     $result = false;
 
+    # standard ldap auth mechanism
     $result = validate_user_ldap($user,$pass,$hash);
 
     if (!$result) {
         $result = validate_user_flat_file($user,$pass,$hash);
     }
+
+    # alternative way to do ldap auth: if username exist in local config then validate against ldap
+    # allows admins to better control who has access without needing to involve their AD teams
+    # localuser+ldappass
+    #if (validate_user_present_in_flat_file($user)) {
+    #  $result = validate_user_ldap($user,$pass,$hash);
+    #}
 
     return $result;
 }
@@ -56,6 +65,11 @@ function validate_user_ldap($user,$pass,$hash='') {
   if (!$ldap) {
     return false;
   }
+
+  # We may have to set these 2 options
+  #ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
+  #ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
+
   $bind = ldap_bind($ldap, $ldap_bind_dn, $ldap_bind_pwd);
   if (!$bind) {
     return false;
@@ -66,15 +80,38 @@ function validate_user_ldap($user,$pass,$hash='') {
     $filter="$ldap_user_key=$user";
   }
 
-  # We may need these 2 options
-  #ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
-  #ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
-
+  # Here we look only into one DN ($ldap_user_base)
   $result = ldap_search($ldap, $ldap_user_base, $filter, array("dn"));
   $info = ldap_get_entries($ldap, $result);
   if (!$result) {
     return false;
   }
+
+  # If we want to search in more than one DN (multiple DNs):
+#  $dn[]=$ldap_user_base;
+#  $dn[]=$ldap_user_base2;
+#  $dn[]=$ldap_user_base3;
+#
+#  $id[] = $ldap;
+#  $id[] = $ldap;
+#  $id[] = $ldap;
+#
+#  $result = ldap_search($id, $dn, $filter, array("dn"));
+#  $search = false;
+#
+#  foreach ($result as $value) {
+#    if (ldap_count_entries($ldap, $value) > 0) {
+#      $search = $value;
+#      break;
+#    }
+#  }
+#
+#  if ($search) {
+#    $info = ldap_get_entries($ldap, $search);
+#  } else {
+#    return false;
+#  }
+
   if ($info["count"] != 1) {
     return false;
   }
@@ -84,6 +121,18 @@ function validate_user_ldap($user,$pass,$hash='') {
     return false;
   }
   return md5($pass);
+}
+
+function validate_user_present_in_flat_file($user){
+  $file = file(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/conf/admin.conf');
+  foreach($file as $line){
+    $line = rtrim($line);
+    $info = explode(":", $line);
+    if ($user == $info[0]) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function validate_user_flat_file($user, $pass, $hash = ''){
@@ -185,7 +234,7 @@ else {
 <table id="main" style="width: 100%;" cellpadding="0" cellspacing="0">
   <tbody><tr colspan="2">
     <td valign="top">
-      <a href="https://localhost:1443/index.php"><img src="/common/packetfence.png" alt="[ Packetfence ]" align="right" border="0" height="60" width="193"></a>
+      <a href="index.php"><img src="/common/packetfence.png" alt="[ Packetfence ]" align="right" border="0" height="60" width="193"></a>
     </td>
   </tr>
   <tr colspan="2">

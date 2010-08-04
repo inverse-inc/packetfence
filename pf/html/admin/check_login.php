@@ -10,6 +10,7 @@
   $timeout = 3600;  // session timeout in seconds
   $abs_url="https://$HTTP_SERVER_VARS[HTTP_HOST]";
 
+  require_once 'common/helpers.inc';
   require_once 'common/adminperm.inc';
   require_once 'Log.php';
   $logger_file = &Log::factory('file', '/usr/local/pf/logs/admin_debug_log');
@@ -98,6 +99,9 @@
         }
       }
     }
+
+    ## Node Categories Caching
+    nodecategory_caching();
 
     ## UI Pref Caching
     if(file_exists(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/users/" . $_SESSION['user'])){

@@ -99,6 +99,7 @@ my %oses = (
 my @suids = ( "$install_dir/bin/pfcmd" );
 
 my %schemas = (
+    "31cb9ab04794b21ecfe5a14d69d2dc8b" => "1.9.0",
     "a3ad9f52b7d31c8d4b5e9b0c2c3dd559" => "1.8.6",
     "55ec69a0e574dac8eada8b65a8cbd4f5" => "1.8.4",
     "de911c990735fd5a6339830830010368" => "1.8.3",
@@ -180,7 +181,7 @@ if ( !`/usr/bin/getent passwd | grep "^pf:"` ) {
 }
 
 if (questioner(
-        "PacketFence requires a MySQL server as a backend.  Would you like to create the database now?",
+        "PacketFence requires a MySQL server as a backend.  Would you like to create or verify the database now?",
         "y",
         ( "y", "n" )
     )
@@ -220,75 +221,22 @@ if (questioner(
         );
     } while ($denied);
 
-    # build database
-    my $dropped  = 1;
-    my $upgraded = 0;
-    my $unknown  = 0;
+    my $exists = 0;
 
     if (`echo "use $mysql_db"|mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' 2>&1`
-        !~ /Unknown database/ )
-    {
-        my $md5sum = (
-            split(
-                /\s+/,
-                `/usr/bin/mysqldump --host=$mysql_host --port=$mysql_port -n -d -u $mysqlAdminUser -p'$mysqlAdminPass' $mysql_db|egrep -v '^(\/|\$|--|DROP)'|md5sum`
-            )
-        )[0];
-        #print "current database md5sum is $md5sum\n";
-        if ( !$schemas{$md5sum} ) {
-            print
-                "Unable to determine current schema version!  If you're running a beta release, you'll need to manually update it.\n";
-            $unknown = 1;
-        } else {
-            my $schema_version = $schemas{$md5sum};
-            if ( $schema_version ne '1.8.6' ) {
-                if (questioner(
-                        "PF database already exists - do you want to upgrade it?",
-                        "y",
-                        ( "y", "n" )
-                    )
-                    )
-                {
-                    # TODO: if upgrading from an old version, this will always fail
-                    # what we should do here is replay all the upgrade script from $schema_version
-                    my $update_script
-                        = "$install_dir/db/upgrade-$schema_version-1.8.6.sql";
-                    if ( -e $update_script ) {
-                        `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' $mysql_db < $update_script`;
-                        $upgraded = 1;
-                    } else {
-                        die
-                            "Unable to locate SQL update script for $schema_version -> 1.8.6!\n";
-                    }
-                } elsif (
-                    questioner(
-                        "PF database already exists - do you want to delete it?",
-                        "y",
-                        ( "y", "n" )
-                    )
-                    )
-                {
-                    `echo "y" | /usr/bin/mysqladmin --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' drop $mysql_db`;
-                } else {
-                    print
-                        "  ** NOTE: EXISTING DATABASE MAY NOT BE COMPATIBLE WITH THIS SCHEMA **\n";
-                    $dropped = 0;
-                }
-            } else {
-                $upgraded = 1;
-            }
-        }
+        !~ /Unknown database/ ) {
+
+        print "\n";
+        print "PF database already exists - If you are upgrading your installation make sure you read the UPGRADE "
+            . "document to be aware of changes affecting your upgrade and instructions to ugprade your database "
+            . "(if required).\n";
+        print "\n";
+        $exists = 1;
     }
 
-    if (   $dropped
-        && !$unknown
-        && !$upgraded
-        && questioner(
-            "PF needs to create the PF database - is that ok?",
-            "y", ( "y", "n" )
-        )
-        )
-    {
+    if (!$exists && questioner("PF needs to create the PF database - is that ok?", "y", ("y", "n"))) {
+
+        # create the database
         `/usr/bin/mysqladmin --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' create $mysql_db`;
         print "  Loading schema\n";
         if ( -e "$install_dir/db/pfschema.mysql" ) {
@@ -532,7 +480,7 @@ Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2007-2009 Inverse inc.
+Copyright (C) 2007-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

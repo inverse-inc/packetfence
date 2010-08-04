@@ -33,9 +33,11 @@ in production to the calculated VLAN assignment.
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2007,2008 Inverse inc.
+Copyright (C) 2007,2008,2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -63,6 +65,7 @@ use DBI;
 use threads;
 use threads::shared;
 use Log::Log4perl qw(:easy);
+use Log::Log4perl::Appender::File; # HACK: compile tests failed on build env. without that
 use Getopt::Long;
 use Pod::Usage;
 use Thread::Pool;
@@ -207,13 +210,6 @@ sub recoverSwitch {
     my $switchDesc = shift();
     my $txt        = '';
     my $format     = "%-2.2s %7.7s %-7.7s %-7.7s %-7.7s %-20.20s %-20.20s\n";
-    my $mysql_connection = db_connect();
-    if ( !$mysql_connection ) {
-        return "unable to connect to database\n";
-    }
-    node_db_prepare($mysql_connection);
-    locationlog_db_prepare($mysql_connection);
-    violation_db_prepare($mysql_connection);
     my $switch = $switchFactory->instantiate($switchDesc);
     if (!$switch) {
         return "Can not instantiate switch $switchDesc\n";
@@ -300,9 +296,7 @@ sub recoverSwitch {
                 if ( scalar(@currentPcs) > 1 ) {
                     $correctVlan = $switch->{_isolationVlan};
                 } elsif ( scalar(@currentPcs) == 1 ) {
-                    $correctVlan
-                        = $vlan_obj->vlan_determine_for_node( $currentPcs[0],
-                        $switch->{_ip}, $currentIfIndex );
+                    $correctVlan = $vlan_obj->vlan_determine_for_node( $currentPcs[0], $switch, $currentIfIndex );
                     my $locationlog_entry
                         = locationlog_view_open_mac( $currentPcs[0] );
                     if ( !$locationlog_entry ) {

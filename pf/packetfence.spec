@@ -3,41 +3,37 @@
 # 
 # BUILDING FOR RELEASE
 # 
-# - source_release field should be set to a greater than 0 numeric value. Start with 1.
-#   If doing a package revision, change the 1 to a 2, etc.
-#
-# - Make sure that the correct Source: statement is uncommented
-#
 # - Create release tarball from monotone head, ex:
 # mtn --db ~/pf.mtn checkout --branch org.packetfence.1_8
 # cd org.packetfence.1_8/
 # tar czvf packetfence-1.8.5.tar.gz pf/
 # 
-# - Build (change dist based on target distro)
+# - Build
+#  - define dist based on target distro (for centos/rhel => .el5)
+#  - define source_release based on package revision (must be > 0 for proprer upgrade from snapshots)
+# ex:
 # cd /usr/src/redhat/
-# rpmbuild -ba --define 'dist .el5' SPECS/packetfence.spec
+# rpmbuild -ba --define 'dist .el5' --define 'source_release 1' SPECS/packetfence.spec
+#
 #
 # BUILDING FOR A SNAPSHOT (PRE-RELEASE)
 #
-# - source_release field should be set to 0.<date> this way one can upgrade from snapshot to release easily.
-# ex: 0.20091022
-#
-# - Make sure that the correct Source: statement is uncommented
-#
-# - Create release tarball from monotone head, ex:
+# - Create release tarball from monotone head. Specify 0.<date> in tarball, ex:
 # mtn --db ~/pf.mtn checkout --branch org.packetfence.1_8
 # cd org.packetfence.1_8/
 # tar czvf packetfence-1.8.5-0.20091023.tar.gz pf/
 #
-# - Build (change dist based on target distro)
+# - Build
+#  - define snapshot 1
+#  - define dist based on target distro (for centos/rhel => .el5)
+#  - define source_release to 0.<date> this way one can upgrade from snapshot to release
+# ex:
 # cd /usr/src/redhat/
-# rpmbuild -ba --define 'dist .el5' SPECS/packetfence.spec
+# rpmbuild -ba --define 'snapshot 1' --define 'dist .el5' --define 'source_release 0.20100506' SPECS/packetfence.spec
 #
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 1.8.7
-# Update here on each release/snapshot
-%define source_release 1
+Version: 1.9.1
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -49,14 +45,18 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{source_release}-root
 Packager: Inverse inc. <support@inverse.ca>
 Vendor: PacketFence, http://www.packetfence.org
 
-# for snapshot releases
-#Source: http://www.packetfence.org/downloads/%{name}-%{version}-%{source_release}.tar.gz
-# for official releases
+# if --define 'snapshot 1' not written when calling rpmbuild then we assume it is to package a release
+%define is_release %{?snapshot:0}%{!?snapshot:1}
+%if %{is_release}
+# used for official releases
 Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz
+%else
+# used for snapshot releases
+Source: http://www.packetfence.org/downloads/%{name}-%{version}-%{source_release}.tar.gz
+%endif
 
 BuildRequires: gettext, httpd
-# install follow dep with: yum install perl-Parse-RecDescent-1.94
-BuildRequires: perl-Parse-RecDescent = 1.94
+BuildRequires: perl(Parse::RecDescent)
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl, php, php-gd
@@ -65,7 +65,7 @@ Requires: php-pear-Log
 Requires: net-tools
 Requires: net-snmp >= 5.3.2.2
 Requires: mysql, perl-DBD-mysql
-Requires: perl >= 5.8.0, perl-suidperl
+Requires: perl >= 5.8.8, perl-suidperl
 Requires: perl-Apache-Htpasswd
 Requires: perl-Bit-Vector
 Requires: perl-CGI-Session
@@ -83,7 +83,8 @@ Requires: perl-IPTables-Parse
 Requires: perl-LDAP
 Requires: perl-libwww-perl
 Requires: perl-List-MoreUtils
-Requires: perl-Locale-gettext
+# Changed perl-Locale-gettext dependency to use the perl namespace version: perl(Locale-gettext), fixes #931
+Requires: perl(Locale::gettext)
 Requires: perl-Log-Log4perl >= 1.11
 Requires: perl-Net-Appliance-Session
 Requires: perl-Net-Frame, perl-Net-Frame-Simple
@@ -96,22 +97,25 @@ Requires: perl-Crypt-Rijndael
 Requires: perl-Net-Telnet
 Requires: perl-Net-Write
 Requires: perl-Parse-Nessus-NBE
-Requires: perl-Parse-RecDescent = 1.94
-Requires: perl-Readonly
+Requires: perl(Parse::RecDescent)
+# TODO: portability for non-x86 is questionnable for Readonly::XS
+Requires: perl-Readonly, perl(Readonly::XS)
 Requires: perl-Regexp-Common
 Requires: rrdtool, perl-rrdtool
 Requires: perl-SOAP-Lite
 Requires: perl-Template-Toolkit
 Requires: perl-TermReadKey
-Requires: perl-Test-MockDBI
-Requires: perl-Test-Perl-Critic
-Requires: perl-Test-Pod, perl-Test-Pod-Coverage
 Requires: perl-Thread-Pool
 Requires: perl-TimeDate
 Requires: perl-UNIVERSAL-require
 Requires: perl-YAML
 Requires: php-jpgraph-packetfence = 2.3.4
 Requires: php-ldap
+Requires: perl(Try::Tiny)
+# Required for testing
+# TODO: I noticed that we provide perl-Test-MockDBI in our repo, maybe we made a poo poo with the deps
+BuildRequires: perl(Test::MockModule), perl(Test::MockDBI), perl(Test::Perl::Critic)
+BuildRequires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception), perl(Test::NoWarnings)
 
 %description
 
@@ -169,6 +173,7 @@ mv packetfence.mo conf/locale/nl/LC_MESSAGES/
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r addons/802.1X/ $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp -r addons/integration-testing/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/high-availability/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/mrtg/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -207,7 +212,7 @@ curdir=`pwd`
 
 #pfschema symlink
 cd $RPM_BUILD_ROOT/usr/local/pf/db
-ln -s pfschema.mysql.186 ./pfschema.mysql
+ln -s pfschema.mysql.190 ./pfschema.mysql
 
 #httpd.conf symlink
 #TODO: isn't it stupid to decide what Apache version is there at rpm build time?
@@ -316,7 +321,6 @@ fi
 %files
 
 %defattr(-, pf, pf)
-#%config %{_initrddir}/packetfence
 %attr(0755, root, root) %{_initrddir}/packetfence
 
 %dir                    /usr/local/pf
@@ -326,8 +330,11 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/addons/convertToPortSecurity.pl
 %attr(0755, pf, pf)	/usr/local/pf/addons/database-backup-and-maintenance.sh
 %dir                    /usr/local/pf/addons/high-availability/
-			/usr/local/pf/addons/high-availability/*
-			/usr/local/pf/addons/logrotate
+                        /usr/local/pf/addons/high-availability/*
+%dir                    /usr/local/pf/addons/integration-testing/
+                        /usr/local/pf/addons/integration-testing/*
+%attr(0755, pf, pf)     /usr/local/pf/addons/loadMACintoDB.pl
+                        /usr/local/pf/addons/logrotate
 %attr(0755, pf, pf)	/usr/local/pf/addons/migrate-to-locationlog_history.sh
 %attr(0755, pf, pf)     /usr/local/pf/addons/monitorpfsetvlan.pl
 %dir                    /usr/local/pf/addons/mrtg
@@ -359,6 +366,7 @@ fi
 %dir                    /usr/local/pf/conf/dhcpd
                         /usr/local/pf/conf/dhcpd/dhcpd.leases
 %config                 /usr/local/pf/conf/documentation.conf
+%config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
 %dir                    /usr/local/pf/conf/locale
 %dir                    /usr/local/pf/conf/locale/en
 %dir                    /usr/local/pf/conf/locale/en/LC_MESSAGES
@@ -388,7 +396,6 @@ fi
 %config                 /usr/local/pf/conf/oui.txt
 #%config(noreplace)      /usr/local/pf/conf/pf.conf
 %config                 /usr/local/pf/conf/pf.conf.defaults
-%config(noreplace)      /usr/local/pf/conf/pfdetect_remote.conf
                         /usr/local/pf/conf/pf-release
 #%config                 /usr/local/pf/conf/services.conf
 %dir                    /usr/local/pf/conf/snort
@@ -450,6 +457,8 @@ fi
 %dir                    /usr/local/pf/lib
 %dir                    /usr/local/pf/lib/pf
                         /usr/local/pf/lib/pf/*.pm
+%dir                    /usr/local/pf/lib/pf/floatingdevice
+%config(noreplace)      /usr/local/pf/lib/pf/floatingdevice/custom.pm
 %dir                    /usr/local/pf/lib/pf/lookup
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/node.pm
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/person.pm
@@ -465,7 +474,6 @@ fi
 %doc                    /usr/local/pf/README_SWITCHES
 %dir                    /usr/local/pf/sbin
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect_remote
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfmon
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfredirect
@@ -482,10 +490,67 @@ fi
 %files remote-snort-sensor
 %defattr(-, pf, pf)
 %attr(0755, root, root) %{_initrddir}/pfdetectd
+%dir                    /usr/local/pf
+%dir                    /usr/local/pf/conf
+%config(noreplace)      /usr/local/pf/conf/pfdetect_remote.conf
+%dir                    /usr/local/pf/sbin
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect_remote
+%dir                    /usr/local/pf/var
 
 %changelog
+* Wed Aug 04 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Version bump, doing 1.9.1 pre-release snapshots now
+
 * Tue Jul 27 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added conf/admin.perm file to the files manifest
+
+* Tue Jul 15 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.9.0
+- New upstream release 1.9.0
+
+* Tue May 18 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added missing file for Floating Network Device support: 
+  floating_network_device.conf
+
+* Fri May 07 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added new files for Floating Network Device support
+- Added perl(Test::NoWarnings) as a build-time dependency (used for tests)
+
+* Thu May 06 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Removing the pinned perl(Parse::RecDescent) version. Fixes #833;
+- Snapshot vs releases is now defined by an rpmbuild argument
+- source_release should now be passed as an argument to simplify our nightly 
+  build system. Fixes #946;
+- Fixed a problem with addons/integration-testing files
+- Perl required version is now 5.8.8 since a lot of our source files explictly
+  ask for 5.8.8. Fixes #868;
+- Added perl(Test::MockModule) as a build dependency (required for tests)
+- Test modules are now required for building instead of required for package
+  install. Fixes #866;
+
+* Wed Apr 28 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added perl(Try::Tiny) and perl(Test::Exception) as a dependency used for 
+  exception-handling and its testing
+- Linking to new database schema
+
+* Fri Apr 23 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- New addons/integration-testing folder with integration-testing scripts. More
+  to come!
+- Added perl(Readonly::XS) as a dependency. Readonly becomes faster with it. 
+
+* Mon Apr 19 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- packetfence-remote-snort-sensor back to life. Fixes #888;
+  http://www.packetfence.org/mantis/view.php?id=888
+
+* Tue Apr 06 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.8-0.20100406
+- Version bump to snapshot 20100406
+
+* Tue Mar 16 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.7-2
+- Fix upgrade bug from 1.8.4: Changed perl-Locale-gettext dependency to use the
+  perl namespace version perl(Locale-gettext). Fixes #931;
+  http://www.packetfence.org/mantis/view.php?id=931
+
+* Tue Mar 11 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.8-0.20100311
+- Version bump to snapshot 20100311
 
 * Tue Jan 05 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.8.7-1
 - Version bump to 1.8.7

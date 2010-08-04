@@ -8,7 +8,7 @@
   $current_top="configuration";
   $current_sub="fingerprint";
 
-#testprint($_SESSION);
+  include_once('../header.php');
 
   get_global_conf();
 
