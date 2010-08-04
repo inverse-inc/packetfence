@@ -1,8 +1,30 @@
+2010-08-04	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/pf-release, pf/packetfence.spec, pf/t/pfcmd.t: Officially 
+	entering pre-release snapshots land for 1.9.1
+
+	* pf/README_SWITCHES: Aligned content with webiste regarding Aruba
+	support
+
+	* pf/lib/pf/scan.pm: Increasing log severity for a nessus scan error
+	Heading towards #1032 improvements;
+	http://www.packetfence.org/bugs/view.php?id=1032
+
+2010-08-03	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/dhcp_fingerprints.conf: New DHCP fingerprints: Cisco
+	Wireless Access Point and FortiOS
+
 2010-07-23	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/NEWS, pf/UPGRADE: Starting the NEWS file for the next release
 	series out of trunk.
 	Added some info to UPGRADE because of yesterday's change and fixed the
 	database upgrade script that was renamed.
+
+2010-07-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/configuration/switches_add.php, 
+	pf/html/admin/configuration/switches_edit.php: Corrected bad whitespace
+	again...
+	Now, to fix it for good, instead of asking people to behave, I'm 
+	forcing vim parameters to enforce them! mouhahahhaa! :)
 
 2010-07-22	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/radius.pm: A sample of working RADIUS VoIP authorization

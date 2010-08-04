@@ -31,6 +31,13 @@ Enhancements
 - Added several tests
 
 --------------------------------------------------------------------------------
+Version <release> - <codename> released on <releaseDate>
+
+Enhancements
+- New DHCP fingerprints (Cisco AP, FortiOS)
+- Improved Nessus failed scan error reporting (partial fix for #1032)
+
+--------------------------------------------------------------------------------
 Version 1.9.0 released on 2010-07-15
 
 New
