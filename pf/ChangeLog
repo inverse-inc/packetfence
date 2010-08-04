@@ -1,3 +1,8 @@
+2010-08-04	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/scan.pm: Increasing log severity for a nessus scan error
+	Heading towards #1032 improvements;
+	http://www.packetfence.org/bugs/view.php?id=1032
+
 2010-08-03	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/conf/dhcp_fingerprints.conf: New DHCP fingerprints: Cisco
 	Wireless Access Point and FortiOS
