@@ -1,17 +1,18 @@
 This feature will be gradually improved.
 
 Feature first merge
-- Default permissions should do the right thing(tm) and not introduce regression where users are confused otherwise they should be disabled by default
--- use case 1: adding a user through web admin, everything should work
--- use case 2: auth through ldap, auth success: admin, if in perm file then permissions are controlled
+x Default permissions should do the right thing(tm) and not introduce regression where users are confused otherwise they should be disabled by default
+xx use case 1: adding a user through web admin, everything should work: default_role enables that
+xx use case 2: auth through ldap, auth success: admin, if in perm file then permissions are controlled: default_role saves the day again
 - Opening a file on each page hit, it should be cached in session on login instead
 x Not conforming to our usual ini-style config files
 x Needs a 'You don't have sufficient permissions' page instead of a redirect
-- Menus should be hidden if you don't have permissions for it
 x Popups don't include header.php so something has to be done for these pages too
 - Documentation
 
 Feature second merge
+- Menus should be hidden if you don't have permissions for it
+-- look at login.php's get_group and MENU CACHING in check_login.php
 - Document file-format in a pf.conf consistent way (related to #1043)
 - Edit rights through web
 - full permission stack (or stop at the permission level)
@@ -24,6 +25,7 @@ Feature second merge
 
 Unclassified
 - there a notion of groups in the admin web code, what could be done regarding that?
+-- look at login.php's get_group and MENU CACHING in check_login.php
 - Because it's done in header.php, can the security be circumvented if you already know the right POST or point directly to a popup URL?
 
 Before final merge in 1.9:
