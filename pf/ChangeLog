@@ -1,3 +1,7 @@
+2010-08-08	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/t/stress-test/captive-portal.txt: Added some information on how 
+	to stress test the captive portal 
+
 2010-08-04	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/conf/pf-release, pf/packetfence.spec, pf/t/pfcmd.t: Officially 
 	entering pre-release snapshots land for 1.9.1
