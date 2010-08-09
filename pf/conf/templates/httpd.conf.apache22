@@ -86,6 +86,9 @@ DirectoryIndex index.html index.cgi index.php
   LoadModule php5_module modules/libphp5.so
   #LoadModule php4_module modules/libphp4.so
 </IfModule>
+<IfModule !mod_perl.c>
+  LoadModule perl_module modules/mod_perl.so
+</IfModule>
 
 AddType application/x-httpd-php .php
 #<Files *.php>
@@ -132,6 +135,14 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
   CustomLog %%install_dir%%/logs/access_log combined
   ErrorLog %%install_dir%%/logs/error_log
+
+  <Location /cgi-bin>
+    SetHandler perl-script
+    PerlResponseHandler ModPerl::PerlRun
+    PerlOptions +ParseHeaders
+    Options Indexes FollowSymLinks ExecCGI
+  </Location>
+  PerlSwitches -I%%install_dir%%/lib -I%%install_dir%%/conf/
 
   <DirectoryMatch "%%install_dir%%(/cgi-bin|/html/user)">
     Order deny,allow
@@ -195,6 +206,16 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
   CustomLog %%install_dir%%/logs/access_log combined
   ErrorLog %%install_dir%%/logs/error_log
+
+  # FIXME: remember that if this ever goes in as standard, a MaxRequestsPerChild value is to be provided
+  # according to previous testing, between 1000 and 10000 would be sensible
+  <Location /cgi-bin>
+    SetHandler perl-script
+    PerlResponseHandler ModPerl::PerlRun
+    PerlOptions +ParseHeaders
+    Options Indexes FollowSymLinks ExecCGI
+  </Location>
+  PerlSwitches -I%%install_dir%%/lib -I%%install_dir%%/conf/
 
   <DirectoryMatch "%%install_dir%%(/cgi-bin|/html/user)">
     SSLOptions +StdEnvVars
