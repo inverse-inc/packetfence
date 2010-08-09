@@ -1,4 +1,7 @@
 2010-08-09	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/login.php: Admin auth mechanism localuser+ldappass
+	also fallbacks to localpass on error
+
 	* pf/UPGRADE: Added an upgrade note about the Admin interface access
 	control
 
