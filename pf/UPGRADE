@@ -5,6 +5,13 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to 1.9.1:
+
+    - Web Administration interface access control
+    Administrators can now give different access levels to users. By default
+    all users will be given the admin level rights unless you modify the 
+    conf/admin.perm file. See the Administration Guide FAQ for details.
+
 o Upgrading from a version prior to 1.9.0:
 
     - Passthrough
