@@ -19,6 +19,7 @@ Version <release> - <codename> released on <releaseDate>
 New Features
 - Basic Access Control in the Web Administration interface (#965, Thanks to 
   eSubnet Enterprises for their initial contribution)
+- New parameters in switches.conf to manage Web Services enabled switches
 
 Enhancements
 - New DHCP fingerprints (Cisco AP, FortiOS)

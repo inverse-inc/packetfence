@@ -134,6 +134,11 @@
         printSelect( array('' => 'please choose', 'Telnet' => 'Telnet', 'SSH' => 'SSH'), 'hash', $val, "name='$key'");
         break;
 
+      case 'wsTransport':
+        print "<tr><td></td><td>$pretty_key:</td><td>";
+        printSelect( array('' => 'please choose', 'http' => 'http', 'https' => 'https'), 'hash', $val, "name='$key'");
+        break;
+
       case 'VoIPEnabled':
         print "<tr><td></td><td>$pretty_key:</td><td>";
         printSelect( array('' => 'please choose', 'yes' => 'Yes', 'no' => 'No'), 'hash', $val, "name='$key'");
