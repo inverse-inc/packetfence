@@ -1,4 +1,9 @@
 2010-08-10	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP.pm, pf/lib/pf/SwitchFactory.pm, pf/t/SwitchFactory.t, 
+	pf/t/data/switches.conf: pf::SNMP and SwitchFactory now supports new 
+	Web Services switches.conf parameters.
+	Added test cases
+
 	* pf/UPGRADE: Added deprecation warning for htaccessUser and htaccessPwd
 
 	* pf/bin/pfcmd, pf/conf/switches.conf, pf/conf/ui.conf,

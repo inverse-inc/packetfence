@@ -49,8 +49,6 @@ sub new {
         '_dbUser'                   => undef,
         '_error'                    => undef,
         '_guestVlan'                => undef,
-        '_htaccessPwd'              => undef,
-        '_htaccessUser'             => undef,
         '_ip'                       => undef,
         '_isolationVlan'            => undef,
         '_macDetectionVlan'         => undef,
@@ -87,6 +85,9 @@ sub new {
         '_cliPwd'                   => undef,
         '_cliUser'                  => undef,
         '_cliTransport'             => undef,
+        '_wsPwd'                    => undef,
+        '_wsUser'                   => undef,
+        '_wsTransport'              => undef,
         '_uplink'                   => undef,
         '_vlans'                    => undef,
         '_voiceVlan'                => undef,
@@ -122,10 +123,6 @@ sub new {
             $this->{_dbUser} = $argv{$_};
         } elsif (/^-?guestVlan$/i) {
             $this->{_guestVlan} = $argv{$_};
-        } elsif (/^-?htaccessPwd$/i) {
-            $this->{_htaccessPwd} = $argv{$_};
-        } elsif (/^-?htaccessUser$/i) {
-            $this->{_htaccessUser} = $argv{$_};
         } elsif (/^-?ip$/i) {
             $this->{_ip} = $argv{$_};
         } elsif (/^-?isolationVlan$/i) {
@@ -180,6 +177,12 @@ sub new {
             $this->{_cliUser} = $argv{$_};
         } elsif (/^-?cliTransport$/i) {
             $this->{_cliTransport} = $argv{$_};
+        } elsif (/^-?wsPwd$/i) {
+            $this->{_wsPwd} = $argv{$_};
+        } elsif (/^-?wsUser$/i) {
+            $this->{_wsUser} = $argv{$_};
+        } elsif (/^-?wsTransport$/i) {
+            $this->{_wsTransport} = lc($argv{$_});
         } elsif (/^-?uplink$/i) {
             $this->{_uplink} = $argv{$_};
         } elsif (/^-?SNMPEngineID$/i) {
