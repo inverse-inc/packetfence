@@ -55,11 +55,14 @@ Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz
 Source: http://www.packetfence.org/downloads/%{name}-%{version}-%{source_release}.tar.gz
 %endif
 
+# FIXME change all perl Requires: into their namespace counterpart, see what happened in #931 and
+# http://www.rpm.org/wiki/PackagerDocs/Dependencies#InterpretersandShells for discussion on why
 BuildRequires: gettext, httpd
 BuildRequires: perl(Parse::RecDescent)
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl, php, php-gd
+Requires: mod_perl
 # php-pear-Log required not php-pear, fixes #804
 Requires: php-pear-Log
 Requires: net-tools
@@ -344,7 +347,8 @@ fi
                         /usr/local/pf/addons/snort/oinkmaster.conf
 %dir                    /usr/local/pf/addons/802.1X
 %doc                    /usr/local/pf/addons/802.1X/README
-%attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/rlm_perl_packetfence.pl
+%attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/rlm_perl_packetfence_sql.pl
+%attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/rlm_perl_packetfence_soap.pl
 %dir                    /usr/local/pf/bin
 %attr(0755, pf, pf)     /usr/local/pf/bin/flip.pl
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
@@ -464,6 +468,8 @@ fi
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/person.pm
 %dir                    /usr/local/pf/lib/pf/pfcmd
                         /usr/local/pf/lib/pf/pfcmd/*
+%dir                    /usr/local/pf/lib/pf/radius
+%config(noreplace)      /usr/local/pf/lib/pf/radius/custom.pm
 %dir                    /usr/local/pf/lib/pf/SNMP
                         /usr/local/pf/lib/pf/SNMP/*
 %dir                    /usr/local/pf/lib/pf/vlan
@@ -516,6 +522,7 @@ fi
 - Added perl(Test::NoWarnings) as a build-time dependency (used for tests)
 
 * Thu May 06 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Fixed packaging of 802.1x rlm_perl_packetfence_* files and new radius files
 - Removing the pinned perl(Parse::RecDescent) version. Fixes #833;
 - Snapshot vs releases is now defined by an rpmbuild argument
 - source_release should now be passed as an argument to simplify our nightly 
@@ -526,6 +533,9 @@ fi
 - Added perl(Test::MockModule) as a build dependency (required for tests)
 - Test modules are now required for building instead of required for package
   install. Fixes #866;
+
+* Thu Apr 29 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added mod_perl as a dependency
 
 * Wed Apr 28 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added perl(Try::Tiny) and perl(Test::Exception) as a dependency used for 

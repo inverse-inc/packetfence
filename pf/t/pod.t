@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 128;
+use Test::More tests => 521;
 
 # file list copied from critic.t
 my @files = (
@@ -14,7 +14,8 @@ my @files = (
     '/usr/local/pf/addons/convertToPortSecurity.pl',
     '/usr/local/pf/addons/monitorpfsetvlan.pl',
     '/usr/local/pf/addons/recovery.pl',
-    '/usr/local/pf/addons/802.1X/rlm_perl_packetfence.pl',
+    '/usr/local/pf/addons/802.1X/rlm_perl_packetfence_soap.pl',
+    '/usr/local/pf/addons/802.1X/rlm_perl_packetfence_sql.pl',
     '/usr/local/pf/addons/mrtg/mrtg-wrapper.pl',
     '/usr/local/pf/addons/pfdetect_remote/sbin/pfdetect_remote',
     '/usr/local/pf/bin/flip.pl',
@@ -48,6 +49,8 @@ my @files = (
     '/usr/local/pf/lib/pf/pfcmd/pfcmd.pm',
     '/usr/local/pf/lib/pf/pfcmd.pm',
     '/usr/local/pf/lib/pf/pfcmd/report.pm',
+    '/usr/local/pf/lib/pf/radius.pm',
+    '/usr/local/pf/lib/pf/radius/custom.pm',
     '/usr/local/pf/lib/pf/rawip.pm',
     '/usr/local/pf/lib/pf/scan.pm',
     '/usr/local/pf/lib/pf/schedule.pm',
@@ -143,3 +146,35 @@ foreach my $currentFile (@files) {
     my $shortname = $1 if ($currentFile =~ m'^/usr/local/pf/(.+)$');
     pod_file_ok($currentFile, "${shortname}'s POD is valid");
 }
+
+# PacketFence module POD
+# for now NAME, AUTHOR, COPYRIGHT
+# TODO expect NAME, SYNOPSIS, DESCRIPTION, AUTHOR, COPYRIGHT
+my @pf_general_pod = qw(NAME AUTHOR COPYRIGHT);
+foreach my $currentFile (@files) {
+    my $shortname = $1 if ($currentFile =~ m'^/usr/local/pf/(.+)$');
+
+    # TODO extract in a method if I re-use
+
+    # basically it extracts <name> out of a perl file POD's =head* <name>
+    # "perl -l00n" comes from the POD section of the camel book, not so sure what it does
+    my $cmd = "cat $currentFile | perl -l00n -e 'print \"\$1\\n\" if /^=head\\d\\s+(\\w+)/;'";
+    my $result = `$cmd`;
+    $result =~ s/\c@//g; # I had these weird control-chars in my string
+    my @pod_headers = split("\n", $result);
+    pop @pod_headers; # discards last element (its always only a newline)
+
+    foreach my $pf_expected_header (@pf_general_pod) {
+        # TODO performance could be improved if I qr// the regexp (see perlop)
+        ok(grep(/^$pf_expected_header$/, @pod_headers), "$shortname POD doc section $pf_expected_header exists");
+    }
+}
+
+# TODO switch module POD
+# expect bugs and limitations, status, ...
+
+# TODO CLI perl
+# expect USAGE
+
+# TODO PacketFence core
+# # expect SUBROUTINES
