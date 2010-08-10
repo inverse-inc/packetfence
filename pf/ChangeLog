@@ -1,8 +1,35 @@
+2010-08-10	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd, pf/conf/switches.conf, pf/conf/ui.conf,
+	pf/docs/PacketFence_Administration_Guide.odt,
+	pf/html/admin/configuration/switches.php,
+	pf/html/admin/configuration/switches_add.php,
+	pf/html/admin/configuration/switches_edit.php,
+	pf/lib/pf/pfcmd/pfcmd.pm: switches.conf now accepts Web Services
+	related configuration (wsTransport, wsUser, wsPwd)
+	Also updated all related helpers, interfaces and documentation
+
+2010-08-09	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/login.php: Admin auth mechanism localuser+ldappass
+	also fallbacks to localpass on error
+
+	* pf/UPGRADE: Added an upgrade note about the Admin interface access
+	control
+
 2010-08-08	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/t/stress-test/captive-portal.txt: Added some information on how 
 	to stress test the captive portal 
 
+2010-08-05	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Added two new Q&A:
+	- How can users authenticate using LDAP or Active Directory (AD) 
+	instead of using a local flat file?
+	- How can I provide different rights to users of the admin Web 
+	interface?
+
 2010-08-04	Olivier Bilodeau <obilodeau@inverse.ca>
+	Merged org.packetfence.feature.granular-admin-access with revno
+	2c753bafa6f766c330510b2895729ecf42cd71d9
+
 	* pf/conf/pf-release, pf/packetfence.spec, pf/t/pfcmd.t: Officially 
 	entering pre-release snapshots land for 1.9.1
 

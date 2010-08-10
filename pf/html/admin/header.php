@@ -189,4 +189,5 @@
 <!-- Begin Content -->
 <div id="content">
 
-<?
+<?php
+perform_access_control();

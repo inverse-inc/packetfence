@@ -37,6 +37,7 @@
 		       </td></tr></table></div>";
   }
 
+  include_once('../header.php');
 
   $view_item = set_default($_REQUEST['view_item'], 'all');
 

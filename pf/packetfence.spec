@@ -360,6 +360,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/cgi-bin/release.cgi
 %doc                    /usr/local/pf/ChangeLog
 %dir                    /usr/local/pf/conf
+%config(noreplace)      /usr/local/pf/conf/admin.perm
 %config(noreplace)      /usr/local/pf/conf/admin_ldap.conf
 %dir                    /usr/local/pf/conf/authentication
 %config(noreplace)      /usr/local/pf/conf/authentication/local.pm
@@ -505,6 +506,9 @@ fi
 %changelog
 * Wed Aug 04 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Version bump, doing 1.9.1 pre-release snapshots now
+
+* Tue Jul 27 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added conf/admin.perm file to the files manifest
 
 * Tue Jul 15 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.9.0
 - New upstream release 1.9.0

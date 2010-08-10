@@ -19,6 +19,8 @@
 <body class="popup">
 
 <?
+  perform_access_control_in_popup();
+
   $edit_item = set_default($_REQUEST['item'], '');
 
   if($_POST){
@@ -130,6 +132,11 @@
       case 'cliTransport':
         print "<tr><td></td><td>$pretty_key:</td><td>";
         printSelect( array('' => 'please choose', 'Telnet' => 'Telnet', 'SSH' => 'SSH'), 'hash', $val, "name='$key'");
+        break;
+
+      case 'wsTransport':
+        print "<tr><td></td><td>$pretty_key:</td><td>";
+        printSelect( array('' => 'please choose', 'http' => 'http', 'https' => 'https'), 'hash', $val, "name='$key'");
         break;
 
       case 'VoIPEnabled':

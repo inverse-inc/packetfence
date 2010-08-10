@@ -11,6 +11,7 @@
   $abs_url="https://$HTTP_SERVER_VARS[HTTP_HOST]";
 
   require_once 'common/helpers.inc';
+  require_once 'common/adminperm.inc';
   require_once 'Log.php';
   $logger_file = &Log::factory('file', '/usr/local/pf/logs/admin_debug_log');
   //$disp_conf = array('error_prepend' => '<div style="border: 1px solid #aaa; background: #FFE6BF; padding:5px;">',
@@ -107,6 +108,9 @@
             $_SESSION['ui_prefs']=unserialize(file_get_contents(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/users/" . $_SESSION['user']));
             get_global_conf();
     }
+
+    # Admin Permission Caching
+    parse_and_cache_permission_file();
   } // end caching
 
 ?>
