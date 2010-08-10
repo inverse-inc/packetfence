@@ -159,8 +159,9 @@ sub instantiate {
             || $SwitchConfig{'default'}{'htaccessPwd'}
         ),
         '-wsTransport' => (
-                   $SwitchConfig{$requestedSwitch}{'wsTransport'}
-                || $SwitchConfig{'default'}{'wsTransport'}
+            $SwitchConfig{$requestedSwitch}{'wsTransport'}
+            || $SwitchConfig{'default'}{'wsTransport'}
+            || 'http'
         ),
         '-ip'            => $requestedSwitch,
         '-isolationVlan' => (
