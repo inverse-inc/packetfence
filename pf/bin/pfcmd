@@ -144,6 +144,7 @@ if ( defined $ENV{GATEWAY_INTERFACE} ) {
 # dynamic grammar parsing (slow)
 #my $parser=Parse::RecDescent->new($grammar);
 
+# FIXME: all of this is confusing duplication, we need to get rid of one of both method to call a sub
 my %cmd_tmp = pf::pfcmd::parseCommandLine( join(' ', @ARGV) );
 if (! exists($cmd_tmp{'grammar'})) {
     %cmd = %cmd_tmp;
@@ -244,6 +245,7 @@ if ( lc($command) eq 'person' ) {
     } else {
         # then execute main::$command sub
         $logger->debug("executing sub " . $command . "()");
+        # TODO: wrapping this around a try / catch block wouldn't hurt
         &{$main::{$command}}();
     }
 }
@@ -1322,6 +1324,8 @@ sub fingerprint {
 }
 
 sub version {
+    # TODO: move this code into library code and have pf::config hold the value somewhere.
+    # Then report the version in Web Services API calls like for the Extreme Switches' appName
     my ( $pfrelease_fh, $release );
     open( $pfrelease_fh, '<', "$conf_dir/pf-release" )
         || $logger->logdie("Unable to open $conf_dir/pf-release: $!");
