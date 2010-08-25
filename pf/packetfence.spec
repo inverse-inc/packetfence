@@ -112,6 +112,8 @@ Requires: perl-YAML
 Requires: php-jpgraph-packetfence = 2.3.4
 Requires: php-ldap
 Requires: perl(Try::Tiny)
+# Required for Radius auth through captive portal
+Requires: perl(Authen::Radius)
 # Required for testing
 # TODO: I noticed that we provide perl-Test-MockDBI in our repo, maybe we made a poo poo with the deps
 BuildRequires: perl(Test::MockModule), perl(Test::MockDBI), perl(Test::Perl::Critic)
@@ -498,6 +500,10 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Wed Aug 25 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added perl(Authen::Radius) as a dependency. Required by the optional radius
+  authentication in the captive portal. Fixes #1047;
+
 * Wed Aug 04 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Version bump, doing 1.9.1 pre-release snapshots now
 

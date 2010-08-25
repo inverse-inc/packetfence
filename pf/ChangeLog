@@ -1,4 +1,12 @@
 2010-08-10	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec, pf/t/critic.t, pf/t/pf.t, pf/t/pod.t: Added 
+	perl(Authen::Radius) as a dependency in the RPM spec file. It's required
+	by the optional radius authentication in the captive portal. Fixes #1047;
+	http://packetfence.org/bugs/view.php?id=1047
+
+	Added the relevant tests to catch any similar situation in the future.
+
+2010-08-10	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/SNMP/Intel/Express_460.pm: Ported Intel Express 460's web
 	screenscraping code to use new web services parameters
 

@@ -4,7 +4,9 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 36;
+use Test::More tests => 39;
+
+# pf core libs
 use lib '/usr/local/pf/lib';
 
 BEGIN { use_ok('pf::action') }
@@ -43,3 +45,10 @@ BEGIN { use_ok('pf::violation') }
 BEGIN { use_ok('pf::vlan') }
 BEGIN { use_ok('pf::vlan::custom') }
 BEGIN { use_ok('pf::web') }
+
+# external authentication modules
+use lib '/usr/local/pf/conf/';
+BEGIN { use_ok('authentication::ldap') }
+BEGIN { use_ok('authentication::local') }
+BEGIN { use_ok('authentication::radius') }
+
