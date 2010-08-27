@@ -1,3 +1,7 @@
+2010-08-27	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/SNMP/constants.pm: Added Q-BRIDGE section to the SNMP
+	constants and dot1qStaticUnicastStatus types.
+
 2010-08-10	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec, pf/t/critic.t, pf/t/pf.t, pf/t/pod.t: Added 
 	perl(Authen::Radius) as a dependency in the RPM spec file. It's required
