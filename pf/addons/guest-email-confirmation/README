@@ -1,22 +1,38 @@
 == Install guest registration with email confirmation ==
  * Install MIME::Lite::TT. On RHEL/CentOS: yum install perl-MIME-Lite-TT
+
  * Poke a hole in conf/templates/httpd.conf. Place the following statements next to cgi-bin rewrite rules under *:443 virtualhost section:
   RewriteCond %{REQUEST_URI} !^/cgi-bin/guest.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/email_activation.cgi
+
  * Add new rewrite rules allowing activation before the long series of RewriteCond under *:443 virtualhost:
   # Email activation clean URL to cgi conversion
   RewriteCond %{REQUEST_URI} ^/activate/.+$
   # [PT] here allows us to mix ScriptAlias and mod_rewrite stuff
   RewriteRule ^/activate/([0-9a-z]+)$ https://%%hostname%%.%%domain%%/cgi-bin/email_activation.cgi?code=$1 [PT]
+
+ * Allow the normal VLAN to reach email_activation.cgi. First through firewall, then through apache access lists. Don't forget to include linked images and such in the LocationMatch.
+  <LocationMatch ^/cgi-bin/email_activation.cgi>
+    SSLOptions +StdEnvVars
+        Options ExecCGI
+    Order deny,allow
+    Deny from all
+    allow from %%internal-nets%% %%routed-nets%% 72.233.128.0/18 127.0.0.1
+  </LocationMatch>
+
  * Create new database table. Run:
   mysql -u root -p pf -v < addons/guest-email-confirmation/schema.sql
+
  * Redirect the user to cgi-bin/guest.cgi for guest registration
+
  * Activate node expiration in conf/pf.conf. As a workaround for a bug, we need to set a ridiculous long window expiration. This will be fixed in the future. Under [registration] add:
   # Workaround to activate expiration
   expire_mode=window
   expire_window=999w
+
  * Reduce the maintenance_interval so nodes unregister quicker than every 10 minutes. In conf/pf.conf under [general] add:
   maintenance_interval=30s
+
  * Add a guest category. Do it with the web admin or Run the following:
   pfcmd nodecategory add name=guest
 
