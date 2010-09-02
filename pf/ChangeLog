@@ -1,4 +1,8 @@
 2010-09-02	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/MockedSwitch.pm, pf/t/hardware-snmp-objects.t: New 
+	pf::SNMP:MockedSwitch that will be used to test the efficiency of our
+	pfsetvlan daemon. Some tests to make sure it stays relevant.
+
 	* pf/docs/PacketFence_Administration_Guide.odt, pf/lib/SNMP/HP.pm:
 	Documented an HP behavior regarding port-security.
 
