@@ -1847,11 +1847,13 @@ sub getIfIndexForThisMac {
     return -1;
 }
 
+# TODO: unclear method contract
 sub getVmVlanType {
     my ( $this, $ifIndex ) = @_;
     return 1;
 }
 
+# TODO: unclear method contract
 sub setVmVlanType {
     my ( $this, $ifIndex, $type ) = @_;
     return 1;
@@ -2064,6 +2066,7 @@ sub getUpLinks {
     return @upLinks;
 }
 
+# TODO: what the hell is this supposed to do?
 sub getVlanFdbId {
     my ( $this, $vlan ) = @_;
     my $OID_dot1qVlanFdbId = '1.3.6.1.2.1.17.7.1.4.2.1.3.0';    #Q-BRIDGE-MIB

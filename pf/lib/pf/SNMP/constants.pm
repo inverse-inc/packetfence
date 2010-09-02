@@ -6,7 +6,7 @@ pf::SNMP::constants - Constants for SNMP to be consumed by SNMP modules
 
 =head1 DESCRIPTION
 
-This file is splitted by packages and refering to the constant require you to
+This file is splitted by packages and refering to the constant requires you to
 specify the package.
 
 =cut
@@ -37,6 +37,32 @@ Readonly::Scalar our $FALSE => 2;
 
 =back
 
+=head1 Q-BRIDGE
+
+RFC 4363:  Definitions of Managed Objects for Bridges with Traffic Classes, Multicast Filtering, and Virtual LAN Extensions
+
+=over
+
+=cut
+package SNMP::Q_BRIDGE;
+
+=item dot1qStaticUnicastStatus
+
+ other(1)
+ invalid(2)
+ permanent(3)
+ deleteOnReset(4)
+ deleteOnTimeout(5)
+ 
+=cut
+Readonly::Scalar our $OTHER => 1;
+Readonly::Scalar our $INVALID => 2;
+Readonly::Scalar our $PERMANENT => 3;
+Readonly::Scalar our $DELETE_ON_RESET => 4;
+Readonly::Scalar our $DELETE_ON_TIMEOUT => 5;
+
+=back
+ 
 =head1 CISCO
 
 Cisco constants
