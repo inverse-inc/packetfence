@@ -21,8 +21,6 @@ It's not complete yet
 
 * Full POD for pf::SNMP
 
-=back
-
 =head1 BUGS AND LIMITATIONS
 
 =head1 CONFIGURATION AND ENVIRONMENT
@@ -3344,6 +3342,8 @@ sub authorizeMAC {
     }
     return 1;
 }
+
+=back
 
 =head1 AUTHOR
 
