@@ -1,3 +1,7 @@
+2010-09-02	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt, pf/lib/SNMP/HP.pm:
+	Documented an HP behavior regarding port-security.
+
 2010-08-27	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/SNMP/constants.pm: Added Q-BRIDGE section to the SNMP
 	constants and dot1qStaticUnicastStatus types.

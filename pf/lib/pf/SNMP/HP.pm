@@ -9,6 +9,16 @@ pf::SNMP::HP- Object oriented module to access SNMP enabled HP switches
 The pf::SNMP::HP module implements an object oriented interface
 to access SNMP enabled HP switches.
 
+=head1 BUGS AND LIMITATIONS
+
+=over
+
+=item Port Security notice
+
+If you configure a switch that is already in production be careful that enabling port-security causes active MAC addresses to be automatically added to the security table. You don't want that because PacketFence will not get a security violation trap to know that it needs to configure the port. Unplug clients before activating port-security or remove them from the secure MAC address table after you enabled port-security.
+
+=back
+
 =cut
 
 use strict;
