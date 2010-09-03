@@ -1,3 +1,8 @@
+2010-09-03	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/MockedSwitch.pm, pf/t/hardware-snmp-objects.t: Added
+	new exceptions in the tests and implemented new trunk specific subs. So
+	that the new tests passes.
+
 2010-09-02	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/SNMP/MockedSwitch.pm, pf/t/hardware-snmp-objects.t: New 
 	pf::SNMP:MockedSwitch that will be used to test the efficiency of our
