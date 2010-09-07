@@ -1,0 +1,16 @@
+0000default : {}
+
+ExtremeXOS :
+    prompt            : '/[\/a-zA-Z0-9._-]+ ?(?:\(config[^)]*\))? ?[#>] ?$/'
+    basic_prompt      : '/> ?$/'
+    privileged_prompt : '/# ?$/'
+    configure_prompt  : '/\(config[^)]*\)# ?$/'
+    user_prompt       : '/(?:[Ll]ogin|[Uu]sername)/'
+    userpass_prompt   : '/(?:[Ll]ogin|[Uu]sername|[Pp]assword): ?$/'
+    pass_prompt       : '/[Pp]assword: ?$/'
+    begin_privileged_cmd           : 'enable'
+    begin_privileged_with_user_cmd : 'login'
+    end_privileged_cmd             : 'disable'
+    disconnect                     : 'exit'
+    completion                     :  '?'
+    err_string : '/% ?(?:Error|Type "[^?]+\?"|(?:Incomplete|Unknown) command|Invalid input)/'

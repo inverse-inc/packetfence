@@ -16,6 +16,10 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <release> - <codename> released on <releaseDate>
 
+New Hardware Support
+- Extreme XOS Port Security (MAC address lockdown) support (feature sponsored by
+  Extreme Networks)
+
 New Features
 - Basic Access Control in the Web Administration interface (#965, Thanks to 
   eSubnet Enterprises for their initial contribution)
