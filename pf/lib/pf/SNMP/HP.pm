@@ -15,7 +15,11 @@ to access SNMP enabled HP switches.
 
 =item Port Security notice
 
-If you configure a switch that is already in production be careful that enabling port-security causes active MAC addresses to be automatically added to the security table. You don't want that because PacketFence will not get a security violation trap to know that it needs to configure the port. Unplug clients before activating port-security or remove them from the secure MAC address table after you enabled port-security.
+Note: HP ProCurve only sends one security trap to PacketFence per security violation so make sure PacketFence runs when you configure port-security. Also, because of the above limitation, it is considered good practice to reset the intrusion flag as a first troubleshooting step.
+
+If you want to learn more about intrusion flag and port-security, please refer to the ProCurve documentation.
+
+Warning: If you configure a switch that is already in production be careful that enabling port-security causes active MAC addresses to be automatically added to the intrusion list without a security trap sent to PacketFence. This is undesired because PacketFence will not be notified that it needs to configure the port. As a work-around, unplug clients before activating port-security or remove the intrusion flag after you enabled port-security with: port-security <port> clear-intrusion-flag.
 
 =back
 
