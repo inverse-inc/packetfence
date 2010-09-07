@@ -157,6 +157,7 @@ sub instantiate {
             || $SwitchConfig{$requestedSwitch}{'htaccessPwd'}
             || $SwitchConfig{'default'}{'wsPwd'}
             || $SwitchConfig{'default'}{'htaccessPwd'}
+            || ''
         ),
         '-wsTransport' => (
             $SwitchConfig{$requestedSwitch}{'wsTransport'}
