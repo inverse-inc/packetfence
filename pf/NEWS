@@ -28,6 +28,7 @@ New Features
 Enhancements
 - New DHCP fingerprints (Cisco AP, FortiOS)
 - Improved Nessus failed scan error reporting (partial fix for #1032)
+- Better error reporting on Cisco ISR 1800
 
 Bug fixes
 - RPM packaging fixes (#1047)

@@ -1,4 +1,7 @@
 2010-09-07	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Cisco/ISR_1800.pm: Connection error is now shown in 
+	the logs if there is a connection problem.
+
 	* pf/lib/pf/SNMP/Extreme/nas-pb.yml, pf/lib/pf/SNMP/Extreme/Summit.pm, 
 	pf/lib/pf/SNMP/Extreme/Summit_X250e.pm, pf/lib/pf/SNMP/Extreme.pm, 
 	pf/lib/pf/SNMP/constants.pm: Added port-security support for Extreme 
