@@ -15,6 +15,8 @@ This modules extends pf::SNMP::Cisco::Catalyst_2950.
 
 The minimum required firmware version is 12.2(25)SEE2.
 
+Port-security + VoIP mode works with firmware 12.2(50) and later. Earlier IOS were not explicitly tested.
+
 Port-security + VoIP support doesn't work with IOS version 12.2(25r). 
 This is a Cisco issue. Upgrade your IOS. See issue #1020 for details.
 

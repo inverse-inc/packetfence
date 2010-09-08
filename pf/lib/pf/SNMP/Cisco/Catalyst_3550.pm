@@ -11,6 +11,10 @@ to access SNMP enabled Cisco::Catalyst_3550 switches.
 
 This modules extends pf::SNMP::Cisco::Catalyst_2960
 
+=head1 BUGS AND LIMITATIONS
+
+IfIndex on this platform is not the same as port # or dot1d port.
+
 =cut
 
 use strict;
@@ -23,11 +27,13 @@ use base ('pf::SNMP::Cisco::Catalyst_2960');
 
 =head1 AUTHOR
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008 Inverse inc.
+Copyright (C) 2006-2008,2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

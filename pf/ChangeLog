@@ -1,4 +1,8 @@
 2010-09-08	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Aruba.pm, pf/lib/pf/SNMP/Cisco/Catalyst_2960.pm, 
+	pf/lib/pf/SNMP/Cisco/Catalyst_3550.pm: Added some documentation for 
+	Cisco (2960, 3550) and Aruba in the SNMP modules
+
 	* pf/docs/PacketFence_Administration_Guide.odt: Added configuration
 	instructions for Extreme in port security.
 
