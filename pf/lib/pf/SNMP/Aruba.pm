@@ -11,6 +11,14 @@ to access SNMP enabled Aruba switches.
 
 =cut
 
+=head1 BUGS AND LIMITATIONS
+
+Wireless deauthentication (deassociation) uses the CLI (telnet or ssh) which is expensive (doesn't scale very well).
+
+Wireless deauthentication (deassociation) works only in Telnet
+
+=cut
+
 use strict;
 use warnings;
 use diagnostics;
@@ -20,8 +28,6 @@ use POSIX;
 use Log::Log4perl;
 use Net::Telnet;
 use pf::util;
-
-use constant AUTH_DOT1X => 4;
 
 =head1 SUBROUTINES
 
@@ -60,7 +66,6 @@ sub parseTrap {
 
     if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.14823\.2\.3\.1\.11\.1\.2\.1017[|].+[|]\.1\.3\.6\.1\.4\.1\.14823\.2\.3\.1\.11\.1\.1\.52\.[0-9]+ = Hex-STRING: ([0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2})/ ) {   
         $trapHashRef->{'trapType'}    = 'dot11Deauthentication';
-        $trapHashRef->{'trapIfIndex'} = "WIFI";
         $trapHashRef->{'trapMac'}     = lc($1);
         $trapHashRef->{'trapMac'} =~ s/ /:/g;
     
@@ -77,9 +82,8 @@ Here, we find out what submodule to call _dot1xDeauthenticateMAC or _deauthentic
 
 =cut
 sub deauthenticateMac {
-    my ( $this, $mac ) = @_;
+    my ( $this, $mac, $is_dot1x ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
-    my $OID_nUserAuthenticationMethod = '1.3.6.1.4.1.14823.2.2.1.4.1.2.1.6'; # from WLSX-USER-MIB
 
     if ( !$this->isProductionMode() ) {
         $logger->info("not in production mode ... we won't write to the bnsMobileStationTable");
@@ -96,40 +100,57 @@ sub deauthenticateMac {
         return 1;
     }
 
-    # Query the controller to get the type of authentication the user is using
-    $logger->trace("SNMP get_table for nUserAuthenticationMethod: $OID_nUserAuthenticationMethod");
-    my $result = $this->{_sessionRead}->get_table(-baseoid => "$OID_nUserAuthenticationMethod");
-    # is there at least one result?
-    if (keys %{$result}) {
-
-        # convert MAC into oid format
-        my $macOID = mac2oid($mac);
-
-        # Fetch Auth Method for the MAC we are interested in
-        my $count = 0;
-        foreach my $macIpToUserAuthMethod (keys %{$result}) {
-            if ($macIpToUserAuthMethod =~ /^$OID_nUserAuthenticationMethod\.$macOID/) {
-                if ($count > 1) { 
-                    $logger->warn("MAC: $mac returned two authentication method, it should not happen!" .
-                                  " Please file a bug with steps to reproduce");
-                    return;
-                } else {
-                    if ($result->{$macIpToUserAuthMethod} == AUTH_DOT1X) {
-                        $logger->trace("using 802.1x deauth method");
-                        $this->_dot1xDeauthenticateMAC($mac);
-                    } else {
-                        # Any other authentication method lets kick out with traditionnal approach
-                        $logger->trace("using non-802.1x deauth method");
-                        $this->_deauthenticateMAC($mac);
-                    }
-                    $count++;
-                }
-           }
-        }
+    if (defined($is_dot1x) && $is_dot1x) {
+        $logger->debug("deauthenticate $mac using 802.1x deauth method");
+        $this->_dot1xDeauthenticateMAC($mac);
     } else {
-        $logger->error("was not able to find user authentication type for mac $mac, unable to deauthenticate");
+        # Any other authentication method lets kick out with traditionnal approach
+        $logger->debug("deauthenticate $mac using non-802.1x deauth method");
+        $this->_deauthenticateMAC($mac);
     }
 }
+
+# old code used to find user authentication method then kick him out accordingly, not required anymore
+#use constant AUTH_DOT1X => 4;
+#sub deauthenticateMac {
+#    my ($this, $mac) = @_;
+#    my $logger = Log::Log4perl::get_logger( ref($this) );
+#    my $OID_nUserAuthenticationMethod = '1.3.6.1.4.1.14823.2.2.1.4.1.2.1.6'; # from WLSX-USER-MIB
+#    ...
+#    # Query the controller to get the type of authentication the user is using
+#    $logger->trace("SNMP get_table for nUserAuthenticationMethod: $OID_nUserAuthenticationMethod");
+#    my $result = $this->{_sessionRead}->get_table(-baseoid => "$OID_nUserAuthenticationMethod");
+#    # is there at least one result?
+#    if (keys %{$result}) {
+#
+#        # convert MAC into oid format
+#        my $macOID = mac2oid($mac);
+#
+#        # Fetch Auth Method for the MAC we are interested in
+#        my $count = 0;
+#        foreach my $macIpToUserAuthMethod (keys %{$result}) {
+#            if ($macIpToUserAuthMethod =~ /^$OID_nUserAuthenticationMethod\.$macOID/) {
+#                if ($count > 1) {
+#                    $logger->warn("MAC: $mac returned two authentication method, it should not happen!" .
+#                                  " Please file a bug with steps to reproduce");
+#                    return;
+#                } else {
+#                    if ($result->{$macIpToUserAuthMethod} == AUTH_DOT1X) {
+#                        $logger->trace("using 802.1x deauth method");
+#                        $this->_dot1xDeauthenticateMAC($mac);
+#                    } else {
+#                        # Any other authentication method lets kick out with traditionnal approach
+#                        $logger->trace("using non-802.1x deauth method");
+#                        $this->_deauthenticateMAC($mac);
+#                    }
+#                    $count++;
+#                }
+#           }
+#        }  
+#    } else {
+#        $logger->error("was not able to find user authentication type for mac $mac, unable to deauthenticate");
+#    }
+#}
 
 =item _dot1xDeauthenticateMAC - deauthenticate a MAC from controller when user is in 802.1x mode
 

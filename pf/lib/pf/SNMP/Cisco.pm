@@ -294,7 +294,6 @@ sub parseTrap {
         )
     {
         $trapHashRef->{'trapType'}    = 'dot11Deauthentication';
-        $trapHashRef->{'trapIfIndex'} = "WIFI";
         $trapHashRef->{'trapMac'}     = lc($1);
         $trapHashRef->{'trapMac'} =~ s/ /:/g;
 
