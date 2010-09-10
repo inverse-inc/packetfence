@@ -1959,6 +1959,8 @@ sub do_port_security {
             if (!$oldSwitch) {
                 $logger->error("Can not instantiate switch $old_switch !");
             } else {
+                $logger->info("Will try to check on this node's previous switch if secured entry needs to be removed. ".
+                    "Old Switch IP: $old_switch");
                 my $secureMacAddrHashRef = $oldSwitch->getSecureMacAddresses($old_port);
                 if ( exists( $secureMacAddrHashRef->{$mac} ) ) {
                     if (   ( $old_switch eq $switch->{_ip} )
@@ -1968,17 +1970,21 @@ sub do_port_security {
                         return 'stopTrapHandling';
                     }
                     my $fakeMac = $oldSwitch->generateFakeMac( $old_vlan, $old_port );
-                    $logger->info("de-authorizing $mac (new entry $fakeMac) at old location $old_switch ifIndex $old_port");
+                    $logger->info(
+                        "de-authorizing $mac (new entry $fakeMac) at old location $old_switch ifIndex $old_port"
+                    );
                     $oldSwitch->authorizeMAC( $old_port, $mac, $fakeMac,
-                        ( $old_vlan eq 'VoIP' ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port) ),
-                        ( $old_vlan eq 'VoIP' ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port) ) );
+                        ($old_vlan eq 'VoIP' ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port)),
+                        ($old_vlan eq 'VoIP' ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port)));
+                } else {
+                    $logger->info("MAC not found on node's previous switch secure table or switch inaccessible.");
                 }
                 locationlog_update_end_mac($mac);
             }
         }
     }
 
-# check if $mac is not already secured on another port (in case locationlog is outdated)
+    # check if $mac is not already secured on another port (in case locationlog is outdated)
     my $secureMacAddrHashRef = $switch->getAllSecureMacAddresses();
     if ( exists( $secureMacAddrHashRef->{$mac} ) ) {
         foreach my $ifIndex ( keys( %{ $secureMacAddrHashRef->{$mac} } ) ) {
