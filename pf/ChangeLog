@@ -1,3 +1,8 @@
+2010-09-10	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd: Fixes to the try {} catch {} syntax. No bug reported 
+	but I found out it could be problematic since I was bitten by this 
+	when working on the upcoming error handling in pf::SNMP::Extreme.
+
 2010-09-08	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/SNMP/Aruba.pm, pf/lib/pf/SNMP/Cisco/Catalyst_2960.pm, 
 	pf/lib/pf/SNMP/Cisco/Catalyst_3550.pm: Added some documentation for 
