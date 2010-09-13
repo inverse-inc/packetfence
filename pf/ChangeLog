@@ -1,4 +1,7 @@
 2010-09-13	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec: Package version bump to 1.10.0 to clearly mark
+	a departure from 1.9.x
+
 	* pf/addons/802.1X/rlm_perl_packetfence_soap.pl: Added SSID detection 
 	for Aruba wireless controllers.
 
