@@ -43,7 +43,6 @@ BEGIN {
         node_view_all
         node_view_with_fingerprint
         node_modify
-        node_register_auto
         node_register
         node_deregister
         node_unregistered

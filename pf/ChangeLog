@@ -1,3 +1,8 @@
+2010-09-13	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/node.pm: Sub node_register_auto no longer exported since 
+	a while. Removing at the earliest point in trunk branch revno:
+	bad6d50ec65bad5779a30d488020eb49acad200d
+
 2010-04-28	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/html/admin/common/helpers.inc, pf/html/admin/images/category.png,
 	pf/html/admin/node/categories_add.php, 
