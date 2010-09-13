@@ -1,4 +1,10 @@
 2010-09-13	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/vlan/custom.pm: Importing more modules to avoid people using
+	custom code that doesn't compile even if they copiedy and pasted from
+	pf::vlan. Fixes #1001 for pf::vlan::custom since there are no specific 
+	constants defined in pf::vlan.
+	http://www.packetfence.org/bugs/view.php?id=1001
+
 	* pf/lib/pf/node.pm: Sub node_register_auto no longer exported since 
 	a while. Removing at the earliest point in trunk branch revno:
 	bad6d50ec65bad5779a30d488020eb49acad200d

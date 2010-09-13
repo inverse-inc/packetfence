@@ -19,14 +19,22 @@ use diagnostics;
 use Log::Log4perl;
 
 use base ('pf::vlan');
+use pf::config;
+use pf::node qw(node_view node_add_simple node_exist node_modify);
+use pf::util;
+use pf::violation qw(violation_count_trap violation_exist_open violation_view_top);
+use threads;
+use threads::shared;
 
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2009 Inverse inc.
+Copyright (C) 2006-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
