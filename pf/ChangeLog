@@ -9,6 +9,13 @@
 	fingerprinting related work at: http://myweb.cableone.net/xnih/
 
 2010-09-10	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/sbin/pfsetvlan: Added logging to highlight the fact that we are
+	connecting on a node's previous switch. Will prevent confusing people 
+	like me. Fixes #1052;
+	http://www.packetfence.org/bugs/view.php?id=1052
+	Also made some unnecessary whitespace adjustments.. sorry I couldn't 
+	resist...
+
 	* pf/bin/pfcmd: Fixes to the try {} catch {} syntax. No bug reported 
 	but I found out it could be problematic since I was bitten by this 
 	when working on the upcoming error handling in pf::SNMP::Extreme.
