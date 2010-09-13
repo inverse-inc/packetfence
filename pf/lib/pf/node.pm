@@ -97,7 +97,7 @@ sub node_db_prepare {
         qq[ SELECT node.mac,node.pid,node_category.name as category,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,count(violation.mac) as nbopenviolations,node.voip,node.connection_type FROM node LEFT JOIN node_category USING (category_id) LEFT JOIN violation on node.mac=violation.mac AND violation.status='open' WHERE node.mac=? GROUP BY node.mac ]);
 
     $node_statements->{'node_view_with_fingerprint_sql'} = get_db_handle()->prepare(
-        qq[ SELECT mac,pid,node_category.name as category,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,ifnull(os_class.description, ' ') as dhcp_fingerprint,switch,port,vlan,node.voip,node.connection_type FROM node LEFT JOIN node_category USING (category_id) LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id WHERE mac=? ]);
+        qq[ SELECT mac,pid,node_category.name as category,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,node.notes,last_arp,last_dhcp,ifnull(os_class.description, ' ') as dhcp_fingerprint,switch,port,vlan,node.voip,node.connection_type FROM node LEFT JOIN node_category USING (category_id) LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id WHERE mac=? ]);
 
     # This guy here is special, have a look in node_view_all to see why
     $node_statements->{'node_view_all_sql'}
@@ -241,7 +241,7 @@ sub node_add {
 
     # category handling
     $data{'category_id'} = _node_category_handling(%data);
-    if ($data{'category_id'} == 0) {
+    if (defined($data{'category_id'}) && $data{'category_id'} == 0) {
         $logger->error("Unable to insert node because specified category doesn't exist");
         return (0);
     }
@@ -407,19 +407,26 @@ sub node_modify {
         }
     }
 
-    # category handling
-    $data{'category_id'} = _node_category_handling(%data);
-    if ($data{'category_id'} == 0) {
-        $logger->error("Unable to insert node because specified category doesn't exist");
-        return (0);
-    }
-    # once the category conversion is complete, I delete the category entry to avoid complicating things
-    delete $data{'category'} if defined($data{'category'});
-
     my $existing   = node_view($mac);
+    # keep track of status
     my $old_status = $existing->{status};
+    # special handling for category to category_id conversion
+    $existing->{'category_id'} = nodecategory_lookup($existing->{'category'});
     foreach my $item ( keys(%data) ) {
         $existing->{$item} = $data{$item};
+        print "$item: $data{$item}\n";
+    }
+
+    # category handling 
+    # if category was updated, resolve it correctly
+    if (defined($data{'category'}) || defined($data{'category_id'})) {
+       $existing->{'category_id'} = _node_category_handling(%data);
+       if (defined($existing->{'category_id'}) && $existing->{'category_id'} == 0) {
+           $logger->error("Unable to modify node because specified category doesn't exist");
+           return (0);
+       }   
+       # once the category conversion is complete, I delete the category entry to avoid complicating things
+       delete $existing->{'category'} if defined($existing->{'category'});
     }
 
     my $new_mac    = lc( $existing->{'mac'} );

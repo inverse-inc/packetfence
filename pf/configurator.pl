@@ -107,21 +107,22 @@ if (questioner(
 {
     my $template_txt = << "END_TEMPLATE_TXT";
 Which template would you like:
-                        1) Test mode
-                        2) Registration
-                        3) Detection
-                        4) Registration & Detection
-                        5) Registration, Detection & Scanning
-                        6) Session-based Authentication
-                        7) Registration, Detection and VLAN isolation
-                        8) PacketFence ZEN with VLAN isolation
+                        1) ARP mode in Testing
+                        2) ARP mode with Registration
+                        3) ARP mode with Detection (snort)
+                        4) ARP mode with Registration and Detection (snort)
+                        5) ARP mode with Registration, Detection (snort) & Scanning (nessus)
+                        6) ARP mode with Session-based Authentication
+                        7) VLAN isolation mode with Registration
+                        8) VLAN isolation mode with Registration and Detection (snort)
+                        9) VLAN isolation mode ready for PacketFence ZEN
 END_TEMPLATE_TXT
-    my $type = questioner( $template_txt, '', (1 .. 8) );
+    my $type = questioner( $template_txt, '', (1 .. 9) );
     load_template($type);
     print
         "Loading Template: Warning PacketFence is going LIVE - WEAPONS HOT \n"
         if ( $type ne '1' );
-    if ( $type ne '1' && $type ne '2' && $type ne '8' ) {
+    if ( $type ne '1' && $type ne '2' && $type ne '9' ) {
         print
             "Enabling host trapping!  Please make sure to review conf/violations.conf and disable any violations that don't fit your environment\n";
         $violation{defaults}{actions} = "trap,email,log";
@@ -187,8 +188,9 @@ sub load_template {
         4 => 'reg-detect.conf',
         5 => 'reg-detect-scan.conf',
         6 => 'sessionauth.conf',
-        7 => 'reg-detect-vlan.conf',
-        8 => 'zen-vlan.conf'
+        7 => 'reg-vlan.conf',
+        8 => 'reg-detect-vlan.conf',
+        9 => 'zen-vlan.conf'
     );
     if ( ! defined($template_hash{$template_nb}) ) {
         croak("Invalid template number $template_nb");
@@ -508,12 +510,14 @@ sub config_registration {
         "registration.auth", ( "local", "ldap", "radius" ) );
 
     if ( $cfg{network}{mode} ne 'vlan' ) {
+        # TODO offer: proxy, iptables or disable
         gatherer(
             "Would you like violation content accessible via iptables passthroughs or apache proxy?",
             "trapping.passthrough",
             ( "iptables", "proxy" )
         );
     } else {
+        # TODO offer: proxy or disable
         $cfg{'trapping'}{'passthrough'} = 'proxy';
     }
 }

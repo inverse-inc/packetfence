@@ -1,0 +1,222 @@
+package pf::SNMP::constants;
+
+=head1 NAME
+
+pf::SNMP::constants - Constants for SNMP to be consumed by SNMP modules
+
+=head1 DESCRIPTION
+
+This file is splitted by packages and refering to the constant requires you to
+specify the package.
+
+=cut
+
+use strict;
+use warnings;
+use diagnostics;
+
+use Readonly;
+
+=head1 SNMP
+
+Defined by standards
+
+=over
+
+=cut
+package SNMP;
+
+=item dot1dTpFdbStatus - defined by RFC 1493 (Definitions of Managed Objects for Bridges)
+
+ other(1)
+ invalid(2)
+ learned(3)
+ self(4)
+ mgmt(5)
+
+=cut
+Readonly::Scalar our $OTHER => 1;
+Readonly::Scalar our $INVALID => 2;
+Readonly::Scalar our $LEARNED => 3;
+Readonly::Scalar our $SELF => 4;
+Readonly::Scalar our $MGMT => 5;
+
+=item TruthValue - defined by RFC 1903 (SNMP Textual Conventions) aka SNMPv2-TC
+
+ true (1)
+ false (2)
+
+=cut
+Readonly::Scalar our $TRUE => 1;
+Readonly::Scalar our $FALSE => 2;
+
+=item RowStatus - defined by RFC 2579 (Textual Conventions for SMIv2)
+
+ active (1)
+ notInService (2)
+ notReady (3)
+ createAndGo (4)
+ createAndWait (5)
+ destroy (6)
+
+=cut
+Readonly::Scalar our $ACTIVE => 1;
+Readonly::Scalar our $NOT_IN_SERVICE => 2;
+Readonly::Scalar our $NOT_READY => 3;
+Readonly::Scalar our $CREATE_AND_GO => 4;
+Readonly::Scalar our $CREATE_AND_WAIT => 5;
+Readonly::Scalar our $DESTROY => 6;
+
+=back
+
+=head1 Q-BRIDGE
+
+RFC 4363:  Definitions of Managed Objects for Bridges with Traffic Classes, Multicast Filtering, and Virtual LAN Extensions
+
+=over
+
+=cut
+package SNMP::Q_BRIDGE;
+
+=item dot1qStaticUnicastStatus
+
+ other(1)
+ invalid(2)
+ permanent(3)
+ deleteOnReset(4)
+ deleteOnTimeout(5)
+ 
+=cut
+Readonly::Scalar our $OTHER => 1;
+Readonly::Scalar our $INVALID => 2;
+Readonly::Scalar our $PERMANENT => 3;
+Readonly::Scalar our $DELETE_ON_RESET => 4;
+Readonly::Scalar our $DELETE_ON_TIMEOUT => 5;
+
+=back
+ 
+=head1 CISCO
+
+Cisco constants
+
+=over
+
+=cut
+package CISCO;
+
+=item cpsIfViolationAction - Action to take in case of port-security violation (from CISCO-PORT-SECURITY-MIB)
+
+ Shutdown (1)
+ DropNotify (2)
+ Drop (3)
+
+=cut
+Readonly::Scalar our $SHUTDOWN => 1;
+Readonly::Scalar our $DROPNOTIFY => 2;
+Readonly::Scalar our $DROP => 3;
+
+=back
+
+=head1 EXTREME
+
+Extreme Networks constants
+
+=over
+
+=cut
+package EXTREME;
+
+=item PORT_SECURITY_DETECT_VLAN 
+
+Special VLAN used to detect if locked-learning is activated or not. Used for isPortSecurityEnabled()
+
+=cut
+Readonly::Scalar our $PORT_SECURITY_DETECT_VLAN => 'security-detection';
+
+=item Web Services constants - constants related to Extreme's Web Services functionality
+
+ WS_TIMEOUT - Timeout value for Web Services operations
+ WS_PROXY_URI_PATH - Common path for Extreme's Web Services operations
+ WS_NAMESPACE_FDB - Namespace for the Fdb table operations
+ WS_PREFIX_XOS - Prefix for XOS APIs
+ WS_DATATYPE_MAC - MAC address datatype
+ WS_DATATYPE_VLAN - VLAN datatype
+ WS_DATATYPE_PORT - Port datatype
+ WS_CREATE_FDB - Create Fdb Entry method call
+ WS_DELETE_FDB - Delete Fdb Entry method call
+ WS_GET_ALL_FDB - Get All Fdb Entries method call
+ WS_NODE_ALL_FDB_RESPONSE - Tree structure that gets to the Fdb contents
+
+=cut
+Readonly::Scalar our $WS_TIMEOUT => 10;
+Readonly::Scalar our $WS_PROXY_URI_PATH => 'xmlservice';
+Readonly::Scalar our $WS_NAMESPACE_FDB => 'urn:xapi/l2protocol/fdb';
+Readonly::Scalar our $WS_PREFIX_XOS => 'xos';
+
+Readonly::Scalar our $WS_DATATYPE_TRUE => 'true';
+Readonly::Scalar our $WS_DATATYPE_FALSE => 'false';
+Readonly::Scalar our $WS_DATATYPE_MAC => 'macAddress';
+Readonly::Scalar our $WS_DATATYPE_VLAN => 'vlan';
+Readonly::Scalar our $WS_DATATYPE_PORT => 'port';
+Readonly::Scalar our $WS_DATATYPE_PERMANENT => 'isPermanent';
+
+Readonly::Scalar our $WS_CREATE_FDB => 'xos:createFdb';
+Readonly::Scalar our $WS_DELETE_FDB => 'xos:deleteFdb';
+Readonly::Scalar our $WS_GET_ALL_FDB => 'xos:getAllFdb';
+
+Readonly::Scalar our $WS_NODE_ALL_FDB_RESPONSE => '//Body/getAllFdbResponse/reply/fdb';
+
+=back
+
+=head1 EXTREME::VLAN
+
+Extreme Networks VLAN oriented constants
+
+=over 
+
+=cut
+package EXTREME::VLAN;
+
+=item extremeVlanOpaqueControlOperation - Operations on VLANs (from EXTREME-VLAN-MIB)
+
+ addTagged(1)
+ addUntagged(2)
+ delete(3)
+
+=cut
+Readonly::Scalar our $ADD_TAGGED => 1;
+Readonly::Scalar our $ADD_UNTAGGED => 2;
+Readonly::Scalar our $DELETE => 3;
+
+=back
+
+=head1 AUTHOR
+
+Olivier Bilodeau <obilodeau@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2010 Inverse inc.
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
+1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:

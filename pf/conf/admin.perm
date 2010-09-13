@@ -1,0 +1,31 @@
+; PacketFence Granular Access Control
+;
+; Users to roles definitions
+; Syntax:
+;       <username>=<role>
+;
+; username MUST be an exact match to username in conf/admin.conf
+
+[users]
+; default role: if a user is not in this file he will be assigned that role
+default_role=admin
+admin=admin
+
+; Roles to permission-level definitions
+; Syntax:
+;       <role>={1|2|3|4|5}
+[roles]
+admin=5
+helpdesk=3
+
+; Permission-level required for page
+; Syntax:
+;       <pagename>={1|2|3|4|5}
+[permissions]
+status=1
+person=2
+node=2
+violation=3
+configuration=4
+administration=4
+scan=3

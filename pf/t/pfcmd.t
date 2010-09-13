@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 69;
+use Test::More tests => 70;
 use Log::Log4perl;
 use File::Basename qw(basename);
 use lib '/usr/local/pf/lib';
@@ -184,6 +184,11 @@ is_deeply(\%cmd,
 is_deeply(\%cmd,
           { 'command' => [ 'switchconfig', 'get', 'all' ] },
           'pfcmd switchconfig get all');
+
+%cmd = pf::pfcmd::parseCommandLine('floatingnetworkdeviceconfig get all');
+is_deeply(\%cmd,
+          { 'command' => [ 'floatingnetworkdeviceconfig', 'get', 'all' ] },
+          'pfcmd floatingnetworkdeviceconfig get all');
 
 %cmd = pf::pfcmd::parseCommandLine('traplog update');
 is_deeply(\%cmd,

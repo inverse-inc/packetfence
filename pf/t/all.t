@@ -23,6 +23,11 @@ runtests( qw(
               data.t
               graph.t
               nodecategory.t
+              floatingdevice.t
+              network-devices/cisco.t
+              pfsetvlan.t
               radius.t
+              report.t
+              node.t
             )
 );

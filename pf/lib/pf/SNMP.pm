@@ -26,8 +26,10 @@ our $VERSION = v1.7.0.6;
 use pf::config;
 use pf::locationlog;
 use pf::node;
+# SNMP constants
+use pf::SNMP::constants;
 
-=head1 METHODS
+=head1 SUBROUTINES
 
 =over
 
@@ -47,8 +49,6 @@ sub new {
         '_dbUser'                   => undef,
         '_error'                    => undef,
         '_guestVlan'                => undef,
-        '_htaccessPwd'              => undef,
-        '_htaccessUser'             => undef,
         '_ip'                       => undef,
         '_isolationVlan'            => undef,
         '_macDetectionVlan'         => undef,
@@ -85,6 +85,9 @@ sub new {
         '_cliPwd'                   => undef,
         '_cliUser'                  => undef,
         '_cliTransport'             => undef,
+        '_wsPwd'                    => undef,
+        '_wsUser'                   => undef,
+        '_wsTransport'              => undef,
         '_uplink'                   => undef,
         '_vlans'                    => undef,
         '_voiceVlan'                => undef,
@@ -120,10 +123,6 @@ sub new {
             $this->{_dbUser} = $argv{$_};
         } elsif (/^-?guestVlan$/i) {
             $this->{_guestVlan} = $argv{$_};
-        } elsif (/^-?htaccessPwd$/i) {
-            $this->{_htaccessPwd} = $argv{$_};
-        } elsif (/^-?htaccessUser$/i) {
-            $this->{_htaccessUser} = $argv{$_};
         } elsif (/^-?ip$/i) {
             $this->{_ip} = $argv{$_};
         } elsif (/^-?isolationVlan$/i) {
@@ -178,6 +177,12 @@ sub new {
             $this->{_cliUser} = $argv{$_};
         } elsif (/^-?cliTransport$/i) {
             $this->{_cliTransport} = $argv{$_};
+        } elsif (/^-?wsPwd$/i) {
+            $this->{_wsPwd} = $argv{$_};
+        } elsif (/^-?wsUser$/i) {
+            $this->{_wsUser} = $argv{$_};
+        } elsif (/^-?wsTransport$/i) {
+            $this->{_wsTransport} = lc($argv{$_});
         } elsif (/^-?uplink$/i) {
             $this->{_uplink} = $argv{$_};
         } elsif (/^-?SNMPEngineID$/i) {
@@ -492,7 +497,7 @@ sub setVlan {
 
         return 1;
     }
-
+    # FIXME get rid of this if everything works fine
     # so far so good, you can get rid of the below lines after I did a lot of tests
     #update locationlog
     # - not sure this is useful after locationlog_synchronize
@@ -961,15 +966,11 @@ sub resetVlanAllPort {
     foreach my $ifIndex (@managedIfIndexes) {
         if ( $this->isPortSecurityEnabled($ifIndex) )
         {    # disabling port-security
-            $logger->debug(
-                "disabling port-security on ifIndex $ifIndex before resetting to vlan "
-                    . $this->{_normalVlan} );
-            $this->setPortSecurityDisabled($ifIndex);
+            $logger->debug("disabling port-security on ifIndex $ifIndex before resetting to vlan " . 
+                           $this->{_normalVlan} );
+            $this->setPortSecurityEnableByIfIndex($ifIndex, $FALSE);
         }
-        $logger->debug( "setting "
-                . $this->{_ip}
-                . " ifIndex $ifIndex to VLAN "
-                . $this->{_normalVlan} );
+        $logger->debug( "setting " . $this->{_ip} . " ifIndex $ifIndex to VLAN " . $this->{_normalVlan} );
         $this->setVlan( $ifIndex, $this->{_normalVlan}, $switch_locker_ref );
     }
 }
@@ -1008,6 +1009,28 @@ sub getMacAtIfIndex {
     }
     return @macArray;
 }
+
+=item getSysName - return the administratively-assigned name of the switch. By convention, this is the switch's 
+fully-qualified domain name
+    
+=cut
+        
+sub getSysName {
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $OID_sysName = '1.3.6.1.2.1.1.5';                     # mib-2
+    if ( !$this->connectRead() ) {
+        return '';
+    }
+    $logger->trace("SNMP get_request for sysName: $OID_sysName");
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$OID_sysName] );
+    if ( exists( $result->{$OID_sysName} )
+        && ( $result->{$OID_sysName} ne 'noSuchInstance' ) )
+    {                      
+        return $result->{$OID_sysName};
+    }   
+    return '';
+}       
 
 =item getIfDesc - return ifDesc given ifIndex
 
@@ -1082,6 +1105,12 @@ sub setAdminStatus {
     my ( $this, $ifIndex, $enabled ) = @_;
     my $logger            = Log::Log4perl::get_logger( ref($this) );
     my $OID_ifAdminStatus = '1.3.6.1.2.1.2.2.1.7';
+
+    if ( !$this->isProductionMode() ) {
+        $logger->info("not in production mode ... we won't change this port ifAdminStatus");
+        return 1;
+    }
+
     if ( !$this->connectWrite() ) {
         return 0;
     }
@@ -1112,8 +1141,83 @@ sub isPortSecurityEnabled {
     return ( 0 == 1 );
 }
 
-sub setPortSecurityDisabled {
+sub setPortSecurityEnableByIfIndex {
     my ( $this, $ifIndex, $trueFalse ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("Function not implemented for switch type " . ref($this));
+    return ( 0 == 1 );
+}
+
+sub setPortSecurityMaxSecureMacAddrByIfIndex {
+    my ( $this, $ifIndex, $maxSecureMac ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("Function not implemented for switch type " . ref($this));
+    return ( 0 == 1 );
+}
+
+sub setPortSecurityViolationActionByIfIndex {
+    my ( $this, $ifIndex, $action ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("Function not implemented for switch type " . ref($this));
+    return ( 0 == 1 );
+}
+
+sub supportsFloatingDevice {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("Floating devices are not supported on switch type " . ref($this));
+    return 0;
+}   
+
+sub enablePortSecurityByIfIndex {
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("Function not implemented for switch type " . ref($this));
+    return ( 0 == 1 );
+}   
+
+sub disablePortSecurityByIfIndex {
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("Function not implemented for switch type " . ref($this));
+    return ( 0 == 1 );
+}   
+
+sub setModeTrunk {
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("Function not implemented for switch type " . ref($this));
+    return ( 0 == 1 );
+}   
+
+sub setTaggedVlan {
+    my ( $this, $ifIndex, $taggedVlans ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("Function not implemented for switch type " . ref($this));
+    return ( 0 == 1 );
+}   
+
+sub resetTaggedVlan {
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("Function not implemented for switch type " . ref($this));
+    return ( 0 == 1 );
+}   
+
+sub isTrunkPort {
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->debug("Unimplemented. Are you sure you are using the right switch module? Switch type: " . ref($this));
     return ( 0 == 1 );
 }
 
@@ -1154,8 +1258,7 @@ sub hasPhoneAtIfIndex {
 
             # is node voip or does it have a phone dhcp fingerprint?
             if ( defined($node_info)
-                && ( ($node_info->{dhcp_fingerprint} =~ /VoIP Phone/)||($node_info->{voip} eq 'yes')) )
-            {
+                && ( ($node_info->{dhcp_fingerprint} =~ /VoIP Phone/) || ($node_info->{voip} eq VOIP)) ) {
                 return 1;
             }
         }
@@ -1186,7 +1289,7 @@ sub isPhoneAtIfIndex {
 
     #do we have node information
     if (defined($node_info)) {
-        if ($node_info->{voip} eq 'yes') {
+        if ($node_info->{voip} eq VOIP) {
             $logger->debug("This is a VoIP phone according to node.voip");
             return 1;
         }
@@ -1744,11 +1847,13 @@ sub getIfIndexForThisMac {
     return -1;
 }
 
+# TODO: unclear method contract
 sub getVmVlanType {
     my ( $this, $ifIndex ) = @_;
     return 1;
 }
 
+# TODO: unclear method contract
 sub setVmVlanType {
     my ( $this, $ifIndex, $type ) = @_;
     return 1;
@@ -1961,12 +2066,48 @@ sub getUpLinks {
     return @upLinks;
 }
 
+# TODO: what the hell is this supposed to do?
 sub getVlanFdbId {
     my ( $this, $vlan ) = @_;
     my $OID_dot1qVlanFdbId = '1.3.6.1.2.1.17.7.1.4.2.1.3.0';    #Q-BRIDGE-MIB
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     return $vlan;
+}
+
+sub isIfLinkUpDownTrapEnable { 
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    if ( !$this->connectRead() ) {
+        return 0;
+    }
+    my $OID_ifLinkUpDownTrapEnable = '1.3.6.1.2.1.31.1.1.1.14'; # from IF-MIB
+    $logger->trace("SNMP get_request for ifLinkUpDownTrapEnable: $OID_ifLinkUpDownTrapEnable"); 
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => [ "$OID_ifLinkUpDownTrapEnable.$ifIndex" ] );
+    return ( exists( $result->{"$OID_ifLinkUpDownTrapEnable.$ifIndex"} )
+                && ( $result->{"$OID_ifLinkUpDownTrapEnable.$ifIndex"} ne 'noSuchInstance' )
+                && ( $result->{"$OID_ifLinkUpDownTrapEnable.$ifIndex"} == 1 ) );
+}       
+
+sub setIfLinkUpDownTrapEnable {
+    my ( $this, $ifIndex, $enable ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    if ( !$this->isProductionMode() ) {
+        $logger->info("not in production mode ... we won't change this port ifLinkUpDownTrapEnable");
+        return 1;
+    }   
+
+    if ( !$this->connectWrite() ) {
+        return 0;
+    }
+    my $OID_ifLinkUpDownTrapEnable = '1.3.6.1.2.1.31.1.1.1.14'; # from IF-MIB
+    my $truthValue = $enable ? $SNMP::TRUE : $SNMP::FALSE;
+
+    $logger->trace("SNMP set_request for ifLinkUpDownTrapEnable: $OID_ifLinkUpDownTrapEnable");
+    my $result = $this->{_sessionWrite}->set_request( -varbindlist => [ 
+            "$OID_ifLinkUpDownTrapEnable.$ifIndex", Net::SNMP::INTEGER, $truthValue ] );
+    return ( defined($result) );
 }
 
 =item deauthenticateMac - performs wireless deauthentication
@@ -2033,6 +2174,8 @@ sub NasPortToIfIndex {
 Dominik Gehl <dgehl@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Regis Balzard <rbalzard@inverse.ca>
 
 =head1 COPYRIGHT
 

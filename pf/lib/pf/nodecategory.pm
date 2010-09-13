@@ -21,7 +21,6 @@ Read the F<pf.conf> configuration file.
 use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
-use Config::IniFiles;
 use Log::Log4perl;
 
 use constant NODECATEGORY => 'nodecategory';
@@ -56,8 +55,6 @@ our $nodecategory_db_prepared = 0;
 our $nodecategory_statements = {};
 
 =head1 SUBROUTINES
-
-TODO: This list is incomlete
 
 =over
 

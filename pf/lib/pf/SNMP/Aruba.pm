@@ -275,6 +275,16 @@ sub getTelnetSession {
 
 =back
 
+=head1 BUGS AND LIMITATIONS
+
+=over
+
+=item The module currently doesn't work with Controllers in the MASTER / LOCAL configuration
+
+This is caused by the fact that the client state is on the LOCAL controller but for PacketFence the IP who initiated the Radius authentication is the IP it talks to (which is the master and not the local).
+
+=back 
+
 =head1 AUTHOR
 
 Regis Balzard <rbalzard@inverse.ca>

@@ -159,8 +159,7 @@ sub _setVlan {
         #set egress ports through web interface
         my $vlanName = $this->getVlans();
         $vlanName = $vlanName->{$newVlan};
-        my $urlPath
-            = 'http://' . $this->{_ip} . '/html/Hvlan_egresstag.html?';
+        my $urlPath = $this->{_wsTransport} . '://' . $this->{_ip} . '/html/Hvlan_egresstag.html?';
         for ( my $i = 0; $i < length($vlanName); $i++ ) {
             my $char = substr( $vlanName, $i, 1 );
             $urlPath .= ord( substr( $vlanName, $i, 1 ) ) . ',';
@@ -173,14 +172,12 @@ sub _setVlan {
 
             my $ua = LWP::UserAgent->new;
             my $req = HTTP::Request->new( GET => $urlPath );
-            $req->authorization_basic( $this->{_htaccessUser},
-                $this->{_htaccessPwd} );
+            $req->authorization_basic($this->{_wsUser}, $this->{_wsPwd});
             my $form = HTML::Form->parse( $ua->request($req) );
             $form->value( "S$ifIndex", '3' );
             $form->click('Submit');
             $req = $form->click('Submit');
-            $req->authorization_basic( $this->{_htaccessUser},
-                $this->{_htaccessPwd} );
+            $req->authorization_basic($this->{_wsUser}, $this->{_wsPwd});
             my $response = $ua->request($req);
         };
 

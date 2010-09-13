@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 37;
+use Test::More tests => 40;
 use lib '/usr/local/pf/lib';
 
 BEGIN { use_ok('pf::SwitchFactory') }
@@ -40,14 +40,22 @@ is( $switch->{_SNMPPrivProtocolTrap},
     'DES', 'SNMP trap priv proto of 192.168.0.1' );
 is( $switch->{_SNMPPrivPasswordTrap},
     'privpwdread', 'SNMP trap priv pwd of 192.168.0.1' );
-is( $switch->{_cliTransport}, 'ssh', 'cli transport of 192.168.0.1' );
 is( $switch->{_SNMPCommunityRead},
     'readCommunity', 'read community of 192.168.0.1' );
 is( $switch->{_SNMPCommunityWrite},
     'writeCommunity', 'write community of 192.168.0.1' );
+
+# CLI parameter tests
+is( $switch->{_cliTransport}, 'ssh', 'cli transport of 192.168.0.1' );
 is( $switch->{_cliUser},      'cliUser',   'cli user of 192.168.0.1' );
 is( $switch->{_cliPwd},       'cliPwd',    'cli pwd of 192.168.0.1' );
 is( $switch->{_cliEnablePwd}, 'cliEnable', 'cli enable pwd of 192.168.0.1' );
+
+# Web Services parameter tests
+is( $switch->{_wsTransport}, 'https', 'web services transport of 192.168.0.1' );
+is( $switch->{_wsUser},      'webservices_user',   'web services user of 192.168.0.1' );
+is( $switch->{_wsPwd},       'webservices_pwd',    'web services pwd of 192.168.0.1' );
+
 is( $switch->{_voiceVlan},    '10',        'voice VLAN of 192.168.0.1' );
 is( $switch->{_SNMPEngineID},
     'SNMPEngineID', 'SNMP Engine ID of 192.168.0.1' );

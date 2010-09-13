@@ -22,13 +22,17 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::Extreme');
 
+# importing switch constants
+use pf::SNMP::constants;
+use pf::util;
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009 Inverse inc.
+Copyright (C) 2009,2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

@@ -52,6 +52,7 @@ use vars qw(%RAD_REQUEST %RAD_REPLY %RAD_CHECK);
         use constant    RLM_MODULE_UPDATED=>   8;#  /* OK (pairs modified) */
         use constant    RLM_MODULE_NUMCODES=>  9;#  /* How many return codes there are */
 
+# when troubleshooting run radius -X and change the following line with: use SOAP::Lite +trace => qw(all), 
 use SOAP::Lite
     # SOAP global error handler (mostly transport or server errors)
     # here we only log, the or on soap method calls will take care of returning
@@ -92,7 +93,8 @@ sub authorize {
     my $mac = $RAD_REQUEST{'Calling-Station-Id'};
     # TODO refactoring: change name because its not only a switch, it can be an AP
     # networkelement_ip? networkdevice_ip?
-    my $switch_ip = $RAD_REQUEST{'Client-IP-Address'};
+    # freeradius 2 provides the switch_ip in NAS-IP-Address not Client-IP-Address (non-standard freeradius1 attribute)
+    my $switch_ip = $RAD_REQUEST{'NAS-IP-Address'} || $RAD_REQUEST{'Client-IP-Address'};
     my $user_name = $RAD_REQUEST{'User-Name'};
     my $nas_port_type = $RAD_REQUEST{'NAS-Port-Type'};
     my $port = $RAD_REQUEST{'NAS-Port'};
@@ -244,7 +246,7 @@ https://lists.sourceforge.net/lists/listinfo/packetfence-devel
 =cut
 sub find_ssid {
 
-    if (exists($RAD_REQUEST{'Cisco-AVPair'})) {
+    if (defined($RAD_REQUEST{'Cisco-AVPair'})) {
 
         if ($RAD_REQUEST{'Cisco-AVPair'} =~ /^ssid=(.*)$/) { # ex: Cisco-AVPair = "ssid=Inverse-Secure"
             return $1;
@@ -252,6 +254,8 @@ sub find_ssid {
             syslog("info", "Unable to parse SSID out of Cisco-AVPair: ".$RAD_REQUEST{'Cisco-AVPair'});
             return;
         }
+    } elsif (defined($RAD_REQUEST{'Aruba-Essid-Name'})) {
+        return $RAD_REQUEST{'Aruba-Essid-Name'};
     } else {
         return;
     } 

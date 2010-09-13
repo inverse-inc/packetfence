@@ -9,7 +9,7 @@ use lib qw(
    /usr/local/pf/lib
 );
 
-use Test::Pod::Coverage tests => 6;
+use Test::Pod::Coverage tests => 7;
 
 pod_coverage_ok("authentication::ldap");
 pod_coverage_ok("authentication::local");
@@ -18,3 +18,4 @@ pod_coverage_ok("authentication::radius");
 pod_coverage_ok("pf::radius");
 pod_coverage_ok("pf::vlan");
 pod_coverage_ok("pf::SNMP");
+pod_coverage_ok("pf::floatingdevice");

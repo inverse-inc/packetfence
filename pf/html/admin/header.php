@@ -40,6 +40,8 @@
         $cmd = "networkconfig delete $new_array[0]";
       } else if (($current_top == 'configuration') && ($current_sub=='switches')) {
         $cmd = "switchconfig delete $new_array[0]";
+      } else if (($current_top == 'configuration') && ($current_sub=='floatingnetworkdevice')) {
+        $cmd = "floatingnetworkdeviceconfig delete $new_array[0]";
       } else if (($current_top == 'configuration') && ($current_sub=='violation')) {
         $cmd = "violationconfig delete $new_array[0]";
       } else if (($current_top == 'node') && ($current_sub=='categories')) {
@@ -187,4 +189,5 @@
 <!-- Begin Content -->
 <div id="content">
 
-<?
+<?php
+perform_access_control();

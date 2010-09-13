@@ -33,31 +33,31 @@ sub lookup_node {
     if ( node_exist($mac) ) {
 
         my $node_info = node_view($mac);
-        $return .= "MAC Address    : $mac";
+        $return .= "MAC Address    : $mac\n";
 
         # fetch IP and DHCP information
         my $node_iplog_info = iplog_view_open_mac($mac);
         if (defined($node_iplog_info->{'ip'})) {
 
-            $return .= "IP Address : ".$node_iplog_info->{'ip'}." (active)\n";
-            $return .= "IP Info    : IP active since " . $node_iplog_info->{'start_time'} .
+            $return .= "IP Address     : ".$node_iplog_info->{'ip'}." (active)\n";
+            $return .= "IP Info        : IP active since " . $node_iplog_info->{'start_time'} .
                        " and DHCP lease valid until ".$node_iplog_info->{'end_time'}."\n";
             
         } else {
             my @node_iplog_history_info = iplog_history_mac($mac);
             if (ref($node_iplog_history_info[0]) eq 'HASH' && defined($node_iplog_history_info[0]->{'ip'})) {
                 my $latest_iplog = $node_iplog_history_info[0];
-                $return .= "IP Address : ".$latest_iplog->{'ip'}." (inactive)\n";
-                $return .= "IP Info    : IP was last seen active between " . $latest_iplog->{'start_time'} .
+                $return .= "IP Address     : ".$latest_iplog->{'ip'}." (inactive)\n";
+                $return .= "IP Info        : IP was last seen active between " . $latest_iplog->{'start_time'} .
                            " and ". $latest_iplog->{'end_time'} . "\n";
             } else {
-                $return .= "IP Address : Unknown\n";
-                $return .= "IP Info    : No IP information available\n";
+                $return .= "IP Address     : Unknown\n";
+                $return .= "IP Info        : No IP information available\n";
             }
         }
 
         # DHCP history
-        $return .= "DHCP Info  : Last DHCP request at ".$node_info->{'last_dhcp'}."\n";
+        $return .= "DHCP Info      : Last DHCP request at ".$node_info->{'last_dhcp'}."\n";
 
         my $owner  = $node_info->{'pid'};
         my $category = $node_info->{'category'};
@@ -121,14 +121,14 @@ sub lookup_node {
                 if (defined($last_locationlog_entry[0]->{'end_time'}) && $last_locationlog_entry[0]->{'end_time'} !~ /0000/) {
                     $is_entry_active = 0;
                 }
-                $return .= "Location: port ". $last_locationlog_entry[0]->{'port'}." "
+                $return .= "Location       : port ". $last_locationlog_entry[0]->{'port'}." "
                         .  " (vlan " . $last_locationlog_entry[0]->{'vlan'}.")"
                         .  " on switch ".$last_locationlog_entry[0]->{'switch'}
                         .  "\n";
                 if ($is_entry_active) {
-                    $return .= "Last activity: currently active\n";
+                    $return .= "Last activity  : currently active\n";
                 } else {
-                    $return .= "Last activity: ".$last_locationlog_entry[0]->{'end_time'}."\n";
+                    $return .= "Last activity  : ".$last_locationlog_entry[0]->{'end_time'}."\n";
                 }
             } else {
                 $return .= "No connectivity information available (We probably only saw a DHCP request)\n";
@@ -201,3 +201,7 @@ USA.
 =cut
 
 1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:

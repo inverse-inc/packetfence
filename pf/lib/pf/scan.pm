@@ -84,7 +84,7 @@ sub runScan {
     unlink($infileName);
 
     # did it went well?
-    if ($?) { $logger->trace("nessus failed, it returned: $output"); }
+    if ($?) { $logger->warn("nessus scan failed, it returned: $output"); }
     if ( ! -r $outfileName ) {
         $logger->warn("unable to open $outfileName for reading; Nessus scan might have failed");
         return 1;

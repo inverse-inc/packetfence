@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 75;
+use Test::More tests => 76;
 
 my @php_files = (
     '/usr/local/pf/html/admin/administration/adduser.php',
@@ -15,6 +15,7 @@ my @php_files = (
     '/usr/local/pf/html/admin/3rdparty/calendar/calendar.php',
     '/usr/local/pf/html/admin/check_login.php',
     '/usr/local/pf/html/admin/common.php',
+    '/usr/local/pf/html/admin/common/adminperm.inc',
     '/usr/local/pf/html/admin/common/helpers.inc',
     '/usr/local/pf/html/admin/common/sajax/Sajax.php',
     '/usr/local/pf/html/admin/configuration/fingerprint.php',

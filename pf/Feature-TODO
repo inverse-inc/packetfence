@@ -1,9 +1,15 @@
 DONE: - Pragmatically test for memory leaks (since we can't realistically check all the code, modules)
 
+DONE: - fully test and rubberstamp freeradius2 support (do wired 802.1x, wireless-802.1x and MAB)
+- our rpm package will depend on freeradius2 (and its -perl)
+-- modify install doc
+- package will install rlm_perl_packetfence in /etc/raddb/? (how?)
+- package will modify the config to activate the module and eap, etc.
+
 - rename all node fields in ui.conf to point out that switch, port, voip andd connection_type are Last seen values
 - rename all node vlan fields in ui.conf to point out the fact that VLAN is "My VLAN" and hide from node view by default
 
-- Upgrade rlm_perl_packetfence_sql.pl to use new database
+- Upgrade rlm_perl_packetfence_sql.pl to use new database (not so sure anymore..)
 - What can we do that is better than returning -1 to a radius client?
 - We'll have to think about how to close locationlog entries for radius authorize requests.. (after a day?)
 

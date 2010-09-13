@@ -14,46 +14,90 @@ For a list of compatibility related changes see the UPGRADE file.
 
 
 --------------------------------------------------------------------------------
-Version <version> - <codename> released on <releaseDate>
+Version <release> - <codename> released on <releaseDate>
 
 New Features
-- More information available in Node Lookup (IP, DHCP lease)
-- More logging information available
-- Improved error-handling (#847)
+- Simplification of the Wireless, Wired 802.1X and Mac Address Bypass (MAB) 
+  configuration. Because of a new FreeRADIUS module and a Web Service interface, 
+  everything is now using standard PacketFence configuration files.
+- VoIP devices authorization over RADIUS (#1008)
 
-Bugfix
-- Minor corrections to the Admin Web UI
-- Correct VLAN information shown in Node Lookup (#893)
-- Clarified some error messages
+Enhancements
+- New information available in Node Lookup (Connection Type, ...)
+- Small usability improvements (#1006)
+- Starting to use some mod_perl by default for nice performance gains
+- Refactoring of the pf::vlan method names for more meaningful ones
+- Removed unnecessary database connections and duplicated code
+- Added several tests
 
 --------------------------------------------------------------------------------
-Version <version> - <codename> released on <releaseDate>
+Version <release> - <codename> released on <releaseDate>
+
+New Hardware Support
+- Extreme XOS Port Security (MAC address lockdown) support (feature sponsored by
+  Extreme Networks)
+
+New Features
+- Basic Access Control in the Web Administration interface (#965, Thanks to 
+  eSubnet Enterprises for their initial contribution)
+- New parameters in switches.conf to manage Web Services enabled switches
+
+Enhancements
+- More than 30 new DHCP fingerprints (Thanks to Eric Kollmann!)
+- Improved Nessus failed scan error reporting (partial fix for #1032)
+- Better error reporting on Cisco ISR 1800
+- Added some documentation for Cisco (2960, 3550) and Aruba in the SNMP modules
+- Error handling and error messages improvements (#1052)
+
+Bug fixes
+- RPM packaging fixes (#1047)
+
+--------------------------------------------------------------------------------
+Version 1.9.0 released on 2010-07-15
 
 New
-- Official Linux 64 bit support (TODO: change documentation and symlink in yum repo and build system)
+- Official Linux 64 bit support
 
 New Hardware Support
 - Cisco Wireless Services Module (WiSM)
 - Cisco Integrated Services Routers (ISR) 1800 Series
 - Cisco Catalyst 3750 Series
-- Port security and Voice over IP support for Foundry FastIron 4802 (sponsored 
-  by ICTU)
+- Cisco Catalyst 4500 Series
+- Foundry FastIron 4802 Port security and Voice over IP support (feature 
+  sponsored by an entity who preferred to remain anonymous)
+- HP Procurve 3400cl (tested by roelof)
+- SMC SMC8824M and SMC8848M in Port Security (feature sponsored by Seattle 
+  Pacific University developed with the help of SMC)
 
 New Features
-- New node category support, you can assign different VLANs or whitelist 
-  violations based on a node's category (#968)
-- Improved error reporting in the web administration panel and cli (#898, #899,
-  #964)
-- Improved database layer (simpler to use, more robust and logs errors)
+- Node category support, you can assign different VLANs or whitelist violations
+  based on a node's category (#968)
+- Added support for Floating Network Devices (See Admin Guide for details)
+
+Enhancements
+- Improved error reporting in the web administration panel and cli (#847, #898,
+  #899, #964, #993)
+- More information available in Node Lookup (IP, DHCP lease)
+- Improved database layer (more robust and logs errors)
 - pfsetvlan is more resistant to configuration mistakes and reports them (#766)
+- Net-SNMP 5.4 support (#940 Thanks to Maikel)
+- Freeradius 2.x support (#1007)
 - @ character now allowed in person id (pid). This is very common in Active 
   Directory environment.
 - New admin authentication mechanism added (disabled by default)
 - New debugging features (disabled by default)
 - New DHCP fingerprints
 - Optional backup script in addons/ now archives old records
+- New helper synchronization scripts in addons/high-availability
+- Little improvements (#866, #886, #911, #916, #952, #975)
+
+Documentation improvements
 - Install guide more accurate
-- Little improvements (#911, #916)
+- Added directions to configure PacketFence in a routed environment to the 
+  admin guide
+- Updated the High-Availability section with details about DRBD and HeartBeat v1
+- More MySQL tips (#951)
+- Fixed Procurve 2600 switch configuration (Thanks to Andrew Niemantsverdriet!)
 
 Bug fixes
 - Performance fixes (#908, #910)
@@ -64,8 +108,13 @@ Bug fixes
 - Fixed PacketFence RPM upgrade bug if your version is lower than 1.8.5 (#931)
 - Fixed rare port-security problems with stacked switches or switches with 
   large ifIndex (#921)
+- Fixed problems with DHCP Fingerprint submission
 - Fixed call to non-existing script lookup_node.pl in pfdhcplistener (#858)
-- Misc. stability and general fixes (#885, #923)
+- Correct VLAN information shown in Node Lookup (#893)
+- Minor corrections to the Admin Web UI
+- Clarified some error messages
+- Misc. stability and general fixes (#833, #885, #868, #869, #896, #923, #927,
+  #946, #950)
 
 --------------------------------------------------------------------------------
 Version 1.8.7 released on 2010-01-06

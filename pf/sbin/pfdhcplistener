@@ -320,12 +320,12 @@ sub listen_dhcp {
         }
     } elsif ( $op == 1 ) {
         if ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 1 ) {
-            $logger->info("DHCPDISCOVER from $chaddr");
+            $logger->debug("DHCPDISCOVER from $chaddr");
         } elsif ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 3 ) {
-            $logger->info("DHCPREQUEST from $chaddr");
+            $logger->debug("DHCPREQUEST from $chaddr");
         } elsif ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 7 ) {
             $ciaddr = int2ip($ciaddr);
-            $logger->info("DHCPRELEASE from $chaddr ($ciaddr)");
+            $logger->debug("DHCPRELEASE from $chaddr ($ciaddr)");
             iplog_close($ciaddr);
             return;
         } elsif ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 8 ) {
@@ -336,6 +336,7 @@ sub listen_dhcp {
 
         my %tmp;
         $tmp{'dhcp_fingerprint'} = "";
+        my $fingerprint_data;
         if ( defined( $options{'55'} ) ) {
             my $dhcp_fingerprint = join( ",", @{ $options{'55'} } );
             $tmp{'dhcp_fingerprint'} = $dhcp_fingerprint;
@@ -344,10 +345,8 @@ sub listen_dhcp {
                 && ( ref( $fingerprint_info[0] ) eq 'HASH' ) )
             {
                 my @os_triggers;
-                $logger->info( "$chaddr DHCP fingerprint is OS::"
-                        . $fingerprint_info[0]->{'os_id'} . " ("
-                        . $fingerprint_info[0]->{'os'}
-                        . ") " );
+                $fingerprint_data = "OS::".$fingerprint_info[0]->{'os_id'}." (".$fingerprint_info[0]->{'os'}.")";
+                $logger->debug("$chaddr DHCP fingerprint is $fingerprint_data");
                 $logger->debug( "sending OS::"
                         . $fingerprint_info[0]->{'os_id'} . " ("
                         . $fingerprint_info[0]->{'os'}
@@ -416,9 +415,11 @@ sub listen_dhcp {
                 .= "$node_key = " . $tmp{$node_key} . ",";
         }
         chop($modifying_node_log_message);
-        $logger->info(
-            "modifying node $chaddr with $modifying_node_log_message");
-        node_modify( $chaddr, %tmp );
+        $logger->info("$chaddr requested an IP. "
+            . "DHCP Fingerprint: $fingerprint_data. "
+            . "Modifying node with $modifying_node_log_message"
+        );
+        my $result = node_modify( $chaddr, %tmp );
     } else {
         $logger->debug("unrecognized DHCP opcode from $chaddr: $op");
     }
