@@ -26,7 +26,7 @@ New Features
 - New parameters in switches.conf to manage Web Services enabled switches
 
 Enhancements
-- New DHCP fingerprints (Cisco AP, FortiOS)
+- More than 30 new DHCP fingerprints (Thanks to Eric Kollmann!)
 - Improved Nessus failed scan error reporting (partial fix for #1032)
 - Better error reporting on Cisco ISR 1800
 - Added some documentation for Cisco (2960, 3550) and Aruba in the SNMP modules
