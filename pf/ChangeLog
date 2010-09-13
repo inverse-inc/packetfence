@@ -1,4 +1,7 @@
 2010-09-13	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/802.1X/rlm_perl_packetfence_soap.pl: Added SSID detection 
+	for Aruba wireless controllers.
+
 	* pf/conf/dhcp_fingerprints.conf: New DHCP fingerprints: Windows,
 	Alcatel, Siemens, Cisco, Linksys, Mitel IP phones, Cisco, Enterasys,
 	Trapeze APs, Debian, Ubuntu, Puppy Linux, Enterasys Switches, Nokia

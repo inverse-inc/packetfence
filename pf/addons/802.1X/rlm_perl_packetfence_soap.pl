@@ -246,7 +246,7 @@ https://lists.sourceforge.net/lists/listinfo/packetfence-devel
 =cut
 sub find_ssid {
 
-    if (exists($RAD_REQUEST{'Cisco-AVPair'})) {
+    if (defined($RAD_REQUEST{'Cisco-AVPair'})) {
 
         if ($RAD_REQUEST{'Cisco-AVPair'} =~ /^ssid=(.*)$/) { # ex: Cisco-AVPair = "ssid=Inverse-Secure"
             return $1;
@@ -254,6 +254,8 @@ sub find_ssid {
             syslog("info", "Unable to parse SSID out of Cisco-AVPair: ".$RAD_REQUEST{'Cisco-AVPair'});
             return;
         }
+    } elsif (defined($RAD_REQUEST{'Aruba-Essid-Name'})) {
+        return $RAD_REQUEST{'Aruba-Essid-Name'};
     } else {
         return;
     } 
