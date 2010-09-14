@@ -26,6 +26,9 @@ package RADIUS;
 
 =item FreeRADIUS return codes
 
+These constants were extracted from the FreeRADIUS' rlm_perl example.pl. 
+Care should be taken to align with upstream since the code returned by our module will be interpreted by FreeRADIUS.
+
  RLM_MODULE_REJECT: immediately reject the request
  RLM_MODULE_FAIL: module failed, don't reply
  RLM_MODULE_OK: the module is OK, continue

@@ -23,6 +23,13 @@ use Log::Log4perl;
 
 use base ('pf::radius');
 use pf::config;
+use pf::locationlog;
+use pf::node;
+use pf::SNMP;
+use pf::SwitchFactory;
+use pf::util;
+# constants used by this module are provided by
+use pf::radius::constants;
 
 =head1 AUTHOR
 

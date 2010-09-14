@@ -27,19 +27,8 @@ use pf::node;
 use pf::SNMP;
 use pf::SwitchFactory;
 use pf::util;
-
-# Constants copied out of the radius rlm_perl module
-
-use constant    RLM_MODULE_REJECT=>    0;#  /* immediately reject the request */
-use constant    RLM_MODULE_FAIL=>      1;#  /* module failed, don't reply */
-use constant    RLM_MODULE_OK=>        2;#  /* the module is OK, continue */
-use constant    RLM_MODULE_HANDLED=>   3;#  /* the module handled the request, so stop. */
-use constant    RLM_MODULE_INVALID=>   4;#  /* the module considers the request invalid. */
-use constant    RLM_MODULE_USERLOCK=>  5;#  /* reject the request (user is locked out) */
-use constant    RLM_MODULE_NOTFOUND=>  6;#  /* user not found */
-use constant    RLM_MODULE_NOOP=>      7;#  /* module succeeded without doing anything */
-use constant    RLM_MODULE_UPDATED=>   8;#  /* OK (pairs modified) */
-use constant    RLM_MODULE_NUMCODES=>  9;#  /* How many return codes there are */
+# constants used by this module are provided by
+use pf::radius::constants;
 
 =head1 SUBROUTINES
 
@@ -82,11 +71,11 @@ sub authorize {
     my $connection_type = $this->_identify_connection_type($nas_port_type, $eap_type);
 
     # TODO maybe it's in there that we should do all the magic that happened in rlm_perl_packetfence_sql
-    # meaning: the return should be decided by doWeActOnThisCall, not always RLM_MODULE_NOOP
+    # meaning: the return should be decided by doWeActOnThisCall, not always $RADIUS::RLM_MODULE_NOOP
     my $weActOnThisCall = $this->doWeActOnThisCall($connection_type, $switch_ip, $mac, $port, $user_name, $ssid);
     if ($weActOnThisCall == 0) {
         $logger->info("We decided not to act on this radius call. Stop handling request from $switch_ip.");
-        return [RLM_MODULE_NOOP, undef];
+        return [$RADIUS::RLM_MODULE_NOOP, undef];
     }
 
     $logger->info("handling radius autz request: from switch_ip => $switch_ip, " 
@@ -116,7 +105,7 @@ sub authorize {
         if (!$switch) {
             $logger->error("Can't instantiate default switch! Check switches.conf. "
                 . "Don't expect PacketFence to run fine");
-            return [RLM_MODULE_FAIL, undef];
+            return [$RADIUS::RLM_MODULE_FAIL, undef];
         }
         $switch->{_mode} = 'production'; # set this switch instance in production
     }
@@ -151,7 +140,7 @@ sub authorize {
             ."is not in production -> Returning ACCEPT");
         $switch->disconnectRead();
         $switch->disconnectWrite();
-        return [RLM_MODULE_OK, undef];
+        return [$RADIUS::RLM_MODULE_OK, undef];
     }
 
     # grab vlan
@@ -163,7 +152,7 @@ sub authorize {
         $switch->disconnectRead();
         $switch->disconnectWrite();
         # FIXME make sure this works before next release
-        return [RLM_MODULE_USERLOCK, undef];
+        return [$RADIUS::RLM_MODULE_USERLOCK, undef];
     }
 
     if (!$switch->isManagedVlan($vlan)) {
@@ -171,7 +160,7 @@ sub authorize {
                      ."Is the target vlan in the vlans=... list?");
         $switch->disconnectRead();
         $switch->disconnectWrite();
-        return [RLM_MODULE_FAIL, undef];
+        return [$RADIUS::RLM_MODULE_FAIL, undef];
     }
 
     #closes old locationlog entries and create a new one if required
@@ -186,7 +175,7 @@ sub authorize {
     $RAD_REPLY{'Tunnel-Type'} = 13;
     $RAD_REPLY{'Tunnel-Private-Group-ID'} = $vlan;
     $logger->info("Returning ACCEPT with VLAN: $vlan");
-    return [RLM_MODULE_OK, %RAD_REPLY];
+    return [$RADIUS::RLM_MODULE_OK, %RAD_REPLY];
 }
 
 =item * vlan_determine_for_node - what VLAN should a node be put into
@@ -354,14 +343,14 @@ sub authorize_voip {
     #$RAD_REPLY{'Cisco-AVPair'} = "device-traffic-class=voice";
     #$switch->disconnectRead();
     #$switch->disconnectWrite();
-    #return [RLM_MODULE_OK, %RAD_REPLY];
+    #return [$RADIUS::RLM_MODULE_OK, %RAD_REPLY];
 
     # TODO IP Phones authentication over Radius not supported by default because it seems vendor dependent
     $logger->warn("Radius authentication of IP Phones is not enabled by default. Returning failure. See pf::radius's authorize_voip for details on how to activate it.");
 
     $switch->disconnectRead();
     $switch->disconnectWrite();
-    return [RLM_MODULE_FAIL, undef];
+    return [$RADIUS::RLM_MODULE_FAIL, undef];
 }
 
 =item * translate_NasPort_to_ifIndex - convert the number in NAS-Port into an ifIndex only when relevant
