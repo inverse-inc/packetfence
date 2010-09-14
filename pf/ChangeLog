@@ -1,4 +1,8 @@
 2010-09-14	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/t/critic.t, pf/t/pf.t, pf/t/pod.t: Added pf::radius and friends to
+	the bare-minimal tests (critic, compile and pod). Not sure why they 
+	weren't already there...
+	
 	* pf/lib/pf/radius.pm, pf/lib/pf/radius/constants.pm, 
 	pf/lib/pf/radius/custom.pm: RADIUS constants are now in a seperate file
 	preventing odd errors when users override methods in 
