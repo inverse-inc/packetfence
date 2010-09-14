@@ -1816,14 +1816,6 @@ sub node_update_PF {
         #    return 0;
         #}
     }
-
-    my $updateSQL = 'regdate=now()';
-    foreach my $key ( keys %$new ) {
-        $updateSQL .= ", $key = '" . $new->{$key} . "'";
-    }
-    $logger->debug("auto-registering node $mac ($updateSQL)");
-    $mysql_connection->do("UPDATE node set $updateSQL WHERE mac='$mac'")
-        || return 0;
     return 1;
 }
 

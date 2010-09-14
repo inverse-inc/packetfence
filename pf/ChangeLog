@@ -1,3 +1,8 @@
+2010-09-14	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/sbin/pfsetvlan: Fixed merge problem introduced yesterday where
+	pre-trunk code has been propagated in trunk by mistake breaking the
+	build.
+
 2010-09-13	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/vlan/custom.pm: Importing more modules to avoid people using
 	custom code that doesn't compile even if they copiedy and pasted from
