@@ -1,4 +1,9 @@
 2010-09-14	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/radius/constants.pm, pf/lib/pf/radius/custom.pm: RADIUS
+	constants are now in a seperate file preventing odd errors when users
+	override methods in pf::radius::custom. Fixes #1001;
+	http://www.packetfence.org/bugs/view.php?id=1001
+
 	* pf/sbin/pfsetvlan: Fixed merge problem introduced yesterday where
 	pre-trunk code has been propagated in trunk by mistake breaking the
 	build.
