@@ -1,3 +1,10 @@
+2010-09-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/node.pm: node_view, node_view_with_fingerprint, 
+	node_view_all now returns empty '' category instead of NULL when node 
+	doesn't have a category. This is more consistent with all the other 
+	fields. Fixes #1063;
+	http://www.packetfence.org/bugs/view.php?id=1063
+
 2010-09-13	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/conf/dhcp_fingerprints.conf: New DHCP fingerprints: Windows,
 	Alcatel, Siemens, Cisco, Linksys, Mitel IP phones, Cisco, Enterasys,

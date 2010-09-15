@@ -33,6 +33,7 @@ Enhancements
 - Error handling and error messages improvements (#1052)
 
 Bug fixes
+- Node categories related fixes (#1063)
 - RPM packaging fixes (#1047)
 
 --------------------------------------------------------------------------------

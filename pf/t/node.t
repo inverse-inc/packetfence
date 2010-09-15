@@ -34,5 +34,6 @@ ok(node_view_with_fingerprint('aa:bb:cc:dd:ee:ff'), "node_view_with_fingerprint 
 ok(node_view('aa:bb:cc:dd:ee:ff'), "node_view SQL query pass");
 
 # TODO add more tests, we should test:
+#  - node_view on a node with no category should be empty ('') category and not undef (see #1063)
 #  - all methods with mocked db call (replacing db_query... and db_data with happy returns ok stuff) GOAL: is module code valid
 #  - all methods with mocked db driver GOAL: is SQL valid or not
