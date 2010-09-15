@@ -21,9 +21,11 @@ autodiscovert of nodes
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2008 Inverse inc.
+Copyright (C) 2007-2008,2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -119,6 +121,7 @@ foreach my $switchDesc ( sort keys %{ $switchFactory->{'_config'} } ) {
                 print " -> vlan $vlan\n";
                 foreach my $mac ( @{ $allMacs->{$ifIndex}->{$vlan} } ) {
                     print "    - MAC: $mac";
+                    my $isPhone = 'no';
                     my $isFake = 0;
                     if ( $switch->isFakeMac($mac) ) {
                         print " (fake PC MAC)";
@@ -131,6 +134,7 @@ foreach my $switchDesc ( sort keys %{ $switchFactory->{'_config'} } ) {
                     if ( !$isFake ) {
                         if ( $switch->isPhoneAtIfIndex( $mac, $ifIndex ) ) {
                             print " (real VoIP MAC)";
+                            $isPhone = 'yes';
                             $nbPhones++;
                         } else {
                             $nbPCs++;
@@ -139,17 +143,20 @@ foreach my $switchDesc ( sort keys %{ $switchFactory->{'_config'} } ) {
                         if ( node_exist($mac) ) {
                             my $node_info = node_view($mac);
                             if ( ( $node_info->{'switch'} ne $switch->{_ip} )
-                                || ( $node_info->{'port'} ne $ifIndex ) )
+                                || ( $node_info->{'port'} ne $ifIndex )
+                                || ($node_info->{'voip'} ne $isPhone)) 
                             {
                                 print
                                     "\n       node switch and port not up2date (old info is "
-                                    . $node_info->{'switch'}
-                                    . " ifIndex "
-                                    . $node_info->{'port'} . ")\n";
+                                    . "switch " . $node_info->{'switch'} . " "
+                                    . "ifIndex " . $node_info->{'port'} . " "
+                                    . "VoIP: " . $node_info->{'voip'} 
+                                    . ")\n";
                                 node_modify(
                                     $mac,
                                     (   switch => $switch->{_ip},
-                                        port   => $ifIndex
+                                        port   => $ifIndex,
+                                        voip   => $isPhone
                                     )
                                 );
                                 print "switch: " . $switch->{_ip} . "\n";
@@ -162,7 +169,8 @@ foreach my $switchDesc ( sort keys %{ $switchFactory->{'_config'} } ) {
                             node_modify(
                                 $mac,
                                 (   switch => $switch->{_ip},
-                                    port   => $ifIndex
+                                    port   => $ifIndex,
+                                    voip   => $isPhone
                                 )
                             );
                             print "switch: " . $switch->{_ip} . "\n";
