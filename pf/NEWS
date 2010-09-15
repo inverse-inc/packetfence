@@ -16,6 +16,23 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <release> - <codename> released on <releaseDate>
 
+New Features
+- Simplification of the Wireless, Wired 802.1X and Mac Address Bypass (MAB) 
+  configuration. Because of a new FreeRADIUS module and a Web Service interface, 
+  everything is now using standard PacketFence configuration files.
+- VoIP devices authorization over RADIUS (#1008)
+
+Enhancements
+- New information available in Node Lookup (Connection Type, ...)
+- Small usability improvements (#1006)
+- Starting to use some mod_perl by default for nice performance gains
+- Refactoring of the pf::vlan method names for more meaningful ones
+- Removed unnecessary database connections and duplicated code
+- Added several tests
+
+--------------------------------------------------------------------------------
+Version <release> - <codename> released on <releaseDate>
+
 New Hardware Support
 - Extreme XOS Port Security (MAC address lockdown) support (feature sponsored by
   Extreme Networks)
@@ -112,6 +129,7 @@ Bug fixes
 - Fixed missing dependencies in packetfence-remote-snort-sensor RPM (#881, #882)
 - Fixed bad HTML in registration pages
 - Clarified some error messages
+- Removed some unnecessary warnings
 
 --------------------------------------------------------------------------------
 Version 1.8.6 released on 2009-12-01

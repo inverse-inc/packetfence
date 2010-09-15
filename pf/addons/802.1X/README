@@ -6,11 +6,26 @@
      type = Cisco::Aironet_1242
      mode = production
 
-2) Configure Freeradius
-   Copy the files rlm_perl_packetfence.pl into the Freeradius configuration
-   directory. Then modify radiusd.conf so that it uses rlm_perl_packetfence.pl
-   (follow the instructions at http://wiki.freeradius.org/Rlm_perl) 
+2) Choose between SOAP or SQL client? 
+   SOAP is new, SQL is the legacy way and will be discontinued.
 
-3) Configure rlm_perl_packetfence.pl
-   Edit rlm_perl_packetfence.pl specifying your database connection settings
+SOAP
+3) Configure Freeradius
+   Copy the files rlm_perl_packetfence_soap.pl into the Freeradius configuration
+   directory. Then modify radiusd.conf so that it uses 
+   rlm_perl_packetfence_soap.pl (follow the instructions at 
+   http://wiki.freeradius.org/Rlm_perl) 
+
+4) Configure rlm_perl_packetfence_soap.pl
+   Edit rlm_perl_packetfence_soap.pl specifying the SOAP server settings
+
+SQL
+3) Configure Freeradius
+   Copy the files rlm_perl_packetfence_sql.pl into the Freeradius configuration
+   directory. Then modify radiusd.conf so that it uses 
+   rlm_perl_packetfence_sql.pl (follow the instructions at 
+   http://wiki.freeradius.org/Rlm_perl) 
+
+4) Configure rlm_perl_packetfence_sql.pl
+   Edit rlm_perl_packetfence_sql.pl specifying your database connection settings
    and your VLAN configuration.

@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Perl::Critic;
-use Test::More tests => 132;
+use Test::More tests => 135;
 
 # To generate this list, start with this: find lib/pf/ -exec echo "    '/usr/local/pf/{}'," \; | sort
 # TODO: should these really be absolute PATHs? I don't think so!
@@ -15,7 +15,8 @@ my @files = (
     '/usr/local/pf/addons/convertToPortSecurity.pl',
     '/usr/local/pf/addons/monitorpfsetvlan.pl',
     '/usr/local/pf/addons/recovery.pl',
-    '/usr/local/pf/addons/802.1X/rlm_perl_packetfence.pl',
+    '/usr/local/pf/addons/802.1X/rlm_perl_packetfence_soap.pl',
+    '/usr/local/pf/addons/802.1X/rlm_perl_packetfence_sql.pl',
     '/usr/local/pf/addons/mrtg/mrtg-wrapper.pl',
     '/usr/local/pf/addons/pfdetect_remote/sbin/pfdetect_remote',
     '/usr/local/pf/bin/flip.pl',
@@ -52,6 +53,9 @@ my @files = (
     '/usr/local/pf/lib/pf/pfcmd/pfcmd.pm',
     '/usr/local/pf/lib/pf/pfcmd.pm',
     '/usr/local/pf/lib/pf/pfcmd/report.pm',
+    '/usr/local/pf/lib/pf/radius.pm',
+    '/usr/local/pf/lib/pf/radius/constants.pm',
+    '/usr/local/pf/lib/pf/radius/custom.pm',
     '/usr/local/pf/lib/pf/rawip.pm',
     '/usr/local/pf/lib/pf/scan.pm',
     '/usr/local/pf/lib/pf/schedule.pm',

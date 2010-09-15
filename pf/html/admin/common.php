@@ -6,6 +6,16 @@
 
 require_once($_SERVER['DOCUMENT_ROOT'] . "/check_login.php");
 
+# these value to string are duplicated from lib/pf/config.pm
+# changes here should be reflected there
+$connection_type = array(
+  'Wireless-802.11-EAP'   => 'Secure Wireless (802.1x + WPA2 Enterprise)',
+  'Wireless-802.11-NoEAP' => 'Open Wireless (mac-authentication)',
+  'Ethernet-EAP'          => 'Wired 802.1x',
+  'Ethernet-NoEAP'        => 'Wired mac-authentication-bypass (MAB)',
+  'SNMP-Traps'            => 'Wired (discovered by SNMP-Traps)'
+);
+
 if($sajax){
 	require($_SERVER['DOCUMENT_ROOT'] . "/common/sajax/Sajax.php");
 }
