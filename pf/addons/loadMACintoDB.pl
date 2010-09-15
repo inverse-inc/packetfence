@@ -62,6 +62,9 @@ while (<MYFILE>) {
         if ($mode eq 'reg') {
             print "$mac\n";
             node_modify($mac, %macHash);
+            foreach my $field (keys %macHash) {
+                print "$field: $macHash{$field}\n";
+            }
         } else {
             print "$mac\t == Test Mode\n";
         }

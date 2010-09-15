@@ -152,6 +152,8 @@ foreach my $switchDesc ( sort keys %{ $switchFactory->{'_config'} } ) {
                                         port   => $ifIndex
                                     )
                                 );
+                                print "switch: " . $switch->{_ip} . "\n";
+                                print "port: $ifIndex\n";
                             }
                         } else {
                             print
@@ -163,6 +165,8 @@ foreach my $switchDesc ( sort keys %{ $switchFactory->{'_config'} } ) {
                                     port   => $ifIndex
                                 )
                             );
+                            print "switch: " . $switch->{_ip} . "\n";
+                            print "port: $ifIndex\n";
                         }
                     }
                     print "\n";

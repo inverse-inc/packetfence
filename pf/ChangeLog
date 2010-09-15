@@ -1,4 +1,12 @@
 2010-09-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/autodiscover.pl, pf/addons/loadMACintoDB.pl, 
+	pf/lib/pf/node.pm, pf/sbin/pfdhcplistener, pf/UPGRADE: Removed print 
+	statement from node_modify. Placed print statements in all callers that
+	cares. This was an important blocker to put the captive portal in 
+	mod_perl and to allow our web services back-end in trunk to work 
+	reliably. Fixes #1068;
+	http://packetfence.org/bugs/view.php?id=1068
+
 	* pf/lib/pf/node.pm: node_view, node_view_with_fingerprint, 
 	node_view_all now returns empty '' category instead of NULL when node 
 	doesn't have a category. This is more consistent with all the other 

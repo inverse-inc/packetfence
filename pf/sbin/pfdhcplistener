@@ -418,6 +418,9 @@ sub listen_dhcp {
             . "Modifying node with $modifying_node_log_message"
         );
         my $result = node_modify( $chaddr, %tmp );
+        foreach my $field (keys %tmp) {
+            print "$field: $tmp{$field}\n";
+        }
     } else {
         $logger->debug("unrecognized DHCP opcode from $chaddr: $op");
     }

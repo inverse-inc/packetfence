@@ -398,7 +398,6 @@ sub node_modify {
     $existing->{'category_id'} = nodecategory_lookup($existing->{'category'});
     foreach my $item ( keys(%data) ) {
         $existing->{$item} = $data{$item};
-        print "$item: $data{$item}\n";
     }
 
     # category handling 
