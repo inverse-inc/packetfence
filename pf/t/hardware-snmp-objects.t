@@ -61,6 +61,7 @@ BEGIN { use_ok('pf::SNMP::Linksys') }
 BEGIN { use_ok('pf::SNMP::Linksys::SRW224G4') }
 BEGIN { use_ok('pf::SNMP::MockedSwitch') }
 BEGIN { use_ok('pf::SNMP::Nortel') }
+BEGIN { use_ok('pf::SNMP::Nortel::BayStack4500') }
 BEGIN { use_ok('pf::SNMP::Nortel::BayStack4550') }
 BEGIN { use_ok('pf::SNMP::Nortel::BayStack470') }
 BEGIN { use_ok('pf::SNMP::Nortel::BayStack5520') }
@@ -129,6 +130,7 @@ my @SNMPobjects = qw(
     pf::SNMP::Linksys::SRW224G4
     pf::SNMP::MockedSwitch
     pf::SNMP::Nortel
+    pf::SNMP::Nortel::BayStack4500
     pf::SNMP::Nortel::BayStack4550
     pf::SNMP::Nortel::BayStack470
     pf::SNMP::Nortel::BayStack5520

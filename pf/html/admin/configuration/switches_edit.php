@@ -116,6 +116,7 @@
                            'Intel::Express_460' => 'Intel Express 460',
                            'Intel::Express_530' => 'Intel Express 530',
                            'Linksys::SRW224G4' => 'Linksys SRW224G4',
+                           'Nortel::BayStack4500' => 'Nortel BayStack 4500 Series',
                            'Nortel::BayStack4550' => 'Nortel BayStack 4550',
                            'Nortel::BayStack470' => 'Nortel BayStack 470',
                            'Nortel::BayStack5520' => 'Nortel BayStack 5520',
