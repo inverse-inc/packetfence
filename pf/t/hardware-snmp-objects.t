@@ -67,6 +67,7 @@ BEGIN { use_ok('pf::SNMP::Nortel::BayStack470') }
 BEGIN { use_ok('pf::SNMP::Nortel::BayStack5520') }
 BEGIN { use_ok('pf::SNMP::Nortel::BayStack5520Stacked') }
 BEGIN { use_ok('pf::SNMP::Nortel::BPS2000') }
+BEGIN { use_ok('pf::SNMP::Nortel::ERS2500') }
 BEGIN { use_ok('pf::SNMP::Nortel::ES325') }
 BEGIN { use_ok('pf::SNMP::PacketFence') }
 BEGIN { use_ok('pf::SNMP::SMC') }
@@ -136,6 +137,7 @@ my @SNMPobjects = qw(
     pf::SNMP::Nortel::BayStack5520
     pf::SNMP::Nortel::BayStack5520Stacked
     pf::SNMP::Nortel::BPS2000
+    pf::SNMP::Nortel::ERS2500
     pf::SNMP::Nortel::ES325
     pf::SNMP::PacketFence
     pf::SNMP::SMC

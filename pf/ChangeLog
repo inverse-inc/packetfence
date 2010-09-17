@@ -1,3 +1,10 @@
+2010-09-17	Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/SNMP/Nortel/ERS2500.pm, pf/README_SWITCHES, 
+	pf/html/admin/configuration/switches_add.php,
+	pf/html/admin/configuration/switches_edit.php, pf/t/critic.t, 
+	pf/t/hardware-snmp-objects.t, pf/t/pod.t: Added support for Nortel ERS 
+	2500 Series.
+
 2010-09-17	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/SNMP/Extreme/Summit.pm, 
 	pf/lib/pf/SNMP/Extreme/Summit_X250e.pm, pf/lib/pf/SNMP/Extreme.pm, 

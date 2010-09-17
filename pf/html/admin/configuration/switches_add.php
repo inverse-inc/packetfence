@@ -125,6 +125,7 @@
                            'Nortel::BayStack5520' => 'Nortel BayStack 5520',
                            'Nortel::BayStack5520Stacked' => 'Nortel BayStack 5520 Stacked',
                            'Nortel::BPS2000' => 'Nortel BPS 2000',
+                           'Nortel::ERS325' => 'Nortel ERS 2500 Series',
                            'Nortel::ES325' => 'Nortel ES325',
                            'PacketFence' => 'PacketFence',
                            'SMC::TS8800M' => 'SMC TigerStack 8824-48M',
