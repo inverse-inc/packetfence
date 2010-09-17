@@ -1,4 +1,7 @@
 2010-09-17	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/dhcp_fingerprints.conf: Fixed Siemens optiPoint WL2 
+	Professional fingerprint.
+
 	* pf/html/admin/common.php, pf/lib/pf/pfcmd.pm: pfcmd's node filters now
 	supports arguments with spaces as long as they are double-quoted. 
 	Viewing nodes per category on the admin interface was updated to use 
