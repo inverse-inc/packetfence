@@ -32,25 +32,16 @@
 
   if (array_key_exists('filter_type', $_REQUEST)) {
     $my_table=new table("node view " . $_REQUEST['filter_type'] . '=' . $_REQUEST['view_item'] . " order by $sort $direction " . $limit_clause);
-    $my_table->set_default_filter($_REQUEST['filter_type'] . '=' . $_REQUEST['view_item']);
-    if (! isset($_REQUEST['filter'])) {
-      $result_count = PFCMD("node count " . $_REQUEST['filter_type'] . '=' . $_REQUEST['view_item']);
-      if ($result_count[1] >= 0) {
-        $my_table->set_result_count($result_count[1]);
-      }
-    }
+    $my_table->set_count_cmd("node count " . $_REQUEST['filter_type'] . '=' . $_REQUEST['view_item']);
+    $my_table->count_result();
   } else {
     $view_item = set_default($_REQUEST['view_item'], 'all');
     $my_table=new table("node view $view_item order by $sort $direction $limit_clause");
     if ((! isset($_REQUEST['filter'])) || ($_REQUEST['filter'] == '')) {
-      $result_count = PFCMD("node count $view_item");
-      if ($result_count[1] >= 0) {
-        $my_table->set_result_count($result_count[1]);
-      }
+      $my_table->set_count_cmd("node count $view_item");
+      $my_table->count_result();
     }
   }
-
-
 
   $my_table->set_editable(true);
   $is_printable=true;

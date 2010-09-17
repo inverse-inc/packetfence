@@ -2,7 +2,7 @@ PacketFence NEWS
 
 Project homepage: https://www.packetfence.org/
 
-Please report bugs to: http://www.packetfence.org/mantis/
+Please report bugs to: http://www.packetfence.org/bugs/
 
 Interested in contributing to the project? Check the following link:
 
@@ -17,9 +17,9 @@ For a list of compatibility related changes see the UPGRADE file.
 Version <release> - <codename> released on <releaseDate>
 
 New Hardware Support
-- Nortel ERS 2500 Series Port security and Voice over IP support
 - Extreme XOS Port Security (MAC address lockdown) and Voice over IP support 
   (feature sponsored by Extreme Networks)
+- Nortel ERS 2500 Series Port security and Voice over IP support
 
 New Features
 - Basic Access Control in the Web Administration interface (#965, Thanks to 
@@ -35,6 +35,7 @@ Enhancements
 
 Bug fixes
 - Node categories related fixes (#1063)
+- Deleting a node no longer breaks paging in Web Admin (#1055)
 - RPM packaging fixes (#1047)
 - Misc fixes (#1068)
 

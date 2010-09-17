@@ -1,3 +1,9 @@
+2010-09-17	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/common.php, pf/html/admin/node/view.php: Table 
+	refreshes now re-do a count so paging in node table doesn't brake on
+	deletions. Fixes #1055;
+	http://www.packetfence.org/bugs/view.php?id=1055
+
 2010-09-17	Regis Balzard <rbalzard@inverse.ca>
 	* pf/lib/pf/SNMP/Nortel/ERS2500.pm, pf/README_SWITCHES, 
 	pf/html/admin/configuration/switches_add.php,

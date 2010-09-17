@@ -19,6 +19,7 @@ if($sajax){
     var $violationable;
     var $scannable;
     var $create_cmd;
+    var $count_cmd;
     var $linkable;
     var $hidden_links;
     var $is_hideable;
@@ -87,6 +88,10 @@ if($sajax){
       $this->default_filter=$filter;
    }
 
+   function set_count_cmd($count_cmd){
+      $this->count_cmd=$count_cmd;
+   }
+
    /**
     * Returns the number of displayed column in the table. 
     */
@@ -96,14 +101,24 @@ if($sajax){
    }
 
    function refresh(){
-     #$this=new table($this->create_cmd);
 
      $new_this = new table($this->create_cmd);
+     # if counting rows was done using a special command, we need to carry it over
+     if(isset($this->count_cmd) && $this->count_cmd != '') {
+       $new_this->set_count_cmd($this->count_cmd);
+     }
+
+     # copy over all members of new table to current table
      foreach (get_object_vars($new_this) as $key => $value)
        $this->$key = $value;  
 
+     # re-count number of rows if required
+     if(isset($this->count_cmd) && $this->count_cmd != '') {
+       $this->count_result();
+     }
+
      $this->set_editable(true);
-    }
+   }
 
     function get_key(){
       global $current_top;
@@ -645,6 +660,17 @@ if($sajax){
       else return false;
     }  // End is_empty
 
+
+    /*
+     * Asks pfcmd to give us a count based on table's count_cmd
+     * I'm sorry it's a bit ugly but it's the best I could do in the context
+     */
+    function count_result() {
+      $result_count = PFCMD($this->count_cmd);
+      if ($result_count[1] >= 0) {
+        $this->set_result_count($result_count[1]);
+      }
+    }
 
   }  // End Class table
 
