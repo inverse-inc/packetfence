@@ -35,6 +35,7 @@ Enhancements
 Bug fixes
 - Node categories related fixes (#1063)
 - RPM packaging fixes (#1047)
+- Misc fixes (#1068)
 
 --------------------------------------------------------------------------------
 Version 1.9.0 released on 2010-07-15
