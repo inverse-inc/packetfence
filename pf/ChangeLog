@@ -1,9 +1,10 @@
-2010-09-15	Olivier Bilodeau <obilodeau@inverse.ca>
+2010-09-17	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/docs/PacketFence_Administration_Guide.odt: Added configuration
 	instructions for Extreme in port security and Voice over IP. Module is
 	now identified as covering the whole Extreme XOS series and previous
 	limitations were removed since the code has been fixed.
 
+2010-09-15	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/addons/autodiscover.pl, pf/addons/loadMACintoDB.pl, 
 	pf/lib/pf/node.pm, pf/sbin/pfdhcplistener, pf/UPGRADE: Removed print 
 	statement from node_modify. Placed print statements in all callers that
