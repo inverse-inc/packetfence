@@ -17,6 +17,7 @@ For a list of compatibility related changes see the UPGRADE file.
 Version <release> - <codename> released on <releaseDate>
 
 New Hardware Support
+- Nortel ERS 2500 Series Port security and Voice over IP support
 - Extreme XOS Port Security (MAC address lockdown) and Voice over IP support 
   (feature sponsored by Extreme Networks)
 
