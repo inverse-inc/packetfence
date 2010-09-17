@@ -107,7 +107,7 @@
                            'Enterasys::SecureStack_C2' => 'Enterasys SecureStack C2',
                            'Enterasys::SecureStack_C3' => 'Enterasys SecureStack C3',
                            'Enterasys::D2' => 'Enterasys Standalone D2',
-                           'Extreme::Summit_X250e' => 'Extreme Net Summit X250e',
+                           'Extreme::Summit' => 'ExtremeNet Summit series',
                            'Foundry::FastIron_4802' => 'Foundry FastIron 4802',
                            'HP::Procurve_2500' => 'HP ProCurve 2500',
                            'HP::Procurve_2600' => 'HP ProCurve 2600',

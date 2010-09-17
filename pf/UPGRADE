@@ -7,6 +7,11 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to 1.9.1:
 
+    - Extreme switches new firmware requirement
+    Due to a change in Extreme's code, linkup/linkdown mode now requires at 
+    least firmware 12.2. A compatibility layer to support pre-12.2 could be 
+    written. Contact us if you are interested.
+
     - Web Administration interface access control
     Administrators can now give different access levels to users. By default
     all users will be given the admin level rights unless you modify the 

@@ -7,11 +7,7 @@ manage Extreme Networks' Summit switches
 
 =head1 STATUS
 
-This module is currently only a placeholder, all the logic resides in Extreme.pm
-
-Currently only supports linkUp / linkDown mode
-
-Developed and tested on Summit X250e-48p running on image version 12.0.0.4
+This module is currently only a placeholder, see pf::SNMP::Extreme.
 
 =cut
 

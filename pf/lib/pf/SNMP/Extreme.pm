@@ -7,10 +7,10 @@ pf::SNMP::Extreme - Object oriented module to parse SNMP traps and manage Extrem
 =head1 STATUS
 
 Supports 
- linkUp / linkDown mode (version 12.0.0.4 known to work)
- port-security (called locked-learning) with 12.4.x (maybe earlier, let us know)
+ linkUp / linkDown mode (Extreme XOS 12.2 and up)
+ port-security (called MAC Address Lockdown) with 12.4.3
 
-Developed and tested on Summit X250e-48p running on image version 12.4.1.7
+Developed and tested on Summit X250e-48p running on image version 12.4.2.17
 
 =head1 BUGS AND LIMITATIONS
  
@@ -27,20 +27,11 @@ Chassis support is unimplemented too.
 
 SNMPv3 support was not tested.
 
-=item Port-security mode (Locked-learning)
+=item Port-security mode (MAC Address Lockdown)
 
-Known to work with ExtremeXOS image version 12.4.1.7
+Known to work with ExtremeXOS image version 12.4.3
 
 Relies on XML calls which require web interface to be enabled
-
-Relies on CLI (Telnet or SSH) which has performance and reliability impacts. SSH was not tested.
-
-Requires a special VLAN and MAC entry in order to be able to detect if it's activated or not. 
-If you are experiencing problems, review the configuration documentation. 
-
-=item CLI doesn't support privilege elevation
-
-Login provided for CLI must be an "enabled" user because Net::Appliance::Session's detection of priviledged mode didn't work out of the box on the ExtremeXOS.
 
 =item HTTPS Web Services
 
@@ -52,7 +43,6 @@ SSL Web Services (HTTPS) was not tested.
 =back
 
 =cut
-
 use strict;
 use warnings;
 use diagnostics;
@@ -62,6 +52,7 @@ use Log::Log4perl;
 use Net::Appliance::Session;
 use Net::SNMP;
 use SOAP::Lite;
+use Try::Tiny;
 
 use pf::config;
 # importing switch constants
@@ -208,11 +199,70 @@ sub isDefinedVlan {
     return 0;
 }
 
-=item getMacAtIfIndex - obtain list of MACs at switch ifIndex
+=item _getMacAtIfIndex - obtain list of MACs at switch ifIndex
+
+This supersedes the _getMacAtIfIndexPreXOS. 
+It uses the new MIB available in Extreme XOS 12.2+: extremeFdbMacExosFdbTable.
+
+=cut
+sub _getMacAtIfIndex {
+    my ( $this, $ifIndex, $vlan ) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    my @macArray;
+
+    if ( !$this->connectRead() ) {
+        return @macArray;
+    }
+
+    # if a vlan is set, we will filter on that VLAN but we need it in ifIndex format first
+    if (defined($vlan)) {
+        $vlan = $this->_getVlanIfIndexFromVlanTag($vlan);
+    }
+
+    my $oid_extremeFdbMacExosFdbPortIfIndex = "1.3.6.1.4.1.1916.1.16.4.1.3"; #from EXTREME-FDB-MIB
+
+    $logger->trace("SNMP get_table for extremeFdbMacExosFdbPortIfIndex: $oid_extremeFdbMacExosFdbPortIfIndex");
+    my $resultPortIfIndex = $this->{_sessionRead}->get_table(-baseoid => "$oid_extremeFdbMacExosFdbPortIfIndex");   
+
+    # result is of format: extremeFdbMacExosFdbPortIfIndex.<mac>.<vlanIfIndex> = <ifIndex>
+    foreach my $oidWithIndex (keys %{$resultPortIfIndex}) {
+
+        # if this is an ifIndex we are interested in
+        if ($resultPortIfIndex->{$oidWithIndex} == $ifIndex) {
+
+            if ($oidWithIndex =~ 
+                /^$oid_extremeFdbMacExosFdbPortIfIndex\.                         # query oid
+                (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\.         # mac in OID format
+                (\d+)                                                            # vlanIfIndex
+                $/x) {
+
+                my $oid_mac = $1;
+                my $vlanIfIndex = $2;
+
+                # if vlan is set and is not our current ifIndex then we are not interested in this entry
+                next if (defined($vlan) && $vlan != $vlanIfIndex);
+                push @macArray, oid2mac($oid_mac);
+       
+            } else {
+                $logger->debug("problem parsing the extremeFdbMacExosFdbPortIfIndex oid...");
+            }
+        }
+    }
+    if (!@macArray) {        
+	$logger->warn("couldn't get MAC at ifIndex $ifIndex");
+    }
+    return @macArray;
+}
+
+=item _getMacAtIfIndexPreXOS - obtain list of MACs at switch ifIndex
+
+Starting with version 12.2 the extremeFdbMacFdbTable MIB is no longer supported on Extreme XOS. 
+This method calls the old version (extremeFdbMacFdbTable). 
+A auto-detection layer and code re-routing could be written if there is some incentive to do it.
 
 =cut
 
-sub _getMacAtIfIndex {
+sub _getMacAtIfIndexPreXOS {
     my ( $this, $ifIndex, $vlan ) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     my @macArray;
@@ -683,26 +733,24 @@ Returns an hashref with MAC => ifIndex => Array(VLANs)
 sub getAllSecureMacAddresses {
     my ( $this ) = @_;
 
-    # now using Web Services because SNMP interface to fetch Fdb Table has been deprecated
-    return $this->_getAllSecureMacAddressesWithWS();
+    # using the SNMP method it was faster than WS in my limited testing
+    return $this->_getAllSecureMacAddressesWithSNMP();
 }
 
 =item _getAllSecureMacAddressesWithSNMP - return all MAC addresses in security table and their VLAN
 
-This implementation relies on an SNMP interface that was deprecated between 12.4.1.7 and 12.0.0.4.
+This implementation relies on an SNMP interface that was introduced in 12.2.
 
 Returns an hashref with MAC => ifIndex => Array(VLANs)
 
 =cut
-# FIXME this can be re-implemented using the new MIB extremeFdbMacExosFdbTable
 sub _getAllSecureMacAddressesWithSNMP {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    my $oid_extremeFdbMacFdbTable = '1.3.6.1.4.1.1916.1.16.1';
-    my $oid_extremeFdbMacFdbMacAddress = '1.3.6.1.4.1.1916.1.16.1.1.3';
-    my $oid_extremeFdbMacFdbPortIfIndex = '1.3.6.1.4.1.1916.1.16.1.1.4';
-    my $oid_extremeFdbMacFdbStatus = '1.3.6.1.4.1.1916.1.16.1.1.5';
+    # from EXTREME-FDB-MIB
+    my $oid_extremeFdbMacExosFdbPortIfIndex = '1.3.6.1.4.1.1916.1.16.4.1.3';
+    my $oid_extremeFdbMacExosFdbStatus = '1.3.6.1.4.1.1916.1.16.4.1.4';
 
     my $secureMacAddrHashRef = {};
     if (!$this->connectRead()) {
@@ -712,35 +760,36 @@ sub _getAllSecureMacAddressesWithSNMP {
     # fetching information that will be useful to lookup VLANs
     my $vlanIfIndexToTags = $this->_getVlanTagLookupTable();
 
-    $logger->trace("SNMP get_table for extremeFdbMacFdbTable: $oid_extremeFdbMacFdbTable");
-    my $FdbTable = $this->{_sessionRead}->get_table(-baseoid => "$oid_extremeFdbMacFdbTable");
+    $logger->trace("SNMP get_table for extremeFdbMacExosFdbPortIfIndex: $oid_extremeFdbMacExosFdbPortIfIndex");
+    my $FdbPortIfIndex = $this->{_sessionRead}->get_table(-baseoid => "$oid_extremeFdbMacExosFdbPortIfIndex");
 
     # We read the extremeFdbMacFdbStatus in order to know if there is any MAC static on the port in the vlan 
-    $logger->trace("SNMP get_table for extremeFdbMacFdbStatus: $oid_extremeFdbMacFdbStatus");
-    my $FdbStatus = $this->{_sessionRead}->get_table(-baseoid => "$oid_extremeFdbMacFdbStatus");
+    $logger->trace("SNMP get_table for extremeFdbMacExosFdbStatus: $oid_extremeFdbMacExosFdbStatus");
+    my $FdbStatus = $this->{_sessionRead}->get_table(-baseoid => "$oid_extremeFdbMacExosFdbStatus");
     foreach my $fdb_entry (keys %{$FdbStatus}) {
 
         # Extreme identify static entries in the fdb as management (thus the == $SNMP::MGMT)
-        if (($fdb_entry =~ /^$oid_extremeFdbMacFdbStatus\.(\d+)\.(\d+)$/)
-            && ($FdbStatus->{"$fdb_entry"} eq $SNMP::MGMT)) {
+        if (($FdbStatus->{"$fdb_entry"} eq $SNMP::MGMT) && 
+            ($fdb_entry =~
+                /^$oid_extremeFdbMacExosFdbStatus\.                              # query oid
+                (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\.         # mac in OID format
+                (\d+)                                                            # vlanIfIndex
+                $/x)
+            ) {
 
-            my $vlanIfIndex = $1;
-            my $stackIndex = $2;
+            my $oid_mac = $1;
+            my $mac = oid2mac($oid_mac);
+            my $vlanIfIndex = $2;
 
-            if (exists($FdbTable->{"$oid_extremeFdbMacFdbPortIfIndex.$vlanIfIndex.$stackIndex"})) {
-                my $ifIndex = $FdbTable->{"$oid_extremeFdbMacFdbPortIfIndex.$vlanIfIndex.$stackIndex"};
+            if (exists($FdbPortIfIndex->{"$oid_extremeFdbMacExosFdbPortIfIndex.$oid_mac.$vlanIfIndex"})) {
+                my $ifIndex = $FdbPortIfIndex->{"$oid_extremeFdbMacExosFdbPortIfIndex.$oid_mac.$vlanIfIndex"};
 
-                if ( $FdbTable->{"$oid_extremeFdbMacFdbMacAddress.$vlanIfIndex.$stackIndex"}
-                   =~ /0x([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})/i) {
-                    my $mac = lc("$1:$2:$3:$4:$5:$6");
-		    push @{ $secureMacAddrHashRef->{$mac}->{$ifIndex} }, $vlanIfIndexToTags->{$vlanIfIndex};
-                }
+                push @{ $secureMacAddrHashRef->{$mac}->{$ifIndex} }, $vlanIfIndexToTags->{$vlanIfIndex};
             }
         }
     }
-
     return $secureMacAddrHashRef;
-}   
+}
 
 =item _getAllSecureMacAddressesWithWS - return all MAC addresses in security table and their VLAN
 
@@ -760,8 +809,14 @@ sub _getAllSecureMacAddressesWithWS {
 
     my $ws_client = $this->_getSOAPHandle();
 
-    # fetch the Fdb table
-    my $som = $ws_client->call(SOAP::Data->name($EXTREME::WS_GET_ALL_FDB));
+    my $som;
+    try {
+        # fetch the Fdb table
+        $som = $ws_client->call(SOAP::Data->name($EXTREME::WS_GET_ALL_FDB));
+    } catch {
+        $logger->error("Problem trying to fetch All secure MAC addresses. Error: $@");
+        return;
+    };
 
     # handle errors
     if ($som->fault) {
@@ -797,7 +852,7 @@ sub _getAllSecureMacAddressesWithWS {
         }
     }
     return $secureMacAddrHashRef;
-}   
+}
 
 =item getSecureMacAddresses - return all MAC addresses in security table and their VLAN for a given ifIndex
 
@@ -808,8 +863,8 @@ Returns an hashref with MAC => Array(VLANs)
 sub getSecureMacAddresses {
     my ( $this, $ifIndex ) = @_;
 
-    # now using Web Services because SNMP interface to fetch Fdb Table has been deprecated
-    return $this->_getSecureMacAddressesWithWS($ifIndex);
+    # using the SNMP method but the WS proved to be faster in some cases... 
+    return $this->_getSecureMacAddressesWithSNMP($ifIndex);
 }   
 
 
@@ -833,9 +888,15 @@ sub _getSecureMacAddressesWithWS {
 
     # TODO: stack port translation (XML expects 17 and not 1:17 but what is it when stacked?)
     my $port = $this->_getDot1dPortFromIfIndex($ifIndex);
-    
-    # fetch the Fdb table
-    my $som = $ws_client->call(SOAP::Data->name($EXTREME::WS_GET_ALL_FDB));
+
+    my $som;
+    try {
+        # fetch the Fdb table
+        $som = $ws_client->call(SOAP::Data->name($EXTREME::WS_GET_ALL_FDB));
+    } catch {
+        $logger->error("Problem trying to fetch secure MAC addresses on ifIndex $ifIndex. Error: $@");
+        return;
+    };
 
     # handle errors
     if ($som->fault) {
@@ -870,65 +931,113 @@ sub _getSecureMacAddressesWithWS {
 
 =item _getSecureMacAddressesWithSNMP - return all MAC addresses in security table and their VLAN for a given ifIndex
 
-This implementation relies on an SNMP interface that was deprecated between 12.4.1.7 and 12.0.0.4.
+This implementation relies on an SNMP interface that was introduced in 12.2
 
 Returns an hashref with MAC => Array(VLANs)
 
 =cut
-# FIXME by fetching the current VLAN you don't grab secure entries on other VLANs. this is a bug in this implementation
-# FIXME this can be re-implemented using the new MIB extremeFdbMacExosFdbTable
 sub _getSecureMacAddressesWithSNMP {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
-    my $vlan = $this->getVlan($ifIndex);
-    my $vlanIfIndex = $this->_getVlanIfIndexFromVlanTag($vlan);
 
-    my $oid_extremeFdbMacFdbTable = '1.3.6.1.4.1.1916.1.16.1';
-    my $oid_extremeFdbMacFdbMacAddress = '1.3.6.1.4.1.1916.1.16.1.1.3';
-    my $oid_extremeFdbMacFdbPortIfIndex = '1.3.6.1.4.1.1916.1.16.1.1.4';
-    my $oid_extremeFdbMacFdbStatus = '1.3.6.1.4.1.1916.1.16.1.1.5';
+    # from EXTREME-FDB-MIB
+    my $oid_extremeFdbMacExosFdbPortIfIndex = '1.3.6.1.4.1.1916.1.16.4.1.3';
+    my $oid_extremeFdbMacExosFdbStatus = '1.3.6.1.4.1.1916.1.16.4.1.4';
 
     my $secureMacAddrHashRef = {};
-    if ( !$this->connectRead() ) {
+    if (!$this->connectRead()) {
         return $secureMacAddrHashRef;
     }
 
-    $logger->trace("SNMP get_table for extremeFdbMacFdbTable: $oid_extremeFdbMacFdbTable");  
-    my $FdbTable = $this->{_sessionRead}->get_table( -baseoid => "$oid_extremeFdbMacFdbTable" );
+    # fetching information that will be useful to lookup VLANs
+    my $vlanIfIndexToTags = $this->_getVlanTagLookupTable();
+
+    $logger->trace("SNMP get_table for extremeFdbMacExosFdbPortIfIndex: $oid_extremeFdbMacExosFdbPortIfIndex");
+    my $FdbPortIfIndex = $this->{_sessionRead}->get_table(-baseoid => "$oid_extremeFdbMacExosFdbPortIfIndex");
 
     # We read the extremeFdbMacFdbStatus in order to know if there is any MAC static on the port in the vlan 
-    $logger->trace("SNMP get_table for extremeFdbMacFdbStatus: $oid_extremeFdbMacFdbStatus");  
-    my $FdbStatus = $this->{_sessionRead}->get_table(-baseoid => "$oid_extremeFdbMacFdbStatus" );
-    foreach my $fdb_entry ( keys %{$FdbStatus} ) {
+    $logger->trace("SNMP get_table for extremeFdbMacExosFdbStatus: $oid_extremeFdbMacExosFdbStatus");
+    my $FdbStatus = $this->{_sessionRead}->get_table(-baseoid => "$oid_extremeFdbMacExosFdbStatus");
+    foreach my $fdb_entry (keys %{$FdbPortIfIndex}) {
 
-        # Extreme identify static entries in the fdb as management (thus the == $SNMP::MGMT)
-        if (  ($fdb_entry =~ /^$oid_extremeFdbMacFdbStatus\.$vlanIfIndex\.(\d+)$/)
-           && ($FdbStatus->{"$fdb_entry"} eq $SNMP::MGMT) ) { 
+        # We are only interested in ports of a specific ifIndex
+        if (($FdbPortIfIndex->{"$fdb_entry"} == $ifIndex) && 
+            ($fdb_entry =~
+                /^$oid_extremeFdbMacExosFdbPortIfIndex\.                         # query oid
+                (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\.         # mac in OID format
+                (\d+)                                                            # vlanIfIndex
+                $/x)
+            ) {
 
-            my $stackIndex = $1;
+            my $oid_mac = $1;
+            my $mac = oid2mac($oid_mac);
+            my $vlanIfIndex = $2;
 
-            if (  (exists($FdbTable->{"$oid_extremeFdbMacFdbPortIfIndex.$vlanIfIndex.$stackIndex"}))
-               && ($FdbTable->{"$oid_extremeFdbMacFdbPortIfIndex.$vlanIfIndex.$stackIndex"} == $ifIndex) ) {
+            # Extreme identify static entries in the fdb as management (thus the == $SNMP::MGMT)
+            if (exists($FdbStatus->{"$oid_extremeFdbMacExosFdbStatus.$oid_mac.$vlanIfIndex"}) && 
+                $FdbStatus->{"$oid_extremeFdbMacExosFdbStatus.$oid_mac.$vlanIfIndex"} eq $SNMP::MGMT) {
 
-                if ( $FdbTable->{"$oid_extremeFdbMacFdbMacAddress.$vlanIfIndex.$stackIndex"}
-                   =~ /0x([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})/i) {
-                    my $mac = lc("$1:$2:$3:$4:$5:$6");
-                    push @{ $secureMacAddrHashRef->{$mac} }, int($vlan);
-                }
+                push @{ $secureMacAddrHashRef->{$mac} }, $vlanIfIndexToTags->{$vlanIfIndex};
             }
         }
     }
-   
     return $secureMacAddrHashRef;
 }   
 
 =item isPortSecurityEnabled - returns 1 or 0 whether maclock is activated or not
 
+Requires ExtremeXOS 12.4.3
+
+=cut
+sub isPortSecurityEnabled {
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    my $oid_extremePortVlanInfoMacLockDownEnabled = '1.3.6.1.4.1.1916.1.4.17.1.4'; # from EXTREME-PORT-MIB
+
+    # get untagged vlanIfIndex on ifIndex   
+    # TODO efficiency could be improved here but I don't think it's worth it for now.
+    my $vlan = $this->getVlan($ifIndex);
+    my $vlanIfIndex = $this->_getVlanIfIndexFromVlanTag($vlan);
+
+    if (!defined($vlanIfIndex)) {
+        $logger->warn("Unable to retrieve untagged VLAN information, can't say if port security is enabled or not..");
+        return 0;
+    }
+
+    if (!$this->connectRead()) {
+        return 0;
+    }
+
+    # here we are looking for MAC Lockdown enabled on given ifIndex's untagged vlan
+    # $oid_extremePortVlanInfoMacLockDownEnabled.<ifIndex>.<vlanIfIndex>
+    my $oid_isPortSecurityEnabled = "$oid_extremePortVlanInfoMacLockDownEnabled.$ifIndex.$vlanIfIndex";
+
+    $logger->trace("SNMP get_request for extremePortVlanInfoMacLockDownEnabled: $oid_isPortSecurityEnabled");
+    my $result = $this->{_sessionRead}->get_request(-varbindlist => [$oid_isPortSecurityEnabled]);
+
+    if (!defined($result)) {
+        $logger->warn("Retrieving MAC Lockdown status failed. Error: ".$this->{_sessionRead}->error);
+        return 0;
+    } elsif ($result->{$oid_isPortSecurityEnabled} eq 'noSuchInstance') {
+        return 0;
+    }
+
+    if ($result->{$oid_isPortSecurityEnabled} == 1) {
+        return 1;
+    }
+    return 0;
+}
+
+=item _isPortSecurityEnabledOld - returns 1 or 0 whether maclock is activated or not
+
+DEPRECATED for reference only. See isPortSecurityEnabled instead.
+
 Here we rely on a special entry we add during the PacketFence setup to work-around a limitation in the 
 capabilities of the Extreme OS (can't know if maclock is activated or not)
 
 =cut
-sub isPortSecurityEnabled {
+sub _isPortSecurityEnabledOld {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
@@ -988,18 +1097,14 @@ sub authorizeMAC {
         return 1;
     }
 
-    if ($deauthMac) {
-        # HACK: don't deauth 02:00:00 MACs as we rely on them for port-security detection 
-        if (!$this->isFakeMac($deauthMac)) {
-            $this->_deauthorizeMAC($ifIndex, $deauthMac, $deauthVlan);
-        }
+    # TODO: if it's a fake MAC we don't act on it (see #1070 for context)
+    if ($deauthMac && !$this->isFakeMac($deauthMac)) {
+        $this->_deauthorizeMAC($ifIndex, $deauthMac, $deauthVlan);
     }
 
-    if ($authMac) {
-        # HACK: don't auth 02:00:00 MACs we don't need them
-        if (!$this->isFakeMac($authMac)) {
-            $this->_authorizeMAC($ifIndex, $authMac, $authVlan);
-        }
+    # TODO: if it's a fake MAC we don't act on it (see #1070 for context)
+    if ($authMac  && !$this->isFakeMac($authMac)) {
+        $this->_authorizeMAC($ifIndex, $authMac, $authVlan);
     }
     
     return 1;
@@ -1024,16 +1129,23 @@ sub _authorizeMAC {
     # TODO: stack port translation (XML expects 17 and not 1:17 but what is it when stacked?)
     my $port = $this->_getDot1dPortFromIfIndex($ifIndex);
 
-    my $response = $ws_client->call(
-        SOAP::Data->name($EXTREME::WS_CREATE_FDB) => (
-            SOAP::Data->name($EXTREME::WS_DATATYPE_MAC => $mac),
-            SOAP::Data->name($EXTREME::WS_DATATYPE_VLAN => $vlan_name),
-            SOAP::Data->name($EXTREME::WS_DATATYPE_PORT => $port),
-        )
-    );
-
+    my $response;
+    try {
+        $response = $ws_client->call(
+            SOAP::Data->name($EXTREME::WS_CREATE_FDB) => (
+                SOAP::Data->name($EXTREME::WS_DATATYPE_MAC => $mac),
+                SOAP::Data->name($EXTREME::WS_DATATYPE_VLAN => $vlan_name),
+                SOAP::Data->name($EXTREME::WS_DATATYPE_PORT => $port),
+            )
+        );
+    } catch {
+        $logger->error("Problem trying to authorize a secure MAC addresses on ifIndex $ifIndex. Error: $@");
+        return 0;
+    };
+    
     if ($response->fault) {
-        $logger->warn("error authorizing MAC: " . $response->faultstring . " (Error code: ".$response->faultcode.")");
+        $logger->warn("error authorizing MAC: " . $response->faultstring 
+            . " (Error code: " . $response->faultcode . ")");
         return 0;
     }
     return 1;
@@ -1058,15 +1170,22 @@ sub _deauthorizeMAC {
         return 0;
     }
 
-    my $response = $ws_client->call(
-        SOAP::Data->name($EXTREME::WS_DELETE_FDB) => (
-            SOAP::Data->name($EXTREME::WS_DATATYPE_MAC => $mac),
-            SOAP::Data->name($EXTREME::WS_DATATYPE_VLAN => $vlan_name),
-        )
-    );
+    my $response;
+    try {
+        $response = $ws_client->call(
+            SOAP::Data->name($EXTREME::WS_DELETE_FDB) => (
+                SOAP::Data->name($EXTREME::WS_DATATYPE_MAC => $mac),
+                SOAP::Data->name($EXTREME::WS_DATATYPE_VLAN => $vlan_name),
+            )
+        );
+    } catch {
+        $logger->error("Problem trying to deauthorize a secure MAC addresses on ifIndex $ifIndex. Error: $@");
+        return 0;
+    };
 
     if ($response->fault) {
-        $logger->warn("error deauthorizing MAC: " . $response->faultstring . " (Error code: ".$response->faultcode.")");
+        $logger->warn("error deauthorizing MAC: " . $response->faultstring 
+            . " (Error code: " . $response->faultcode . ")");
         return 0;
     }
     return 1;
@@ -1163,11 +1282,17 @@ sub _getSOAPHandle {
         . "/" . $EXTREME::WS_PROXY_URI_PATH # path
     ;
 
-    my $connection = SOAP::Lite
-        -> proxy($proxy_url, timeout => $EXTREME::WS_TIMEOUT)
-        -> ns($EXTREME::WS_NAMESPACE_FDB, $EXTREME::WS_PREFIX_XOS)
-        -> autotype(0)
-    ;
+    my $connection;
+    try {
+        $connection = SOAP::Lite
+            -> proxy($proxy_url, timeout => $EXTREME::WS_TIMEOUT)
+            -> ns($EXTREME::WS_NAMESPACE_FDB, $EXTREME::WS_PREFIX_XOS)
+            -> autotype(0)
+        ;
+    } catch {
+        $logger->error("Problem connecting to Web Services provider on switch. Error: $@");
+        return;
+    };
 
     return $connection;
 }
@@ -1208,10 +1333,55 @@ sub disablePortSecurityByIfIndex {
 
 =item _setPortSecurityByIfIndex - change lock-learning configuration on a given ifIndex
 
+Requires ExtremeXOS 12.4.3
+
 On this switch, the lock-learning is a per-vlan attribute so it performs it on the current untagged VLAN of the ifIndex
 
 =cut
 sub _setPortSecurityByIfIndex {
+    my ( $this, $ifIndex, $enable ) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    my $oid_extremePortVlanInfoMacLockDownEnabled = '1.3.6.1.4.1.1916.1.4.17.1.4'; # from EXTREME-PORT-MIB
+
+    # get untagged vlanIfIndex on ifIndex   
+    # TODO efficiency could be improved here but I don't think it's worth it for now.
+    my $vlan = $this->getVlan($ifIndex);
+    my $vlanIfIndex = $this->_getVlanIfIndexFromVlanTag($vlan);
+
+    if (!defined($vlanIfIndex)) {
+        $logger->warn("Unable to retrieve untagged VLAN information, can't change port security settings..");
+        return;
+    }
+
+    if (!$this->connectWrite()) {
+        return;
+    }
+
+    # here we are setting MAC Lockdown on a given ifIndex's untagged vlan
+    # $oid_extremePortVlanInfoMacLockDownEnabled.<ifIndex>.<vlanIfIndex>
+    my $oid_setPortSecurityByIfIndex = "$oid_extremePortVlanInfoMacLockDownEnabled.$ifIndex.$vlanIfIndex";
+
+    $logger->trace("SNMP set_request to change MAC Lockdown value for ifIndex $ifIndex VLAN $vlanIfIndex to $enable: "
+        . "$oid_setPortSecurityByIfIndex");
+    my $result = $this->{_sessionWrite}->set_request(
+        -varbindlist => [ $oid_setPortSecurityByIfIndex, Net::SNMP::INTEGER, $enable ]
+    );
+    if (!defined($result)) {
+       $logger->error("Unable to change MAC Lockdown value for ifIndex $ifIndex: ".$this->{_sessionWrite}->error);
+       return;
+    }
+    return 1;
+}
+
+=item _setPortSecurityByIfIndexCLI - change lock-learning configuration on a given ifIndex
+
+DEPRECATED by SNMP version. See _setPortSecurityByIfIndex.
+
+On this switch, the lock-learning is a per-vlan attribute so it performs it on the current untagged VLAN of the ifIndex
+
+=cut
+sub _setPortSecurityByIfIndexCLI {
     my ( $this, $ifIndex, $enable ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
@@ -1261,6 +1431,31 @@ sub _setPortSecurityByIfIndex {
     $session->close();
     return 1;
 }
+
+=item isVoIPEnabled - is Voice over IP enabled on that switch?
+
+=cut
+sub isVoIPEnabled {
+    my ($this) = @_;
+    return ( $this->{_VoIPEnabled} == 1 );
+}
+
+=item getVoiceVlan - in what VLAN should a VoIP device be
+
+=cut
+sub getVoiceVlan {
+    my ($this, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    if (defined($this->{_voiceVlan})) {
+        return ($this->{_voiceVlan});
+    }
+
+    # otherwise say it didn't work
+    $logger->warn("Voice VLAN was requested but it's not configured!");
+    return -1;
+}
+
 =back
 
 =head1 AUTHOR
