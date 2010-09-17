@@ -34,7 +34,7 @@ Enhancements
 - Error handling and error messages improvements (#1052)
 
 Bug fixes
-- Node categories related fixes (#1063)
+- Node categories related fixes (#1063, #1056)
 - Deleting a node no longer breaks paging in Web Admin (#1055)
 - RPM packaging fixes (#1047)
 - Misc fixes (#1068)

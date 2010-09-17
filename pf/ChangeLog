@@ -1,4 +1,10 @@
 2010-09-17	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/common.php, pf/lib/pf/pfcmd.pm: pfcmd's node filters now
+	supports arguments with spaces as long as they are double-quoted. 
+	Viewing nodes per category on the admin interface was updated to use 
+	this facility. Fixes #1056;
+	http://www.packetfence.org/bugs/view.php?id=1056
+
 	* pf/html/admin/common.php, pf/html/admin/node/view.php: Table 
 	refreshes now re-do a count so paging in node table doesn't brake on
 	deletions. Fixes #1055;
