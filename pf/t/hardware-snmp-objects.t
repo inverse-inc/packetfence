@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 135;
+use Test::More tests => 139;
 use lib '/usr/local/pf/lib';
 my $lib_path = '/usr/local/pf/lib';
 
