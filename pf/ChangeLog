@@ -1,3 +1,13 @@
+2010-09-20	Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/SNMP/Nortel/BayStack4500.pm: removed this file 
+
+	* pf/lib/pf/SNMP/Nortel/ERS4500.pm: added this file
+
+	* pf/README_SWITCHES, pf/html/admin/configuration/switches_add.php, 
+	pf/html/admin/configuration/switches_edit.php, pf/t/critic.t, 
+	pf/t/hardware-snmp-objects.t, pf/t/pod.t: Fixed the error in the 4500 module 
+	name (was originally named BayStack 4500 but it is actually ERS 4500).
+
 2010-09-17	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/conf/dhcp_fingerprints.conf: Fixed Siemens optiPoint WL2 
 	Professional fingerprint.

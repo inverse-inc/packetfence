@@ -1,13 +1,13 @@
-package pf::SNMP::Nortel::BayStack4500;
+package pf::SNMP::Nortel::ERS4500;
 
 =head1 NAME
 
-pf::SNMP::Nortel::BayStack4500 - Object oriented module to access SNMP enabled Nortel BayStack4500 switches
+pf::SNMP::Nortel::ERS4500 - Object oriented module to access SNMP enabled Nortel ERS 4500 switches
 
 =head1 SYNOPSIS
 
-The pf::SNMP::Nortel::BayStack4500 module implements an object 
-oriented interface to access SNMP enabled Nortel::BayStack4500 switches.
+The pf::SNMP::Nortel::ERS4500 module implements an object 
+oriented interface to access SNMP enabled Nortel::ERS4500 switches.
 
 =cut
 
