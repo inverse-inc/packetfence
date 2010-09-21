@@ -42,6 +42,7 @@ Enhancements
 Bug fixes
 - Node categories related fixes (#1063, #1056)
 - Deleting a node no longer breaks paging in Web Admin (#1055)
+- Max number of node per user is enforced more consistently (#1057)
 - RPM packaging fixes (#1047)
 - Misc fixes (#1068)
 
