@@ -5,13 +5,13 @@
 	tested. Fixes #879;
 	http://www.packetfence.org/bugs/view.php?id=879
 
-2010-09-21      Regis Balzard <rbalzard@inverse.ca>
+2010-09-21	Regis Balzard <rbalzard@inverse.ca>
 	* pf/docs/PacketFence_Administration_Guide.odt:
-	Added a section in the performance optimization section regarding blocking 
-	non browser requests in the captive portal
+	Added a section in the performance optimization section regarding 
+	blocking non browser requests in the captive portal
 
 	* pf/conf/dhcp_fingerprints.conf: New DHCP fingerprints: Cisco,
-	Netgear Router, Quanta Microsystems, Debian-based Linux, Nokia Tablet, 
+	Netgear Router, Quanta Microsystems, Debian-based Linux, Nokia Tablet,
 	Symbian OS. Thanks to Sam Winotai (from Loyola Marymount University) 
 	for the contribution! 
 
@@ -22,8 +22,9 @@
 
 	* pf/README_SWITCHES, pf/html/admin/configuration/switches_add.php, 
 	pf/html/admin/configuration/switches_edit.php, pf/t/critic.t, 
-	pf/t/hardware-snmp-objects.t, pf/t/pod.t: Fixed the error in the 4500 module 
-	name (was originally named BayStack 4500 but it is actually ERS 4500).
+	pf/t/hardware-snmp-objects.t, pf/t/pod.t: Fixed the error in the 4500 
+	module name (was originally named BayStack 4500 but it is actually ERS
+	4500).
 
 2010-09-17	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/conf/dhcp_fingerprints.conf: Fixed Siemens optiPoint WL2 
