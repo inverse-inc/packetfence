@@ -33,6 +33,10 @@ Enhancements
 - Added some documentation for Cisco (2960, 3550) and Aruba in the SNMP modules
 - Error handling and error messages improvements (#1052)
 
+Documentation improvements
+- Documented performance optimization regarding blocking non-browser requests in 
+  the captive portal (#1072)
+
 Bug fixes
 - Node categories related fixes (#1063, #1056)
 - Deleting a node no longer breaks paging in Web Admin (#1055)

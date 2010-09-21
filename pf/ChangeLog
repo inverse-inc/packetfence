@@ -1,4 +1,9 @@
-2010-09-13      Regis Balzard <rbalzard@inverse.ca>
+2010-09-21      Regis Balzard <rbalzard@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt:
+	Added a section in the performance optimization section regarding blocking 
+	non browser requests in the captive portal
+
+2010-09-21      Regis Balzard <rbalzard@inverse.ca>
 	* pf/conf/dhcp_fingerprints.conf: New DHCP fingerprints: Cisco,
 	Netgear Router, Quanta Microsystems, Debian-based Linux, Nokia Tablet, 
 	Symbian OS. Thanks to Sam Winotai (from Loyola Marymount University) 
