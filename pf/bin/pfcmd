@@ -383,8 +383,8 @@ sub nodecategory {
         try {
             nodecategory_add(%params);
         } catch {
-            $logger->logcarp("$_");
-        }
+            $logger->logcarp("$@");
+        };
  
     } elsif ($sub_cmd eq 'edit') {
 
@@ -392,16 +392,16 @@ sub nodecategory {
         try {
             nodecategory_modify($id, %params);
         } catch {
-            $logger->logcarp("$_");
-        }
+            $logger->logcarp("$@");
+        };
  
     } elsif ($sub_cmd eq 'delete') {
 
         try {
             nodecategory_delete($id);
         } catch {
-            $logger->logcarp("$_");
-        }
+            $logger->logcarp("$@");
+        };
     } 
     return 1;
 }
@@ -910,7 +910,7 @@ sub switchconfig {
         }
         #TODO: information duplicated from ui.conf, consider refactoring (what do we do elsewhere?)
         my @columns
-            = qw(ip type mode vlans normalVlan registrationVlan isolationVlan macDetectionVlan guestVlan customVlan1 customVlan2 customVlan3 customVlan4 customVlan5 VoIPEnabled voiceVlan uplink cliTransport cliUser cliPwd cliEnablePwd SNMPVersionTrap SNMPCommunityTrap SNMPUserNameTrap SNMPAuthProtocolTrap SNMPAuthPasswordTrap SNMPPrivProtocolTrap SNMPPrivPasswordTrap SNMPVersion SNMPCommunityRead SNMPCommunityWrite SNMPEngineID SNMPUserNameRead SNMPAuthProtocolRead SNMPAuthPasswordRead SNMPPrivProtocolRead SNMPPrivPasswordRead SNMPUserNameWrite SNMPAuthProtocolWrite SNMPAuthPasswordWrite SNMPPrivProtocolWrite SNMPPrivPasswordWrite macSearchesMaxNb macSearchesSleepInterval);
+            = qw(ip type mode vlans normalVlan registrationVlan isolationVlan macDetectionVlan guestVlan customVlan1 customVlan2 customVlan3 customVlan4 customVlan5 VoIPEnabled voiceVlan uplink cliTransport cliUser cliPwd cliEnablePwd wsTransport wsUser wsPwd SNMPVersionTrap SNMPCommunityTrap SNMPUserNameTrap SNMPAuthProtocolTrap SNMPAuthPasswordTrap SNMPPrivProtocolTrap SNMPPrivPasswordTrap SNMPVersion SNMPCommunityRead SNMPCommunityWrite SNMPEngineID SNMPUserNameRead SNMPAuthProtocolRead SNMPAuthPasswordRead SNMPPrivProtocolRead SNMPPrivPasswordRead SNMPUserNameWrite SNMPAuthProtocolWrite SNMPAuthPasswordWrite SNMPPrivProtocolWrite SNMPPrivPasswordWrite macSearchesMaxNb macSearchesSleepInterval);
         print join( "|", @columns ) . "\n";
 
         #sort the switches (http://www.sysarch.com/Perl/sort_paper.html)

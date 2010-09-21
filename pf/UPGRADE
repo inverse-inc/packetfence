@@ -5,6 +5,31 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to 1.9.1:
+
+    - Extreme switches new firmware requirement
+    Due to a change in Extreme's code, linkup/linkdown mode now requires at 
+    least firmware 12.2. A compatibility layer to support pre-12.2 could be 
+    written. Contact us if you are interested.
+
+    - Web Administration interface access control
+    Administrators can now give different access levels to users. By default
+    all users will be given the admin level rights unless you modify the 
+    conf/admin.perm file. See the Administration Guide FAQ for details.
+
+    - pfcmd output change
+    pfcmd node edit <mac> ... will no longer output changes made to the node 
+    entry. This behavior was due to a side effect rather than a feature and it
+    caused some problems so we got rid of it. pf::node::node_modify is also 
+    affected.
+
+    - switches.conf: htaccessUser and htaccessPwd deprecated
+    Web Services related parameters were added in switches.conf. Because of the
+    duplicate functionality we are deprecating the htaccessUser and htaccessPwd
+    parameters. Only the Intel Express 460 module is affected. The parameters
+    will still work but if you are reading this you should migrate them to the 
+    new wsUser, wsPwd and wsTransport parameters.
+
 o Upgrading from a version prior to 1.9.0:
 
     - Passthrough

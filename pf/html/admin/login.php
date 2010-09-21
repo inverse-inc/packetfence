@@ -44,9 +44,13 @@ function validate_user($user,$pass,$hash='') {
 
     # alternative way to do ldap auth: if username exist in local config then validate against ldap
     # allows admins to better control who has access without needing to involve their AD teams
-    # localuser+ldappass
+    # localuser+ldappass (with localpass fallback)
     #if (validate_user_present_in_flat_file($user)) {
     #  $result = validate_user_ldap($user,$pass,$hash);
+    #
+    #  if (!$result) {
+    #    $result = validate_user_flat_file($user,$pass,$hash); 
+    #  }
     #}
 
     return $result;

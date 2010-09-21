@@ -130,7 +130,7 @@ sub getMacBridgePortHash {
     };
 
     if ($@) {
-        $logger->error("Unable to connect to ".$this->{'_ip'}." using ".$this->{_cliTransport});
+        $logger->error("Unable to connect to ".$this->{'_ip'}." using ".$this->{_cliTransport}.". Failed with $@");
         return %macBridgePortHash;
     }
 

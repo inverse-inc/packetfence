@@ -1,19 +1,13 @@
-package pf::SNMP::Cisco::Catalyst_3550;
+package pf::SNMP::Nortel::ERS2500;
 
 =head1 NAME
 
-pf::SNMP::Cisco::Catalyst_3550 - Object oriented module to access SNMP enabled Cisco Catalyst 3550 switches
+pf::SNMP::Nortel::ERS2500 - Object oriented module to access SNMP enabled Nortel ERS2500 switches
 
 =head1 SYNOPSIS
 
-The pf::SNMP::Cisco::Catalyst_3550 module implements an object oriented interface
-to access SNMP enabled Cisco::Catalyst_3550 switches.
-
-This modules extends pf::SNMP::Cisco::Catalyst_2960
-
-=head1 BUGS AND LIMITATIONS
-
-IfIndex on this platform is not the same as port # or dot1d port.
+The pf::SNMP::Nortel::ERS2500 module implements an object 
+oriented interface to access SNMP enabled Nortel::ERS2500 switches.
 
 =cut
 
@@ -22,18 +16,15 @@ use warnings;
 use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
-
-use base ('pf::SNMP::Cisco::Catalyst_2960');
+use base ('pf::SNMP::Nortel');
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Dominik Gehl <dgehl@inverse.ca>
+Regis Balzard <rbalzard@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008,2010 Inverse inc.
+Copyright (C) 2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

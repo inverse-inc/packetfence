@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Perl::Critic;
-use Test::More tests => 128;
+use Test::More tests => 132;
 
 # To generate this list, start with this: find lib/pf/ -exec echo "    '/usr/local/pf/{}'," \; | sort
 # TODO: should these really be absolute PATHs? I don't think so!
@@ -25,6 +25,9 @@ my @files = (
     '/usr/local/pf/cgi-bin/redir.cgi',
     '/usr/local/pf/cgi-bin/release.cgi',
     '/usr/local/pf/cgi-bin/register.cgi',
+    '/usr/local/pf/conf/authentication/ldap.pm',
+    '/usr/local/pf/conf/authentication/local.pm',
+    '/usr/local/pf/conf/authentication/radius.pm',
     '/usr/local/pf/lib/pf/action.pm',
     '/usr/local/pf/lib/pf/class.pm',
     '/usr/local/pf/lib/pf/configfile.pm',
@@ -104,11 +107,14 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP/Intel.pm',
     '/usr/local/pf/lib/pf/SNMP/Linksys.pm',
     '/usr/local/pf/lib/pf/SNMP/Linksys/SRW224G4.pm',
+    '/usr/local/pf/lib/pf/SNMP/MockedSwitch.pm',
     '/usr/local/pf/lib/pf/SNMP/Nortel/BayStack4550.pm',
     '/usr/local/pf/lib/pf/SNMP/Nortel/BayStack470.pm',
     '/usr/local/pf/lib/pf/SNMP/Nortel/BayStack5520.pm',
     '/usr/local/pf/lib/pf/SNMP/Nortel/BayStack5520Stacked.pm',
     '/usr/local/pf/lib/pf/SNMP/Nortel/BPS2000.pm',
+    '/usr/local/pf/lib/pf/SNMP/Nortel/ERS2500.pm',
+    '/usr/local/pf/lib/pf/SNMP/Nortel/ERS4500.pm',
     '/usr/local/pf/lib/pf/SNMP/Nortel/ES325.pm',
     '/usr/local/pf/lib/pf/SNMP/Nortel.pm',
     '/usr/local/pf/lib/pf/SNMP/PacketFence.pm',

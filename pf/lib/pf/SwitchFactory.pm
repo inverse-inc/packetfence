@@ -146,13 +146,23 @@ sub instantiate {
                    $SwitchConfig{$requestedSwitch}{'guestVlan'}
                 || $SwitchConfig{'default'}{'guestVlan'}
         ),
-        '-htaccessPwd' => (
-                   $SwitchConfig{$requestedSwitch}{'htaccessPwd'}
-                || $SwitchConfig{'default'}{'htaccessPwd'}
+        '-wsUser' => (
+            $SwitchConfig{$requestedSwitch}{'wsUser'}
+            || $SwitchConfig{$requestedSwitch}{'htaccessUser'}
+            || $SwitchConfig{'default'}{'wsUser'}
+            || $SwitchConfig{'default'}{'htaccessUser'}
         ),
-        '-htaccessUser' => (
-                   $SwitchConfig{$requestedSwitch}{'htaccessUser'}
-                || $SwitchConfig{'default'}{'htaccessUser'}
+        '-wsPwd' => (
+            $SwitchConfig{$requestedSwitch}{'wsPwd'}
+            || $SwitchConfig{$requestedSwitch}{'htaccessPwd'}
+            || $SwitchConfig{'default'}{'wsPwd'}
+            || $SwitchConfig{'default'}{'htaccessPwd'}
+            || ''
+        ),
+        '-wsTransport' => (
+            $SwitchConfig{$requestedSwitch}{'wsTransport'}
+            || $SwitchConfig{'default'}{'wsTransport'}
+            || 'http'
         ),
         '-ip'            => $requestedSwitch,
         '-isolationVlan' => (
