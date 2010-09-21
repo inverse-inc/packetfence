@@ -27,6 +27,7 @@ New Features
 - New parameters in switches.conf to manage Web Services enabled switches
 
 Enhancements
+- Captive portal performance improvements. Up to 23x on some workloads (#879)
 - More than 30 new DHCP fingerprints (Thanks to Eric Kollmann and Sam Winottai!)
 - Improved Nessus failed scan error reporting (partial fix for #1032)
 - Better error reporting on Cisco ISR 1800

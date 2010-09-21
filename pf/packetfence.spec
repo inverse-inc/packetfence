@@ -60,6 +60,7 @@ BuildRequires: perl(Parse::RecDescent)
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl, php, php-gd
+Requires: mod_perl
 # php-pear-Log required not php-pear, fixes #804
 Requires: php-pear-Log
 Requires: net-tools
@@ -500,6 +501,10 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Tue Sep 21 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added mod_perl as a dependency. Big captive portal performance gain. 
+  Fixes #879;
+
 * Wed Aug 25 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added perl(Authen::Radius) as a dependency. Required by the optional radius
   authentication in the captive portal. Fixes #1047;
