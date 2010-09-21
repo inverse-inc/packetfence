@@ -63,7 +63,8 @@
 	pf/html/user/content/violations/failed_scan.php, 
 	pf/html/user/content/violations/generic.php, 
 	pf/html/user/content/violations/lsass.php: Added copyright, license and
-	author info.
+	author info. Fixes #764;
+	http://www.packetfence.org/bugs/view.php?id=764
 
 	* pf/lib/pf/node.pm: Enforcing maxnodes the same way in register.cgi 
 	and pf::node's node_register. Prevent situations where unregistered 
