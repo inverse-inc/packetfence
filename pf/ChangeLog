@@ -4,13 +4,67 @@
 	Fixes bug #1036;
 	http://www.packetfence.org/bugs/view.php?id=1036
 
-2010-09-21	Regis Balzard <rbalzard@inverse.ca>
 	* pf/docs/PacketFence_Administration_Guide.odt:
 	Updated (for clarification purpose) documentation for Cisco stacked 
 	and 4500 Series switches. Fixes bug #1037;
 	http://www.packetfence.org/bugs/view.php?id=1037
 
 2010-09-21	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/cgi-bin/pdp.cgi, pf/cgi-bin/redir.cgi, pf/cgi-bin/register.cgi, 
+	pf/cgi-bin/release.cgi, pf/html/admin/administration/adduser.php, 
+	pf/html/admin/administration/index.php, 
+	pf/html/admin/administration/services.php, 
+	pf/html/admin/administration/ui_options.php, 
+	pf/html/admin/administration/version.php, 
+	pf/html/admin/check_login.php, pf/html/admin/common/adminperm.inc,
+	pf/html/admin/common/helpers.inc, pf/html/admin/common.php, 
+	pf/html/admin/configuration/fingerprint.php, 
+	pf/html/admin/configuration/floatingnetworkdevice.php, 
+	pf/html/admin/configuration/floatingnetworkdevice_add.php, 
+	pf/html/admin/configuration/floatingnetworkdevice_edit.php, 
+	pf/html/admin/configuration/index.php, 
+	pf/html/admin/configuration/interfaces.php, 
+	pf/html/admin/configuration/interfaces_add.php, 
+	pf/html/admin/configuration/interfaces_edit.php, 
+	pf/html/admin/configuration/main.php, 
+	pf/html/admin/configuration/more_info.php, 
+	pf/html/admin/configuration/networks.php, 
+	pf/html/admin/configuration/networks_add.php, 
+	pf/html/admin/configuration/networks_edit.php, 
+	pf/html/admin/configuration/switches.php, 
+	pf/html/admin/configuration/switches_add.php, 
+	pf/html/admin/configuration/switches_edit.php, 
+	pf/html/admin/configuration/violation.php, 
+	pf/html/admin/configuration/violation_add.php, 
+	pf/html/admin/configuration/violation_edit.php, 
+	pf/html/admin/exporter.php, pf/html/admin/footer.php, 
+	pf/html/admin/header.php, pf/html/admin/index.php, 
+	pf/html/admin/login.php, pf/html/admin/node/add.php, 
+	pf/html/admin/node/categories.php, 
+	pf/html/admin/node/categories_add.php, 
+	pf/html/admin/node/categories_edit.php, 
+	pf/html/admin/node/edit.php, pf/html/admin/node/index.php, 
+	pf/html/admin/node/lookup.php, pf/html/admin/node/view.php, 
+	pf/html/admin/person/add.php, pf/html/admin/person/edit.php, 
+	pf/html/admin/person/index.php, pf/html/admin/person/lookup.php, 
+	pf/html/admin/person/view.php, pf/html/admin/printer.php, 
+	pf/html/admin/scan/edit.php, pf/html/admin/scan/index.php, 
+	pf/html/admin/scan/results.php, pf/html/admin/scan/scan.php, 
+	pf/html/admin/status/dashboard.php, pf/html/admin/status/grapher.php, 
+	pf/html/admin/status/graphs.php, pf/html/admin/status/index.php, 
+	pf/html/admin/status/reports.php, 
+	pf/html/admin/status/sajax-dashboard.php, 
+	pf/html/admin/violation/add.php, pf/html/admin/violation/edit.php, 
+	pf/html/admin/violation/index.php, pf/html/admin/violation/view.php, 
+	pf/html/user/content/index.php, pf/html/user/content/style.php, 
+	pf/html/user/content/violations/banned_devices.php, 
+	pf/html/user/content/violations/banned_os.php, 
+	pf/html/user/content/violations/darknet.php, 
+	pf/html/user/content/violations/failed_scan.php, 
+	pf/html/user/content/violations/generic.php, 
+	pf/html/user/content/violations/lsass.php: Added copyright, license and
+	author info.
+
 	* pf/lib/pf/node.pm: Enforcing maxnodes the same way in register.cgi 
 	and pf::node's node_register. Prevent situations where unregistered 
 	nodes would be accounted for when enforcing maxnodes causing errors

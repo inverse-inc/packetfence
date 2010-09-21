@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 76;
+use Test::More tests => 79;
 
 my @php_files = (
     '/usr/local/pf/html/admin/administration/adduser.php',
@@ -19,6 +19,9 @@ my @php_files = (
     '/usr/local/pf/html/admin/common/helpers.inc',
     '/usr/local/pf/html/admin/common/sajax/Sajax.php',
     '/usr/local/pf/html/admin/configuration/fingerprint.php',
+    '/usr/local/pf/html/admin/configuration/floatingnetworkdevice_add.php',
+    '/usr/local/pf/html/admin/configuration/floatingnetworkdevice_edit.php',
+    '/usr/local/pf/html/admin/configuration/floatingnetworkdevice.php',
     '/usr/local/pf/html/admin/configuration/index.php',
     '/usr/local/pf/html/admin/configuration/interfaces_add.php',
     '/usr/local/pf/html/admin/configuration/interfaces_edit.php',
@@ -89,3 +92,5 @@ foreach my $currentPHPFile (@php_files) {
     ok( system("/usr/bin/php -l $currentPHPFile 2>&1") == 0,
         "$currentPHPFile compiles" );
 }
+
+# TODO test for @license, @copyright and @author presence

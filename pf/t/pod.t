@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 132;
+use Test::More tests => 134;
 
 # file list copied from critic.t
 my @files = (
