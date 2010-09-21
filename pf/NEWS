@@ -34,6 +34,8 @@ Enhancements
 - Added some documentation for Cisco (2960, 3550) and Aruba in the SNMP modules
 - Documented performance optimization regarding blocking non-browser requests in 
   the captive portal (#1072)
+- Updated (for clarification purpose) documentation for Cisco stacked and 
+  4500 Series switches. (#1037) 
 - Error handling and error messages improvements (#1052)
 
 Bug fixes

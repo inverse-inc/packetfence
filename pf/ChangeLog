@@ -1,3 +1,9 @@
+2010-09-21	Regis Balzard <rbalzard@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt:
+	Updated (for clarification purpose) documentation for Cisco stacked 
+	and 4500 Series switches. Fixes bug #1037;
+	http://www.packetfence.org/bugs/view.php?id=1037
+
 2010-09-21	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/cgi-bin/register.cgi, pf/conf/templates/httpd.conf.apache22, 
 	pf/lib/pf/web.pm, pf/packetfence.spec: Captive portal now using 
