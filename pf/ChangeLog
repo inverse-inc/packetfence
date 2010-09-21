@@ -1,3 +1,9 @@
+2010-09-13      Regis Balzard <rbalzard@inverse.ca>
+	* pf/conf/dhcp_fingerprints.conf: New DHCP fingerprints: Cisco,
+	Netgear Router, Quanta Microsystems, Debian-based Linux, Nokia Tablet, 
+	Symbian OS. Thanks to Sam Winotai (from Loyola Marymount University) 
+	for the contribution! 
+
 2010-09-20	Regis Balzard <rbalzard@inverse.ca>
 	* pf/lib/pf/SNMP/Nortel/BayStack4500.pm: removed this file 
 
