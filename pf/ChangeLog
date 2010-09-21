@@ -1,5 +1,11 @@
 2010-09-21	Regis Balzard <rbalzard@inverse.ca>
 	* pf/docs/PacketFence_Administration_Guide.odt:
+	Updated documentation for FreeRadius 1.x and added some for 2.x. 
+	Fixes bug #1036;
+	http://www.packetfence.org/bugs/view.php?id=1036
+
+2010-09-21	Regis Balzard <rbalzard@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt:
 	Updated (for clarification purpose) documentation for Cisco stacked 
 	and 4500 Series switches. Fixes bug #1037;
 	http://www.packetfence.org/bugs/view.php?id=1037

@@ -38,6 +38,7 @@ Enhancements
 - Updated (for clarification purpose) documentation for Cisco stacked and 
   4500 Series switches. (#1037) 
 - Error handling and error messages improvements (#1052)
+- Updated documentation for FreeRadius 1.x and added some for 2.x. (#1036)
 
 Bug fixes
 - Node categories related fixes (#1063, #1056)
