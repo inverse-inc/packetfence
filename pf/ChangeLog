@@ -1,3 +1,10 @@
+2010-09-21	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/cgi-bin/register.cgi, pf/conf/templates/httpd.conf.apache22, 
+	pf/lib/pf/web.pm, pf/packetfence.spec: Captive portal now using 
+	mod_perl. Huge performance gain. Up to 23x faster on some workloads we
+	tested. Fixes #879;
+	http://www.packetfence.org/bugs/view.php?id=879
+
 2010-09-20	Regis Balzard <rbalzard@inverse.ca>
 	* pf/lib/pf/SNMP/Nortel/BayStack4500.pm: removed this file 
 

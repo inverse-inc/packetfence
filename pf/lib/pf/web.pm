@@ -43,11 +43,6 @@ use pf::iplog qw(ip2mac);
 use pf::node qw(node_view node_modify);
 use pf::useragent;
 
-# FIXME hack to work-around the lack of eval authentication::$auth
-# we need a proper solution (objects?)
-use lib $conf_dir;
-use authentication::local;
-
 sub web_get_locale {
     my ($cgi,$session) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
@@ -502,13 +497,11 @@ sub web_user_authenticate {
         }
 
         #validate login and password
-# FIXME: see top of file, we need a way to call the proper module based on config without an eval "$str"; crap
-#        use lib $conf_dir;
-#        eval "use authentication::$auth";
-#        if ($@) {
-#            $logger->error("ERROR loading authentication::$auth $@");
-#            return ( 0, 2 );
-#        }
+        eval "use authentication::$auth";
+        if ($@) {
+            $logger->error("ERROR loading authentication::$auth $@");
+            return ( 0, 2 );
+        }
         my ( $authReturn, $err )
             = authenticate( $cgi->param("login"), $cgi->param("password") );
         if ( $authReturn == 1 ) {

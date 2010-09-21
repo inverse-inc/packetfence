@@ -16,7 +16,8 @@ MinSpareServers 50
 MaxSpareServers 100
 StartServers 50
 MaxClients 256
-MaxRequestsPerChild 0
+# to avoid memory leaks over a long period
+MaxRequestsPerChild 1000
 ServerName %%hostname%%.%%domain%%
 Listen 0.0.0.0:80
 Listen 0.0.0.0:443
@@ -142,7 +143,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
     PerlOptions +ParseHeaders
     Options Indexes FollowSymLinks ExecCGI
   </Location>
-  PerlSwitches -I%%install_dir%%/lib -I%%install_dir%%/conf/
 
   <DirectoryMatch "%%install_dir%%(/cgi-bin|/html/user)">
     Order deny,allow
@@ -153,6 +153,12 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteEngine On
   #RewriteLogLevel 3
   #RewriteLog %%install_dir%%/logs/rewrite_log
+
+  # Uncomment the following lines to block almost anything that is not a browser (avoid server load)
+  #RewriteCond %{HTTP_USER_AGENT} !^Mozilla
+  #RewriteCond %{HTTP_USER_AGENT} !^Opera
+  #RewriteCond %{HTTP_USER_AGENT} !^BlackBerry
+  #RewriteRule ^.*$ - [L,forbidden]
 
   #activate if you don't want requests to update servers
   #to end up going to the PacketFence system
@@ -207,19 +213,15 @@ SetEnvIf User-Agent ".*MSIE.*" \
   CustomLog %%install_dir%%/logs/access_log combined
   ErrorLog %%install_dir%%/logs/error_log
 
-  # FIXME: remember that if this ever goes in as standard, a MaxRequestsPerChild value is to be provided
-  # according to previous testing, between 1000 and 10000 would be sensible
   <Location /cgi-bin>
     SetHandler perl-script
     PerlResponseHandler ModPerl::PerlRun
     PerlOptions +ParseHeaders
     Options Indexes FollowSymLinks ExecCGI
   </Location>
-  PerlSwitches -I%%install_dir%%/lib -I%%install_dir%%/conf/
 
   <DirectoryMatch "%%install_dir%%(/cgi-bin|/html/user)">
     SSLOptions +StdEnvVars
-	Options ExecCGI
     Order deny,allow
     Deny from all
     allow from %%internal-nets%% %%routed-nets%% 127.0.0.1
@@ -234,6 +236,12 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteEngine On
   #RewriteLogLevel 3
   #RewriteLog %%install_dir%%/logs/rewrite_log
+
+  # Uncomment the following lines to block almost anything that is not a browser (avoid server load)
+  #RewriteCond %{HTTP_USER_AGENT} !^Mozilla
+  #RewriteCond %{HTTP_USER_AGENT} !^Opera
+  #RewriteCond %{HTTP_USER_AGENT} !^BlackBerry
+  #RewriteRule ^.*$ - [L,forbidden]
 
   # return 403 to Windows Proxy Autodetection (avoid server load)
   RewriteRule ^/wpad.dat$ - [F,L]
