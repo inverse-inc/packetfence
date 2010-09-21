@@ -302,7 +302,6 @@ sub violation_add {
     $data{notes}  = ""     if ( !defined $data{notes} );
     $data{ticket_ref} = "" if ( !defined $data{ticket_ref} );
 
-    # Is this MAC and ID aready in DB?  if so don't add another
     if ( violation_exist_open( $mac, $vid ) ) {
         $logger->info("violation $vid already exists for $mac, not adding again");
         return (1);
@@ -329,17 +328,15 @@ sub violation_add {
         }
     }
 
-    #  has this mac registered if not register for violation?
+    # if this node doesn't exist we'll run into problems so create it
     if ( !node_exist($mac) ) {
         node_add_simple($mac);
     } else {
 
-        # not a new violation check violation
+        # check if we are under the grace period of a previous violation
         my ($remaining_time) = violation_grace( $mac, $vid );
         if ( $remaining_time > 0 ) {
-            $logger->info(
-                "$remaining_time grace remaining on violation $vid for node $mac"
-            );
+            $logger->info("$remaining_time grace remaining on violation $vid for node $mac. Not adding violation.");
             return (1);
         } else {
             $logger->info("grace expired on violation $vid for node $mac");
@@ -414,18 +411,23 @@ sub violation_trigger {
         }
         my $vid = $row->{'vid'};
 
-        # TODO: performance improvement: validate for grace here also will avoid a spawned process only to check grace
-
         # if the node's category is whitelisted, skip
         if (_is_node_category_whitelisted($row, $mac)) {
             $logger->info("Not adding violation ${vid} node $mac is immune because of its category");
             next;
         }
 
-        # Is this MAC and ID aready in DB?  if so don't add another
         # we test here AND in violation_add because here we avoid a fork (and violation_add is called from elsewhere)
         if ( violation_exist_open( $mac, $vid ) ) {
             $logger->info("violation $vid already exists for $mac, not adding again");
+            next;
+        }
+
+        # check if we are under the grace period of a previous violation
+        # we test here AND in violation_add because here we avoid a fork (and violation_add is called from elsewhere)
+        my ($remaining_time) = violation_grace( $mac, $vid );
+        if ($remaining_time > 0) {
+            $logger->info("$remaining_time grace remaining on violation $vid for node $mac. Not adding violation.");
             next;
         }
 

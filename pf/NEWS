@@ -34,6 +34,7 @@ Enhancements
 - Added some documentation for Cisco (2960, 3550) and Aruba in the SNMP modules
 - Documented performance optimization regarding blocking non-browser requests in 
   the captive portal (#1072)
+- Avoiding unnecessary load where a lot of non-trap violation are used (#857)
 - Error handling and error messages improvements (#1052)
 
 Bug fixes

@@ -1,4 +1,9 @@
 2010-09-21	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/violation.pm: Added validation for violation grace period
+	in violation_trigger. Avoids unnecessary load in certain cases. 
+	Fixes #857;
+	http://www.packetfence.org/bugs/view.php?id=857
+
 	* pf/cgi-bin/register.cgi, pf/conf/templates/httpd.conf.apache22, 
 	pf/lib/pf/web.pm, pf/packetfence.spec: Captive portal now using 
 	mod_perl. Huge performance gain. Up to 23x faster on some workloads we
