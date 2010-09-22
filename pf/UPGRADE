@@ -24,6 +24,18 @@ o Upgrading from a version prior to <release>:
 
 o Upgrading from a version prior to 1.9.1:
 
+    - Captive portal using mod_perl
+    The captive portal's default mode of operation relies on mod_perl now. 
+    The benefit is a tremendous performance gain. If you experience problems 
+    with authentication after you upgraded make sure that the cgi file has the
+    proper 'use lib' statements to load the authentication modules in conf/. 
+    Default configurations should not have any issues.
+
+    - Extreme switches new firmware requirement
+    Due to a change in Extreme's code, linkup/linkdown mode now requires at 
+    least firmware 12.2. A compatibility layer to support pre-12.2 could be 
+    written. Contact us if you are interested.
+
     - Web Administration interface access control
     Administrators can now give different access levels to users. By default
     all users will be given the admin level rights unless you modify the 

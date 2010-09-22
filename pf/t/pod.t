@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 541;
+use Test::More tests => 549;
 
 # file list copied from critic.t
 my @files = (
@@ -116,6 +116,8 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP/Nortel/BayStack5520.pm',
     '/usr/local/pf/lib/pf/SNMP/Nortel/BayStack5520Stacked.pm',
     '/usr/local/pf/lib/pf/SNMP/Nortel/BPS2000.pm',
+    '/usr/local/pf/lib/pf/SNMP/Nortel/ERS2500.pm',
+    '/usr/local/pf/lib/pf/SNMP/Nortel/ERS4500.pm',
     '/usr/local/pf/lib/pf/SNMP/Nortel/ES325.pm',
     '/usr/local/pf/lib/pf/SNMP/Nortel.pm',
     '/usr/local/pf/lib/pf/SNMP/PacketFence.pm',

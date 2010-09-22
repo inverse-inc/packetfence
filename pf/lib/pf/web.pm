@@ -498,7 +498,6 @@ sub web_user_authenticate {
         }
 
         #validate login and password
-        use lib $conf_dir;
         eval "use authentication::$auth";
         if ($@) {
             $logger->error("ERROR loading authentication::$auth $@");

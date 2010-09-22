@@ -195,11 +195,13 @@ sub parseCommandLine {
                                      ( view )
                                      \s+
                                      (?: 
-                                         (all) 
-                                       | ($RE{net}{MAC}) 
+                                         ( all ) 
+                                       | ( $RE{net}{MAC} ) 
                                        | ( category | pid )
                                          \s* [=] \s*
-                                         ( [0-9a-zA-Z_\-\.\:]+ )
+                                         (?: (?: \" ( [0-9a-zA-Z_\-\.\:\ ]+ ) \" ) 
+                                             | ( [0-9a-zA-Z_\-\.\:]+ )
+                                         )
                                      )
                                      (?:
                                        \s+ ( order ) \s+ ( by )
@@ -219,7 +221,9 @@ sub parseCommandLine {
                                          | ( $RE{net}{MAC} )
                                          | ( category | pid )
                                            \s* [=] \s*
-                                           ( [0-9a-zA-Z_\-\.\:]+ )
+                                           (?: (?: \" ( [0-9a-zA-Z_\-\.\:\ ]+ ) \" ) 
+                                               | ( [0-9a-zA-Z_\-\.\:]+ )
+                                           )
                                      )
                                      |
                                      ( delete )
@@ -366,6 +370,7 @@ sub parseCommandLine {
             push @{$cmd{'command'}}, $18 if (defined($18));
             push @{$cmd{'command'}}, $19 if (defined($19));
             push @{$cmd{'command'}}, $20 if (defined($20));
+            push @{$cmd{'command'}}, $21 if (defined($21));
             if ($main eq 'manage') {
                 push @{$cmd{'manage_options'}}, $cmd{'command'}[1];
                 push @{$cmd{'manage_options'}}, $cmd{'command'}[2];
@@ -376,18 +381,20 @@ sub parseCommandLine {
                 push @{$cmd{'node_options'}}, $cmd{'command'}[2];
                 if ($cmd{'command'}[1] eq 'view') {
                     if (defined($4)) {
-                        push @{$cmd{'node_filter'}}, [$4, $5];
+                        # node filter is either capture 5 or 6 (with or without quotes)
+                        push @{$cmd{'node_filter'}}, [$4, $5 ? $5 : $6];
                     }
-                    if (defined($6)) {
-                        push @{$cmd{'orderby_options'}}, ($6, $7, $8, $9);
+                    if (defined($7)) {
+                        push @{$cmd{'orderby_options'}}, ($7, $8, $9, $10);
                     }
-                    if (defined($10)) {
-                        push @{$cmd{'limit_options'}}, ($10, $11, ',', $12);
+                    if (defined($11)) {
+                        push @{$cmd{'limit_options'}}, ($11, $12, ',', $13);
                     }
                 }
                 if ($cmd{'command'}[1] eq 'count') {
-                    if (defined($16)) {
-                        push @{$cmd{'node_filter'}}, [$16, $17];
+                    if (defined($17)) {
+                        # node filter is either capture 18 or 19 (with or without quotes)
+                        push @{$cmd{'node_filter'}}, [$17, $18 ? $18 : $19];
                     }
                 }
             }

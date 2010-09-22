@@ -1,6 +1,27 @@
 <?php
 /**
- * @licence http://opensource.org/licenses/gpl-2.0.php GPL
+ * TODO short desc
+ *
+ * TODO long desc
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+ * USA.
+ * 
+ * @author      Olivier Bilodeau <obilodeau@inverse.ca>
+ * @copyright   2008-2010 Inverse inc.
+ * @licence     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
 
@@ -33,25 +54,16 @@
 
   if (array_key_exists('filter_type', $_REQUEST)) {
     $my_table=new table("node view " . $_REQUEST['filter_type'] . '=' . $_REQUEST['view_item'] . " order by $sort $direction " . $limit_clause);
-    $my_table->set_default_filter($_REQUEST['filter_type'] . '=' . $_REQUEST['view_item']);
-    if (! isset($_REQUEST['filter'])) {
-      $result_count = PFCMD("node count " . $_REQUEST['filter_type'] . '=' . $_REQUEST['view_item']);
-      if ($result_count[1] >= 0) {
-        $my_table->set_result_count($result_count[1]);
-      }
-    }
+    $my_table->set_count_cmd("node count " . $_REQUEST['filter_type'] . '=' . $_REQUEST['view_item']);
+    $my_table->count_result();
   } else {
     $view_item = set_default($_REQUEST['view_item'], 'all');
     $my_table=new table("node view $view_item order by $sort $direction $limit_clause");
     if ((! isset($_REQUEST['filter'])) || ($_REQUEST['filter'] == '')) {
-      $result_count = PFCMD("node count $view_item");
-      if ($result_count[1] >= 0) {
-        $my_table->set_result_count($result_count[1]);
-      }
+      $my_table->set_count_cmd("node count $view_item");
+      $my_table->count_result();
     }
   }
-
-
 
   $my_table->set_editable(true);
   $is_printable=true;

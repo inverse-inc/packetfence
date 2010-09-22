@@ -1,3 +1,168 @@
+2010-09-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/NEWS, pf/conf/pf-release, 
+	pf/docs/PacketFence_Administration_Guide.odt, 
+	pf/docs/PacketFence_Developers_Guide.odt, 
+	pf/docs/PacketFence_Installation_Guide.odt, pf/packetfence.spec, 
+	pf/t/pfcmd.t: New 1.9.1 release!
+
+	* pf/t/smoke.t: Added new smoke testsuite which is used by our building
+	process. A suite of tests quick to run, with no side-effects and that 
+	should always pass.
+
+2010-09-21	Regis Balzard <rbalzard@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt:
+	Updated documentation for FreeRadius 1.x and added some for 2.x. 
+	Fixes bug #1036;
+	http://www.packetfence.org/bugs/view.php?id=1036
+
+	* pf/docs/PacketFence_Administration_Guide.odt:
+	Updated (for clarification purpose) documentation for Cisco stacked 
+	and 4500 Series switches. Fixes bug #1037;
+	http://www.packetfence.org/bugs/view.php?id=1037
+
+2010-09-21	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/cgi-bin/pdp.cgi, pf/cgi-bin/redir.cgi, pf/cgi-bin/register.cgi, 
+	pf/cgi-bin/release.cgi, pf/html/admin/administration/adduser.php, 
+	pf/html/admin/administration/index.php, 
+	pf/html/admin/administration/services.php, 
+	pf/html/admin/administration/ui_options.php, 
+	pf/html/admin/administration/version.php, 
+	pf/html/admin/check_login.php, pf/html/admin/common/adminperm.inc,
+	pf/html/admin/common/helpers.inc, pf/html/admin/common.php, 
+	pf/html/admin/configuration/fingerprint.php, 
+	pf/html/admin/configuration/floatingnetworkdevice.php, 
+	pf/html/admin/configuration/floatingnetworkdevice_add.php, 
+	pf/html/admin/configuration/floatingnetworkdevice_edit.php, 
+	pf/html/admin/configuration/index.php, 
+	pf/html/admin/configuration/interfaces.php, 
+	pf/html/admin/configuration/interfaces_add.php, 
+	pf/html/admin/configuration/interfaces_edit.php, 
+	pf/html/admin/configuration/main.php, 
+	pf/html/admin/configuration/more_info.php, 
+	pf/html/admin/configuration/networks.php, 
+	pf/html/admin/configuration/networks_add.php, 
+	pf/html/admin/configuration/networks_edit.php, 
+	pf/html/admin/configuration/switches.php, 
+	pf/html/admin/configuration/switches_add.php, 
+	pf/html/admin/configuration/switches_edit.php, 
+	pf/html/admin/configuration/violation.php, 
+	pf/html/admin/configuration/violation_add.php, 
+	pf/html/admin/configuration/violation_edit.php, 
+	pf/html/admin/exporter.php, pf/html/admin/footer.php, 
+	pf/html/admin/header.php, pf/html/admin/index.php, 
+	pf/html/admin/login.php, pf/html/admin/node/add.php, 
+	pf/html/admin/node/categories.php, 
+	pf/html/admin/node/categories_add.php, 
+	pf/html/admin/node/categories_edit.php, 
+	pf/html/admin/node/edit.php, pf/html/admin/node/index.php, 
+	pf/html/admin/node/lookup.php, pf/html/admin/node/view.php, 
+	pf/html/admin/person/add.php, pf/html/admin/person/edit.php, 
+	pf/html/admin/person/index.php, pf/html/admin/person/lookup.php, 
+	pf/html/admin/person/view.php, pf/html/admin/printer.php, 
+	pf/html/admin/scan/edit.php, pf/html/admin/scan/index.php, 
+	pf/html/admin/scan/results.php, pf/html/admin/scan/scan.php, 
+	pf/html/admin/status/dashboard.php, pf/html/admin/status/grapher.php, 
+	pf/html/admin/status/graphs.php, pf/html/admin/status/index.php, 
+	pf/html/admin/status/reports.php, 
+	pf/html/admin/status/sajax-dashboard.php, 
+	pf/html/admin/violation/add.php, pf/html/admin/violation/edit.php, 
+	pf/html/admin/violation/index.php, pf/html/admin/violation/view.php, 
+	pf/html/user/content/index.php, pf/html/user/content/style.php, 
+	pf/html/user/content/violations/banned_devices.php, 
+	pf/html/user/content/violations/banned_os.php, 
+	pf/html/user/content/violations/darknet.php, 
+	pf/html/user/content/violations/failed_scan.php, 
+	pf/html/user/content/violations/generic.php, 
+	pf/html/user/content/violations/lsass.php: Added copyright, license and
+	author info. Fixes #764;
+	http://www.packetfence.org/bugs/view.php?id=764
+
+	* pf/lib/pf/node.pm: Enforcing maxnodes the same way in register.cgi 
+	and pf::node's node_register. Prevent situations where unregistered 
+	nodes would be accounted for when enforcing maxnodes causing errors
+	internally but not visible in the captive portal. So this is both a 
+	usability and correctness fix. Fixes #1057;
+	http://www.packetfence.org/bugs/view.php?id=1057
+
+	* pf/lib/pf/violation.pm: Added validation for violation grace period
+	in violation_trigger. Avoids unnecessary load in certain cases. 
+	Fixes #857;
+	http://www.packetfence.org/bugs/view.php?id=857
+
+	* pf/cgi-bin/register.cgi, pf/conf/templates/httpd.conf.apache22, 
+	pf/lib/pf/web.pm, pf/packetfence.spec: Captive portal now using 
+	mod_perl. Huge performance gain. Up to 23x faster on some workloads we
+	tested. Fixes #879;
+	http://www.packetfence.org/bugs/view.php?id=879
+
+2010-09-21	Regis Balzard <rbalzard@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt:
+	Added a section in the performance optimization section regarding 
+	blocking non browser requests in the captive portal
+
+	* pf/conf/dhcp_fingerprints.conf: New DHCP fingerprints: Cisco,
+	Netgear Router, Quanta Microsystems, Debian-based Linux, Nokia Tablet,
+	Symbian OS. Thanks to Sam Winotai (from Loyola Marymount University) 
+	for the contribution! 
+
+2010-09-20	Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/SNMP/Nortel/BayStack4500.pm: removed this file 
+
+	* pf/lib/pf/SNMP/Nortel/ERS4500.pm: added this file
+
+	* pf/README_SWITCHES, pf/html/admin/configuration/switches_add.php, 
+	pf/html/admin/configuration/switches_edit.php, pf/t/critic.t, 
+	pf/t/hardware-snmp-objects.t, pf/t/pod.t: Fixed the error in the 4500 
+	module name (was originally named BayStack 4500 but it is actually ERS
+	4500).
+
+2010-09-17	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/dhcp_fingerprints.conf: Fixed Siemens optiPoint WL2 
+	Professional fingerprint.
+
+	* pf/html/admin/common.php, pf/lib/pf/pfcmd.pm: pfcmd's node filters now
+	supports arguments with spaces as long as they are double-quoted. 
+	Viewing nodes per category on the admin interface was updated to use 
+	this facility. Fixes #1056;
+	http://www.packetfence.org/bugs/view.php?id=1056
+
+	* pf/html/admin/common.php, pf/html/admin/node/view.php: Table 
+	refreshes now re-do a count so paging in node table doesn't brake on
+	deletions. Fixes #1055;
+	http://www.packetfence.org/bugs/view.php?id=1055
+
+2010-09-17	Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/SNMP/Nortel/ERS2500.pm, pf/README_SWITCHES, 
+	pf/html/admin/configuration/switches_add.php,
+	pf/html/admin/configuration/switches_edit.php, pf/t/critic.t, 
+	pf/t/hardware-snmp-objects.t, pf/t/pod.t: Added support for Nortel ERS 
+	2500 Series.
+
+2010-09-17	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Extreme/Summit.pm, 
+	pf/lib/pf/SNMP/Extreme/Summit_X250e.pm, pf/lib/pf/SNMP/Extreme.pm, 
+	pf/html/admin/configuration/switches_add.php,
+	pf/html/admin/configuration/switches_edit.php: 
+	Re-worked port-security (MAC address Lockdown) support and added Voice
+	over IP support for Extreme XOS. We removed the CLI requirement making
+	it a production ready module. Thanks to Extreme Networks for sponsoring
+	the feature and adding features to their ExtremeXOS making this 
+	possible.
+
+2010-09-17	Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/SNMP/Nortel/BayStack4500.pm, pf/README_SWITCHES, 
+	pf/html/admin/configuration/switches_add.php,
+	pf/html/admin/configuration/switches_edit.php, pf/t/critic.t, 
+	pf/t/hardware-snmp-objects.t, pf/t/pod.t: Added support for Nortel 4500
+	Series. This module will replace the one for Nortel 4550 since the code
+	is the same for the entire serie.
+
+2010-09-17	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Added configuration
+	instructions for Extreme in port security and Voice over IP. Module is
+	now identified as covering the whole Extreme XOS series and previous
+	limitations were removed since the code has been fixed.
+
 2010-09-15	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/addons/autodiscover.pl, pf/addons/loadMACintoDB.pl, 
 	pf/lib/pf/node.pm, pf/sbin/pfdhcplistener, pf/UPGRADE: Removed print 

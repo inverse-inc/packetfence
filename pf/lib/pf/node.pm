@@ -509,13 +509,12 @@ sub node_register {
         my $max_nodes = 0;
         $max_nodes = $Config{'registration'}{'maxnodes'}
             if ( defined $Config{'registration'}{'maxnodes'} );
-        my $owned_nodes = pf::person::person_nodes($pid);
+        my $owned_nodes = node_pid($pid);
         if ( $max_nodes != 0 && $pid ne '1' && $owned_nodes >= $max_nodes ) {
             $logger->error(
                 "maxnodes met or exceeded - registration of $mac to $pid failed");
             return (0);
         }
-    }
 
     # create a person entry for pid if it doesn't exist
     if ( !pf::person::person_exist($pid) ) {

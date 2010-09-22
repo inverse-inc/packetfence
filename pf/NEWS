@@ -2,7 +2,7 @@ PacketFence NEWS
 
 Project homepage: https://www.packetfence.org/
 
-Please report bugs to: http://www.packetfence.org/mantis/
+Please report bugs to: http://www.packetfence.org/bugs/
 
 Interested in contributing to the project? Check the following link:
 
@@ -31,11 +31,12 @@ Enhancements
 - Added several tests
 
 --------------------------------------------------------------------------------
-Version <release> - <codename> released on <releaseDate>
+Version 1.9.1 released on 2010-09-22
 
 New Hardware Support
-- Extreme XOS Port Security (MAC address lockdown) support (feature sponsored by
-  Extreme Networks)
+- Extreme XOS Port Security (MAC address lockdown) and Voice over IP support 
+  (feature sponsored by Extreme Networks)
+- Nortel ERS 2500 Series Port security and Voice over IP support
 
 New Features
 - Basic Access Control in the Web Administration interface (#965, Thanks to 
@@ -43,14 +44,23 @@ New Features
 - New parameters in switches.conf to manage Web Services enabled switches
 
 Enhancements
-- More than 30 new DHCP fingerprints (Thanks to Eric Kollmann!)
+- Captive portal performance improvements. Up to 23x on some workloads (#879)
+- More than 35 new DHCP fingerprints (Thanks to Eric Kollmann and Sam Winottai!)
 - Improved Nessus failed scan error reporting (partial fix for #1032)
 - Better error reporting on Cisco ISR 1800
 - Added some documentation for Cisco (2960, 3550) and Aruba in the SNMP modules
+- Documented performance optimization regarding blocking non-browser requests in 
+  the captive portal (#1072)
+- Avoiding unnecessary load where a lot of non-trap violation are used (#857)
+- Updated (for clarification purpose) documentation for Cisco stacked and 
+  4500 Series switches. (#1037) 
 - Error handling and error messages improvements (#1052)
+- Updated documentation for FreeRadius 1.x and added some for 2.x. (#1036)
 
 Bug fixes
-- Node categories related fixes (#1063)
+- Node categories related fixes (#1063, #1056)
+- Deleting a node no longer breaks paging in Web Admin (#1055)
+- Max number of node per user is enforced more consistently (#1057)
 - RPM packaging fixes (#1047)
 - Misc fixes (#1068)
 

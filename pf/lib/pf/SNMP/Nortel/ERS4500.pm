@@ -1,13 +1,13 @@
-package pf::SNMP::Extreme::Summit_X250e;
+package pf::SNMP::Nortel::ERS4500;
 
 =head1 NAME
 
-pf::SNMP::Extreme::Summit_X250e - Object oriented module to parse SNMP traps 
-and manage Extreme Networks' Summit X250e switches
+pf::SNMP::Nortel::ERS4500 - Object oriented module to access SNMP enabled Nortel ERS 4500 switches
 
-=head1 STATUS
+=head1 SYNOPSIS
 
-This module is currently only a placeholder, see pf::SNMP::Extreme.
+The pf::SNMP::Nortel::ERS4500 module implements an object 
+oriented interface to access SNMP enabled Nortel::ERS4500 switches.
 
 =cut
 
@@ -16,19 +16,16 @@ use warnings;
 use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
-use base ('pf::SNMP::Extreme::Summit');
 
-# importing switch constants
-use pf::SNMP::constants;
-use pf::util;
+use base ('pf::SNMP::Nortel::BayStack5520');
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
+Regis Balzard <rbalzard@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009,2010 Inverse inc.
+Copyright (C) 2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

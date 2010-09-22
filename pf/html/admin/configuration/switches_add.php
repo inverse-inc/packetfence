@@ -1,6 +1,27 @@
 <?php
 /**
- * @licence http://opensource.org/licenses/gpl-2.0.php GPL
+ * TODO short desc
+ *
+ * TODO long desc
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+ * USA.
+ * 
+ * @author      Olivier Bilodeau <obilodeau@inverse.ca>
+ * @copyright   2008-2010 Inverse inc.
+ * @licence     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
   $current_top = 'configuration';
@@ -90,15 +111,15 @@
                            'Cisco::Aironet_1130' => 'Cisco Aironet 1130',
                            'Cisco::Aironet_1242' => 'Cisco Aironet 1242',
                            'Cisco::Aironet_1250' => 'Cisco Aironet 1250',
-                           'Cisco::Catalyst_2900XL' => 'Cisco Catalyst 2900XL',
+                           'Cisco::Catalyst_2900XL' => 'Cisco Catalyst 2900XL Series',
                            'Cisco::Catalyst_2950' => 'Cisco Catalyst 2950',
                            'Cisco::Catalyst_2960' => 'Cisco Catalyst 2960',
                            'Cisco::Catalyst_2970' => 'Cisco Catalyst 2970',
-                           'Cisco::Catalyst_3500XL' => 'Cisco Catalyst 3500XL',
+                           'Cisco::Catalyst_3500XL' => 'Cisco Catalyst 3500XL Series',
                            'Cisco::Catalyst_3550' => 'Cisco Catalyst 3550',
                            'Cisco::Catalyst_3560' => 'Cisco Catalyst 3560',
                            'Cisco::Catalyst_3750' => 'Cisco Catalyst 3750',
-                           'Cisco::Catalyst_4500' => 'Cisco Catalyst 4500',
+                           'Cisco::Catalyst_4500' => 'Cisco Catalyst 4500 Series',
                            'Cisco::ISR_1800' => 'Cisco ISR 1800 Series',
                            'Cisco::WiSM' => 'Cisco WiSM',
                            'Cisco::WLC_2106' => 'Cisco Wireless Controller (WLC) 2106',
@@ -110,12 +131,12 @@
                            'Enterasys::SecureStack_C2' => 'Enterasys SecureStack C2',
                            'Enterasys::SecureStack_C3' => 'Enterasys SecureStack C3',
                            'Enterasys::D2' => 'Enterasys Standalone D2',
-                           'Extreme::Summit_X250e' => 'Extreme Net Summit X250e',
+                           'Extreme::Summit' => 'ExtremeNet Summit series',
                            'Foundry::FastIron_4802' => 'Foundry FastIron 4802',
-                           'HP::Procurve_2500' => 'HP ProCurve 2500',
-                           'HP::Procurve_2600' => 'HP ProCurve 2600',
-                           'HP::Procurve_3400cl' => 'HP ProCurve 3400cl',
-                           'HP::Procurve_4100' => 'HP ProCurve 4100',
+                           'HP::Procurve_2500' => 'HP ProCurve 2500 Series',
+                           'HP::Procurve_2600' => 'HP ProCurve 2600 Series',
+                           'HP::Procurve_3400cl' => 'HP ProCurve 3400cl Series',
+                           'HP::Procurve_4100' => 'HP ProCurve 4100 Series',
                            'Intel::Express_460' => 'Intel Express 460',
                            'Intel::Express_530' => 'Intel Express 530',
                            'Linksys::SRW224G4' => 'Linksys SRW224G4',
@@ -124,9 +145,11 @@
                            'Nortel::BayStack5520' => 'Nortel BayStack 5520',
                            'Nortel::BayStack5520Stacked' => 'Nortel BayStack 5520 Stacked',
                            'Nortel::BPS2000' => 'Nortel BPS 2000',
+                           'Nortel::ERS2500' => 'Nortel ERS 2500 Series',
+                           'Nortel::ERS4500' => 'Nortel ERS 4500 Series',
                            'Nortel::ES325' => 'Nortel ES325',
                            'PacketFence' => 'PacketFence',
-                           'SMC::TS8800M' => 'SMC TigerStack 8824-48M',
+                           'SMC::TS8800M' => 'SMC TigerStack 8800 Series',
                            'SMC::TS6224M' => 'SMC TigerStack 6224M'
                       ), 
                      'hash', $val, "name='$key'");
