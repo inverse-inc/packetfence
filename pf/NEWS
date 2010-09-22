@@ -14,7 +14,7 @@ For a list of compatibility related changes see the UPGRADE file.
 
 
 --------------------------------------------------------------------------------
-Version <release> - <codename> released on <releaseDate>
+Version 1.9.1 released on 2010-09-22
 
 New Hardware Support
 - Extreme XOS Port Security (MAC address lockdown) and Voice over IP support 
@@ -28,7 +28,7 @@ New Features
 
 Enhancements
 - Captive portal performance improvements. Up to 23x on some workloads (#879)
-- More than 30 new DHCP fingerprints (Thanks to Eric Kollmann and Sam Winottai!)
+- More than 35 new DHCP fingerprints (Thanks to Eric Kollmann and Sam Winottai!)
 - Improved Nessus failed scan error reporting (partial fix for #1032)
 - Better error reporting on Cisco ISR 1800
 - Added some documentation for Cisco (2960, 3550) and Aruba in the SNMP modules

@@ -1,4 +1,10 @@
 2010-09-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/NEWS, pf/conf/pf-release, 
+	pf/docs/PacketFence_Administration_Guide.odt, 
+	pf/docs/PacketFence_Developers_Guide.odt, 
+	pf/docs/PacketFence_Installation_Guide.odt, pf/packetfence.spec, 
+	pf/t/pfcmd.t: New 1.9.1 release!
+
 	* pf/t/smoke.t: Added new smoke testsuite which is used by our building
 	process. A suite of tests quick to run, with no side-effects and that 
 	should always pass.

@@ -501,6 +501,9 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Tue Sep 22 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.9.1
+- New upstream release 1.9.1
+
 * Tue Sep 21 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added mod_perl as a dependency. Big captive portal performance gain. 
   Fixes #879;
