@@ -1,3 +1,8 @@
+2010-09-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/t/smoke.t: Added new smoke testsuite which is used by our building
+	process. A suite of tests quick to run, with no side-effects and that 
+	should always pass.
+
 2010-09-21	Regis Balzard <rbalzard@inverse.ca>
 	* pf/docs/PacketFence_Administration_Guide.odt:
 	Updated documentation for FreeRadius 1.x and added some for 2.x. 
