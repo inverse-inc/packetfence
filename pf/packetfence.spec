@@ -33,7 +33,7 @@
 #
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 1.9.1
+Version: 1.9.2
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -136,7 +136,6 @@ as
 Group: System Environment/Daemons
 Requires: perl >= 5.8.0, snort, perl(File::Tail), perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay)
 Requires: perl-SOAP-Lite
-Requires: perl-LWP-UserAgent-Determined
 Conflicts: packetfence
 AutoReqProv: 0
 Summary: Files needed for sending snort alerts to packetfence
@@ -501,6 +500,12 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Tue Sep 22 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Version bump, doing 1.9.2 pre-release snapshots now
+- Removing perl-LWP-UserAgent-Determined as a dependency of remote-snort-sensor.
+  See #882;
+  http://www.packetfence.org/bugs/view.php?id=882
+
 * Tue Sep 22 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.9.1
 - New upstream release 1.9.1
 

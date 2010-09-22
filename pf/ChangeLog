@@ -1,4 +1,8 @@
 2010-09-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec: 1.9.2dev started and removed invalid dependency.
+	See #882 for details;
+	http://www.packetfence.org/bugs/view.php?id=882
+
 	* pf/NEWS, pf/conf/pf-release, 
 	pf/docs/PacketFence_Administration_Guide.odt, 
 	pf/docs/PacketFence_Developers_Guide.odt, 
