@@ -515,6 +515,7 @@ sub node_register {
                 "maxnodes met or exceeded - registration of $mac to $pid failed");
             return (0);
         }
+    }
 
     # create a person entry for pid if it doesn't exist
     if ( !pf::person::person_exist($pid) ) {

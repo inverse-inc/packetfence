@@ -1,3 +1,6 @@
+2010-09-23	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/node.pm: Fixed a small but important merge mistake.
+
 2010-09-22	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/NEWS, pf/conf/pf-release, 
 	pf/docs/PacketFence_Administration_Guide.odt, 
