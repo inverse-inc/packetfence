@@ -41,7 +41,6 @@ sub new {
 sub vlan_determine_for_node {
     my ( $this, $mac, $switch, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::vlan');
-    Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     my $correctVlanForThisMAC;
     my $open_violation_count = violation_count_trap($mac);
@@ -115,7 +114,6 @@ sub vlan_determine_for_node {
 sub custom_doWeActOnThisTrap {
     my ( $this, $switch, $ifIndex, $trapType ) = @_;
     my $logger = Log::Log4perl->get_logger();
-    Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     my $weActOnThisTrap = 0;
     if ( $trapType eq 'desAssociate' ) {
@@ -167,7 +165,6 @@ sub custom_getCorrectVlan {
     #$node_info is the node info hashref (result of pf::node's node_view on $mac)
     my ($this, $switch, $ifIndex, $mac, $node_info) = @_;
     my $logger = Log::Log4perl->get_logger();
-    Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     # is switch object correct?
     my $valid_switch_object = (defined($switch) && ref($switch) && $switch->isa('pf::SNMP'));
