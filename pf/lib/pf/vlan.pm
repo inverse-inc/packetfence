@@ -376,12 +376,16 @@ $conn_type is set to the connnection type expressed as the constant in pf::confi
 
 $ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
 
+$user_name is set to the RADIUS User-Name attribute.
+Real username under 802.1X and MAC address under MAB or MAC authentication.
+Undef if conn_type is WIRED_SNMP_TRAPS
+
 Returns an anonymous hash that is meant for node_register()
 
 =cut 
 sub getNodeInfoForAutoReg {
     my ($this, $switch_ip, $switch_port, $mac, $vlan, 
-        $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $ssid) = @_;
+        $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $ssid, $user_name) = @_;
 
     # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
     my %node_info = (
@@ -397,6 +401,11 @@ sub getNodeInfoForAutoReg {
         $node_info{'port'}   = $switch_port;
     }
 
+    # if we are called from a violation with action=autoreg, say so
+    if (defined($violation_autoreg) && $violation_autoreg) {
+        $node_info{'notes'} = 'AUTO-REGISTERED by violation';
+    }
+
     # put a phone dhcp fingerprint if it's a phone
     if ($isPhone) {
         $node_info{'dhcp_fingerprint'} = '1,3,6,15,42,66,150';
@@ -405,6 +414,11 @@ sub getNodeInfoForAutoReg {
 
     if (defined($conn_type)) {
         $node_info{'connection_type'} = connection_type_to_str($conn_type);
+    }
+
+    # under 802.1X EAP, we trust the username provided since it authenticated
+    if ((($connection_type & EAP) == EAP) && defined($user_name)) {
+        $node_info{'pid'} = $user_name;
     }
 
     return %node_info;

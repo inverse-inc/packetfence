@@ -1,4 +1,10 @@
 2010-09-24	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/radius.pm, pf/lib/pf/vlan.pm: Added RADIUS User-Name to the 
+	method signature of pf::vlan::getNodeInfoForAutoReg. Allows to record 
+	the username of a node that would be automatically registered by policy.
+	Fixes #1000;
+	http://www.packetfence.org/bugs/view.php?id=1000
+
 	* Added pf/lib/pf/mod_perl_require.pl, modified 
 	pf/conf/templates/httpd.conf.apache22: Pre-loading PacketFence modules
 	using a PerlRequire statement. Improves per-request latency and overall
