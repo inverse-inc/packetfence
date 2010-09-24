@@ -2,6 +2,8 @@
 
 use Getopt::Std;
 use SOAP::Lite;
+#for debugging use the below
+#use SOAP::Lite +trace => qw(all);
 use Config::IniFiles;
 use threads;
 use strict;
@@ -56,7 +58,7 @@ sub soap_requests {
     eval {
       my $soap = new SOAP::Lite(
         uri => 'http://www.packetfence.org/PFAPI',
-        proxy => 'https://' . $ADMIN_USER . ':' . $ADMIN_PWD . '@' . $PF_HOST . '/cgi-bin/pdp.cgi'
+        proxy => 'https://' . $ADMIN_USER . ':' . $ADMIN_PWD . '@' . $PF_HOST . '/webapi'
       );
       my $result = $soap->radius_authorize($nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name, $ssid);
       if ($result->fault) {

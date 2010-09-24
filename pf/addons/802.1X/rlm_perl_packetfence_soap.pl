@@ -71,7 +71,7 @@ use SOAP::Lite
 #TODO format well and document the fact that we might need re-create the object on error or something
             my $soap = new SOAP::Lite(
                 uri   => API_URI,
-                proxy => 'https://'.ADMIN_USER.':'.ADMIN_PASS.'@'.WEBADMIN_HOST.'/cgi-bin/pdp.cgi'
+                proxy => 'https://'.ADMIN_USER.':'.ADMIN_PASS.'@'.WEBADMIN_HOST.'/webapi'
             ) or return server_error_handler();
 
 =head1 SUBROUTINES

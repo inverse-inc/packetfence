@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 549;
+use Test::More tests => 552;
 
 # file list copied from critic.t
 my @files = (
@@ -21,7 +21,6 @@ my @files = (
     '/usr/local/pf/bin/flip.pl',
     '/usr/local/pf/bin/pfcmd',
     '/usr/local/pf/bin/pfcmd_vlan',
-    '/usr/local/pf/cgi-bin/pdp.cgi',
     '/usr/local/pf/cgi-bin/redir.cgi',
     '/usr/local/pf/cgi-bin/release.cgi',
     '/usr/local/pf/cgi-bin/register.cgi',
@@ -140,6 +139,7 @@ my @files = (
     '/usr/local/pf/lib/pf/vlan/custom.pm',
     '/usr/local/pf/lib/pf/vlan.pm',
     '/usr/local/pf/lib/pf/web.pm',
+    '/usr/local/pf/lib/pf/WebAPI.pm',
     '/usr/local/pf/sbin/pfdetect',
     '/usr/local/pf/sbin/pfdhcplistener',
     '/usr/local/pf/sbin/pfmon',
@@ -157,6 +157,7 @@ foreach my $currentFile (@files) {
 # PacketFence module POD
 # for now NAME, AUTHOR, COPYRIGHT
 # TODO expect NAME, SYNOPSIS, DESCRIPTION, AUTHOR, COPYRIGHT
+# TODO port to perl module: http://search.cpan.org/~mkutter/Test-Pod-Content-0.0.5/
 my @pf_general_pod = qw(NAME AUTHOR COPYRIGHT);
 foreach my $currentFile (@files) {
     my $shortname = $1 if ($currentFile =~ m'^/usr/local/pf/(.+)$');

@@ -50,7 +50,6 @@ get_registration_vlan or get_normal_vlan.
 sub vlan_determine_for_node {
     my ( $this, $mac, $switch, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::vlan');
-    Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     # is switch object correct?
     my $valid_switch_object = (defined($switch) && ref($switch) && $switch->isa('pf::SNMP'));
@@ -104,7 +103,6 @@ sub vlan_determine_for_node {
 sub custom_doWeActOnThisTrap {
     my ( $this, $switch, $ifIndex, $trapType ) = @_;
     my $logger = Log::Log4perl->get_logger();
-    Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     # TODO we should rethink the position of this code, it's in the wrong test but at the good spot in the flow
     my $weActOnThisTrap = 0;
@@ -282,7 +280,6 @@ sub get_normal_vlan {
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $ssid) = @_;
     my $logger = Log::Log4perl->get_logger();
-    Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     # custom example
     # return guestVlan for pid=guest

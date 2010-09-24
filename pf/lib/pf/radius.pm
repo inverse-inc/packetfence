@@ -61,8 +61,6 @@ See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMET
 sub authorize {
     my ($this, $nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
-    # TODO this is an entry point, maybe I need something like:
-    # Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     $logger->trace("received a radius authorization request with parameters: ".
         "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP-Type => $eap_type, ".

@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Perl::Critic;
-use Test::More tests => 135;
+use Test::More tests => 138;
 
 # To generate this list, start with this: find lib/pf/ -exec echo "    '/usr/local/pf/{}'," \; | sort
 # TODO: should these really be absolute PATHs? I don't think so!
@@ -22,7 +22,6 @@ my @files = (
     '/usr/local/pf/bin/flip.pl',
     '/usr/local/pf/bin/pfcmd',
     '/usr/local/pf/bin/pfcmd_vlan',
-    '/usr/local/pf/cgi-bin/pdp.cgi',
     '/usr/local/pf/cgi-bin/redir.cgi',
     '/usr/local/pf/cgi-bin/release.cgi',
     '/usr/local/pf/cgi-bin/register.cgi',
@@ -141,6 +140,7 @@ my @files = (
     '/usr/local/pf/lib/pf/vlan/custom.pm',
     '/usr/local/pf/lib/pf/vlan.pm',
     '/usr/local/pf/lib/pf/web.pm',
+    '/usr/local/pf/lib/pf/WebAPI.pm',
     '/usr/local/pf/sbin/pfdetect',
     '/usr/local/pf/sbin/pfdhcplistener',
     '/usr/local/pf/sbin/pfmon',

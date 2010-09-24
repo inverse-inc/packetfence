@@ -1,3 +1,14 @@
+2010-09-24	Olivier Bilodeau <obilodeau@inverse.ca>
+	* Renamed pf/cgi-bin/pdp.cgi to pf/lib/pf/WebAPI.pm, modified
+	pf/addons/802.1X/rlm_perl_packetfence_soap.pl, 
+	pf/conf/templates/httpd.conf.apache22, pf/lib/pf/WebAPI.pm,
+	pf/lib/pf/radius.pm, pf/lib/pf/vlan.pm, pf/t/critic.t, pf/t/pod.t
+	pf/t/podCoverage.t, pf/t/stress-test/soap-calls-radius_authorize
+	pf/t/stress-test/soap-calls-snort: Ported cgi-bin/pdp.cgi SOAP CGI 
+	handler to full blown mod_perl SOAP-Lite hosted module. Fixes #1010; 
+	Note: URI for Web Services changed from /cgi-bin/pdp.cgi to /webapi
+	http://www.packetfence.org/bugs/view.php?id=1010
+
 2010-09-23	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/node.pm: Fixed a small but important merge mistake.
 

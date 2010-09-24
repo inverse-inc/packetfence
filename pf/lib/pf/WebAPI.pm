@@ -1,44 +1,66 @@
-#!/usr/bin/perl -w
-
-package PFAPI;
-
+package pf::WebAPI;
 =head1 NAME
 
-pdp.cgi - Web Services handler
+WebAPI - Apache mod_perl wrapper to PFAPI (below).
 
 =cut
 
-#use Data::Dumper;
 use strict;
 use warnings;
 
-use CGI;
+use Apache2::MPM ();
 use Log::Log4perl;
+use ModPerl::Util;
+use threads;
 
 use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
 use pf::config;
-use pf::db;
-use pf::util;
+
+#uncomment for more debug information
+#use SOAP::Lite +trace => [ fault => \&log_faults ];
+use SOAP::Transport::HTTP;
+
+Log::Log4perl->init_once("$conf_dir/log.conf");
+Log::Log4perl::MDC->put('proc', 'pf::WebAPI');
+
+# set proper logger tid based on if we are run from mod_perl or not
+if (exists($ENV{MOD_PERL})) {
+    if (Apache2::MPM->is_threaded) {
+        require APR::OS;
+        # apache threads
+        Log::Log4perl::MDC->put('tid', APR::OS::current_thread_id());
+    } else {
+        # httpd processes
+        Log::Log4perl::MDC->put('tid', $$);
+    }
+} else {
+    # process threads
+    Log::Log4perl::MDC->put('tid', threads->self->tid());
+}
+
+my $server = SOAP::Transport::HTTP::Apache->dispatch_to('PFAPI');
+sub handler { $server->handler(@_) }
+
+sub log_faults {
+    my $logger = Log::Log4perl->get_logger('pf::WebAPI');
+    $logger->info(@_);
+}
+
+package PFAPI;
+=head1 NAME
+
+PFAPI - Web Services handler exposing PacketFence features
+
+=cut
+
 use pf::iplog;
 use pf::radius::custom;
 use pf::violation;
 
-use SOAP::Transport::HTTP;
-
-Log::Log4perl->init("$conf_dir/log.conf");
-my $logger = Log::Log4perl->get_logger('pdp.cgi');
-Log::Log4perl::MDC->put('proc', 'pdp.cgi');
-Log::Log4perl::MDC->put('tid', 0);
-
-
-SOAP::Transport::HTTP::CGI
-    -> dispatch_to('PFAPI')
-    -> handle;
-
-
 sub event_add {
   my ($class, $date, $srcip, $type, $id) = @_;
+  my $logger = Log::Log4perl->get_logger('pf::WebAPI');
   $logger->info("violation: $id - IP $srcip");
 
   # fetch IP associated to MAC
@@ -57,10 +79,10 @@ sub event_add {
 
 sub radius_authorize {
   my ($class, $nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name, $ssid) = @_;
-  my $radius = new pf::radius::custom();
+  my $logger = Log::Log4perl->get_logger('pf::WebAPI');
 
-  #TODO change to trace level once done
-  $logger->info("received a radius authorization request with parameters: ".
+  my $radius = new pf::radius::custom();
+  $logger->trace("received a radius authorization request with parameters: ".
            "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP-Type => $eap_type, ".
            "mac => $mac, port => $port, username => $user_name, ssid => $ssid");
 

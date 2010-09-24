@@ -90,9 +90,7 @@ DirectoryIndex index.html index.cgi index.php
 <IfModule !mod_perl.c>
   LoadModule perl_module modules/mod_perl.so
 </IfModule>
-<IfModule !mod_perl.c>
-  LoadModule perl_module modules/mod_perl.so
-</IfModule>
+PerlSwitches -I%%install_dir%%/lib
  
 AddType application/x-httpd-php .php
 #<Files *.php>
@@ -303,17 +301,21 @@ SetEnvIf User-Agent ".*MSIE.*" \
   SSLCertificateFile %%install_dir%%/conf/ssl/server.crt
   SSLCertificateKeyFile %%install_dir%%/conf/ssl/server.key
 
-
   <Location /cgi-bin/pfcmd.cgi>
     SetHandler cgi-script
     Options Indexes FollowSymLinks ExecCGI
   </Location>
 
-  <Location /cgi-bin/pdp.cgi>
+  # mod_perl hosted pf::WebAPI (lib/pf/WebAPI.pm)
+  <Location /webapi>
     SetHandler perl-script
-    PerlResponseHandler ModPerl::PerlRun
-    PerlOptions +ParseHeaders
-    Options Indexes FollowSymLinks ExecCGI
+    PerlHandler pf::WebAPI
+    # Basic Authentication
+    AuthUserFile %%install_dir%%/conf/admin.conf
+    AuthGroupFile /dev/null
+    AuthName "PacketFence Authentication"
+    AuthType Basic
+    require valid-user
   </Location>
 
   <LocationMatch /cgi-bin/(pfcmd|pdp).cgi>
