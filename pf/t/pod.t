@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 552;
+use Test::More tests => 556;
 
 # file list copied from critic.t
 my @files = (
@@ -40,6 +40,7 @@ my @files = (
     '/usr/local/pf/lib/pf/locationlog.pm',
     '/usr/local/pf/lib/pf/lookup/node.pm',
     '/usr/local/pf/lib/pf/lookup/person.pm',
+    '/usr/local/pf/lib/pf/mod_perl_require.pl',
     '/usr/local/pf/lib/pf/nodecache.pm',
     '/usr/local/pf/lib/pf/nodecategory.pm',
     '/usr/local/pf/lib/pf/node.pm',

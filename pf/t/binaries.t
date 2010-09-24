@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 22;
+use Test::More tests => 23;
 
 my @binaries = (
     '/usr/local/pf/configurator.pl',
@@ -22,6 +22,7 @@ my @binaries = (
     '/usr/local/pf/cgi-bin/redir.cgi',
     '/usr/local/pf/cgi-bin/register.cgi',
     '/usr/local/pf/cgi-bin/release.cgi',
+    '/usr/local/pf/lib/pf/mod_perl_require.pl',
     '/usr/local/pf/sbin/pfdetect',
     '/usr/local/pf/sbin/pfdhcplistener',
     '/usr/local/pf/sbin/pfmon',
