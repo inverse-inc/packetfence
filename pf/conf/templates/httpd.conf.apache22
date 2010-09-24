@@ -307,6 +307,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
   </Location>
 
   # mod_perl hosted pf::WebAPI (lib/pf/WebAPI.pm)
+  PerlRequire %%install_dir%%/lib/pf/mod_perl_require.pl
   <Location /webapi>
     SetHandler perl-script
     PerlHandler pf::WebAPI

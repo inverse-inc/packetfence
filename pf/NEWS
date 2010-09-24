@@ -30,6 +30,9 @@ Enhancements
 - Removed unnecessary database connections and duplicated code
 - Added several tests
 
+Special thanks to University of Oregon who, from early on, were running the 
+bleeding edge and provided invaluable feedback and contributions!
+
 --------------------------------------------------------------------------------
 Version 1.9.1 released on 2010-09-22
 

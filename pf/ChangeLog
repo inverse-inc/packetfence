@@ -1,4 +1,10 @@
 2010-09-24	Olivier Bilodeau <obilodeau@inverse.ca>
+	* Added pf/lib/pf/mod_perl_require.pl, modified 
+	pf/conf/templates/httpd.conf.apache22: Pre-loading PacketFence modules
+	using a PerlRequire statement. Improves per-request latency and overall
+	performance. Thanks to Josh Ward from University of Oregon for the 
+	initial research on the fix!
+
 	* Renamed pf/cgi-bin/pdp.cgi to pf/lib/pf/WebAPI.pm, modified
 	pf/addons/802.1X/rlm_perl_packetfence_soap.pl, 
 	pf/conf/templates/httpd.conf.apache22, pf/lib/pf/WebAPI.pm,
