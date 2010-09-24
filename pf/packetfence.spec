@@ -506,7 +506,7 @@ fi
   See #882;
   http://www.packetfence.org/bugs/view.php?id=882
 
-* Tue Sep 22 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.9.1
+* Tue Sep 22 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.9.1-0
 - New upstream release 1.9.1
 
 * Tue Sep 21 2010 Olivier Bilodeau <obilodeau@inverse.ca>
