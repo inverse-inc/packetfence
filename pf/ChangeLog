@@ -10,8 +10,10 @@
 	pf/conf/templates/httpd.conf.apache22, pf/lib/pf/WebAPI.pm,
 	pf/lib/pf/radius.pm, pf/lib/pf/vlan.pm, pf/t/critic.t, pf/t/pod.t
 	pf/t/podCoverage.t, pf/t/stress-test/soap-calls-radius_authorize
-	pf/t/stress-test/soap-calls-snort: Ported cgi-bin/pdp.cgi SOAP CGI 
-	handler to full blown mod_perl SOAP-Lite hosted module. Fixes #1010; 
+	pf/t/stress-test/soap-calls-snort, 
+	pf/addons/pfdetect_remote/sbin/pfdetect_remote: Ported cgi-bin/pdp.cgi
+	SOAP CGI handler to full blown mod_perl SOAP-Lite hosted module. 
+	Fixes #1010; 
 	Note: URI for Web Services changed from /cgi-bin/pdp.cgi to /webapi
 	http://www.packetfence.org/bugs/view.php?id=1010
 

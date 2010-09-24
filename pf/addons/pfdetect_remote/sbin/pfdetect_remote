@@ -111,7 +111,7 @@ while (defined($currentLine=$fh->read)) {
   eval {
     my $soap = new SOAP::Lite(
       uri => 'http://www.packetfence.org/PFAPI',
-      proxy => 'https://' . $ADMIN_USER . ':' . $ADMIN_PWD . '@' . $PF_HOST . '/cgi-bin/pdp.cgi'
+      proxy => 'https://' . $ADMIN_USER . ':' . $ADMIN_PWD . '@' . $PF_HOST . '/webapi'
     );
     my $result = $soap->event_add($date, $srcip, "detect", $sid);
     if ($result->fault) {
