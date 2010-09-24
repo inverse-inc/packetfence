@@ -9,7 +9,7 @@ IMPORTS
 inverse         OBJECT IDENTIFIER ::= { enterprises 29464 }
 
 inversePacketFenceNotificationMIB MODULE-IDENTITY
-  LAST-UPDATED "200804242100Z"
+  LAST-UPDATED "201003261700Z"
   ORGANIZATION "Inverse inc."
   CONTACT-INFO
     "Inverse
@@ -19,7 +19,7 @@ inversePacketFenceNotificationMIB MODULE-IDENTITY
   ::= { inverse 1 }
 
 packetFenceRecalculateVLANNotification NOTIFICATION-TYPE
-  OBJECTS { ifIndex }
+  OBJECTS { ifIndex, connectionType }
   STATUS current
   DESCRIPTION
     "This notification is generated when the VLAN assigned to
@@ -28,7 +28,7 @@ packetFenceRecalculateVLANNotification NOTIFICATION-TYPE
   ::= { inversePacketFenceNotificationMIB 1 }
 
 packetFenceDesAssociateNotification NOTIFICATION-TYPE
-  OBJECTS { ifIndex }
+  OBJECTS { mac, connectionType }
   STATUS current
   DESCRIPTION
     "This notification is generated when the MAC

@@ -478,6 +478,7 @@ sub web_node_record_user_agent {
 
 sub web_user_authenticate {
 
+    # TODO extract these magic digits in constants
     # return (1,0) for successfull authentication
     # return (0,2) for inability to check credentials
     # return (0,1) for wrong login/password

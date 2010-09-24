@@ -5,6 +5,29 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to <release>:
+
+    - /cgi-bin/pdp.cgi moved
+    Remote snort probes or other mechanisms relying on the presence of this 
+    file should be updated to be /webapi instead. Upgrading each probe's
+    packetfence-remote-snort-sensor will take care of this for remote snort 
+    probes. All other custom means should be manually upgraded.
+
+    - Database schema update
+    New fields were added as a part of the Radius unification. You can update
+    your schema with:
+    mysql -u root -p pf -v < db/upgrade-1.9.0-1.10.0.sql
+
+    - Output of node lookup changed
+    The output of `pfcmd lookup node <mac>` changed. Make sure you update your
+    parsing scripts (if any). This also affects the Node lookup section of the
+    Web Admin interface.
+
+    - lib/pf/vlan.pm interface changed
+    If you built a customized version of vlan.pm in lib/pf/vlan/custom.pm be 
+    aware that there were a lot of changes. We strongly recommend you rewrite 
+    your custom.pm on top of these new changes instead keeping your old.
+
 o Upgrading from a version prior to 1.9.1:
 
     - Captive portal using mod_perl
