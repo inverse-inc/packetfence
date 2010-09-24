@@ -1,3 +1,7 @@
+2010-09-24	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/802.1X/rlm_perl_packetfence.pl: got rid of an unnecessary
+	test
+
 2010-09-23	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/vlan.pm: Removed all Logger calls setting shared 'tid' 
 	information. First they were redundant since the MDC hash is global and
