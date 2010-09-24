@@ -417,7 +417,7 @@ sub getNodeInfoForAutoReg {
     }
 
     # under 802.1X EAP, we trust the username provided since it authenticated
-    if ((($connection_type & EAP) == EAP) && defined($user_name)) {
+    if ((($conn_type & EAP) == EAP) && defined($user_name)) {
         $node_info{'pid'} = $user_name;
     }
 
