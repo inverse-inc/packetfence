@@ -463,6 +463,7 @@ fi
 %dir                    /usr/local/pf/lib
 %dir                    /usr/local/pf/lib/pf
                         /usr/local/pf/lib/pf/*.pm
+                        /usr/local/pf/lib/pf/*.pl
 %dir                    /usr/local/pf/lib/pf/floatingdevice
 %config(noreplace)      /usr/local/pf/lib/pf/floatingdevice/custom.pm
 %dir                    /usr/local/pf/lib/pf/lookup
@@ -507,6 +508,9 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Fri Sep 24 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added lib/pf/*.pl to the file list for new lib/pf/mod_perl_require.pl
+
 * Tue Sep 22 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 1.9.1
 - New upstream release 1.9.1
 
