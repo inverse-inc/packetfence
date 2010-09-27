@@ -1,4 +1,13 @@
 2010-09-27	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/802.1X/rlm_perl_packetfence.pl, UPGRADE: Re-worked the 
+	module to work on post-auth calls instead of authorize calls. This 
+	avoid work being done when the EAP credentials don't even pass and
+	improves overall correctness of the system (autoregistration in this
+	module is now possible). It can also improve performance in network 
+	with a lot of wrong 802.1X requests as they no longer exercise the 
+	PacketFence module. Backport of fix #1034 from trunk;
+	http://www.packetfence.org/bugs/view.php?id=1034
+
 	* pf/conf/dhcp_fingerprints.conf: Removed a space in the fingerprints 
 	that's causing the Symbian OS to be the universal fingerprint for
 	nodes that don't have a fingerprint.

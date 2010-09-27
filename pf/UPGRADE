@@ -5,6 +5,18 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to <release>:
+
+    - FreeRADIUS module changes require configuration changes
+    PacketFence's operations in the FreeRADIUS module are now done in the 
+    post-auth section instead of the authorize section of the FreeRADIUS 
+    workflow. If you are using the standard configuration simply move the perl
+    entry from the authorize section into the post-auth section in radiusd.conf 
+    (or sites-enabled/default under FreeRADIUS 2.x). 
+    Note that this is a manual update process, if you don't update the 
+    rlm_perl_packetfence.pl script you don't need to perform the above but you
+    won't have the performance and correctness benefits either.
+
 o Upgrading from a version prior to 1.9.1:
 
     - Captive portal using mod_perl

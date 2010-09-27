@@ -33,190 +33,88 @@ use constant {
 
 require 5.8.8;
 
-# This is very important ! Without this script will not get the filled hashesh from main.
-use vars qw(%RAD_REQUEST %RAD_REPLY %RAD_CHECK);
+# This is very important! Without this script will not get the filled hashes from main.
+our (%RAD_REQUEST, %RAD_REPLY, %RAD_CHECK);
 #use Data::Dumper;
-
-# This is hash wich hold original request from radius
-#my %RAD_REQUEST;
-# In this hash you add values that will be returned to NAS.
-#my %RAD_REPLY;
-#This is for check items
-#my %RAD_CHECK;
 
 #
 # This the remapping of return values
 #
-        use constant    RLM_MODULE_REJECT=>    0;#  /* immediately reject the request */
-        use constant    RLM_MODULE_FAIL=>      1;#  /* module failed, don't reply */
-        use constant    RLM_MODULE_OK=>        2;#  /* the module is OK, continue */
-        use constant    RLM_MODULE_HANDLED=>   3;#  /* the module handled the request, so stop. */
-        use constant    RLM_MODULE_INVALID=>   4;#  /* the module considers the request invalid. */
-        use constant    RLM_MODULE_USERLOCK=>  5;#  /* reject the request (user is locked out) */
-        use constant    RLM_MODULE_NOTFOUND=>  6;#  /* user not found */
-        use constant    RLM_MODULE_NOOP=>      7;#  /* module succeeded without doing anything */
-        use constant    RLM_MODULE_UPDATED=>   8;#  /* OK (pairs modified) */
-        use constant    RLM_MODULE_NUMCODES=>  9;#  /* How many return codes there are */
+use constant    RLM_MODULE_REJECT=>    0;#  /* immediately reject the request */
+use constant    RLM_MODULE_FAIL=>      1;#  /* module failed, don't reply */
+use constant    RLM_MODULE_OK=>        2;#  /* the module is OK, continue */
+use constant    RLM_MODULE_HANDLED=>   3;#  /* the module handled the request, so stop. */
+use constant    RLM_MODULE_INVALID=>   4;#  /* the module considers the request invalid. */
+use constant    RLM_MODULE_USERLOCK=>  5;#  /* reject the request (user is locked out) */
+use constant    RLM_MODULE_NOTFOUND=>  6;#  /* user not found */
+use constant    RLM_MODULE_NOOP=>      7;#  /* module succeeded without doing anything */
+use constant    RLM_MODULE_UPDATED=>   8;#  /* OK (pairs modified) */
+use constant    RLM_MODULE_NUMCODES=>  9;#  /* How many return codes there are */
 
 # Function to handle authorize
 sub authorize {
-        # For debugging purposes only
-        #&log_request_attributes;
+    # For debugging purposes only
+    #&log_request_attributes;
 
-        my $mac = $RAD_REQUEST{'Calling-Station-Id'};
-        # freeradius 2 provides the switch_ip in NAS-IP-Address not Client-IP-Address 
-        # Client-IP-Address is a non-standard freeradius1 attribute
-        my $switch_ip = $RAD_REQUEST{'NAS-IP-Address'} || $RAD_REQUEST{'Client-IP-Address'};
-        my $user_name = $RAD_REQUEST{'User-Name'};
-        my $is_eap_request = 0;
-        if (exists($RAD_REQUEST{'EAP-Type'})) {
-            $is_eap_request = 1;
-        }
+    # returning Reject to force people to upgrade from our old authorize hook into our new post_auth hook
+    # otherwise they could upgrade and allow everyone in without being aware of it
+    openlog("rlm_perl_packetfence", "perror,pid","user");
+    my $ERROR_MSG =
+        "*** WARNING ***: PacketFence (rlm_perl_packetfence.pl) should no longer run from authorize section."
+        ." Update your FreeRADIUS configuration to call perl module from post-auth section instead!"
+    ;
+    &radiusd::radlog(1, $ERROR_MSG);
+    syslog("info", $ERROR_MSG);
+    closelog();
 
-
-        #format MAC
-        $mac =~ s/ /0/g;
-        $mac =~ s/-/:/g;
-        $mac =~ s/\.//g;
-        if (length($mac) == 12) {
-            $mac = substr($mac,0,2) . ":" . substr($mac,2,2) . ":" . substr($mac,4,2) . ":" . substr($mac,6,2) . ":" . substr($mac,8,2) . ":" . substr($mac,10,2);
-        }
-        $mac = lc($mac);
-
-        &radiusd::radlog(1, "PacketFence SWITCH: $switch_ip");
-        &radiusd::radlog(1, "PacketFence MAC: $mac");
-        &radiusd::radlog(1, "PacketFence USER: $user_name");
-
-        if (length($mac) == 17) {
-            my $result = getVlan($switch_ip, $mac, $is_eap_request);
-            if (!defined($result) || $result =~ /^$/) {
-                &radiusd::radlog(1, "PacketFence RESULT VLAN COULD NOT BE DETERMINED");
-            } elsif ($result > 0) {
-                &radiusd::radlog(1, "PacketFence RESULT VLAN: $result");
-                $RAD_REPLY{'Tunnel-Medium-Type'} = 6;
-                $RAD_REPLY{'Tunnel-Type'} = 13;
-                $RAD_REPLY{'Tunnel-Private-Group-ID'} = $result;
-            } else {
-                &radiusd::radlog(1, "PacketFence RESULT VLAN: $result");
-                &radiusd::radlog(1, "PacketFence DENIED CONNECTION");
-                return RLM_MODULE_REJECT;
-            }
-        }
-
-
-        return RLM_MODULE_OK;
-}
-
-# Function to handle authenticate
-sub authenticate {
-        # For debugging purposes only
-#       &log_request_attributes;
-
-        if ($RAD_REQUEST{'User-Name'} =~ /^baduser/i) {
-                # Reject user and tell him why
-                $RAD_REPLY{'Reply-Message'} = "Denied access by rlm_perl function";
-                return RLM_MODULE_REJECT;
-        } else {
-                # Accept user and set some attribute
-                $RAD_REPLY{'h323-credit-amount'} = "100";
-                return RLM_MODULE_OK;
-        }
-}
-
-# Function to handle preacct
-sub preacct {
-        # For debugging purposes only
-#       &log_request_attributes;
-
-        return RLM_MODULE_OK;
-}
-
-# Function to handle accounting
-sub accounting {
-        # For debugging purposes only
-#       &log_request_attributes;
-
-        # You can call another subroutine from here
-        &test_call;
-
-        return RLM_MODULE_OK;
-}
-
-# Function to handle checksimul
-sub checksimul {
-        # For debugging purposes only
-#       &log_request_attributes;
-
-        return RLM_MODULE_OK;
-}
-
-# Function to handle pre_proxy
-sub pre_proxy {
-        # For debugging purposes only
-#       &log_request_attributes;
-
-        return RLM_MODULE_OK;
-}
-
-# Function to handle post_proxy
-sub post_proxy {
-        # For debugging purposes only
-#       &log_request_attributes;
-
-        return RLM_MODULE_OK;
+    return RLM_MODULE_REJECT;
 }
 
 # Function to handle post_auth
 sub post_auth {
-        # For debugging purposes only
-        #&log_request_attributes;
+   
+    my $mac = $RAD_REQUEST{'Calling-Station-Id'};
+    # freeradius 2 provides the switch_ip in NAS-IP-Address not Client-IP-Address 
+    # Client-IP-Address is a non-standard freeradius1 attribute
+    my $switch_ip = $RAD_REQUEST{'NAS-IP-Address'} || $RAD_REQUEST{'Client-IP-Address'};
+    my $user_name = $RAD_REQUEST{'User-Name'};
+    my $is_eap_request = 0;
+    if (exists($RAD_REQUEST{'EAP-Type'})) {
+        $is_eap_request = 1;
+    }
 
 
-        return RLM_MODULE_OK;
-}
+    #format MAC
+    $mac =~ s/ /0/g;
+    $mac =~ s/-/:/g;
+    $mac =~ s/\.//g;
+    if (length($mac) == 12) {
+        $mac = substr($mac,0,2) . ":" . substr($mac,2,2) . ":" . substr($mac,4,2) . ":" . substr($mac,6,2) . ":" . substr($mac,8,2) . ":" . substr($mac,10,2);
+    }
+    $mac = lc($mac);
 
-# Function to handle xlat
-sub xlat {
-        # For debugging purposes only
-#       &log_request_attributes;
+    &radiusd::radlog(1, "PacketFence SWITCH: $switch_ip");
+    &radiusd::radlog(1, "PacketFence MAC: $mac");
+    &radiusd::radlog(1, "PacketFence USER: $user_name");
 
-        # Loads some external perl and evaluate it
-        my ($filename,$a,$b,$c,$d) = @_;
-        &radiusd::radlog(1, "From xlat $filename ");
-        &radiusd::radlog(1,"From xlat $a $b $c $d ");
-        local *FH;
-        open FH, '<', $filename or die "open '$filename' $!";
-        local($/) = undef;
-        my $sub = <FH>;
-        close FH;
-        my $eval = qq{ sub handler{ $sub;} };
-        eval $eval;
-        eval {main->handler;};
-}
-
-# Function to handle detach
-sub detach {
-        # For debugging purposes only
-#       &log_request_attributes;
-
-        # Do some logging.
-        &radiusd::radlog(0,"rlm_perl::Detaching. Reloading. Done.");
-}
-
-#
-# Some functions that can be called from other functions
-#
-
-sub test_call {
-        # Some code goes here
-}
-
-sub log_request_attributes {
-        # This shouldn't be done in production environments!
-        # This is only meant for debugging!
-        for (keys %RAD_REQUEST) {
-                &radiusd::radlog(1, "RAD_REQUEST: $_ = $RAD_REQUEST{$_}");
+    if (length($mac) == 17) {
+        my $result = getVlan($switch_ip, $mac, $is_eap_request);
+        if (!defined($result) || $result =~ /^$/) {
+            &radiusd::radlog(1, "PacketFence RESULT VLAN COULD NOT BE DETERMINED");
+        } elsif ($result > 0) {
+            &radiusd::radlog(1, "PacketFence RESULT VLAN: $result");
+            $RAD_REPLY{'Tunnel-Medium-Type'} = 6;
+            $RAD_REPLY{'Tunnel-Type'} = 13;
+            $RAD_REPLY{'Tunnel-Private-Group-ID'} = $result;
+        } else {
+            &radiusd::radlog(1, "PacketFence RESULT VLAN: $result");
+            &radiusd::radlog(1, "PacketFence DENIED CONNECTION");
+            return RLM_MODULE_REJECT;
         }
+    }
+
+
+    return RLM_MODULE_OK;
 }
 
 # Here is the decision process:
@@ -240,7 +138,6 @@ sub log_request_attributes {
 #    both the secure and non-secure SSID.
 #
 # Here, we included all the code that was pfcmd_ap.pl to avoid costly forks for each request
-# TODO: raw SQL is evil, we should port this over to a more suited application-level API
 sub getVlan {
 
     my ($switch_ip, $mac, $is_eap_request) = @_;
@@ -420,6 +317,74 @@ sub getViolationVLAN {
   }
 }
 
+# Function to handle authenticate
+sub authenticate {
+
+}
+
+# Function to handle preacct
+sub preacct {
+        # For debugging purposes only
+#       &log_request_attributes;
+
+}
+
+# Function to handle accounting
+sub accounting {
+        # For debugging purposes only
+#       &log_request_attributes;
+
+}
+
+# Function to handle checksimul
+sub checksimul {
+        # For debugging purposes only
+#       &log_request_attributes;
+
+}
+
+# Function to handle pre_proxy
+sub pre_proxy {
+        # For debugging purposes only
+#       &log_request_attributes;
+
+}
+
+# Function to handle post_proxy
+sub post_proxy {
+        # For debugging purposes only
+#       &log_request_attributes;
+
+}
+
+# Function to handle xlat
+sub xlat {
+        # For debugging purposes only
+#       &log_request_attributes;
+
+}
+
+# Function to handle detach
+sub detach {
+        # For debugging purposes only
+#       &log_request_attributes;
+
+        # Do some logging.
+        &radiusd::radlog(0,"rlm_perl::Detaching. Reloading. Done.");
+}
+
+#
+# Some functions that can be called from other functions
+#
+
+sub log_request_attributes {
+        # This shouldn't be done in production environments!
+        # This is only meant for debugging!
+        for (keys %RAD_REQUEST) {
+                &radiusd::radlog(1, "RAD_REQUEST: $_ = $RAD_REQUEST{$_}");
+        }
+}
+
 =head1 SEE ALSO
 
 L<http://wiki.freeradius.org/Rlm_perl>
@@ -438,7 +403,9 @@ Copyright (C) 2002  The FreeRADIUS server project
 
 Copyright (C) 2002  Boian Jordanov <bjordanov@orbitel.bg>
 
-Copyright (C) 2006-2009  Inverse inc. <support@inverse.ca>
+Copyright (C) 2006-2010  Inverse inc. <support@inverse.ca>
+
+=head1 LICENCE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
