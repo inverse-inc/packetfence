@@ -36,6 +36,9 @@ bleeding edge and provided invaluable feedback and contributions!
 --------------------------------------------------------------------------------
 Version <release> - <codename> released on <date>
 
+Enhancements
+- FreeRADIUS module improvements (#1034)
+
 --------------------------------------------------------------------------------
 Version 1.9.1 released on 2010-09-22
 
