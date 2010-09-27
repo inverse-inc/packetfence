@@ -21,36 +21,29 @@ use Sys::Syslog;
 use constant {
     # PacketFence SOAP Server settings
     ADMIN_USER     => 'admin',
-    ADMIN_PASS     => 'qwerty',
+    ADMIN_PASS     => 'admin',
     WEBADMIN_HOST  => 'localhost:1443',
     API_URI        => 'https://www.packetfence.org/PFAPI' #don't change this unless you know what you are doing
 };
 
 require 5.8.8;
 
-# This is very important ! Without this script will not get the filled hashesh from main.
-use vars qw(%RAD_REQUEST %RAD_REPLY %RAD_CHECK);
-
-# This is hash wich hold original request from radius
-#my %RAD_REQUEST;
-# In this hash you add values that will be returned to NAS.
-#my %RAD_REPLY;
-#This is for check items
-#my %RAD_CHECK;
+# This is very important! Without this script will not get the filled hashes from FreeRADIUS.
+our (%RAD_REQUEST, %RAD_REPLY, %RAD_CHECK);
 
 #
-# This the remapping of return values
+# FreeRADIUS return values
 #
-        use constant    RLM_MODULE_REJECT=>    0;#  /* immediately reject the request */
-        use constant    RLM_MODULE_FAIL=>      1;#  /* module failed, don't reply */
-        use constant    RLM_MODULE_OK=>        2;#  /* the module is OK, continue */
-        use constant    RLM_MODULE_HANDLED=>   3;#  /* the module handled the request, so stop. */
-        use constant    RLM_MODULE_INVALID=>   4;#  /* the module considers the request invalid. */
-        use constant    RLM_MODULE_USERLOCK=>  5;#  /* reject the request (user is locked out) */
-        use constant    RLM_MODULE_NOTFOUND=>  6;#  /* user not found */
-        use constant    RLM_MODULE_NOOP=>      7;#  /* module succeeded without doing anything */
-        use constant    RLM_MODULE_UPDATED=>   8;#  /* OK (pairs modified) */
-        use constant    RLM_MODULE_NUMCODES=>  9;#  /* How many return codes there are */
+use constant    RLM_MODULE_REJECT=>    0;#  /* immediately reject the request */
+use constant    RLM_MODULE_FAIL=>      1;#  /* module failed, don't reply */
+use constant    RLM_MODULE_OK=>        2;#  /* the module is OK, continue */
+use constant    RLM_MODULE_HANDLED=>   3;#  /* the module handled the request, so stop. */
+use constant    RLM_MODULE_INVALID=>   4;#  /* the module considers the request invalid. */
+use constant    RLM_MODULE_USERLOCK=>  5;#  /* reject the request (user is locked out) */
+use constant    RLM_MODULE_NOTFOUND=>  6;#  /* user not found */
+use constant    RLM_MODULE_NOOP=>      7;#  /* module succeeded without doing anything */
+use constant    RLM_MODULE_UPDATED=>   8;#  /* OK (pairs modified) */
+use constant    RLM_MODULE_NUMCODES=>  9;#  /* How many return codes there are */
 
 # when troubleshooting run radius -X and change the following line with: use SOAP::Lite +trace => qw(all), 
 use SOAP::Lite
@@ -69,10 +62,10 @@ use SOAP::Lite
     };  
 
 #TODO format well and document the fact that we might need re-create the object on error or something
-            my $soap = new SOAP::Lite(
-                uri   => API_URI,
-                proxy => 'https://'.ADMIN_USER.':'.ADMIN_PASS.'@'.WEBADMIN_HOST.'/webapi'
-            ) or return server_error_handler();
+my $soap = new SOAP::Lite(
+    uri   => API_URI,
+    proxy => 'https://'.ADMIN_USER.':'.ADMIN_PASS.'@'.WEBADMIN_HOST.'/webapi'
+) or return server_error_handler();
 
 =head1 SUBROUTINES
 
@@ -86,6 +79,25 @@ Of interest to the PacketFence users / developers
 sub authorize {
     # For debugging purposes only
     #&log_request_attributes;
+
+    # returning Reject to force people to upgrade from our old authorize hook into our new post_auth hook
+    # otherwise they could upgrade and allow everyone in without being aware of it
+    openlog("rlm_perl_packetfence", "perror,pid","user");
+    my $ERROR_MSG = 
+        "*** WARNING ***: PacketFence (rlm_perl_packetfence.pl) should no longer run from authorize section."
+        ." Update your FreeRADIUS configuration to call perl module from post-auth section instead!"
+    ;
+    &radiusd::radlog(1, $ERROR_MSG);
+    syslog("info", $ERROR_MSG);
+    closelog();
+
+    return RLM_MODULE_REJECT;
+}
+
+=item * post_auth - once we authenticated the user's identity, we perform PacketFence's Network Access Control duties
+
+=cut
+sub post_auth {
 
     # syslog logging
     openlog("rlm_perl_packetfence", "perror,pid","user");
@@ -179,7 +191,7 @@ sub authorize {
     # At this point, everything went well and the reply from the server is valid
 
     # Assigning returned values to RAD_REPLY
-    %RAD_REPLY       = @$result; # the rest of result is the reply hash passed by the radius_authorize
+    %RAD_REPLY = @$result; # the rest of result is the reply hash passed by the radius_authorize
 
     if ($radius_return_code == 2) {
         if (defined($RAD_REPLY{'Tunnel-Private-Group-ID'})) {
@@ -261,21 +273,13 @@ sub find_ssid {
     } 
 }
 
+#
+# --- Unused FreeRADIUS hooks ---
+#
+
 # Function to handle authenticate
 sub authenticate {
-        # For debugging purposes only
-#       &log_request_attributes;
 
-        # TODO cleanup: remove that, it was never done by us (don't forget to return OK)
-        if ($RAD_REQUEST{'User-Name'} =~ /^baduser/i) {
-                # Reject user and tell him why
-                $RAD_REPLY{'Reply-Message'} = "Denied access by rlm_perl function";
-                return RLM_MODULE_REJECT;
-        } else {
-                # Accept user and set some attribute
-                $RAD_REPLY{'h323-credit-amount'} = "100";
-                return RLM_MODULE_OK;
-        }
 }
 
 # Function to handle preacct
@@ -283,7 +287,6 @@ sub preacct {
         # For debugging purposes only
 #       &log_request_attributes;
 
-        return RLM_MODULE_OK;
 }
 
 # Function to handle accounting
@@ -291,10 +294,6 @@ sub accounting {
         # For debugging purposes only
 #       &log_request_attributes;
 
-        # You can call another subroutine from here
-        &test_call;
-
-        return RLM_MODULE_OK;
 }
 
 # Function to handle checksimul
@@ -302,7 +301,6 @@ sub checksimul {
         # For debugging purposes only
 #       &log_request_attributes;
 
-        return RLM_MODULE_OK;
 }
 
 # Function to handle pre_proxy
@@ -310,7 +308,6 @@ sub pre_proxy {
         # For debugging purposes only
 #       &log_request_attributes;
 
-        return RLM_MODULE_OK;
 }
 
 # Function to handle post_proxy
@@ -318,35 +315,14 @@ sub post_proxy {
         # For debugging purposes only
 #       &log_request_attributes;
 
-        return RLM_MODULE_OK;
 }
 
-# Function to handle post_auth
-sub post_auth {
-        # For debugging purposes only
-        #&log_request_attributes;
-
-
-        return RLM_MODULE_OK;
-}
 
 # Function to handle xlat
 sub xlat {
         # For debugging purposes only
 #       &log_request_attributes;
 
-        # Loads some external perl and evaluate it
-        my ($filename,$a,$b,$c,$d) = @_;
-        &radiusd::radlog(1, "From xlat $filename ");
-        &radiusd::radlog(1,"From xlat $a $b $c $d ");
-        local *FH;
-        open FH, '<', $filename or die "open '$filename' $!";
-        local($/) = undef;
-        my $sub = <FH>;
-        close FH;
-        my $eval = qq{ sub handler{ $sub;} };
-        eval $eval;
-        eval {main->handler;};
 }
 
 # Function to handle detach
@@ -361,10 +337,6 @@ sub detach {
 #
 # Some functions that can be called from other functions
 #
-
-sub test_call {
-        # Some code goes here
-}
 
 sub log_request_attributes {
         # This shouldn't be done in production environments!
@@ -395,6 +367,8 @@ Copyright (C) 2002  The FreeRADIUS server project
 Copyright (C) 2002  Boian Jordanov <bjordanov@orbitel.bg>
 
 Copyright (C) 2006-2010  Inverse inc. <support@inverse.ca>
+
+=head1 LICENCE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

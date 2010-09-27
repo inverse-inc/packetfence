@@ -1,4 +1,10 @@
 2010-09-27	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/802.1X/rlm_perl_packetfence_soap.pl: Using post-auth 
+	instead of authorize for the FreeRADIUS module, enables some incredible
+	stuff like auto-registration of successful EAP connections, etc. Fixes 
+	#1034;
+	http://www.packetfence.org/bugs/view.php?id=1034
+
 	* pf/addons/802.1X/rlm_perl_packetfence.pl, UPGRADE: Re-worked the 
 	module to work on post-auth calls instead of authorize calls. This 
 	avoid work being done when the EAP credentials don't even pass and

@@ -7,6 +7,13 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <release>:
 
+    - FreeRADIUS module rewritten
+    The FreeRADIUS has been completely re-written from the previous release 
+    series. Now, except for the authentication against the PacketFence server
+    all the control is centralized in the PacketFence configuration. No more 
+    customization required in the FreeRADIUS module! We strongly recommend
+    that you carefully migrate to this module and forget about the old one.
+
     - /cgi-bin/pdp.cgi moved
     Remote snort probes or other mechanisms relying on the presence of this 
     file should be updated to be /webapi instead. Upgrading each probe's
