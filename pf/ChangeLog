@@ -1,4 +1,8 @@
 2010-09-27	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Updated documentation
+	to reflect the re-worked FreeRADIUS modules using post-auth instead of
+	authorize calls.
+
 	* pf/addons/802.1X/rlm_perl_packetfence.pl, UPGRADE: Re-worked the 
 	module to work on post-auth calls instead of authorize calls. This 
 	avoid work being done when the EAP credentials don't even pass and
