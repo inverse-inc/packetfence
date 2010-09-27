@@ -1,3 +1,12 @@
+2010-09-27	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/dhcp_fingerprints.conf: Removed a space in the fingerprints 
+	that's causing the Symbian OS to be the universal fingerprint for
+	nodes that don't have a fingerprint.
+
+2010-09-24	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/802.1X/rlm_perl_packetfence.pl: got rid of an unnecessary
+	te1st
+
 2010-09-24	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/radius.pm, pf/lib/pf/vlan.pm: Added RADIUS User-Name to the 
 	method signature of pf::vlan::getNodeInfoForAutoReg. Allows to record 

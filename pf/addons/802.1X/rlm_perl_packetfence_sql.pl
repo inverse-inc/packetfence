@@ -95,11 +95,9 @@ sub authorize {
                 &radiusd::radlog(1, "PacketFence RESULT VLAN COULD NOT BE DETERMINED");
             } elsif ($result > 0) {
                 &radiusd::radlog(1, "PacketFence RESULT VLAN: $result");
-                if ($result > 0) {
-                    $RAD_REPLY{'Tunnel-Medium-Type'} = 6;
-                    $RAD_REPLY{'Tunnel-Type'} = 13;
-                    $RAD_REPLY{'Tunnel-Private-Group-ID'} = $result;
-                }
+                $RAD_REPLY{'Tunnel-Medium-Type'} = 6;
+                $RAD_REPLY{'Tunnel-Type'} = 13;
+                $RAD_REPLY{'Tunnel-Private-Group-ID'} = $result;
             } else {
                 &radiusd::radlog(1, "PacketFence RESULT VLAN: $result");
                 &radiusd::radlog(1, "PacketFence DENIED CONNECTION");
