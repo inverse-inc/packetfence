@@ -355,7 +355,6 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %dir                    /usr/local/pf/cgi-bin
-%attr(0755, pf, pf)     /usr/local/pf/cgi-bin/pdp.cgi
 %attr(0755, pf, pf)     /usr/local/pf/cgi-bin/redir.cgi
 %attr(0755, pf, pf)     /usr/local/pf/cgi-bin/register.cgi
 %attr(0755, pf, pf)     /usr/local/pf/cgi-bin/release.cgi
@@ -507,6 +506,10 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Tue Sep 28 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Removed pf/cgi-bin/pdp.cgi from files manifest. It was removed from source
+  tree.
+
 * Fri Sep 24 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added lib/pf/*.pl to the file list for new lib/pf/mod_perl_require.pl
 

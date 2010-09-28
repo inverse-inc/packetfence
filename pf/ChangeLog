@@ -1,3 +1,6 @@
+2010-09-28	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/packetfence.spec: Updated files manifest to remove pdp.cgi.
+
 2010-09-27	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/addons/802.1X/rlm_perl_packetfence_soap.pl: Using post-auth 
 	instead of authorize for the FreeRADIUS module, enables some incredible
