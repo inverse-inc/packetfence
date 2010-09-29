@@ -1245,27 +1245,29 @@ sub getPhonesDPAtIfIndex {
 sub hasPhoneAtIfIndex {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
+
     if ( !$this->isVoIPEnabled() ) {
         $logger->debug( "VoIP not enabled on switch " . $this->{_ip} );
         return 0;
     }
-    my @macArray
-        = $this->_getMacAtIfIndex( $ifIndex, $this->getVoiceVlan($ifIndex) );
+
+    my @macArray = $this->_getMacAtIfIndex( $ifIndex, $this->getVoiceVlan($ifIndex) );
     foreach my $mac (@macArray) {
         if ( !$this->isFakeMac($mac) ) {
-            $logger->trace("determining if node $mac is VoIP");
-            my $node_info = node_view_with_fingerprint($mac);
 
-            # is node voip or does it have a phone dhcp fingerprint?
-            if ( defined($node_info)
-                && ( ($node_info->{dhcp_fingerprint} =~ /VoIP Phone/) || ($node_info->{voip} eq VOIP)) ) {
+            $logger->trace("determining if node $mac is VoIP");
+            my $node_info = node_view($mac);
+
+            # is node voip ?
+            if (defined($node_info) && $node_info->{voip} eq VOIP) {
                 return 1;
             }
         }
     }
-    $logger->trace( "determining through discovery protocols if "
-            . $this->{_ip}
-            . " ifIndex $ifIndex has VoIP phone connected" );
+    $logger->debug(
+        "determining through discovery protocols if "
+        . $this->{_ip} . " ifIndex $ifIndex has VoIP phone connected"
+    );
     return ( scalar( $this->getPhonesDPAtIfIndex($ifIndex) ) > 0 );
 }
 
@@ -1296,14 +1298,16 @@ sub isPhoneAtIfIndex {
 
         if ( $node_info->{dhcp_fingerprint} =~ /VoIP Phone/ ) {
             $logger->debug("DHCP fingerprint for $mac indicates VoIP phone");
+            # returning 1 here will have the consequence of the node 
+            # updating node.voip to yes in locationlog_synchronize
             return 1;
         }
 
         #unknown DHCP fingerprint or no DHCP fingerprint
         if ( $node_info->{dhcp_fingerprint} ne ' ' ) {
-            $logger->debug( "DHCP fingerprint for $mac indicates "
-                    . $node_info->{dhcp_fingerprint}
-                    . ". This is not a VoIP phone" );
+            $logger->debug(
+                "DHCP fingerprint for $mac indicates " .$node_info->{dhcp_fingerprint}. ". This is not a VoIP phone"
+            );
             return 0;
         }
     }

@@ -348,7 +348,7 @@ sub getNodeUpdatedInfo {
         connection_type => connection_type_to_str($connection_type)
     );
 
-    # Remember that voip_status is set by isPhoneAtIfIndex and that this checks the node's voip field (circular crap)
+    # if a VoIP dhcp fingerprint was seen, we'll set node.voip to VOIP (yes)
     if ($voip_status eq VOIP) {
         $node_info{'voip'} = VOIP;
     }
@@ -406,9 +406,8 @@ sub getNodeInfoForAutoReg {
         $node_info{'notes'} = 'AUTO-REGISTERED by violation';
     }
 
-    # put a phone dhcp fingerprint if it's a phone
+    # this might look circular but if a VoIP dhcp fingerprint was seen, we'll set node.voip to VOIP
     if ($isPhone) {
-        $node_info{'dhcp_fingerprint'} = '1,3,6,15,42,66,150';
         $node_info{'voip'} = VOIP;
     }
 
