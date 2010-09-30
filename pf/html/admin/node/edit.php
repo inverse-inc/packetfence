@@ -92,12 +92,15 @@
       printSelect( array('no' => 'No', 'yes' => 'Yes'), 'hash', $val, "name='$key'");
       break;
 
-    case 'switch':
-    case 'port':
+    case 'dhcp_fingerprint':
+    case 'user_agent':
+    case 'last_switch':
+    case 'last_port':
+    case 'last_vlan':
       print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val' disabled>";
       break;
 
-    case 'connection_type':
+    case 'last_connection_type':
       print "<tr><td></td><td>$pretty_key:</td><td><p title='$val' style='font-size: 0.7em;'>$connection_type[$val]</p>";
       break;
 

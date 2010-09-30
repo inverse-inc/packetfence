@@ -87,7 +87,7 @@ CREATE TABLE node (
   dhcp_fingerprint varchar(255) default NULL,
   switch varchar(17) default NULL,
   port varchar(8) default NULL,
-  vlan varchar(50) default NULL,
+  bypass_vlan varchar(50) default NULL,
   `voip` enum('no','yes') NOT NULL DEFAULT 'no',
   `connection_type` varchar(50) NOT NULL default '',
   PRIMARY KEY (mac),

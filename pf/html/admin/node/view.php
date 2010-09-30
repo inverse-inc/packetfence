@@ -43,9 +43,8 @@
   $page_num = set_default($_REQUEST['page_num'], 1);
   $per_page = set_default($_REQUEST['per_page'],25);
 
-  # TODO change the default sort values to something meaningful
-  $sort = set_default($_GET['sort'], 'mac');
-  $direction = strtolower(set_default($_GET['direction'], 'asc'));
+  $sort = set_default($_GET['sort'], 'regdate');
+  $direction = strtolower(set_default($_GET['direction'], 'desc'));
 
   $limit_clause = '';
   if ((! isset($_REQUEST['filter'])) || ($_REQUEST['filter'] == '')) {
@@ -72,7 +71,7 @@
 
   $my_table->set_violationable(true);
   $my_table->set_linkable(array( array('pid', 'person/lookup.php'), array('mac', 'node/lookup.php'), array('dhcp_fingerprint','configuration/fingerprint.php') ));
-  $my_table->set_hideable(array('lastskp', 'user_agent', 'last_dhcp', 'lastskip', 'last_arp', 'last_arp', 'port', 'switch', 'vlan', 'voip', 'connection_type'));
+  $my_table->set_hideable(array('lastskp', 'user_agent', 'last_dhcp', 'lastskip', 'last_arp', 'last_port', 'last_switch', 'last_vlan', 'voip', 'last_connection_type', 'bypass_vlan', 'detect_date'));
 
   $my_table->set_page_num($page_num);
   $my_table->set_per_page($per_page);

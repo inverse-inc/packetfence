@@ -339,11 +339,11 @@ sub translate_connection_type {
     # change connection_type into its meaningful to humans counterpart
     foreach my $datum (@data) {
 
-        my $conn_type = str_to_connection_type($datum->{'connection_type'});
+        my $conn_type = str_to_connection_type($datum->{'last_connection_type'});
         if (defined($conn_type)) {
-            $datum->{'connection_type'} = $connection_type_explained{$conn_type};
+            $datum->{'last_connection_type'} = $connection_type_explained{$conn_type};
         } else {
-            $datum->{'connection_type'} = "UNKNOWN";
+            $datum->{'last_connection_type'} = "UNKNOWN";
         }
     }
     return (@data);

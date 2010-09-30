@@ -22,8 +22,14 @@ use warnings;
 use Log::Log4perl;
 use Log::Log4perl::Level;
 use Net::MAC;
+use Readonly;
 
 use constant NODE => 'node';
+
+# Node status constants
+#FIXME port all hard-coded strings to these constants
+Readonly::Scalar our $STATUS_REGISTERED => 'reg';
+Readonly::Scalar our $STATUS_UNREGISTERED => 'unreg';
 
 BEGIN {
     use Exporter ();
@@ -85,23 +91,86 @@ sub node_db_prepare {
 
     $node_statements->{'node_pid_sql'} = get_db_handle()->prepare( qq[ select count(*) from node where status='reg' and pid=? ]);
 
-    $node_statements->{'node_add_sql'} = get_db_handle()->prepare(
-        qq[ insert into node(mac,pid,category_id,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,dhcp_fingerprint,last_arp,last_dhcp,switch,port,vlan,voip,connection_type) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ]);
+    $node_statements->{'node_add_sql'} = get_db_handle()->prepare(qq[
+        INSERT INTO node (
+            mac, pid, category_id, status, voip, bypass_vlan
+            detect_date, regdate, unregdate, lastskip, 
+            user_agent, computername, dhcp_fingerprint,
+            last_arp, last_dhcp,
+            notes
+        ) VALUES (
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        )
+    ]);
 
     $node_statements->{'node_delete_sql'} = get_db_handle()->prepare(qq[ delete from node where mac=? ]);
 
-    $node_statements->{'node_modify_sql'} = get_db_handle()->prepare(
-        qq[ update node set mac=?,pid=?,category_id=?,detect_date=?,regdate=?,unregdate=?,lastskip=?,status=?,user_agent=?,computername=?,notes=?,dhcp_fingerprint=?,last_arp=?,last_dhcp=?,switch=?,port=?,vlan=?,voip=?,connection_type=? where mac=? ]);
+    $node_statements->{'node_modify_sql'} = get_db_handle()->prepare(qq[
+        UPDATE node SET 
+            mac=?, pid=?, category_id=?, status=?, voip=?, bypass_vlan=?,
+            detect_date=?, regdate=?, unregdate=?, lastskip=?, 
+            user_agent=?, computername=?, dhcp_fingerprint=?, 
+            last_arp=?, last_dhcp=?,
+            notes=?
+        WHERE mac=?
+    ]);
+ 
+    $node_statements->{'node_view_sql'} = get_db_handle()->prepare(qq[
+        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
+            IF(ISNULL(node_category.name), '', node_category.name) as category,
+            node.detect_date, node.regdate, node.unregdate, node.lastskip, 
+            node.user_agent, node.computername, node.dhcp_fingerprint,
+            node.last_arp, node.last_dhcp, 
+            locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan, 
+            IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type, 
+            COUNT(DISTINCT violation.id) as nbopenviolations,
+            node.notes
+        FROM node 
+            LEFT JOIN node_category USING (category_id) 
+            LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
+            LEFT JOIN locationlog ON node.mac=locationlog.mac 
+        WHERE node.mac=?
+        GROUP BY node.mac
+    ]);
 
-    $node_statements->{'node_view_sql'} = get_db_handle()->prepare(
-        qq[ SELECT node.mac,node.pid,IF(ISNULL(node_category.name),'',node_category.name) as category,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,count(violation.mac) as nbopenviolations,node.voip,node.connection_type FROM node LEFT JOIN node_category USING (category_id) LEFT JOIN violation on node.mac=violation.mac AND violation.status='open' WHERE node.mac=? GROUP BY node.mac ]);
+    $node_statements->{'node_view_with_fingerprint_sql'} = get_db_handle()->prepare(qq[
+        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status, 
+            IF(ISNULL(node_category.name), '', node_category.name) as category,
+            node.detect_date, node.regdate, node.unregdate, node.lastskip, 
+            node.user_agent, node.computername, IFNULL(os_class.description, ' ') as dhcp_fingerprint, 
+            node.last_arp, node.last_dhcp, 
+            locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan, 
+            IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type, 
+            COUNT(DISTINCT violation.id) as nbopenviolations,
+            node.notes
+        FROM node 
+            LEFT JOIN node_category USING (category_id) 
+            LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint 
+            LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type 
+            LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id 
+            LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
+            LEFT JOIN locationlog ON node.mac=locationlog.mac 
+        WHERE node.mac=?
+        GROUP BY node.mac
+    ]);
 
-    $node_statements->{'node_view_with_fingerprint_sql'} = get_db_handle()->prepare(
-        qq[ SELECT mac,pid,IF(ISNULL(node_category.name),'',node_category.name) as category,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,node.notes,last_arp,last_dhcp,ifnull(os_class.description, ' ') as dhcp_fingerprint,switch,port,vlan,node.voip,node.connection_type FROM node LEFT JOIN node_category USING (category_id) LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id WHERE mac=? ]);
-
-    # This guy here is special, have a look in node_view_all to see why
-    $node_statements->{'node_view_all_sql'}
-        = "SELECT node.mac,node.pid,IF(ISNULL(node_category.name),'',node_category.name) as category,node.detect_date,node.regdate,node.unregdate,node.lastskip,node.status,node.user_agent,node.computername,node.notes,node.last_arp,node.last_dhcp,node.dhcp_fingerprint,node.switch,node.port,node.vlan,count(violation.mac) as nbopenviolations,node.voip,node.connection_type FROM node LEFT JOIN node_category USING (category_id) LEFT JOIN violation ON node.mac=violation.mac AND violation.status='open' GROUP BY node.mac";
+    # This guy here is not in a prepared statement yet, have a look in node_view_all to see why
+    $node_statements->{'node_view_all_sql'} = qq[
+        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
+            IF(ISNULL(node_category.name), '', node_category.name) as category,
+            node.detect_date, node.regdate, node.unregdate, node.lastskip, 
+            node.user_agent, node.computername, node.dhcp_fingerprint, 
+            node.last_arp, node.last_dhcp,
+            locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan, 
+            IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type, 
+            COUNT(DISTINCT violation.id) as nbopenviolations,
+            node.notes
+        FROM node 
+            LEFT JOIN node_category USING (category_id) 
+            LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
+            LEFT JOIN locationlog ON node.mac=locationlog.mac 
+        GROUP BY node.mac
+    ];
 
     # This guy here is special, have a look in node_count_all to see why
     $node_statements->{'node_count_all_sql'} = "select count(*) as nb from node";
@@ -128,14 +197,35 @@ sub node_db_prepare {
     $node_statements->{'node_expire_lastarp_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where unix_timestamp(last_arp) < (unix_timestamp(now()) - ?) and last_arp!=0 ]);
 
-    $node_statements->{'node_unregistered_sql'} = get_db_handle()->prepare(
-        qq [ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,switch,port,vlan,voip,connection_type from node where status="unreg" and mac=? ]);
+    $node_statements->{'node_unregistered_sql'} = get_db_handle()->prepare(qq[
+        SELECT mac, pid, voip, bypass_vlan, status
+            detect_date, regdate, unregdate, lastskip, 
+            user_agent, computername, dhcp_fingerprint, 
+            last_arp, last_dhcp,
+            notes
+        FROM node
+        WHERE status = "$STATUS_UNREGISTERED" AND mac = ?
+    ]);
 
-    $node_statements->{'nodes_unregistered_sql'} = get_db_handle()->prepare(
-        qq [ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,switch,port,vlan,voip,connection_type from node where status="unreg" ]);
+    $node_statements->{'nodes_unregistered_sql'} = get_db_handle()->prepare(qq[
+        SELECT mac, pid, voip, bypass_vlan, status
+            detect_date, regdate, unregdate, lastskip, 
+            user_agent, computername, dhcp_fingerprint, 
+            last_arp, last_dhcp,
+            notes
+        FROM node
+        WHERE status = "$STATUS_UNREGISTERED"
+    ]);
 
-    $node_statements->{'nodes_registered_sql'} = get_db_handle()->prepare(
-        qq [ select mac,pid,detect_date,regdate,unregdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,switch,port,vlan,voip,connection_type from node where status="reg" ]);
+    $node_statements->{'nodes_registered_sql'} = get_db_handle()->prepare(qq[
+        SELECT mac, pid, voip, bypass_vlan, status
+            detect_date, regdate, unregdate, lastskip, 
+            user_agent, computername, dhcp_fingerprint, 
+            last_arp, last_dhcp,
+            notes
+        FROM node
+        WHERE status = "$STATUS_REGISTERED"
+    ]);
 
     $node_statements->{'nodes_registered_not_violators_sql'} = get_db_handle()->prepare(
         qq [ select node.mac from node left join violation on node.mac=violation.mac and violation.status='open' where node.status='reg' group by node.mac having count(violation.mac)=0 ]);
@@ -223,19 +313,18 @@ sub node_add {
 
     #foreach my $row (node_desc()){
     #    $data{$row->{'Field'}}="" if (!defined $data{$row->{'Field'}});
-    #}
+    #} 
 
     foreach my $field (
-        'pid',      'detect_date',      'regdate',    'unregdate',
-        'lastskip', 'status',           'user_agent', 'computername',
-        'notes',    'dhcp_fingerprint', 'last_arp',   'last_dhcp', 
-        'switch',   'port',             'vlan',       'voip',
-        'connection_type'
-        )
-    {
+        'pid', 'voip', 'bypass_vlan', 'status', 
+        'detect_date', 'regdate', 'unregdate', 'lastskip',
+        'user_agent', 'computername', 'dhcp_fingerprint', 
+        'last_arp', 'last_dhcp',
+        'notes'
+    ) {
         $data{$field} = "" if ( !defined $data{$field} );
     }
-    if ( ( $data{status} eq 'reg' ) && ( $data{regdate} eq '' ) ) {
+    if ( ( $data{status} eq $STATUS_REGISTERED ) && ( $data{regdate} eq '' ) ) {
         $data{regdate} = mysql_date();
     }
 
@@ -247,9 +336,11 @@ sub node_add {
     }
 
     db_query_execute(NODE, $node_statements, 'node_add_sql',
-        $mac, $data{pid}, $data{category_id}, $data{detect_date}, $data{regdate}, $data{unregdate}, $data{lastskip},
-        $data{status}, $data{user_agent}, $data{computername}, $data{notes}, $data{dhcp_fingerprint}, $data{last_arp},
-        $data{last_dhcp}, $data{switch}, $data{port}, $data{vlan}, $data{voip}, $data{connection_type}
+        $mac, $data{pid}, $data{category_id}, $data{voip}, $data{bypass_vlan}, $data{status}, 
+        $data{detect_date}, $data{regdate}, $data{unregdate}, $data{lastskip},
+        $data{user_agent}, $data{computername}, $data{dhcp_fingerprint}, 
+        $data{last_arp}, $data{last_dhcp},
+        $data{notes}
     ) || return (0);
     return (1);
 }
@@ -297,7 +388,7 @@ sub node_count_all {
     my ( $id, %params ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::node');
 
-    # Hack! we prepare the statement here so that $node_view_all_sql is pre-filled
+    # Hack! we prepare the statement here so that $node_count_all_sql is pre-filled
     node_db_prepare() if (!$node_db_prepared);
     my $node_count_all_sql = $node_statements->{'node_count_all_sql'};
 
@@ -472,11 +563,13 @@ sub node_modify {
     }
 
     db_query_execute(NODE, $node_statements, 'node_modify_sql',
-        $new_mac, $existing->{pid}, $existing->{category_id}, $existing->{detect_date}, $existing->{regdate},
-        $existing->{unregdate}, $existing->{lastskip}, $existing->{status}, $existing->{user_agent},
-        $existing->{computername}, $existing->{notes}, $existing->{dhcp_fingerprint}, $existing->{last_arp},
-        $existing->{last_dhcp}, $existing->{switch}, $existing->{port}, $existing->{vlan},$existing->{voip}, 
-        $existing->{connection_type}, $mac
+        $new_mac, $existing->{pid}, $existing->{category_id}, $existing->{status}, $existing->{voip}, 
+        $existing->{bypass_vlan},
+        $existing->{detect_date}, $existing->{regdate}, $existing->{unregdate}, $existing->{lastskip}, 
+        $existing->{user_agent}, $existing->{computername}, $existing->{dhcp_fingerprint}, 
+        $existing->{last_arp}, $existing->{last_dhcp}, 
+        $existing->{notes}, 
+        $mac
     ) || return (0);
 
     return (1);
@@ -544,23 +637,6 @@ sub node_register {
         {
             $info{'unregdate'} = POSIX::strftime( "%Y-%m-%d %H:%M:%S",
                 localtime( $Config{'registration'}{'expire_deadline'} ) );
-        }
-    }
-
-    if ( lc($Config{'network'}{'mode'})  eq 'vlan' ) {
-        if ( !defined( $info{'vlan'} ) ) {
-            require Config::IniFiles;
-            my %ConfigVlan;
-            tie %ConfigVlan, 'Config::IniFiles',
-                ( -file => "$conf_dir/switches.conf" );
-            my @errors = @Config::IniFiles::errors;
-            if ( scalar(@errors) ) {
-                $logger->error( "Error reading switches.conf: " 
-                                . join( "\n", @errors ) .  "\n" );
-            } else {
-                $info{'vlan'} = $ConfigVlan{'default'}{'normalVlan'};
-                $logger->info( "auto-configured VLAN to " . $info{'vlan'} );
-            }
         }
     }
 

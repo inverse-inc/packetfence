@@ -15,8 +15,8 @@ ALTER TABLE locationlog_history
 ;
 
 ALTER TABLE node
-	MODIFY `vlan` varchar(50) default NULL,
-	ADD `voip` enum('no','yes') NOT NULL DEFAULT 'no' AFTER `vlan`,
+	CHANGE `vlan` `bypass_vlan` varchar(50) default NULL,
+	ADD `voip` enum('no','yes') NOT NULL DEFAULT 'no' AFTER `bypass_vlan`,
 	ADD `connection_type` varchar(50) NOT NULL default '' AFTER `voip`
 ;
 

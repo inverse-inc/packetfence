@@ -20,6 +20,14 @@ Read the F<pf.conf> configuration file.
 use strict;
 use warnings;
 use Log::Log4perl;
+use Readonly;
+
+# Violation status constants
+#TODO port all hard-coded strings to these constants
+#but first I need to resolve the exporting problems.. 
+#ex: when trying to use these from node I get subroutines redefinitions 
+#    and if I use full package names, there is no safety that the constant was defined in the first place..
+Readonly::Scalar our $STATUS_OPEN => 'open';
 
 use constant VIOLATION => 'violation';
 

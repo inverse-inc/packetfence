@@ -17,7 +17,7 @@ use diagnostics;
 
 use Log::Log4perl;
 use pf::config;
-use pf::node qw(node_view node_add_simple node_exist node_modify);
+use pf::node qw(node_view node_add_simple node_exist);
 use pf::util;
 use pf::violation qw(violation_count_trap violation_exist_open violation_view_top);
 use threads;
@@ -288,77 +288,18 @@ sub get_normal_vlan {
     #}
 
     # custom example
+    # enforce bypass_vlan in node. Note: It might be made the default behavior to enforce it if present.
+    #if (defined($node_info->{'bypass_vlan'}) && $node_info->{'bypass_vlan'} ne '') {
+    #    return $node_info->{'bypass_vlan'};
+    #}
+
+    # custom example
     # kick guests out of the secure wireless (won't work if the above is uncommented)
     #if ($connection_type == WIRELESS_802.1X && $node_info->{pid} =~ /^guest$/i) {
     #    return -1;
     #}
 
     return $switch->getVlanByName('normalVlan');
-}
-
-=item update_node_if_not_accurate - update a node entry if parameters considered important changed
-
-Uses getNodeUpdatedInfo to determine what to update.
-
-This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
-version doesn't do the right thing for you. By default it will return the 
-switch_ip and the switch_port to update the node table entry.
-
-=cut
-sub update_node_if_not_accurate {
-    my ($this, $switch, $ifIndex, $vlan, $mac, $voip_status, $connection_type) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-
-    # is node entry accurate?
-    my $node_data          = node_view($mac);
-    my $vlanChanged        = (!defined($node_data->{vlan}) || $node_data->{vlan} != $vlan);
-    my $switchChanged      = ($node_data->{switch} ne $switch);
-    my $voip_statusChanged = ($node_data->{voip} ne $voip_status);
-    my $conn_typeChanged   = ($node_data->{connection_type} ne connection_type_to_str($connection_type));
-    # ifIndex on wireless is not important
-    my $ifIndexChanged = 0;
-    if (($connection_type & WIRED) == WIRED) {
-        $ifIndexChanged = ($node_data->{port} != $ifIndex);
-    }
-
-    # Note that we avoid checking vlanChanged here. This is default behavior.
-    if ($switchChanged || $voip_statusChanged || $conn_typeChanged || $ifIndexChanged) {
-
-        $logger->debug("calling node_modify with getNodeUpdatedInfo's answers");
-        node_modify( $mac,
-            $this->getNodeUpdatedInfo($mac, $switch, $ifIndex, $vlan, $voip_status, $connection_type));
-        return 1;
-    }
-    return 0;
-}
-
-=item getNodeUpdatedInfo - updated fields when a node changed status
-
-This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
-version doesn't do the right thing for you. By default it will return the 
-switch_ip and the switch_port to update the node table entry.
-
-=cut
-sub getNodeUpdatedInfo {
-    my ($this, $mac, $switch_ip, $switch_port, $vlan, $voip_status, $connection_type) = @_;
-
-    my %node_info = (
-        switch          => $switch_ip,
-        port            => $switch_port,
-        connection_type => connection_type_to_str($connection_type)
-    );
-
-    # if a VoIP dhcp fingerprint was seen, we'll set node.voip to VOIP (yes)
-    if ($voip_status eq VOIP) {
-        $node_info{'voip'} = VOIP;
-    }
-
-    # example of customization: set dhcpfingerprint when isPhone is == 1
-    # if ($isPhone) {
-    #    $node_info{'dhcp_fingerprint'} = '1,3,6,15,42,66,150';
-    #}
-
-    return %node_info;
 }
 
 =item getNodeInfoForAutoReg - basic information returned for an auto-registered node
@@ -395,12 +336,6 @@ sub getNodeInfoForAutoReg {
         auto_registered => 1, # tells node_register to autoreg
     );
 
-    # if we are called because switch is in registration mode, we can set switch and vlan info
-    if (defined($switch_in_autoreg_mode) && $switch_in_autoreg_mode) {
-        $node_info{'switch'} = $switch_ip;
-        $node_info{'port'}   = $switch_port;
-    }
-
     # if we are called from a violation with action=autoreg, say so
     if (defined($violation_autoreg) && $violation_autoreg) {
         $node_info{'notes'} = 'AUTO-REGISTERED by violation';
@@ -409,10 +344,6 @@ sub getNodeInfoForAutoReg {
     # this might look circular but if a VoIP dhcp fingerprint was seen, we'll set node.voip to VOIP
     if ($isPhone) {
         $node_info{'voip'} = VOIP;
-    }
-
-    if (defined($conn_type)) {
-        $node_info{'connection_type'} = connection_type_to_str($conn_type);
     }
 
     # under 802.1X EAP, we trust the username provided since it authenticated

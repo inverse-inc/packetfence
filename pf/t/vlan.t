@@ -34,7 +34,6 @@ can_ok($vlan_obj, qw(
     get_violation_vlan
     get_registration_vlan
     get_normal_vlan
-    getNodeUpdatedInfo
     getNodeInfoForAutoReg
     shouldAutoRegister
   ));

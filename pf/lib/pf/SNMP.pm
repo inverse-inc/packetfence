@@ -1259,7 +1259,7 @@ sub hasPhoneAtIfIndex {
             my $node_info = node_view($mac);
 
             # is node voip ?
-            if (defined($node_info) && $node_info->{voip} eq VOIP) {
+            if (defined($node_info) && $node_info->{'voip'} eq VOIP) {
                 return 1;
             }
         }
@@ -1291,7 +1291,7 @@ sub isPhoneAtIfIndex {
 
     #do we have node information
     if (defined($node_info)) {
-        if ($node_info->{voip} eq VOIP) {
+        if ($node_info->{'voip'} eq VOIP) {
             $logger->debug("This is a VoIP phone according to node.voip");
             return 1;
         }

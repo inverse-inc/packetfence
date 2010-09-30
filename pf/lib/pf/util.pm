@@ -777,7 +777,7 @@ sub str_to_connection_type {
     } else {
         my ($package, undef, undef, $routine) = caller(1);
         $logger->warn("unable to parse string into a connection_type constant. called from $package $routine");
-        return undef;
+        return;
     }
 }
 

@@ -134,9 +134,9 @@ sub lookup_node {
                 $return .= "No connectivity information available (We probably only saw a DHCP request)\n";
             }
         } else {
-            my $port   = $node_info->{'port'};
-            my $switch = $node_info->{'switch'};
-            my $vlan   = $node_info->{'vlan'};
+            my $port   = $node_info->{'last_port'};
+            my $switch = $node_info->{'last_switch'};
+            my $vlan   = $node_info->{'last_vlan'};
             my $switch_ip;
             my $switch_mac;
             if ($switch) {

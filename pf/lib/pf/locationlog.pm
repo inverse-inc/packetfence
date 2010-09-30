@@ -44,6 +44,7 @@ BEGIN {
         locationlog_cleanup
 
         locationlog_insert_start
+        locationlog_insert_closed
         locationlog_update_end
         locationlog_update_end_mac
         locationlog_update_end_switchport_no_VoIP
@@ -55,7 +56,6 @@ BEGIN {
 use pf::config;
 use pf::db;
 use pf::node;
-use pf::vlan::custom;
 use pf::util;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -110,6 +110,15 @@ sub locationlog_db_prepare {
 
     $locationlog_statements->{'locationlog_insert_start_with_mac_sql'} = get_db_handle()->prepare(
         qq [ INSERT INTO locationlog (mac, switch, port, vlan, voip, connection_type, start_time) VALUES(?,?,?,?,?,?,NOW())]);
+
+
+    $locationlog_statements->{'locationlog_insert_closed_sql'} = get_db_handle()->prepare(qq[
+        INSERT INTO locationlog (
+            mac, switch, port, vlan, voip, connection_type, start_time, end_time
+        ) VALUES (
+            ?, ?, ?, ?, ?, ?, NOW(), NOW()
+        )
+    ]);
 
     $locationlog_statements->{'locationlog_update_end_switchport_sql'} = get_db_handle()->prepare(
         qq [ UPDATE locationlog SET end_time = now() WHERE switch = ? AND port = ? AND (ISNULL(end_time) or end_time = 0) ]);
@@ -239,6 +248,19 @@ sub locationlog_insert_start {
     return (1);
 }
 
+sub locationlog_insert_closed {
+    my ( $switch, $ifIndex, $vlan, $mac, $voip, $connection_type ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::locationlog');
+
+    my $conn_type = connection_type_to_str($connection_type)
+        or $logger->info("Asked to insert a locationlog entry with connection type unknown.");
+
+    db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_insert_closed_sql', 
+        lc($mac), $switch, $ifIndex, $vlan, $voip, $conn_type)
+        || return (0);
+    return (1);
+}
+
 sub locationlog_update_end {
     my ( $switch, $ifIndex, $mac ) = @_;
 
@@ -321,9 +343,6 @@ sub locationlog_synchronize {
         if ( !node_exist($mac) ) {
             node_add_simple($mac);
         }
-
-        my $vlan_obj = new pf::vlan::custom();
-        $vlan_obj->update_node_if_not_accurate($switch, $ifIndex, $vlan, $mac, $voip_status, $connection_type);
     }
 
     # if we are in a wired environment, close any conflicting switchport entry

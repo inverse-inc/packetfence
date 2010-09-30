@@ -33,7 +33,8 @@ $connection_type = array(
   'Wireless-802.11-NoEAP' => 'Open Wireless (mac-authentication)',
   'Ethernet-EAP'          => 'Wired 802.1x',
   'Ethernet-NoEAP'        => 'Wired mac-authentication-bypass (MAB)',
-  'SNMP-Traps'            => 'Wired (discovered by SNMP-Traps)'
+  'SNMP-Traps'            => 'Wired (discovered by SNMP-Traps)',
+  ''                      => 'Unknown'
 );
 
 if($sajax){

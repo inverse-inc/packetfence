@@ -284,12 +284,12 @@ foreach my $ifIndex ( sort { $a <=> $b } keys %$ifDescHashRef ) {
                 # TODO: we should provide a flag to offer either setting vlan by node or by switch
                 if ( $config =~ /switchport access vlan dynamic/ ) {
                     my $node_info = node_view($macToSecure);
-                    if ( $node_info->{'vlan'} ne '' ) {
+                    if ( $node_info->{'bypass_vlan'} ne '' ) {
                         push @modLines,
-                            "switchport access vlan " . $node_info->{'vlan'};
+                            "switchport access vlan " . $node_info->{'bypass_vlan'};
                     } else {
                         push @modLines, "switchport access vlan "
-                            . $switch->{_registrationVlan};
+                            . $switch->{_normalVlan};
                     }
                 }
             }

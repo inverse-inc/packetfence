@@ -20,7 +20,7 @@ use Log::Log4perl;
 
 use base ('pf::vlan');
 use pf::config;
-use pf::node qw(node_view node_add_simple node_exist node_modify);
+use pf::node qw(node_view node_add_simple node_exist);
 use pf::util;
 use pf::violation qw(violation_count_trap violation_exist_open violation_view_top);
 use threads;

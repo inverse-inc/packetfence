@@ -28,6 +28,7 @@ use pf::node;
 use pf::SNMP;
 use pf::SwitchFactory;
 use pf::util;
+use pf::vlan::custom;
 # constants used by this module are provided by
 use pf::radius::constants;
 
