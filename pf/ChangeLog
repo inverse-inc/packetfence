@@ -1,3 +1,7 @@
+2010-09-30	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/loadMACintoDB.pl: Added minimal POD for file and added to 
+	minimum test suites
+
 2010-09-27	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/docs/PacketFence_Administration_Guide.odt: Updated documentation
 	to reflect the re-worked FreeRADIUS modules using post-auth instead of
