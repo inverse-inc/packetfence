@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 23;
+use Test::More tests => 24;
 
 my @binaries = (
     '/usr/local/pf/configurator.pl',
@@ -12,6 +12,7 @@ my @binaries = (
     '/usr/local/pf/addons/accounting.pl',
     '/usr/local/pf/addons/autodiscover.pl',
     '/usr/local/pf/addons/convertToPortSecurity.pl',
+    '/usr/local/pf/addons/loadMACintoDB.pl',
     '/usr/local/pf/addons/monitorpfsetvlan.pl',
     '/usr/local/pf/addons/recovery.pl',
     '/usr/local/pf/addons/802.1X/rlm_perl_packetfence_soap.pl',
