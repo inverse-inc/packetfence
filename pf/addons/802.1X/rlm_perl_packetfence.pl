@@ -405,7 +405,7 @@ Copyright (C) 2002  Boian Jordanov <bjordanov@orbitel.bg>
 
 Copyright (C) 2006-2010  Inverse inc. <support@inverse.ca>
 
-=head1 LICENCE
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

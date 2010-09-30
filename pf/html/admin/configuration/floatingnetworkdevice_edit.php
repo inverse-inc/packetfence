@@ -21,7 +21,7 @@
  * 
  * @author      Regis Balzard <rbalzard@inverse.ca>
  * @copyright   2010 Inverse inc.
- * @licence     http://opensource.org/licenses/gpl-2.0.php      GPL
+ * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
   $current_top = 'configuration';
