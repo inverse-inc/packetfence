@@ -5,13 +5,14 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 556;
+use Test::More tests => 560;
 
 # file list copied from critic.t
 my @files = (
     '/usr/local/pf/addons/accounting.pl',
     '/usr/local/pf/addons/autodiscover.pl',
     '/usr/local/pf/addons/convertToPortSecurity.pl',
+    '/usr/local/pf/addons/loadMACintoDB.pl',
     '/usr/local/pf/addons/monitorpfsetvlan.pl',
     '/usr/local/pf/addons/recovery.pl',
     '/usr/local/pf/addons/802.1X/rlm_perl_packetfence_soap.pl',

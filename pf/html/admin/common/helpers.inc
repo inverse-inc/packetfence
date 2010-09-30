@@ -21,7 +21,7 @@
  * 
  * @author      Olivier Bilodeau <obilodeau@inverse.ca>
  * @copyright   2010 Inverse inc.
- * @licence     http://opensource.org/licenses/gpl-2.0.php      GPLv2 or later
+ * @license     http://opensource.org/licenses/gpl-2.0.php      GPLv2 or later
  */
 
     /*

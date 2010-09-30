@@ -21,7 +21,7 @@
  * 
  * @author      Dominik Gehl <dgehl@inverse.ca>
  * @copyright   2008-2010 Inverse inc.
- * @licence     http://opensource.org/licenses/gpl-2.0.php      GPL
+ * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
 $description_header = 'Rogue DHCP server';

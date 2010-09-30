@@ -1,7 +1,15 @@
+2010-09-30	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/loadMACintoDB.pl: Added minimal POD for file and added to 
+	minimum test suites
+
 2010-09-28	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/packetfence.spec: Updated files manifest to remove pdp.cgi.
 
 2010-09-27	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Updated documentation
+	to reflect the re-worked FreeRADIUS modules using post-auth instead of
+	authorize calls.
+
 	* pf/addons/802.1X/rlm_perl_packetfence_soap.pl: Using post-auth 
 	instead of authorize for the FreeRADIUS module, enables some incredible
 	stuff like auto-registration of successful EAP connections, etc. Fixes 
