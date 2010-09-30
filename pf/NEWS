@@ -29,6 +29,7 @@ Enhancements
 - Refactoring of the pf::vlan method names for more meaningful ones
 - Removed unnecessary database connections and duplicated code
 - Added several tests
+- General codebase improvements, refactoring (#914, #977)
 
 Special thanks to University of Oregon who, from early on, were running the 
 bleeding edge and provided invaluable feedback and contributions!

@@ -1,4 +1,33 @@
 2010-09-30	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/UPGRADE, pf/addons/autodiscover.pl, 
+	pf/addons/convertToPortSecurity.pl, pf/addons/loadMACintoDB.pl, 
+	pf/addons/recovery.pl, pf/conf/ui.conf, pf/db/pf-schema-1.10.0.sql, 
+	pf/db/upgrade-1.9.0-1.10.0.sql, pf/html/admin/common.php, 
+	pf/html/admin/node/edit.php, pf/html/admin/node/view.php, 
+	pf/lib/pf/SNMP.pm, pf/lib/pf/db.pm, pf/lib/pf/locationlog.pm, 
+	pf/lib/pf/lookup/node.pm, pf/lib/pf/node.pm, pf/lib/pf/pfcmd/pfcmd.pm, 
+	pf/lib/pf/pfcmd/report.pm, pf/lib/pf/radius/custom.pm, 
+	pf/lib/pf/radius.pm, pf/lib/pf/util.pm, pf/lib/pf/violation.pm, 
+	pf/lib/pf/vlan/custom.pm, pf/lib/pf/vlan.pm, pf/sbin/pfdhcplistener, 
+	pf/t/vlan.t: The node table no longer carries duplicated data from 
+	locationlog. Fixes #914; 
+	As a side benefit the purpose of bypass_vlan is now more clear than 
+	only vlan. Fixes #977; 
+	pf::node calls still join with the locationlog so the changes are 
+	somewhat transparent. Updated all callers. 
+	- new locationlog_insert_closed to insert closed entries (used by 
+	dhcplogger for option82 enabled packets)
+	- cleaner SQL queries
+	- locationlog_synchronize no longer needs to keep the node table updated
+	- changed default hidden fields and default items ordering in node view
+	and edit
+	- added default sorting options to node view (related to #820) 
+	- no longer setting node.vlan to current switch's vlan in node register
+	- pf::vlan no longer needs to handle updated node calls 
+	Also misc cleanup and fixes
+	http://www.packetfence.org/bugs/view.php?id=914
+	http://www.packetfence.org/bugs/view.php?id=977
+
 	* pf/addons/loadMACintoDB.pl: Added minimal POD for file and added to 
 	minimum test suites
 
