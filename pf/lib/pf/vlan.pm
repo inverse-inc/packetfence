@@ -315,18 +315,18 @@ $isPhone is set to 1 if device is considered an IP Phone.
 
 $conn_type is set to the connnection type expressed as the constant in pf::config
 
-$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
-
 $user_name is set to the RADIUS User-Name attribute.
 Real username under 802.1X and MAC address under MAB or MAC authentication.
 Undef if conn_type is WIRED_SNMP_TRAPS
+
+$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
 
 Returns an anonymous hash that is meant for node_register()
 
 =cut 
 sub getNodeInfoForAutoReg {
     my ($this, $switch_ip, $switch_port, $mac, $vlan, 
-        $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $ssid, $user_name) = @_;
+        $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid) = @_;
 
     # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
     my %node_info = (
@@ -347,7 +347,7 @@ sub getNodeInfoForAutoReg {
     }
 
     # under 802.1X EAP, we trust the username provided since it authenticated
-    if ((($conn_type & EAP) == EAP) && defined($user_name)) {
+    if (defined($conn_type) && (($conn_type & EAP) == EAP) && defined($user_name)) {
         $node_info{'pid'} = $user_name;
     }
 
@@ -396,9 +396,9 @@ sub shouldAutoRegister {
         return $isPhone;
     }
 
-    # example: auto-register 802.1x users (since they already have validated credentials to do 802.1x)
-    #if (defined($conn_type) && ($conn_type == WIRELESS_802_1X || $conn_type == WIRED_802_1X)) {
-    #    $logger->trace("returned yes because it's a 802.1x client that successfully authenticated already");
+    # example: auto-register 802.1x users (since they already have validated credentials through EAP to do 802.1x)
+    #if (defined($conn_type) && (($conn_type & EAP) == EAP)) {
+    #    $logger->trace("returned yes because it's a 802.1X EAP client that successfully authenticated already");
     #    return 1;
     #}
 

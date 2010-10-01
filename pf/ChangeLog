@@ -1,3 +1,23 @@
+2010-10-01	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/radius.pm, pf/lib/pf/vlan.pm: Optional auto-registration
+	of EAP authenticated devices in order.
+	Example code more proper, re-ordered parameters for 
+	getNodeInfoForAutoReg to make the interface consistent with other 
+	related calls. Last touch on #1002;
+	http://www.packetfence.org/bugs/view.php?id=1002
+
+	* pf/NEWS, pf/conf/ui.conf, pf/db/pf-schema-1.10.0.sql, 
+	pf/db/upgrade-1.9.0-1.10.0.sql, pf/html/admin/node/view.php,
+	pf/lib/pf/locationlog.pm, pf/lib/pf/lookup/node.pm, pf/lib/pf/node.pm
+	pf/lib/pf/pfcmd/report.pm, pf/lib/pf/pfcmd.pm, pf/lib/pf/radius.pm
+	pf/sbin/pfdhcplistener, pf/sbin/pfsetvlan: Adding dot1x_username and 
+	ssid to locationlog and exposing it through node_view and friends. 
+	Fixes #995 and #1002;
+	Required several changes to the booking aspects of packetfence so it is
+	a potentially destabilizing change. Database changes were made also.
+	http://www.packetfence.org/bugs/view.php?id=995
+	http://www.packetfence.org/bugs/view.php?id=1002
+
 2010-09-30	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/UPGRADE, pf/addons/autodiscover.pl, 
 	pf/addons/convertToPortSecurity.pl, pf/addons/loadMACintoDB.pl, 
