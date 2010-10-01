@@ -154,6 +154,7 @@ sub getVlan {
 
     if (!defined($mysql_connection)) { 
       syslog("info", "Can't connect to the database.");
+      closelog();
       return undef;
     }
 

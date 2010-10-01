@@ -454,8 +454,7 @@ sub web_node_record_user_agent {
     my $logger = Log::Log4perl::get_logger('pf::web');
     
     # Recording useragent
-    $logger->info("Updating node $mac user_agent");
-    $logger->debug("Updating node $mac user_agent with useragent: '$user_agent'");
+    $logger->info("Updating node $mac user_agent with useragent: '$user_agent'");
     # call node_modify directly instead of pfcmd node edit. it's more performant and it'll avoid trying to adjust vlan 
     node_modify($mac, ('user_agent' => $user_agent));
 
@@ -466,7 +465,7 @@ sub web_node_record_user_agent {
         # is there a violation on this user agent?
         $logger->debug("sending USERAGENT::".$user_agent_info[0]->{'useragent_id'}." (".$user_agent_info[0]->{'useragent'}.") trigger");
         require pf::violation;
-        pf::violation::violation_trigger( $mac, $user_agent_info[0]->{'useragent_id'}, "USERAGENT" );
+        pf::violation::violation_trigger( $mac, $user_agent_info[2]->{'useragent_id'}, "USERAGENT" );
 
     } else {
         $logger->info("unknown User-Agent: " . $user_agent);

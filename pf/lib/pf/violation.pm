@@ -375,24 +375,24 @@ sub violation_trigger {
     $type = lc($type);
 
     if (whitelisted_mac($mac)) {
-        $logger->info("violation not added, $mac is whitelisted! trigger id: $tid");
+        $logger->info("violation not added, $mac is whitelisted! trigger $type::$tid");
         return 0;
     } 
 
     if (!valid_mac($mac)) {
-        $logger->info("violation not added, MAC $mac is whitelisted! trigger id: $tid");
+        $logger->info("violation not added, MAC $mac is whitelisted! trigger $type::$tid");
         return 0;
     } 
 
     if (!trappable_mac($mac)) {
-        $logger->info("violation not added, MAC $mac is not trappable! trigger id: $tid");
+        $logger->info("violation not added, MAC $mac is not trappable! trigger $type::$tid");
         return 0;
     }
 
     # if we were given an IP as additionnal violation trigger info
     # test whether this ip is trappable or not
     if (defined($data{ip}) && !trappable_ip($data{ip})) {
-        $logger->info("violation not added, IP ".$data{ip}." is not trappable! trigger id: $tid, MAC: $mac");
+        $logger->info("violation not added, IP ".$data{ip}." is not trappable! trigger $type::$tid, MAC: $mac");
         return 0;
     }
 
@@ -427,7 +427,7 @@ sub violation_trigger {
 
         # we test here AND in violation_add because here we avoid a fork (and violation_add is called from elsewhere)
         if ( violation_exist_open( $mac, $vid ) ) {
-            $logger->info("violation $vid already exists for $mac, not adding again");
+            $logger->info("violation $vid (trigger $type::$tid) already exists for $mac, not adding again");
             next;
         }
 
@@ -435,11 +435,11 @@ sub violation_trigger {
         # we test here AND in violation_add because here we avoid a fork (and violation_add is called from elsewhere)
         my ($remaining_time) = violation_grace( $mac, $vid );
         if ($remaining_time > 0) {
-            $logger->info("$remaining_time grace remaining on violation $vid for node $mac. Not adding violation.");
+            $logger->info("$remaining_time grace remaining on violation $vid (trigger $type::$tid) for node $mac. Not adding violation.");
             next;
         }
 
-        $logger->info("calling $bin_dir/pfcmd violation add vid=$vid,mac=$mac");
+        $logger->info("calling '$bin_dir/pfcmd violation add vid=$vid,mac=$mac' (trigger $type::$tid)");
         # forking a pfcmd because it will call a vlan flip if needed
         `$bin_dir/pfcmd violation add vid=$vid,mac=$mac`;
         $addedViolation = 1;

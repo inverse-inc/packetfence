@@ -166,7 +166,7 @@ my @whitelist = (
     'setMacDetectionVlan', 'setNormalVlan', 'getMode', 'isTestingMode', 'isIgnoreMode', 'isRegistrationMode', 
     'isProductionMode', 'isDiscoveryMode', 'resetTaggedVlan', 'getBitAtPosition', 'modifyBitmask', 
     'createPortListWithOneItem', 'reverseBitmask', 'generateFakeMac', 'isFakeMac', 'isFakeVoIPMac', 'getVlanFdbId',
-    'isNotUpLink', 'getVlanByName', 'isManagedVlan', 'deauthenticateMac'
+    'isNotUpLink', 'getVlanByName', 'isManagedVlan', 'deauthenticateMac', 'setVlan'
 );
 
 my @missing_subs;
