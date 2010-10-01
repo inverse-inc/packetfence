@@ -454,8 +454,7 @@ sub web_node_record_user_agent {
     my $logger = Log::Log4perl::get_logger('pf::web');
     
     # Recording useragent
-    $logger->info("Updating node $mac user_agent");
-    $logger->debug("Updating node $mac user_agent with useragent: '$user_agent'");
+    $logger->info("Updating node $mac user_agent with useragent: '$user_agent'");
     # call node_modify directly instead of pfcmd node edit. it's more performant and it'll avoid trying to adjust vlan 
     node_modify($mac, ('user_agent' => $user_agent));
 
