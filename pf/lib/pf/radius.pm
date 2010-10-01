@@ -56,7 +56,7 @@ to fill the Radius reply (RAD_REPLY). The arrayref is to workaround a quirk in S
 See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMETERS_AND_AUTOBINDING
 
 =cut
-# WARNING: You cannot change the return value of this sub unless you also update its clients (like the SOAP 802.1x 
+# WARNING: You cannot change the return structure of this sub unless you also update its clients (like the SOAP 802.1x 
 # module). This is because of the way perl mangles a returned hash as a list. Clients would get confused if you add a
 # scalar return without updating the clients.
 sub authorize {
@@ -163,7 +163,9 @@ sub authorize {
     }
 
     #closes old locationlog entries and create a new one if required
-    locationlog_synchronize($switch_ip, $port, $vlan, $mac, NO_VOIP, $connection_type);
+    locationlog_synchronize($switch_ip, $port, $vlan, $mac, 
+        $isPhone ? VOIP : NO_VOIP, $connection_type, $user_name, $ssid
+    );
 
     # cleanup
     $switch->disconnectRead();
@@ -338,6 +340,9 @@ sub authorize_voip {
 
     # we got Avaya phones working on Cisco switches with the following
     # if you want to do it, copy this whole sub into radius/custom.pm and uncomment the following lines
+    #locationlog_synchronize($switch->{_ip}, $port, $switch->{_voiceVlan}, $mac, 
+    #    VOIP, $connection_type, $user_name, $ssid
+    #);
     #my %RAD_REPLY; 
     #$RAD_REPLY{'Cisco-AVPair'} = "device-traffic-class=voice";
     #$switch->disconnectRead();

@@ -399,7 +399,7 @@ sub listen_dhcp {
             }
 
             # TODO port should be translated into ifIndex
-            locationlog_insert_closed($switch, $mod . '/' . $port, $vlan, $chaddr, NO_VOIP, '');
+            locationlog_insert_closed($switch, $mod . '/' . $port, $vlan, $chaddr, '');
         }
 
         if ( !node_exist($chaddr) ) {

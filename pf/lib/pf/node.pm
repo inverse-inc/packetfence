@@ -123,6 +123,7 @@ sub node_db_prepare {
             node.last_arp, node.last_dhcp, 
             locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan, 
             IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type, 
+            locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
             COUNT(DISTINCT violation.id) as nbopenviolations,
             node.notes
         FROM node 
@@ -141,6 +142,7 @@ sub node_db_prepare {
             node.last_arp, node.last_dhcp, 
             locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan, 
             IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type, 
+            locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
             COUNT(DISTINCT violation.id) as nbopenviolations,
             node.notes
         FROM node 
@@ -163,6 +165,7 @@ sub node_db_prepare {
             node.last_arp, node.last_dhcp,
             locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan, 
             IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type, 
+            locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
             COUNT(DISTINCT violation.id) as nbopenviolations,
             node.notes
         FROM node 
@@ -826,6 +829,26 @@ sub node_mac_wakeup {
     my $dec_oui = get_decimal_oui_from_mac($mac);
     $logger->debug( "sending MAC::$dec_oui ($mac) trigger" );
     pf::violation::violation_trigger( $mac, $dec_oui, "VENDORMAC" );
+}
+
+=item * is_node_voip
+
+Is given MAC a VoIP Device or not?
+
+in: mac address
+
+=cut
+sub is_node_voip {
+    my ($mac) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::node');
+
+    $logger->trace("Asked wether node $mac is a VoIP Device or not");
+    my $node_info = node_view($mac);   
+    if ($node_info->{'voip'} eq VOIP) {
+        return $TRUE;
+    } else {
+        return $FALSE;
+    }
 }
 
 

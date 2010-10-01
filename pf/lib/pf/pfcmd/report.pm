@@ -335,15 +335,25 @@ Translates connection_type database string into a human-understandable string
 # TODO we can probably be more efficient than that by passing references and stuff
 sub translate_connection_type {
     my (@data) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::pfcmd::report');
+
+    # determine if we are translating connection_type or last_connection_type
+    my $field;
+    $field = 'connection_type' if (exists($data[0]->{'connection_type'}));
+    $field = 'last_connection_type' if (exists($data[0]->{'last_connection_type'}));
+    if (!defined($field)) {
+        $logger->info("nothing to translate");
+        return @data;
+    }
 
     # change connection_type into its meaningful to humans counterpart
     foreach my $datum (@data) {
 
-        my $conn_type = str_to_connection_type($datum->{'last_connection_type'});
+        my $conn_type = str_to_connection_type($datum->{$field});
         if (defined($conn_type)) {
-            $datum->{'last_connection_type'} = $connection_type_explained{$conn_type};
+            $datum->{$field} = $connection_type_explained{$conn_type};
         } else {
-            $datum->{'last_connection_type'} = "UNKNOWN";
+            $datum->{$field} = "UNKNOWN";
         }
     }
     return (@data);

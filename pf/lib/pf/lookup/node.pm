@@ -86,15 +86,6 @@ sub lookup_node {
             $return .= "MAC Vendor     : $vendor\n";
         }
 
-        $return .= "\nLast known state\n";
-
-        my $conn_type = str_to_connection_type($node_info->{'connection_type'});
-        if (defined($conn_type)) {
-            $return .= "Connection type: ".$connection_type_explained{$conn_type}."\n";
-        } else {
-            $return .= "Connection type: UNKNOWN\n";
-        }
-
         my $voip = $node_info->{'voip'};
         $return .= "VoIP           : $voip\n" if ($voip);
 
@@ -125,6 +116,21 @@ sub lookup_node {
                         .  " (vlan " . $last_locationlog_entry[0]->{'vlan'}.")"
                         .  " on switch ".$last_locationlog_entry[0]->{'switch'}
                         .  "\n";
+
+                if (exists($last_locationlog_entry[0]->{'connection_type'})) {
+                    $return .= "Connection type: ".$last_locationlog_entry[0]->{'connection_type'}."\n";
+                } else {
+                    $return .= "Connection type: UNKNOWN\n";
+                }
+
+                if (defined($last_locationlog_entry[0]->{'dot1x_username'})) {
+                    $return .= "802.1X Username: ".$last_locationlog_entry[0]->{'dot1x_username'}."\n";
+                }
+
+                if (defined($last_locationlog_entry[0]->{'ssid'})) {
+                    $return .= "Wireless SSID  : ".$last_locationlog_entry[0]->{'ssid'}."\n";
+                }
+
                 if ($is_entry_active) {
                     $return .= "Last activity  : currently active\n";
                 } else {

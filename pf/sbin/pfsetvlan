@@ -1523,11 +1523,11 @@ sub handleTrap {
 
                     #this Mac is a phone
                     $logger->debug("$currentMac is a phone");
-                    node_update_PF( $switch, $switch_port, $currentMac, '', 1,
+                    node_update_PF( $switch, $switch_port, $currentMac, '', $TRUE,
                         $switch->isRegistrationMode() );
                 } else {
                     push( @tmpMacArray, $currentMac );
-                    node_update_PF( $switch, $switch_port, $currentMac, '', 0,
+                    node_update_PF( $switch, $switch_port, $currentMac, '', $FALSE,
                         $switch->isRegistrationMode() );
                 }
             }
@@ -1855,7 +1855,7 @@ sub do_port_security {
         my $old_switch = $locationlog_mac->{'switch'};
         my $old_port   = $locationlog_mac->{'port'};
         my $old_vlan   = $locationlog_mac->{'vlan'};
-        my $old_voip   = $locationlog_mac->{'voip'};
+        my $is_old_voip = node_is_voip($mac);
 
     #we have to enter to 'if' always when trapType eq 'secureMacAddrViolation'
         if (   ( $old_switch ne $switch->{_ip} )
@@ -1891,12 +1891,11 @@ sub do_port_security {
                     {   
                         return 'stopTrapHandling';
                     }
-                    my $is_voice_vlan = ($old_voip eq VOIP);
-                    my $fakeMac = $oldSwitch->generateFakeMac( $is_voice_vlan, $old_port );
+                    my $fakeMac = $oldSwitch->generateFakeMac( $is_old_voip, $old_port );
                     $logger->info("de-authorizing $mac (new entry $fakeMac) at old location $old_switch ifIndex $old_port");
                     $oldSwitch->authorizeMAC( $old_port, $mac, $fakeMac,
-                        ( $old_voip eq VOIP ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port) ),
-                        ( $old_voip eq VOIP ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port) ) );
+                        ( $is_old_voip ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port) ),
+                        ( $is_old_voip ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port) ) );
                 } else {
                     $logger->info("MAC not found on node's previous switch secure table or switch inaccessible.");
                 }

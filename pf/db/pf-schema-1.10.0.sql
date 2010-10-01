@@ -85,11 +85,8 @@ CREATE TABLE node (
   last_arp datetime NOT NULL default "0000-00-00 00:00:00",
   last_dhcp datetime NOT NULL default "0000-00-00 00:00:00",
   dhcp_fingerprint varchar(255) default NULL,
-  switch varchar(17) default NULL,
-  port varchar(8) default NULL,
-  bypass_vlan varchar(50) default NULL,
+  `bypass_vlan` varchar(50) default NULL,
   `voip` enum('no','yes') NOT NULL DEFAULT 'no',
-  `connection_type` varchar(50) NOT NULL default '',
   PRIMARY KEY (mac),
   KEY pid (pid),
   KEY category_id (category_id),
@@ -184,12 +181,13 @@ CREATE TABLE `locationlog` (
   `switch` varchar(17) NOT NULL default '',
   `port` varchar(8) NOT NULL default '',
   `vlan` varchar(50) default NULL,
-  `voip` enum('no','yes') NOT NULL DEFAULT 'no',
   `connection_type` varchar(50) NOT NULL default '',
+  `dot1x_username` varchar(255) NOT NULL default '',
+  `ssid` varchar(32) NOT NULL default '',
   `start_time` datetime NOT NULL default '0000-00-00 00:00:00',
   `end_time` datetime default NULL,
   KEY `locationlog_view_mac` (`mac`, `end_time`),
-  KEY `locationlog_view_switchport` (`switch`,`port`,`voip`,`end_time`,`vlan`)
+  KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`)
 ) ENGINE=InnoDB;
 
 CREATE TABLE `locationlog_history` (
@@ -197,8 +195,9 @@ CREATE TABLE `locationlog_history` (
   `switch` varchar(17) NOT NULL default '',
   `port` varchar(8) NOT NULL default '',
   `vlan` varchar(50) default NULL,
-  `voip` enum('no','yes') NOT NULL DEFAULT 'no',
   `connection_type` varchar(50) NOT NULL default '',
+  `dot1x_username` varchar(255) NOT NULL default '',
+  `ssid` varchar(32) NOT NULL default '',
   `start_time` datetime NOT NULL default '0000-00-00 00:00:00',
   `end_time` datetime default NULL,
   KEY `locationlog_history_view_mac` (`mac`, `end_time`)
