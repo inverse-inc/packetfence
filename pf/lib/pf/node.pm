@@ -93,7 +93,7 @@ sub node_db_prepare {
 
     $node_statements->{'node_add_sql'} = get_db_handle()->prepare(qq[
         INSERT INTO node (
-            mac, pid, category_id, status, voip, bypass_vlan
+            mac, pid, category_id, status, voip, bypass_vlan,
             detect_date, regdate, unregdate, lastskip, 
             user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
@@ -201,7 +201,7 @@ sub node_db_prepare {
         qq [ select mac from node where unix_timestamp(last_arp) < (unix_timestamp(now()) - ?) and last_arp!=0 ]);
 
     $node_statements->{'node_unregistered_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, pid, voip, bypass_vlan, status
+        SELECT mac, pid, voip, bypass_vlan, status,
             detect_date, regdate, unregdate, lastskip, 
             user_agent, computername, dhcp_fingerprint, 
             last_arp, last_dhcp,
@@ -211,7 +211,7 @@ sub node_db_prepare {
     ]);
 
     $node_statements->{'nodes_unregistered_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, pid, voip, bypass_vlan, status
+        SELECT mac, pid, voip, bypass_vlan, status,
             detect_date, regdate, unregdate, lastskip, 
             user_agent, computername, dhcp_fingerprint, 
             last_arp, last_dhcp,
@@ -221,7 +221,7 @@ sub node_db_prepare {
     ]);
 
     $node_statements->{'nodes_registered_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, pid, voip, bypass_vlan, status
+        SELECT mac, pid, voip, bypass_vlan, status,
             detect_date, regdate, unregdate, lastskip, 
             user_agent, computername, dhcp_fingerprint, 
             last_arp, last_dhcp,
