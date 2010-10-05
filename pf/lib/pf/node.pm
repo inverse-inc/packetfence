@@ -61,6 +61,7 @@ BEGIN {
         node_cleanup
         node_update_lastarp
         node_mac_wakeup
+        is_node_voip
     );
 }
 
