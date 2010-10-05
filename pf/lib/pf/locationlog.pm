@@ -326,6 +326,10 @@ sub locationlog_insert_start {
     my $conn_type = connection_type_to_str($connection_type)
         or $logger->info("Asked to insert a locationlog entry with connection type unknown.");
 
+    # warning avoidance
+    $user_name = "" if (!defined($user_name));
+    $ssid = "" if (!defined($ssid));
+
     if ( defined($mac) ) {
         db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_insert_start_with_mac_sql', 
             lc($mac), $switch, $ifIndex, $vlan, $conn_type, $user_name, $ssid)
