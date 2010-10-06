@@ -1,0 +1,55 @@
+Captive Portal Proxy Bypass
+
+== Requirements ==
+ * Proxy configuration on the clients is using a DNS name not an IP
+
+== Installation instructions ==
+ * Install squid. At least version 3.1 is required. For RHEL, packages are available at: http://people.redhat.com/jskala/squid/
+ * Change squid's configuration (/etc/squid/squid.conf)
+  * Change localnet ACLs to cover PacketFence's trapped network. For example:
+# PacketFence's localnets
+acl localnet src 192.168.2.0/24 # registration network
+acl localnet src 192.168.3.0/24 # isolation network
+
+  * Set squid to listen on the Proxy port you want to capture and enable ssl-bump. Here's the config: 
+# -- PacketFence Proxy Bypass --
+#
+# this will terminate CONNECT requests at squid 
+# allowing it to add HTTP_X_FORWARDED_FOR header with Cilent IP
+http_port 8080 ssl-bump cert=/usr/local/pf/conf/ssl/server.pem
+ssl_bump allow all
+
+# Bumped requests have relative URLs so Squid has to use reverse proxy
+# or accelerator code. By default, that code denies direct forwarding.
+# The need for this option may disappear in the future.
+always_direct allow all
+
+# we allow cert errors because of the nature of what we are trying to do
+sslproxy_cert_error allow all
+# we allow bad CN names because of the nature of what we are trying to do
+acl BadSite ssl_error SQUID_X509_V_ERR_DOMAIN_MISMATCH
+sslproxy_cert_error allow BadSite
+sslproxy_cert_error deny all
+
+# URL Redirectors
+# Rewrites ANY non-Captive Portal request to a Captive Portal request
+url_rewrite_program /usr/local/pf/addons/proxy-bypass/squid-redirector.pl
+url_rewrite_concurrency 10
+
+  * Check addons/proxy-bypass/squid.conf-sample.patch for a config patch against a default squid.conf installation.
+  * Change the above cert=... to point to your certificate. Bumping SSL requires a certificate and private key in the same file (PEM format). In this example, it was prepared with `cat server.crt server.key > server.pem`.
+  * Change above port (8080) to reflect your environment proxy's port.
+
+== Troubleshooting ==
+ * First, check with Squid running in debug mode: `squid -f /etc/squid/squid.conf -d 3`
+ * I get: "FATAL: The redirector helpers are crashing too rapidly, need help!"
+   Could be caused by access rights or execution rights, verify squid-redirector.pl's access by user squid.
+ * Also you can try to run the script directly and see if you get any errors.
+ * Captive Portal doesn't capture requests to PacketFence
+  * Are hostname and domain properly set in conf/pf.conf?
+  * Does the fully-qualified PacketFence captive portal hostname resolves to 127.0.0.1?
+
+== More information ==
+ * http://www.packetfence.org/bugs/view.php?id=1035
+ * http://www.squid-cache.org/Doc/config/ssl_bump/
+ * http://wiki.squid-cache.org/Features/Redirectors

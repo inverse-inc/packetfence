@@ -33,7 +33,7 @@ Log::Log4perl::MDC->put('tid', 0);
 my %params;
 my $cgi             = new CGI;
 my $session         = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
-my $ip              = $cgi->remote_addr;
+my $ip              = get_client_ip($cgi);
 my $mac             = ip2mac($ip);
 my $destination_url = $cgi->param("destination_url");
 
@@ -96,6 +96,8 @@ if (defined($params{'mode'})) {
              $logger->error( "Error reading switches.conf: " 
                              .join( "\n", @errors ) . "\n" );
          } else {
+             # insert code for vlan assignation on registration here
+             # (but also make sure you override pf::vlan's get_normal_vlan)
              $info{'vlan'}=$ConfigVlan{'default'}{'normalVlan'};
          }
       }
