@@ -1,4 +1,7 @@
 2010-10-06	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/dhcp_fingerprints.conf: Added HP ProCurve Access Point and
+	Controller fingerprints and Ricoh MFP.
+
 	* pf/conf/templates/httpd.conf.apache22: Apache debugging
 	instructions. Commented by default only there as a reminder.
 
