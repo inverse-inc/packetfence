@@ -1,3 +1,7 @@
+2010-10-06	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/templates/httpd.conf.apache22: Apache debugging
+	instructions. Commented by default only there as a reminder.
+
 2010-09-30	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/addons/loadMACintoDB.pl: Added minimal POD for file and added to 
 	minimum test suites

@@ -134,6 +134,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
   Alias /common/ %%install_dir%%/html/common/
   ScriptAlias /cgi-bin/ "%%install_dir%%/cgi-bin/"
 
+  #LogLevel debug
   CustomLog %%install_dir%%/logs/access_log combined
   ErrorLog %%install_dir%%/logs/error_log
 
@@ -210,6 +211,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
   #Alias /cgi-bin/register-skip.cgi %%install_dir%%/cgi-bin/register.cgi
   ScriptAlias /cgi-bin/ "%%install_dir%%/cgi-bin/"
 
+  #LogLevel debug
   CustomLog %%install_dir%%/logs/access_log combined
   ErrorLog %%install_dir%%/logs/error_log
 
@@ -293,6 +295,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
   Alias /docs/ %%install_dir%%/docs/
   Alias /content/ %%install_dir%%/html/user/content/
 
+  #LogLevel debug
   CustomLog %%install_dir%%/logs/admin_access_log combined
   ErrorLog %%install_dir%%/logs/admin_error_log
 
