@@ -97,6 +97,8 @@
     case 'last_switch':
     case 'last_port':
     case 'last_vlan':
+    case 'last_ssid':
+    case 'last_dot1x_username':
       print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val' disabled>";
       break;
 

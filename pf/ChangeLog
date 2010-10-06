@@ -1,4 +1,8 @@
 2010-10-06	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/node/edit.php: Fixed a regression where node fields 
+	coming from locationlog where set to be editable and would cause 
+	grammar failure during node editing.
+
 	* pf/addons/proxy-bypass/README, 
 	pf/addons/proxy-bypass/squid-redirector.pl, 
 	pf/addons/proxy-bypass/squid.conf-sample.patch, pf/cgi-bin/redir.cgi,
