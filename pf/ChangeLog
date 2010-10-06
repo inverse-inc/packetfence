@@ -1,3 +1,18 @@
+2010-10-06	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/proxy-bypass/README, 
+	pf/addons/proxy-bypass/squid-redirector.pl, 
+	pf/addons/proxy-bypass/squid.conf-sample.patch, pf/cgi-bin/redir.cgi,
+	pf/cgi-bin/register.cgi, pf/cgi-bin/release.cgi, 
+	pf/html/user/content/index.php, pf/lib/pf/config.pm, pf/lib/pf/web.pm:
+	New feature: Client Proxy Interception (proxy-bypass)
+	Requires squid and is not useful to everyone so it is in addons but 
+	it's easy to install.
+	- squid config + redirector script
+	- Provided requirements, install instructions and basic troubleshooting.
+	- IP lookup code updated in core
+	Fixes #1035;
+	http://www.packetfence.org/bugs/view.php?id=1035
+
 2010-10-01	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/radius.pm, pf/lib/pf/vlan.pm: Optional auto-registration
 	of EAP authenticated devices in order.

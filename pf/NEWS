@@ -22,6 +22,9 @@ New Features
   everything is now using standard PacketFence proccesses and configuration 
   files.
 - VoIP devices authorization over RADIUS (#1008)
+- Proxy interception. PacketFence can now operate in an environment where there
+  is a client-side proxy configured. Check proxy-bypass in addons/ for details.
+  (#1035)
 
 Enhancements
 - New information available in Node Lookup (Connection Type, SSID, 802.1X 

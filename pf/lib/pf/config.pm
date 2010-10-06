@@ -65,6 +65,7 @@ BEGIN {
         $FALSE $TRUE
         WIRELESS_802_1X WIRELESS_MAC_AUTH WIRED_802_1X WIRED_MAC_AUTH_BYPASS WIRED_SNMP_TRAPS WIRELESS WIRED EAP
         VOIP NO_VOIP
+        LOOPBACK_IPV4
         %connection_type %connection_type_to_str %connection_type_explained
     );
 }
@@ -160,6 +161,7 @@ $black_mark = "2";
 
 # this is broken NIC on Dave's desk - it better be unique!
 $blackholemac = "00:60:8c:83:d7:34";
+use constant LOOPBACK_IPV4 => '127.0.0.1';
 
 readPfConfigFiles();
 

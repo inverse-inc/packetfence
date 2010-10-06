@@ -32,9 +32,12 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
-    @EXPORT = qw(generate_release_page generate_login_page generate_enabler_page generate_redirect_page 
-                 generate_error_page generate_status_page generate_registration_page web_node_register 
-                 web_node_record_user_agent web_user_authenticate generate_scan_start_page generate_scan_status_page);
+    @EXPORT = qw(
+        generate_release_page generate_login_page generate_enabler_page generate_redirect_page 
+        generate_error_page generate_status_page generate_registration_page web_node_register 
+        web_node_record_user_agent web_user_authenticate generate_scan_start_page generate_scan_status_page
+        get_client_ip
+    );
 }
 
 use pf::config;
@@ -43,6 +46,11 @@ use pf::iplog qw(ip2mac);
 use pf::node qw(node_view node_modify);
 use pf::useragent;
 
+=head1 SUBROUTINES
+
+=over
+
+=cut
 sub web_get_locale {
     my ($cgi,$session) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
@@ -285,7 +293,7 @@ sub generate_scan_status_page {
         refresh_timer    => $refresh_timer
     };
 
-    my $ip = $cgi->remote_addr;
+    my $ip = get_client_ip($cgi);
     push @{ $vars->{list_help_info} },
         { name => gettext('IP'), value => $ip };
     my $mac = ip2mac($ip);
@@ -331,7 +339,7 @@ sub generate_error_page {
         $vars->{txt_message} = gettext($error_msg);
     }
 
-    my $ip = $cgi->remote_addr;
+    my $ip = get_client_ip($cgi);
     push @{ $vars->{list_help_info} },
         { name => gettext('IP'), value => $ip };
     my $mac = ip2mac($ip);
@@ -373,7 +381,7 @@ sub generate_status_page {
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
-    my $ip   = $cgi->remote_addr;
+    my $ip   = get_client_ip($cgi);
     my $vars = {
         logo            => $Config{'general'}{'logo'},
         txt_page_title  => gettext('Status'),
@@ -523,7 +531,7 @@ sub generate_registration_page {
     textdomain("packetfence");
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
-    my $ip   = $cgi->remote_addr;
+    my $ip   = get_client_ip($cgi);
     my $vars = {
         logo            => $Config{'general'}{'logo'},
         deadline        => $Config{'registration'}{'skip_deadline'},
@@ -620,6 +628,43 @@ sub generate_registration_page {
     exit;
 }
 
+=item get_client_ip
+
+Returns IP address of the client reaching the captive portal. 
+Either directly connected or through a proxy.
+
+=cut
+sub get_client_ip {
+    my ($cgi) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web');
+
+    $logger->trace("request for client IP");
+
+    # we fetch CGI's remote address
+    # if user is behind a proxy it's not sufficient since we'll get the proxy's IP
+    my $directly_connected_ip = $cgi->remote_addr();
+
+    # handling most common case first
+    if ($directly_connected_ip ne LOOPBACK_IPV4) {
+        return $directly_connected_ip;
+    }
+
+    # proxied?
+    if (defined($ENV{'HTTP_X_FORWARDED_FOR'})) {
+        my $proxied_ip = $ENV{'HTTP_X_FORWARDED_FOR'};
+        $logger->debug(
+            "Remote Address is ".LOOPBACK_IPV4.". Client is proxied? "
+            . "Returning: $proxied_ip according to HTTP Headers"
+        );
+        return $proxied_ip;
+    }
+
+    $logger->debug("Remote Address is ".LOOPBACK_IPV4." but no further hints of client IP in HTTP Headers");
+    return $directly_connected_ip;
+}
+
+=back
+
 =head1 AUTHOR
 
 David LaPorte <david@davidlaporte.org>
@@ -636,7 +681,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2008-2009 Inverse inc.
+Copyright (C) 2008-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

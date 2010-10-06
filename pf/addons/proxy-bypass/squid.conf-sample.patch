@@ -1,0 +1,53 @@
+--- /etc/squid/squid.conf.default	2010-09-03 06:10:58.000000000 -0400
++++ /etc/squid/squid.conf	2010-10-05 16:40:18.000000000 -0400
+@@ -8,9 +8,14 @@
+ # Example rule allowing access from your local networks.
+ # Adapt to list your (internal) IP networks from where browsing
+ # should be allowed
+-acl localnet src 10.0.0.0/8	# RFC1918 possible internal network
+-acl localnet src 172.16.0.0/12	# RFC1918 possible internal network
+-acl localnet src 192.168.0.0/16	# RFC1918 possible internal network
++#acl localnet src 10.0.0.0/8	# RFC1918 possible internal network
++#acl localnet src 172.16.0.0/12	# RFC1918 possible internal network
++#acl localnet src 192.168.0.0/16	# RFC1918 possible internal network
++
++# PacketFence's localnets
++acl localnet src 192.168.2.0/24	# registration network
++acl localnet src 192.168.3.0/24	# isolation network
++
+ acl localnet src fc00::/7       # RFC 4193 local private network range
+ acl localnet src fe80::/10      # RFC 4291 link-local (directly plugged) machines
+ 
+@@ -59,7 +64,31 @@
+ http_access deny all
+ 
+ # Squid normally listens to port 3128
+-http_port 3128
++#http_port 3128
++
++# -- PacketFence Proxy Bypass --
++#
++# this will terminate CONNECT requests at squid 
++# allowing it to add HTTP_X_FORWARDED_FOR header with Cilent IP
++http_port 8080 ssl-bump cert=/usr/local/pf/conf/ssl/server.pem
++ssl_bump allow all
++
++# Bumped requests have relative URLs so Squid has to use reverse proxy
++# or accelerator code. By default, that code denies direct forwarding.
++# The need for this option may disappear in the future.
++always_direct allow all
++
++# we allow cert errors because of the nature of what we are trying to do
++sslproxy_cert_error allow all
++# we allow bad CN names because of the nature of what we are trying to do
++acl BadSite ssl_error SQUID_X509_V_ERR_DOMAIN_MISMATCH
++sslproxy_cert_error allow BadSite
++sslproxy_cert_error deny all
++
++# URL Redirectors
++# Rewrites ANY requests to a Captive Portal request
++url_rewrite_program /usr/local/pf/addons/proxy-bypass/squid-redirector.pl
++url_rewrite_concurrency 10
+ 
+ # We recommend you to use at least the following line.
+ hierarchy_stoplist cgi-bin ?
