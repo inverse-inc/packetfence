@@ -14,6 +14,33 @@ For a list of compatibility related changes see the UPGRADE file.
 
 
 --------------------------------------------------------------------------------
+Version <release> - <codename> released on <releaseDate>
+
+New Features
+- Simplification of the Wireless, Wired 802.1X and MAC Address Bypass (MAB) 
+  configuration. Because of a new FreeRADIUS module and a Web Service interface, 
+  everything is now using standard PacketFence proccesses and configuration 
+  files.
+- VoIP devices authorization over RADIUS (#1008)
+- Proxy interception. PacketFence can now operate in an environment where there
+  is a client-side proxy configured. Check proxy-bypass in addons/ for details.
+  (#1035)
+
+Enhancements
+- New information available in Node Lookup (Connection Type, SSID, 802.1X 
+  User-Name, ...)
+- Small usability improvements (#1006)
+- Fast Web Services layer running under mod_perl
+- Refactoring of the pf::vlan method names for more meaningful ones
+- Removed unnecessary database connections and duplicated code
+- Added several tests
+- 802.1X improvements (#995, #1002)
+- General codebase improvements, refactoring (#914, #977, #1001)
+
+Special thanks to University of Oregon who, from early on, were running the 
+bleeding edge and provided invaluable feedback and contributions!
+
+--------------------------------------------------------------------------------
 Version <release> - <codename> released on <date>
 
 Enhancements
@@ -130,6 +157,7 @@ Bug fixes
 - Fixed missing dependencies in packetfence-remote-snort-sensor RPM (#881, #882)
 - Fixed bad HTML in registration pages
 - Clarified some error messages
+- Removed some unnecessary warnings
 
 --------------------------------------------------------------------------------
 Version 1.8.6 released on 2009-12-01

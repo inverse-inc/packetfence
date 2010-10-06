@@ -149,7 +149,7 @@ sub db_data {
     my $sth = db_query_execute($from_module, $module_statements_ref, $query, @params) || return (0);
 
     my ( $ref, @array );
-    # TODO definitely not efficient
+    # TODO maybe we should carry an arrayref around instead of copying an array?
     while ( $ref = $sth->fetchrow_hashref() ) {
         push( @array, $ref );
     }

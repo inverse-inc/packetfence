@@ -1,0 +1,26 @@
+Basic load testing on the captive portal
+
+== using ab (apache benchmark) ==
+
+one request: 
+ab https://<server>/cgi-bin/redir.cgi
+
+100 concurrent users doing 10 requests:
+ab -c 100 -n 1000 https://<server>/cgi-bin/redir.cgi
+
+25 concurrent users doing as many requests as possible for 5 minutes:
+ab -c 25 -t 300 https://<server>/cgi-bin/redir.cgi
+
+== using jmeter ==
+
+An interesting concept is the Access Log Sampler which replays requests in an
+access log!
+ * Tutorial: http://jakarta.apache.org/jmeter/usermanual/jmeter_accesslog_sampler_step_by_step.pdf
+ * Description: http://jakarta.apache.org/jmeter/usermanual/component_reference.html#Access_Log_Sampler
+
+TODO: 
+ * improve the jmeter test by providing a better access log with the 302 
+   all trimmed
+ * work on some normal scripts that would test the redirects and each cgi
+   pages, and one that would perform the whole flow and assert on it's success
+   for integration testing

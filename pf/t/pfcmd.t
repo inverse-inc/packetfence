@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 70;
+use Test::More tests => 71;
 use Log::Log4perl;
 use File::Basename qw(basename);
 use lib '/usr/local/pf/lib';
@@ -247,7 +247,7 @@ foreach my $help_arg (@main_args) {
 
 # test version
 @output = `/usr/local/pf/bin/pfcmd version`;
-like ( $output[0], qr/^PacketFence 1.9.2dev/,
-       "pfcmd version is 1.9.2dev" );
-like ( $output[1], qr/^DB MD5SUM: 31cb9ab04794b21ecfe5a14d69d2dc8b/,
+like ( $output[0], qr/^PacketFence trunk/,
+       "pfcmd version is correct" );
+like ( $output[1], qr/^DB MD5SUM: a3ad9f52b7d31c8d4b5e9b0c2c3dd559/,
        "DB MD5SUM" );

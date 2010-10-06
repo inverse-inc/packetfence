@@ -20,6 +20,7 @@
  * USA.
  * 
  * @author	Dominik Gehl <dgehl@inverse.ca>
+ * @author	Olivier Bilodeau <obilodeau@inverse.ca>
  * @copyright 	2008-2010 Inverse inc.
  * @license 	http://opensource.org/licenses/gpl-2.0.php	GPL
  */
@@ -38,6 +39,12 @@
   textdomain("packetfence");
 
   $user_data['ip'] = $_SERVER['REMOTE_ADDR'];
+  # Client IP Lookup if Proxy-Bypass is used
+  if ($user_data['ip'] == '127.0.0.1') {
+      if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+          $user_data['ip'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
+      }
+  }
 
   $PFCMD=dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/bin/pfcmd';
   $command = "history $user_data[ip]";

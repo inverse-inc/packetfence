@@ -7,6 +7,41 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <release>:
 
+    - Database schema update
+    New fields were added as a part of the Radius unification. You can update
+    your schema with:
+    mysql -u root -p pf -v < db/upgrade-1.9.0-1.10.0.sql
+
+    - FreeRADIUS module rewritten
+    The FreeRADIUS has been completely re-written from the previous release 
+    series. Now, except for the authentication against the PacketFence server
+    all the control is centralized in the PacketFence configuration. No more 
+    customization required in the FreeRADIUS module! We strongly recommend
+    that you carefully migrate to this module and forget about the old one.
+
+    - /cgi-bin/pdp.cgi moved
+    Remote snort probes or other mechanisms relying on the presence of this 
+    file should be updated to be /webapi instead. Upgrading each probe's
+    packetfence-remote-snort-sensor will take care of this for remote snort 
+    probes. All other custom means should be manually upgraded.
+
+    - Output of node lookup changed
+    The output of `pfcmd lookup node <mac>` changed. Make sure you update your
+    parsing scripts (if any). This also affects the Node lookup section of the
+    Web Admin interface.
+
+    - pfcmd input and output change
+    Viewing and modifying nodes changed through pfcmd. If you used script to 
+    automate tasks relying on the `pfcmd node` interface, you need to update 
+    them.
+
+    - lib/pf/vlan.pm interface changed
+    If you built a customized version of vlan.pm in lib/pf/vlan/custom.pm be 
+    aware that there were a lot of changes. We strongly recommend you rewrite 
+    your custom.pm on top of these new changes instead keeping your old.
+
+o Upgrading from a version prior to <release>:
+
     - FreeRADIUS module changes require configuration changes
     PacketFence's operations in the FreeRADIUS module are now done in the 
     post-auth section instead of the authorize section of the FreeRADIUS 

@@ -21,6 +21,10 @@ It's not complete yet
 
 * Full POD for pf::SNMP
 
+* Add new subs from Cisco and friends that were added in trunk
+
+* Create a pf::MockedWireless
+
 =head1 BUGS AND LIMITATIONS
 
 =head1 CONFIGURATION AND ENVIRONMENT
@@ -3064,6 +3068,36 @@ sub disablePortConfigAsTrunk {
     return 1;
 }
 
+=item dot1xPortReauthenticate - forces 802.1x re-authentication of a given ifIndex
+
+ifIndex - ifIndex to force re-authentication on
+
+=cut
+sub dot1xPortReauthenticate {
+    my ($this, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    $logger->info("Trying generic MIB to force 802.1x port re-authentication. Your mileage may vary. "
+        . "If it doesn't work open a bug report with your hardware type.");
+
+    my $oid_dot1xPaePortReauthenticate = "1.0.8802.1.1.1.1.1.2.1.5"; # from IEEE8021-PAE-MIB
+
+    if (!$this->connectWrite()) {
+        return 0;
+    }
+
+    $logger->trace("SNMP set_request force dot1xPaePortReauthenticate on ifIndex: $ifIndex");
+    my $result = $this->{_sessionWrite}->set_request(-varbindlist => [
+        "$oid_dot1xPaePortReauthenticate.$ifIndex", Net::SNMP::INTEGER, 1
+    ]);
+
+    if (!defined($result)) {
+        $logger->error("got an SNMP error trying to force 802.1x re-authentication: ".$this->{_sessionWrite}->error);
+    }
+
+    return (defined($result));
+}
+
 sub getMinOSVersion {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -3241,6 +3275,19 @@ sub authorizeMAC {
             ->set_request( -varbindlist => \@oid_value );
     }
     return 1;
+}
+
+sub NasPortToIfIndex {
+    my ($this, $NAS_port) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    if ($NAS_port =~ s/^5/1/) {
+        return $NAS_port;
+    } else {
+        $logger->warn("Unknown NAS-Port format. ifIndex translation could have failed. "
+            ."VLAN re-assignment and switch/port accounting will be affected.");
+    }
+    return $NAS_port;
 }
 
 =back

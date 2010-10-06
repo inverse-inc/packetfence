@@ -205,7 +205,7 @@ sub parseCommandLine {
                                      )
                                      (?:
                                        \s+ ( order ) \s+ ( by )
-                                       \s+ ( [a-z_]+ )
+                                       \s+ ( [a-z0-9_]+ )
                                        (?: \s+ ( asc | desc ))?
                                      )?
                                      (?:

@@ -34,7 +34,7 @@ Log::Log4perl::MDC->put('tid', 0);
 my $cgi = new CGI;
 my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 
-my $ip              = $cgi->remote_addr();
+my $ip              = get_client_ip($cgi);
 my $destination_url = $cgi->param("destination_url");
 my $mac             = ip2mac($ip);
 

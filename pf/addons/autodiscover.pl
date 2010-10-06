@@ -21,9 +21,11 @@ autodiscovert of nodes
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2008 Inverse inc.
+Copyright (C) 2007-2008,2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -62,6 +64,7 @@ use lib LIB_DIR;
 use pf::SwitchFactory;
 
 require 5.8.5;
+use pf::config;
 use pf::node;
 use pf::locationlog;
 use pf::util;
@@ -119,6 +122,7 @@ foreach my $switchDesc ( sort keys %{ $switchFactory->{'_config'} } ) {
                 print " -> vlan $vlan\n";
                 foreach my $mac ( @{ $allMacs->{$ifIndex}->{$vlan} } ) {
                     print "    - MAC: $mac";
+                    my $isPhone = NO_VOIP;
                     my $isFake = 0;
                     if ( $switch->isFakeMac($mac) ) {
                         print " (fake PC MAC)";
@@ -131,6 +135,7 @@ foreach my $switchDesc ( sort keys %{ $switchFactory->{'_config'} } ) {
                     if ( !$isFake ) {
                         if ( $switch->isPhoneAtIfIndex( $mac, $ifIndex ) ) {
                             print " (real VoIP MAC)";
+                            $isPhone = VOIP;
                             $nbPhones++;
                         } else {
                             $nbPCs++;
@@ -138,20 +143,17 @@ foreach my $switchDesc ( sort keys %{ $switchFactory->{'_config'} } ) {
                         }
                         if ( node_exist($mac) ) {
                             my $node_info = node_view($mac);
-                            if ( ( $node_info->{'switch'} ne $switch->{_ip} )
-                                || ( $node_info->{'port'} ne $ifIndex ) )
+                            if ( ( $node_info->{'last_switch'} ne $switch->{_ip} )
+                                || ( $node_info->{'last_port'} ne $ifIndex )
+                                || ($node_info->{'voip'} ne $isPhone)) 
                             {
                                 print
                                     "\n       node switch and port not up2date (old info is "
-                                    . $node_info->{'switch'}
-                                    . " ifIndex "
-                                    . $node_info->{'port'} . ")\n";
-                                node_modify(
-                                    $mac,
-                                    (   switch => $switch->{_ip},
-                                        port   => $ifIndex
-                                    )
-                                );
+                                    . "switch " . $node_info->{'last_switch'} . " "
+                                    . "ifIndex " . $node_info->{'last_port'} . " "
+                                    . "VoIP: " . $node_info->{'voip'} 
+                                    . ")\n";
+                                locationlog_synchronize($switch->{_ip}, $ifIndex, $vlan, $mac, $isPhone, '');
                                 print "switch: " . $switch->{_ip} . "\n";
                                 print "port: $ifIndex\n";
                             }
@@ -159,12 +161,7 @@ foreach my $switchDesc ( sort keys %{ $switchFactory->{'_config'} } ) {
                             print
                                 "\n       node $mac doesn't exist in node table\n";
                             node_add_simple($mac);
-                            node_modify(
-                                $mac,
-                                (   switch => $switch->{_ip},
-                                    port   => $ifIndex
-                                )
-                            );
+                            locationlog_synchronize($switch->{_ip}, $ifIndex, $vlan, $mac, $isPhone, '');
                             print "switch: " . $switch->{_ip} . "\n";
                             print "port: $ifIndex\n";
                         }
