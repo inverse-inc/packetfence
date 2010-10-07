@@ -1,4 +1,7 @@
 2010-10-07	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/radius.pm, pf/t/radius.t: Standardized method names to the
+	object form. Updated related tests.
+
 	* pf/lib/pf/SNMP/Cisco/Catalyst_2950.pm, 
 	pf/lib/pf/SNMP/Cisco/Catalyst_2960.pm, pf/lib/pf/SNMP/MockedSwitch.pm,
 	pf/lib/pf/SNMP.pm, pf/lib/pf/radius.pm, pf/t/data/switches.conf, 

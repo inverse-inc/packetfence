@@ -31,14 +31,14 @@ isa_ok($radius, 'pf::radius');
 # subs
 can_ok($radius, qw(
     authorize
-    doWeActOnThisCall
-    doWeActOnThisCall_wireless
-    doWeActOnThisCall_wired
-    _identify_connection_type
-    authorize_voip
-    isSwitchSupported
-    switchUnsupportedReply
-    translate_NasPort_to_ifIndex
+    _doWeActOnThisCall
+    _doWeActOnThisCallWireless
+    _doWeActOnThisCallWired
+    _identifyConnectionType
+    _authorizeVoip
+    _translateNasPortToIfIndex
+    _isSwitchSupported
+    _switchUnsupportedReply
 ));
 
 # Setup
@@ -86,7 +86,7 @@ my $switchFactory = new pf::SwitchFactory( -configFile => './data/switches.conf'
 my $switch = $switchFactory->instantiate('192.168.0.1');
 $switch->{_VoIPEnabled} = 1;
 
-$radius_response = $radius->authorize_voip(WIRED_MAC_AUTH_BYPASS, $switch, $mac, $port, $user_name, $ssid);
+$radius_response = $radius->_authorizeVoip(WIRED_MAC_AUTH_BYPASS, $switch, $mac, $port, $user_name, $ssid);
 is_deeply($radius_response,
     [$RADIUS::RLM_MODULE_FAIL, undef],
     "expect failure: VoIP phone on radius is not supported yet"

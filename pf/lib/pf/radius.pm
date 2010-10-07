@@ -67,11 +67,11 @@ sub authorize {
         "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP-Type => $eap_type, ".
         "mac => $mac, port => $port, username => $user_name, ssid => $ssid");
 
-    my $connection_type = $this->_identify_connection_type($nas_port_type, $eap_type);
+    my $connection_type = $this->_identifyConnectionType($nas_port_type, $eap_type);
 
     # TODO maybe it's in there that we should do all the magic that happened in rlm_perl_packetfence_sql
-    # meaning: the return should be decided by doWeActOnThisCall, not always $RADIUS::RLM_MODULE_NOOP
-    my $weActOnThisCall = $this->doWeActOnThisCall($connection_type, $switch_ip, $mac, $port, $user_name, $ssid);
+    # meaning: the return should be decided by _doWeActOnThisCall, not always $RADIUS::RLM_MODULE_NOOP
+    my $weActOnThisCall = $this->_doWeActOnThisCall($connection_type, $switch_ip, $mac, $port, $user_name, $ssid);
     if ($weActOnThisCall == 0) {
         $logger->info("We decided not to act on this radius call. Stop handling request from $switch_ip.");
         return [$RADIUS::RLM_MODULE_NOOP, undef];
@@ -106,11 +106,11 @@ sub authorize {
     }
 
     # verify if switch supports this connection type
-    if (!$this->isSwitchSupported($switch, $connection_type)) { 
+    if (!$this->_isSwitchSupported($switch, $connection_type)) { 
         # if not supported, return
-        return $this->switchUnsupportedReply($switch);
+        return $this->_switchUnsupportedReply($switch);
     }
-    $port = $this->translate_NasPort_to_ifIndex($connection_type, $switch, $port);
+    $port = $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
 
     # determine if we need to perform automatic registration
     my $isPhone = $switch->isPhoneAtIfIndex($mac);
@@ -129,9 +129,9 @@ sub authorize {
         }
     }
 
-    # if it's an IP Phone, let authorize_voip decide (extension point)
+    # if it's an IP Phone, let _authorizeVoip decide (extension point)
     if ($isPhone) {
-        return $this->authorize_voip($connection_type, $switch, $mac, $port, $user_name, $ssid);
+        return $this->_authorizeVoip($connection_type, $switch, $mac, $port, $user_name, $ssid);
     }
 
     # if switch is not in production, we don't interfere with it: we log and we return OK
@@ -144,11 +144,11 @@ sub authorize {
     }
 
     # grab vlan
-    my $vlan = $this->vlan_determine_for_node($vlan_obj, $mac, $switch, $port, $connection_type, $ssid);
+    my $vlan = $this->_findNodeVlan($vlan_obj, $mac, $switch, $port, $connection_type, $ssid);
 
     # should this node be kicked out?
     if (defined($vlan) && $vlan == -1) {
-        $logger->info("According to rules in vlan_determine_for_node this node must be kicked out. Returning USERLOCK");
+        $logger->info("According to rules in _findNodeVlan this node must be kicked out. Returning USERLOCK");
         $switch->disconnectRead();
         $switch->disconnectWrite();
         # FIXME make sure this works before next release
@@ -180,7 +180,7 @@ sub authorize {
     return [$RADIUS::RLM_MODULE_OK, %RAD_REPLY];
 }
 
-=item * vlan_determine_for_node - what VLAN should a node be put into
+=item * _findNodeVlan - what VLAN should a node be put into
         
 This sub is meant to be overridden in lib/pf/radius/custom.pm if the default 
 version doesn't do the right thing for you. However it is very generic, 
@@ -188,7 +188,7 @@ maybe what you are looking for needs to be done in pf::vlan's get_violation_vlan
 get_registration_vlan or get_normal_vlan.
     
 =cut    
-sub vlan_determine_for_node {
+sub _findNodeVlan {
     my ($this, $vlan_obj, $mac, $switch, $port, $connection_type, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
@@ -214,17 +214,17 @@ sub vlan_determine_for_node {
     return $vlan;
 }
 
-=item * doWeActOnThisCall - is this request of any interest?
+=item * _doWeActOnThisCall - is this request of any interest?
 
 Pass all the info you can
 
 returns 0 for no, 1 for yes
 
 =cut
-sub doWeActOnThisCall {
+sub _doWeActOnThisCall {
     my ($this, $connection_type, $switch_ip, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
-    $logger->trace("doWeActOnThisCall called");
+    $logger->trace("_doWeActOnThisCall called");
 
     # lets assume we don't act
     my $do_we_act = 0;
@@ -235,11 +235,11 @@ sub doWeActOnThisCall {
     if (defined($connection_type)) {
 
         if (($connection_type & WIRELESS) == WIRELESS) {
-            $do_we_act = $this->doWeActOnThisCall_wireless($connection_type, $switch_ip, $mac, 
+            $do_we_act = $this->_doWeActOnThisCallWireless($connection_type, $switch_ip, $mac, 
                 $port, $user_name, $ssid);
 
         } elsif (($connection_type & WIRED) == WIRED) {
-            $do_we_act = $this->doWeActOnThisCall_wired($connection_type, $switch_ip, $mac, $port, $user_name, $ssid);
+            $do_we_act = $this->_doWeActOnThisCallWired($connection_type, $switch_ip, $mac, $port, $user_name, $ssid);
         } else {
             $do_we_act = 0;
         } 
@@ -251,47 +251,47 @@ sub doWeActOnThisCall {
     return $do_we_act;
 }
 
-=item * doWeActOnThisCall_wireless - is this wireless request of any interest?
+=item * _doWeActOnThisCallWireless - is this wireless request of any interest?
 
 Pass all the info you can
 
 returns 0 for no, 1 for yes
 
 =cut
-sub doWeActOnThisCall_wireless {
+sub _doWeActOnThisCallWireless {
     my ($this, $connection_type, $switch_ip, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
-    $logger->trace("doWeActOnThisCall_wireless called");
+    $logger->trace("_doWeActOnThisCallWireless called");
 
     # for now we always act on wireless radius authorize
     return 1;
 }
 
-=item * doWeActOnThisCall_wired - is this wired request of any interest?
+=item * _doWeActOnThisCallWired - is this wired request of any interest?
 
 Pass all the info you can
         
 returns 0 for no, 1 for yes
     
 =cut
-sub doWeActOnThisCall_wired {
+sub _doWeActOnThisCallWired {
     my ($this, $connection_type, $switch_ip, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
-    $logger->trace("doWeActOnThisCall_wired called");
+    $logger->trace("_doWeActOnThisCallWired called");
 
     # for now we always act on wired radius authorize
     return 1;
 }
 
 
-=item * _identify_connection_type - identify the connection type based information provided by radius call
+=item * _identifyConnectionType - identify the connection type based information provided by radius call
 
 Need radius' NAS-Port-Type and EAP-Type
 
 Returns the constants WIRED or WIRELESS. Undef if unable to identify.
 
 =cut
-sub _identify_connection_type {
+sub _identifyConnectionType {
     my ($this, $nas_port_type, $eap_type) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
@@ -326,7 +326,7 @@ sub _identify_connection_type {
     }
 }
 
-=item * authorize_voip - radius authorization of VoIP
+=item * _authorizeVoip - radius authorization of VoIP
 
 All of the parameters from the authorize method call are passed just in case someone who override this sub 
 need it. However, connection_type is passed instead of nas_port_type and eap_type and the switch object 
@@ -335,7 +335,7 @@ instead of switch_ip.
 Returns the same structure as authorize(), see it's POD doc for details.
 
 =cut
-sub authorize_voip {
+sub _authorizeVoip {
     my ($this, $connection_type, $switch, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
@@ -351,17 +351,17 @@ sub authorize_voip {
     #return [$RADIUS::RLM_MODULE_OK, %RAD_REPLY];
 
     # TODO IP Phones authentication over Radius not supported by default because it seems vendor dependent
-    $logger->warn("Radius authentication of IP Phones is not enabled by default. Returning failure. See pf::radius's authorize_voip for details on how to activate it.");
+    $logger->warn("Radius authentication of IP Phones is not enabled by default. Returning failure. See pf::radius's _authorizeVoip for details on how to activate it.");
 
     $switch->disconnectRead();
     $switch->disconnectWrite();
     return [$RADIUS::RLM_MODULE_FAIL, undef];
 }
 
-=item * translate_NasPort_to_ifIndex - convert the number in NAS-Port into an ifIndex only when relevant
+=item * _translateNasPortToIfIndex - convert the number in NAS-Port into an ifIndex only when relevant
 
 =cut
-sub translate_NasPort_to_ifIndex {
+sub _translateNasPortToIfIndex {
     my ($this, $conn_type, $switch, $port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
@@ -372,10 +372,10 @@ sub translate_NasPort_to_ifIndex {
     return $port;
 }
 
-=item * isSwitchSupported - determines if switch is supported by current connection type
+=item * _isSwitchSupported - determines if switch is supported by current connection type
 
 =cut
-sub isSwitchSupported {
+sub _isSwitchSupported {
     my ($this, $switch, $conn_type) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
@@ -394,10 +394,10 @@ sub isSwitchSupported {
     }
 }
 
-=item * switchUnsupportedReply - what is sent to RADIUS when a switch is unsupported
+=item * _switchUnsupportedReply - what is sent to RADIUS when a switch is unsupported
 
 =cut
-sub switchUnsupportedReply {
+sub _switchUnsupportedReply {
     my ($this, $switch) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
