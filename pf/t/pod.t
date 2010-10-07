@@ -102,6 +102,7 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP/HP/Procurve_2600.pm',
     '/usr/local/pf/lib/pf/SNMP/HP/Procurve_3400cl.pm',
     '/usr/local/pf/lib/pf/SNMP/HP/Procurve_4100.pm',
+    '/usr/local/pf/lib/pf/SNMP/HP/Controller_MSM710.pm',
     '/usr/local/pf/lib/pf/SNMP/Intel/Express_460.pm',
     '/usr/local/pf/lib/pf/SNMP/Intel/Express_530.pm',
     '/usr/local/pf/lib/pf/SNMP/Intel.pm',
