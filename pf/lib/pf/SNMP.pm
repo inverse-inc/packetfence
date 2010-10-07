@@ -1165,13 +1165,44 @@ sub setPortSecurityViolationActionByIfIndex {
     return ( 0 == 1 );
 }
 
+=item supportsFloatingDevice - Returns 1 if switch type supports floating network devices
+
+=cut
 sub supportsFloatingDevice {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     $logger->error("Floating devices are not supported on switch type " . ref($this));
-    return 0;
-}   
+    return $FALSE;
+}
+
+=item supportsMacAuthBypass - Returns 1 if switch type supports MAC Authentication Bypass (Wired RADIUS mac-auth)
+
+=cut
+sub supportsMacAuthBypass {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error(
+        "MAC Authentication Bypass (MAB) (aka Wired RADIUS mac-authentication) "
+        . "is not supported on switch type " . ref($this) . ". Please let us know what hardware you are using."
+    );
+    return $FALSE;
+}
+
+=item supportsWiredDot1x - Returns 1 if switch type supports Wired 802.1X
+
+=cut
+sub supportsWiredDot1x {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error(
+        "Wired 802.1X is not supported is not supported on switch type " . ref($this) . ". "
+        . "Please let us know what hardware you are using."
+    );
+    return $FALSE;
+}
 
 sub enablePortSecurityByIfIndex {
     my ( $this, $ifIndex ) = @_;

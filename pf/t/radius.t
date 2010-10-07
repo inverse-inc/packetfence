@@ -10,7 +10,7 @@ my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
 
-use Test::More tests => 7;
+use Test::More tests => 10;
 
 use lib '/usr/local/pf/lib';
 use pf::config;
@@ -36,12 +36,15 @@ can_ok($radius, qw(
     doWeActOnThisCall_wired
     _identify_connection_type
     authorize_voip
+    isSwitchSupported
+    switchUnsupportedReply
+    translate_NasPort_to_ifIndex
 ));
 
 # Setup
 # MAB example
 my $nas_port_type  = "Ethernet";
-my $switch_ip      = "192.168.0.1";
+my $switch_ip      = "192.168.0.2";
 my $request_is_eap = 0;
 my $mac            = "aa:bb:cc:dd:ee:ff";
 my $port           = 12345;
@@ -65,12 +68,18 @@ is_deeply($radius_response,
 $switch_ip = "10.0.0.100";
 $radius_response = $radius->authorize($nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid);
 is_deeply($radius_response, 
-    [$RADIUS::RLM_MODULE_OK, (
-        'Tunnel-Private-Group-ID'=> $regist_vlan,
-        'Tunnel-Type'            => 13,
-        'Tunnel-Medium-Type'     => 6)],
-    "expect graceful failure: switch doesn't exist but it will return default registration VLAN"
+    [$RADIUS::RLM_MODULE_FAIL, undef],
+    "expect failure: switch doesn't exist"
 );
+
+# switch doesn't support MAB
+$switch_ip = "192.168.0.1";
+$radius_response = $radius->authorize($nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid);
+is_deeply($radius_response, 
+    [$RADIUS::RLM_MODULE_FAIL, undef],
+    "expect failure: switch doesn't support MAB"
+);
+
 
 # VoIP tests
 my $switchFactory = new pf::SwitchFactory( -configFile => './data/switches.conf' );
@@ -83,3 +92,29 @@ is_deeply($radius_response,
     "expect failure: VoIP phone on radius is not supported yet"
 );
 
+# Wired 802.1X example
+$nas_port_type  = "Ethernet";
+$switch_ip      = "192.168.0.1";
+$request_is_eap = 1;
+$mac            = "aa:bb:cc:dd:ee:ff";
+$port           = 12345;
+$user_name      = "aabbccddeeff";
+$ssid           = "";
+
+# switch doesn't support 802.1X 
+$radius_response = $radius->authorize($nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid);
+is_deeply($radius_response, 
+    [$RADIUS::RLM_MODULE_FAIL, undef],
+    "expect failure: switch doesn't support wired 802.1X"
+);
+
+# standard 802.1X query, expect registration
+$switch_ip      = "192.168.0.2";
+$radius_response = $radius->authorize($nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid);
+is_deeply($radius_response, 
+    [$RADIUS::RLM_MODULE_OK, (
+        'Tunnel-Private-Group-ID'=> $regist_vlan,
+        'Tunnel-Type'            => 13,
+        'Tunnel-Medium-Type'     => 6)],
+    "802.1X request expect registration vlan"
+);

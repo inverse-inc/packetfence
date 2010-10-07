@@ -98,17 +98,18 @@ sub authorize {
 
     # is switch object correct?
     if (!$switch) {
-        $logger->warn("Can't instantiate switch $switch_ip. I will use the default switch for now. "
-            ."Are you sure your switches.conf is correct?");
-        $switch = $switchFactory->instantiate('default');
-        if (!$switch) {
-            $logger->error("Can't instantiate default switch! Check switches.conf. "
-                . "Don't expect PacketFence to run fine");
-            return [$RADIUS::RLM_MODULE_FAIL, undef];
-        }
-        $switch->{_mode} = 'production'; # set this switch instance in production
+        $logger->warn(
+            "Can't instantiate switch $switch_ip. This request will be failed. "
+            ."Are you sure your switches.conf is correct?"
+        );
+        return [$RADIUS::RLM_MODULE_FAIL, undef];
     }
 
+    # verify if switch supports this connection type
+    if (!$this->isSwitchSupported($switch, $connection_type)) { 
+        # if not supported, return
+        return $this->switchUnsupportedReply($switch);
+    }
     $port = $this->translate_NasPort_to_ifIndex($connection_type, $switch, $port);
 
     # determine if we need to perform automatic registration
@@ -369,6 +370,41 @@ sub translate_NasPort_to_ifIndex {
         return $switch->NasPortToIfIndex($port);
     }
     return $port;
+}
+
+=item * isSwitchSupported - determines if switch is supported by current connection type
+
+=cut
+sub isSwitchSupported {
+    my ($this, $switch, $conn_type) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    if ($conn_type == WIRED_MAC_AUTH_BYPASS) {
+        return $switch->supportsMacAuthBypass();
+    } elsif ($conn_type == WIRED_802_1X) {
+        return $switch->supportsWiredDot1x();
+    } elsif ($conn_type == WIRELESS_MAC_AUTH) {
+        # TODO implement supportsWirelessMacAuth (or supportsWireless)
+        $logger->trace("Wireless doesn't have a supports...() call for now, always say it's supported");
+        return $TRUE;
+    } elsif ($conn_type == WIRELESS_802_1X) {
+        # TODO implement supportsWirelessMacAuth (or supportsWireless)
+        $logger->trace("Wireless doesn't have a supports...() call for now, always say it's supported");
+        return $TRUE;
+    }
+}
+
+=item * switchUnsupportedReply - what is sent to RADIUS when a switch is unsupported
+
+=cut
+sub switchUnsupportedReply {
+    my ($this, $switch) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    $logger->warn("Sending REJECT since switch is unspported");
+    $switch->disconnectRead();
+    $switch->disconnectWrite();
+    return [$RADIUS::RLM_MODULE_FAIL, undef];
 }
 
 =back

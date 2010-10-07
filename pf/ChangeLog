@@ -1,3 +1,15 @@
+2010-10-07	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Cisco/Catalyst_2950.pm, 
+	pf/lib/pf/SNMP/Cisco/Catalyst_2960.pm, pf/lib/pf/SNMP/MockedSwitch.pm,
+	pf/lib/pf/SNMP.pm, pf/lib/pf/radius.pm, pf/t/data/switches.conf, 
+	pf/t/radius.t: pf::radius now verifies if switch supports Wired MAB 
+	and 802.1X before processing request.
+	Change of default behavior: A request from a switch not defined in 
+	switches.conf will fail now. Before we were trying to be nice and load 
+	the settings of the default switch but we decided that it wasn't nice 
+	for users if they don't realize something wrong first.
+	Made test pass and added a couple of them.
+
 2010-10-06	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/conf/dhcp_fingerprints.conf: Added HP ProCurve Access Point and
 	Controller fingerprints and Ricoh MFP.
