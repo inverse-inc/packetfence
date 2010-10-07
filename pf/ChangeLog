@@ -1,4 +1,8 @@
 2010-10-07	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/locationlog.pm, pf/sbin/pfsetvlan: Important fixes to the
+	changes introduced for #995 and #1002. SQL errors and pfsetvlan thread
+	crashes.
+
 	* pf/lib/pf/radius.pm, pf/t/radius.t: Standardized method names to the
 	object form. Updated related tests.
 

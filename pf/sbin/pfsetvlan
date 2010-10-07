@@ -1855,7 +1855,7 @@ sub do_port_security {
         my $old_switch = $locationlog_mac->{'switch'};
         my $old_port   = $locationlog_mac->{'port'};
         my $old_vlan   = $locationlog_mac->{'vlan'};
-        my $is_old_voip = node_is_voip($mac);
+        my $is_old_voip = is_node_voip($mac);
 
     #we have to enter to 'if' always when trapType eq 'secureMacAddrViolation'
         if (   ( $old_switch ne $switch->{_ip} )

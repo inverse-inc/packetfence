@@ -202,14 +202,14 @@ sub locationlog_db_prepare {
 
     $locationlog_statements->{'locationlog_update_end_switchport_no_VoIP_sql'} = get_db_handle()->prepare(qq[
         UPDATE locationlog
-            INNER JOIN node (mac)
+            INNER JOIN node USING (mac)
         SET end_time = now()
         WHERE switch = ? AND port = ? AND (node.voip='no' or node.voip='') AND (ISNULL(end_time) or end_time = 0)
     ]);
 
     $locationlog_statements->{'locationlog_update_end_switchport_only_VoIP_sql'} = get_db_handle()->prepare(qq[
         UPDATE locationlog
-            INNER JOIN node (mac)
+            INNER JOIN node USING (mac)
         SET end_time = now()
         WHERE switch = ? AND port = ? AND node.voip='yes' AND (ISNULL(end_time) or end_time = 0)
     ]);
