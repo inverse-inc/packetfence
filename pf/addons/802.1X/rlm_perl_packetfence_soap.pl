@@ -268,6 +268,18 @@ sub find_ssid {
         }
     } elsif (defined($RAD_REQUEST{'Aruba-Essid-Name'})) {
         return $RAD_REQUEST{'Aruba-Essid-Name'};
+    } elsif (defined($RAD_REQUEST{'Colubris-AVPair'})) {
+        # With HP Procurve AP Ccontroller, we receive an array of settings in Colubris-AVPair:
+        # Colubris-AVPair = ssid=Inv_Controller
+        # Colubris-AVPair = group=Default Group
+        # Colubris-AVPair = phytype=IEEE802dot11g
+        my @result = grep(/^ssid=/, @{$RAD_REQUEST{'Colubris-AVPair'}});
+        if ( (@result > 0) && ($result[0] =~ m/^ssid=(.*)/) ) {
+            return $1;
+        } else {
+            syslog("info", "Unable to parse SSID out of Colubris-AVPair: ".$RAD_REQUEST{'Colubris-AVPair'});
+            return;
+        }
     } else {
         return;
     } 

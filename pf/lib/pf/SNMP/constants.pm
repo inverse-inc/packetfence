@@ -190,9 +190,31 @@ Readonly::Scalar our $DELETE => 3;
 
 =back
 
+=head1 HP
+
+HP ProCurve Constants
+
+=over 
+
+=cut
+package HP;
+
+=item coDevWirCliDisassociate - Disassociate the wireless client (from COLUBRIS-DEVICE-WIRELESS-MIB)
+
+ idle(0),
+ disassociate(1)
+
+=cut
+Readonly::Scalar our $IDLE => 0;
+Readonly::Scalar our $DISASSOCIATE => 1;
+
+=back
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Regis Balzard <rbalzard@inverse.ca>
 
 =head1 COPYRIGHT
 
