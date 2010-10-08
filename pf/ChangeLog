@@ -1,3 +1,7 @@
+2010-10-08	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/802.1X/rlm_perl_packetfence_soap.pl: Improved SSID
+	autodetection for Colubris Wirless (HP ProCurve) 
+
 2010-10-07	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/locationlog.pm, pf/sbin/pfsetvlan: Important fixes to the
 	changes introduced for #995 and #1002. SQL errors and pfsetvlan thread
