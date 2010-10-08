@@ -19,9 +19,10 @@ use base ('pf::SNMP::HP');
 use POSIX;
 use Log::Log4perl;
 use Net::Telnet;
-use pf::util;
 
-use constant AUTH_DOT1X => 4;
+# importing switch constants
+use pf::SNMP::constants;
+use pf::util;
 
 =head1 SUBROUTINES
 
@@ -33,7 +34,7 @@ use constant AUTH_DOT1X => 4;
 
 sub getVersion {
     my ($this)       = @_;
-    my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';
+    my $oid_sysDescr = '1.3.6.1.2.1.1.1.0'; #SNMPv2-MIB
     my $logger       = Log::Log4perl::get_logger( ref($this) );
     if ( !$this->connectRead() ) {
         return '';
@@ -54,26 +55,26 @@ sub getVersion {
 
 =cut
 
-sub parseTrap {
-    my ( $this, $trapString ) = @_;
-    my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-
-    # COLUBRIS-DEVICE-EVENT-MIB :: coDeviceEventSuccessfulDeAuthentication :: 1.3.6.1.4.1.8744.5.26.2.0.9
-    # COLUBRIS-DEVICE-EVENT-MIB :: coDevEvDetMacAddress ::                    1.3.6.1.4.1.8744.5.26.1.2.2.1.2
-
-    if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.8744\.5\.26\.2\.0\.9[|]\.1\.3\.6\.1\.4\.1\.8744\.5\.26\.1\.2\.2\.1\.2.+ = Hex-STRING: ([0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2})/) {
-        $trapHashRef->{'trapType'}    = 'dot11Deauthentication';
-        $trapHashRef->{'trapIfIndex'} = "WIFI";
-        $trapHashRef->{'trapMac'}     = lc($1);
-        $trapHashRef->{'trapMac'} =~ s/ /:/g;
-
-    } else {
-        $logger->debug("trap currently not handled");
-        $trapHashRef->{'trapType'} = 'unknown';
-    }
-    return $trapHashRef;
-}
+#sub parseTrap {
+#    my ( $this, $trapString ) = @_;
+#    my $trapHashRef;
+#    my $logger = Log::Log4perl::get_logger( ref($this) );
+#
+#    # COLUBRIS-DEVICE-EVENT-MIB :: coDeviceEventSuccessfulDeAuthentication :: 1.3.6.1.4.1.8744.5.26.2.0.9
+#    # COLUBRIS-DEVICE-EVENT-MIB :: coDevEvDetMacAddress ::                    1.3.6.1.4.1.8744.5.26.1.2.2.1.2
+#
+#    if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.8744\.5\.26\.2\.0\.9[|]\.1\.3\.6\.1\.4\.1\.8744\.5\.26\.1\.2\.2\.1\.2.+Hex-STRING: ([0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2})/) {
+#        $trapHashRef->{'trapType'}    = 'dot11Deauthentication';
+#        $trapHashRef->{'trapIfIndex'} = "WIFI";
+#        $trapHashRef->{'trapMac'}     = lc($1);
+#        $trapHashRef->{'trapMac'} =~ s/ /:/g;
+#
+#    } else {
+#        $logger->debug("trap currently not handled");
+#        $trapHashRef->{'trapType'} = 'unknown';
+#    }
+#    return $trapHashRef;
+#}
 
 =item deauthenticateMac - deauthenticate a MAC address from wireless network (including 802.1x) through SNMP
 
@@ -94,25 +95,28 @@ sub deauthenticateMac {
     $logger->trace("SNMP get_table for coDevWirCliStaMACAddress: $OID_coDevWirCliStaMACAddress");
     my $result = $this->{_sessionWrite}->get_table(-baseoid => "$OID_coDevWirCliStaMACAddress");
     if (keys %{$result}) {
-	my $count = 0;
+        my $count = 0;
         foreach my $key ( keys %{$result} ) {
             $result->{$key} =~ /0x([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})/i;
             my $coDevWirCliStaMACAddress = "$1:$2:$3:$4:$5:$6";
             if ($coDevWirCliStaMACAddress eq $mac) {
                 $key =~ /^$OID_coDevWirCliStaMACAddress\.(\d+).(\d+).(\d+)$/;
-	        my $coDevWirCliStaIndex = "$1.$2.$3";
+                my $coDevWirCliStaIndex = "$1.$2.$3";
 
                 $logger->debug("deauthenticating $mac on controller " . $this->{_ip});
-		$logger->trace("SNMP set_request for coDevWirCliDisassociate: $OID_coDevWirCliDisassociate.$coDevWirCliStaIndex = 1" );
-    		$result = $this->{_sessionWrite}->set_request(-varbindlist => [
-		    "$OID_coDevWirCliDisassociate.$coDevWirCliStaIndex", Net::SNMP::INTEGER, 1]);
-    		$count++;
-		last;
+                $logger->trace("SNMP set_request for coDevWirCliDisassociate: 
+                    $OID_coDevWirCliDisassociate.$coDevWirCliStaIndex = $HP::DISASSOCIATE" );
+                $result = $this->{_sessionWrite}->set_request(-varbindlist => [
+                    "$OID_coDevWirCliDisassociate.$coDevWirCliStaIndex", 
+                    Net::SNMP::INTEGER,
+                    $HP::DISASSOCIATE]);
+                $count++;
+                last;
             }
         }
-	if ($count == 0) {
+        if ($count == 0) {
             $logger->warn("Can not deauthenticate $mac on controller " . $this->{_ip} . " because it does not seem to be associated!");
-	}
+        }
     } else {
         $logger->error("Can not get the list of associated devices on controller " . $this->{_ip});
     }
