@@ -23,6 +23,7 @@ Enhancements
 Bug fixes
 - No error reporting when trying to change configuration files with bad rights
   (#1088)
+- Violation priorities are now enforced according to documentation (1 highest)
 
 --------------------------------------------------------------------------------
 Version 1.9.1 released on 2010-09-22

@@ -1,4 +1,8 @@
 2010-10-08	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/violation.pm: Fixes to violation priorities. They were
+	inforced in the reverse order which broke scans when using default
+	configuration files.
+
 	* pf/bin/pfcmd: Better error reporting on file permission errors.
 	Fixes #1088;
 	http://www.packetfence.org/bugs/view.php?id=1088
