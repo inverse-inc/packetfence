@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 139;
+use Test::More tests => 141;
 use lib '/usr/local/pf/lib';
 my $lib_path = '/usr/local/pf/lib';
 
@@ -54,6 +54,7 @@ BEGIN { use_ok('pf::SNMP::HP::Procurve_2500') }
 BEGIN { use_ok('pf::SNMP::HP::Procurve_2600') }
 BEGIN { use_ok('pf::SNMP::HP::Procurve_3400cl') }
 BEGIN { use_ok('pf::SNMP::HP::Procurve_4100') }
+BEGIN { use_ok('pf::SNMP::HP::Controller_MSM710') }
 BEGIN { use_ok('pf::SNMP::Intel') }
 BEGIN { use_ok('pf::SNMP::Intel::Express_460') }
 BEGIN { use_ok('pf::SNMP::Intel::Express_530') }
@@ -124,6 +125,7 @@ my @SNMPobjects = qw(
     pf::SNMP::HP::Procurve_2600
     pf::SNMP::HP::Procurve_3400cl
     pf::SNMP::HP::Procurve_4100
+    pf::SNMP::HP::Controller_MSM710
     pf::SNMP::Intel
     pf::SNMP::Intel::Express_460
     pf::SNMP::Intel::Express_530

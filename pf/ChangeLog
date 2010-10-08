@@ -2,6 +2,19 @@
 	* pf/addons/802.1X/rlm_perl_packetfence_soap.pl: Improved SSID
 	autodetection for Colubris Wirless (HP ProCurve) 
 
+2010-10-08	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/violation.pm: Fixes to violation priorities. They were
+	inforced in the reverse order which broke scans when using default
+	configuration files.
+
+	* pf/bin/pfcmd: Better error reporting on file permission errors.
+	Fixes #1088;
+	http://www.packetfence.org/bugs/view.php?id=1088
+
+	* pf/t/coding-style.t: New coding-style test suite that validates
+	presence of tab characters for now. Added to all and smoke test
+	suites.
+
 2010-10-07	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/locationlog.pm, pf/sbin/pfsetvlan: Important fixes to the
 	changes introduced for #995 and #1002. SQL errors and pfsetvlan thread
@@ -20,6 +33,13 @@
 	the settings of the default switch but we decided that it wasn't nice 
 	for users if they don't realize something wrong first.
 	Made test pass and added a couple of them.
+
+2010-10-07      Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/SNMP/HP/Controller_MSM710.pm, pf/README_SWITCHES, 
+	pf/html/admin/configuration/switches_add.php,
+	pf/html/admin/configuration/switches_edit.php, pf/t/critic.t, 
+	pf/t/hardware-snmp-objects.t, pf/t/pod.t: Added support for HP ProCurve
+	MSM710 Mobility Controller.
 
 2010-10-06	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/conf/dhcp_fingerprints.conf: Added HP ProCurve Access Point and

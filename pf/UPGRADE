@@ -42,6 +42,14 @@ o Upgrading from a version prior to <release>:
 
 o Upgrading from a version prior to <release>:
 
+    - Violation priority enforcement
+    Violation priorities are now properly enforced: 1 means highest priority
+    and 10 means lowest priority. Even if documentation said so, before this 
+    release, the code enforced it the other way around. This affects what 
+    violation is shown on multiple violations (it will favor highest) and has
+    most impact when Nessus scanning is used. Since this is a default behavior
+    change, you should double check your config!
+
     - FreeRADIUS module changes require configuration changes
     PacketFence's operations in the FreeRADIUS module are now done in the 
     post-auth section instead of the authorize section of the FreeRADIUS 

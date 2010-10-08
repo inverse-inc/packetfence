@@ -117,8 +117,12 @@ sub violation_db_prepare {
     $violation_statements->{'violation_view_open_all_sql'} = get_db_handle()->prepare(
         qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where status="open" ]);
 
-    $violation_statements->{'violation_view_top_sql'} = get_db_handle()->prepare(
-        qq [ select id,mac,v.vid,start_date,release_date,status,ticket_ref,notes from violation v, class c where v.vid=c.vid and mac=? and status="open" order by priority desc limit 1]);
+    $violation_statements->{'violation_view_top_sql'} = get_db_handle()->prepare(qq[
+        SELECT id, mac, v.vid, start_date, release_date, status, ticket_ref, notes 
+        FROM violation v, class c 
+        WHERE v.vid=c.vid AND mac=? AND status="open" 
+        ORDER BY priority ASC LIMIT 1
+    ]);
 
     $violation_statements->{'violation_view_all_active_sql'} = get_db_handle()->prepare(
         qq [ select v.mac,v.vid,v.start_date,v.release_date,v.status,v.ticket_ref,v.notes,i.ip,i.start_time,i.end_time from violation v left join iplog i on v.mac=i.mac where v.status="open" and i.end_time=0 group by v.mac]);
@@ -579,3 +583,7 @@ USA.
 =cut
 
 1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:

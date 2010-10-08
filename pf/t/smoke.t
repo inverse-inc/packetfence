@@ -19,6 +19,7 @@ use Test::Harness;
 
 runtests(qw(
     binaries.t
+    coding-style.t
     pf.t
     hardware-snmp-objects.t
     SNMP.t

@@ -192,7 +192,7 @@ Readonly::Scalar our $DELETE => 3;
 
 =head1 HP
 
-HP ProCurve Constants
+HP ProCurve constants
 
 =over 
 
