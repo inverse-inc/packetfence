@@ -13,6 +13,7 @@ runtests( qw(
               SwitchFactory.t
               binaries.t
               config.t
+	      coding-style.t
               critic.t
               hardware-snmp-objects.t
               pod.t
