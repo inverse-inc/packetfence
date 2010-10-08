@@ -1,3 +1,8 @@
+2010-10-08	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/t/coding-style.t: New coding-style test suite that validates
+	presence of tab characters for now. Added to all and smoke test
+	suites.
+
 2010-10-07      Regis Balzard <rbalzard@inverse.ca>
 	* pf/lib/pf/SNMP/HP/Controller_MSM710.pm, pf/README_SWITCHES, 
 	pf/html/admin/configuration/switches_add.php,
