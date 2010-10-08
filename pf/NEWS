@@ -20,6 +20,10 @@ Enhancements
 - FreeRADIUS module improvements (#1034)
 - New DHCP fingerprints (HP ProCurve Wireless and Ricoh MFP)
 
+Bug fixes
+- No error reporting when trying to change configuration files with bad rights
+  (#1088)
+
 --------------------------------------------------------------------------------
 Version 1.9.1 released on 2010-09-22
 

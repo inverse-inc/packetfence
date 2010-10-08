@@ -476,7 +476,9 @@ sub violationconfig {
             if ( tied(%violations_conf)->SectionExists($section) ) {
                 tied(%violations_conf)->DeleteSection($section);
                 tied(%violations_conf)
-                    ->WriteConfig( $conf_dir . "/violations.conf" );
+                    ->WriteConfig( $conf_dir . "/violations.conf" )
+                    or $logger->logdie("Unable to write config to $conf_dir/violations.conf. "
+                        ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
                 require pf::configfile;
                 import pf::configfile;
                 configfile_import( $conf_dir . "/violations.conf" );
@@ -522,7 +524,9 @@ sub violationconfig {
                 }
             }
             tied(%violations_conf)
-                ->WriteConfig( $conf_dir . "/violations.conf" );
+                ->WriteConfig( $conf_dir . "/violations.conf" )
+                or $logger->logdie("Unable to write config to $conf_dir/violations.conf. "
+                    ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
             import pf::configfile;
             configfile_import( $conf_dir . "/violations.conf" );
@@ -545,7 +549,9 @@ sub violationconfig {
                 }
             }
             tied(%violations_conf)
-                ->WriteConfig( $conf_dir . "/violations.conf" );
+                ->WriteConfig( $conf_dir . "/violations.conf" )
+                or $logger->logdie("Unable to write config to $conf_dir/violations.conf. "
+                    ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
             import pf::configfile;
             configfile_import( $conf_dir . "/violations.conf" );
@@ -830,7 +836,9 @@ sub interfaceconfig {
         } else {
             if ( tied(%pf_conf)->SectionExists($section_name) ) {
                 tied(%pf_conf)->DeleteSection($section_name);
-                tied(%pf_conf)->WriteConfig( $conf_dir . "/pf.conf" );
+                tied(%pf_conf)->WriteConfig( $conf_dir . "/pf.conf" )
+                    or $logger->logdie("Unable to write config to $conf_dir/pf.conf. "
+                        ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
                 require pf::configfile;
                 import pf::configfile;
                 configfile_import( $conf_dir . "/pf.conf" );
@@ -852,7 +860,9 @@ sub interfaceconfig {
                     tied(%pf_conf)->newval( $section_name, $param, $value );
                 }
             }
-            tied(%pf_conf)->WriteConfig( $conf_dir . "/pf.conf" );
+            tied(%pf_conf)->WriteConfig( $conf_dir . "/pf.conf" )
+                or $logger->logdie("Unable to write config to $conf_dir/pf.conf. "
+                    ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
             import pf::configfile;
             configfile_import( $conf_dir . "/pf.conf" );
@@ -870,7 +880,9 @@ sub interfaceconfig {
                 my ( $param, $value ) = @$assignment;
                 tied(%pf_conf)->newval( $section_name, $param, $value );
             }
-            tied(%pf_conf)->WriteConfig( $conf_dir . "/pf.conf" );
+            tied(%pf_conf)->WriteConfig( $conf_dir . "/pf.conf" )
+                or $logger->logdie("Unable to write config to $conf_dir/pf.conf. "
+                    ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
             import pf::configfile;
             configfile_import( $conf_dir . "/pf.conf" );
@@ -1543,7 +1555,9 @@ sub config {
             } elsif ( $defaults{$section}{$parm} ne $value ) {
                 tied(%myconfig)->newval( $section, $parm, $value );
             }
-            tied(%myconfig)->WriteConfig( $conf_dir . "/pf.conf" );
+            tied(%myconfig)->WriteConfig( $conf_dir . "/pf.conf" )
+                or $logger->logdie("Unable to write config to $conf_dir/pf.conf. "
+                    ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
             import pf::configfile;
             configfile_import( $conf_dir . "/pf.conf" );

@@ -1,4 +1,8 @@
 2010-10-08	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd: Better error reporting on file permission errors.
+	Fixes #1088;
+	http://www.packetfence.org/bugs/view.php?id=1088
+
 	* pf/t/coding-style.t: New coding-style test suite that validates
 	presence of tab characters for now. Added to all and smoke test
 	suites.
