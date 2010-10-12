@@ -164,6 +164,10 @@ sub instantiate {
             || $SwitchConfig{'default'}{'wsTransport'}
             || 'http'
         ),
+        '-radiusSecret' => (
+            $SwitchConfig{$requestedSwitch}{'radiusSecret'}
+            || $SwitchConfig{'default'}{'radiusSecret'}
+        ),
         '-ip'            => $requestedSwitch,
         '-isolationVlan' => (
                    $SwitchConfig{$requestedSwitch}{'isolationVlan'}

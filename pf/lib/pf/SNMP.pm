@@ -88,6 +88,7 @@ sub new {
         '_wsPwd'                    => undef,
         '_wsUser'                   => undef,
         '_wsTransport'              => undef,
+        '_radiusSecret'             => undef,
         '_uplink'                   => undef,
         '_vlans'                    => undef,
         '_voiceVlan'                => undef,
@@ -183,6 +184,8 @@ sub new {
             $this->{_wsUser} = $argv{$_};
         } elsif (/^-?wsTransport$/i) {
             $this->{_wsTransport} = lc($argv{$_});
+        } elsif (/^-?radiusSecret$/i) {
+            $this->{_radiusSecret} = lc($argv{$_});
         } elsif (/^-?uplink$/i) {
             $this->{_uplink} = $argv{$_};
         } elsif (/^-?SNMPEngineID$/i) {

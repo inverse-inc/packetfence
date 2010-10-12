@@ -5,9 +5,8 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 135;
+use Test::More tests => 137;
 
-# file list copied from critic.t
 my @files = (
     '/usr/local/pf/addons/accounting.pl',
     '/usr/local/pf/addons/autodiscover.pl',
@@ -35,6 +34,7 @@ my @files = (
     '/usr/local/pf/lib/pf/db.pm',
     '/usr/local/pf/lib/pf/floatingdevice.pm',
     '/usr/local/pf/lib/pf/floatingdevice/custom.pm',
+    '/usr/local/pf/lib/pf/freeradius.pm',
     '/usr/local/pf/lib/pf/ifoctetslog.pm',
     '/usr/local/pf/lib/pf/iplog.pm',
     '/usr/local/pf/lib/pf/iptables.pm',

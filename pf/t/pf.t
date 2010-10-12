@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 39;
+use Test::More tests => 40;
 
 # pf core libs
 use lib '/usr/local/pf/lib';
@@ -16,6 +16,7 @@ BEGIN { use_ok('pf::config') }
 BEGIN { use_ok('pf::db') }
 BEGIN { use_ok('pf::floatingdevice') }
 BEGIN { use_ok('pf::floatingdevice::custom') }
+BEGIN { use_ok('pf::freeradius') }
 BEGIN { use_ok('pf::ifoctetslog') }
 BEGIN { use_ok('pf::iplog') }
 BEGIN { use_ok('pf::locationlog') }

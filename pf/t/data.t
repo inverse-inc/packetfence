@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 91;
+use Test::More tests => 96;
 use lib '/usr/local/pf/lib';
 
 # Test all modules that provides data
@@ -13,6 +13,7 @@ BEGIN {
     use_ok('pf::action');
     use_ok('pf::class');
     use_ok('pf::configfile');
+    use_ok('pf::freeradius');
     use_ok('pf::ifoctetslog');
     use_ok('pf::iplog');
     use_ok('pf::locationlog');
@@ -34,6 +35,7 @@ my @data_modules = qw(
     pf::action
     pf::class
     pf::configfile
+    pf::freeradius
     pf::ifoctetslog
     pf::iplog
     pf::locationlog

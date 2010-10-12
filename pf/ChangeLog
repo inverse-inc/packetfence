@@ -1,3 +1,18 @@
+2010-10-12	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/freeradius-integration, 
+	pf/addons/freeradius-integration/README, 
+	pf/addons/freeradius-integration/freeradius-nas-table.sql, 
+	pf/lib/pf/freeradius.pm, pf/bin/pfcmd, pf/conf/switches.conf, 
+	pf/conf/ui.conf, pf/html/admin/configuration/switches.php,
+	pf/lib/pf/SNMP.pm, pf/lib/pf/SwitchFactory.pm, pf/lib/pf/pfcmd/pfcmd.pm,
+	pf/t/SwitchFactory.t, pf/t/coding-style.t, pf/t/critic.t, 
+	pf/t/data/switches.conf, pf/t/data.t, pf/t/pf.t: New radiusSecret 
+	parameter in conf/switches.conf. This allows to automatically configure
+	FreeRADIUS' clients.conf (NAS aka client switches or APs). Right now
+	it's disabled by default but one can enable it using the new addons
+	instructions (addons/freeradius-integration/README). Fixes #1028;
+	http://www.packetfence.org/bugs/view.php?id=1028
+
 2010-10-08	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/web.pm: A well-placed typo was introduced in revno: 
 	bb21d5f588c910e0c0bbc73881056dde72017518. I'm glad I fixed it.

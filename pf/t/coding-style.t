@@ -41,6 +41,7 @@ my @files = (
     '/usr/local/pf/lib/pf/db.pm',
     '/usr/local/pf/lib/pf/floatingdevice.pm',
     '/usr/local/pf/lib/pf/floatingdevice/custom.pm',
+    '/usr/local/pf/lib/pf/freeradius.pm',
     '/usr/local/pf/lib/pf/ifoctetslog.pm',
     '/usr/local/pf/lib/pf/iplog.pm',
     '/usr/local/pf/lib/pf/iptables.pm',
