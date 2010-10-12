@@ -25,7 +25,6 @@ my @files = (
     '/usr/local/pf/addons/802.1X/rlm_perl_packetfence_soap.pl',
     '/usr/local/pf/addons/802.1X/rlm_perl_packetfence_sql.pl',
     '/usr/local/pf/addons/mrtg/mrtg-wrapper.pl',
-    '/usr/local/pf/addons/pfdetect_remote/sbin/pfdetect_remote',
     '/usr/local/pf/bin/flip.pl',
     '/usr/local/pf/bin/pfcmd',
     '/usr/local/pf/bin/pfcmd_vlan',
