@@ -25,6 +25,7 @@ runtests(qw(
     SNMP.t
     SwitchFactory.t
     php.t
+    pod.t
 ));
 
 =head1 AUTHOR
