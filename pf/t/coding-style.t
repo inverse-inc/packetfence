@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 238;
+use Test::More tests => 239;
 
 # TODO we should have a global file list
 my @files = (
@@ -22,7 +22,8 @@ my @files = (
     '/usr/local/pf/addons/loadMACintoDB.pl',
     '/usr/local/pf/addons/monitorpfsetvlan.pl',
     '/usr/local/pf/addons/recovery.pl',
-    '/usr/local/pf/addons/802.1X/rlm_perl_packetfence.pl',
+    '/usr/local/pf/addons/802.1X/rlm_perl_packetfence_soap.pl',
+    '/usr/local/pf/addons/802.1X/rlm_perl_packetfence_sql.pl',
     '/usr/local/pf/addons/mrtg/mrtg-wrapper.pl',
     '/usr/local/pf/addons/pfdetect_remote/sbin/pfdetect_remote',
     '/usr/local/pf/bin/flip.pl',
