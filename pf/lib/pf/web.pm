@@ -463,9 +463,12 @@ sub web_node_record_user_agent {
     if ( scalar(@user_agent_info) && ( ref( $user_agent_info[0] ) eq 'HASH' ) ) {
 
         # is there a violation on this user agent?
-        $logger->debug("sending USERAGENT::".$user_agent_info[0]->{'useragent_id'}." (".$user_agent_info[0]->{'useragent'}.") trigger");
+        $logger->debug(
+            "sending USERAGENT::".$user_agent_info[0]->{'useragent_id'}
+            ." (".$user_agent_info[0]->{'useragent'}.") trigger"
+        );
         require pf::violation;
-        pf::violation::violation_trigger( $mac, $user_agent_info[2]->{'useragent_id'}, "USERAGENT" );
+        pf::violation::violation_trigger( $mac, $user_agent_info[0]->{'useragent_id'}, "USERAGENT" );
 
     } else {
         $logger->info("unknown User-Agent: " . $user_agent);

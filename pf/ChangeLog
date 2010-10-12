@@ -1,4 +1,8 @@
 2010-10-08	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/web.pm: A well-placed typo was introduced in revno: 
+	bb21d5f588c910e0c0bbc73881056dde72017518. I'm glad I fixed it.
+	Also improved indentation of the logger call while I was at it.
+
 	* pf/lib/pf/violation.pm: Fixes to violation priorities. They were
 	inforced in the reverse order which broke scans when using default
 	configuration files.
