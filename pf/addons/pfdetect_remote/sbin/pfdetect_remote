@@ -30,24 +30,24 @@ use warnings;
 POSIX::sigaction(&POSIX::SIGHUP,
   POSIX::SigAction->new(
                         'restart_handler',
-			POSIX::SigSet->new(),
-			&POSIX::SA_NODEFER
+                        POSIX::SigSet->new(),
+                        &POSIX::SA_NODEFER
                        )
 ) or die "pfdetect_remote: could not set SIGHUP handler: $!\n";
 
 POSIX::sigaction(&POSIX::SIGTERM,
   POSIX::SigAction->new(
                         'normal_sighandler',
-			POSIX::SigSet->new(),
-			&POSIX::SA_NODEFER
+                        POSIX::SigSet->new(),
+                        &POSIX::SA_NODEFER
                        )
 ) or die "pfdetect_remote: could not set SIGTERM handler: $!\n";
 
 POSIX::sigaction(&POSIX::SIGINT,
   POSIX::SigAction->new(
                         'normal_sighandler',
-			POSIX::SigSet->new(),
-			&POSIX::SA_NODEFER
+                        POSIX::SigSet->new(),
+                        &POSIX::SA_NODEFER
                        )
 ) or die "pfdetect_remote: could not set SIGINT handler: $!\n";
 
@@ -78,9 +78,9 @@ my $ADMIN_PWD = $cfg->val('server','password');
 my $PF_HOST = $cfg->val('server','host');
 
 my $fh = new File::Tail ('name' => $snortpipe,
-	'interval' => 2,
-	'reset_tail' => 0,
-	'maxinterval' => 2);
+        'interval' => 2,
+        'reset_tail' => 0,
+        'maxinterval' => 2);
 syslog("info", "listening on $snortpipe");
 
 my $currentLine;
@@ -223,3 +223,6 @@ USA.
 
 =cut
 
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
