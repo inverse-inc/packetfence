@@ -341,6 +341,7 @@ sub _authorizeVoip {
 
     # we got Avaya phones working on Cisco switches with the following
     # if you want to do it, copy this whole sub into radius/custom.pm and uncomment the following lines
+    # FIXME watch out for translated port in the below locationlog sync
     #locationlog_synchronize($switch->{_ip}, $port, $switch->{_voiceVlan}, $mac, 
     #    VOIP, $connection_type, $user_name, $ssid
     #);
