@@ -19,6 +19,7 @@ Version <release> - <codename> released on <date>
 New Hardware Support
 - SMC TigerStack 6128 L2 support in Port Security (feature sponsored by Seattle
   Pacific University)
+- HP ProCurve MSM710 Mobility Controller
 
 New Features
 - New parameter in switches.conf to ease FreeRADIUS integration
@@ -39,7 +40,6 @@ Bug fixes
 Version 1.9.1 released on 2010-09-22
 
 New Hardware Support
-- HP ProCurve MSM710 Mobility Controller
 - Extreme XOS Port Security (MAC address lockdown) and Voice over IP support 
   (feature sponsored by Extreme Networks)
 - Nortel ERS 2500 Series Port security and Voice over IP support
