@@ -143,34 +143,41 @@ function pretty_name($menu, $header){
             <td>
             <?
          
-           if($lookup){
-              foreach($lookup as $key => $val){
-                if(is_array($val)){
-                  print "<br><b>MACs associated with this PID:</b><br>";
-                  foreach($val as $mac_key => $mac_val){
-                      print "<table style='padding-left:15px;'>";
-                      foreach($mac_val as $macinfo_key => $macinfo_val){
-                        if(is_array($macinfo_val)){
-                          print "<tr><td colspan=2><br><b>Violations associated with this MAC:</b></td></tr></table>";
-                          foreach($macinfo_val as $violation_key => $violation_val){
-                            print "<table style='padding-left:30px;'>";
-                            foreach($violation_val as $violationinfo_key => $violationinfo_val){
-                              if($violationinfo_val){
-                                if($violationinfo_key == 'vid')
-                                  print "<tr><td>".pretty_name('violation-view', $violationinfo_key).":</td><td>".$violations["$violationinfo_val"]." ($violationinfo_val)</tr>";
-                                else
-                                  print "<tr><td>".pretty_name('violation-view', $violationinfo_key).":</td><td>$violationinfo_val</tr>";
-                              }
+	   if($lookup){
+   	      foreach($lookup as $key => $val){
+		if(is_array($val)){
+		  print "<br><b>MACs associated with this PID:</b><br>";
+		  foreach($val as $mac_key => $mac_val){
+		      print "<table style='padding-left:15px;'>";
+		      foreach($mac_val as $macinfo_key => $macinfo_val){
+			if(is_array($macinfo_val)){
+			  print "<tr><td colspan=2><br><b>Violations associated with this MAC:</b></td></tr></table>";
+			  foreach($macinfo_val as $violation_key => $violation_val){
+ 		            print "<table style='padding-left:30px;'>";
+			    foreach($violation_val as $violationinfo_key => $violationinfo_val){
+			      if($violationinfo_val){
+				if($violationinfo_key == 'vid')
+  	  		          print "<tr><td>".pretty_name('violation-view', $violationinfo_key).":</td><td>".$violations["$violationinfo_val"]." ($violationinfo_val)</tr>";
+				else
+  	  		          print "<tr><td>".pretty_name('violation-view', $violationinfo_key).":</td><td>$violationinfo_val</tr>";
+			      }
+			    }
+			  }
+			  print "</table><br>";
+			}	
+			else{
+			  if($macinfo_val){
+                            switch ($macinfo_key) {
+                              case 'connection_type':
+  			        print "<tr><td>".pretty_name('node-view', $macinfo_key).":</td><td><span title='$macinfo_val'>$connection_type[$macinfo_val]</span></td></tr>";
+                                break;
+
+                              default: 
+                                print "<tr><td>".pretty_name('node-view', $macinfo_key).":</td><td>$macinfo_val</td></tr>";
                             }
-                          }
-                          print "</table><br>";
-                        }
-                        else{
-                          if($macinfo_val){
-                            print "<tr><td>".pretty_name('node-view', $macinfo_key).":</td><td>$macinfo_val</td></tr>";
-                          }
-                        }
-                      }
+   			  }
+			}
+		      }
                     if(!is_array($lookup[macs][$mac_key][violations]))
                       print "</table>";
                   }

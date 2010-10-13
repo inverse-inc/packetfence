@@ -57,7 +57,7 @@ if (! $mysql_connection) {
 my $mac;
 my %macHash = (
     'status' => 'reg',
-#    'vlan' => '1',
+#    'bypass_vlan' => '1',
 );
 
 open (MYFILE, $filename);

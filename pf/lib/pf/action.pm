@@ -153,14 +153,7 @@ sub action_execute {
         } elsif ( $action =~ /^winpopup$/i ) {
             action_winpopup( $mac, $vid );
         } elsif ( $action =~ /^autoreg$/i ) {
-            if ( isenabled( $Config{'trapping'}{'registration'} ) ) {
-                require pf::node;
-                pf::node::node_register_auto($mac);
-            } else {
-                $logger->warn(
-                    "autoreg action defined for violation $vid, but registration disabled"
-                );
-            }
+            action_autoregister($mac, $vid);
         } else {
             $logger->error( "unknown action '$action' for class $vid", 1 );
         }
@@ -259,6 +252,34 @@ sub action_winpopup {
         $logger->error("Unable to resolve NetBIOS->IP to send winpopup");
     }
 
+}
+
+sub action_autoregister {
+    my ($mac, $vid) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::action');
+
+    if (isenabled($Config{'trapping'}{'registration'})) {
+
+        require pf::vlan::custom;
+        my $vlan_obj = new pf::vlan::custom();
+        if ($vlan_obj->shouldAutoRegister($mac, 0, 1)) {
+
+            # auto-register
+            # sorry for the weird call, check pf::vlan for this sub's parameters
+            my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg(undef, undef, $mac, undef, 0, 1);
+            $logger->debug("auto-registering node $mac because of violation action=autoreg");
+
+            require pf::node;
+            if (!pf::node::node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
+                $logger->error("auto-registration of node $mac failed");
+                return 0;
+            }
+        } else {
+            $logger->info("autoreg action defined for violation $vid, but won't do it: custom config said not to");
+        }
+    } else {
+        $logger->warn("autoreg action defined for violation $vid, but registration disabled");
+    }
 }
 
 =head1 AUTHOR

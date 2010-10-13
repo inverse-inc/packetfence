@@ -60,6 +60,7 @@ function get_usage(){
   }
   
   ## DISK USAGE
+  # TODO: would be nice to have the space on the partition hosting mysql (if any) check for /var/lib/mysql
   exec('/bin/df -h /', $disk_output);
   foreach($disk_output as $line){
     if(preg_match("/(\d+)\%\s+\/$/", $line, $matches)){

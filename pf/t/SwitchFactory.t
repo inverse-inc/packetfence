@@ -83,3 +83,8 @@ is( $switch->{_SNMPPrivProtocolWrite},
 is( $switch->{_SNMPPrivPasswordWrite},
     'privPassWrite', 'SNMP write priv pwd of 192.168.0.1' );
 
+# switch of default type
+$switch = $switchFactory->instantiate('default');
+isa_ok($switch, 'pf::SNMP');
+
+
