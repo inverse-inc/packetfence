@@ -109,8 +109,8 @@ if(isset($_GET['update'])){
 
     if(is_array($_POST[$option])){
       if($type == 'time'){
-	$value = set_default($value, $parts_ar[1]);
-	if($_POST["$option"]['amount'].$_POST["$option"]['unit'] != $value){
+        $value = set_default($value, $parts_ar[1]);
+        if($_POST["$option"]['amount'].$_POST["$option"]['unit'] != $value){
           $time_value = $_POST["$option"]['amount'].$_POST["$option"]['unit'];
           PFCMD("config set $pf_option=$time_value");
           $msg .= "Changed $pf_option from '$value' to '$time_value'<br>";
@@ -142,24 +142,24 @@ if(isset($_GET['update'])){
 $current_heading = '';
 
 foreach($configs as $config){
-	preg_match("/^(([^.=]+)\.[^=]+)=(.+)$/", $config, $matches);
-	$parts = explode('|', $matches[3]);
+        preg_match("/^(([^.=]+)\.[^=]+)=(.+)$/", $config, $matches);
+        $parts = explode('|', $matches[3]);
 
-	$options = array();
-	if($parts[0]){
-		$options['value']   = $parts[0];
-	}
-	$options['default'] = $parts[1];
-	$options['options'] = $parts[2];
-	$options['type']    = $parts[3];
+        $options = array();
+        if($parts[0]){
+          $options['value']   = $parts[0];
+        }
+        $options['default'] = $parts[1];
+        $options['options'] = $parts[2];
+        $options['type']    = $parts[3];
 
-	if (strncmp($matches[2], 'interface', 9) != 0) {
-		$config_tree[$matches[2]][$matches[1]] = $options;
-	}
+        if (strncmp($matches[2], 'interface', 9) != 0) {
+                $config_tree[$matches[2]][$matches[1]] = $options;
+        }
 }
 
 if($msg){
-	print "<div id='message_box' style='margin-bottom:0px; margin-top:20px;'>$msg</div>";
+        print "<div id='message_box' style='margin-bottom:0px; margin-top:20px;'>$msg</div>";
 }
 
 print "<table>";
@@ -170,129 +170,129 @@ $added_sections = array();
 
 foreach($config_tree as $section => $val){
         $i++ == 0 ? $border = 'border:1px solid #AAA;' : $border = 'border-left:1px solid #AAA; border-right:1px solid #AAA; border-bottom:1px solid #AAA;';
-	unset($matches);
-	
-	$width   = '200px';
-	$margin  = '';
-      	$display = '';
+        unset($matches);
+        
+        $width   = '200px';
+        $margin  = '';
+        $display = '';
 
-	if(preg_match("/^(.+)\.(.+)$/", $section)){
-		$matches = preg_split("/\./", $section);
+        if(preg_match("/^(.+)\.(.+)$/", $section)){
+                $matches = preg_split("/\./", $section);
 
-		$width = '150px';
-		$margin = 'margin-left:50px;';
-		$display = 'display:none;'; 
+                $width = '150px';
+                $margin = 'margin-left:50px;';
+                $display = 'display:none;'; 
 
-		if(!$config_tree[$matches[0]] && !@in_array($matches[0], $added_sections)){
-			$added_sections[] = $matches[0];
-			print "<div id='section_$matches[0]' style='width:200px; $border padding:2px; cursor:pointer; background:#F7F7F7;' onClick='selectSection(\"$matches[0]\", \"$section\");'>
-        		       <table>
-                		       <tr valign=top>      
-                        		       <td width=150><font size=2><b>".ucfirst($matches[0])."</b></font></td>
-                                	       <td width=50 align=right><font size=3> &raquo; </font></td>                 
-	                               </tr>              
-        	               </table>
-			       </div>";
-		}	
- 	}
+                if(!$config_tree[$matches[0]] && !@in_array($matches[0], $added_sections)){
+                        $added_sections[] = $matches[0];
+                        print "<div id='section_$matches[0]' style='width:200px; $border padding:2px; cursor:pointer; background:#F7F7F7;' onClick='selectSection(\"$matches[0]\", \"$section\");'>
+                               <table>
+                                       <tr valign=top>      
+                                               <td width=150><font size=2><b>".ucfirst($matches[0])."</b></font></td>
+                                               <td width=50 align=right><font size=3> &raquo; </font></td>                 
+                                       </tr>              
+                               </table>
+                               </div>";
+                }        
+        }
 
-	$my_section = set_default($matches[0], $section);
+        $my_section = set_default($matches[0], $section);
 
-	#$nice_section = set_default($matches[2], $section);
-	print "<div id='section_$section' style='width:$width; $border $margin padding:2px; cursor:pointer; background:#F7F7F7; $display' onClick='selectSection(\"$section\", \"false\");'>
-        	       <table>
-                	       <tr valign=top>      
-                        	       <td width=150><font size=2><b>".ucfirst($section)."</b></font></td>
+        #$nice_section = set_default($matches[2], $section);
+        print "<div id='section_$section' style='width:$width; $border $margin padding:2px; cursor:pointer; background:#F7F7F7; $display' onClick='selectSection(\"$section\", \"false\");'>
+                       <table>
+                               <tr valign=top>      
+                                       <td width=150><font size=2><b>".ucfirst($section)."</b></font></td>
                                        <td width=50 align=right><font size=3> &raquo; </font></td>                 
                                 </tr>              
                       </table>
-		</div>";
+                </div>";
 
 }
 
 print "    </td><td valign=top style='padding-top:30px;'>";
 print "<form name='config' action='$current_top/$current_sub.php?update=true' method='post'>";
 foreach($config_tree as $section => $settings){
-	print "<span id='settings_$section' style='display:none; border:1px solid #aaa; background: #F7F7F7; padding:10px;'>";
-	print "<center><font style='font-weight:bold; font-size:12pt;'><u>".ucfirst($section)."</u></font></center>";
+        print "<span id='settings_$section' style='display:none; border:1px solid #aaa; background: #F7F7F7; padding:10px;'>";
+        print "<center><font style='font-weight:bold; font-size:12pt;'><u>".ucfirst($section)."</u></font></center>";
 
-	print "<table align=center style='margin-top:10px;overflow:auto;'>";
-	foreach($settings as $setting => $options){
-		print "<tr><td style='width:200px;'>";
+        print "<table align=center style='margin-top:10px;overflow:auto;'>";
+        foreach($settings as $setting => $options){
+                print "<tr><td style='width:200px;'>";
         if (substr_compare('proxies', $setting, 0, 7) == 0) {
           print $setting;
         } else {
           print "<a class='no_hover' HREF=\"javascript:popUp('$current_top/more_info.php?option=$setting', '100', '500');\">$setting</a>";
         }
         print "</td><td style='text-align:right;'>";
-		$setting = preg_replace("/\./", "_", $setting);
-		switch($options['type']){
-			case "date":
-			$value = set_default($options['value'], $options['default']);
-      			print "<input type='text' name='$setting' value='$value' id='$setting'>";
-		        show_calendar($setting);
-			break;
+                $setting = preg_replace("/\./", "_", $setting);
+                switch($options['type']){
+                        case "date":
+                        $value = set_default($options['value'], $options['default']);
+                              print "<input type='text' name='$setting' value='$value' id='$setting'>";
+                        show_calendar($setting);
+                        break;
 
-			case "time":
-			$value = set_default($options['value'], $options['default']);
-			preg_match("/^(\d+)([s|m|h|d|w])/", $value, $matches);
-			print "<input type='text' name='{$setting}[amount]' value='$matches[1]' size=5>";
-			printSelect($time_units, 'HASH', $matches[2], "name='{$setting}[unit]'");
-			break;
+                        case "time":
+                        $value = set_default($options['value'], $options['default']);
+                        preg_match("/^(\d+)([s|m|h|d|w])/", $value, $matches);
+                        print "<input type='text' name='{$setting}[amount]' value='$matches[1]' size=5>";
+                        printSelect($time_units, 'HASH', $matches[2], "name='{$setting}[unit]'");
+                        break;
 
-			case "multi":
-			print "<select multiple name='".$setting."[]'>";
-			$my_options = explode(";", $options['options']);  
-			$my_values = explode(",", set_default($options['value'],$options['default']));			
- 			foreach($my_options as $option){
-				if(in_array($option, $my_values))
-					print "    <option value='$option' SELECTED>$option</option>\n";
-				else
-					print "    <option value='$option'>$option</option>\n";
-			}
-			print "</select>";
-			break;
+                        case "multi":
+                        print "<select multiple name='".$setting."[]'>";
+                        $my_options = explode(";", $options['options']);  
+                        $my_values = explode(",", set_default($options['value'],$options['default']));
+                        foreach($my_options as $option){
+                                if(in_array($option, $my_values))
+                                        print "    <option value='$option' SELECTED>$option</option>\n";
+                                else
+                                        print "    <option value='$option'>$option</option>\n";
+                        }
+                        print "</select>";
+                        break;
 
-			case "toggle":
-			$my_options=explode(";", $options['options']);
-			print "<select name='$setting'>";
-			$value = set_default($options['value'], $options['default']);
-			foreach($my_options as $option){
-				if($option == $value)
-					print "<option value='$option' SELECTED>$option</option>";
-				else
-					print "<option value='$option'>$option</option>";
-			}
-			print "</select>";
-			break;
+                        case "toggle":
+                        $my_options=explode(";", $options['options']);
+                        print "<select name='$setting'>";
+                        $value = set_default($options['value'], $options['default']);
+                        foreach($my_options as $option){
+                                if($option == $value)
+                                        print "<option value='$option' SELECTED>$option</option>";
+                                else
+                                        print "<option value='$option'>$option</option>";
+                        }
+                        print "</select>";
+                        break;
 
-			default:
-			$value = set_default($options['value'], $options['default']);
-			if(!$value && $options['value'] == '0' || $options['default'] == '0'){
-				$value = '0';
-			}
+                        default:
+                        $value = set_default($options['value'], $options['default']);
+                        if(!$value && $options['value'] == '0' || $options['default'] == '0'){
+                                $value = '0';
+                        }
 
-			if (($setting =="database_pass") || ($setting == "scan_pass")) {
-				print "<input type='password' name='$setting'  value='$value'>";
+                        if (($setting =="database_pass") || ($setting == "scan_pass")) {
+                                print "<input type='password' name='$setting'  value='$value'>";
                         } elseif (($setting=='trapping_range') || ($setting=='trapping_blacklist') || ($setting=='trapping_whitelist') || ($setting == 'trapping_redirecturl')) {
                                 print "<textarea name='$setting'>$value</textarea>\n";
-			} else {
-				print "<input type='text' name='$setting'  value='$value'>\n";
-			}
-			break;
-		}
-		print "</td></tr>";
-	}
-	print "<tr'><td colspan=2 style='text-align:right; padding:5px; background: #DDDDDD; border:1px solid #aaa;'><input type='submit' value='Submit'></td></tr>";
-	print "</table>";
-	print "</span>";
+                        } else {
+                                print "<input type='text' name='$setting'  value='$value'>\n";
+                        }
+                        break;
+                }
+                print "</td></tr>";
+        }
+        print "<tr'><td colspan=2 style='text-align:right; padding:5px; background: #DDDDDD; border:1px solid #aaa;'><input type='submit' value='Submit'></td></tr>";
+        print "</table>";
+        print "</span>";
 }
 print "</td></tr>";
 print "</form>";
 print "</table>";
 
 print "<script>selectSection(\"alerting\");</script>";
-	
+        
 include('../footer.php');
 
 ?>

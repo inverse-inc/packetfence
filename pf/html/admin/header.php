@@ -87,14 +87,14 @@
 
       $a=-1;
       for($i=0; $i<count($headers); $i++){
-	  if(preg_match("/^\-/", $headers[$i][0])){
-	    continue;
-	  }
+          if(preg_match("/^\-/", $headers[$i][0])){
+            continue;
+          }
           $a++;
           if(preg_match("/\*$/", $headers[$i][0]))
             if (preg_match("/\s/", $new_array[$a])){
               $key = '"'.$new_array[$a].'"';
-	    }
+            }
             else{ 
               $key = $new_array[$a]; 
             }
@@ -172,8 +172,8 @@
       var sfEls = document.getElementById("navlist").getElementsByTagName("LI");
       for (var i=0; i<sfEls.length; i++) {
         sfEls[i].onmouseover=function() {
-	  this.className+=" sfhover";
-	}
+          this.className+=" sfhover";
+        }
         sfEls[i].onmouseout=function() {
           this.className=this.className.replace(new RegExp(" sfhover\\b"), "");
         }

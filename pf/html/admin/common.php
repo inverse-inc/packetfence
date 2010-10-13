@@ -27,7 +27,7 @@
 require_once($_SERVER['DOCUMENT_ROOT'] . "/check_login.php");
 
 if($sajax){
-	require($_SERVER['DOCUMENT_ROOT'] . "/common/sajax/Sajax.php");
+  require($_SERVER['DOCUMENT_ROOT'] . "/common/sajax/Sajax.php");
 }
 
   class table{
@@ -146,11 +146,11 @@ if($sajax){
     
       if($current_top == 'status' && $current_sub == 'reports'){
         global $_GET;
-	$sub = "$current_top-$current_sub-$_GET[type]";   
+        $sub = "$current_top-$current_sub-$_GET[type]";   
       } 
 
       if(!$current_sub){
-	$menu = "$current_top-view";
+        $menu = "$current_top-view";
       }
       else{
         $menu = "$current_top-$current_sub";
@@ -179,10 +179,10 @@ if($sajax){
       for($i=1; $i<=count($content); $i++){
         if(isset($content[$i]) && $content[$i]!=""){
           $data=explode("|", $content[$i]);
-	  for($a=0; $a<count($this->headers); $a++)
-	    $row[$this->headers[$a]]=$data[$a];         
+          for($a=0; $a<count($this->headers); $a++)
+            $row[$this->headers[$a]]=$data[$a];         
           $this->rows[]=$row;
-  	}
+        }
       }   
     } // End constructor    
 
@@ -200,7 +200,7 @@ if($sajax){
         }
       }
       if(count($filtered_array)==0){
-	$this->is_empty=true;
+        $this->is_empty=true;
       }
     return $filtered_array;
     }
@@ -212,21 +212,21 @@ if($sajax){
       global $_GET;
       global $no_filter;
       global $extra_goodness;
-      $sort = 		$_GET['sort'];
-      $direction =	$_GET['direction'];
-      $per_page = 	$_GET['per_page'];
-      $filter = 	$_REQUEST['filter'];
-      $action = 	$_GET['action'];
-      $item = 		$_GET['item'];
-      $commit = 	$_POST['commit'];
-      $abs_url =	$_REQUEST['abs_url']; 
-      $time_filter = 	$_REQUEST['time_filter'];
-      $starttime = 	$_REQUEST['starttime'];
-      $stoptime = 	$_REQUEST['stoptime'];
+      $sort = $_GET['sort'];
+      $direction = $_GET['direction'];
+      $per_page = $_GET['per_page'];
+      $filter = $_REQUEST['filter'];
+      $action = $_GET['action'];
+      $item = $_GET['item'];
+      $commit = $_POST['commit'];
+      $abs_url =$_REQUEST['abs_url']; 
+      $time_filter = $_REQUEST['time_filter'];
+      $starttime = $_REQUEST['starttime'];
+      $stoptime = $_REQUEST['stoptime'];
 
       if(isset($this->hidden_links)){
         if(array_key_exists($sort, $this->hidden_links)){
-  	  $this->is_hidden=false;
+          $this->is_hidden=false;
         }
       }
 
@@ -249,21 +249,20 @@ if($sajax){
       print "<td colspan=\"".$this->get_displayable_column_count()."\" id=\"search\">\n";
       if($this->is_hideable){
         if($this->is_hidden){
-	           print "<span id='show_icon' style='display:visible;'><a href='javascript:hideCells(\"\");'><img src='../images/show.gif' alt='Show Info'><br><font size=1>Show Info</font></a></span>";
-	           print "<span id='hide_icon' style='display:none;'><a href='javascript:hideCells(\"none\");'><img src='../images/hide.gif' alt='Hide Info'><br><font size=1>Hide Info</font></a></span>";
+          print "<span id='show_icon' style='display:visible;'><a href='javascript:hideCells(\"\");'><img src='../images/show.gif' alt='Show Info'><br><font size=1>Show Info</font></a></span>";
+          print "<span id='hide_icon' style='display:none;'><a href='javascript:hideCells(\"none\");'><img src='../images/hide.gif' alt='Hide Info'><br><font size=1>Hide Info</font></a></span>";
+        } else {
+          print "<span id='show_icon' style='display:none;'><a href='javascript:hideCells(\"\");'><img src='../images/show.gif' alt='Show Info'><br><font size=1>Show Info</font></a></span>";
+          print "<span id='hide_icon' style='display:visible;'><a href='javascript:hideCells(\"none\");'><img src='../images/hide.gif' alt='Hide Info'><br><font size=1>Hide Info</font></a></span>";
         }
-	else{
-	           print "<span id='show_icon' style='display:none;'><a href='javascript:hideCells(\"\");'><img src='../images/show.gif' alt='Show Info'><br><font size=1>Show Info</font></a></span>";
-	           print "<span id='hide_icon' style='display:visible;'><a href='javascript:hideCells(\"none\");'><img src='../images/hide.gif' alt='Hide Info'><br><font size=1>Hide Info</font></a></span>";
-        }   
       }
 
       ## FILTER ANNEX ##
       if(!$with_add && !$no_filter && !($current_top=="scan" && $current_sub=="scan")){
-	if($current_top == 'status' && $current_sub == 'reports'){
-		global $type;
-		$t = "<input type='hidden' name='type' value='".trim($type)."'>";
-	}
+        if($current_top == 'status' && $current_sub == 'reports'){
+          global $type;
+          $t = "<input type='hidden' name='type' value='".trim($type)."'>";
+        }
         if (isset($this->default_filter) || (isset($filter) && $filter != '')) {
           if (!isset($filter) || $filter == '') {
             $last_filter = $this->default_filter;
@@ -292,22 +291,22 @@ if($sajax){
             if(!$stoptime)
               $stoptime='-Stop Date-';
             print "</form>\n";
-	    print "  <FORM name='timeform' action='/$current_top/$current_sub.php?filter=$filter'>";
+            print "  <FORM name='timeform' action='/$current_top/$current_sub.php?filter=$filter'>";
             print "<table>\n";
             print "<tr>\n";
-	    print "  <td></td>\n";
-	    print "  <td><input name='starttime' id='starttime' value='$starttime'></td>\n";
-	    show_calendar('starttime');
-   	    print "  <td></td>\n";  
-	    print "</tr>\n";
+            print "  <td></td>\n";
+            print "  <td><input name='starttime' id='starttime' value='$starttime'></td>\n";
+            show_calendar('starttime');
+            print "  <td></td>\n";  
+            print "</tr>\n";
             print "<tr>\n";
-	    print "  <td></td>\n";
-	    print "  <td><input name='stoptime' id='stoptime' value='$stoptime'></td>\n";
-	    show_calendar('stoptime');
-	    print "  <td></td>\n";	
-	    print "</tr>\n";
+            print "  <td></td>\n";
+            print "  <td><input name='stoptime' id='stoptime' value='$stoptime'></td>\n";
+            show_calendar('stoptime');
+            print "  <td></td>\n";
+            print "</tr>\n";
             print "<tr height='30'>";
-	    print "  <td valign='bottom'></td>";
+            print "  <td valign='bottom'></td>";
             print "  <td align='right'>";
             print "  <input type='submit' value='Submit'>";
             print "  </td>";
@@ -335,7 +334,7 @@ if($sajax){
       }
 
       if(!$current_sub){
-	$sub = "$current_top-view";
+        $sub = "$current_top-view";
       }
       else{
         $sub = "$current_top-$current_sub";
@@ -352,7 +351,7 @@ if($sajax){
       foreach($this->headers as $header){ 
         $pretty_header="";
 
-	if($header_meta){
+        if($header_meta){
           foreach($header_meta as $meta){
             if (($meta[0] == $header) || ($meta[0] == ($header . "*"))) {
               $pretty_header=$meta[1];
@@ -361,8 +360,8 @@ if($sajax){
         }
 
         if(!$pretty_header){
-	      $pretty_header=ucfirst($header);
-	}
+          $pretty_header=ucfirst($header);
+        }
 
         if (isset($this->default_sort_direction) || (isset($direction) && $direction != '')) { 
           if (!isset($sort) || $sort == '') {
@@ -384,9 +383,9 @@ if($sajax){
        isset($this->hidden_links[$header]) && $this->is_hidden == true ? $hide_tag = "id='id".++$q."' style='display:none;'" : $hide_tag = "";
 
        if($sort==$header)
-	  print "    <td class='header' $hide_tag><div class='header'><a class='active' href='$current_top/$current_sub.php?filter=" . urlencode($filter) . "&amp;sort=$header&amp;direction=$on_direction&amp;per_page=$per_page&$xtra_args'>$pretty_header</a></div></td>\n";
-	else
-	  print "    <td class='header' $hide_tag><div class='header'><a href='$current_top/$current_sub.php?filter=" . urlencode($filter) . "&amp;sort=$header&amp;direction=$off_direction&amp;per_page=$per_page&$xtra_args'>$pretty_header</a></div></td>\n";
+         print "    <td class='header' $hide_tag><div class='header'><a class='active' href='$current_top/$current_sub.php?filter=" . urlencode($filter) . "&amp;sort=$header&amp;direction=$on_direction&amp;per_page=$per_page&$xtra_args'>$pretty_header</a></div></td>\n";
+       else
+         print "    <td class='header' $hide_tag><div class='header'><a href='$current_top/$current_sub.php?filter=" . urlencode($filter) . "&amp;sort=$header&amp;direction=$off_direction&amp;per_page=$per_page&$xtra_args'>$pretty_header</a></div></td>\n";
       }
 
       print "  </tr>\n";
@@ -409,10 +408,10 @@ if($sajax){
  
   ## SET PAGE DEFAULTS ##
   if(!$this->per_page)
- 	  $this->per_page=25;
+    $this->per_page=25;
 
   if(!$this->page_num)
-	  $this->page_num=1;
+    $this->page_num=1;
 
   if(!$this->sql_sort_and_limit) {
       $start=($this->page_num - 1)*$this->per_page;
@@ -423,81 +422,81 @@ if($sajax){
 
   print "<tbody>\n";
   for($i=$start; $i<=$stop; $i++){
-	  if($i>=count($this->rows))
-		  break;
+    if($i>=count($this->rows))
+      break;
 
-  ## ROW HIGHLIGHTING ##	
+  ## ROW HIGHLIGHTING ##
   print "<tr class=\"data\">\n";
 
   ## EDITING A ROW ##
   if($action=="edit" && !$commit && $item==$i){
-	  print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page&amp;action=$action&amp;item=$item' method='post'>\n";
-	  $a=-1;
+    print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page&amp;action=$action&amp;item=$item' method='post'>\n";
+    $a=-1;
 
     foreach($this->rows[$i] as $cell){
-	     $key=$this->headers[++$a];
-	
-	     ## FOR AUTOSIZING ##
-	     $default_min=5;
-	     $default_max=15;
-	     $size_array=array();
-	     foreach($this->rows as $row)
-	       $size_array[]=strlen($row[$key]);	     
-	     $size=max(max($size_array), $default_min);
-	     $size=min($size, $default_max);
+      $key=$this->headers[++$a];
 
-             if(in_array($key, $this->headers))
-                print "<td><input size='$size' type='text' value='$cell' name='val$a'></td>\n";
-	     else
-               print "<td>$cell</td>"; 
-          }
+       ## FOR AUTOSIZING ##
+       $default_min=5;
+       $default_max=15;
+       $size_array=array();
+       foreach($this->rows as $row)
+         $size_array[]=strlen($row[$key]);
+       $size=max(max($size_array), $default_min);
+       $size=min($size, $default_max);
 
-           if($this->rows[$item+1])
-	     $value=implode("\t", $this->rows[$item+1]);
+       if(in_array($key, $this->headers))
+         print "<td><input size='$size' type='text' value='$cell' name='val$a'></td>\n";
+       else
+         print "<td>$cell</td>"; 
+    }
 
-           print "<input type='hidden' name='original' value='$value'>";
-           print "<input type='hidden' name='commit' value='true'>";
-           print "<td width='50'><div id='submit'><input type='submit' value='Submit'></div></td>\n";
-           print "</form>";
-  	 }
+    if($this->rows[$item+1])
+      $value=implode("\t", $this->rows[$item+1]);
 
-	 else{
-	   $a=-1;
-	   $key_item='';
+    print "<input type='hidden' name='original' value='$value'>";
+    print "<input type='hidden' name='commit' value='true'>";
+    print "<td width='50'><div id='submit'><input type='submit' value='Submit'></div></td>\n";
+    print "</form>";
+  }
+
+  else{
+    $a=-1;
+    $key_item='';
            
-           foreach($this->rows[$i] as $cell){
-             $key=$this->headers[++$a];
-	
-	     if($key == $this->key){
-	       $key_item=$cell;
-             }
-           }
+    foreach($this->rows[$i] as $cell){
+      $key=$this->headers[++$a];
+
+      if($key == $this->key){
+        $key_item=$cell;
+      }
+    }
 
            if(isset($this->editable)){
              print "  <td class=\"action\">\n";
              if (($current_top == 'configuration') && ($current_sub=='interfaces')) {
-	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['interface'] . "',500,500)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
-	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['interface'] . "',500,500)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
-	       print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page' method='post'>";
+               print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['interface'] . "',500,500)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
+               print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['interface'] . "',500,500)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
+               print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page' method='post'>";
                print "  <input type='hidden' name='action' value='delete'>\n";
                print "  <input type='hidden' name='commit' value='true'>\n";
                print "  <input type='hidden' name='original' value='".implode("\t", $this->rows[$i])."'>\n";
                print "  <input class=\"button\" type='image' src='/images/famfamfam_silk_icons/page_delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete the interface " . $this->rows[$i]['interface'] . " ?');\">\n";
                print "  </form>";
              } elseif (($current_top == 'configuration') && ($current_sub=='networks')) {
-	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['network'] . "',500,500)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
-	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['network'] . "',500,500)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
-	       print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page' method='post'>";
+               print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['network'] . "',500,500)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
+               print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['network'] . "',500,500)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
+               print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page' method='post'>";
                print "  <input type='hidden' name='action' value='delete'>\n";
                print "  <input type='hidden' name='commit' value='true'>\n";
                print "  <input type='hidden' name='original' value='".implode("\t", $this->rows[$i])."'>\n";
                print "  <input class=\"button\" type='image' src='/images/famfamfam_silk_icons/page_delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete the network " . $this->rows[$i]['network'] . " ?');\">\n";
                print "  </form>";
              } elseif (($current_top == 'configuration') && ($current_sub=='switches')) {
-	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['ip'] . "',500,500)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
-	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['ip'] . "',500,500)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
+               print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['ip'] . "',500,500)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
+               print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['ip'] . "',500,500)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
                if (($this->rows[$i]['ip'] != '127.0.0.1') && ($this->rows[$i]['ip'] != 'default')) {
-	         print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page' method='post'>";
+                 print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page' method='post'>";
                  print "  <input type='hidden' name='action' value='delete'>\n";
                  print "  <input type='hidden' name='commit' value='true'>\n";
                  print "  <input type='hidden' name='original' value='".implode("\t", $this->rows[$i])."'>\n";
@@ -529,10 +528,10 @@ if($sajax){
                  print "  </form>";
                }
              } elseif (($current_top == 'configuration') && ($current_sub=='violation')) {
-	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['vid'] . "',500,400)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
-	       print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['vid'] . "',500,400)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
+               print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['vid'] . "',500,400)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
+               print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['vid'] . "',500,400)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
                if (($this->rows[$i]['vid'] != '1100001') && ($this->rows[$i]['vid'] != 1100004) && ($this->rows[$i]['vid'] != 1100005) && ($this->rows[$i]['vid'] != 1100009) && ($this->rows[$i]['vid'] != 1100010) && ($this->rows[$i]['vid'] != 1200001) && ($this->rows[$i]['vid'] != 1200003) && ($this->rows[$i]['vid'] != 'defaults')) {
-	         print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page' method='post'>";
+                 print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page' method='post'>";
                  print "  <input type='hidden' name='action' value='delete'>\n";
                  print "  <input type='hidden' name='commit' value='true'>\n";
                  print "  <input type='hidden' name='original' value='".implode("\t", $this->rows[$i])."'>\n";
@@ -540,18 +539,18 @@ if($sajax){
                  print "  </form>";
                }
              } else {
-	       print "  <a href=\"javascript:popUp('/$current_top/edit.php?item=$key_item',500,400)\" title='Edit this record'><img src='/images/edit.png' alt=\"[ Edit ]\"></a>\n";
+               print "  <a href=\"javascript:popUp('/$current_top/edit.php?item=$key_item',500,400)\" title='Edit this record'><img src='/images/edit.png' alt=\"[ Edit ]\"></a>\n";
                if($this->violationable){
                  print "  <a href='violation/add.php?MAC=".$this->rows[$i]['mac']."'><img src='/images/trap.png' border='0' title='Add Violation' alt='[ Add Violation ]'></a>\n";
                }
-	       print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page&amp;action=$action&amp;item=$item' method='post'>";
+               print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page&amp;action=$action&amp;item=$item' method='post'>";
                print "  <input type='hidden' name='action' value='delete'>\n";
                print "  <input type='hidden' name='commit' value='true'>\n";
                print "  <input type='hidden' name='original' value='".implode("\t", $this->rows[$i])."'>\n";
                print "  <input class=\"button\" type='image' src='/images/delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete ".$this->rows[$i][$this->key]."?');\">\n";
                print "  </form>";
              }
-   	     print "</td>\n";
+             print "</td>\n";
            }
        
            # FIXME: this is broken, nessus/scanner.php doesn't exist
@@ -560,24 +559,24 @@ if($sajax){
              $host=$this->rows[$i]['mac'];
              print "  <A HREF=\"javascript:popUp('nessus/scanner.php?host=$host')\">";
              print "  <input class=\"button\" type='image' align='center' src='/images/delete.png' onClick=\"return confirm('Scan this host?');\"></a>\n";
-     	     print "</td>\n";
+             print "</td>\n";
            }
 
-	   $a=-1;
+           $a=-1;
            foreach($this->rows[$i] as $cell){
              $key=$this->headers[++$a];
-	
-	     if($key == $this->key){
-	       $key_item=$cell;
+
+             if($key == $this->key){
+               $key_item=$cell;
              }
              isset($this->hidden_links[$key]) && $this->is_hidden == true ? $hide_tag = "id='id".++$q."' style='display:none;'" : $hide_tag = "";
 
              if(isset($this->linkable[$key])){
                strstr($this->linkable[$key], '?') ? $break = '&' : $break = '?';
 
-	       if($key == 'dhcp_fingerprint' && $_SESSION['fingerprints']["$cell"]){
+               if($key == 'dhcp_fingerprint' && $_SESSION['fingerprints']["$cell"]){
                  print "    <td $hide_tag><a href='".$this->linkable[$key].$break."view_item=$cell'>".$_SESSION['fingerprints']["$cell"]."</a></td>\n";
-	       }
+               }
                else if($key == 'vid' && $_SESSION['violation_classes']["$cell"]){
                  print "    <td $hide_tag><a href='".$this->linkable[$key].$break."view_item=$cell'>".$_SESSION['violation_classes']["$cell"]." </a></td>\n";
                } 
@@ -591,8 +590,8 @@ if($sajax){
                }
                else{
                  print "    <td $hide_tag><a href='".$this->linkable[$key].$break."view_item=$cell'>" . ((strlen($cell) > 30) ? (substr($cell, 0, 30) . ' ...') : $cell) . "</a></td>\n";
-	       }
-	     }
+               }
+             }
              else{  
                print "    <td $hide_tag>" . ((strlen($cell) > 30) ? (substr($cell, 0, 30) . ' ...') : $cell) . "</td>\n";
              }
@@ -634,7 +633,7 @@ if($sajax){
         $num_pages=ceil($this->result_count/$this->per_page);
       $next_page=$this->page_num+1;
       $last_page=$this->page_num-1;
-	
+
       if($num_pages>1) { // don't print the pager if there is only one page
       
         for($i=1; $i<=$num_pages; $i++){
@@ -666,12 +665,12 @@ if($sajax){
       }
       $per_pages=array('25', '25', '50', '100', '500', '1000');
       
-      if($this->per_page!=1001){   		# Because of report/history bug
+      if($this->per_page!=1001){   # Because of report/history bug
         for($a=1; $a<=count($per_pages); $a++){
           if($this->result_count>$per_pages[$a-1]){
-    	    if($this->per_page==$per_pages[$a])
+            if($this->per_page==$per_pages[$a])
               print "<a class='active' href='$current_top/$current_sub.php?sort=$sort&amp;direction=$direction&amp;per_page=$per_pages[$a]&amp;filter=" . urlencode($filter) . "&$xtra_args'>$per_pages[$a] </a>";
-	    else   
+            else   
               print "<a href='$current_top/$current_sub.php?sort=$sort&amp;direction=$direction&amp;per_page=$per_pages[$a]&amp;filter=" . urlencode($filter) . "&$xtra_args'>$per_pages[$a] </a>";
           }
         }
@@ -729,7 +728,7 @@ function PrintSubNav($menu){
         print "            </li>\n";
       }  
       else if($current_sub==$sub_nav[0]) {
-        print "        	<li class='active'><a href='$current_top/$sub_nav[0].php' class='current'>$sub_nav[1]</a></li>\n";
+        print "         <li class='active'><a href='$current_top/$sub_nav[0].php' class='current'>$sub_nav[1]</a></li>\n";
 
       } else {
         print "          <li><a href='$current_top/$sub_nav[0].php'>$sub_nav[1]</a></li>\n";
@@ -834,12 +833,12 @@ function PrintSubNav($menu){
       if($_REQUEST['action'] == 'add'){
         $add_info = PFCMD("$current_top view $_REQUEST[val0]");
         if($add_info[1]){ 
-  	  print "<tr><td colspan=2><b>Added Record</b></td></tr>";
-   	  $parts = explode('|', $add_info[1]);
+          print "<tr><td colspan=2><b>Added Record</b></td></tr>";
+          $parts = explode('|', $add_info[1]);
           //for($i=0; $i<count($parts); $i++){
           for($i=0; $i<1; $i++){
-	    print "<tr><td>$headings[$i]</td><td>$parts[$i]</td></tr>";
-	  }        
+            print "<tr><td>$headings[$i]</td><td>$parts[$i]</td></tr>";
+          }        
         }
         else{
           print "<tr><td><b><font color=red>Unable to add record $_REQUEST[val0]</b></font></td></tr>";
@@ -894,7 +893,7 @@ function PrintSubNav($menu){
     #exec("$PFCMD 2>&1", $output, $total);
 
     if(stristr($output[0], 'Usage: pfcmd')){
-      return false;	
+      return false;
     }
 
     # HACK: when the output of pfcmd has a "line 999" in it, we assume it's an error and we display it
@@ -906,8 +905,8 @@ function PrintSubNav($menu){
 
     if($errors){
       print "<div id='error' style='text-align:left;padding:10px;background:#FF7575;'>
-	<b>Error: Problems executing 'PFCMD $command'</b><br><pre>".
-	implode('<br>', $errors)."</pre></div>";
+        <b>Error: Problems executing 'PFCMD $command'</b><br><pre>".
+        implode('<br>', $errors)."</pre></div>";
       return false;
     }
 
@@ -925,7 +924,7 @@ function PrintSubNav($menu){
     foreach($meta_array as $data){
 
       if(preg_match("/^\-/", $data[0]))
-	continue;
+        continue;
   
       $i++;
       
@@ -941,8 +940,8 @@ function PrintSubNav($menu){
          $options=array_slice($options, 1, count($options)-2);
    
          $menu="<select name='val$i'>\n";
-	 foreach($options as $option)
- 	   $menu.="  <option value='$option'>$option\n";	
+         foreach($options as $option)
+           $menu.="  <option value='$option'>$option\n";
          $menu.="</select>"; 
       }
 
@@ -972,7 +971,7 @@ function PrintSubNav($menu){
 
   function jpgraph_check(){
     $jpgraph_dir = jpgraph_dir();
-	
+
     $extensions = get_loaded_extensions();
     if(!in_array('gd', $extensions)){ 
       print "<div id='error'>Error: PHP does not have GD installed.<br>JPGraph uses the graphing library GD to produce it's magnificent graphs, so you must install PHP with GD support.  For RedHat, use 'up2date php-gd' or 'yum php-gd'.</div>";
@@ -996,7 +995,7 @@ function PrintSubNav($menu){
       $meta_array=meta("$current_top-$current_sub");
       if($meta_array){
         foreach($meta_array as $link){
-	  $link[0] == $current ? $links[]="<a href='$current_top/$current_sub.php?menu=true&type=$link[0]'><u>$link[1]</u></a>" : $links[]="<a href='$current_top/$current_sub.php?menu=true&type=$link[0]'>$link[1]</a>"; 
+          $link[0] == $current ? $links[]="<a href='$current_top/$current_sub.php?menu=true&type=$link[0]'><u>$link[1]</u></a>" : $links[]="<a href='$current_top/$current_sub.php?menu=true&type=$link[0]'>$link[1]</a>"; 
         }
        $o[] =  implode(" | ", $links);
       }
@@ -1075,8 +1074,8 @@ function PrintSubNav($menu){
         print "Could not open file: $global_conf<br>";
       }
       else{
- 	if(fwrite($DAT, serialize($defaults) === FALSE)){
-	  print "Couldn't write to file: $global_conf<br>";
+        if(fwrite($DAT, serialize($defaults) === FALSE)){
+          print "Couldn't write to file: $global_conf<br>";
         }
         fclose($DAT);
       }
@@ -1203,42 +1202,42 @@ function PrintSubNav($menu){
     print "<script type='text/javascript'>
              Calendar.setup(
              {
-               inputField  : '$id',       		    // ID of the input field
+               inputField  : '$id',               // ID of the input field
                ifFormat    : '%Y-%m-%d %H:%M:00', // the date format
-               button      : '$id',    			      // ID of the button
+               button      : '$id',               // ID of the button
                timeFormat  : \"24\",
                showsTime   : true
              }
-	   );
-	   </script>";
+             );
+           </script>";
   }
 
   function show_calendar_with_button($field,$button) {
     print "<script type='text/javascript'>
              Calendar.setup(
              {
-               inputField  : '$field',       		    // ID of the input field
+               inputField  : '$field',            // ID of the input field
                ifFormat    : '%Y-%m-%d %H:%M:00', // the date format
-               button      : '$button',    			      // ID of the button
+               button      : '$button',           // ID of the button
                timeFormat  : \"24\",
                showsTime   : true
              }
-	   );
-	   </script>";
+             );
+           </script>";
   }
 
   function show_calendar_with_button_without_time($field,$button) {
     print "<script type='text/javascript'>
              Calendar.setup(
              {
-               inputField  : '$field',       		    // ID of the input field
+               inputField  : '$field',   // ID of the input field
                ifFormat    : '%Y-%m-%d', // the date format
-               button      : '$button',    			      // ID of the button
+               button      : '$button',  // ID of the button
                timeFormat  : \"24\",
                showsTime   : false
              }
-	   );
-	   </script>";
+             );
+           </script>";
   }
 
 ?>

@@ -51,16 +51,15 @@
        print "Error: Passwords do not match!";
        print "</b></div>\n";
      } else{
-	$filename = dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/users/" . $_POST['username'];
+        $filename = dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/users/" . $_POST['username'];
         if(file_exists($filename)){
-       print "<div id='error' style='text-align:left;padding:10px;background:#FF7575;'><b>";
-	  print "Error: User $_POST[username] already exists!";
-       print "</b></div>\n";
-	}
-	else{
-  	  exec("/usr/bin/htpasswd -b " . dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/admin.conf $_POST[username] $_POST[password1]");
+          print "<div id='error' style='text-align:left;padding:10px;background:#FF7575;'><b>";
+          print "Error: User $_POST[username] already exists!";
+          print "</b></div>\n";
+        } else {
+          exec("/usr/bin/htpasswd -b " . dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/admin.conf $_POST[username] $_POST[password1]");
           $defaults = array('font-size' => 'medium', 'homepage' => 'status/dashboard.php');
-  	  if (!$handle = fopen($filename, 'w+')) {
+          if (!$handle = fopen($filename, 'w+')) {
             print "<div id='error' style='text-align:left;padding:10px;background:#FF7575;'><b>";
             echo "Error: Cannot open file ($filename)";
             print "</b></div>\n";

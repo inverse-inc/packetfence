@@ -19,10 +19,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  * 
- * @author	Kevin Creechan for eSubnet Enterprises <kcreechan@esubnet.com>
- * @author	Olivier Bilodeau <obilodeau@inverse.ca>
+ * @author      Kevin Creechan for eSubnet Enterprises <kcreechan@esubnet.com>
+ * @author      Olivier Bilodeau <obilodeau@inverse.ca>
  * @copyright   2010 Inverse inc.
- * @license	http://opensource.org/licenses/gpl-2.0.php	GPLv2 or later
+ * @license     http://opensource.org/licenses/gpl-2.0.php       GPLv2 or later
  */
 
 // default permission file

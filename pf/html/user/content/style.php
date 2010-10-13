@@ -59,64 +59,64 @@
     else
       return $default;
   }
-	
+
+// Refrain from doing alignment with whitespace, it makes managing changes (diff) more complicated than it should be
 ?>
-
 #div_body{
-        font-family: 	<?=$body_font?>;
-	font-size:	<?=$body_font_size?>;
-	color:		<?=$body_font_color?>;
+        font-family: <?=$body_font?>;
+        font-size: <?=$body_font_size?>;
+        color: <?=$body_font_color?>;
 
-	background: 	<?=$body_background_color?>;
-	border: 	1px solid <?=$body_border_color?>;
+        background: <?=$body_background_color?>;
+        border: 1px solid <?=$body_border_color?>;
 
-	padding:	12px;
-	margin-top:	10px;
-	margin-bottom:	10px;
-	margin-left:	auto;
-	margin-right:	auto;
+        padding: 12px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        margin-left: auto;
+        margin-right: auto;
 
 }
 
 #header{
-	width:		100%;
+        width: 100%;
 }
 
 td.title{
-	font-weight:	bold;
-	font-size:	<?=$title_font_size?>;
-	font-family:	<?=$title_font?>;
-	color:	<?=$title_font_color?>;
-	vertical-align: middle;
+        font-weight: bold;
+        font-size: <?=$title_font_size?>;
+        font-family: <?=$title_font?>;
+        color: <?=$title_font_color?>;
+        vertical-align: middle;
 }
 
 td.logo{
-	vertical-align: middle;
+        vertical-align: middle;
 }
 
 #description{
-	margin-top: 	20px;
-	
+        margin-top: 20px;
+        
 }
 
 #remediation{
-	margin-top: 	20px;
+        margin-top: 20px;
 }
 
 #remediation ol{
-	background:	<?=$list_background_color?>;
-	border:		1px solid <?=$list_border_color?>;
-	font-family:	<?=$list_font?>;
-	color:		<?=$list_font_color?>;
-	padding:	10px;
-	list-style-position: inside;
+        background: <?=$list_background_color?>;
+        border: 1px solid <?=$list_border_color?>;
+        font-family: <?=$list_font?>;
+        color: <?=$list_font_color?>;
+        padding: 10px;
+        list-style-position: inside;
 }
 
 #remediation li{
-	padding:	1px;
+        padding: 1px;
 }
 
-	p.sub_header{
-	font-weight: 	bold;
+p.sub_header{
+        font-weight: bold;
 }
 

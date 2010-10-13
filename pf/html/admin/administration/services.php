@@ -66,7 +66,7 @@
   <tr class=content>
     <td class=system><img src="../images/wire.png"><br><?php echo "$hostname.$domainname"; ?></td>
     <td class=services>
-	<? print_status_table() ?>
+        <? print_status_table() ?>
     </td>
   </tr>
 </table>

@@ -59,7 +59,7 @@ Define this function to return whatever data you'd like.
               $return .= "Address : $address\n" if ($address =~ /\W/);
               $return .= "Phone : $phone\n" if ($phone =~ /\W/);
               $return .= "Email : $email\n" if ($email =~ /\W/);
-	      
+
               # If you want to alter the database, you can call person_modify here
               #if ($name =~ /^(.+), (.+)$/) {
               #     person_modify($pid, (firstname => $2, lastname => $1));

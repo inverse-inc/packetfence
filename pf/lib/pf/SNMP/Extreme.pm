@@ -249,7 +249,7 @@ sub _getMacAtIfIndex {
         }
     }
     if (!@macArray) {        
-	$logger->warn("couldn't get MAC at ifIndex $ifIndex");
+        $logger->warn("couldn't get MAC at ifIndex $ifIndex");
     }
     return @macArray;
 }
@@ -301,7 +301,7 @@ sub _getMacAtIfIndexPreXOS {
         }
     }
     if (!@macArray) {        
-	$logger->warn("couldn't get MAC at ifIndex $ifIndex");
+        $logger->warn("couldn't get MAC at ifIndex $ifIndex");
     }
     return @macArray;
 }

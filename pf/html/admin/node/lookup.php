@@ -65,7 +65,7 @@ if($view_item){
             foreach($lookup as $line)
               print "$line<br>";
             else
- 	      print "No results found!";
+              print "No results found!";
             ?>
             </pre>
             </td>

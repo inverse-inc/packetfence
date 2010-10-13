@@ -1,3 +1,7 @@
+2010-10-13	Olivier Bilodeau <obilodeau@inverse.ca>
+	* Lots: Whitespace changes to lots of files based on the result of the
+	last coding-style test results
+
 2010-10-12	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/addons/freeradius-integration, 
 	pf/addons/freeradius-integration/README, 

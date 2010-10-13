@@ -382,9 +382,9 @@ Usage: pfcmd trigger view <id> [scan|detect]
 view the Snort IDs, OS IDs,  and Nessus plugins associated with violations.  To edit, modify violations.conf and execute "pfcmd reload violations" 
 
 examples:
-	pfcmd trigger view all
-	pfcmd trigger view 12
-	pfcmd trigger view all scan
+  pfcmd trigger view all
+  pfcmd trigger view 12
+  pfcmd trigger view all scan
 EOT
     return 1;
 }

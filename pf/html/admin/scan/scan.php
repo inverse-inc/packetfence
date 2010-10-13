@@ -137,59 +137,59 @@ if(isset($_REQUEST[action]) && $_REQUEST[action]=='add'){
       <td></td>
       <td>
         <table>
-	  <tr>
+          <tr>
             <td><input type=radio name=scan_freq value=now checked disabled></td>
-	    <td colspan=2>Scan Now</td>
+            <td colspan=2>Scan Now</td>
           </tr>
-	  <tr>
+          <tr>
             <td><input type=radio name=scan_freq value=schedule disabled></td>
-	    <td colspan=2>Repeating Schedule</td>
+            <td colspan=2>Repeating Schedule</td>
           </tr>
           <tr class=title>
             <td></td><td></td><td>Time</td>
           </tr>
           <tr>
-  	    <td></td>
-	    <td>Daily</td>
-	    <td>
+            <td></td>
+            <td>Daily</td>
+            <td>
               <select name="daily" onclick="document.schedule.scan_freq[1].checked=true" disabled>
                 <option value="">---------</option>
 <?php print_time_options() ?>
               </select>
             </td>
- 	  </tr>    
+          </tr>    
           <tr class=title>
             <td></td><td></td><td>Day</td><td>Time</td>
           </tr>
           <tr>
-  	    <td></td>
-	    <td>Weekly</td>
-	    <td>
+            <td></td>
+            <td>Weekly</td>
+            <td>
               <select name=weekly onclick="document.schedule.scan_freq[1].checked=true" disabled>
                 <option value="">---------</option>   
-		<option value=7>Sun.</option>
-		<option value=1>Mon.</option>
-		<option value=2>Tue.</option>
-		<option value=3>Wed.</option>
-		<option value=4>Thu.</option>
-		<option value=5>Fri.</option>
-		<option value=6>Sat.</option>
+                <option value=7>Sun.</option>
+                <option value=1>Mon.</option>
+                <option value=2>Tue.</option>
+                <option value=3>Wed.</option>
+                <option value=4>Thu.</option>
+                <option value=5>Fri.</option>
+                <option value=6>Sat.</option>
               </select>
-	    </td>
-	    <td>
+            </td>
+            <td>
               <select name="weekly_time" onclick="document.schedule.scan_freq[1].checked=true" disabled>
                 <option value="">---------</option>
 <?php print_time_options() ?>
               </select>
             </td>
- 	  </tr>    
+          </tr>    
           <tr class=title>
             <td></td><td></td><td>Date</td><td>Time</td>
           </tr>
           <tr>
-  	    <td></td>
-	    <td>Monthly</td>
-	    <td>
+            <td></td>
+            <td>Monthly</td>
+            <td>
               <select name=monthly onclick="document.schedule.scan_freq[1].checked=true" disabled>
                 <option value="">---------</option>       
 <?php
@@ -198,14 +198,14 @@ for ($i=1; $i<=28; $i++) {
 }
 ?>
               </select>
-	    </td>
- 	    <td>
+            </td>
+            <td>
               <select name="monthly_time" onclick="document.schedule.scan_freq[1].checked=true" disabled>
                 <option value="">---------</option>
-		  <?php print_time_options() ?>
+                  <?php print_time_options() ?>
               </select>
             </td>
- 	  </tr>    
+          </tr>    
         </table>
       </td>
     </tr>
@@ -222,7 +222,7 @@ for ($i=1; $i<=28; $i++) {
     </tr>
     <tr>
       <td>
-        <? 	  $my_table->tableprint(false); 	?>
+        <?        $my_table->tableprint(false);        ?>
       </td>
     </tr>
   </table>

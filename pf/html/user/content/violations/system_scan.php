@@ -20,7 +20,7 @@
  * USA.
  * 
  * @author      Dominik Gehl <dgehl@inverse.ca>
- * @author	Olivier Bilodeau <obilodeau@inverse.ca>
+ * @author      Olivier Bilodeau <obilodeau@inverse.ca>
  * @copyright   2008-2010 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */

@@ -76,34 +76,34 @@ include_once('../header.php');
       case "MAC":
         print "    <td><input type='text' name='val$i' value='$_GET[MAC]'></td>\n";
         break;
-    	
-    	case "Status":
-    	print "    <td>\n";
-    	print "      <select name='val$i'>\n";
-    	print "        <option value='open'>Open</option>\n";
-    	print "        <option value='closed'>Closed</option>\n";
+    
+      case "Status":
+        print "    <td>\n";
+        print "      <select name='val$i'>\n";
+        print "        <option value='open'>Open</option>\n";
+        print "        <option value='closed'>Closed</option>\n";
         print "      </select>\n";
         print "    </td>\n";
-     	break;
-     	  
-     	case "Identifier":
-    	print "    <td>\n";
-    	print "      <select name='val$i'>\n";
+        break;
+          
+      case "Identifier":
+        print "    <td>\n";
+        print "      <select name='val$i'>\n";
         foreach($vids as $vid) {
           print "      <option value='$vid[vid]'>$vid[desc] ($vid[vid])</option>\n";
         }
 
-     	print "      </select>\n";
-     	print "    </td>\n";
-     	break;
+        print "      </select>\n";
+        print "    </td>\n";
+        break;
 
-     	case "Notes";
-     	print "    <td><textarea rows=2 cols=20 name=val$i></textarea></td>\n";
-     	break;
+      case "Notes";
+        print "    <td><textarea rows=2 cols=20 name=val$i></textarea></td>\n";
+        break;
 
-        default:
-	print "    <td>".$headings[$i][1]."</td>\n";
-	break;
+      default:
+        print "    <td>".$headings[$i][1]."</td>\n";
+        break;
     }
     print "  </tr>\n";
 

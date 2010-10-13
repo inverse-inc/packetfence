@@ -184,7 +184,7 @@ if(!function_exists('session_start')){
 }
 
 if (! is_writeable(session_save_path())) {
-	  die("<div id='error'>Error: Your PHP session.save_path is not writable.</div>");
+          die("<div id='error'>Error: Your PHP session.save_path is not writable.</div>");
 }
 
 session_start(); 
@@ -292,31 +292,31 @@ else {
 <div id="content">
 
 <div id="login" align=center>
-  <form method="post" name="login" action="<? print "$_SERVER[PHP_SELF]?p="	. (array_key_exists('p', $_GET) ? $_GET['p'] :'');?>">
+  <form method="post" name="login" action="<? print "$_SERVER[PHP_SELF]?p=" . (array_key_exists('p', $_GET) ? $_GET['p'] :'');?>">
   <table>
     <tbody>
     <tr>
       <td colspan=2 align=center>
-      <?	
-	if(isset($_GET['ip_mismatch'])){
-	  print "<div id='error'>Error!  Your IP address has changed since you logged on.  Please log in again.</div>"; 
-	}
+      <?
+        if(isset($_GET['ip_mismatch'])){
+          print "<div id='error'>Error!  Your IP address has changed since you logged on.  Please log in again.</div>"; 
+        }
 
-	if(isset($failed)){
-	  if(!isset($_COOKIE['test'])){
-	    print "<div id='error'>Error! Your browser does not have cookies enabled.  Cookies are required for using the PacketFence GUI.</div>";
-	  }
-	  else{
-  	    echo "Invalid Username/Password";
-  	  }
+        if(isset($failed)){
+          if(!isset($_COOKIE['test'])){
+            print "<div id='error'>Error! Your browser does not have cookies enabled.  Cookies are required for using the PacketFence GUI.</div>";
+          }
+          else{
+            echo "Invalid Username/Password";
+          }
         }
         if (isset($_GET['logout'])){
-   	  echo "Logged Out<br>";
-	}
-	else if(isset($_GET['expired'])){
-	  echo "Your session has expired";
-	}
-      ?>	
+          echo "Logged Out<br>";
+        }
+        else if(isset($_GET['expired'])){
+          echo "Your session has expired";
+        }
+      ?>
       </td>
     </tr>
     <tr valign=bottom>

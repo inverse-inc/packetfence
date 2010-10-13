@@ -492,7 +492,7 @@ setvlan does not work with default VLAN ID 1
 
 Mr. Chinasee BOONYATANG <chinasee.b@psu.ac.th>
 
-Mr.Ponpitak SANTIPAPTAWON	<ponpitak.s@psu.ac.th>
+Mr.Ponpitak SANTIPAPTAWON <ponpitak.s@psu.ac.th>
 
   Prince of Songkla University, Thailand
   http://netserv.cc.psu.ac.th

@@ -142,7 +142,7 @@ sub _setVlan {
 #        }
 
         # TODO: the following worked, now I could check if doing it in one pass still works (the above)
-	#       this is known to work on other vendors and would be more efficient
+        #       this is known to work on other vendors and would be more efficient
 
         # remove port from oldVlan
         $logger->trace("SNMP set_request for egressPorts and untaggedPorts for old VLAN");

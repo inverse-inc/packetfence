@@ -39,7 +39,7 @@ if($view_item){
     foreach($person_lookup as $extra){
       $parts = explode("|", $extra);
       $extra_info[$parts[0]]=$parts[1];
-    }	
+    }
   }
 
   $person_view = new table("person view $view_item");
@@ -58,16 +58,16 @@ if($view_item){
     if($node_view->rows){
       foreach($node_view->rows as $node){
         if($node['pid'] == $view_item){
-	  unset($node['pid']);
+          unset($node['pid']);
           $lookup['macs'][$node['mac']] = $node;
           $lookup['macs'][$node['mac']]['OS Class'] = $_SESSION['fingerprints'][$node['dhcp_fingerprint']];
-	
-	  $vendor_lookup = PFCMD("lookup node $node[mac]");
-	  foreach($vendor_lookup as $vendor){
+        
+          $vendor_lookup = PFCMD("lookup node $node[mac]");
+          foreach($vendor_lookup as $vendor){
             if(preg_match("/^Vendor\s+:\s+(.*)$/", $vendor, $matches)){
               $lookup['macs'][$node['mac']]['Vendor'] = $matches[1];
             }
-	  }
+          }
         }
       }
     }
@@ -77,8 +77,8 @@ if($view_item){
       if($violation_view->rows){
         foreach($violation_view->rows as $violation){
           if(in_array($violation['mac'], array_keys($lookup['macs']))){
-	    $mac = $violation['mac'];
-	    unset($violation['mac']);
+            $mac = $violation['mac'];
+            unset($violation['mac']);
             $lookup['macs'][$mac]['violations'][] = $violation;
             $show_violations = true;
           }
@@ -143,55 +143,55 @@ function pretty_name($menu, $header){
             <td>
             <?
          
-	   if($lookup){
-   	      foreach($lookup as $key => $val){
-		if(is_array($val)){
-		  print "<br><b>MACs associated with this PID:</b><br>";
-		  foreach($val as $mac_key => $mac_val){
-		      print "<table style='padding-left:15px;'>";
-		      foreach($mac_val as $macinfo_key => $macinfo_val){
-			if(is_array($macinfo_val)){
-			  print "<tr><td colspan=2><br><b>Violations associated with this MAC:</b></td></tr></table>";
-			  foreach($macinfo_val as $violation_key => $violation_val){
- 		            print "<table style='padding-left:30px;'>";
-			    foreach($violation_val as $violationinfo_key => $violationinfo_val){
-			      if($violationinfo_val){
-				if($violationinfo_key == 'vid')
-  	  		          print "<tr><td>".pretty_name('violation-view', $violationinfo_key).":</td><td>".$violations["$violationinfo_val"]." ($violationinfo_val)</tr>";
-				else
-  	  		          print "<tr><td>".pretty_name('violation-view', $violationinfo_key).":</td><td>$violationinfo_val</tr>";
-			      }
-			    }
-			  }
-			  print "</table><br>";
-			}	
-			else{
-			  if($macinfo_val){
-  			    print "<tr><td>".pretty_name('node-view', $macinfo_key).":</td><td>$macinfo_val</td></tr>";
-   			  }
-			}
-		      }
+           if($lookup){
+              foreach($lookup as $key => $val){
+                if(is_array($val)){
+                  print "<br><b>MACs associated with this PID:</b><br>";
+                  foreach($val as $mac_key => $mac_val){
+                      print "<table style='padding-left:15px;'>";
+                      foreach($mac_val as $macinfo_key => $macinfo_val){
+                        if(is_array($macinfo_val)){
+                          print "<tr><td colspan=2><br><b>Violations associated with this MAC:</b></td></tr></table>";
+                          foreach($macinfo_val as $violation_key => $violation_val){
+                            print "<table style='padding-left:30px;'>";
+                            foreach($violation_val as $violationinfo_key => $violationinfo_val){
+                              if($violationinfo_val){
+                                if($violationinfo_key == 'vid')
+                                  print "<tr><td>".pretty_name('violation-view', $violationinfo_key).":</td><td>".$violations["$violationinfo_val"]." ($violationinfo_val)</tr>";
+                                else
+                                  print "<tr><td>".pretty_name('violation-view', $violationinfo_key).":</td><td>$violationinfo_val</tr>";
+                              }
+                            }
+                          }
+                          print "</table><br>";
+                        }
+                        else{
+                          if($macinfo_val){
+                            print "<tr><td>".pretty_name('node-view', $macinfo_key).":</td><td>$macinfo_val</td></tr>";
+                          }
+                        }
+                      }
                     if(!is_array($lookup[macs][$mac_key][violations]))
-    		      print "</table>";
-		  }
-		}
-		else{
-		  if($val){
-	 	    print "<b>".ucfirst($key)."</b>: $val<br>";
-                  }		
-		  if($key == 'notes' && $extra_info){
- 		    foreach($extra_info as $extra_val => $extra_key){
-	 	      print "<b>".ucfirst($extra_key)."</b>: $extra_val<br>\n";
-		    }
+                      print "</table>";
                   }
-		}
-	      }
+                }
+                else{
+                  if($val){
+                    print "<b>".ucfirst($key)."</b>: $val<br>";
+                  }                
+                  if($key == 'notes' && $extra_info){
+                    foreach($extra_info as $extra_val => $extra_key){
+                      print "<b>".ucfirst($extra_key)."</b>: $extra_val<br>\n";
+                    }
+                  }
+                }
+              }
 
 
 
-	    }
+            }
             else
- 	      print "No results found!";
+              print "No results found!";
             ?>
             </td>
           </tr>

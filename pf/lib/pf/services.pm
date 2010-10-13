@@ -907,23 +907,23 @@ sub generate_httpd_conf {
                 next;
             }
             if ( $url =~ /^((http|https):\/\/.+)\/$/ ) {
-                push @contentproxies, "ProxyPass		/content/$vid/ $url";
-                push @contentproxies, "ProxyPassReverse	/content/$vid/ $url";
-                push @contentproxies, "ProxyHTMLURLMap		$1 /content/$vid";
+                push @contentproxies, "ProxyPass                /content/$vid/ $url";
+                push @contentproxies, "ProxyPassReverse        /content/$vid/ $url";
+                push @contentproxies, "ProxyHTMLURLMap    $1    /content/$vid";
             } else {
                 $url =~ /^((http|https):\/\/.+)\//;
-                push @contentproxies, "ProxyPass		/content/$vid/ $1/";
-                push @contentproxies, "ProxyPassReverse	/content/$vid/ $1/";
-                push @contentproxies, "ProxyHTMLURLMap		$url /content/$vid";
+                push @contentproxies, "ProxyPas        /content/$vid/ $1/";
+                push @contentproxies, "ProxyPassReverse        /content/$vid/ $1/";
+                push @contentproxies, "ProxyHTMLURLMap        $url       /content/$vid";
             }
-            push @contentproxies, "ProxyPass		/content/$vid $url";
+            push @contentproxies, "ProxyPass       /content/$vid $url";
             push @contentproxies, "<Location /content/$vid>";
-            push @contentproxies, "  SetOutputFilter	proxy-html";
-            push @contentproxies, "  ProxyHTMLDoctype	HTML";
-            push @contentproxies, "  ProxyHTMLURLMap	/ /content/$vid/";
+            push @contentproxies, "  SetOutputFilter        proxy-html";
+            push @contentproxies, "  ProxyHTMLDoctype        HTML";
+            push @contentproxies, "  ProxyHTMLURLMap        / /content/$vid/";
             push @contentproxies,
-                "  ProxyHTMLURLMap	/content/$vid /content/$vid";
-            push @contentproxies, "  RequestHeader	unset	Accept-Encoding";
+                "  ProxyHTMLURLMap        /content/$vid /content/$vid";
+            push @contentproxies, "  RequestHeader        unset        Accept-Encoding";
             push @contentproxies, "</Location>";
         }
     }

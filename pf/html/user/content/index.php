@@ -19,9 +19,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  * 
- * @author	Dominik Gehl <dgehl@inverse.ca>
- * @copyright 	2008-2010 Inverse inc.
- * @license 	http://opensource.org/licenses/gpl-2.0.php	GPL
+ * @author      Dominik Gehl <dgehl@inverse.ca>
+ * @copyright   2008-2010 Inverse inc.
+ * @license     http://opensource.org/licenses/gpl-2.0.php       GPL
  */
 
   if(!function_exists("set_default")){
@@ -89,8 +89,8 @@
 <title><?php echo _($title)?></title>
 
 <head>
-	<? $abs_url="https://$_SERVER[HTTP_HOST]"; ?>
-	<link rel="stylesheet" href="<?=$abs_url?>/content/style.php" type="text/css">
+    <? $abs_url="https://$_SERVER[HTTP_HOST]"; ?>
+    <link rel="stylesheet" href="<?=$abs_url?>/content/style.php" type="text/css">
 </head>
 
 
@@ -99,46 +99,46 @@
 
 <?if(!$_GET['admin']){ //start non-admin section  ?>
 <div id='header'>
-	<center>
-	<table class='header'>
-		<tr>
-			<td class='logo'>
-				<img src='<?=$abs_url?>/<?=$logo_src?>' id='logo'>  
-			</td>
-			<td class='title' id='title'>
+    <center>
+    <table class='header'>
+        <tr>
+            <td class='logo'>
+                <img src='<?=$abs_url?>/<?=$logo_src?>' id='logo'>  
+            </td>
+            <td class='title' id='title'>
 <?php echo _("Quarantine Established!") ?>
-			</td>
-		</tr>
-	</table>
-	</center>
+            </td>
+        </tr>
+    </table>
+    </center>
 </div>
 <?} // end non-admin section?>
 
 <?=$custom_header?>
 
 <div id='description'>
-	<p id='description_header' class='sub_header'><?php echo _($description_header) ?></p>
-	<span class='description_text'> <?php echo _($description_text) ?> </span>
+    <p id='description_header' class='sub_header'><?php echo _($description_header) ?></p>
+    <span class='description_text'> <?php echo _($description_text) ?> </span>
 </div>
 
 <div id='remediation'>
-	<p class='sub_header'><?php echo _($remediation_header) ?></p>
-	<span class='remediation_text'><?php echo _($remediation_text) ?> </span>
+    <p class='sub_header'><?php echo _($remediation_header) ?></p>
+    <span class='remediation_text'><?php echo _($remediation_text) ?> </span>
 </div>
 
 <?if(!$_GET['admin']){ // start non-admin section ?>
 <div id='user_info'>
-	<p class='sub_header'><?php echo _("Additional Assistance") ?></p>
+    <p class='sub_header'><?php echo _("Additional Assistance") ?></p>
 
-	<?php echo _("If your network connectivity becomes permanently disabled or you are unable to follow the instructions above, please contact your local IT support staff for assistance.") ?>
+    <?php echo _("If your network connectivity becomes permanently disabled or you are unable to follow the instructions above, please contact your local IT support staff for assistance.") ?>
 
-	<?php echo _("The following information should be provided upon request:") ?>
+    <?php echo _("The following information should be provided upon request:") ?>
 
-	<ul>
-		<li><?php echo _("IP Address") ?> - <?=$user_data['ip']?></li>
-		<li><?php echo _("MAC Address") ?> - <?=strtoupper($user_data['mac'])?></li>
-	
-	</ul>
+    <ul>
+        <li><?php echo _("IP Address") ?> - <?=$user_data['ip']?></li>
+        <li><?php echo _("MAC Address") ?> - <?=strtoupper($user_data['mac'])?></li>
+    
+    </ul>
 
 </div>
 <?} // end non-admin section ?>
