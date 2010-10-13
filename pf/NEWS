@@ -31,6 +31,7 @@ Enhancements
   User-Name, ...)
 - Small usability improvements (#1006)
 - Fast Web Services layer running under mod_perl
+- New parameter -vlanName to pfcmd_vlan allows to specify vlan changes by name
 - Refactoring of the pf::vlan method names for more meaningful ones
 - Removed unnecessary database connections and duplicated code
 - Added several tests

@@ -25,6 +25,13 @@ o Upgrading from a version prior to <release>:
     packetfence-remote-snort-sensor will take care of this for remote snort 
     probes. All other custom means should be manually upgraded.
 
+    - SOAP handler changed
+    The URI of the SOAP handler changed from 
+    http://www.packetfence.org/PFEvents to http://www.packetfence.org/PFAPI. To
+    better reflect the fact that it is not just an event handling server. You 
+    will need to upgrade your remote snort probes with the new PacketFence 
+    remote snort sensor RPM or manually change the URI.
+
     - Output of node lookup changed
     The output of `pfcmd lookup node <mac>` changed. Make sure you update your
     parsing scripts (if any). This also affects the Node lookup section of the
@@ -33,12 +40,19 @@ o Upgrading from a version prior to <release>:
     - pfcmd input and output change
     Viewing and modifying nodes changed through pfcmd. If you used script to 
     automate tasks relying on the `pfcmd node` interface, you need to update 
-    them.
+    them. Output of `pfcmd locationhistorymac` and `pfcmd 
+    locationhistoryswitch` also changed.
 
     - lib/pf/vlan.pm interface changed
     If you built a customized version of vlan.pm in lib/pf/vlan/custom.pm be 
     aware that there were a lot of changes. We strongly recommend you rewrite 
     your custom.pm on top of these new changes instead keeping your old.
+ 
+    - deprecated subs
+    lib/pf/SNMP.pm's setIsolationVlan, setRegistrationVlan and setNormalVlan 
+    are now deprecated and will be removed in the future. Use 
+    setVlanByName($ifIndex, $switch_locker_ref, $vlanName) instead. For 
+    example: setVlanByName($ifIndex, \%switch_locker, 'guestVlan'); 
 
 o Upgrading from a version prior to <release>:
 
