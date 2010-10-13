@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 238;
+use Test::More tests => 214;
 
 # TODO we should have a global file list
 my @files = (
@@ -162,7 +162,6 @@ my @files = (
     '/usr/local/pf/html/admin/common.php',
     '/usr/local/pf/html/admin/common/adminperm.inc',
     '/usr/local/pf/html/admin/common/helpers.inc',
-    '/usr/local/pf/html/admin/common/sajax/Sajax.php',
     '/usr/local/pf/html/admin/configuration/fingerprint.php',
     '/usr/local/pf/html/admin/configuration/floatingnetworkdevice_add.php',
     '/usr/local/pf/html/admin/configuration/floatingnetworkdevice_edit.php',
@@ -231,29 +230,6 @@ my @files = (
     '/usr/local/pf/html/user/content/violations/system_scan.php',
     '/usr/local/pf/html/user/content/violations/trojan.php',
     '/usr/local/pf/html/user/content/violations/zotob.php',
-    '/usr/local/pf/t/all.t',
-    '/usr/local/pf/t/binaries.t',
-    '/usr/local/pf/t/coding-style.t',
-    '/usr/local/pf/t/config.t',
-    '/usr/local/pf/t/critic.t',
-    '/usr/local/pf/t/data.t',
-    '/usr/local/pf/t/floatingdevice.t',
-    '/usr/local/pf/t/graph.t',
-    '/usr/local/pf/t/hardware-snmp-objects.t',
-    '/usr/local/pf/t/nodecategory.t',
-    '/usr/local/pf/t/node.t',
-    '/usr/local/pf/t/person.t',
-    '/usr/local/pf/t/pfcmd.t',
-    '/usr/local/pf/t/pfsetvlan.t',
-    '/usr/local/pf/t/pf.t',
-    '/usr/local/pf/t/php.t',
-    '/usr/local/pf/t/podCoverage.t',
-    '/usr/local/pf/t/pod.t',
-    '/usr/local/pf/t/report.t',
-    '/usr/local/pf/t/services.t',
-    '/usr/local/pf/t/smoke.t',
-    '/usr/local/pf/t/SNMP.t',
-    '/usr/local/pf/t/SwitchFactory.t',
 );
 
 # lookout for TABS
@@ -271,6 +247,10 @@ foreach my $file (@files) {
     # I hate tabs!!
     ok(!$tabFound, "no tab character in $file");
 }
+
+# TODO test the tests for coding style but only if they are present
+# (since they are not present in build system by default)
+
 
 =head1 AUTHOR
 
