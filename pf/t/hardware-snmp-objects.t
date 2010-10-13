@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 141;
+use Test::More tests => 143;
 use lib '/usr/local/pf/lib';
 my $lib_path = '/usr/local/pf/lib';
 
@@ -72,6 +72,7 @@ BEGIN { use_ok('pf::SNMP::Nortel::ERS4500') }
 BEGIN { use_ok('pf::SNMP::Nortel::ES325') }
 BEGIN { use_ok('pf::SNMP::PacketFence') }
 BEGIN { use_ok('pf::SNMP::SMC') }
+BEGIN { use_ok('pf::SNMP::SMC::TS6128L2') }
 BEGIN { use_ok('pf::SNMP::SMC::TS6224M') }
 BEGIN { use_ok('pf::SNMP::SMC::TS8800M') }
 BEGIN { use_ok('pf::SNMP::ThreeCom') }
@@ -143,6 +144,7 @@ my @SNMPobjects = qw(
     pf::SNMP::Nortel::ES325
     pf::SNMP::PacketFence
     pf::SNMP::SMC
+    pf::SNMP::SMC::TS6128L2
     pf::SNMP::SMC::TS6224M
     pf::SNMP::SMC::TS8800M
     pf::SNMP::ThreeCom

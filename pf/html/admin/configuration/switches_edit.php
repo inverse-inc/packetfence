@@ -147,8 +147,9 @@
                            'Nortel::ERS4500' => 'Nortel ERS 4500 Series',
                            'Nortel::ES325' => 'Nortel ES325',
                            'PacketFence' => 'PacketFence',
-                           'SMC::TS8800M' => 'SMC TigerStack 8800 Series',
-                           'SMC::TS6224M' => 'SMC TigerStack 6224M'
+                           'SMC::TS6128L2' => 'SMC TigerStack 6128L2',
+                           'SMC::TS6224M' => 'SMC TigerStack 6224M',
+                           'SMC::TS8800M' => 'SMC TigerStack 8800 Series'
                       ), 
                      'hash', $val, "name='$key'");
         break;

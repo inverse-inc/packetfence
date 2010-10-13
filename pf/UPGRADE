@@ -25,6 +25,12 @@ o Upgrading from a version prior to <release>:
     rlm_perl_packetfence.pl script you don't need to perform the above but you
     won't have the performance and correctness benefits either.
 
+    - SMC TS8800M module changes
+    A lot of changes were made to this SMC module such that problems occuring
+    with the previous module should be resolved now. These fixes also required
+    an updated firmware from SMC. Make sure your switch runs at opcode 2.4.5.13
+    for the SMC TigerStack 8824M or 8848M to work properly with PacketFence.
+
 o Upgrading from a version prior to 1.9.1:
 
     - Captive portal using mod_perl

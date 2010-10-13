@@ -16,6 +16,10 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <release> - <codename> released on <date>
 
+New Hardware Support
+- SMC TigerStack 6128 L2 support in Port Security (feature sponsored by Seattle
+  Pacific University)
+
 New Features
 - New parameter in switches.conf to ease FreeRADIUS integration
 - Optional automatic configuration of FreeRADIUS' clients using switches.conf 
@@ -26,6 +30,7 @@ Enhancements
 - New DHCP fingerprints (HP ProCurve Wireless and Ricoh MFP)
 
 Bug fixes
+- Fixes to the SMC TigerStack 8824M and 8848M modules (see UPGRADE)
 - No error reporting when trying to change configuration files with bad rights
   (#1088)
 - Violation priorities are now enforced according to documentation (1 = highest)

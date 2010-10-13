@@ -2,23 +2,27 @@ package pf::SNMP::SMC::TS6224M;
 
 =head1 NAME
 
-pf::SNMP::SMC::TS6224M - Object oriented module to access SNMP 
-enabled SMC Switch - TigerStack 6224M switches
+pf::SNMP::SMC::TS6224M - Object oriented module to parse SNMP traps and manage SMC's TigerStack 6224M switches
 
-=head1 SYNOPSIS
+=head1 STATUS
 
-The pf::SNMP::SMC::TS6224M module implements an object 
-oriented interface to access SNMP enabled 
-SMC Switch - TigerStack 6224M switches.
+Supports 
+ linkUp / linkDown mode
+
+This module was not developed by Inverse. Unknown firmware revision used for development.
 
 =cut
-
 use strict;
 use warnings;
 use diagnostics;
+
 use Log::Log4perl;
 use Net::SNMP;
+
 use base ('pf::SNMP::SMC');
+
+# importing switch constants
+use pf::SNMP::constants;
 
 sub getVersion {
     my ($this) = @_;
@@ -66,6 +70,8 @@ Mr. Chinasee BOONYATANG <chinasee.b@psu.ac.th>
 =head1 COPYRIGHT
 
 Copyright (C) 2006-2008 Inverse inc.
+
+=head1 LICENCE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

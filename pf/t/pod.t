@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 137;
+use Test::More tests => 138;
 
 my @files = (
     '/usr/local/pf/addons/accounting.pl',
@@ -121,6 +121,7 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP/PacketFence.pm',
     '/usr/local/pf/lib/pf/SNMP.pm',
     '/usr/local/pf/lib/pf/SNMP/SMC.pm',
+    '/usr/local/pf/lib/pf/SNMP/SMC/TS6128L2.pm',
     '/usr/local/pf/lib/pf/SNMP/SMC/TS6224M.pm',
     '/usr/local/pf/lib/pf/SNMP/SMC/TS8800M.pm',
     '/usr/local/pf/lib/pf/SNMP/ThreeCom/NJ220.pm',

@@ -4,21 +4,31 @@ package pf::SNMP::SMC;
 
 pf::SNMP::SMC - Object oriented module to access SNMP enabled SMC switches
 
-=head1 SYNOPSIS
+=head1 STATUS
 
-The pf::SNMP::SMC module implements an object oriented interface
-to access SNMP enabled SMC switches.
+This modules holds functions common to the SMC switches but details and documentation are in each sub-module. 
+Refer to them for more information.
+
+=head1 BUGS AND LIMITATIONS
+
+This modules holds functions common to the SMC switches but details and documentation are in each sub-module. 
+Refer to them for more information.
 
 =cut
-
 use strict;
 use warnings;
 use diagnostics;
 
-use base ('pf::SNMP');
 use POSIX;
 use Log::Log4perl;
-use Data::Dumper;
+
+use base ('pf::SNMP');
+
+# importing switch constants
+use pf::SNMP::constants;
+use pf::util;
+
+# FIXME: add to admin guide instruction to cut up/down traps and get rid of the 02:00... traps
 
 =head1 SUBROUTINES
             
@@ -82,7 +92,7 @@ sub _setVlan {
 
     # calculate new settings
     my $egressPortsOldVlan = $this->modifyBitmask( 
-	$result->{"$OID_dot1qVlanStaticEgressPorts.$oldVlan"}, $dot1dBasePort - 1, 0 );
+        $result->{"$OID_dot1qVlanStaticEgressPorts.$oldVlan"}, $dot1dBasePort - 1, 0 );
     my $egressPortsVlan = $this->modifyBitmask(
         $result->{"$OID_dot1qVlanStaticEgressPorts.$newVlan"}, $dot1dBasePort - 1, 1 );
     my $untaggedPortsOldVlan = $this->modifyBitmask(
@@ -105,7 +115,7 @@ sub _setVlan {
 
     if ( !defined($result) ) {
         $logger->error( "error setting egressPorts and untaggedPorts for old and new vlan: " 
-		. $this->{_sessionWrite}->error );
+            . $this->{_sessionWrite}->error );
     }
 
     #change port PVID
@@ -210,11 +220,19 @@ sub getDot1dBasePortForThisIfIndex {
     return $dot1dBasePort;
 }
 
+=item getAllSecureMacAddresses - return all MAC addresses in security table and their VLAN
+
+Returns an hashref with MAC => ifIndex => Array(VLANs)
+
+
+
+=cut
 sub getAllSecureMacAddresses {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    # from Q-BRIDGE MIB
     my $OID_dot1qStaticUnicastAllowedToGoTo = '1.3.6.1.2.1.17.7.1.3.1.1.3';
-    #my $hpSecCfgAddrGroupIndex = 1;
 
     my $secureMacAddrHashRef = {};
     if ( !$this->connectRead() ) {
@@ -230,23 +248,41 @@ sub getAllSecureMacAddresses {
         # here is an example for port ethernet 1/16 
         # result is HEX and $y is bits
         #
-	# result = 0x000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-        # $y = 0000 0000 0000 0001 0000 0000 ....
-        # $ifIndex = 16
+        # the length of result varies based on SMC model, 480 bits on 8xxx and 64 bits on 6xxx
+        # in hex: result = 0x0001000000000000000000...
+        # in bit port_list: $port_list = 0000 0000 0000 0001 0000 0000 ....
+        # in this example then $ifIndex = 16
 
-        my $y = unpack("B*", $result->{$oid_including_mac});
-        my $ifIndex = index($y, '1') + 1;
+        my $port_list = unpack("B*", $result->{$oid_including_mac});
+        # iterate through all ports enabled for that entry
+        while($port_list =~ /1/g) {
+            my $ifIndex = pos($port_list);
 
-        if ( $oid_including_mac =~ /^$OID_dot1qStaticUnicastAllowedToGoTo\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/ )
-        {
-	    my $vlan = $1;
-            my $mac = sprintf( "%02x:%02x:%02x:%02x:%02x:%02x", $2, $3, $4, $5, $6, $7 );
-            push @{ $secureMacAddrHashRef->{$mac}->{$ifIndex} }, $vlan;
+            if ($oid_including_mac =~ 
+                /^$OID_dot1qStaticUnicastAllowedToGoTo\.               # oid
+                ([0-9]+)\.                                             # vlan
+                ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\.     # mac in oid format
+                [0-9]+                                                 # unknown
+                /x) {
+
+                my $vlan = $1;
+                my $mac = oid2mac($2);
+                push @{ $secureMacAddrHashRef->{$mac}->{$ifIndex} }, $vlan;
+            }
         }
     }
     return $secureMacAddrHashRef;
 }
 
+=item getSecureMacAddresses - return all MAC addresses in security table and their VLAN for a given ifIndex
+
+Returns an hashref with MAC => Array(VLANs)
+
+This method here has to handle different PortList sizes. 
+TigerStack 8xxx has a 480bit length port list and the 6xxx a 64bit length one. 
+Have that in mind when doing maintenance.
+
+=cut
 sub getSecureMacAddresses {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -262,22 +298,19 @@ sub getSecureMacAddresses {
     my $result = $this->{_sessionRead}->get_table( -baseoid => "$OID_dot1qStaticUnicastAllowedToGoTo" );
     $this->{_sessionRead}->translate(1);
 
-    # we need a 60 bytes (480 bits) string
-    my @bits = split //, ("0" x 480);
-    $bits[$ifIndex - 1] = "1";
-    my $ifIndexMask = join ('', @bits);
-
     while ( my $oid_including_mac = each( %{$result} ) ) {
-        my $y = unpack("B*", $result->{$oid_including_mac});
-        my $ifIndex = index($y, '1') + 1;
 
-        if ( $y eq $ifIndexMask ) {
-            if ( $oid_including_mac =~ /^$OID_dot1qStaticUnicastAllowedToGoTo\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/ )
-            {   
+        # if bit at ifIndex position is On, this MAC is on the ifIndex we are looking for, store it
+        if ($this->getBitAtPosition($result->{$oid_including_mac}, $ifIndex-1)) {
+            if ($oid_including_mac =~ 
+                /^$OID_dot1qStaticUnicastAllowedToGoTo\.                               # query OID
+                ([0-9]+)\.                                                             # <vlan>.
+                ([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)   # MAC in OID format
+                /x) {
+
                 my $vlan = $1;
                 my $mac = sprintf( "%02x:%02x:%02x:%02x:%02x:%02x", $2, $3, $4, $5, $6, $7 );
-		push @{$secureMacAddrHashRef->{$mac}}, $vlan;
-                return $secureMacAddrHashRef;
+                push @{$secureMacAddrHashRef->{$mac}}, $vlan;
             }
         }
     }
@@ -287,6 +320,8 @@ sub getSecureMacAddresses {
 sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    # from Q-BRIDGE-MIB (RFC4363)
     my $OID_dot1qStaticUnicastStatus = '1.3.6.1.2.1.17.7.1.3.1.1.4';
     my $OID_dot1qStaticUnicastAllowedToGoTo = '1.3.6.1.2.1.17.7.1.3.1.1.3';
     
@@ -310,52 +345,37 @@ sub authorizeMAC {
         return 0;
     }
 
-    if ($deauthMac) {
-        #convert MAC into decimal
-        my $MACHex = $deauthMac;
-        my @MACArray = split( /:/, $MACHex );
-        my $MACDec = '';
-        foreach my $hexPiece (@MACArray) {
-            if ( $MACDec ne '' ) {
-                $MACDec .= ".";
-            }
-            $MACDec .= hex($hexPiece);
-        }
+    if ($deauthMac && !$this->isFakeMac($deauthMac)) {
+
+        my $mac_oid = mac2oid($deauthMac);
 
         $logger->trace("SNMP set_request for OID_dot1qStaticUnicastStatus");
         my $result = $this->{_sessionWrite}->set_request( -varbindlist => [
-        	"$OID_dot1qStaticUnicastStatus.$deauthVlan.$MACDec.0", Net::SNMP::INTEGER, 2 ]);
-        $logger->info("Deauthorizing $MACDec on ifIndex $ifIndex, vlan $deauthVlan");
+            "$OID_dot1qStaticUnicastStatus.$deauthVlan.$mac_oid.0", Net::SNMP::INTEGER, $SNMP::Q_BRIDGE::INVALID
+        ]);
+        $logger->info("Deauthorizing $deauthMac ($mac_oid) on ifIndex $ifIndex, vlan $deauthVlan");
     }
 
-    if ($authMac) {
-        #convert MAC into decimal
-        my $MACHex = $authMac;
-        my @MACArray = split( /:/, $MACHex );
-        my $MACDec = '';
-        foreach my $hexPiece (@MACArray) {
-            if ( $MACDec ne '' ) {
-                $MACDec .= ".";  
-            }
-            $MACDec .= hex($hexPiece);
-        }
+    if ($authMac && !$this->isFakeMac($authMac)) {
 
-        my $switch_locker_ref; 
-        $this->setVlan($ifIndex, $authVlan, $deauthVlan, $switch_locker_ref);
-   
+        my $mac_oid = mac2oid($authMac);
+
         $logger->trace("SNMP set_request for OID_dot1qStaticUnicastStatus");
 
-        # we need a 60 bytes (480 bits) string
-        my @bits = split //, ("0" x 480);
-        $bits[$ifIndex - 1] = "1";
-        my $ifIndexMask = join ('', @bits);
-        my $value = pack("B*", $ifIndexMask);
+        my $portList = $this->createPortListWithOneItem($ifIndex);
+
+        # Warning: this may seem counter-intuitive but I'm authorizing the new MAC on the old VLAN
+        # because the switch won't accept it for a VLAN that doesn't exist on that port. 
+        # When changed by _setVlan later, the MAC will be re-authorized on the right VLAN
+        my $vlan = $this->getVlan($ifIndex);
 
         $logger->trace("SNMP set_request for OID_dot1qStaticUnicastAllowedToGoTo");
         my $result = $this->{_sessionWrite}->set_request( -varbindlist => [
-		"$OID_dot1qStaticUnicastStatus.$authVlan.$MACDec.0", Net::SNMP::INTEGER, 3,
-		"$OID_dot1qStaticUnicastAllowedToGoTo.$authVlan.$MACDec.0", Net::SNMP::OCTET_STRING, $value ]);
-        $logger->info("Authorizing $MACDec on ifIndex $ifIndex, vlan $authVlan");
+            "$OID_dot1qStaticUnicastStatus.$vlan.$mac_oid.0", Net::SNMP::INTEGER, $SNMP::Q_BRIDGE::PERMANENT,
+            "$OID_dot1qStaticUnicastAllowedToGoTo.$vlan.$mac_oid.0", Net::SNMP::OCTET_STRING, $portList
+        ]);
+        $logger->info("Authorizing $authMac ($mac_oid) on ifIndex $ifIndex, vlan $vlan "
+            . "(don't worry if VLAN is not ok, it'll be re-assigned later)");
     }
     return 1;
 }
@@ -364,6 +384,10 @@ sub authorizeMAC {
 
 =head1 AUTHOR
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
+Regis Balzard <rbalzard@inverse.ca>
+
 Mr. Chinasee BOONYATANG <chinasee.b@psu.ac.th>
 
   Prince of Songkla University, Thailand
@@ -371,7 +395,9 @@ Mr. Chinasee BOONYATANG <chinasee.b@psu.ac.th>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008 Inverse inc.
+Copyright (C) 2006-2008,2010 Inverse inc.
+
+=head1 LICENCE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
