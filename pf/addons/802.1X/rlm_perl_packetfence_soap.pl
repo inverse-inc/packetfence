@@ -198,7 +198,7 @@ sub post_auth {
             syslog("info", "returning vlan ".$RAD_REPLY{'Tunnel-Private-Group-ID'}." "
                 . "to request from $mac port $port");
             &radiusd::radlog(1, "PacketFence RESULT VLAN: ".$RAD_REPLY{'Tunnel-Private-Group-ID'});
-	} else {
+        } else {
             syslog("info", "request from $mac port $port was accepted but no VLAN returned. "
                 . "See server logs for details");
             &radiusd::radlog(1, "PacketFence NO RESULT VLAN");
@@ -274,8 +274,8 @@ sub find_ssid {
         # Colubris-AVPair = ssid=Inv_Controller
         # Colubris-AVPair = group=Default Group
         # Colubris-AVPair = phytype=IEEE802dot11g
-	foreach (@{$RAD_REQUEST{'Colubris-AVPair'}}) {
-	    if (/^ssid=(.*)$/) { return $1; }
+        foreach (@{$RAD_REQUEST{'Colubris-AVPair'}}) {
+            if (/^ssid=(.*)$/) { return $1; }
         }
         syslog("info", "Unable to parse SSID out of Colubris-AVPair: ".@{$RAD_REQUEST{'Colubris-AVPair'}});
         return;
