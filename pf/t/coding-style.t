@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 239;
+use Test::More tests => 238;
 
 # TODO we should have a global file list
 my @files = (
@@ -28,7 +28,6 @@ my @files = (
     '/usr/local/pf/bin/flip.pl',
     '/usr/local/pf/bin/pfcmd',
     '/usr/local/pf/bin/pfcmd_vlan',
-    '/usr/local/pf/cgi-bin/pdp.cgi',
     '/usr/local/pf/cgi-bin/redir.cgi',
     '/usr/local/pf/cgi-bin/release.cgi',
     '/usr/local/pf/cgi-bin/register.cgi',
