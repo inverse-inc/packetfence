@@ -170,7 +170,9 @@ my @whitelist = (
     'setMacDetectionVlan', 'setNormalVlan', 'getMode', 'isTestingMode', 'isIgnoreMode', 'isRegistrationMode', 
     'isProductionMode', 'isDiscoveryMode', 'resetTaggedVlan', 'getBitAtPosition', 'modifyBitmask', 
     'createPortListWithOneItem', 'reverseBitmask', 'generateFakeMac', 'isFakeMac', 'isFakeVoIPMac', 'getVlanFdbId',
-    'isNotUpLink', 'getVlanByName', 'isManagedVlan', 'deauthenticateMac', 'setVlan'
+    'isNotUpLink', 'setVlan', 'setVlanAllPort', 'resetVlanAllPort', 'getMacAtIfIndex', 'hasPhoneAtIfIndex',
+    'isPhoneAtIfIndex', '_authorizeMAC', 'getRegExpFromList', '_getMacAtIfIndex', 'getMacAddrVlan', 'getHubs',
+    'getVlanByName', 'isManagedVlan', 'deauthenticateMac', 'setVlan'
 );
 
 my @missing_subs;
@@ -192,7 +194,7 @@ foreach my $sub (@pf_snmp_subs) {
 is_deeply(
     \@missing_subs,
     [],
-    "there must be no sub in pf::SNMP not implemented or whitelist in pf::SNMP::MockedSwitch"
+    "there must be no sub in pf::SNMP not implemented or whitelisted in pf::SNMP::MockedSwitch"
 );
 
 # TODO future MockedWireless module will have to test for: deauthenticateMac
