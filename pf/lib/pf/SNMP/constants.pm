@@ -69,6 +69,26 @@ Readonly::Scalar our $DESTROY => 6;
 
 =back
 
+=item ifOperStatus - defined by RFC 2863 (Interfaces Group) aka IF-MIB
+
+ up(1),        -- ready to pass packets
+ down(2),
+ testing(3),   -- in some test mode
+ unknown(4),   -- status can not be determined for some reason.
+ dormant(5),
+ notPresent(6),    -- some component is missing
+ lowerLayerDown(7) -- down due to state of lower-layer interface(s)
+
+=cut
+Readonly::Scalar our $UP => 1;
+Readonly::Scalar our $DOWN => 2;
+Readonly::Scalar our $TESTING => 3;
+Readonly::Scalar our $UNKNOWN => 4;
+Readonly::Scalar our $DORMANT => 5;
+Readonly::Scalar our $NOT_PRESENT => 6;
+Readonly::Scalar our $LOWER_LAYER_DOWN => 7;
+
+
 =head1 Q-BRIDGE
 
 RFC 4363:  Definitions of Managed Objects for Bridges with Traffic Classes, Multicast Filtering, and Virtual LAN Extensions

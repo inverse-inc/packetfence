@@ -192,5 +192,5 @@ foreach my $sub (@pf_snmp_subs) {
 is_deeply(
     \@missing_subs,
     [],
-    "there must be no sub in pf::SNMP not implemented or whitelist in pf::SNMP::MockedSwitch"
+    "there must be no sub in pf::SNMP not implemented or whitelisted in pf::SNMP::MockedSwitch"
 );

@@ -33,16 +33,32 @@ use strict;
 use warnings;
 use diagnostics;
 use Carp;
+use Data::Dumper;
 use Log::Log4perl;
 use Net::SNMP;
-use Net::Appliance::Session;
+use Test::MockObject::Extends;
+use Time::HiRes qw( usleep );
 
 use base ('pf::SNMP');
-
 
 use pf::config;
 # importing switch constants
 use pf::SNMP::constants;
+
+# these are in microseconds (not milliseconds!) because of Time::HiRes's usleep
+# TODO benchmark more sensible values
+use constant CONNECT_READ_DELAY => 100_000; 
+use constant CONNECT_V3_READ_DELAY => 200_000; 
+use constant CONNECT_WRITE_DELAY => 100_000; 
+use constant CONNECT_V3_WRITE_DELAY => 200_000; 
+
+use constant DISCONNECT_DELAY => 10_000; 
+
+use constant READ_GET_DELAY => 50_000;
+use constant READ_TABLE_DELAY => 250_000;
+use constant WRITE_SET_DELAY => 50_000;
+
+use constant MYSQL_CONNECTION_DELAY => 500_000;
 
 =head1 SUBROUTINES
 
@@ -64,52 +80,85 @@ sub connectRead {
     if ( defined( $this->{_sessionRead} ) ) {
         return 1;
     }
-    $logger->debug( "opening SNMP v"
-            . $this->{_SNMPVersion}
-            . " read connection to $this->{_ip}" );
+
+    $logger->debug("opening fake SNMP v" . $this->{_SNMPVersion} . " read connection to $this->{_ip}");
     if ( $this->{_SNMPVersion} eq '3' ) {
-        ( $this->{_sessionRead}, $this->{_error} ) = Net::SNMP->session(
-            -hostname     => $this->{_ip},
-            -version      => $this->{_SNMPVersion},
-            -username     => $this->{_SNMPUserNameRead},
-            -timeout      => 2,
-            -retries      => 1,
-            -authprotocol => $this->{_SNMPAuthProtocolRead},
-            -authpassword => $this->{_SNMPAuthPasswordRead},
-            -privprotocol => $this->{_SNMPPrivProtocolRead},
-            -privpassword => $this->{_SNMPPrivPasswordRead}
-        );
+
+        usleep(CONNECT_V3_READ_DELAY);
+       # $this->{_sessionRead} = 1;
+
     } else {
-        ( $this->{_sessionRead}, $this->{_error} ) = Net::SNMP->session(
-            -hostname  => $this->{_ip},
-            -version   => $this->{_SNMPVersion},
-            -timeout   => 2,
-            -retries   => 1,
-            -community => $this->{_SNMPCommunityRead}
+
+        usleep(CONNECT_READ_DELAY);
+       # $this->{_sessionRead} = 1;
+    }
+
+    $this->{_sessionRead} = new Net::SNMP;
+   
+    # TODO extract mocking in mockReadObject() method
+    # Make the object mockable
+    $this->{_sessionRead} = Test::MockObject::Extends->new($this->{_sessionRead});
+
+    # TODO extract sub in coderef
+    $this->{_sessionRead}
+        ->mock('get_request', 
+            sub { 
+                my ($this, %args) = @_;
+                my $request_type = 'get_request';
+                $logger->trace("Mocked $request_type got args: ".Dumper(\%args));
+
+                usleep(READ_GET_DELAY);
+                if (defined($args{'-varbindlist'}) && @{$args{'-varbindlist'}} == 1) {
+                    # TODO extract in a dispatch_read_)oid() method
+                    # fetches the first oid argument
+                    my $request_oid = ${$args{'-varbindlist'}}[0];
+
+                    if ($request_oid =~ /^1.3.6.1.2.1.2.2.1.8/) {
+                        $logger->trace("$request_type: we always return up $SNMP::UP for this OID");
+                        return { $request_oid => $SNMP::UP };
+                    } else {
+                        $logger->trace("$request_type: returning $TRUE by default");
+                        return { $request_oid => $TRUE }; 
+                    }
+                } else {
+                    $logger->debug("$request_type: returning $TRUE for lack of a better idea what to do");
+                }
+                return $TRUE;
+            }
+        )->mock('get_table',
+            sub { 
+                my ($this, %args) = @_;
+                my $request_type = 'get_table';
+                $logger->trace("Mocked $request_type got args: ".Dumper(\%args));
+
+                usleep(READ_TABLE_DELAY);
+                if (defined($args{'-baseoid'})) {
+                    # TODO extract in a dispatch_read_)oid() method
+                    my $request_oid = $args{'-baseoid'};
+
+                    # TODO extract OIDs, return values into constants
+                    if ($request_oid =~ /^1.3.6.1.2.1.17.1.4.1.2$/) {
+                        $logger->trace("$request_type: returning a classic 2960 dot1d to ifIndex mapping");
+                        # TODO extract into helper method?
+                        my $result;
+                        for (my $i = 1; $i <= 48; $i++) {
+                            $result->{$request_oid.".".$i} = sprintf("100%02d",$i);
+                        }
+                        return $result;
+                    } else {
+                        $logger->trace("$request_type: returning $TRUE by default");
+                        return { $request_oid => $TRUE }; 
+                    }
+                } else {
+                    $logger->debug("$request_type: returning $TRUE for lack of a better idea what to do");
+                }
+                return $TRUE;
+            }
         );
-    }
-    if ( !defined( $this->{_sessionRead} ) ) {
-        $logger->error( "error creating SNMP v"
-                . $this->{_SNMPVersion}
-                . " read connection to "
-                . $this->{_ip} . ": "
-                . $this->{_error} );
-        return 0;
-    } else {
-        my $oid_sysLocation = '1.3.6.1.2.1.1.6.0';
-        $logger->trace("SNMP get_request for sysLocation: $oid_sysLocation");
-        my $result = $this->{_sessionRead}
-            ->get_request( -varbindlist => [$oid_sysLocation] );
-        if ( !defined($result) ) {
-            $logger->error( "error creating SNMP v"
-                    . $this->{_SNMPVersion}
-                    . " read connection to "
-                    . $this->{_ip} . ": "
-                    . $this->{_sessionRead}->error() );
-            $this->{_sessionRead} = undef;
-            return 0;
-        }
-    }
+
+
+    $logger->debug("fetching sysLocation to make sure SNMP reads do work");
+    usleep(READ_GET_DELAY);
     return 1;
 }
 
@@ -123,10 +172,10 @@ sub disconnectRead {
     if ( !defined( $this->{_sessionRead} ) ) {
         return 1;
     }
-    $logger->debug( "closing SNMP v"
-            . $this->{_SNMPVersion}
-            . " read connection to $this->{_ip}" );
-    $this->{_sessionRead}->close;
+
+    $logger->debug( "closing fake SNMP v" . $this->{_SNMPVersion} . " read connection to $this->{_ip}" );
+    usleep(DISCONNECT_DELAY);
+    delete ($this->{_sessionRead});
     return 1;
 }
 
@@ -140,74 +189,52 @@ sub connectWrite {
     if ( defined( $this->{_sessionWrite} ) ) {
         return 1;
     }
-    $logger->debug( "opening SNMP v"
-            . $this->{_SNMPVersion}
-            . " write connection to $this->{_ip}" );
+
+    $logger->debug( "opening fake SNMP v" . $this->{_SNMPVersion} . " write connection to $this->{_ip}" );
     if ( $this->{_SNMPVersion} eq '3' ) {
-        ( $this->{_sessionWrite}, $this->{_error} ) = Net::SNMP->session(
-            -hostname     => $this->{_ip},
-            -version      => $this->{_SNMPVersion},
-            -timeout      => 2,
-            -retries      => 1,
-            -username     => $this->{_SNMPUserNameWrite},
-            -authprotocol => $this->{_SNMPAuthProtocolWrite},
-            -authpassword => $this->{_SNMPAuthPasswordWrite},
-            -privprotocol => $this->{_SNMPPrivProtocolWrite},
-            -privpassword => $this->{_SNMPPrivPasswordWrite}
-        );
+
+        usleep(CONNECT_V3_WRITE_DELAY);
     } else {
-        ( $this->{_sessionWrite}, $this->{_error} ) = Net::SNMP->session(
-            -hostname  => $this->{_ip},
-            -version   => $this->{_SNMPVersion},
-            -timeout   => 2,
-            -retries   => 1,
-            -community => $this->{_SNMPCommunityWrite}
-        );
+
+        usleep(CONNECT_WRITE_DELAY);
     }
-    if ( !defined( $this->{_sessionWrite} ) ) {
-        $logger->error( "error creating SNMP v"
-                . $this->{_SNMPVersion}
-                . " write connection to "
-                . $this->{_ip} . ": "
-                . $this->{_error} );
-        return 0;
-    } else {
-        my $oid_sysLocation = '1.3.6.1.2.1.1.6.0';
-        $logger->trace("SNMP get_request for sysLocation: $oid_sysLocation");
-        my $result = $this->{_sessionWrite}
-            ->get_request( -varbindlist => [$oid_sysLocation] );
-        if ( !defined($result) ) {
-            $logger->error( "error creating SNMP v"
-                    . $this->{_SNMPVersion}
-                    . " write connection to "
-                    . $this->{_ip} . ": "
-                    . $this->{_sessionWrite}->error() );
-            $this->{_sessionWrite} = undef;
-            return 0;
-        } else {
-            my $sysLocation = $result->{$oid_sysLocation} || '';
-            $logger->trace(
-                "SNMP set_request for sysLocation: $oid_sysLocation to $sysLocation"
-            );
-            $result = $this->{_sessionWrite}->set_request(
-                -varbindlist => [
-                    "$oid_sysLocation", Net::SNMP::OCTET_STRING,
-                    $sysLocation
-                ]
-            );
-            if ( !defined($result) ) {
-                $logger->error( "error creating SNMP v"
-                        . $this->{_SNMPVersion}
-                        . " write connection to "
-                        . $this->{_ip} . ": "
-                        . $this->{_sessionWrite}->error()
-                        . " it looks like you specified a read-only community instead of a read-write one"
-                );
-                $this->{_sessionWrite} = undef;
-                return 0;
+
+    # TODO extract mocking in mockWriteObject() method
+    # Make the object mockable
+    $this->{_sessionWrite} = Test::MockObject::Extends->new($this->{_sessionWrite});
+
+    # TODO extract sub in coderef
+    $this->{_sessionWrite}->mock(
+        'set_request', 
+        sub { 
+            my ($this, %args) = @_;
+            my $request_type = 'set_request';
+            $logger->trace("Mocked $request_type got args: ".Dumper(\%args));
+
+            usleep(WRITE_SET_DELAY);
+            
+            # SNMP SET arguments comes in pair of 3
+            my $legal_args = (defined($args{'-varbindlist'}) && @{$args{'-varbindlist'}} % 3 == 0);
+            if ($legal_args) {
+                # TODO extract in a dispatch_write_oid() method
+                # fetches the first oid argument
+                my $request_oid = ${$args{'-varbindlist'}}[0];
+
+                $logger->trace("$request_type: returning $TRUE by default");
+                return { $request_oid => $TRUE }; 
+            } else {
+                $logger->debug("$request_type: returning $TRUE for lack of a better idea what to do");
             }
+            return $TRUE;
         }
-    }
+    );
+
+    # fetching sysLocation (we will set it so we need to get it to set the same)
+    usleep(READ_GET_DELAY);
+
+    $logger->debug( "SNMP fake set request tests if we can really write" );
+    usleep(WRITE_SET_DELAY);
+
     return 1;
 }
 
@@ -221,10 +248,9 @@ sub disconnectWrite {
     if ( !defined( $this->{_sessionWrite} ) ) {
         return 1;
     }
-    $logger->debug( "closing SNMP v"
-            . $this->{_SNMPVersion}
-            . " write connection to $this->{_ip}" );
-    $this->{_sessionWrite}->close;
+    $logger->debug( "closing fake SNMP v" . $this->{_SNMPVersion} . " write connection to $this->{_ip}" );
+    usleep(DISCONNECT_DELAY);
+    delete($this->{_sessionWrite});
     return 1;
 }
 
@@ -241,25 +267,15 @@ sub connectMySQL {
         $logger->debug("database connection already exists - reusing it");
         return 1;
     }
-    $logger->debug( "connecting to database server "
-            . $this->{_dbHostname}
+    $logger->debug( "connecting to database server " . $this->{_dbHostname}
             . " as user "
             . $this->{_dbUser}
             . "; database name is "
-            . $this->{_dbName} );
-    $this->{_mysqlConnection}
-        = DBI->connect( "dbi:mysql:dbname="
             . $this->{_dbName}
-            . ";host="
-            . $this->{_dbHostname},
-        $this->{_dbUser}, $this->{_dbPassword}, { PrintError => 0 } );
-    if ( !defined( $this->{_mysqlConnection} ) ) {
-        $logger->error(
-            "couldn't connection to MySQL server: " . DBI->errstr );
-        return 0;
-    }
-    locationlog_db_prepare( $this->{_mysqlConnection} );
-    node_db_prepare( $this->{_mysqlConnection} );
+    );
+    usleep(MYSQL_CONNECTION_DELAY);
+
+    $this->{_mysqlConnection} = 1;
     return 1;
 }
 
@@ -282,7 +298,7 @@ sub _setVlanByOnlyModifyingPvid {
 
     my $dot1dBasePort = $this->getDot1dBasePortForThisIfIndex($ifIndex);
 
-    $logger->trace("SNMP set_request for Pvid for new VLAN");
+    $logger->debug("SNMP fake set_request for Pvid for new VLAN");
     $result
         = $this->{_sessionWrite}->set_request( -varbindlist =>
             [ "$OID_dot1qPvid.$dot1dBasePort", Net::SNMP::GAUGE32, $newVlan ]
@@ -294,7 +310,7 @@ sub _setVlanByOnlyModifyingPvid {
     return ( defined($result) );
 }
 
-=item getIfOperStatus - obtain the ifOperStatus of the specified switch port (1 indicated up, 2 indicates down)
+=item getIfOperStatus - obtain the ifOperStatus of the specified switch port
 
 =cut
 
@@ -305,10 +321,11 @@ sub getIfOperStatus {
     if ( !$this->connectRead() ) {
         return 0;
     }
-    $logger->trace(
-        "SNMP get_request for ifOperStatus: $oid_ifOperStatus.$ifIndex");
+
+    $logger->debug("SNMP fake get_request for ifOperStatus: $oid_ifOperStatus.$ifIndex");
     my $result = $this->{_sessionRead}
         ->get_request( -varbindlist => ["$oid_ifOperStatus.$ifIndex"] );
+
     return $result->{"$oid_ifOperStatus.$ifIndex"};
 }
 
@@ -322,8 +339,9 @@ sub getAlias {
     if ( !$this->connectRead() ) {
         return '';
     }
+
     my $OID_ifAlias = '1.3.6.1.2.1.31.1.1.1.18';
-    $logger->trace("SNMP get_request for ifAlias: $OID_ifAlias.$ifIndex");
+    $logger->trace("SNMP fake get_request for ifAlias: $OID_ifAlias.$ifIndex");
     my $result = $this->{_sessionRead}
         ->get_request( -varbindlist => ["$OID_ifAlias.$ifIndex"] );
     return $result->{"$OID_ifAlias.$ifIndex"};
@@ -824,8 +842,7 @@ sub getDot1dBasePortForThisIfIndex {
     if ( !$this->connectRead() ) {
         return $dot1dBasePort;
     }
-    $logger->trace(
-        "SNMP get_table for dot1dBasePortIfIndex: $OID_dot1dBasePortIfIndex");
+    $logger->debug("SNMP get_table for dot1dBasePortIfIndex: $OID_dot1dBasePortIfIndex");
     my $result = $this->{_sessionRead}
         ->get_table( -baseoid => $OID_dot1dBasePortIfIndex );
     foreach my $key ( keys %{$result} ) {
