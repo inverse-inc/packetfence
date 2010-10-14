@@ -281,14 +281,15 @@ foreach my $ifIndex ( sort { $a <=> $b } keys %$ifDescHashRef ) {
                 push @modLines,
                     "switchport access vlan " . $switch->{_macDetectionVlan};
             } else {
+                # TODO: we should provide a flag to offer either setting vlan by node or by switch
                 if ( $config =~ /switchport access vlan dynamic/ ) {
                     my $node_info = node_view($macToSecure);
-                    if ( $node_info->{'vlan'} ne '' ) {
+                    if ( $node_info->{'bypass_vlan'} ne '' ) {
                         push @modLines,
-                            "switchport access vlan " . $node_info->{'vlan'};
+                            "switchport access vlan " . $node_info->{'bypass_vlan'};
                     } else {
                         push @modLines, "switchport access vlan "
-                            . $switch->{_registrationVlan};
+                            . $switch->{_normalVlan};
                     }
                 }
             }
@@ -317,7 +318,7 @@ foreach my $ifIndex ( sort { $a <=> $b } keys %$ifDescHashRef ) {
                 $logger->debug("synchronizing locationlog entries");
                 if ( !( $macToSecure =~ /02:00:00:00:00/ ) ) {
                     locationlog_synchronize( $switch_ip, $ifIndex,
-                        $switch->getVlan($ifIndex), $macToSecure );
+                        $switch->getVlan($ifIndex), $macToSecure, NO_VOIP, WIRED_SNMP_TRAPS);
                 }
             }
         }
@@ -398,7 +399,7 @@ sub convertMac {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2008-2009 Inverse inc.
+Copyright (C) 2008-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

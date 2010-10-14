@@ -45,6 +45,10 @@ Warning: The list of subroutine is incomplete
 =over
 
 =cut
+
+# capabilities
+sub supportsFloatingDevice { return $TRUE; }
+
 sub getMinOSVersion {
     my $this   = shift;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -440,16 +444,6 @@ sub ping {
     return 1;
 }
 
-=item supportsFloatingDevice - Does this switch type supports floating network devices ?
-
-Only Catalyst 2900XL and 3500XL does not so far...
-
-=cut
-sub supportsFloatingDevice {
-    my ( $this ) = @_;
-
-    return 1;
-}
 
 =item enablePortSecurityByIfIndex - configure the port with port-security settings
 

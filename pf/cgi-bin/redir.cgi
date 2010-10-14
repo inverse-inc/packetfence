@@ -37,7 +37,7 @@ my $cgi = new CGI;
 my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 
 my $result;
-my $ip              = $cgi->remote_addr();
+my $ip              = get_client_ip($cgi);
 my $destination_url = $cgi->param("destination_url");
 my $enable_menu     = $cgi->param("enable_menu");
 my $mac             = ip2mac($ip);

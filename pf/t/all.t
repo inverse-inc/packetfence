@@ -20,12 +20,14 @@ runtests( qw(
               podCoverage.t
               php.t
               services.t
+              vlan.t
               data.t
               graph.t
               nodecategory.t
               floatingdevice.t
               network-devices/cisco.t
               pfsetvlan.t
+              radius.t
               report.t
               node.t
             )

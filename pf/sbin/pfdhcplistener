@@ -26,21 +26,22 @@ use Pod::Usage;
 use constant INSTALL_DIR => '/usr/local/pf';
 
 use lib INSTALL_DIR . "/lib";
-use pf::config;
-use pf::iplog;
 
-use pf::db;
-use pf::util;
-use pf::person;
-use pf::node;
-use pf::class;
-use pf::violation;
-use pf::trigger;
-use pf::services;
-use pf::os;
 use pf::action;
+use pf::class;
+use pf::config;
+use pf::db;
+use pf::iplog;
 use pf::iptables;
+use pf::locationlog;
+use pf::node;
+use pf::os;
+use pf::person;
 use pf::rawip;
+use pf::services;
+use pf::trigger;
+use pf::util;
+use pf::violation;
 
 Log::Log4perl->init( INSTALL_DIR . "/conf/log.conf" );
 my $logger = Log::Log4perl->get_logger( basename($0) );
@@ -365,6 +366,7 @@ sub listen_dhcp {
                 $logger->warn("unknown DHCP fingerprint: $dhcp_fingerprint");
             }
         }
+        # TODO why rely on mysql_date, we should use time instead
         $tmp{'last_dhcp'} = mysql_date();
         $tmp{'computername'} = join( "", @{ $options{'12'} } )
             if ( defined( $options{'12'} ) );
@@ -372,13 +374,13 @@ sub listen_dhcp {
         if ( isenabled( $Config{'network'}{'dhcpoption82logger'} )
             && defined( $options{'82'} ) )
         {
-
+            my ($switch, $vlan, $mod, $port);
             my %option_82;
             while ( @{ $options{'82'} } ) {
                 my $subopt = shift( @{ $options{'82'} } );
 
-# this makes offset assumptions we probably shouldn't, but it should work fine for Cisco
-# assume all cidtype/ridtype always == 0
+                # this makes offset assumptions we probably shouldn't, but it should work fine for Cisco
+                # assume all cidtype/ridtype always == 0
                 shift( @{ $options{'82'} } );
                 shift( @{ $options{'82'} } );
                 my $len = shift( @{ $options{'82'} } );
@@ -387,19 +389,17 @@ sub listen_dhcp {
                     push( @{ $option_82{$subopt} }, $val );
                     $len--;
                 }
-
             }
 
             if ( defined( $option_82{'1'} ) ) {
-                my ( $vlan, $mod, $port )
-                    = unpack( 'nCC', pack( "C*", @{ $option_82{'1'} } ) );
-                $tmp{'port'} = $mod . '/' . $port;
-                $tmp{'vlan'} = $vlan;
+                ($vlan, $mod, $port) = unpack( 'nCC', pack( "C*", @{ $option_82{'1'} } ) );
             }
-            $tmp{'switch'} = clean_mac(
-                join( ":",
-                    unpack( "H*", pack( "C*", @{ $option_82{'2'} } ) ) )
-            ) if ( defined( $option_82{'2'} ) );
+            if ( defined( $option_82{'2'} ) ) {
+                $tmp{'switch'} = clean_mac( join( ":", unpack( "H*", pack( "C*", @{ $option_82{'2'} } ) ) ) ); 
+            }
+
+            # TODO port should be translated into ifIndex
+            locationlog_insert_closed($switch, $mod . '/' . $port, $vlan, $chaddr, '');
         }
 
         if ( !node_exist($chaddr) ) {

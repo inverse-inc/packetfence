@@ -76,13 +76,37 @@
     }
 
     $pretty_key = pretty_header("$current_top-view", $key);
-    if($key == 'status'){
+    switch($key) {
+    case 'status':
       print "<tr><td></td><td>$pretty_key:</td><td>";
       printSelect( array('unreg' => 'Unregistered', 'reg' => 'Registered', 'grace' => 'Grace'), 'hash', $val, "name='$key'");
-    } elseif ($key == 'category'){
+      break;
+
+    case 'category':
       print "<tr><td></td><td>$pretty_key:</td><td>";
       printSelect(get_nodecategories_for_dropdown(), 'hash', $val, "name='$key'");
-    } else{
+      break;
+
+    case 'voip':
+      print "<tr><td></td><td>$pretty_key:</td><td>";
+      printSelect( array('no' => 'No', 'yes' => 'Yes'), 'hash', $val, "name='$key'");
+      break;
+
+    case 'dhcp_fingerprint':
+    case 'user_agent':
+    case 'last_switch':
+    case 'last_port':
+    case 'last_vlan':
+    case 'last_ssid':
+    case 'last_dot1x_username':
+      print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val' disabled>";
+      break;
+
+    case 'last_connection_type':
+      print "<tr><td></td><td>$pretty_key:</td><td><p title='$val' style='font-size: 0.7em;'>$connection_type[$val]</p>";
+      break;
+
+    default:
       print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val'>";
     }
 

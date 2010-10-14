@@ -7,6 +7,55 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <release>:
 
+    - Database schema update
+    New fields were added as a part of the Radius unification. You can update
+    your schema with:
+    mysql -u root -p pf -v < db/upgrade-1.9.0-1.10.0.sql
+
+    - FreeRADIUS module rewritten
+    The FreeRADIUS has been completely re-written from the previous release 
+    series. Now, except for the authentication against the PacketFence server
+    all the control is centralized in the PacketFence configuration. No more 
+    customization required in the FreeRADIUS module! We strongly recommend
+    that you carefully migrate to this module and forget about the old one.
+
+    - /cgi-bin/pdp.cgi moved
+    Remote snort probes or other mechanisms relying on the presence of this 
+    file should be updated to be /webapi instead. Upgrading each probe's
+    packetfence-remote-snort-sensor will take care of this for remote snort 
+    probes. All other custom means should be manually upgraded.
+
+    - SOAP handler changed
+    The URI of the SOAP handler changed from 
+    http://www.packetfence.org/PFEvents to http://www.packetfence.org/PFAPI. To
+    better reflect the fact that it is not just an event handling server. You 
+    will need to upgrade your remote snort probes with the new PacketFence 
+    remote snort sensor RPM or manually change the URI.
+
+    - Output of node lookup changed
+    The output of `pfcmd lookup node <mac>` changed. Make sure you update your
+    parsing scripts (if any). This also affects the Node lookup section of the
+    Web Admin interface.
+
+    - pfcmd input and output change
+    Viewing and modifying nodes changed through pfcmd. If you used script to 
+    automate tasks relying on the `pfcmd node` interface, you need to update 
+    them. Output of `pfcmd locationhistorymac` and `pfcmd 
+    locationhistoryswitch` also changed.
+
+    - lib/pf/vlan.pm interface changed
+    If you built a customized version of vlan.pm in lib/pf/vlan/custom.pm be 
+    aware that there were a lot of changes. We strongly recommend you rewrite 
+    your custom.pm on top of these new changes instead keeping your old.
+ 
+    - deprecated subs
+    lib/pf/SNMP.pm's setIsolationVlan, setRegistrationVlan and setNormalVlan 
+    are now deprecated and will be removed in the future. Use 
+    setVlanByName($ifIndex, $switch_locker_ref, $vlanName) instead. For 
+    example: setVlanByName($ifIndex, \%switch_locker, 'guestVlan'); 
+
+o Upgrading from a version prior to <release>:
+
     - Violation priority enforcement
     Violation priorities are now properly enforced: 1 means highest priority
     and 10 means lowest priority. Even if documentation said so, before this 

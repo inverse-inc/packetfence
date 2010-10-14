@@ -33,7 +33,7 @@
 #
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 1.9.2
+Version: 1.10.0
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -55,6 +55,8 @@ Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz
 Source: http://www.packetfence.org/downloads/%{name}-%{version}-%{source_release}.tar.gz
 %endif
 
+# FIXME change all perl Requires: into their namespace counterpart, see what happened in #931 and
+# http://www.rpm.org/wiki/PackagerDocs/Dependencies#InterpretersandShells for discussion on why
 BuildRequires: gettext, httpd
 BuildRequires: perl(Parse::RecDescent)
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget
@@ -346,13 +348,13 @@ fi
                         /usr/local/pf/addons/snort/oinkmaster.conf
 %dir                    /usr/local/pf/addons/802.1X
 %doc                    /usr/local/pf/addons/802.1X/README
-%attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/rlm_perl_packetfence.pl
+%attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/rlm_perl_packetfence_sql.pl
+%attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/rlm_perl_packetfence_soap.pl
 %dir                    /usr/local/pf/bin
 %attr(0755, pf, pf)     /usr/local/pf/bin/flip.pl
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %dir                    /usr/local/pf/cgi-bin
-%attr(0755, pf, pf)     /usr/local/pf/cgi-bin/pdp.cgi
 %attr(0755, pf, pf)     /usr/local/pf/cgi-bin/redir.cgi
 %attr(0755, pf, pf)     /usr/local/pf/cgi-bin/register.cgi
 %attr(0755, pf, pf)     /usr/local/pf/cgi-bin/release.cgi
@@ -459,6 +461,7 @@ fi
 %dir                    /usr/local/pf/lib
 %dir                    /usr/local/pf/lib/pf
                         /usr/local/pf/lib/pf/*.pm
+                        /usr/local/pf/lib/pf/*.pl
 %dir                    /usr/local/pf/lib/pf/floatingdevice
 %config(noreplace)      /usr/local/pf/lib/pf/floatingdevice/custom.pm
 %dir                    /usr/local/pf/lib/pf/lookup
@@ -466,6 +469,9 @@ fi
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/person.pm
 %dir                    /usr/local/pf/lib/pf/pfcmd
                         /usr/local/pf/lib/pf/pfcmd/*
+%dir                    /usr/local/pf/lib/pf/radius
+                        /usr/local/pf/lib/pf/radius/constants.pm
+%config(noreplace)      /usr/local/pf/lib/pf/radius/custom.pm
 %dir                    /usr/local/pf/lib/pf/SNMP
                         /usr/local/pf/lib/pf/SNMP/*
 %dir                    /usr/local/pf/lib/pf/vlan
@@ -500,6 +506,13 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Tue Sep 28 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Removed pf/cgi-bin/pdp.cgi from files manifest. It was removed from source
+  tree.
+
+* Fri Sep 24 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added lib/pf/*.pl to the file list for new lib/pf/mod_perl_require.pl
+
 * Tue Sep 22 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Version bump, doing 1.9.2 pre-release snapshots now
 - Removing perl-LWP-UserAgent-Determined as a dependency of remote-snort-sensor.
@@ -535,6 +548,7 @@ fi
 - Added perl(Test::NoWarnings) as a build-time dependency (used for tests)
 
 * Thu May 06 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Fixed packaging of 802.1x rlm_perl_packetfence_* files and new radius files
 - Removing the pinned perl(Parse::RecDescent) version. Fixes #833;
 - Snapshot vs releases is now defined by an rpmbuild argument
 - source_release should now be passed as an argument to simplify our nightly 
@@ -545,6 +559,9 @@ fi
 - Added perl(Test::MockModule) as a build dependency (required for tests)
 - Test modules are now required for building instead of required for package
   install. Fixes #866;
+
+* Thu Apr 29 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added mod_perl as a dependency
 
 * Wed Apr 28 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added perl(Try::Tiny) and perl(Test::Exception) as a dependency used for 
