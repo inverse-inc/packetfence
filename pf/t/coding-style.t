@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 214;
+use Test::More tests => 215;
 
 # TODO we should have a global file list
 my @files = (
@@ -128,6 +128,7 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP/PacketFence.pm',
     '/usr/local/pf/lib/pf/SNMP.pm',
     '/usr/local/pf/lib/pf/SNMP/SMC.pm',
+    '/usr/local/pf/lib/pf/SNMP/SMC/TS6128L2.pm',
     '/usr/local/pf/lib/pf/SNMP/SMC/TS6224M.pm',
     '/usr/local/pf/lib/pf/SNMP/SMC/TS8800M.pm',
     '/usr/local/pf/lib/pf/SNMP/ThreeCom/NJ220.pm',

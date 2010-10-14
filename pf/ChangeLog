@@ -1,4 +1,15 @@
 2010-10-13	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/SMC/TS6128L2.pm, pf/NEWS, pf/README_SWITCHES, 
+	pf/UPGRADE, pf/html/admin/configuration/switches_add.php,
+	pf/html/admin/configuration/switches_edit.php,
+	pf/lib/pf/SNMP/SMC/TS6224M.pm, pf/lib/pf/SNMP/SMC/TS8800M.pm,
+	pf/lib/pf/SNMP/SMC.pm, pf/t/coding-style.t, pf/t/critic.t,
+	pf/t/hardware-snmp-objects.t, pf/t/pod.t: New hardware support: SMC 
+	TigerStack 6128 L2 in port-security (feature sponsored by Seattle 
+	Pacific University)
+	Also in there is a big update to the 8800M module powering the 8824M 
+	and the 8848M.
+
 	* Lots: Whitespace changes to lots of files based on the result of the
 	last coding-style test results
 

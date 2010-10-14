@@ -1,20 +1,16 @@
-package pf::SNMP::SMC::TS8800M;
+package pf::SNMP::SMC::TS6128L2;
 
 =head1 NAME
 
-pf::SNMP::SMC::TS8800M
-
-=head1 DESCRIPTION
-
-Object oriented module to parse SNMP traps and manage SMC's TigerStack II SMC8824M and SMC8848M switches.
+pf::SNMP::SMC::TS6128L2 - Object oriented module to parse SNMP traps and manage SMC's TigerStack 6128 L2 switches
 
 =head1 STATUS
 
 Supports 
  linkUp / linkDown mode
- Port Security with 2.4.5.13
+ Port Security with 1.4.8.5
 
-Developed and tested on SMC 8824M running on firmware (Operation Code) version 2.4.5.13.
+Developed and tested on SMC 6128L2 running on firmware (Operation Code) version 1.4.8.5
 
 =head1 BUGS AND LIMITATIONS
  
@@ -22,7 +18,7 @@ Developed and tested on SMC 8824M running on firmware (Operation Code) version 2
 
 =item Firmware requirement
 
-Minimum required firmware (Operation Code version) for Port-security is 2.4.5.13.
+Minimum required firmware (Operation Code version) for Port-security is 1.4.8.5.
 
 =item SNMPv3
 
@@ -33,6 +29,7 @@ SNMPv3 support was not tested.
 =cut
 use strict;
 use warnings;
+
 use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
@@ -42,7 +39,7 @@ use base ('pf::SNMP::SMC');
 # importing switch constants
 use pf::SNMP::constants;
 
-use constant MODEL_OID_ID => '57';
+use constant MODEL_OID_ID => '66';
 
 =head1 SUBROUTINES
 
@@ -63,12 +60,6 @@ sub getVersion {
         ->get_request( -varbindlist => [$OID_swProdVersion] );
     return ( $result->{$OID_swProdVersion} || '' );
 }
-
-# TODO: this is for port-security support. At some point we'll have to seperate required OS version by feature
-#sub getMinOSVersion {
-#    my ($this) = @_;
-#    return '2.4.5.13';
-#}
 
 sub isPortSecurityEnabled {
     my ( $this, $ifIndex ) = @_;
