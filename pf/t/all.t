@@ -30,3 +30,5 @@ runtests( qw(
               node.t
             )
 );
+
+# TODO separate pfdetect_remote tests
