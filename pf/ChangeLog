@@ -1,3 +1,7 @@
+2010-10-15	Francois Gaudreault <fgaudreault@inverse.ca>
+	* pf/docs/PacketFence_Installation_Guide.odt: Add the groupinstall
+	line for packetfence install.
+
 2010-10-13	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/docs/PacketFence_Administration_Guide.odt: Revamped SMC section
 	of the guide and added support instructions for 6128 L2.
