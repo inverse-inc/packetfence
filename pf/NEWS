@@ -29,6 +29,7 @@ New Features
 Enhancements
 - FreeRADIUS module improvements (#1034)
 - New DHCP fingerprints (HP ProCurve Wireless and Ricoh MFP)
+- Easier installation process using yum groupinstall (#1089)
 
 Bug fixes
 - Fixes to the SMC TigerStack 8824M and 8848M modules (see UPGRADE)
