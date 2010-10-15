@@ -67,8 +67,6 @@ Readonly::Scalar our $CREATE_AND_GO => 4;
 Readonly::Scalar our $CREATE_AND_WAIT => 5;
 Readonly::Scalar our $DESTROY => 6;
 
-=back
-
 =item ifOperStatus - defined by RFC 2863 (Interfaces Group) aka IF-MIB
 
  up(1),        -- ready to pass packets
@@ -88,6 +86,8 @@ Readonly::Scalar our $DORMANT => 5;
 Readonly::Scalar our $NOT_PRESENT => 6;
 Readonly::Scalar our $LOWER_LAYER_DOWN => 7;
 
+
+=back
 
 =head1 Q-BRIDGE
 
