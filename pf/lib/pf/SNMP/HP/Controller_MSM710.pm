@@ -122,6 +122,8 @@ sub deauthenticateMac {
     }
 }
 
+=back
+
 =head1 AUTHOR
 
 Regis Balzard <rbalzard@inverse.ca>
