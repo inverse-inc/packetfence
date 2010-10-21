@@ -1,6 +1,6 @@
 2010-10-15      Francois Gaudreault <fgaudreault@inverse.ca>
-        * pf/docs/PacketFence_Administration_Guide.odt: Addition of some
-        documentation about log rotation.
+	* pf/docs/PacketFence_Administration_Guide.odt: Addition of some
+	documentation about log rotation.
 
 2010-10-15	Francois Gaudreault <fgaudreault@inverse.ca>
 	* pf/docs/PacketFence_Installation_Guide.odt: Add the groupinstall
