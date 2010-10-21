@@ -1,3 +1,13 @@
+2010-10-21	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/dhcp_fingerprints.conf: New DHCP Fingerprints:
+	Cisco/Linksys, Netgear, D-Link Home Wireless Routers, Sony Ericsson
+	Android and Fluke DTX (network tester)
+
+	* pf/docs/PacketFence_Administration_Guide.odt: Added new "MySQL
+	optimization tool" section under MySQL optimizations and put a new 
+	title on top of the Captive portal optimizations (they were under
+	MySQL optimizations!?)
+
 2010-10-15      Francois Gaudreault <fgaudreault@inverse.ca>
 	* pf/docs/PacketFence_Administration_Guide.odt: Addition of some
 	documentation about log rotation.
