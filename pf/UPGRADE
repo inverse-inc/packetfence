@@ -31,8 +31,8 @@ o Upgrading from a version prior to <release>:
     entry from the authorize section into the post-auth section in radiusd.conf 
     (or sites-enabled/default under FreeRADIUS 2.x). 
     We changed the tests order so we now filter by SSID; we got rid of anything
-    related to guest since guest should now be managed a distinct category; we
-    added the find_ssid() function in order to read the SSID name from the 
+    related to guest since guest should now be managed as a distinct category; 
+    we added the find_ssid() function in order to read the SSID name from the 
     attributes sent in the request; we removed many SQL queries and changed the
     one reading the node info; we did many other changes in the module so
     we strongly recommend to be VERY careful when upgrading it.
