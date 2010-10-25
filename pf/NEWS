@@ -27,7 +27,7 @@ New Features
   (see addons/freeradius-integration/README for details)
 
 Enhancements
-- FreeRADIUS module improvements (#1034)
+- FreeRADIUS module improvements (#1034) and major revamping
 - New DHCP fingerprints (HP ProCurve Wireless and Ricoh MFP)
 - Easier installation process using yum groupinstall (#1089)
 - Improved documentation about Snort, Oinkmaster, and log rotation in Admin Guide

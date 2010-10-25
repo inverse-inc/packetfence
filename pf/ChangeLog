@@ -1,3 +1,11 @@
+2010-10-25	Regis Balzard <rbalzard@inverse.ca>
+	* pf/addons/802.1X/rlm_perl_packetfence.pl, pf/UPGRADE, pf/NEWS: 
+	Re-worked the entire module: changed the tests order so we now filter
+	by SSID; got rid of anything related to guest since guest should now be
+	managed a distinct category; aadded a find_ssid() function in order to
+	read the SSID name from the attributes sent in the request; removed
+	many SQL queries and changed the one reading the node info; ...
+
 2010-10-21	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/conf/dhcp_fingerprints.conf: New DHCP Fingerprints:
 	Cisco/Linksys, Netgear, D-Link Home Wireless Routers, Sony Ericsson
