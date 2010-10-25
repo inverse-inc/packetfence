@@ -895,38 +895,45 @@ sub generate_httpd_conf {
     $tags{'proxies'} = join( "\n", @proxies );
 
     my @contentproxies;
+    push @contentproxies, "  # AUTO-GENERATED mod_rewrite rules for PacketFence Remediation";
     if ( $Config{'trapping'}{'passthrough'} eq "proxy" ) {
         my @proxies = class_view_all();
         foreach my $row (@proxies) {
             my $url = $row->{'url'};
             my $vid = $row->{'vid'};
             next if ( ( !defined($url) ) || ( $url =~ /^\// ) );
-            if ( $url !~ /^(http|https):\/\// ) {
-                $logger->warn(
-                    "vid " . $vid . ": unrecognized content URL: " . $url );
+            if ($url !~ /^
+                ((?:http|https):\/\/ # must begin by http or https 
+                (.+?))               # capture domain_url and the host
+                                     # NOTE: using non-greedy wildcard so captures stops at first forward slash
+                (\/.*)$              # capture everything else as query string (path)
+            /x) {
+                $logger->warn("vid " . $vid . ": unrecognized content URL: " . $url);
                 next;
             }
-            if ( $url =~ /^((http|https):\/\/.+)\/$/ ) {
-                push @contentproxies, "ProxyPass                /content/$vid/ $url";
-                push @contentproxies, "ProxyPassReverse        /content/$vid/ $url";
-                push @contentproxies, "ProxyHTMLURLMap    $1    /content/$vid";
-            } else {
-                $url =~ /^((http|https):\/\/.+)\//;
-                push @contentproxies, "ProxyPas        /content/$vid/ $1/";
-                push @contentproxies, "ProxyPassReverse        /content/$vid/ $1/";
-                push @contentproxies, "ProxyHTMLURLMap        $url       /content/$vid";
-            }
-            push @contentproxies, "ProxyPass       /content/$vid $url";
-            push @contentproxies, "<Location /content/$vid>";
-            push @contentproxies, "  SetOutputFilter        proxy-html";
-            push @contentproxies, "  ProxyHTMLDoctype        HTML";
-            push @contentproxies, "  ProxyHTMLURLMap        / /content/$vid/";
-            push @contentproxies,
-                "  ProxyHTMLURLMap        /content/$vid /content/$vid";
-            push @contentproxies, "  RequestHeader        unset        Accept-Encoding";
-            push @contentproxies, "</Location>";
+            my $domain_url = quotemeta($1);
+            my $host = quotemeta($2);
+            my $path = quotemeta($3);
+            push @contentproxies, "  # Rewrite rules generated for violation $vid external's URL";
+            push @contentproxies, "  RewriteCond %{HTTP_HOST} ^$host\$";
+            push @contentproxies, "  RewriteCond %{REQUEST_URI} ^$path";
+            push @contentproxies, "  RewriteRule ^(.*)\$ $domain_url/\$1 [P]";
+
+            # old behavior: see http://www.apachetutor.org/admin/reverseproxies if we are ever willing to re-enable
+            # requires mod_proxy_html and AFAIK below is broken by default
+            #push @contentproxies, "ProxyPass                /content/$vid/ $url";
+            #push @contentproxies, "ProxyPassReverse        /content/$vid/ $url";
+            #push @contentproxies, "ProxyPass       /content/$vid $url";
+            #push @contentproxies, "<Location /content/$vid>";
+            #push @contentproxies, "  SetOutputFilter        proxy-html";
+            #push @contentproxies, "  ProxyHTMLDoctype        HTML";
+            #push @contentproxies, "  ProxyHTMLURLMap        / /content/$vid/";
+            #push @contentproxies, "  ProxyHTMLURLMap        /content/$vid /content/$vid";
+            #push @contentproxies, "  RequestHeader        unset        Accept-Encoding";
+            #push @contentproxies, "</Location>";
         }
     }
+    push @contentproxies, "  # End of AUTO-GENERATED mod_rewrite rules for PacketFence Remediation";
     $tags{'content-proxies'} = join( "\n", @contentproxies );
 
     $logger->info("generating $conf_dir/httpd.conf");

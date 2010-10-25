@@ -1,3 +1,10 @@
+2010-10-25	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/integration-testing/violations.conf, pf/lib/pf/services.pm,
+	pf/conf/templates/httpd.conf.apache22, UPGRADE:
+	Repaired violations with absolute URLs making PacketFence's captive 
+	portal act as a reverse proxy. Fixes #1024;
+	http://www.packetfence.org/bugs/view.php?id=1024
+	
 2010-10-25	Regis Balzard <rbalzard@inverse.ca>
 	* pf/addons/802.1X/rlm_perl_packetfence.pl, pf/UPGRADE, pf/NEWS: 
 	Re-worked the entire module: changed the tests order so we now filter

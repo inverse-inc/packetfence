@@ -15,6 +15,14 @@ o Upgrading from a version prior to <release>:
     most impact when Nessus scanning is used. Since this is a default behavior
     change, you should double check your config!
 
+    - External remediation pages 
+    Violations with fully qualified URLs are now handled with new code that 
+    uses mod_proxy and mod_rewrite instead of mod_proxy_html. This was done
+    because the current implementation is broken out of the box on a CentOS 
+    system without manually compiling and installing the mod_proxy_html 
+    package. If you used it then reverify all your remediation pages with
+    fully qualified URLs as they might be broken now.
+
     - FreeRADIUS module changes require configuration changes (and major 
     revamping)
     PacketFence's operations in the FreeRADIUS module are now done in the 

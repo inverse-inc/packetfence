@@ -33,6 +33,7 @@ Enhancements
 - Improved documentation about Snort, Oinkmaster, and log rotation in Admin Guide
 
 Bug fixes
+- Captive Portal remediation pages can be hosted externally again! (#1024)
 - Fixes to the SMC TigerStack 8824M and 8848M modules (see UPGRADE)
 - No error reporting when trying to change configuration files with bad rights
   (#1088)
