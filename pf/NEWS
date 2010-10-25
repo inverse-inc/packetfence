@@ -31,6 +31,8 @@ Enhancements
 - New DHCP fingerprints (HP ProCurve Wireless and Ricoh MFP)
 - Easier installation process using yum groupinstall (#1089)
 - Improved documentation about Snort, Oinkmaster, and log rotation in Admin Guide
+- Improved documentation on violations (external remediation pages and 
+  redirect_url) in the Administration Guide
 
 Bug fixes
 - Captive Portal remediation pages can be hosted externally again! (#1024)

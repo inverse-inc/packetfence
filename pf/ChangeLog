@@ -1,4 +1,7 @@
 2010-10-25	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Documented violation
+	with external URL behavior and the redirect_url feature.
+
 	* pf/addons/integration-testing/violations.conf, pf/lib/pf/services.pm,
 	pf/conf/templates/httpd.conf.apache22, UPGRADE:
 	Repaired violations with absolute URLs making PacketFence's captive 
