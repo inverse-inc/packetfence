@@ -190,7 +190,7 @@ sub getVlan {
 
     my $node_info = $mysql_connection->selectrow_hashref("
         SELECT node.mac, node.pid, IFNULL(node_category.name,'') AS category, node.status, 
-	    IFNULL(class.vlan,'$NO_VIOLATION') AS isolationVlan 
+            IFNULL(class.vlan,'$NO_VIOLATION') AS isolationVlan 
         FROM node 
             LEFT JOIN node_category USING (category_id) 
             LEFT JOIN violation ON node.mac=violation.mac AND violation.status='open' 
