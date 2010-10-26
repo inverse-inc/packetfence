@@ -28,6 +28,7 @@ runtests( qw(
               pfsetvlan.t
               report.t
               node.t
+              integration.t
             )
 );
 

@@ -1,10 +1,20 @@
 #!/usr/bin/perl -w
 
+=head1 NAME
+
+services.t
+
+=head1 DESCRIPTION
+
+Exercizing pf::services and sub modules components.
+
+=cut
+
 use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 10;
+use Test::More tests => 9;
 use Log::Log4perl;
 use File::Basename qw(basename);
 use lib '/usr/local/pf/lib';
@@ -15,8 +25,7 @@ Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
 
 BEGIN { use_ok('pf::services') }
-
-my $return_value;
+BEGIN { use_ok('pf::services::apache') }
 
 # CONFIGURATION VALIDATION
 
@@ -33,34 +42,107 @@ $main::pf::config::conf_dir = $conf_dir;
 # TODO add more tests around switches_conf_is_valid to test all cases
 
 
-# SNORT
+# pf::services::apache
+# --------------------
 
-#is var/alert a named pipe?
-ok (-p("/usr/local/pf/var/alert"), "snort var/alert is a named pipe");
-# if this test fails, create the named pipe manually
-# it is created by bin/pfcmd in sanity_check sub (a pfcmd service snort start 
-# with trapping detection is enabled will do it)
+# _url_parser 
+my @return = pf::services::apache::_url_parser('http://packetfence.org/tests/conficker.html');
+is_deeply(\@return,
+    [ 'http\:\/\/packetfence\.org', 'http', 'packetfence\.org', '\/tests\/conficker\.html' ],
+    "Parsing a standard URL"
+);
 
-print "sometimes prompt hang at this test, wait for 30 secs then hit Ctrl-C once and it should unstuck\n";
+@return = pf::services::apache::_url_parser('HTTPS://www.inverse.ca/');
+is_deeply(\@return,
+    [ 'https\:\/\/www\.inverse\.ca', 'https', 'www\.inverse\.ca', '\/' ],
+    "Parsing an uppercase HTTPS URL with no query"
+);
 
-$return_value = pf::services::service_ctl ("snort", "start");
-ok($return_value == 0, "service_ctl snort start returns expected value");
+@return = pf::services::apache::_url_parser('invalid://url$.com');
+ok(!@return, "Passed invalid URL expecting undef");
 
-sleep 5;
+# generate_passthrough_rewrite_proxy_config
+my %sample_config = (
+    "packetfencebugs" => 'http://www.packetfence.org/bugs/',
+    "invalid" => "bad-url.ca",
+    "inverse" => "http://www.inverse.ca/"
+);
+@return = generate_passthrough_rewrite_proxy_config(%sample_config);
+is_deeply(\@return,
+    [
+        [ '  # AUTO-GENERATED mod_rewrite rules for PacketFence Passthroughs', 
+        '  # Rewrite rules generated for passthrough packetfencebugs',
+        '  RewriteCond %{HTTP_HOST} ^www\\.packetfence\\.org$',
+        '  RewriteCond %{REQUEST_URI} ^\\/bugs\\/',
+        '  RewriteRule ^(.*)$ http\\:\\/\\/www\\.packetfence\\.org/$1 [P]',
+        '  # Rewrite rules generated for passthrough inverse',
+        '  RewriteCond %{HTTP_HOST} ^www\\.inverse\\.ca$',
+        '  RewriteCond %{REQUEST_URI} ^\\/',
+        '  RewriteRule ^(.*)$ http\\:\\/\\/www\\.inverse\\.ca/$1 [P]',
+        '  # End of AUTO-GENERATED mod_rewrite rules for PacketFence Passthroughs'],
+        [ '  # NO auto-generated mod_rewrite rules for PacketFence Passthroughs' ]
+    ],
+    "Correct passthrough configuration generated"
+);
 
-ok(`pidof -x snort` =~ /\d+/, "snort starts successfully");
+# generate_passthrough_rewrite_proxy_config
+my @sample_config = (
+    {
+        "vid" => '101',
+        "url" => 'http://www.packetfence.org/'
+    },
+    {
+        "vid" => '102',
+        "url" => 'bad-url.ca'
+    },
+    {
+        "vid" => '103',
+        "url" => '/content/local'
+    },
+    {
+        "vid" => '104',
+        "url" => 'http://www.packetfence.org/tests/conficker.html'
+    }
+);
+my $return = generate_remediation_rewrite_proxy_config(@sample_config);
+is_deeply($return, [
+    '  # AUTO-GENERATED mod_rewrite rules for PacketFence Remediation',
+    '  # Rewrite rules generated for violation 101 external\'s URL',
+    '  RewriteCond %{HTTP_HOST} ^www\\.packetfence\\.org$',
+    '  RewriteCond %{REQUEST_URI} ^\\/',
+    '  RewriteRule ^(.*)$ http\\:\\/\\/www\\.packetfence\\.org/$1 [P]',
+    '  # Rewrite rules generated for violation 104 external\'s URL',
+    '  RewriteCond %{HTTP_HOST} ^www\\.packetfence\\.org$',
+    '  RewriteCond %{REQUEST_URI} ^\\/tests\\/conficker\\.html',
+    '  RewriteRule ^(.*)$ http\\:\\/\\/www\\.packetfence\\.org/$1 [P]',
+    '  # End of AUTO-GENERATED mod_rewrite rules for PacketFence Remediation',
+    ], "Correct remediation reverse proxying configuration generated"
+);
 
-$return_value = pf::services::service_ctl ("pfdetect", "start");
-ok($return_value == 0, "service_ctl pfdetect start returns expected value");
+=head1 AUTHOR
 
-sleep 5;
+Olivier Bilodeau <obilodeau@inverse.ca>
+        
+=head1 COPYRIGHT
+        
+Copyright (C) 2010 Inverse inc.
 
-# snort can crash once you bind to the alert pipe if its config is not good
-ok(`pidof -x pfdetect` =~ /\d+/, "pfdetect stays running after binding to snort");
+=head1 LICENSE
+    
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+    
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+            
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.            
+                
+=cut
 
-$return_value = pf::services::service_ctl ("snort", "stop");
-ok($return_value == 1, "service_ctl snort stop returns expected value");
-
-ok(`pidof -x snort` eq "\n", "snort stopped successfully");
-
-# TODO do tests for all other services handled by pf::services

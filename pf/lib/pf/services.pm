@@ -35,6 +35,7 @@ use pf::violation qw(violation_view_open_uniq);
 use pf::node qw(nodes_registered_not_violators);
 use pf::trigger qw(trigger_delete_all);
 use pf::class qw(class_view_all class_merge);
+use pf::services::apache;
 use pf::SwitchFactory;
 
 my %flags;
@@ -894,47 +895,26 @@ sub generate_httpd_conf {
     }
     $tags{'proxies'} = join( "\n", @proxies );
 
-    my @contentproxies;
-    push @contentproxies, "  # AUTO-GENERATED mod_rewrite rules for PacketFence Remediation";
+    my ($pt_http, $pt_https, $remediation);
     if ( $Config{'trapping'}{'passthrough'} eq "proxy" ) {
-        my @proxies = class_view_all();
-        foreach my $row (@proxies) {
-            my $url = $row->{'url'};
-            my $vid = $row->{'vid'};
-            next if ( ( !defined($url) ) || ( $url =~ /^\// ) );
-            if ($url !~ /^
-                ((?:http|https):\/\/ # must begin by http or https 
-                (.+?))               # capture domain_url and the host
-                                     # NOTE: using non-greedy wildcard so captures stops at first forward slash
-                (\/.*)$              # capture everything else as query string (path)
-            /x) {
-                $logger->warn("vid " . $vid . ": unrecognized content URL: " . $url);
-                next;
-            }
-            my $domain_url = quotemeta($1);
-            my $host = quotemeta($2);
-            my $path = quotemeta($3);
-            push @contentproxies, "  # Rewrite rules generated for violation $vid external's URL";
-            push @contentproxies, "  RewriteCond %{HTTP_HOST} ^$host\$";
-            push @contentproxies, "  RewriteCond %{REQUEST_URI} ^$path";
-            push @contentproxies, "  RewriteRule ^(.*)\$ $domain_url/\$1 [P]";
 
-            # old behavior: see http://www.apachetutor.org/admin/reverseproxies if we are ever willing to re-enable
-            # requires mod_proxy_html and AFAIK below is broken by default
-            #push @contentproxies, "ProxyPass                /content/$vid/ $url";
-            #push @contentproxies, "ProxyPassReverse        /content/$vid/ $url";
-            #push @contentproxies, "ProxyPass       /content/$vid $url";
-            #push @contentproxies, "<Location /content/$vid>";
-            #push @contentproxies, "  SetOutputFilter        proxy-html";
-            #push @contentproxies, "  ProxyHTMLDoctype        HTML";
-            #push @contentproxies, "  ProxyHTMLURLMap        / /content/$vid/";
-            #push @contentproxies, "  ProxyHTMLURLMap        /content/$vid /content/$vid";
-            #push @contentproxies, "  RequestHeader        unset        Accept-Encoding";
-            #push @contentproxies, "</Location>";
+        ($pt_http, $pt_https) = generate_passthrough_rewrite_proxy_config(%{ $Config{'passthroughs'} });
+
+        # remediation passthrough (for violation.conf url=http:// or https://)
+        $remediation = generate_remediation_rewrite_proxy_config(class_view_all());
+    }
+
+    # if config doesn't exist, replace it with empty array
+    foreach my $template ($remediation, $pt_http, $pt_https) {
+        if (!defined($template)) {
+            $template = [ ];
         }
     }
-    push @contentproxies, "  # End of AUTO-GENERATED mod_rewrite rules for PacketFence Remediation";
-    $tags{'content-proxies'} = join( "\n", @contentproxies );
+
+    # associate config to templates
+    $tags{'remediation-proxies'} = join( "\n", @{$remediation});
+    $tags{'passthrough-http-proxies'} = join("\n", @{$pt_http});
+    $tags{'passthrough-https-proxies'} = join("\n", @{$pt_https});
 
     $logger->info("generating $conf_dir/httpd.conf");
     parse_template( \%tags, "$conf_dir/templates/httpd.conf",

@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 40;
+use Test::More tests => 41;
 
 # pf core libs
 use lib '/usr/local/pf/lib';
@@ -37,6 +37,7 @@ BEGIN { use_ok('pf::scan') }
 BEGIN { use_ok('pf::schedule') }
 BEGIN { use_ok('pf::SNMP::constants') }
 BEGIN { use_ok('pf::services') }
+BEGIN { use_ok('pf::services::apache') }
 BEGIN { use_ok('pf::switchlocation') }
 BEGIN { use_ok('pf::traplog') }
 BEGIN { use_ok('pf::trigger') }

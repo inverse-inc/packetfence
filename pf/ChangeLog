@@ -1,3 +1,15 @@
+2010-10-26	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/services/apache.pm, pf/t/integration.t, 
+	pf/conf/documentation.conf, pf/conf/pf.conf.defaults, 
+	pf/conf/templates/httpd.conf.apache22, pf/lib/pf/freeradius.pm,
+	pf/lib/pf/services.pm, pf/t/all.t, pf/t/services.t, pf/t/smoke.t,
+	pf/t/integration.t, pf/packetfence.spec: New feature: Passthrough using
+	mod_rewrite and reverse proxying. Leveraging existing configuration in
+	pf.conf (passthroughs section). Fixes #772;
+	Refactored new config generation into it's own pf::services::apache
+	module. Pushed along with some new tests.
+	http://www.packetfence.org/bugs/view.php?id=772
+
 2010-10-25	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/docs/PacketFence_Administration_Guide.odt: Documented violation
 	with external URL behavior and the redirect_url feature.

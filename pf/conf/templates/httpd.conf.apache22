@@ -172,8 +172,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
   #RewriteRule ^/remupd/cidsync.upd$ - [F,L]
   #RewriteRule ^/NTInst/i386/cidsync.upd$ - [F,L]
 
-%%content-proxies%%
-
   # return 403 to Windows Proxy Autodetection (avoid server load)
   RewriteRule ^/wpad.dat$ - [F,L]
 
@@ -184,6 +182,10 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteCond %{HTTP_USER_AGENT} "^Microsoft NCSI$" [OR]
   RewriteCond %{HTTP_USER_AGENT} ^Windows-Update-Agent.*
   RewriteRule ^.*$ - [L,forbidden]
+
+%%passthrough-http-proxies%%
+
+%%remediation-proxies%%
 
   RewriteCond %{REQUEST_URI} !^/favicon.ico
   RewriteCond %{REQUEST_URI} !^/msdownload/update/v3/static/trustedr/en/authrootseq.txt$
@@ -249,8 +251,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
   #RewriteCond %{HTTP_USER_AGENT} !^BlackBerry
   #RewriteRule ^.*$ - [L,forbidden]
 
-%%content-proxies%%
-
   # return 403 to Windows Proxy Autodetection (avoid server load)
   RewriteRule ^/wpad.dat$ - [F,L]
 
@@ -261,7 +261,11 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteCond %{HTTP_USER_AGENT} "^Microsoft NCSI$" [OR]
   RewriteCond %{HTTP_USER_AGENT} ^Windows-Update-Agent.*
   RewriteRule ^.*$ - [L,forbidden]
- 
+
+%%passthrough-https-proxies%%
+
+%%remediation-proxies%%
+
   RewriteCond %{REQUEST_URI} !^/favicon.ico
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi

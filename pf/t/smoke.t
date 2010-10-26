@@ -22,6 +22,7 @@ runtests(qw(
     coding-style.t
     pf.t
     hardware-snmp-objects.t
+    services.t
     SNMP.t
     SwitchFactory.t
     php.t
