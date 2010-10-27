@@ -19,7 +19,7 @@ use Log::Log4perl;
 use File::Basename qw(basename);
 use lib '/usr/local/pf/lib';
 
-Log::Log4perl->init("/usr/local/pf/t/log.conf");
+Log::Log4perl->init("log.conf");
 my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
@@ -33,10 +33,10 @@ BEGIN { use_ok('pf::services::apache') }
 
 # modify global $conf_dir so that t/data/switches.conf will be loaded instead of conf/switches.conf
 my $conf_dir = $main::pf::config::conf_dir;
-$main::pf::config::conf_dir = "/usr/local/pf/t/data/";
+$main::pf::config::conf_dir = "data/";
 ok(pf::services::switches_conf_is_valid(), "switches.conf validation with a good file");
 # modify global $conf_dir so that t/data/bug766/switches.conf will be loaded instead of conf/switches.conf
-$main::pf::config::conf_dir = "/usr/local/pf/t/data/bug766/";
+$main::pf::config::conf_dir = "data/bug766/";
 ok(!pf::services::switches_conf_is_valid(), "switches.conf validation with a broken file (duplicate IP)");
 $main::pf::config::conf_dir = $conf_dir;
 # TODO add more tests around switches_conf_is_valid to test all cases
