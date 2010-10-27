@@ -93,12 +93,12 @@ sub generate_passthrough_rewrite_proxy_config {
             push @passthrough_http_proxies, "  # Rewrite rules generated for passthrough $key";
             push @passthrough_http_proxies, "  RewriteCond %{HTTP_HOST} ^$host\$";
             push @passthrough_http_proxies, "  RewriteCond %{REQUEST_URI} ^$query";
-            push @passthrough_http_proxies, "  RewriteRule ^(.*)\$ $domainonly_url/\$1 [P]";
+            push @passthrough_http_proxies, "  RewriteRule ^/(.*)\$ $domainonly_url/\$1 [P]";
         } elsif ($proto eq $HTTPS) {
             push @passthrough_http_proxies, "  # Rewrite rules generated for passthrough $key";
             push @passthrough_https_proxies, "  RewriteCond %{HTTP_HOST} ^$host\$";
             push @passthrough_https_proxies, "  RewriteCond %{REQUEST_URI} ^$query";
-            push @passthrough_https_proxies, "  RewriteRule ^(.*)\$ $domainonly_url/\$1 [P]";
+            push @passthrough_https_proxies, "  RewriteRule ^/(.*)\$ $domainonly_url/\$1 [P]";
         }
     }
 
@@ -152,7 +152,7 @@ sub generate_remediation_rewrite_proxy_config {
         push @remediation_proxies, "  # Rewrite rules generated for violation $vid external's URL";
         push @remediation_proxies, "  RewriteCond %{HTTP_HOST} ^$host\$";
         push @remediation_proxies, "  RewriteCond %{REQUEST_URI} ^$query";
-        push @remediation_proxies, "  RewriteRule ^(.*)\$ $domainonly_url/\$1 [P]";
+        push @remediation_proxies, "  RewriteRule ^/(.*)\$ $domainonly_url/\$1 [P]";
 
         # old behavior: see http://www.apachetutor.org/admin/reverseproxies if we are ever willing to re-enable
         # requires mod_proxy_html and AFAIK below is broken by default
