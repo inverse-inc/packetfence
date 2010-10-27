@@ -31,11 +31,13 @@ New Features
 
 Enhancements
 - FreeRADIUS module improvements (#1034) and major revamping
-- New DHCP fingerprints (HP ProCurve Wireless and Ricoh MFP)
 - Easier installation process using yum groupinstall (#1089)
-- Improved documentation about Snort, Oinkmaster, and log rotation in Admin Guide
+- Improved documentation about Snort, Oinkmaster, and log rotation in Admin 
+  Guide
 - Improved documentation on violations (external remediation pages and 
   redirect_url) in the Administration Guide
+- New DHCP fingerprints (HP ProCurve Wireless, Ricoh MFP, Cisco/Linksys, 
+  Netgear, D-Link Home Wireless Routers, Sony Ericsson Android and Fluke DTX)
 
 Bug fixes
 - Captive Portal remediation pages can be hosted externally again! (#1024)
