@@ -7,6 +7,15 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <release>:
 
+    - Captive Portal changes
+    By default pf::web is no longer exporting it's subroutines. This means that
+    all the captive portal scripts in cgi-bin/ will need to be updated to use 
+    the full name pf::web::web_node_register() instead of web_node_register().
+    If your cgi-bin files are the default ones you don't need to change
+    anything. These breaking changes are introduced to allow pf::web::custom to
+    redefine any subroutine in pf::web and will allow easier upgrade path for 
+    users who need to customize the portal.
+
     - Violation priority enforcement
     Violation priorities are now properly enforced: 1 means highest priority
     and 10 means lowest priority. Even if documentation said so, before this 

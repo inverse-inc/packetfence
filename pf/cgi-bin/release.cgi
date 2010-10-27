@@ -20,6 +20,7 @@ use pf::config;
 use pf::iplog;
 use pf::util;
 use pf::web;
+use pf::web::custom;
 #use pf::rawip;
 use pf::node;
 use pf::class;
@@ -42,7 +43,7 @@ $destination_url = $Config{'trapping'}{'redirecturl'} if (!$destination_url);
 
 if (!valid_mac($mac)) {
   $logger->info("$ip not resolvable, generating error page");
-  generate_error_page($cgi, $session, "error: not found in the database");
+  pf::web::generate_error_page($cgi, $session, "error: not found in the database");
   return(0);     
 }
 
@@ -73,7 +74,7 @@ if (defined($cgi->param('mode'))) {
             my $cmd = $bin_dir."/pfcmd manage freemac $mac";
             my $output = qx/$cmd/;
           }
-          generate_release_page($cgi, $session, $destination_url);
+          pf::web::generate_release_page($cgi, $session, $destination_url);
         } else {
           print $cgi->redirect("/cgi-bin/redir.cgi?destination_url=$destination_url");
         }
@@ -89,7 +90,7 @@ my $violations = violation_view_top($mac);
 if (!defined($violations) || ref($violations) ne 'HASH' || !defined($violations->{'vid'})) {
 
   # not valid, we should not be here then, lets tell the user to re-open his browser
-  generate_error_page($cgi, $session, "release: reopen browser");
+  pf::web::generate_error_page($cgi, $session, "release: reopen browser");
   return(0);
 }
 
@@ -112,7 +113,7 @@ if ($vid==1200001){
   # this should only happen if the user explicitly put release.cgi in his browser address
   if ($violations->{'ticket_ref'} =~ /^Scan in progress, started at: (.*)$/) {
     $logger->info("captive portal redirect to the scan in progress page");
-    generate_scan_status_page($cgi, $session, $1, $destination_url);
+    pf::web::generate_scan_status_page($cgi, $session, $1, $destination_url);
     exit(0);
   }
 
@@ -123,7 +124,7 @@ if ($vid==1200001){
   if (my $pid = fork) {
 
     $logger->trace("parent part, redirecting to scan started page");
-    generate_scan_start_page($cgi, $session, $destination_url);
+    pf::web::generate_scan_start_page($cgi, $session, $destination_url);
     exit(0);
 
   } elsif (defined $pid) {
@@ -159,9 +160,9 @@ if ($grace != -1) {
       my $output = qx/$cmd/;
     }
     if ($class_redirect_url) {
-      generate_release_page($cgi, $session, $class_redirect_url);
+      pf::web::generate_release_page($cgi, $session, $class_redirect_url);
     } else {
-      generate_release_page($cgi, $session, $destination_url);
+      pf::web::generate_release_page($cgi, $session, $destination_url);
     }
   } else {
     if ($class_redirect_url) {
@@ -176,7 +177,7 @@ if ($grace != -1) {
   if ($class_max_enable_url) {
     print $cgi->redirect($class_max_enable_url);
   } else {
-    generate_error_page($cgi, $session, "error: max re-enables reached");
+    pf::web::generate_error_page($cgi, $session, "error: max re-enables reached");
   }
 }
 

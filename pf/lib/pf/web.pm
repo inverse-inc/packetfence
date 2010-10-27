@@ -11,6 +11,9 @@ pf::web - module to generate the different web pages.
 pf::web contains the functions necessary to generate different web pages:
 based on pre-defined templates: login, registration, release, error, status.  
 
+It is possible to customize the behavior of this module by redefining its subs in pf::web::custom.
+See F<pf::web::custom> for details.
+
 =head1 CONFIGURATION AND ENVIRONMENT
 
 Read the following template files: F<release.html>, 
@@ -32,9 +35,8 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
-    @EXPORT = qw(generate_release_page generate_login_page generate_enabler_page generate_redirect_page 
-                 generate_error_page generate_status_page generate_registration_page web_node_register 
-                 web_node_record_user_agent web_user_authenticate generate_scan_start_page generate_scan_status_page);
+    # No export to force users to use full package name and allowing pf::web::custom to redefine us
+    @EXPORT = qw();
 }
 
 use pf::config;
@@ -42,6 +44,14 @@ use pf::util;
 use pf::iplog qw(ip2mac);
 use pf::node qw(node_view node_modify);
 use pf::useragent;
+
+=head1 SUBROUTINES
+
+Warning: The list of subroutine is incomplete
+
+=over
+
+=cut
 
 sub web_get_locale {
     my ($cgi,$session) = @_;
@@ -433,10 +443,25 @@ sub generate_status_page {
     exit;
 }
 
+=item web_node_register
+
+This sub is meant to be redefined by pf::web::custom to fit your specific needs.
+See F<pf::web::custom> for examples.
+
+=cut
 sub web_node_register {
+    my ( $cgi, $session, $mac, $pid, %info ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web');
+
+    # we are good, push the registration
+    return _sanitize_and_register($mac, $pid, %info);
+}
+
+sub _sanitize_and_register {
     my ( $mac, $pid, %info ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
     my $info;
+
     foreach my $key ( keys %info ) {
         $info{$key} =~ s/[^0-9a-zA-Z_\*\.\-\:_\;\@\ ]/ /g;
         $info .= $key . '="' . $info{$key} . '",';
@@ -622,6 +647,8 @@ sub generate_registration_page {
     exit;
 }
 
+=back
+
 =head1 AUTHOR
 
 David LaPorte <david@davidlaporte.org>
@@ -638,7 +665,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2008-2009 Inverse inc.
+Copyright (C) 2008-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

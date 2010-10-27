@@ -1,3 +1,12 @@
+2010-10-27	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/web, pf/lib/pf/web/custom.pm, pf/UPGRADE, 
+	pf/cgi-bin/redir.cgi, pf/cgi-bin/register.cgi, pf/cgi-bin/release.cgi,
+	pf/lib/pf/web.pm, pf/packetfence.spec: New pf::web::custom file with
+	a recipe to redefine subs in pf::web in a clean way. Consumers had to
+	change so this is a 'breaking' update. Made the mention in UPGRADE.
+	Will simplify user upgrades. Partially fixes #1045;
+	http://www.packetfence.org/bugs/view.php?id=1045
+
 2010-10-26	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/services/apache.pm, pf/t/integration.t, 
 	pf/conf/documentation.conf, pf/conf/pf.conf.defaults, 

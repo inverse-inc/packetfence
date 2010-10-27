@@ -475,6 +475,8 @@ fi
                         /usr/local/pf/lib/pf/SNMP/*
 %dir                    /usr/local/pf/lib/pf/vlan
 %config(noreplace)      /usr/local/pf/lib/pf/vlan/custom.pm
+%dir                    /usr/local/pf/lib/pf/web
+%config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
 %dir                    /usr/local/pf/logs
 %doc                    /usr/local/pf/NEWS
 %doc                    /usr/local/pf/README
@@ -505,6 +507,10 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Wed Oct 27 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added new pf::web::custom module which is meant to be controlled by clients
+  (so we don't overwrite it by default)
+
 * Tue Oct 26 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - New dir and files for pf::services... submodules.
 - Added addons/freeradius-integration/ files to package.
