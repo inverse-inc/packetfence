@@ -24,6 +24,7 @@ New Hardware Support
 New Features
 - Passthroughs support! You can now configure PacketFence to let your users 
   reach specific websites even if they are in registration or isolation. (#772)
+  (feature sponsored by Shippensburg University)
 - New parameter in switches.conf to ease FreeRADIUS integration
 - Optional automatic configuration of FreeRADIUS' clients using switches.conf 
   (see addons/freeradius-integration/README for details)
