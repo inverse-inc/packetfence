@@ -1,0 +1,18 @@
+TODOs
+- expiration of activation code isn't implemented
+- add cleanup sub in pf::email_activation called by pfmon
+- ability to specify guest access duration in pf.conf. 
+-- Should we take the opportunity to create a whole new guest section with parameters?
+- Have both text and HTML email templates activated by default (adjust README once done)
+- move newly added subs from pf::web to pf::web:guest
+- Denial of service prevention
+- write basic unit tests pf::email_activation
+- review POD doc
+
+Before merge in 1.9:
+- Re-assess all TODO, FIXME and XXX tasks
+
+Once merged in 1.9:
+- File all out-standing items in issue tracker
+- Copy this into the wiki
+- Delete this file
