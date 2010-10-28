@@ -33,6 +33,7 @@ use Log::Log4perl;
 use MIME::Lite::TT;
 use POSIX;
 use Readonly;
+use Time::HiRes qw(time);
 
 # Constants
 use constant EMAIL_ACTIVATION => 'email_activation';
