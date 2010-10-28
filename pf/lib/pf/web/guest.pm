@@ -40,10 +40,7 @@ BEGIN {
 }
 
 use pf::config;
-use pf::util;
-use pf::iplog qw(ip2mac);
-use pf::node qw(node_view node_modify);
-use pf::useragent;
+use pf::web;
 
 =head1 SUBROUTINES
 
@@ -60,7 +57,7 @@ Sub to present a guest registration page (guest.html), this is not hooked-up by 
 =cut
 sub generate_registration_page {
     my ( $cgi, $session, $post_uri, $destination_url, $mac, $err ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web');
+    my $logger = Log::Log4perl::get_logger('pf::web::guest');
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
@@ -140,7 +137,7 @@ sub authenticate {
     # return (0,0) for first attempt
             
     my ($cgi, $session) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web');
+    my $logger = Log::Log4perl::get_logger('pf::web::guest');
     if ($cgi->param("firstname") || $cgi->param("lastname") || $cgi->param("phone") || $cgi->param("email")) {
                 
         my $valid_email = ($cgi->param('email') =~ /^[A-z0-9_.-]+@[A-z0-9_-]+(\.[A-z0-9_-]+)*\.[A-z]{2,6}$/);
@@ -177,7 +174,7 @@ This is not hooked-up by default.
 =cut
 sub generate_activation_confirmation_page {
     my ( $cgi, $session, $expiration ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web');
+    my $logger = Log::Log4perl::get_logger('pf::web::guest');
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
