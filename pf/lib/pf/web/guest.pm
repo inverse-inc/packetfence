@@ -58,7 +58,7 @@ Sub to present a guest registration page (guest.html), this is not hooked-up by 
 sub generate_registration_page {
     my ( $cgi, $session, $post_uri, $destination_url, $mac, $err ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
-    setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
+    setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
@@ -175,7 +175,7 @@ This is not hooked-up by default.
 sub generate_activation_confirmation_page {
     my ( $cgi, $session, $expiration ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
-    setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
+    setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
