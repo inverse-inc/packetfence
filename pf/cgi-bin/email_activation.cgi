@@ -20,6 +20,7 @@ use pf::iplog;
 use pf::node;
 use pf::util;
 use pf::web;
+use pf::web::custom;
 
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('redir.cgi');
@@ -52,7 +53,7 @@ if (defined($params{'code'})) {
     my $node_mac = pf::email_activation::validate_code($params{'code'});
     if (!defined($node_mac)) {
 
-        generate_error_page($cgi, $session, "The activation code provided is invalid. "
+        pf::web::generate_error_page($cgi, $session, "The activation code provided is invalid. "
             . "Reasons could be: it never existed, it was already used or has expired."
         );
         exit(0);
@@ -66,7 +67,7 @@ if (defined($params{'code'})) {
     node_modify($node_mac, ('unregdate' => $expiration, 'status' => 'reg'));
 
     # send to success page
-    generate_activation_confirmation_page($cgi, $session, $expiration);
+    pf::web::generate_activation_confirmation_page($cgi, $session, $expiration);
 
 } else {
 

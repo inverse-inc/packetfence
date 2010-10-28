@@ -22,6 +22,7 @@ use pf::node;
 use pf::util;
 use pf::violation;
 use pf::web;
+use pf::web::custom;
 
 # constants
 Readonly::Scalar my $GUEST_REGISTRATION => "guest-register";
@@ -54,11 +55,11 @@ foreach my $param($cgi->param()) {
 if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
 
     # authenticate
-    my ($auth_return, $err) = web_guest_authenticate($cgi, $session);
+    my ($auth_return, $err) = pf::web::web_guest_authenticate($cgi, $session);
 
     # authentication failed, return to guest registration page and show error message
     if ($auth_return != 1) {
-        generate_guest_registration_page($cgi, $session, $ENV{REQUEST_URI}, $destination_url, $mac, $err);
+        pf::web::generate_guest_registration_page($cgi, $session, $ENV{REQUEST_URI}, $destination_url, $mac, $err);
         exit(0);
     }
 
@@ -83,7 +84,7 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
     $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + 10*60 ));
 
     # register the node
-    web_node_register($mac, $info{'pid'}, %info);
+    pf::web::web_node_register($cgi, $session, $mac, $info{'pid'}, %info);
 
     # add more info for the activation email
     $info{'firstname'} = $session->param("firstname");
@@ -101,7 +102,7 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
             my $freemac_cmd = $bin_dir."/pfcmd manage freemac $mac";
             my $out = qx/$freemac_cmd/;
         }
-        generate_release_page($cgi, $session, $destination_url);
+        pf::web::generate_release_page($cgi, $session, $destination_url);
         $logger->info("registration url = $destination_url");
     } else {
         print $cgi->redirect("/cgi-bin/redir.cgi?destination_url=$destination_url");
@@ -113,6 +114,6 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
     $cgi->delete('firstname', 'lastname', 'email', 'phone');
 
     # by default, show guest registration page
-    generate_guest_registration_page($cgi, $session, $cgi->script_name()."?mode=$GUEST_REGISTRATION",
+    pf::web::generate_guest_registration_page($cgi, $session, $cgi->script_name()."?mode=$GUEST_REGISTRATION",
         $destination_url, $mac);
 }
