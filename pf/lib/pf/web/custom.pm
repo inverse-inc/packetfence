@@ -73,6 +73,11 @@ To set the particular session variable use the following:
 #    return _sanitize_and_register($mac, $pid, %info);
 #};
 
+
+# If you want to redefine pf::web::guest methods, remember to place yourself in that package with:
+#package pf::web::guest;
+# and also to redefine in pf::web::guest::... not pf::web::...
+
 # end of no warnings 'redefine' block
 }
 

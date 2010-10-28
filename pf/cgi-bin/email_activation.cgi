@@ -20,6 +20,7 @@ use pf::iplog;
 use pf::node;
 use pf::util;
 use pf::web;
+use pf::web::guest;
 use pf::web::custom;
 
 Log::Log4perl->init("$conf_dir/log.conf");
@@ -67,7 +68,7 @@ if (defined($params{'code'})) {
     node_modify($node_mac, ('unregdate' => $expiration, 'status' => 'reg'));
 
     # send to success page
-    pf::web::generate_activation_confirmation_page($cgi, $session, $expiration);
+    pf::web::guest::generate_activation_confirmation_page($cgi, $session, $expiration);
 
 } else {
 
