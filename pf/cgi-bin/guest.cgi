@@ -115,6 +115,6 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
     $cgi->delete('firstname', 'lastname', 'email', 'phone');
 
     # by default, show guest registration page
-    pf::web::generate_guest_registration_page($cgi, $session, $cgi->script_name()."?mode=$GUEST_REGISTRATION",
+    pf::web::guest::generate_registration_page($cgi, $session, $cgi->script_name()."?mode=$GUEST_REGISTRATION",
         $destination_url, $mac);
 }
