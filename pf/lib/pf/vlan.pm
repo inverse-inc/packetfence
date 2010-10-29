@@ -125,6 +125,7 @@ sub custom_doWeActOnThisTrap {
         return 0;
     }
 
+    # ifTypes: http://www.iana.org/assignments/ianaiftype-mib
     my $ifType = $switch->getIfType($ifIndex);
     if ( ( $ifType == 6 ) || ( $ifType == 117 ) ) {
         my @upLinks = $switch->getUpLinks();
