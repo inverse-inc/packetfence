@@ -64,6 +64,11 @@ use constant TELNET_CONNECTION_DELAY => 1_000_000;
 use constant TELNET_SMALL_EXCHANGE => 100_000;
 use constant TELNET_LARGE_EXCHANGE => 1_000_000;
 
+# switch configuration
+Readonly::Scalar our $REMOVED_TRAPS_ENABLED => 0;
+Readonly::Scalar our $IS_TRUNK_PORTS => 0;
+
+
 # capabilities
 sub supportsFloatingDevice { return $TRUE; }
 
@@ -548,7 +553,9 @@ sub getIfType {
     $logger->debug("SNMP fake get_request for ifType: $OID_ifType.$ifIndex");
     my $result = $this->{_sessionRead}
         ->get_request( -varbindlist => ["$OID_ifType.$ifIndex"] );
-    return $result->{"$OID_ifType.$ifIndex"};
+    #return $result->{"$OID_ifType.$ifIndex"};
+    $logger->debug("returning ethernetCsmacd(6) which is what PacketFence expects");
+    return 6;
 }
 
 sub getAllDot1dBasePorts {
@@ -1161,12 +1168,15 @@ sub isRemovedTrapsEnabled {
     );
     my $result = $this->{_sessionRead}->get_request(
         -varbindlist => [ "$OID_cmnMacAddrRemovedEnable.$ifIndex" ] );
-    return (
-        exists( $result->{"$OID_cmnMacAddrRemovedEnable.$ifIndex"} )
-            && ( $result->{"$OID_cmnMacAddrRemovedEnable.$ifIndex"} ne
-            'noSuchInstance' )
-            && ( $result->{"$OID_cmnMacAddrRemovedEnable.$ifIndex"} == 1 )
-    );
+
+    $logger->debug("Override default return. Returning: $REMOVED_TRAPS_ENABLED in MockedSwitch");
+    return $REMOVED_TRAPS_ENABLED;
+#    return (
+#        exists( $result->{"$OID_cmnMacAddrRemovedEnable.$ifIndex"} )
+#            && ( $result->{"$OID_cmnMacAddrRemovedEnable.$ifIndex"} ne
+#            'noSuchInstance' )
+#            && ( $result->{"$OID_cmnMacAddrRemovedEnable.$ifIndex"} == 1 )
+#    );
 }
 
 # FIXME not properly mocked
@@ -1596,12 +1606,15 @@ sub isTrunkPort {
     $logger->debug("BROKEN SNMP fake get_request for vlanTrunkPortDynamicState: $OID_vlanTrunkPortDynamicState");
     my $result = $this->{_sessionRead}->get_request(
         -varbindlist => ["$OID_vlanTrunkPortDynamicState.$ifIndex"] );
-    return (
-        exists( $result->{"$OID_vlanTrunkPortDynamicState.$ifIndex"} )
-            && ( $result->{"$OID_vlanTrunkPortDynamicState.$ifIndex"} ne
-            'noSuchInstance' )
-            && ( $result->{"$OID_vlanTrunkPortDynamicState.$ifIndex"} == 1 )
-    );
+
+    $logger->debug("Override default return. Returning: $IS_TRUNK_PORTS in MockedSwitch");
+    return $IS_TRUNK_PORTS;
+#    return (
+#        exists( $result->{"$OID_vlanTrunkPortDynamicState.$ifIndex"} )
+#            && ( $result->{"$OID_vlanTrunkPortDynamicState.$ifIndex"} ne
+#            'noSuchInstance' )
+#            && ( $result->{"$OID_vlanTrunkPortDynamicState.$ifIndex"} == 1 )
+#    );
 }
 
 =item setModeTrunk - sets a port as mode access or mode trunk
