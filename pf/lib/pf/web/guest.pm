@@ -26,6 +26,7 @@ use strict;
 use warnings;
 use Date::Parse;
 use File::Basename;
+use HTML::Entities;
 use POSIX;
 use Template;
 use Locale::gettext;
@@ -86,23 +87,19 @@ sub generate_registration_page {
         post_uri => $post_uri,
     };
 
-    # put seperately because of side effects in anonymous hash
-    $vars->{'firstname'} = $cgi->param("firstname");
-    $vars->{'lastname'} = $cgi->param("lastname");
-    $vars->{'phone'} = $cgi->param("phone");
-    $vars->{'email'} = $cgi->param("email");
+    # put seperately because of side effects in anonymous hashref
+    $vars->{'firstname'} = encode_entities($cgi->param("firstname"));
+    $vars->{'lastname'} = encode_entities($cgi->param("lastname"));
+    $vars->{'phone'} = encode_entities($cgi->param("phone"));
+    $vars->{'email'} = encode_entities($cgi->param("email"));
 
     # showing errors
     if ( defined($err) ) {
         if ( $err == 1 ) {
-            $vars->{'txt_auth_error'} = gettext('error: invalid login or password');
+            $vars->{'txt_regist_auth_error'} = "Missing mandatory parameter or malformed entry.";
         } elsif ( $err == 2 ) {
-            $vars->{'txt_auth_error'} = gettext( 'error: unable to validate credentials at the moment');
-        } elsif ( $err == 3 ) {
-            $vars->{'txt_auth_error'} = "Missing mandatory parameter or malformed entry.";
-        } elsif ( $err == 4 ) {
             my $localdomain = $Config{'general'}{'domain'};
-            $vars->{'txt_auth_error'} = "You can't register as a guest with a $localdomain email address. "
+            $vars->{'txt_regist_auth_error'} = "You can't register as a guest with a $localdomain email address. "
                 . "Please register as a regular user using your email address instead.";
         }
     }
@@ -126,17 +123,16 @@ sub generate_registration_page {
     exit;
 }
 
-=item authenticate
+=item validate
 
-Sub to authenticate guests, this is not hooked-up by default
+Sub to validate guests, this is not hooked-up by default
 
 =cut
-sub authenticate {
+sub validate {
     
-    # return (1,0) for successfull authentication
-    # return (0,2) for inability to check credentials
-    # return (0,3) for wrong guest info
-    # return (0,4) for invalid domain for guests
+    # return (1,0) for successfull validation
+    # return (0,1) for wrong guest info
+    # return (0,2) for invalid domain for guests
     # return (0,0) for first attempt
             
     my ($cgi, $session) = @_;
@@ -241,7 +237,7 @@ sub generate_login_page {
         post_uri => $post_uri,
     };
 
-    $vars->{'login'} = $cgi->param("login");
+    $vars->{'login'} = encode_entities($cgi->param("login"));
 
     my @auth = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
 
@@ -286,6 +282,51 @@ sub generate_login_page {
     my $template = Template->new({INCLUDE_PATH => ["$install_dir/html/user/content/templates"],});
     $template->process($pf::web::guest::LOGIN_TEMPLATE, $vars);
     exit;
+}
+
+=item auth 
+
+Sub to authenticate guests.
+This is not hooked-up by default.
+
+=cut
+sub auth {
+
+    # return (1,0) for successfull authentication
+    # return (0,2) for inability to check credentials
+    # return (0,1) for wrong login/password
+    # return (0,0) for first attempt
+
+    my ( $cgi, $session ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web::guest');
+    if (   $cgi->param("login")
+        && $cgi->param("password")
+        && $cgi->param("auth") )
+    {
+        my $auth = $cgi->param("auth");
+        my @auth_choices
+            = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
+        if ( grep( { $_ eq $auth } @auth_choices ) == 0 ) {
+            return ( 0, 2 );
+        }
+
+        #validate login and password
+        eval "use authentication::$auth";
+        if ($@) {
+            $logger->error("ERROR loading authentication::$auth $@");
+            return ( 0, 2 );
+        }
+        my ( $authReturn, $err )
+            = authenticate( $cgi->param("login"), $cgi->param("password") );
+        if ( $authReturn == 1 ) {
+
+            #save login into session
+            $session->param( "login",    $cgi->param("login") );
+            $session->param( "authType", $auth );
+        }
+        return ( $authReturn, $err );
+    }
+    return ( 0, 0 );
 }
 =back
 

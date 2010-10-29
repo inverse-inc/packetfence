@@ -25,6 +25,7 @@ use pf::util;
 use pf::violation;
 use pf::web;
 use pf::web::guest;
+# called last to allow redefinitions
 use pf::web::custom;
 
 # constants
@@ -58,7 +59,7 @@ foreach my $param($cgi->param()) {
 if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
 
     # authenticate
-    my ($auth_return, $err) = pf::web::guest::authenticate($cgi, $session);
+    my ($auth_return, $err) = pf::web::guest::validate($cgi, $session);
 
     # authentication failed, return to guest registration page and show error message
     if ($auth_return != 1) {
