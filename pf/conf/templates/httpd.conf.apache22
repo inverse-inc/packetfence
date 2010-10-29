@@ -108,7 +108,8 @@ ProxyRequests Off
 
 RewriteLock %%install_dir%%/var/apache_rewrite_lock
 
-#NameVirtualHost *:80
+NameVirtualHost *:80
+NameVirtualHost *:443
 
 SSLPassPhraseDialog  builtin
 SSLSessionCache         dbm:%%install_dir%%/var/ssl_scache
@@ -183,6 +184,10 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteCond %{HTTP_USER_AGENT} ^Windows-Update-Agent.*
   RewriteRule ^.*$ - [L,forbidden]
 
+%%passthrough-http-proxies%%
+
+%%remediation-proxies%%
+
   RewriteCond %{REQUEST_URI} !^/favicon.ico
   RewriteCond %{REQUEST_URI} !^/msdownload/update/v3/static/trustedr/en/authrootseq.txt$
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
@@ -231,6 +236,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
   </DirectoryMatch>
 
   SSLEngine on
+  SSLProxyEngine on
   SSLCertificateFile %%install_dir%%/conf/ssl/server.crt
   SSLCertificateKeyFile %%install_dir%%/conf/ssl/server.key
 
@@ -257,6 +263,10 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteCond %{HTTP_USER_AGENT} ^Windows-Update-Agent.*
   RewriteRule ^.*$ - [L,forbidden]
 
+%%passthrough-https-proxies%%
+
+%%remediation-proxies%%
+
   RewriteCond %{REQUEST_URI} !^/favicon.ico
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
@@ -272,8 +282,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteRule ^.*$ https://%%hostname%%.%%domain%%/cgi-bin/redir.cgi?destination_url=https://%{HTTP_HOST}%{REQUEST_URI} [L,R=302]
 
 %%proxies%%                
-
-%%content-proxies%%
 
   <Location /content>
     Options Indexes FollowSymLinks ExecCGI

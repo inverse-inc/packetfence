@@ -177,8 +177,9 @@ mv packetfence.mo conf/locale/nl/LC_MESSAGES/
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r addons/802.1X/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/integration-testing/ $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp -r addons/freeradius-integration/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/high-availability/ $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp -r addons/integration-testing/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/mrtg/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -333,6 +334,8 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/addons/autodiscover.pl
 %attr(0755, pf, pf)     /usr/local/pf/addons/convertToPortSecurity.pl
 %attr(0755, pf, pf)	/usr/local/pf/addons/database-backup-and-maintenance.sh
+%dir                    /usr/local/pf/addons/freeradius-integration/
+                        /usr/local/pf/addons/freeradius-integration/*
 %dir                    /usr/local/pf/addons/high-availability/
                         /usr/local/pf/addons/high-availability/*
 %dir                    /usr/local/pf/addons/integration-testing/
@@ -472,10 +475,14 @@ fi
 %dir                    /usr/local/pf/lib/pf/radius
                         /usr/local/pf/lib/pf/radius/constants.pm
 %config(noreplace)      /usr/local/pf/lib/pf/radius/custom.pm
+%dir                    /usr/local/pf/lib/pf/services
+                        /usr/local/pf/lib/pf/services/*
 %dir                    /usr/local/pf/lib/pf/SNMP
                         /usr/local/pf/lib/pf/SNMP/*
 %dir                    /usr/local/pf/lib/pf/vlan
 %config(noreplace)      /usr/local/pf/lib/pf/vlan/custom.pm
+%dir                    /usr/local/pf/lib/pf/web
+%config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
 %dir                    /usr/local/pf/logs
 %doc                    /usr/local/pf/NEWS
 %doc                    /usr/local/pf/README
@@ -506,6 +513,14 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Wed Oct 27 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added new pf::web::custom module which is meant to be controlled by clients
+  (so we don't overwrite it by default)
+
+* Tue Oct 26 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- New dir and files for pf::services... submodules.
+- Added addons/freeradius-integration/ files to package.
+
 * Tue Sep 28 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Removed pf/cgi-bin/pdp.cgi from files manifest. It was removed from source
   tree.

@@ -56,6 +56,15 @@ o Upgrading from a version prior to <release>:
 
 o Upgrading from a version prior to <release>:
 
+    - Captive Portal changes
+    By default pf::web is no longer exporting it's subroutines. This means that
+    all the captive portal scripts in cgi-bin/ will need to be updated to use 
+    the full name pf::web::web_node_register() instead of web_node_register().
+    If your cgi-bin files are the default ones you don't need to change
+    anything. These breaking changes are introduced to allow pf::web::custom to
+    redefine any subroutine in pf::web and will allow easier upgrade path for 
+    users who need to customize the portal.
+
     - Violation priority enforcement
     Violation priorities are now properly enforced: 1 means highest priority
     and 10 means lowest priority. Even if documentation said so, before this 
@@ -64,12 +73,27 @@ o Upgrading from a version prior to <release>:
     most impact when Nessus scanning is used. Since this is a default behavior
     change, you should double check your config!
 
-    - FreeRADIUS module changes require configuration changes
+    - External remediation pages 
+    Violations with fully qualified URLs are now handled with new code that 
+    uses mod_proxy and mod_rewrite instead of mod_proxy_html. This was done
+    because the current implementation is broken out of the box on a CentOS 
+    system without manually compiling and installing the mod_proxy_html 
+    package. If you used it then reverify all your remediation pages with
+    fully qualified URLs as they might be broken now.
+
+    - FreeRADIUS module changes require configuration changes (and major 
+    revamping)
     PacketFence's operations in the FreeRADIUS module are now done in the 
     post-auth section instead of the authorize section of the FreeRADIUS 
     workflow. If you are using the standard configuration simply move the perl
     entry from the authorize section into the post-auth section in radiusd.conf 
     (or sites-enabled/default under FreeRADIUS 2.x). 
+    We changed the tests order so we now filter by SSID; we got rid of anything
+    related to guest since guest should now be managed as a distinct category; 
+    we added the find_ssid() function in order to read the SSID name from the 
+    attributes sent in the request; we removed many SQL queries and changed the
+    one reading the node info; we did many other changes in the module so
+    we strongly recommend to be VERY careful when upgrading it.
     Note that this is a manual update process, if you don't update the 
     rlm_perl_packetfence.pl script you don't need to perform the above but you
     won't have the performance and correctness benefits either.

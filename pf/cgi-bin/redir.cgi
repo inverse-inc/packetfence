@@ -22,6 +22,7 @@ use pf::config;
 use pf::iplog;
 use pf::util;
 use pf::web;
+use pf::web::custom;
 # not SUID now!
 #use pf::rawip;
 use pf::node;
@@ -46,7 +47,7 @@ my %tags;
 # valid mac?
 if (!valid_mac($mac)) {
   $logger->info("$ip not resolvable, generating error page");
-  generate_error_page($cgi, $session, "error: not found in the database");
+  pf::web::generate_error_page($cgi, $session, "error: not found in the database");
   exit(0);
 }
 $logger->info("$mac being redirected");
@@ -54,7 +55,7 @@ $logger->info("$mac being redirected");
 # recording user agent for this mac in node table
 # TODO: this validation will not be required if shipped CGI module is > 3.45, see bug #850
 if (defined($cgi->user_agent)) {
-  web_node_record_user_agent($mac,$cgi->user_agent);
+  pf::web::web_node_record_user_agent($mac,$cgi->user_agent);
 } else {
   $logger->warn("$mac has no user agent");
 }
@@ -83,7 +84,7 @@ if ($violation){
   # detect if a system scan is in progress, if so redirect to scan in progress page
   if ($vid == SCAN_VID && $violation->{'ticket_ref'} =~ /^Scan in progress, started at: (.*)$/) {
     $logger->info("captive portal redirect to the scan in progress page");
-    generate_scan_status_page($cgi, $session, $1, $destination_url);
+    pf::web::generate_scan_status_page($cgi, $session, $1, $destination_url);
     exit(0);
   }
 
@@ -95,10 +96,10 @@ if ($violation){
   # enable button
   if ($enable_menu) {
     $logger->debug("violation redirect: generating enable button frame (enable_menu = 1)");
-    generate_enabler_page($cgi, $session, $destination_url, $vid, $class->{'button_text'});
+    pf::web::generate_enabler_page($cgi, $session, $destination_url, $vid, $class->{'button_text'});
   } elsif  ($class->{'auto_enable'} eq 'Y'){
     $logger->debug("violation redirect: generating redirect frame");
-    generate_redirect_page($cgi, $session, $class->{'url'}, $destination_url);
+    pf::web::generate_redirect_page($cgi, $session, $class->{'url'}, $destination_url);
   } else {
     $logger->debug("violation redirect: showing violation url directly since there is no enable button");
     print $cgi->redirect($class->{'url'});
@@ -111,7 +112,7 @@ if ($violation){
 my $unreg = node_unregistered($mac);
 if ($unreg && isenabled($Config{'trapping'}{'registration'})){
   $logger->info("$mac redirected to registration page");
-  generate_registration_page($cgi, $session, $destination_url,$mac,1);
+  pf::web::generate_registration_page($cgi, $session, $destination_url,$mac,1);
   exit(0);
 }
 

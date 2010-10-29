@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 43;
+use Test::More tests => 45;
 
 # pf core libs
 use lib '/usr/local/pf/lib';
@@ -40,6 +40,7 @@ BEGIN { use_ok('pf::scan') }
 BEGIN { use_ok('pf::schedule') }
 BEGIN { use_ok('pf::SNMP::constants') }
 BEGIN { use_ok('pf::services') }
+BEGIN { use_ok('pf::services::apache') }
 BEGIN { use_ok('pf::switchlocation') }
 BEGIN { use_ok('pf::traplog') }
 BEGIN { use_ok('pf::trigger') }
@@ -49,6 +50,7 @@ BEGIN { use_ok('pf::violation') }
 BEGIN { use_ok('pf::vlan') }
 BEGIN { use_ok('pf::vlan::custom') }
 BEGIN { use_ok('pf::web') }
+BEGIN { use_ok('pf::web::custom') }
 
 # external authentication modules
 use lib '/usr/local/pf/conf/';

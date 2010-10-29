@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 564;
+use Test::More tests => 570;
 
 my @files = (
     '/usr/local/pf/addons/accounting.pl',
@@ -59,6 +59,7 @@ my @files = (
     '/usr/local/pf/lib/pf/scan.pm',
     '/usr/local/pf/lib/pf/schedule.pm',
     '/usr/local/pf/lib/pf/services.pm',
+    '/usr/local/pf/lib/pf/services/apache.pm',
     '/usr/local/pf/lib/pf/SNMP/Accton/ES3526XA.pm',
     '/usr/local/pf/lib/pf/SNMP/Accton/ES3528M.pm',
     '/usr/local/pf/lib/pf/SNMP/Accton.pm',
@@ -142,6 +143,7 @@ my @files = (
     '/usr/local/pf/lib/pf/vlan/custom.pm',
     '/usr/local/pf/lib/pf/vlan.pm',
     '/usr/local/pf/lib/pf/web.pm',
+    '/usr/local/pf/lib/pf/web/custom.pm',
     '/usr/local/pf/lib/pf/WebAPI.pm',
     '/usr/local/pf/sbin/pfdetect',
     '/usr/local/pf/sbin/pfdhcplistener',

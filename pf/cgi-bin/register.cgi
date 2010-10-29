@@ -21,6 +21,7 @@ use pf::config;
 use pf::iplog;
 use pf::util;
 use pf::web;
+use pf::web::custom;
 #use pf::rawip;
 use pf::node;
 use pf::violation;
@@ -41,7 +42,7 @@ $destination_url = $Config{'trapping'}{'redirecturl'} if (!$destination_url);
 
 if (!valid_mac($mac)) {
   $logger->info("MAC not found for $ip generating Error Page");
-  generate_error_page($cgi, $session, "error: not found in the database");
+  pf::web::generate_error_page($cgi, $session, "error: not found in the database");
   exit(0);
 }
 
@@ -66,9 +67,9 @@ foreach my $param($cgi->param()) {
 
 if (defined($params{'mode'})) {
   if ($params{'mode'} eq "register") {
-    my ($auth_return,$err) = web_user_authenticate($cgi, $session);
+    my ($auth_return,$err) = pf::web::web_user_authenticate($cgi, $session);
     if ($auth_return != 1) {
-      generate_login_page($cgi, $session, $ENV{REQUEST_URI}, $destination_url, $err);
+      pf::web::generate_login_page($cgi, $session, $ENV{REQUEST_URI}, $destination_url, $err);
       exit(0);
     }
 
@@ -81,7 +82,7 @@ if (defined($params{'mode'})) {
 
     if ($pid ne '1' && $maxnodes !=0 && $node_count >= $maxnodes ) {
       $logger->info("$maxnodes are already registered to $pid");
-      generate_error_page($cgi, $session, "error: only register max nodes");
+      pf::web::generate_error_page($cgi, $session, "error: only register max nodes");
       return(0);
     }
    
@@ -103,8 +104,7 @@ if (defined($params{'mode'})) {
       }
     }
 
-    #node_register($mac, $pid, %info);
-    web_node_register($mac, $pid, %info);
+    pf::web::web_node_register($cgi, $session, $mac, $pid, %info);
 
     my $count = violation_count($mac);
 
@@ -113,7 +113,7 @@ if (defined($params{'mode'})) {
         my $cmd = $bin_dir."/pfcmd manage freemac $mac";
         my $output = qx/$cmd/;
       }
-      generate_release_page($cgi, $session, $destination_url);
+      pf::web::generate_release_page($cgi, $session, $destination_url);
       $logger->info("registration url = $destination_url");
     } else {
       print $cgi->redirect("/cgi-bin/redir.cgi?destination_url=$destination_url");
@@ -123,20 +123,20 @@ if (defined($params{'mode'})) {
   } elsif ($params{'mode'} eq "next_page") {
     my $pageNb = int($params{'page'});
     if (($pageNb > 1) && ($pageNb <= $Config{'registration'}{'nbregpages'})) {
-      generate_registration_page($cgi, $session, $destination_url, $mac,$pageNb);
+      pf::web::generate_registration_page($cgi, $session, $destination_url, $mac,$pageNb);
     } else {
-      generate_error_page($cgi, $session, "error: invalid page number");
+      pf::web::generate_error_page($cgi, $session, "error: invalid page number");
     }
   } elsif ($params{'mode'} eq "status") {
     if (trappable_ip($ip)) {
-      generate_status_page($cgi, $session, $mac);
+      pf::web::generate_status_page($cgi, $session, $mac);
     } else {
-      generate_error_page($cgi, $session, "error: not trappable IP");
+      pf::web::generate_error_page($cgi, $session, "error: not trappable IP");
     }
   } elsif ($params{'mode'} eq "deregister") {
-    my ($auth_return,$err) = web_user_authenticate($cgi, $session);
+    my ($auth_return,$err) = pf::web::web_user_authenticate($cgi, $session);
     if ($auth_return != 1) {
-      generate_login_page($cgi, $session, $ENV{REQUEST_URI},$destination_url,$err);
+      pf::web::generate_login_page($cgi, $session, $ENV{REQUEST_URI},$destination_url,$err);
       exit(0);
     }
     my $node_info = node_view($mac);
@@ -149,13 +149,13 @@ if (defined($params{'mode'})) {
       $logger->info("calling $bin_dir/pfcmd  manage deregister $mac");
       print $cgi->redirect("/cgi-bin/register.cgi");
     } else {
-      generate_error_page($cgi, $session, "error: access denied not owner");
+      pf::web::generate_error_page($cgi, $session, "error: access denied not owner");
     }
   }  else {
-    generate_error_page($cgi, $session, "error: incorrect mode");
+    pf::web::generate_error_page($cgi, $session, "error: incorrect mode");
   }
 } else {
-  generate_registration_page($cgi, $session, $destination_url, $mac,1);
+  pf::web::generate_registration_page($cgi, $session, $destination_url, $mac,1);
 }
 
 =head1 AUTHOR

@@ -50,21 +50,32 @@ New Hardware Support
 - HP ProCurve MSM710 Mobility Controller
 
 New Features
+- Passthroughs support! You can now configure PacketFence to let your users 
+  reach specific websites even if they are in registration or isolation. (#772)
+  (feature sponsored by Shippensburg University)
+- New pf::web::custom extension point to customize the captive portal's code
+  without the usual maintenance burden on upgrades (#1045)
 - New parameter in switches.conf to ease FreeRADIUS integration
 - Optional automatic configuration of FreeRADIUS' clients using switches.conf 
   (see addons/freeradius-integration/README for details)
 
 Enhancements
-- FreeRADIUS module improvements (#1034)
-- New DHCP fingerprints (HP ProCurve Wireless and Ricoh MFP)
+- FreeRADIUS module improvements (#1034) and major revamping
 - Easier installation process using yum groupinstall (#1089)
-- Improved documentation about Snort, Oinkmaster, and log rotation in Admin Guide
+- Improved documentation about Snort, Oinkmaster, and log rotation in Admin 
+  Guide
+- Improved documentation on violations (external remediation pages and 
+  redirect_url) in the Administration Guide
+- New DHCP fingerprints (HP ProCurve Wireless, Ricoh MFP, Cisco/Linksys, 
+  Netgear, D-Link Home Wireless Routers, Sony Ericsson Android and Fluke DTX)
 
 Bug fixes
+- Captive Portal remediation pages can be hosted externally again! (#1024)
 - Fixes to the SMC TigerStack 8824M and 8848M modules (see UPGRADE)
 - No error reporting when trying to change configuration files with bad rights
   (#1088)
 - Violation priorities are now enforced according to documentation (1 = highest)
+- Wrong URL in the provided oinkmaster.conf (#1101)
 
 --------------------------------------------------------------------------------
 Version 1.9.1 released on 2010-09-22

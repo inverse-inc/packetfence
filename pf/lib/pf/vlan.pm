@@ -116,6 +116,7 @@ sub custom_doWeActOnThisTrap {
         return 0;
     }
 
+    # ifTypes: http://www.iana.org/assignments/ianaiftype-mib
     my $ifType = $switch->getIfType($ifIndex);
     # see ifType documentation in pf::SNMP::constants
     if ( ( $ifType == $SNMP::ETHERNET_CSMACD ) || ( $ifType == $SNMP::GIGABIT_ETHERNET ) ) {

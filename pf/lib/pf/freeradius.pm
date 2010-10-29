@@ -17,6 +17,8 @@ Reads the following configuration file: F<conf/switches.conf>.
 
 =cut
 
+# TODO move this file into the pf::services package as pf::services::freeradius.
+# But first some database handling must be rewritten to depend on coderef instead of symbolic references.
 use strict;
 use warnings;
 

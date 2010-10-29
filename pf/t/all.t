@@ -30,6 +30,7 @@ runtests( qw(
               radius.t
               report.t
               node.t
+              integration.t
             )
 );
 

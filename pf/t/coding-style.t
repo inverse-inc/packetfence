@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 215;
+use Test::More tests => 217;
 
 # TODO we should have a global file list
 my @files = (
@@ -63,6 +63,7 @@ my @files = (
     '/usr/local/pf/lib/pf/scan.pm',
     '/usr/local/pf/lib/pf/schedule.pm',
     '/usr/local/pf/lib/pf/services.pm',
+    '/usr/local/pf/lib/pf/services/apache.pm',
     '/usr/local/pf/lib/pf/SNMP/Accton/ES3526XA.pm',
     '/usr/local/pf/lib/pf/SNMP/Accton/ES3528M.pm',
     '/usr/local/pf/lib/pf/SNMP/Accton.pm',
@@ -146,6 +147,7 @@ my @files = (
     '/usr/local/pf/lib/pf/vlan/custom.pm',
     '/usr/local/pf/lib/pf/vlan.pm',
     '/usr/local/pf/lib/pf/web.pm',
+    '/usr/local/pf/lib/pf/web/custom.pm',
     '/usr/local/pf/sbin/pfdetect',
     '/usr/local/pf/sbin/pfdhcplistener',
     '/usr/local/pf/sbin/pfmon',

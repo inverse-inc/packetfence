@@ -35,6 +35,7 @@ use pf::violation qw(violation_view_open_uniq);
 use pf::node qw(nodes_registered_not_violators);
 use pf::trigger qw(trigger_delete_all);
 use pf::class qw(class_view_all class_merge);
+use pf::services::apache;
 use pf::SwitchFactory;
 
 my %flags;
@@ -894,40 +895,26 @@ sub generate_httpd_conf {
     }
     $tags{'proxies'} = join( "\n", @proxies );
 
-    my @contentproxies;
+    my ($pt_http, $pt_https, $remediation);
     if ( $Config{'trapping'}{'passthrough'} eq "proxy" ) {
-        my @proxies = class_view_all();
-        foreach my $row (@proxies) {
-            my $url = $row->{'url'};
-            my $vid = $row->{'vid'};
-            next if ( ( !defined($url) ) || ( $url =~ /^\// ) );
-            if ( $url !~ /^(http|https):\/\// ) {
-                $logger->warn(
-                    "vid " . $vid . ": unrecognized content URL: " . $url );
-                next;
-            }
-            if ( $url =~ /^((http|https):\/\/.+)\/$/ ) {
-                push @contentproxies, "ProxyPass                /content/$vid/ $url";
-                push @contentproxies, "ProxyPassReverse        /content/$vid/ $url";
-                push @contentproxies, "ProxyHTMLURLMap    $1    /content/$vid";
-            } else {
-                $url =~ /^((http|https):\/\/.+)\//;
-                push @contentproxies, "ProxyPas        /content/$vid/ $1/";
-                push @contentproxies, "ProxyPassReverse        /content/$vid/ $1/";
-                push @contentproxies, "ProxyHTMLURLMap        $url       /content/$vid";
-            }
-            push @contentproxies, "ProxyPass       /content/$vid $url";
-            push @contentproxies, "<Location /content/$vid>";
-            push @contentproxies, "  SetOutputFilter        proxy-html";
-            push @contentproxies, "  ProxyHTMLDoctype        HTML";
-            push @contentproxies, "  ProxyHTMLURLMap        / /content/$vid/";
-            push @contentproxies,
-                "  ProxyHTMLURLMap        /content/$vid /content/$vid";
-            push @contentproxies, "  RequestHeader        unset        Accept-Encoding";
-            push @contentproxies, "</Location>";
+
+        ($pt_http, $pt_https) = generate_passthrough_rewrite_proxy_config(%{ $Config{'passthroughs'} });
+
+        # remediation passthrough (for violation.conf url=http:// or https://)
+        $remediation = generate_remediation_rewrite_proxy_config(class_view_all());
+    }
+
+    # if config doesn't exist, replace it with empty array
+    foreach my $template ($remediation, $pt_http, $pt_https) {
+        if (!defined($template)) {
+            $template = [ ];
         }
     }
-    $tags{'content-proxies'} = join( "\n", @contentproxies );
+
+    # associate config to templates
+    $tags{'remediation-proxies'} = join( "\n", @{$remediation});
+    $tags{'passthrough-http-proxies'} = join("\n", @{$pt_http});
+    $tags{'passthrough-https-proxies'} = join("\n", @{$pt_https});
 
     $logger->info("generating $conf_dir/httpd.conf");
     parse_template( \%tags, "$conf_dir/templates/httpd.conf",
