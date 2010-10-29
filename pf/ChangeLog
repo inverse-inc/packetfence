@@ -1,3 +1,7 @@
+2010-10-29      Francois Gaudreault <fgaudreault@inverse.ca>
+        * pf/addons/snort/oinkmaster.conf: Update url section for the new
+        emerging URL
+
 2010-10-27	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/web, pf/lib/pf/web/custom.pm, pf/UPGRADE, 
 	pf/cgi-bin/redir.cgi, pf/cgi-bin/register.cgi, pf/cgi-bin/release.cgi,
