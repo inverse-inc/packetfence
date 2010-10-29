@@ -74,7 +74,7 @@ sub getManagedPorts {
     if ( defined($ifTypes) ) {
 
         foreach my $port ( keys %{$ifTypes} ) {
-            if ( $ifTypes->{$port} == 6 )
+            if ( $ifTypes->{$port} == $SNMP::ETHERNET_CSMACD )
             {           # skip non ethernetCsmacd port type
 
                 $port =~ /^$oid_ifType\.(\d+)$/;

@@ -18,6 +18,7 @@ use diagnostics;
 use Log::Log4perl;
 use pf::config;
 use pf::node qw(node_view node_add_simple node_exist);
+use pf::SNMP::constants;
 use pf::util;
 use pf::violation qw(violation_count_trap violation_exist_open violation_view_top);
 use threads;
@@ -116,7 +117,8 @@ sub custom_doWeActOnThisTrap {
     }
 
     my $ifType = $switch->getIfType($ifIndex);
-    if ( ( $ifType == 6 ) || ( $ifType == 117 ) ) {
+    # see ifType documentation in pf::SNMP::constants
+    if ( ( $ifType == $SNMP::ETHERNET_CSMACD ) || ( $ifType == $SNMP::GIGABIT_ETHERNET ) ) {
         my @upLinks = $switch->getUpLinks();
         # TODO: need to validate for empty array here to avoid warning
         if ( $upLinks[0] == -1 ) {

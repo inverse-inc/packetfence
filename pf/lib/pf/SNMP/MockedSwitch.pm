@@ -549,7 +549,9 @@ sub getIfType {
     $logger->debug("SNMP fake get_request for ifType: $OID_ifType.$ifIndex");
     my $result = $this->{_sessionRead}
         ->get_request( -varbindlist => ["$OID_ifType.$ifIndex"] );
-    return $result->{"$OID_ifType.$ifIndex"};
+    #return $result->{"$OID_ifType.$ifIndex"};
+    $logger->debug("returning ethernetCsmacd(6) which is what PacketFence expects");
+    return $SNMP::ETHERNET_CSMACD;
 }
 
 sub getAllDot1dBasePorts {
@@ -1959,7 +1961,7 @@ sub getManagedPorts {
     if ( defined($ifTypes) ) {
 
         foreach my $port ( keys %{$ifTypes} ) {
-            if ( $ifTypes->{$port} == 6 )
+            if ( $ifTypes->{$port} == $SNMP::ETHERNET_CSMACD )
             {           # skip non ethernetCsmacd port type
 
                 $port =~ /^$oid_ifType\.(\d+)$/;

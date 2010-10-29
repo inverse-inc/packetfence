@@ -784,7 +784,7 @@ sub getManagedIfIndexes {
     foreach my $ifIndex ( keys %{$ifTypeHashRef} ) {
 
         # skip non ethernetCsmacd port type
-        if ( $ifTypeHashRef->{$ifIndex} == 6 ) {
+        if ( $ifTypeHashRef->{$ifIndex} == $SNMP::ETHERNET_CSMACD ) {
 
             # skip UpLinks
             if ( grep( { $_ == $ifIndex } @UpLinks ) == 0 ) {
@@ -792,7 +792,7 @@ sub getManagedIfIndexes {
 
                 # skip ports with ifOperStatus not present
                 if (   ( defined $ifOperStatus )
-                    && ( $ifOperStatusHashRef->{$ifIndex} != 6 ) )
+                    && ( $ifOperStatusHashRef->{$ifIndex} != $SNMP::NOT_PRESENT ) )
                 {
                     push @tmp_managedIfIndexes, $ifIndex;
                 } else {
