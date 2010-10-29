@@ -13,6 +13,8 @@ use POSIX;
 use constant INSTALL_DIR => '/usr/local/pf';
 use constant SCAN_VID => 1200001;
 use lib INSTALL_DIR . "/lib";
+# required for dynamically loaded authentication modules
+use lib INSTALL_DIR . "/conf";
 
 use pf::class;
 use pf::config;
