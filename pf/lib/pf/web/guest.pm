@@ -42,6 +42,9 @@ BEGIN {
 use pf::config;
 use pf::web;
 
+our $LOGIN_TEMPLATE => "guest_login.html";
+our $REGISTRATION_TEMPLATE => "guest.html";
+
 =head1 SUBROUTINES
 
 Warning: The list of subroutine is incomplete
@@ -119,7 +122,7 @@ sub generate_registration_page {
     #}
 
     my $template = Template->new({INCLUDE_PATH => ["$install_dir/html/user/content/templates"],});
-    $template->process("guest.html", $vars);
+    $template->process($pf::web::guest::REGISTRATION_TEMPLATE, $vars);
     exit;
 }
 
@@ -200,6 +203,90 @@ sub generate_activation_confirmation_page {
     exit;
 }
 
+=item generate_login_page  
+
+Generates a guest login page.
+This is not hooked-up by default.
+
+=cut
+sub generate_login_page {
+    my ( $cgi, $session, $post_uri, $destination_url, $mac, $err ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web::guest');
+    setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
+    bindtextdomain( "packetfence", "$conf_dir/locale" );
+    textdomain("packetfence");
+    my $cookie = $cgi->cookie( CGISESSID => $session->id );
+    print $cgi->header( -cookie => $cookie );
+    my $ip   = $cgi->remote_addr;
+    my $vars = {
+        logo            => $Config{'general'}{'logo'},
+        deadline        => $Config{'registration'}{'skip_deadline'},
+        destination_url => $destination_url,
+        txt_page_title  => gettext("PacketFence Registration System"),
+        txt_page_header => gettext("PacketFence Registration System"),
+        txt_help        => gettext("help: provide info"),
+        txt_aup         => gettext("Acceptable Use Policy"),
+        txt_username    => gettext('Username'),
+        txt_login       => gettext('Login'),
+        txt_password    => gettext('Password'),
+        txt_page_title  => gettext('Login'),
+        txt_all_systems_must_be_registered =>
+            gettext("register: all systems must be registered"),
+        txt_to_complete => gettext("register: to complete"),
+        txt_msg_aup     => gettext("register: aup"),
+        list_help_info  => [
+            { name => gettext('IP'),  value => $ip },
+            { name => gettext('MAC'), value => $mac }
+        ],
+        post_uri => $post_uri,
+    };
+
+    $vars->{'login'} = $cgi->param("login");
+
+    my @auth = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
+
+    #
+    # if no skip and one Auth type you don't need a pull down...
+    if ( scalar(@auth) == 1 ) {
+        push @{ $vars->{list_authentications} },
+            { name => 'auth', value => $auth[0] };
+    } else {
+        foreach my $auth (@auth) {
+            my $auth_name = $auth;
+            push @{ $vars->{list_authentications} },
+                { name => $auth, value => $auth };
+        }
+    }
+
+    # showing errors
+    if ( defined($err) ) {
+        if ( $err == 1 ) {
+            $vars->{'txt_login_auth_error'} = gettext('error: invalid login or password');
+        } elsif ( $err == 2 ) {
+            $vars->{'txt_login_auth_error'} = gettext('error: unable to validate credentials at the moment');
+        } elsif ( $err == 3 ) {
+            $vars->{'txt_login_auth_error'} = "Missing mandatory parameter or malformed entry.";
+        }
+    }
+
+    # TODO: make localizable
+    # generate list of locales
+    #my $authorized_locale_txt = $Config{'general'}{'locale'};
+    #my @authorized_locale_array = split(/,/, $authorized_locale_txt);
+    #if ( scalar(@authorized_locale_array) == 1 ) {
+    #    push @{ $vars->{list_locales} },
+    #        { name => 'locale', value => $authorized_locale_array[0] };
+    #} else {
+    #    foreach my $authorized_locale (@authorized_locale_array) {
+    #        push @{ $vars->{list_locales} },
+    #            { name => 'locale', value => $authorized_locale };
+    #    }
+    #}
+
+    my $template = Template->new({INCLUDE_PATH => ["$install_dir/html/user/content/templates"],});
+    $template->process($pf::web::guest::LOGIN_TEMPLATE, $vars);
+    exit;
+}
 =back
 
 =head1 AUTHOR
