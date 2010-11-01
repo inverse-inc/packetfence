@@ -63,7 +63,7 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
 
     # authentication failed, return to guest registration page and show error message
     if ($auth_return != 1) {
-        pf::web::guest::generate_registration_page($cgi, $session, $ENV{REQUEST_URI}, $destination_url, $mac, $err);
+        pf::web::guest::generate_registration_page($cgi, $session, $cgi->script_name(), $destination_url, $mac, $err);
         exit(0);
     }
 
