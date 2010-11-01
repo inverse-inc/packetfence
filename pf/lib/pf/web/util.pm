@@ -57,7 +57,7 @@ sub validate_phone_number {
 Returns 1 if string provided is a valid email address, 0 otherwise.
 
 =cut
-sub validate_phone_number {
+sub is_email_valid {
     my ($email) = @_;
     if ($email =~ /
         ^[A-z0-9_.-]+@      # A-Z, a-z, 0-9, _, ., - then @
