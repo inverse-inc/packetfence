@@ -43,8 +43,8 @@ BEGIN {
 use pf::config;
 use pf::web;
 
-our $LOGIN_TEMPLATE => "guest_login.html";
-our $REGISTRATION_TEMPLATE => "guest.html";
+our $LOGIN_TEMPLATE = "guest_login.html";
+our $REGISTRATION_TEMPLATE = "guest.html";
 
 =head1 SUBROUTINES
 
