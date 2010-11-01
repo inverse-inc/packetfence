@@ -19,3 +19,4 @@ pod_coverage_ok("pf::floatingdevice");
 pod_coverage_ok("pf::freeradius");
 pod_coverage_ok("pf::services::apache");
 pod_coverage_ok("pf::web");
+pod_coverage_ok("pf::web::util");

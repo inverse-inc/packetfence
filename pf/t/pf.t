@@ -48,6 +48,7 @@ BEGIN { use_ok('pf::vlan') }
 BEGIN { use_ok('pf::vlan::custom') }
 BEGIN { use_ok('pf::web') }
 BEGIN { use_ok('pf::web::custom') }
+BEGIN { use_ok('pf::web::util') }
 
 # external authentication modules
 use lib '/usr/local/pf/conf/';

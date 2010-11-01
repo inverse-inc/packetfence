@@ -476,6 +476,7 @@ fi
 %dir                    /usr/local/pf/lib/pf/vlan
 %config(noreplace)      /usr/local/pf/lib/pf/vlan/custom.pm
 %dir                    /usr/local/pf/lib/pf/web
+                        /usr/local/pf/lib/pf/web/*
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
 %dir                    /usr/local/pf/logs
 %doc                    /usr/local/pf/NEWS
@@ -507,6 +508,10 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Mon Nov 01 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added new pf/lib/pf/web/* to package which should hold captive portal related
+  submodules.
+
 * Wed Oct 27 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added new pf::web::custom module which is meant to be controlled by clients
   (so we don't overwrite it by default)
