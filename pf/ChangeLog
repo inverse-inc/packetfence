@@ -1,6 +1,10 @@
+2010-10-30	Olivier Bilodeau <obilodeau@inverse.ca>
+	* conf/dhcp_fingerprints.conf: Added Avaya Phone and Aruba Access 
+	Point 200 DHCP fingerprints.
+	
 2010-10-29      Francois Gaudreault <fgaudreault@inverse.ca>
-        * pf/addons/snort/oinkmaster.conf: Update url section for the new
-        emerging URL
+	* pf/addons/snort/oinkmaster.conf: Update url section for the new
+	emerging URL
 
 2010-10-27	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/web, pf/lib/pf/web/custom.pm, pf/UPGRADE, 

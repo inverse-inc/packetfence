@@ -39,7 +39,8 @@ Enhancements
 - Improved documentation on violations (external remediation pages and 
   redirect_url) in the Administration Guide
 - New DHCP fingerprints (HP ProCurve Wireless, Ricoh MFP, Cisco/Linksys, 
-  Netgear, D-Link Home Wireless Routers, Sony Ericsson Android and Fluke DTX)
+  Netgear, D-Link Home Wireless Routers, Sony Ericsson Android, Fluke DTX, 
+  Aruba Access Point and Avaya IP Phone)
 
 Bug fixes
 - Captive Portal remediation pages can be hosted externally again! (#1024)
