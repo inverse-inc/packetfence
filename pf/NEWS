@@ -38,6 +38,8 @@ Enhancements
   Guide
 - Improved documentation on violations (external remediation pages and 
   redirect_url) in the Administration Guide
+- New 'pending' status for node. Allow for a wide range of captive portal 
+  workflows where an administrator approves network access.
 - New DHCP fingerprints (HP ProCurve Wireless, Ricoh MFP, Cisco/Linksys, 
   Netgear, D-Link Home Wireless Routers, Sony Ericsson Android, Fluke DTX, 
   Aruba Access Point and Avaya IP Phone)

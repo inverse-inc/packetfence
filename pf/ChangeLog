@@ -1,4 +1,11 @@
 2010-11-01	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/user/content/templates/pending.html, pf/cgi-bin/redir.cgi,
+	pf/html/admin/common/helpers.inc, pf/html/admin/common.php, 
+	pf/html/admin/node/edit.php, pf/lib/pf/node.pm, pf/lib/pf/vlan.pm,
+	pf/lib/pf/web.pm: New 'pending' node status with updated VLAN
+	assignment call (stay in registration). This enables approval
+	workflows in user registrations. 
+
 	* pf/lib/pf/web/util.pm: New web utilities file.
 
 2010-10-30	Olivier Bilodeau <obilodeau@inverse.ca>

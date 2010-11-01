@@ -117,6 +117,13 @@ if ($unreg && isenabled($Config{'trapping'}{'registration'})){
   exit(0);
 }
 
+#if node is pending show pending page
+my $node_info = node_view($mac);
+if (defined($node_info) && $node_info->{'status'} eq $pf::node::STATUS_PENDING) {
+  pf::web::generate_pending_page($cgi, $session, $destination_url, $mac);
+  exit(0);
+}
+
 # 
 $logger->info("$mac already registered or registration disabled, freeing mac");
 if ($Config{'network'}{'mode'} =~ /arp/i) {

@@ -779,10 +779,18 @@ function PrintSubNav($menu){
       $headings[]=$heading[0];
       if (($current_top == 'node') && ($current_sub == 'add') && ($heading[0] == 'Status') ) {
         if (preg_match("/input type='text' name='(val\d+)'/", $heading[1], $regmatches)) {
-          $values[] = "<select name='" . $regmatches[1] . "'><option value='grace' >Grace</option><option value='reg'>Registered</option><option selected value='unreg'>Unregistered</option></select>";
+          $value_string = "<select name='" . $regmatches[1] . "'>";
+          # TODO: if printSelect would return a string instead of print directly this would be less ugly
+          $node_statuses = get_node_status_for_dropdown();
+          foreach ($node_statuses as $status_id => $status_name) {
+              $value_string .= "<option value='$status_id'>$status_name</option>";
+          }
+          $value_string .= "</select>";
+          $values[] = $value_string;
         } else {
           $values[]=$heading[1];
         }
+
       } elseif (($current_top == 'node') && ($current_sub == 'add') && ($heading[0] == 'Category') ) {
 
         if (preg_match("/input type='text' name='(val\d+)'/", $heading[1], $regmatches)) {

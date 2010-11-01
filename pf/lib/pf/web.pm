@@ -22,6 +22,7 @@ F<register.html>.
 
 =cut
 
+#TODO all template destination should be variables allowing redefinitions by pf::web::custom
 use strict;
 use warnings;
 use Date::Parse;
@@ -644,6 +645,37 @@ sub generate_registration_page {
     my $template = Template->new(
         { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
     $template->process( "register.html", $vars );
+    exit;
+}
+
+=item generate_pending_page
+
+Shows a page to user saying registration is pending.
+
+=cut
+sub generate_pending_page {
+    my ( $cgi, $session, $destination_url, $mac ) = @_;
+    setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
+    bindtextdomain( "packetfence", "$conf_dir/locale" );
+    textdomain("packetfence");
+    my $ip = $cgi->remote_addr;
+    my $vars = {
+        logo            => $Config{'general'}{'logo'},
+        txt_page_title  => "Registration pending",
+        txt_page_header => "Registration pending",
+        txt_help        => gettext('help: provide info'),
+        list_help_info  => [
+            { name => gettext('IP'),  value => $ip },
+            { name => gettext('MAC'), value => $mac }
+        ],
+    };
+
+    my $cookie = $cgi->cookie( CGISESSID => $session->id );
+    print $cgi->header( -cookie => $cookie );
+
+    my $template = Template->new(
+        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    $template->process("pending.html", $vars);
     exit;
 }
 

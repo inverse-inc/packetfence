@@ -79,4 +79,16 @@
         }
     }
 
+    /*
+     * Gives back array meant for printSelect that outputs possible values for a node's status
+     */
+    function get_node_status_for_dropdown() {
+        return array(
+            'unreg' => 'Unregistered',
+            'reg' => 'Registered',
+            'grace' => 'Grace',
+            'pending' => 'Pending approval'
+        );
+    }
+
 ?>
