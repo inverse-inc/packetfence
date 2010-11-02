@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 217;
+use Test::More tests => 218;
 
 # TODO we should have a global file list
 my @files = (
