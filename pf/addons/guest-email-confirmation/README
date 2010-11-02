@@ -17,7 +17,7 @@
         Options ExecCGI
     Order deny,allow
     Deny from all
-    allow from %%internal-nets%% %%routed-nets%% 72.233.128.0/18 127.0.0.1
+    allow from %%internal-nets%% %%routed-nets%% 10.100.160.0/16 127.0.0.1
   </LocationMatch>
 
  * Create new database table. Run:
