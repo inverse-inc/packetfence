@@ -51,8 +51,8 @@ foreach my $param($cgi->param()) {
 if (defined($params{'code'})) {
 
     # validate code
-    my $node_mac = pf::email_activation::validate_code($params{'code'});
-    if (!defined($node_mac)) {
+    my $activation_record = pf::email_activation::validate_code($params{'code'});
+    if (!defined($activation_record) || ref($activation_record) ne 'HASH' || !defined($activation_record->{'mac'})) {
 
         pf::web::generate_error_page($cgi, $session, "The activation code provided is invalid. "
             . "Reasons could be: it never existed, it was already used or has expired."
@@ -60,6 +60,7 @@ if (defined($params{'code'})) {
         exit(0);
     }
 
+    my $node_mac = $activation_record->{'mac'};
     # expire in a week (at 2AM)
     # TODO extract expiration in a config param
     my $expiration = POSIX::strftime("%Y-%m-%d 02:00:00", localtime( time + 7*24*60*60 ));

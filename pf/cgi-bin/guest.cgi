@@ -95,8 +95,12 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
     $info{'lastname'} = $session->param("lastname");
     $info{'telephone'} = $session->param("phone");
 
+    $info{'subject'} = $Config{'general'}{'domain'}.': Email activation required';
+
     # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
-    pf::email_activation::create_and_email_activation_code($mac, $info{'pid'}, %info);
+    pf::email_activation::create_and_email_activation_code(
+        $mac, $info{'pid'}, $pf::email_activation::GUEST_TEMPLATE, %info
+    );
 
     # Violation handling and redirection (accorindingly)
     my $count = violation_count($mac);

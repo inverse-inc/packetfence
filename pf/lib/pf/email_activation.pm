@@ -48,6 +48,9 @@ Readonly::Scalar our $EXPIRATION => 31*24*60*60; # defaults to 31 days
 Readonly::Scalar our $HASH_FORMAT => 1;
 # Hash formats
 Readonly::Scalar our $SIMPLE_MD5 => 1;
+# Available default templates
+Readonly::Scalar our $GUEST_TEMPLATE => 'guest_activation';
+Readonly::Scalar our $SPONSOR_TEMPLATE => 'sponsor_activation';
 
 BEGIN {
     use Exporter ();
@@ -67,6 +70,7 @@ BEGIN {
         create
         find_code
         $UNVERIFIED $EXPIRED $VERIFIED $INVALIDATED
+        $GUEST_TEMPLATE $SPONSOR_TEMPLATE
     );
 }
 
@@ -281,7 +285,7 @@ sub _unpack_activation_code {
 
 =cut
 sub send_email {
-    my ($activation_code, %info) = @_;
+    my ($activation_code, $template, %info) = @_;
     my $logger = Log::Log4perl::get_logger('pf::email_activation');
 
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
@@ -300,26 +304,27 @@ sub send_email {
     my $msg = MIME::Lite::TT->new( 
         From        =>  $info{'from'},
         To          =>  $info{'email'}, 
-        Subject     =>  $Config{'general'}{'domain'}.': Email activation required', 
-        Template    =>  'emails-guest_activation.txt.tt',
+        Cc          =>  $info{'cc'}, 
+        Subject     =>  $info{'subject'}, 
+        Template    =>  "emails-$template.txt.tt",
         TmplOptions =>  \%options, 
         TmplParams  =>  \%info, 
     ); 
 
-    $msg->send('smtp', $smtpserver, Timeout => 60);
+    $msg->send('smtp', $smtpserver, Timeout => 20);
 }
 
 sub create_and_email_activation_code {
-    my ($mac, $email_addr, %info) = @_;
+    my ($mac, $email_addr, $template, %info) = @_;
     my $logger = Log::Log4perl::get_logger('pf::email_activation');
 
     my $activation_code = create($mac, $email_addr);
     if (defined($activation_code)) {
-        send_email($activation_code, %info);
+        send_email($activation_code, $template, %info);
     }
 }
 
-# returns the validated mac address or undef
+# returns the validated activation record hashref or undef
 sub validate_code {
     my ($activation_code) = @_;
     my $logger = Log::Log4perl::get_logger('pf::email_activation');
@@ -339,9 +344,9 @@ sub validate_code {
 
     # At this point, code is valid, mark it as verified and return node's MAC
     modify_status($activation_record->{'code_id'}, $VERIFIED);
-    $logger->info("Email ".$activation_record->{'email'}." successfully verified! "
+    $logger->info("Activation code sent to email ".$activation_record->{'email'}." successfully verified! "
         . "Node authorized: ".$activation_record->{'mac'});
-    return $activation_record->{'mac'};
+    return $activation_record;
 }
 
 # TODO: add an expire / cleanup sub

@@ -1,3 +1,4 @@
+Remember that this branch now is for more than just guest email activation. It covers sponsor email activation.
 TODOs
 - expiration of activation code isn't implemented
 - add cleanup sub in pf::email_activation called by pfmon
