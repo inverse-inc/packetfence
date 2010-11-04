@@ -1,3 +1,7 @@
+2010-11-04	Regis Balzard <rbalzard@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Added instructions on
+	how to configure FreeRADIUS v2 to listen on a virtual IP.
+
 2010-11-01	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/html/user/content/templates/pending.html, pf/cgi-bin/redir.cgi,
 	pf/html/admin/common/helpers.inc, pf/html/admin/common.php, 
