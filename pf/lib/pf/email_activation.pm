@@ -63,7 +63,7 @@ BEGIN {
 
     @EXPORT_OK = qw(
         view add modify delete
-        view_by_name
+        view_by_code
         invalidate_codes
         validate_code
         modify_status
