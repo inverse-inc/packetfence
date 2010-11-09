@@ -24,7 +24,9 @@ pf::temporary_password::temporary_password_view()
 Remove this note when it will be no longer relevant. ;)
 
 =cut
-
+#TODO rename to temporary_credentials to better reflect what this is about
+#TODO handle entry status (expire previously requested passwords, etc.)
+#TODO properly hash passwords (1000 SHA1 iterations of salt + password)
 use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
@@ -36,6 +38,9 @@ use Readonly;
 Readonly::Scalar our $AUTH_SUCCESS => 0;
 Readonly::Scalar our $AUTH_FAILED_INVALID => 1;
 Readonly::Scalar our $AUTH_FAILED_EXPIRED => 2;
+
+# Expiration time in seconds
+Readonly::Scalar our $EXPIRATION => 31*24*60*60; # defaults to 31 days
 
 # Constants
 use constant TEMPORARY_PASSWORD => 'temporary_password';
@@ -98,6 +103,7 @@ sub temporary_password_db_prepare {
         SELECT pid, UNIX_TIMESTAMP(expiration)
         FROM temporary_password
         WHERE pid = ? AND password = ? 
+        ORDER BY expiration DESC
         LIMIT 1
     ]);
 
@@ -159,6 +165,53 @@ sub create {
         'temporary_password_add_sql', $data{'pid'}, $data{'password'}, $data{'expiration'}
     ));
 }
+
+=item _generate_password
+
+Generates the password
+
+=cut
+sub _generate_password {
+
+    my $password = word(8, 12);
+    # if password is nasty generate another one (until we get a clean one)
+    while(Crypt::GeneratePassword::restrict($password, undef)) {
+        $password = word(8, 12);
+    }
+    return $password;
+}
+
+=item generate
+
+Generates a temporary password and add it to the temporary password table.
+
+Returns the temporary password
+
+=cut
+sub generate {
+    my ($pid) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::temporary_password');
+
+    # TODO invalidate previously requested passwords
+
+    my $data{'pid'} = $pid;
+
+    # caculate activation code expiration
+    $data{'expiration'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $EXPIRATION));
+
+    # generate password 
+    $data{'password'} = _generate_password();
+
+    my $result = create(%data);
+    if (defined($result)) {
+        $logger->info("new temporary account successfully generated");
+        return $data{'password'};
+    } else {
+        $logger->warn("something went wrong creating a new temporary password for $pid");
+        return;
+    }
+}
+
 
 =item validate_password
 
