@@ -7,7 +7,8 @@ TODOs
 - Have both text and HTML email templates activated by default (adjust README once done)
 - move newly added subs from pf::web to pf::web:guest
 - Denial of service prevention
-- write basic unit tests pf::email_activation
+- write basic unit tests pf::email_activation, pf::temporary_password
+- add pf::email_activation, pf::temporary_password to basic tests
 - review POD doc
 
 Before merge in 1.9:

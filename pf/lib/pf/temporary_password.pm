@@ -194,7 +194,8 @@ sub generate {
 
     # TODO invalidate previously requested passwords
 
-    my $data{'pid'} = $pid;
+    my %data;
+    $data{'pid'} = $pid;
 
     # caculate activation code expiration
     $data{'expiration'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $EXPIRATION));

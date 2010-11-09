@@ -99,7 +99,7 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
 
     # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
     pf::email_activation::create_and_email_activation_code(
-        $mac, $info{'pid'}, $pf::email_activation::GUEST_TEMPLATE, %info
+        $mac, $info{'pid'}, $info{'pid'}, $pf::email_activation::GUEST_TEMPLATE, %info
     );
 
     # Violation handling and redirection (accorindingly)

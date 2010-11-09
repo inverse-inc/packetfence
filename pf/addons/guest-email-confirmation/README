@@ -21,7 +21,7 @@
   </LocationMatch>
 
  * Create new database table. Run:
-  mysql -u root -p pf -v < addons/guest-email-confirmation/schema.sql
+  mysql -u root -p pf -v < addons/guest-email-confirmation/schema-email-activation.sql
 
  * Redirect the user to cgi-bin/guest.cgi for guest registration
 
@@ -41,3 +41,7 @@
   Guest registration page: html/user/content/templates/guest.html
   Page shown once activated: html/user/content/templates/activated.html
  * The email template is: conf/templates/emails-guest_activation.txt.tt
+
+== Temporary passwords ==
+ * Requires: perl(Crypt::GeneratePassword)
+ * SQL in addons/guest-email-confirmation/schema-temporary-passwords.sql

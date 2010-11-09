@@ -113,6 +113,8 @@ Requires: perl-YAML
 Requires: php-jpgraph-packetfence = 2.3.4
 Requires: php-ldap
 Requires: perl(Try::Tiny)
+Requires: perl(Crypt::GeneratePassword)
+Requires: perl(MIME::Lite::TT)
 # Required for Radius auth through captive portal
 Requires: perl(Authen::Radius)
 # Required for testing

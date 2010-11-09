@@ -96,23 +96,27 @@ sub email_activation_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::email_activation');
     $logger->debug("Preparing pf::email_activation database queries");
 
-    $email_activation_statements->{'email_activation_view_sql'} = get_db_handle()->prepare(
-        qq [ SELECT code_id, mac, email, activation_code, expiration, status FROM email_activation WHERE code_id = ? ]
-    );
+    $email_activation_statements->{'email_activation_view_sql'} = get_db_handle()->prepare(qq[
+        SELECT code_id, pid, mac, email, activation_code, expiration, status 
+        FROM email_activation 
+        WHERE code_id = ?
+    ]);
 
-    $email_activation_statements->{'email_activation_find_unverified_code_sql'} = get_db_handle()->prepare(
-        qq [ SELECT code_id, mac, email, activation_code, expiration, status FROM email_activation 
-            WHERE activation_code LIKE ? AND status = ? ]
-    );
+    $email_activation_statements->{'email_activation_find_unverified_code_sql'} = get_db_handle()->prepare(qq[
+        SELECT code_id, pid, mac, email, activation_code, expiration, status
+        FROM email_activation 
+        WHERE activation_code LIKE ? AND status = ?
+    ]);
 
     $email_activation_statements->{'email_activation_view_by_code_sql'} = get_db_handle()->prepare(
-        qq [ SELECT code_id, mac, email, activation_code, expiration, status FROM email_activation 
+        qq [ SELECT code_id, pid, mac, email, activation_code, expiration, status FROM email_activation 
             WHERE activation_code= ? ]
     );
 
-    $email_activation_statements->{'email_activation_add_sql'} = get_db_handle()->prepare(
-        qq [ INSERT INTO email_activation (mac, email, activation_code, expiration, status) VALUES (?, ?, ?, ?, ?) ]
-    );
+    $email_activation_statements->{'email_activation_add_sql'} = get_db_handle()->prepare(qq[
+        INSERT INTO email_activation (pid, mac, email, activation_code, expiration, status) 
+        VALUES (?, ?, ?, ?, ?, ?)
+    ]);
 
     $email_activation_statements->{'email_activation_modify_status_sql'} = get_db_handle()->prepare(
         qq [ UPDATE email_activation SET status=? WHERE code_id = ? ]
@@ -124,6 +128,10 @@ sub email_activation_db_prepare {
 
     $email_activation_statements->{'email_activation_change_status_old_same_mac_email_sql'} = get_db_handle()->prepare(
         qq [ UPDATE email_activation SET status=? WHERE mac = ? AND email = ? AND status = ? ]
+    );
+
+    $email_activation_statements->{'email_activation_change_status_old_same_pid_email_sql'} = get_db_handle()->prepare(
+        qq [ UPDATE email_activation SET status=? WHERE pid = ? AND email = ? AND status = ? ]
     );
 
     $email_activation_db_prepared = 1;
@@ -179,7 +187,7 @@ sub add {
     # TODO some validation required?
 
     return(db_data(EMAIL_ACTIVATION, $email_activation_statements, 
-            'email_activation_add_sql', $data{'mac'}, $data{'email'}, $data{'activation_code'}, 
+            'email_activation_add_sql', $data{'pid'}, $data{'mac'}, $data{'email'}, $data{'activation_code'}, 
             $data{'expiration'}, $data{'status'}));
 }
 
@@ -206,10 +214,18 @@ sub modify_status {
 
 =cut
 sub invalidate_codes {
-    my ($mac, $email) = @_;
+    my ($mac, $pid, $email) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::email_activation');
 
-    return(db_query_execute(EMAIL_ACTIVATION, $email_activation_statements, 
-        'email_activation_change_status_old_same_mac_email_sql', $INVALIDATED, $mac, $email, $UNVERIFIED));
+    db_query_execute(EMAIL_ACTIVATION, $email_activation_statements, 
+        'email_activation_change_status_old_same_pid_email_sql', $INVALIDATED, $pid, $email, $UNVERIFIED
+    ) || $logger->warn("problems trying to invalidate activation codes using pid $pid");
+
+    db_query_execute(EMAIL_ACTIVATION, $email_activation_statements, 
+        'email_activation_change_status_old_same_mac_email_sql', $INVALIDATED, $mac, $email, $UNVERIFIED
+    ) || $logger->warn("problems trying to invalidate activation codes using mac $mac");
+
+    return;
 }
 
 =item create - create a new activation code
@@ -218,13 +234,14 @@ Returns the activation code
 
 =cut
 sub create {
-    my ($mac, $email_addr) = @_;
+    my ($mac, $pid, $email_addr) = @_;
     my $logger = Log::Log4perl::get_logger('pf::email_activation');
 
     # invalidate older codes for the same MAC / email
-    invalidate_codes($mac, $email_addr);
+    invalidate_codes($mac, $pid, $email_addr);
 
     my %data = (
+        'pid' => $pid,
         'mac' => $mac,
         'email' => $email_addr,
         'status' => $UNVERIFIED,
@@ -235,14 +252,14 @@ sub create {
 
     # generate activation code
     $data{'activation_code'} = _generate_activation_code(%data);
-    $logger->debug("generated new activation code for mac $mac: ".$data{'activation_code'});
+    $logger->debug("generated new activation code: ".$data{'activation_code'});
 
     my $result = add(%data);
     if (defined($result)) {
-        $logger->info("new activation code successfully generated for mac $mac");
+        $logger->info("new activation code successfully generated");
         return $data{'activation_code'};
     } else {
-        $logger->warn("something went wrong generating an activation code for mac $mac");
+        $logger->warn("something went wrong generating an activation code for " . $mac || $pid);
         return;
     }
 }
@@ -259,8 +276,9 @@ sub _generate_activation_code {
         return "$SIMPLE_MD5:".md5_hex(
             time."|"
             .$data{'expiration'}."|"
-            .$data{'mac'}."|"
-            .$data{'email'});
+            . $data{'mac'} || $data{'pid'} . "|"
+            .$data{'email'}
+	);
     } else {
         $logger->warn("Hash format unknown, couldn't generate activation code");
     }
@@ -315,10 +333,10 @@ sub send_email {
 }
 
 sub create_and_email_activation_code {
-    my ($mac, $email_addr, $template, %info) = @_;
+    my ($mac, $pid, $email_addr, $template, %info) = @_;
     my $logger = Log::Log4perl::get_logger('pf::email_activation');
 
-    my $activation_code = create($mac, $email_addr);
+    my $activation_code = create($mac, $pid, $email_addr);
     if (defined($activation_code)) {
         send_email($activation_code, $template, %info);
     }
