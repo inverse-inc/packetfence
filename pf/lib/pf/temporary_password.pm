@@ -1,0 +1,225 @@
+package pf::temporary_password;
+
+=head1 NAME
+
+pf::temporary_password - module to view, query and manage temporary passwords
+
+=cut
+
+=head1 DESCRIPTION
+
+pf::temporary_password contains the functions necessary to manage all aspects
+of temporary passwords: creation, deletion, etc.
+utility methods generate activation codes and validate them.
+
+=head1 DEVELOPER NOTES
+
+Notice that this module doesn't export all its subs like our other modules do.
+This is an attempt to shift our paradigm towards calling with package names 
+and avoid the double naming. 
+
+For ex: pf::temporary_password::view() instead of 
+pf::temporary_password::temporary_password_view()
+
+Remove this note when it will be no longer relevant. ;)
+
+=cut
+
+use strict;
+use warnings;
+use lib qw(/usr/local/pf/lib);
+use Crypt::GeneratePassword qw(word);
+use Log::Log4perl;
+use POSIX;
+use Readonly;
+
+Readonly::Scalar our $AUTH_SUCCESS => 0;
+Readonly::Scalar our $AUTH_FAILED_INVALID => 1;
+Readonly::Scalar our $AUTH_FAILED_EXPIRED => 2;
+
+# Constants
+use constant TEMPORARY_PASSWORD => 'temporary_password';
+
+BEGIN {
+    use Exporter ();
+    our ( @ISA, @EXPORT, @EXPORT_OK );
+    @ISA = qw(Exporter);
+    @EXPORT = qw(
+        temporary_password_db_prepare
+        $temporary_password_db_prepared
+    );
+
+    @EXPORT_OK = qw(
+        view add modify delete
+        create
+        validate_password
+    );
+}
+
+use pf::config;
+use pf::db;
+use pf::util;
+
+# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
+our $temporary_password_db_prepared = 0;
+# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
+# the hash if required
+our $temporary_password_statements = {};
+
+=head1 SUBROUTINES
+
+TODO: This list is incomlete
+
+=over
+
+=cut
+
+sub temporary_password_db_prepare {
+    my $logger = Log::Log4perl::get_logger('pf::temporary_password');
+    $logger->debug("Preparing pf::temporary_password database queries");
+
+    $temporary_password_statements->{'temporary_password_view_sql'} = get_db_handle()->prepare(qq[
+        SELECT tp_id, pid, password, expiration
+        FROM temporary_password 
+        WHERE tp_id = ?
+    ]);
+
+    $temporary_password_statements->{'temporary_password_add_sql'} = get_db_handle()->prepare(qq[
+        INSERT INTO temporary_password
+            (pid, password, expiration)
+        VALUES (?, ?, ?)
+    ]);
+
+    $temporary_password_statements->{'temporary_password_delete_sql'} = get_db_handle()->prepare(
+        qq [ DELETE FROM temporary_password WHERE tp_id = ? ]
+    );
+
+    $temporary_password_statements->{'temporary_password_validate_password_sql'} = get_db_handle()->prepare(qq[ 
+        SELECT pid, UNIX_TIMESTAMP(expiration)
+        FROM temporary_password
+        WHERE pid = ? AND password = ? 
+        LIMIT 1
+    ]);
+
+    $temporary_password_db_prepared = 1;
+}
+
+=item view 
+
+view a a temporary password record, returns an hashref
+
+=cut
+sub view {
+    my ($code_id) = @_;
+    my $query = db_query_execute(
+        TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_view_sql', $code_id
+    );
+    my $ref = $query->fetchrow_hashref();
+
+    # just get one row and finish
+    $query->finish();
+    return ($ref);
+}
+
+=item add 
+
+add a temporary password record to the database
+
+=cut
+sub add {
+    my (%data) = @_;
+
+    return(db_data(TEMPORARY_PASSWORD, $temporary_password_statements, 
+        'temporary_password_add_sql', $data{'pid'}, $data{'password'}, $data{'expiration'}
+    ));
+}
+
+=item delete 
+
+delete a temporary password record
+
+=cut
+sub delete {
+    my ($code_id) = @_;
+
+    return(db_query_execute(
+        TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_delete_sql', $code_id
+    ));
+}
+
+=item create 
+
+Creates a temporary password record for a given pid. Valid until given expiration.
+
+=cut
+sub create {
+    my (%data) = @_;
+
+    return(db_data(TEMPORARY_PASSWORD, $temporary_password_statements,
+        'temporary_password_add_sql', $data{'pid'}, $data{'password'}, $data{'expiration'}
+    ));
+}
+
+=item validate_password
+
+Validate password for a given pid.
+
+Return values:
+ $AUTH_SUCCESS - success
+ $AUTH_FAILED_INVALID - invalid user/pass
+ $AUTH_FAILED_EXPIRED - password expired
+
+=cut
+sub validate_password {
+    my ($pid, $password) = @_;
+
+    my $query = db_query_execute(
+        TEMPORARY_PASSWORD, $temporary_password_statements,
+        'temporary_password_validate_password_sql', $pid, $password
+    );
+
+    my $ref = $query->fetchrow_hashref();
+    # just get one row
+    $query->finish();
+
+    if (!defined($ref) || ref($ref) ne 'HASH') {
+        return $AUTH_FAILED_INVALID;
+    }
+
+    # expiration is in unix timestamp format so an int comparison is enough
+    if ($ref->{'expiration'} < time) {
+        return $AUTH_FAILED_EXPIRED;
+    }
+
+    return $AUTH_SUCCESS;
+}
+
+
+# TODO: add an expire / cleanup sub
+
+=head1 AUTHOR
+
+Olivier Bilodeau <obilodeau@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2010 Inverse inc.
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
+1;
