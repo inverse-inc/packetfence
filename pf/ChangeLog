@@ -1,6 +1,10 @@
-2010-10-29      Francois Gaudreault <fgaudreault@inverse.ca>
-        * pf/addons/snort/oinkmaster.conf: Update url section for the new
-        emerging URL
+2010-11-09	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/db/pf-schema-1.10.0.sql: Removed the deprecated TYPE= syntax for 
+	the current database schema file. Replaced by ENGINE=.
+
+2010-10-29	Francois Gaudreault <fgaudreault@inverse.ca>
+	* pf/addons/snort/oinkmaster.conf: Update url section for the new
+	emerging URL
 
 2010-10-27	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/web, pf/lib/pf/web/custom.pm, pf/UPGRADE, 

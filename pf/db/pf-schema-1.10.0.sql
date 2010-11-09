@@ -16,7 +16,7 @@ CREATE TABLE class (
   disable char(1) NOT NULL default "Y",
   vlan varchar(255),
   PRIMARY KEY (vid)
-) TYPE=InnoDB;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `trigger`
@@ -30,7 +30,7 @@ CREATE TABLE `trigger` (
   PRIMARY KEY (vid,tid_start,tid_end,type),
   KEY `trigger` (tid_start,tid_end,type),
   CONSTRAINT `0_64` FOREIGN KEY (`vid`) REFERENCES `class` (`vid`) ON DELETE CASCADE ON UPDATE CASCADE
-) TYPE=InnoDB;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `person`
@@ -46,7 +46,7 @@ CREATE TABLE person (
   `address` varchar(255) default NULL,
   notes varchar(255),
   PRIMARY KEY (pid)
-) TYPE=InnoDB;
+) ENGINE=InnoDB;
 
 
 --
@@ -94,7 +94,7 @@ CREATE TABLE node (
   KEY `node_dhcpfingerprint` (`dhcp_fingerprint`),
   CONSTRAINT `0_57` FOREIGN KEY (`pid`) REFERENCES `person` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `node_category_key` FOREIGN KEY (`category_id`) REFERENCES `node_category` (`category_id`)
-) TYPE=InnoDB;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `action`
@@ -105,7 +105,7 @@ CREATE TABLE action (
   action varchar(255) NOT NULL,
   PRIMARY KEY (vid,action),
   CONSTRAINT `FOREIGN` FOREIGN KEY (`vid`) REFERENCES `class` (`vid`) ON DELETE CASCADE ON UPDATE CASCADE
-) TYPE=InnoDB;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `violation`
@@ -127,7 +127,7 @@ CREATE TABLE violation (
   CONSTRAINT `0_60` FOREIGN KEY (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `0_61` FOREIGN KEY (`vid`) REFERENCES `class` (`vid`) ON DELETE CASCADE ON UPDATE CASCADE,
   PRIMARY KEY (id)
-) TYPE=InnoDB;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `iplog`
@@ -142,13 +142,13 @@ CREATE TABLE iplog (
   KEY `ip_view_open` (`ip`, `end_time`),
   KEY `mac_view_open` (`mac`, `end_time`),
   CONSTRAINT `0_63` FOREIGN KEY (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE ON UPDATE CASCADE
-) TYPE=InnoDB;
+) ENGINE=InnoDB;
 
 CREATE TABLE os_type (
   os_id int(11) NOT NULL,
   description varchar(255) NOT NULL,
   PRIMARY KEY os_id (os_id)
-) TYPE=InnoDB;
+) ENGINE=InnoDB;
 
 CREATE TABLE dhcp_fingerprint (
   fingerprint varchar(255) NOT NULL,
@@ -156,13 +156,13 @@ CREATE TABLE dhcp_fingerprint (
   PRIMARY KEY fingerprint (fingerprint),
   KEY os_id_key (os_id),
   CONSTRAINT `0_65` FOREIGN KEY (`os_id`) REFERENCES `os_type` (`os_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) TYPE=InnoDB;
+) ENGINE=InnoDB;
 
 CREATE TABLE os_class (
   class_id int(11) NOT NULL,               
   description varchar(255) NOT NULL,     
   PRIMARY KEY class_id (class_id)
-) TYPE=InnoDB;     
+) ENGINE=InnoDB;     
 
 CREATE TABLE os_mapping (   
   os_type int(11) NOT NULL,  
@@ -172,7 +172,7 @@ CREATE TABLE os_mapping (
   KEY os_class_key (os_class),
   CONSTRAINT `0_66` FOREIGN KEY (`os_type`) REFERENCES `os_type` (`os_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `0_67` FOREIGN KEY (`os_class`) REFERENCES `os_class` (`class_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) TYPE=InnoDB;
+) ENGINE=InnoDB;
 
 insert into person (pid,notes) values("1","Default User - do not delete");
 
