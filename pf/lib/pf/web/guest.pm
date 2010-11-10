@@ -257,11 +257,9 @@ sub generate_login_page {
     # showing errors
     if ( defined($err) ) {
         if ( $err == 1 ) {
-            $vars->{'txt_login_auth_error'} = gettext('error: invalid login or password');
+            $vars->{'txt_auth_error'} = gettext('error: invalid login or password');
         } elsif ( $err == 2 ) {
-            $vars->{'txt_login_auth_error'} = gettext('error: unable to validate credentials at the moment');
-        } elsif ( $err == 3 ) {
-            $vars->{'txt_login_auth_error'} = "Missing mandatory parameter or malformed entry.";
+            $vars->{'txt_auth_error'} = gettext('error: unable to validate credentials at the moment');
         }
     }
 
