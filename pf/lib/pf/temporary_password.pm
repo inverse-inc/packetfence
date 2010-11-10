@@ -58,6 +58,7 @@ BEGIN {
         view add modify delete
         create
         validate_password
+        $AUTH_SUCCESS $AUTH_FAILED_INVALID $AUTH_FAILED_EXPIRED
     );
 }
 
@@ -100,9 +101,9 @@ sub temporary_password_db_prepare {
     );
 
     $temporary_password_statements->{'temporary_password_validate_password_sql'} = get_db_handle()->prepare(qq[ 
-        SELECT pid, UNIX_TIMESTAMP(expiration)
+        SELECT pid, password, UNIX_TIMESTAMP(expiration) as expiration
         FROM temporary_password
-        WHERE pid = ? AND password = ? 
+        WHERE pid = ?
         ORDER BY expiration DESC
         LIMIT 1
     ]);
@@ -229,23 +230,30 @@ sub validate_password {
 
     my $query = db_query_execute(
         TEMPORARY_PASSWORD, $temporary_password_statements,
-        'temporary_password_validate_password_sql', $pid, $password
+        'temporary_password_validate_password_sql', $pid
     );
 
     my $ref = $query->fetchrow_hashref();
     # just get one row
     $query->finish();
-
+    
     if (!defined($ref) || ref($ref) ne 'HASH') {
         return $AUTH_FAILED_INVALID;
     }
-
+    
+    # password is valid but expired
     # expiration is in unix timestamp format so an int comparison is enough
-    if ($ref->{'expiration'} < time) {
+    if ($ref->{'password'} eq $password && $ref->{'expiration'} < time) {
         return $AUTH_FAILED_EXPIRED;
+    }   
+    
+    # password match success
+    if ($ref->{'password'} eq $password) {
+        return $AUTH_SUCCESS;
     }
-
-    return $AUTH_SUCCESS;
+    
+    # otherwise failure
+    return $AUTH_FAILED_INVALID;
 }
 
 
