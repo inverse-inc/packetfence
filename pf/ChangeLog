@@ -1,3 +1,8 @@
+2010-11-10	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/locale/en/LC_MESSAGES/packetfence.po,
+	pf/conf/locale/fr/LC_MESSAGES/packetfence.po: Tells users to reboot if
+	they are behind a phone.
+
 2010-11-08	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/conf/dhcp_fingerprints.conf: Added D-Link, Trendnet and Belkin
 	Wireless Router fingerprints and removed the Fluke one (conflicted
