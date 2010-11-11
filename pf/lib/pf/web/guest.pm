@@ -199,6 +199,50 @@ sub generate_activation_confirmation_page {
     exit;
 }
 
+=item generate_activation_login_page
+        
+Sub to present the a login form before activation. 
+This is not hooked-up by default.
+                
+=cut    
+sub generate_activation_login_page {
+    my ( $cgi, $session, $err ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web::guest');
+    setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
+    bindtextdomain( "packetfence", "$conf_dir/locale" );
+    textdomain("packetfence");
+    my $cookie = $cgi->cookie( CGISESSID => $session->id );
+    print $cgi->header( -cookie => $cookie );
+    my $ip   = $cgi->remote_addr;
+    my $vars = {
+        logo            => $Config{'general'}{'logo'},
+        deadline        => $Config{'registration'}{'skip_deadline'},
+        txt_page_title  => "Access to the guest network granted",
+        txt_page_header => gettext("PacketFence Registration System"),
+        txt_help        => gettext("help: provide info"),
+        txt_aup         => gettext("Acceptable Use Policy"),
+        txt_all_systems_must_be_registered =>
+            gettext("register: all systems must be registered"),
+        txt_to_complete => gettext("register: to complete"),
+        txt_msg_aup     => gettext("register: aup"),
+    };
+
+    $vars->{'login'} = encode_entities($cgi->param("login"));
+
+    # showing errors
+    if ( defined($err) ) {
+        if ( $err == 1 ) {
+            $vars->{'txt_auth_error'} = gettext('error: invalid login or password');
+        } elsif ( $err == 2 ) {
+            $vars->{'txt_auth_error'} = gettext('error: unable to validate credentials at the moment');
+        }
+    }
+
+    my $template = Template->new({INCLUDE_PATH => ["$install_dir/html/user/content/templates"],});
+    $template->process("activation.html", $vars);
+    exit;
+}
+
 =item generate_login_page  
 
 Generates a guest login page.
