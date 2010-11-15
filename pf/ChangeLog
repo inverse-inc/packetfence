@@ -1,3 +1,6 @@
+2010-11-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/dhcp_fingerprints.conf: Added a Gentoo DHCP fingerprint
+
 2010-11-10	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/conf/locale/en/LC_MESSAGES/packetfence.po,
 	pf/conf/locale/fr/LC_MESSAGES/packetfence.po: Tells users to reboot if

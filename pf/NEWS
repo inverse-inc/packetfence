@@ -42,7 +42,7 @@ Enhancements
   workflows where an administrator approves network access.
 - New DHCP fingerprints (HP ProCurve Wireless, Ricoh MFP, Cisco/Linksys, 
   Netgear, D-Link, Trendnet, Belkin Home Wireless Routers, Sony Ericsson 
-  Android, Aruba Access Point and Avaya IP Phone)
+  Android, Aruba Access Point, Avaya IP Phone and Gentoo Linux)
 
 Bug fixes
 - Captive Portal remediation pages can be hosted externally again! (#1024)
