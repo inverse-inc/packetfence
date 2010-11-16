@@ -1143,6 +1143,7 @@ sub service {
     require pf::services;
     import pf::services;
 
+    $logger->info("Executing pfcmd service $service $command");
     my @all_services = (
         'named',     'dhcpd',      'pfdhcplistener', 'pfmon',
         'pfdetect',  'pfredirect', 'snort',          'httpd',

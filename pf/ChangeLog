@@ -1,3 +1,7 @@
+2010-11-16	Regis Balzard <rbalzard@inverse.ca>
+        * pf/bin/pfcmd: Added a log to indicate which service and command is 
+        called. This would help debugging.
+
 2010-11-16	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/html/admin/node/import.php, pf/lib/pf/import.pm, pf/bin/pfcmd,
 	pf/conf/ui.conf, pf/html/admin/check_login.php, 
