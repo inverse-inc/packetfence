@@ -29,6 +29,7 @@ runtests( qw(
               report.t
               node.t
               integration.t
+              import.t
             )
 );
 
