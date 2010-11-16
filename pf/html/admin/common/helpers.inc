@@ -91,4 +91,18 @@
         );
     }
 
+    /*
+     * Returns full path where pf is installed
+     */
+    function get_pf_path() {
+        return '/usr/local/pf/';
+    }
+
+    /*
+     * Returns var path
+     */
+    function get_var_path() {
+        return get_pf_path() . 'var/';
+    }
 ?>
+

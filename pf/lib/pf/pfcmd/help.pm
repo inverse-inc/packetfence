@@ -38,6 +38,7 @@ floatingnetworkdeviceconfig  | query/modify floating network device configuratio
 fingerprint                  | view DHCP Fingerprints
 graph                        | trending graphs
 history                      | IP/MAC history
+import                       | bulk import of information into the database
 ifoctetshistorymac           | accounting history
 ifoctetshistoryswitch        | accounting history
 ifoctetshistoryuser          | accounting history
@@ -527,6 +528,23 @@ query/modify floating_network_device.conf configuration file
 EOT
     return 1;
 }   
+
+sub help_import {
+    print STDERR << "EOT";
+Usage: pfcmd import <nodes> <filename>
+
+Bulk import into the database. File input must be a of CSV format.
+
+Node import format:
+<MAC>
+
+Node import automatically registers MACs with pid = 1
+
+example:
+  pfcmd import nodes /tmp/new-nodes.csv
+EOT
+    return 1;
+}
 
 =head1 AUTHOR
 

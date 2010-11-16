@@ -1,3 +1,11 @@
+2010-11-16	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/node/import.php, pf/lib/pf/import.pm, pf/bin/pfcmd,
+	pf/conf/ui.conf, pf/html/admin/check_login.php, 
+	pf/html/admin/common/helpers.inc, pf/html/admin/node/help.html,
+	pf/lib/pf/pfcmd/help.pm, pf/lib/pf/pfcmd.pm: Node importation through 
+	CLI and Web Administration. Automatically registers nodes on 
+	importation.
+
 2010-11-15	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/conf/dhcp_fingerprints.conf: Added a Gentoo DHCP fingerprint
 

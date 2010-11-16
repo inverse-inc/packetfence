@@ -137,6 +137,11 @@ sub parseCommandLine {
                                      ( [^,=]+ )
                                    )?
                                  $ }xms,
+        'import' => qr{ ^ 
+                            ( nodes )                # import nodes
+                            \s+
+                            ( [a-zA-Z0-9_\-\.\/]+ )   # strict filename with path regexp
+                        $  }xms,
         'interfaceconfig' => qr{ ^ ( get | delete )
                                    \s+
                                    ( all | [a-z0-9\.\:]+ )

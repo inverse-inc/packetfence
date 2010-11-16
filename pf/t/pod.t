@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 140;
+use Test::More tests => 141;
 
 my @files = (
     '/usr/local/pf/addons/accounting.pl',
@@ -36,6 +36,7 @@ my @files = (
     '/usr/local/pf/lib/pf/freeradius.pm',
     '/usr/local/pf/lib/pf/ifoctetslog.pm',
     '/usr/local/pf/lib/pf/iplog.pm',
+    '/usr/local/pf/lib/pf/import.pm',
     '/usr/local/pf/lib/pf/iptables.pm',
     '/usr/local/pf/lib/pf/locationlog.pm',
     '/usr/local/pf/lib/pf/lookup/node.pm',

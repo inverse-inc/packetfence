@@ -19,6 +19,7 @@ pfcmd <command> [options]
  ifoctetshistorymac          | accounting history
  ifoctetshistoryswitch       | accounting history
  ifoctetshistoryuser         | accounting history
+ import                      | bulk import of information into the database
  interfaceconfig             | query/modify interface configuration parameters
  ipmachistory                | IP/MAC history
  locationhistorymac          | Switch/Port history
@@ -160,6 +161,7 @@ if (! exists($cmd_tmp{'grammar'})) {
         'ifoctetshistorymac' => sub { ifoctetshistorymac(); exit(1); },
         'ifoctetshistoryswitch' => sub { ifoctetshistoryswitch(); exit(1); },
         'ifoctetshistoryuser' => sub { ifoctetshistoryuser(); exit(1); },
+        'import' => sub { import_data(); exit(1); },
         'interfaceconfig' => sub { interfaceconfig(); exit(1); },
         'ipmachistory' => sub { ipmachistory(); exit(1); },
         'locationhistorymac' => sub { locationhistorymac(); exit(1); },
@@ -783,6 +785,19 @@ sub networkconfig {
             exit;
         }
     }
+}
+
+sub import_data {
+    require pf::import;
+    import pf::import;
+    my $type = $cmd{command}[1];
+    my $file = $cmd{command}[2];
+    $logger->info("Import requested. Type: $type, file to import: $file");
+
+    if (lc($type) eq 'nodes') {
+        pf::import::nodes($file);
+    }
+    print "Import process complete\n";
 }
 
 sub interfaceconfig {

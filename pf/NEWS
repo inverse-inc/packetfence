@@ -27,6 +27,7 @@ New Features
   (feature sponsored by Shippensburg University)
 - New pf::web::custom extension point to customize the captive portal's code
   without the usual maintenance burden on upgrades (#1045)
+- Bulk importation of nodes through CLI or Admin Web interface
 - New parameter in switches.conf to ease FreeRADIUS integration
 - Optional automatic configuration of FreeRADIUS' clients using switches.conf 
   (see addons/freeradius-integration/README for details)
