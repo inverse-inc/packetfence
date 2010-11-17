@@ -115,6 +115,9 @@ Requires: php-ldap
 Requires: perl(Try::Tiny)
 # Required for Radius auth through captive portal
 Requires: perl(Authen::Radius)
+# Required for importation feature
+Requires: perl(Text::CSV)
+Requires: perl(Text::CSV_XS)
 # Required for testing
 # TODO: I noticed that we provide perl-Test-MockDBI in our repo, maybe we made a poo poo with the deps
 BuildRequires: perl(Test::MockModule), perl(Test::MockDBI), perl(Test::Perl::Critic)
@@ -508,6 +511,9 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Tue Nov 16 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- New dependencies: perl-Text-CSV and perl-Text-CSV_XS used node importation
+
 * Mon Nov 01 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added new pf/lib/pf/web/* to package which should hold captive portal related
   submodules.
