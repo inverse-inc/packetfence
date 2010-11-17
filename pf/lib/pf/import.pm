@@ -85,7 +85,8 @@ sub nodes {
             $logger->warn("Problem with entry on line $line MAC $mac: Invalid MAC");
             printf("%04d: %s NOT REGISTERED! MAC not considered valid.\n", $line, $mac);
         } else {
-        
+
+            $mac = clean_mac($mac);
             # TODO time / memory tradeoff by removing already registered node before looping on each MAC
             # should we register the MAC?
             my $node = node_view($mac);

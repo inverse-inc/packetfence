@@ -1,4 +1,10 @@
 2010-11-17	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/t/util.t, pf/lib/pf/import.pm, pf/lib/pf/util.pm, pf/t/all.t,
+	pf/t/smoke.t: Fixed a very long standing issue: valid_mac and
+	clean_mac didn't properly parse xxxx.xxxx.xxxx formatted MACs.
+	Also calling clean_mac on node importation allows it to be more
+	tolerant on MAC format input. Added tests!
+
 	* pf/html/admin/check_login.php, pf/html/admin/common/adminperm.inc, 
 	pf/html/admin/common/helpers.inc, pf/html/admin/common.php: Removed php
 	script terminators (?>) from included files since they are not required

@@ -27,6 +27,7 @@ runtests(qw(
     SwitchFactory.t
     php.t
     pod.t
+    util.t
 ));
 
 =head1 AUTHOR

@@ -30,6 +30,7 @@ runtests( qw(
               node.t
               integration.t
               import.t
+              util.t
             )
 );
 
