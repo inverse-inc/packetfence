@@ -482,6 +482,7 @@ fi
 %config(noreplace)      /usr/local/pf/lib/pf/vlan/custom.pm
 %dir                    /usr/local/pf/lib/pf/web
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
+                        /usr/local/pf/lib/pf/web/guest.pm
                         /usr/local/pf/lib/pf/web/util.pm
 %dir                    /usr/local/pf/logs
 %doc                    /usr/local/pf/NEWS
