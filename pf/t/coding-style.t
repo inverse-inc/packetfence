@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 217;
+use Test::More tests => 220;
 
 # TODO we should have a global file list
 my @files = (
@@ -43,6 +43,7 @@ my @files = (
     '/usr/local/pf/lib/pf/floatingdevice/custom.pm',
     '/usr/local/pf/lib/pf/freeradius.pm',
     '/usr/local/pf/lib/pf/ifoctetslog.pm',
+    '/usr/local/pf/lib/pf/import.pm',
     '/usr/local/pf/lib/pf/iplog.pm',
     '/usr/local/pf/lib/pf/iptables.pm',
     '/usr/local/pf/lib/pf/locationlog.pm',
@@ -149,6 +150,7 @@ my @files = (
     '/usr/local/pf/lib/pf/web.pm',
     '/usr/local/pf/lib/pf/web/custom.pm',
     '/usr/local/pf/lib/pf/web/guest.pm',
+    '/usr/local/pf/lib/pf/web/util.pm',
     '/usr/local/pf/sbin/pfdetect',
     '/usr/local/pf/sbin/pfdhcplistener',
     '/usr/local/pf/sbin/pfmon',

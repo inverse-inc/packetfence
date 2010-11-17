@@ -1,3 +1,51 @@
+2010-11-16	Regis Balzard <rbalzard@inverse.ca>
+        * pf/bin/pfcmd: Added a log to indicate which service and command is 
+        called. This would help debugging.
+
+2010-11-16	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/node/import.php, pf/lib/pf/import.pm, pf/bin/pfcmd,
+	pf/conf/ui.conf, pf/html/admin/check_login.php, 
+	pf/html/admin/common/helpers.inc, pf/html/admin/node/help.html,
+	pf/lib/pf/pfcmd/help.pm, pf/lib/pf/pfcmd.pm: Node importation through 
+	CLI and Web Administration. Automatically registers nodes on 
+	importation.
+
+2010-11-15	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/dhcp_fingerprints.conf: Added a Gentoo DHCP fingerprint
+
+2010-11-10	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/locale/en/LC_MESSAGES/packetfence.po,
+	pf/conf/locale/fr/LC_MESSAGES/packetfence.po: Tells users to reboot if
+	they are behind a phone.
+
+2010-11-08	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/dhcp_fingerprints.conf: Added D-Link, Trendnet and Belkin
+	Wireless Router fingerprints and removed the Fluke one (conflicted
+	with Belkin and I wasn't sure of the source of the fluke one). Thanks
+	to David LaPorte for the fingerprints!
+
+2010-11-04	Regis Balzard <rbalzard@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Added instructions on
+	how to configure FreeRADIUS v2 to listen on a virtual IP.
+
+2010-11-01	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/user/content/templates/pending.html, pf/cgi-bin/redir.cgi,
+	pf/html/admin/common/helpers.inc, pf/html/admin/common.php, 
+	pf/html/admin/node/edit.php, pf/lib/pf/node.pm, pf/lib/pf/vlan.pm,
+	pf/lib/pf/web.pm: New 'pending' node status with updated VLAN
+	assignment call (stay in registration). This enables approval
+	workflows in user registrations. 
+
+	* pf/lib/pf/web/util.pm: New web utilities file.
+
+2010-10-30	Olivier Bilodeau <obilodeau@inverse.ca>
+	* conf/dhcp_fingerprints.conf: Added Avaya Phone and Aruba Access 
+	Point 200 DHCP fingerprints.
+	
+2010-10-29      Francois Gaudreault <fgaudreault@inverse.ca>
+	* pf/addons/snort/oinkmaster.conf: Update url section for the new
+	emerging URL
+
 2010-10-27	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/web, pf/lib/pf/web/custom.pm, pf/UPGRADE, 
 	pf/cgi-bin/redir.cgi, pf/cgi-bin/register.cgi, pf/cgi-bin/release.cgi,

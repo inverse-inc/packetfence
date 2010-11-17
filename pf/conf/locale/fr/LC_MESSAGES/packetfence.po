@@ -55,7 +55,7 @@ msgid  "release: enabling network"
 msgstr "Activation de l'acc&egrave;s au r&eacute;seau"
 
 msgid  "release: reopen browser"
-msgstr "Vous devez possiblement fermer votre navigateur"
+msgstr "Vous devrez possiblement fermer votre navigateur afin que votre acc&eacute;es Internet fonctionne. Si vous &ecirc;tre branch&eacute; dans un telephone, vous devrez red&eacute;marrer votre ordinateur afin que votre acc&eacute;es Internet fonctionne."
 
 msgid  "scan: scan in progress"
 msgstr "Votre syst&egrave;me est en cours d'analyse"

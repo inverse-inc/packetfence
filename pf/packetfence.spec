@@ -117,6 +117,9 @@ Requires: perl(Crypt::GeneratePassword)
 Requires: perl(MIME::Lite::TT)
 # Required for Radius auth through captive portal
 Requires: perl(Authen::Radius)
+# Required for importation feature
+Requires: perl(Text::CSV)
+Requires: perl(Text::CSV_XS)
 # Required for testing
 # TODO: I noticed that we provide perl-Test-MockDBI in our repo, maybe we made a poo poo with the deps
 BuildRequires: perl(Test::MockModule), perl(Test::MockDBI), perl(Test::Perl::Critic)
@@ -479,6 +482,7 @@ fi
 %config(noreplace)      /usr/local/pf/lib/pf/vlan/custom.pm
 %dir                    /usr/local/pf/lib/pf/web
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
+                        /usr/local/pf/lib/pf/web/util.pm
 %dir                    /usr/local/pf/logs
 %doc                    /usr/local/pf/NEWS
 %doc                    /usr/local/pf/README
@@ -509,6 +513,13 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Tue Nov 16 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- New dependencies: perl-Text-CSV and perl-Text-CSV_XS used node importation
+
+* Mon Nov 01 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added new pf/lib/pf/web/* to package which should hold captive portal related
+  submodules.
+
 * Wed Oct 27 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added new pf::web::custom module which is meant to be controlled by clients
   (so we don't overwrite it by default)

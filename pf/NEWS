@@ -27,6 +27,7 @@ New Features
   (feature sponsored by Shippensburg University)
 - New pf::web::custom extension point to customize the captive portal's code
   without the usual maintenance burden on upgrades (#1045)
+- Bulk importation of nodes through CLI or Admin Web interface
 - New parameter in switches.conf to ease FreeRADIUS integration
 - Optional automatic configuration of FreeRADIUS' clients using switches.conf 
   (see addons/freeradius-integration/README for details)
@@ -38,8 +39,11 @@ Enhancements
   Guide
 - Improved documentation on violations (external remediation pages and 
   redirect_url) in the Administration Guide
+- New 'pending' status for node. Allows for a wide range of captive portal 
+  workflows where an administrator approves network access.
 - New DHCP fingerprints (HP ProCurve Wireless, Ricoh MFP, Cisco/Linksys, 
-  Netgear, D-Link Home Wireless Routers, Sony Ericsson Android and Fluke DTX)
+  Netgear, D-Link, Trendnet, Belkin Home Wireless Routers, Sony Ericsson 
+  Android, Aruba Access Point, Avaya IP Phone and Gentoo Linux)
 
 Bug fixes
 - Captive Portal remediation pages can be hosted externally again! (#1024)
@@ -47,6 +51,7 @@ Bug fixes
 - No error reporting when trying to change configuration files with bad rights
   (#1088)
 - Violation priorities are now enforced according to documentation (1 = highest)
+- Wrong URL in the provided oinkmaster.conf (#1101)
 
 --------------------------------------------------------------------------------
 Version 1.9.1 released on 2010-09-22

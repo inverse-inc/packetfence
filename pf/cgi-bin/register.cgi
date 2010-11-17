@@ -21,6 +21,7 @@ use pf::config;
 use pf::iplog;
 use pf::util;
 use pf::web;
+# called last to allow redefinitions
 use pf::web::custom;
 #use pf::rawip;
 use pf::node;

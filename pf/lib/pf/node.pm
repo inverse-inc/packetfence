@@ -22,8 +22,16 @@ use warnings;
 use Log::Log4perl;
 use Log::Log4perl::Level;
 use Net::MAC;
+use Readonly;
 
 use constant NODE => 'node';
+
+# Node status constants
+#FIXME port all hard-coded strings to these constants
+Readonly::Scalar our $STATUS_REGISTERED => 'reg';
+Readonly::Scalar our $STATUS_UNREGISTERED => 'unreg';
+Readonly::Scalar our $STATUS_PENDING => 'pending';
+Readonly::Scalar our $STATUS_GRACE => 'grace';
 
 BEGIN {
     use Exporter ();

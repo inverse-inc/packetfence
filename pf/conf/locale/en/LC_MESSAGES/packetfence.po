@@ -52,7 +52,7 @@ msgid  "release: enabling network"
 msgstr "Enabling network access"
 
 msgid  "release: reopen browser"
-msgstr "You might have to re-open your browser"
+msgstr "You may have to re-open your browser to get Internet access. If you are plugged into a telephone, you will need to restart your computer to get Internet access."
 
 msgid  "scan: scan in progress"
 msgstr "Your system is being scanned"

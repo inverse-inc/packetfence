@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 70;
+use Test::More tests => 71;
 use Log::Log4perl;
 use File::Basename qw(basename);
 use lib '/usr/local/pf/lib';
@@ -229,6 +229,10 @@ is_deeply(\%cmd,
           { 'command' => [ 'violationconfig', 'get', 'all' ] },
           'pfcmd violationconfig get all');
 
+%cmd = pf::pfcmd::parseCommandLine('import nodes filename.csv');
+is_deeply(\%cmd,
+          { 'command' => [ 'import', 'nodes', 'filename.csv' ] },
+          'pfcmd import nodes filename.csv');
 
 # test command line help
 my @output = `/usr/local/pf/bin/pfcmd help 2>&1`;

@@ -775,6 +775,7 @@ sub removeAllTaggedVlan {
     my $taggedVlanMembers = pack("B*", $bitString);
     my $taggedVlanMembers4k = pack("B*", $bitString4k);
 
+    $logger->trace("SNMP set_request for OID_vlanTrunkPortVlansEnabled: $OID_vlanTrunkPortVlansEnabled");
     my $result = $this->{_sessionWrite}->set_request( -varbindlist => [
         "$OID_vlanTrunkPortVlansEnabled.$ifIndex", Net::SNMP::OCTET_STRING, $taggedVlanMembers,
         "$OID_vlanTrunkPortVlansEnabled2k.$ifIndex", Net::SNMP::OCTET_STRING, pack("B*", 1 x 1024),

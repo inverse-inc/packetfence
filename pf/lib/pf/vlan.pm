@@ -88,9 +88,12 @@ sub vlan_determine_for_node {
         }
         my $node_info = node_view($mac);
         if ( isenabled( $Config{'trapping'}{'registration'} ) ) {
-            if (   ( !defined($node_info) )
-                || ( $node_info->{'status'} eq 'unreg' ) )
-            {
+
+            # not defined or unreg or pending stay in registration VLAN
+            if ( !defined($node_info) ||
+                $node_info->{'status'} eq $pf::node::STATUS_UNREGISTERED ||
+                $node_info->{'status'} eq $pf::node::STATUS_PENDING
+            ) {
                 $logger->info("MAC: $mac is unregistered; belongs into registration VLAN");
                 $correctVlanForThisMAC = $switch->{_registrationVlan};
             } else {
@@ -125,6 +128,7 @@ sub custom_doWeActOnThisTrap {
         return 0;
     }
 
+    # ifTypes: http://www.iana.org/assignments/ianaiftype-mib
     my $ifType = $switch->getIfType($ifIndex);
     if ( ( $ifType == 6 ) || ( $ifType == 117 ) ) {
         my @upLinks = $switch->getUpLinks();

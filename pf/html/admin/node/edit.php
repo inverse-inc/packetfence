@@ -78,7 +78,7 @@
     $pretty_key = pretty_header("$current_top-view", $key);
     if($key == 'status'){
       print "<tr><td></td><td>$pretty_key:</td><td>";
-      printSelect( array('unreg' => 'Unregistered', 'reg' => 'Registered', 'grace' => 'Grace'), 'hash', $val, "name='$key'");
+      printSelect(get_node_status_for_dropdown(), 'hash', $val, "name='$key'");
     } elseif ($key == 'category'){
       print "<tr><td></td><td>$pretty_key:</td><td>";
       printSelect(get_nodecategories_for_dropdown(), 'hash', $val, "name='$key'");

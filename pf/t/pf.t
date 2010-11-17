@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 42;
+use Test::More tests => 45;
 
 # pf core libs
 use lib '/usr/local/pf/lib';
@@ -18,6 +18,7 @@ BEGIN { use_ok('pf::floatingdevice') }
 BEGIN { use_ok('pf::floatingdevice::custom') }
 BEGIN { use_ok('pf::freeradius') }
 BEGIN { use_ok('pf::ifoctetslog') }
+BEGIN { use_ok('pf::import') }
 BEGIN { use_ok('pf::iplog') }
 BEGIN { use_ok('pf::locationlog') }
 BEGIN { use_ok('pf::lookup::node') }
@@ -49,6 +50,7 @@ BEGIN { use_ok('pf::vlan::custom') }
 BEGIN { use_ok('pf::web') }
 BEGIN { use_ok('pf::web::custom') }
 BEGIN { use_ok('pf::web::guest') }
+BEGIN { use_ok('pf::web::util') }
 
 # external authentication modules
 use lib '/usr/local/pf/conf/';

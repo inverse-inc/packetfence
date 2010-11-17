@@ -22,6 +22,7 @@ use pf::config;
 use pf::iplog;
 use pf::util;
 use pf::web;
+# called last to allow redefinitions
 use pf::web::custom;
 # not SUID now!
 #use pf::rawip;
@@ -113,6 +114,13 @@ my $unreg = node_unregistered($mac);
 if ($unreg && isenabled($Config{'trapping'}{'registration'})){
   $logger->info("$mac redirected to registration page");
   pf::web::generate_registration_page($cgi, $session, $destination_url,$mac,1);
+  exit(0);
+}
+
+#if node is pending show pending page
+my $node_info = node_view($mac);
+if (defined($node_info) && $node_info->{'status'} eq $pf::node::STATUS_PENDING) {
+  pf::web::generate_pending_page($cgi, $session, $destination_url, $mac);
   exit(0);
 }
 
