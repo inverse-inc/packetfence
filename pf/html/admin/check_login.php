@@ -134,4 +134,3 @@
     parse_and_cache_permission_file();
   } // end caching
 
-?>

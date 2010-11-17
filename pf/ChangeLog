@@ -1,6 +1,12 @@
+2010-11-17	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/check_login.php, pf/html/admin/common/adminperm.inc, 
+	pf/html/admin/common/helpers.inc, pf/html/admin/common.php: Removed php
+	script terminators (?>) from included files since they are not required
+	and cause problems (newlines after them corrupt jpgraph's graphics)
+
 2010-11-16	Regis Balzard <rbalzard@inverse.ca>
-        * pf/bin/pfcmd: Added a log to indicate which service and command is 
-        called. This would help debugging.
+	* pf/bin/pfcmd: Added a log to indicate which service and command is 
+	called. This would help debugging.
 
 2010-11-16	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/html/admin/node/import.php, pf/lib/pf/import.pm, pf/bin/pfcmd,

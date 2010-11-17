@@ -104,5 +104,4 @@
     function get_var_path() {
         return get_pf_path() . 'var/';
     }
-?>
 
