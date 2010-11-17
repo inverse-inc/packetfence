@@ -31,11 +31,6 @@ New Features
 - New parameter in switches.conf to ease FreeRADIUS integration
 - Optional automatic configuration of FreeRADIUS' clients using switches.conf 
   (see addons/freeradius-integration/README for details)
-- PF can now generates the DHCP and DNS servers configuration files using 
-  networks.conf (#934)
-- Routed Registration and Isolation vlans support: PF is now able to manage 
-  (DHCP and DNS) Registration and Isolation vlans in a routed network and  
-  documentation is available in the Admin Guide (#929)
 
 Enhancements
 - FreeRADIUS module improvements (#1034) and major revamping
@@ -49,8 +44,6 @@ Enhancements
 - New DHCP fingerprints (HP ProCurve Wireless, Ricoh MFP, Cisco/Linksys, 
   Netgear, D-Link, Trendnet, Belkin Home Wireless Routers, Sony Ericsson 
   Android, Aruba Access Point, Avaya IP Phone and Gentoo Linux)
-- Networks sub-menu is now always accessible in the web GUI when Vlan mode is
-  enabled (#928) 
 
 Bug fixes
 - Captive Portal remediation pages can be hosted externally again! (#1024)

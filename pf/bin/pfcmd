@@ -1821,7 +1821,8 @@ sub ui {
                 && ( $service eq "configuration" )
                 && ( $array[2] eq "networks" )
                 && (   ( $Config{'network'}{'mode'} ne 'vlan' )
-                    || ( !-e "$conf_dir/networks.conf" ) )
+                    || ( !-e "$conf_dir/networks.conf" )
+                    || ( -z "$conf_dir/networks.conf" ) )
                 );
             $string .= join( "|", @array ) . "|";
             my @keys;
@@ -1850,7 +1851,8 @@ sub ui {
                        ( $section eq "ui.configuration" )
                     && ( $key2 eq "networks" )
                     && (   ( $Config{'network'}{'mode'} ne 'vlan' )
-                        || ( !-e "$conf_dir/networks.conf" ) )
+                        || ( !-e "$conf_dir/networks.conf" )
+                        || ( -z "$conf_dir/networks.conf" ) )
                     );
                 if ( defined $uiconfig{$section}{$key} ) {
                     push @keys, "$key2='$uiconfig{$section}{$key}'";
