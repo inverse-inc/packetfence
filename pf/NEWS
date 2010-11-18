@@ -52,6 +52,7 @@ Bug fixes
   (#1088)
 - Violation priorities are now enforced according to documentation (1 = highest)
 - Wrong URL in the provided oinkmaster.conf (#1101)
+- MAC addresses of format xxxx.xxxx.xxxx properly recognized in pf::util
 
 --------------------------------------------------------------------------------
 Version 1.9.1 released on 2010-09-22
