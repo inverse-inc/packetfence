@@ -9,22 +9,6 @@ replay-snmptrapd-logs.pl - replay an snmptrapd log into snmptrapd in real time
 TODO
 replay-snmptrapd-logs.pl [fh_logreplay] [command] [options]
 
- Command:
-    -help          brief help message
-    -man           full documentation
-
- Options:
-    -switch        switch description
-    -switchRegExp  regular expression for switch description
-    -verbose       log verbosity level
-                     0 : fatal messages
-                     1 : warn messages
-                     2 : info messages
-                   > 2 : full debug
-    -reassign      if set, re-assign switch port VLANs
-    -synchronize   if set, synchronize locationlog entries
-    -singleThread  if set, run in single thread (for debugging)
-
 =head1 DESCRIPTION
 
 replay an snmptrapd log into snmptrapd in real time
@@ -62,6 +46,10 @@ use Time::Local;
 use IO::Handle;
 
 #TODO put in arg
+our $SPEED_MULTIPLIER = 1;
+#our $SPEED_MULTIPLIER = 2;
+
+#TODO put in arg
 my $log_to_replay = "test.log";
 open(my $fh_logreplay, "<", "$log_to_replay")
     or die $!;
@@ -94,8 +82,9 @@ while (my $line = <$fh_logreplay>) {
                 warn("Skipping entry $1-$2-$3 $4:$5:$6 because time elapsed since previous entry is negative");
 
             } else {
-                print "Pushed a line to the snmptrapd log and waiting for $delta_secs seconds\n";
-                sleep($delta_secs);
+                my $sleep_time = $delta_secs / $SPEED_MULTIPLIER;
+                print "Pushed a line to the snmptrapd log and waiting for $sleep_time seconds\n";
+                sleep($sleep_time);
                 push_logline($line);
             }
 
