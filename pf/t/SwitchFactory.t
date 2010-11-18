@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 40;
+use Test::More tests => 41;
 use lib '/usr/local/pf/lib';
 
 BEGIN { use_ok('pf::SwitchFactory') }
@@ -82,4 +82,9 @@ is( $switch->{_SNMPPrivProtocolWrite},
     'privProtoWrite', 'SNMP write priv proto of 192.168.0.1' );
 is( $switch->{_SNMPPrivPasswordWrite},
     'privPassWrite', 'SNMP write priv pwd of 192.168.0.1' );
+
+# switch of default type
+$switch = $switchFactory->instantiate('default');
+isa_ok($switch, 'pf::SNMP');
+
 

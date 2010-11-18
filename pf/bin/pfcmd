@@ -145,6 +145,7 @@ if ( defined $ENV{GATEWAY_INTERFACE} ) {
 # dynamic grammar parsing (slow)
 #my $parser=Parse::RecDescent->new($grammar);
 
+# FIXME: all of this is confusing duplication, we need to get rid of one of both method to call a sub
 my %cmd_tmp = pf::pfcmd::parseCommandLine( join(' ', @ARGV) );
 if (! exists($cmd_tmp{'grammar'})) {
     %cmd = %cmd_tmp;
@@ -246,6 +247,7 @@ if ( lc($command) eq 'person' ) {
     } else {
         # then execute main::$command sub
         $logger->debug("executing sub " . $command . "()");
+        # TODO: wrapping this around a try / catch block wouldn't hurt
         &{$main::{$command}}();
     }
 }
@@ -1364,6 +1366,8 @@ sub fingerprint {
 }
 
 sub version {
+    # TODO: move this code into library code and have pf::config hold the value somewhere.
+    # Then report the version in Web Services API calls like for the Extreme Switches' appName
     my ( $pfrelease_fh, $release );
     open( $pfrelease_fh, '<', "$conf_dir/pf-release" )
         || $logger->logdie("Unable to open $conf_dir/pf-release: $!");
@@ -1880,6 +1884,7 @@ sub ui {
 #
 # node,person,violation parser
 #
+# TODO: this method could be streamlined to remove all corner cases that grew in it over time
 sub command_param {
     my ($type)  = @_;
     my $options = $type . "_options";
@@ -2809,9 +2814,7 @@ sub generate_switchport_vlan_assignment {
                 $logger->error("unable to determine correct VLAN for $mac");
             } else {
                 $logger->info("new correct VLAN for $mac is $newCorrectVlan");
-                if (   ( $currentVlan eq 'WIFI' )
-                    || ( $newCorrectVlan ne $currentVlan ) )
-                {
+                if ($newCorrectVlan ne $currentVlan) {
                     $logger->info( "calling "
                             . $Config{'vlan'}{'adjustswitchportvlanscript'}
                             . " for node $mac (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"

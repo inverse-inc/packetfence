@@ -28,6 +28,8 @@ use Net::Appliance::Session;
 use Net::SNMP;
 use Data::Dumper;
 
+use pf::SNMP::constants;
+
 sub getMinOSVersion {
     my $this   = shift;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -62,7 +64,7 @@ sub getManagedPorts {
     if ( defined($ifTypes) ) {
 
         foreach my $port ( keys %{$ifTypes} ) {
-            if ( $ifTypes->{$port} == 6 )
+            if ( $ifTypes->{$port} == $SNMP::ETHERNET_CSMACD )
             {           # skip non ethernetCsmacd port type
 
                 $port =~ /^$oid_ifType\.(\d+)$/;

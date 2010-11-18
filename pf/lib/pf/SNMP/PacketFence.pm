@@ -41,7 +41,7 @@ sub connectWrite {
 }
 
 sub sendLocalReAssignVlanTrap {
-    my ( $this, $switch_ip, $ifIndex ) = @_;
+    my ($this, $switch_ip, $ifIndex, $connection_type) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     if ( !$this->connectWrite() ) {
         return 0;
@@ -50,9 +50,9 @@ sub sendLocalReAssignVlanTrap {
         -genericTrap => Net::SNMP::ENTERPRISE_SPECIFIC,
         -agentaddr   => $switch_ip,
         -varbindlist => [
-            '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER,
-            '1.3.6.1.4.1.29464.1.1', "1.3.6.1.2.1.2.2.1.1.$ifIndex",
-            Net::SNMP::INTEGER,      $ifIndex,
+            '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER, '1.3.6.1.4.1.29464.1.1', 
+            "1.3.6.1.2.1.2.2.1.1.$ifIndex", Net::SNMP::INTEGER,    $ifIndex,
+            "1.3.6.1.2.1.2.2.1.1.$ifIndex", Net::SNMP::INTEGER,    $connection_type,
         ]
     );
     if ( !$result ) {
@@ -63,7 +63,7 @@ sub sendLocalReAssignVlanTrap {
 }
 
 sub sendLocalDesAssociateTrap {
-    my ( $this, $switch_ip, $mac ) = @_;
+    my ($this, $switch_ip, $mac, $connection_type) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     if ( !$this->connectWrite() ) {
         return 0;
@@ -72,9 +72,9 @@ sub sendLocalDesAssociateTrap {
         -genericTrap => Net::SNMP::ENTERPRISE_SPECIFIC,
         -agentaddr   => $switch_ip,
         -varbindlist => [
-            '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER,
-            '1.3.6.1.4.1.29464.1.2', "1.3.6.1.4.1.29464.1.3",
-            Net::SNMP::OCTET_STRING, $mac,
+            '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER, '1.3.6.1.4.1.29464.1.2', 
+            "1.3.6.1.4.1.29464.1.3", Net::SNMP::OCTET_STRING,      $mac,
+            "1.3.6.1.4.1.29464.1.4", Net::SNMP::INTEGER,           $connection_type,
         ]
     );
     if ( !$result ) {
@@ -88,9 +88,11 @@ sub sendLocalDesAssociateTrap {
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2009 Inverse inc.
+Copyright (C) 2007-2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

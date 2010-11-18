@@ -33,6 +33,11 @@ use Log::Log4perl;
 use Net::SNMP;
 
 use base ('pf::SNMP::Cisco::Catalyst_2950');
+use pf::config;
+
+# capabilities
+sub supportsMacAuthBypass { return $TRUE; }
+sub supportsWiredDot1x { return $TRUE; }
 
 sub getMinOSVersion {
     my ($this) = @_;
@@ -213,13 +218,28 @@ sub authorizeMAC {
     return 1;
 }
 
+sub NasPortToIfIndex {
+    my ($this, $NAS_port) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    if ($NAS_port =~ s/^5/1/) {
+        return $NAS_port;
+    } else {
+        $logger->warn("Unknown NAS-Port format. ifIndex translation could have failed. "
+            ."VLAN re-assignment and switch/port accounting will be affected.");
+    }
+    return $NAS_port;
+}
+
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008 Inverse inc.
+Copyright (C) 2006-2008,2010 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
