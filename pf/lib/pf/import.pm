@@ -47,7 +47,7 @@ use pf::util;
 
 =item nodes
 
-Handle bulk importation of nodes. 
+Handle bulk importation of nodes. They are automatically registered. Status is sent on STDOUT.
 
 Supported: One MAC address per line.
 
@@ -111,6 +111,8 @@ sub nodes {
     $logger->info("End of node bulk importation");
     close $io;
 }
+
+=back
 
 =head1 AUTHOR
 
