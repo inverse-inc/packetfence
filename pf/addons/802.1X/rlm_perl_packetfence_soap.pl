@@ -190,8 +190,8 @@ sub post_auth {
     # NORMAL CASE
     # At this point, everything went well and the reply from the server is valid
 
-    # Assigning returned values to RAD_REPLY
-    %RAD_REPLY = @$result; # the rest of result is the reply hash passed by the radius_authorize
+    # Merging returned values with RAD_REPLY, right-hand side wins on conflicts
+    %RAD_REPLY = (%RAD_REPLY, @$result); # the rest of result is the reply hash passed by the radius_authorize
 
     if ($radius_return_code == 2) {
         if (defined($RAD_REPLY{'Tunnel-Private-Group-ID'})) {
