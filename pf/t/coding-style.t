@@ -12,14 +12,13 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 219;
+use Test::More tests => 218;
 
 # TODO we should have a global file list
 my @files = (
     '/usr/local/pf/addons/accounting.pl',
     '/usr/local/pf/addons/autodiscover.pl',
     '/usr/local/pf/addons/convertToPortSecurity.pl',
-    '/usr/local/pf/addons/loadMACintoDB.pl',
     '/usr/local/pf/addons/monitorpfsetvlan.pl',
     '/usr/local/pf/addons/recovery.pl',
     '/usr/local/pf/addons/802.1X/rlm_perl_packetfence.pl',

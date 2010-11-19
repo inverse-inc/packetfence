@@ -5,13 +5,12 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 141;
+use Test::More tests => 140;
 
 my @files = (
     '/usr/local/pf/addons/accounting.pl',
     '/usr/local/pf/addons/autodiscover.pl',
     '/usr/local/pf/addons/convertToPortSecurity.pl',
-    '/usr/local/pf/addons/loadMACintoDB.pl',
     '/usr/local/pf/addons/monitorpfsetvlan.pl',
     '/usr/local/pf/addons/recovery.pl',
     '/usr/local/pf/addons/802.1X/rlm_perl_packetfence.pl',
