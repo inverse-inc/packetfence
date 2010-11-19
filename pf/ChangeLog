@@ -1,4 +1,7 @@
 2010-11-19	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/html/admin/node/import.php: Now removing uploaded file after
+	import. This is what was initially planned.
+
 	* pf/addons/loadMACintoDB.pl, pf/UPGRADE: Dropping loadMACintoDB.pl
 	script in favor of new node import facility available on CLI or web
 	admin.

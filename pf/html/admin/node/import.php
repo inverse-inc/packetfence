@@ -40,9 +40,12 @@
         # send the file to pfcmd import nodes
         $import_result = PFCMD("import nodes ". $tmpfname);
 
+        # delete the file
+        unlink($tmpfname);
+
     } else {
-        $logger->warning("maliciously file upload attempt?");
-        $error = "There is a problem with file uploading. Contact an administrator";
+        $logger->warning("malicious file upload attempt?");
+        $error = "There is a problem with file uploading. Contact an administrator.";
     }
   }
 
