@@ -54,8 +54,6 @@ o Upgrading from a version prior to <release>:
     setVlanByName($ifIndex, $switch_locker_ref, $vlanName) instead. For 
     example: setVlanByName($ifIndex, \%switch_locker, 'guestVlan'); 
 
-o Upgrading from a version prior to <release>:
-
     - loadMACintoDB.pl removed
     Dropping loadMACintoDB.pl. Replaced by node import feature.
      
@@ -83,23 +81,6 @@ o Upgrading from a version prior to <release>:
     system without manually compiling and installing the mod_proxy_html 
     package. If you used it then reverify all your remediation pages with
     fully qualified URLs as they might be broken now.
-
-    - FreeRADIUS module changes require configuration changes (and major 
-    revamping)
-    PacketFence's operations in the FreeRADIUS module are now done in the 
-    post-auth section instead of the authorize section of the FreeRADIUS 
-    workflow. If you are using the standard configuration simply move the perl
-    entry from the authorize section into the post-auth section in radiusd.conf 
-    (or sites-enabled/default under FreeRADIUS 2.x). 
-    We changed the tests order so we now filter by SSID; we got rid of anything
-    related to guest since guest should now be managed as a distinct category; 
-    we added the find_ssid() function in order to read the SSID name from the 
-    attributes sent in the request; we removed many SQL queries and changed the
-    one reading the node info; we did many other changes in the module so
-    we strongly recommend to be VERY careful when upgrading it.
-    Note that this is a manual update process, if you don't update the 
-    rlm_perl_packetfence.pl script you don't need to perform the above but you
-    won't have the performance and correctness benefits either.
 
     - SMC TS8800M module changes
     A lot of changes were made to this SMC module such that problems occuring

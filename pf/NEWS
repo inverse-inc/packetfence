@@ -16,6 +16,11 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <release> - <codename> released on <releaseDate>
 
+New Hardware Support
+- SMC TigerStack 6128 L2 support in Port Security (feature sponsored by Seattle
+  Pacific University)
+- HP ProCurve MSM710 Mobility Controller
+
 New Features
 - Simplification of the Wireless, Wired 802.1X and MAC Address Bypass (MAB) 
   configuration. Because of a new FreeRADIUS module and a Web Service interface, 
@@ -25,31 +30,6 @@ New Features
 - Proxy interception. PacketFence can now operate in an environment where there
   is a client-side proxy configured. Check proxy-bypass in addons/ for details.
   (#1035)
-
-Enhancements
-- New information available in Node Lookup (Connection Type, SSID, 802.1X 
-  User-Name, ...)
-- Small usability improvements (#1006)
-- Fast Web Services layer running under mod_perl
-- New parameter -vlanName to pfcmd_vlan allows to specify vlan changes by name
-- Refactoring of the pf::vlan method names for more meaningful ones
-- Removed unnecessary database connections and duplicated code
-- Added several tests
-- 802.1X improvements (#995, #1002)
-- General codebase improvements, refactoring (#914, #977, #1001, #973)
-
-Special thanks to University of Oregon who, from early on, were running the 
-bleeding edge and provided invaluable feedback and contributions!
-
---------------------------------------------------------------------------------
-Version <release> - <codename> released on <date>
-
-New Hardware Support
-- SMC TigerStack 6128 L2 support in Port Security (feature sponsored by Seattle
-  Pacific University)
-- HP ProCurve MSM710 Mobility Controller
-
-New Features
 - Passthroughs support! You can now configure PacketFence to let your users 
   reach specific websites even if they are in registration or isolation. (#772)
   (feature sponsored by Shippensburg University)
@@ -59,19 +39,29 @@ New Features
 - New parameter in switches.conf to ease FreeRADIUS integration
 - Optional automatic configuration of FreeRADIUS' clients using switches.conf 
   (see addons/freeradius-integration/README for details)
+- New 'pending' status for node. Allows for a wide range of captive portal 
+  workflows where an administrator approves network access (by email, SMS...)
 
 Enhancements
+- New information available in Node Lookup (Connection Type, SSID, 802.1X 
+  User-Name, ...)
 - FreeRADIUS module improvements (#1034) and major revamping
 - Easier installation process using yum groupinstall (#1089)
+- Faster Web Services layer running under mod_perl
+- Refactoring of the pf::vlan method names for more meaningful ones
+- Removed unnecessary database connections and duplicated code
+- 802.1X improvements (#995, #1002)
+- General codebase improvements, refactoring (#914, #977, #1001, #973)
+- Small usability improvements (#1006)
+- New DHCP fingerprints (HP ProCurve Wireless, Ricoh MFP, Cisco/Linksys, 
+  Netgear, D-Link, Trendnet, Belkin Home Wireless Routers, Sony Ericsson 
+  Android, Aruba Access Point, Avaya IP Phone and Gentoo Linux)
+
+Documentation
 - Improved documentation about Snort, Oinkmaster, and log rotation in Admin 
   Guide
 - Improved documentation on violations (external remediation pages and 
   redirect_url) in the Administration Guide
-- New 'pending' status for node. Allows for a wide range of captive portal 
-  workflows where an administrator approves network access.
-- New DHCP fingerprints (HP ProCurve Wireless, Ricoh MFP, Cisco/Linksys, 
-  Netgear, D-Link, Trendnet, Belkin Home Wireless Routers, Sony Ericsson 
-  Android, Aruba Access Point, Avaya IP Phone and Gentoo Linux)
 
 Bug fixes
 - Captive Portal remediation pages can be hosted externally again! (#1024)
@@ -81,6 +71,9 @@ Bug fixes
 - Violation priorities are now enforced according to documentation (1 = highest)
 - Wrong URL in the provided oinkmaster.conf (#1101)
 - MAC addresses of format xxxx.xxxx.xxxx properly recognized in pf::util
+
+Special thanks to University of Oregon who, from early on, were running the 
+bleeding edge and provided invaluable feedback and contributions!
 
 --------------------------------------------------------------------------------
 Version 1.9.1 released on 2010-09-22
