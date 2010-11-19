@@ -1374,11 +1374,6 @@ sub version {
     $release = <$pfrelease_fh>;
     close($pfrelease_fh);
     print $release;
-
-    my $md5sum = ( split(
-         /\s+/, `/usr/bin/mysqldump -n -d --host=$Config{'database'}{'host'} --port=$Config{'database'}{'port'} -n -d -u $Config{'database'}{'user'} -p'$Config{'database'}{'pass'}' $Config{'database'}{'db'} | egrep -v '(^/|^\$|^--|^DROP)'| sed 's/\\sAUTO_INCREMENT=[0-9]*\\b//'|md5sum`)
-    )[0];
-    print "DB MD5SUM: $md5sum\n";
 }
 
 #

@@ -98,22 +98,6 @@ my %oses = (
 
 my @suids = ( "$install_dir/bin/pfcmd" );
 
-my %schemas = (
-    "31cb9ab04794b21ecfe5a14d69d2dc8b" => "1.9.0",
-    "a3ad9f52b7d31c8d4b5e9b0c2c3dd559" => "1.8.6",
-    "55ec69a0e574dac8eada8b65a8cbd4f5" => "1.8.4",
-    "de911c990735fd5a6339830830010368" => "1.8.3",
-    "ad6bad46d67c569a23bdc786219a0251" => "1.8.1",
-    "2e8a5ce0549759080b501e0149b77ad0" => "1.8.0",
-    "8aeb47f80e4bf35b2427ca002cc20625" => "1.7.4",
-    "5588316d6e053eea32fe73b22ae3bde9" => "1.7.1",
-    "37929828877c2328f0146f4c76740fb4" => "1.7.0",
-    "8ce4c53fe0700c7d499213015e95f810" => "1.6.0",
-    "305de249fd415f181eb990e8cd25863d" => "1.5.1",
-    "e997a9969f196762859b9505e08d0459" => "1.5.0",
-    "b125feaa50bc9c1fdf591e7c9caabf91" => "1.4.4p1"
-);
-
 $ENV{'LANG'} = "C";
 
 # can we install RPMs?

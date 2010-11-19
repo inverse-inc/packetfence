@@ -1,4 +1,9 @@
 2010-11-19	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd, pf/installer.pl, pf/t/pfcmd.t: Getting rid of the 
+	database md5sums. Fixes #973; 
+	They were used to identify database 'version' but were never reliable.
+	http://www.packetfence.org/bugs/view.php?id=973
+
 	* pf/db/pf-schema-2.0.0.sql, pf/installer.pl, pf/packetfence.spec:
 	New database schema for upcoming release. Package and installer 
 	properly referencing to it.
