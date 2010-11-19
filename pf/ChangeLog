@@ -1,4 +1,7 @@
 2010-11-19	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/vlan.pm: Returning registration VLAN if node status is 
+	pending.
+
 	* pf/addons/captive-portal/registration-sms-confirmation/sms_carrier.sql:
 	SMS carrier database useful for registration confirmation over SMS
 

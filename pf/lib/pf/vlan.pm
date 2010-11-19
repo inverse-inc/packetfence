@@ -217,7 +217,9 @@ sub get_violation_vlan {
 }
 
 
-=item get_registration_vlan - returns the registration vlan for a node if he is unregistered
+=item get_registration_vlan
+
+Returns the registration vlan for a node if registration is enabled and node is unregistered or pending.
 
 This sub is meant to be overridden in lib/pf/vlan/custom.pm if you have specific registration needs.
 
@@ -244,8 +246,14 @@ sub get_registration_vlan {
         return 0;
     }
 
-    if (!defined($node_info) || ($node_info->{'status'} eq 'unreg')) {
-        $logger->info("MAC: $mac is unregistered; belongs into registration VLAN");
+    if (!defined($node_info)) {
+        $logger->info("MAC: $mac doesn't have a node entry; belongs into registration VLAN");
+        return $switch->getVlanByName('registrationVlan');
+    }
+
+    my $n_status = $node_info->{'status'};
+    if ($n_status eq $pf::node::STATUS_UNREGISTERED || $n_status eq $pf::node::STATUS_PENDING) {
+        $logger->info("MAC: $mac is of status $n_status; belongs into registration VLAN");
         return $switch->getVlanByName('registrationVlan');
     }
     return 0;
