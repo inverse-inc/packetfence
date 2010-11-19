@@ -1,4 +1,7 @@
 2010-11-19	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/captive-portal/registration-sms-confirmation/sms_carrier.sql:
+	SMS carrier database useful for registration confirmation over SMS
+
 	* pf/html/admin/node/import.php: Now removing uploaded file after
 	import. This is what was initially planned.
 
