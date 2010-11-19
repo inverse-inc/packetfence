@@ -86,6 +86,21 @@ Readonly::Scalar our $DORMANT => 5;
 Readonly::Scalar our $NOT_PRESENT => 6;
 Readonly::Scalar our $LOWER_LAYER_DOWN => 7;
 
+=item ifType - defined by RFC 2863 (Interfaces Group) aka IF-MIB
+
+There are a lot of ifTypes, only a few of interest to PacketFence were copied here. 
+Check http://www.iana.org/assignments/ianaiftype-mib for the full list.
+
+ ...
+ ethernetCsmacd(6),
+ ...
+ gigabitEthernet (117), Obsoleted via RFC3635. ethernetCsmacd (6) should be used instead
+ ...
+
+=cut
+Readonly::Scalar our $ETHERNET_CSMACD => 6;
+Readonly::Scalar our $GIGABIT_ETHERNET => 117;
+
 
 =back
 

@@ -167,7 +167,14 @@ function pretty_name($menu, $header){
                         }
                         else{
                           if($macinfo_val){
-                            print "<tr><td>".pretty_name('node-view', $macinfo_key).":</td><td>$macinfo_val</td></tr>";
+                            switch ($macinfo_key) {
+                              case 'connection_type':
+                                print "<tr><td>".pretty_name('node-view', $macinfo_key).":</td><td><span title='$macinfo_val'>$connection_type[$macinfo_val]</span></td></tr>";
+                                break;
+
+                              default: 
+                                print "<tr><td>".pretty_name('node-view', $macinfo_key).":</td><td>$macinfo_val</td></tr>";
+                            }
                           }
                         }
                       }

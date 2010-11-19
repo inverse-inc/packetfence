@@ -296,7 +296,7 @@ sub generate_scan_status_page {
         refresh_timer    => $refresh_timer
     };
 
-    my $ip = $cgi->remote_addr;
+    my $ip = get_client_ip($cgi);
     push @{ $vars->{list_help_info} },
         { name => gettext('IP'), value => $ip };
     my $mac = ip2mac($ip);
@@ -342,7 +342,7 @@ sub generate_error_page {
         $vars->{txt_message} = gettext($error_msg);
     }
 
-    my $ip = $cgi->remote_addr;
+    my $ip = get_client_ip($cgi);
     push @{ $vars->{list_help_info} },
         { name => gettext('IP'), value => $ip };
     my $mac = ip2mac($ip);
@@ -384,7 +384,7 @@ sub generate_status_page {
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
-    my $ip   = $cgi->remote_addr;
+    my $ip   = get_client_ip($cgi);
     my $vars = {
         logo            => $Config{'general'}{'logo'},
         txt_page_title  => gettext('Status'),
@@ -506,6 +506,7 @@ sub web_node_record_user_agent {
 
 sub web_user_authenticate {
 
+    # TODO extract these magic digits in constants
     # return (1,0) for successfull authentication
     # return (0,2) for inability to check credentials
     # return (0,1) for wrong login/password
@@ -551,7 +552,7 @@ sub generate_registration_page {
     textdomain("packetfence");
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
-    my $ip   = $cgi->remote_addr;
+    my $ip   = get_client_ip($cgi);
     my $vars = {
         logo            => $Config{'general'}{'logo'},
         deadline        => $Config{'registration'}{'skip_deadline'},
@@ -677,6 +678,41 @@ sub generate_pending_page {
         { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
     $template->process("pending.html", $vars);
     exit;
+}
+
+=item get_client_ip
+
+Returns IP address of the client reaching the captive portal. 
+Either directly connected or through a proxy.
+
+=cut
+sub get_client_ip {
+    my ($cgi) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web');
+
+    $logger->trace("request for client IP");
+
+    # we fetch CGI's remote address
+    # if user is behind a proxy it's not sufficient since we'll get the proxy's IP
+    my $directly_connected_ip = $cgi->remote_addr();
+
+    # handling most common case first
+    if ($directly_connected_ip ne LOOPBACK_IPV4) {
+        return $directly_connected_ip;
+    }
+
+    # proxied?
+    if (defined($ENV{'HTTP_X_FORWARDED_FOR'})) {
+        my $proxied_ip = $ENV{'HTTP_X_FORWARDED_FOR'};
+        $logger->debug(
+            "Remote Address is ".LOOPBACK_IPV4.". Client is proxied? "
+            . "Returning: $proxied_ip according to HTTP Headers"
+        );
+        return $proxied_ip;
+    }
+
+    $logger->debug("Remote Address is ".LOOPBACK_IPV4." but no further hints of client IP in HTTP Headers");
+    return $directly_connected_ip;
 }
 
 =back
