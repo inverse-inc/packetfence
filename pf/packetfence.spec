@@ -218,9 +218,9 @@ cp -r test $RPM_BUILD_ROOT/usr/local/pf/
 #start create symlinks
 curdir=`pwd`
 
-#pfschema symlink
+#pf-schema.sql symlink
 cd $RPM_BUILD_ROOT/usr/local/pf/db
-ln -s pfschema.mysql.190 ./pfschema.mysql
+ln -s pf-schema-2.0.0.sql ./pf-schema.sql
 
 #httpd.conf symlink
 #TODO: isn't it stupid to decide what Apache version is there at rpm build time?

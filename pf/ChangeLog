@@ -1,4 +1,8 @@
 2010-11-19	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/db/pf-schema-2.0.0.sql, pf/installer.pl, pf/packetfence.spec:
+	New database schema for upcoming release. Package and installer 
+	properly referencing to it.
+
 	* pf/lib/pf/vlan.pm: Returning registration VLAN if node status is 
 	pending.
 

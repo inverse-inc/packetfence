@@ -239,10 +239,10 @@ if (questioner(
         # create the database
         `/usr/bin/mysqladmin --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' create $mysql_db`;
         print "  Loading schema\n";
-        if ( -e "$install_dir/db/pfschema.mysql" ) {
-            `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' $mysql_db < $install_dir/db/pfschema.mysql`;
+        if ( -e "$install_dir/db/pf-schema.sql" ) {
+            `/usr/bin/mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' $mysql_db < $install_dir/db/pf-schema.sql`;
         } else {
-            die("Where's my schema?  Nothing at $install_dir/db/pfschema.mysql\n"
+            die("Where's my schema?  Nothing at $install_dir/db/pf-schema.sql\n"
             );
         }
     }
