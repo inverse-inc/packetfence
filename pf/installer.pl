@@ -86,6 +86,8 @@ $version = <$pfrelease_fh>;
 close($pfrelease_fh);
 my $pf_release = ( split( /\s+/, $version ) )[1];
 
+my $snort_version_string = "snort-2.8.6";
+
 my %oses = (
     "Red Hat Enterprise Linux AS release 4"     => "RHEL4",
     "Red Hat Enterprise Linux ES release 4"     => "RHEL4",
@@ -355,14 +357,19 @@ if (questioner(
     )
 {
     my @rule_files = (
+        'emerging-botcc.rules',
         'emerging-attack_response.rules',
         'emerging-exploit.rules',
+        'emerging-malware.rules',
         'emerging-p2p.rules',
         'emerging-scan.rules',
+        'emerging-shellcode.rules',
+        'emerging-trojan.rules'
         'emerging-virus.rules'
+        'emerging-worm.rules'
     );
     foreach my $current_rule_file (@rule_files) {
-        `/usr/bin/wget -N http://www.emergingthreats.net/rules/$current_rule_file -P $conf_dir/snort`;
+        `/usr/bin/wget -N http://rules.emergingthreats.net/open/$snort_version_string/rules/$current_rule_file -P $conf_dir/snort`;
     }
 }
 

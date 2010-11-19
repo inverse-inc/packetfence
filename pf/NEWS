@@ -53,6 +53,8 @@ Enhancements
 - 802.1X improvements (#995, #1002)
 - General codebase improvements, refactoring (#914, #977, #1001, #973)
 - Small usability improvements (#1006)
+- Migrated to the new Emerging Threats rules for snort and added rules for
+  botnets, malware, shellcode, trojan and worm by default (#1102)
 - New DHCP fingerprints (HP ProCurve Wireless, Ricoh MFP, Cisco/Linksys, 
   Netgear, D-Link, Trendnet, Belkin Home Wireless Routers, Sony Ericsson 
   Android, Aruba Access Point, Avaya IP Phone and Gentoo Linux)

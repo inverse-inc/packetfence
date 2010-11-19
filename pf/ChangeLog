@@ -1,4 +1,10 @@
 2010-11-19	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/installer.pl, pf/addons/snort/oinkmaster.conf,
+	pf/conf/violations.conf: New URL for emerging threats rules and also 
+	took the opportunity to add new rulesets (botnet, malware, shellcode, 
+	trojans and worms) Fixes #1102;
+	http://www.packetfence.org/bugs/view.php?id=1102
+
 	* renamed pf/db/upgrade-1.9.0-1.10.0.sql to 
 	pf/db/upgrade-1.9.0-2.0.0.sql, modified pf/UPGRADE:
 	DB upgrade script now 1.9.0 to 2.0.0.
