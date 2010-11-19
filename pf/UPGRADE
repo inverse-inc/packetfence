@@ -10,7 +10,7 @@ o Upgrading from a version prior to <release>:
     - Database schema update
     New fields were added as a part of the Radius unification. You can update
     your schema with:
-    mysql -u root -p pf -v < db/upgrade-1.9.0-1.10.0.sql
+    mysql -u root -p pf -v < db/upgrade-1.9.0-2.0.0.sql
 
     - FreeRADIUS module rewritten
     The FreeRADIUS has been completely re-written from the previous release 

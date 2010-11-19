@@ -1,4 +1,8 @@
 2010-11-19	Olivier Bilodeau <obilodeau@inverse.ca>
+	* renamed pf/db/upgrade-1.9.0-1.10.0.sql to 
+	pf/db/upgrade-1.9.0-2.0.0.sql, modified pf/UPGRADE:
+	DB upgrade script now 1.9.0 to 2.0.0.
+
 	* pf/bin/pfcmd, pf/installer.pl, pf/t/pfcmd.t: Getting rid of the 
 	database md5sums. Fixes #973; 
 	They were used to identify database 'version' but were never reliable.
