@@ -13,6 +13,8 @@ to access SNMP enabled Aironet access points.
 
 =head1 BUGS AND LIMITATIONS
 
+The same VLAN cannot be shared between two SSIDs
+
 Wireless deauthentication (deassociation) uses the CLI (telnet or ssh) which is expensive (doesn't scale very well).
 
 =cut
