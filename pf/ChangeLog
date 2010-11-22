@@ -1,3 +1,9 @@
+2010-11-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* Added pf/docs/PacketFence_Network_Devices_Configuration_Guide.odt:
+	New guide focused exclusively on network device configuration.
+	Currently, a draft with a mix of the admin guide switch config and new
+	material.
+
 2010-11-19	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/installer.pl, pf/addons/snort/oinkmaster.conf,
 	pf/conf/violations.conf: New URL for emerging threats rules and also 
