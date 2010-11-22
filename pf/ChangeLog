@@ -1,3 +1,6 @@
+2010-11-22      Olivier Bilodeau <obilodeau@inverse.ca>
+	* Add 802.1x configuration in the Network Devices configuration guide
+
 2010-11-22	Olivier Bilodeau <obilodeau@inverse.ca>
 	* Added pf/docs/PacketFence_Network_Devices_Configuration_Guide.odt:
 	New guide focused exclusively on network device configuration.
