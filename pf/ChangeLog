@@ -2,6 +2,9 @@
 	* Add 802.1x configuration in the Network Devices configuration guide
 
 2010-11-22	Olivier Bilodeau <obilodeau@inverse.ca>
+	* docs/PacketFence_Administration_Guide.odt: A lot of content rework
+	for the admin guide. It is still in a very rough stage though.
+
 	* Added pf/docs/PacketFence_Network_Devices_Configuration_Guide.odt:
 	New guide focused exclusively on network device configuration.
 	Currently, a draft with a mix of the admin guide switch config and new
