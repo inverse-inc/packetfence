@@ -337,7 +337,11 @@ fi
 %dir                    /usr/local/pf/addons
 %attr(0755, pf, pf)     /usr/local/pf/addons/accounting.pl
 %attr(0755, pf, pf)     /usr/local/pf/addons/autodiscover.pl
+%dir                    /usr/local/pf/addons/captive-portal/
+                        /usr/local/pf/addons/captive-portal/*
 %attr(0755, pf, pf)     /usr/local/pf/addons/convertToPortSecurity.pl
+%dir                    /usr/local/pf/addons/dev-helpers/
+                        /usr/local/pf/addons/dev-helpers/*
 %attr(0755, pf, pf)	/usr/local/pf/addons/database-backup-and-maintenance.sh
 %dir                    /usr/local/pf/addons/freeradius-integration/
                         /usr/local/pf/addons/freeradius-integration/*
@@ -345,7 +349,6 @@ fi
                         /usr/local/pf/addons/high-availability/*
 %dir                    /usr/local/pf/addons/integration-testing/
                         /usr/local/pf/addons/integration-testing/*
-%attr(0755, pf, pf)     /usr/local/pf/addons/loadMACintoDB.pl
                         /usr/local/pf/addons/logrotate
 %attr(0755, pf, pf)	/usr/local/pf/addons/migrate-to-locationlog_history.sh
 %attr(0755, pf, pf)     /usr/local/pf/addons/monitorpfsetvlan.pl
@@ -519,7 +522,7 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
-* Fri Nov 19 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+* Mon Nov 22 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Minor changes to the addons/ directory layout that needed to be reflected
   here
 
