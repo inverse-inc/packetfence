@@ -1,4 +1,9 @@
-2010-11-22      Olivier Bilodeau <obilodeau@inverse.ca>
+2010-11-23	Olivier Bilodeau <obilodeau@inverse.ca>
+	* docs/PacketFence_Administration_Guide.odt: A lot of content rework
+	for the admin guide. All big reworks are done, now we need to cleanup,
+	make it coherent and fix notes in comments.
+
+2010-11-22	Francois Gaudreault <fgaudreault@inverse.ca>
 	* Add 802.1x configuration in the Network Devices configuration guide
 
 2010-11-22	Olivier Bilodeau <obilodeau@inverse.ca>
