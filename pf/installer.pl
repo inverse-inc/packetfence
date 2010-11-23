@@ -364,8 +364,8 @@ if (questioner(
         'emerging-p2p.rules',
         'emerging-scan.rules',
         'emerging-shellcode.rules',
-        'emerging-trojan.rules'
-        'emerging-virus.rules'
+        'emerging-trojan.rules',
+        'emerging-virus.rules',
         'emerging-worm.rules'
     );
     foreach my $current_rule_file (@rule_files) {
