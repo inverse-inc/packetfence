@@ -74,7 +74,7 @@ if ($locationlog_entry) {
             $logger->debug("sending a local reAssignVlan trap to force VLAN change");
             $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type);
 
-        } elsif ($conn_type == WIRED_MAC_AUTH_BYPASS) {
+        } elsif ($conn_type == WIRED_MAC_AUTH) {
             $logger->debug("sending a local reAssignVlan trap to force VLAN change");
             $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type);
 

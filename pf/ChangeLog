@@ -1,4 +1,12 @@
 2010-11-24	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/flip.pl, pf/html/admin/common.php,
+	pf/lib/pf/SNMP/Cisco/Catalyst_2960.pm, pf/lib/pf/SNMP/MockedSwitch.pm,
+	pf/lib/pf/SNMP.pm, pf/lib/pf/config.pm, pf/lib/pf/radius/custom.pm,
+	pf/lib/pf/radius.pm, pf/lib/pf/vlan.pm, pf/t/data/switches.conf,
+	pf/t/radius.t: MAC Authentication Bypass is now Wired MAC 
+	Authentication after some discussion. Changes required all over the
+	place.
+
 	* pf/t/pod.t and others: Important fix to POD doc test removing false
 	alarms and fixed all missing sections from basic test
 

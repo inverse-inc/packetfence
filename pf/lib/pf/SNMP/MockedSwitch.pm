@@ -85,7 +85,7 @@ Warning: The list of subroutine is incomplete
 =cut
 
 # capabilities
-sub supportsMacAuthBypass { return $TRUE; }
+sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 
 # first, we are re-implementing all of pf::SNMP that has effects on switches to make sure it doesn't do anything

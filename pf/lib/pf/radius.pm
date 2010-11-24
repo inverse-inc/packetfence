@@ -2,14 +2,14 @@ package pf::radius;
 
 =head1 NAME
 
-pf::radius - Module that deals with everything radius related
+pf::radius - Module that deals with everything RADIUS related
 
 =head1 SYNOPSIS
 
-The pf::radius module contains the functions necessary for answering radius queries.
-Radius is the network access component known as AAA used in 802.1x, MAC authentication, 
-MAC authentication bypass (MAB), etc. This module acts as a proxy between our FreeRADIUS 
-perl module's SOAP requests (packetfence.pm) and PacketFence core modules.
+The pf::radius module contains the functions necessary for answering RADIUS queries.
+RADIUS is the network access component known as AAA used in 802.1x, MAC authentication, etc.
+This module acts as a proxy between our FreeRADIUS perl module's SOAP requests 
+(packetfence.pm) and PacketFence core modules.
 
 All the behavior contained here can be overridden in lib/pf/radius/custom.pm.
 
@@ -37,7 +37,7 @@ use pf::radius::constants;
 
 =cut
 
-=item * new - get a new instance of the radius object
+=item * new - get a new instance of the pf::radius object
  
 =cut
 sub new {
@@ -48,7 +48,7 @@ sub new {
     return $this;
 }
 
-=item * authorize - handling the radius authorize call
+=item * authorize - handling the RADIUS authorize call
 
 Returns an arrayref (tuple) with element 0 being a response code for Radius and second element an hash meant 
 to fill the Radius reply (RAD_REPLY). The arrayref is to workaround a quirk in SOAP::Lite and have everything in result()
@@ -311,7 +311,7 @@ sub _identifyConnectionType {
             if ($eap_type) {
                 return WIRED_802_1X;
             } else {
-                return WIRED_MAC_AUTH_BYPASS;
+                return WIRED_MAC_AUTH;
             }
 
         } else {
@@ -380,8 +380,8 @@ sub _isSwitchSupported {
     my ($this, $switch, $conn_type) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    if ($conn_type == WIRED_MAC_AUTH_BYPASS) {
-        return $switch->supportsMacAuthBypass();
+    if ($conn_type == WIRED_MAC_AUTH) {
+        return $switch->supportsWiredMacAuth();
     } elsif ($conn_type == WIRED_802_1X) {
         return $switch->supportsWiredDot1x();
     } elsif ($conn_type == WIRELESS_MAC_AUTH) {

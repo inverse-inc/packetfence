@@ -327,7 +327,7 @@ $isPhone is set to 1 if device is considered an IP Phone.
 $conn_type is set to the connnection type expressed as the constant in pf::config
 
 $user_name is set to the RADIUS User-Name attribute.
-Real username under 802.1X and MAC address under MAB or MAC authentication.
+Real username under 802.1X and MAC address under MAC Authentication.
 Undef if conn_type is WIRED_SNMP_TRAPS
 
 $ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)

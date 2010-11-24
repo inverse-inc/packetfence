@@ -36,7 +36,7 @@ use base ('pf::SNMP::Cisco::Catalyst_2950');
 use pf::config;
 
 # capabilities
-sub supportsMacAuthBypass { return $TRUE; }
+sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 
 sub getMinOSVersion {

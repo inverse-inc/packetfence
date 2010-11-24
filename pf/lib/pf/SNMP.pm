@@ -1179,15 +1179,17 @@ sub supportsFloatingDevice {
     return $FALSE;
 }
 
-=item supportsMacAuthBypass - Returns 1 if switch type supports MAC Authentication Bypass (Wired RADIUS mac-auth)
+=item supportsWiredMacAuth 
+
+Returns 1 if switch type supports MAC Authentication (Wired Access Authorization through RADIUS)
 
 =cut
-sub supportsMacAuthBypass {
+sub supportsWiredMacAuth {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     $logger->error(
-        "MAC Authentication Bypass (MAB) (aka Wired RADIUS mac-authentication) "
+        "Wired MAC Authentication (Wired Access Authorization through RADIUS) "
         . "is not supported on switch type " . ref($this) . ". Please let us know what hardware you are using."
     );
     return $FALSE;
@@ -2194,7 +2196,9 @@ sub dot1xPortReauthenticate {
     return (defined($result));
 }
 
-=item NasPortToIfIndex - translate Radius NAS-Port into the physical port ifIndex
+=item NasPortToIfIndex 
+
+Translate RADIUS NAS-Port into the physical port ifIndex
 
 =cut
 sub NasPortToIfIndex {
@@ -2202,7 +2206,7 @@ sub NasPortToIfIndex {
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     $logger->warn("This switch model doesn't seem to implement 802.1X or a degraded variant "
-        . "like mac-authentication-bypass (MAB). Please let us know what hardware you are using");
+        . "like MAC Authentication. Please let us know what hardware you are using");
     return $NAS_port;
 }
 =back

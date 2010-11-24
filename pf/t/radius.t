@@ -42,7 +42,7 @@ can_ok($radius, qw(
 ));
 
 # Setup
-# MAB example
+# Wired MAC Auth example
 my $nas_port_type  = "Ethernet";
 my $switch_ip      = "192.168.0.2";
 my $request_is_eap = 0;
@@ -54,14 +54,14 @@ my $ssid           = "";
 # Answers
 my $regist_vlan = 3;
 
-# standard MAB query, expect registration
+# standard Wired MAC Auth query, expect registration
 my $radius_response = $radius->authorize($nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid);
 is_deeply($radius_response, 
     [$RADIUS::RLM_MODULE_OK, (
         'Tunnel-Private-Group-ID'=> $regist_vlan,
         'Tunnel-Type'            => 13,
         'Tunnel-Medium-Type'     => 6)],
-    "MAB request expect registration vlan"
+    "Wired MAC Auth request expect registration vlan"
 );
 
 # invalid switch
@@ -72,12 +72,12 @@ is_deeply($radius_response,
     "expect failure: switch doesn't exist"
 );
 
-# switch doesn't support MAB
+# switch doesn't support Wired MAC Auth 
 $switch_ip = "192.168.0.1";
 $radius_response = $radius->authorize($nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid);
 is_deeply($radius_response, 
     [$RADIUS::RLM_MODULE_FAIL, undef],
-    "expect failure: switch doesn't support MAB"
+    "expect failure: switch doesn't support Wired MAC Auth"
 );
 
 
@@ -86,7 +86,7 @@ my $switchFactory = new pf::SwitchFactory( -configFile => './data/switches.conf'
 my $switch = $switchFactory->instantiate('192.168.0.1');
 $switch->{_VoIPEnabled} = 1;
 
-$radius_response = $radius->_authorizeVoip(WIRED_MAC_AUTH_BYPASS, $switch, $mac, $port, $user_name, $ssid);
+$radius_response = $radius->_authorizeVoip(WIRED_MAC_AUTH, $switch, $mac, $port, $user_name, $ssid);
 is_deeply($radius_response,
     [$RADIUS::RLM_MODULE_FAIL, undef],
     "expect failure: VoIP phone on radius is not supported yet"

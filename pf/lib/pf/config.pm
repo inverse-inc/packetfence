@@ -63,7 +63,7 @@ BEGIN {
         $floating_devices_file %ConfigFloatingDevices
         $blackholemac $portscan_sid @valid_trigger_types $thread $default_pid $fqdn
         $FALSE $TRUE
-        WIRELESS_802_1X WIRELESS_MAC_AUTH WIRED_802_1X WIRED_MAC_AUTH_BYPASS WIRED_SNMP_TRAPS WIRELESS WIRED EAP
+        WIRELESS_802_1X WIRELESS_MAC_AUTH WIRED_802_1X WIRED_MAC_AUTH WIRED_SNMP_TRAPS WIRELESS WIRED EAP
         VOIP NO_VOIP
         LOOPBACK_IPV4
         %connection_type %connection_type_to_str %connection_type_explained
@@ -105,15 +105,15 @@ $portscan_sid = 1200003;
 $default_pid  = 1;
 
 # connection type constants
-use constant WIRELESS_802_1X       => 0b11000001;
-use constant WIRELESS_MAC_AUTH     => 0b10000010;
-use constant WIRED_802_1X          => 0b01100100;
-use constant WIRED_MAC_AUTH_BYPASS => 0b00101000;
-use constant WIRED_SNMP_TRAPS      => 0b00110000;
+use constant WIRELESS_802_1X => 0b11000001;
+use constant WIRELESS_MAC_AUTH => 0b10000010;
+use constant WIRED_802_1X => 0b01100100;
+use constant WIRED_MAC_AUTH => 0b00101000;
+use constant WIRED_SNMP_TRAPS => 0b00110000;
 # masks to be used on connection types
 use constant WIRELESS => 0b10000000;
-use constant WIRED    => 0b00100000;
-use constant EAP      => 0b01000000;
+use constant WIRED => 0b00100000;
+use constant EAP => 0b01000000;
 
 # TODO we should build a connection data class with these hashes and related constants
 # String to constant hash
@@ -121,7 +121,7 @@ use constant EAP      => 0b01000000;
     'Wireless-802.11-EAP'   => WIRELESS_802_1X,
     'Wireless-802.11-NoEAP' => WIRELESS_MAC_AUTH,
     'Ethernet-EAP'          => WIRED_802_1X,
-    'Ethernet-NoEAP'        => WIRED_MAC_AUTH_BYPASS,
+    'Ethernet-NoEAP'        => WIRED_MAC_AUTH,
     'SNMP-Traps'            => WIRED_SNMP_TRAPS,
 );
 
@@ -129,22 +129,22 @@ use constant EAP      => 0b01000000;
 # my constant values as keys of the hashes. See CAVEATS section of perldoc constant.
 # Their string equivalent for database storage
 %connection_type_to_str = (
-    WIRELESS_802_1X()       => 'Wireless-802.11-EAP',
-    WIRELESS_MAC_AUTH()     => 'Wireless-802.11-NoEAP',
-    WIRED_802_1X()          => 'Ethernet-EAP',
-    WIRED_MAC_AUTH_BYPASS() => 'Ethernet-NoEAP',
-    WIRED_SNMP_TRAPS()      => 'SNMP-Traps',
+    WIRELESS_802_1X() => 'Wireless-802.11-EAP',
+    WIRELESS_MAC_AUTH() => 'Wireless-802.11-NoEAP',
+    WIRED_802_1X() => 'Ethernet-EAP',
+    WIRED_MAC_AUTH() => 'Ethernet-NoEAP',
+    WIRED_SNMP_TRAPS() => 'SNMP-Traps',
 );
 
 # String to constant hash
 # these duplicated in html/admin/common.php for web admin display
 # changes here should be reflected there
 %connection_type_explained = (
-    WIRELESS_802_1X()       => 'Secure Wireless (802.1x + WPA2 Enterprise)',
-    WIRELESS_MAC_AUTH()     => 'Open Wireless (mac-authentication)',
-    WIRED_802_1X()          => 'Wired 802.1x',
-    WIRED_MAC_AUTH_BYPASS() => 'Wired mac-authentication-bypass (MAB)',
-    WIRED_SNMP_TRAPS()      => 'Wired (discovered by SNMP-Traps)',
+    WIRELESS_802_1X() => 'Secure Wireless (802.1x + WPA2 Enterprise)',
+    WIRELESS_MAC_AUTH() => 'Open Wireless (mac-authentication)',
+    WIRED_802_1X() => 'Wired 802.1x',
+    WIRED_MAC_AUTH() => 'Wired MAC Authentication',
+    WIRED_SNMP_TRAPS() => 'Wired (discovered by SNMP-Traps)',
 );
 
 # VoIP constants
