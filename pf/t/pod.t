@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 574;
+use Test::More tests => 572;
 
 my @files = (
     '/usr/local/pf/addons/accounting.pl',
@@ -13,8 +13,7 @@ my @files = (
     '/usr/local/pf/addons/convertToPortSecurity.pl',
     '/usr/local/pf/addons/monitorpfsetvlan.pl',
     '/usr/local/pf/addons/recovery.pl',
-    '/usr/local/pf/addons/802.1X/rlm_perl_packetfence_soap.pl',
-    '/usr/local/pf/addons/802.1X/rlm_perl_packetfence_sql.pl',
+    '/usr/local/pf/addons/802.1X/packetfence.pm',
     '/usr/local/pf/addons/mrtg/mrtg-wrapper.pl',
     '/usr/local/pf/bin/flip.pl',
     '/usr/local/pf/bin/pfcmd',

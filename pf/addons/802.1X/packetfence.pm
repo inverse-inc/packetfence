@@ -2,12 +2,11 @@
 
 =head1 NAME
 
-rlm_perl_packetfence.pl - FreeRadius PacketFence integration module
+packetfence.pm - FreeRadius PacketFence integration module
 
 =head1 DESCRIPTION
 
-rlm_perl_packetfence.pl contains the functions necessary to
-integrate PacketFence and FreeRADIUS
+packetfence.pm contains the functions necessary to integrate PacketFence and FreeRADIUS
 
 =cut
 
@@ -19,7 +18,7 @@ use Sys::Syslog;
 
 # Configuration parameters
 use constant {
-    # PacketFence SOAP Server settings
+    # FreeRADIUS to PacketFence communications (SOAP Server settings)
     ADMIN_USER     => 'admin',
     ADMIN_PASS     => 'admin',
     WEBADMIN_HOST  => 'localhost:1443',
@@ -82,9 +81,9 @@ sub authorize {
 
     # returning Reject to force people to upgrade from our old authorize hook into our new post_auth hook
     # otherwise they could upgrade and allow everyone in without being aware of it
-    openlog("rlm_perl_packetfence", "perror,pid","user");
+    openlog("radiusd_pf", "perror,pid", "user");
     my $ERROR_MSG = 
-        "*** WARNING ***: PacketFence (rlm_perl_packetfence.pl) should no longer run from authorize section."
+        "*** WARNING ***: PacketFence (it's rlm_perl module) should no longer run from authorize section."
         ." Update your FreeRADIUS configuration to call perl module from post-auth section instead!"
     ;
     &radiusd::radlog(1, $ERROR_MSG);
@@ -100,7 +99,7 @@ sub authorize {
 sub post_auth {
 
     # syslog logging
-    openlog("rlm_perl_packetfence", "perror,pid","user");
+    openlog("radiusd_pf", "perror,pid", "user");
 
     my $mac = $RAD_REQUEST{'Calling-Station-Id'};
     # TODO refactoring: change name because its not only a switch, it can be an AP

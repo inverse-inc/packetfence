@@ -8,8 +8,8 @@ pf::radius::custom - Module that deals with everything radius related
 
 The pf::radius module contains the functions necessary for answering radius queries.
 Radius is the network access component known as AAA used in 802.1x, MAC authentication, 
-MAC authentication bypass (MAB), etc. This module acts as a proxy between our radius 
-perl module's SOAP requests (rlm_perl_packetfence.pl) and PacketFence core modules.
+MAC authentication bypass (MAB), etc. This module acts as a proxy between our FreeRADIUS
+perl module's SOAP requests (packetfence.pm) and PacketFence core modules.
 
 This modules extends pf::radius. Override methods for which you want to customize
 behavior here.

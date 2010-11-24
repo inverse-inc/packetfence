@@ -8,8 +8,8 @@ pf::radius - Module that deals with everything radius related
 
 The pf::radius module contains the functions necessary for answering radius queries.
 Radius is the network access component known as AAA used in 802.1x, MAC authentication, 
-MAC authentication bypass (MAB), etc. This module acts as a proxy between our radius 
-perl module's SOAP requests (rlm_perl_packetfence.pl) and PacketFence core modules.
+MAC authentication bypass (MAB), etc. This module acts as a proxy between our FreeRADIUS 
+perl module's SOAP requests (packetfence.pm) and PacketFence core modules.
 
 All the behavior contained here can be overridden in lib/pf/radius/custom.pm.
 
@@ -69,7 +69,7 @@ sub authorize {
 
     my $connection_type = $this->_identifyConnectionType($nas_port_type, $eap_type);
 
-    # TODO maybe it's in there that we should do all the magic that happened in rlm_perl_packetfence_sql
+    # TODO maybe it's in there that we should do all the magic that happened in the FreeRADIUS module
     # meaning: the return should be decided by _doWeActOnThisCall, not always $RADIUS::RLM_MODULE_NOOP
     my $weActOnThisCall = $this->_doWeActOnThisCall($connection_type, $switch_ip, $mac, $port, $user_name, $ssid);
     if ($weActOnThisCall == 0) {
@@ -321,7 +321,7 @@ sub _identifyConnectionType {
         }
     } else {
         $logger->warn("Request type was not set. There is a problem with the NAS, your radius config "
-            ."or rlm_perl_packetfence module.");
+            ."or rlm_perl packetfence.pm FreeRADIUS module.");
         return;
     }
 }

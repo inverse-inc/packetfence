@@ -1,3 +1,9 @@
+2010-11-24	Olivier Bilodeau <obilodeau@inverse.ca>
+	* Renamed pf/addons/802.1X/rlm_perl_packetfence.pl to 
+	pf/addons/802.1X/packetfence.pm: Old name didn't bring any added value
+	and was kind of obscure, so it's renamed now to represent a module.
+	Note in UPGRADE and tests updated.
+
 2010-11-23	Olivier Bilodeau <obilodeau@inverse.ca>
 	* docs/PacketFence_Administration_Guide.odt: A lot of content rework
 	for the admin guide. All big reworks are done, now we need to cleanup,

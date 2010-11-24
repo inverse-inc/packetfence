@@ -12,12 +12,14 @@ o Upgrading from a version prior to <release>:
     your schema with:
     mysql -u root -p pf -v < db/upgrade-1.9.0-2.0.0.sql
 
-    - FreeRADIUS module rewritten
+    - FreeRADIUS module rewritten and renamed
     The FreeRADIUS has been completely re-written from the previous release 
     series. Now, except for the authentication against the PacketFence server
     all the control is centralized in the PacketFence configuration. No more 
     customization required in the FreeRADIUS module! We strongly recommend
     that you carefully migrate to this module and forget about the old one.
+    We also changed the name from rlm_perl_packetfence.pl to packetfence.pm so
+    update your FreeRADIUS configuration accordingly.
 
     - /cgi-bin/pdp.cgi moved
     Remote snort probes or other mechanisms relying on the presence of this 
