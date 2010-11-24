@@ -310,8 +310,13 @@ sub send_email {
     $info{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
     $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
     my ($hash_version, $hash) = _unpack_activation_code($activation_code);
-    $info{'activation_uri'} = "https://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-        ."/activate/$hash";
+
+    if (defined($info{'activation_domain'})) {
+        $info{'activation_uri'} = "https://". $info{'activation_domain'} . "/activate/$hash";
+    } else {
+        $info{'activation_uri'} = "https://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
+            ."/activate/$hash";
+    }
 
     # Hash merge. Note that on key collisions the result of view_by_code() will win
     %info = (%info, %{view_by_code($activation_code)});
@@ -322,8 +327,8 @@ sub send_email {
     my $msg = MIME::Lite::TT->new( 
         From        =>  $info{'from'},
         To          =>  $info{'email'}, 
-        Cc          =>  $info{'cc'}, 
-        Subject     =>  $info{'subject'}, 
+        Cc          =>  $info{'cc'},
+        Subject     =>  $info{'subject'},
         Template    =>  "emails-$template.txt.tt",
         TmplOptions =>  \%options, 
         TmplParams  =>  \%info, 
