@@ -28,6 +28,7 @@ runtests(qw(
     php.t
     pod.t
     util.t
+    import.t
 ));
 
 =head1 AUTHOR

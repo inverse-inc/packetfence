@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
-use Test::More tests => 1;
+use Test::More tests => 2;
 use Test::NoWarnings;
 
 BEGIN { use_ok('pf::import') }
