@@ -49,16 +49,7 @@ o Upgrading from a version prior to <release>:
     If you built a customized version of vlan.pm in lib/pf/vlan/custom.pm be 
     aware that there were a lot of changes. We strongly recommend you rewrite 
     your custom.pm on top of these new changes instead keeping your old.
- 
-    - deprecated subs
-    lib/pf/SNMP.pm's setIsolationVlan, setRegistrationVlan and setNormalVlan 
-    are now deprecated and will be removed in the future. Use 
-    setVlanByName($ifIndex, $switch_locker_ref, $vlanName) instead. For 
-    example: setVlanByName($ifIndex, \%switch_locker, 'guestVlan'); 
 
-    - loadMACintoDB.pl removed
-    Dropping loadMACintoDB.pl. Replaced by node import feature.
-     
     - Captive Portal changes
     By default pf::web is no longer exporting it's subroutines. This means that
     all the captive portal scripts in cgi-bin/ will need to be updated to use 
@@ -89,6 +80,19 @@ o Upgrading from a version prior to <release>:
     with the previous module should be resolved now. These fixes also required
     an updated firmware from SMC. Make sure your switch runs at opcode 2.4.5.13
     for the SMC TigerStack 8824M or 8848M to work properly with PacketFence.
+
+    - loadMACintoDB.pl removed
+    Dropping loadMACintoDB.pl. Replaced by node import feature see `pfcmd node 
+    import` or Node -> Import in the Web Administration interface.
+
+    - connect_and_read.pl and dhcp_dumper moved
+    They are now located in addons/.
+ 
+    - deprecated subs
+    lib/pf/SNMP.pm's setIsolationVlan, setRegistrationVlan and setNormalVlan 
+    are now deprecated and will be removed in the future. Use 
+    setVlanByName($ifIndex, $switch_locker_ref, $vlanName) instead. For 
+    example: setVlanByName($ifIndex, \%switch_locker, 'guestVlan'); 
 
 o Upgrading from a version prior to 1.9.1:
 

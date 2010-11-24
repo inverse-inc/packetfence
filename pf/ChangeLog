@@ -1,4 +1,7 @@
 2010-11-24	Olivier Bilodeau <obilodeau@inverse.ca>
+	* Moved test/ into addons/: test/ was a misleading directory for these
+	scripts
+
 	* Renamed pf/addons/802.1X/rlm_perl_packetfence.pl to 
 	pf/addons/802.1X/packetfence.pm: Old name didn't bring any added value
 	and was kind of obscure, so it's renamed now to represent a module.
