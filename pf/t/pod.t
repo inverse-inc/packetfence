@@ -160,7 +160,7 @@ foreach my $currentFile (@files) {
 
 # PacketFence module POD
 # for now NAME, AUTHOR, COPYRIGHT
-# TODO expect NAME, SYNOPSIS, DESCRIPTION, AUTHOR, COPYRIGHT
+# TODO expect NAME, SYNOPSIS, DESCRIPTION, AUTHOR, COPYRIGHT, LICENSE
 # TODO port to perl module: http://search.cpan.org/~mkutter/Test-Pod-Content-0.0.5/
 my @pf_general_pod = qw(NAME AUTHOR COPYRIGHT);
 foreach my $currentFile (@files) {
@@ -174,7 +174,7 @@ foreach my $currentFile (@files) {
     my $result = `$cmd`;
     $result =~ s/\c@//g; # I had these weird control-chars in my string
     my @pod_headers = split("\n", $result);
-    pop @pod_headers; # discards last element (its always only a newline)
+    chomp @pod_headers; # discards last element if it's a newline
 
     foreach my $pf_expected_header (@pf_general_pod) {
         # TODO performance could be improved if I qr// the regexp (see perlop)

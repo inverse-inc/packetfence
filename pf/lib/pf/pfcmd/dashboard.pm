@@ -1,5 +1,12 @@
 package pf::pfcmd::dashboard;
 
+=head1 NAME
+
+pf::pfcmd::dashboard - module feeding data to the dashboard nuggets
+
+=cut
+
+
 use strict;
 use warnings;
 use Log::Log4perl;
@@ -133,6 +140,8 @@ Copyright (C) 2005 David LaPorte
 Copyright (C) 2005 Kevin Amorin
 
 Copyright (C) 2010 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

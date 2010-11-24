@@ -161,7 +161,25 @@ sub update_index {
     return $self->update_entry( $idx, $entry );
 }
 
+=head1 AUTHOR
+
+David LaPorte <david@davidlaporte.org>
+
+Kevin Amorin <kev@amorin.org>
+
+Dominik Gehl <dgehl@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
+
+Copyright (C) 2005 Dave Laporte
+
+Copyright (C) 2005 Kevin Amorin
+
+Copyright (C) 2009 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

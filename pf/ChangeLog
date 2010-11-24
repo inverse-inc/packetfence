@@ -1,4 +1,7 @@
 2010-11-24	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/t/pod.t and others: Important fix to POD doc test removing false
+	alarms and fixed all missing sections from basic test
+
 	* Moved test/ into addons/: test/ was a misleading directory for these
 	scripts
 

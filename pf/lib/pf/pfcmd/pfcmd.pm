@@ -1,14 +1,28 @@
-# pfcmd grammar
-#
-# Whenever you change this file, you should recompile the precompiled grammar that is used by the CLI
-# To do so, from /usr/local/pf/, run: 
-# /usr/bin/perl -w -e 'use strict; use warnings; use diagnostics; use Parse::RecDescent; use lib "./lib"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile($grammar, "pfcmd_pregrammar");'
-# then put the resulting pfcmd_pregrammar.pm file in /usr/local/pf/lib/pf/pfcmd/.
-#
-# For more information about the grammar syntax: http://search.cpan.org/~dconway/Parse-RecDescent-1.96.0/lib/Parse/RecDescent.pm#DESCRIPTION
-#
-# NOTE: always remember that this file is only part of the story, lib/pf/pfcmd.pm is always parsed first!
-#
+=head1 NAME
+
+pfcmd grammar
+
+=head1 DESCRIPTION
+
+bin/pfcmd command-line parser.
+It is not used directly, we precompile it in advance so it's faster to load.
+
+NOTE: always remember that this file is only part of the story, lib/pf/pfcmd.pm is always parsed first!
+
+=head1 MANUAL PRECOMPILE
+
+The grammar is usually compiled by the RPM install process 
+however if you do any modifications on your own you might want to precompile it again youself.
+
+To do so, from /usr/local/pf/, run: 
+    /usr/bin/perl -w -e 'use strict; use warnings; use diagnostics; use Parse::RecDescent; use lib "./lib"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile($grammar, "pfcmd_pregrammar");'
+
+Then put the resulting pfcmd_pregrammar.pm file in /usr/local/pf/lib/pf/pfcmd/
+
+For more information about the grammar syntax: http://search.cpan.org/~dconway/Parse-RecDescent-1.96.0/lib/Parse/RecDescent.pm#DESCRIPTION
+
+=cut
+
 use strict;
 use warnings;
 
@@ -171,6 +185,8 @@ Copyright (C) 2005 David LaPorte
 Copyright (C) 2005 Kevin Amorin
 
 Copyright (C) 2008-2010 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
