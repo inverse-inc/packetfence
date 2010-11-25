@@ -1,4 +1,7 @@
 2010-11-25	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/README_SWITCHES: Added MAC Auth column and started a draft of a
+	wireless table
+
 	* pf/addons/recovery.pl, pf/bin/pfcmd, pf/lib/pf/vlan.pm, 
 	pf/sbin/pfsetvlan, pf/t/vlan.t: API change
 	- Renamed subroutines names from procedural to object-oriented style
