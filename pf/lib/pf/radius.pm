@@ -117,7 +117,8 @@ sub authorize {
 
     my $vlan_obj = new pf::vlan::custom();
     # should we auto-register? let's ask the VLAN object
-    if ($vlan_obj->shouldAutoRegister($mac, $switch->isRegistrationMode(), 0, $isPhone, $connection_type, $ssid)) {
+    if ($vlan_obj->shouldAutoRegister($mac, $switch->isRegistrationMode(), 0, $isPhone,
+        $connection_type, $user_name, $ssid)) {
 
         # automatic registration
         my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch->{_ip}, $port,
@@ -144,7 +145,7 @@ sub authorize {
     }
 
     # grab vlan
-    my $vlan = $this->_findNodeVlan($vlan_obj, $mac, $switch, $port, $connection_type, $ssid);
+    my $vlan = $this->_findNodeVlan($vlan_obj, $mac, $switch, $port, $connection_type, $user_name, $ssid);
 
     # should this node be kicked out?
     if (defined($vlan) && $vlan == -1) {
@@ -184,16 +185,16 @@ sub authorize {
         
 This sub is meant to be overridden in lib/pf/radius/custom.pm if the default 
 version doesn't do the right thing for you. However it is very generic, 
-maybe what you are looking for needs to be done in pf::vlan's get_violation_vlan, 
-get_registration_vlan or get_normal_vlan.
+maybe what you are looking for needs to be done in pf::vlan's getViolationVlan, 
+getRegistrationVlan or getNormalVlan.
     
 =cut    
 sub _findNodeVlan {
-    my ($this, $vlan_obj, $mac, $switch, $port, $connection_type, $ssid) = @_;
+    my ($this, $vlan_obj, $mac, $switch, $port, $connection_type, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     # violation handling
-    my $violation = $vlan_obj->get_violation_vlan($mac, $switch);
+    my $violation = $vlan_obj->getViolationVlan($switch, $port, $mac, $connection_type, $user_name, $ssid);
     if (defined($violation) && $violation != 0) {
         # returning proper violation vlan
         return $violation;
@@ -203,13 +204,15 @@ sub _findNodeVlan {
 
     # there were no violation, now onto registration handling
     my $node_info = node_view($mac);
-    my $registration = $vlan_obj->get_registration_vlan($mac, $switch, $node_info);
+    my $registration = 
+        $vlan_obj->getRegistrationVlan($switch, $port, $mac, $node_info, $connection_type, $user_name, $ssid)
+    ;
     if (defined($registration) && $registration != 0) {
         return $registration;
     }
 
     # no violation, not unregistered, we are now handling a normal vlan
-    my $vlan = $vlan_obj->get_normal_vlan($switch, $port, $mac, $node_info, $connection_type, $ssid);
+    my $vlan = $vlan_obj->getNormalVlan($switch, $port, $mac, $node_info, $connection_type, $user_name, $ssid);
     $logger->info("MAC: $mac, PID: " .$node_info->{pid}. ", Status: " .$node_info->{status}. ". Returned VLAN: $vlan");
     return $vlan;
 }

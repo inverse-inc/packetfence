@@ -44,10 +44,11 @@ sub new {
 
 This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
 version doesn't do the right thing for you. However it is very generic, 
-maybe what you are looking for needs to be done in get_violation_vlan, 
-get_registration_vlan or get_normal_vlan.
+maybe what you are looking for needs to be done in getViolationVlan, 
+getRegistrationVlan or getNormalVlan.
 
 =cut
+# TODO objectify method name
 sub vlan_determine_for_node {
     my ( $this, $mac, $switch, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::vlan');
@@ -68,7 +69,7 @@ sub vlan_determine_for_node {
     }
 
     # violation handling
-    my $violation = $this->get_violation_vlan($mac, $switch);
+    my $violation = $this->getViolationVlan($switch, $ifIndex, $mac, WIRED_SNMP_TRAPS);
     if (defined($violation) && $violation != 0) {
         if ($violation == -1) {
             $logger->warn("Kicking out nodes on violation is not supported in SNMP-Traps mode. "
@@ -84,13 +85,13 @@ sub vlan_determine_for_node {
 
     # there were no violation, now onto registration handling
     my $node_info = node_view($mac);
-    my $registration = $this->get_registration_vlan($mac, $switch, $node_info);
+    my $registration = $this->getRegistrationVlan($switch, $ifIndex, $mac, $node_info, WIRED_SNMP_TRAPS);
     if (defined($registration) && $registration != 0) {
         return $registration;
     }
 
     # no violation, not unregistered, we are now handling a normal vlan
-    my $vlan = $this->get_normal_vlan($switch, $ifIndex, $mac, $node_info, WIRED_SNMP_TRAPS);
+    my $vlan = $this->getNormalVlan($switch, $ifIndex, $mac, $node_info, WIRED_SNMP_TRAPS);
     $logger->info("MAC: $mac, PID: " .$node_info->{pid}. ", Status: " .$node_info->{status}. ". Returned VLAN: $vlan");
     if (defined($vlan) && $vlan == -1) {
         $logger->warn("Kicking out nodes on violation is not supported in SNMP-Traps mode. "
@@ -101,6 +102,7 @@ sub vlan_determine_for_node {
 }
 
 # don't act on configured uplinks
+# TODO get rid of custom_ 
 sub custom_doWeActOnThisTrap {
     my ( $this, $switch, $ifIndex, $trapType ) = @_;
     my $logger = Log::Log4perl->get_logger();
@@ -142,7 +144,9 @@ sub custom_doWeActOnThisTrap {
     return $weActOnThisTrap;
 }
 
-=item get_violation_vlan - returns the violation vlan for a node (if any)
+=item getViolationVlan
+
+Returns the violation vlan for a node (if any)
         
 This sub is meant to be overridden in lib/pf/vlan/custom.pm if you have specific isolation needs.
     
@@ -161,9 +165,15 @@ Return values:
 =back
 
 =cut
-sub get_violation_vlan {
-    my ($this, $mac, $switch) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+sub getViolationVlan {
+    #$switch is the switch object (pf::SNMP)
+    #$ifIndex is the ifIndex of the computer connected to
+    #$mac is the mac connected
+    #$conn_type is set to the connnection type expressed as the constant in pf::config 
+    #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
+    #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
+    my ($this, $switch, $ifIndex, $mac, $connection_type, $user_name, $ssid) = @_;
+    my $logger = Log::Log4perl->get_logger();
 
     my $open_violation_count = violation_count_trap($mac);
     if ($open_violation_count == 0) {
@@ -217,7 +227,7 @@ sub get_violation_vlan {
 }
 
 
-=item get_registration_vlan
+=item getRegistrationVlan
 
 Returns the registration vlan for a node if registration is enabled and node is unregistered or pending.
 
@@ -236,9 +246,16 @@ Return values:
 =back
 
 =cut
-sub get_registration_vlan {
-    my ($this, $mac, $switch, $node_info) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+sub getRegistrationVlan {
+    #$switch is the switch object (pf::SNMP)
+    #$ifIndex is the ifIndex of the computer connected to
+    #$mac is the mac connected
+    #$node_info is the node info hashref (result of pf::node's node_view on $mac)
+    #$conn_type is set to the connnection type expressed as the constant in pf::config 
+    #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
+    #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
+    my $logger = Log::Log4perl->get_logger();
 
     # trapping on registration is enabled
     if (!isenabled($Config{'trapping'}{'registration'})) {
@@ -259,7 +276,9 @@ sub get_registration_vlan {
     return 0;
 }
 
-=item get_normal_vlan - returns normal vlan
+=item getNormalVlan
+
+Returns normal vlan
 
 This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
 version doesn't do the right thing for you. By default it will return the 
@@ -281,61 +300,63 @@ Return values:
 =back
 
 =cut
-sub get_normal_vlan {
-
+# Note: if you add more examples here, remember to sync them in pf::vlan::custom
+sub getNormalVlan {
     #$switch is the switch object (pf::SNMP)
     #$ifIndex is the ifIndex of the computer connected to
     #$mac is the mac connected
     #$node_info is the node info hashref (result of pf::node's node_view on $mac)
     #$conn_type is set to the connnection type expressed as the constant in pf::config 
+    #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $ssid) = @_;
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl->get_logger();
 
-    # custom example
+    # custom example: admin category
+    # return customVlan5 to nodes in the admin category
+    #if (defined($node_info->{'category'}) && lc($node_info->{'category'}) eq "admin") {
+    #    return $switch->getVlanByName('customVlan5');
+    #}
+
+    # custom example: simple guest user 
     # return guestVlan for pid=guest
-    #if ($node_info->{pid} =~ /^guest$/i) {
+    #if (defined($node_info->{pid}) && $node_info->{pid} =~ /^guest$/i) {
     #    return $switch->getVlanByName('guestVlan');
     #}
 
-    # custom example
-    # enforce bypass_vlan in node. Note: It might be made the default behavior to enforce it if present.
+    # custom example: enforce a node's bypass VLAN 
+    # If node record has a bypass_vlan prefer it over normalVlan 
+    # Note: It might be made the default behavior one day
     #if (defined($node_info->{'bypass_vlan'}) && $node_info->{'bypass_vlan'} ne '') {
     #    return $node_info->{'bypass_vlan'};
     #}
 
-    # custom example
-    # kick guests out of the secure wireless (won't work if the above is uncommented)
-    #if ($connection_type == WIRELESS_802.1X && $node_info->{pid} =~ /^guest$/i) {
-    #    return -1;
+    # custom example: VLAN by SSID
+    # return customVlan1 if SSID is 'PacketFenceRocks'
+    #if (defined($ssid) && $ssid eq 'PacketFenceRocks') {
+    #    return $switch->getVlanByName('customVlan1');
     #}
 
     return $switch->getVlanByName('normalVlan');
 }
 
-=item getNodeInfoForAutoReg - basic information returned for an auto-registered node
+=item getNodeInfoForAutoReg
+
+Basic information returned for an auto-registered node
 
 This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
 version doesn't do the right thing for you.
-
-$switch_in_autoreg_mode is set to 1 if switch is in registration mode
-
-$violation_autoreg is set to 1 if called from a violation with autoreg action
-
-$isPhone is set to 1 if device is considered an IP Phone.
-
-$conn_type is set to the connnection type expressed as the constant in pf::config
-
-$user_name is set to the RADIUS User-Name attribute.
-Real username under 802.1X and MAC address under MAC Authentication.
-Undef if conn_type is WIRED_SNMP_TRAPS
-
-$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
 
 Returns an anonymous hash that is meant for node_register()
 
 =cut 
 sub getNodeInfoForAutoReg {
+    #$switch_in_autoreg_mode is set to 1 if switch is in registration mode
+    #$violation_autoreg is set to 1 if called from a violation with autoreg action
+    #$isPhone is set to 1 if device is considered an IP Phone.
+    #$conn_type is set to the connnection type expressed as the constant in pf::config
+    #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
+    #$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
     my ($this, $switch_ip, $switch_port, $mac, $vlan, 
         $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid) = @_;
 
@@ -365,7 +386,9 @@ sub getNodeInfoForAutoReg {
     return %node_info;
 }
 
-=item shouldAutoRegister - do we auto-register this node?
+=item shouldAutoRegister
+
+Do we auto-register this node?
 
 By default we register automatically when the switch is configured to (registration mode),
 when there is a violation with action autoreg and when the device is a phone.
@@ -373,21 +396,19 @@ when there is a violation with action autoreg and when the device is a phone.
 This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
 version doesn't do the right thing for you.
 
-$switch_in_autoreg_mode is set to 1 if switch is in registration mode
-
-$violation_autoreg is set to 1 if called from a violation with autoreg action
-
-$isPhone is set to 1 if device is considered an IP Phone.
-
-$conn_type is set to the connnection type expressed as the constant in pf::config
-
-$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
-
 returns 1 if we should register, 0 otherwise
 
 =cut
+# Note: if you add more examples here, remember to sync them in pf::vlan::custom
 sub shouldAutoRegister {
-    my ($this, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $ssid) = @_;
+    #$mac is MAC address
+    #$switch_in_autoreg_mode is set to 1 if switch is in registration mode
+    #$violation_autoreg is set to 1 if called from a violation with autoreg action
+    #$isPhone is set to 1 if device is considered an IP Phone.
+    #$conn_type is set to the connnection type expressed as the constant in pf::config
+    #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
+    #$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
+    my ($this, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl->get_logger();
 
     $logger->trace("asked if should auto-register device");
@@ -407,9 +428,10 @@ sub shouldAutoRegister {
         return $isPhone;
     }
 
-    # example: auto-register 802.1x users (since they already have validated credentials through EAP to do 802.1x)
+    # custom example: auto-register 802.1x users
+    # Since they already have validated credentials through EAP to do 802.1X
     #if (defined($conn_type) && (($conn_type & EAP) == EAP)) {
-    #    $logger->trace("returned yes because it's a 802.1X EAP client that successfully authenticated already");
+    #    $logger->trace("returned yes because it's a 802.1X client that successfully authenticated already");
     #    return 1;
     #}
 
@@ -427,6 +449,8 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 =head1 COPYRIGHT
 
 Copyright (C) 2007-2010 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

@@ -1,3 +1,20 @@
+2010-11-25	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/ChangeLog, pf/lib/pf/radius.pm, pf/lib/pf/vlan/custom.pm, 
+	pf/lib/pf/vlan.pm, pf/t/vlan.t: API improvements and new code samples
+	regarding VLAN assignments. Fixes #971;
+	- Renamed subroutines names from procedural to object-oriented style
+	- shouldAutoRegister now has 802.1X username in its parameters
+	- Unified interfaces between getViolationVlan, getRegistrationVlan and
+	getNormalVlan
+	- Added 802.1X username in getViolationVlan, getRegistrationVlan and
+	getNormalVlan
+	- Added samples in getNormalVlan and shouldAutoRegister
+	- POD improvements
+	http://www.packetfence.org/bugs/view.php?id=971
+
+	* pf/cgi-bin/register.cgi: Removed node.vlan assignment on captive 
+	portal registration
+
 2010-11-24	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/bin/flip.pl, pf/html/admin/common.php,
 	pf/lib/pf/SNMP/Cisco/Catalyst_2960.pm, pf/lib/pf/SNMP/MockedSwitch.pm,

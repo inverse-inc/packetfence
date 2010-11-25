@@ -31,9 +31,9 @@ isa_ok($vlan_obj, 'pf::vlan');
 can_ok($vlan_obj, qw(
     vlan_determine_for_node
     custom_doWeActOnThisTrap
-    get_violation_vlan
-    get_registration_vlan
-    get_normal_vlan
+    getViolationVlan
+    getRegistrationVlan
+    getNormalVlan
     getNodeInfoForAutoReg
     shouldAutoRegister
   ));
@@ -84,8 +84,8 @@ $mock->mock('node_view', sub {
 $vlan = $vlan_obj->vlan_determine_for_node('aa:bb:cc:dd:ee:ff', $switch, '1001');
 is($vlan, 3, "obtain registrationVlan for an unreg node");
 
-$vlan = $vlan_obj->get_normal_vlan($switch);
+$vlan = $vlan_obj->getNormalVlan($switch);
 is($vlan, 1, "obtain normalVlan on a switch with no normalVlan override");
 
-$vlan = $vlan_obj->get_normal_vlan($switch_vlan_override);
+$vlan = $vlan_obj->getNormalVlan($switch_vlan_override);
 is($vlan, 15, "obtain normalVlan on a switch with normalVlan override");
