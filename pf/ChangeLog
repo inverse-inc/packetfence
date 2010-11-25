@@ -3,6 +3,10 @@
 	floating_network_device.conf
 
 2010-11-25	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/cgi-bin/redir.cgi, pf/cgi-bin/release.cgi, pf/cgi-bin/register.cgi:
+	pf::web stopped exporting methods in 1.9 branch but new method 
+	get_client_ip was still called as if it did in this branch. Fixed this.
+
 	* pf/lib/pf/node.pm: Fixed node_add problem introduced when doing 
 	database refactoring
 
