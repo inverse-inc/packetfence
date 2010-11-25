@@ -15,6 +15,9 @@ to access SNMP enabled Aironet access points.
 
 The same VLAN cannot be shared between two SSIDs
 
+The Vendor Specific Attributes (VSA) needs to be enabled for SSID identification to work.
+  radius-server vsa send authentication
+
 Wireless deauthentication (deassociation) uses the CLI (telnet or ssh) which is expensive (doesn't scale very well).
 
 =cut
