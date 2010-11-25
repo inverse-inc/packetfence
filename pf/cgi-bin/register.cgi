@@ -87,24 +87,6 @@ if (defined($params{'mode'})) {
       return(0);
     }
    
-    #determine default VLAN if VLAN isolation is enabled
-    #and the vlan has not been set yet 
-    if ($Config{'network'}{'mode'} =~ /vlan/i) {
-      if (! defined($info{'vlan'})) {
-         my %ConfigVlan;
-         tie %ConfigVlan, 'Config::IniFiles', (-file => "$conf_dir/switches.conf");
-         my @errors = @Config::IniFiles::errors;
-         if ( scalar(@errors) ) {
-             $logger->error( "Error reading switches.conf: " 
-                             .join( "\n", @errors ) . "\n" );
-         } else {
-             # insert code for vlan assignation on registration here
-             # (but also make sure you override pf::vlan's get_normal_vlan)
-             $info{'vlan'}=$ConfigVlan{'default'}{'normalVlan'};
-         }
-      }
-    }
-
     pf::web::web_node_register($cgi, $session, $mac, $pid, %info);
 
     my $count = violation_count($mac);
