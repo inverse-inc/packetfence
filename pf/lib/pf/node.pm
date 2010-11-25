@@ -342,7 +342,7 @@ sub node_add {
     }
 
     db_query_execute(NODE, $node_statements, 'node_add_sql',
-        $mac, $data{pid}, $data{category_id}, $data{voip}, $data{bypass_vlan}, $data{status}, 
+        $mac, $data{pid}, $data{category_id}, $data{status}, $data{voip}, $data{bypass_vlan},
         $data{detect_date}, $data{regdate}, $data{unregdate}, $data{lastskip},
         $data{user_agent}, $data{computername}, $data{dhcp_fingerprint}, 
         $data{last_arp}, $data{last_dhcp},

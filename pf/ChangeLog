@@ -1,4 +1,7 @@
 2010-11-25	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/node.pm: Fixed node_add problem introduced when doing 
+	database refactoring
+
 	* pf/addons/recovery.pl, pf/bin/pfcmd, pf/lib/pf/vlan.pm, 
 	pf/sbin/pfsetvlan, pf/t/vlan.t: API change
 	- Renamed subroutines names from procedural to object-oriented style
