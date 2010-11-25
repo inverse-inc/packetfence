@@ -189,6 +189,7 @@ cp -r addons/mrtg/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp addons/dhcp_dumper $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/logrotate $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r cgi-bin $RPM_BUILD_ROOT/usr/local/pf/
@@ -359,8 +360,7 @@ fi
                         /usr/local/pf/addons/snort/oinkmaster.conf
 %dir                    /usr/local/pf/addons/802.1X
 %doc                    /usr/local/pf/addons/802.1X/README
-%attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/rlm_perl_packetfence_sql.pl
-%attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/rlm_perl_packetfence_soap.pl
+%attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/packetfence.pm
 %dir                    /usr/local/pf/bin
 %attr(0755, pf, pf)     /usr/local/pf/bin/flip.pl
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
@@ -521,6 +521,7 @@ fi
 %changelog
 * Thu Nov 25 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Got rid of the test directory. Binaries are now in addons/.
+- Renamed rlm_perl_packetfence to packetfence.pm in 802.1X 
 
 * Mon Nov 22 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Minor changes to the addons/ directory layout that needed to be reflected
