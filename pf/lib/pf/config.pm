@@ -331,8 +331,12 @@ sub readFloatingNetworkDeviceFile {
     #remove trailing spaces..
     foreach my $section ( tied(%ConfigFloatingDevices)->Sections ) {   
         foreach my $key ( keys %{ $ConfigFloatingDevices{$section} } ) {
-            if (($key eq 'trunkPort') && ($ConfigFloatingDevices{$section}{$key} =~ /^\s*(y|yes|true|enabled|1)\s*$/i)){
-                $ConfigFloatingDevices{$section}{$key} = '1';
+            if ($key eq 'trunkPort') {
+                if ($ConfigFloatingDevices{$section}{$key} =~ /^\s*(y|yes|true|enabled|1)\s*$/i) {
+                    $ConfigFloatingDevices{$section}{$key} = '1';
+                } else {
+                    $ConfigFloatingDevices{$section}{$key} = '0';
+                }
             } else {
                 $ConfigFloatingDevices{$section}{$key} =~ s/\s+$//;
             }
