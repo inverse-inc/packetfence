@@ -29,8 +29,8 @@ isa_ok($vlan_obj, 'pf::vlan');
 
 # subs
 can_ok($vlan_obj, qw(
-    vlan_determine_for_node
-    custom_doWeActOnThisTrap
+    fetchVlanForNode 
+    doWeActOnThisTrap
     getViolationVlan
     getRegistrationVlan
     getNormalVlan
@@ -48,7 +48,7 @@ my $mock = new Test::MockModule('pf::vlan');
 $mock->mock('violation_count_trap', sub { return (1); });
 
 my $vlan;
-$vlan = $vlan_obj->vlan_determine_for_node('bb:bb:cc:dd:ee:ff', $switch, '1001');
+$vlan = $vlan_obj->fetchVlanForNode('bb:bb:cc:dd:ee:ff', $switch, '1001');
 is($vlan, 2, "determine vlan for node with violation");
 
 # violation_count_trap will return 0
@@ -64,13 +64,13 @@ $mock->mock('node_view', sub {
 
 # TODO: complete the test suite with more tests above the other cases
 my $switch_vlan_override = $switchFactory->instantiate('10.0.0.1');
-$vlan = $vlan_obj->vlan_determine_for_node('aa:bb:cc:dd:ee:ff', $switch_vlan_override, '1001');
+$vlan = $vlan_obj->fetchVlanForNode('aa:bb:cc:dd:ee:ff', $switch_vlan_override, '1001');
 is($vlan, 15, "determine vlan for registered user on custom switch");
 
 # modify global $conf_dir so that t/data/switches.conf will be loaded instead of conf/switches.conf
 my $conf_dir = $main::pf::config::conf_dir;
 $main::pf::config::conf_dir = "/usr/local/pf/t/data";
-$vlan = $vlan_obj->vlan_determine_for_node('aa:bb:cc:dd:ee:ff', undef, '1001');
+$vlan = $vlan_obj->fetchVlanForNode('aa:bb:cc:dd:ee:ff', undef, '1001');
 is($vlan, 1, "determine vlan for a broken switch");
 $main::pf::config::conf_dir = $conf_dir;
 
@@ -81,7 +81,7 @@ $mock->mock('node_view', sub {
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', vlan => 1, nbopenviolations => ''}
 });
 
-$vlan = $vlan_obj->vlan_determine_for_node('aa:bb:cc:dd:ee:ff', $switch, '1001');
+$vlan = $vlan_obj->fetchVlanForNode('aa:bb:cc:dd:ee:ff', $switch, '1001');
 is($vlan, 3, "obtain registrationVlan for an unreg node");
 
 $vlan = $vlan_obj->getNormalVlan($switch);

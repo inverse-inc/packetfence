@@ -40,7 +40,9 @@ sub new {
     return $this;
 }
 
-=item vlan_determine_for_node - what VLAN should a node be put into
+=item fetchVlanForNode
+
+Answers the question: What VLAN should a given node be put into?
 
 This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
 version doesn't do the right thing for you. However it is very generic, 
@@ -48,8 +50,7 @@ maybe what you are looking for needs to be done in getViolationVlan,
 getRegistrationVlan or getNormalVlan.
 
 =cut
-# TODO objectify method name
-sub vlan_determine_for_node {
+sub fetchVlanForNode {
     my ( $this, $mac, $switch, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::vlan');
 
@@ -101,9 +102,15 @@ sub vlan_determine_for_node {
     return $vlan;
 }
 
-# don't act on configured uplinks
-# TODO get rid of custom_ 
-sub custom_doWeActOnThisTrap {
+=item doWeActOnThisTrap  
+
+Don't act on uplinks, unkown interface types or some traps we are not interested in.
+
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
+version doesn't do the right thing for you. 
+
+=cut
+sub doWeActOnThisTrap {
     my ( $this, $switch, $ifIndex, $trapType ) = @_;
     my $logger = Log::Log4perl->get_logger();
 

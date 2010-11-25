@@ -1,4 +1,9 @@
 2010-11-25	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/recovery.pl, pf/bin/pfcmd, pf/lib/pf/vlan.pm, 
+	pf/sbin/pfsetvlan, pf/t/vlan.t: API change
+	- Renamed subroutines names from procedural to object-oriented style
+	- Removed custom_ from custom_doWeActOnThisTrap
+
 	* pf/ChangeLog, pf/lib/pf/radius.pm, pf/lib/pf/vlan/custom.pm, 
 	pf/lib/pf/vlan.pm, pf/t/vlan.t: API improvements and new code samples
 	regarding VLAN assignments. Fixes #971;

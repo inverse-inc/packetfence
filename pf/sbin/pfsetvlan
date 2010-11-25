@@ -928,14 +928,10 @@ sub handleTrap {
         $switch->disconnectWrite();
         return;
     }
-    my $weActOnThisTrap
-        = $vlan_obj->custom_doWeActOnThisTrap( $switch, $switch_port,
-        $trapType );
+    my $weActOnThisTrap = $vlan_obj->doWeActOnThisTrap($switch, $switch_port, $trapType);
 
     if ( $weActOnThisTrap == 0 ) {
-        $logger->info(
-            "custom_doWeActOnThisTrap returns false. Stop $trapType handling"
-        );
+        $logger->info("doWeActOnThisTrap returns false. Stop $trapType handling");
         cleanupAfterThread( $switch_ip, $switch_port );
         $switch->disconnectRead();
         $switch->disconnectWrite();
@@ -1082,7 +1078,7 @@ sub handleTrap {
                 {
                     if ( $locationlog[0]->{'mac'} =~ /^$mac$/i ) {
                         if (( $locationlog[0]->{'vlan'} == $vlan )
-                            && ($vlan == $vlan_obj->vlan_determine_for_node($mac, $switch, $switch_port))
+                            && ($vlan == $vlan_obj->fetchVlanForNode($mac, $switch, $switch_port))
                            ) {
                             $logger->info(
                                 "locationlog is already up2date. Do nothing");
@@ -1270,7 +1266,7 @@ sub handleTrap {
                 $logger->debug("$oldPC has still open locationlog entry at $switch_ip ifIndex $switch_port. Closing it");
                 locationlog_update_end_mac($oldPC);
                 $logger->info("authorizing $trapMac (old entry $oldPC) at new location $switch_ip ifIndex $switch_port");
-                my $correctVlanForThisNode = $vlan_obj->vlan_determine_for_node($trapMac, $switch, $switch_port);
+                my $correctVlanForThisNode = $vlan_obj->fetchVlanForNode($trapMac, $switch, $switch_port);
                 $switch->authorizeMAC( $switch_port, $oldPC, $trapMac, $switch->getVlan($switch_port), $correctVlanForThisNode );
 
                 #set the right VLAN
@@ -1295,7 +1291,7 @@ sub handleTrap {
                         $old_mac_to_remove = $old_mac;
                     }
                 }
-                my $correctVlanForThisNode = $vlan_obj->vlan_determine_for_node($trapMac, $switch, $switch_port);
+                my $correctVlanForThisNode = $vlan_obj->fetchVlanForNode($trapMac, $switch, $switch_port);
                 if ( defined($old_mac_to_remove) ) {
                     $logger->info(
                         "authorizing $trapMac (old entry $old_mac_to_remove) at new location $switch_ip ifIndex $switch_port"
@@ -1832,7 +1828,7 @@ sub node_determine_and_set_into_VLAN {
 
     $switch->setVlan(
         $ifIndex,
-        $vlan_obj->vlan_determine_for_node($mac, $switch, $ifIndex),
+        $vlan_obj->fetchVlanForNode($mac, $switch, $ifIndex),
         \%switch_locker,
         $mac
     );
