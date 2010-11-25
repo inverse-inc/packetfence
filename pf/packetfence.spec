@@ -214,8 +214,6 @@ cp -r NEWS $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README_SWITCHES $RPM_BUILD_ROOT/usr/local/pf/
 cp -r UPGRADE $RPM_BUILD_ROOT/usr/local/pf/
-#cp -r t $RPM_BUILD_ROOT/usr/local/pf/
-cp -r test $RPM_BUILD_ROOT/usr/local/pf/
 
 #start create symlinks
 curdir=`pwd`
@@ -339,7 +337,9 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/addons/autodiscover.pl
 %dir                    /usr/local/pf/addons/captive-portal/
                         /usr/local/pf/addons/captive-portal/*
+%attr(0755, pf, pf)     /usr/local/pf/addons/connect_and_read.pl
 %attr(0755, pf, pf)     /usr/local/pf/addons/convertToPortSecurity.pl
+%attr(0755, pf, pf)     /usr/local/pf/addons/dhcp_dumper
 %dir                    /usr/local/pf/addons/dev-helpers/
                         /usr/local/pf/addons/dev-helpers/*
 %attr(0755, pf, pf)	/usr/local/pf/addons/database-backup-and-maintenance.sh
@@ -502,9 +502,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfmon
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfredirect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetvlan
-%dir                    /usr/local/pf/test
-%attr(0755, pf, pf)     /usr/local/pf/test/connect_and_read.pl
-%attr(0755, pf, pf)     /usr/local/pf/test/dhcp_dumper
 %doc                    /usr/local/pf/UPGRADE
 %dir                    /usr/local/pf/var
 %dir                    /usr/local/pf/var/rrd
@@ -522,6 +519,9 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Thu Nov 25 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- Got rid of the test directory. Binaries are now in addons/.
+
 * Mon Nov 22 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Minor changes to the addons/ directory layout that needed to be reflected
   here
