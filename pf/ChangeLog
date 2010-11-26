@@ -1,4 +1,18 @@
 2010-11-26	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd, pf/conf/ui.conf, pf/html/admin/common.php, 
+	pf/html/admin/configuration/switches.php,
+	pf/html/admin/configuration/violation.php, pf/html/admin/node/view.php,
+	pf/html/admin/violation/view.php, pf/lib/pf/config.pm, pf/lib/pf/os.pm,
+	pf/lib/pf/violation.pm: Web Admin UI changes. Fixes #820 and #1075;
+	- Changes to hidden fields
+	- Changes to order of fields
+	- Changes to default sorting 
+	- Added ID field to dhcp fingerprints view
+	- Updated ConnectionType strings to be shorter and avoid confusing open SSIDs
+	and auth type
+	http://www.packetfence.org/bugs/view.php?id=820
+	http://www.packetfence.org/bugs/view.php?id=1075
+
 	* pf/bin/pfcmd_vlan: pfcmd_vlan now logs in logs/packetfence.log like
 	everyone else and when the -verbose flag is passed it'll log both to
 	file and to STDOUT. Fixes #874;

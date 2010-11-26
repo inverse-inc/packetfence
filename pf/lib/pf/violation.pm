@@ -102,8 +102,12 @@ sub violation_db_prepare {
     $violation_statements->{'violation_view_sql'} = get_db_handle()->prepare(
         qq [ select violation.id,violation.mac,node.computername,violation.vid,violation.start_date,violation.release_date,violation.status,violation.ticket_ref,violation.notes from violation,node where violation.mac=node.mac and violation.id=? order by start_date desc ]);
 
-    $violation_statements->{'violation_view_all_sql'} = get_db_handle()->prepare(
-        qq [ select violation.id,violation.mac,node.computername,violation.vid,violation.start_date,violation.release_date,violation.status,violation.ticket_ref,violation.notes from violation,node where violation.mac=node.mac ]);
+    $violation_statements->{'violation_view_all_sql'} = get_db_handle()->prepare(qq[
+        SELECT violation.id,violation.mac,node.computername,violation.vid,violation.start_date,violation.release_date,violation.status,violation.ticket_ref,violation.notes
+        FROM violation,node 
+        WHERE violation.mac=node.mac
+        ORDER BY start_date DESC
+    ]);
 
     $violation_statements->{'violation_view_open_sql'} = get_db_handle()->prepare(
         qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where mac=? and status="open" order by start_date desc ]);

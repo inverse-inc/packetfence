@@ -140,11 +140,11 @@ use constant EAP => 0b01000000;
 # these duplicated in html/admin/common.php for web admin display
 # changes here should be reflected there
 %connection_type_explained = (
-    WIRELESS_802_1X() => 'Secure Wireless (802.1x + WPA2 Enterprise)',
-    WIRELESS_MAC_AUTH() => 'Open Wireless (mac-authentication)',
+    WIRELESS_802_1X() => 'WiFi 802.1X',
+    WIRELESS_MAC_AUTH() => 'WiFi MAC Auth',
     WIRED_802_1X() => 'Wired 802.1x',
-    WIRED_MAC_AUTH() => 'Wired MAC Authentication',
-    WIRED_SNMP_TRAPS() => 'Wired (discovered by SNMP-Traps)',
+    WIRED_MAC_AUTH() => 'Wired MAC Auth',
+    WIRED_SNMP_TRAPS() => 'Wired SNMP',
 );
 
 # VoIP constants

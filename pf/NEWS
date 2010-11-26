@@ -52,7 +52,7 @@ Enhancements
 - Removed unnecessary database connections and duplicated code
 - 802.1X improvements (#995, #1002)
 - General codebase improvements, refactoring (#914, #977, #1001, #973)
-- Small usability improvements (#1006)
+- Usability improvements (#1006, #820, #1075)
 - Migrated to the new Emerging Threats rules for snort and added rules for
   botnets, malware, shellcode, trojan and worm by default (#1102)
 - New DHCP fingerprints (HP ProCurve Wireless, Ricoh MFP, Cisco/Linksys, 
