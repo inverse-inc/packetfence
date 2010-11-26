@@ -169,7 +169,7 @@ sub _dot1xDeauthenticateMAC {
 
     my $cmd = "aaa user delete mac $mac";
 
-    $logger->debug("deauthenticating 802.1x $mac with `$cmd`");
+    $logger->info("deauthenticating 802.1x $mac with `$cmd`");
     $session->cmd($cmd);
 
     $session->close();
@@ -219,7 +219,7 @@ sub _deauthenticateMAC {
                     my $apSSID = uc("$1:$2:$3:$4:$5:$6");
                     my $cmd = "stm kick-off-sta $mac $apSSID";
 
-                    $logger->debug("deauthenticating $mac from SSID $apSSID with `$cmd`");
+                    $logger->info("deauthenticating $mac from SSID $apSSID with `$cmd`");
                     $session->cmd($cmd);
                     $count++;
                 } else {
