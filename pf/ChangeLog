@@ -1,3 +1,9 @@
+2010-11-26	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd_vlan: pfcmd_vlan now logs in logs/packetfence.log like
+	everyone else and when the -verbose flag is passed it'll log both to
+	file and to STDOUT. Fixes #874;
+	http://www.packetfence.org/bugs/view.php?id=874
+
 2010-11-25      Regis Balzard <rbalzard@inverse.ca>
 	* pf/lib/pf/config.pm: fixed an issue when reading 'trunkPort' in
 	floating_network_device.conf
