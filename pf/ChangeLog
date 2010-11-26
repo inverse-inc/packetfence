@@ -1,4 +1,8 @@
 2010-11-26      Regis Balzard <rbalzard@inverse.ca>
+	* pf/configurator.pl: Creates a proper conf/networks.conf file based on
+	user input. Fixes #1112;
+	http://www.packetfence.org/bugs/view.php?id=1112
+
 	* pf/docs/PacketFence_Administration_Guide.odt: Updated documentation
 	- new DHCP, DNS instructions integrated with networks.conf
 	- Changes to routed networks explanations

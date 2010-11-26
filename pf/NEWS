@@ -59,8 +59,12 @@ Enhancements
   Netgear, D-Link, Trendnet, Belkin Home Wireless Routers, Sony Ericsson 
   Android, Aruba Access Point, Avaya IP Phone and Gentoo Linux)
 - pfcmd_vlan's logging is now consistent with the rest of the system (#874)
+- configurator.pl now handles DNS and DHCP basic configuration (#1112)
 
 Documentation
+- Merged Installation and Administration guides into a more coherent document
+- New documentation about DHCP and DNS services (making them easier to manage)
+- New documentation about running in a routed environment
 - Improved documentation about Snort, Oinkmaster, and log rotation in Admin 
   Guide
 - Improved documentation on violations (external remediation pages and 
