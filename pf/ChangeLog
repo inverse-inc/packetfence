@@ -1,3 +1,8 @@
+2010-11-26      Regis Balzard <rbalzard@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Updated documentation
+	- new DHCP, DNS instructions integrated with networks.conf
+	- Changes to routed networks explanations
+
 2010-11-26	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/bin/pfcmd, pf/conf/ui.conf, pf/html/admin/common.php, 
 	pf/html/admin/configuration/switches.php,
