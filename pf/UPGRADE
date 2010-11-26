@@ -39,6 +39,11 @@ o Upgrading from a version prior to <release>:
     parsing scripts (if any). This also affects the Node lookup section of the
     Web Admin interface.
 
+    - pfcmd_vlan output change
+    Output of `pfcmd_vlan` changed dramatically. If you used scripts to 
+    automate tasks with pfcmd_vlan and expected particular output, your scripts
+    should be updated.
+
     - pfcmd input and output change
     Viewing and modifying nodes changed through pfcmd. If you used script to 
     automate tasks relying on the `pfcmd node` interface, you need to update 
