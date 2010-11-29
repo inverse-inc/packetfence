@@ -67,36 +67,6 @@ This script allows to execute the following commands related to switches and VLA
 
 =back
 
-=head1 AUTHOR
-
-=over
-
-=item Dominik Gehl <dgehl@inverse.ca>
-
-=item Regis Balzard <rbalzard@inverse.ca>
-
-=item Olivier Bilodeau <obilodeau@inverse.ca>
-
-=back
-
-=head1 COPYRIGHT
-
-Copyright (C) 2007-2010 Inverse inc.
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.
 
 =cut
 
@@ -105,10 +75,13 @@ use warnings;
 use diagnostics;
 
 use Data::Dumper;
+use File::Basename qw(basename);
 use Getopt::Long;
-use Pod::Usage;
+use Log::Log4perl;
+use Log::Log4perl::Logger;
+use Log::Log4perl::Level;
 use Net::MAC::Vendor;
-use Log::Log4perl qw(:easy);
+use Pod::Usage;
 use threads;
 use threads::shared;
 use Net::SNMP;
@@ -204,23 +177,40 @@ GetOptions(
 pod2usage( -verbose => 2 ) if $man;
 pod2usage( -verbose => 1 ) if $help;
 
-if ( $logLevel == 0 ) {
-    $logLevel = $FATAL;
-} elsif ( $logLevel == 1 ) {
-    $logLevel = $WARN;
-} elsif ( $logLevel == 2 ) {
-    $logLevel = $INFO;
-} elsif ( $logLevel == 3 ) {
-    $logLevel = $DEBUG;
-} else {
-    $logLevel = $TRACE;
-}
-Log::Log4perl->easy_init(
-    {   level  => $logLevel,
-        layout => '%d (%r) %M%n    %m %n'
+# logging
+Log::Log4perl->init("$conf_dir/log.conf");
+my $logger = Log::Log4perl->get_logger(basename($0));
+Log::Log4perl::MDC->put('proc', basename($0));
+Log::Log4perl::MDC->put('tid',  0);
+
+# if the verbosity flag is present we log both on file and on STDOUT and adjust log level
+if ($logLevel) {
+    $logger->info(
+        "verbosity flag passed. "
+        . "Messages now logged to stdout and logs but logged message priority will change for this pfcmd_vlan run."
+    );
+
+    # working on the root logger and not $logger (so it affects all other packages loggers too)
+    my $root_logger = Log::Log4perl::Logger->get_root_logger();
+    if ( $logLevel == 1 ) {
+        $logger->info("New loglevel: WARN");
+        $root_logger->level($WARN);
+    } elsif ( $logLevel == 2 ) {
+        $logger->info("New loglevel: INFO");
+        $root_logger->level($INFO);
+    } elsif ( $logLevel == 3 ) {
+        $logger->info("New loglevel: DEBUG");
+        $root_logger->level($DEBUG);
+    } else {
+        $logger->info("New loglevel: TRACE");
+        $root_logger->level($TRACE);
     }
-);
-my $logger = Log::Log4perl->get_logger('');
+
+    my $appender = Log::Log4perl::Appender->new(
+        "Log::Log4perl::Appender::Screen", stderr => 0
+    );
+    $root_logger->add_appender($appender);
+}
 
 my $switchFactory = new pf::SwitchFactory(
     -configFile => INSTALL_DIR . '/conf/switches.conf' );
@@ -697,6 +687,39 @@ if ($getUpLinks) {
 } else {
     pod2usage( -verbose => 1 );
 }
+
+=head1 AUTHOR
+
+=over
+
+=item Dominik Gehl <dgehl@inverse.ca>
+
+=item Regis Balzard <rbalzard@inverse.ca>
+
+=item Olivier Bilodeau <obilodeau@inverse.ca>
+
+=back
+
+=head1 COPYRIGHT
+
+Copyright (C) 2007-2010 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
 
 # vim: set shiftwidth=4:
 # vim: set expandtab:

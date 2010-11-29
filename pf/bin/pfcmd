@@ -939,10 +939,9 @@ sub switchconfig {
         }
         #TODO: information duplicated from ui.conf, consider refactoring (what do we do elsewhere?)
         my @columns = qw(
-            ip type mode uplink 
-            vlans normalVlan registrationVlan isolationVlan macDetectionVlan guestVlan 
+            ip type mode VoIPEnabled uplink 
+            vlans normalVlan registrationVlan isolationVlan macDetectionVlan guestVlan voiceVlan 
             customVlan1 customVlan2 customVlan3 customVlan4 customVlan5 
-            VoIPEnabled voiceVlan 
             cliTransport cliUser cliPwd cliEnablePwd 
             wsTransport wsUser wsPwd 
             radiusSecret

@@ -34,7 +34,6 @@
     exit;
   }
 
-
   $current_top="node";
   $current_sub="view";
 
@@ -71,7 +70,10 @@
 
   $my_table->set_violationable(true);
   $my_table->set_linkable(array( array('pid', 'person/lookup.php'), array('mac', 'node/lookup.php'), array('dhcp_fingerprint','configuration/fingerprint.php') ));
-  $my_table->set_hideable(array('lastskp', 'user_agent', 'last_dhcp', 'lastskip', 'last_arp', 'last_port', 'last_switch', 'last_vlan', 'voip', 'last_connection_type', 'last_dot1x_username', 'last_ssid', 'bypass_vlan', 'detect_date'));
+  $my_table->set_hideable(array(
+    'lastskp', 'user_agent', 'last_dhcp', 'lastskip', 'last_arp', 'unregdate', 'regdate', 'nbopenviolations',
+    'voip', 'last_dot1x_username', 'bypass_vlan', 'detect_date', 'last_connection_type', 'notes'
+  ));
 
   $my_table->set_page_num($page_num);
   $my_table->set_per_page($per_page);

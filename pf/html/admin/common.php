@@ -29,11 +29,11 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/check_login.php");
 # these value to string are duplicated from lib/pf/config.pm
 # changes here should be reflected there
 $connection_type = array(
-  'Wireless-802.11-EAP'   => 'Secure Wireless (802.1x + WPA2 Enterprise)',
-  'Wireless-802.11-NoEAP' => 'Open Wireless (mac-authentication)',
+  'Wireless-802.11-EAP'   => 'Wireless 802.1X (WPA Enterprise)',
+  'Wireless-802.11-NoEAP' => 'Wireless MAC Authentication',
   'Ethernet-EAP'          => 'Wired 802.1x',
   'Ethernet-NoEAP'        => 'Wired MAC Authentication',
-  'SNMP-Traps'            => 'Wired (discovered by SNMP-Traps)',
+  'SNMP-Traps'            => 'Wired SNMP',
   ''                      => 'Unknown'
 );
 

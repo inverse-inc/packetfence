@@ -36,7 +36,11 @@
   include_once('../header.php');
 
   $my_table->set_editable(true);
-  $my_table->set_hideable(array('grace', 'priority', 'button_text', 'trigger'));
+
+  $my_table->set_hideable(array(
+    'grace', 'priority', 'button_text', 'url', 'auto_enable', 'max_enable', 'whitelisted_categories'
+  ));
+
   $is_printable=true;
 
   $my_table->set_page_num(set_default($_REQUEST['page_num'],1));

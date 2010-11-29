@@ -2,9 +2,49 @@
 	* pf/conf/dhcp_fingerprints.conf: Added a new Fedora Linux
 	fingerprint (Fedora Linux 13)
 
+2010-11-26      Regis Balzard <rbalzard@inverse.ca>
+	* pf/configurator.pl: Creates a proper conf/networks.conf file based on
+	user input. Fixes #1112;
+	http://www.packetfence.org/bugs/view.php?id=1112
+
+	* pf/docs/PacketFence_Administration_Guide.odt: Updated documentation
+	- new DHCP, DNS instructions integrated with networks.conf
+	- Changes to routed networks explanations
+
+2010-11-26	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/bin/pfcmd, pf/conf/ui.conf, pf/html/admin/common.php, 
+	pf/html/admin/configuration/switches.php,
+	pf/html/admin/configuration/violation.php, pf/html/admin/node/view.php,
+	pf/html/admin/violation/view.php, pf/lib/pf/config.pm, pf/lib/pf/os.pm,
+	pf/lib/pf/violation.pm: Web Admin UI changes. Fixes #820 and #1075;
+	- Changes to hidden fields
+	- Changes to order of fields
+	- Changes to default sorting 
+	- Added ID field to dhcp fingerprints view
+	- Updated ConnectionType strings to be shorter and avoid confusing open SSIDs
+	and auth type
+	http://www.packetfence.org/bugs/view.php?id=820
+	http://www.packetfence.org/bugs/view.php?id=1075
+
+	* pf/bin/pfcmd_vlan: pfcmd_vlan now logs in logs/packetfence.log like
+	everyone else and when the -verbose flag is passed it'll log both to
+	file and to STDOUT. Fixes #874;
+	http://www.packetfence.org/bugs/view.php?id=874
+
+2010-11-25      Regis Balzard <rbalzard@inverse.ca>
+	* pf/lib/pf/config.pm: fixed an issue when reading 'trunkPort' in
+	floating_network_device.conf
+
 2010-11-25	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/README_SWITCHES: Added MAC Auth column and started a draft of a
 	wireless table
+
+	* pf/cgi-bin/redir.cgi, pf/cgi-bin/release.cgi, pf/cgi-bin/register.cgi:
+	pf::web stopped exporting methods in 1.9 branch but new method 
+	get_client_ip was still called as if it did in this branch. Fixed this.
+
+	* pf/lib/pf/node.pm: Fixed node_add problem introduced when doing 
+	database refactoring
 
 	* pf/addons/recovery.pl, pf/bin/pfcmd, pf/lib/pf/vlan.pm, 
 	pf/sbin/pfsetvlan, pf/t/vlan.t: API change

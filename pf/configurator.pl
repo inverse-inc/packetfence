@@ -61,7 +61,7 @@ my $conf_dir    = "$install_dir/conf";
 # check if user is root
 die("you must be root!\n") if ( $< != 0 );
 
-my ( %default_cfg, %cfg, %doc, %violation, $upgrade, $template );
+my ( %default_cfg, %cfg, %doc, %violation, $upgrade, $template, %dhcp_dns );
 
 tie %default_cfg, 'Config::IniFiles',
     ( -file => "$conf_dir/pf.conf.defaults" )
@@ -70,6 +70,8 @@ tie %doc, 'Config::IniFiles', ( -file => "$conf_dir/documentation.conf" )
     or die "Invalid docs: $!\n";
 tie %violation, 'Config::IniFiles', ( -file => "$conf_dir/violations.conf" )
     or die "Invalid violations: $!\n";
+tie(%dhcp_dns, 'Config::IniFiles');
+tied(%dhcp_dns)->SetFileName("$conf_dir/networks.conf");
 
 # upgrade
 print "Checking existing configuration...\n";
@@ -99,6 +101,7 @@ if ( -e "$conf_dir/pf.conf" ) {
 }
 
 # template configuration or custom?
+$template = 0;
 if (questioner(
         'Would you like to use a template configuration or custom',
         't', ( 't', 'c' )
@@ -129,18 +132,20 @@ END_TEMPLATE_TXT
         tied(%violation)->WriteConfig("$conf_dir/violations.conf")
             || die "Unable to commit settings: $!\n";
     }
-    $template = 1;
+    $template = $type;
 }
 
 configuration();
 write_changes();
 
 # write and exit
+# All the info (for pf.conf and networks.conf) is stored in $cfg so we have to
+# filter it by transfering the info for networks.conf from $cfg to %dhcp_dns
 sub write_changes {
     my $port = $default_cfg{'ports'}{'admin'};
     $port = $cfg{'ports'}{'admin'} if ( defined $cfg{'ports'}{'admin'} );
     print
-        "Please review conf/pf.conf to correct any errors or change pathing to daemons\n";
+        "Please review conf/pf.conf and conf/networks.conf to correct any errors or change pathing to daemons\n";
     print
         "After starting PF, use bin/pfcmd or the web interface (https://$cfg{'general'}{'hostname'}.$cfg{'general'}{'domain'}:$port) to administer the system\n";
     foreach my $section ( tied(%cfg)->Sections ) {
@@ -153,10 +158,41 @@ sub write_changes {
             }
         }
     }
+
     foreach my $section ( tied(%cfg)->Sections ) {
         delete $cfg{$section}
             if ( scalar( keys( %{ $cfg{$section} } ) ) == 0 );
     }
+
+    # networks.conf
+    # we delete any section in networks.conf that is not set
+    foreach my $section ( tied(%dhcp_dns)->Sections ) {
+        delete $dhcp_dns{$section}
+            if ( !exists( $cfg{$section} ) );
+    }
+
+    foreach my $section ( tied(%cfg)->Sections ) {
+        next if ( $section !~ /^network (.+)/i );
+        my $network = $1;
+
+        # preparing the hash
+        $dhcp_dns{$network} = {};
+        foreach my $key ( keys( %{ $cfg{$section} } ) ) {
+            # here we transfer the info for networks.conf from $cfg to %dhcp_dns
+            $dhcp_dns{$network}{$key} =  $cfg{$section}{$key};
+            delete $cfg{$section}{$key};
+            tied(%cfg)->DeleteParameterComment( $section, $key );
+        }
+    }
+   
+    foreach my $section ( tied(%dhcp_dns)->Sections ) {
+        delete $dhcp_dns{$section}
+            if ( scalar( keys( %{ $dhcp_dns{$section} } ) ) == 0 );
+    }
+
+    tied(%dhcp_dns)->WriteConfig("$conf_dir/networks.conf")
+        or die "Invalid networks: $!\n";
+    # end networks.conf
 
     # IP Bug fix
     foreach my $net ( get_networkinfo() ) {
@@ -174,6 +210,7 @@ sub write_changes {
         print "Note: Service $path does not exist\n"
             if ( !-e $cfg{services}{$path} );
     }
+
     print "Enjoy!\n";
     exit;
 }
@@ -349,7 +386,11 @@ sub configuration {
             . "*/5 * * * * /usr/local/pf/bin/pfcmd traplog update\n";
     }
 
-    config_network( $cfg{network}{mode} );
+    config_network_interfaces( $cfg{network}{mode} );
+
+    if ( ($template eq 7) || ($template eq 8) || ($template eq 9) ) {
+        config_Registration_Isolation_networks();
+    }
 
 # ARP
 #if (!$template){
@@ -438,13 +479,13 @@ sub config_general {
         $cfg{general}{dnsservers} .= "$1," if (/nameserver (\S+)/);
     }
     chop( $cfg{general}{dnsservers} );
-    gatherer( "DNS Domain Name",                     "general.domain" );
-    gatherer( "Host Name (without DNS domain name)", "general.hostname" );
-    gatherer( "DNS Servers (comma delimited)",       "general.dnsservers" );
-    gatherer( "DHCP Servers (comma delimited)",      "general.dhcpservers" );
+    gatherer( "DNS Domain Name",                                      "general.domain" );
+    gatherer( "Host Name (without DNS domain name)",                  "general.hostname" );
+    gatherer( "DNS Servers including PacketFence (comma delimited)",  "general.dnsservers" );
+    gatherer( "DHCP Servers including PacketFence (comma delimited)", "general.dhcpservers" );
 }
 
-sub config_network {
+sub config_network_interfaces {
     my ($mode) = @_;
     my ( @trapping_range, $int, $ip, $mask, $tmp_net );
 
@@ -500,6 +541,45 @@ sub config_network {
         "\n** NOTE: You must manually set testing=disabled in pf.conf to allow PF to send ARPs **\n\n"
         if ( !$template );
 }
+
+sub config_Registration_Isolation_networks {
+    my ( $type, $prefix, $count );
+
+    config_networks('Registration');
+
+    if ( $template eq 8 ) {
+        config_networks('Isolation');
+    }
+}
+
+sub config_networks {
+    my ($type) = @_;
+    my $prefix;
+    
+    print "\nDHCP AND DNS CONFIGURATION FOR " . uc($type) . " NETWORK\n\n";
+    my $ucType = uc($type) . ' network'; 
+    
+    $prefix = gatherer( "What is the $ucType prefix (ex: 192.168.1.0)?", "tmp.network" );
+    delete( $cfg{'tmp'} );
+
+    $cfg{"network $prefix"} = {};
+    $cfg{"network $prefix"}{"type"} = "$type";
+    gatherer( "What is the $ucType mask (ex: 255.255.255.0)?", "network $prefix.netmask" );
+    gatherer( "What is the IP address of PacketFence in the $ucType?", "network $prefix.gateway" );
+    $cfg{"network $prefix"}{"pf_gateway"} = "";
+
+    #DNS
+    $cfg{"network $prefix"}{"named"} = 'enabled';
+    $cfg{"network $prefix"}{"domain-name"} = "$type." . $cfg{general}{domain};
+    $cfg{"network $prefix"}{"dns"} = $cfg{"network $prefix"}{"gateway"};
+
+    #DHCP
+    $cfg{"network $prefix"}{"dhcpd"} = 'enabled';
+    gatherer( "What is the $ucType DHCP scope starting address?", "network $prefix.dhcp_start" );
+    gatherer( "What is the $ucType DHCP scope ending address?", "network $prefix.dhcp_end" );
+    $cfg{"network $prefix"}{"dhcp_default_lease_time"} = '300';
+    $cfg{"network $prefix"}{"dhcp_max_lease_time"} = '300';
+}           
 
 sub config_registration {
     print

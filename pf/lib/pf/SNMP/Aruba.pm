@@ -13,9 +13,17 @@ to access SNMP enabled Aruba switches.
 
 =head1 BUGS AND LIMITATIONS
 
-Wireless deauthentication (deassociation) uses the CLI (telnet or ssh) which is expensive (doesn't scale very well).
+=over
+
+=item The module currently doesn't work with Controllers in the MASTER / LOCAL configuration
+
+This is caused by the fact that the client state is on the LOCAL controller but for PacketFence the IP who initiated the RADIUS authentication is the IP it talks to (which is the master and not the local).
+
+=item Telnet deauthentication
 
 Wireless deauthentication (deassociation) works only in Telnet
+
+=back 
 
 =cut
 
@@ -169,7 +177,7 @@ sub _dot1xDeauthenticateMAC {
 
     my $cmd = "aaa user delete mac $mac";
 
-    $logger->debug("deauthenticating 802.1x $mac with `$cmd`");
+    $logger->info("deauthenticating 802.1x $mac with `$cmd`");
     $session->cmd($cmd);
 
     $session->close();
@@ -219,7 +227,7 @@ sub _deauthenticateMAC {
                     my $apSSID = uc("$1:$2:$3:$4:$5:$6");
                     my $cmd = "stm kick-off-sta $mac $apSSID";
 
-                    $logger->debug("deauthenticating $mac from SSID $apSSID with `$cmd`");
+                    $logger->info("deauthenticating $mac from SSID $apSSID with `$cmd`");
                     $session->cmd($cmd);
                     $count++;
                 } else {
@@ -274,16 +282,6 @@ sub getTelnetSession {
 }
 
 =back
-
-=head1 BUGS AND LIMITATIONS
-
-=over
-
-=item The module currently doesn't work with Controllers in the MASTER / LOCAL configuration
-
-This is caused by the fact that the client state is on the LOCAL controller but for PacketFence the IP who initiated the Radius authentication is the IP it talks to (which is the master and not the local).
-
-=back 
 
 =head1 AUTHOR
 

@@ -60,6 +60,8 @@ ok(`pidof -x snort` eq "\n", "snort stopped successfully");
 
 # TODO do tests for all other services handled by pf::services
 
+# TODO do a node_add then a node_view and expect everything to be correct
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
