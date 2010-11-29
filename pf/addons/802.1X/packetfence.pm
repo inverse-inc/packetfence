@@ -79,18 +79,43 @@ sub authorize {
     # For debugging purposes only
     #&log_request_attributes;
 
-    # returning Reject to force people to upgrade from our old authorize hook into our new post_auth hook
-    # otherwise they could upgrade and allow everyone in without being aware of it
+    # syslog logging
     openlog("radiusd_pf", "perror,pid", "user");
-    my $ERROR_MSG = 
-        "*** WARNING ***: PacketFence (it's rlm_perl module) should no longer run from authorize section."
-        ." Update your FreeRADIUS configuration to call perl module from post-auth section instead!"
-    ;
-    &radiusd::radlog(1, $ERROR_MSG);
-    syslog("info", $ERROR_MSG);
-    closelog();
 
-    return RLM_MODULE_REJECT;
+    # EAP-based Wired MAC Authentication
+    # Vendors known to proceed this way: Juniper's MAC RADIUS and Extreme Networks' Netlogin
+    #
+    # EAP and User-Name is a MAC address
+    if (exists($RAD_REQUEST{'EAP-Type'}) && $RAD_REQUEST{'User-Name'} =~ /[0-9a-fA-F]{12}/) {
+
+        # clean station MAC
+        my $mac = $RAD_REQUEST{'Calling-Station-Id'};
+        $mac =~ s/ /0/g;
+        $mac =~ s/-//g;
+        $mac =~ s/://g;
+        $mac =~ s/\.//g;
+        if (length($mac) == 12) {
+
+            # if Calling MAC and User-Name are the same thing, then we are processing a EAP Mac Auth request
+            if ($mac eq $RAD_REQUEST{'User-Name'}) {
+                # Usually, password will be the MAC address
+                $RAD_CHECK{'Cleartext-Password'} = $mac; 
+                my $infolog = "This is a Wired MAC Authentication request with EAP for MAC: $mac. ";
+                syslog("info", "$infolog Authentication should pass. File a bug report if it doesn't");
+                &radiusd::radlog(1, "$infolog Setting Cleartext-Password to $mac");
+                closelog();
+                return RLM_MODULE_UPDATED; 
+            }
+        } else {
+            my $infolog = "MAC inappropriate for comparison. Can't tell if we are in EAP Wired MAC Auth case.";
+            syslog("info", $infolog);
+            &radiusd::radlog(1, $infolog);
+        }
+    }
+
+    # otherwise, we don't do a thing
+    closelog();
+    return RLM_MODULE_NOOP;
 }
 
 =item * post_auth - once we authenticated the user's identity, we perform PacketFence's Network Access Control duties
@@ -112,6 +137,7 @@ sub post_auth {
     my $ssid = find_ssid();
     if (!defined($ssid)) {
         # We were not able to parse SSID. For now, I don't think it's important enough to even log
+        # TODO: if we are on wireless, then yes, do log it!
         # syslog("info", "Unable to parse SSID from request.");
         $ssid = "";
     }
