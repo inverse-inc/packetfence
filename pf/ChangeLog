@@ -1,4 +1,8 @@
 2010-11-29	Olivier Bilodeau <obilodeau@inverse.ca>
+	* Dropping pf/docs/PacketFence_Installation_Guide.odt: Dropping this
+	guide in favor of the Administration Guide where we took all that was
+	good of the Install guide early last week.
+
 	* pf/conf/dhcp_fingerprints.conf: Added a new Fedora Linux
 	fingerprint (Fedora Linux 13)
 
