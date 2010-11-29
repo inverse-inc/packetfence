@@ -1,4 +1,10 @@
 2010-11-29	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/addons/802.1X/packetfence.pm,
+	pf/docs/PacketFence_Administration_Guide.odt: Now able to detect MAC
+	Authentication over EAP and set Cleartext-Password appropriately for
+	the clients to be able to authenticate. Paves the way to MAC Auth with
+	Juniper and Extreme Networks.
+	
 	* Dropping pf/docs/PacketFence_Installation_Guide.odt: Dropping this
 	guide in favor of the Administration Guide where we took all that was
 	good of the Install guide early last week.
