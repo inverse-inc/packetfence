@@ -1863,19 +1863,19 @@ sub getHubs {
 sub getIfIndexForThisMac {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
-    my @macParts = split( ':', $mac );
+    my $oid_mac = mac2oid($mac);
+
+    if (!defined($oid_mac)) {
+        $logger->warn("invalid MAC, not running request");
+        return -1;
+    }
     if ( !$this->connectRead() ) {
         return -1;
     }
+
+    my $oid_dot1qTpFdbPort = '1.3.6.1.2.1.17.7.1.2.2.1.2'; #Q-BRIDGE-MIB
     foreach my $vlan ( @{ $this->{_vlans} } ) {
-        my $oid
-            = "1.3.6.1.2.1.17.7.1.2.2.1.2.$vlan."
-            . hex( $macParts[0] ) . "."
-            . hex( $macParts[1] ) . "."
-            . hex( $macParts[2] ) . "."
-            . hex( $macParts[3] ) . "."
-            . hex( $macParts[4] ) . "."
-            . hex( $macParts[5] );
+        my $oid = "$oid_dot1qTpFdbPort.$vlan.$oid_mac";
         $logger->trace("SNMP get_request for $oid");
         my $result
             = $this->{_sessionRead}->get_request( -varbindlist => [$oid] );
