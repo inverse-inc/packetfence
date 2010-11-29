@@ -57,7 +57,7 @@ Enhancements
   botnets, malware, shellcode, trojan and worm by default (#1102)
 - New DHCP fingerprints (HP ProCurve Wireless, Ricoh MFP, Cisco/Linksys, 
   Netgear, D-Link, Trendnet, Belkin Home Wireless Routers, Sony Ericsson 
-  Android, Aruba Access Point, Avaya IP Phone and Gentoo Linux)
+  Android, Aruba Access Point, Avaya IP Phone, Gentoo Linux and Fedora Linux 13)
 
 Documentation
 - Improved documentation about Snort, Oinkmaster, and log rotation in Admin 

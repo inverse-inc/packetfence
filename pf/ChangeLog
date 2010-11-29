@@ -1,3 +1,7 @@
+2010-11-29	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/dhcp_fingerprints.conf: Added a new Fedora Linux
+	fingerprint (Fedora Linux 13)
+
 2010-11-25	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/README_SWITCHES: Added MAC Auth column and started a draft of a
 	wireless table
