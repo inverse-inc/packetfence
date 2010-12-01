@@ -60,18 +60,20 @@ See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMET
 # module). This is because of the way perl mangles a returned hash as a list. Clients would get confused if you add a
 # scalar return without updating the clients.
 sub authorize {
-    my ($this, $nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name, $ssid) = @_;
+    my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
+
+    my ($nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name) = $this->_parseRequest($radius_request);
 
     $logger->trace("received a radius authorization request with parameters: ".
         "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP-Type => $eap_type, ".
-        "mac => $mac, port => $port, username => $user_name, ssid => $ssid");
+        "mac => $mac, port => $port, username => $user_name");
 
-    my $connection_type = $this->_identifyConnectionType($nas_port_type, $eap_type);
+    my $connection_type = $this->_identifyConnectionType($nas_port_type, $eap_type, $mac, $user_name);
 
     # TODO maybe it's in there that we should do all the magic that happened in the FreeRADIUS module
     # meaning: the return should be decided by _doWeActOnThisCall, not always $RADIUS::RLM_MODULE_NOOP
-    my $weActOnThisCall = $this->_doWeActOnThisCall($connection_type, $switch_ip, $mac, $port, $user_name, $ssid);
+    my $weActOnThisCall = $this->_doWeActOnThisCall($connection_type, $switch_ip, $mac, $port, $user_name);
     if ($weActOnThisCall == 0) {
         $logger->info("We decided not to act on this radius call. Stop handling request from $switch_ip.");
         return [$RADIUS::RLM_MODULE_NOOP, undef];
@@ -79,7 +81,7 @@ sub authorize {
 
     $logger->info("handling radius autz request: from switch_ip => $switch_ip, " 
         . "connection_type => " . connection_type_to_str($connection_type) . " "
-        . "mac => $mac, port => $port, username => $user_name, ssid => $ssid");
+        . "mac => $mac, port => $port, username => $user_name");
 
     #add node if necessary
     if ( !node_exist($mac) ) {
@@ -110,7 +112,13 @@ sub authorize {
         # if not supported, return
         return $this->_switchUnsupportedReply($switch);
     }
+
+    # switch-specific information retrieval
+    my $ssid;
     $port = $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
+    if (($connection_type & WIRELESS) == WIRELESS) {
+        $ssid = $switch->extractSsid($radius_request);
+    }
 
     # determine if we need to perform automatic registration
     my $isPhone = $switch->isPhoneAtIfIndex($mac);
@@ -181,6 +189,35 @@ sub authorize {
     return [$RADIUS::RLM_MODULE_OK, %RAD_REPLY];
 }
 
+=item * _parseRequest
+
+Takes FreeRADIUS' RAD_REQUEST hash and process it to return 
+  NAS Port type (Ethernet, Wireless, etc.)
+  Network Device IP
+  EAP
+  MAC
+  NAS-Port (port)
+  User-Name
+
+=cut
+sub _parseRequest {
+    my ($this, $radius_request) = @_;
+
+    my $mac = clean_mac($radius_request->{'Calling-Station-Id'});
+    # freeradius 2 provides the client IP in NAS-IP-Address not Client-IP-Address (non-standard freeradius1 attribute)
+    my $networkdevice_ip = $radius_request->{'NAS-IP-Address'} || $radius_request->{'Client-IP-Address'};
+    my $user_name = $radius_request->{'User-Name'};
+    my $nas_port_type = $radius_request->{'NAS-Port-Type'};
+    my $port = $radius_request->{'NAS-Port'};
+
+    my $eap_type = 0;
+    if (exists($radius_request->{'EAP-Type'})) {
+        $eap_type = 1;
+    }
+
+    return ($nas_port_type, $networkdevice_ip, $eap_type, $mac, $port, $user_name);
+}
+
 =item * _findNodeVlan - what VLAN should a node be put into
         
 This sub is meant to be overridden in lib/pf/radius/custom.pm if the default 
@@ -217,15 +254,15 @@ sub _findNodeVlan {
     return $vlan;
 }
 
-=item * _doWeActOnThisCall - is this request of any interest?
+=item * _doWeActOnThisCall
 
-Pass all the info you can
+Is this request of any interest?
 
 returns 0 for no, 1 for yes
 
 =cut
 sub _doWeActOnThisCall {
-    my ($this, $connection_type, $switch_ip, $mac, $port, $user_name, $ssid) = @_;
+    my ($this, $connection_type, $switch_ip, $mac, $port, $user_name) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     $logger->trace("_doWeActOnThisCall called");
 
@@ -238,11 +275,10 @@ sub _doWeActOnThisCall {
     if (defined($connection_type)) {
 
         if (($connection_type & WIRELESS) == WIRELESS) {
-            $do_we_act = $this->_doWeActOnThisCallWireless($connection_type, $switch_ip, $mac, 
-                $port, $user_name, $ssid);
+            $do_we_act = $this->_doWeActOnThisCallWireless($connection_type, $switch_ip, $mac, $port, $user_name);
 
         } elsif (($connection_type & WIRED) == WIRED) {
-            $do_we_act = $this->_doWeActOnThisCallWired($connection_type, $switch_ip, $mac, $port, $user_name, $ssid);
+            $do_we_act = $this->_doWeActOnThisCallWired($connection_type, $switch_ip, $mac, $port, $user_name);
         } else {
             $do_we_act = 0;
         } 
@@ -254,15 +290,15 @@ sub _doWeActOnThisCall {
     return $do_we_act;
 }
 
-=item * _doWeActOnThisCallWireless - is this wireless request of any interest?
+=item * _doWeActOnThisCallWireless
 
-Pass all the info you can
+Is this wireless request of any interest?
 
 returns 0 for no, 1 for yes
 
 =cut
 sub _doWeActOnThisCallWireless {
-    my ($this, $connection_type, $switch_ip, $mac, $port, $user_name, $ssid) = @_;
+    my ($this, $connection_type, $switch_ip, $mac, $port, $user_name) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     $logger->trace("_doWeActOnThisCallWireless called");
 
@@ -278,7 +314,7 @@ returns 0 for no, 1 for yes
     
 =cut
 sub _doWeActOnThisCallWired {
-    my ($this, $connection_type, $switch_ip, $mac, $port, $user_name, $ssid) = @_;
+    my ($this, $connection_type, $switch_ip, $mac, $port, $user_name) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     $logger->trace("_doWeActOnThisCallWired called");
 
@@ -287,15 +323,15 @@ sub _doWeActOnThisCallWired {
 }
 
 
-=item * _identifyConnectionType - identify the connection type based information provided by radius call
+=item * _identifyConnectionType
 
-Need radius' NAS-Port-Type and EAP-Type
+Identify the connection type based information provided by RADIUS call
 
 Returns the constants WIRED or WIRELESS. Undef if unable to identify.
 
 =cut
 sub _identifyConnectionType {
-    my ($this, $nas_port_type, $eap_type) = @_;
+    my ($this, $nas_port_type, $eap_type, $mac, $user_name) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     $eap_type = 0 if (not defined($eap_type));
@@ -312,7 +348,18 @@ sub _identifyConnectionType {
         } elsif ($nas_port_type =~ /^Ethernet$/) {
 
             if ($eap_type) {
-                return WIRED_802_1X;
+
+                # some vendor do EAP-based Wired MAC Authentication, as far as PacketFence is concerned
+                # this is still MAC Authentication so we need to cheat a little bit here
+                # TODO: consider moving this logic later once the switch is initialized so we can ask it
+                # (supportsEAPMacAuth?)
+                $mac =~ s/://g;
+                if ($mac eq $user_name) {
+                    return WIRED_MAC_AUTH;
+                } else {
+                    return WIRED_802_1X;
+                }
+
             } else {
                 return WIRED_MAC_AUTH;
             }
@@ -376,7 +423,9 @@ sub _translateNasPortToIfIndex {
     return $port;
 }
 
-=item * _isSwitchSupported - determines if switch is supported by current connection type
+=item * _isSwitchSupported
+
+Determines if switch is supported by current connection type.
 
 =cut
 sub _isSwitchSupported {
