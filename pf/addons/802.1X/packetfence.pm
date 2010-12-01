@@ -72,7 +72,9 @@ Of interest to the PacketFence users / developers
 
 =over
 
-=item * authorize - radius calls this method to authorize clients
+=item * authorize
+
+RADIUS calls this method to authorize clients.
 
 =cut
 sub authorize {
@@ -82,43 +84,29 @@ sub authorize {
     # syslog logging
     openlog("radiusd_pf", "perror,pid", "user");
 
-    # EAP-based Wired MAC Authentication
-    # Vendors known to proceed this way: Juniper's MAC RADIUS and Extreme Networks' Netlogin
-    #
-    # EAP and User-Name is a MAC address
-    if (exists($RAD_REQUEST{'EAP-Type'}) && $RAD_REQUEST{'User-Name'} =~ /[0-9a-fA-F]{12}/) {
+    # is it EAP-based Wired MAC Authentication?
+    if (is_eap_mac_autentication()) {
 
-        # clean station MAC
-        my $mac = $RAD_REQUEST{'Calling-Station-Id'};
-        $mac =~ s/ /0/g;
-        $mac =~ s/-//g;
-        $mac =~ s/://g;
-        $mac =~ s/\.//g;
-        if (length($mac) == 12) {
-
-            # if Calling MAC and User-Name are the same thing, then we are processing a EAP Mac Auth request
-            if ($mac eq $RAD_REQUEST{'User-Name'}) {
-                # Usually, password will be the MAC address
-                $RAD_CHECK{'Cleartext-Password'} = $mac; 
-                my $infolog = "This is a Wired MAC Authentication request with EAP for MAC: $mac. ";
-                syslog("info", "$infolog Authentication should pass. File a bug report if it doesn't");
-                &radiusd::radlog(1, "$infolog Setting Cleartext-Password to $mac");
-                closelog();
-                return RLM_MODULE_UPDATED; 
-            }
-        } else {
-            my $infolog = "MAC inappropriate for comparison. Can't tell if we are in EAP Wired MAC Auth case.";
-            syslog("info", $infolog);
-            &radiusd::radlog(1, $infolog);
-        }
+        # in MAC Authentication the User-Name is the MAC address stripped of all non-hex characters
+        my $mac = $RAD_REQUEST{'User-Name'};
+        # Password will be the MAC address, we set Cleartext-Password to it so that EAP Auth will perform auth properly
+        $RAD_CHECK{'Cleartext-Password'} = $mac;
+        my $infolog = "This is a Wired MAC Authentication request with EAP for MAC: $mac. ";
+        syslog("info", "$infolog Authentication should pass. File a bug report if it doesn't");
+        &radiusd::radlog(1, "$infolog Setting Cleartext-Password to $mac");
+        closelog();
+        return RLM_MODULE_UPDATED;
     }
+
 
     # otherwise, we don't do a thing
     closelog();
     return RLM_MODULE_NOOP;
 }
 
-=item * post_auth - once we authenticated the user's identity, we perform PacketFence's Network Access Control duties
+=item * post_auth
+
+Once we authenticated the user's identity, we perform PacketFence's Network Access Control duties
 
 =cut
 sub post_auth {
@@ -127,25 +115,7 @@ sub post_auth {
     openlog("radiusd_pf", "perror,pid", "user");
 
     my $mac = $RAD_REQUEST{'Calling-Station-Id'};
-    # TODO refactoring: change name because its not only a switch, it can be an AP
-    # networkelement_ip? networkdevice_ip?
-    # freeradius 2 provides the switch_ip in NAS-IP-Address not Client-IP-Address (non-standard freeradius1 attribute)
-    my $switch_ip = $RAD_REQUEST{'NAS-IP-Address'} || $RAD_REQUEST{'Client-IP-Address'};
-    my $user_name = $RAD_REQUEST{'User-Name'};
-    my $nas_port_type = $RAD_REQUEST{'NAS-Port-Type'};
     my $port = $RAD_REQUEST{'NAS-Port'};
-    my $ssid = find_ssid();
-    if (!defined($ssid)) {
-        # We were not able to parse SSID. For now, I don't think it's important enough to even log
-        # TODO: if we are on wireless, then yes, do log it!
-        # syslog("info", "Unable to parse SSID from request.");
-        $ssid = "";
-    }
-
-    my $eap_type = 0;
-    if (exists($RAD_REQUEST{'EAP-Type'})) {
-        $eap_type = 1;
-    }
 
     #format MAC
     if (defined($mac) && $mac ne '') {
@@ -159,17 +129,7 @@ sub post_auth {
         $mac = lc($mac);
     }
 
-    # some debugging (shown when running radius with -X)
-    &radiusd::radlog(1, "PacketFence REQUEST-TYPE: ".$nas_port_type);
-    &radiusd::radlog(1, "PacketFence SWITCH: $switch_ip");
-    &radiusd::radlog(1, "PacketFence EAP-TYPE: $eap_type");
-    &radiusd::radlog(1, "PacketFence MAC: ".$mac);
-    &radiusd::radlog(1, "PacketFence PORT: ".$port);
-    &radiusd::radlog(1, "PacketFence USER: ".$user_name);
-    &radiusd::radlog(1, "PacketFence SSID: ".$ssid);
-
-    # invalid MAC, this certainly happens on some type of radius calls, we accept so it'll go on and ask other modules
-    # TODO: is our default radius setup misconfigured, is it normal that this module is triggered without a MAC?
+    # invalid MAC, this certainly happens on some type of RADIUS calls, we accept so it'll go on and ask other modules
     if (length($mac) != 17) {
         syslog("info", "warning: mac address is empty or invalid in this request. "
             . "It could be normal on certain radius calls");
@@ -177,13 +137,7 @@ sub post_auth {
         return RLM_MODULE_OK;
     }
 
-    # uncomment following for output of all parameters to syslog (for debugging)
-    # syslog("info", "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP-Type => $eap_type, ".
-    #        "mac => $mac, port => $port, username => $user_name, ssid => $ssid");
-
-    # TODO: switch_ip is no longer a good name, it needs to change
-    my $som = $soap->radius_authorize($nas_port_type, $switch_ip, $eap_type, 
-                                      $mac, $port, $user_name, $ssid)
+    my $som = $soap->radius_authorize(%RAD_REQUEST)
         or return server_error_handler();
 
     # did SOAP server returned a fault in the request?
@@ -243,7 +197,9 @@ sub post_auth {
     return $radius_return_code;
 }
 
-=item * server_error_handler - called whenever there is a server error beyond PacketFence's control (401, 404, 500)
+=item * server_error_handler
+
+Called whenever there is a server error beyond PacketFence's control (401, 404, 500)
 
 If a customer wants to degrade gracefully, he should put some logic here to assign good VLANs in a degraded way. Two examples are provided commented in the file.
 
@@ -254,14 +210,16 @@ sub server_error_handler {
 
    # for example:
    # send an email
-   # set vlan default according to $switch_ip
+   # set vlan default according to $nas_ip
    # return RLM_MODULE_OK
 
    # or to fail open:
    # return RLM_MODULE_OK
 }
 
-=item * invalid_answer_handler - called whenever an invalid answer is returned from the server
+=item * invalid_answer_handler
+
+Called whenever an invalid answer is returned from the server
 
 =cut
 sub invalid_answer_handler {
@@ -272,41 +230,39 @@ sub invalid_answer_handler {
     return RLM_MODULE_FAIL;
 }
 
-=item * find_ssid - translate radius SSID parameter into a string
+=item * is_eap_mac_autentication
 
-SSID are not provided by a standardized parameter name so we encapsulate that complexity here.
-If your AP is not supported look in /usr/share/freeradius/dictionary* for vendor specific parameters.
-If you add a test here, please consider contributing it back to packetfence:
+Returns 1 or 0 based on if query is EAP-based MAC Authentication
 
-https://lists.sourceforge.net/lists/listinfo/packetfence-devel
+EAP-based MAC Authentication is like MAC Authentication except that instead of using a RADIUS-only request 
+(like most vendor do) it's using EAP inside RADIUS to authenticate the MAC.
+Vendors known to proceed this way: Juniper's MAC RADIUS and Extreme Networks' Netlogin
 
 =cut
-sub find_ssid {
+sub is_eap_mac_autentication {
 
-    if (defined($RAD_REQUEST{'Cisco-AVPair'})) {
+    # EAP and User-Name is a MAC address
+    if (exists($RAD_REQUEST{'EAP-Type'}) && $RAD_REQUEST{'User-Name'} =~ /[0-9a-fA-F]{12}/) {
 
-        if ($RAD_REQUEST{'Cisco-AVPair'} =~ /^ssid=(.*)$/) { # ex: Cisco-AVPair = "ssid=Inverse-Secure"
-            return $1;
+        # clean station MAC
+        my $mac = $RAD_REQUEST{'Calling-Station-Id'};
+        $mac =~ s/ /0/g;
+        $mac =~ s/-//g;
+        $mac =~ s/://g;
+        $mac =~ s/\.//g;
+        if (length($mac) == 12) {
+
+            # if Calling MAC and User-Name are the same thing, then we are processing a EAP Mac Auth request
+            if ($mac eq $RAD_REQUEST{'User-Name'}) {
+                return 1;
+            }
         } else {
-            syslog("info", "Unable to parse SSID out of Cisco-AVPair: ".$RAD_REQUEST{'Cisco-AVPair'});
-            return;
+            my $infolog = "MAC inappropriate for comparison. Can't tell if we are in EAP Wired MAC Auth case.";
+            syslog("info", $infolog);
+            &radiusd::radlog(1, $infolog);
         }
-    } elsif (defined($RAD_REQUEST{'Aruba-Essid-Name'})) {
-        return $RAD_REQUEST{'Aruba-Essid-Name'};
-
-    } elsif (defined($RAD_REQUEST{'Colubris-AVPair'})) {
-        # With HP Procurve AP Ccontroller, we receive an array of settings in Colubris-AVPair:
-        # Colubris-AVPair = ssid=Inv_Controller
-        # Colubris-AVPair = group=Default Group
-        # Colubris-AVPair = phytype=IEEE802dot11g
-        foreach (@{$RAD_REQUEST{'Colubris-AVPair'}}) {
-            if (/^ssid=(.*)$/) { return $1; }
-        }
-        syslog("info", "Unable to parse SSID out of Colubris-AVPair: ".@{$RAD_REQUEST{'Colubris-AVPair'}});
-        return;
-    } else {
-        return;
-    } 
+    }
+    return 0;
 }
 
 #

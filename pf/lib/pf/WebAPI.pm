@@ -78,17 +78,13 @@ sub event_add {
 }
 
 sub radius_authorize {
-  my ($class, $nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name, $ssid) = @_;
+  my ($class, %radius_request) = @_;
   my $logger = Log::Log4perl->get_logger('pf::WebAPI');
 
   my $radius = new pf::radius::custom();
-  $logger->trace("received a radius authorization request with parameters: ".
-           "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP-Type => $eap_type, ".
-           "mac => $mac, port => $port, username => $user_name, ssid => $ssid");
-
   my $return;
   eval {
-      $return = $radius->authorize($nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name, $ssid);
+      $return = $radius->authorize(\%radius_request);
   };
   if ($@) {
       $logger->logdie("radius authorize failed with error: $@");

@@ -22,7 +22,7 @@ New Hardware Support
 - HP ProCurve MSM710 Mobility Controller
 
 New Features
-- Simplification of the Wireless, Wired 802.1X and MAC Address Bypass (MAB) 
+- Simplification of the Wireless, Wired 802.1X and Wired MAC Authentication
   configuration. Because of a new FreeRADIUS module and a Web Service interface, 
   everything is now using standard PacketFence proccesses and configuration 
   files.
