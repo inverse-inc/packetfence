@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 143;
+use Test::More tests => 145;
 use lib '/usr/local/pf/lib';
 my $lib_path = '/usr/local/pf/lib';
 
@@ -60,6 +60,8 @@ BEGIN { use_ok('pf::SNMP::Intel::Express_460') }
 BEGIN { use_ok('pf::SNMP::Intel::Express_530') }
 BEGIN { use_ok('pf::SNMP::Linksys') }
 BEGIN { use_ok('pf::SNMP::Linksys::SRW224G4') }
+BEGIN { use_ok('pf::SNMP::Meru') }
+BEGIN { use_ok('pf::SNMP::Meru::MC3000') }
 BEGIN { use_ok('pf::SNMP::MockedSwitch') }
 BEGIN { use_ok('pf::SNMP::Nortel') }
 BEGIN { use_ok('pf::SNMP::Nortel::BayStack4550') }
@@ -132,6 +134,8 @@ my @SNMPobjects = qw(
     pf::SNMP::Intel::Express_530
     pf::SNMP::Linksys
     pf::SNMP::Linksys::SRW224G4
+    pf::SNMP::Meru  
+    pf::SNMP::Meru::MC3000
     pf::SNMP::MockedSwitch
     pf::SNMP::Nortel
     pf::SNMP::Nortel::BayStack4550
