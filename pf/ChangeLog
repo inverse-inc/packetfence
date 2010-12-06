@@ -1,7 +1,12 @@
+2010-12-06	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: Changes to our default
+	FreeRADIUS configuration to fix some issues with VLAN assignment over
+	tunneled EAP types.
+	
 2010-12-06      Francois Gaudreault <fgaudreault@inverse.ca>
-        * pf/lib/pf/SNMP/Meru/MC3000.pm, pr/lib/pf/SNMP/Meru.pm :
-        New module to support the Meru Networks MC3000 Wireless Controler
-        (Meru::MC3000)
+	* pf/lib/pf/SNMP/Meru/MC3000.pm, pr/lib/pf/SNMP/Meru.pm :
+	New module to support the Meru Networks MC3000 Wireless Controler
+	(Meru::MC3000)
 
 2010-12-01	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/addons/802.1X/packetfence.pm, pf/lib/pf/WebAPI.pm, 
