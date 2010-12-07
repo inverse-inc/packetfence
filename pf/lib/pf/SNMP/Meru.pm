@@ -97,7 +97,7 @@ sub deauthenticateMac {
     $session->in_privileged_mode(0);
     if ($@) {
         $logger->error("Unable to deauthenticate $mac: $@");        
-	$session->close();
+        $session->close();
         return;
     }
     $session->close();
