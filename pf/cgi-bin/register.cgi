@@ -70,7 +70,7 @@ if (defined($params{'mode'})) {
   if ($params{'mode'} eq "register") {
     my ($auth_return,$err) = pf::web::web_user_authenticate($cgi, $session);
     if ($auth_return != 1) {
-      pf::web::generate_login_page($cgi, $session, $cgi->script_name(), $destination_url, $err);
+      pf::web::generate_login_page($cgi, $session, $cgi->script_name()."?mode=register", $destination_url, $err);
       exit(0);
     }
 
@@ -119,7 +119,7 @@ if (defined($params{'mode'})) {
   } elsif ($params{'mode'} eq "deregister") {
     my ($auth_return,$err) = pf::web::web_user_authenticate($cgi, $session);
     if ($auth_return != 1) {
-      pf::web::generate_login_page($cgi, $session, $cgi->script_name(), $destination_url, $err);
+      pf::web::generate_login_page($cgi, $session, $cgi->script_name()."?mode=deregister", $destination_url, $err);
       exit(0);
     }
     my $node_info = node_view($mac);
