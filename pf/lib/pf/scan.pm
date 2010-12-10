@@ -34,7 +34,10 @@ use pf::iplog qw(ip2mac);
 use Parse::Nessus::NBE;
 
 use constant {
-    SCAN_VID => 1200001
+    SCAN_VID => 1200001,
+    SEVERITY_HOLE => 1,
+    SEVERITY_WARNING => 2,
+    SEVERITY_INFO => 3,
 };
 
 =head1 SUBROUTINES
@@ -95,9 +98,8 @@ sub runScan {
     open( $infile_fh, '<', $outfileName);
     my @nessusdata = <$infile_fh>;
     close( $infile_fh );
-    # TODO: revisit the decision only to check for Holes (since plugin id should change anyway?)
-    # 1 => Hole, 2 => Warnings, 3 => Info
-    my @countvulns = Parse::Nessus::NBE::nstatvulns(@nessusdata, 1);
+
+    my @countvulns = Parse::Nessus::NBE::nstatvulns(@nessusdata, SEVERITY_INFO);
     
     # for each vuln, trigger the violation
     my $failedScan = 0;
