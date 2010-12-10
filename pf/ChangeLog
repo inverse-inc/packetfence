@@ -1,3 +1,7 @@
+2010-12-10	Olivier Bilodeau <obilodeau@inverse.ca>
+	* Renamed pf/README_SWITCHES to pf/README.network-devices: SWITCHES
+	is misleading so it's changed network-device
+
 2010-12-09	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/lib/pf/SNMP/Juniper/EX.pm, pf/lib/pf/SNMP/Juniper.pm, 
 	pf/lib/pf/SNMP.pm, pf/sbin/pfsetvlan: Juniper EX series Wired MAC 
