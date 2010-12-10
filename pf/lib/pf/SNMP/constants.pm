@@ -67,6 +67,12 @@ Readonly::Scalar our $CREATE_AND_GO => 4;
 Readonly::Scalar our $CREATE_AND_WAIT => 5;
 Readonly::Scalar our $DESTROY => 6;
 
+=item ifAdminStatus - defined by RFC 2863 (Interfaces Group) aka IF-MIB
+
+ up(1),        -- ready to pass packets
+ down(2),
+ testing(3),   -- in some test mode
+
 =item ifOperStatus - defined by RFC 2863 (Interfaces Group) aka IF-MIB
 
  up(1),        -- ready to pass packets

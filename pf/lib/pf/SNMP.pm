@@ -1176,11 +1176,11 @@ sub setAdminStatus {
     }
     $logger->trace(
         "SNMP set_request for ifAdminStatus: $OID_ifAdminStatus.$ifIndex = "
-            . ( $enabled ? 1 : 2 ) );
+            . ( $enabled ? $SNMP::UP : $SNMP::DOWN ) );
     my $result = $this->{_sessionWrite}->set_request(
         -varbindlist => [
             "$OID_ifAdminStatus.$ifIndex", Net::SNMP::INTEGER,
-            ( $enabled ? 1 : 2 ),
+            ( $enabled ? $SNMP::UP : $SNMP::DOWN ),
         ]
     );
     return ( defined($result) );
