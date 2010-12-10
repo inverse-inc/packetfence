@@ -1,4 +1,7 @@
 2010-12-10	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/Nortel.pm: Documented an odd behavior with a Nortel
+	BayStack 470 that was in a stacked context in a previous life.
+
 	* pf/lib/pf/SNMP/Cisco/Catalyst_2960.pm, pf/lib/pf/SNMP/Juniper.pm,
 	pf/lib/pf/SNMP/MockedSwitch.pm, pf/lib/pf/SNMP.pm, pf/lib/pf/radius.pm:
 	VoIP refactoring so that RADIUS VSA's for VoIP support are determined

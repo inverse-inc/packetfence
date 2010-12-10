@@ -9,6 +9,18 @@ pf::SNMP::Nortel - Object oriented module to access SNMP enabled Nortel switches
 The pf::SNMP::Nortel module implements an object oriented interface
 to access SNMP enabled Nortel switches.
 
+=head1 BUGS AND LIMITATIONS
+
+=over
+
+=item BayStack
+
+Sometimes switches that were previously in a stacked setup will report 
+security violations as if they were still stacked.
+You will notice security authorization made on wrong ifIndexes.
+A factory reset will resolve the situation. 
+We experienced the issue with a BayStack 470 running 3.7.5.13 but we believe it affects other BayStacks and firmwares. 
+
 =cut
 
 use strict;
@@ -600,6 +612,8 @@ sub isVoIPEnabled {
 Regis Balzard <rbalzard@inverse.ca>
 
 Dominik Gehl <dgehl@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
