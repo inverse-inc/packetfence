@@ -1,4 +1,7 @@
 2010-12-10	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Network_Devices_Configuration_Guide.odt: Added
+	Juniper documentation for MAC Authentication (Juniper's MAC RADIUS)
+
 	* pf/lib/pf/Nortel.pm: Documented an odd behavior with a Nortel
 	BayStack 470 that was in a stacked context in a previous life.
 
