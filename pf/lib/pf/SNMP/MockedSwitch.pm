@@ -72,10 +72,6 @@ use constant TELNET_LARGE_EXCHANGE => 1_000_000;
 Readonly::Scalar our $REMOVED_TRAPS_ENABLED => 0;
 Readonly::Scalar our $IS_TRUNK_PORTS => 0;
 
-
-# capabilities
-sub supportsFloatingDevice { return $TRUE; }
-
 =head1 SUBROUTINES
 
 Warning: The list of subroutine is incomplete
@@ -84,9 +80,14 @@ Warning: The list of subroutine is incomplete
 
 =cut
 
-# capabilities
+# CAPABILITIES
+# access technology supported
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
+# VoIP technology supported
+sub supportsRadiusVoip { return $TRUE; }
+# special features supported
+sub supportsFloatingDevice { return $TRUE; }
 
 # first, we are re-implementing all of pf::SNMP that has effects on switches to make sure it doesn't do anything
 
@@ -2776,6 +2777,18 @@ sub handleReAssignVlanTrapForWiredMacAuth {
             pfmailer(%message);
         }
     }
+}
+
+=item getVoipVSA
+
+Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
+
+=cut
+sub getVoipVsa {
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    return ('Cisco-AVPair' => "device-traffic-class=voice");
 }
 
 =back

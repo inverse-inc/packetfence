@@ -376,7 +376,7 @@ sub _identifyConnectionType {
     }
 }
 
-=item * _authorizeVoip - radius authorization of VoIP
+=item * _authorizeVoip - RADIUS authorization of VoIP
 
 All of the parameters from the authorize method call are passed just in case someone who override this sub 
 need it. However, connection_type is passed instead of nas_port_type and eap_type and the switch object 
@@ -389,24 +389,22 @@ sub _authorizeVoip {
     my ($this, $connection_type, $switch, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    # we got Avaya phones working on Cisco switches with the following
-    # if you want to do it, copy this whole sub into radius/custom.pm and uncomment the following lines
-    # FIXME watch out for translated port in the below locationlog sync
-    #locationlog_synchronize($switch->{_ip}, $port, $switch->{_voiceVlan}, $mac, 
-    #    VOIP, $connection_type, $user_name, $ssid
-    #);
-    #my %RAD_REPLY; 
-    #$RAD_REPLY{'Cisco-AVPair'} = "device-traffic-class=voice";
-    #$switch->disconnectRead();
-    #$switch->disconnectWrite();
-    #return [$RADIUS::RLM_MODULE_OK, %RAD_REPLY];
+    if (!$switch->supportsRadiusVoip) {
+        $logger->warn("Returning failure to RADIUS.");
+        $switch->disconnectRead();
+        $switch->disconnectWrite();
+        return [$RADIUS::RLM_MODULE_FAIL, undef];
+    }
 
-    # TODO IP Phones authentication over Radius not supported by default because it seems vendor dependent
-    $logger->warn("Radius authentication of IP Phones is not enabled by default. Returning failure. See pf::radius's _authorizeVoip for details on how to activate it.");
+    locationlog_synchronize(
+        $switch->{_ip}, $this->_translateNasPortToIfIndex($port), $switch->{_voiceVlan}, $mac, 
+        VOIP, $connection_type, $user_name, $ssid
+    );
 
+    my %RAD_REPLY = $switch->getVoipVsa();
     $switch->disconnectRead();
     $switch->disconnectWrite();
-    return [$RADIUS::RLM_MODULE_FAIL, undef];
+    return [$RADIUS::RLM_MODULE_OK, %RAD_REPLY];
 }
 
 =item * _translateNasPortToIfIndex - convert the number in NAS-Port into an ifIndex only when relevant

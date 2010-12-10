@@ -1,4 +1,11 @@
 2010-12-10	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Cisco/Catalyst_2960.pm, pf/lib/pf/SNMP/Juniper.pm,
+	pf/lib/pf/SNMP/MockedSwitch.pm, pf/lib/pf/SNMP.pm, pf/lib/pf/radius.pm:
+	VoIP refactoring so that RADIUS VSA's for VoIP support are determined
+	by the switch modules instead of pf::radius. Also added 
+	supportsRadiusVoip capability so that switch can say they support VoIP
+	over RADIUS themselves.
+
 	* pf/lib/pf/SNMP/Aruba.pm, pf/lib/pf/SNMP/HP/Controller_MSM710.pm,
 	pf/lib/pf/SNMP.pm: Code to extract SSID out of RADIUS Access-Request 
 	attributes has been properly distributed to AP/Controller modules.

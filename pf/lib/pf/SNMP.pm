@@ -35,6 +35,63 @@ use pf::SNMP::constants;
 
 =cut
 
+=item supportsFloatingDevice
+
+Returns 1 if switch type supports floating network devices
+
+=cut
+sub supportsFloatingDevice {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("Floating devices are not supported on switch type " . ref($this));
+    return $FALSE;
+}
+
+=item supportsWiredMacAuth 
+
+Returns 1 if switch type supports MAC Authentication (Wired Access Authorization through RADIUS)
+
+=cut
+sub supportsWiredMacAuth {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error(
+        "Wired MAC Authentication (Wired Access Authorization through RADIUS) "
+        . "is not supported on switch type " . ref($this) . ". Please let us know what hardware you are using."
+    );
+    return $FALSE;
+}
+
+=item supportsWiredDot1x - Returns 1 if switch type supports Wired 802.1X
+
+=cut
+sub supportsWiredDot1x {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error(
+        "Wired 802.1X is not supported on switch type " . ref($this) . ". "
+        . "Please let us know what hardware you are using."
+    );
+    return $FALSE;
+}
+
+=item supportsRadiusVoip
+
+=cut
+sub supportsRadiusVoip {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->warn(
+        "RADIUS Authentication of IP Phones is not supported on switch type " . ref($this) . ". "
+        . "Please let us know what hardware you are using."
+    );
+    return $FALSE;
+}
+
 sub new {
     my ( $class, %argv ) = @_;
     my $this = bless {
@@ -1168,47 +1225,6 @@ sub setPortSecurityViolationActionByIfIndex {
     return ( 0 == 1 );
 }
 
-=item supportsFloatingDevice - Returns 1 if switch type supports floating network devices
-
-=cut
-sub supportsFloatingDevice {
-    my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-
-    $logger->error("Floating devices are not supported on switch type " . ref($this));
-    return $FALSE;
-}
-
-=item supportsWiredMacAuth 
-
-Returns 1 if switch type supports MAC Authentication (Wired Access Authorization through RADIUS)
-
-=cut
-sub supportsWiredMacAuth {
-    my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-
-    $logger->error(
-        "Wired MAC Authentication (Wired Access Authorization through RADIUS) "
-        . "is not supported on switch type " . ref($this) . ". Please let us know what hardware you are using."
-    );
-    return $FALSE;
-}
-
-=item supportsWiredDot1x - Returns 1 if switch type supports Wired 802.1X
-
-=cut
-sub supportsWiredDot1x {
-    my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-
-    $logger->error(
-        "Wired 802.1X is not supported is not supported on switch type " . ref($this) . ". "
-        . "Please let us know what hardware you are using."
-    );
-    return $FALSE;
-}
-
 sub enablePortSecurityByIfIndex {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -2304,6 +2320,22 @@ sub extractSsid {
     $logger->warn(
         "Unable to extract SSID for module " . ref($this) . ". SSID-based VLAN assignments won't work. "
         . "Please let us know so we can add support for it."
+    );
+    return;
+}
+
+=item getVoipVSA
+
+Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
+
+=cut
+sub getVoipVsa {
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    $logger->warn(
+        "No RADIUS Vendor Specific Attributes (VSA) for module " . ref($this) . ". "
+        . "Phone will not be allowed on the correct untagged VLAN."
     );
     return;
 }

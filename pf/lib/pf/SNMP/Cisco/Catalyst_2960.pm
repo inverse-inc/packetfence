@@ -35,10 +35,20 @@ use Net::SNMP;
 use base ('pf::SNMP::Cisco::Catalyst_2950');
 use pf::config;
 
-# capabilities
+# CAPABILITIES
+# access technology supported
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
+# VoIP technology supported
+sub supportsRadiusVoip { return $TRUE; }
 
+=head1 SUBROUTINES
+
+TODO: This list is incomplete
+
+=over
+
+=cut
 sub getMinOSVersion {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -230,6 +240,20 @@ sub NasPortToIfIndex {
     }
     return $NAS_port;
 }
+
+=item getVoipVSA
+
+Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
+
+=cut
+sub getVoipVsa {
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    return ('Cisco-AVPair' => "device-traffic-class=voice");
+}
+
+=back
 
 =head1 AUTHOR
 
