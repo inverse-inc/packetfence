@@ -281,6 +281,30 @@ sub getTelnetSession {
     return $session;
 }
 
+=item extractSsid
+
+Find RADIUS SSID parameter out of RADIUS REQUEST parameters
+
+Aruba specific parser. See pf::SNMP for base implementation.
+
+=cut
+sub extractSsid {
+    my ($this, $radius_request) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    # Aruba-Essid-Name VSA
+    if (defined($radius_request->{'Aruba-Essid-Name'})) {
+        return $radius_request->{'Aruba-Essid-Name'};
+    }
+
+    $logger->warn(
+        "Unable to extract SSID for module " . ref($this) . ". SSID-based VLAN assignments won't work. "
+        . "Please let us know so we can add support for it."
+    );
+    return;
+}
+
+
 =back
 
 =head1 AUTHOR

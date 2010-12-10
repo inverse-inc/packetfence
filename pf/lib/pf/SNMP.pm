@@ -2285,43 +2285,25 @@ sub handleReAssignVlanTrapForWiredMacAuth {
 Find RADIUS SSID parameter out of RADIUS REQUEST parameters
 
 SSID are not provided by a standardized parameter name so we encapsulate that complexity here.
-If your AP is not supported look in /usr/share/freeradius/dictionary* for vendor specific parameters.
+If your AP is not supported look in /usr/share/freeradius/dictionary* for vendor specific attributes (VSA).
 
 =cut
 sub extractSsid {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    # TODO get rid of the non standard ones and push them upstream (in their pf::SNMP::... modules)
     if (defined($radius_request->{'Cisco-AVPair'})) {
 
         if ($radius_request->{'Cisco-AVPair'} =~ /^ssid=(.*)$/) { # ex: Cisco-AVPair = "ssid=Inverse-Secure"
             return $1;
         } else {
             $logger->info("Unable to extract SSID of Cisco-AVPair: ".$radius_request->{'Cisco-AVPair'});
-            return;
         }
-    # TODO move into Aruba
-    } elsif (defined($radius_request->{'Aruba-Essid-Name'})) {
-        return $radius_request->{'Aruba-Essid-Name'};
-
-    # TODO move into HP
-    } elsif (defined($radius_request->{'Colubris-AVPair'})) {
-        # With HP Procurve AP Ccontroller, we receive an array of settings in Colubris-AVPair:
-        # Colubris-AVPair = ssid=Inv_Controller
-        # Colubris-AVPair = group=Default Group
-        # Colubris-AVPair = phytype=IEEE802dot11g
-        foreach (@{$radius_request->{'Colubris-AVPair'}}) {
-            if (/^ssid=(.*)$/) { return $1; }
-        }
-        $logger->info("Unable to extract SSID of Colubris-AVPair: ".@{$radius_request->{'Colubris-AVPair'}});
-        return;
     }
 
-    $logger->info(
-        "Unable to extract SSID for module " . ref($this) . ". "
-        ."SSID-based VLAN assignments won't work. "
-        ."Please let us know so we can add support for it."
+    $logger->warn(
+        "Unable to extract SSID for module " . ref($this) . ". SSID-based VLAN assignments won't work. "
+        . "Please let us know so we can add support for it."
     );
     return;
 }

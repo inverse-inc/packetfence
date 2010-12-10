@@ -1,4 +1,8 @@
 2010-12-10	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Aruba.pm, pf/lib/pf/SNMP/HP/Controller_MSM710.pm,
+	pf/lib/pf/SNMP.pm: Code to extract SSID out of RADIUS Access-Request 
+	attributes has been properly distributed to AP/Controller modules.
+
 	* Renamed pf/README_SWITCHES to pf/README.network-devices: SWITCHES
 	is misleading so it's changed network-device
 

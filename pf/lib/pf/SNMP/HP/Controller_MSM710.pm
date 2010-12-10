@@ -122,11 +122,42 @@ sub deauthenticateMac {
     }
 }
 
+=item extractSsid
+
+Find RADIUS SSID parameter out of RADIUS REQUEST parameters
+
+HP / Colubris specific parser. See pf::SNMP for base implementation.
+
+=cut
+sub extractSsid {
+    my ($this, $radius_request) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    if (defined($radius_request->{'Colubris-AVPair'})) {
+        # With HP Procurve AP Ccontroller, we receive an array of settings in Colubris-AVPair:
+        # Colubris-AVPair = ssid=Inv_Controller
+        # Colubris-AVPair = group=Default Group
+        # Colubris-AVPair = phytype=IEEE802dot11g
+        foreach (@{$radius_request->{'Colubris-AVPair'}}) {
+            if (/^ssid=(.*)$/) { return $1; }
+        }
+        $logger->info("Unable to extract SSID of Colubris-AVPair: ".@{$radius_request->{'Colubris-AVPair'}});
+    }
+
+    $logger->warn(
+        "Unable to extract SSID for module " . ref($this) . ". SSID-based VLAN assignments won't work. "
+        . "Please let us know so we can add support for it."
+    );
+    return;
+}
+
 =back
 
 =head1 AUTHOR
 
 Regis Balzard <rbalzard@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
