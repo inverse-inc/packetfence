@@ -1,3 +1,13 @@
+2010-12-09	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP/Juniper/EX.pm, pf/lib/pf/SNMP/Juniper.pm, 
+	pf/lib/pf/SNMP.pm, pf/sbin/pfsetvlan: Juniper EX series Wired MAC 
+	Authentication support without Voice over IP
+	Side effects:
+	- pfsetvlan now handles WIRED_MAC_AUTH properly (instead of as a failed 
+	  port-security traps not enabled type)
+	- Accidental inclusion of extractSsid() refactoring (will be completed
+	  later)
+
 2010-12-06	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/docs/PacketFence_Administration_Guide.odt: Changes to our default
 	FreeRADIUS configuration to fix some issues with VLAN assignment over

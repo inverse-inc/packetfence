@@ -21,6 +21,7 @@ New Hardware Support
   Pacific University)
 - HP ProCurve MSM710 Mobility Controller
 - Meru Networks MC3000 Wireless Controller
+- Juniper EX Series in MAC RADIUS (Juniper's MAC Authentication)
 
 New Features
 - Simplification of the Wireless, Wired 802.1X and Wired MAC Authentication

@@ -2712,6 +2712,72 @@ sub NasPortToIfIndex {
     return $NAS_port;
 }
 
+=item handleReAssignVlanTrapForWiredMacAuth
+
+Default except that setAdminStatus are commented
+
+=cut
+sub handleReAssignVlanTrapForWiredMacAuth {
+    my ($this, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    my $switch_ip = $this->{'_ip'};
+    my @locationlog = locationlog_view_open_switchport_no_VoIP( $switch_ip, $ifIndex );
+    if (!(@locationlog) || !defined($locationlog[0]->{'mac'}) || ($locationlog[0]->{'mac'} eq '' )) {
+        $logger->warn( "received reAssignVlan trap on $switch_ip ifIndex $ifIndex but can't determine non VoIP MAC");
+        return;
+    }
+
+    my $mac = $locationlog[0]->{'mac'};
+    my $hasPhone = $this->hasPhoneAtIfIndex($ifIndex);
+
+    # TODO extract that behavior in a method call in pf::vlan so it can be overridden easily
+    if ( !$hasPhone ) {
+        $logger->info( "no VoIP phone is currently connected at " . $switch_ip
+            . " ifIndex $ifIndex. Flipping port admin status"
+        );
+        #$this->setAdminStatus( $ifIndex, 0 );
+        sleep(2);
+        #$this->setAdminStatus( $ifIndex, 1 );
+
+    } else {
+
+        $logger->info(
+            "A VoIP phone is currently connected at $switch_ip ifIndex $ifIndex. Leaving everything as it is."
+        );
+        # TODO perform CoA (when implemented)
+
+        my @violations = violation_view_open_desc($mac);
+        if ( scalar(@violations) > 0 ) {
+            my %message;
+            $message{'subject'} = "VLAN isolation of $mac behind VoIP phone";
+            $message{'message'} = "The following computer has been isolated behind a VoIP phone\n";
+            $message{'message'} .= "MAC: $mac\n";
+
+            my $node_info = node_view($mac);
+            $message{'message'} .= "Owner: " . $node_info->{'pid'} . "\n";
+            $message{'message'} .= "Computer Name: " . $node_info->{'computername'} . "\n";
+            $message{'message'} .= "Notes: " . $node_info->{'notes'} . "\n";
+            $message{'message'} .= "Switch: " . $switch_ip . "\n";
+            $message{'message'} .= "Port (ifIndex): " . $ifIndex . "\n\n";
+            $message{'message'} .= "The violation details are\n";
+
+            foreach my $violation (@violations) {
+                $message{'message'} .= "Description: "
+                    . $violation->{'description'} . "\n";
+                $message{'message'} .= "Start: "
+                    . $violation->{'start_date'} . "\n";
+            }
+            $logger->info(
+                "sending email to admin regarding isolation of $mac behind VoIP phone"
+            );
+            # put the use statement here because we'll be able to get rid of it when refactoring this piece
+            use pf::util;
+            pfmailer(%message);
+        }
+    }
+}
+
 =back
 
 =head1 AUTHOR

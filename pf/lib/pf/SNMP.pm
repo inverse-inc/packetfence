@@ -2209,6 +2209,123 @@ sub NasPortToIfIndex {
         . "like MAC Authentication. Please let us know what hardware you are using");
     return $NAS_port;
 }
+
+=item handleReAssignVlanTrapForWiredMacAuth
+
+Called when a ReAssignVlan trap is received for a switch-port in Wired MAC Authentication.
+
+Default behavior is to bounce the port if there's no IPT device on it.
+If there is and we should have isolated the device send an email to the admins.
+
+=cut
+sub handleReAssignVlanTrapForWiredMacAuth {
+    my ($this, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    my $switch_ip = $this->{'_ip'};
+    my @locationlog = locationlog_view_open_switchport_no_VoIP( $switch_ip, $ifIndex );
+    if (!(@locationlog) || !defined($locationlog[0]->{'mac'}) || ($locationlog[0]->{'mac'} eq '' )) {
+        $logger->warn( "received reAssignVlan trap on $switch_ip ifIndex $ifIndex but can't determine non VoIP MAC");
+        return;
+    }
+
+    my $mac = $locationlog[0]->{'mac'};
+    my $hasPhone = $this->hasPhoneAtIfIndex($ifIndex);
+
+    # TODO extract that behavior in a method call in pf::vlan so it can be overridden easily
+    if ( !$hasPhone ) {
+        $logger->info( "no VoIP phone is currently connected at " . $switch_ip
+            . " ifIndex $ifIndex. Flipping port admin status"
+        );
+        $this->setAdminStatus( $ifIndex, 0 );
+        sleep(2);
+        $this->setAdminStatus( $ifIndex, 1 );
+
+    } else {
+
+        $logger->info(
+            "A VoIP phone is currently connected at $switch_ip ifIndex $ifIndex. Leaving everything as it is."
+        ); 
+        # TODO perform CoA (when implemented)
+
+        my @violations = violation_view_open_desc($mac);
+        if ( scalar(@violations) > 0 ) {
+            my %message;
+            $message{'subject'} = "VLAN isolation of $mac behind VoIP phone";
+            $message{'message'} = "The following computer has been isolated behind a VoIP phone\n";
+            $message{'message'} .= "MAC: $mac\n";
+
+            my $node_info = node_view($mac);
+            $message{'message'} .= "Owner: " . $node_info->{'pid'} . "\n";
+            $message{'message'} .= "Computer Name: " . $node_info->{'computername'} . "\n";
+            $message{'message'} .= "Notes: " . $node_info->{'notes'} . "\n";
+            $message{'message'} .= "Switch: " . $switch_ip . "\n";
+            $message{'message'} .= "Port (ifIndex): " . $ifIndex . "\n\n";
+            $message{'message'} .= "The violation details are\n";
+
+            foreach my $violation (@violations) {
+                $message{'message'} .= "Description: "
+                    . $violation->{'description'} . "\n";
+                $message{'message'} .= "Start: "
+                    . $violation->{'start_date'} . "\n";
+            }
+            $logger->info(
+                "sending email to admin regarding isolation of $mac behind VoIP phone"
+            );
+            # put the use statement here because we'll be able to get rid of it when refactoring this piece
+            use pf::util;
+            pfmailer(%message);
+        }
+    }
+}
+
+
+=item extractSsid
+
+Find RADIUS SSID parameter out of RADIUS REQUEST parameters
+
+SSID are not provided by a standardized parameter name so we encapsulate that complexity here.
+If your AP is not supported look in /usr/share/freeradius/dictionary* for vendor specific parameters.
+
+=cut
+sub extractSsid {
+    my ($this, $radius_request) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    # TODO get rid of the non standard ones and push them upstream (in their pf::SNMP::... modules)
+    if (defined($radius_request->{'Cisco-AVPair'})) {
+
+        if ($radius_request->{'Cisco-AVPair'} =~ /^ssid=(.*)$/) { # ex: Cisco-AVPair = "ssid=Inverse-Secure"
+            return $1;
+        } else {
+            $logger->info("Unable to extract SSID of Cisco-AVPair: ".$radius_request->{'Cisco-AVPair'});
+            return;
+        }
+    # TODO move into Aruba
+    } elsif (defined($radius_request->{'Aruba-Essid-Name'})) {
+        return $radius_request->{'Aruba-Essid-Name'};
+
+    # TODO move into HP
+    } elsif (defined($radius_request->{'Colubris-AVPair'})) {
+        # With HP Procurve AP Ccontroller, we receive an array of settings in Colubris-AVPair:
+        # Colubris-AVPair = ssid=Inv_Controller
+        # Colubris-AVPair = group=Default Group
+        # Colubris-AVPair = phytype=IEEE802dot11g
+        foreach (@{$radius_request->{'Colubris-AVPair'}}) {
+            if (/^ssid=(.*)$/) { return $1; }
+        }
+        $logger->info("Unable to extract SSID of Colubris-AVPair: ".@{$radius_request->{'Colubris-AVPair'}});
+        return;
+    }
+
+    $logger->info(
+        "Unable to extract SSID for module " . ref($this) . ". "
+        ."SSID-based VLAN assignments won't work. "
+        ."Please let us know so we can add support for it."
+    );
+    return;
+}
+
 =back
 
 =head1 AUTHOR

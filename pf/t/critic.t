@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Perl::Critic;
-use Test::More tests => 147;
+use Test::More tests => 149;
 
 # To generate this list, start with this: find lib/pf/ -exec echo "    '/usr/local/pf/{}'," \; | sort
 # TODO: should these really be absolute PATHs? I don't think so!
@@ -114,6 +114,8 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP/Intel/Express_460.pm',
     '/usr/local/pf/lib/pf/SNMP/Intel/Express_530.pm',
     '/usr/local/pf/lib/pf/SNMP/Intel.pm',
+    '/usr/local/pf/lib/pf/SNMP/Juniper.pm',
+    '/usr/local/pf/lib/pf/SNMP/Juniper/EX.pm',
     '/usr/local/pf/lib/pf/SNMP/Linksys.pm',
     '/usr/local/pf/lib/pf/SNMP/Linksys/SRW224G4.pm',
     '/usr/local/pf/lib/pf/SNMP/Meru.pm',

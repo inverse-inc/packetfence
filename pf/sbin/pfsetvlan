@@ -1590,25 +1590,26 @@ sub handleTrap {
         if (defined($connection_type) && $connection_type == WIRED_802_1X) {
             $logger->info("Forcing 802.1x re-authentication on $switch_ip:$switch_port. A new VLAN will be assigned.");
             `/usr/local/pf/bin/pfcmd_vlan -deauthenticateDot1x -switch $switch_ip -ifIndex $switch_port`;
+
+        } elsif (defined($connection_type) && $connection_type == WIRED_MAC_AUTH) {
+            $switch->handleReAssignVlanTrapForWiredMacAuth($switch_port);
+
         } else {
 
-            my @locationlog
-                = locationlog_view_open_switchport_no_VoIP( $switch_ip,
-                $switch_port );
-            if (   (@locationlog)
-                && ( scalar(@locationlog) > 0 )
-                && ( $locationlog[0]->{'mac'} ne '' ) )
-            {
+            my @locationlog = locationlog_view_open_switchport_no_VoIP( $switch_ip, $switch_port );
+            if ((@locationlog) && ( scalar(@locationlog) > 0 ) && ( $locationlog[0]->{'mac'} ne '' )) {
+
                 my $mac = $locationlog[0]->{'mac'};
     
                 if ( $switch->isPortSecurityEnabled($switch_port) ) {
-                    $logger->info( "security traps are configured on "
-                            . $switch->{_ip}
-                            . " ifIndex $switch_port. Re-assigning VLAN for $mac"
+                    $logger->info( "security traps are configured on " . $switch->{_ip}
+                        . " ifIndex $switch_port. Re-assigning VLAN for $mac"
                     );
+
                     my $hasPhone = $switch->hasPhoneAtIfIndex($switch_port);
-                    node_determine_and_set_into_VLAN( $mac, $switch,
-                        $switch_port );
+                    node_determine_and_set_into_VLAN( $mac, $switch, $switch_port );
+
+                    # TODO extract that behavior in a method call in pf::vlan so it can be overridden easily
                     if ( !$hasPhone ) {
                         $logger->info( "no VoIP phone is currently connected at "
                                 . $switch->{_ip}
@@ -1617,26 +1618,21 @@ sub handleTrap {
                         $switch->setAdminStatus( $switch_port, 0 );
                         sleep(2);
                         $switch->setAdminStatus( $switch_port, 1 );
+
                     } else {
                         my @violations = violation_view_open_desc($mac);
                         if ( scalar(@violations) > 0 ) {
                             my %message;
-                            $message{'subject'}
-                                = "VLAN isolation of $mac behind VoIP phone";
-                            $message{'message'}
-                                = "The following computer has been isolated behind a VoIP phone\n";
+                            $message{'subject'} = "VLAN isolation of $mac behind VoIP phone";
+                            $message{'message'} = "The following computer has been isolated behind a VoIP phone\n";
                             $message{'message'} .= "MAC: $mac\n";
+
                             my $node_info = node_view($mac);
-                            $message{'message'}
-                                .= "Owner: " . $node_info->{'pid'} . "\n";
-                            $message{'message'} .= "Computer Name: "
-                                . $node_info->{'computername'} . "\n";
-                            $message{'message'}
-                                .= "Notes: " . $node_info->{'notes'} . "\n";
-                            $message{'message'}
-                                .= "Switch: " . $switch->{_ip} . "\n";
-                            $message{'message'}
-                                .= "Port (ifIndex): " . $switch_port . "\n\n";
+                            $message{'message'} .= "Owner: " . $node_info->{'pid'} . "\n";
+                            $message{'message'} .= "Computer Name: " . $node_info->{'computername'} . "\n";
+                            $message{'message'} .= "Notes: " . $node_info->{'notes'} . "\n";
+                            $message{'message'} .= "Switch: " . $switch->{_ip} . "\n";
+                            $message{'message'} .= "Port (ifIndex): " . $switch_port . "\n\n";
                             $message{'message'} .= "The violation details are\n";
     
                             foreach my $violation (@violations) {
@@ -1652,8 +1648,7 @@ sub handleTrap {
                         }
                     }
                 } else {
-                    $logger->info( "no security traps are configured on "
-                            . $switch->{_ip}
+                    $logger->info( "no security traps are configured on " . $switch->{_ip}
                             . " ifIndex $switch_port. Flipping port admin status"
                     );
                     $switch->setAdminStatus( $switch_port, 0 );

@@ -140,6 +140,7 @@
                            'HP::Controller_MSM710' => 'HP ProCurve MSM710 Mobility Controller',
                            'Intel::Express_460' => 'Intel Express 460',
                            'Intel::Express_530' => 'Intel Express 530',
+                           'Juniper::EX' => 'Juniper EX Series',
                            'Linksys::SRW224G4' => 'Linksys SRW224G4',
                            'Meru::MC3000' => 'Meru MC3000',
                            'Nortel::BayStack4550' => 'Nortel BayStack 4550',

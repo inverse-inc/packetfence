@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 147;
+use Test::More tests => 149;
 use lib '/usr/local/pf/lib';
 my $lib_path = '/usr/local/pf/lib';
 
@@ -58,6 +58,8 @@ BEGIN { use_ok('pf::SNMP::HP::Controller_MSM710') }
 BEGIN { use_ok('pf::SNMP::Intel') }
 BEGIN { use_ok('pf::SNMP::Intel::Express_460') }
 BEGIN { use_ok('pf::SNMP::Intel::Express_530') }
+BEGIN { use_ok('pf::SNMP::Juniper') }
+BEGIN { use_ok('pf::SNMP::Juniper::EX') }
 BEGIN { use_ok('pf::SNMP::Linksys') }
 BEGIN { use_ok('pf::SNMP::Linksys::SRW224G4') }
 BEGIN { use_ok('pf::SNMP::Meru') }
@@ -176,7 +178,7 @@ my @whitelist = (
     'createPortListWithOneItem', 'reverseBitmask', 'generateFakeMac', 'isFakeMac', 'isFakeVoIPMac', 'getVlanFdbId',
     'isNotUpLink', 'setVlan', 'setVlanAllPort', 'resetVlanAllPort', 'getMacAtIfIndex', 'hasPhoneAtIfIndex',
     'isPhoneAtIfIndex', '_authorizeMAC', 'getRegExpFromList', '_getMacAtIfIndex', 'getMacAddrVlan', 'getHubs',
-    'getVlanByName', 'isManagedVlan', 'deauthenticateMac', 'setVlan'
+    'getVlanByName', 'isManagedVlan', 'deauthenticateMac', 'setVlan', 'extractSsid'
 );
 
 my @missing_subs;
