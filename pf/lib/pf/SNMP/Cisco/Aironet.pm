@@ -20,6 +20,8 @@ The Vendor Specific Attributes (VSA) needs to be enabled for SSID identification
 
 Wireless deauthentication (deassociation) uses the CLI (telnet or ssh) which is expensive (doesn't scale very well).
 
+Using Pre-Shared Key and MAC filtering (RADIUS MAC Authentication) is not possible on these devices.
+
 =cut
 
 use strict;
