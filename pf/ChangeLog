@@ -1,3 +1,12 @@
+2010-12-13	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/conf/templates/configurator/reg-detect-vlan.conf, 
+	pf/conf/templates/configurator/reg-vlan.conf,
+	pf/conf/templates/configurator/zen-vlan.conf: Added vlan.dhcpd and 
+	vlan.named set to enabled by default. This is because our new 
+	configuration is using networks.conf to automatically manage the 
+	DHCP and DNS Servers. Along with updated documentation this fixes #1113.
+	http://www.packetfence.org/bugs/view.php?id=1113
+
 2010-12-10	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/docs/PacketFence_Network_Devices_Configuration_Guide.odt: Added
 	Juniper documentation for MAC Authentication (Juniper's MAC RADIUS)
