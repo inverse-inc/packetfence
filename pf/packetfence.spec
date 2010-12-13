@@ -213,7 +213,7 @@ cp -r installer.pl $RPM_BUILD_ROOT/usr/local/pf/
 cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
 cp -r NEWS $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README $RPM_BUILD_ROOT/usr/local/pf/
-cp -r README_SWITCHES $RPM_BUILD_ROOT/usr/local/pf/
+cp -r README.network-devices $RPM_BUILD_ROOT/usr/local/pf/
 cp -r UPGRADE $RPM_BUILD_ROOT/usr/local/pf/
 
 #start create symlinks
@@ -495,7 +495,7 @@ fi
 %dir                    /usr/local/pf/logs
 %doc                    /usr/local/pf/NEWS
 %doc                    /usr/local/pf/README
-%doc                    /usr/local/pf/README_SWITCHES
+%doc                    /usr/local/pf/README.network-devices
 %dir                    /usr/local/pf/sbin
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
@@ -519,6 +519,9 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Mon Dec 13 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+- File name changes
+
 * Thu Nov 25 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Got rid of the test directory. Binaries are now in addons/.
 - Renamed rlm_perl_packetfence to packetfence.pm in 802.1X 
