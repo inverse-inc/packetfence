@@ -21,6 +21,8 @@ You will notice security authorization made on wrong ifIndexes.
 A factory reset will resolve the situation. 
 We experienced the issue with a BayStack 470 running 3.7.5.13 but we believe it affects other BayStacks and firmwares. 
 
+=back
+
 =cut
 
 use strict;
