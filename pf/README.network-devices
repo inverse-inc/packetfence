@@ -21,20 +21,38 @@ points as long as they have the following functionalities:
 - RADIUS authentication (802.1X)
 - dynamic VLAN assignment based on RADIUS attributes
 - SNMP deassociation/deauthentication traps
-- CLI (or SNMP) commaned to deassociate/deauthenticate a STA
+- CLI (or SNMP) command to deassociate/deauthenticate a client
 
-TODO TODO TODO
-Explain importance of deauthentication
-There is documentation somewhere 
+Most of these features work out of the box for enterprise grade Access Points
+or Controllers. Where the situation starts to vary is for deauthentication 
+support.
 
+SSH / Telnet is an error prone interface and requires preparation for the SSH 
+access or is insecure for Telnet.
+
+SNMP is implemented when available but not all vendor support it.
+
+RADIUS is an upcoming deauthentication mechanism in PacketFence. It's the 
+support for RFC 3576 Change of Authorization (CoA) or Disconnect-Messages (DM 
+aka PoD). Once implemented it will be the best deauthentication technique.
 
 Deauthentication support
                              |   SSH /  |          |          | 
                              |  Telnet  |   SNMP   |  RADIUS* |
 -----------------------------|----------|----------|----------|
-AP TODO                      |    XX    |    --    |    --    |
+Aruba                        |    XX    |    --    |    --    |
 -----------------------------|----------|----------|----------|
-Controller TODO              |    XX    |    XX    |    --    |
+Cisco Aironet                |    XX    |    --    |    --    |
+-----------------------------|----------|----------|----------|
+Cisco WLC 2106               |    XX    |    --    |    --    |
+-----------------------------|----------|----------|----------|
+Cisco WLC 4400 and others    |    --    |    XX    |    --    |
+-----------------------------|----------|----------|----------|
+Dlink DWS                    |    --    |    XX    |    --    |
+-----------------------------|----------|----------|----------|
+HP ProCurve MSM              |    --    |    XX    |    --    |
+-----------------------------|----------|----------|----------|
+Meru                         |    XX    |    --    |    --    |
 -----------------------------|----------|----------|----------|
 
 *: RADIUS RFC 3576 Change of Authorization (CoA) or Disconnect-Messages (DM aka PoD)
@@ -136,7 +154,6 @@ SMC TS6224M                  |    XX    |    --    |    ??    |    --    |   -- 
 SMC SMC8824M - SMC8848M      |    XX    |    --    |    XX    |    --    |   --   |
 -----------------------------|----------|----------|----------|----------|--------|
 
-TODO TODO TODO: should this stay here or be merged in one of our guides?
 ======================================
 LinkUp/Down traps
 ======================================
