@@ -5,11 +5,10 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
-o Upgrading from a version prior to <release>:
+o Upgrading from a version prior to 2.0.0:
 
     - Database schema update
-    New fields were added as a part of the Radius unification. You can update
-    your schema with:
+    Several new fields were added. You need to update your schema with:
     mysql -u root -p pf -v < db/upgrade-1.9.0-2.0.0.sql
 
     - FreeRADIUS module rewritten and renamed

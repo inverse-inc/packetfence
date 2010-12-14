@@ -14,7 +14,7 @@ For a list of compatibility related changes see the UPGRADE file.
 
 
 --------------------------------------------------------------------------------
-Version <release> - <codename> released on <releaseDate>
+Version 2.0.0 released on 2010-12-14
 
 New Hardware Support
 - SMC TigerStack 6128 L2 support in Port Security (feature sponsored by Seattle
