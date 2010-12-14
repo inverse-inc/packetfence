@@ -1,4 +1,8 @@
 2010-12-14	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/docs/PacketFence_Administration_Guide.odt: New Production DHCP
+	access section. Reworked other places here and there and fixed some
+	sections based on testing feedback.
+
 	* pf/lib/pf/node.pm: Fixed an issue where a node's last locationlog
 	information was wrong. SQL JOIN problem.
 
