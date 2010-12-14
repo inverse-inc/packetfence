@@ -550,30 +550,15 @@ sub setVlan {
     }
 
     if ( $vlan == $newVlan ) {
-        $logger->info( "Should set "
-                . $this->{_ip}
-                . " ifIndex $ifIndex to VLAN $newVlan but it is already in this VLAN -> Do nothing"
+        $logger->info(
+            "Should set " . $this->{_ip}
+            . " ifIndex $ifIndex to VLAN $newVlan but it is already in this VLAN -> Do nothing"
         );
-
         return 1;
     }
-    # FIXME get rid of this if everything works fine
-    # so far so good, you can get rid of the below lines after I did a lot of tests
-    #update locationlog
-    # - not sure this is useful after locationlog_synchronize
-    # - test with it disabled
-    #$logger->debug("updating locationlog for " . $this->{_ip} . " ifIndex $ifIndex" );
-    #if ($closeAllOpenLocationlogEntries) {
-    #    locationlog_update_end( $this->{_ip}, $ifIndex, $presentPCMac );
-    #} else {
-    #    locationlog_update_end_switchport_no_VoIP( $this->{_ip}, $ifIndex );
-    #}
-    #locationlog_insert_start($this->{_ip}, $ifIndex, $newVlan, $presentPCMac, NO_VOIP, WIRED_SNMP_TRAPS);
 
     #and finally set the VLAN
-    $logger->info( "setting VLAN at "
-            . $this->{_ip}
-            . " ifIndex $ifIndex from $vlan to $newVlan" );
+    $logger->info("setting VLAN at " . $this->{_ip} . " ifIndex $ifIndex from $vlan to $newVlan");
     return $this->_setVlan( $ifIndex, $newVlan, $vlan, $switch_locker_ref );
 }
 
@@ -1294,6 +1279,11 @@ sub getPhonesDPAtIfIndex {
     return @phones;
 }
 
+=item hasPhoneAtIfIndex
+
+Is there at least one IP Phone on the given ifIndex.
+
+=cut
 sub hasPhoneAtIfIndex {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -1305,18 +1295,13 @@ sub hasPhoneAtIfIndex {
 
     my @macArray = $this->_getMacAtIfIndex( $ifIndex, $this->getVoiceVlan($ifIndex) );
     foreach my $mac (@macArray) {
-        if ( !$this->isFakeMac($mac) ) {
 
-            $logger->trace("determining if node $mac is VoIP");
-            my $node_info = node_view($mac);
-
-            # is node voip ?
-            if (defined($node_info) && $node_info->{'voip'} eq VOIP) {
-                return 1;
-            }
+        if ($this->isPhoneAtIfIndex($mac, $ifIndex)) {
+            return 1;
         }
     }
-    $logger->debug(
+
+    $logger->info(
         "determining through discovery protocols if "
         . $this->{_ip} . " ifIndex $ifIndex has VoIP phone connected"
     );
@@ -1341,28 +1326,25 @@ sub isPhoneAtIfIndex {
     $logger->trace("determining DHCP fingerprint info for $mac");
     my $node_info = node_view_with_fingerprint($mac);
 
-    #do we have node information
-    if (defined($node_info)) {
-        if ($node_info->{'voip'} eq VOIP) {
-            $logger->debug("This is a VoIP phone according to node.voip");
-            return 1;
-        }
-
-        if ( $node_info->{dhcp_fingerprint} =~ /VoIP Phone/ ) {
-            $logger->debug("DHCP fingerprint for $mac indicates VoIP phone");
-            # returning 1 here will have the consequence of the node 
-            # updating node.voip to yes in locationlog_synchronize
-            return 1;
-        }
-
-        #unknown DHCP fingerprint or no DHCP fingerprint
-        if ( $node_info->{dhcp_fingerprint} ne ' ' ) {
-            $logger->debug(
-                "DHCP fingerprint for $mac indicates " .$node_info->{dhcp_fingerprint}. ". This is not a VoIP phone"
-            );
-            return 0;
-        }
+    if (defined($node_info->{'voip'}) && $node_info->{'voip'} eq VOIP) {
+        $logger->debug("This is a VoIP phone according to node.voip");
+        return 1;
     }
+
+    if (defined($node_info->{dhcp_fingerprint}) && $node_info->{dhcp_fingerprint} =~ /VoIP Phone/) {
+        $logger->debug("DHCP fingerprint for $mac indicates VoIP phone");
+        # returning 1 here will have the consequence of the node 
+        # updating node.voip to yes in locationlog_synchronize
+        return 1;
+    }
+
+    #unknown DHCP fingerprint or no DHCP fingerprint
+    if (defined($node_info->{dhcp_fingerprint}) && $node_info->{dhcp_fingerprint} ne ' ') {
+        $logger->debug(
+            "DHCP fingerprint for $mac indicates " .$node_info->{dhcp_fingerprint}. ". This is not a VoIP phone"
+        );
+    }
+
     if (defined($ifIndex)) {
         $logger->debug("determining if $mac is VoIP phone through discovery protocols");
         my @phones = $this->getPhonesDPAtIfIndex($ifIndex);

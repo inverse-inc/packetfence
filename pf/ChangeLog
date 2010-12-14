@@ -1,4 +1,6 @@
 2010-12-14	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/SNMP.pm: Fixes to VoIP removed some commented code
+
 	* pf/docs/PacketFence_Administration_Guide.odt: New Production DHCP
 	access section. Reworked other places here and there and fixed some
 	sections based on testing feedback.
