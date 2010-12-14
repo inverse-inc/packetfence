@@ -1,3 +1,7 @@
+2010-12-14	Olivier Bilodeau <obilodeau@inverse.ca>
+	* pf/lib/pf/node.pm: Fixed an issue where a node's last locationlog
+	information was wrong. SQL JOIN problem.
+
 2010-12-13	Olivier Bilodeau <obilodeau@inverse.ca>
 	* pf/docs/PacketFence_Administration_Guide.odt: Re-organization and 
 	new documentation in the Administration Guide. Splitting concepts from

@@ -133,8 +133,8 @@ sub node_db_prepare {
             LEFT JOIN node_category USING (category_id) 
             LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
             LEFT JOIN locationlog ON node.mac=locationlog.mac 
-        WHERE node.mac=?
         GROUP BY node.mac
+        HAVING node.mac=?
     ]);
 
     $node_statements->{'node_view_with_fingerprint_sql'} = get_db_handle()->prepare(qq[
@@ -155,8 +155,8 @@ sub node_db_prepare {
             LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id 
             LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
             LEFT JOIN locationlog ON node.mac=locationlog.mac 
-        WHERE node.mac=?
         GROUP BY node.mac
+        HAVING node.mac=?
     ]);
 
     # This guy here is not in a prepared statement yet, have a look in node_view_all to see why
