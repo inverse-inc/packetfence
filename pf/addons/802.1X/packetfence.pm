@@ -19,8 +19,8 @@ use Sys::Syslog;
 # Configuration parameters
 use constant {
     # FreeRADIUS to PacketFence communications (SOAP Server settings)
-    ADMIN_USER     => 'admin',
-    ADMIN_PASS     => 'admin',
+    WS_USER        => 'webservice',
+    WS_PASS        => 'password',
     WEBADMIN_HOST  => 'localhost:1443',
     API_URI        => 'https://www.packetfence.org/PFAPI' #don't change this unless you know what you are doing
 };
@@ -63,7 +63,7 @@ use SOAP::Lite
 #TODO format well and document the fact that we might need re-create the object on error or something
 my $soap = new SOAP::Lite(
     uri   => API_URI,
-    proxy => 'https://'.ADMIN_USER.':'.ADMIN_PASS.'@'.WEBADMIN_HOST.'/webapi'
+    proxy => 'https://'.WS_USER.':'.WS_PASS.'@'.WEBADMIN_HOST.'/webapi'
 ) or return server_error_handler();
 
 =head1 SUBROUTINES
