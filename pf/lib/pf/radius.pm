@@ -462,7 +462,7 @@ sub _switchUnsupportedReply {
 
 =head1 BUGS AND LIMITATIONS
 
-Authentication of IP Phones (VoIP) over radius is not supported yet.
+None reported yet ;)
 
 =head1 AUTHOR
 
