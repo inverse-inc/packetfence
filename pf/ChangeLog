@@ -1,3 +1,10 @@
+2010-12-16      Francois Gaudreault <fgaudreault@inverse.ca>
+        * pf/docs/PacketFence_ZEN_Installation_Guide.odt: Update the ZEN
+        documentation for version 2.0.0
+
+        * pf/lib/pf/SNMP/Extricom.pm, pf/lib/pf/SNMP/Extricom/EXSW800.pm :
+        Support for the Extricom Wireless Controllers
+
 2010-12-14	Olivier Bilodeau <obilodeau@inverse.ca>
 	Version bump to 2.0.0
 

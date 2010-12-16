@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 149;
+use Test::More tests => 151;
 use lib '/usr/local/pf/lib';
 my $lib_path = '/usr/local/pf/lib';
 
@@ -47,6 +47,8 @@ BEGIN { use_ok('pf::SNMP::Enterasys::SecureStack_C3') }
 BEGIN { use_ok('pf::SNMP::Extreme') }
 BEGIN { use_ok('pf::SNMP::Extreme::Summit') }
 BEGIN { use_ok('pf::SNMP::Extreme::Summit_X250e') }
+BEGIN { use_ok('pf::SNMP::Extricom') }
+BEGIN { use_ok('pf::SNMP::Extricom::EXSW800') }
 BEGIN { use_ok('pf::SNMP::Foundry') }
 BEGIN { use_ok('pf::SNMP::Foundry::FastIron_4802') }
 BEGIN { use_ok('pf::SNMP::HP') }
@@ -125,6 +127,8 @@ my @SNMPobjects = qw(
     pf::SNMP::Extreme
     pf::SNMP::Extreme::Summit
     pf::SNMP::Extreme::Summit_X250e
+    pf::SNMP::Extricom
+    pf::SNMP::Extricom::EXSW800
     pf::SNMP::HP
     pf::SNMP::HP::Procurve_2500
     pf::SNMP::HP::Procurve_2600
