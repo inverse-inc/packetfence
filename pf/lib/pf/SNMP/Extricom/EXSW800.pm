@@ -1,4 +1,4 @@
-package pf::SNMP::Meru::MC3000;
+package pf::SNMP::Extricom::EXSW800;
 
 =head1 NAME
 
