@@ -13,7 +13,7 @@ Packetfence supports the following access points and wireless controlers:
 - Dlink DWS 3026
 - Extricom EXSW800
 - HP Procurve MSM710
-- Meru Networks MC3000
+- Meru Networks Controlers
 
 Eventhough this list is really small, PacketFence may support many other access
 points as long as they have the following functionalities:
@@ -55,7 +55,7 @@ Extricom EXSW800             |    --    |    XX    |          |
 -----------------------------|----------|----------|----------|
 HP ProCurve MSM              |    --    |    XX    |    --    |
 -----------------------------|----------|----------|----------|
-Meru                         |    XX    |    --    |    --    |
+Meru Networks                |    XX    |    --    |    --    |
 -----------------------------|----------|----------|----------|
 
 *: RADIUS RFC 3576 Change of Authorization (CoA) or Disconnect-Messages (DM aka PoD)
