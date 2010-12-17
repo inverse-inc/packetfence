@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 592;
+use Test::More tests => 596;
 
 my @files = (
     '/usr/local/pf/addons/accounting.pl',
