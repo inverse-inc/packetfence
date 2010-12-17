@@ -19,6 +19,9 @@ Version 2.0.1
 New Hardware Support
 - Extricom EXSW800 Wireless Controller
 
+Enhancements
+- Add missing variable in snort.conf template (#1138)
+
 --------------------------------------------------------------------------------
 Version 2.0.0 released on 2010-12-14
 

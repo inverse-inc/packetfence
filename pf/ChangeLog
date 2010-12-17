@@ -1,3 +1,10 @@
+2010-12-17      Francois Gaudreault <fgaudreault@inverse.ca>
+        * pf/docs/PacketFence_Network_Devices_Configuration_Guide.odt:
+        Modify the supported Meru Network Devices
+
+        * pf/conf/templates/snort.conf: Add missing TELNET_SERVERS variable
+        
+
 2010-12-16      Francois Gaudreault <fgaudreault@inverse.ca>
         * pf/docs/PacketFence_ZEN_Installation_Guide.odt: Update the ZEN
         documentation for version 2.0.0
