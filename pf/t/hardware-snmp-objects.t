@@ -65,7 +65,7 @@ BEGIN { use_ok('pf::SNMP::Juniper::EX') }
 BEGIN { use_ok('pf::SNMP::Linksys') }
 BEGIN { use_ok('pf::SNMP::Linksys::SRW224G4') }
 BEGIN { use_ok('pf::SNMP::Meru') }
-BEGIN { use_ok('pf::SNMP::Meru::MC3000') }
+BEGIN { use_ok('pf::SNMP::Meru::MC') }
 BEGIN { use_ok('pf::SNMP::MockedSwitch') }
 BEGIN { use_ok('pf::SNMP::Nortel') }
 BEGIN { use_ok('pf::SNMP::Nortel::BayStack4550') }
@@ -141,7 +141,7 @@ my @SNMPobjects = qw(
     pf::SNMP::Linksys
     pf::SNMP::Linksys::SRW224G4
     pf::SNMP::Meru  
-    pf::SNMP::Meru::MC3000
+    pf::SNMP::Meru::MC
     pf::SNMP::MockedSwitch
     pf::SNMP::Nortel
     pf::SNMP::Nortel::BayStack4550

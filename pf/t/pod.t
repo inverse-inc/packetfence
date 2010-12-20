@@ -118,7 +118,7 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP/Linksys.pm',
     '/usr/local/pf/lib/pf/SNMP/Linksys/SRW224G4.pm',
     '/usr/local/pf/lib/pf/SNMP/Meru.pm',
-    '/usr/local/pf/lib/pf/SNMP/Meru/MC3000.pm',
+    '/usr/local/pf/lib/pf/SNMP/Meru/MC.pm',
     '/usr/local/pf/lib/pf/SNMP/MockedSwitch.pm',
     '/usr/local/pf/lib/pf/SNMP/Nortel/BayStack4550.pm',
     '/usr/local/pf/lib/pf/SNMP/Nortel/BayStack470.pm',

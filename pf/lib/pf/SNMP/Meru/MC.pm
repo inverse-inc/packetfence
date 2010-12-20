@@ -1,13 +1,13 @@
-package pf::SNMP::Meru::MC3000;
+package pf::SNMP::Meru::MC;
 
 =head1 NAME
 
-pf::SNMP::Meru::MC3000 - Object oriented module to access MC3000 via Telnet/SSH
+pf::SNMP::Meru::MC - Object oriented module to access MC series controllers via Telnet/SSH
 
 =head1 SYNOPSIS
 
-The pf::SNMP::Meru::MC3000 module implements an object oriented interface
-to access MC3000 via Telnet/SSH
+The pf::SNMP::Meru::MC module implements an object oriented interface
+to access MC Series Controllers via Telnet/SSH
 
 =head1 STATUS
 
@@ -50,3 +50,4 @@ USA.
 =cut
 
 1;
+
