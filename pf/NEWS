@@ -14,7 +14,7 @@ For a list of compatibility related changes see the UPGRADE file.
 
 
 --------------------------------------------------------------------------------
-Version 2.0.1
+Version 2.0.1 - <codename> released on <releaseDate>
 
 New Hardware Support
 - Expend Meru Controllers support
@@ -22,6 +22,9 @@ New Hardware Support
 
 Enhancements
 - Add missing variable in snort.conf template (#1138)
+
+Bug fixes
+- pfdhcplistener is better at updating node IP information (#1149)
 
 --------------------------------------------------------------------------------
 Version 2.0.0 released on 2010-12-14

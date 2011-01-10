@@ -332,6 +332,7 @@ sub listen_dhcp {
         } elsif ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 8 ) {
             $ciaddr = int2ip($ciaddr);
             $logger->info("DHCPINFORM from $chaddr ($ciaddr)");
+            update_iplog( $chaddr, $ciaddr );
             return;
         }
 
