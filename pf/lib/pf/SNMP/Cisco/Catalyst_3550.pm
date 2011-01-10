@@ -13,6 +13,8 @@ This modules extends pf::SNMP::Cisco::Catalyst_2960
 
 =head1 BUGS AND LIMITATIONS
 
+Known issues with IOS 12.2(35)SE5. IOS 12.2(44)SE6 is known to work.
+
 IfIndex on this platform is not the same as port # or dot1d port.
 
 =cut
@@ -33,7 +35,7 @@ Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008,2010 Inverse inc.
+Copyright (C) 2006-2008,2010,2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
