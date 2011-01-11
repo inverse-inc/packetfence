@@ -435,7 +435,7 @@ sub violation_trigger {
 
         # we test here AND in violation_add because here we avoid a fork (and violation_add is called from elsewhere)
         if ( violation_exist_open( $mac, $vid ) ) {
-            $logger->info("violation $vid (trigger $type::$tid) already exists for $mac, not adding again");
+            $logger->info("violation $vid (trigger ${type}::${tid}) already exists for $mac, not adding again");
             next;
         }
 
@@ -443,11 +443,11 @@ sub violation_trigger {
         # we test here AND in violation_add because here we avoid a fork (and violation_add is called from elsewhere)
         my ($remaining_time) = violation_grace( $mac, $vid );
         if ($remaining_time > 0) {
-            $logger->info("$remaining_time grace remaining on violation $vid (trigger $type::$tid) for node $mac. Not adding violation.");
+            $logger->info("$remaining_time grace remaining on violation $vid (trigger ${type}::${tid}) for node $mac. Not adding violation.");
             next;
         }
 
-        $logger->info("calling '$bin_dir/pfcmd violation add vid=$vid,mac=$mac' (trigger $type::$tid)");
+        $logger->info("calling '$bin_dir/pfcmd violation add vid=$vid,mac=$mac' (trigger ${type}::${tid})");
         # forking a pfcmd because it will call a vlan flip if needed
         `$bin_dir/pfcmd violation add vid=$vid,mac=$mac`;
         $addedViolation = 1;

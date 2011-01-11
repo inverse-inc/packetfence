@@ -25,6 +25,7 @@ Enhancements
 
 Bug fixes
 - pfdhcplistener is better at updating node IP information (#1149)
+- Removed some unnecessary warnings (#1065)
 
 --------------------------------------------------------------------------------
 Version 2.0.0 released on 2010-12-14
