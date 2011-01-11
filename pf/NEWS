@@ -25,6 +25,7 @@ Enhancements
 
 Bug fixes
 - pfdhcplistener is better at updating node IP information (#1149)
+- Improved error handling in pfdhcplistener (#1150)
 - Removed some unnecessary warnings (#1065)
 
 --------------------------------------------------------------------------------
