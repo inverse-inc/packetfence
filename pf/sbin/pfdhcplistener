@@ -342,7 +342,7 @@ sub listen_dhcp {
 
         my %tmp;
         $tmp{'dhcp_fingerprint'} = "";
-        my $fingerprint_data;
+        my $fingerprint_data = '';
         if ( defined( $options{'55'} ) ) {
             my $dhcp_fingerprint = join( ",", @{ $options{'55'} } );
             $tmp{'dhcp_fingerprint'} = $dhcp_fingerprint;
@@ -478,7 +478,10 @@ sub daemonize {
         $logger->error("could not start a new session: $!");
     }
     open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
-    createpid("pfdhcplistener_$interface");
+    my $daemon_pid = createpid("pfdhcplistener_$interface");
+
+    # updating Log4perl's pid info
+    Log::Log4perl::MDC->put( 'tid',  $daemon_pid );
 }
 
 sub normal_sighandler {
