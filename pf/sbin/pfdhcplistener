@@ -47,7 +47,7 @@ Log::Log4perl->init( INSTALL_DIR . "/conf/log.conf" );
 my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 # storing process id instead of thread id in tid (more useful)
-Log::Log4perl::MDC->put( 'tid',  $$ );
+Log::Log4perl::MDC->put( 'tid',  $PID );
 
 POSIX::sigaction(
     &POSIX::SIGHUP,
