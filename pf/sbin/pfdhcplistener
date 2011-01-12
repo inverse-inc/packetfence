@@ -525,7 +525,7 @@ sub normal_sighandler {
 
 =head1 BUGS AND LIMITATIONS
 
-http://packetfence.org/mantis/view.php?id=637
+Probably
 
 =head1 AUTHOR
 
