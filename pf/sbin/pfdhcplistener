@@ -331,13 +331,13 @@ sub listen_dhcp {
         } elsif ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 3 ) {
             $logger->debug("DHCPREQUEST from $chaddr");
             my $lease_length = get_lease_length(%options);
-            if ($ciaddr) {
-                $ciaddr = int2ip($ciaddr);
+	    my $client_ip = get_requested_ip(%options);
+            if ($client_ip) {
                 $logger->info(
-                    "DHCPREQUEST from $chaddr ($ciaddr)"
+                    "DHCPREQUEST from $chaddr ($client_ip)"
                     . ( defined($lease_length) ? " with lease of $lease_length seconds" : "")
                 );
-                update_iplog( $chaddr, $ciaddr, $lease_length );
+                update_iplog( $chaddr, $client_ip, $lease_length );
             }
 
         } elsif ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 7 ) {
@@ -490,6 +490,24 @@ sub get_lease_length {
     }
 
     return $lease_length;
+}
+
+=item get_requested_ip
+
+Grab IP address from DHCP Option 50. See RFC 2132 for details.
+
+Option 50: Requested IP Address
+
+=cut
+sub get_requested_ip {
+    my (%options) = @_;
+
+    my $req_ip;
+    if ( exists( $options{50} ) ) {
+        $req_ip = int2ip( unpack( "N", pack( "C4", @{$options{50}} ) ) );
+    }
+
+    return $req_ip;
 }
 
 sub daemonize {
