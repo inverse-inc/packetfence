@@ -16,6 +16,7 @@ pfredirect [options]
 =cut
 
 use strict;
+use English qw( ‐no_match_vars ) ;  # Avoids regex performance penalty
 use Getopt::Std;
 use IO::Socket::INET;
 use File::Basename qw(basename);

@@ -16,6 +16,7 @@ pfdetect -p <snortpipe> [options]
 
 use strict;
 use warnings;
+use English qw( ‐no_match_vars ) ;  # Avoids regex performance penalty
 use Getopt::Std;
 use File::Basename qw(basename);
 use POSIX qw(:signal_h);
