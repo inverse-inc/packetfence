@@ -331,7 +331,7 @@ sub listen_dhcp {
         } elsif ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 3 ) {
             $logger->debug("DHCPREQUEST from $chaddr");
             my $lease_length = get_lease_length(%options);
-	    my $client_ip = get_requested_ip(%options);
+            my $client_ip = get_requested_ip(%options);
             if ($client_ip) {
                 $logger->info(
                     "DHCPREQUEST from $chaddr ($client_ip)"
