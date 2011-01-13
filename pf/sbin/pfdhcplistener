@@ -17,12 +17,12 @@ pfdhcplistener -i <interface> [options]
 use warnings;
 use strict;
 use English qw( ‐no_match_vars ) ;  # Avoids regex performance penalty
-use Getopt::Std;
-use Net::Pcap 0.16;
-use POSIX qw(:signal_h);
 use File::Basename qw(basename);
+use Getopt::Std;
 use Log::Log4perl;
+use Net::Pcap 0.16;
 use Pod::Usage;
+use POSIX qw(:signal_h);
 
 use constant INSTALL_DIR => '/usr/local/pf';
 
