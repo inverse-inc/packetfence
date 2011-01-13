@@ -15,6 +15,7 @@ pfredirect [options]
 
 =cut
 
+use warnings;
 use strict;
 use English qw( ‐no_match_vars ) ;  # Avoids regex performance penalty
 use Getopt::Std;
