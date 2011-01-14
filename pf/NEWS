@@ -22,6 +22,7 @@ New Hardware Support
 
 Enhancements
 - Add missing variable in snort.conf template (#1138)
+- Minor improvement to command-line and Web Admin help
 
 Bug fixes
 - pfdhcplistener is better at updating node IP information (#1149)

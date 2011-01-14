@@ -531,11 +531,14 @@ EOT
 
 sub help_import {
     print STDERR << "EOT";
-Usage: pfcmd import <nodes> <filename>
+Usage: pfcmd import <format> <filename>
 
 Bulk import into the database. File input must be a of CSV format.
 
-Node import format:
+Supported format:
+- nodes
+
+Nodes import format:
 <MAC>
 
 Node import automatically registers MACs with pid = 1
