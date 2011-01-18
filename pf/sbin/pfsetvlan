@@ -704,6 +704,9 @@ sub parseTrap {
                     }
                 } elsif ( $trapType eq 'dot11Deauthentication' ) {
                     $trapMac  = $trapHashRef->{'trapMac'};
+                    # WARNING: because trapLine parser expects a switch_port entry, we provide him an irrelevant
+                    # one here but no one shall consume it anymore (since 2.0 refactoring)
+                    $switch_port = 'WIFI';
                 } elsif ( ( $trapType eq 'secureMacAddrViolation' )
                     || ( $trapType eq 'secureDynamicMacAddrViolation' ) )
                 {
@@ -1671,7 +1674,7 @@ sub handleTrap {
         $logger->info("$trapType trap received on $switch_ip for wireless client $mac. closing locationlog entry");
 
         # we close the line opened for the mac. If there is no line, this won't do anything
-        locationlog_update_end( $switch_ip, $switch_port, $mac );
+        locationlog_update_end_mac( $mac );
 
         # }}}2
 
