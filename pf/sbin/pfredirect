@@ -15,15 +15,17 @@ pfredirect [options]
 
 =cut
 
+use warnings;
 use strict;
+use English qw( ‐no_match_vars ) ;  # Avoids regex performance penalty
+use File::Basename qw(basename);
 use Getopt::Std;
 use IO::Socket::INET;
-use File::Basename qw(basename);
-use threads;
-use threads::shared;
-use POSIX();
 use Log::Log4perl;
 use Pod::Usage;
+use POSIX();
+use threads;
+use threads::shared;
 
 use constant INSTALL_DIR => '/usr/local/pf';
 
