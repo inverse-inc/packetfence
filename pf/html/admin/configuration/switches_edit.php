@@ -151,7 +151,8 @@
                            'PacketFence' => 'PacketFence',
                            'SMC::TS6128L2' => 'SMC TigerStack 6128L2',
                            'SMC::TS6224M' => 'SMC TigerStack 6224M',
-                           'SMC::TS8800M' => 'SMC TigerStack 8800 Series'
+                           'SMC::TS8800M' => 'SMC TigerStack 8800 Series',
+                           'Xirrus' => 'Xirrus WiFi Arrays'
                       ), 
                      'hash', $val, "name='$key'");
         break;

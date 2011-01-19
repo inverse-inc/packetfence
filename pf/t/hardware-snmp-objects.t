@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 153;
+use Test::More tests => 155;
 use lib '/usr/local/pf/lib';
 my $lib_path = '/usr/local/pf/lib';
 
@@ -86,6 +86,7 @@ BEGIN { use_ok('pf::SNMP::ThreeCom::NJ220') }
 BEGIN { use_ok('pf::SNMP::ThreeCom::SS4200') }
 BEGIN { use_ok('pf::SNMP::ThreeCom::SS4500') }
 BEGIN { use_ok('pf::SNMP::ThreeCom::Switch_4200G') }
+BEGIN { use_ok('pf::SNMP::Xirrus') }
 
 my @SNMPobjects = qw(
     pf::SNMP
@@ -162,6 +163,7 @@ my @SNMPobjects = qw(
     pf::SNMP::ThreeCom::SS4200
     pf::SNMP::ThreeCom::SS4500
     pf::SNMP::ThreeCom::Switch_4200G
+    pf::SNMP::Xirrus
 );
 
 foreach my $obj_name (@SNMPobjects) {
