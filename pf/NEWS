@@ -17,7 +17,9 @@ For a list of compatibility related changes see the UPGRADE file.
 Version 2.0.1 - <codename> released on <releaseDate>
 
 New Hardware Support
-- Expend Meru Controllers support
+- Xirrus WiFi Arrays support (feature sponsored by the University of Mary 
+  Hardin-Baylor) 
+- Broaden Meru Controllers support
 - Extricom EXSW800 Wireless Controller
 
 Enhancements
