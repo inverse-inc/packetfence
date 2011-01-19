@@ -2,13 +2,15 @@ package pf::SNMP::Extricom;
 
 =head1 NAME
 
-pf::SNMP::Extricom - Object oriented module to access SNMP enabled Extricom 
-Wireless Controller
+pf::SNMP::Extricom - Object oriented module to parse SNMP traps and manage Extricom Wireless Switches
 
-=head1 SYNOPSIS
+=head1 STATUS
 
-The pf::SNMP::Extricom module implements an object oriented interface
-to access SNMP enabled Extricom Wireless Controller
+Developed and tested on Extricom EXSW800 Wireless Switch running firmware version TODO
+
+=head1 BUGS AND LIMITATIONS
+
+SNMPv3 has not been tested.
 
 =cut
 
@@ -26,6 +28,13 @@ use pf::config;
 use pf::SNMP::constants;
 use pf::util;
 
+=head1 SUBROUTINES
+
+=over
+
+=item parseTrap
+
+=cut
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
@@ -44,6 +53,12 @@ sub parseTrap {
     return $trapHashRef;
 }
 
+=item connectWrite 
+
+WARNING: Overriding connectWrite {} because the default test write fails on these devices.
+Writing to the read community instead (then putting back appropriate in place)
+
+=cut
 sub connectWrite {
     my $this   = shift;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -121,7 +136,9 @@ sub connectWrite {
     return 1;
 }
 
+=item deauthenticateMac
 
+=cut
 sub deauthenticateMac {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -144,7 +161,9 @@ sub deauthenticateMac {
             "SNMP set_request for clear_dot11_client: $OID_clearDot11Client"
         );
         my $result = $this->{_sessionWrite}->set_request(
-            -varbindlist => [ $OID_clearDot11Client, Net::SNMP::OCTET_STRING, "$mac" ] );
+            -varbindlist => [ $OID_clearDot11Client, Net::SNMP::OCTET_STRING, "$mac" ]
+        );
+
         # TODO: validate result
         $logger->info("deauthenticate mac $mac from controller: ".$this->{_ip});
         return ( defined($result) );
@@ -156,13 +175,15 @@ sub deauthenticateMac {
     }
 }
 
+=back
+
 =head1 AUTHOR
 
 Francois Gaudreault <fgaudreault@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2008, 2010 Inverse inc.
+Copyright (C) 2010,2011 Inverse inc.
 
 =head1 LICENSE
 

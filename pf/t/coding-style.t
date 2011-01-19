@@ -105,7 +105,7 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP/Extreme/Summit.pm',
     '/usr/local/pf/lib/pf/SNMP/Extreme/Summit_X250e.pm',
     '/usr/local/pf/lib/pf/SNMP/Extricom.pm',
-    '/usr/local/pf/lib/pf/SNMP/Extricom/EXSW800.pm',
+    '/usr/local/pf/lib/pf/SNMP/Extricom/EXSW.pm',
     '/usr/local/pf/lib/pf/SNMP/Foundry/FastIron_4802.pm',
     '/usr/local/pf/lib/pf/SNMP/Foundry.pm',
     '/usr/local/pf/lib/pf/SNMP/HP.pm',

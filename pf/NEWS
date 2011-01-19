@@ -20,7 +20,7 @@ New Hardware Support
 - Xirrus WiFi Arrays support (feature sponsored by the University of Mary 
   Hardin-Baylor) 
 - Broaden Meru Controllers support
-- Extricom EXSW800 Wireless Controller
+- Extricom EXSW Wireless Switches (Controllers) support
 
 Enhancements
 - Minor improvement to command-line and Web Admin help

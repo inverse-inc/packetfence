@@ -48,7 +48,7 @@ BEGIN { use_ok('pf::SNMP::Extreme') }
 BEGIN { use_ok('pf::SNMP::Extreme::Summit') }
 BEGIN { use_ok('pf::SNMP::Extreme::Summit_X250e') }
 BEGIN { use_ok('pf::SNMP::Extricom') }
-BEGIN { use_ok('pf::SNMP::Extricom::EXSW800') }
+BEGIN { use_ok('pf::SNMP::Extricom::EXSW') }
 BEGIN { use_ok('pf::SNMP::Foundry') }
 BEGIN { use_ok('pf::SNMP::Foundry::FastIron_4802') }
 BEGIN { use_ok('pf::SNMP::HP') }
@@ -129,7 +129,7 @@ my @SNMPobjects = qw(
     pf::SNMP::Extreme::Summit
     pf::SNMP::Extreme::Summit_X250e
     pf::SNMP::Extricom
-    pf::SNMP::Extricom::EXSW800
+    pf::SNMP::Extricom::EXSW
     pf::SNMP::HP
     pf::SNMP::HP::Procurve_2500
     pf::SNMP::HP::Procurve_2600
