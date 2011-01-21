@@ -214,8 +214,7 @@ sub authorizeMAC {
         foreach my $macPiece (@macArray) {
             $completeOid .= "." . hex($macPiece);
         }
-        # FIXME: it should be authVlan, doesn't it?
-        $completeOid .= "." . $deauthVlan;
+        $completeOid .= "." . $authVlan;
         push @oid_value, ( $completeOid, Net::SNMP::INTEGER, 4 );
     }
 
