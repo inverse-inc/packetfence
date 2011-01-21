@@ -200,6 +200,11 @@ if (questioner(
         print "  Current Admin Password: ";
         $mysqlAdminPass = <STDIN>;
         chop $mysqlAdminPass;
+        if ($mysqlAdminPass =~ /^$/) {
+            print "Please set a proper root password for your MySQL instance. Exiting\n";
+            print "Perhaps you did not configure mysql with /usr/bin/mysql_secure_installation?\n";
+            exit 1;
+        }
         $denied = (
             (   `echo "use pf"|mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' 2>&1`
                     =~ /Access denied/

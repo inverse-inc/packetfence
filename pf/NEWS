@@ -33,6 +33,7 @@ Bug fixes
 - Fixed authorized MAC method in Cisco Catalyst 2960 (#987)
 - Improved error handling in pfdhcplistener (#1150)
 - Fixed problems with configurator.pl generating erroneous configuration (#1148)
+- installer.pl now warns on empty MySQL root password (#1146)
 - Removed some unnecessary warnings (#1065)
 
 --------------------------------------------------------------------------------
