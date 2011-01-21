@@ -6,7 +6,7 @@ pf::SNMP::Extricom - Object oriented module to parse SNMP traps and manage Extri
 
 =head1 STATUS
 
-Developed and tested on Extricom EXSW800 Wireless Switch running firmware version TODO
+Developed and tested on Extricom EXSW800 Wireless Switch running firmware version 4.2.46.11
 
 =head1 BUGS AND LIMITATIONS
 
@@ -32,6 +32,32 @@ use pf::util;
 
 =over
 
+=item getVersion
+
+obtain image version information from switch
+
+=cut
+sub getVersion {
+    my ($this) = @_;
+    my $oid_inventoryswver = '1.3.6.1.4.1.23937.6.11.0'; # EXTRICOM-SNMP-MIB::inventoryswver
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    if ( !$this->connectRead() ) {
+        return '';
+    }
+    $logger->trace("SNMP get_request for sysDescr: $oid_inventoryswver");
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_inventoryswver] );
+    my $inventoryswver = ( $result->{$oid_inventoryswver} || '' );
+
+    # inventoryswver sample output: v4.2.46.11~xs_2010-Jul-21-1657
+
+    if ( $inventoryswver =~ m/v(\d+\.\d+\.\d+\.\d+)~.*/ ) {
+        return $1;
+    } else {
+        return $inventoryswver;
+    }
+}
+
 =item parseTrap
 
 =cut
@@ -40,7 +66,7 @@ sub parseTrap {
     my $trapHashRef;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    # clientDisassociate: .1.3.6.1.4.1.23937.2.1
+    # EXTRICOM-SNMP-MIB::clientDisassociate: .1.3.6.1.4.1.23937.2.1
     if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.23937\.2\.1 = STRING: "[0-9]+:Client ([0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2})/ ) {   
         $trapHashRef->{'trapType'} = 'dot11Deauthentication';
         $trapHashRef->{'trapMac'} = lc($1);
@@ -142,7 +168,7 @@ sub connectWrite {
 sub deauthenticateMac {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
-    my $OID_clearDot11Client = '1.3.6.1.4.1.23937.9.12.0';
+    my $OID_clearDot11Client = '1.3.6.1.4.1.23937.9.12.0'; # EXTRICOM-SNMP-MIB::clearDot11Client
 
     if ( !$this->isProductionMode() ) {
         $logger->info(
@@ -180,6 +206,8 @@ sub deauthenticateMac {
 =head1 AUTHOR
 
 Francois Gaudreault <fgaudreault@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
