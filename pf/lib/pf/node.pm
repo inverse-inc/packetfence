@@ -121,18 +121,21 @@ sub node_db_prepare {
     $node_statements->{'node_view_sql'} = get_db_handle()->prepare(qq[
         SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
             IF(ISNULL(node_category.name), '', node_category.name) as category,
-            node.detect_date, node.regdate, node.unregdate, node.lastskip, 
+            node.detect_date, node.regdate, node.unregdate, node.lastskip,
             node.user_agent, node.computername, node.dhcp_fingerprint,
             node.last_arp, node.last_dhcp, 
-            locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan, 
-            IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type, 
-            locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
+            last_locationlog.switch as last_switch, last_locationlog.port as last_port,
+            last_locationlog.vlan as last_vlan,
+            IF(ISNULL(last_locationlog.connection_type), '', last_locationlog.connection_type) as last_connection_type,
+            last_locationlog.dot1x_username as last_dot1x_username, last_locationlog.ssid as last_ssid,
             COUNT(DISTINCT violation.id) as nbopenviolations,
             node.notes
-        FROM node 
-            LEFT JOIN node_category USING (category_id) 
+        FROM node
+            LEFT JOIN node_category USING (category_id)
             LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
-            LEFT JOIN locationlog ON node.mac=locationlog.mac 
+            LEFT JOIN (
+                SELECT * FROM locationlog ORDER BY start_time DESC LIMIT 1
+            ) as last_locationlog ON node.mac=last_locationlog.mac
         GROUP BY node.mac
         HAVING node.mac=?
     ]);
@@ -143,9 +146,10 @@ sub node_db_prepare {
             node.detect_date, node.regdate, node.unregdate, node.lastskip, 
             node.user_agent, node.computername, IFNULL(os_class.description, ' ') as dhcp_fingerprint, 
             node.last_arp, node.last_dhcp, 
-            locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan, 
-            IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type, 
-            locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
+            last_locationlog.switch as last_switch, last_locationlog.port as last_port,
+            last_locationlog.vlan as last_vlan,
+            IF(ISNULL(last_locationlog.connection_type), '', last_locationlog.connection_type) as last_connection_type,
+            last_locationlog.dot1x_username as last_dot1x_username, last_locationlog.ssid as last_ssid,
             COUNT(DISTINCT violation.id) as nbopenviolations,
             node.notes
         FROM node 
@@ -154,7 +158,9 @@ sub node_db_prepare {
             LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type 
             LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id 
             LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
-            LEFT JOIN locationlog ON node.mac=locationlog.mac 
+            LEFT JOIN (
+                SELECT * FROM locationlog ORDER BY start_time DESC LIMIT 1
+            ) as last_locationlog ON node.mac=last_locationlog.mac
         GROUP BY node.mac
         HAVING node.mac=?
     ]);
@@ -163,18 +169,21 @@ sub node_db_prepare {
     $node_statements->{'node_view_all_sql'} = qq[
         SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
             IF(ISNULL(node_category.name), '', node_category.name) as category,
-            node.detect_date, node.regdate, node.unregdate, node.lastskip, 
-            node.user_agent, node.computername, node.dhcp_fingerprint, 
+            node.detect_date, node.regdate, node.unregdate, node.lastskip,
+            node.user_agent, node.computername, node.dhcp_fingerprint,
             node.last_arp, node.last_dhcp,
-            locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan, 
-            IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type, 
-            locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
+            last_locationlog.switch as last_switch, last_locationlog.port as last_port, 
+            last_locationlog.vlan as last_vlan,
+            IF(ISNULL(last_locationlog.connection_type), '', last_locationlog.connection_type) as last_connection_type,
+            last_locationlog.dot1x_username as last_dot1x_username, last_locationlog.ssid as last_ssid,
             COUNT(DISTINCT violation.id) as nbopenviolations,
             node.notes
-        FROM node 
-            LEFT JOIN node_category USING (category_id) 
+        FROM node
+            LEFT JOIN node_category USING (category_id)
             LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
-            LEFT JOIN locationlog ON node.mac=locationlog.mac 
+            LEFT JOIN (
+                SELECT * FROM locationlog ORDER BY start_time DESC LIMIT 1
+            ) as last_locationlog ON node.mac=last_locationlog.mac
         GROUP BY node.mac
     ];
 

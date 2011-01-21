@@ -34,6 +34,8 @@ Bug fixes
 - Improved error handling in pfdhcplistener (#1150)
 - Fixed problems with configurator.pl generating erroneous configuration (#1148)
 - installer.pl now warns on empty MySQL root password (#1146)
+- Fixed node view database queries that were reporting wrong values under 
+  unknown circumstances (#1162)
 - Removed some unnecessary warnings (#1065)
 
 --------------------------------------------------------------------------------

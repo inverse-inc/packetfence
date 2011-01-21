@@ -7,6 +7,10 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <release>:
 
+    - Database schema update
+    A small update. You need to update your schema with:
+    mysql -u root -p pf -v < db/upgrade-2.0.0-2.0.1.sql
+
     - lib/pf/vlan.pm's fetchVlanForNode interface changed
     If you built a customized version of this method in lib/pf/vlan/custom.pm
     you will need to update it.

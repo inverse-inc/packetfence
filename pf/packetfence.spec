@@ -221,7 +221,7 @@ curdir=`pwd`
 
 #pf-schema.sql symlink
 cd $RPM_BUILD_ROOT/usr/local/pf/db
-ln -s pf-schema-2.0.0.sql ./pf-schema.sql
+ln -s pf-schema-2.0.1.sql ./pf-schema.sql
 
 #httpd.conf symlink
 #TODO: isn't it stupid to decide what Apache version is there at rpm build time?
