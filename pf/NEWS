@@ -31,6 +31,7 @@ Bug fixes
 - Fixed dot11Deauthentication traps issues with pfsetvlan (#1157)
 - Add missing variable in snort.conf template (#1138)
 - Improved error handling in pfdhcplistener (#1150)
+- Fixed problems with configurator.pl generating erroneous configuration (#1148)
 - Removed some unnecessary warnings (#1065)
 
 --------------------------------------------------------------------------------
