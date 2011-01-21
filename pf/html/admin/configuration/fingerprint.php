@@ -29,8 +29,6 @@
   $current_top="configuration";
   $current_sub="fingerprint";
 
-  include_once('../header.php');
-
   get_global_conf();
 
   ## Updating DHCP Fingerprints ##

@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 596;
+use Test::More tests => 600;
 
 my @files = (
     '/usr/local/pf/addons/accounting.pl',
@@ -101,7 +101,7 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP/Extreme/Summit.pm',
     '/usr/local/pf/lib/pf/SNMP/Extreme/Summit_X250e.pm',
     '/usr/local/pf/lib/pf/SNMP/Extricom.pm',
-    '/usr/local/pf/lib/pf/SNMP/Extricom/EXSW800.pm',
+    '/usr/local/pf/lib/pf/SNMP/Extricom/EXSW.pm',
     '/usr/local/pf/lib/pf/SNMP/Foundry/FastIron_4802.pm',
     '/usr/local/pf/lib/pf/SNMP/Foundry.pm',
     '/usr/local/pf/lib/pf/SNMP/HP.pm',
@@ -140,6 +140,7 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP/ThreeCom/SS4200.pm',
     '/usr/local/pf/lib/pf/SNMP/ThreeCom/SS4500.pm',
     '/usr/local/pf/lib/pf/SNMP/ThreeCom/Switch_4200G.pm',
+    '/usr/local/pf/lib/pf/SNMP/Xirrus.pm',
     '/usr/local/pf/lib/pf/SwitchFactory.pm',
     '/usr/local/pf/lib/pf/switchlocation.pm',
     '/usr/local/pf/lib/pf/traplog.pm',

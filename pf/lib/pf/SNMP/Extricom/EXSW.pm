@@ -1,14 +1,8 @@
-package pf::SNMP::Extricom::EXSW800;
+package pf::SNMP::Extricom::EXSW;
 
 =head1 NAME
 
-pf::SNMP::Extricom::EXSW800 - Object oriented module to access Extricom controller model
-EXSW8000 via SNMP
-
-=head1 SYNOPSIS
-
-The pf::SNMP::Extricom::EXSW800 module implements an object oriented interface
-to access Extricom EXSW800 via SNMP
+pf::SNMP::Extricom::EXSW - Object oriented module to parse SNMP traps and manage Extricom Wireless Switches
 
 =head1 STATUS
 

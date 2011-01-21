@@ -46,7 +46,8 @@ use pf::violation;
 Log::Log4perl->init( INSTALL_DIR . "/conf/log.conf" );
 my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
-Log::Log4perl::MDC->put( 'tid',  0 );
+# storing process id instead of thread id in tid (more useful)
+Log::Log4perl::MDC->put( 'tid',  $$ );
 
 POSIX::sigaction(
     &POSIX::SIGHUP,
@@ -106,6 +107,11 @@ END {
 
 exit(0);
 
+=head1 SUBROUTINES
+
+=over
+
+=cut
 sub dhcp_detector {
     my ($eth) = @_;
     my $filter = "udp and (port 67 or port 68)";
@@ -116,11 +122,14 @@ sub dhcp_detector {
     my $err;
     my $pcap_t = Net::Pcap::pcap_open_live( $eth, 576, 1, 0, \$err );
 
-    if ( ( Net::Pcap::compile( $pcap_t, \$filter_t, $filter, $opt, 0 ) )
-        == -1 )
-    {
+    if (!defined($pcap_t)) {
+        $logger->logdie("Unable to initiate packet capture. Is $eth an actual network interface?");
+    }
+
+    if ((Net::Pcap::compile( $pcap_t, \$filter_t, $filter, $opt, 0 )) == -1) {
         $logger->logdie("Unable to compile filter string '$filter'");
     }
+
     Net::Pcap::setfilter( $pcap_t, $filter_t );
     Net::Pcap::loop( $pcap_t, -1, \&process_pkt, $eth );
 }
@@ -282,11 +291,7 @@ sub listen_dhcp {
                 pfmailer(%rogue_message);
             }
         } elsif ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 5 ) {
-            my $lease_length = undef;
-            if ( exists( $options{51} ) ) {
-                $lease_length
-                    = unpack( "N", pack( "C4", @{ $options{51} } ) );
-            }
+            my $lease_length = get_lease_length();
 
             if ($yiaddr) {
                 $yiaddr = int2ip($yiaddr);
@@ -322,8 +327,19 @@ sub listen_dhcp {
     } elsif ( $op == 1 ) {
         if ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 1 ) {
             $logger->debug("DHCPDISCOVER from $chaddr");
+
         } elsif ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 3 ) {
             $logger->debug("DHCPREQUEST from $chaddr");
+            my $lease_length = get_lease_length(%options);
+            my $client_ip = get_requested_ip(%options);
+            if ($client_ip) {
+                $logger->info(
+                    "DHCPREQUEST from $chaddr ($client_ip)"
+                    . ( defined($lease_length) ? " with lease of $lease_length seconds" : "")
+                );
+                update_iplog( $chaddr, $client_ip, $lease_length );
+            }
+
         } elsif ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 7 ) {
             $ciaddr = int2ip($ciaddr);
             $logger->debug("DHCPRELEASE from $chaddr ($ciaddr)");
@@ -337,7 +353,7 @@ sub listen_dhcp {
 
         my %tmp;
         $tmp{'dhcp_fingerprint'} = "";
-        my $fingerprint_data;
+        my $fingerprint_data = '';
         if ( defined( $options{'55'} ) ) {
             my $dhcp_fingerprint = join( ",", @{ $options{'55'} } );
             $tmp{'dhcp_fingerprint'} = $dhcp_fingerprint;
@@ -458,6 +474,42 @@ sub update_iplog {
     iplog_open( $srcmac, $srcip, $lease_length );
 }
 
+=item get_lease_length
+
+Grab DHCP lease duration from DHCP Option 51. See RFC 2132 for details.
+
+Option 51: IP Address Lease Time
+
+=cut
+sub get_lease_length {
+    my (%options) = @_;
+
+    my $lease_length;
+    if ( exists( $options{51} ) ) {
+        $lease_length = unpack( "N", pack( "C4", @{ $options{51} } ) );
+    }
+
+    return $lease_length;
+}
+
+=item get_requested_ip
+
+Grab IP address from DHCP Option 50. See RFC 2132 for details.
+
+Option 50: Requested IP Address
+
+=cut
+sub get_requested_ip {
+    my (%options) = @_;
+
+    my $req_ip;
+    if ( exists( $options{50} ) ) {
+        $req_ip = int2ip( unpack( "N", pack( "C4", @{$options{50}} ) ) );
+    }
+
+    return $req_ip;
+}
+
 sub daemonize {
     chdir '/' or $logger->logdie("Can't chdir to /: $!");
     open STDIN, '<', '/dev/null'
@@ -473,7 +525,10 @@ sub daemonize {
         $logger->error("could not start a new session: $!");
     }
     open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
-    createpid("pfdhcplistener_$interface");
+    my $daemon_pid = createpid("pfdhcplistener_$interface");
+
+    # updating Log4perl's pid info
+    Log::Log4perl::MDC->put( 'tid',  $daemon_pid );
 }
 
 sub normal_sighandler {
@@ -484,9 +539,11 @@ sub normal_sighandler {
     }
 }
 
+=back
+
 =head1 BUGS AND LIMITATIONS
 
-http://packetfence.org/mantis/view.php?id=637
+Probably
 
 =head1 AUTHOR
 
@@ -504,7 +561,7 @@ Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2007-2010 Inverse inc.
+Copyright (C) 2007-2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

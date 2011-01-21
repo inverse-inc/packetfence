@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 153;
+use Test::More tests => 155;
 use lib '/usr/local/pf/lib';
 my $lib_path = '/usr/local/pf/lib';
 
@@ -48,7 +48,7 @@ BEGIN { use_ok('pf::SNMP::Extreme') }
 BEGIN { use_ok('pf::SNMP::Extreme::Summit') }
 BEGIN { use_ok('pf::SNMP::Extreme::Summit_X250e') }
 BEGIN { use_ok('pf::SNMP::Extricom') }
-BEGIN { use_ok('pf::SNMP::Extricom::EXSW800') }
+BEGIN { use_ok('pf::SNMP::Extricom::EXSW') }
 BEGIN { use_ok('pf::SNMP::Foundry') }
 BEGIN { use_ok('pf::SNMP::Foundry::FastIron_4802') }
 BEGIN { use_ok('pf::SNMP::HP') }
@@ -86,6 +86,7 @@ BEGIN { use_ok('pf::SNMP::ThreeCom::NJ220') }
 BEGIN { use_ok('pf::SNMP::ThreeCom::SS4200') }
 BEGIN { use_ok('pf::SNMP::ThreeCom::SS4500') }
 BEGIN { use_ok('pf::SNMP::ThreeCom::Switch_4200G') }
+BEGIN { use_ok('pf::SNMP::Xirrus') }
 
 my @SNMPobjects = qw(
     pf::SNMP
@@ -128,7 +129,7 @@ my @SNMPobjects = qw(
     pf::SNMP::Extreme::Summit
     pf::SNMP::Extreme::Summit_X250e
     pf::SNMP::Extricom
-    pf::SNMP::Extricom::EXSW800
+    pf::SNMP::Extricom::EXSW
     pf::SNMP::HP
     pf::SNMP::HP::Procurve_2500
     pf::SNMP::HP::Procurve_2600
@@ -162,6 +163,7 @@ my @SNMPobjects = qw(
     pf::SNMP::ThreeCom::SS4200
     pf::SNMP::ThreeCom::SS4500
     pf::SNMP::ThreeCom::Switch_4200G
+    pf::SNMP::Xirrus
 );
 
 foreach my $obj_name (@SNMPobjects) {

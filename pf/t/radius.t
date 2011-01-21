@@ -43,19 +43,19 @@ can_ok($radius, qw(
 
 # Setup
 # Wired MAC Auth example
-my $nas_port_type  = "Ethernet";
-my $switch_ip      = "192.168.0.2";
-my $request_is_eap = 0;
-my $mac            = "aa:bb:cc:dd:ee:ff";
-my $port           = 12345;
-my $user_name      = "aabbccddeeff";
-my $ssid           = "";
+my $radius_request = {
+    'Calling-Station-Id' => "aa:bb:cc:dd:ee:ff",
+    'NAS-IP-Address' => "192.168.0.2",
+    'User-Name' => "aabbccddeeff",
+    'NAS-Port-Type' => "Ethernet",
+    'NAS-Port' => 12345,
+};
 
 # Answers
 my $regist_vlan = 3;
 
 # standard Wired MAC Auth query, expect registration
-my $radius_response = $radius->authorize($nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid);
+my $radius_response = $radius->authorize($radius_request);
 is_deeply($radius_response, 
     [$RADIUS::RLM_MODULE_OK, (
         'Tunnel-Private-Group-ID'=> $regist_vlan,
@@ -65,16 +65,16 @@ is_deeply($radius_response,
 );
 
 # invalid switch
-$switch_ip = "10.0.0.100";
-$radius_response = $radius->authorize($nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid);
+$radius_request->{'NAS-IP-Address'} = "10.0.0.100";
+$radius_response = $radius->authorize($radius_request);
 is_deeply($radius_response, 
     [$RADIUS::RLM_MODULE_FAIL, undef],
     "expect failure: switch doesn't exist"
 );
 
 # switch doesn't support Wired MAC Auth 
-$switch_ip = "192.168.0.1";
-$radius_response = $radius->authorize($nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid);
+$radius_request->{'NAS-IP-Address'} = "192.168.0.1";
+$radius_response = $radius->authorize($radius_request);
 is_deeply($radius_response, 
     [$RADIUS::RLM_MODULE_FAIL, undef],
     "expect failure: switch doesn't support Wired MAC Auth"
@@ -86,31 +86,35 @@ my $switchFactory = new pf::SwitchFactory( -configFile => './data/switches.conf'
 my $switch = $switchFactory->instantiate('192.168.0.1');
 $switch->{_VoIPEnabled} = 1;
 
-$radius_response = $radius->_authorizeVoip(WIRED_MAC_AUTH, $switch, $mac, $port, $user_name, $ssid);
+$radius_response = $radius->_authorizeVoip(
+    WIRED_MAC_AUTH, $switch, $radius_request->{'Calling-Station-Id'}, 
+    $radius_request->{'NAS-Port'}, $radius_request->{'User-Name'}, undef
+);
 is_deeply($radius_response,
     [$RADIUS::RLM_MODULE_FAIL, undef],
     "expect failure: VoIP phone on radius is not supported yet"
 );
 
 # Wired 802.1X example
-$nas_port_type  = "Ethernet";
-$switch_ip      = "192.168.0.1";
-$request_is_eap = 1;
-$mac            = "aa:bb:cc:dd:ee:ff";
-$port           = 12345;
-$user_name      = "aabbccddeeff";
-$ssid           = "";
+$radius_request = {
+    'Calling-Station-Id' => "aa:bb:cc:dd:ee:ff",
+    'NAS-IP-Address' => "192.168.0.1",
+    'User-Name' => "aabbccddeeff",
+    'NAS-Port-Type' => "Ethernet",
+    'NAS-Port' => 12345,
+    'EAP-Type' => "mschap",
+};
 
 # switch doesn't support 802.1X 
-$radius_response = $radius->authorize($nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid);
+$radius_response = $radius->authorize($radius_request);
 is_deeply($radius_response, 
     [$RADIUS::RLM_MODULE_FAIL, undef],
     "expect failure: switch doesn't support wired 802.1X"
 );
 
 # standard 802.1X query, expect registration
-$switch_ip      = "192.168.0.2";
-$radius_response = $radius->authorize($nas_port_type, $switch_ip, $request_is_eap, $mac, $port, $user_name, $ssid);
+$radius_request->{'NAS-IP-Address'} = "192.168.0.2";
+$radius_response = $radius->authorize($radius_request);
 is_deeply($radius_response, 
     [$RADIUS::RLM_MODULE_OK, (
         'Tunnel-Private-Group-ID'=> $regist_vlan,

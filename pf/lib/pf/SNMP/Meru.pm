@@ -32,6 +32,10 @@ Based on CLI access.
 
 =over
 
+=cut
+
+# TODO this module needs a parseTrap for dot11Deauthentication traps
+
 =item deauthenticateMac
 
 deauthenticate a MAC address from wireless network

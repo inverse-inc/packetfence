@@ -186,8 +186,7 @@ sub write_changes {
     }
    
     foreach my $section ( tied(%dhcp_dns)->Sections ) {
-        delete $dhcp_dns{$section}
-            if ( scalar( keys( %{ $dhcp_dns{$section} } ) ) == 0 );
+        delete $dhcp_dns{$section} if ( scalar( keys( %{ $dhcp_dns{$section} } ) ) == 0 );
     }
 
     tied(%dhcp_dns)->WriteConfig("$conf_dir/networks.conf")
@@ -201,6 +200,12 @@ sub write_changes {
             my $ip = $net->{ip};
             $cfg{"interface $int"}{'ip'} = $ip;
         }
+    }
+
+    # deleting network section from pf.conf
+    foreach my $section ( tied(%cfg)->Sections ) {
+        next if ( $section !~ /^network (.+)/i );
+        delete $cfg{$section};
     }
 
     print "Committing settings...\n";
@@ -545,10 +550,10 @@ sub config_network_interfaces {
 sub config_Registration_Isolation_networks {
     my ( $type, $prefix, $count );
 
-    config_networks('Registration');
+    config_networks('registration');
 
     if ( $template eq 8 ) {
-        config_networks('Isolation');
+        config_networks('isolation');
     }
 }
 
@@ -664,13 +669,15 @@ Kevin Amorin <kev@amorin.org>
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2008-2009 Inverse inc.
+Copyright (C) 2008-2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

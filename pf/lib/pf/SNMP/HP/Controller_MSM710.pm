@@ -55,26 +55,25 @@ sub getVersion {
 
 =cut
 
-#sub parseTrap {
-#    my ( $this, $trapString ) = @_;
-#    my $trapHashRef;
-#    my $logger = Log::Log4perl::get_logger( ref($this) );
-#
-#    # COLUBRIS-DEVICE-EVENT-MIB :: coDeviceEventSuccessfulDeAuthentication :: 1.3.6.1.4.1.8744.5.26.2.0.9
-#    # COLUBRIS-DEVICE-EVENT-MIB :: coDevEvDetMacAddress ::                    1.3.6.1.4.1.8744.5.26.1.2.2.1.2
-#
-#    if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.8744\.5\.26\.2\.0\.9[|]\.1\.3\.6\.1\.4\.1\.8744\.5\.26\.1\.2\.2\.1\.2.+Hex-STRING: ([0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2})/) {
-#        $trapHashRef->{'trapType'}    = 'dot11Deauthentication';
-#        $trapHashRef->{'trapIfIndex'} = "WIFI";
-#        $trapHashRef->{'trapMac'}     = lc($1);
-#        $trapHashRef->{'trapMac'} =~ s/ /:/g;
-#
-#    } else {
-#        $logger->debug("trap currently not handled");
-#        $trapHashRef->{'trapType'} = 'unknown';
-#    }
-#    return $trapHashRef;
-#}
+sub parseTrap {
+    my ( $this, $trapString ) = @_;
+    my $trapHashRef;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    # COLUBRIS-DEVICE-EVENT-MIB :: coDeviceEventSuccessfulDeAuthentication :: 1.3.6.1.4.1.8744.5.26.2.0.9
+    # COLUBRIS-DEVICE-EVENT-MIB :: coDevEvDetMacAddress ::                    1.3.6.1.4.1.8744.5.26.1.2.2.1.2
+
+    if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.8744\.5\.26\.2\.0\.9[|]\.1\.3\.6\.1\.4\.1\.8744\.5\.26\.1\.2\.2\.1\.2.+Hex-STRING: ([0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2})/) {
+        $trapHashRef->{'trapType'} = 'dot11Deauthentication';
+        $trapHashRef->{'trapMac'} = lc($1);
+        $trapHashRef->{'trapMac'} =~ s/ /:/g;
+
+    } else {
+        $logger->debug("trap currently not handled");
+        $trapHashRef->{'trapType'} = 'unknown';
+    }
+    return $trapHashRef;
+}
 
 =item deauthenticateMac - deauthenticate a MAC address from wireless network (including 802.1x) through SNMP
 

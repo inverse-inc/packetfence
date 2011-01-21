@@ -297,7 +297,7 @@ sub manage {
         require pf::violation;
         print pf::violation::violation_add( $mac, $id );
     }
-    generate_switchport_vlan_assignment( $mac, $function );
+    vlan_reevaluation( $mac, $function );
 }
 
 sub locationhistoryswitch {
@@ -2000,10 +2000,9 @@ sub command_param {
             if (    ($function eq 'violation_add')
                  || ( $function eq 'violation_delete' ) 
                  || ( $function eq 'violation_modify' ) ) {
-                generate_switchport_vlan_assignment( $params{mac},
-                    $function );
+                vlan_reevaluation( $params{mac}, $function );
             } else {
-                generate_switchport_vlan_assignment( $id, $function );
+                vlan_reevaluation( $id, $function );
             }
         }
         return (0);
@@ -2760,7 +2759,7 @@ sub sanity_check {
     }
 }
 
-sub generate_switchport_vlan_assignment {
+sub vlan_reevaluation {
     my ( $mac, $function ) = @_;
     # untaint MAC
     if ( $mac
@@ -2788,36 +2787,40 @@ sub generate_switchport_vlan_assignment {
         my $locationlog_entry = locationlog_view_open_mac($mac);
         if ($locationlog_entry) {
             require pf::vlan::custom;
-            my $switch_ip   = $locationlog_entry->{'switch'};
-            my $ifIndex     = $locationlog_entry->{'port'};
+            my $switch_ip = $locationlog_entry->{'switch'};
+            my $ifIndex = $locationlog_entry->{'port'};
             my $currentVlan = $locationlog_entry->{'vlan'};
-            $logger->info(
-                "$mac is currentlog connected at $switch_ip ifIndex $ifIndex in VLAN $currentVlan"
-            );
+            my $connection_type = $locationlog_entry->{'connection_type'};
+            my $user_name = $locationlog_entry->{'dot1x_username'};
+            my $ssid = $locationlog_entry->{'ssid'};
+
+            $logger->info( "$mac is currentlog connected at $switch_ip ifIndex $ifIndex in VLAN $currentVlan" );
 
             my $vlan_obj = new pf::vlan::custom();
             my $switchFactory = new pf::SwitchFactory(-configFile => "$conf_dir/switches.conf");
             my $switch = $switchFactory->instantiate($switch_ip);
             if (!$switch) {
-                $logger->error("Can not instantiate switch $switch_ip ! Won't change VLAN");
+                $logger->error("Can not instantiate switch $switch_ip! Won't change VLAN");
                 return 0;
             }
 
-            my $newCorrectVlan = $vlan_obj->fetchVlanForNode($mac, $switch, $ifIndex);
-            if ( $newCorrectVlan eq "-1" ) {
-                $logger->error("unable to determine correct VLAN for $mac");
-            } else {
-                $logger->info("new correct VLAN for $mac is $newCorrectVlan");
-                if ($newCorrectVlan ne $currentVlan) {
-                    $logger->info( "calling "
-                            . $Config{'vlan'}{'adjustswitchportvlanscript'}
-                            . " for node $mac (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
-                    );
-                    my @args = (
-                        $Config{'vlan'}{'adjustswitchportvlanscript'}, $mac
-                    );
-                    system(@args);
-                }
+            my $newCorrectVlan = $vlan_obj->fetchVlanForNode(
+                $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid
+            );
+            if ( $newCorrectVlan == -1 ) {
+                $logger->info(
+                    "new correct VLAN for $mac is $newCorrectVlan. calling "
+                    . $Config{'vlan'}{'adjustswitchportvlanscript'} . " on node"
+                );
+                my @args = ( $Config{'vlan'}{'adjustswitchportvlanscript'}, $mac );
+                system(@args);
+            } elsif ( $newCorrectVlan ne $currentVlan ) {
+                $logger->info(
+                    "calling " . $Config{'vlan'}{'adjustswitchportvlanscript'}
+                    . " for node $mac (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
+                );
+                my @args = ( $Config{'vlan'}{'adjustswitchportvlanscript'}, $mac );
+                system(@args);
             }
         } else {
             $logger->warn("Can't change VLAN for mac $mac because no open locationlog entry was found");
@@ -2844,7 +2847,7 @@ Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2008-2010 Inverse inc.
+Copyright (C) 2008-2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

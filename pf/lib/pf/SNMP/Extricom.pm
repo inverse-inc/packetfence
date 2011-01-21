@@ -2,13 +2,15 @@ package pf::SNMP::Extricom;
 
 =head1 NAME
 
-pf::SNMP::Extricom - Object oriented module to access SNMP enabled Extricom 
-Wireless Controller
+pf::SNMP::Extricom - Object oriented module to parse SNMP traps and manage Extricom Wireless Switches
 
-=head1 SYNOPSIS
+=head1 STATUS
 
-The pf::SNMP::Extricom module implements an object oriented interface
-to access SNMP enabled Extricom Wireless Controller
+Developed and tested on Extricom EXSW800 Wireless Switch running firmware version 4.2.46.11
+
+=head1 BUGS AND LIMITATIONS
+
+SNMPv3 has not been tested.
 
 =cut
 
@@ -26,17 +28,48 @@ use pf::config;
 use pf::SNMP::constants;
 use pf::util;
 
+=head1 SUBROUTINES
+
+=over
+
+=item getVersion
+
+obtain image version information from switch
+
+=cut
+sub getVersion {
+    my ($this) = @_;
+    my $oid_inventoryswver = '1.3.6.1.4.1.23937.6.11.0'; # EXTRICOM-SNMP-MIB::inventoryswver
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    if ( !$this->connectRead() ) {
+        return '';
+    }
+    $logger->trace("SNMP get_request for sysDescr: $oid_inventoryswver");
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_inventoryswver] );
+    my $inventoryswver = ( $result->{$oid_inventoryswver} || '' );
+
+    # inventoryswver sample output: v4.2.46.11~xs_2010-Jul-21-1657
+
+    if ( $inventoryswver =~ m/v(\d+\.\d+\.\d+\.\d+)~.*/ ) {
+        return $1;
+    } else {
+        return $inventoryswver;
+    }
+}
+
+=item parseTrap
+
+=cut
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    # clientDisassociate: .1.3.6.1.4.1.23937.2.1
-
+    # EXTRICOM-SNMP-MIB::clientDisassociate: .1.3.6.1.4.1.23937.2.1
     if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.23937\.2\.1 = STRING: "[0-9]+:Client ([0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2})/ ) {   
-        $trapHashRef->{'trapType'}    = 'dot11Deauthentication';
-        $trapHashRef->{'trapIfIndex'} = "WIFI";
-        $trapHashRef->{'trapMac'}     = lc($1);
+        $trapHashRef->{'trapType'} = 'dot11Deauthentication';
+        $trapHashRef->{'trapMac'} = lc($1);
         $trapHashRef->{'trapMac'} =~ s/ /:/g;
     
     } else {
@@ -46,6 +79,12 @@ sub parseTrap {
     return $trapHashRef;
 }
 
+=item connectWrite 
+
+WARNING: Overriding connectWrite {} because the default test write fails on these devices.
+Writing to the read community instead (then putting back appropriate in place)
+
+=cut
 sub connectWrite {
     my $this   = shift;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -123,11 +162,13 @@ sub connectWrite {
     return 1;
 }
 
+=item deauthenticateMac
 
+=cut
 sub deauthenticateMac {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
-    my $OID_clearDot11Client = '1.3.6.1.4.1.23937.9.12.0';
+    my $OID_clearDot11Client = '1.3.6.1.4.1.23937.9.12.0'; # EXTRICOM-SNMP-MIB::clearDot11Client
 
     if ( !$this->isProductionMode() ) {
         $logger->info(
@@ -146,7 +187,9 @@ sub deauthenticateMac {
             "SNMP set_request for clear_dot11_client: $OID_clearDot11Client"
         );
         my $result = $this->{_sessionWrite}->set_request(
-            -varbindlist => [ $OID_clearDot11Client, Net::SNMP::OCTET_STRING, "$mac" ] );
+            -varbindlist => [ $OID_clearDot11Client, Net::SNMP::OCTET_STRING, "$mac" ]
+        );
+
         # TODO: validate result
         $logger->info("deauthenticate mac $mac from controller: ".$this->{_ip});
         return ( defined($result) );
@@ -158,13 +201,17 @@ sub deauthenticateMac {
     }
 }
 
+=back
+
 =head1 AUTHOR
 
 Francois Gaudreault <fgaudreault@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2008, 2010 Inverse inc.
+Copyright (C) 2010,2011 Inverse inc.
 
 =head1 LICENSE
 

@@ -40,8 +40,11 @@ sub lookup_node {
         if (defined($node_iplog_info->{'ip'})) {
 
             $return .= "IP Address     : ".$node_iplog_info->{'ip'}." (active)\n";
-            $return .= "IP Info        : IP active since " . $node_iplog_info->{'start_time'} .
-                       " and DHCP lease valid until ".$node_iplog_info->{'end_time'}."\n";
+            $return .= "IP Info        : IP active since " . $node_iplog_info->{'start_time'};
+            if ($node_iplog_info->{'end_time'} ne '0000-00-00 00:00:00') {
+                $return .= " and DHCP lease valid until ".$node_iplog_info->{'end_time'};
+            }
+            $return .= "\n";
             
         } else {
             my @node_iplog_history_info = iplog_history_mac($mac);

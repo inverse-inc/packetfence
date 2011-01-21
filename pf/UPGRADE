@@ -5,6 +5,22 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to <release>:
+
+    - lib/pf/vlan.pm's fetchVlanForNode interface changed
+    If you built a customized version of this method in lib/pf/vlan/custom.pm
+    you will need to update it.
+
+    - Meru Controller 3000 now named Meru Controller
+    Since our code should work for all Meru Controllers, we renamed the module.
+    Meru::MC3000 is now Meru::MC. If you upgrade make sure you update your 
+    conf/switches.conf or Configuration -> Switches (in the web admin).
+
+    - Output of node lookup changed
+    The output of `pfcmd lookup node <mac>` changed. Make sure you update your
+    parsing scripts (if any). This also affects the Node lookup section of the
+    Web Admin interface.
+
 o Upgrading from a version prior to 2.0.0:
 
     - Database schema update

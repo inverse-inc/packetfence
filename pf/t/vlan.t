@@ -10,7 +10,7 @@ my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
 
-use Test::More tests => 10;
+use Test::More tests => 9;
 use Test::MockModule;
 
 use lib '/usr/local/pf/lib';
@@ -66,13 +66,6 @@ $mock->mock('node_view', sub {
 my $switch_vlan_override = $switchFactory->instantiate('10.0.0.1');
 $vlan = $vlan_obj->fetchVlanForNode('aa:bb:cc:dd:ee:ff', $switch_vlan_override, '1001');
 is($vlan, 15, "determine vlan for registered user on custom switch");
-
-# modify global $conf_dir so that t/data/switches.conf will be loaded instead of conf/switches.conf
-my $conf_dir = $main::pf::config::conf_dir;
-$main::pf::config::conf_dir = "/usr/local/pf/t/data";
-$vlan = $vlan_obj->fetchVlanForNode('aa:bb:cc:dd:ee:ff', undef, '1001');
-is($vlan, 1, "determine vlan for a broken switch");
-$main::pf::config::conf_dir = $conf_dir;
 
 # mocked node_view returns unreg node
 $mock->mock('node_view', sub {

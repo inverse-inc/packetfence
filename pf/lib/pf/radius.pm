@@ -153,14 +153,13 @@ sub authorize {
     }
 
     # grab vlan
-    my $vlan = $this->_findNodeVlan($vlan_obj, $mac, $switch, $port, $connection_type, $user_name, $ssid);
+    my $vlan = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid);
 
     # should this node be kicked out?
     if (defined($vlan) && $vlan == -1) {
-        $logger->info("According to rules in _findNodeVlan this node must be kicked out. Returning USERLOCK");
+        $logger->info("According to rules in fetchVlanForNode this node must be kicked out. Returning USERLOCK");
         $switch->disconnectRead();
         $switch->disconnectWrite();
-        # FIXME make sure this works before next release
         return [$RADIUS::RLM_MODULE_USERLOCK, undef];
     }
 
@@ -216,42 +215,6 @@ sub _parseRequest {
     }
 
     return ($nas_port_type, $networkdevice_ip, $eap_type, $mac, $port, $user_name);
-}
-
-=item * _findNodeVlan - what VLAN should a node be put into
-        
-This sub is meant to be overridden in lib/pf/radius/custom.pm if the default 
-version doesn't do the right thing for you. However it is very generic, 
-maybe what you are looking for needs to be done in pf::vlan's getViolationVlan, 
-getRegistrationVlan or getNormalVlan.
-    
-=cut    
-sub _findNodeVlan {
-    my ($this, $vlan_obj, $mac, $switch, $port, $connection_type, $user_name, $ssid) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-
-    # violation handling
-    my $violation = $vlan_obj->getViolationVlan($switch, $port, $mac, $connection_type, $user_name, $ssid);
-    if (defined($violation) && $violation != 0) {
-        # returning proper violation vlan
-        return $violation;
-    } elsif (!defined($violation)) {
-        $logger->warn("There was a problem identifying vlan for violation. Will act as if there was no violation.");
-    }
-
-    # there were no violation, now onto registration handling
-    my $node_info = node_view($mac);
-    my $registration = 
-        $vlan_obj->getRegistrationVlan($switch, $port, $mac, $node_info, $connection_type, $user_name, $ssid)
-    ;
-    if (defined($registration) && $registration != 0) {
-        return $registration;
-    }
-
-    # no violation, not unregistered, we are now handling a normal vlan
-    my $vlan = $vlan_obj->getNormalVlan($switch, $port, $mac, $node_info, $connection_type, $user_name, $ssid);
-    $logger->info("MAC: $mac, PID: " .$node_info->{pid}. ", Status: " .$node_info->{status}. ". Returned VLAN: $vlan");
-    return $vlan;
 }
 
 =item * _doWeActOnThisCall
@@ -470,7 +433,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009, 2010 Inverse inc.
+Copyright (C) 2009-2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

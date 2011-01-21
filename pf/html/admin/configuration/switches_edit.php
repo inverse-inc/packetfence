@@ -129,6 +129,7 @@
                            'Enterasys::SecureStack_C3' => 'Enterasys SecureStack C3',
                            'Enterasys::D2' => 'Enterasys Standalone D2',
                            'Extreme::Summit' => 'ExtremeNet Summit series',
+                           'Extricom::EXSW' => 'Extricom EXSW Controllers',
                            'Foundry::FastIron_4802' => 'Foundry FastIron 4802',
                            'HP::Procurve_2500' => 'HP ProCurve 2500 Series',
                            'HP::Procurve_2600' => 'HP ProCurve 2600 Series',
@@ -151,7 +152,8 @@
                            'PacketFence' => 'PacketFence',
                            'SMC::TS6128L2' => 'SMC TigerStack 6128L2',
                            'SMC::TS6224M' => 'SMC TigerStack 6224M',
-                           'SMC::TS8800M' => 'SMC TigerStack 8800 Series'
+                           'SMC::TS8800M' => 'SMC TigerStack 8800 Series',
+                           'Xirrus' => 'Xirrus WiFi Arrays'
                       ), 
                      'hash', $val, "name='$key'");
         break;
