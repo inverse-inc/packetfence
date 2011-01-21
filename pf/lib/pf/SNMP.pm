@@ -481,7 +481,9 @@ sub connectMySQL {
     return 1;
 }
 
-=item setVlan - set port VLAN
+=item setVlan
+
+Set a port to a VLAN validating some rules first then calling the switch's _setVlan.
 
 =cut
 
@@ -498,9 +500,8 @@ sub setVlan {
 
     my $vlan = $this->getVlan($ifIndex);
 
-    if ( !defined($presentPCMac)
-        && ( $newVlan ne $this->{_macDetectionVlan} ) )
-    {
+    if ( !defined($presentPCMac) && ( $newVlan ne $this->{_macDetectionVlan} ) ) {
+
         my @macArray = $this->_getMacAtIfIndex( $ifIndex, $vlan );
         if ( scalar(@macArray) == 1 ) {
             $presentPCMac = $macArray[0];
@@ -508,51 +509,63 @@ sub setVlan {
     }
 
     #handle some exceptions
-    if (!$this->isManagedVlan($vlan))
-    {    #unmanaged VLAN ?
+
+    # old VLAN is not a VLAN we manage
+    if (!$this->isManagedVlan($vlan)) {
+        $logger->warn("old VLAN $vlan is not a managed VLAN -> Do nothing");
+        return 1;
+    }
+
+    # VLAN -1 handling
+    # TODO at some point we should create a new blackhole / blacklist API 
+    # it would take advantage of per-switch features
+    if ($newVlan == -1) {
+        $logger->warn("VLAN -1 is not supported in SNMP-Traps mode. Returning the switch's mac-detection VLAN.");
+        $newVlan = $this->getVlanByName('macDetectionVlan');
+    }
+
+    # unmanaged VLAN
+    if (!$this->isManagedVlan($newVlan)) {   
         $logger->warn(
             "new VLAN $newVlan is not a managed VLAN -> replacing VLAN $newVlan with MAC detection VLAN "
-                . $this->{_macDetectionVlan} );
-        $newVlan = $this->{_macDetectionVlan};
+            . $this->getVlanByName('macDetectionVlan')
+        );
+        $newVlan = $this->getVlanByName('macDetectionVlan');
+    }
+
+    # VLAN are not defined on the switch
+    if ( !$this->isDefinedVlan($newVlan) ) {
+        if ( $newVlan == $this->getVlanByName('macDetectionVlan') ) {
+            $logger->warn(
+                "MAC detection VLAN " . $this->getVlanByName('macDetectionVlan')
+                . " is not defined on switch " . $this->{_ip}
+                . " -> Do nothing"
+            );
+            return 1;
+        }
+        $logger->warn(
+            "new VLAN $newVlan is not defined on switch " . $this->{_ip}
+            . " -> replacing VLAN $newVlan with MAC detection VLAN "
+            . $this->getVlanByName('macDetectionVlan')
+        );
+        $newVlan = $this->getVlanByName('macDetectionVlan');
+        if ( !$this->isDefinedVlan($newVlan) ) {
+            $logger->warn(
+                "MAC detection VLAN " . $this->getVlanByName('macDetectionVlan')
+                . " is also not defined on switch " . $this->{_ip}
+                . " -> Do nothing"
+            );
+            return 1;
+        }
     }
 
     #closes old locationlog entries and create a new one if required
     locationlog_synchronize($this->{_ip}, $ifIndex, $newVlan, $presentPCMac, NO_VOIP, WIRED_SNMP_TRAPS);
 
-    if ( !$this->isDefinedVlan($newVlan) ) {    #new VLAN is not defined
-        if ( $newVlan == $this->{_macDetectionVlan} ) {
-            $logger->warn( "MAC detection VLAN "
-                    . $this->{_macDetectionVlan}
-                    . " is not defined on switch "
-                    . $this->{_ip}
-                    . " -> Do nothing" );
-            return 1;
-        }
-        $logger->warn( "new VLAN $newVlan is not defined on switch "
-                . $this->{_ip}
-                . " -> replacing VLAN $newVlan with MAC detection VLAN "
-                . $this->{_macDetectionVlan} );
-        $newVlan = $this->{_macDetectionVlan};
-        if ( !$this->isDefinedVlan($newVlan) ) {
-            $logger->warn( "MAC detection VLAN "
-                    . $this->{_macDetectionVlan}
-                    . " is also not defined on switch "
-                    . $this->{_ip}
-                    . " -> Do nothing" );
-            return 1;
-        }
-    }
-
-    if ( grep( { $_ == $vlan } @{ $this->{_vlans} } ) == 0 )
-    {    #unmanaged VLAN ?
-        $logger->warn("old VLAN $vlan is not a managed VLAN -> Do nothing");
-        return 1;
-    }
-
     if ( $vlan == $newVlan ) {
         $logger->info(
-            "Should set " . $this->{_ip}
-            . " ifIndex $ifIndex to VLAN $newVlan but it is already in this VLAN -> Do nothing"
+            "Should set " . $this->{_ip} . " ifIndex $ifIndex to VLAN $newVlan "
+            . "but it is already in this VLAN -> Do nothing"
         );
         return 1;
     }
@@ -2334,7 +2347,7 @@ Regis Balzard <rbalzard@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2010 Inverse inc.
+Copyright (C) 2006-2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

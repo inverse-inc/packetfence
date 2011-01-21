@@ -26,9 +26,10 @@ Enhancements
 - Minor improvement to command-line and Web Admin help
 
 Bug fixes
+- Fixed pfcmd initiated VLAN re-evaluation (#1160)
+- pfdhcplistener is better at updating node IP information (#1149)
 - Fixed dot11Deauthentication traps issues with pfsetvlan (#1157)
 - Add missing variable in snort.conf template (#1138)
-- pfdhcplistener is better at updating node IP information (#1149)
 - Improved error handling in pfdhcplistener (#1150)
 - Removed some unnecessary warnings (#1065)
 

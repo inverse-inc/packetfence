@@ -51,34 +51,12 @@ getRegistrationVlan or getNormalVlan.
 
 =cut
 sub fetchVlanForNode {
-    my ( $this, $mac, $switch, $ifIndex ) = @_;
+    my ( $this, $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::vlan');
 
-    # is switch object correct?
-    my $valid_switch_object = (defined($switch) && ref($switch) && $switch->isa('pf::SNMP'));
-    if (!$valid_switch_object) {
-        # FIXME revisit this assumption depending on what we do with SwitchFactory caching
-        $logger->warn("Invalid switch object passed. I will use the default switch for now. "
-            ."Are you sure your switches.conf is correct?");
-        my $switchFactory = new pf::SwitchFactory(-configFile => $conf_dir.'/switches.conf');
-        $switch = $switchFactory->instantiate('default');
-        if (!$switch) {
-            $logger->error("Can't instantiate default switch! Check switches.conf. "
-                . "Don't expect PacketFence to run fine");
-        }
-        $switch->{_mode} = 'production'; # set this switch instance in production
-    }
-
     # violation handling
-    my $violation = $this->getViolationVlan($switch, $ifIndex, $mac, WIRED_SNMP_TRAPS);
+    my $violation = $this->getViolationVlan($switch, $ifIndex, $mac, $connection_type, $user_name, $ssid);
     if (defined($violation) && $violation != 0) {
-        if ($violation == -1) {
-            $logger->warn("Kicking out nodes on violation is not supported in SNMP-Traps mode. "
-                . "Returning the switch's isolation VLAN.");
-            return $switch->getVlanByName('isolationVlan');
-        }
-
-        # returning proper violation vlan
         return $violation;
     } elsif (!defined($violation)) {
         $logger->warn("There was a problem identifying vlan for violation. Will act as if there was no violation.");
@@ -86,19 +64,16 @@ sub fetchVlanForNode {
 
     # there were no violation, now onto registration handling
     my $node_info = node_view($mac);
-    my $registration = $this->getRegistrationVlan($switch, $ifIndex, $mac, $node_info, WIRED_SNMP_TRAPS);
+    my $registration = $this->getRegistrationVlan(
+        $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid
+    );
     if (defined($registration) && $registration != 0) {
         return $registration;
     }
 
     # no violation, not unregistered, we are now handling a normal vlan
-    my $vlan = $this->getNormalVlan($switch, $ifIndex, $mac, $node_info, WIRED_SNMP_TRAPS);
+    my $vlan = $this->getNormalVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
     $logger->info("MAC: $mac, PID: " .$node_info->{pid}. ", Status: " .$node_info->{status}. ". Returned VLAN: $vlan");
-    if (defined($vlan) && $vlan == -1) {
-        $logger->warn("Kicking out nodes on violation is not supported in SNMP-Traps mode. "
-            . "Returning the switch's isolation VLAN.");
-        return $switch->getVlanByName('isolationVlan');
-    }
     return $vlan;
 }
 
@@ -455,7 +430,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2010 Inverse inc.
+Copyright (C) 2007-2011 Inverse inc.
 
 =head1 LICENSE
 
