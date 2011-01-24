@@ -115,39 +115,6 @@ sub deauthenticateMac {
 
 }
 
-=item extractSsid
-
-Find RADIUS SSID parameter out of RADIUS REQUEST parameters
-
-Xirrus specific parser. See pf::SNMP for base implementation.
-
-=cut
-sub extractSsid {
-    my ($this, $radius_request) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-
-    # it's put in Called-Station-Id
-    # ie: Called-Station-Id = "aa-bb-cc-dd-ee-ff:Secure SSID"
-    if (defined($radius_request->{'Called-Station-Id'})) {
-        if ($radius_request->{'Called-Station-Id'} =~ /^
-            [a-f0-9]{2}-[a-f0-9]{2}-[a-f0-9]{2}-[a-f0-9]{2}-[a-f0-9]{2}-[a-f0-9]{2}   # MAC Address
-            :                                                                         # : delimiter
-            (.*)                                                                      # SSID
-        $/ix) {
-            return $1;
-        } else {
-            $logger->info("Unable to extract SSID of Called-Station-Id: ".$radius_request->{'Called-Station-Id'});
-        }
-    }
-
-    $logger->warn(
-        "Unable to extract SSID for module " . ref($this) . ". SSID-based VLAN assignments won't work. "
-        . "Please let us know so we can add support for it."
-    );
-    return;
-}
-
-
 =back
 
 =head1 AUTHOR

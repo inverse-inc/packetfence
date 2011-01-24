@@ -2298,17 +2298,24 @@ Find RADIUS SSID parameter out of RADIUS REQUEST parameters
 SSID are not provided by a standardized parameter name so we encapsulate that complexity here.
 If your AP is not supported look in /usr/share/freeradius/dictionary* for vendor specific attributes (VSA).
 
+Most standard way we encountered is in Called-Station-Id in the format: "xx-xx-xx-xx-xx-xx:SSID".
+
 =cut
 sub extractSsid {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    if (defined($radius_request->{'Cisco-AVPair'})) {
-
-        if ($radius_request->{'Cisco-AVPair'} =~ /^ssid=(.*)$/) { # ex: Cisco-AVPair = "ssid=Inverse-Secure"
+    # it's put in Called-Station-Id
+    # ie: Called-Station-Id = "aa-bb-cc-dd-ee-ff:Secure SSID"
+    if (defined($radius_request->{'Called-Station-Id'})) {
+        if ($radius_request->{'Called-Station-Id'} =~ /^
+            [a-f0-9]{2}-[a-f0-9]{2}-[a-f0-9]{2}-[a-f0-9]{2}-[a-f0-9]{2}-[a-f0-9]{2}   # MAC Address
+            :                                                                         # : delimiter
+            (.*)                                                                      # SSID
+        $/ix) {
             return $1;
         } else {
-            $logger->info("Unable to extract SSID of Cisco-AVPair: ".$radius_request->{'Cisco-AVPair'});
+            $logger->info("Unable to extract SSID of Called-Station-Id: ".$radius_request->{'Called-Station-Id'});
         }
     }
 
@@ -2318,6 +2325,7 @@ sub extractSsid {
     );
     return;
 }
+
 
 =item getVoipVSA
 

@@ -176,15 +176,45 @@ sub isVoIPEnabled {
     return 0;
 }
 
+=item extractSsid
+
+Overriding default extractSsid because on Aironet AP SSID is in the Cisco-AVPair VSA.
+
+=cut
+sub extractSsid {
+    my ($this, $radius_request) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    if (defined($radius_request->{'Cisco-AVPair'})) {
+
+        if ($radius_request->{'Cisco-AVPair'} =~ /^ssid=(.*)$/) { # ex: Cisco-AVPair = "ssid=PacketFence-Secure"
+            return $1;
+        } else {
+            $logger->info("Unable to extract SSID of Cisco-AVPair: ".$radius_request->{'Cisco-AVPair'});
+        }
+    }
+
+    $logger->warn(
+        "Unable to extract SSID for module " . ref($this) . ". SSID-based VLAN assignments won't work. "
+        . "Make sure you enable Vendor Specific Attributes (VSA) on the AP if you want them to work."
+    );
+    return;
+}
+
+
 =back
 
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2008 Inverse inc.
+Copyright (C) 2007-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

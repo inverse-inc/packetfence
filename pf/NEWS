@@ -24,6 +24,7 @@ New Hardware Support
 
 Enhancements
 - Minor improvement to command-line and Web Admin help
+- Improvements to SSID lookups
 
 Bug fixes
 - Fixed pfcmd initiated VLAN re-evaluation (#1160)
