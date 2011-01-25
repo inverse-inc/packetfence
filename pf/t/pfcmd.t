@@ -251,5 +251,5 @@ foreach my $help_arg (@main_args) {
 
 # test version
 @output = `/usr/local/pf/bin/pfcmd version`;
-like ( $output[0], qr/^PacketFence 2.0.0/,
+like ( $output[0], qr/^PacketFence 2.0.1/,
        "pfcmd version is correct" );

@@ -33,7 +33,7 @@
 #
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 2.0.0
+Version: 2.0.1
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -519,6 +519,9 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Tue Jan 25 2011 Olivier Bilodeau <obilodeau@inverse.ca>
+- New release 2.0.1
+
 * Mon Dec 13 2010 Olivier Bilodeau <obilodeau@inverse.ca>
 - Version bump to 2.0.0
 - File name changes
