@@ -519,7 +519,7 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
-* Tue Jan 25 2011 Olivier Bilodeau <obilodeau@inverse.ca>
+* Wed Jan 26 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - New release 2.0.1
 
 * Mon Dec 13 2010 Olivier Bilodeau <obilodeau@inverse.ca>
