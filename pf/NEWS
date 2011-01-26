@@ -14,6 +14,12 @@ For a list of compatibility related changes see the UPGRADE file.
 
 
 --------------------------------------------------------------------------------
+Version <release> released on <releaseDate>
+
+Enhancements
+- New DHCP fingerprints for Cisco IP Phones and Cisco Small Business switch
+
+--------------------------------------------------------------------------------
 Version 2.0.1 released on 2011-01-26
 
 New Hardware Support
