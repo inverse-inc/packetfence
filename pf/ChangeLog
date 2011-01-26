@@ -1,4 +1,65 @@
 -----------------------------------------------------------------
+Revision: 429ab9a1fea6137cb241d0274b411d76a3352316
+Ancestor: 73cd8bc74bf98041524092c762bee1d060bcf6ab
+Author: obilodeau@inverse.ca
+Date: 2011-01-26T14:15:26
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS pf/packetfence.spec
+
+ChangeLog: 
+
+date bump
+
+-----------------------------------------------------------------
+Revision: 73cd8bc74bf98041524092c762bee1d060bcf6ab
+Ancestor: 40c5a4b38877b8f2505c0e6352739babc4898252
+Author: obilodeau@inverse.ca
+Date: 2011-01-26T14:15:17
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/README
+
+ChangeLog: 
+
+little simplification of the text
+
+-----------------------------------------------------------------
+Revision: 40c5a4b38877b8f2505c0e6352739babc4898252
+Ancestor: 94c0d69c063e37c7a18409415e032a9d188df356
+Author: obilodeau@inverse.ca
+Date: 2011-01-25T16:56:07
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/README
+
+ChangeLog: 
+
+improvements to the README file
+
+-----------------------------------------------------------------
+Revision: 94c0d69c063e37c7a18409415e032a9d188df356
+Ancestor: ec21f9bb0d986c2f449295982f4660b9817e1ad5
+Author: obilodeau@inverse.ca
+Date: 2011-01-25T15:27:25
+Branch: org.packetfence.2_0
+
+Renamed entries:
+        pf/ChangeLog to pf/ChangeLog.old
+Added files:
+        pf/ChangeLog
+
+ChangeLog: 
+
+We will no longer be maintaining a manually edited, seperate changelog. Details will be in our code repository and we will generate a ChangeLog file before releasing from the code repo.
+
+ChangeLog.old has all changelog before 2.0
+ChangeLog is our newly automaticly generated one starting since 2.0
+
+-----------------------------------------------------------------
 Revision: ec21f9bb0d986c2f449295982f4660b9817e1ad5
 Ancestor: 367fb3f1a9e7fcd0c86bcd814f1901cfff376ead
 Author: obilodeau@inverse.ca
