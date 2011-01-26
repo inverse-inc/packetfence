@@ -12,8 +12,8 @@ Packetfence supports the following access points and wireless controlers:
 - Cisco WLC 4400
 - Dlink DWS 3026
 - Extricom EXSW Wireless Switches (Controllers)
-- HP Procurve MSM710
-- Meru Networks Controlers
+- HP ProCurve MSM710 Mobility Controller
+- Meru Networks Wireless Controlers
 - Xirrus WiFi Arrays
 
 Eventhough this list is small, PacketFence may support many other access points
