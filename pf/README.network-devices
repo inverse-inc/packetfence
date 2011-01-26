@@ -16,11 +16,11 @@ Packetfence supports the following access points and wireless controlers:
 - Meru Networks Controlers
 - Xirrus WiFi Arrays
 
-Eventhough this list is really small, PacketFence may support many other access
-points as long as they have the following functionalities:
+Eventhough this list is small, PacketFence may support many other access points
+as long as they have the following features:
 - definition of several SSID with several VLANs inside every SSID (minimum
   of 2 VLANs per SSID)
-- RADIUS authentication (802.1X)
+- RADIUS authentication (MAC Authentication / 802.1X)
 - dynamic VLAN assignment based on RADIUS attributes
 - SNMP deassociation/deauthentication traps
 - CLI (or SNMP) command to deassociate/deauthenticate a client
@@ -45,6 +45,8 @@ Deauthentication support
 Aruba                        |    XX    |    --    |    --    |
 -----------------------------|----------|----------|----------|
 Cisco Aironet                |    XX    |    --    |    --    |
+-----------------------------|----------|----------|----------|
+Cisco WiSM                   |    --    |    XX    |    --    |
 -----------------------------|----------|----------|----------|
 Cisco WLC 2106               |    XX    |    --    |    --    |
 -----------------------------|----------|----------|----------|
