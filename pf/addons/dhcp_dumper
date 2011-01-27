@@ -177,7 +177,7 @@ sub listen_dhcp {
     my ($version, $tos,   $length, $id,    $flags,
         $ttl,     $proto, $chksum, $saddr, $daddr
     ) = unpack( 'CCnnnCCnNN', substr( $packet, 14 ) );
-    my $ihl = $version & 017;
+    my $ihl = $version & oct(17);
     $version >>= 4;
     my $src = int2ip($saddr);
     my $dst = int2ip($daddr);
