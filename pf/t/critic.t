@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::Perl::Critic;
+use Test::Perl::Critic ( -profile => 'perlcriticrc' );
 use Test::More tests => 151;
 
 # To generate this list, start with this: find lib/pf/ -exec echo "    '/usr/local/pf/{}'," \; | sort

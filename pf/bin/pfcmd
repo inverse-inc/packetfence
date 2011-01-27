@@ -1784,7 +1784,7 @@ sub ui {
         # TODO: remove this test when we will reactivate Scan from web admin, it is no longer valid
         # check if Net::Nessus::ScanLite is installed
         my $scanLiteInstalled = 1;
-        eval "use Net::Nessus::ScanLite";
+        eval 'use Net::Nessus::ScanLite';
         if ($@) {
             $scanLiteInstalled = 0;
         }
@@ -2473,7 +2473,7 @@ sub sanity_check {
         # make sure named pipe 'alert' is present if snort is enabled
         my $snortpipe = "$install_dir/var/alert";
         if ( !-p $snortpipe ) {
-            if ( !POSIX::mkfifo( $snortpipe, 0666 ) ) {
+            if ( !POSIX::mkfifo( $snortpipe, oct(666) ) ) {
                 $logger->logdie(
                     "snort alert pipe ($snortpipe) does not exist and unable to create it"
                 );
