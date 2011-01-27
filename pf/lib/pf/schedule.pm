@@ -21,6 +21,10 @@ See http://packetfence.org/mantis/view.php?id=674
 
 =cut
 
+use strict;
+use warnings;
+use Log::Log4perl;
+
 sub new {
     my ($class) = @_;
     my $self;
@@ -52,7 +56,7 @@ sub get_entry {
     my ( $self, $idx ) = @_;
     my $entry = $self->{timetable}->[$idx];
     if ( !$entry ) {
-        return undef;
+        return;
     }
     return ($entry);
 }
@@ -62,19 +66,19 @@ sub delete_entry {
     if ( $idx <= $#{ $self->{timetable} } ) {
         return splice @{ $self->{timetable} }, $idx, 1;
     } else {
-        return undef;
+        return;
     }
 }
 
 sub update_entry {
     my ( $self, $idx, $entry ) = @_;
-    return undef unless $entry;
-    return undef unless $entry->{time};
+    return unless $entry;
+    return unless $entry->{time};
     if ( $idx <= $#{ $self->{timetable} } ) {
         $entry->{args} = [] unless $entry->{args};
         return splice @{ $self->{timetable} }, $idx, 1, $entry;
     } else {
-        return undef;
+        return;
     }
 }
 
@@ -152,8 +156,8 @@ sub get_index {
 # update index int in table with time/args
 sub update_index {
     my ( $self, $idx, $time, $args ) = @_;
-    return undef unless $args;
-    return undef unless $time;
+    return unless $args;
+    return unless $time;
     my $entry = {
         time => $time,
         args => $args
@@ -177,7 +181,7 @@ Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009 Inverse inc.
+Copyright (C) 2009-2011 Inverse inc.
 
 =head1 LICENSE
 
