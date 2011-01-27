@@ -39,22 +39,22 @@ use pf::services::apache;
 use pf::SwitchFactory;
 
 my %flags;
-$flags{'httpd'}          = "-f $conf_dir/httpd.conf";
+$flags{'httpd'}          = "-f $generated_conf_dir/httpd.conf";
 $flags{'pfdetect'}       = "-d -p $install_dir/var/alert &";
 $flags{'pfmon'}          = "-d &";
 $flags{'pfdhcplistener'} = "-d &";
 $flags{'pfredirect'}     = "-d &";
 $flags{'pfsetvlan'}      = "-d &";
 $flags{'dhcpd'}
-    = " -lf $conf_dir/dhcpd/dhcpd.leases -cf $conf_dir/dhcpd.conf "
+    = " -lf $var_dir/dhcpd/dhcpd.leases -cf $generated_conf_dir/dhcpd.conf "
     . join( " ", get_dhcp_devs() );
-$flags{'named'} = "-u pf -c $install_dir/conf/named.conf";
+$flags{'named'} = "-u pf -c $generated_conf_dir/named.conf";
 $flags{'snmptrapd'}
-    = "-n -c $conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/snmptrapd.pid -On";
+    = "-n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On";
 
 if ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int ) {
     $flags{'snort'}
-        = "-u pf -c $conf_dir/snort.conf -i "
+        = "-u pf -c $generated_conf_dir/snort.conf -i "
         . $monitor_int
         . " -N -D -l $install_dir/var";
 }
@@ -324,7 +324,7 @@ sub generate_named_conf {
     parse_template(
         \%tags,
         "$conf_dir/templates/named_vlan.conf",
-        "$install_dir/conf/named.conf"
+        "$generated_conf_dir/named.conf"
     );
 
     my %tags_isolation;
@@ -337,7 +337,7 @@ sub generate_named_conf {
     parse_template(
         \%tags_isolation,
         "$conf_dir/templates/named-isolation.ca",
-        "$install_dir/conf/named/named-isolation.ca"
+        "$var_dir/named/named-isolation.ca"
     );
 
     my %tags_registration;
@@ -351,7 +351,7 @@ sub generate_named_conf {
     parse_template(
         \%tags_registration,
         "$conf_dir/templates/named-registration.ca",
-        "$install_dir/conf/named/named-registration.ca"
+        "$var_dir/named/named-registration.ca"
     );
 
     return 1;
@@ -434,7 +434,7 @@ EOT
     }
 
     parse_template( \%tags, "$conf_dir/templates/dhcpd_vlan.conf",
-        "$conf_dir/dhcpd.conf" );
+        "$generated_conf_dir/dhcpd.conf" );
 
     return 1;
 }
@@ -456,7 +456,7 @@ sub generate_dhcpd_conf {
     $tags{'dnsservers'} = $Config{'general'}{'dnsservers'};
 
     parse_template( \%tags, "$conf_dir/templates/dhcpd.conf",
-        "$conf_dir/dhcpd.conf" );
+        "$generated_conf_dir/dhcpd.conf" );
 
     my %shared_nets;
     $logger->info("generating $conf_dir/dhcpd.conf");
@@ -542,7 +542,7 @@ sub generate_dhcpd_conf {
 
     #open dhcpd.conf file
     my $dhcpdconf_fh;
-    open( $dhcpdconf_fh, '>>', "$conf_dir/dhcpd.conf" )
+    open( $dhcpdconf_fh, '>>', "$generated_conf_dir/dhcpd.conf" )
         || $logger->logcroak("Unable to append to $conf_dir/dhcpd.conf: $!");
     foreach my $internal_interface ( get_internal_devs_phy() ) {
         my $dhcp_interface = get_internal_info($internal_interface);
@@ -794,7 +794,7 @@ sub generate_snort_conf {
     $tags{'snort_rules'} = join( "\n", @rules );
     $logger->info("generating $conf_dir/snort.conf");
     parse_template( \%tags, "$conf_dir/templates/snort.conf",
-        "$conf_dir/snort.conf" );
+        "$generated_conf_dir/snort.conf" );
     return 1;
 }
 
@@ -847,9 +847,9 @@ sub generate_snmptrapd_conf {
         $tags{'authLines'} .= "authCommunity log $community\n";
     }
     $tags{'template'} = "$conf_dir/templates/snmptrapd.conf";
-    $logger->info("generating $conf_dir/snmptrapd.conf");
+    $logger->info("generating $generated_conf_dir/snmptrapd.conf");
     parse_template( \%tags, "$conf_dir/templates/snmptrapd.conf",
-        "$conf_dir/snmptrapd.conf" );
+        "$generated_conf_dir/snmptrapd.conf" );
     return 1;
 }
 
@@ -916,9 +916,9 @@ sub generate_httpd_conf {
     $tags{'passthrough-http-proxies'} = join("\n", @{$pt_http});
     $tags{'passthrough-https-proxies'} = join("\n", @{$pt_https});
 
-    $logger->info("generating $conf_dir/httpd.conf");
+    $logger->info("generating $generated_conf_dir/httpd.conf");
     parse_template( \%tags, "$conf_dir/templates/httpd.conf",
-        "$conf_dir/httpd.conf" );
+        "$generated_conf_dir/httpd.conf" );
     return 1;
 }
 

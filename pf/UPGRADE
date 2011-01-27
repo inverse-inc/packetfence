@@ -13,6 +13,14 @@ o Upgrading from a version prior to <version>:
     in release.pl, login.pl, enabler.pl, redirect.pl, scan-in-progress.pl, 
     error.pl, status.pl and register.pl to lib/pf/web/custom.pl.
 
+    - pid files changed location
+    Previously in var/ they are now in var/run/   
+
+    - New configuration directory for generated configuration: var/conf/
+    Changed the location of the generated configuration file from conf/
+    to var/conf/.  This will mitigate the fact that people were trying to
+    modify the generated files instead of the templates.
+
 o Upgrading from a version prior to 2.0.1:
 
     - lib/pf/vlan.pm's fetchVlanForNode interface changed

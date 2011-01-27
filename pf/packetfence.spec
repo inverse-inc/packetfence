@@ -174,10 +174,14 @@ mv packetfence.mo conf/locale/nl/LC_MESSAGES/
 %{__rm} -rf $RPM_BUILD_ROOT
 %{__install} -D -m0755 packetfence.init $RPM_BUILD_ROOT%{_initrddir}/packetfence
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/logs
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/rrd 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/logs
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/named
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/run
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/rrd 
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
 cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r addons/802.1X/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/captive-portal/ $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -504,6 +508,10 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetvlan
 %doc                    /usr/local/pf/UPGRADE
 %dir                    /usr/local/pf/var
+%dir                    /usr/local/pf/var/conf
+%dir                    /usr/local/pf/var/dhcpd
+%dir                    /usr/local/pf/var/named
+%dir                    /usr/local/pf/var/run
 %dir                    /usr/local/pf/var/rrd
 %dir                    /usr/local/pf/var/session
 
@@ -519,6 +527,9 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Thu Jan 27 2011 Olivier Bilodeau <obilodeau@inverse.ca>
+- New directories var/conf, var/dhcpd, var/named and var/run. See #1014.
+
 * Wed Jan 26 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - New release 2.0.1
 

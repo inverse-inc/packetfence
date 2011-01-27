@@ -552,7 +552,7 @@ sub createpid {
     my $logger = Log::Log4perl::get_logger('pf::util');
     $pname = basename($0) if ( !$pname );
     my $pid     = $$;
-    my $pidfile = $install_dir . "/var/$pname.pid";
+    my $pidfile = $var_dir . "/run/$pname.pid";
     $logger->info("$pname starting and writing $pid to $pidfile");
     my $outfile = new FileHandle ">$pidfile";
     if ( defined($outfile) ) {
@@ -569,7 +569,7 @@ sub readpid {
     my ($pname) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
     $pname = basename($0) if ( !$pname );
-    my $pidfile = $install_dir . "/var/$pname.pid";
+    my $pidfile = $var_dir . "/run/$pname.pid";
     my $file    = new FileHandle "$pidfile";
     if ( defined($file) ) {
         my $pid = $file->getline();
@@ -585,7 +585,7 @@ sub readpid {
 sub deletepid {
     my ($pname) = @_;
     $pname = basename($0) if ( !$pname );
-    my $pidfile = $install_dir . "/var/$pname.pid";
+    my $pidfile = $var_dir . "/run/$pname.pid";
     unlink($pidfile) || return (-1);
     return (1);
 }

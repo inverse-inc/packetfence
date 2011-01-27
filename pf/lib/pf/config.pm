@@ -31,7 +31,7 @@ use Readonly;
 
 # Categorized by feature, pay attention when modifying
 our (
-    $install_dir, $bin_dir, $conf_dir, $lib_dir, $log_dir, 
+    $install_dir, $bin_dir, $conf_dir, $lib_dir, $log_dir, $generated_conf_dir, $var_dir,
     @listen_ints, @internal_nets, @routed_isolation_nets, @routed_registration_nets, @managed_nets, @external_nets,
     @dhcplistener_ints, $monitor_int,
     $unreg_mark, $reg_mark, $black_mark,
@@ -51,7 +51,7 @@ BEGIN {
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
     @EXPORT = qw(
-        $install_dir $bin_dir $conf_dir $lib_dir 
+        $install_dir $bin_dir $conf_dir $lib_dir $generated_conf_dir $var_dir
         @listen_ints @internal_nets @routed_isolation_nets @routed_registration_nets @managed_nets @external_nets 
         @dhcplistener_ints $monitor_int 
         $unreg_mark $reg_mark $black_mark 
@@ -74,10 +74,12 @@ $thread = 0;
 
 # TODO bug#920 all application config data should use Readonly to avoid accidental post-startup alterration
 $install_dir = '/usr/local/pf';
-$bin_dir     = File::Spec->catdir( $install_dir, "bin" );
-$conf_dir    = File::Spec->catdir( $install_dir, "conf" );
-$lib_dir     = File::Spec->catdir( $install_dir, "lib" );
-$log_dir     = File::Spec->catdir( $install_dir, "logs" );
+$bin_dir = File::Spec->catdir( $install_dir, "bin" );
+$conf_dir = File::Spec->catdir( $install_dir, "conf" );
+$var_dir = File::Spec->catdir( $install_dir, "var" );
+$generated_conf_dir = File::Spec->catdir( $var_dir , "conf");
+$lib_dir = File::Spec->catdir( $install_dir, "lib" );
+$log_dir = File::Spec->catdir( $install_dir, "logs" );
 
 Log::Log4perl->init("$conf_dir/log.conf");
 Log::Log4perl::MDC->put( 'proc', basename($0) );

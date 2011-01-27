@@ -53,15 +53,15 @@ case "$1" in
 	;;
   status)
 	/usr/local/pf/bin/pfcmd service pf status
-  	if [ ! -f /usr/local/pf/var/pfmon.pid ]; then
+  	if [ ! -f /usr/local/pf/var/run/pfmon.pid ]; then
     	    RETVAL=3
   	fi
 	;;
   condrestart)
-        if [ -f /usr/local/pf/var/pfmon.pid ]; then
+        if [ -f /usr/local/pf/var/run/pfmon.pid ]; then
             restart
         else
-            if [ -f /usr/local/pf/var/pfsetvlan.pid ]; then
+            if [ -f /usr/local/pf/var/run/pfsetvlan.pid ]; then
                 restart
             fi
 	fi

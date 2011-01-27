@@ -20,6 +20,8 @@ Enhancements
 - New DHCP fingerprints for Cisco IP Phones and Cisco Small Business switch
 - Improved test suite
 - Miscellaneous code cleanup (#1165)
+- Generated configuration files are now in var/... (#1014)
+- pid files are now in var/run/
 
 --------------------------------------------------------------------------------
 Version 2.0.1 released on 2011-01-26
