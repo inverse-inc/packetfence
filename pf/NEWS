@@ -19,6 +19,7 @@ Version <release> released on <releaseDate>
 Enhancements
 - New DHCP fingerprints for Cisco IP Phones and Cisco Small Business switch
 - Improved test suite
+- Miscellaneous code cleanup (#1165)
 
 --------------------------------------------------------------------------------
 Version 2.0.1 released on 2011-01-26

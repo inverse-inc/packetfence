@@ -5,6 +5,14 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to <version>:
+
+    - Removed conf/templates/*.pl captive portal extensions
+    This mechanism was removed since the new pf::web::custom mechanism is
+    cleaner and less error-prone. Make sure to migrate any custom code you have
+    in release.pl, login.pl, enabler.pl, redirect.pl, scan-in-progress.pl, 
+    error.pl, status.pl and register.pl to lib/pf/web/custom.pl.
+
 o Upgrading from a version prior to 2.0.1:
 
     - lib/pf/vlan.pm's fetchVlanForNode interface changed
