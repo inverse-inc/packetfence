@@ -1,0 +1,3 @@
+Data Access Object (DAO) tests
+
+These tests will perform database queries including INSERT, UPDATE and DELETE.
