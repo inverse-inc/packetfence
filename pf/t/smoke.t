@@ -17,19 +17,14 @@ use diagnostics;
 
 use Test::Harness;
 
-runtests(qw(
-    binaries.t
-    coding-style.t
-    pf.t
-    hardware-snmp-objects.t
-    services.t
-    SNMP.t
-    SwitchFactory.t
-    php.t
-    pod.t
-    util.t
-    import.t
-));
+use TestUtils;
+
+runtests(
+    @TestUtils::compile_tests,
+    @TestUtils::unit_tests,
+    @TestUtils::cli_tests,
+    @TestUtils::quality_tests,
+);
 
 =head1 AUTHOR
 
@@ -37,7 +32,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2010-2011 Inverse inc.
 
 =head1 LICENSE
     

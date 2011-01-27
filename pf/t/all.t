@@ -24,6 +24,7 @@ runtests(
     @TestUtils::cli_tests,
     @TestUtils::dao_tests,
     @TestUtils::quality_tests, 
+    @TestUtils::quality_failing_tests, 
     @TestUtils::integration_tests,
 );
 
