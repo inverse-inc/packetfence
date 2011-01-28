@@ -530,10 +530,10 @@ fi
 * Thu Jan 27 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - New directories var/conf, var/dhcpd, var/named and var/run. See #1014.
 
-* Wed Jan 26 2011 Olivier Bilodeau <obilodeau@inverse.ca>
+* Wed Jan 26 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 2.0.1-1
 - New release 2.0.1
 
-* Mon Dec 13 2010 Olivier Bilodeau <obilodeau@inverse.ca>
+* Mon Dec 13 2010 Olivier Bilodeau <obilodeau@inverse.ca> - 2.0.0-1
 - Version bump to 2.0.0
 - File name changes
 
