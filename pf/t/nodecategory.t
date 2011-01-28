@@ -1,15 +1,25 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
+=head1 NAME
 
+nodecategory.t
+
+=head1 DESCRIPTION
+
+pf::nodecategory module testing
+
+=cut
 use strict;
 use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
-use Test::More tests => 4;
+
+use Test::More tests => 5;
+use Test::NoWarnings;
 use Test::Exception;
 use File::Basename qw(basename);
 
-Log::Log4perl->init("/usr/local/pf/t/log.conf");
+Log::Log4perl->init("log.conf");
 my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );

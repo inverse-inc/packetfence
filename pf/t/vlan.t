@@ -1,19 +1,30 @@
 #!/usr/bin/perl -w
+=head1 NAME
 
+vlan.t
+
+=head1 DESCRIPTION
+
+pf::vlan module testing
+
+=cut
 use strict;
 use warnings;
 use diagnostics;
 
+use lib '/usr/local/pf/lib';
+
+use Test::More tests => 10;
+use Test::MockModule;
+use Test::NoWarnings;
+
 use File::Basename qw(basename);
-Log::Log4perl->init("/usr/local/pf/t/log.conf");
+
+Log::Log4perl->init("log.conf");
 my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
 
-use Test::More tests => 9;
-use Test::MockModule;
-
-use lib '/usr/local/pf/lib';
 use pf::config;
 use pf::SwitchFactory;
 

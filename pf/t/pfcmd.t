@@ -1,15 +1,26 @@
 #!/usr/bin/perl -w
+=head1 NAME
 
+pfcmd.t
+
+=head1 DESCRIPTION
+
+Testing pfcmd command line interface (CLI)
+
+=cut
 use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 72;
-use Log::Log4perl;
-use File::Basename qw(basename);
 use lib '/usr/local/pf/lib';
 
-Log::Log4perl->init("/usr/local/pf/t/log.conf");
+use Test::More tests => 73;
+use Test::NoWarnings;
+
+use Log::Log4perl;
+use File::Basename qw(basename);
+
+Log::Log4perl->init("log.conf");
 my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );

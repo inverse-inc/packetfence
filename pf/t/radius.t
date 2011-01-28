@@ -1,18 +1,28 @@
 #!/usr/bin/perl -w
+=head1 NAME
 
+radius.t
+
+=head1 DESCRIPTION
+
+pf::radius module testing
+
+=cut
 use strict;
 use warnings;
 use diagnostics;
 
+use lib '/usr/local/pf/lib';
+
 use File::Basename qw(basename);
-Log::Log4perl->init("/usr/local/pf/t/log.conf");
+use Test::More tests => 11;
+use Test::NoWarnings;
+
+Log::Log4perl->init("log.conf");
 my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
 
-use Test::More tests => 10;
-
-use lib '/usr/local/pf/lib';
 use pf::config;
 use pf::radius::constants;
 
