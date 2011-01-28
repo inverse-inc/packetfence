@@ -215,6 +215,7 @@ cp -r docs $RPM_BUILD_ROOT/usr/local/pf/
 cp -r html $RPM_BUILD_ROOT/usr/local/pf/
 cp -r installer.pl $RPM_BUILD_ROOT/usr/local/pf/
 cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
+cp -r var $RPM_BUILD_ROOT/usr/local/pf/
 cp -r NEWS $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README.network-devices $RPM_BUILD_ROOT/usr/local/pf/
@@ -525,6 +526,9 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Thu Jan 28 2011 Olivier Bilodeau <obilodeau@inverse.ca>
+- More changes related to #1014. Some more conf -> var movement.
+
 * Thu Jan 27 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - New directories var/conf, var/dhcpd, var/named and var/run. See #1014.
 
