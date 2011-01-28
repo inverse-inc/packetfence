@@ -10,14 +10,23 @@ Various utilities to reduce code duplication in testing.
 
 =cut
 
+use strict;
+use warnings;
+use diagnostics;
+
+use lib '/usr/local/pf/lib';
+
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT );
+    our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
         @cli_tests @compile_tests @dao_tests @integration_tests @quality_tests @quality_failing_tests @unit_tests 
+        use_test_db
     );
 }
+
+use pf::config;
 
 # Tests are categorized here
 our @cli_tests = qw(
@@ -31,7 +40,11 @@ our @compile_tests = qw(
 );
 
 our @dao_tests = qw(
+    dao/data.t
+    dao/graph.t
+    dao/node.t
     dao/person.t
+    dao/report.t
 );
 
 our @integration_tests = qw(
@@ -50,24 +63,34 @@ our @quality_failing_tests = qw(
 
 our @unit_tests = qw(
     config.t
-    data.t
     floatingdevice.t
-    graph.t
     hardware-snmp-objects.t
     import.t
     network-devices/cisco.t
-    node.t
     nodecategory.t
     person.t 
     pfsetvlan.t
     radius.t
-    report.t
     services.t
     SNMP.t 
     SwitchFactory.t
     util.t
     vlan.t
 );
+
+=item use_test_db
+
+Will override pf::config's globals regarding what database to connect to
+
+=cut
+sub use_test_db {
+
+    # override database connection settings
+    $Config{'database'}{'host'} = '127.0.0.1';
+    $Config{'database'}{'user'} = 'pf-test';
+    $Config{'database'}{'pass'} = 'p@ck3tf3nc3';
+    $Config{'database'}{'db'} = 'pf-test';
+}
 
 =head1 AUTHOR
 

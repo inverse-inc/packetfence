@@ -1,11 +1,32 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
+=head1 NAME
 
+data.t
+
+=head1 DESCRIPTION
+
+Test conformance of the data accessors to the database layer interface.
+
+=cut
 use strict;
 use warnings;
 use diagnostics;
 
 use Test::More tests => 96;
 use lib '/usr/local/pf/lib';
+
+use Log::Log4perl;
+use Readonly;
+
+Log::Log4perl->init("log.conf");
+my $logger = Log::Log4perl->get_logger( "dao/data.t" );
+Log::Log4perl::MDC->put( 'proc', "dao/data.t" );
+Log::Log4perl::MDC->put( 'tid',  0 );
+
+use TestUtils;
+
+# override database connection settings to connect to test database
+TestUtils::use_test_db();
 
 # Test all modules that provides data
 BEGIN { use_ok('pf::db') }

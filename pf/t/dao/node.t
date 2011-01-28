@@ -1,12 +1,33 @@
 #!/usr/bin/perl -w
+=head1 NAME
 
+dao/node.t
+
+=head1 DESCRIPTION
+
+Testing data access layer for the pf::node module
+
+=cut
 use strict;
 use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
+
 use Test::More tests => 7;
 use Test::NoWarnings;
+
+use Log::Log4perl;
+
+Log::Log4perl->init("log.conf");
+my $logger = Log::Log4perl->get_logger( "dao/node.t" );
+Log::Log4perl::MDC->put( 'proc', "dao/node.t" );
+Log::Log4perl::MDC->put( 'tid',  0 );
+
+use TestUtils;
+
+# override database connection settings to connect to test database
+TestUtils::use_test_db();
 
 BEGIN { use_ok('pf::node') }
 
@@ -28,15 +49,14 @@ my @simple_methods = qw(
 }
 
 # node_view_with_fingerprint returns 0 on failure, test against that
-ok(node_view_with_fingerprint('aa:bb:cc:dd:ee:ff'), "node_view_with_fingerprint SQL query pass");
+ok(node_view_with_fingerprint('f0:4d:a2:cb:d9:c5'), "node_view_with_fingerprint SQL query pass");
 
 # node_view returns 0 on failure, test against that
-ok(node_view('aa:bb:cc:dd:ee:ff'), "node_view SQL query pass");
+ok(node_view('f0:4d:a2:cb:d9:c5'), "node_view SQL query pass");
 
 # TODO add more tests, we should test:
 #  - node_view on a node with no category should be empty ('') category and not undef (see #1063)
-#  - all methods with mocked db call (replacing db_query... and db_data with happy returns ok stuff) GOAL: is module code valid
-#  - all methods with mocked db driver or straight to db GOAL: is SQL valid or not
+#  - exercice all SQL queries
 
 =head1 AUTHOR
 

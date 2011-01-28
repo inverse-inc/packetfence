@@ -6,7 +6,7 @@ all.t
 
 =head1 DESCRIPTION
 
-All tests.
+Test suite for all tests.
 
 =cut
 use strict;

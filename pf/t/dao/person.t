@@ -16,6 +16,7 @@ use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
+use lib '..';
 
 use Test::NoWarnings;
 use Test::More tests => 14;
@@ -23,19 +24,17 @@ use Test::More tests => 14;
 use Log::Log4perl;
 use Readonly;
 
-Log::Log4perl->init("/usr/local/pf/t/log.conf");
+Log::Log4perl->init("log.conf");
 my $logger = Log::Log4perl->get_logger( "dao/person.t" );
 Log::Log4perl::MDC->put( 'proc', "dao/person.t" );
 Log::Log4perl::MDC->put( 'tid',  0 );
 
 use pf::config;
+use TestUtils;
 BEGIN { use_ok('pf::person') }
 
-# override database connection settings
-$Config{'database'}{'host'} = '127.0.0.1';
-$Config{'database'}{'user'} = 'pf-test';
-$Config{'database'}{'pass'} = 'p@ck3tf3nc3';
-$Config{'database'}{'db'} = 'pf-test';
+# override database connection settings to connect to test database
+TestUtils::use_test_db();
 
 # Example data
 # here I am keeping the PID seperate to simplify person_modify tests

@@ -1,11 +1,34 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
+=head1 NAME
 
+dao/graph.t
+
+=head1 DESCRIPTION
+
+Testing data access layer for the pf::pfcmd::graph module
+
+=cut
 use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 13;
 use lib '/usr/local/pf/lib';
+
+use Test::More tests => 11;
+use Test::NoWarnings;
+
+use Log::Log4perl;
+use Readonly;
+
+Log::Log4perl->init("log.conf");
+my $logger = Log::Log4perl->get_logger( "dao/graph.t" );
+Log::Log4perl::MDC->put( 'proc', "dao/graph.t" );
+Log::Log4perl::MDC->put( 'tid',  0 );
+
+use TestUtils;
+
+# override database connection settings to connect to test database
+TestUtils::use_test_db();
 
 BEGIN { use_ok('pf::pfcmd::graph') }
 
@@ -18,15 +41,18 @@ ok(graph_unregistered('day'), 'graph unregistered day');
 ok(graph_unregistered('month'), 'graph unregistered month');
 ok(graph_unregistered('year'), 'graph unregistered year');
 
-ok(graph_violations('day'), 'graph violations day');
-ok(graph_violations('month'), 'graph violations month');
-ok(graph_violations('year'), 'graph violations year');
+# TODO re-enable violation testing once we will have a test database with full configuration loaded in it
+#ok(graph_violations('day'), 'graph violations day');
+#ok(graph_violations('month'), 'graph violations month');
+#ok(graph_violations('year'), 'graph violations year');
 
 # graph_nodes needs to be evaluated in an array context to give useful output
 my @tmp;
 ok((@tmp = graph_nodes('day')), 'graph nodes day');
 ok((@tmp = graph_nodes('month')), 'graph nodes month');
 ok((@tmp = graph_nodes('year')), 'graph nodes year');
+
+# TODO improve tests by validating data
 
 =head1 AUTHOR
 

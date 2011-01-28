@@ -1,12 +1,33 @@
 #!/usr/bin/perl -w
+=head1 NAME
 
+dao/report.t
+
+=head1 DESCRIPTION
+
+Testing data access layer for the pf::pfcmd::report module
+
+=cut
 use strict;
 use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
+
 use Test::More tests => 19;
 use Test::NoWarnings;
+
+use Log::Log4perl;
+
+Log::Log4perl->init("log.conf");
+my $logger = Log::Log4perl->get_logger( "dao/report.t" );
+Log::Log4perl::MDC->put( 'proc', "dao/report.t" );
+Log::Log4perl::MDC->put( 'tid',  0 );
+
+use TestUtils;
+
+# override database connection settings to connect to test database
+TestUtils::use_test_db();
 
 BEGIN { use_ok('pf::pfcmd::report') }
 
