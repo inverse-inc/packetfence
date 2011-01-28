@@ -7,6 +7,14 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <version>:
 
+    - You MUST upgrade conf/templates/httpd.conf and 
+    conf/templates/named_vlan.conf
+    The location of the PID files changed. The templates must reflect this new
+    location: var/run/ instead of var/
+    Also in conf/templates/named_vlan.conf the configuration directory is 
+    var/named instead of var/.
+    See the .rpmnew files for the proper configuration.
+
     - Removed conf/templates/*.pl captive portal extensions
     This mechanism was removed since the new pf::web::custom mechanism is
     cleaner and less error-prone. Make sure to migrate any custom code you have
