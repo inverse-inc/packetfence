@@ -22,7 +22,7 @@ ServerName %%hostname%%.%%domain%%
 Listen 0.0.0.0:80
 Listen 0.0.0.0:443
 Listen 0.0.0.0:%%admin_port%%
-PidFile %%install_dir%%/var/pid/httpd.pid
+PidFile %%install_dir%%/var/run/httpd.pid
 LogFormat "%{User-agent}i" agent
 LogFormat "%h %l %u %t \"%r\" %>s %b" common
 LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
