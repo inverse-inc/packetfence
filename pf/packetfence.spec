@@ -382,8 +382,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/authentication/ldap.pm
 %config(noreplace)      /usr/local/pf/conf/authentication/radius.pm
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
-%dir                    /usr/local/pf/conf/dhcpd
-                        /usr/local/pf/conf/dhcpd/dhcpd.leases
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
 %dir                    /usr/local/pf/conf/locale
@@ -408,7 +406,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/locale/nl/LC_MESSAGES/packetfence.po
 %config(noreplace)      /usr/local/pf/conf/locale/nl/LC_MESSAGES/packetfence.mo
 %config(noreplace)      /usr/local/pf/conf/log.conf
-%dir                    /usr/local/pf/conf/named
 %dir                    /usr/local/pf/conf/nessus
 %config(noreplace)      /usr/local/pf/conf/nessus/remotescan.nessus
 %config(noreplace)      /usr/local/pf/conf/networks.conf
@@ -510,6 +507,7 @@ fi
 %dir                    /usr/local/pf/var
 %dir                    /usr/local/pf/var/conf
 %dir                    /usr/local/pf/var/dhcpd
+                        /usr/local/pf/var/dhcpd/dhcpd.leases
 %dir                    /usr/local/pf/var/named
 %dir                    /usr/local/pf/var/run
 %dir                    /usr/local/pf/var/rrd
