@@ -49,6 +49,7 @@ our @dao_tests = qw(
 
 our @integration_tests = qw(
     integration.t
+    integration/radius.t
 );
 
 our @quality_tests = qw(

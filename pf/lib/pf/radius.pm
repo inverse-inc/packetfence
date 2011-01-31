@@ -352,7 +352,7 @@ sub _authorizeVoip {
     my ($this, $connection_type, $switch, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    if (!$switch->supportsRadiusVoip) {
+    if (!$switch->supportsRadiusVoip()) {
         $logger->warn("Returning failure to RADIUS.");
         $switch->disconnectRead();
         $switch->disconnectWrite();

@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 =head1 NAME
 
 vlan.t
@@ -55,8 +55,10 @@ my $switch = $switchFactory->instantiate('192.168.0.1');
 
 # redefining violation functions (we stay in pf::vlan's context because methods are imported there from pf::violation)
 my $mock = new Test::MockModule('pf::vlan');
-# violation_count_trap will return 1
+# emulate the presence of a violation
+# TODO this is a cheap test, the false in view_top is to avoid the cascade of vid, class, etc. checking
 $mock->mock('violation_count_trap', sub { return (1); });
+$mock->mock('violation_view_top', sub { return $FALSE; });
 
 my $vlan;
 $vlan = $vlan_obj->fetchVlanForNode('bb:bb:cc:dd:ee:ff', $switch, '1001');
