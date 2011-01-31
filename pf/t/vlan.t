@@ -49,6 +49,9 @@ can_ok($vlan_obj, qw(
     shouldAutoRegister
   ));
 
+# forcing pf configuration's registration trapping to be true
+$Config{'trapping'}{'registration'} = 'enabled';
+
 # setup a fake switch object
 my $switchFactory = new pf::SwitchFactory( -configFile => './data/switches.conf' );
 my $switch = $switchFactory->instantiate('192.168.0.1');
@@ -72,7 +75,7 @@ $mock->mock('node_exist', sub { return (1); });
 $mock->mock('node_view', sub { 
     return { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '',
         lastskip => '', status => 'reg', user_agent => '', computername => '', notes => '', last_arp => '',
-        last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', vlan => 1, nbopenviolations => ''}
+        last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, nbopenviolations => ''}
 });
 
 # TODO: complete the test suite with more tests above the other cases
@@ -84,7 +87,7 @@ is($vlan, 15, "determine vlan for registered user on custom switch");
 $mock->mock('node_view', sub {
     return { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '',
         lastskip => '', status => 'unreg', user_agent => '', computername => '', notes => '', last_arp => '',
-        last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', vlan => 1, nbopenviolations => ''}
+        last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, nbopenviolations => ''}
 });
 
 $vlan = $vlan_obj->fetchVlanForNode('aa:bb:cc:dd:ee:ff', $switch, '1001');
