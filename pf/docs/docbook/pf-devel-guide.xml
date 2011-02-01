@@ -10,15 +10,8 @@
   <info>
   
     <title>PacketFence Developer's Guide</title>
-    <subtitle>for PacketFence version 2.0.1</subtitle>
-    <date>2011-01-31</date>
-
-    <!-- TODO releaseinfo output is ugly in default HTML transformation
-    <releaseinfo>2.0</releaseinfo>
-    <abstract>
-      <para>Abstract TODO</para>
-    </abstract>
-    -->
+    <subtitle>for version 2.0.1</subtitle>
+    <date>2011-02-01</date>
 
     <revhistory>
       <revision>
@@ -230,8 +223,7 @@
         (which is used by the pfcmd CLI) with:</para>
 
         <!-- TODO auto-wrapping at the XSL layer -->
-        <screen><![CDATA[
-cd /usr/local/pf
+        <screen><![CDATA[cd /usr/local/pf
 
 /usr/bin/perl -w -e '
     use strict; use warnings; use diagnostics; 
@@ -257,8 +249,7 @@ mv pfcmd_pregrammar.pm /usr/local/pf/lib/pf/pfcmd/pfcmd_pregrammar.pm
       <para>Modifying the VLAN assignment during registration</para>
       <para>You can change the default behavior by modifying the following lines in
       <filename>/usr/local/pf/cgi-bin/register.cgi</filename></para>
-      <screen><![CDATA[
-#determine default VLAN if VLAN isolation is enabled 
+      <screen><![CDATA[#determine default VLAN if VLAN isolation is enabled 
 #and the vlan has not been set yet 
 if (isenabled($Config{'network'}{'vlan'})) { 
     if (! defined($info{'vlan'})) { 
@@ -274,11 +265,10 @@ if (isenabled($Config{'network'}{'vlan'})) {
         <title>Modifying how pfsetvlan calculates the VLAN for a node</title>
 
         <para>pfsetvlan uses the <function>getNormalVlan</function> function defined in 
-        <package>pf::vlan::custom</package> to determine a node's VLAN.
+        <classname>pf::vlan::custom</classname> to determine a node's VLAN.
         Here's the default function:</para>
 
-        <programlisting language="perl"><![CDATA[
-sub getNormalVlan {
+        <programlisting language="perl"><![CDATA[sub getNormalVlan {
     #$switch is the switch object (pf::SNMP)
     #$ifIndex is the ifIndex of the computer connected to
     #$mac is the mac connected
@@ -286,7 +276,10 @@ sub getNormalVlan {
     #$conn_type is set to the connnection type expressed as the constant in pf::config 
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
+
+    my ($this, $switch, $ifIndex, $mac, $node_info, 
+        $connection_type, $user_name, $ssid) = @_;
+
     my $logger = Log::Log4perl->get_logger();
 
     return $switch->getVlanByName('normalVlan');
@@ -339,8 +332,7 @@ sub getNormalVlan {
       </sect2>
       <sect2>
         <title>Switchport status</title>
-        <screen><![CDATA[
-snmpwalk -v 2c -c public 192.168.1.10 ifAdminStatus
+        <screen><![CDATA[snmpwalk -v 2c -c public 192.168.1.10 ifAdminStatus
 snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
 ]]></screen>
       </sect2>
@@ -350,7 +342,10 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
       <title>Obtaining VLAN information on Cisco switches</title>
       <sect2>
         <title>Access VLAN on a switchport</title>
-        <screen>snmpwalk -c public -m CISCO-VLAN-MEMBERSHIP-MIB -M /usr/local/share/snmp/mibs:/usr/share/snmp/mibs -v 2c 192.168.1.10 vmVlan</screen>
+        <screen><![CDATA[snmpwalk -c public -m CISCO-VLAN-MEMBERSHIP-MIB -M \
+/usr/local/share/snmp/mibs:/usr/share/snmp/mibs \
+-v 2c 192.168.1.10 vmVlan
+]]></screen>
       </sect2>
     </sect1>
   </chapter>
@@ -421,8 +416,7 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
 
       <caution>This style is obsolete.</caution>
       <para>The following perltidyrc file should be used</para>
-      <screen><![CDATA[
--l=78   # Max line width is 78 cols 
+      <screen><![CDATA[-l=78   # Max line width is 78 cols 
 -i=4    # Indent level is 4 cols 
 -ci=4   # Continuation indent is 4 cols 
 -se     # Errors to STDERR 
