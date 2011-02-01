@@ -24,7 +24,8 @@ Enhancements
 Version <release> released on <releaseDate>
 
 Enhancements
-- New DHCP fingerprints for Cisco IP Phones and Cisco Small Business switch
+- New DHCP fingerprints for Cisco and Nortel IP Phones and Cisco Small 
+  Business switch
 - Improved test suite
 - Miscellaneous code cleanup (#1165)
 - Generated configuration files are now in var/... (#1014)

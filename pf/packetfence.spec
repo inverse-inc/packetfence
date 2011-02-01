@@ -212,6 +212,7 @@ cp -r configurator.pl $RPM_BUILD_ROOT/usr/local/pf/
 cp -r COPYING $RPM_BUILD_ROOT/usr/local/pf/
 cp -r db $RPM_BUILD_ROOT/usr/local/pf/
 cp -r docs $RPM_BUILD_ROOT/usr/local/pf/
+rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/docbook
 cp -r html $RPM_BUILD_ROOT/usr/local/pf/
 cp -r installer.pl $RPM_BUILD_ROOT/usr/local/pf/
 cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
@@ -528,7 +529,10 @@ fi
 * Fri Jan 28 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - Configuration files in conf/templates/ are now in conf/. See #1166.
 
-* Thu Jan 28 2011 Olivier Bilodeau <obilodeau@inverse.ca>
+* Tue Feb 01 2011 Olivier Bilodeau <obilodeau@inverse.ca>
+- Explicitly remove docbook doc from package. For now.
+
+* Fri Jan 28 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - More changes related to #1014. Some more conf -> var movement.
 
 * Thu Jan 27 2011 Olivier Bilodeau <obilodeau@inverse.ca>
