@@ -1,0 +1,7 @@
+Warning: This is work in progress.
+
+To build HTML from Docbook:
+$ xsltproc --output packetfence-developers-guide.html /opt/local/share/xsl/docbook-xsl/html/docbook.xsl docs/docbook/pf-devel-guide.xml
+
+To build PDF from Docbook:
+$ fop -xml docs/docbook/pf-devel-guide.xml -xsl /opt/local/share/xsl/docbook-xsl/fo/docbook.xsl -pdf packetfence-developers-guide.pdf

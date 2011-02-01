@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+  "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+  <!ENTITY additional-info SYSTEM "additional-info.xml">
+  <!ENTITY commercial-support SYSTEM "commercial-support.xml">
+  <!ENTITY license SYSTEM "license.xml">
+]>
+
+<book id="developers-guide" lang="en">
+  <info>
+  
+    <title>PacketFence Developer's Guide</title>
+    <subtitle>for PacketFence version 2.0.1</subtitle>
+    <date>2011-01-31</date>
+
+    <!-- TODO releaseinfo output is ugly in default HTML transformation
+    <releaseinfo>2.0</releaseinfo>
+    <abstract>
+      <para>Abstract TODO</para>
+    </abstract>
+    -->
+
+    <revhistory>
+      <revision>
+        <revnumber>2.0</revnumber>
+        <date>2011-01-31</date>
+        <authorinitials>obu</authorinitials>
+        <revremark>Port to Docbook</revremark>
+      </revision>
+      <revision>
+        <revnumber>1.0</revnumber>
+        <date>2008-12-13</date>
+        <authorinitials>dgl</authorinitials>
+        <revremark>First OpenDocument version</revremark>
+      </revision>
+    </revhistory>
+
+    <author>
+      <firstname>Olivier</firstname><surname>Bilodeau</surname>
+      <affiliation><address><email>obilodeau@inverse.ca</email></address></affiliation>
+    </author>
+    <author><firstname>Dominik</firstname><surname>Gehl</surname></author>
+      <affiliation><address><email>dgehl@inverse.ca</email></address></affiliation>
+    <copyright>
+      <year>2008</year>
+      <year>2009</year>
+      <year>2010</year>
+      <year>2011</year>
+      <holder>Inverse inc.</holder>
+    </copyright>
+
+    <legalnotice>
+      <para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free
+      Documentation License, Version 1.2 or any later version published by the Free Software Foundation; with no 
+      Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts. A copy of the license is included in the 
+      section entitled "GNU Free Documentation License".</para>
+    </legalnotice>
+
+    <releaseinfo>Version 2.0.1 - January 2011</releaseinfo>
+  </info>
+
+  <!-- TODO inline images 
+  <para>
+    <inlinegraphic fileref="embedded:graphics1" width="8.411cm" depth="2.751cm" />
+    <inlinegraphic fileref="embedded:graphics2" width="7.261cm" depth="2.901cm" />
+  </para>
+  -->
+  
+  <chapter>
+    <title>About this Guide</title>
+
+    <para>This guide will help you modifying PacketFence to your particular needs. It also contains information on how
+    to add support for new switches.</para>
+    <para>The instructions are based on version 2.0.1 of PacketFence.</para>
+    <para>The latest version of this guide is available online at</para>
+    <para>
+      <ulink url="http://www.packetfence.org/download/guides.html">
+      http://www.packetfence.org/download/guides.html</ulink>.
+    </para>
+  </chapter>
+
+  <chapter>
+    <title>Customizing PacketFence</title>
+
+    <sect1>
+      <title>Registration Pages</title>
+
+      <sect2>
+        <title>Translations</title>
+
+        <para>The language of the user registration pages is selected through the <varname>general.locale</varname> 
+        configuration parameter.</para>
+        <para>The internationalization process uses gettext. If you are new to gettext, please consult 
+        <ulink url="http://www.gnu.org/software/gettext/manual/gettext.html#Overview">
+        http://www.gnu.org/software/gettext/manual/gettext.html#Overview</ulink> for a quick introduction.</para>
+        <para>Currently, PacketFence has language files for Dutch, English, French, Italian and Spanish. 
+        The PO files are stored in <filename>/usr/local/pf/conf/locale</filename>.</para>
+        <para>If you want to add support for a new language, please follow these steps:</para>
+
+        <orderedlist>
+          <listitem>
+            <para>create a new language subdirectory in <filename>/usr/local/pf/conf/locale</filename></para>
+          </listitem>
+          <listitem>
+            <para>change into your newly created directory</para>
+          </listitem>
+          <listitem>
+            <para>create a new subdirectory <filename>LC_MESSAGES</filename></para>
+          </listitem>
+          <listitem>
+            <para>change into your newly created directory</para>
+          </listitem>
+          <listitem>
+            <para>copy the file <filename>/usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.po</filename> into
+            your directory</para>
+          </listitem>
+          <listitem>
+            <para>translate the message strings in <filename>packetfence.po</filename></para>
+          </listitem>
+          <listitem>
+            <para>create the MO file by executing: <screen>/usr/bin/msgfmt packetfence.po</screen></para>
+          </listitem>
+        </orderedlist>
+
+        <para>Please consider submitting your new translation to the PacketFence project by contacting us at 
+        <ulink url="mailto:packetfence-devel@lists.sourceforge.net?subject=new%20translation">
+        packetfence-devel@lists.sourceforge.net</ulink>.</para>
+
+      </sect2>
+
+      <sect2>
+        <title>Content</title>
+
+        <para>Since version 1.7 of PacketFence, the registration pages use Template Toolkit 
+        (<ulink url="http://template-toolkit.org/">http://template-toolkit.org/</ulink>).</para>
+
+        <para>All the template files are located in <filename>/usr/local/pf/html/user/content/templates</filename>.
+        The first template you might want to customize are surely the registration templates
+        <filename>/usr/local/pf/html/user/content/templates/register.html</filename> and
+        <filename>/usr/local/pf/html/user/content/templates/register_1.html</filename>. You can freely edit the HTML 
+        code in this file (and all other template files). However, if you want to customize the pages beyond the HTML 
+        template (for example by adding new variables to it), you'll need to look into the 
+        <filename>/usr/local/pf/lib/pf/web.pm</filename> Perl module. This module contains one function per template 
+        file. So if you want to modify the registration page, you'll have to modify
+        the <function>generate_registration_page</function> function.</para>
+      </sect2>
+
+      <sect2>
+        <title>Workflow</title>
+
+        <para>When a HTTP request is received by the Apache web server, the following workflow happens:</para>
+        <orderedlist>
+          <listitem>
+            <para>URL is compared against the redirection instructions in 
+            <filename>/usr/local/pf/conf/httpd.conf</filename></para>
+          </listitem>
+          <listitem>
+            <para>requested CGI script in <filename>/usr/local/pf/cgi-bin</filename> is executed</para>
+          </listitem>
+          <listitem>
+            <para>CGI script calls a <function>generate_&lt;type&gt;</function> function which is defined in
+            <filename>/usr/local/pf/lib/pf/web.pm</filename></para>
+          </listitem>
+          <listitem>
+            <para>the <function>generate_&lt;type&gt;</function> function uses Template Toolkit and the templates in
+            <filename>/usr/local/pf/html/user/content/templates</filename> in order to render the page</para>
+          </listitem>
+        </orderedlist>
+      </sect2>
+
+    </sect1>
+
+    <sect1>
+      <title>Remediation Pages</title>
+      <para>The remediation page shown to the user during isolation is specified through the url parameter of the given
+      violation in <filename>/usr/local/pf/conf/violations.conf</filename>. In its default configuration, 
+      PacketFence uses PHP templates located in the directory 
+      <filename>/usr/local/pf/html/user/content/violations/</filename>.</para>
+    </sect1>
+
+    <sect1>
+      <title>Adding custom fields to the database</title>
+
+      <para>You can, if needed, add additional fields to the PacketFence database. Keep in mind though that this might
+      lead to more work when you upgrade to the next PacketFence version. Depending on the degree of integration of
+      these fields with PacketFence, you'll have to execute one or more of the following steps</para>
+
+      <sect2>
+        <title>Adding a field to the database only</title>
+
+        <para>In this case, the field is part of one of the main PacketFence tables, but PacketFence is unaware of it.
+        PacketFence won't consult the field and won't be able to modify it. A possible usage scenario would be a 3rd
+        party application which maintains this field.</para>
+
+        <para>Since PacketFence doesn't have to know about the field, all you have to do is execute your SQL ALTER TABLE
+        query and you are done.</para>
+      </sect2>
+
+      <sect2>
+        <title>Adding a field and giving PacketFence read-only access</title>
+
+        <para>In this case, PacketFence can show the contents of the table using both <command>pfcmd</command> and 
+        the Web Admin GUI, but won't be able to modify the contents of the field.</para>
+
+        <para>Start by modifying the database table using an SQL ALTER TABLE query.</para>
+
+        <para>Then, modify the Perl module having the same name as the table you have added the field to, i.e. If you
+        added the field to the node table, then edit <filename>/usr/local/pf/lib/pf/node.pm</filename>. 
+        You'll have to modify the SQL SELECT queries at the beginning of the file to include your new field and, 
+        possibly the functions using these queries.
+        If your new field should be used in reports, the dashboard or graphs, you'll also have to modify the queries in
+        <filename>/usr/local/pf/lib/pf/pfcmd/graph.pm</filename>, 
+        <filename>/usr/local/pf/lib/pf/pfcmd/report.pm</filename> and
+        <filename>/usr/local/pf/lib/pf/pfcmd/dashboard.pm</filename>.</para>
+
+        <para>Last, but not least, you'll have to modify the file <filename>/usr/local/pf/conf/ui.conf</filename>. 
+        In this file, you can also give a nice looking name to your field for showing up in the Web Admin GUI.</para>
+      </sect2>
+
+      <sect2>
+        <title>Adding a field and giving PacketFence read-write access</title>
+
+        <para>Start by creating the read-only field as described above.</para>
+
+        <para>Then, modify the SQL UPDATE and INSERT queries in the database tables Perl module, as well as the
+        associated functions.</para>
+
+        <para>The last step is to make PacketFence's grammar aware of the new field. 
+        Modify <filename>/usr/local/pf/lib/pf/pfcmd/pfcmd.pm</filename> and then re-generate the precompiled grammar 
+        (which is used by the pfcmd CLI) with:</para>
+
+        <!-- TODO auto-wrapping at the XSL layer -->
+        <screen><![CDATA[
+cd /usr/local/pf
+
+/usr/bin/perl -w -e '
+    use strict; use warnings; use diagnostics; 
+    use Parse::RecDescent; use lib "/usr/local/pf/lib"; 
+    use pf::pfcmd::pfcmd;
+    Parse::RecDescent->Precompile($grammar, "pfcmd_pregrammar");
+'
+
+mv pfcmd_pregrammar.pm /usr/local/pf/lib/pf/pfcmd/pfcmd_pregrammar.pm
+]]></screen>
+      </sect2>
+    </sect1>
+
+    <sect1>
+      <title>VLAN assignment</title>
+
+      <caution>This information in the following section is obsolete.</caution>
+      <para>The pfsetvlan daemon assigns by default a MAC to the VLAN which is saved in the VLAN field in its database
+      entry. This VLAN field is, again by default, filled during registration with the normalVlan configuration
+      setting, defined in <filename>/usr/local/pf/conf/switches.conf</filename>.</para>
+      <para>So, there are two different ways to change the VLAN a given node ends up in: by modifying the content which
+      is saved in the VLAN field during registration and by modifying how pfsetvlan uses this information.</para>
+      <para>Modifying the VLAN assignment during registration</para>
+      <para>You can change the default behavior by modifying the following lines in
+      <filename>/usr/local/pf/cgi-bin/register.cgi</filename></para>
+      <screen><![CDATA[
+#determine default VLAN if VLAN isolation is enabled 
+#and the vlan has not been set yet 
+if (isenabled($Config{'network'}{'vlan'})) { 
+    if (! defined($info{'vlan'})) { 
+        my %ConfigVlan; 
+        tie %ConfigVlan, 'Config::IniFiles', 
+            (-file = '/usr/local/pf/conf/switches.conf'); 
+        $info{'vlan'} = $ConfigVlan{'default'}{'normalVlan'}; 
+    } 
+}
+]]></screen>
+
+      <sect2>
+        <title>Modifying how pfsetvlan calculates the VLAN for a node</title>
+
+        <para>pfsetvlan uses the <function>getNormalVlan</function> function defined in 
+        <package>pf::vlan::custom</package> to determine a node's VLAN.
+        Here's the default function:</para>
+
+        <programlisting language="perl"><![CDATA[
+sub getNormalVlan {
+    #$switch is the switch object (pf::SNMP)
+    #$ifIndex is the ifIndex of the computer connected to
+    #$mac is the mac connected
+    #$node_info is the node info hashref (result of pf::node's node_view on $mac)
+    #$conn_type is set to the connnection type expressed as the constant in pf::config 
+    #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
+    #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
+    my $logger = Log::Log4perl->get_logger();
+
+    return $switch->getVlanByName('normalVlan');
+}
+]]></programlisting>
+
+        <para>As you can see, the function receives several parameters 
+        (such as the switch and full node details) which allow you to return the VLAN 
+        in a way that matches exactly your needs!</para>
+
+      </sect2>
+    </sect1>
+  </chapter>
+
+  <chapter>
+    <title>SNMP</title>
+
+    <sect1>
+      <title>Introduction</title>
+
+      <para>Good places to start reading about SNMP are 
+      <ulink url="http://en.wikipedia.org/wiki/SNMP">http://en.wikipedia.org/wiki/SNMP</ulink> and 
+      <ulink url="http://www.net-snmp.org/">http://www.net-snmp.org/</ulink>.</para>
+
+      <para>When working with SNMP, you'll sooner or later (in fact more sooner than later) be confronted with having
+      to translate between OIDs and variable names. When the OIDs are part of the Cisco MIBs, you can use the following
+      tool to do the translation: 
+      <ulink url="http://tools.cisco.com/Support/SNMP/public.jsp">
+      http://tools.cisco.com/Support/SNMP/public.jsp</ulink>. Otherwise, you'll have to use snmptranslate for example
+      and setup your own collection of MIBs, provided (hopefully) by the manufacturer of your network equipment.</para>
+    </sect1>
+
+    <sect1>
+      <title>Obtaining switch and port information</title>
+
+      <para>Below are some example of how to obtain simple switch and port information using SNMP. We'll assume that
+      your switch understands SNMP v2, has the read community public defined and is reachable at 192.168.1.10.</para>
+
+      <sect2>
+        <title>Switch Type</title>
+        <screen>snmpwalk -v 2c -c public 192.168.1.10 sysDescr</screen>
+      </sect2>
+      <sect2>
+        <title>Switchport indexes and descriptions</title>
+        <screen>snmpwalk -v 2c -c public 192.168.1.10 ifDescr</screen>
+      </sect2>
+      <sect2>
+        <title>Switchport types</title>
+        <screen>snmpwalk -v 2c -c public 192.168.1.10 ifType</screen>
+      </sect2>
+      <sect2>
+        <title>Switchport status</title>
+        <screen><![CDATA[
+snmpwalk -v 2c -c public 192.168.1.10 ifAdminStatus
+snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
+]]></screen>
+      </sect2>
+    </sect1>
+
+    <sect1>
+      <title>Obtaining VLAN information on Cisco switches</title>
+      <sect2>
+        <title>Access VLAN on a switchport</title>
+        <screen>snmpwalk -c public -m CISCO-VLAN-MEMBERSHIP-MIB -M /usr/local/share/snmp/mibs:/usr/share/snmp/mibs -v 2c 192.168.1.10 vmVlan</screen>
+      </sect2>
+    </sect1>
+  </chapter>
+
+  <chapter>
+    <title>Supporting a new switch</title>
+
+    <para>PacketFence is designed to ease the addition of support for new switches. All supported switches are
+    represented through Perl objects with an extensive use of inheritance. Adding support for a new product comes down
+    to extending the <classname>pf::SNMP</classname> class (in <filename>/usr/local/pf/lib/pf</filename>).</para>
+
+    <para>The starting point to adding support for a new switch should be your switch's documentation! First of all,
+    you'll have to figure out the exact capabilities of the switch and how these capabilities will fit into
+    PacketFence. Will you be able to use only link change traps? Does your switch allow you to use MAC notification
+    traps? Port Security? MAC Authentication? 802.1X?</para>
+
+    <sect1>
+      <title>Link change capabilities</title>
+      <para>You need to define a new class which inherits from <classname>pf::SNMP</classname> and 
+      defines at least the following functions:</para>
+      <itemizedlist>
+        <listitem><function>getMacAddrVlan</function></listitem>
+        <listitem><function>getVersion</function></listitem>
+        <listitem><function>getVlan</function></listitem>
+        <listitem><function>getVlans</function></listitem>
+        <listitem><function>isDefinedVlan</function></listitem>
+        <listitem><function>parseTrap</function></listitem>
+        <listitem><function>_getMacAtIfIndex</function></listitem>
+        <listitem><function>_setVlan</function></listitem>
+      </itemizedlist>
+
+      <para>The <function>parseTrap</function> function will need to return a hash with keys 
+      <varname>trapType</varname> and <varname>trapIfIndex</varname>. 
+      The associated values must be <varname>up</varname> or <varname>down</varname> 
+      for <varname>trapType</varname> and the traps 
+      <varname>ifIndex</varname> for <varname>trapIfIndex</varname>.</para>
+    </sect1>
+
+    <sect1>
+      <title>MAC notification capabilities</title>
+
+      <para>In addition to the functions mentioned for link change, you need to define the following function:</para>
+      <itemizedlist>
+        <listitem><function>isLearntTrapsEnabled</function></listitem>
+      </itemizedlist>
+
+      <para>Also, your <function>parseTrap</function> function will need to be able to return a third value 
+      for the <varname>trapType</varname> key: <varname>mac</varname>.
+      In this case, the hash also needs to contain <varname>trapOperation</varname>, <varname>trapVlan</varname> 
+      and <varname>trapMac</varname> keys.</para>
+    </sect1>
+
+    <sect1>
+      <title>Port security capabilities</title>
+
+      <para>In addition to the functions mentioned for link change, you need to define the following functions:</para>
+      <itemizedlist>
+        <listitem><function>isPortSecurityEnabled</function></listitem>
+        <listitem><function>authorizeMAC</function></listitem>
+      </itemizedlist>
+
+      <para>In this case, the <function>parseTrap</function> function needs to be able to return 
+      <function>secureMacAddrViolation</function> for the <function>trapType</function> key.</para>
+    </sect1>
+
+    <sect1>
+      <title>Code Style</title>
+
+      <caution>This style is obsolete.</caution>
+      <para>The following perltidyrc file should be used</para>
+      <screen><![CDATA[
+-l=78   # Max line width is 78 cols 
+-i=4    # Indent level is 4 cols 
+-ci=4   # Continuation indent is 4 cols 
+-se     # Errors to STDERR 
+-vt=2   # Maximal vertical tightness 
+-cti=0  # No extra indentation for closing brackets 
+-pt=1   # Medium parenthesis tightness 
+-bt=1   # Medium brace tightness 
+-sbt=1  # Medium square bracket tightness 
+-bbt=1  # Medium block brace tightness 
+-nsfs   # No space before semicolons 
+-nolq   # Don't outdent long quoted strings 
+-ce     # cuddled else 
+--backup-and-modify-in-place 
+-wbb="% + - * / x != == = <= =~ !~ < > | & >= < = **= += *= &= <<= && += -= /= |= >>= ||= .= %= ^= x=" 
+]]></screen>
+    </sect1>
+  </chapter>
+
+  &additional-info;
+
+  &commercial-support;
+
+  &license;
+
+</book>
+<!-- vim: set shiftwidth=2 tabstop=2 expandtab: -->

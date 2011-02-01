@@ -1,0 +1,17 @@
+<chapter>
+  <title>Additional Information</title>
+  <para>For more information, please consult the mailing archives or post your questions to it. For details, see:</para>
+  <para>
+    <ulink url="mailto:packetfence-announce@lists.sourceforge.net">packetfence-announce@lists.sourceforge.net</ulink>:
+    Public announcements (new releases, security warnings etc.) regarding PacketFence
+  </para>
+  <para>
+    <ulink url="mailto:packetfence-devel@lists.sourceforge.net">packetfence-devel@lists.sourceforge.net</ulink>:
+    Discussion of PacketFence development
+  </para>
+  <para>
+    <ulink url="mailto:packetfence-users@lists.sourceforge.net">packetfence-users@lists.sourceforge.net</ulink>: User
+    and usage discussions
+  </para>
+</chapter>
+<!-- vim: set shiftwidth=2 tabstop=2 expandtab: -->

@@ -1,0 +1,17 @@
+<chapter>
+  <title xml:id="commercial-support">Commercial Support and Contact Information</title>
+
+  <para>For any questions or comments, do not hesitate to contact us by writing an email to: 
+    <ulink url="mailto:support@inverse.ca">support@inverse.ca</ulink>
+  </para>
+
+  <para>Inverse (<ulink url="http://inverse.ca/">http://inverse.ca</ulink>) offers professional services around 
+  PacketFence to help organizations deploy the solution, customize, migrate versions or from another system, 
+  performance tuning or aligning with best practices.</para>
+
+  <para>Hourly rates or support packages are offered to best suit your needs.</para>
+
+  <para>Please visit <ulink url="http://inverse.ca/support.html">http://inverse.ca/support.html</ulink> for details.
+  </para>
+</chapter>
+<!-- vim: set shiftwidth=2 tabstop=2 expandtab: -->
