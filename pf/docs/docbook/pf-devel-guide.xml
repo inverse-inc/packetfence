@@ -15,15 +15,23 @@
 
     <revhistory>
       <revision>
+        <revnumber>2.1</revnumber>
+        <date>2011-02-01</date>
+        <authorinitials>OBU</authorinitials>
+        <revremark>New content: a chapter on contributing, 
+          one on code conventions and a developer recipes one
+        </revremark>
+      </revision>
+      <revision>
         <revnumber>2.0</revnumber>
         <date>2011-01-31</date>
-        <authorinitials>obu</authorinitials>
+        <authorinitials>OBU</authorinitials>
         <revremark>Port to Docbook</revremark>
       </revision>
       <revision>
         <revnumber>1.0</revnumber>
         <date>2008-12-13</date>
-        <authorinitials>dgl</authorinitials>
+        <authorinitials>DGL</authorinitials>
         <revremark>First OpenDocument version</revremark>
       </revision>
     </revhistory>
@@ -71,6 +79,61 @@
       http://www.packetfence.org/download/guides.html</ulink>.
     </para>
   </chapter>
+
+  <chapter>
+    <title>Code conventions</title>
+
+    <sect1>
+      <title>Code style</title>
+
+      <!-- TODO I would like to add code samples of current style vs old style -->
+      <caution>This is work in progress.</caution>
+      <para>We are slowly migrating away from an automated perltidy code style.
+      The reason we are not doing another pass of tidy is that it messes up code history and makes maintainer's 
+      job more complicated than it should be.
+      Every new change uses the new guidelines so over time the old code style will slowly disappear.</para>
+
+      <itemizedlist>
+        <listitem><para>Lines of 120 character width manually wrap longer lines</para></listitem>
+        <listitem><para>No tab characters</para></listitem>
+        <listitem><para>Use constants instead of hardcoded strings or numbers
+          (use <classname>constant</classname> or <classname>Readonly</classname> modules)</para>
+        </listitem>
+        <listitem><para>in object-oriented modules we use CamelCase notation
+          (ex: <varname>$radiusRequest->getVoIpAttributes();)</varname></para></listitem>
+        <listitem><para>in procedural modules we use perl usual notation
+          (ex: <varname>$node_info{'pid'} = $current_request{'pid'};)</varname></para></listitem>
+        <listitem><para>regular expressions should be documented (with the <parameter>/x</parameter> modifier)</para>
+          <programlisting><![CDATA[if ($phone_number =~ /
+    ^\(?([2-9]\d{2})\)?  # captures first 3 digits allows parens
+    (?:-|.|\s)?          # separator -, ., sapce or nothing
+    (\d{3})              # captures 3 digits
+    (?:-|.|\s)?          # separator -, ., sapce or nothing
+    (\d{4})$             # captures last 4 digits
+    /x) {
+        return "$1$2$3";
+}
+]]></programlisting>
+        </listitem>
+        <listitem>
+          <para>SQL should be capitalized, properly indented and always use named fields (no *)</para>
+          <programlisting><![CDATA[$node_statements->{'node_add_sql'} = get_db_handle()->prepare(qq[
+    INSERT INTO node (
+        mac, pid, category_id, status, voip, bypass_vlan,
+        detect_date, regdate, unregdate, lastskip,
+        user_agent, computername, dhcp_fingerprint,
+        last_arp, last_dhcp,
+        notes,
+    ) VALUES (
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+    )
+]);
+]]></programlisting>
+        </listitem>
+      </itemizedlist>
+    </sect1>
+  </chapter>
+
 
   <chapter>
     <title>Customizing PacketFence</title>
@@ -411,27 +474,83 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
       <function>secureMacAddrViolation</function> for the <function>trapType</function> key.</para>
     </sect1>
 
-    <sect1>
-      <title>Code Style</title>
+  </chapter>
 
-      <caution>This style is obsolete.</caution>
-      <para>The following perltidyrc file should be used</para>
-      <screen><![CDATA[-l=78   # Max line width is 78 cols 
--i=4    # Indent level is 4 cols 
--ci=4   # Continuation indent is 4 cols 
--se     # Errors to STDERR 
--vt=2   # Maximal vertical tightness 
--cti=0  # No extra indentation for closing brackets 
--pt=1   # Medium parenthesis tightness 
--bt=1   # Medium brace tightness 
--sbt=1  # Medium square bracket tightness 
--bbt=1  # Medium block brace tightness 
--nsfs   # No space before semicolons 
--nolq   # Don't outdent long quoted strings 
--ce     # cuddled else 
---backup-and-modify-in-place 
--wbb="% + - * / x != == = <= =~ !~ < > | & >= < = **= += *= &= <<= && += -= /= |= >>= ||= .= %= ^= x=" 
-]]></screen>
+  <chapter>
+    <title>Developer recipes</title>
+
+    <sect1>
+      <title>Running development version</title>
+      <sect2>
+        <title>Bleeding edge</title>
+        <para>For day to day development one can run a checkout of the current development branch in 
+        <filename>/usr/local/pf/</filename> and develop there within a working setup.</para>
+        <para>Care should be taken not to commit local configuration files changes and 
+        files not in the repository.</para>
+      </sect2>
+      <sect2>
+        <title>Not so bleeding edge</title>
+        <para>Using the development <command>yum</command> repository and upgrade packetfence often 
+        is a good way to proceed. Check our <ulink url="http://www.packetfence.org/download/snapshots.html">
+        snapshots download page</ulink> for instructions.</para>
+        <para>Make sure you read the <filename>UPGRADE</filename> document after every upgrades to avoid 
+        any surprises.</para>
+      </sect2>
+    </sect1>
+
+    <sect1>
+      <title>Debugging PacketFence grammar</title>
+      <para>PacketFence uses a parser to validate user input.
+      This parser is referred to as the grammar.
+      When you see errors like <screen>Command not understood. (pfcmd grammar test failed at line 217.)</screen>
+      it means that you faced a problem in the command you are trying to send or in the grammar itself.
+      </para>
+      <para>The parsing of a command is a tricky process. First the command is interpreted in the 
+      <classname>pf::pfcmd</classname> module using traditional regular expressions. 
+      Then some of the commands will trigger the parser <classname>pf::pfcmd::pfcmd_pregrammar</classname>
+      which is a precompiled module that is generated from <classname>pf::pfcmd::pfcmd</classname> when packetfence
+      is built.</para>
+      <para>To help troubleshoot a failing command, you can enable tracing on the parser by removing the comment 
+      from the following line in <command>pfcmd</command>:<programlisting>#our $RD_TRACE = 1;</programlisting></para>
+    </sect1>
+
+  </chapter>
+
+  <chapter>
+    <title>Contributing</title>
+    <para>Here are some golden rules of contributing to PacketFence:</para>
+    <itemizedlist>
+      <listitem><para>Be active on the developer mailing list</para>
+        <para>The place to be if you want to contribute to the PacketFence project is our developers mailing list:
+        <ulink url="https://lists.sourceforge.net/lists/listinfo/packetfence-devel">
+        https://lists.sourceforge.net/lists/listinfo/packetfence-devel</ulink>. 
+        Let us know your issues, what you are working on and how you want to solve your problems.
+        The more you collaborate the greater the chances that your work will be incorporated in a timely fashion.</para>
+      </listitem>
+      <listitem><para>Use the issue tracker: <ulink url="http://www.packetfence.org/bugs/">
+        http://www.packetfence.org/bugs/</ulink></para>
+        <para>Good chances that the bug you want to fix or the feature you want to implement is already filed 
+        and that information in the ticket will help you.</para>
+      </listitem>
+      <listitem><para>Please provide small, focused and manageable patches</para>
+        <para>If you plan on doing a lot of code, use monotone and track our current development branch. 
+        Develop the feature in small chunks and stay in touch with us. 
+        This way it'll be merged quickly in our codebase. 
+        No big code dumps after finishing your feature please.</para>
+      </listitem>
+    </itemizedlist>
+
+    <sect1>
+      <title>Creating patches</title>
+      <para>Patches should be sent in unified diff format. 
+      This can be obtained from the <command>diff</command> or <command>mtn</command> tools.
+      <screen>diff -u oldfile newfile</screen>
+      or from a checkout of the PacketFence source code from monotone:
+      <screen>mtn diff</screen>
+      </para>
+      <para>If required a public branch can be created for contributors on our 
+        <ulink url="http://mtn.inverse.ca/">public source code repository</ulink>.
+      </para>
     </sect1>
   </chapter>
 
