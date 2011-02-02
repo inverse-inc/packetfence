@@ -15,11 +15,20 @@
 
     <revhistory>
       <revision>
+        <revnumber>2.2</revnumber>
+        <date>2011-02-02</date>
+        <authorinitials>OBU</authorinitials>
+        <revremark>Reworked new switch support into a more general new network devices support.
+          New content: Wireless Access-Points and Controllers, Switch support for MAC Auth and 802.1X, 
+          a new "add a network device to PacketFence" checklist and new exception handling techniques
+        </revremark>
+      </revision>
+      <revision>
         <revnumber>2.1</revnumber>
         <date>2011-02-01</date>
         <authorinitials>OBU</authorinitials>
         <revremark>New content: a chapter on contributing, 
-          one on code conventions and a developer recipes one
+          one on code conventions and one on developer recipes (run devel env., debug grammar)
         </revremark>
       </revision>
       <revision>
@@ -414,64 +423,175 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
   </chapter>
 
   <chapter>
-    <title>Supporting a new switch</title>
+    <title>Supporting new network hardware</title>
 
-    <para>PacketFence is designed to ease the addition of support for new switches. All supported switches are
-    represented through Perl objects with an extensive use of inheritance. Adding support for a new product comes down
-    to extending the <classname>pf::SNMP</classname> class (in <filename>/usr/local/pf/lib/pf</filename>).</para>
+    <para>PacketFence is designed to ease the addition of support for new network hardware 
+    referred to as Network Devices. 
+    All supported network devices are represented through Perl objects with an extensive use of inheritance. 
+    Adding support for a new product comes down to extending the <classname>pf::SNMP</classname> class 
+    (in <filename>/usr/local/pf/lib/pf</filename>).</para>
 
-    <para>The starting point to adding support for a new switch should be your switch's documentation! First of all,
-    you'll have to figure out the exact capabilities of the switch and how these capabilities will fit into
-    PacketFence. Will you be able to use only link change traps? Does your switch allow you to use MAC notification
-    traps? Port Security? MAC Authentication? 802.1X?</para>
+    <para>The starting point to adding support for a new network device should be the vendor's documentation! 
+    First of all, you'll have to figure out the exact capabilities of the switch and how these capabilities 
+    will fit into PacketFence. 
+    Is it a Switch, an Access-Point or a Wireless Controller?</para>
 
     <sect1>
-      <title>Link change capabilities</title>
-      <para>You need to define a new class which inherits from <classname>pf::SNMP</classname> and 
-      defines at least the following functions:</para>
-      <itemizedlist>
-        <listitem><function>getMacAddrVlan</function></listitem>
-        <listitem><function>getVersion</function></listitem>
-        <listitem><function>getVlan</function></listitem>
-        <listitem><function>getVlans</function></listitem>
-        <listitem><function>isDefinedVlan</function></listitem>
-        <listitem><function>parseTrap</function></listitem>
-        <listitem><function>_getMacAtIfIndex</function></listitem>
-        <listitem><function>_setVlan</function></listitem>
-      </itemizedlist>
+      <title>Switch</title>
+      <para>Will you be able to use only link change traps? Does your switch allow you to use MAC notification
+      traps? Port Security? MAC Authentication? 802.1X?</para>
 
-      <para>The <function>parseTrap</function> function will need to return a hash with keys 
-      <varname>trapType</varname> and <varname>trapIfIndex</varname>. 
-      The associated values must be <varname>up</varname> or <varname>down</varname> 
-      for <varname>trapType</varname> and the traps 
-      <varname>ifIndex</varname> for <varname>trapIfIndex</varname>.</para>
+      <sect2>
+        <title>Link change capabilities</title>
+        <para>You need to define a new class which inherits from <classname>pf::SNMP</classname> and 
+        defines at least the following functions:</para>
+        <itemizedlist>
+          <listitem><function>getMacAddrVlan</function></listitem>
+          <listitem><function>getVersion</function></listitem>
+          <listitem><function>getVlan</function></listitem>
+          <listitem><function>getVlans</function></listitem>
+          <listitem><function>isDefinedVlan</function></listitem>
+          <listitem><function>parseTrap</function></listitem>
+          <listitem><function>_getMacAtIfIndex</function></listitem>
+          <listitem><function>_setVlan</function></listitem>
+        </itemizedlist>
+
+        <para>The <function>parseTrap</function> function will need to return a hash with keys 
+        <varname>trapType</varname> and <varname>trapIfIndex</varname>. 
+        The associated values must be <varname>up</varname> or <varname>down</varname> 
+        for <varname>trapType</varname> and the traps 
+        <varname>ifIndex</varname> for <varname>trapIfIndex</varname>.</para>
+      </sect2>
+
+      <sect2>
+        <title>MAC notification capabilities</title>
+
+        <para>In addition to the functions mentioned for link change, you need to define the following function:</para>
+        <itemizedlist>
+          <listitem><function>isLearntTrapsEnabled</function></listitem>
+        </itemizedlist>
+
+        <para>Also, your <function>parseTrap</function> function will need to be able to return a third value 
+        for the <varname>trapType</varname> key: <varname>mac</varname>.
+        In this case, the hash also needs to contain <varname>trapOperation</varname>, <varname>trapVlan</varname> 
+        and <varname>trapMac</varname> keys.</para>
+      </sect2>
+
+      <sect2>
+        <title>Port security capabilities</title>
+
+        <para>In addition to the functions mentioned for link change, you need to define the following functions:</para>
+        <itemizedlist>
+          <listitem><function>isPortSecurityEnabled</function></listitem>
+          <listitem><function>authorizeMAC</function></listitem>
+        </itemizedlist>
+
+        <para>In this case, the <function>parseTrap</function> function needs to be able to return 
+        <function>secureMacAddrViolation</function> for the <function>trapType</function> key.</para>
+      </sect2>
+
+      <sect2>
+        <title>MAC Authentication</title>
+        <note>Work in progress</note>
+        <para>Often the <varname>ifIndex</varname> provided by the switch in a <systemitem>RADIUS</systemitem> 
+          <systemitem>Access-Request</systemitem> is not the same as it's real world physical equivalent. 
+          For example in Cisco requests are in the 50xxx while physical ports are 10xxx.
+          In order for PacketFence to properly shut the port or request re-authentication a 
+          translation between the two is required. 
+          To do so provide an implementation of the following interface:
+          <itemizedlist><listitem><function>NasPortToIfIndex</function></listitem></itemizedlist>
+        </para>
+        
+        <para>Once the <systemitem>MAC Authentication</systemitem> works, 
+        add the <systemitem>Wired MAC Auth</systemitem> capability to the switch's code with:
+        <programlisting language="perl">sub supportsWiredMacAuth { return $TRUE; }</programlisting></para>
+      </sect2>
+
+      <sect2>
+        <title>802.1X</title>
+        <note>Work in progress</note>
+        <para>Often the <varname>ifIndex</varname> provided by the switch in a <systemitem>RADIUS</systemitem> 
+          <systemitem>Access-Request</systemitem> is not the same as it's real world physical equivalent. 
+          For example in Cisco requests are in the 50xxx while physical ports are 10xxx.
+          In order for PacketFence to properly shut the port or request re-authentication a 
+          translation between the two is required. 
+          To do so provide an implementation of the following interface:
+          <itemizedlist><listitem><function>NasPortToIfIndex</function></listitem></itemizedlist>
+        </para>
+        
+        <para>Once the <systemitem>802.1X</systemitem> works, add the <systemitem>Wired Dot1X</systemitem>
+        capability to the switch's code with:
+        <programlisting language="perl">sub supportsWiredDot1x { return $TRUE; }</programlisting></para>
+      </sect2>
     </sect1>
 
     <sect1>
-      <title>MAC notification capabilities</title>
+      <title>Wireless Access-Points or Controllers</title>
 
-      <para>In addition to the functions mentioned for link change, you need to define the following function:</para>
-      <itemizedlist>
-        <listitem><function>isLearntTrapsEnabled</function></listitem>
-      </itemizedlist>
+      <sect2>
+        <title>Minimum hardware requirements</title>
 
-      <para>Also, your <function>parseTrap</function> function will need to be able to return a third value 
-      for the <varname>trapType</varname> key: <varname>mac</varname>.
-      In this case, the hash also needs to contain <varname>trapOperation</varname>, <varname>trapVlan</varname> 
-      and <varname>trapMac</varname> keys.</para>
+        <para>PacketFence's minimum requirements regarding Wireless hardware is:</para>
+        <itemizedlist>
+          <listitem>
+            <para>definition of several SSID with several VLANs inside every SSID (minimum of 2 VLANs per SSID)</para>
+          </listitem>
+          <listitem><para>RADIUS authentication (MAC Authentication / 802.1X)</para></listitem>
+          <listitem><para>dynamic VLAN assignment based on RADIUS attributes</para></listitem>
+          <listitem><para>SNMP deassociation/deauthentication traps</para></listitem>
+          <listitem>
+            <para>a CLI, SNMP, RADIUS<footnote>
+              <para>RADIUS RFC 3576 Change of Authorization (CoA) or Disconnect-Messages (DM aka PoD)</para></footnote>
+            or WebServices command to deassociate/deauthenticate a client</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Most of these features work out of the box for enterprise grade Access Points
+        or Controllers. Where the situation starts to vary is for deauthentication support.</para>
+
+        <para>SSH or Telnet is an error prone interface and requires preparation for the SSH
+        access or is insecure for Telnet.</para>
+
+        <para>SNMP is implemented when available but not all vendor support it.</para>
+
+        <para>RADIUS is an upcoming deauthentication mechanism in PacketFence. 
+        It's the support for RFC 3576 Change of Authorization (CoA) or Disconnect-Messages (DM aka PoD). 
+        Once implemented it will be the preferred deauthentication technique.</para>
+      </sect2>
+
+      <sect2>
+        <title>Required methods</title>
+        <para>You need to implement at least:</para>
+        <itemizedlist>
+          <listitem><para><function>getVersion()</function> - fetch firmware version</para></listitem>
+          <listitem><para><function>extractSsid()</function> - extract SSID from RADIUS Request</para></listitem>
+          <listitem><para><function>deauthenticateMac()</function> - performs deauthentication</para></listitem>
+        </itemizedlist>
+      </sect2>
+        
     </sect1>
 
     <sect1>
-      <title>Port security capabilities</title>
-
-      <para>In addition to the functions mentioned for link change, you need to define the following functions:</para>
+      <title>The "adding a new network device module in PacketFence" checklist</title>
+      <para>Here's a quick rundown of the several files you need to edit in order to add a new switch 
+      into PacketFence. There's a plan to reduce this amount of work in progress see 
+      <ulink url="http://www.packetfence.org/bugs/view.php?id=1085">issue #1085</ulink>.</para>
       <itemizedlist>
-        <listitem><function>isPortSecurityEnabled</function></listitem>
-        <listitem><function>authorizeMAC</function></listitem>
+        <listitem><para>Tested model and firmware version should be documented in module's POD</para></listitem>
+        <listitem><para>Any bugs and limitations should be documented in module's POD</para></listitem>
+        <listitem><para>Add it to 
+          <filename>pf/html/admin/configuration/switches_add.php</filename> and 
+          <filename>switches_edit.php</filename></para>
+        </listitem>
+        <listitem><para>Add it to the test suite: 
+          <filename>t/hardware-snmp-objects.t</filename>, <filename>t/critic.t</filename>, 
+          <filename>t/pod.t</filename>, <filename>t/coding-style.t</filename></para>
+        </listitem>
+        <listitem><para>Make sure that all tests pass</para></listitem> 
+        <listitem><para>Add configuration documentation to the Network Devices Guide</para></listitem> 
+        <listitem><para>Add switch to the Network Devices Guide's switch chart</para></listitem> 
+        <listitem><para>Add switch to the chart in <filename>README.network-devices</filename></para></listitem> 
       </itemizedlist>
-
-      <para>In this case, the <function>parseTrap</function> function needs to be able to return 
-      <function>secureMacAddrViolation</function> for the <function>trapType</function> key.</para>
     </sect1>
 
   </chapter>
@@ -511,7 +631,39 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
       which is a precompiled module that is generated from <classname>pf::pfcmd::pfcmd</classname> when packetfence
       is built.</para>
       <para>To help troubleshoot a failing command, you can enable tracing on the parser by removing the comment 
-      from the following line in <command>pfcmd</command>:<programlisting>#our $RD_TRACE = 1;</programlisting></para>
+      from the following line in <command>pfcmd</command>:<code>#our $RD_TRACE = 1;</code></para>
+    </sect1>
+    
+    <sect1>
+      <title>New Exception handling techniques under testing</title>
+
+      <para>Little attention was given to error-handling in PacketFence's early design. 
+      This is understandable as it wasn't probably the most bang-for-the-buck thing to do.
+      However we must now live with a large codebase that explodes at runtime or that doesn't differentiate an 
+      erroneous condition from a null or 0 value. 
+      Refactoring to improve error-handling will be gradual but new code should follow these tips:</para>
+      <orderedlist>
+        <listitem><para>use <classname>Try::Tiny</classname></para></listitem>
+        <listitem><para>wrap stuff in <code>try {...} catch {...};</code> 
+          (and optionally a <code>finally {...};</code>)</para>
+        </listitem>
+        <listitem><para>in the code use <code>die(...);</code> 
+          to throw an exception and make the error message meaningful</para>
+        </listitem>
+        <listitem>
+          <para>in the catch block, use <code>$logger->logcarp(string . $@)</code> 
+            if I want output to the CLI, otherwise, choose wisely</para>
+        </listitem>
+      </orderedlist>
+      <para>
+        This catches a lot of errors (including runtime crashers) and 
+        allows us to recover from these conditions so its pretty cool!
+      </para>
+      <para>
+        So far, it is mandatory to wrap the Web Services enabled network devices modules' code since 
+        <classname>SOAP::Lite</classname> will die on you if host is unreachable for example 
+        (actually it's <classname>LWP::UserAgent</classname> who will).
+      </para>
     </sect1>
 
   </chapter>
