@@ -526,11 +526,11 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
-* Fri Jan 28 2011 Olivier Bilodeau <obilodeau@inverse.ca>
-- Configuration files in conf/templates/ are now in conf/. See #1166.
-
 * Tue Feb 01 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - Explicitly remove docbook doc from package. For now.
+
+* Fri Jan 28 2011 Olivier Bilodeau <obilodeau@inverse.ca>
+- Configuration files in conf/templates/ are now in conf/. See #1166.
 
 * Fri Jan 28 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - More changes related to #1014. Some more conf -> var movement.
