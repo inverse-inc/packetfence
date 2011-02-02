@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
-  "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" 
+  "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY additional-info SYSTEM "additional-info.xml">
   <!ENTITY commercial-support SYSTEM "commercial-support.xml">
   <!ENTITY license SYSTEM "license.xml">
@@ -20,7 +20,7 @@
         <authorinitials>OBU</authorinitials>
         <revremark>Reworked new switch support into a more general new network devices support.
           New content: Wireless Access-Points and Controllers, Switch support for MAC Auth and 802.1X, 
-          a new "add a network device to PacketFence" checklist and new exception handling techniques
+          a new "add a network device to PacketFence" checklist and new exception handling techniques.
         </revremark>
       </revision>
       <revision>
@@ -28,20 +28,20 @@
         <date>2011-02-01</date>
         <authorinitials>OBU</authorinitials>
         <revremark>New content: a chapter on contributing, 
-          one on code conventions and one on developer recipes (run devel env., debug grammar)
+          one on code conventions and one on developer recipes (run devel env., debug grammar).
         </revremark>
       </revision>
       <revision>
         <revnumber>2.0</revnumber>
         <date>2011-01-31</date>
         <authorinitials>OBU</authorinitials>
-        <revremark>Port to Docbook</revremark>
+        <revremark>Port to Docbook.</revremark>
       </revision>
       <revision>
         <revnumber>1.0</revnumber>
         <date>2008-12-13</date>
         <authorinitials>DGL</authorinitials>
-        <revremark>First OpenDocument version</revremark>
+        <revremark>First OpenDocument version.</revremark>
       </revision>
     </revhistory>
 
