@@ -23,7 +23,8 @@ as long as they have the following features:
 - RADIUS authentication (MAC Authentication / 802.1X)
 - dynamic VLAN assignment based on RADIUS attributes
 - SNMP deassociation/deauthentication traps
-- CLI (or SNMP) command to deassociate/deauthenticate a client
+- a CLI, SNMP, RADIUS* or WebServices command to deassociate/deauthenticate a 
+  client
 
 Most of these features work out of the box for enterprise grade Access Points
 or Controllers. Where the situation starts to vary is for deauthentication 
