@@ -67,6 +67,16 @@
     </legalnotice>
 
     <releaseinfo>Version 2.0.1 - January 2011</releaseinfo>
+
+    <mediaobject>
+      <info>
+        <othercredit>
+          <orgname>Inverse inc.</orgname>
+        </othercredit>
+      </info>
+      <alt>PacketFence's spike</alt>
+      <imageobject><imagedata align="left" width="4in" format="PNG" fileref="docs/images/pf-logo.png"/></imageobject>
+    </mediaobject>
   </info>
 
   <!-- TODO inline images 

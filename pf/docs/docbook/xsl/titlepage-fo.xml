@@ -45,6 +45,7 @@
 
   <t:titlepage t:element="book" t:wrapper="fo:block">
     <t:titlepage-content t:side="recto">
+      <mediaobject/>
       <title
 	     t:named-template="division.title"
 	     param:node="ancestor-or-self::book[1]"
