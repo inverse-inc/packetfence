@@ -14,7 +14,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 10;
+use Test::More tests => 14;
 use Test::MockModule;
 use Test::MockObject::Extends;
 use Test::NoWarnings;

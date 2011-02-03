@@ -106,7 +106,7 @@ sub doWeActOnThisTrap {
     if ( ( $ifType == $SNMP::ETHERNET_CSMACD ) || ( $ifType == $SNMP::GIGABIT_ETHERNET ) ) {
         my @upLinks = $switch->getUpLinks();
         # TODO: need to validate for empty array here to avoid warning
-        if ( $upLinks[0] == -1 ) {
+        if ( @upLinks && $upLinks[0] == -1 ) {
             $logger->warn("Can't determine Uplinks for the switch -> do nothing");
         } else {
             if ( grep( { $_ == $ifIndex } @upLinks ) == 0 ) {
