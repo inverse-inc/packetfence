@@ -527,7 +527,7 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
-* Tue Feb 03 2011 Olivier Bilodeau <obilodeau@inverse.ca>
+* Thu Feb 03 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - Explicitly remove docbook doc and images from package. For now.
 
 * Fri Jan 28 2011 Olivier Bilodeau <obilodeau@inverse.ca>
