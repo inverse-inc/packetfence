@@ -16,6 +16,7 @@ use lib '/usr/local/pf/lib';
 
 use Test::More tests => 10;
 use Test::MockModule;
+use Test::MockObject::Extends;
 use Test::NoWarnings;
 
 use File::Basename qw(basename);
@@ -27,6 +28,7 @@ Log::Log4perl::MDC->put( 'tid',  0 );
 
 use pf::config;
 use pf::SwitchFactory;
+use pf::SNMP::constants;
 
 BEGIN { use pf::violation; }
 BEGIN { 
@@ -98,6 +100,41 @@ is($vlan, 1, "obtain normalVlan on a switch with no normalVlan override");
 
 $vlan = $vlan_obj->getNormalVlan($switch_vlan_override);
 is($vlan, 15, "obtain normalVlan on a switch with normalVlan override");
+
+# doWeActOnThisTrap tests
+#
+# mock switch's relevant calls
+$switch = $switchFactory->instantiate('192.168.0.1');
+$switch  = Test::MockObject::Extends->new( $switch );
+$switch->mock('getIfType', sub { return $SNMP::GIGABIT_ETHERNET; });
+$switch->mock('getUpLinks', sub { return; });
+
+is(
+    $vlan_obj->doWeActOnThisTrap( $switch, 1000, 'secureMacAddrViolation' ),
+    1,
+    "avoid empty array warning (issue #832)"
+);
+
+$switch->mock('getUpLinks', sub { return (); });
+is(
+    $vlan_obj->doWeActOnThisTrap( $switch, 1000, 'secureMacAddrViolation' ),
+    1,
+    "Zero uplinks"
+);
+
+$switch->mock('getUpLinks', sub { return -1; });
+is(
+    $vlan_obj->doWeActOnThisTrap( $switch, 1000, 'secureMacAddrViolation' ),
+    0,
+    "getUpLinks not supported return 0"
+);
+
+$switch->mock('getUpLinks', sub { return (1000, 1001); });
+is(
+    $vlan_obj->doWeActOnThisTrap( $switch, 1000, 'secureMacAddrViolation' ),
+    0,
+    "do we act on uplink?"
+);
 
 =head1 AUTHOR
 
