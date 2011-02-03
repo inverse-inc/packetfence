@@ -213,6 +213,7 @@ cp -r COPYING $RPM_BUILD_ROOT/usr/local/pf/
 cp -r db $RPM_BUILD_ROOT/usr/local/pf/
 cp -r docs $RPM_BUILD_ROOT/usr/local/pf/
 rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/docbook
+rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/images
 cp -r html $RPM_BUILD_ROOT/usr/local/pf/
 cp -r installer.pl $RPM_BUILD_ROOT/usr/local/pf/
 cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
@@ -527,8 +528,8 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
-* Tue Feb 01 2011 Olivier Bilodeau <obilodeau@inverse.ca>
-- Explicitly remove docbook doc from package. For now.
+* Tue Feb 03 2011 Olivier Bilodeau <obilodeau@inverse.ca>
+- Explicitly remove docbook doc and images from package. For now.
 
 * Fri Jan 28 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - More changes related to #1014. Some more conf -> var movement.
