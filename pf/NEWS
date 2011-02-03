@@ -25,6 +25,9 @@ Enhancements
 - Generated configuration files are now in var/... (#1014)
 - pid files are now in var/run/
 
+Bug fixes
+- No more warnings in node lookup (#1173)
+
 --------------------------------------------------------------------------------
 Version 2.0.1 released on 2011-01-26
 

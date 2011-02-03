@@ -109,22 +109,20 @@ sub lookup_node {
 
         if (lc($Config{'network'}{'mode'}) eq 'vlan') {
             my @last_locationlog_entry = locationlog_history_mac($mac);
-            if ($last_locationlog_entry[0]) {
-                my $is_entry_active = 1;
-                # if end_time is null or is set to 0
-                if (defined($last_locationlog_entry[0]->{'end_time'}) && $last_locationlog_entry[0]->{'end_time'} !~ /0000/) {
-                    $is_entry_active = 0;
-                }
-                $return .= "Location       : port ". $last_locationlog_entry[0]->{'port'}." "
-                        .  " (vlan " . $last_locationlog_entry[0]->{'vlan'}.")"
-                        .  " on switch ".$last_locationlog_entry[0]->{'switch'}
-                        .  "\n";
+            if ($last_locationlog_entry[0] && defined($last_locationlog_entry[0]->{'mac'})) {
 
-                if (exists($last_locationlog_entry[0]->{'connection_type'})) {
-                    $return .= "Connection type: ".$last_locationlog_entry[0]->{'connection_type'}."\n";
-                } else {
-                    $return .= "Connection type: UNKNOWN\n";
-                }
+                # assignments using ternary operator: if exist assign otherwise unknown
+                my $port = defined($last_locationlog_entry[0]->{'port'}) ? 
+                    $last_locationlog_entry[0]->{'port'} : "UNKNOWN";
+                my $vlan = defined($last_locationlog_entry[0]->{'vlan'}) ? 
+                    $last_locationlog_entry[0]->{'vlan'} : "UNKNOWN";
+                my $switch = defined($last_locationlog_entry[0]->{'switch'}) ? 
+                    $last_locationlog_entry[0]->{'switch'} : "UNKNOWN";
+                $return .= "Location       : port $port (vlan $vlan) on switch $switch\n";
+
+                my $con_type = defined($last_locationlog_entry[0]->{'connection_type'}) ?
+                    $last_locationlog_entry[0]->{'connection_type'} : "UNKNOWN";
+                $return .= "Connection type: $con_type\n";
 
                 if (defined($last_locationlog_entry[0]->{'dot1x_username'})) {
                     $return .= "802.1X Username: ".$last_locationlog_entry[0]->{'dot1x_username'}."\n";
@@ -134,35 +132,17 @@ sub lookup_node {
                     $return .= "Wireless SSID  : ".$last_locationlog_entry[0]->{'ssid'}."\n";
                 }
 
-                if ($is_entry_active) {
+                # if end_time is null or is set to 0
+                if (!defined($last_locationlog_entry[0]->{'end_time'})) {
+                    $return .= "Last activity  : UNKNOWN\n";
+                } elsif (defined($last_locationlog_entry[0]->{'end_time'}) 
+                    && $last_locationlog_entry[0]->{'end_time'} !~ /0000/) {
                     $return .= "Last activity  : currently active\n";
                 } else {
                     $return .= "Last activity  : ".$last_locationlog_entry[0]->{'end_time'}."\n";
                 }
             } else {
                 $return .= "No connectivity information available (We probably only saw a DHCP request)\n";
-            }
-        } else {
-            my $port   = $node_info->{'last_port'};
-            my $switch = $node_info->{'last_switch'};
-            my $vlan   = $node_info->{'last_vlan'};
-            my $switch_ip;
-            my $switch_mac;
-            if ($switch) {
-                if ( valid_ip($switch) ) {
-                    $switch_ip = $switch;
-                } elsif ( valid_mac($switch) ) {
-                    $switch_mac = $switch;
-                    $switch_ip  = mac2ip($switch);
-                }
-            }
-            if ( $port && ( $switch_ip || $switch_mac ) && $vlan ) {
-                $return .= "Location: port $port (vlan $vlan) on switch "
-                    . ( $switch_ip || $switch_mac );
-                if ( $switch_ip && $switch_mac ) {
-                    $return .= " ($switch_mac)";
-                }
-                $return .= "\n";
             }
         }
 
@@ -190,7 +170,7 @@ Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009,2010 Inverse inc.
+Copyright (C) 2009,2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
