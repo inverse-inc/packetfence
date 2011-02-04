@@ -1346,8 +1346,6 @@ sub isPhoneAtIfIndex {
 
     if (defined($node_info->{dhcp_fingerprint}) && $node_info->{dhcp_fingerprint} =~ /VoIP Phone/) {
         $logger->debug("DHCP fingerprint for $mac indicates VoIP phone");
-        # returning 1 here will have the consequence of the node 
-        # updating node.voip to yes in locationlog_synchronize
         return 1;
     }
 
