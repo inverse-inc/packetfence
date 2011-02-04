@@ -63,7 +63,7 @@ BEGIN {
         $floating_devices_file %ConfigFloatingDevices
         $blackholemac $portscan_sid @valid_trigger_types $thread $default_pid $fqdn
         $FALSE $TRUE
-        WIRELESS_802_1X WIRELESS_MAC_AUTH WIRED_802_1X WIRED_MAC_AUTH WIRED_SNMP_TRAPS WIRELESS WIRED EAP
+        WIRELESS_802_1X WIRELESS_MAC_AUTH WIRED_802_1X WIRED_MAC_AUTH WIRED_SNMP_TRAPS WIRELESS WIRED EAP UNKNOWN
         VOIP NO_VOIP
         LOOPBACK_IPV4
         %connection_type %connection_type_to_str %connection_type_explained
@@ -116,6 +116,7 @@ use constant WIRED_SNMP_TRAPS => 0b00110000;
 use constant WIRELESS => 0b10000000;
 use constant WIRED => 0b00100000;
 use constant EAP => 0b01000000;
+use constant UNKNOWN => 'Unknown';
 
 # TODO we should build a connection data class with these hashes and related constants
 # String to constant hash
@@ -147,6 +148,7 @@ use constant EAP => 0b01000000;
     WIRED_802_1X() => 'Wired 802.1x',
     WIRED_MAC_AUTH() => 'Wired MAC Auth',
     WIRED_SNMP_TRAPS() => 'Wired SNMP',
+    UNKNOWN() => 'Unknown',
 );
 
 # VoIP constants
@@ -392,7 +394,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009,2010 Inverse, inc.
+Copyright (C) 2009-2011 Inverse, inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

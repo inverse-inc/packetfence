@@ -43,8 +43,8 @@ $logger->info("flip.pl called with $mac");
 
 my $locationlog_entry = locationlog_view_open_mac($mac);
 if ($locationlog_entry) {
-    my $switch_ip = $locationlog_entry->{'switch'};
-    my $ifIndex   = $locationlog_entry->{'port'};
+    my $switch_ip = $locationlog_entry->{'switch'} || 'unknown';
+    my $ifIndex = $locationlog_entry->{'port'} || 'unknown';
     my $conn_type = str_to_connection_type($locationlog_entry->{'connection_type'});
     $logger->info("switch port for $mac is $switch_ip ifIndex $ifIndex "
         . "connection type: " . $connection_type_explained{$conn_type});
@@ -54,7 +54,10 @@ if ($locationlog_entry) {
     my $trapSender    = $switchFactory->instantiate('127.0.0.1');
 
     if ($trapSender) {
-        if ($conn_type == WIRED_SNMP_TRAPS) {
+        if ($conn_type eq UNKNOWN) {
+            $logger->warn("Unknown connection type! We won't perform VLAN reassignment since node never connected");
+
+        } elsif ($conn_type == WIRED_SNMP_TRAPS) {
             $logger->debug("sending a local reAssignVlan trap to force VLAN change");
             $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type);
 
@@ -77,10 +80,6 @@ if ($locationlog_entry) {
         } elsif ($conn_type == WIRED_MAC_AUTH) {
             $logger->debug("sending a local reAssignVlan trap to force VLAN change");
             $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type);
-
-        } else {
-            $logger->warn("unknown connection type! Will assume wired and send a reAssignVlan trap");
-            $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex);
         }
     } else {
         $logger->error("Can not instantiate switch 127.0.0.1 !");
@@ -100,7 +99,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2010 Inverse inc.
+Copyright (C) 2007-2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
