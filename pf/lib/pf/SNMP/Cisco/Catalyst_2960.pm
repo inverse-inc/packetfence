@@ -218,12 +218,16 @@ sub authorizeMAC {
         push @oid_value, ( $completeOid, Net::SNMP::INTEGER, 4 );
     }
 
+    my $result;
     if ( scalar(@oid_value) > 0 ) {
-        $logger->trace(
-            "SNMP set_request for cpsIfVlanSecureMacAddrRowStatus");
-        my $result = $this->{_sessionWrite}
-            ->set_request( -varbindlist => \@oid_value );
+        $logger->trace("SNMP set_request for cpsIfVlanSecureMacAddrRowStatus");
+        $result = $this->{_sessionWrite}->set_request( -varbindlist => \@oid_value );
     }
+    if (!defined($result)) {
+        $logger->warn("SNMP error tyring to add or remove secure rows in port-security table. This could be normal. "
+            . "Error message: ".$this->{_sessionWrite}->error());
+    }
+
     return 1;
 }
 
