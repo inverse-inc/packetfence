@@ -84,6 +84,7 @@
 
   $my_table->tableprint(false);
 
+  print "<center>Note: Switch / port / VLAN information for VoIP devices might not always be accurate.</center>";
   include_once('../footer.php');
 
 ?>
