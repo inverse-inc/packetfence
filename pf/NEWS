@@ -24,6 +24,7 @@ Enhancements
 - Miscellaneous code cleanup (#1165)
 - Generated configuration files are now in var/... (#1014)
 - pid files are now in var/run/
+- Module versioning to improve handling of API changes in extension points
 
 Bug fixes
 - Fixed errors when editing a node with an unknown connection type (#1177)

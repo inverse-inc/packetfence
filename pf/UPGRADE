@@ -7,6 +7,11 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <version>:
 
+    - Module versioning for pf::vlan::custom and pf::radius::custom
+    We are now relying on module versioning to catch interface changes before
+    they hurt the users. PacketFence will generate errors on startup if you 
+    have not upgraded your modules' interface and version.
+
     - You MUST upgrade conf/templates/httpd.conf and 
     conf/templates/named_vlan.conf
     The location of the PID files changed. The templates must reflect this new
@@ -19,7 +24,7 @@ o Upgrading from a version prior to <version>:
     This mechanism was removed since the new pf::web::custom mechanism is
     cleaner and less error-prone. Make sure to migrate any custom code you have
     in release.pl, login.pl, enabler.pl, redirect.pl, scan-in-progress.pl, 
-    error.pl, status.pl and register.pl to lib/pf/web/custom.pl.
+    error.pl, status.pl and register.pl to lib/pf/web/custom.pm.
 
     - pid files changed location
     Previously in var/ they are now in var/run/   

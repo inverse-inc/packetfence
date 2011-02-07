@@ -31,6 +31,8 @@ use pf::vlan::custom;
 # constants used by this module are provided by
 use pf::radius::constants;
 
+our $VERSION = "1.00";
+
 =head1 SUBROUTINES
 
 =over

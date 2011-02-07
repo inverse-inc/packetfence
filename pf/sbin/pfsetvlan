@@ -86,7 +86,7 @@ use pf::traplog;
 use pf::node;
 use pf::violation;
 use pf::SNMP v1.7.0.6;
-use pf::vlan::custom;
+use pf::vlan::custom 1.00;
 use pf::floatingdevice::custom;
 
 # }}}1

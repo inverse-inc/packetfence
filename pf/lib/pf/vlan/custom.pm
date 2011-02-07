@@ -24,6 +24,8 @@ use pf::node qw(node_view node_add_simple node_exist);
 use pf::util;
 use pf::violation qw(violation_count_trap violation_exist_open violation_view_top);
 
+our $VERSION = "1.00";
+
 =head1 SUBROUTINES
 
 =over

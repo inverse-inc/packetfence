@@ -16,6 +16,9 @@ use warnings;
 use Log::Log4perl;
 use Readonly;
 
+# performs version checking of the radius components at startup
+use pf::WebAPI;
+
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
@@ -188,7 +191,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2010,2011 Inverse inc.
 
 =head1 LICENSE
 
