@@ -67,6 +67,7 @@ BEGIN {
         VOIP NO_VOIP
         LOOPBACK_IPV4
         %connection_type %connection_type_to_str %connection_type_explained
+        $RADIUS_API_LEVEL $VLAN_API_LEVEL
     );
 }
 
@@ -154,6 +155,10 @@ use constant UNKNOWN => 'Unknown';
 # VoIP constants
 use constant VOIP    => 'yes';
 use constant NO_VOIP => 'no';
+
+# API version constants
+Readonly::Scalar our $RADIUS_API_LEVEL => 1.00;
+Readonly::Scalar our $VLAN_API_LEVEL => 1.00;
 
 # to shut up strict warnings
 $ENV{PATH} = '/sbin:/bin:/usr/bin:/usr/sbin';

@@ -16,9 +16,6 @@ use warnings;
 use Log::Log4perl;
 use Readonly;
 
-# performs version checking of the radius components at startup
-use pf::WebAPI;
-
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );

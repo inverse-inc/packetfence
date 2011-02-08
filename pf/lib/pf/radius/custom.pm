@@ -28,11 +28,11 @@ use pf::node;
 use pf::SNMP;
 use pf::SwitchFactory;
 use pf::util;
-use pf::vlan::custom;
+use pf::vlan::custom $VLAN_API_LEVEL;
 # constants used by this module are provided by
 use pf::radius::constants;
 
-our $VERSION = "1.00";
+our $VERSION = 1.00;
 
 =head1 AUTHOR
 

@@ -54,8 +54,9 @@ PFAPI - Web Services handler exposing PacketFence features
 
 =cut
 
+use pf::config;
 use pf::iplog;
-use pf::radius::custom 1.00;
+use pf::radius::custom $RADIUS_API_LEVEL;
 use pf::violation;
 
 sub event_add {

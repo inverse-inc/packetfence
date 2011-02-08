@@ -2401,6 +2401,7 @@ sub field_order {
     return (@fields);
 }
 
+# TODO extract into pf::pfcmd::sanity and break into subs
 sub sanity_check {
     my (@services) = @_;
 
@@ -2757,6 +2758,23 @@ sub sanity_check {
             }
         }
     }
+
+    # performs version checking of the extension points
+    require pf::radius::custom;
+    if ($RADIUS_API_LEVEL > pf::radius::custom->VERSION()) {
+        $logger->logdie(
+            "RADIUS Extension point (pf::radius::custom) is not at the correct API level. " .
+            "Did you read UPGRADE?"
+        );
+    }
+    require pf::vlan::custom;
+    if ($VLAN_API_LEVEL > pf::vlan::custom->VERSION()) {
+        $logger->logdie(
+            "VLAN Extension point (pf::vlan::custom) is not at the correct API level. " .
+            "Did you read UPGRADE?"
+        );
+    }
+
 }
 
 sub vlan_reevaluation {
