@@ -27,7 +27,7 @@ Enhancements
 - Developer documentation update
 - New DHCP fingerprints for Cisco and Nortel IP Phones, Cisco Small 
   Business switch, Netgear router, Generic Linux, Gentoo, LaCie NAS, Xyratex 
-  NAS, iPod, Samsung, LG, Sony Ericsson cellphones, APC and Tripplite UPS,
+  NAS, iPod/iPad, Samsung, LG, Sony Ericsson cellphones, APC and Tripplite UPS,
   some Generic Thin Clients, HP, Xerox and Brother printers.
 - Improved test suite
 - Miscellaneous code cleanup (#1165)
