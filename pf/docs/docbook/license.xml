@@ -1,3 +1,16 @@
+<!-- ********************************************************************
+
+     License section
+
+     This file is part of the PacketFence project.
+     Authors:
+       - Olivier Bilodeau <obilodeau@inverse.ca>
+
+     Copyright (C) 2011 Inverse inc.
+     License: GFDL 1.2 or later. http://www.gnu.org/licenses/fdl.html
+
+     ******************************************************************** -->
+
 <chapter>
   <title xml:id="license">GNU Free Documentation License</title>
   <para>Please refer to 

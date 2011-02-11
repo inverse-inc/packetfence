@@ -6,6 +6,15 @@
   <!ENTITY license SYSTEM "license.xml">
 ]>
 
+<!-- ********************************************************************
+
+     PacketFence Developers Guide
+
+     This file is part of the PacketFence project.
+     See book.info for authors, copyright and license information.
+
+     ******************************************************************** -->
+
 <book id="developers-guide" lang="en">
   <info>
   
@@ -14,6 +23,12 @@
     <date>2011-02-01</date>
 
     <revhistory>
+      <revision>
+        <revnumber>2.3</revnumber>
+        <date>2011-02-10</date>
+        <authorinitials>OBU</authorinitials>
+        <revremark>Template improvements</revremark>
+      </revision>
       <revision>
         <revnumber>2.2</revnumber>
         <date>2011-02-02</date>

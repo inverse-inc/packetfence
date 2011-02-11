@@ -1,0 +1,11 @@
+<fop version="1.0">
+  <renderers>
+    <renderer mime="application/pdf">
+      <fonts>
+        <font metrics-url="docs/fonts/palatino.xml" kerning="yes" embed-url="docs/fonts/PALATINO.TTF">
+          <font-triplet name="Palatino" style="normal" weight="normal"/>
+        </font>
+      </fonts>
+    </renderer>
+  </renderers>
+</fop>
