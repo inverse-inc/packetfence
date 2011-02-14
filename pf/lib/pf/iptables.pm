@@ -391,9 +391,9 @@ sub iptables_generate {
     chomp( $tags{'mangle_rules'} );
     chomp( $tags{'filter_rules'} );
     chomp( $tags{'nat_rules'} );
-    parse_template( \%tags, "$conf_dir/templates/iptables.conf",
-        "$conf_dir/iptables.conf" );
-    iptables_restore("$conf_dir/iptables.conf");
+    parse_template( \%tags, "$conf_dir/iptables.conf",
+        "$generated_conf_dir/iptables.conf" );
+    iptables_restore("$generated_conf_dir/iptables.conf");
 }
 
 sub internal_append_entry {
@@ -525,11 +525,15 @@ David LaPorte <david@davidlaporte.org>
 
 Kevin Amorin <kev@amorin.org>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
+
+Copyright (C) 2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

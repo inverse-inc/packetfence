@@ -7,6 +7,11 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <version>:
 
+    - Configuration files location changed from conf/templates/ to conf/
+    Please make sure that you move your configuration files appropriately.
+
+o Upgrading from a version prior to <version>:
+
     - Module versioning for pf::vlan::custom and pf::radius::custom
     We are now relying on module versioning to catch interface changes before
     they hurt the users. PacketFence will generate errors on startup if you 
