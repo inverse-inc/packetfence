@@ -117,7 +117,7 @@ sub runScan {
     }
 
     if (!$failedScan) {
-        $logger->info("Nessus scan did not detect any high severity vulnerabilities on $hostaddr");
+        $logger->info("Nessus scan did not detect any vulnerabilities on $hostaddr");
     }
 
     # If scan is requested because of registration scanning
