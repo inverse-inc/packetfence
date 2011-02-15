@@ -75,7 +75,7 @@ sub service_ctl {
     my $exe = basename($service);
     $logger->info("$service $action");
     if ( $exe
-        =~ /^(named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan)$/
+        =~ /^(named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|apache2|snmptrapd|pfsetvlan)$/
         )
     {
         $exe = $1;

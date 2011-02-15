@@ -29,6 +29,7 @@ Enhancements
 - Module versioning to improve handling of API changes in extension points
 
 Bug fixes
+- Allows apache2 as a valid httpd daemon name (#1185, Thanks to Jesper)
 - Fixed errors when editing a node with an unknown connection type (#1177)
 - No more warnings in node lookup (#1173)
 - Warning avoidance in pf::vlan's doWeActOnThisTrap (#832)
