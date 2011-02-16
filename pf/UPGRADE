@@ -7,6 +7,12 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <version>:
 
+    - Several Nortel/Avaya module changes
+    5520 renamed to 5500, 5520Stacked is no longer necessary, firmware 6.x 
+    support for the 5500 series requires you to use module name BayStack5500_6x.
+    Just make sure to review your conf/switches.conf so that the config refers
+    to proper modules.
+
     - Module versioning for pf::vlan::custom and pf::radius::custom
     We are now relying on module versioning to catch interface changes before
     they hurt the users. PacketFence will generate errors on startup if you 

@@ -16,7 +16,12 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <release> released on <releaseDate>
 
+New Hardware Support
+- Added Avaya as rebranded Nortel's
+- Support for Nortel's ERS5500 with firmware 6.x
+
 Enhancements
+- Improvements to our Nortel support
 - Developer documentation update
 - New DHCP fingerprints for Cisco and Nortel IP Phones, Cisco Small 
   Business switch, Netgear router, Generic Linux, Gentoo, LaCie NAS, Xyratex 

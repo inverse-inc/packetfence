@@ -33,9 +33,16 @@ use base ('pf::SNMP');
 use Log::Log4perl;
 use Net::SNMP;
 
+=head1 METHODS
+
+TODO: This list is incomplete
+
+=over
+
+=cut
 sub getVersion {
     my ($this)        = @_;
-    my $oid_s5ChasVer = '1.3.6.1.4.1.45.1.6.3.1.5';
+    my $oid_s5ChasVer = '1.3.6.1.4.1.45.1.6.3.1.5.0';
     my $logger        = Log::Log4perl::get_logger( ref($this) );
     if ( !$this->connectRead() ) {
         return '';
@@ -66,24 +73,14 @@ sub parseTrap {
         )
     {
         $trapHashRef->{'trapType'}    = 'secureMacAddrViolation';
-        $trapHashRef->{'trapIfIndex'} = ( $1 - 1 ) * 64 + $2;
+        $trapHashRef->{'trapIfIndex'} = ( $1 - $this->getFirstBoardIndex() ) * $this->getBoardIndexWidth() + $2;
         $trapHashRef->{'trapMac'}     = lc($3);
         $trapHashRef->{'trapMac'} =~ s/ /:/g;
-        $trapHashRef->{'trapVlan'}
-            = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
-
-#$trapHashRef->{'trapIfIndex'} = $this->getIfIndexForThisMac($trapHashRef->{'trapMac'});
-#if ($trapHashRef->{'trapIfIndex'} == -1) {
-#    $logger->error("cannot determine ifIndex for " . $trapHashRef->{'trapMac'} . " on switch " . $this->{_ip} . ". IGNORING Trap");
-#    $trapHashRef->{'trapType'} = 'unknown';
-#} else {
-        $logger->debug( "ifIndex for "
-                . $trapHashRef->{'trapMac'}
-                . " on switch "
-                . $this->{_ip} . " is "
-                . $trapHashRef->{'trapIfIndex'} );
-
-        #}
+        $trapHashRef->{'trapVlan'} = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
+        $logger->debug(
+            "ifIndex for " . $trapHashRef->{'trapMac'} . " on switch " . $this->{_ip} 
+            . " is " . $trapHashRef->{'trapIfIndex'}
+        );
     } else {
         $logger->debug("trap currently not handled");
         $trapHashRef->{'trapType'} = 'unknown';
@@ -286,16 +283,60 @@ sub _setVlan {
     return ( defined($result) );
 }
 
+
+=item getBoardIndexWidth
+
+How many ifIndex there is per board.
+It changed with a firmware upgrade so it is encapsulated per switch module.
+
+Default is 64
+
+=cut
+sub getBoardIndexWidth {
+    return 64;
+}
+
+=item getFirstBoardIndex
+
+First board id varies from one BayStack to another. 
+It doesn't vary by model, it seems that it is based on whether the switch has been stacked on not (in its lifetime).
+
+Returns either 0 or 1
+
+=cut
+sub getFirstBoardIndex {
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+  
+    if ( !$this->connectRead() ) {
+        return 1; 
+    }
+
+    my $OID_s5SbsAuthCfgBrdIndx = '1.3.6.1.4.1.45.1.6.5.3.10.1.1';
+    my $result = $this->{_sessionRead}->get_next_request(-varbindlist => [$OID_s5SbsAuthCfgBrdIndx]);
+
+    foreach my $key ( sort keys %{$result} ) {
+        if($result->{$key} =~ /^$OID_s5SbsAuthCfgBrdIndx\.(\d+)/){
+            return $1;
+        }
+    }
+
+    $logger->warn("unable to fetch first board index. Will assume it's 1");
+    return 1;
+}
+
 sub getBoardPortFromIfIndex {
     my ( $this, $ifIndex ) = @_;
 
-    # return (board,port)
-    return ( ( 1 + int( $ifIndex / 64 ) ), ( $ifIndex % 64 ) );
+    my $board = ($this->getFirstBoardIndex() + int( $ifIndex / $this->getBoardIndexWidth() )); 
+    my $port = ( $ifIndex % $this->getBoardIndexWidth() );
+    return ( $board, $port );
 }
+
+
 
 sub getIfIndexFromBoardPort {
     my ( $this, $board, $port ) = @_;
-    return ( ( $board - 1 ) * 64 + $port );
+    return ( ( $board - $this->getFirstBoardIndex() ) * $this->getBoardIndexWidth() + $port );
 }
 
 sub getAllSecureMacAddresses {
@@ -336,13 +377,12 @@ sub getSecureMacAddresses {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $OID_s5SbsAuthCfgAccessCtrlType
         = '1.3.6.1.4.1.45.1.6.5.3.10.1.4';    #S5-SWITCH-BAYSECURE-MIB
-
-    my ( $boardIndx, $portIndx ) = $this->getBoardPortFromIfIndex($ifIndex);
     my $secureMacAddrHashRef = {};
+
     if ( !$this->connectRead() ) {
         return $secureMacAddrHashRef;
     }
-
+    my ( $boardIndx, $portIndx ) = $this->getBoardPortFromIfIndex($ifIndex);
     my $oldVlan = $this->getVlan($ifIndex);
 
     $logger->trace(
@@ -391,14 +431,8 @@ sub authorizeMAC {
 #when $authorized is set to false, deletes an existing line
 sub _authorizeMAC {
     my ( $this, $ifIndex, $MACHexString, $authorize ) = @_;
-
-    #my $OID_s5SbsAuthCfgBrdIndx = '1.3.6.1.4.1.45.1.6.5.3.10.1.1';
-    #my $OID_s5SbsAuthCfgPortIndx = '1.3.6.1.4.1.45.1.6.5.3.10.1.2';
-    #my $OID_s5SbsAuthCfgMACIndx = '1.3.6.1.4.1.45.1.6.5.3.10.1.3';
     my $OID_s5SbsAuthCfgAccessCtrlType = '1.3.6.1.4.1.45.1.6.5.3.10.1.4';
     my $OID_s5SbsAuthCfgStatus         = '1.3.6.1.4.1.45.1.6.5.3.10.1.5';
-
-    #my $OID_s5SbsAuthCfgSecureList = '1.3.6.1.4.1.45.1.6.5.3.10.1.6';
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     if ( !$this->isProductionMode() ) {
@@ -609,6 +643,8 @@ sub isVoIPEnabled {
     return ( $this->{_VoIPEnabled} == 1 );
 }
 
+=back
+
 =head1 AUTHOR
 
 Regis Balzard <rbalzard@inverse.ca>
@@ -619,7 +655,9 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2008 Inverse inc.
+Copyright (C) 2007-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

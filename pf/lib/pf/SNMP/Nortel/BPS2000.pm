@@ -9,6 +9,12 @@ pf::SNMP::Nortel::BPS2000 - Object oriented module to access SNMP enabled Nortel
 The pf::SNMP::Nortel::BPS2000 module implements an object 
 oriented interface to access SNMP enabled Nortel::BPS2000 switches.
 
+=head1 STATUS
+
+BPS2000 switches don't support LLDP. 
+
+Otherwise this module is identical to pf::SNMP::Nortel.
+
 =cut
 
 use strict;
@@ -36,9 +42,13 @@ sub getPhonesLLDPAtIfIndex {
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008 Inverse inc.
+Copyright (C) 2006-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

@@ -1,17 +1,18 @@
-package pf::SNMP::Nortel::ES325;
+package pf::SNMP::Nortel::BayStack5500_6x;
 
 =head1 NAME
 
-pf::SNMP::Nortel::ES325 - Object oriented module to access SNMP enabled Nortel 325 switches
+pf::SNMP::Nortel::BayStack5500_6x
 
-=head1 SYNOPSIS
+=head1 DESCRIPTION
 
-The pf::SNMP::Nortel::ES325 module implements an object 
-oriented interface to access SNMP enabled Nortel::ES325 switches.
+Object oriented module to access SNMP enabled Nortel BayStack5500 switches running software code >= 6.x.
+
+Starting with firmware 6.x ifIndex handling changed and this module takes care of this change.
 
 =head1 STATUS
 
-This module is currently only a placeholder, see pf::SNMP::Nortel.
+Aside from ifIndex handling this module is identical to pf::SNMP::Nortel.
 
 =cut
 
@@ -24,13 +25,37 @@ use Net::SNMP;
 
 use base ('pf::SNMP::Nortel');
 
+=head1 METHODS
+
+TODO: This list is incomplete
+
+=over
+
+=item getBoardIndexWidth
+
+How many ifIndex there is per board.
+It changed with a firmware upgrade so it is encapsulated per switch module.
+
+This module has 128.
+
+=cut
+sub getBoardIndexWidth {
+    return 128;
+}
+
+=back
+
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Kevin Manuel <kmanuel@unb.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2011 Inverse inc.
+Copyright (C) 2007-2011 Inverse inc.
 
 =head1 LICENSE
 
@@ -50,7 +75,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
-
 1;
 
 # vim: set shiftwidth=4:

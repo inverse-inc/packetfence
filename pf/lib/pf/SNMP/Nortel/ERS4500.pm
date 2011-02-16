@@ -9,15 +9,20 @@ pf::SNMP::Nortel::ERS4500 - Object oriented module to access SNMP enabled Nortel
 The pf::SNMP::Nortel::ERS4500 module implements an object 
 oriented interface to access SNMP enabled Nortel::ERS4500 switches.
 
+=head1 STATUS
+
+This module is currently only a placeholder, see pf::SNMP::Nortel.
+
 =cut
 
 use strict;
 use warnings;
 use diagnostics;
+
 use Log::Log4perl;
 use Net::SNMP;
 
-use base ('pf::SNMP::Nortel::BayStack5520');
+use base ('pf::SNMP::Nortel');
 
 =head1 AUTHOR
 
@@ -25,7 +30,9 @@ Regis Balzard <rbalzard@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2010,2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

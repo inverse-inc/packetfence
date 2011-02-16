@@ -1,13 +1,13 @@
-package pf::SNMP::Nortel::ES325;
+package pf::SNMP::Nortel::BayStack5500;
 
 =head1 NAME
 
-pf::SNMP::Nortel::ES325 - Object oriented module to access SNMP enabled Nortel 325 switches
+pf::SNMP::Nortel::BayStack5500 - Object oriented module to access SNMP enabled Nortel BayStack5500 switches
 
 =head1 SYNOPSIS
 
-The pf::SNMP::Nortel::ES325 module implements an object 
-oriented interface to access SNMP enabled Nortel::ES325 switches.
+The pf::SNMP::Nortel::BayStack5500 module implements an object 
+oriented interface to access SNMP enabled Nortel::BayStack5500 switches.
 
 =head1 STATUS
 
@@ -28,9 +28,11 @@ use base ('pf::SNMP::Nortel');
 
 Dominik Gehl <dgehl@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2011 Inverse inc.
+Copyright (C) 2007-2011 Inverse inc.
 
 =head1 LICENSE
 

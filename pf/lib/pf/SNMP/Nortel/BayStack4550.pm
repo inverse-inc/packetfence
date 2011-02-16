@@ -9,15 +9,20 @@ pf::SNMP::Nortel::BayStack4550 - Object oriented module to access SNMP enabled N
 The pf::SNMP::Nortel::BayStack4550 module implements an object 
 oriented interface to access SNMP enabled Nortel::BayStack4550 switches.
 
+=head1 STATUS
+
+This module is currently only a placeholder, see pf::SNMP::Nortel.
+
 =cut
 
 use strict;
 use warnings;
 use diagnostics;
+
 use Log::Log4perl;
 use Net::SNMP;
 
-use base ('pf::SNMP::Nortel::BayStack5520');
+use base ('pf::SNMP::Nortel');
 
 =head1 AUTHOR
 
@@ -25,7 +30,9 @@ Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2008 Inverse inc.
+Copyright (C) 2007-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 155;
+use Test::More tests => 165;
 use lib '/usr/local/pf/lib';
 my $lib_path = '/usr/local/pf/lib';
 
@@ -16,6 +16,9 @@ BEGIN { use_ok('pf::SNMP::Amer') }
 BEGIN { use_ok('pf::SNMP::Amer::SS2R24i') }
 BEGIN { use_ok('pf::SNMP::Aruba') }
 BEGIN { use_ok('pf::SNMP::Aruba::Controller_200') }
+BEGIN { use_ok('pf::SNMP::Avaya') }
+BEGIN { use_ok('pf::SNMP::Avaya::ERS5500') }
+BEGIN { use_ok('pf::SNMP::Avaya::ERS5500_6x') }
 BEGIN { use_ok('pf::SNMP::Cisco') }
 BEGIN { use_ok('pf::SNMP::Cisco::Aironet') }
 BEGIN { use_ok('pf::SNMP::Cisco::Aironet_1130') }
@@ -70,11 +73,13 @@ BEGIN { use_ok('pf::SNMP::MockedSwitch') }
 BEGIN { use_ok('pf::SNMP::Nortel') }
 BEGIN { use_ok('pf::SNMP::Nortel::BayStack4550') }
 BEGIN { use_ok('pf::SNMP::Nortel::BayStack470') }
-BEGIN { use_ok('pf::SNMP::Nortel::BayStack5520') }
-BEGIN { use_ok('pf::SNMP::Nortel::BayStack5520Stacked') }
+BEGIN { use_ok('pf::SNMP::Nortel::BayStack5500') }
+BEGIN { use_ok('pf::SNMP::Nortel::BayStack5500_6x') }
 BEGIN { use_ok('pf::SNMP::Nortel::BPS2000') }
 BEGIN { use_ok('pf::SNMP::Nortel::ERS2500') }
 BEGIN { use_ok('pf::SNMP::Nortel::ERS4500') }
+BEGIN { use_ok('pf::SNMP::Nortel::ERS5500') }
+BEGIN { use_ok('pf::SNMP::Nortel::ERS5500_6x') }
 BEGIN { use_ok('pf::SNMP::Nortel::ES325') }
 BEGIN { use_ok('pf::SNMP::PacketFence') }
 BEGIN { use_ok('pf::SNMP::SMC') }
@@ -97,6 +102,9 @@ my @SNMPobjects = qw(
     pf::SNMP::Amer::SS2R24i
     pf::SNMP::Aruba
     pf::SNMP::Aruba::Controller_200
+    pf::SNMP::Avaya
+    pf::SNMP::Avaya::ERS5500
+    pf::SNMP::Avaya::ERS5500_6x
     pf::SNMP::Cisco
     pf::SNMP::Cisco::Aironet
     pf::SNMP::Cisco::Aironet_1130
@@ -147,11 +155,13 @@ my @SNMPobjects = qw(
     pf::SNMP::Nortel
     pf::SNMP::Nortel::BayStack4550
     pf::SNMP::Nortel::BayStack470
-    pf::SNMP::Nortel::BayStack5520
-    pf::SNMP::Nortel::BayStack5520Stacked
+    pf::SNMP::Nortel::BayStack5500
+    pf::SNMP::Nortel::BayStack5500_6x
     pf::SNMP::Nortel::BPS2000
     pf::SNMP::Nortel::ERS2500
     pf::SNMP::Nortel::ERS4500
+    pf::SNMP::Nortel::ERS5500
+    pf::SNMP::Nortel::ERS5500_6x
     pf::SNMP::Nortel::ES325
     pf::SNMP::PacketFence
     pf::SNMP::SMC

@@ -1,15 +1,17 @@
-package pf::SNMP::Nortel::ES325;
+package pf::SNMP::Avaya::ERS5500;
 
 =head1 NAME
 
-pf::SNMP::Nortel::ES325 - Object oriented module to access SNMP enabled Nortel 325 switches
+pf::SNMP::Avaya::ERS5500 - Object oriented module to access SNMP enabled Avaya ERS5500 switches
 
 =head1 SYNOPSIS
 
-The pf::SNMP::Nortel::ES325 module implements an object 
-oriented interface to access SNMP enabled Nortel::ES325 switches.
+The pf::SNMP::Avaya::ERS5500 module implements an object 
+oriented interface to access SNMP enabled Avaya::ERS5500 switches.
 
 =head1 STATUS
+
+Avaya bought Nortel's wired switching division so this is a re-branded Nortel. 
 
 This module is currently only a placeholder, see pf::SNMP::Nortel.
 
@@ -26,11 +28,11 @@ use base ('pf::SNMP::Nortel');
 
 =head1 AUTHOR
 
-Dominik Gehl <dgehl@inverse.ca>
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2011 Inverse inc.
+Copyright (C) 2011 Inverse inc.
 
 =head1 LICENSE
 
