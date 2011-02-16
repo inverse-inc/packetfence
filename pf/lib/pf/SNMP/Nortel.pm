@@ -305,6 +305,7 @@ Returns either 0 or 1
 
 =cut
 sub getFirstBoardIndex {
+    my ($this) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
   
     if ( !$this->connectRead() ) {
