@@ -237,7 +237,7 @@ sub load_template {
     if ( ! defined($template_hash{$template_nb}) ) {
         croak("Invalid template number $template_nb");
     }
-    my $template_filename = "$conf_dir/templates/configurator/"
+    my $template_filename = "$conf_dir/configurator/"
         . $template_hash{$template_nb};
     die "template $template_filename not found" if ( !-e $template_filename );
     tie %template_cfg, 'Config::IniFiles', ( -file => $template_filename )
