@@ -24,9 +24,9 @@ Enhancements
 - Improvements to our Nortel support
 - Developer documentation update
 - New DHCP fingerprints for Cisco and Nortel IP Phones, Cisco Small 
-  Business switch, Netgear router, Generic Linux, Gentoo, LaCie NAS, Xyratex 
-  NAS, iPod/iPad, Samsung, LG, Sony Ericsson cellphones, APC and Tripplite UPS,
-  some Generic Thin Clients, HP, Xerox and Brother printers.
+  Business switch, Netgear router, Generic Linux, Gentoo, Meego, LaCie NAS, 
+  Xyratex NAS, iPod/iPad, Samsung, LG, Sony Ericsson cellphones, APC and 
+  Tripplite UPS, some Generic Thin Clients, HP, Xerox and Brother printers.
 - Improved test suite
 - Miscellaneous code cleanup (#1165)
 - Generated configuration files are now in var/... (#1014)
