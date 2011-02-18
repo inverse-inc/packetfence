@@ -20,6 +20,10 @@ New Hardware Support
 - Added Avaya as rebranded Nortel's
 - Support for Nortel's ERS5500 with firmware 6.x
 
+New Features
+- javascript-based network access detection (experimental)
+- JSON bindings for node information (experimental)
+
 Enhancements
 - Improvements to our Nortel support
 - Developer documentation update

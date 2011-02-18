@@ -71,7 +71,7 @@ Requires: mysql, perl-DBD-mysql
 Requires: perl >= 5.8.8, perl-suidperl
 Requires: perl-Apache-Htpasswd
 Requires: perl-Bit-Vector
-Requires: perl-CGI-Session
+Requires: perl-CGI-Session, perl(JSON)
 Requires: perl-Class-Accessor
 Requires: perl-Class-Accessor-Fast-Contained
 Requires: perl-Class-Data-Inheritable
@@ -529,6 +529,9 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Fri Feb 18 2011 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added perl(JSON) as a dependency
+
 * Thu Feb 11 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - Explicitly remove fonts from package. For now.
 

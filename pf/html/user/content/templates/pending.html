@@ -7,7 +7,18 @@
 .bio         { }
 -->
 </style>
-<meta http-equiv="refresh" content="30">
+<script src="/common/prototype.js" type="text/javascript"></script>
+<script src="/common/pf.js" type="text/javascript"></script>
+<script>
+// once the page is loaded
+document.observe("dom:loaded", function() {
+  var detectDiv = document.getElementById('internet-detection');
+
+  detectNetworkAccess.delay([% initial_delay %], 
+    detectDiv, [% retry_delay %], "[% destination_url %]", "[% external_ip %]"
+  );
+});
+</script>
 </head>
 
 <body>
@@ -41,5 +52,7 @@
 </center>
 
 </body>
+
+<div id="internet-detection" style="display: none;"></div>
 
 </html>

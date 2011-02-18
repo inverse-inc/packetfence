@@ -40,7 +40,7 @@ my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 
 my $result;
 my $ip              = pf::web::get_client_ip($cgi);
-my $destination_url = $cgi->param("destination_url");
+my $destination_url = $cgi->param("destination_url") || $Config{'trapping'}{'redirecturl'};
 my $enable_menu     = $cgi->param("enable_menu");
 my $mac             = ip2mac($ip);
 my %tags;
@@ -120,7 +120,15 @@ if ($unreg && isenabled($Config{'trapping'}{'registration'})){
 #if node is pending show pending page
 my $node_info = node_view($mac);
 if (defined($node_info) && $node_info->{'status'} eq $pf::node::STATUS_PENDING) {
-  pf::web::generate_pending_page($cgi, $session, $destination_url, $mac);
+  # we drop HTTPS for pending so we can perform our Internet detection and avoid all sort of certificate errors
+  if ($cgi->https()) {
+    print $cgi->redirect(
+        "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
+        ."/cgi-bin/redir.cgi?destination_url=$destination_url"
+    );
+  } else {
+    pf::web::generate_pending_page($cgi, $session, $destination_url, $mac);
+  }
   exit(0);
 }
 

@@ -18,6 +18,7 @@ use warnings;
 use Date::Parse;
 use File::Basename;
 use POSIX;
+use JSON;
 use Template;
 use Locale::gettext;
 use Log::Log4perl;

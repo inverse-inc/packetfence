@@ -112,7 +112,11 @@ if (defined($params{'mode'})) {
     }
   } elsif ($params{'mode'} eq "status") {
     if (trappable_ip($ip)) {
-      pf::web::generate_status_page($cgi, $session, $mac);
+      if (defined($params{'json'})) {
+        pf::web::generate_status_json($cgi, $session, $mac);
+      } else {
+        pf::web::generate_status_page($cgi, $session, $mac);
+      }
     } else {
       pf::web::generate_error_page($cgi, $session, "error: not trappable IP");
     }

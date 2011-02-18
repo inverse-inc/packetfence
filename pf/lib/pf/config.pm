@@ -42,7 +42,8 @@ our (
     $oui_file, $oui_url,
     $floating_devices_file, %ConfigFloatingDevices,
     %connection_type, %connection_type_to_str, %connection_type_explained,
-    $blackholemac, $portscan_sid, @valid_trigger_types, $thread, $default_pid, $fqdn
+    $blackholemac, $portscan_sid, @valid_trigger_types, $thread, $default_pid, $fqdn,
+    %CAPTIVE_PORTAL
 );
 
 BEGIN {
@@ -68,6 +69,7 @@ BEGIN {
         LOOPBACK_IPV4
         %connection_type %connection_type_to_str %connection_type_explained
         $RADIUS_API_LEVEL $VLAN_API_LEVEL
+        %CAPTIVE_PORTAL
     );
 }
 
@@ -171,6 +173,12 @@ $black_mark = "2";
 # this is broken NIC on Dave's desk - it better be unique!
 $blackholemac = "00:60:8c:83:d7:34";
 use constant LOOPBACK_IPV4 => '127.0.0.1';
+
+# Captive Portal constants
+Readonly %CAPTIVE_PORTAL => (
+    "NET_DETECT_INITIAL_DELAY" => 2 * 60,
+    "NET_DETECT_RETRY_DELAY" => 30,
+);
 
 readPfConfigFiles();
 

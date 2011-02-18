@@ -35,6 +35,12 @@ o Upgrading from a version prior to <version>:
     to var/conf/.  This will mitigate the fact that people were trying to
     modify the generated files instead of the templates.
 
+    - 'pending' node status now relies on javascript to detect network access
+    The HTML meta refresh approach never reliably worked so there's a new 
+    javascript technique. If you rely on node status 'pending' in your 
+    workflow, please check pf.conf's new captive_portal.network_detection_ip 
+    variable and re-test your portal to make sure it still works.
+
     - Output of node lookup changed (again!)
     The output of `pfcmd lookup node <mac>` changed. Make sure you update your
     parsing scripts (if any). This also affects the Node lookup section of the

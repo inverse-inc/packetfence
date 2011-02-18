@@ -27,6 +27,7 @@ use strict;
 use warnings;
 use Date::Parse;
 use File::Basename;
+use JSON;
 use POSIX;
 use Template;
 use Locale::gettext;
@@ -392,6 +393,30 @@ sub generate_status_page {
     exit;
 }
 
+=item generate_status_json
+
+Gives information about current node in JSON format
+
+=cut
+sub generate_status_json {
+    my ( $cgi, $session, $mac ) = @_;
+
+    my $node_info = node_view($mac);
+    my $ip = pf::web::get_client_ip($cgi);
+
+    print $cgi->header( 'application/json' );
+    print objToJson({
+        'mac' => $mac,
+        'ip' => $ip,
+        'hostname' => $node_info->{'computername'},
+        'status' => $node_info->{'status'},
+        'pid' => $node_info->{'pid'},
+        'nbopenviolations' => $node_info->{'nbopenviolations'}
+    });
+
+    exit;
+}
+
 =item web_node_register
 
 This sub is meant to be redefined by pf::web::custom to fit your specific needs.
@@ -607,6 +632,10 @@ sub generate_pending_page {
             { name => gettext('IP'),  value => $ip },
             { name => gettext('MAC'), value => $mac }
         ],
+        destination_url => $destination_url,
+        initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
+        retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
+        external_ip => $Config{'captive_portal'}{'network_detection_ip'},
     };
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
