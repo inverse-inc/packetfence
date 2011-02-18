@@ -7,17 +7,6 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <version>:
 
-    - Several Nortel/Avaya module changes
-    5520 renamed to 5500, 5520Stacked is no longer necessary, firmware 6.x 
-    support for the 5500 series requires you to use module name BayStack5500_6x.
-    Just make sure to review your conf/switches.conf so that the config refers
-    to proper modules.
-
-    - Module versioning for pf::vlan::custom and pf::radius::custom
-    We are now relying on module versioning to catch interface changes before
-    they hurt the users. PacketFence will generate errors on startup if you 
-    have not upgraded your modules' interface and version.
-
     - You MUST upgrade conf/templates/httpd.conf and 
     conf/templates/named_vlan.conf
     The location of the PID files changed. The templates must reflect this new
@@ -25,6 +14,12 @@ o Upgrading from a version prior to <version>:
     Also in conf/templates/named_vlan.conf the configuration directory is 
     var/named instead of var/.
     See the .rpmnew files for the proper configuration.
+
+    - Several Nortel/Avaya module changes
+    5520 renamed to 5500, 5520Stacked is no longer necessary, firmware 6.x 
+    support for the 5500 series requires you to use module name BayStack5500_6x.
+    Just make sure to review your conf/switches.conf so that the config refers
+    to proper modules.
 
     - Removed conf/templates/*.pl captive portal extensions
     This mechanism was removed since the new pf::web::custom mechanism is
@@ -44,6 +39,11 @@ o Upgrading from a version prior to <version>:
     The output of `pfcmd lookup node <mac>` changed. Make sure you update your
     parsing scripts (if any). This also affects the Node lookup section of the
     Web Admin interface.
+
+    - Module versioning for pf::vlan::custom and pf::radius::custom
+    We are now relying on module versioning to catch interface changes before
+    they hurt the users. PacketFence will generate errors on startup if you 
+    have not upgraded your modules' interface and version.
 
 o Upgrading from a version prior to 2.0.1:
 
