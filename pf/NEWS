@@ -23,10 +23,12 @@ New Hardware Support
 Enhancements
 - Improvements to our Nortel support
 - Developer documentation update
-- New DHCP fingerprints for Cisco and Nortel IP Phones, Cisco Small 
+- New DHCP fingerprints for Cisco, UniData and Nortel IP Phones, Cisco Small 
   Business switch, Netgear router, Generic Linux, Gentoo, Meego, LaCie NAS, 
-  Xyratex NAS, iPod/iPad, Samsung, LG, Sony Ericsson cellphones, APC and 
-  Tripplite UPS, some Generic Thin Clients, HP, Xerox and Brother printers.
+  Xyratex NAS, iPod/iPad, Samsung, LG, Sony Ericsson and Sharp smartphones, 
+  Samsung, HTC and Pantech Android phones, APC and Tripplite UPS, some Generic
+  Thin Clients, HP, Xerox and Brother printers, Mac OS X and finally last but 
+  not least a what-is-believed to be a Palm OS fingerprint!
 - Improved test suite
 - Miscellaneous code cleanup (#1165)
 - Generated configuration files are now in var/... (#1014)
