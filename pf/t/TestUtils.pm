@@ -77,6 +77,7 @@ our @unit_tests = qw(
     SwitchFactory.t
     util.t
     vlan.t
+    web.t
 );
 
 =item use_test_db

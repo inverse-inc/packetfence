@@ -38,6 +38,7 @@ Enhancements
 - Generated configuration files are now in var/... (#1014)
 - pid files are now in var/run/
 - Module versioning to improve handling of API changes in extension points
+- Improvements to Captive Portal library utilities
 
 Bug fixes
 - Allows apache2 as a valid httpd daemon name (#1185, Thanks to Jesper)
