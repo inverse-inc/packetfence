@@ -46,6 +46,7 @@ Bug fixes
 - Fixed errors when editing a node with an unknown connection type (#1177)
 - No more warnings in node lookup (#1173)
 - Warning avoidance in pf::vlan's doWeActOnThisTrap (#832)
+- pfcmd_vlan regressions (#1190)
 
 --------------------------------------------------------------------------------
 Version 2.0.1 released on 2011-01-26
