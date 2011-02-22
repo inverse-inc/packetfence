@@ -10,6 +10,31 @@ The pf::SNMP::ThreeCom::SS4500 module implements an object
 oriented interface to access SNMP enabled 
 3COM Huawei SuperStack 3 Switch - 4500 switches.
 
+=head1 STATUS
+
+Supports 
+ linkUp / linkDown mode
+ port-security (over Telnet only)
+
+This module is pretty limited and could be improved further with some help.
+
+Developed and tested on ... (unsure)
+
+=head1 BUGS AND LIMITATIONS
+
+=over
+
+=item VLAN ID 1
+
+This switch cannot assign VLAN ID 1 to a port. It is recommended you try to avoid using this VLAN.
+
+=item Port-Security using Telnet 
+
+Port-Security relies on Telnet to configure the switch.
+Please make sure you configure Telnet's credentials in conf/switches.conf.
+
+=back
+
 =cut
 
 use strict;
@@ -307,7 +332,7 @@ sub authorizeMAC {
         $session->waitfor('/>/');
     };
     if ($@) {
-        $logger->info(
+        $logger->warn(
             "ERROR: Can not connect to switch $this->{'_ip'} using Telnet");
         return 0;
     }
@@ -398,7 +423,7 @@ sub getAllSecureMacAddresses {
     }
     
     if (!%{$macPort}) {
-        $logger->error("Something went wrong fetching the MAC to port association table");
+        $logger->warn("Something went wrong fetching the MAC to port association table");
         return $secureMacAddrHashRef;
     }
     
@@ -484,18 +509,14 @@ sub getSecureMacAddresses {
 }
 =back
 
-=head1 BUGS AND LIMITATIONS
-
-setvlan does not work with default VLAN ID 1
-
 =head1 AUTHOR
 
 Mr. Chinasee BOONYATANG <chinasee.b@psu.ac.th>
 
 Mr.Ponpitak SANTIPAPTAWON <ponpitak.s@psu.ac.th>
 
-  Prince of Songkla University, Thailand
-  http://netserv.cc.psu.ac.th
+Prince of Songkla University, Thailand
+http://netserv.cc.psu.ac.th
 
 Dominik Gehl <dgehl@inverse.ca>
 
@@ -503,7 +524,9 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2009 Inverse inc.
+Copyright (C) 2006-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
