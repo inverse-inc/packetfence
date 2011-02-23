@@ -2775,6 +2775,7 @@ sub sanity_check {
         );
     }
 
+    # TODO verify log files ownership (issue #1191)
 }
 
 sub vlan_reevaluation {
