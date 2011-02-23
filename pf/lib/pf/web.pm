@@ -467,6 +467,8 @@ sub web_node_record_user_agent {
             ." (".$user_agent_info[0]->{'useragent'}.") trigger"
         );
         require pf::violation;
+        # TODO we should also trigger the broader class (ex: 101 and 1 for a useragent id 101 which is part of class 1)
+        # issue #1192
         pf::violation::violation_trigger( $mac, $user_agent_info[0]->{'useragent_id'}, "USERAGENT" );
 
     } else {
