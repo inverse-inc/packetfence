@@ -43,6 +43,8 @@ Enhancements
 Bug fixes
 - fixed SNMPv3 sample configuration (Thanks to Nate Renbarger)
 - Allows apache2 as a valid httpd daemon name (#1185, Thanks to Jesper)
+- Violation with action autoreg is only triggered if node is not registered 
+  (#1026)
 - Fixed errors when editing a node with an unknown connection type (#1177)
 - No more warnings in node lookup (#1173)
 - Warning avoidance in pf::vlan's doWeActOnThisTrap (#832)

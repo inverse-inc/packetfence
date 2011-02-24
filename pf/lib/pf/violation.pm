@@ -59,6 +59,7 @@ BEGIN {
     );
 }
 
+use pf::action;
 use pf::config;
 use pf::db;
 use pf::node;
@@ -364,8 +365,7 @@ sub violation_add {
         $mac, $vid, $data{start_date}, $data{release_date}, $data{status}, $data{ticket_ref}, $data{notes})
         || return (0);
     $logger->info("violation $vid added for $mac");
-    require pf::action;
-    pf::action::action_execute( $mac, $vid, $data{notes} );
+    action_execute( $mac, $vid, $data{notes} );
     return (1);
 }
 
@@ -443,10 +443,21 @@ sub violation_trigger {
         # we test here AND in violation_add because here we avoid a fork (and violation_add is called from elsewhere)
         my ($remaining_time) = violation_grace( $mac, $vid );
         if ($remaining_time > 0) {
-            $logger->info("$remaining_time grace remaining on violation $vid (trigger ${type}::${tid}) for node $mac. Not adding violation.");
+            $logger->info(
+                "$remaining_time grace remaining on violation $vid (trigger ${type}::${tid}) for node $mac. " . 
+                "Not adding violation."
+            );
             next;
         }
 
+        # if violation is of action autoreg and the node is already registered 
+        if (action_exist($vid, $pf::action::AUTOREG) && is_node_registered($mac)) {
+            $logger->debug(
+                "violation $vid triggered with action $pf::action::AUTOREG but node $mac is already registered. " .
+                "Not adding violation."
+            );
+            next;
+        }
         $logger->info("calling '$bin_dir/pfcmd violation add vid=$vid,mac=$mac' (trigger ${type}::${tid})");
         # forking a pfcmd because it will call a vlan flip if needed
         `$bin_dir/pfcmd violation add vid=$vid,mac=$mac`;

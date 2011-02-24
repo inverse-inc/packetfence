@@ -64,6 +64,7 @@ BEGIN {
         node_update_lastarp
         node_mac_wakeup
         is_node_voip
+        is_node_registered
     );
 }
 
@@ -854,6 +855,25 @@ sub is_node_voip {
     }
 }
 
+=item * is_node_registered
+
+Is given MAC registered or not?
+
+in: mac address
+
+=cut
+sub is_node_registered {
+    my ($mac) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::node');
+
+    $logger->trace("Asked wether node $mac is registered or not");
+    my $node_info = node_view($mac);   
+    if ($node_info->{'status'} eq $STATUS_REGISTERED) {
+        return $TRUE;
+    } else {
+        return $FALSE;
+    }
+}
 
 =item * node_category_handling - assigns category_id based on provided data
 

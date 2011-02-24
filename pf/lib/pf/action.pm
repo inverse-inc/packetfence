@@ -21,8 +21,17 @@ Read the F<pf.conf> configuration file.
 use strict;
 use warnings;
 use Log::Log4perl;
+use Readonly;
 
 use constant ACTION => 'action';
+
+# Action types constants
+#FIXME port all hard-coded strings to these constants
+Readonly::Scalar our $AUTOREG => 'autoreg';
+Readonly::Scalar our $TRAP => 'trap';
+Readonly::Scalar our $LOG => 'log';
+Readonly::Scalar our $EXTERNAL => 'external';
+Readonly::Scalar our $WINPOPUP => 'winpopup';
 
 BEGIN {
     use Exporter ();
@@ -31,7 +40,7 @@ BEGIN {
     @EXPORT = qw(
         $action_db_prepared  action_db_prepare
 
-        action_add 
+        action_add           action_exist
         action_view          action_view_all
         action_delete        action_delete_all 
         action_execute       action_log
