@@ -9,6 +9,7 @@ pfcmd - PacketFence command line interface
 pfcmd <command> [options]
 
  Command:
+ checkup                     | perform a sanity checkup and report any problems
  class                       | view violation classes
  config                      | query, set, or get help on pf.conf configuration paramaters
  configfiles                 | push or pull configfiles into/from database
@@ -41,7 +42,7 @@ pfcmd <command> [options]
  trigger                     | view and throw triggers
  ui                          | used by web UI to create menu hierarchies and dashboard
  update                      | download canonical fingerprint or OUI data
- version                     | get installed PF version and database MD5s
+ version                     | output version information
  violation                   | violation manipulation
  violationconfig             | query/modify violations.conf configuration parameters
 
@@ -151,6 +152,11 @@ if (! exists($cmd_tmp{'grammar'})) {
     %cmd = %cmd_tmp;
     # TODO minor refactoring: call method using exit( method() ) instead of appending an exit(1)
     my %commands = (
+        'checkup' => sub {
+            require pf::services;
+            sanity_check(pf::services::service_list(@pf::services::ALL_SERVICES));
+            exit(1);
+        },
         'class' => sub { class(); exit(1); },
         'config' => sub { config(); exit(1); },
         'configfiles' => sub { configfiles(); exit(1); },
@@ -1145,16 +1151,11 @@ sub service {
     import pf::services;
 
     $logger->info("Executing pfcmd service $service $command");
-    my @all_services = (
-        'named',     'dhcpd',      'pfdhcplistener', 'pfmon',
-        'pfdetect',  'pfredirect', 'snort',          'httpd',
-        'snmptrapd', 'pfsetvlan'
-    );
 
     if ( lc($command) eq 'status' ) {
         my @services;
         if ( $service eq 'pf' ) {
-            @services = @all_services;
+            @services = @pf::services::ALL_SERVICES;
         } else {
             push( @services, $service );
         }
@@ -1179,7 +1180,7 @@ sub service {
     if ( lc($command) eq 'watch' ) {
         my @services;
         if ( $service eq "pf" ) {
-            @services = @all_services;
+            @services = @pf::services::ALL_SERVICES;
         } else {
             push( @services, $service );
         }
@@ -1244,14 +1245,14 @@ sub service {
         }
         push @services, $service;
     } else {
-        @services = pf::services::service_list(@all_services);
+        @services = pf::services::service_list(@pf::services::ALL_SERVICES);
     }
 
     my @alreadyRunningServices = ();
     if ( lc($command) eq 'start' ) {
         sanity_check(@services);
         my $nb_running_services = 0;
-        foreach my $tmp (@all_services) {
+        foreach my $tmp (@pf::services::ALL_SERVICES) {
             if ( pf::services::service_ctl( $tmp, "status" ) ) {
                 $nb_running_services++;
                 push @alreadyRunningServices, $tmp;
@@ -1294,7 +1295,7 @@ sub service {
     if ( lc($command) eq 'stop' ) {
         if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
             my $nb_running_services = 0;
-            foreach my $tmp (@all_services) {
+            foreach my $tmp (@pf::services::ALL_SERVICES) {
                 if ( pf::services::service_ctl( $tmp, "status" ) ) {
                     $nb_running_services++;
                 }

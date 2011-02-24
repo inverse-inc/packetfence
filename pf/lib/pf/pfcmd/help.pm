@@ -31,6 +31,7 @@ sub usage {
     print STDERR << "EOF";
 Usage: $command <command> [options]
 
+checkup                      | perform a sanity checkup and report any problems or warnings
 class                        | view violation classes
 config                       | query, set, or get help on pf.conf configuration paramaters
 configfiles                  | push or pull configfiles into/from database
@@ -62,7 +63,7 @@ traplog                      | update traplog RRD files and graphs or obtain swi
 trigger                      | view and throw triggers
 ui                           | used by web UI to create menu hierarchies and dashboard
 update                       | download canonical fingerprint or OUI data
-version                      | get installed PF version and database MD5s
+version                      | output version information
 violation                    | violation manipulation
 violationconfig              | query/modify violations.conf configuration parameters
 
@@ -411,11 +412,20 @@ EOT
     return 1;
 }
 
+sub help_checkup {
+    print STDERR << "EOT";
+Usage: pfcmd checkup
+
+perform a sanity checkup and report any problems or warnings
+EOT
+    return 1;
+}
+
 sub help_version {
     print STDERR << "EOT";
 Usage: pfcmd version 
 
-get installed PF version and database MD5s
+output version information
 EOT
     return 1;
 }

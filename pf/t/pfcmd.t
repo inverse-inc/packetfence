@@ -14,7 +14,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 73;
+use Test::More tests => 75;
 use Test::NoWarnings;
 
 use Log::Log4perl;
@@ -28,6 +28,12 @@ Log::Log4perl::MDC->put( 'tid',  0 );
 BEGIN { use_ok('pf::pfcmd') }
 
 my %cmd;
+
+%cmd = pf::pfcmd::parseCommandLine('checkup');
+is_deeply(\%cmd,
+          { 'command' => [ 'checkup'] },
+          'pfcmd checkup'
+);
 
 %cmd = pf::pfcmd::parseCommandLine('class view all');
 is_deeply(\%cmd,

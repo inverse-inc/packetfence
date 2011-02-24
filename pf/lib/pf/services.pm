@@ -26,6 +26,7 @@ use warnings;
 use File::Basename;
 use Config::IniFiles;
 use Log::Log4perl;
+use Readonly;
 use UNIVERSAL::require;
 use IPC::Cmd qw[can_run run];
 
@@ -37,6 +38,12 @@ use pf::trigger qw(trigger_delete_all);
 use pf::class qw(class_view_all class_merge);
 use pf::services::apache;
 use pf::SwitchFactory;
+
+Readonly our @ALL_SERVICES => (
+    'named', 'dhcpd', 'snort', 
+    'httpd', 'snmptrapd', 
+    'pfdetect', 'pfredirect', 'pfsetvlan', 'pfdhcplistener', 'pfmon'
+);
 
 my %flags;
 $flags{'httpd'}          = "-f $generated_conf_dir/httpd.conf";

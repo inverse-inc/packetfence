@@ -31,6 +31,7 @@ sub parseCommandLine {
     $params = '' if (! defined($params));
 
     my %regexp = (
+        'checkup'         => qr{ ^ $ }xms,
         'class'           => qr{ ^ (view) \s+ ( all | \d+ ) $ }xms,
         'config'          => qr{ ^ ( get | set | help )
                                    \s+
