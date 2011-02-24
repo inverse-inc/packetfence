@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 229;
+use Test::More tests => 230;
 
 # TODO we should have a global file list
 my @files = (
@@ -54,6 +54,7 @@ my @files = (
     '/usr/local/pf/lib/pf/node.pm',
     '/usr/local/pf/lib/pf/os.pm',
     '/usr/local/pf/lib/pf/person.pm',
+    '/usr/local/pf/lib/pf/pfcmd/checkup.pm',
     '/usr/local/pf/lib/pf/pfcmd/dashboard.pm',
     '/usr/local/pf/lib/pf/pfcmd/graph.pm',
     '/usr/local/pf/lib/pf/pfcmd/help.pm',
@@ -273,7 +274,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2010,2011 Inverse inc.
 
 =head1 LICENSE
     

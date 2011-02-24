@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 620;
+use Test::More tests => 624;
 
 my @files = (
     '/usr/local/pf/addons/accounting.pl',
@@ -47,6 +47,7 @@ my @files = (
     '/usr/local/pf/lib/pf/node.pm',
     '/usr/local/pf/lib/pf/os.pm',
     '/usr/local/pf/lib/pf/person.pm',
+    '/usr/local/pf/lib/pf/pfcmd/checkup.pm',
     '/usr/local/pf/lib/pf/pfcmd/dashboard.pm',
     '/usr/local/pf/lib/pf/pfcmd/graph.pm',
     '/usr/local/pf/lib/pf/pfcmd/help.pm',

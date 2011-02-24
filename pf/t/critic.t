@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Perl::Critic ( -profile => 'perlcriticrc' );
-use Test::More tests => 156;
+use Test::More tests => 157;
 
 # To generate this list, start with this: find lib/pf/ -exec echo "    '/usr/local/pf/{}'," \; | sort
 # TODO: should these really be absolute PATHs? I don't think so!
@@ -50,6 +50,7 @@ my @files = (
     '/usr/local/pf/lib/pf/node.pm',
     '/usr/local/pf/lib/pf/os.pm',
     '/usr/local/pf/lib/pf/person.pm',
+    '/usr/local/pf/lib/pf/pfcmd/checkup.pm',
     '/usr/local/pf/lib/pf/pfcmd/dashboard.pm',
     '/usr/local/pf/lib/pf/pfcmd/graph.pm',
     '/usr/local/pf/lib/pf/pfcmd/help.pm',

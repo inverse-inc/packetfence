@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 47;
+use Test::More tests => 48;
 
 # pf core libs
 use lib '/usr/local/pf/lib';
@@ -28,6 +28,7 @@ BEGIN { use_ok('pf::nodecategory') }
 BEGIN { use_ok('pf::node') }
 BEGIN { use_ok('pf::os') }
 BEGIN { use_ok('pf::person') }
+BEGIN { use_ok('pf::pfcmd::checkup') }
 BEGIN { use_ok('pf::pfcmd::dashboard') }
 BEGIN { use_ok('pf::pfcmd::graph') }
 BEGIN { use_ok('pf::pfcmd::help') }
