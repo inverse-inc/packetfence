@@ -2405,25 +2405,15 @@ sub field_order {
 # TODO extract into pf::pfcmd::sanity and break into subs
 sub sanity_check {
     my (@services) = @_;
+    my %seen;
+
+    print "Checking configuration sanity...\n";
 
     foreach my $service (@services) {
         my $exe = ( $Config{'services'}{$service}
                 || "$install_dir/sbin/$service" );
         $logger->logdie("$exe for $service does not exist !") if ( !-e $exe );
     }
-
-    my %seen;
-    print "Checking configuration sanity...\n";
-
-# make sure the services we start are not already running
-#foreach my $service (@_) {
-#  if ($service =~ /^(named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan)$/) {
-#    $service = $1;
-#    $logger->logdie("$service is already running!") if (`pidof -s -x $service` =~ /^\d/);
-#  } else {
-#    $logger->logdie("unknown service $service!");
-#  }
-#}
 
     #check the config file to make sure interfaces are fully defined
     foreach my $interface ( tied(%Config)->GroupMembers("interface") ) {
