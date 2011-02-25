@@ -16,31 +16,32 @@ pfdetect -p <snortpipe> [options]
 
 use strict;
 use warnings;
-use Getopt::Std;
+use English qw( ‐no_match_vars ) ;  # Avoids regex performance penalty
 use File::Basename qw(basename);
-use POSIX qw(:signal_h);
+use Getopt::Std;
 use Log::Log4perl;
 use Pod::Usage;
+use POSIX qw(:signal_h);
 
 use constant INSTALL_DIR => '/usr/local/pf';
 
 use lib INSTALL_DIR . "/lib";
-use pf::db;
-use pf::config;
-use pf::iplog;
-use pf::util;
-use pf::violation;
-use pf::trigger;
-use pf::node;
-use pf::class;
 use pf::action;
+use pf::class;
+use pf::config;
+use pf::db;
+use pf::iplog;
+use pf::node;
 use pf::os;
 use pf::person;
+use pf::trigger;
+use pf::util;
+use pf::violation;
 
 Log::Log4perl->init( INSTALL_DIR . "/conf/log.conf" );
 my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
-Log::Log4perl::MDC->put( 'tid',  0 );
+Log::Log4perl::MDC->put( 'tid',  $PID );
 
 POSIX::sigaction(
     &POSIX::SIGHUP,
@@ -157,7 +158,10 @@ sub daemonize {
         $logger->warn("could not start a new session: $!");
     }
     open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
-    createpid();
+    my $daemon_pid = createpid();
+
+    # updating Log4perl's pid info
+    Log::Log4perl::MDC->put( 'tid',  $daemon_pid );
 }
 
 sub normal_sighandler {
