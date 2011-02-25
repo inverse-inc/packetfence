@@ -55,6 +55,8 @@
         }
     }
   }
+
+  $checkup = PFCMD('checkup');
 ?>
 
 <div id=status> 
@@ -67,6 +69,24 @@
     <td class=system><img src="../images/wire.png"><br><?php echo "$hostname.$domainname"; ?></td>
     <td class=services>
         <? print_status_table() ?>
+    </td>
+  </tr>
+  <tr class=header>
+    <td class=header colspan=2 align=center>Configuration check-up</td>
+  </tr>
+  <tr class=content>
+    <td class=checkup colspan=2 align=center>
+    <?php
+      if($checkup) {
+        ?><textarea rows=10 cols=100 disabled name=checkup><?php
+        foreach($checkup as $line) {
+          print "$line\n";
+        }
+        ?></textarea><?php
+      } else {
+        ?><p align=center>Configuration checkup failed.</p><?php
+      }
+    ?>
     </td>
   </tr>
 </table>

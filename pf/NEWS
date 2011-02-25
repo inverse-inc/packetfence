@@ -21,12 +21,14 @@ New Hardware Support
 - Support for Nortel's ERS5500 with firmware 6.x
 
 New Features
+- New configuration validation interface in Web Admin and with "pfcmd checkup"
 - javascript-based network access detection (experimental)
 - JSON bindings for node information (experimental)
 
 Enhancements
 - Improvements to our Nortel support
 - Developer documentation update
+- Friendlier startup error messages
 - New DHCP fingerprints for Cisco, UniData and Nortel IP Phones, Cisco Small 
   Business switch, Netgear router, Generic Linux, Gentoo, Meego, LaCie NAS, 
   Xyratex NAS, iPod/iPad, Samsung, LG, Sony Ericsson and Sharp smartphones, 
