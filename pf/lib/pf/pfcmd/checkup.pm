@@ -75,8 +75,6 @@ sub sanity_check {
     push @problems, is_config_documented();
     push @problems, extensions();
 
-    #push @problems, { $SEVERITY => $FATAL, $MESSAGE => "test message" };
-
     return @problems;
 }
 
