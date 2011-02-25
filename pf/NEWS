@@ -54,6 +54,7 @@ Bug fixes
 - No more warnings in node lookup (#1173)
 - Warning avoidance in pf::vlan's doWeActOnThisTrap (#832)
 - pfcmd_vlan regressions (#1190)
+- Worked around an upstream packaging problem with SOAP::Lite (#1194)
 
 --------------------------------------------------------------------------------
 Version 2.0.1 released on 2011-01-26

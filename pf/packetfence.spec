@@ -105,7 +105,8 @@ Requires: perl(Parse::RecDescent)
 Requires: perl-Readonly, perl(Readonly::XS)
 Requires: perl-Regexp-Common
 Requires: rrdtool, perl-rrdtool
-Requires: perl-SOAP-Lite
+# added Class::Inspector dependency to mitigate upstream packaging issue with SOAP-Lite see #1194
+Requires: perl-SOAP-Lite, perl(Class::Inspector)
 Requires: perl-Template-Toolkit
 Requires: perl-TermReadKey
 Requires: perl-Thread-Pool
@@ -529,6 +530,10 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Fri Feb 25 2011 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added perl(Class::Inspector) as a dependency. Upstream SOAP::Lite depend
+  on it but current package doesn't provide it. See #1194.
+
 * Fri Feb 18 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added perl(JSON) as a dependency
 
