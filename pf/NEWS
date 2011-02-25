@@ -37,6 +37,8 @@ Enhancements
 - Improvements to our Nortel support
 - Developer documentation update
 - Friendlier startup error messages
+- More configuration validation on startup and in 'pfcmd checkup' (#1025, 
+  #1193)
 - New DHCP fingerprints for Cisco, UniData and Nortel IP Phones, Cisco Small 
   Business switch, Netgear router, Generic Linux, Gentoo, Meego, LaCie NAS, 
   Xyratex NAS, iPod/iPad, Samsung, LG, Sony Ericsson and Sharp smartphones, 

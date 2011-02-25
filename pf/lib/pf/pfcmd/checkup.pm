@@ -12,6 +12,7 @@ This modules holds all the tests performed by 'pfcmd checkup' which is a general
 
 use strict;
 use warnings;
+use Fcntl ':mode'; # symbolic file permissions
 use Readonly;
 
 use pf::config;
@@ -74,6 +75,7 @@ sub sanity_check {
     push @problems, registration();
     push @problems, is_config_documented();
     push @problems, extensions();
+    push @problems, permissions();
 
     return @problems;
 }
@@ -597,9 +599,36 @@ sub extensions {
     return @problems;
 }
 
-# TODO verify log files ownership (issue #1191)
+=item permissions
 
-# TODO bin/pfcmd setuid
+Checking some important permissions
+
+=cut
+sub permissions {
+    my @problems;
+
+    # pfcmd needs to be setuid / setgid and 
+    # TODO once #1087 is fixed, promote to fatal or remove need for setuid/setgid
+    my (undef, undef, $pfcmd_mode, undef, $pfcmd_owner, $pfcmd_group) = stat($bin_dir . "/pfcmd");
+    if (!($pfcmd_mode & S_ISUID && $pfcmd_mode & S_ISGID)) {
+        push @problems, {
+            $SEVERITY => $WARN,
+            $MESSAGE => "pfcmd needs setuid and setgid bit set to run properly. Fix with chmod ug+s pfcmd"
+        };
+    }
+    # pfcmd needs to be owned by root (owner id 0 / group id 0) 
+    # TODO once #1087 is fixed, promote to fatal or remove need for setuid/setgid
+    if ($pfcmd_owner || $pfcmd_group) {
+        push @problems, {
+            $SEVERITY => $WARN,
+            $MESSAGE => "pfcmd needs to be owned by root. Fix with chown root:root pfcmd"
+        };
+    }
+
+    # TODO verify log files ownership (issue #1191)
+
+    return @problems;
+}
 
 =back
 
