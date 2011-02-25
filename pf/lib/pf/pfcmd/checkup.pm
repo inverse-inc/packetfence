@@ -69,7 +69,6 @@ sub sanity_check {
         push @problems, mode_dhcp();
     }
 
-    push @problems, network_size();
     push @problems, database();
     push @problems, web_admin();
     push @problems, registration();
@@ -214,6 +213,18 @@ sub mode_arp {
         };
     }
 
+    # network size warning
+    my $internal_total;
+    foreach my $internal_net (@internal_nets) {
+        if ( $internal_net->bits() < 16 && isenabled( $Config{'general'}{'caching'} ) ) {
+            push @problems, {
+                $SEVERITY => $WARN,
+                $MESSAGE => "network $internal_net is larger than a /16 - you must disable general.caching!"
+            };
+        }
+        $internal_total += $internal_net->size();
+    }
+
     # test to do in ARP mode
     push @problems, nameservers();
 
@@ -347,43 +358,6 @@ sub mode_dhcp {
 
     # test to do in ARP mode
     push @problems, nameservers();
-
-    return @problems;
-}
-
-=item network_size
-
-Warnings related to the size of the network
-
-=cut
-sub network_size {
-    my @problems;
-
-    # network size warning
-    my $internal_total;
-    foreach my $internal_net (@internal_nets) {
-        if ( $internal_net->bits() < 22 ) {
-            push @problems, {
-                $SEVERITY => $WARN,
-                $MESSAGE =>
-                    "network $internal_net is larger than a /22 - you may want to consider registration queueing!"
-            };
-        }
-        if ( $internal_net->bits() < 16 && isenabled( $Config{'general'}{'caching'} ) ) {
-            push @problems, {
-                $SEVERITY => $WARN,
-                $MESSAGE => "network $internal_net is larger than a /16 - you must disable general.caching!"
-            };
-        }
-        $internal_total += $internal_net->size();
-    }
-
-    if ( $internal_total >= 1536 ) {
-        push @problems, {
-            $SEVERITY => $WARN,
-            $MESSAGE => "internal IP space is very large - you may want to consider registration queueing!"
-        };
-    }
 
     return @problems;
 }

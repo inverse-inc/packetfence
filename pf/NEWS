@@ -43,6 +43,7 @@ Enhancements
 - Improvements to Captive Portal library utilities
 
 Bug fixes
+- Removed misleading warnings on startup (#767)
 - fixed SNMPv3 sample configuration (Thanks to Nate Renbarger)
 - Allows apache2 as a valid httpd daemon name (#1185, Thanks to Jesper)
 - Violation with action autoreg is only triggered if node is not registered 
