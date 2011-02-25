@@ -1,0 +1,1 @@
+Before releasing trunk update all reference to conf/templates/... into conf/ instead. See #1166 for details.

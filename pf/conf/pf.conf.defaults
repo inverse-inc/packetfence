@@ -354,7 +354,7 @@ redirect=80/tcp,110/tcp,143/tcp
 #
 # Enables "bogus" IMAP and POP servers.  These servers serve only to deliver a message (POP3) or send an alert (IMAP) to 
 # inform the user that he/she must register before connectivity is allowed.  Content of the message is found at 
-# <conf_dir>/templates/listener.msg
+# <conf_dir>/listener.msg
 listeners=
 #
 # ports.admin

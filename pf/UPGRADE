@@ -7,6 +7,11 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <version>:
 
+    - Configuration files location changed from conf/templates/ to conf/
+    Please make sure that you move your configuration files appropriately.
+
+o Upgrading from a version prior to <version>:
+
     - You MUST upgrade conf/templates/httpd.conf and 
     conf/templates/named_vlan.conf
     The location of the PID files changed. The templates must reflect this new
