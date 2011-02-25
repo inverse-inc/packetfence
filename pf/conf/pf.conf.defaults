@@ -269,12 +269,6 @@ expire_window=52w
 # Warning: Does not work in vlan isolation mode!
 expire_session=5m
 #
-# registration.queuesize
-#
-# Useful for arp deployments on very large networks, this defines the number of nodes that PacketFence 
-# will simultaneously trap for registration (trappings due to violation always occur).  If set to 0, this queue is disabled. 
-queuesize=0
-#
 # registration.maxnodes
 #
 # If defined, the maximum number of nodes that can be registered to a single PID.

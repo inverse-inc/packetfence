@@ -19,6 +19,7 @@ Version <release> - <codename> released on <releaseDate>
 Enhancements
 - Process ID information in the logs for some daemons
 - Moved several configuration files from conf/templates/ into conf/ (#1166)
+- Removed unused configuration parameters (#767)
 
 --------------------------------------------------------------------------------
 Version <release> released on <releaseDate>
