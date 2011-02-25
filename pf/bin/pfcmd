@@ -152,7 +152,11 @@ if (! exists($cmd_tmp{'grammar'})) {
     %cmd = %cmd_tmp;
     # TODO minor refactoring: call method using exit( method() ) instead of appending an exit(1)
     my %commands = (
-        'checkup' => sub { checkup(); exit(1); },
+        'checkup' => sub { 
+            my $return = checkup(); 
+            print "Nothing to report.\n" if ($return == $FALSE);
+            exit(1);
+        },
         'class' => sub { class(); exit(1); },
         'config' => sub { config(); exit(1); },
         'configfiles' => sub { configfiles(); exit(1); },
@@ -1344,6 +1348,11 @@ sub checkup {
         }
     }
 
+    if (@problems) {
+        return $TRUE;
+    } else {
+        return $FALSE;
+    }
 }
 
 #
