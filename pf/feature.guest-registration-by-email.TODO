@@ -12,10 +12,10 @@ TODOs
 - add pf::email_activation, pf::temporary_password to basic tests
 - review POD doc
 
-Before merge in 1.9:
+Before merge in 2.0:
 - Re-assess all TODO, FIXME and XXX tasks
 
-Once merged in 1.9:
+Once merged in 2.0:
 - File all out-standing items in issue tracker
 - Copy this into the wiki
 - Delete this file
