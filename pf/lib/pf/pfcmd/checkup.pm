@@ -13,6 +13,7 @@ This modules holds all the tests performed by 'pfcmd checkup' which is a general
 use strict;
 use warnings;
 use Fcntl ':mode'; # symbolic file permissions
+use Try::Tiny;
 use Readonly;
 
 use pf::config;
@@ -576,25 +577,57 @@ Performs version checking of the extension points.
 sub extensions {
     my @problems;
 
-    require pf::radius::custom;
-    if ($RADIUS_API_LEVEL > pf::radius::custom->VERSION()) {
+    try {
+        require pf::vlan::custom;
+        if (!defined(pf::vlan::custom->VERSION())) {
+            push @problems, {
+                $SEVERITY => $FATAL,
+                $MESSAGE =>
+                    "VLAN Extension point (pf::vlan::custom) VERSION is not defined. Did you read the UPGRADE document?"
+            };
+        } elsif ($VLAN_API_LEVEL > pf::vlan::custom->VERSION()) {
+            push @problems, {
+                $SEVERITY => $FATAL,
+                $MESSAGE =>
+                    "VLAN Extension point (pf::vlan::custom) is not at the correct API level. " .
+                    "Did you read the UPGRADE document?"
+            };
+        }
+    } catch {
         push @problems, {
             $SEVERITY => $FATAL,
-            $MESSAGE =>
-                "RADIUS Extension point (pf::radius::custom) is not at the correct API level. " .
-                "Did you read the UPGRADE document?"
+            $MESSAGE => "Uncaught exception: $_"
         };
-    }
+    };
 
-    require pf::vlan::custom;
-    if ($VLAN_API_LEVEL > pf::vlan::custom->VERSION()) {
-        push @problems, {
-            $SEVERITY => $FATAL,
-            $MESSAGE =>
-                "VLAN Extension point (pf::vlan::custom) is not at the correct API level. " .
-                "Did you read the UPGRADE document?"
-        };
-    }
+    # we wrap in a try/catch because we might trap exceptions if pf::vlan::custom is not to the appropriate level
+    try {
+        require pf::radius::custom;
+        if (!defined(pf::radius::custom->VERSION())) {
+            push @problems, {
+                $SEVERITY => $FATAL,
+                $MESSAGE =>
+                    "RADIUS Extension point (pf::radius::custom) VERSION is not defined. " . 
+                    "Did you read the UPGRADE document?"
+            };
+        } elsif ($RADIUS_API_LEVEL > pf::radius::custom->VERSION()) {
+            push @problems, {
+                $SEVERITY => $FATAL,
+                $MESSAGE =>
+                    "RADIUS Extension point (pf::radius::custom) is not at the correct API level. " .
+                    "Did you read the UPGRADE document?"
+            };
+        }
+    } catch {
+        # we ignore "version check failed" or "version x required"
+        # as it means that pf::vlan::custom's version is not good which we already catched above
+        if ($_ !~ /(?:version check failed)|(?:version .+ required)/) {
+            push @problems, {
+                $SEVERITY => $FATAL,
+                $MESSAGE => "Uncaught exception: $_"
+            };
+        }
+    };
 
     return @problems;
 }

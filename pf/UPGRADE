@@ -15,6 +15,14 @@ o Upgrading from a version prior to <version>:
     var/named instead of var/.
     See the .rpmnew files for the proper configuration.
 
+    - Module versioning for pf::vlan::custom and pf::radius::custom
+    We are now relying on module versioning to catch interface changes before
+    they hurt the users. PacketFence will generate errors on startup if you 
+    have not upgraded your modules' interface and version. The interfaces have
+    not changed so all you need to do on upgrade is to add:
+        our $VERSION = 1.00;
+    to both lib/pf/radius/custom.pm and lib/vlan/custom.pm.
+
     - Several Nortel/Avaya module changes
     5520 renamed to 5500, 5520Stacked is no longer necessary, firmware 6.x 
     support for the 5500 series requires you to use module name BayStack5500_6x.
@@ -45,11 +53,6 @@ o Upgrading from a version prior to <version>:
     The output of `pfcmd lookup node <mac>` changed. Make sure you update your
     parsing scripts (if any). This also affects the Node lookup section of the
     Web Admin interface.
-
-    - Module versioning for pf::vlan::custom and pf::radius::custom
-    We are now relying on module versioning to catch interface changes before
-    they hurt the users. PacketFence will generate errors on startup if you 
-    have not upgraded your modules' interface and version.
 
 o Upgrading from a version prior to 2.0.1:
 
