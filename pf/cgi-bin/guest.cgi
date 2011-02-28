@@ -24,7 +24,7 @@ use pf::node;
 use pf::util;
 use pf::violation;
 use pf::web;
-use pf::web::guest;
+use pf::web::guest 1.10;
 # called last to allow redefinitions
 use pf::web::custom;
 
@@ -61,9 +61,11 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
     # authenticate
     my ($auth_return, $err) = pf::web::guest::validate($cgi, $session);
 
-    # authentication failed, return to guest registration page and show error message
+    # authentication failed, return to guest self-registration page and show error message
     if ($auth_return != 1) {
-        pf::web::guest::generate_registration_page($cgi, $session, $cgi->script_name(), $destination_url, $mac, $err);
+        pf::web::guest::generate_selfregistration_page(
+            $cgi, $session, $cgi->script_name(), $destination_url, $mac, $err
+        );
         exit(0);
     }
 
@@ -122,6 +124,7 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
     $cgi->delete('firstname', 'lastname', 'email', 'phone');
 
     # by default, show guest registration page
-    pf::web::guest::generate_registration_page($cgi, $session, $cgi->script_name()."?mode=$GUEST_REGISTRATION",
-        $destination_url, $mac);
+    pf::web::guest::generate_selfregistration_page(
+        $cgi, $session, $cgi->script_name()."?mode=$GUEST_REGISTRATION", $destination_url, $mac
+    );
 }

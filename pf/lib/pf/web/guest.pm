@@ -43,6 +43,8 @@ BEGIN {
 use pf::config;
 use pf::web;
 
+our $VERSION = 1.10;
+
 our $LOGIN_TEMPLATE = "guest_login.html";
 our $REGISTRATION_TEMPLATE = "guest.html";
 
@@ -54,12 +56,12 @@ Warning: The list of subroutine is incomplete
 
 =cut
 
-=item generate_registration_page
+=item generate_selfregistration_page
 
 Sub to present a guest registration page (guest.html), this is not hooked-up by default
 
 =cut
-sub generate_registration_page {
+sub generate_selfregistration_page {
     my ( $cgi, $session, $post_uri, $destination_url, $mac, $err ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
     setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );

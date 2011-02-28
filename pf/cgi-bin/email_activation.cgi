@@ -20,7 +20,7 @@ use pf::iplog;
 use pf::node;
 use pf::util;
 use pf::web;
-use pf::web::guest;
+use pf::web::guest 1.10;
 use pf::web::custom;
 
 Log::Log4perl->init("$conf_dir/log.conf");
