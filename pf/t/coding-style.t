@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 230;
+use Test::More tests => 232;
 
 # TODO we should have a global file list
 my @files = (
@@ -49,6 +49,7 @@ my @files = (
     '/usr/local/pf/lib/pf/locationlog.pm',
     '/usr/local/pf/lib/pf/lookup/node.pm',
     '/usr/local/pf/lib/pf/lookup/person.pm',
+    '/usr/local/pf/lib/pf/mod_perl_require.pl',
     '/usr/local/pf/lib/pf/nodecache.pm',
     '/usr/local/pf/lib/pf/nodecategory.pm',
     '/usr/local/pf/lib/pf/node.pm',
@@ -161,6 +162,7 @@ my @files = (
     '/usr/local/pf/lib/pf/vlan/custom.pm',
     '/usr/local/pf/lib/pf/vlan.pm',
     '/usr/local/pf/lib/pf/web.pm',
+    '/usr/local/pf/lib/pf/WebAPI.pm',
     '/usr/local/pf/lib/pf/web/custom.pm',
     '/usr/local/pf/lib/pf/web/util.pm',
     '/usr/local/pf/sbin/pfdetect',
