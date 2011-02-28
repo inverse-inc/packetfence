@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 230;
+use Test::More tests => 231;
 
 # TODO we should have a global file list
 my @files = (
@@ -162,6 +162,7 @@ my @files = (
     '/usr/local/pf/lib/pf/vlan.pm',
     '/usr/local/pf/lib/pf/web.pm',
     '/usr/local/pf/lib/pf/web/custom.pm',
+    '/usr/local/pf/lib/pf/web/guest.pm',
     '/usr/local/pf/lib/pf/web/util.pm',
     '/usr/local/pf/sbin/pfdetect',
     '/usr/local/pf/sbin/pfdhcplistener',

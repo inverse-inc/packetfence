@@ -9,7 +9,7 @@ use lib qw(
    /usr/local/pf/lib
 );
 
-use Test::Pod::Coverage tests => 13;
+use Test::Pod::Coverage tests => 14;
 
 pod_coverage_ok("authentication::ldap");
 pod_coverage_ok("authentication::local");
@@ -23,6 +23,7 @@ pod_coverage_ok("pf::freeradius");
 pod_coverage_ok("pf::import");
 pod_coverage_ok("pf::services::apache");
 pod_coverage_ok("pf::web");
+pod_coverage_ok("pf::web::guest");
 pod_coverage_ok("pf::web::util");
 # Warning: this doesn't test for PFAPI subs since it's under another package name
 # I couldn't find a way to tell T::P::C to cover it
