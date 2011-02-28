@@ -86,7 +86,7 @@ our $email_activation_statements = {};
 
 =head1 SUBROUTINES
 
-TODO: This list is incomlete
+TODO: This list is incomplete
 
 =over
 
