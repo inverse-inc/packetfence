@@ -46,7 +46,7 @@ use pf::web;
 our $VERSION = 1.10;
 
 our $LOGIN_TEMPLATE = "guest_login.html";
-our $REGISTRATION_TEMPLATE = "guest.html";
+our $SELF_REGISTRATION_TEMPLATE = "guest.html";
 
 =head1 SUBROUTINES
 
@@ -121,7 +121,7 @@ sub generate_selfregistration_page {
     #}
 
     my $template = Template->new({INCLUDE_PATH => ["$install_dir/html/user/content/templates"],});
-    $template->process($pf::web::guest::REGISTRATION_TEMPLATE, $vars);
+    $template->process($pf::web::guest::SELF_REGISTRATION_TEMPLATE, $vars);
     exit;
 }
 
