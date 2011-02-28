@@ -1,0 +1,214 @@
+domain "packetfence"
+
+msgid  "error: access denied not owner"
+msgstr "Acesso negado: você não é o dono deste nó!"
+
+msgid  "error: incorrect mode"
+msgstr "Modo incorreto!"
+
+msgid  "error: invalid login or password"
+msgstr "Usuário ou senha inválida"
+
+msgid  "error: invalid page number"
+msgstr "Número de página inválida"
+
+msgid  "error: max re-enables reached"
+msgstr "O número de re-abilitações chegou ao máximo!"
+
+msgid  "error: not found in the database"
+msgstr "Se computador não foi encontrado na base de dados do PacketFence. Por favor, reinicie seu computador para resolver este problema."
+
+msgid  "error: not trappable IP"
+msgstr "Acesso negado: IP não interceptável!"
+
+msgid  "error: only register max nodes"
+msgstr "Você só pode registrar no máximo %s nós!"
+
+msgid  "error: unable to validate credentials at the moment"
+msgstr "Impossível validar credenciais no momento"
+
+
+msgid  "help: provide info"
+msgstr "Se você tem perguntas sobre esta página, entre em contato com a equipe de suporte para assistência. Por favor, forneça as seguintes informações: "
+
+
+msgid  "register: all systems must be registered"
+msgstr "Como pode ser necessário contactar usuários individualmente, todos os sistemas na rede devem ser registrados."
+
+msgid  "register: aup"
+msgstr "O processo de registro requer a aceitação das Políticas de Uso Aceitável da Rede (PUAR). Se você deseja ler as políticas antes de começar o processo de registro, por favor visite:"
+
+msgid  "register: to complete"
+msgstr "Para completar o processo de registro, você deve se autenticar usando seu usuário e senha."
+
+msgid  "register: select authentications"
+msgstr "Selecione a Autenticação"
+
+msgid  "register: skip registration"
+msgstr "Pular registro"
+
+
+msgid  "release: enabling network"
+msgstr "Habilitar o acesso a rede"
+
+msgid  "release: reopen browser"
+msgstr "Você talvez tenha que reabrir o seu navegador de internet"
+
+msgid  "scan: scan in progress"
+msgstr "Seu sistema está sendo varrido"
+
+msgid  "scan in progress contact support if too long"
+msgstr "Seu sistema ainda está sendo varrido. O processo começou as %s. Geralmente este processo leva apenas alguns minutos. Se por algum motivo estiver demorando muito, entre em contato com o suporte. Por favor, forneça as seguintes informações:"
+
+msgid  "automatically refresh"
+msgstr "Esta página será atualizada automaticamente a cada %s segundos para verificar se a varredura terminou."
+
+msgid  "Acceptable Use Policy"
+msgstr "Política de Uso Aceitável da Rede"
+
+msgid  "Addresses"
+msgstr "Endereços"
+
+msgid  "De-register node"
+msgstr "Desregistrar nó"
+
+msgid  "Enabling ..."
+msgstr "Habilitando ..."
+
+msgid  "Scanning ..."
+msgstr "Escaneando ..."
+
+msgid  "Gateway"
+msgstr "Roteador"
+
+msgid  "grace"
+msgstr "grace"
+
+msgid  "Hostname"
+msgstr "Nome do equipamento"
+
+msgid  "IP"
+msgstr "Endereço IP"
+
+msgid  "Login"
+msgstr "Usuário"
+
+msgid  "MAC"
+msgstr "MAC"
+
+msgid  "network access is being enabled"
+msgstr "Seu acesso a rede foi ativado - este processo vai demorar aproximadamente %s segundos."
+
+msgid  "system scan in progress"
+msgstr "Seu sistema está sendo varrido - este processo vai demorar aproximadamente %s segundos."
+
+msgid  "Node"
+msgstr "Nó"
+
+msgid  "PacketFence Registration System"
+msgstr "Sistema de Registro PacketFence"
+
+msgid  "Password"
+msgstr "Senha"
+
+msgid  "PID"
+msgstr "Dono"
+
+msgid  "Print this page"
+msgstr "Imprimir esta página"
+
+msgid  "reg"
+msgstr "registrado"
+
+msgid  "Sorry"
+msgstr "Desculpe!"
+
+msgid  "Status"
+msgstr "Estado"
+
+msgid  "unknown"
+msgstr "desconhecido"
+
+msgid  "unreg"
+msgstr "desregistrado"
+
+msgid  "Username"
+msgstr "Usuário"
+
+msgid  "Violations"
+msgstr "Violações"
+
+msgid  "Quarantine Established!"
+msgstr "Quarentena Estabelecida!"
+
+msgid  "Registration Notification"
+msgstr "Notificação de Registro"
+
+msgid  "Additional Assistance"
+msgstr "Assistência Adicional"
+
+msgid  "If your network connectivity becomes permanently disabled or you are unable to follow the instructions above, please contact your local IT support staff for assistance."
+msgstr  "Se a conectividade da sua rede ficar desabilitada permanentemente ou se você está impossibilitado de seguir as instruções acima, por favor, entre em contato com o suporte de TI para assistência."
+
+msgid  "The following information should be provided upon request:"
+msgstr "As seguintes informações devem ser fornecidas junto com sua requisição:"
+
+msgid  "IP Address"
+msgstr "Endereço IP"
+
+msgid  "MAC Address"
+msgstr "Endereço MAC"
+
+msgid  "Banned Operating System"
+msgstr "Sistema Operacional Banido"
+
+msgid  "You have been detected using an operating system not allowed on the network. Please install a more recent operating system"
+msgstr "Você foi detectado usando um sistema operacional não permitido nesta rede. Por favor instale um sistema operacional mais recente"
+
+msgid  "Darknet Violation"
+msgstr "Seu sistema foi detectado enviando tráfego para uma rede que é conhecida por não ser utilizada (darknet). Isso geralmente é um indicativo de infecção por vírus/verme."
+
+msgid  "Your system will likely need to be rebuilt. Please contact your local support staff for more information."
+msgstr "Seu sistema provavelmente precisa ser reinstalado. Por favor, entre em contato com o suporte para mais informações."
+
+msgid  "Windows patches are not up to date"
+msgstr "As atualizações de segurança do Windows estão desatualizadas"
+
+msgid  "Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken. Instructions for disinfection are below:"
+msgstr "Devido à ameaça que está infecção representa para outros sistemas na rede, a conectividade com a rede foi desabilitada até que ações corretivas sejam tomadas. Instruções para desinfecção estão abaixo:"
+
+msgid  "Generic"
+msgstr "Generico"
+
+msgid  "Network connectivity has been disabled."
+msgstr "A conectividade com a rede foi desabilitada."
+
+msgid  "Please contact your support staff for more information."
+msgstr "Por favor, entre em contato com a equipe de suporte para mais informações."
+
+msgid  "Hub Detection"
+msgstr "Detecção de Hub"
+
+msgid  "You have been detected using a hub. Such device is not permitted on the network.  Please remove it."
+msgstr "Você foi detectado usando um hub. Este dispositivo não é permitido na rede. Por favor remova."
+
+msgid  "Peer-to-Peer"
+msgstr "Peer-to-Peer (P2P)"
+
+msgid  "You have been detected using a peer-to-peer file sharing application. Such software is not permitted on the network.  Please uninstall the infringing software."
+msgstr "Você foi detectado usando uma aplicação de compartilhamento de arquivos por peer-to-peer (P2P). Este tipo de software não é permitido na rede. Por favor desinstale o software infrator."
+
+msgid  "System Scanning"
+msgstr "Varrendo Sistema"
+
+msgid  "Your system has been found to be scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgstr "Seu sistema foi detectado por estar varrendo outros sistemas. Devido à ameaça que está infecção representa para outros sistemas na rede, a conectividade com a rede foi desabilitada até que ações corretivas sejam tomadas."
+
+msgid  "Spamming"
+msgstr "Spam"
+
+msgid  "Your system has been found to be sending unsolicited commercial email (UCE, or \"spam\") to other systems. Due to the threat this poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgstr "Seu sistema foi detectado por estar enviando emails comerciais não solicitados (UCE, ou \"spam\") para outros sistemas. Devido à ameaça que está infecção representa para outros sistemas na rede, a conectividade com a rede foi desabilitada até que ações corretivas sejam tomadas."
+
+msgid  "Your system may need to be rebuilt. Please contact your local support staff for more information."
+msgstr "Seu sistema talvez precise ser reinstalado. Por favor, entre em contato com o suporte para mais informações."

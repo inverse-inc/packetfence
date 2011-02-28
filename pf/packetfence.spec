@@ -170,6 +170,8 @@ mv packetfence.mo conf/locale/fr/LC_MESSAGES/
 mv packetfence.mo conf/locale/it/LC_MESSAGES/
 /usr/bin/msgfmt conf/locale/nl/LC_MESSAGES/packetfence.po
 mv packetfence.mo conf/locale/nl/LC_MESSAGES/
+/usr/bin/msgfmt conf/locale/pt_BR/LC_MESSAGES/packetfence.po
+mv packetfence.mo conf/locale/pt_BR/LC_MESSAGES/
 
 %install
 %{__rm} -rf $RPM_BUILD_ROOT
@@ -410,6 +412,10 @@ fi
 %dir                    /usr/local/pf/conf/locale/nl/LC_MESSAGES
 %config(noreplace)      /usr/local/pf/conf/locale/nl/LC_MESSAGES/packetfence.po
 %config(noreplace)      /usr/local/pf/conf/locale/nl/LC_MESSAGES/packetfence.mo
+%dir                    /usr/local/pf/conf/locale/pt_BR
+%dir                    /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES
+%config(noreplace)      /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.po
+%config(noreplace)      /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.mo
 %config(noreplace)      /usr/local/pf/conf/log.conf
 %dir                    /usr/local/pf/conf/nessus
 %config(noreplace)      /usr/local/pf/conf/nessus/remotescan.nessus
@@ -530,6 +536,9 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Mon Feb 28 2011 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added Brazilian Portugese translation files.
+
 * Fri Feb 25 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added perl(Class::Inspector) as a dependency. Upstream SOAP::Lite depend
   on it but current package doesn't provide it. See #1194.

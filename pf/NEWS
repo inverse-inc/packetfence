@@ -56,6 +56,10 @@ Bug fixes
 - pfcmd_vlan regressions (#1190)
 - Worked around an upstream packaging problem with SOAP::Lite (#1194)
 
+Translations
+- New Brazilian Portuguese (pt_BR) translation (Thanks to Brivaldo Junior of 
+  Federal University of Mato Grosso do Sul)
+
 --------------------------------------------------------------------------------
 Version 2.0.1 released on 2011-01-26
 
