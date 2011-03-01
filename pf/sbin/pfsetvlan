@@ -85,7 +85,8 @@ use pf::locationlog;
 use pf::traplog;
 use pf::node;
 use pf::violation;
-use pf::SNMP v1.7.0.6;
+use pf::SNMP 2.00;
+use pf::SNMP::constants;
 use pf::vlan::custom $VLAN_API_LEVEL;
 use pf::floatingdevice::custom;
 
@@ -1412,7 +1413,7 @@ sub handleTrap {
 
             # shut the port down
             $logger->debug("Shuting down port $switch_port");
-            if (! $switch->setAdminStatus( $switch_port, $FALSE )) {
+            if (! $switch->setAdminStatus( $switch_port, $SNMP::DOWN )) {
                 $logger->error("An error occured while shuting down port $switch_port. The port may not work!");
             }
 
@@ -1426,7 +1427,7 @@ sub handleTrap {
 
             # open the port            
             $logger->debug("Re-opening port $switch_port");
-            if (! $switch->setAdminStatus( $switch_port, $TRUE )) {
+            if (! $switch->setAdminStatus( $switch_port, $SNMP::UP )) {
                 $logger->error("An error occured while opening port $switch_port. The port may not work!");
             }
  
@@ -1617,13 +1618,11 @@ sub handleTrap {
 
                     # TODO extract that behavior in a method call in pf::vlan so it can be overridden easily
                     if ( !$hasPhone ) {
-                        $logger->info( "no VoIP phone is currently connected at "
-                                . $switch->{_ip}
-                                . " ifIndex $switch_port. Flipping port admin status"
+                        $logger->info(
+                            "no VoIP phone is currently connected at " . $switch->{_ip} . " ifIndex $switch_port. " .
+                            "Flipping port admin status"
                         );
-                        $switch->setAdminStatus( $switch_port, 0 );
-                        sleep(2);
-                        $switch->setAdminStatus( $switch_port, 1 );
+                        $switch->bouncePort( $switch_port );
 
                     } else {
                         my @violations = violation_view_open_desc($mac);
@@ -1654,12 +1653,11 @@ sub handleTrap {
                         }
                     }
                 } else {
-                    $logger->info( "no security traps are configured on " . $switch->{_ip}
-                            . " ifIndex $switch_port. Flipping port admin status"
+                    $logger->info(
+                        "no security traps are configured on " . $switch->{_ip} . " ifIndex $switch_port. " . 
+                        "Flipping port admin status"
                     );
-                    $switch->setAdminStatus( $switch_port, 0 );
-                    sleep(2);
-                    $switch->setAdminStatus( $switch_port, 1 );
+                    $switch->bouncePort( $switch_port );
                 }
     
             } else {

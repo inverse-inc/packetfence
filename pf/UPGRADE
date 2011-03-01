@@ -23,6 +23,13 @@ o Upgrading from a version prior to <version>:
         our $VERSION = 1.00;
     to both lib/pf/radius/custom.pm and lib/vlan/custom.pm.
 
+    - Default port bounce duration changed
+    To support a variety of Linux desktop operating systems we needed to 
+    increase the duration of our port bounce from 2 seconds to 5 seconds. On a
+    very busy setup this could have consequences. Either increase the number of
+    concurrent threads working (nbtraphandlerthreads under [vlan]) or restore
+    the port bounce duration to 5 seconds (bounce_duration under [vlan]).
+
     - Several Nortel/Avaya module changes
     5520 renamed to 5500, 5520Stacked is no longer necessary, firmware 6.x 
     support for the 5500 series requires you to use module name BayStack5500_6x.
@@ -53,6 +60,11 @@ o Upgrading from a version prior to <version>:
     The output of `pfcmd lookup node <mac>` changed. Make sure you update your
     parsing scripts (if any). This also affects the Node lookup section of the
     Web Admin interface.
+
+    - pf::SNMP (lib/pf/SNMP.pm) API level bump
+    We changed the contract of setAdminStatus() so we bumped the version of 
+    pf::SNMP to 2.00. If you use setAdminStatus() in custom code make sure you
+    update your calls.
 
 o Upgrading from a version prior to 2.0.1:
 

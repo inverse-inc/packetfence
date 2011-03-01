@@ -2,20 +2,37 @@ package pf::SNMP::Cisco::Catalyst_2950;
 
 =head1 NAME
 
-pf::SNMP::Cisco::Catalyst_2950 - Object oriented module to access SNMP enabled Cisco Catalyst 2950 switches
-
-=head1 SYNOPSIS
-
-The pf::SNMP::Cisco::Catalyst_2950 module implements an object oriented interface
-to access SNMP enabled Cisco::Catalyst_2950 switches.
+pf::SNMP::Cisco::Catalyst_2950 - Object oriented module to access and configure Cisco Catalyst 2950 switches
 
 =head1 STATUS
 
 The minimum required firmware version is 12.1(22)EA10.
 
+Supports
+ 802.1X with or without VoIP
+ Port-Security without VoIP
+ MAC notifications with VoIP
+Untested
+ RADIUS VoIP authorization (we relied on CDP discovery instead)
+
+This module extends pf::SNMP::Cisco.
+
 =head1 BUGS AND LIMITATIONS
+
+=over
  
+=item 802.1X
+ 
+802.1X doesn't support Dynamic VLAN Assignments over RADIUS.
+We had to work around that limitation by setting the VLAN using SNMP instead.
+Also, we realized that we need to do a shut / no-shut on the port in order for the client to properly re-authenticate.
+This has nasty side-effects when used with VoIP (client don't re-DHCP automatically).
+
+=item SNMPv3
+
 We got reports that it doesn't work with SNMPv3
+
+=back
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -35,8 +52,11 @@ use Net::SNMP;
 use Data::Dumper;
 
 use pf::config;
+use pf::locationlog;
 # importing switch constants
 use pf::SNMP::constants;
+use pf::util;
+use pf::vlan::custom $VLAN_API_LEVEL;
 
 =head1 SUBROUTINES
 
@@ -46,8 +66,12 @@ Warning: The list of subroutine is incomplete
 
 =cut
 
-# capabilities
+# CAPABILITIES
 sub supportsFloatingDevice { return $TRUE; }
+# access technology supported
+sub supportsWiredDot1x { return $TRUE; }
+sub supportsRadiusDynamicVlanAssignment { return $FALSE; }
+sub supportsRadiusVoip { return $TRUE; }
 
 sub getMinOSVersion {
     my $this   = shift;
@@ -838,6 +862,116 @@ sub disablePortConfigAsTrunk {
     return 1;
 }
 
+=item NasPortToIfIndex
+
+Translate RADIUS NAS-Port into switch's ifIndex.
+
+=cut
+sub NasPortToIfIndex {
+    my ($this, $NAS_port) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this)); 
+
+    # 50017 is ifIndex 17
+    if ($NAS_port =~ s/^500//) {
+        return $NAS_port;
+    } else {
+        $logger->warn("Unknown NAS-Port format. ifIndex translation could have failed. "
+            ."VLAN re-assignment and switch/port accounting will be affected.");
+    }
+    return $NAS_port;
+}   
+    
+=item getVoipVSA
+
+Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
+
+=cut
+sub getVoipVsa {
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    return ('Cisco-AVPair' => "device-traffic-class=voice");
+}
+
+=item dot1xPortReauthenticate
+
+Because of the incomplete 802.1X support of this switch, 
+instead of issuing a re-negociation here we bounce if there's no VoIP device 
+or set the VLAN and log if there is a VoIP device.
+
+=cut
+sub dot1xPortReauthenticate {
+    my ($this, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    $logger->info(
+        "802.1X renegociation on this switch is not compatible with PacketFence. " . 
+        "We will re-assign VLAN directly. If it doesn't work open a bug report with your hardware type."
+    );
+
+    my $switch_ip = $this->{'_ip'};
+    my @locationlog = locationlog_view_open_switchport_no_VoIP( $switch_ip, $ifIndex );
+    if (!(@locationlog) || !defined($locationlog[0]->{'mac'}) || ($locationlog[0]->{'mac'} eq '' )) {
+        $logger->warn("802.1X renegociation requested on $switch_ip ifIndex $ifIndex but can't determine non VoIP MAC");
+        return;
+    }
+    
+    my $mac = $locationlog[0]->{'mac'};
+    my $hasPhone = $this->hasPhoneAtIfIndex($ifIndex);
+
+    # TODO extract that behavior in a method call in pf::vlan so it can be overridden easily
+    if ( !$hasPhone ) {
+        $logger->info(
+            "no VoIP phone is currently connected at $switch_ip ifIndex $ifIndex. Flipping port admin status"
+        );
+        return $this->bouncePort($ifIndex);
+
+    } else {
+
+        $logger->warn(
+            "A VoIP phone is currently connected at $switch_ip ifIndex $ifIndex so the port will not be bounced. " . 
+            "Changing VLAN and leaving everything as it is."
+        );
+
+        my $vlan_obj = new pf::vlan::custom();
+        $this->_setVlan(
+            $ifIndex, 
+            $vlan_obj->fetchVlanForNode($mac, $this, $ifIndex, WIRED_802_1X), 
+            undef, 
+            {}
+        );
+
+        require pf::violation;
+        my @violations = pf::violation::violation_view_open_desc($mac);
+        if ( scalar(@violations) > 0 ) {
+            my %message;
+            $message{'subject'} = "VLAN isolation of $mac behind VoIP phone";
+            $message{'message'} = "The following computer has been isolated behind a VoIP phone\n";
+            $message{'message'} .= "MAC: $mac\n";
+
+            require pf::node;
+            my $node_info = pf::node::node_view($mac);
+            $message{'message'} .= "Owner: " . $node_info->{'pid'} . "\n";
+            $message{'message'} .= "Computer Name: " . $node_info->{'computername'} . "\n";
+            $message{'message'} .= "Notes: " . $node_info->{'notes'} . "\n";
+            $message{'message'} .= "Switch: " . $switch_ip . "\n";
+            $message{'message'} .= "Port (ifIndex): " . $ifIndex . "\n\n";
+            $message{'message'} .= "The violation details are\n";
+
+            foreach my $violation (@violations) {
+                $message{'message'} .= "Description: "
+                    . $violation->{'description'} . "\n";
+                $message{'message'} .= "Start: "
+                    . $violation->{'start_date'} . "\n";
+            }
+            $logger->info(
+                "sending email to admin regarding isolation of $mac behind VoIP phone"
+            );
+            pfmailer(%message);
+        }
+    }
+}
+
 =back
 
 =head1 AUTHOR
@@ -846,9 +980,11 @@ Dominik Gehl <dgehl@inverse.ca>
 
 Regis Balzard <rbalzard@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008,2010 Inverse inc.
+Copyright (C) 2006-2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

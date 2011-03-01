@@ -178,6 +178,17 @@ sub authorize {
         $isPhone ? VOIP : NO_VOIP, $connection_type, $user_name, $ssid
     );
 
+    # does the switch support Dynamic VLAN Assignment
+    if (!$switch->supportsRadiusDynamicVlanAssignment()) {
+        $logger->info(
+            "Switch doesn't support Dynamic VLAN assignment. " . 
+            "Setting VLAN with SNMP on " . $switch->{_ip} . " ifIndex $port to $vlan"
+        );
+        # WARNING: passing empty switch-lock for now
+        # When the _setVlan of a switch who can't do RADIUS VLAN assignment uses the lock we will need to re-evaluate
+        $switch->_setVlan( $port, $vlan, undef, {} );
+    }
+
     # cleanup
     $switch->disconnectRead();
     $switch->disconnectWrite();

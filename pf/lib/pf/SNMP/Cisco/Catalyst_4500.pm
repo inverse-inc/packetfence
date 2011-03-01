@@ -2,16 +2,11 @@ package pf::SNMP::Cisco::Catalyst_4500;
 
 =head1 NAME
 
-pf::SNMP::Cisco::Catalyst_4500 - Object oriented module to access SNMP enabled Cisco Catalyst 4500 switches
-
-=head1 SYNOPSIS
-
-The pf::SNMP::Cisco::Catalyst_4500 module implements an object oriented interface
-to access SNMP enabled Cisco::Catalyst_4500 switches.
+pf::SNMP::Cisco::Catalyst_4500 - Object oriented module to access and configure Cisco Catalyst 4500 switches
 
 =head1 STATUS
 
-This modules extends pf::SNMP::Cisco::Catalyst_2960.
+This module is currently only a placeholder, see pf::SNMP::Cisco::Catalyst_2960.
 
 We do not know the minimum required firmware version.
 
@@ -35,7 +30,7 @@ Regis Balzard <rbalzard@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2010,2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

@@ -2,14 +2,16 @@ package pf::SNMP::Cisco::Catalyst_2960;
 
 =head1 NAME
 
-pf::SNMP::Cisco::Catalyst_2960 - Object oriented module to access SNMP enabled Cisco Catalyst 2960 switches
+pf::SNMP::Cisco::Catalyst_2960 - Object oriented module to access and configure Cisco Catalyst 2960 switches
 
-=head1 SYNOPSIS
+=head1 STATUS
 
-The pf::SNMP::Cisco::Catalyst_2960 module implements an object oriented interface
-to access SNMP enabled Cisco::Catalyst_2960 switches.
+Supports
+ 802.1X with or without VoIP
+ Port-Security with or without VoIP
+ Link Up / Link Down
 
-This modules extends pf::SNMP::Cisco::Catalyst_2950.
+This module extends pf::SNMP::Cisco::Catalyst_2950.
 
 =head1 BUGS AND LIMITATIONS
 
@@ -41,6 +43,8 @@ sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 # VoIP technology supported
 sub supportsRadiusVoip { return $TRUE; }
+# override 2950's FALSE
+sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 
 =head1 SUBROUTINES
 
@@ -231,10 +235,27 @@ sub authorizeMAC {
     return 1;
 }
 
+=item dot1xPortReauthenticate
+
+Points to pf::SNMP implementation bypassing Catalyst_2950's overridden behavior.
+
+=cut
+sub dot1xPortReauthenticate {
+    my ($this, $ifIndex) = @_;
+
+    return $this->_dot1xPortReauthenticate($ifIndex);
+}
+
+=item NasPortToIfIndex
+
+Translate RADIUS NAS-Port into switch's ifIndex.
+
+=cut
 sub NasPortToIfIndex {
     my ($this, $NAS_port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
+    # ex: 50023 is ifIndex 10023
     if ($NAS_port =~ s/^5/1/) {
         return $NAS_port;
     } else {
@@ -266,7 +287,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008,2010 Inverse inc.
+Copyright (C) 2006-2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

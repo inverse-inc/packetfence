@@ -21,13 +21,14 @@ use Net::SNMP;
 use Log::Log4perl;
 use Data::Dumper;
 
-our $VERSION = v1.7.0.6;
+our $VERSION = 2.00;
 
 use pf::config;
 use pf::locationlog;
 use pf::node;
 # SNMP constants
 use pf::SNMP::constants;
+use pf::util;
 
 =head1 SUBROUTINES
 
@@ -91,6 +92,11 @@ sub supportsRadiusVoip {
     );
     return $FALSE;
 }
+
+=item supportsRadiusDynamicVlanAssignment
+
+=cut
+sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 
 sub new {
     my ( $class, %argv ) = @_;
@@ -1160,7 +1166,7 @@ sub getIfNameIfIndexHash {
 =cut
 
 sub setAdminStatus {
-    my ( $this, $ifIndex, $enabled ) = @_;
+    my ( $this, $ifIndex, $status ) = @_;
     my $logger            = Log::Log4perl::get_logger( ref($this) );
     my $OID_ifAdminStatus = '1.3.6.1.2.1.2.2.1.7';
 
@@ -1172,16 +1178,27 @@ sub setAdminStatus {
     if ( !$this->connectWrite() ) {
         return 0;
     }
-    $logger->trace(
-        "SNMP set_request for ifAdminStatus: $OID_ifAdminStatus.$ifIndex = "
-            . ( $enabled ? $SNMP::UP : $SNMP::DOWN ) );
+    $logger->trace( "SNMP set_request for ifAdminStatus: $OID_ifAdminStatus.$ifIndex = $status" );
     my $result = $this->{_sessionWrite}->set_request(
-        -varbindlist => [
-            "$OID_ifAdminStatus.$ifIndex", Net::SNMP::INTEGER,
-            ( $enabled ? $SNMP::UP : $SNMP::DOWN ),
-        ]
+        -varbindlist => [ "$OID_ifAdminStatus.$ifIndex", Net::SNMP::INTEGER, $status ]
     );
     return ( defined($result) );
+}
+
+=item bouncePort
+
+Performs a shut / no-shut on the port. 
+Usually used to force the operating system to do a new DHCP Request after a VLAN change.
+
+=cut
+sub bouncePort {
+    my ($this, $ifIndex) = @_;
+
+    $this->setAdminStatus( $ifIndex, $SNMP::DOWN );
+    sleep($Config{'vlan'}{'bounce_duration'});
+    $this->setAdminStatus( $ifIndex, $SNMP::UP );
+
+    return $TRUE;
 }
 
 sub isLearntTrapsEnabled {
@@ -2175,12 +2192,26 @@ sub deauthenticateMac {
     return;
 }
 
-=item dot1xPortReauthenticate - forces 802.1x re-authentication of a given ifIndex
+=item dot1xPortReauthenticate
+
+Forces 802.1x re-authentication of a given ifIndex
 
 ifIndex - ifIndex to force re-authentication on
 
 =cut
 sub dot1xPortReauthenticate {
+    my ($this, $ifIndex) = @_;
+
+    return $this->_dot1xPortReauthenticate($ifIndex);
+}
+
+=item _dot1xPortReauthenticate
+
+Actual implementation. 
+Allows callers to refer to this implementation even though someone along the way override the above call.
+
+=cut
+sub _dot1xPortReauthenticate {
     my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
@@ -2246,9 +2277,7 @@ sub handleReAssignVlanTrapForWiredMacAuth {
         $logger->info( "no VoIP phone is currently connected at " . $switch_ip
             . " ifIndex $ifIndex. Flipping port admin status"
         );
-        $this->setAdminStatus( $ifIndex, 0 );
-        sleep(2);
-        $this->setAdminStatus( $ifIndex, 1 );
+        $this->bouncePort($ifIndex);
 
     } else {
 
@@ -2257,7 +2286,8 @@ sub handleReAssignVlanTrapForWiredMacAuth {
         ); 
         # TODO perform CoA (when implemented)
 
-        my @violations = violation_view_open_desc($mac);
+        require pf::violation;
+        my @violations = pf::violation::violation_view_open_desc($mac);
         if ( scalar(@violations) > 0 ) {
             my %message;
             $message{'subject'} = "VLAN isolation of $mac behind VoIP phone";
@@ -2281,8 +2311,6 @@ sub handleReAssignVlanTrapForWiredMacAuth {
             $logger->info(
                 "sending email to admin regarding isolation of $mac behind VoIP phone"
             );
-            # put the use statement here because we'll be able to get rid of it when refactoring this piece
-            use pf::util;
             pfmailer(%message);
         }
     }

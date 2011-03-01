@@ -19,6 +19,7 @@ Version <release> released on <releaseDate>
 New Hardware Support
 - Added Avaya as rebranded Nortel's
 - Support for Nortel's ERS5500 with firmware 6.x
+- 802.1X support with or without VoIP for Cisco 2950
 
 New Features
 - New configuration validation interface in Web Admin and with "pfcmd checkup"
@@ -31,6 +32,7 @@ Enhancements
 - Friendlier startup error messages
 - More configuration validation on startup and in 'pfcmd checkup' (#1025, 
   #1193)
+- Improved support for Desktop Linux clients (#1188)
 - New DHCP fingerprints for Cisco, UniData and Nortel IP Phones, Cisco Small 
   Business switch, Netgear router, Generic Linux, Gentoo, Meego, LaCie NAS, 
   Xyratex NAS, iPod/iPad, Samsung, LG, Sony Ericsson and Sharp smartphones, 
@@ -45,6 +47,8 @@ Enhancements
 - Improvements to Captive Portal library utilities
 
 Bug fixes
+- Fixed an issue where warnings were not sent in Wired MAC Authentication if a 
+  device was isolated behind a VoIP phone
 - Removed misleading warnings on startup (#767)
 - fixed SNMPv3 sample configuration (Thanks to Nate Renbarger)
 - Allows apache2 as a valid httpd daemon name (#1185, Thanks to Jesper)

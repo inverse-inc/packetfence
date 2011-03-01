@@ -2,14 +2,13 @@ package pf::SNMP::Cisco::Catalyst_3560;
 
 =head1 NAME
 
-pf::SNMP::Cisco::Catalyst_3560 - Object oriented module to access SNMP enabled Cisco Catalyst 3560 switches
+pf::SNMP::Cisco::Catalyst_3560 - Object oriented module to access and configure Cisco Catalyst 3560 switches
 
-=head1 SYNOPSIS
+=head1 STATUS
 
-The pf::SNMP::Cisco::Catalyst_3560 module implements an object oriented interface
-to access SNMP enabled Cisco::Catalyst_3560 switches.
+This module is currently only a placeholder, see pf::SNMP::Cisco::Catalyst_2950.
 
-This modules extends pf::SNMP::Cisco::Catalyst_2950
+802.1X support was never tested by Inverse.
 
 =cut
 
@@ -27,7 +26,7 @@ Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008 Inverse inc.
+Copyright (C) 2006-2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

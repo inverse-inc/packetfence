@@ -215,6 +215,7 @@ sub readPfConfigFiles {
         }
     }
 
+    # TODO why was this commented out? it seems to be adequate, no?
     #normalize time
     #tie %documentation, 'Config::IniFiles', ( -file => $conf_dir."/documentation.conf" );
     #foreach my $section (sort tied(%documentation)->Sections) {
@@ -234,9 +235,8 @@ sub readPfConfigFiles {
         "registration.expire_window", "registration.expire_session",
         "general.maintenance_interval", "scan.duration",
         "dhcp.isolation_lease",       "dhcp.registered_lease",
-        "dhcp.unregistered_lease"
-        )
-    {
+        "dhcp.unregistered_lease", "vlan.bounce_duration",   
+    ) {
         my ( $group, $item ) = split( /\./, $val );
         $Config{$group}{$item} = normalize_time( $Config{$group}{$item} );
     }

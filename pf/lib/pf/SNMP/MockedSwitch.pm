@@ -84,10 +84,12 @@ Warning: The list of subroutine is incomplete
 # access technology supported
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
+sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 # VoIP technology supported
 sub supportsRadiusVoip { return $TRUE; }
 # special features supported
 sub supportsFloatingDevice { return $TRUE; }
+
 
 # first, we are re-implementing all of pf::SNMP that has effects on switches to make sure it doesn't do anything
 
@@ -509,7 +511,7 @@ sub getIfNameIfIndexHash {
 =cut
 
 sub setAdminStatus {
-    my ( $this, $ifIndex, $enabled ) = @_;
+    my ( $this, $ifIndex, $status ) = @_;
     my $logger            = Log::Log4perl::get_logger( ref($this) );
     my $OID_ifAdminStatus = '1.3.6.1.2.1.2.2.1.7';
 
@@ -521,15 +523,31 @@ sub setAdminStatus {
     if ( !$this->connectWrite() ) {
         return 0;
     }
-    $logger->debug("SNMP fake set_request for ifAdminStatus: $OID_ifAdminStatus.$ifIndex = ". ($enabled ? 1 : 2));
+    $logger->debug( "SNMP fake set_request for ifAdminStatus: $OID_ifAdminStatus.$ifIndex = $status" );
     my $result = $this->{_sessionWrite}->set_request(
-        -varbindlist => [
-            "$OID_ifAdminStatus.$ifIndex", Net::SNMP::INTEGER,
-            ( $enabled ? 1 : 2 ),
-        ]
+        -varbindlist => [ "$OID_ifAdminStatus.$ifIndex", Net::SNMP::INTEGER, $status ]
     );
     return ( defined($result) );
 }
+
+=item bouncePort
+
+Performs a shut / no-shut on the port. 
+Usually used to force the operating system to do a new DHCP Request after a VLAN change.
+
+Just performing the wait, no setAdminStatus
+
+=cut
+sub bouncePort {
+    my ($this, $ifIndex) = @_;
+    
+    #$this->setAdminStatus( $ifIndex, $SNMP::DOWN );
+    sleep($Config{'vlan'}{'bounce_duration'});
+    #$this->setAdminStatus( $ifIndex, $SNMP::UP );
+    
+    return $TRUE;
+}
+
 
 =item getSysUptime - returns the sysUpTime
 
@@ -2493,12 +2511,26 @@ sub disablePortConfigAsTrunk {
     return 1;
 }
 
-=item dot1xPortReauthenticate - forces 802.1x re-authentication of a given ifIndex
+=item dot1xPortReauthenticate
+
+Forces 802.1x re-authentication of a given ifIndex
 
 ifIndex - ifIndex to force re-authentication on
 
 =cut
 sub dot1xPortReauthenticate {
+    my ($this, $ifIndex) = @_;
+
+    return $this->_dot1xPortReauthenticate($ifIndex);
+}
+
+=item _dot1xPortReauthenticate
+
+Actual implementation. 
+Allows callers to refer to this implementation even though someone along the way override the above call.
+
+=cut
+sub _dot1xPortReauthenticate {
     my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
@@ -2522,6 +2554,7 @@ sub dot1xPortReauthenticate {
 
     return (defined($result));
 }
+
 
 sub getMinOSVersion {
     my ($this) = @_;
@@ -2715,8 +2748,6 @@ sub NasPortToIfIndex {
 
 =item handleReAssignVlanTrapForWiredMacAuth
 
-Default except that setAdminStatus are commented
-
 =cut
 sub handleReAssignVlanTrapForWiredMacAuth {
     my ($this, $ifIndex) = @_;
@@ -2737,9 +2768,7 @@ sub handleReAssignVlanTrapForWiredMacAuth {
         $logger->info( "no VoIP phone is currently connected at " . $switch_ip
             . " ifIndex $ifIndex. Flipping port admin status"
         );
-        #$this->setAdminStatus( $ifIndex, 0 );
-        sleep(2);
-        #$this->setAdminStatus( $ifIndex, 1 );
+        $this->bouncePort($ifIndex);
 
     } else {
 

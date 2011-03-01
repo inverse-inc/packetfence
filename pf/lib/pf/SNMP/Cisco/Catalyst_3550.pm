@@ -2,14 +2,11 @@ package pf::SNMP::Cisco::Catalyst_3550;
 
 =head1 NAME
 
-pf::SNMP::Cisco::Catalyst_3550 - Object oriented module to access SNMP enabled Cisco Catalyst 3550 switches
+pf::SNMP::Cisco::Catalyst_3550 - Object oriented module to access and configure Cisco Catalyst 3550 switches
 
-=head1 SYNOPSIS
+=head1 STATUS
 
-The pf::SNMP::Cisco::Catalyst_3550 module implements an object oriented interface
-to access SNMP enabled Cisco::Catalyst_3550 switches.
-
-This modules extends pf::SNMP::Cisco::Catalyst_2960
+This module is currently only a placeholder, see pf::SNMP::Cisco::Catalyst_2960.
 
 =head1 BUGS AND LIMITATIONS
 
@@ -35,7 +32,7 @@ Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008,2010,2011 Inverse inc.
+Copyright (C) 2006-2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

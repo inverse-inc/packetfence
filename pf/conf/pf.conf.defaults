@@ -569,6 +569,12 @@ nbtraphandlerthreads = 20
 #
 # Number of trap parser threads pfsetvlan should start
 nbtrapparserthreads = 5
+#
+# vlan.bounce_duration
+#
+# Delay to wait between the shut / no-shut on a port. Some OS need a higher value than others.
+# Default should be reasonable for almost every OS but is too long for the usual proprietary OS.
+bounce_duration = 4s
 
 [servicewatch]
 #
