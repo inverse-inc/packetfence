@@ -236,7 +236,7 @@ ln -s pf-schema-2.0.0.sql ./pf-schema.sql
 
 #httpd.conf symlink
 #TODO: isn't it stupid to decide what Apache version is there at rpm build time?
-cd $RPM_BUILD_ROOT/usr/local/pf/conf/templates
+cd $RPM_BUILD_ROOT/usr/local/pf/conf
 if (/usr/sbin/httpd -v | egrep 'Apache/2\.[2-9]\.' > /dev/null)
 then
   ln -s httpd.conf.apache22 ./httpd.conf
@@ -431,23 +431,22 @@ fi
 %config(noreplace)	/usr/local/pf/conf/snort/reference.config
 %dir                    /usr/local/pf/conf/ssl
 %config(noreplace)      /usr/local/pf/conf/switches.conf
-%dir                    /usr/local/pf/conf/templates
-%dir                    /usr/local/pf/conf/templates/configurator
-                        /usr/local/pf/conf/templates/configurator/*
-%config                 /usr/local/pf/conf/templates/dhcpd.conf
-%config                 /usr/local/pf/conf/templates/dhcpd_vlan.conf
-%config                 /usr/local/pf/conf/templates/httpd.conf
-%config                 /usr/local/pf/conf/templates/httpd.conf.apache22
-%config                 /usr/local/pf/conf/templates/httpd.conf.pre_apache22
-%config(noreplace)      /usr/local/pf/conf/templates/iptables.conf
-%config(noreplace)      /usr/local/pf/conf/templates/listener.msg
-%config(noreplace)      /usr/local/pf/conf/templates/named-registration.ca
-%config(noreplace)      /usr/local/pf/conf/templates/named-isolation.ca
-%config                 /usr/local/pf/conf/templates/named_vlan.conf
-%config(noreplace)      /usr/local/pf/conf/templates/popup.msg
-%config(noreplace)      /usr/local/pf/conf/templates/snmptrapd.conf
-%config(noreplace)	/usr/local/pf/conf/templates/snort.conf
-%config(noreplace)	/usr/local/pf/conf/templates/snort.conf.pre_snort-2.8
+%dir                    /usr/local/pf/conf/configurator
+                        /usr/local/pf/conf/configurator/*
+%config                 /usr/local/pf/conf/dhcpd.conf
+%config                 /usr/local/pf/conf/dhcpd_vlan.conf
+%config                 /usr/local/pf/conf/httpd.conf
+%config                 /usr/local/pf/conf/httpd.conf.apache22
+%config                 /usr/local/pf/conf/httpd.conf.pre_apache22
+%config(noreplace)      /usr/local/pf/conf/iptables.conf
+%config(noreplace)      /usr/local/pf/conf/listener.msg
+%config(noreplace)      /usr/local/pf/conf/named-registration.ca
+%config(noreplace)      /usr/local/pf/conf/named-isolation.ca
+%config                 /usr/local/pf/conf/named_vlan.conf
+%config(noreplace)      /usr/local/pf/conf/popup.msg
+%config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
+%config(noreplace)	/usr/local/pf/conf/snort.conf
+%config(noreplace)	/usr/local/pf/conf/snort.conf.pre_snort-2.8
 %config			/usr/local/pf/conf/ui.conf
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
 %dir                    /usr/local/pf/conf/users
@@ -554,6 +553,9 @@ fi
 
 * Thu Feb 03 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - Explicitly remove docbook doc and images from package. For now.
+
+* Fri Jan 28 2011 Olivier Bilodeau <obilodeau@inverse.ca>
+- Configuration files in conf/templates/ are now in conf/. See #1166.
 
 * Fri Jan 28 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - More changes related to #1014. Some more conf -> var movement.
