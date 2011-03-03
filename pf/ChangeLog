@@ -1,4 +1,1597 @@
 -----------------------------------------------------------------
+Revision: 00a97049aa164a68dde91f35c650a3a388ad0356
+Ancestor: 48e606bbc24225f730070db71166690c0c3b558f
+Author: obilodeau@inverse.ca
+Date: 2011-03-03T14:48:23
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS
+
+ChangeLog: 
+
+NEWS entry for Francois' #776 fix
+
+-----------------------------------------------------------------
+Revision: 48e606bbc24225f730070db71166690c0c3b558f
+Ancestor: 9666ffd55e49bd0c256b7cb78ae6a7c17b240139
+Author: obilodeau@inverse.ca
+Date: 2011-03-01T22:40:04
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS pf/README.network-devices pf/UPGRADE
+        pf/conf/documentation.conf pf/conf/pf.conf.defaults
+        pf/lib/pf/SNMP/Cisco/Catalyst_2950.pm
+        pf/lib/pf/SNMP/Cisco/Catalyst_2960.pm
+        pf/lib/pf/SNMP/Cisco/Catalyst_2970.pm
+        pf/lib/pf/SNMP/Cisco/Catalyst_3550.pm
+        pf/lib/pf/SNMP/Cisco/Catalyst_3560.pm
+        pf/lib/pf/SNMP/Cisco/Catalyst_3750.pm
+        pf/lib/pf/SNMP/Cisco/Catalyst_4500.pm
+        pf/lib/pf/SNMP/MockedSwitch.pm pf/lib/pf/SNMP.pm
+        pf/lib/pf/config.pm pf/lib/pf/radius.pm pf/sbin/pfsetvlan
+
+ChangeLog: 
+
+Added support for Cisco 2950 in 802.1X. Should work with or without VoIP.
+- port bounce encapuslated into a portBounce() sub with a configurable sleep value which fixes issue #1188
+- Fixed an issue where warnings were not sent in Wired MAC Authentication if a device was isolated behind a VoIP phone
+- bumped pf::SNMP's version since we changed the contract of setAdminStatus()
+- re-did documentation around these switches (2960 and 2950)
+http://www.packetfence.org/bugs/view.php?id=1188
+
+-----------------------------------------------------------------
+Revision: 9666ffd55e49bd0c256b7cb78ae6a7c17b240139
+Ancestor: 4c8c434a2bdf25d4e4a7f1b8feec80792f9e0129
+Author: fgaudreault@inverse.ca
+Date: 2011-03-01T22:22:56
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/README.network-devices
+        pf/docs/PacketFence_Network_Devices_Configuration_Guide.odt
+
+ChangeLog: 
+
+Added 802.1X section in Network Devices Config Guide
+
+-----------------------------------------------------------------
+Revision: db0699267d14b207d7a186aa3309448f54a9c8bb
+Ancestor: a544c7b91f7f520a5ac0e3672830bc569cab14e4
+Author: fgaudreault@inverse.ca
+Date: 2011-02-28T19:56:41
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/conf/templates/configurator/reg-detect-scan.conf
+
+ChangeLog: 
+
+Removed network.scan in the reg-detect-scan template (#0776)
+
+-----------------------------------------------------------------
+Revision: 2026dc664eb22d82c0612c4ef7db9f8a00bee591
+Ancestor: a544c7b91f7f520a5ac0e3672830bc569cab14e4
+Author: obilodeau@inverse.ca
+Date: 2011-02-28T19:57:23
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/lib/pf/pfcmd/checkup.pm
+
+ChangeLog: 
+
+cleaner internals for pf::pfcmd::checkup 
+- encapsulated array access into a method call which hides problem list implementation
+- pushed problems as a package global instead of passing around
+
+-----------------------------------------------------------------
+Revision: a544c7b91f7f520a5ac0e3672830bc569cab14e4
+Ancestor: d2c2a24137cf0c8e91bec31a86cf4f9c2460bc0d
+Author: obilodeau@inverse.ca
+Date: 2011-02-28T19:28:53
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/UPGRADE pf/lib/pf/pfcmd/checkup.pm
+
+ChangeLog: 
+
+Improved extension point version handling on pf's startup.
+- reporting appropriately missing vs inaccurate version info
+- trapping compile errors (version mismatch between radius and vlan)
+- UPGRADE now explains how to migrate from one version to the other
+- UPGRADE now provides more emphasis on this breaking change (re-ordered the entries)
+
+-----------------------------------------------------------------
+Revision: d2c2a24137cf0c8e91bec31a86cf4f9c2460bc0d
+Ancestor: 8575a6a8a246a2e8096a9e58a451f59cfd179fa2
+Author: obilodeau@inverse.ca
+Date: 2011-02-28T18:06:19
+Branch: org.packetfence.2_0
+
+Added files:
+        pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.po
+Added directories:
+        pf/conf/locale/pt_BR pf/conf/locale/pt_BR/LC_MESSAGES
+Modified files:
+        pf/NEWS pf/conf/documentation.conf pf/packetfence.spec
+
+ChangeLog: 
+
+New Brazilian Portuguese (pt_BR) translation (Thanks to Brivaldo Junior of Federal University of Mato Grosso do Sul)
+
+-----------------------------------------------------------------
+Revision: 084005fd20b5558e5f680a863f29ea357012367a
+Ancestor: 70a6ebb71b49d6b6df6e5510003c057117431cc7
+Author: obilodeau@inverse.ca
+Date: 2011-02-25T22:10:02
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS pf/packetfence.spec
+
+ChangeLog: 
+
+added Class::Inspector dependency to mitigate upstream packaging issue with SOAP-Lite. Mitigates #1194
+http://www.packetfence.org/bugs/view.php?id=1194
+
+-----------------------------------------------------------------
+Revision: 719aaa466d37e35eddb95cbe964383c8be6c3c7a
+Ancestor: 58432248460c4238741fc811ce36e8093b9b5a20
+Author: obilodeau@inverse.ca
+Date: 2011-02-25T19:48:34
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/conf/dhcp_fingerprints.conf
+
+ChangeLog: 
+
+new HP Printer dhcp fingerprint
+
+-----------------------------------------------------------------
+Revision: 56c1692ee98c0ad43021403bab709b03b4530a35
+Ancestor: 984e802cc799dfd0f558f4e7801923ee9abf9843
+Author: obilodeau@inverse.ca
+Date: 2011-02-28T15:17:36
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/t/binaries.t pf/t/coding-style.t
+
+ChangeLog: 
+
+Added pf::WebAPI and mod_perl_require.pl to some tests they should have been running already
+
+-----------------------------------------------------------------
+Revision: 984e802cc799dfd0f558f4e7801923ee9abf9843
+Ancestor: 5cd0e89a5d91a020cb74a9ed3b5e3ce6b0c9855d
+Author: obilodeau@inverse.ca
+Date: 2011-02-25T18:49:46
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS pf/lib/pf/pfcmd/checkup.pm
+
+ChangeLog: 
+
+More tests in checkup phase. Fixes #1025;
+Validating setuid/setgid and file ownership on bin/pfcmd. Mitigates #1193 to the point were we should not see it in production anymore.
+http://www.packetfence.org/bugs/view.php?id=1025
+
+-----------------------------------------------------------------
+Revision: 5cd0e89a5d91a020cb74a9ed3b5e3ce6b0c9855d
+Ancestor: 58432248460c4238741fc811ce36e8093b9b5a20
+Author: obilodeau@inverse.ca
+Date: 2011-02-25T18:45:17
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/bin/pfcmd
+
+ChangeLog: 
+
+if called from CLI (or Web) report a "Nothing to report" if there was no message.
+
+-----------------------------------------------------------------
+Revision: 58432248460c4238741fc811ce36e8093b9b5a20
+Ancestor: 67b30ca913ffc5158e58883a6e55880dd8c73b7f
+Author: obilodeau@inverse.ca
+Date: 2011-02-25T17:45:15
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/lib/pf/pfcmd/checkup.pm
+
+ChangeLog: 
+
+removed debug code that was already commented out
+
+-----------------------------------------------------------------
+Revision: 67b30ca913ffc5158e58883a6e55880dd8c73b7f
+Ancestor: 028375c5377e1a675da659017cd22a3c5db6df6e
+Author: obilodeau@inverse.ca
+Date: 2011-02-25T17:44:36
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS pf/lib/pf/pfcmd/checkup.pm
+
+ChangeLog: 
+
+Removed misleading registration.queuesize warnings on startup. Fixes #767;
+http://www.packetfence.org/bugs/view.php?id=767
+
+-----------------------------------------------------------------
+Revision: 028375c5377e1a675da659017cd22a3c5db6df6e
+Ancestor: 7c34f7c31e146415fbdc6b146a2d0e1935b829e6
+Author: obilodeau@inverse.ca
+Date: 2011-02-25T16:53:00
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS pf/bin/pfcmd
+        pf/html/admin/administration/services.php
+        pf/lib/pf/pfcmd/checkup.pm
+
+ChangeLog: 
+
+'pfcmd checkup' now visible in web admin under Admin -> Services and friendlier startup messages (w/o the perl stack trace)
+These changes implied a refactoring of the sanity_check mechanism to pass a simple structure back to pfcmd instead of doing logdies. If we get a FATAL then I exit in pfcmd.
+
+-----------------------------------------------------------------
+Revision: 7c34f7c31e146415fbdc6b146a2d0e1935b829e6
+Ancestor: 76edf462d6e30244eee32a90500bd456c57601bf
+Author: obilodeau@inverse.ca
+Date: 2011-02-24T21:21:21
+Branch: org.packetfence.2_0
+
+Added files:
+        pf/lib/pf/pfcmd/checkup.pm
+Modified files:
+        pf/bin/pfcmd pf/t/coding-style.t pf/t/critic.t pf/t/pf.t
+        pf/t/pod.t
+
+ChangeLog: 
+
+refactoring: sanity_check is extracted in it's own module: pf::pfcmd::checkup
+
+-----------------------------------------------------------------
+Revision: 76edf462d6e30244eee32a90500bd456c57601bf
+Ancestor: 9b71bb992fd50a62344249b92f4589978585ef68
+Author: obilodeau@inverse.ca
+Date: 2011-02-24T20:53:12
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/bin/pfcmd
+
+ChangeLog: 
+
+removed code that was commented out since the beginning of (modern) time
+
+-----------------------------------------------------------------
+Revision: 9b71bb992fd50a62344249b92f4589978585ef68
+Ancestor: 0e8a2dbb9050898a69fe54542bbae90ccc391101
+Author: obilodeau@inverse.ca
+Date: 2011-02-24T20:29:37
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/bin/pfcmd pf/lib/pf/pfcmd/help.pm pf/lib/pf/pfcmd.pm
+        pf/lib/pf/services.pm pf/t/pfcmd.t
+
+ChangeLog: 
+
+new command pfcmd checkup which performs the configuration sanity check
+- constantified service names in pf::services
+
+-----------------------------------------------------------------
+Revision: 0e8a2dbb9050898a69fe54542bbae90ccc391101
+Ancestor: d85f7109873cbfb4a32032aad07b969e3f9bc823
+Author: obilodeau@inverse.ca
+Date: 2011-02-24T14:24:25
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS pf/lib/pf/action.pm pf/lib/pf/node.pm
+        pf/lib/pf/violation.pm
+
+ChangeLog: 
+
+Violation with action autoreg is only triggered if node is not registered. Fixes #1026;
+this had nasty effects where a port where a phone was plugged in had its VLAN re-evaluated even though it shouldn't (already registered and in correct VLAN + it's a phone!!)
+also performance improvements because you don't need to perform the whole fork, etc. if the node is already reg
+http://www.packetfence.org/bugs/view.php?id=1026
+
+-----------------------------------------------------------------
+Revision: d85f7109873cbfb4a32032aad07b969e3f9bc823
+Ancestor: e0e6e0791489e9576d0e68d2ec4d85c541e58f6b
+Author: obilodeau@inverse.ca
+Date: 2011-02-23T15:06:59
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/lib/pf/web.pm
+
+ChangeLog: 
+
+identified TODO task for issue #1192
+
+-----------------------------------------------------------------
+Revision: e0e6e0791489e9576d0e68d2ec4d85c541e58f6b
+Ancestor: b69ab8a558eff470d7703f24a4da45ab9cd3da86
+Author: obilodeau@inverse.ca
+Date: 2011-02-23T14:34:12
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/bin/pfcmd
+
+ChangeLog: 
+
+TODO task issue #1191
+
+-----------------------------------------------------------------
+Revision: b69ab8a558eff470d7703f24a4da45ab9cd3da86
+Ancestor: 3e252760c077b9c6a2648c225f4f5390a0c5cde9
+Author: obilodeau@inverse.ca
+Date: 2011-02-22T22:18:31
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS pf/bin/pfcmd_vlan
+
+ChangeLog: 
+
+pfcmd_vlan now handles -reAssignVlan with a regards to the last active node's connection_type on a switch-port. Fixes #1190.
+Since 2.0 we didn't handle wired dot1x or MAC Auth when using reAssignVlan from pfcmd_vlan. Not really a big deal.
+I took the opportunity to get rid of the hard-coded trap creation and rely on pf::SNMP::PacketFence instead.
+http://www.packetfence.org/bugs/view.php?id=1190
+
+-----------------------------------------------------------------
+Revision: 3e252760c077b9c6a2648c225f4f5390a0c5cde9
+Ancestor: bae299ba4f047bd2cb13b692d2a0144c5507351f
+Author: obilodeau@inverse.ca
+Date: 2011-02-22T18:22:28
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS pf/docs/PacketFence_Administration_Guide.odt
+
+ChangeLog: 
+
+fixed SNMPv3 sample configuration. Thanks to Nate Renbarger for reporting and suggesting the fix.
+We were configuring AES on the PF side and DES56 on the switch side.. Doh!
+
+-----------------------------------------------------------------
+Revision: bae299ba4f047bd2cb13b692d2a0144c5507351f
+Ancestor: bd14df0788c8a6f5539ab99abff6c6805c6bc51c
+Author: obilodeau@inverse.ca
+Date: 2011-02-22T14:07:58
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/lib/pf/SNMP/ThreeCom/SS4500.pm
+        pf/lib/pf/SNMP/ThreeCom/Switch_4200G.pm
+
+ChangeLog: 
+
+Added status support and limitations information to 3Com SS4500 (so 4200G)
+
+-----------------------------------------------------------------
+Revision: bd14df0788c8a6f5539ab99abff6c6805c6bc51c
+Ancestor: d4d282afb354a4c6c64118cfc3ddee5623e5ff53
+Author: obilodeau@inverse.ca
+Date: 2011-02-21T16:52:06
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/html/user/content/templates/pending.html
+
+ChangeLog: 
+
+div was outside of body. fixed that
+
+-----------------------------------------------------------------
+Revision: d4d282afb354a4c6c64118cfc3ddee5623e5ff53
+Ancestor: 3d8201bc4f53db9d2fe6b173da6f005f7016cdb3
+Author: obilodeau@inverse.ca
+Date: 2011-02-21T16:24:34
+Branch: org.packetfence.2_0
+
+Added files:
+        pf/t/web.t
+Modified files:
+        pf/NEWS pf/lib/pf/web/util.pm pf/t/TestUtils.pm
+Modified attrs:
+        pf/t/web.t
+
+ChangeLog: 
+
+Improvements to phone number validation (including handling european numbers) and added tests
+
+-----------------------------------------------------------------
+Revision: 3d8201bc4f53db9d2fe6b173da6f005f7016cdb3
+Ancestor: b05f16d6628f43200f886aae2202e3fb8038ec76
+Author: obilodeau@inverse.ca
+Date: 2011-02-21T15:13:20
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/html/user/content/templates/pending.html
+
+ChangeLog: 
+
+Added a "scripting should be turned on otherwise..." message to the pending template
+
+-----------------------------------------------------------------
+Revision: b05f16d6628f43200f886aae2202e3fb8038ec76
+Ancestor: 307cb7010673c546e6d3d60d4a29efd72da199aa
+Author: obilodeau@inverse.ca
+Date: 2011-02-18T22:27:24
+Branch: org.packetfence.2_0
+
+Added files:
+        pf/html/common/network-access-detection.gif
+        pf/html/common/pf.js pf/html/common/prototype.js
+Modified files:
+        pf/NEWS pf/UPGRADE pf/cgi-bin/redir.cgi
+        pf/cgi-bin/register.cgi pf/conf/documentation.conf
+        pf/conf/pf.conf.defaults
+        pf/html/user/content/templates/pending.html
+        pf/lib/pf/config.pm pf/lib/pf/web/custom.pm pf/lib/pf/web.pm
+        pf/packetfence.spec
+Modified attrs:
+        pf/html/common/network-access-detection.gif
+
+ChangeLog: 
+
+New experimental javascript-based network access detection. Only used for node.status = pending (for now)
+added a JSON binding for node status as a side effect
+- new [captive_portal] section in pf.conf with a knob on the new detection mechanism
+- modified pending.html template
+- new pf.js javascript library
+- bundled prototype javascript library version 1.7
+- new constants in pf::config
+
+-----------------------------------------------------------------
+Revision: 307cb7010673c546e6d3d60d4a29efd72da199aa
+Ancestor: edee721651ded538879f9ce00e7b34dfb2b4eac0
+Author: obilodeau@inverse.ca
+Date: 2011-02-18T21:44:09
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/UPGRADE
+
+ChangeLog: 
+
+re-ordered UPGRADE's content based on what's most important for our users
+
+-----------------------------------------------------------------
+Revision: edee721651ded538879f9ce00e7b34dfb2b4eac0
+Ancestor: 6b71c369f822d310ff4c84432f72da78047b569a
+Author: obilodeau@inverse.ca
+Date: 2011-02-18T20:44:36
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS pf/conf/dhcp_fingerprints.conf
+
+ChangeLog: 
+
+another load of new DHCP fingerprints.
+Androids, smartphones, MAC OS X, palm OS, UniData VoIP, ...
+
+-----------------------------------------------------------------
+Revision: 6b71c369f822d310ff4c84432f72da78047b569a
+Ancestor: 09508e8654f442870cb36ffe3a74694a8fb34e0b
+Author: obilodeau@inverse.ca
+Date: 2011-02-18T19:09:00
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/conf/violations.conf
+
+ChangeLog: 
+
+updated violation trigger OS for Apple mobile devices
+
+-----------------------------------------------------------------
+Revision: 45c0e0fd29fb9578ddc298e87a38a1a874628b45
+Ancestor: 522920faa121f797b561d843ec7e4d5708ec40f2
+Author: obilodeau@inverse.ca
+Date: 2011-02-16T16:35:09
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/lib/pf/SNMP/Nortel.pm
+
+ChangeLog: 
+
+compile fix from last commit
+
+-----------------------------------------------------------------
+Revision: 61806a7106981ffa43cb6f5487f2a32de6b3af45
+Ancestor: 522920faa121f797b561d843ec7e4d5708ec40f2
+Author: obilodeau@inverse.ca
+Date: 2011-02-17T15:32:38
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS pf/conf/dhcp_fingerprints.conf
+
+ChangeLog: 
+
+Added Meego Netbook and HP Printer DHCP fingerprint
+
+-----------------------------------------------------------------
+Revision: 522920faa121f797b561d843ec7e4d5708ec40f2
+Ancestor: 1e658f512bc8c2a17962e1de8f75a74d33a66296
+Author: obilodeau@inverse.ca
+Date: 2011-02-16T16:28:43
+Branch: org.packetfence.2_0
+
+Deleted entries:
+        pf/lib/pf/SNMP/Nortel/BayStack5520Stacked.pm
+Renamed entries:
+        pf/lib/pf/SNMP/Nortel/BayStack5520.pm to pf/lib/pf/SNMP/Nortel/BayStack5500.pm
+Added files:
+        pf/lib/pf/SNMP/Avaya/ERS5500.pm
+        pf/lib/pf/SNMP/Avaya/ERS5500_6x.pm pf/lib/pf/SNMP/Avaya.pm
+        pf/lib/pf/SNMP/Nortel/BayStack5500_6x.pm
+        pf/lib/pf/SNMP/Nortel/ERS5500.pm
+        pf/lib/pf/SNMP/Nortel/ERS5500_6x.pm
+Added directories:
+        pf/lib/pf/SNMP/Avaya
+Modified files:
+        pf/NEWS pf/README.network-devices pf/UPGRADE
+        pf/docs/PacketFence_Network_Devices_Configuration_Guide.odt
+        pf/html/admin/configuration/switches_add.php
+        pf/html/admin/configuration/switches_edit.php
+        pf/lib/pf/SNMP/Nortel/BPS2000.pm
+        pf/lib/pf/SNMP/Nortel/BayStack4550.pm
+        pf/lib/pf/SNMP/Nortel/BayStack470.pm
+        pf/lib/pf/SNMP/Nortel/BayStack5500.pm
+        pf/lib/pf/SNMP/Nortel/ERS2500.pm
+        pf/lib/pf/SNMP/Nortel/ERS4500.pm
+        pf/lib/pf/SNMP/Nortel/ES325.pm pf/lib/pf/SNMP/Nortel.pm
+        pf/t/coding-style.t pf/t/critic.t
+        pf/t/hardware-snmp-objects.t pf/t/pod.t
+
+ChangeLog: 
+
+Nortel/Avaya refactoring. 
+Initiated by a mailing list conversation regarding handling of new ERS5500 with firmware 6.x.
+- Several Avaya module placeholders and references in documentation
+- handling BayStack / ERS 5500 with board width of 128 (firmware 6.x)
+- 5520 -> 5500 series
+- Merged 5520's _authorizeMAC in pf::SNMP::Nortel (no real changes)
+- Genericized board calculations
+
+-----------------------------------------------------------------
+Revision: 1e658f512bc8c2a17962e1de8f75a74d33a66296
+Ancestor: c78c7aff513c37679d6fed4966ddad1aee873a98
+Author: obilodeau@inverse.ca
+Date: 2011-02-15T16:24:27
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/lib/pf/scan.pm
+
+ChangeLog: 
+
+We are no longer on acting on high severity vulns but we reported "no high severity vulns found". Misleading log entry fixed.
+
+-----------------------------------------------------------------
+Revision: c78c7aff513c37679d6fed4966ddad1aee873a98
+Ancestor: a542ff619457e03168d8baa906c9271c65f41461
+Author: obilodeau@inverse.ca
+Date: 2011-02-15T15:05:55
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS pf/lib/pf/services.pm
+
+ChangeLog: 
+
+Allows apache2 as a valid httpd daemon name. Fixes #1185.
+Patch provided by Jesper (hawk).
+http://www.packetfence.org/bugs/view.php?id=1185
+
+-----------------------------------------------------------------
+Revision: a542ff619457e03168d8baa906c9271c65f41461
+Ancestor: 3200074db50f625f760a8f42d3c9ef344bd40af8
+Author: obilodeau@inverse.ca
+Date: 2011-02-14T21:49:59
+Branch: org.packetfence.2_0
+
+Deleted entries:
+        pf/docs/PacketFence_Developers_Guide.odt
+
+ChangeLog: 
+
+Deleted Developers guide to avoid confusion between new docbook guide and old ODT guide
+
+-----------------------------------------------------------------
+Revision: 3200074db50f625f760a8f42d3c9ef344bd40af8
+Ancestor: f3bbce4e5e988c5cdf89e5fd3aed3f83c0ba805c
+Author: obilodeau@inverse.ca
+Date: 2011-02-14T21:41:55
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/conf/dhcp_fingerprints.conf
+
+ChangeLog: 
+
+Removed Android OS fingerprint from Linux category. Avoid clashes when applying violation to device categories.
+
+-----------------------------------------------------------------
+Revision: f3bbce4e5e988c5cdf89e5fd3aed3f83c0ba805c
+Ancestor: e6fd56829aac2a11008fe7ea9f5c64ab825c4ee2
+Author: obilodeau@inverse.ca
+Date: 2011-02-14T21:38:37
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/conf/dhcp_fingerprints.conf
+
+ChangeLog: 
+
+Removed iPhone/iPod/iPad OS fingerprint from Mac category. Avoid clashes when applying violation to device categories.
+
+-----------------------------------------------------------------
+Revision: e6fd56829aac2a11008fe7ea9f5c64ab825c4ee2
+Ancestor: 1559815f2a343b8d4102ab9fa5adc4d66a6c6e91
+Author: obilodeau@inverse.ca
+Date: 2011-02-11T21:11:10
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS pf/conf/dhcp_fingerprints.conf
+
+ChangeLog: 
+
+iPhone fingerprints are the same as iPod and iPad
+
+-----------------------------------------------------------------
+Revision: 1559815f2a343b8d4102ab9fa5adc4d66a6c6e91
+Ancestor: 8424322572a9f8b85c499932de0bc3a890c07111
+Author: obilodeau@inverse.ca
+Date: 2011-02-11T21:03:01
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS pf/conf/dhcp_fingerprints.conf
+
+ChangeLog: 
+
+20 new DHCP fingerprints. See NEWS for details.
+
+-----------------------------------------------------------------
+Revision: 8424322572a9f8b85c499932de0bc3a890c07111
+Ancestor: 90951660495c447a0fa88d5de2698923e53d0a34
+Author: obilodeau@inverse.ca
+Date: 2011-02-11T16:29:09
+Branch: org.packetfence.2_0
+
+Renamed entries:
+        pf/docs/images/inverse-logo.png to pf/docs/images/inverse-logo-old.png
+Added files:
+        pf/docs/docbook/xsl/headerfooter-fo.xsl
+        pf/docs/fonts/PALATINO.TTF pf/docs/fonts/fop-config.xml
+        pf/docs/fonts/palatino.xml pf/docs/images/inverse-logo.jpg
+Added directories:
+        pf/docs/fonts
+Modified files:
+        pf/docs/docbook/README pf/docs/docbook/additional-info.xml
+        pf/docs/docbook/commercial-support.xml
+        pf/docs/docbook/license.xml
+        pf/docs/docbook/pf-devel-guide.xml
+        pf/docs/docbook/xsl/packetfence-fo.xsl
+        pf/docs/docbook/xsl/titlepage-fo.xml pf/packetfence.spec
+Modified attrs:
+        pf/docs/fonts/PALATINO.TTF pf/docs/images/inverse-logo.jpg
+
+ChangeLog: 
+
+Docbook/FO output changes: header/footer, title fonts, inverse logo integration, chapter labeling, lines under some headings, revision history on seperate page, prevent pagebreaks in screen and programlisting elements
+Added authors, copyright and license information to files.
+
+-----------------------------------------------------------------
+Revision: 90951660495c447a0fa88d5de2698923e53d0a34
+Ancestor: 33f1e851a512ef1e24cf7ef78a12a9bcbbcb9ded
+Author: obilodeau@inverse.ca
+Date: 2011-02-08T16:09:29
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/bin/pfcmd pf/lib/pf/WebAPI.pm pf/lib/pf/config.pm
+        pf/lib/pf/radius/custom.pm pf/lib/pf/radius.pm
+        pf/lib/pf/services/apache.pm pf/lib/pf/vlan/custom.pm
+        pf/lib/pf/vlan.pm pf/sbin/pfsetvlan
+
+ChangeLog: 
+
+Refactoring of the versioning system to fix problems in the build environment
+- Checking for extension point versioning explicitly in pfcmd's sanity_check
+- Constantified versions in the core
+- Versions are now integer instead of strings
+
+-----------------------------------------------------------------
+Revision: 33f1e851a512ef1e24cf7ef78a12a9bcbbcb9ded
+Ancestor: aa85f28835c98c846aba0a79425197acf4196811
+Author: obilodeau@inverse.ca
+Date: 2011-02-07T19:23:37
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS pf/UPGRADE pf/lib/pf/WebAPI.pm
+        pf/lib/pf/radius/custom.pm pf/lib/pf/radius.pm
+        pf/lib/pf/services/apache.pm pf/lib/pf/vlan/custom.pm
+        pf/lib/pf/vlan.pm pf/sbin/pfsetvlan
+
+ChangeLog: 
+
+Implemented perl's module versioning to improve handling of API changes in extension points
+
+-----------------------------------------------------------------
+Revision: aa85f28835c98c846aba0a79425197acf4196811
+Ancestor: c9e4b9eec7f7df4dea81c60c13d79eb4a04c91c8
+Author: obilodeau@inverse.ca
+Date: 2011-02-07T16:31:53
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/lib/pf/SNMP/Cisco/Catalyst_2960.pm
+
+ChangeLog: 
+
+Added error reporting in authorizeMAC()
+
+-----------------------------------------------------------------
+Revision: c9e4b9eec7f7df4dea81c60c13d79eb4a04c91c8
+Ancestor: 25dd5b33381e5e29e4f9b071f3afda9982f79c55
+Author: obilodeau@inverse.ca
+Date: 2011-02-07T16:26:52
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/html/admin/node/view.php
+
+ChangeLog: 
+
+Added a note about VoIP entries possibly inaccurate. See #1178 for details.
+
+-----------------------------------------------------------------
+Revision: a94bf612b2849dd49c817880aaf93d0f71deced4
+Ancestor: cd90b82db5303b83890605d2422a80eaf7ec5659
+Author: obilodeau@inverse.ca
+Date: 2011-02-04T17:42:11
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/lib/pf/SNMP.pm
+
+ChangeLog: 
+
+removed an invalid comment
+
+-----------------------------------------------------------------
+Revision: cd90b82db5303b83890605d2422a80eaf7ec5659
+Ancestor: c0cb2ad2a1b2eacec58aca67d83a7095b4e42b9a
+Author: fgaudreault@inverse.ca
+Date: 2011-02-03T21:11:43
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/docs/PacketFence_Administration_Guide.odt
+
+ChangeLog: 
+
+Modified the way the PacketFence repository is configured in yum
+
+-----------------------------------------------------------------
+Revision: 726b4c076e11d43d0bb47f53144ca1e5de30836a
+Ancestor: c0cb2ad2a1b2eacec58aca67d83a7095b4e42b9a
+Author: obilodeau@inverse.ca
+Date: 2011-02-04T20:15:32
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS pf/bin/flip.pl pf/lib/pf/config.pm pf/lib/pf/util.pm
+
+ChangeLog: 
+
+Fixed an issue where modifying a node that never connected generated an error. Fixes #1177;
+- Added a new UNKNOWN connection type to make it's handling cleaner
+- two warning avoidance in flip.pl
+
+-----------------------------------------------------------------
+Revision: c0cb2ad2a1b2eacec58aca67d83a7095b4e42b9a
+Ancestor: 9cb4d8e6dca2d2a0603cba5ac037b22e5e6931ea
+Author: obilodeau@inverse.ca
+Date: 2011-02-03T20:04:38
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS pf/lib/pf/vlan.pm pf/t/vlan.t
+
+ChangeLog: 
+
+Warning avoidance in pf::vlan's doWeActOnThisTrap. Fixes #832;
+http://www.packetfence.org/bugs/view.php?id=832
+
+-----------------------------------------------------------------
+Revision: 9cb4d8e6dca2d2a0603cba5ac037b22e5e6931ea
+Ancestor: c29f24c5813973df2563988671ab3e279c219927
+Author: obilodeau@inverse.ca
+Date: 2011-02-03T20:03:50
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/UPGRADE
+
+ChangeLog: 
+
+upgrade notice for node lookup output change
+
+-----------------------------------------------------------------
+Revision: 1d024f2d47da4dc9af358ccbf60e6d80ff2edf6f
+Ancestor: 6ba5163d999fa0b47236f6aa1b32ad83f0a9652b
+Author: obilodeau@inverse.ca
+Date: 2011-02-03T15:57:38
+Branch: org.packetfence.2_0
+
+Modified attrs:
+        pf/lib/pf/lookup/node.pm pf/lib/pf/lookup/person.pm
+
+ChangeLog: 
+
+removed execute bits from files that don't require it
+
+-----------------------------------------------------------------
+Revision: f4e31152dcdf1ae5de85c66a875f48d2c751350c
+Ancestor: 1a3d8b11a3080bb9657bc09992fe17421723b5b4
+Author: obilodeau@inverse.ca
+Date: 2011-02-03T14:13:36
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/packetfence.spec
+
+ChangeLog: 
+
+date fix
+
+-----------------------------------------------------------------
+Revision: 5cea94a8294c1c50dda7c61df8f0ac8568076423
+Ancestor: 434384f669182847b1dda72d7d6768a02d41e967
+Author: obilodeau@inverse.ca
+Date: 2011-02-03T19:44:52
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/t/vlan.t
+
+ChangeLog: 
+
+test case reproducing #832
+
+-----------------------------------------------------------------
+Revision: 434384f669182847b1dda72d7d6768a02d41e967
+Ancestor: 1a3d8b11a3080bb9657bc09992fe17421723b5b4
+Author: obilodeau@inverse.ca
+Date: 2011-02-03T15:38:40
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS pf/lib/pf/lookup/node.pm
+
+ChangeLog: 
+
+Fixed warnings in node lookup. Fixes #1173
+- removal of the old last_... info taken from node
+- hardened all locationlog's fields regarding undef in strings
+- fixed locationlog test (this fixed the warnings)
+http://www.packetfence.org/bugs/view.php?id=1173
+
+-----------------------------------------------------------------
+Revision: 1a3d8b11a3080bb9657bc09992fe17421723b5b4
+Ancestor: 21ddc39a898b519063777978cf5510750e072c0b
+Author: obilodeau@inverse.ca
+Date: 2011-02-03T14:11:13
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/packetfence.spec
+
+ChangeLog: 
+
+fixing the package: removing unpackaged files docs/images/ from build
+
+-----------------------------------------------------------------
+Revision: 21ddc39a898b519063777978cf5510750e072c0b
+Ancestor: 5441ea7e4cb880a6574c7797b52ac70db8049360
+Author: obilodeau@inverse.ca
+Date: 2011-02-02T19:03:45
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/docs/docbook/README
+
+ChangeLog: 
+
+updated README with new instructions
+
+-----------------------------------------------------------------
+Revision: 5441ea7e4cb880a6574c7797b52ac70db8049360
+Ancestor: 11b934a62e059dbc5289fd38283b808d1659f162
+Author: obilodeau@inverse.ca
+Date: 2011-02-02T18:45:13
+Branch: org.packetfence.2_0
+
+Added files:
+        pf/docs/images/inverse-logo.png pf/docs/images/pf-logo.png
+Added directories:
+        pf/docs/images
+Modified files:
+        pf/docs/docbook/pf-devel-guide.xml
+        pf/docs/docbook/xsl/packetfence-fo.xsl
+        pf/docs/docbook/xsl/titlepage-fo.xml
+Modified attrs:
+        pf/docs/images/inverse-logo.png pf/docs/images/pf-logo.png
+
+ChangeLog: 
+
+Added PacketFence logo to the PDF output of the docbook developer guide
+
+-----------------------------------------------------------------
+Revision: 11b934a62e059dbc5289fd38283b808d1659f162
+Ancestor: cb6b3ff28bc5e7d2c5e7fe7c94ee4ac865d07d96
+Author: obilodeau@inverse.ca
+Date: 2011-02-02T17:31:18
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/docs/docbook/pf-devel-guide.xml
+
+ChangeLog: 
+
+now using docbook 4.5 (latest 4.x)
+added dots (.) at the end of revision history entries
+
+-----------------------------------------------------------------
+Revision: cb6b3ff28bc5e7d2c5e7fe7c94ee4ac865d07d96
+Ancestor: 59f84daa5c964286eacb05843ae20421fdd7dabd
+Author: obilodeau@inverse.ca
+Date: 2011-02-02T17:22:10
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS
+
+ChangeLog: 
+
+news entry for new doc
+
+-----------------------------------------------------------------
+Revision: 59f84daa5c964286eacb05843ae20421fdd7dabd
+Ancestor: 0ca35e33c99d2ab8a1656820484506c77600fbd9
+Author: obilodeau@inverse.ca
+Date: 2011-02-02T17:22:03
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/README.network-devices
+
+ChangeLog: 
+
+some precision regarding deauth
+
+-----------------------------------------------------------------
+Revision: 0ca35e33c99d2ab8a1656820484506c77600fbd9
+Ancestor: 17aa1c2841a38b2e636733a4c24b375ecfcc69c4
+Author: obilodeau@inverse.ca
+Date: 2011-02-02T17:20:43
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/docs/docbook/pf-devel-guide.xml
+
+ChangeLog: 
+
+Developer documentation update
+Reworked new switch support into a more general new network devices support. New content: Wireless Access-Points and Controllers, Switch support for MAC Auth and 802.1X, a new "add a network device to PacketFence" checklist and new exception handling techniques
+
+-----------------------------------------------------------------
+Revision: 17aa1c2841a38b2e636733a4c24b375ecfcc69c4
+Ancestor: 49b09cd04b8bf924c637bd00ddbb7dbcb377c0c4
+Author: obilodeau@inverse.ca
+Date: 2011-02-01T23:21:24
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/docs/docbook/pf-devel-guide.xml
+
+ChangeLog: 
+
+New content: a chapter on contributing, one on code conventions and a developer recipes one
+
+-----------------------------------------------------------------
+Revision: 49b09cd04b8bf924c637bd00ddbb7dbcb377c0c4
+Ancestor: 0616c52ef659593faada64573ec360015d5aa87f
+Author: obilodeau@inverse.ca
+Date: 2011-02-01T19:39:49
+Branch: org.packetfence.2_0
+
+Added files:
+        pf/docs/docbook/xsl/packetfence-fo.xsl
+        pf/docs/docbook/xsl/titlepage-fo.xml
+Added directories:
+        pf/docs/docbook/xsl
+Modified files:
+        .mtn-ignore
+
+ChangeLog: 
+
+Docbook layout improvements in PDF version
+- title page styling (mimick of current Devel guide)
+- added revision table
+- links now stand out 
+- grey code boxes with border
+
+-----------------------------------------------------------------
+Revision: 0616c52ef659593faada64573ec360015d5aa87f
+Ancestor: e1e889f53ce45c9007a8354be601c5c55fc425a4
+Author: obilodeau@inverse.ca
+Date: 2011-02-01T19:39:12
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/docs/docbook/pf-devel-guide.xml
+
+ChangeLog: 
+
+dropped some duplicated metadata
+better code section (CDATA handling and line wrapping)
+
+-----------------------------------------------------------------
+Revision: e1e889f53ce45c9007a8354be601c5c55fc425a4
+Ancestor: cea8487880b6937ded6f912f2f02f66043d568fe
+Author: obilodeau@inverse.ca
+Date: 2011-02-01T14:54:42
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS pf/conf/dhcp_fingerprints.conf
+
+ChangeLog: 
+
+New Nortel IP Phone DHCP Fingerprint
+
+-----------------------------------------------------------------
+Revision: 052cf0210f2b103fb6f5a2ba5559ba6555b2ac43
+Ancestor: 5725c8cfc614f430f759e033619800d00531e283
+Author: obilodeau@inverse.ca
+Date: 2011-02-01T14:30:11
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/packetfence.spec
+
+ChangeLog: 
+
+Explicitly remove docbook doc from package. For now.
+
+-----------------------------------------------------------------
+Revision: 0da8a3c022a12d435223d7927da4440a52620616
+Ancestor: 5725c8cfc614f430f759e033619800d00531e283
+Author: fgaudreault@inverse.ca
+Date: 2011-02-01T14:27:09
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/docs/PacketFenceZEN_Installation_Guide.odt
+
+ChangeLog: 
+
+Version bump in the ZEN documentation for 2.0.1
+
+-----------------------------------------------------------------
+Revision: 5725c8cfc614f430f759e033619800d00531e283
+Ancestor: 4ae89b06e5e43c01be8325ea3dcbd80591b145d2
+Author: obilodeau@inverse.ca
+Date: 2011-02-01T02:36:33
+Branch: org.packetfence.2_0
+
+Added files:
+        pf/docs/docbook/README pf/docs/docbook/additional-info.xml
+        pf/docs/docbook/commercial-support.xml
+        pf/docs/docbook/license.xml
+        pf/docs/docbook/pf-devel-guide.xml
+Added directories:
+        pf/docs/docbook
+
+ChangeLog: 
+
+Basic port of the PacketFence Developers Guide's ODT into Docbook XML
+
+-----------------------------------------------------------------
+Revision: 4ae89b06e5e43c01be8325ea3dcbd80591b145d2
+Ancestor: 70817085046f7c4c84b54645a67c7401ff69e3a9
+Author: obilodeau@inverse.ca
+Date: 2011-01-31T15:49:04
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/t/vlan.t
+
+ChangeLog: 
+
+forcing trapping.registration to enabled so that build systems will always perform the tests properly no matter the local configuration
+
+-----------------------------------------------------------------
+Revision: 70817085046f7c4c84b54645a67c7401ff69e3a9
+Ancestor: dc426faf5f54da892d078e09dfb3a07852468ce4
+Author: obilodeau@inverse.ca
+Date: 2011-01-31T15:33:35
+Branch: org.packetfence.2_0
+
+Added files:
+        pf/t/integration/radius.t
+Added directories:
+        pf/t/integration
+Modified files:
+        pf/t/TestUtils.pm pf/t/radius.t
+Modified attrs:
+        pf/t/integration/radius.t
+
+ChangeLog: 
+
+radius.t splited in two: 
+- one more intrusive and end-to-end (requires a db)
+- one more a la unit test
+
+-----------------------------------------------------------------
+Revision: dc426faf5f54da892d078e09dfb3a07852468ce4
+Ancestor: c906bf291a04e18756661f7660017a92788749a2
+Author: obilodeau@inverse.ca
+Date: 2011-01-31T15:31:58
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/t/vlan.t
+
+ChangeLog: 
+
+vlan.t was accessing the database because of a call that was not mocked (violation_view_top). It is now mocked and can be considered a side-effect free test now. well until we break it again ;)
+
+-----------------------------------------------------------------
+Revision: c906bf291a04e18756661f7660017a92788749a2
+Ancestor: 50e92bad38e180b4ed850ec3c78be2e58bc60657
+Author: obilodeau@inverse.ca
+Date: 2011-01-31T15:28:21
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/lib/pf/radius.pm
+
+ChangeLog: 
+
+added () to a method call because it's our standard and was apparently forgotten in this case
+
+-----------------------------------------------------------------
+Revision: 50e92bad38e180b4ed850ec3c78be2e58bc60657
+Ancestor: 08587682c2093b0932343ac15eb4c0e90a85919e
+Author: obilodeau@inverse.ca
+Date: 2011-01-28T19:46:09
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/packetfence.spec
+
+ChangeLog: 
+
+last change to finally nail #1014
+
+-----------------------------------------------------------------
+Revision: 08587682c2093b0932343ac15eb4c0e90a85919e
+Ancestor: 99814dfff4f2250cf9c0900e3cf28b938b5e8282
+Author: obilodeau@inverse.ca
+Date: 2011-01-28T19:39:31
+Branch: org.packetfence.2_0
+
+Deleted entries:
+        pf/conf/dhcpd
+Modified files:
+        pf/packetfence.spec
+
+ChangeLog: 
+
+Some leftovers from the change to fix #1014 (conf/ re-org into var/)
+
+-----------------------------------------------------------------
+Revision: 99814dfff4f2250cf9c0900e3cf28b938b5e8282
+Ancestor: 9d99e7c69d305b5e56e456997f44b52eb7afcf46
+Author: obilodeau@inverse.ca
+Date: 2011-01-28T18:44:47
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/packetfence.spec
+
+ChangeLog: 
+
+added release info in changelog
+
+-----------------------------------------------------------------
+Revision: 9d99e7c69d305b5e56e456997f44b52eb7afcf46
+Ancestor: fafec10ab0cc97ded65dcb73d229ed2a3b0af90c
+Author: obilodeau@inverse.ca
+Date: 2011-01-28T15:22:05
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/conf/templates/httpd.conf.apache22
+
+ChangeLog: 
+
+oops, var/run instead of var/pid.. related to #1014
+
+-----------------------------------------------------------------
+Revision: fafec10ab0cc97ded65dcb73d229ed2a3b0af90c
+Ancestor: 4470f92d630257240e0eb366d8b72a06090f99f9
+Author: obilodeau@inverse.ca
+Date: 2011-01-28T15:20:40
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/UPGRADE pf/conf/templates/httpd.conf.apache22
+        pf/conf/templates/httpd.conf.pre_apache22
+        pf/conf/templates/named_vlan.conf
+
+ChangeLog: 
+
+Configuration templates changes related to #1014
+They were left behind in yesterday's commit
+http://www.packetfence.org/bugs/view.php?id=1014
+
+-----------------------------------------------------------------
+Revision: 4470f92d630257240e0eb366d8b72a06090f99f9
+Ancestor: a1e4bd1cf906538bac7e49354c3484575aeb630e
+Author: obilodeau@inverse.ca
+Date: 2011-01-28T15:13:14
+Branch: org.packetfence.2_0
+
+Renamed entries:
+        pf/t/data.t to pf/t/dao/data.t
+        pf/t/graph.t to pf/t/dao/graph.t
+        pf/t/node.t to pf/t/dao/node.t
+        pf/t/report.t to pf/t/dao/report.t
+Modified files:
+        pf/t/TestUtils.pm pf/t/all.t pf/t/dao/data.t
+        pf/t/dao/graph.t pf/t/dao/node.t pf/t/dao/person.t
+        pf/t/dao/report.t pf/t/dao/setup.sql
+
+ChangeLog: 
+
+DAO test reorg
+- moved all tests I discovered were accessing the database into dao/
+- new test db hook in TestUtils
+- new db data required for some tests to pass
+- disabled 3 tests in graph since they would have needed the whole violation classes loaded into db (will work on it later)
+
+-----------------------------------------------------------------
+Revision: a1e4bd1cf906538bac7e49354c3484575aeb630e
+Ancestor: 8c64a571c31de0bbd41eca44f4f79b215e1ab85f
+Author: obilodeau@inverse.ca
+Date: 2011-01-28T15:09:18
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/t/nodecategory.t pf/t/pfcmd.t pf/t/pfsetvlan.t
+        pf/t/radius.t pf/t/vlan.t
+
+ChangeLog: 
+
+Loading the Log4perl configuration now uses a relative path. This will fix build system issues.
+Also reorganized imports, added a bit of POD and added Test::NoWarnings.
+
+-----------------------------------------------------------------
+Revision: 8c64a571c31de0bbd41eca44f4f79b215e1ab85f
+Ancestor: 9195836bedfdd355c13e0074a2d347c1eab25475
+Author: obilodeau@inverse.ca
+Date: 2011-01-28T13:53:46
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/t/floatingdevice.t
+
+ChangeLog: 
+
+Loading the Log4perl configuration now uses a relative path. This will fix build system issues.
+
+-----------------------------------------------------------------
+Revision: 9195836bedfdd355c13e0074a2d347c1eab25475
+Ancestor: 81a773e5e19d8e29bdb6115a36d29db3dd935faf
+Author: fgaudreault@inverse.ca
+Date: 2011-01-27T22:39:05
+Branch: org.packetfence.2_0
+
+Renamed entries:
+        pf/conf/named to pf/var/named
+Added directories:
+        pf/var/conf pf/var/run
+Modified files:
+        pf/NEWS pf/UPGRADE pf/lib/pf/config.pm pf/lib/pf/services.pm
+        pf/lib/pf/util.pm pf/packetfence.init pf/packetfence.spec
+
+ChangeLog: 
+
+migrated temporary files to var/
+- Generated configuration files are now in var/... fixes #1014
+- pid files are now in var/run/
+http://www.packetfence.org/bugs/view.php?id=1014
+
+-----------------------------------------------------------------
+Revision: 81a773e5e19d8e29bdb6115a36d29db3dd935faf
+Ancestor: 253c28d8b3d4028547795a397c113eb4544d3bbf
+Author: obilodeau@inverse.ca
+Date: 2011-01-27T22:29:13
+Branch: org.packetfence.2_0
+
+Renamed entries:
+        pf/conf/dhcpd/dhcpd.leases to pf/var/dhcpd/dhcpd.leases
+Added directories:
+        pf/var/dhcpd
+
+ChangeLog: 
+
+Added var/dhcpd/ and renamed lease to there
+
+-----------------------------------------------------------------
+Revision: 253c28d8b3d4028547795a397c113eb4544d3bbf
+Ancestor: f48143323e9ea08b3f2b5b5a82bcf73638f420c9
+Author: obilodeau@inverse.ca
+Date: 2011-01-27T22:28:14
+Branch: org.packetfence.2_0
+
+Modified files:
+        .mtn-ignore
+
+ChangeLog: 
+
+new excludes
+
+-----------------------------------------------------------------
+Revision: f48143323e9ea08b3f2b5b5a82bcf73638f420c9
+Ancestor: b2a1e548c1653fd04ca6768af6a4909a426d1299
+Author: obilodeau@inverse.ca
+Date: 2011-01-27T21:52:12
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/t/SNMP.t pf/t/SwitchFactory.t pf/t/binaries.t
+        pf/t/config.t pf/t/critic.t pf/t/data.t
+        pf/t/floatingdevice.t pf/t/graph.t
+        pf/t/hardware-snmp-objects.t pf/t/import.t
+        pf/t/network-devices/cisco.t pf/t/node.t pf/t/nodecategory.t
+        pf/t/pf.t pf/t/pfcmd.t pf/t/pfsetvlan.t pf/t/php.t
+        pf/t/pod.t pf/t/podCoverage.t pf/t/radius.t pf/t/report.t
+        pf/t/util.t pf/t/vlan.t
+
+ChangeLog: 
+
+Added POD license and copyright to all tests
+
+-----------------------------------------------------------------
+Revision: b2a1e548c1653fd04ca6768af6a4909a426d1299
+Ancestor: b3cb6a08584041daf1ab335ef093bc65c92487f4
+Author: obilodeau@inverse.ca
+Date: 2011-01-27T21:09:38
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/t/TestUtils.pm pf/t/all.t pf/t/smoke.t
+
+ChangeLog: 
+
+finished test rework
+- new failing test categories for test that I haven't got around to fix
+- fixed smoke tests
+
+-----------------------------------------------------------------
+Revision: b3cb6a08584041daf1ab335ef093bc65c92487f4
+Ancestor: 4c8394517644f19282368334711622c079d7ec57
+Author: obilodeau@inverse.ca
+Date: 2011-01-27T20:36:44
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/sbin/pfdhcplistener
+
+ChangeLog: 
+
+Fixed a "Integer with leading zeros" perl critic
+
+-----------------------------------------------------------------
+Revision: 4c8394517644f19282368334711622c079d7ec57
+Ancestor: b87895795d69d8c4a9fb3ac86728f45e3c63ab62
+Author: obilodeau@inverse.ca
+Date: 2011-01-27T20:34:03
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS pf/UPGRADE pf/lib/pf/web.pm
+
+ChangeLog: 
+
+Removed conf/templates/*.pl captive portal extensions
+Code cleanup to have some more perl critic test pass. Also the functionality was duplicated since the addition of pf::web::custom. Fixes 1165;
+http://www.packetfence.org/bugs/view.php?id=1165
+
+-----------------------------------------------------------------
+Revision: b87895795d69d8c4a9fb3ac86728f45e3c63ab62
+Ancestor: d0d1c8f393e2cdcaf09f2b5509bde730491b3d1b
+Author: obilodeau@inverse.ca
+Date: 2011-01-27T18:22:58
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/lib/pf/schedule.pm
+
+ChangeLog: 
+
+resolved perl critic reports with pf::schedule
+- return; instead of return undef; (avoids problems with list vs scalar context assumptions)
+- added strict and warnings pragmas
+
+-----------------------------------------------------------------
+Revision: d0d1c8f393e2cdcaf09f2b5509bde730491b3d1b
+Ancestor: 6c477965e103baf2159b0e2dcba217b4b9daf559
+Author: obilodeau@inverse.ca
+Date: 2011-01-27T18:13:48
+Branch: org.packetfence.2_0
+
+Added files:
+        pf/t/perlcriticrc
+Modified files:
+        pf/bin/pfcmd pf/t/critic.t
+
+ChangeLog: 
+
+perl critic for pfcmd is green
+- needed a perlcriticrc file to enable some policy options since we use run-time module checks
+- fixed a leading zero problem
+
+-----------------------------------------------------------------
+Revision: 6c477965e103baf2159b0e2dcba217b4b9daf559
+Ancestor: ed94bfa13bf93f2ce3d57644a0ff4f4f9f4ef7b7
+Author: obilodeau@inverse.ca
+Date: 2011-01-27T17:47:22
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/addons/dhcp_dumper
+
+ChangeLog: 
+
+Fixed a "Integer with leading zeros" perl critic
+
+-----------------------------------------------------------------
+Revision: ed94bfa13bf93f2ce3d57644a0ff4f4f9f4ef7b7
+Ancestor: 36359738f369fc57e660c125ffe0339ea1e792bc
+Author: obilodeau@inverse.ca
+Date: 2011-01-27T17:30:32
+Branch: org.packetfence.2_0
+
+Added files:
+        pf/t/TestUtils.pm
+Modified files:
+        pf/t/all.t
+
+ChangeLog: 
+
+Re-organized tests and created TestUtils.pm where we can store code to be shared among tests
+
+-----------------------------------------------------------------
+Revision: 36359738f369fc57e660c125ffe0339ea1e792bc
+Ancestor: 4d9614b4ec3b78fdaf483307eeee871a65cc3d72
+Author: obilodeau@inverse.ca
+Date: 2011-01-27T15:36:26
+Branch: org.packetfence.2_0
+
+Added files:
+        pf/t/dao/README pf/t/dao/person.t pf/t/dao/setup.sql
+Added directories:
+        pf/t/dao
+Modified files:
+        pf/NEWS pf/t/person.t
+Modified attrs:
+        pf/t/dao/person.t
+
+ChangeLog: 
+
+New DAO Tests that do real queries on a real test database
+removed old DBI Mock tests that were broken since a while in person.t
+
+-----------------------------------------------------------------
+Revision: 4d9614b4ec3b78fdaf483307eeee871a65cc3d72
+Ancestor: d0f5ad79a143040f32185ebd4ceb33bdc3a3d503
+Author: obilodeau@inverse.ca
+Date: 2011-01-26T20:24:10
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/NEWS
+
+ChangeLog: 
+
+NEWS entry for last commit (new dhcp fingerprints)
+
+-----------------------------------------------------------------
+Revision: d0f5ad79a143040f32185ebd4ceb33bdc3a3d503
+Ancestor: d753376bf65826924eab23a68baf4be816e2ff30
+Author: obilodeau@inverse.ca
+Date: 2011-01-26T20:08:30
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/conf/dhcp_fingerprints.conf
+
+ChangeLog: 
+
+Added Cisco IP Phone and Cisco Small Business switch fingerprints
+
+-----------------------------------------------------------------
+Revision: d753376bf65826924eab23a68baf4be816e2ff30
+Ancestor: 81a2f5e27992ea4bc48165b2cbab681c74dbeec3
+Author: obilodeau@inverse.ca
+Date: 2011-01-26T15:21:57
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/README.network-devices
+
+ChangeLog: 
+
+aligned the names with those on the website
+
+-----------------------------------------------------------------
+Revision: 81a2f5e27992ea4bc48165b2cbab681c74dbeec3
+Ancestor: 6d0f5450a0b254fb3c80f65d9d960940586d78a9
+Author: obilodeau@inverse.ca
+Date: 2011-01-26T15:17:20
+Branch: org.packetfence.2_0
+
+Modified files:
+        pf/README.network-devices
+
+ChangeLog: 
+
+added WiSM in the support table and clarified the text
+
+-----------------------------------------------------------------
+Revision: 6d0f5450a0b254fb3c80f65d9d960940586d78a9
+Ancestor: 429ab9a1fea6137cb241d0274b411d76a3352316
+Author: obilodeau@inverse.ca
+Date: 2011-01-26T14:17:05
+Branch: org.packetfence.2_0
+Tag: packetfence-2.0.1
+
+Modified files:
+        pf/ChangeLog
+
+ChangeLog: 
+
+Updated ChangeLog for 2.0.1 release
+
+-----------------------------------------------------------------
 Revision: 429ab9a1fea6137cb241d0274b411d76a3352316
 Ancestor: 73cd8bc74bf98041524092c762bee1d060bcf6ab
 Author: obilodeau@inverse.ca

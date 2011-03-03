@@ -536,6 +536,9 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Thu Mar 03 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 2.1.0-0
+- New release 2.1.0
+
 * Mon Feb 28 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added Brazilian Portugese translation files.
 
