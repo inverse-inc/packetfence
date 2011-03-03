@@ -59,6 +59,7 @@ Bug fixes
 - Warning avoidance in pf::vlan's doWeActOnThisTrap (#832)
 - pfcmd_vlan regressions (#1190)
 - Worked around an upstream packaging problem with SOAP::Lite (#1194)
+- Fixed a configurator issue that could cause broken configuration files (#776)
 
 Translations
 - New Brazilian Portuguese (pt_BR) translation (Thanks to Brivaldo Junior of 
