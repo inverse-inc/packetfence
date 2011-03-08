@@ -16,6 +16,9 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <release> - <codename> released on <releaseDate>
 
+Enhancements
+- New DHCP fingerprint for Cisco SPA series IP Phone
+
 Translations
 - New German (de) translation (Thanks to Tino Matysiak of Meetyoo Conferencing)
 
