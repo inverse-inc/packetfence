@@ -1,0 +1,211 @@
+domain "packetfence"
+
+msgid  "error: access denied not owner"
+msgstr "Zugriff verweigert: Sie sind nicht Besitzer von diesem Gerät!"
+
+msgid  "error: incorrect mode"
+msgstr "Falscher Modus!"
+
+msgid  "error: invalid login or password"
+msgstr "Ungültiger Benutzername oder Passwort"
+
+msgid  "error: invalid page number"
+msgstr "Ungültige Seitennummer"
+
+msgid  "error: max re-enables reached"
+msgstr "Maximale Anzahl an Aktivierungsversuchen wurde erreicht!"
+
+msgid  "error: not found in the database"
+msgstr "Ihr Computer wurde nicht in der PacketFence Datenbank gefunden. Bitte starten Sie ihren Computer neu, um das Problem zu beheben."
+
+msgid  "error: not trappable IP"
+msgstr "Zugriff Verweigert: Keine erfassbare IP-Adresse!"
+
+msgid  "error: only register max nodes"
+msgstr "Sie dürfen nur maximal %s Geräte registrieren!"
+
+msgid  "error: unable to validate credentials at the moment"
+msgstr "Die Anmeldeinformationen können im Moment nicht überprüft werden"
+
+msgid  "help: provide info"
+msgstr "Wenn Sie Fragen zu dieser Seite haben, wenden Sie sich an Ihren Systemadministrator für Unterstützung. Bitte stellen Sie folgende Informationen zur Verfügung:"
+
+msgid  "register: all systems must be registered"
+msgstr "Um Benutzer über einzelne Systeme zu kontaktieren, müssen alle Systeme in diesem Netzwerk registriert sein."
+
+msgid  "register: aup"
+msgstr "Der Registrierungsprozess erfordert die Akzeptierung der Nutzungsvereinbarung.  Wenn Sie diese Vereinbarung vor der Registrierung lesen wollen, besuchen Sie bitte folgende Seite:"
+
+msgid  "register: to complete"
+msgstr "Um den Registrierungsprozess abzuschließen, müssen Sie sich mit Ihrem Benutzernamen und Ihrem Passwort authentifizieren."
+
+msgid  "register: select authentications"
+msgstr "Wählen Sie eine Authentifizierungsmethode"
+
+msgid  "register: skip registration"
+msgstr "Registrierung überspringen"
+
+msgid  "release: enabling network"
+msgstr "Zugriff auf das Netzwerk wird aktiviert"
+
+msgid  "release: reopen browser"
+msgstr "Sie müssen möglicherweise Ihren Browser schließen und erneut öffnen."
+
+msgid  "scan: scan in progress"
+msgstr "Ihr System wird gerade auf Schwachstellen untersucht"
+
+msgid  "scan in progress contact support if too long"
+msgstr "Ihr System wird momentan noch auf Schwachstellen untersucht. Dieser Vorgang startete um %s. Normalerweise läuft dieser Vorgang nur einige Minuten. Wenn es doch länger dauern sollte, wenden Sie sich bitte an den Systemadministrator. Bitte stellen Sie folgende Informationen zur Verfügung:"
+
+msgid  "automatically refresh"
+msgstr "Diese Seite wird automatisch alle %s Sekunden neu geladen, um sicherzustellen, dass der Systemscan abgeschlossen wurde."
+
+msgid  "Acceptable Use Policy"
+msgstr "Nutzungsvereinbarung"
+
+msgid  "Addresses"
+msgstr "Adressen"
+
+msgid  "De-register node"
+msgstr "Gerät löschen"
+
+msgid  "Enabling ..."
+msgstr "Aktivieren ..."
+
+msgid  "Scanning ..."
+msgstr "Scannen ..."
+
+msgid  "Gateway"
+msgstr "Gateway"
+
+msgid  "grace"
+msgstr "temporärer Zugriff"
+
+msgid  "Hostname"
+msgstr "Hostname"
+
+msgid  "IP"
+msgstr "IP Adresse"
+
+msgid  "Login"
+msgstr "Login"
+
+msgid  "MAC"
+msgstr "MAC"
+
+msgid  "network access is being enabled"
+msgstr "Ihr Netzwerkzugang wird gerade aktiviert - dieser Prozess wird wahrscheinlich %s Sekunden in Anspruch nehmen."
+
+msgid  "system scan in progress"
+msgstr "Ihr System wird gescannt - dieser Prozess wird wahrscheinlich %s Sekunden in Anspruch nehmen."
+
+msgid  "Node"
+msgstr "Gerät"
+
+msgid  "PacketFence Registration System"
+msgstr "PacketFence Registrierungs-System"
+
+msgid  "Password"
+msgstr "Passwort"
+
+msgid  "PID"
+msgstr "Besitzer"
+
+msgid  "Print this page"
+msgstr "Seite drucken"
+
+msgid  "reg"
+msgstr "registriert"
+
+msgid  "Sorry"
+msgstr "Entschuldigung!"
+
+msgid  "Status"
+msgstr "Status"
+
+msgid  "unknown"
+msgstr "unbekannt"
+
+msgid  "unreg"
+msgstr "nicht registriert"
+
+msgid  "Username"
+msgstr "Benutzername"
+
+msgid  "Violations"
+msgstr "Verstoß"
+
+msgid  "Quarantine Established!"
+msgstr "Quarantäne eingerichtet!"
+
+msgid  "Registration Notification"
+msgstr "Registrierungsbenachrichtigung"
+
+msgid  "Additional Assistance"
+msgstr "Zusätzliche Unterstützung"
+
+msgid  "If your network connectivity becomes permanently disabled or you are unable to follow the instructions above, please contact your local IT support staff for assistance."
+msgstr "Wenn Ihre Netzwerkverbindung dauerhaft getrennt ist oder Sie nicht in der Lage sind, den oben genannten Anweisungen zu folgen, wenden Sie sich bitte an Ihren Systemadministrator."
+
+msgid  "The following information should be provided upon request:"
+msgstr "Folgende Informationen sollten für die Anfrage zur Verfügung gestellt werden:"
+
+msgid  "IP Address"
+msgstr "IP Adresse"
+
+msgid  "MAC Address"
+msgstr "MAC Adresse"
+
+msgid  "Banned Operating System"
+msgstr "Verbotenes Betriebssystem"
+
+msgid  "You have been detected using an operating system not allowed on the network. Please install a more recent operating system"
+msgstr "Es wurde bei Ihnen erkannt, dass Sie ein Betriebssystem nutzen, was in diesem Netzwerk verboten ist. Bitte installieren Sie ein aktuelleres Betriebssystem"
+
+msgid  "Darknet Violation"
+msgstr "Es wurde erkannt, dass Ihr Gerät Daten zu einem unbekannten Netzwerk versendet (Darknet). Dies ist ein meistens ein Anzeichen für einen Befall mit Schadsoftware."
+
+msgid  "Your system will likely need to be rebuilt. Please contact your local support staff for more information."
+msgstr "Das Betriebssystem muss wahrscheinlich neu installiert werden. Bitte wenden Sie sich an den Systemadministrator für weitere Informationen."
+
+msgid  "Windows patches are not up to date"
+msgstr "Windows-Updates sind nicht auf dem neuesten Stand"
+
+msgid  "Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken. Instructions for disinfection are below:"
+msgstr "Da dies eine Gefahr für andere Systeme im Netzwerk darstellt, wird aus diesem Grund Ihre Netzwrkverbindung getrennt, bis diese Gefahr nicht mehr besteht. Befolgen Sie folgende Anweisungen für die Desinfektion:"
+
+msgid  "Generic"
+msgstr "Generic"
+
+msgid  "Network connectivity has been disabled."
+msgstr "Die Netzwerkverbindung wurde deaktiviert."
+
+msgid  "Please contact your support staff for more information."
+msgstr "Bitte kontaktieren Sie den Systemadministrator für weitere Informationen."
+
+msgid  "Hub Detection"
+msgstr "Hub-Erkennung"
+
+msgid  "You have been detected using a hub. Such device is not permitted on the network.  Please remove it."
+msgstr "Es wurde erkannt, dass Sie über einen Hub mit dem Netzwerk verbunden sind. Solche Geräte sind in diesem Netzwerk nicht gestattet. Bitte entfernen Sie den Hub."
+
+msgid  "Peer-to-Peer"
+msgstr "Peer-to-Peer"
+
+msgid  "You have been detected using a peer-to-peer file sharing application. Such software is not permitted on the network.  Please uninstall the infringing software."
+msgstr "Es wurde erkannt, dass Sie ein File-Sharing (P2P) Programm benutzen. Solch ein Programm ist in diesem Netzwerk nicht gestattet.  Bitte deinstallieren Sie die betroffene Software."
+
+msgid  "System Scanning"
+msgstr "Systemscan"
+
+msgid  "Your system has been found to be scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgstr "Es wurde erkannt, dass Ihr System andere Gerät im Netzwerk scannt. Da dies eine Gefahr für andere Systeme im Netzwerk darstellt, wird aus diesem Grund Ihre Netzwrkverbindung getrennt, bis diese Gefahr nicht mehr besteht."
+
+msgid  "Spamming"
+msgstr "Spammen"
+
+msgid  "Your system has been found to be sending unsolicited commercial email (UCE, or \"spam\") to other systems. Due to the threat this poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgstr "Es wurde erkannt, dass Ihr System Werbe- oder Spam-Emails an andere Geräte versendet. Da dies eine Gefahr für andere Systeme im Netzwerk darstellt, wird aus diesem Grund Ihre Netzwrkverbindung getrennt, bis diese Gefahr nicht mehr besteht."
+
+msgid  "Your system may need to be rebuilt. Please contact your local support staff for more information."
+msgstr "Ihr System muss womöglich neu installiert werden. Bitte wenden Sie sich an Ihren Systemadministrator für weitere Informationen."

@@ -33,7 +33,7 @@
 #
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 2.1.0
+Version: 2.1.1
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -160,6 +160,8 @@ server.
 mv pfcmd_pregrammar.pm lib/pf/pfcmd/
 
 # generate translations
+/usr/bin/msgfmt conf/locale/de/LC_MESSAGES/packetfence.po
+mv packetfence.mo conf/locale/de/LC_MESSAGES/
 /usr/bin/msgfmt conf/locale/en/LC_MESSAGES/packetfence.po
 mv packetfence.mo conf/locale/en/LC_MESSAGES/
 /usr/bin/msgfmt conf/locale/es/LC_MESSAGES/packetfence.po
@@ -392,6 +394,10 @@ fi
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
 %dir                    /usr/local/pf/conf/locale
+%dir                    /usr/local/pf/conf/locale/de
+%dir                    /usr/local/pf/conf/locale/de/LC_MESSAGES
+%config(noreplace)      /usr/local/pf/conf/locale/de/LC_MESSAGES/packetfence.po
+%config(noreplace)      /usr/local/pf/conf/locale/de/LC_MESSAGES/packetfence.mo
 %dir                    /usr/local/pf/conf/locale/en
 %dir                    /usr/local/pf/conf/locale/en/LC_MESSAGES
 %config(noreplace)      /usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.po
@@ -536,6 +542,11 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Mon Mar 07 2011 Olivier Bilodeau <obilodeau@inverse.ca>
+- Bumped version so that snapshots versions will be greater than latest
+  released version
+- Added German translation files
+
 * Thu Mar 03 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 2.1.0-0
 - New release 2.1.0
 
