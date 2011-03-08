@@ -49,10 +49,10 @@ Vendor: PacketFence, http://www.packetfence.org
 %define is_release %{?snapshot:0}%{!?snapshot:1}
 %if %{is_release}
 # used for official releases
-Source: http://prdownloads.sourceforge.net/packetfence/%{name}-%{version}.tar.gz
+Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}.tar.gz
 %else
 # used for snapshot releases
-Source: http://www.packetfence.org/downloads/%{name}-%{version}-%{source_release}.tar.gz
+Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}-%{source_release}.tar.gz
 %endif
 
 # FIXME change all perl Requires: into their namespace counterpart, see what happened in #931 and
