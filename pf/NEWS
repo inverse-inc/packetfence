@@ -19,6 +19,10 @@ Version <release> - <codename> released on <releaseDate>
 Enhancements
 - New DHCP fingerprint for Cisco SPA series IP Phone
 
+Bug Fixes
+- Fixed an issue with pfcmd-initiated VLAN re-evaluation if you assign VLANs 
+  based on a client's connection-type (which is not the default)
+
 Translations
 - New German (de) translation (Thanks to Tino Matysiak of Meetyoo Conferencing)
 
