@@ -9,11 +9,12 @@ pf::SNMP::Cisco::Catalyst_2950 - Object oriented module to access and configure 
 The minimum required firmware version is 12.1(22)EA10.
 
 Supports
- 802.1X with or without VoIP
- Port-Security without VoIP
- MAC notifications with VoIP
+  802.1X with or without VoIP
+  Port-Security without VoIP
+  MAC notifications with VoIP
+
 Untested
- RADIUS VoIP authorization (we relied on CDP discovery instead)
+  RADIUS VoIP authorization (we relied on CDP discovery instead)
 
 This module extends pf::SNMP::Cisco.
 

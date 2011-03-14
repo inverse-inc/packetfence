@@ -2459,7 +2459,7 @@ sub vlan_reevaluation {
             my $switch_ip = $locationlog_entry->{'switch'};
             my $ifIndex = $locationlog_entry->{'port'};
             my $currentVlan = $locationlog_entry->{'vlan'};
-            my $connection_type = $locationlog_entry->{'connection_type'};
+            my $connection_type = str_to_connection_type($locationlog_entry->{'connection_type'});
             my $user_name = $locationlog_entry->{'dot1x_username'};
             my $ssid = $locationlog_entry->{'ssid'};
 

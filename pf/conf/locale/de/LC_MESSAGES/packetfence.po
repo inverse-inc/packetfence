@@ -1,4 +1,20 @@
+# de translation for PacketFence
+# Copyright (C) 2011 Inverse inc.
+# This file is distributed under the same license as the PacketFence project.
+# Tino Matysiak <tmatysiak@meetyoo.de>, 2011.
+#
 domain "packetfence"
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PacketFence\n"
+"PO-Revision-Date: 2011-03-08 14:43-0400\n"
+"Last-Translator: Tino Matysiak <tmatysiak@meetyoo.de>\n"
+"Language-Team: PacketFence support <support@packetfence.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;"
 
 msgid  "error: access denied not owner"
 msgstr "Zugriff verweigert: Sie sind nicht Besitzer von diesem Gerät!"

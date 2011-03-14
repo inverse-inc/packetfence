@@ -72,6 +72,7 @@ sub nodes {
         $logger->logdie("Nodes import expects first column of first row to be a MAC address. Not processing file.");
     }
 
+    # TODO extract these in parameters under [import] in pf.conf
     # pre-compute info hash
     my %info = (
         notes => POSIX::strftime("Imported on %Y-%m-%d %H:%M:%S", localtime(time))
@@ -96,7 +97,8 @@ sub nodes {
             # or if entry is valid and node is not registered 
             if (!defined($node) || (ref($node) eq 'HASH' && $node->{'status'} ne $pf::node::STATUS_REGISTERED)) {
                 # try to register
-                if (node_register($mac, $default_pid, %info)) {
+                my $pid = $info{'pid'} || $default_pid;
+                if (node_register($mac, $pid, %info)) {
                     printf("%04d: %s registered\n", $line, $mac);
                 } else {
                     $logger->warn("Problem with entry on line $line MAC $mac: node_register returned an error");
@@ -122,7 +124,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2010,2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
