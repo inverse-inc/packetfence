@@ -20,6 +20,7 @@ Enhancements
 - New DHCP fingerprint for Cisco SPA series IP Phone
 
 Bug Fixes
+- Wired 802.1X and MAC Authentication fixes in Network Devices Guide
 - Fixed an issue with pfcmd-initiated VLAN re-evaluation if you assign VLANs 
   based on a client's connection-type (which is not the default)
 
