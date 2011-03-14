@@ -1,4 +1,20 @@
+# fr translation for PacketFence
+# Copyright (C) 2006-2011 Inverse inc.
+# This file is distributed under the same license as the PacketFence project.
+# Olivier Bilodeau <obilodeau@inverse.ca>, 2011.
+#
 domain "packetfence"
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PacketFence\n"
+"PO-Revision-Date: 2010-11-10 15:16-0400\n"
+"Last-Translator: Olivier Bilodeau <obilodeau@inverse.ca>\n"
+"Language-Team: PacketFence support <support@packetfence.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n>1;"
 
 msgid  "error: access denied not owner"
 msgstr "Acc&egrave;s refus&eacute;: vous n'&ecirc;tes pas le propri&eacute;taire de ce noeud!"
