@@ -1,6 +1,6 @@
 <?php
 /**
- * TODO short desc
+ * common.php: The Web Admin interface's main library
  *
  * TODO long desc
  * 
@@ -20,7 +20,8 @@
  * USA.
  * 
  * @author      Olivier Bilodeau <obilodeau@inverse.ca>
- * @copyright   2008-2010 Inverse inc.
+ * @author      Francois Gaudreault <fgaudreault@inverse.ca>
+ * @copyright   2008-2011 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
@@ -1119,7 +1120,7 @@ function PrintSubNav($menu){
     }
     $new = array();
     foreach($new_unknowns as $new_unknown){
-      $new[$new_unknown['dhcp_fingerprint']] = $new_unknown['vendor'];
+      $new[$new_unknown['dhcp_fingerprint']] = $new_unknown['vendor'] . ":" . $new_unknown['computername'] . ":" . $new_unknown['user_agent'];
     }
 
     # These next few lines kept track of what fingerprints have been submitted.
@@ -1133,14 +1134,14 @@ function PrintSubNav($menu){
     if(count($diff)>0){
      $_SESSION['ui_global_prefs']['shared_fingerprints']=array_merge($current, $diff);
       save_global_prefs_to_file();
-      foreach($diff as $fprint => $vendor){
-        $content.= "$fprint:$vendor\n";
+      foreach($diff as $fprint => $details){
+        $content.= "$fprint:$details\n";
       }
 
-      print "<form name='share_fingerprints' method='POST' action='http://www.packetfence.org/fingerprints.php?ref=$abs_url/$current_top/$current_sub.php'>";
-      print "  <input type='hidden' name='fingerprints' value='$content'>";
-      print "</form>";
-      print "<script>document.share_fingerprints.submit()</script>";
+      $msg .= "<form name='share_fingerprints' method='POST' action='http://www.packetfence.org/fingerprintsv2.php?ref=$abs_url/$current_top/$current_sub.php'>";
+      $msg .= "  <input type='hidden' name='fingerprints' value='$content'>";
+      $msg .= "</form>";
+      $msg .= "<script>document.share_fingerprints.submit()</script>";
     }
     else{
       $msg .= "No new unknown fingerprints to share.";
