@@ -58,6 +58,7 @@ sub getVersion {
     if ( $sysDescr =~ m/Version (\d+\.\d+-\d+)/ ) {
         return $1;
     } else {
+        $logger->warn("couldn't extract exact version information, returning SNMP System Description instead");
         return $sysDescr;
     }
 }
