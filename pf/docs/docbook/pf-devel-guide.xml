@@ -582,8 +582,19 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
         <para>You need to implement at least:</para>
         <itemizedlist>
           <listitem><para><function>getVersion()</function> - fetch firmware version</para></listitem>
-          <listitem><para><function>extractSsid()</function> - extract SSID from RADIUS Request</para></listitem>
+          <listitem><para><function>parseTrap()</function>
+            - parses the SNMP Traps sent by the hardware. 
+            For wireless hardware an empty method like in <classname>pf::Meru</classname> is ok.
+          </para></listitem>
           <listitem><para><function>deauthenticateMac()</function> - performs deauthentication</para></listitem>
+        </itemizedlist>
+      </sect2>
+
+      <sect2>
+        <title>Override methods</title>
+        <para>If default implementation of the following methods doesn't work you will need to override them:</para>
+        <itemizedlist>
+          <listitem><para><function>extractSsid()</function> - extract SSID from RADIUS Request</para></listitem>
         </itemizedlist>
       </sect2>
         
