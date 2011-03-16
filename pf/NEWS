@@ -23,6 +23,7 @@ Enhancements
 - New DHCP fingerprint for Cisco SPA series IP Phone
 - DHCP fingerprints sharing now allows submitter to send computer name, user-
   agent and a contact email to help us identify the devices better (#983)
+- Updated Developer documentation regarding how to support new wireless hardware
 
 Bug Fixes
 - Wired 802.1X and MAC Authentication fixes in Network Devices Guide
