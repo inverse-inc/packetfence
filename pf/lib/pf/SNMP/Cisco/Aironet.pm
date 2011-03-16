@@ -28,18 +28,27 @@ use strict;
 use warnings;
 use diagnostics;
 
-use base ('pf::SNMP::Cisco');
-use Log::Log4perl;
 use Carp;
+use Log::Log4perl;
 use Net::Appliance::Session;
 use Net::SNMP;
-use Data::Dumper;
+
+use base ('pf::SNMP::Cisco');
+
+use pf::config;
 
 =head1 SUBROUTINES
 
 TODO: This list is incomplete
 
 =over
+
+=cut
+
+# CAPABILITIES
+# access technology supported
+sub supportsWirelessDot1x { return $TRUE; }
+sub supportsWirelessMacAuth { return $TRUE; }
 
 =item deauthenticateMac
 

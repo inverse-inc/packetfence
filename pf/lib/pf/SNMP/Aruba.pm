@@ -2,12 +2,12 @@ package pf::SNMP::Aruba;
 
 =head1 NAME
 
-pf::SNMP::Aruba - Object oriented module to access SNMP enabled Aruba switches
+pf::SNMP::Aruba
 
 =head1 SYNOPSIS
 
 The pf::SNMP::Aruba module implements an object oriented interface
-to access SNMP enabled Aruba switches.
+to access and manage Aruba Wireless Controllers.
 
 =cut
 
@@ -35,6 +35,8 @@ use base ('pf::SNMP');
 use POSIX;
 use Log::Log4perl;
 use Net::Telnet;
+
+use pf::config;
 use pf::util;
 
 =head1 SUBROUTINES
@@ -42,6 +44,13 @@ use pf::util;
 TODO: this list is incomplete
 
 =over
+
+=cut
+
+# CAPABILITIES
+# access technology supported
+sub supportsWirelessDot1x { return $TRUE; }
+sub supportsWirelessMacAuth { return $TRUE; }
 
 =item getVersion - obtain image version information from switch
 
@@ -315,7 +324,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009,2010 Inverse inc.
+Copyright (C) 2009-2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

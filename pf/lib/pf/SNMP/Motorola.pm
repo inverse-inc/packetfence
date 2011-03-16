@@ -45,6 +45,13 @@ use pf::util;
 
 =over
 
+=cut
+
+# CAPABILITIES
+# access technology supported
+sub supportsWirelessDot1x { return $TRUE; }
+sub supportsWirelessMacAuth { return $TRUE; }
+
 =item getVersion
 
 obtain image version information from switch

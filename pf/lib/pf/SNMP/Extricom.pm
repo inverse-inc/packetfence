@@ -2,7 +2,11 @@ package pf::SNMP::Extricom;
 
 =head1 NAME
 
-pf::SNMP::Extricom - Object oriented module to parse SNMP traps and manage Extricom Wireless Switches
+pf::SNMP::Extricom
+
+=head1 SYNOPSIS
+
+Module to parse SNMP traps and manage Extricom Wireless Switches
 
 =head1 STATUS
 
@@ -20,12 +24,13 @@ use strict;
 use warnings;
 use diagnostics;
 
-use base ('pf::SNMP');
-use Log::Log4perl;
 use Carp;
+use Log::Log4perl;
 use Net::SNMP;
-use pf::config;
 
+use base ('pf::SNMP');
+
+use pf::config;
 # importing switch constants
 use pf::SNMP::constants;
 use pf::util;
@@ -33,6 +38,13 @@ use pf::util;
 =head1 SUBROUTINES
 
 =over
+
+=cut
+
+# CAPABILITIES
+# access technology supported
+sub supportsWirelessDot1x { return $TRUE; }
+sub supportsWirelessMacAuth { return $TRUE; }
 
 =item getVersion
 

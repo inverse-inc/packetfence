@@ -2,7 +2,7 @@ package pf::SNMP::Xirrus;
 
 =head1 NAME
 
-pf::SNMP::Xirrus - Object oriented module to parse SNMP traps and manage Xirrus Wireless Access Points
+pf::SNMP::Xirrus
 
 =head1 SYNOPSIS
 
@@ -24,9 +24,12 @@ use strict;
 use warnings;
 use diagnostics;
 
-use base ('pf::SNMP');
-use POSIX;
 use Log::Log4perl;
+use POSIX;
+
+use base ('pf::SNMP');
+
+use pf::config;
 use pf::util;
 
 =head1 SUBROUTINES
@@ -34,6 +37,13 @@ use pf::util;
 TODO: this list is incomplete
 
 =over
+
+=cut
+
+# CAPABILITIES
+# access technology supported
+sub supportsWirelessDot1x { return $TRUE; }
+sub supportsWirelessMacAuth { return $TRUE; }
 
 =item getVersion
 

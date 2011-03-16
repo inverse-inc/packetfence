@@ -31,6 +31,9 @@ Bug Fixes
 - Fixed DHCP fingerprint sharing upload form
 - Fixed Web Admin which referred to an inexistent Meru MC3000 module (it was 
   renamed Meru::MC in 2.0.1)
+- Fixed an issue with the Meru module: If the controller sent SNMP traps to 
+  PacketFence a thread would crash. Hopefully this configuration is not 
+  required and is rarely done. Regression prevention tests have been added.
 
 Translations
 - New German (de) translation (Thanks to Tino Matysiak of Meetyoo Conferencing)
