@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use Test::Pod;
-use Test::More tests => 624;
+use Test::More tests => 632;
 
 my @files = (
     '/usr/local/pf/addons/accounting.pl',
@@ -124,6 +124,8 @@ my @files = (
     '/usr/local/pf/lib/pf/SNMP/Meru.pm',
     '/usr/local/pf/lib/pf/SNMP/Meru/MC.pm',
     '/usr/local/pf/lib/pf/SNMP/MockedSwitch.pm',
+    '/usr/local/pf/lib/pf/SNMP/Motorola.pm',
+    '/usr/local/pf/lib/pf/SNMP/Motorola/RFS.pm',
     '/usr/local/pf/lib/pf/SNMP/Nortel/BayStack4550.pm',
     '/usr/local/pf/lib/pf/SNMP/Nortel/BayStack470.pm',
     '/usr/local/pf/lib/pf/SNMP/Nortel/BayStack5500.pm',
