@@ -24,6 +24,12 @@
 
     <revhistory>
       <revision>
+        <revnumber>2.4</revnumber>
+        <date>2011-03-16</date>
+        <authorinitials>OBU</authorinitials>
+        <revremark>Updated wireless hardware support instructions and checklist</revremark>
+      </revision>
+      <revision>
         <revnumber>2.3</revnumber>
         <date>2011-02-10</date>
         <authorinitials>OBU</authorinitials>
@@ -578,12 +584,35 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
       </sect2>
 
       <sect2>
+        <title>Template module</title>
+        <para>
+          Start with a copy of the template module <filename>pf/lib/pf/SNMP/WirelessModuleTemplate.pm</filename>
+          and fill in appropriate documentation and code.
+        </para>
+      </sect2>
+
+      <sect2>
         <title>Required methods</title>
         <para>You need to implement at least:</para>
         <itemizedlist>
           <listitem><para><function>getVersion()</function> - fetch firmware version</para></listitem>
-          <listitem><para><function>extractSsid()</function> - extract SSID from RADIUS Request</para></listitem>
+          <listitem><para><function>parseTrap()</function>
+            - parses the SNMP Traps sent by the hardware. 
+            For wireless hardware an empty method like the one in 
+            <classname>pf::SNMP::WirelessModuleTemplate</classname> is ok.
+          </para></listitem>
           <listitem><para><function>deauthenticateMac()</function> - performs deauthentication</para></listitem>
+          <listitem><para><function>supportsWirelessMacAuth()</function>, <function>supportsWirelessDot1x()</function>
+            - based on what the hardware supports
+          </para></listitem>
+        </itemizedlist>
+      </sect2>
+
+      <sect2>
+        <title>Override methods</title>
+        <para>If default implementation of the following methods doesn't work you will need to override them:</para>
+        <itemizedlist>
+          <listitem><para><function>extractSsid()</function> - extract SSID from RADIUS Request</para></listitem>
         </itemizedlist>
       </sect2>
         
@@ -600,10 +629,6 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
         <listitem><para>Add it to 
           <filename>pf/html/admin/configuration/switches_add.php</filename> and 
           <filename>switches_edit.php</filename></para>
-        </listitem>
-        <listitem><para>Add it to the test suite: 
-          <filename>t/hardware-snmp-objects.t</filename>, <filename>t/critic.t</filename>, 
-          <filename>t/pod.t</filename>, <filename>t/coding-style.t</filename></para>
         </listitem>
         <listitem><para>Make sure that all tests pass</para></listitem> 
         <listitem><para>Add configuration documentation to the Network Devices Guide</para></listitem> 

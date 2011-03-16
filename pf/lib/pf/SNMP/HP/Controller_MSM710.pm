@@ -2,12 +2,11 @@ package pf::SNMP::HP::Controller_MSM710;
 
 =head1 NAME
 
-pf::SNMP::HP::Controller_MSM710 - Object oriented module to access SNMP enabled HP Procurve Controller MSM710
+pf::SNMP::HP::Controller_MSM710
 
 =head1 SYNOPSIS
 
-The pf::SNMP::HP::Controller_MSM710 module implements an object oriented interface
-to access SNMP enabled HP Procurve Controller MSM710
+The pf::SNMP::HP::Controller_MSM710 module manages access to HP Procurve Controller MSM710
 
 =cut
 
@@ -15,11 +14,13 @@ use strict;
 use warnings;
 use diagnostics;
 
-use base ('pf::SNMP::HP');
-use POSIX;
 use Log::Log4perl;
 use Net::Telnet;
+use POSIX;
 
+use base ('pf::SNMP::HP');
+
+use pf::config;
 # importing switch constants
 use pf::SNMP::constants;
 use pf::util;
@@ -27,6 +28,13 @@ use pf::util;
 =head1 SUBROUTINES
 
 =over
+
+=cut
+
+# CAPABILITIES
+# access technology supported
+sub supportsWirelessDot1x { return $TRUE; }
+sub supportsWirelessMacAuth { return $TRUE; }
 
 =item getVersion - obtain image version information from switch
 
@@ -160,7 +168,9 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2010-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

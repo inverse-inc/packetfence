@@ -2,22 +2,30 @@ package pf::SNMP::Dlink::DWS_3026;
 
 =head1 NAME
 
-pf::SNMP::Dlink::DWS_3026 - Object oriented module to access SNMP enabled
-Dlink DWS 3026 controler
+pf::SNMP::Dlink::DWS_3026
 
 =head1 SYNOPSIS
 
 The pf::SNMP::Dlink::DWS_3026 module implements an object oriented interface
-to access SNMP enabled Dlink DWS 3026 controler.
+to manage Dlink DWS 3026 controller.
 
 =cut
 
 use strict;
 use warnings;
 use diagnostics;
+
 use Log::Log4perl;
 use Net::SNMP;
+
 use base ('pf::SNMP::Dlink');
+
+use pf::config;
+
+# CAPABILITIES
+# access technology supported
+sub supportsWirelessDot1x { return $TRUE; }
+sub supportsWirelessMacAuth { return $TRUE; }
 
 sub deauthenticateMac {
     my ( $this, $mac ) = @_;
@@ -137,11 +145,15 @@ sub isVoIPEnabled {
 
 =head1 AUTHOR
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009 Inverse inc.
+Copyright (C) 2009-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

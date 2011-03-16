@@ -51,7 +51,7 @@ sub supportsFloatingDevice {
 
 =item supportsWiredMacAuth 
 
-Returns 1 if switch type supports MAC Authentication (Wired Access Authorization through RADIUS)
+Returns 1 if switch type supports Wired MAC Authentication (Wired Access Authorization through RADIUS)
 
 =cut
 sub supportsWiredMacAuth {
@@ -74,6 +74,36 @@ sub supportsWiredDot1x {
 
     $logger->error(
         "Wired 802.1X is not supported on switch type " . ref($this) . ". "
+        . "Please let us know what hardware you are using."
+    );
+    return $FALSE;
+}
+
+=item supportsWirelessMacAuth 
+
+Returns 1 if switch type supports Wireless MAC Authentication (RADIUS Authentication)
+
+=cut
+sub supportsWirelessMacAuth {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error(
+        "Wireless MAC Authentication is not supported on switch type " . ref($this) . ". "
+        . "Please let us know what hardware you are using."
+    );
+    return $FALSE;
+}
+
+=item supportsWirelessDot1x - Returns 1 if switch type supports Wireless 802.1X (aka WPA-Enterprise)
+
+=cut
+sub supportsWirelessDot1x {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error(
+        "Wireless 802.1X (WPA-Enterprise) is not supported on switch type " . ref($this) . ". "
         . "Please let us know what hardware you are using."
     );
     return $FALSE;

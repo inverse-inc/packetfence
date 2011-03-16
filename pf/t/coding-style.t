@@ -12,7 +12,10 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 232;
+use Test::More;
+use Test::NoWarnings;
+
+use TestUtils;
 
 # TODO we should have a global file list
 my @files = (
@@ -67,91 +70,6 @@ my @files = (
     '/usr/local/pf/lib/pf/schedule.pm',
     '/usr/local/pf/lib/pf/services.pm',
     '/usr/local/pf/lib/pf/services/apache.pm',
-    '/usr/local/pf/lib/pf/SNMP/Accton/ES3526XA.pm',
-    '/usr/local/pf/lib/pf/SNMP/Accton/ES3528M.pm',
-    '/usr/local/pf/lib/pf/SNMP/Accton.pm',
-    '/usr/local/pf/lib/pf/SNMP/Amer.pm',
-    '/usr/local/pf/lib/pf/SNMP/Amer/SS2R24i.pm',
-    '/usr/local/pf/lib/pf/SNMP/Aruba/Controller_200.pm',
-    '/usr/local/pf/lib/pf/SNMP/Aruba.pm',
-    '/usr/local/pf/lib/pf/SNMP/Avaya.pm',
-    '/usr/local/pf/lib/pf/SNMP/Avaya/ERS5500.pm',
-    '/usr/local/pf/lib/pf/SNMP/Avaya/ERS5500_6x.pm',
-    '/usr/local/pf/lib/pf/SNMP/Cisco.pm',
-    '/usr/local/pf/lib/pf/SNMP/Cisco/Aironet_1130.pm',
-    '/usr/local/pf/lib/pf/SNMP/Cisco/Aironet_1242.pm',
-    '/usr/local/pf/lib/pf/SNMP/Cisco/Aironet_1250.pm',
-    '/usr/local/pf/lib/pf/SNMP/Cisco/Aironet.pm',
-    '/usr/local/pf/lib/pf/SNMP/Cisco/Catalyst_2900XL.pm',
-    '/usr/local/pf/lib/pf/SNMP/Cisco/Catalyst_2950.pm',
-    '/usr/local/pf/lib/pf/SNMP/Cisco/Catalyst_2960.pm',
-    '/usr/local/pf/lib/pf/SNMP/Cisco/Catalyst_2970.pm',
-    '/usr/local/pf/lib/pf/SNMP/Cisco/Catalyst_3500XL.pm',
-    '/usr/local/pf/lib/pf/SNMP/Cisco/Catalyst_3550.pm',
-    '/usr/local/pf/lib/pf/SNMP/Cisco/Catalyst_3560.pm',
-    '/usr/local/pf/lib/pf/SNMP/Cisco/Catalyst_3750.pm',
-    '/usr/local/pf/lib/pf/SNMP/Cisco/Catalyst_4500.pm',
-    '/usr/local/pf/lib/pf/SNMP/Cisco/ISR_1800.pm',
-    '/usr/local/pf/lib/pf/SNMP/Cisco/WiSM.pm',
-    '/usr/local/pf/lib/pf/SNMP/Cisco/WLC_2106.pm',
-    '/usr/local/pf/lib/pf/SNMP/Cisco/WLC_4400.pm',
-    '/usr/local/pf/lib/pf/SNMP/constants.pm',
-    '/usr/local/pf/lib/pf/SNMP/Dell.pm',
-    '/usr/local/pf/lib/pf/SNMP/Dell/PowerConnect3424.pm',
-    '/usr/local/pf/lib/pf/SNMP/Dlink/DES_3526.pm',
-    '/usr/local/pf/lib/pf/SNMP/Dlink/DWS_3026.pm',
-    '/usr/local/pf/lib/pf/SNMP/Dlink.pm',
-    '/usr/local/pf/lib/pf/SNMP/Enterasys/D2.pm',
-    '/usr/local/pf/lib/pf/SNMP/Enterasys/Matrix_N3.pm',
-    '/usr/local/pf/lib/pf/SNMP/Enterasys.pm',
-    '/usr/local/pf/lib/pf/SNMP/Enterasys/SecureStack_C2.pm',
-    '/usr/local/pf/lib/pf/SNMP/Enterasys/SecureStack_C3.pm',
-    '/usr/local/pf/lib/pf/SNMP/Extreme.pm',
-    '/usr/local/pf/lib/pf/SNMP/Extreme/Summit.pm',
-    '/usr/local/pf/lib/pf/SNMP/Extreme/Summit_X250e.pm',
-    '/usr/local/pf/lib/pf/SNMP/Extricom.pm',
-    '/usr/local/pf/lib/pf/SNMP/Extricom/EXSW.pm',
-    '/usr/local/pf/lib/pf/SNMP/Foundry/FastIron_4802.pm',
-    '/usr/local/pf/lib/pf/SNMP/Foundry.pm',
-    '/usr/local/pf/lib/pf/SNMP/HP.pm',
-    '/usr/local/pf/lib/pf/SNMP/HP/Procurve_2500.pm',
-    '/usr/local/pf/lib/pf/SNMP/HP/Procurve_2600.pm',
-    '/usr/local/pf/lib/pf/SNMP/HP/Procurve_3400cl.pm',
-    '/usr/local/pf/lib/pf/SNMP/HP/Procurve_4100.pm',
-    '/usr/local/pf/lib/pf/SNMP/HP/Controller_MSM710.pm',
-    '/usr/local/pf/lib/pf/SNMP/Intel/Express_460.pm',
-    '/usr/local/pf/lib/pf/SNMP/Intel/Express_530.pm',
-    '/usr/local/pf/lib/pf/SNMP/Intel.pm',
-    '/usr/local/pf/lib/pf/SNMP/Juniper.pm',
-    '/usr/local/pf/lib/pf/SNMP/Juniper/EX.pm',
-    '/usr/local/pf/lib/pf/SNMP/Linksys.pm',
-    '/usr/local/pf/lib/pf/SNMP/Linksys/SRW224G4.pm',
-    '/usr/local/pf/lib/pf/SNMP/Meru.pm',
-    '/usr/local/pf/lib/pf/SNMP/Meru/MC.pm',
-    '/usr/local/pf/lib/pf/SNMP/MockedSwitch.pm',
-    '/usr/local/pf/lib/pf/SNMP/Nortel/BayStack4550.pm',
-    '/usr/local/pf/lib/pf/SNMP/Nortel/BayStack470.pm',
-    '/usr/local/pf/lib/pf/SNMP/Nortel/BayStack5500.pm',
-    '/usr/local/pf/lib/pf/SNMP/Nortel/BayStack5500_6x.pm',
-    '/usr/local/pf/lib/pf/SNMP/Nortel/BPS2000.pm',
-    '/usr/local/pf/lib/pf/SNMP/Nortel/ERS2500.pm',
-    '/usr/local/pf/lib/pf/SNMP/Nortel/ERS4500.pm',
-    '/usr/local/pf/lib/pf/SNMP/Nortel/ERS5500.pm',
-    '/usr/local/pf/lib/pf/SNMP/Nortel/ERS5500_6x.pm',
-    '/usr/local/pf/lib/pf/SNMP/Nortel/ES325.pm',
-    '/usr/local/pf/lib/pf/SNMP/Nortel.pm',
-    '/usr/local/pf/lib/pf/SNMP/PacketFence.pm',
-    '/usr/local/pf/lib/pf/SNMP.pm',
-    '/usr/local/pf/lib/pf/SNMP/SMC.pm',
-    '/usr/local/pf/lib/pf/SNMP/SMC/TS6128L2.pm',
-    '/usr/local/pf/lib/pf/SNMP/SMC/TS6224M.pm',
-    '/usr/local/pf/lib/pf/SNMP/SMC/TS8800M.pm',
-    '/usr/local/pf/lib/pf/SNMP/ThreeCom/NJ220.pm',
-    '/usr/local/pf/lib/pf/SNMP/ThreeCom.pm',
-    '/usr/local/pf/lib/pf/SNMP/ThreeCom/SS4200.pm',
-    '/usr/local/pf/lib/pf/SNMP/ThreeCom/SS4500.pm',
-    '/usr/local/pf/lib/pf/SNMP/ThreeCom/Switch_4200G.pm',
-    '/usr/local/pf/lib/pf/SNMP/Xirrus.pm',
     '/usr/local/pf/lib/pf/SwitchFactory.pm',
     '/usr/local/pf/lib/pf/switchlocation.pm',
     '/usr/local/pf/lib/pf/traplog.pm',
@@ -249,6 +167,11 @@ my @files = (
     '/usr/local/pf/html/user/content/violations/trojan.php',
     '/usr/local/pf/html/user/content/violations/zotob.php',
 );
+
+push(@files, TestUtils::get_networkdevices_modules());
+
+# all files + no warnings
+plan tests => scalar @files * 1 + 1;
 
 # lookout for TABS
 foreach my $file (@files) {
