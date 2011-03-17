@@ -17,7 +17,8 @@ For a list of compatibility related changes see the UPGRADE file.
 Version <release> - <codename> released on <releaseDate>
 
 New features
-- Easier integration and configuration of FreeRADIUS 2.x using a custom RPM 
+- Easier integration and configuration of FreeRADIUS 2.x using our new
+  packetfence-freeradius2 RPM
 
 Enhancements
 - Process ID information in the logs for some daemons
