@@ -355,7 +355,7 @@ mv /etc/raddb/users.pf /etc/raddb/users
 ln -s /etc/raddb/sites-available/packetfence /etc/raddb/sites-enabled/packetfence
 ln -s /etc/raddb/sites-available/packetfence-tunnel /etc/raddb/sites-enabled/packetfence-tunnel
 
-echo Installation complete.  Please restart Radius....
+echo Installation complete.  Make sure you configure packetfence.pm, and restart Radius....
 
 
 %preun
