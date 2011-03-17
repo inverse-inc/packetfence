@@ -17,6 +17,11 @@ o Upgrading from a version prior to <version>:
     - deprecated pf.conf parameters
     registration.queuesize was removed.
 
+o Upgrading from a version prior to <release>:
+
+    - logrotate script installed by default
+    Be careful if you done yours by hand. It might conflict with your script.
+
 o Upgrading from a version prior to 2.1.0:
 
     - You MUST upgrade conf/templates/httpd.conf and 
