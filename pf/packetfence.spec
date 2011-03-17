@@ -546,6 +546,9 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Thu Mar 17 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Now installing logrotate script by default
+
 * Mon Mar 07 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - Bumped version so that snapshots versions will be greater than latest
   released version
