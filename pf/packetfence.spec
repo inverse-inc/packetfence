@@ -139,7 +139,6 @@ as
 * registration-based and scheduled vulnerability scans.
 
 %package remote-snort-sensor
-Group: System Environment/Daemons
 Requires: perl >= 5.8.0, snort, perl(File::Tail), perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay)
 Requires: perl-SOAP-Lite
 Conflicts: packetfence
@@ -152,16 +151,12 @@ for sending snort alerts from a remote snort sensor to a PacketFence
 server.
 
 %package freeradius2
-Group: System Environment/Daemons
-Version: 1.0.0
-Release: %{source_release}%{?dist}
-License: GPL
-Requires : freeradius2
-Summary: Configuration pack for FreeRADIUS
+Requires: freeradius2, freeradius2-perl
+Summary: Configuration pack for FreeRADIUS 2
 
 %description freeradius2
 The freeradius2-packetfence package contains the files needed to
-make RADIUS properly interact with PacketFence
+make FreeRADIUS properly interact with PacketFence
 
 %prep
 %setup -n pf
