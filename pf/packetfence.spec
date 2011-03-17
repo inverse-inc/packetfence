@@ -200,6 +200,8 @@ cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/dhcp_dumper $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/logrotate $RPM_BUILD_ROOT/usr/local/pf/addons/
+mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
+cp addons/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r cgi-bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
@@ -364,6 +366,8 @@ fi
 %dir                    /usr/local/pf/addons/integration-testing/
                         /usr/local/pf/addons/integration-testing/*
                         /usr/local/pf/addons/logrotate
+%dir			%{_sysconfdir}/logrotate.d
+%config 		%{_sysconfdir}/logrotate.d/packetfence
 %attr(0755, pf, pf)	/usr/local/pf/addons/migrate-to-locationlog_history.sh
 %attr(0755, pf, pf)     /usr/local/pf/addons/monitorpfsetvlan.pl
 %dir                    /usr/local/pf/addons/mrtg
