@@ -151,6 +151,18 @@ The packetfence-remote-snort-sensor package contains the files needed
 for sending snort alerts from a remote snort sensor to a PacketFence
 server.
 
+%package freeradius2
+Group: System Environment/Daemons
+Version: 1.0.0
+Release: %{source_release}%{?dist}
+License: GPL
+Requires : freeradius2
+Summary: Configuration pack for FreeRADIUS
+
+%description freeradius2
+The freeradius2-packetfence package contains the files needed to
+make RADIUS properly interact with PacketFence
+
 %prep
 %setup -n pf
 
@@ -212,6 +224,16 @@ rmdir addons/pfdetect_remote/initrd
 rmdir addons/pfdetect_remote/conf
 rmdir addons/pfdetect_remote
 #end pfdetect_remote
+#freeradius2-packetfence
+%{__install} -d $RPM_BUILD_ROOT/etc/raddb
+%{__install} -d $RPM_BUILD_ROOT/etc/raddb/sites-available
+cp -r addons/freeradius-integration/radiusd.conf.pf $RPM_BUILD_ROOT/etc/raddb
+cp -r addons/freeradius-integration/eap.conf.pf $RPM_BUILD_ROOT/etc/raddb
+cp -r addons/freeradius-integration/users.pf $RPM_BUILD_ROOT/etc/raddb
+cp -r addons/802.1X/packetfence.pm $RPM_BUILD_ROOT/etc/raddb
+cp -r addons/freeradius-integration/sites-available/packetfence $RPM_BUILD_ROOT/etc/raddb/sites-available
+cp -r addons/freeradius-integration/sites-available/packetfence-tunnel $RPM_BUILD_ROOT/etc/raddb/sites-available
+#end
 cp -r ChangeLog $RPM_BUILD_ROOT/usr/local/pf/
 cp -r configurator.pl $RPM_BUILD_ROOT/usr/local/pf/
 cp -r COPYING $RPM_BUILD_ROOT/usr/local/pf/
@@ -248,7 +270,6 @@ fi
 
 cd $curdir
 #end create symlinks
-
 
 %pre
 
@@ -314,6 +335,29 @@ echo "  * Please cd /usr/local/pf && ./installer.pl to finish installation and c
 echo "Adding PacketFence remote Snort Sensor startup script"
 /sbin/chkconfig --add pfdetectd
 
+%post freeradius2
+#Make Backups
+cp /etc/raddb/radiusd.conf /etc/raddb/radiusd.conf.pfsave   
+chown root:radiusd /etc/raddb/radiusd.conf.pfsave
+
+cp /etc/raddb/eap.conf /etc/raddb/eap.conf.pfsave      
+chown root:radiusd /etc/raddb/eap.conf.pfsave
+
+cp /etc/raddb/users /etc/raddb/users.pfsave
+chown root:radiusd /etc/raddb/users.pfsave
+
+#Copy dummy config to the real one
+mv /etc/raddb/radiusd.conf.pf /etc/raddb/radiusd.conf
+mv /etc/raddb/eap.conf.pf /etc/raddb/eap.conf
+mv /etc/raddb/users.pf /etc/raddb/users
+
+#Create symlinks for virtual hosts
+ln -s /etc/raddb/sites-available/packetfence /etc/raddb/sites-enabled/packetfence
+ln -s /etc/raddb/sites-available/packetfence-tunnel /etc/raddb/sites-enabled/packetfence-tunnel
+
+echo Installation complete.  Please restart Radius....
+
+
 %preun
 if [ $1 -eq 0 ] ; then
 	/sbin/service packetfence stop &>/dev/null || :
@@ -326,6 +370,16 @@ if [ $1 -eq 0 ] ; then
 	/sbin/service pfdetectd stop &>/dev/null || :
 	/sbin/chkconfig --del pfdetectd
 fi
+
+%preun freeradius2
+# Remove custom configs and put back the right one
+mv /etc/raddb/radiusd.conf.pfsave /etc/raddb/radiusd.conf   
+mv /etc/raddb/eap.conf.pfsave /etc/raddb/eap.conf       
+mv /etc/raddb/users.pfsave /etc/raddb/users
+
+# Remove symnlinks
+rm -f /etc/raddb/sites-enabled/packetfence 
+rm -f /etc/raddb/sites-enabled/packetfence-tunnel
 
 %postun
 if [ $1 -eq 0 ]; then
@@ -540,7 +594,21 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect_remote
 %dir                    /usr/local/pf/var
 
+%files freeradius2
+%defattr(0640, root, radiusd)
+
+%config				/etc/raddb/radiusd.conf.pf 
+%config		        	/etc/raddb/eap.conf.pf
+%config				/etc/raddb/users.pf
+%config(noreplace)		/etc/raddb/packetfence.pm
+%attr(0755, root, radiusd)	/etc/raddb/packetfence.pm
+%config(noreplace)      	/etc/raddb/sites-available/packetfence
+%config(noreplace)      	/etc/raddb/sites-available/packetfence-tunnel
+
 %changelog
+* Thu Mar 17 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Added the packetfence-freeradius2 package definition
+
 * Mon Mar 07 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - Bumped version so that snapshots versions will be greater than latest
   released version
