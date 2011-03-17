@@ -15,6 +15,7 @@ use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
+use File::Find;
 
 BEGIN {
     use Exporter ();
@@ -23,6 +24,7 @@ BEGIN {
     @EXPORT_OK = qw(
         @cli_tests @compile_tests @dao_tests @integration_tests @quality_tests @quality_failing_tests @unit_tests 
         use_test_db
+        get_networkdevices_modules get_networkdevices_classes
     );
 }
 
@@ -34,50 +36,28 @@ our @cli_tests = qw(
 );
 
 our @compile_tests = qw(
-    binaries.t
-    pf.t 
-    php.t
+    binaries.t pf.t php.t
 );
 
 our @dao_tests = qw(
-    dao/data.t
-    dao/graph.t
-    dao/node.t
-    dao/person.t
-    dao/report.t
+    dao/data.t dao/graph.t dao/node.t dao/person.t dao/report.t
 );
 
 our @integration_tests = qw(
-    integration.t
-    integration/radius.t
+    integration.t integration/radius.t
 );
 
 our @quality_tests = qw(
-    coding-style.t
-    pod.t
+    coding-style.t pod.t
 );
 
 our @quality_failing_tests = qw(
-    critic.t
-    podCoverage.t
+    critic.t podCoverage.t
 );
 
 our @unit_tests = qw(
-    config.t
-    floatingdevice.t
-    hardware-snmp-objects.t
-    import.t
-    network-devices/cisco.t
-    nodecategory.t
-    person.t 
-    pfsetvlan.t
-    radius.t
-    services.t
-    SNMP.t 
-    SwitchFactory.t
-    util.t
-    vlan.t
-    web.t
+    config.t floatingdevice.t hardware-snmp-objects.t import.t network-devices/cisco.t network-devices/wireless.t 
+    nodecategory.t person.t pfsetvlan.t radius.t services.t SNMP.t SwitchFactory.t util.t vlan.t web.t
 );
 
 =item use_test_db
@@ -92,6 +72,49 @@ sub use_test_db {
     $Config{'database'}{'user'} = 'pf-test';
     $Config{'database'}{'pass'} = 'p@ck3tf3nc3';
     $Config{'database'}{'db'} = 'pf-test';
+}
+
+=item get_networkdevices_modules
+
+Return all the files ending with .pm under /usr/local/pf/lib/pf/SNMP
+
+=cut
+sub get_networkdevices_modules {
+
+    my @list;
+    push (@list, '/usr/local/pf/lib/pf/SNMP.pm');
+
+    # find2perl /usr/local/pf/lib/pf/SNMP -name "*.pm"
+    File::Find::find({
+        wanted => sub {
+            /^.*\.pm\z/s && push(@list, $File::Find::name);
+        }}, '/usr/local/pf/lib/pf/SNMP'
+    );
+
+    return @list;
+}
+
+=item get_networkdevices_classes
+
+Return the pf::SNMP::Device form for all modules under /usr/local/pf/lib/pf/SNMP except constants.pm
+
+=cut
+sub get_networkdevices_classes {
+
+    my @modules = get_networkdevices_modules();
+    my @classes;
+    foreach my $module (@modules) {
+        # skip constants.pm
+        next if $module =~ /constants\.pm$/;
+        # get rid of path
+        $module =~ s|^/usr/local/pf/lib/||;
+        # get rid of ending .pm
+        $module =~ s|\.pm$||;
+        # change slashes for ::
+        $module =~ s|/|::|g;
+        push(@classes, $module);
+    }
+    return @classes;
 }
 
 =head1 AUTHOR

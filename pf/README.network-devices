@@ -14,6 +14,7 @@ Packetfence supports the following access points and wireless controlers:
 - Extricom EXSW Wireless Switches (Controllers)
 - HP ProCurve MSM710 Mobility Controller
 - Meru Networks Wireless Controlers
+- Motorola RF Switches (Controllers)
 - Xirrus WiFi Arrays
 
 Eventhough this list is small, PacketFence may support many other access points
@@ -60,6 +61,8 @@ Extricom EXSW                |    --    |    XX    |    --    |
 HP ProCurve MSM              |    --    |    XX    |    --    |
 -----------------------------|----------|----------|----------|
 Meru Networks                |    XX    |    --    |    --    |
+-----------------------------|----------|----------|----------|
+Motorola RF Switches         |    --    |    XX    |    --    |
 -----------------------------|----------|----------|----------|
 Xirrus WiFi Arrays           |    --    |    XX    |    --    |
 -----------------------------|----------|----------|----------|

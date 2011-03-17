@@ -1,4 +1,20 @@
+# it translation for PacketFence
+# Copyright (C) 2009-2011 Inverse inc.
+# This file is distributed under the same license as the PacketFence project.
+# Mario Varelli <mvarelli@biologia.unipi.it>, 2009
+#
 domain "packetfence"
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PacketFence\n"
+"PO-Revision-Date: 2009-04-30 12:38-0400\n"
+"Last-Translator: Mario Varelli <mvarelli@biologia.unipi.it>\n"
+"Language-Team: PacketFence support <support@packetfence.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;"
 
 msgid  "error: access denied not owner"
 msgstr "Accesso Negato: Non sei il titolare di questo computer!"

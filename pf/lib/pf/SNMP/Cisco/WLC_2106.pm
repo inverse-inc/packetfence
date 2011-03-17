@@ -2,12 +2,11 @@ package pf::SNMP::Cisco::WLC_2106;
 
 =head1 NAME
 
-pf::SNMP::Cisco::WLC_2106 - Object oriented module to access SNMP enabled Cisco WLC
+pf::SNMP::Cisco::WLC_2106
 
 =head1 SYNOPSIS
 
-The pf::SNMP::Cisco::WLC_2106 module implements an object oriented interface
-to access SNMP enabled Wireless LAN Controllers.
+The pf::SNMP::Cisco::WLC_2106 module implements an object oriented interface to manage Wireless LAN Controllers.
 
 =cut
 
@@ -21,18 +20,27 @@ use strict;
 use warnings;
 use diagnostics;
 
-use base ('pf::SNMP::Cisco');
-use Log::Log4perl;
 use Carp;
+use Log::Log4perl;
 use Net::Appliance::Session;
 use Net::SNMP;
-use Data::Dumper;
+
+use base ('pf::SNMP::Cisco');
+
+use pf::config;
 
 =head1 SUBROUTINES
 
 TODO: This list is incomplete
 
 =over
+
+=cut
+
+# CAPABILITIES
+# access technology supported
+sub supportsWirelessDot1x { return $TRUE; }
+sub supportsWirelessMacAuth { return $TRUE; }
 
 =item deauthenticateMac
 
@@ -180,11 +188,15 @@ With IOS 6.0.182.0 we had intermittent issues with DHCP. Disabling DHCP Proxy re
 
 =head1 AUTHOR
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2008 Inverse inc.
+Copyright (C) 2007-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

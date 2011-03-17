@@ -16,12 +16,26 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <release> - <codename> released on <releaseDate>
 
+New Hardware Support
+- Motorola RF Switches (Wireless Controllers)
+
 Enhancements
 - New DHCP fingerprint for Cisco SPA series IP Phone
+- DHCP fingerprints sharing now allows submitter to send computer name, user-
+  agent and a contact email to help us identify the devices better (#983)
+- Updated Developer documentation regarding how to support new wireless hardware
+- Meru module now supports firmware version identification
 
 Bug Fixes
+- Wired 802.1X and MAC Authentication fixes in Network Devices Guide
 - Fixed an issue with pfcmd-initiated VLAN re-evaluation if you assign VLANs 
   based on a client's connection-type (which is not the default)
+- Fixed DHCP fingerprint sharing upload form
+- Fixed Web Admin which referred to an inexistent Meru MC3000 module (it was 
+  renamed Meru::MC in 2.0.1)
+- Fixed an issue with the Meru module: If the controller sent SNMP traps to 
+  PacketFence a thread would crash. Hopefully this configuration is not 
+  required and is rarely done. Regression prevention tests have been added.
 
 Translations
 - New German (de) translation (Thanks to Tino Matysiak of Meetyoo Conferencing)

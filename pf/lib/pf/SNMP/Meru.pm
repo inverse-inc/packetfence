@@ -2,7 +2,11 @@ package pf::SNMP::Meru;
 
 =head1 NAME
 
-pf::SNMP::Meru - Object oriented module to manage Meru controllers
+pf::SNMP::Meru
+
+=head1 SYNOPSIS
+
+Module to manage Meru controllers
 
 =cut
 
@@ -10,10 +14,11 @@ use strict;
 use warnings;
 use diagnostics;
 
-use base ('pf::SNMP');
-use POSIX;
 use Log::Log4perl;
 use Net::Appliance::Session;
+use POSIX;
+
+use base ('pf::SNMP');
 
 use pf::config;
 # importing switch constants
@@ -22,11 +27,24 @@ use pf::util;
 
 =head1 STATUS
 
-Tested against MeruOS version 3.6.1-6.7
+Tested against MeruOS version 3.6.1-67
 
 =head1 BUGS AND LIMITATIONS
 
-Based on CLI access.
+=over
+
+=item CLI deauthentication
+
+De-authentication of a Wireless user is based on CLI access (Telnet or SSH).
+This is a vendor issue and it might be fixed in newer firmware versions.
+
+=item Per SSID VLAN Assignment on unencrypted network not supported
+
+The vendor doesn't include the SSID in their RADIUS-Request when on MAC Authentication.
+VLAN assignment per SSID is not possible.
+This is a vendor issue and might be fixed in newer firmware versions.
+
+=back
  
 =head1 SUBROUTINES
 
@@ -34,7 +52,60 @@ Based on CLI access.
 
 =cut
 
-# TODO this module needs a parseTrap for dot11Deauthentication traps
+# CAPABILITIES
+# access technology supported
+sub supportsWirelessDot1x { return $TRUE; }
+sub supportsWirelessMacAuth { return $TRUE; }
+
+=item getVersion
+
+obtain image version information from switch
+
+=cut
+sub getVersion {
+    my ($this) = @_;
+    my $oid_mwWncVarsSoftwareVersion = '1.3.6.1.4.1.15983.1.1.4.1.1.27'; # from meru-wlan
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    if ( !$this->connectRead() ) {
+        return '';
+    }
+
+    # mwWncVarsSoftwareVersion sample output:
+    # 3.6.1-67
+
+    # first trying with a .0
+    $logger->trace("SNMP get_request for mwWncVarsSoftwareVersion: $oid_mwWncVarsSoftwareVersion.0");
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_mwWncVarsSoftwareVersion.".0"] );
+    if (defined($result)) {
+        return $result->{$oid_mwWncVarsSoftwareVersion.".0"};
+    }
+
+    # then trying straight
+    $logger->trace("SNMP get_request for mwWncVarsSoftwareVersion: $oid_mwWncVarsSoftwareVersion");
+    $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_mwWncVarsSoftwareVersion] );
+    if (defined($result)) {
+        return $result->{$oid_mwWncVarsSoftwareVersion};
+    }
+
+    # none of the above worked
+    $logger->warn("unable to fetch version information");
+}
+
+=item parseTrap
+
+This is called when we receive an SNMP-Trap for this device
+
+=cut
+sub parseTrap {
+    my ( $this, $trapString ) = @_;
+    my $trapHashRef;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->debug("trap currently not handled");
+    $trapHashRef->{'trapType'} = 'unknown';
+
+    return $trapHashRef;
+}
 
 =item deauthenticateMac
 
@@ -112,13 +183,15 @@ sub deauthenticateMac {
 
 =head1 AUTHOR
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 Francois Gaudreault <fgaudreault@inverse.ca>
 
 Regis Balzard <rbalzard@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2010,2011 Inverse inc.
 
 =head1 LICENSE
 

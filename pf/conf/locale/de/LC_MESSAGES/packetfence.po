@@ -1,16 +1,32 @@
+# de translation for PacketFence
+# Copyright (C) 2011 Inverse inc.
+# This file is distributed under the same license as the PacketFence project.
+# Tino Matysiak <tmatysiak@meetyoo.de>, 2011.
+#
 domain "packetfence"
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PacketFence\n"
+"PO-Revision-Date: 2011-03-08 14:43-0400\n"
+"Last-Translator: Tino Matysiak <tmatysiak@meetyoo.de>\n"
+"Language-Team: PacketFence support <support@packetfence.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;"
 
 msgid  "error: access denied not owner"
-msgstr "Zugriff verweigert: Sie sind nicht Besitzer von diesem Gerät!"
+msgstr "Zugriff verweigert: Sie sind nicht Besitzer von diesem GerÃ¤t!"
 
 msgid  "error: incorrect mode"
 msgstr "Falscher Modus!"
 
 msgid  "error: invalid login or password"
-msgstr "Ungültiger Benutzername oder Passwort"
+msgstr "UngÃ¼ltiger Benutzername oder Passwort"
 
 msgid  "error: invalid page number"
-msgstr "Ungültige Seitennummer"
+msgstr "UngÃ¼ltige Seitennummer"
 
 msgid  "error: max re-enables reached"
 msgstr "Maximale Anzahl an Aktivierungsversuchen wurde erreicht!"
@@ -22,40 +38,40 @@ msgid  "error: not trappable IP"
 msgstr "Zugriff Verweigert: Keine erfassbare IP-Adresse!"
 
 msgid  "error: only register max nodes"
-msgstr "Sie dürfen nur maximal %s Geräte registrieren!"
+msgstr "Sie dÃ¼rfen nur maximal %s GerÃ¤te registrieren!"
 
 msgid  "error: unable to validate credentials at the moment"
-msgstr "Die Anmeldeinformationen können im Moment nicht überprüft werden"
+msgstr "Die Anmeldeinformationen kÃ¶nnen im Moment nicht Ã¼berprÃ¼ft werden"
 
 msgid  "help: provide info"
-msgstr "Wenn Sie Fragen zu dieser Seite haben, wenden Sie sich an Ihren Systemadministrator für Unterstützung. Bitte stellen Sie folgende Informationen zur Verfügung:"
+msgstr "Wenn Sie Fragen zu dieser Seite haben, wenden Sie sich an Ihren Systemadministrator fÃ¼r UnterstÃ¼tzung. Bitte stellen Sie folgende Informationen zur VerfÃ¼gung:"
 
 msgid  "register: all systems must be registered"
-msgstr "Um Benutzer über einzelne Systeme zu kontaktieren, müssen alle Systeme in diesem Netzwerk registriert sein."
+msgstr "Um Benutzer Ã¼ber einzelne Systeme zu kontaktieren, mÃ¼ssen alle Systeme in diesem Netzwerk registriert sein."
 
 msgid  "register: aup"
 msgstr "Der Registrierungsprozess erfordert die Akzeptierung der Nutzungsvereinbarung.  Wenn Sie diese Vereinbarung vor der Registrierung lesen wollen, besuchen Sie bitte folgende Seite:"
 
 msgid  "register: to complete"
-msgstr "Um den Registrierungsprozess abzuschließen, müssen Sie sich mit Ihrem Benutzernamen und Ihrem Passwort authentifizieren."
+msgstr "Um den Registrierungsprozess abzuschlieÃŸen, mÃ¼ssen Sie sich mit Ihrem Benutzernamen und Ihrem Passwort authentifizieren."
 
 msgid  "register: select authentications"
-msgstr "Wählen Sie eine Authentifizierungsmethode"
+msgstr "WÃ¤hlen Sie eine Authentifizierungsmethode"
 
 msgid  "register: skip registration"
-msgstr "Registrierung überspringen"
+msgstr "Registrierung Ã¼berspringen"
 
 msgid  "release: enabling network"
 msgstr "Zugriff auf das Netzwerk wird aktiviert"
 
 msgid  "release: reopen browser"
-msgstr "Sie müssen möglicherweise Ihren Browser schließen und erneut öffnen."
+msgstr "Sie mÃ¼ssen mÃ¶glicherweise Ihren Browser schlieÃŸen und erneut Ã¶ffnen."
 
 msgid  "scan: scan in progress"
 msgstr "Ihr System wird gerade auf Schwachstellen untersucht"
 
 msgid  "scan in progress contact support if too long"
-msgstr "Ihr System wird momentan noch auf Schwachstellen untersucht. Dieser Vorgang startete um %s. Normalerweise läuft dieser Vorgang nur einige Minuten. Wenn es doch länger dauern sollte, wenden Sie sich bitte an den Systemadministrator. Bitte stellen Sie folgende Informationen zur Verfügung:"
+msgstr "Ihr System wird momentan noch auf Schwachstellen untersucht. Dieser Vorgang startete um %s. Normalerweise lÃ¤uft dieser Vorgang nur einige Minuten. Wenn es doch lÃ¤nger dauern sollte, wenden Sie sich bitte an den Systemadministrator. Bitte stellen Sie folgende Informationen zur VerfÃ¼gung:"
 
 msgid  "automatically refresh"
 msgstr "Diese Seite wird automatisch alle %s Sekunden neu geladen, um sicherzustellen, dass der Systemscan abgeschlossen wurde."
@@ -67,7 +83,7 @@ msgid  "Addresses"
 msgstr "Adressen"
 
 msgid  "De-register node"
-msgstr "Gerät löschen"
+msgstr "GerÃ¤t lÃ¶schen"
 
 msgid  "Enabling ..."
 msgstr "Aktivieren ..."
@@ -79,7 +95,7 @@ msgid  "Gateway"
 msgstr "Gateway"
 
 msgid  "grace"
-msgstr "temporärer Zugriff"
+msgstr "temporÃ¤rer Zugriff"
 
 msgid  "Hostname"
 msgstr "Hostname"
@@ -100,7 +116,7 @@ msgid  "system scan in progress"
 msgstr "Ihr System wird gescannt - dieser Prozess wird wahrscheinlich %s Sekunden in Anspruch nehmen."
 
 msgid  "Node"
-msgstr "Gerät"
+msgstr "GerÃ¤t"
 
 msgid  "PacketFence Registration System"
 msgstr "PacketFence Registrierungs-System"
@@ -133,22 +149,22 @@ msgid  "Username"
 msgstr "Benutzername"
 
 msgid  "Violations"
-msgstr "Verstoß"
+msgstr "VerstoÃŸ"
 
 msgid  "Quarantine Established!"
-msgstr "Quarantäne eingerichtet!"
+msgstr "QuarantÃ¤ne eingerichtet!"
 
 msgid  "Registration Notification"
 msgstr "Registrierungsbenachrichtigung"
 
 msgid  "Additional Assistance"
-msgstr "Zusätzliche Unterstützung"
+msgstr "ZusÃ¤tzliche UnterstÃ¼tzung"
 
 msgid  "If your network connectivity becomes permanently disabled or you are unable to follow the instructions above, please contact your local IT support staff for assistance."
 msgstr "Wenn Ihre Netzwerkverbindung dauerhaft getrennt ist oder Sie nicht in der Lage sind, den oben genannten Anweisungen zu folgen, wenden Sie sich bitte an Ihren Systemadministrator."
 
 msgid  "The following information should be provided upon request:"
-msgstr "Folgende Informationen sollten für die Anfrage zur Verfügung gestellt werden:"
+msgstr "Folgende Informationen sollten fÃ¼r die Anfrage zur VerfÃ¼gung gestellt werden:"
 
 msgid  "IP Address"
 msgstr "IP Adresse"
@@ -163,16 +179,16 @@ msgid  "You have been detected using an operating system not allowed on the netw
 msgstr "Es wurde bei Ihnen erkannt, dass Sie ein Betriebssystem nutzen, was in diesem Netzwerk verboten ist. Bitte installieren Sie ein aktuelleres Betriebssystem"
 
 msgid  "Darknet Violation"
-msgstr "Es wurde erkannt, dass Ihr Gerät Daten zu einem unbekannten Netzwerk versendet (Darknet). Dies ist ein meistens ein Anzeichen für einen Befall mit Schadsoftware."
+msgstr "Es wurde erkannt, dass Ihr GerÃ¤t Daten zu einem unbekannten Netzwerk versendet (Darknet). Dies ist ein meistens ein Anzeichen fÃ¼r einen Befall mit Schadsoftware."
 
 msgid  "Your system will likely need to be rebuilt. Please contact your local support staff for more information."
-msgstr "Das Betriebssystem muss wahrscheinlich neu installiert werden. Bitte wenden Sie sich an den Systemadministrator für weitere Informationen."
+msgstr "Das Betriebssystem muss wahrscheinlich neu installiert werden. Bitte wenden Sie sich an den Systemadministrator fÃ¼r weitere Informationen."
 
 msgid  "Windows patches are not up to date"
 msgstr "Windows-Updates sind nicht auf dem neuesten Stand"
 
 msgid  "Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken. Instructions for disinfection are below:"
-msgstr "Da dies eine Gefahr für andere Systeme im Netzwerk darstellt, wird aus diesem Grund Ihre Netzwrkverbindung getrennt, bis diese Gefahr nicht mehr besteht. Befolgen Sie folgende Anweisungen für die Desinfektion:"
+msgstr "Da dies eine Gefahr fÃ¼r andere Systeme im Netzwerk darstellt, wird aus diesem Grund Ihre Netzwrkverbindung getrennt, bis diese Gefahr nicht mehr besteht. Befolgen Sie folgende Anweisungen fÃ¼r die Desinfektion:"
 
 msgid  "Generic"
 msgstr "Generic"
@@ -181,13 +197,13 @@ msgid  "Network connectivity has been disabled."
 msgstr "Die Netzwerkverbindung wurde deaktiviert."
 
 msgid  "Please contact your support staff for more information."
-msgstr "Bitte kontaktieren Sie den Systemadministrator für weitere Informationen."
+msgstr "Bitte kontaktieren Sie den Systemadministrator fÃ¼r weitere Informationen."
 
 msgid  "Hub Detection"
 msgstr "Hub-Erkennung"
 
 msgid  "You have been detected using a hub. Such device is not permitted on the network.  Please remove it."
-msgstr "Es wurde erkannt, dass Sie über einen Hub mit dem Netzwerk verbunden sind. Solche Geräte sind in diesem Netzwerk nicht gestattet. Bitte entfernen Sie den Hub."
+msgstr "Es wurde erkannt, dass Sie Ã¼ber einen Hub mit dem Netzwerk verbunden sind. Solche GerÃ¤te sind in diesem Netzwerk nicht gestattet. Bitte entfernen Sie den Hub."
 
 msgid  "Peer-to-Peer"
 msgstr "Peer-to-Peer"
@@ -199,13 +215,13 @@ msgid  "System Scanning"
 msgstr "Systemscan"
 
 msgid  "Your system has been found to be scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
-msgstr "Es wurde erkannt, dass Ihr System andere Gerät im Netzwerk scannt. Da dies eine Gefahr für andere Systeme im Netzwerk darstellt, wird aus diesem Grund Ihre Netzwrkverbindung getrennt, bis diese Gefahr nicht mehr besteht."
+msgstr "Es wurde erkannt, dass Ihr System andere GerÃ¤t im Netzwerk scannt. Da dies eine Gefahr fÃ¼r andere Systeme im Netzwerk darstellt, wird aus diesem Grund Ihre Netzwrkverbindung getrennt, bis diese Gefahr nicht mehr besteht."
 
 msgid  "Spamming"
 msgstr "Spammen"
 
 msgid  "Your system has been found to be sending unsolicited commercial email (UCE, or \"spam\") to other systems. Due to the threat this poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
-msgstr "Es wurde erkannt, dass Ihr System Werbe- oder Spam-Emails an andere Geräte versendet. Da dies eine Gefahr für andere Systeme im Netzwerk darstellt, wird aus diesem Grund Ihre Netzwrkverbindung getrennt, bis diese Gefahr nicht mehr besteht."
+msgstr "Es wurde erkannt, dass Ihr System Werbe- oder Spam-Emails an andere GerÃ¤te versendet. Da dies eine Gefahr fÃ¼r andere Systeme im Netzwerk darstellt, wird aus diesem Grund Ihre Netzwrkverbindung getrennt, bis diese Gefahr nicht mehr besteht."
 
 msgid  "Your system may need to be rebuilt. Please contact your local support staff for more information."
-msgstr "Ihr System muss womöglich neu installiert werden. Bitte wenden Sie sich an Ihren Systemadministrator für weitere Informationen."
+msgstr "Ihr System muss womÃ¶glich neu installiert werden. Bitte wenden Sie sich an Ihren Systemadministrator fÃ¼r weitere Informationen."

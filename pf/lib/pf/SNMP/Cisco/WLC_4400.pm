@@ -16,11 +16,19 @@ use strict;
 use warnings;
 use diagnostics;
 
-use base ('pf::SNMP::Cisco');
-use Log::Log4perl;
 use Carp;
+use Log::Log4perl;
 use Net::SNMP;
 use Net::Telnet;
+
+use base ('pf::SNMP::Cisco');
+
+use pf::config;
+
+# CAPABILITIES
+# access technology supported
+sub supportsWirelessDot1x { return $TRUE; }
+sub supportsWirelessMacAuth { return $TRUE; }
 
 sub deauthenticateMac {
     my ( $this, $mac ) = @_;
@@ -189,7 +197,9 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2008, 2010 Inverse inc.
+Copyright (C) 2007-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

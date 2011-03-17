@@ -1,6 +1,6 @@
 <?php
 /**
- * TODO short desc
+ * switches_edit.php: Network Device edit dialog
  *
  * TODO long desc
  * 
@@ -20,7 +20,7 @@
  * USA.
  * 
  * @author      Olivier Bilodeau <obilodeau@inverse.ca>
- * @copyright   2008-2010 Inverse inc.
+ * @copyright   2008-2011 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
@@ -141,7 +141,8 @@
                            'Intel::Express_530' => 'Intel Express 530',
                            'Juniper::EX' => 'Juniper EX Series',
                            'Linksys::SRW224G4' => 'Linksys SRW224G4',
-                           'Meru::MC3000' => 'Meru MC3000',
+                           'Meru::MC' => 'Meru MC',
+                           'Motorola::RFS' => 'Motorola RF Switches',
                            'Nortel::BayStack4550' => 'Nortel BayStack 4550',
                            'Nortel::BayStack470' => 'Nortel BayStack 470',
                            'Nortel::BayStack5500' => 'Nortel BayStack 5500 Series',
