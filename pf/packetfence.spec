@@ -597,8 +597,7 @@ fi
 %config				/etc/raddb/radiusd.conf.pf 
 %config		        	/etc/raddb/eap.conf.pf
 %config				/etc/raddb/users.pf
-%config(noreplace)		/etc/raddb/packetfence.pm
-%attr(0755, root, radiusd)	/etc/raddb/packetfence.pm
+%attr(0755, -, radiusd) %config(noreplace) /etc/raddb/packetfence.pm
 %config(noreplace)      	/etc/raddb/sites-available/packetfence
 %config(noreplace)      	/etc/raddb/sites-available/packetfence-tunnel
 
