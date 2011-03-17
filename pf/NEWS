@@ -18,7 +18,6 @@ Version <release> - <codename> released on <releaseDate>
 
 Enhancements
 - New DHCP fingerprint for Cisco SPA series IP Phone
-- Improvements in the logrotate script (#1198)
 
 Bug Fixes
 - Fixed an issue with pfcmd-initiated VLAN re-evaluation if you assign VLANs 
