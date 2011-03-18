@@ -28,6 +28,7 @@ Enhancements
 - Improvements in the logrotate script (#1198)
 
 Bug Fixes
+- Fixed important Nortel support regressions (introduced in 2.1.0: #1183, #1195)
 - Wired 802.1X and MAC Authentication fixes in Network Devices Guide
 - Fixed an issue with pfcmd-initiated VLAN re-evaluation if you assign VLANs 
   based on a client's connection-type (which is not the default)

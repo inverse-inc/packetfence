@@ -33,6 +33,7 @@ use base ('pf::SNMP');
 use Log::Log4perl;
 use Net::SNMP;
 
+use pf::config;
 =head1 METHODS
 
 TODO: This list is incomplete
@@ -221,9 +222,8 @@ sub getVlan {
 
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $OID_rcVlanPortMembers = '1.3.6.1.4.1.2272.1.3.2.1.11';    #RC-VLAN-MIB
-    my $OID_rcVlanPortDefaultVlanId
-        = '1.3.6.1.4.1.2272.1.3.3.1.7';                           #RC-VLAN-MIB
+    my $OID_rcVlanPortMembers = '1.3.6.1.4.1.2272.1.3.2.1.11'; #RC-VLAN-MIB
+    my $OID_rcVlanPortDefaultVlanId = '1.3.6.1.4.1.2272.1.3.3.1.7'; #RC-VLAN-MIB
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $result;
 
@@ -234,53 +234,42 @@ sub _setVlan {
         return 0;
     }
 
-    $logger->trace( "locking - trying to lock \$switch_locker{"
-            . $this->{_ip}
-            . "} in _setVlan" );
+    $logger->trace( "locking - trying to lock \$switch_locker{" . $this->{_ip} . "} in _setVlan" );
+
     {
         lock %{ $switch_locker_ref->{ $this->{_ip} } };
-        $logger->trace( "locking - \$switch_locker{"
-                . $this->{_ip}
-                . "} locked in _setVlan" );
-        $this->{_sessionRead}->translate(0);
+        $logger->trace( "locking - \$switch_locker{" . $this->{_ip} . "} locked in _setVlan" );
+
         $logger->trace("SNMP get_request for rcVlanPortMembers");
+        $this->{_sessionRead}->translate(0);
         $result = $this->{_sessionRead}->get_request(
             -varbindlist => [
                 "$OID_rcVlanPortMembers.$oldVlan",
                 "$OID_rcVlanPortMembers.$newVlan"
             ]
         );
-        my $oldPortMembers
-            = $this->modifyBitmask(
-            $result->{"$OID_rcVlanPortMembers.$oldVlan"},
-            $ifIndex, 0 );
-        my $newPortMembers
-            = $this->modifyBitmask(
-            $result->{"$OID_rcVlanPortMembers.$newVlan"},
-            $ifIndex, 1 );
         $this->{_sessionRead}->translate(1);
+        my $oldPortMembers = $this->modifyBitmask( $result->{"$OID_rcVlanPortMembers.$oldVlan"}, $ifIndex, 0 );
+        my $newPortMembers = $this->modifyBitmask( $result->{"$OID_rcVlanPortMembers.$newVlan"}, $ifIndex, 1 );
 
-        $logger->trace(
-            "SNMP set_request for OID_rcVlanPortMembers: $OID_rcVlanPortMembers"
-        );
+
+        $logger->trace( "SNMP set_request for OID_rcVlanPortMembers: $OID_rcVlanPortMembers");
         $result = $this->{_sessionWrite}->set_request(
             -varbindlist => [
-                "$OID_rcVlanPortMembers.$newVlan",
-                Net::SNMP::OCTET_STRING,
-                $newPortMembers,
-                "$OID_rcVlanPortMembers.$oldVlan",
-                Net::SNMP::OCTET_STRING,
-                $oldPortMembers,
-                "$OID_rcVlanPortDefaultVlanId.$ifIndex",
-                Net::SNMP::INTEGER,
-                $newVlan
+                "$OID_rcVlanPortMembers.$newVlan", Net::SNMP::OCTET_STRING, $newPortMembers,
+                "$OID_rcVlanPortMembers.$oldVlan", Net::SNMP::OCTET_STRING, $oldPortMembers,
+                "$OID_rcVlanPortDefaultVlanId.$ifIndex", Net::SNMP::INTEGER, $newVlan
             ]
         );
     }
-    $logger->trace( "locking - \$switch_locker{"
-            . $this->{_ip}
-            . "} unlocked in _setVlan" );
-    return ( defined($result) );
+    $logger->trace( "locking - \$switch_locker{" . $this->{_ip} . "} unlocked in _setVlan" );
+
+    # if $result is defined, it works we can return $TRUE
+    return $TRUE if (defined($result));
+
+    # otherwise report failure
+    $logger->warn("setting VLAN failed with " . $this->{_sessionWrite}->error());
+    return;
 }
 
 
@@ -298,10 +287,10 @@ sub getBoardIndexWidth {
 
 =item getFirstBoardIndex
 
-First board id varies from one BayStack to another. 
-It doesn't vary by model, it seems that it is based on whether the switch has been stacked on not (in its lifetime).
+First board id varies from one BayStack to another based on what seems to be cosmic rays. 
+This method is useful to work-around that problem.
 
-Returns either 0 or 1
+Should return either 0 or 1
 
 =cut
 sub getFirstBoardIndex {
@@ -316,7 +305,7 @@ sub getFirstBoardIndex {
     my $result = $this->{_sessionRead}->get_next_request(-varbindlist => [$OID_s5SbsAuthCfgBrdIndx]);
 
     foreach my $key ( sort keys %{$result} ) {
-        if($result->{$key} =~ /^$OID_s5SbsAuthCfgBrdIndx\.(\d+)/){
+        if($key =~ /^$OID_s5SbsAuthCfgBrdIndx\.(\d+)/){
             return $1;
         }
     }
@@ -332,8 +321,6 @@ sub getBoardPortFromIfIndex {
     my $port = ( $ifIndex % $this->getBoardIndexWidth() );
     return ( $board, $port );
 }
-
-
 
 sub getIfIndexFromBoardPort {
     my ( $this, $board, $port ) = @_;
@@ -519,7 +506,11 @@ sub isPortSecurityEnabled {
     my $oid_s5SbsSecurityAction         = '1.3.6.1.4.1.45.1.6.5.3.5';
     my $oid_s5SbsCurrentPortSecurStatus = '1.3.6.1.4.1.45.1.6.5.3.11.1.6';
 
-    my ( $boardIndx, $portIndx ) = $this->getBoardPortFromIfIndex($ifIndex);
+    # careful readers will notice that we don't use getBoardPortFromIfIndex here. 
+    # That's because Nortel thought that it made sense to start BoardIndexes differently for different OIDs
+    # on the same switch!!! 
+    my $boardIndx = (1 + int( $ifIndex / $this->getBoardIndexWidth() ));
+    my $portIndx = ( $ifIndex % $this->getBoardIndexWidth() );
 
     my $s5SbsSecurityStatus         = undef;
     my $s5SbsSecurityAction         = undef;
@@ -530,7 +521,8 @@ sub isPortSecurityEnabled {
     }
 
     $logger->trace(
-        "SNMP get_next_request for s5SbsSecurityStatus: $oid_s5SbsSecurityStatus and s5SbsSecurityAction: $oid_s5SbsSecurityAction"
+        "SNMP get_next_request for s5SbsSecurityStatus: $oid_s5SbsSecurityStatus and " .
+        "s5SbsSecurityAction: $oid_s5SbsSecurityAction"
     );
     my $result = $this->{_sessionRead}->get_next_request( -varbindlist =>
             [ "$oid_s5SbsSecurityStatus", "$oid_s5SbsSecurityAction" ] );
@@ -564,13 +556,16 @@ sub isPortSecurityEnabled {
         }
     }
 
+    # error conditions
+    return $FALSE if (!defined($s5SbsSecurityStatus) || $s5SbsSecurityStatus eq 'noSuchInstance');
+    return $FALSE if (!defined($s5SbsSecurityAction) || $s5SbsSecurityAction eq 'noSuchInstance');
+
     return (
-               defined($s5SbsSecurityStatus)
-            && $s5SbsSecurityStatus == 1
-            && defined($s5SbsSecurityAction)
+            $s5SbsSecurityStatus == 1
             && ( $s5SbsSecurityAction == 6 || $s5SbsSecurityAction == 2 )
-            && ( ( !defined($s5SbsCurrentPortSecurStatus) )
-            || ( $s5SbsCurrentPortSecurStatus >= 2 ) )
+            && (!defined($s5SbsCurrentPortSecurStatus) 
+                || $s5SbsCurrentPortSecurStatus eq 'noSuchInstance' 
+                || $s5SbsCurrentPortSecurStatus >= 2)
     );
 }
 
