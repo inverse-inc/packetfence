@@ -26,6 +26,7 @@ Enhancements
 - Updated Developer documentation regarding how to support new wireless hardware
 - Meru module now supports firmware version identification
 - Improvements in the logrotate script (#1198)
+- MAC address format xxxx-xxxx-xxxx supported in our FreeRADIUS' module
 
 Bug Fixes
 - Fixed important Nortel support regressions (introduced in 2.1.0: #1183, #1195)
