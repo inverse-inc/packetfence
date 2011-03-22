@@ -20,12 +20,13 @@ New Hardware Support
 - Motorola RF Switches (Wireless Controllers)
 
 Enhancements
-- New DHCP fingerprint for Cisco SPA series IP Phone
 - DHCP fingerprints sharing now allows submitter to send computer name, user-
   agent and a contact email to help us identify the devices better (#983)
 - Updated Developer documentation regarding how to support new wireless hardware
 - Meru module now supports firmware version identification
 - Improvements in the logrotate script (#1198)
+- New DHCP fingerprint for Cisco SPA series IP Phone, Mikrotik, Ubuntu Server 
+  and Synology NAS
 
 Bug Fixes
 - Fixed important Nortel support regressions (introduced in 2.1.0: #1183, #1195)
