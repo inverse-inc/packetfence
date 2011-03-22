@@ -105,8 +105,7 @@ Requires: perl(Parse::RecDescent)
 Requires: perl-Readonly, perl(Readonly::XS)
 Requires: perl-Regexp-Common
 Requires: rrdtool, perl-rrdtool
-# added Class::Inspector dependency to mitigate upstream packaging issue with SOAP-Lite see #1194
-Requires: perl-SOAP-Lite, perl(Class::Inspector)
+Requires: perl-SOAP-Lite
 Requires: perl-Template-Toolkit
 Requires: perl-TermReadKey
 Requires: perl-Thread-Pool
@@ -546,6 +545,10 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Tue Mar 22 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Removed perl-Class-Inspector as a required package,
+  dependency is now insured by perl-SOAP-Lite.
+
 * Thu Mar 17 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Now installing logrotate script by default
 
