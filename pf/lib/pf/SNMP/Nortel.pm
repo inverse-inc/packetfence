@@ -29,9 +29,13 @@ use strict;
 use warnings;
 use diagnostics;
 
-use base ('pf::SNMP');
 use Log::Log4perl;
 use Net::SNMP;
+
+use pf::config;
+use pf::util;
+
+use base ('pf::SNMP');
 
 use pf::config;
 =head1 METHODS
@@ -45,15 +49,15 @@ sub getVersion {
     my ($this)        = @_;
     my $oid_s5ChasVer = '1.3.6.1.4.1.45.1.6.3.1.5.0';
     my $logger        = Log::Log4perl::get_logger( ref($this) );
+
     if ( !$this->connectRead() ) {
         return '';
     }
+
     $logger->trace("SNMP get_request for s5ChasVer: $oid_s5ChasVer");
-    my $result = $this->{_sessionRead}
-        ->get_request( -varbindlist => [$oid_s5ChasVer] );
-    if ( exists( $result->{$oid_s5ChasVer} )
-        && ( $result->{$oid_s5ChasVer} ne 'noSuchInstance' ) )
-    {
+
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_s5ChasVer] );
+    if ( exists( $result->{$oid_s5ChasVer} ) && ( $result->{$oid_s5ChasVer} ne 'noSuchInstance' ) ) {
         return $result->{$oid_s5ChasVer};
     }
     return '';
@@ -330,30 +334,26 @@ sub getIfIndexFromBoardPort {
 sub getAllSecureMacAddresses {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
-    my $OID_s5SbsAuthCfgAccessCtrlType
-        = '1.3.6.1.4.1.45.1.6.5.3.10.1.4';    #S5-SWITCH-BAYSECURE-MIB
+    my $OID_s5SbsAuthCfgAccessCtrlType = '1.3.6.1.4.1.45.1.6.5.3.10.1.4'; #S5-SWITCH-BAYSECURE-MIB
 
     my $secureMacAddrHashRef = {};
     if ( !$this->connectRead() ) {
         return $secureMacAddrHashRef;
     }
-    my $result = $this->{_sessionRead}
-        ->get_table( -baseoid => "$OID_s5SbsAuthCfgAccessCtrlType" );
+
+    my $result = $this->{_sessionRead}->get_table( -baseoid => "$OID_s5SbsAuthCfgAccessCtrlType" );
     while ( my ( $oid_including_mac, $ctrlType ) = each( %{$result} ) ) {
-        if ((   $oid_including_mac
-                =~ /^$OID_s5SbsAuthCfgAccessCtrlType\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)$/
-            )
-            && ( $ctrlType == 1 )
-            )
-        {
-            my $boardIndx = $1;
-            my $portIndx  = $2;
-            my $ifIndex
-                = $this->getIfIndexFromBoardPort( $boardIndx, $portIndx );
-            my $oldMac = sprintf( "%02x:%02x:%02x:%02x:%02x:%02x",
-                $3, $4, $5, $6, $7, $8 );
-            push @{ $secureMacAddrHashRef->{$oldMac}->{$ifIndex} },
-                $this->getVlan($ifIndex);
+        if (( $oid_including_mac =~ 
+            /^$OID_s5SbsAuthCfgAccessCtrlType
+                \.([0-9]+)\.([0-9]+)                                 # boardIndex, portIndex
+                \.([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)   # MAC address
+            $/x) && ( $ctrlType == 1 )) {
+
+                my $boardIndx = $1;
+                my $portIndx  = $2;
+                my $ifIndex = $this->getIfIndexFromBoardPort( $boardIndx, $portIndx );
+                my $oldMac = oid2mac($3);
+                push @{ $secureMacAddrHashRef->{$oldMac}->{$ifIndex} }, $this->getVlan($ifIndex);
         }
     }
 
@@ -363,8 +363,7 @@ sub getAllSecureMacAddresses {
 sub getSecureMacAddresses {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
-    my $OID_s5SbsAuthCfgAccessCtrlType
-        = '1.3.6.1.4.1.45.1.6.5.3.10.1.4';    #S5-SWITCH-BAYSECURE-MIB
+    my $OID_s5SbsAuthCfgAccessCtrlType = '1.3.6.1.4.1.45.1.6.5.3.10.1.4'; #S5-SWITCH-BAYSECURE-MIB
     my $secureMacAddrHashRef = {};
 
     if ( !$this->connectRead() ) {
@@ -376,18 +375,18 @@ sub getSecureMacAddresses {
     $logger->trace(
         "SNMP get_table for s5SbsAuthCfgAccessCtrlType: $OID_s5SbsAuthCfgAccessCtrlType.$boardIndx.$portIndx"
     );
-    my $result = $this->{_sessionRead}->get_table(
-        -baseoid => "$OID_s5SbsAuthCfgAccessCtrlType.$boardIndx.$portIndx" );
+
+    my $result = $this->{_sessionRead}->get_table( -baseoid => "$OID_s5SbsAuthCfgAccessCtrlType.$boardIndx.$portIndx" );
+
     while ( my ( $oid_including_mac, $ctrlType ) = each( %{$result} ) ) {
-        if ((   $oid_including_mac
-                =~ /^$OID_s5SbsAuthCfgAccessCtrlType\.$boardIndx\.$portIndx\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)$/
-            )
-            && ( $ctrlType == 1 )
-            )
-        {
-            my $oldMac = sprintf( "%02x:%02x:%02x:%02x:%02x:%02x",
-                $1, $2, $3, $4, $5, $6 );
-            push @{ $secureMacAddrHashRef->{$oldMac} }, $oldVlan;
+        if (( $oid_including_mac =~ 
+            /^$OID_s5SbsAuthCfgAccessCtrlType
+                \.$boardIndx\.$portIndx                             # boardIndex, portIndex
+                \.([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)  # MAC address
+            $/x ) && ( $ctrlType == 1 )) {
+
+                my $oldMac = oid2mac($1);
+                push @{ $secureMacAddrHashRef->{$oldMac} }, $oldVlan;
         }
     }
 
@@ -418,65 +417,42 @@ sub authorizeMAC {
 #called with $authorized set to true, creates a new line to authorize the MAC
 #when $authorized is set to false, deletes an existing line
 sub _authorizeMAC {
-    my ( $this, $ifIndex, $MACHexString, $authorize ) = @_;
+    my ( $this, $ifIndex, $mac, $authorize ) = @_;
     my $OID_s5SbsAuthCfgAccessCtrlType = '1.3.6.1.4.1.45.1.6.5.3.10.1.4';
     my $OID_s5SbsAuthCfgStatus         = '1.3.6.1.4.1.45.1.6.5.3.10.1.5';
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     if ( !$this->isProductionMode() ) {
-        $logger->info(
-            "not in production mode ... we won't delete an entry from the SecureMacAddrTable"
-        );
+        $logger->info( "not in production mode ... we won't delete an entry from the SecureMacAddrTable" );
         return 1;
-    }
-
-    my ( $boardIndx, $portIndx ) = $this->getBoardPortFromIfIndex($ifIndex);
-
-    my $cfgStatus = ($authorize) ? 2 : 3;
-
-    #convert MAC into decimal
-    #TODO extract this logic into a MAC2OID sub in util
-    my @MACArray = split( /:/, $MACHexString );
-    my $MACDecString = '';
-    foreach my $hexPiece (@MACArray) {
-        if ( $MACDecString ne '' ) {
-            $MACDecString .= ".";
-        }
-        $MACDecString .= hex($hexPiece);
     }
 
     if ( !$this->connectWrite() ) {
         return 0;
     }
-    my $result;
 
+    # setup config parameters
+    my ( $boardIndx, $portIndx ) = $this->getBoardPortFromIfIndex($ifIndex);
+    my $cfgStatus = ($authorize) ? 2 : 3;
+    my $mac_oid = mac2oid($mac);
+
+    my $result;
     if ($authorize) {
-        $logger->trace(
-            "SNMP set_request for s5SbsAuthCfgAccessCtrlType: $OID_s5SbsAuthCfgAccessCtrlType"
-        );
+        $logger->trace( "SNMP set_request for s5SbsAuthCfgAccessCtrlType: $OID_s5SbsAuthCfgAccessCtrlType" );
         $result = $this->{_sessionWrite}->set_request(
             -varbindlist => [
-                "$OID_s5SbsAuthCfgAccessCtrlType.$boardIndx.$portIndx.$MACDecString",
-                Net::SNMP::INTEGER,
-                1,
-                "$OID_s5SbsAuthCfgStatus.$boardIndx.$portIndx.$MACDecString",
-                Net::SNMP::INTEGER,
-                $cfgStatus
+                "$OID_s5SbsAuthCfgAccessCtrlType.$boardIndx.$portIndx.$mac_oid", Net::SNMP::INTEGER, $TRUE,
+                "$OID_s5SbsAuthCfgStatus.$boardIndx.$portIndx.$mac_oid", Net::SNMP::INTEGER, $cfgStatus
             ]
         );
     } else {
-        $logger->trace(
-            "SNMP set_request for s5SbsAuthCfgStatus: $OID_s5SbsAuthCfgStatus"
-        );
+        $logger->trace( "SNMP set_request for s5SbsAuthCfgStatus: $OID_s5SbsAuthCfgStatus" );
         $result = $this->{_sessionWrite}->set_request(
             -varbindlist => [
-                "$OID_s5SbsAuthCfgStatus.$boardIndx.$portIndx.$MACDecString",
-                Net::SNMP::INTEGER,
-                $cfgStatus
+                "$OID_s5SbsAuthCfgStatus.$boardIndx.$portIndx.$mac_oid", Net::SNMP::INTEGER, $cfgStatus
             ]
         );
     }
-
     return ( defined($result) );
 }
 

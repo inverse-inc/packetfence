@@ -1,0 +1,1 @@
+DEFAULT EAP-Message !* "", Auth-Type := Accept

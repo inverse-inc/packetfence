@@ -144,10 +144,6 @@ sub instantiate {
                    $SwitchConfig{$requestedSwitch}{'customVlan5'}
                 || $SwitchConfig{'default'}{'customVlan5'}
         ),
-        '-dbHostname'  => $Config{'database'}{'host'},
-        '-dbName'      => $Config{'database'}{'db'},
-        '-dbPassword'  => $Config{'database'}{'pass'},
-        '-dbUser'      => $Config{'database'}{'user'},
         '-guestVlan' => (
                    $SwitchConfig{$requestedSwitch}{'guestVlan'}
                 || $SwitchConfig{'default'}{'guestVlan'}
