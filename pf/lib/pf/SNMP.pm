@@ -1080,20 +1080,20 @@ sub getMacAtIfIndex {
     my $start  = time;
     my @macArray;
 
-    # we try to get the MAC 30 times or for 2 minutes whichever comes first
+    # we try to get the MAC macSearchesMaxNb times or for 2 minutes whichever comes first
     do {
-        sleep(2) unless ( $i == 0 );
-        $logger->debug( "attempt "
-                . ( $i + 1 )
-                . " to obtain mac at "
-                . $this->{_ip}
-                . " ifIndex $ifIndex" );
+        sleep($this->{_macSearchesSleepInterval}) unless ( $i == 0 );
+        $logger->debug( "attempt " . ( $i + 1 ) . " to obtain mac at " . $this->{_ip} . " ifIndex $ifIndex" );
         @macArray = $this->_getMacAtIfIndex($ifIndex);
         $i++;
-    } while (($i < 30) && ((time-$start) < 120) && (scalar(@macArray) == 0));
+    } while (
+        ($i < $this->{_macSearchesMaxNb}) # number of attempts smaller than this parameter
+        && ((time-$start) < 120) # total time spent smaller than 120 seconds (TODO extract into parameter)
+        && (scalar(@macArray) == 0) # still not found
+    );
 
     if (scalar(@macArray) == 0) {
-        if ($i >= 30) {
+        if ($i >= $this->{_macSearchesMaxNb}) {
             $logger->warn("Tried to grab MAC address at ifIndex $ifIndex "
                 ."on switch ".$this->{_ip}." 30 times and failed");
         } else {

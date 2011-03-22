@@ -92,7 +92,7 @@ use pf::floatingdevice::custom;
 
 # }}}1
 
-Log::Log4perl->init( INSTALL_DIR . '/conf/log.conf' );
+Log::Log4perl->init_and_watch( INSTALL_DIR . '/conf/log.conf', 300 );
 my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  threads->self->tid() );
@@ -1495,11 +1495,10 @@ sub handleTrap {
                 $switch->disconnectWrite();
                 return;
             }
-            $logger->debug( "attempt "
-                    . ( $nbAttempts + 1 )
-                    . " to obtain MAC at $switch_ip ifIndex $switch_port" );
+            $logger->debug( "attempt " . ($nbAttempts + 1) . " to obtain MAC at $switch_ip ifIndex $switch_port" );
             @macArray = $switch->_getMacAtIfIndex($switch_port);
             $nbAttempts++;
+            # TODO constantify the 120 seconds
             } while (($nbAttempts < $switch->{_macSearchesMaxNb}) && ((time-$start) < 120) && (scalar(@macArray) == 0));
 
             if (scalar(@macArray) == 0) {
