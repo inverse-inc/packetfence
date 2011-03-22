@@ -154,6 +154,7 @@ server.
 %package freeradius2
 Group: System Environment/Daemons
 Requires: freeradius2, freeradius2-perl
+Requires: perl-SOAP-Lite
 Summary: Configuration pack for FreeRADIUS 2
 
 %description freeradius2
@@ -606,6 +607,9 @@ fi
 %config(noreplace)      	/etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Tue Mar 22 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Added dependency for perl-SOAP-Lite for the freeradius2 package
+
 * Thu Mar 17 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Now installing logrotate script by default
 
