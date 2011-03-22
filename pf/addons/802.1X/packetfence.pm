@@ -113,20 +113,8 @@ sub post_auth {
     # syslog logging
     openlog("radiusd_pf", "perror,pid", "user");
 
-    my $mac = $RAD_REQUEST{'Calling-Station-Id'};
+    my $mac = clean_mac($RAD_REQUEST{'Calling-Station-Id'});
     my $port = $RAD_REQUEST{'NAS-Port'};
-
-    #format MAC
-    if (defined($mac) && $mac ne '') {
-        $mac =~ s/ /0/g;
-        $mac =~ s/-/:/g;
-        $mac =~ s/\.//g;
-        if (length($mac) == 12) {
-            $mac = substr($mac,0,2) . ":" . substr($mac,2,2) . ":" . substr($mac,4,2) . ":" . 
-                   substr($mac,6,2) . ":" . substr($mac,8,2) . ":" . substr($mac,10,2);
-        }
-        $mac = lc($mac);
-    }
 
     # invalid MAC, this certainly happens on some type of RADIUS calls, we accept so it'll go on and ask other modules
     if (length($mac) != 17) {
@@ -246,9 +234,8 @@ sub is_eap_mac_autentication {
         # clean station MAC
         my $mac = $RAD_REQUEST{'Calling-Station-Id'};
         $mac =~ s/ /0/g;
-        $mac =~ s/-//g;
-        $mac =~ s/://g;
-        $mac =~ s/\.//g;
+        # trim garbage
+        $mac =~ s/[\s\-\.:]//g;
         if (length($mac) == 12) {
 
             # if Calling MAC and User-Name are the same thing, then we are processing a EAP Mac Auth request
@@ -262,6 +249,27 @@ sub is_eap_mac_autentication {
         }
     }
     return 0;
+}
+
+=item * clean_mac 
+
+Clean a MAC address accepting xx-xx-xx-xx-xx-xx, xx:xx:xx:xx:xx:xx, xxxx-xxxx-xxxx and xxxx.xxxx.xxxx.
+
+Returns a string with MAC in format: xx:xx:xx:xx:xx:xx
+
+Note: This sub was copied from pf::util.
+
+=cut
+sub clean_mac {
+    my ($mac) = @_;
+    return (0) if ( !$mac );
+    # trim garbage
+    $mac =~ s/[\s\-\.:]//g;
+    # lowercase
+    $mac = lc($mac);
+    # inject :
+    $mac =~ s/([a-f0-9]{2})(?!$)/$1:/g if ( $mac =~ /^[a-f0-9]{12}$/i );
+    return ($mac);
 }
 
 #

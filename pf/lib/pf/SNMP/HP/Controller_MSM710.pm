@@ -15,7 +15,6 @@ use warnings;
 use diagnostics;
 
 use Log::Log4perl;
-use Net::Telnet;
 use POSIX;
 
 use base ('pf::SNMP::HP');
@@ -112,11 +111,11 @@ sub deauthenticateMac {
 
                 $logger->debug("deauthenticating $mac on controller " . $this->{_ip});
                 $logger->trace("SNMP set_request for coDevWirCliDisassociate: 
-                    $OID_coDevWirCliDisassociate.$coDevWirCliStaIndex = $HP::DISASSOCIATE" );
+                    $OID_coDevWirCliDisassociate.$coDevWirCliStaIndex = $HP::DISASSOCIATE"
+                );
                 $result = $this->{_sessionWrite}->set_request(-varbindlist => [
-                    "$OID_coDevWirCliDisassociate.$coDevWirCliStaIndex", 
-                    Net::SNMP::INTEGER,
-                    $HP::DISASSOCIATE]);
+                    "$OID_coDevWirCliDisassociate.$coDevWirCliStaIndex", Net::SNMP::INTEGER, $HP::DISASSOCIATE
+                ]);
                 $count++;
                 last;
             }

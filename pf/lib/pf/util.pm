@@ -97,7 +97,7 @@ sub valid_ip {
 
 =item clean_mac 
 
-Clean a MAC address accepting xx-xx-xx-xx-xx-xx, xx:xx:xx:xx:xx:xx and xxxx.xxxx.xxxx.
+Clean a MAC address accepting xx-xx-xx-xx-xx-xx, xx:xx:xx:xx:xx:xx, xxxx-xxxx-xxxx and xxxx.xxxx.xxxx.
 
 Returns a string with MAC in format: xx:xx:xx:xx:xx:xx
 
@@ -105,19 +105,21 @@ Returns a string with MAC in format: xx:xx:xx:xx:xx:xx
 sub clean_mac {
     my ($mac) = @_;
     return (0) if ( !$mac );
-    $mac =~ s/\s//g;
+    # trim garbage
+    $mac =~ s/[\s\-\.:]//g;
+    # lowercase
     $mac = lc($mac);
-    $mac =~ s/\.//g if ( $mac =~ /^([0-9a-f]{4}(\.|$)){3}$/i );
+    # inject :
     $mac =~ s/([a-f0-9]{2})(?!$)/$1:/g if ( $mac =~ /^[a-f0-9]{12}$/i );
-    $mac = join q {:} => map { sprintf "%02x" => hex } split m {:|\-} => $mac;
     return ($mac);
 }
+
 
 =item valid_mac 
 
 Validates MAC addresses. Returns 1 or 0 (true or false)
 
-Accepting xx-xx-xx-xx-xx-xx, xx:xx:xx:xx:xx:xx and xxxx.xxxx.xxxx
+Accepting xx-xx-xx-xx-xx-xx, xx:xx:xx:xx:xx:xx, xxxx-xxxx-xxxx and xxxx.xxxx.xxxx
 
 =cut
 sub valid_mac {

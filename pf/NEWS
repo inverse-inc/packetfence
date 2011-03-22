@@ -25,6 +25,7 @@ Enhancements
 - Updated Developer documentation regarding how to support new wireless hardware
 - Meru module now supports firmware version identification
 - Improvements in the logrotate script (#1198)
+- MAC address format xxxx-xxxx-xxxx supported in our FreeRADIUS' module
 - New DHCP fingerprint for Cisco SPA series IP Phone, Mikrotik, Ubuntu Server 
   and Synology NAS
 
