@@ -11,8 +11,10 @@ use lib qw(
 
 use Test::Pod::Coverage tests => 14;
 
+pod_coverage_ok('authentication::guest_managers');
 pod_coverage_ok("authentication::ldap");
 pod_coverage_ok("authentication::local");
+pod_coverage_ok('authentication::preregistered_guests');
 pod_coverage_ok("authentication::radius");
 
 pod_coverage_ok("pf::radius");

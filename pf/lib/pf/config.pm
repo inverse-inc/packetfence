@@ -70,6 +70,7 @@ BEGIN {
         %connection_type %connection_type_to_str %connection_type_explained
         $RADIUS_API_LEVEL $VLAN_API_LEVEL
         %CAPTIVE_PORTAL
+        normalize_time
     );
 }
 

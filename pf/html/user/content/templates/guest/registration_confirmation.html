@@ -1,0 +1,54 @@
+<html>
+
+<head>
+<title>[%txt_page_title %]</title>
+<style>
+<!--
+.bio         { }
+-->
+</style>
+</head>
+
+<body>
+
+<center>
+  <table border="0" width="650" id="table2">
+    <tr>
+      <td align="center">
+      <img border="0" src="[% logo %]">
+      <td>
+    </tr>
+    <tr>
+      <td align="center" class="bio">
+
+        <p align="center"><font face="Arial" size="+1"><b>[% txt_page_header %]</b></font></p>
+
+          <div id="login">
+              <div id="guest">
+                <table id="userInfo" class="form">
+                  <tr>
+                    <th valign="top" nowrap><label for="username">[% txt_username %]</label></th>
+                    <td valign="top">[% info.username %]</td>
+                  </tr>
+                  <tr>
+                    <th valign="top" nowrap><label for="password">[% txt_password %]</label></th>
+                    <td valign="top">[% info.password %]</td>
+                  </tr>
+                  <tr>
+                    <td colspan="2">[% txt_valid_from %] [% txt_duration %]</td>
+                  </tr>
+                </table>
+                <input type="button" name="print" value="[% txt_button_print %]" class="submitButton" onClick="window.print()"/>
+                <input type="button" name="return" value="[% txt_button_back %]" class="submitButton" onClick="document.location='/cgi-bin/guest-management.cgi'"/>
+              </div>
+          </div>
+
+      </td>
+    </tr>
+  </table>
+</center>
+
+</body>
+
+</html>
+

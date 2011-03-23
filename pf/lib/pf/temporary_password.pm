@@ -23,27 +23,37 @@ pf::temporary_password::temporary_password_view()
 
 Remove this note when it will be no longer relevant. ;)
 
+=head1 BUGS AND LIMITATIONS
+
+If you keep getting the same passwords over and over again make sure that you've got
+  PerlChildInitHandler "sub { srand }"
+in your apache config.
+
 =cut
 #TODO rename to temporary_credentials to better reflect what this is about
-#TODO handle entry status (expire previously requested passwords, etc.)
 #TODO properly hash passwords (1000 SHA1 iterations of salt + password)
 use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
+
 use Crypt::GeneratePassword qw(word);
 use Log::Log4perl;
 use POSIX;
 use Readonly;
 
-Readonly::Scalar our $AUTH_SUCCESS => 0;
-Readonly::Scalar our $AUTH_FAILED_INVALID => 1;
-Readonly::Scalar our $AUTH_FAILED_EXPIRED => 2;
-
-# Expiration time in seconds
-Readonly::Scalar our $EXPIRATION => 31*24*60*60; # defaults to 31 days
+our $VERSION = 1.10;
 
 # Constants
 use constant TEMPORARY_PASSWORD => 'temporary_password';
+
+# Authenticatation return codes
+Readonly our $AUTH_SUCCESS => 0;
+Readonly our $AUTH_FAILED_INVALID => 1;
+Readonly our $AUTH_FAILED_EXPIRED => 2;
+Readonly our $AUTH_FAILED_NOT_YET_VALID => 3;
+
+# Expiration time in seconds
+Readonly::Scalar our $EXPIRATION => 31*24*60*60; # defaults to 31 days
 
 BEGIN {
     use Exporter ();
@@ -55,10 +65,10 @@ BEGIN {
     );
 
     @EXPORT_OK = qw(
-        view add modify delete
+        view add modify 
         create
         validate_password
-        $AUTH_SUCCESS $AUTH_FAILED_INVALID $AUTH_FAILED_EXPIRED
+        $AUTH_SUCCESS $AUTH_FAILED_INVALID $AUTH_FAILED_EXPIRED $AUTH_FAILED_NOT_YET_VALID
     );
 }
 
@@ -85,23 +95,24 @@ sub temporary_password_db_prepare {
     $logger->debug("Preparing pf::temporary_password database queries");
 
     $temporary_password_statements->{'temporary_password_view_sql'} = get_db_handle()->prepare(qq[
-        SELECT tp_id, pid, password, expiration
+        SELECT pid, password, valid_from, expiration, access_duration
         FROM temporary_password 
-        WHERE tp_id = ?
+        WHERE pid = ?
     ]);
 
     $temporary_password_statements->{'temporary_password_add_sql'} = get_db_handle()->prepare(qq[
         INSERT INTO temporary_password
-            (pid, password, expiration)
-        VALUES (?, ?, ?)
+            (pid, password, valid_from, expiration, access_duration)
+        VALUES (?, ?, ?, ?, ?)
     ]);
 
     $temporary_password_statements->{'temporary_password_delete_sql'} = get_db_handle()->prepare(
-        qq [ DELETE FROM temporary_password WHERE tp_id = ? ]
+        qq [ DELETE FROM temporary_password WHERE pid = ? ]
     );
 
     $temporary_password_statements->{'temporary_password_validate_password_sql'} = get_db_handle()->prepare(qq[ 
-        SELECT pid, password, UNIX_TIMESTAMP(expiration) as expiration
+        SELECT pid, password, UNIX_TIMESTAMP(valid_from) as valid_from, UNIX_TIMESTAMP(expiration) as expiration,
+            access_duration
         FROM temporary_password
         WHERE pid = ?
         ORDER BY expiration DESC
@@ -117,9 +128,9 @@ view a a temporary password record, returns an hashref
 
 =cut
 sub view {
-    my ($code_id) = @_;
+    my ($pid) = @_;
     my $query = db_query_execute(
-        TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_view_sql', $code_id
+        TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_view_sql', $pid
     );
     my $ref = $query->fetchrow_hashref();
 
@@ -137,20 +148,21 @@ sub add {
     my (%data) = @_;
 
     return(db_data(TEMPORARY_PASSWORD, $temporary_password_statements, 
-        'temporary_password_add_sql', $data{'pid'}, $data{'password'}, $data{'expiration'}
+        'temporary_password_add_sql', 
+        $data{'pid'}, $data{'password'}, $data{'valid_from'}, $data{'expiration'}, $data{'access_duration'}
     ));
 }
 
-=item delete 
+=item _delete
 
-delete a temporary password record
+_delete a temporary password record
 
 =cut
-sub delete {
-    my ($code_id) = @_;
+sub _delete {
+    my ($pid) = @_;
 
     return(db_query_execute(
-        TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_delete_sql', $code_id
+        TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_delete_sql', $pid
     ));
 }
 
@@ -163,7 +175,8 @@ sub create {
     my (%data) = @_;
 
     return(db_data(TEMPORARY_PASSWORD, $temporary_password_statements,
-        'temporary_password_add_sql', $data{'pid'}, $data{'password'}, $data{'expiration'}
+        'temporary_password_add_sql',
+        $data{'pid'}, $data{'password'}, $data{'valid_from'}, $data{'expiration'}, $data{'access_duration'}
     ));
 }
 
@@ -188,21 +201,55 @@ Generates a temporary password and add it to the temporary password table.
 
 Returns the temporary password
 
+Optional arguments: 
+
+=over
+
+=item expiration date
+
+Credentials won't work after expiration date
+
+Defaults to module's default (31 days)
+
+=item valid from date
+
+Credentials won't work before valid_from date
+
+Defaults to 0 (works now)
+
+=item acess duration
+
+On login, how long should this user has access?
+
+Defaults to 0 (no per user limit)
+
+=back
+
 =cut
 sub generate {
-    my ($pid) = @_;
+    my ($pid, $expiration, $valid_from, $access_duration) = @_;
     my $logger = Log::Log4perl::get_logger('pf::temporary_password');
-
-    # TODO invalidate previously requested passwords
 
     my %data;
     $data{'pid'} = $pid;
 
-    # caculate activation code expiration
-    $data{'expiration'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $EXPIRATION));
+    # if $expiration is set we use it, otherwise we use the module default
+    $data{'expiration'} = $expiration || POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $EXPIRATION));
+
+    # if $valid_from is set we use it, otherwise set to null which means valid from the begining of time
+    $data{'valid_from'} = $valid_from || undef;
+
+    # if $access_duration is set we use it, otherwise set to null which means don't use per user duration
+    $data{'access_duration'} = $access_duration || undef;
 
     # generate password 
     $data{'password'} = _generate_password();
+
+    # if an entry of the same pid already exist, delete it
+    if (defined(view($pid))) {
+        $logger->info("a new temporary account has been requested for $pid. Deleting previous entry");
+        _delete($pid);
+    }
 
     my $result = create(%data);
     if (defined($result)) {
@@ -220,9 +267,10 @@ sub generate {
 Validate password for a given pid.
 
 Return values:
- $AUTH_SUCCESS - success
+ $AUTH_SUCCESS, access_duration - success
  $AUTH_FAILED_INVALID - invalid user/pass
  $AUTH_FAILED_EXPIRED - password expired
+ $AUTH_FAILED_NOT_YET_VALID - password not valid yet
 
 =cut
 sub validate_password {
@@ -233,31 +281,35 @@ sub validate_password {
         'temporary_password_validate_password_sql', $pid
     );
 
-    my $ref = $query->fetchrow_hashref();
+    my $temppass_record = $query->fetchrow_hashref();
     # just get one row
     $query->finish();
     
-    if (!defined($ref) || ref($ref) ne 'HASH') {
+    if (!defined($temppass_record) || ref($temppass_record) ne 'HASH') {
         return $AUTH_FAILED_INVALID;
     }
-    
+
+    # password is valid but not yet valid
+    # valid_from is in unix timestamp format so an int comparison is enough
+    if ($temppass_record->{'password'} eq $password && $temppass_record->{'valid_from'} > time) {
+        return $AUTH_FAILED_NOT_YET_VALID;
+    }   
+
     # password is valid but expired
     # expiration is in unix timestamp format so an int comparison is enough
-    if ($ref->{'password'} eq $password && $ref->{'expiration'} < time) {
+    if ($temppass_record->{'password'} eq $password && $temppass_record->{'expiration'} < time) {
         return $AUTH_FAILED_EXPIRED;
     }   
-    
+
     # password match success
-    if ($ref->{'password'} eq $password) {
-        return $AUTH_SUCCESS;
+    if ($temppass_record->{'password'} eq $password) {
+        return ( $AUTH_SUCCESS, $temppass_record->{'access_duration'});
     }
-    
+
     # otherwise failure
     return $AUTH_FAILED_INVALID;
 }
 
-
-# TODO: add an expire / cleanup sub
 
 =head1 AUTHOR
 
@@ -265,7 +317,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2010,2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

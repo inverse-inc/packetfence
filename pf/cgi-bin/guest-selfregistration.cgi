@@ -1,5 +1,9 @@
 #!/usr/bin/perl
-#use Data::Dumper;
+=head1 NAME
+
+guest-selfregistration.cgi - guest self registration portal
+
+=cut
 use strict;
 use warnings;
 
@@ -59,7 +63,7 @@ foreach my $param($cgi->param()) {
 if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
 
     # authenticate
-    my ($auth_return, $err) = pf::web::guest::validate($cgi, $session);
+    my ($auth_return, $err) = pf::web::guest::validate_selfregistration($cgi, $session);
 
     # authentication failed, return to guest self-registration page and show error message
     if ($auth_return != 1) {
@@ -128,3 +132,31 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
         $cgi, $session, $cgi->script_name()."?mode=$GUEST_REGISTRATION", $destination_url, $mac
     );
 }
+
+=head1 AUTHOR
+
+Olivier Bilodeau <obilodeau@inverse.ca>
+        
+=head1 COPYRIGHT
+        
+Copyright (C) 2010-2011 Inverse inc.
+    
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+    
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+            
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.            
+                
+=cut
+

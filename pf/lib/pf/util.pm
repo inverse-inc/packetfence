@@ -39,7 +39,7 @@ BEGIN {
         get_internal_devs get_internal_devs_phy get_external_devs get_managed_devs get_internal_macs
         get_internal_info get_gateways get_dhcp_devs createpid readpid deletepid
         pfmon_preload parse_template mysql_date oui_to_vendor mac2oid oid2mac str_to_connection_type 
-        connection_type_to_str
+        connection_type_to_str get_translatable_time
     );
 }
 
@@ -795,6 +795,30 @@ sub str_to_connection_type {
         $logger->warn("unable to parse string into a connection_type constant. called from $package $routine");
         return;
     }
+}
+
+=item get_translatable_time
+
+Returns a tuple with integer and english string representation of a time string as defined in pf.conf.
+ex: 7d will return (7, "day")
+
+Returns undef on failure
+
+=cut
+sub get_translatable_time {
+   my ($time) = @_;
+
+   # grab time unit
+   my ( $value, $unit ) = $time =~ /^(\d+)([smhdwy])$/i;
+   $unit = lc($unit);
+   if ($unit eq "s") { return ("second", "seconds", $value);
+   } elsif ($unit eq "m") { return ("minute", "minutes", $value);
+   } elsif ($unit eq "h") { return ("hour", "hours", $value); 
+   } elsif ($unit eq "d") { return ("day", "days", $value);
+   } elsif ($unit eq "w") { return ("week", "weeks", $value);
+   } elsif ($unit eq "y") { return ("year", "years", $value);
+   }
+   return;
 }
 
 =back

@@ -62,7 +62,7 @@ BEGIN {
     );
 
     @EXPORT_OK = qw(
-        view add modify delete
+        view add modify
         view_by_code
         invalidate_codes
         validate_code
@@ -191,10 +191,10 @@ sub add {
             $data{'expiration'}, $data{'status'}));
 }
 
-=item delete - delete an email activation record
+=item _delete - delete an email activation record
 
 =cut
-sub delete {
+sub _delete {
     my ($code_id) = @_;
 
     return(db_query_execute(EMAIL_ACTIVATION, $email_activation_statements, 'email_activation_delete_sql', $code_id));
@@ -278,7 +278,7 @@ sub _generate_activation_code {
             .$data{'expiration'}."|"
             . $data{'mac'} || $data{'pid'} . "|"
             .$data{'email'}
-	);
+        );
     } else {
         $logger->warn("Hash format unknown, couldn't generate activation code");
     }

@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 49;
+use Test::More tests => 53;
 
 # pf core libs
 use lib '/usr/local/pf/lib';
@@ -14,6 +14,7 @@ BEGIN { use_ok('pf::class') }
 BEGIN { use_ok('pf::configfile') }
 BEGIN { use_ok('pf::config') }
 BEGIN { use_ok('pf::db') }
+BEGIN { use_ok('pf::email_activation') }
 BEGIN { use_ok('pf::floatingdevice') }
 BEGIN { use_ok('pf::floatingdevice::custom') }
 BEGIN { use_ok('pf::freeradius') }
@@ -44,6 +45,7 @@ BEGIN { use_ok('pf::SNMP::constants') }
 BEGIN { use_ok('pf::services') }
 BEGIN { use_ok('pf::services::apache') }
 BEGIN { use_ok('pf::switchlocation') }
+BEGIN { use_ok('pf::temporary_password') }
 BEGIN { use_ok('pf::traplog') }
 BEGIN { use_ok('pf::trigger') }
 BEGIN { use_ok('pf::useragent') }
@@ -58,8 +60,10 @@ BEGIN { use_ok('pf::web::util') }
 
 # external authentication modules
 use lib '/usr/local/pf/conf/';
+BEGIN { use_ok('authentication::guest_managers') }
 BEGIN { use_ok('authentication::ldap') }
 BEGIN { use_ok('authentication::local') }
+BEGIN { use_ok('authentication::preregistered_guests') }
 BEGIN { use_ok('authentication::radius') }
 
 =head1 AUTHOR
