@@ -115,6 +115,8 @@ Requires: perl-YAML
 Requires: php-jpgraph-packetfence = 2.3.4
 Requires: php-ldap
 Requires: perl(Try::Tiny)
+Requires: perl(Crypt::GeneratePassword)
+Requires: perl(MIME::Lite::TT)
 # Required for Radius auth through captive portal
 Requires: perl(Authen::Radius)
 # Required for importation feature
@@ -512,6 +514,7 @@ fi
 %config(noreplace)      /usr/local/pf/lib/pf/vlan/custom.pm
 %dir                    /usr/local/pf/lib/pf/web
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
+                        /usr/local/pf/lib/pf/web/guest.pm
                         /usr/local/pf/lib/pf/web/util.pm
 %dir                    /usr/local/pf/logs
 %doc                    /usr/local/pf/NEWS

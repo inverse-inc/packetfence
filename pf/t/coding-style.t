@@ -82,6 +82,7 @@ my @files = (
     '/usr/local/pf/lib/pf/web.pm',
     '/usr/local/pf/lib/pf/WebAPI.pm',
     '/usr/local/pf/lib/pf/web/custom.pm',
+    '/usr/local/pf/lib/pf/web/guest.pm',
     '/usr/local/pf/lib/pf/web/util.pm',
     '/usr/local/pf/sbin/pfdetect',
     '/usr/local/pf/sbin/pfdhcplistener',
