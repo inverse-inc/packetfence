@@ -40,7 +40,7 @@ Bug Fixes
 - Fixed an issue with the Meru module: If the controller sent SNMP traps to 
   PacketFence a thread would crash. Hopefully this configuration is not 
   required and is rarely done. Regression prevention tests have been added.
-- Fixed the recommended my.cnf configuration in the administration guide (#743)
+- Minor fixes to the Administration Guide (#743)
 
 Translations
 - New German (de) translation (Thanks to Tino Matysiak of Meetyoo Conferencing)
