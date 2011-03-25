@@ -3,214 +3,341 @@
 # This file is distributed under the same license as the PacketFence project.
 # Olivier Bilodeau <obilodeau@inverse.ca>, 2011.
 #
-domain "packetfence"
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"PO-Revision-Date: 2010-11-10 15:16-0400\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2011-03-25 13:06-0500\n"
 "Last-Translator: Olivier Bilodeau <obilodeau@inverse.ca>\n"
 "Language-Team: PacketFence support <support@packetfence.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n>1;"
+"Plural-Forms: nplurals=2; plural=n>1;\n"
+"X-Poedit-Language: French\n"
 
-msgid  "error: access denied not owner"
+msgid "error: access denied not owner"
 msgstr "Acc&egrave;s refus&eacute;: vous n'&ecirc;tes pas le propri&eacute;taire de ce noeud!"
 
-msgid  "error: incorrect mode"
+msgid "error: incorrect mode"
 msgstr "Mode incorrect!"
 
-msgid  "error: invalid login or password"
+msgid "error: invalid login or password"
 msgstr "Login ou mot de passe invalide"
 
-msgid  "error: invalid page number"
+msgid "error: invalid page number"
 msgstr "Num&eacute;ro de page invalide"
 
-msgid  "error: max re-enables reached"
+msgid "error: max re-enables reached"
 msgstr "Nombre maximum de r&eacute;activations atteint!"
 
-msgid  "error: not found in the database"
+msgid "error: not found in the database"
 msgstr "Votre ordinateur n'a pas pu &ecirc;tre trouv&eacute; dans la base de donn&eacute;es de PacketFence. Veuillez red&eacute;marrer afin de resoudre ce probl&egrave;me."
 
-msgid  "error: not trappable IP"
+msgid "error: not trappable IP"
 msgstr "Acc&egrave; refus&eacute;: IP ne peut pas &ecirc;tre isol&eacute;!"
 
-msgid  "error: only register max nodes"
+msgid "error: only register max nodes"
 msgstr "Vous pouvez seulement enregistrer un maximum de %s noeuds!"
 
-msgid  "error: unable to validate credentials at the moment"
+msgid "error: unable to validate credentials at the moment"
 msgstr "Impossible de valider votre login et mot de passe en ce moment"
 
+msgid "error: something went wrong creating the guest"
+msgstr "Il y a eu un probl&egrave;me pour cr&eacute;er l'invit&eacute;"
 
-msgid  "help: provide info"
+msgid "help: provide info"
 msgstr "Si vous avez des questions par rapport &agrave; cette page, veuillez contacter votre &eacute;quipe informatique et leur fournir les informations suivantes: "
 
-
-msgid  "Register"
-msgstr "Enregistrer"
-
-msgid  "register: all systems must be registered"
+msgid "register: all systems must be registered"
 msgstr "Comme nous pourrions devoir contacter les usager des ordinateurs, tous les ordinateurs de ce r&eacute;seau doivent &ecirc;tre enregistr&eacute;s."
 
-msgid  "register: aup"
+msgid "register: aup"
 msgstr "Le processus d'enregistrement demande l'acceptation de la politique d'utilisation du r&eacute;seau. Veuillez suivre le lien suivant afin de consulter celle-ci"
 
-msgid  "register: to complete"
+msgid "register: to complete"
 msgstr "Afin de compl&eacute;ter le processus d'enregistrement, vous devez vous authentifier avec votre nom d'usager et mot de passe"
 
-msgid  "register: select authentications"
+msgid "register: select authentications"
 msgstr "Choisir l'authentification"
 
-msgid  "register: skip registration"
+msgid "register: skip registration"
 msgstr "Enregistrer plus tard"
- 
 
-msgid  "release: enabling network"
+msgid "release: enabling network"
 msgstr "Activation de l'acc&egrave;s au r&eacute;seau"
 
-msgid  "release: reopen browser"
-msgstr "Vous devrez possiblement fermer votre navigateur afin que votre acc&eacute;es Internet fonctionne. Si vous &ecirc;tre branch&eacute; dans un telephone, vous devrez red&eacute;marrer votre ordinateur afin que votre acc&eacute;es Internet fonctionne."
+msgid "release: reopen browser"
+msgstr "Vous devrez possiblement fermer votre navigateur afin que votre acc&egrave;s Internet fonctionne. Si vous &ecirc;tre branch&eacute; dans un telephone, vous devrez red&eacute;marrer votre ordinateur afin que votre acc&egrave;s Internet fonctionne."
 
-msgid  "scan: scan in progress"
+msgid "scan: scan in progress"
 msgstr "Votre syst&egrave;me est en cours d'analyse"
 
-msgid  "scan in progress contact support if too long"
+msgid "scan in progress contact support if too long"
 msgstr "Votre syst&egrave;me est toujours en cours d'analyse. Le processus a d&eacute;but&eacute; le %s. Ce proc&eacute;d&eacute; prend habituellement quelques minutes. Par contre, s'il n'est toujours pas termin&eacute; apr&egrave;s ce d&eacute;lai, contacter votre &eacute;quipe informatique. Ayez en main les information suivantes:"
 
-msgid  "automatically refresh"
+msgid "automatically refresh"
 msgstr "Cette page se rafra&icirc;chit automatiquement &agrave toutes les %s secondes pour v&eacute;rifier si l'analyse est compl&eacute;t&eacute;e."
 
-msgid  "Acceptable Use Policy"
+msgid "Acceptable Use Policy"
 msgstr "Politique d'utilisation du r&eacute;seau"
 
-msgid  "Addresses"
+msgid "Addresses"
 msgstr "Adresses"
 
-msgid  "De-register node"
+msgid "De-register node"
 msgstr "D&eacute;senregistrer le noeud"
 
-msgid  "Enabling ..."
+msgid "Enabling ..."
 msgstr "Activation ..."
 
-msgid  "Scanning ..."
+msgid "Scanning ..."
 msgstr "Analyse en cours ..."
 
-msgid  "Gateway"
+msgid "Gateway"
 msgstr "Passerelle"
 
-msgid  "grace"
+msgid "grace"
 msgstr "gr&acirc;ce"
 
-msgid  "Hostname"
+msgid "Hostname"
 msgstr "Nom d'h&ocirc;te"
 
-msgid  "IP"
+msgid "IP"
 msgstr "Adresse IP"
 
-msgid  "Login"
+msgid "Login"
 msgstr "Authentification"
 
-msgid  "MAC"
+msgid "MAC"
 msgstr "MAC"
 
-msgid  "network access is being enabled"
+msgid "network access is being enabled"
 msgstr "Votre acc&egrave;s au r&eacute;seau est en cours d'activation - ce processus prendra approximativement %s secondes."
 
-msgid  "system scan in progress"
+msgid "system scan in progress"
 msgstr "Analyse de votre syst&egrave;me en cours - ce processus prendra approximativement %s secondes."
 
-msgid  "Node"
+msgid "Node"
 msgstr "Noeud"
 
-msgid  "PacketFence Registration System"
+msgid "PacketFence Registration System"
 msgstr "Syst&egrave;me d'enregistrement PacketFence"
 
-msgid  "Password"
+msgid "Password"
 msgstr "Mot de passe"
 
-msgid  "PID"
+msgid "PID"
 msgstr "Propri&eacute;taire"
 
-msgid  "Print this page"
+msgid "Print this page"
 msgstr "Imprimer cette page"
 
-msgid  "reg"
+msgid "reg"
 msgstr "enregistr&eacute;"
 
-msgid  "Sorry"
+msgid "Sorry"
 msgstr "D&eacute;sol&eacute;!"
 
-msgid  "Status"
+msgid "Status"
 msgstr "Status"
 
-msgid  "unknown"
+msgid "unknown"
 msgstr "inconnu"
 
-msgid  "unreg"
+msgid "unreg"
 msgstr "non enregistr&eacute;"
 
-msgid  "Username"
+msgid "Username"
 msgstr "Nom d'utilisateur"
 
-msgid  "Violations"
+msgid "Violations"
 msgstr "Violations"
 
-msgid  "Quarantine Established!"
+msgid "Quarantine Established!"
 msgstr "Quarantaine &eacute;tablie"
 
-msgid  "Registration Notification"
+msgid "Registration Notification"
 msgstr "Avertissement d'enregistrement"
 
-msgid  "Additional Assistance"
+msgid "Additional Assistance"
 msgstr "Assistance suppl&eacute;mentaire"
 
-msgid  "If your network connectivity becomes permanently disabled or you are unable to follow the instructions above, please contact your local IT support staff for assistance."
-msgstr  "Si votre connexion r&eacute;seau devient d&eacute;faillante de fa&ccedil;on permanente ou si vous ne pouvez pas suivre les instructions ci-dessus, veuillez contacter votre &eacute;quipe de soutien technique."
+msgid "If your network connectivity becomes permanently disabled or you are unable to follow the instructions above, please contact your local IT support staff for assistance."
+msgstr "Si votre connexion r&eacute;seau devient d&eacute;faillante de fa&ccedil;on permanente ou si vous ne pouvez pas suivre les instructions ci-dessus, veuillez contacter votre &eacute;quipe de soutien technique."
 
-msgid  "The following information should be provided upon request:"
+msgid "The following information should be provided upon request:"
 msgstr "Si n&eacute;cessaire, veuillez fournir les informations suivantes:"
 
-msgid  "IP Address"
+msgid "IP Address"
 msgstr "Adresse IP"
 
-msgid  "MAC Address"
+msgid "MAC Address"
 msgstr "Adresse MAC"
 
-msgid  "Banned Operating System"
+msgid "Banned Operating System"
 msgstr "Syst&egrave;me d'exploitation non autoris&eacute;"
 
-msgid  "You have been detected using an operating system not allowed on the network. Please install a more recent operating system"
+msgid "You have been detected using an operating system not allowed on the network. Please install a more recent operating system"
 msgstr "Nous avons d&eacute;tect&eacute; une version de syst&egrave;me d'exploitation (OS) non autoris&eacute;e sur ce r&eacute;seau. Veuillez installer ou faire installer un syst&egrave;me d'exploitation plus r&eacute;cent et plus s&eacute;curitaire"
 
-msgid  "Your system will likely need to be rebuilt. Please contact your local support staff for more information."
+msgid "Darknet Violation"
+msgstr "Violation Darknet"
+
+msgid "Your system will likely need to be rebuilt. Please contact your local support staff for more information."
 msgstr "Il est probablement n&eacute;cessaire de reinstaller votre ordinateur. Veuillez contacter votre &eacute;quipe de soutien technique pour plus d'informations."
 
-msgid  "Windows patches are not up to date"
+msgid "Windows patches are not up to date"
 msgstr "Vous n'avez pas install&eacute; toutes les mises-&agrave;-jour Windows n&eacute;cessaires"
 
-msgid  "Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken. Instructions for disinfection are below:"
+msgid "Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken. Instructions for disinfection are below:"
 msgstr "Du au danger de cette probl&eacutematique pour tous les autres ordinateurs du r&eacute;seau, votre acc&egrave; a &eacute;t&eacute; d&eacute;sactiv&eacute;"
 
-msgid  "Generic"
+msgid "Generic"
 msgstr "G&eacute;n&eacute;rique"
 
-msgid  "Network connectivity has been disabled."
+msgid "Network connectivity has been disabled."
 msgstr "Acc&egrave;s r&eacute;seau d&eacute;sactive."
 
-msgid  "Please contact your support staff for more information."
+msgid "Please contact your support staff for more information."
 msgstr "Veuillez contacter votre &eacute;quipe de soutien technique."
 
-msgid  "Hub Detection"
+msgid "Hub Detection"
 msgstr "P&eacute;riph&eacute;rique r&eacute;seau probl&eacute;matique"
 
-msgid  "You have been detected using a hub. Such device is not permitted on the network.  Please remove it."
+msgid "You have been detected using a hub. Such device is not permitted on the network.  Please remove it."
 msgstr "Il se peut qu'un (que des) &eacute;quipement(s) de connectivit&eacute;(s) r&eacute;seau de votre appareil fasse d&eacute;faut ou que vous ayez branch&eacute; un appareil de type commutateur/routeur/\"hub\". Pour une mise &agrave; jour, contactez votre technicien(ne) ou d&eacute;branchez l'appareil fautif."
 
-msgid  "Peer-to-Peer"
+msgid "Peer-to-Peer"
 msgstr "Poste-&agrave;-Poste"
 
-msgid  "You have been detected using a peer-to-peer file sharing application. Such software is not permitted on the network.  Please uninstall the infringing software."
+msgid "You have been detected using a peer-to-peer file sharing application. Such software is not permitted on the network.  Please uninstall the infringing software."
 msgstr "Nous avons d&eacute;tect&eacute; l'utilisation d'un logiciel de type poste-&agrave;-poste (peer-to-peer). Veuillez d&eacute;sinstaller le logiciel en question."
 
+msgid "System Scanning"
+msgstr "Analyse syst&egrave;me"
+
+msgid "Your system has been found to be scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgstr "Votre syst&egrave;me a &eacute;t&eacute; d&eacute;tect&eacute; en train d'attaquer d'autres ordinateurs. Du au danger de cette probl&eacutematique pour tous les autres ordinateurs du r&eacute;seau, votre acc&egrave;s a &eacute;t&eacute; d&eacute;sactiv&eacute;"
+
+msgid "Spamming"
+msgstr "Spamming"
+
+msgid "Your system has been found to be sending unsolicited commercial email (UCE, or \"spam\") to other systems. Due to the threat this poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgstr "Votre syst&egrave;me semble envoyer des courriels ind&eacute;sirables (spam), Du au danger de cette probl&eacutematique pour tous les autres ordinateurs du r&eacute;seau, votre acc&egrave; a &eacute;t&eacute; d&eacute;sactiv&eacute;"
+
+msgid "Your system may need to be rebuilt. Please contact your local support staff for more information."
+msgstr "Il est probablement n&eacute;cessaire de reinstaller votre ordinateur. Veuillez contacter votre &eacute;quipe de soutien technique pour plus d'informations."
+
+msgid "guest management"
+msgstr "Gestion des invit&eacute;s"
+
+msgid "guest registration form"
+msgstr "Formulaire d'enregistrement d'invit&eacute;s"
+
+msgid "guest registration instructions"
+msgstr "Instructions d'enregistrement d'invit&eacute;s"
+
+msgid "Firstname"
+msgstr "Pr&eacute;nom"
+
+msgid "Lastname"
+msgstr "Nom de famille"
+
+msgid "Phone number"
+msgstr "Num&eacute;ro de t&eacute;l&eacute;phone"
+
+msgid "Email"
+msgstr "Courriel"
+
+msgid "Arrival Date"
+msgstr "Date d'arriv&eacute;e"
+
+msgid "End Date"
+msgstr "Date de fin"
+
+msgid "Access duration"
+msgstr "Dur&eacute;e de l'acc&egrave;s"
+
+msgid "Send access code by email"
+msgstr "Envoyer le code d'acc&egrave;s par courriel"
+
+msgid "Print access code"
+msgstr "Imprimer le code d'acc&egrave;s"
+
+msgid "Print"
+msgstr "Imprimer"
+
+msgid "Back"
+msgstr "Retour"
+
+msgid "second"
+msgid_plural "seconds"
+msgstr[0] "seconde"
+msgstr[1] "secondes"
+
+msgid "minute"
+msgid_plural "minutes"
+msgstr[0] "minute"
+msgstr[1] "minutes"
+
+msgid "hour"
+msgid_plural "hours"
+msgstr[0] "heure"
+msgstr[1] "heures"
+
+msgid "day"
+msgid_plural "days"
+msgstr[0] "jour"
+msgstr[1] "jours"
+
+msgid "week"
+msgid_plural "weeks"
+msgstr[0] "semaine"
+msgstr[1] "semaines"
+
+msgid "month"
+msgid_plural "months"
+msgstr[0] "mois"
+msgstr[1] "mois"
+
+msgid "year"
+msgid_plural "years"
+msgstr[0] "an"
+msgstr[1] "ans"
+
+msgid "Invalid access duration provided"
+msgstr "Dur&eacute;e d'acc&egrave;s invalide"
+
+msgid "Expected on %s"
+msgstr "Attendu le %s"
+
+msgid "Missing mandatory parameter or malformed entry."
+msgstr "Param&egrave;tre requis manquant ou invalide."
+
+msgid "Access duration is not of an allowed value."
+msgstr "Dur&eacute;e de l'acc&egrave;s n'est pas dans un format allou&eacute;e."
+
+msgid "Arrival date is not of expected format."
+msgstr "Date d'arriv&eacute;e n'est pas dans un format allou&eacute;e."
+
+msgid "Guest Access Code"
+msgstr "Code d'acc&egrave;s invit&eacute;"
+
+msgid "This username and password will be valid starting %s."
+msgstr "Ce nom d'utilisateur et mot de passe sera valide a partir de %s."
+
+msgid "Once authenticated the access will be valid for %d %s."
+msgstr "Une fois authentifi&eacute; l'acc&egrave;s sera valide pour %d %s."
+
+msgid "Guest successfully registered. An email with the username and password has been sent."
+msgstr "Invit&eacute; enregistr&eacute; avec succ&egrave;s. Un courriel avec un nom d'utilisateur et mot de passe a &eacute;t&eacute; envoy&eacute;."
+
+msgid "Guest Network Access Information"
+msgstr "Information d'accès au réseau pour invités"
+
+msgid "Format is: yyyy-mm-dd"
+msgstr "Format: aaaa-mm-jj"
+
+#~ msgid "Register"
+#~ msgstr "Enregistrer"
