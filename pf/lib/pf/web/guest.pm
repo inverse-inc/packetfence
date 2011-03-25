@@ -25,6 +25,7 @@ F<register.html>.
 use strict;
 use warnings;
 use Date::Parse;
+use Encode;
 use File::Basename;
 use HTML::Entities;
 use MIME::Lite::TT;
@@ -640,10 +641,11 @@ sub send_registration_confirmation_email {
         From        =>  $from,
         To          =>  $info->{'email'},
         Cc          =>  $pf::web::guest::EMAIL_CC,
-        Subject     =>  gettext("Guest Network Access Information"),
+        Subject     =>  encode("MIME-Q", gettext("Guest Network Access Information")),
         Template    =>  "emails-guest_registration.txt.tt",
         TmplOptions =>  { INCLUDE_PATH => "$conf_dir/templates/" },
         TmplParams  =>  $info,
+        TmplUpgrade =>  1,
     );
 
     $msg->send('smtp', $smtpserver, Timeout => 20) 
