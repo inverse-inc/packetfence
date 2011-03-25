@@ -502,7 +502,7 @@ This is not hooked-up by default.
 =cut
 sub auth {
 
-    # return (1,0) for successfull authentication
+    # return ( 1, 0, module specific parameters ) for successful authentication
     # return (0,2) for inability to check credentials
     # return (0,1) for wrong login/password
     # return (0,0) for first attempt
@@ -518,13 +518,13 @@ sub auth {
             return ( 0, 2 );
         }
 
-        my ( $authReturn, $err ) = authenticate( $cgi->param("login"), $cgi->param("password") );
+        my ( $authReturn, $err, $params ) = authenticate( $cgi->param("login"), $cgi->param("password") );
         if ( $authReturn == 1 ) {
 
             #save login into session
             $session->param( "login",    $cgi->param("login") );
         }
-        return ( $authReturn, $err );
+        return ( $authReturn, $err, $params );
     }
     return ( 0, 0 );
 }
