@@ -34,6 +34,8 @@ Enhancements
   AeroHive Hive AP, Ubuntu Server, Suse Linux Desktop 11 and Synology NAS
 
 Bug Fixes
+- Fixed an important problem with VoIP in Wired 802.1X and Wired MAC 
+  Authenication modes (#1202)
 - Fixed important Nortel support regressions (introduced in 2.1.0: #1183, #1195)
 - Wired 802.1X and MAC Authentication fixes in Network Devices Guide
 - Fixed an issue with pfcmd-initiated VLAN re-evaluation if you assign VLANs 

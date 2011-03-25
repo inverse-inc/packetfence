@@ -373,8 +373,7 @@ sub _authorizeVoip {
     }
 
     locationlog_synchronize(
-        $switch->{_ip}, $this->_translateNasPortToIfIndex($port), $switch->{_voiceVlan}, $mac, 
-        VOIP, $connection_type, $user_name, $ssid
+        $switch->{_ip}, $port, $switch->{_voiceVlan}, $mac, VOIP, $connection_type, $user_name, $ssid
     );
 
     my %RAD_REPLY = $switch->getVoipVsa();
