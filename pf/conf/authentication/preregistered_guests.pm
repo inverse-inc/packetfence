@@ -18,6 +18,9 @@ Validates provided credentials against the temporary_password table (local guest
 use strict;
 use warnings;
 
+use constant INSTALL_DIR => '/usr/local/pf';
+use lib INSTALL_DIR . "/lib";
+
 BEGIN {
   use Exporter ();
   our (@ISA, @EXPORT);
@@ -25,7 +28,6 @@ BEGIN {
   @EXPORT = qw(authenticate);
 }
 
-use Apache::Htpasswd;
 use Log::Log4perl;
 
 use pf::config;
