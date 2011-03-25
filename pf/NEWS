@@ -19,6 +19,10 @@ Version <release> - <codename> released on <releaseDate>
 New Hardware Support
 - Motorola RF Switches (Wireless Controllers)
 
+New Features
+- Kerberos Authentication on the Captive Portal (Thanks to Brad Lhotsky from 
+  NIH)
+
 Enhancements
 - DHCP fingerprints sharing now allows submitter to send computer name, user-
   agent and a contact email to help us identify the devices better (#983)
