@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the PacketFence project.
 # Olivier Bilodeau <obilodeau@inverse.ca>, 2011.
 #
+domain "packetfence"
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
