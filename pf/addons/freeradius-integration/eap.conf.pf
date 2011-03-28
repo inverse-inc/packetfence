@@ -1,0 +1,45 @@
+eap {
+	default_eap_type = peap
+	timer_expire     = 60
+	ignore_unknown_eap_types = no
+	cisco_accounting_username_bug = no
+	max_sessions = 2048
+
+	md5 {
+ 	    }
+
+	tls {
+		certdir = ${confdir}/certs
+       		cadir = ${confdir}/certs
+  		private_key_file = /usr/local/pf/conf/ssl/server.key
+        	certificate_file = /usr/local/pf/conf/ssl/server.crt
+        	dh_file = ${certdir}/dh
+        	random_file = /dev/urandom
+        	cipher_list = "DEFAULT"
+        	make_cert_command = "${certdir}/bootstrap"
+        	    cache {
+        	    	enable = no
+        	           lifetime = 24 # hours
+        	           max_entries = 255
+        	    }
+	}
+
+     	ttls {
+     		default_eap_type = peap
+            	copy_request_to_tunnel = yes
+	    	use_tunneled_reply = yes
+	    	virtual_server = "packetfence-tunnel"
+
+	}
+
+	peap {
+     		default_eap_type = mschapv2
+        	copy_request_to_tunnel = yes
+         	use_tunneled_reply = yes
+         	virtual_server = "packetfence-tunnel"
+	}
+
+	mschapv2 {
+        }
+}
+
