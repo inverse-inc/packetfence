@@ -1799,16 +1799,6 @@ sub node_update_PF {
             $logger->error("auto-registration of node $mac failed");
             return 0;
         }
-    # FIXME get rid of the following lines once testing is complete
-    #} else {
-
-        #update node information in PF database and use VLAN object to allow customization
-        # verify that locationlog_synchronize is doing the right thing
-        #$logger->debug("updating $mac in PF database");
-        #if (!node_modify($mac, $vlan_obj->getNodeUpdatedInfo($mac, $switch->{_ip}, $switch_port, $vlan, $isPhone))) {
-        #    $logger->error("update of node $mac failed");
-        #    return 0;
-        #}
     }
     return 1;
 }
