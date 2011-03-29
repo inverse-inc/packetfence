@@ -123,7 +123,7 @@ sub authorize {
     }
 
     # determine if we need to perform automatic registration
-    my $isPhone = $switch->isPhoneAtIfIndex($mac);
+    my $isPhone = $switch->isPhoneAtIfIndex($mac, $port);
 
     my $vlan_obj = new pf::vlan::custom();
     # should we auto-register? let's ask the VLAN object
