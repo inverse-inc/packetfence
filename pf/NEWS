@@ -32,6 +32,8 @@ Enhancements
 - MAC address format xxxx-xxxx-xxxx supported in our FreeRADIUS' module
 - New DHCP fingerprint for Cisco SPA series IP Phone, Mikrotik, Freebox,
   AeroHive Hive AP, Ubuntu Server, Suse Linux Desktop 11 and Synology NAS
+- VoIP autodetection in Wired 802.1X and Wired MAC Authentication can now use 
+  CDP / LLDP if available
 
 Bug Fixes
 - Fixed an important problem with VoIP in Wired 802.1X and Wired MAC 
