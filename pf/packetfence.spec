@@ -390,6 +390,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/admin.perm
 %config(noreplace)      /usr/local/pf/conf/admin_ldap.conf
 %dir                    /usr/local/pf/conf/authentication
+%config(noreplace)      /usr/local/pf/conf/authentication/kerberos.pm
 %config(noreplace)      /usr/local/pf/conf/authentication/local.pm
 %config(noreplace)      /usr/local/pf/conf/authentication/ldap.pm
 %config(noreplace)      /usr/local/pf/conf/authentication/radius.pm

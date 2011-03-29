@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 48;
+use Test::More tests => 49;
 
 # pf core libs
 use lib '/usr/local/pf/lib';
@@ -57,6 +57,7 @@ BEGIN { use_ok('pf::web::util') }
 
 # external authentication modules
 use lib '/usr/local/pf/conf/';
+BEGIN { use_ok('authentication::kerberos') }
 BEGIN { use_ok('authentication::ldap') }
 BEGIN { use_ok('authentication::local') }
 BEGIN { use_ok('authentication::radius') }

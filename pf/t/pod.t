@@ -36,6 +36,7 @@ my @files = (
     '/usr/local/pf/cgi-bin/redir.cgi',
     '/usr/local/pf/cgi-bin/release.cgi',
     '/usr/local/pf/cgi-bin/register.cgi',
+    '/usr/local/pf/conf/authentication/kerberos.pm',
     '/usr/local/pf/conf/authentication/ldap.pm',
     '/usr/local/pf/conf/authentication/local.pm',
     '/usr/local/pf/conf/authentication/radius.pm',

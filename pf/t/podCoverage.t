@@ -9,8 +9,9 @@ use lib qw(
    /usr/local/pf/lib
 );
 
-use Test::Pod::Coverage tests => 13;
+use Test::Pod::Coverage tests => 14;
 
+pod_coverage_ok('authentication::kerberos');
 pod_coverage_ok("authentication::ldap");
 pod_coverage_ok("authentication::local");
 pod_coverage_ok("authentication::radius");
