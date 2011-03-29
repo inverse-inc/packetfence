@@ -249,7 +249,28 @@ package HP;
 Readonly::Scalar our $IDLE => 0;
 Readonly::Scalar our $DISASSOCIATE => 1;
 
-=back
+=head1 THREECOM
+
+3Com constants
+
+=over
+
+=cut
+package THREECOM;
+
+=item hwdot1qTpFdbSetStatus
+
+ other(1),
+ learned(3),
+ static(6),
+ dynamic(7),
+ blackhole(9),
+ security(11)
+
+=cut
+Readonly::Scalar our $OTHER => 1;
+Readonly::Scalar our $LEARNED => 3;
+Readonly::Scalar our $STATIC => 6;
 
 =head1 AUTHOR
 
@@ -259,7 +280,7 @@ Regis Balzard <rbalzard@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2010-2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

@@ -46,8 +46,6 @@ sub parseTrap {
         $logger->debug("trap currently not handled");
         $trapHashRef->{'trapType'} = 'unknown';
     }
-    use Data::Dumper;
-    $logger->trace(Dumper($trapHashRef));
     return $trapHashRef;
 }
 
@@ -67,8 +65,7 @@ sub getDot1dBasePortForThisIfIndex {
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
-    return $this->_setVlanByOnlyModifyingPvid( $ifIndex, $newVlan, $oldVlan,
-        $switch_locker_ref );
+    return $this->_setVlanByOnlyModifyingPvid( $ifIndex, $newVlan, $oldVlan, $switch_locker_ref );
 }
 
 sub _getMacAtIfIndex {
@@ -85,9 +82,6 @@ sub _getMacAtIfIndex {
             push @macArray, lc($_mac);
         }
     }
-    use Data::Dumper;
-    $logger->trace("At this point MAC array at ifIndex: $ifIndex and dot1dBasePort: $dot1dBasePort is:");
-    $logger->trace(Dumper(@macArray));
     return @macArray;
 }
 
@@ -99,7 +93,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2009 Inverse inc.
+Copyright (C) 2007-2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

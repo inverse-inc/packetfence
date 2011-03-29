@@ -9,6 +9,17 @@ enabled 3COM 4200G Switch
 
 This module is currently only a placeholder, see pf::SNMP::ThreeCom::SS4500.
 
+=head1 BUGS AND LIMITATIONS
+
+=item security traps not sent under some circumstances
+
+The 4200G exhibit a behavior where secureViolation traps are not sent 
+if the MAC has already been authorized on another port on the same VLAN. 
+This tend to happen a lot (when users move on the same switch) for this 
+reason we recommend not to use this switch in port-security mode.
+
+Firmware version 3.02.00s56 and 3.02.04s56 (latest) were tested and had the problematic behavior.
+
 =cut
 
 use strict;
@@ -18,10 +29,11 @@ use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
 
-# FIXME whenever we have a breaking change opportunity, rename to SS4200G.
 use base ('pf::SNMP::ThreeCom::SS4500');
 
 =head1 AUTHOR
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 Dominik Gehl <dgehl@inverse.ca>
 

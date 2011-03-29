@@ -33,8 +33,7 @@ sub getMinOSVersion {
 sub getVersion {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->info(
-        "we don't know how to determine the version through SNMP !");
+    $logger->info("we don't know how to determine the version through SNMP !");
     return '2.0.13';
 }
 
