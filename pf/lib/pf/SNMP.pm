@@ -136,10 +136,6 @@ sub new {
         '_customVlan3'              => undef,
         '_customVlan4'              => undef,
         '_customVlan5'              => undef,
-        '_dbHostname'               => undef,
-        '_dbName'                   => undef,
-        '_dbPassword'               => undef,
-        '_dbUser'                   => undef,
         '_error'                    => undef,
         '_guestVlan'                => undef,
         '_ip'                       => undef,
@@ -148,7 +144,6 @@ sub new {
         '_macSearchesMaxNb'         => undef,
         '_macSearchesSleepInterval' => undef,
         '_mode'                     => undef,
-        '_mysqlConnection'          => undef,
         '_normalVlan'               => undef,
         '_registrationVlan'         => undef,
         '_sessionRead'              => undef,
@@ -207,14 +202,6 @@ sub new {
                     $this->{_customVlan4} = $argv{$_};
         } elsif (/^-?customVlan5$/i) {
                     $this->{_customVlan5} = $argv{$_};
-        } elsif (/^-?dbHostname$/i) {
-            $this->{_dbHostname} = $argv{$_};
-        } elsif (/^-?dbName$/i) {
-            $this->{_dbName} = $argv{$_};
-        } elsif (/^-?dbPassword$/i) {
-            $this->{_dbPassword} = $argv{$_};
-        } elsif (/^-?dbUser$/i) {
-            $this->{_dbUser} = $argv{$_};
         } elsif (/^-?guestVlan$/i) {
             $this->{_guestVlan} = $argv{$_};
         } elsif (/^-?ip$/i) {
@@ -479,41 +466,6 @@ sub disconnectWrite {
             . $this->{_SNMPVersion}
             . " write connection to $this->{_ip}" );
     $this->{_sessionWrite}->close;
-    return 1;
-}
-
-=item connectMySQL - create MySQL database connection
-
-=cut
-# FIXME a connect but no disconnect? is this here useful at all?
-sub connectMySQL {
-    my $this   = shift;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-
-    $logger->debug("initializing database connection");
-    if ( defined( $this->{_mysqlConnection} ) ) {
-        $logger->debug("database connection already exists - reusing it");
-        return 1;
-    }
-    $logger->debug( "connecting to database server "
-            . $this->{_dbHostname}
-            . " as user "
-            . $this->{_dbUser}
-            . "; database name is "
-            . $this->{_dbName} );
-    $this->{_mysqlConnection}
-        = DBI->connect( "dbi:mysql:dbname="
-            . $this->{_dbName}
-            . ";host="
-            . $this->{_dbHostname},
-        $this->{_dbUser}, $this->{_dbPassword}, { PrintError => 0 } );
-    if ( !defined( $this->{_mysqlConnection} ) ) {
-        $logger->error(
-            "couldn't connection to MySQL server: " . DBI->errstr );
-        return 0;
-    }
-    locationlog_db_prepare( $this->{_mysqlConnection} );
-    node_db_prepare( $this->{_mysqlConnection} );
     return 1;
 }
 
