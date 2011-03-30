@@ -249,6 +249,8 @@ package HP;
 Readonly::Scalar our $IDLE => 0;
 Readonly::Scalar our $DISASSOCIATE => 1;
 
+=back
+
 =head1 THREECOM
 
 3Com constants
@@ -271,6 +273,8 @@ package THREECOM;
 Readonly::Scalar our $OTHER => 1;
 Readonly::Scalar our $LEARNED => 3;
 Readonly::Scalar our $STATIC => 6;
+
+=back
 
 =head1 AUTHOR
 

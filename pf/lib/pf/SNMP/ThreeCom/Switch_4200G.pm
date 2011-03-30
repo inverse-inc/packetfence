@@ -11,6 +11,8 @@ This module is currently only a placeholder, see pf::SNMP::ThreeCom::SS4500.
 
 =head1 BUGS AND LIMITATIONS
 
+=over
+
 =item security traps not sent under some circumstances
 
 The 4200G exhibit a behavior where secureViolation traps are not sent 
@@ -19,6 +21,8 @@ This tend to happen a lot (when users move on the same switch) for this
 reason we recommend not to use this switch in port-security mode.
 
 Firmware version 3.02.00s56 and 3.02.04s56 (latest) were tested and had the problematic behavior.
+
+=back
 
 =cut
 
