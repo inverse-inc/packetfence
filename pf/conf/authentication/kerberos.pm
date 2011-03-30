@@ -15,8 +15,8 @@ authentication::kerberos allows to validate a username/password combination usin
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-Don't forget to install the Authen::Krb5::Simple module.
-On RedHat/CentOS systems install perl-Authen-Krb5-Simple.
+Don't forget to install the Authen::Krb5::Simple module. 
+This is done automatically if you use a packaged version of PacketFence.
 
 Define the variables C<Krb5Realm> at the top of the module.
 
@@ -40,13 +40,11 @@ my $Krb5Realm = 'EXAMPLE.COM';
 
 =over
 
-=item * authenticate ($login, $password)
+=item authenticate ($login, $password)
 
   return (1,0) for successfull authentication
   return (0,2) for inability to check credentials
   return (0,1) for wrong login/password
-
-=back
 
 =cut
 

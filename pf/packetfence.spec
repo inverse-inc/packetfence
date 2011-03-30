@@ -115,8 +115,9 @@ Requires: perl-YAML
 Requires: php-jpgraph-packetfence = 2.3.4
 Requires: php-ldap
 Requires: perl(Try::Tiny)
-# Required for Radius auth through captive portal
+# Used by Captive Portal authentication modules
 Requires: perl(Authen::Radius)
+Requires: perl(Authen::Krb5::Simple)
 # Required for importation feature
 Requires: perl(Text::CSV)
 Requires: perl(Text::CSV_XS)
@@ -546,6 +547,10 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Wed Mar 30 2011 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added perl(Authen::Krb5::Simple) as a dependency. Required by new Kerberos
+  Captive Portal authentication module.
+
 * Tue Mar 22 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Removed perl-Class-Inspector as a required package,
   dependency is now insured by perl-SOAP-Lite.
