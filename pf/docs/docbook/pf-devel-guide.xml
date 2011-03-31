@@ -25,9 +25,11 @@
     <revhistory>
       <revision>
         <revnumber>2.4</revnumber>
-        <date>2011-03-16</date>
+        <date>2011-03-31</date>
         <authorinitials>OBU</authorinitials>
-        <revremark>Updated wireless hardware support instructions and checklist</revremark>
+        <revremark>Updated wireless hardware support instructions and checklist.
+          Added clarifications to the MAC Auth and 802.1X support development.
+        </revremark>
       </revision>
       <revision>
         <revnumber>2.3</revnumber>
@@ -517,15 +519,31 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
       <sect2>
         <title>MAC Authentication</title>
         <note>Work in progress</note>
-        <para>Often the <varname>ifIndex</varname> provided by the switch in a <systemitem>RADIUS</systemitem> 
-          <systemitem>Access-Request</systemitem> is not the same as it's real world physical equivalent. 
-          For example in Cisco requests are in the 50xxx while physical ports are 10xxx.
-          In order for PacketFence to properly shut the port or request re-authentication a 
-          translation between the two is required. 
-          To do so provide an implementation of the following interface:
-          <itemizedlist><listitem><function>NasPortToIfIndex</function></listitem></itemizedlist>
-        </para>
-        
+        <sect3>
+          <title>NAS-Port translation</title>
+          <para>Often the <varname>ifIndex</varname> provided by the switch in a <systemitem>RADIUS</systemitem> 
+            <systemitem>Access-Request</systemitem> is not the same as it's real world physical equivalent. 
+            For example in Cisco requests are in the 50xxx while physical ports are 10xxx.
+            In order for PacketFence to properly shut the port or request re-authentication a 
+            translation between the two is required. 
+            To do so provide an implementation of the following interface:
+            <itemizedlist><listitem><function>NasPortToIfIndex</function></listitem></itemizedlist>
+          </para>
+        </sect3>
+        <sect3>
+          <title>MAC Authentication re-evaluation</title>
+          <para>
+            MAC Authentication re-evaluation is necessary in order to provoke a VLAN change in the PacketFence system.
+            This happens for instance when a node is isolated based on an IDS event or when the user succesfully 
+            authenticates through the captive portal.
+            The default implementation in <classname>pf::SNMP</classname> will bounce the port if there is no 
+            Voice over IP devices connected to the port. 
+            Otherwise it will do nothing and send an email.
+            If your device has specific needs (for example it doesn't support RADIUS Dynamic VLAN Assignments) override:
+            <itemizedlist><listitem><function>handleReAssignVlanTrapForWiredMacAuth</function></listitem></itemizedlist>
+          </para>
+        </sect3>
+
         <para>Once the <systemitem>MAC Authentication</systemitem> works, 
         add the <systemitem>Wired MAC Auth</systemitem> capability to the switch's code with:
         <programlisting language="perl">sub supportsWiredMacAuth { return $TRUE; }</programlisting></para>
@@ -534,15 +552,33 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
       <sect2>
         <title>802.1X</title>
         <note>Work in progress</note>
-        <para>Often the <varname>ifIndex</varname> provided by the switch in a <systemitem>RADIUS</systemitem> 
-          <systemitem>Access-Request</systemitem> is not the same as it's real world physical equivalent. 
-          For example in Cisco requests are in the 50xxx while physical ports are 10xxx.
-          In order for PacketFence to properly shut the port or request re-authentication a 
-          translation between the two is required. 
-          To do so provide an implementation of the following interface:
-          <itemizedlist><listitem><function>NasPortToIfIndex</function></listitem></itemizedlist>
-        </para>
-        
+        <sect3>
+          <title>NAS-Port translation</title>
+          <para>Often the <varname>ifIndex</varname> provided by the switch in a <systemitem>RADIUS</systemitem> 
+            <systemitem>Access-Request</systemitem> is not the same as it's real world physical equivalent. 
+            For example in Cisco requests are in the 50xxx while physical ports are 10xxx.
+            In order for PacketFence to properly shut the port or request re-authentication a 
+            translation between the two is required. 
+            To do so provide an implementation of the following interface:
+            <itemizedlist><listitem><function>NasPortToIfIndex</function></listitem></itemizedlist>
+            So far the implementation has been the same for MAC Authentication and 802.1X.
+          </para>
+        </sect3>
+        <sect3>
+          <title>Force 802.1X re-authentication</title>
+          <para>802.1X re-authentication is necessary in order to provoke a VLAN change in the PacketFence system.
+            This happens for instance when a node is isolated based on an IDS event or when the user succesfully 
+            authenticates through the captive portal.
+            The default implementation in <classname>pf::SNMP</classname> uses the 
+            <systemitem>IEEE8021-PAE-MIB</systemitem> and is generally well supported.
+            If the default implementation to force 802.1X re-authentication doesn't work override:
+            <itemizedlist><listitem><function>dot1xPortReauthenticate</function></listitem></itemizedlist>
+          </para>
+          <para>Proper 802.1X implementations will perform re-authentication while still allowing traffic 
+            to go through for supplicants under re-evaluation.
+          </para>
+        </sect3>
+
         <para>Once the <systemitem>802.1X</systemitem> works, add the <systemitem>Wired Dot1X</systemitem>
         capability to the switch's code with:
         <programlisting language="perl">sub supportsWiredDot1x { return $TRUE; }</programlisting></para>
