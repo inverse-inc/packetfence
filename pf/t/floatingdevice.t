@@ -35,7 +35,7 @@ can_ok($fd, qw(
 ));
 
 my $switchFactory = new pf::SwitchFactory( -configFile => './data/switches.conf' );
-my $switch = $switchFactory->instantiate('192.168.0.60');
+my $switch = $switchFactory->instantiate('10.0.0.1');
 my $switch_port = '10001';
 my $switch_locker;
 my $result;

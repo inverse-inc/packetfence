@@ -260,11 +260,9 @@ sub isPortSecurityEnabled {
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     # a3com-huawei-port-security.mib
-    my $OID_h3cSecurePortSecurityControl
-        = '1.3.6.1.4.1.43.45.1.10.2.26.1.1.1.0';
+    my $OID_h3cSecurePortSecurityControl = '1.3.6.1.4.1.43.45.1.10.2.26.1.1.1.0';
     my $OID_h3cSecurePortMode = '1.3.6.1.4.1.43.45.1.10.2.26.1.2.1.1.1';
-    my $OID_h3cSecureIntrusionAction
-        = '1.3.6.1.4.1.43.45.1.10.2.26.1.2.1.1.3';
+    my $OID_h3cSecureIntrusionAction = '1.3.6.1.4.1.43.45.1.10.2.26.1.2.1.1.3';
 
     if ( !$this->connectRead() ) {
         return 0;

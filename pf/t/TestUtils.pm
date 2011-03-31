@@ -56,8 +56,9 @@ our @quality_failing_tests = qw(
 );
 
 our @unit_tests = qw(
-    config.t floatingdevice.t hardware-snmp-objects.t import.t network-devices/cisco.t network-devices/wireless.t 
-    nodecategory.t person.t pfsetvlan.t radius.t services.t SNMP.t SwitchFactory.t util.t vlan.t web.t
+    config.t floatingdevice.t hardware-snmp-objects.t import.t network-devices/cisco.t network-devices/threecom.t 
+    network-devices/wireless.t nodecategory.t person.t pfsetvlan.t radius.t services.t SNMP.t SwitchFactory.t util.t 
+    vlan.t web.t
 );
 
 =item use_test_db
