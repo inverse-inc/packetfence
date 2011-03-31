@@ -17,7 +17,7 @@ BEGIN {
 
 # create the object
 my $switchFactory = new pf::SwitchFactory( -configFile => './data/switches.conf' );
-my $switch = $switchFactory->instantiate('192.168.0.60');
+my $switch = $switchFactory->instantiate('10.0.0.1');
 
 # test the object
 isa_ok($switch, 'pf::SNMP::Cisco');

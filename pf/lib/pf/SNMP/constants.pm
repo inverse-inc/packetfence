@@ -274,6 +274,15 @@ Readonly::Scalar our $OTHER => 1;
 Readonly::Scalar our $LEARNED => 3;
 Readonly::Scalar our $STATIC => 6;
 
+
+=item NAS-Port constants
+
+Used for NAS-Port to ifIndex translation
+
+=cut
+Readonly::Scalar our $NAS_PORT_OFFSET => 16781312;
+Readonly::Scalar our $NAS_PORTS_PER_PORT_RANGE => 4096;
+
 =back
 
 =head1 AUTHOR

@@ -7,6 +7,16 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <release>:
 
+    - Important problems found in the port-security for the 3Com Switch 4200G
+    There is a bug in these switches that make the port-security support in 
+    PacketFence flaky. If you use it you should upgrade to a MAC Auth / 802.1X
+    configuration.
+
+    - Status unknown of the port-security support for the 3Com SuperStack 4500
+    We had problems with this code with the 4200G and since we don't have 
+    access to a SS4500 we cannot guarantee that it works. Please get in touch
+    with us if you have a SS4500 and can run some tests for us.
+
     - logrotate script installed by default
     Be careful if you done yours by hand. It might conflict with your script.
 
