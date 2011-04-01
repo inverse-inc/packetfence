@@ -5,6 +5,18 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to <version>:
+
+    - packetfence-freeradius2
+    A new package that configures FreeRADIUS is available now. If you upgrade
+    DO NOT install it unless you really know what you are doing.
+
+    - Configuration files location changed from conf/templates/ to conf/
+    Please make sure that you move your configuration files appropriately.
+
+    - deprecated pf.conf parameters
+    registration.queuesize was removed.
+
 o Upgrading from a version prior to <release>:
 
     - Important problems found in the port-security for the 3Com Switch 4200G
