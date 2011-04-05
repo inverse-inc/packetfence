@@ -84,6 +84,7 @@ sub _setVlan {
             "$OID_dot1qVlanStaticEgressPorts.$newVlan",
             "$OID_dot1qVlanStaticUntaggedPorts.$oldVlan",
             "$OID_dot1qVlanStaticUntaggedPorts.$newVlan" ] );
+    $this->{_sessionRead}->translate(1);
 
     my $dot1dBasePort = $this->getDot1dBasePortForThisIfIndex($ifIndex);
     if ( !defined($dot1dBasePort) ) {
@@ -99,7 +100,6 @@ sub _setVlan {
         $result->{"$OID_dot1qVlanStaticUntaggedPorts.$oldVlan"}, $dot1dBasePort - 1, 0 );
     my $untaggedPortsVlan = $this->modifyBitmask(
         $result->{"$OID_dot1qVlanStaticUntaggedPorts.$newVlan"}, $dot1dBasePort - 1, 1 );
-    $this->{_sessionRead}->translate(1);
 
     # set all values
     if ( !$this->connectWrite() ) {
