@@ -142,53 +142,13 @@ sub _setVlan {
     # Same behaviour/code as for Foundry switches
     if ($this->isPortSecurityEnabled($ifIndex)) {
 
-        my $auth_result = $this->_authorizeCurrentMacWithNewVlan($ifIndex, $newVlan, $oldVlan);
+        my $auth_result = $this->authorizeCurrentMacWithNewVlan($ifIndex, $newVlan, $oldVlan);
         if (!defined($auth_result) || $auth_result != 1) {
             $logger->warn("couldn't authorize MAC for new VLAN: no secure mac");
         }
     }
 
     return ( defined($result) );
-}
-
-=item _authorizeCurrentMacWithNewVlan - authorize MAC already in secure table on a new VLAN (and deauth on old)
-
-Same code as in Foundry.pm
-
-=cut
-sub _authorizeCurrentMacWithNewVlan {
-    my ($this, $ifIndex, $newVlan, $oldVlan) = @_;
-
-    my $secureTableHashRef = $this->getSecureMacAddresses($ifIndex);
-
-    # hash is valid and has one MAC
-    my $valid = (ref($secureTableHashRef) eq 'HASH');
-    my $mac_count = scalar(keys %{$secureTableHashRef});
-    if ($valid && $mac_count == 1) {
-
-        # normal case
-        # grab MAC
-        my $mac = (keys %{$secureTableHashRef})[0];
-        $this->authorizeMAC($ifIndex, $mac, $mac, $oldVlan, $newVlan);
-        return 1;
-    } elsif ($valid && $mac_count > 1) {
-
-        # VoIP case
-        # check every MAC
-        foreach my $mac (keys %{$secureTableHashRef}) {
-
-            # for every MAC check every VLAN
-            foreach my $vlan (@{$secureTableHashRef->{$mac}}) {
-                # is VLAN equals to old VLAN
-                if ($vlan == $oldVlan) {
-                    # then we need to remove that MAC from that VLAN
-                    $this->authorizeMAC($ifIndex, $mac, $mac, $oldVlan, $newVlan);
-                }
-            }
-        }
-        return 1;
-    }
-    return;
 }
 
 sub getDot1dBasePortForThisIfIndex {
