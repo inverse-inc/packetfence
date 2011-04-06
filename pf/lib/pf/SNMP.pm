@@ -1454,6 +1454,64 @@ sub _authorizeMAC {
     return 1;
 }
 
+=item authorizeCurrentMacWithNewVlan
+
+Authorize MAC already in secure table on the new VLAN (and deauth from old VLAN).
+This is meant to be called in _setVlan on switches which have a VLAN aware port-security table.
+This is because _setVlan changes the underlying VLAN but doesn't authorize the MAC on the new VLAN.
+
+This method was in the Foundry module first then duplicated in SMC.
+When the third implementation came that needed this feature I decided to extract it and have it sit here since
+it's quite generic.
+
+=cut
+sub authorizeCurrentMacWithNewVlan {
+    my ($this, $ifIndex, $newVlan, $oldVlan) = @_;
+
+    return $this->_authorizeCurrentMacWithNewVlan($ifIndex, $newVlan, $oldVlan);
+}
+
+
+=item _authorizeCurrentMacWithNewVlan
+
+Actual implementation of authorizeCurrentMacWithNewVlan
+
+=cut
+sub _authorizeCurrentMacWithNewVlan {
+    my ($this, $ifIndex, $newVlan, $oldVlan) = @_;
+
+    my $secureTableHashRef = $this->getSecureMacAddresses($ifIndex);
+
+    # hash is valid and has one MAC
+    my $valid = (ref($secureTableHashRef) eq 'HASH');
+    my $mac_count = scalar(keys %{$secureTableHashRef});
+    if ($valid && $mac_count == 1) {
+
+        # normal case
+        # grab MAC
+        my $mac = (keys %{$secureTableHashRef})[0];
+        $this->authorizeMAC($ifIndex, $mac, $mac, $oldVlan, $newVlan);
+        return 1;
+    } elsif ($valid && $mac_count > 1) {
+
+        # VoIP case
+        # check every MAC
+        foreach my $mac (keys %{$secureTableHashRef}) {
+
+            # for every MAC check every VLAN
+            foreach my $vlan (@{$secureTableHashRef->{$mac}}) {
+                # is VLAN equals to old VLAN
+                if ($vlan == $oldVlan) {
+                    # then we need to remove that MAC from that VLAN
+                    $this->authorizeMAC($ifIndex, $mac, $mac, $oldVlan, $newVlan);
+                }
+            }
+        }
+        return 1;
+    }
+    return;
+}
+
 =item getRegExpFromList - analyze a list and determine a regexp pattern from this list (used for show mac-address-table)
 
 =cut

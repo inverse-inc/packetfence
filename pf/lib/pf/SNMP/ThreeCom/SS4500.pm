@@ -25,8 +25,6 @@ oriented interface to manage 3COM Huawei SuperStack 3 Switch - 4500 switches.
 
 =back
 
-This module is pretty limited and could be improved further with some help.
-
 Developed and tested on Switch 4200G firmware version 3.02.04s56 and 3.02.00s56
 
 =head1 BUGS AND LIMITATIONS
@@ -43,11 +41,6 @@ It is recommended that you try to avoid using this VLAN as a VLAN managed by Pac
 Because of the problem documented in L<pf::SNMP::ThreeCom::Switch_4200G> we think that port-security might
 be broken on the SS4500.
 If you try it out, please let us know the status.
-
-=item Port-Security using Telnet 
-
-Port-Security relies on Telnet to configure the switch.
-Please make sure you configure Telnet's credentials in conf/switches.conf.
 
 =back
 
@@ -150,7 +143,9 @@ sub getDot1dBasePortForThisIfIndex {
     }
 }
 
-=item * getIfIndexForThisDot1dBasePort - returns ifIndex for a given "normal" port number (dot1d)
+=item getIfIndexForThisDot1dBasePort
+
+returns ifIndex for a given "normal" port number (dot1d)
 
 =cut
 sub getIfIndexForThisDot1dBasePort {
@@ -187,6 +182,13 @@ sub getVlan {
     return $result->{"$OID_dot1qPvid.$ifIndex"};
 }
 
+=item _setVlan
+
+Note: setting a VLAN empties the static MAC table for the port. 
+Because of this, in port-security mode, the MAC authorization process will take two intrusion traps 
+before adding the correct MAC to the correct VLAN.
+
+=cut
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -195,63 +197,30 @@ sub _setVlan {
         return 0;
     }
 
-    my $dot1dBasePort = $this->getDot1dBasePortForThisIfIndex($ifIndex); #physical port number
-    my $OID_hwdot1qVlanName = '1.3.6.1.4.1.43.45.1.2.23.1.2.1.1.1.2'; # VLAN Name from A3COM-HUAWEI-LswVLAN-MIB
+    my $dot1dBasePort = $this->getDot1dBasePortForThisIfIndex($ifIndex); # physical port number
     my $OID_hwdot1qVlanPortList = '1.3.6.1.4.1.43.45.1.2.23.1.2.1.1.1.3'; #VLAN Port List from A3COM-HUAWEI-LswVLAN-MIB
 
-    $logger->trace( "SNMP get_request for hwdot1qVlanName: $OID_hwdot1qVlanName.$newVlan");
     $logger->trace( "SNMP get_request for hwdot1qVlanPortsList: $OID_hwdot1qVlanPortList.$newVlan");
 
     $this->{_sessionRead}->translate(0);
-    my $result = $this->{_sessionRead}->get_request(
-        -varbindlist => [
-            "$OID_hwdot1qVlanName.$newVlan",
-            "$OID_hwdot1qVlanPortList.$newVlan"
-        ]
-    );
-
-    if (!(( exists( $result->{"$OID_hwdot1qVlanName.$newVlan"} ) )
-        && ( exists( $result->{"$OID_hwdot1qVlanPortList.$newVlan"} ) ))) {
-
-        return 0;
-    }
-
-    my $vlanName = $result->{"$OID_hwdot1qVlanName.$newVlan"}; # String of VLAN Name (ex. VLAN 0001, VLAN 0100 etc.)
-
-    my $byteNum = int( ( $dot1dBasePort - 1 ) / 8 );
-    $byteNum += 1;
-
-    my $bitNum = ( 16 * $byteNum ) - 7 - $dot1dBasePort;
-
-    my $vlanPortList = $this->modifyBitmask( $result->{"$OID_hwdot1qVlanPortList.$newVlan"}, $bitNum - 1, 1 );
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => [ "$OID_hwdot1qVlanPortList.$newVlan" ]);
+    $this->{_sessionRead}->translate(1);
 
     if ( !$this->connectWrite() ) {
         return 0;
     }
 
-    my $currentMAC = undef;
-    if ($this->isPortSecurityEnabled($ifIndex)) {
-        my @MACs = $this->_getMacAtIfIndex($ifIndex);
-        if (scalar(@MACs) == 1) {
-            $currentMAC = $MACs[0];
-        }
-    }
-
-    $logger->trace("SNMP set_request for Pvid for new VLAN");
+    my $portListPosition = $this->getPortListPositionFromDot1dBasePort($dot1dBasePort);
+    my $vlanPortList = $this->modifyBitmask( $result->{"$OID_hwdot1qVlanPortList.$newVlan"}, $portListPosition - 1, 1 );
+    $logger->trace("SNMP set_request on hwdot1qVlanName and hwdot1qVlanPortList to assign new VLAN");
     $result = $this->{_sessionWrite}->set_request(
-        -varbindlist => [
-            "$OID_hwdot1qVlanName.$newVlan", Net::SNMP::OCTET_STRING, $vlanName,
-            "$OID_hwdot1qVlanPortList.$newVlan", Net::SNMP::OCTET_STRING, $vlanPortList
-        ]
+        -varbindlist => [ "$OID_hwdot1qVlanPortList.$newVlan", Net::SNMP::OCTET_STRING, $vlanPortList ]
     );
 
     if ( !defined($result) ) {
-        $logger->error("error setting Pvid: " . $this->{_sessionWrite}->error);
-    } else {
-        if (defined( $currentMAC )) {
-            $this->authorizeMAC($ifIndex,0,$currentMAC,$newVlan,$newVlan);
-        }
+        $logger->error("error setting PVID to new vlan: " . $this->{_sessionWrite}->error );
     }
+
     return ( defined($result) );
 }
 
@@ -289,8 +258,46 @@ sub isPortSecurityEnabled {
             && ( $result->{"$OID_h3cSecureIntrusionAction.$ifIndex"} == 6 ) );
 }
 
-# using "mac-address static" instead of "mac-address security" because the latter only work if port is in autolearn
+=item getPortListPositionFromDot1dBasePort
+
+This switch does something fancy with PortList bit order. 
+This method hides that complexity.
+
+=cut
+sub getPortListPositionFromDot1dBasePort {
+    my ($this, $dot1dBasePort) = @_;
+
+    # dot1dBasePort to PortList conversion
+    # they an unfamiliar conversion technique where bit order is the opposite of what I'm used to
+    # port  1 means PortList position  8 
+    # port  8 means PortList position  1 
+    # port  9 means PortList position 16
+    # port 16 means PortList position  9
+    # ...
+    my $byteNum = int( ( $dot1dBasePort - 1 ) / 8 ) + 1;
+    return ( 16 * $byteNum ) - 7 - $dot1dBasePort;
+}
+
+=item authorizeMAC
+
+Authorize and deauthorize MAC addresses. A core component of port-security handling.
+
+=cut
 sub authorizeMAC {
+    my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
+    my $logger  = Log::Log4perl::get_logger( ref($this) );
+
+    return $this->_authorizeMacWithSnmp($ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan);
+}
+
+=item _authorizeMacWithSnmp
+
+Authorize / De-authorize MAC Addresses using SNMP.
+Uses the Fdb and static entries instead of port-security table because port-security MAC entries are only valid for
+ports in autolearn mode.
+
+=cut
+sub _authorizeMacWithSnmp {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
     my $logger  = Log::Log4perl::get_logger( ref($this) );
 
@@ -299,7 +306,80 @@ sub authorizeMAC {
         return 1;
     }
 
-    # FIXME this generates a warning on empty password
+    # from A3COM-HUAWEI-LswMAM-MIB
+    my $oid_hwdot1qTpFdbSetPort = '1.3.6.1.4.1.43.45.1.2.23.1.3.2.1.2'; 
+    my $oid_hwdot1qTpFdbSetStatus = '1.3.6.1.4.1.43.45.1.2.23.1.3.2.1.3';
+    my $oid_hwdot1qTpFdbSetOperate = '1.3.6.1.4.1.43.45.1.2.23.1.3.2.1.4';
+
+    if ( !$this->connectWrite() ) {
+        return 0;
+    }
+
+    my $dot1dBasePort = $this->getDot1dBasePortForThisIfIndex($ifIndex); # physical port number
+    if ($deauthMac && !$this->isFakeMac($deauthMac)) {
+
+        my $mac_oid = mac2oid($deauthMac);
+
+        $logger->info("Deauthorizing $deauthMac on ifIndex $ifIndex and vlan $deauthVlan");
+        $logger->trace(
+            "SNMP set_request for oid_hwdot1qTpFdbSetPort, oid_hwdot1qTpFdbSetStatus and oid_hwdot1qTpFdbSetOperate"
+        );
+        my $result = $this->{_sessionWrite}->set_request( -varbindlist => [
+            "$oid_hwdot1qTpFdbSetPort.$deauthVlan.$mac_oid", Net::SNMP::INTEGER, $dot1dBasePort,
+            "$oid_hwdot1qTpFdbSetStatus.$deauthVlan.$mac_oid", Net::SNMP::INTEGER, $THREECOM::STATIC,
+            "$oid_hwdot1qTpFdbSetOperate.$deauthVlan.$mac_oid", Net::SNMP::INTEGER, $THREECOM::DELETE,
+        ]);
+        if (!defined($result)) {
+            $logger->warn(
+                "SNMP error tyring to perform auth. This could be normal. "
+                . "Error message: ".$this->{_sessionWrite}->error());
+        }
+    }
+
+    if ($authMac && !$this->isFakeMac($authMac)) {
+
+        # Warning: this may seem counter-intuitive but I'm authorizing the new MAC on the old VLAN
+        # because the switch won't accept it for a VLAN that doesn't exist on that port. 
+        # When changed by _setVlan later, the MAC will be re-authorized on the right VLAN
+        my $vlan = $this->getVlan($ifIndex);
+        my $mac_oid = mac2oid($authMac);
+
+        $logger->info(
+            "Authorizing $authMac on ifIndex $ifIndex and vlan $vlan "
+            . "(don't worry if VLAN is not ok, it'll be re-assigned later)"
+        );
+        $logger->trace(
+            "SNMP set_request for oid_hwdot1qTpFdbSetPort, oid_hwdot1qTpFdbSetStatus and oid_hwdot1qTpFdbSetOperate"
+        );
+        my $result = $this->{_sessionWrite}->set_request( -varbindlist => [
+            "$oid_hwdot1qTpFdbSetPort.$vlan.$mac_oid", Net::SNMP::INTEGER, $dot1dBasePort,
+            "$oid_hwdot1qTpFdbSetStatus.$vlan.$mac_oid", Net::SNMP::INTEGER, $THREECOM::STATIC,
+            "$oid_hwdot1qTpFdbSetOperate.$vlan.$mac_oid", Net::SNMP::INTEGER, $THREECOM::ADD,
+        ]);
+        if (!defined($result)) {
+            $logger->warn(
+                "SNMP error tyring to perform auth. This could be normal. "
+                . "Error message: ".$this->{_sessionWrite}->error());
+        }
+    }
+    return 1;
+}
+
+=item _authorizeMacWithTelnet
+
+Uses "mac-address static" instead of "mac-address security" because the latter only work if port is in autolearn
+
+=cut
+sub _authorizeMacWithTelnet {
+    my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
+    my $logger  = Log::Log4perl::get_logger( ref($this) );
+
+    if ( !$this->isProductionMode() ) {
+        $logger->info( "not in production mode ... we won't modify static MAC addresses");
+        return 1;
+    }
+
+    # Warning: this generates a warning on empty password
     my $session;
     eval {
         $session = new Net::Telnet( Host => $this->{_ip}, Timeout => 20 );
@@ -365,7 +445,7 @@ sub authorizeMAC {
     return 1;
 }
 
-=item * getAllSecureMacAddresses
+=item getAllSecureMacAddresses
 
 Method that fetches all the secure (staticly assigned) MAC addresses for a given switch.
 
@@ -427,7 +507,7 @@ sub getAllSecureMacAddresses {
     return $secureMacAddrHashRef;
 }
 
-=item * getSecureMacAddresses
+=item getSecureMacAddresses
 
 Method that fetches all the secure (staticly assigned) MAC addresses for a given ifIndex.
 
