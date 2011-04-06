@@ -275,6 +275,16 @@ Readonly::Scalar our $LEARNED => 3;
 Readonly::Scalar our $STATIC => 6;
 
 
+=item hwdot1qTpFdbSetOperate
+
+ add(1),
+ delete(2)
+
+=cut
+Readonly::Scalar our $ADD => 1;
+Readonly::Scalar our $DELETE => 2;
+
+
 =item NAS-Port constants
 
 Used for NAS-Port to ifIndex translation
