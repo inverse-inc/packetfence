@@ -46,7 +46,7 @@ my @whitelist = (
     'isNotUpLink', 'setVlan', 'setVlanAllPort', 'resetVlanAllPort', 'getMacAtIfIndex', 'hasPhoneAtIfIndex',
     'isPhoneAtIfIndex', '_authorizeMAC', 'getRegExpFromList', '_getMacAtIfIndex', 'getMacAddrVlan', 'getHubs',
     'getVlanByName', 'isManagedVlan', 'deauthenticateMac', 'setVlan', 'extractSsid', 'supportsWirelessMacAuth', 
-    'supportsWirelessDot1x'
+    'supportsWirelessDot1x', 'authorizeCurrentMacWithNewVlan', '_authorizeCurrentMacWithNewVlan'
 );
 
 my @missing_subs;

@@ -179,33 +179,27 @@ sub _setVlan {
     }
 
     my $OID_snVLanByPortMemberRowStatus = '1.3.6.1.4.1.1991.1.1.3.2.6.1.3';
-    $logger->trace("SNMP set_request for snVlanByPortMemberRowStatus: "
-                   . $OID_snVLanByPortMemberRowStatus);
+    $logger->trace("SNMP set_request for snVlanByPortMemberRowStatus: " . $OID_snVLanByPortMemberRowStatus);
     my $result;
     if ($newVlan == 1) {
         $result = $this->{_sessionWrite}->set_request(
             -varbindlist => [
-                 "$OID_snVLanByPortMemberRowStatus.$oldVlan.$ifIndex",
-                 Net::SNMP::INTEGER,
-                 3 ]
-            );
+                 "$OID_snVLanByPortMemberRowStatus.$oldVlan.$ifIndex", Net::SNMP::INTEGER, 3
+            ]
+        );
     } elsif ($oldVlan == 1) {
         $result = $this->{_sessionWrite}->set_request(
             -varbindlist => [
-                 "$OID_snVLanByPortMemberRowStatus.$newVlan.$ifIndex",
-                 Net::SNMP::INTEGER,
-                 4 ]
-            );
+                 "$OID_snVLanByPortMemberRowStatus.$newVlan.$ifIndex", Net::SNMP::INTEGER, 4
+            ]
+        );
     } else {
         $result = $this->{_sessionWrite}->set_request(
             -varbindlist => [
-                 "$OID_snVLanByPortMemberRowStatus.$oldVlan.$ifIndex",
-                 Net::SNMP::INTEGER,
-                 3,
-                 "$OID_snVLanByPortMemberRowStatus.$newVlan.$ifIndex",
-                 Net::SNMP::INTEGER,
-                 4 ]
-            );
+                 "$OID_snVLanByPortMemberRowStatus.$oldVlan.$ifIndex", Net::SNMP::INTEGER, 3,
+                 "$OID_snVLanByPortMemberRowStatus.$newVlan.$ifIndex", Net::SNMP::INTEGER, 4
+            ]
+        );
     }
 
     # At this point, in my tests, $result is almost always in error state but the operation did work on the switch
@@ -215,7 +209,7 @@ sub _setVlan {
     # because this switch's port-security secure MAC address table is VLAN aware
     if ($this->isPortSecurityEnabled($ifIndex)) {
 
-        my $auth_result = $this->_authorizeCurrentMacWithNewVlan($ifIndex, $newVlan, $oldVlan);
+        my $auth_result = $this->authorizeCurrentMacWithNewVlan($ifIndex, $newVlan, $oldVlan);
         if (!defined($auth_result) || $auth_result != 1) {
             $logger->warn("couldn't authorize MAC for new VLAN: no secure mac");
         }
@@ -229,44 +223,6 @@ sub _setVlan {
         }
     }
     return (defined($result));
-}
-
-=item _authorizeCurrentMacWithNewVlan - authorize MAC already in secure table on a new VLAN (and deauth on old)
-
-=cut
-sub _authorizeCurrentMacWithNewVlan {
-    my ($this, $ifIndex, $newVlan, $oldVlan) = @_;
-
-    my $secureTableHashRef = $this->getSecureMacAddresses($ifIndex);
-
-    # hash is valid and has one MAC
-    my $valid = (ref($secureTableHashRef) eq 'HASH');
-    my $mac_count = scalar(keys %{$secureTableHashRef});
-    if ($valid && $mac_count == 1) {
-
-        # normal case
-        # grab MAC
-        my $mac = (keys %{$secureTableHashRef})[0];
-        $this->authorizeMAC($ifIndex, $mac, $mac, $oldVlan, $newVlan);
-        return 1;
-    } elsif ($valid && $mac_count > 1) {
-
-        # VoIP case
-        # check every MAC
-        foreach my $mac (keys %{$secureTableHashRef}) {
-            
-            # for every MAC check every VLAN
-            foreach my $vlan (@{$secureTableHashRef->{$mac}}) {
-                # is VLAN equals to old VLAN
-                if ($vlan == $oldVlan) {
-                    # then we need to remove that MAC from that VLAN
-                    $this->authorizeMAC($ifIndex, $mac, $mac, $oldVlan, $newVlan);
-                }
-            }
-        }
-        return 1;
-    }
-    return;
 }
 
 sub isLearntTrapsEnabled {

@@ -38,6 +38,7 @@ New Features
   NIH)
 
 Enhancements
+- 3Com Super Stack 4500 now uses SNMP for MAC authorization (port-security)
 - DHCP fingerprints sharing now allows submitter to send computer name, user-
   agent and a contact email to help us identify the devices better (#983)
 - Updated Developer documentation regarding how to support new wireless hardware
