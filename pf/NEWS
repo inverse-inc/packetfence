@@ -45,6 +45,7 @@ Bug Fixes
 - Wired 802.1X and MAC Authentication fixes in Network Devices Guide
 - Fixed an issue with pfcmd-initiated VLAN re-evaluation if you assign VLANs 
   based on a client's connection-type (which is not the default)
+- Fixed broken person lookups if username is an email address (#1206)
 - Fixed DHCP fingerprint sharing upload form
 - Fixed Web Admin which referred to an inexistent Meru MC3000 module (it was 
   renamed Meru::MC in 2.0.1)
