@@ -97,6 +97,8 @@
         print "<tr><td></td><td>$pretty_key:</td><td>";
         # to list all modules under SNMP: find . -type f | sed 's/^\.\///' | sed 's/\//::/' | sed 's/.pm$//'
         printSelect( array('' => 'please choose',
+                           'ThreeCom::E4800G' => '3COM E4800G',
+                           'ThreeCom::E5500G' => '3COM E5500G',
                            'ThreeCom::NJ220' => '3COM NJ220', 
                            'ThreeCom::SS4200' => '3COM SS4200', 
                            'ThreeCom::SS4500' => '3COM SS4500', 
@@ -132,6 +134,8 @@
                            'Extreme::Summit' => 'ExtremeNet Summit series',
                            'Extricom::EXSW' => 'Extricom EXSW Controllers',
                            'Foundry::FastIron_4802' => 'Foundry FastIron 4802',
+                           'HP::E4800G' => 'HP E4800G (3Com)',
+                           'HP::E5500G' => 'HP E5500G (3Com)',
                            'HP::Procurve_2500' => 'HP ProCurve 2500 Series',
                            'HP::Procurve_2600' => 'HP ProCurve 2600 Series',
                            'HP::Procurve_3400cl' => 'HP ProCurve 3400cl Series',

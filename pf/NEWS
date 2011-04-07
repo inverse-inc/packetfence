@@ -18,7 +18,8 @@ Version <release> - <codename> released on <releaseDate>
 
 New Hardware Support
 - Motorola RF Switches (Wireless Controllers)
-- 3Com Switch 4200G now supports MAC Authentication and 802.1X modes
+- 3Com Switches 4200G, E4800G and E5500G now supports MAC Authentication and 
+  802.1X
 
 New Features
 - Kerberos Authentication on the Captive Portal (Thanks to Brad Lhotsky from 
