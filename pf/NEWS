@@ -37,7 +37,7 @@ Enhancements
   AeroHive Hive AP, Ubuntu Server, Suse Linux Desktop 11, Synology NAS and 
   Generic Intel PXE
 - VoIP autodetection in Wired 802.1X and Wired MAC Authentication can now use 
-  CDP / LLDP if available
+  CDP / LLDP if available (#1175)
 
 Bug Fixes
 - Fixed an important problem with VoIP in Wired 802.1X and Wired MAC 
