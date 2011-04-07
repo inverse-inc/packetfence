@@ -984,7 +984,7 @@ sub isProductionMode {
     return ( $this->getMode() eq 'production' );
 }
 
-=item isDiscoveryMode - return True if $switch-E<gt>{_mode} eq 'discory'
+=item isDiscoveryMode - return True if $switch-E<gt>{_mode} eq 'discovery'
 
 =cut
 
