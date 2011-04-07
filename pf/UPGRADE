@@ -20,6 +20,13 @@ o Upgrading from a version prior to <release>:
     - logrotate script installed by default
     Be careful if you done yours by hand. It might conflict with your script.
 
+    - Behavior change regarding wired MAC-Authentication
+    No matter what is connected on the port (ie: VoIP), when a client using 
+    MAC-Authentication need to change VLAN, we shut / no shut the port. This
+    might affect ongoing Voice over IP calls but is better than the previous 
+    behavior were the node was simply left where it was. This is an interim 
+    measure before we implement RADIUS Change of Authorzation support (CoA).
+
 o Upgrading from a version prior to 2.1.0:
 
     - You MUST upgrade conf/templates/httpd.conf and 
