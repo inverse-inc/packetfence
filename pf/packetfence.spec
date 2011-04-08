@@ -410,7 +410,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/addons/dhcp_dumper
 %dir                    /usr/local/pf/addons/dev-helpers/
                         /usr/local/pf/addons/dev-helpers/*
-%attr(0755, pf, pf)	/usr/local/pf/addons/database-backup-and-maintenance.sh
+%attr(0755, pf, pf)     /usr/local/pf/addons/database-backup-and-maintenance.sh
 %dir                    /usr/local/pf/addons/freeradius-integration/
                         /usr/local/pf/addons/freeradius-integration/*
 %dir                    /usr/local/pf/addons/high-availability/
@@ -418,9 +418,9 @@ fi
 %dir                    /usr/local/pf/addons/integration-testing/
                         /usr/local/pf/addons/integration-testing/*
                         /usr/local/pf/addons/logrotate
-%dir			%{_sysconfdir}/logrotate.d
-%config 		%{_sysconfdir}/logrotate.d/packetfence
-%attr(0755, pf, pf)	/usr/local/pf/addons/migrate-to-locationlog_history.sh
+%dir                    %{_sysconfdir}/logrotate.d
+%config                 %{_sysconfdir}/logrotate.d/packetfence
+%attr(0755, pf, pf)     /usr/local/pf/addons/migrate-to-locationlog_history.sh
 %attr(0755, pf, pf)     /usr/local/pf/addons/monitorpfsetvlan.pl
 %dir                    /usr/local/pf/addons/mrtg
                         /usr/local/pf/addons/mrtg/*
@@ -489,9 +489,9 @@ fi
                         /usr/local/pf/conf/pf-release
 #%config                 /usr/local/pf/conf/services.conf
 %dir                    /usr/local/pf/conf/snort
-%config(noreplace)	/usr/local/pf/conf/snort/classification.config
-%config(noreplace)	/usr/local/pf/conf/snort/local.rules
-%config(noreplace)	/usr/local/pf/conf/snort/reference.config
+%config(noreplace)      /usr/local/pf/conf/snort/classification.config
+%config(noreplace)      /usr/local/pf/conf/snort/local.rules
+%config(noreplace)      /usr/local/pf/conf/snort/reference.config
 %dir                    /usr/local/pf/conf/ssl
 %config(noreplace)      /usr/local/pf/conf/switches.conf
 %dir                    /usr/local/pf/conf/configurator
@@ -508,9 +508,9 @@ fi
 %config                 /usr/local/pf/conf/named_vlan.conf
 %config(noreplace)      /usr/local/pf/conf/popup.msg
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
-%config(noreplace)	/usr/local/pf/conf/snort.conf
-%config(noreplace)	/usr/local/pf/conf/snort.conf.pre_snort-2.8
-%config			/usr/local/pf/conf/ui.conf
+%config(noreplace)      /usr/local/pf/conf/snort.conf
+%config(noreplace)      /usr/local/pf/conf/snort.conf.pre_snort-2.8
+%config                 /usr/local/pf/conf/ui.conf
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
 %dir                    /usr/local/pf/conf/users
 %config(noreplace)      /usr/local/pf/conf/violations.conf
@@ -600,12 +600,12 @@ fi
 %files freeradius2
 %defattr(0640, root, radiusd)
 
-%config				/etc/raddb/radiusd.conf.pf 
-%config		        	/etc/raddb/eap.conf.pf
-%config				/etc/raddb/users.pf
+%config                                    /etc/raddb/radiusd.conf.pf 
+%config                                    /etc/raddb/eap.conf.pf
+%config                                    /etc/raddb/users.pf
 %attr(0755, -, radiusd) %config(noreplace) /etc/raddb/packetfence.pm
-%config(noreplace)      	/etc/raddb/sites-available/packetfence
-%config(noreplace)      	/etc/raddb/sites-available/packetfence-tunnel
+%config(noreplace)                         /etc/raddb/sites-available/packetfence
+%config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
 * Wed Mar 30 2011 Olivier Bilodeau <obilodeau@inverse.ca>
