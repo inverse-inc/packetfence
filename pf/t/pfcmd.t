@@ -14,7 +14,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 75;
+use Test::More tests => 76;
 use Test::NoWarnings;
 
 use Log::Log4perl;
@@ -270,6 +270,15 @@ foreach my $help_arg (@main_args) {
 @output = `/usr/local/pf/bin/pfcmd version`;
 like ( $output[0], qr/^PacketFence 2.1.0/,
        "pfcmd version is correct" );
+
+# reproducing issue #1206: pid=email@address.com not accepted in pfcmd node view ...
+%cmd = pf::pfcmd::parseCommandLine('node view pid=email@address.com');
+is_deeply(\%cmd, { 
+    'command' => [ 'node', 'view', 'pid', 'email@address.com' ],
+    'node_filter' => [ [ 'pid', 'email@address.com' ] ], # node_filter[0] holds [ pid, email ]
+    'node_options' => [ 'view', 'pid' ],
+}, 'pfcmd node view with pid as an email');
+
 
 =head1 AUTHOR
 

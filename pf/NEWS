@@ -31,7 +31,8 @@ Version <release> - <codename> released on <releaseDate>
 
 New Hardware Support
 - Motorola RF Switches (Wireless Controllers)
-- 3Com Switch 4200G now supports MAC Authentication and 802.1X modes
+- 3Com Switches 4200G, E4800G and E5500G now supports MAC Authentication and 
+  802.1X
 
 New Features
 - Kerberos Authentication on the Captive Portal (Thanks to Brad Lhotsky from 
@@ -49,7 +50,7 @@ Enhancements
   AeroHive Hive AP, Ubuntu Server, Suse Linux Desktop 11, Synology NAS and 
   Generic Intel PXE
 - VoIP autodetection in Wired 802.1X and Wired MAC Authentication can now use 
-  CDP / LLDP if available
+  CDP / LLDP if available (#1175)
 
 Bug Fixes
 - Fixed an important problem with VoIP in Wired 802.1X and Wired MAC 
@@ -58,6 +59,7 @@ Bug Fixes
 - Wired 802.1X and MAC Authentication fixes in Network Devices Guide
 - Fixed an issue with pfcmd-initiated VLAN re-evaluation if you assign VLANs 
   based on a client's connection-type (which is not the default)
+- Fixed broken person lookups if username is an email address (#1206)
 - Fixed DHCP fingerprint sharing upload form
 - Fixed Web Admin which referred to an inexistent Meru MC3000 module (it was 
   renamed Meru::MC in 2.0.1)

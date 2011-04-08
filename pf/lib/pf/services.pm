@@ -1021,10 +1021,7 @@ sub switches_conf_is_valid {
             }
 
             # check mode
-            my @valid_switch_modes = (
-                'testing', 'ignore', 'production', 'registration',
-                'discovery'
-            );
+            my @valid_switch_modes = ( 'testing', 'ignore', 'production', 'registration', 'discovery' );
             my $mode = $switches_conf{$section}{'mode'}
                 || $switches_conf{'default'}{'mode'};
             if ( !grep( { lc($_) eq lc($mode) } @valid_switch_modes ) ) {

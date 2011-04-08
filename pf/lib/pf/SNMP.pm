@@ -936,7 +936,7 @@ sub isProductionMode {
     return ( $this->getMode() eq 'production' );
 }
 
-=item isDiscoveryMode - return True if $switch-E<gt>{_mode} eq 'discory'
+=item isDiscoveryMode - return True if $switch-E<gt>{_mode} eq 'discovery'
 
 =cut
 
@@ -2294,66 +2294,22 @@ sub NasPortToIfIndex {
 
 Called when a ReAssignVlan trap is received for a switch-port in Wired MAC Authentication.
 
-Default behavior is to bounce the port if there's no IPT device on it.
-If there is and we should have isolated the device send an email to the admins.
+Default behavior is to bounce the port 
 
 =cut
 sub handleReAssignVlanTrapForWiredMacAuth {
     my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    my $switch_ip = $this->{'_ip'};
-    my @locationlog = locationlog_view_open_switchport_no_VoIP( $switch_ip, $ifIndex );
-    if (!(@locationlog) || !defined($locationlog[0]->{'mac'}) || ($locationlog[0]->{'mac'} eq '' )) {
-        $logger->warn( "received reAssignVlan trap on $switch_ip ifIndex $ifIndex but can't determine non VoIP MAC");
-        return;
-    }
-
-    my $mac = $locationlog[0]->{'mac'};
-    my $hasPhone = $this->hasPhoneAtIfIndex($ifIndex);
-
     # TODO extract that behavior in a method call in pf::vlan so it can be overridden easily
-    if ( !$hasPhone ) {
-        $logger->info( "no VoIP phone is currently connected at " . $switch_ip
-            . " ifIndex $ifIndex. Flipping port admin status"
-        );
-        $this->bouncePort($ifIndex);
 
-    } else {
+    $logger->warn("Until CoA is implemented we will bounce the port on VLAN re-assignment traps for MAC-Auth");
 
-        $logger->info(
-            "A VoIP phone is currently connected at $switch_ip ifIndex $ifIndex. Leaving everything as it is."
-        ); 
-        # TODO perform CoA (when implemented)
-
-        require pf::violation;
-        my @violations = pf::violation::violation_view_open_desc($mac);
-        if ( scalar(@violations) > 0 ) {
-            my %message;
-            $message{'subject'} = "VLAN isolation of $mac behind VoIP phone";
-            $message{'message'} = "The following computer has been isolated behind a VoIP phone\n";
-            $message{'message'} .= "MAC: $mac\n";
-
-            my $node_info = node_view($mac);
-            $message{'message'} .= "Owner: " . $node_info->{'pid'} . "\n";
-            $message{'message'} .= "Computer Name: " . $node_info->{'computername'} . "\n";
-            $message{'message'} .= "Notes: " . $node_info->{'notes'} . "\n";
-            $message{'message'} .= "Switch: " . $switch_ip . "\n";
-            $message{'message'} .= "Port (ifIndex): " . $ifIndex . "\n\n";
-            $message{'message'} .= "The violation details are\n";
-
-            foreach my $violation (@violations) {
-                $message{'message'} .= "Description: "
-                    . $violation->{'description'} . "\n";
-                $message{'message'} .= "Start: "
-                    . $violation->{'start_date'} . "\n";
-            }
-            $logger->info(
-                "sending email to admin regarding isolation of $mac behind VoIP phone"
-            );
-            pfmailer(%message);
-        }
-    }
+    # TODO perform CoA instead (when implemented)
+    # actually once CoA will be implemented, we should consider offering the same option to users
+    # as we currently do with port-security and VoIP which is bounce or not bounce and suffer consequences
+    # this should be a choice exposed in configuration and not hidden in code
+    $this->bouncePort($ifIndex);
 }
 
 

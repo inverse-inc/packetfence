@@ -96,8 +96,10 @@ sub parseTrap {
         $trapHashRef->{'trapIfIndex'} = $2;
 
     # trap has been generalized from previous version to work with 4.00 OS
+    # TODO we were told of an 'alternate' trap syntax with x/y/z instead of ifIndex below
+    # TODO to calculate ifIndex you need to use: (x-1)256+(y-1)64+z
     } elsif ($trapString =~ /\.1\.3\.6\.1\.4\.1\.1991\.1\.1\.2\.1\.44\.0\ =\              # Notification OID
-        STRING:\ "Security:\ Port\ security\ violation\ at\                               # Trap string
+        STRING:\ "Security:\ Port\ [sS]ecurity\ violation\ at\                            # Trap string
         interface\ ethernet\ (\d+),\ address\                                             # ifIndex
         ([0-9A-Fa-f]{2})([0-9A-Fa-z]{2})\.([0-9A-Fa-f]{2})([0-9A-Fa-z]{2})\.([0-9A-Fa-f]{2})([0-9A-Fa-z]{2}) # MAC
         ,\ vlan\ (\d+)                                                                    # VLAN
