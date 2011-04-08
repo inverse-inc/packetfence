@@ -9,6 +9,12 @@ pf::services::apache - helper configuration module for apache
 This module contains some functions that generates Apache configuration
 according to what PacketFence needs to accomplish.
 
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Read the following configuration files: F<httpd.conf>.
+
+Generates the following configuration files: F<httpd.conf>.
+
 =cut
 
 use strict;
@@ -16,11 +22,16 @@ use warnings;
 use Log::Log4perl;
 use Readonly;
 
+use pf::class qw(class_view_all);
+use pf::config;
+use pf::util;
+
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
+        generate_httpd_conf
         generate_passthrough_rewrite_proxy_config
         generate_remediation_rewrite_proxy_config
     );
@@ -60,6 +71,68 @@ sub _url_parser {
     } else {
         return;
     }
+}
+
+=item generate_httpd_conf
+
+Generate proper F<httpd.conf> configuration file.
+
+=cut
+
+sub generate_httpd_conf {
+    my ( %tags, $httpdconf_fh, $authconf_fh );
+    my $logger = Log::Log4perl::get_logger('pf::services');
+    $tags{'template'} = "$conf_dir/httpd.conf";
+    $tags{'internal-nets'} = join(" ", get_internal_nets() );
+    $tags{'routed-nets'} = join(" ", get_routed_isolation_nets()) ." ". join(" ", get_routed_registration_nets());
+    $tags{'hostname'} = $Config{'general'}{'hostname'};
+    $tags{'domain'} = $Config{'general'}{'domain'};
+    $tags{'admin_port'} = $Config{'ports'}{'admin'};
+    $tags{'install_dir'} = $install_dir;
+
+    my @proxies;
+    my %proxy_configs = %{ $Config{'proxies'} };
+    foreach my $proxy ( keys %proxy_configs ) {
+        if ( $proxy =~ /^\// ) {
+            if ( $proxy !~ /^\/(content|admin|redirect|cgi-bin)/ ) {
+                push @proxies, "ProxyPassReverse $proxy $proxy_configs{$proxy}";
+                push @proxies, "ProxyPass $proxy $proxy_configs{$proxy}";
+                $logger->warn( "proxy $proxy is not relative - add path to apache rewrite exclude list!");
+            } else {
+                $logger->warn("proxy $proxy conflicts with PF paths!");
+                next;
+            }
+        } else {
+            push @proxies, "ProxyPassReverse /proxies/" . $proxy . " " . $proxy_configs{$proxy};
+            push @proxies, "ProxyPass /proxies/" . $proxy . " " . $proxy_configs{$proxy};
+        }
+    }
+    $tags{'proxies'} = join( "\n", @proxies );
+
+    my ($pt_http, $pt_https, $remediation);
+    if ( $Config{'trapping'}{'passthrough'} eq "proxy" ) {
+
+        ($pt_http, $pt_https) = generate_passthrough_rewrite_proxy_config(%{ $Config{'passthroughs'} });
+
+        # remediation passthrough (for violation.conf url=http:// or https://)
+        $remediation = generate_remediation_rewrite_proxy_config(class_view_all());
+    }
+
+    # if config doesn't exist, replace it with empty array
+    foreach my $template ($remediation, $pt_http, $pt_https) {
+        if (!defined($template)) {
+            $template = [ ];
+        }
+    }
+
+    # associate config to templates
+    $tags{'remediation-proxies'} = join( "\n", @{$remediation});
+    $tags{'passthrough-http-proxies'} = join("\n", @{$pt_http});
+    $tags{'passthrough-https-proxies'} = join("\n", @{$pt_https});
+
+    $logger->info("generating $generated_conf_dir/httpd.conf");
+    parse_template( \%tags, "$conf_dir/httpd.conf", "$generated_conf_dir/httpd.conf" );
+    return 1;
 }
 
 =item generate_passthrough_rewrite_proxy_config
