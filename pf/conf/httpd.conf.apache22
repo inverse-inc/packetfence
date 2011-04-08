@@ -236,8 +236,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
   SSLEngine on
   SSLProxyEngine on
-  SSLCertificateFile %%install_dir%%/conf/ssl/server.crt
-  SSLCertificateKeyFile %%install_dir%%/conf/ssl/server.key
+  Include %%varconf_dir%%/ssl-certificates.conf
 
   Redirect /status https://%%hostname%%.%%domain%%/cgi-bin/register.cgi?mode=status
 
@@ -308,8 +307,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
   ErrorLog %%install_dir%%/logs/admin_error_log
 
   SSLEngine on
-  SSLCertificateFile %%install_dir%%/conf/ssl/server.crt
-  SSLCertificateKeyFile %%install_dir%%/conf/ssl/server.key
+  Include %%varconf_dir%%/ssl-certificates.conf
 
   <Location /cgi-bin/pfcmd.cgi>
     SetHandler cgi-script

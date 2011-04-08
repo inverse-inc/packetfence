@@ -510,6 +510,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf.pre_snort-2.8
+%config(noreplace)      /usr/local/pf/conf/ssl-certificates.conf
 %config                 /usr/local/pf/conf/ui.conf
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
 %dir                    /usr/local/pf/conf/users

@@ -21,8 +21,10 @@ New features
   packetfence-freeradius2 RPM
 
 Enhancements
-- Process ID information in the logs for some daemons
 - Moved several configuration files from conf/templates/ into conf/ (#1166)
+- SSL certificate configuration for httpd is now in a separate file that is not
+  overwritten by packages making it easier to maintain (#1207)
+- Process ID information in the logs for some daemons
 - Removed unused configuration parameters (#767)
 - Refactoring of the code base (#1058)
 

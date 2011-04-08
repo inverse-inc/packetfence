@@ -89,6 +89,7 @@ sub generate_httpd_conf {
     $tags{'domain'} = $Config{'general'}{'domain'};
     $tags{'admin_port'} = $Config{'ports'}{'admin'};
     $tags{'install_dir'} = $install_dir;
+    $tags{'varconf_dir'} = $generated_conf_dir;
 
     my @proxies;
     my %proxy_configs = %{ $Config{'proxies'} };
@@ -132,6 +133,9 @@ sub generate_httpd_conf {
 
     $logger->info("generating $generated_conf_dir/httpd.conf");
     parse_template( \%tags, "$conf_dir/httpd.conf", "$generated_conf_dir/httpd.conf", "#" );
+
+    $logger->info("generating $generated_conf_dir/ssl-certificates.conf");
+    parse_template( \%tags, "$conf_dir/ssl-certificates.conf", "$generated_conf_dir/ssl-certificates.conf", "#" );
     return 1;
 }
 
