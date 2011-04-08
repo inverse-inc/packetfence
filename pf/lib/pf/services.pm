@@ -341,11 +341,7 @@ sub generate_named_conf {
         = "pf."
         . $Config{'general'}{'hostname'} . "."
         . $Config{'general'}{'domain'};
-    parse_template(
-        \%tags_isolation,
-        "$conf_dir/named-isolation.ca",
-        "$var_dir/named/named-isolation.ca"
-    );
+    parse_template(\%tags_isolation, "$conf_dir/named-isolation.ca", "$var_dir/named/named-isolation.ca", ";");
 
     my %tags_registration;
     $tags_registration{'template'}
@@ -355,11 +351,7 @@ sub generate_named_conf {
         = "pf."
         . $Config{'general'}{'hostname'} . "."
         . $Config{'general'}{'domain'};
-    parse_template(
-        \%tags_registration,
-        "$conf_dir/named-registration.ca",
-        "$var_dir/named/named-registration.ca"
-    );
+    parse_template(\%tags_registration, "$conf_dir/named-registration.ca", "$var_dir/named/named-registration.ca", ";");
 
     return 1;
 }

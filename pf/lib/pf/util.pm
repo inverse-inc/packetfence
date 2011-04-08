@@ -593,12 +593,11 @@ sub deletepid {
 }
 
 sub parse_template {
-    my ( $tags, $template, $destination ) = @_;
+    my ( $tags, $template, $destination, $comment_char ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
     my (@parsed);
     my $template_fh;
-    open( $template_fh, '<', $template )
-        || $logger->logcroak("Unable to open template $template: $!");
+    open( $template_fh, '<', $template ) || $logger->logcroak("Unable to open template $template: $!");
     while (<$template_fh>) {
         study $_;
         foreach my $tag ( keys %{$tags} ) {
@@ -607,12 +606,18 @@ sub parse_template {
         push @parsed, $_;
     }
 
+    # add generated file header (inserting in front of array)
+    $comment_char = "#" if (!defined($comment_char));
+    unshift @parsed, 
+        "$comment_char This file is generated from a template at $template\n"
+        ."$comment_char Any changes made to this file will be lost on restart\n\n";
+
     #close(TEMPLATE);
     if ($destination) {
         my $destination_fh;
         open( $destination_fh, ">", $destination )
-            || $logger->logcroak(
-            "Unable to open template destination $destination: $!");
+            || $logger->logcroak( "Unable to open template destination $destination: $!");
+
         foreach my $line (@parsed) {
             print {$destination_fh} $line;
         }

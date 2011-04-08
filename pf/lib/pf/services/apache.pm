@@ -131,7 +131,7 @@ sub generate_httpd_conf {
     $tags{'passthrough-https-proxies'} = join("\n", @{$pt_https});
 
     $logger->info("generating $generated_conf_dir/httpd.conf");
-    parse_template( \%tags, "$conf_dir/httpd.conf", "$generated_conf_dir/httpd.conf" );
+    parse_template( \%tags, "$conf_dir/httpd.conf", "$generated_conf_dir/httpd.conf", "#" );
     return 1;
 }
 

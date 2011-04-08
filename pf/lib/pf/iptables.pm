@@ -391,8 +391,7 @@ sub iptables_generate {
     chomp( $tags{'mangle_rules'} );
     chomp( $tags{'filter_rules'} );
     chomp( $tags{'nat_rules'} );
-    parse_template( \%tags, "$conf_dir/iptables.conf",
-        "$generated_conf_dir/iptables.conf" );
+    parse_template( \%tags, "$conf_dir/iptables.conf", "$generated_conf_dir/iptables.conf" );
     iptables_restore("$generated_conf_dir/iptables.conf");
 }
 
