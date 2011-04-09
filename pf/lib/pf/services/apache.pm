@@ -164,8 +164,8 @@ sub calculate_max_clients {
     # MaxClients = (total - ( total * 25% + 300Mb )) / 50Mb
     my $max_clients = ceil(($total_ram - ( $total_ram * 0.25 + (300 * 1024) )) / (50 * 1024));
 
-    # hard ceiling of MaxClients at 255
-    $max_clients = 255 if ($max_clients > 255);
+    # hard ceiling of MaxClients at 256
+    $max_clients = 256 if ($max_clients > 256);
 
     return $max_clients;
 }
