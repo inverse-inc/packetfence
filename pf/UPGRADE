@@ -10,6 +10,12 @@ o Upgrading from a version prior to <version>:
     - Configuration files location changed from conf/templates/ to conf/
     Please make sure that you move your configuration files appropriately.
 
+    - Apache's automatic performance settings adjustments
+    Apache's configuration is now adjusted based on total system memory to
+    prevent swapping scenarios with PacketFence. We feel the dynamic 
+    configuration should do a good job but feel free to maintain your Apache 
+    configuration by hand if you know better.
+
     - SSL configuration changes
     SSL Certificate statements are now stored in conf/ssl-certificates.conf.
     Make sure that you configure this file with your certificates correctly.

@@ -32,14 +32,17 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
-    @EXPORT
-        = qw(valid_date valid_ip clean_mac valid_mac get_decimal_oui_from_mac whitelisted_mac trappable_mac trappable_ip reggable_ip
+    @EXPORT = qw(
+        valid_date valid_ip clean_mac valid_mac get_decimal_oui_from_mac whitelisted_mac trappable_mac 
+        trappable_ip reggable_ip
         inrange_ip ip2gateway ip2interface ip2device isinternal pfmailer isenabled
-        isdisabled getlocalmac ip2int int2ip get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_internal_ips
+        isdisabled getlocalmac ip2int int2ip 
+        get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_internal_ips
         get_internal_devs get_internal_devs_phy get_external_devs get_managed_devs get_internal_macs
         get_internal_info get_gateways get_dhcp_devs createpid readpid deletepid
-        pfmon_preload parse_template mysql_date oui_to_vendor mac2oid oid2mac str_to_connection_type 
-        connection_type_to_str
+        pfmon_preload parse_template mysql_date oui_to_vendor mac2oid oid2mac 
+        str_to_connection_type connection_type_to_str
+        get_total_system_memory
     );
 }
 
@@ -751,7 +754,7 @@ sub preload_is_internal {
     return (%is_internal);
 }
 
-=item * connection_type_to_str
+=item connection_type_to_str
 
 In the database we store the connection type as a string but we use a constant binary value internally. 
 This converts from the constant binary value to the string.
@@ -774,7 +777,7 @@ sub connection_type_to_str {
     }
 }
 
-=item * str_to_connection_type
+=item str_to_connection_type
 
 In the database we store the connection type as a string but we use a constant binary value internally. 
 This parses the string from the database into the the constant binary value.
@@ -800,6 +803,33 @@ sub str_to_connection_type {
         $logger->warn("unable to parse string into a connection_type constant. called from $package $routine");
         return;
     }
+}
+
+=item get_total_system_memory
+
+Returns the total amount of memory in kilobytes. Undef if something went wrong or it can't determined.
+
+=cut
+sub get_total_system_memory {
+    my $logger = Log::Log4perl::get_logger('pf::util');
+
+
+    my $result = open(my $meminfo_fh , '<', '/proc/meminfo');
+    if (!defined($result)) {
+        $logger->warn("Unable to open /proc/meminfo: $!");
+        return;
+    }
+
+    my $total_mem; # in kilobytes
+    while (<$meminfo_fh>) {
+
+        if (m/^MemTotal:\s+(\d+) kB/) {
+            $total_mem = $1;
+            last;
+        }
+    }
+
+    return $total_mem;
 }
 
 =back

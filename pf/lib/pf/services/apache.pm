@@ -20,6 +20,7 @@ Generates the following configuration files: F<httpd.conf>.
 use strict;
 use warnings;
 use Log::Log4perl;
+use POSIX;
 use Readonly;
 
 use pf::class qw(class_view_all);
@@ -81,7 +82,7 @@ Generate proper F<httpd.conf> configuration file.
 
 sub generate_httpd_conf {
     my ( %tags, $httpdconf_fh, $authconf_fh );
-    my $logger = Log::Log4perl::get_logger('pf::services');
+    my $logger = Log::Log4perl::get_logger('pf::services::apache');
     $tags{'template'} = "$conf_dir/httpd.conf";
     $tags{'internal-nets'} = join(" ", get_internal_nets() );
     $tags{'routed-nets'} = join(" ", get_routed_isolation_nets()) ." ". join(" ", get_routed_registration_nets());
@@ -90,6 +91,9 @@ sub generate_httpd_conf {
     $tags{'admin_port'} = $Config{'ports'}{'admin'};
     $tags{'install_dir'} = $install_dir;
     $tags{'varconf_dir'} = $generated_conf_dir;
+    $tags{'max_clients'} = calculate_max_clients(get_total_system_memory());
+    $tags{'start_servers'} = calculate_start_servers($tags{'max_clients'});
+    $tags{'min_spare_servers'} = calculate_min_spare_servers($tags{'max_clients'});
 
     my @proxies;
     my %proxy_configs = %{ $Config{'proxies'} };
@@ -137,6 +141,61 @@ sub generate_httpd_conf {
     $logger->info("generating $generated_conf_dir/ssl-certificates.conf");
     parse_template( \%tags, "$conf_dir/ssl-certificates.conf", "$generated_conf_dir/ssl-certificates.conf", "#" );
     return 1;
+}
+
+=item calculate_max_clients
+
+Find out how much processes Apache should take based on system's characteristics.
+
+See Apache's documentation for MaxClients.
+
+=cut
+sub calculate_max_clients {
+    my ($total_ram) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::services::apache');
+
+    if (!defined($total_ram)) {
+        $logger->warn("Unable to find total system memory, will use 2Gb to determine Apache's MaxClients");
+        $total_ram = 2097152;
+    }
+
+    # here's the magic metric we've come up with to determine Apache's MaxClients
+    # evaluated for Apache 2.x see ticket #1204 for details
+    # MaxClients = (total - ( total * 25% + 300Mb )) / 50Mb
+    my $max_clients = ceil(($total_ram - ( $total_ram * 0.25 + (300 * 1024) )) / (50 * 1024));
+
+    # hard ceiling of MaxClients at 255
+    $max_clients = 255 if ($max_clients > 255);
+
+    return $max_clients;
+}
+
+=item calculate_min_spare_servers
+
+Find out how much idle processes Apache should always have at hand.
+
+See Apache's documentation for MinSpareServers.
+
+=cut
+sub calculate_min_spare_servers {
+    my ($max_clients) = @_;
+
+    # evaluated for Apache 2.x see ticket #1204 for details
+    return ceil($max_clients / 4);
+}
+
+=item calculate_start_servers
+
+Find out how much processes Apache should start.
+
+See Apache's documentation for StartServers.
+
+=cut
+sub calculate_start_servers {
+    my ($max_clients) = @_;
+
+    # evaluated for Apache 2.x see ticket #1204 for details
+    return ceil($max_clients / 2);
 }
 
 =item generate_passthrough_rewrite_proxy_config
