@@ -13,7 +13,8 @@ o Upgrading from a version prior to <version>:
     - SSL configuration changes
     SSL Certificate statements are now stored in conf/ssl-certificates.conf.
     Make sure that you configure this file with your certificates correctly.
-    This file will not be modified by our package.
+    This file will not be modified by our package. One less thing to worry 
+    about on ugprades.
 
     - packetfence-freeradius2
     A new package that configures FreeRADIUS is available now. If you upgrade
