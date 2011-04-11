@@ -1,6 +1,5 @@
-# This file is generated from a template at %%install_dir%%/conf/templates/httpd.conf
-# Any changes made to this file will be lost on restart 
-
+# Apache configuration
+# This file is manipulated on PacketFence's startup before being given to Apache
 HostnameLookups off
 User pf
 Group pf

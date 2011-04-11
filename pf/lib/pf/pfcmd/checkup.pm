@@ -91,6 +91,7 @@ sub sanity_check {
     }
 
     database();
+    apache();
     web_admin();
     registration();
     is_config_documented();
@@ -546,6 +547,27 @@ sub permissions {
     }
 
     # TODO verify log files ownership (issue #1191)
+
+}
+
+=item apache
+
+Apache related tests
+
+=cut
+sub apache {
+
+    # we dynamically adjust apache's configuration based on total system memory
+    # we will first here test if we can figure it out
+    my $total_ram = get_total_system_memory();
+    if (!defined($total_ram)) {
+        add_problem( 
+            $WARN, 
+            "Unable to find out how much system memory is available. "
+            . "We'll assume you have 2 Gigabyte. "
+            . "Please report an issue."
+        );
+    }
 
 }
 

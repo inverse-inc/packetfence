@@ -1,6 +1,5 @@
-; This file is generated from a template at %%template%%
-; Any changes made to this file will be lost on restart 
-
+; Registration network DNS configuration
+; This file is manipulated on PacketFence's startup before being given to named
 $TTL 3600
 . IN SOA %%hostname%%. %%incharge%% (
     2009020901  ; serial

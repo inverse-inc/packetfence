@@ -14,7 +14,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 9;
+use Test::More tests => 14;
 use Log::Log4perl;
 use File::Basename qw(basename);
 use lib '/usr/local/pf/lib';
@@ -119,13 +119,29 @@ is_deeply($return, [
     ], "Correct remediation reverse proxying configuration generated"
 );
 
+# performance config tests for a couple of RAM values
+my $max_clients = pf::services::apache::calculate_max_clients(2048 * 1024);
+ok(10 < $max_clients && $max_clients < 30, "MaxClients for 2Gb RAM");
+
+$max_clients = pf::services::apache::calculate_max_clients(4096 * 1024);
+ok(40 < $max_clients && $max_clients < 60, "MaxClients for 4Gb RAM");
+
+$max_clients = pf::services::apache::calculate_max_clients(8192 * 1024);
+ok(100 < $max_clients && $max_clients < 120, "MaxClients for 8Gb RAM");
+
+$max_clients = pf::services::apache::calculate_max_clients(16384 * 1024);
+ok(200 < $max_clients && $max_clients < 250, "MaxClients for 16Gb RAM");
+
+$max_clients = pf::services::apache::calculate_max_clients(24576 * 1024);
+ok(250 < $max_clients && $max_clients < 350, "MaxClients for 24Gb RAM");
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2010-2011 Inverse inc.
 
 =head1 LICENSE
     

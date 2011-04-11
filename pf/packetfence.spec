@@ -151,6 +151,16 @@ The packetfence-remote-snort-sensor package contains the files needed
 for sending snort alerts from a remote snort sensor to a PacketFence
 server.
 
+%package freeradius2
+Group: System Environment/Daemons
+Requires: freeradius2, freeradius2-perl
+Requires: perl-SOAP-Lite
+Summary: Configuration pack for FreeRADIUS 2
+
+%description freeradius2
+The freeradius2-packetfence package contains the files needed to
+make FreeRADIUS properly interact with PacketFence
+
 %prep
 %setup -n pf
 
@@ -214,6 +224,16 @@ rmdir addons/pfdetect_remote/initrd
 rmdir addons/pfdetect_remote/conf
 rmdir addons/pfdetect_remote
 #end pfdetect_remote
+#freeradius2-packetfence
+%{__install} -d $RPM_BUILD_ROOT/etc/raddb
+%{__install} -d $RPM_BUILD_ROOT/etc/raddb/sites-available
+cp -r addons/freeradius-integration/radiusd.conf.pf $RPM_BUILD_ROOT/etc/raddb
+cp -r addons/freeradius-integration/eap.conf.pf $RPM_BUILD_ROOT/etc/raddb
+cp -r addons/freeradius-integration/users.pf $RPM_BUILD_ROOT/etc/raddb
+cp -r addons/802.1X/packetfence.pm $RPM_BUILD_ROOT/etc/raddb
+cp -r addons/freeradius-integration/sites-available/packetfence $RPM_BUILD_ROOT/etc/raddb/sites-available
+cp -r addons/freeradius-integration/sites-available/packetfence-tunnel $RPM_BUILD_ROOT/etc/raddb/sites-available
+#end
 cp -r ChangeLog $RPM_BUILD_ROOT/usr/local/pf/
 cp -r configurator.pl $RPM_BUILD_ROOT/usr/local/pf/
 cp -r COPYING $RPM_BUILD_ROOT/usr/local/pf/
@@ -240,7 +260,7 @@ ln -s pf-schema-2.0.0.sql ./pf-schema.sql
 
 #httpd.conf symlink
 #TODO: isn't it stupid to decide what Apache version is there at rpm build time?
-cd $RPM_BUILD_ROOT/usr/local/pf/conf/templates
+cd $RPM_BUILD_ROOT/usr/local/pf/conf
 if (/usr/sbin/httpd -v | egrep 'Apache/2\.[2-9]\.' > /dev/null)
 then
   ln -s httpd.conf.apache22 ./httpd.conf
@@ -250,7 +270,6 @@ fi
 
 cd $curdir
 #end create symlinks
-
 
 %pre
 
@@ -316,6 +335,29 @@ echo "  * Please cd /usr/local/pf && ./installer.pl to finish installation and c
 echo "Adding PacketFence remote Snort Sensor startup script"
 /sbin/chkconfig --add pfdetectd
 
+%post freeradius2
+#Make Backups
+cp /etc/raddb/radiusd.conf /etc/raddb/radiusd.conf.pfsave   
+chown root:radiusd /etc/raddb/radiusd.conf.pfsave
+
+cp /etc/raddb/eap.conf /etc/raddb/eap.conf.pfsave      
+chown root:radiusd /etc/raddb/eap.conf.pfsave
+
+cp /etc/raddb/users /etc/raddb/users.pfsave
+chown root:radiusd /etc/raddb/users.pfsave
+
+#Copy dummy config to the real one
+mv /etc/raddb/radiusd.conf.pf /etc/raddb/radiusd.conf
+mv /etc/raddb/eap.conf.pf /etc/raddb/eap.conf
+mv /etc/raddb/users.pf /etc/raddb/users
+
+#Create symlinks for virtual hosts
+ln -s /etc/raddb/sites-available/packetfence /etc/raddb/sites-enabled/packetfence
+ln -s /etc/raddb/sites-available/packetfence-tunnel /etc/raddb/sites-enabled/packetfence-tunnel
+
+echo Installation complete.  Make sure you configure packetfence.pm, and restart Radius....
+
+
 %preun
 if [ $1 -eq 0 ] ; then
 	/sbin/service packetfence stop &>/dev/null || :
@@ -328,6 +370,16 @@ if [ $1 -eq 0 ] ; then
 	/sbin/service pfdetectd stop &>/dev/null || :
 	/sbin/chkconfig --del pfdetectd
 fi
+
+%preun freeradius2
+# Remove custom configs and put back the right one
+mv /etc/raddb/radiusd.conf.pfsave /etc/raddb/radiusd.conf   
+mv /etc/raddb/eap.conf.pfsave /etc/raddb/eap.conf       
+mv /etc/raddb/users.pfsave /etc/raddb/users
+
+# Remove symnlinks
+rm -f /etc/raddb/sites-enabled/packetfence 
+rm -f /etc/raddb/sites-enabled/packetfence-tunnel
 
 %postun
 if [ $1 -eq 0 ]; then
@@ -358,7 +410,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/addons/dhcp_dumper
 %dir                    /usr/local/pf/addons/dev-helpers/
                         /usr/local/pf/addons/dev-helpers/*
-%attr(0755, pf, pf)	/usr/local/pf/addons/database-backup-and-maintenance.sh
+%attr(0755, pf, pf)     /usr/local/pf/addons/database-backup-and-maintenance.sh
 %dir                    /usr/local/pf/addons/freeradius-integration/
                         /usr/local/pf/addons/freeradius-integration/*
 %dir                    /usr/local/pf/addons/high-availability/
@@ -366,9 +418,9 @@ fi
 %dir                    /usr/local/pf/addons/integration-testing/
                         /usr/local/pf/addons/integration-testing/*
                         /usr/local/pf/addons/logrotate
-%dir			%{_sysconfdir}/logrotate.d
-%config 		%{_sysconfdir}/logrotate.d/packetfence
-%attr(0755, pf, pf)	/usr/local/pf/addons/migrate-to-locationlog_history.sh
+%dir                    %{_sysconfdir}/logrotate.d
+%config                 %{_sysconfdir}/logrotate.d/packetfence
+%attr(0755, pf, pf)     /usr/local/pf/addons/migrate-to-locationlog_history.sh
 %attr(0755, pf, pf)     /usr/local/pf/addons/monitorpfsetvlan.pl
 %dir                    /usr/local/pf/addons/mrtg
                         /usr/local/pf/addons/mrtg/*
@@ -437,29 +489,29 @@ fi
                         /usr/local/pf/conf/pf-release
 #%config                 /usr/local/pf/conf/services.conf
 %dir                    /usr/local/pf/conf/snort
-%config(noreplace)	/usr/local/pf/conf/snort/classification.config
-%config(noreplace)	/usr/local/pf/conf/snort/local.rules
-%config(noreplace)	/usr/local/pf/conf/snort/reference.config
+%config(noreplace)      /usr/local/pf/conf/snort/classification.config
+%config(noreplace)      /usr/local/pf/conf/snort/local.rules
+%config(noreplace)      /usr/local/pf/conf/snort/reference.config
 %dir                    /usr/local/pf/conf/ssl
 %config(noreplace)      /usr/local/pf/conf/switches.conf
-%dir                    /usr/local/pf/conf/templates
-%dir                    /usr/local/pf/conf/templates/configurator
-                        /usr/local/pf/conf/templates/configurator/*
-%config                 /usr/local/pf/conf/templates/dhcpd.conf
-%config                 /usr/local/pf/conf/templates/dhcpd_vlan.conf
-%config                 /usr/local/pf/conf/templates/httpd.conf
-%config                 /usr/local/pf/conf/templates/httpd.conf.apache22
-%config                 /usr/local/pf/conf/templates/httpd.conf.pre_apache22
-%config(noreplace)      /usr/local/pf/conf/templates/iptables.conf
-%config(noreplace)      /usr/local/pf/conf/templates/listener.msg
-%config(noreplace)      /usr/local/pf/conf/templates/named-registration.ca
-%config(noreplace)      /usr/local/pf/conf/templates/named-isolation.ca
-%config                 /usr/local/pf/conf/templates/named_vlan.conf
-%config(noreplace)      /usr/local/pf/conf/templates/popup.msg
-%config(noreplace)      /usr/local/pf/conf/templates/snmptrapd.conf
-%config(noreplace)	/usr/local/pf/conf/templates/snort.conf
-%config(noreplace)	/usr/local/pf/conf/templates/snort.conf.pre_snort-2.8
-%config			/usr/local/pf/conf/ui.conf
+%dir                    /usr/local/pf/conf/configurator
+                        /usr/local/pf/conf/configurator/*
+%config                 /usr/local/pf/conf/dhcpd.conf
+%config                 /usr/local/pf/conf/dhcpd_vlan.conf
+%config                 /usr/local/pf/conf/httpd.conf
+%config                 /usr/local/pf/conf/httpd.conf.apache22
+%config                 /usr/local/pf/conf/httpd.conf.pre_apache22
+%config(noreplace)      /usr/local/pf/conf/iptables.conf
+%config(noreplace)      /usr/local/pf/conf/listener.msg
+%config(noreplace)      /usr/local/pf/conf/named-registration.ca
+%config(noreplace)      /usr/local/pf/conf/named-isolation.ca
+%config                 /usr/local/pf/conf/named_vlan.conf
+%config(noreplace)      /usr/local/pf/conf/popup.msg
+%config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
+%config(noreplace)      /usr/local/pf/conf/snort.conf
+%config(noreplace)      /usr/local/pf/conf/snort.conf.pre_snort-2.8
+%config(noreplace)      /usr/local/pf/conf/ssl-certificates.conf
+%config                 /usr/local/pf/conf/ui.conf
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
 %dir                    /usr/local/pf/conf/users
 %config(noreplace)      /usr/local/pf/conf/violations.conf
@@ -546,10 +598,23 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect_remote
 %dir                    /usr/local/pf/var
 
+%files freeradius2
+%defattr(0640, root, radiusd)
+
+%config                                    /etc/raddb/radiusd.conf.pf 
+%config                                    /etc/raddb/eap.conf.pf
+%config                                    /etc/raddb/users.pf
+%attr(0755, -, radiusd) %config(noreplace) /etc/raddb/packetfence.pm
+%config(noreplace)                         /etc/raddb/sites-available/packetfence
+%config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
+
 %changelog
 * Wed Mar 30 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added perl(Authen::Krb5::Simple) as a dependency. Required by new Kerberos
   Captive Portal authentication module.
+
+* Tue Mar 22 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Added dependency for perl-SOAP-Lite for the freeradius2 package
 
 * Tue Mar 22 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Removed perl-Class-Inspector as a required package,
@@ -557,6 +622,9 @@ fi
 
 * Thu Mar 17 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Now installing logrotate script by default
+
+* Thu Mar 17 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Added the packetfence-freeradius2 package definition
 
 * Mon Mar 07 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - Bumped version so that snapshots versions will be greater than latest
@@ -581,6 +649,9 @@ fi
 
 * Thu Feb 03 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - Explicitly remove docbook doc and images from package. For now.
+
+* Fri Jan 28 2011 Olivier Bilodeau <obilodeau@inverse.ca>
+- Configuration files in conf/templates/ are now in conf/. See #1166.
 
 * Fri Jan 28 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - More changes related to #1014. Some more conf -> var movement.

@@ -287,7 +287,7 @@ sub generate_named_conf {
     require Net::Netmask;
     import Net::Netmask;
     my %tags;
-    $tags{'template'}    = "$conf_dir/templates/named_vlan.conf";
+    $tags{'template'}    = "$conf_dir/named_vlan.conf";
     $tags{'install_dir'} = $install_dir;
 
     my %network_conf;
@@ -330,36 +330,28 @@ sub generate_named_conf {
     }
     parse_template(
         \%tags,
-        "$conf_dir/templates/named_vlan.conf",
+        "$conf_dir/named_vlan.conf",
         "$generated_conf_dir/named.conf"
     );
 
     my %tags_isolation;
-    $tags_isolation{'template'} = "$conf_dir/templates/named-isolation.ca";
+    $tags_isolation{'template'} = "$conf_dir/named-isolation.ca";
     $tags_isolation{'hostname'} = $Config{'general'}{'hostname'};
     $tags_isolation{'incharge'}
         = "pf."
         . $Config{'general'}{'hostname'} . "."
         . $Config{'general'}{'domain'};
-    parse_template(
-        \%tags_isolation,
-        "$conf_dir/templates/named-isolation.ca",
-        "$var_dir/named/named-isolation.ca"
-    );
+    parse_template(\%tags_isolation, "$conf_dir/named-isolation.ca", "$var_dir/named/named-isolation.ca", ";");
 
     my %tags_registration;
     $tags_registration{'template'}
-        = "$conf_dir/templates/named-registration.ca";
+        = "$conf_dir/named-registration.ca";
     $tags_registration{'hostname'} = $Config{'general'}{'hostname'};
     $tags_registration{'incharge'}
         = "pf."
         . $Config{'general'}{'hostname'} . "."
         . $Config{'general'}{'domain'};
-    parse_template(
-        \%tags_registration,
-        "$conf_dir/templates/named-registration.ca",
-        "$var_dir/named/named-registration.ca"
-    );
+    parse_template(\%tags_registration, "$conf_dir/named-registration.ca", "$var_dir/named/named-registration.ca", ";");
 
     return 1;
 }
@@ -369,7 +361,7 @@ sub manage_Static_Route {
     my $add_Route = @_;
     my $logger = Log::Log4perl::get_logger('pf::services');
     my %tags;
-    $tags{'template'}    = "$conf_dir/templates/named_vlan.conf";
+    $tags{'template'}    = "$conf_dir/named_vlan.conf";
     $tags{'install_dir'} = $install_dir;
 
     my %network_conf;
@@ -408,7 +400,7 @@ sub manage_Static_Route {
 sub generate_dhcpd_vlan_conf {
     my $logger = Log::Log4perl::get_logger('pf::services');
     my %tags;
-    $tags{'template'} = "$conf_dir/templates/dhcpd_vlan.conf";
+    $tags{'template'} = "$conf_dir/dhcpd_vlan.conf";
     $tags{'networks'} = '';
 
     my %network_conf;
@@ -440,7 +432,7 @@ EOT
         }
     }
 
-    parse_template( \%tags, "$conf_dir/templates/dhcpd_vlan.conf",
+    parse_template( \%tags, "$conf_dir/dhcpd_vlan.conf",
         "$generated_conf_dir/dhcpd.conf" );
 
     return 1;
@@ -457,12 +449,12 @@ sub generate_dhcpd_conf {
     }
     my %tags;
     my $logger = Log::Log4perl::get_logger('pf::services');
-    $tags{'template'}   = "$conf_dir/templates/dhcpd.conf";
+    $tags{'template'}   = "$conf_dir/dhcpd.conf";
     $tags{'domain'}     = $Config{'general'}{'domain'};
     $tags{'hostname'}   = $Config{'general'}{'hostname'};
     $tags{'dnsservers'} = $Config{'general'}{'dnsservers'};
 
-    parse_template( \%tags, "$conf_dir/templates/dhcpd.conf",
+    parse_template( \%tags, "$conf_dir/dhcpd.conf",
         "$generated_conf_dir/dhcpd.conf" );
 
     my %shared_nets;
@@ -771,7 +763,7 @@ sub generate_dhcpd_reg {
 sub generate_snort_conf {
     my $logger = Log::Log4perl::get_logger('pf::services');
     my %tags;
-    $tags{'template'}      = "$conf_dir/templates/snort.conf";
+    $tags{'template'}      = "$conf_dir/snort.conf";
     $tags{'internal-ips'}  = join( ",", get_internal_ips() );
     $tags{'internal-nets'} = join( ",", get_internal_nets() );
     $tags{'gateways'}      = join( ",", get_gateways() );
@@ -800,7 +792,7 @@ sub generate_snort_conf {
     }
     $tags{'snort_rules'} = join( "\n", @rules );
     $logger->info("generating $conf_dir/snort.conf");
-    parse_template( \%tags, "$conf_dir/templates/snort.conf",
+    parse_template( \%tags, "$conf_dir/snort.conf",
         "$generated_conf_dir/snort.conf" );
     return 1;
 }
@@ -853,79 +845,10 @@ sub generate_snmptrapd_conf {
     foreach my $community ( sort keys %SNMPCommunities ) {
         $tags{'authLines'} .= "authCommunity log $community\n";
     }
-    $tags{'template'} = "$conf_dir/templates/snmptrapd.conf";
+    $tags{'template'} = "$conf_dir/snmptrapd.conf";
     $logger->info("generating $generated_conf_dir/snmptrapd.conf");
-    parse_template( \%tags, "$conf_dir/templates/snmptrapd.conf",
+    parse_template( \%tags, "$conf_dir/snmptrapd.conf",
         "$generated_conf_dir/snmptrapd.conf" );
-    return 1;
-}
-
-=item * generate_httpd_conf
-
-=cut
-
-sub generate_httpd_conf {
-    my ( %tags, $httpdconf_fh, $authconf_fh );
-    my $logger = Log::Log4perl::get_logger('pf::services');
-    $tags{'template'}      = "$conf_dir/templates/httpd.conf";
-    $tags{'internal-nets'} = join( " ", get_internal_nets() );
-    $tags{'routed-nets'}   = join( " ", get_routed_isolation_nets() ) . " "
-        . join( " ", get_routed_registration_nets() );
-    $tags{'hostname'}    = $Config{'general'}{'hostname'};
-    $tags{'domain'}      = $Config{'general'}{'domain'};
-    $tags{'admin_port'}  = $Config{'ports'}{'admin'};
-    $tags{'install_dir'} = $install_dir;
-
-    my @proxies;
-    my %proxy_configs = %{ $Config{'proxies'} };
-    foreach my $proxy ( keys %proxy_configs ) {
-        if ( $proxy =~ /^\// ) {
-            if ( $proxy !~ /^\/(content|admin|redirect|cgi-bin)/ ) {
-                push @proxies,
-                    "ProxyPassReverse $proxy $proxy_configs{$proxy}";
-                push @proxies, "ProxyPass $proxy $proxy_configs{$proxy}";
-                $logger->warn(
-                    "proxy $proxy is not relative - add path to apache rewrite exclude list!"
-                );
-            } else {
-                $logger->warn("proxy $proxy conflicts with PF paths!");
-                next;
-            }
-        } else {
-            push @proxies,
-                  "ProxyPassReverse /proxies/" 
-                . $proxy . " "
-                . $proxy_configs{$proxy};
-            push @proxies,
-                "ProxyPass /proxies/" . $proxy . " " . $proxy_configs{$proxy};
-        }
-    }
-    $tags{'proxies'} = join( "\n", @proxies );
-
-    my ($pt_http, $pt_https, $remediation);
-    if ( $Config{'trapping'}{'passthrough'} eq "proxy" ) {
-
-        ($pt_http, $pt_https) = generate_passthrough_rewrite_proxy_config(%{ $Config{'passthroughs'} });
-
-        # remediation passthrough (for violation.conf url=http:// or https://)
-        $remediation = generate_remediation_rewrite_proxy_config(class_view_all());
-    }
-
-    # if config doesn't exist, replace it with empty array
-    foreach my $template ($remediation, $pt_http, $pt_https) {
-        if (!defined($template)) {
-            $template = [ ];
-        }
-    }
-
-    # associate config to templates
-    $tags{'remediation-proxies'} = join( "\n", @{$remediation});
-    $tags{'passthrough-http-proxies'} = join("\n", @{$pt_http});
-    $tags{'passthrough-https-proxies'} = join("\n", @{$pt_https});
-
-    $logger->info("generating $generated_conf_dir/httpd.conf");
-    parse_template( \%tags, "$conf_dir/templates/httpd.conf",
-        "$generated_conf_dir/httpd.conf" );
     return 1;
 }
 
@@ -1164,7 +1087,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009,2010 Inverse inc.
+Copyright (C) 2009-2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

@@ -1,7 +1,5 @@
-# This file is generated from a template at %%install_dir%%/conf/templates/httpd.conf
-# Any changes made to this file will be lost on restart 
-
-HostnameLookups off
+# Apache configuration
+# This file is manipulated on PacketFence's startup before being given to Apache
 User pf
 Group pf
 ServerAdmin root@%%hostname%%.%%domain%%
@@ -9,15 +7,19 @@ ServerTokens Prod
 ServerSignature Off
 UseCanonicalName Off
 Timeout 50
-KeepAlive On
-MaxKeepAliveRequests 100
 KeepAliveTimeout 10
-MinSpareServers 50
-MaxSpareServers 100
-StartServers 50
-MaxClients 256
+
+# PERFORMANCE RELATED
+# These values are automatically adjusted by PacketFence based on total system memory
+# Feel free to override if you know better
+MaxClients %%max_clients%%
+# To resist to bursts we start more processes than default and we keep more spares than recommended
+StartServers %%start_servers%%
+MinSpareServers %%min_spare_servers%%
+HostnameLookups off
 # to avoid memory leaks over a long period
 MaxRequestsPerChild 1000
+
 ServerName %%hostname%%.%%domain%%
 Listen 0.0.0.0:80
 Listen 0.0.0.0:443
@@ -237,8 +239,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
   SSLEngine on
   SSLProxyEngine on
-  SSLCertificateFile %%install_dir%%/conf/ssl/server.crt
-  SSLCertificateKeyFile %%install_dir%%/conf/ssl/server.key
+  Include %%varconf_dir%%/ssl-certificates.conf
 
   Redirect /status https://%%hostname%%.%%domain%%/cgi-bin/register.cgi?mode=status
 
@@ -309,8 +310,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
   ErrorLog %%install_dir%%/logs/admin_error_log
 
   SSLEngine on
-  SSLCertificateFile %%install_dir%%/conf/ssl/server.crt
-  SSLCertificateKeyFile %%install_dir%%/conf/ssl/server.key
+  Include %%varconf_dir%%/ssl-certificates.conf
 
   <Location /cgi-bin/pfcmd.cgi>
     SetHandler cgi-script

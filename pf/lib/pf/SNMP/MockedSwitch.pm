@@ -281,31 +281,6 @@ sub disconnectWrite {
     return 1;
 }
 
-=item connectMySQL - create MySQL database connection
-
-=cut
-
-sub connectMySQL {
-    my $this   = shift;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-
-    $logger->debug("initializing database connection");
-    if ( defined( $this->{_mysqlConnection} ) ) {
-        $logger->debug("database connection already exists - reusing it");
-        return 1;
-    }
-    $logger->debug( "connecting to database server " . $this->{_dbHostname}
-            . " as user "
-            . $this->{_dbUser}
-            . "; database name is "
-            . $this->{_dbName}
-    );
-    usleep(MYSQL_CONNECTION_DELAY);
-
-    $this->{_mysqlConnection} = 1;
-    return 1;
-}
-
 =item _setVlanByOnlyModifyingPvid
 
 =cut
