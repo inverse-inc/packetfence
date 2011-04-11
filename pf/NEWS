@@ -38,6 +38,8 @@ Enhancements
   Generic Intel PXE
 - VoIP autodetection in Wired 802.1X and Wired MAC Authentication can now use 
   CDP / LLDP if available (#1175)
+- Improvement to the samba configuration provided in the administration guide
+  to fix uid mapping issues (#1205)
 
 Bug Fixes
 - Fixed an important problem with VoIP in Wired 802.1X and Wired MAC 
