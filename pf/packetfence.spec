@@ -230,6 +230,7 @@ rmdir addons/pfdetect_remote
 cp -r addons/freeradius-integration/radiusd.conf.pf $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/eap.conf.pf $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/users.pf $RPM_BUILD_ROOT/etc/raddb
+cp -r addons/freeradius-integration/modules/perl.pf $RPM_BUILD_ROOT/etc/raddb/modules
 cp -r addons/802.1X/packetfence.pm $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/sites-available/packetfence $RPM_BUILD_ROOT/etc/raddb/sites-available
 cp -r addons/freeradius-integration/sites-available/packetfence-tunnel $RPM_BUILD_ROOT/etc/raddb/sites-available
@@ -346,10 +347,14 @@ chown root:radiusd /etc/raddb/eap.conf.pfsave
 cp /etc/raddb/users /etc/raddb/users.pfsave
 chown root:radiusd /etc/raddb/users.pfsave
 
+cp /etc/raddb/perl /etc/raddb/modules/perl.pfsave
+chown root:radiusd /etc/raddb/modules/perl.pfsave
+
 #Copy dummy config to the real one
 mv /etc/raddb/radiusd.conf.pf /etc/raddb/radiusd.conf
 mv /etc/raddb/eap.conf.pf /etc/raddb/eap.conf
 mv /etc/raddb/users.pf /etc/raddb/users
+mv /etc/raddb/modules/perl.pf /etc/raddb/modules/perl
 
 #Create symlinks for virtual hosts
 ln -s /etc/raddb/sites-available/packetfence /etc/raddb/sites-enabled/packetfence
@@ -376,6 +381,7 @@ fi
 mv /etc/raddb/radiusd.conf.pfsave /etc/raddb/radiusd.conf   
 mv /etc/raddb/eap.conf.pfsave /etc/raddb/eap.conf       
 mv /etc/raddb/users.pfsave /etc/raddb/users
+mv /etc/raddb/modules/perl.pfsave /etc/raddb/modules/perl
 
 # Remove symnlinks
 rm -f /etc/raddb/sites-enabled/packetfence 
@@ -604,11 +610,16 @@ fi
 %config                                    /etc/raddb/radiusd.conf.pf 
 %config                                    /etc/raddb/eap.conf.pf
 %config                                    /etc/raddb/users.pf
+%config                                    /etc/raddb/modules/perl.pf
 %attr(0755, -, radiusd) %config(noreplace) /etc/raddb/packetfence.pm
 %config(noreplace)                         /etc/raddb/sites-available/packetfence
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Wed Apr 12 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Added support for perl module configuration in the packetfence-
+  freeradius2 package
+>
 * Wed Mar 30 2011 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added perl(Authen::Krb5::Simple) as a dependency. Required by new Kerberos
   Captive Portal authentication module.
