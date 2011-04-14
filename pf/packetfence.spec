@@ -226,6 +226,7 @@ rmdir addons/pfdetect_remote
 #end pfdetect_remote
 #freeradius2-packetfence
 %{__install} -d $RPM_BUILD_ROOT/etc/raddb
+%{__install} -d $RPM_BUILD_ROOT/etc/raddb/modules
 %{__install} -d $RPM_BUILD_ROOT/etc/raddb/sites-available
 cp -r addons/freeradius-integration/radiusd.conf.pf $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/eap.conf.pf $RPM_BUILD_ROOT/etc/raddb
@@ -616,6 +617,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Web Apr 13 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Fixed problems in the install part for freerdius2 package
+
 * Wed Apr 12 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Added support for perl module configuration in the packetfence-
   freeradius2 package
