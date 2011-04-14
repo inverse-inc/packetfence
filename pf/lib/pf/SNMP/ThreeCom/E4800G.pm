@@ -20,7 +20,7 @@ Object oriented module to access and manage 3COM E4800G Switch
 
 =item linkUp / linkDown mode
 
-=item port-security (untested)
+=item port-security (broken! see L</"BUGS AND LIMITATIONS">)
 
 =item VoIP
 
@@ -51,7 +51,7 @@ if the MAC has already been authorized on another port on the same VLAN.
 This tend to happen a lot (when users move on the same switch) for this 
 reason we recommend not to use this switch in port-security mode.
 
-This behavior has not been confirmed or denied for this model.
+This behavior has been confirmed on the 4800G using latest firmware (as of April 2011). 
 
 =item 802.1X Re-Authentication doesn't trigger a DHCP Request from the endpoint
 
