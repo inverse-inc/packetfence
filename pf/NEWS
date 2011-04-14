@@ -29,6 +29,7 @@ Enhancements
 - Process ID information in the logs for some daemons
 - Removed unused configuration parameters (#767)
 - Refactoring of the code base (#1058)
+- FAQ entry: Active directory integration in registration network
 
 --------------------------------------------------------------------------------
 Version <release> - <codename> released on <releaseDate>
