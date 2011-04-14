@@ -44,6 +44,19 @@ If you try it out, please let us know the status.
 
 =back
 
+=head1 ROOM FOR IMPROVEMENT
+
+=over
+
+=item Performance: Use secure table instead of Fdb
+
+The Fdb is too large because it will hold all exposed MAC on all the VLANs.
+There's a smaller "secure" table but you can only use it if the port is in 
+"port-security autolearn" so the Fdb was used instead.
+Maybe we can switch to use autolearn with forced 02:00... addresses to fill the learning table.
+
+=back
+
 =cut
 
 use strict;
@@ -452,6 +465,7 @@ Method that fetches all the secure (staticly assigned) MAC addresses for a given
 Returns a hash table with mac, ifIndex, vlan
 
 =cut
+# TODO the Fdb is usually very large, we should grab the Fdb only for the VLANs in the switches' managed VLANs
 sub getAllSecureMacAddresses {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -514,6 +528,7 @@ Method that fetches all the secure (staticly assigned) MAC addresses for a given
 Returns a hash table with mac, vlan
 
 =cut
+# TODO the Fdb is usually very large, we should grab the Fdb only for the VLANs in the switches' managed VLANs
 sub getSecureMacAddresses {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
