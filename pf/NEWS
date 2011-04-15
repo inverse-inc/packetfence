@@ -34,8 +34,8 @@ Enhancements
 - Improvements in the logrotate script (#1198)
 - MAC address format xxxx-xxxx-xxxx supported in our FreeRADIUS' module
 - New DHCP fingerprint for Cisco SPA series IP Phone, Mikrotik, Freebox,
-  AeroHive Hive AP, Ubuntu Server, Suse Linux Desktop 11, Synology NAS and 
-  Generic Intel PXE
+  AeroHive Hive AP, Ubuntu Server, Suse Linux Desktop 11, Synology NAS, Polycom
+  Conference IP Phone and Generic Intel PXE
 - VoIP autodetection in Wired 802.1X and Wired MAC Authentication can now use 
   CDP / LLDP if available (#1175)
 - Improvement to the samba configuration provided in the administration guide
