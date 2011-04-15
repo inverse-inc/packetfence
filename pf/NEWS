@@ -73,6 +73,7 @@ Bug Fixes
 - Fixed an issue with the Meru module: If the controller sent SNMP traps to 
   PacketFence a thread would crash. Hopefully this configuration is not 
   required and is rarely done. Regression prevention tests have been added.
+- Fixed overly agressive Web Administration password validation (#1209)
 - Minor fixes to the Administration Guide (#743)
 
 Translations
