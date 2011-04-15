@@ -38,17 +38,15 @@ function check_input($input){
   }
 } 
 
-//TODO are we being too difficult on what we accept as a password? ie: pass starting with ; is invalid
-function check_sensitive_input($input){
-  if(preg_match("/^[\@a-zA-Z0-9_\:\,\(\)]/", $input) && strlen($input) <= 15){
+# rejecting NULLs because they end-up doing an anonymous LDAP bind
+function check_password($input){
+  if (isset($input)) {
     return true;
-  }
-  else{
-    print "Invalid sensitive parameter<br>";
+  } else {
+    print "Invalid password<br>";
     return false;
   }
 }
-
 
 // First we try to authenticate users through LDAP if LDAP config file is there
 // if the LDAP config file is not defined or if the LDAP auth fails then we authenticate through the local file
@@ -216,7 +214,7 @@ else {
     }
   }
 
-  if (isset($_POST['username'], $_POST['password']) && check_input($_POST['username']) && check_sensitive_input($_POST['password'])) {
+  if (isset($_POST['username'], $_POST['password']) && check_input($_POST['username']) && check_password($_POST['password'])) {
     $hash = validate_user($_POST['username'], $_POST['password']);
     if(!$hash || !isset($_COOKIE['test'])){
       $failed = true;
