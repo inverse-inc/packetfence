@@ -617,7 +617,7 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
-* Web Apr 13 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+* Wed Apr 13 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Fixed problems in the install part for freerdius2 package
 
 * Wed Apr 12 2011 Francois Gaudreault <fgaudreault@inverse.ca>
