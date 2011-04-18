@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 =head1 NAME
 
-mod_perl_require.pl - Pre-loading PacketFence's modules in Apache (mod_perl)
+captiveportal_modperl_require.pl - Pre-loading PacketFence's modules in Apache (mod_perl) for the Captive Portal
 
 =cut
 use lib "/usr/local/pf/lib";
@@ -9,14 +9,17 @@ use lib "/usr/local/pf/lib";
 use strict;
 use warnings;
 
+use Cache::FileCache;
 use Log::Log4perl;
 
 use pf::config;
-use pf::locationlog;
-use pf::node;
-use pf::SNMP;
-use pf::SwitchFactory;
+use pf::useragent;
 use pf::util;
+use pf::web;
+# needs to be called last of the pf::web's to allow dark magic redefinitions
+use pf::web::custom;
+
+our $useragent_cache = new Cache::FileCache( { 'namespace' => 'CaptivePortal_UserAgents' } );
 
 =head1 AUTHOR
 
@@ -24,7 +27,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2011 Inverse inc.
 
 =head1 LICENSE 
 

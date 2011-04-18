@@ -52,6 +52,7 @@ manage                       | manage node entries
 networkconfig                | query/modify network configuration parameters
 node                         | node manipulation
 nodecategory                 | nodecategory manipulation
+nodeuseragent                | View User-Agent information associated to a node
 person                       | person manipulation
 reload                       | rebuild fingerprint or violations tables without restart
 report                       | current usage reports
@@ -63,6 +64,7 @@ traplog                      | update traplog RRD files and graphs or obtain swi
 trigger                      | view and throw triggers
 ui                           | used by web UI to create menu hierarchies and dashboard
 update                       | download canonical fingerprint or OUI data
+useragent                    | view User-Agent fingerprint information
 version                      | output version information
 violation                    | violation manipulation
 violationconfig              | query/modify violations.conf configuration parameters
@@ -150,6 +152,19 @@ examples:
   pfcmd node count all
   pfcmd node add 00:01:02:03:04:05 status="reg",pid=1
   pfcmd node delete 00:01:02:03:04:05 
+EOT
+    return 1;
+}
+
+sub help_nodeuseragent {
+    print STDERR << "EOT";
+Usage: pfcmd nodeuseragent view <all|id>
+
+View User-Agent information associated to a node
+
+examples:
+  pfcmd nodeuseragent view all
+  pfcmd nodeuseragent view 00:01:02:03:04:05
 EOT
     return 1;
 }
@@ -296,19 +311,20 @@ EOT
 
 sub help_report {
     print STDERR << "EOT";
-Usage: pfcmd report <active|inactive> | <registered|unregistered|os|osclass|unknownprints|openviolations|statics> [all|active]
+Usage: pfcmd report <active|inactive> | <registered|unregistered|os|osclass|unknownprints|unknownuseragents|openviolations|statics> [all|active]
 
 display canned reports - "active" modifier shows only nodes with open iplog entries
 
-active         | show all nodes with open iplog entries
-inactive       | show all nodes without an open iplog entry
-registered     | show all registered nodes
-unregistered   | show all unregistered nodes
-os             | show OS distribution
-osclass        | show OS distribution, aggregated by class
-unknownprints  | show DHCP fingerprints without a known OS mapping
-openviolations | show all open violations
-statics        | show probable static IPs
+active            | show all nodes with open iplog entries
+inactive          | show all nodes without an open iplog entry
+registered        | show all registered nodes
+unregistered      | show all unregistered nodes
+os                | show OS distribution
+osclass           | show OS distribution, aggregated by class
+unknownprints     | show DHCP fingerprints without a known OS mapping
+unknownuseragents | show User-Agents fingerprints without a known Browser or OS mapping
+openviolations    | show all open violations
+statics           | show probable static IPs
 EOT
     return 1;
 }
@@ -439,6 +455,19 @@ show DHCP Fingerprints stored in database
 examples:
   pfcmd fingerprint view all
   pfcmd fingerprint view 1,6,15,44,3,33
+EOT
+    return 1;
+}
+
+sub help_useragent {
+    print STDERR << "EOT";
+Usage: pfcmd useragent view <all|id>
+
+show User-Agent Fingerprints known by the system
+
+examples:
+  pfcmd useragent view all
+  pfcmd useragent view 1,6,15,44,3,33
 EOT
     return 1;
 }

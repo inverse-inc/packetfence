@@ -142,6 +142,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
   CustomLog %%install_dir%%/logs/access_log combined
   ErrorLog %%install_dir%%/logs/error_log
 
+  PerlPostConfigRequire %%install_dir%%/lib/pf/web/captiveportal_modperl_require.pl
   <Location /cgi-bin>
     SetHandler perl-script
     PerlResponseHandler ModPerl::PerlRun
@@ -223,6 +224,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
   CustomLog %%install_dir%%/logs/access_log combined
   ErrorLog %%install_dir%%/logs/error_log
 
+  PerlPostConfigRequire %%install_dir%%/lib/pf/web/captiveportal_modperl_require.pl
   <Location /cgi-bin>
     SetHandler perl-script
     PerlResponseHandler ModPerl::PerlRun
@@ -318,7 +320,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
   </Location>
 
   # mod_perl hosted pf::WebAPI (lib/pf/WebAPI.pm)
-  PerlRequire %%install_dir%%/lib/pf/mod_perl_require.pl
+  PerlPostConfigRequire %%install_dir%%/lib/pf/web/backend_modperl_require.pl
   <Location /webapi>
     SetHandler perl-script
     PerlHandler pf::WebAPI

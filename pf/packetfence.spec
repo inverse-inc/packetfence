@@ -115,6 +115,7 @@ Requires: perl-YAML
 Requires: php-jpgraph-packetfence = 2.3.4
 Requires: php-ldap
 Requires: perl(Try::Tiny)
+Requires: perl(Cache::Cache)
 # Used by Captive Portal authentication modules
 Requires: perl(Authen::Radius)
 Requires: perl(Authen::Krb5::Simple)
@@ -206,6 +207,7 @@ cp -r addons/high-availability/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/integration-testing/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/mrtg/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp -r addons/upgrade/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/dhcp_dumper $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -258,7 +260,7 @@ curdir=`pwd`
 
 #pf-schema.sql symlink
 cd $RPM_BUILD_ROOT/usr/local/pf/db
-ln -s pf-schema-2.0.0.sql ./pf-schema.sql
+ln -s pf-schema-2.2.0.sql ./pf-schema.sql
 
 #httpd.conf symlink
 #TODO: isn't it stupid to decide what Apache version is there at rpm build time?
@@ -405,6 +407,8 @@ fi
 
 %defattr(-, pf, pf)
 %attr(0755, root, root) %{_initrddir}/packetfence
+%dir                    %{_sysconfdir}/logrotate.d
+%config                 %{_sysconfdir}/logrotate.d/packetfence
 
 %dir                    /usr/local/pf
 %dir                    /usr/local/pf/addons
@@ -425,8 +429,6 @@ fi
 %dir                    /usr/local/pf/addons/integration-testing/
                         /usr/local/pf/addons/integration-testing/*
                         /usr/local/pf/addons/logrotate
-%dir                    %{_sysconfdir}/logrotate.d
-%config                 %{_sysconfdir}/logrotate.d/packetfence
 %attr(0755, pf, pf)     /usr/local/pf/addons/migrate-to-locationlog_history.sh
 %attr(0755, pf, pf)     /usr/local/pf/addons/monitorpfsetvlan.pl
 %dir                    /usr/local/pf/addons/mrtg
@@ -434,6 +436,8 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/addons/recovery.pl
 %dir                    /usr/local/pf/addons/snort
                         /usr/local/pf/addons/snort/oinkmaster.conf
+%dir                    /usr/local/pf/addons/upgrade
+%attr(0755, pf, pf)     /usr/local/pf/addons/upgrade/update-all-useragents.pl
 %dir                    /usr/local/pf/addons/802.1X
 %doc                    /usr/local/pf/addons/802.1X/README
 %attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/packetfence.pm
@@ -552,9 +556,10 @@ fi
 %config(noreplace)      /usr/local/pf/html/user/content/violations/*
 %attr(0755, pf, pf)     /usr/local/pf/installer.pl
 %dir                    /usr/local/pf/lib
+%dir                    /usr/local/pf/lib/HTTP
+                        /usr/local/pf/lib/HTTP/BrowserDetect.pm
 %dir                    /usr/local/pf/lib/pf
                         /usr/local/pf/lib/pf/*.pm
-                        /usr/local/pf/lib/pf/*.pl
 %dir                    /usr/local/pf/lib/pf/floatingdevice
 %config(noreplace)      /usr/local/pf/lib/pf/floatingdevice/custom.pm
 %dir                    /usr/local/pf/lib/pf/lookup
@@ -572,6 +577,7 @@ fi
 %dir                    /usr/local/pf/lib/pf/vlan
 %config(noreplace)      /usr/local/pf/lib/pf/vlan/custom.pm
 %dir                    /usr/local/pf/lib/pf/web
+                        /usr/local/pf/lib/pf/web/*.pl
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
                         /usr/local/pf/lib/pf/web/util.pm
 %dir                    /usr/local/pf/logs

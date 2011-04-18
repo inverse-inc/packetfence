@@ -12,7 +12,8 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 96;
+use Test::More tests => 97;
+use Test::NoWarnings;
 use lib '/usr/local/pf/lib';
 
 use Log::Log4perl;

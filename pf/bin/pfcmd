@@ -30,6 +30,7 @@ pfcmd <command> [options]
  networkconfig               | query/modify network configuration parameters
  node                        | node manipulation
  nodecategory                | nodecategory manipulation
+ nodeuseragent               | View User-Agent information associated to a node
  person                      | person manipulation
  reload                      | rebuild fingerprint or violations tables without restart
  report                      | current usage reports
@@ -42,6 +43,7 @@ pfcmd <command> [options]
  trigger                     | view and throw triggers
  ui                          | used by web UI to create menu hierarchies and dashboard
  update                      | download canonical fingerprint or OUI data
+ useragent                   | view User-Agent fingerprint information
  version                     | output version information
  violation                   | violation manipulation
  violationconfig             | query/modify violations.conf configuration parameters
@@ -183,6 +185,7 @@ if (! exists($cmd_tmp{'grammar'})) {
             exit(1);
         },
         'nodecategory' => sub { nodecategory(); exit(1); },
+        'nodeuseragent' => sub { nodeuseragent(); exit(1); },
         'person' => sub { 
             require pf::person; 
             import pf::person;
@@ -199,6 +202,7 @@ if (! exists($cmd_tmp{'grammar'})) {
         'trigger' => sub { trigger(); exit(1); },
         'ui' => sub { ui(); exit(1); },
         'update' => sub { update(); exit(1); },
+        'useragent' => sub { useragent(); exit(1); },
         'version' => sub { version(); exit(1); },
         'violation' => sub {
             require pf::violation; 
@@ -414,6 +418,19 @@ sub nodecategory {
         };
     } 
     return 1;
+}
+
+sub nodeuseragent {
+    my ( $function, $id );
+    require pf::useragent;
+    pf::useragent->import(qw(node_useragent_view node_useragent_view_all));
+    $id = $cmd{command}[2];
+    if ( $id && $id ne 'all' ) {
+        $function = "node_useragent_view";
+    } else {
+        $function = "node_useragent_view_all";
+    }
+    exit( print_results( $function, $id ) );
 }
 
 sub switchlocation {
@@ -1387,6 +1404,19 @@ sub fingerprint {
         $function = "dhcp_fingerprint_view";
     } else {
         $function = "dhcp_fingerprint_view_all";
+    }
+    exit( print_results( $function, $id ) );
+}
+
+sub useragent {
+    my ( $function, $id );
+    require pf::useragent;
+    pf::useragent->import(qw(view view_all));
+    $id = $cmd{command}[2];
+    if ( $id && $id ne 'all' ) {
+        $function = "view";
+    } else {
+        $function = "view_all";
     }
     exit( print_results( $function, $id ) );
 }

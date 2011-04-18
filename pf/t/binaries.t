@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 23;
+use Test::More tests => 25;
 
 my @binaries = (
     '/usr/local/pf/configurator.pl',
@@ -18,13 +18,15 @@ my @binaries = (
     '/usr/local/pf/addons/recovery.pl',
     '/usr/local/pf/addons/802.1X/packetfence.pm',
     '/usr/local/pf/addons/mrtg/mrtg-wrapper.pl',
+    '/usr/local/pf/addons/upgrade/update-all-useragents.pl',
     '/usr/local/pf/bin/flip.pl',
     '/usr/local/pf/bin/pfcmd_vlan',
     '/usr/local/pf/cgi-bin/redir.cgi',
     '/usr/local/pf/cgi-bin/register.cgi',
     '/usr/local/pf/cgi-bin/release.cgi',
-    '/usr/local/pf/lib/pf/mod_perl_require.pl',
     '/usr/local/pf/lib/pf/WebAPI.pm',
+    '/usr/local/pf/lib/pf/web/backend_modperl_require.pl',
+    '/usr/local/pf/lib/pf/web/captiveportal_modperl_require.pl',
     '/usr/local/pf/sbin/pfdetect',
     '/usr/local/pf/sbin/pfdhcplistener',
     '/usr/local/pf/sbin/pfmon',

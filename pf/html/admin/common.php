@@ -1149,6 +1149,53 @@ function PrintSubNav($menu){
     return $msg;
   }
 
+  function share_useragents($new_unknowns){
+    global $logger;
+    global $abs_url, $current_top, $current_sub;
+
+    if(!$new_unknowns){
+      $my_table = new table("report unknownuseragents");
+      $new_unknowns = set_default($my_table->rows, array());
+    }
+    if (! is_array($new_unknowns)) {
+      $new_unknowns = array();
+    }
+    $new = array();
+    foreach($new_unknowns as $new_unknown){
+      $new[$new_unknown['user_agent']] = array(
+          'browser' => $new_unknown['browser'],
+          'os' => $new_unknown['os'],
+          'computername' => $new_unknown['computername'],
+          'dhcp_fingerprint' => $new_unknown['dhcp_fingerprint'],
+          'description' => $new_unknown['description']
+      );
+    }
+
+    # These next few lines kept track of what fingerprints have been submitted.
+    if (isset($_SESSION['ui_global_prefs']['shared_useragent_fingerprints'])) {
+      $current = $_SESSION['ui_global_prefs']['shared_useragent_fingerprints'];
+    } else {
+      $current = array();
+    }
+    $diff = array_diff_assoc($new, $current);
+
+    if(count($diff)>0){
+      $_SESSION['ui_global_prefs']['shared_useragent_fingerprints']=array_merge($current, $diff);
+      save_global_prefs_to_file();
+      $content = base64_encode(gzcompress(serialize($diff)));
+      $logger->debug("ready to send the following: $content");
+
+      $msg .= "<form name='share_useragent_fingerprints' method='POST' action='http://www.packetfence.org/useragents.php?ref=$abs_url/$current_top/$current_sub.php'>";
+      $msg .= "  <input type='hidden' name='useragent_fingerprints' value='$content'>";
+      $msg .= "</form>";
+      $msg .= "<script>document.share_useragent_fingerprints.submit()</script>";
+    }
+    else{
+      $msg .= "No new unknown User-Agent fingerprints to share.";
+    }
+    return $msg;
+  }
+
   function printSelect($values, $type, $default = false , $extra = false){
     if(!is_array($values)){
       print "<select $extra>\n";

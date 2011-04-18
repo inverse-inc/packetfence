@@ -31,6 +31,17 @@ o Upgrading from a version prior to <version>:
 
 o Upgrading from a version prior to <release>:
 
+    - User-Agent violations rewrite
+    If you are using USERAGENT::<id> triggers in your violation configuration,
+    you need to updated them. We completely changed the back-end and the IDs
+    are now all different. Check in the Web Admin under configuration -> 
+    user-agent for the new IDs and the new possibilities.
+
+    - Database schema update
+    Related to the easier User-Agent violation system, some tables were 
+    dropped and others added. You need to update your schema with:
+    mysql -u root -p pf -v < db/upgrade-2.0.0-2.2.0.sql
+
     - Important problems found in the port-security for the 3Com Switch 4200G
     There is a bug in these switches that make the port-security support in 
     PacketFence flaky. If you use it you should upgrade to a MAC Auth / 802.1X
@@ -50,6 +61,11 @@ o Upgrading from a version prior to <release>:
     might affect ongoing Voice over IP calls but is better than the previous 
     behavior were the node was simply left where it was. This is an interim 
     measure before we implement RADIUS Change of Authorzation support (CoA).
+
+    - Output of node lookup changed
+    The output of `pfcmd lookup node <mac>` changed. Make sure you update your
+    parsing scripts (if any). This also affects the Node lookup section of the
+    Web Admin interface.
 
 o Upgrading from a version prior to 2.1.0:
 

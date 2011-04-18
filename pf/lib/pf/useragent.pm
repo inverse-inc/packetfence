@@ -2,38 +2,45 @@ package pf::useragent;
 
 =head1 NAME
 
-pf::useragent - module for useragent management.
+pf::useragent
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::useragent handles the queries against useragent information in the database
+pf::useragent is the module for User-Agent data management for both nodes and violations enforcement.
 
 =cut
 
 use strict;
 use warnings;
+
+use HTTP::BrowserDetect;
 use Log::Log4perl;
 
 use constant USERAGENT => 'useragent';
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT );
+    our ( @ISA, @EXPORT, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT = qw(
-        $useragent_db_prepared
-        useragent_db_prepare
-
-        useragent_match 
-        useragent_view_all
+    @EXPORT = qw($useragent_db_prepared useragent_db_prepare);
+    @EXPORT_OK = qw(
+        view view_all add 
+        property_to_tid
+        process_useragent
+        node_useragent_view
+        node_useragent_view_all
     );
 }
 
 use pf::config;
 use pf::db;
-use pf::trigger qw(trigger_in_range);
+use pf::violation;
+
+our @useragent_data;
+# created for faster lookups
+our $property_to_tid = {};
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $useragent_db_prepared = 0;
@@ -41,26 +48,319 @@ our $useragent_db_prepared = 0;
 # the hash if required
 our $useragent_statements = {};
 
+=head1 SUBROUTINES
+
+=over
+
+=item useragent_db_prepare
+
+Initialize database prepared statements
+
+=cut
 sub useragent_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::useragent');
     $logger->debug("Preparing pf::useragent database queries");
-    $useragent_statements->{'useragent_match_sql'} = get_db_handle()->prepare(
-        qq [ SELECT ut.match_expression,ut.useragent_id,ut.description as useragent,c.class_id,c.description as class FROM useragent_type ut LEFT JOIN useragent_mapping m ON m.useragent_type=ut.useragent_id LEFT JOIN useragent_class c ON  m.useragent_class=c.class_id WHERE ? regexp ut.match_expression GROUP BY c.class_id ORDER BY class_id ]);
 
-    $useragent_statements->{'useragent_view_all_sql'} = get_db_handle()->prepare(
-        qq [ SELECT ut.match_expression,ut.description as useragent,c.description as class FROM useragent_type ut LEFT JOIN useragent_mapping m ON m.useragent_type=ut.useragent_id LEFT JOIN useragent_class c ON  m.useragent_class=c.class_id ORDER BY class_id ]);
+    $useragent_statements->{'node_useragent_exist_sql'} = get_db_handle()->prepare(qq[
+        SELECT mac FROM node_useragent WHERE mac = ?
+    ]);
+
+    $useragent_statements->{'node_useragent_insert_sql'} = get_db_handle()->prepare(qq[
+        INSERT INTO node_useragent (mac, os, browser, device, device_name, mobile) 
+        VALUES (?, ?, ?, ?, ?, ?)
+    ]);
+
+    $useragent_statements->{'node_useragent_update_sql'} = get_db_handle()->prepare(qq[
+        UPDATE node_useragent 
+        SET os = ?, browser = ?, device = ?, device_name = ?, mobile = ?
+        WHERE mac = ?
+    ]);
+
+    $useragent_statements->{'node_useragent_view_sql'} = get_db_handle()->prepare(qq[
+        SELECT mac, browser, os, device, device_name, mobile, n.user_agent
+        FROM node_useragent LEFT JOIN node as n USING (mac)
+        WHERE mac = ?
+    ]);
+
+    $useragent_statements->{'node_useragent_view_all_sql'} = get_db_handle()->prepare(qq[
+        SELECT mac, browser, os, device, device_name, mobile, n.user_agent
+        FROM node_useragent LEFT JOIN node as n USING (mac)
+        ORDER BY n.regdate DESC
+    ]);
 
     $useragent_db_prepared = 1;
 }
 
-sub useragent_match {
-    my ($useragent) = @_;
-    return db_data(USERAGENT, $useragent_statements, 'useragent_match_sql', $useragent);
+=item node_useragent_exist
+
+Returns true if node_useragent record exists undef or 0 otherwise.
+
+=cut
+sub node_useragent_exist {
+    my ($mac) = @_;
+    my $query = db_query_execute(USERAGENT, $useragent_statements, 'node_useragent_exist_sql', $mac) || return (0);
+    my ($val) = $query->fetchrow_array();
+    $query->finish();
+    return ($val);
 }
 
-sub useragent_view_all {
-    return db_data(USERAGENT, $useragent_statements, 'useragent_view_all_sql');
+=item node_useragent_add
+
+=cut
+sub node_useragent_add {
+    my ( $mac, $data ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::useragent');
+
+    if ( node_useragent_exist($mac) ) {
+        $logger->error("rejected attempt to add existing node-useragent entry for $mac");
+        return (2);
+    }
+
+    db_query_execute(USERAGENT, $useragent_statements, 'node_useragent_insert_sql', 
+        $mac, $data->{'os'}, $data->{'browser'}, $data->{'device'}, $data->{'device_name'}, $data->{'mobile'}
+    ) || return (0);
+
+    $logger->debug("node-useragent record $mac added");
+    return (1);
 }
+
+=item node_useragent_update
+
+=cut
+sub node_useragent_update {
+    my ( $mac, $data ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::useragent');
+
+    db_query_execute(USERAGENT, $useragent_statements, 'node_useragent_update_sql', 
+        $data->{'os'}, $data->{'browser'}, $data->{'device'}, $data->{'device_name'}, $data->{'mobile'}, $mac
+    ) || return (0);
+
+    $logger->debug("node-useragent record $mac updated");
+    return (1);
+}
+
+=item update_node_useragent_record
+
+=cut
+sub update_node_useragent_record {
+    my ($mac, $browserDetect) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::useragent');
+
+    my $record = {
+        'os' => $browserDetect->os_string() || undef,
+        'browser' => $browserDetect->browser_string() || undef,
+        'device_name' => $browserDetect->device_name() || undef,
+    };
+
+    if ($browserDetect->device()) {
+        $record->{'device'} = 'yes';
+    } else {
+        $record->{'device'} = 'no';
+    }
+
+    if ($browserDetect->mobile) {
+        $record->{'mobile'} = 'yes';
+    } else {
+        $record->{'mobile'} = 'no';
+    }
+
+    # is there already an entry for this node?
+    if (node_useragent_exist($mac)) {
+        node_useragent_update($mac, $record);
+    } else {
+        node_useragent_add($mac, $record);
+    }
+
+    return $TRUE;
+}
+
+=item node_useragent_view_all - view all node_useragent entries, returns an array of hashrefs
+
+=cut
+sub node_useragent_view_all {
+    return db_data(USERAGENT, $useragent_statements, 'node_useragent_view_all_sql');
+}
+
+=item node_useragent_view - view a node_useragent entry, returns an hashref
+
+=cut
+sub node_useragent_view {
+    my ($mac) = @_;
+    my $query = db_query_execute(USERAGENT, $useragent_statements, 'node_useragent_view_sql', $mac);
+    my $ref = $query->fetchrow_hashref();
+
+    # just get one row and finish
+    $query->finish();
+    return ($ref);
+}
+
+
+=item view
+
+View a single useragent trigger
+
+=cut
+sub view {
+    my ($tid) = @_;
+
+    return if (!defined($tid));
+
+    _init() if (!@useragent_data);
+
+    foreach my $record (@useragent_data) {
+        return $record if ($record->{'id'} == $tid);
+    }
+
+    return;
+}
+
+=item view_all
+
+View all useragent triggers
+
+=cut
+sub view_all {
+    my $logger = Log::Log4perl::get_logger('pf::useragent');
+
+    _init() if (!@useragent_data);
+
+    return @useragent_data;
+}
+
+
+=item add
+
+Add a useragent trigger along with it's metadata
+
+=cut
+sub add {
+    my ($trigger_id, $property, $description) = @_;
+
+    # add to data in RAM
+    push @useragent_data, {
+        'id' => $trigger_id,
+        'property' => $property,
+        'description' => $description,
+    };
+
+    # add to fast lookup cache
+    $property_to_tid->{$property} = $trigger_id;
+
+    return $TRUE;
+}
+
+=item property_to_tid
+
+Lookup the trigger ID for a given browser property
+
+=cut
+sub property_to_tid {
+    my ($property) = @_;
+
+    return if (!defined($property));
+
+    _init() if (!@useragent_data);
+
+    return if (!defined($property_to_tid->{$property})); 
+
+    return $property_to_tid->{$property};
+}
+
+=item _init
+
+Initializes the User-Agent data structure. It's two things, one fast lookup hash for trigger ids:
+
+  browser property => trigger id
+
+and one array of hashes with everything:
+
+  (
+    id => trigger id
+    property => browser property
+    description => property description
+  )
+
+Be _really_ careful modifying this method so that the trigger IDs will stay the same!
+We don't want our users to keep updating their conf/violations.conf file to track changing trigger IDs.
+
+=cut
+sub _init {
+    my $logger = Log::Log4perl::get_logger('pf::useragent');
+
+    # TODO this is very strongly coupled to HTTP::BrowserDetect's internals, we should aim to add a feature upstream
+    my %triggers = (
+        1 => \@HTTP::BrowserDetect::BROWSER_TESTS,
+        100 => {'device' => 'Any device browser'},  # handled differently: it's a sub and not a property (hash element)
+        101 => \%HTTP::BrowserDetect::DEVICE_TESTS,
+        200 => \@HTTP::BrowserDetect::GAMING_TESTS,
+        300 => \@HTTP::BrowserDetect::MISC_TESTS,
+        400 => \@HTTP::BrowserDetect::OS_TESTS,
+        500 => \@HTTP::BrowserDetect::WINDOWS_TESTS,
+        600 => \@HTTP::BrowserDetect::MAC_TESTS,
+        700 => \@HTTP::BrowserDetect::UNIX_TESTS,
+        800 => \@HTTP::BrowserDetect::BSD_TESTS,
+        900 => \@HTTP::BrowserDetect::IE_TESTS,
+        1000 => \@HTTP::BrowserDetect::OPERA_TESTS,
+        1100 => \@HTTP::BrowserDetect::AOL_TESTS,
+        1200 => \@HTTP::BrowserDetect::NETSCAPE_TESTS,
+        1300 => \@HTTP::BrowserDetect::FIREFOX_TESTS,
+        1400 => \@HTTP::BrowserDetect::ENGINE_TESTS,
+        1500 => \@HTTP::BrowserDetect::ROBOT_TESTS,
+    );
+
+    $property_to_tid = {};
+    @useragent_data = ();
+
+    # loop on all characteristics (ex: OS, Device, Browsers, etc.)
+    foreach my $property_group_id (sort {$a <=> $b} keys %triggers) {
+
+        my $id_idx = $property_group_id;
+        my $properties = $triggers{$property_group_id};
+        if (ref($properties) eq 'ARRAY') {
+
+            # for arrays, we add the properties without a description
+            foreach my $property (@{$properties}) {
+                add($id_idx, $property);
+                $id_idx++;
+            }
+        } elsif (ref($properties) eq 'HASH') {
+            # for hashes, we add the properties with a description
+            foreach my $property (keys %{$properties}) {
+                add($id_idx, $property, ${$properties}{$property});
+                $id_idx++;
+            }
+        }
+    }
+
+    $logger->info("Static User-Agent lookup data initialized");
+    return $TRUE;
+}
+
+=item process_useragent
+
+Updates the node_useragent information according to User-Agent string and fires appropriate violation triggers
+based on User-Agent properties.
+
+=cut
+sub process_useragent {
+    my ($mac, $useragent) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::useragent');
+
+    my $browserDetect = HTTP::BrowserDetect->new($useragent);
+
+    update_node_useragent_record($mac, $browserDetect);
+
+    # report a violation for every browser property (ex: windows, firefox, android, etc.)
+    foreach my $browser_property ($browserDetect->browser_properties()) {
+        my $tid = property_to_tid($browser_property);
+        $logger->debug("sending USERAGENT::$tid ($browser_property) trigger");
+        violation_trigger( $mac, $tid, "USERAGENT" );
+    }
+
+    return $TRUE;
+}
+
+=back
 
 =head1 AUTHOR
 
@@ -68,7 +368,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009,2010 Inverse inc.
+Copyright (C) 2009-2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

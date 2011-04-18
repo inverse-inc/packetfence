@@ -46,6 +46,8 @@ BEGIN {
         report_statics_active
         report_unknownprints_all
         report_unknownprints_active
+        report_unknownuseragents_all
+        report_unknownuseragents_active
 
         translate_connection_type
     );
@@ -118,6 +120,26 @@ sub report_db_prepare {
 
     $report_statements->{'report_openviolations_active_sql'} = get_db_handle()->prepare(
         qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as violation from (violation v, iplog i) LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.vid=v.vid WHERE v.status="open" and n.mac=i.mac and (i.end_time=0 or i.end_time > now()) order by n.pid ]);
+
+    $report_statements->{'report_unknownuseragents_all_sql'} = get_db_handle()->prepare(qq[
+        SELECT n.user_agent, nu.browser, nu.os, n.computername, o.description, n.dhcp_fingerprint
+        FROM node as n
+            JOIN node_useragent AS nu USING (mac) 
+            LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint 
+            LEFT JOIN os_type o ON o.os_id=d.os_id
+        WHERE (nu.browser IS NULL OR nu.os IS NULL) AND n.user_agent != ''
+    ]);
+
+    $report_statements->{'report_unknownuseragents_active_sql'} = get_db_handle()->prepare(qq[
+        SELECT n.user_agent, nu.browser, nu.os, n.computername, o.description, n.dhcp_fingerprint
+        FROM node as n
+            JOIN node_useragent AS nu USING (mac) 
+            LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint 
+            LEFT JOIN os_type o ON o.os_id=d.os_id
+            LEFT JOIN iplog USING (mac)
+        WHERE (nu.browser IS NULL OR nu.os IS NULL) AND n.user_agent != '' 
+            AND (iplog.end_time=0 OR iplog.end_time > now())
+    ]);
 
     $report_db_prepared = 1;
     return 1;
@@ -325,6 +347,14 @@ sub report_unknownprints_active {
         $datum->{'vendor'} = oui_to_vendor( $datum->{'mac'} );
     }
     return (@data);
+}
+
+sub report_unknownuseragents_all {
+    return db_data(REPORT, $report_statements, 'report_unknownuseragents_all_sql');
+}
+
+sub report_unknownuseragents_active {
+    return db_data(REPORT, $report_statements, 'report_unknownuseragents_active_sql');
 }
 
 =item * translate_connection_type
