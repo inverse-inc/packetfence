@@ -9,6 +9,10 @@ pf::SNMP::HP::Procurve_2500 - Object oriented module to access SNMP enabled HP P
 The pf::SNMP::HP::Procurve_2500 module implements an object 
 oriented interface to access SNMP enabled HP Procurve 2500 switches.
 
+=head1 STATUS
+
+We've got reports that the HP ProCurve's 5412zl work correctly with this module.
+
 =cut
 
 use strict;
@@ -192,7 +196,9 @@ Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2008 Inverse inc.
+Copyright (C) 2007-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
