@@ -346,6 +346,8 @@ fi
 
 %defattr(-, pf, pf)
 %attr(0755, root, root) %{_initrddir}/packetfence
+%dir                    %{_sysconfdir}/logrotate.d
+%config                 %{_sysconfdir}/logrotate.d/packetfence
 
 %dir                    /usr/local/pf
 %dir                    /usr/local/pf/addons
@@ -366,8 +368,6 @@ fi
 %dir                    /usr/local/pf/addons/integration-testing/
                         /usr/local/pf/addons/integration-testing/*
                         /usr/local/pf/addons/logrotate
-%dir			%{_sysconfdir}/logrotate.d
-%config 		%{_sysconfdir}/logrotate.d/packetfence
 %attr(0755, pf, pf)	/usr/local/pf/addons/migrate-to-locationlog_history.sh
 %attr(0755, pf, pf)     /usr/local/pf/addons/monitorpfsetvlan.pl
 %dir                    /usr/local/pf/addons/mrtg
