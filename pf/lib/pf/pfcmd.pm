@@ -244,6 +244,10 @@ sub parseCommandLine {
                                      (delete) \s+ (\s+)
                                    )
                                  $  }xms,
+        'nodeuseragent'   => qr{ ^ (view) 
+                                   \s+ 
+                                   ( all | \d+ (?: ,\d+)* ) 
+                                 $ }xms,
         'person'          => qr{ ^ (view)
                                    \s+
                                    ( [a-zA-Z0-9\-\_\.\@]+ )
@@ -252,12 +256,12 @@ sub parseCommandLine {
         'report'          => qr{ ^ (?: #for grouping only
                                      ( active | inactive | openviolations 
                                        | os | osclass | registered | statics 
-                                       | unknownprints | unregistered )
+                                       | unknownprints | unknownuseragents | unregistered )
                                      |
                                      (?: #for grouping only
                                        ( openviolations | os | osclass 
                                          | registered | statics
-                                         | unknownprints | unregistered 
+                                         | unknownprints | unknownuseragents | unregistered 
                                        )
                                        \s+
                                        ( all | active )
@@ -341,6 +345,10 @@ sub parseCommandLine {
                                    )
                                  $  }xms,
         'update'          => qr{ ^ ( fingerprints | oui ) $  }xms,
+        'useragent'       => qr{ ^ (view) 
+                                   \s+ 
+                                   ( all | \d+ ) 
+                                 $ }xms,
         'version'         => qr{ ^ $ }xms,
         'violation'       => qr{ ^ ( view )
                                    \s+
@@ -460,7 +468,7 @@ Regis Balzard <rbalzard@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009, 2010 Inverse inc.
+Copyright (C) 2009-2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

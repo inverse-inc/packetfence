@@ -19,8 +19,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  * 
+ * @author      Olivier Bilodeau <obilodeau@inverse.ca>
  * @author      Dominik Gehl <dgehl@inverse.ca>
- * @copyright   2008-2010 Inverse inc.
+ * @copyright   2008-2011 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
@@ -31,7 +32,12 @@
 
   include_once('../header.php');
 
-  $active_available = array('registered', 'unregistered', 'os', 'osclass', 'unknownprints', 'openviolations', 'statics');
+  $active_available = array(
+    'registered', 'unregistered', 
+    'os', 'osclass', 
+    'unknownprints', 'unknownuseragents', 
+    'openviolations', 'statics'
+  );
   $type = set_default($_REQUEST['type'], 'ipmachistory');
   $subtype = set_default($_GET['subtype'], '');
 
@@ -342,6 +348,18 @@ array('owner', 'person/lookup.php')));
     if($_REQUEST['upload']){
       if($msg){ $msg.="<br>"; }
       $msg .= share_fingerprints($my_table->rows);
+    }
+
+    if($msg){
+      $extra_goodness .= "<div id='message_box'>$msg</div>";
+    }
+  } elseif (strstr($type,'unknownuseragents')){
+    get_global_conf();
+
+    ## Sharing Fingerprints ##
+    if($_REQUEST['upload']){
+      if($msg){ $msg.="<br>"; }
+      $msg .= share_useragents($my_table->rows);
     }
 
     if($msg){

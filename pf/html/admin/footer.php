@@ -19,8 +19,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  * 
+ * @author      Olivier Bilodeau <obilodeau@inverse.ca>
  * @author      Dominik Gehl <dgehl@inverse.ca>
- * @copyright   2008-2010 Inverse inc.
+ * @copyright   2008-2011 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 ?>
@@ -46,6 +47,8 @@
                if(($current_top == 'class' && $current_sub == 'fingerprint') || ($current_top== 'status' && $current_sub == 'reports' && $_GET['type'] == 'unknownprints')){
                  print "<a href='$current_top/$current_sub.php?menu=$_GET[menu]&amp;type=$_GET[type]&amp;upload=true'><img src='images/up.png' alt='Share Unknown Fingerprints' title='Share Unknown Fingerprints'></a> ";
                  print "<a href='$current_top/$current_sub.php?menu=$_GET[menu]&amp;type=$_GET[type]&amp;update=true'><img src='images/update.png' alt='Update Fingerprints &amp; OUI Prefixes' title='Update Fingerprints &amp; OUI Prefixes'></a> ";
+               } elseif ($current_top== 'status' && $current_sub == 'reports' && $_GET['type'] == 'unknownuseragents'){
+                 print "<a href='$current_top/$current_sub.php?menu=$_GET[menu]&amp;type=$_GET[type]&amp;upload=true'><img src='images/up.png' alt='Share Unknown User-Agent Fingerprints' title='Share Unknown User-Agent Fingerprints'></a> ";
                }
                print "<a href=\"javascript:popUp('/exporter.php?current_top=$current_top&amp;current_sub=$current_sub','175','1200')\"><img border=0 src='images/csv.png' alt='Download CSV of this data' title='Download CSV of this data'></a>";
             }

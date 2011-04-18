@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 79;
+use Test::More tests => 81;
 
 my @php_files = (
     '/usr/local/pf/html/admin/administration/adduser.php',
@@ -34,6 +34,7 @@ my @php_files = (
     '/usr/local/pf/html/admin/configuration/switches_add.php',
     '/usr/local/pf/html/admin/configuration/switches_edit.php',
     '/usr/local/pf/html/admin/configuration/switches.php',
+    '/usr/local/pf/html/admin/configuration/useragent.php',
     '/usr/local/pf/html/admin/configuration/violation_add.php',
     '/usr/local/pf/html/admin/configuration/violation_edit.php',
     '/usr/local/pf/html/admin/configuration/violation.php',
@@ -49,6 +50,7 @@ my @php_files = (
     '/usr/local/pf/html/admin/node/edit.php',
     '/usr/local/pf/html/admin/node/index.php',
     '/usr/local/pf/html/admin/node/lookup.php',
+    '/usr/local/pf/html/admin/node/useragent.php',
     '/usr/local/pf/html/admin/node/view.php',
     '/usr/local/pf/html/admin/person/add.php',
     '/usr/local/pf/html/admin/person/edit.php',

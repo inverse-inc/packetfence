@@ -22,6 +22,8 @@ New Hardware Support
   802.1X
 
 New Features
+- User-Agent violation support completely re-written. It is now easier than 
+  ever to block devices or old browsers from your network.
 - Kerberos Authentication on the Captive Portal (Thanks to Brad Lhotsky from 
   NIH)
 

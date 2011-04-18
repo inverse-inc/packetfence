@@ -25,6 +25,7 @@ F<register.html>.
 #TODO all template destination should be variables allowing redefinitions by pf::web::custom
 use strict;
 use warnings;
+
 use Date::Parse;
 use File::Basename;
 use JSON;
@@ -448,35 +449,31 @@ sub _sanitize_and_register {
     return 1;
 }
 
+=item web_node_record_user_agent
+
+Records User-Agent for the provided node and triggers violations.
+
+=cut
 sub web_node_record_user_agent {
     my ( $mac, $user_agent ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
     
+    # caching useragents, if it's the same don't bother triggering violations
+    my $cached_useragent = $main::useragent_cache->get($mac);
+
+    # Cache hit
+    return if (defined($cached_useragent) && $user_agent eq $cached_useragent);
+
+    # Caching and updating node's info
+    $logger->trace("adding $mac user-agent to cache");
+    $main::useragent_cache->set( $mac, $user_agent, "5 minutes");
+
     # Recording useragent
     $logger->info("Updating node $mac user_agent with useragent: '$user_agent'");
-    # call node_modify directly instead of pfcmd node edit. it's more performant and it'll avoid trying to adjust vlan 
     node_modify($mac, ('user_agent' => $user_agent));
 
-    # match provided useragent in useragent database
-    my @user_agent_info = useragent_match($user_agent);
-    if ( scalar(@user_agent_info) && ( ref( $user_agent_info[0] ) eq 'HASH' ) ) {
-
-        # is there a violation on this user agent?
-        $logger->debug(
-            "sending USERAGENT::".$user_agent_info[0]->{'useragent_id'}
-            ." (".$user_agent_info[0]->{'useragent'}.") trigger"
-        );
-        require pf::violation;
-        # TODO we should also trigger the broader class (ex: 101 and 1 for a useragent id 101 which is part of class 1)
-        # issue #1192
-        pf::violation::violation_trigger( $mac, $user_agent_info[0]->{'useragent_id'}, "USERAGENT" );
-
-    } else {
-        $logger->info("unknown User-Agent: " . $user_agent);
-        # TODO: record unknown useragents here? (how does dhcp fingerprint does it?)
-    }
-
-    return 1;
+    # updates the node_useragent information and fires relevant violations triggers
+    return pf::useragent::process_useragent($mac, $user_agent);
 }
 
 sub web_user_authenticate {
