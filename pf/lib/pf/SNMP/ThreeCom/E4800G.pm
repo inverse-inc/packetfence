@@ -31,7 +31,7 @@ Although current limitation regarding 802.1X re-authentication could imply lost 
 
 =back
 
-Tested by the community.
+MAC-Authentication / 802.1X known to work with firmware V5.20 rel 2202P15 tested by the community.
 
 =head1 BUGS AND LIMITATIONS
 

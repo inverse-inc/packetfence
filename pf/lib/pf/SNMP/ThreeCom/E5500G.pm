@@ -31,6 +31,8 @@ Although current limitation regarding 802.1X re-authentication could imply lost 
 
 =back
 
+802.1X and MAC-Authentication confirmed to work with firmware V3.03.02s168p07. 
+
 Tested by the community.
 
 =head1 BUGS AND LIMITATIONS
