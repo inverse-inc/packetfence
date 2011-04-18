@@ -497,6 +497,8 @@ fi
 %config(noreplace)      /usr/local/pf/html/user/content/violations/*
 %attr(0755, pf, pf)     /usr/local/pf/installer.pl
 %dir                    /usr/local/pf/lib
+%dir                    /usr/local/pf/lib/HTTP
+                        /usr/local/pf/lib/HTTP/BrowserDetect.pm
 %dir                    /usr/local/pf/lib/pf
                         /usr/local/pf/lib/pf/*.pm
 %dir                    /usr/local/pf/lib/pf/floatingdevice
