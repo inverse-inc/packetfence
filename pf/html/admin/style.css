@@ -248,6 +248,11 @@ td.action {
     width: 70px;
 }
 
+/* We have more icons on the action bar there */
+#configuration-violation td.action {
+    width: 84px;
+}
+
 td.action form {
     display: inline;
 }

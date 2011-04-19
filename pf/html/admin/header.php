@@ -184,7 +184,7 @@
   </script>
 </head>
 
-<body>
+<body id="<?=$current_top."-".$current_sub?>">
 
 <div id="container">
 
