@@ -71,3 +71,32 @@ function detectNetworkAccess(detectDiv, retry_delay, destination_url, external_i
   detectNetworkAccess.delay(retry_delay, detectDiv, retry_delay, destination_url, external_ip);
 }
 
+/**
+ confirmToQuit
+
+ When assigned to window.onbeforeunload this asks for a confirmation before leaving a page.
+ See addConfirmToQuit().
+ */
+function confirmToQuit (e) {
+
+  var message = "You have unsaved changes.",
+  e = e || window.event;
+  // For IE and Firefox
+  if (e) {
+    e.returnValue = message;
+  }
+
+  // For Safari
+  return message;
+}
+
+/**
+ addConfirmToQuit
+
+ Call this when you have users to get a warning before leaving a page. 
+ Add it to the onchange of form fields.
+ */
+function addConfirmToQuit() {
+  window.onbeforeunload = confirmToQuit;
+}
+

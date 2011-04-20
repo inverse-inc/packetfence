@@ -140,7 +140,6 @@
   }
 
 ?>
-
 <div id=content>
 <center>Here are the various remediation pages. Click on one to edit it.</center>
 <table class='configuration'>
@@ -152,7 +151,7 @@
     <table width=90% align=center>
       <tr>
         <td>
-          <textarea rows=30 cols=100 name=file_content><?=$file_content?></textarea>
+          <textarea rows=30 cols=100 name=file_content onchange='addConfirmToQuit();'><?=$file_content?></textarea>
           <input type='hidden' name='last-modified' value='<?=$last_modified?>'>
           <input type='hidden' name='filename' value='<?=$filename?>'>
         </td>
@@ -166,7 +165,6 @@
   </td>
 </tr></table>
 </div>
-
 <?
 
 function print_filetable ($remediation_pages, $selection='') {
