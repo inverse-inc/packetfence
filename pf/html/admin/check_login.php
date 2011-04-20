@@ -32,6 +32,7 @@
 
   require_once 'common/helpers.inc';
   require_once 'common/adminperm.inc';
+  require_once 'common/display.inc';
   require_once 'Log.php';
   // TODO port hard-coded path to get_pf_path
   $logger_file = &Log::factory('file', '/usr/local/pf/logs/admin_debug_log');
