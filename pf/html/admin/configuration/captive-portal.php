@@ -146,7 +146,7 @@
 <tr>
   <td class='left'><? print_filetable($remediation_pages, $filename); ?></td>
   
-  <td valign=top style='padding-top:25px;'>
+  <td valign=top style='padding-top:26px;'>
     <form action='<?=$current_top."/".$current_sub?>.php' method='POST'>
     <table width=90% align=center>
       <tr>
@@ -169,6 +169,7 @@
 
 function print_filetable ($remediation_pages, $selection='') {
     global $current_top, $current_sub;
+    print "<ul>";
     foreach ($remediation_pages as $filename => $data) {
         $first++ == 0 ? $class = "top" : $class = "";
 
@@ -176,12 +177,11 @@ function print_filetable ($remediation_pages, $selection='') {
           $class .= " selected";
         }
 
-        // I'm a bit disgusted of myself but at least it's not as bad as main.php
-        print "<a href='$current_top/$current_sub.php?file=$filename'>
-                 <div id='$filename' class='$class'><table><tr>
-                 <td>$filename</td><td class='arrow'>&raquo;</td></tr></table>
-               </div></a>";
+        print "<li id='$filename' class='$class'><a href='$current_top/$current_sub.php?file=$filename'>
+                 $filename<span class='arrow'>&raquo;</span>
+               </a></li>";
     }
+    print "</ul>";
 }
 
 include_once('../footer.php');

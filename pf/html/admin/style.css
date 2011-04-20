@@ -621,7 +621,7 @@ body.popup tr.button td {
 }
 
 /* Fancy configuration table */
-table.configuration tr {
+table.configuration td {
     vertical-align: top;
 }
 
@@ -630,35 +630,35 @@ table.configuration td.left {
     padding-top: 30px;
 }
 
-table.configuration div {
-    background:#F7F7F7;
-    border-left: 1px solid #AAA;
-    border-right:1px solid #AAA;
-    border-bottom:1px solid #AAA;
-    cursor:pointer;
-    padding:2px;
-    width: 200px;
+table.configuration ul {
+    margin: 0px;
+    padding-left: 0px;
 }
 
-table.configuration div.top {
+table.configuration li {
+    background: #F7F7F7;
+    border-left: 1px solid #AAA;
+    border-right: 1px solid #AAA;
+    border-bottom: 1px solid #AAA;
+    cursor: pointer;
+    padding: 5px;
+    width: 200px;
+    display: block;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+table.configuration a {
+    display: block;
+    color: #666; /* re-applying body color to override link color */
+}
+
+table.configuration li.top {
     border: 1px solid #AAA;
 }
 
-table.configuration div.selected {
+table.configuration li.selected {
     background: #DDDDDD;
-}
-
-table.configuration div table td {
-    color: #666; /* re-applying body color to override link color */
-    font-size: 1.2em;
-    font-weight: bold;
-    width: 150px;
-}
-
-table.configuration div table td.arrow {
-    font-size: 1.2em;
-    text-align: right;
-    width: 50px;
 }
 
 td.buttonbar {
@@ -666,4 +666,9 @@ td.buttonbar {
     border: 1px solid #aaa;
     padding: 5px;
     text-align: right;
+}
+
+table.configuration li span.arrow {
+    font-size: 0.8em;
+    float: right;
 }

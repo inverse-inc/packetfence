@@ -34,7 +34,7 @@ include('../header.php');
 <script type='text/javascript'>
   function selectSection(section, alt){
     var regEx = eval("/^section_/");
-    var spans = document.getElementsByTagName('div');
+    var spans = document.getElementsByTagName('li');
 
     for(i=0; i<spans.length; i++){
      if(spans[i].id.match(regEx)){
@@ -61,7 +61,7 @@ include('../header.php');
       document.getElementById('settings_' + alt).style.display='block';
     }
 
-    var divs = document.getElementsByTagName('div');
+    var divs = document.getElementsByTagName('li');
     //close other blocks
     regEx = new RegExp("^section_([^.]+)\\..+");
     for(i=0; i<divs.length; i++){
@@ -165,6 +165,7 @@ if($msg){
 print "<table class='configuration'>";
 print "  <tr>";
 print "    <td class='left'>";
+print "      <ul>";
 
 $added_sections = array();
 
@@ -176,12 +177,11 @@ foreach($config_tree as $section => $val){
         $my_section = set_default($matches[0], $section);
 
         #$nice_section = set_default($matches[2], $section);
-        print "<div id='section_$section' class='$class' onClick='selectSection(\"$section\", \"false\");'>
-                 <table><tr valign=top><td>".ucfirst($section)."</td><td class='arrow'>&raquo;</td>
-                 </tr></table>
-               </div>";
+        print "<li id='section_$section' class='$class' onClick='selectSection(\"$section\", \"false\");'>"
+                 .ucfirst($section)."<span class='arrow'>&raquo;</span></li>";
 
 }
+print "      </ul>";
 
 print "    </td><td valign=top style='padding-top:30px;'>";
 print "<form name='config' action='$current_top/$current_sub.php?update=true' method='post'>";
