@@ -107,11 +107,6 @@
       print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val'>";
     }
 
-    if(($key == 'regdate')||($key == 'unregdate')){
-      $now = date('Y-m-d H:i:s');
-      print  " <img src='../images/date.png' onClick=\"document.edit.$key.value='$now';return false;\" title='Insert Current Time' style='cursor:pointer;'>";
-    }
-
     print "</td></tr>";
   }
   print "<tr><td colspan=3 align=right><input type='submit' value='Edit ".ucfirst($current_top)."'></td></tr>";

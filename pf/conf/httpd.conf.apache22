@@ -70,6 +70,9 @@ DirectoryIndex index.html index.cgi index.php
 <IfModule !mod_ssl.c>
   LoadModule ssl_module modules/mod_ssl.so
 </IfModule>
+<IfModule !mod_env.c>
+  LoadModule env_module modules/mod_env.so
+</IfModule>
 <IfModule !mod_setenvif.c>
   LoadModule setenvif_module modules/mod_setenvif.so
 </IfModule>
@@ -299,6 +302,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
   DocumentRoot "%%install_dir%%/html/admin"
   ServerName %%hostname%%.%%domain%%:%%admin_port%%
+  SetEnv VHOST ADMIN
 
   Alias /favicon.ico %%install_dir%%/html/common/favicon.ico
   Alias /common/ %%install_dir%%/html/common/

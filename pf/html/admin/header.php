@@ -132,6 +132,7 @@
   <script type="text/javascript" src="<?=$abs_url?>/3rdparty/calendar/calendar.js"></script>
   <script type="text/javascript" src="<?=$abs_url?>/3rdparty/calendar/lang/calendar-en.js"></script>
   <script type="text/javascript" src="<?=$abs_url?>/3rdparty/calendar/calendar-setup.js"></script>
+  <script type="text/javascript" src="<?=$abs_url?>/common/pf.js"></script>
 
   <script type="text/javascript">
     <?
@@ -184,7 +185,7 @@
   </script>
 </head>
 
-<body>
+<body id="<?=$current_top."-".$current_sub?>">
 
 <div id="container">
 

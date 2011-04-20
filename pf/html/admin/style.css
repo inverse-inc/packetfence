@@ -121,10 +121,9 @@ div.subnav LI {
     width:auto;
 }
 
-div.subnav A:visited{
+div.subnav A:visited {
     color:white;
 }
-
 
 div.subnav A  {
     border-bottom: 1px solid transparent;
@@ -246,6 +245,11 @@ td.action {
     line-height: 1em;
     vertical-align: middle;
     width: 70px;
+}
+
+/* We have more icons on the action bar there */
+#configuration-violation td.action {
+    width: 84px;
 }
 
 td.action form {
@@ -614,4 +618,57 @@ body.popup tr.button td {
     border-top: 2px solid #2f2400;
     padding-top: 10px;
     text-align: right;
+}
+
+/* Fancy configuration table */
+table.configuration td {
+    vertical-align: top;
+}
+
+table.configuration td.left {
+    padding-left: 30px;
+    padding-top: 30px;
+}
+
+table.configuration ul {
+    margin: 0px;
+    padding-left: 0px;
+}
+
+table.configuration li {
+    background: #F7F7F7;
+    border-left: 1px solid #AAA;
+    border-right: 1px solid #AAA;
+    border-bottom: 1px solid #AAA;
+    cursor: pointer;
+    padding: 5px;
+    width: 200px;
+    display: block;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+table.configuration a {
+    display: block;
+    color: #666; /* re-applying body color to override link color */
+}
+
+table.configuration li.top {
+    border: 1px solid #AAA;
+}
+
+table.configuration li.selected {
+    background: #DDDDDD;
+}
+
+td.buttonbar {
+    background: #DDDDDD; 
+    border: 1px solid #aaa;
+    padding: 5px;
+    text-align: right;
+}
+
+table.configuration li span.arrow {
+    font-size: 0.8em;
+    float: right;
 }
