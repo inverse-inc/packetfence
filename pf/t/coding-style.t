@@ -101,6 +101,7 @@ my @files = (
     '/usr/local/pf/html/admin/common.php',
     '/usr/local/pf/html/admin/common/adminperm.inc',
     '/usr/local/pf/html/admin/common/helpers.inc',
+    '/usr/local/pf/html/admin/configuration/captive-portal.php',
     '/usr/local/pf/html/admin/configuration/fingerprint.php',
     '/usr/local/pf/html/admin/configuration/floatingnetworkdevice_add.php',
     '/usr/local/pf/html/admin/configuration/floatingnetworkdevice_edit.php',

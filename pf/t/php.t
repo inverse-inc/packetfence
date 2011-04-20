@@ -18,6 +18,7 @@ my @php_files = (
     '/usr/local/pf/html/admin/common/adminperm.inc',
     '/usr/local/pf/html/admin/common/helpers.inc',
     '/usr/local/pf/html/admin/common/sajax/Sajax.php',
+    '/usr/local/pf/html/admin/configuration/captive-portal.php',
     '/usr/local/pf/html/admin/configuration/fingerprint.php',
     '/usr/local/pf/html/admin/configuration/floatingnetworkdevice_add.php',
     '/usr/local/pf/html/admin/configuration/floatingnetworkdevice_edit.php',
