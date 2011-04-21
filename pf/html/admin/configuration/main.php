@@ -34,7 +34,7 @@ include('../header.php');
 <script type='text/javascript'>
   function selectSection(section, alt){
     var regEx = eval("/^section_/");
-    var spans = document.getElementsByTagName('div');
+    var spans = document.getElementsByTagName('li');
 
     for(i=0; i<spans.length; i++){
      if(spans[i].id.match(regEx)){
@@ -61,7 +61,7 @@ include('../header.php');
       document.getElementById('settings_' + alt).style.display='block';
     }
 
-    var divs = document.getElementsByTagName('div');
+    var divs = document.getElementsByTagName('li');
     //close other blocks
     regEx = new RegExp("^section_([^.]+)\\..+");
     for(i=0; i<divs.length; i++){
@@ -159,56 +159,29 @@ foreach($configs as $config){
 }
 
 if($msg){
-        print "<div id='message_box' style='margin-bottom:0px; margin-top:20px;'>$msg</div>";
+        print_notice($msg);
 }
 
-print "<table>";
-print "  <tr valign=top>";
-print "    <td style='padding-left:30px; padding-top:30px;'>";
+print "<table class='configuration'>";
+print "  <tr>";
+print "    <td class='left'>";
+print "      <ul>";
 
 $added_sections = array();
 
 foreach($config_tree as $section => $val){
-        $i++ == 0 ? $border = 'border:1px solid #AAA;' : $border = 'border-left:1px solid #AAA; border-right:1px solid #AAA; border-bottom:1px solid #AAA;';
+        # this sets class to top on first item and then always nothing
+        $i++ == 0 ? $class = 'top' : $class = '';
         unset($matches);
         
-        $width   = '200px';
-        $margin  = '';
-        $display = '';
-
-        if(preg_match("/^(.+)\.(.+)$/", $section)){
-                $matches = preg_split("/\./", $section);
-
-                $width = '150px';
-                $margin = 'margin-left:50px;';
-                $display = 'display:none;'; 
-
-                if(!$config_tree[$matches[0]] && !@in_array($matches[0], $added_sections)){
-                        $added_sections[] = $matches[0];
-                        print "<div id='section_$matches[0]' style='width:200px; $border padding:2px; cursor:pointer; background:#F7F7F7;' onClick='selectSection(\"$matches[0]\", \"$section\");'>
-                               <table>
-                                       <tr valign=top>      
-                                               <td width=150><font size=2><b>".ucfirst($matches[0])."</b></font></td>
-                                               <td width=50 align=right><font size=3> &raquo; </font></td>                 
-                                       </tr>              
-                               </table>
-                               </div>";
-                }        
-        }
-
         $my_section = set_default($matches[0], $section);
 
         #$nice_section = set_default($matches[2], $section);
-        print "<div id='section_$section' style='width:$width; $border $margin padding:2px; cursor:pointer; background:#F7F7F7; $display' onClick='selectSection(\"$section\", \"false\");'>
-                       <table>
-                               <tr valign=top>      
-                                       <td width=150><font size=2><b>".ucfirst($section)."</b></font></td>
-                                       <td width=50 align=right><font size=3> &raquo; </font></td>                 
-                                </tr>              
-                      </table>
-                </div>";
+        print "<li id='section_$section' class='$class' onClick='selectSection(\"$section\", \"false\");'>"
+                 .ucfirst($section)."<span class='arrow'>&raquo;</span></li>";
 
 }
+print "      </ul>";
 
 print "    </td><td valign=top style='padding-top:30px;'>";
 print "<form name='config' action='$current_top/$current_sub.php?update=true' method='post'>";
@@ -283,7 +256,7 @@ foreach($config_tree as $section => $settings){
                 }
                 print "</td></tr>";
         }
-        print "<tr'><td colspan=2 style='text-align:right; padding:5px; background: #DDDDDD; border:1px solid #aaa;'><input type='submit' value='Submit'></td></tr>";
+        print "<tr><td colspan=2 class='buttonbar'><input type='submit' value='Submit'></td></tr>";
         print "</table>";
         print "</span>";
 }

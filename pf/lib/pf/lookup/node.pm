@@ -18,12 +18,12 @@ use warnings;
 use diagnostics;
 
 use pf::config;
-use pf::util;
 use pf::iplog;
+use pf::locationlog;
 use pf::node;
 use pf::os;
-use pf::config;
-use pf::locationlog;
+use pf::useragent qw(node_useragent_view);
+use pf::util;
 
 sub lookup_node {
     my ($mac) = @_;
@@ -59,8 +59,6 @@ sub lookup_node {
             }
         }
 
-        # DHCP history
-        $return .= "DHCP Info      : Last DHCP request at ".$node_info->{'last_dhcp'}."\n";
 
         my $owner  = $node_info->{'pid'};
         my $category = $node_info->{'category'};
@@ -92,11 +90,19 @@ sub lookup_node {
         my $voip = $node_info->{'voip'};
         $return .= "VoIP           : $voip\n" if ($voip);
 
-        # TODO: output useragent class like in dhcp fingerprint
+        $return .= "\nNODE USER-AGENT INFORMATION\n";
+        $return .= "Raw User-Agent : " . $node_info->{'user_agent'} . "\n" if ( $node_info->{'user_agent'} );
+        my $node_useragent = node_useragent_view($mac);
+        if (defined($node_useragent->{'mac'})) {
+            $return .= "Browser        : " . $node_useragent->{'browser'} . "\n" if ( $node_useragent->{'browser'} );
+            $return .= "OS             : " . $node_useragent->{'os'} . "\n" if ( $node_useragent->{'os'} );
+            $return .= "Is a device?   : " . $node_useragent->{'device'} . "\n" if ( $node_useragent->{'device'} );
+            $return .= "Device name    : " . $node_useragent->{'device_name'} . "\n" 
+                if ( $node_useragent->{'device_name'} );
+            $return .= "Is a mobile?   : " . $node_useragent->{'mobile'} . "\n" if ( $node_useragent->{'mobile'} );
+        }
 
-        $return .= "Browser        : " . $node_info->{'user_agent'} . "\n"
-            if ( $node_info->{'user_agent'} );
-
+        $return .= "\nNODE DHCP INFORMATION\n";
         if ( $node_info->{'dhcp_fingerprint'} ) {
             my @fingerprint_info_array
                 = dhcp_fingerprint_view( $node_info->{'dhcp_fingerprint'} );
@@ -106,6 +112,7 @@ sub lookup_node {
                 $return .= "OS             : $os\n" if ( defined($os) );
             }
         }
+        $return .= "DHCP Info      : Last DHCP request at ".$node_info->{'last_dhcp'}."\n";
 
         if (lc($Config{'network'}{'mode'}) eq 'vlan') {
             my @last_locationlog_entry = locationlog_history_mac($mac);

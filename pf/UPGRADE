@@ -38,10 +38,13 @@ o Upgrading from a version prior to <release>:
     behavior were the node was simply left where it was. This is an interim 
     measure before we implement RADIUS Change of Authorzation support (CoA).
 
-    - Output of node lookup changed
-    The output of `pfcmd lookup node <mac>` changed. Make sure you update your
-    parsing scripts (if any). This also affects the Node lookup section of the
-    Web Admin interface.
+    - node lookup changed
+    By default we do not update the node lookup module in order to allow local
+    customization. However if you want to benefit from the improved node lookup
+    script, make sure that you overwrite your existing lib/pf/lookup/node.pm 
+    module with the new file (.rpmnew). Be aware that the output of `pfcmd 
+    lookup node <mac>` changed so make sure you update your parsing scripts (if
+    any). This also affects the Node lookup section of the Web Admin interface.
 
 o Upgrading from a version prior to 2.1.0:
 

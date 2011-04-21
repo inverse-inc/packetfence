@@ -1,8 +1,9 @@
 <?php
 /**
- * TODO short desc
+ * index.php
  *
- * TODO long desc
+ * Shows remediation information to the user (called by redir.cgi).
+ * Supports a preview mode for Administrators to preview a violation.
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,18 +20,48 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  * 
- * @author      Dominik Gehl <dgehl@inverse.ca>
  * @author      Olivier Bilodeau <obilodeau@inverse.ca>
- * @copyright   2008-2010 Inverse inc.
+ * @author      Dominik Gehl <dgehl@inverse.ca>
+ * @copyright   2008-2011 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php    GPL
  */
 
-  if(!function_exists("set_default")){
-    function set_default($value, $default){
-      if(isset($value))
-        return $value;
-      else
-        return $default;
+  # if we view this page through Web Admin vhost it means we are in preview mode
+  if ($_SERVER["VHOST"] == "ADMIN") {
+
+    # they must be authenticated, the below will take care of it
+    include('../../admin/common.php');
+
+    $preview = true;
+    $template_path = $_SERVER['DOCUMENT_ROOT'] . "/../user/content/violations";
+
+    # populating with fake data
+    $user_data['ip'] = "127.0.0.1";
+    $user_data['mac'] = "ff:ff:ff:ff:ff:ff";
+  } else {
+
+    # normal mode
+    $preview = false;
+    $template_path = $_SERVER['DOCUMENT_ROOT'] . "/content/violations";
+
+    # loading user-data
+    $user_data['ip'] = $_SERVER['REMOTE_ADDR'];
+    # Client IP Lookup if Proxy-Bypass is used
+    if ($user_data['ip'] == '127.0.0.1') {
+        if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $user_data['ip'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        }
+    }
+
+    $PFCMD=dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/bin/pfcmd';
+    $command = "history $user_data[ip]";
+    exec("ARGS=".escapeshellarg($command)." $PFCMD 2>&1", $output, $total);
+
+    $keys = explode('|',array_shift($output));
+    $vals = explode('|',array_shift($output));
+
+    for($i=0; $i< count($keys); $i++){
+      $user_data[$keys[$i]]=$vals[$i];
     }
   }
 
@@ -38,47 +69,15 @@
   bindtextdomain("packetfence", "/usr/local/pf/conf/locale");
   textdomain("packetfence");
 
-  $user_data['ip'] = $_SERVER['REMOTE_ADDR'];
-  # Client IP Lookup if Proxy-Bypass is used
-  if ($user_data['ip'] == '127.0.0.1') {
-      if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-          $user_data['ip'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
-      }
-  }
-
-  $PFCMD=dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/bin/pfcmd';
-  $command = "history $user_data[ip]";
-  exec("ARGS=".escapeshellarg($command)." $PFCMD 2>&1", $output, $total);
-
-  $keys = explode('|',array_shift($output));
-  $vals = explode('|',array_shift($output));
-
-  for($i=0; $i< count($keys); $i++){
-    $user_data[$keys[$i]]=$vals[$i];
-  }
-
   $template = $_GET['template'];
-  if($admin == 'yes'){
-    $_GET['admin'] = 'yes';
-  }
-
-  $remediation_conf = dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/conf/ui-global.conf';   
-
-  if(file_exists($remediation_conf)){
-    $global_conf = unserialize(file_get_contents($remediation_conf));
-    $current = $global_conf['remediation'];
-  }
-
-  if(!$preview){
-    if(!file_exists($_SERVER['DOCUMENT_ROOT'] . "/content/violations/$template.php") || preg_match("/[\'|\"|\/]/", $template)){
+  # verify template's existence
+  if (!file_exists("$template_path/$template.php") || preg_match("/[\'|\"|\/]/", $template)) {
       die("An error occured on this page, please contact the Helpdesk.");
-    }
-
-    include($_SERVER['DOCUMENT_ROOT'] . "/content/violations/$template.php");
   }
 
-  $description_header = set_default($description_header, $vid_data['description']);
-  $logo_src = set_default($current['logo_src'], "content/images/biohazard-sm.gif");
+  include("$template_path/$template.php");
+
+  $logo_src = "content/images/biohazard-sm.gif";
 
   if(file_exists('header.html')){
     $custom_header = file_get_contents('header.html'); 
@@ -88,7 +87,7 @@
     $custom_footer = file_get_contents('footer.html'); 
   }
 
-  $_GET['admin'] ? $title = "Registration Notification" : $title = "Quarantine Established!";
+  $preview ? $title = "Preview: Quarantine Established!" : $title = "Quarantine Established!";
 
 ?>
 
@@ -104,7 +103,6 @@
 <body>
 <div id='div_body'>
 
-<?if(!$_GET['admin']){ //start non-admin section  ?>
 <div id='header'>
     <center>
     <table class='header'>
@@ -119,7 +117,6 @@
     </table>
     </center>
 </div>
-<?} // end non-admin section?>
 
 <?=$custom_header?>
 
@@ -133,7 +130,6 @@
     <span class='remediation_text'><?php echo _($remediation_text) ?> </span>
 </div>
 
-<?if(!$_GET['admin']){ // start non-admin section ?>
 <div id='user_info'>
     <p class='sub_header'><?php echo _("Additional Assistance") ?></p>
 
@@ -148,7 +144,6 @@
     </ul>
 
 </div>
-<?} // end non-admin section ?>
 <?=$custom_footer?>
 
 </div>

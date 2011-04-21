@@ -35,6 +35,12 @@ Warning: The list of subroutine is incomplete
 
 =cut
 
+=item new
+
+Constructor.
+Usually you don't want to call this constructor but use the pf::vlan::custom subclass instead.
+
+=cut
 sub new {
     my $logger = Log::Log4perl::get_logger("pf::vlan");
     $logger->debug("instantiating new pf::vlan object");

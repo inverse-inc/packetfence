@@ -540,8 +540,9 @@ if($sajax){
                  print "  </form>";
                }
              } elseif (($current_top == 'configuration') && ($current_sub=='violation')) {
-               print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['vid'] . "',500,400)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
-               print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['vid'] . "',500,400)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
+               print "  <a href=\"". $this->rows[$i]['url'] . "\" title='Preview remediation page' target='_blank'><img src='/images/famfamfam_silk_icons/page_world.png' alt=\"[ Preview ]\"></a>\n";
+               print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['vid'] . "',600,500)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
+               print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['vid'] . "',600,500)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
                if (($this->rows[$i]['vid'] != '1100001') && ($this->rows[$i]['vid'] != 1100004) && ($this->rows[$i]['vid'] != 1100005) && ($this->rows[$i]['vid'] != 1100009) && ($this->rows[$i]['vid'] != 1100010) && ($this->rows[$i]['vid'] != 1200001) && ($this->rows[$i]['vid'] != 1200003) && ($this->rows[$i]['vid'] != 'defaults')) {
                  print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page' method='post'>";
                  print "  <input type='hidden' name='action' value='delete'>\n";

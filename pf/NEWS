@@ -24,6 +24,7 @@ New Hardware Support
 New Features
 - User-Agent violation support completely re-written. It is now easier than 
   ever to block devices or old browsers from your network. (#769, #1192)
+- Administrators can now modify and preview remediation pages from the Web Admin
 - Kerberos Authentication on the Captive Portal (Thanks to Brad Lhotsky from 
   NIH)
 
