@@ -76,7 +76,7 @@ sub os_db_prepare {
     ]);
 
     $os_statements->{'dhcp_fingerprint_view_all_sql'} = get_db_handle()->prepare(qq[
-        SELECT d.os_id AS id, d.fingerprint, o.description AS os, c.description AS class
+        SELECT d.os_id AS id, d.fingerprint, o.description AS os, c.class_id AS classid, c.description AS class
         FROM dhcp_fingerprint d
             LEFT JOIN os_type o ON o.os_id=d.os_id
             LEFT JOIN os_mapping m ON m.os_type=o.os_id
