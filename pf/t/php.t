@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 81;
+use Test::More tests => 82;
 
 my @php_files = (
     '/usr/local/pf/html/admin/administration/adduser.php',
