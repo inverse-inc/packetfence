@@ -1546,7 +1546,7 @@ sub config_entry {
 }
 
 #
-# parse pf.conf and also defaults pf.conf.defaults
+# parse pf.conf and defaults from pf.conf.defaults
 #
 sub config {
     my $option = $cmd{command}[1];

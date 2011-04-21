@@ -1,6 +1,5 @@
-# This file is generated from a template at %%install_dir%%/conf/templates/httpd.conf
-# Any changes made to this file will be lost on restart 
-
+# Apache configuration
+# This file is manipulated on PacketFence's startup before being given to Apache
 HostnameLookups off
 User pf
 Group pf
@@ -16,8 +15,7 @@ MinSpareServers 50
 MaxSpareServers 100
 StartServers 50
 MaxClients 256
-# to avoid memory leaks over a long period
-MaxRequestsPerChild 1000
+MaxRequestsPerChild 0
 ServerName %%hostname%%.%%domain%%
 Listen 0.0.0.0:80
 Listen 0.0.0.0:443
@@ -35,17 +33,8 @@ AddType .jpg image/jpg binary
 Options Indexes
 DirectoryIndex index.html index.cgi index.php
 
-<IfModule !mod_auth_basic.c>
-  LoadModule auth_basic_module modules/mod_auth_basic.so
-</IfModule>
-<IfModule !mod_authn_file.c>
-  LoadModule authn_file_module modules/mod_authn_file.so
-</IfModule>
-<IfModule !mod_authz_user.c>
-  LoadModule authz_user_module modules/mod_authz_user.so
-</IfModule>
-<IfModule !mod_authz_groupfile.c>
-  Loadmodule authz_groupfile_module modules/mod_authz_groupfile.so
+<IfModule !mod_auth.c>
+  LoadModule auth_module modules/mod_auth.so
 </IfModule>
 <IfModule !mod_rewrite.c>
   LoadModule rewrite_module modules/mod_rewrite.so
@@ -68,9 +57,6 @@ DirectoryIndex index.html index.cgi index.php
 <IfModule !mod_ssl.c>
   LoadModule ssl_module modules/mod_ssl.so
 </IfModule>
-<IfModule !mod_env.c>
-  LoadModule env_module modules/mod_env.so
-</IfModule>
 <IfModule !mod_setenvif.c>
   LoadModule setenvif_module modules/mod_setenvif.so
 </IfModule>
@@ -80,20 +66,19 @@ DirectoryIndex index.html index.cgi index.php
 <IfModule !proxy_http.c>
   LoadModule proxy_http_module modules/mod_proxy_http.so
 </IfModule>
-<IfModule !mod_authz_host.c>
-  LoadModule authz_host_module modules/mod_authz_host.so
-  </IfModule>
+<IfModule !mod_access.c>
+  LoadModule access_module modules/mod_access.so
+</IfModule>
 <IfModule !mod_headers.c>
   LoadModule headers_module modules/mod_headers.so
 </IfModule>
 <IfModule !sapi_apache2.c>
-  LoadModule php5_module modules/libphp5.so
-  #LoadModule php4_module modules/libphp4.so
+  #LoadModule php5_module modules/libphp5.so
+  LoadModule php4_module modules/libphp4.so
 </IfModule>
 <IfModule !mod_perl.c>
   LoadModule perl_module modules/mod_perl.so
 </IfModule>
-PerlSwitches -I%%install_dir%%/lib
  
 AddType application/x-httpd-php .php
 #<Files *.php>
@@ -111,8 +96,7 @@ ProxyRequests Off
 
 RewriteLock %%install_dir%%/var/apache_rewrite_lock
 
-NameVirtualHost *:80
-NameVirtualHost *:443
+#NameVirtualHost *:80
 
 SSLPassPhraseDialog  builtin
 SSLSessionCache         dbm:%%install_dir%%/var/ssl_scache
@@ -139,17 +123,8 @@ SetEnvIf User-Agent ".*MSIE.*" \
   Alias /common/ %%install_dir%%/html/common/
   ScriptAlias /cgi-bin/ "%%install_dir%%/cgi-bin/"
 
-  #LogLevel debug
   CustomLog %%install_dir%%/logs/access_log combined
   ErrorLog %%install_dir%%/logs/error_log
-
-  PerlPostConfigRequire %%install_dir%%/lib/pf/web/captiveportal_modperl_require.pl
-  <Location /cgi-bin>
-    SetHandler perl-script
-    PerlResponseHandler ModPerl::PerlRun
-    PerlOptions +ParseHeaders
-    Options Indexes FollowSymLinks ExecCGI
-  </Location>
 
   <DirectoryMatch "%%install_dir%%(/cgi-bin|/html/user)">
     Order deny,allow
@@ -160,12 +135,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteEngine On
   #RewriteLogLevel 3
   #RewriteLog %%install_dir%%/logs/rewrite_log
-
-  # Uncomment the following lines to block almost anything that is not a browser (avoid server load)
-  #RewriteCond %{HTTP_USER_AGENT} !^Mozilla
-  #RewriteCond %{HTTP_USER_AGENT} !^Opera
-  #RewriteCond %{HTTP_USER_AGENT} !^BlackBerry
-  #RewriteRule ^.*$ - [L,forbidden]
 
   #activate if you don't want requests to update servers
   #to end up going to the PacketFence system
@@ -187,10 +156,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteCond %{HTTP_USER_AGENT} "^Microsoft NCSI$" [OR]
   RewriteCond %{HTTP_USER_AGENT} ^Windows-Update-Agent.*
   RewriteRule ^.*$ - [L,forbidden]
-
-%%passthrough-http-proxies%%
-
-%%remediation-proxies%%
 
   RewriteCond %{REQUEST_URI} !^/favicon.ico
   RewriteCond %{REQUEST_URI} !^/msdownload/update/v3/static/trustedr/en/authrootseq.txt$
@@ -221,27 +186,18 @@ SetEnvIf User-Agent ".*MSIE.*" \
   #Alias /cgi-bin/register-skip.cgi %%install_dir%%/cgi-bin/register.cgi
   ScriptAlias /cgi-bin/ "%%install_dir%%/cgi-bin/"
 
-  #LogLevel debug
   CustomLog %%install_dir%%/logs/access_log combined
   ErrorLog %%install_dir%%/logs/error_log
 
-  PerlPostConfigRequire %%install_dir%%/lib/pf/web/captiveportal_modperl_require.pl
-  <Location /cgi-bin>
-    SetHandler perl-script
-    PerlResponseHandler ModPerl::PerlRun
-    PerlOptions +ParseHeaders
-    Options Indexes FollowSymLinks ExecCGI
-  </Location>
-
   <DirectoryMatch "%%install_dir%%(/cgi-bin|/html/user)">
     SSLOptions +StdEnvVars
+	Options ExecCGI
     Order deny,allow
     Deny from all
     allow from %%internal-nets%% %%routed-nets%% 127.0.0.1
   </DirectoryMatch>
 
   SSLEngine on
-  SSLProxyEngine on
   SSLCertificateFile %%install_dir%%/conf/ssl/server.crt
   SSLCertificateKeyFile %%install_dir%%/conf/ssl/server.key
 
@@ -250,12 +206,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteEngine On
   #RewriteLogLevel 3
   #RewriteLog %%install_dir%%/logs/rewrite_log
-
-  # Uncomment the following lines to block almost anything that is not a browser (avoid server load)
-  #RewriteCond %{HTTP_USER_AGENT} !^Mozilla
-  #RewriteCond %{HTTP_USER_AGENT} !^Opera
-  #RewriteCond %{HTTP_USER_AGENT} !^BlackBerry
-  #RewriteRule ^.*$ - [L,forbidden]
 
   # return 403 to Windows Proxy Autodetection (avoid server load)
   RewriteRule ^/wpad.dat$ - [F,L]
@@ -267,10 +217,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteCond %{HTTP_USER_AGENT} "^Microsoft NCSI$" [OR]
   RewriteCond %{HTTP_USER_AGENT} ^Windows-Update-Agent.*
   RewriteRule ^.*$ - [L,forbidden]
-
-%%passthrough-https-proxies%%
-
-%%remediation-proxies%%
 
   RewriteCond %{REQUEST_URI} !^/favicon.ico
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
@@ -288,6 +234,8 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
 %%proxies%%                
 
+%%content-proxies%%
+
   <Location /content>
     Options Indexes FollowSymLinks ExecCGI
     php_value session.save_path "%%install_dir%%/var/session"
@@ -301,7 +249,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
   DocumentRoot "%%install_dir%%/html/admin"
   ServerName %%hostname%%.%%domain%%:%%admin_port%%
-  SetEnv VHOST ADMIN
 
   Alias /favicon.ico %%install_dir%%/html/common/favicon.ico
   Alias /common/ %%install_dir%%/html/common/
@@ -310,7 +257,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
   Alias /docs/ %%install_dir%%/docs/
   Alias /content/ %%install_dir%%/html/user/content/
 
-  #LogLevel debug
   CustomLog %%install_dir%%/logs/admin_access_log combined
   ErrorLog %%install_dir%%/logs/admin_error_log
 
@@ -318,22 +264,17 @@ SetEnvIf User-Agent ".*MSIE.*" \
   SSLCertificateFile %%install_dir%%/conf/ssl/server.crt
   SSLCertificateKeyFile %%install_dir%%/conf/ssl/server.key
 
+
   <Location /cgi-bin/pfcmd.cgi>
     SetHandler cgi-script
     Options Indexes FollowSymLinks ExecCGI
   </Location>
 
-  # mod_perl hosted pf::WebAPI (lib/pf/WebAPI.pm)
-  PerlPostConfigRequire %%install_dir%%/lib/pf/web/backend_modperl_require.pl
-  <Location /webapi>
+  <Location /cgi-bin/pdp.cgi>
     SetHandler perl-script
-    PerlHandler pf::WebAPI
-    # Basic Authentication
-    AuthUserFile %%install_dir%%/conf/admin.conf
-    AuthGroupFile /dev/null
-    AuthName "PacketFence Authentication"
-    AuthType Basic
-    require valid-user
+    PerlResponseHandler ModPerl::PerlRun
+    PerlOptions +ParseHeaders
+    Options Indexes FollowSymLinks ExecCGI
   </Location>
 
   <LocationMatch /cgi-bin/(pfcmd|pdp).cgi>
@@ -346,7 +287,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
   <Location ~ />
     Options Indexes FollowSymLinks ExecCGI
-    #AllowOverride None
+    AllowOverride None
     #php_value register_globals "On"
     php_value register_long_arrays "On"
     php_value session.save_path "%%install_dir%%/var/session"

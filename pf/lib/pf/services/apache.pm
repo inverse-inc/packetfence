@@ -9,18 +9,30 @@ pf::services::apache - helper configuration module for apache
 This module contains some functions that generates Apache configuration
 according to what PacketFence needs to accomplish.
 
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Read the following configuration files: F<httpd.conf>.
+
+Generates the following configuration files: F<httpd.conf>.
+
 =cut
 
 use strict;
 use warnings;
 use Log::Log4perl;
+use POSIX;
 use Readonly;
+
+use pf::class qw(class_view_all);
+use pf::config;
+use pf::util;
 
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
+        generate_httpd_conf
         generate_passthrough_rewrite_proxy_config
         generate_remediation_rewrite_proxy_config
     );
@@ -60,6 +72,130 @@ sub _url_parser {
     } else {
         return;
     }
+}
+
+=item generate_httpd_conf
+
+Generate proper F<httpd.conf> configuration file.
+
+=cut
+
+sub generate_httpd_conf {
+    my ( %tags, $httpdconf_fh, $authconf_fh );
+    my $logger = Log::Log4perl::get_logger('pf::services::apache');
+    $tags{'template'} = "$conf_dir/httpd.conf";
+    $tags{'internal-nets'} = join(" ", get_internal_nets() );
+    $tags{'routed-nets'} = join(" ", get_routed_isolation_nets()) ." ". join(" ", get_routed_registration_nets());
+    $tags{'hostname'} = $Config{'general'}{'hostname'};
+    $tags{'domain'} = $Config{'general'}{'domain'};
+    $tags{'admin_port'} = $Config{'ports'}{'admin'};
+    $tags{'install_dir'} = $install_dir;
+    $tags{'varconf_dir'} = $generated_conf_dir;
+    $tags{'max_clients'} = calculate_max_clients(get_total_system_memory());
+    $tags{'start_servers'} = calculate_start_servers($tags{'max_clients'});
+    $tags{'min_spare_servers'} = calculate_min_spare_servers($tags{'max_clients'});
+
+    my @proxies;
+    my %proxy_configs = %{ $Config{'proxies'} };
+    foreach my $proxy ( keys %proxy_configs ) {
+        if ( $proxy =~ /^\// ) {
+            if ( $proxy !~ /^\/(content|admin|redirect|cgi-bin)/ ) {
+                push @proxies, "ProxyPassReverse $proxy $proxy_configs{$proxy}";
+                push @proxies, "ProxyPass $proxy $proxy_configs{$proxy}";
+                $logger->warn( "proxy $proxy is not relative - add path to apache rewrite exclude list!");
+            } else {
+                $logger->warn("proxy $proxy conflicts with PF paths!");
+                next;
+            }
+        } else {
+            push @proxies, "ProxyPassReverse /proxies/" . $proxy . " " . $proxy_configs{$proxy};
+            push @proxies, "ProxyPass /proxies/" . $proxy . " " . $proxy_configs{$proxy};
+        }
+    }
+    $tags{'proxies'} = join( "\n", @proxies );
+
+    my ($pt_http, $pt_https, $remediation);
+    if ( $Config{'trapping'}{'passthrough'} eq "proxy" ) {
+
+        ($pt_http, $pt_https) = generate_passthrough_rewrite_proxy_config(%{ $Config{'passthroughs'} });
+
+        # remediation passthrough (for violation.conf url=http:// or https://)
+        $remediation = generate_remediation_rewrite_proxy_config(class_view_all());
+    }
+
+    # if config doesn't exist, replace it with empty array
+    foreach my $template ($remediation, $pt_http, $pt_https) {
+        if (!defined($template)) {
+            $template = [ ];
+        }
+    }
+
+    # associate config to templates
+    $tags{'remediation-proxies'} = join( "\n", @{$remediation});
+    $tags{'passthrough-http-proxies'} = join("\n", @{$pt_http});
+    $tags{'passthrough-https-proxies'} = join("\n", @{$pt_https});
+
+    $logger->info("generating $generated_conf_dir/httpd.conf");
+    parse_template( \%tags, "$conf_dir/httpd.conf", "$generated_conf_dir/httpd.conf", "#" );
+
+    $logger->info("generating $generated_conf_dir/ssl-certificates.conf");
+    parse_template( \%tags, "$conf_dir/ssl-certificates.conf", "$generated_conf_dir/ssl-certificates.conf", "#" );
+    return 1;
+}
+
+=item calculate_max_clients
+
+Find out how much processes Apache should take based on system's characteristics.
+
+See Apache's documentation for MaxClients.
+
+=cut
+sub calculate_max_clients {
+    my ($total_ram) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::services::apache');
+
+    if (!defined($total_ram)) {
+        $logger->warn("Unable to find total system memory, will use 2Gb to determine Apache's MaxClients");
+        $total_ram = 2097152;
+    }
+
+    # here's the magic metric we've come up with to determine Apache's MaxClients
+    # evaluated for Apache 2.x see ticket #1204 for details
+    # MaxClients = (total - ( total * 25% + 300Mb )) / 50Mb
+    my $max_clients = ceil(($total_ram - ( $total_ram * 0.25 + (300 * 1024) )) / (50 * 1024));
+
+    # hard ceiling of MaxClients at 256
+    $max_clients = 256 if ($max_clients > 256);
+
+    return $max_clients;
+}
+
+=item calculate_min_spare_servers
+
+Find out how much idle processes Apache should always have at hand.
+
+See Apache's documentation for MinSpareServers.
+
+=cut
+sub calculate_min_spare_servers {
+    my ($max_clients) = @_;
+
+    # evaluated for Apache 2.x see ticket #1204 for details
+    return ceil($max_clients / 4);
+}
+
+=item calculate_start_servers
+
+Find out how much processes Apache should start.
+
+See Apache's documentation for StartServers.
+
+=cut
+sub calculate_start_servers {
+    my ($max_clients) = @_;
+
+    # evaluated for Apache 2.x see ticket #1204 for details
+    return ceil($max_clients / 2);
 }
 
 =item generate_passthrough_rewrite_proxy_config
