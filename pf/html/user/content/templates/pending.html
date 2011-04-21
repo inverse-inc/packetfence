@@ -35,7 +35,13 @@ document.observe("dom:loaded", function() {
 
 <p align="center"><font face="Arial" size="+1"><b>[% txt_page_header %]</b></font></p>
 <p align="left">
-<font face="Arial">Your registration is pending approval. Once approved you will be automatically redirected.</font>
+<font face="Arial">
+  Your registration is pending approval. Once approved you will be automatically redirected.
+  <noscript>
+    If you have scripting turned off, you will not be automatically redirected. 
+    Please enable scripting or open a new browser window from time to time to see if your access was enabled.
+  </noscript>
+</font>
 </p>
 <p align="left">
 <font face="Arial">[% txt_help %]
@@ -46,11 +52,6 @@ document.observe("dom:loaded", function() {
 </ul>
 </font>
 </p>
-
-<p align="center"><font face="Arial" size="-1">
-If you have scripting turned off, you will not be automatically redirected. 
-Please enable scripting or open a new browser window from time to time to see if your access was enabled.
-</font></p>
 
       </td>
     </tr>
