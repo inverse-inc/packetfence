@@ -31,6 +31,9 @@ Enhancements
 - Refactoring of the code base (#1058)
 - FAQ entry: Active directory integration in registration network
 
+Bug Fixes
+- Fixed OS id not visible when dhcp-fingerprint view is filtered (#1180)
+
 --------------------------------------------------------------------------------
 Version <release> - <codename> released on <releaseDate>
 

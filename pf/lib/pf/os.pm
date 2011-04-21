@@ -64,8 +64,16 @@ sub os_db_prepare {
 
     $os_statements->{'os_mapping_add_sql'} = get_db_handle()->prepare(qq [ INSERT INTO os_mapping(os_type,os_class) VALUES(?,?) ]);
 
-    $os_statements->{'dhcp_fingerprint_view_sql'} = get_db_handle()->prepare(
-        qq [ SELECT d.fingerprint,o.os_id,o.description as os,c.class_id,c.description as class FROM dhcp_fingerprint d LEFT JOIN os_type o ON o.os_id=d.os_id LEFT JOIN os_mapping m ON m.os_type=o.os_id LEFT JOIN os_class c ON  m.os_class=c.class_id WHERE d.fingerprint=? GROUP BY c.class_id ORDER BY class_id ]);
+    $os_statements->{'dhcp_fingerprint_view_sql'} = get_db_handle()->prepare(qq[
+         SELECT d.os_id AS id, d.fingerprint, o.description AS os, c.class_id AS classid, c.description AS class
+         FROM dhcp_fingerprint d 
+            LEFT JOIN os_type o ON o.os_id=d.os_id 
+            LEFT JOIN os_mapping m ON m.os_type=o.os_id 
+            LEFT JOIN os_class c ON  m.os_class=c.class_id 
+         WHERE d.fingerprint=? 
+         GROUP BY c.class_id 
+         ORDER BY class_id
+    ]);
 
     $os_statements->{'dhcp_fingerprint_view_all_sql'} = get_db_handle()->prepare(qq[
         SELECT d.os_id AS id, d.fingerprint, o.description AS os, c.description AS class
