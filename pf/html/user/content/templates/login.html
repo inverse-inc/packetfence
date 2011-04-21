@@ -2,6 +2,7 @@
 
 <head>
 <title>[%txt_page_title %]</title>
+<script src="/common/prototype.js" type="text/javascript"></script>
 <style>
 <!--
 .bio         { }
@@ -9,7 +10,7 @@
 </style>
 </head>
 
-<body>
+<body onload="$('login').focus();">
 
 <center>
   <table border="0" width="650" id="table2">
@@ -38,7 +39,7 @@
 <p align="center"><font face="Arial">
 <table>
 <tr>
-  <td>[% txt_username %]</td><td><input type="text" name="login"></td>
+  <td>[% txt_username %]</td><td><input type="text" name="login" id="login"></td>
 </tr>
 <tr>
   <td>[% txt_password %]</td><td><input type="password" name="password"></td>
