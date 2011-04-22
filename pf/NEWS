@@ -34,6 +34,7 @@ Enhancements
 
 Bug Fixes
 - Fixed OS id not visible when dhcp-fingerprint view is filtered (#1180)
+- Warning avoidance in Extreme Network modules
 
 --------------------------------------------------------------------------------
 Version <release> - <codename> released on <releaseDate>
