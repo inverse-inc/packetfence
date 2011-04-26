@@ -34,6 +34,8 @@ Enhancements
 
 Bug Fixes
 - Fixed OS id not visible when dhcp-fingerprint view is filtered (#1180)
+- Fixed rare case of Web Admin user account corruption causing homepage to 
+  become status/dashboard instead of status/dashboard.php (#1196)
 
 --------------------------------------------------------------------------------
 Version <release> - <codename> released on <releaseDate>

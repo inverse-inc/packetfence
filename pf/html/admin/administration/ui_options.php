@@ -1,6 +1,6 @@
 <?php
 /**
- * TODO short desc
+ * Web Administration Interface preferences for the current user
  *
  * TODO long desc
  * 
@@ -19,8 +19,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  * 
+ * @author      Olivier Bilodeau <obilodeau@inverse.ca>
  * @author      Dominik Gehl <dgehl@inverse.ca>
- * @copyright   2008-2010 Inverse inc.
+ * @copyright   2008-2011 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
@@ -69,8 +70,9 @@
     <td><select name='homepage'>
 <?
 
-  if(!isset($_SESSION['ui_prefs']['homepage']))
-    $_SESSION['ui_prefs']['homepage'] = 'status/dashboard'; 
+  if(!isset($_SESSION['ui_prefs']['homepage'])) {
+    $_SESSION['ui_prefs']['homepage'] = 'status/dashboard.php'; 
+  }
 
   $options = array();
 
