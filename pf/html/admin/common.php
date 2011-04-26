@@ -339,7 +339,7 @@ if($sajax){
       }
 
       if($this->editable) {
-        print "    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>\n"; 
+        print "    <td class='action'>&nbsp;</td>\n"; 
       }
       if($this->scannable) {
         print "    <td&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;></td>\n"; 

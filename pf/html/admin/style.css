@@ -245,11 +245,13 @@ td.action {
     line-height: 1em;
     vertical-align: middle;
     width: 70px;
+    min-width: 70px;
 }
 
 /* We have more icons on the action bar there */
 #configuration-violation td.action {
     width: 84px;
+    min-width: 84px;
 }
 
 td.action form {
