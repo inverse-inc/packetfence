@@ -121,13 +121,15 @@
 <?=$custom_header?>
 
 <div id='description'>
-    <p id='description_header' class='sub_header'><?php echo _($description_header) ?></p>
-    <span class='description_text'> <?php echo _($description_text) ?> </span>
+    <p id='description_header' class='sub_header'>
+      <?php echo isset($description_header) ? _($description_header) : ""; ?>
+    </p>
+    <span class='description_text'><?php echo isset($description_text) ? _($description_text) : ""; ?></span>
 </div>
 
 <div id='remediation'>
-    <p class='sub_header'><?php echo _($remediation_header) ?></p>
-    <span class='remediation_text'><?php echo _($remediation_text) ?> </span>
+    <p class='sub_header'><?php echo isset($remediation_header) ? _($remediation_header) : ""; ?></p>
+    <span class='remediation_text'><?php echo isset($remediation_text) ? _($remediation_text) : ""; ?> </span>
 </div>
 
 <div id='user_info'>
