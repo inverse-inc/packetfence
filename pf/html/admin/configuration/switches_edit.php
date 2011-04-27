@@ -126,6 +126,7 @@
                            'Cisco::WLC_4400' => 'Cisco Wireless Controller (WLC) 4400',
                            'Dell::PowerConnect3424' => 'Dell PowerConnect 3424',
                            'Dlink::DES_3526' => 'D-Link DES 3526',
+                           'Dlink::DGS_3100' => 'D-Link DGS 3100',
                            'Dlink::DWS_3026' => 'D-Link DWS 3026',
                            'Enterasys::Matrix_N3' => 'Enterasys Matrix N3',
                            'Enterasys::SecureStack_C2' => 'Enterasys SecureStack C2',

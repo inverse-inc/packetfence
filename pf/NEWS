@@ -39,6 +39,7 @@ Bug Fixes
 - Fixed OS id not visible when dhcp-fingerprint view is filtered (#1180)
 - Fixed rare case of Web Admin user account corruption causing homepage to 
   become status/dashboard instead of status/dashboard.php (#1196)
+- Warning avoidance in Extreme Network modules
 
 --------------------------------------------------------------------------------
 Version <release> - <codename> released on <releaseDate>
@@ -47,6 +48,7 @@ New Hardware Support
 - Motorola RF Switches (Wireless Controllers)
 - 3Com Switches 4200G, E4800G and E5500G now supports MAC Authentication and 
   802.1X
+- Dlink DGS 3100 Switches
 
 New Features
 - User-Agent violation support completely re-written. It is now easier than 

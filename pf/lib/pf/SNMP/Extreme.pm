@@ -1014,12 +1014,19 @@ sub isPortSecurityEnabled {
     my $oid_isPortSecurityEnabled = "$oid_extremePortVlanInfoMacLockDownEnabled.$ifIndex.$vlanIfIndex";
 
     $logger->trace("SNMP get_request for extremePortVlanInfoMacLockDownEnabled: $oid_isPortSecurityEnabled");
-    my $result = $this->{_sessionRead}->get_request(-varbindlist => [$oid_isPortSecurityEnabled]);
+    my $result = $this->{_sessionRead}->get_request(-varbindlist => ["$oid_isPortSecurityEnabled"]);
 
     if (!defined($result)) {
         $logger->warn("Retrieving MAC Lockdown status failed. Error: ".$this->{_sessionRead}->error);
         return 0;
+    } elsif (!defined($result->{$oid_isPortSecurityEnabled})) {
+        $logger->warn("Retrieving MAC Lockdown status failed. Requested OID $oid_isPortSecurityEnabled not defined");
+        return 0;
     } elsif ($result->{$oid_isPortSecurityEnabled} eq 'noSuchInstance') {
+        $logger->warn(
+            "Retrieving MAC Lockdown status failed. "
+            . "Requested OID $oid_isPortSecurityEnabled returned 'noSuchInstance'"
+        );
         return 0;
     }
 
