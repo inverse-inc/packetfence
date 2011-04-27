@@ -105,3 +105,15 @@
         return get_pf_path() . 'var/';
     }
 
+    /*
+     * is_protected_vid - returns true or false based on if a violation class should allowed to be deleted or not
+     * Encapsulate business logic about protected violation classes.
+     */
+    function is_protected_vid($vid) {
+        // defaults, 1100000, 1200000, 1300000 are protected
+        if (preg_match("/^(?:1[123]\d\d\d\d\d)|(?:defaults)$/", $vid)) {
+            return true;
+        } else {
+            return false;
+        }
+    }

@@ -37,6 +37,11 @@ o Upgrading from a version prior to <version>:
     A new package that configures FreeRADIUS is available now. If you upgrade
     DO NOT install it unless you really know what you are doing.
 
+    - clean-up in conf/violations.conf
+    We added better examples and reduced the length of some violation names to
+    improve user experience especially in the Web Admin. Update your 
+    configuration if you want to benefit from those changes.
+
     - deprecated pf.conf parameters
     registration.queuesize was removed.
 
