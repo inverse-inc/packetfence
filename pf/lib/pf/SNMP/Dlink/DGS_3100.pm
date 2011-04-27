@@ -25,6 +25,8 @@ NasPortToIfindex method is NOT tested against stacked switch.
 
 F<conf/switches.conf>
 
+=over
+
 =cut
 
 use strict;
@@ -75,6 +77,8 @@ sub NasPortToIfIndex {
     #NAS-Port is ifIndex (Stacked switch not tested!!)
     return $NAS_port;
 }
+
+=back
 
 =head1 AUTHOR
 
