@@ -11,21 +11,28 @@ to access SNMP enabled Dlink DGS 3100 switches.
 
 =head1 STATUS
 
-Supports
- 802.1X/Mac Authentication without VoIP
+=over 
+
+=item Supports
+
+=over
+
+=item 802.1X/Mac Authentication without VoIP
+
+=back
+
+=back
 
 =head1 BUGS AND LIMITATIONS
 
 The minimum required firmware version is 3.60.28 (PROM: 1.0.1.05) to support RADIUS
 Dynamic VLAN Assignments.
 
-NasPortToIfindex method is NOT tested against stacked switch.
+NOT tested against stacked switch
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
 F<conf/switches.conf>
-
-=over
 
 =cut
 
@@ -41,15 +48,22 @@ use pf::SNMP::constants;
 use pf::util;
 use pf::config;
 
+=head1 SUBROUTINES
+
+=over
+
+=cut
 # CAPABILITIES
 # access technology supported
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 
+=item getVersion
+
+=cut
 sub getVersion {
     my ($this) = @_;
-    my $oid_dlinkFirmwareVersion
-        = '1.3.6.1.4.1.171.10.94.89.89.2.4.0';
+    my $oid_dlinkFirmwareVersion = '1.3.6.1.4.1.171.10.94.89.89.2.4.0';
     my $logger = Log::Log4perl::get_logger( ref($this) );
     if ( !$this->connectRead() ) {
         return '';
@@ -57,10 +71,8 @@ sub getVersion {
     $logger->trace(
         "SNMP get_request for oid_dlinkFirmwareVersion: $oid_dlinkFirmwareVersion"
     );
-    my $result = $this->{_sessionRead}->get_request(
-        -varbindlist => [$oid_dlinkFirmwareVersion] );
-    my $runtimeSwVersion
-        = ( $result->{$oid_dlinkFirmwareVersion} || '' );
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_dlinkFirmwareVersion] );
+    my $runtimeSwVersion = ( $result->{$oid_dlinkFirmwareVersion} || '' );
 
     return $runtimeSwVersion;
 }
@@ -87,6 +99,8 @@ Francois Gaudreault <fgaudreault@inverse.ca>
 =head1 COPYRIGHT
 
 Copyright (C) 2011 Inverse Inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
