@@ -195,6 +195,7 @@ sub server_error_handler {
    closelog();
    return RLM_MODULE_FAIL; 
 
+   # FIXME provide complete examples
    # for example:
    # send an email
    # set vlan default according to $nas_ip

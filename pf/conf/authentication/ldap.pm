@@ -50,6 +50,10 @@ for users or only direct entries at $LDAPUserBase ?
 
 =back
 
+=head1 TESTING
+
+TODO you can try your LDAP query with:
+
 =head1 EXAMPLES
 
 Here's an example modification in order to test several 
