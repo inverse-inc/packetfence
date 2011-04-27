@@ -96,8 +96,16 @@ if (defined($params{'mode'})) {
         my $cmd = $bin_dir."/pfcmd manage freemac $mac";
         my $output = qx/$cmd/;
       }
-      pf::web::generate_release_page($cgi, $session, $destination_url);
-      $logger->info("registration url = $destination_url");
+      # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
+      if ($cgi->https()) {  
+        print $cgi->redirect(
+          "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
+          ."/cgi-bin/register.cgi?mode=release&destination_url=$destination_url"
+        );
+      } else {
+        pf::web::generate_release_page($cgi, $session, $destination_url);
+      }
+      exit(0);
     } else {
       print $cgi->redirect("/cgi-bin/redir.cgi?destination_url=$destination_url");
       $logger->info("more violations yet to come for $mac");
@@ -138,6 +146,18 @@ if (defined($params{'mode'})) {
     } else {
       pf::web::generate_error_page($cgi, $session, "error: access denied not owner");
     }
+  } elsif ($params{'mode'} eq "release") {
+    # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
+    if ($cgi->https()) {
+      print $cgi->redirect(
+        "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
+        ."/cgi-bin/register.cgi?mode=release&destination_url=$destination_url"
+      );
+    } else {
+      pf::web::generate_release_page($cgi, $session, $destination_url);
+    }
+    exit(0);
+
   }  else {
     pf::web::generate_error_page($cgi, $session, "error: incorrect mode");
   }

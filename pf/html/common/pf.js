@@ -43,10 +43,36 @@ function fetchNodeStatus() {
 
  Called when access to the network outside registration or quarantine works
  */
-function networkAccessCallback(destination_url) {
+var network_redirected = false;
+function networkAccessCallback(destination_url, redirect_url) {
+
+    network_redirected = true;
 
     // browser redirect
-    top.location.href = destination_url;
+    // Firefox 3/4 needs a new forced destination and a little delay
+    if (Prototype.Browser.Gecko) {
+        performRedirect.delay(5, redirect_url);
+        return;
+    }
+
+    // IE 8/9 takes a while (~20 seconds) so we warn the user
+    if (Prototype.Browser.IE) {
+        $('browser_notes').innerHTML = txt_ie;
+        performRedirect.delay(5, destination_url);
+        return;
+    }
+
+    // Chrome 10 / Safari 5 / IE9 (sometimes) flawless
+    top.location.replace(destination_url);
+}
+
+/**
+ performRedirect
+
+ Simple wrapper to redirect the browser. The wrapper enables us to call the redirect with .delay().
+ */
+function performRedirect(destination_url) {
+    top.location.replace(destination_url);
 }
 
 /**
@@ -55,20 +81,26 @@ function networkAccessCallback(destination_url) {
  Adding an image to a provided div in order to detect if network access outside registration or quarantine works.
  Will trigger networkAccessCallback() if image loads successfully.
 
- Known to work with Internet Explorer 8, Firefox 3.6, Chrome 9, Safari 5.
- Right now it doesn't work with Opera 11 and 11.01 because of a bug on their side:
+ Browser support:
+ Known to work with Internet Explorer 8 / 9, Firefox 3.6 / 4, Chrome 9 / 10, Safari 5.
+ Opera 11 is broken (doesn't fire img's onload) we put in a special text to notice users
  http://my.cn.opera.com/community/forums/topic.dml?id=880632&t=1298063094
  */
-function detectNetworkAccess(detectDiv, retry_delay, destination_url, external_ip) {
+function detectNetworkAccess(detectDiv, retry_delay, destination_url, redirect_url, external_ip) {
   
-  // prepare image tag
-  imgSrc = "http://" + external_ip + "/common/network-access-detection.gif";
+    // stop-condition
+    if (!network_redirected) {
+        // prepare image tag
+        imgSrc = "http://" + external_ip + "/common/network-access-detection.gif";
 
-  // put image tag in html content, onload will be fired if image loads successfully meaning network access works
-  detectDiv.innerHTML = "<img src=\"" + imgSrc + "\" onload=\"networkAccessCallback('" + destination_url + "')\">";
+        // put image tag in html content, onload will be fired if image loads successfully meaning network access works
+        detectDiv.innerHTML = 
+            "<img src=\"" + imgSrc + 
+            "\"onload=\"networkAccessCallback('" + destination_url + "', '" + redirect_url + "')\">";
 
-  // recurse
-  detectNetworkAccess.delay(retry_delay, detectDiv, retry_delay, destination_url, external_ip);
+        // recurse
+        detectNetworkAccess.delay(retry_delay, detectDiv, retry_delay, destination_url, redirect_url, external_ip);
+    }
 }
 
 /**

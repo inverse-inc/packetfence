@@ -164,7 +164,7 @@ immediate=disabled
 #
 # How long to display the progress bar during trap release.  Setting it to a value of 5 or higher is recommended 
 # when in arp mode.  Doing so allows the client time to receive and process the redirection ARP sent by PacketFence.
-redirtimer=10s
+redirtimer=20s
 #
 # trapping.passthrough
 #
@@ -190,9 +190,17 @@ whitelist=
 #
 # trapping.redirecturl
 #
-# Default URL to redirect to on registration/mitigation release.  This is only used if a per-violation redirecturl is not 
-# defined.
-redirecturl=http://www.packetfence.org
+# Default URL to redirect to on registration/mitigation release. 
+#
+redirecturl=http://www.packetfence.org/
+#
+# trapping.always_use_redirecturl
+#
+# Under most circumstances we can redirect the user to the URL he originally intended to visit.
+# When enabled, always_use_redirecturl forces the captive portal to redirect the user to the URL defined in
+# trapping.redirecturl instead.
+#
+always_use_redirecturl=disabled
 #
 # trapping.detection
 #

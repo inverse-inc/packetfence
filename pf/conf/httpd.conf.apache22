@@ -206,7 +206,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteCond %{REQUEST_URI} !^/status
   RewriteCond %{REQUEST_URI} !^/proxies
   # Now using temporary redirects instead of permanent (fixes #757)
-  RewriteRule ^.*$ https://%%hostname%%.%%domain%%/cgi-bin/redir.cgi?destination_url=http://%{HTTP_HOST}%{REQUEST_URI} [L,R=302]
+  RewriteRule ^.*$ https://%%hostname%%.%%domain%%/cgi-bin/redir.cgi?destination_url=http://%{HTTP_HOST}%{REQUEST_URI} [R=307,L]
 
   ProxyPassReverse /msdownload/update/v3/static/trustedr/en/authrootseq.txt http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootseq.txt
   ProxyPass /msdownload/update/v3/static/trustedr/en/authrootseq.txt http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootseq.txt
@@ -285,7 +285,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteCond %{REQUEST_URI} !^/status
   RewriteCond %{REQUEST_URI} !^/proxies
   # Now using temporary redirects instead of permanent (fixes #757)
-  RewriteRule ^.*$ https://%%hostname%%.%%domain%%/cgi-bin/redir.cgi?destination_url=https://%{HTTP_HOST}%{REQUEST_URI} [L,R=302]
+  RewriteRule ^.*$ https://%%hostname%%.%%domain%%/cgi-bin/redir.cgi?destination_url=https://%{HTTP_HOST}%{REQUEST_URI} [R=307,L]
 
 %%proxies%%                
 

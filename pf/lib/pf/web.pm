@@ -88,35 +88,37 @@ sub generate_release_page {
         logo            => $Config{'general'}{'logo'},
         timer           => $Config{'trapping'}{'redirtimer'},
         destination_url => $destination_url,
+        redirect_url => $Config{'trapping'}{'redirecturl'},
         txt_page_title  => gettext("release: enabling network"),
-        txt_message     => sprintf(
-            gettext("network access is being enabled"),
-            $Config{'trapping'}{'redirtimer'}
+        txt_message     => gettext("network access is being enabled"),
+        txt_opera => gettext(
+            "There are known issues with the automatic redirection on Opera browsers. " 
+            . "Please open a new browser window from time to time to see if your access was enabled."
         ),
-        txt_enabling => gettext("Enabling ..."),
+        txt_ie => gettext("Some versions of Internet Explorer may take a while before redirection occur."),
+        txt_noscript => gettext(
+            "If you have scripting turned off, you will not be automatically redirected. "
+            . "Please enable scripting or open a new browser window from time to time " 
+            . "to see if your access was enabled."
+        ),
+        txt_timerexpired => gettext(
+            "Unable to detect network connectivity. "
+            . "Try opening a web page to see if your access has been succesfully enabled."
+        ),
+        initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
+        retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
+        external_ip => $Config{'captive_portal'}{'network_detection_ip'},
     };
-    if ( $Config{'network'}{'mode'} =~ /vlan/i ) {
-        $vars->{js_action} = "var action = function()
-{
-  hidebar();
-  var toReplace=document.getElementById('toReplace');
-  toReplace.innerHTML = '<font face=\"Arial\">"
-            . gettext("release: reopen browser")
-            . "</font>';
-}";
-    } else {
-        $vars->{js_action} = <<EOT;
-var action = function() 
-{
-  hidebar();
-  top.location.href=destination_url;
-}
-EOT
+
+    # override destination_url if we enabled the always_use_redirecturl option
+    if (isenabled($Config{'trapping'}{'always_use_redirecturl'})) {
+        $vars->{'destination_url'} = $Config{'trapping'}{'redirecturl'};
     }
+
     my $html_txt;
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new({ INCLUDE_PATH => ["$install_dir/html/user/content/templates"], });
     $template->process( "release.html", $vars, \$html_txt );
+
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header(
         -cookie         => $cookie,
@@ -632,10 +634,21 @@ sub generate_pending_page {
             { name => gettext('MAC'), value => $mac }
         ],
         destination_url => $destination_url,
-        initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
-        retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
+        redirect_url => $Config{'trapping'}{'redirecturl'},
+        txt_opera => gettext(
+            "There are known issues with the automatic redirection on Opera browsers. " 
+            . "Please open a new browser window from time to time to see if your access was enabled."
+        ),
+        txt_ie => gettext("Some versions of Internet Explorer may take a while before redirection occur."),
+        initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_INITIAL_DELAY'},
+        retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_RETRY_DELAY'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
     };
+
+    # override destination_url if we enabled the always_use_redirecturl option
+    if (isenabled($Config{'trapping'}{'always_use_redirecturl'})) {
+        $vars->{'destination_url'} = $Config{'trapping'}{'redirecturl'};
+    }
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );

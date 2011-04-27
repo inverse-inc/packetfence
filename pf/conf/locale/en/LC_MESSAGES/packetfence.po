@@ -8,7 +8,7 @@ domain "packetfence"
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"PO-Revision-Date: 2011-03-09 12:19-0400\n"
+"PO-Revision-Date: 2011-04-27 13:56-0400\n"
 "Last-Translator: Olivier Bilodeau <obilodeau@inverse.ca>\n"
 "Language-Team: PacketFence support <support@packetfence.org>\n"
 "MIME-Version: 1.0\n"
@@ -43,10 +43,8 @@ msgstr "You may only register a maximum of %s nodes!"
 msgid  "error: unable to validate credentials at the moment"
 msgstr "Unable to validate credentials at the moment"
 
-
 msgid  "help: provide info"
 msgstr "If you have questions about this page, contact your local support staff for assistance. Please provide the following information: "
-
 
 msgid  "register: all systems must be registered"
 msgstr "As we may need to contact users regarding individual systems, all systems on this network must be registered."
@@ -62,7 +60,6 @@ msgstr "Select Authentications"
 
 msgid  "register: skip registration"
 msgstr "Skip Registration"
-
 
 msgid  "release: enabling network"
 msgstr "Enabling network access"
@@ -88,9 +85,6 @@ msgstr "Addresses"
 msgid  "De-register node"
 msgstr "De-register node"
 
-msgid  "Enabling ..."
-msgstr "Enabling ..."
-
 msgid  "Scanning ..."
 msgstr "Scanning ..."
 
@@ -113,7 +107,7 @@ msgid  "MAC"
 msgstr "MAC"
 
 msgid  "network access is being enabled"
-msgstr "Your network access is currently being enabled - this process will take approximately %s seconds."
+msgstr "Your network access is currently being enabled. Once network connectivity is established you will be automatically redirected."
 
 msgid  "system scan in progress"
 msgstr "Your system is being scanned - this process will take approximately %s seconds."
@@ -181,8 +175,11 @@ msgstr "Banned Operating System"
 msgid  "You have been detected using an operating system not allowed on the network. Please install a more recent operating system"
 msgstr "You have been detected using an operating system not allowed on the network. Please install a more recent operating system"
 
-msgid  "Darknet Violation"
-msgstr "Your system has been detected sending traffic to a network known to be unused (darknet). This is often indicative of a worm/virus infection."
+msgid "Darknet Violation"
+msgstr ""
+
+msgid "Your system has been detected sending traffic to a network known to be unused (darknet). This is often indicative of a worm/virus infection."
+msgstr ""
 
 msgid  "Your system will likely need to be rebuilt. Please contact your local support staff for more information."
 msgstr "Your system will likely need to be rebuilt. Please contact your local support staff for more information."
@@ -228,3 +225,15 @@ msgstr "Your system has been found to be sending unsolicited commercial email (U
 
 msgid  "Your system may need to be rebuilt. Please contact your local support staff for more information."
 msgstr "Your system may need to be rebuilt. Please contact your local support staff for more information."
+
+msgid "If you have scripting turned off, you will not be automatically redirected. Please enable scripting or open a new browser window from time to time to see if your access was enabled."
+msgstr ""
+
+msgid "Unable to detect network connectivity. Try opening a web page to see if your access has been succesfully enabled."
+msgstr ""
+
+msgid "There are known issues with the automatic redirection on Opera browsers. Please open a new browser window from time to time to see if your access was enabled."
+msgstr ""
+
+msgid "Some versions of Internet Explorer may take a while before redirection occurs."
+msgstr ""

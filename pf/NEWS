@@ -17,6 +17,8 @@ For a list of compatibility related changes see the UPGRADE file.
 Version <release> - <codename> released on <releaseDate>
 
 New features
+- Captive Portal network access detection is more accurate and way faster
+  (javascript-based)
 - Easier integration and configuration of FreeRADIUS 2.x using our new
   packetfence-freeradius2 RPM
 - Apache configuration is automatically adjusted on startup based on system 
@@ -31,6 +33,7 @@ Enhancements
 - Removed unused configuration parameters (#767)
 - Refactoring of the code base (#1058)
 - FAQ entry: Active directory integration in registration network
+- Captive Portal minor usability improvements
 
 Bug Fixes
 - Fixed OS id not visible when dhcp-fingerprint view is filtered (#1180)

@@ -9,13 +9,18 @@
 </style>
 <script src="/common/prototype.js" type="text/javascript"></script>
 <script src="/common/pf.js" type="text/javascript"></script>
-<script>
+<script type="text/javascript">
+var txt_ie = "[% txt_ie %]";
 // once the page is loaded
 document.observe("dom:loaded", function() {
-  var detectDiv = document.getElementById('internet-detection');
+
+  // Opera is known to be broken with network detection so we warn the users
+  if (Prototype.Browser.Opera) {
+    $('browser_notes').innerHTML = "[% txt_opera %]";
+  }
 
   detectNetworkAccess.delay([% initial_delay %], 
-    detectDiv, [% retry_delay %], "[% destination_url %]", "[% external_ip %]"
+    $('internet-detection'), [% retry_delay %], "[% destination_url %]", "[% redirect_url %]", "[% external_ip %]"
   );
 });
 </script>
@@ -43,6 +48,7 @@ document.observe("dom:loaded", function() {
   </noscript>
 </font>
 </p>
+<p align="center" id="browser_notes"></p>
 <p align="left">
 <font face="Arial">[% txt_help %]
 <ul>

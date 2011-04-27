@@ -7,6 +7,17 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <version>:
 
+    - New Captive Portal Network Access Detection technique
+    The previous approach to redirect users to the Internet when access was
+    enabled never reliably worked so we are introducing a new javascript-based
+    technique to do so. This approach involves a couple of clever tricks and 
+    some browser-specific adjustments. Please review the differences between 
+    your current html/user/content/templates/release.html file and the new 
+    html/user/content/templates/release.html.rpmnew file. Also the behavior is
+    adjusted by pf.conf's redirtimer, redirecturl and always_use_redirecturl 
+    parameters under [trapping] and network_detection_ip under [captive_portal].
+    More about this feature can be found in the Administration guide.
+
     - Configuration files location changed from conf/templates/ to conf/
     Please make sure that you move your configuration files appropriately.
 

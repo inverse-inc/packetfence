@@ -21,13 +21,14 @@ F<pf.conf.defaults>, F<networks.conf>, F<dhcp_fingerprints.conf>, F<oui.txt>, F<
 use strict;
 use warnings;
 use Config::IniFiles;
-use File::Spec;
-use Net::Netmask;
 use Date::Parse;
-use Log::Log4perl;
 use File::Basename qw(basename);
-use threads;
+use File::Spec;
+use Log::Log4perl;
+use Net::Netmask;
+use POSIX;
 use Readonly;
+use threads;
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -174,13 +175,15 @@ $black_mark = "2";
 $blackholemac = "00:60:8c:83:d7:34";
 use constant LOOPBACK_IPV4 => '127.0.0.1';
 
+readPfConfigFiles();
+
 # Captive Portal constants
 Readonly %CAPTIVE_PORTAL => (
-    "NET_DETECT_INITIAL_DELAY" => 2 * 60,
-    "NET_DETECT_RETRY_DELAY" => 30,
+    "NET_DETECT_INITIAL_DELAY" => floor($Config{'trapping'}{'redirtimer'} / 4),
+    "NET_DETECT_RETRY_DELAY" => 2,
+    "NET_DETECT_PENDING_INITIAL_DELAY" => 2 * 60,
+    "NET_DETECT_PENDING_RETRY_DELAY" => 30,
 );
-
-readPfConfigFiles();
 
 readNetworkConfigFile();
 

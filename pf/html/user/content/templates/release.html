@@ -1,12 +1,32 @@
 <html>
 
 <head>
-<script language="javascript">
-var destination_url="[% destination_url %]";
-var waitTime=[% timer %];
-[% js_action %]
-</script>
 <title>[% txt_page_title %]</title>
+<script src="/common/prototype.js" type="text/javascript"></script>
+<script src="/common/pf.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+var waitTime=[% timer %];
+var action = function() {
+  hidebar();
+  $('toReplace').innerHTML = '<font face=\"Arial\">[% txt_timerexpired %]</font>';
+}; 
+  
+var txt_ie = "[% txt_ie %]";
+// once the page is loaded
+document.observe("dom:loaded", function() {
+
+  // Opera is known to be broken with network detection so we warn the users
+  if (Prototype.Browser.Opera) {
+    $('browser_notes').innerHTML = "[% txt_opera %]";
+  }
+
+  detectNetworkAccess.delay([% initial_delay %], 
+    $('internet-detection'), [% retry_delay %], "[% destination_url %]", "[% redirect_url %]", "[% external_ip %]"
+  );
+});
+</script>
+
 </head>
 
 <body bgcolor="#FFFFFF">
@@ -23,8 +43,8 @@ var waitTime=[% timer %];
     <tr>
       <td align="center">
         <p align="center">
-        <script language="javascript" src="/3rdparty/timerbar.js"></script>
-        <noscript>[% txt_enabling %]</noscript>
+        <script type="text/javascript" src="/3rdparty/timerbar.js"></script>
+        <noscript><font face="Arial">[% txt_noscript %]</font></noscript>
         </p>
       </td>
     </tr>
@@ -33,11 +53,13 @@ var waitTime=[% timer %];
         <p align="center" id="toReplace"><font face="Arial">
           [% txt_message %]
         </font></p>
+        <p align="center" id="browser_notes"></p>
       </td>
     </tr>
   </table>
 </center>
 
+<div id="internet-detection" style="display: none;"></div>
 </body>
 
 </html>

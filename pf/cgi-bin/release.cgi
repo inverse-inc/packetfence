@@ -83,6 +83,17 @@ if (defined($cgi->param('mode'))) {
       }
     }
     exit;
+  } elsif ($cgi->param('mode') eq 'release') {
+    # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
+    if ($cgi->https()) {
+      print $cgi->redirect(
+        "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
+        ."/cgi-bin/release.cgi?mode=release&destination_url=$destination_url"
+      );
+    } else {
+      pf::web::generate_release_page($cgi, $session, $destination_url);
+    }
+    exit(0);
   }
 }
 
@@ -161,10 +172,18 @@ if ($grace != -1) {
       my $output = qx/$cmd/;
     }
     if ($class_redirect_url) {
-      pf::web::generate_release_page($cgi, $session, $class_redirect_url);
+      $destination_url = $class_redirect_url;
+    }
+    # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
+    if ($cgi->https()) {
+      print $cgi->redirect(
+        "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
+        ."/cgi-bin/release.cgi?mode=release&destination_url=$destination_url"
+      );
     } else {
       pf::web::generate_release_page($cgi, $session, $destination_url);
     }
+    exit(0);
   } else {
     if ($class_redirect_url) {
       print $cgi->redirect("/cgi-bin/redir.cgi?destination_url=$class_redirect_url");
