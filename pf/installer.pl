@@ -46,9 +46,9 @@ installer.pl will help you with the following tasks:
 
 =over
 
-=item * CPAN
-
 =item * FindBin
+
+=item * Term::ReadKey
 
 =back
 
@@ -57,8 +57,9 @@ installer.pl will help you with the following tasks:
 use strict;
 use warnings;
 use diagnostics;
+
 use FindBin;
-use CPAN;
+use Term::ReadKey;
 
 my $unsupported = 0;
 my $version;
@@ -198,8 +199,10 @@ if (questioner(
         chop $mysqlAdminUser;
         $mysqlAdminUser = "root" if ( !$mysqlAdminUser );
         print "  Current Admin Password: ";
-        $mysqlAdminPass = <STDIN>;
-        chop $mysqlAdminPass;
+        ReadMode('noecho');
+        chomp($mysqlAdminPass = ReadLine(0));
+        ReadMode('restore');
+        print "\n";
         if ($mysqlAdminPass =~ /^$/) {
             print "Please set a proper root password for your MySQL instance. Exiting\n";
             print "Perhaps you did not configure mysql with /usr/bin/mysql_secure_installation?\n";
@@ -252,11 +255,13 @@ if (questioner(
         my $pfpass2;
         do {
             print "  Password: ";
-            $pfpass = <STDIN>;
+            ReadMode('noecho');
+            chomp($pfpass = ReadLine(0));
+            print "\n";
             print "  Confirm: ";
-            $pfpass2 = <STDIN>;
-            chop $pfpass;
-            chop $pfpass2;
+            chomp($pfpass2 = ReadLine(0));
+            print "\n";
+            ReadMode('restore');
         } while ( $pfpass ne $pfpass2 );
 
         if (!`echo 'GRANT SELECT,INSERT,UPDATE,DELETE,LOCK TABLES ON $mysql_db.* TO "$pfuser"@"%" IDENTIFIED BY "$pfpass"; GRANT SELECT,INSERT,UPDATE,DELETE,LOCK TABLES ON $mysql_db.* TO "$pfuser"@"localhost" IDENTIFIED BY "$pfpass";' | mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' mysql`
@@ -476,7 +481,7 @@ Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2007-2010 Inverse inc.
+Copyright (C) 2007-2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

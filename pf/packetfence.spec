@@ -101,12 +101,13 @@ Requires: perl-Net-Telnet
 Requires: perl-Net-Write
 Requires: perl-Parse-Nessus-NBE
 Requires: perl(Parse::RecDescent)
-# TODO: portability for non-x86 is questionnable for Readonly::XS
+# Note: portability for non-x86 is questionnable for Readonly::XS
 Requires: perl-Readonly, perl(Readonly::XS)
 Requires: perl-Regexp-Common
 Requires: rrdtool, perl-rrdtool
 Requires: perl-SOAP-Lite
 Requires: perl-Template-Toolkit
+# Used by installer / configurator scripts
 Requires: perl-TermReadKey
 Requires: perl-Thread-Pool
 Requires: perl-TimeDate

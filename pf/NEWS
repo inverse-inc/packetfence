@@ -41,6 +41,8 @@ Bug Fixes
 - Fixed rare case of Web Admin user account corruption causing homepage to 
   become status/dashboard instead of status/dashboard.php (#1196)
 - Warning avoidance in Extreme Network modules
+- installer and configurator scripts no longer output passwords on the terminal
+  (#1021)
 
 --------------------------------------------------------------------------------
 Version <release> - <codename> released on <releaseDate>

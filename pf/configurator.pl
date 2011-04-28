@@ -42,6 +42,8 @@ particular, it tries to achieve the following tasks:
 
 =item * Net::Netmask
 
+=item * Term::ReadKey
+
 =back
 
 =cut
@@ -50,10 +52,11 @@ use strict;
 use warnings;
 use diagnostics;
 
-use FindBin;
-use Config::IniFiles;
-use Net::Netmask;
 use Carp;
+use Config::IniFiles;
+use FindBin;
+use Net::Netmask;
+use Term::ReadKey;
 
 my $install_dir = $FindBin::Bin;
 my $conf_dir    = "$install_dir/conf";
@@ -275,18 +278,15 @@ sub config_upgrade {
 
 sub gatherer {
     my ( $query, $param, @choices ) = @_;
-    my $choices;
     my $response;
     my $default;
     $param =~ /^(.+)\.([^\.]+)$/;
     my $section = $1;
     my $element = $2;
     do {
-        $default = $default_cfg{$section}{$element}
-            if ( defined($section) && defined($element) );
+        $default = $default_cfg{$section}{$element} if ( defined($section) && defined($element) );
         $default = '<NONE>' if ( !$default );
-        my $current = $cfg{$section}{$element}
-            if ( defined($section) && defined($element) );
+        my $current = $cfg{$section}{$element} if ( defined($section) && defined($element) );
         $current = undef if (defined($current) && ($current eq $default));
         do {
             print "$query (";
@@ -299,13 +299,11 @@ sub gatherer {
                 print "default: $default) " . "["
                     . join( "|", @choices ) . "|?]: ";
             }
-            $response = <STDIN>;
-            chop $response;
+            chomp($response = <STDIN>);
             if ( $response =~ /^\?$/ ) {
                 if ( defined $doc{$param} ) {
                     if (ref($doc{$param}{description}) eq "ARRAY") {
-                        print "Detail:\n"
-                           . join( "\n", @{$doc{$param}{description}} );
+                        print "Detail:\n" . join( "\n", @{$doc{$param}{description}} );
                     } else {
                         print "Detail:\n" . $doc{$param}{description};
                     }
@@ -321,9 +319,7 @@ sub gatherer {
                     $response = $default;
                 }
             }
-        } while ( @choices
-            && ( $response && !grep( {/^$response$/} @choices ) )
-            || $response =~ /^\?$/ );
+        } while ( @choices && ( $response && !grep( {/^$response$/} @choices ) ) || $response =~ /^\?$/ );
     } while ( !confirm($response) );
     $response = "" if ( $response eq "<NONE>" );
     if ( defined($section) && defined($element) ) {
@@ -343,6 +339,40 @@ sub confirm {
     if ( $confirm =~ /^y$/i ) {
         return 1;
     } else {
+        return 0;
+    }
+}
+
+sub password_gatherer {
+    my ( $query, $param ) = @_;
+    my $response;
+    $param =~ /^(.+)\.([^\.]+)$/;
+    my $section = $1;
+    my $element = $2;
+    my $confirm;
+    do {
+        print "$query: ";
+        ReadMode('noecho');
+        chomp($response = ReadLine(0));
+        print "\n";
+        print "Confirm: ";
+        chomp($confirm = ReadLine(0));
+        print "\n";
+        ReadMode('restore');
+    } while ( !password_confirm($response, $confirm) );
+    if ( defined($section) && defined($element) ) {
+        $cfg{$section} = {} if ( !exists( $cfg{$section} ) );
+        $cfg{$section}{$element} = $response;
+    }
+    return ($response);
+}
+
+sub password_confirm {
+    my ($response, $confirm) = @_;
+    if ( $response eq $confirm ) {
+        return 1;
+    } else {
+        print "Passwords don't match! Try again.\n";
         return 0;
     }
 }
@@ -466,7 +496,7 @@ sub configuration {
         gatherer( "What port is is listening on?", "database.port" );
         gatherer( "What database should I use?",   "database.db" );
         gatherer( "What account should I use?",    "database.user" );
-        gatherer( "What password should I use?",   "database.pass" );
+        password_gatherer( "What password should I use?",   "database.pass" );
     }
 }
 
