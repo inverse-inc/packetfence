@@ -38,6 +38,7 @@
     'os', 'osclass', 
     'unknownprints', 'unknownuseragents', 
     'openviolations', 'statics',
+    'connectiontype', 'connectiontypereg',
     'ssid'
   );
   $type = set_default($_REQUEST['type'], 'ipmachistory');

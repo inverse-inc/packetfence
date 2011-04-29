@@ -256,12 +256,15 @@ sub parseCommandLine {
         'report'          => qr{ ^ (?: #for grouping only
                                      ( active | inactive | openviolations 
                                        | os | osclass | registered | statics | ssid
-                                       | unknownprints | unknownuseragents | unregistered )
+                                       | unknownprints | unknownuseragents | unregistered
+                                       | connectiontype | connectiontypereg
+                                     )
                                      |
                                      (?: #for grouping only
                                        ( openviolations | os | osclass 
                                          | registered | statics | ssid
                                          | unknownprints | unknownuseragents | unregistered 
+                                         | connectiontype | connectiontypereg
                                        )
                                        \s+
                                        ( all | active )

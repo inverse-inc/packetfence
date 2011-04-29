@@ -42,6 +42,10 @@ BEGIN {
         report_registered_active
         report_openviolations_all
         report_openviolations_active
+        report_connectiontype_all
+        report_connectiontype_active
+        report_connectiontypereg_all
+        report_connectiontypereg_active
         report_ssid_all
         report_ssid_active
         report_statics_all
@@ -141,6 +145,55 @@ sub report_db_prepare {
             LEFT JOIN iplog USING (mac)
         WHERE (nu.browser IS NULL OR nu.os IS NULL) AND n.user_agent != '' 
             AND (iplog.end_time=0 OR iplog.end_time > now())
+    ]);
+
+    $report_statements->{'report_connectiontype_all_sql'} = get_db_handle()->prepare(qq [
+        SELECT connection_type, count(*) as connections, ROUND(COUNT(*)/
+            (SELECT COUNT(*) FROM locationlog 
+                INNER JOIN node ON node.mac=locationlog.mac WHERE locationlog.end_time IS NULL)*100,1
+            ) AS percent 
+        FORM locationlog INNER JOIN node ON node.mac=locationlog.mac 
+        WHERE locationlog.end_time IS NULL
+        GROUP BY connection_type
+    ]);
+
+    $report_statements->{'report_connectiontype_active_sql'} = get_db_handle()->prepare(qq[
+        SELECT connection_type,count(*) as connections, 
+            ROUND( COUNT(*) / 
+                (SELECT COUNT(*) FROM locationlog INNER JOIN node ON node.mac=locationlog.mac 
+                    INNER JOIN iplog ON node.mac=iplog.mac 
+                    WHERE iplog.end_time = 0 OR iplog.end_time > now() AND locationlog.end_time IS NULL
+                )*100,1
+            ) AS percent 
+        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac INNER JOIN iplog ON node.mac=iplog.mac 
+        WHERE iplog.end_time = 0 OR iplog.end_time > now() AND locationlog.end_time IS NULL 
+        GROUP BY connection_type
+    ]);
+   
+    $report_statements->{'report_connectiontypereg_all_sql'} = get_db_handle()->prepare(qq[
+        SELECT connection_type, count(*) as connections, 
+            ROUND( COUNT(*) / 
+                (SELECT COUNT(*) FROM locationlog INNER JOIN node ON node.mac=locationlog.mac 
+                    WHERE node.status = "reg" AND locationlog.end_time IS NULL
+                )*100,1
+            ) AS percent 
+        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac 
+        WHERE node.status = "reg" AND locationlog.end_time IS NULL 
+        GROUP BY connection_type
+    ]);
+
+    $report_statements->{'report_connectiontypereg_active_sql'} = get_db_handle()->prepare(qq[
+        SELECT connection_type, count(*) as connections, 
+            ROUND( COUNT(*) / 
+                (SELECT COUNT(*) FROM locationlog 
+                    INNER JOIN node ON node.mac=locationlog.mac INNER JOIN iplog ON node.mac=iplog.mac 
+                    WHERE node.status = "reg" AND (iplog.end_time =0 OR iplog.end_time > now()) 
+                        AND locationlog.end_time IS NULL
+                )*100,1
+            ) AS percent 
+        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac INNER JOIN iplog ON node.mac=iplog.mac 
+        WHERE node.status = "reg" AND (iplog.end_time = 0 OR iplog.end_time > now()) AND locationlog.end_time IS NULL 
+        GROUP BY connection_type
     ]);
 
     $report_statements->{'report_ssid_all_sql'} = get_db_handle()->prepare(qq [
@@ -389,6 +442,98 @@ sub report_unknownuseragents_active {
     return db_data(REPORT, $report_statements, 'report_unknownuseragents_active_sql');
 }
 
+=item * report_connectiontype_all
+
+Reporting - Connections by connection type and user status for all nodes
+
+=cut
+sub report_connectiontype_all {
+    my @data    = db_data(REPORT, $report_statements, 'report_connectiontype_all_sql');
+    my $total   = 0;
+    my @return_data;
+
+    foreach my $record (@data) {
+        $total += $record->{'connections'};
+ 
+        if ( $record->{'connections'} > 0 ) {
+            push @return_data, $record;
+        }
+
+    }
+    @return_data = translate_connection_type(@return_data);
+    push @return_data, { connection_type => "Total", percent => "100", connections => $total };
+    return (@return_data);
+}
+
+=item * report_connectiontype_active
+
+Reporting - Connections by connection type and user status for all active nodes
+
+=cut
+sub report_connectiontype_active {
+    my @data    = db_data(REPORT, $report_statements, 'report_connectiontype_active_sql');
+    my $total   = 0;
+    my @return_data;
+
+    foreach my $record (@data) {
+        $total += $record->{'connections'};
+
+        if ( $record->{'connections'} > 0 ) {
+            push @return_data, $record;
+        }
+
+    }
+    @return_data = translate_connection_type(@return_data);
+    push @return_data, { connection_type => "Total", percent => "100", connections => $total };
+    return (@return_data);
+}
+
+=item * report_connectiontypereg_all
+
+Reporting - Connections by connection type and user status for all nodes (registered users)
+
+=cut
+sub report_connectiontypereg_all {
+    my @data    = db_data(REPORT, $report_statements, 'report_connectiontypereg_all_sql');
+    my $total   = 0;
+    my @return_data;
+
+    foreach my $record (@data) {
+        $total += $record->{'connections'};
+
+        if ( $record->{'connections'} > 0 ) {
+            push @return_data, $record;
+        }
+
+    }
+    @return_data = translate_connection_type(@return_data);
+    push @return_data, { connection_type => "Total", percent => "100", connections => $total };
+    return (@return_data);
+}
+
+=item * report_connectiontypereg_active
+
+Reporting - Connections by connection type and user status for all active nodes (registered users)
+
+=cut
+sub report_connectiontypereg_active {
+    my @data    = db_data(REPORT, $report_statements, 'report_connectiontypereg_active_sql');
+    my $total   = 0;
+    my @return_data;
+
+    foreach my $record (@data) {
+        $total += $record->{'connections'};
+
+        if ( $record->{'connections'} > 0 ) {
+            push @return_data, $record;
+        }
+
+    }
+    @return_data = translate_connection_type(@return_data);
+    push @return_data, { connection_type => "Total", percent => "100", connections => $total };
+    return (@return_data);
+}
+
 =item * report_ssid_all
 
 Reporting - Connections by SSID for all nodes regardless of the status
@@ -487,6 +632,8 @@ Copyright (C) 2005 Kevin Amorin
 
 Copyright (C) 2010-2011 Inverse inc.
 
+=head1 LICENSE
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
@@ -505,3 +652,6 @@ USA.
 =cut
 
 1;
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:

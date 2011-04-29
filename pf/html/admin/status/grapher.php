@@ -57,9 +57,16 @@
     'ifoctetshistorymac' => 'stacked_without_fill',
     'ifoctetshistoryswitch' => 'stacked_without_fill',
     'ifoctetshistoryuser' => 'stacked_without_fill',
+    'connectiontype' => 'pie',
+    'connectiontype active' => 'pie',
+    'connectiontype all' => 'pie',
+    'connectiontypereg' => 'pie',
+    'connectiontypereg active' => 'pie',
+    'connectiontypereg all' => 'pie',
     'ssid' => 'pie',
     'ssid active' => 'pie',
-    'ssid all' => 'pie');
+    'ssid all' => 'pie'
+  );
 
   if (($type == 'ifoctetshistoryuser')||($type == 'ifoctetshistorymac')) {
     $chart_data = get_chart_data("graph $type {$_GET['pid']} start_time={$_GET['start_time']},end_time=${_GET['end_time']}");
@@ -85,11 +92,14 @@
     
   } else {
 
-    $span == 'report' ? $chart_data = get_pie_chart_data("report $type") : $chart_data = get_chart_data("graph $type $span");
-    
-    # For graphs with one data point, make them bar graphs
-    if(count($chart_data['x_labels']) == 1){
-          $single_point = 'bar';
+    if ($span == 'report') {
+        $chart_data = get_pie_chart_data("report $type");
+    } else {
+        $chart_data = get_chart_data("graph $type $span");
+        # For graphs with one data point, make them bar graphs
+        if(count($chart_data['x_labels']) == 1){
+            $single_point = 'bar';
+        }
     }
 
     jpgraph($chart_data['chart_data'], $chart_data['x_labels'], set_default(set_default($single_point, $types[$type]), 'line'), $size, pretty_header('status-graphs', $type), "Per ".ucfirst($span));
