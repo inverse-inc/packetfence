@@ -152,7 +152,7 @@ sub report_db_prepare {
             (SELECT COUNT(*) FROM locationlog 
                 INNER JOIN node ON node.mac=locationlog.mac WHERE locationlog.end_time IS NULL)*100,1
             ) AS percent 
-        FORM locationlog INNER JOIN node ON node.mac=locationlog.mac 
+        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac 
         WHERE locationlog.end_time IS NULL
         GROUP BY connection_type
     ]);

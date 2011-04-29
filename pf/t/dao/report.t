@@ -14,7 +14,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 19;
+use Test::More tests => 27;
 use Test::NoWarnings;
 
 use Log::Log4perl;
@@ -49,6 +49,14 @@ my @methods = qw(
     report_statics_active
     report_unknownprints_all
     report_unknownprints_active
+    report_unknownuseragents_all
+    report_unknownuseragents_active
+    report_connectiontype_all
+    report_connectiontype_active
+    report_connectiontypereg_all
+    report_connectiontypereg_active
+    report_ssid_all
+    report_ssid_active
 );
 
 # Test each method, assume no warnings and results

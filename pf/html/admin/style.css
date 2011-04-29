@@ -415,7 +415,7 @@ ul#navlist li ul#subnavlist li {
     noborder-bottom: 1px solid transparent;
     noborder: 0;
     nopadding: 3px;
-    width: 150px;
+    min-width: 150px;
 }
 ul#navlist li ul#subnavlist li a {
     nodisplay: inline;
