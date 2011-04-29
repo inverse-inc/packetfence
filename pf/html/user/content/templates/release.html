@@ -22,7 +22,7 @@ document.observe("dom:loaded", function() {
   }
 
   detectNetworkAccess.delay([% initial_delay %], 
-    $('internet-detection'), [% retry_delay %], "[% destination_url %]", "[% redirect_url %]", "[% external_ip %]"
+    [% retry_delay %], "[% destination_url %]", "[% redirect_url %]", "[% external_ip %]"
   );
 });
 </script>
@@ -59,7 +59,8 @@ document.observe("dom:loaded", function() {
   </table>
 </center>
 
-<div id="internet-detection" style="display: none;"></div>
+[%# DO NOT REMOVE! REQUIRED FOR NETWORK ACCESS DETECTION %]
+<div id="internet-detection" style="display: none;"><img id="netdetect"/></div>
 </body>
 
 </html>

@@ -86,20 +86,22 @@ function performRedirect(destination_url) {
  Opera 11 is broken (doesn't fire img's onload) we put in a special text to notice users
  http://my.cn.opera.com/community/forums/topic.dml?id=880632&t=1298063094
  */
-function detectNetworkAccess(detectDiv, retry_delay, destination_url, redirect_url, external_ip) {
+function detectNetworkAccess(retry_delay, destination_url, redirect_url, external_ip) {
   
     // stop-condition
     if (!network_redirected) {
-        // prepare image tag
-        imgSrc = "http://" + external_ip + "/common/network-access-detection.gif";
 
-        // put image tag in html content, onload will be fired if image loads successfully meaning network access works
-        detectDiv.innerHTML = 
-            "<img src=\"" + imgSrc + 
-            "\"onload=\"networkAccessCallback('" + destination_url + "', '" + redirect_url + "')\">";
+        // onload will be fired if image loads successfully meaning network access works
+        $('netdetect').onload = function() {
+            networkAccessCallback(destination_url, redirect_url);
+        }
+        // the image src with caching prevention
+        // Note: it is very important to change the source AFTER setting the onload otherwise its not as reliable
+        // see: http://www.thefutureoftheweb.com/blog/image-onload-isnt-being-called
+        $('netdetect').src = "http://" + external_ip + "/common/network-access-detection.gif?r=" + Date.now();
 
         // recurse
-        detectNetworkAccess.delay(retry_delay, detectDiv, retry_delay, destination_url, redirect_url, external_ip);
+        detectNetworkAccess.delay(retry_delay, retry_delay, destination_url, redirect_url, external_ip);
     }
 }
 
