@@ -311,7 +311,7 @@ EOT
 
 sub help_report {
     print STDERR << "EOT";
-Usage: pfcmd report <active|inactive> | <registered|unregistered|os|osclass|unknownprints|unknownuseragents|openviolations|statics> [all|active]
+Usage: pfcmd report <active|inactive> | <registered|unregistered|os|osclass|unknownprints|unknownuseragents|openviolations|ssid|statics> [all|active]
 
 display canned reports - "active" modifier shows only nodes with open iplog entries
 
@@ -324,6 +324,7 @@ osclass           | show OS distribution, aggregated by class
 unknownprints     | show DHCP fingerprints without a known OS mapping
 unknownuseragents | show User-Agents fingerprints without a known Browser or OS mapping
 openviolations    | show all open violations
+ssid              | show user connections by SSID
 statics           | show probable static IPs
 EOT
     return 1;

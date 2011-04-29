@@ -23,6 +23,7 @@ New features
   packetfence-freeradius2 RPM
 - Apache configuration is automatically adjusted on startup based on system 
   resources to avoid performance degradation on heavy workloads (#1204)
+- New reports: Nodes per SSID (#1126)
 
 Enhancements
 - Moved several configuration files from conf/templates/ into conf/ (#1166)

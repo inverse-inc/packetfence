@@ -255,12 +255,12 @@ sub parseCommandLine {
         'reload'          => qr{ ^ ( fingerprints | violations ) $  }xms,
         'report'          => qr{ ^ (?: #for grouping only
                                      ( active | inactive | openviolations 
-                                       | os | osclass | registered | statics 
+                                       | os | osclass | registered | statics | ssid
                                        | unknownprints | unknownuseragents | unregistered )
                                      |
                                      (?: #for grouping only
                                        ( openviolations | os | osclass 
-                                         | registered | statics
+                                         | registered | statics | ssid
                                          | unknownprints | unknownuseragents | unregistered 
                                        )
                                        \s+

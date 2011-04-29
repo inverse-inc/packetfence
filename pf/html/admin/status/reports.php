@@ -20,6 +20,7 @@
  * USA.
  * 
  * @author      Olivier Bilodeau <obilodeau@inverse.ca>
+ * @author      Francois Gaudreault <fgaudreault@inverse.ca>
  * @author      Dominik Gehl <dgehl@inverse.ca>
  * @copyright   2008-2011 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
@@ -36,7 +37,8 @@
     'registered', 'unregistered', 
     'os', 'osclass', 
     'unknownprints', 'unknownuseragents', 
-    'openviolations', 'statics'
+    'openviolations', 'statics',
+    'ssid'
   );
   $type = set_default($_REQUEST['type'], 'ipmachistory');
   $subtype = set_default($_GET['subtype'], '');

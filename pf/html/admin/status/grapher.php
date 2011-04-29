@@ -19,8 +19,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  * 
+ * @author      Francois Gaudreault <fgaudreault@inverse.ca>
  * @author      Dominik Gehl <dgehl@inverse.ca>
- * @copyright   2008-2010 Inverse inc.
+ * @copyright   2008-2011 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
@@ -55,7 +56,10 @@
     'bar' => 'bar',
     'ifoctetshistorymac' => 'stacked_without_fill',
     'ifoctetshistoryswitch' => 'stacked_without_fill',
-    'ifoctetshistoryuser' => 'stacked_without_fill');
+    'ifoctetshistoryuser' => 'stacked_without_fill',
+    'ssid' => 'pie',
+    'ssid active' => 'pie',
+    'ssid all' => 'pie');
 
   if (($type == 'ifoctetshistoryuser')||($type == 'ifoctetshistorymac')) {
     $chart_data = get_chart_data("graph $type {$_GET['pid']} start_time={$_GET['start_time']},end_time=${_GET['end_time']}");
@@ -134,10 +138,15 @@
 
         if($type == 'pie'){
                 $graph = new PieGraph($width, $height, "auto");
-                $title=pretty_header('status-reports', 'osclass').' distribution';
 
+                # we extract the first portion of the graph type to go and fetch it's pretty header for the graph's title
+                if (preg_match("/^(\w+).*$/", $_GET['type'], $match)) {
+                    $title=pretty_header('status-reports', $match[1]) .' distribution';
+                } else {
+                    $title=pretty_header('status-reports', $_GET['type']).' distribution';
+                }
         }
-
+        
         $graph->title->Set(ucwords($title));
         if($subtitle != 'Per Report'){
                 $graph->subtitle->Set($subtitle);

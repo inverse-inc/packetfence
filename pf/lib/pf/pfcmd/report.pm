@@ -42,6 +42,8 @@ BEGIN {
         report_registered_active
         report_openviolations_all
         report_openviolations_active
+        report_ssid_all
+        report_ssid_active
         report_statics_all
         report_statics_active
         report_unknownprints_all
@@ -139,6 +141,36 @@ sub report_db_prepare {
             LEFT JOIN iplog USING (mac)
         WHERE (nu.browser IS NULL OR nu.os IS NULL) AND n.user_agent != '' 
             AND (iplog.end_time=0 OR iplog.end_time > now())
+    ]);
+
+    $report_statements->{'report_ssid_all_sql'} = get_db_handle()->prepare(qq [
+        SELECT ssid,count(*) as nodes, ROUND(COUNT(*)/
+            (SELECT COUNT(*) 
+                FROM locationlog
+                    INNER JOIN node ON node.mac=locationlog.mac AND locationlog.end_time IS NULL
+                WHERE ssid != "")
+            *100,1) as percent 
+        FROM locationlog 
+           INNER JOIN node ON node.mac=locationlog.mac AND locationlog.end_time IS NULL
+        WHERE ssid != ""
+        GROUP BY ssid 
+        ORDER BY nodes
+    ]);
+
+    $report_statements->{'report_ssid_active_sql'} = get_db_handle()->prepare(qq [
+       SELECT ssid,count(*) as nodes, ROUND(COUNT(*)/
+           (SELECT COUNT(*) 
+                FROM locationlog 
+                    INNER JOIN node ON node.mac=locationlog.mac AND locationlog.end_time IS NULL
+                    INNER JOIN iplog ON node.mac=iplog.mac 
+                WHERE ssid != "" AND (iplog.end_time=0 OR iplog.end_time > now())
+           )*100,1) as percent 
+       FROM locationlog 
+           INNER JOIN node ON node.mac=locationlog.mac AND locationlog.end_time IS NULL
+           INNER JOIN iplog ON node.mac=iplog.mac 
+       WHERE ssid != "" AND (iplog.end_time=0 OR iplog.end_time > now()) 
+       GROUP BY ssid 
+       ORDER BY nodes
     ]);
 
     $report_db_prepared = 1;
@@ -357,6 +389,52 @@ sub report_unknownuseragents_active {
     return db_data(REPORT, $report_statements, 'report_unknownuseragents_active_sql');
 }
 
+=item * report_ssid_all
+
+Reporting - Connections by SSID for all nodes regardless of the status
+
+=cut
+sub report_ssid_all {
+    my @data    = db_data(REPORT, $report_statements, 'report_ssid_all_sql');
+    my $total   = 0;
+    my @return_data;
+
+    foreach my $record (@data) {
+        $total += $record->{'nodes'};
+
+        if ( $record->{'nodes'} > 0 ) {
+            push @return_data, $record;
+        }
+
+    }
+
+    push @return_data, { ssid => "Total", percent => "100", nodes => $total };
+    return (@return_data);
+}
+
+=item * report_ssid_active
+
+Reporting - Connections by SSID for all active nodes (reg/unreg)
+
+=cut
+sub report_ssid_active {
+    my @data    = db_data(REPORT, $report_statements, 'report_ssid_active_sql');
+    my $total   = 0;
+    my @return_data;
+
+    foreach my $record (@data) {
+        $total += $record->{'nodes'};
+
+        if ( $record->{'nodes'} > 0 ) {
+            push @return_data, $record;
+        }
+
+    }
+
+    push @return_data, { ssid => "Total", percent => "100", nodes => $total };
+    return (@return_data);
+}
+
 =item * translate_connection_type
 
 Translates connection_type database string into a human-understandable string
@@ -399,13 +477,15 @@ Kevin Amorin <kev@amorin.org>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
+Francois Gaudreault <fgaudreault@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2010-2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
