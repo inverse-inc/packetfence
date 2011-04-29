@@ -44,6 +44,7 @@ Bug Fixes
 - Warning avoidance in Extreme Network modules
 - installer and configurator scripts no longer output passwords on the terminal
   (#1021)
+- Fixed warnings and improved error reporting in our FreeRADIUS module (#1176)
 
 --------------------------------------------------------------------------------
 Version <release> - <codename> released on <releaseDate>

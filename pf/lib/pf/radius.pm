@@ -78,7 +78,7 @@ sub authorize {
     my $weActOnThisCall = $this->_doWeActOnThisCall($connection_type, $switch_ip, $mac, $port, $user_name);
     if ($weActOnThisCall == 0) {
         $logger->info("We decided not to act on this radius call. Stop handling request from $switch_ip.");
-        return [$RADIUS::RLM_MODULE_NOOP, undef];
+        return [ $RADIUS::RLM_MODULE_NOOP, ('Reply-Message' => "Not acting on this request") ];
     }
 
     $logger->info("handling radius autz request: from switch_ip => $switch_ip, " 
@@ -106,7 +106,7 @@ sub authorize {
             "Can't instantiate switch $switch_ip. This request will be failed. "
             ."Are you sure your switches.conf is correct?"
         );
-        return [$RADIUS::RLM_MODULE_FAIL, undef];
+        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
     }
 
     # verify if switch supports this connection type
@@ -151,7 +151,7 @@ sub authorize {
             ."is not in production -> Returning ACCEPT");
         $switch->disconnectRead();
         $switch->disconnectWrite();
-        return [$RADIUS::RLM_MODULE_OK, undef];
+        return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Switch is not in production, so we allow this request") ];
     }
 
     # grab vlan
@@ -162,7 +162,7 @@ sub authorize {
         $logger->info("According to rules in fetchVlanForNode this node must be kicked out. Returning USERLOCK");
         $switch->disconnectRead();
         $switch->disconnectWrite();
-        return [$RADIUS::RLM_MODULE_USERLOCK, undef];
+        return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => "This node is not allowed to use this service") ];
     }
 
     if (!$switch->isManagedVlan($vlan)) {
@@ -170,7 +170,7 @@ sub authorize {
                      ."Is the target vlan in the vlans=... list?");
         $switch->disconnectRead();
         $switch->disconnectWrite();
-        return [$RADIUS::RLM_MODULE_FAIL, undef];
+        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "New VLAN is not a managed VLAN") ];
     }
 
     #closes old locationlog entries and create a new one if required
