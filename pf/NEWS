@@ -36,8 +36,10 @@ Enhancements
 - FAQ entry: Active directory integration in registration network
 - Captive Portal minor usability improvements
 - Reorganized default violation classes to be more coherent and self-documented
+- More violation classes validation on startup (#992)
 
 Bug Fixes
+- Violation grace no longer ignores time modifiers like minutes (#1154)
 - Fixed OS id not visible when dhcp-fingerprint view is filtered (#1180)
 - Fixed rare case of Web Admin user account corruption causing homepage to 
   become status/dashboard instead of status/dashboard.php (#1196)
