@@ -331,11 +331,25 @@ database check
 =cut
 sub database {
 
-    # make sure pid 1 exists
-    require pf::person;
-    if ( !pf::person::person_exist(1) ) {
-        add_problem( $FATAL, "person user id 1 must exist - please reinitialize your database" );
-    }
+    try {
+
+        # make sure pid 1 exists
+        require pf::person;
+        if ( !pf::person::person_exist(1) ) {
+            add_problem( $FATAL, "person user id 1 must exist - please reinitialize your database" );
+        }
+
+    } catch {
+        if ($_ =~ /unable to connect to database/) {
+            add_problem( 
+                $FATAL, 
+                "Unable to connect to your database. " 
+                . "Please verify your connection settings in conf/pf.conf and make sure that it is started."
+            );
+        } else {
+            add_problem( $FATAL, "Unexpected database problem: $_" );
+        }
+    };
 
 }
 

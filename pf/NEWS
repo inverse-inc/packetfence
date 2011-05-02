@@ -38,6 +38,7 @@ Enhancements
 - Captive Portal minor usability improvements
 - Reorganized default violation classes to be more coherent and self-documented
 - More violation classes validation on startup (#992)
+- Improved database configuration error reporting
 
 Bug Fixes
 - Violation grace no longer ignores time modifiers like minutes (#1154)
