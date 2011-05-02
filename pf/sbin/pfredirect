@@ -33,7 +33,7 @@ use lib INSTALL_DIR . "/lib";
 use pf::config;
 use pf::util;
 
-Log::Log4perl->init( INSTALL_DIR . "/conf/log.conf" );
+Log::Log4perl->init_and_watch( INSTALL_DIR . "/conf/log.conf", $LOG4PERL_RELOAD_TIMER );
 my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  $PID );

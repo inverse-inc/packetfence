@@ -21,7 +21,7 @@ use pf::config;
 #use SOAP::Lite +trace => [ fault => \&log_faults ];
 use SOAP::Transport::HTTP;
 
-Log::Log4perl->init_once("$conf_dir/log.conf");
+Log::Log4perl->init_and_watch("$conf_dir/log.conf", $LOG4PERL_RELOAD_TIMER);
 Log::Log4perl::MDC->put('proc', 'pf::WebAPI');
 
 # set proper logger tid based on if we are run from mod_perl or not

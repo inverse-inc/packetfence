@@ -92,7 +92,7 @@ use pf::floatingdevice::custom;
 
 # }}}1
 
-Log::Log4perl->init_and_watch( INSTALL_DIR . '/conf/log.conf', 300 );
+Log::Log4perl->init_and_watch( INSTALL_DIR . '/conf/log.conf', $LOG4PERL_RELOAD_TIMER );
 my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  threads->self->tid() );

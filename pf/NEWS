@@ -30,6 +30,7 @@ Enhancements
 - SSL certificate configuration for httpd is now in a separate file that is not
   overwritten by packages making it easier to maintain (#1207)
 - OS Class ID are now visible when viewing DHCP Fingerprints (#1181)
+- Log levels can be changed without a restart (#748)
 - Process ID information in the logs for some daemons
 - Removed unused configuration parameters (#767)
 - Refactoring of the code base (#1058)

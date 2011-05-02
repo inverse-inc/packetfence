@@ -72,6 +72,7 @@ BEGIN {
         $RADIUS_API_LEVEL $VLAN_API_LEVEL
         %CAPTIVE_PORTAL
         normalize_time
+        $LOG4PERL_RELOAD_TIMER
     );
 }
 
@@ -175,6 +176,9 @@ $black_mark = "2";
 # this is broken NIC on Dave's desk - it better be unique!
 $blackholemac = "00:60:8c:83:d7:34";
 use constant LOOPBACK_IPV4 => '127.0.0.1';
+
+# Log Reload Timer in seconds
+Readonly our $LOG4PERL_RELOAD_TIMER => 5 * 60;
 
 readPfConfigFiles();
 

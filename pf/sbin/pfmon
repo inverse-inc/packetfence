@@ -28,31 +28,32 @@ use Pod::Usage;
 use constant INSTALL_DIR => '/usr/local/pf';
 
 use lib INSTALL_DIR . "/lib";
-Log::Log4perl->init( INSTALL_DIR . "/conf/log.conf" );
-my $logger = Log::Log4perl->get_logger( basename($0) );
-Log::Log4perl::MDC->put( 'proc', basename($0) );
-Log::Log4perl::MDC->put( 'tid',  threads->self->tid() );
 
-use pf::config;
-use pf::iplog;
 
 #$thread=1;
 
-use pf::db;
-use pf::util;
-use pf::person;
-use pf::node;
-use pf::class;
-use pf::violation;
-use pf::trigger;
-use pf::services;
-use pf::os;
 use pf::action;
+use pf::class;
+use pf::config;
+use pf::db;
+use pf::iplog;
 use pf::iptables;
-use pf::nodecache;
-use pf::rawip;
 use pf::locationlog;
+use pf::node;
+use pf::nodecache;
+use pf::os;
+use pf::person;
+use pf::rawip;
+use pf::services;
 use pf::traplog;
+use pf::trigger;
+use pf::util;
+use pf::violation;
+
+Log::Log4perl->init_and_watch( INSTALL_DIR . "/conf/log.conf", $LOG4PERL_RELOAD_TIMER );
+my $logger = Log::Log4perl->get_logger( basename($0) );
+Log::Log4perl::MDC->put( 'proc', basename($0) );
+Log::Log4perl::MDC->put( 'tid',  threads->self->tid() );
 
 POSIX::sigaction(
     &POSIX::SIGHUP,
