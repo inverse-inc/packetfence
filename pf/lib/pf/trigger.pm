@@ -40,6 +40,7 @@ BEGIN {
         trigger_add
         trigger_view_type
         trigger_view_tid
+        parse_triggers
     );
 }
 
@@ -199,6 +200,33 @@ sub trigger_in_range {
     return;
 }
 
+sub parse_triggers {
+    my ($violation_triggers) = @_;
+
+    my $triggers_ref = [];
+    foreach my $trigger ( split( /\s*,\s*/, $violation_triggers ) ) {   
+        my ( $type, $tid ) = split( /::/, $trigger );
+        $type = lc($type);
+
+        # make sure trigger is a valid trigger type
+        if ( !grep( { lc($_) eq $type } @VALID_TRIGGER_TYPES ) ) {
+            die("Invalid trigger type ($type)");
+        }
+
+        # process range
+        if ( $tid =~ /(\d+)-(\d+)/ ) {
+            if ( $2 > $1 ) {
+                push @$triggers_ref, [ $1, $2, $type ];
+            } else {
+                die("Invalid trigger range ($1 - $2)");
+            }
+        } else {
+            push @$triggers_ref, [ $tid, $tid, $type ];
+        }
+    }
+    return $triggers_ref;
+}
+
 =back
 
 =head1 AUTHOR
@@ -217,7 +245,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009,2010 Inverse inc.
+Copyright (C) 2009-2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

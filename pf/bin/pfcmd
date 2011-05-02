@@ -1355,6 +1355,7 @@ sub checkup {
 
     my @problems = pf::pfcmd::checkup::sanity_check(pf::services::service_list(@pf::services::ALL_SERVICES));
     foreach my $entry (@problems) {
+        chomp $entry->{$pf::pfcmd::checkup::MESSAGE};
         print $entry->{$pf::pfcmd::checkup::SEVERITY}  . " - " . $entry->{$pf::pfcmd::checkup::MESSAGE} . "\n";
     }
 

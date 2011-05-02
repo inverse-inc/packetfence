@@ -23,18 +23,19 @@ F<snort.conf>, F<httpd.conf>, F<snmptrapd.conf>.
 
 use strict;
 use warnings;
-use File::Basename;
 use Config::IniFiles;
+use File::Basename;
+use IPC::Cmd qw[can_run run];
 use Log::Log4perl;
 use Readonly;
+use Try::Tiny;
 use UNIVERSAL::require;
-use IPC::Cmd qw[can_run run];
 
 use pf::config;
 use pf::util;
 use pf::violation qw(violation_view_open_uniq);
 use pf::node qw(nodes_registered_not_violators);
-use pf::trigger qw(trigger_delete_all);
+use pf::trigger qw(trigger_delete_all parse_triggers);
 use pf::class qw(class_view_all class_merge);
 use pf::services::apache;
 use pf::SwitchFactory;
@@ -967,12 +968,10 @@ sub switches_conf_is_valid {
 sub read_violations_conf {
     my $logger = Log::Log4perl::get_logger('pf::services');
     my %violations_conf;
-    tie %violations_conf, 'Config::IniFiles',
-        ( -file => "$conf_dir/violations.conf" );
+    tie %violations_conf, 'Config::IniFiles', ( -file => "$conf_dir/violations.conf" );
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {
-        $logger->error( "Error reading violations.conf: " 
-                        .  join( "\n", @errors ) . "\n" );
+        $logger->error( "Error reading violations.conf: " .  join( "\n", @errors ) . "\n" );
         return 0;
     }
     my %violations = class_set_defaults(%violations_conf);
@@ -982,27 +981,16 @@ sub read_violations_conf {
     foreach my $violation ( keys %violations ) {
 
         # parse triggers if they exist
-        my @triggers;
+        my $triggers_ref = [];
         if ( defined $violations{$violation}{'trigger'} ) {
-            foreach my $trigger (
-                split( /\s*,\s*/, $violations{$violation}{'trigger'} ) )
-            {
-                my ( $type, $tid ) = split( /::/, $trigger );
-                $type = lc($type);
-                if ( !grep( { lc($_) eq lc($type) } @valid_trigger_types ) ) {
-                    $logger->warn(
-                        "invalid trigger '$type' found at $violation");
-                    next;
-                }
-                if ( $tid =~ /(\d+)-(\d+)/ ) {
-                    push @triggers, [ $1, $2, $type ];
-                } else {
-                    push @triggers, [ $tid, $tid, $type ];
-                }
-            }
+            try {
+                $triggers_ref = parse_triggers($violations{$violation}{'trigger'});
+            } catch {
+                $logger->warn("Violation $violation is ignored: $_");
+                $triggers_ref = [];
+            };
         }
 
-        #print Dumper(@triggers);
         # be careful of the way parameters are passed, whitelists, actions and triggers are expected at the end
         class_merge(
             $violation,
@@ -1019,7 +1007,7 @@ sub read_violations_conf {
             $violations{$violation}{'vlan'},
             $violations{$violation}{'whitelisted_categories'},
             $violations{$violation}{'actions'},
-            \@triggers
+            $triggers_ref
         );
     }
     return 1;

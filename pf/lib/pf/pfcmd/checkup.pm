@@ -18,6 +18,8 @@ use Readonly;
 
 use pf::config;
 use pf::util;
+use pf::services;
+use pf::trigger;
 
 BEGIN {
     use Exporter ();
@@ -97,6 +99,7 @@ sub sanity_check {
     is_config_documented();
     extensions();
     permissions();
+    violations();
 
     return @problems;
 }
@@ -571,11 +574,43 @@ sub apache {
 
 }
 
+=item violations
+
+Checking for violations configurations
+
+=cut
+sub violations {
+    my %violations_conf;
+    tie %violations_conf, 'Config::IniFiles', ( -file => "$conf_dir/violations.conf" );
+    my @errors = @Config::IniFiles::errors;
+    if ( scalar(@errors) ) {
+        add_problem( $FATAL, "Error reading violations.conf");
+    }
+
+    my %violations = pf::services::class_set_defaults(%violations_conf);    
+
+    foreach my $violation ( keys %violations ) {
+
+        # parse triggers if they exist
+        if ( defined $violations{$violation}{'trigger'} ) {
+            try { 
+                # TODO we are parsing triggers both on checkup and when we parse the configuration on startup
+                # we probably can do something smarter here (but can't find right maintenance / efficiency balance now)
+                parse_triggers($violations{$violation}{'trigger'});
+            } catch {
+                add_problem($WARN, "Violation $violation is ignored: $_");
+            };
+        }
+    }
+}
+
 =back
 
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Francois Gaudreault <fgaudreault@inverse.ca>
 
 =head1 COPYRIGHT
 
