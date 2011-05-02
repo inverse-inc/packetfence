@@ -83,6 +83,12 @@ function performRedirect(destination_url) {
 
  Browser support:
  Known to work with Internet Explorer 8 / 9, Firefox 3.6 / 4, Chrome 9 / 10, Safari 5.
+
+ Firefox 3.5+: We are sending a special HTTP Header (X-DNS-Prefetch-Control off) to prevent the caching of DNS entries
+ for more details see: 
+ - https://developer.mozilla.org/En/Controlling_DNS_prefetching
+ - http://dev.chromium.org/developers/design-documents/dns-prefetching
+
  Opera 11 is broken (doesn't fire img's onload) we put in a special text to notice users
  http://my.cn.opera.com/community/forums/topic.dml?id=880632&t=1298063094
  */
