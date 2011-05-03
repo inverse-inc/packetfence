@@ -351,8 +351,8 @@ chown root:radiusd /etc/raddb/eap.conf.pfsave
 cp /etc/raddb/users /etc/raddb/users.pfsave
 chown root:radiusd /etc/raddb/users.pfsave
 
-cp /etc/raddb/perl /etc/raddb/modules/perl.pfsave
-chown root:radiusd /etc/raddb/modules/perl.pfsave
+cp /etc/raddb/modules/perl /etc/raddb/modules-perl.pfsave
+chown root:radiusd /etc/raddb/modules-perl.pfsave
 
 #Copy dummy config to the real one
 mv /etc/raddb/radiusd.conf.pf /etc/raddb/radiusd.conf
@@ -385,7 +385,7 @@ fi
 mv /etc/raddb/radiusd.conf.pfsave /etc/raddb/radiusd.conf   
 mv /etc/raddb/eap.conf.pfsave /etc/raddb/eap.conf       
 mv /etc/raddb/users.pfsave /etc/raddb/users
-mv /etc/raddb/modules/perl.pfsave /etc/raddb/modules/perl
+mv /etc/raddb/modules-perl.pfsave /etc/raddb/modules/perl
 
 # Remove symnlinks
 rm -f /etc/raddb/sites-enabled/packetfence 
@@ -624,6 +624,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Tue May 03 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Fixed copy typo for the perl module backup file
+
 * Thu May 03 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 2.2.0-0
 - New release 2.2.0
 
