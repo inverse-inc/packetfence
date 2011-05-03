@@ -5,7 +5,24 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
-o Upgrading from a version prior to <version>:
+o Upgrading from a version prior to 2.2.0:
+
+    - Database schema update
+    Related to the easier User-Agent violation system, some tables were 
+    dropped and others added. You need to update your schema with:
+    mysql -u root -p pf -v < db/upgrade-2.0.0-2.2.0.sql
+
+    - Configuration files location changed from conf/templates/ to conf/
+    Please make sure that you move your configuration files appropriately.
+
+    - SSL configuration changes
+    SSL Certificate statements are now stored in conf/ssl-certificates.conf.
+    Make sure that you configure this file with your certificates correctly.
+    This file will not be modified by our package. One less thing to worry 
+    about on ugprades.
+
+    - logrotate script installed by default
+    Be careful if you done yours by hand. It might conflict with your script.
 
     - New Captive Portal Network Access Detection technique
     The previous approach to redirect users to the Internet when access was
@@ -18,20 +35,11 @@ o Upgrading from a version prior to <version>:
     parameters under [trapping] and network_detection_ip under [captive_portal].
     More about this feature can be found in the Administration guide.
 
-    - Configuration files location changed from conf/templates/ to conf/
-    Please make sure that you move your configuration files appropriately.
-
     - Apache's automatic performance settings adjustments
     Apache's configuration is now adjusted based on total system memory to
     prevent swapping scenarios with PacketFence. We feel the dynamic 
     configuration should do a good job but feel free to maintain your Apache 
     configuration by hand if you know better.
-
-    - SSL configuration changes
-    SSL Certificate statements are now stored in conf/ssl-certificates.conf.
-    Make sure that you configure this file with your certificates correctly.
-    This file will not be modified by our package. One less thing to worry 
-    about on ugprades.
 
     - packetfence-freeradius2
     A new package that configures FreeRADIUS is available now. If you upgrade
@@ -45,18 +53,11 @@ o Upgrading from a version prior to <version>:
     - deprecated pf.conf parameters
     registration.queuesize was removed.
 
-o Upgrading from a version prior to <release>:
-
     - User-Agent violations rewrite
     If you are using USERAGENT::<id> triggers in your violation configuration,
     you need to updated them. We completely changed the back-end and the IDs
     are now all different. Check in the Web Admin under configuration -> 
     user-agent for the new IDs and the new possibilities.
-
-    - Database schema update
-    Related to the easier User-Agent violation system, some tables were 
-    dropped and others added. You need to update your schema with:
-    mysql -u root -p pf -v < db/upgrade-2.0.0-2.2.0.sql
 
     - Important problems found in the port-security for the 3Com Switch 4200G
     There is a bug in these switches that make the port-security support in 
@@ -67,9 +68,6 @@ o Upgrading from a version prior to <release>:
     We had problems with this code with the 4200G and since we don't have 
     access to a SS4500 we cannot guarantee that it works. Please get in touch
     with us if you have a SS4500 and can run some tests for us.
-
-    - logrotate script installed by default
-    Be careful if you done yours by hand. It might conflict with your script.
 
     - Behavior change regarding wired MAC-Authentication
     No matter what is connected on the port (ie: VoIP), when a client using 
