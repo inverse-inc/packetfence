@@ -624,10 +624,13 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Thu May 03 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 2.2.0-2
+- Package rebuilt to resolve issue #1212
+
 * Tue May 03 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Fixed copy typo for the perl module backup file
 
-* Thu May 03 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 2.2.0-0
+* Thu May 03 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 2.2.0-1
 - New release 2.2.0
 
 * Wed Apr 13 2011 Francois Gaudreault <fgaudreault@inverse.ca>
