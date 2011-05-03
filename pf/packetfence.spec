@@ -33,7 +33,7 @@
 #
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 2.1.1
+Version: 2.2.0
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -351,8 +351,8 @@ chown root:radiusd /etc/raddb/eap.conf.pfsave
 cp /etc/raddb/users /etc/raddb/users.pfsave
 chown root:radiusd /etc/raddb/users.pfsave
 
-cp /etc/raddb/modules/perl /etc/raddb/modules/perl.pfsave
-chown root:radiusd /etc/raddb/modules/perl.pfsave
+cp /etc/raddb/modules/perl /etc/raddb/modules-perl.pfsave
+chown root:radiusd /etc/raddb/modules-perl.pfsave
 
 #Copy dummy config to the real one
 mv /etc/raddb/radiusd.conf.pf /etc/raddb/radiusd.conf
@@ -385,7 +385,7 @@ fi
 mv /etc/raddb/radiusd.conf.pfsave /etc/raddb/radiusd.conf   
 mv /etc/raddb/eap.conf.pfsave /etc/raddb/eap.conf       
 mv /etc/raddb/users.pfsave /etc/raddb/users
-mv /etc/raddb/modules/perl.pfsave /etc/raddb/modules/perl
+mv /etc/raddb/modules-perl.pfsave /etc/raddb/modules/perl
 
 # Remove symnlinks
 rm -f /etc/raddb/sites-enabled/packetfence 
@@ -624,11 +624,17 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Thu May 03 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 2.2.0-2
+- Package rebuilt to resolve issue #1212
+
 * Tue May 03 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Fixed copy typo for the perl module backup file
 
+* Thu May 03 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 2.2.0-1
+- New release 2.2.0
+
 * Wed Apr 13 2011 Francois Gaudreault <fgaudreault@inverse.ca>
-- Fixed problems in the install part for freerdius2 package
+- Fixed problems in the install part for freeradius2 package
 
 * Wed Apr 12 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Added support for perl module configuration in the packetfence-

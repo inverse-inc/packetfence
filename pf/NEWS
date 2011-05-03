@@ -14,7 +14,13 @@ For a list of compatibility related changes see the UPGRADE file.
 
 
 --------------------------------------------------------------------------------
-Version <release> - <codename> released on <releaseDate>
+Version 2.2.0 released on 2011-05-03
+
+New Hardware Support
+- Motorola RF Switches (Wireless Controllers)
+- 3Com Switches 4200G, E4800G and E5500G now supports MAC Authentication and 
+  802.1X
+- Dlink DGS 3100 Switches
 
 New features
 - Captive Portal network access detection is more accurate and way faster
@@ -24,23 +30,55 @@ New features
 - Apache configuration is automatically adjusted on startup based on system 
   resources to avoid performance degradation on heavy workloads (#1204)
 - New reports: Nodes per SSID (#1126) and Connection-Type (#1125)
+- User-Agent violation support completely re-written. It is now easier than 
+  ever to block devices or old browsers from your network. (#769, #1192)
+- Administrators can now modify and preview remediation pages from the Web Admin
+- VoIP autodetection in Wired 802.1X and Wired MAC Authentication can now use 
+  CDP / LLDP if available (#1175)
+- Kerberos Authentication on the Captive Portal (Thanks to Brad Lhotsky from 
+  NIH)
 
 Enhancements
 - Moved several configuration files from conf/templates/ into conf/ (#1166)
 - SSL certificate configuration for httpd is now in a separate file that is not
   overwritten by packages making it easier to maintain (#1207)
+- 3Com Super Stack 4500 now uses SNMP for MAC authorization (port-security)
 - OS Class ID are now visible when viewing DHCP Fingerprints (#1181)
 - Log levels can be changed without a restart (#748)
 - Process ID information in the logs for some daemons
-- Removed unused configuration parameters (#767)
-- Refactoring of the code base (#1058)
-- FAQ entry: Active directory integration in registration network
 - Captive Portal minor usability improvements
 - Reorganized default violation classes to be more coherent and self-documented
 - More violation classes validation on startup (#992)
 - Improved database configuration error reporting
+- DHCP fingerprints sharing now allows submitter to send computer name, user-
+  agent and a contact email to help us identify the devices better (#983)
+- Meru module now supports firmware version identification
+- Improvements in the logrotate script (#1198)
+- MAC address format xxxx-xxxx-xxxx supported in our FreeRADIUS' module
+- Improvement to the samba configuration provided in the administration guide
+  to fix uid mapping issues (#1205)
+- Removed unused configuration parameters (#767)
+- Refactoring of the code base (#1058)
+- New DHCP fingerprint for Cisco SPA series IP Phone, Mikrotik, Freebox,
+  AeroHive Hive AP, Ubuntu Server, Suse Linux Desktop 11, Synology NAS, Polycom
+  Conference IP Phone and Generic Intel PXE
+
+Documentation
+- FAQ entry: Active directory integration in registration network
+- Updated Developer documentation regarding how to support new wireless hardware
+- Wired 802.1X and MAC Authentication corrections in Network Devices Guide
+- Minor corrections to the Administration Guide (#743)
 
 Bug Fixes
+- Fixed an important problem with VoIP in Wired 802.1X and Wired MAC 
+  Authenication modes (#1202)
+- Fixed important Nortel support regressions (introduced in 2.1.0: #1183, #1195)
+- Fixed an issue with the Meru module: If the controller sent SNMP traps to 
+  PacketFence a thread would crash. Hopefully this configuration is not 
+  required and is rarely done. Regression prevention tests have been added.
+- Fixed an issue with pfcmd-initiated VLAN re-evaluation if you assign VLANs 
+  based on a client's connection-type (which is not the default)
+- Fixed DHCP fingerprint sharing upload form
 - Violation grace no longer ignores time modifiers like minutes (#1154)
 - Fixed OS id not visible when dhcp-fingerprint view is filtered (#1180)
 - Fixed rare case of Web Admin user account corruption causing homepage to 
@@ -49,55 +87,10 @@ Bug Fixes
 - installer and configurator scripts no longer output passwords on the terminal
   (#1021)
 - Fixed warnings and improved error reporting in our FreeRADIUS module (#1176)
-
---------------------------------------------------------------------------------
-Version <release> - <codename> released on <releaseDate>
-
-New Hardware Support
-- Motorola RF Switches (Wireless Controllers)
-- 3Com Switches 4200G, E4800G and E5500G now supports MAC Authentication and 
-  802.1X
-- Dlink DGS 3100 Switches
-
-New Features
-- User-Agent violation support completely re-written. It is now easier than 
-  ever to block devices or old browsers from your network. (#769, #1192)
-- Administrators can now modify and preview remediation pages from the Web Admin
-- Kerberos Authentication on the Captive Portal (Thanks to Brad Lhotsky from 
-  NIH)
-
-Enhancements
-- 3Com Super Stack 4500 now uses SNMP for MAC authorization (port-security)
-- DHCP fingerprints sharing now allows submitter to send computer name, user-
-  agent and a contact email to help us identify the devices better (#983)
-- Updated Developer documentation regarding how to support new wireless hardware
-- Meru module now supports firmware version identification
-- Improvements in the logrotate script (#1198)
-- MAC address format xxxx-xxxx-xxxx supported in our FreeRADIUS' module
-- New DHCP fingerprint for Cisco SPA series IP Phone, Mikrotik, Freebox,
-  AeroHive Hive AP, Ubuntu Server, Suse Linux Desktop 11, Synology NAS, Polycom
-  Conference IP Phone and Generic Intel PXE
-- VoIP autodetection in Wired 802.1X and Wired MAC Authentication can now use 
-  CDP / LLDP if available (#1175)
-- Improvement to the samba configuration provided in the administration guide
-  to fix uid mapping issues (#1205)
-
-Bug Fixes
-- Fixed an important problem with VoIP in Wired 802.1X and Wired MAC 
-  Authenication modes (#1202)
-- Fixed important Nortel support regressions (introduced in 2.1.0: #1183, #1195)
-- Wired 802.1X and MAC Authentication fixes in Network Devices Guide
-- Fixed an issue with pfcmd-initiated VLAN re-evaluation if you assign VLANs 
-  based on a client's connection-type (which is not the default)
 - Fixed broken person lookups if username is an email address (#1206)
-- Fixed DHCP fingerprint sharing upload form
 - Fixed Web Admin which referred to an inexistent Meru MC3000 module (it was 
   renamed Meru::MC in 2.0.1)
-- Fixed an issue with the Meru module: If the controller sent SNMP traps to 
-  PacketFence a thread would crash. Hopefully this configuration is not 
-  required and is rarely done. Regression prevention tests have been added.
 - Fixed overly aggressive Web Administration password validation (#1209)
-- Minor fixes to the Administration Guide (#743)
 
 Translations
 - New German (de) translation (Thanks to Tino Matysiak of Meetyoo Conferencing)
