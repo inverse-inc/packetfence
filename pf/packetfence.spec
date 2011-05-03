@@ -351,7 +351,7 @@ chown root:radiusd /etc/raddb/eap.conf.pfsave
 cp /etc/raddb/users /etc/raddb/users.pfsave
 chown root:radiusd /etc/raddb/users.pfsave
 
-cp /etc/raddb/perl /etc/raddb/modules/perl.pfsave
+cp /etc/raddb/modules/perl /etc/raddb/modules/perl.pfsave
 chown root:radiusd /etc/raddb/modules/perl.pfsave
 
 #Copy dummy config to the real one
@@ -624,6 +624,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Tue May 03 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Fixed copy typo for the perl module backup file
+
 * Wed Apr 13 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Fixed problems in the install part for freerdius2 package
 
