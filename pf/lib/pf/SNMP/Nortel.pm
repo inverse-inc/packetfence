@@ -21,6 +21,12 @@ You will notice security authorization made on wrong ifIndexes.
 A factory reset will resolve the situation. 
 We experienced the issue with a BayStack 470 running 3.7.5.13 but we believe it affects other BayStacks and firmwares. 
 
+=item Hard to predict OIDs seen on some variants
+
+We faced issues where some switches (ie ERS2500) insisted on having a board index of 1 when adding a MAC to the security table although for most other operations the board index was 0.
+Our attempted fix is to always consider the board index to start with 1 on the operations touching secuirty status (isPortSecurity and authorizeMAC).
+Be aware of that if you start to see MAC authorization failures and report the problem to us, we might have to do a per firmware or per device implementation instead.
+
 =back
 
 =cut
@@ -326,6 +332,23 @@ sub getBoardPortFromIfIndex {
     return ( $board, $port );
 }
 
+=item getBoardPortFromIfIndexForSecurityStatus
+
+We noticed that the security status related OIDs always report their first boardIndex to 1 even though elsewhere 
+it's all referenced as 0. 
+I'm unsure if this is a bug or a feature so we created this hook that will always assume 1 as first board index.
+To be used by method which read or write to security status related MIBs.
+
+=cut
+sub getBoardPortFromIfIndexForSecurityStatus {
+    my ( $this, $ifIndex ) = @_;
+
+    my $board = (1 + int( $ifIndex / $this->getBoardIndexWidth() ));
+    my $port = ( $ifIndex % $this->getBoardIndexWidth() );
+
+    return ( $board, $port );
+}
+
 sub getIfIndexFromBoardPort {
     my ( $this, $board, $port ) = @_;
     return ( ( $board - $this->getFirstBoardIndex() ) * $this->getBoardIndexWidth() + $port );
@@ -431,8 +454,10 @@ sub _authorizeMAC {
         return 0;
     }
 
-    # setup config parameters
-    my ( $boardIndx, $portIndx ) = $this->getBoardPortFromIfIndex($ifIndex);
+    # careful readers will notice that we don't use getBoardPortFromIfIndex here. 
+    # That's because Nortel thought that it made sense to start BoardIndexes differently for different OIDs
+    # on the same switch!!! 
+    my ( $boardIndx, $portIndx ) = $this->getBoardPortFromIfIndexForSecurityStatus($ifIndex);
     my $cfgStatus = ($authorize) ? 2 : 3;
     my $mac_oid = mac2oid($mac);
 
@@ -453,7 +478,11 @@ sub _authorizeMAC {
             ]
         );
     }
-    return ( defined($result) );
+
+    return $TRUE if (defined($result));
+
+    $logger->warn("MAC authorize / deauthorize failed with " . $this->{_sessionWrite}->error());
+    return;
 }
 
 sub isDynamicPortSecurityEnabled {
@@ -485,8 +514,7 @@ sub isPortSecurityEnabled {
     # careful readers will notice that we don't use getBoardPortFromIfIndex here. 
     # That's because Nortel thought that it made sense to start BoardIndexes differently for different OIDs
     # on the same switch!!! 
-    my $boardIndx = (1 + int( $ifIndex / $this->getBoardIndexWidth() ));
-    my $portIndx = ( $ifIndex % $this->getBoardIndexWidth() );
+    my ( $boardIndx, $portIndx ) = $this->getBoardPortFromIfIndexForSecurityStatus($ifIndex);
 
     my $s5SbsSecurityStatus         = undef;
     my $s5SbsSecurityAction         = undef;

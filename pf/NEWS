@@ -19,6 +19,9 @@ Version <release> released on <releaseDate>
 Enhancements
  * Cleanup of the MySQL optimization section of the Admin Guide
 
+Bug fixes
+ * Fixed Nortel switches problems on some models / firmwares
+
 --------------------------------------------------------------------------------
 Version 2.2.0 released on 2011-05-03
 
