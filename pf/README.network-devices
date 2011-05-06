@@ -3,6 +3,7 @@ Access Points and Wireless controllers
 ======================================
 
 Packetfence supports the following access points and wireless controlers:
+- AeroHIVE AP Series
 - Aruba Networks (200, 600 Series, 800, 2400, 3000 Series, 6000)
 - Cisco 1130AG
 - Cisco 1240AG
@@ -43,6 +44,8 @@ aka PoD). Once implemented it will be the best deauthentication technique.
 Deauthentication support
                              |   SSH /  |          |          | 
                              |  Telnet  |   SNMP   |  RADIUS* |
+-----------------------------|----------|----------|----------|
+AeroHIVE AP                  |    XX    |    --    |    --    |
 -----------------------------|----------|----------|----------|
 Aruba                        |    XX    |    --    |    --    |
 -----------------------------|----------|----------|----------|
