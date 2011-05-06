@@ -13,7 +13,7 @@ to access SNMP enabled Nortel switches.
 
 =over
 
-=item BayStack
+=item BayStack stacking issues
 
 Sometimes switches that were previously in a stacked setup will report 
 security violations as if they were still stacked.
@@ -88,6 +88,14 @@ sub parseTrap {
         $trapHashRef->{'trapMac'}     = lc($3);
         $trapHashRef->{'trapMac'} =~ s/ /:/g;
         $trapHashRef->{'trapVlan'} = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
+
+        if ($trapHashRef->{'trapIfIndex'} <= 0) {
+            $logger->warn(
+                "Trap ifIndex is invalid. Should this switch be factory-reset? " 
+                . "See Nortel's BayStack Stacking issues in module documentation for more information."
+            );
+        }
+
         $logger->debug(
             "ifIndex for " . $trapHashRef->{'trapMac'} . " on switch " . $this->{_ip} 
             . " is " . $trapHashRef->{'trapIfIndex'}
@@ -314,14 +322,27 @@ sub getFirstBoardIndex {
     my $OID_s5SbsAuthCfgBrdIndx = '1.3.6.1.4.1.45.1.6.5.3.10.1.1';
     my $result = $this->{_sessionRead}->get_next_request(-varbindlist => [$OID_s5SbsAuthCfgBrdIndx]);
 
+    my $firstIndx;
     foreach my $key ( sort keys %{$result} ) {
-        if($key =~ /^$OID_s5SbsAuthCfgBrdIndx\.(\d+)/){
-            return $1;
+        if ($key =~ /^$OID_s5SbsAuthCfgBrdIndx\.(\d+)/) {
+            $firstIndx = $1;
+            last;
         }
     }
 
-    $logger->warn("unable to fetch first board index. Will assume it's 1");
-    return 1;
+    if (!defined($firstIndx)) {
+        $logger->warn("unable to fetch first board index. Will assume it's 1");
+        return 1;
+    }
+
+    if ($firstIndx > 1) {
+        $logger->warn(
+            "first board index is greater than 1. Should this switch be factory-reset? " 
+            . "See Nortel's BayStack Stacking issues in module documentation for more information."
+        );
+    }
+
+    return $firstIndx;
 }
 
 sub getBoardPortFromIfIndex {
