@@ -16,6 +16,9 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <release> released on <releaseDate>
 
+New Hardware Support
+- AeroHIVE AP Access Points
+
 Enhancements
  * Nortel module now warns in the logs about a common stacking Nortel problem
  * Cleanup of the MySQL optimization section of the Admin Guide
