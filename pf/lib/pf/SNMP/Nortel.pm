@@ -516,11 +516,37 @@ sub isStaticPortSecurityEnabled {
     return 1;
 }
 
+
+# This function has not been tested on stacked switches !
 sub setPortSecurityEnableByIfIndex {
     my ( $this, $ifIndex, $trueFalse ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    $logger->info("function not implemented yet");
+    my $OID_s5SbsPortSecurityStatus = "1.3.6.1.4.1.45.1.6.5.3.15.0";
+    my $result;
+
+    if ( !$this->connectRead() ) {
+        return 0;
+    }
+    if ( !$this->connectWrite() ) {
+        return 0;
+    }
+
+    $this->{_sessionRead}->translate(0);
+
+    $logger->trace("SNMP get_request for OID_s5SbsPortSecurityStatus: $OID_s5SbsPortSecurityStatus");
+    $result = $this->{_sessionRead}->get_request( -varbindlist => [ "$OID_s5SbsPortSecurityStatus" ] );
+
+    my $portSecurityStatus = ($trueFalse) ? 0 : 1;
+    my $newSecurConfig = $this->modifyBitmask($result->{"$OID_s5SbsPortSecurityStatus"}, $ifIndex, $portSecurityStatus);
+
+    $this->{_sessionRead}->translate(1);
+
+    $logger->trace("SNMP set_request for s5SbsPortSecurityStatus: $OID_s5SbsPortSecurityStatus");
+    $result = $this->{_sessionWrite}->set_request( -varbindlist => [ 
+        "$OID_s5SbsPortSecurityStatus", Net::SNMP::OCTET_STRING, $newSecurConfig, 
+    ]);
+
     return 1;
 }
 
