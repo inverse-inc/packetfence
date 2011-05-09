@@ -32,7 +32,7 @@ use pf::config;
 
 # Tests are categorized here
 our @cli_tests = qw(
-    pfcmd.t
+    pfcmd.t pfdhcplistener.t
 );
 
 our @compile_tests = qw(

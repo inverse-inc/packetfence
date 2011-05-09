@@ -354,35 +354,10 @@ sub listen_dhcp {
 
         my %tmp;
         $tmp{'dhcp_fingerprint'} = "";
-        my $fingerprint_data = '';
         if ( defined( $options{'55'} ) ) {
-            my $dhcp_fingerprint = join( ",", @{ $options{'55'} } );
-            $tmp{'dhcp_fingerprint'} = $dhcp_fingerprint;
-            my @fingerprint_info = dhcp_fingerprint_view($dhcp_fingerprint);
-            if ( scalar(@fingerprint_info)
-                && ( ref( $fingerprint_info[0] ) eq 'HASH' ) )
-            {
-                my @os_triggers;
-                $fingerprint_data = "OS::".$fingerprint_info[0]->{'os_id'}." (".$fingerprint_info[0]->{'os'}.")";
-                $logger->debug("$chaddr DHCP fingerprint is $fingerprint_data");
-                $logger->debug( "sending OS::"
-                        . $fingerprint_info[0]->{'os_id'} . " ("
-                        . $fingerprint_info[0]->{'os'}
-                        . ") trigger" );
-                violation_trigger( $chaddr, $fingerprint_info[0]->{'os_id'},
-                    "OS" );
-                foreach my $os_trigger (@fingerprint_info) {
-                    $logger->debug( "sending OS::"
-                            . $os_trigger->{'class_id'} . " ("
-                            . $os_trigger->{'class'}
-                            . ") trigger" );
-                    violation_trigger( $chaddr, $os_trigger->{'class_id'},
-                        "OS" );
-                }
-            } else {
-                $logger->warn("unknown DHCP fingerprint: $dhcp_fingerprint");
-            }
+            $tmp{'dhcp_fingerprint'} = join( ",", @{ $options{'55'} } );
         }
+
         # TODO why rely on mysql_date, we should use time instead
         $tmp{'last_dhcp'} = mysql_date();
         $tmp{'computername'} = join( "", @{ $options{'12'} } )
@@ -424,17 +399,23 @@ sub listen_dhcp {
             node_add_simple($chaddr);
         }
 
-        my $modifying_node_log_message = '';
-        foreach my $node_key ( keys %tmp ) {
-            $modifying_node_log_message
-                .= "$node_key = " . $tmp{$node_key} . ",";
-        }
-        chop($modifying_node_log_message);
-        $logger->info("$chaddr requested an IP. "
-            . "DHCP Fingerprint: $fingerprint_data. "
-            . "Modifying node with $modifying_node_log_message"
-        );
+        # updating the node first 
+        # in case the fingerprint generates a violation and that autoreg uses fingerprint to auto-categorize nodes 
+        # see #1216 for details
         my $result = node_modify( $chaddr, %tmp );
+        my $fingerprint_data = process_fingerprint($chaddr, $tmp{'dhcp_fingerprint'});
+
+        my $modified_node_log_message = '';
+        foreach my $node_key ( keys %tmp ) {
+            $modified_node_log_message .= "$node_key = " . $tmp{$node_key} . ",";
+        }
+        chomp($modified_node_log_message);
+
+        $logger->info("$chaddr requested an IP. "
+	    . ( defined($fingerprint_data) ? "DHCP Fingerprint: $fingerprint_data. " : "Unknown DHCP fingerprint." )
+            . "Modified node with $modified_node_log_message"
+        );
+
         foreach my $field (keys %tmp) {
             print "$field: $tmp{$field}\n";
         }
@@ -509,6 +490,43 @@ sub get_requested_ip {
     }
 
     return $req_ip;
+}
+
+=item process_fingerprint
+
+=over
+
+=item Calls violation_trigger for every matching DHCP fingerprint type and class. 
+
+=item Logs unknown fingerprints
+
+=item Returns a string that identifies OS id and name
+
+=back
+
+=cut
+sub process_fingerprint {
+    my ($chaddr, $dhcp_fingerprint) = @_;
+
+    return if (!defined($dhcp_fingerprint) || $dhcp_fingerprint == "");
+
+    my $fingerprint_data;
+    my @fingerprint_info = dhcp_fingerprint_view($dhcp_fingerprint);
+    if ( scalar(@fingerprint_info) && ( ref( $fingerprint_info[0] ) eq 'HASH' ) ) {
+
+        my @os_triggers;
+        $fingerprint_data = "OS::".$fingerprint_info[0]->{'os_id'}." (".$fingerprint_info[0]->{'os'}.")";
+        $logger->debug("$chaddr sending $fingerprint_data trigger");
+        violation_trigger( $chaddr, $fingerprint_info[0]->{'os_id'}, "OS" );
+        foreach my $os_trigger (@fingerprint_info) {
+            $logger->debug("$chaddr sending OS::".$os_trigger->{'class_id'}." (".$os_trigger->{'class'}.") trigger");
+            violation_trigger( $chaddr, $os_trigger->{'class_id'}, "OS" );
+        }
+    } else {
+        $logger->warn("unknown DHCP fingerprint: $dhcp_fingerprint");
+    }
+
+    return $fingerprint_data;
 }
 
 sub daemonize {
