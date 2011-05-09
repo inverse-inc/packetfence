@@ -105,6 +105,7 @@
                            'ThreeCom::Switch_4200G' => '3COM 4200G',
                            'Accton::ES3526XA' => 'Accton ES3526XA', 
                            'Accton::ES3528M' => 'Accton ES3528M',
+                           'AeroHIVE::AP' => 'AeroHIVE AP',
                            'Amer::SS2R24i' => 'Amer SS2R24i',
                            'Aruba::Controller_200' => 'Aruba Controller 200', 
                            'Avaya' => 'Avaya (see Nortel)', 

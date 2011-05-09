@@ -118,11 +118,9 @@ sub monitorConcurrency {
 
                     #                    print time() . "\n";
                     my $trapAge = time() - $trapsReceivedSNMP{$trap};
-                    print
-                        "cannot find trap $trap, $trapAge seconds old, in packetfence.log\n";
+                    print "cannot find trap $trap, $trapAge seconds old, in packetfence.log\n";
                     if ( $trapAge > 120 ) {
-                        print
-                            "pfsetvlan does not seem to respond any more.\n";
+                        print "pfsetvlan does not seem to respond any more.\n";
                         print "problematic trap is $trap\n";
 
                 #                        print time() . "RESTARTING IT NOW\n";
