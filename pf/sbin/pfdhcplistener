@@ -412,7 +412,7 @@ sub listen_dhcp {
         chomp($modified_node_log_message);
 
         $logger->info("$chaddr requested an IP. "
-	    . ( defined($fingerprint_data) ? "DHCP Fingerprint: $fingerprint_data. " : "Unknown DHCP fingerprint." )
+            . ( defined($fingerprint_data) ? "DHCP Fingerprint: $fingerprint_data. " : "Unknown DHCP fingerprint." )
             . "Modified node with $modified_node_log_message"
         );
 
