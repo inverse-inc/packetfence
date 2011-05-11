@@ -26,6 +26,7 @@ Enhancements
 
 Bug fixes
  * Fixed Nortel switches problems on some models / firmwares
+ * Fixed installer errors (#1217)
 
 --------------------------------------------------------------------------------
 Version 2.2.0 released on 2011-05-03
