@@ -28,6 +28,9 @@ Bug fixes
  * Fixed Nortel switches problems on some models / firmwares
  * Fixed installer errors (#1217)
 
+Translations
+ * Updated French (fr) translation (Thanks to Vincent Blut)
+
 --------------------------------------------------------------------------------
 Version 2.2.0 released on 2011-05-03
 
