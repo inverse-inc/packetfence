@@ -310,14 +310,14 @@ foreach my $locale_dir (@locale_dirs) {
 }
 
 # TODO cleanup commented stuff regarding the packaging of jpgraph in an rpm
-if ( !( -e "$conf_dir/templates/httpd.conf" ) ) {
-    print "$conf_dir/templates/httpd.conf symlink does not yet exist\n";
+if ( !( -e "$conf_dir/httpd.conf" ) ) {
+    print "$conf_dir/httpd.conf symlink does not yet exist\n";
     if ( `httpd -v` =~ /Apache\/2\.[2-9]\./ ) {
         print "creating symlink to httpd.conf.apache22\n";
-        `ln -s $conf_dir/templates/httpd.conf.apache22 $conf_dir/templates/httpd.conf`;
+        `ln -s $conf_dir/httpd.conf.apache22 $conf_dir/httpd.conf`;
     } else {
         print "creating symlink to httpd.conf.pre_apache22\n";
-        `ln -s $conf_dir/templates/httpd.conf.pre_apache22 $conf_dir/templates/httpd.conf`;
+        `ln -s $conf_dir/httpd.conf.pre_apache22 $conf_dir/httpd.conf`;
     }
 }
 
