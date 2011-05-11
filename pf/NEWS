@@ -23,6 +23,7 @@ New Hardware Support
 Enhancements
  * Nortel module now warns in the logs about a common stacking Nortel problem
  * Cleanup of the MySQL optimization section of the Admin Guide
+ * New DHCP fingerprint for Cisco/Linksys, Aruba, 3Com switch and HTC Android
 
 Bug fixes
  * Fixed Nortel switches problems on some models / firmwares
