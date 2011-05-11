@@ -18,6 +18,7 @@ Version <release> released on <releaseDate>
 
 New Hardware Support
 - AeroHIVE AP Access Points
+- Dlink DGS 3200 switch
 
 Enhancements
  * Nortel module now warns in the logs about a common stacking Nortel problem
