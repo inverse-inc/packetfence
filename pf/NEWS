@@ -28,6 +28,7 @@ Enhancements
  * Warning avoidance
 
 Bug fixes
+ * Updated Admin Guide to reflect proper method calls for custom VLAN assignment
  * Fixed Nortel switches problems on some models / firmwares
  * Fixed installer errors (#1217)
 
