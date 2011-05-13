@@ -45,9 +45,9 @@ Earlier IOS were not explicitly tested.
 
 12.2(55)SE is known to be broken 12.2(55)SE1 is apparently fine
 
-12.2(44)SE6 is known to be buggy: not sending traps under certain circumstances
-
 12.2(50) is known to be problematic
+
+12.2(44)SE6 is known to be buggy: not sending traps under certain circumstances
 
 Port-security + VoIP support doesn't work with IOS version 12.2(25r). 
 See issue #1020 for details.
