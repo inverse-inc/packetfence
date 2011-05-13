@@ -17,9 +17,9 @@ For a list of compatibility related changes see the UPGRADE file.
 Version <release> released on <releaseDate>
 
 New Hardware Support
+ * AeroHIVE AP Access Points
+ * Dlink DGS 3200 switch
  * HP ProCurve 5400 Series
-- AeroHIVE AP Access Points
-- Dlink DGS 3200 switch
 
 Enhancements
  * Nortel module now warns in the logs about a common stacking Nortel problem
