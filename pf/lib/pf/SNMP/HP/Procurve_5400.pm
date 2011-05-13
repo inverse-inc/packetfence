@@ -10,6 +10,8 @@ Module to manage HP Procurve 5400 switches
 
 =head1 STATUS
 
+=over
+
 =item Supports 
 
 =over
@@ -17,6 +19,8 @@ Module to manage HP Procurve 5400 switches
 =item linkUp / linkDown mode
 
 =item port-security
+
+=back
 
 =back
 
