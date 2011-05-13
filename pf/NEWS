@@ -29,6 +29,7 @@ Enhancements
  * Warning avoidance
 
 Bug fixes
+ * Re-introduced MAC Authentication and 802.1X support in Cisco 3560, 3750
  * Updated Admin Guide to reflect proper method calls for custom VLAN assignment
  * Fixed Nortel switches problems on some models / firmwares
  * Fixed installer errors (#1217)
