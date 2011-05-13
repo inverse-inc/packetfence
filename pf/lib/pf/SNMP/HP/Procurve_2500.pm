@@ -11,7 +11,7 @@ oriented interface to access SNMP enabled HP Procurve 2500 switches.
 
 =head1 STATUS
 
-We've got reports that the HP ProCurve's 5412zl work correctly with this module.
+We've got reports that the HP ProCurve's 5412zl and 8212zl work correctly with this module.
 
 =cut
 

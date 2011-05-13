@@ -17,16 +17,19 @@ For a list of compatibility related changes see the UPGRADE file.
 Version <release> released on <releaseDate>
 
 New Hardware Support
+ * HP ProCurve 5400 Series
 - AeroHIVE AP Access Points
 - Dlink DGS 3200 switch
 
 Enhancements
  * Nortel module now warns in the logs about a common stacking Nortel problem
  * Cleanup of the MySQL optimization section of the Admin Guide
- * New DHCP fingerprint for Cisco/Linksys, Aruba, 3Com switch and HTC Android
+ * New DHCP fingerprint for Cisco/Linksys, Aruba, 3Com switch, HTC Android and
+   Konica Minolta MFP's
  * Warning avoidance
 
 Bug fixes
+ * Updated Admin Guide to reflect proper method calls for custom VLAN assignment
  * Fixed Nortel switches problems on some models / firmwares
  * Fixed installer errors (#1217)
 

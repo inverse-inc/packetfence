@@ -30,7 +30,7 @@ This module extends pf::SNMP::Cisco::Catalyst_2950.
 
 =item Firmwares
 
-Recommended firmware is 12.2(44)
+Recommended firmware is 12.2(55)SE1
 
 The absolute minimum required firmware version is 12.2(25)SEE2.
 
@@ -43,7 +43,9 @@ Earlier IOS were not explicitly tested.
 
 =item Port-Security 
 
-12.2(55) is known to be broken
+12.2(55)SE is known to be broken 12.2(55)SE1 is apparently fine
+
+12.2(44)SE6 is known to be buggy: not sending traps under certain circumstances
 
 12.2(50) is known to be problematic
 
