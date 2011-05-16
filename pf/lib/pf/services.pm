@@ -41,7 +41,7 @@ use pf::services::apache;
 use pf::SwitchFactory;
 
 Readonly our @ALL_SERVICES => (
-    'named', 'dhcpd', 'snort', 
+    'named', 'dhcpd', 'snort', 'radiusd', 
     'httpd', 'snmptrapd', 
     'pfdetect', 'pfredirect', 'pfsetvlan', 'pfdhcplistener', 'pfmon'
 );
@@ -66,6 +66,9 @@ if ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int ) {
         . $monitor_int
         . " -N -D -l $install_dir/var";
 }
+if ( isenabled( $Config{'vlan'}{'radiusd'} ) ) {
+    $flags{'radiusd'}        = "";
+}
 
 =head1 SUBROUTINES
 
@@ -83,7 +86,7 @@ sub service_ctl {
     my $exe = basename($service);
     $logger->info("$service $action");
     if ( $exe
-        =~ /^(named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|apache2|snmptrapd|pfsetvlan)$/
+        =~ /^(named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|radiusd|httpd|apache2|snmptrapd|pfsetvlan)$/
         )
     {
         $exe = $1;
@@ -97,6 +100,9 @@ sub service_ctl {
                             && ( !isenabled( $Config{'vlan'}{'dhcpd'} ) ) )
                     )
                     );
+                return (0)
+                    if ( $exe =~ /radiusd/
+                    && !isenabled( $Config{'vlan'}{'radiusd'} ) );
                 return (0)
                     if ( $exe =~ /snort/
                     && !isenabled( $Config{'trapping'}{'detection'} ) );
@@ -119,8 +125,7 @@ sub service_ctl {
                     );
                 if ( $daemon =~ /(named|dhcpd|snort|httpd|snmptrapd)/
                     && !$quick )
-                {
-                    my $confname = "generate_" . $daemon . "_conf";
+                {                    my $confname = "generate_" . $daemon . "_conf";
                     $logger->info(
                         "Generating configuration file for $exe ($confname)");
                     my %serviceHash = (
@@ -136,8 +141,8 @@ sub service_ctl {
                         print "No such sub: $confname\n";
                     }
                 }
-                if (  ( $service =~ /named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan/ )
-                      && ( $daemon =~ /named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan/ )
+                if (  ( $service =~ /named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|radiusd|snort|httpd|snmptrapd|pfsetvlan/ )
+                      && ( $daemon =~ /named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|radiusd|snort|httpd|snmptrapd|pfsetvlan/ )
                       && ( defined( $flags{$daemon} ) ) ) {
                     if ( $daemon ne 'pfdhcplistener' ) {
                         if ( $daemon eq 'dhcpd' ) {
@@ -246,6 +251,10 @@ sub service_list {
         if ( $service eq "snort" ) {
             $snortflag = 1
                 if ( isenabled( $Config{'trapping'}{'detection'} ) );
+        } elsif ( $service eq "radiusd" ) {
+            push @finalServiceList, $service
+                if ( isenabled( $Config{'vlan'}{'radiusd'} )
+                     && $Config{'network'}{'mode'} =~ /^vlan$/i );
         } elsif ( $service eq "pfdetect" ) {
             push @finalServiceList, $service
                 if ( isenabled( $Config{'trapping'}{'detection'} ) );

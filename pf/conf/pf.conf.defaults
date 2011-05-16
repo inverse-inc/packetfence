@@ -512,6 +512,11 @@ named=/usr/sbin/named
 # services.snmptrapd
 # Location of the snmptrapd binary.  Only necessary to change if you are not using the RPMed version.
 snmptrapd=/usr/sbin/snmptrapd
+# 
+# services.radiusd
+# 
+# Location of the named binary.  Only necessary to change if you are not running the RPMed version.
+radiusd=/usr/sbin/radiusd
 
 [dhcp]
 #

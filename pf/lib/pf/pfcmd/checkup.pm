@@ -76,6 +76,10 @@ sub sanity_check {
     interfaces_defined();
     interfaces();
 
+    if ( isenabled($Config{'vlan'}{'radius'} ) ) {
+        freeradius();
+    }
+
     if ( isenabled($Config{'trapping'}{'detection'}) ) {
         ids_snort();
     }
@@ -160,6 +164,19 @@ sub interfaces {
                 add_problem( $FATAL, "incomplete network information for $device" );
         }
         $seen{$interface} = 1;
+    }
+
+}
+
+=item freeradius
+
+Validation related to the FreeRADIUS daemon
+
+=cut
+sub freeradius {
+
+    if ( !-x $Config{'services'}{'radiusd'} ) {
+        add_problem( $FATAL, "radiusd binary is not executable / does not exist!" );
     }
 
 }
