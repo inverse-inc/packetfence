@@ -567,6 +567,14 @@ dhcpd=disabled
 #
 named=disabled
 #
+#
+# vlan.radiusd
+#
+# Should radiusd be started ?
+#
+radiusd=disabled
+#
+#
 # vlan.nbtraphandlerthreads
 #
 # Number of trap handler threads pfsetvlan should start
