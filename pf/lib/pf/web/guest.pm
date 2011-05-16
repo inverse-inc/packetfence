@@ -50,7 +50,7 @@ use pf::web::util;
 
 our $VERSION = 1.10;
 
-our $LOGIN_TEMPLATE = "guest_login.html";
+our $LOGIN_TEMPLATE = "login.html";
 our $SELF_REGISTRATION_TEMPLATE = "guest.html";
 
 our $REGISTRATION_TEMPLATE = "guest/register_guest.html";
