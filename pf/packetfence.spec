@@ -116,6 +116,8 @@ Requires: perl-YAML
 Requires: php-jpgraph-packetfence = 2.3.4
 Requires: php-ldap
 Requires: perl(Try::Tiny)
+Requires: perl(Crypt::GeneratePassword)
+Requires: perl(MIME::Lite::TT)
 Requires: perl(Cache::Cache)
 # Used by Captive Portal authentication modules
 Requires: perl(Authen::Radius)
@@ -580,6 +582,7 @@ fi
 %dir                    /usr/local/pf/lib/pf/web
                         /usr/local/pf/lib/pf/web/*.pl
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
+                        /usr/local/pf/lib/pf/web/guest.pm
                         /usr/local/pf/lib/pf/web/util.pm
 %dir                    /usr/local/pf/logs
 %doc                    /usr/local/pf/NEWS

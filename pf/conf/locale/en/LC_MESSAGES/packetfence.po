@@ -43,6 +43,9 @@ msgstr "You may only register a maximum of %s nodes!"
 msgid  "error: unable to validate credentials at the moment"
 msgstr "Unable to validate credentials at the moment"
 
+msgid "error: something went wrong creating the guest"
+msgstr "There was a problem creating the guest account."
+
 msgid  "help: provide info"
 msgstr "If you have questions about this page, contact your local support staff for assistance. Please provide the following information: "
 
@@ -225,6 +228,116 @@ msgstr "Your system has been found to be sending unsolicited commercial email (U
 
 msgid  "Your system may need to be rebuilt. Please contact your local support staff for more information."
 msgstr "Your system may need to be rebuilt. Please contact your local support staff for more information."
+
+msgid "guest management"
+msgstr "Guest management"
+
+msgid "guest registration form"
+msgstr "Guest Registration Form"
+
+msgid "guest registration instructions"
+msgstr ""
+"Please fill in all the fields below for the guest account to be created. "
+"Guests will not be able to register before arrival date or after arrival date plus duration with a one day tolerance window. "
+"Access duration will start once the guest logged into the captive portal. "
+
+msgid "Firstname"
+msgstr ""
+
+msgid "Lastname"
+msgstr ""
+
+msgid "Phone number"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Arrival Date"
+msgstr ""
+
+msgid "End Date"
+msgstr ""
+
+msgid "Access duration"
+msgstr ""
+
+msgid "Send access code by email"
+msgstr ""
+
+msgid "Print access code"
+msgstr ""
+
+msgid "Print"
+msgstr ""
+
+msgid "Back"
+msgstr ""
+
+msgid "second"
+msgid_plural "seconds"
+msgstr[0] "second"
+msgstr[1] "seconds"
+
+msgid "minute"
+msgid_plural "minutes"
+msgstr[0] "minute"
+msgstr[1] "minutes"
+
+msgid "hour"
+msgid_plural "hours"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "day"
+msgid_plural "days"
+msgstr[0] "day"
+msgstr[1] "days"
+
+msgid "week"
+msgid_plural "weeks"
+msgstr[0] "week"
+msgstr[1] "weeks"
+
+msgid "month"
+msgid_plural "months"
+msgstr[0] "month"
+msgstr[1] "months"
+
+msgid "year"
+msgid_plural "years"
+msgstr[0] "year"
+msgstr[1] "years"
+
+msgid "Invalid access duration provided"
+msgstr ""
+
+msgid "Expected on %s"
+msgstr ""
+
+msgid "Missing mandatory parameter or malformed entry."
+msgstr ""
+
+msgid "Access duration is not of an allowed value."
+msgstr ""
+
+msgid "Arrival date is not of expected format."
+msgstr ""
+
+msgid "Guest Access Code"
+msgstr ""
+
+msgid "This username and password will be valid starting %s."
+msgstr ""
+
+msgid "Once authenticated the access will be valid for %d %s."
+msgstr ""
+
+msgid "Guest successfully registered. An email with the username and password has been sent."
+msgstr ""
+
+msgid "Guest Network Access Information"
+msgstr ""
 
 msgid "If you have scripting turned off, you will not be automatically redirected. Please enable scripting or open a new browser window from time to time to see if your access was enabled."
 msgstr ""

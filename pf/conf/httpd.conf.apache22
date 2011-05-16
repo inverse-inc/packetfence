@@ -96,6 +96,7 @@ DirectoryIndex index.html index.cgi index.php
   LoadModule perl_module modules/mod_perl.so
 </IfModule>
 PerlSwitches -I%%install_dir%%/lib
+PerlChildInitHandler "sub { srand }"
  
 AddType application/x-httpd-php .php
 #<Files *.php>
@@ -198,9 +199,13 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
   RewriteCond %{REQUEST_URI} !^/favicon.ico
   RewriteCond %{REQUEST_URI} !^/msdownload/update/v3/static/trustedr/en/authrootseq.txt$
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-selfregistration.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/email_activation.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-management.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/register.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/register.+\.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/enabler.cgi
   RewriteCond %{REQUEST_URI} !^/common
   RewriteCond %{REQUEST_URI} !^/content
@@ -277,7 +282,15 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
 %%remediation-proxies%%
 
+  # Email activation clean URL to cgi conversion
+  RewriteCond %{REQUEST_URI} ^/activate/.+$
+  # [PT] here allows us to mix ScriptAlias and mod_rewrite stuff
+  RewriteRule ^/activate/([0-9a-z]+)$ https://%%hostname%%.%%domain%%/cgi-bin/email_activation.cgi?code=$1 [PT]
+
   RewriteCond %{REQUEST_URI} !^/favicon.ico
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-selfregistration.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/email_activation.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-management.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/register.+\.cgi
