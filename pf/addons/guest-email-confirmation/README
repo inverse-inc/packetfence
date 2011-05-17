@@ -45,3 +45,31 @@
 == Temporary passwords ==
  * Requires: perl(Crypt::GeneratePassword)
  * SQL in addons/guest-email-confirmation/schema-temporary-passwords.sql
+
+== Pre-registered guests by staff authenticated against AD ==
+ 1. Installed MIME::Lite::TT, Crypt::GeneratePassword
+ 2. Applied schema-temporary-passwords.sql
+ 3. Poke proper holes in Apache config
+ 4. Overload web_user_authenticate so that it'll return properties hash from auth module
+ 5. Add glue in cgi-bin/register.cgi right before pf::web::web_node_register like:
+    # CUSTOM pre-registered guests handling
+    if ($session->param("authType") eq 'preregistered_guests') {
+
+        # max 2 nodes per guest
+        if (node_pid($pid) >= 2) {
+          $logger->info("2 nodes are already registered to $pid");
+          pf::web::generate_error_page($cgi, $session, "error: only register max nodes");
+          return(0);
+        }
+
+        # set expiration
+        my $expire_in = normalize_time($auth_param->{'access_duration'});
+        $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + $expire_in ));
+        $logger->info("new guest $pid successfully authenticated. access expires at: ".$info{'unregdate'});
+
+        # categorize
+        $info{'category'} = "invite";
+    }
+
+
+
