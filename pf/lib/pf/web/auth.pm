@@ -37,7 +37,7 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT_OK = qw(list_enabled_auth_types);
+    @EXPORT_OK = qw(list_enabled_auth_types get_instance);
 }
 
 my %instanciated;
@@ -71,7 +71,7 @@ sub list_enabled_auth_types {
     
     my $pretty_names_ref = {};
     foreach my $auth_type (@auth_types) {
-        my $auth = _get_or_create($auth_type);
+        my $auth = get_instance($auth_type);
         next if (!defined($auth));
         $pretty_names_ref->{$auth_type} = $auth->getName();
     }
@@ -79,7 +79,13 @@ sub list_enabled_auth_types {
     return $pretty_names_ref;
 }
 
-sub _get_or_create {
+=item get_instance
+
+Returns the proper authentication::.. object requested. 
+Try to return from cache first or create it if it doesn't exist.
+
+=cut
+sub get_instance {
     my ($auth_type) = @_;
     my $logger = Log::Log4perl::get_logger("pf::web::auth");
     $logger->trace("authentication module requested: performing lookup or creating if not exist");

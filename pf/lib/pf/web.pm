@@ -48,7 +48,7 @@ use pf::util;
 use pf::iplog qw(ip2mac);
 use pf::node qw(node_view node_modify);
 use pf::useragent;
-use pf::web::auth qw(list_enabled_auth_types);
+use pf::web::auth; 
 
 =head1 SUBROUTINES
 
@@ -191,7 +191,7 @@ sub generate_login_page {
         }
     }
 
-    $vars->{list_authentications} = list_enabled_auth_types();
+    $vars->{list_authentications} = pf::web::auth::list_enabled_auth_types();
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
@@ -482,6 +482,8 @@ sub web_user_authenticate {
         && $cgi->param("auth") )
     {
         my $auth = $cgi->param("auth");
+
+        # validates if supplied auth type is allowed by configuration
         my @auth_choices = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
         if ( grep( { $_ eq $auth } @auth_choices ) == 0 ) {
             return ( 0, 2 );
@@ -489,11 +491,7 @@ sub web_user_authenticate {
 
         my ($authenticator, $authReturn, $err);
         try {
-            # try to import module and re-throw the error to catch if there's one
-            eval "use authentication::$auth $AUTHENTICATION_API_LEVEL";
-            die($@) if ($@);
-
-            $authenticator = new {"authentication::$auth"}();
+            $authenticator = pf::web::auth::get_instance($auth);
             # validate login and password
             ( $authReturn, $err ) = $authenticator->authenticate( $cgi->param("login"), $cgi->param("password") );
         } catch {

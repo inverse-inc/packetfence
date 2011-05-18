@@ -47,7 +47,7 @@ use pf::config;
 use pf::temporary_password 1.10;
 use pf::util;
 use pf::web;
-use pf::web::auth qw(list_enabled_auth_types);
+use pf::web::auth;
 use pf::web::util;
 
 our $VERSION = 1.10;
@@ -454,7 +454,7 @@ sub generate_login_page {
 
     $vars->{'login'} = encode_entities($cgi->param("login"));
 
-    $vars->{list_authentications} = list_enabled_auth_types();
+    $vars->{list_authentications} = pf::web::auth::list_enabled_auth_types();
 
     # showing errors
     if ( defined($err) ) {
@@ -503,11 +503,7 @@ sub auth {
 
         my ($authenticator, $authReturn, $err, $params);
         try {
-            # try to import module and re-throw the error to catch if there's one
-            eval "use authentication::$auth_module $AUTHENTICATION_API_LEVEL";
-            die($@) if ($@);
-
-            $authenticator = new {"authentication::$auth_module"}();
+            $authenticator = pf::web::auth::get_instance($auth_module);
             # validate login and password
             ($authReturn, $err, $params) = $authenticator->authenticate($cgi->param("login"), $cgi->param("password"));
         } catch {
