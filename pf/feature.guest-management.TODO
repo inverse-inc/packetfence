@@ -1,5 +1,8 @@
-Remember that this branch now is for more than just guest email activation. It covers sponsor email activation and guest pre-registration.
 TODOs
+- authentication::* improvements
+-- extract error strings out of pf::web and pf::web::guest into auth...:: with a getPrevErrorId/Str interface
+-- return hashref of auth::* properties (a la preregistered guest for the access_duration) but will also be useful to categorize nodes
+- create %%client_range%% for apache config which holds all subnets defined everywhere (or just pass %%trapping_range%%)
 - expiration of activation code isn't implemented
 - add cleanup sub in pf::email_activation called by pfmon
 - ability to specify guest access duration in pf.conf. 
@@ -11,6 +14,7 @@ TODOs
 - add pf::email_activation, pf::temporary_password to basic tests
 - review POD doc
 - refactor pf::email_activation and pf::temporary_password into pf::web::...
+- integrate SMS Authentication
 
 Before merge in trunk:
 - Re-assess all TODO, FIXME and XXX tasks
