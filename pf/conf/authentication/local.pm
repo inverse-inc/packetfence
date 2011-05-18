@@ -25,6 +25,21 @@ use pf::config;
 
 our $VERSION = 1.00;
 
+=head1 CONFIGURATION AND ENVIRONMENT
+
+=head2 Optional
+
+=over
+
+=item name
+
+Name displayed on the captive portal dropdown
+
+=back
+
+=cut
+my $name = "Local";
+
 =head1 DEPENDENCIES
 
 =over
@@ -47,8 +62,6 @@ our $VERSION = 1.00;
   return (0,2) for inability to check credentials
   return (0,1) for wrong login/password
 
-=back
-
 =cut
 sub authenticate {
   my ($this, $username, $password) = @_;
@@ -70,7 +83,21 @@ sub authenticate {
   }
 }
 
+=item * getName
+
+Returns name as configured
+
+=cut
+sub getName {
+    my ($this) = @_;
+    return $name;
+}
+
+=back
+
 =head1 AUTHOR
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 Dominik Gehl <dgehl@inverse.ca>
 

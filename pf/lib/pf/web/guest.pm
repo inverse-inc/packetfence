@@ -47,6 +47,7 @@ use pf::config;
 use pf::temporary_password 1.10;
 use pf::util;
 use pf::web;
+use pf::web::auth qw(list_enabled_auth_types);
 use pf::web::util;
 
 our $VERSION = 1.10;
@@ -453,20 +454,7 @@ sub generate_login_page {
 
     $vars->{'login'} = encode_entities($cgi->param("login"));
 
-    my @auth = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
-
-    #
-    # if no skip and one Auth type you don't need a pull down...
-    if ( scalar(@auth) == 1 ) {
-        push @{ $vars->{list_authentications} },
-            { name => 'auth', value => $auth[0] };
-    } else {
-        foreach my $auth (@auth) {
-            my $auth_name = $auth;
-            push @{ $vars->{list_authentications} },
-                { name => $auth, value => $auth };
-        }
-    }
+    $vars->{list_authentications} = list_enabled_auth_types();
 
     # showing errors
     if ( defined($err) ) {

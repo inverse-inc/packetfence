@@ -23,6 +23,21 @@ use pf::temporary_password;
 
 our $VERSION = 1.00;
 
+=head1 CONFIGURATION AND ENVIRONMENT
+
+=head2 Optional
+
+=over
+
+=item name
+
+Name displayed on the captive portal dropdown
+
+=back
+
+=cut
+my $name = "Guests";
+
 =head1 SUBROUTINES
 
 =over
@@ -37,8 +52,6 @@ our $VERSION = 1.00;
 
 returned hashref
   access_duration => access_duration value as defined in temporary table
-
-=back
 
 =cut
 sub authenticate {
@@ -60,6 +73,18 @@ sub authenticate {
 
     return (0, 2);
 }
+
+=item * getName
+
+Returns name as configured
+
+=cut
+sub getName {
+    my ($this) = @_;
+    return $name;
+}
+
+=back
 
 =head1 AUTHOR
 

@@ -6,7 +6,15 @@ pf::web::auth
 
 =head1 SYNOPSIS
 
-Interface for captive portal authentication modules
+Two responsabilities:
+
+=over
+
+=item Object interface for captive portal authentication modules
+
+=item Class methods act as a singleton holding utilities for authentication modules
+
+=back
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -21,10 +29,18 @@ use warnings;
 use diagnostics;
 
 use Log::Log4perl;
+use Try::Tiny;
 
 use pf::config;
 
-our $VERSION = $AUTHENTICATION_API_LEVEL;
+BEGIN {
+    use Exporter ();
+    our ( @ISA, @EXPORT_OK );
+    @ISA = qw(Exporter);
+    @EXPORT_OK = qw(list_enabled_auth_types);
+}
+
+my %instanciated;
 
 =head1 SUBROUTINES
 
@@ -43,6 +59,51 @@ sub new {
     my ( $class, %argv ) = @_;
     my $this = bless {}, $class;
     return $this;
+}
+
+=item list_enabled_auth_types
+
+Returns an hashref { auth name => pretty name } for all enabled modules
+
+=cut
+sub list_enabled_auth_types {
+    my @auth_types = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
+    
+    my $pretty_names_ref = {};
+    foreach my $auth_type (@auth_types) {
+        my $auth = _get_or_create($auth_type);
+        next if (!defined($auth));
+        $pretty_names_ref->{$auth_type} = $auth->getName();
+    }
+
+    return $pretty_names_ref;
+}
+
+sub _get_or_create {
+    my ($auth_type) = @_;
+    my $logger = Log::Log4perl::get_logger("pf::web::auth");
+    $logger->trace("authentication module requested: performing lookup or creating if not exist");
+
+    if (defined($instanciated{$auth_type}) && ref($instanciated{$auth_type})) {
+        return $instanciated{$auth_type};
+    } else {
+        # create the object
+        my $auth_obj;
+        try {
+            # try to import module and re-throw the error to catch if there's one
+            eval "use authentication::$auth_type $AUTHENTICATION_API_LEVEL";
+            die($@) if ($@);
+
+            $auth_obj = "authentication::$auth_type"->new();
+        } catch {
+            $logger->error("Authentication module authentication::$auth_type failed. $_");
+        };
+        if (defined($auth_obj)) {
+            $instanciated{$auth_type} = $auth_obj;
+            return $auth_obj;
+        }
+    }
+    return;
 }
 
 =back

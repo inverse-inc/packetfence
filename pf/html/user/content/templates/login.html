@@ -25,12 +25,14 @@
 <p align="center"><font face="Arial" size="+1"> <b>[% txt_page_header %]</b></font></p>
 <form method="post" action="[% post_uri %]">
 [% IF list_authentications.size == 1 %]
-<input type='hidden' name='[% list_authentications.first.name %]' value='[% list_authentications.first.value %]'>
+    [% FOREACH authentication_info IN list_authentications.pairs %]
+        <input type='hidden' name='auth' value='[% authentication_info.key %]'>
+    [% END %]
 [% ELSE %]
 <select name='auth'>
    <option value='' selected>[% txt_select_authentications %]</option>
-   [% FOREACH authentication_info IN list_authentications %]
-   <option value='[% authentication_info.value %]'>[% authentication_info.name %]</option>
+   [% FOREACH authentication_info IN list_authentications.pairs %]
+   <option value='[% authentication_info.key %]'>[% authentication_info.value %]</option>
    [% END %]
 </select>
 [% END %]

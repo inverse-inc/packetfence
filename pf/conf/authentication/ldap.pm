@@ -71,6 +71,19 @@ my $LDAPServer = "";
 my $LDAPGroupMemberKey = "memberOf";
 my $LDAPGroupDN = "";
 
+=head2 Optional
+
+=over
+
+=item name
+
+Name displayed on the captive portal dropdown
+
+=back
+
+=cut
+my $name = "LDAP";
+
 =head1 TESTING
 
 TODO you can try your LDAP query with:
@@ -117,6 +130,15 @@ LDAP servers:
 
 =over 
 
+=item * getName
+
+Returns name as configured
+
+=cut
+sub getName {
+    my ($this) = @_;
+    return $name;
+}
 =item * authenticate ($login, $password)
 
   return (1,0) for successfull authentication
@@ -124,7 +146,6 @@ LDAP servers:
   return (0,1) for wrong login/password
 
 =cut
-
 sub authenticate {
   my ($this, $username, $password) = @_;
   my $logger = Log::Log4perl::get_logger('authentication::ldap');

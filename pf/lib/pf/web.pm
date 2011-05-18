@@ -48,6 +48,7 @@ use pf::util;
 use pf::iplog qw(ip2mac);
 use pf::node qw(node_view node_modify);
 use pf::useragent;
+use pf::web::auth qw(list_enabled_auth_types);
 
 =head1 SUBROUTINES
 
@@ -190,20 +191,7 @@ sub generate_login_page {
         }
     }
 
-    my @auth = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
-
-    #
-    # if no skip and one Auth type you don't need a pull down...
-    if ( scalar(@auth) == 1 ) {
-        push @{ $vars->{list_authentications} },
-            { name => 'auth', value => $auth[0] };
-    } else {
-        foreach my $auth (@auth) {
-            my $auth_name = $auth;
-            push @{ $vars->{list_authentications} },
-                { name => $auth, value => $auth };
-        }
-    }
+    $vars->{list_authentications} = list_enabled_auth_types();
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );

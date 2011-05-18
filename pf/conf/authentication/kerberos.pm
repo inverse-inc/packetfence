@@ -35,6 +35,19 @@ Define the variables C<Krb5Realm> at the top of the module.
 
 my $Krb5Realm = 'EXAMPLE.COM';
 
+=head2 Optional
+
+=over
+
+=item name
+
+Name displayed on the captive portal dropdown
+
+=back
+
+=cut
+my $name = "Kerberos";
+
 =head1 SUBROUTINES
 
 =over
@@ -58,9 +71,21 @@ sub authenticate {
     }
 }
 
+=item * getName
+
+Returns name as configured
+
+=cut
+sub getName {
+    my ($this) = @_;
+    return $name;
+}
+
 =back
 
 =head1 AUTHOR
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 Brad Lhotsky <brad@divisionbyzero.net> 
 

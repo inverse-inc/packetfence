@@ -51,6 +51,7 @@ foreach my $auth_module (@auth_modules) {
     # subs
     can_ok($authentication, qw(
         authenticate
+        getName
         new
     ));
 }

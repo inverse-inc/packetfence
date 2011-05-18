@@ -19,7 +19,8 @@ Version <release> released on <releaseDate>
 New features
  * Flexible guest handling API (covering temporary passwords, self-registration,
    pre-registration, etc.)
- * Captive portal authentication modules are versioned and validated on startup
+ * Captive portal authentication modules are versioned, validated on startup and
+   have customizable names
 
 Enhancements
  * More start-up validation in `pfcmd checkup`
