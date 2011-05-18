@@ -1,5 +1,4 @@
 package authentication::preregistered_guests;
-
 =head1 NAME
 
 authentication::preregistered_guests
@@ -14,24 +13,15 @@ authentication::preregistered_guests
 Validates provided credentials against the temporary_password table (local guest accounts)
 
 =cut
-
 use strict;
 use warnings;
-
-use constant INSTALL_DIR => '/usr/local/pf';
-use lib INSTALL_DIR . "/lib";
-
-BEGIN {
-  use Exporter ();
-  our (@ISA, @EXPORT);
-  @ISA    = qw(Exporter);
-  @EXPORT = qw(authenticate);
-}
-
 use Log::Log4perl;
 
+use base ('pf::web::auth');
 use pf::config;
 use pf::temporary_password;
+
+our $VERSION = 1.00;
 
 =head1 SUBROUTINES
 
@@ -52,7 +42,7 @@ returned hashref
 
 =cut
 sub authenticate {
-    my ($username, $password) = @_;
+    my ($this, $username, $password) = @_;
     my $logger = Log::Log4perl::get_logger('authentication::preregistered_guests');
 
     my ($status, $access_duration) = pf::temporary_password::validate_password($username, $password);
@@ -78,6 +68,8 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 =head1 COPYRIGHT
 
 Copyright (C) 2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

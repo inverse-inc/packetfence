@@ -1,5 +1,4 @@
 package authentication::local;
-
 =head1 NAME
 
 authentication::local - htaccess file authentication
@@ -7,10 +6,7 @@ authentication::local - htaccess file authentication
 =head1 SYNOPSIS
 
   use authentication::local;
-  my ( $authReturn, $err ) = authenticate ( 
-                                $login, 
-                                $password 
-                                          );
+  my ( $authReturn, $err ) = authenticate ( $login, $password );
 
 =head1 DESCRIPTION
 
@@ -21,18 +17,25 @@ combination using the htaccess file F<conf/user.conf>
 
 use strict;
 use warnings;
-
-BEGIN {
-  use Exporter ();
-  our (@ISA, @EXPORT);
-  @ISA    = qw(Exporter);
-  @EXPORT = qw(authenticate);
-}
-
 use Apache::Htpasswd;
 use Log::Log4perl;
 
+use base ('pf::web::auth');
 use pf::config;
+
+our $VERSION = 1.00;
+
+=head1 DEPENDENCIES
+
+=over
+
+=item * Apache::Htpasswd
+
+=item * Log::Log4perl
+
+=item * pf::config
+
+=back
 
 =head1 SUBROUTINES
 
@@ -47,10 +50,8 @@ use pf::config;
 =back
 
 =cut
-
-
 sub authenticate {
-  my ($username, $password) = @_;
+  my ($this, $username, $password) = @_;
   my $logger = Log::Log4perl::get_logger('authentication::local');
   my $passwdFile = "$conf_dir/user.conf";
 
@@ -59,27 +60,15 @@ sub authenticate {
       return (0,2);
   }
 
-  my $htpasswd = new Apache::Htpasswd({
-      passwdFile => $passwdFile,
-      ReadOnly   => 1});
-  if ( (!defined($htpasswd->htCheckPassword($username, $password))) or ($htpasswd->htCheckPassword($username, $password) == 0) ) {
+  my $htpasswd = new Apache::Htpasswd({ passwdFile => $passwdFile, ReadOnly   => 1});
+  if ( (!defined($htpasswd->htCheckPassword($username, $password))) 
+      or ($htpasswd->htCheckPassword($username, $password) == 0) ) {
+
       return (0,1);
   } else {
       return (1,0);
   }
 }
-
-=head1 DEPENDENCIES
-
-=over
-
-=item * Apache::Htpasswd
-
-=item * Log::Log4perl
-
-=item * pf::config
-
-=back
 
 =head1 AUTHOR
 
@@ -87,7 +76,9 @@ Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2008 Inverse inc.
+Copyright (C) 2008-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

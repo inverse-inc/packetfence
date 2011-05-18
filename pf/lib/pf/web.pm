@@ -29,10 +29,11 @@ use warnings;
 use Date::Parse;
 use File::Basename;
 use JSON;
-use POSIX;
-use Template;
 use Locale::gettext;
 use Log::Log4perl;
+use POSIX;
+use Template;
+use Try::Tiny;
 
 BEGIN {
     use Exporter ();
@@ -493,24 +494,28 @@ sub web_user_authenticate {
         && $cgi->param("auth") )
     {
         my $auth = $cgi->param("auth");
-        my @auth_choices
-            = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
+        my @auth_choices = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
         if ( grep( { $_ eq $auth } @auth_choices ) == 0 ) {
             return ( 0, 2 );
         }
 
-        #validate login and password
-        eval "use authentication::$auth";
-        if ($@) {
-            $logger->error("ERROR loading authentication::$auth $@");
-            return ( 0, 2 );
-        }
-        my ( $authReturn, $err )
-            = authenticate( $cgi->param("login"), $cgi->param("password") );
-        if ( $authReturn == 1 ) {
+        my ($authenticator, $authReturn, $err);
+        try {
+            # try to import module and re-throw the error to catch if there's one
+            eval "use authentication::$auth $AUTHENTICATION_API_LEVEL";
+            die($@) if ($@);
 
+            $authenticator = new {"authentication::$auth"}();
+            # validate login and password
+            ( $authReturn, $err ) = $authenticator->authenticate( $cgi->param("login"), $cgi->param("password") );
+        } catch {
+            $logger->error("Authentication module authentication::$auth failed. $_");
+        };
+        if (!defined($authReturn)) {
+            return ( 0, 2 );
+        } elsif( $authReturn == 1 ) {
             #save login into session
-            $session->param( "login",    $cgi->param("login") );
+            $session->param( "login", $cgi->param("login") );
             $session->param( "authType", $auth );
         }
         return ( $authReturn, $err );

@@ -16,6 +16,17 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <release> released on <releaseDate>
 
+New features
+ * Flexible guest handling API (covering temporary passwords, self-registration,
+   pre-registration, etc.)
+ * Captive portal authentication modules are versioned and validated on startup
+
+Enhancements
+ * More tests
+
+--------------------------------------------------------------------------------
+Version <release> released on <releaseDate>
+
 New Hardware Support
  * AeroHIVE AP Access Points
  * Dlink DGS 3200 switch

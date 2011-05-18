@@ -28,11 +28,12 @@ use Date::Parse;
 use Encode;
 use File::Basename;
 use HTML::Entities;
+use Locale::gettext;
+use Log::Log4perl;
 use MIME::Lite::TT;
 use POSIX;
 use Template;
-use Locale::gettext;
-use Log::Log4perl;
+use Try::Tiny;
 
 BEGIN {
     use Exporter ();
@@ -512,18 +513,23 @@ sub auth {
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
     if ( $cgi->param("login") && $cgi->param("password") ) {
 
-        #validate login and password
-        eval "use authentication::$auth_module";
-        if ($@) {
-            $logger->error("ERROR loading authentication::$auth_module $@");
+        my ($authenticator, $authReturn, $err, $params);
+        try {
+            # try to import module and re-throw the error to catch if there's one
+            eval "use authentication::$auth_module $AUTHENTICATION_API_LEVEL";
+            die($@) if ($@);
+
+            $authenticator = new {"authentication::$auth_module"}();
+            # validate login and password
+            ($authReturn, $err, $params) = $authenticator->authenticate($cgi->param("login"), $cgi->param("password"));
+        } catch {
+            $logger->error("Authentication module authentication::$auth_module failed. $_");
+        };
+        if (!defined($authReturn)) {
             return ( 0, 2 );
-        }
-
-        my ( $authReturn, $err, $params ) = authenticate( $cgi->param("login"), $cgi->param("password") );
-        if ( $authReturn == 1 ) {
-
+        } elsif( $authReturn == 1 ) {
             #save login into session
-            $session->param( "login",    $cgi->param("login") );
+            $session->param( "login", $cgi->param("login") );
         }
         return ( $authReturn, $err, $params );
     }

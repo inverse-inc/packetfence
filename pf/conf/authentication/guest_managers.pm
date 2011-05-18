@@ -1,5 +1,4 @@
 package authentication::guest_managers;
-
 =head1 NAME
 
 authentication::guest_managers - file authentication on the conf/guest-managers.conf file
@@ -9,21 +8,30 @@ authentication::guest_managers - file authentication on the conf/guest-managers.
   use authentication::guest_managers;
   my ( $authReturn, $err ) = authenticate ( $login, $password );
 
+This module extends pf::web::auth
+
+=head1 DEPENDENCIES
+
+=over
+
+=item * Apache::Htpasswd
+
+=item * Log::Log4perl
+
+=item * pf::config
+
+=back
+
 =cut
 use strict;
 use warnings;
-
-BEGIN {
-  use Exporter ();
-  our (@ISA, @EXPORT);
-  @ISA    = qw(Exporter);
-  @EXPORT = qw(authenticate);
-}
-
 use Apache::Htpasswd;
 use Log::Log4perl;
 
+use base ('pf::web::auth');
 use pf::config;
+
+our $VERSION = 1.00;
 
 =head1 SUBROUTINES
 
@@ -39,7 +47,7 @@ use pf::config;
 
 =cut
 sub authenticate {
-  my ($username, $password) = @_;
+  my ($this, $username, $password) = @_;
   my $logger = Log::Log4perl::get_logger('authentication::guest_managers');
   my $passwdFile = "$conf_dir/guest-managers.conf";
 
@@ -60,18 +68,6 @@ sub authenticate {
   }
 }
 
-=head1 DEPENDENCIES
-
-=over
-
-=item * Apache::Htpasswd
-
-=item * Log::Log4perl
-
-=item * pf::config
-
-=back
-
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
@@ -79,6 +75,8 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 =head1 COPYRIGHT
 
 Copyright (C) 2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
