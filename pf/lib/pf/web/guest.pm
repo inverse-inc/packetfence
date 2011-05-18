@@ -449,6 +449,7 @@ sub generate_login_page {
             { name => gettext('IP'),  value => $ip },
             { name => gettext('MAC'), value => $mac }
         ],
+        txt_select_authentication => gettext("select authentication"),
         post_uri => $post_uri,
     };
 

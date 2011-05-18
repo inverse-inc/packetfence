@@ -69,7 +69,6 @@ Requires: net-tools
 Requires: net-snmp >= 5.3.2.2
 Requires: mysql, perl-DBD-mysql
 Requires: perl >= 5.8.8, perl-suidperl
-Requires: perl-Apache-Htpasswd
 Requires: perl-Bit-Vector
 Requires: perl-CGI-Session, perl(JSON)
 Requires: perl-Class-Accessor
@@ -118,8 +117,9 @@ Requires: php-ldap
 Requires: perl(Try::Tiny)
 Requires: perl(Crypt::GeneratePassword)
 Requires: perl(MIME::Lite::TT)
-Requires: perl(Cache::Cache)
+Requires: perl(Cache::Cache), perl(HTML::Parser)
 # Used by Captive Portal authentication modules
+Requires: perl(Apache::Htpasswd)
 Requires: perl(Authen::Radius)
 Requires: perl(Authen::Krb5::Simple)
 # Required for importation feature

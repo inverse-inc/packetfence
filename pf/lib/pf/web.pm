@@ -28,6 +28,7 @@ use warnings;
 
 use Date::Parse;
 use File::Basename;
+use HTML::Entities;
 use JSON;
 use Locale::gettext;
 use Log::Log4perl;
@@ -177,8 +178,7 @@ sub generate_login_page {
         txt_login       => gettext('Login'),
         txt_password    => gettext('Password'),
         txt_page_title  => gettext('Login'),
-        txt_select_authentications =>
-            gettext("register: select authentications"),
+        txt_select_authentication => gettext("select authentication"),
         txt_page_header => gettext('Login')
     };
     if ( defined($err) ) {
@@ -191,6 +191,11 @@ sub generate_login_page {
         }
     }
 
+    # return login
+    $vars->{'login'} = encode_entities($cgi->param("login"));
+
+    # authentication
+    $vars->{selected_auth} = encode_entities($cgi->param("auth")) || $Config{'registration'}{'default_auth'}; 
     $vars->{list_authentications} = pf::web::auth::list_enabled_auth_types();
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );

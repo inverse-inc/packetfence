@@ -21,8 +21,11 @@ New features
    pre-registration, etc.)
  * Captive portal authentication modules are versioned, validated on startup and
    have customizable names
+ * New default_auth parameter will be the default authentication module selected
+   if you have multiple authentication back-end enabled in auth
 
 Enhancements
+ * Captive portal usability improvements
  * More start-up validation in `pfcmd checkup`
  * More tests
 
