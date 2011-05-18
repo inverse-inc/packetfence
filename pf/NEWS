@@ -22,6 +22,7 @@ New features
  * Captive portal authentication modules are versioned and validated on startup
 
 Enhancements
+ * More start-up validation in `pfcmd checkup`
  * More tests
 
 --------------------------------------------------------------------------------
