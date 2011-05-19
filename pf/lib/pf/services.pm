@@ -775,7 +775,7 @@ sub generate_radiusd_conf {
     my $logger = Log::Log4perl::get_logger('pf::services');
     $logger->info("generating RADIUS nas table");
 
-    require pf::freeradius;
+    use pf::freeradius;
 
     freeradius_populate_nas_config();
 
