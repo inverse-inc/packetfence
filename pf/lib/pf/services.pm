@@ -123,7 +123,7 @@ sub service_ctl {
                         && ( isenabled( $Config{'vlan'}{'named'} ) )
                     )
                     );
-                if ( $daemon =~ /(named|dhcpd|snort|httpd|snmptrapd)/
+                if ( $daemon =~ /(named|dhcpd|snort|httpd|radiusd|snmptrapd)/
                     && !$quick )
                 {                    my $confname = "generate_" . $daemon . "_conf";
                     $logger->info(
@@ -133,6 +133,7 @@ sub service_ctl {
                         'dhcpd' => \&generate_dhcpd_conf,
                         'snort' => \&generate_snort_conf,
                         'httpd' => \&generate_httpd_conf,
+                        'radiusd' => \&generate_radiusd_conf,
                         'snmptrapd' => \&generate_snmptrapd_conf
                     );
                     if ( $serviceHash{$daemon} ) {
@@ -765,6 +766,22 @@ sub generate_dhcpd_reg {
     }
     return 1;
 }
+
+=item * generate_radiusd_conf
+
+=cut
+
+sub generate_radiusd_conf {
+    my $logger = Log::Log4perl::get_logger('pf::services');
+    $logger->info("generating RADIUS nas table");
+
+    require pf::freeradius;
+
+    freeradius_populate_nas_config();
+
+    return 1;
+}
+
 
 =item * generate_snort_conf
 
