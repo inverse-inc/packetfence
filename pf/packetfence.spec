@@ -264,14 +264,15 @@ cd $RPM_BUILD_ROOT/usr/local/pf/db
 ln -s pf-schema-2.2.0.sql ./pf-schema.sql
 
 #httpd.conf symlink
-#TODO: isn't it stupid to decide what Apache version is there at rpm build time?
+#We dropped support for pre 2.2.0 but keeping the symlink trick alive since Apache 2.4 is coming
 cd $RPM_BUILD_ROOT/usr/local/pf/conf
-if (/usr/sbin/httpd -v | egrep 'Apache/2\.[2-9]\.' > /dev/null)
-then
-  ln -s httpd.conf.apache22 ./httpd.conf
-else
-  ln -s httpd.conf.pre_apache22 ./httpd.conf
-fi
+ln -s httpd.conf.apache22 ./httpd.conf
+#if (/usr/sbin/httpd -v | egrep 'Apache/2\.[2-9]\.' > /dev/null)
+#then
+#  ln -s httpd.conf.apache22 ./httpd.conf
+#else
+#  ln -s httpd.conf.pre_apache22 ./httpd.conf
+#fi
 
 cd $curdir
 #end create symlinks
@@ -513,7 +514,6 @@ fi
 %config                 /usr/local/pf/conf/dhcpd_vlan.conf
 %config                 /usr/local/pf/conf/httpd.conf
 %config                 /usr/local/pf/conf/httpd.conf.apache22
-%config                 /usr/local/pf/conf/httpd.conf.pre_apache22
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
 %config(noreplace)      /usr/local/pf/conf/named-registration.ca

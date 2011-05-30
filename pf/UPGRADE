@@ -7,6 +7,9 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <trunk-release>:
 
+    - Support for Apache prior to version 2.2.0 dropped
+    Upgrade your Apache.
+
     - Intrusive changes to Captive Portal
     It is recommended that you redo your customization from scratch instead of 
     trying to adapt it.

@@ -15,12 +15,16 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <trunk-release> released on <releaseDate>
 
+Compatibility notice
+ * Removed support for Apache prior to version 2.2.0. You had 6 years to update.
+
 New features
  * Major update to the captive portal look and feel! More modern and 
    professional. Cleaner XHTML/CSS makes customization a lot easier than before.
    Also, all user-visible URLs are now clean and short (no more cgi-bin/... 
    clutter). (#980, #982)
  * Remediation pages are translatable (#822)
+
 
 --------------------------------------------------------------------------------
 Version <2.2-release> released on <releaseDate>
