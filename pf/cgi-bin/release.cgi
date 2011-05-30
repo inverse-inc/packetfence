@@ -75,7 +75,7 @@ if (defined($cgi->param('mode'))) {
             my $cmd = $bin_dir."/pfcmd manage freemac $mac";
             my $output = qx/$cmd/;
           }
-          pf::web::generate_release_page($cgi, $session, $destination_url);
+          pf::web::generate_release_page($cgi, $session, $destination_url, $mac);
         } else {
           print $cgi->redirect("/cgi-bin/redir.cgi?destination_url=$destination_url");
         }
@@ -91,7 +91,7 @@ if (defined($cgi->param('mode'))) {
         ."/cgi-bin/release.cgi?mode=release&destination_url=$destination_url"
       );
     } else {
-      pf::web::generate_release_page($cgi, $session, $destination_url);
+      pf::web::generate_release_page($cgi, $session, $destination_url, $mac);
     }
     exit(0);
   }
@@ -178,10 +178,10 @@ if ($grace != -1) {
     if ($cgi->https()) {
       print $cgi->redirect(
         "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-        ."/cgi-bin/release.cgi?mode=release&destination_url=$destination_url"
+        ."/access?destination_url=$destination_url"
       );
     } else {
-      pf::web::generate_release_page($cgi, $session, $destination_url);
+      pf::web::generate_release_page($cgi, $session, $destination_url, $mac);
     }
     exit(0);
   } else {
@@ -211,7 +211,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2008-2010 Inverse inc.
+Copyright (C) 2008-2011 Inverse inc.
 
 =head1 LICENSE
     

@@ -125,7 +125,7 @@ Requires: perl(Text::CSV)
 Requires: perl(Text::CSV_XS)
 # Required for testing
 # TODO: I noticed that we provide perl-Test-MockDBI in our repo, maybe we made a poo poo with the deps
-BuildRequires: perl(Test::MockModule), perl(Test::MockDBI), perl(Test::Perl::Critic)
+BuildRequires: perl(Test::MockModule), perl(Test::MockDBI), perl(Test::Perl::Critic), perl(Test::WWW::Mechanize)
 BuildRequires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception), perl(Test::NoWarnings)
 
 %description
@@ -546,12 +546,11 @@ fi
 %dir                    /usr/local/pf/html/user/3rdparty
                         /usr/local/pf/html/user/3rdparty/timerbar.js
 %dir                    /usr/local/pf/html/user/content
-%config(noreplace)      /usr/local/pf/html/user/content/footer.html
-%config(noreplace)      /usr/local/pf/html/user/content/header.html
+%config(noreplace)      /usr/local/pf/html/user/content/mobile.css
+%config(noreplace)      /usr/local/pf/html/user/content/styles.css
 %dir                    /usr/local/pf/html/user/content/images
                         /usr/local/pf/html/user/content/images/*
-                        /usr/local/pf/html/user/content/index.php
-                        /usr/local/pf/html/user/content/style.php
+                        /usr/local/pf/html/user/content/remediation.php
 %dir                    /usr/local/pf/html/user/content/templates
 %config(noreplace)      /usr/local/pf/html/user/content/templates/*
 %dir                    /usr/local/pf/html/user/content/violations

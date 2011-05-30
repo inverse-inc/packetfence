@@ -24,6 +24,9 @@
  * @author      Dominik Gehl <dgehl@inverse.ca>
  * @copyright   2008-2011 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php    GPL
+ *
+ * TODO: next step is to migrate this file into proper Perl/TT 
+ *
  */
 
   # if we view this page through Web Admin vhost it means we are in preview mode
@@ -65,6 +68,14 @@
     }
   }
 
+  # grab the logo from config
+  $PFCMD=dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/bin/pfcmd';
+  $command = 'config get general.logo';
+  exec("ARGS=".escapeshellarg($command)." $PFCMD 2>&1", $config);
+  # grabbing only what I'm interested in
+  list(, $logo_src ) = explode('|',array_shift($config));
+
+  # i18n
   setlocale(LC_ALL, 'en_US');
   bindtextdomain("packetfence", "/usr/local/pf/conf/locale");
   textdomain("packetfence");
@@ -77,78 +88,8 @@
 
   include("$template_path/$template.php");
 
-  $logo_src = "content/images/biohazard-sm.gif";
-
-  if(file_exists('header.html')){
-    $custom_header = file_get_contents('header.html'); 
-  }
-
-  if(file_exists('footer.html')){
-    $custom_footer = file_get_contents('footer.html'); 
-  }
-
   $preview ? $title = "Preview: Quarantine Established!" : $title = "Quarantine Established!";
 
+  include("templates/remediation.html");
+
 ?>
-
-<html>
-<title><?php echo _($title)?></title>
-
-<head>
-    <? $abs_url="https://$_SERVER[HTTP_HOST]"; ?>
-    <link rel="stylesheet" href="<?=$abs_url?>/content/style.php" type="text/css">
-</head>
-
-
-<body>
-<div id='div_body'>
-
-<div id='header'>
-    <center>
-    <table class='header'>
-        <tr>
-            <td class='logo'>
-                <img src='<?=$abs_url?>/<?=$logo_src?>' id='logo'>  
-            </td>
-            <td class='title' id='title'>
-<?php echo _("Quarantine Established!") ?>
-            </td>
-        </tr>
-    </table>
-    </center>
-</div>
-
-<?=$custom_header?>
-
-<div id='description'>
-    <p id='description_header' class='sub_header'>
-      <?php echo isset($description_header) ? _($description_header) : ""; ?>
-    </p>
-    <span class='description_text'><?php echo isset($description_text) ? _($description_text) : ""; ?></span>
-</div>
-
-<div id='remediation'>
-    <p class='sub_header'><?php echo isset($remediation_header) ? _($remediation_header) : ""; ?></p>
-    <span class='remediation_text'><?php echo isset($remediation_text) ? _($remediation_text) : ""; ?> </span>
-</div>
-
-<div id='user_info'>
-    <p class='sub_header'><?php echo _("Additional Assistance") ?></p>
-
-    <?php echo _("If your network connectivity becomes permanently disabled or you are unable to follow the instructions above, please contact your local IT support staff for assistance.") ?>
-
-    <?php echo _("The following information should be provided upon request:") ?>
-
-    <ul>
-        <li><?php echo _("IP Address") ?> - <?=$user_data['ip']?></li>
-        <li><?php echo _("MAC Address") ?> - <?=strtoupper($user_data['mac'])?></li>
-    
-    </ul>
-
-</div>
-<?=$custom_footer?>
-
-</div>
-</body>
-
-</html>

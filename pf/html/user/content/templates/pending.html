@@ -1,14 +1,4 @@
-<html>
-
-<head>
-  <title>[% txt_page_title %]</title>
-<style>
-<!--
-.bio         { }
--->
-</style>
-<script src="/common/prototype.js" type="text/javascript"></script>
-<script src="/common/pf.js" type="text/javascript"></script>
+[% INCLUDE header.html %]
 <script type="text/javascript">
 var txt_ie = "[% txt_ie %]";
 // once the page is loaded
@@ -24,48 +14,16 @@ document.observe("dom:loaded", function() {
   );
 });
 </script>
-</head>
 
-<body>
-
-<center>
-  <table border="0" width="650" id="table2">
-    <tr>
-      <td align="center">
-        <img border="0" src="[% logo %]">
-      <td>
-    </tr>
-    <tr>
-      <td align="left" class="bio">
-
-<p align="center"><font face="Arial" size="+1"><b>[% txt_page_header %]</b></font></p>
-<p align="left">
-<font face="Arial">
-  Your registration is pending approval. Once approved you will be automatically redirected.
-  <noscript>
-    If you have scripting turned off, you will not be automatically redirected. 
-    Please enable scripting or open a new browser window from time to time to see if your access was enabled.
-  </noscript>
-</font>
-</p>
-<p align="center" id="browser_notes"></p>
-<p align="left">
-<font face="Arial">[% txt_help %]
-<ul>
-  [%  FOREACH txt_help_info IN list_help_info %]
-  <li>[% txt_help_info.name %]: [% txt_help_info.value %]</li>
-  [%  END %]
-</ul>
-</font>
-</p>
-
-      </td>
-    </tr>
-  </table>
-</center>
+        <div id="about">
+          <img src="content/images/lock.png" alt="You are not authorized" />
+          <h1>[% txt_page_header %]</h1>
+          <p>[% txt_pending %]</p>
+          <p id="browser_notes"></p>
+          <noscript><p>[% txt_noscript %]</p></noscript>
+        </div>
 
 [%# DO NOT REMOVE! REQUIRED FOR NETWORK ACCESS DETECTION %]
 <div id="internet-detection" style="display: none;"><img id="netdetect"/></div>
-</body>
 
-</html>
+[% INCLUDE footer.html %]

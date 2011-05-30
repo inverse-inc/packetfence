@@ -112,9 +112,15 @@ if ($violation){
 #
 my $unreg = node_unregistered($mac);
 if ($unreg && isenabled($Config{'trapping'}{'registration'})){
-  $logger->info("$mac redirected to registration page");
-  pf::web::generate_registration_page($cgi, $session, $destination_url,$mac,1);
-  exit(0);
+  if ($Config{'registration'}{'nbregpages'} == 0) {
+    $logger->info("$mac redirected to authentication page");
+    pf::web::generate_login_page($cgi, $session, $destination_url, $mac);
+    exit(0);
+  } else {
+    $logger->info("$mac redirected to multi-page registration process");
+    pf::web::generate_registration_page($cgi, $session, $destination_url, $mac);
+    exit(0);
+  }
 }
 
 #if node is pending show pending page
@@ -124,7 +130,7 @@ if (defined($node_info) && $node_info->{'status'} eq $pf::node::STATUS_PENDING) 
   if ($cgi->https()) {
     print $cgi->redirect(
         "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-        ."/cgi-bin/redir.cgi?destination_url=$destination_url"
+        ."/captive-portal?destination_url=$destination_url"
     );
   } else {
     pf::web::generate_pending_page($cgi, $session, $destination_url, $mac);

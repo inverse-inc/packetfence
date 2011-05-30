@@ -2,7 +2,11 @@
 
 =head1 NAME
 
-register.cgi - Handles captive-portal registration
+register.cgi 
+
+=head1 SYNOPSYS
+
+Handles captive-portal authentication, /status, de-registration, multiple registration pages workflow and viewing AUP
 
 =cut
 use CGI::Carp qw( fatalsToBrowser );
@@ -66,103 +70,106 @@ foreach my $param($cgi->param()) {
   $params{$param} = $cgi->param($param);
 }
 
-if (defined($params{'mode'})) {
-  if ($params{'mode'} eq "register") {
-    my ($auth_return,$err) = pf::web::web_user_authenticate($cgi, $session);
-    if ($auth_return != 1) {
-      pf::web::generate_login_page($cgi, $session, $cgi->script_name()."?mode=register", $destination_url, $err);
-      exit(0);
-    }
+if (defined($params{'username'}) && $params{'username'} ne '') {
 
-    my $maxnodes = 0;
-    $maxnodes = $Config{'registration'}{'maxnodes'} if (defined $Config{'registration'}{'maxnodes'});
-    my $pid = $session->param("login");
+  my ($auth_return,$err) = pf::web::web_user_authenticate($cgi, $session);
+  if ($auth_return != 1) {
+    $logger->trace("authentication failed for $mac");
+    pf::web::generate_login_page($cgi, $session, $destination_url, $mac, $err);
+    exit(0);
+  }
 
-    my $node_count = 0;
-    $node_count = node_pid($pid) if ($pid ne '1');
+  my $maxnodes = 0;
+  $maxnodes = $Config{'registration'}{'maxnodes'} if (defined $Config{'registration'}{'maxnodes'});
+  my $pid = $session->param("username");
 
-    if ($pid ne '1' && $maxnodes !=0 && $node_count >= $maxnodes ) {
-      $logger->info("$maxnodes are already registered to $pid");
-      pf::web::generate_error_page($cgi, $session, "error: only register max nodes");
-      return(0);
-    }
-   
-    pf::web::web_node_register($cgi, $session, $mac, $pid, %info);
+  my $node_count = 0;
+  $node_count = node_pid($pid) if ($pid ne '1');
 
-    my $count = violation_count($mac);
+  if ($pid ne '1' && $maxnodes !=0 && $node_count >= $maxnodes ) {
+    $logger->info("$maxnodes are already registered to $pid");
+    pf::web::generate_error_page($cgi, $session, "error: only register max nodes");
+    return(0);
+  }
+ 
+  pf::web::web_node_register($cgi, $session, $mac, $pid, %info);
 
-    if ($count == 0) {
-      if ($Config{'network'}{'mode'} =~ /arp/i) {
-        my $cmd = $bin_dir."/pfcmd manage freemac $mac";
-        my $output = qx/$cmd/;
-      }
-      # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
-      if ($cgi->https()) {  
-        print $cgi->redirect(
-          "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-          ."/cgi-bin/register.cgi?mode=release&destination_url=$destination_url"
-        );
-      } else {
-        pf::web::generate_release_page($cgi, $session, $destination_url);
-      }
-      exit(0);
-    } else {
-      print $cgi->redirect("/cgi-bin/redir.cgi?destination_url=$destination_url");
-      $logger->info("more violations yet to come for $mac");
-    }
+  my $count = violation_count($mac);
 
-  } elsif ($params{'mode'} eq "next_page") {
-    my $pageNb = int($params{'page'});
-    if (($pageNb > 1) && ($pageNb <= $Config{'registration'}{'nbregpages'})) {
-      pf::web::generate_registration_page($cgi, $session, $destination_url, $mac,$pageNb);
-    } else {
-      pf::web::generate_error_page($cgi, $session, "error: invalid page number");
-    }
-  } elsif ($params{'mode'} eq "status") {
-    if (trappable_ip($ip)) {
-      if (defined($params{'json'})) {
-        pf::web::generate_status_json($cgi, $session, $mac);
-      } else {
-        pf::web::generate_status_page($cgi, $session, $mac);
-      }
-    } else {
-      pf::web::generate_error_page($cgi, $session, "error: not trappable IP");
-    }
-  } elsif ($params{'mode'} eq "deregister") {
-    my ($auth_return,$err) = pf::web::web_user_authenticate($cgi, $session);
-    if ($auth_return != 1) {
-      pf::web::generate_login_page($cgi, $session, $cgi->script_name()."?mode=deregister", $destination_url, $err);
-      exit(0);
-    }
-    my $node_info = node_view($mac);
-    my $pid = $node_info->{'pid'};
-    if ($session->param("login") eq $pid) {
-      #node_deregister($mac);
-      #trapmac($mac);
-      my $cmd = $bin_dir."/pfcmd manage deregister $mac";
+  if ($count == 0) {
+    if ($Config{'network'}{'mode'} =~ /arp/i) {
+      my $cmd = $bin_dir."/pfcmd manage freemac $mac";
       my $output = qx/$cmd/;
-      $logger->info("calling $bin_dir/pfcmd  manage deregister $mac");
-      print $cgi->redirect("/cgi-bin/register.cgi");
-    } else {
-      pf::web::generate_error_page($cgi, $session, "error: access denied not owner");
     }
-  } elsif ($params{'mode'} eq "release") {
     # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
-    if ($cgi->https()) {
+    if ($cgi->https()) {  
       print $cgi->redirect(
         "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-        ."/cgi-bin/register.cgi?mode=release&destination_url=$destination_url"
+        ."/access?destination_url=$destination_url"
       );
     } else {
-      pf::web::generate_release_page($cgi, $session, $destination_url);
+      pf::web::generate_release_page($cgi, $session, $destination_url, $mac);
     }
     exit(0);
-
-  }  else {
-    pf::web::generate_error_page($cgi, $session, "error: incorrect mode");
+  } else {
+    print $cgi->redirect("/captive-portal?destination_url=$destination_url");
+    $logger->info("more violations yet to come for $mac");
   }
+
+# TODO this workflow is unsupported right now
+} elsif (defined($params{'mode'}) && $params{'mode'} eq "next_page") {
+  my $pageNb = int($params{'page'});
+  if (($pageNb > 1) && ($pageNb <= $Config{'registration'}{'nbregpages'})) {
+    pf::web::generate_registration_page($cgi, $session, $destination_url, $mac, $pageNb);
+  } else {
+    pf::web::generate_error_page($cgi, $session, "error: invalid page number");
+  }
+} elsif (defined($params{'mode'}) && $params{'mode'} eq "status") {
+  if (trappable_ip($ip)) {
+    if (defined($params{'json'})) {
+      pf::web::generate_status_json($cgi, $session, $mac);
+    } else {
+      pf::web::generate_status_page($cgi, $session, $mac);
+    }
+  } else {
+    pf::web::generate_error_page($cgi, $session, "error: not trappable IP");
+  }
+} elsif (defined($params{'mode'}) && $params{'mode'} eq "deregister") {
+  my ($auth_return,$err) = pf::web::web_user_authenticate($cgi, $session);
+  if ($auth_return != 1) {
+    pf::web::generate_login_page($cgi, $session, $destination_url, $mac, $err);
+    exit(0);
+  }
+  my $node_info = node_view($mac);
+  my $pid = $node_info->{'pid'};
+  if ($session->param("username") eq $pid) {
+    #node_deregister($mac);
+    #trapmac($mac);
+    my $cmd = $bin_dir."/pfcmd manage deregister $mac";
+    my $output = qx/$cmd/;
+    $logger->info("calling $bin_dir/pfcmd  manage deregister $mac");
+    print $cgi->redirect("/cgi-bin/register.cgi");
+  } else {
+    pf::web::generate_error_page($cgi, $session, "error: access denied not owner");
+  }
+} elsif (defined($params{'mode'}) && $params{'mode'} eq "release") {
+  # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
+  if ($cgi->https()) {
+    print $cgi->redirect(
+      "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
+      ."/access?destination_url=$destination_url"
+    );
+  } else {
+    pf::web::generate_release_page($cgi, $session, $destination_url, $mac);
+  }
+  exit(0);
+} elsif (defined($params{'mode'}) && $params{'mode'} eq "aup") {
+  pf::web::generate_aup_standalone_page($cgi, $session, $mac);
+  exit(0);
+} elsif (defined($params{'mode'})) {
+  pf::web::generate_error_page($cgi, $session, "error: incorrect mode");
 } else {
-  pf::web::generate_registration_page($cgi, $session, $destination_url, $mac,1);
+  pf::web::generate_login_page($cgi, $session, $destination_url, $mac);
 }
 
 =head1 AUTHOR
@@ -175,7 +182,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2008-2010 Inverse inc.
+Copyright (C) 2008-2011 Inverse inc.
 
 =head1 LICENSE
     

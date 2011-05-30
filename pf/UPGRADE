@@ -5,6 +5,20 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to <trunk-release>:
+
+    - Intrusive changes to Captive Portal
+    It is recommended that you redo your customization from scratch instead of 
+    trying to adapt it.
+    Among other things:
+     - Changes to all templates, cgi-bin/ scripts and pf::web core code
+     - All remediation URLs have changed from /content/index.php to 
+       /content/remediation.php. Make sure to update your conf/violations.conf!
+     - All URLs are now clean URLs translated by Apache's mod_rewrite config
+     - Default workflow now brings you to the login page (no more registration
+       click-through unless you adjust nbregpages in configuration)
+     - Default logo changed to packetfence-cp.png (was packetfence.png)
+
 o Upgrading from a version prior to 2.2.0:
 
     - Database schema update
