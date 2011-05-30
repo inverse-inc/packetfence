@@ -18,6 +18,12 @@ The hardware should support it.
 
 802.1X support was never tested by Inverse.
 
+=item Firmware 
+
+12.2(50)SE1 has been reported to work fine
+
+12.2(25)SEC1 has issues
+
 =back
 
 =cut

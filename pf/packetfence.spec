@@ -425,6 +425,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/addons/database-backup-and-maintenance.sh
 %dir                    /usr/local/pf/addons/freeradius-integration/
                         /usr/local/pf/addons/freeradius-integration/*
+%attr(0755, pf, pf)	/usr/local/pf/addons/freeradius-watchdog.sh
 %dir                    /usr/local/pf/addons/high-availability/
                         /usr/local/pf/addons/high-availability/*
 %dir                    /usr/local/pf/addons/integration-testing/
@@ -624,6 +625,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Mon May 15 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Added file freeradius-watchdog.sh
+
 * Thu May 03 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 2.2.0-2
 - Package rebuilt to resolve issue #1212
 

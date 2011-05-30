@@ -27,9 +27,11 @@ Enhancements
  * New DHCP fingerprint for Cisco/Linksys, Aruba, 3Com switch, HTC Android and
    Konica Minolta MFP's
  * Warning avoidance
+ * New FreeRADIUS watchdog script in addons
 
 Bug fixes
  * Re-introduced MAC Authentication and 802.1X support in Cisco 3560, 3750
+ * Fixed expire deadline automatic un-registration (#865)
  * Updated Admin Guide to reflect proper method calls for custom VLAN assignment
  * Fixed Nortel switches problems on some models / firmwares
  * Fixed installer errors (#1217)
