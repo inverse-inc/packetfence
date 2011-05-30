@@ -1,0 +1,86 @@
+<html>
+
+<head>
+<title>[%txt_page_title %]</title>
+<style>
+<!--
+.bio         { }
+-->
+</style>
+</head>
+
+<body>
+
+<center>
+  <table border="0" width="650" id="table2">
+    <tr>
+      <td align="center">
+      <img border="0" src="[% logo %]">
+      <td>
+    </tr>
+    <tr>
+      <td align="center" class="bio">
+
+        <p align="center"><font face="Arial" size="+1"><b>[% txt_page_header %]</b></font></p>
+
+        <form method="post" action="[% post_uri %]">
+
+          <p>[% txt_instructions %]</p>
+
+          <div id="login">
+            <fieldset>
+              <div id="guest">
+                <table id="userInfo" class="form">
+                  <tr><td colspan=2><span style="color: red;">[% txt_error %]</span></td></tr>
+                  <tr>
+                    <th valign="top" nowrap><label for="name">[% txt_firstname %]</label></th>
+                    <td valign="top"><input type="text" name="firstname" value="[% firstname %]" /></td>
+                  </tr>
+                  <tr>
+                    <th valign="top" nowrap><label for="name">[% txt_lastname %]</label></th>
+                    <td valign="top"><input type="text" name="lastname" value="[% lastname %]" /></td>
+                  </tr>
+                  <tr>
+                    <th valign="top" nowrap><label for="phone">[% txt_phone %]</label></th>
+                    <td valign="top"><input type="text" name="phone" value="[% phone %]" /></td>
+                  </tr>
+                  <tr>
+                    <th valign="top" nowrap><label for="email">[% txt_email %]</label></th>
+                    <td valign="top"><input type="text" name="email" value="[% email %]" /></td>
+                  </tr>
+                  <tr>
+                    <th valign="top" nowrap><label for="arrival_date">[% txt_arrival %]</label></th>
+                    <td valign="top"><input type="text" name="arrival_date" value="[% arrival_date %]" />
+                      <em>[% txt_arrival_format %]</em>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th valign="top" nowrap><label for="duration">[% txt_access_duration %]</label></th>
+                    <td valign="top">
+                      <select name="access_duration">
+                      <!-- facilitate default selection -->
+   [% FOREACH d IN duration.keys.nsort %]
+   <option [% IF default_duration == d %]selected [% END %]value='[% d %]'>[% duration.$d %]</option>
+   [% END %]
+                      </select>
+
+                    </td>
+                  </tr>
+                </table>
+                <input type="submit" name="action_print" value="[% txt_button_print %]" class="submitButton" />
+                <input type="submit" name="action_sendEmail" value="[% txt_button_email %]" class="submitButton" />
+              </div>
+            </fieldset>
+          </div>
+
+        </form>
+
+      </td>
+    </tr>
+  </table>
+</center>
+
+</body>
+
+</html>
+

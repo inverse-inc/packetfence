@@ -96,6 +96,7 @@ DirectoryIndex index.html index.cgi index.php
   LoadModule perl_module modules/mod_perl.so
 </IfModule>
 PerlSwitches -I%%install_dir%%/lib
+PerlChildInitHandler "sub { srand }"
  
 AddType application/x-httpd-php .php
 #<Files *.php>
@@ -209,6 +210,9 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteCond %{REQUEST_URI} !^/msdownload/update/v3/static/trustedr/en/authrootseq.txt$
   # old cgi style URL deprecated will be removed in an upcoming release
   # still accepted for a transition period
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-selfregistration.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/email_activation.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-management.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/register.cgi
@@ -285,6 +289,11 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
 %%remediation-proxies%%
 
+  # Email activation clean URL to cgi conversion
+  RewriteCond %{REQUEST_URI} ^/activate/.+$
+  # [PT] here allows us to mix ScriptAlias and mod_rewrite stuff
+  RewriteRule ^/activate/([0-9a-z]+)$ https://%%hostname%%.%%domain%%/cgi-bin/email_activation.cgi?code=$1 [PT]
+
   # clean urls handling
   RewriteRule ^/access(.*)$ /cgi-bin/register.cgi?mode=release$1 [PT,QSA]
   RewriteRule ^/aup(.*)$ /cgi-bin/register.cgi?mode=aup$1 [PT,QSA]
@@ -297,6 +306,9 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteCond %{REQUEST_URI} !^/favicon.ico
   # old cgi style URL deprecated will be removed in an upcoming release
   # still accepted for a transition period
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-selfregistration.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/email_activation.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-management.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/register.+\.cgi

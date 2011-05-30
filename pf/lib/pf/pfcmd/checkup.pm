@@ -12,6 +12,7 @@ This modules holds all the tests performed by 'pfcmd checkup' which is a general
 
 use strict;
 use warnings;
+
 use Fcntl ':mode'; # symbolic file permissions
 use Try::Tiny;
 use Readonly;
@@ -20,6 +21,8 @@ use pf::config;
 use pf::util;
 use pf::services;
 use pf::trigger;
+
+use lib $conf_dir;
 
 BEGIN {
     use Exporter ();
@@ -542,6 +545,40 @@ sub extensions {
         }
     };
 
+    # Authentication modules
+    my @activated_auth_modules = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
+    foreach my $auth (@activated_auth_modules) {
+        my ($authenticator, $authReturn, $err);
+        try {
+            # try to import module and re-throw the error to catch if there's one
+            eval "use authentication::$auth";
+            die($@) if ($@);
+
+            $authenticator = new {"authentication::$auth"}();
+            if (!$authenticator->isa('pf::web::auth')) {
+                add_problem( $FATAL,
+                    "Authentication module authentication::$auth is enabled and is not of the correct object type. " .
+                    "Did you read the UPGRADE document?"
+                );
+            }
+
+            if (!defined($authenticator->VERSION())) { 
+                add_problem( $FATAL,
+                    "Authentication module authentication::$auth is enabled and its VERSION is not defined. " . 
+                    "Did you read the UPGRADE document?"
+                );
+            } elsif ($AUTHENTICATION_API_LEVEL > $authenticator->VERSION()) { 
+                add_problem( $FATAL,
+                    "Authentication module authentication::$auth is enabled and is not at the correct API level. " .
+                    "Did you read the UPGRADE document?"
+                );
+            }
+
+
+        } catch {
+            add_problem($FATAL, "Uncaught exception while trying to identify authentication::$auth module version: $_");
+        }
+    }
 }
 
 =item permissions
@@ -586,6 +623,19 @@ sub apache {
         );
     }
 
+    # Apache PerlPostConfigRequire scripts *must* compile otherwise apache startup silently fails
+    my @captive_portal = `perl -c $lib_dir/pf/web/captiveportal_modperl_require.pl 2>&1`;
+    if ($captive_portal[0] !~ /syntax OK$/) {
+        add_problem( 
+            $FATAL, "Apache will fail to start! $lib_dir/pf/web/captiveportal_modperl_require.pl doesn't compile"
+        );
+    }
+    my @back_end = `perl -c $lib_dir/pf/web/backend_modperl_require.pl 2>&1`;
+    if ($back_end[0] !~ /syntax OK$/) {
+        add_problem( 
+            $FATAL, "Apache will fail to start! $lib_dir/pf/web/backend_modperl_require.pl doesn't compile"
+        );
+    }
 }
 
 =item violations

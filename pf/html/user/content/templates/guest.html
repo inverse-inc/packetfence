@@ -1,0 +1,79 @@
+<html>
+
+<head>
+<title>[%txt_page_title %]</title>
+<style>
+<!--
+.bio         { }
+-->
+</style>
+</head>
+
+<body>
+
+<center>
+  <table border="0" width="650" id="table2">
+    <tr>
+      <td align="center">
+      <img border="0" src="[% logo %]">
+      <td>
+    </tr>
+    <tr>
+      <td align="center" class="bio">
+
+        <p align="center"><font face="Arial" size="+1"><b>Guest Self-Registration</b></font></p>
+
+        <form method="post" action="[% post_uri %]">
+
+          <input type="hidden" name="destination_url" value="[% destination_url %]" />
+
+          <p>This guest network is provided exclusively for the convenience of guests and visitors. Access implies no guarantee of reliability, speed or privacy; this network is provided for the express purpose of facilitating simple Internet web communication. Use implies agreement with all terms and conditions of appropriate behavior of our <b>Acceptable Use Policy.</b></p>
+          <p></p>
+       
+          <p>In the fields below please enter your name, phone number and a valid email address. You will be given <strong>temporary network access for 10 minutes</strong> during that time:</p>
+          <ul>
+            <li><p align="left">Login to the email account you referenced and;</p></li>
+            <li><p align="left">Click on the link emailed to you to validate network access for the next 24 hours.</p></li>
+          </ul>
+
+          <div id="login">
+            <p>Guest Registration</p>
+            <fieldset>
+              <div id="guest">
+                <table id="userInfo" class="form">
+                  <tr><td colspan=2><span style="color: red;">[% txt_auth_error %]</span></td></tr>
+                  <tr>
+                    <th valign="top" nowrap><label for="name">Firstname</label></th>
+                    <td valign="top"><input type="text" name="firstname" value="[% firstname %]" /></td>
+                  </tr>
+                  <tr>
+                    <th valign="top" nowrap><label for="name">Lastname</label></th>
+                    <td valign="top"><input type="text" name="lastname" value="[% lastname %]" /></td>
+                  </tr>
+                  <tr>
+                    <th valign="top" nowrap><label for="phone">Phone number (including area code)</label></th>
+                    <td valign="top"><input type="text" name="phone" value="[% phone %]" /></td>
+                  </tr>
+                  <tr>
+                    <th valign="top" nowrap><label for="email">Valid email address*</label></th>
+                    <td valign="top"><input type="text" name="email" value="[% email %]" /></td>
+                  </tr>
+                </table>
+                <input type="submit" name="spu" value="Submit" class="submitButton" />
+              </div>
+            </fieldset>
+          </div>
+
+          <p>*A message will be sent to this email and you have ten minutes to confirm its validity.</p>
+
+        </form>
+
+      </td>
+    </tr>
+  </table>
+</center>
+
+</body>
+
+</html>
+

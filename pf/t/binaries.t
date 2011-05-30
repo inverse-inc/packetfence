@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 25;
+use Test::More tests => 28;
 
 my @binaries = (
     '/usr/local/pf/configurator.pl',
@@ -21,6 +21,9 @@ my @binaries = (
     '/usr/local/pf/addons/upgrade/update-all-useragents.pl',
     '/usr/local/pf/bin/flip.pl',
     '/usr/local/pf/bin/pfcmd_vlan',
+    '/usr/local/pf/cgi-bin/email_activation.cgi',
+    '/usr/local/pf/cgi-bin/guest-management.cgi',
+    '/usr/local/pf/cgi-bin/guest-selfregistration.cgi',
     '/usr/local/pf/cgi-bin/redir.cgi',
     '/usr/local/pf/cgi-bin/register.cgi',
     '/usr/local/pf/cgi-bin/release.cgi',

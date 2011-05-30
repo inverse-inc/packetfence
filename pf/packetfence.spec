@@ -69,7 +69,6 @@ Requires: net-tools
 Requires: net-snmp >= 5.3.2.2
 Requires: mysql, perl-DBD-mysql
 Requires: perl >= 5.8.8, perl-suidperl
-Requires: perl-Apache-Htpasswd
 Requires: perl-Bit-Vector
 Requires: perl-CGI-Session, perl(JSON)
 Requires: perl-Class-Accessor
@@ -116,8 +115,11 @@ Requires: perl-YAML
 Requires: php-jpgraph-packetfence = 2.3.4
 Requires: php-ldap
 Requires: perl(Try::Tiny)
-Requires: perl(Cache::Cache)
+Requires: perl(Crypt::GeneratePassword)
+Requires: perl(MIME::Lite::TT)
+Requires: perl(Cache::Cache), perl(HTML::Parser)
 # Used by Captive Portal authentication modules
+Requires: perl(Apache::Htpasswd)
 Requires: perl(Authen::Radius)
 Requires: perl(Authen::Krb5::Simple)
 # Required for importation feature
@@ -457,9 +459,11 @@ fi
 %config(noreplace)      /usr/local/pf/conf/admin.perm
 %config(noreplace)      /usr/local/pf/conf/admin_ldap.conf
 %dir                    /usr/local/pf/conf/authentication
+%config(noreplace)      /usr/local/pf/conf/authentication/guest_managers.pm
 %config(noreplace)      /usr/local/pf/conf/authentication/kerberos.pm
 %config(noreplace)      /usr/local/pf/conf/authentication/local.pm
 %config(noreplace)      /usr/local/pf/conf/authentication/ldap.pm
+%config(noreplace)      /usr/local/pf/conf/authentication/preregistered_guests.pm
 %config(noreplace)      /usr/local/pf/conf/authentication/radius.pm
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config                 /usr/local/pf/conf/documentation.conf
@@ -580,6 +584,7 @@ fi
 %dir                    /usr/local/pf/lib/pf/web
                         /usr/local/pf/lib/pf/web/*.pl
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
+                        /usr/local/pf/lib/pf/web/guest.pm
                         /usr/local/pf/lib/pf/web/util.pm
 %dir                    /usr/local/pf/logs
 %doc                    /usr/local/pf/NEWS
