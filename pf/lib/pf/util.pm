@@ -117,6 +117,25 @@ sub clean_mac {
     return ($mac);
 }
 
+= item acct_mac
+
+Put the mac address in the accounting format, accepting xx:xx:xx:xx:xx
+
+Returning format xx-xx-xx-xx-xx-xx
+
+=cut
+sub acct_mac {
+    my ($mac) = @_;
+    return (0) if ( !$mac );
+    # trim garbage
+    $mac =~ s/[\s\-\.:]//g;
+    # lowercase
+    $mac = lc($mac);
+    # inject :
+    $mac =~ s/([a-f0-9]{2})(?!$)/$1-/g if ( $mac =~ /^[a-f0-9]{12}$/i );
+    return ($mac);
+}
+
 
 =item valid_mac 
 

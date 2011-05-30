@@ -51,6 +51,7 @@ lookup                       | node or pid lookup against local data store
 manage                       | manage node entries
 networkconfig                | query/modify network configuration parameters
 node                         | node manipulation
+nodeaccounting               | RADIUS accounting information
 nodecategory                 | nodecategory manipulation
 nodeuseragent                | View User-Agent information associated to a node
 person                       | person manipulation
@@ -153,6 +154,19 @@ examples:
   pfcmd node count all
   pfcmd node add 00:01:02:03:04:05 status="reg",pid=1
   pfcmd node delete 00:01:02:03:04:05 
+EOT
+    return 1;
+}
+
+sub help_nodeaccouting {
+    print STDERR << "EOT";
+Usage: pfcmd nodeaccounting view <active|inactive|id>
+
+View RADIUS accounting information for a node
+
+examples:
+  pfcmd nodeaccounting view active
+  pfcmd nodeaccounting view 00:01:02:03:04:05
 EOT
     return 1;
 }
