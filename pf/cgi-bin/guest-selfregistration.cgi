@@ -36,8 +36,8 @@ use pf::web::custom;
 Readonly::Scalar my $GUEST_REGISTRATION => "guest-register";
 
 Log::Log4perl->init("$conf_dir/log.conf");
-my $logger = Log::Log4perl->get_logger('redir.cgi');
-Log::Log4perl::MDC->put('proc', 'redir.cgi');
+my $logger = Log::Log4perl->get_logger('guest-selfregistration.cgi');
+Log::Log4perl::MDC->put('proc', 'guest-selfregistration.cgi');
 Log::Log4perl::MDC->put('tid', 0);
 
 my $cgi = new CGI;
@@ -119,7 +119,7 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
         pf::web::generate_release_page($cgi, $session, $destination_url);
         $logger->info("registration url = $destination_url");
     } else {
-        print $cgi->redirect("/cgi-bin/redir.cgi?destination_url=$destination_url");
+        print $cgi->redirect("/captive-portal?destination_url=$destination_url");
         $logger->info("more violations yet to come for $mac");
     }
 

@@ -148,7 +148,7 @@ if (defined($params{'username'}) && $params{'username'} ne '') {
     my $cmd = $bin_dir."/pfcmd manage deregister $mac";
     my $output = qx/$cmd/;
     $logger->info("calling $bin_dir/pfcmd  manage deregister $mac");
-    print $cgi->redirect("/cgi-bin/register.cgi");
+    print $cgi->redirect("/authenticate");
   } else {
     pf::web::generate_error_page($cgi, $session, "error: access denied not owner");
   }

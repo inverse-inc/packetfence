@@ -61,6 +61,7 @@ if (defined($cgi->param('mode'))) {
           ($Config{'registration'}{'skip_mode'} eq "window" && $detect_date + $Config{'registration'}{'skip_window'} < time)) {
         $logger->info("test: detect_date=$detect_date window=".$Config{'registration'}{'skip_window'}." time=".time);
         $logger->info("registration grace period exceeded for $mac!");
+        # TODO known-broken as register.cgi?mode=register doesn't exist anymore
         print $cgi->redirect("/cgi-bin/register.cgi?mode=register&destination_url=".$destination_url);
       } else {
         my %info;
@@ -77,7 +78,7 @@ if (defined($cgi->param('mode'))) {
           }
           pf::web::generate_release_page($cgi, $session, $destination_url, $mac);
         } else {
-          print $cgi->redirect("/cgi-bin/redir.cgi?destination_url=$destination_url");
+          print $cgi->redirect("/captive-portal?destination_url=$destination_url");
         }
         $logger->info("$mac skipped registration");
       }
@@ -88,7 +89,7 @@ if (defined($cgi->param('mode'))) {
     if ($cgi->https()) {
       print $cgi->redirect(
         "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-        ."/cgi-bin/release.cgi?mode=release&destination_url=$destination_url"
+        ."/access?destination_url=$destination_url"
       );
     } else {
       pf::web::generate_release_page($cgi, $session, $destination_url, $mac);
@@ -186,9 +187,9 @@ if ($grace != -1) {
     exit(0);
   } else {
     if ($class_redirect_url) {
-      print $cgi->redirect("/cgi-bin/redir.cgi?destination_url=$class_redirect_url");
+      print $cgi->redirect("/captive-portal?destination_url=$class_redirect_url");
     } else {
-      print $cgi->redirect("/cgi-bin/redir.cgi?destination_url=$destination_url");
+      print $cgi->redirect("/captive-portal?destination_url=$destination_url");
     }
   }
   $logger->info("$mac enabled for $grace minutes");
