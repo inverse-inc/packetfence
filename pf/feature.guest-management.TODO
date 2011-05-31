@@ -1,4 +1,9 @@
 TODOs
+- Clean URL the new CGI's in httpd.conf as we did in trunk/
+- Re-test every page of every guest workflow since the captive portal merge hasn't been thoroghly tested 
+-- with guest code pf::web::guest's search and replace
+-- with template headers and footers
+-- with path re-work
 - authentication::* improvements
 -- extract error strings out of pf::web and pf::web::guest into auth...:: with a getPrevErrorId/Str interface
 -- return hashref of auth::* properties (a la preregistered guest for the access_duration) but will also be useful to categorize nodes
@@ -15,6 +20,7 @@ TODOs
 - review POD doc
 - refactor pf::email_activation and pf::temporary_password into pf::web::...
 - integrate SMS Authentication
+- create guest divs for the default login template with display:none; or commented out by default
 
 Before merge in trunk:
 - Re-assess all TODO, FIXME and XXX tasks
