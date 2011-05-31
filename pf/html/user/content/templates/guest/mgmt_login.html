@@ -1,53 +1,30 @@
-<html>
+[% INCLUDE header.html %]
 
-<head>
-<title>[% txt_page_title %]</title>
-<style>
-<!--
-.bio         { }
--->
-</style>
-</head>
+        [%# Welcome text %]
+        <div id="about" class="underlined">
+          <h1>[% txt_page_header %]</h1>
+          <img src="content/images/lock.png" alt="You are not logged in" />
+          <p>You must be authenticated to manage guests</p>
+        </div>
 
-<body>
+        [%# Error %]
+        [% IF txt_auth_error.defined %]<div class="error"><p>[% txt_auth_error %]</p></div>[% END %]
 
-<center>
-  <table border="0" width="650" id="table2">
-    <tr>
-      <td align="center">
-      <img border="0" src="[% logo %]">
-      <td>
-    </tr>
-    <tr>
-      <td align="center" class="bio">
+        <form method="post" action="[% post_uri %]">
 
-<p align="center"><font face="Arial" size="+1"> <b>[% txt_page_header %]</b></font></p>
-<form method="post" action="[% post_uri %]">
-                                                              
-<p align="center"><font face="Arial">
-<table>
-<tr>
-  <td>[% txt_username %]</td><td><input type="text" name="login"></td>
-</tr>
-<tr>
-  <td>[% txt_password %]</td><td><input type="password" name="password"></td>
-</tr>
-<tr>
-  <td colspan="2" style="text-align:center"><input type="submit" value="[% txt_login %]"></td>
-</tr>
-<tr>
-  <td colspan="2">[% txt_auth_error %]</td>
-</tr>
-</table>
+          [%# User / Pass %]
+          <div class="input">
+            <span>[% txt_username %]</span>
+            <input class="field" name="login" id="login" type="text" value="[% login %]" />
+          </div>
+          <div class="input">
+            <span>[% txt_password %]</span><input class="field" name="password" type="password" />
+          </div>
 
-</font></p>
-</form>
+          [%# submit %]
+          <div class="input">
+            <input type="submit" class="button" name="submit" value="[% txt_login %]" />
+          </div>
+        </form>
 
-      <td>
-    </tr>
-  </table>
-</center>
-
-</body>
-
-</html>
+[% INCLUDE footer.html %]
