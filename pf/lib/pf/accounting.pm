@@ -26,14 +26,15 @@ BEGIN {
     @EXPORT = qw($accounting_db_prepared accounting_db_prepare);
     @EXPORT_OK = qw(
         node_accounting_exist
-        node_accounting_view_active
-        node_accounting_view_inactive
+        node_accounting_view
+        node_accounting_view_all
     );
 }
 
 use pf::config;
 use pf::db;
 use pf::violation;
+use pf::util;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $accounting_db_prepared = 0;
@@ -59,22 +60,34 @@ sub accounting_db_prepare {
         SELECT COUNT(*) FROM radacct WHERE username = ?;
     ]);
 
-    $accounting_statements->{'acct_view_active_sessions_sql'} = get_db_handle()->prepare(qq[
-        SELECT REPLACE(username,'-',':') AS mac,acctstarttime,acctinputoctets,acctoutputoctets,(acctinputoctets+acctoutputoctets) AS accttotaloctets
-        FROM radacct
-        WHERE acctstoptime IS NULL;
+    $accounting_statements->{'acct_view_sql'} = get_db_handle()->prepare(qq[
+        SELECT CONCAT(SUBSTRING(callingstationid,1,2),':',SUBSTRING(callingstationid,3,2),':',SUBSTRING(callingstationid,5,2),':',
+               SUBSTRING(callingstationid,7,2),':',SUBSTRING(callingstationid,9,2),':',SUBSTRING(callingstationid,11,2)) AS mac,
+               username,IF(ISNULL(acctstoptime),'connected','not connected') AS status,acctstarttime,
+               acctsessiontime,nasipaddress,nasportid,nasporttype,FORMAT((acctinputoctets/1024/1024),3) AS acctinputmb,
+               FORMAT((acctoutputoctets/1024/1024),3) AS acctoutputmb,FORMAT((acctinputoctets+acctoutputoctets)/1024/1024,3) AS accttotalmb,
+               IF(ISNULL(acctstoptime),'',acctterminatecause) AS acctterminatecause
+        FROM (SELECT * FROM radacct ORDER BY acctstarttime DESC) AS tmp
+        GROUP BY callingstationid
+        HAVING callingstationid = ?;
     ]);
 
-    $accounting_statements->{'acct_view_inactive_sessions_sql'} = get_db_handle()->prepare(qq[
-        SELECT REPLACE(username,'-',':') AS mac,acctstarttime,acctinputoctets,acctoutputoctets,(acctinputoctets+acctoutputoctets) AS accttotaloctets 
-        FROM (SELECT * FROM radacct WHERE acctstoptime IS NOT NULL AND username NOT IN (SELECT username FROM radacct WHERE acctstoptime IS NULL) ORDER BY acctstoptime DESC) AS tmp
-        GROUP BY username;
+    $accounting_statements->{'acct_view_all_sql'} = get_db_handle()->prepare(qq[
+        SELECT CONCAT(SUBSTRING(callingstationid,1,2),':',SUBSTRING(callingstationid,3,2),':',SUBSTRING(callingstationid,5,2),':',
+               SUBSTRING(callingstationid,7,2),':',SUBSTRING(callingstationid,9,2),':',SUBSTRING(callingstationid,11,2)) AS mac,
+               username,IF(ISNULL(acctstoptime),'connected','not connected') AS status,acctstarttime,
+               acctsessiontime,nasipaddress,nasportid,nasporttype,FORMAT((acctinputoctets/1024/1024),3) AS acctinputmb,
+               FORMAT((acctoutputoctets/1024/1024),3) AS acctoutputmb,FORMAT((acctinputoctets+acctoutputoctets)/1024/1024,3) AS accttotalmb,
+               IF(ISNULL(acctstoptime),'',acctterminatecause) AS acctterminatecause 
+        FROM (SELECT * FROM radacct ORDER BY acctstarttime DESC) AS tmp
+        GROUP BY callingstationid
+        ORDER BY status ASC, acctstarttime DESC;
     ]);
 
    $accounting_statements->{'acct_cummul_statistics_sql'} = get_db_handle()->prepare(qq[
        SELECT SUM(acctinputoctets) AS accttotalinput,SUM(acctoutputoctets) AS accttotaloutput,(accttotalinput+accttotaloutput) AS accttotaloctets
        FROM radacct
-       WHERE username = ?;
+       WHERE callingstationid = ?;
     ]);
 
     $accounting_db_prepared = 1;
@@ -93,18 +106,22 @@ sub node_accounting_exist {
     return ($val);
 }
 
-=item node_accounting_view_active - view all accounting entries, returns an array of hashrefs
+=item node_accounting_view - view latest accounting entry for a node, returns an array of hashrefs
 
 =cut
-sub node_accounting_view_active {
-    return db_data(ACCOUNTING, $accounting_statements, 'acct_view_active_sessions_sql');
+sub node_accounting_view {
+    my ($mac) = acct_mac(@_);
+    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_view_sql', $mac);
+    my $ref = $query->fetchrow_hashref();
+    $query->finish();
+    return ($ref);
 }
 
-=item node_accounting_view_inactive - view the latest session entry, returns an hashref
+=item node_accounting_view_all - view all accounting entries, returns an hashref
 
 =cut
-sub node_accounting_view_inactive {
-    return db_data(ACCOUNTING, $accounting_statements, 'acct_view_inactive_sessions_sql');
+sub node_accounting_view_all {
+    return db_data(ACCOUNTING, $accounting_statements, 'acct_view_all_sql');
 }
 
 

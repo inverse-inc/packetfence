@@ -236,10 +236,13 @@ sub parseCommandLine {
                                      \s+ ( $RE{net}{MAC} )
                                    )
                                  $ /xms,
-         'nodeaccounting'   => qr{ ^ (view)
+         'nodeaccounting'   => qr/ ^ ( view )
                                    \s+
-                                   ( active | inactive | \d+ (?: ,\d+)* )
-                                 $ }xms,
+                                   (?:
+                                       ( all ) 
+                                       | ( $RE{net}{MAC} )
+                                   )
+                                 $ /xms,
          'nodecategory'    => qr{ ^ (?:
                                      (view) \s+ (all|\d+)
                                    )

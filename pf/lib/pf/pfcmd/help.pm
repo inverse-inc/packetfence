@@ -158,14 +158,14 @@ EOT
     return 1;
 }
 
-sub help_nodeaccouting {
+sub help_nodeaccounting {
     print STDERR << "EOT";
-Usage: pfcmd nodeaccounting view <active|inactive|id>
+Usage: pfcmd nodeaccounting view <all|id>
 
 View RADIUS accounting information for a node
 
 examples:
-  pfcmd nodeaccounting view active
+  pfcmd nodeaccounting view all
   pfcmd nodeaccounting view 00:01:02:03:04:05
 EOT
     return 1;

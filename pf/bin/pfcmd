@@ -425,12 +425,12 @@ sub nodecategory {
 sub nodeaccounting {
     my ( $function, $id );
     require pf::accounting;
-    pf::accounting->import(qw(node_accounting_view_active node_accounting_view_inactive));
+    pf::accounting->import(qw(node_accounting_view node_accounting_view_all));
     $id = $cmd{command}[2];
-    if ( $id && $id eq 'active' ) {
-         $function = "node_accounting_view_active";
+    if ( $id && $id ne 'all' ) {
+         $function = "node_accounting_view";
     } else {
-         $function = "node_accounting_view_inactive";
+         $function = "node_accounting_view_all";
     }
     exit( print_results( $function, $id ) );
 }
