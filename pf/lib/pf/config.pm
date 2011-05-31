@@ -189,6 +189,7 @@ Readonly %CAPTIVE_PORTAL => (
     "NET_DETECT_RETRY_DELAY" => 2,
     "NET_DETECT_PENDING_INITIAL_DELAY" => 2 * 60,
     "NET_DETECT_PENDING_RETRY_DELAY" => 30,
+    "TEMPLATE_DIR" => "$install_dir/html/captive-portal/templates",
 );
 
 readNetworkConfigFile();

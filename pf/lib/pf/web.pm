@@ -125,7 +125,7 @@ sub generate_release_page {
     }
 
     my $html_txt;
-    my $template = Template->new({ INCLUDE_PATH => ["$install_dir/html/user/content/templates"], });
+    my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], });
     $template->process( "release.html", $vars, \$html_txt );
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
@@ -170,8 +170,7 @@ sub generate_scan_start_page {
     };
     # Once the progress bar is over, try redirecting
     my $html_txt;
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process( "scan.html", $vars, \$html_txt );
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header(
@@ -230,8 +229,7 @@ sub generate_login_page {
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process( "login.html", $vars );
     exit;
 }
@@ -252,8 +250,7 @@ sub generate_enabler_page {
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], });
     $template->process( "enabler.html", $vars );
     exit;
 }
@@ -273,8 +270,7 @@ sub generate_redirect_page {
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process( "redirect.html", $vars );
     exit;
 }
@@ -303,8 +299,7 @@ sub generate_aup_standalone_page {
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], }
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], }
     );
     $template->process( "aup.html", $vars );
     exit;
@@ -338,8 +333,7 @@ sub generate_scan_status_page {
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process( "scan-in-progress.html", $vars );
     exit;
 }
@@ -377,8 +371,7 @@ sub generate_error_page {
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process( "error.html", $vars );
     exit;
 }
@@ -448,8 +441,7 @@ sub generate_status_page {
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process( "status.html", $vars );
     exit;
 }
@@ -667,8 +659,7 @@ sub generate_registration_page {
         }
     }
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process( "register.html", $vars );
     exit;
 }
@@ -722,8 +713,7 @@ sub generate_pending_page {
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process("pending.html", $vars);
     exit;
 }

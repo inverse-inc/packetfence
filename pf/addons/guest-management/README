@@ -21,7 +21,7 @@
   </LocationMatch>
 
  * Create new database table. Run:
-  mysql -u root -p pf -v < addons/guest-email-confirmation/schema-email-activation.sql
+  mysql -u root -p pf -v < addons/guest-management/schema-email-activation.sql
 
  * Redirect the user to cgi-bin/guest.cgi for guest registration
 
@@ -38,13 +38,13 @@
 
 == Customization ==
  * HTML templates:
-  Guest registration page: html/user/content/templates/guest.html
-  Page shown once activated: html/user/content/templates/activated.html
+  Guest registration page: html/captive-portal/templates/guest.html
+  Page shown once activated: html/captive-portal/templates/activated.html
  * The email template is: conf/templates/emails-guest_activation.txt.tt
 
 == Temporary passwords ==
  * Requires: perl(Crypt::GeneratePassword)
- * SQL in addons/guest-email-confirmation/schema-temporary-passwords.sql
+ * SQL in addons/guest-management/schema-temporary-passwords.sql
 
 == Pre-registered guests by staff authenticated against AD ==
  1. Installed MIME::Lite::TT, Crypt::GeneratePassword

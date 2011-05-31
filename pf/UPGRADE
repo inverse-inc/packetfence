@@ -7,6 +7,15 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <guest-branch-release>:
 
+    - Intrusive changes to Captive Portal
+    Files organization was changed. Anything custom relying on specific paths
+    should be updated.
+    html/user/ became html/captive-portal
+    cgi-bin/ -> html/captive-portal/
+    html/user/content/templates/ -> html/captive-portal/templates/
+    html/user/content/violations/ -> html/captive-portal/violations/
+    html/user/content/3rdparty/ -> html/captive-portal/content/
+
     - Authentication modules interface change
     All authentication modules (conf/authentication/*) were migrated into
     objects. Please carefully merge any module you were using by comparing

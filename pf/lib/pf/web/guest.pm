@@ -137,7 +137,7 @@ sub generate_selfregistration_page {
     #    }
     #}
 
-    my $template = Template->new({INCLUDE_PATH => ["$install_dir/html/user/content/templates"],});
+    my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
     $template->process($pf::web::guest::SELF_REGISTRATION_TEMPLATE, $vars);
     exit;
 }
@@ -226,7 +226,7 @@ sub generate_registration_page {
     #    }
     #}
 
-    my $template = Template->new({ INCLUDE_PATH => ["$install_dir/html/user/content/templates"], });
+    my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], });
     $template->process($pf::web::guest::REGISTRATION_TEMPLATE, $vars); 
     exit;
 }
@@ -368,7 +368,7 @@ sub generate_activation_confirmation_page {
         expiration      => $expiration,
     };
 
-    my $template = Template->new({INCLUDE_PATH => ["$install_dir/html/user/content/templates"],});
+    my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
     $template->process("activated.html", $vars);
     exit;
 }
@@ -409,7 +409,7 @@ sub generate_activation_login_page {
         }
     }
 
-    my $template = Template->new({INCLUDE_PATH => ["$install_dir/html/user/content/templates"],});
+    my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
     $template->process($html_template, $vars);
     exit;
 }
@@ -480,7 +480,7 @@ sub generate_login_page {
     #    }
     #}
 
-    my $template = Template->new({INCLUDE_PATH => ["$install_dir/html/user/content/templates"],});
+    my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
     $template->process($pf::web::guest::LOGIN_TEMPLATE, $vars);
     exit;
 }
@@ -608,7 +608,7 @@ sub generate_registration_confirmation_page {
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
-    my $template = Template->new({INCLUDE_PATH => ["$install_dir/html/user/content/templates"],});
+    my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
     $template->process($pf::web::guest::REGISTRATION_CONFIRMATION_TEMPLATE, $vars);
     exit;
 }

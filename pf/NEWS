@@ -25,7 +25,7 @@ New features
    if you have multiple authentication back-end enabled in auth
 
 Enhancements
- * Captive portal usability improvements
+ * Captive portal usability improvements for both users and administrators
  * More start-up validation in `pfcmd checkup`
  * More tests
 
