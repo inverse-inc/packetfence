@@ -113,10 +113,11 @@ Requires: perl-Thread-Pool
 Requires: perl-TimeDate
 Requires: perl-UNIVERSAL-require
 Requires: perl-YAML
-Requires: php-jpgraph-packetfence = 2.3.4
 Requires: php-ldap
 Requires: perl(Try::Tiny)
 Requires: perl(Cache::Cache)
+# Used by Web Admin 
+Requires: php-jpgraph = 2.3.4
 # Used by Captive Portal authentication modules
 Requires: perl(Authen::Radius)
 Requires: perl(Authen::Krb5::Simple)
