@@ -17,6 +17,7 @@ Version <trunk-release> released on <releaseDate>
 
 Compatibility notice
  * Removed support for Apache prior to version 2.2.0. You had 6 years to update.
+ * Removed support for jpgraph 1.x which bumps our depedencies to PHP 5
 
 New features
  * Major update to the captive portal look and feel! More modern and 
@@ -25,6 +26,8 @@ New features
    clutter). (#980, #982)
  * Remediation pages are translatable (#822)
 
+Enhancements
+ * Externalized the jpgraph PHP library
 
 --------------------------------------------------------------------------------
 Version <2.2-release> released on <releaseDate>
