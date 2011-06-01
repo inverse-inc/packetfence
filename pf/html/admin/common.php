@@ -981,13 +981,8 @@ function PrintSubNav($menu){
     print "</pre></div>";
   }
 
-  # TODO consider deprecating jpgraph 1.27
   function jpgraph_dir(){
-    if(preg_match("/^4/", phpversion())){
-      return '../common/jpgraph/jpgraph-1.27/src';   
-    } else {
-      return '../common/jpgraph/jpgraph-2.3.4/src';
-    }
+    return '/var/www/jpgraph-2.3.4';
   }
 
   function jpgraph_check(){
