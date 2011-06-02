@@ -35,6 +35,7 @@ Bug fixes
  * Updated Admin Guide to reflect proper method calls for custom VLAN assignment
  * Fixed Nortel switches problems on some models / firmwares
  * Fixed installer errors (#1217)
+ * Increased PHP memory to PHP's default: 128M. Mitigates #962.
 
 Translations
  * Updated French (fr) translation (Thanks to Vincent Blut)
