@@ -43,11 +43,11 @@ sub validate_phone_number {
     # north american regular expression
     if ($phone_number =~ /
         ^(?:\+?(1)[-.\s]?)?   # optional 1 in front with -, ., space or nothing seperator
-        \(?([2-9]\d{2})\)?   # captures first 3 digits allows optional parenthesis
-        [-.\s]?               # separator -, ., sapce or nothing
-        (\d{3})              # captures 3 digits
-        [-.\s]?               # separator -, ., sapce or nothing
-        (\d{4})$             # captures last 4 digits
+        \(?([2-9]\d{2})\)?    # captures first 3 digits allows optional parenthesis
+        [-.\s]?               # separator -, ., space or nothing
+        (\d{3})               # captures 3 digits
+        [-.\s]?               # separator -, ., space or nothing
+        (\d{4})$              # captures last 4 digits
         /x) {
         return "$1$2$3$4" if defined($1);
         return "$2$3$4";
