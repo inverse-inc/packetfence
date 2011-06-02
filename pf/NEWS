@@ -23,11 +23,11 @@ New Hardware Support
 
 Enhancements
  * Nortel module now warns in the logs about a common stacking Nortel problem
- * Cleanup of the MySQL optimization section of the Admin Guide
  * New DHCP fingerprint for Cisco/Linksys, Aruba, 3Com switch, HTC Android and
    Konica Minolta MFP's
  * Warning avoidance
  * New FreeRADIUS watchdog script in addons
+ * Admin Guide: cleanup of the MySQL optimization, more logging in Samba config
 
 Bug fixes
  * Re-introduced MAC Authentication and 802.1X support in Cisco 3560, 3750
