@@ -12,9 +12,25 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE file.
 
+--------------------------------------------------------------------------------
+Version <trunk-release> released on <releaseDate>
+
+Compatibility notice
+ * Removed support for Apache prior to version 2.2.0. You had 6 years to update.
+ * Removed support for jpgraph 1.x which bumps our depedencies to PHP 5
+
+New features
+ * Major update to the captive portal look and feel! More modern and 
+   professional. Cleaner XHTML/CSS makes customization a lot easier than before.
+   Also, all user-visible URLs are now clean and short (no more cgi-bin/... 
+   clutter). (#980, #982)
+ * Remediation pages are translatable (#822)
+
+Enhancements
+ * Externalized the jpgraph PHP library
 
 --------------------------------------------------------------------------------
-Version <release> released on <releaseDate>
+Version <2.2-release> released on <releaseDate>
 
 New Hardware Support
  * AeroHIVE AP Access Points

@@ -1,0 +1,39 @@
+div#content,
+div#about h1 {
+  font-size: 24px;
+}
+div.input input.field,
+div.input div#aup,
+div.input div.note,
+a.button {
+  font-size: 20px;
+}
+div#footer {
+  font-size: 18px;
+}
+a.button {
+  background: #fff;
+  border: 1px solid #ccc;
+  font-weight: bold;
+  border-radius: 10px;
+}
+div.input a.button span {
+  background: transparent;
+  line-height: auto;
+}
+a.button,
+div.input a.button span {
+  margin: 0;
+  padding: 5px;
+  height: auto;
+  line-height: auto;
+}
+div#content {
+  padding-bottom: 20px;
+}
+.mobile {
+  display: inherit;
+}
+.notmobile {
+  display: none;
+}
