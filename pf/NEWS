@@ -23,8 +23,8 @@ New Hardware Support
 
 Enhancements
  * Nortel module now warns in the logs about a common stacking Nortel problem
- * New DHCP fingerprint for Cisco/Linksys, Aruba, 3Com switch, HTC Android and
-   Konica Minolta MFP's
+ * New DHCP fingerprint for Cisco/Linksys, Aruba, 3Com switch, HTC Android, 
+   Polycom and Konica Minolta MFP's
  * Warning avoidance
  * New FreeRADIUS watchdog script in addons
  * Admin Guide: cleanup of the MySQL optimization, more logging in Samba config
