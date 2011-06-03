@@ -18,7 +18,7 @@ to access SNMP enabled Nortel switches.
 Sometimes switches that were previously in a stacked setup will report 
 security violations as if they were still stacked.
 You will notice security authorization made on wrong ifIndexes.
-A factory reset will resolve the situation. 
+A factory reset / reconfiguration will resolve the situation. 
 We experienced the issue with a BayStack 470 running 3.7.5.13 but we believe it affects other BayStacks and firmwares. 
 
 =item Hard to predict OIDs seen on some variants
