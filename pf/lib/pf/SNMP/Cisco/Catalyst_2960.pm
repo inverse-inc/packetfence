@@ -45,6 +45,8 @@ Earlier IOS were not explicitly tested.
 
 12.2(55)SE is known to be broken 12.2(55)SE1 is apparently fine
 
+12.2(52) has been problematic for some community members
+
 12.2(50) is known to be problematic
 
 12.2(44)SE6 is known to be buggy: not sending traps under certain circumstances
