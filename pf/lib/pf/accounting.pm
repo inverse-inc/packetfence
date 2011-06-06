@@ -28,6 +28,14 @@ BEGIN {
         node_accounting_exist
         node_accounting_view
         node_accounting_view_all
+        node_accounting_daily_bw
+        node_accounting_weekly_bw
+        node_accounting_monthly_bw
+        node_accounting_yearly_bw
+        node_accounting_daily_time
+        node_accounting_weekly_time
+        node_accounting_monthly_time
+        node_accounting_yearly_time
     );
 }
 
@@ -63,9 +71,9 @@ sub accounting_db_prepare {
     $accounting_statements->{'acct_view_sql'} = get_db_handle()->prepare(qq[
         SELECT CONCAT(SUBSTRING(callingstationid,1,2),':',SUBSTRING(callingstationid,3,2),':',SUBSTRING(callingstationid,5,2),':',
                SUBSTRING(callingstationid,7,2),':',SUBSTRING(callingstationid,9,2),':',SUBSTRING(callingstationid,11,2)) AS mac,
-               username,IF(ISNULL(acctstoptime),'connected','not connected') AS status,acctstarttime,
-               acctsessiontime,nasipaddress,nasportid,nasporttype,FORMAT((acctinputoctets/1024/1024),3) AS acctinputmb,
-               FORMAT((acctoutputoctets/1024/1024),3) AS acctoutputmb,FORMAT((acctinputoctets+acctoutputoctets)/1024/1024,3) AS accttotalmb,
+               username,IF(ISNULL(acctstoptime),'connected','not connected') AS status,acctstarttime,acctstoptime,FORMAT(acctsessiontime/60,2) AS acctsessiontime,
+               nasipaddress,nasportid,nasporttype,FORMAT((acctinputoctets/1024/1024),3) AS acctoutputmb,
+               FORMAT((acctoutputoctets/1024/1024),3) AS acctinputmb,FORMAT((acctinputoctets+acctoutputoctets)/1024/1024,3) AS accttotalmb,
                IF(ISNULL(acctstoptime),'',acctterminatecause) AS acctterminatecause
         FROM (SELECT * FROM radacct ORDER BY acctstarttime DESC) AS tmp
         GROUP BY callingstationid
@@ -75,19 +83,80 @@ sub accounting_db_prepare {
     $accounting_statements->{'acct_view_all_sql'} = get_db_handle()->prepare(qq[
         SELECT CONCAT(SUBSTRING(callingstationid,1,2),':',SUBSTRING(callingstationid,3,2),':',SUBSTRING(callingstationid,5,2),':',
                SUBSTRING(callingstationid,7,2),':',SUBSTRING(callingstationid,9,2),':',SUBSTRING(callingstationid,11,2)) AS mac,
-               username,IF(ISNULL(acctstoptime),'connected','not connected') AS status,acctstarttime,
-               acctsessiontime,nasipaddress,nasportid,nasporttype,FORMAT((acctinputoctets/1024/1024),3) AS acctinputmb,
-               FORMAT((acctoutputoctets/1024/1024),3) AS acctoutputmb,FORMAT((acctinputoctets+acctoutputoctets)/1024/1024,3) AS accttotalmb,
+               username,IF(ISNULL(acctstoptime),'connected','not connected') AS status,acctstarttime,acctstoptime,FORMAT(acctsessiontime/60,2) AS acctsessiontime,
+               nasipaddress,nasportid,nasporttype,FORMAT((acctinputoctets/1024/1024),3) AS acctoutputmb,
+               FORMAT((acctoutputoctets/1024/1024),3) AS acctinputmb,FORMAT((acctinputoctets+acctoutputoctets)/1024/1024,3) AS accttotalmb,
                IF(ISNULL(acctstoptime),'',acctterminatecause) AS acctterminatecause 
         FROM (SELECT * FROM radacct ORDER BY acctstarttime DESC) AS tmp
         GROUP BY callingstationid
         ORDER BY status ASC, acctstarttime DESC;
     ]);
 
-   $accounting_statements->{'acct_cummul_statistics_sql'} = get_db_handle()->prepare(qq[
-       SELECT SUM(acctinputoctets) AS accttotalinput,SUM(acctoutputoctets) AS accttotaloutput,(accttotalinput+accttotaloutput) AS accttotaloctets
-       FROM radacct
-       WHERE callingstationid = ?;
+   $accounting_statements->{'acct_bandwidth_daily_sql'} = get_db_handle()->prepare(qq[
+        SELECT SUM(FORMAT((radacct_log.acctinputoctets/1024/1024),3)) AS acctinputmb,
+               SUM(FORMAT((radacct_log.acctoutputoctets/1024/1024),3)) AS acctoutputmb,
+               SUM(FORMAT((radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/1024/1024,3)) AS accttotalmb
+        FROM radacct_log
+        LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+	WHERE timestamp >= CURRENT_DATE() AND callingstationid = ?;
+        
+    ]);
+
+   $accounting_statements->{'acct_bandwidth_weekly_sql'} = get_db_handle()->prepare(qq[
+        SELECT SUM(FORMAT((radacct_log.acctinputoctets/1024/1024),3)) AS acctinputmb,
+               SUM(FORMAT((radacct_log.acctoutputoctets/1024/1024),3)) AS acctoutputmb,
+               SUM(FORMAT((radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/1024/1024,3)) AS accttotalmb
+        FROM radacct_log
+        LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        WHERE YEARWEEK(timestamp) = YEARWEEK(CURRENT_DATE()) AND callingstationid = ?;
+       	
+    ]);
+
+   $accounting_statements->{'acct_bandwidth_monthly_sql'} = get_db_handle()->prepare(qq[
+        SELECT SUM(FORMAT((radacct_log.acctinputoctets/1024/1024),3)) AS acctinputmb,
+               SUM(FORMAT((radacct_log.acctoutputoctets/1024/1024),3)) AS acctoutputmb,
+               SUM(FORMAT((radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/1024/1024,3)) AS accttotalmb,
+               timestamp
+        FROM radacct_log
+        LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        WHERE MONTH(timestamp) = MONTH(CURRENT_DATE()) AND callingstationid = ?;
+    ]);
+
+    $accounting_statements->{'acct_bandwidth_yearly_sql'} = get_db_handle()->prepare(qq[
+        SELECT SUM(FORMAT((radacct_log.acctinputoctets/1024/1024),3)) AS acctinputmb,
+               SUM(FORMAT((radacct_log.acctoutputoctets/1024/1024),3)) AS acctoutputmb,
+               SUM(FORMAT((radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/1024/1024,3)) AS accttotalmb
+        FROM radacct_log
+        LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        WHERE YEAR(timestamp) = YEAR(CURRENT_DATE()) AND callingstationid = ?;
+    ]);
+
+    $accounting_statements->{'acct_sessiontime_daily_sql'} = get_db_handle()->prepare(qq[
+        SELECT SUM(FORMAT((radacct_log.acctsessiontime/60),2)) AS accttotaltime
+        FROM radacct_log
+        LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        WHERE timestamp >= CURRENT_DATE() AND callingstationid = ?;
+    ]);
+
+    $accounting_statements->{'acct_sessiontime_weekly_sql'} = get_db_handle()->prepare(qq[
+        SELECT SUM(FORMAT((radacct_log.acctsessiontime/60),2)) AS accttotaltime
+        FROM radacct_log
+        LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        WHERE YEARWEEK(timestamp) = YEARWEEK(CURRENT_DATE()) AND callingstationid = ?;
+    ]);
+    
+    $accounting_statements->{'acct_sessiontime_monthly_sql'} = get_db_handle()->prepare(qq[
+        SELECT SUM(FORMAT((radacct_log.acctsessiontime/60),2)) AS accttotaltime
+        FROM radacct_log
+        LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        WHERE MONTH(timestamp) = MONTH(CURRENT_DATE()) AND callingstationid = ?;
+    ]);
+
+    $accounting_statements->{'acct_sessiontime_yearly_sql'} = get_db_handle()->prepare(qq[
+        SELECT SUM(FORMAT((radacct_log.acctsessiontime/60),2)) AS accttotaltime
+        FROM radacct_log
+        LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        WHERE YEAR(timestamp) = YEAR(CURRENT_DATE()) AND callingstationid = ?;
     ]);
 
     $accounting_db_prepared = 1;
@@ -124,6 +193,94 @@ sub node_accounting_view_all {
     return db_data(ACCOUNTING, $accounting_statements, 'acct_view_all_sql');
 }
 
+=item node_accounting_daily_bw - view bandwidth tranferred today for a node, returns an array of hashrefs
+
+=cut
+sub node_accounting_daily_bw {
+    my ($mac) = acct_mac(@_);
+    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_bandwidth_daily_sql', $mac);
+    my $ref = $query->fetchrow_hashref();
+    $query->finish();
+    return ($ref);
+}
+
+
+=item node_accounting_weekly_bw - view bandwidth tranferred this week for a node, returns an array of hashrefs
+
+=cut
+sub node_accounting_weekly_bw {
+    my ($mac) = acct_mac(@_);
+    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_bandwidth_weekly_sql', $mac);
+    my $ref = $query->fetchrow_hashref();
+    $query->finish();
+    return ($ref);
+}
+
+=item node_accounting_monthly_bw - view bandwidth tranferred this month for a node, returns an array of hashrefs
+
+=cut
+sub node_accounting_monthly_bw {
+    my ($mac) = acct_mac(@_);
+    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_bandwidth_monthly_sql', $mac);
+    my $ref = $query->fetchrow_hashref();
+    $query->finish();
+    return ($ref);
+}
+
+=item node_accounting_yearly_bw - view bandwidth tranferred this year for a node, returns an array of hashrefs
+
+=cut
+sub node_accounting_yearly_bw {
+    my ($mac) = acct_mac(@_);
+    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_bandwidth_yearly_sql', $mac);
+    my $ref = $query->fetchrow_hashref();
+    $query->finish();
+    return ($ref);
+}
+
+=item node_accounting_daily_time - view connected time today for a node, returns an array of hashrefs
+
+=cut
+sub node_accounting_daily_time {
+    my ($mac) = acct_mac(@_);
+    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_sessiontime_daily_sql', $mac);
+    my $ref = $query->fetchrow_hashref();
+    $query->finish();
+    return ($ref);
+}
+
+=item node_accounting_weekly_time - view connected time this week for a node, returns an array of hashrefs
+
+=cut
+sub node_accounting_weekly_time {
+    my ($mac) = acct_mac(@_);
+    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_sessiontime_weekly_sql', $mac);
+    my $ref = $query->fetchrow_hashref();
+    $query->finish();
+    return ($ref);
+}
+
+=item node_accounting_monthly_time - view connected time this month for a node, returns an array of hashrefs
+
+=cut
+sub node_accounting_monthly_time {
+    my ($mac) = acct_mac(@_);
+    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_sessiontime_monthly_sql', $mac);
+    my $ref = $query->fetchrow_hashref();
+    $query->finish();
+    return ($ref);
+}
+
+=item node_accounting_yearly_time - view connected time this year for a node, returns an array of hashrefs
+
+=cut
+sub node_accounting_yearly_time {
+    my ($mac) = acct_mac(@_);
+    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_sessiontime_yearly_sql', $mac);
+    my $ref = $query->fetchrow_hashref();
+    $query->finish();
+    return ($ref);
+}
 
 =back
 

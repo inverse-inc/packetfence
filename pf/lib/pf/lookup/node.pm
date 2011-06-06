@@ -17,12 +17,15 @@ use strict;
 use warnings;
 use diagnostics;
 
+use Time::localtime;
 use pf::config;
 use pf::iplog;
 use pf::locationlog;
 use pf::node;
 use pf::os;
 use pf::useragent qw(node_useragent_view);
+use pf::accounting qw(node_accounting_view node_accounting_daily_bw node_accounting_weekly_bw node_accounting_monthly_bw node_accounting_yearly_bw
+                      node_accounting_daily_time node_accounting_weekly_time node_accounting_monthly_time node_accounting_yearly_time);
 use pf::util;
 
 sub lookup_node {
@@ -158,6 +161,51 @@ sub lookup_node {
         $return = "Node $mac is not a known node!\n";
 
     }
+    
+    my $node_accounting = node_accounting_view($mac);
+    if (defined($node_accounting->{'mac'})) {
+            $return .= "\nACCOUNTING INFORMATION AND STATISTICS\n";
+            $return .= "Last Session   :\n"; 
+            $return .= "    Session Start   : " . $node_accounting->{'acctstarttime'} . "\n" if ( $node_accounting->{'acctstarttime'} );
+            $return .= "    Session End     : " . $node_accounting->{'acctstoptime'} . "\n" if ( $node_accounting->{'acctstoptime'} && $node_accounting->{'status'} eq 'not connected' );
+            $return .= "    Session Time    : " . $node_accounting->{'acctsessiontime'} . " Minutes\n" if ( $node_accounting->{'acctsessiontime'} && $node_accounting->{'status'} eq 'not connected' );
+            $return .= "    Terminate Cause : " . $node_accounting->{'acctterminatecause'} . "\n" if ( $node_accounting->{'acctterminatecause'} && $node_accounting->{'status'} eq 'not connected' );
+            $return .= "    Bandwitdh Used  : " . $node_accounting->{'accttotalmb'} . " MB\n" if ( $node_accounting->{'accttotalmb'} );
+            $return .= "\n";
+            $return .= "Bandwidth Statistics :\n";
+            my $daily_bw = node_accounting_daily_bw($mac);
+            $return .= "    Today           : ";
+            if ($daily_bw->{'accttotalmb'}) { $return .= $daily_bw->{'accttotalmb'} . " MB (IN: " . $daily_bw->{'acctoutputmb'}  . " MB // OUT: " . $daily_bw->{'acctinputmb'} . " MB) \n" } else { $return .= "0.0 MB \n" ; }
+
+            my $weekly_bw = node_accounting_weekly_bw($mac);
+            $return .= "    This Week       : ";
+            if ($weekly_bw->{'accttotalmb'}) { $return .= $weekly_bw->{'accttotalmb'} . " MB (IN: " . $weekly_bw->{'acctoutputmb'}  . " MB // OUT: " . $weekly_bw->{'acctinputmb'} . " MB) \n" } else { $return .= "0.0 MB \n"; }
+
+            my $monthly_bw = node_accounting_monthly_bw($mac);
+            $return .= "    This Month      : ";
+            if ($monthly_bw->{'accttotalmb'}) { $return .= $monthly_bw->{'accttotalmb'} . " MB (IN: " . $monthly_bw->{'acctoutputmb'}  . " MB // OUT: " . $monthly_bw->{'acctinputmb'} . " MB) \n" } else { $return .= "0.0 MB\n"; } 
+
+            my $yearly_bw = node_accounting_yearly_bw($mac);
+            $return .= "    This Year       : ";
+            if ($yearly_bw->{'accttotalmb'}) { $return .= $yearly_bw->{'accttotalmb'} . " MB (IN: " . $yearly_bw->{'acctoutputmb'}  . " MB // OUT: " . $yearly_bw->{'acctinputmb'} . " MB) \n"} else { $return .= "0.0 MB\n"; }
+            
+            $return .= "\n";
+
+       	    $return .= "Time Connected       :\n";
+            my $daily_time = node_accounting_daily_time($mac);
+            $return .= "    Today           : ";
+            if ( $daily_time->{'accttotaltime'} ) { $return .= $daily_time->{'accttotaltime'} . " Minutes \n" } else { $return .= "0.0 Minutes \n" ;}
+            my $weekly_time = node_accounting_weekly_time($mac);
+            $return .= "    This Week       : ";
+            if ( $weekly_time->{'accttotaltime'} ) { $return .= $weekly_time->{'accttotaltime'}  . " Minutes \n" } else { $return .= "0.0 Minutes \n" ;}
+       	    my $monthly_time = node_accounting_monthly_time($mac);
+            $return .= "    This Month      : ";
+            if ( $monthly_time->{'accttotaltime'} ) { $return .= $monthly_time->{'accttotaltime'}  . " Minutes \n" } else { $return .= "0.0 Minutes \n" ;}
+            my $yearly_time = node_accounting_yearly_time($mac);
+       	    $return .= "    This Year  	    : ";
+            if ( $yearly_time->{'accttotaltime'} ){ $return .= $yearly_time->{'accttotaltime'}  . " Minutes \n"} else { $return .= "0.0 Minutes \n" ;}
+        }
+
     return ($return);
 }
 
