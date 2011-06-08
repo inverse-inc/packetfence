@@ -546,6 +546,8 @@ fi
 %config(noreplace)      /usr/local/pf/html/captive-portal/templates/*
 %dir                    /usr/local/pf/html/captive-portal/violations
 %config(noreplace)      /usr/local/pf/html/captive-portal/violations/*
+%dir                    /usr/local/pf/html/captive-portal/wispr
+%config                 /usr/local/pf/html/captive-portal/wispr/*
 %dir                    /usr/local/pf/html/common
                         /usr/local/pf/html/common/*
 %attr(0755, pf, pf)     /usr/local/pf/installer.pl
