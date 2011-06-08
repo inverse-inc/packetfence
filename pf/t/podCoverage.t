@@ -9,7 +9,7 @@ use lib qw(
    /usr/local/pf/lib
 );
 
-use Test::Pod::Coverage tests => 17;
+use Test::Pod::Coverage tests => 18;
 
 pod_coverage_ok('authentication::guest_managers');
 pod_coverage_ok('authentication::kerberos');
