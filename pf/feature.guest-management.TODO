@@ -1,0 +1,31 @@
+TODOs
+- Clean URL the new CGI's in httpd.conf as we did in trunk/
+- Re-test every page of every guest workflow since the captive portal merge hasn't been thoroghly tested 
+-- with guest code pf::web::guest's search and replace
+-- with template headers and footers
+-- with path re-work
+- authentication::* improvements
+-- extract error strings out of pf::web and pf::web::guest into auth...:: with a getPrevErrorId/Str interface
+-- return hashref of auth::* properties (a la preregistered guest for the access_duration) but will also be useful to categorize nodes
+- create %%client_range%% for apache config which holds all subnets defined everywhere (or just pass %%trapping_range%%)
+- expiration of activation code isn't implemented
+- add cleanup sub in pf::email_activation called by pfmon
+- ability to specify guest access duration in pf.conf. 
+-- Should we take the opportunity to create a whole new guest section with parameters?
+- Have both text and HTML email templates activated by default (adjust README once done)
+- move newly added subs from pf::web to pf::web:guest
+- Denial of service prevention
+- write basic unit tests pf::email_activation, pf::temporary_password
+- add pf::email_activation, pf::temporary_password to basic tests
+- review POD doc
+- refactor pf::email_activation and pf::temporary_password into pf::web::...
+- integrate SMS Authentication
+- create guest divs for the default login template with display:none; or commented out by default
+
+Before merge in trunk:
+- Re-assess all TODO, FIXME and XXX tasks
+
+Once merged in trunk:
+- File all out-standing items in issue tracker
+- Copy this into the wiki
+- Delete this file

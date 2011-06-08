@@ -35,7 +35,7 @@
 
   $remediation_pages = array();
   # must have access to remediation templates
-  $remediation_path = realpath($_SERVER['DOCUMENT_ROOT'] . '/../user/content/violations');
+  $remediation_path = realpath($_SERVER['DOCUMENT_ROOT'] . '/../captive-portal/violations');
   if (!is_dir($remediation_path)) {
     print_error("Unable to open path $remediation_path");
   }

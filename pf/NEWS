@@ -12,6 +12,23 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE file.
 
+
+--------------------------------------------------------------------------------
+Version <guest-branch-release> released on <releaseDate>
+
+New features
+ * Flexible guest handling API (covering temporary passwords, self-registration,
+   pre-registration, etc.)
+ * Captive portal authentication modules are versioned, validated on startup and
+   have customizable names
+ * New default_auth parameter will be the default authentication module selected
+   if you have multiple authentication back-end enabled in auth
+
+Enhancements
+ * Captive portal usability improvements for both users and administrators
+ * More start-up validation in `pfcmd checkup`
+ * More tests
+
 --------------------------------------------------------------------------------
 Version <trunk-release> released on <releaseDate>
 
@@ -28,7 +45,6 @@ New features
 
 Enhancements
  * Externalized the jpgraph PHP library
-
 --------------------------------------------------------------------------------
 Version <2.2-release> released on <releaseDate>
 
