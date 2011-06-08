@@ -22,7 +22,7 @@ New Hardware Support
  * HP ProCurve 5400 Series
 
 New Features
- * Basic WISPR support should improve iPod/iPhone/iPad usability (#815)
+ * Basic WISPR support improves iPod/iPhone/iPad usability (#815)
 
 Enhancements
  * Nortel module now warns in the logs about a common stacking Nortel problem
