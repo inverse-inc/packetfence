@@ -451,6 +451,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/cgi-bin/redir.cgi
 %attr(0755, pf, pf)     /usr/local/pf/cgi-bin/register.cgi
 %attr(0755, pf, pf)     /usr/local/pf/cgi-bin/release.cgi
+%attr(0755, pf, pf)     /usr/local/pf/cgi-bin/wispr.cgi
 %doc                    /usr/local/pf/ChangeLog
 %dir                    /usr/local/pf/conf
 %config(noreplace)      /usr/local/pf/conf/admin.perm
@@ -556,6 +557,8 @@ fi
 %config(noreplace)      /usr/local/pf/html/user/content/templates/*
 %dir                    /usr/local/pf/html/user/content/violations
 %config(noreplace)      /usr/local/pf/html/user/content/violations/*
+%dir                    /usr/local/pf/html/user/wispr
+%config                 /usr/local/pf/html/user/wispr/*
 %attr(0755, pf, pf)     /usr/local/pf/installer.pl
 %dir                    /usr/local/pf/lib
 %dir                    /usr/local/pf/lib/HTTP

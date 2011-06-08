@@ -21,6 +21,9 @@ New Hardware Support
  * Dlink DGS 3200 switch
  * HP ProCurve 5400 Series
 
+New Features
+ * Basic WISPR support should improve iPod/iPhone/iPad usability (#815)
+
 Enhancements
  * Nortel module now warns in the logs about a common stacking Nortel problem
  * New DHCP fingerprint for Cisco/Linksys, Aruba, 3Com switch, HTC Android, 

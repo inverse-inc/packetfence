@@ -196,12 +196,17 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
 %%remediation-proxies%%
 
+  # client-side WISPR support. Returning 302 because HTTP/1.0 clients don't support 307
+  RewriteCond %{HTTP_USER_AGENT} CaptiveNetworkSupport.*wispr
+  RewriteRule ^.*$ http://%%hostname%%.%%domain%%/cgi-bin/wispr.cgi [R=302,L]
+
   RewriteCond %{REQUEST_URI} !^/favicon.ico
   RewriteCond %{REQUEST_URI} !^/msdownload/update/v3/static/trustedr/en/authrootseq.txt$
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/register.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/enabler.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/wispr.cgi
   RewriteCond %{REQUEST_URI} !^/common
   RewriteCond %{REQUEST_URI} !^/content
   RewriteCond %{REQUEST_URI} !^/3rdparty
@@ -277,12 +282,17 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
 %%remediation-proxies%%
 
+  # client-side WISPR support. Returning 302 because HTTP/1.0 clients don't support 307
+  RewriteCond %{HTTP_USER_AGENT} CaptiveNetworkSupport.*wispr
+  RewriteRule ^.*$ http://%%hostname%%.%%domain%%/cgi-bin/wispr.cgi [R=302,L]
+
   RewriteCond %{REQUEST_URI} !^/favicon.ico
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/register.+\.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/register.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/enabler.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/wispr.cgi
   RewriteCond %{REQUEST_URI} !^/common
   RewriteCond %{REQUEST_URI} !^/content
   RewriteCond %{REQUEST_URI} !^/3rdparty
