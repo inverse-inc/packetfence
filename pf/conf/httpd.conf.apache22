@@ -200,6 +200,10 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
 %%remediation-proxies%%
 
+  # client-side WISPR support. Returning 302 because HTTP/1.0 clients don't support 307
+  RewriteCond %{HTTP_USER_AGENT} CaptiveNetworkSupport.*wispr
+  RewriteRule ^.*$ http://%%hostname%%.%%domain%%/wispr [R=302,L]
+
   # clean urls handling
   RewriteRule ^/access(.*)$ /register.cgi?mode=release$1 [PT,QSA]
   RewriteRule ^/aup(.*)$ /register.cgi?mode=aup$1 [PT,QSA]
@@ -208,6 +212,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteRule ^/enabler(.*)$ /redir.cgi?enable_menu=1 [PT,QSA]
   RewriteRule ^/release(.*)$ /release.cgi$1 [PT]
   RewriteRule ^/status(.*)$ /register.cgi?mode=status [PT,QSA]
+  RewriteRule ^/wispr(.*)$ /wispr.cgi$1 [PT]
 
   # Warning: old cgi style URL deprecated will be removed in an upcoming release
   # Still accepted for a transition period. To be deprecated in 2012.
@@ -297,6 +302,10 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
 %%remediation-proxies%%
 
+  # client-side WISPR support. Returning 302 because HTTP/1.0 clients don't support 307
+  RewriteCond %{HTTP_USER_AGENT} CaptiveNetworkSupport.*wispr
+  RewriteRule ^.*$ https://%%hostname%%.%%domain%%/wispr [R=302,L]
+
   # Email activation clean URL to cgi conversion
   RewriteCond %{REQUEST_URI} ^/activate/.+$
   # [PT] here allows us to mix ScriptAlias and mod_rewrite stuff
@@ -310,6 +319,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteRule ^/enabler(.*)$ /redir.cgi?enable_menu=1 [PT,QSA]
   RewriteRule ^/release(.*)$ /release.cgi$1 [PT]
   RewriteRule ^/status(.*)$ /register.cgi?mode=status [PT,QSA]
+  RewriteRule ^/wispr(.*)$ /wispr.cgi$1 [PT]
 
   # Warning: old cgi style URL deprecated will be removed in an upcoming release
   # Still accepted for a transition period. To be deprecated in 2012.

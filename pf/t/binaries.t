@@ -1,10 +1,18 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
+=head1 NAME
 
+binaries.t
+
+=head1 DESCRIPTION
+
+Compile check on perl binaries
+
+=cut
 use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 28;
+use Test::More tests => 29;
 
 my @binaries = (
     '/usr/local/pf/configurator.pl',
@@ -27,6 +35,7 @@ my @binaries = (
     '/usr/local/pf/html/captive-portal/redir.cgi',
     '/usr/local/pf/html/captive-portal/register.cgi',
     '/usr/local/pf/html/captive-portal/release.cgi',
+    '/usr/local/pf/html/captive-portal/wispr.cgi',
     '/usr/local/pf/lib/pf/WebAPI.pm',
     '/usr/local/pf/lib/pf/web/backend_modperl_require.pl',
     '/usr/local/pf/lib/pf/web/captiveportal_modperl_require.pl',
