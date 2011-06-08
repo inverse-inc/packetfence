@@ -1,65 +1,58 @@
-<html>
+[% INCLUDE header.html 
+    body_attributes = 'onload="$(\'login\').focus();"';
+%]
 
-<head>
-<title>[%txt_page_title %]</title>
-<script src="/common/prototype.js" type="text/javascript"></script>
-<style>
-<!--
-.bio         { }
--->
-</style>
-</head>
+        [%# Welcome text %]
+        <div id="about" class="underlined">
+          <img src="content/images/lock.png" alt="You are not authorized" />
+          <p>[% txt_all_systems_must_be_registered %]</p>
+          <p>[% txt_to_complete %]</p>
+        </div>
 
-<body onload="$('login').focus();">
+        [%# Error %]
+        [% IF txt_auth_error.defined %]<div class="error"><p>[% txt_auth_error %]</p></div>[% END %]
 
-<center>
-  <table border="0" width="650" id="table2">
-    <tr>
-      <td align="center">
-      <img border="0" src="[% logo %]">
-      <td>
-    </tr>
-    <tr>
-      <td align="center" class="bio">
+        <form name="login" method="post" action="/authenticate">
+          <input type="hidden" name="destination_url" value="[% destination_url %]" />
 
-<p align="center"><font face="Arial" size="+1"> <b>[% txt_page_header %]</b></font></p>
-<form method="post" action="[% post_uri %]">
-[% IF list_authentications.size == 1 %]
-<input type='hidden' name='[% list_authentications.first.name %]' value='[% list_authentications.first.value %]'>
-[% ELSE %]
-<select name='auth'>
-   <option value='' selected>[% txt_select_authentications %]</option>
-   [% FOREACH authentication_info IN list_authentications %]
-   <option value='[% authentication_info.value %]'>[% authentication_info.name %]</option>
-   [% END %]
-</select>
-[% END %]
-                                                              
-<input type="hidden" name="destination_url" value="[% destination_url %]">
-<p align="center"><font face="Arial">
-<table>
-<tr>
-  <td>[% txt_username %]</td><td><input type="text" name="login" id="login"></td>
-</tr>
-<tr>
-  <td>[% txt_password %]</td><td><input type="password" name="password"></td>
-</tr>
-<tr>
-  <td colspan="2" style="text-align:center"><input type="submit" value="[% txt_login %]"></td>
-</tr>
-<tr>
-  <td colspan="2">[% txt_auth_error %]</td>
-</tr>
-</table>
+          [%# Authentication choice %]
+          [% IF list_authentications.size == 1 %]
+            <input type='hidden' name='[% list_authentications.first.name %]' 
+              value='[% list_authentications.first.value %]' />
+          [% ELSE %]
+            <div class="input center">
+              <select name='auth'>
+                <option value='' selected="selected">[% txt_select_authentications %]</option>
+                [% FOREACH authentication_info IN list_authentications %]
+                <option value='[% authentication_info.value %]'>[% authentication_info.name %]</option>
+                [% END %]
+              </select>
+            </div>
+          [% END %]
 
-</font></p>
-</form>
+          [%# User / Pass %]
+          <div class="input">
+            <span>[% txt_username %]</span><input class="field" name="username" id="login" type="text" />
+          </div>
+          <div class="input">
+            <span>[% txt_password %]</span><input class="field" name="password" type="password" />
+          </div>
 
-      <td>
-    </tr>
-  </table>
-</center>
+          [%# AUP %]
+          <div class="input">
+            <div>[% txt_aup %]</div>
+            <div id="aup" class="notmobile">
+              [% INCLUDE aup_text.html %]
+            </div>
+            [%# The space below is intententionnal %]
+            <div class="notmobile"><input name="aup_signed" type="checkbox" /> [% txt_accept_terms %]</div>
+            <div class="mobile"><input name="aup_signed" type="checkbox" />[% txt_accept_terms_mobile %]</div>
+          </div>
 
-</body>
+          [%# submit %]
+          <div class="input">
+            <input type="submit" class="button" name="submit" value="[% txt_login %]" />
+          </div>
+        </form>
 
-</html>
+[% INCLUDE footer.html %]
