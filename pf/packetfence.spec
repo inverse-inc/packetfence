@@ -585,6 +585,7 @@ fi
                         /usr/local/pf/lib/pf/web/*.pl
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
                         /usr/local/pf/lib/pf/web/util.pm
+                        /usr/local/pf/lib/pf/web/wispr.pm
 %dir                    /usr/local/pf/logs
 %doc                    /usr/local/pf/NEWS
 %doc                    /usr/local/pf/README
