@@ -64,7 +64,7 @@ BEGIN {
         $oui_file $oui_url
         $floating_devices_file %ConfigFloatingDevices
         $blackholemac $portscan_sid @VALID_TRIGGER_TYPES $thread $default_pid $fqdn
-        $FALSE $TRUE
+        $FALSE $TRUE $YES $NO
         WIRELESS_802_1X WIRELESS_MAC_AUTH WIRED_802_1X WIRED_MAC_AUTH WIRED_SNMP_TRAPS WIRELESS WIRED EAP UNKNOWN
         VOIP NO_VOIP
         LOOPBACK_IPV4
@@ -96,6 +96,8 @@ my $logger = Log::Log4perl->get_logger('pf::config');
 # some global constants
 Readonly::Scalar our $FALSE => 0;
 Readonly::Scalar our $TRUE => 1;
+Readonly::Scalar our $YES => 'yes';
+Readonly::Scalar our $NO => 'no';
 
 $config_file            = $conf_dir . "/pf.conf";
 $default_config_file    = $conf_dir . "/pf.conf.defaults";
