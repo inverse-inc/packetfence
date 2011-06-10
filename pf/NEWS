@@ -18,6 +18,7 @@ Version <release> released on <releaseDate>
 
 New Hardware Support
  * AeroHIVE AP Access Points
+ * Dlink DES 3550 switch (Thanks to Olivier Roch Vilato)
  * Dlink DGS 3200 switch
  * HP ProCurve 5400 Series
 
