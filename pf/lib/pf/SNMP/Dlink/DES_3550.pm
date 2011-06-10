@@ -1,28 +1,20 @@
-package pf::SNMP::Nortel::ERS2500;
+package pf::SNMP::Dlink::DES_3550;
 
 =head1 NAME
 
-pf::SNMP::Nortel::ERS2500 - Object oriented module to access SNMP enabled Nortel ERS2500 switches
+pf::SNMP::Dlink::DES_3550
 
 =head1 SYNOPSIS
 
-The pf::SNMP::Nortel::ERS2500 module implements an object 
-oriented interface to access SNMP enabled Nortel::ERS2500 switches.
+Object oriented module to access and manage Dlink DES 3550 switches
 
 =head1 STATUS
 
-This module is currently only a placeholder, see pf::SNMP::Nortel.
+Supports MAC Notification mode only
 
-=head1 BUGS AND LIMITATIONS
+This module is currently only a placeholder, see pf::SNMP::Dlink
 
-=over
-
-=item ERS 2526T firmware 4.3.0.004
-
-We received reports saying that port authorization / de-authorization in port-security did not work.
-At this point we do not know whhich firmwares are affected by the issue.
-
-=back
+Tested by the community on unspecified firmware.
 
 =cut
 
@@ -39,11 +31,12 @@ use base ('pf::SNMP::Nortel');
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
-Regis Balzard <rbalzard@inverse.ca>
+Module contributed by Olivier Roch Vilato <olivier.rochvilato@chilbp.fr> 
+but his parseTrap was integrated into Dlink instead for less code duplication and easier maintenance.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010-2011 Inverse inc.
+Copyright (C) 2011 Inverse inc.
 
 =head1 LICENSE
 
