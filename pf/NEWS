@@ -20,6 +20,7 @@ New Hardware Support
  * AeroHIVE AP Access Points
  * Dlink DGS 3200 switch
  * HP ProCurve 5400 Series
+ * ExtremeNetworks Summit now supports MAC Authentication and 802.1X
 
 New Features
  * Basic WISPR support improves iPod/iPhone/iPad usability (#815)
