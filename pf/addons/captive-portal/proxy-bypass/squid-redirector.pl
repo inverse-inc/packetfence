@@ -45,7 +45,7 @@ while (<>) {
     } else {
 
         # in any other case, we redirect to captive portal
-        print "$id 302:https://$fqdn/cgi-bin/redir.cgi?destination_url=$url";
+        print "$id 302:https://$fqdn/captive-portal?destination_url=$url";
     }
     # newline returns the response to squid
     print "\n";
@@ -57,7 +57,9 @@ Olivier Bilodeau <obilodeau@inverse.ca>
     
 =head1 COPYRIGHT
     
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2010, 2011 Inverse inc.
+
+=head1 LICENSE
         
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

@@ -5,6 +5,35 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to <trunk-release>:
+
+    - Support for Apache prior to version 2.2.0 dropped
+    Upgrade your Apache. We don't think it's used by anyone at this point. Let
+    us know if you need it back.
+
+    - Intrusive changes to Captive Portal
+    It is recommended that you redo your customization from scratch instead of 
+    trying to adapt it.
+    Among other things:
+     - Changes to all templates, cgi-bin/ scripts and pf::web core code
+     - All remediation URLs have changed from /content/index.php to 
+       /content/remediation.php. Make sure to update your conf/violations.conf!
+     - All URLs are now clean URLs translated by Apache's mod_rewrite config
+     - Default workflow now brings you to the login page (no more registration
+       click-through unless you adjust nbregpages in configuration)
+     - Default logo changed to packetfence-cp.png (was packetfence.png)
+
+    - jpgraph external libraries changed location
+    jpgraph files are expected to be located in /var/www/jpgraph-<version>/ 
+    instead of the earlier 
+    /usr/local/pf/html/admin/common/jpgraph/jpgraph-<version>. Users of our 
+    packaged versions won't notice the change.
+
+    - jpgraph 1.x support deprecated
+    We got rid of the 1.x jpgraph support. It was only required for 
+    environments still on PHP4. We don't think it's used by anyone at this 
+    point. Let us know if you need it back.
+
 o Upgrading from a version prior to 2.2.0:
 
     - Database schema update
