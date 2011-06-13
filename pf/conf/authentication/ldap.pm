@@ -102,8 +102,8 @@ my $LDAPUserScope = "sub";
 my $LDAPBindDN = "";
 my $LDAPBindPassword = "";
 my $LDAPServer = "";
-#my $LDAPGroupMemberKey = "memberOf";
-#my $LDAPGroupDN = "";
+my $LDAPGroupMemberKey = "memberOf";
+my $LDAPGroupDN = "";
 
 =head1 SUBROUTINES
 
@@ -114,8 +114,6 @@ my $LDAPServer = "";
   return (1,0) for successfull authentication
   return (0,2) for inability to check credentials
   return (0,1) for wrong login/password
-
-=back
 
 =cut
 
@@ -167,6 +165,30 @@ sub authenticate {
   return (1,0);
 }
 
+=item * get_membergroups
+
+Returns a list of all groups' DN in a given group DN.
+
+=cut
+sub get_membergroups {
+    my ($connection, $group_dn) = @_;
+
+    my $result = $connection->search(
+        base => $LDAPUserBase,
+        filter => "(&(objectClass=group)($LDAPGroupMemberKey=$group_dn))",
+        scope => $LDAPUserScope,
+        attrs => ['dn']
+    );
+
+    my @membergroups;
+    foreach my $entry ($result->entries) {
+        push @membergroups, $entry->dn();
+    }
+    return @membergroups;
+}
+
+=back
+
 =head1 DEPENDENCIES
 
 =over
@@ -179,11 +201,15 @@ sub authenticate {
 
 =head1 AUTHOR
 
+Olivier Bilodau <obilodeau@inverse.ca>
+
 Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008 Inverse inc.
+Copyright (C) 2006-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

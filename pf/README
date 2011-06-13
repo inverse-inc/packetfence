@@ -53,19 +53,31 @@
   Acknowledgments
   ---------------
 
-  Core Technologies
-    Kevin Amorin 
-    David Laporte
-    Dominik Gehl
-    Regis Balzard
+  Maintainers
     Olivier Bilodeau
-
-  Additional Development
-    Randy Heins
     Francois Gaudreault
 
-  Translations
+  Translators
     de: Tino Matysiak <tmatysiak@meetyoo.de>
     fr: Inverse inc. <support@inverse.ca>
+        Vincent Blut <vincent.debian@free.fr>
     it: Mario Varelli <mvarelli@biologia.unipi.it>
     pt_BR: Brivaldo Junior <condector@gmail.com>
+
+  Past Maintainers
+    David Laporte
+    Dominik Gehl
+    Kevin Amorin 
+    Regis Balzard
+
+  Contributors
+    Brivaldo Junior
+    Chinasee Boonyatang
+    Maikel van der Roest
+    Olivier Roch Vilato
+    Ponpitak Santipaptawon
+    Randy Heins
+    Tino Matysiak
+    Treker Chen
+    Vincent Blut
+

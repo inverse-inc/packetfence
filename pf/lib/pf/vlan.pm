@@ -82,6 +82,10 @@ sub fetchVlanForNode {
 
     # no violation, not unregistered, we are now handling a normal vlan
     my $vlan = $this->getNormalVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+    if (!defined($vlan)) {
+        $logger->warn("Resolved VLAN for node is not properly defined: Replacing with macDetectionVlan");
+        $vlan = $switch->getVlanByName('macDetectionVlan');
+    }
     $logger->info("MAC: $mac, PID: " .$node_info->{pid}. ", Status: " .$node_info->{status}. ". Returned VLAN: $vlan");
     return $vlan;
 }

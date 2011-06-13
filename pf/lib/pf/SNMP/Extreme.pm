@@ -59,6 +59,11 @@ use pf::config;
 use pf::SNMP::constants;
 use pf::util;
 
+# CAPABILITIES
+# access technology supported
+sub supportsWiredMacAuth { return $TRUE; }
+sub supportsWiredDot1x { return $TRUE; }
+
 =head1 SUBROUTINES
 
 =over

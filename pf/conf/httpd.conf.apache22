@@ -196,19 +196,35 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
 %%remediation-proxies%%
 
+  # client-side WISPR support. Returning 302 because HTTP/1.0 clients don't support 307
+  RewriteCond %{HTTP_USER_AGENT} CaptiveNetworkSupport.*wispr
+  RewriteRule ^.*$ http://%%hostname%%.%%domain%%/wispr [R=302,L]
+
+  # clean urls handling
+  RewriteRule ^/access(.*)$ /cgi-bin/register.cgi?mode=release$1 [PT,QSA]
+  RewriteRule ^/aup(.*)$ /cgi-bin/register.cgi?mode=aup$1 [PT,QSA]
+  RewriteRule ^/authenticate(.*)$ /cgi-bin/register.cgi$1 [PT]
+  RewriteRule ^/captive-portal(.*)$ /cgi-bin/redir.cgi$1 [PT]
+  RewriteRule ^/enabler(.*)$ /cgi-bin/redir.cgi?enable_menu=1 [PT,QSA]
+  RewriteRule ^/release(.*)$ /cgi-bin/release.cgi$1 [PT]
+  RewriteRule ^/status(.*)$ /cgi-bin/register.cgi?mode=status [PT,QSA]
+  RewriteRule ^/wispr(.*)$ /cgi-bin/wispr.cgi [PT]
+
   RewriteCond %{REQUEST_URI} !^/favicon.ico
   RewriteCond %{REQUEST_URI} !^/msdownload/update/v3/static/trustedr/en/authrootseq.txt$
+  # old cgi style URL deprecated will be removed in an upcoming release
+  # still accepted for a transition period
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/register.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/enabler.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/wispr.cgi
   RewriteCond %{REQUEST_URI} !^/common
   RewriteCond %{REQUEST_URI} !^/content
   RewriteCond %{REQUEST_URI} !^/3rdparty
-  RewriteCond %{REQUEST_URI} !^/status
   RewriteCond %{REQUEST_URI} !^/proxies
   # Now using temporary redirects instead of permanent (fixes #757)
-  RewriteRule ^.*$ https://%%hostname%%.%%domain%%/cgi-bin/redir.cgi?destination_url=http://%{HTTP_HOST}%{REQUEST_URI} [R=307,L]
+  RewriteRule ^.*$ https://%%hostname%%.%%domain%%/captive-portal?destination_url=http://%{HTTP_HOST}%{REQUEST_URI} [R=307,L]
 
   ProxyPassReverse /msdownload/update/v3/static/trustedr/en/authrootseq.txt http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootseq.txt
   ProxyPass /msdownload/update/v3/static/trustedr/en/authrootseq.txt http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootseq.txt
@@ -250,8 +266,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
   SSLProxyEngine on
   Include %%varconf_dir%%/ssl-certificates.conf
 
-  Redirect /status https://%%hostname%%.%%domain%%/cgi-bin/register.cgi?mode=status
-
   RewriteEngine On
   #RewriteLogLevel 3
   #RewriteLog %%install_dir%%/logs/rewrite_log
@@ -277,19 +291,35 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
 %%remediation-proxies%%
 
+  # client-side WISPR support. Returning 302 because HTTP/1.0 clients don't support 307
+  RewriteCond %{HTTP_USER_AGENT} CaptiveNetworkSupport.*wispr
+  RewriteRule ^.*$ http://%%hostname%%.%%domain%%/wispr [R=302,L]
+
+  # clean urls handling
+  RewriteRule ^/access(.*)$ /cgi-bin/register.cgi?mode=release$1 [PT,QSA]
+  RewriteRule ^/aup(.*)$ /cgi-bin/register.cgi?mode=aup$1 [PT,QSA]
+  RewriteRule ^/authenticate(.*)$ /cgi-bin/register.cgi$1 [PT]
+  RewriteRule ^/captive-portal(.*)$ /cgi-bin/redir.cgi$1 [PT]
+  RewriteRule ^/enabler(.*)$ /cgi-bin/redir.cgi?enable_menu=1 [PT,QSA]
+  RewriteRule ^/release(.*)$ /cgi-bin/release.cgi$1 [PT]
+  RewriteRule ^/status(.*)$ /cgi-bin/register.cgi?mode=status [PT,QSA]
+  RewriteRule ^/wispr(.*)$ /cgi-bin/wispr.cgi [PT]
+
   RewriteCond %{REQUEST_URI} !^/favicon.ico
+  # old cgi style URL deprecated will be removed in an upcoming release
+  # still accepted for a transition period
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/register.+\.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/register.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/enabler.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/wispr.cgi
   RewriteCond %{REQUEST_URI} !^/common
   RewriteCond %{REQUEST_URI} !^/content
   RewriteCond %{REQUEST_URI} !^/3rdparty
-  RewriteCond %{REQUEST_URI} !^/status
   RewriteCond %{REQUEST_URI} !^/proxies
   # Now using temporary redirects instead of permanent (fixes #757)
-  RewriteRule ^.*$ https://%%hostname%%.%%domain%%/cgi-bin/redir.cgi?destination_url=https://%{HTTP_HOST}%{REQUEST_URI} [R=307,L]
+  RewriteRule ^.*$ https://%%hostname%%.%%domain%%/captive-portal?destination_url=https://%{HTTP_HOST}%{REQUEST_URI} [R=307,L]
 
 %%proxies%%                
 
@@ -354,7 +384,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
     #php_value register_globals "On"
     php_value register_long_arrays "On"
     php_value session.save_path "%%install_dir%%/var/session"
-    php_value memory_limit "64M"
+    php_value memory_limit "128M"
     #(E_ALL & ~E_NOTICE) = 2047-8
     php_value error_reporting 2039
   </Location>
