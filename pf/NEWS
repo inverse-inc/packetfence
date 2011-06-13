@@ -34,6 +34,8 @@ Enhancements
  * New FreeRADIUS watchdog script in addons
  * Admin Guide: cleanup of the MySQL optimization, more logging in Samba config
  * New binding allowing to offer different captive portal for mobile devices
+ * Admin Guide's FAQ and Troubleshooting sections has been migrated to the 
+   PacketFence website
 
 Bug fixes
  * Re-introduced MAC Authentication and 802.1X support in Cisco 3560, 3750
