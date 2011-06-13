@@ -8,6 +8,10 @@ pf::SNMP::HP::Controller_MSM710
 
 The pf::SNMP::HP::Controller_MSM710 module manages access to HP Procurve Controller MSM710
 
+=head1 STATUS
+
+Should work on all HP Wireless E series
+
 =cut
 
 use strict;

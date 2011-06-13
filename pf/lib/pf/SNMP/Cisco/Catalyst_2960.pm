@@ -6,21 +6,61 @@ pf::SNMP::Cisco::Catalyst_2960 - Object oriented module to access and configure 
 
 =head1 STATUS
 
-Supports
- 802.1X with or without VoIP
- Port-Security with or without VoIP
- Link Up / Link Down
+=over
+
+=item Supports
+
+=over
+
+=item 802.1X with or without VoIP
+
+=item Port-Security with or without VoIP
+
+=item Link Up / Link Down
+
+=back
+
+=back
 
 This module extends pf::SNMP::Cisco::Catalyst_2950.
 
 =head1 BUGS AND LIMITATIONS
 
-The minimum required firmware version is 12.2(25)SEE2.
+=over
 
-Port-security + VoIP mode works with firmware 12.2(50) and later. Earlier IOS were not explicitly tested.
+=item Firmwares
+
+Recommended firmware is 12.2(55)SE1
+
+The absolute minimum required firmware version is 12.2(25)SEE2.
+
+Port-security + VoIP mode works with firmware 12.2(44) and later.
+Earlier IOS were not explicitly tested.
+
+=item Known buggy firmwares
+
+=over
+
+=item Port-Security 
+
+12.2(55)SE is known to be broken 12.2(55)SE1 is apparently fine
+
+12.2(52) has been problematic for some community members
+
+12.2(50) is known to be problematic
+
+12.2(44)SE6 is known to be buggy: not sending traps under certain circumstances
 
 Port-security + VoIP support doesn't work with IOS version 12.2(25r). 
-This is a Cisco issue. Upgrade your IOS. See issue #1020 for details.
+See issue #1020 for details.
+
+=item SNMPv3
+
+12.2(52) doesn't work in SNMPv3
+
+=back
+
+=back
 
 =head1 CONFIGURATION AND ENVIRONMENT
 

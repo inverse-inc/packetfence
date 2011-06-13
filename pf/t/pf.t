@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 49;
+use Test::More tests => 50;
 
 # pf core libs
 use lib '/usr/local/pf/lib';
@@ -54,6 +54,7 @@ BEGIN { use_ok('pf::vlan::custom') }
 BEGIN { use_ok('pf::web') }
 BEGIN { use_ok('pf::web::custom') }
 BEGIN { use_ok('pf::web::util') }
+BEGIN { use_ok('pf::web::wispr') }
 
 # external authentication modules
 use lib '/usr/local/pf/conf/';

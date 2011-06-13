@@ -71,7 +71,7 @@ msgid  "scan: scan in progress"
 msgstr "Your system is being scanned"
 
 msgid  "scan in progress contact support if too long"
-msgstr "Your system is still being scanned right now. The process started at %s. Usually this process takes a few minutes. If it has been much longer than that, contact your local support staff. Please provide the following information:"
+msgstr "Your system is still being scanned right now. The process started at %s. Usually this process takes a few minutes. If it has been much longer than that, contact your local support staff."
 
 msgid  "automatically refresh"
 msgstr "This page automatically refreshes every %s seconds to verify if scan has completed."
@@ -236,4 +236,19 @@ msgid "There are known issues with the automatic redirection on Opera browsers. 
 msgstr ""
 
 msgid "Some versions of Internet Explorer may take a while before redirection occurs."
+msgstr ""
+
+msgid "I accept the terms"
+msgstr ""
+
+msgid "I have read and accept the terms"
+msgstr "I have read and accept the <a href='/aup' target='_blank'>terms</a>"
+
+msgid "You need to accept the terms before proceeding any further."
+msgstr ""
+
+msgid "Your registration is pending approval. Once approved you will be automatically redirected."
+msgstr ""
+
+msgid "Next page"
 msgstr ""

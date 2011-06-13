@@ -9,6 +9,27 @@ pf::SNMP::Dlink::DWS_3026
 The pf::SNMP::Dlink::DWS_3026 module implements an object oriented interface
 to manage Dlink DWS 3026 controller.
 
+=head1 STATUS
+
+Model 8500 version 2.2.0.19 is known to work fine
+
+=head1 BUGS AND LIMITATIONS
+
+=over
+
+=item Caching problems
+
+Apparently most Dlink firmwares cache in a way that affects PacketFence.
+The VLAN are assigned straight from the cache instead of creating a new query.
+
+Versions above and below 2.2.0.19 are know to cause these problems.
+
+=item No RADIUS VLAN Assignment on in MAC Authentication (Open SSIDs) on AP 8600
+
+Firmwawre 3.0.0.13 known to be affected.
+
+=back
+
 =cut
 
 use strict;

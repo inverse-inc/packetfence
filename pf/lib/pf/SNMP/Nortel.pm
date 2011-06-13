@@ -13,13 +13,19 @@ to access SNMP enabled Nortel switches.
 
 =over
 
-=item BayStack
+=item BayStack stacking issues
 
 Sometimes switches that were previously in a stacked setup will report 
 security violations as if they were still stacked.
 You will notice security authorization made on wrong ifIndexes.
-A factory reset will resolve the situation. 
+A factory reset / reconfiguration will resolve the situation. 
 We experienced the issue with a BayStack 470 running 3.7.5.13 but we believe it affects other BayStacks and firmwares. 
+
+=item Hard to predict OIDs seen on some variants
+
+We faced issues where some switches (ie ERS2500) insisted on having a board index of 1 when adding a MAC to the security table although for most other operations the board index was 0.
+Our attempted fix is to always consider the board index to start with 1 on the operations touching secuirty status (isPortSecurity and authorizeMAC).
+Be aware of that if you start to see MAC authorization failures and report the problem to us, we might have to do a per firmware or per device implementation instead.
 
 =back
 
@@ -82,6 +88,14 @@ sub parseTrap {
         $trapHashRef->{'trapMac'}     = lc($3);
         $trapHashRef->{'trapMac'} =~ s/ /:/g;
         $trapHashRef->{'trapVlan'} = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
+
+        if ($trapHashRef->{'trapIfIndex'} <= 0) {
+            $logger->warn(
+                "Trap ifIndex is invalid. Should this switch be factory-reset? " 
+                . "See Nortel's BayStack Stacking issues in module documentation for more information."
+            );
+        }
+
         $logger->debug(
             "ifIndex for " . $trapHashRef->{'trapMac'} . " on switch " . $this->{_ip} 
             . " is " . $trapHashRef->{'trapIfIndex'}
@@ -308,14 +322,27 @@ sub getFirstBoardIndex {
     my $OID_s5SbsAuthCfgBrdIndx = '1.3.6.1.4.1.45.1.6.5.3.10.1.1';
     my $result = $this->{_sessionRead}->get_next_request(-varbindlist => [$OID_s5SbsAuthCfgBrdIndx]);
 
+    my $firstIndx;
     foreach my $key ( sort keys %{$result} ) {
-        if($key =~ /^$OID_s5SbsAuthCfgBrdIndx\.(\d+)/){
-            return $1;
+        if ($key =~ /^$OID_s5SbsAuthCfgBrdIndx\.(\d+)/) {
+            $firstIndx = $1;
+            last;
         }
     }
 
-    $logger->warn("unable to fetch first board index. Will assume it's 1");
-    return 1;
+    if (!defined($firstIndx)) {
+        $logger->warn("unable to fetch first board index. Will assume it's 1");
+        return 1;
+    }
+
+    if ($firstIndx > 1) {
+        $logger->warn(
+            "first board index is greater than 1. Should this switch be factory-reset? " 
+            . "See Nortel's BayStack Stacking issues in module documentation for more information."
+        );
+    }
+
+    return $firstIndx;
 }
 
 sub getBoardPortFromIfIndex {
@@ -323,6 +350,23 @@ sub getBoardPortFromIfIndex {
 
     my $board = ($this->getFirstBoardIndex() + int( $ifIndex / $this->getBoardIndexWidth() )); 
     my $port = ( $ifIndex % $this->getBoardIndexWidth() );
+    return ( $board, $port );
+}
+
+=item getBoardPortFromIfIndexForSecurityStatus
+
+We noticed that the security status related OIDs always report their first boardIndex to 1 even though elsewhere 
+it's all referenced as 0. 
+I'm unsure if this is a bug or a feature so we created this hook that will always assume 1 as first board index.
+To be used by method which read security status related MIBs.
+
+=cut
+sub getBoardPortFromIfIndexForSecurityStatus {
+    my ( $this, $ifIndex ) = @_;
+
+    my $board = (1 + int( $ifIndex / $this->getBoardIndexWidth() ));
+    my $port = ( $ifIndex % $this->getBoardIndexWidth() );
+
     return ( $board, $port );
 }
 
@@ -431,7 +475,6 @@ sub _authorizeMAC {
         return 0;
     }
 
-    # setup config parameters
     my ( $boardIndx, $portIndx ) = $this->getBoardPortFromIfIndex($ifIndex);
     my $cfgStatus = ($authorize) ? 2 : 3;
     my $mac_oid = mac2oid($mac);
@@ -453,7 +496,11 @@ sub _authorizeMAC {
             ]
         );
     }
-    return ( defined($result) );
+
+    return $TRUE if (defined($result));
+
+    $logger->warn("MAC authorize / deauthorize failed with " . $this->{_sessionWrite}->error());
+    return;
 }
 
 sub isDynamicPortSecurityEnabled {
@@ -466,11 +513,37 @@ sub isStaticPortSecurityEnabled {
     return 1;
 }
 
+
+# This function has not been tested on stacked switches !
 sub setPortSecurityEnableByIfIndex {
     my ( $this, $ifIndex, $trueFalse ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    $logger->info("function not implemented yet");
+    my $OID_s5SbsPortSecurityStatus = "1.3.6.1.4.1.45.1.6.5.3.15.0";
+    my $result;
+
+    if ( !$this->connectRead() ) {
+        return 0;
+    }
+    if ( !$this->connectWrite() ) {
+        return 0;
+    }
+
+    $this->{_sessionRead}->translate(0);
+
+    $logger->trace("SNMP get_request for OID_s5SbsPortSecurityStatus: $OID_s5SbsPortSecurityStatus");
+    $result = $this->{_sessionRead}->get_request( -varbindlist => [ "$OID_s5SbsPortSecurityStatus" ] );
+
+    my $portSecurityStatus = ($trueFalse) ? 0 : 1;
+    my $newSecurConfig = $this->modifyBitmask($result->{"$OID_s5SbsPortSecurityStatus"}, $ifIndex, $portSecurityStatus);
+
+    $this->{_sessionRead}->translate(1);
+
+    $logger->trace("SNMP set_request for s5SbsPortSecurityStatus: $OID_s5SbsPortSecurityStatus");
+    $result = $this->{_sessionWrite}->set_request( -varbindlist => [ 
+        "$OID_s5SbsPortSecurityStatus", Net::SNMP::OCTET_STRING, $newSecurConfig, 
+    ]);
+
     return 1;
 }
 
@@ -485,8 +558,7 @@ sub isPortSecurityEnabled {
     # careful readers will notice that we don't use getBoardPortFromIfIndex here. 
     # That's because Nortel thought that it made sense to start BoardIndexes differently for different OIDs
     # on the same switch!!! 
-    my $boardIndx = (1 + int( $ifIndex / $this->getBoardIndexWidth() ));
-    my $portIndx = ( $ifIndex % $this->getBoardIndexWidth() );
+    my ( $boardIndx, $portIndx ) = $this->getBoardPortFromIfIndexForSecurityStatus($ifIndex);
 
     my $s5SbsSecurityStatus         = undef;
     my $s5SbsSecurityAction         = undef;

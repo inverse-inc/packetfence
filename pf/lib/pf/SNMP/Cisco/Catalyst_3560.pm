@@ -6,27 +6,76 @@ pf::SNMP::Cisco::Catalyst_3560 - Object oriented module to access and configure 
 
 =head1 STATUS
 
+=over
+
+=item port-security
+
 This module is currently only a placeholder, see pf::SNMP::Cisco::Catalyst_2950.
 
+=item MAC-Authentication / 802.1X
+
+The hardware should support it.
+
 802.1X support was never tested by Inverse.
+
+=item Firmware 
+
+12.2(50)SE1 has been reported to work fine
+
+12.2(25)SEC1 has issues
+
+=back
 
 =cut
 
 use strict;
 use warnings;
 use diagnostics;
+
 use Log::Log4perl;
 use Net::SNMP;
 
+use pf::config;
+
 use base ('pf::SNMP::Cisco::Catalyst_2950');
 
+# CAPABILITIES
+# access technology supported
+sub supportsWiredMacAuth { return $TRUE; }
+sub supportsWiredDot1x { return $TRUE; }
+# VoIP technology supported
+sub supportsRadiusVoip { return $TRUE; }
+# override 2950's FALSE
+sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
+
+=head1 SUBROUTINES
+
+=over
+
+=item dot1xPortReauthenticate
+
+Points to pf::SNMP implementation bypassing Catalyst_2950's overridden behavior.
+
+=cut
+sub dot1xPortReauthenticate {
+    my ($this, $ifIndex) = @_;
+
+    return $this->_dot1xPortReauthenticate($ifIndex);
+}
+
+=back
+
 =head1 AUTHOR
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
 Copyright (C) 2006-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

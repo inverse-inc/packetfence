@@ -179,7 +179,7 @@ sub post_auth {
     # Uncomment for verbose debugging with radius -X
     # use Data::Dumper;
     # $Data::Dumper::Terse = 1; $Data::Dumper::Indent = 0; # pretty output for rad logs
-    # &radiusd::radlog(1, "PacketFence COMPLETE REPLY: ". Dumper(\%radius_reply));
+    # &radiusd::radlog(1, "PacketFence COMPLETE REPLY: ". Dumper(\%RAD_REPLY));
     closelog();
     return $radius_return_code;
 }

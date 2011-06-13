@@ -175,6 +175,27 @@ function validate_user_flat_file($user, $pass, $hash = ''){
   return false;
 }
 
+/*
+ * If you decide to use groups in the conf/admin.conf file, 
+ * use this function to validate the hash instead of the normal one
+ */
+function validate_user_group($user, $pass, $hash = ''){
+  $file = file(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/conf/admin.conf');
+  foreach($file as $line){
+    $line = rtrim($line);
+    $info = explode(":", $line);
+    if ($user == $info[0]) {
+      if(!$hash){
+        $hash = crypt($pass, $info[2]);
+      }
+      if($info[2] == $hash){
+        return array($hash, $info[1]);
+      }
+    }
+  }
+  return false;
+}
+
 $abs_url="https://$HTTP_SERVER_VARS[HTTP_HOST]"; 
 
 if(!function_exists('session_start')){
