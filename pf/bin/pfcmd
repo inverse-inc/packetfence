@@ -2497,8 +2497,7 @@ sub vlan_reevaluation {
             $logger->info( "$mac is currentlog connected at $switch_ip ifIndex $ifIndex in VLAN $currentVlan" );
 
             my $vlan_obj = new pf::vlan::custom();
-            my $switchFactory = new pf::SwitchFactory(-configFile => "$conf_dir/switches.conf");
-            my $switch = $switchFactory->instantiate($switch_ip);
+            my $switch = pf::SwitchFactory->getInstance()->instantiate($switch_ip);
             if (!$switch) {
                 $logger->error("Can not instantiate switch $switch_ip! Won't change VLAN");
                 return 0;

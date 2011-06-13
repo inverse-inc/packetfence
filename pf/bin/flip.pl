@@ -50,8 +50,7 @@ if ($locationlog_entry) {
         . "connection type: " . $connection_type_explained{$conn_type});
 
     # TODO we could try to avoid the need of flip create a switch factory each time..
-    my $switchFactory = new pf::SwitchFactory( -configFile => "$conf_dir/switches.conf" );
-    my $trapSender    = $switchFactory->instantiate('127.0.0.1');
+    my $trapSender = pf::SwitchFactory->getInstance()->instantiate('127.0.0.1');
 
     if ($trapSender) {
         if ($conn_type eq UNKNOWN) {
