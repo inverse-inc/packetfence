@@ -1,44 +1,9 @@
-<html>
+[% INCLUDE header.html %]
 
-<head>
-  <title>[% txt_page_title %]</title>
-<style>
-<!--
-.bio         { }
--->
-</style>
-</head>
+        <div id="about">
+          <img src="/content/images/error.png" alt="Error" />
+          <h1>[% txt_page_header %]</h1>
+          <p>[% txt_message %]</p>
+        </div>
 
-<body>
-
-<center>
-  <table border="0" width="650" id="table2">
-    <tr>
-      <td align="center">
-        <img border="0" src="[% logo %]">
-      <td>
-    </tr>
-    <tr>
-      <td align="left" class="bio">
-
-<p align="center"><font face="Arial" size="+1"><b>[% txt_page_header %]</b></font></p>
-<p align="left">
-<font face="Arial">[% txt_message %]</font>
-</p>
-<p align="left">
-<font face="Arial">[% txt_help %]
-<ul>
-  [%  FOREACH txt_help_info IN list_help_info %]
-  <li>[% txt_help_info.name %]: [% txt_help_info.value %]</li>
-  [%  END %]
-</ul>
-</font>
-</p>
-      <td>
-    </tr>
-  </table>
-</center>
-
-</body>
-
-</html>
+[% INCLUDE footer.html %]
