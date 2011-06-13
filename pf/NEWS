@@ -31,7 +31,7 @@ Enhancements
  * New DHCP fingerprint for Cisco/Linksys, Aruba, 3Com switch, HTC Android, 
    Polycom, Konica Minolta MFP's and HP Printers
  * Warning avoidance
- * New FreeRADIUS watchdog script in addons
+ * New FreeRADIUS and pfdhcplistener watchdog scripts in addons/watchdog/
  * Admin Guide: cleanup of the MySQL optimization, more logging in Samba config
  * New binding allowing to offer different captive portal for mobile devices
  * Admin Guide's FAQ and Troubleshooting sections has been migrated to the 

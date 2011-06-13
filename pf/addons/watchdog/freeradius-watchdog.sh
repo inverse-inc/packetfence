@@ -49,3 +49,4 @@ if [[ $? == 0 ]]; then
     MESSAGE=`tail -n 20 /var/log/radius/radius.log`
     echo -e "$MSG\r\nRadius Log Output:\r\n$MESSAGE" | /bin/mail -s "freeradius watchdog alert on $HOST!" "$EMAILTO"
 fi
+

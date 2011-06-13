@@ -209,6 +209,7 @@ cp -r addons/integration-testing/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/mrtg/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/upgrade/ $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp -r addons/watchdog/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/dhcp_dumper $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -425,7 +426,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/addons/database-backup-and-maintenance.sh
 %dir                    /usr/local/pf/addons/freeradius-integration/
                         /usr/local/pf/addons/freeradius-integration/*
-%attr(0755, pf, pf)	/usr/local/pf/addons/freeradius-watchdog.sh
 %dir                    /usr/local/pf/addons/high-availability/
                         /usr/local/pf/addons/high-availability/*
 %dir                    /usr/local/pf/addons/integration-testing/
@@ -443,6 +443,8 @@ fi
 %dir                    /usr/local/pf/addons/802.1X
 %doc                    /usr/local/pf/addons/802.1X/README
 %attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/packetfence.pm
+%dir                    /usr/local/pf/addons/watchdog
+%attr(0755, pf, pf)     /usr/local/pf/addons/watchdog/*.sh
 %dir                    /usr/local/pf/bin
 %attr(0755, pf, pf)     /usr/local/pf/bin/flip.pl
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
