@@ -544,7 +544,7 @@ sub _is_node_category_whitelisted {
 
     # Grabbing the node's informations (incl. category)
     # Note: consider extracting out of here and putting in violation_trigger and passing node_info hashref instead
-    my $node_info = node_view($mac);
+    my $node_info = node_attributes($mac);
     if(!defined($node_info) || ref($node_info) ne 'HASH') {
         $logger->warn("Something went wrong trying to fetch the node info");
         return 0;
@@ -578,7 +578,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009,2010 Inverse inc.
+Copyright (C) 2009-2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

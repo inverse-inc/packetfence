@@ -967,7 +967,7 @@ sub dot1xPortReauthenticate {
             $message{'message'} .= "MAC: $mac\n";
 
             require pf::node;
-            my $node_info = pf::node::node_view($mac);
+            my $node_info = pf::node::node_attributes($mac);
             $message{'message'} .= "Owner: " . $node_info->{'pid'} . "\n";
             $message{'message'} .= "Computer Name: " . $node_info->{'computername'} . "\n";
             $message{'message'} .= "Notes: " . $node_info->{'notes'} . "\n";
