@@ -27,6 +27,10 @@ New Features
  * Basic WISPR support improves iPod/iPhone/iPad usability (#815)
 
 Enhancements
+ * Performance improvement for RADIUS based requests in environments with large
+   conf/switches.conf files
+ * Increased responsiveness of VLAN assignments by reducing the available node
+   information (got rid of unused fields)
  * Nortel module now warns in the logs about a common stacking Nortel problem
  * New DHCP fingerprint for Cisco/Linksys, Aruba, 3Com switch, HTC Android, 
    Polycom, Konica Minolta MFP's and HP Printers

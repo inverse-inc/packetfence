@@ -809,8 +809,7 @@ sub generate_snmptrapd_conf {
     $tags{'userLines'} = '';
     my %SNMPv3Users;
     my %SNMPCommunities;
-    my $switchFactory
-        = new pf::SwitchFactory( -configFile => "$conf_dir/switches.conf" );
+    my $switchFactory = pf::SwitchFactory->getInstance();
     my %switchConfig = %{ $switchFactory->{_config} };
 
     foreach my $key ( sort keys %switchConfig ) {

@@ -138,8 +138,7 @@ pod2usage( -verbose => 1 ) if $help;
 # }}}1
 
 # startup {{{1
-my $switchFactory = new pf::SwitchFactory(
-    -configFile => INSTALL_DIR . '/conf/switches.conf' );
+my $switchFactory = pf::SwitchFactory->getInstance();
 
 # building trap-matcher regexp
 my $TRAP_PATTERN = qr/

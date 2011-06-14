@@ -45,7 +45,7 @@ BEGIN {
 use pf::config;
 use pf::util;
 use pf::iplog qw(ip2mac);
-use pf::node qw(node_view node_modify);
+use pf::node qw(node_attributes node_view node_modify);
 use pf::useragent;
 
 =head1 SUBROUTINES
@@ -336,7 +336,7 @@ sub generate_status_page {
         generate_login_page( $cgi, $session, $ENV{REQUEST_URI}, '', $err );
         exit(0);
     }
-    my $node_info = node_view($mac);
+    my $node_info = node_attributes($mac);
     if ( $session->param("login") ne $node_info->{'pid'} ) {
         generate_error_page( $cgi, $session,
             "error: access denied not owner" );
@@ -573,7 +573,7 @@ sub generate_registration_page {
     if ( ( $pagenumber == $Config{'registration'}{'nbregpages'} )
         && !( $Config{'network'}{'mode'} =~ /vlan/i ) )
     {
-        my $node_info         = node_view($mac);
+        my $node_info = node_attributes($mac);
         my $detect_date       = str2time( $node_info->{'detect_date'} );
         my $registration_mode = $Config{'registration'}{'skip_mode'};
 
@@ -712,7 +712,9 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2008-2010 Inverse inc.
+Copyright (C) 2008-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

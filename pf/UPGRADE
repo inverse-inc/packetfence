@@ -5,6 +5,15 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to <stable-release>:
+
+    - pf::vlan's $node_info changed
+    If you are using custom VLAN assignment code be aware that the $node_info
+    hashref is now populated by node_attributes() instead of node_view(). Most
+    important fields should still be available in $node_info however if you 
+    needed one that is no longer there feel free to call node_view() yourself.
+    This was done to reduce the overall latency of RADIUS replies.
+
 o Upgrading from a version prior to 2.2.0:
 
     - Database schema update

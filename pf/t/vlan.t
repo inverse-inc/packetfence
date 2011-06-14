@@ -74,7 +74,7 @@ $mock->mock('violation_count_trap', sub { return (0); });
 
 # mocking used node method calls
 $mock->mock('node_exist', sub { return (1); });
-$mock->mock('node_view', sub { 
+$mock->mock('node_attributes', sub { 
     return { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '',
         lastskip => '', status => 'reg', user_agent => '', computername => '', notes => '', last_arp => '',
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, nbopenviolations => ''}
@@ -85,8 +85,8 @@ my $switch_vlan_override = $switchFactory->instantiate('10.0.0.2');
 $vlan = $vlan_obj->fetchVlanForNode('aa:bb:cc:dd:ee:ff', $switch_vlan_override, '1001');
 is($vlan, 15, "determine vlan for registered user on custom switch");
 
-# mocked node_view returns unreg node
-$mock->mock('node_view', sub {
+# mocked node_attributes returns unreg node
+$mock->mock('node_attributes', sub {
     return { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '',
         lastskip => '', status => 'unreg', user_agent => '', computername => '', notes => '', last_arp => '',
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, nbopenviolations => ''}

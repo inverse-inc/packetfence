@@ -213,8 +213,7 @@ if ($logLevel) {
     $root_logger->add_appender($appender);
 }
 
-my $switchFactory = new pf::SwitchFactory(
-    -configFile => INSTALL_DIR . '/conf/switches.conf' );
+my $switchFactory = pf::SwitchFactory->getInstance();
 
 if ($getUpLinks) {
 
