@@ -42,6 +42,8 @@ Enhancements
    PacketFence website
 
 Bug fixes
+ * Important fixes on Cisco 2960 related to Port-Security and VoIP handling in
+   IOS 12.2(46)SE or greater
  * Re-introduced MAC Authentication and 802.1X support in Cisco 3560, 3750
  * Fixed expire deadline automatic un-registration (#865)
  * Updated Admin Guide to reflect proper method calls for custom VLAN assignment

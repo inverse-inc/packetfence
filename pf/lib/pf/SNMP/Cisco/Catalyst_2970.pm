@@ -8,8 +8,12 @@ pf::SNMP::Cisco::Catalyst_2970 - Object oriented module to access and configure 
 
 This module is currently only a placeholder, see pf::SNMP::Cisco::Catalyst_2960.
 
-=cut
+=head1 BUGS AND LIMITATIONS
 
+Because a lot of code is shared with the 2960 make sure to check the BUGS AND LIMITATIONS section of 
+L<pf::SNMP::Cisco::Catalyst_2960> also.
+
+=cut
 use strict;
 use warnings;
 use diagnostics;
@@ -20,11 +24,15 @@ use base ('pf::SNMP::Cisco::Catalyst_2960');
 
 =head1 AUTHOR
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
 Copyright (C) 2006-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

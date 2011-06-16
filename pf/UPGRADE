@@ -7,6 +7,23 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <stable-release>:
 
+    - Cisco port-security + Voice over IP support on 2960, 2970, 3550 and 4500
+    Changes (regressions?) in the Cisco 2960 IOS behavior in 12.2(46)SE or 
+    greater forced us to change our VoIP handling behavior. If you run such an 
+    IOS and have nodes behind the data port of your VoIP you need to upgrade 
+    your switch configuration:
+    On every PacketFence port with VoIP add:
+      switchport port-security maximum 1 vlan voice
+      switchport port-security mac-address 0200.010x.xxxx vlan voice
+    where xxxxx is the ifIndex of the port under modification. See Network 
+    Device Guide for a reminder of port to ifIndex translation for the 2960.
+
+    Above configuration should *not* be applied to IOS earlier than 12.2(46)SE
+    otherwise VoIP and/or device authorization will malfunction.
+
+    We think that the above mentionned changes should not be required on other
+    models than the 2960. Let us know if you experience otherwise.
+
     - pf::vlan's $node_info changed
     If you are using custom VLAN assignment code be aware that the $node_info
     hashref is now populated by node_attributes() instead of node_view(). Most
