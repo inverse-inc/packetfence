@@ -5,7 +5,7 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
-o Upgrading from a version prior to <stable-release>:
+o Upgrading from a version prior to 2.2.1:
 
     - Cisco port-security + Voice over IP support on 2960, 2970, 3550 and 4500
     Changes (regressions?) in the Cisco 2960 IOS behavior in 12.2(46)SE or 
