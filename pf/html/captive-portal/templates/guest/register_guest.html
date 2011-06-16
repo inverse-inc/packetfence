@@ -1,0 +1,55 @@
+[% INCLUDE header.html
+    body_attributes = 'onload="$(\'firstfield\').focus();"';
+%]
+
+        [%# Welcome text %]
+        <div id="about" class="underlined">
+          <h1>[% txt_page_header %]</h1>
+          <img src="content/images/lock.png" alt="You are not authorized" />
+          <p>[% txt_instructions %]</p>
+        </div>
+
+        [%# Error %]
+        [% IF txt_error.defined %]<div class="error"><p>[% txt_error %]</p></div>[% END %]
+
+        <form method="post" action="[% post_uri %]">
+
+          <div class="input">
+            <span>[% txt_firstname %]</span>
+            <input class="field" name="firstname" id="firstfield" type="text" value="[% firstname %]" />
+          </div>
+          <div class="input">
+            <span>[% txt_lastname %]</span>
+            <input class="field" name="lastname" type="text" value="[% lastname %]" />
+          </div>
+          <div class="input">
+            <span>[% txt_phone %]</span>
+            <input class="field" name="phone" type="text" value="[% phone %]" />
+          </div>
+          <div class="input">
+            <span>[% txt_email %]*</span>
+            <input class="field" name="email" type="text" value="[% email %]" />
+          </div>
+          <div class="input">
+            <span>[% txt_arrival %]*</span>
+            <input class="field" name="arrival_date" type="text" value="[% arrival_date %]" />
+            <em>[% txt_arrival_format %]</em>
+          </div>
+          <div class="input">
+            <span>[% txt_access_duration %]*</span>
+            <select name="access_duration">
+              [% FOREACH d IN duration.keys.nsort %]
+                <option [% IF default_duration == d %]selected='selected' [% END %]value='[% d %]'>
+                  [% duration.$d %]
+                </option>
+              [% END %]
+            </select>
+          </div>
+
+          [%# submit %]
+          <div class="input">
+            <input type="submit" name="action_print" value="[% txt_button_print %]" />
+            <input type="submit" name="action_sendEmail" value="[% txt_button_email %]" />
+          </div>
+
+[% INCLUDE footer.html %]

@@ -18,6 +18,12 @@ See F<pf::web::custom> for details.
 use strict;
 use warnings;
 
+use Locale::gettext;
+use POSIX;
+
+use pf::config;
+use pf::util;
+
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
@@ -83,6 +89,32 @@ sub is_email_valid {
     }
     return 0;
 }
+
+=item get_translated_time_hash
+
+Returns an hash that holds time values.
+ key => short time format (ex: 1h or 1d)
+ value => translated long time format. ex: 1 hour (en) 1 heure (fr) or 1 day (en) 1 jour (fr)
+
+=cut
+sub get_translated_time_hash {
+    my ($to_translate, $locale) = @_;
+    setlocale( LC_MESSAGES, $locale );
+    bindtextdomain( "packetfence", "$conf_dir/locale" );
+    textdomain("packetfence");
+
+    my %time;
+    foreach my $keys (@{$to_translate}) {
+        my ($unit, $unit_plural, $value) = get_translatable_time($keys);
+        
+        # we normalize time so we can present the hash in a sorted fashion
+        my $unix_timestamp = normalize_time($keys);
+
+        $time{$unix_timestamp} = $value . " " . ngettext($unit, $unit_plural, $value);
+    }
+    return \%time;
+}
+
 =back
 
 =head1 AUTHOR
@@ -91,7 +123,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2010-2011 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

@@ -24,6 +24,15 @@
 
     <revhistory>
       <revision>
+        <revnumber>2.5</revnumber>
+        <date>2011-05-31</date>
+        <authorinitials>OBU</authorinitials>
+        <revremark>Content updated to reflect latest captive portal improvements: 
+          Better templating, XHTML/CSS and streamlined remediation pages. 
+          Updated translation information including contributing translations.
+        </revremark>
+      </revision>
+      <revision>
         <revnumber>2.4</revnumber>
         <date>2011-03-31</date>
         <authorinitials>OBU</authorinitials>
@@ -141,9 +150,9 @@
         <listitem><para>regular expressions should be documented (with the <parameter>/x</parameter> modifier)</para>
           <programlisting><![CDATA[if ($phone_number =~ /
     ^\(?([2-9]\d{2})\)?  # captures first 3 digits allows parens
-    (?:-|.|\s)?          # separator -, ., sapce or nothing
+    (?:-|.|\s)?          # separator -, ., space or nothing
     (\d{3})              # captures 3 digits
-    (?:-|.|\s)?          # separator -, ., sapce or nothing
+    (?:-|.|\s)?          # separator -, ., space or nothing
     (\d{4})$             # captures last 4 digits
     /x) {
         return "$1$2$3";
@@ -174,66 +183,38 @@
     <title>Customizing PacketFence</title>
 
     <sect1>
-      <title>Registration Pages</title>
+      <title>Captive Portal</title>
 
-      <sect2>
-        <title>Translations</title>
+      <sect2 id="presentation">
+        <title id="presentation.title">Presentation</title>
 
-        <para>The language of the user registration pages is selected through the <varname>general.locale</varname> 
-        configuration parameter.</para>
-        <para>The internationalization process uses gettext. If you are new to gettext, please consult 
-        <ulink url="http://www.gnu.org/software/gettext/manual/gettext.html#Overview">
-        http://www.gnu.org/software/gettext/manual/gettext.html#Overview</ulink> for a quick introduction.</para>
-        <para>Currently, PacketFence has language files for Dutch, English, French, Italian and Spanish. 
-        The PO files are stored in <filename>/usr/local/pf/conf/locale</filename>.</para>
-        <para>If you want to add support for a new language, please follow these steps:</para>
-
-        <orderedlist>
-          <listitem>
-            <para>create a new language subdirectory in <filename>/usr/local/pf/conf/locale</filename></para>
-          </listitem>
-          <listitem>
-            <para>change into your newly created directory</para>
-          </listitem>
-          <listitem>
-            <para>create a new subdirectory <filename>LC_MESSAGES</filename></para>
-          </listitem>
-          <listitem>
-            <para>change into your newly created directory</para>
-          </listitem>
-          <listitem>
-            <para>copy the file <filename>/usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.po</filename> into
-            your directory</para>
-          </listitem>
-          <listitem>
-            <para>translate the message strings in <filename>packetfence.po</filename></para>
-          </listitem>
-          <listitem>
-            <para>create the MO file by executing: <screen>/usr/bin/msgfmt packetfence.po</screen></para>
-          </listitem>
-        </orderedlist>
-
-        <para>Please consider submitting your new translation to the PacketFence project by contacting us at 
-        <ulink url="mailto:packetfence-devel@lists.sourceforge.net?subject=new%20translation">
-        packetfence-devel@lists.sourceforge.net</ulink>.</para>
-
-      </sect2>
-
-      <sect2>
-        <title>Content</title>
-
-        <para>Since version 1.7 of PacketFence, the registration pages use Template Toolkit 
-        (<ulink url="http://template-toolkit.org/">http://template-toolkit.org/</ulink>).</para>
-
-        <para>All the template files are located in <filename>/usr/local/pf/html/user/content/templates</filename>.
-        The first template you might want to customize are surely the registration templates
-        <filename>/usr/local/pf/html/user/content/templates/register.html</filename> and
-        <filename>/usr/local/pf/html/user/content/templates/register_1.html</filename>. You can freely edit the HTML 
-        code in this file (and all other template files). However, if you want to customize the pages beyond the HTML 
-        template (for example by adding new variables to it), you'll need to look into the 
-        <filename>/usr/local/pf/lib/pf/web.pm</filename> Perl module. This module contains one function per template 
-        file. So if you want to modify the registration page, you'll have to modify
-        the <function>generate_registration_page</function> function.</para>
+        <sect3>
+          <title>XHTML Templates</title>
+          <para>
+            Captive portal content use Template Toolkit templates
+            (<ulink url="http://template-toolkit.org/">http://template-toolkit.org/</ulink>). 
+            All the template files are located in <filename>/usr/local/pf/html/captive-portal/templates</filename>.
+            You can freely edit the HTML code in this file (and all other template files).
+            However, if you want to customize the pages beyond the HTML 
+            template (for example by adding new variables to it), you'll need to look into the 
+            <filename>/usr/local/pf/lib/pf/web/custom.pm</filename> Perl module. 
+            This module allows you to overload the behavior of the default 
+            <filename>/usr/local/pf/lib/pf/web.pm</filename> module.
+          </para>
+          <para>
+            Each template relies on <filename>header.html</filename> and <filename>footer.html</filename> 
+            for the common top and bottom portion of each file.
+          </para>
+        </sect3>
+        <sect3>
+          <title>CSS</title>
+          <para>
+            Most of the branding should be possible by only changing the CSS. 
+            It is located in <filename>/usr/local/pf/html/captive-portal/content/styles.css</filename> 
+            and there is also one loaded by mobile browsers at 
+            <filename>/usr/local/pf/html/captive-portal/content/mobile.css</filename>.
+          </para>
+        </sect3>
       </sect2>
 
       <sect2>
@@ -246,27 +227,59 @@
             <filename>/usr/local/pf/conf/httpd.conf</filename></para>
           </listitem>
           <listitem>
-            <para>requested CGI script in <filename>/usr/local/pf/cgi-bin</filename> is executed</para>
+            <para>Requested CGI script in <filename>/usr/local/pf/html/captive-portal/</filename> is executed</para>
           </listitem>
           <listitem>
             <para>CGI script calls a <function>generate_&lt;type&gt;</function> function which is defined in
             <filename>/usr/local/pf/lib/pf/web.pm</filename></para>
           </listitem>
           <listitem>
-            <para>the <function>generate_&lt;type&gt;</function> function uses Template Toolkit and the templates in
-            <filename>/usr/local/pf/html/user/content/templates</filename> in order to render the page</para>
+            <para>The <function>generate_&lt;type&gt;</function> function populate the proper template in
+            <filename>/usr/local/pf/html/captive-portal/templates</filename> in order to render the page</para>
           </listitem>
         </orderedlist>
       </sect2>
 
-    </sect1>
+      <sect2>
+        <title>Remediation Pages</title>
+        <para>
+          The remediation page shown to the user during isolation are specified through the URL parameter of the given
+          violation in <filename>/usr/local/pf/conf/violations.conf</filename>. In its default configuration, 
+          PacketFence uses PHP to render text provided in the directory 
+          <filename>/usr/local/pf/html/captive-portal/violations/</filename> and obeys the
+          everything mentionned in the <link linkend='presentation' endterm="presentation.title"/> section.
+          The only caveat being that the template (<filename>remediation.html</filename>) is not Template Toolkit 
+          but pure perl.
+        </para>
+      </sect2>
 
-    <sect1>
-      <title>Remediation Pages</title>
-      <para>The remediation page shown to the user during isolation is specified through the url parameter of the given
-      violation in <filename>/usr/local/pf/conf/violations.conf</filename>. In its default configuration, 
-      PacketFence uses PHP templates located in the directory 
-      <filename>/usr/local/pf/html/user/content/violations/</filename>.</para>
+      <sect2>
+        <title>Translations</title>
+        <para>
+          The language of the user registration pages is selected through the <varname>general.locale</varname> 
+          configuration parameter.
+          Translatable strings are handled differently for the Remediation pages and the rest of the captive portal:
+          <itemizedlist>
+            <listitem>
+              <para>Remediation pages</para>
+              <para>Strings defined in the violation pages (in 
+                <filename>/usr/local/pf/html/captive-portal/violations/</filename>) 
+                will be looked up in the translation files in <filename>/usr/local/pf/conf/locale/..</filename>
+                and if a translation is available the translated string will be the one visible on the captive portal.
+              </para>
+            </listitem>
+            <listitem>
+              <para>Rest of the captive portal</para>
+              <para>
+                <classname>pf::web</classname> takes care of performing the translation and gives pre-translated 
+                strings to the templates.
+              </para>
+            </listitem>
+          </itemizedlist>
+        </para>
+
+      </sect2>
+
     </sect1>
 
     <sect1>
@@ -783,6 +796,44 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
         <ulink url="http://mtn.inverse.ca/">public source code repository</ulink>.
       </para>
     </sect1>
+
+    <sect1>
+      <title>Translations</title>
+      <para>The internationalization process uses gettext. If you are new to gettext, please consult 
+      <ulink url="http://www.gnu.org/software/gettext/manual/gettext.html#Overview">
+      http://www.gnu.org/software/gettext/manual/gettext.html#Overview</ulink> for a quick introduction.</para>
+      <para>The PO files are stored in <filename>/usr/local/pf/conf/locale</filename>. 
+        List that directory to see the languages we currently have translations for.</para>
+      <para>If you want to add support for a new language, please follow these steps:</para>
+      <orderedlist>
+        <listitem>
+          <para>create a new language subdirectory in <filename>/usr/local/pf/conf/locale</filename></para>
+        </listitem>
+        <listitem>
+          <para>change into your newly created directory</para>
+        </listitem>
+        <listitem>
+          <para>create a new subdirectory <filename>LC_MESSAGES</filename></para>
+        </listitem>
+        <listitem>
+          <para>change into your newly created directory</para>
+        </listitem>
+        <listitem>
+          <para>copy the file <filename>/usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.po</filename> into
+          your directory</para>
+        </listitem>
+        <listitem>
+          <para>translate the message strings in <filename>packetfence.po</filename></para>
+        </listitem>
+        <listitem>
+          <para>create the MO file by executing: <screen>/usr/bin/msgfmt packetfence.po</screen></para>
+        </listitem>
+      </orderedlist>
+      <para>Submit your new translation to the PacketFence project by contacting us at 
+      <ulink url="mailto:packetfence-devel@lists.sourceforge.net?subject=new%20translation">
+      packetfence-devel@lists.sourceforge.net</ulink>.</para>
+    </sect1>
+
   </chapter>
 
   &additional-info;

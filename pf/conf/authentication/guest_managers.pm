@@ -1,39 +1,39 @@
-package authentication::kerberos;
+package authentication::guest_managers;
 =head1 NAME
 
-authentication::kerberos - kerberos authentication
+authentication::guest_managers - file authentication on the conf/guest-managers.conf file
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
-  use authentication::kerberos;
+  use authentication::guest_managers;
   my ( $authReturn, $err ) = authenticate ( $login, $password );
 
 This module extends pf::web::auth
 
-=head1 DESCRIPTION
+=head1 DEPENDENCIES
 
-authentication::kerberos allows to validate a username/password combination using Kerberos5
+=over
+
+=item * Apache::Htpasswd
+
+=item * Log::Log4perl
+
+=item * pf::config
+
+=back
 
 =cut
-
 use strict;
 use warnings;
-use Authen::Krb5::Simple;
+use Apache::Htpasswd;
+use Log::Log4perl;
 
 use base ('pf::web::auth');
+use pf::config;
 
 our $VERSION = 1.00;
 
 =head1 CONFIGURATION AND ENVIRONMENT
-
-Don't forget to install the Authen::Krb5::Simple module. 
-This is done automatically if you use a packaged version of PacketFence.
-
-Define the variables C<Krb5Realm> at the top of the module.
-
-=cut
-
-my $Krb5Realm = 'EXAMPLE.COM';
 
 =head2 Optional
 
@@ -46,29 +46,39 @@ Name displayed on the captive portal dropdown
 =back
 
 =cut
-my $name = "Kerberos";
+my $name = "Guest Management";
 
 =head1 SUBROUTINES
 
 =over
 
-=item authenticate ($login, $password)
+=item * authenticate( $login, $password )
 
   return (1,0) for successfull authentication
   return (0,2) for inability to check credentials
   return (0,1) for wrong login/password
 
 =cut
-
 sub authenticate {
-    my ($this, $username, $password) = @_;
-    my $krb = Authen::Krb5::Simple->new( realm => $Krb5Realm );
+  my ($this, $username, $password) = @_;
+  my $logger = Log::Log4perl::get_logger('authentication::guest_managers');
+  my $passwdFile = "$conf_dir/guest-managers.conf";
 
-    if ($krb->authenticate($username, $password)) {
-        return (1,0);
-    } else {
-        return (0,1);
-    }
+  if (! -r $passwdFile) {
+      $logger->error("unable to read password file '$passwdFile'");
+      return (0,2);
+  }
+
+  my $htpasswd = new Apache::Htpasswd({
+      passwdFile => $passwdFile,
+      ReadOnly   => 1}
+  );
+  if ((!defined($htpasswd->htCheckPassword($username, $password))) 
+    or ($htpasswd->htCheckPassword($username, $password) == 0)) {
+      return (0,1);
+  } else {
+      return (1,0);
+  }
 }
 
 =item * getName
@@ -87,17 +97,9 @@ sub getName {
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
-Brad Lhotsky <brad@divisionbyzero.net> 
-
-Based on pf::authenticate::radius by:
-
-Maikel van der roest <mvdroest@utelisys.com>
-
 =head1 COPYRIGHT
 
 Copyright (C) 2011 Inverse inc.
-
-Copyright (C) 2008 Utelisys Communications B.V.
 
 =head1 LICENSE
 
