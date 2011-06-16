@@ -27,7 +27,7 @@ use Readonly;
 use pf::config;
 use pf::util;
 use pf::iplog qw(ip2mac);
-use pf::node qw(node_view node_modify);
+use pf::node qw(node_attributes node_view node_modify);
 use pf::useragent;
 use pf::web;
 
@@ -85,7 +85,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2010,2011 Inverse inc.
 
 =head1 LICENSE
 

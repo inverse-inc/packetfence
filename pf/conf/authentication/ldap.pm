@@ -52,7 +52,13 @@ for users or only direct entries at $LDAPUserBase ?
 
 =head1 TESTING
 
-TODO you can try your LDAP query with:
+You can try your LDAP query with:
+
+  ldapsearch -x -b <LDAPUserBase> -h <LDAPServer> -W -D <LDAPBindDN> <LDAPUserKey>=username dn
+
+For example:
+
+  ldapsearch -x -b "ou=users,dc=packetfence,dc=org" -h ldap.packetfence.org -W -D "cn=PacketFence,ou=IT,dc=packetfence,dc=org" "cn=obilodeau" dn
 
 =head1 EXAMPLES
 

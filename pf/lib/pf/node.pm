@@ -46,6 +46,7 @@ BEGIN {
         node_delete
         node_add
         node_add_simple
+        node_attributes
         node_view
         node_count_all
         node_view_all
@@ -119,6 +120,18 @@ sub node_db_prepare {
         WHERE mac=?
     ]);
  
+    $node_statements->{'node_attributes_sql'} = get_db_handle()->prepare(qq[
+        SELECT mac, pid, voip, status, bypass_vlan, 
+            IF(ISNULL(node_category.name), '', node_category.name) as category, 
+            detect_date, regdate, unregdate, lastskip, 
+            user_agent, computername, dhcp_fingerprint, 
+            last_arp, last_dhcp,
+            node.notes
+        FROM node
+            LEFT JOIN node_category USING (category_id)
+        WHERE mac = ?
+    ]);
+
     $node_statements->{'node_view_sql'} = get_db_handle()->prepare(qq[
         SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
             IF(ISNULL(node_category.name), '', node_category.name) as category,
@@ -380,9 +393,31 @@ sub node_add_simple {
     }
 }
 
-#
-# return row = mac
-#
+=item node_attributes
+
+Returns information about a given MAC address (node)
+
+It's a simpler and faster version of node_view with fewer fields returned.
+
+=cut
+sub node_attributes {
+    my ($mac) = @_;
+
+    my $tmpMAC = Net::MAC->new( 'mac' => $mac );
+    $mac = $tmpMAC->as_IEEE();
+    my $query = db_query_execute(NODE, $node_statements, 'node_attributes_sql', $mac) || return (0);
+    my $ref = $query->fetchrow_hashref();
+
+    # just get one row and finish
+    $query->finish();
+    return ($ref);
+}
+
+=item node_view
+
+Returning lots of information about a given MAC address (node)
+
+=cut
 sub node_view {
     my ($mac) = @_;
 
@@ -851,7 +886,7 @@ sub is_node_voip {
     my $logger = Log::Log4perl::get_logger('pf::node');
 
     $logger->trace("Asked wether node $mac is a VoIP Device or not");
-    my $node_info = node_view($mac);   
+    my $node_info = node_attributes($mac);   
     if ($node_info->{'voip'} eq VOIP) {
         return $TRUE;
     } else {
@@ -871,7 +906,7 @@ sub is_node_registered {
     my $logger = Log::Log4perl::get_logger('pf::node');
 
     $logger->trace("Asked wether node $mac is registered or not");
-    my $node_info = node_view($mac);   
+    my $node_info = node_attributes($mac);   
     if ($node_info->{'status'} eq $STATUS_REGISTERED) {
         return $TRUE;
     } else {
@@ -934,7 +969,9 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2007-2010 Inverse inc.
+Copyright (C) 2007-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

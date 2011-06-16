@@ -30,7 +30,7 @@ Enhancements
  * Externalized the jpgraph PHP library
 
 --------------------------------------------------------------------------------
-Version <2.2-release> released on <releaseDate>
+Version 2.2.1 released on 2011-06-16
 
 New Hardware Support
  * AeroHIVE AP Access Points
@@ -43,6 +43,10 @@ New Features
  * Basic WISPR support improves iPod/iPhone/iPad usability (#815)
 
 Enhancements
+ * Performance improvement for RADIUS based requests in environments with large
+   conf/switches.conf files
+ * Increased responsiveness of VLAN assignments by reducing the available node
+   information (got rid of unused fields)
  * Nortel module now warns in the logs about a common stacking Nortel problem
  * New DHCP fingerprint for Cisco/Linksys, Aruba, 3Com switch, HTC Android, 
    Polycom, Konica Minolta MFP's and HP Printers
@@ -54,6 +58,8 @@ Enhancements
    PacketFence website
 
 Bug fixes
+ * Important fixes on Cisco 2960 related to Port-Security and VoIP handling in
+   IOS 12.2(46)SE or greater
  * Re-introduced MAC Authentication and 802.1X support in Cisco 3560, 3750
  * Fixed expire deadline automatic un-registration (#865)
  * Updated Admin Guide to reflect proper method calls for custom VLAN assignment

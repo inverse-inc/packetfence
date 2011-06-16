@@ -8,11 +8,30 @@ pf::SNMP::Cisco::Catalyst_3550 - Object oriented module to access and configure 
 
 This module is currently only a placeholder, see pf::SNMP::Cisco::Catalyst_2960.
 
+IOS 12.2(44)SE6 is known to work.
+
 =head1 BUGS AND LIMITATIONS
 
-Known issues with IOS 12.2(35)SE5. IOS 12.2(44)SE6 is known to work.
+Because a lot of code is shared with the 2960 make sure to check the BUGS AND LIMITATIONS section of 
+L<pf::SNMP::Cisco::Catalyst_2960> also.
+
+=over 
+
+=item Port-Security + Voice over IP (VoIP): IOS 12.2(25r) disappearing config
+
+For some reason when securing a MAC address the switch loses an important portion of its config.
+This is a Cisco bug, nothing much we can do. Don't use this IOS for VoIP.
+See issue #1020 for details.
+
+=item Port-Security problematic firmwares
+
+Known issues with IOS 12.2(35)SE5
+
+=item ifIndex inconsistencies
 
 IfIndex on this platform is not the same as port # or dot1d port.
+
+=back
 
 =cut
 
@@ -33,6 +52,8 @@ Dominik Gehl <dgehl@inverse.ca>
 =head1 COPYRIGHT
 
 Copyright (C) 2006-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

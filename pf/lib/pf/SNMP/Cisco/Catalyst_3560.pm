@@ -26,8 +26,22 @@ The hardware should support it.
 
 =back
 
-=cut
+=head1 BUGS AND LIMITATIONS
 
+Because a lot of code is shared with the 2950 make sure to check the BUGS AND LIMITATIONS section of 
+L<pf::SNMP::Cisco::Catalyst_2950> also.
+
+=over 
+
+=item Port-Security + Voice over IP (VoIP): IOS 12.2(25r) disappearing config
+
+For some reason when securing a MAC address the switch loses an important portion of its config.
+This is a Cisco bug, nothing much we can do. Don't use this IOS for VoIP.
+See issue #1020 for details.
+
+=back
+
+=cut
 use strict;
 use warnings;
 use diagnostics;

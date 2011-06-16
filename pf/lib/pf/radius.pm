@@ -94,11 +94,8 @@ sub authorize {
     # There is activity from that mac, call node wakeup
     node_mac_wakeup($mac);
 
-    # TODO: the following statement and the switch instantiation account for a third of the time spent in a radius query
-    my $switchFactory = new pf::SwitchFactory(-configFile => $conf_dir.'/switches.conf');
-
     $logger->debug("instantiating switch");
-    my $switch = $switchFactory->instantiate($switch_ip);
+    my $switch = pf::SwitchFactory->getInstance()->instantiate($switch_ip);
 
     # is switch object correct?
     if (!$switch) {

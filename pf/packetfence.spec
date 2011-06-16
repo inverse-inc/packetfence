@@ -631,6 +631,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Thu Jun 16 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 2.2.1-1
+- New release 2.2.1
+
 * Mon May 15 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Added file freeradius-watchdog.sh
 

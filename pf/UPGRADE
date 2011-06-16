@@ -34,6 +34,32 @@ o Upgrading from a version prior to <trunk-release>:
     environments still on PHP4. We don't think it's used by anyone at this 
     point. Let us know if you need it back.
 
+o Upgrading from a version prior to 2.2.1:
+
+    - Cisco port-security + Voice over IP support on 2960, 2970, 3550 and 4500
+    Changes (regressions?) in the Cisco 2960 IOS behavior in 12.2(46)SE or 
+    greater forced us to change our VoIP handling behavior. If you run such an 
+    IOS and have nodes behind the data port of your VoIP you need to upgrade 
+    your switch configuration:
+    On every PacketFence port with VoIP add:
+      switchport port-security maximum 1 vlan voice
+      switchport port-security mac-address 0200.010x.xxxx vlan voice
+    where xxxxx is the ifIndex of the port under modification. See Network 
+    Device Guide for a reminder of port to ifIndex translation for the 2960.
+
+    Above configuration should *not* be applied to IOS earlier than 12.2(46)SE
+    otherwise VoIP and/or device authorization will malfunction.
+
+    We think that the above mentionned changes should not be required on other
+    models than the 2960. Let us know if you experience otherwise.
+
+    - pf::vlan's $node_info changed
+    If you are using custom VLAN assignment code be aware that the $node_info
+    hashref is now populated by node_attributes() instead of node_view(). Most
+    important fields should still be available in $node_info however if you 
+    needed one that is no longer there feel free to call node_view() yourself.
+    This was done to reduce the overall latency of RADIUS replies.
+
 o Upgrading from a version prior to 2.2.0:
 
     - Database schema update

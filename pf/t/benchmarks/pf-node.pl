@@ -1,29 +1,38 @@
 #!/usr/bin/perl
 =head1 NAME
 
-backend_modperl_require.pl
+pf-node.pl
 
 =head1 DESCRIPTION
 
-Pre-loading PacketFence's modules in Apache (mod_perl) for the Web Admin / Web Services Back-End
+Some performance benchmarks on some pf::node functions
 
 =cut
-use lib "/usr/local/pf/lib";
-
 use strict;
 use warnings;
+use diagnostics;
 
-use Log::Log4perl;
+use Benchmark qw(cmpthese timethese);
 
-use pf::config;
-use pf::locationlog;
+use lib '/usr/local/pf/lib';
+
+=head1 pf::node's node_view vs node_attributes
+
+=cut
+use pf::db;
 use pf::node;
-use pf::SNMP;
-use pf::SwitchFactory;
-use pf::util;
 
-# Forces a pre-load of the SwitchFactory singleton to avoid penalty performance on first request
-pf::SwitchFactory->getInstance();
+# get the db layer started
+my $ignored = node_view('f0:4d:a2:cb:d9:c5');
+my $results = timethese(100, {
+    node_view => sub { 
+        node_view('f0:4d:a2:cb:d9:c5');
+    },
+    node_attributes => sub { 
+        node_attributes('f0:4d:a2:cb:d9:c5');
+    }
+});
+cmpthese($results);
 
 =head1 AUTHOR
 
@@ -31,10 +40,10 @@ Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2010-2011 Inverse inc.
+Copyright (C) 2011 Inverse inc.
 
-=head1 LICENSE 
-
+=head1 LICENSE
+    
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
@@ -51,4 +60,3 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.            
                 
 =cut
-1;
