@@ -1,52 +1,24 @@
-<html>
-
-<head>
-<title>[% txt_page_title %]</title>
-<style>
-<!--
-.bio         { }
--->
-</style>
-</head>
-
-<body>
-
-<center>
-  <table border="0" width="650" id="table2">
-    <tr>
-      <td align="center" colspan="2">
-      <img border="0" src="[% logo %]">
-      </td>
-    </tr>
-    <tr>
-      <td align="left" class="bio" colspan="2">
-
-<p align="center"><font face="Arial" size="+1"> <b>[% txt_page_header %]</b></font></p>
-
+[% INCLUDE header.html %]
 
 [% INCLUDE $reg_page_content_file %]
 
-      </td>
-    </tr>
-    <tr align="center">
-	 <td align="center">
-      <form method="post" action="[% form_action %]">
-          <input type="hidden" name="destination_url" value="[% destination_url %]">
-          <input type="submit" name="submit" value="[% button_text %]">
+        <div class="input">
+        <form method="post" action="[% form_action %]">
+          <input type="hidden" name="destination_url" value="[% destination_url %]" />
+          <input type="submit" name="submit" value="[% button_text %]" />
         </form>
-[% IF txt_skip_registration %]
-      <form method="post" action="/cgi-bin/redir.cgi">
-          <input type="hidden" name="destination_url" value="[% destination_url %]">
-          <input type="hidden" name="auth" value="skip">
-          <input type="hidden" name="mode" value="register">
-          <input type="submit" name="submit" value="[% txt_skip_registration %]">
-        </form>
-[% END %]
-      </td>
-     </tr>
-  </table>
-</center>
+        </div>
 
-</body>
+        [%# This workflow, being ARP/DHCP mode only is not well tested %]
+        [% IF txt_skip_registration %]
+          <div class="input">
+          <form method="post" action="/captive-portal">
+            <input type="hidden" name="destination_url" value="[% destination_url %]" />
+            <input type="hidden" name="auth" value="skip" />
+            <input type="hidden" name="mode" value="register" />
+            <input type="submit" name="submit" value="[% txt_skip_registration %]" />
+          </form>
+          </div>
+        [% END %]
 
-</html>
+[% INCLUDE footer.html %]

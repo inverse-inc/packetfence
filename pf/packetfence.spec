@@ -33,7 +33,7 @@
 #
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 2.2.1
+Version: 2.3.0
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -113,10 +113,11 @@ Requires: perl-Thread-Pool
 Requires: perl-TimeDate
 Requires: perl-UNIVERSAL-require
 Requires: perl-YAML
-Requires: php-jpgraph-packetfence = 2.3.4
 Requires: php-ldap
 Requires: perl(Try::Tiny)
 Requires: perl(Cache::Cache)
+# Used by Web Admin 
+Requires: php-jpgraph = 2.3.4
 # Used by Captive Portal authentication modules
 Requires: perl(Authen::Radius)
 Requires: perl(Authen::Krb5::Simple)
@@ -125,7 +126,7 @@ Requires: perl(Text::CSV)
 Requires: perl(Text::CSV_XS)
 # Required for testing
 # TODO: I noticed that we provide perl-Test-MockDBI in our repo, maybe we made a poo poo with the deps
-BuildRequires: perl(Test::MockModule), perl(Test::MockDBI), perl(Test::Perl::Critic)
+BuildRequires: perl(Test::MockModule), perl(Test::MockDBI), perl(Test::Perl::Critic), perl(Test::WWW::Mechanize)
 BuildRequires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception), perl(Test::NoWarnings)
 
 %description
@@ -265,14 +266,15 @@ cd $RPM_BUILD_ROOT/usr/local/pf/db
 ln -s pf-schema-2.2.0.sql ./pf-schema.sql
 
 #httpd.conf symlink
-#TODO: isn't it stupid to decide what Apache version is there at rpm build time?
+#We dropped support for pre 2.2.0 but keeping the symlink trick alive since Apache 2.4 is coming
 cd $RPM_BUILD_ROOT/usr/local/pf/conf
-if (/usr/sbin/httpd -v | egrep 'Apache/2\.[2-9]\.' > /dev/null)
-then
-  ln -s httpd.conf.apache22 ./httpd.conf
-else
-  ln -s httpd.conf.pre_apache22 ./httpd.conf
-fi
+ln -s httpd.conf.apache22 ./httpd.conf
+#if (/usr/sbin/httpd -v | egrep 'Apache/2\.[2-9]\.' > /dev/null)
+#then
+#  ln -s httpd.conf.apache22 ./httpd.conf
+#else
+#  ln -s httpd.conf.pre_apache22 ./httpd.conf
+#fi
 
 cd $curdir
 #end create symlinks
@@ -516,7 +518,6 @@ fi
 %config                 /usr/local/pf/conf/dhcpd_vlan.conf
 %config                 /usr/local/pf/conf/httpd.conf
 %config                 /usr/local/pf/conf/httpd.conf.apache22
-%config                 /usr/local/pf/conf/httpd.conf.pre_apache22
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
 %config(noreplace)      /usr/local/pf/conf/named-registration.ca
@@ -549,12 +550,11 @@ fi
 %dir                    /usr/local/pf/html/user/3rdparty
                         /usr/local/pf/html/user/3rdparty/timerbar.js
 %dir                    /usr/local/pf/html/user/content
-%config(noreplace)      /usr/local/pf/html/user/content/footer.html
-%config(noreplace)      /usr/local/pf/html/user/content/header.html
+%config(noreplace)      /usr/local/pf/html/user/content/mobile.css
+%config(noreplace)      /usr/local/pf/html/user/content/styles.css
 %dir                    /usr/local/pf/html/user/content/images
                         /usr/local/pf/html/user/content/images/*
-                        /usr/local/pf/html/user/content/index.php
-                        /usr/local/pf/html/user/content/style.php
+                        /usr/local/pf/html/user/content/remediation.php
 %dir                    /usr/local/pf/html/user/content/templates
 %config(noreplace)      /usr/local/pf/html/user/content/templates/*
 %dir                    /usr/local/pf/html/user/content/violations
