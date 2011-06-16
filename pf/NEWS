@@ -16,7 +16,7 @@ For a list of compatibility related changes see the UPGRADE file.
 Version <trunk-release> released on <releaseDate>
 
 Compatibility notice
- * Removed support for Apache prior to version 2.2.0. You had 6 years to update.
+ * Removed support for Apache prior to version 2.2.0 (#828)
  * Removed support for jpgraph 1.x which bumps our depedencies to PHP 5
 
 New features
