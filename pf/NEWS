@@ -50,6 +50,8 @@ Bug fixes
  * Fixed Nortel switches problems on some models / firmwares
  * Fixed installer errors (#1217)
  * Increased PHP memory to PHP's default: 128M. Mitigates #962.
+ * Fixed race condition when trying to categorize auto-registered nodes based 
+   on DHCP fingerprint (#1216)
 
 Translations
  * Updated French (fr) translation (Thanks to Vincent Blut)
