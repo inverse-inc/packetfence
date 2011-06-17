@@ -14,6 +14,12 @@ For a list of compatibility related changes see the UPGRADE file.
 
 
 --------------------------------------------------------------------------------
+Version <version> released on <releaseDate>
+
+Bug fixes
+ * Fixed configurator.pl does not show interfaces without IP address (#1221)
+
+--------------------------------------------------------------------------------
 Version 2.2.1 released on 2011-06-16
 
 New Hardware Support
