@@ -33,6 +33,7 @@ Enhancements
 Version <version> released on <releaseDate>
 
 Bug fixes
+ * Fixed nessus scans don't work with bin/pfcmd as a setuid/setgid (#1087)
  * Fixed configurator.pl does not show interfaces without IP address (#1221)
 
 --------------------------------------------------------------------------------
