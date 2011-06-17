@@ -13,7 +13,7 @@ hostname=abc
 # general.logo
 #
 # Logo displayed on web pages.
-logo=/common/packetfence.png
+logo=/common/packetfence-cp.png
 #
 # general.dnsservers
 #
@@ -290,7 +290,7 @@ button_text=Register
 # registration.nbregpages
 #
 # The number of registration pages to show to the user
-nbregpages=1
+nbregpages=0
 
 #
 # This section allows you to create passthroughs to HTML content or remote addresses/networks.
