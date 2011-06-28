@@ -294,10 +294,8 @@ sub manage {
     } elsif ( $option eq "deregister" ) {
         require pf::node;
         pf::node::node_deregister($mac);
-        if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
-            require pf::iptables;
-            pf::iptables::iptables_generate();
-        }
+        require pf::iptables;
+        pf::iptables::iptables_generate();
     } elsif ( $option eq "vclose" ) {
         return (-1) if ( !$id );
         require pf::violation;
@@ -1278,12 +1276,9 @@ sub service {
             }
         }
         if ( $nb_running_services == 0 ) {
-            if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
-                $logger->info("saving current iptables to var/iptables.bak");
-                require pf::iptables;
-                pf::iptables::iptables_save(
-                    $install_dir . '/var/iptables.bak' );
-            }
+            $logger->info("saving current iptables to var/iptables.bak");
+            require pf::iptables;
+            pf::iptables::iptables_save( $install_dir . '/var/iptables.bak' );
         }
     }
 
@@ -1293,11 +1288,9 @@ sub service {
         require pf::os;
         pf::os::read_dhcp_fingerprints_conf();
         pf::services::read_violations_conf();
-        if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
-            print "iptables|$command\n";
-            require pf::iptables;
-            pf::iptables::iptables_generate();
-        }
+        print "iptables|$command\n";
+        require pf::iptables;
+        pf::iptables::iptables_generate();
     }
 
     foreach my $srv (@services) {
@@ -1312,23 +1305,21 @@ sub service {
     }
 
     if ( lc($command) eq 'stop' ) {
-        if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
-            my $nb_running_services = 0;
-            foreach my $tmp (@pf::services::ALL_SERVICES) {
-                if ( pf::services::service_ctl( $tmp, "status" ) ) {
-                    $nb_running_services++;
-                }
+        my $nb_running_services = 0;
+        foreach my $tmp (@pf::services::ALL_SERVICES) {
+            if ( pf::services::service_ctl( $tmp, "status" ) ) {
+                $nb_running_services++;
             }
-            if ( $nb_running_services == 0 ) {
-                require pf::iptables;
-                pf::iptables::iptables_restore(
-                    $install_dir . '/var/iptables.bak' );
-            } else {
-                if ( lc($service) eq 'pf' ) {
-                    $logger->error(
-                        "even though 'control pf stop' was called, there are still $nb_running_services services running. Can't restore iptables from var/iptables.bak"
-                    );
-                }
+        }
+        if ( $nb_running_services == 0 ) {
+            require pf::iptables;
+            pf::iptables::iptables_restore( $install_dir . '/var/iptables.bak' );
+        } else {
+            if ( lc($service) eq 'pf' ) {
+                $logger->error(
+                    "Even though 'service pf stop' was called, there are still $nb_running_services services running. " 
+                     . "Can't restore iptables from var/iptables.bak"
+                );
             }
         }
     }
@@ -1861,30 +1852,13 @@ sub ui {
             my @array = split( /\./, $section );
             my $service;
             $service = $array[1] if ( $array[1] );
-            next
-                if ( ( defined $service )
-                && ( $service eq "scan" )
-                && ( !$scanLiteInstalled ) );
-            next
-                if ( (@array)
-                && ( scalar(@array) > 2 )
-                && ( $service eq "configuration" )
-                && ( $array[2] eq "switches" )
-                && ( $Config{'network'}{'mode'} ne 'vlan' ) );
-            next
-                if (
-                   (@array)
-                && ( scalar(@array) > 2 )
-                && ( $service eq "configuration" )
-                && ( $array[2] eq "networks" )
-                && (   ( $Config{'network'}{'mode'} ne 'vlan' )
-                    || ( !-e "$conf_dir/networks.conf" )
-                    || ( -z "$conf_dir/networks.conf" ) )
-                );
+
+            # don't show scan menu if feature is not installed
+            next if ( ( defined $service ) && ( $service eq "scan" ) && ( !$scanLiteInstalled ) );
+
             $string .= join( "|", @array ) . "|";
             my @keys;
 
- #print "NO SECTION $section \n" if (!defined $uiconfig{$section}{'display'});
             foreach
                 my $key ( split( /\s*,\s*/, $uiconfig{$section}{'display'} ) )
             {
@@ -1898,24 +1872,12 @@ sub ui {
                     $key2 = $key;
                 }
                 $key =~ s/^-//;
+                # don't show scan menu if feature is not installed
                 next if ( ( $key eq "scan" ) && ( !$scanLiteInstalled ) );
-                next
-                    if ( ( $section eq "ui.configuration" )
-                    && ( $key2 eq "switches" )
-                    && ( $Config{'network'}{'mode'} ne 'vlan' ) );
-                next
-                    if (
-                       ( $section eq "ui.configuration" )
-                    && ( $key2 eq "networks" )
-                    && (   ( $Config{'network'}{'mode'} ne 'vlan' )
-                        || ( !-e "$conf_dir/networks.conf" )
-                        || ( -z "$conf_dir/networks.conf" ) )
-                    );
+
                 if ( defined $uiconfig{$section}{$key} ) {
                     push @keys, "$key2='$uiconfig{$section}{$key}'";
                 } else {
-
- #print "NO SECTION $section $key \n" if (!defined $uiconfig{$section}{$key});
                     push @keys, "$key2='$key2'";
                 }
             }
@@ -2051,10 +2013,11 @@ sub command_param {
                     . "(pfcmd line ".__LINE__.".)"
                 );
             }
-            if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
-                require pf::iptables;
-                pf::iptables::iptables_generate();
-            }
+
+            # XXX I'll probably come back here to hook into security posture re-evaluation instead
+            require pf::iptables;
+            pf::iptables::iptables_generate();
+
             if (    ($function eq 'violation_add')
                  || ( $function eq 'violation_delete' ) 
                  || ( $function eq 'violation_modify' ) ) {
@@ -2473,15 +2436,9 @@ sub vlan_reevaluation {
         return 0;
     }
 
-    if (( lc($Config{'network'}{'mode'}) eq 'vlan' )
-        && grep( { $_ eq $function } split(
-                /\s*,\s*/, $Config{'vlan'}{'adjustswitchportvlanreasons'}
-                ) ) > 0
-        )
-    {
-        $logger->info(
-            "VLAN isolation is enabled and $function is part of adjustswitchportvlanreasons"
-        );
+    if (grep( { $_ eq $function } split(/\s*,\s*/, $Config{'vlan'}{'adjustswitchportvlanreasons'})) > 0) {
+        $logger->info("VLAN isolation is enabled and $function is part of adjustswitchportvlanreasons");
+
         require pf::locationlog;
         import pf::locationlog;
         my $locationlog_entry = locationlog_view_open_mac($mac);

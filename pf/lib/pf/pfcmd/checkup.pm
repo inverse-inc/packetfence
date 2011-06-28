@@ -80,19 +80,9 @@ sub sanity_check {
         ids_snort();
     }
 
-    if ( lc($Config{'network'}{'mode'}) eq 'arp' ) {
-        mode_arp();
-    }
-
-    if ( lc($Config{'network'}{'mode'}) eq 'vlan' ) {
-        mode_vlan();
-    }
-
-    if ( lc($Config{'network'}{'mode'}) eq 'dhcp' ) {
-        mode_dhcp();
-    }
-
     database();
+    network();
+    inline() if (is_inline_enforcement_enabled());
     apache();
     web_admin();
     registration();
@@ -145,7 +135,7 @@ sub interfaces {
         add_problem( $FATAL, "internal network(s) not defined!" );
     }
     if ( scalar(@managed_nets) != 1 ) {
-        add_problem( $FATAL, "please define exactly one managed interace" );
+        add_problem( $FATAL, "please define exactly one management interace" );
     }
 
     my %seen;
@@ -154,14 +144,26 @@ sub interfaces {
     push @tmp_nets, @managed_nets;
     foreach my $interface (@tmp_nets) {
         my $device = "interface " . $interface->tag("int");
+
         if ( !($Config{$device}{'mask'} && $Config{$device}{'ip'}
-               && $Config{$device}{'gateway'} && $Config{$device}{'type'})
+            && $Config{$device}{'gateway'} && $Config{$device}{'type'})
             && !$seen{$interface}) {
-                add_problem( $FATAL, "incomplete network information for $device" );
+                add_problem( $FATAL, 
+                    "Incomplete network information for $device. " .
+                    "IP, network mask, gateway and type required."
+                );
         }
         $seen{$interface} = 1;
-    }
 
+        if ($Config{$device}{'type'} eq $IF_INTERNAL && !defined($Config{$device}{'enforcement'})) {
+            add_problem( $FATAL, 
+                "Incomplete network information for $device. " .
+                "Enforcement technique must be defined on an internal interface. " .
+                "Your choices are: $IF_ENFORCEMENT_VLAN or $IF_ENFORCEMENT_INLINE. " . 
+                "If unsure refer to the documentation."
+            );
+        }
+    }
 }
 
 =item ids_snort
@@ -193,54 +195,27 @@ sub ids_snort {
 
 }
 
-=item mode_arp
+=item network
 
-Configuration validation for ARP mode
+Configuration validation of the network portion of the config
 
 =cut
-sub mode_arp {
-
-    # stuffing warning
-    if ( isenabled( $Config{'arp'}{'stuffing'} ) ) {
-        add_problem( $WARN, "ARP stuffing is enabled...this is dangerous!" );
-    }
+sub network {
 
     # network size warning
     my $internal_total;
     foreach my $internal_net (@internal_nets) {
         if ( $internal_net->bits() < 16 && isenabled( $Config{'general'}{'caching'} ) ) {
-            add_problem( $WARN, "network $internal_net is larger than a /16 - you must disable general.caching!" );
+            add_problem( $WARN, "network $internal_net is larger than a /16 - you should disable general.caching!" );
         }
         $internal_total += $internal_net->size();
     }
 
-    # test to do in ARP mode
-    nameservers();
-
-}
-
-=item mode_vlan
-
-Configuration validation for VLAN Isolation mode
-
-=cut
-sub mode_vlan {
-
     # make sure trapping.passthrough=proxy if network.mode is set to vlan
     if ( $Config{'trapping'}{'passthrough'} eq 'iptables' ) {
-        add_problem( $FATAL, "Please set trapping.passthrough to proxy while using VLAN isolation mode" );
-    }
-
-    # make sure that skip_mode is disabled in VLAN isolation
-    if ( !isdisabled($Config{'registration'}{'skip_mode'}) ) {
-        add_problem( $FATAL, "registration skip_mode is currently incompatible with VLAN isolation" );
-    }
-
-    # make sure that expire_mode session is disabled in VLAN isolation
-    if (lc($Config{'registration'}{'expire_mode'}) eq 'session') {
-        add_problem( $FATAL, 
-            "automatic node expiration mode ".$Config{'registration'}{'expire_mode'} . " " .
-            "is currently incompatible with VLAN isolation"
+        add_problem( $WARN, 
+            "iptables based passthrough (trapping.passthrough) is incompatible with current PacketFence release. " .
+            "Please file a ticket if you need this feature back."
         );
     }
 
@@ -255,15 +230,30 @@ sub mode_vlan {
     if ((isenabled($Config{'vlan'}{'named'})) && ((!-e "$conf_dir/networks.conf") || (-z "$conf_dir/networks.conf"))) {
         add_problem( $FATAL, "networks.conf cannot be empty when vlan.named is enabled" );
     }
-
 }
 
-=item mode_dhcp
+=item inline
 
-Validation for the DHCP mode
+If some interfaces are configured to run in inline enforcement then these tests will run
 
 =cut
-sub mode_dhcp {
+sub inline {
+
+    # make sure dns servers exist
+    if ( !$Config{'general'}{'dnsservers'} ) {
+        add_problem( $WARN,
+            "Please set the dns servers list in pf.conf (general.dnsservers). " . 
+            "Users will not be able to resolve hostnames. "
+        );
+    }
+
+    # make sure trapping.passthrough=proxy if network.mode is set to vlan
+    if ( $Config{'trapping'}{'passthrough'} eq 'proxy' ) {
+        add_problem( $WARN, 
+            "Proxy passthrough (trapping.passthrough) is untested with inline enforcement and might not work. " .
+            "If you don't understand the warning you can safely ignore it you won't be affected. "
+        );
+    }
 
     # make sure dhcp information is complete and valid
     my @dhcp_scopes;
@@ -280,14 +270,14 @@ sub mode_dhcp {
     }
 
     if ( scalar(@dhcp_scopes) == 0 ) {
-        add_problem( $FATAL, "missing dhcp scope information" );
+        add_problem( $WARN, "missing dhcp scope information for inline interface(s)" );
     }
 
     foreach my $scope (@dhcp_scopes) {
         if (!defined $Config{ 'scope ' . $scope }{'network'}
             || !defined $Config{ 'scope ' . $scope }{'gateway'}
             || !defined $Config{ 'scope ' . $scope }{'range'} ) {
-                add_problem( $FATAL, "incomplete dhcp scope information for $scope" );
+                add_problem( $WARN, "incomplete dhcp scope information for $scope" );
         }
 
         my $found = 0;
@@ -318,9 +308,6 @@ sub mode_dhcp {
         print {$file_fh} "#autogenerated";
         close $file_fh;
     }
-
-    # test to do in DHCP mode
-    nameservers();
 
 }
 
@@ -367,25 +354,6 @@ sub web_admin {
 
 }
 
-=item nameservers
-
-We need DNS Servers defined.
-Applies only to arp and dhcp mode.
-
-=cut
-sub nameservers {
-
-    # make sure dns servers exist
-    if ( !$Config{'general'}{'dnsservers'} ) {
-        add_problem( $FATAL,
-            "please set the dns servers list in pf.conf (general.dnsservers). " . 
-            "If this is not set users in isolation will not be able to resolve hostnames, " . 
-            "and will not able to reach PacketFence!"
-        );
-    }
-
-}
-
 =item registration
 
 Registration configuration sanity
@@ -416,6 +384,14 @@ sub registration {
         );
     } elsif ( $Config{'registration'}{'expire_mode'} eq "window" && !$Config{'registration'}{'expire_window'} ) {
         add_problem( $FATAL, "pf.conf value registration.expire_window is not defined!" );
+    }
+
+    # make sure that expire_mode session is disabled in VLAN isolation
+    if (lc($Config{'registration'}{'expire_mode'}) eq 'session') {
+        add_problem( $FATAL, 
+            "automatic node expiration mode ".$Config{'registration'}{'expire_mode'} . " " .
+            "is incompatible with current PacketFence release. Please file a ticket if you need this feature."
+        );
     }
 
 }

@@ -27,8 +27,8 @@ dhcpservers=127.0.0.1
 #
 # general.caching
 #
-# Enable caching of isinternal values as well as other fun stuff.  Leave this enabled or suffer the performance consequences.
-caching=enabled
+# Enable caching of isinternal values. Not recommended on large networks. Disabled by default. 
+caching=disabled
 #
 # general.locale
 #
@@ -94,15 +94,6 @@ heartbeat=30s
 stuffing=disabled
 
 [network]
-#
-# network.mode
-#
-# Defines the mode in which PacketFence will operate.
-# 
-# When deployed in arp mode, PacketFence uses ARP manipulation inject itself into the datastream of unregistered or 
-# trapped nodes.  The major failing of arp mode is that 
-# it's not 100% in catching all traffic - spurious packets can and will occasionaly get through.
-mode=arp
 #
 # network.rogueinterval
 #

@@ -114,11 +114,8 @@ sub iptables_generate {
     $tags{'filter_rules'} .= managed_append_entry(
         "-A INPUT --protocol tcp --destination-port 22 --jump ACCEPT");
 
-    # open dhcp if network.mode=dhcp
-    if ( $Config{'network'}{'mode'} =~ /dhcp/i ) {
-        $tags{'filter_rules'} .= internal_append_entry(
-            "-A INPUT --protocol udp --destination-port 67 --jump ACCEPT");
-    }
+    # open dhcp
+    $tags{'filter_rules'} .= internal_append_entry("-A INPUT --protocol udp --destination-port 67 --jump ACCEPT");
 
     # accept already established connections
     foreach my $out_dev ( get_internal_devs() ) {
@@ -485,8 +482,6 @@ sub iptables_unmark_node {
         return (0);
     }
 
-# let redir cgi do this...
-#freemac($mac) if ($Config{'network'}{'mode'} =~ /^arp$/i && !violation_count($mac));
     return (1);
 }
 

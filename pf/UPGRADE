@@ -7,6 +7,14 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <trunk-release>:
 
+    - New pf.conf configuration parameter: interface enforcement
+    Under the [interface ...] statements a new configuration parameter has been
+    added: enforcement. We got rid of the concept of 'modes' in PacketFence and
+    enforcement replaces that concept. It is a per interface choice allowing 
+    you to run PacketFence in both inline and out-of-band mode at the same 
+    time. Users upgrading should probably set enforcement=vlan on all interface
+    with type=internal. Run `bin/pfcmd checkup` to validate your configuration.
+
     - Support for Apache prior to version 2.2.0 dropped
     Upgrade your Apache. We don't think it's used by anyone at this point. Let
     us know if you need it back.
@@ -22,6 +30,12 @@ o Upgrading from a version prior to <trunk-release>:
      - Default workflow now brings you to the login page (no more registration
        click-through unless you adjust nbregpages in configuration)
      - Default logo changed to packetfence-cp.png (was packetfence.png)
+
+    - general.caching disabled by default
+    A historical and badly understood feature, general caching, has now been
+    disabled by default. Previously it only had impacts if the mode was ARP but
+    because of the modes removal it needed to be changed to disabled by default.
+    Please report any regression introduced by this change.
 
     - jpgraph external libraries changed location
     jpgraph files are expected to be located in /var/www/jpgraph-<version>/ 

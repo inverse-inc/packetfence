@@ -62,15 +62,11 @@ if (defined($cgi->user_agent)) {
 }
 
 # registration auth request?
+# XXX deprecate that?
 if (defined($cgi->param('mode')) && $cgi->param('auth')) {
- my $type=$cgi->param('auth');
- if ($type eq "skip"){
-    $logger->info("User is trying to skip redirecting to release.cgi");
-    print $cgi->redirect("/cgi-bin/release.cgi?mode=skip&destination_url=$destination_url");    
-  }else{
-    $logger->info("redirecting to register-$type.cgi for reg authentication");
-    print $cgi->redirect("/cgi-bin/register-$type.cgi?mode=register&destination_url=$destination_url");
-  }
+  my $type=$cgi->param('auth');
+  $logger->info("redirecting to register-$type.cgi for reg authentication");
+  print $cgi->redirect("/cgi-bin/register-$type.cgi?mode=register&destination_url=$destination_url");
 }
 
 # check violation 
@@ -138,14 +134,6 @@ if (defined($node_info) && $node_info->{'status'} eq $pf::node::STATUS_PENDING) 
   exit(0);
 }
 
-# 
-$logger->info("$mac already registered or registration disabled, freeing mac");
-if ($Config{'network'}{'mode'} =~ /arp/i) {
-  $logger->info("$mac already registered or registration disabled, freeing mac");
-  my $cmd = $bin_dir."/pfcmd manage freemac $mac";
-  my $output = qx/$cmd/;
-  $logger->info("freed $mac");
-}
 #TODO: I think the below here is what's causing redirect loops, need to confirm first then fix
 $logger->info("redirecting to ".$Config{'trapping'}{'redirecturl'});
 print $cgi->redirect($Config{'trapping'}{'redirecturl'});
@@ -160,7 +148,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2008-2010 Inverse inc.
+Copyright (C) 2008-2011 Inverse inc.
     
 =head1 LICENSE
 

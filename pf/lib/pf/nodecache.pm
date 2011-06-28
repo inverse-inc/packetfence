@@ -4,7 +4,9 @@ package pf::nodecache;
 
 pf::nodecache - module to cache some information about the nodes.
 
-=cut
+=head1 WARNING
+
+This code is deprecated and will be removed in an upcoming PacketFence release
 
 =head1 DESCRIPTION
 
@@ -12,7 +14,6 @@ pf::nodecache contains the functions used to cache some information about
 the nodes like the IP-MAC association,...
 
 =cut
-
 use strict;
 use warnings;
 use File::Basename;

@@ -65,6 +65,7 @@ BEGIN {
         $floating_devices_file %ConfigFloatingDevices
         $blackholemac $portscan_sid @VALID_TRIGGER_TYPES $thread $default_pid $fqdn
         $FALSE $TRUE $YES $NO
+        $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE
         WIRELESS_802_1X WIRELESS_MAC_AUTH WIRED_802_1X WIRED_MAC_AUTH WIRED_SNMP_TRAPS WIRELESS WIRED EAP UNKNOWN
         VOIP NO_VOIP
         LOOPBACK_IPV4
@@ -72,6 +73,7 @@ BEGIN {
         $RADIUS_API_LEVEL $VLAN_API_LEVEL
         %CAPTIVE_PORTAL
         normalize_time
+        is_vlan_enforcement_enabled is_inline_enforcement_enabled
         $LOG4PERL_RELOAD_TIMER
     );
 }
@@ -113,6 +115,13 @@ Readonly our @VALID_TRIGGER_TYPES => ( "scan", "detect", "internal", "os", "vend
 
 $portscan_sid = 1200003;
 $default_pid  = 1;
+
+# Interface types
+Readonly our $IF_INTERNAL => 'internal';
+
+# Interface enforcement techniques
+Readonly our $IF_ENFORCEMENT_VLAN => 'vlan';
+Readonly our $IF_ENFORCEMENT_INLINE => 'inline';
 
 # connection type constants
 use constant WIRELESS_802_1X => 0b11000001;
@@ -181,6 +190,10 @@ use constant LOOPBACK_IPV4 => '127.0.0.1';
 
 # Log Reload Timer in seconds
 Readonly our $LOG4PERL_RELOAD_TIMER => 5 * 60;
+
+# simple cache for faster config lookup
+my $cache_vlan_enforcement_enabled;
+my $cache_inline_enforcement_enabled;
 
 readPfConfigFiles();
 
@@ -302,7 +315,7 @@ sub readPfConfigFiles {
                 push @external_nets, $int_obj;
             } elsif ( $type eq 'monitor' ) {
                 $monitor_int = $int;
-            } elsif ( $type eq 'dhcplistener' ) {
+            } elsif ( $type =~ /^dhcp-?listener$/i ) {
                 push @dhcplistener_ints, $int;
             }
         }
@@ -397,6 +410,58 @@ sub normalize_time {
             return (0);
         }
     }
+}
+
+=item is_vlan_enforcement_enabled
+
+Returns true or false based on if vlan enforcement is enabled or not
+
+=cut
+sub is_vlan_enforcement_enabled {
+
+    # cache hit
+    return $cache_vlan_enforcement_enabled if (defined($cache_vlan_enforcement_enabled));
+
+    foreach my $interface (@internal_nets) {
+        my $device = "interface " . $interface->tag("int");
+
+        if (defined($Config{$device}{'enforcement'}) && $Config{$device}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) {
+            # cache the answer for future access
+            $cache_vlan_enforcement_enabled = $TRUE;
+            return $TRUE;
+        }
+    }
+
+    # if we haven't exited at this point, it means there are no vlan enforcement
+    # cache the answer for future access
+    $cache_vlan_enforcement_enabled = $FALSE;
+    return $FALSE;
+}
+
+=item is_inline_enforcement_enabled
+
+Returns true or false based on if inline enforcement is enabled or not
+
+=cut
+sub is_inline_enforcement_enabled {
+
+    # cache hit
+    return $cache_inline_enforcement_enabled if (defined($cache_inline_enforcement_enabled));
+
+    foreach my $interface (@internal_nets) {
+        my $device = "interface " . $interface->tag("int");
+
+        if (defined($Config{$device}{'enforcement'}) && $Config{$device}{'enforcement'} eq $IF_ENFORCEMENT_INLINE) {
+            # cache the answer for future access
+            $cache_inline_enforcement_enabled = $TRUE;
+            return $TRUE;
+        }
+    }
+
+    # if we haven't exited at this point, it means there are no vlan enforcement
+    # cache the answer for future access
+    $cache_inline_enforcement_enabled = $FALSE;
+    return $FALSE;
 }
 
 =back

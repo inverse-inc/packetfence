@@ -53,9 +53,7 @@ $flags{'pfmon'}          = "-d &";
 $flags{'pfdhcplistener'} = "-d &";
 $flags{'pfredirect'}     = "-d &";
 $flags{'pfsetvlan'}      = "-d &";
-$flags{'dhcpd'}
-    = " -lf $var_dir/dhcpd/dhcpd.leases -cf $generated_conf_dir/dhcpd.conf "
-    . join( " ", get_dhcp_devs() );
+$flags{'dhcpd'} = " -lf $var_dir/dhcpd/dhcpd.leases -cf $generated_conf_dir/dhcpd.conf " . join(" ", @listen_ints);
 $flags{'named'} = "-u pf -c $generated_conf_dir/named.conf";
 $flags{'snmptrapd'}
     = "-n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On";
@@ -89,14 +87,8 @@ sub service_ctl {
         $exe = $1;
     CASE: {
             $action eq "start" && do {
-                return (0)
-                    if (
-                    $exe =~ /dhcpd/
-                    && (( $Config{'network'}{'mode'} =~ /^arp$/ )
-                        || (   ( $Config{'network'}{'mode'} =~ /^vlan$/i )
-                            && ( !isenabled( $Config{'vlan'}{'dhcpd'} ) ) )
-                    )
-                    );
+                # We won't start dhcpd unless vlan.dhcpd is set to enable
+                return (0) if ( $exe =~ /dhcpd/ && !isenabled($Config{'vlan'}{'dhcpd'}) );
                 return (0)
                     if ( $exe =~ /snort/
                     && !isenabled( $Config{'trapping'}{'detection'} ) );
@@ -104,19 +96,11 @@ sub service_ctl {
                     if ( $exe =~ /pfdhcplistener/
                     && !isenabled( $Config{'network'}{'dhcpdetector'} ) );
                 return (0)
-                    if ( $exe =~ /snmptrapd/
-                    && !( $Config{'network'}{'mode'} =~ /vlan/i ) );
+                    if ( $exe =~ /snmptrapd/ && !(is_vlan_enforcement_enabled()) );
                 return (0)
-                    if ( $exe =~ /pfsetvlan/
-                    && !( $Config{'network'}{'mode'} =~ /vlan/i ) );
+                    if ( $exe =~ /pfsetvlan/ && !(is_vlan_enforcement_enabled()) );
                 return (0)
-                    if (
-                    $exe =~ /named/
-                    && !(
-                           ( $Config{'network'}{'mode'} =~ /vlan/i )
-                        && ( isenabled( $Config{'vlan'}{'named'} ) )
-                    )
-                    );
+                    if ($exe =~ /named/ && !( is_vlan_enforcement_enabled() && isenabled($Config{'vlan'}{'named'}) ));
                 if ( $daemon =~ /(named|dhcpd|snort|httpd|snmptrapd)/
                     && !$quick )
                 {
@@ -161,9 +145,6 @@ sub service_ctl {
                         {
                             my @devices = @listen_ints;
                             push @devices, @dhcplistener_ints;
-                            @devices = get_dhcp_devs()
-                                if (
-                                $Config{'network'}{'mode'} =~ /^dhcp$/i );
                             foreach my $dev (@devices) {
                                 my $cmd_line = "$service -i $dev $flags{$daemon}";
                                 if ($cmd_line =~ /^(.+)$/) {
@@ -254,21 +235,14 @@ sub service_list {
                 if ( $Config{'ports'}{'listeners'} );
         } elsif ( $service eq "dhcpd" ) {
             push @finalServiceList, $service
-                if (
-                ( $Config{'network'}{'mode'} =~ /^dhcp$/i )
-                || (   ( $Config{'network'}{'mode'} =~ /^vlan$/i )
-                    && ( isenabled( $Config{'vlan'}{'dhcpd'} ) ) )
-                );
+                if ( is_inline_enforcement_enabled() 
+                || ( is_vlan_enforcement_enabled() && isenabled($Config{'vlan'}{'dhcpd'}) ));
         } elsif ( $service eq "snmptrapd" ) {
-            push @finalServiceList, $service
-                if ( $Config{'network'}{'mode'} =~ /vlan/i );
+            push @finalServiceList, $service if ( is_vlan_enforcement_enabled() );
         } elsif ( $service eq "named" ) {
-            push @finalServiceList, $service
-                if ( ( $Config{'network'}{'mode'} =~ /vlan/i )
-                && ( isenabled( $Config{'vlan'}{'named'} ) ) );
+            push @finalServiceList, $service if (is_vlan_enforcement_enabled() && isenabled($Config{'vlan'}{'named'}));
         } elsif ( $service eq "pfsetvlan" ) {
-            push @finalServiceList, $service
-                if ( $Config{'network'}{'mode'} =~ /vlan/i );
+            push @finalServiceList, $service if ( is_vlan_enforcement_enabled() );
         } else {
             push @finalServiceList, $service;
         }
@@ -443,6 +417,7 @@ EOT
 
 =cut
 
+# XXX merge the two dhcp config generators
 sub generate_dhcpd_conf {
     if ( $Config{'network'}{'mode'} =~ /vlan/i ) {
         generate_dhcpd_vlan_conf();

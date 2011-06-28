@@ -13,6 +13,17 @@ For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE file.
 
 --------------------------------------------------------------------------------
+Version <inline-branch> released on <releaseDate>
+
+Compatibility notice
+ * Removed support for ARP mode
+
+Major changes
+ * We removed the central concept of mode (arp, dhcp or vlan). Now PacketFence
+   can operate in multiple modes simultaneously. This new concept is called
+   enforcement and is specified per interface in pf.conf.
+
+--------------------------------------------------------------------------------
 Version <trunk-release> released on <releaseDate>
 
 Compatibility notice

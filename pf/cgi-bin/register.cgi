@@ -97,10 +97,7 @@ if (defined($params{'username'}) && $params{'username'} ne '') {
   my $count = violation_count($mac);
 
   if ($count == 0) {
-    if ($Config{'network'}{'mode'} =~ /arp/i) {
-      my $cmd = $bin_dir."/pfcmd manage freemac $mac";
-      my $output = qx/$cmd/;
-    }
+
     # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
     if ($cgi->https()) {  
       print $cgi->redirect(

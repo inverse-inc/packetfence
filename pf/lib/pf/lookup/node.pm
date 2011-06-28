@@ -114,43 +114,41 @@ sub lookup_node {
         }
         $return .= "DHCP Info      : Last DHCP request at ".$node_info->{'last_dhcp'}."\n";
 
-        if (lc($Config{'network'}{'mode'}) eq 'vlan') {
-            my @last_locationlog_entry = locationlog_history_mac($mac);
-            if ($last_locationlog_entry[0] && defined($last_locationlog_entry[0]->{'mac'})) {
+        my @last_locationlog_entry = locationlog_history_mac($mac);
+        if ($last_locationlog_entry[0] && defined($last_locationlog_entry[0]->{'mac'})) {
 
-                # assignments using ternary operator: if exist assign otherwise unknown
-                my $port = defined($last_locationlog_entry[0]->{'port'}) ? 
-                    $last_locationlog_entry[0]->{'port'} : "UNKNOWN";
-                my $vlan = defined($last_locationlog_entry[0]->{'vlan'}) ? 
-                    $last_locationlog_entry[0]->{'vlan'} : "UNKNOWN";
-                my $switch = defined($last_locationlog_entry[0]->{'switch'}) ? 
-                    $last_locationlog_entry[0]->{'switch'} : "UNKNOWN";
-                $return .= "Location       : port $port (vlan $vlan) on switch $switch\n";
+            # assignments using ternary operator: if exist assign otherwise unknown
+            my $port = defined($last_locationlog_entry[0]->{'port'}) ? 
+                $last_locationlog_entry[0]->{'port'} : "UNKNOWN";
+            my $vlan = defined($last_locationlog_entry[0]->{'vlan'}) ? 
+                $last_locationlog_entry[0]->{'vlan'} : "UNKNOWN";
+            my $switch = defined($last_locationlog_entry[0]->{'switch'}) ? 
+                $last_locationlog_entry[0]->{'switch'} : "UNKNOWN";
+            $return .= "Location       : port $port (vlan $vlan) on switch $switch\n";
 
-                my $con_type = defined($last_locationlog_entry[0]->{'connection_type'}) ?
-                    $last_locationlog_entry[0]->{'connection_type'} : "UNKNOWN";
-                $return .= "Connection type: $con_type\n";
+            my $con_type = defined($last_locationlog_entry[0]->{'connection_type'}) ?
+                $last_locationlog_entry[0]->{'connection_type'} : "UNKNOWN";
+            $return .= "Connection type: $con_type\n";
 
-                if (defined($last_locationlog_entry[0]->{'dot1x_username'})) {
-                    $return .= "802.1X Username: ".$last_locationlog_entry[0]->{'dot1x_username'}."\n";
-                }
-
-                if (defined($last_locationlog_entry[0]->{'ssid'})) {
-                    $return .= "Wireless SSID  : ".$last_locationlog_entry[0]->{'ssid'}."\n";
-                }
-
-                # if end_time is null or is set to 0
-                if (!defined($last_locationlog_entry[0]->{'end_time'})) {
-                    $return .= "Last activity  : UNKNOWN\n";
-                } elsif (defined($last_locationlog_entry[0]->{'end_time'}) 
-                    && $last_locationlog_entry[0]->{'end_time'} !~ /0000/) {
-                    $return .= "Last activity  : currently active\n";
-                } else {
-                    $return .= "Last activity  : ".$last_locationlog_entry[0]->{'end_time'}."\n";
-                }
-            } else {
-                $return .= "No connectivity information available (We probably only saw a DHCP request)\n";
+            if (defined($last_locationlog_entry[0]->{'dot1x_username'})) {
+                $return .= "802.1X Username: ".$last_locationlog_entry[0]->{'dot1x_username'}."\n";
             }
+
+            if (defined($last_locationlog_entry[0]->{'ssid'})) {
+                $return .= "Wireless SSID  : ".$last_locationlog_entry[0]->{'ssid'}."\n";
+            }
+
+            # if end_time is null or is set to 0
+            if (!defined($last_locationlog_entry[0]->{'end_time'})) {
+                $return .= "Last activity  : UNKNOWN\n";
+            } elsif (defined($last_locationlog_entry[0]->{'end_time'}) 
+                && $last_locationlog_entry[0]->{'end_time'} !~ /0000/) {
+                $return .= "Last activity  : currently active\n";
+            } else {
+                $return .= "Last activity  : ".$last_locationlog_entry[0]->{'end_time'}."\n";
+            }
+        } else {
+            $return .= "No connectivity information available (We probably only saw a DHCP request)\n";
         }
 
     } else {
