@@ -7,6 +7,12 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <trunk-release>:
 
+    - conf/dhcpd_vlan.conf moved to conf/dhcpd.conf
+    People using packages should be automatically updated. Make sure to put
+    back any local changes you have made to the file. Others will need to move
+    the file. You can do so with:
+    mv /usr/local/pf/conf/dhcpd_vlan.conf /usr/local/pf/conf/dhcpd.conf
+
     - New pf.conf configuration parameter: interface enforcement
     Under the [interface ...] statements a new configuration parameter has been
     added: enforcement. We got rid of the concept of 'modes' in PacketFence and
@@ -36,6 +42,18 @@ o Upgrading from a version prior to <trunk-release>:
     disabled by default. Previously it only had impacts if the mode was ARP but
     because of the modes removal it needed to be changed to disabled by default.
     Please report any regression introduced by this change.
+
+    - networks.conf's pf_gateway= renamed next_hop=
+    Make sure to update your configuration otherwise you will get warnings on
+    startup. At some point in the future pf_gateway will no longer be supported.
+
+    - networks.conf's type change
+    isolation and registration keywords are replaced by vlan-isolation and 
+    vlan-registration in networks.conf's type parameter. This is done to allow
+    the introduction of the inline keyword and avoid confusion between vlan and
+    inline enforcement over a network. It's recommended that you update your
+    configuration as the old names will be removed in the future. `pfcmd 
+    checkup` will warn you about this.
 
     - pf.conf's interface type changes
     We added management keyword to replace the confusing managed keyword. Also

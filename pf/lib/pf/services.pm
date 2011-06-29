@@ -38,6 +38,7 @@ use pf::node qw(nodes_registered_not_violators);
 use pf::trigger qw(trigger_delete_all parse_triggers);
 use pf::class qw(class_view_all class_merge);
 use pf::services::apache;
+use pf::services::dhcpd qw(generate_dhcpd_conf);
 use pf::SwitchFactory;
 
 Readonly our @ALL_SERVICES => (
@@ -265,31 +266,17 @@ sub generate_named_conf {
     $tags{'template'}    = "$conf_dir/named_vlan.conf";
     $tags{'install_dir'} = $install_dir;
 
-    my %network_conf;
-    tie %network_conf, 'Config::IniFiles',
-        ( -file => "$conf_dir/networks.conf", -allowempty => 1 );
-    my @errors = @Config::IniFiles::errors;
-    if ( scalar(@errors) ) {
-        $logger->error(
-            "Error reading networks.conf: " . join( "\n", @errors ) . "\n" );
-        return 0;
-    }
-
     my @routed_isolation_nets_named;
     my @routed_registration_nets_named;
-    foreach my $section ( tied(%network_conf)->Sections ) {
-        foreach my $key ( keys %{ $network_conf{$section} } ) {
-            $network_conf{$section}{$key} =~ s/\s+$//;
-        }
-        if ( ( $network_conf{$section}{'named'} eq 'enabled' ) 
-          && ( exists( $network_conf{$section}{'type'} ) ) ) {
-            if ( lc($network_conf{$section}{'type'}) eq 'isolation' ) {
-                my $isolation_obj = new Net::Netmask( $section,
-                    $network_conf{$section}{'netmask'} );
+    foreach my $network ( keys %ConfigNetworks ) {
+
+        if ( $ConfigNetworks{$network}{'named'} eq 'enabled' ) {
+            if ( pf::config::is_network_type_vlan_isol($network) ) {
+                my $isolation_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
                 push @routed_isolation_nets_named, $isolation_obj;
-            } elsif ( lc($network_conf{$section}{'type'}) eq 'registration' ) {
-                my $registration_obj = new Net::Netmask( $section,
-                    $network_conf{$section}{'netmask'} );
+
+            } elsif ( pf::config::is_network_type_vlan_reg($network) ) {
+                my $registration_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
                 push @routed_registration_nets_named, $registration_obj;
             }
         }
@@ -339,397 +326,25 @@ sub manage_Static_Route {
     $tags{'template'}    = "$conf_dir/named_vlan.conf";
     $tags{'install_dir'} = $install_dir;
 
-    my %network_conf;
-    tie %network_conf, 'Config::IniFiles', ( -file => "$conf_dir/networks.conf", -allowempty => 1 );
-    my @errors = @Config::IniFiles::errors;
-    if ( scalar(@errors) ) {
-        $logger->error("Error reading networks.conf: " . join( "\n", @errors ) . "\n" );
-        return 0;
-    }
+    foreach my $network ( keys %ConfigNetworks ) {
+        # shorter, more convenient local accessor
+        my %net = %{$ConfigNetworks{$network}};
 
-    foreach my $section ( tied(%network_conf)->Sections ) {
-        foreach my $key ( keys %{ $network_conf{$section} } ) {
-            $network_conf{$section}{$key} =~ s/\s+$//;
-        }
 
-        if ( ($network_conf{$section}{'dhcpd'} eq 'enabled') && (exists($network_conf{$section}{'type'})) && ($network_conf{$section}{'pf_gateway'} =~ /^(?:\d{1,3}\.){3}\d{1,3}$/) ) {
-            if ( ( lc($network_conf{$section}{'type'}) eq 'isolation' ) || ( lc($network_conf{$section}{'type'}) eq 'registration' ) ) {
-                my $add_del = $add_Route ? 'add' : 'del';
-                my $full_path = can_run('route') or $logger->error("route is not installed! Can not add static routes to routed Registration and Isolation VLANs");
-                my $cmd = "$full_path $add_del -net $section netmask " . $network_conf{$section}{'netmask'} . " gw " . $network_conf{$section}{'pf_gateway'};
-                my( $success, $error_code, $full_buf, $stdout_buf, $stderr_buf ) = run( command => $cmd, verbose => 0 );
-                if( $success ) {
-                    $logger->info("Command `$cmd` succedeed !");
-                } else {
-                    $logger->error("Command `$cmd` failed !");
-                }
+        if ( defined($net{'next_hop'}) && ($net{'next_hop'} =~ /^(?:\d{1,3}\.){3}\d{1,3}$/) ) {
+            my $add_del = $add_Route ? 'add' : 'del';
+            my $full_path = can_run('route') 
+                or $logger->error("route is not installed! Can't add static routes to routed VLANs.");
+
+            my $cmd = "$full_path $add_del -net $network netmask " . $net{'netmask'} . " gw " . $net{'next_hop'};
+            my( $success, $error_code, $full_buf, $stdout_buf, $stderr_buf ) = run( command => $cmd, verbose => 0 );
+            if( $success ) {
+                $logger->debug("static route command `$cmd` succedeed!");
+            } else {
+                $logger->error("static route command `$cmd` failed!");
             }
         }
     }
-}
-
-=item * generate_dhcpd_vlan_conf
-
-=cut
-
-sub generate_dhcpd_vlan_conf {
-    my $logger = Log::Log4perl::get_logger('pf::services');
-    my %tags;
-    $tags{'template'} = "$conf_dir/dhcpd_vlan.conf";
-    $tags{'networks'} = '';
-
-    my %network_conf;
-    tie %network_conf, 'Config::IniFiles',
-        ( -file => "$conf_dir/networks.conf", -allowempty => 1 );
-    my @errors = @Config::IniFiles::errors;
-    if ( scalar(@errors) ) {
-        $logger->error(
-            "Error reading networks.conf: " . join( "\n", @errors ) . "\n" );
-        return 0;
-    }
-    foreach my $section ( tied(%network_conf)->Sections ) {
-        foreach my $key ( keys %{ $network_conf{$section} } ) {
-            $network_conf{$section}{$key} =~ s/\s+$//;
-        }
-        if ( $network_conf{$section}{'dhcpd'} eq 'enabled' ) {
-            $tags{'networks'} .= <<"EOT";
-subnet $section netmask $network_conf{$section}{'netmask'} {
-  option routers $network_conf{$section}{'gateway'};
-  option subnet-mask $network_conf{$section}{'netmask'};
-  option domain-name "$network_conf{$section}{'domain-name'}";
-  option domain-name-servers $network_conf{$section}{'dns'};
-  range $network_conf{$section}{'dhcp_start'} $network_conf{$section}{'dhcp_end'};
-  default-lease-time $network_conf{$section}{'dhcp_default_lease_time'};
-  max-lease-time $network_conf{$section}{'dhcp_max_lease_time'};
-}
-
-EOT
-        }
-    }
-
-    parse_template( \%tags, "$conf_dir/dhcpd_vlan.conf",
-        "$generated_conf_dir/dhcpd.conf" );
-
-    return 1;
-}
-
-=item * generate_dhcpd_conf
-
-=cut
-
-# XXX merge the two dhcp config generators
-sub generate_dhcpd_conf {
-    if ( $Config{'network'}{'mode'} =~ /vlan/i ) {
-        generate_dhcpd_vlan_conf();
-        return;
-    }
-    my %tags;
-    my $logger = Log::Log4perl::get_logger('pf::services');
-    $tags{'template'}   = "$conf_dir/dhcpd.conf";
-    $tags{'domain'}     = $Config{'general'}{'domain'};
-    $tags{'hostname'}   = $Config{'general'}{'hostname'};
-    $tags{'dnsservers'} = $Config{'general'}{'dnsservers'};
-
-    parse_template( \%tags, "$conf_dir/dhcpd.conf",
-        "$generated_conf_dir/dhcpd.conf" );
-
-    my %shared_nets;
-    $logger->info("generating $conf_dir/dhcpd.conf");
-    foreach my $dhcp ( tied(%Config)->GroupMembers("dhcp") ) {
-        my @registered_scopes;
-        my @unregistered_scopes;
-        my @isolation_scopes;
-
-        if ( defined( $Config{$dhcp}{'registered_scopes'} ) ) {
-            @registered_scopes
-                = split( /\s*,\s*/, $Config{$dhcp}{'registered_scopes'} );
-        }
-        if ( defined( $Config{$dhcp}{'unregistered_scopes'} ) ) {
-            @unregistered_scopes
-                = split( /\s+/, $Config{$dhcp}{'unregistered_scopes'} );
-        }
-        if ( defined( $Config{$dhcp}{'isolation_scopes'} ) ) {
-            @isolation_scopes
-                = split( /\s+/, $Config{$dhcp}{'isolation_scopes'} );
-        }
-
-        foreach my $registered_scope (@registered_scopes) {
-            my $reg_obj = new Net::Netmask(
-                $Config{ 'scope ' . $registered_scope }{'network'} );
-            $reg_obj->tag( "scope", $registered_scope );
-            foreach my $shared_net ( keys(%shared_nets) ) {
-                if ( $shared_net ne $dhcp
-                    && defined(
-                        $shared_nets{$shared_net}{ $reg_obj->desc() } ) )
-                {
-                    $logger->logcroak( "Network "
-                            . $reg_obj->desc()
-                            . " is defined in another shared-network!\n" );
-                }
-            }
-            push(
-                @{ $shared_nets{$dhcp}{ $reg_obj->desc() }{'registered'} },
-                $reg_obj
-            );
-        }
-        foreach my $isolation_scope (@isolation_scopes) {
-            my $iso_obj = new Net::Netmask(
-                $Config{ 'scope ' . $isolation_scope }{'network'} );
-            $iso_obj->tag( "scope", $isolation_scope );
-            foreach my $shared_net ( keys(%shared_nets) ) {
-                if ( $shared_net ne $dhcp
-                    && defined(
-                        $shared_nets{$shared_net}{ $iso_obj->desc() } ) )
-                {
-                    $logger->logcroak( "Network "
-                            . $iso_obj->desc()
-                            . " is defined in another shared-network!\n" );
-                }
-            }
-            push(
-                @{ $shared_nets{$dhcp}{ $iso_obj->desc() }{'isolation'} },
-                $iso_obj
-            );
-        }
-        foreach my $unregistered_scope (@unregistered_scopes) {
-            my $unreg_obj = new Net::Netmask(
-                $Config{ 'scope ' . $unregistered_scope }{'network'} );
-            $unreg_obj->tag( "scope", $unregistered_scope );
-            foreach my $shared_net ( keys(%shared_nets) ) {
-                if ($shared_net ne $dhcp
-                    && defined(
-                        $shared_nets{$shared_net}{ $unreg_obj->desc() }
-                    )
-                    )
-                {
-                    $logger->logcroak( "Network "
-                            . $unreg_obj->desc()
-                            . " is defined in another shared-network!\n" );
-                }
-            }
-            push(
-                @{  $shared_nets{$dhcp}{ $unreg_obj->desc() }{'unregistered'}
-                    },
-                $unreg_obj
-            );
-        }
-    }
-
-    #open dhcpd.conf file
-    my $dhcpdconf_fh;
-    open( $dhcpdconf_fh, '>>', "$generated_conf_dir/dhcpd.conf" )
-        || $logger->logcroak("Unable to append to $conf_dir/dhcpd.conf: $!");
-    foreach my $internal_interface ( get_internal_devs_phy() ) {
-        my $dhcp_interface = get_internal_info($internal_interface);
-        print {$dhcpdconf_fh} "subnet "
-            . $dhcp_interface->base()
-            . " netmask "
-            . $dhcp_interface->mask()
-            . " {\n  not authoritative;\n}\n";
-    }
-    foreach my $shared_net ( keys(%shared_nets) ) {
-        my $printable_shared = $shared_net;
-        $printable_shared =~ s/dhcp //;
-        print {$dhcpdconf_fh} "shared-network $printable_shared {\n";
-        foreach my $key ( keys( %{ $shared_nets{$shared_net} } ) ) {
-            my $tmp_obj = new Net::Netmask($key);
-            print {$dhcpdconf_fh} "  subnet "
-                . $tmp_obj->base()
-                . " netmask "
-                . $tmp_obj->mask() . " {\n";
-
-            if (defined( @{ $shared_nets{$shared_net}{$key}{'registered'} } )
-                )
-            {
-                foreach my $reg (
-                    @{ $shared_nets{$shared_net}{$key}{'registered'} } )
-                {
-
-                    my $range = normalize_dhcpd_range(
-                        $Config{ 'scope ' . $reg->tag("scope") }{'range'} );
-                    if ( !$range ) {
-                        $logger->logcroak( "Invalid scope range: "
-                                . $Config{ 'scope ' . $reg->tag("scope") }
-                                {'range'} );
-                    }
-                    print {$dhcpdconf_fh} "    pool {\n";
-                    print {$dhcpdconf_fh} "      # I AM A REGISTERED SCOPE\n";
-                    print {$dhcpdconf_fh} "      deny unknown clients;\n";
-                    print {$dhcpdconf_fh}
-                        "      allow members of \"registered\";\n";
-                    print {$dhcpdconf_fh} "      option routers "
-                        . $Config{ 'scope ' . $reg->tag("scope") }{'gateway'}
-                        . ";\n";
-
-                    my $lease_time;
-                    if ( defined( $Config{$shared_net}{'registered_lease'} ) )
-                    {
-                        $lease_time
-                            = $Config{$shared_net}{'registered_lease'};
-                    } else {
-                        $lease_time = 7200;
-                    }
-
-                    print {$dhcpdconf_fh}
-                        "      max-lease-time $lease_time;\n";
-                    print {$dhcpdconf_fh}
-                        "      default-lease-time $lease_time;\n";
-                    print {$dhcpdconf_fh} "      range $range;\n";
-                    print {$dhcpdconf_fh} "    }\n";
-                }
-            }
-
-            if (defined( @{ $shared_nets{$shared_net}{$key}{'isolation'} } ) )
-            {
-                foreach my $iso (
-                    @{ $shared_nets{$shared_net}{$key}{'isolation'} } )
-                {
-
-                    my $range = normalize_dhcpd_range(
-                        $Config{ 'scope ' . $iso->tag("scope") }{'range'} );
-                    if ( !$range ) {
-                        $logger->logcroak( "Invalid scope range: "
-                                . $Config{ 'scope ' . $iso->tag("scope") }
-                                {'range'} );
-                    }
-
-                    print {$dhcpdconf_fh} "    pool {\n";
-                    print {$dhcpdconf_fh} "      # I AM AN ISOLATION SCOPE\n";
-                    print {$dhcpdconf_fh} "      deny unknown clients;\n";
-                    print {$dhcpdconf_fh}
-                        "      allow members of \"isolated\";\n";
-                    print {$dhcpdconf_fh} "      option routers "
-                        . $Config{ 'scope ' . $iso->tag("scope") }{'gateway'}
-                        . ";\n";
-
-                    my $lease_time;
-                    if ( defined( $Config{$shared_net}{'isolation_lease'} ) )
-                    {
-                        $lease_time = $Config{$shared_net}{'isolation_lease'};
-                    } else {
-                        $lease_time = 120;
-                    }
-
-                    print {$dhcpdconf_fh}
-                        "      max-lease-time $lease_time;\n";
-                    print {$dhcpdconf_fh}
-                        "      default-lease-time $lease_time;\n";
-                    print {$dhcpdconf_fh} "      range $range;\n";
-                    print {$dhcpdconf_fh} "    }\n";
-                }
-            }
-
-            if (defined(
-                    @{ $shared_nets{$shared_net}{$key}{'unregistered'} }
-                )
-                )
-            {
-                foreach my $unreg (
-                    @{ $shared_nets{$shared_net}{$key}{'unregistered'} } )
-                {
-
-                    my $range = normalize_dhcpd_range(
-                        $Config{ 'scope ' . $unreg->tag("scope") }{'range'} );
-                    if ( !$range ) {
-                        $logger->logcroak( "Invalid scope range: "
-                                . $Config{ 'scope ' . $unreg->tag("scope") }
-                                {'range'} );
-                    }
-
-                    print {$dhcpdconf_fh} "    pool {\n";
-                    print {$dhcpdconf_fh}
-                        "      # I AM AN UNREGISTERED SCOPE\n";
-                    print {$dhcpdconf_fh} "      allow unknown clients;\n";
-                    print {$dhcpdconf_fh} "      option routers "
-                        . $Config{ 'scope ' . $unreg->tag("scope") }
-                        {'gateway'} . ";\n";
-
-                    my $lease_time;
-                    if (defined( $Config{$shared_net}{'unregistered_lease'} )
-                        )
-                    {
-                        $lease_time
-                            = $Config{$shared_net}{'unregistered_lease'};
-                    } else {
-                        $lease_time = 120;
-                    }
-
-                    print {$dhcpdconf_fh}
-                        "      max-lease-time $lease_time;\n";
-                    print {$dhcpdconf_fh}
-                        "      default-lease-time $lease_time;\n";
-                    print {$dhcpdconf_fh} "      range $range;\n";
-                    print {$dhcpdconf_fh} "    }\n";
-                }
-            }
-
-            print {$dhcpdconf_fh} "  }\n";
-        }
-        print {$dhcpdconf_fh} "}\n";
-    }
-    print {$dhcpdconf_fh} "include \"$conf_dir/isolated.mac\";\n";
-    print {$dhcpdconf_fh} "include \"$conf_dir/registered.mac\";\n";
-    close $dhcpdconf_fh;
-
-    #close(DHCPDCONF);
-
-    generate_dhcpd_iso();
-    generate_dhcpd_reg();
-
-    return 1;
-}
-
-=item * generate_dhcpd_iso
-
-open isolated.mac file
-
-=cut
-
-sub generate_dhcpd_iso {
-    my $logger = Log::Log4perl::get_logger('pf::services');
-    my $isomac_fh;
-    open( $isomac_fh, '>', "$conf_dir/isolated.mac" )
-        || $logger->logcroak("Unable to open $conf_dir/isolated.mac : $!");
-    my @isolated = violation_view_open_uniq();
-    my @isolatednodes;
-    foreach my $row (@isolated) {
-        my $mac      = $row->{'mac'};
-        my $hostname = $mac;
-        $hostname =~ s/://g;
-        print {$isomac_fh}
-            "host $hostname { hardware ethernet $mac; } subclass \"isolated\" 01:$mac;";
-    }
-
-    close( $isomac_fh );
-    return 1;
-}
-
-=item * generate_dhcpd_reg
-
-open registered.mac file
-
-=cut
-
-sub generate_dhcpd_reg {
-    my $logger = Log::Log4perl::get_logger('pf::services');
-    if ( isenabled( $Config{'trapping'}{'registration'} ) ) {
-        my $regmac_fh;
-        open( $regmac_fh, '>', "$conf_dir/registered.mac" )
-            || $logger->logcroak(
-            "Unable to open $conf_dir/registered.mac : $!");
-        my @registered = nodes_registered_not_violators();
-        my @registerednodes;
-        foreach my $row (@registered) {
-            my $mac      = $row->{'mac'};
-            my $hostname = $mac;
-            $hostname =~ s/://g;
-            print {$regmac_fh}
-                "host $hostname { hardware ethernet $mac; } subclass \"registered\" 01:$mac;";
-        }
-
-        close( $regmac_fh );
-    }
-    return 1;
 }
 
 =item * generate_snort_conf
@@ -1012,32 +627,6 @@ sub class_set_defaults {
     }
     delete( $violations{'defaults'} );
     return (%violations);
-}
-
-=item * normalize_dhcpd_range
-
-=cut
-
-sub normalize_dhcpd_range {
-    my ($range) = @_;
-    if ( $range
-        =~ /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s*-\s*(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/
-        )
-    {
-        $range =~ s/\s*\-\s*/ /;
-        return ($range);
-    } elsif (
-        $range =~ /^(\d{1,3}\.\d{1,3}\.\d{1,3})\.(\d{1,3})\s*-\s*(\d{1,3})$/ )
-    {
-        my $net   = $1;
-        my $start = $2;
-        my $end   = $3;
-        return ("$net.$start $net.$end");
-    } elsif ( $range =~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/ ) {
-        return ("$range $range");
-    } else {
-        return;
-    }
 }
 
 =back

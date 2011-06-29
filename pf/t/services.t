@@ -14,7 +14,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 14;
+use Test::More tests => 15;
 use Log::Log4perl;
 use File::Basename qw(basename);
 use lib '/usr/local/pf/lib';
@@ -26,6 +26,7 @@ Log::Log4perl::MDC->put( 'tid',  0 );
 
 BEGIN { use_ok('pf::services') }
 BEGIN { use_ok('pf::services::apache') }
+BEGIN { use_ok('pf::services::dhcpd') }
 
 # CONFIGURATION VALIDATION
 

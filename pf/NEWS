@@ -23,6 +23,11 @@ Major changes
    can operate in multiple modes simultaneously. This new concept is called
    enforcement and is specified per interface in pf.conf.
 
+Enhancements
+ * pfcmd and web administration performance improvements by avoiding duplicate
+   loading of some configuration files
+ * Configuration simplification (#1182)
+
 --------------------------------------------------------------------------------
 Version <trunk-release> released on <releaseDate>
 

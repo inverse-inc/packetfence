@@ -38,7 +38,7 @@ our (
     $unreg_mark, $reg_mark, $black_mark,
     $default_config_file, %Default_Config, 
     $config_file, %Config, 
-    $network_config_file, 
+    $network_config_file, %ConfigNetworks,
     $dhcp_fingerprints_file, $dhcp_fingerprints_url,
     $oui_file, $oui_url,
     $floating_devices_file, %ConfigFloatingDevices,
@@ -59,7 +59,7 @@ BEGIN {
         $unreg_mark $reg_mark $black_mark 
         $default_config_file %Default_Config
         $config_file %Config
-        $network_config_file 
+        $network_config_file %ConfigNetworks
         $dhcp_fingerprints_file $dhcp_fingerprints_url 
         $oui_file $oui_url
         $floating_devices_file %ConfigFloatingDevices
@@ -122,6 +122,11 @@ Readonly our $IF_INTERNAL => 'internal';
 # Interface enforcement techniques
 Readonly our $IF_ENFORCEMENT_VLAN => 'vlan';
 Readonly our $IF_ENFORCEMENT_INLINE => 'inline';
+
+# Network configuration parameters
+Readonly our $NET_TYPE_VLAN_REG => 'vlan-registration';
+Readonly our $NET_TYPE_VLAN_ISOL => 'vlan-isolation';
+Readonly our $NET_TYPE_INLINE => 'inline';
 
 # connection type constants
 use constant WIRELESS_802_1X => 0b11000001;
@@ -330,7 +335,6 @@ sub readPfConfigFiles {
 =cut
 sub readNetworkConfigFile {
 
-    my %ConfigNetworks;
     tie %ConfigNetworks, 'Config::IniFiles', ( -file => $network_config_file, -allowempty => 1 );
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {
@@ -344,17 +348,26 @@ sub readNetworkConfigFile {
         }
     }
 
-    foreach my $section ( tied(%ConfigNetworks)->Sections ) {
-        if ( exists( $ConfigNetworks{$section}{'type'} ) ) {
-            if ( lc($ConfigNetworks{$section}{'type'}) eq 'isolation' ) {
-                my $isolation_obj = new Net::Netmask( $section, $ConfigNetworks{$section}{'netmask'} );
-                push @routed_isolation_nets, $isolation_obj;
-            } elsif ( lc($ConfigNetworks{$section}{'type'}) eq 'registration' ) {
-                my $registration_obj = new Net::Netmask( $section, $ConfigNetworks{$section}{'netmask'} );
-                push @routed_registration_nets, $registration_obj;
-            }
+    foreach my $network ( tied(%ConfigNetworks)->Sections ) {
+
+        # populate routed nets variables
+        if ( is_network_type_vlan_isol($network) ) {
+            my $isolation_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
+            push @routed_isolation_nets, $isolation_obj;
+        } elsif ( is_network_type_vlan_reg($network) ) {
+            my $registration_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
+            push @routed_registration_nets, $registration_obj;
         }
-    }   
+
+        # transition pf_gateway to next_hop
+        # TODO we can deprecate pf_gateway in 2012
+        if ( defined($ConfigNetworks{$network}{'pf_gateway'}) && !defined($ConfigNetworks{$network}{'next_hop'}) ) {
+            $logger->warn("pf_gateway deprecated you should use next_hop instead");
+            # carry over the parameter so that things still work
+            $ConfigNetworks{$network}{'next_hop'} = $ConfigNetworks{$network}{'pf_gateway'};
+        }
+    }
+
 }
 
 =item readFloatingNetworkDeviceFile - floating_network_device.conf
@@ -462,6 +475,97 @@ sub is_inline_enforcement_enabled {
     # cache the answer for future access
     $cache_inline_enforcement_enabled = $FALSE;
     return $FALSE;
+}
+
+=item get_newtork_type
+
+Returns the type of a network. The call encapsulate the type configuration changes that we made.
+
+Returns undef on unrecognized types.
+
+=cut
+# TODO we can deprecate isolation / registration in 2012
+sub get_network_type {
+    my ($network) = @_;
+
+    
+    if (!defined($ConfigNetworks{$network}{'type'})) {
+        # not defined
+        return;
+
+    } elsif ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_VLAN_REG$/i) {
+        # vlan-registration
+        return $NET_TYPE_VLAN_REG;
+
+    } elsif ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_VLAN_ISOL$/i) {
+        # vlan-isolation
+        return $NET_TYPE_VLAN_ISOL;
+
+    } elsif ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE$/i) {
+        # inline
+        return $NET_TYPE_INLINE;;
+
+    } elsif ($ConfigNetworks{$network}{'type'} =~ /^registration$/i) {
+        # deprecated registration
+        $logger->warn("networks.conf network type registration is deprecated use vlan-registration instead");
+        return $NET_TYPE_VLAN_REG;
+
+    } elsif ($ConfigNetworks{$network}{'type'} =~ /^isolation$/i) {
+        # deprecated isolation
+        $logger->warn("networks.conf network type isolation is deprecated use vlan-isolation instead");
+        return $NET_TYPE_VLAN_ISOL;
+    }
+
+    $logger->warn("Unknown network type for network $network");
+    return;
+}
+
+=item is_network_type_vlan_reg
+
+Returns true if given network is of type vlan-registration and false otherwise.
+
+=cut
+sub is_network_type_vlan_reg {
+    my ($network) = @_;
+
+    my $result = get_network_type($network);
+    if (defined($result) && $result eq $NET_TYPE_VLAN_REG) {
+        return $TRUE;
+    } else {
+        return $FALSE;
+    }
+}
+
+=item is_network_type_vlan_isol
+
+Returns true if given network is of type vlan-isolation and false otherwise.
+
+=cut
+sub is_network_type_vlan_isol {
+    my ($network) = @_;
+
+    my $result = get_network_type($network);
+    if (defined($result) && $result eq $NET_TYPE_VLAN_ISOL) {
+        return $TRUE;
+    } else {
+        return $FALSE;
+    }
+}
+
+=item is_network_type_inline
+
+Returns true if given network is of type inline and false otherwise.
+
+=cut
+sub is_network_type_inline {
+    my ($network) = @_;
+
+    my $result = get_network_type($network);
+    if (defined($result) && $result eq $NET_TYPE_INLINE) {
+        return $TRUE;
+    } else {
+        return $FALSE;
+    }
 }
 
 =back

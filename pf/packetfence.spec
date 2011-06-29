@@ -518,7 +518,6 @@ fi
 %dir                    /usr/local/pf/conf/configurator
                         /usr/local/pf/conf/configurator/*
 %config                 /usr/local/pf/conf/dhcpd.conf
-%config                 /usr/local/pf/conf/dhcpd_vlan.conf
 %config                 /usr/local/pf/conf/httpd.conf
 %config                 /usr/local/pf/conf/httpd.conf.apache22
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
