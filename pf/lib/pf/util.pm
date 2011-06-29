@@ -520,9 +520,10 @@ sub get_external_devs {
     return (@devs);
 }
 
+# TODO rename managed to management
 sub get_managed_devs {
     my @devs;
-    foreach my $interface (@managed_nets) {
+    foreach my $interface (@management_nets) {
         push @devs, $interface->tag("int");
     }
     return (@devs);

@@ -131,19 +131,19 @@ check the Netmask objs and make sure a managed and internal interface exist
 =cut
 sub interfaces {
 
-    if ( !scalar(@internal_nets) ) {
+    if ( !scalar(get_internal_devs()) ) {
         add_problem( $FATAL, "internal network(s) not defined!" );
     }
-    if ( scalar(@managed_nets) != 1 ) {
+    if ( scalar(get_managed_devs()) != 1 ) {
         add_problem( $FATAL, "please define exactly one management interace" );
     }
 
     my %seen;
-    my @tmp_nets;
-    push @tmp_nets, @internal_nets;
-    push @tmp_nets, @managed_nets;
-    foreach my $interface (@tmp_nets) {
-        my $device = "interface " . $interface->tag("int");
+    my @network_interfaces;
+    push @network_interfaces, get_internal_devs();
+    push @network_interfaces, get_managed_devs();
+    foreach my $interface (@network_interfaces) {
+        my $device = "interface " . $interface;
 
         if ( !($Config{$device}{'mask'} && $Config{$device}{'ip'}
             && $Config{$device}{'gateway'} && $Config{$device}{'type'})
@@ -161,6 +161,14 @@ sub interfaces {
                 "Enforcement technique must be defined on an internal interface. " .
                 "Your choices are: $IF_ENFORCEMENT_VLAN or $IF_ENFORCEMENT_INLINE. " . 
                 "If unsure refer to the documentation."
+            );
+        }
+
+        if (defined($Config{$device}{'type'}) && $Config{$device}{'type'} eq 'managed') {
+            add_problem( $WARN, 
+                "Interface type 'managed' is drepecated and will be removed in future versions of PacketFence. " .
+                "You should use the 'management' keyword instead. " .
+                "Seen on interface $interface."
             );
         }
     }

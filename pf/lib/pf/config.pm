@@ -33,7 +33,7 @@ use threads;
 # Categorized by feature, pay attention when modifying
 our (
     $install_dir, $bin_dir, $conf_dir, $lib_dir, $log_dir, $generated_conf_dir, $var_dir,
-    @listen_ints, @internal_nets, @routed_isolation_nets, @routed_registration_nets, @managed_nets, @external_nets,
+    @listen_ints, @internal_nets, @routed_isolation_nets, @routed_registration_nets, @management_nets, @external_nets,
     @dhcplistener_ints, $monitor_int,
     $unreg_mark, $reg_mark, $black_mark,
     $default_config_file, %Default_Config, 
@@ -54,7 +54,7 @@ BEGIN {
     # Categorized by feature, pay attention when modifying
     @EXPORT = qw(
         $install_dir $bin_dir $conf_dir $lib_dir $generated_conf_dir $var_dir
-        @listen_ints @internal_nets @routed_isolation_nets @routed_registration_nets @managed_nets @external_nets 
+        @listen_ints @internal_nets @routed_isolation_nets @routed_registration_nets @management_nets @external_nets 
         @dhcplistener_ints $monitor_int 
         $unreg_mark $reg_mark $black_mark 
         $default_config_file %Default_Config
@@ -309,8 +309,8 @@ sub readPfConfigFiles {
             if ( $type eq 'internal' ) {
                 push @internal_nets, $int_obj;
                 push @listen_ints, $int if ( $int !~ /:\d+$/ );
-            } elsif ( $type eq 'managed' ) {
-                push @managed_nets, $int_obj;
+            } elsif ( $type eq 'managed' || $type eq 'management' ) {
+                push @management_nets, $int_obj;
             } elsif ( $type eq 'external' ) {
                 push @external_nets, $int_obj;
             } elsif ( $type eq 'monitor' ) {

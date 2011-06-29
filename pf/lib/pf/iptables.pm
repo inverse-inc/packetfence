@@ -418,7 +418,7 @@ sub managed_append_entry {
     my ($cmd_arg)    = @_;
     my $logger       = Log::Log4perl::get_logger('pf::iptables');
     my $returnString = '';
-    foreach my $managed (@managed_nets) {
+    foreach my $managed (@management_nets) {
         my $dev = $managed->tag("int");
         my @authorized_ips = split( /\s*,\s*/, $managed->tag("authips") );
         if ( scalar(@authorized_ips) == 0 ) {

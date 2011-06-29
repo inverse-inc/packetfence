@@ -37,6 +37,11 @@ o Upgrading from a version prior to <trunk-release>:
     because of the modes removal it needed to be changed to disabled by default.
     Please report any regression introduced by this change.
 
+    - pf.conf's interface type changes
+    We added management keyword to replace the confusing managed keyword. Also
+    dhcp-listener is accepted in addition to the previously used dhcplistener.
+    Use of the managed keyword will issue warnings in `pfcmd checkup`.
+
     - jpgraph external libraries changed location
     jpgraph files are expected to be located in /var/www/jpgraph-<version>/ 
     instead of the earlier 
