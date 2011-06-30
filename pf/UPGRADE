@@ -7,12 +7,6 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <trunk-release>:
 
-    - conf/dhcpd_vlan.conf moved to conf/dhcpd.conf
-    People using packages should be automatically updated. Make sure to put
-    back any local changes you have made to the file. Others will need to move
-    the file. You can do so with:
-    mv /usr/local/pf/conf/dhcpd_vlan.conf /usr/local/pf/conf/dhcpd.conf
-
     - New pf.conf configuration parameter: interface enforcement
     Under the [interface ...] statements a new configuration parameter has been
     added: enforcement. We got rid of the concept of 'modes' in PacketFence and
@@ -36,6 +30,18 @@ o Upgrading from a version prior to <trunk-release>:
      - Default workflow now brings you to the login page (no more registration
        click-through unless you adjust nbregpages in configuration)
      - Default logo changed to packetfence-cp.png (was packetfence.png)
+
+    - conf/named_vlan.conf moved to conf/named.conf
+    People using packages should be automatically updated. Make sure to put
+    back any local changes you have made to the file. Others will need to move
+    the file. You can do so with:
+    mv /usr/local/pf/conf/named_vlan.conf /usr/local/pf/conf/named.conf
+
+    - conf/dhcpd_vlan.conf moved to conf/dhcpd.conf
+    People using packages should be automatically updated. Make sure to put
+    back any local changes you have made to the file. Others will need to move
+    the file. You can do so with:
+    mv /usr/local/pf/conf/dhcpd_vlan.conf /usr/local/pf/conf/dhcpd.conf
 
     - general.caching disabled by default
     A historical and badly understood feature, general caching, has now been

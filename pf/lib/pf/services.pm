@@ -39,6 +39,7 @@ use pf::trigger qw(trigger_delete_all parse_triggers);
 use pf::class qw(class_view_all class_merge);
 use pf::services::apache;
 use pf::services::dhcpd qw(generate_dhcpd_conf);
+use pf::services::named qw(generate_named_conf);
 use pf::SwitchFactory;
 
 Readonly our @ALL_SERVICES => (
@@ -254,77 +255,10 @@ sub service_list {
     return @finalServiceList;
 }
 
-=item * generate_named_conf
-
-=cut
-
-sub generate_named_conf {
-    my $logger = Log::Log4perl::get_logger('pf::services');
-    require Net::Netmask;
-    import Net::Netmask;
-    my %tags;
-    $tags{'template'}    = "$conf_dir/named_vlan.conf";
-    $tags{'install_dir'} = $install_dir;
-
-    my @routed_isolation_nets_named;
-    my @routed_registration_nets_named;
-    foreach my $network ( keys %ConfigNetworks ) {
-
-        if ( $ConfigNetworks{$network}{'named'} eq 'enabled' ) {
-            if ( pf::config::is_network_type_vlan_isol($network) ) {
-                my $isolation_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-                push @routed_isolation_nets_named, $isolation_obj;
-
-            } elsif ( pf::config::is_network_type_vlan_reg($network) ) {
-                my $registration_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-                push @routed_registration_nets_named, $registration_obj;
-            }
-        }
-    }
-
-    $tags{'registration_clients'} = "";
-    foreach my $net ( @routed_registration_nets_named ) {
-        $tags{'registration_clients'} .= $net . "; ";
-    }
-    $tags{'isolation_clients'} = "";
-    foreach my $net ( @routed_isolation_nets_named ) {
-        $tags{'isolation_clients'} .= $net . "; ";
-    }
-    parse_template(
-        \%tags,
-        "$conf_dir/named_vlan.conf",
-        "$generated_conf_dir/named.conf"
-    );
-
-    my %tags_isolation;
-    $tags_isolation{'template'} = "$conf_dir/named-isolation.ca";
-    $tags_isolation{'hostname'} = $Config{'general'}{'hostname'};
-    $tags_isolation{'incharge'}
-        = "pf."
-        . $Config{'general'}{'hostname'} . "."
-        . $Config{'general'}{'domain'};
-    parse_template(\%tags_isolation, "$conf_dir/named-isolation.ca", "$var_dir/named/named-isolation.ca", ";");
-
-    my %tags_registration;
-    $tags_registration{'template'}
-        = "$conf_dir/named-registration.ca";
-    $tags_registration{'hostname'} = $Config{'general'}{'hostname'};
-    $tags_registration{'incharge'}
-        = "pf."
-        . $Config{'general'}{'hostname'} . "."
-        . $Config{'general'}{'domain'};
-    parse_template(\%tags_registration, "$conf_dir/named-registration.ca", "$var_dir/named/named-registration.ca", ";");
-
-    return 1;
-}
-
 # Adding or removing static routes for Registration and Isolation VLANs
 sub manage_Static_Route {
     my $add_Route = @_;
     my $logger = Log::Log4perl::get_logger('pf::services');
-    my %tags;
-    $tags{'template'}    = "$conf_dir/named_vlan.conf";
-    $tags{'install_dir'} = $install_dir;
 
     foreach my $network ( keys %ConfigNetworks ) {
         # shorter, more convenient local accessor

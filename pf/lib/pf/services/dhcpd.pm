@@ -45,7 +45,8 @@ Generate the proper dhcpd configuration for PacketFence's operation
 
 =cut
 sub generate_dhcpd_conf {
-    my $logger = Log::Log4perl::get_logger('pf::services');
+    my $logger = Log::Log4perl::get_logger('pf::services::dhcpd');
+
     my %tags;
     $tags{'template'} = "$conf_dir/dhcpd.conf";
     $tags{'networks'} = '';

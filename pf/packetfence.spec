@@ -524,7 +524,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/listener.msg
 %config(noreplace)      /usr/local/pf/conf/named-registration.ca
 %config(noreplace)      /usr/local/pf/conf/named-isolation.ca
-%config                 /usr/local/pf/conf/named_vlan.conf
+%config                 /usr/local/pf/conf/named.conf
 %config(noreplace)      /usr/local/pf/conf/popup.msg
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf

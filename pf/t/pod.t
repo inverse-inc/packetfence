@@ -77,6 +77,7 @@ my @files = (
     '/usr/local/pf/lib/pf/services.pm',
     '/usr/local/pf/lib/pf/services/apache.pm',
     '/usr/local/pf/lib/pf/services/dhcpd.pm',
+    '/usr/local/pf/lib/pf/services/named.pm',
     '/usr/local/pf/lib/pf/SwitchFactory.pm',
     '/usr/local/pf/lib/pf/switchlocation.pm',
     '/usr/local/pf/lib/pf/traplog.pm',

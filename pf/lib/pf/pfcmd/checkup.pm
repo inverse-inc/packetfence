@@ -265,6 +265,13 @@ sub network {
             );
         }
 
+        # validate dns entry if named is enabled
+        if ($net{'named'} =~ /enabled/i) {
+            if (!valid_ip($net{'dns'})) {
+                add_problem( $FATAL, "networks.conf: DNS IP is not valid for network $network" );
+            }
+        }
+
         # mandatory fields if we run DHCP (should be most cases)
         if ($net{'dhcpd'} =~ /enabled/i) {
             my $netmask_valid = (defined($net{'netmask'}) && valid_ip($net{'netmask'}));
