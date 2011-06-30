@@ -10,7 +10,9 @@ Object oriented module to access and manage Dlink DES 3550 switches
 
 =head1 STATUS
 
-Supports MAC Notification mode only
+Might support link-up link-down
+
+Supports MAC Notification
 
 This module is currently only a placeholder, see pf::SNMP::Dlink
 
