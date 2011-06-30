@@ -265,13 +265,61 @@ sub network {
             );
         }
 
-        # inline and named=yes is not what you want
-        if (defined($net{'type'}) && $net{'type'} =~ /^inline$/i && $net{'named'} =~ /enabled/i) {
-            add_problem( $WARN,
-                "networks.conf type inline with named enabled will *not* do what you might expect. " . 
-                "Disable named under the $network network to get rid of this warning."
+        # mandatory fields if we run DHCP (should be most cases)
+        if ($net{'dhcpd'} =~ /enabled/i) {
+            my $netmask_valid = (defined($net{'netmask'}) && valid_ip($net{'netmask'}));
+            my $gw_valid = (defined($net{'gateway'}) && valid_ip($net{'gateway'}));
+            my $domainname_valid = (defined($net{'domain-name'}) && $net{'domain-name'} !~ /^\s*$/);
+            my $range_valid = (
+                defined($net{'dhcp_start'}) && $net{'dhcp_start'} !~ /^\s*$/ &&
+                defined($net{'dhcp_end'}) && $net{'dhcp_end'} !~ /^\s*$/
             );
+            my $default_lease_valid = (
+                defined($net{'dhcp_default_lease_time'}) && $net{'dhcp_default_lease_time'} =~ /^\d+$/
+            );
+            my $max_lease_valid = ( defined($net{'dhcp_max_lease_time'}) && $net{'dhcp_max_lease_time'} =~ /^\d+$/ );
+            if (!($netmask_valid && $gw_valid && $domainname_valid && $range_valid && $default_lease_valid && $max_lease_valid)) {
+                add_problem( $FATAL, "networks.conf: Incomplete DHCP information for network $network" );
+            }
         }
+
+        # run inline network tests
+        network_inline($network) if (pf::config::is_network_type_inline($network));
+    }
+}
+
+
+=item network_inline
+
+Tests that validate the configuration of an inline network.
+
+=cut
+sub network_inline {
+    my ($network) = @_;
+    # shorter, more convenient accessor
+    my %net = %{$ConfigNetworks{$network}};
+
+    # inline with named=yes is not what you want
+    if ($net{'named'} =~ /enabled/i) {
+        add_problem( $WARN,
+            "networks.conf type inline with named enabled will *not* do what you might expect. " . 
+            "Disable named under the $network network to get rid of this warning."
+        );
+    }
+
+    # inline interfaces should have at least one local gateway
+    my $found = 0;
+    foreach my $int (@internal_nets) {
+        if ( $Config{ 'interface ' . $int->tag('int') }{'ip'} eq $net{'gateway'} ) {
+            $found = 1;
+            next;
+        }
+    }
+    if ( !$found ) {
+        add_problem( $WARN, 
+            "networks.conf $network gateway ($net{'gateway'}) is not bound to an internal interface. " .
+            "Assume your configuration is wrong unless you know what you are doing."
+        );
     }
 }
 
@@ -296,45 +344,6 @@ sub inline {
             "Proxy passthrough (trapping.passthrough) is untested with inline enforcement and might not work. " .
             "If you don't understand the warning you can safely ignore it you won't be affected. "
         );
-    }
-
-    # make sure dhcp information is complete and valid
-    my @dhcp_scopes;
-    foreach my $dhcp ( tied(%Config)->GroupMembers("dhcp") ) {
-        if ( defined( $Config{$dhcp}{'registered_scopes'} ) ) {
-            @dhcp_scopes = split( /\s*,\s*/, $Config{$dhcp}{'registered_scopes'} );
-        }
-        if ( defined( $Config{$dhcp}{'unregistered_scopes'} ) ) {
-            push @dhcp_scopes, split( /\s+/, $Config{$dhcp}{'unregistered_scopes'} );
-        }
-        if ( defined( $Config{$dhcp}{'isolation_scopes'} ) ) {
-            push @dhcp_scopes, split( /\s+/, $Config{$dhcp}{'isolation_scopes'} );
-        }
-    }
-
-    if ( scalar(@dhcp_scopes) == 0 ) {
-        add_problem( $WARN, "missing dhcp scope information for inline interface(s)" );
-    }
-
-    foreach my $scope (@dhcp_scopes) {
-        if (!defined $Config{ 'scope ' . $scope }{'network'}
-            || !defined $Config{ 'scope ' . $scope }{'gateway'}
-            || !defined $Config{ 'scope ' . $scope }{'range'} ) {
-                add_problem( $WARN, "incomplete dhcp scope information for $scope" );
-        }
-
-        my $found = 0;
-        foreach my $int (@internal_nets) {
-            if ( $Config{ 'interface ' . $int->tag('int') }{'ip'} eq $Config{ 'scope ' . $scope }{'gateway'} ) {
-                $found = 1;
-                next;
-            }
-        }
-        if ( !$found ) {
-            add_problem( $WARN, 
-                "dhcp scope $scope gateway ($Config{'scope '.$scope}{'gateway'}) is not bound to internal interface"
-            );
-        }
     }
 }
 
@@ -444,7 +453,7 @@ sub is_config_documented {
         my ( $group, $item ) = split( /\./, $section );
         my $type = $documentation{$section}{'type'};
 
-        next if ( $section =~ /^(proxies|passthroughs)$/ || $group =~ /^(dhcp|scope|interface|services)$/ );
+        next if ( $section =~ /^(proxies|passthroughs)$/ || $group =~ /^(interface|services)$/ );
         next if ( ( $group eq 'alerting' ) && ( $item eq 'fromaddr' ) );
         next if ( ( $group eq 'arp' )      && ( $item eq 'listendevice' ) );
 
@@ -486,7 +495,7 @@ sub is_config_documented {
     #than what is documented in documentation.conf
     foreach my $section (keys %Config) {
         next if ( ($section eq "proxies") || ($section eq "passthroughs") || ($section eq "")
-                  || ($section =~ /^(services|interface|dhcp|scope)/));
+                  || ($section =~ /^(services|interface)/));
 
         foreach my $item  (keys %{$Config{$section}}) {
             if ( !defined( $documentation{"$section.$item"} ) ) {

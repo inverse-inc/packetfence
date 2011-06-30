@@ -262,8 +262,7 @@ sub readPfConfigFiles {
         "registration.skip_window",   "registration.skip_reminder",
         "registration.expire_window", "registration.expire_session",
         "general.maintenance_interval", "scan.duration",
-        "dhcp.isolation_lease",       "dhcp.registered_lease",
-        "dhcp.unregistered_lease", "vlan.bounce_duration",   
+        "vlan.bounce_duration",   
     ) {
         my ( $group, $item ) = split( /\./, $val );
         $Config{$group}{$item} = normalize_time( $Config{$group}{$item} );
