@@ -14,7 +14,7 @@ Supports MAC Notification mode only
 
 This module is currently only a placeholder, see pf::SNMP::Dlink
 
-Tested by the community on unspecified firmware.
+Tested by the community on the 5.01.B65 firmware.
 
 =cut
 
