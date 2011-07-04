@@ -66,6 +66,12 @@ o Upgrading from a version prior to <trunk-release>:
     dhcp-listener is accepted in addition to the previously used dhcplistener.
     Use of the managed keyword will issue warnings in `pfcmd checkup`.
 
+    - Dropping support of interface authorizedips
+    pf.conf's per interface authorizedips parameter no longer exists. We don't
+    belive if was used at all. If you want to achieve the same functionality 
+    just edit conf/iptables.conf and add your own rules to allow specific IPs
+    in.
+
     - jpgraph external libraries changed location
     jpgraph files are expected to be located in /var/www/jpgraph-<version>/ 
     instead of the earlier 
