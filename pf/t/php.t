@@ -4,7 +4,8 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 82;
+use Test::More;
+use Test::NoWarnings;
 
 my @php_files = (
     '/usr/local/pf/html/admin/administration/adduser.php',
@@ -73,8 +74,7 @@ my @php_files = (
     '/usr/local/pf/html/admin/violation/edit.php',
     '/usr/local/pf/html/admin/violation/index.php',
     '/usr/local/pf/html/admin/violation/view.php',
-    '/usr/local/pf/html/user/content/index.php',
-    '/usr/local/pf/html/user/content/style.php',
+    '/usr/local/pf/html/user/content/remediation.php',
     '/usr/local/pf/html/user/content/violations/banned_os.php',
     '/usr/local/pf/html/user/content/violations/banned_devices.php',
     '/usr/local/pf/html/user/content/violations/darknet.php',
@@ -90,6 +90,10 @@ my @php_files = (
     '/usr/local/pf/html/user/content/violations/trojan.php',
     '/usr/local/pf/html/user/content/violations/zotob.php',
 );
+
+# all files + no warnings
+plan tests => scalar @php_files + 1;
+
 
 foreach my $currentPHPFile (@php_files) {
     ok( system("/usr/bin/php -l $currentPHPFile 2>&1") == 0,

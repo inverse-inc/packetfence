@@ -1,15 +1,9 @@
-<html>
-
-<head>
-<title>[% txt_page_title %]</title>
-<script src="/common/prototype.js" type="text/javascript"></script>
-<script src="/common/pf.js" type="text/javascript"></script>
-
+[% INCLUDE header.html %]
 <script type="text/javascript">
 var waitTime=[% timer %];
 var action = function() {
   hidebar();
-  $('toReplace').innerHTML = '<font face=\"Arial\">[% txt_timerexpired %]</font>';
+  $('toReplace').innerHTML = '[% txt_timerexpired %]';
 }; 
   
 var txt_ie = "[% txt_ie %]";
@@ -27,41 +21,15 @@ document.observe("dom:loaded", function() {
 });
 </script>
 
-</head>
-
-<body bgcolor="#FFFFFF">
-
-<center>
-  <table border="0" width="650" id="table1">
-    <tr>
-      <td align="center">
-        <p align="center">
-        <img border="0" src="[% logo %]">
-        </p>
-      </td>
-    </tr>
-    <tr>
-      <td align="center">
-        <p align="center">
-        <script type="text/javascript" src="/3rdparty/timerbar.js"></script>
-        <noscript><font face="Arial">[% txt_noscript %]</font></noscript>
-        </p>
-      </td>
-    </tr>
-    <tr>
-      <td align="center">
-        <p align="center" id="toReplace"><font face="Arial">
-          [% txt_message %]
-        </font></p>
-        <p align="center" id="browser_notes"></p>
-      </td>
-    </tr>
-  </table>
-</center>
+        <div id="about">
+          <img src="content/images/unlock.png" alt="Access granted" />
+          <p id="toReplace">[% txt_message %]</p>
+          <p id="browser_notes"></p>
+          <script type="text/javascript" src="/3rdparty/timerbar.js"></script>
+          <noscript><p>[% txt_noscript %]</p></noscript>
+        </div>
 
 [%# DO NOT REMOVE! REQUIRED FOR NETWORK ACCESS DETECTION %]
 <div id="internet-detection" style="display: none;"><img id="netdetect"/></div>
-</body>
 
-</html>
-
+[% INCLUDE footer.html %]
