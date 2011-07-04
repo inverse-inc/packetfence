@@ -16,6 +16,9 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <version> released on <releaseDate>
 
+New Features
+ * Ability to view log files from the Web Administration interface (#1080)
+
 Enhancements
  * New DHCP fingerprints for Polycom and Snom
 
