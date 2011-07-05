@@ -583,6 +583,30 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
         capability to the switch's code with:
         <programlisting language="perl">sub supportsWiredDot1x { return $TRUE; }</programlisting></para>
       </sect2>
+
+      <sect2>
+        <title>Floating Network Devices Support</title>
+        <para>
+          Floating Network Devices are described in the Administration Guide under "Floating Network Devices" 
+          in the "Optional Components" section. 
+          Refer to this documentation if you don't know what Floating Network Devices are.
+        </para>
+        <para>
+          In order to support Floating Network Devices on a switch, you need to implement the following methods:
+        </para>
+        <itemizedlist>
+          <listitem><function>enablePortSecurityByIfIndex()</function></listitem>
+          <listitem><function>disablePortSecurityByIfIndex()</function></listitem>
+          <listitem><function>enablePortConfigAsTrunk()</function></listitem>
+          <listitem><function>disablePortConfigAsTrunk()</function></listitem>
+          <listitem><function>enableIfLinkUpDownTraps()</function> - usually provided by core</listitem>
+          <listitem><function>disableIfLinkUpDownTraps()</function> - usually provided by core</listitem>
+          <listitem><function>isTrunkPort()</function></listitem>
+        </itemizedlist>
+
+        <para>Once all the required methods are implemented, enable the capability in the switch's code with:
+        <programlisting language="perl">sub supportsFloatingDevice { return $TRUE; }</programlisting></para>
+      </sect2>
     </sect1>
 
     <sect1>
