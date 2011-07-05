@@ -53,7 +53,7 @@ if ($locationlog_entry) {
     my $trapSender = pf::SwitchFactory->getInstance()->instantiate('127.0.0.1');
 
     if ($trapSender) {
-        if ($conn_type eq UNKNOWN) {
+        if ($conn_type == UNKNOWN) {
             $logger->warn("Unknown connection type! We won't perform VLAN reassignment since node never connected");
 
         } elsif ($conn_type == WIRED_SNMP_TRAPS) {
@@ -62,14 +62,17 @@ if ($locationlog_entry) {
 
         } elsif ($conn_type == WIRELESS_MAC_AUTH) {
             $logger->debug("sending a local desAssociate trap to force deassociation "
-                ."(client will reconnect getting a new VLAN)");
+                . "(client will reconnect getting a new VLAN)");
             $trapSender->sendLocalDesAssociateTrap($switch_ip, $mac, $conn_type);
 
         } elsif ($conn_type == WIRELESS_802_1X) {
-            $logger->debug("sending a local desAssociate trap to force deassociation "
-                ."(client will reconnect getting a new VLAN)");
-            $logger->info("trying to dissociate a wireless 802.1x user, "
-                ."this might not work depending on hardware support. If its your case please file a bug");
+            $logger->debug(
+                "sending a local desAssociate trap to force deassociation (client will reconnect getting a new VLAN)"
+            );
+            $logger->info(
+                "trying to dissociate a wireless 802.1x user, this might not work depending on hardware support. "
+                . "If its your case please file a bug"
+            );
             $trapSender->sendLocalDesAssociateTrap($switch_ip, $mac, $conn_type)
 
         } elsif ($conn_type == WIRED_802_1X) {
