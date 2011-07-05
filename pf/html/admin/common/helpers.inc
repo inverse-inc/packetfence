@@ -106,6 +106,13 @@
     }
 
     /*
+     * Returns logs path
+     */
+    function get_logs_path() {
+        return get_pf_path() . 'logs/';
+    }
+
+    /*
      * is_protected_vid - returns true or false based on if a violation class should allowed to be deleted or not
      * Encapsulate business logic about protected violation classes.
      */

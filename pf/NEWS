@@ -32,11 +32,16 @@ Enhancements
 --------------------------------------------------------------------------------
 Version <version> released on <releaseDate>
 
+New Features
+ * Ability to view log files from the Web Administration interface (#1080)
+
 Enhancements
  * New DHCP fingerprints for Polycom and Snom
 
 Bug fixes
  * Fixed nessus scans don't work with bin/pfcmd as a setuid/setgid (#1087)
+ * Fixed custom VLAN assignments relying on connection_type failing on "unknown"
+   nodes (#1231)
  * Fixed configurator.pl does not show interfaces without IP address (#1221)
 
 --------------------------------------------------------------------------------
