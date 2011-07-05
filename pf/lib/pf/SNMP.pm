@@ -177,6 +177,7 @@ sub new {
         '_wsUser'                   => undef,
         '_wsTransport'              => undef,
         '_radiusSecret'             => undef,
+        '_controllerIp'             => undef,
         '_uplink'                   => undef,
         '_vlans'                    => undef,
         '_voiceVlan'                => undef,
@@ -266,6 +267,8 @@ sub new {
             $this->{_wsTransport} = lc($argv{$_});
         } elsif (/^-?radiusSecret$/i) {
             $this->{_radiusSecret} = lc($argv{$_});
+        } elsif (/^-?controllerIp$/i) {
+            $this->{_controllerIp} = lc($argv{$_});
         } elsif (/^-?uplink$/i) {
             $this->{_uplink} = $argv{$_};
         } elsif (/^-?SNMPEngineID$/i) {
@@ -2378,6 +2381,8 @@ Regis Balzard <rbalzard@inverse.ca>
 =head1 COPYRIGHT
 
 Copyright (C) 2006-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

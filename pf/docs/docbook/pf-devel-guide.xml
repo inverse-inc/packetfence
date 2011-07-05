@@ -606,7 +606,7 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
           </listitem>
         </itemizedlist>
 
-        <para>Most of these features work out of the box for enterprise grade Access Points
+        <para>Most of these features work out of the box for enterprise grade Access Points (AP)
         or Controllers. Where the situation starts to vary is for deauthentication support.</para>
 
         <para>SSH or Telnet is an error prone interface and requires preparation for the SSH
@@ -651,9 +651,26 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
           <listitem><para><function>extractSsid()</function> - extract SSID from RADIUS Request</para></listitem>
         </itemizedlist>
       </sect2>
-        
-    </sect1>
 
+      <sect2>
+        <title>Special case: bridged versus tunneled modes and deauthentication</title>
+        <para>
+          It is important to validate the Access-Point (AP) to Controller relationship when operating in bridged mode
+          versus when operating in tunneled mode. 
+          For example, some hardware will send the RADIUS Access-Request from the AP when in bridged mode 
+          even though it is controlled by a controller.
+          This behavior impacts deauthentication because it still needs to be performed on the controller.
+          To support this behavior a <filename>switches.conf</filename> parameter was introduced: 
+          <parameter>controller_ip</parameter>.
+        </para>
+        <para>
+           When adding a new Wireless module try to validate the bridged versus tunneled behavior and modify 
+           <function>deauthenticateMac()</function> to honor <parameter>controller_ip</parameter> if required.
+        </para>
+      </sect2>
+
+    </sect1>
+        
     <sect1>
       <title>The "adding a new network device module in PacketFence" checklist</title>
       <para>Here's a quick rundown of the several files you need to edit in order to add a new switch 
