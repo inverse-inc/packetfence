@@ -2210,13 +2210,38 @@ sub setIfLinkUpDownTrapEnable {
     if ( !$this->connectWrite() ) {
         return 0;
     }
+
     my $OID_ifLinkUpDownTrapEnable = '1.3.6.1.2.1.31.1.1.1.14'; # from IF-MIB
     my $truthValue = $enable ? $SNMP::TRUE : $SNMP::FALSE;
 
     $logger->trace("SNMP set_request for ifLinkUpDownTrapEnable: $OID_ifLinkUpDownTrapEnable");
     my $result = $this->{_sessionWrite}->set_request( -varbindlist => [ 
-            "$OID_ifLinkUpDownTrapEnable.$ifIndex", Net::SNMP::INTEGER, $truthValue ] );
+        "$OID_ifLinkUpDownTrapEnable.$ifIndex", Net::SNMP::INTEGER, $truthValue
+    ]);
+
     return ( defined($result) );
+}
+
+=item disableIfLinkUpDownTraps
+
+Disables LinkUp / LinkDown SNMP traps on a given ifIndex
+
+=cut
+sub disableIfLinkUpDownTraps {
+    my ($this, $ifIndex) = @_;
+
+    return $this->setIfLinkUpDownTrapEnable($ifIndex, $FALSE);
+}
+
+=item enableIfLinkUpDownTraps
+
+Enables LinkUp / LinkDown SNMP traps on a given ifIndex
+
+=cut
+sub enableIfLinkUpDownTraps {
+    my ($this, $ifIndex) = @_;
+
+    return $this->setIfLinkUpDownTrapEnable($ifIndex, $TRUE);
 }
 
 =item deauthenticateMac - performs wireless deauthentication
