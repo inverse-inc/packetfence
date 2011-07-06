@@ -33,7 +33,7 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        valid_date valid_ip clean_mac valid_mac get_decimal_oui_from_mac whitelisted_mac trappable_mac 
+        valid_date valid_ip clean_ip clean_mac valid_mac get_decimal_oui_from_mac whitelisted_mac trappable_mac 
         trappable_ip reggable_ip
         inrange_ip ip2gateway ip2interface ip2device isinternal pfmailer isenabled
         isdisabled getlocalmac ip2int int2ip 
@@ -97,6 +97,20 @@ sub valid_ip {
     } else {
         return (1);
     }
+}
+
+=item clean_ip
+
+Properly format an IPv4 address. Has the nice side-effect of untainting it also.
+
+=cut
+sub clean_ip {
+    my ($ip) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::util');
+    if ($ip =~ /^((?:\d{1,3}\.){3}\d{1,3})$/) {
+        return $1;
+    }
+    return;
 }
 
 =item clean_mac 

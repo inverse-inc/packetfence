@@ -55,6 +55,7 @@ use diagnostics;
 use Carp;
 use Config::IniFiles;
 use FindBin;
+use Net::Interface;
 use Net::Netmask;
 use Term::ReadKey;
 
@@ -664,22 +665,12 @@ sub get_networkinfo {
 
 sub get_interfaces {
     my @ints;
-    my @ints2;
-    opendir( PROC, "/proc/sys/net/ipv4/conf" )
-        || die "Unable to enumerate interfaces: $!";
-    @ints = readdir(PROC);
-    closedir(PROC);
 
-    foreach my $int (@ints) {
-        next
-            if ( $int eq "lo"
-            || $int eq "all"
-            || $int eq "default"
-            || $int eq "."
-            || $int eq ".." );
-        push @ints2, $int;
+    foreach my $int (Net::Interface->interfaces()) {
+        next if ( "$int" eq "lo" );
+        push @ints, "$int"; # quotes required because of Net::Interface's overloaded operators
     }
-    return (@ints2);
+    return (@ints);
 }
 
 sub installed {
@@ -708,6 +699,8 @@ Copyright (C) 2005 Dave Laporte
 Copyright (C) 2005 Kevin Amorin
 
 Copyright (C) 2008-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

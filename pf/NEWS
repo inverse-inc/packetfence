@@ -33,7 +33,7 @@ Enhancements
 Version <trunk-release> released on <releaseDate>
 
 Compatibility notice
- * Removed support for Apache prior to version 2.2.0. You had 6 years to update.
+ * Removed support for Apache prior to version 2.2.0 (#828)
  * Removed support for jpgraph 1.x which bumps our depedencies to PHP 5
 
 New features
@@ -45,6 +45,24 @@ New features
 
 Enhancements
  * Externalized the jpgraph PHP library
+
+--------------------------------------------------------------------------------
+Version <version> released on <releaseDate>
+
+New Features
+ * Ability to view log files from the Web Administration interface (#1080)
+
+Enhancements
+ * New DHCP fingerprints for Polycom and Snom
+ * New controllerIp network device parameter will make it simpler to support
+   wireless hardware working in bridged mode
+ * Developer documentation to add Floating Network Devices support to switches
+
+Bug fixes
+ * Fixed nessus scans don't work with bin/pfcmd as a setuid/setgid (#1087)
+ * Fixed custom VLAN assignments relying on connection_type failing on "unknown"
+   nodes (#1231)
+ * Fixed configurator.pl does not show interfaces without IP address (#1221)
 --------------------------------------------------------------------------------
 Version 2.2.1 released on 2011-06-16
 

@@ -88,7 +88,10 @@ Requires: perl-List-MoreUtils
 # Changed perl-Locale-gettext dependency to use the perl namespace version: perl(Locale-gettext), fixes #931
 Requires: perl(Locale::gettext)
 Requires: perl-Log-Log4perl >= 1.11
+# Required by switch modules
 Requires: perl-Net-Appliance-Session
+# Required by configurator script
+Requires: perl(Net::Interface)
 Requires: perl-Net-Frame, perl-Net-Frame-Simple
 Requires: perl-Net-MAC, perl-Net-MAC-Vendor
 Requires: perl-Net-Netmask
