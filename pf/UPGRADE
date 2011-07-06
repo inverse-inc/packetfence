@@ -5,16 +5,7 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
-o Upgrading from a version prior to <guest-branch-release>:
-
-    - Intrusive changes to Captive Portal
-    Files organization was changed. Anything custom relying on specific paths
-    should be updated.
-    html/user/ became html/captive-portal
-    cgi-bin/ -> html/captive-portal/
-    html/user/content/templates/ -> html/captive-portal/templates/
-    html/user/content/violations/ -> html/captive-portal/violations/
-    html/user/content/3rdparty/ -> html/captive-portal/content/
+o Upgrading from a version prior to <trunk-release>:
 
     - Authentication modules interface change
     All authentication modules (conf/authentication/*) were migrated into
@@ -22,12 +13,6 @@ o Upgrading from a version prior to <guest-branch-release>:
     the .rpmnew version and your version. If you are unsure, replace your
     module with the .rpmnew one and re-apply configuration parameters 
     afterwards.
-
-o Upgrading from a version prior to <trunk-release>:
-
-    - Support for Apache prior to version 2.2.0 dropped
-    Upgrade your Apache. We don't think it's used by anyone at this point. Let
-    us know if you need it back.
 
     - Intrusive changes to Captive Portal
     It is recommended that you redo your customization from scratch instead of 
@@ -40,6 +25,17 @@ o Upgrading from a version prior to <trunk-release>:
      - Default workflow now brings you to the login page (no more registration
        click-through unless you adjust nbregpages in configuration)
      - Default logo changed to packetfence-cp.png (was packetfence.png)
+     - Files organization was changed. Anything custom relying on specific paths
+       should be updated.
+       - html/user/ became html/captive-portal
+       - cgi-bin/ -> html/captive-portal/
+       - html/user/content/templates/ -> html/captive-portal/templates/
+       - html/user/content/violations/ -> html/captive-portal/violations/
+       - html/user/content/3rdparty/ -> html/captive-portal/content/
+
+    - Support for Apache prior to version 2.2.0 dropped
+    Upgrade your Apache. We don't think it's used by anyone at this point. Let
+    us know if you need it back.
 
     - jpgraph external libraries changed location
     jpgraph files are expected to be located in /var/www/jpgraph-<version>/ 
