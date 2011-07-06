@@ -143,7 +143,7 @@ sub enablePortConfig {
 
     # snmp traps enable linkup/linkdown
     $logger->info("Enabling LinkDown traps on port $switch_port");
-    if (! $switch->enableIfLinkUpDownTraps($switch_port)) {
+    if (! $switch->enableIfLinkUpDownTraps($switch_port) ) {
         $logger->info("An error occured while enabling LinkDown traps on port $switch_port");
         return 0;
     }
@@ -172,7 +172,7 @@ sub disablePortConfig {
 
     # no snmp traps enable linkup/linkdown
     $logger->info("Disabling LinkDown traps on port $switch_port");
-    if (! $switch->disableIfLinkUpDownTraps($switch_port) {
+    if (! $switch->disableIfLinkUpDownTraps($switch_port) ) {
         $logger->error("An error occured while disabling LinkDown traps on port $switch_port");
         return 0;
     }
