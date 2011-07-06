@@ -192,6 +192,10 @@ sub instantiate {
             $SwitchConfig{$requestedSwitch}{'radiusSecret'}
             || $SwitchConfig{'default'}{'radiusSecret'}
         ),
+        '-controllerIp' => (
+            $SwitchConfig{$requestedSwitch}{'controllerIp'}
+            || $SwitchConfig{'default'}{'controllerIp'}
+        ),
         '-ip'            => $requestedSwitch,
         '-isolationVlan' => (
                    $SwitchConfig{$requestedSwitch}{'isolationVlan'}
@@ -393,7 +397,9 @@ Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2010 Inverse inc.
+Copyright (C) 2006-2011 Inverse inc.
+
+=head1 LICENSE 
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
