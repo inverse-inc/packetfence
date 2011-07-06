@@ -28,11 +28,13 @@ use warnings;
 
 use Date::Parse;
 use File::Basename;
+use HTML::Entities;
 use JSON;
-use POSIX;
-use Template;
 use Locale::gettext;
 use Log::Log4perl;
+use POSIX;
+use Template;
+use Try::Tiny;
 
 BEGIN {
     use Exporter ();
@@ -47,6 +49,7 @@ use pf::util;
 use pf::iplog qw(ip2mac);
 use pf::node qw(node_attributes node_view node_modify);
 use pf::useragent;
+use pf::web::auth; 
 
 =head1 SUBROUTINES
 
@@ -122,7 +125,7 @@ sub generate_release_page {
     }
 
     my $html_txt;
-    my $template = Template->new({ INCLUDE_PATH => ["$install_dir/html/user/content/templates"], });
+    my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], });
     $template->process( "release.html", $vars, \$html_txt );
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
@@ -167,8 +170,7 @@ sub generate_scan_start_page {
     };
     # Once the progress bar is over, try redirecting
     my $html_txt;
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process( "scan.html", $vars, \$html_txt );
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header(
@@ -195,8 +197,7 @@ sub generate_login_page {
         txt_username    => gettext('Username'),
         txt_login       => gettext('Login'),
         txt_password    => gettext('Password'),
-        txt_select_authentications =>
-            gettext("register: select authentications"),
+        txt_select_authentication => gettext("select authentication"),
         txt_aup => gettext("Acceptable Use Policy"),
         txt_accept_terms => gettext("I accept the terms"),
         txt_accept_terms_mobile => gettext("I have read and accept the terms"),
@@ -218,26 +219,17 @@ sub generate_login_page {
         }
     }
 
-    my @auth = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
+    # return login
+    $vars->{'login'} = encode_entities($cgi->param("login"));
 
-    #
-    # if no skip and one Auth type you don't need a pull down...
-    if ( scalar(@auth) == 1 ) {
-        push @{ $vars->{list_authentications} },
-            { name => 'auth', value => $auth[0] };
-    } else {
-        foreach my $auth (@auth) {
-            my $auth_name = $auth;
-            push @{ $vars->{list_authentications} },
-                { name => $auth, value => $auth };
-        }
-    }
+    # authentication
+    $vars->{selected_auth} = encode_entities($cgi->param("auth")) || $Config{'registration'}{'default_auth'}; 
+    $vars->{list_authentications} = pf::web::auth::list_enabled_auth_types();
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process( "login.html", $vars );
     exit;
 }
@@ -258,8 +250,7 @@ sub generate_enabler_page {
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], });
     $template->process( "enabler.html", $vars );
     exit;
 }
@@ -279,8 +270,7 @@ sub generate_redirect_page {
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process( "redirect.html", $vars );
     exit;
 }
@@ -309,8 +299,7 @@ sub generate_aup_standalone_page {
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], }
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], }
     );
     $template->process( "aup.html", $vars );
     exit;
@@ -344,8 +333,7 @@ sub generate_scan_status_page {
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process( "scan-in-progress.html", $vars );
     exit;
 }
@@ -383,8 +371,7 @@ sub generate_error_page {
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process( "error.html", $vars );
     exit;
 }
@@ -454,8 +441,7 @@ sub generate_status_page {
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process( "status.html", $vars );
     exit;
 }
@@ -561,23 +547,26 @@ sub web_user_authenticate {
         }
 
         my $auth = $cgi->param("auth");
-        my @auth_choices
-            = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
+
+        # validates if supplied auth type is allowed by configuration
+        my @auth_choices = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
         if ( grep( { $_ eq $auth } @auth_choices ) == 0 ) {
             return ( 0, 2 );
         }
 
-        #validate login and password
-        eval "use authentication::$auth";
-        if ($@) {
-            $logger->error("ERROR loading authentication::$auth $@");
+        my ($authenticator, $authReturn, $err);
+        try {
+            $authenticator = pf::web::auth::get_instance($auth);
+            # validate login and password
+            ( $authReturn, $err ) = $authenticator->authenticate( $cgi->param("username"), $cgi->param("password") );
+        } catch {
+            $logger->error("Authentication module authentication::$auth failed. $_");
+        };
+        if (!defined($authReturn)) {
             return ( 0, 2 );
-        }
-        my ( $authReturn, $err ) = authenticate( $cgi->param("username"), $cgi->param("password") );
-        if ( $authReturn == 1 ) {
-
+        } elsif( $authReturn == 1 ) {
             #save login into session
-            $session->param( "username",    $cgi->param("username") );
+            $session->param( "username", $cgi->param("username") );
             $session->param( "authType", $auth );
         }
         return ( $authReturn, $err );
@@ -632,8 +621,7 @@ sub generate_registration_page {
         $vars->{'form_action'} = '/authenticate?mode=next_page&page=' . ( int($pagenumber) + 1 );
     }
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process( "register.html", $vars );
     exit;
 }
@@ -687,8 +675,7 @@ sub generate_pending_page {
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process("pending.html", $vars);
     exit;
 }

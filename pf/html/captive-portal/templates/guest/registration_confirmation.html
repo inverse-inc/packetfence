@@ -1,0 +1,30 @@
+[% INCLUDE header.html
+    body_attributes = 'onload="$(\'login\').focus();"';
+%]
+
+        [%# Welcome text %]
+        <div id="about" class="underlined">
+          <img src="content/images/unlock.png" alt="Access information" />
+          <h1>[% txt_page_header %]</h1>
+        </div>
+
+          [%# User / Pass %]
+          <div class="input">
+            <span>[% txt_username %]</span>
+            [% info.username %]
+          </div>
+          <div class="input">
+            <span>[% txt_password %]</span><input class="field" name="password" type="password" />
+            [% info.password %]
+          </div>
+          <div class="note">
+            [% txt_valid_from %] [% txt_duration %]
+          </div>
+
+          [%# submit %]
+          <div class="input">
+            <input type="button" name="print" value="[% txt_button_print %]" class="submitButton" onClick="window.print()"/>
+            <input type="button" name="return" value="[% txt_button_back %]" class="submitButton" onClick="document.location='/cgi-bin/guest-management.cgi'"/>
+          </div>
+
+[% INCLUDE footer.html %]

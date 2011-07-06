@@ -36,7 +36,7 @@
     include('../../admin/common.php');
 
     $preview = true;
-    $template_path = $_SERVER['DOCUMENT_ROOT'] . "/../user/content/violations";
+    $template_path = $_SERVER['DOCUMENT_ROOT'] . "/../captive-portal/violations";
 
     # populating with fake data
     $user_data['ip'] = "127.0.0.1";
@@ -45,7 +45,7 @@
 
     # normal mode
     $preview = false;
-    $template_path = $_SERVER['DOCUMENT_ROOT'] . "/content/violations";
+    $template_path = $_SERVER['DOCUMENT_ROOT'] . "/violations";
 
     # loading user-data
     $user_data['ip'] = $_SERVER['REMOTE_ADDR'];

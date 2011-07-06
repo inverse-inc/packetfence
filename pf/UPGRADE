@@ -5,7 +5,7 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
-o Upgrading from a version prior to <trunk-release>:
+o Upgrading from a version prior to <inline-mode-branch-release>:
 
     - New pf.conf configuration parameter: interface enforcement
     Under the [interface ...] statements a new configuration parameter has been
@@ -14,22 +14,6 @@ o Upgrading from a version prior to <trunk-release>:
     you to run PacketFence in both inline and out-of-band mode at the same 
     time. Users upgrading should probably set enforcement=vlan on all interface
     with type=internal. Run `bin/pfcmd checkup` to validate your configuration.
-
-    - Support for Apache prior to version 2.2.0 dropped
-    Upgrade your Apache. We don't think it's used by anyone at this point. Let
-    us know if you need it back.
-
-    - Intrusive changes to Captive Portal
-    It is recommended that you redo your customization from scratch instead of 
-    trying to adapt it.
-    Among other things:
-     - Changes to all templates, cgi-bin/ scripts and pf::web core code
-     - All remediation URLs have changed from /content/index.php to 
-       /content/remediation.php. Make sure to update your conf/violations.conf!
-     - All URLs are now clean URLs translated by Apache's mod_rewrite config
-     - Default workflow now brings you to the login page (no more registration
-       click-through unless you adjust nbregpages in configuration)
-     - Default logo changed to packetfence-cp.png (was packetfence.png)
 
     - conf/named_vlan.conf moved to conf/named.conf
     People using packages should be automatically updated. Make sure to put
@@ -71,6 +55,38 @@ o Upgrading from a version prior to <trunk-release>:
     belive if was used at all. If you want to achieve the same functionality 
     just edit conf/iptables.conf and add your own rules to allow specific IPs
     in.
+
+o Upgrading from a version prior to <trunk-release>:
+
+    - Authentication modules interface change
+    All authentication modules (conf/authentication/*) were migrated into
+    objects. Please carefully merge any module you were using by comparing
+    the .rpmnew version and your version. If you are unsure, replace your
+    module with the .rpmnew one and re-apply configuration parameters 
+    afterwards.
+
+    - Intrusive changes to Captive Portal
+    It is recommended that you redo your customization from scratch instead of 
+    trying to adapt it.
+    Among other things:
+     - Changes to all templates, cgi-bin/ scripts and pf::web core code
+     - All remediation URLs have changed from /content/index.php to 
+       /content/remediation.php. Make sure to update your conf/violations.conf!
+     - All URLs are now clean URLs translated by Apache's mod_rewrite config
+     - Default workflow now brings you to the login page (no more registration
+       click-through unless you adjust nbregpages in configuration)
+     - Default logo changed to packetfence-cp.png (was packetfence.png)
+     - Files organization was changed. Anything custom relying on specific paths
+       should be updated.
+       - html/user/ became html/captive-portal
+       - cgi-bin/ -> html/captive-portal/
+       - html/user/content/templates/ -> html/captive-portal/templates/
+       - html/user/content/violations/ -> html/captive-portal/violations/
+       - html/user/content/3rdparty/ -> html/captive-portal/content/
+
+    - Support for Apache prior to version 2.2.0 dropped
+    Upgrade your Apache. We don't think it's used by anyone at this point. Let
+    us know if you need it back.
 
     - jpgraph external libraries changed location
     jpgraph files are expected to be located in /var/www/jpgraph-<version>/ 

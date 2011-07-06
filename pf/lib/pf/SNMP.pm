@@ -177,6 +177,7 @@ sub new {
         '_wsUser'                   => undef,
         '_wsTransport'              => undef,
         '_radiusSecret'             => undef,
+        '_controllerIp'             => undef,
         '_uplink'                   => undef,
         '_vlans'                    => undef,
         '_voiceVlan'                => undef,
@@ -266,6 +267,8 @@ sub new {
             $this->{_wsTransport} = lc($argv{$_});
         } elsif (/^-?radiusSecret$/i) {
             $this->{_radiusSecret} = lc($argv{$_});
+        } elsif (/^-?controllerIp$/i) {
+            $this->{_controllerIp} = lc($argv{$_});
         } elsif (/^-?uplink$/i) {
             $this->{_uplink} = $argv{$_};
         } elsif (/^-?SNMPEngineID$/i) {
@@ -2207,13 +2210,38 @@ sub setIfLinkUpDownTrapEnable {
     if ( !$this->connectWrite() ) {
         return 0;
     }
+
     my $OID_ifLinkUpDownTrapEnable = '1.3.6.1.2.1.31.1.1.1.14'; # from IF-MIB
     my $truthValue = $enable ? $SNMP::TRUE : $SNMP::FALSE;
 
     $logger->trace("SNMP set_request for ifLinkUpDownTrapEnable: $OID_ifLinkUpDownTrapEnable");
     my $result = $this->{_sessionWrite}->set_request( -varbindlist => [ 
-            "$OID_ifLinkUpDownTrapEnable.$ifIndex", Net::SNMP::INTEGER, $truthValue ] );
+        "$OID_ifLinkUpDownTrapEnable.$ifIndex", Net::SNMP::INTEGER, $truthValue
+    ]);
+
     return ( defined($result) );
+}
+
+=item disableIfLinkUpDownTraps
+
+Disables LinkUp / LinkDown SNMP traps on a given ifIndex
+
+=cut
+sub disableIfLinkUpDownTraps {
+    my ($this, $ifIndex) = @_;
+
+    return $this->setIfLinkUpDownTrapEnable($ifIndex, $FALSE);
+}
+
+=item enableIfLinkUpDownTraps
+
+Enables LinkUp / LinkDown SNMP traps on a given ifIndex
+
+=cut
+sub enableIfLinkUpDownTraps {
+    my ($this, $ifIndex) = @_;
+
+    return $this->setIfLinkUpDownTrapEnable($ifIndex, $TRUE);
 }
 
 =item deauthenticateMac - performs wireless deauthentication
@@ -2378,6 +2406,8 @@ Regis Balzard <rbalzard@inverse.ca>
 =head1 COPYRIGHT
 
 Copyright (C) 2006-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

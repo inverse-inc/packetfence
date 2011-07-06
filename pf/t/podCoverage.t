@@ -9,11 +9,13 @@ use lib qw(
    /usr/local/pf/lib
 );
 
-use Test::Pod::Coverage tests => 17;
+use Test::Pod::Coverage tests => 20;
 
+pod_coverage_ok('authentication::guest_managers');
 pod_coverage_ok('authentication::kerberos');
 pod_coverage_ok("authentication::ldap");
 pod_coverage_ok("authentication::local");
+pod_coverage_ok('authentication::preregistered_guests');
 pod_coverage_ok("authentication::radius");
 
 pod_coverage_ok("pf::radius");
@@ -26,6 +28,7 @@ pod_coverage_ok("pf::services::apache");
 pod_coverage_ok("pf::services::dhcpd");
 pod_coverage_ok("pf::services::named");
 pod_coverage_ok("pf::web");
+pod_coverage_ok("pf::web::guest");
 pod_coverage_ok("pf::web::util");
 pod_coverage_ok("pf::web::wispr");
 # Warning: this doesn't test for PFAPI subs since it's under another package name

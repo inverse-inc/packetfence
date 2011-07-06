@@ -70,7 +70,7 @@ BEGIN {
         VOIP NO_VOIP
         LOOPBACK_IPV4
         %connection_type %connection_type_to_str %connection_type_explained
-        $RADIUS_API_LEVEL $VLAN_API_LEVEL
+        $RADIUS_API_LEVEL $VLAN_API_LEVEL $AUTHENTICATION_API_LEVEL
         %CAPTIVE_PORTAL
         normalize_time
         is_vlan_enforcement_enabled is_inline_enforcement_enabled
@@ -134,11 +134,11 @@ use constant WIRELESS_MAC_AUTH => 0b10000010;
 use constant WIRED_802_1X => 0b01100100;
 use constant WIRED_MAC_AUTH => 0b00101000;
 use constant WIRED_SNMP_TRAPS => 0b00110000;
+use constant UNKNOWN => 0b00000000;
 # masks to be used on connection types
 use constant WIRELESS => 0b10000000;
 use constant WIRED => 0b00100000;
 use constant EAP => 0b01000000;
-use constant UNKNOWN => 'Unknown';
 
 # TODO we should build a connection data class with these hashes and related constants
 # String to constant hash
@@ -159,6 +159,7 @@ use constant UNKNOWN => 'Unknown';
     WIRED_802_1X() => 'Ethernet-EAP',
     WIRED_MAC_AUTH() => 'Ethernet-NoEAP',
     WIRED_SNMP_TRAPS() => 'SNMP-Traps',
+    UNKNOWN() => '',
 );
 
 # String to constant hash
@@ -180,6 +181,7 @@ use constant NO_VOIP => 'no';
 # API version constants
 Readonly::Scalar our $RADIUS_API_LEVEL => 1.00;
 Readonly::Scalar our $VLAN_API_LEVEL => 1.00;
+Readonly::Scalar our $AUTHENTICATION_API_LEVEL => 1.00;
 
 # to shut up strict warnings
 $ENV{PATH} = '/sbin:/bin:/usr/bin:/usr/sbin';
@@ -208,6 +210,7 @@ Readonly %CAPTIVE_PORTAL => (
     "NET_DETECT_RETRY_DELAY" => 2,
     "NET_DETECT_PENDING_INITIAL_DELAY" => 2 * 60,
     "NET_DETECT_PENDING_RETRY_DELAY" => 30,
+    "TEMPLATE_DIR" => "$install_dir/html/captive-portal/templates",
 );
 
 readNetworkConfigFile();

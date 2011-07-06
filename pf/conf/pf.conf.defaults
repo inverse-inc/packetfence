@@ -225,11 +225,19 @@ skip_reminder=1d
 #
 # registration.auth
 #
-# Method by which registering nodes will be authenticated.  Templates for LDAP and local are 
+# Method by which registering nodes will be authenticated.  Templates for LDAP, RADIUS, Kerberos, local and guests are 
 # available at <conf_dir>/authentication.  If you wish to use a different authentication mechanism, simply create 
 # a file called <conf_dir>/authentication/<authname>.pm, fill it with the necessary data, and set 
 # auth=<authname>.  The default value, local, relies on a local access file in <conf_dir>/user.conf.
 auth=local
+
+#
+# registration.default_auth
+#
+# Authentication method selected as the default in the captive portal drop-down. Only useful if you have more than
+# one authentication method (registration.auth).
+default_auth=
+
 #
 # registration.expire_mode
 #

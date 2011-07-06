@@ -69,7 +69,6 @@ Requires: net-tools
 Requires: net-snmp >= 5.3.2.2
 Requires: mysql, perl-DBD-mysql
 Requires: perl >= 5.8.8, perl-suidperl
-Requires: perl-Apache-Htpasswd
 Requires: perl-Bit-Vector
 Requires: perl-CGI-Session, perl(JSON)
 Requires: perl-Class-Accessor
@@ -118,10 +117,13 @@ Requires: perl-UNIVERSAL-require
 Requires: perl-YAML
 Requires: php-ldap
 Requires: perl(Try::Tiny)
-Requires: perl(Cache::Cache)
+Requires: perl(Crypt::GeneratePassword)
+Requires: perl(MIME::Lite::TT)
+Requires: perl(Cache::Cache), perl(HTML::Parser)
 # Used by Web Admin 
 Requires: php-jpgraph = 2.3.4
 # Used by Captive Portal authentication modules
+Requires: perl(Apache::Htpasswd)
 Requires: perl(Authen::Radius)
 Requires: perl(Authen::Krb5::Simple)
 # Required for importation feature
@@ -221,7 +223,6 @@ cp addons/logrotate $RPM_BUILD_ROOT/usr/local/pf/addons/
 mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
 cp addons/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
-cp -r cgi-bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
 #pfdetect_remote
 mv addons/pfdetect_remote/initrd/pfdetectd $RPM_BUILD_ROOT%{_initrddir}/
@@ -331,11 +332,6 @@ done
 if [ -e /etc/logrotate.d/snort ]; then
   echo Removing /etc/logrotate.d/snort - it kills snort every night
   rm -f /etc/logrotate.d/snort
-fi
-
-if [ -d /usr/local/pf/html/user/content/docs ]; then
-  echo Removing legacy docs directory
-  rm -rf /usr/local/pf/html/user/content/docs
 fi
 
 echo Installation complete
@@ -454,19 +450,16 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/flip.pl
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
-%dir                    /usr/local/pf/cgi-bin
-%attr(0755, pf, pf)     /usr/local/pf/cgi-bin/redir.cgi
-%attr(0755, pf, pf)     /usr/local/pf/cgi-bin/register.cgi
-%attr(0755, pf, pf)     /usr/local/pf/cgi-bin/release.cgi
-%attr(0755, pf, pf)     /usr/local/pf/cgi-bin/wispr.cgi
 %doc                    /usr/local/pf/ChangeLog
 %dir                    /usr/local/pf/conf
 %config(noreplace)      /usr/local/pf/conf/admin.perm
 %config(noreplace)      /usr/local/pf/conf/admin_ldap.conf
 %dir                    /usr/local/pf/conf/authentication
+%config(noreplace)      /usr/local/pf/conf/authentication/guest_managers.pm
 %config(noreplace)      /usr/local/pf/conf/authentication/kerberos.pm
 %config(noreplace)      /usr/local/pf/conf/authentication/local.pm
 %config(noreplace)      /usr/local/pf/conf/authentication/ldap.pm
+%config(noreplace)      /usr/local/pf/conf/authentication/preregistered_guests.pm
 %config(noreplace)      /usr/local/pf/conf/authentication/radius.pm
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config                 /usr/local/pf/conf/documentation.conf
@@ -546,23 +539,22 @@ fi
 %dir                    /usr/local/pf/html
 %dir                    /usr/local/pf/html/admin
                         /usr/local/pf/html/admin/*
+%dir                    /usr/local/pf/html/captive-portal
+%attr(0755, pf, pf)     /usr/local/pf/html/captive-portal/*.cgi
+                        /usr/local/pf/html/captive-portal/*.php
+%config(noreplace)      /usr/local/pf/html/captive-portal/content/mobile.css
+%config(noreplace)      /usr/local/pf/html/captive-portal/content/styles.css
+                        /usr/local/pf/html/captive-portal/content/timerbar.js
+%dir                    /usr/local/pf/html/captive-portal/content/images
+                        /usr/local/pf/html/captive-portal/content/images/*
+%dir                    /usr/local/pf/html/captive-portal/templates
+%config(noreplace)      /usr/local/pf/html/captive-portal/templates/*
+%dir                    /usr/local/pf/html/captive-portal/violations
+%config(noreplace)      /usr/local/pf/html/captive-portal/violations/*
+%dir                    /usr/local/pf/html/captive-portal/wispr
+%config                 /usr/local/pf/html/captive-portal/wispr/*
 %dir                    /usr/local/pf/html/common
                         /usr/local/pf/html/common/*
-%dir                    /usr/local/pf/html/user
-%dir                    /usr/local/pf/html/user/3rdparty
-                        /usr/local/pf/html/user/3rdparty/timerbar.js
-%dir                    /usr/local/pf/html/user/content
-%config(noreplace)      /usr/local/pf/html/user/content/mobile.css
-%config(noreplace)      /usr/local/pf/html/user/content/styles.css
-%dir                    /usr/local/pf/html/user/content/images
-                        /usr/local/pf/html/user/content/images/*
-                        /usr/local/pf/html/user/content/remediation.php
-%dir                    /usr/local/pf/html/user/content/templates
-%config(noreplace)      /usr/local/pf/html/user/content/templates/*
-%dir                    /usr/local/pf/html/user/content/violations
-%config(noreplace)      /usr/local/pf/html/user/content/violations/*
-%dir                    /usr/local/pf/html/user/wispr
-%config                 /usr/local/pf/html/user/wispr/*
 %attr(0755, pf, pf)     /usr/local/pf/installer.pl
 %dir                    /usr/local/pf/lib
 %dir                    /usr/local/pf/lib/HTTP
@@ -588,6 +580,7 @@ fi
 %dir                    /usr/local/pf/lib/pf/web
                         /usr/local/pf/lib/pf/web/*.pl
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
+                        /usr/local/pf/lib/pf/web/guest.pm
                         /usr/local/pf/lib/pf/web/util.pm
                         /usr/local/pf/lib/pf/web/wispr.pm
 %dir                    /usr/local/pf/logs

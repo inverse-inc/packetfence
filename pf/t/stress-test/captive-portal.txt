@@ -3,13 +3,13 @@ Basic load testing on the captive portal
 == using ab (apache benchmark) ==
 
 one request: 
-ab https://<server>/cgi-bin/redir.cgi
+ab https://<server>/captive-portal
 
 100 concurrent users doing 10 requests:
-ab -c 100 -n 1000 https://<server>/cgi-bin/redir.cgi
+ab -c 100 -n 1000 https://<server>/captive-portal
 
 25 concurrent users doing as many requests as possible for 5 minutes:
-ab -c 25 -t 300 https://<server>/cgi-bin/redir.cgi
+ab -c 25 -t 300 https://<server>/captive-portal
 
 == using jmeter ==
 
