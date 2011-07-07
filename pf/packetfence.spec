@@ -33,7 +33,7 @@
 #
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 2.3.0
+Version: 3.0.0
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -524,6 +524,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/snort.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf.pre_snort-2.8
 %config(noreplace)      /usr/local/pf/conf/ssl-certificates.conf
+%dir                    /usr/local/pf/conf/templates
+%config(noreplace)      /usr/local/pf/conf/templates/*
 %config                 /usr/local/pf/conf/ui.conf
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
 %dir                    /usr/local/pf/conf/users
@@ -580,6 +582,7 @@ fi
 %config(noreplace)      /usr/local/pf/lib/pf/vlan/custom.pm
 %dir                    /usr/local/pf/lib/pf/web
                         /usr/local/pf/lib/pf/web/*.pl
+                        /usr/local/pf/lib/pf/web/auth.pm
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
                         /usr/local/pf/lib/pf/web/guest.pm
                         /usr/local/pf/lib/pf/web/util.pm
