@@ -3,6 +3,8 @@
 # This file is distributed under the same license as the PacketFence project.
 # Olivier Bilodeau <obilodeau@inverse.ca>, 2011.
 #
+domain "packetfence"
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
@@ -337,6 +339,3 @@ msgstr "Information d'accès au réseau pour invités"
 
 msgid "Format is: yyyy-mm-dd"
 msgstr "Format: aaaa-mm-jj"
-
-#~ msgid "Register"
-#~ msgstr "Enregistrer"
