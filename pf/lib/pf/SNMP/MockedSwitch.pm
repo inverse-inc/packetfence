@@ -2330,7 +2330,7 @@ Allows all the tagged Vlans on a multi-Vlan port. Used for floating network devi
 
 =cut
 # FIXME not properly mocked
-sub setTaggedVlan {
+sub setTaggedVlans {
     my ( $this, $ifIndex, @vlans ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     
@@ -2381,7 +2381,7 @@ Removes all the tagged Vlans on a multi-Vlan port. Used for floating network dev
 
 =cut
 # FIXME not properly mocked
-sub removeAllTaggedVlan {
+sub removeAllTaggedVlans {
     my ( $this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 

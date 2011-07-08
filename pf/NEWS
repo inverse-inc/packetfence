@@ -16,6 +16,9 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <version> released on <releaseDate>
 
+New Hardware Support
+ * Nortel switches now support the floating network device feature
+
 New Features
  * Ability to view log files from the Web Administration interface (#1080)
 

@@ -1017,7 +1017,7 @@ sub resetVlanAllPort {
         {    # disabling port-security
             $logger->debug("disabling port-security on ifIndex $ifIndex before resetting to vlan " . 
                            $this->{_normalVlan} );
-            $this->setPortSecurityEnableByIfIndex($ifIndex, $FALSE);
+            $this->disablePortSecurityByIfIndex($ifIndex);
         }
         $logger->debug( "setting " . $this->{_ip} . " ifIndex $ifIndex to VLAN " . $this->{_normalVlan} );
         $this->setVlan( $ifIndex, $this->{_normalVlan}, $switch_locker_ref );
@@ -1201,6 +1201,14 @@ sub isPortSecurityEnabled {
     return ( 0 == 1 );
 }
 
+=item setPortSecurityEnableByIfIndex
+
+Will disable or enable port-security on a given ifIndex based on the $trueFalse value provided. 
+$TRUE will enable, $FALSE will disable.
+
+This version here is a fallback stub, provide your implementation in a switch module.
+
+=cut
 sub setPortSecurityEnableByIfIndex {
     my ( $this, $ifIndex, $trueFalse ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -1225,21 +1233,27 @@ sub setPortSecurityViolationActionByIfIndex {
     return ( 0 == 1 );
 }
 
+=item enablePortSecurityByIfIndex
+
+Unless you require something more complex, this is usually a wrapper to setPortSecurityEnableByIfIndex($ifIndex, $TRUE)
+
+=cut
 sub enablePortSecurityByIfIndex {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    $logger->error("Function not implemented for switch type " . ref($this));
-    return ( 0 == 1 );
-}   
+    return $this->setPortSecurityEnableByIfIndex($ifIndex, $TRUE);
+}
 
+=item disablePortSecurityByIfIndex
+
+Unless you require something more complex, this is usually a wrapper to setPortSecurityEnableByIfIndex($ifIndex, $FALSE)
+
+=cut
 sub disablePortSecurityByIfIndex {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    $logger->error("Function not implemented for switch type " . ref($this));
-    return ( 0 == 1 );
-}   
+    return $this->setPortSecurityEnableByIfIndex($ifIndex, $FALSE);
+}
 
 sub setModeTrunk {
     my ( $this, $ifIndex ) = @_;
@@ -1249,7 +1263,7 @@ sub setModeTrunk {
     return ( 0 == 1 );
 }   
 
-sub setTaggedVlan {
+sub setTaggedVlans {
     my ( $this, $ifIndex, $taggedVlans ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
@@ -1257,7 +1271,7 @@ sub setTaggedVlan {
     return ( 0 == 1 );
 }   
 
-sub resetTaggedVlan {
+sub removeAllTaggedVlans {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
@@ -1535,7 +1549,9 @@ sub getBitAtPosition {
    return substr(unpack('B*', $bitStream), $position, 1);
 }
 
-=item modifyBitmask - replaces the specified bit in a packed bitmask and returns the modified bitmask, re-packed
+=item modifyBitmask
+
+Replaces the specified bit in a packed bitmask and returns the modified bitmask, re-packed
 
 =cut
 # TODO move out to a util package
@@ -1543,6 +1559,23 @@ sub modifyBitmask {
     my ( $this, $bitMask, $offset, $replacement ) = @_;
     my $bitMaskString = unpack( 'B*', $bitMask );
     substr( $bitMaskString, $offset, 1, $replacement );
+    return pack( 'B*', $bitMaskString );
+}
+
+=item flipBits 
+
+Replaces the specified bits in a packed bitmask and returns the modified bitmask, re-packed
+
+It's a multi flip version of modifyBitmask
+
+=cut
+# TODO move out to a util package
+sub flipBits {
+    my ( $this, $bitMask, $replacement, @bitsToFlip ) = @_;
+    my $bitMaskString = unpack( 'B*', $bitMask );
+    foreach my $bitPos (@bitsToFlip) {
+        substr( $bitMaskString, $bitPos, 1, $replacement );
+    }
     return pack( 'B*', $bitMaskString );
 }
 
@@ -2391,6 +2424,53 @@ sub getVoipVsa {
         . "Phone will not be allowed on the correct untagged VLAN."
     );
     return;
+}
+
+=item enablePortConfigAsTrunk - sets port as multi-Vlan port
+
+=cut
+sub enablePortConfigAsTrunk {
+    my ($this, $mac, $switch_port, $switch_locker_ref, $taggedVlans)  = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    # switchport mode trunk
+    $logger->info("Setting port $switch_port as trunk.");
+    if (! $this->setModeTrunk($switch_port, $TRUE)) {
+        $logger->error("An error occured while enabling port $switch_port as multi-vlan (trunk)");
+    }
+
+    # switchport trunk allowed vlan x,y,z
+    $logger->info("Allowing tagged Vlans on port $switch_port");
+    if (! $this->setTaggedVlans($switch_port, $switch_locker_ref, split(",", $taggedVlans)) ) {
+        $logger->error("An error occured while allowing tagged Vlans on trunk port $switch_port");
+    }
+
+    return 1;
+}
+
+=item disablePortConfigAsTrunk - sets port as non multi-Vlan port
+
+=cut
+sub disablePortConfigAsTrunk {
+    my ($this, $switch_port, $switch_locker_ref) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    # switchport mode access
+    $logger->info("Setting port $switch_port as non trunk.");
+    if (! $this->setModeTrunk($switch_port, $FALSE)) {
+        $logger->error("An error occured while disabling port $switch_port as multi-vlan (trunk)");
+    }
+
+    # no switchport trunk allowed vlan
+    # this setting is not necessary but we thought it would ease the reading of the port configuration if we remove
+    # all the tagged vlan when they are not in use (port no longer trunk)
+    $logger->info("Disabling tagged Vlans on port $switch_port");
+    if (! $this->removeAllTaggedVlans($switch_port, $switch_locker_ref)) {
+        $logger->warn("An minor issue occured while disabling tagged Vlans on trunk port $switch_port " .
+                      "but the port should work.");
+    }
+
+    return 1;
 }
 
 =back
