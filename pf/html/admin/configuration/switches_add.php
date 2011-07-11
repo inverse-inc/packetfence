@@ -130,6 +130,7 @@
                            'Cisco::WLC_4400' => 'Cisco Wireless Controller (WLC) 4400',
                            'Dell::PowerConnect3424' => 'Dell PowerConnect 3424',
                            'Dlink::DES_3526' => 'D-Link DES 3526',
+                           'Dlink::DES_3550' => 'D-Link DES 3550',
                            'Dlink::DGS_3100' => 'D-Link DGS 3100',
                            'Dlink::DGS_3200' => 'D-Link DGS 3200',
                            'Dlink::DWS_3026' => 'D-Link DWS 3026',
@@ -188,7 +189,6 @@
         printSelect( array('' => 'please choose', 'yes' => 'Yes', 'no' => 'No'), 'hash', $val, "name='$key'");
         break;
 
-    # TODO: remove this, it was a bad copy / pasted left over
       default:
         print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val'>";
         break;

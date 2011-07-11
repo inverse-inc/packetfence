@@ -64,7 +64,7 @@ BEGIN {
         $oui_file $oui_url
         $floating_devices_file %ConfigFloatingDevices
         $blackholemac $portscan_sid @VALID_TRIGGER_TYPES $thread $default_pid $fqdn
-        $FALSE $TRUE
+        $FALSE $TRUE $YES $NO
         WIRELESS_802_1X WIRELESS_MAC_AUTH WIRED_802_1X WIRED_MAC_AUTH WIRED_SNMP_TRAPS WIRELESS WIRED EAP UNKNOWN
         VOIP NO_VOIP
         LOOPBACK_IPV4
@@ -96,6 +96,8 @@ my $logger = Log::Log4perl->get_logger('pf::config');
 # some global constants
 Readonly::Scalar our $FALSE => 0;
 Readonly::Scalar our $TRUE => 1;
+Readonly::Scalar our $YES => 'yes';
+Readonly::Scalar our $NO => 'no';
 
 $config_file            = $conf_dir . "/pf.conf";
 $default_config_file    = $conf_dir . "/pf.conf.defaults";
@@ -118,11 +120,11 @@ use constant WIRELESS_MAC_AUTH => 0b10000010;
 use constant WIRED_802_1X => 0b01100100;
 use constant WIRED_MAC_AUTH => 0b00101000;
 use constant WIRED_SNMP_TRAPS => 0b00110000;
+use constant UNKNOWN => 0b00000000;
 # masks to be used on connection types
 use constant WIRELESS => 0b10000000;
 use constant WIRED => 0b00100000;
 use constant EAP => 0b01000000;
-use constant UNKNOWN => 'Unknown';
 
 # TODO we should build a connection data class with these hashes and related constants
 # String to constant hash
@@ -143,6 +145,7 @@ use constant UNKNOWN => 'Unknown';
     WIRED_802_1X() => 'Ethernet-EAP',
     WIRED_MAC_AUTH() => 'Ethernet-NoEAP',
     WIRED_SNMP_TRAPS() => 'SNMP-Traps',
+    UNKNOWN() => '',
 );
 
 # String to constant hash

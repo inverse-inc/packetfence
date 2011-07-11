@@ -19,8 +19,8 @@
   <info>
   
     <title>PacketFence Developer's Guide</title>
-    <subtitle>for version 2.2.0</subtitle>
-    <date>2011-05-03</date>
+    <subtitle>for version 2.2.1</subtitle>
+    <date>2011-06-16</date>
 
     <revhistory>
       <revision>
@@ -89,7 +89,7 @@
       section entitled "GNU Free Documentation License".</para>
     </legalnotice>
 
-    <releaseinfo>Version 2.2.0 - May 2011</releaseinfo>
+    <releaseinfo>Version 2.2.1 - June 2011</releaseinfo>
 
     <mediaobject>
       <info>
@@ -107,7 +107,7 @@
 
     <para>This guide will help you modifying PacketFence to your particular needs. It also contains information on how
     to add support for new switches.</para>
-    <para>The instructions are based on version 2.2.0 of PacketFence.</para>
+    <para>The instructions are based on version 2.2.1 of PacketFence.</para>
     <para>The latest version of this guide is available online at</para>
     <para>
       <ulink url="http://www.packetfence.org/download/guides.html">
@@ -583,6 +583,62 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
         capability to the switch's code with:
         <programlisting language="perl">sub supportsWiredDot1x { return $TRUE; }</programlisting></para>
       </sect2>
+
+      <sect2>
+        <title>Floating Network Devices Support</title>
+        <para>
+          Floating Network Devices are described in the Administration Guide under "Floating Network Devices" 
+          in the "Optional Components" section. 
+          Refer to this documentation if you don't know what Floating Network Devices are.
+        </para>
+        <para>
+          In order to support Floating Network Devices on a switch, you need to implement the following methods:
+        </para>
+        <itemizedlist>
+          <listitem><function>setPortSecurityEnableByIfIndex($ifIndex, $enable)</function></listitem>
+          <listitem><function>isTrunkPort($ifIndex)</function></listitem>
+          <listitem><function>setModeTrunk($ifIndex, $enable)</function></listitem>
+          <listitem><function>setTaggedVlans($ifIndex, $switch_locker_ref, @vlans)</function></listitem>
+          <listitem><function>removeAllTaggedVlans($ifIndex, $switch_locker_ref)</function></listitem>
+        </itemizedlist>
+        <para>You might need to implement the following:</para>
+        <itemizedlist>
+          <listitem><function>enablePortConfigAsTrunk($mac, $switch_port, $switch_locker, $taggedVlans)</function>
+            - provided by <classname>pf::SNMP</classname> core as the glue between 
+            <classname>setModeTrunk()</classname>, <classname>setTaggedVlans()</classname> and 
+            <classname>removeAllTaggedVlans()</classname>.
+            Override if necessary.
+          </listitem>
+          <listitem><function>disablePortConfigAsTrunk($switch_port)</function>
+            - provided by <function>pf::SNMP</function> core as the glue between 
+            <function>setModeTrunk()</function>, <function>setTaggedVlans()</function> and 
+            <function>removeAllTaggedVlans()</function>.
+            Override if necessary.
+          </listitem>
+          <listitem><function>enablePortSecurityByIfIndex($ifIndex)</function>
+            - provided by <classname>pf::SNMP</classname> core as a slim accessor to 
+            <function>setPortSecurityEnableByIfIndex()</function>.
+            Override if necessary.
+          </listitem>
+          <listitem><function>disablePortSecurityByIfIndex($ifIndex)</function>
+            - provided by <classname>pf::SNMP</classname> core as a slim accessor to 
+            <function>setPortSecurityEnableByIfIndex()</function>.
+            Override if necessary.
+          </listitem>
+          <listitem><function>enableIfLinkUpDownTraps($ifIndex)</function>
+            - provided by <classname>pf::SNMP</classname> core as a slim accessor to 
+            <function>setIfLinkUpDownTrapEnable</function>.
+            Override if necessary.
+          </listitem>
+          <listitem><function>disableIfLinkUpDownTraps($ifIndex)</function>
+            - provided by <classname>pf::SNMP</classname> core as a slim accessor to 
+            Override if necessary.
+          </listitem>
+        </itemizedlist>
+
+        <para>Once all the required methods are implemented, enable the capability in the switch's code with:
+        <programlisting language="perl">sub supportsFloatingDevice { return $TRUE; }</programlisting></para>
+      </sect2>
     </sect1>
 
     <sect1>
@@ -606,7 +662,7 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
           </listitem>
         </itemizedlist>
 
-        <para>Most of these features work out of the box for enterprise grade Access Points
+        <para>Most of these features work out of the box for enterprise grade Access Points (AP)
         or Controllers. Where the situation starts to vary is for deauthentication support.</para>
 
         <para>SSH or Telnet is an error prone interface and requires preparation for the SSH
@@ -651,9 +707,26 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
           <listitem><para><function>extractSsid()</function> - extract SSID from RADIUS Request</para></listitem>
         </itemizedlist>
       </sect2>
-        
-    </sect1>
 
+      <sect2>
+        <title>Special case: bridged versus tunneled modes and deauthentication</title>
+        <para>
+          It is important to validate the Access-Point (AP) to Controller relationship when operating in bridged mode
+          versus when operating in tunneled mode. 
+          For example, some hardware will send the RADIUS Access-Request from the AP when in bridged mode 
+          even though it is controlled by a controller.
+          This behavior impacts deauthentication because it still needs to be performed on the controller.
+          To support this behavior a <filename>switches.conf</filename> parameter was introduced: 
+          <parameter>controller_ip</parameter>.
+        </para>
+        <para>
+           When adding a new Wireless module try to validate the bridged versus tunneled behavior and modify 
+           <function>deauthenticateMac()</function> to honor <parameter>controller_ip</parameter> if required.
+        </para>
+      </sect2>
+
+    </sect1>
+        
     <sect1>
       <title>The "adding a new network device module in PacketFence" checklist</title>
       <para>Here's a quick rundown of the several files you need to edit in order to add a new switch 

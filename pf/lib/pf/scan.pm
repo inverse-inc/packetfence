@@ -47,7 +47,7 @@ use constant {
 =item * runScan - perform a Nessus scan against target
         
 =cut
-
+# WARNING: A lot of extra single quoting has been done to fix perl taint mode issues: #1087
 sub runScan {
 
     my ($hostaddr, %params) = @_;
@@ -64,18 +64,21 @@ sub runScan {
         return 0;
     }
 
+    # untainting critical data
+    $hostaddr = clean_ip($hostaddr);
+
     # nessus scan setup
     my $host = $Config{'scan'}{'host'};
     my $port = $Config{'scan'}{'port'};
     my $user = $Config{'scan'}{'user'};
     my $pass = $Config{'scan'}{'pass'};
-    my $nessusclient_file = "$install_dir/conf/nessus/" . $Config{'scan'}{'nessusclient_file'};
+    my $nessusclient_file = $install_dir . '/conf/nessus/' . $Config{'scan'}{'nessusclient_file'};
     my $nessusclient_policy = $Config{'scan'}{'nessusclient_policy'};
-    my $nessusRcHome = "HOME=$install_dir/conf/nessus/";
+    my $nessusRcHome = 'HOME=' . $install_dir . '/conf/nessus/';
 
     # preparing host to scan temporary file and result file
-    my $infileName = "/tmp/pf_nessus_${hostaddr}_$date.txt";
-    my $outfileName = "$install_dir/html/admin/scan/results/dump_${hostaddr}_$date.nbe";
+    my $infileName = '/tmp/pf_nessus_' . $hostaddr . '_' . $date . '.txt';
+    my $outfileName = $install_dir . '/html/admin/scan/results/dump_' . $hostaddr . '_' . $date . '.nbe';
     my $infile_fh;
     open( $infile_fh, '>', $infileName );
     print {$infile_fh} $hostaddr;

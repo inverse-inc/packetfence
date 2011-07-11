@@ -31,6 +31,7 @@ BEGIN {
         process_useragent
         node_useragent_view
         node_useragent_view_all
+        is_mobile
     );
 }
 
@@ -153,15 +154,15 @@ sub update_node_useragent_record {
     };
 
     if ($browserDetect->device()) {
-        $record->{'device'} = 'yes';
+        $record->{'device'} = $YES;
     } else {
-        $record->{'device'} = 'no';
+        $record->{'device'} = $NO;
     }
 
     if ($browserDetect->mobile) {
-        $record->{'mobile'} = 'yes';
+        $record->{'mobile'} = $YES;
     } else {
-        $record->{'mobile'} = 'no';
+        $record->{'mobile'} = $NO;
     }
 
     # is there already an entry for this node?
@@ -194,6 +195,27 @@ sub node_useragent_view {
     return ($ref);
 }
 
+=item is_mobile
+
+Is a MAC considered mobile based on its User-Agent
+
+Return values:
+  undef if we have no information on the browser.
+  true if it's a mobile
+  false otherwise
+
+=cut
+sub is_mobile {
+    my ($mac) = @_;
+
+    my $useragent_info = node_useragent_view($mac);
+    return if (!defined($useragent_info) || !defined($useragent_info->{'mobile'}));
+
+    if ($useragent_info->{'mobile'} eq $YES) {
+        return $TRUE;
+    }
+    return $FALSE;
+}
 
 =item view
 

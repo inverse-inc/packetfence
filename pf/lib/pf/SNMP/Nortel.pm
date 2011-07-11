@@ -38,12 +38,23 @@ use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
 
-use pf::config;
-use pf::util;
-
 use base ('pf::SNMP');
 
 use pf::config;
+use pf::SNMP::constants;
+use pf::util;
+
+=head1 CAPABILITIES
+
+=over
+
+=item supportsFloatingDevice
+
+=cut
+sub supportsFloatingDevice { return $TRUE; }
+
+=back
+
 =head1 METHODS
 
 TODO: This list is incomplete
@@ -107,6 +118,47 @@ sub parseTrap {
     return $trapHashRef;
 }
 
+=item isTrunkPort
+
+Warning: MIB says 1 is access, 2 is trunk but we've encountered other values.
+
+=cut
+sub isTrunkPort {
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    if ( !$this->connectRead() ) {
+        return;
+    }
+
+    my $oid_rcVlanPortType = '1.3.6.1.4.1.2272.1.3.3.1.4';    #RC-VLAN-MIB
+    $logger->trace("SNMP get_table for rcVlanPortType: $oid_rcVlanPortType");
+
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => ["$oid_rcVlanPortType.$ifIndex"] );
+
+    # Error handling
+    if (!defined($result)) {
+        $logger->warn("Asking for port information failed with " . $this->{_sessionRead}->error());
+        return;
+    }
+
+    if (!defined($result->{"$oid_rcVlanPortType.$ifIndex"})) {
+        $logger->error("Returned value doesn't exist!");
+        return;
+    }
+
+    if ($result->{"$oid_rcVlanPortType.$ifIndex"} eq 'noSuchInstance') {
+        $logger->warn("Asking for port information failed with noSuchInstance");
+        return;
+    }
+
+    # it's a trunk
+    return $TRUE if ($result->{"$oid_rcVlanPortType.$ifIndex"} == $NORTEL::TRUNK);
+
+    # otherwise
+    return $FALSE;
+}
+
 sub getTrunkPorts {
     my ($this) = @_;
     my $OID_rcVlanPortType = '1.3.6.1.4.1.2272.1.3.3.1.4';    #RC-VLAN-MIB
@@ -117,19 +169,17 @@ sub getTrunkPorts {
         return -1;
     }
     $logger->trace("SNMP get_table for rcVlanPortType: $OID_rcVlanPortType");
-    my $result
-        = $this->{_sessionRead}->get_table( -baseoid => $OID_rcVlanPortType );
+    my $result = $this->{_sessionRead}->get_table( -baseoid => $OID_rcVlanPortType );
     if ( defined($result) ) {
         foreach my $key ( keys %{$result} ) {
-            if ( $result->{$key} == 2 ) {
+            if ( $result->{$key} == $NORTEL::TRUNK ) {
                 $key =~ /^$OID_rcVlanPortType\.(\d+)$/;
                 push @trunkPorts, $1;
                 $logger->info( "Switch " . $this->{_ip} . " trunk port: $1" );
             }
         }
     } else {
-        $logger->warn( "Problem while reading rcVlanPortType for switch "
-                . $this->{_ip} );
+        $logger->warn( "Problem while reading rcVlanPortType for switch " . $this->{_ip} );
         return -1;
     }
     return @trunkPorts;
@@ -145,6 +195,41 @@ sub getUpLinks {
         @upLinks = @{ $this->{_uplink} };
     }
     return @upLinks;
+}
+
+=item setModeTrunk
+
+Set a port as mode access or mode trunk based on ifIndex given.
+
+=cut
+sub setModeTrunk {
+    my ( $this, $ifIndex, $setTrunk ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    if ( !$this->isProductionMode() ) {
+        $logger->info("not in production mode ... we won't change this port's trunk mode");
+        return 1;
+    }
+
+    if ( !$this->connectWrite() ) {
+        return;
+    }
+
+    # Using UNTAG_PVID_ONLY instead of ACCESS here because it works under 'strict' VLAN mode
+    my $setMode = $setTrunk ? $NORTEL::TRUNK : $NORTEL::UNTAG_PVID_ONLY;
+
+    my $oid_rcVlanPortType = '1.3.6.1.4.1.2272.1.3.3.1.4';    #RC-VLAN-MIB
+    $logger->trace("SNMP set_request for rcVlanPortType: $oid_rcVlanPortType");
+    my $result = $this->{_sessionWrite}->set_request( -varbindlist => 
+        [ "$oid_rcVlanPortType.$ifIndex", Net::SNMP::INTEGER, $setMode ]
+    );
+
+    # if $result is defined, it works we can return $TRUE
+    return $TRUE if (defined($result));
+
+    # otherwise report failure
+    $logger->warn("changing port mode failed with " . $this->{_sessionWrite}->error());
+    return;
 }
 
 sub getVoiceVlan {
@@ -289,7 +374,6 @@ sub _setVlan {
     $logger->warn("setting VLAN failed with " . $this->{_sessionWrite}->error());
     return;
 }
-
 
 =item getBoardIndexWidth
 
@@ -519,11 +603,10 @@ sub isStaticPortSecurityEnabled {
 
 # This function has not been tested on stacked switches !
 sub setPortSecurityEnableByIfIndex {
-    my ( $this, $ifIndex, $trueFalse ) = @_;
+    my ( $this, $ifIndex, $enable ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     my $OID_s5SbsPortSecurityStatus = "1.3.6.1.4.1.45.1.6.5.3.15.0";
-    my $result;
 
     if ( !$this->connectRead() ) {
         return 0;
@@ -532,22 +615,26 @@ sub setPortSecurityEnableByIfIndex {
         return 0;
     }
 
-    $this->{_sessionRead}->translate(0);
-
     $logger->trace("SNMP get_request for OID_s5SbsPortSecurityStatus: $OID_s5SbsPortSecurityStatus");
-    $result = $this->{_sessionRead}->get_request( -varbindlist => [ "$OID_s5SbsPortSecurityStatus" ] );
-
-    my $portSecurityStatus = ($trueFalse) ? 0 : 1;
-    my $newSecurConfig = $this->modifyBitmask($result->{"$OID_s5SbsPortSecurityStatus"}, $ifIndex, $portSecurityStatus);
-
+    $this->{_sessionRead}->translate(0);
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => [ "$OID_s5SbsPortSecurityStatus" ] );
     $this->{_sessionRead}->translate(1);
+
+    my $portSecurityStatus = ($enable) ? $TRUE : $FALSE;
+    # There's no -1 on $ifIndex, this is not a bug. For some reason ports are offset by 1.
+    my $newSecurConfig = $this->modifyBitmask($result->{"$OID_s5SbsPortSecurityStatus"}, $ifIndex, $portSecurityStatus);
 
     $logger->trace("SNMP set_request for s5SbsPortSecurityStatus: $OID_s5SbsPortSecurityStatus");
     $result = $this->{_sessionWrite}->set_request( -varbindlist => [ 
         "$OID_s5SbsPortSecurityStatus", Net::SNMP::OCTET_STRING, $newSecurConfig, 
     ]);
 
-    return 1;
+    # if $result is defined, it works we can return $TRUE
+    return $TRUE if (defined($result));
+
+    # otherwise report failure
+    $logger->warn("modifying port-security configuration failed on $ifIndex with:" . $this->{_sessionWrite}->error());
+    return;
 }
 
 sub isPortSecurityEnabled {
@@ -688,6 +775,93 @@ sub getPhonesLLDPAtIfIndex {
 sub isVoIPEnabled {
     my ($this) = @_;
     return ( $this->{_VoIPEnabled} == 1 );
+}
+
+=item setTagOnVlansByIfIndex
+
+Change VLAN Tag bit on a given ifIndex for all the given VLANs.
+
+Takes an ifIndex, a TRUE/FALSE value (tag or untag), the switch locker to avoid concurrency issues and a list of VLANs.
+
+=cut
+sub setTagVlansByIfIndex {
+    my ( $this, $ifIndex, $setTo, $switch_locker_ref, @vlans ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $OID_rcVlanPortMembers = '1.3.6.1.4.1.2272.1.3.2.1.11'; #RC-VLAN-MIB
+
+    if ( !$this->connectRead() ) {
+        return 0;
+    }
+    if ( !$this->connectWrite() ) {
+        return 0;
+    }
+
+    $logger->trace( "locking - trying to lock \$switch_locker{" . $this->{_ip} . "} in setTaggedVlan" );
+    my $result;
+    {
+        lock %{ $switch_locker_ref->{ $this->{_ip} } };
+        $logger->trace( "locking - \$switch_locker{" . $this->{_ip} . "} locked in setTaggedVlan" );
+
+        # since all VLANs are located in separated OIDs we need to fetch the portList for each VLAN
+        my $fetch_vlan_port_list_ref = [];
+        foreach my $vlan (@vlans) {
+            push @$fetch_vlan_port_list_ref, "$OID_rcVlanPortMembers.$vlan";
+        }
+
+        $logger->trace("SNMP get_request for rcVlanPortMembers");
+        $this->{_sessionRead}->translate(0);
+        $result = $this->{_sessionRead}->get_request( -varbindlist => $fetch_vlan_port_list_ref );
+        $this->{_sessionRead}->translate(1);
+
+        # now we traverse every portList and set the proper port bit to 1 for every VLAN
+        my $set_vlan_port_list_ref = [];
+        foreach my $vlan (@vlans) {
+            my $updated_port_member_list = $this->modifyBitmask(
+                $result->{"$OID_rcVlanPortMembers.$vlan"}, $ifIndex, $setTo
+            );
+            
+            push @$set_vlan_port_list_ref, 
+                "$OID_rcVlanPortMembers.$vlan", Net::SNMP::OCTET_STRING, $updated_port_member_list;
+        }
+
+        $logger->trace( "SNMP set_request for OID_rcVlanPortMembers: $OID_rcVlanPortMembers");
+        $result = $this->{_sessionWrite}->set_request(-varbindlist => $set_vlan_port_list_ref);
+    }
+    $logger->trace( "locking - \$switch_locker{" . $this->{_ip} . "} unlocked in setTaggedVlan" );
+
+    # if $result is defined, it works we can return $TRUE
+    return $TRUE if (defined($result));
+
+    # otherwise report failure
+    $logger->warn("Tagging VLANs failed with " . $this->{_sessionWrite}->error());
+    return;
+}
+
+=item removeAllTaggedVlans 
+
+Removes all the tagged Vlans on a multi-Vlan port. 
+Used for floating network devices.
+
+=cut
+sub removeAllTaggedVlans {
+    my ( $this, $ifIndex, $switch_locker_ref ) = @_;
+
+    my @all_vlans = keys %{$this->getVlans()};
+    return $this->setTagVlansByIfIndex($ifIndex, $FALSE, $switch_locker_ref, @all_vlans);
+}
+
+=item setTaggedVlans
+
+Tag given VLANs on a given port in a multi-vlan per port config (trunk).
+Used for floating network devices.
+
+=cut
+sub setTaggedVlans {
+    my ( $this, $ifIndex, $switch_locker_ref, @vlans ) = @_;
+
+    $this->removeAllTaggedVlans($ifIndex, $switch_locker_ref);
+
+    return $this->setTagVlansByIfIndex($ifIndex, $TRUE, $switch_locker_ref, @vlans);
 }
 
 =back

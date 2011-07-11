@@ -213,8 +213,7 @@ if ($logLevel) {
     $root_logger->add_appender($appender);
 }
 
-my $switchFactory = new pf::SwitchFactory(
-    -configFile => INSTALL_DIR . '/conf/switches.conf' );
+my $switchFactory = pf::SwitchFactory->getInstance();
 
 if ($getUpLinks) {
 
@@ -525,7 +524,7 @@ if ($getUpLinks) {
             if (@locationlog_entry) {
                 my $conn_type = str_to_connection_type($locationlog_entry[0]->{'connection_type'});
         
-                if ($conn_type ne UNKNOWN) {
+                if ($conn_type != UNKNOWN) {
                     $logger->info(
                         "sending local reAssignVlan trap to force VLAN re-evaluation on " .
                         "switch ".$switch->{_ip}." ifIndex $ifIndex " . 

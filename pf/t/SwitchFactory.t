@@ -9,8 +9,7 @@ use lib '/usr/local/pf/lib';
 
 BEGIN { use_ok('pf::SwitchFactory') }
 
-my $switchFactory
-    = new pf::SwitchFactory( -configFile => './data/switches.conf' );
+my $switchFactory = pf::SwitchFactory->getInstance( -configFile => './data/switches.conf' );
 
 my $switch;
 $switch = $switchFactory->instantiate('127.0.0.1');

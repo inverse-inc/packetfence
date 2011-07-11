@@ -231,6 +231,30 @@ Readonly::Scalar our $DELETE => 3;
 
 =back
 
+=head1 NORTEL
+
+Nortel constants
+
+=over
+
+=cut
+package NORTEL;
+
+=item rcVlanPortType - Port types (from RC-VLAN-MIB)
+
+  access(1),
+  trunk(2)
+
+Note: Documentation is incomplete other values were found empirically.
+
+=cut
+Readonly::Scalar our $ACCESS => 1; # aka Untag All (not allowed in strict mode)
+Readonly::Scalar our $TRUNK => 2; # aka Tag All
+Readonly::Scalar our $UNTAG_PVID_ONLY => 5;
+Readonly::Scalar our $TAG_PVID_ONLY => 6; # (not allowed in strict mode)
+
+=back
+
 =head1 HP
 
 HP ProCurve constants

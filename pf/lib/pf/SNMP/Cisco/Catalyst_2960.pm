@@ -20,6 +20,15 @@ pf::SNMP::Cisco::Catalyst_2960 - Object oriented module to access and configure 
 
 =back
 
+=item Firmware version
+
+Recommended firmware is 12.2(58)SE1
+
+The absolute minimum required firmware version is 12.2(25)SEE2.
+
+Port-security + VoIP mode works with firmware 12.2(44)SE or greater unless mentioned below.
+Earlier IOS were not explicitly tested.
+
 =back
 
 This module extends pf::SNMP::Cisco::Catalyst_2950.
@@ -28,37 +37,61 @@ This module extends pf::SNMP::Cisco::Catalyst_2950.
 
 =over
 
-=item Firmwares
-
-Recommended firmware is 12.2(55)SE1
-
-The absolute minimum required firmware version is 12.2(25)SEE2.
-
-Port-security + VoIP mode works with firmware 12.2(44) and later.
-Earlier IOS were not explicitly tested.
-
-=item Known buggy firmwares
+=item Port-Security
 
 =over
 
-=item Port-Security 
+=item Problematic firmwares
 
-12.2(55)SE is known to be broken 12.2(55)SE1 is apparently fine
+12.2(50)SE, 12.2(55)SE were reported as malfunctioning for Port-Security operation.
+Avoid these IOS.
 
-12.2(52) has been problematic for some community members
+12.2(44)SE6 is not sending security violation traps in a specific situation: 
+if a given MAC is authorized on a port/VLAN, no trap is sent if the device changes port
+if the target port has the same VLAN as where the MAC was first authorized.
+Without a security violation trap PacketFence can't authorize the port leaving the MAC unauthorized.
+Avoid this IOS.
 
-12.2(50) is known to be problematic
+=item Delays sending security violation traps 
 
-12.2(44)SE6 is known to be buggy: not sending traps under certain circumstances
+Several IOS are affected by a bug that causes the security violation traps to take a long time before being sent.
 
-Port-security + VoIP support doesn't work with IOS version 12.2(25r). 
+In our testing, only the first traps were slow to come, the following were fast enough for a proper operation.
+So although in testing they can feel like they are broken, once installed and active in the field these IOS are Ok.
+Get in touch with us if you can reproduce a problematic behavior reliably and we will revisit our suggestion.
+
+Known affected IOS: 12.2(44)SE2, 12.2(44)SE6, 12.2(52)SE, 12.2(53)SE1, 12.2(55)SE3
+
+Known fixed IOS: 12.2(58)SE1
+
+=back
+
+=item Port-Security with Voice over IP (VoIP)
+
+=over
+
+=item Security table corruption issues with firmwares 12.2(46)SE or greater and PacketFence before 2.2.1
+
+Several firmware releases have an SNMP security table corruption bug that happens only when VoIP devices are involved.
+
+Although a Cisco problem we developed a workaround in PacketFence 2.2.1 that requires switch configuration changes.
+Read the UPGRADE guide under 'Upgrading to a version prior to 2.2.1' for more information.
+
+Firmware versions 12.2(44)SE6 or below should not upgrade their configuration.
+
+Affected firmwares includes at least 12.2(46)SE, 12.2(52)SE, 12.2(53)SE1, 12.2(55)SE1, 12.2(55)SE3 and 12.2(58)SE1.
+
+=item 12.2(25r) disappearing config
+
+For some reason when securing a MAC address the switch loses an important portion of its config.
+This is a Cisco bug, nothing much we can do. Don't use this IOS for VoIP.
 See issue #1020 for details.
+
+=back
 
 =item SNMPv3
 
 12.2(52) doesn't work in SNMPv3
-
-=back
 
 =back
 
@@ -76,6 +109,8 @@ use Net::SNMP;
 
 use base ('pf::SNMP::Cisco::Catalyst_2950');
 use pf::config;
+use pf::SNMP::constants;
+use pf::util;
 
 # CAPABILITIES
 # access technology supported
@@ -232,46 +267,29 @@ sub authorizeMAC {
         return 0;
     }
 
-    my $voiceVlan = $this->getVoiceVlan($ifIndex);
-    if ( ( $deauthVlan == $voiceVlan ) || ( $authVlan == $voiceVlan ) ) {
-        $logger->error(
-            "ERROR: authorizeMAC called with voice VLAN .... this should not have happened ... we won't add an entry to the SecureMacAddrTable"
-        );
-        return 1;
-    }
-
+    # We will assemble the SNMP set request in this array and do it all in one pass
     my @oid_value;
     if ($deauthMac) {
-        my @macArray = split( /:/, $deauthMac );
-        my $completeOid
-            = $oid_cpsIfVlanSecureMacAddrRowStatus . "." . $ifIndex;
-        foreach my $macPiece (@macArray) {
-            $completeOid .= "." . hex($macPiece);
-        }
-        $completeOid .= "." . $deauthVlan;
-        push @oid_value, ( $completeOid, Net::SNMP::INTEGER, 6 );
+        $logger->trace("Adding a cpsIfVlanSecureMacAddrRowStatus DESTROY to the set request");
+        my $oid = "$oid_cpsIfVlanSecureMacAddrRowStatus.$ifIndex." . mac2oid($deauthMac) . ".$deauthVlan";
+        push @oid_value, ($oid, Net::SNMP::INTEGER, $SNMP::DESTROY);
     }
     if ($authMac) {
-        my @macArray = split( /:/, $authMac );
-        my $completeOid
-            = $oid_cpsIfVlanSecureMacAddrRowStatus . "." . $ifIndex;
-        foreach my $macPiece (@macArray) {
-            $completeOid .= "." . hex($macPiece);
-        }
-        $completeOid .= "." . $authVlan;
-        push @oid_value, ( $completeOid, Net::SNMP::INTEGER, 4 );
+        $logger->trace("Adding a cpsIfVlanSecureMacAddrRowStatus CREATE_AND_GO to the set request");
+        # Warning: placing in deauthVlan instead of authVlan because authorization happens before VLAN change
+        my $oid = "$oid_cpsIfVlanSecureMacAddrRowStatus.$ifIndex." . mac2oid($authMac) . ".$deauthVlan";
+        push @oid_value, ($oid, Net::SNMP::INTEGER, $SNMP::CREATE_AND_GO);
     }
-
-    my $result;
-    if ( scalar(@oid_value) > 0 ) {
+    if (@oid_value) {
         $logger->trace("SNMP set_request for cpsIfVlanSecureMacAddrRowStatus");
-        $result = $this->{_sessionWrite}->set_request( -varbindlist => \@oid_value );
+        my $result = $this->{_sessionWrite}->set_request(-varbindlist => \@oid_value);
+        if (!defined($result)) {
+            $logger->warn(
+                "SNMP error tyring to remove or add secure rows to ifIndex $ifIndex in port-security table. "
+                . "This could be normal. Error message: ".$this->{_sessionWrite}->error()
+            );
+        }
     }
-    if (!defined($result)) {
-        $logger->warn("SNMP error tyring to add or remove secure rows in port-security table. This could be normal. "
-            . "Error message: ".$this->{_sessionWrite}->error());
-    }
-
     return 1;
 }
 
@@ -328,6 +346,8 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 =head1 COPYRIGHT
 
 Copyright (C) 2006-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

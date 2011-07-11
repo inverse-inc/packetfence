@@ -14,31 +14,67 @@ For a list of compatibility related changes see the UPGRADE file.
 
 
 --------------------------------------------------------------------------------
-Version <release> released on <releaseDate>
+Version <version> released on <releaseDate>
+
+New Hardware Support
+ * Nortel switches now support the floating network device feature
+
+New Features
+ * Ability to view log files from the Web Administration interface (#1080)
+
+Enhancements
+ * New DHCP fingerprints for Polycom and Snom
+ * New controllerIp network device parameter will make it simpler to support
+   wireless hardware working in bridged mode
+ * Developer documentation to add Floating Network Devices support to switches
+
+Bug fixes
+ * Fixed Nortel switches problems on ERS2500 / ERS4500 (at least)
+ * Fixed nessus scans don't work with bin/pfcmd as a setuid/setgid (#1087)
+ * Fixed custom VLAN assignments relying on connection_type failing on "unknown"
+   nodes (#1231)
+ * Fixed problematic default grace period for System scan violation
+ * Fixed configurator.pl does not show interfaces without IP address (#1221)
+
+--------------------------------------------------------------------------------
+Version 2.2.1 released on 2011-06-16
 
 New Hardware Support
  * AeroHIVE AP Access Points
+ * Dlink DES 3550 switch (Thanks to Olivier Roch Vilato)
  * Dlink DGS 3200 switch
  * HP ProCurve 5400 Series
+ * ExtremeNetworks Summit now supports MAC Authentication and 802.1X
 
 New Features
  * Basic WISPR support improves iPod/iPhone/iPad usability (#815)
 
 Enhancements
+ * Performance improvement for RADIUS based requests in environments with large
+   conf/switches.conf files
+ * Increased responsiveness of VLAN assignments by reducing the available node
+   information (got rid of unused fields)
  * Nortel module now warns in the logs about a common stacking Nortel problem
  * New DHCP fingerprint for Cisco/Linksys, Aruba, 3Com switch, HTC Android, 
-   Polycom and Konica Minolta MFP's
+   Polycom, Konica Minolta MFP's and HP Printers
  * Warning avoidance
- * New FreeRADIUS watchdog script in addons
+ * New FreeRADIUS and pfdhcplistener watchdog scripts in addons/watchdog/
  * Admin Guide: cleanup of the MySQL optimization, more logging in Samba config
+ * New binding allowing to offer different captive portal for mobile devices
+ * Admin Guide's FAQ and Troubleshooting sections has been migrated to the 
+   PacketFence website
 
 Bug fixes
+ * Important fixes on Cisco 2960 related to Port-Security and VoIP handling in
+   IOS 12.2(46)SE or greater
  * Re-introduced MAC Authentication and 802.1X support in Cisco 3560, 3750
  * Fixed expire deadline automatic un-registration (#865)
  * Updated Admin Guide to reflect proper method calls for custom VLAN assignment
  * Fixed Nortel switches problems on some models / firmwares
  * Fixed installer errors (#1217)
  * Increased PHP memory to PHP's default: 128M. Mitigates #962.
+ * Fixed race condition when trying to categorize auto-registered nodes based 
+   on DHCP fingerprint (#1216)
 
 Translations
  * Updated French (fr) translation (Thanks to Vincent Blut)

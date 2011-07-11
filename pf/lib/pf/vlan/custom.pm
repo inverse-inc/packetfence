@@ -20,7 +20,7 @@ use Log::Log4perl;
 
 use base ('pf::vlan');
 use pf::config;
-use pf::node qw(node_view node_add_simple node_exist);
+use pf::node qw(node_attributes node_add_simple node_exist);
 use pf::util;
 use pf::violation qw(violation_count_trap violation_exist_open violation_view_top);
 
@@ -41,7 +41,7 @@ Sample getNormalVlan, see pf::vlan for getNormalVlan interface description
 #    #$switch is the switch object (pf::SNMP)
 #    #$ifIndex is the ifIndex of the computer connected to
 #    #$mac is the mac connected
-#    #$node_info is the node info hashref (result of pf::node's node_view on $mac)
+#    #$node_info is the node info hashref (result of pf::node's node_attributes on $mac)
 #    #$conn_type is set to the connnection type expressed as the constant in pf::config 
 #    #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
 #    #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)

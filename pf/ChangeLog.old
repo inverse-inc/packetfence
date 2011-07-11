@@ -1,30 +1,30 @@
-2011-01-04      Francois Gaudreault <fgaudreault@inverse.ca>
-        * pf/docs/PacketFence_Network_Devices_Configuration_Guide.odt:
-        Added Extricom controller documentation
+2011-01-04	Francois Gaudreault <fgaudreault@inverse.ca>
+	* pf/docs/PacketFence_Network_Devices_Configuration_Guide.odt:
+	Added Extricom controller documentation
 
-        * pf/docs/PacketFence_Administration_Guide.odt: Fixed typo in
-        the groupinstall section.
+	* pf/docs/PacketFence_Administration_Guide.odt: Fixed typo in
+	the groupinstall section.
 
-2010-12-20      Francois Gaudreault <fgaudreault@inverse.ca>
-        * pf/docs/PacketFence_Network_Devices_Configuration_Guide.odt:
-        Modify the supported Meru Network Devices module name
+2010-12-20	Francois Gaudreault <fgaudreault@inverse.ca>
+	* pf/docs/PacketFence_Network_Devices_Configuration_Guide.odt:
+	Modify the supported Meru Network Devices module name
 
-        * pf/lib/pf/SNMP/Meru/MC.pm: Changed the name of the Meru
-        Controller module to a more generic one
+	* pf/lib/pf/SNMP/Meru/MC.pm: Changed the name of the Meru
+	Controller module to a more generic one
 
-2010-12-17      Francois Gaudreault <fgaudreault@inverse.ca>
-        * pf/docs/PacketFence_Network_Devices_Configuration_Guide.odt:
-        Modify the supported Meru Network Devices
+2010-12-17	Francois Gaudreault <fgaudreault@inverse.ca>
+	* pf/docs/PacketFence_Network_Devices_Configuration_Guide.odt:
+	Modify the supported Meru Network Devices
 
-        * pf/conf/templates/snort.conf: Add missing TELNET_SERVERS variable
-        
+	* pf/conf/templates/snort.conf: Add missing TELNET_SERVERS variable
+	
 
-2010-12-16      Francois Gaudreault <fgaudreault@inverse.ca>
-        * pf/docs/PacketFence_ZEN_Installation_Guide.odt: Update the ZEN
-        documentation for version 2.0.0
+2010-12-16	Francois Gaudreault <fgaudreault@inverse.ca>
+	* pf/docs/PacketFence_ZEN_Installation_Guide.odt: Update the ZEN
+	documentation for version 2.0.0
 
-        * pf/lib/pf/SNMP/Extricom.pm, pf/lib/pf/SNMP/Extricom/EXSW800.pm :
-        Support for the Extricom Wireless Controllers
+	* pf/lib/pf/SNMP/Extricom.pm, pf/lib/pf/SNMP/Extricom/EXSW800.pm :
+	Support for the Extricom Wireless Controllers
 
 2010-12-14	Olivier Bilodeau <obilodeau@inverse.ca>
 	Version bump to 2.0.0

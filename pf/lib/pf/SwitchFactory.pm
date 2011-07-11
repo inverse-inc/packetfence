@@ -25,12 +25,32 @@ use Log::Log4perl;
 use pf::config;
 use pf::util;
 
+my $singleton;
+
 =head1 METHODS
 
 =over
 
+=item getInstance
+
+Get the singleton instance of switchFactory. Create it if it doesn't exist.
+
 =cut
-#TODO: transform into a singleton? http://perldesignpatterns.com/?SingletonPattern
+sub getInstance {
+    my ( $class, %args ) = @_;
+
+    if (!defined($singleton)) {
+        $singleton = $class->new(%args);
+    }
+
+    return $singleton;
+}
+
+=item new
+
+Create a switchFactory instance
+
+=cut
 sub new {
     my $logger = Log::Log4perl::get_logger("pf::SwitchFactory");
     $logger->debug("instantiating new SwitchFactory object");
@@ -46,9 +66,11 @@ sub new {
         }
     }
 
-    if ( defined( $this->{_configFile} ) ) {
-        $this->readConfig();
+    if ( !defined( $this->{_configFile} ) ) {
+        $this->{_configFile} = $conf_dir.'/switches.conf';
     }
+
+    $this->readConfig();
 
     return $this;
 }
@@ -169,6 +191,10 @@ sub instantiate {
         '-radiusSecret' => (
             $SwitchConfig{$requestedSwitch}{'radiusSecret'}
             || $SwitchConfig{'default'}{'radiusSecret'}
+        ),
+        '-controllerIp' => (
+            $SwitchConfig{$requestedSwitch}{'controllerIp'}
+            || $SwitchConfig{'default'}{'controllerIp'}
         ),
         '-ip'            => $requestedSwitch,
         '-isolationVlan' => (
@@ -371,7 +397,9 @@ Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2010 Inverse inc.
+Copyright (C) 2006-2011 Inverse inc.
+
+=head1 LICENSE 
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

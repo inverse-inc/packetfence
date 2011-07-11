@@ -33,7 +33,7 @@
 #
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 2.2.0
+Version: 2.2.1
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -89,7 +89,10 @@ Requires: perl-List-MoreUtils
 # Changed perl-Locale-gettext dependency to use the perl namespace version: perl(Locale-gettext), fixes #931
 Requires: perl(Locale::gettext)
 Requires: perl-Log-Log4perl >= 1.11
+# Required by switch modules
 Requires: perl-Net-Appliance-Session
+# Required by configurator script
+Requires: perl(Net::Interface)
 Requires: perl-Net-Frame, perl-Net-Frame-Simple
 Requires: perl-Net-MAC, perl-Net-MAC-Vendor
 Requires: perl-Net-Netmask
@@ -209,6 +212,7 @@ cp -r addons/integration-testing/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/mrtg/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/upgrade/ $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp -r addons/watchdog/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/dhcp_dumper $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -425,7 +429,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/addons/database-backup-and-maintenance.sh
 %dir                    /usr/local/pf/addons/freeradius-integration/
                         /usr/local/pf/addons/freeradius-integration/*
-%attr(0755, pf, pf)	/usr/local/pf/addons/freeradius-watchdog.sh
 %dir                    /usr/local/pf/addons/high-availability/
                         /usr/local/pf/addons/high-availability/*
 %dir                    /usr/local/pf/addons/integration-testing/
@@ -443,6 +446,8 @@ fi
 %dir                    /usr/local/pf/addons/802.1X
 %doc                    /usr/local/pf/addons/802.1X/README
 %attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/packetfence.pm
+%dir                    /usr/local/pf/addons/watchdog
+%attr(0755, pf, pf)     /usr/local/pf/addons/watchdog/*.sh
 %dir                    /usr/local/pf/bin
 %attr(0755, pf, pf)     /usr/local/pf/bin/flip.pl
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
@@ -585,6 +590,7 @@ fi
                         /usr/local/pf/lib/pf/web/*.pl
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
                         /usr/local/pf/lib/pf/web/util.pm
+                        /usr/local/pf/lib/pf/web/wispr.pm
 %dir                    /usr/local/pf/logs
 %doc                    /usr/local/pf/NEWS
 %doc                    /usr/local/pf/README
@@ -628,6 +634,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Thu Jun 16 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 2.2.1-1
+- New release 2.2.1
+
 * Mon May 15 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Added file freeradius-watchdog.sh
 
