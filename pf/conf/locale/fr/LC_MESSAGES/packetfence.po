@@ -4,6 +4,7 @@
 # Olivier Bilodeau <obilodeau@inverse.ca>, 2011.
 #
 domain "packetfence"
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
@@ -45,6 +46,9 @@ msgstr "Impossible de valider votre login et mot de passe en ce moment"
 
 msgid "help: provide info"
 msgstr "Si vous avez des questions par rapport &agrave; cette page, veuillez contacter votre &eacute;quipe informatique et leur fournir les informations suivantes : "
+
+msgid "error: something went wrong creating the guest"
+msgstr "Il y a eu un probl&egrave;me pour cr&eacute;er l'invit&eacute;"
 
 msgid "Register"
 msgstr "Enregistrer"
@@ -211,3 +215,127 @@ msgstr "Poste-&agrave;-Poste"
 msgid "You have been detected using a peer-to-peer file sharing application. Such software is not permitted on the network.  Please uninstall the infringing software."
 msgstr "Nous avons d&eacute;tect&eacute; l'utilisation d'un logiciel de type poste-&agrave;-poste (peer-to-peer). Veuillez d&eacute;sinstaller le logiciel en question."
 
+msgid "System Scanning"
+msgstr "Analyse syst&egrave;me"
+
+msgid "Your system has been found to be scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgstr "Votre syst&egrave;me a &eacute;t&eacute; d&eacute;tect&eacute; en train d'attaquer d'autres ordinateurs. Du au danger de cette probl&eacutematique pour tous les autres ordinateurs du r&eacute;seau, votre acc&egrave;s a &eacute;t&eacute; d&eacute;sactiv&eacute;"
+
+msgid "Spamming"
+msgstr "Spamming"
+
+msgid "Your system has been found to be sending unsolicited commercial email (UCE, or \"spam\") to other systems. Due to the threat this poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgstr "Votre syst&egrave;me semble envoyer des courriels ind&eacute;sirables (spam), Du au danger de cette probl&eacutematique pour tous les autres ordinateurs du r&eacute;seau, votre acc&egrave; a &eacute;t&eacute; d&eacute;sactiv&eacute;"
+
+msgid "Your system may need to be rebuilt. Please contact your local support staff for more information."
+msgstr "Il est probablement n&eacute;cessaire de reinstaller votre ordinateur. Veuillez contacter votre &eacute;quipe de soutien technique pour plus d'informations."
+
+msgid "guest management"
+msgstr "Gestion des invit&eacute;s"
+
+msgid "guest registration form"
+msgstr "Formulaire d'enregistrement d'invit&eacute;s"
+
+msgid "guest registration instructions"
+msgstr "Instructions d'enregistrement d'invit&eacute;s"
+
+msgid "Firstname"
+msgstr "Pr&eacute;nom"
+
+msgid "Lastname"
+msgstr "Nom de famille"
+
+msgid "Phone number"
+msgstr "Num&eacute;ro de t&eacute;l&eacute;phone"
+
+msgid "Email"
+msgstr "Courriel"
+
+msgid "Arrival Date"
+msgstr "Date d'arriv&eacute;e"
+
+msgid "End Date"
+msgstr "Date de fin"
+
+msgid "Access duration"
+msgstr "Dur&eacute;e de l'acc&egrave;s"
+
+msgid "Send access code by email"
+msgstr "Envoyer le code d'acc&egrave;s par courriel"
+
+msgid "Print access code"
+msgstr "Imprimer le code d'acc&egrave;s"
+
+msgid "Print"
+msgstr "Imprimer"
+
+msgid "Back"
+msgstr "Retour"
+
+msgid "second"
+msgid_plural "seconds"
+msgstr[0] "seconde"
+msgstr[1] "secondes"
+
+msgid "minute"
+msgid_plural "minutes"
+msgstr[0] "minute"
+msgstr[1] "minutes"
+
+msgid "hour"
+msgid_plural "hours"
+msgstr[0] "heure"
+msgstr[1] "heures"
+
+msgid "day"
+msgid_plural "days"
+msgstr[0] "jour"
+msgstr[1] "jours"
+
+msgid "week"
+msgid_plural "weeks"
+msgstr[0] "semaine"
+msgstr[1] "semaines"
+
+msgid "month"
+msgid_plural "months"
+msgstr[0] "mois"
+msgstr[1] "mois"
+
+msgid "year"
+msgid_plural "years"
+msgstr[0] "an"
+msgstr[1] "ans"
+
+msgid "Invalid access duration provided"
+msgstr "Dur&eacute;e d'acc&egrave;s invalide"
+
+msgid "Expected on %s"
+msgstr "Attendu le %s"
+
+msgid "Missing mandatory parameter or malformed entry."
+msgstr "Param&egrave;tre requis manquant ou invalide."
+
+msgid "Access duration is not of an allowed value."
+msgstr "Dur&eacute;e de l'acc&egrave;s n'est pas dans un format allou&eacute;e."
+
+msgid "Arrival date is not of expected format."
+msgstr "Date d'arriv&eacute;e n'est pas dans un format allou&eacute;e."
+
+msgid "Guest Access Code"
+msgstr "Code d'acc&egrave;s invit&eacute;"
+
+msgid "This username and password will be valid starting %s."
+msgstr "Ce nom d'utilisateur et mot de passe sera valide a partir de %s."
+
+msgid "Once authenticated the access will be valid for %d %s."
+msgstr "Une fois authentifi&eacute; l'acc&egrave;s sera valide pour %d %s."
+
+msgid "Guest successfully registered. An email with the username and password has been sent."
+msgstr "Invit&eacute; enregistr&eacute; avec succ&egrave;s. Un courriel avec un nom d'utilisateur et mot de passe a &eacute;t&eacute; envoy&eacute;."
+
+msgid "Guest Network Access Information"
+msgstr "Information d'accès au réseau pour invités"
+
+msgid "Format is: yyyy-mm-dd"
+msgstr "Format: aaaa-mm-jj"

@@ -14,6 +14,32 @@ For a list of compatibility related changes see the UPGRADE file.
 
 
 --------------------------------------------------------------------------------
+Version <trunk-release> released on <releaseDate>
+
+Compatibility notice
+ * Removed support for Apache prior to version 2.2.0 (#828)
+ * Removed support for jpgraph 1.x which bumps our depedencies to PHP 5
+
+New features
+ * Major update to the captive portal look and feel! More modern and 
+   professional. Cleaner XHTML/CSS makes customization a lot easier than before.
+   Also, all user-visible URLs are now clean and short (no more cgi-bin/... 
+   clutter). (#980, #982)
+ * Flexible guest handling API (covering temporary passwords, self-registration,
+   pre-registration, etc.)
+ * Captive portal authentication modules are versioned, validated on startup and
+   have customizable names
+ * New default_auth parameter will be the default authentication module selected
+   if you have multiple authentication back-end enabled in auth
+ * Remediation pages are translatable (#822)
+
+Enhancements
+ * Captive portal usability improvements for both users and administrators
+ * Externalized the jpgraph PHP library
+ * More start-up validation in `pfcmd checkup`
+ * More tests
+
+--------------------------------------------------------------------------------
 Version <version> released on <releaseDate>
 
 New Hardware Support
@@ -34,7 +60,6 @@ Bug fixes
    nodes (#1231)
  * Fixed problematic default grace period for System scan violation
  * Fixed configurator.pl does not show interfaces without IP address (#1221)
-
 --------------------------------------------------------------------------------
 Version 2.2.1 released on 2011-06-16
 

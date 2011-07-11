@@ -1,0 +1,35 @@
+[% INCLUDE header.html %]
+<script type="text/javascript">
+var waitTime=[% timer %];
+var action = function() {
+  hidebar();
+  $('toReplace').innerHTML = '[% txt_timerexpired %]';
+}; 
+  
+var txt_ie = "[% txt_ie %]";
+// once the page is loaded
+document.observe("dom:loaded", function() {
+
+  // Opera is known to be broken with network detection so we warn the users
+  if (Prototype.Browser.Opera) {
+    $('browser_notes').innerHTML = "[% txt_opera %]";
+  }
+
+  detectNetworkAccess.delay([% initial_delay %], 
+    [% retry_delay %], "[% destination_url %]", "[% redirect_url %]", "[% external_ip %]"
+  );
+});
+</script>
+
+        <div id="about">
+          <img src="content/images/unlock.png" alt="Access granted" />
+          <p id="toReplace">[% txt_message %]</p>
+          <p id="browser_notes"></p>
+          <script type="text/javascript" src="content/timerbar.js"></script>
+          <noscript><p>[% txt_noscript %]</p></noscript>
+        </div>
+
+[%# DO NOT REMOVE! REQUIRED FOR NETWORK ACCESS DETECTION %]
+<div id="internet-detection" style="display: none;"><img id="netdetect"/></div>
+
+[% INCLUDE footer.html %]

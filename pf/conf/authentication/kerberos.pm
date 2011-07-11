@@ -1,5 +1,4 @@
 package authentication::kerberos;
-
 =head1 NAME
 
 authentication::kerberos - kerberos authentication
@@ -9,9 +8,21 @@ authentication::kerberos - kerberos authentication
   use authentication::kerberos;
   my ( $authReturn, $err ) = authenticate ( $login, $password );
 
+This module extends pf::web::auth
+
 =head1 DESCRIPTION
 
 authentication::kerberos allows to validate a username/password combination using Kerberos5
+
+=cut
+
+use strict;
+use warnings;
+use Authen::Krb5::Simple;
+
+use base ('pf::web::auth');
+
+our $VERSION = 1.00;
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -22,19 +33,20 @@ Define the variables C<Krb5Realm> at the top of the module.
 
 =cut
 
-use strict;
-use warnings;
-
-BEGIN {
-    use Exporter ();
-    our (@ISA, @EXPORT);
-    @ISA = qw(Exporter);
-    @EXPORT = qw(authenticate);
-}
-
-use Authen::Krb5::Simple;
-
 my $Krb5Realm = 'EXAMPLE.COM';
+
+=head2 Optional
+
+=over
+
+=item name
+
+Name displayed on the captive portal dropdown
+
+=back
+
+=cut
+my $name = "Kerberos";
 
 =head1 SUBROUTINES
 
@@ -49,7 +61,7 @@ my $Krb5Realm = 'EXAMPLE.COM';
 =cut
 
 sub authenticate {
-    my ($username, $password) = @_;
+    my ($this, $username, $password) = @_;
     my $krb = Authen::Krb5::Simple->new( realm => $Krb5Realm );
 
     if ($krb->authenticate($username, $password)) {
@@ -59,9 +71,21 @@ sub authenticate {
     }
 }
 
+=item * getName
+
+Returns name as configured
+
+=cut
+sub getName {
+    my ($this) = @_;
+    return $name;
+}
+
 =back
 
 =head1 AUTHOR
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 Brad Lhotsky <brad@divisionbyzero.net> 
 
@@ -74,6 +98,8 @@ Maikel van der roest <mvdroest@utelisys.com>
 Copyright (C) 2011 Inverse inc.
 
 Copyright (C) 2008 Utelisys Communications B.V.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

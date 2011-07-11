@@ -1,0 +1,14 @@
+Hi [% firstname %] [% lastname %],
+
+An account has been created for you to access our network.
+
+Once you will be on-site, authenticate using the following credentials to our captive portal:
+
+Username: [% username %]
+Password: [% password %]
+
+This username and password will be valid starting [% valid_from %]. Once authenticated the access will be valid for [% duration %].
+
+Please ignore this request if you have not requested network access.
+--
+This is a post only E-mail, please do not reply.

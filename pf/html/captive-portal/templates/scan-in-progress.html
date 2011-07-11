@@ -1,0 +1,33 @@
+[% INCLUDE header.html %]
+<script type="text/javascript">
+var waitTime=[% timer %];
+var action = function() {
+  hidebar();
+  $('toReplace').innerHTML = '[% txt_timerexpired %]';
+}; 
+  
+var txt_ie = "[% txt_ie %]";
+// once the page is loaded
+document.observe("dom:loaded", function() {
+
+  // Opera is known to be broken with network detection so we warn the users
+  if (Prototype.Browser.Opera) {
+    $('browser_notes').innerHTML = "[% txt_opera %]";
+  }
+
+  detectNetworkAccess.delay([% refresh_timer %], 
+    [% refresh_timer %], "[% destination_url %]", "[% redirect_url %]", "[% external_ip %]"
+  );
+});
+</script>
+
+        <div id='about'>
+          <img src="content/images/lock.png" alt="You are not authorized" />
+          <h1>[% txt_page_header %]</h1>
+          <p>[% txt_message %]</p>
+        </div>
+
+[%# DO NOT REMOVE! REQUIRED FOR NETWORK ACCESS DETECTION %]
+<div id="internet-detection" style="display: none;"><img id="netdetect"/></div>
+
+[% INCLUDE footer.html %]

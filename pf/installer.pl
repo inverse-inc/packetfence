@@ -309,7 +309,6 @@ foreach my $locale_dir (@locale_dirs) {
         "$locale_start_dir/$locale_dir/LC_MESSAGES/packetfence.mo";
 }
 
-# TODO cleanup commented stuff regarding the packaging of jpgraph in an rpm
 if ( !( -e "$conf_dir/httpd.conf" ) ) {
     print "$conf_dir/httpd.conf symlink does not yet exist\n";
     if ( `httpd -v` =~ /Apache\/2\.[2-9]\./ ) {

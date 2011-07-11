@@ -1,0 +1,47 @@
+[% INCLUDE header.html %]
+
+        <div class="note">
+          <h1>[% txt_page_header %]</h1>
+
+          <h2>[% txt_addresses %]</h2>
+          <table>
+          [% FOREACH address IN list_addresses %]
+            <tr>
+              <td>[% address.name %]</td><td>[% address.value %]</td>
+            </tr>
+          [% END %]
+          </table>
+
+          <h2>[% txt_node %]</h2>
+          <table>
+          [% FOREACH node_info IN list_node_info %]
+            <tr>
+             <td>[% node_info.name %]</td><td>[% node_info.value %]</td>
+            </tr>
+          [% END %]
+          </table>
+  
+          [% IF list_violations %]
+            <h2>[% txt_violations %]</h2>
+            <table>
+            [% FOREACH violation_info IN list_violations %]
+              <tr>
+                <td>[% violation_info.name %]</td><td>[% violation_info.value %]</td>
+              </tr>
+            [% END %]
+            </table>
+          [% END %]
+
+          <form method="post" action="/authenticate">
+            <div class="input">
+              <script language="javascript"><!--
+                document.write("<input type='button' name='Print' value='[% txt_print %]' onClick='window.print()'>");
+              //-->
+              </script>
+              <input type="hidden" name="mode" value="deregister">
+              <input type="submit" name="submit" value="[% txt_deregister %]">
+            </div>
+          </form>
+        </div>
+
+[% INCLUDE footer.html %]

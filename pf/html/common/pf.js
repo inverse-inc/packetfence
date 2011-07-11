@@ -17,10 +17,9 @@
  */
 function fetchNodeStatus() {
 
-    // TODO prettier URL
-    new Ajax.Request('/cgi-bin/register.cgi', {
+    new Ajax.Request('/status', {
       method: 'post',
-      parameters: { mode: 'status', json: 'true' },
+      parameters: { json: 'true' },
       requestHeaders: {Accept: 'application/json'},
     
       onSuccess: function(transport) {
