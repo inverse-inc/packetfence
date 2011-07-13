@@ -35,6 +35,7 @@ Bug fixes
    nodes (#1231)
  * Fixed problematic default grace period for System scan violation
  * Fixed configurator.pl does not show interfaces without IP address (#1221)
+ * Fixed issue to detect the shell prompt MeruOS 4.1 or greater (#1232)
 
 --------------------------------------------------------------------------------
 Version 2.2.1 released on 2011-06-16
