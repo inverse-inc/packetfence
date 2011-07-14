@@ -18,6 +18,7 @@ Version <version> released on <releaseDate>
 
 New Hardware Support
  * Nortel switches now support the floating network device feature
+ * Dlink DWL Access-Point support
 
 New Features
  * Ability to view log files from the Web Administration interface (#1080)

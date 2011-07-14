@@ -133,6 +133,7 @@
                            'Dlink::DES_3550' => 'D-Link DES 3550',
                            'Dlink::DGS_3100' => 'D-Link DGS 3100',
                            'Dlink::DGS_3200' => 'D-Link DGS 3200',
+                           'Dlink::DWL' => 'D-Link DWL Access-Point',
                            'Dlink::DWS_3026' => 'D-Link DWS 3026',
                            'Enterasys::Matrix_N3' => 'Enterasys Matrix N3',
                            'Enterasys::SecureStack_C2' => 'Enterasys SecureStack C2',

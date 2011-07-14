@@ -11,6 +11,7 @@ Packetfence supports the following access points and wireless controlers:
 - Cisco Wireless Services Module (WiSM)
 - Cisco WLC 2106
 - Cisco WLC 4400
+- Dlink DWL Access Points
 - Dlink DWS 3026
 - Extricom EXSW Wireless Switches (Controllers)
 - HP ProCurve MSM710 Mobility Controller
@@ -56,6 +57,8 @@ Cisco WiSM                   |    --    |    XX    |    --    |
 Cisco WLC 2106               |    XX    |    --    |    --    |
 -----------------------------|----------|----------|----------|
 Cisco WLC 4400 and others    |    --    |    XX    |    --    |
+-----------------------------|----------|----------|----------|
+Dlink DWL                    |    --    |    XX    |    --    |
 -----------------------------|----------|----------|----------|
 Dlink DWS                    |    --    |    XX    |    --    |
 -----------------------------|----------|----------|----------|
