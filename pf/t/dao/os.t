@@ -14,10 +14,11 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 2;
+use Test::More tests => 5;
 use Test::NoWarnings;
 
 use Log::Log4perl;
+use Readonly;
 
 Log::Log4perl->init("log.conf");
 my $logger = Log::Log4perl->get_logger( "dao/os.t" );
@@ -47,11 +48,10 @@ my @simple_methods = qw(
     }
 }
 
-Readonly my $fingerprint => '1,28,2,121,3,15,6,12';
 Readonly my $AN_OS => {
     'id' => '1400',
-    'os' => '1,28,2,121,3,15,6,12',
-    'description' => 'OpenBSD',
+    'fingerprint' => '1,28,3,15,6,12',
+    'os' => 'OpenBSD',
     'classid' => '14',
     'class' => 'BSD',
 };
@@ -59,9 +59,10 @@ Readonly my $AN_OS => {
 # regression test for a regression introduced while fixing #1180 
 # Someone changed the output of dhcp_fingerprint_view without realizing it was an interface contract
 # used by pfdhcplistener
+my @results = dhcp_fingerprint_view($AN_OS->{'fingerprint'});
 is_deeply(
-    dhcp_fingerprint_view($fingerprint),
-    $AN_OS,
+    \@results,
+    [ $AN_OS ],
     "dhcp_fingerprint_view contract must not change! Used by pfdhcplistener. Rollback or update callers"
 );
 
