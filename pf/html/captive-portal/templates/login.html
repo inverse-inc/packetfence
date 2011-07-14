@@ -3,10 +3,12 @@
 %]
 
         [%# Welcome text %]
-        <div id="about" class="underlined">
+        <div id="about">
           <img src="content/images/lock.png" alt="You are not authorized" />
           <p>[% txt_all_systems_must_be_registered %]</p>
           <p>[% txt_to_complete %]</p>
+          [% IF mobile == 1 %]<p>You are using a mobile device.</p>[% END %] 
+  <hr>
         </div>
 
         [%# Error %]
@@ -21,9 +23,9 @@
               <input type='hidden' name='auth' value='[% authentication_info.key %]' />
             [% END %]
           [% ELSE %]
-            <div class="input center">
-              <select name='auth'>
-                <option value=''>[% txt_select_authentication %]</option>
+            <div class="input">
+                <span>[% txt_select_authentication %]</span>
+        <select name='auth'>
                 [% FOREACH authentication_info IN list_authentications.pairs %]
                   <option [% IF authentication_info.key == selected_auth %]selected='selected' [% END %]
                     value='[% authentication_info.key %]'>[% authentication_info.value %]</option>

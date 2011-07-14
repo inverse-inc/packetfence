@@ -59,7 +59,7 @@ msgid  "register: to complete"
 msgstr "To complete the registration process, you will need to authenticate using your username and password."
 
 msgid "select authentication"
-msgstr "Authentication:"
+msgstr "Authentication"
 
 msgid  "register: skip registration"
 msgstr "Skip Registration"

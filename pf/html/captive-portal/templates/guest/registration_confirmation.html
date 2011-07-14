@@ -17,9 +17,11 @@
             <span>[% txt_password %]</span>
             [% info.password %]
           </div>
-          <div class="note">
-            [% txt_valid_from %] [% txt_duration %]
-          </div>
+          <div class="input">
+    <div class="note">
+              [% txt_valid_from %] [% txt_duration %]
+            </div>
+  </div>
 
           [%# submit %]
           <div class="input">
@@ -27,4 +29,4 @@
             <input type="button" name="return" value="[% txt_button_back %]" class="submitButton" onClick="document.location='/cgi-bin/guest-management.cgi'"/>
           </div>
 
-[% INCLUDE footer.html %]
+[% INCLUDE guest/footer.html %]
