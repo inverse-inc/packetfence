@@ -50,10 +50,6 @@ div#content p span {
   color: #555;
   display: inline;
 }
-n0div#content div#about.underlined {
-  border-bottom: 1px dotted #ccc;
-  margin-bottom: 20px;
-}
 div#content div.error {
   color: #eee;
   margin: 15px;
