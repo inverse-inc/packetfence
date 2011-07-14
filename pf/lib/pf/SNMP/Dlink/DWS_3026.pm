@@ -42,6 +42,7 @@ use Net::SNMP;
 use base ('pf::SNMP::Dlink');
 
 use pf::config;
+use pf::util;
 
 # CAPABILITIES
 # access technology supported
@@ -54,35 +55,36 @@ sub deauthenticateMac {
     my $OID_wsAssociatedClientDisassociateAction = '1.3.6.1.4.1.171.10.73.30.9.1.1.9';
 
     if ( !$this->isProductionMode() ) {
-        $logger->info(
-            "not in production mode ... we won't write to wsAssociatedClientDisassociateAction"
-        );
+        $logger->info("not in production mode ... we won't write to wsAssociatedClientDisassociateAction");
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
-        return 0;
-    }
+    my $sessionWrite;
+    # TODO extract into method?
+    if (defined($this->{_controllerIp}) && $this->{_controllerIp} ne '') {
 
-    #format MAC
-    if ( length($mac) == 17 ) {
-        my @macArray = split( /:/, $mac );
-        my $completeOid = $OID_wsAssociatedClientDisassociateAction;
-        foreach my $macPiece (@macArray) {
-            $completeOid .= "." . hex($macPiece);
-        }
-        $logger->trace(
-            "SNMP set_request for wsAssociatedClientDisassociateAction: $completeOid"
-        );
-        my $result = $this->{_sessionWrite}->set_request(
-            -varbindlist => [ $completeOid, Net::SNMP::INTEGER, 2 ] );
-        return ( defined($result) );
+        $logger->info("controllerIp is set, we will use controller $this->{_controllerIp} to perform deauth");
+        $sessionWrite = $this->connectWriteToController();
+        return if (!defined($sessionWrite));
     } else {
-        $logger->error(
-            "ERROR: MAC format is incorrect ($mac). Should be xx:xx:xx:xx:xx:xx"
-        );
-        return 1;
+
+        if ( !$this->connectWrite() ) {
+            return;
+        }
+        $sessionWrite = $this->{_sessionWrite};
     }
+
+    my $deauth_oid = $OID_wsAssociatedClientDisassociateAction . "." . mac2oid($mac);
+
+    $logger->trace("SNMP set_request for wsAssociatedClientDisassociateAction: $deauth_oid");
+    my $result = $sessionWrite->set_request( -varbindlist => [ $deauth_oid, Net::SNMP::INTEGER, 2 ] );
+
+    # if $result is defined, it works we can return $TRUE
+    return $TRUE if (defined($result));
+
+    # otherwise report failure
+    $logger->warn("deauthentication for $mac failed with " . $sessionWrite->error());
+    return;
 }
 
 sub isLearntTrapsEnabled {

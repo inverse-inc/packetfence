@@ -472,6 +472,73 @@ sub disconnectWrite {
     return 1;
 }
 
+=item connectWriteToController
+
+Establish a temporary SNMP write connection to the controller
+
+=cut
+# TODO reduce duplication between this and connectWrite
+sub connectWriteToController {
+    my $this   = shift;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    my ($sessionWrite, $error);
+    $logger->debug( "opening SNMP v" . $this->{_SNMPVersion} . " write connection to $this->{_controllerIp}" );
+    if ( $this->{_SNMPVersion} eq '3' ) {
+        ( $sessionWrite, $error ) = Net::SNMP->session(
+            -hostname     => $this->{_controllerIp},
+            -version      => $this->{_SNMPVersion},
+            -timeout      => 2,
+            -retries      => 1,
+            -username     => $this->{_SNMPUserNameWrite},
+            -authprotocol => $this->{_SNMPAuthProtocolWrite},
+            -authpassword => $this->{_SNMPAuthPasswordWrite},
+            -privprotocol => $this->{_SNMPPrivProtocolWrite},
+            -privpassword => $this->{_SNMPPrivPasswordWrite}
+        );
+    } else {
+        ( $sessionWrite, $error ) = Net::SNMP->session(
+            -hostname  => $this->{_controllerIp},
+            -version   => $this->{_SNMPVersion},
+            -timeout   => 2,
+            -retries   => 1,
+            -community => $this->{_SNMPCommunityWrite}
+        );
+    }
+    if ( !defined( $sessionWrite ) ) {
+        $logger->error("error creating SNMP v$this->{_SNMPVersion} write connection to $this->{_controllerIp}: $error");
+        return;
+    } else {
+        my $oid_sysLocation = '1.3.6.1.2.1.1.6.0';
+        $logger->trace("SNMP get_request for sysLocation: $oid_sysLocation");
+        my $result = $sessionWrite->get_request( -varbindlist => [$oid_sysLocation] );
+        if ( !defined($result) ) {
+            $logger->error(
+                "error creating SNMP v$this->{_SNMPVersion} write connection to "
+                . $this->{_controllerIp} . ": " . $sessionWrite->error()
+            );
+            $sessionWrite = undef;
+            return;
+        } else {
+            my $sysLocation = $result->{$oid_sysLocation} || '';
+            $logger->trace("SNMP set_request for sysLocation: $oid_sysLocation to $sysLocation");
+            $result = $sessionWrite->set_request(
+                -varbindlist => [ "$oid_sysLocation", Net::SNMP::OCTET_STRING, $sysLocation ]
+            );
+            if ( !defined($result) ) {
+                $logger->error( "error creating SNMP v" . $this->{_SNMPVersion}
+                    . " write connection to "
+                    . $this->{_controllerIp} . ": " . $sessionWrite->error()
+                    . " it looks like you specified a read-only community instead of a read-write one"
+                );
+                $sessionWrite = undef;
+                return;
+            }
+        }
+    }
+    return $sessionWrite;
+}
+
 =item setVlan
 
 Set a port to a VLAN validating some rules first then calling the switch's _setVlan.
