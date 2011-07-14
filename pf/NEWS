@@ -31,6 +31,7 @@ Enhancements
  * Developer documentation to add Floating Network Devices support to switches
 
 Bug fixes
+ * Fixed OS violations regression introduced in 2.2.0
  * Fixed Avaya/Nortel switches problems on ERS2500 / ERS4500 (at least)
  * Fixed nessus scans don't work with bin/pfcmd as a setuid/setgid (#1087)
  * Fixed custom VLAN assignments relying on connection_type failing on "unknown"
