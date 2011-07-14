@@ -16,6 +16,9 @@ For a list of compatibility related changes see the UPGRADE file.
 Version <trunk-release> released on <releaseDate>
 
 Compatibility notice
+ * BACKUP YOUR /usr/local/pf/ BEFORE UPGRADING. Several path changed with this
+   release and an rpm upgrade will REMOVE your templates and remediation pages.
+   See UPGRADE for more information.
  * Removed support for Apache prior to version 2.2.0 (#828)
  * Removed support for jpgraph 1.x which bumps our depedencies to PHP 5
 

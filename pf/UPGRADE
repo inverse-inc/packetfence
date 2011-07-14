@@ -7,6 +7,11 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <trunk-release>:
 
+    - BACKUP YOUR /usr/local/pf/ BEFORE UPGRADING
+    All files in html/user/ will be removed on upgrade (everything is now
+    in html/captive-portal/ as you'll see below). This includes templates and 
+    remediation pages.
+
     - Authentication modules interface change
     All authentication modules (conf/authentication/*) were migrated into
     objects. Please carefully merge any module you were using by comparing
