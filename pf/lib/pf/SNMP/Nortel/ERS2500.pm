@@ -11,16 +11,20 @@ oriented interface to access SNMP enabled Nortel::ERS2500 switches.
 
 =head1 STATUS
 
-This module is currently only a placeholder, see pf::SNMP::Nortel.
+This module is currently only a placeholder, see L<pf::SNMP::Nortel>.
+
+Recommended firmware 4.3
 
 =head1 BUGS AND LIMITATIONS
 
 =over
 
-=item ERS 2526T firmware 4.3.0.004
+=item ERS 25xx firmware 4.1
 
 We received reports saying that port authorization / de-authorization in port-security did not work.
-At this point we do not know whhich firmwares are affected by the issue.
+At this point we do not know exactly which firmwares are affected by the issue.
+
+Firmware series 4.3 is apparently fine.
 
 =back
 

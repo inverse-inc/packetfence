@@ -17,7 +17,7 @@ For a list of compatibility related changes see the UPGRADE file.
 Version <version> released on <releaseDate>
 
 New Hardware Support
- * Nortel switches now support the floating network device feature
+ * Avaya/Nortel switches now support the floating network device feature
  * Dlink DWL Access-Point support
 
 New Features
@@ -30,7 +30,7 @@ Enhancements
  * Developer documentation to add Floating Network Devices support to switches
 
 Bug fixes
- * Fixed Nortel switches problems on ERS2500 / ERS4500 (at least)
+ * Fixed Avaya/Nortel switches problems on ERS2500 / ERS4500 (at least)
  * Fixed nessus scans don't work with bin/pfcmd as a setuid/setgid (#1087)
  * Fixed custom VLAN assignments relying on connection_type failing on "unknown"
    nodes (#1231)
