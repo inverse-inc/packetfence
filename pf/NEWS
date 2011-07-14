@@ -38,6 +38,7 @@ Bug fixes
  * Fixed problematic default grace period for System scan violation
  * Fixed configurator.pl does not show interfaces without IP address (#1221)
  * Fixed issue to detect the shell prompt MeruOS 4.1 or greater (#1232)
+ * Fixed issues with wireless hardware not sending a NAS-Port parameter
 
 --------------------------------------------------------------------------------
 Version 2.2.1 released on 2011-06-16
