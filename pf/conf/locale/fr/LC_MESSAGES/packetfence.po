@@ -8,8 +8,8 @@ domain "packetfence"
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"PO-Revision-Date: 2011-05-11 10:29-0500\n"
-"Last-Translator: Vincent Blut <vincent.debian@free.fr>\n"
+"PO-Revision-Date: 2011-07-13 16:29-0500\n"
+"Last-Translator: Olivier Bilodeau <obilodeau@inverse.ca>\n"
 "Language-Team: PacketFence support <support@packetfence.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -24,7 +24,7 @@ msgid "error: incorrect mode"
 msgstr "Mode incorrect !"
 
 msgid "error: invalid login or password"
-msgstr "Login ou mot de passe invalide"
+msgstr "Nom d'utilisateur ou mot de passe invalide"
 
 msgid "error: invalid page number"
 msgstr "Num&eacute;ro de page invalide"
@@ -117,7 +117,7 @@ msgid "MAC"
 msgstr "MAC"
 
 msgid "network access is being enabled"
-msgstr "Votre acc&egrave;s au r&eacute;seau est en cours d'activation - ce processus prendra approximativement %s secondes."
+msgstr "Votre acc&egrave;s au r&eacute;seau est en cours d'activation. Une fois la connectivit&eacute; &eacute;tablie vous serez automatiquement redirig&eacute;."
 
 msgid "system scan in progress"
 msgstr "Analyse de votre syst&egrave;me en cours - ce processus prendra approximativement %s secondes."
@@ -339,3 +339,25 @@ msgstr "Information d'accès au réseau pour invités"
 
 msgid "Format is: yyyy-mm-dd"
 msgstr "Format: aaaa-mm-jj"
+
+msgid "select authentication"
+msgstr "Authentification"
+
+msgid "I accept the terms"
+msgstr "J'accepte les termes"
+
+msgid "I have read and accept the terms"
+msgstr "J'ai lu et j'accepte les <a href='/aup' target='_blank'>termes</a>"
+
+msgid "You need to accept the terms before proceeding any further."
+msgstr "Vous devez accepter les termes afin de vous connecter au r&eacute;seau."
+
+msgid "Unable to detect network connectivity. Try opening a web page to see if your access has been succesfully enabled."
+msgstr "Incapable de détecter l'accès réseau. Essayez d'ouvrir une page Web pour voir si votre connectivité a été établie."
+
+msgid "There are known issues with the automatic redirection on Opera browsers. Please open a new browser window from time to time to see if your access was enabled."
+msgstr "La redirection automatique est probl&eacute;matique avec les navigateurs Opera. Essayez d'ouvrir une nouvelle fen&ecirc;tre de navigateur a chaque 30 secondes pour voir si votre connectivit&eacute; a &eacute;t&eacute; &eacute;tablie."
+
+msgid "Some versions of Internet Explorer may take a while before redirection occur."
+msgstr "Certaines versions d'Internet Explorer prennent du temps avant de rediriger vers l'Internet."
+
