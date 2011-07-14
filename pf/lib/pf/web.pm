@@ -220,7 +220,7 @@ sub generate_login_page {
     }
 
     # return login
-    $vars->{'login'} = encode_entities($cgi->param("login"));
+    $vars->{'username'} = encode_entities($cgi->param("username"));
 
     # authentication
     $vars->{selected_auth} = encode_entities($cgi->param("auth")) || $Config{'registration'}{'default_auth'}; 

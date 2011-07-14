@@ -1,5 +1,5 @@
 [% INCLUDE header.html 
-    body_attributes = 'onload="$(\'login\').focus();"';
+    body_attributes = 'onload="$(\'username\').focus();"';
 %]
 
         [%# Welcome text %]
@@ -7,7 +7,6 @@
           <img src="content/images/lock.png" alt="You are not authorized" />
           <p>[% txt_all_systems_must_be_registered %]</p>
           <p>[% txt_to_complete %]</p>
-          [% IF mobile == 1 %]<p>You are using a mobile device.</p>[% END %] 
   <hr>
         </div>
 
@@ -37,7 +36,7 @@
           [%# User / Pass %]
           <div class="input">
             <span>[% txt_username %]</span>
-	    <input class="field" name="username" id="login" type="text" value="[% login %]" />
+	    <input class="field" name="username" id="username" type="text" value="[% username %]" />
           </div>
           <div class="input">
             <span>[% txt_password %]</span><input class="field" name="password" type="password" />

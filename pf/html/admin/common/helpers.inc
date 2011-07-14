@@ -124,3 +124,27 @@
             return false;
         }
     }
+
+    /*
+     * get_configuration_value
+     * 
+     * Returns the configuration value of a given parameter. Handles default fallback values.
+     */
+    function get_configuration_value($parameter) {
+
+        # grab the logo from config
+        $PFCMD=get_pf_path() . '/bin/pfcmd';
+        $command = 'config get ' . $parameter;
+        exec("ARGS=".escapeshellarg($command)." $PFCMD 2>&1", $config);
+
+        # grabbing only what I'm interested in
+        list( $user_value, $default_value ) = explode('|',array_shift($config));
+        list(, $user_value ) = explode('=', $user_value );
+      
+        if (isset($user_value) && $user_value != '') {
+            return $user_value;
+        } else {
+            return $default_value;
+        }
+    }
+
