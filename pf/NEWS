@@ -24,7 +24,8 @@ New Features
  * Ability to view log files from the Web Administration interface (#1080)
 
 Enhancements
- * New DHCP fingerprints for Polycom and Snom
+ * New DHCP fingerprints for Aastra, LifeSize, Polycom and Snom Conferencing 
+   and VoIP and a Xerox printer
  * New controllerIp network device parameter will make it simpler to support
    wireless hardware working in bridged mode
  * Developer documentation to add Floating Network Devices support to switches
