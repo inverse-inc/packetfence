@@ -265,6 +265,66 @@ sub connectWrite {
     return 1;
 }
 
+
+=item connectWriteToController
+
+Establish a temporary SNMP write connection to the controller
+
+=cut
+# TODO reduce duplication between this and connectWrite
+sub connectWriteToController {
+    my $this   = shift;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    my ($sessionWrite, $error);
+    $logger->debug( "opening fake SNMP v" . $this->{_SNMPVersion} . " write connection to $this->{_controllerIp}" );
+    if ( $this->{_SNMPVersion} eq '3' ) {
+
+        usleep(CONNECT_V3_WRITE_DELAY);
+    } else {
+
+        usleep(CONNECT_WRITE_DELAY);
+    }
+
+    # TODO extract mocking in mockWriteObject() method
+    # Make the object mockable
+    $sessionWrite = Test::MockObject::Extends->new($sessionWrite);
+
+    # TODO extract sub in coderef
+    $sessionWrite->mock(
+        'set_request',
+        sub {
+            my ($this, %args) = @_;
+            my $request_type = 'set_request';
+            $logger->trace("Mocked $request_type got args: ".Dumper(\%args));
+
+            usleep(WRITE_SET_DELAY);
+
+            # SNMP SET arguments comes in pair of 3
+            my $legal_args = (defined($args{'-varbindlist'}) && @{$args{'-varbindlist'}} % 3 == 0);
+            if ($legal_args) {
+                # TODO extract in a dispatch_write_oid() method
+                # fetches the first oid argument
+                my $request_oid = ${$args{'-varbindlist'}}[0];
+
+                $logger->trace("$request_type: returning $TRUE by default");
+                return { $request_oid => $TRUE };
+            } else {
+                $logger->debug("$request_type: returning $TRUE for lack of a better idea what to do");
+            }
+            return $TRUE;
+        }
+    );
+
+    # fetching sysLocation (we will set it so we need to get it to set the same)
+    usleep(READ_GET_DELAY);
+
+    $logger->debug( "SNMP fake set request tests if we can really write" );
+    usleep(WRITE_SET_DELAY);
+
+    return $sessionWrite;
+}
+
 =item disconnectWrite - closing write connection to switch
 
 =cut
