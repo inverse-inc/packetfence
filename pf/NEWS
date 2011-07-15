@@ -41,6 +41,10 @@ Enhancements
  * More start-up validation in `pfcmd checkup`
  * More tests
 
+Bug fixes
+ * Fixes issues with accentuated characters and single quotes in some captive
+   portal strings
+
 --------------------------------------------------------------------------------
 Version <version> released on <releaseDate>
 

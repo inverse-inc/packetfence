@@ -16,6 +16,7 @@ It will never be overwritten when upgrading PacketFence.
 use strict;
 use warnings;
 use Date::Parse;
+use Encode;
 use File::Basename;
 use POSIX;
 use JSON;
