@@ -23,7 +23,6 @@
  * @copyright   2008-2010 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
-require_once 'common/logging.inc';
 
 function get_group($user) {
   return 'admin';
@@ -77,29 +76,17 @@ function validate_user($user,$pass,$hash='') {
 }
 
 function validate_user_ldap($user,$pass,$hash='') {
-  global $logger;
   include(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/admin_ldap.conf");
 
   if ($hash != '') {
     return $hash;
   }
   if (!isset($ldap_host)) {
-    $logger->info("LDAP Host is not set");
     return false;
   }
-
-  if (isset($ldap_port)) {
-    $ldap = ldap_connect($ldap_host, $ldap_port);
-    if (!$ldap) {
-      $logger->info("Could not connect to LDAP at $ldap_host:$ldap_port");
-      return false;
-    }
-  } else {
-    $ldap = ldap_connect($ldap_host);
-    if (!$ldap) {
-      $logger->info("Could not connect to LDAP at $ldap_host");
-      return false;
-    }
+  $ldap = ldap_connect($ldap_host);
+  if (!$ldap) {
+    return false;
   }
 
   # We may have to set these 2 options
@@ -108,7 +95,6 @@ function validate_user_ldap($user,$pass,$hash='') {
 
   $bind = ldap_bind($ldap, $ldap_bind_dn, $ldap_bind_pwd);
   if (!$bind) {
-    $logger->info("Unable to bind to LDAP with bind_dn and bind_pwd");
     return false;
   }
   if (isset($ldap_group_member_key) && isset($ldap_group_dn)) {
@@ -121,7 +107,6 @@ function validate_user_ldap($user,$pass,$hash='') {
   $result = ldap_search($ldap, $ldap_user_base, $filter, array("dn"));
   $info = ldap_get_entries($ldap, $result);
   if (!$result) {
-    $logger->info("LDAP query failed, check your settings");
     return false;
   }
 
@@ -151,13 +136,11 @@ function validate_user_ldap($user,$pass,$hash='') {
 #  }
 
   if ($info["count"] != 1) {
-    $logger->info("User not found or more than one user matched");
     return false;
   }
   $user_dn = $info[0]["dn"];
   $bind = ldap_bind($ldap, $user_dn, $pass);
   if (!$bind) {
-    $logger->info("Could not bind as a user. Password is not good or the user doesn't have the rights to bind");
     return false;
   }
   return md5($pass);
