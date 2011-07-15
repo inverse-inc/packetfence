@@ -25,6 +25,7 @@ New Features
  * Ability to view log files from the Web Administration interface (#1080)
 
 Enhancements
+ * Added ldap port option to Web Admin LDAP (AD) authentication
  * New DHCP fingerprints for Aastra, LifeSize, Polycom and Snom Conferencing 
    and VoIP and a Xerox printer
  * New controllerIp network device parameter will make it simpler to support
