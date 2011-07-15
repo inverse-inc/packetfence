@@ -28,6 +28,7 @@ PidFile %%install_dir%%/var/run/httpd.pid
 LogFormat "%{User-agent}i" agent
 LogFormat "%h %l %u %t \"%r\" %>s %b" common
 LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
+ErrorLog %%install_dir%%/logs/error_log
 AddDefaultCharset ISO-8859-1
 AddCharset ISO-8859-1  .iso8859-1  .latin1
 AddHandler cgi-script .cgi
@@ -145,7 +146,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
   #LogLevel debug
   CustomLog %%install_dir%%/logs/access_log combined
-  ErrorLog %%install_dir%%/logs/error_log
 
   PerlPostConfigRequire %%install_dir%%/lib/pf/web/captiveportal_modperl_require.pl
   <Location /cgi-bin>
@@ -234,7 +234,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
   #LogLevel debug
   CustomLog %%install_dir%%/logs/access_log combined
-  ErrorLog %%install_dir%%/logs/error_log
 
   PerlPostConfigRequire %%install_dir%%/lib/pf/web/captiveportal_modperl_require.pl
   <Location /cgi-bin>
