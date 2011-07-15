@@ -19,6 +19,7 @@ Version <version> released on <releaseDate>
 New Hardware Support
  * Avaya/Nortel switches now support the floating network device feature
  * Dlink DWL Access-Point support
+ * LG-Ericsson iPecs 4500 support for MAC Authentication/802.1X
 
 New Features
  * Ability to view log files from the Web Administration interface (#1080)

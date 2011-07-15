@@ -153,6 +153,7 @@
                            'Intel::Express_460' => 'Intel Express 460',
                            'Intel::Express_530' => 'Intel Express 530',
                            'Juniper::EX' => 'Juniper EX Series',
+                           'LG::E4500' => 'LG-Ericsson iPecs 4500',
                            'Linksys::SRW224G4' => 'Linksys SRW224G4',
                            'Meru::MC' => 'Meru MC',
                            'Motorola::RFS' => 'Motorola RF Switches',
