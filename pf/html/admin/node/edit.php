@@ -92,6 +92,7 @@
       printSelect( array('no' => 'No', 'yes' => 'Yes'), 'hash', $val, "name='$key'");
       break;
 
+    case 'computername':
     case 'dhcp_fingerprint':
     case 'user_agent':
     case 'last_switch':

@@ -29,6 +29,7 @@ Enhancements
  * New controllerIp network device parameter will make it simpler to support
    wireless hardware working in bridged mode
  * Developer documentation to add Floating Network Devices support to switches
+ * Minor usability improvements
 
 Bug fixes
  * Fixed OS violations regression introduced in 2.2.0
