@@ -33,15 +33,7 @@
   require_once 'common/helpers.inc';
   require_once 'common/adminperm.inc';
   require_once 'common/display.inc';
-  require_once 'Log.php';
-  // TODO port hard-coded path to get_pf_path
-  $logger_file = &Log::factory('file', '/usr/local/pf/logs/admin_debug_log');
-  //$disp_conf = array('error_prepend' => '<div style="border: 1px solid #aaa; background: #FFE6BF; padding:5px;">',
-  //                   'error_append' => '</div>');
-  //$logger_disp = &Log::factory('display', '', '', $disp_conf, PEAR_LOG_INFO);
-  $logger = &Log::singleton('composite', '', '', '', PEAR_LOG_INFO);
-  $logger->addChild($logger_file);
-  //$logger->addChild($logger_disp);
+  require_once 'common/logging.inc';
 
   $debug_log = '';
   if($_SESSION['ui_prefs']['ui_debug'] == 'true'){
