@@ -442,7 +442,7 @@ sub getBoardPortFromIfIndex {
 We noticed that the security status related OIDs always report their first boardIndex to 1 even though elsewhere 
 it's all referenced as 0. 
 I'm unsure if this is a bug or a feature so we created this hook that will always assume 1 as first board index.
-To be used by method which read security status related MIBs.
+To be used by method which read or write to security status related MIBs.
 
 =cut
 sub getBoardPortFromIfIndexForSecurityStatus {
@@ -559,7 +559,10 @@ sub _authorizeMAC {
         return 0;
     }
 
-    my ( $boardIndx, $portIndx ) = $this->getBoardPortFromIfIndex($ifIndex);
+    # careful readers will notice that we don't use getBoardPortFromIfIndex here. 
+    # That's because Nortel thought that it made sense to start BoardIndexes differently for different OIDs
+    # on the same switch!!! 
+    my ( $boardIndx, $portIndx ) = $this->getBoardPortFromIfIndexForSecurityStatus($ifIndex);
     my $cfgStatus = ($authorize) ? 2 : 3;
     my $mac_oid = mac2oid($mac);
 

@@ -1,32 +1,16 @@
-package pf::SNMP::Nortel::ERS2500;
+package pf::SNMP::Dlink::DWL;
 
 =head1 NAME
 
-pf::SNMP::Nortel::ERS2500 - Object oriented module to access SNMP enabled Nortel ERS2500 switches
+pf::SNMP::Dlink::DWL
 
 =head1 SYNOPSIS
 
-The pf::SNMP::Nortel::ERS2500 module implements an object 
-oriented interface to access SNMP enabled Nortel::ERS2500 switches.
+The pf::SNMP::Dlink::DWL module implements an object oriented interface to manage Dlink::DWL Access-Points.
 
 =head1 STATUS
 
-This module is currently only a placeholder, see L<pf::SNMP::Nortel>.
-
-Recommended firmware 4.3
-
-=head1 BUGS AND LIMITATIONS
-
-=over
-
-=item ERS 25xx firmware 4.1
-
-We received reports saying that port authorization / de-authorization in port-security did not work.
-At this point we do not know exactly which firmwares are affected by the issue.
-
-Firmware series 4.3 is apparently fine.
-
-=back
+This module is currently only a placeholder, see L<pf::SNMP::Dlink::DWS_3026>.
 
 =cut
 
@@ -37,17 +21,15 @@ use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
 
-use base ('pf::SNMP::Nortel');
+use base ('pf::SNMP::Dlink::DWS_3026');
 
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
-Regis Balzard <rbalzard@inverse.ca>
-
 =head1 COPYRIGHT
 
-Copyright (C) 2010-2011 Inverse inc.
+Copyright (C) 2011 Inverse inc.
 
 =head1 LICENSE
 

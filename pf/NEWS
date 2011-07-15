@@ -49,23 +49,30 @@ Bug fixes
 Version <version> released on <releaseDate>
 
 New Hardware Support
- * Nortel switches now support the floating network device feature
+ * Avaya/Nortel switches now support the floating network device feature
+ * Dlink DWL Access-Point support
 
 New Features
  * Ability to view log files from the Web Administration interface (#1080)
 
 Enhancements
- * New DHCP fingerprints for Polycom and Snom
+ * New DHCP fingerprints for Aastra, LifeSize, Polycom and Snom Conferencing 
+   and VoIP and a Xerox printer
  * New controllerIp network device parameter will make it simpler to support
    wireless hardware working in bridged mode
  * Developer documentation to add Floating Network Devices support to switches
 
 Bug fixes
+ * Fixed OS violations regression introduced in 2.2.0
+ * Fixed Avaya/Nortel switches problems on ERS2500 / ERS4500 (at least)
  * Fixed nessus scans don't work with bin/pfcmd as a setuid/setgid (#1087)
  * Fixed custom VLAN assignments relying on connection_type failing on "unknown"
    nodes (#1231)
  * Fixed problematic default grace period for System scan violation
  * Fixed configurator.pl does not show interfaces without IP address (#1221)
+ * Fixed issue to detect the shell prompt MeruOS 4.1 or greater (#1232)
+ * Fixed issues with wireless hardware not sending a NAS-Port parameter
+ * Fixed Apache configuration problems on non RHEL / CentOS platforms
 
 --------------------------------------------------------------------------------
 Version 2.2.1 released on 2011-06-16

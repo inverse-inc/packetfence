@@ -409,7 +409,7 @@ sub listen_dhcp {
         foreach my $node_key ( keys %tmp ) {
             $modified_node_log_message .= "$node_key = " . $tmp{$node_key} . ",";
         }
-        chomp($modified_node_log_message);
+        chop($modified_node_log_message);
 
         $logger->info("$chaddr requested an IP. "
             . ( defined($fingerprint_data) ? "DHCP Fingerprint: $fingerprint_data. " : "Unknown DHCP fingerprint." )
@@ -508,20 +508,23 @@ sub get_requested_ip {
 sub process_fingerprint {
     my ($chaddr, $dhcp_fingerprint) = @_;
 
-    return if (!defined($dhcp_fingerprint) || $dhcp_fingerprint == "");
+    return if (!defined($dhcp_fingerprint) || $dhcp_fingerprint eq "");
 
     my $fingerprint_data;
     my @fingerprint_info = dhcp_fingerprint_view($dhcp_fingerprint);
     if ( scalar(@fingerprint_info) && ( ref( $fingerprint_info[0] ) eq 'HASH' ) ) {
 
-        my @os_triggers;
-        $fingerprint_data = "OS::".$fingerprint_info[0]->{'os_id'}." (".$fingerprint_info[0]->{'os'}.")";
+        # precise fingerprint
+        $fingerprint_data = "OS::".$fingerprint_info[0]->{'id'}." (".$fingerprint_info[0]->{'os'}.")";
         $logger->debug("$chaddr sending $fingerprint_data trigger");
-        violation_trigger( $chaddr, $fingerprint_info[0]->{'os_id'}, "OS" );
-        foreach my $os_trigger (@fingerprint_info) {
-            $logger->debug("$chaddr sending OS::".$os_trigger->{'class_id'}." (".$os_trigger->{'class'}.") trigger");
-            violation_trigger( $chaddr, $os_trigger->{'class_id'}, "OS" );
+        violation_trigger( $chaddr, $fingerprint_info[0]->{'id'}, "OS" );
+
+        # class fingerprints
+        foreach my $class_trigger (@fingerprint_info) {
+            $logger->debug("$chaddr sending OS::".$class_trigger->{'classid'}." (".$class_trigger->{'class'}.") trigger");
+            violation_trigger( $chaddr, $class_trigger->{'classid'}, "OS" );
         }
+
     } else {
         $logger->warn("unknown DHCP fingerprint: $dhcp_fingerprint");
     }
