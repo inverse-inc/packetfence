@@ -99,6 +99,13 @@
     }
 
     /*
+     * Returns lib path
+     */
+    function get_lib_path() {
+        return get_pf_path() . 'lib/';
+    }
+
+    /*
      * Returns var path
      */
     function get_var_path() {

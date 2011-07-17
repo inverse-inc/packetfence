@@ -37,7 +37,7 @@ New features
 
 Enhancements
  * Captive portal usability improvements for both users and administrators
- * Externalized the jpgraph PHP library
+ * Included the jpgraph PHP library. Simplifies installation from source.
  * More start-up validation in `pfcmd checkup`
  * More tests
 
