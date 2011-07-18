@@ -284,8 +284,8 @@ cd $curdir
 %pre
 
 if ! /usr/bin/id pf &>/dev/null; then
-	/usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
-		echo Unexpected error adding user "pf" && exit
+        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
+                echo Unexpected error adding user "pf" && exit
 fi
 
 #if [ ! `tty | cut -c0-8` = "/dev/tty" ];
@@ -310,8 +310,8 @@ fi
 %pre remote-snort-sensor
 
 if ! /usr/bin/id pf &>/dev/null; then
-	/usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
-		echo Unexpected error adding user "pf" && exit
+        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
+                echo Unexpected error adding user "pf" && exit
 fi
 
 %post
@@ -369,15 +369,15 @@ echo Installation complete.  Make sure you configure packetfence.pm, and restart
 
 %preun
 if [ $1 -eq 0 ] ; then
-	/sbin/service packetfence stop &>/dev/null || :
-	/sbin/chkconfig --del packetfence
+        /sbin/service packetfence stop &>/dev/null || :
+        /sbin/chkconfig --del packetfence
 fi
 #rm -f /usr/local/pf/conf/dhcpd/dhcpd.leases
 
 %preun remote-snort-sensor
 if [ $1 -eq 0 ] ; then
-	/sbin/service pfdetectd stop &>/dev/null || :
-	/sbin/chkconfig --del pfdetectd
+        /sbin/service pfdetectd stop &>/dev/null || :
+        /sbin/chkconfig --del pfdetectd
 fi
 
 %preun freeradius2
@@ -393,15 +393,15 @@ rm -f /etc/raddb/sites-enabled/packetfence-tunnel
 
 %postun
 if [ $1 -eq 0 ]; then
-	/usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
-#	/usr/sbin/groupdel pf || %logmsg "Group \"pf\" could not be deleted."
+        /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
+#       /usr/sbin/groupdel pf || %logmsg "Group \"pf\" could not be deleted."
 #else
-#	/sbin/service pf condrestart &>/dev/null || :
+#       /sbin/service pf condrestart &>/dev/null || :
 fi
 
 %postun remote-snort-sensor
 if [ $1 -eq 0 ]; then
-	/usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
+        /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
 fi
 
 %files
@@ -560,6 +560,11 @@ fi
 %dir                    /usr/local/pf/lib
 %dir                    /usr/local/pf/lib/HTTP
                         /usr/local/pf/lib/HTTP/BrowserDetect.pm
+%doc                    /usr/local/pf/lib/jpgraph-2.3.4/QPL.txt
+%doc                    /usr/local/pf/lib/jpgraph-2.3.4/README
+%attr(0755, pf, pf)     /usr/local/pf/lib/jpgraph-2.3.4/
+%doc                    /usr/local/pf/lib/jpgraph-2.3.4/docs/*
+%doc                    /usr/local/pf/lib/jpgraph-2.3.4/src/Examples/
 %dir                    /usr/local/pf/lib/pf
                         /usr/local/pf/lib/pf/*.pm
 %dir                    /usr/local/pf/lib/pf/floatingdevice
