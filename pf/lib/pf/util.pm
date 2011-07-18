@@ -33,13 +33,14 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        valid_date valid_ip clean_ip clean_mac valid_mac get_decimal_oui_from_mac whitelisted_mac trappable_mac 
+        valid_date valid_ip reverse_ip clean_ip 
+        clean_mac valid_mac get_decimal_oui_from_mac whitelisted_mac trappable_mac 
         trappable_ip reggable_ip
         inrange_ip ip2gateway ip2interface ip2device isinternal pfmailer isenabled
         isdisabled getlocalmac ip2int int2ip 
         get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_internal_ips
         get_internal_devs get_internal_devs_phy get_external_devs get_managed_devs get_internal_macs
-        get_internal_info get_gateways get_dhcp_devs createpid readpid deletepid
+        get_internal_info get_gateways createpid readpid deletepid
         pfmon_preload parse_template mysql_date oui_to_vendor mac2oid oid2mac 
         str_to_connection_type connection_type_to_str
         get_total_system_memory
@@ -58,10 +59,11 @@ TODO: This list is incomplete.
 =cut
 
 sub pfmon_preload {
-    # we don't preload (cache) except in arp mode. 
-    # This is a hack for bug #861 because on large networks (like 10.0.0.0/8) pfmon runs out of memory preloading
+
+    # since inline mode re-integration general.caching is now disabled by default 
+    # otherwise pfmon eats too much memory on large networks (see also #861 for an older change related to this)
     # TODO: it should be implemented more efficiently (b-tree?) or simplify removed if pfmon doesn't need it that much
-    if (basename($0) eq "pfmon" && isenabled($Config{'general'}{'caching'}) && $Config{'network'}{'mode'} =~ /^arp$/i) {
+    if (basename($0) eq "pfmon" && isenabled($Config{'general'}{'caching'})) {
         %trappable_ip = preload_trappable_ip();
         %reggable_ip  = preload_reggable_ip();
         %is_internal  = preload_is_internal();
@@ -96,6 +98,23 @@ sub valid_ip {
         return (0);
     } else {
         return (1);
+    }
+}
+
+=item reverse_ip
+
+Returns the IP in reverse notation. ex: 1.2.3.4 will return 4.3.2.1
+
+Used for DNS configuration templates.
+
+=cut
+sub reverse_ip {
+    my ($ip) = @_;
+
+    if ( $ip =~ /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/ ) {
+        return "$4.$3.$2.$1";
+    } else {
+        return;
     }
 }
 
@@ -520,9 +539,10 @@ sub get_external_devs {
     return (@devs);
 }
 
+# TODO rename managed to management
 sub get_managed_devs {
     my @devs;
-    foreach my $interface (@managed_nets) {
+    foreach my $interface (@management_nets) {
         push @devs, $interface->tag("int");
     }
     return (@devs);
@@ -553,18 +573,6 @@ sub get_gateways {
         push @gateways, $interface->tag("gw");
     }
     return (@gateways);
-}
-
-sub get_dhcp_devs {
-    my %dhcp_devices;
-    foreach my $dhcp ( tied(%Config)->GroupMembers("dhcp") ) {
-        if ( defined( $Config{$dhcp}{'device'} ) ) {
-            foreach my $dev ( split( /\s*,\s*/, $Config{$dhcp}{'device'} ) ) {
-                $dhcp_devices{$dev}++;
-            }
-        }
-    }
-    return ( keys(%dhcp_devices) );
 }
 
 sub createpid {

@@ -294,10 +294,8 @@ sub manage {
     } elsif ( $option eq "deregister" ) {
         require pf::node;
         pf::node::node_deregister($mac);
-        if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
-            require pf::iptables;
-            pf::iptables::iptables_generate();
-        }
+        require pf::iptables;
+        pf::iptables::iptables_generate();
     } elsif ( $option eq "vclose" ) {
         return (-1) if ( !$id );
         require pf::violation;
@@ -701,14 +699,6 @@ sub floatingnetworkdeviceconfig {
 }
 
 sub networkconfig {
-    require Config::IniFiles;
-    my %network_conf;
-    tie %network_conf, 'Config::IniFiles', ( -file => "$conf_dir/networks.conf", -allowempty => 1 );
-    my @errors = @Config::IniFiles::errors;
-    if ( scalar(@errors) ) {
-        $logger->error("Error reading networks.conf: " . join( "\n", @errors ) . "\n" );
-        return 0;
-    }
 
     my $mode;
     if ( scalar( @{ $cmd{'command'} } ) == 1 ) {
@@ -720,93 +710,95 @@ sub networkconfig {
     }
 
     if ( $mode eq 'get' ) {
-        foreach my $section ( tied(%network_conf)->Sections ) {
-            foreach my $key ( keys %{ $network_conf{$section} } ) {
-                $network_conf{$section}{$key} =~ s/\s+$//;
-            }
-        }
 
-        #sort the networks (http://www.sysarch.com/Perl/sort_paper.html)
-        my @sections_tmp = keys %network_conf;
-        my @sections = map substr( $_, 4 ) => sort map pack( 'C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/ ) 
-            . $_ => @sections_tmp;
+        my @networks_tmp = keys %ConfigNetworks;
+        my @networks = map substr( $_, 4 ) => sort map pack( 'C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/ ) 
+            . $_ => @networks_tmp;
 
-        my @columns
-            = qw(type netmask gateway pf_gateway named dhcpd domain-name dns dhcp_start dhcp_end dhcp_default_lease_time
-                 dhcp_max_lease_time);
+        my @columns = qw(
+            type netmask gateway next_hop named dhcpd domain-name dns dhcp_start dhcp_end dhcp_default_lease_time
+            dhcp_max_lease_time
+        );
         print "network|" . join( "|", @columns ) . "\n";
-        foreach my $section (@sections) {
+        foreach my $network (@networks) {
             if (   ( $cmd{'command'}[2] eq 'all' )
-                || ( $cmd{'command'}[2] eq $section ) )
+                || ( $cmd{'command'}[2] eq $network ) )
             {
                 my @values;
                 foreach my $column (@columns) {
-                    push @values, ( $network_conf{$section}{$column} || '' );
+                    # pf_gateway to next_hop translation
+                    # TODO remove code once pf_gateway is deprecated (somewhere in 2012)
+                    if ($column eq 'next_hop' 
+                        && !defined($ConfigNetworks{$network}{$column}) 
+                        && defined($ConfigNetworks{$network}{'pf_gateway'})) {
+                            $ConfigNetworks{$network}{$column} = $ConfigNetworks{$network}{'pf_gateway'};
+                    }
+                    push @values, ( $ConfigNetworks{$network}{$column} || '' );
                 }
-                print $section . '|' . join( "|", @values ) . "\n";
+                print $network . '|' . join( "|", @values ) . "\n";
             }
         }
     } elsif ( $mode eq 'delete' ) {
-        my $section = $cmd{'command'}[2];
-        if ( $section eq 'all' ) {
+        my $network = $cmd{'command'}[2];
+        if ( $network eq 'all' ) {
             print "This network can't be deleted (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         } else {
-            if ( tied(%network_conf)->SectionExists($section) ) {
-                tied(%network_conf)->DeleteSection($section);
-                my $tied_network = tied(%network_conf);
-                $tied_network->WriteConfig($conf_dir . "/networks.conf")
-                    or $logger->logdie("Unable to write config to $conf_dir/networks.conf. "
+            if ( tied(%ConfigNetworks)->SectionExists($network) ) {
+                tied(%ConfigNetworks)->DeleteSection($network);
+                my $tied_network = tied(%ConfigNetworks);
+                $tied_network->WriteConfig($network_config_file)
+                    or $logger->logdie("Unable to write config to $network_config_file. "
                                       ."You might want to check the file's permissions. (see pfcmd)"); # web ui hack
                 require pf::configfile;
                 import pf::configfile;
-                configfile_import( $conf_dir . "/networks.conf" );
+                configfile_import( $network_config_file );
             } else {
-                print "Unknown network $section! (Error at line ".__LINE__." in pfcmd)\n";
+                print "Unknown network $network! (Error at line ".__LINE__." in pfcmd)\n";
                 exit;
             }
         }
     } elsif ( $mode eq 'edit' ) {
-        my $section     = $cmd{'networkconfig_options'}[1];
+        my $network     = $cmd{'networkconfig_options'}[1];
         my @assignments = @{ $cmd{'networkconfig_assignment'} };
-        if ( tied(%network_conf)->SectionExists($section) ) {
+        if ( tied(%ConfigNetworks)->SectionExists($network) ) {
             foreach my $assignment (@assignments) {
                 my ( $param, $value ) = @$assignment;
-                if ( defined( $network_conf{$section}{$param} ) ) {
-                    tied(%network_conf)->setval( $section, $param, $value );
+                if ( defined( $ConfigNetworks{$network}{$param} ) ) {
+                    tied(%ConfigNetworks)->setval( $network, $param, $value );
                 } else {
-                    tied(%network_conf)->newval( $section, $param, $value );
+                    tied(%ConfigNetworks)->newval( $network, $param, $value );
                 }
             }
-            my $tied_network = tied(%network_conf);
-            $tied_network->WriteConfig($conf_dir . "/networks.conf")
-                or $logger->logdie("Unable to write config to $conf_dir/networks.conf. "
+            my $tied_network = tied(%ConfigNetworks);
+            $tied_network->WriteConfig($network_config_file)
+                or $logger->logdie("Unable to write config to $network_config_file. "
                                   ."You might want to check the file's permissions. (see pfcmd)"); # web ui hack
             require pf::configfile;
             import pf::configfile;
-            configfile_import( $conf_dir . "/networks.conf" );
+            configfile_import( $network_config_file );
         } else {
-            print "Unknown network $section! (Error at line ".__LINE__." in pfcmd)\n";
+            print "Unknown network $network! (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         }
     } elsif ( $mode eq 'add' ) {
-        my $section     = $cmd{'networkconfig_options'}[1];
+        my $network     = $cmd{'networkconfig_options'}[1];
         my @assignments = @{ $cmd{'networkconfig_assignment'} };
-        if ( !( tied(%network_conf)->SectionExists($section) ) ) {
+        if ( !( tied(%ConfigNetworks)->SectionExists($network) ) ) {
             foreach my $assignment (@assignments) {
-                tied(%network_conf)->AddSection($section);
+                tied(%ConfigNetworks)->AddSection($network);
                 my ( $param, $value ) = @$assignment;
-                tied(%network_conf)->newval( $section, $param, $value );
+                tied(%ConfigNetworks)->newval( $network, $param, $value );
             }
-            my $tied_network = tied(%network_conf);
-            $tied_network->WriteConfig($conf_dir . "/networks.conf")
-                or $logger->logdie("Unable to write config to $conf_dir/networks.conf. "
+            my $tied_network = tied(%ConfigNetworks);
+            $tied_network->WriteConfig( $network_config_file )
+                or $logger->logdie("Unable to write config to $network_config_file. "
                                   ."You might want to check the file's permissions. (see pfcmd)"); # web ui hack
             require pf::configfile;
             import pf::configfile;
-            configfile_import( $conf_dir . "/networks.conf" );
+            configfile_import( $network_config_file );
         } else {
-            print "Network $section already exists! (Error at line ".__LINE__." in pfcmd)\n";
+            print "Network $network already exists! (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         }
     }
@@ -1279,12 +1271,9 @@ sub service {
             }
         }
         if ( $nb_running_services == 0 ) {
-            if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
-                $logger->info("saving current iptables to var/iptables.bak");
-                require pf::iptables;
-                pf::iptables::iptables_save(
-                    $install_dir . '/var/iptables.bak' );
-            }
+            $logger->info("saving current iptables to var/iptables.bak");
+            require pf::iptables;
+            pf::iptables::iptables_save( $install_dir . '/var/iptables.bak' );
         }
     }
 
@@ -1294,11 +1283,9 @@ sub service {
         require pf::os;
         pf::os::read_dhcp_fingerprints_conf();
         pf::services::read_violations_conf();
-        if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
-            print "iptables|$command\n";
-            require pf::iptables;
-            pf::iptables::iptables_generate();
-        }
+        print "iptables|$command\n";
+        require pf::iptables;
+        pf::iptables::iptables_generate();
     }
 
     foreach my $srv (@services) {
@@ -1313,23 +1300,21 @@ sub service {
     }
 
     if ( lc($command) eq 'stop' ) {
-        if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
-            my $nb_running_services = 0;
-            foreach my $tmp (@pf::services::ALL_SERVICES) {
-                if ( pf::services::service_ctl( $tmp, "status" ) ) {
-                    $nb_running_services++;
-                }
+        my $nb_running_services = 0;
+        foreach my $tmp (@pf::services::ALL_SERVICES) {
+            if ( pf::services::service_ctl( $tmp, "status" ) ) {
+                $nb_running_services++;
             }
-            if ( $nb_running_services == 0 ) {
-                require pf::iptables;
-                pf::iptables::iptables_restore(
-                    $install_dir . '/var/iptables.bak' );
-            } else {
-                if ( lc($service) eq 'pf' ) {
-                    $logger->error(
-                        "even though 'control pf stop' was called, there are still $nb_running_services services running. Can't restore iptables from var/iptables.bak"
-                    );
-                }
+        }
+        if ( $nb_running_services == 0 ) {
+            require pf::iptables;
+            pf::iptables::iptables_restore( $install_dir . '/var/iptables.bak' );
+        } else {
+            if ( lc($service) eq 'pf' ) {
+                $logger->error(
+                    "Even though 'service pf stop' was called, there are still $nb_running_services services running. " 
+                     . "Can't restore iptables from var/iptables.bak"
+                );
             }
         }
     }
@@ -1682,7 +1667,7 @@ sub configfiles {
         configfile_import( $conf_dir . '/log.conf' );
         configfile_import( $conf_dir . '/switches.conf' );
         configfile_import( $conf_dir . '/violations.conf' );
-        configfile_import( $conf_dir . '/networks.conf' );
+        configfile_import( $network_config_file );
         configfile_import( $conf_dir . '/ui.conf' );
         configfile_import( $conf_dir . '/floating_network_device.conf' );
     } elsif ( $option eq "pull" ) {
@@ -1690,7 +1675,7 @@ sub configfiles {
         configfile_export( $conf_dir . '/log.conf' );
         configfile_export( $conf_dir . '/switches.conf' );
         configfile_export( $conf_dir . '/violations.conf' );
-        configfile_export( $conf_dir . '/networks.conf' );
+        configfile_export( $network_config_file );
         configfile_export( $conf_dir . '/ui.conf' );
         configfile_export( $conf_dir . '/floating_network_device.conf' );
     }
@@ -1862,30 +1847,13 @@ sub ui {
             my @array = split( /\./, $section );
             my $service;
             $service = $array[1] if ( $array[1] );
-            next
-                if ( ( defined $service )
-                && ( $service eq "scan" )
-                && ( !$scanLiteInstalled ) );
-            next
-                if ( (@array)
-                && ( scalar(@array) > 2 )
-                && ( $service eq "configuration" )
-                && ( $array[2] eq "switches" )
-                && ( $Config{'network'}{'mode'} ne 'vlan' ) );
-            next
-                if (
-                   (@array)
-                && ( scalar(@array) > 2 )
-                && ( $service eq "configuration" )
-                && ( $array[2] eq "networks" )
-                && (   ( $Config{'network'}{'mode'} ne 'vlan' )
-                    || ( !-e "$conf_dir/networks.conf" )
-                    || ( -z "$conf_dir/networks.conf" ) )
-                );
+
+            # don't show scan menu if feature is not installed
+            next if ( ( defined $service ) && ( $service eq "scan" ) && ( !$scanLiteInstalled ) );
+
             $string .= join( "|", @array ) . "|";
             my @keys;
 
- #print "NO SECTION $section \n" if (!defined $uiconfig{$section}{'display'});
             foreach
                 my $key ( split( /\s*,\s*/, $uiconfig{$section}{'display'} ) )
             {
@@ -1899,24 +1867,12 @@ sub ui {
                     $key2 = $key;
                 }
                 $key =~ s/^-//;
+                # don't show scan menu if feature is not installed
                 next if ( ( $key eq "scan" ) && ( !$scanLiteInstalled ) );
-                next
-                    if ( ( $section eq "ui.configuration" )
-                    && ( $key2 eq "switches" )
-                    && ( $Config{'network'}{'mode'} ne 'vlan' ) );
-                next
-                    if (
-                       ( $section eq "ui.configuration" )
-                    && ( $key2 eq "networks" )
-                    && (   ( $Config{'network'}{'mode'} ne 'vlan' )
-                        || ( !-e "$conf_dir/networks.conf" )
-                        || ( -z "$conf_dir/networks.conf" ) )
-                    );
+
                 if ( defined $uiconfig{$section}{$key} ) {
                     push @keys, "$key2='$uiconfig{$section}{$key}'";
                 } else {
-
- #print "NO SECTION $section $key \n" if (!defined $uiconfig{$section}{$key});
                     push @keys, "$key2='$key2'";
                 }
             }
@@ -2052,10 +2008,11 @@ sub command_param {
                     . "(pfcmd line ".__LINE__.".)"
                 );
             }
-            if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
-                require pf::iptables;
-                pf::iptables::iptables_generate();
-            }
+
+            # XXX I'll probably come back here to hook into security posture re-evaluation instead
+            require pf::iptables;
+            pf::iptables::iptables_generate();
+
             if (    ($function eq 'violation_add')
                  || ( $function eq 'violation_delete' ) 
                  || ( $function eq 'violation_modify' ) ) {
@@ -2474,15 +2431,9 @@ sub vlan_reevaluation {
         return 0;
     }
 
-    if (( lc($Config{'network'}{'mode'}) eq 'vlan' )
-        && grep( { $_ eq $function } split(
-                /\s*,\s*/, $Config{'vlan'}{'adjustswitchportvlanreasons'}
-                ) ) > 0
-        )
-    {
-        $logger->info(
-            "VLAN isolation is enabled and $function is part of adjustswitchportvlanreasons"
-        );
+    if (grep( { $_ eq $function } split(/\s*,\s*/, $Config{'vlan'}{'adjustswitchportvlanreasons'})) > 0) {
+        $logger->info("VLAN isolation is enabled and $function is part of adjustswitchportvlanreasons");
+
         require pf::locationlog;
         import pf::locationlog;
         my $locationlog_entry = locationlog_view_open_mac($mac);

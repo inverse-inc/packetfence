@@ -48,43 +48,9 @@ if (!valid_mac($mac)) {
   return(0);     
 }
 
-# release on skip registration
-#
 if (defined($cgi->param('mode'))) {
-  # TODO: Validate that this mode = skip can't be tricked client side to create adverse effects
-  if ($cgi->param('mode') eq "skip") {
 
-    my $node_info = node_view($mac);
-    my $detect_date = str2time($node_info->{'detect_date'});
-    if (!isdisabled($Config{'registration'}{'skip_mode'})) {
-      if (($Config{'registration'}{'skip_mode'} eq "deadline" && (time - $Config{'registration'}{'skip_deadline'} < 0)) ||
-          ($Config{'registration'}{'skip_mode'} eq "window" && $detect_date + $Config{'registration'}{'skip_window'} < time)) {
-        $logger->info("test: detect_date=$detect_date window=".$Config{'registration'}{'skip_window'}." time=".time);
-        $logger->info("registration grace period exceeded for $mac!");
-        # TODO known-broken as register.cgi?mode=register doesn't exist anymore
-        print $cgi->redirect("/cgi-bin/register.cgi?mode=register&destination_url=".$destination_url);
-      } else {
-        my %info;
-        $info{'status'}='grace';
-        $info{'lastskip'}=mysql_date();
-        $info{'user_agent'}=$cgi->user_agent();
-        node_modify($mac,%info);
-
-        my $count = violation_count($mac);
-        if ($count == 0) {
-          if ($Config{'network'}{'mode'} =~ /arp/i) {
-            my $cmd = $bin_dir."/pfcmd manage freemac $mac";
-            my $output = qx/$cmd/;
-          }
-          pf::web::generate_release_page($cgi, $session, $destination_url, $mac);
-        } else {
-          print $cgi->redirect("/captive-portal?destination_url=$destination_url");
-        }
-        $logger->info("$mac skipped registration");
-      }
-    }
-    exit;
-  } elsif ($cgi->param('mode') eq 'release') {
+  if ($cgi->param('mode') eq 'release') {
     # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
     if ($cgi->https()) {
       print $cgi->redirect(
@@ -168,10 +134,7 @@ if ($grace != -1) {
   my $count = violation_count($mac); 
 
   if ($count == 0) {
-    if ($Config{'network'}{'mode'} =~ /arp/i && $count == 0) {
-      my $cmd = $bin_dir."/pfcmd manage freemac $mac";
-      my $output = qx/$cmd/;
-    }
+
     if ($class_redirect_url) {
       $destination_url = $class_redirect_url;
     }

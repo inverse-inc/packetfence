@@ -1,6 +1,6 @@
 <?php
 /**
- * TODO short desc
+ * networks_add.php - configuration front-end to conf/networks.conf
  *
  * TODO long desc
  * 
@@ -20,7 +20,7 @@
  * USA.
  * 
  * @author      Olivier Bilodeau <obilodeau@inverse.ca>
- * @copyright   2008-2010 Inverse inc.
+ * @copyright   2008-2011 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
@@ -87,8 +87,9 @@
     if ($key == 'type') {
       print "<tr><td></td><td>$pretty_key:</td><td>";
       printSelect( array('' => 'please choose',
-                         'isolation' => 'Isolation',
-                         'registration' => 'Registration',
+                         'vlan-registration' => 'Registration (VLAN enforcement)',
+                         'vlan-isolation' => 'Isolation (VLAN enforcement)',
+                         'inline' => 'Inline enforcement network',
                     ),
                    'hash', $val, "name='$key'");
     } elseif (($key == 'named') || ($key == 'dhcpd')) {
@@ -100,11 +101,6 @@
                    'hash', $val, "name='$key'");
     } else {
       print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val'>";
-    }
-
-    if(($key == 'regdate')||($key == 'unregdate')){
-      $now = date('Y-m-d H:i:s');
-      print  " <img src='../images/date.png' onClick=\"document.edit.$key.value='$now';return false;\" title='Insert Current Time' style='cursor:pointer;'>";
     }
 
     print "</td></tr>";

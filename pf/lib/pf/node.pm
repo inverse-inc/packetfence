@@ -297,19 +297,20 @@ sub node_delete {
     my $logger = Log::Log4perl::get_logger('pf::node');
     my $tmpMAC = Net::MAC->new( 'mac' => $mac );
     $mac = $tmpMAC->as_IEEE();
+
     if ( !node_exist($mac) ) {
         $logger->error("delete of non-existent node '$mac' failed");
         return 0;
     }
-    if ( lc($Config{'network'}{'mode'}) eq 'vlan' ) {
-        require pf::locationlog;
-        if ( defined( pf::locationlog::locationlog_view_open_mac($mac) ) ) {
-            $logger->warn(
-                "VLAN isolation mode enabled and $mac has open locationlog entry. Node deletion prohibited"
-            );
-            return 0;
-        }
+
+    require pf::locationlog;
+    # XXX in inline enforcement I guess we shouldn't care
+    # in vlan enforcement what could we do?
+    if ( defined( pf::locationlog::locationlog_view_open_mac($mac) ) ) {
+        $logger->warn("$mac has an open locationlog entry. Node deletion prohibited");
+        return 0;
     }
+
     db_query_execute(NODE, $node_statements, 'node_delete_sql', $mac) || return (0);
     $logger->info("node $mac deleted");
     return (1);
@@ -692,6 +693,7 @@ sub node_register {
         return (0);
     }
 
+    # XXX move into security re-evaluation code
     if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
         require pf::iptables;
         if ( !pf::iptables::iptables_mark_node( $mac, $reg_mark ) ) {
@@ -728,6 +730,7 @@ sub node_deregister {
         return (0);
     }
 
+    # XXX move to security re-evaluation code
     if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
         require pf::iptables;
         if ( !pf::iptables::iptables_unmark_node( $mac, $reg_mark ) ) {
@@ -735,10 +738,6 @@ sub node_deregister {
             return (0);
         }
     }
-
-    # we need to rely on the cgi's to do this work
-    # now that they are not SUID
-    #return(trapmac($mac)) if ($Config{'network'}{'mode'} =~ /arp/i);
 }
 
 =item * nodes_maintenance - handling deregistration on node expiration and node grace 

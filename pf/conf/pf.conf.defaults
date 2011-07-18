@@ -27,8 +27,8 @@ dhcpservers=127.0.0.1
 #
 # general.caching
 #
-# Enable caching of isinternal values as well as other fun stuff.  Leave this enabled or suffer the performance consequences.
-caching=enabled
+# Enable caching of isinternal values. Not recommended on large networks. Disabled by default. 
+caching=disabled
 #
 # general.locale
 #
@@ -95,15 +95,6 @@ stuffing=disabled
 
 [network]
 #
-# network.mode
-#
-# Defines the mode in which PacketFence will operate.
-# 
-# When deployed in arp mode, PacketFence uses ARP manipulation inject itself into the datastream of unregistered or 
-# trapped nodes.  The major failing of arp mode is that 
-# it's not 100% in catching all traffic - spurious packets can and will occasionaly get through.
-mode=arp
-#
 # network.rogueinterval
 #
 # When rogue DHCP server detection is enabled, this parameter defines how often to email administrators.  With its default 
@@ -151,14 +142,6 @@ range=192.168.0.0/24
 # If enabled, nodes will be required to register on first network access.  Further registration options are configured in the 
 # registration section.
 registration=disabled
-#
-# trapping.immediate
-#
-# Enable this if you want to see lots of "IP conflict boxes on Windows systems!  On detection of a violation, a spoofed GARP 
-# (gratitous ARP) is sent to the offending system.  This causes it to think another system is using its IP address and, under 
-# Windows 2000, causes it to disable its IP stack.  When the user manages to get the system back on the wire (ipconfig 
-# /release, reboot, etc) he/she will be assigned an address from the isolation scope.
-immediate=disabled
 #
 # trapping.redirtimer
 #
@@ -520,23 +503,6 @@ named=/usr/sbin/named
 # services.snmptrapd
 # Location of the snmptrapd binary.  Only necessary to change if you are not using the RPMed version.
 snmptrapd=/usr/sbin/snmptrapd
-
-[dhcp]
-#
-# dhcp.isolation_lease
-#
-# Length of lease for isolated clients
-isolation_lease=2m
-#
-# dhcp.unregistered_lease
-#
-# Length of lease for unregistered clients
-unregistered_lease=2m
-#
-# dhcp.registered_lease 
-#
-# Length of lease for registered clients
-registered_lease=2h
 
 [vlan]
 #

@@ -503,6 +503,8 @@ sub violation_close {
     my $max = $class_info->{'max_enables'};
 
     if ( $num <= $max || $max == 0 ) {
+        # XXX get rid of the mode reference
+        # TODO we should consolidate all state re-evaluation in the same code location (flip.pl?)
         if ( !( $Config{'network'}{'mode'} =~ /vlan/i ) ) {
             require pf::iptables;
             pf::iptables::iptables_unmark_node( $mac, $vid );

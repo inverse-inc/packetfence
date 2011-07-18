@@ -89,7 +89,6 @@ daemonize() if ($daemonize);
 if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
     my @devices = @listen_ints;
     push @devices, @dhcplistener_ints;
-    @devices = get_dhcp_devs() if ( $Config{'network'}{'mode'} =~ /^dhcp$/i );
     foreach my $dev (@devices) {
         if ( $dev eq $interface ) {
             $logger->info("DHCP detector on $dev enabled");

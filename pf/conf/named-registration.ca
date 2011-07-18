@@ -10,8 +10,7 @@ $TTL 3600
 )
 
        IN      NS      %%hostname%%.
-*.     IN      A       192.168.2.1
+*.     IN      A       %%A_blackhole%%
        IN      MX      5       %%hostname%%.
 
-1.2.168.192.in-addr.arpa.     IN      PTR       %%hostname%%
-
+%%PTR_blackhole%%     IN      PTR       %%hostname%%

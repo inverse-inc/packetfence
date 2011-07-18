@@ -509,14 +509,13 @@ fi
 %dir                    /usr/local/pf/conf/configurator
                         /usr/local/pf/conf/configurator/*
 %config                 /usr/local/pf/conf/dhcpd.conf
-%config                 /usr/local/pf/conf/dhcpd_vlan.conf
 %config                 /usr/local/pf/conf/httpd.conf
 %config                 /usr/local/pf/conf/httpd.conf.apache22
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
 %config(noreplace)      /usr/local/pf/conf/named-registration.ca
 %config(noreplace)      /usr/local/pf/conf/named-isolation.ca
-%config                 /usr/local/pf/conf/named_vlan.conf
+%config                 /usr/local/pf/conf/named.conf
 %config(noreplace)      /usr/local/pf/conf/popup.msg
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf
