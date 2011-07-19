@@ -101,8 +101,8 @@ sub generate_release_page {
             . "Please open a new browser window from time to time to see if your access was enabled."
         ))),
         txt_ie => encode_entities(decode_utf8(gettext(
-	    "Some versions of Internet Explorer may take a while before redirection occur."
-	))),
+            "Some versions of Internet Explorer may take a while before redirection occur."
+        ))),
         txt_noscript => gettext(
             "If you have scripting turned off, you will not be automatically redirected. "
             . "Please enable scripting or open a new browser window from time to time " 
@@ -694,8 +694,8 @@ sub generate_pending_page {
             . "Please open a new browser window from time to time to see if your access was enabled."
         ))),
         txt_ie => encode_entities(decode_utf8(gettext(
-	    "Some versions of Internet Explorer may take a while before redirection occur."
-	))),
+            "Some versions of Internet Explorer may take a while before redirection occur."
+        ))),
         txt_noscript => gettext(
             "If you have scripting turned off, you will not be automatically redirected. "
             . "Please enable scripting or open a new browser window from time to time " 
