@@ -355,6 +355,14 @@ sub inline {
             "If you don't understand the warning you can safely ignore it you won't be affected. "
         );
     }
+
+    my $result = `cat /proc/sys/net/ipv4/ip_forward`;
+    if ($result ne "1\n") {
+        add_problem( $WARN, 
+            "inline mode needs ip_forward enabled to work properly. " . 
+            "Refer to the administration guide to enable ip_forward."
+        );
+    }
 }
 
 =item database
