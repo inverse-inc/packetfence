@@ -31,6 +31,7 @@ use HTML::Entities;
 use Locale::gettext;
 use Log::Log4perl;
 use MIME::Lite::TT;
+use Net::LDAP;
 use POSIX;
 use Template;
 use Try::Tiny;
@@ -645,6 +646,62 @@ sub send_registration_confirmation_email {
         or $logger->warn("problem sending guest registration email");
 }
 
+=item validate_sponsor_group
+
+Validate that the sponsor email entered is an authorized sponsor in LDAP.
+
+Returns 1 if sponsor is member of proper groups and 0 if not.
+On error will return undef and log an error.
+
+This check is not integrated by default.
+
+=cut
+sub validate_sponsor_group {
+  my ($sponsor_email) = @_;
+  my $logger = Log::Log4perl::get_logger("pf::web::guest");
+
+  # TODO externalize this in conf/pf.conf (along with authentication::ldap)
+  my $LDAPUserBase = "";
+  my $LDAPUserKey = "cn";
+  my $LDAPUserScope = "sub";
+  my $LDAPBindDN = "";
+  my $LDAPBindPassword = "";
+  my $LDAPServer = "";
+  my $LDAPGroupFilter = '|(memberOf=OU=Group1,DC=packetfence,DC=org)(memberOf=OU=Group2,DC=packetfence,DC=org)'; 
+
+  my $connection = Net::LDAP->new($LDAPServer);
+  if (!defined($connection)) {
+      $logger->error("Unable to connect to '$LDAPServer'");
+      return;
+  }
+
+  my $result = $connection->bind($LDAPBindDN, password => $LDAPBindPassword);
+  if ($result->is_error) {
+      $logger->error("Unable to bind with '$LDAPBindDN'");
+      return;
+  }
+
+  $result = $connection->search(
+      base => $LDAPUserBase,
+      filter => "(&($LDAPUserKey=$sponsor_email)($LDAPGroupFilter))",
+      scope => $LDAPUserScope,
+  );
+
+  if ($result->is_error) {
+      $logger->error("Unable to execute search");
+      return;
+  }
+
+  if ($result->count != 1) {
+    return 0;
+  }
+
+  my $user = $result->entry(0);
+
+  $connection->unbind;
+  return 1;
+}
+
 =back
 
 =head1 AUTHOR
@@ -654,6 +711,8 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 =head1 COPYRIGHT
 
 Copyright (C) 2010,2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
