@@ -60,7 +60,8 @@ sub deauthenticateMac {
     }
 
     my $sessionWrite;
-    # TODO extract into method?
+    # TODO extract into method
+    # TODO it needs to handle calling $sessionWrite->close(); (or a disconnectWrite hook)
     if (defined($this->{_controllerIp}) && $this->{_controllerIp} ne '') {
 
         $logger->info("controllerIp is set, we will use controller $this->{_controllerIp} to perform deauth");
