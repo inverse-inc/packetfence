@@ -512,6 +512,8 @@ fi
                         /usr/local/pf/conf/configurator/*
 %config                 /usr/local/pf/conf/dhcpd.conf
 %config                 /usr/local/pf/conf/httpd.conf
+%dir                    /usr/local/pf/conf/httpd.conf.d
+%config                 /usr/local/pf/conf/httpd.conf.d/*
 %config                 /usr/local/pf/conf/httpd.conf.apache22
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg

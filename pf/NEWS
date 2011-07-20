@@ -30,6 +30,7 @@ Enhancements
  * Configuration simplification (#1182)
  * Named isolation and registration zones now automatically generated on startup
    based on networks.conf's DNS entry (#1105)
+ * Simplified Apache configuration
 
 --------------------------------------------------------------------------------
 Version <trunk-release> released on <releaseDate>

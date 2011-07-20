@@ -34,6 +34,7 @@ use threads;
 our (
     $install_dir, $bin_dir, $conf_dir, $lib_dir, $log_dir, $generated_conf_dir, $var_dir,
     @listen_ints, @internal_nets, @routed_isolation_nets, @routed_registration_nets, @management_nets, @external_nets,
+    @inline_enforcement_nets, @vlan_enforcement_nets,
     @dhcplistener_ints, $monitor_int,
     $unreg_mark, $reg_mark, $black_mark,
     $default_config_file, %Default_Config, 
@@ -55,6 +56,7 @@ BEGIN {
     @EXPORT = qw(
         $install_dir $bin_dir $conf_dir $lib_dir $generated_conf_dir $var_dir
         @listen_ints @internal_nets @routed_isolation_nets @routed_registration_nets @management_nets @external_nets 
+        @inline_enforcement_nets @vlan_enforcement_nets
         @dhcplistener_ints $monitor_int 
         $unreg_mark $reg_mark $black_mark 
         $default_config_file %Default_Config
@@ -313,6 +315,11 @@ sub readPfConfigFiles {
         foreach my $type ( split( /\s*,\s*/, $type ) ) {
             if ( $type eq 'internal' ) {
                 push @internal_nets, $int_obj;
+                if ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) {
+                    push @vlan_enforcement_nets, $int_obj;
+                } elsif ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_INLINE) {
+                    push @inline_enforcement_nets, $int_obj;
+                }
                 push @listen_ints, $int if ( $int !~ /:\d+$/ );
             } elsif ( $type eq 'managed' || $type eq 'management' ) {
                 push @management_nets, $int_obj;

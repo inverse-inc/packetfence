@@ -24,12 +24,18 @@ ServerName %%hostname%%.%%domain%%
 Listen 0.0.0.0:80
 Listen 0.0.0.0:443
 Listen 0.0.0.0:%%admin_port%%
+
+NameVirtualHost *:80
+NameVirtualHost *:443
+
 PidFile %%install_dir%%/var/run/httpd.pid
 LogFormat "%{User-agent}i" agent
 LogFormat "%h %l %u %t \"%r\" %>s %b" common
 LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
+
 AddDefaultCharset ISO-8859-1
 AddCharset ISO-8859-1  .iso8859-1  .latin1
+
 AddHandler cgi-script .cgi
 TypesConfig /etc/mime.types
 AddType .gif image/gif binary
@@ -90,20 +96,18 @@ DirectoryIndex index.html index.cgi index.php
 </IfModule>
 <IfModule !sapi_apache2.c>
   LoadModule php5_module modules/libphp5.so
-  #LoadModule php4_module modules/libphp4.so
 </IfModule>
 <IfModule !mod_perl.c>
   LoadModule perl_module modules/mod_perl.so
 </IfModule>
+
+# -- GLOBAL OPTIONS --
 PerlSwitches -I%%install_dir%%/lib
 PerlChildInitHandler "sub { srand }"
  
 AddType application/x-httpd-php .php
-#<Files *.php>
-#    SetOutputFilter PHP
-#    SetInputFilter PHP
-#    LimitRequestBody 524288
-#</Files>
+# Prevent Browsers (Chrome and Firefox) to cache DNS while under the captive portal
+Header always set X-DNS-Prefetch-Control off
 
 ProxyRequests Off
 
@@ -113,9 +117,6 @@ ProxyRequests Off
 </Proxy>
 
 RewriteLock %%install_dir%%/var/apache_rewrite_lock
-
-NameVirtualHost *:80
-NameVirtualHost *:443
 
 SSLPassPhraseDialog  builtin
 SSLSessionCache         dbm:%%install_dir%%/var/ssl_scache
@@ -138,81 +139,18 @@ SetEnvIf User-Agent ".*MSIE.*" \
   DocumentRoot %%install_dir%%/html/captive-portal
   ServerName %%hostname%%.%%domain%%:80
 
-  Alias /favicon.ico %%install_dir%%/html/common/favicon.ico
-  Alias /common/ %%install_dir%%/html/common/
-  # Prevent Browsers (Chrome and Firefox) to cache DNS while under the captive portal
-  Header always set X-DNS-Prefetch-Control off
+  # Alias, Logs, Access Control, Perl Config
+  Include %%varconf_dir%%/captive-portal-common.conf
 
-  #LogLevel debug
-  CustomLog %%install_dir%%/logs/access_log combined
-  ErrorLog %%install_dir%%/logs/error_log
-
-  # Access control
-  <DirectoryMatch "%%install_dir%%/html/captive-portal">
-    Order deny,allow
-    Deny from all
-    allow from %%internal-nets%% %%routed-nets%% 127.0.0.1
-  </DirectoryMatch>
-
-  # Perl config
-  PerlPostConfigRequire %%install_dir%%/lib/pf/web/captiveportal_modperl_require.pl
-  # Warning: old cgi style URL deprecated will be removed in an upcoming release
-  # Still accepted for a transition period. To be deprecated in 2012.
-  <Location ~ "(/cgi-bin/*.cgi|/*.cgi)">
-    SetHandler perl-script
-    PerlResponseHandler ModPerl::PerlRun
-    PerlOptions +ParseHeaders
-    Options Indexes FollowSymLinks ExecCGI
-  </Location>
-
-  RewriteEngine On
-  #RewriteLogLevel 3
-  #RewriteLog %%install_dir%%/logs/rewrite_log
-
-  # Uncomment the following lines to block almost anything that is not a browser (avoid server load)
-  #RewriteCond %{HTTP_USER_AGENT} !^Mozilla
-  #RewriteCond %{HTTP_USER_AGENT} !^Opera
-  #RewriteCond %{HTTP_USER_AGENT} !^BlackBerry
-  #RewriteRule ^.*$ - [L,forbidden]
-
-  #activate if you don't want requests to update servers
-  #to end up going to the PacketFence system
-  #RewriteRule ^/msdownload/update.+$ - [F,L]
-  #RewriteRule ^/wpad.dat$ - [F,L]
-  #RewriteRule ^/ReportingWebService/ReportingWebService.asmx$ - [F,L]
-  #RewriteRule ^/v6/windowsupdate.+$ - [F,L]
-  #RewriteRule ^/v7/windowsupdate.+$ - [F,L]
-  #RewriteRule ^/remupd/cidsync.upd$ - [F,L]
-  #RewriteRule ^/NTInst/i386/cidsync.upd$ - [F,L]
-
-  # return 403 to Windows Proxy Autodetection (avoid server load)
-  RewriteRule ^/wpad.dat$ - [F,L]
-
-  # Some UserAgents we don't want to mess with (avoid server load)
-  RewriteCond %{HTTP_USER_AGENT} ^Microsoft-CryptoAPI.* [OR]
-  RewriteCond %{HTTP_USER_AGENT} ^WinHttp-Autoproxy-Service.* [OR]
-  # Microsoft Windows Vista / 7 Network Connectivity Status Indicator (NCSI)
-  RewriteCond %{HTTP_USER_AGENT} "^Microsoft NCSI$" [OR]
-  RewriteCond %{HTTP_USER_AGENT} ^Windows-Update-Agent.*
-  RewriteRule ^.*$ - [L,forbidden]
-
+  # Rules that reduce server load by blocking undesired requests
+  Include %%varconf_dir%%/block-unwanted.conf
+  
 %%passthrough-http-proxies%%
 
 %%remediation-proxies%%
 
-  # client-side WISPR support. Returning 302 because HTTP/1.0 clients don't support 307
-  RewriteCond %{HTTP_USER_AGENT} CaptiveNetworkSupport.*wispr
-  RewriteRule ^.*$ http://%%hostname%%.%%domain%%/wispr [R=302,L]
-
-  # clean urls handling
-  RewriteRule ^/access(.*)$ /register.cgi?mode=release$1 [PT,QSA]
-  RewriteRule ^/aup(.*)$ /register.cgi?mode=aup$1 [PT,QSA]
-  RewriteRule ^/authenticate(.*)$ /register.cgi$1 [PT]
-  RewriteRule ^/captive-portal(.*)$ /redir.cgi$1 [PT]
-  RewriteRule ^/enabler(.*)$ /redir.cgi?enable_menu=1 [PT,QSA]
-  RewriteRule ^/release(.*)$ /release.cgi$1 [PT]
-  RewriteRule ^/status(.*)$ /register.cgi?mode=status [PT,QSA]
-  RewriteRule ^/wispr(.*)$ /wispr.cgi$1 [PT]
+  # Captive Portal Clean URLs
+  Include %%varconf_dir%%/captive-portal-cleanurls.conf
 
   # Warning: old cgi style URL deprecated will be removed in an upcoming release
   # Still accepted for a transition period. To be deprecated in 2012.
@@ -232,12 +170,8 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteCond %{REQUEST_URI} !^/proxies
   RewriteCond %{REQUEST_URI} !^/proxy
   RewriteCond %{REQUEST_URI} !^/remediation.php
-  RewriteCond %{REQUEST_URI} !^/msdownload/update/v3/static/trustedr/en/authrootseq.txt$
   # Now using temporary redirects instead of permanent (fixes #757)
   RewriteRule ^.*$ https://%%hostname%%.%%domain%%/captive-portal?destination_url=http://%{HTTP_HOST}%{REQUEST_URI} [R=307,L]
-
-  ProxyPassReverse /msdownload/update/v3/static/trustedr/en/authrootseq.txt http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootseq.txt
-  ProxyPass /msdownload/update/v3/static/trustedr/en/authrootseq.txt http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootseq.txt
 
 </VirtualHost>
 
@@ -246,81 +180,22 @@ SetEnvIf User-Agent ".*MSIE.*" \
   DocumentRoot "%%install_dir%%/html/captive-portal"
   ServerName %%hostname%%.%%domain%%:443
 
-  Alias /favicon.ico %%install_dir%%/html/common/favicon.ico
-  Alias /common/ %%install_dir%%/html/common/
-  # Prevent Browsers (Chrome and Firefox) to cache DNS while under the captive portal
-  Header always set X-DNS-Prefetch-Control off
-
-  #LogLevel debug
-  CustomLog %%install_dir%%/logs/access_log combined
-  ErrorLog %%install_dir%%/logs/error_log
-
-  # Access control
-  <DirectoryMatch "%%install_dir%%/html/captive-portal">
-    SSLOptions +StdEnvVars
-    Order deny,allow
-    Deny from all
-    allow from %%internal-nets%% %%routed-nets%% 127.0.0.1
-  </DirectoryMatch>
-
-  # Perl config
-  PerlPostConfigRequire %%install_dir%%/lib/pf/web/captiveportal_modperl_require.pl
-  # Warning: old cgi style URL deprecated will be removed in an upcoming release
-  # Still accepted for a transition period. To be deprecated in 2012.
-  <Location ~ "(/cgi-bin/*.cgi|/*.cgi)">
-    SetHandler perl-script
-    PerlResponseHandler ModPerl::PerlRun
-    PerlOptions +ParseHeaders
-    Options Indexes FollowSymLinks ExecCGI
-  </Location>
-
   SSLEngine on
   SSLProxyEngine on
   Include %%varconf_dir%%/ssl-certificates.conf
 
-  RewriteEngine On
-  #RewriteLogLevel 3
-  #RewriteLog %%install_dir%%/logs/rewrite_log
+  # Alias, Logs, Access Control, Perl Config
+  Include %%varconf_dir%%/captive-portal-common.conf
 
-  # Uncomment the following lines to block almost anything that is not a browser (avoid server load)
-  #RewriteCond %{HTTP_USER_AGENT} !^Mozilla
-  #RewriteCond %{HTTP_USER_AGENT} !^Opera
-  #RewriteCond %{HTTP_USER_AGENT} !^BlackBerry
-  #RewriteRule ^.*$ - [L,forbidden]
-
-  # return 403 to Windows Proxy Autodetection (avoid server load)
-  RewriteRule ^/wpad.dat$ - [F,L]
-
-  # Some UserAgents we don't want to mess with (avoid server load)
-  RewriteCond %{HTTP_USER_AGENT} ^Microsoft-CryptoAPI.* [OR]
-  RewriteCond %{HTTP_USER_AGENT} ^WinHttp-Autoproxy-Service.* [OR]
-  # Microsoft Windows Vista / 7 Network Connectivity Status Indicator (NCSI)
-  RewriteCond %{HTTP_USER_AGENT} "^Microsoft NCSI$" [OR]
-  RewriteCond %{HTTP_USER_AGENT} ^Windows-Update-Agent.*
-  RewriteRule ^.*$ - [L,forbidden]
-
+  # Rules that reduce server load by blocking undesired requests
+  Include %%varconf_dir%%/block-unwanted.conf
+  
 %%passthrough-https-proxies%%
 
 %%remediation-proxies%%
 
-  # client-side WISPR support. Returning 302 because HTTP/1.0 clients don't support 307
-  RewriteCond %{HTTP_USER_AGENT} CaptiveNetworkSupport.*wispr
-  RewriteRule ^.*$ https://%%hostname%%.%%domain%%/wispr [R=302,L]
-
-  # Email activation clean URL to cgi conversion
-  RewriteCond %{REQUEST_URI} ^/activate/.+$
-  # [PT] here allows us to mix ScriptAlias and mod_rewrite stuff
-  RewriteRule ^/activate/([0-9a-z]+)$ https://%%hostname%%.%%domain%%/email_activation.cgi?code=$1 [PT]
-
-  # clean urls handling
-  RewriteRule ^/access(.*)$ /register.cgi?mode=release$1 [PT,QSA]
-  RewriteRule ^/aup(.*)$ /register.cgi?mode=aup$1 [PT,QSA]
-  RewriteRule ^/authenticate(.*)$ /register.cgi$1 [PT]
-  RewriteRule ^/captive-portal(.*)$ /redir.cgi$1 [PT]
-  RewriteRule ^/enabler(.*)$ /redir.cgi?enable_menu=1 [PT,QSA]
-  RewriteRule ^/release(.*)$ /release.cgi$1 [PT]
-  RewriteRule ^/status(.*)$ /register.cgi?mode=status [PT,QSA]
-  RewriteRule ^/wispr(.*)$ /wispr.cgi$1 [PT]
+  # Captive Portal Clean URLs
+  Include %%varconf_dir%%/captive-portal-cleanurls.conf
 
   # Warning: old cgi style URL deprecated will be removed in an upcoming release
   # Still accepted for a transition period. To be deprecated in 2012.
@@ -331,7 +206,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-management.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/register.+\.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/register.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/enabler.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/wispr.cgi
@@ -352,6 +226,96 @@ SetEnvIf User-Agent ".*MSIE.*" \
     #(E_ALL & ~E_NOTICE) = 2047-8
     php_value error_reporting 2039
   </Location>
+
+</VirtualHost>
+
+<VirtualHost %%inline_internal_ip%%:80>
+
+  DocumentRoot %%install_dir%%/html/captive-portal
+  ServerName %%hostname%%.%%domain%%:80
+
+  # Alias, Logs, Access Control, Perl Config
+  Include %%varconf_dir%%/captive-portal-common.conf
+
+  # Rules that reduce server load by blocking undesired requests
+  Include %%varconf_dir%%/block-unwanted.conf
+
+%%passthrough-http-proxies%%
+
+%%remediation-proxies%%
+
+  # Captive Portal Clean URLs
+  Include %%varconf_dir%%/captive-portal-cleanurls.conf
+
+  # Warning: old cgi style URL deprecated will be removed in an upcoming release
+  # Still accepted for a transition period. To be deprecated in 2012.
+  ScriptAlias /cgi-bin/ "%%install_dir%%/html/captive-portal/"
+  RewriteRule ^/cgi-bin/content/(.*)$ /content/$1 [PT]
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-selfregistration.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/email_activation.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-management.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/register.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/enabler.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/wispr.cgi
+  RewriteCond %{REQUEST_URI} !^/common
+  RewriteCond %{REQUEST_URI} !^/content
+  RewriteCond %{REQUEST_URI} !^/favicon.ico
+  RewriteCond %{REQUEST_URI} !^/proxies
+  RewriteCond %{REQUEST_URI} !^/proxy
+  RewriteCond %{REQUEST_URI} !^/remediation.php
+  # Now using temporary redirects instead of permanent (fixes #757)
+  # inline_redirect_prefix is controlled by inline.portal_redirect, see the documentation in conf/documentation.conf
+  RewriteRule ^.*$ %%inline_redirect_prefix%%/captive-portal?destination_url=http://%{HTTP_HOST}%{REQUEST_URI} [R=307,L]
+
+</VirtualHost>
+
+<VirtualHost %%inline_internal_ip%%:443>
+
+  DocumentRoot "%%install_dir%%/html/captive-portal"
+  ServerName %%hostname%%.%%domain%%:443
+
+  SSLEngine on
+  SSLProxyEngine on
+  Include %%varconf_dir%%/ssl-certificates.conf
+
+  # Alias, Logs, Access Control, Perl Config
+  Include %%varconf_dir%%/captive-portal-common.conf
+
+  # Rules that reduce server load by blocking undesired requests
+  Include %%varconf_dir%%/block-unwanted.conf
+
+%%passthrough-https-proxies%%
+
+%%remediation-proxies%%
+
+  # Captive Portal Clean URLs
+  Include %%varconf_dir%%/captive-portal-cleanurls.conf
+
+  # Warning: old cgi style URL deprecated will be removed in an upcoming release
+  # Still accepted for a transition period. To be deprecated in 2012.
+  ScriptAlias /cgi-bin/ "%%install_dir%%/html/captive-portal/"
+  RewriteRule ^/cgi-bin/content/(.*)$ /content/$1 [PT]
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-selfregistration.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/email_activation.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-management.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/register.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/enabler.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/wispr.cgi
+  RewriteCond %{REQUEST_URI} !^/common
+  RewriteCond %{REQUEST_URI} !^/content
+  RewriteCond %{REQUEST_URI} !^/favicon.ico
+  RewriteCond %{REQUEST_URI} !^/proxies
+  RewriteCond %{REQUEST_URI} !^/proxy
+  RewriteCond %{REQUEST_URI} !^/remediation.php
+  # Now using temporary redirects instead of permanent (fixes #757)
+  # inline_redirect_prefix is controlled by inline.portal_redirect, see the documentation in conf/documentation.conf
+  RewriteRule ^.*$ %%inline_redirect_prefix%%/captive-portal?destination_url=http://%{HTTP_HOST}%{REQUEST_URI} [R=307,L]
+
+%%proxies%%                
 
 </VirtualHost>
 

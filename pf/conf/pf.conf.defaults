@@ -552,6 +552,17 @@ nbtrapparserthreads = 5
 # Default should be reasonable for almost every OS but is too long for the usual proprietary OS.
 bounce_duration = 4s
 
+
+[inline]
+#
+# inline.portal_redirect
+#
+# How should we refer to the captive portal in inline mode? Using DNS means that 
+# you need to configure your DNS to point to the PacketFence IP on the inline 
+# interface but allows you to easily use an SSL certificate for https.
+portal_redirect=ip
+
+
 [servicewatch]
 #
 # servicewatch.email

@@ -7,6 +7,10 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <inline-mode-branch-release>:
 
+    - Several changes to Apache configuration
+    We've externalized repetitive portions in conf/httpd.conf.d/. Make sure to
+    re-integrate any customization you've made.
+
     - New pf.conf configuration parameter: interface enforcement
     Under the [interface ...] statements a new configuration parameter has been
     added: enforcement. We got rid of the concept of 'modes' in PacketFence and
