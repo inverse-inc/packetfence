@@ -304,11 +304,11 @@ sub generate_inline_if_src_to_chain {
     # internal interfaces handling
     foreach my $interface (@internal_nets) {
         my $dev = $interface->tag("int");
-        my $ip = $interface->tag("ip");
         my $enforcement_type = $Config{"interface $dev"}{'enforcement'};
 
         # inline enforcement
         if ($enforcement_type eq $IF_ENFORCEMENT_INLINE) {
+            # send everything from inline interfaces to the inline chain
             $rules .= "-A PREROUTING --in-interface $dev --jump $FW_PREROUTING_INT_INLINE\n";
         }
     }

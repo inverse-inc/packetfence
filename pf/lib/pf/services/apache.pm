@@ -140,8 +140,12 @@ sub generate_httpd_conf {
 
     $logger->info("generating $generated_conf_dir/ssl-certificates.conf");
     parse_template( \%tags, "$conf_dir/ssl-certificates.conf", "$generated_conf_dir/ssl-certificates.conf", "#" );
+
+    # TODO we *could* do something smarter and process all of conf/httpd.conf.d/
+    $logger->info("generating $generated_conf_dir/block-unwanted.conf");
+    parse_template(\%tags, "$conf_dir/httpd.conf.d/block-unwanted.conf", "$generated_conf_dir/block-unwanted.conf");
     return 1;
-}
+
 
 =item calculate_max_clients
 
