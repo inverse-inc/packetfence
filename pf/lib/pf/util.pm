@@ -43,7 +43,7 @@ BEGIN {
         get_internal_info get_gateways createpid readpid deletepid
         pfmon_preload parse_template mysql_date oui_to_vendor mac2oid oid2mac 
         str_to_connection_type connection_type_to_str
-        get_total_system_memory
+        get_total_system_memory get_vlan_from_int
         get_translatable_time
     );
 }
@@ -877,6 +877,31 @@ sub get_translatable_time {
    } elsif ($unit eq "y") { return ("year", "years", $value);
    }
    return;
+}
+
+=item get_vlan_from_int
+
+Returns the VLAN id for a given interface
+
+=cut
+sub get_vlan_from_int {
+    my ($eth) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::util');
+
+    my $result = open(my $vlaninfo_fh , '<', "/proc/net/vlan/$eth");
+    if (!defined($result)) {
+        $logger->warn("Unable to open VLAN proc description for $eth: $!");
+        return;
+    }
+
+    while (<$vlaninfo_fh>) {
+
+        if (m/^$eth\s+VID:\s+(\d+)\s+/) {
+            return $1;
+        }
+    }
+
+    return;
 }
 
 =back

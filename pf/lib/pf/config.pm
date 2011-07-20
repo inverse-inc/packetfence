@@ -68,8 +68,8 @@ BEGIN {
         $blackholemac $portscan_sid @VALID_TRIGGER_TYPES $thread $default_pid $fqdn
         $FALSE $TRUE $YES $NO
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE
-        WIRELESS_802_1X WIRELESS_MAC_AUTH WIRED_802_1X WIRED_MAC_AUTH WIRED_SNMP_TRAPS WIRELESS WIRED EAP UNKNOWN
-        VOIP NO_VOIP
+        WIRELESS_802_1X WIRELESS_MAC_AUTH WIRED_802_1X WIRED_MAC_AUTH WIRED_SNMP_TRAPS WIRELESS WIRED EAP UNKNOWN INLINE
+        VOIP NO_VOIP $NO_PORT $NO_VLAN
         LOOPBACK_IPV4
         %connection_type %connection_type_to_str %connection_type_explained
         $RADIUS_API_LEVEL $VLAN_API_LEVEL $AUTHENTICATION_API_LEVEL
@@ -131,16 +131,17 @@ Readonly our $NET_TYPE_VLAN_ISOL => 'vlan-isolation';
 Readonly our $NET_TYPE_INLINE => 'inline';
 
 # connection type constants
-use constant WIRELESS_802_1X => 0b11000001;
-use constant WIRELESS_MAC_AUTH => 0b10000010;
-use constant WIRED_802_1X => 0b01100100;
-use constant WIRED_MAC_AUTH => 0b00101000;
-use constant WIRED_SNMP_TRAPS => 0b00110000;
-use constant UNKNOWN => 0b00000000;
+use constant WIRELESS_802_1X   => 0b110000001;
+use constant WIRELESS_MAC_AUTH => 0b100000010;
+use constant WIRED_802_1X      => 0b011000100;
+use constant WIRED_MAC_AUTH    => 0b001001000;
+use constant WIRED_SNMP_TRAPS  => 0b001010000;
+use constant INLINE            => 0b000100000;
+use constant UNKNOWN           => 0b000000000;
 # masks to be used on connection types
-use constant WIRELESS => 0b10000000;
-use constant WIRED => 0b00100000;
-use constant EAP => 0b01000000;
+use constant WIRELESS => 0b100000000;
+use constant WIRED    => 0b001000000;
+use constant EAP      => 0b010000000;
 
 # TODO we should build a connection data class with these hashes and related constants
 # String to constant hash
@@ -150,6 +151,7 @@ use constant EAP => 0b01000000;
     'Ethernet-EAP'          => WIRED_802_1X,
     'Ethernet-NoEAP'        => WIRED_MAC_AUTH,
     'SNMP-Traps'            => WIRED_SNMP_TRAPS,
+    'Inline'                => INLINE,
 );
 
 # Note that the () in the hashes below is a trick to prevent bareword quoting so I can store 
@@ -161,6 +163,7 @@ use constant EAP => 0b01000000;
     WIRED_802_1X() => 'Ethernet-EAP',
     WIRED_MAC_AUTH() => 'Ethernet-NoEAP',
     WIRED_SNMP_TRAPS() => 'SNMP-Traps',
+    INLINE() => 'Inline',
     UNKNOWN() => '',
 );
 
@@ -173,6 +176,7 @@ use constant EAP => 0b01000000;
     WIRED_802_1X() => 'Wired 802.1x',
     WIRED_MAC_AUTH() => 'Wired MAC Auth',
     WIRED_SNMP_TRAPS() => 'Wired SNMP',
+    INLINE() => 'Inline',
     UNKNOWN() => 'Unknown',
 );
 
@@ -188,10 +192,14 @@ Readonly::Scalar our $AUTHENTICATION_API_LEVEL => 1.00;
 # to shut up strict warnings
 $ENV{PATH} = '/sbin:/bin:/usr/bin:/usr/sbin';
 
+# Inline related
 # Ip mash marks
 $unreg_mark = "0";
 $reg_mark   = "1";
 $black_mark = "2";
+
+Readonly::Scalar our $NO_PORT => 0;
+Readonly::Scalar our $NO_VLAN => 0;
 
 # this is broken NIC on Dave's desk - it better be unique!
 $blackholemac = "00:60:8c:83:d7:34";
@@ -594,6 +602,8 @@ Copyright (C) 2005 David LaPorte
 Copyright (C) 2005 Kevin Amorin
 
 Copyright (C) 2009-2011 Inverse, inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
