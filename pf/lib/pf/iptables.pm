@@ -184,8 +184,8 @@ sub generate_filter_forward_scanhost {
     # FIXME don't forget to also add statements to the PREROUTING nat table as in generate_inline_rules
     my $scan_server = $Config{'scan'}{'host'};
     if ( $scan_server !~ /^127\.0\.0\.1$/ && $scan_server !~ /^localhost$/i ) {
-        $filter_rules .= internal_append_entry( "-A FORWARD --destination $scan_server --jump ACCEPT");
-        $filter_rules .= external_append_entry( "-A FORWARD --source $scan_server --jump ACCEPT");
+        $filter_rules .= "-A FORWARD --destination $scan_server --jump ACCEPT";
+        $filter_rules .= "-A FORWARD --source $scan_server --jump ACCEPT";
         $logger->info("adding Nessus FILTER passthrough for $scan_server");
     }
 
@@ -327,7 +327,7 @@ sub generate_mangle_rules {
     $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE --jump MARK --set-mark 0x$unreg_mark\n";
 
     # mark all registered users
-    # XXX we will need to mark all registered users with last locationlog set to
+    # TODO performance: mark all *inline* registered users only
     if ( isenabled($Config{'trapping'}{'registration'}) ) {
         require pf::node;
         my @registered = pf::node::nodes_registered();
@@ -397,18 +397,6 @@ sub generate_nat_redirect_rules {
     }
 
     return $rules;
-}
-
-sub external_append_entry {
-    my ($cmd_arg)    = @_;
-    my $logger       = Log::Log4perl::get_logger('pf::iptables');
-    my $returnString = '';
-    foreach my $dev ( get_external_devs() ) {
-        my $cmd_arg_tmp = $cmd_arg;
-        $cmd_arg_tmp  .= " --in-interface $dev";
-        $returnString .= "$cmd_arg_tmp\n";
-    }
-    return $returnString;
 }
 
 sub iptables_mark_node {
@@ -491,6 +479,8 @@ Copyright (C) 2005 David LaPorte
 Copyright (C) 2005 Kevin Amorin
 
 Copyright (C) 2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
