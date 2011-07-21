@@ -535,6 +535,21 @@ Performs version checking of the extension points.
 sub extensions {
 
     try {
+        require pf::inline::custom;
+        if (!defined(pf::inline::custom->VERSION())) {
+            add_problem($FATAL, "Inline extension point (pf::inline::custom) VERSION is not defined.");
+
+        } elsif ($INLINE_API_LEVEL > pf::inline::custom->VERSION()) {
+            add_problem( $FATAL,
+                "Inline extension point (pf::inline::custom) is not at the correct API level. " .
+                "Did you read the UPGRADE document?"
+            );
+        }
+    } catch {
+        add_problem( $FATAL, "Uncaught exception while trying to identify Inline extension version: $_" );
+    };
+
+    try {
         require pf::vlan::custom;
         if (!defined(pf::vlan::custom->VERSION())) {
             add_problem( $FATAL,

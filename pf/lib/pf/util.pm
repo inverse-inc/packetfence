@@ -132,23 +132,30 @@ sub clean_ip {
     return;
 }
 
+
 =item clean_mac 
 
 Clean a MAC address accepting xx-xx-xx-xx-xx-xx, xx:xx:xx:xx:xx:xx, xxxx-xxxx-xxxx and xxxx.xxxx.xxxx.
 
-Returns a string with MAC in format: xx:xx:xx:xx:xx:xx
+Returns an untainted string with MAC in format: xx:xx:xx:xx:xx:xx
 
 =cut
 sub clean_mac {
     my ($mac) = @_;
     return (0) if ( !$mac );
+
     # trim garbage
     $mac =~ s/[\s\-\.:]//g;
     # lowercase
     $mac = lc($mac);
     # inject :
     $mac =~ s/([a-f0-9]{2})(?!$)/$1:/g if ( $mac =~ /^[a-f0-9]{12}$/i );
-    return ($mac);
+    # Untaint MAC (see perldoc perlsec if you don't know what Taint mode is)
+    if ($mac =~ /^([0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2})$/) {   
+        return $1;
+    }
+
+    return;
 }
 
 

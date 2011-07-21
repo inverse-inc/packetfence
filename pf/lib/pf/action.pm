@@ -218,15 +218,8 @@ sub action_log {
 sub action_trap {
     my ( $mac, $vid ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::action');
-    # XXX get rid of the mode reference
-    # TODO we should consolidate all state re-evaluation in the same code location (flip.pl?)
-    if ( !( $Config{'network'}{'mode'} =~ /vlan/i ) ) {
-        require pf::iptables;
-        if ( !pf::iptables::iptables_mark_node( $mac, $vid ) ) {
-            $logger->error("unable to mark $mac with $vid");
-            return (0);
-        }
-    }
+
+    # Nothing here, trapping is handled by pf::enforcement (called by pfcmd on violation changes)
 }
 
 sub action_winpopup {

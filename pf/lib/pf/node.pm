@@ -304,8 +304,7 @@ sub node_delete {
     }
 
     require pf::locationlog;
-    # XXX in inline enforcement I guess we shouldn't care
-    # in vlan enforcement what could we do?
+    # TODO that limitation is arbitrary at best, we need to resolve that.
     if ( defined( pf::locationlog::locationlog_view_open_mac($mac) ) ) {
         $logger->warn("$mac has an open locationlog entry. Node deletion prohibited");
         return 0;
@@ -693,15 +692,6 @@ sub node_register {
         return (0);
     }
 
-    # XXX move into security re-evaluation code
-    if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
-        require pf::iptables;
-        if ( !pf::iptables::iptables_mark_node( $mac, $reg_mark ) ) {
-            $logger->error("unable to mark node $mac as registered");
-            return (0);
-        }
-    }
-
     if ( !$auto_registered ) {
 
         #nessus code
@@ -728,15 +718,6 @@ sub node_deregister {
     if ( !node_modify( $mac, %info ) ) {
         $logger->error("unable to de-register node $mac");
         return (0);
-    }
-
-    # XXX move to security re-evaluation code
-    if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
-        require pf::iptables;
-        if ( !pf::iptables::iptables_unmark_node( $mac, $reg_mark ) ) {
-            $logger->error("unable to delete registration rule for $mac: $!");
-            return (0);
-        }
     }
 }
 

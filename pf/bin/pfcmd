@@ -71,9 +71,9 @@ use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
 
 use pf::config;
-use pf::util;
+use pf::enforcement;
 use pf::pfcmd;
-use pf::SwitchFactory;
+use pf::util;
 
 
 delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
@@ -294,8 +294,6 @@ sub manage {
     } elsif ( $option eq "deregister" ) {
         require pf::node;
         pf::node::node_deregister($mac);
-        require pf::iptables;
-        pf::iptables::iptables_generate();
     } elsif ( $option eq "vclose" ) {
         return (-1) if ( !$id );
         require pf::violation;
@@ -305,7 +303,7 @@ sub manage {
         require pf::violation;
         print pf::violation::violation_add( $mac, $id );
     }
-    vlan_reevaluation( $mac, $function );
+    pf::enforcement::reevaluate_access( $mac, $function );
 }
 
 sub locationhistoryswitch {
@@ -2009,16 +2007,12 @@ sub command_param {
                 );
             }
 
-            # XXX I'll probably come back here to hook into security posture re-evaluation instead
-            require pf::iptables;
-            pf::iptables::iptables_generate();
-
             if (    ($function eq 'violation_add')
                  || ( $function eq 'violation_delete' ) 
                  || ( $function eq 'violation_modify' ) ) {
-                vlan_reevaluation( $params{mac}, $function );
+                pf::enforcement::reevaluate_access( $params{mac}, $function );
             } else {
-                vlan_reevaluation( $id, $function );
+                pf::enforcement::reevaluate_access( $id, $function );
             }
         }
         return (0);
@@ -2415,69 +2409,6 @@ sub field_order {
     }
     untie %uiconfig;
     return (@fields);
-}
-
-sub vlan_reevaluation {
-    my ( $mac, $function ) = @_;
-    # untaint MAC
-    if ( $mac
-        =~
-        /^([0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2})$/
-            )
-    {
-        $mac = $1;
-    } else {
-        $logger->warn("Bad MAC $mac");
-        return 0;
-    }
-
-    if (grep( { $_ eq $function } split(/\s*,\s*/, $Config{'vlan'}{'adjustswitchportvlanreasons'})) > 0) {
-        $logger->info("VLAN isolation is enabled and $function is part of adjustswitchportvlanreasons");
-
-        require pf::locationlog;
-        import pf::locationlog;
-        my $locationlog_entry = locationlog_view_open_mac($mac);
-        if ($locationlog_entry) {
-            require pf::vlan::custom;
-            my $switch_ip = $locationlog_entry->{'switch'};
-            my $ifIndex = $locationlog_entry->{'port'};
-            my $currentVlan = $locationlog_entry->{'vlan'};
-            my $connection_type = str_to_connection_type($locationlog_entry->{'connection_type'});
-            my $user_name = $locationlog_entry->{'dot1x_username'};
-            my $ssid = $locationlog_entry->{'ssid'};
-
-            $logger->info( "$mac is currentlog connected at $switch_ip ifIndex $ifIndex in VLAN $currentVlan" );
-
-            my $vlan_obj = new pf::vlan::custom();
-            my $switch = pf::SwitchFactory->getInstance()->instantiate($switch_ip);
-            if (!$switch) {
-                $logger->error("Can not instantiate switch $switch_ip! Won't change VLAN");
-                return 0;
-            }
-
-            my $newCorrectVlan = $vlan_obj->fetchVlanForNode(
-                $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid
-            );
-            if ( $newCorrectVlan == -1 ) {
-                $logger->info(
-                    "new correct VLAN for $mac is $newCorrectVlan. calling "
-                    . $Config{'vlan'}{'adjustswitchportvlanscript'} . " on node"
-                );
-                my @args = ( $Config{'vlan'}{'adjustswitchportvlanscript'}, $mac );
-                system(@args);
-            } elsif ( $newCorrectVlan ne $currentVlan ) {
-                $logger->info(
-                    "calling " . $Config{'vlan'}{'adjustswitchportvlanscript'}
-                    . " for node $mac (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
-                );
-                my @args = ( $Config{'vlan'}{'adjustswitchportvlanscript'}, $mac );
-                system(@args);
-            }
-        } else {
-            $logger->warn("Can't change VLAN for mac $mac because no open locationlog entry was found");
-        }
-    }
-    return 1;
 }
 
 =head1 AUTHOR

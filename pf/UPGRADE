@@ -49,6 +49,12 @@ o Upgrading from a version prior to <inline-mode-branch-release>:
     configuration as the old names will be removed in the future. `pfcmd 
     checkup` will warn you about this.
 
+    - pf.conf parameter name and category changes
+    Here are the changes:
+    - vlan.adjustswitchportvlanscript is now advanced.adjustswitchportvlanscript
+    - vlan.adjustswitchportvlanreasons is now advanced.reevaluate_access_reasons
+    You only need to take action if you are not using the default values.
+
     - pf.conf's interface type changes
     We added management keyword to replace the confusing managed keyword. Also
     dhcp-listener is accepted in addition to the previously used dhcplistener.

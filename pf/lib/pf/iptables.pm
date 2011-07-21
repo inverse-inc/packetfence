@@ -21,6 +21,7 @@ use strict;
 use warnings;
 
 use IPTables::ChainMgr;
+#use IPTables::Interface;
 use Log::Log4perl;
 use Readonly;
 
@@ -29,7 +30,8 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        iptables_generate iptables_save iptables_restore iptables_mark_node iptables_unmark_node
+        iptables_generate iptables_save iptables_restore 
+        iptables_mark_node iptables_unmark_node get_mangle_mark_for_mac update_mark
     );
 }
 
@@ -44,6 +46,13 @@ Readonly my $FW_FILTER_INPUT_MGMT => 'input-management-if';
 Readonly my $FW_FILTER_FORWARD_INT_INLINE => 'forward-internal-inline-if';
 Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-internal-inline-if';
 
+=head1 SUBROUTINES
+
+TODO: This list is incomplete
+
+=over
+
+=cut
 sub iptables_generate {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
 
@@ -158,8 +167,16 @@ sub generate_inline_rules {
         $logger->trace("adding DNS FILTER passthrough for $dns");
     }
 
-    # Accept marked users through
-    $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$reg_mark --jump ACCEPT\n";
+    if (isenabled($Config{'trapping'}{'registration'})) {
+        $logger->info(
+            "trapping.registration is enabled, " . 
+            "building firewall so that we only accept marked users through inline interface"
+        );
+        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_REG --jump ACCEPT\n";
+    } else {
+        $logger->info("trapping.registration is disabled, allowing everyone through firewall on inline interface");
+        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --jump ACCEPT\n";
+    }
 }
 
 =item generate_filter_forward_vlan
@@ -324,7 +341,7 @@ sub generate_mangle_rules {
     my $mangle_rules;
 
     # mark all users
-    $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE --jump MARK --set-mark 0x$unreg_mark\n";
+    $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE --jump MARK --set-mark 0x$IPTABLES_MARK_UNREG\n";
 
     # mark all registered users
     # TODO performance: mark all *inline* registered users only
@@ -335,7 +352,7 @@ sub generate_mangle_rules {
             my $mac = $row->{'mac'};
             $mangle_rules .= 
                 "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac " . 
-                "--jump MARK --set-mark 0x$reg_mark\n"
+                "--jump MARK --set-mark 0x$IPTABLES_MARK_REG\n"
             ;
         }
     }
@@ -343,7 +360,7 @@ sub generate_mangle_rules {
     # mark whitelisted users
     foreach my $mac ( split( /\s*,\s*/, $Config{'trapping'}{'whitelist'} ) ) {
         $mangle_rules .= 
-            "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac --jump MARK --set-mark 0x$reg_mark\n"
+            "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac --jump MARK --set-mark 0x$IPTABLES_MARK_REG\n"
         ;
     }
 
@@ -362,7 +379,7 @@ sub generate_mangle_rules {
     # mark blacklisted users
     foreach my $mac ( split( /\s*,\s*/, $Config{'trapping'}{'blacklist'} ) ) {
         $mangle_rules .= 
-            "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac --jump MARK --set-mark $black_mark\n"
+            "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac --jump MARK --set-mark $IPTABLES_MARK_ISOLATION\n"
         ;
     }
 
@@ -382,7 +399,7 @@ sub generate_nat_redirect_rules {
         if ( isenabled( $Config{'trapping'}{'registration'} ) ) {
             $rules .= 
                 "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port " . 
-                "--match mark --mark 0x$unreg_mark --jump REDIRECT\n"
+                "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump REDIRECT\n"
             ;
         }
 
@@ -402,17 +419,19 @@ sub generate_nat_redirect_rules {
 sub iptables_mark_node {
     my ( $mac, $mark ) = @_;
     my $logger   = Log::Log4perl::get_logger('pf::iptables');
-    my $iptables = new IPTables::ChainMgr()
+    my $iptables = new IPTables::ChainMgr('ipt_exec_style' => 'system')
         || logger->logcroak("unable to create IPTables::ChainMgr object");
     my $iptables_cmd = $iptables->{'_iptables'};
 
-    if (!$iptables->run_ipt_cmd(
-            "$iptables_cmd -t mangle -A PREROUTING --match mac --mac-source $mac --jump MARK --set-mark 0x$mark"
-        )
-        )
-    {
-        $logger->error("unable to mark $mac with $mark: $!");
-        return (0);
+    $logger->debug("marking node $mac with mark 0x$mark");
+    my ($rv, $out_ar, $errs_ar) = $iptables->run_ipt_cmd(
+        "$iptables_cmd -t mangle -A $FW_PREROUTING_INT_INLINE " . 
+        "--match mac --mac-source $mac --jump MARK --set-mark 0x$mark"
+    );
+
+    if (!$rv) {
+        $logger->error("Unable to mark mac $mac: $!");
+        return;
     }
     return (1);
 }
@@ -420,20 +439,83 @@ sub iptables_mark_node {
 sub iptables_unmark_node {
     my ( $mac, $mark ) = @_;
     my $logger   = Log::Log4perl::get_logger('pf::iptables');
-    my $iptables = new IPTables::ChainMgr()
+    my $iptables = new IPTables::ChainMgr('ipt_exec_style' => 'system')
         || logger->logcroak("unable to create IPTables::ChainMgr object");
     my $iptables_cmd = $iptables->{'_iptables'};
 
-    if (!$iptables->run_ipt_cmd(
-            "$iptables_cmd -t mangle -D PREROUTING --match mac --mac-source $mac --jump MARK --set-mark 0x$mark"
-        )
-        )
-    {
-        $logger->error("unable to unmark $mac with $mark: $!");
-        return (0);
-    }
+    $logger->debug("removing mark 0x$mark on node $mac");
+    my ($rv, $out_ar, $errs_ar) = $iptables->run_ipt_cmd(
+        "$iptables_cmd -t mangle -D $FW_PREROUTING_INT_INLINE " . 
+        "--match mac --mac-source $mac --jump MARK --set-mark 0x$mark"
+    );
 
+    if (!$rv) {
+        $logger->error("Unable to unmark mac $mac: $!");
+        return;
+    }
     return (1);
+}
+
+=item get_mangle_mark_for_mac
+
+Fetches the current mangle mark for a given mark. 
+Useful to re-evaluate what to do with a given node who's state changed.
+
+Returns IPTABLES MARK constant ($IPTABLES_MARK_...) or undef on failure.
+
+=cut
+sub get_mangle_mark_for_mac {
+    my ( $mac ) = @_;
+    my $logger   = Log::Log4perl::get_logger('pf::iptables');
+    my $iptables = new IPTables::ChainMgr('ipt_exec_style' => 'system')
+        || logger->logcroak("unable to create IPTables::ChainMgr object");
+    my $iptables_cmd = $iptables->{'_iptables'};
+
+    # list mangle rules
+    my ($rv, $out_ar, $errs_ar) = $iptables->run_ipt_cmd("$iptables_cmd -t mangle -L -v -n");
+    if ($rv) {
+        # MAC in iptables -L -nv are uppercase
+        $mac = uc($mac);
+        foreach my $ipt_line (@$out_ar) {
+            chomp($ipt_line);
+            # matching with end of line ($) for performance
+            # saw some instances were a space was present at the end of the line
+            if ($ipt_line =~ /MAC $mac MARK set 0x(\d+)\s*$/) {
+                return $1;
+            }
+        }
+    } else {
+        if (@$errs_ar) {
+            $logger->error("Unable to list iptables mangle table: $!");
+            return;
+        }
+    }
+    # if we didn't find him it means it's the catch all which is 
+    return $IPTABLES_MARK_UNREG; 
+}
+
+=item update_mark
+
+This sub lives under the guarantee that there is a change, that if old_mark == new_mark it won't be called
+
+=cut
+sub update_mark {
+    my ($mac, $old_mark, $new_mark) = @_;
+
+    # if we come from registration, we are only adding a rule
+    if ($old_mark == $IPTABLES_MARK_UNREG) {
+        iptables_mark_node($mac, $new_mark);
+
+    # if we go to registration, we are only deleting a rule
+    } elsif ($new_mark == $IPTABLES_MARK_UNREG) {
+        iptables_unmark_node($mac, $old_mark);
+
+    # otherwise we delete and then add
+    } else {
+        iptables_unmark_node($mac, $old_mark);
+        iptables_mark_node($mac, $new_mark);
+    }
+    return 1;
 }
 
 sub iptables_save {
@@ -463,6 +545,8 @@ sub iptables_restore_noflush {
         `/sbin/iptables-restore -n < $restore_file`;
     }
 }
+
+=back
 
 =head1 AUTHOR
 

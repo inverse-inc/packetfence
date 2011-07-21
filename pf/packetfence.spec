@@ -565,6 +565,8 @@ fi
                         /usr/local/pf/lib/pf/*.pm
 %dir                    /usr/local/pf/lib/pf/floatingdevice
 %config(noreplace)      /usr/local/pf/lib/pf/floatingdevice/custom.pm
+%dir                    /usr/local/pf/lib/pf/inline
+%config(noreplace)      /usr/local/pf/lib/pf/inline/custom.pm
 %dir                    /usr/local/pf/lib/pf/lookup
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/node.pm
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/person.pm

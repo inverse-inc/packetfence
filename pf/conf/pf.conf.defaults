@@ -506,17 +506,6 @@ snmptrapd=/usr/sbin/snmptrapd
 
 [vlan]
 #
-# vlan.adjustswitchportvlanreasons
-#
-# After which calls to pfcmd do we have to re-calculate and re-assign
-# the switchport VLAN a node is connected to
-adjustswitchportvlanreasons=node_modify,manage_register,manage_deregister,manage_vclose,manage_vopen,violation_modify,violation_add,violation_delete
-#
-# vlan.adjustswitchportvlanscript
-#
-# Which script do we have to execute to adjust the switchport VLAN
-adjustswitchportvlanscript=flip.pl
-#
 # vlan.closelocationlogonstop
 #
 # Should open locationlog entries be closed when pfsetvlan is 
@@ -587,3 +576,14 @@ restart=disabled
 #
 network_detection_ip = 67.205.85.245
 
+[advanced]
+#
+# advanced.reevaluate_access_reasons
+#
+# After which calls to pfcmd do we have to re-evaluate the state of a node and re-assign VLAN or change iptables rules
+reevaluate_access_reasons=node_modify,manage_register,manage_deregister,manage_vclose,manage_vopen,violation_modify,violation_add,violation_delete
+#
+# advanced.adjustswitchportvlanscript
+#
+# Which script do we have to execute to adjust the switchport VLAN
+adjustswitchportvlanscript=flip.pl

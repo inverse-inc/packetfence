@@ -503,12 +503,7 @@ sub violation_close {
     my $max = $class_info->{'max_enables'};
 
     if ( $num <= $max || $max == 0 ) {
-        # XXX get rid of the mode reference
-        # TODO we should consolidate all state re-evaluation in the same code location (flip.pl?)
-        if ( !( $Config{'network'}{'mode'} =~ /vlan/i ) ) {
-            require pf::iptables;
-            pf::iptables::iptables_unmark_node( $mac, $vid );
-        }
+
         my $grace = $class_info->{'grace_period'};
         db_query_execute(VIOLATION, $violation_statements, 'violation_close_sql', $mac, $vid)
             || return (0);
@@ -525,7 +520,6 @@ sub violation_force_close {
     my ( $mac, $vid ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::violation');
 
-    #iptables_unmark_node($mac, $vid);
     db_query_execute(VIOLATION, $violation_statements, 'violation_close_sql', $mac, $vid)
         || return (0);
     $logger->info("violation $vid force-closed for $mac");

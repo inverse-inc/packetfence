@@ -36,7 +36,6 @@ our (
     @listen_ints, @internal_nets, @routed_isolation_nets, @routed_registration_nets, @management_nets, @external_nets,
     @inline_enforcement_nets, @vlan_enforcement_nets,
     @dhcplistener_ints, $monitor_int,
-    $unreg_mark, $reg_mark, $black_mark,
     $default_config_file, %Default_Config, 
     $config_file, %Config, 
     $network_config_file, %ConfigNetworks,
@@ -58,7 +57,7 @@ BEGIN {
         @listen_ints @internal_nets @routed_isolation_nets @routed_registration_nets @management_nets @external_nets 
         @inline_enforcement_nets @vlan_enforcement_nets
         @dhcplistener_ints $monitor_int 
-        $unreg_mark $reg_mark $black_mark 
+        $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
         $default_config_file %Default_Config
         $config_file %Config
         $network_config_file %ConfigNetworks
@@ -72,7 +71,7 @@ BEGIN {
         VOIP NO_VOIP $NO_PORT $NO_VLAN
         LOOPBACK_IPV4
         %connection_type %connection_type_to_str %connection_type_explained
-        $RADIUS_API_LEVEL $VLAN_API_LEVEL $AUTHENTICATION_API_LEVEL
+        $RADIUS_API_LEVEL $VLAN_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL
         %CAPTIVE_PORTAL
         normalize_time
         is_vlan_enforcement_enabled is_inline_enforcement_enabled
@@ -187,6 +186,7 @@ use constant NO_VOIP => 'no';
 # API version constants
 Readonly::Scalar our $RADIUS_API_LEVEL => 1.00;
 Readonly::Scalar our $VLAN_API_LEVEL => 1.00;
+Readonly::Scalar our $INLINE_API_LEVEL => 1.00;
 Readonly::Scalar our $AUTHENTICATION_API_LEVEL => 1.00;
 
 # to shut up strict warnings
@@ -194,9 +194,9 @@ $ENV{PATH} = '/sbin:/bin:/usr/bin:/usr/sbin';
 
 # Inline related
 # Ip mash marks
-$unreg_mark = "0";
-$reg_mark   = "1";
-$black_mark = "2";
+Readonly::Scalar our $IPTABLES_MARK_UNREG => "0";
+Readonly::Scalar our $IPTABLES_MARK_REG => "1";
+Readonly::Scalar our $IPTABLES_MARK_ISOLATION => "2";
 
 Readonly::Scalar our $NO_PORT => 0;
 Readonly::Scalar our $NO_VLAN => 0;
@@ -293,7 +293,7 @@ sub readPfConfigFiles {
             $Config{$group}{$item} = File::Spec->catfile( $log_dir, $Config{$group}{$item} );
         }
     }
-    foreach my $val ("vlan.adjustswitchportvlanscript") {
+    foreach my $val ("advanced.adjustswitchportvlanscript") {
         my ( $group, $item ) = split( /\./, $val );
         if ( !File::Spec->file_name_is_absolute( $Config{$group}{$item} ) ) {
             $Config{$group}{$item} = File::Spec->catfile( $bin_dir, $Config{$group}{$item} );
