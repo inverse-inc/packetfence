@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 98;
+use Test::More tests => 102;
 use Test::NoWarnings;
 use lib '/usr/local/pf/lib';
 
