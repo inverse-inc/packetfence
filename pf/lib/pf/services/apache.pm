@@ -156,7 +156,7 @@ sub generate_httpd_conf {
 
     # TODO we *could* do something smarter and process all of conf/httpd.conf.d/
     my @config_files = ( 'block-unwanted.conf', 'captive-portal-common.conf', 'captive-portal-cleanurls.conf');
-    foreach $config_file (@config_files) {
+    foreach my $config_file (@config_files) {
         $logger->info("generating $generated_conf_dir/$config_file");
         parse_template(\%tags, "$conf_dir/httpd.conf.d/$config_file", "$generated_conf_dir/$config_file");
     }

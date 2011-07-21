@@ -47,7 +47,7 @@ sub new {
 =cut
 sub performInlineEnforcement { 
     my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::inline');
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     # What is the MAC's current state?
     my $current_mark = pf::iptables::get_mangle_mark_for_mac($mac);
@@ -67,7 +67,7 @@ sub performInlineEnforcement {
 =cut
 sub fetchMarkForNode {
     my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::inline');
+    my $logger = Log::Log4perl::get_logger(ref($this));
 
     # Violation first
     my $open_violation_count = violation_count_trap($mac);
