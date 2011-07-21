@@ -36,8 +36,6 @@ sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 sub supportsSnmpTraps { return $FALSE; }
 
-=back
-
 =head1 AUTHOR
 
 Francois Gaudreault <fgaudreault@inverse.ca>
