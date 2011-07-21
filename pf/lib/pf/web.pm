@@ -27,6 +27,7 @@ use strict;
 use warnings;
 
 use Date::Parse;
+use Encode;
 use File::Basename;
 use HTML::Entities;
 use JSON;
@@ -95,20 +96,22 @@ sub generate_release_page {
         redirect_url => $Config{'trapping'}{'redirecturl'},
         txt_page_title  => gettext("release: enabling network"),
         txt_message     => gettext("network access is being enabled"),
-        txt_opera => gettext(
+        txt_opera => encode_entities(decode_utf8(gettext(
             "There are known issues with the automatic redirection on Opera browsers. " 
             . "Please open a new browser window from time to time to see if your access was enabled."
-        ),
-        txt_ie => gettext("Some versions of Internet Explorer may take a while before redirection occur."),
+        ))),
+        txt_ie => encode_entities(decode_utf8(gettext(
+	    "Some versions of Internet Explorer may take a while before redirection occur."
+	))),
         txt_noscript => gettext(
             "If you have scripting turned off, you will not be automatically redirected. "
             . "Please enable scripting or open a new browser window from time to time " 
             . "to see if your access was enabled."
         ),
-        txt_timerexpired => gettext(
+        txt_timerexpired => encode_entities(decode_utf8(gettext(
             "Unable to detect network connectivity. "
             . "Try opening a web page to see if your access has been succesfully enabled."
-        ),
+        ))),
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
         retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
@@ -220,7 +223,7 @@ sub generate_login_page {
     }
 
     # return login
-    $vars->{'login'} = encode_entities($cgi->param("login"));
+    $vars->{'username'} = encode_entities($cgi->param("username"));
 
     # authentication
     $vars->{selected_auth} = encode_entities($cgi->param("auth")) || $Config{'registration'}{'default_auth'}; 
@@ -648,11 +651,13 @@ sub generate_pending_page {
         ],
         destination_url => $destination_url,
         redirect_url => $Config{'trapping'}{'redirecturl'},
-        txt_opera => gettext(
+        txt_opera => encode_entities(decode_utf8(gettext(
             "There are known issues with the automatic redirection on Opera browsers. " 
             . "Please open a new browser window from time to time to see if your access was enabled."
-        ),
-        txt_ie => gettext("Some versions of Internet Explorer may take a while before redirection occur."),
+        ))),
+        txt_ie => encode_entities(decode_utf8(gettext(
+	    "Some versions of Internet Explorer may take a while before redirection occur."
+	))),
         txt_noscript => gettext(
             "If you have scripting turned off, you will not be automatically redirected. "
             . "Please enable scripting or open a new browser window from time to time " 

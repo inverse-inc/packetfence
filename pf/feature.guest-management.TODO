@@ -1,3 +1,7 @@
+- ajouter addons/guest-manangement/ dans rpm
+- ajouter les tables dans le schema
+
+
 TODOs
 - Clean URL the new CGI's in httpd.conf as we did in trunk/
 - Re-test every page of every guest workflow since the captive portal merge hasn't been thoroughly tested 

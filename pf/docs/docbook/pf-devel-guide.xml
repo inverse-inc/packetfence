@@ -608,13 +608,45 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
           In order to support Floating Network Devices on a switch, you need to implement the following methods:
         </para>
         <itemizedlist>
-          <listitem><function>enablePortSecurityByIfIndex()</function></listitem>
-          <listitem><function>disablePortSecurityByIfIndex()</function></listitem>
-          <listitem><function>enablePortConfigAsTrunk()</function></listitem>
-          <listitem><function>disablePortConfigAsTrunk()</function></listitem>
-          <listitem><function>enableIfLinkUpDownTraps()</function> - usually provided by core</listitem>
-          <listitem><function>disableIfLinkUpDownTraps()</function> - usually provided by core</listitem>
-          <listitem><function>isTrunkPort()</function></listitem>
+          <listitem><function>setPortSecurityEnableByIfIndex($ifIndex, $enable)</function></listitem>
+          <listitem><function>isTrunkPort($ifIndex)</function></listitem>
+          <listitem><function>setModeTrunk($ifIndex, $enable)</function></listitem>
+          <listitem><function>setTaggedVlans($ifIndex, $switch_locker_ref, @vlans)</function></listitem>
+          <listitem><function>removeAllTaggedVlans($ifIndex, $switch_locker_ref)</function></listitem>
+        </itemizedlist>
+        <para>You might need to implement the following:</para>
+        <itemizedlist>
+          <listitem><function>enablePortConfigAsTrunk($mac, $switch_port, $switch_locker, $taggedVlans)</function>
+            - provided by <classname>pf::SNMP</classname> core as the glue between 
+            <classname>setModeTrunk()</classname>, <classname>setTaggedVlans()</classname> and 
+            <classname>removeAllTaggedVlans()</classname>.
+            Override if necessary.
+          </listitem>
+          <listitem><function>disablePortConfigAsTrunk($switch_port)</function>
+            - provided by <function>pf::SNMP</function> core as the glue between 
+            <function>setModeTrunk()</function>, <function>setTaggedVlans()</function> and 
+            <function>removeAllTaggedVlans()</function>.
+            Override if necessary.
+          </listitem>
+          <listitem><function>enablePortSecurityByIfIndex($ifIndex)</function>
+            - provided by <classname>pf::SNMP</classname> core as a slim accessor to 
+            <function>setPortSecurityEnableByIfIndex()</function>.
+            Override if necessary.
+          </listitem>
+          <listitem><function>disablePortSecurityByIfIndex($ifIndex)</function>
+            - provided by <classname>pf::SNMP</classname> core as a slim accessor to 
+            <function>setPortSecurityEnableByIfIndex()</function>.
+            Override if necessary.
+          </listitem>
+          <listitem><function>enableIfLinkUpDownTraps($ifIndex)</function>
+            - provided by <classname>pf::SNMP</classname> core as a slim accessor to 
+            <function>setIfLinkUpDownTrapEnable</function>.
+            Override if necessary.
+          </listitem>
+          <listitem><function>disableIfLinkUpDownTraps($ifIndex)</function>
+            - provided by <classname>pf::SNMP</classname> core as a slim accessor to 
+            Override if necessary.
+          </listitem>
         </itemizedlist>
 
         <para>Once all the required methods are implemented, enable the capability in the switch's code with:

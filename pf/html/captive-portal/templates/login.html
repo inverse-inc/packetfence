@@ -1,12 +1,13 @@
 [% INCLUDE header.html 
-    body_attributes = 'onload="$(\'login\').focus();"';
+    body_attributes = 'onload="$(\'username\').focus();"';
 %]
 
         [%# Welcome text %]
-        <div id="about" class="underlined">
+        <div id="about">
           <img src="content/images/lock.png" alt="You are not authorized" />
           <p>[% txt_all_systems_must_be_registered %]</p>
           <p>[% txt_to_complete %]</p>
+  <hr>
         </div>
 
         [%# Error %]
@@ -21,9 +22,9 @@
               <input type='hidden' name='auth' value='[% authentication_info.key %]' />
             [% END %]
           [% ELSE %]
-            <div class="input center">
-              <select name='auth'>
-                <option value=''>[% txt_select_authentication %]</option>
+            <div class="input">
+                <span>[% txt_select_authentication %]</span>
+        <select name='auth'>
                 [% FOREACH authentication_info IN list_authentications.pairs %]
                   <option [% IF authentication_info.key == selected_auth %]selected='selected' [% END %]
                     value='[% authentication_info.key %]'>[% authentication_info.value %]</option>
@@ -35,7 +36,7 @@
           [%# User / Pass %]
           <div class="input">
             <span>[% txt_username %]</span>
-	    <input class="field" name="username" id="login" type="text" value="[% login %]" />
+	    <input class="field" name="username" id="username" type="text" value="[% username %]" />
           </div>
           <div class="input">
             <span>[% txt_password %]</span><input class="field" name="password" type="password" />

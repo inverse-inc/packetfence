@@ -1,7 +1,7 @@
 0000default : {}
 
 MeruOS :
-    prompt            : '/[\/a-zA-Z0-9._-]+ ?(?:\(config[^)]*\))? ?[#>] ?$/'
+    prompt            : '/[\/a-zA-Z0-9._-]+(\([0-9]+\))? ?(?:\(config[^)]*\))? ?[#>] ?$/'
     basic_prompt      : '/> ?$/'
     privileged_prompt : '/# ?$/'
     configure_prompt  : '/\(config[^)]*\)# ?$/'

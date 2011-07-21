@@ -720,13 +720,13 @@ sub setPortSecurityViolationActionByIfIndex {
 
 }
 
-=item setTaggedVlan 
+=item setTaggedVlans
 
 Allows all the tagged Vlans on a multi-Vlan port. Used for floating network devices only 
 
 =cut
-sub setTaggedVlan {
-    my ( $this, $ifIndex, @vlans ) = @_;
+sub setTaggedVlans {
+    my ( $this, $ifIndex, $switch_locker, @vlans ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     
     if ( !$this->isProductionMode() ) {
@@ -770,13 +770,13 @@ sub setTaggedVlan {
     return defined($result);
 }   
 
-=item removeAllTaggedVlan 
+=item removeAllTaggedVlans 
 
 Removes all the tagged Vlans on a multi-Vlan port. Used for floating network devices only 
 
 =cut
-sub removeAllTaggedVlan {
-    my ( $this, $ifIndex) = @_;
+sub removeAllTaggedVlans {
+    my ( $this, $ifIndex, $switch_locker) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     if ( !$this->isProductionMode() ) {
@@ -824,9 +824,11 @@ sub removeAllTaggedVlan {
 
 =item enablePortConfigAsTrunk - sets port as multi-Vlan port
 
+Overriding default enablePortConfigAsTrunk to fix a race issue with Cisco
+
 =cut
 sub enablePortConfigAsTrunk {
-    my ($this, $mac, $switch_port, $taggedVlans)  = @_;
+    my ($this, $mac, $switch_port, $switch_locker, $taggedVlans)  = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     # switchport mode trunk
@@ -838,7 +840,7 @@ sub enablePortConfigAsTrunk {
 
     # switchport trunk allowed vlan x,y,z
     $logger->info("Allowing tagged Vlans on port $switch_port");
-    if (! $this->setTaggedVlan($switch_port, split(",", $taggedVlans)) ) {
+    if (! $this->setTaggedVlans($switch_port, $switch_locker, split(",", $taggedVlans)) ) {
         $logger->error("An error occured while allowing tagged Vlans on trunk port $switch_port");
         return 0;
     }
@@ -849,32 +851,6 @@ sub enablePortConfigAsTrunk {
     # trap cycle. The problem would probably not occur if we could enable only linkdown traps without linkup. 
     # But we can't on Cisco's...
     sleep(5);
-
-    return 1;
-}
-
-=item disablePortConfigAsTrunk - sets port as non multi-Vlan port
-
-=cut
-sub disablePortConfigAsTrunk {
-    my ($this, $switch_port) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-
-    # switchport mode access
-    $logger->info("Setting port $switch_port as non trunk.");
-    if (! $this->setModeTrunk($switch_port, $FALSE)) {
-        $logger->error("An error occured while disabling port $switch_port as multi-vlan (trunk)");
-        return 0;
-    }
-
-    # no switchport trunk allowed vlan
-    # this setting is not necessary but we thought it would ease the reading of the port configuration if we remove
-    # all the tagged vlan when they are not in use (port no longer trunk)
-    $logger->info("Disabling tagged Vlans on port $switch_port");
-    if (! $this->removeAllTaggedVlan($switch_port)) {
-        $logger->warn("An minor issue occured while disabling tagged Vlans on trunk port $switch_port " .
-                      "but the port should work.");
-    }
 
     return 1;
 }

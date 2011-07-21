@@ -40,7 +40,7 @@ our @compile_tests = qw(
 );
 
 our @dao_tests = qw(
-    dao/data.t dao/graph.t dao/node.t dao/person.t dao/report.t
+    dao/data.t dao/graph.t dao/node.t dao/os.t dao/person.t dao/report.t
 );
 
 our @integration_tests = qw(

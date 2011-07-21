@@ -68,6 +68,11 @@ o Upgrading from a version prior to <inline-mode-branch-release>:
 
 o Upgrading from a version prior to <trunk-release>:
 
+    - BACKUP YOUR /usr/local/pf/ BEFORE UPGRADING
+    All files in html/user/ will be removed on upgrade (everything is now
+    in html/captive-portal/ as you'll see below). This includes templates and 
+    remediation pages.
+
     - Authentication modules interface change
     All authentication modules (conf/authentication/*) were migrated into
     objects. Please carefully merge any module you were using by comparing
@@ -98,11 +103,13 @@ o Upgrading from a version prior to <trunk-release>:
     Upgrade your Apache. We don't think it's used by anyone at this point. Let
     us know if you need it back.
 
-    - jpgraph external libraries changed location
-    jpgraph files are expected to be located in /var/www/jpgraph-<version>/ 
-    instead of the earlier 
-    /usr/local/pf/html/admin/common/jpgraph/jpgraph-<version>. Users of our 
-    packaged versions won't notice the change.
+    - jpgraph external library now included with distribution
+    Due to jpgraph 2.3.4's rarity, we decided to inline the software instead
+    of building packages for it. This simplifies installation from tarball.
+    Jpgraph's installation used to be at 
+    /usr/local/pf/html/admin/common/jpgraph/jpgraph-<version> but is now in 
+    /usr/local/pf/lib/jpgraph-<version>. Users of our packaged versions won't 
+    notice the change and can get rid of the php-jpgraph-packetfence package.
 
     - jpgraph 1.x support deprecated
     We got rid of the 1.x jpgraph support. It was only required for 

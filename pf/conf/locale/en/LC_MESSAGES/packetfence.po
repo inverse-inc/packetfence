@@ -59,7 +59,7 @@ msgid  "register: to complete"
 msgstr "To complete the registration process, you will need to authenticate using your username and password."
 
 msgid "select authentication"
-msgstr "Authentication:"
+msgstr "Authentication"
 
 msgid  "register: skip registration"
 msgstr "Skip Registration"
@@ -348,7 +348,7 @@ msgstr ""
 msgid "There are known issues with the automatic redirection on Opera browsers. Please open a new browser window from time to time to see if your access was enabled."
 msgstr ""
 
-msgid "Some versions of Internet Explorer may take a while before redirection occurs."
+msgid "Some versions of Internet Explorer may take a while before redirection occur."
 msgstr ""
 
 msgid "I accept the terms"

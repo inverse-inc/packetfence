@@ -33,7 +33,7 @@
 #
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 2.3.0
+Version: 3.0.0
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -120,8 +120,6 @@ Requires: perl(Try::Tiny)
 Requires: perl(Crypt::GeneratePassword)
 Requires: perl(MIME::Lite::TT)
 Requires: perl(Cache::Cache), perl(HTML::Parser)
-# Used by Web Admin 
-Requires: php-jpgraph = 2.3.4
 # Used by Captive Portal authentication modules
 Requires: perl(Apache::Htpasswd)
 Requires: perl(Authen::Radius)
@@ -286,8 +284,8 @@ cd $curdir
 %pre
 
 if ! /usr/bin/id pf &>/dev/null; then
-	/usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
-		echo Unexpected error adding user "pf" && exit
+        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
+                echo Unexpected error adding user "pf" && exit
 fi
 
 #if [ ! `tty | cut -c0-8` = "/dev/tty" ];
@@ -312,8 +310,8 @@ fi
 %pre remote-snort-sensor
 
 if ! /usr/bin/id pf &>/dev/null; then
-	/usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
-		echo Unexpected error adding user "pf" && exit
+        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
+                echo Unexpected error adding user "pf" && exit
 fi
 
 %post
@@ -371,15 +369,15 @@ echo Installation complete.  Make sure you configure packetfence.pm, and restart
 
 %preun
 if [ $1 -eq 0 ] ; then
-	/sbin/service packetfence stop &>/dev/null || :
-	/sbin/chkconfig --del packetfence
+        /sbin/service packetfence stop &>/dev/null || :
+        /sbin/chkconfig --del packetfence
 fi
 #rm -f /usr/local/pf/conf/dhcpd/dhcpd.leases
 
 %preun remote-snort-sensor
 if [ $1 -eq 0 ] ; then
-	/sbin/service pfdetectd stop &>/dev/null || :
-	/sbin/chkconfig --del pfdetectd
+        /sbin/service pfdetectd stop &>/dev/null || :
+        /sbin/chkconfig --del pfdetectd
 fi
 
 %preun freeradius2
@@ -395,15 +393,15 @@ rm -f /etc/raddb/sites-enabled/packetfence-tunnel
 
 %postun
 if [ $1 -eq 0 ]; then
-	/usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
-#	/usr/sbin/groupdel pf || %logmsg "Group \"pf\" could not be deleted."
+        /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
+#       /usr/sbin/groupdel pf || %logmsg "Group \"pf\" could not be deleted."
 #else
-#	/sbin/service pf condrestart &>/dev/null || :
+#       /sbin/service pf condrestart &>/dev/null || :
 fi
 
 %postun remote-snort-sensor
 if [ $1 -eq 0 ]; then
-	/usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
+        /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
 fi
 
 %files
@@ -525,6 +523,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/snort.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf.pre_snort-2.8
 %config(noreplace)      /usr/local/pf/conf/ssl-certificates.conf
+%dir                    /usr/local/pf/conf/templates
+%config(noreplace)      /usr/local/pf/conf/templates/*
 %config                 /usr/local/pf/conf/ui.conf
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
 %dir                    /usr/local/pf/conf/users
@@ -561,6 +561,11 @@ fi
 %dir                    /usr/local/pf/lib
 %dir                    /usr/local/pf/lib/HTTP
                         /usr/local/pf/lib/HTTP/BrowserDetect.pm
+%doc                    /usr/local/pf/lib/jpgraph-2.3.4/QPL.txt
+%doc                    /usr/local/pf/lib/jpgraph-2.3.4/README
+%attr(0755, pf, pf)     /usr/local/pf/lib/jpgraph-2.3.4/
+%doc                    /usr/local/pf/lib/jpgraph-2.3.4/docs/*
+%doc                    /usr/local/pf/lib/jpgraph-2.3.4/src/Examples/
 %dir                    /usr/local/pf/lib/pf
                         /usr/local/pf/lib/pf/*.pm
 %dir                    /usr/local/pf/lib/pf/floatingdevice
@@ -583,6 +588,7 @@ fi
 %config(noreplace)      /usr/local/pf/lib/pf/vlan/custom.pm
 %dir                    /usr/local/pf/lib/pf/web
                         /usr/local/pf/lib/pf/web/*.pl
+                        /usr/local/pf/lib/pf/web/auth.pm
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
                         /usr/local/pf/lib/pf/web/guest.pm
                         /usr/local/pf/lib/pf/web/util.pm

@@ -109,7 +109,7 @@ sub enablePortConfig {
 # cause in this case there would be any traps enabled anymore... 
 
 
-    my ($this, $mac, $switch, $switch_port, $switch_locker) = @_;
+    my ($this, $mac, $switch, $switch_port, $switch_locker_ref) = @_;
     my $logger = Log::Log4perl::get_logger('pf::floatingdevice');
 
     # Since PF only manages floating network devices plugged in ports configured with port-security
@@ -127,7 +127,8 @@ sub enablePortConfig {
 
     # if port should be trunk
     if ( $ConfigFloatingDevices{$mac}{'trunkPort'}) {
-        if (! $switch->enablePortConfigAsTrunk($mac, $switch_port, $ConfigFloatingDevices{$mac}{'taggedVlan'})) {
+        if (! $switch->enablePortConfigAsTrunk($mac, $switch_port, $switch_locker_ref, 
+            $ConfigFloatingDevices{$mac}{'taggedVlan'})) {
             return 0;
         }
     }
@@ -136,7 +137,7 @@ sub enablePortConfig {
     # OR switchport access vlan x
     my $vlan = $ConfigFloatingDevices{$mac}{'pvid'};
     $logger->info("Setting PVID as $vlan on port $switch_port.");
-    if (! $switch->setVlan( $switch_port, $vlan, $switch_locker, $mac )) {
+    if (! $switch->setVlan( $switch_port, $vlan, $switch_locker_ref, $mac )) {
         $logger->info("An error occured while setting PVID as $vlan on port $switch_port.");
         return 0;
     }
@@ -162,7 +163,7 @@ sub disablePortConfig {
 # we have to change the error handling in case we leave the function before we enable port-security traps
 # cause in this case there would be any traps enabled anymore... 
 
-    my ($this, $mac, $switch, $switch_port, $switch_locker) = @_;
+    my ($this, $mac, $switch, $switch_port, $switch_locker_ref) = @_;
     my $logger = Log::Log4perl::get_logger('pf::floatingdevice');
 
     if (! $switch->supportsFloatingDevice()) {
@@ -180,13 +181,13 @@ sub disablePortConfig {
     # we check the actual port configuration rather than reading $ConfigFloatingDevices{$mac}{'trunkPort'} in the flat
     # file, just in case the flat file has changed 
     if ($switch->isTrunkPort($switch_port)) {
-        if (! $switch->disablePortConfigAsTrunk($switch_port)) {
+        if (! $switch->disablePortConfigAsTrunk($switch_port, $switch_locker_ref)) {
             return 0;
         }
     }
 
     $logger->info("Setting port $switch_port to MAC detection Vlan.");
-    if (! $switch->setMacDetectionVlan( $switch_port, $switch_locker)) {
+    if (! $switch->setMacDetectionVlan( $switch_port, $switch_locker_ref )) {
         $logger->warn("An minor issue occured while setting port $switch_port to MAC detection Vlan " .
                       "but the port should work.");
     }

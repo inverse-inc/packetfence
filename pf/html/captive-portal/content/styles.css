@@ -27,6 +27,14 @@ div#about h2,
 div.note h2 {
   font-size: 16px;
 }
+div#about hr {
+  border: 0;
+  border-bottom: 1px dotted #ccc;
+  height: 0;
+  clear: both;
+  margin-top: 5px;
+  margin-bottom: 20px;
+}
 div.input input.field,
 div.input div#aup,
 div.input div.note {
@@ -41,10 +49,6 @@ div#content {
 div#content p span {
   color: #555;
   display: inline;
-}
-div#content div#about.underlined {
-  border-bottom: 1px dotted #ccc;
-  margin-bottom: 20px;
 }
 div#content div.error {
   color: #eee;
@@ -69,6 +73,9 @@ h2,
 p,
 ul {
   margin: 10px;
+}
+em {
+  font-size: small;
 }
 div.note h1,
 div#about h1 {
@@ -128,7 +135,7 @@ div.input.center {
 }
 select,
 input.button {
-  font-size: 22px;
+  font-size: medium;
 }
 div#PBouter {
   margin: auto;
@@ -143,4 +150,23 @@ div#footer p {
 
 div#footer ul {
   padding-left: 124px;
+}
+
+body.print,
+body.print div#content {
+  background-image: none;
+  background-color: #fff;
+}
+body.print div#about h1,
+body.print div#about p {
+  padding-left: 0;
+}
+body.print div.input div.note {
+  border: 0;
+  border-top: 1px dotted #ccc;
+  margin-top: 20px;
+  padding-top: 10px;
+}
+body.print img {
+  display: none;
 }

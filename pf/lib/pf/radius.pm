@@ -389,6 +389,9 @@ sub _translateNasPortToIfIndex {
     if (($conn_type & WIRED) == WIRED) {
         $logger->trace("translating NAS-Port to ifIndex for proper accounting");
         return $switch->NasPortToIfIndex($port);
+    } elsif (($conn_type & WIRELESS) == WIRELESS && !defined($port)) {
+        $logger->debug("got empty NAS-Port parameter, setting 0 to avoid breakage");
+        $port = 0;
     }
     return $port;
 }

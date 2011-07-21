@@ -33,7 +33,7 @@
   if ($_SERVER["VHOST"] == "ADMIN") {
 
     # they must be authenticated, the below will take care of it
-    include('../../admin/common.php');
+    include('../admin/common.php');
 
     $preview = true;
     $template_path = $_SERVER['DOCUMENT_ROOT'] . "/../captive-portal/violations";
@@ -42,6 +42,9 @@
     $user_data['ip'] = "127.0.0.1";
     $user_data['mac'] = "ff:ff:ff:ff:ff:ff";
   } else {
+
+    # lib import
+    include('../admin/common/helpers.inc');
 
     # normal mode
     $preview = false;
@@ -68,15 +71,12 @@
     }
   }
 
-  # grab the logo from config
-  $PFCMD=dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/bin/pfcmd';
-  $command = 'config get general.logo';
-  exec("ARGS=".escapeshellarg($command)." $PFCMD 2>&1", $config);
-  # grabbing only what I'm interested in
-  list(, $logo_src ) = explode('|',array_shift($config));
+  # grab informations from configuration
+  $logo_src = get_configuration_value('general.logo');
+  $locale = get_configuration_value('general.locale');
 
   # i18n
-  setlocale(LC_ALL, 'en_US');
+  setlocale(LC_ALL, $locale);
   bindtextdomain("packetfence", "/usr/local/pf/conf/locale");
   textdomain("packetfence");
 

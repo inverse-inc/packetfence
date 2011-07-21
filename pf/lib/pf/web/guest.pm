@@ -197,6 +197,8 @@ sub generate_registration_page {
         \@pf::web::guest::REGISTRATION_DURATIONS, pf::web::web_get_locale($cgi, $session)
     );
 
+    $vars->{'login'} = $session->param("login") || "unknown";
+
     # showing errors
     if ( defined($err) ) {
         if ( $err == 1 ) {

@@ -41,12 +41,13 @@ my @pf_snmp_subs = `egrep "^sub " $lib_path/pf/SNMP.pm | awk '{ print \$2 }'`;
 my @whitelist = ( 
     'new', 'isUpLink', 'setVlanWithName', 'setVlanByName', 'setIsolationVlan', 'setRegistrationVlan',
     'setMacDetectionVlan', 'setNormalVlan', 'getMode', 'isTestingMode', 'isIgnoreMode', 'isRegistrationMode', 
-    'isProductionMode', 'isDiscoveryMode', 'resetTaggedVlan', 'getBitAtPosition', 'modifyBitmask', 
+    'isProductionMode', 'isDiscoveryMode', 'getBitAtPosition', 'modifyBitmask', 'flipBits',
     'createPortListWithOneItem', 'reverseBitmask', 'generateFakeMac', 'isFakeMac', 'isFakeVoIPMac', 'getVlanFdbId',
     'isNotUpLink', 'setVlan', 'setVlanAllPort', 'resetVlanAllPort', 'getMacAtIfIndex', 'hasPhoneAtIfIndex',
     'isPhoneAtIfIndex', '_authorizeMAC', 'getRegExpFromList', '_getMacAtIfIndex', 'getMacAddrVlan', 'getHubs',
     'getVlanByName', 'isManagedVlan', 'deauthenticateMac', 'setVlan', 'extractSsid', 'supportsWirelessMacAuth', 
-    'supportsWirelessDot1x', 'authorizeCurrentMacWithNewVlan', '_authorizeCurrentMacWithNewVlan'
+    'supportsWirelessDot1x', 'authorizeCurrentMacWithNewVlan', '_authorizeCurrentMacWithNewVlan',
+    'disableIfLinkUpDownTraps', 'enableIfLinkUpDownTraps',
 );
 
 my @missing_subs;
