@@ -1,5 +1,4 @@
 package authentication::local;
-
 =head1 NAME
 
 authentication::local - htaccess file authentication
@@ -7,10 +6,7 @@ authentication::local - htaccess file authentication
 =head1 SYNOPSIS
 
   use authentication::local;
-  my ( $authReturn, $err ) = authenticate ( 
-                                $login, 
-                                $password 
-                                          );
+  my ( $authReturn, $err ) = authenticate ( $login, $password );
 
 =head1 DESCRIPTION
 
@@ -21,53 +17,28 @@ combination using the htaccess file F<conf/user.conf>
 
 use strict;
 use warnings;
-
-BEGIN {
-  use Exporter ();
-  our (@ISA, @EXPORT);
-  @ISA    = qw(Exporter);
-  @EXPORT = qw(authenticate);
-}
-
 use Apache::Htpasswd;
 use Log::Log4perl;
 
+use base ('pf::web::auth');
 use pf::config;
 
-=head1 SUBROUTINES
+our $VERSION = 1.00;
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+=head2 Optional
 
 =over
 
-=item * authenticate( $login, $password )
+=item name
 
-  return (1,0) for successfull authentication
-  return (0,2) for inability to check credentials
-  return (0,1) for wrong login/password
+Name displayed on the captive portal dropdown
 
 =back
 
 =cut
-
-
-sub authenticate {
-  my ($username, $password) = @_;
-  my $logger = Log::Log4perl::get_logger('authentication::local');
-  my $passwdFile = "$conf_dir/user.conf";
-
-  if (! -r $passwdFile) {
-      $logger->error("unable to read password file '$passwdFile'");
-      return (0,2);
-  }
-
-  my $htpasswd = new Apache::Htpasswd({
-      passwdFile => $passwdFile,
-      ReadOnly   => 1});
-  if ( (!defined($htpasswd->htCheckPassword($username, $password))) or ($htpasswd->htCheckPassword($username, $password) == 0) ) {
-      return (0,1);
-  } else {
-      return (1,0);
-  }
-}
+my $name = "Local";
 
 =head1 DEPENDENCIES
 
@@ -81,13 +52,60 @@ sub authenticate {
 
 =back
 
+=head1 SUBROUTINES
+
+=over
+
+=item * authenticate( $login, $password )
+
+  return (1,0) for successfull authentication
+  return (0,2) for inability to check credentials
+  return (0,1) for wrong login/password
+
+=cut
+sub authenticate {
+  my ($this, $username, $password) = @_;
+  my $logger = Log::Log4perl::get_logger('authentication::local');
+  my $passwdFile = "$conf_dir/user.conf";
+
+  if (! -r $passwdFile) {
+      $logger->error("unable to read password file '$passwdFile'");
+      return (0,2);
+  }
+
+  my $htpasswd = new Apache::Htpasswd({ passwdFile => $passwdFile, ReadOnly   => 1});
+  if ( (!defined($htpasswd->htCheckPassword($username, $password))) 
+      or ($htpasswd->htCheckPassword($username, $password) == 0) ) {
+
+      return (0,1);
+  } else {
+      return (1,0);
+  }
+}
+
+=item * getName
+
+Returns name as configured
+
+=cut
+sub getName {
+    my ($this) = @_;
+    return $name;
+}
+
+=back
+
 =head1 AUTHOR
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2008 Inverse inc.
+Copyright (C) 2008-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

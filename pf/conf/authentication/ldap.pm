@@ -17,6 +17,17 @@ authentication::ldap - LDAP authentication
 authentication::ldap allows to validate a username/password
 combination using LDAP
 
+=cut
+use strict;
+use warnings;
+use diagnostics;
+use Log::Log4perl;
+use Net::LDAP;
+
+use base ('pf::web::auth');
+
+our $VERSION = 1.00;
+
 =head1 CONFIGURATION AND ENVIRONMENT
 
 Define the variables C<LDAPServer>, C<LDAPBindDN>, 
@@ -49,6 +60,29 @@ Do you want to search the whole subbranch of $LDAPUserBase
 for users or only direct entries at $LDAPUserBase ?
 
 =back
+
+=cut
+my $LDAPUserBase = "";
+my $LDAPUserKey = "cn";
+my $LDAPUserScope = "sub";
+my $LDAPBindDN = "";
+my $LDAPBindPassword = "";
+my $LDAPServer = "";
+my $LDAPGroupMemberKey = "memberOf";
+my $LDAPGroupDN = "";
+
+=head2 Optional
+
+=over
+
+=item name
+
+Name displayed on the captive portal dropdown
+
+=back
+
+=cut
+my $name = "LDAP";
 
 =head1 TESTING
 
@@ -88,33 +122,29 @@ LDAP servers:
 
 =cut
 
-use strict;
-use warnings;
-use diagnostics;
+=head1 DEPENDENCIES
 
-BEGIN {
-  use Exporter ();
-  our (@ISA, @EXPORT);
-  @ISA    = qw(Exporter);
-  @EXPORT = qw(authenticate);
-}
+=over
 
-use Net::LDAP;
-use Log::Log4perl;
+=item * Log::Log4perl
 
-my $LDAPUserBase = "";
-my $LDAPUserKey = "cn";
-my $LDAPUserScope = "sub";
-my $LDAPBindDN = "";
-my $LDAPBindPassword = "";
-my $LDAPServer = "";
-my $LDAPGroupMemberKey = "memberOf";
-my $LDAPGroupDN = "";
+=item * Net::LDAP
+
+=back
 
 =head1 SUBROUTINES
 
 =over 
 
+=item * getName
+
+Returns name as configured
+
+=cut
+sub getName {
+    my ($this) = @_;
+    return $name;
+}
 =item * authenticate ($login, $password)
 
   return (1,0) for successfull authentication
@@ -122,9 +152,8 @@ my $LDAPGroupDN = "";
   return (0,1) for wrong login/password
 
 =cut
-
 sub authenticate {
-  my ($username, $password) = @_;
+  my ($this, $username, $password) = @_;
   my $logger = Log::Log4perl::get_logger('authentication::ldap');
 
   my $connection = Net::LDAP->new($LDAPServer);
@@ -171,13 +200,13 @@ sub authenticate {
   return (1,0);
 }
 
-=item * get_membergroups
+=item * getMemberGroups
 
 Returns a list of all groups' DN in a given group DN.
 
 =cut
-sub get_membergroups {
-    my ($connection, $group_dn) = @_;
+sub getMemberGroups {
+    my ($this, $connection, $group_dn) = @_;
 
     my $result = $connection->search(
         base => $LDAPUserBase,
@@ -192,16 +221,6 @@ sub get_membergroups {
     }
     return @membergroups;
 }
-
-=back
-
-=head1 DEPENDENCIES
-
-=over
-
-=item * Log::Log4perl
-
-=item * Net::LDAP
 
 =back
 

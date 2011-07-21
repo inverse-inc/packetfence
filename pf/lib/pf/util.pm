@@ -43,6 +43,7 @@ BEGIN {
         pfmon_preload parse_template mysql_date oui_to_vendor mac2oid oid2mac 
         str_to_connection_type connection_type_to_str
         get_total_system_memory
+        get_translatable_time
     );
 }
 
@@ -844,6 +845,30 @@ sub get_total_system_memory {
     }
 
     return $total_mem;
+}
+
+=item get_translatable_time
+
+Returns a tuple with integer and english string representation of a time string as defined in pf.conf.
+ex: 7d will return (7, "day")
+
+Returns undef on failure
+
+=cut
+sub get_translatable_time {
+   my ($time) = @_;
+
+   # grab time unit
+   my ( $value, $unit ) = $time =~ /^(\d+)([smhdwy])$/i;
+   $unit = lc($unit);
+   if ($unit eq "s") { return ("second", "seconds", $value);
+   } elsif ($unit eq "m") { return ("minute", "minutes", $value);
+   } elsif ($unit eq "h") { return ("hour", "hours", $value); 
+   } elsif ($unit eq "d") { return ("day", "days", $value);
+   } elsif ($unit eq "w") { return ("week", "weeks", $value);
+   } elsif ($unit eq "y") { return ("year", "years", $value);
+   }
+   return;
 }
 
 =back

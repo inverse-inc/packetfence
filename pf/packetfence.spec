@@ -33,7 +33,7 @@
 #
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 2.2.1
+Version: 3.0.0
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -69,7 +69,6 @@ Requires: net-tools
 Requires: net-snmp >= 5.3.2.2
 Requires: mysql, perl-DBD-mysql
 Requires: perl >= 5.8.8, perl-suidperl
-Requires: perl-Apache-Htpasswd
 Requires: perl-Bit-Vector
 Requires: perl-CGI-Session, perl(JSON)
 Requires: perl-Class-Accessor
@@ -116,11 +115,13 @@ Requires: perl-Thread-Pool
 Requires: perl-TimeDate
 Requires: perl-UNIVERSAL-require
 Requires: perl-YAML
-Requires: php-jpgraph-packetfence = 2.3.4
 Requires: php-ldap
 Requires: perl(Try::Tiny)
-Requires: perl(Cache::Cache)
+Requires: perl(Crypt::GeneratePassword)
+Requires: perl(MIME::Lite::TT)
+Requires: perl(Cache::Cache), perl(HTML::Parser)
 # Used by Captive Portal authentication modules
+Requires: perl(Apache::Htpasswd)
 Requires: perl(Authen::Radius)
 Requires: perl(Authen::Krb5::Simple)
 # Required for importation feature
@@ -128,7 +129,7 @@ Requires: perl(Text::CSV)
 Requires: perl(Text::CSV_XS)
 # Required for testing
 # TODO: I noticed that we provide perl-Test-MockDBI in our repo, maybe we made a poo poo with the deps
-BuildRequires: perl(Test::MockModule), perl(Test::MockDBI), perl(Test::Perl::Critic)
+BuildRequires: perl(Test::MockModule), perl(Test::MockDBI), perl(Test::Perl::Critic), perl(Test::WWW::Mechanize)
 BuildRequires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception), perl(Test::NoWarnings)
 
 %description
@@ -220,7 +221,6 @@ cp addons/logrotate $RPM_BUILD_ROOT/usr/local/pf/addons/
 mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
 cp addons/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
-cp -r cgi-bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
 #pfdetect_remote
 mv addons/pfdetect_remote/initrd/pfdetectd $RPM_BUILD_ROOT%{_initrddir}/
@@ -268,14 +268,15 @@ cd $RPM_BUILD_ROOT/usr/local/pf/db
 ln -s pf-schema-2.2.0.sql ./pf-schema.sql
 
 #httpd.conf symlink
-#TODO: isn't it stupid to decide what Apache version is there at rpm build time?
+#We dropped support for pre 2.2.0 but keeping the symlink trick alive since Apache 2.4 is coming
 cd $RPM_BUILD_ROOT/usr/local/pf/conf
-if (/usr/sbin/httpd -v | egrep 'Apache/2\.[2-9]\.' > /dev/null)
-then
-  ln -s httpd.conf.apache22 ./httpd.conf
-else
-  ln -s httpd.conf.pre_apache22 ./httpd.conf
-fi
+ln -s httpd.conf.apache22 ./httpd.conf
+#if (/usr/sbin/httpd -v | egrep 'Apache/2\.[2-9]\.' > /dev/null)
+#then
+#  ln -s httpd.conf.apache22 ./httpd.conf
+#else
+#  ln -s httpd.conf.pre_apache22 ./httpd.conf
+#fi
 
 cd $curdir
 #end create symlinks
@@ -283,8 +284,8 @@ cd $curdir
 %pre
 
 if ! /usr/bin/id pf &>/dev/null; then
-	/usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
-		echo Unexpected error adding user "pf" && exit
+        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
+                echo Unexpected error adding user "pf" && exit
 fi
 
 #if [ ! `tty | cut -c0-8` = "/dev/tty" ];
@@ -309,8 +310,8 @@ fi
 %pre remote-snort-sensor
 
 if ! /usr/bin/id pf &>/dev/null; then
-	/usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
-		echo Unexpected error adding user "pf" && exit
+        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
+                echo Unexpected error adding user "pf" && exit
 fi
 
 %post
@@ -329,11 +330,6 @@ done
 if [ -e /etc/logrotate.d/snort ]; then
   echo Removing /etc/logrotate.d/snort - it kills snort every night
   rm -f /etc/logrotate.d/snort
-fi
-
-if [ -d /usr/local/pf/html/user/content/docs ]; then
-  echo Removing legacy docs directory
-  rm -rf /usr/local/pf/html/user/content/docs
 fi
 
 echo Installation complete
@@ -373,15 +369,15 @@ echo Installation complete.  Make sure you configure packetfence.pm, and restart
 
 %preun
 if [ $1 -eq 0 ] ; then
-	/sbin/service packetfence stop &>/dev/null || :
-	/sbin/chkconfig --del packetfence
+        /sbin/service packetfence stop &>/dev/null || :
+        /sbin/chkconfig --del packetfence
 fi
 #rm -f /usr/local/pf/conf/dhcpd/dhcpd.leases
 
 %preun remote-snort-sensor
 if [ $1 -eq 0 ] ; then
-	/sbin/service pfdetectd stop &>/dev/null || :
-	/sbin/chkconfig --del pfdetectd
+        /sbin/service pfdetectd stop &>/dev/null || :
+        /sbin/chkconfig --del pfdetectd
 fi
 
 %preun freeradius2
@@ -397,15 +393,15 @@ rm -f /etc/raddb/sites-enabled/packetfence-tunnel
 
 %postun
 if [ $1 -eq 0 ]; then
-	/usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
-#	/usr/sbin/groupdel pf || %logmsg "Group \"pf\" could not be deleted."
+        /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
+#       /usr/sbin/groupdel pf || %logmsg "Group \"pf\" could not be deleted."
 #else
-#	/sbin/service pf condrestart &>/dev/null || :
+#       /sbin/service pf condrestart &>/dev/null || :
 fi
 
 %postun remote-snort-sensor
 if [ $1 -eq 0 ]; then
-	/usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
+        /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
 fi
 
 %files
@@ -452,19 +448,16 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/flip.pl
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
-%dir                    /usr/local/pf/cgi-bin
-%attr(0755, pf, pf)     /usr/local/pf/cgi-bin/redir.cgi
-%attr(0755, pf, pf)     /usr/local/pf/cgi-bin/register.cgi
-%attr(0755, pf, pf)     /usr/local/pf/cgi-bin/release.cgi
-%attr(0755, pf, pf)     /usr/local/pf/cgi-bin/wispr.cgi
 %doc                    /usr/local/pf/ChangeLog
 %dir                    /usr/local/pf/conf
 %config(noreplace)      /usr/local/pf/conf/admin.perm
 %config(noreplace)      /usr/local/pf/conf/admin_ldap.conf
 %dir                    /usr/local/pf/conf/authentication
+%config(noreplace)      /usr/local/pf/conf/authentication/guest_managers.pm
 %config(noreplace)      /usr/local/pf/conf/authentication/kerberos.pm
 %config(noreplace)      /usr/local/pf/conf/authentication/local.pm
 %config(noreplace)      /usr/local/pf/conf/authentication/ldap.pm
+%config(noreplace)      /usr/local/pf/conf/authentication/preregistered_guests.pm
 %config(noreplace)      /usr/local/pf/conf/authentication/radius.pm
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config                 /usr/local/pf/conf/documentation.conf
@@ -519,7 +512,6 @@ fi
 %config                 /usr/local/pf/conf/dhcpd_vlan.conf
 %config                 /usr/local/pf/conf/httpd.conf
 %config                 /usr/local/pf/conf/httpd.conf.apache22
-%config                 /usr/local/pf/conf/httpd.conf.pre_apache22
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
 %config(noreplace)      /usr/local/pf/conf/named-registration.ca
@@ -530,6 +522,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/snort.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf.pre_snort-2.8
 %config(noreplace)      /usr/local/pf/conf/ssl-certificates.conf
+%dir                    /usr/local/pf/conf/templates
+%config(noreplace)      /usr/local/pf/conf/templates/*
 %config                 /usr/local/pf/conf/ui.conf
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
 %dir                    /usr/local/pf/conf/users
@@ -546,28 +540,31 @@ fi
 %dir                    /usr/local/pf/html
 %dir                    /usr/local/pf/html/admin
                         /usr/local/pf/html/admin/*
+%dir                    /usr/local/pf/html/captive-portal
+%attr(0755, pf, pf)     /usr/local/pf/html/captive-portal/*.cgi
+                        /usr/local/pf/html/captive-portal/*.php
+%config(noreplace)      /usr/local/pf/html/captive-portal/content/mobile.css
+%config(noreplace)      /usr/local/pf/html/captive-portal/content/styles.css
+                        /usr/local/pf/html/captive-portal/content/timerbar.js
+%dir                    /usr/local/pf/html/captive-portal/content/images
+                        /usr/local/pf/html/captive-portal/content/images/*
+%dir                    /usr/local/pf/html/captive-portal/templates
+%config(noreplace)      /usr/local/pf/html/captive-portal/templates/*
+%dir                    /usr/local/pf/html/captive-portal/violations
+%config(noreplace)      /usr/local/pf/html/captive-portal/violations/*
+%dir                    /usr/local/pf/html/captive-portal/wispr
+%config                 /usr/local/pf/html/captive-portal/wispr/*
 %dir                    /usr/local/pf/html/common
                         /usr/local/pf/html/common/*
-%dir                    /usr/local/pf/html/user
-%dir                    /usr/local/pf/html/user/3rdparty
-                        /usr/local/pf/html/user/3rdparty/timerbar.js
-%dir                    /usr/local/pf/html/user/content
-%config(noreplace)      /usr/local/pf/html/user/content/footer.html
-%config(noreplace)      /usr/local/pf/html/user/content/header.html
-%dir                    /usr/local/pf/html/user/content/images
-                        /usr/local/pf/html/user/content/images/*
-                        /usr/local/pf/html/user/content/index.php
-                        /usr/local/pf/html/user/content/style.php
-%dir                    /usr/local/pf/html/user/content/templates
-%config(noreplace)      /usr/local/pf/html/user/content/templates/*
-%dir                    /usr/local/pf/html/user/content/violations
-%config(noreplace)      /usr/local/pf/html/user/content/violations/*
-%dir                    /usr/local/pf/html/user/wispr
-%config                 /usr/local/pf/html/user/wispr/*
 %attr(0755, pf, pf)     /usr/local/pf/installer.pl
 %dir                    /usr/local/pf/lib
 %dir                    /usr/local/pf/lib/HTTP
                         /usr/local/pf/lib/HTTP/BrowserDetect.pm
+%doc                    /usr/local/pf/lib/jpgraph-2.3.4/QPL.txt
+%doc                    /usr/local/pf/lib/jpgraph-2.3.4/README
+%attr(0755, pf, pf)     /usr/local/pf/lib/jpgraph-2.3.4/
+%doc                    /usr/local/pf/lib/jpgraph-2.3.4/docs/*
+%doc                    /usr/local/pf/lib/jpgraph-2.3.4/src/Examples/
 %dir                    /usr/local/pf/lib/pf
                         /usr/local/pf/lib/pf/*.pm
 %dir                    /usr/local/pf/lib/pf/floatingdevice
@@ -588,7 +585,9 @@ fi
 %config(noreplace)      /usr/local/pf/lib/pf/vlan/custom.pm
 %dir                    /usr/local/pf/lib/pf/web
                         /usr/local/pf/lib/pf/web/*.pl
+                        /usr/local/pf/lib/pf/web/auth.pm
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
+                        /usr/local/pf/lib/pf/web/guest.pm
                         /usr/local/pf/lib/pf/web/util.pm
                         /usr/local/pf/lib/pf/web/wispr.pm
 %dir                    /usr/local/pf/logs

@@ -1,0 +1,16 @@
+<html>
+<head>
+  <title>[% txt_page_title %]</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=480" />
+  <link href="content/styles.css" media="screen" rel="stylesheet" type="text/css" />
+  <!--[if !IE]>-->
+    <link media="only screen and (max-device-width: 480px)" 
+      href="content/ios.css" type="text/css" rel="stylesheet" />
+  <!--<![endif]-->
+</head>
+<frameset rows="5*,1*" frameborder="0" framespacing="0"> 
+  <frame src="[% violation_url %]" name="content" frameborder="no"> 
+  <frame src="/enabler?destination_url=[% destination_url %]" name="enabler" frameborder="no"> 
+</frameset> 
+</html>

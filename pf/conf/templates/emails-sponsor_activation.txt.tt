@@ -1,0 +1,20 @@
+Hi,
+
+[% firstname %] [% lastname %] requested guest access to your network.
+
+Do NOT authorize access if you were not expecting this guest.
+
+Here is the information the guest provided with registration form:
+
+Firstname: [% firstname %]
+Lastname: [% lastname %]
+Phone number: [% phone %]
+Email: [% email %]
+
+In order to activate access we need you to click on the following link: [% activation_uri %]
+
+Until you click on the activation link this guest will have NO Internet access.
+
+Thank you for your cooperation.
+--
+This is a post only E-mail, please do not reply.

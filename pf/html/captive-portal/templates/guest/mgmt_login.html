@@ -1,0 +1,30 @@
+[% INCLUDE header.html %]
+
+        [%# Welcome text %]
+        <div id="about" class="underlined">
+          <img src="content/images/lock.png" alt="You are not logged in" />
+          <h1>[% txt_page_header %]</h1>
+          <p>You must be authenticated to manage guests.</p>
+        </div>
+
+        [%# Error %]
+        [% IF txt_auth_error.defined %]<div class="error"><p>[% txt_auth_error %]</p></div>[% END %]
+
+        <form method="post" action="[% post_uri %]">
+
+          [%# User / Pass %]
+          <div class="input">
+            <span>[% txt_username %]</span>
+            <input class="field" name="login" id="login" type="text" value="[% login %]" />
+          </div>
+          <div class="input">
+            <span>[% txt_password %]</span><input class="field" name="password" type="password" />
+          </div>
+
+          [%# submit %]
+          <div class="input">
+            <input type="submit" class="button" name="submit" value="[% txt_login %]" />
+          </div>
+        </form>
+
+[% INCLUDE guest/footer.html %]

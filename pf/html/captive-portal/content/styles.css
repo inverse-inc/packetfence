@@ -1,0 +1,172 @@
+body {
+  background: url('images/background.png') #4d4d4d repeat;
+}
+.mobile {
+  display: none;
+}
+div#container {
+  margin: 10px auto;
+  width: 456px;
+}
+div#header {
+  padding-bottom: 10px;
+  text-align: center;
+}
+div#content,
+div#footer {
+  font-family: 'Helvetica Neue', Helvetica, 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  margin: 0;
+  padding: 15px;
+}
+div#content,
+div#about h1,
+div.note h1 {
+  font-size: 18px;
+}
+div#about h2,
+div.note h2 {
+  font-size: 16px;
+}
+div#about hr {
+  border: 0;
+  border-bottom: 1px dotted #ccc;
+  height: 0;
+  clear: both;
+  margin-top: 5px;
+  margin-bottom: 20px;
+}
+div.input input.field,
+div.input div#aup,
+div.input div.note {
+  font-size: 14px;
+}
+div#content {
+  background-color: #eee;
+  text-transform: none;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+div#content p span {
+  color: #555;
+  display: inline;
+}
+div#content div.error {
+  color: #eee;
+  margin: 15px;
+}
+div#content div.error p {
+  background-color: #c00;
+  display: inline;
+  margin: 0;
+}
+div#about img,
+div#footer img {
+  float: left;
+}
+div#about h1,
+div#about p {
+  padding-left: 128px;
+}
+div.input,
+h1,
+h2,
+p,
+ul {
+  margin: 10px;
+}
+em {
+  font-size: small;
+}
+div.note h1,
+div#about h1 {
+  font-weight: bold;
+}
+div#about p strong {
+  background-color: #555;
+  color: #fff;
+}
+div.input {
+  color: #555;
+  padding-bottom: 10px;
+  text-align: right;
+}
+div.input span {
+  float: left;
+  clear: left;
+  padding: 4px;
+  text-align: left;
+  width: 100px;
+}
+div.input input.field {
+  border: 1px solid #ddd;
+  background-color: #fff;
+  padding: 3px;
+  width: 250px;
+}
+div.input input.field:focus {
+  background-color: #DEFEFF;
+  color: #333;
+}
+div.input div {
+  padding: 4px;
+  text-align: left;
+}
+div.input div#aup,
+div.input div.note {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  color: #222;
+  margin: 0;
+  padding: 0 5px;
+  overflow-y: auto;
+  text-align: left;
+  text-transform: none;
+  text-shadow: none;
+}
+div.note.justify,
+div.input div.note.justify {
+  text-align: justify;
+}
+div.input div#aup {
+  height: 150px;
+}
+div.input.center {
+  text-align: center;
+}
+select,
+input.button {
+  font-size: medium;
+}
+div#PBouter {
+  margin: auto;
+}
+div#footer {
+  color: #555;
+  font-size: 12px;
+}
+div#footer p {
+  padding-left: 96px;
+}
+
+div#footer ul {
+  padding-left: 124px;
+}
+
+body.print,
+body.print div#content {
+  background-image: none;
+  background-color: #fff;
+}
+body.print div#about h1,
+body.print div#about p {
+  padding-left: 0;
+}
+body.print div.input div.note {
+  border: 0;
+  border-top: 1px dotted #ccc;
+  margin-top: 20px;
+  padding-top: 10px;
+}
+body.print img {
+  display: none;
+}

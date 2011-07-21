@@ -97,6 +97,7 @@ DirectoryIndex index.html index.cgi index.php
   LoadModule perl_module modules/mod_perl.so
 </IfModule>
 PerlSwitches -I%%install_dir%%/lib
+PerlChildInitHandler "sub { srand }"
  
 AddType application/x-httpd-php .php
 #<Files *.php>
@@ -135,31 +136,34 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
 <VirtualHost *:80>
 
-  DocumentRoot %%install_dir%%/html/user
+  DocumentRoot %%install_dir%%/html/captive-portal
   ServerName %%hostname%%.%%domain%%:80
 
   Alias /favicon.ico %%install_dir%%/html/common/favicon.ico
   Alias /common/ %%install_dir%%/html/common/
-  ScriptAlias /cgi-bin/ "%%install_dir%%/cgi-bin/"
   # Prevent Browsers (Chrome and Firefox) to cache DNS while under the captive portal
   Header always set X-DNS-Prefetch-Control off
 
   #LogLevel debug
   CustomLog %%install_dir%%/logs/access_log combined
 
+  # Access control
+  <DirectoryMatch "%%install_dir%%/html/captive-portal">
+    Order deny,allow
+    Deny from all
+    allow from %%internal-nets%% %%routed-nets%% 127.0.0.1
+  </DirectoryMatch>
+
+  # Perl config
   PerlPostConfigRequire %%install_dir%%/lib/pf/web/captiveportal_modperl_require.pl
-  <Location /cgi-bin>
+  # Warning: old cgi style URL deprecated will be removed in an upcoming release
+  # Still accepted for a transition period. To be deprecated in 2012.
+  <Location ~ "(/cgi-bin/*.cgi|/*.cgi)">
     SetHandler perl-script
     PerlResponseHandler ModPerl::PerlRun
     PerlOptions +ParseHeaders
     Options Indexes FollowSymLinks ExecCGI
   </Location>
-
-  <DirectoryMatch "%%install_dir%%(/cgi-bin|/html/user)">
-    Order deny,allow
-    Deny from all
-    allow from %%internal-nets%% %%routed-nets%% 127.0.0.1
-  </DirectoryMatch>
 
   RewriteEngine On
   #RewriteLogLevel 3
@@ -198,10 +202,25 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
   # client-side WISPR support. Returning 302 because HTTP/1.0 clients don't support 307
   RewriteCond %{HTTP_USER_AGENT} CaptiveNetworkSupport.*wispr
-  RewriteRule ^.*$ http://%%hostname%%.%%domain%%/cgi-bin/wispr.cgi [R=302,L]
+  RewriteRule ^.*$ http://%%hostname%%.%%domain%%/wispr [R=302,L]
 
-  RewriteCond %{REQUEST_URI} !^/favicon.ico
-  RewriteCond %{REQUEST_URI} !^/msdownload/update/v3/static/trustedr/en/authrootseq.txt$
+  # clean urls handling
+  RewriteRule ^/access(.*)$ /register.cgi?mode=release$1 [PT,QSA]
+  RewriteRule ^/aup(.*)$ /register.cgi?mode=aup$1 [PT,QSA]
+  RewriteRule ^/authenticate(.*)$ /register.cgi$1 [PT]
+  RewriteRule ^/captive-portal(.*)$ /redir.cgi$1 [PT]
+  RewriteRule ^/enabler(.*)$ /redir.cgi?enable_menu=1 [PT,QSA]
+  RewriteRule ^/release(.*)$ /release.cgi$1 [PT]
+  RewriteRule ^/status(.*)$ /register.cgi?mode=status [PT,QSA]
+  RewriteRule ^/wispr(.*)$ /wispr.cgi$1 [PT]
+
+  # Warning: old cgi style URL deprecated will be removed in an upcoming release
+  # Still accepted for a transition period. To be deprecated in 2012.
+  ScriptAlias /cgi-bin/ "%%install_dir%%/html/captive-portal/"
+  RewriteRule ^/cgi-bin/content/(.*)$ /content/$1 [PT]
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-selfregistration.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/email_activation.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-management.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/register.cgi
@@ -209,11 +228,13 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteCond %{REQUEST_URI} !^/cgi-bin/wispr.cgi
   RewriteCond %{REQUEST_URI} !^/common
   RewriteCond %{REQUEST_URI} !^/content
-  RewriteCond %{REQUEST_URI} !^/3rdparty
-  RewriteCond %{REQUEST_URI} !^/status
+  RewriteCond %{REQUEST_URI} !^/favicon.ico
   RewriteCond %{REQUEST_URI} !^/proxies
+  RewriteCond %{REQUEST_URI} !^/proxy
+  RewriteCond %{REQUEST_URI} !^/remediation.php
+  RewriteCond %{REQUEST_URI} !^/msdownload/update/v3/static/trustedr/en/authrootseq.txt$
   # Now using temporary redirects instead of permanent (fixes #757)
-  RewriteRule ^.*$ https://%%hostname%%.%%domain%%/cgi-bin/redir.cgi?destination_url=http://%{HTTP_HOST}%{REQUEST_URI} [R=307,L]
+  RewriteRule ^.*$ https://%%hostname%%.%%domain%%/captive-portal?destination_url=http://%{HTTP_HOST}%{REQUEST_URI} [R=307,L]
 
   ProxyPassReverse /msdownload/update/v3/static/trustedr/en/authrootseq.txt http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootseq.txt
   ProxyPass /msdownload/update/v3/static/trustedr/en/authrootseq.txt http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootseq.txt
@@ -222,39 +243,39 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
 <VirtualHost *:443>
 
-  DocumentRoot "%%install_dir%%/html/user"
+  DocumentRoot "%%install_dir%%/html/captive-portal"
   ServerName %%hostname%%.%%domain%%:443
 
   Alias /favicon.ico %%install_dir%%/html/common/favicon.ico
   Alias /common/ %%install_dir%%/html/common/
-  #Alias /cgi-bin/register-skip.cgi %%install_dir%%/cgi-bin/register.cgi
-  ScriptAlias /cgi-bin/ "%%install_dir%%/cgi-bin/"
   # Prevent Browsers (Chrome and Firefox) to cache DNS while under the captive portal
   Header always set X-DNS-Prefetch-Control off
 
   #LogLevel debug
   CustomLog %%install_dir%%/logs/access_log combined
 
-  PerlPostConfigRequire %%install_dir%%/lib/pf/web/captiveportal_modperl_require.pl
-  <Location /cgi-bin>
-    SetHandler perl-script
-    PerlResponseHandler ModPerl::PerlRun
-    PerlOptions +ParseHeaders
-    Options Indexes FollowSymLinks ExecCGI
-  </Location>
-
-  <DirectoryMatch "%%install_dir%%(/cgi-bin|/html/user)">
+  # Access control
+  <DirectoryMatch "%%install_dir%%/html/captive-portal">
     SSLOptions +StdEnvVars
     Order deny,allow
     Deny from all
     allow from %%internal-nets%% %%routed-nets%% 127.0.0.1
   </DirectoryMatch>
 
+  # Perl config
+  PerlPostConfigRequire %%install_dir%%/lib/pf/web/captiveportal_modperl_require.pl
+  # Warning: old cgi style URL deprecated will be removed in an upcoming release
+  # Still accepted for a transition period. To be deprecated in 2012.
+  <Location ~ "(/cgi-bin/*.cgi|/*.cgi)">
+    SetHandler perl-script
+    PerlResponseHandler ModPerl::PerlRun
+    PerlOptions +ParseHeaders
+    Options Indexes FollowSymLinks ExecCGI
+  </Location>
+
   SSLEngine on
   SSLProxyEngine on
   Include %%varconf_dir%%/ssl-certificates.conf
-
-  Redirect /status https://%%hostname%%.%%domain%%/cgi-bin/register.cgi?mode=status
 
   RewriteEngine On
   #RewriteLogLevel 3
@@ -283,9 +304,30 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
   # client-side WISPR support. Returning 302 because HTTP/1.0 clients don't support 307
   RewriteCond %{HTTP_USER_AGENT} CaptiveNetworkSupport.*wispr
-  RewriteRule ^.*$ http://%%hostname%%.%%domain%%/cgi-bin/wispr.cgi [R=302,L]
+  RewriteRule ^.*$ https://%%hostname%%.%%domain%%/wispr [R=302,L]
 
-  RewriteCond %{REQUEST_URI} !^/favicon.ico
+  # Email activation clean URL to cgi conversion
+  RewriteCond %{REQUEST_URI} ^/activate/.+$
+  # [PT] here allows us to mix ScriptAlias and mod_rewrite stuff
+  RewriteRule ^/activate/([0-9a-z]+)$ https://%%hostname%%.%%domain%%/email_activation.cgi?code=$1 [PT]
+
+  # clean urls handling
+  RewriteRule ^/access(.*)$ /register.cgi?mode=release$1 [PT,QSA]
+  RewriteRule ^/aup(.*)$ /register.cgi?mode=aup$1 [PT,QSA]
+  RewriteRule ^/authenticate(.*)$ /register.cgi$1 [PT]
+  RewriteRule ^/captive-portal(.*)$ /redir.cgi$1 [PT]
+  RewriteRule ^/enabler(.*)$ /redir.cgi?enable_menu=1 [PT,QSA]
+  RewriteRule ^/release(.*)$ /release.cgi$1 [PT]
+  RewriteRule ^/status(.*)$ /register.cgi?mode=status [PT,QSA]
+  RewriteRule ^/wispr(.*)$ /wispr.cgi$1 [PT]
+
+  # Warning: old cgi style URL deprecated will be removed in an upcoming release
+  # Still accepted for a transition period. To be deprecated in 2012.
+  ScriptAlias /cgi-bin/ "%%install_dir%%/html/captive-portal/"
+  RewriteRule ^/cgi-bin/content/(.*)$ /content/$1 [PT]
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-selfregistration.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/email_activation.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-management.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/register.+\.cgi
@@ -294,15 +336,16 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteCond %{REQUEST_URI} !^/cgi-bin/wispr.cgi
   RewriteCond %{REQUEST_URI} !^/common
   RewriteCond %{REQUEST_URI} !^/content
-  RewriteCond %{REQUEST_URI} !^/3rdparty
-  RewriteCond %{REQUEST_URI} !^/status
+  RewriteCond %{REQUEST_URI} !^/favicon.ico
   RewriteCond %{REQUEST_URI} !^/proxies
+  RewriteCond %{REQUEST_URI} !^/proxy
+  RewriteCond %{REQUEST_URI} !^/remediation.php
   # Now using temporary redirects instead of permanent (fixes #757)
-  RewriteRule ^.*$ https://%%hostname%%.%%domain%%/cgi-bin/redir.cgi?destination_url=https://%{HTTP_HOST}%{REQUEST_URI} [R=307,L]
+  RewriteRule ^.*$ https://%%hostname%%.%%domain%%/captive-portal?destination_url=https://%{HTTP_HOST}%{REQUEST_URI} [R=307,L]
 
 %%proxies%%                
 
-  <Location /content>
+  <Location />
     Options Indexes FollowSymLinks ExecCGI
     php_value session.save_path "%%install_dir%%/var/session"
     #(E_ALL & ~E_NOTICE) = 2047-8
@@ -315,14 +358,15 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
   DocumentRoot "%%install_dir%%/html/admin"
   ServerName %%hostname%%.%%domain%%:%%admin_port%%
-  SetEnv VHOST ADMIN
 
   Alias /favicon.ico %%install_dir%%/html/common/favicon.ico
   Alias /common/ %%install_dir%%/html/common/
   Alias /cgi-bin/pfcmd.cgi %%install_dir%%/bin/pfcmd
-  Alias /cgi-bin/pdp.cgi %%install_dir%%/cgi-bin/pdp.cgi
   Alias /docs/ %%install_dir%%/docs/
-  Alias /content/ %%install_dir%%/html/user/content/
+  # Allows previewing captive-portal remediation pages
+  SetEnv VHOST ADMIN
+  Alias /remediation.php %%install_dir%%/html/captive-portal/remediation.php
+  Alias /content/ %%install_dir%%/html/captive-portal/content/
 
   #LogLevel debug
   CustomLog %%install_dir%%/logs/admin_access_log combined
@@ -349,7 +393,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
     require valid-user
   </Location>
 
-  <LocationMatch /cgi-bin/(pfcmd|pdp).cgi>
+  <LocationMatch /cgi-bin/pfcmd.cgi>
     AuthUserFile %%install_dir%%/conf/admin.conf
     AuthGroupFile /dev/null
     AuthName "PacketFence Authentication"

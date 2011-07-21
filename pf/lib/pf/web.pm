@@ -27,12 +27,15 @@ use strict;
 use warnings;
 
 use Date::Parse;
+use Encode;
 use File::Basename;
+use HTML::Entities;
 use JSON;
-use POSIX;
-use Template;
 use Locale::gettext;
 use Log::Log4perl;
+use POSIX;
+use Template;
+use Try::Tiny;
 
 BEGIN {
     use Exporter ();
@@ -47,6 +50,7 @@ use pf::util;
 use pf::iplog qw(ip2mac);
 use pf::node qw(node_attributes node_view node_modify);
 use pf::useragent;
+use pf::web::auth; 
 
 =head1 SUBROUTINES
 
@@ -80,10 +84,11 @@ sub web_get_locale {
 }
 
 sub generate_release_page {
-    my ( $cgi, $session, $destination_url ) = @_;
+    my ( $cgi, $session, $destination_url, $mac ) = @_;
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
+    my $ip = get_client_ip($cgi);
     my $vars = {
         logo            => $Config{'general'}{'logo'},
         timer           => $Config{'trapping'}{'redirtimer'},
@@ -91,23 +96,30 @@ sub generate_release_page {
         redirect_url => $Config{'trapping'}{'redirecturl'},
         txt_page_title  => gettext("release: enabling network"),
         txt_message     => gettext("network access is being enabled"),
-        txt_opera => gettext(
+        txt_opera => encode_entities(decode_utf8(gettext(
             "There are known issues with the automatic redirection on Opera browsers. " 
             . "Please open a new browser window from time to time to see if your access was enabled."
-        ),
-        txt_ie => gettext("Some versions of Internet Explorer may take a while before redirection occur."),
+        ))),
+        txt_ie => encode_entities(decode_utf8(gettext(
+            "Some versions of Internet Explorer may take a while before redirection occur."
+        ))),
         txt_noscript => gettext(
             "If you have scripting turned off, you will not be automatically redirected. "
             . "Please enable scripting or open a new browser window from time to time " 
             . "to see if your access was enabled."
         ),
-        txt_timerexpired => gettext(
+        txt_timerexpired => encode_entities(decode_utf8(gettext(
             "Unable to detect network connectivity. "
             . "Try opening a web page to see if your access has been succesfully enabled."
-        ),
+        ))),
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
         retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
+        txt_help => gettext("help: provide info"),
+        list_help_info  => [
+            { name => gettext('IP'),  value => $ip },
+            { name => gettext('MAC'), value => $mac }
+        ],
     };
 
     # override destination_url if we enabled the always_use_redirecturl option
@@ -116,7 +128,7 @@ sub generate_release_page {
     }
 
     my $html_txt;
-    my $template = Template->new({ INCLUDE_PATH => ["$install_dir/html/user/content/templates"], });
+    my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], });
     $template->process( "release.html", $vars, \$html_txt );
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
@@ -131,9 +143,13 @@ sub generate_release_page {
 
 sub generate_scan_start_page {
     my ( $cgi, $session, $destination_url ) = @_;
+
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
+
+    my $ip = get_client_ip($cgi);
+    my $mac = ip2mac($ip);
     my $vars = {
         logo            => $Config{'general'}{'logo'},
         timer           => $Config{'scan'}{'duration'},
@@ -144,13 +160,21 @@ sub generate_scan_start_page {
             $Config{'scan'}{'duration'}
         ),
         txt_enabling => gettext("Scanning ..."),
+        txt_help => gettext("help: provide info"),
+        list_help_info  => [
+            { name => gettext('IP'),  value => $ip },
+            { name => gettext('MAC'), value => $mac }
+        ],
+        txt_noscript => gettext(
+            "If you have scripting turned off, you will not be automatically redirected. "
+            . "Please enable scripting or open a new browser window from time to time " 
+            . "to see if your access was enabled."
+        ),
     };
     # Once the progress bar is over, try redirecting
-    $vars->{js_action} = "var action = function() { top.location.href=destination_url; }";
     my $html_txt;
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
-    $template->process( "release.html", $vars, \$html_txt );
+    my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
+    $template->process( "scan.html", $vars, \$html_txt );
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header(
         -cookie         => $cookie,
@@ -161,26 +185,35 @@ sub generate_scan_start_page {
     exit;
 }
 
-
 sub generate_login_page {
-    my ( $cgi, $session, $post_uri, $destination_url, $err ) = @_;
+    my ( $cgi, $session, $destination_url, $mac, $err ) = @_;
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
+    my $ip = get_client_ip($cgi);
     my $vars = {
+        txt_page_title  => gettext('Login'),
         logo            => $Config{'general'}{'logo'},
         destination_url => $destination_url,
-        post_uri        => $post_uri,
+        txt_all_systems_must_be_registered => gettext("register: all systems must be registered"),
+        txt_to_complete => gettext("register: to complete"),
         txt_username    => gettext('Username'),
         txt_login       => gettext('Login'),
         txt_password    => gettext('Password'),
-        txt_page_title  => gettext('Login'),
-        txt_select_authentications =>
-            gettext("register: select authentications"),
-        txt_page_header => gettext('Login')
+        txt_select_authentication => gettext("select authentication"),
+        txt_aup => gettext("Acceptable Use Policy"),
+        txt_accept_terms => gettext("I accept the terms"),
+        txt_accept_terms_mobile => gettext("I have read and accept the terms"),
+        txt_help        => gettext("help: provide info"),
+        list_help_info  => [
+            { name => gettext('IP'),  value => $ip },
+            { name => gettext('MAC'), value => $mac }
+        ],
     };
     if ( defined($err) ) {
-        if ( $err == 2 ) {
+        if ( $err == 3 ) {
+            $vars->{'txt_auth_error'} = gettext('You need to accept the terms before proceeding any further.');
+        } elsif ( $err == 2 ) {
             $vars->{'txt_auth_error'} = gettext(
                 'error: unable to validate credentials at the moment');
         } elsif ( $err == 1 ) {
@@ -189,26 +222,17 @@ sub generate_login_page {
         }
     }
 
-    my @auth = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
+    # return login
+    $vars->{'username'} = encode_entities($cgi->param("username"));
 
-    #
-    # if no skip and one Auth type you don't need a pull down...
-    if ( scalar(@auth) == 1 ) {
-        push @{ $vars->{list_authentications} },
-            { name => 'auth', value => $auth[0] };
-    } else {
-        foreach my $auth (@auth) {
-            my $auth_name = $auth;
-            push @{ $vars->{list_authentications} },
-                { name => $auth, value => $auth };
-        }
-    }
+    # authentication
+    $vars->{selected_auth} = encode_entities($cgi->param("auth")) || $Config{'registration'}{'default_auth'}; 
+    $vars->{list_authentications} = pf::web::auth::list_enabled_auth_types();
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process( "login.html", $vars );
     exit;
 }
@@ -229,8 +253,7 @@ sub generate_enabler_page {
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], });
     $template->process( "enabler.html", $vars );
     exit;
 }
@@ -244,23 +267,57 @@ sub generate_redirect_page {
         logo            => $Config{'general'}{'logo'},
         violation_url   => $violation_url,
         destination_url => $destination_url,
+        txt_page_title => gettext('Quarantine Established!'),
     };
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process( "redirect.html", $vars );
+    exit;
+}
+
+=item generate_aup_standalone_page
+
+Called when someone clicked on /aup which is the pop=up URL for mobile phones.
+
+=cut
+sub generate_aup_standalone_page {
+    my ( $cgi, $session, $mac ) = @_;
+    setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
+    bindtextdomain( "packetfence", "$conf_dir/locale" );
+    textdomain("packetfence");
+    my $ip = get_client_ip($cgi);
+    my $vars = {
+        logo          => $Config{'general'}{'logo'},
+        txt_page_title => gettext('Acceptable Use Policy'),
+        txt_help        => gettext("help: provide info"),
+        list_help_info  => [
+            { name => gettext('IP'),  value => $ip },
+            { name => gettext('MAC'), value => $mac }
+        ],
+    };
+
+    my $cookie = $cgi->cookie( CGISESSID => $session->id );
+    print $cgi->header( -cookie => $cookie );
+
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], }
+    );
+    $template->process( "aup.html", $vars );
     exit;
 }
 
 sub generate_scan_status_page {
     my ( $cgi, $session, $scan_start_time, $destination_url ) = @_;
     my $refresh_timer = 10; # page will refresh each 10 seconds
+
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
+
+    my $ip = get_client_ip($cgi);
+    my $mac = ip2mac($ip);
     my $vars = {
         logo             => $Config{'general'}{'logo'},
         txt_page_title   => gettext('scan: scan in progress'),
@@ -268,23 +325,18 @@ sub generate_scan_status_page {
         txt_message      => sprintf(gettext('scan in progress contact support if too long'), $scan_start_time),
         txt_auto_refresh => sprintf(gettext('automatically refresh'), $refresh_timer),
         destination_url  => $destination_url,
-        refresh_timer    => $refresh_timer
+        refresh_timer    => $refresh_timer,
+        txt_help        => gettext("help: provide info"),
+        list_help_info  => [
+            { name => gettext('IP'),  value => $ip },
+            { name => gettext('MAC'), value => $mac }
+        ],
     };
-
-    my $ip = get_client_ip($cgi);
-    push @{ $vars->{list_help_info} },
-        { name => gettext('IP'), value => $ip };
-    my $mac = ip2mac($ip);
-    if ($mac) {
-        push @{ $vars->{list_help_info} },
-            { name => gettext('MAC'), value => $mac };
-    }
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process( "scan-in-progress.html", $vars );
     exit;
 }
@@ -322,8 +374,7 @@ sub generate_error_page {
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process( "error.html", $vars );
     exit;
 }
@@ -331,20 +382,18 @@ sub generate_error_page {
 # ugly hack - fix me!
 sub generate_status_page {
     my ( $cgi, $session, $mac ) = @_;
-    my ( $auth_return, $err ) = web_user_authenticate( $cgi, $session );
-    if ( $auth_return != 1 ) {
-        generate_login_page( $cgi, $session, $ENV{REQUEST_URI}, '', $err );
-        exit(0);
-    }
+
     my $node_info = node_attributes($mac);
-    if ( $session->param("login") ne $node_info->{'pid'} ) {
+    if ( $session->param("username") ne $node_info->{'pid'} ) {
         generate_error_page( $cgi, $session,
             "error: access denied not owner" );
         exit(0);
     }
+
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
+
     my $ip   = get_client_ip($cgi);
     my $vars = {
         logo            => $Config{'general'}{'logo'},
@@ -354,7 +403,12 @@ sub generate_status_page {
         txt_violations  => gettext('Violations'),
         txt_print       => gettext('Print this page'),
         txt_deregister  => gettext('De-register node'),
-        txt_node        => gettext('Node')
+        txt_node        => gettext('Node'),
+        txt_help        => gettext("help: provide info"),
+        list_help_info  => [
+            { name => gettext('IP'),  value => $ip },
+            { name => gettext('MAC'), value => $mac }
+        ],
     };
     $vars->{list_addresses} = [
         { name => gettext('IP'),  value => $ip },
@@ -390,8 +444,7 @@ sub generate_status_page {
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process( "status.html", $vars );
     exit;
 }
@@ -479,6 +532,9 @@ sub web_node_record_user_agent {
 }
 
 sub web_user_authenticate {
+    my ( $cgi, $session ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web');
+    $logger->trace("authentication attempt");
 
     # TODO extract these magic digits in constants
     # return (1,0) for successfull authentication
@@ -486,31 +542,34 @@ sub web_user_authenticate {
     # return (0,1) for wrong login/password
     # return (0,0) for first attempt
 
-    my ( $cgi, $session ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web');
-    if (   $cgi->param("login")
-        && $cgi->param("password")
-        && $cgi->param("auth") )
-    {
+    if (   $cgi->param("username") && $cgi->param("password") && $cgi->param("auth") ) {
+
+        # acceptable use pocliy accepted?
+        if (!defined($cgi->param("aup_signed")) || !$cgi->param("aup_signed")) {
+            return ( 0 , 3 );
+        }
+
         my $auth = $cgi->param("auth");
-        my @auth_choices
-            = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
+
+        # validates if supplied auth type is allowed by configuration
+        my @auth_choices = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
         if ( grep( { $_ eq $auth } @auth_choices ) == 0 ) {
             return ( 0, 2 );
         }
 
-        #validate login and password
-        eval "use authentication::$auth";
-        if ($@) {
-            $logger->error("ERROR loading authentication::$auth $@");
+        my ($authenticator, $authReturn, $err);
+        try {
+            $authenticator = pf::web::auth::get_instance($auth);
+            # validate login and password
+            ( $authReturn, $err ) = $authenticator->authenticate( $cgi->param("username"), $cgi->param("password") );
+        } catch {
+            $logger->error("Authentication module authentication::$auth failed. $_");
+        };
+        if (!defined($authReturn)) {
             return ( 0, 2 );
-        }
-        my ( $authReturn, $err )
-            = authenticate( $cgi->param("login"), $cgi->param("password") );
-        if ( $authReturn == 1 ) {
-
+        } elsif( $authReturn == 1 ) {
             #save login into session
-            $session->param( "login",    $cgi->param("login") );
+            $session->param( "username", $cgi->param("username") );
             $session->param( "authType", $auth );
         }
         return ( $authReturn, $err );
@@ -521,9 +580,12 @@ sub web_user_authenticate {
 sub generate_registration_page {
     my ( $cgi, $session, $destination_url, $mac, $pagenumber ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
+    $pagenumber = 1 if (!defined($pagenumber));
+
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
+
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
     my $ip   = get_client_ip($cgi);
@@ -534,11 +596,6 @@ sub generate_registration_page {
         txt_page_title  => gettext("PacketFence Registration System"),
         txt_page_header => gettext("PacketFence Registration System"),
         txt_help        => gettext("help: provide info"),
-        txt_aup         => gettext("Acceptable Use Policy"),
-        txt_all_systems_must_be_registered =>
-            gettext("register: all systems must be registered"),
-        txt_to_complete => gettext("register: to complete"),
-        txt_msg_aup     => gettext("register: aup"),
         list_help_info  => [
             { name => gettext('IP'),  value => $ip },
             { name => gettext('MAC'), value => $mac }
@@ -561,12 +618,10 @@ sub generate_registration_page {
 
     if ( $pagenumber == $Config{'registration'}{'nbregpages'} ) {
         $vars->{'button_text'} = gettext($Config{'registration'}{'button_text'});
-        $vars->{'form_action'} = '/cgi-bin/register.cgi?mode=register';
+        $vars->{'form_action'} = '/authenticate';
     } else {
-        $vars->{'button_text'} = ( int($pagenumber) + 1 ) . " / "
-            . $Config{'registration'}{'nbregpages'};
-        $vars->{'form_action'} = '/cgi-bin/register.cgi?mode=next_page&page='
-            . ( int($pagenumber) + 1 );
+        $vars->{'button_text'} = gettext("Next page");
+        $vars->{'form_action'} = '/authenticate?mode=next_page&page=' . ( int($pagenumber) + 1 );
     }
 
     # check to see if node can skip reg
@@ -607,8 +662,7 @@ sub generate_registration_page {
         }
     }
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process( "register.html", $vars );
     exit;
 }
@@ -635,11 +689,22 @@ sub generate_pending_page {
         ],
         destination_url => $destination_url,
         redirect_url => $Config{'trapping'}{'redirecturl'},
-        txt_opera => gettext(
+        txt_opera => encode_entities(decode_utf8(gettext(
             "There are known issues with the automatic redirection on Opera browsers. " 
             . "Please open a new browser window from time to time to see if your access was enabled."
+        ))),
+        txt_ie => encode_entities(decode_utf8(gettext(
+            "Some versions of Internet Explorer may take a while before redirection occur."
+        ))),
+        txt_noscript => gettext(
+            "If you have scripting turned off, you will not be automatically redirected. "
+            . "Please enable scripting or open a new browser window from time to time " 
+            . "to see if your access was enabled."
         ),
-        txt_ie => gettext("Some versions of Internet Explorer may take a while before redirection occur."),
+        txt_pending => gettext(
+            "Your registration is pending approval. "
+            . "Once approved you will be automatically redirected."
+        ),
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_INITIAL_DELAY'},
         retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_RETRY_DELAY'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
@@ -653,8 +718,7 @@ sub generate_pending_page {
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new(
-        { INCLUDE_PATH => ["$install_dir/html/user/content/templates"], } );
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process("pending.html", $vars);
     exit;
 }

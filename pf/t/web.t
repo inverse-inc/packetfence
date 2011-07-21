@@ -13,10 +13,12 @@ use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
-use Test::More tests => 17;
+use Test::More tests => 19;
 use Test::NoWarnings;
 
 BEGIN { use_ok('pf::web') }
+BEGIN { use_ok('pf::web::custom') }
+BEGIN { use_ok('pf::web::guest') }
 BEGIN { use_ok('pf::web::util') }
 BEGIN { use_ok('pf::web::wispr') }
 

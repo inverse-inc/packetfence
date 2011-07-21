@@ -268,7 +268,7 @@ foreach my $help_arg (@main_args) {
 
 # test version
 @output = `/usr/local/pf/bin/pfcmd version`;
-like ( $output[0], qr'PacketFence 2.2.1',
+like ( $output[0], qr'PacketFence 3.0.0dev',
        "pfcmd version is correct" );
 
 # reproducing issue #1206: pid=email@address.com not accepted in pfcmd node view ...
