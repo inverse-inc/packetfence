@@ -76,6 +76,7 @@ Bug fixes
  * Fixed issue to detect the shell prompt MeruOS 4.1 or greater (#1232)
  * Fixed issues with wireless hardware not sending a NAS-Port parameter
  * Fixed Apache configuration problems on non RHEL / CentOS platforms
+ * Fixed other cases of warnings from our FreeRADIUS module
 
 --------------------------------------------------------------------------------
 Version 2.2.1 released on 2011-06-16

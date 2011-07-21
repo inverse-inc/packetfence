@@ -63,7 +63,7 @@ is_deeply($radius_response,
 $radius_request->{'NAS-IP-Address'} = "10.0.0.100";
 $radius_response = $radius->authorize($radius_request);
 is_deeply($radius_response, 
-    [$RADIUS::RLM_MODULE_FAIL, undef],
+    [$RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence")],
     "expect failure: switch doesn't exist"
 );
 
@@ -71,7 +71,7 @@ is_deeply($radius_response,
 $radius_request->{'NAS-IP-Address'} = "192.168.0.1";
 $radius_response = $radius->authorize($radius_request);
 is_deeply($radius_response, 
-    [$RADIUS::RLM_MODULE_FAIL, undef],
+    [$RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Network device does not support this mode of operation")],
     "expect failure: switch doesn't support Wired MAC Auth"
 );
 
@@ -86,8 +86,9 @@ $radius_response = $radius->_authorizeVoip(
     $radius_request->{'NAS-Port'}, $radius_request->{'User-Name'}, undef
 );
 is_deeply($radius_response,
-    [$RADIUS::RLM_MODULE_FAIL, undef],
-    "expect failure: VoIP phone over RADIUS is not supported for this switch's model (yet)"
+    [$RADIUS::RLM_MODULE_FAIL, 
+        ('Reply-Message' => "Server reported: VoIP authorization over RADIUS not supported for this network device")
+    ], "expect failure: VoIP phone over RADIUS is not supported for this switch's model (yet)"
 );
 
 # Wired 802.1X example
@@ -103,7 +104,7 @@ $radius_request = {
 # switch doesn't support 802.1X 
 $radius_response = $radius->authorize($radius_request);
 is_deeply($radius_response, 
-    [$RADIUS::RLM_MODULE_FAIL, undef],
+    [$RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Network device does not support this mode of operation")],
     "expect failure: switch doesn't support wired 802.1X"
 );
 

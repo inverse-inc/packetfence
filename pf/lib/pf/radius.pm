@@ -366,7 +366,11 @@ sub _authorizeVoip {
         $logger->warn("Returning failure to RADIUS.");
         $switch->disconnectRead();
         $switch->disconnectWrite();
-        return [$RADIUS::RLM_MODULE_FAIL, undef];
+
+        return [
+            $RADIUS::RLM_MODULE_FAIL, 
+            ('Reply-Message' => "Server reported: VoIP authorization over RADIUS not supported for this network device")
+        ];
     }
 
     locationlog_synchronize(
@@ -430,7 +434,7 @@ sub _switchUnsupportedReply {
     $logger->warn("Sending REJECT since switch is unspported");
     $switch->disconnectRead();
     $switch->disconnectWrite();
-    return [$RADIUS::RLM_MODULE_FAIL, undef];
+    return [$RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Network device does not support this mode of operation")];
 }
 
 =back
@@ -446,6 +450,8 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 =head1 COPYRIGHT
 
 Copyright (C) 2009-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
