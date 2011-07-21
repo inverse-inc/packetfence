@@ -37,6 +37,7 @@ BEGIN {
 
 use pf::class qw(class_view_all class_trappable);
 use pf::config;
+use pf::node qw(nodes_registered);
 use pf::util;
 use pf::violation qw(violation_view_open_all violation_count);
 
@@ -102,7 +103,6 @@ sub generate_filter_if_src_to_chain {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $rules;
 
-    # TODO extract in it's own sub
     # internal interfaces handling
     foreach my $interface (@internal_nets) {
         my $dev = $interface->tag("int");
@@ -134,22 +134,6 @@ sub generate_filter_if_src_to_chain {
 }
 
 
-=item generate_filter_input_listeners
-
-=cut
-# XXX NOT REIMPLEMENTED
-sub generate_filter_input_listeners {
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
-    my $rules;
-
-    # TODO to integrate and might need to adjust other tables too (NAT's dnat)
-    my @listeners = split( /\s*,\s*/, $Config{'ports'}{'listeners'} );
-    foreach my $listener (@listeners) {
-        my $port = getservbyname( $listener, "tcp" );
-        $rules .= "--protocol tcp --destination-port $port --jump ACCEPT\n";
-    }
-}
-
 =item generate_inline_rules
 
 Handling both FILTER and NAT tables at the same time.
@@ -179,135 +163,6 @@ sub generate_inline_rules {
     }
 }
 
-=item generate_filter_forward_vlan
-
-=cut
-# XXX not sure it'll be useful
-sub generate_filter_forward_vlan {
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
-    my $rules;
-
-    return $rules;
-}
-
-=item generate_filter_forward_scanhost
-
-=cut
-# XXX NOT REIMPLEMENTED
-sub generate_filter_forward_scanhost {
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
-    my $filter_rules;
-
-    # FIXME don't forget to also add statements to the PREROUTING nat table as in generate_inline_rules
-    my $scan_server = $Config{'scan'}{'host'};
-    if ( $scan_server !~ /^127\.0\.0\.1$/ && $scan_server !~ /^localhost$/i ) {
-        $filter_rules .= "-A FORWARD --destination $scan_server --jump ACCEPT";
-        $filter_rules .= "-A FORWARD --source $scan_server --jump ACCEPT";
-        $logger->info("adding Nessus FILTER passthrough for $scan_server");
-    }
-
-    return $filter_rules;
-}
-
-=item generate_passthrough
-
-=cut
-# XXX NOT REIMPLEMENTED
-# FIXME don't forget to also add statements to the PREROUTING nat table as in generate_inline_rules
-sub generate_passthrough {
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
-    my $filter_rules;
-
-    # poke passthroughs
-    my %passthroughs =  %{ $Config{'passthroughs'} } if ( $Config{'trapping'}{'passthrough'} =~ /^iptables$/i );
-    $passthroughs{'trapping.redirecturl'} = $Config{'trapping'}{'redirecturl'} if ($Config{'trapping'}{'redirecturl'});
-    foreach my $passthrough ( keys %passthroughs ) {
-        if ( $passthroughs{$passthrough} =~ /^(http|https):\/\// ) {
-            my $destination;
-            my ($service, $host, $port, $path) = 
-                $passthroughs{$passthrough} =~ /^(\w+):\/\/(.+?)(:\d+){0,1}(\/.*){0,1}$/;
-            $port =~ s/:// if $port;
-
-            $port = 80  if ( !$port && $service =~ /^http$/i );
-            $port = 443 if ( !$port && $service =~ /^https$/i );
-
-            my ( $name, $aliases, $addrtype, $length, @addrs ) = gethostbyname($host);
-            if ( !@addrs ) {
-                $logger->error("unable to resolve $host for passthrough");
-                next;
-            }
-            foreach my $addr (@addrs) {
-                $destination = join( ".", unpack( 'C4', $addr ) );
-                $filter_rules
-                    .= internal_append_entry(
-                    "-A FORWARD --protocol tcp --destination $destination --destination-port $port --jump ACCEPT"
-                    );
-                $logger->info("adding FILTER passthrough for $passthrough");
-            }
-        } elsif ( $passthroughs{$passthrough} =~ /^(\d{1,3}.){3}\d{1,3}(\/\d+){0,1}$/ ) {
-            $logger->info("adding FILTER passthrough for $passthrough");
-            $filter_rules .= internal_append_entry( 
-                "-A FORWARD --destination " . $passthroughs{$passthrough} . " --jump ACCEPT"
-            );
-        } else {
-            $logger->error("unrecognized passthrough $passthrough");
-        }
-    }
-
-    # poke holes for content URLs
-    # can we collapse with above?
-    if ( $Config{'trapping'}{'passthrough'} eq "iptables" ) {
-        my @contents = class_view_all();
-        foreach my $content (@contents) {
-            my $vid            = $content->{'vid'};
-            my $url            = $content->{'url'};
-            my $max_enable_url = $content->{'max_enable_url'};
-            my $redirect_url   = $content->{'redirect_url'};
-
-            foreach my $u ( $url, $max_enable_url, $redirect_url ) {
-
-                # local content or null URLs
-                next if ( !$u || $u =~ /^\// );
-                if ( $u !~ /^(http|https):\/\// ) {
-                    $logger->error("vid $vid: unrecognized content URL: $u");
-                    next;
-                }
-
-                my $destination;
-                my ( $service, $host, $port, $path ) = $u =~ /^(\w+):\/\/(.+?)(:\d+){0,1}(\/.*){0,1}$/;
-
-                $port =~ s/:// if $port;
-
-                $port = 80  if ( !$port && $service =~ /^http$/i );
-                $port = 443 if ( !$port && $service =~ /^https$/i );
-
-                my ( $name, $aliases, $addrtype, $length, @addrs ) = gethostbyname($host);
-                if ( !@addrs ) {
-                    $logger->error("unable to resolve $host for content passthrough");
-                    next;
-                }
-                foreach my $addr (@addrs) {
-                    $destination = join( ".", unpack( 'C4', $addr ) );
-                    $filter_rules .= internal_append_entry(
-                        "-A FORWARD --protocol tcp --destination $destination --destination-port $port --match mark --mark 0x$vid --jump ACCEPT"
-                    );
-                    $logger->info("adding FILTER passthrough for $destination:$port");
-                }
-            }
-        }
-    }
-
-    my @trapvids = class_trappable();
-    foreach my $row (@trapvids) {
-        my $vid = $row->{'vid'};
-        $filter_rules .= internal_append_entry("-A FORWARD --match mark --mark 0x$vid --jump DROP");
-    }
-
-    # allowed established sessions from pf box
-    $filter_rules .= "-A INPUT --match state --state RELATED,ESTABLISHED --jump ACCEPT\n";
-
-    return $filter_rules;
-}
 
 =item generate_inline_if_src_to_chain
 
@@ -340,24 +195,16 @@ sub generate_mangle_rules {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $mangle_rules;
 
-    # mark all users
-    $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE --jump MARK --set-mark 0x$IPTABLES_MARK_UNREG\n";
-
-    # mark all registered users
-    # TODO performance: mark all *inline* registered users only
-    if ( isenabled($Config{'trapping'}{'registration'}) ) {
-        require pf::node;
-        my @registered = pf::node::nodes_registered();
-        foreach my $row (@registered) {
-            my $mac = $row->{'mac'};
-            $mangle_rules .= 
-                "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac " . 
-                "--jump MARK --set-mark 0x$IPTABLES_MARK_REG\n"
-            ;
-        }
+    # mark blacklisted users
+    # TODO blacklist concept on it's way to the graveyard
+    foreach my $mac ( split( /\s*,\s*/, $Config{'trapping'}{'blacklist'} ) ) {
+        $mangle_rules .= 
+            "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac --jump MARK --set-mark $IPTABLES_MARK_ISOLATION\n"
+        ;
     }
 
     # mark whitelisted users
+    # TODO whitelist concept on it's way to the graveyard
     foreach my $mac ( split( /\s*,\s*/, $Config{'trapping'}{'whitelist'} ) ) {
         $mangle_rules .= 
             "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac --jump MARK --set-mark 0x$IPTABLES_MARK_REG\n"
@@ -365,22 +212,38 @@ sub generate_mangle_rules {
     }
 
     # mark all open violations
+    # FIXME implement violation_view_open_all_trap and use that here instead
+    # FIXME validate mark order, we want violation enforcement over registration and allowed
     my @macarray = violation_view_open_all();
     if ( $macarray[0] ) {
         foreach my $row (@macarray) {
             my $mac = $row->{'mac'};
             my $vid = $row->{'vid'};
             $mangle_rules .= 
-                "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac --jump MARK --set-mark 0x$vid\n"
+                "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac " . 
+                "--jump MARK --set-mark 0x$IPTABLES_MARK_ISOLATION\n"
             ;
         }
     }
 
-    # mark blacklisted users
-    foreach my $mac ( split( /\s*,\s*/, $Config{'trapping'}{'blacklist'} ) ) {
-        $mangle_rules .= 
-            "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac --jump MARK --set-mark $IPTABLES_MARK_ISOLATION\n"
-        ;
+    # mark all registered nodes
+    # TODO performance: mark all *inline* registered users only
+    # _but_ in that case, pfdhcplistener on an inline interface should call pf::inline's performInlineEnforcement()
+    # to catch inactive devices coming back or changing connection_type
+    if ( isenabled($Config{'trapping'}{'registration'}) ) {
+
+        # default catch all: mark unreg
+        $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE --jump MARK --set-mark 0x$IPTABLES_MARK_UNREG\n";
+
+        # mark registered nodes
+        my @registered = nodes_registered();
+        foreach my $row (@registered) {
+            my $mac = $row->{'mac'};
+            $mangle_rules .= 
+                "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac " . 
+                "--jump MARK --set-mark 0x$IPTABLES_MARK_REG\n"
+            ;
+        }
     }
 
     return $mangle_rules;
@@ -394,8 +257,10 @@ sub generate_nat_redirect_rules {
     my $rules;
 
     # how we do our magic
-    foreach my $redirectport ( split( /\s*,\s*/, $Config{'ports'}{'redirect'} ) ) {
+    foreach my $redirectport ( split( /\s*,\s*/, $Config{'inline'}{'ports_redirect'} ) ) {
         my ( $port, $protocol ) = split( "/", $redirectport );
+
+        # Destination NAT to the portal on the UNREG mark if trapping.registration is enabled
         if ( isenabled( $Config{'trapping'}{'registration'} ) ) {
             $rules .= 
                 "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port " . 
@@ -403,16 +268,12 @@ sub generate_nat_redirect_rules {
             ;
         }
 
-        my @trapvids = class_trappable();
-        foreach my $row (@trapvids) {
-            my $vid = $row->{'vid'};
-            $rules .=
-                "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port " . 
-                "--match mark --mark 0x$vid --jump REDIRECT\n"
-            ;
-        }
+        # Destination NAT to the portal on the ISOLATION mark
+        $rules .= 
+            "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port " . 
+            "--match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump REDIRECT\n"
+        ;
     }
-
     return $rules;
 }
 
@@ -545,6 +406,163 @@ sub iptables_restore_noflush {
         `/sbin/iptables-restore -n < $restore_file`;
     }
 }
+
+=back
+
+=head1 NOT REIMPLEMENTED
+
+These were features of the previous arp | dhcp modes that were not re-implemented for the reintroduction
+of the inline mode because of time constraints.
+
+=over
+
+=item generate_filter_input_listeners
+
+=cut
+sub generate_filter_input_listeners {
+    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $rules;
+
+    # TODO to integrate and might need to adjust other tables too (NAT's dnat)
+    my @listeners = split( /\s*,\s*/, $Config{'ports'}{'listeners'} );
+    foreach my $listener (@listeners) {
+        my $port = getservbyname( $listener, "tcp" );
+        $rules .= "--protocol tcp --destination-port $port --jump ACCEPT\n";
+    }
+}
+
+
+=item generate_filter_forward_scanhost
+
+=cut
+sub generate_filter_forward_scanhost {
+    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $filter_rules;
+
+    # FIXME don't forget to also add statements to the PREROUTING nat table as in generate_inline_rules
+    my $scan_server = $Config{'scan'}{'host'};
+    if ( $scan_server !~ /^127\.0\.0\.1$/ && $scan_server !~ /^localhost$/i ) {
+        $filter_rules .= "-A FORWARD --destination $scan_server --jump ACCEPT";
+        $filter_rules .= "-A FORWARD --source $scan_server --jump ACCEPT";
+        $logger->info("adding Nessus FILTER passthrough for $scan_server");
+    }
+
+    return $filter_rules;
+}
+
+
+=item generate_passthrough
+
+=cut
+# FIXME don't forget to also add statements to the PREROUTING nat table as in generate_inline_rules
+#
+# I also took that piece of out of generate_nat_redirect_rules() that is probably required
+#
+#my @trapvids = class_trappable();
+#foreach my $row (@trapvids) {
+#    my $vid = $row->{'vid'};
+#    $rules .=
+#        "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port " . 
+#        "--match mark --mark 0x$vid --jump REDIRECT\n"
+#    ;
+#}
+#
+
+sub generate_passthrough {
+    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $filter_rules;
+
+    # poke passthroughs
+    my %passthroughs =  %{ $Config{'passthroughs'} } if ( $Config{'trapping'}{'passthrough'} =~ /^iptables$/i );
+    $passthroughs{'trapping.redirecturl'} = $Config{'trapping'}{'redirecturl'} if ($Config{'trapping'}{'redirecturl'});
+    foreach my $passthrough ( keys %passthroughs ) {
+        if ( $passthroughs{$passthrough} =~ /^(http|https):\/\// ) {
+            my $destination;
+            my ($service, $host, $port, $path) = 
+                $passthroughs{$passthrough} =~ /^(\w+):\/\/(.+?)(:\d+){0,1}(\/.*){0,1}$/;
+            $port =~ s/:// if $port;
+
+            $port = 80  if ( !$port && $service =~ /^http$/i );
+            $port = 443 if ( !$port && $service =~ /^https$/i );
+
+            my ( $name, $aliases, $addrtype, $length, @addrs ) = gethostbyname($host);
+            if ( !@addrs ) {
+                $logger->error("unable to resolve $host for passthrough");
+                next;
+            }
+            foreach my $addr (@addrs) {
+                $destination = join( ".", unpack( 'C4', $addr ) );
+                $filter_rules
+                    .= internal_append_entry(
+                    "-A FORWARD --protocol tcp --destination $destination --destination-port $port --jump ACCEPT"
+                    );
+                $logger->info("adding FILTER passthrough for $passthrough");
+            }
+        } elsif ( $passthroughs{$passthrough} =~ /^(\d{1,3}.){3}\d{1,3}(\/\d+){0,1}$/ ) {
+            $logger->info("adding FILTER passthrough for $passthrough");
+            $filter_rules .= internal_append_entry( 
+                "-A FORWARD --destination " . $passthroughs{$passthrough} . " --jump ACCEPT"
+            );
+        } else {
+            $logger->error("unrecognized passthrough $passthrough");
+        }
+    }
+
+    # poke holes for content URLs
+    # can we collapse with above?
+    if ( $Config{'trapping'}{'passthrough'} eq "iptables" ) {
+        my @contents = class_view_all();
+        foreach my $content (@contents) {
+            my $vid            = $content->{'vid'};
+            my $url            = $content->{'url'};
+            my $max_enable_url = $content->{'max_enable_url'};
+            my $redirect_url   = $content->{'redirect_url'};
+
+            foreach my $u ( $url, $max_enable_url, $redirect_url ) {
+
+                # local content or null URLs
+                next if ( !$u || $u =~ /^\// );
+                if ( $u !~ /^(http|https):\/\// ) {
+                    $logger->error("vid $vid: unrecognized content URL: $u");
+                    next;
+                }
+
+                my $destination;
+                my ( $service, $host, $port, $path ) = $u =~ /^(\w+):\/\/(.+?)(:\d+){0,1}(\/.*){0,1}$/;
+
+                $port =~ s/:// if $port;
+
+                $port = 80  if ( !$port && $service =~ /^http$/i );
+                $port = 443 if ( !$port && $service =~ /^https$/i );
+
+                my ( $name, $aliases, $addrtype, $length, @addrs ) = gethostbyname($host);
+                if ( !@addrs ) {
+                    $logger->error("unable to resolve $host for content passthrough");
+                    next;
+                }
+                foreach my $addr (@addrs) {
+                    $destination = join( ".", unpack( 'C4', $addr ) );
+                    $filter_rules .= internal_append_entry(
+                        "-A FORWARD --protocol tcp --destination $destination --destination-port $port --match mark --mark 0x$vid --jump ACCEPT"
+                    );
+                    $logger->info("adding FILTER passthrough for $destination:$port");
+                }
+            }
+        }
+    }
+
+    my @trapvids = class_trappable();
+    foreach my $row (@trapvids) {
+        my $vid = $row->{'vid'};
+        $filter_rules .= internal_append_entry("-A FORWARD --match mark --mark 0x$vid --jump DROP");
+    }
+
+    # allowed established sessions from pf box
+    $filter_rules .= "-A INPUT --match state --state RELATED,ESTABLISHED --jump ACCEPT\n";
+
+    return $filter_rules;
+}
+
 
 =back
 

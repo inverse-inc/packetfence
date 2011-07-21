@@ -335,17 +335,9 @@ admin_netbiosname=EXAMPLE
 
 [ports]
 #
-# ports.redirect
-#
-# Ports to intercept and redirect for trapped and unregistered systems.  Defaults to 80/tcp (HTTP), 110/tcp (POP3), and 
-# 143/tcp (IMAP).  IMAP and POP3 listeners must be enabled via the listeners parameter if the redirection is to be of any use.  
-# Redirecting 443/tcp (SSL) will work, although users will get ugly and confusing pop-ups as the commonname will no longer 
-# match.  Redirecting 53/udp (DNS) seems to have issues and is also not recommended.
-redirect=80/tcp,110/tcp,143/tcp
-#
 # ports.listeners
 #
-# Enables "bogus" IMAP and POP servers.  These servers serve only to deliver a message (POP3) or send an alert (IMAP) to 
+# Enables "bogus" IMAP and POP servers.  These servers serve only to deliver a message (POP3) or send an alert (IMAP) to
 # inform the user that he/she must register before connectivity is allowed.  Content of the message is found at 
 # <conf_dir>/listener.msg
 listeners=
@@ -543,6 +535,16 @@ bounce_duration = 4s
 
 
 [inline]
+#
+# inline.ports_redirect
+#
+# Ports to intercept and redirect for trapped and unregistered systems.  Defaults to 80/tcp (HTTP), 443/tcp (HTTPS).
+# Redirecting 443/tcp (SSL) will work, although users might get certificate errors if you didn't install a valid 
+# certificate or if you don't use DNS (although IP-based certificates supposedly exist)
+# Redirecting 53/udp (DNS) seems to have issues and is also not recommended.
+# We also have experimental IMAP and POP3 listeners which give fake emails telling users to open their browsers.
+# Enable them via the ports.listeners parameter and add the IMAP (143/tcp) and POP3 (110/tcp) here.
+ports_redirect=80/tcp,443/tcp
 #
 # inline.portal_redirect
 #

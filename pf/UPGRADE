@@ -63,6 +63,7 @@ o Upgrading from a version prior to <trunk-release>:
     Here are the changes:
     - vlan.adjustswitchportvlanscript is now advanced.adjustswitchportvlanscript
     - vlan.adjustswitchportvlanreasons is now advanced.reevaluate_access_reasons
+    - ports.redirect is now inline.ports_redirect
     You only need to take action if you are not using the default values.
 
     - pf.conf's interface type changes
