@@ -509,14 +509,15 @@ fi
 %dir                    /usr/local/pf/conf/configurator
                         /usr/local/pf/conf/configurator/*
 %config                 /usr/local/pf/conf/dhcpd.conf
-%config                 /usr/local/pf/conf/dhcpd_vlan.conf
 %config                 /usr/local/pf/conf/httpd.conf
+%dir                    /usr/local/pf/conf/httpd.conf.d
+%config                 /usr/local/pf/conf/httpd.conf.d/*
 %config                 /usr/local/pf/conf/httpd.conf.apache22
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
 %config(noreplace)      /usr/local/pf/conf/named-registration.ca
 %config(noreplace)      /usr/local/pf/conf/named-isolation.ca
-%config                 /usr/local/pf/conf/named_vlan.conf
+%config                 /usr/local/pf/conf/named.conf
 %config(noreplace)      /usr/local/pf/conf/popup.msg
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf
@@ -569,6 +570,8 @@ fi
                         /usr/local/pf/lib/pf/*.pm
 %dir                    /usr/local/pf/lib/pf/floatingdevice
 %config(noreplace)      /usr/local/pf/lib/pf/floatingdevice/custom.pm
+%dir                    /usr/local/pf/lib/pf/inline
+%config(noreplace)      /usr/local/pf/lib/pf/inline/custom.pm
 %dir                    /usr/local/pf/lib/pf/lookup
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/node.pm
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/person.pm

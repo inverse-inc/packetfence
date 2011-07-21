@@ -35,6 +35,7 @@ $connection_type = array(
   'Ethernet-EAP'          => 'Wired 802.1x',
   'Ethernet-NoEAP'        => 'Wired MAC Authentication',
   'SNMP-Traps'            => 'Wired SNMP',
+  'Inline'                => 'Inline',
   ''                      => 'Unknown'
 );
 

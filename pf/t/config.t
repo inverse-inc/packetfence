@@ -25,18 +25,13 @@ foreach my $section ( tied(%default_cfg)->Sections ) {
     }
 }
 foreach my $section ( tied(%doc)->Sections ) {
-    if ( ($section ne 'proxies')
-        && ($section ne 'passthroughs') 
-        ) {
+    if ( ($section ne 'proxies') && ($section ne 'passthroughs') ) {
         if ($section =~ /^([^.]+)\.(.+)$/) {
-            if (    ($1 ne 'dhcp')
-                 && ($1 ne 'scope')
-                 && ($1 ne 'interface')
-                 && ($1 ne 'services')
+            if ( ($1 ne 'interface') && ($1 ne 'services') 
                  && (! ( ($1 eq 'alerting') && ($2 eq 'fromaddr') ) )
                  && (! ( ($1 eq 'arp') && ($2 eq 'listendevice') ) )
-               ) {
-                 $testNb++;
+            ) {
+                $testNb++;
             }
         } else {
             die("unable to parse section $section");
@@ -61,10 +56,7 @@ foreach my $section ( tied(%doc)->Sections ) {
         && ($section ne 'passthroughs')
         ) {
         if ($section =~ /^([^.]+)\.(.+)$/) {
-            if (    ($1 ne 'dhcp')
-                 && ($1 ne 'scope')
-                 && ($1 ne 'interface')
-                 && ($1 ne 'services')
+            if ( ($1 ne 'interface') && ($1 ne 'services')
                  && (! ( ($1 eq 'alerting') && ($2 eq 'fromaddr') ) )
                  && (! ( ($1 eq 'arp') && ($2 eq 'listendevice') ) )
                ) {

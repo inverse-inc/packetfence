@@ -624,44 +624,6 @@ sub generate_registration_page {
         $vars->{'form_action'} = '/authenticate?mode=next_page&page=' . ( int($pagenumber) + 1 );
     }
 
-    # check to see if node can skip reg
-    if ( ( $pagenumber == $Config{'registration'}{'nbregpages'} )
-        && !( $Config{'network'}{'mode'} =~ /vlan/i ) )
-    {
-        my $node_info = node_attributes($mac);
-        my $detect_date       = str2time( $node_info->{'detect_date'} );
-        my $registration_mode = $Config{'registration'}{'skip_mode'};
-
-        my $skip_allowed_until = 0;
-        if ( isdisabled($registration_mode) ) {
-            $skip_allowed_until = 0;
-            $logger->info( $node_info->{'mac'}
-                    . " is not allowed to skip registration - skip_mode is disabled"
-            );
-        } else {
-            if ( $registration_mode eq "deadline" ) {
-                $skip_allowed_until
-                    = $Config{'registration'}{'skip_deadline'};
-            } elsif ( $registration_mode eq "window" ) {
-                $skip_allowed_until
-                    = $detect_date + $Config{'registration'}{'skip_window'};
-            }
-
-            my $skip_until = POSIX::strftime( "%Y-%m-%d %H:%M:%S",
-                POSIX::localtime($skip_allowed_until) );
-            if ( time < $skip_allowed_until ) {
-                $logger->info( $node_info->{'mac'}
-                        . " allowed to skip registration until $skip_until" );
-                $vars->{'txt_skip_registration'}
-                    = gettext("register: skip registration");
-            } else {
-                $logger->info( $node_info->{'mac'}
-                        . " is not allowed to skip registration - deadline passed at $skip_until - "
-                );
-            }
-        }
-    }
-
     my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
     $template->process( "register.html", $vars );
     exit;

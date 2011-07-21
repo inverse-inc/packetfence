@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 55;
+use Test::More tests => 60;
 
 # pf core libs
 use lib '/usr/local/pf/lib';
@@ -15,11 +15,14 @@ BEGIN { use_ok('pf::configfile') }
 BEGIN { use_ok('pf::config') }
 BEGIN { use_ok('pf::db') }
 BEGIN { use_ok('pf::email_activation') }
+BEGIN { use_ok('pf::enforcement') }
 BEGIN { use_ok('pf::floatingdevice') }
 BEGIN { use_ok('pf::floatingdevice::custom') }
 BEGIN { use_ok('pf::freeradius') }
 BEGIN { use_ok('pf::ifoctetslog') }
 BEGIN { use_ok('pf::import') }
+BEGIN { use_ok('pf::inline') }
+BEGIN { use_ok('pf::inline::custom') }
 BEGIN { use_ok('pf::iplog') }
 BEGIN { use_ok('pf::locationlog') }
 BEGIN { use_ok('pf::lookup::node') }
@@ -44,6 +47,8 @@ BEGIN { use_ok('pf::schedule') }
 BEGIN { use_ok('pf::SNMP::constants') }
 BEGIN { use_ok('pf::services') }
 BEGIN { use_ok('pf::services::apache') }
+BEGIN { use_ok('pf::services::dhcpd') }
+BEGIN { use_ok('pf::services::named') }
 BEGIN { use_ok('pf::switchlocation') }
 BEGIN { use_ok('pf::temporary_password') }
 BEGIN { use_ok('pf::traplog') }

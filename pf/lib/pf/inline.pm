@@ -1,0 +1,128 @@
+package pf::inline;
+
+=head1 NAME
+
+pf::inline - Object oriented module for inline enforcement related operations
+
+=head1 SYNOPSIS
+
+The pf::inline module contains the functions necessary for the inline enforcement.
+All the behavior contained here can be overridden in lib/pf/inline/custom.pm.
+
+=cut
+
+use strict;
+use warnings;
+use diagnostics;
+
+use Log::Log4perl;
+
+use pf::config;
+use pf::iptables;
+use pf::node qw(node_attributes);
+use pf::violation qw(violation_count_trap);
+
+our $VERSION = 1.00;
+
+=head1 SUBROUTINES
+
+=over
+
+=item new
+
+Constructor.
+Usually you don't want to call this constructor but use the pf::inline::custom subclass instead.
+
+=cut
+sub new {
+    my $logger = Log::Log4perl::get_logger("pf::inline");
+    $logger->debug("instantiating new pf::inline object");
+    my ( $class, %argv ) = @_;
+    my $this = bless {}, $class;
+    return $this;
+}
+
+=item performInlineEnforcement
+
+=cut
+sub performInlineEnforcement { 
+    my ($this, $mac) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::inline');
+
+    # What is the MAC's current state?
+    my $current_mark = pf::iptables::get_mangle_mark_for_mac($mac);
+    my $should_be_mark = $this->fetchMarkForNode($mac);
+
+    if ($current_mark == $should_be_mark) {
+        $logger->info("MAC: $mac is already properly enforced in firewall, no change required");
+        return $TRUE;
+    }
+
+    $logger->info("MAC: $mac stated changed, adapting firewall rules for proper enforcement");
+    return pf::iptables::update_mark($mac, $current_mark, $should_be_mark);
+}
+
+=item fetchMarkForNode
+
+=cut
+sub fetchMarkForNode {
+    my ($this, $mac) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::inline');
+
+    # Violation first
+    my $open_violation_count = violation_count_trap($mac);
+    if ($open_violation_count != 0) {
+        $logger->info(
+            "MAC: $mac has $open_violation_count open violations(s) with action=trap; it needs to firewalled"
+        );
+        return $IPTABLES_MARK_ISOLATION;
+    }
+
+    # Registration
+    my $node_info = node_attributes($mac);
+    if (!defined($node_info)) {
+        $logger->info("MAC: $mac doesn't have a node entry; it needs to be firewalled");
+        return $IPTABLES_MARK_UNREG;
+    }
+
+    my $n_status = $node_info->{'status'};
+    if ($n_status eq $pf::node::STATUS_UNREGISTERED || $n_status eq $pf::node::STATUS_PENDING) {
+        $logger->info("MAC: $mac is of status $n_status; needs to be firewalled");
+        return $IPTABLES_MARK_UNREG;
+    }
+
+    # At this point, we are registered and we don't have a violation: allow through
+    $logger->info("MAC: $mac should be allowed through firewall");
+    return $IPTABLES_MARK_REG;
+}
+
+=back
+
+=head1 AUTHOR
+
+Olivier Bilodeau <obilodeau@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2011 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
+1;

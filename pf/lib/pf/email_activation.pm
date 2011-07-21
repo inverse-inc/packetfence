@@ -374,6 +374,8 @@ sub validate_code {
 
 # TODO: add an expire / cleanup sub
 
+=back
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>

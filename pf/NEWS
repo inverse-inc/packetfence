@@ -12,6 +12,26 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE file.
 
+
+--------------------------------------------------------------------------------
+Version <inline-branch> released on <releaseDate>
+
+Compatibility notice
+ * Removed support for ARP mode
+
+Major changes
+ * We removed the central concept of mode (arp, dhcp or vlan). Now PacketFence
+   can operate in multiple modes simultaneously. This new concept is called
+   enforcement and is specified per interface in pf.conf.
+
+Enhancements
+ * pfcmd and web administration performance improvements by avoiding duplicate
+   loading of some configuration files
+ * Configuration simplification (#1182)
+ * Named isolation and registration zones now automatically generated on startup
+   based on networks.conf's DNS entry (#1105)
+ * Simplified Apache configuration
+
 --------------------------------------------------------------------------------
 Version <trunk-release> released on <releaseDate>
 
