@@ -5,7 +5,17 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
-o Upgrading from a version prior to <inline-mode-branch-release>:
+o Upgrading from a version prior to <trunk-release>:
+
+    - BACKUP YOUR /usr/local/pf/ BEFORE UPGRADING
+    All files in html/user/ will be removed on upgrade (everything is now
+    in html/captive-portal/ as you'll see below). This includes templates and 
+    remediation pages.
+
+    - Firewall (iptables) now handled by PacketFence
+    Make sure that iptables is not handled by your operating system otherwise
+    conflicts might occur. You can customize the default firewall configuration
+    in conf/iptables.conf.
 
     - Several changes to Apache configuration
     We've externalized repetitive portions in conf/httpd.conf.d/. Make sure to
@@ -65,13 +75,6 @@ o Upgrading from a version prior to <inline-mode-branch-release>:
     belive if was used at all. If you want to achieve the same functionality 
     just edit conf/iptables.conf and add your own rules to allow specific IPs
     in.
-
-o Upgrading from a version prior to <trunk-release>:
-
-    - BACKUP YOUR /usr/local/pf/ BEFORE UPGRADING
-    All files in html/user/ will be removed on upgrade (everything is now
-    in html/captive-portal/ as you'll see below). This includes templates and 
-    remediation pages.
 
     - Authentication modules interface change
     All authentication modules (conf/authentication/*) were migrated into
