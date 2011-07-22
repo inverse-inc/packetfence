@@ -362,6 +362,8 @@ sub get_mangle_mark_for_mac {
 This sub lives under the guarantee that there is a change, that if old_mark == new_mark it won't be called
 
 =cut
+# TODO wrap this into the commit transaction system of IPTables::Interface
+# TODO once updated, we should re-validate that the marks are ok and re-try otherwise (maybe in a loop)
 sub update_mark {
     my ($mac, $old_mark, $new_mark) = @_;
 
