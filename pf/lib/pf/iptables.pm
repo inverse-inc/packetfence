@@ -143,8 +143,10 @@ sub generate_inline_rules {
     my ($filter_rules_ref, $nat_rules_ref) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
 
-    $logger->info("Allowing DNS through on inline interfaces to pre-configured DNS servers");
-    foreach my $dns ( split( ",", $Config{'general'}{'dnsservers'} ) ) {
+    $logger->info("Allowing DNS through on inline interfaces to configured DNS servers");
+    foreach my $network (keys %ConfigNetworks) {
+        my $dns = $ConfigNetworks{$network}{'dns'} if (defined($ConfigNetworks{$network}{'dns'}));;
+         
         my $rule = "--protocol udp --destination $dns --destination-port 53 --jump ACCEPT\n";
         $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE $rule";
         $$nat_rules_ref .= "-A $FW_PREROUTING_INT_INLINE $rule";

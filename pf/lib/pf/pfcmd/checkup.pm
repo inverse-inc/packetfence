@@ -338,14 +338,6 @@ If some interfaces are configured to run in inline enforcement then these tests 
 =cut
 sub inline {
 
-    # make sure dns servers exist
-    if ( !$Config{'general'}{'dnsservers'} ) {
-        add_problem( $WARN,
-            "Please set the dns servers list in pf.conf (general.dnsservers). " . 
-            "Users will not be able to resolve hostnames. "
-        );
-    }
-
     # make sure trapping.passthrough=proxy if network.mode is set to vlan
     if ( $Config{'trapping'}{'passthrough'} eq 'proxy' ) {
         add_problem( $WARN, 

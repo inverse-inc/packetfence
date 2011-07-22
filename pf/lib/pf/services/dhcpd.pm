@@ -57,16 +57,12 @@ sub generate_dhcpd_conf {
 
         if ( $net{'dhcpd'} eq 'enabled' ) {
 
-            # DNS Servers in inline mode are overloaded by production DNS server defined in pf.conf
-            # we do not blackhole DNS for inline users instead we do DNAT if they are not isolated or registered
-            my $dns = pf::config::is_network_type_inline($network) ? $Config{'general'}{'dnsservers'} : $net{'dns'};
-
             $tags{'networks'} .= <<"EOT";
 subnet $network netmask $net{'netmask'} {
   option routers $net{'gateway'};
   option subnet-mask $net{'netmask'};
   option domain-name "$net{'domain-name'}";
-  option domain-name-servers $dns;
+  option domain-name-servers $net{'dns'};
   range $net{'dhcp_start'} $net{'dhcp_end'};
   default-lease-time $net{'dhcp_default_lease_time'};
   max-lease-time $net{'dhcp_max_lease_time'};
