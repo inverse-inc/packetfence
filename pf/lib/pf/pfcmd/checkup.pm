@@ -116,11 +116,9 @@ check the config file to make sure interfaces are fully defined
 sub interfaces_defined {
 
     foreach my $interface ( tied(%Config)->GroupMembers("interface") ) {
-        if ( $Config{$interface}{'type'} !~ /monitor|dhcplistener|dhcp-listener/ ) {
-            if (!defined $Config{$interface}{'ip'}
-                || !defined $Config{$interface}{'mask'}
-                || !defined $Config{$interface}{'gateway'}
-            ) {
+        my $int_conf = $Config{$interface};
+        if (!defined($int_conf{'type'}) || $int_conf{'type'} !~ /monitor|dhcplistener|dhcp-listener/) {
+            if (!defined $int_conf{'ip'} || !defined $int_conf{'mask'} || !defined $int_conf{'gateway'}) {
                 add_problem( $FATAL, "incomplete network information for $interface" );
             }
         }
