@@ -156,21 +156,23 @@ sub interfaces {
         }
         $seen{$interface} = 1;
 
-        if ($Config{$device}{'type'} eq $IF_INTERNAL && !defined($Config{$device}{'enforcement'})) {
-            add_problem( $FATAL, 
-                "Incomplete network information for $device. " .
-                "Enforcement technique must be defined on an internal interface. " .
-                "Your choices are: $IF_ENFORCEMENT_VLAN or $IF_ENFORCEMENT_INLINE. " . 
-                "If unsure refer to the documentation."
-            );
-        }
+        foreach my $type ( split( /\s*,\s*/, $Config{$device}{'type'} ) ) {
+            if ($type eq $IF_INTERNAL && !defined($Config{$device}{'enforcement'})) {
+                add_problem( $FATAL, 
+                    "Incomplete network information for $device. " .
+                    "Enforcement technique must be defined on an internal interface. " .
+                    "Your choices are: $IF_ENFORCEMENT_VLAN or $IF_ENFORCEMENT_INLINE. " . 
+                    "If unsure refer to the documentation."
+                );
+            }
 
-        if (defined($Config{$device}{'type'}) && $Config{$device}{'type'} eq 'managed') {
-            add_problem( $WARN, 
-                "Interface type 'managed' is drepecated and will be removed in future versions of PacketFence. " .
-                "You should use the 'management' keyword instead. " .
-                "Seen on interface $interface."
-            );
+            if ($type eq 'managed') {
+                add_problem( $WARN, 
+                    "Interface type 'managed' is drepecated and will be removed in future versions of PacketFence. " .
+                    "You should use the 'management' keyword instead. " .
+                    "Seen on interface $interface."
+                );
+            }
         }
     }
 }
