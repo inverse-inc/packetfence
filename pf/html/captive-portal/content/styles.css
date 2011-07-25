@@ -27,7 +27,8 @@ div#about h2,
 div.note h2 {
   font-size: 16px;
 }
-div#about hr {
+div#about hr,
+div.input hr {
   border: 0;
   border-bottom: 1px dotted #ccc;
   height: 0;
@@ -64,7 +65,8 @@ div#footer img {
   float: left;
 }
 div#about h1,
-div#about p {
+div#about p,
+div#about ul {
   padding-left: 128px;
 }
 div.input,
@@ -95,6 +97,7 @@ div.input span {
   clear: left;
   padding: 4px;
   text-align: left;
+  white-space: nowrap;
   width: 100px;
 }
 div.input input.field {
@@ -122,6 +125,10 @@ div.input div.note {
   text-align: left;
   text-transform: none;
   text-shadow: none;
+}
+div.input div.note.bg {
+  background-color: transparent;
+  border: 0;
 }
 div.note.justify,
 div.input div.note.justify {

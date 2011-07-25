@@ -7,6 +7,7 @@
           <img src="content/images/registration.png" alt="You are not authorized" />
           <h1>[% txt_page_header %]</h1>
           <p>[% txt_instructions %]</p>
+          <hr/>
         </div>
 
         [%# Error %]
@@ -32,7 +33,7 @@
           </div>
           <div class="input">
             <span>[% txt_arrival | replace(' ', '&nbsp;') %]*</span>
-            <input class="field" name="arrival_date" type="text" value="[% arrival_date %]" />
+            <input class="field" name="arrival_date" type="text" value="[% arrival_date %]" /><br/>
             <em>[% txt_arrival_format %]</em>
           </div>
           <div class="input">
