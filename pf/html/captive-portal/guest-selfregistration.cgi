@@ -23,6 +23,7 @@ use lib INSTALL_DIR . "/conf";
 use pf::class;
 use pf::config;
 use pf::email_activation;
+use pf::sms_activation;
 use pf::iplog;
 use pf::node;
 use pf::util;
@@ -65,65 +66,84 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
     # authenticate
     my ($auth_return, $err) = pf::web::guest::validate_selfregistration($cgi, $session);
 
-    # authentication failed, return to guest self-registration page and show error message
-    if ($auth_return != 1) {
-        pf::web::guest::generate_selfregistration_page(
-            $cgi, $session, $cgi->script_name(), $destination_url, $mac, $err
-        );
-        exit(0);
-    }
+    # Registration form was properly filled
+    if ($auth_return && defined($params{'by_email'})) {
+      # User chose to register by email
+      $logger->info("Registering guest by email");
 
-    # Login successful, adding person (using edit in case person already exists)
-    my $person_add_cmd = "$bin_dir/pfcmd 'person edit \""
+      # Adding person (using edit in case person already exists)
+      my $person_add_cmd = "$bin_dir/pfcmd 'person edit \""
         . $session->param("login")."\" "
         . "firstname=\"" . $session->param("firstname") . "\","
         . "lastname=\"" . $session->param("lastname") . "\","
         . "email=\"" . $session->param("email") . "\","
         . "telephone=\"" . $session->param("phone") . "\","
-        . "notes=\"guest account\"'"
-    ;
-    $logger->info("Registering guest person with command: $person_add_cmd");
-    `$person_add_cmd`;
+        . "notes=\"guest account\"'";
+      $logger->info("Registering guest person with command: $person_add_cmd");
+      `$person_add_cmd`;
 
-    # grab additional info about the node
-    $info{'pid'} = $session->param("login");
-    $info{'user_agent'} = $cgi->user_agent;
-    $info{'category'} = "guest";
+      # grab additional info about the node
+      $info{'pid'} = $session->param("login");
+      $info{'user_agent'} = $cgi->user_agent;
+      $info{'category'} = "guest";
 
-    # unreg in 10 minutes
-    $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + 10*60 ));
+      # unreg in 10 minutes
+      $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + 10*60 ));
 
-    # register the node
-    pf::web::web_node_register($cgi, $session, $mac, $info{'pid'}, %info);
+      # register the node
+      pf::web::web_node_register($cgi, $session, $mac, $info{'pid'}, %info);
 
-    # add more info for the activation email
-    $info{'firstname'} = $session->param("firstname");
-    $info{'lastname'} = $session->param("lastname");
-    $info{'telephone'} = $session->param("phone");
+      # add more info for the activation email
+      $info{'firstname'} = $session->param("firstname");
+      $info{'lastname'} = $session->param("lastname");
+      $info{'telephone'} = $session->param("phone");
 
-    $info{'subject'} = $Config{'general'}{'domain'}.': Email activation required';
+      $info{'subject'} = $Config{'general'}{'domain'}.': Email activation required';
+      
+      # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
+      pf::email_activation::create_and_email_activation_code(
+          $mac, $info{'pid'}, $info{'pid'}, $pf::email_activation::GUEST_TEMPLATE, %info
+      );
 
-    # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
-    pf::email_activation::create_and_email_activation_code(
-        $mac, $info{'pid'}, $info{'pid'}, $pf::email_activation::GUEST_TEMPLATE, %info
-    );
-
-    # Violation handling and redirection (accorindingly)
-    my $count = violation_count($mac);
-
-    if ($count == 0) {
+      # Violation handling and redirection (accorindingly)
+      my $count = violation_count($mac);
+      
+      if ($count == 0) {
         if ($Config{'network'}{'mode'} =~ /arp/i) {
-            my $freemac_cmd = $bin_dir."/pfcmd manage freemac $mac";
-            my $out = qx/$freemac_cmd/;
+          my $freemac_cmd = $bin_dir."/pfcmd manage freemac $mac";
+          my $out = qx/$freemac_cmd/;
         }
         pf::web::generate_release_page($cgi, $session, $destination_url);
         $logger->info("registration url = $destination_url");
-    } else {
+      }
+      else {
         print $cgi->redirect("/captive-portal?destination_url=$destination_url");
         $logger->info("more violations yet to come for $mac");
+      }
+    }
+    elsif ($auth_return && defined($params{'by_sms'})) {
+      # User chose to register by SMS
+      $logger->info("Registering guest by SMS " . $session->param("phone") . " @ " . $cgi->param("mobileprovider"));
+      if ($session->param("phone") && $cgi->param("mobileprovider")) {
+        sms_activation_create_send($mac, $session->param("phone"), $cgi->param("mobileprovider") );
+        $logger->info("redirecting to mobile-confirmation.cgi");
+        generate_sms_confirmation_page($cgi, $session, "/cgi-bin/mobile-confirmation.cgi", $destination_url, $err);
+        return (0);
+      }
+      
+      $auth_return = 0;
     }
 
-} else {
+    # Registration form was invalid, return to guest self-registration page and show error message
+    if ($auth_return != 1) {
+        $logger->info("Missing information for self-registration");
+        pf::web::guest::generate_selfregistration_page(
+            $cgi, $session, $cgi->script_name()."?mode=$GUEST_REGISTRATION", $destination_url, $mac, $err != 1
+        );
+        exit(0);
+    }
+}
+else {
     # wipe web fields
     $cgi->delete('firstname', 'lastname', 'email', 'phone');
 

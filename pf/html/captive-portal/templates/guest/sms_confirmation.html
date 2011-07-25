@@ -1,0 +1,31 @@
+[% INCLUDE header.html
+    body_attributes = 'onload="$(\'pin\').focus();"';
+%]
+
+        [%# Welcome text %]
+        <div id="about" class="underlined">
+          <img src="content/images/unlock.png" alt="Access information" />
+          <h1>[% txt_page_header %]</h1>
+          <p>Please enter the PIN code received on your mobile phone in order to gain access to the network.</p>
+          <hr/>
+        </div>
+
+        [%  IF txt_auth_error.defined %]<div class="error"><p>[% txt_auth_error %]</p></div>[%  END %]
+
+        <form method="post" action="[% post_uri %]" id="loginForm">
+        <input type="hidden" name="destination_url" value="[% destination_url %]" />
+
+        [%# PIN %]
+        <div class="input">
+          <span>PIN</span>
+          <input class="field" name="pin" id="pin" type="text" value="[% pin %]" />
+        </div>
+    
+        [%# submit %]
+        <div class="input">
+          <input type="submit" name="action" value="Cancel" class="submitButton" />
+          <input type="submit" name="action" value="Confirm" class="submitButton" />
+        </div>
+        </form>
+
+[% INCLUDE footer.html %]

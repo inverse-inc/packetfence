@@ -4,18 +4,14 @@
 
         <div id="about" class="underlined">
           <img src="content/images/lock.png" alt="You are not authorized" />
+          <h1>Guest Registration</h1>
           <p>This guest network is provided exclusively for the convenience of guests and visitors. Access implies no guarantee of reliability, speed or privacy; this network is provided for the express purpose of facilitating simple Internet web communication. Use implies agreement with all terms and conditions of appropriate behavior of our <b>Acceptable Use Policy.</b></p>
-          <p>In the fields below please enter your name, phone number and a valid email address. You will be given <strong>temporary network access for 10 minutes</strong> during that time:</p>
-          <ul>
-            <li><p align="left">Login to the email account you referenced and;</p></li>
-            <li><p align="left">Click on the link emailed to you to validate network access for the next 24 hours.</p></li>
-          </ul>
+          <p>In the fields below please enter your name, phone number and a valid email address.</p>
+          <hr/>
         </div>
 
-        <p>Guest Registration</p>
-
         [%# Error %]
-        [% IF txt_auth_error.defined %]<div class="error"><p>[% txt_auth_error %]</p></div>[% END %]
+        [% IF txt_regist_auth_error  %]<div class="error"><p>[% txt_regist_auth_error %]</p></div>[% END %]
 
         <form method="post" action="[% post_uri %]">
           <input type="hidden" name="destination_url" value="[% destination_url %]" />
@@ -33,8 +29,16 @@
             <input class="field" name="phone" type="text" value="[% phone %]" />
           </div>
           <div class="input">
-            <span>[% txt_email %]*</span>
-            <input class="field" name="email" type="text" value="[% email %]" />
+            <span>[% txt_mobileprovider %]</span>
+            <select name="mobileprovider">
+              <option value='' selected>Select your provider</option>
+                  [% FOREACH carrier IN sms_carriers %]<option value='[% carrier.id %]'>[% carrier.name %]</option>
+                  [% END %]
+              </select>
+          </div>
+          <div class="input">
+            <span>[% txt_email %]</span>
+            <input class="field" name="email" type="text" value="[% email %]" /><br/>
           </div>
 
           [%# AUP %]
@@ -44,16 +48,25 @@
               [% INCLUDE aup_text.html %]
             </div>
             [%# The space below is intententionnal %]
-            <div class="notmobile"><input name="aup_signed" type="checkbox" /> [% txt_accept_terms %]</div>
-            <div class="mobile"><input name="aup_signed" type="checkbox" />[% txt_accept_terms_mobile %]</div>
+            <div class="notmobile"><input name="aup_signed" type="checkbox" value="on" /> [% txt_accept_terms %]</div>
+            <div class="mobile"><input name="aup_signed" type="checkbox" value="on" /> [% txt_accept_terms_mobile %]</div>
           </div>
 
           [%# submit %]
           <div class="input">
-            <input type="submit" class="button" name="submit" value="Submit" />
+            <div class="note bg">
+              <p>If you choose to receive your access code <strong>by email</strong>, you will be given temporary network access for 10 minutes during that time:</p>
+              <ul>
+                <li>Login to the email account you referenced and;</li>
+                <li>Click on the link emailed to you to validate network access for the next 24 hours.</li>
+            </ul>
+            </div>
+            <input type="submit" class="button" name="by_email" value="Register by Email" /><br/>
+            <div class="note bg">
+              <p>If you choose to receive your access code <strong>by SMS</strong>, you will be able to enter it on the next page.</p>
+            </div>
+              <input type="submit" class="button" name="by_sms" value="Register by SMS" />
           </div>
-
-          <p>*A message will be sent to this email and you have ten minutes to confirm its validity.</p>
 
         </form>
 

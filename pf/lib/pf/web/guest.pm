@@ -50,6 +50,7 @@ use pf::util;
 use pf::web;
 use pf::web::auth;
 use pf::web::util;
+use pf::sms_activation;
 
 our $VERSION = 1.10;
 
@@ -95,7 +96,14 @@ sub generate_selfregistration_page {
         txt_page_title  => gettext("PacketFence Registration System"),
         txt_page_header => gettext("PacketFence Registration System"),
         txt_help        => gettext("help: provide info"),
+        txt_firstname => gettext("Firstname"),
+        txt_lastname => gettext("Lastname"),
+        txt_phone => gettext("Phone number"),
+        txt_mobileprovider => gettext("Phone Provider"),
+        txt_email => gettext("Email"),
         txt_aup         => gettext("Acceptable Use Policy"),
+        txt_accept_terms => gettext("I accept the terms"),
+        txt_accept_terms_mobile => gettext("I have read and accept the terms"),
         txt_all_systems_must_be_registered =>
             gettext("register: all systems must be registered"),
         txt_to_complete => gettext("register: to complete"),
@@ -112,6 +120,9 @@ sub generate_selfregistration_page {
     $vars->{'lastname'} = encode_entities($cgi->param("lastname"));
     $vars->{'phone'} = encode_entities($cgi->param("phone"));
     $vars->{'email'} = encode_entities($cgi->param("email"));
+
+    $vars->{'sms_carriers'} = &sms_carrier_view_all();
+    $logger->info('generate_selfregistration_page');
 
     # showing errors
     if ( defined($err) ) {
@@ -165,6 +176,8 @@ sub generate_registration_page {
         txt_page_header => gettext("guest registration form"),
         txt_help        => gettext("help: provide info"),
         txt_aup         => gettext("Acceptable Use Policy"),
+        txt_accept_terms => gettext("I accept the terms"),
+        txt_accept_terms_mobile => gettext("I have read and accept the terms"),
         txt_all_systems_must_be_registered =>
             gettext("register: all systems must be registered"),
         txt_to_complete => gettext("register: to complete"),
@@ -280,7 +293,7 @@ sub validate_selfregistration {
         my $valid_email = ($cgi->param('email') =~ /^[A-z0-9_.-]+@[A-z0-9_-]+(\.[A-z0-9_-]+)*\.[A-z]{2,6}$/);
         my $valid_name = ($cgi->param("firstname") =~ /\w/ && $cgi->param("lastname") =~ /\w/);
 
-        if ($valid_email && $valid_name && $cgi->param("phone") ne '') {
+        if ($valid_email && $valid_name && $cgi->param("phone") ne '' && length($cgi->param("aup_signed")) > 0) {
 
             # make sure that they are not local users
             # You should not register as a guest if you are part of the local network
@@ -377,11 +390,11 @@ sub generate_activation_confirmation_page {
 }
 
 =item generate_activation_login_page
-        
+
 Sub to present the a login form before activation. 
 This is not hooked-up by default.
-                
-=cut    
+
+=cut
 sub generate_activation_login_page {
     my ( $cgi, $session, $err, $html_template ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
