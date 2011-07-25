@@ -15,7 +15,7 @@ create table sms_carrier (
 ) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_bin;
 
 --
--- Data fetched on 2010-10-15 from:
+-- Data fetched on 2011-07-20 from:
 -- http://gitorious.org/statusnet/mainline/blobs/raw/master/db/sms_carrier.sql
 --
 INSERT INTO sms_carrier
@@ -82,4 +82,5 @@ VALUES
     (100114, 'Vodafone Germany', '%s@vodafone-sms.de', now()),
     (100115, 'E-Plus', '%s@smsmail.eplus.de', now()),
     (100116, 'Cellular South', '%s@csouth1.com', now()),
-    (100117, 'ChinaMobile (139)', '%s@139.com', now());
+    (100117, 'ChinaMobile (139)', '%s@139.com', now()),
+    (100118, 'Dialog Axiata', '%s@dialog.lk', now());
