@@ -364,6 +364,14 @@ mv /etc/raddb/modules/perl.pf /etc/raddb/modules/perl
 ln -s /etc/raddb/sites-available/packetfence /etc/raddb/sites-enabled/packetfence
 ln -s /etc/raddb/sites-available/packetfence-tunnel /etc/raddb/sites-enabled/packetfence-tunnel
 
+if [ ! -f /etc/raddb/certs/dh ]; then
+  echo "Bulding default RADIUS certificates..."
+  cd /etc/raddb/certs/
+  make
+else
+  echo "DH already exists, won't touch it!"
+fi
+
 echo Installation complete.  Make sure you configure packetfence.pm, and restart Radius....
 
 
@@ -636,6 +644,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Tue Jul 26 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Adding certificate compilation for the freeradius2 config package
+
 * Thu Jun 16 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 2.2.1-1
 - New release 2.2.1
 
