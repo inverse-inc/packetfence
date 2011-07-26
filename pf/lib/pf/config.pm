@@ -321,16 +321,16 @@ sub readPfConfigFiles {
             $int_obj->tag( "int",     $int );
         }
 
-	if (!defined($type)) {
-	    $logger->warn("$int: interface type not defined");
-	    # setting type to empty to avoid warnings on split below
-	    $type = '';
-	}
+        if (!defined($type)) {
+            $logger->warn("$int: interface type not defined");
+            # setting type to empty to avoid warnings on split below
+            $type = '';
+        }
 
         foreach my $type ( split( /\s*,\s*/, $type ) ) {
             if ( $type eq 'internal' ) {
                 push @internal_nets, $int_obj;
-                if (!defined($Config{$interface}{'enforcement'}) {
+                if (!defined($Config{$interface}{'enforcement'})) {
                   $logger->warn("$int: interface type internal must have an enforcement mode defined.");
                 } elsif ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) {
                   push @vlan_enforcement_nets, $int_obj;
