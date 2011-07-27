@@ -41,7 +41,7 @@ use Pod::Usage;
 
 use constant {
     INSTALL_DIR => '/usr/local/pf',
-    LIB_DIR     => $FindBin::Bin . "/../lib",
+    LIB_DIR     => $FindBin::Bin . "/../../lib",
 };
 
 use lib LIB_DIR;
