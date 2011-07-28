@@ -1,36 +1,9 @@
-<html>
+[% INCLUDE header.html %]
 
-<head>
-<title>[% txt_page_title %]</title>
-<style>
-<!--
-.bio         { }
--->
-</style>
-</head>
+        <div id="about">
+          <img src="/content/images/unlock.png" alt="Access granted" />
+          <h1>[% txt_page_title %]</h1>
+          <p>Access to the guest network has been granted until [% expiration %].</p>
+        </div>
 
-<body>
-
-<center>
-  <table border="0" width="650" id="table2">
-    <tr>
-      <td align="center">
-      <img border="0" src="[% logo %]">
-      <td>
-    </tr>
-    <tr>
-      <td align="center" class="bio">
-
-        <p align="center"><font face="Arial" size="+1"><b>[% txt_page_title %]</b></font></p>
-
-        <p>Access to the guest network has been granted until [% expiration %].</p>
-
-      </td>
-    </tr>
-  </table>
-</center>
-
-</body>
-
-</html>
-
+[% INCLUDE footer.html %]

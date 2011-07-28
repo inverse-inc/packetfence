@@ -11,7 +11,7 @@
         </div>
 
         [%# Error %]
-        [% IF txt_regist_auth_error  %]<div class="error"><p>[% txt_regist_auth_error %]</p></div>[% END %]
+        [% IF txt_error %]<div class="error"><p>[% txt_error %]</p></div>[% END %]
 
         <form method="post" action="[% post_uri %]">
           <input type="hidden" name="destination_url" value="[% destination_url %]" />

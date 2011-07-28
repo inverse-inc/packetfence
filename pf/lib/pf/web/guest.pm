@@ -125,12 +125,13 @@ sub generate_selfregistration_page {
     $logger->info('generate_selfregistration_page');
 
     # showing errors
+    # showing errors
     if ( defined($err) ) {
         if ( $err == 1 ) {
-            $vars->{'txt_regist_auth_error'} = "Missing mandatory parameter or malformed entry.";
+            $vars->{'txt_error'} = gettext("Missing mandatory parameter or malformed entry.");
         } elsif ( $err == 2 ) {
             my $localdomain = $Config{'general'}{'domain'};
-            $vars->{'txt_regist_auth_error'} = "You can't register as a guest with a $localdomain email address. "
+            $vars->{'txt_error'} = "You can't register as a guest with a $localdomain email address. "
                 . "Please register as a regular user using your email address instead.";
         }
     }
@@ -293,13 +294,13 @@ sub validate_selfregistration {
         my $valid_email = ($cgi->param('email') =~ /^[A-z0-9_.-]+@[A-z0-9_-]+(\.[A-z0-9_-]+)*\.[A-z]{2,6}$/);
         my $valid_name = ($cgi->param("firstname") =~ /\w/ && $cgi->param("lastname") =~ /\w/);
 
-        if ($valid_email && $valid_name && $cgi->param("phone") ne '' && length($cgi->param("aup_signed")) > 0) {
+        if ($valid_email && $valid_name && $cgi->param("phone") ne '' && length($cgi->param("aup_signed"))) {
 
             # make sure that they are not local users
             # You should not register as a guest if you are part of the local network
             my $localdomain = $Config{'general'}{'domain'};
             if ($cgi->param('email') =~ /[@.]$localdomain$/i) {
-                return (0, 4);
+                return (0, 2);
             }
 
             # auth accepted, save login information in session (we will use them to put the guest in the db)
@@ -310,10 +311,10 @@ sub validate_selfregistration {
             $session->param("phone", $cgi->param("phone"));
             return (1, 0);
         } else {
-            return (0, 3);
+            return (0, 1);
         }
     }
-    return ( 0, 0 );
+    return (0, 1);
 }
 
 =item validate_registration

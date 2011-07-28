@@ -306,7 +306,7 @@ sub send_sms {
     my $msg = MIME::Lite->new(
         From        =>  $info{'from'},
         To          =>  $email,
-        Subject     =>  "Berklee Network Activation",
+        Subject     =>  "Network Activation",
         Data        =>  "PIN: $pin"
     );
 

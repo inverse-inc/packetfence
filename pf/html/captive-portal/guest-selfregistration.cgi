@@ -131,14 +131,14 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
         return (0);
       }
       
-      $auth_return = 0;
+      ($auth_return, $err) = (0, 1);
     }
 
     # Registration form was invalid, return to guest self-registration page and show error message
     if ($auth_return != 1) {
         $logger->info("Missing information for self-registration");
         pf::web::guest::generate_selfregistration_page(
-            $cgi, $session, $cgi->script_name()."?mode=$GUEST_REGISTRATION", $destination_url, $mac, $err != 1
+            $cgi, $session, $cgi->script_name()."?mode=$GUEST_REGISTRATION", $destination_url, $mac, $err
         );
         exit(0);
     }
