@@ -59,6 +59,7 @@ Enhancements
 Bug fixes
  * Fixes issues with accentuated characters and single quotes in some captive
    portal strings
+ * Cisco C3560 now heritates the Cisco C2960 code
 
 --------------------------------------------------------------------------------
 Version <version> released on <releaseDate>
