@@ -8,7 +8,7 @@ pf::SNMP::LG::ES4500G - Object oriented module to access and configure LG-Ericss
 
 =over
 
-=Link UP / DOWN
+=item Link UP / DOWN
 
 Seems to have a firmware bug that doesn't send traps on interfaces down.
 Tested using operating code version 1.2.3.2 and links UP/DOWN traps enabled.

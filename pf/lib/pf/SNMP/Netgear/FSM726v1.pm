@@ -13,6 +13,8 @@ Netgear FSM726 / FMS726S version 1 switches.
 
 =over
 
+=item Support
+
 Currently supports:
   - linkUp / linkDown mode
   - Port security
