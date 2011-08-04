@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+
 =head1 NAME
 
 captiveportal_modperl_require.pl - Pre-loading PacketFence's modules in Apache (mod_perl) for the Captive Portal

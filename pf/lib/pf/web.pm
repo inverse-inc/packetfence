@@ -84,7 +84,7 @@ sub web_get_locale {
 }
 
 sub generate_release_page {
-    my ( $cgi, $session, $destination_url, $mac ) = @_;
+    my ( $cgi, $session, $destination_url, $mac, $r ) = @_;
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
@@ -137,12 +137,12 @@ sub generate_release_page {
         -Content_length => length($html_txt),
         -Connection     => 'Close'
     );
-    print STDOUT $html_txt;
-    exit;
+    if ($r) { print $r->print($html_txt); }
+    else    { print STDOUT $html_txt; }
 }
 
 sub generate_scan_start_page {
-    my ( $cgi, $session, $destination_url ) = @_;
+    my ( $cgi, $session, $destination_url, $r ) = @_;
 
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
@@ -181,8 +181,8 @@ sub generate_scan_start_page {
         -Content_length => length($html_txt),
         -Connection     => 'Close'
     );
-    print STDOUT $html_txt;
-    exit;
+    if ($r) { $r->print($html_txt); }
+    else    { print STDOUT $html_txt; }
 }
 
 sub generate_login_page {
@@ -309,7 +309,7 @@ sub generate_aup_standalone_page {
 }
 
 sub generate_scan_status_page {
-    my ( $cgi, $session, $scan_start_time, $destination_url ) = @_;
+    my ( $cgi, $session, $scan_start_time, $destination_url, $r ) = @_;
     my $refresh_timer = 10; # page will refresh each 10 seconds
 
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
@@ -337,12 +337,11 @@ sub generate_scan_status_page {
     print $cgi->header( -cookie => $cookie );
 
     my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
-    $template->process( "scan-in-progress.html", $vars );
-    exit;
+    $template->process( "scan-in-progress.html", $vars, $r );
 }
 
 sub generate_error_page {
-    my ( $cgi, $session, $error_msg ) = @_;
+    my ( $cgi, $session, $error_msg, $r ) = @_;
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
@@ -375,8 +374,7 @@ sub generate_error_page {
     print $cgi->header( -cookie => $cookie );
 
     my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
-    $template->process( "error.html", $vars );
-    exit;
+    $template->process( "error.html", $vars, $r );
 }
 
 # ugly hack - fix me!
