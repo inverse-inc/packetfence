@@ -2,7 +2,7 @@ package pf::SNMP::LG;
 
 =head1 NAME
 
-pf::SNMP::LG - Object oriented module to access SNMP enabled LG-Ericsson switches
+pf::SNMP::LG - Object oriented module to access SNMP enabled LG-Ericsson switches.
 
 =head1 STATUS
 
@@ -15,6 +15,7 @@ This modules holds functions common to the LG-Ericsson switches but details and 
 Refer to them for more information.
 
 =cut
+
 use strict;
 use warnings;
 use diagnostics;
@@ -46,13 +47,24 @@ sub parseTrap {
     my $trapHashRef;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    #link up/down
-    # FIX ME OID are not good.  This is only to avoid crashing.
+    # link up/down
     if ( $trapString =~ /BEGIN VARIABLEBINDINGS [^|]+[|]\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.6\.3\.1\.1\.5\.([34])\|.1.3.6.1.2.1.2.2.1.1.([0-9]+)/) {
         $trapHashRef->{'trapType'} = ( ( $1 == 3 ) ? "down" : "up" );
         $trapHashRef->{'trapIfIndex'} = $2;
 
-    } 
+    # secure MAC violation
+    } elsif ( $trapString =~ /BEGIN VARIABLEBINDINGS [^|]+[|]\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.2\.1\.0\.36[^:]+[:] ([0-9]+)[^:]+[:] ([0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2})/ ) {
+        $trapHashRef->{'trapType'} = 'secureMacAddrViolation';
+        $trapHashRef -> {'trapIfIndex'} = $1;
+        $trapHashRef -> {'trapMac'} = lc($2);
+        $trapHashRef -> {'trapMac'} =~ s/ /:/g;
+        $trapHashRef -> {'trapVlan'} = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
+
+    # unhandled traps
+    } else {
+        $logger->debug("trap currently no handled");
+        $trapHashRef->{'trapType'} = 'unknown';
+    }
 
     return $trapHashRef;
 }
@@ -61,11 +73,13 @@ sub parseTrap {
 
 =head1 AUTHOR
 
+Derek Wuelfrath <dwuelfrath@inverse.ca>
+
 Francois Gaudreault <fgaudreault@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008,2010 Inverse inc.
+Copyright (C) 2006-2008,2011 Inverse inc.
 
 =head1 LICENCE
 
