@@ -72,8 +72,8 @@ sub accounting_db_prepare {
         SELECT CONCAT(SUBSTRING(callingstationid,1,2),':',SUBSTRING(callingstationid,3,2),':',SUBSTRING(callingstationid,5,2),':',
                SUBSTRING(callingstationid,7,2),':',SUBSTRING(callingstationid,9,2),':',SUBSTRING(callingstationid,11,2)) AS mac,
                username,IF(ISNULL(acctstoptime),'connected','not connected') AS status,acctstarttime,acctstoptime,FORMAT(acctsessiontime/60,2) AS acctsessiontime,
-               nasipaddress,nasportid,nasporttype,FORMAT((acctinputoctets/1024/1024),3) AS acctoutputmb,
-               FORMAT((acctoutputoctets/1024/1024),3) AS acctinputmb,FORMAT((acctinputoctets+acctoutputoctets)/1024/1024,3) AS accttotalmb,
+               nasipaddress,nasportid,nasporttype,acctinputoctets AS acctoutput,
+               acctoutputoctets AS acctinput,(acctinputoctets+acctoutputoctets) AS accttotal,
                IF(ISNULL(acctstoptime),'',acctterminatecause) AS acctterminatecause
         FROM (SELECT * FROM radacct ORDER BY acctstarttime DESC) AS tmp
         GROUP BY callingstationid
@@ -84,8 +84,8 @@ sub accounting_db_prepare {
         SELECT CONCAT(SUBSTRING(callingstationid,1,2),':',SUBSTRING(callingstationid,3,2),':',SUBSTRING(callingstationid,5,2),':',
                SUBSTRING(callingstationid,7,2),':',SUBSTRING(callingstationid,9,2),':',SUBSTRING(callingstationid,11,2)) AS mac,
                username,IF(ISNULL(acctstoptime),'connected','not connected') AS status,acctstarttime,acctstoptime,FORMAT(acctsessiontime/60,2) AS acctsessiontime,
-               nasipaddress,nasportid,nasporttype,FORMAT((acctinputoctets/1024/1024),3) AS acctoutputmb,
-               FORMAT((acctoutputoctets/1024/1024),3) AS acctinputmb,FORMAT((acctinputoctets+acctoutputoctets)/1024/1024,3) AS accttotalmb,
+               nasipaddress,nasportid,nasporttype,acctinputoctets AS acctoutput,
+               acctoutputoctets AS acctinput,(acctinputoctets+acctoutputoctets) AS accttotal,
                IF(ISNULL(acctstoptime),'',acctterminatecause) AS acctterminatecause 
         FROM (SELECT * FROM radacct ORDER BY acctstarttime DESC) AS tmp
         GROUP BY callingstationid
@@ -93,9 +93,9 @@ sub accounting_db_prepare {
     ]);
 
    $accounting_statements->{'acct_bandwidth_daily_sql'} = get_db_handle()->prepare(qq[
-        SELECT SUM(FORMAT((radacct_log.acctinputoctets/1024/1024),3)) AS acctinputmb,
-               SUM(FORMAT((radacct_log.acctoutputoctets/1024/1024),3)) AS acctoutputmb,
-               SUM(FORMAT((radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/1024/1024,3)) AS accttotalmb
+        SELECT SUM(radacct_log.acctinputoctets) AS acctinput,
+               SUM(radacct_log.acctoutputoctets) AS acctoutput,
+               SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
         FROM radacct_log
         LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
 	WHERE timestamp >= CURRENT_DATE() AND callingstationid = ?;
@@ -103,9 +103,9 @@ sub accounting_db_prepare {
     ]);
 
    $accounting_statements->{'acct_bandwidth_weekly_sql'} = get_db_handle()->prepare(qq[
-        SELECT SUM(FORMAT((radacct_log.acctinputoctets/1024/1024),3)) AS acctinputmb,
-               SUM(FORMAT((radacct_log.acctoutputoctets/1024/1024),3)) AS acctoutputmb,
-               SUM(FORMAT((radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/1024/1024,3)) AS accttotalmb
+        SELECT SUM(radacct_log.acctinputoctets) AS acctinput,
+               SUM(radacct_log.acctoutputoctets) AS acctoutput,
+               SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
         FROM radacct_log
         LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
         WHERE YEARWEEK(timestamp) = YEARWEEK(CURRENT_DATE()) AND callingstationid = ?;
@@ -113,19 +113,18 @@ sub accounting_db_prepare {
     ]);
 
    $accounting_statements->{'acct_bandwidth_monthly_sql'} = get_db_handle()->prepare(qq[
-        SELECT SUM(FORMAT((radacct_log.acctinputoctets/1024/1024),3)) AS acctinputmb,
-               SUM(FORMAT((radacct_log.acctoutputoctets/1024/1024),3)) AS acctoutputmb,
-               SUM(FORMAT((radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/1024/1024,3)) AS accttotalmb,
-               timestamp
+        SELECT SUM(radacct_log.acctinputoctets) AS acctinput,
+               SUM(radacct_log.acctoutputoctets) AS acctoutput,
+               SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
         FROM radacct_log
         LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
         WHERE MONTH(timestamp) = MONTH(CURRENT_DATE()) AND callingstationid = ?;
     ]);
 
     $accounting_statements->{'acct_bandwidth_yearly_sql'} = get_db_handle()->prepare(qq[
-        SELECT SUM(FORMAT((radacct_log.acctinputoctets/1024/1024),3)) AS acctinputmb,
-               SUM(FORMAT((radacct_log.acctoutputoctets/1024/1024),3)) AS acctoutputmb,
-               SUM(FORMAT((radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/1024/1024,3)) AS accttotalmb
+        SELECT SUM(radacct_log.acctinputoctets) AS acctinput,
+               SUM(radacct_log.acctoutputoctets) AS acctoutput,
+               SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
         FROM radacct_log
         LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
         WHERE YEAR(timestamp) = YEAR(CURRENT_DATE()) AND callingstationid = ?;

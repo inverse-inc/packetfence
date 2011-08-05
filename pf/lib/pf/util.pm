@@ -849,6 +849,22 @@ sub get_total_system_memory {
     return $total_mem;
 }
 
+= item bwsize
+
+Returns the proper bandwidth calculation along with the unit
+
+=cut
+sub bwsize {
+    my ($bytes) = @_;
+    print $bytes . "\r\n";
+    my @units = ("Bytes", "KB", "MB", "GB", "TB", "PB");
+
+    for ($x=0; $bytes>=800 && $x<scalar(@units); $x++ ) {
+        $bytes /= 1024;
+    }
+    my $rounded = sprintf("%.2f",$bytes);
+    return "$rounded $units[$x]"
+}
 =back
 
 =head1 AUTHOR

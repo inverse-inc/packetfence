@@ -170,24 +170,24 @@ sub lookup_node {
             $return .= "    Session End     : " . $node_accounting->{'acctstoptime'} . "\n" if ( $node_accounting->{'acctstoptime'} && $node_accounting->{'status'} eq 'not connected' );
             $return .= "    Session Time    : " . $node_accounting->{'acctsessiontime'} . " Minutes\n" if ( $node_accounting->{'acctsessiontime'} && $node_accounting->{'status'} eq 'not connected' );
             $return .= "    Terminate Cause : " . $node_accounting->{'acctterminatecause'} . "\n" if ( $node_accounting->{'acctterminatecause'} && $node_accounting->{'status'} eq 'not connected' );
-            $return .= "    Bandwitdh Used  : " . $node_accounting->{'accttotalmb'} . " MB\n" if ( $node_accounting->{'accttotalmb'} );
+            $return .= "    Bandwitdh Used  : " . bwsize($node_accounting->{'accttotal'}) if ( $node_accounting->{'accttotal'} );
             $return .= "\n";
             $return .= "Bandwidth Statistics :\n";
             my $daily_bw = node_accounting_daily_bw($mac);
             $return .= "    Today           : ";
-            if ($daily_bw->{'accttotalmb'}) { $return .= $daily_bw->{'accttotalmb'} . " MB (IN: " . $daily_bw->{'acctoutputmb'}  . " MB // OUT: " . $daily_bw->{'acctinputmb'} . " MB) \n" } else { $return .= "0.0 MB \n" ; }
+            if ($daily_bw->{'accttotal'}) { $return .= bwsize($daily_bw->{'accttotal'}) . " (IN: " . bwsize($daily_bw->{'acctoutput'}) ." // OUT: " . bwsize($daily_bw->{'acctinput'}) . " ) \n" } else { $return .= "0.0 MB \n" ; }
 
             my $weekly_bw = node_accounting_weekly_bw($mac);
             $return .= "    This Week       : ";
-            if ($weekly_bw->{'accttotalmb'}) { $return .= $weekly_bw->{'accttotalmb'} . " MB (IN: " . $weekly_bw->{'acctoutputmb'}  . " MB // OUT: " . $weekly_bw->{'acctinputmb'} . " MB) \n" } else { $return .= "0.0 MB \n"; }
+            if ($weekly_bw->{'accttotal'}) { $return .= bwsize($weekly_bw->{'accttotal'}) . " (IN: " . bwsize($weekly_bw->{'acctoutput'})  . " // OUT: " . bwsize($weekly_bw->{'acctinput'}) . " ) \n" } else { $return .= "0.0 MB \n"; }
 
             my $monthly_bw = node_accounting_monthly_bw($mac);
             $return .= "    This Month      : ";
-            if ($monthly_bw->{'accttotalmb'}) { $return .= $monthly_bw->{'accttotalmb'} . " MB (IN: " . $monthly_bw->{'acctoutputmb'}  . " MB // OUT: " . $monthly_bw->{'acctinputmb'} . " MB) \n" } else { $return .= "0.0 MB\n"; } 
+            if ($monthly_bw->{'accttotal'}) { $return .= bwsize($monthly_bw->{'accttotal'}) . " (IN: " . bwsize($monthly_bw->{'acctoutput'})  . " // OUT: " . bwsize($monthly_bw->{'acctinput'}) . " ) \n" } else { $return .= "0.0 MB\n"; } 
 
             my $yearly_bw = node_accounting_yearly_bw($mac);
             $return .= "    This Year       : ";
-            if ($yearly_bw->{'accttotalmb'}) { $return .= $yearly_bw->{'accttotalmb'} . " MB (IN: " . $yearly_bw->{'acctoutputmb'}  . " MB // OUT: " . $yearly_bw->{'acctinputmb'} . " MB) \n"} else { $return .= "0.0 MB\n"; }
+            if ($yearly_bw->{'accttotal'}) { $return .= bwsize($yearly_bw->{'accttotal'}) . " (IN: " . bwsize($yearly_bw->{'acctoutput'})  . " // OUT: " . bwsize($yearly_bw->{'acctinput'}) . " ) \n"} else { $return .= "0.0 MB\n"; }
             
             $return .= "\n";
 
@@ -218,6 +218,8 @@ Kevin Amorin <kev@amorin.org>
 Dominik Gehl <dgehl@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Francois Gaudreault <fgaudreault@inverse.ca>
 
 =head1 COPYRIGHT
 
