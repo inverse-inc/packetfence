@@ -849,11 +849,12 @@ sub get_total_system_memory {
     return $total_mem;
 }
 
-= item bwsize
+=item bwsize
 
 Returns the proper bandwidth calculation along with the unit
 
 =cut
+
 sub bwsize {
     my ($bytes) = @_;
     print $bytes . "\r\n";
