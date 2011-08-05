@@ -76,7 +76,7 @@ sub sanity_check {
     interfaces_defined();
     interfaces();
 
-    if ( isenabled($Config{'vlan'}{'radius'} ) ) {
+    if ( isenabled($Config{'vlan'}{'radiusd'} ) ) {
         freeradius();
     }
 
