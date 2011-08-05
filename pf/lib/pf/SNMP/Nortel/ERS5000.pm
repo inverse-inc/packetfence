@@ -1,13 +1,13 @@
-package pf::SNMP::Nortel::ERS5500;
+package pf::SNMP::Nortel::ERS5000;
 
 =head1 NAME
 
-pf::SNMP::Nortel::ERS5500 - Object oriented module to access SNMP enabled Nortel ERS5500 switches
+pf::SNMP::Nortel::ERS5000 - Object oriented module to access SNMP enabled Nortel ERS5000 switches
 
 =head1 SYNOPSIS
 
-The pf::SNMP::Nortel::ERS5500 module implements an object 
-oriented interface to access SNMP enabled Nortel::ERS5500 switches.
+The pf::SNMP::Nortel::ERS5000 module implements an object 
+oriented interface to access SNMP enabled Nortel::ERS5000 switches.
 
 =head1 STATUS
 

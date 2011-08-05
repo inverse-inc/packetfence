@@ -120,6 +120,10 @@ o Upgrading from a version prior to <trunk-release>:
     environments still on PHP4. We don't think it's used by anyone at this 
     point. Let us know if you need it back.
 
+    - Nortal ERS Switch module rename
+    We changed the naming of two Nortel switch modules.  Nortel::ERS4500 is
+    now Nortel::ERS4000, and Nortel::ERS5500 is now Nortel::ERS5000
+
 o Upgrading from a version prior to 2.2.1:
 
     - Cisco port-security + Voice over IP support on 2960, 2970, 3550 and 4500
