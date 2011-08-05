@@ -601,6 +601,7 @@ fi
                         /usr/local/pf/lib/pf/web/guest.pm
                         /usr/local/pf/lib/pf/web/util.pm
                         /usr/local/pf/lib/pf/web/wispr.pm
+			/usr/local/pf/lib/pf/web/release.pm
 %dir                    /usr/local/pf/logs
 %doc                    /usr/local/pf/NEWS
 %doc                    /usr/local/pf/README
@@ -644,6 +645,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Fri Aug 05 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Missing release.pm in the file list
+
 * Tue Jul 26 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Adding certificate compilation for the freeradius2 config package
 
