@@ -170,24 +170,24 @@ sub lookup_node {
             $return .= "    Session End     : " . $node_accounting->{'acctstoptime'} . "\n" if ( $node_accounting->{'acctstoptime'} && $node_accounting->{'status'} eq 'not connected' );
             $return .= "    Session Time    : " . $node_accounting->{'acctsessiontime'} . " Minutes\n" if ( $node_accounting->{'acctsessiontime'} && $node_accounting->{'status'} eq 'not connected' );
             $return .= "    Terminate Cause : " . $node_accounting->{'acctterminatecause'} . "\n" if ( $node_accounting->{'acctterminatecause'} && $node_accounting->{'status'} eq 'not connected' );
-            $return .= "    Bandwitdh Used  : " . bwsize($node_accounting->{'accttotal'}) if ( $node_accounting->{'accttotal'} );
+            $return .= "    Bandwitdh Used  : " . pf::util::bwsize($node_accounting->{'accttotal'}) if ( $node_accounting->{'accttotal'} );
             $return .= "\n";
             $return .= "Bandwidth Statistics :\n";
             my $daily_bw = node_accounting_daily_bw($mac);
             $return .= "    Today           : ";
-            if ($daily_bw->{'accttotal'}) { $return .= bwsize($daily_bw->{'accttotal'}) . " (IN: " . bwsize($daily_bw->{'acctoutput'}) ." // OUT: " . bwsize($daily_bw->{'acctinput'}) . " ) \n" } else { $return .= "0.0 MB \n" ; }
+            if ($daily_bw->{'accttotal'}) { $return .= pf::util::bwsize($daily_bw->{'accttotal'}) . " (IN: " . pf::util::bwsize($daily_bw->{'acctoutput'}) ." // OUT: " . pf::util::bwsize($daily_bw->{'acctinput'}) . " ) \n" } else { $return .= "0.0 MB \n" ; }
 
             my $weekly_bw = node_accounting_weekly_bw($mac);
             $return .= "    This Week       : ";
-            if ($weekly_bw->{'accttotal'}) { $return .= bwsize($weekly_bw->{'accttotal'}) . " (IN: " . bwsize($weekly_bw->{'acctoutput'})  . " // OUT: " . bwsize($weekly_bw->{'acctinput'}) . " ) \n" } else { $return .= "0.0 MB \n"; }
+            if ($weekly_bw->{'accttotal'}) { $return .= pf::util::bwsize($weekly_bw->{'accttotal'}) . " (IN: " . pf::util::bwsize($weekly_bw->{'acctoutput'})  . " // OUT: " . pf::util::bwsize($weekly_bw->{'acctinput'}) . " ) \n" } else { $return .= "0.0 MB \n"; }
 
             my $monthly_bw = node_accounting_monthly_bw($mac);
             $return .= "    This Month      : ";
-            if ($monthly_bw->{'accttotal'}) { $return .= bwsize($monthly_bw->{'accttotal'}) . " (IN: " . bwsize($monthly_bw->{'acctoutput'})  . " // OUT: " . bwsize($monthly_bw->{'acctinput'}) . " ) \n" } else { $return .= "0.0 MB\n"; } 
+            if ($monthly_bw->{'accttotal'}) { $return .= pf::util::bwsize($monthly_bw->{'accttotal'}) . " (IN: " . pf::util::bwsize($monthly_bw->{'acctoutput'})  . " // OUT: " . pf::util::bwsize($monthly_bw->{'acctinput'}) . " ) \n" } else { $return .= "0.0 MB\n"; } 
 
             my $yearly_bw = node_accounting_yearly_bw($mac);
             $return .= "    This Year       : ";
-            if ($yearly_bw->{'accttotal'}) { $return .= bwsize($yearly_bw->{'accttotal'}) . " (IN: " . bwsize($yearly_bw->{'acctoutput'})  . " // OUT: " . bwsize($yearly_bw->{'acctinput'}) . " ) \n"} else { $return .= "0.0 MB\n"; }
+            if ($yearly_bw->{'accttotal'}) { $return .= pf::util::bwsize($yearly_bw->{'accttotal'}) . " (IN: " . pf::util::bwsize($yearly_bw->{'acctoutput'})  . " // OUT: " . pf::util::bwsize($yearly_bw->{'acctinput'}) . " ) \n"} else { $return .= "0.0 MB\n"; }
             
             $return .= "\n";
 

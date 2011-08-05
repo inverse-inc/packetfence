@@ -189,7 +189,7 @@ sub node_accounting_view {
 
 =cut
 sub node_accounting_view_all {
-    return db_data(ACCOUNTING, $accounting_statements, 'acct_view_all_sql');
+    return translate_bw(db_data(ACCOUNTING, $accounting_statements, 'acct_view_all_sql'));
 }
 
 =item node_accounting_daily_bw - view bandwidth tranferred today for a node, returns an array of hashrefs
@@ -279,6 +279,22 @@ sub node_accounting_yearly_time {
     my $ref = $query->fetchrow_hashref();
     $query->finish();
     return ($ref);
+}
+
+sub translate_bw {
+    my (@data) = @_;
+
+    # determine fields to translate
+    my @fields = ('acctinput','acctoutput','accttotal');
+
+    # change bw unit into its meaningful to humans counterpart
+    foreach my $datum (@data) {
+
+        for (my $i=0; $i<3 ; $i++) {
+            $datum->{$fields[$i]} = pf::util::bwsize($datum->{$fields[$i]});
+        }
+    }
+    return (@data);
 }
 
 =back
