@@ -857,8 +857,8 @@ Returns the proper bandwidth calculation along with the unit
 
 sub bwsize {
     my ($bytes) = @_;
-    print $bytes . "\r\n";
     my @units = ("Bytes", "KB", "MB", "GB", "TB", "PB");
+    my $x;
 
     for ($x=0; $bytes>=800 && $x<scalar(@units); $x++ ) {
         $bytes /= 1024;
