@@ -5,6 +5,7 @@ Access Points and Wireless controllers
 Packetfence supports the following access points and wireless controlers:
 - AeroHIVE AP Series
 - Aruba Networks (200, 600 Series, 800, 2400, 3000 Series, 6000)
+- Avaya Wireless Controllers
 - Cisco 1130AG
 - Cisco 1240AG
 - Cisco 1250
@@ -49,6 +50,8 @@ Deauthentication support
 AeroHIVE AP                  |    XX    |    --    |    --    |
 -----------------------------|----------|----------|----------|
 Aruba                        |    XX    |    --    |    --    |
+-----------------------------|----------|----------|----------|
+Avaya WC                     |    --    |    XX    |    --    |
 -----------------------------|----------|----------|----------|
 Cisco Aironet                |    XX    |    --    |    --    |
 -----------------------------|----------|----------|----------|
