@@ -84,7 +84,7 @@ sub authorize {
     openlog("radiusd_pf", "perror,pid", "user");
 
     # is it EAP-based Wired MAC Authentication?
-    if (is_eap_mac_autentication()) {
+    if (is_eap_mac_authentication()) {
 
         # in MAC Authentication the User-Name is the MAC address stripped of all non-hex characters
         my $mac = $RAD_REQUEST{'User-Name'};
@@ -218,7 +218,7 @@ sub invalid_answer_handler {
     return RLM_MODULE_FAIL;
 }
 
-=item * is_eap_mac_autentication
+=item * is_eap_mac_authentication
 
 Returns 1 or 0 based on if query is EAP-based MAC Authentication
 
@@ -227,7 +227,7 @@ EAP-based MAC Authentication is like MAC Authentication except that instead of u
 Vendors known to proceed this way: Juniper's MAC RADIUS and Extreme Networks' Netlogin
 
 =cut
-sub is_eap_mac_autentication {
+sub is_eap_mac_authentication {
 
     # EAP and User-Name is a MAC address
     if (exists($RAD_REQUEST{'EAP-Type'}) && $RAD_REQUEST{'User-Name'} =~ /[0-9a-fA-F]{12}/) {
