@@ -9,8 +9,6 @@ pf::SNMP::Avaya::WC
 The pf::SNMP::Avaya:WC module implements an object oriented interface to 
 manage Avaya Wireless Controllers
 
-=back
-
 =head1 BUGS AND LIMITATIONS
 
 SNMPv3 support is untested.
@@ -28,6 +26,8 @@ use Log::Log4perl;
 
 use pf::config;
 use pf::util;
+
+=back
 
 =head1 SUBROUTINES
 
