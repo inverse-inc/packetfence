@@ -12,6 +12,11 @@ o Upgrading from a version prior to <trunk-release>:
     in html/captive-portal/ as you'll see below). This includes templates and 
     remediation pages.
 
+    - Database schema update
+    Added support for guest self-registration / management. Also added support
+    for Radius accounting. New tables creation. You need to update your schema with:
+    mysql -u root -p pf -v < db/upgrade-2.2.0-3.0.0.sql
+
     - Firewall (iptables) now handled by PacketFence
     Make sure that iptables is not handled by your operating system otherwise
     conflicts might occur. You can customize the default firewall configuration

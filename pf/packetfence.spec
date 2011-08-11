@@ -265,7 +265,7 @@ curdir=`pwd`
 
 #pf-schema.sql symlink
 cd $RPM_BUILD_ROOT/usr/local/pf/db
-ln -s pf-schema-2.2.0.sql ./pf-schema.sql
+ln -s pf-schema-3.0.0.sql ./pf-schema.sql
 
 #httpd.conf symlink
 #We dropped support for pre 2.2.0 but keeping the symlink trick alive since Apache 2.4 is coming
@@ -645,6 +645,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Thu Aug 11 2011 Derek Wuelfrath <dwuelfrath@inverse.ca>
+- Updated db schema
+
 * Fri Aug 05 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Missing release.pm in the file list
 
