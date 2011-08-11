@@ -9,19 +9,11 @@ pf::SNMP::Avaya::WC
 The pf::SNMP::Avaya:WC module implements an object oriented interface to 
 manage Avaya Wireless Controllers
 
-=item Supports
-
-=over
-
-=item Deauthentication with SNMP
-
-=back
-
-=back
-
 =head1 BUGS AND LIMITATIONS
 
 SNMPv3 support is untested.
+
+=over
 
 =cut
 
