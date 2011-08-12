@@ -159,19 +159,6 @@ sub interfaces {
                 );
         }
         $seen{$interface} = 1;
-    }
-
-}
-
-=item freeradius
-
-Validation related to the FreeRADIUS daemon
-
-=cut
-sub freeradius {
-
-    if ( !-x $Config{'services'}{'radiusd'} ) {
-        add_problem( $FATAL, "radiusd binary is not executable / does not exist!" );
 
         foreach my $type ( split( /\s*,\s*/, $Config{$device}{'type'} ) ) {
             if ($type eq $IF_INTERNAL && !defined($Config{$device}{'enforcement'})) {
@@ -193,6 +180,20 @@ sub freeradius {
         }
     }
 }
+
+
+=item freeradius
+
+Validation related to the FreeRADIUS daemon
+
+=cut
+sub freeradius {
+
+    if ( !-x $Config{'services'}{'radiusd'} ) {
+        add_problem( $FATAL, "radiusd binary is not executable / does not exist!" );
+    }
+}
+
 
 =item ids_snort
 
