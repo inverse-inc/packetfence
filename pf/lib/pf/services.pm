@@ -57,17 +57,14 @@ $flags{'pfredirect'}     = "-d &";
 $flags{'pfsetvlan'}      = "-d &";
 $flags{'dhcpd'} = " -lf $var_dir/dhcpd/dhcpd.leases -cf $generated_conf_dir/dhcpd.conf " . join(" ", @listen_ints);
 $flags{'named'} = "-u pf -c $generated_conf_dir/named.conf";
-$flags{'snmptrapd'}
-    = "-n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On";
+$flags{'snmptrapd'} = "-n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On";
+$flags{'radiusd'} = "";
 
 if ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int ) {
     $flags{'snort'}
         = "-u pf -c $generated_conf_dir/snort.conf -i "
         . $monitor_int
         . " -N -D -l $install_dir/var";
-}
-if ( isenabled( $Config{'vlan'}{'radiusd'} ) ) {
-    $flags{'radiusd'}        = "";
 }
 
 =head1 SUBROUTINES
@@ -109,7 +106,7 @@ sub service_ctl {
                     if ( $exe =~ /pfsetvlan/ && !(is_vlan_enforcement_enabled()) );
                 return (0)
                     if ($exe =~ /named/ && !( is_vlan_enforcement_enabled() && isenabled($Config{'vlan'}{'named'}) ));
-                if ( $daemon =~ /(named|dhcpd|snort|httpd|radiusd|snmptrapd)/
+                if ( $daemon =~ /(named|dhcpd|snort|httpd|snmptrapd)/
                     && !$quick )
                 {
 		    my $confname = "generate_" . $daemon . "_conf";
@@ -120,7 +117,6 @@ sub service_ctl {
                         'dhcpd' => \&generate_dhcpd_conf,
                         'snort' => \&generate_snort_conf,
                         'httpd' => \&generate_httpd_conf,
-                        'radiusd' => \&generate_radiusd_conf,
                         'snmptrapd' => \&generate_snmptrapd_conf
                     );
                     if ( $serviceHash{$daemon} ) {
