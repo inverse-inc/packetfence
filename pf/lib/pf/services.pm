@@ -111,7 +111,8 @@ sub service_ctl {
                     if ($exe =~ /named/ && !( is_vlan_enforcement_enabled() && isenabled($Config{'vlan'}{'named'}) ));
                 if ( $daemon =~ /(named|dhcpd|snort|httpd|radiusd|snmptrapd)/
                     && !$quick )
-                {                    my $confname = "generate_" . $daemon . "_conf";
+                {
+		    my $confname = "generate_" . $daemon . "_conf";
                     $logger->info(
                         "Generating configuration file for $exe ($confname)");
                     my %serviceHash = (
