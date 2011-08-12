@@ -121,6 +121,7 @@ sub read_dhcp_fingerprints_conf {
         $logger->logcroak( join( "\n", @errors ) );
     }
 
+    my %seen_class;
     foreach my $os ( tied(%dhcp_fingerprints)->GroupMembers("os") ) {
         my $os_id = $os;
         $os_id =~ s/^os\s+//;
@@ -143,7 +144,6 @@ sub read_dhcp_fingerprints_conf {
             }
         }
 
-        my %seen_class;
         foreach my $class ( tied(%dhcp_fingerprints)->GroupMembers("class") ) {
 
             my $os_class = $class;
