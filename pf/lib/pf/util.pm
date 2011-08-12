@@ -34,7 +34,7 @@ BEGIN {
     @ISA = qw(Exporter);
     @EXPORT = qw(
         valid_date valid_ip reverse_ip clean_ip 
-        clean_mac valid_mac get_decimal_oui_from_mac whitelisted_mac trappable_mac acct_mac
+        clean_mac valid_mac get_decimal_oui_from_mac whitelisted_mac trappable_mac format_mac_for_acct
         trappable_ip reggable_ip
         inrange_ip ip2gateway ip2interface ip2device isinternal pfmailer isenabled
         isdisabled getlocalmac ip2int int2ip 
@@ -159,14 +159,14 @@ sub clean_mac {
     return;
 }
 
-=item acct_mac
+=item format_mac_for_acct
 
 Put the mac address in the accounting format, accepting xx:xx:xx:xx:xx
 
 Returning format XXXXXXXXXXXX
 
 =cut
-sub acct_mac {
+sub format_mac_for_acct {
     my ($mac) = @_;
     return (0) if ( !$mac );
     # trim garbage
