@@ -239,6 +239,8 @@ cp -r addons/freeradius-integration/radiusd.conf.pf $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/eap.conf.pf $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/users.pf $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/modules/perl.pf $RPM_BUILD_ROOT/etc/raddb/modules
+cp -r addons/freeradius-integration/sql.conf. $RPM_BUILD_ROOT/etc/pf/raddb
+cp -r addons/freeradius-integration/sql/mysql/packetfence.conf.pf $RPM_BUILD_ROOT/etc/pf/raddb/sql/mysql
 cp -r addons/802.1X/packetfence.pm $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/sites-available/packetfence $RPM_BUILD_ROOT/etc/raddb/sites-available
 cp -r addons/freeradius-integration/sites-available/packetfence-tunnel $RPM_BUILD_ROOT/etc/raddb/sites-available
@@ -357,16 +359,13 @@ chown root:radiusd /etc/raddb/sql.conf.pfsave
 cp /etc/raddb/modules/perl /etc/raddb/modules-perl.pfsave
 chown root:radiusd /etc/raddb/modules-perl.pfsave
 
-cp /etc/raddb/sql/mysql/dialup.conf /etc/raddb/sql/mysql/dialup.conf.pfsave
-chown root:radiusd /etc/raddb/sql/mysql/dialup.conf.pfsave
-
 #Copy dummy config to the real one
 mv /etc/raddb/radiusd.conf.pf /etc/raddb/radiusd.conf
 mv /etc/raddb/eap.conf.pf /etc/raddb/eap.conf
 mv /etc/raddb/users.pf /etc/raddb/users
 mv /etc/raddb/sql.conf.pf /etc/raddb/sql.conf
 mv /etc/raddb/modules/perl.pf /etc/raddb/modules/perl
-mv /etc/raddb/sql/mysql/dialup.conf.pf /etc/raddb/sql/mysql/dialup.conf
+mv /etc/raddb/sql/mysql/packetfence.conf.pf /etc/raddb/sql/mysql/packetfence.conf
 
 #Create symlinks for virtual hosts
 ln -s /etc/raddb/sites-available/packetfence /etc/raddb/sites-enabled/packetfence
@@ -403,7 +402,7 @@ mv /etc/raddb/eap.conf.pfsave /etc/raddb/eap.conf
 mv /etc/raddb/users.pfsave /etc/raddb/users
 mv /etc/raddb/sql.conf.pfsave /etc/raddb/sql.conf
 mv /etc/raddb/modules-perl.pfsave /etc/raddb/modules/perl
-mv /etc/raddb/sql/mysql/dialup.conf.pfsave /etc/raddb/sql/mysql/dialup.conf
+rm -f /etc/raddb/sql/mysql/packetfence.conf.pf
 
 # Remove symnlinks
 rm -f /etc/raddb/sites-enabled/packetfence 
@@ -652,7 +651,7 @@ fi
 %config                                    /etc/raddb/sql.conf.pf
 %config                                    /etc/raddb/modules/perl.pf
 %attr(0755, -, radiusd) %config(noreplace) /etc/raddb/packetfence.pm
-%config                                    /etc/raddb/sql/mysql/dialup.conf.pf
+%config                                    /etc/raddb/sql/mysql/packetfence.conf.pf
 %config(noreplace)                         /etc/raddb/sites-available/packetfence
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 

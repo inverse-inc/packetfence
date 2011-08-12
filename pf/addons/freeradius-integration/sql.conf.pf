@@ -27,7 +27,7 @@ sql {
 	max_queries = 0
 
 	readclients = yes
-	nas_table = "radius_nas"
+	nas_table = "nas"
 
-	$INCLUDE sql/${database}/dialup.conf
+	$INCLUDE sql/${database}/packetfence.conf
 }
