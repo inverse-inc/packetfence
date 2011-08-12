@@ -109,7 +109,7 @@ sub service_ctl {
                 if ( $daemon =~ /(named|dhcpd|snort|httpd|snmptrapd)/
                     && !$quick )
                 {
-		    my $confname = "generate_" . $daemon . "_conf";
+                    my $confname = "generate_" . $daemon . "_conf";
                     $logger->info(
                         "Generating configuration file for $exe ($confname)");
                     my %serviceHash = (
@@ -131,10 +131,12 @@ sub service_ctl {
                     if ( $daemon ne 'pfdhcplistener' ) {
                         if ( $daemon eq 'dhcpd' ) {
                             manage_Static_Route(1);
-                        }
-                        if (   ( $daemon eq 'pfsetvlan' )
-                            && ( !switches_conf_is_valid() ) )
-                        {
+                        } elsif ( $daemon eq 'radiusd' ) {
+                            # TODO: push all these per-daemon initialization into pf::services::...
+                            require pf::freeradius;
+                            pf::freeradius::freeradius_populate_nas_config();
+
+                        } elsif ( ($daemon eq 'pfsetvlan') && (!switches_conf_is_valid()) ) {
                             $logger->error_warn("Errors in switches.conf. This can be problematic for "
                                 . "pfsetvlan's operation. Check logs for details.");
                         }
@@ -606,3 +608,7 @@ USA.
 =cut
 
 1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:

@@ -169,9 +169,6 @@ sub freeradius_populate_nas_config {
     }
 }
 
-#sub freeradius_reload {
-#}
-
 =back
 
 =head1 AUTHOR
