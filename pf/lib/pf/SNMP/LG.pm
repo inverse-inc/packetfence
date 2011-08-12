@@ -79,7 +79,7 @@ Francois Gaudreault <fgaudreault@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008,2011 Inverse inc.
+Copyright (C) 2011 Inverse inc.
 
 =head1 LICENCE
 

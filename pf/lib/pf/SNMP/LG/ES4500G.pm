@@ -43,7 +43,13 @@ sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 sub supportsSnmpTraps { return $FALSE; }
 
+=head1 SUBROUTINES
 
+This list is incomplete.
+
+=over
+
+=cut
 sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -176,98 +182,103 @@ sub _setVlan {
         return 0;
     }    
 
-    # Get current egress and untagged ports
-    # LOG: Trace
-    $logger->trace(
-            "SNMP get_request for dot1qVlanStaticEgressPorts: " .
-            "( $OID_dot1qVlanStaticEgressPorts.$oldVlan )" );
-    $logger->trace(
-            "SNMP get_request for dot1qVlanStaticEgressPorts: " .
-            "( $OID_dot1qVlanStaticEgressPorts.$newVlan )" );
-    $logger->trace(
-            "SNMP get_request for dot1qVlanStaticUntaggedPorts: " .
-            "( $OID_dot1qVlanStaticUntaggedPorts.$oldVlan )" );
-    $logger->trace(
-            "SNMP get_request for dot1qVlanStaticUntaggedPorts: " .
-            "( $OID_dot1qVlanStaticUntaggedPorts.$newVlan )" );
-    # SNMP request
-    $this->{_sessionRead}->translate(0);    
-    $result = $this->{_sessionRead}->get_request( -varbindlist => [
-            "$OID_dot1qVlanStaticEgressPorts.$oldVlan",
-            "$OID_dot1qVlanStaticEgressPorts.$newVlan",
-            "$OID_dot1qVlanStaticUntaggedPorts.$oldVlan",
-            "$OID_dot1qVlanStaticUntaggedPorts.$newVlan" ] );
-    $this->{_sessionRead}->translate(1);
-
-    # Calculate new settings
-    my $egressPortsOldVlan = $this->modifyBitmask(
-            $result->{"$OID_dot1qVlanStaticEgressPorts.$oldVlan"}, $dot1dBasePort - 1, 0 );
-    my $egressPortsVlan = $this->modifyBitmask(
-            $result->{"$OID_dot1qVlanStaticEgressPorts.$newVlan"}, $dot1dBasePort - 1, 1 );
-    my $untaggedPortsOldVlan = $this->modifyBitmask(
-            $result->{"$OID_dot1qVlanStaticUntaggedPorts.$oldVlan"}, $dot1dBasePort - 1, 0 );
-    my $untaggedPortsVlan = $this->modifyBitmask(
-            $result->{"$OID_dot1qVlanStaticUntaggedPorts.$newVlan"}, $dot1dBasePort - 1, 1 );
-
-    if ( !$this->connectWrite() ) {
-        return 0;
-    }
-
-    # Setting egressPorts and untaggedPorts for new vlan
-    # LOG: Trace
-    $logger->trace(
-            "SNMP set_request for OID_dot1qVlanStaticEgressPorts: " .
-            "( $OID_dot1qVlanStaticEgressPorts.$newVlan s $egressPortsVlan )" );
-    $logger->trace(
+    {
+        lock %{ $switch_locker_ref->{ $this->{_ip} } };
+        $logger->trace( "locking - \$switch_locker{" . $this->{_ip} . "} locked in _setVlan" );
+ 
+        # Get current egress and untagged ports
+        # LOG: Trace
+        $logger->trace(
+                "SNMP get_request for dot1qVlanStaticEgressPorts: " .
+                "( $OID_dot1qVlanStaticEgressPorts.$oldVlan )" );
+        $logger->trace(
+                "SNMP get_request for dot1qVlanStaticEgressPorts: " .
+                "( $OID_dot1qVlanStaticEgressPorts.$newVlan )" );
+        $logger->trace(
+                "SNMP get_request for dot1qVlanStaticUntaggedPorts: " .
+                "( $OID_dot1qVlanStaticUntaggedPorts.$oldVlan )" );
+        $logger->trace(
+                "SNMP get_request for dot1qVlanStaticUntaggedPorts: " .
+                "( $OID_dot1qVlanStaticUntaggedPorts.$newVlan )" );
+        # SNMP request
+        $this->{_sessionRead}->translate(0);    
+        $result = $this->{_sessionRead}->get_request( -varbindlist => [
+                "$OID_dot1qVlanStaticEgressPorts.$oldVlan",
+                "$OID_dot1qVlanStaticEgressPorts.$newVlan",
+                "$OID_dot1qVlanStaticUntaggedPorts.$oldVlan",
+                "$OID_dot1qVlanStaticUntaggedPorts.$newVlan" ] );
+        $this->{_sessionRead}->translate(1);
+    
+        # Calculate new settings
+        my $egressPortsOldVlan = $this->modifyBitmask(
+                $result->{"$OID_dot1qVlanStaticEgressPorts.$oldVlan"}, $dot1dBasePort - 1, 0 );
+        my $egressPortsVlan = $this->modifyBitmask(
+                $result->{"$OID_dot1qVlanStaticEgressPorts.$newVlan"}, $dot1dBasePort - 1, 1 );
+        my $untaggedPortsOldVlan = $this->modifyBitmask(
+                $result->{"$OID_dot1qVlanStaticUntaggedPorts.$oldVlan"}, $dot1dBasePort - 1, 0 );
+        my $untaggedPortsVlan = $this->modifyBitmask(
+                $result->{"$OID_dot1qVlanStaticUntaggedPorts.$newVlan"}, $dot1dBasePort - 1, 1 );
+    
+        if ( !$this->connectWrite() ) {
+            return 0;
+        }
+    
+        # Setting egressPorts and untaggedPorts for new vlan
+        $logger->trace(
             "SNMP set_request for OID_dot1qVlanStaticUntaggedPorts: " .
-            "( $OID_dot1qVlanStaticUntaggedPorts.$newVlan s $untaggedPortsVlan )" );
-    # SNMP request
-    $result = $this->{_sessionWrite}->set_request( -varbindlist => [
-            "$OID_dot1qVlanStaticEgressPorts.$newVlan", Net::SNMP::OCTET_STRING, $egressPortsVlan ,
-            "$OID_dot1qVlanStaticUntaggedPorts.$newVlan", Net::SNMP::OCTET_STRING, $untaggedPortsVlan ] );
-    # Result
-    #
-    # FIXME: Always returning an error but everything's allright on the switch.
-    # pfsetvlan(5) ERROR: Error setting egressPorts and untaggedPorts for new vlan: Received commitFailed(14) error-status at error-index 1
-    if ( !defined($result) ) {
-        $logger->error( 
-                "Error setting egressPorts and untaggedPorts for new vlan: " .
-                $this->{_sessionWrite}->error );
-    }
-
-    # Changing port PVID for new vlan
-    # LOG: Trace
-    $logger->trace(
-            "SNMP set_request for OID_dot1qPvid: " .
-            "( $OID_dot1qPvid.$ifIndex u $newVlan )" );
-    # SNMP request
-    $result = $this->{_sessionWrite}->set_request( -varbindlist => [ 
-            "$OID_dot1qPvid.$ifIndex", Net::SNMP::GAUGE32, $newVlan ] );
-    # Result
-    if ( !defined($result) ) {
-        $logger->error( 
-                "Error changing port PVID for new vlan: " .
-                $this->{_sessionWrite}->error );
-    }
-
-    # Setting egressPorts and untaggedPorts for old vlan
-    # LOG: Trace
-    $logger->trace(
+            "( $OID_dot1qVlanStaticUntaggedPorts.$newVlan s portList )"
+        );
+        $logger->trace(
             "SNMP set_request for OID_dot1qVlanStaticEgressPorts: " .
-            "( $OID_dot1qVlanStaticEgressPorts.$oldVlan s $egressPortsOldVlan )" );
-    $logger->trace(
-            "SNMP set_request for OID_dot1qVlanStaticUntaggedPorts: " .
-            "( $OID_dot1qVlanStaticUntaggedPorts.$oldVlan s $untaggedPortsOldVlan )" );
-    # SNMP request
-    $result = $this->{_sessionWrite}->set_request( -varbindlist => [
-            "$OID_dot1qVlanStaticEgressPorts.$oldVlan", Net::SNMP::OCTET_STRING, $egressPortsOldVlan ,
-            "$OID_dot1qVlanStaticUntaggedPorts.$oldVlan", Net::SNMP::OCTET_STRING, $untaggedPortsOldVlan ] );
-    # Result
-    if ( !defined($result) ) {
-        $logger->error(
-                "Error setting egressPorts and untaggedPorts for old vlan: " .
-                $this->{_sessionWrite}->error );
-    }
+            "( $OID_dot1qVlanStaticEgressPorts.$newVlan s portList )"
+        );
+        # SNMP request
+        # This switch is sensitive about the order in which we set untagged vs egress parameters. 
+        # This combination worked, don't touch it unless you know what you are doing!
+        $result = $this->{_sessionWrite}->set_request( -varbindlist => [
+                "$OID_dot1qVlanStaticUntaggedPorts.$newVlan", Net::SNMP::OCTET_STRING, $untaggedPortsVlan, 
+                "$OID_dot1qVlanStaticEgressPorts.$newVlan", Net::SNMP::OCTET_STRING, $egressPortsVlan ] );
+        # Result
+        if ( !defined($result) ) {
+            $logger->error( 
+                    "Error setting egressPorts and untaggedPorts for new vlan: " .  $this->{_sessionWrite}->error
+            );
+        }
+    
+        # Changing port PVID for new vlan
+        # LOG: Trace
+        $logger->trace(
+                "SNMP set_request for OID_dot1qPvid: " .
+                "( $OID_dot1qPvid.$ifIndex u $newVlan )" );
+        # SNMP request
+        $result = $this->{_sessionWrite}->set_request( -varbindlist => [ 
+                "$OID_dot1qPvid.$ifIndex", Net::SNMP::GAUGE32, $newVlan ] );
+        # Result
+        if ( !defined($result) ) {
+            $logger->error( 
+                    "Error changing port PVID for new vlan: " .  $this->{_sessionWrite}->error
+            );
+        }
+    
+        # Setting egressPorts and untaggedPorts for old vlan
+        $logger->trace(
+                "SNMP set_request for OID_dot1qVlanStaticUntaggedPorts: " .
+                "( $OID_dot1qVlanStaticUntaggedPorts.$oldVlan s portList )" );
+        $logger->trace(
+                "SNMP set_request for OID_dot1qVlanStaticEgressPorts: " .
+                "( $OID_dot1qVlanStaticEgressPorts.$oldVlan s portList )" );
+        # SNMP request
+        $result = $this->{_sessionWrite}->set_request( -varbindlist => [
+                "$OID_dot1qVlanStaticUntaggedPorts.$oldVlan", Net::SNMP::OCTET_STRING, $untaggedPortsOldVlan, 
+                "$OID_dot1qVlanStaticEgressPorts.$oldVlan", Net::SNMP::OCTET_STRING, $egressPortsOldVlan ] );
+        # Result
+        if ( !defined($result) ) {
+            $logger->error(
+                    "Error setting egressPorts and untaggedPorts for old vlan: " .
+                    $this->{_sessionWrite}->error );
+        }
+ 
+     }
 
     # if we are in port security mode we need to authorize the MAC in the new VLAN (and deauthorize the old stuff)
     # because this switch's port-security secure MAC address table is VLAN aware
@@ -284,6 +295,13 @@ sub _setVlan {
 }
 
 
+=item getAllSecureMacAddresses
+
+Return all MAC addresses in security table and their VLAN
+
+Returns an hashref with MAC => ifIndex => Array(VLANs)
+
+=cut
 sub getAllSecureMacAddresses {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -296,7 +314,6 @@ sub getAllSecureMacAddresses {
         return $secureMacAddrHashRef;
     }
 
-    # LOG: Trace
     $logger->trace(
             "SNMP get_table for dot1qStaticUnicastAllowedToGoTo: " .
             "( $OID_dot1qStaticUnicastAllowedToGoTo )" );
@@ -339,6 +356,47 @@ sub getAllSecureMacAddresses {
     return $secureMacAddrHashRef;
 }
 
+=item getSecureMacAddresses 
+
+Return all MAC addresses in security table and their VLAN for a given ifIndex
+
+Returns an hashref with MAC => Array(VLANs)
+
+=cut
+sub getSecureMacAddresses {
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $OID_dot1qStaticUnicastAllowedToGoTo = '1.3.6.1.2.1.17.7.1.3.1.1.3';
+
+    my $secureMacAddrHashRef = {};
+    if ( !$this->connectRead() ) {
+        return $secureMacAddrHashRef;
+    }
+
+    $this->{_sessionRead}->translate(0);
+    $logger->trace("SNMP get_table for dot1qStaticUnicastAllowedToGoTo: $OID_dot1qStaticUnicastAllowedToGoTo");
+    my $result = $this->{_sessionRead}->get_table( -baseoid => "$OID_dot1qStaticUnicastAllowedToGoTo" );
+    $this->{_sessionRead}->translate(1);
+
+    while ( my $oid_including_mac = each( %{$result} ) ) {
+
+        # if bit at ifIndex position is On, this MAC is on the ifIndex we are looking for, store it
+        if ($this->getBitAtPosition($result->{$oid_including_mac}, $ifIndex-1)) {
+            if ($oid_including_mac =~ 
+                /^$OID_dot1qStaticUnicastAllowedToGoTo\.             # query OID
+                ([0-9]+)\.                                           # <vlan>.
+                ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)     # MAC in OID format
+                \.[0-9]+                                             # Unknown field (stack index?)
+                /x) {
+
+                my $vlan = $1;
+                my $mac = oid2mac($2);
+                push @{$secureMacAddrHashRef->{$mac}}, $vlan;
+            }
+        }
+    }
+    return $secureMacAddrHashRef;
+}
 
 sub getDot1dBasePortForThisIfIndex {
     my ( $this, $ifIndex ) = @_;
@@ -374,6 +432,7 @@ sub getDot1dBasePortForThisIfIndex {
     return $dot1dBasePort;
 }
 
+=back
 
 =head1 AUTHOR
 
@@ -383,7 +442,7 @@ Francois Gaudreault <fgaudreault@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2011 Inverse inc.
+Copyright (C) 2011 Inverse inc.
 
 =head1 LICENSE
 
