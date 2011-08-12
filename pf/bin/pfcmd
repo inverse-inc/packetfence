@@ -29,6 +29,7 @@ pfcmd <command> [options]
  manage                      | manage node entries
  networkconfig               | query/modify network configuration parameters
  node                        | node manipulation
+ nodeaccounting              | RADIUS Accounting Information
  nodecategory                | nodecategory manipulation
  nodeuseragent               | View User-Agent information associated to a node
  person                      | person manipulation
@@ -184,6 +185,7 @@ if (! exists($cmd_tmp{'grammar'})) {
             command_param('node');
             exit(1);
         },
+        'nodeaccounting' => sub { nodeaccounting(); exit(1) },
         'nodecategory' => sub { nodecategory(); exit(1); },
         'nodeuseragent' => sub { nodeuseragent(); exit(1); },
         'person' => sub { 
@@ -414,6 +416,19 @@ sub nodecategory {
         };
     } 
     return 1;
+}
+
+sub nodeaccounting {
+    my ( $function, $id );
+    require pf::accounting;
+    pf::accounting->import(qw(node_accounting_view node_accounting_view_all));
+    $id = $cmd{command}[2];
+    if ( $id && $id ne 'all' ) {
+         $function = "node_accounting_view";
+    } else {
+         $function = "node_accounting_view_all";
+    }
+    exit( print_results( $function, $id ) );
 }
 
 sub nodeuseragent {

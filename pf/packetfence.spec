@@ -351,14 +351,22 @@ chown root:radiusd /etc/raddb/eap.conf.pfsave
 cp /etc/raddb/users /etc/raddb/users.pfsave
 chown root:radiusd /etc/raddb/users.pfsave
 
+cp /etc/raddb/sql.conf /etc/raddb/sql.conf.pfsave
+chown root:radiusd /etc/raddb/sql.conf.pfsave
+
 cp /etc/raddb/modules/perl /etc/raddb/modules-perl.pfsave
 chown root:radiusd /etc/raddb/modules-perl.pfsave
+
+cp /etc/raddb/sql/mysql/dialup.conf /etc/raddb/sql/mysql/dialup.conf.pfsave
+chown root:radiusd /etc/raddb/sql/mysql/dialup.conf.pfsave
 
 #Copy dummy config to the real one
 mv /etc/raddb/radiusd.conf.pf /etc/raddb/radiusd.conf
 mv /etc/raddb/eap.conf.pf /etc/raddb/eap.conf
 mv /etc/raddb/users.pf /etc/raddb/users
+mv /etc/raddb/sql.conf.pf /etc/raddb/sql.conf
 mv /etc/raddb/modules/perl.pf /etc/raddb/modules/perl
+mv /etc/raddb/sql/mysql/dialup.conf.pf /etc/raddb/sql/mysql/dialup.conf
 
 #Create symlinks for virtual hosts
 ln -s /etc/raddb/sites-available/packetfence /etc/raddb/sites-enabled/packetfence
@@ -393,7 +401,9 @@ fi
 mv /etc/raddb/radiusd.conf.pfsave /etc/raddb/radiusd.conf   
 mv /etc/raddb/eap.conf.pfsave /etc/raddb/eap.conf       
 mv /etc/raddb/users.pfsave /etc/raddb/users
+mv /etc/raddb/sql.conf.pfsave /etc/raddb/sql.conf
 mv /etc/raddb/modules-perl.pfsave /etc/raddb/modules/perl
+mv /etc/raddb/sql/mysql/dialup.conf.pfsave /etc/raddb/sql/mysql/dialup.conf
 
 # Remove symnlinks
 rm -f /etc/raddb/sites-enabled/packetfence 
@@ -639,12 +649,18 @@ fi
 %config                                    /etc/raddb/radiusd.conf.pf 
 %config                                    /etc/raddb/eap.conf.pf
 %config                                    /etc/raddb/users.pf
+%config                                    /etc/raddb/sql.conf.pf
 %config                                    /etc/raddb/modules/perl.pf
 %attr(0755, -, radiusd) %config(noreplace) /etc/raddb/packetfence.pm
+%config                                    /etc/raddb/sql/mysql/dialup.conf.pf
 %config(noreplace)                         /etc/raddb/sites-available/packetfence
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Fri Aug 12 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Adding Accouting support into the freeradius2 configuration
+  package
+
 * Thu Aug 11 2011 Derek Wuelfrath <dwuelfrath@inverse.ca>
 - Updated db schema
 
