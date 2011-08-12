@@ -45,6 +45,7 @@ BEGIN {
         str_to_connection_type connection_type_to_str
         get_total_system_memory get_vlan_from_int
         get_translatable_time
+        pretty_bandwidth
     );
 }
 
@@ -928,13 +929,13 @@ sub get_vlan_from_int {
     return;
 }
 
-=item bwsize
+=item pretty_bandwidth
 
 Returns the proper bandwidth calculation along with the unit
 
 =cut
 
-sub bwsize {
+sub pretty_bandwidth {
     my ($bytes) = @_;
     my @units = ("Bytes", "KB", "MB", "GB", "TB", "PB");
     my $x;
@@ -962,6 +963,8 @@ Copyright (C) 2005 David LaPorte
 Copyright (C) 2005 Kevin Amorin
 
 Copyright (C) 2009-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

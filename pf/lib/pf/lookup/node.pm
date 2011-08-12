@@ -18,14 +18,18 @@ use warnings;
 use diagnostics;
 
 use Time::localtime;
+
+use pf::accounting qw(
+    node_accounting_view 
+    node_accounting_daily_bw node_accounting_weekly_bw node_accounting_monthly_bw node_accounting_yearly_bw
+    node_accounting_daily_time node_accounting_weekly_time node_accounting_monthly_time node_accounting_yearly_time
+);
 use pf::config;
 use pf::iplog;
 use pf::locationlog;
 use pf::node;
 use pf::os;
 use pf::useragent qw(node_useragent_view);
-use pf::accounting qw(node_accounting_view node_accounting_daily_bw node_accounting_weekly_bw node_accounting_monthly_bw node_accounting_yearly_bw
-                      node_accounting_daily_time node_accounting_weekly_time node_accounting_monthly_time node_accounting_yearly_time);
 use pf::util;
 
 sub lookup_node {
@@ -168,24 +172,24 @@ sub lookup_node {
             $return .= "    Session End     : " . $node_accounting->{'acctstoptime'} . "\n" if ( $node_accounting->{'acctstoptime'} && $node_accounting->{'status'} eq 'not connected' );
             $return .= "    Session Time    : " . $node_accounting->{'acctsessiontime'} . " Minutes\n" if ( $node_accounting->{'acctsessiontime'} && $node_accounting->{'status'} eq 'not connected' );
             $return .= "    Terminate Cause : " . $node_accounting->{'acctterminatecause'} . "\n" if ( $node_accounting->{'acctterminatecause'} && $node_accounting->{'status'} eq 'not connected' );
-            $return .= "    Bandwitdh Used  : " . pf::util::bwsize($node_accounting->{'accttotal'}) if ( $node_accounting->{'accttotal'} );
+            $return .= "    Bandwitdh Used  : " . pretty_bandwidth($node_accounting->{'accttotal'}) if ( $node_accounting->{'accttotal'} );
             $return .= "\n";
             $return .= "Bandwidth Statistics :\n";
             my $daily_bw = node_accounting_daily_bw($mac);
             $return .= "    Today           : ";
-            if ($daily_bw->{'accttotal'}) { $return .= pf::util::bwsize($daily_bw->{'accttotal'}) . " (IN: " . pf::util::bwsize($daily_bw->{'acctoutput'}) ." // OUT: " . pf::util::bwsize($daily_bw->{'acctinput'}) . " ) \n" } else { $return .= "0.0 MB \n" ; }
+            if ($daily_bw->{'accttotal'}) { $return .= pretty_bandwidth($daily_bw->{'accttotal'}) . " (IN: " . pretty_bandwidth($daily_bw->{'acctoutput'}) ." // OUT: " . pretty_bandwidth($daily_bw->{'acctinput'}) . " ) \n" } else { $return .= "0.0 MB \n" ; }
 
             my $weekly_bw = node_accounting_weekly_bw($mac);
             $return .= "    This Week       : ";
-            if ($weekly_bw->{'accttotal'}) { $return .= pf::util::bwsize($weekly_bw->{'accttotal'}) . " (IN: " . pf::util::bwsize($weekly_bw->{'acctoutput'})  . " // OUT: " . pf::util::bwsize($weekly_bw->{'acctinput'}) . " ) \n" } else { $return .= "0.0 MB \n"; }
+            if ($weekly_bw->{'accttotal'}) { $return .= pretty_bandwidth($weekly_bw->{'accttotal'}) . " (IN: " . pretty_bandwidth($weekly_bw->{'acctoutput'})  . " // OUT: " . pretty_bandwidth($weekly_bw->{'acctinput'}) . " ) \n" } else { $return .= "0.0 MB \n"; }
 
             my $monthly_bw = node_accounting_monthly_bw($mac);
             $return .= "    This Month      : ";
-            if ($monthly_bw->{'accttotal'}) { $return .= pf::util::bwsize($monthly_bw->{'accttotal'}) . " (IN: " . pf::util::bwsize($monthly_bw->{'acctoutput'})  . " // OUT: " . pf::util::bwsize($monthly_bw->{'acctinput'}) . " ) \n" } else { $return .= "0.0 MB\n"; } 
+            if ($monthly_bw->{'accttotal'}) { $return .= pretty_bandwidth($monthly_bw->{'accttotal'}) . " (IN: " . pretty_bandwidth($monthly_bw->{'acctoutput'})  . " // OUT: " . pretty_bandwidth($monthly_bw->{'acctinput'}) . " ) \n" } else { $return .= "0.0 MB\n"; } 
 
             my $yearly_bw = node_accounting_yearly_bw($mac);
             $return .= "    This Year       : ";
-            if ($yearly_bw->{'accttotal'}) { $return .= pf::util::bwsize($yearly_bw->{'accttotal'}) . " (IN: " . pf::util::bwsize($yearly_bw->{'acctoutput'})  . " // OUT: " . pf::util::bwsize($yearly_bw->{'acctinput'}) . " ) \n"} else { $return .= "0.0 MB\n"; }
+            if ($yearly_bw->{'accttotal'}) { $return .= pretty_bandwidth($yearly_bw->{'accttotal'}) . " (IN: " . pretty_bandwidth($yearly_bw->{'acctoutput'})  . " // OUT: " . pretty_bandwidth($yearly_bw->{'acctinput'}) . " ) \n"} else { $return .= "0.0 MB\n"; }
             
             $return .= "\n";
 
@@ -225,7 +229,9 @@ Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009,2011 Inverse inc.
+Copyright (C) 2009-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
