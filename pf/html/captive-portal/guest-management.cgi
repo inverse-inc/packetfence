@@ -71,7 +71,7 @@ if (defined($session->param("login"))) {
         my ($success, $error) = pf::web::guest::validate_registration($cgi, $session);
         if (!$success) {
             $logger->debug("guest registration form didn't pass validation");
-            pf::web::guest::generate_registration_page( $cgi, $session, $cgi->script_name(), $error );
+            pf::web::guest::generate_registration_page( $cgi, $session, "/guests/manage", $error );
             exit(0);
 
         } else {
@@ -101,13 +101,13 @@ if (defined($session->param("login"))) {
 
             # return user to the guest registration page
             pf::web::guest::generate_registration_page(
-                $cgi, $session, $cgi->script_name(), $pf::web::guest::REGISTRATION_CONTINUE
+                $cgi, $session, "/guests/manage", $pf::web::guest::REGISTRATION_CONTINUE
             );
         }
     }
 
     # no specific action, show guest registration page
-    pf::web::guest::generate_registration_page( $cgi, $session, $cgi->script_name() );
+    pf::web::guest::generate_registration_page( $cgi, $session, "/guests/manage" );
     exit(0);
 } else {
     # auth
@@ -117,7 +117,7 @@ if (defined($session->param("login"))) {
         pf::web::guest::generate_activation_login_page($cgi, $session, $err, "guest/mgmt_login.html");
         exit(0);
     }
-    pf::web::guest::generate_registration_page( $cgi, $session, $cgi->script_name() );
+    pf::web::guest::generate_registration_page( $cgi, $session, "/guests/manage" );
 }
 
 =head1 AUTHOR

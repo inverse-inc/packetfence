@@ -20,8 +20,8 @@ use pf::node;
 use pf::violation;
 
 Log::Log4perl->init("$conf_dir/log.conf");
-my $logger = Log::Log4perl->get_logger('register.cgi');
-Log::Log4perl::MDC->put('proc', 'register.cgi');
+my $logger = Log::Log4perl->get_logger('mobile-confirmation.cgi');
+Log::Log4perl::MDC->put('proc', 'mobile-confirmation.cgi');
 Log::Log4perl::MDC->put('tid', 0);
 
 my %params;
@@ -141,7 +141,7 @@ if ($cgi->param("pin")) { # && $session->param("authType")) {
       pf::web::generate_release_page($cgi, $session, $destination_url, $mac);
       $logger->info("registration url = $destination_url");
     } else {
-      print $cgi->redirect("/cgi-bin/redir.cgi?destination_url=$destination_url");
+      print $cgi->redirect("/captive-portal?destination_url=$destination_url");
       $logger->info("more violations yet to come for $mac");
     }
 } else {

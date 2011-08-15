@@ -40,8 +40,8 @@ sub handler
   my $r = shift;
 
   Log::Log4perl->init("$conf_dir/log.conf");
-  my $logger = Log::Log4perl->get_logger('release.cgi');
-  Log::Log4perl::MDC->put('proc', 'release.cgi');
+  my $logger = Log::Log4perl->get_logger('release.pm');
+  Log::Log4perl::MDC->put('proc', 'release.pm');
   Log::Log4perl::MDC->put('tid', 0);
 
   my $cgi = new CGI;
@@ -97,7 +97,7 @@ sub handler
   # scan code...
   if ($vid==1200001){
     # detect if a system scan is in progress, if so redirect to scan in progress page
-    # this should only happen if the user explicitly put release.cgi in his browser address
+    # this should only happen if the user explicitly put /release in his browser address
     if ($violations->{'ticket_ref'} =~ /^Scan in progress, started at: (.*)$/) {
       $logger->info("captive portal redirect to the scan in progress page");
       pf::web::generate_scan_status_page($cgi, $session, $1, $destination_url, $r);

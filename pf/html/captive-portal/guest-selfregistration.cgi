@@ -126,8 +126,8 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
       $logger->info("Registering guest by SMS " . $session->param("phone") . " @ " . $cgi->param("mobileprovider"));
       if ($session->param("phone") && $cgi->param("mobileprovider")) {
         sms_activation_create_send($mac, $session->param("phone"), $cgi->param("mobileprovider") );
-        $logger->info("redirecting to mobile-confirmation.cgi");
-        generate_sms_confirmation_page($cgi, $session, "/cgi-bin/mobile-confirmation.cgi", $destination_url, $err);
+        $logger->info("redirecting to mobile confirmation page");
+        generate_sms_confirmation_page($cgi, $session, "/activate/sms", $destination_url, $err);
         return (0);
       }
       
@@ -138,7 +138,7 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
     if ($auth_return != 1) {
         $logger->info("Missing information for self-registration");
         pf::web::guest::generate_selfregistration_page(
-            $cgi, $session, $cgi->script_name()."?mode=$GUEST_REGISTRATION", $destination_url, $mac, $err
+            $cgi, $session, "/signup?mode=$GUEST_REGISTRATION", $destination_url, $mac, $err
         );
         exit(0);
     }
@@ -149,7 +149,7 @@ else {
 
     # by default, show guest registration page
     pf::web::guest::generate_selfregistration_page(
-        $cgi, $session, $cgi->script_name()."?mode=$GUEST_REGISTRATION", $destination_url, $mac
+        $cgi, $session, "/signup?mode=$GUEST_REGISTRATION", $destination_url, $mac
     );
 }
 

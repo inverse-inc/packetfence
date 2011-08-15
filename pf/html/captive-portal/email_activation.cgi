@@ -28,8 +28,8 @@ use pf::web::guest 1.10;
 use pf::web::custom;
 
 Log::Log4perl->init("$conf_dir/log.conf");
-my $logger = Log::Log4perl->get_logger('redir.cgi');
-Log::Log4perl::MDC->put('proc', 'redir.cgi');
+my $logger = Log::Log4perl->get_logger('email_activation.cgi');
+Log::Log4perl::MDC->put('proc', 'email_activation.cgi');
 Log::Log4perl::MDC->put('tid', 0);
 
 my $cgi = new CGI;

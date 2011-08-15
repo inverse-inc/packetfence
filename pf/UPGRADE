@@ -108,6 +108,9 @@ o Upgrading from a version prior to <trunk-release>:
        - html/user/content/violations/ -> html/captive-portal/violations/
        - html/user/content/3rdparty/ -> html/captive-portal/content/
 
+    - Email Activation URL change
+    From /activate/<hash> to /activate/email/<hash>
+
     - Support for Apache prior to version 2.2.0 dropped
     Upgrade your Apache. We don't think it's used by anyone at this point. Let
     us know if you need it back.
