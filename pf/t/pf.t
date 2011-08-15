@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 60;
+use Test::More tests => 62;
 
 # pf core libs
 use lib '/usr/local/pf/lib';
@@ -49,6 +49,7 @@ BEGIN { use_ok('pf::services') }
 BEGIN { use_ok('pf::services::apache') }
 BEGIN { use_ok('pf::services::dhcpd') }
 BEGIN { use_ok('pf::services::named') }
+BEGIN { use_ok('pf::sms_activation') }
 BEGIN { use_ok('pf::switchlocation') }
 BEGIN { use_ok('pf::temporary_password') }
 BEGIN { use_ok('pf::traplog') }
@@ -61,6 +62,7 @@ BEGIN { use_ok('pf::vlan::custom') }
 BEGIN { use_ok('pf::web') }
 BEGIN { use_ok('pf::web::custom') }
 BEGIN { use_ok('pf::web::guest') }
+BEGIN { use_ok('pf::web::release') }
 BEGIN { use_ok('pf::web::util') }
 BEGIN { use_ok('pf::web::wispr') }
 

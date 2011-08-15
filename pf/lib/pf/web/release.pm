@@ -1,11 +1,10 @@
-#!/usr/bin/perl
-
+package pf::web::release;
 =head1 NAME
 
 release.pm - Handles releasing nodes out of the captive portal.
 
 =cut
-package pf::web::release;
+# TODO this is not the best namespace.. we should reconsider
 
 use strict;
 use warnings;
