@@ -63,6 +63,7 @@ Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl, php, php-gd
 Requires: mod_perl
+Requires: dhcpd, named
 # php-pear-Log required not php-pear, fixes #804
 Requires: php-pear-Log
 Requires: net-tools
@@ -645,6 +646,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Mon Aug 15 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Added named, and dhcpd as dependencies
+
 * Thu Aug 11 2011 Derek Wuelfrath <dwuelfrath@inverse.ca>
 - Updated db schema
 
