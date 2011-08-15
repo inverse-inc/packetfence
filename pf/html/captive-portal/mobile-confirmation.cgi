@@ -1,23 +1,34 @@
 #!/usr/bin/perl
+=head1 NAME
+
+mobile-confirmation.cgi 
+
+=head1 SYNOPSYS
+
+Handles captive-portal SMS authentication.
+
+=cut
+use strict;
+use warnings;
 
 use CGI::Carp qw( fatalsToBrowser );
 use CGI;
 use CGI::Session;
 use Log::Log4perl;
-use strict;
-use warnings;
+use POSIX;
 
 use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
 use lib INSTALL_DIR . "/conf";
+
 use pf::config;
 use pf::iplog;
-use pf::util;
-use pf::web;
-use pf::sms_activation;
-#use pf::rawip;
 use pf::node;
+use pf::util;
 use pf::violation;
+use pf::web;
+# called last to allow redefinitions
+use pf::web::custom;
 
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('mobile-confirmation.cgi');
@@ -71,11 +82,11 @@ if ($cgi->param("pin")) { # && $session->param("authType")) {
     }
 
     $logger->info("entering guest authentication by SMS");
-    my ($auth_return,$err) = web_sms_validation($cgi, $session);
+    my ($auth_return,$err) = pf::web::guest::web_sms_validation($cgi, $session);
     if ($auth_return != 1) {
         # Invalid PIN -- redirect to confirmation template 
         $logger->info("Loading SMS confirmation page");
-        generate_sms_confirmation_page($cgi, $session, $ENV{REQUEST_URI}, $destination_url, $err);
+        pf::web::guest::generate_sms_confirmation_page($cgi, $session, $ENV{REQUEST_URI}, $destination_url, $err);
         return (0);
     }
 
@@ -94,30 +105,15 @@ if ($cgi->param("pin")) { # && $session->param("authType")) {
       return(0);
     }
 
-    #determine default VLAN if VLAN isolation is enabled
-    #and the vlan has not been set yet 
-    if ($Config{'network'}{'mode'} =~ /vlan/i) {
-      if (! defined($info{'vlan'})) {
-         my %ConfigVlan;
-         tie %ConfigVlan, 'Config::IniFiles', (-file => "$conf_dir/switches.conf");
-         my @errors = @Config::IniFiles::errors;
-         if ( scalar(@errors) ) {
-             $logger->error( "Error reading switches.conf: " 
-                             .join( "\n", @errors ) . "\n" );
-         } else {
-             $info{'vlan'}=$ConfigVlan{'default'}{'normalVlan'};
-         }
-      }
-    }
-
     # save user info
     $info{'firstname'} = $session->param( "final_user_first_name");
     $info{'lastname'} = $session->param( "final_user_name");
     $info{'email'} = $session->param( "final_user_email");
     $info{'telephone'} = $session->param("phone");
 
-    # Guest have 3 hour access 
-    $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + 60*60*3 ) );
+    # Setting access timeout
+    my $unregdate = localtime( time + normalize_time($pf::web::guest::DEFAULT_REGISTRATION_DURATION) );
+    $info{'unregdate'} = POSIX::strftime( "%Y-%m-%d %H:%M:%S", $unregdate );
 
     $logger->info(
         "saving person info: firstname=" . $info{'firstname'} . ", lastname=" . $info{'lastname'} 
@@ -147,3 +143,33 @@ if ($cgi->param("pin")) { # && $session->param("authType")) {
 } else {
   pf::web::generate_registration_page($cgi, $session, $destination_url, $mac,1);
 }
+
+=head1 AUTHOR
+
+Olivier Bilodeau <obilodeau@inverse.ca>
+
+Francis Lachapelle <flachapelle@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2011 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+    
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+            
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.            
+                
+=cut
+

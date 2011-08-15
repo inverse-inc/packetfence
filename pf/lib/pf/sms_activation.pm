@@ -43,8 +43,6 @@ BEGIN {
         validate_phone_number
         sms_activation_create_send
         validate_code
-        generate_sms_confirmation_page
-        web_sms_validation
     );
 }
 
@@ -351,68 +349,6 @@ sub validate_code {
     return $activation_record->{'mac'};
 }
 
-sub generate_sms_confirmation_page {
-    my ( $cgi, $session, $post_uri, $destination_url, $err ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web');
-    setlocale( LC_MESSAGES, $Config{'general'}{'locale'} );
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    textdomain("packetfence");
-    my $ip   = $cgi->remote_addr;
-    my $mac  = ip2mac($ip);
-    my $vars = {
-        logo            => $Config{'general'}{'logo'},
-        destination_url => $destination_url,
-        post_uri        => $post_uri,
-        txt_page_title  => 'Confirm Mobile Phone Number',
-        txt_page_header => 'Confirm Mobile Phone Number',
-        txt_help        => gettext("help: provide info"),
-        list_help_info  => [
-            { name => gettext('IP'),  value => $ip },
-            { name => gettext('MAC'), value => $mac }
-        ],
-    };
-
-    if ( defined($err) ) {
-        if ( $err == 1 ) {
-            $vars->{'txt_auth_error'} = 'Invalid PIN';
-        }
-    }
-
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-#    if ( -r "$conf_dir/templates/sms.pl" ) {
-#        my $include_fh;
-#        open $include_fh, '<', "$conf_dir/templates/sms.pl";
-#        while (<$include_fh>) {
-#            eval $_;
-#        }
-#        close $include_fh;
-#    }
-
-    my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
-    $template->process( 'guest/sms_confirmation.html' , $vars );
-    exit;
-}
-
-sub web_sms_validation {
-    # return (1,0) for successfull authentication
-    # return (0,1) for invalid PIN
-    # return (0,0) for first attempt
-    my ($cgi, $session) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::sms_activation');
-
-    # no form was submitted, assume first time
-    if ($cgi->param("pin")) {
-        $logger->info("Mobile phone number validation attempt");
-        if (validate_code($cgi->param("pin"))) {
-            return (1, 0);
-        } else {
-            return ( 0, 1 ); #invalid PIN
-        }
-    } else {
-        return ( 0, 0 );
-    }
-}
 
 =back
 
