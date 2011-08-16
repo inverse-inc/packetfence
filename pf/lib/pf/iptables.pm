@@ -192,40 +192,12 @@ sub generate_inline_if_src_to_chain {
 
 =item generate_mangle_rules
 
+Packet marking will traverse all the rules so the order in which packets are marked is rather important.
+
 =cut
 sub generate_mangle_rules {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $mangle_rules;
-
-    # mark blacklisted users
-    # TODO blacklist concept on it's way to the graveyard
-    foreach my $mac ( split( /\s*,\s*/, $Config{'trapping'}{'blacklist'} ) ) {
-        $mangle_rules .= 
-            "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac --jump MARK --set-mark $IPTABLES_MARK_ISOLATION\n"
-        ;
-    }
-
-    # mark whitelisted users
-    # TODO whitelist concept on it's way to the graveyard
-    foreach my $mac ( split( /\s*,\s*/, $Config{'trapping'}{'whitelist'} ) ) {
-        $mangle_rules .= 
-            "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac --jump MARK --set-mark 0x$IPTABLES_MARK_REG\n"
-        ;
-    }
-
-    # mark all open violations
-    # FIXME validate mark order, we want violation enforcement over registration and allowed
-    # TODO performance: only those whose's last connection_type is inline?
-    my @macarray = violation_view_open_uniq_trap();
-    if ( $macarray[0] ) {
-        foreach my $row (@macarray) {
-            my $mac = $row->{'mac'};
-            $mangle_rules .= 
-                "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac " . 
-                "--jump MARK --set-mark 0x$IPTABLES_MARK_ISOLATION\n"
-            ;
-        }
-    }
 
     # mark all registered nodes
     # FIXME: don't mark registered nodes that have opened trap violations
@@ -246,6 +218,35 @@ sub generate_mangle_rules {
                 "--jump MARK --set-mark 0x$IPTABLES_MARK_REG\n"
             ;
         }
+    }
+
+    # mark all open violations
+    # TODO performance: only those whose's last connection_type is inline?
+    my @macarray = violation_view_open_uniq_trap();
+    if ( $macarray[0] ) {
+        foreach my $row (@macarray) {
+            my $mac = $row->{'mac'};
+            $mangle_rules .= 
+                "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac " . 
+                "--jump MARK --set-mark 0x$IPTABLES_MARK_ISOLATION\n"
+            ;
+        }
+    }
+
+    # mark whitelisted users
+    # TODO whitelist concept on it's way to the graveyard
+    foreach my $mac ( split( /\s*,\s*/, $Config{'trapping'}{'whitelist'} ) ) {
+        $mangle_rules .= 
+            "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac --jump MARK --set-mark 0x$IPTABLES_MARK_REG\n"
+        ;
+    }
+
+    # mark blacklisted users
+    # TODO blacklist concept on it's way to the graveyard
+    foreach my $mac ( split( /\s*,\s*/, $Config{'trapping'}{'blacklist'} ) ) {
+        $mangle_rules .= 
+            "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac --jump MARK --set-mark $IPTABLES_MARK_ISOLATION\n"
+        ;
     }
 
     return $mangle_rules;
