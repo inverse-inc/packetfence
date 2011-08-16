@@ -63,7 +63,7 @@ Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl, php, php-gd
 Requires: mod_perl
-Requires: dhcpd, named
+Requires: dhcp, bind
 # php-pear-Log required not php-pear, fixes #804
 Requires: php-pear-Log
 Requires: net-tools
