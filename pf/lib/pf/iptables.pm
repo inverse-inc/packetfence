@@ -39,7 +39,7 @@ use pf::class qw(class_view_all class_trappable);
 use pf::config;
 use pf::node qw(nodes_registered);
 use pf::util;
-use pf::violation qw(violation_view_open_all violation_count);
+use pf::violation qw(violation_view_open_uniq_trap violation_count);
 
 Readonly my $FW_FILTER_INPUT_INT_VLAN => 'input-internal-vlan-if';
 Readonly my $FW_FILTER_INPUT_INT_INLINE => 'input-internal-inline-if';
@@ -214,13 +214,12 @@ sub generate_mangle_rules {
     }
 
     # mark all open violations
-    # FIXME implement violation_view_open_all_trap and use that here instead
     # FIXME validate mark order, we want violation enforcement over registration and allowed
-    my @macarray = violation_view_open_all();
+    # TODO performance: only those whose's last connection_type is inline?
+    my @macarray = violation_view_open_uniq_trap();
     if ( $macarray[0] ) {
         foreach my $row (@macarray) {
             my $mac = $row->{'mac'};
-            my $vid = $row->{'vid'};
             $mangle_rules .= 
                 "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac " . 
                 "--jump MARK --set-mark 0x$IPTABLES_MARK_ISOLATION\n"
@@ -229,6 +228,7 @@ sub generate_mangle_rules {
     }
 
     # mark all registered nodes
+    # FIXME: don't mark registered nodes that have opened trap violations
     # TODO performance: mark all *inline* registered users only
     # _but_ in that case, pfdhcplistener on an inline interface should call pf::inline's performInlineEnforcement()
     # to catch inactive devices coming back or changing connection_type
@@ -443,7 +443,7 @@ sub generate_filter_forward_scanhost {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $filter_rules;
 
-    # FIXME don't forget to also add statements to the PREROUTING nat table as in generate_inline_rules
+    # TODO don't forget to also add statements to the PREROUTING nat table as in generate_inline_rules
     my $scan_server = $Config{'scan'}{'host'};
     if ( $scan_server !~ /^127\.0\.0\.1$/ && $scan_server !~ /^localhost$/i ) {
         $filter_rules .= "-A FORWARD --destination $scan_server --jump ACCEPT";
@@ -458,7 +458,7 @@ sub generate_filter_forward_scanhost {
 =item generate_passthrough
 
 =cut
-# FIXME don't forget to also add statements to the PREROUTING nat table as in generate_inline_rules
+# TODO don't forget to also add statements to the PREROUTING nat table as in generate_inline_rules
 #
 # I also took that piece of out of generate_nat_redirect_rules() that is probably required
 #

@@ -49,6 +49,7 @@ BEGIN {
         violation_view_open
         violation_view_open_desc
         violation_view_open_uniq
+        violation_view_open_uniq_trap
         violation_modify
         violation_trigger
         violation_count
@@ -118,6 +119,11 @@ sub violation_db_prepare {
 
     $violation_statements->{'violation_view_open_uniq_sql'} = get_db_handle()->prepare(
         qq [ select mac from violation where status="open" group by mac ]);
+
+    $violation_statements->{'violation_view_open_uniq_trap_sql'} = get_db_handle()->prepare(qq[
+        SELECT mac FROM violation JOIN action USING (vid)
+        WHERE status="open" AND action = "trap" GROUP BY mac
+    ]);
 
     $violation_statements->{'violation_view_open_all_sql'} = get_db_handle()->prepare(
         qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where status="open" ]);
@@ -294,6 +300,15 @@ sub violation_view_open_desc {
 
 sub violation_view_open_uniq {
     return db_data(VIOLATION, $violation_statements, 'violation_view_open_uniq_sql');
+}
+
+=item violation_view_open_uniq_trap
+
+Returns a list of MACs which have at least one opened violation with a trap action
+
+=cut
+sub violation_view_open_uniq_trap {
+    return db_data(VIOLATION, $violation_statements, 'violation_view_open_uniq_trap_sql');
 }
 
 sub violation_view_open_all {
