@@ -252,8 +252,11 @@ sub node_db_prepare {
         WHERE status = "$STATUS_REGISTERED"
     ]);
 
-    $node_statements->{'nodes_registered_not_violators_sql'} = get_db_handle()->prepare(
-        qq [ select node.mac from node left join violation on node.mac=violation.mac and violation.status='open' where node.status='reg' group by node.mac having count(violation.mac)=0 ]);
+    $node_statements->{'nodes_registered_not_violators_sql'} = get_db_handle()->prepare(qq[
+        SELECT node.mac FROM node 
+            LEFT JOIN violation ON node.mac=violation.mac AND violation.status='open' 
+        WHERE node.status='reg' GROUP BY node.mac HAVING count(violation.mac)=0
+    ]);
 
     $node_statements->{'nodes_active_unregistered_sql'} = get_db_handle()->prepare(
         qq [ select n.mac,n.pid,n.detect_date,n.regdate,n.unregdate,n.lastskip,n.status,n.user_agent,n.computername,n.notes,i.ip,i.start_time,i.end_time,n.last_arp from node n left join iplog i on n.mac=i.mac where n.status="unreg" and (i.end_time=0 or i.end_time > now()) ]);
@@ -802,6 +805,12 @@ sub nodes_registered {
     return db_data(NODE, $node_statements, 'nodes_registered_sql');
 }
 
+=item nodes_registered_not_violators
+
+Returns a list of MACs which are registered and don't have any open violation.
+Since trap violations stay open, this has the intended effect of getting all MACs which should be allowed through.
+
+=cut
 sub nodes_registered_not_violators {
     return db_data(NODE, $node_statements, 'nodes_registered_not_violators_sql');
 }

@@ -37,9 +37,9 @@ BEGIN {
 
 use pf::class qw(class_view_all class_trappable);
 use pf::config;
-use pf::node qw(nodes_registered);
+use pf::node qw(nodes_registered_not_violators);
 use pf::util;
-use pf::violation qw(violation_view_open_uniq_trap violation_count);
+use pf::violation qw(violation_view_open_uniq violation_count);
 
 Readonly my $FW_FILTER_INPUT_INT_VLAN => 'input-internal-vlan-if';
 Readonly my $FW_FILTER_INPUT_INT_INLINE => 'input-internal-inline-if';
@@ -200,7 +200,6 @@ sub generate_mangle_rules {
     my $mangle_rules;
 
     # mark all registered nodes
-    # FIXME: don't mark registered nodes that have opened trap violations
     # TODO performance: mark all *inline* registered users only
     # _but_ in that case, pfdhcplistener on an inline interface should call pf::inline's performInlineEnforcement()
     # to catch inactive devices coming back or changing connection_type
@@ -209,8 +208,8 @@ sub generate_mangle_rules {
         # default catch all: mark unreg
         $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE --jump MARK --set-mark 0x$IPTABLES_MARK_UNREG\n";
 
-        # mark registered nodes
-        my @registered = nodes_registered();
+        # mark registered nodes that should not be isolated 
+        my @registered = nodes_registered_not_violators();
         foreach my $row (@registered) {
             my $mac = $row->{'mac'};
             $mangle_rules .= 
@@ -222,7 +221,7 @@ sub generate_mangle_rules {
 
     # mark all open violations
     # TODO performance: only those whose's last connection_type is inline?
-    my @macarray = violation_view_open_uniq_trap();
+    my @macarray = violation_view_open_uniq();
     if ( $macarray[0] ) {
         foreach my $row (@macarray) {
             my $mac = $row->{'mac'};
