@@ -48,6 +48,8 @@ New features
  * New default_auth parameter will be the default authentication module selected
    if you have multiple authentication back-end enabled in auth
  * Remediation pages are translatable (#822)
+ * Introduced RADIUS Accounting functionalities to track bandwidth usage of the
+   nodes
 
 Enhancements
  * Captive portal usability improvements for both users and administrators

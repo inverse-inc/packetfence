@@ -132,6 +132,12 @@ o Upgrading from a version prior to <trunk-release>:
     We changed the naming of two Nortel switch modules.  Nortel::ERS4500 is
     now Nortel::ERS4000, and Nortel::ERS5500 is now Nortel::ERS5000
 
+    - RADIUS Accounting
+    RADIUS is now using SQL to determine the NAS clients configuration.  For
+    all devices that needs to do either Mac Auth (Wired/Wireless) or 802.1X
+    you need to add the radiusSecret=YOUR_SECRET variable in switches.conf
+    for that device.  Replace YOUR_SECRET with your actual RADIUS secret.
+
 o Upgrading from a version prior to 2.2.1:
 
     - Cisco port-security + Voice over IP support on 2960, 2970, 3550 and 4500
