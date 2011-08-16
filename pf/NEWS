@@ -68,6 +68,7 @@ Bug fixes
  * Cisco C3560 now heritates the Cisco C2960 code
  * Additional fixes to nessus scans
  * Renaming Nortel ERS modules (#1238)
+ * Interim fixes (#1239)
 
 --------------------------------------------------------------------------------
 Version <version> released on <releaseDate>

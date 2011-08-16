@@ -70,17 +70,17 @@ sub iptables_generate {
 
     # FILTER
     # per interface-type pointers to pre-defined chains
-    $tags{'filter_if_src_to_chain'} = generate_filter_if_src_to_chain();
+    $tags{'filter_if_src_to_chain'} .= generate_filter_if_src_to_chain();
 
     # Note: I'm giving references to this guy here so he can directly mess with the tables
     generate_inline_rules(\$tags{'filter_forward_inline'}, \$tags{'nat_prerouting_inline'});
 
     # MANGLE
-    $tags{'mangle_if_src_to_chain'} = generate_inline_if_src_to_chain();
-    $tags{'mangle_prerouting_inline'} = generate_mangle_rules();
+    $tags{'mangle_if_src_to_chain'} .= generate_inline_if_src_to_chain();
+    $tags{'mangle_prerouting_inline'} .= generate_mangle_rules();
 
     # NAT chain targets and redirections (other rules injected by generate_inline_rules)
-    $tags{'nat_if_src_to_chain'} = generate_inline_if_src_to_chain();
+    $tags{'nat_if_src_to_chain'} .= generate_inline_if_src_to_chain();
     $tags{'nat_prerouting_inline'} .= generate_nat_redirect_rules();
 
     chomp(
@@ -101,7 +101,7 @@ Creating proper source interface matches to jump to the right chains for proper 
 =cut
 sub generate_filter_if_src_to_chain {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
-    my $rules;
+    my $rules = '';
 
     # internal interfaces handling
     foreach my $interface (@internal_nets) {
@@ -173,7 +173,7 @@ Creating proper source interface matches to jump to the right chains for inline 
 =cut
 sub generate_inline_if_src_to_chain {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
-    my $rules;
+    my $rules = '';
 
     # internal interfaces handling
     foreach my $interface (@internal_nets) {
@@ -198,7 +198,7 @@ The last mark will be the one having an effect.
 =cut
 sub generate_mangle_rules {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
-    my $mangle_rules;
+    my $mangle_rules = '';
 
     # pfdhcplistener in most cases will be enforcing access
     # however we insert these marks on startup in case PacketFence is restarted
@@ -254,7 +254,7 @@ sub generate_mangle_rules {
 =cut
 sub generate_nat_redirect_rules {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
-    my $rules;
+    my $rules = '';
 
     # how we do our magic
     foreach my $redirectport ( split( /\s*,\s*/, $Config{'inline'}{'ports_redirect'} ) ) {
@@ -423,7 +423,7 @@ of the inline mode because of time constraints.
 =cut
 sub generate_filter_input_listeners {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
-    my $rules;
+    my $rules = '';
 
     # TODO to integrate and might need to adjust other tables too (NAT's dnat)
     my @listeners = split( /\s*,\s*/, $Config{'ports'}{'listeners'} );
@@ -431,6 +431,8 @@ sub generate_filter_input_listeners {
         my $port = getservbyname( $listener, "tcp" );
         $rules .= "--protocol tcp --destination-port $port --jump ACCEPT\n";
     }
+
+    return $rules;
 }
 
 
@@ -439,7 +441,7 @@ sub generate_filter_input_listeners {
 =cut
 sub generate_filter_forward_scanhost {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
-    my $filter_rules;
+    my $filter_rules = '';
 
     # TODO don't forget to also add statements to the PREROUTING nat table as in generate_inline_rules
     my $scan_server = $Config{'scan'}{'host'};
@@ -472,7 +474,7 @@ sub generate_filter_forward_scanhost {
 
 sub generate_passthrough {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
-    my $filter_rules;
+    my $filter_rules = '';
 
     # poke passthroughs
     my %passthroughs =  %{ $Config{'passthroughs'} } if ( $Config{'trapping'}{'passthrough'} =~ /^iptables$/i );
