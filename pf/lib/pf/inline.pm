@@ -54,7 +54,7 @@ sub performInlineEnforcement {
     my $should_be_mark = $this->fetchMarkForNode($mac);
 
     if ($current_mark == $should_be_mark) {
-        $logger->info("MAC: $mac is already properly enforced in firewall, no change required");
+        $logger->debug("MAC: $mac is already properly enforced in firewall, no change required");
         return $TRUE;
     }
 
@@ -78,6 +78,7 @@ sub fetchMarkForNode {
         return $IPTABLES_MARK_ISOLATION;
     }
 
+    # FIXME if we are not forcing registration
     # Registration
     my $node_info = node_attributes($mac);
     if (!defined($node_info)) {

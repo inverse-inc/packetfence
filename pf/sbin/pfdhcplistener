@@ -32,6 +32,7 @@ use pf::action;
 use pf::class;
 use pf::config;
 use pf::db;
+use pf::inline::custom $INLINE_API_LEVEL;
 use pf::iplog;
 use pf::iptables;
 use pf::locationlog;
@@ -82,6 +83,7 @@ pod2usage( -verbose => 1 ) if ( $args{h} || !$args{i} );
 
 my %rogue_servers;
 my $is_inline_vlan;
+my $accessControl;
 my $interface_ip;
 my $interface_vlan;
 
@@ -99,6 +101,7 @@ if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
             if (grep( { $_->tag("int") eq $interface} @inline_enforcement_nets) != 0) {
                 $logger->debug("DHCP detector on an inline interface");
                 $is_inline_vlan = $TRUE;
+                $accessControl = new pf::inline::custom();
             }
 
             $interface_ip = $Config{"interface $interface"}{'ip'};
@@ -354,6 +357,7 @@ sub listen_dhcp {
             }
             if ($is_inline_vlan) {
                 locationlog_synchronize($interface_ip, $NO_PORT, $interface_vlan, $chaddr, NO_VOIP, INLINE);
+                $accessControl->performInlineEnforcement($chaddr);
             }
 
         } elsif ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 7 ) {

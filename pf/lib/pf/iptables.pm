@@ -193,22 +193,22 @@ sub generate_inline_if_src_to_chain {
 =item generate_mangle_rules
 
 Packet marking will traverse all the rules so the order in which packets are marked is rather important.
+The last mark will be the one having an effect.
 
 =cut
 sub generate_mangle_rules {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $mangle_rules;
 
-    # mark all registered nodes
-    # TODO performance: mark all *inline* registered users only
-    # _but_ in that case, pfdhcplistener on an inline interface should call pf::inline's performInlineEnforcement()
-    # to catch inactive devices coming back or changing connection_type
+    # pfdhcplistener in most cases will be enforcing access
+    # however we insert these marks on startup in case PacketFence is restarted
     if ( isenabled($Config{'trapping'}{'registration'}) ) {
 
         # default catch all: mark unreg
         $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE --jump MARK --set-mark 0x$IPTABLES_MARK_UNREG\n";
 
         # mark registered nodes that should not be isolated 
+        # TODO performance: mark all *inline* registered users only
         my @registered = nodes_registered_not_violators();
         foreach my $row (@registered) {
             my $mac = $row->{'mac'};
