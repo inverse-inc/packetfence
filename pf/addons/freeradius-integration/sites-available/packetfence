@@ -31,7 +31,6 @@ accounting {
         unix
         radutmp
         attr_filter.accounting_response
-	sql
 }
 
 session {
