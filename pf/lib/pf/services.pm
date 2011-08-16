@@ -33,7 +33,6 @@ use UNIVERSAL::require;
 
 use pf::config;
 use pf::util;
-use pf::violation qw(violation_view_open_uniq);
 use pf::node qw(nodes_registered_not_violators);
 use pf::trigger qw(trigger_delete_all parse_triggers);
 use pf::class qw(class_view_all class_merge);
