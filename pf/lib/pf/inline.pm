@@ -78,22 +78,23 @@ sub fetchMarkForNode {
         return $IPTABLES_MARK_ISOLATION;
     }
 
-    # FIXME if we are not forcing registration
-    # Registration
+    # looking at the node's registration status
+    # at this point we don't care wether trapping.registration is enabled or not
+    # we can do this because actual enforcement is done on startup by adding proper DNAT and forward ACCEPT
     my $node_info = node_attributes($mac);
     if (!defined($node_info)) {
-        $logger->info("MAC: $mac doesn't have a node entry; it needs to be firewalled");
+        $logger->debug("MAC: $mac doesn't have a node entry; it needs to be firewalled");
         return $IPTABLES_MARK_UNREG;
     }
 
     my $n_status = $node_info->{'status'};
     if ($n_status eq $pf::node::STATUS_UNREGISTERED || $n_status eq $pf::node::STATUS_PENDING) {
-        $logger->info("MAC: $mac is of status $n_status; needs to be firewalled");
+        $logger->debug("MAC: $mac is of status $n_status; needs to be firewalled");
         return $IPTABLES_MARK_UNREG;
     }
 
     # At this point, we are registered and we don't have a violation: allow through
-    $logger->info("MAC: $mac should be allowed through firewall");
+    $logger->debug("MAC: $mac should be allowed through firewall");
     return $IPTABLES_MARK_REG;
 }
 

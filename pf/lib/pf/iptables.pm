@@ -202,21 +202,19 @@ sub generate_mangle_rules {
 
     # pfdhcplistener in most cases will be enforcing access
     # however we insert these marks on startup in case PacketFence is restarted
-    if ( isenabled($Config{'trapping'}{'registration'}) ) {
 
-        # default catch all: mark unreg
-        $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE --jump MARK --set-mark 0x$IPTABLES_MARK_UNREG\n";
+    # default catch all: mark unreg
+    $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE --jump MARK --set-mark 0x$IPTABLES_MARK_UNREG\n";
 
-        # mark registered nodes that should not be isolated 
-        # TODO performance: mark all *inline* registered users only
-        my @registered = nodes_registered_not_violators();
-        foreach my $row (@registered) {
-            my $mac = $row->{'mac'};
-            $mangle_rules .= 
-                "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac " . 
-                "--jump MARK --set-mark 0x$IPTABLES_MARK_REG\n"
-            ;
-        }
+    # mark registered nodes that should not be isolated 
+    # TODO performance: mark all *inline* registered users only
+    my @registered = nodes_registered_not_violators();
+    foreach my $row (@registered) {
+        my $mac = $row->{'mac'};
+        $mangle_rules .= 
+            "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac " . 
+            "--jump MARK --set-mark 0x$IPTABLES_MARK_REG\n"
+        ;
     }
 
     # mark all open violations
