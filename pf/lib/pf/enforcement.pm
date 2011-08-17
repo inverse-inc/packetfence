@@ -117,6 +117,7 @@ sub _vlan_reevaluation {
             . $Config{'advanced'}{'adjustswitchportvlanscript'} . " on node"
         );
         my @args = ( $Config{'advanced'}{'adjustswitchportvlanscript'}, $mac );
+        # TODO use pf_run instead (warning: be careful about taint checking)
         system(@args);
     } elsif ( $newCorrectVlan ne $currentVlan ) {
         $logger->info(
@@ -124,6 +125,7 @@ sub _vlan_reevaluation {
             . " for node $mac (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
         );
         my @args = ( $Config{'advanced'}{'adjustswitchportvlanscript'}, $mac );
+        # TODO use pf_run instead (warning: be careful about taint checking)
         system(@args);
     }
     return 1;
