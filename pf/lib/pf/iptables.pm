@@ -44,6 +44,7 @@ use pf::violation qw(violation_view_open_uniq violation_count);
 Readonly my $FW_FILTER_INPUT_INT_VLAN => 'input-internal-vlan-if';
 Readonly my $FW_FILTER_INPUT_INT_INLINE => 'input-internal-inline-if';
 Readonly my $FW_FILTER_INPUT_MGMT => 'input-management-if';
+Readonly my $FW_FILTER_INPUT_INT_HA => 'input-highavailability-if';
 Readonly my $FW_FILTER_FORWARD_INT_INLINE => 'forward-internal-inline-if';
 Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-internal-inline-if';
 
@@ -128,6 +129,11 @@ sub generate_filter_if_src_to_chain {
     foreach my $interface (@management_nets) {
         my $dev = $interface->tag("int");
         $rules .= "-A INPUT --in-interface $dev --jump $FW_FILTER_INPUT_MGMT\n";
+    }
+
+    # high-availability interfaces handling
+    foreach my $interface (@ha_ints) {
+        $rules .= "-A INPUT --in-interface $interface --jump $FW_FILTER_INPUT_INT_HA\n";
     }
     
     return $rules;

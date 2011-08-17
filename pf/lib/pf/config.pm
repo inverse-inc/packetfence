@@ -33,9 +33,9 @@ use threads;
 # Categorized by feature, pay attention when modifying
 our (
     $install_dir, $bin_dir, $conf_dir, $lib_dir, $log_dir, $generated_conf_dir, $var_dir,
-    @listen_ints, @internal_nets, @routed_isolation_nets, @routed_registration_nets, @management_nets, @external_nets,
+    @listen_ints, @dhcplistener_ints, @ha_ints, $monitor_int,
+    @internal_nets, @routed_isolation_nets, @routed_registration_nets, @management_nets, @external_nets, 
     @inline_enforcement_nets, @vlan_enforcement_nets,
-    @dhcplistener_ints, $monitor_int,
     $default_config_file, %Default_Config, 
     $config_file, %Config, 
     $network_config_file, %ConfigNetworks,
@@ -54,9 +54,9 @@ BEGIN {
     # Categorized by feature, pay attention when modifying
     @EXPORT = qw(
         $install_dir $bin_dir $conf_dir $lib_dir $generated_conf_dir $var_dir
-        @listen_ints @internal_nets @routed_isolation_nets @routed_registration_nets @management_nets @external_nets 
+        @listen_ints @dhcplistener_ints @ha_ints $monitor_int 
+        @internal_nets @routed_isolation_nets @routed_registration_nets @management_nets @external_nets
         @inline_enforcement_nets @vlan_enforcement_nets
-        @dhcplistener_ints $monitor_int 
         $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
         $default_config_file %Default_Config
         $config_file %Config
@@ -346,6 +346,8 @@ sub readPfConfigFiles {
                 $monitor_int = $int;
             } elsif ( $type =~ /^dhcp-?listener$/i ) {
                 push @dhcplistener_ints, $int;
+            } elsif ( $type eq 'high-availability' ) {
+                push @ha_ints, $int;
             }
         }
     }

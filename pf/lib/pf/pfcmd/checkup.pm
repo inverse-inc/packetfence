@@ -117,7 +117,9 @@ sub interfaces_defined {
 
     foreach my $interface ( tied(%Config)->GroupMembers("interface") ) {
         my %int_conf = %{$Config{$interface}};
-        if (!defined($int_conf{'type'}) || $int_conf{'type'} !~ /monitor|dhcplistener|dhcp-listener/) {
+        my $int_with_no_config_required_regexp = qr/(?:monitor|dhcplistener|dhcp-listener|high-availability)/;
+
+        if (!defined($int_conf{'type'}) || $int_conf{'type'} !~ /$int_with_no_config_required_regexp/) {
             if (!defined $int_conf{'ip'} || !defined $int_conf{'mask'} || !defined $int_conf{'gateway'}) {
                 add_problem( $FATAL, "incomplete network information for $interface" );
             }
