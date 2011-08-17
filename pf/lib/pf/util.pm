@@ -16,15 +16,14 @@ modules.
 
 use strict;
 use warnings;
+
+use English qw( -no_match_vars );
 use File::Basename;
 use FileHandle;
-use POSIX();
-use Net::SMTP;
-use Net::MAC::Vendor;
 use Log::Log4perl;
-# TODO these look like they are not required.. get rid of them?
-use threads;
-use threads::shared;
+use Net::MAC::Vendor;
+use Net::SMTP;
+use POSIX();
 
 our ( %trappable_ip, %reggable_ip, %is_internal, %local_mac );
 
@@ -45,6 +44,7 @@ BEGIN {
         str_to_connection_type connection_type_to_str
         get_total_system_memory get_vlan_from_int
         get_translatable_time
+        pf_run
     );
 }
 
@@ -911,6 +911,49 @@ sub get_vlan_from_int {
     return;
 }
 
+=item pf_run
+
+Execute a system command but check the return status and log anything not normal.
+
+Does not enforce any security. Callers should take care of string sanitization.
+
+=cut
+sub pf_run {
+    my ($command) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::util');
+
+    my @result = `$command`;
+
+    # slightly modified version of "perldoc -f system" error handling strategy
+    if ($CHILD_ERROR == 0) {
+        return @result;
+
+    } else {
+
+        my $caller = ( caller(1) )[3] || basename($0);
+        $caller =~ s/^(pf::\w+|main):://;
+
+        if ($CHILD_ERROR == -1) {
+            $logger->warn("Error trying to run command: $command called from $caller. OS Error: $OS_ERROR");
+
+        } elsif ($CHILD_ERROR & 127) {
+            my $signal = ($CHILD_ERROR & 127);
+            my $with_core = ($CHILD_ERROR & 128) ? 'with' : 'without';
+            $logger->warn(
+                "Error trying to run command: $command called from $caller. " 
+                . "Child died with signal $signal $with_core coredump."
+            );
+        } else {
+            my $exit_status = $CHILD_ERROR >> 8;
+            $logger->warn(
+                "Error trying to run command: $command called from $caller. " 
+                . "Child exited with non-zero value $exit_status"
+            );
+        }
+    }
+    return;
+}
+
 =back
 
 =head1 AUTHOR
@@ -928,6 +971,8 @@ Copyright (C) 2005 David LaPorte
 Copyright (C) 2005 Kevin Amorin
 
 Copyright (C) 2009-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -947,3 +992,7 @@ USA.
 =cut
 
 1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:

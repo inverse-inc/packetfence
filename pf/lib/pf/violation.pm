@@ -466,7 +466,7 @@ sub violation_trigger {
         }
         $logger->info("calling '$bin_dir/pfcmd violation add vid=$vid,mac=$mac' (trigger ${type}::${tid})");
         # forking a pfcmd because it will call a vlan flip if needed
-        `$bin_dir/pfcmd violation add vid=$vid,mac=$mac`;
+        pf_run("$bin_dir/pfcmd violation add vid=$vid,mac=$mac");
         $addedViolation = 1;
     }
     return $addedViolation;

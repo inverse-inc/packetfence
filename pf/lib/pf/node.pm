@@ -738,7 +738,7 @@ sub nodes_maintenance {
     my $ungrace_query = db_query_execute(NODE, $node_statements, 'node_ungrace_sql') || return (0);
     while (my $row = $ungrace_query->fetchrow_hashref()) {
         my $currentMac = $row->{mac};
-        `/usr/local/pf/bin/pfcmd manage deregister $currentMac`;
+        pf_run("/usr/local/pf/bin/pfcmd manage deregister $currentMac");
         $logger->info("modified $currentMac from status 'grace' to 'unreg'" );
     };
 
@@ -748,7 +748,7 @@ sub nodes_maintenance {
         my $expire_unreg_query = db_query_execute(NODE, $node_statements, 'node_expire_unreg_field_sql') || return (0);
         while (my $row = $expire_unreg_query->fetchrow_hashref()) {
             my $currentMac = $row->{mac};
-            `/usr/local/pf/bin/pfcmd manage deregister $currentMac`;
+            pf_run("/usr/local/pf/bin/pfcmd manage deregister $currentMac");
             $logger->info("modified $currentMac from status 'reg' to 'unreg' based on unregdate colum" );
         }
 
@@ -758,7 +758,7 @@ sub nodes_maintenance {
             ) || return (0);
             while (my $row = $expire_window_query->fetchrow_hashref()) {
                 my $currentMac = $row->{mac};
-                `/usr/local/pf/bin/pfcmd manage deregister $currentMac`;
+                pf_run("/usr/local/pf/bin/pfcmd manage deregister $currentMac");
                 $logger->info("modified $currentMac from status 'reg' to 'unreg' based on expiration window" );
             }
 
@@ -768,7 +768,7 @@ sub nodes_maintenance {
             ) || return (0);
             while (my $row = $expire_deadline_query->fetchrow_hashref()) {
                 my $currentMac = $row->{mac};
-                `/usr/local/pf/bin/pfcmd manage deregister $currentMac`;
+                pf_run("/usr/local/pf/bin/pfcmd manage deregister $currentMac");
                 $logger->info("modified $currentMac from status 'reg' to 'unreg' based on expiration deadline" );
             }
 

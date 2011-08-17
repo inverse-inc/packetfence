@@ -391,9 +391,9 @@ sub iptables_save {
     my ($save_file) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     $logger->info( "saving existing iptables to " . $save_file );
-    `/sbin/iptables-save -t nat > $save_file`;
-    `/sbin/iptables-save -t mangle >> $save_file`;
-    `/sbin/iptables-save -t filter >> $save_file`;
+    pf_run("/sbin/iptables-save -t nat > $save_file");
+    pf_run("/sbin/iptables-save -t mangle >> $save_file");
+    pf_run("/sbin/iptables-save -t filter >> $save_file");
 }
 
 sub iptables_restore {
@@ -401,7 +401,7 @@ sub iptables_restore {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     if ( -r $restore_file ) {
         $logger->info( "restoring iptables from " . $restore_file );
-        `/sbin/iptables-restore < $restore_file`;
+        pf_run("/sbin/iptables-restore < $restore_file");
     }
 }
 
@@ -411,7 +411,7 @@ sub iptables_restore_noflush {
     if ( -r $restore_file ) {
         $logger->info(
             "restoring iptables (no flush) from " . $restore_file );
-        `/sbin/iptables-restore -n < $restore_file`;
+        pf_run("/sbin/iptables-restore -n < $restore_file");
     }
 }
 

@@ -266,7 +266,7 @@ sub ip2mac {
             $mac = ip2macinarp($ip);
             if ( !$mac ) {
                 $logger->debug("trying to resolve $ip to mac using ping");
-                my @lines  = `/sbin/ip address show`;
+                my @lines  = pf_run("/sbin/ip address show");
                 my $lineNb = 0;
                 my $src_ip = undef;
                 while (( $lineNb < scalar(@lines) )
@@ -322,7 +322,7 @@ sub ip2macinarp {
     return (0) if ( !valid_ip($ip) );
     my $mac;
     $ip = clean_ip($ip);
-    my @arpList = `/sbin/arp -n -a $ip`;
+    my @arpList = pf_run("/sbin/arp -n -a $ip");
     my $lineNb  = 0;
     while ( ( $lineNb < scalar(@arpList) ) && ( !$mac ) ) {
         if ( $arpList[$lineNb]

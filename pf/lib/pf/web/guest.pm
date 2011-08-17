@@ -559,7 +559,7 @@ sub preregister {
         . "notes=\"".sprintf(gettext("Expected on %s"), $session->param("arrival_date"))."\"'"
     ;
     $logger->info("Adding guest person with command: $person_add_cmd");
-    `$person_add_cmd`;
+    pf_run("$person_add_cmd");
 
     # expiration is arrival date + access duration + a tolerance window of 24 hrs
     my $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", 

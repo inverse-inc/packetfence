@@ -60,6 +60,7 @@ Enhancements
  * Simplified Apache configuration
  * Included the jpgraph PHP library. Simplifies installation from source.
  * More start-up validation in `pfcmd checkup`
+ * Improved error-handling
  * More tests
 
 Bug fixes

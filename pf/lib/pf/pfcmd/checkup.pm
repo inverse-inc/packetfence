@@ -350,7 +350,7 @@ sub inline {
         );
     }
 
-    my $result = `cat /proc/sys/net/ipv4/ip_forward`;
+    my $result = pf_run("cat /proc/sys/net/ipv4/ip_forward");
     if ($result ne "1\n") {
         add_problem( $WARN, 
             "inline mode needs ip_forward enabled to work properly. " . 
@@ -658,13 +658,13 @@ sub apache {
     }
 
     # Apache PerlPostConfigRequire scripts *must* compile otherwise apache startup silently fails
-    my @captive_portal = `perl -c $lib_dir/pf/web/captiveportal_modperl_require.pl 2>&1`;
+    my @captive_portal = pf_run("perl -c $lib_dir/pf/web/captiveportal_modperl_require.pl 2>&1");
     if ($captive_portal[0] !~ /syntax OK$/) {
         add_problem( 
             $FATAL, "Apache will fail to start! $lib_dir/pf/web/captiveportal_modperl_require.pl doesn't compile"
         );
     }
-    my @back_end = `perl -c $lib_dir/pf/web/backend_modperl_require.pl 2>&1`;
+    my @back_end = pf_run("perl -c $lib_dir/pf/web/backend_modperl_require.pl 2>&1");
     if ($back_end[0] !~ /syntax OK$/) {
         add_problem( 
             $FATAL, "Apache will fail to start! $lib_dir/pf/web/backend_modperl_require.pl doesn't compile"

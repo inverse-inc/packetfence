@@ -80,7 +80,7 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
         . "telephone=\"" . $session->param("phone") . "\","
         . "notes=\"guest account\"'";
       $logger->info("Registering guest person with command: $person_add_cmd");
-      `$person_add_cmd`;
+      pf_run("$person_add_cmd");
 
       # grab additional info about the node
       $info{'pid'} = $session->param("login");
