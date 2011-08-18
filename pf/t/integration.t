@@ -58,6 +58,11 @@ ok($return_value == 1, "service_ctl snort stop returns expected value");
 
 ok(`pidof -x snort` eq "\n", "snort stopped successfully");
 
+# TODO inject traps provoking reactions
+# this one here reproduces #1098
+#`echo '2011-05-19|19:36:21|UDP: [10.0.0.51]:1025|10.0.0.51|BEGIN TYPE 6 END TYPE BEGIN SUBTYPE .5 END SUBTYPE BEGIN VARIABLEBINDINGS .1.3.6.1.4.1.45.1.6.5.3.12.1.1.1.24 = INTEGER: 1|.1.3.6.1.4.1.45.1.6.5.3.12.1.2.1.24 = INTEGER: 24|.1.3.6.1.4.1.45.1.6.5.3.12.1.3.1.24 = STRING: "\\\\&
+#8xG" END VARIABLEBINDINGS' >> "/usr/local/pf/logs/snmptrapd.log"`;
+
 # TODO do tests for all other services handled by pf::services
 
 # TODO do a node_add then a node_view and expect everything to be correct
