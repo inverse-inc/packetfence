@@ -14,7 +14,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 4;
+use Test::More tests => 5;
 use Test::NoWarnings;
 
 use Log::Log4perl;
@@ -34,22 +34,24 @@ my $TRAP_PATTERN = qr/
     (?:\-\>\[\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\])?     # Optional "->[ip address]" (since net-snmp 5.4)
     \|([^|]*)\|                                         # Used to carry network device ip if it's a local trap
     (.+)$                                               # Trap message
-/x;
+/sx; # s for multiline support (if we encounter an Hex 0a which is encoded as a newline in STRING)
 
 # This was before my time here so I'm not sure if it's v1 or a specific net-snmp version
-my $snmpv1_traps = "2010-04-19|21:43:26|192.168.1.61|0.0.0.0|BEGIN TYPE 0 END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS .1.3.6.1.2.1.1.3.0 = Timeticks: (89282331) 10 days, 8:00:23.31|.1.3.6.1.6.3.1.1.4.1.0 = OID: .1.3.6.1.4.1.9.9.315.0.0.1|.1.3.6.1.2.1.2.2.1.1.10003 = Wrong Type (should be INTEGER): Gauge32: 10003|.1.3.6.1.2.1.31.1.1.1.1.10003 = STRING: FastEthernet0/3|.1.3.6.1.4.1.9.9.315.1.2.1.1.10.10003 = Hex-STRING: 90 E6 BA 70 E7 4B  END VARIABLEBINDINGS";
+my $trap = "2010-04-19|21:43:26|192.168.1.61|0.0.0.0|BEGIN TYPE 0 END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS .1.3.6.1.2.1.1.3.0 = Timeticks: (89282331) 10 days, 8:00:23.31|.1.3.6.1.6.3.1.1.4.1.0 = OID: .1.3.6.1.4.1.9.9.315.0.0.1|.1.3.6.1.2.1.2.2.1.1.10003 = Wrong Type (should be INTEGER): Gauge32: 10003|.1.3.6.1.2.1.31.1.1.1.1.10003 = STRING: FastEthernet0/3|.1.3.6.1.4.1.9.9.315.1.2.1.1.10.10003 = Hex-STRING: 90 E6 BA 70 E7 4B  END VARIABLEBINDINGS";
+ok($trap =~ /$TRAP_PATTERN/, "Trap pattern matches SNMPv1 traps");
 
 # This was before my time here so I'm not sure if it's v2c or a specific net-snmp version
-my $snmpv2c_traps = "2010-04-19|21:43:26|UDP: [192.168.1.61]:52281|0.0.0.0|BEGIN TYPE 0 END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS .1.3.6.1.2.1.1.3.0 = Timeticks: (89282331) 10 days, 8:00:23.31|.1.3.6.1.6.3.1.1.4.1.0 = OID: .1.3.6.1.4.1.9.9.315.0.0.1|.1.3.6.1.2.1.2.2.1.1.10003 = Wrong Type (should be INTEGER): Gauge32: 10003|.1.3.6.1.2.1.31.1.1.1.1.10003 = STRING: FastEthernet0/3|.1.3.6.1.4.1.9.9.315.1.2.1.1.10.10003 = Hex-STRING: 90 E6 BA 70 E7 4B  END VARIABLEBINDINGS";
+$trap = "2010-04-19|21:43:26|UDP: [192.168.1.61]:52281|0.0.0.0|BEGIN TYPE 0 END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS .1.3.6.1.2.1.1.3.0 = Timeticks: (89282331) 10 days, 8:00:23.31|.1.3.6.1.6.3.1.1.4.1.0 = OID: .1.3.6.1.4.1.9.9.315.0.0.1|.1.3.6.1.2.1.2.2.1.1.10003 = Wrong Type (should be INTEGER): Gauge32: 10003|.1.3.6.1.2.1.31.1.1.1.1.10003 = STRING: FastEthernet0/3|.1.3.6.1.4.1.9.9.315.1.2.1.1.10.10003 = Hex-STRING: 90 E6 BA 70 E7 4B  END VARIABLEBINDINGS";
+ok($trap =~ /$TRAP_PATTERN/, "Trap pattern matches SNMPv2c traps");
 
 # Starting with Net-SNMP v5.4 trap format changed to add the ->[ip] thingy
-my $netsnmp_5dot4_traps = "2010-04-01|13:32:16|UDP: [127.0.0.1]:33469->[127.0.0.1]|217.117.225.53|BEGIN TYPE 6 END TYPE BEGIN SUBTYPE .0 END SUBTYPE BEGIN VARIABLEBINDINGS .1.3.6.1.6.3.1.1.4.1.0 = OID: .1.3.6.1.4.1.29464.1.1|.1.3.6.1.2.1.2.2.1.1.5 = INTEGER: 5 END VARIABLEBINDINGS";
+$trap = "2010-04-01|13:32:16|UDP: [127.0.0.1]:33469->[127.0.0.1]|217.117.225.53|BEGIN TYPE 6 END TYPE BEGIN SUBTYPE .0 END SUBTYPE BEGIN VARIABLEBINDINGS .1.3.6.1.6.3.1.1.4.1.0 = OID: .1.3.6.1.4.1.29464.1.1|.1.3.6.1.2.1.2.2.1.1.5 = INTEGER: 5 END VARIABLEBINDINGS";
+ok($trap =~ /$TRAP_PATTERN/, "Trap pattern matches Net-SNMP v5.4 traps");
 
-ok($snmpv1_traps =~ /$TRAP_PATTERN/, "Trap pattern matches SNMPv1 traps");
-
-ok($snmpv2c_traps =~ /$TRAP_PATTERN/, "Trap pattern matches SNMPv2c traps");
-
-ok($netsnmp_5dot4_traps =~ /$TRAP_PATTERN/, "Trap pattern matches Net-SNMP v5.4 traps");
+# reproducing the newline encoding problem of #1098
+$trap = '2011-05-19|19:36:21|UDP: [10.0.0.51]:1025|10.0.0.51|BEGIN TYPE 6 END TYPE BEGIN SUBTYPE .5 END SUBTYPE BEGIN VARIABLEBINDINGS .1.3.6.1.4.1.45.1.6.5.3.12.1.1.1.24 = INTEGER: 1|.1.3.6.1.4.1.45.1.6.5.3.12.1.2.1.24 = INTEGER: 24|.1.3.6.1.4.1.45.1.6.5.3.12.1.3.1.24 = STRING: "\\\\&
+8xG" END VARIABLEBINDINGS';
+ok($trap =~ /$TRAP_PATTERN/, "Trap pattern matches multiline trap (issue 1098)");
 
 =head1 AUTHOR
 
