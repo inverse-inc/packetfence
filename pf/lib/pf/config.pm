@@ -388,7 +388,6 @@ sub readNetworkConfigFile {
         # transition pf_gateway to next_hop
         # TODO we can deprecate pf_gateway in 2012
         if ( defined($ConfigNetworks{$network}{'pf_gateway'}) && !defined($ConfigNetworks{$network}{'next_hop'}) ) {
-            $logger->warn("pf_gateway deprecated you should use next_hop instead");
             # carry over the parameter so that things still work
             $ConfigNetworks{$network}{'next_hop'} = $ConfigNetworks{$network}{'pf_gateway'};
         }
