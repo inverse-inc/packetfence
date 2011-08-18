@@ -2,48 +2,11 @@ package pf::SNMP::LG::ES4500G;
 
 =head1 NAME
 
-pf::SNMP::LG::ES4500G - Object oriented module to access and configure LG-Ericsson iPECS ES-4500G series.
+pf::SNMP::LG::ES4500G - Object oriented module to access and configure enabled LG-Ericsson iPECS ES-4500G series.
 
 =head1 STATUS
 
-=over
-
-=item Link UP / DOWN
-
-- Supported using operating code version 1.2.3.2 with links UP/DOWN traps enabled.
-
-=item Port-security
-
-- Supported using operating code version 1.2.3.2 with authentication traps enabled.
-- VoIP configuration not tested.
-
-=item MAC-Authentication / 802.1X
-
-- The hardware support it.
-
-=back
-
-=head1 BUGS AND LIMITATIONS
-
-=over
-
-=item Link UP / DOWN
-
-- Seems to have a firmware bug that doesn't send traps on interfaces down.
-
-=item Port-security
-
-- The three port security statements (port security, port security max-mac-count, port security action) 
-are required on each port security enabled ports for the switch to correctly handle the feature. Make sure that
-the "port security" statement is correctly enabled using the recommandation in the "Network devices guide". If not
-correctly enabled, the method isPortSecurityEnabled can't return a good value and the switch sets the device MAC address
-to learn rather than static.
-
-=item Stack
-
-- Stack configuration not tested.
-
-=back
+This module is currently only a placeholder, see pf::SNMP::LG.
 
 =cut
 
@@ -60,26 +23,6 @@ use pf::config;
 use pf::util;
 
 use base ('pf::SNMP::LG');
-
-# CAPABILITIES
-# access technology supported
-sub supportsSnmpTraps { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
-sub supportsWiredMacAuth { return $TRUE; }
-
-=head1 SUBROUTINES
-
-This list is incomplete.
-
-This module act as a placeholder for future use.
-         
-=over   
-
-=cut
-
-
-
-=back
 
 =head1 AUTHOR
 

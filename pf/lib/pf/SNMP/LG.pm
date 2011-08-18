@@ -2,17 +2,49 @@ package pf::SNMP::LG;
 
 =head1 NAME
 
-pf::SNMP::LG - Object oriented module to access SNMP enabled LG-Ericsson switches.
+pf::SNMP::LG - Object oriented module to access and configure enabled LG-Ericsson switches.
 
 =head1 STATUS
 
-This modules holds functions common to the LG-Ericsson switches but details and documentation are in each sub-module. 
-Refer to them for more information.
+=over
+
+=item Link UP / DOWN
+
+- Supported using operating code version 1.2.3.2 with links UP/DOWN traps enabled.
+
+=item Port-security
+
+- Supported using operating code version 1.2.3.2 with authentication traps enabled.
+
+- VoIP configuration not tested.
+
+=item MAC-Authentication / 802.1X
+
+- The hardware support it.
+
+=back
 
 =head1 BUGS AND LIMITATIONS
 
-This modules holds functions common to the LG-Ericsson switches but details and documentation are in each sub-module. 
-Refer to them for more information.
+=over
+
+=item Link UP / DOWN
+
+- Seems to have a firmware bug that doesn't send traps on interfaces down.
+
+=item Port-security
+
+- The three port security statements (port security, port security max-mac-count, port security action) 
+are required on each port security enabled ports for the switch to correctly handle the feature. Make sure that
+the "port security" statement is correctly enabled using the recommandation in the "Network devices guide". If not
+correctly enabled, the method isPortSecurityEnabled can't return a good value and the switch sets the device MAC address
+to learn rather than static.
+
+=item Stack
+
+- Stack configuration not tested.
+
+=back
 
 =cut
 
