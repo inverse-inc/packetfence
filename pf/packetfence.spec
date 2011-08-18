@@ -240,6 +240,8 @@ cp -r addons/freeradius-integration/radiusd.conf.pf $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/eap.conf.pf $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/users.pf $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/modules/perl.pf $RPM_BUILD_ROOT/etc/raddb/modules
+cp -r addons/freeradius-integration/sql.conf. $RPM_BUILD_ROOT/etc/pf/raddb
+cp -r addons/freeradius-integration/sql/mysql/packetfence.conf $RPM_BUILD_ROOT/etc/pf/raddb/sql/mysql
 cp -r addons/802.1X/packetfence.pm $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/sites-available/packetfence $RPM_BUILD_ROOT/etc/raddb/sites-available
 cp -r addons/freeradius-integration/sites-available/packetfence-tunnel $RPM_BUILD_ROOT/etc/raddb/sites-available
@@ -352,6 +354,9 @@ chown root:radiusd /etc/raddb/eap.conf.pfsave
 cp /etc/raddb/users /etc/raddb/users.pfsave
 chown root:radiusd /etc/raddb/users.pfsave
 
+cp /etc/raddb/sql.conf /etc/raddb/sql.conf.pfsave
+chown root:radiusd /etc/raddb/sql.conf.pfsave
+
 cp /etc/raddb/modules/perl /etc/raddb/modules-perl.pfsave
 chown root:radiusd /etc/raddb/modules-perl.pfsave
 
@@ -359,6 +364,7 @@ chown root:radiusd /etc/raddb/modules-perl.pfsave
 mv /etc/raddb/radiusd.conf.pf /etc/raddb/radiusd.conf
 mv /etc/raddb/eap.conf.pf /etc/raddb/eap.conf
 mv /etc/raddb/users.pf /etc/raddb/users
+mv /etc/raddb/sql.conf.pf /etc/raddb/sql.conf
 mv /etc/raddb/modules/perl.pf /etc/raddb/modules/perl
 
 #Create symlinks for virtual hosts
@@ -394,6 +400,7 @@ fi
 mv /etc/raddb/radiusd.conf.pfsave /etc/raddb/radiusd.conf   
 mv /etc/raddb/eap.conf.pfsave /etc/raddb/eap.conf       
 mv /etc/raddb/users.pfsave /etc/raddb/users
+mv /etc/raddb/sql.conf.pfsave /etc/raddb/sql.conf
 mv /etc/raddb/modules-perl.pfsave /etc/raddb/modules/perl
 
 # Remove symnlinks
@@ -640,14 +647,20 @@ fi
 %config                                    /etc/raddb/radiusd.conf.pf 
 %config                                    /etc/raddb/eap.conf.pf
 %config                                    /etc/raddb/users.pf
+%config                                    /etc/raddb/sql.conf.pf
 %config                                    /etc/raddb/modules/perl.pf
 %attr(0755, -, radiusd) %config(noreplace) /etc/raddb/packetfence.pm
+%config                                    /etc/raddb/sql/mysql/packetfence.conf
 %config(noreplace)                         /etc/raddb/sites-available/packetfence
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
 * Mon Aug 15 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Added named, and dhcpd as dependencies
+
+* Fri Aug 12 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Adding Accouting support into the freeradius2 configuration
+  package
 
 * Thu Aug 11 2011 Derek Wuelfrath <dwuelfrath@inverse.ca>
 - Updated db schema

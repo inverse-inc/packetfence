@@ -33,7 +33,7 @@ BEGIN {
     @ISA = qw(Exporter);
     @EXPORT = qw(
         valid_date valid_ip reverse_ip clean_ip 
-        clean_mac valid_mac get_decimal_oui_from_mac whitelisted_mac trappable_mac 
+        clean_mac valid_mac get_decimal_oui_from_mac whitelisted_mac trappable_mac format_mac_for_acct
         trappable_ip reggable_ip
         inrange_ip ip2gateway ip2interface ip2device isinternal pfmailer isenabled
         isdisabled getlocalmac ip2int int2ip 
@@ -44,6 +44,7 @@ BEGIN {
         str_to_connection_type connection_type_to_str
         get_total_system_memory get_vlan_from_int
         get_translatable_time
+        pretty_bandwidth
         pf_run
     );
 }
@@ -156,6 +157,23 @@ sub clean_mac {
     }
 
     return;
+}
+
+=item format_mac_for_acct
+
+Put the mac address in the accounting format, accepting xx:xx:xx:xx:xx
+
+Returning format XXXXXXXXXXXX
+
+=cut
+sub format_mac_for_acct {
+    my ($mac) = @_;
+    return (0) if ( !$mac );
+    # trim garbage
+    $mac =~ s/[\s\-\.:]//g;
+    # uppercase
+    $mac = uc($mac);
+    return ($mac);
 }
 
 
@@ -910,6 +928,25 @@ sub get_vlan_from_int {
 
     return;
 }
+
+=item pretty_bandwidth
+
+Returns the proper bandwidth calculation along with the unit
+
+=cut
+
+sub pretty_bandwidth {
+    my ($bytes) = @_;
+    my @units = ("Bytes", "KB", "MB", "GB", "TB", "PB");
+    my $x;
+
+    for ($x=0; $bytes>=800 && $x<scalar(@units); $x++ ) {
+        $bytes /= 1024;
+    }
+    my $rounded = sprintf("%.2f",$bytes);
+    return "$rounded $units[$x]"
+}
+
 
 =item pf_run
 

@@ -54,7 +54,7 @@ $grammar = q {
              | 'manage' manage_options
              | 'schedule' schedule_options
 
-   manage_options : 'register' macaddr value edit_options(?)
+   manage_options : 'register' macaddr pid edit_options(?)
 
    person_options : 'add' value person_edit_options(?)  | 'edit' value person_edit_options | 'delete' value
 
@@ -86,6 +86,9 @@ $grammar = q {
    macaddr : /(([0-9a-f]{2}[-:]){5}[0-9a-f]{2})|(([0-9a-f]{4}\.){2}[0-9a-f]{4})/i
 
    date : /[^,=]+/
+
+   # backticks only tolerated because pfcmd manage register is always called within single quotes
+   pid: '"' /[&=?()\/,0-9a-zA-Z_\*\.\-\:\;\@\ \+\!\^\[\]\|\#]*/ '"' {$item[2]} | /[&=?()\/,0-9a-zA-Z_\*\.\-\:\;\@\ \+\!\^\[\]\|\#]*/
 
    edit_options : <leftop: assignment ',' assignment>
 

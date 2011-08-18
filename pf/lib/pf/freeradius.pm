@@ -154,8 +154,7 @@ sub freeradius_populate_nas_config {
 
         # we are looking for the opposite of a valid switch statement or a valid radius statement
         if (!($valid_sw_radiussecret || $valid_df_radiussecret)) {
-            # TODO revisit this priority to info once this module is mandatory (ran on each pf startup)
-            $logger->warn("No RADIUS secret for switch: $switch FreeRADIUS configuration skipped");
+            $logger->debug("No RADIUS secret for switch: $switch FreeRADIUS configuration skipped");
             next;
         }
 
@@ -168,9 +167,6 @@ sub freeradius_populate_nas_config {
         );
     }
 }
-
-#sub freeradius_reload {
-#}
 
 =back
 

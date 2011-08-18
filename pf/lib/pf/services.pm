@@ -42,7 +42,7 @@ use pf::services::named qw(generate_named_conf);
 use pf::SwitchFactory;
 
 Readonly our @ALL_SERVICES => (
-    'named', 'dhcpd', 'snort', 
+    'named', 'dhcpd', 'snort', 'radiusd', 
     'httpd', 'snmptrapd', 
     'pfdetect', 'pfredirect', 'pfsetvlan', 'pfdhcplistener', 'pfmon'
 );
@@ -56,8 +56,8 @@ $flags{'pfredirect'}     = "-d &";
 $flags{'pfsetvlan'}      = "-d &";
 $flags{'dhcpd'} = " -lf $var_dir/dhcpd/dhcpd.leases -cf $generated_conf_dir/dhcpd.conf " . join(" ", @listen_ints);
 $flags{'named'} = "-u pf -c $generated_conf_dir/named.conf";
-$flags{'snmptrapd'}
-    = "-n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On";
+$flags{'snmptrapd'} = "-n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On";
+$flags{'radiusd'} = "";
 
 if ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int ) {
     $flags{'snort'}
@@ -82,7 +82,7 @@ sub service_ctl {
     my $exe = basename($service);
     $logger->info("$service $action");
     if ( $exe
-        =~ /^(named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|apache2|snmptrapd|pfsetvlan)$/
+        =~ /^(named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|radiusd|httpd|apache2|snmptrapd|pfsetvlan)$/
         )
     {
         $exe = $1;
@@ -90,6 +90,9 @@ sub service_ctl {
             $action eq "start" && do {
                 # We won't start dhcpd unless vlan.dhcpd is set to enable
                 return (0) if ( $exe =~ /dhcpd/ && !isenabled($Config{'vlan'}{'dhcpd'}) );
+                return (0)
+                    if ( $exe =~ /radiusd/
+                    && !isenabled( $Config{'vlan'}{'radiusd'} ) );
                 return (0)
                     if ( $exe =~ /snort/
                     && !isenabled( $Config{'trapping'}{'detection'} ) );
@@ -121,16 +124,18 @@ sub service_ctl {
                         print "No such sub: $confname\n";
                     }
                 }
-                if (  ( $service =~ /named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan/ )
-                      && ( $daemon =~ /named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|httpd|snmptrapd|pfsetvlan/ )
+                if (  ( $service =~ /named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|radiusd|snort|httpd|snmptrapd|pfsetvlan/ )
+                      && ( $daemon =~ /named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|radiusd|snort|httpd|snmptrapd|pfsetvlan/ )
                       && ( defined( $flags{$daemon} ) ) ) {
                     if ( $daemon ne 'pfdhcplistener' ) {
                         if ( $daemon eq 'dhcpd' ) {
                             manage_Static_Route(1);
-                        }
-                        if (   ( $daemon eq 'pfsetvlan' )
-                            && ( !switches_conf_is_valid() ) )
-                        {
+                        } elsif ( $daemon eq 'radiusd' ) {
+                            # TODO: push all these per-daemon initialization into pf::services::...
+                            require pf::freeradius;
+                            pf::freeradius::freeradius_populate_nas_config();
+
+                        } elsif ( ($daemon eq 'pfsetvlan') && (!switches_conf_is_valid()) ) {
                             $logger->error_warn("Errors in switches.conf. This can be problematic for "
                                 . "pfsetvlan's operation. Check logs for details.");
                         }
@@ -228,6 +233,10 @@ sub service_list {
         if ( $service eq "snort" ) {
             $snortflag = 1
                 if ( isenabled( $Config{'trapping'}{'detection'} ) );
+        } elsif ( $service eq "radiusd" ) {
+            push @finalServiceList, $service
+                if ( isenabled( $Config{'vlan'}{'radiusd'} )
+                     && $Config{'network'}{'mode'} =~ /^vlan$/i );
         } elsif ( $service eq "pfdetect" ) {
             push @finalServiceList, $service
                 if ( isenabled( $Config{'trapping'}{'detection'} ) );
@@ -598,3 +607,7 @@ USA.
 =cut
 
 1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:

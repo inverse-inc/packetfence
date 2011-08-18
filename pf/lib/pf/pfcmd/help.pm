@@ -51,6 +51,7 @@ lookup                       | node or pid lookup against local data store
 manage                       | manage node entries
 networkconfig                | query/modify network configuration parameters
 node                         | node manipulation
+nodeaccounting               | RADIUS accounting information
 nodecategory                 | nodecategory manipulation
 nodeuseragent                | View User-Agent information associated to a node
 person                       | person manipulation
@@ -104,6 +105,7 @@ watch acts as a service watcher which can send email/restart the services
   pfmon            | PF ARP monitoring daemon
   pfredirect       | bogus POP3/SMTP servers
   pfsetvlan        | PF VLAN isolation daemon
+  radiusd          | FreeRADIUS daemon
   snmptrapd        | SNMP trap receiver daemon
   snort            | if stopped or restarted, pfredirect must also be restarted
 EOT
@@ -152,6 +154,19 @@ examples:
   pfcmd node count all
   pfcmd node add 00:01:02:03:04:05 status="reg",pid=1
   pfcmd node delete 00:01:02:03:04:05 
+EOT
+    return 1;
+}
+
+sub help_nodeaccounting {
+    print STDERR << "EOT";
+Usage: pfcmd nodeaccounting view <all|id>
+
+View RADIUS accounting information for a node
+
+examples:
+  pfcmd nodeaccounting view all
+  pfcmd nodeaccounting view 00:01:02:03:04:05
 EOT
     return 1;
 }

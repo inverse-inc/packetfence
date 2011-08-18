@@ -407,7 +407,7 @@ VALUES
 
 -- Adding RADIUS nas client table
 
-CREATE TABLE nas (
+CREATE TABLE radius_nas (
   id int(10) NOT NULL auto_increment,
   nasname varchar(128) NOT NULL,
   shortname varchar(32),
