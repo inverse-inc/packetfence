@@ -33,6 +33,9 @@ use base ('pf::SNMP');
 use Log::Log4perl;
 use Net::SNMP;
 
+use pf::SNMP::constants;
+use pf::util;
+
 sub getVersion {
     my ($this)                = @_;
     my $oid_hpSwitchOsVersion = '1.3.6.1.4.1.11.2.14.11.5.1.1.3.0';
@@ -59,27 +62,21 @@ sub parseTrap {
 
     #-- secureMacAddrViolation SNMP v1 & v2c
     if ( $trapString
-        =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.2\.1\.\d+ = INTEGER: 1\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.3\.1\.(\d+) = INTEGER: \d+\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.4\.1\.\d+ = Hex-STRING: ([0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2})/
-        )
-    {
-        $trapHashRef->{'trapType'}    = 'secureMacAddrViolation';
+        =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.2\.1\.\d+ = INTEGER: 1\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.3\.1\.(\d+) = INTEGER: \d+\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.4\.1\.\d+ = $SNMP::MAC_ADDRESS_FORMAT/ ) {
+
+        $trapHashRef->{'trapType'} = 'secureMacAddrViolation';
         $trapHashRef->{'trapIfIndex'} = $1;
-        $trapHashRef->{'trapMac'}     = lc($2);
-        $trapHashRef->{'trapMac'} =~ s/ /:/g;
-        $trapHashRef->{'trapVlan'}
-            = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
+        $trapHashRef->{'trapMac'} = parse_mac_from_trap($2);
+        $trapHashRef->{'trapVlan'} = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
 
     #-- secureMacAddrViolation SNMP v3
     } elsif ( $trapString
-        =~ /BEGIN VARIABLEBINDINGS.*OID: \.1\.3\.6\.1\.4\.1\.11\.2\.14\.12\.4\.0\.\d+\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.2\.1\.\d+ = INTEGER: 1\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.3\.1\.(\d+) = INTEGER: \d+\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.4\.1\.\d+ = Hex-STRING: ([0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2})/          
-        )   
-    {   
-        $trapHashRef->{'trapType'}    = 'secureMacAddrViolation';
+        =~ /BEGIN VARIABLEBINDINGS.*OID: \.1\.3\.6\.1\.4\.1\.11\.2\.14\.12\.4\.0\.\d+\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.2\.1\.\d+ = INTEGER: 1\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.3\.1\.(\d+) = INTEGER: \d+\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.4\.1\.\d+ = $SNMP::MAC_ADDRESS_FORMAT/ ) {   
+
+        $trapHashRef->{'trapType'} = 'secureMacAddrViolation';
         $trapHashRef->{'trapIfIndex'} = $1;
-        $trapHashRef->{'trapMac'}     = lc($2);
-        $trapHashRef->{'trapMac'} =~ s/ /:/g;
-        $trapHashRef->{'trapVlan'}
-            = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
+        $trapHashRef->{'trapMac'} = parse_mac_from_trap($2);
+        $trapHashRef->{'trapVlan'} = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
 
     #link up/down
     } elsif ( $trapString

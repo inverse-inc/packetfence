@@ -21,6 +21,9 @@ use POSIX;
 use Log::Log4perl;
 use Net::SNMP;
 
+use pf::SNMP::constants;
+use pf::util;
+
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
@@ -45,17 +48,13 @@ sub parseTrap {
             )
         );
     } elsif ( $trapString
-        =~ /\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.5624\.1\.2\.21\.1\.[01]\.1\|\.1\.3\.6\.1\.4\.1\.5624\.1\.2\.21\.1\.2\.1\.1\.4\.(\d+) = Hex-STRING: ([0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2})/
-        )
-    {
+        =~ /\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.5624\.1\.2\.21\.1\.[01]\.1\|\.1\.3\.6\.1\.4\.1\.5624\.1\.2\.21\.1\.2\.1\.1\.4\.(\d+) = $SNMP::MAC_ADDRESS_FORMAT/) {
+
         $trapHashRef->{'trapType'}    = 'secureMacAddrViolation';
         $trapHashRef->{'trapIfIndex'} = $1;
-        $trapHashRef->{'trapMac'}     = lc($2);
-        $trapHashRef->{'trapMac'} =~ s/ /:/g;
-        $trapHashRef->{'trapVlan'}
-            = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
+        $trapHashRef->{'trapMac'} = parse_mac_from_trap($2);
+        $trapHashRef->{'trapVlan'} = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
 
-        #link up/down
     } else {
         $logger->debug("trap currently not handled");
         $trapHashRef->{'trapType'} = 'unknown';

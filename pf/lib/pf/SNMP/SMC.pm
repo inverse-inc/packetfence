@@ -51,11 +51,11 @@ sub parseTrap {
         $trapHashRef->{'trapType'} = ( ( $1 == 2 ) ? "down" : "up" );
         $trapHashRef->{'trapIfIndex'} = $2;
 
-    } elsif ( $trapString =~ m/BEGIN VARIABLEBINDINGS .+ OID: \.1\.3\.6\.1\.4\.1\.202\.20\.[0-9]+\.2\.1\.0\.36\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.[0-9]+ = INTEGER: ([0-9]+)\|\.1\.3\.6\.1\.4\.1\.202\.20\.[0-9]+\.1\.14\.2\.29\.0 = Hex-STRING: ([0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2})/) {   
-        $trapHashRef->{'trapType'}    = 'secureMacAddrViolation';
+    } elsif ( $trapString =~ m/BEGIN VARIABLEBINDINGS .+ OID: \.1\.3\.6\.1\.4\.1\.202\.20\.[0-9]+\.2\.1\.0\.36\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.[0-9]+ = INTEGER: ([0-9]+)\|\.1\.3\.6\.1\.4\.1\.202\.20\.[0-9]+\.1\.14\.2\.29\.0 = $SNMP::MAC_ADDRESS_FORMAT/ ) {
+
+        $trapHashRef->{'trapType'} = 'secureMacAddrViolation';
         $trapHashRef->{'trapIfIndex'} = $1;
-        $trapHashRef->{'trapMac'}     = lc($2);
-        $trapHashRef->{'trapMac'} =~ s/ /:/g;
+        $trapHashRef->{'trapMac'} = parse_mac_from_trap($2);
         $trapHashRef->{'trapVlan'} = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
 
     } else {
