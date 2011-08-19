@@ -52,15 +52,15 @@ use strict;
 use warnings;
 use diagnostics;
 
+use base ('pf::SNMP');
+
 use POSIX;
 use Log::Log4perl;
 use Net::SNMP;
 
-use pf::SNMP::constants;
 use pf::config;
+use pf::SNMP::constants;
 use pf::util;
-
-use base ('pf::SNMP');
 
 # CAPABILITIES
 # access technology supported
@@ -96,16 +96,17 @@ sub parseTrap {
     # secure MAC violation
     } elsif ( $trapString =~ 
             /BEGIN\ VARIABLEBINDINGS\ [^|]+[|]\.
-            1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0                                                             # SNMP notification
-            \ =\ OID:\ \.
-            1\.3\.6\.1\.4\.1\.572\.17389\.14500\.2\.1\.0\.36                                            # secure MAC violation trap
-            [^:]+[:]\ ([0-9]+)                                                                          # ifIndex
-            [^:]+[:]\ ([0-9A-Z]{2}\ [0-9A-Z]{2}\ [0-9A-Z]{2}\ [0-9A-Z]{2}\ [0-9A-Z]{2}\ [0-9A-Z]{2})    # MAC address
+            1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0                               # SNMP notification
+            \ =\ OID:\ 
+            \.1\.3\.6\.1\.4\.1\.572\.17389\.14500\.2\.1\.0\.36            # secure MAC violation trap
+            \|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.[0-9]+\ =\ 
+            INTEGER:\ ([0-9]+)                                            # ifIndex
+            \|\.1\.3\.6\.1\.4\.1\.572\.17389\.14500\.1\.14\.2\.29\.0\ =\ 
+            $SNMP::MAC_ADDRESS_FORMAT                                     # MAC Address
             /x ) {
         $trapHashRef -> {'trapType'} = 'secureMacAddrViolation';
         $trapHashRef -> {'trapIfIndex'} = $1;
-        $trapHashRef -> {'trapMac'} = lc($2);
-        $trapHashRef -> {'trapMac'} =~ s/ /:/g;
+        $trapHashRef -> {'trapMac'} = parse_mac_from_trap($2);
         $trapHashRef -> {'trapVlan'} = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
 
     # unhandled traps
