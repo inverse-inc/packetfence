@@ -38,6 +38,7 @@ my @files = (
     '/usr/local/pf/conf/authentication/local.pm',
     '/usr/local/pf/conf/authentication/preregistered_guests.pm',
     '/usr/local/pf/conf/authentication/radius.pm',
+    '/usr/local/pf/lib/pf/accounting.pm',
     '/usr/local/pf/lib/pf/action.pm',
     '/usr/local/pf/lib/pf/class.pm',
     '/usr/local/pf/lib/pf/configfile.pm',

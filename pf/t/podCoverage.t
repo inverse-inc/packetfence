@@ -18,21 +18,23 @@ pod_coverage_ok("authentication::local");
 pod_coverage_ok('authentication::preregistered_guests');
 pod_coverage_ok("authentication::radius");
 
-pod_coverage_ok("pf::radius");
-pod_coverage_ok("pf::vlan");
-pod_coverage_ok("pf::SNMP");
+pod_coverage_ok("pf::accounting");
 pod_coverage_ok("pf::enforcement");
 pod_coverage_ok("pf::floatingdevice");
 pod_coverage_ok("pf::freeradius");
 pod_coverage_ok("pf::import");
 pod_coverage_ok("pf::inline");
+pod_coverage_ok("pf::radius");
 pod_coverage_ok("pf::services::apache");
 pod_coverage_ok("pf::services::dhcpd");
 pod_coverage_ok("pf::services::named");
+pod_coverage_ok("pf::SNMP");
+pod_coverage_ok("pf::vlan");
 pod_coverage_ok("pf::web");
 pod_coverage_ok("pf::web::guest");
 pod_coverage_ok("pf::web::util");
 pod_coverage_ok("pf::web::wispr");
+
 # Warning: this doesn't test for PFAPI subs since it's under another package name
 # I couldn't find a way to tell T::P::C to cover it
 pod_coverage_ok("pf::WebAPI");

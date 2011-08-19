@@ -4,11 +4,12 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 62;
+use Test::More tests => 63;
 
 # pf core libs
 use lib '/usr/local/pf/lib';
 
+BEGIN { use_ok('pf::accounting') }
 BEGIN { use_ok('pf::action') }
 BEGIN { use_ok('pf::class') }
 BEGIN { use_ok('pf::configfile') }

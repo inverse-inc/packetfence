@@ -14,7 +14,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 78;
+use Test::More tests => 79;
 use Test::NoWarnings;
 
 use Log::Log4perl;
