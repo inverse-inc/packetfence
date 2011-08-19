@@ -866,6 +866,7 @@ sub parse_mac_from_trap {
 
     } elsif ($to_parse =~ /STRING:\ "(.+)"/s) {
         $mac = $1;
+        $mac =~ s/\\"/"/g; # replaces \" with "
         $mac =~ s/\\\\/\\/g; # replaces \\ with \
         $mac = unpack("H*", $mac);
         $mac =~ s/([a-f0-9]{2})(?!$)/$1:/g; # builds groups of two separ ated by :
