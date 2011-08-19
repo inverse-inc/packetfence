@@ -26,6 +26,26 @@ Defined by standards
 =cut
 package SNMP;
 
+=item MAC_ADDRESS_FORMAT
+
+snmptrapd guesses the format of data in traps.
+If the format is printable then it feeds it as a STRING.
+Otherwise an Hex-STRING is sent (99.9% of the cases).
+
+We need to handle both cases thus this precompiled regexp.
+
+=cut
+Readonly::Scalar our $MAC_ADDRESS_FORMAT => qr/
+    (
+        Hex-STRING:\ 
+        [0-9A-Z]{2}\ [0-9A-Z]{2}\ [0-9A-Z]{2}\ [0-9A-Z]{2}\ [0-9A-Z]{2}\ [0-9A-Z]{2} # MAC Address
+    |
+        STRING:\ 
+        ".+"
+    )
+/sx; # which may contain newline characters to mean hex 0a (thus the s)
+
+
 =item dot1dTpFdbStatus - defined by RFC 1493 (Definitions of Managed Objects for Bridges)
 
  other(1)
