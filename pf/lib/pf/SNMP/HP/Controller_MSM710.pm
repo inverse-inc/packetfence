@@ -74,10 +74,10 @@ sub parseTrap {
     # COLUBRIS-DEVICE-EVENT-MIB :: coDeviceEventSuccessfulDeAuthentication :: 1.3.6.1.4.1.8744.5.26.2.0.9
     # COLUBRIS-DEVICE-EVENT-MIB :: coDevEvDetMacAddress ::                    1.3.6.1.4.1.8744.5.26.1.2.2.1.2
 
-    if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.8744\.5\.26\.2\.0\.9[|]\.1\.3\.6\.1\.4\.1\.8744\.5\.26\.1\.2\.2\.1\.2.+Hex-STRING: ([0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2})/) {
+    if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.8744\.5\.26\.2\.0\.9[|]\.1\.3\.6\.1\.4\.1\.8744\.5\.26\.1\.2\.2\.1\.2.+$SNMP::MAC_ADDRESS_FORMAT/ ) {
+
         $trapHashRef->{'trapType'} = 'dot11Deauthentication';
-        $trapHashRef->{'trapMac'} = lc($1);
-        $trapHashRef->{'trapMac'} =~ s/ /:/g;
+        $trapHashRef->{'trapMac'} = parse_mac_from_trap($1);
 
     } else {
         $logger->debug("trap currently not handled");

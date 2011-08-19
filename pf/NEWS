@@ -93,6 +93,8 @@ Enhancements
  * Minor usability improvements
 
 Bug fixes
+ * Fixed issues with several switches if node MAC address falls into an Hex to
+   ASCII printable range (#1098)
  * Fixed OS violations regression introduced in 2.2.0
  * Fixed Avaya/Nortel switches problems on ERS2500 / ERS4500 (at least)
  * Fixed nessus scans don't work with bin/pfcmd as a setuid/setgid (#1087)

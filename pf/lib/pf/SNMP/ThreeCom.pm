@@ -20,6 +20,9 @@ use base ('pf::SNMP');
 use Log::Log4perl;
 use Net::SNMP;
 
+use pf::SNMP::constants;
+use pf::util;
+
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
@@ -36,12 +39,14 @@ sub parseTrap {
     {
         $trapHashRef->{'trapType'} = ( ( $1 == 2 ) ? "down" : "up" );
         $trapHashRef->{'trapIfIndex'} = $2;
-    } elsif ( $trapString =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.([0-9]+) = INTEGER: [0-9]+\|\.1\.3\.6\.1\.4\.1\.43\.45\.1\.10\.2\.26\.1\.2\.2\.1\.1\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.(\d+) = Hex-STRING: ([0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2})/) {
-        $trapHashRef->{'trapType'}    = 'secureMacAddrViolation';
+
+    } elsif ( $trapString =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.([0-9]+) = INTEGER: [0-9]+\|\.1\.3\.6\.1\.4\.1\.43\.45\.1\.10\.2\.26\.1\.2\.2\.1\.1\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.(\d+) = $SNMP::MAC_ADDRESS_FORMAT/ ) {
+
+        $trapHashRef->{'trapType'} = 'secureMacAddrViolation';
         $trapHashRef->{'trapIfIndex'} = $1;
-        $trapHashRef->{'trapMac'}     = lc($3);
-        $trapHashRef->{'trapMac'}     =~ s/ /:/g;
-        $trapHashRef->{'trapVlan'}    = $2;
+        $trapHashRef->{'trapVlan'} = $2;
+        $trapHashRef->{'trapMac'} = parse_mac_from_trap($3);
+
     } else {
         $logger->debug("trap currently not handled");
         $trapHashRef->{'trapType'} = 'unknown';

@@ -91,13 +91,11 @@ sub parseTrap {
         $trapHashRef->{'trapType'} = ( ( $1 == 2 ) ? "down" : "up" );
         $trapHashRef->{'trapIfIndex'} = $2;
     } elsif ( $trapString
-        =~ /\|\.1\.3\.6\.1\.4\.1\.45\.1\.6\.5\.3\.12\.1\.3\.(\d+)\.(\d+) = Hex-STRING: ([0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2} [0-9A-F]{2})/
-        )
-    {
-        $trapHashRef->{'trapType'}    = 'secureMacAddrViolation';
+        =~ /\|\.1\.3\.6\.1\.4\.1\.45\.1\.6\.5\.3\.12\.1\.3\.(\d+)\.(\d+) = $SNMP::MAC_ADDRESS_FORMAT/) {
+
+        $trapHashRef->{'trapType'} = 'secureMacAddrViolation';
         $trapHashRef->{'trapIfIndex'} = ( $1 - $this->getFirstBoardIndex() ) * $this->getBoardIndexWidth() + $2;
-        $trapHashRef->{'trapMac'}     = lc($3);
-        $trapHashRef->{'trapMac'} =~ s/ /:/g;
+        $trapHashRef->{'trapMac'} = parse_mac_from_trap($3);
         $trapHashRef->{'trapVlan'} = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
 
         if ($trapHashRef->{'trapIfIndex'} <= 0) {
@@ -111,6 +109,7 @@ sub parseTrap {
             "ifIndex for " . $trapHashRef->{'trapMac'} . " on switch " . $this->{_ip} 
             . " is " . $trapHashRef->{'trapIfIndex'}
         );
+
     } else {
         $logger->debug("trap currently not handled");
         $trapHashRef->{'trapType'} = 'unknown';

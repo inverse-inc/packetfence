@@ -23,6 +23,7 @@ use Net::Appliance::Session;
 use pf::config;
 # importing switch constants
 use pf::SNMP::constants;
+use pf::util;
 
 =head1 SUBROUTINES
 
@@ -264,38 +265,30 @@ sub parseTrap {
         # CISCO-PORT-SECURITY-MIB cpsSecureMacAddrViolation
     } elsif ( 
         ( $trapString
-        =~ /BEGIN VARIABLEBINDINGS .+[|]\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.9\.9\.315\.0\.0\.1[|]\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.([0-9]+) = .+[|]\.1\.3\.6\.1\.4\.1\.9\.9\.315\.1\.2\.1\.1\.10\.[0-9]+ = Hex-STRING: ([0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2})/
+        =~ /BEGIN VARIABLEBINDINGS .+[|]\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.9\.9\.315\.0\.0\.1[|]\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.([0-9]+) = .+[|]\.1\.3\.6\.1\.4\.1\.9\.9\.315\.1\.2\.1\.1\.10\.[0-9]+ = $SNMP::MAC_ADDRESS_FORMAT/
         ) || ( $trapString
-        =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.([0-9]+) = .+[|]\.1\.3\.6\.1\.4\.1\.9\.9\.315\.1\.2\.1\.1\.10\.[0-9]+ = Hex-STRING: ([0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2})/
-        ) )
-    {
+        =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.([0-9]+) = .+[|]\.1\.3\.6\.1\.4\.1\.9\.9\.315\.1\.2\.1\.1\.10\.[0-9]+ = $SNMP::MAC_ADDRESS_FORMAT/) ) {
+
         $trapHashRef->{'trapType'}    = 'secureMacAddrViolation';
         $trapHashRef->{'trapIfIndex'} = $1;
-        $trapHashRef->{'trapMac'}     = lc($2);
-        $trapHashRef->{'trapMac'} =~ s/ /:/g;
-        $trapHashRef->{'trapVlan'}
-            = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
+        $trapHashRef->{'trapMac'} = parse_mac_from_trap($2);
+        $trapHashRef->{'trapVlan'} = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
 
         # CISCO-PORT-SECURITY-MIB cpsTrunkSecureMacAddrViolation
     } elsif ( $trapString
-        =~ /BEGIN VARIABLEBINDINGS .+[|]\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.9\.9\.315\.0\.0\.2[|]\.1\.3\.6\.1\.2\.1\.31\.1\.1\.1\.1\.([0-9]+) = .+[|]\.1\.3\.6\.1\.4\.1\.9\.9\.315\.1\.2\.1\.1\.10\.[0-9]+ = Hex-STRING: ([0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2})/
-        )
-    {
-        $trapHashRef->{'trapType'}    = 'secureMacAddrViolation';
+        =~ /BEGIN VARIABLEBINDINGS .+[|]\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.9\.9\.315\.0\.0\.2[|]\.1\.3\.6\.1\.2\.1\.31\.1\.1\.1\.1\.([0-9]+) = .+[|]\.1\.3\.6\.1\.4\.1\.9\.9\.315\.1\.2\.1\.1\.10\.[0-9]+ = $SNMP::MAC_ADDRESS_FORMAT/ ) {
+
+        $trapHashRef->{'trapType'} = 'secureMacAddrViolation';
         $trapHashRef->{'trapIfIndex'} = $1;
-        $trapHashRef->{'trapMac'}     = lc($2);
-        $trapHashRef->{'trapMac'} =~ s/ /:/g;
-        $trapHashRef->{'trapVlan'}
-            = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
+        $trapHashRef->{'trapMac'} = parse_mac_from_trap($2);
+        $trapHashRef->{'trapVlan'} = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
 
     #  IEEE802dot11-MIB dot11DeauthenticateReason + dot11DeauthenticateStation
     } elsif ( $trapString
-        =~ /\.1\.2\.840\.10036\.1\.1\.1\.17\.[0-9]+ = INTEGER: [0-9]+[|]\.1\.2\.840\.10036\.1\.1\.1\.18\.[0-9]+ = Hex-STRING: ([0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2})/
-        )
-    {
-        $trapHashRef->{'trapType'}    = 'dot11Deauthentication';
-        $trapHashRef->{'trapMac'}     = lc($1);
-        $trapHashRef->{'trapMac'} =~ s/ /:/g;
+        =~ /\.1\.2\.840\.10036\.1\.1\.1\.17\.[0-9]+ = INTEGER: [0-9]+[|]\.1\.2\.840\.10036\.1\.1\.1\.18\.[0-9]+ = $SNMP::MAC_ADDRESS_FORMAT/ ) {
+
+        $trapHashRef->{'trapType'} = 'dot11Deauthentication';
+        $trapHashRef->{'trapMac'} = parse_mac_from_trap($1);
 
     } else {
         $logger->debug("trap currently not handled");

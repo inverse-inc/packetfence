@@ -38,6 +38,7 @@ use Log::Log4perl;
 use Net::Telnet;
 
 use pf::config;
+use pf::SNMP::constants;
 use pf::util;
 
 =head1 SUBROUTINES
@@ -82,10 +83,9 @@ sub parseTrap {
 
     # wlsxNUserEntryDeAuthenticated: 1.3.6.1.4.1.14823.2.3.1.11.1.2.1017
 
-    if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.14823\.2\.3\.1\.11\.1\.2\.1017[|].+[|]\.1\.3\.6\.1\.4\.1\.14823\.2\.3\.1\.11\.1\.1\.52\.[0-9]+ = Hex-STRING: ([0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2})/ ) {   
+    if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.14823\.2\.3\.1\.11\.1\.2\.1017[|].+[|]\.1\.3\.6\.1\.4\.1\.14823\.2\.3\.1\.11\.1\.1\.52\.[0-9]+ = $SNMP::MAC_ADDRESS_FORMAT/) {
         $trapHashRef->{'trapType'}    = 'dot11Deauthentication';
-        $trapHashRef->{'trapMac'}     = lc($1);
-        $trapHashRef->{'trapMac'} =~ s/ /:/g;
+        $trapHashRef->{'trapMac'} = parse_mac_from_trap($1);
     
     } else {
         $logger->debug("trap currently not handled");

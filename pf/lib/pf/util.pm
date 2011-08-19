@@ -42,7 +42,9 @@ BEGIN {
         get_internal_info get_gateways createpid readpid deletepid
         pfmon_preload parse_template mysql_date oui_to_vendor mac2oid oid2mac 
         str_to_connection_type connection_type_to_str
-        get_total_system_memory get_vlan_from_int
+        get_total_system_memory
+        parse_mac_from_trap
+        get_vlan_from_int
         get_translatable_time
         pretty_bandwidth
         pf_run
@@ -878,6 +880,34 @@ sub get_total_system_memory {
     }
 
     return $total_mem;
+}
+
+=item parse_mac_from_trap 
+
+snmptrapd sometimes converts an Hex-STRING into STRING if all of the values are valid "printable" ascii.
+
+This method handles both technique and return the MAC address in a format PacketFence expects.
+
+Must be combined with new regular expression that handles both formats: $SNMP::MAC_ADDRESS_FORMAT
+
+=cut
+sub parse_mac_from_trap {
+    my ($to_parse) = @_;
+
+    my $mac;
+    if ($to_parse =~ /Hex-STRING:\ ([0-9A-Z]{2}\ [0-9A-Z]{2}\ [0-9A-Z]{2}\ [0-9A-Z]{2}\ [0-9A-Z]{2}\ [0-9A-Z]{2})/) {
+        $mac = lc($1);
+        $mac =~ s/ /:/g;
+
+    } elsif ($to_parse =~ /STRING:\ "(.+)"/s) {
+        $mac = $1;
+        $mac =~ s/\\"/"/g; # replaces \" with "
+        $mac =~ s/\\\\/\\/g; # replaces \\ with \
+        $mac = unpack("H*", $mac);
+        $mac =~ s/([a-f0-9]{2})(?!$)/$1:/g; # builds groups of two separ ated by :
+    }
+
+    return $mac;
 }
 
 =item get_translatable_time

@@ -19,6 +19,9 @@ use base ('pf::SNMP');
 use Net::SNMP;
 use Log::Log4perl;
 
+use pf::SNMP::constants;
+use pf::util;
+
 sub getVersion {
     my ($this) = @_;
     my $oid_swDlinkEquipmentCapacitySwVersion
@@ -71,10 +74,12 @@ sub parseTrap {
         $trapHashRef->{'trapIfIndex'} = hex( $trapHashRef->{'trapIfIndex'} );
         $trapHashRef->{'trapVlan'}
             = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
-    } elsif ($trapString =~ /[|]\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.171\.10\.73\.30\.13\.22[|]\.1\.3\.6\.1\.4\.1\.171\.10\.73\.30\.9\.1\.1\.1 = Hex-STRING: ([0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2})/) {
+
+    } elsif ($trapString =~ /[|]\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.171\.10\.73\.30\.13\.22[|]\.1\.3\.6\.1\.4\.1\.171\.10\.73\.30\.9\.1\.1\.1 = $SNMP::MAC_ADDRESS_FORMAT/) {
+
         $trapHashRef->{'trapType'} = 'dot11Deauthentication';
-        $trapHashRef->{'trapMac'} = lc($1);
-        $trapHashRef->{'trapMac'} =~ s/ /:/g;
+        $trapHashRef->{'trapMac'} = parse_mac_from_trap($1);
+
     } else {
         $logger->debug("trap currently not handled");
         $trapHashRef->{'trapType'} = 'unknown';

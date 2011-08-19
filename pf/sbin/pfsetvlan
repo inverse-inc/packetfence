@@ -149,7 +149,7 @@ my $TRAP_PATTERN = qr/
     (?:\-\>\[\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\])?     # Optional "->[ip address]" (since net-snmp 5.4)
     \|([^|]*)\|                                         # Used to carry network device ip if it's a local trap
     (.+)$                                               # Trap message
-/x;
+/sx; # s for multiline support (if we encounter an Hex 0a which is encoded as a newline in STRING)
 
 my $fh = new File::Tail(
     'name'        => INSTALL_DIR . '/logs/snmptrapd.log',
@@ -280,7 +280,7 @@ while ( defined( $currentTrapLine = $fh->read ) ) {
         }
     } else {
         if ($inMultiLineTrap) {
-            $completeTrapLine .= " $currentTrapLine";
+            $completeTrapLine .= "\n$currentTrapLine";
             if ( $currentTrapLine =~ m/END VARIABLEBINDINGS$/ ) {
 
                 #end multiLine read
