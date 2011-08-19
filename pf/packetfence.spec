@@ -240,7 +240,7 @@ cp -r addons/freeradius-integration/radiusd.conf.pf $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/eap.conf.pf $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/users.pf $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/modules/perl.pf $RPM_BUILD_ROOT/etc/raddb/modules
-cp -r addons/freeradius-integration/sql.conf.pf $RPM_BUILD_ROOT/etc/pf/raddb
+cp -r addons/freeradius-integration/sql.conf.pf $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/sql/mysql/packetfence.conf $RPM_BUILD_ROOT/etc/pf/raddb/sql/mysql
 cp -r addons/802.1X/packetfence.pm $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/sites-available/packetfence $RPM_BUILD_ROOT/etc/raddb/sites-available
