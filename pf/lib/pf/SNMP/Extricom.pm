@@ -84,7 +84,6 @@ sub parseTrap {
     if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.23937\.2\.1 = STRING: "[0-9]+:Client ([0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2})/ ) {   
         $trapHashRef->{'trapType'} = 'dot11Deauthentication';
         $trapHashRef->{'trapMac'} = lc($1);
-        $trapHashRef->{'trapMac'} =~ s/ /:/g;
     
     } else {
         $logger->debug("trap currently not handled");
