@@ -98,8 +98,7 @@ sub accounting_db_prepare {
                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
         FROM radacct_log
         LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
-	WHERE timestamp >= CURRENT_DATE() AND callingstationid = ?;
-        
+        WHERE timestamp >= CURRENT_DATE() AND callingstationid = ?;
     ]);
 
    $accounting_statements->{'acct_bandwidth_weekly_sql'} = get_db_handle()->prepare(qq[
@@ -109,7 +108,6 @@ sub accounting_db_prepare {
         FROM radacct_log
         LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
         WHERE YEARWEEK(timestamp) = YEARWEEK(CURRENT_DATE()) AND callingstationid = ?;
-       	
     ]);
 
    $accounting_statements->{'acct_bandwidth_monthly_sql'} = get_db_handle()->prepare(qq[

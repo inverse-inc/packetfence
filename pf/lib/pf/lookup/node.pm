@@ -193,18 +193,18 @@ sub lookup_node {
             
             $return .= "\n";
 
-       	    $return .= "Time Connected       :\n";
+            $return .= "Time Connected       :\n";
             my $daily_time = node_accounting_daily_time($mac);
             $return .= "    Today           : ";
             if ( $daily_time->{'accttotaltime'} ) { $return .= $daily_time->{'accttotaltime'} . " Minutes \n" } else { $return .= "0.0 Minutes \n" ;}
             my $weekly_time = node_accounting_weekly_time($mac);
             $return .= "    This Week       : ";
             if ( $weekly_time->{'accttotaltime'} ) { $return .= $weekly_time->{'accttotaltime'}  . " Minutes \n" } else { $return .= "0.0 Minutes \n" ;}
-       	    my $monthly_time = node_accounting_monthly_time($mac);
+            my $monthly_time = node_accounting_monthly_time($mac);
             $return .= "    This Month      : ";
             if ( $monthly_time->{'accttotaltime'} ) { $return .= $monthly_time->{'accttotaltime'}  . " Minutes \n" } else { $return .= "0.0 Minutes \n" ;}
             my $yearly_time = node_accounting_yearly_time($mac);
-       	    $return .= "    This Year  	    : ";
+            $return .= "    This Year       : ";
             if ( $yearly_time->{'accttotaltime'} ){ $return .= $yearly_time->{'accttotaltime'}  . " Minutes \n"} else { $return .= "0.0 Minutes \n" ;}
         }
 
