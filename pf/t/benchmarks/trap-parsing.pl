@@ -60,7 +60,7 @@ sub new_parser {
     if ( $trapString =~ /\|\.1\.3\.6\.1\.4\.1\.45\.1\.6\.5\.3\.12\.1\.3\.(\d+)\.(\d+) = $SNMP::MAC_ADDRESS_FORMAT/) {
         $trapHashRef->{'trapType'}    = 'secureMacAddrViolation';
         $trapHashRef->{'trapIfIndex'} = $1 * 64 + $2;
-        $trapHashRef->{'trapMac'} = parse_string_or_hex_mac($3, $4);
+        $trapHashRef->{'trapMac'} = parse_mac_from_trap($3);
     } else {
         $trapHashRef->{'trapType'} = 'unknown';
     }
