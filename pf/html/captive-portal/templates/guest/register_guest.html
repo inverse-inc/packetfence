@@ -1,0 +1,56 @@
+[% INCLUDE header.html
+    body_attributes = 'onload="$(\'firstfield\').focus();"';
+%]
+
+        [%# Welcome text %]
+        <div id="about" class="underlined">
+          <img src="content/images/registration.png" alt="Registration" />
+          <h1>[% txt_page_header %]</h1>
+          <p>[% txt_instructions %]</p>
+          <hr/>
+        </div>
+
+        [%# Error %]
+        [% IF txt_error.defined %]<div class="error"><p>[% txt_error %]</p></div>[% END %]
+
+        <form method="post" action="[% post_uri %]">
+
+          <div class="input">
+            <span>[% txt_firstname | replace(' ', '&nbsp;') %]</span>
+            <input class="field" name="firstname" id="firstfield" type="text" value="[% firstname %]" />
+          </div>
+          <div class="input">
+            <span>[% txt_lastname | replace(' ', '&nbsp;') %]</span>
+            <input class="field" name="lastname" type="text" value="[% lastname %]" />
+          </div>
+          <div class="input">
+            <span>[% txt_phone | replace(' ', '&nbsp;') %]</span>
+            <input class="field" name="phone" type="text" value="[% phone %]" />
+          </div>
+          <div class="input">
+            <span>[% txt_email %]*</span>
+            <input class="field" name="email" type="text" value="[% email %]" />
+          </div>
+          <div class="input">
+            <span>[% txt_arrival | replace(' ', '&nbsp;') %]*</span>
+            <input class="field" name="arrival_date" type="text" value="[% arrival_date %]" /><br/>
+            <em>[% txt_arrival_format %]</em>
+          </div>
+          <div class="input">
+            <span>[% txt_access_duration | replace(' ', '&nbsp;') %]*</span>
+            <select name="access_duration">
+              [% FOREACH d IN duration.keys.nsort %]
+                <option [% IF default_duration == d %]selected='selected' [% END %]value='[% d %]'>
+                  [% duration.$d %]
+                </option>
+              [% END %]
+            </select>
+          </div>
+
+          [%# submit %]
+          <div class="input">
+            <input type="submit" class="button" name="action_print" value="[% txt_button_print %]" /><br/>
+            <input type="submit" class="button" name="action_sendEmail" value="[% txt_button_email %]" />
+          </div>
+
+[% INCLUDE guest/footer.html %]

@@ -1578,11 +1578,11 @@ sub handleTrap {
         if ($connection_type == WIRELESS_802_1X) {
             # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
             # http://www.cpanforum.com/threads/6909
-            `/usr/local/pf/bin/pfcmd_vlan -deauthenticateDot1x -switch $switchIp -mac $trapMac`;
+            pf_run("/usr/local/pf/bin/pfcmd_vlan -deauthenticateDot1x -switch $switchIp -mac $trapMac");
         } else {
             # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
             # http://www.cpanforum.com/threads/6909
-            `/usr/local/pf/bin/pfcmd_vlan -deauthenticate -switch $switchIp -mac $trapMac`;
+            pf_run("/usr/local/pf/bin/pfcmd_vlan -deauthenticate -switch $switchIp -mac $trapMac");
         }
 
         # }}}2
@@ -1594,7 +1594,7 @@ sub handleTrap {
 
         if (defined($connection_type) && $connection_type == WIRED_802_1X) {
             $logger->info("Forcing 802.1x re-authentication on $switch_ip:$switch_port. A new VLAN will be assigned.");
-            `/usr/local/pf/bin/pfcmd_vlan -deauthenticateDot1x -switch $switch_ip -ifIndex $switch_port`;
+            pf_run("/usr/local/pf/bin/pfcmd_vlan -deauthenticateDot1x -switch $switch_ip -ifIndex $switch_port");
 
         } elsif (defined($connection_type) && $connection_type == WIRED_MAC_AUTH) {
             $switch->handleReAssignVlanTrapForWiredMacAuth($switch_port);

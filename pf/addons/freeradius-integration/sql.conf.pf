@@ -1,0 +1,33 @@
+sql {
+	database = "mysql"
+	driver = "rlm_sql_${database}"
+
+	server = "localhost"
+	#port = 3306
+	login = "pf"
+	password = "pf"
+
+	radius_db = "pf"
+
+	acct_table1 = "radacct"
+	acct_table2 = "radacct"
+	postauth_table = "radpostauth"
+	authcheck_table = "radcheck"
+	authreply_table = "radreply"
+	groupcheck_table = "radgroupcheck"
+	groupreply_table = "radgroupreply"
+	usergroup_table = "radusergroup"
+
+	deletestalesessions = yes
+	sqltrace = no
+	sqltracefile = ${logdir}/sqltrace.sql
+	num_sql_socks = 5
+	connect_failure_retry_delay = 60
+	lifetime = 0
+	max_queries = 0
+
+	readclients = yes
+	nas_table = "radius_nas"
+
+	$INCLUDE sql/${database}/packetfence.conf
+}

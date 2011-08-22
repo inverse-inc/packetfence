@@ -292,6 +292,12 @@ sub violation_view_open_desc {
     return db_data(VIOLATION, $violation_statements, 'violation_view_open_desc_sql', $mac);
 }
 
+=item violation_view_open_uniq
+
+Returns a list of MACs which have at least one opened violation.
+Since trap violations stay open, this has the intended effect of getting all MACs which should be isolated.
+
+=cut
 sub violation_view_open_uniq {
     return db_data(VIOLATION, $violation_statements, 'violation_view_open_uniq_sql');
 }
@@ -460,7 +466,7 @@ sub violation_trigger {
         }
         $logger->info("calling '$bin_dir/pfcmd violation add vid=$vid,mac=$mac' (trigger ${type}::${tid})");
         # forking a pfcmd because it will call a vlan flip if needed
-        `$bin_dir/pfcmd violation add vid=$vid,mac=$mac`;
+        pf_run("$bin_dir/pfcmd violation add vid=$vid,mac=$mac");
         $addedViolation = 1;
     }
     return $addedViolation;
@@ -503,10 +509,7 @@ sub violation_close {
     my $max = $class_info->{'max_enables'};
 
     if ( $num <= $max || $max == 0 ) {
-        if ( !( $Config{'network'}{'mode'} =~ /vlan/i ) ) {
-            require pf::iptables;
-            pf::iptables::iptables_unmark_node( $mac, $vid );
-        }
+
         my $grace = $class_info->{'grace_period'};
         db_query_execute(VIOLATION, $violation_statements, 'violation_close_sql', $mac, $vid)
             || return (0);
@@ -523,7 +526,6 @@ sub violation_force_close {
     my ( $mac, $vid ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::violation');
 
-    #iptables_unmark_node($mac, $vid);
     db_query_execute(VIOLATION, $violation_statements, 'violation_close_sql', $mac, $vid)
         || return (0);
     $logger->info("violation $vid force-closed for $mac");

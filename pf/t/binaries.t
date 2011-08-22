@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 26;
+use Test::More tests => 29;
 
 my @binaries = (
     '/usr/local/pf/configurator.pl',
@@ -29,10 +29,13 @@ my @binaries = (
     '/usr/local/pf/addons/upgrade/update-all-useragents.pl',
     '/usr/local/pf/bin/flip.pl',
     '/usr/local/pf/bin/pfcmd_vlan',
-    '/usr/local/pf/cgi-bin/redir.cgi',
-    '/usr/local/pf/cgi-bin/register.cgi',
-    '/usr/local/pf/cgi-bin/release.cgi',
-    '/usr/local/pf/cgi-bin/wispr.cgi',
+    '/usr/local/pf/html/captive-portal/email_activation.cgi',
+    '/usr/local/pf/html/captive-portal/guest-management.cgi',
+    '/usr/local/pf/html/captive-portal/guest-selfregistration.cgi',
+    '/usr/local/pf/html/captive-portal/mobile-confirmation.cgi',
+    '/usr/local/pf/html/captive-portal/redir.cgi',
+    '/usr/local/pf/html/captive-portal/register.cgi',
+    '/usr/local/pf/html/captive-portal/wispr.cgi',
     '/usr/local/pf/lib/pf/WebAPI.pm',
     '/usr/local/pf/lib/pf/web/backend_modperl_require.pl',
     '/usr/local/pf/lib/pf/web/captiveportal_modperl_require.pl',

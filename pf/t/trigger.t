@@ -40,7 +40,6 @@ can_ok('pf::trigger', qw(
     trigger_delete_all
     trigger_exist
     trigger_add
-    trigger_in_range
     parse_triggers
 ));
 

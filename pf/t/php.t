@@ -4,7 +4,8 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 82;
+use Test::More;
+use Test::NoWarnings;
 
 my @php_files = (
     '/usr/local/pf/html/admin/administration/adduser.php',
@@ -73,23 +74,26 @@ my @php_files = (
     '/usr/local/pf/html/admin/violation/edit.php',
     '/usr/local/pf/html/admin/violation/index.php',
     '/usr/local/pf/html/admin/violation/view.php',
-    '/usr/local/pf/html/user/content/index.php',
-    '/usr/local/pf/html/user/content/style.php',
-    '/usr/local/pf/html/user/content/violations/banned_os.php',
-    '/usr/local/pf/html/user/content/violations/banned_devices.php',
-    '/usr/local/pf/html/user/content/violations/darknet.php',
-    '/usr/local/pf/html/user/content/violations/failed_scan.php',
-    '/usr/local/pf/html/user/content/violations/generic.php',
-    '/usr/local/pf/html/user/content/violations/lsass.php',
-    '/usr/local/pf/html/user/content/violations/nat.php',
-    '/usr/local/pf/html/user/content/violations/p2p.php',
-    '/usr/local/pf/html/user/content/violations/roguedhcp.php',
-    '/usr/local/pf/html/user/content/violations/scanning.php',
-    '/usr/local/pf/html/user/content/violations/spam.php',
-    '/usr/local/pf/html/user/content/violations/system_scan.php',
-    '/usr/local/pf/html/user/content/violations/trojan.php',
-    '/usr/local/pf/html/user/content/violations/zotob.php',
+    '/usr/local/pf/html/captive-portal/remediation.php',
+    '/usr/local/pf/html/captive-portal/violations/banned_os.php',
+    '/usr/local/pf/html/captive-portal/violations/banned_devices.php',
+    '/usr/local/pf/html/captive-portal/violations/darknet.php',
+    '/usr/local/pf/html/captive-portal/violations/failed_scan.php',
+    '/usr/local/pf/html/captive-portal/violations/generic.php',
+    '/usr/local/pf/html/captive-portal/violations/lsass.php',
+    '/usr/local/pf/html/captive-portal/violations/nat.php',
+    '/usr/local/pf/html/captive-portal/violations/p2p.php',
+    '/usr/local/pf/html/captive-portal/violations/roguedhcp.php',
+    '/usr/local/pf/html/captive-portal/violations/scanning.php',
+    '/usr/local/pf/html/captive-portal/violations/spam.php',
+    '/usr/local/pf/html/captive-portal/violations/system_scan.php',
+    '/usr/local/pf/html/captive-portal/violations/trojan.php',
+    '/usr/local/pf/html/captive-portal/violations/zotob.php',
 );
+
+# all files + no warnings
+plan tests => scalar @php_files + 1;
+
 
 foreach my $currentPHPFile (@php_files) {
     ok( system("/usr/bin/php -l $currentPHPFile 2>&1") == 0,

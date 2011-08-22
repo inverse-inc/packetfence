@@ -20,7 +20,7 @@ use threads;
 use threads::shared;
 
 use pf::config;
-use pf::node qw(node_attributes node_add_simple node_exist);
+use pf::node qw(node_attributes node_exist);
 use pf::SNMP::constants;
 use pf::util;
 use pf::violation qw(violation_count_trap violation_exist_open violation_view_top);

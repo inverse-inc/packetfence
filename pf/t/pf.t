@@ -4,21 +4,26 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 50;
+use Test::More tests => 63;
 
 # pf core libs
 use lib '/usr/local/pf/lib';
 
+BEGIN { use_ok('pf::accounting') }
 BEGIN { use_ok('pf::action') }
 BEGIN { use_ok('pf::class') }
 BEGIN { use_ok('pf::configfile') }
 BEGIN { use_ok('pf::config') }
 BEGIN { use_ok('pf::db') }
+BEGIN { use_ok('pf::email_activation') }
+BEGIN { use_ok('pf::enforcement') }
 BEGIN { use_ok('pf::floatingdevice') }
 BEGIN { use_ok('pf::floatingdevice::custom') }
 BEGIN { use_ok('pf::freeradius') }
 BEGIN { use_ok('pf::ifoctetslog') }
 BEGIN { use_ok('pf::import') }
+BEGIN { use_ok('pf::inline') }
+BEGIN { use_ok('pf::inline::custom') }
 BEGIN { use_ok('pf::iplog') }
 BEGIN { use_ok('pf::locationlog') }
 BEGIN { use_ok('pf::lookup::node') }
@@ -43,7 +48,11 @@ BEGIN { use_ok('pf::schedule') }
 BEGIN { use_ok('pf::SNMP::constants') }
 BEGIN { use_ok('pf::services') }
 BEGIN { use_ok('pf::services::apache') }
+BEGIN { use_ok('pf::services::dhcpd') }
+BEGIN { use_ok('pf::services::named') }
+BEGIN { use_ok('pf::sms_activation') }
 BEGIN { use_ok('pf::switchlocation') }
+BEGIN { use_ok('pf::temporary_password') }
 BEGIN { use_ok('pf::traplog') }
 BEGIN { use_ok('pf::trigger') }
 BEGIN { use_ok('pf::useragent') }
@@ -53,14 +62,18 @@ BEGIN { use_ok('pf::vlan') }
 BEGIN { use_ok('pf::vlan::custom') }
 BEGIN { use_ok('pf::web') }
 BEGIN { use_ok('pf::web::custom') }
+BEGIN { use_ok('pf::web::guest') }
+BEGIN { use_ok('pf::web::release') }
 BEGIN { use_ok('pf::web::util') }
 BEGIN { use_ok('pf::web::wispr') }
 
 # external authentication modules
 use lib '/usr/local/pf/conf/';
+BEGIN { use_ok('authentication::guest_managers') }
 BEGIN { use_ok('authentication::kerberos') }
 BEGIN { use_ok('authentication::ldap') }
 BEGIN { use_ok('authentication::local') }
+BEGIN { use_ok('authentication::preregistered_guests') }
 BEGIN { use_ok('authentication::radius') }
 
 =head1 AUTHOR

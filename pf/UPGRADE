@@ -5,6 +5,140 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to <trunk-release>:
+
+    - BACKUP YOUR /usr/local/pf/ BEFORE UPGRADING
+    All files in html/user/ will be removed on upgrade (everything is now
+    in html/captive-portal/ as you'll see below). This includes templates and 
+    remediation pages.
+
+    - Database schema update
+    Added support for guest self-registration / management. Also added support
+    for Radius accounting. New tables creation. You need to update your schema with:
+    mysql -u root -p pf -v < db/upgrade-2.2.0-3.0.0.sql
+
+    - Firewall (iptables) now handled by PacketFence
+    Make sure that iptables is not handled by your operating system otherwise
+    conflicts might occur. You can customize the default firewall configuration
+    in conf/iptables.conf.
+
+    - Several changes to Apache configuration
+    We've externalized repetitive portions in conf/httpd.conf.d/. Make sure to
+    re-integrate any customization you've made.
+
+    - New pf.conf configuration parameter: interface enforcement
+    Under the [interface ...] statements a new configuration parameter has been
+    added: enforcement. We got rid of the concept of 'modes' in PacketFence and
+    enforcement replaces that concept. It is a per interface choice allowing 
+    you to run PacketFence in both inline and out-of-band mode at the same 
+    time. Users upgrading should probably set enforcement=vlan on all interface
+    with type=internal. Run `bin/pfcmd checkup` to validate your configuration.
+
+    - conf/named_vlan.conf moved to conf/named.conf
+    People using packages should be automatically updated. Make sure to put
+    back any local changes you have made to the file. Others will need to move
+    the file. You can do so with:
+    mv /usr/local/pf/conf/named_vlan.conf /usr/local/pf/conf/named.conf
+
+    - conf/dhcpd_vlan.conf moved to conf/dhcpd.conf
+    People using packages should be automatically updated. Make sure to put
+    back any local changes you have made to the file. Others will need to move
+    the file. You can do so with:
+    mv /usr/local/pf/conf/dhcpd_vlan.conf /usr/local/pf/conf/dhcpd.conf
+
+    - general.caching disabled by default
+    A historical and badly understood feature, general caching, has now been
+    disabled by default. Previously it only had impacts if the mode was ARP but
+    because of the modes removal it needed to be changed to disabled by default.
+    Please report any regression introduced by this change.
+
+    - networks.conf's pf_gateway= renamed next_hop=
+    Make sure to update your configuration otherwise you will get warnings on
+    startup. At some point in the future pf_gateway will no longer be supported.
+
+    - networks.conf's type change
+    isolation and registration keywords are replaced by vlan-isolation and 
+    vlan-registration in networks.conf's type parameter. This is done to allow
+    the introduction of the inline keyword and avoid confusion between vlan and
+    inline enforcement over a network. It's recommended that you update your
+    configuration as the old names will be removed in the future. `pfcmd 
+    checkup` will warn you about this.
+
+    - pf.conf parameter name and category changes
+    Here are the changes:
+    - vlan.adjustswitchportvlanscript is now advanced.adjustswitchportvlanscript
+    - vlan.adjustswitchportvlanreasons is now advanced.reevaluate_access_reasons
+    - ports.redirect is now inline.ports_redirect
+    You only need to take action if you are not using the default values.
+
+    - pf.conf's interface type changes
+    We added management keyword to replace the confusing managed keyword. Also
+    dhcp-listener is accepted in addition to the previously used dhcplistener.
+    Use of the managed keyword will issue warnings in `pfcmd checkup`.
+
+    - Dropping support of interface authorizedips
+    pf.conf's per interface authorizedips parameter no longer exists. We don't
+    belive if was used at all. If you want to achieve the same functionality 
+    just edit conf/iptables.conf and add your own rules to allow specific IPs
+    in.
+
+    - Authentication modules interface change
+    All authentication modules (conf/authentication/*) were migrated into
+    objects. Please carefully merge any module you were using by comparing
+    the .rpmnew version and your version. If you are unsure, replace your
+    module with the .rpmnew one and re-apply configuration parameters 
+    afterwards.
+
+    - Intrusive changes to Captive Portal
+    It is recommended that you redo your customization from scratch instead of 
+    trying to adapt it.
+    Among other things:
+     - Changes to all templates, cgi-bin/ scripts and pf::web core code
+     - All remediation URLs have changed from /content/index.php to 
+       /content/remediation.php. Make sure to update your conf/violations.conf!
+     - All URLs are now clean URLs translated by Apache's mod_rewrite config
+     - Default workflow now brings you to the login page (no more registration
+       click-through unless you adjust nbregpages in configuration)
+     - Default logo changed to packetfence-cp.png (was packetfence.png)
+     - Files organization was changed. Anything custom relying on specific paths
+       should be updated.
+       - html/user/ became html/captive-portal
+       - cgi-bin/ -> html/captive-portal/
+       - html/user/content/templates/ -> html/captive-portal/templates/
+       - html/user/content/violations/ -> html/captive-portal/violations/
+       - html/user/content/3rdparty/ -> html/captive-portal/content/
+
+    - Email Activation URL change
+    From /activate/<hash> to /activate/email/<hash>
+
+    - Support for Apache prior to version 2.2.0 dropped
+    Upgrade your Apache. We don't think it's used by anyone at this point. Let
+    us know if you need it back.
+
+    - jpgraph external library now included with distribution
+    Due to jpgraph 2.3.4's rarity, we decided to inline the software instead
+    of building packages for it. This simplifies installation from tarball.
+    Jpgraph's installation used to be at 
+    /usr/local/pf/html/admin/common/jpgraph/jpgraph-<version> but is now in 
+    /usr/local/pf/lib/jpgraph-<version>. Users of our packaged versions won't 
+    notice the change and can get rid of the php-jpgraph-packetfence package.
+
+    - jpgraph 1.x support deprecated
+    We got rid of the 1.x jpgraph support. It was only required for 
+    environments still on PHP4. We don't think it's used by anyone at this 
+    point. Let us know if you need it back.
+
+    - Nortal ERS Switch module rename
+    We changed the naming of two Nortel switch modules.  Nortel::ERS4500 is
+    now Nortel::ERS4000, and Nortel::ERS5500 is now Nortel::ERS5000
+
+    - RADIUS Accounting
+    RADIUS is now using SQL to fetch the client configuration.  So, for
+    every device that needs to do MAC Authentication (Wired/Wireless) or
+    802.1X, you need to add the radiusSecret=YOUR_SECRET to the
+    switches.conf entry for that device.  Change YOUR_SECRET with the 
+    actual RADIUS secret.
+
 o Upgrading from a version prior to 2.2.1:
 
     - Cisco port-security + Voice over IP support on 2960, 2970, 3550 and 4500

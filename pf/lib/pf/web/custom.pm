@@ -16,6 +16,7 @@ It will never be overwritten when upgrading PacketFence.
 use strict;
 use warnings;
 use Date::Parse;
+use Encode;
 use File::Basename;
 use POSIX;
 use JSON;
@@ -44,7 +45,7 @@ no warnings 'redefine';
 package pf::web;
 
 # sample constant
-Readonly::Scalar our $GUEST_SESSION_DURATION => 60 * 60 * 24 * 7; # read 7 days
+#Readonly::Scalar our $GUEST_SESSION_DURATION => 60 * 60 * 24 * 7; # read 7 days
 
 =head1 SUBROUTINES
 
@@ -73,6 +74,16 @@ To set the particular session variable use the following:
 #    # we are good, push the registration
 #    return _sanitize_and_register($mac, $pid, %info);
 #};
+
+
+# If you want to redefine pf::web::guest methods, remember to place yourself in that package with:
+#package pf::web::guest;
+# and also to redefine in pf::web::guest::... not pf::web::...
+
+# Example: change default access duration for guests
+#package pf::web::guest;
+#
+#$pf::web::guest::DEFAULT_REGISTRATION_DURATION = "24h";
 
 # end of no warnings 'redefine' block
 }

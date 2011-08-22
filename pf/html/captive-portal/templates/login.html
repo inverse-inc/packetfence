@@ -1,0 +1,62 @@
+[% INCLUDE header.html 
+    body_attributes = 'onload="$(\'username\').focus();"';
+%]
+
+        [%# Welcome text %]
+        <div id="about">
+          <img src="/content/images/lock.png" alt="You are not authorized" />
+          <p>[% txt_all_systems_must_be_registered %]</p>
+          <p>[% txt_to_complete %]</p>
+          <hr/>
+        </div>
+
+        [%# Error %]
+        [% IF txt_auth_error.defined %]<div class="error"><p>[% txt_auth_error %]</p></div>[% END %]
+
+        <form name="login" method="post" action="/authenticate">
+          <input type="hidden" name="destination_url" value="[% destination_url %]" />
+
+          [%# Authentication choice %]
+          [% IF list_authentications.size == 1 %]
+	    [% FOREACH authentication_info IN list_authentications.pairs %]
+              <input type='hidden' name='auth' value='[% authentication_info.key %]' />
+            [% END %]
+          [% ELSE %]
+            <div class="input">
+                <span>[% txt_select_authentication %]</span>
+        <select name='auth'>
+                [% FOREACH authentication_info IN list_authentications.pairs %]
+                  <option [% IF authentication_info.key == selected_auth %]selected='selected' [% END %]
+                    value='[% authentication_info.key %]'>[% authentication_info.value %]</option>
+                [% END %]
+              </select>
+            </div>
+          [% END %]
+
+          [%# User / Pass %]
+          <div class="input">
+            <span>[% txt_username %]</span>
+	    <input class="field" name="username" id="username" type="text" value="[% username %]" />
+          </div>
+          <div class="input">
+            <span>[% txt_password %]</span><input class="field" name="password" type="password" />
+          </div>
+
+          [%# AUP %]
+          <div class="input">
+            <div>[% txt_aup %]</div>
+            <div id="aup" class="notmobile">
+              [% INCLUDE aup_text.html %]
+            </div>
+            [%# The space below is intententionnal %]
+            <div class="notmobile"><input name="aup_signed" type="checkbox" /> [% txt_accept_terms %]</div>
+            <div class="mobile"><input name="aup_signed" type="checkbox" />[% txt_accept_terms_mobile %]</div>
+          </div>
+
+          [%# submit %]
+          <div class="input">
+            <input type="submit" class="button" name="submit" value="[% txt_login %]" /> or <a href="/signup">Sign up</a>
+          </div>
+        </form>
+
+[% INCLUDE footer.html %]

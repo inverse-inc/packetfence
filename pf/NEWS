@@ -14,6 +14,65 @@ For a list of compatibility related changes see the UPGRADE file.
 
 
 --------------------------------------------------------------------------------
+Version <trunk-release> released on <releaseDate>
+
+Compatibility notice
+ * BACKUP YOUR /usr/local/pf/ BEFORE UPGRADING. Several path changed with this
+   release and an rpm upgrade will REMOVE your templates and remediation pages.
+   See UPGRADE for more information.
+ * We removed the central concept of mode (arp, dhcp or vlan). Now PacketFence
+   can operate in multiple modes simultaneously. This new concept is called
+   enforcement and is specified per interface in pf.conf.
+ * Removed support for ARP mode
+ * Removed support for Apache prior to version 2.2.0 (#828)
+ * Removed support for jpgraph 1.x which bumps our depedencies to PHP 5
+
+New Hardware Support
+ * LG-Ericsson iPecs 4500 support for port-security
+ * Avaya Wireless Controller support
+ * Netgear FGS Series support for port-security 
+
+New features
+ * Major update to the captive portal look and feel! More modern and 
+   professional. Cleaner XHTML/CSS makes customization a lot easier than before.
+   Also, all user-visible URLs are now clean and short (no more cgi-bin/... 
+   clutter). (#980, #982)
+ * Flexible guest handling API (covering temporary passwords, self-registration,
+   pre-registration, etc.)
+ * Introduced in-line support: firewall based access control with captive 
+   portal. Use this complementary technique when you cannot use VLAN 
+   enforcement. (#1227)
+ * PacketFence now takes care of the local firewall configuration on the server
+ * Captive portal authentication modules are versioned, validated on startup and
+   have customizable names
+ * New default_auth parameter will be the default authentication module selected
+   if you have multiple authentication back-end enabled in auth
+ * Remediation pages are translatable (#822)
+ * RADIUS Accounting for tracking node bandwidth usage
+
+Enhancements
+ * Captive portal usability improvements for both users and administrators
+ * pfcmd and web administration performance improvements by avoiding duplicate
+   loading of some configuration files
+ * Configuration simplification (#1182)
+ * FreeRADIUS package now does the certificate boostrapping process (#1226)
+ * Named isolation and registration zones now automatically generated on startup
+   based on networks.conf's DNS entry (#1105)
+ * Simplified Apache configuration
+ * Included the jpgraph PHP library. Simplifies installation from source.
+ * More start-up validation in `pfcmd checkup`
+ * Improved error-handling
+ * More tests
+
+Bug fixes
+ * Fixes issues with accentuated characters and single quotes in some captive
+   portal strings
+ * Cisco C3560 now heritates the Cisco C2960 code
+ * Additional fixes to nessus scans
+ * Renaming Nortel ERS modules (#1238)
+ * Interim fixes (#1239, #1240)
+
+--------------------------------------------------------------------------------
 Version <version> released on <releaseDate>
 
 New Hardware Support

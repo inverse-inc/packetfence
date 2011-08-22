@@ -43,7 +43,6 @@ BEGIN {
 
 use pf::config;
 use pf::db;
-use pf::trigger qw(trigger_in_range);
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $freeradius_db_prepared = 0;
@@ -155,8 +154,7 @@ sub freeradius_populate_nas_config {
 
         # we are looking for the opposite of a valid switch statement or a valid radius statement
         if (!($valid_sw_radiussecret || $valid_df_radiussecret)) {
-            # TODO revisit this priority to info once this module is mandatory (ran on each pf startup)
-            $logger->warn("No RADIUS secret for switch: $switch FreeRADIUS configuration skipped");
+            $logger->debug("No RADIUS secret for switch: $switch FreeRADIUS configuration skipped");
             next;
         }
 
@@ -170,9 +168,6 @@ sub freeradius_populate_nas_config {
     }
 }
 
-#sub freeradius_reload {
-#}
-
 =back
 
 =head1 AUTHOR
@@ -181,7 +176,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2010,2011 Inverse inc.
 
 =head1 LICENSE
 
