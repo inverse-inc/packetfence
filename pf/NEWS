@@ -26,8 +26,11 @@ New Features
 
 Enhancements
  * Added ldap port option to Web Admin LDAP (AD) authentication
- * New DHCP fingerprints for Aastra, LifeSize, Nortel, Polycom and Snom 
-   Conferencing and VoIP, Ubuntu 11.04 and a Xerox printer
+ * New DHCP fingerprints for Mac OS X Lion, Polycom, Aastra, LifeSize, Nortel,
+   Polycom and Snom Conferencing and VoIP, Ubuntu 11.04, Belkin Wireless 
+   Router, HP ProCurve switches, Androids, Zebra, Kyocera, HP and Xerox 
+   printers, NEC Projectors, Polycom Video Conferencing and Paradox Card 
+   Access module.
  * New controllerIp network device parameter will make it simpler to support
    wireless hardware working in bridged mode
  * Developer documentation to add Floating Network Devices support to switches
