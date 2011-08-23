@@ -353,7 +353,7 @@ if (questioner(
         $adminuser = <STDIN>;
         chop $adminuser;
         $adminuser = "admin" if ( !$adminuser );
-    } while ( system("htpasswd -c $conf_dir/admin.conf $adminuser") );
+    } while ( system("htpasswd -d -c $conf_dir/admin.conf $adminuser") );
 }
 
 # TODO: ajouter une section dans la doc qui explique comment télécharger ces fichiers

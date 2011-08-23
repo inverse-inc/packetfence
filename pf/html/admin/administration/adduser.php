@@ -57,7 +57,7 @@
           print "Error: User $_POST[username] already exists!";
           print "</b></div>\n";
         } else {
-          exec("/usr/bin/htpasswd -b " . dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/admin.conf $_POST[username] $_POST[password1]");
+          exec("/usr/bin/htpasswd -d -b " . dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/conf/admin.conf $_POST[username] $_POST[password1]");
           $defaults = array('font-size' => 'medium', 'homepage' => 'status/dashboard.php');
           if (!$handle = fopen($filename, 'w+')) {
             print "<div id='error' style='text-align:left;padding:10px;background:#FF7575;'><b>";
