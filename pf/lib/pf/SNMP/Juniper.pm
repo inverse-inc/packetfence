@@ -40,6 +40,7 @@ use pf::config;
 use pf::locationlog;
 # importing switch constants
 use pf::SNMP::constants;
+use pf::util;
 
 # capabilities
 # TODO implement supportsSnmpTraps globally
@@ -186,9 +187,9 @@ sub handleReAssignVlanTrapForWiredMacAuth {
     $logger->info("Bouncing $switch_ip:$ifIndex. A new VLAN will be assigned upon reconnection.");
     # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
     # http://www.cpanforum.com/threads/6909
-    `/usr/local/pf/bin/pfcmd_vlan -setIfAdminStatus -switch $switch_ip -ifIndex $ifIndex -ifAdminStatus 0`;
+    pf_run("/usr/local/pf/bin/pfcmd_vlan -setIfAdminStatus -switch $switch_ip -ifIndex $ifIndex -ifAdminStatus 0");
     sleep(2);
-    `/usr/local/pf/bin/pfcmd_vlan -setIfAdminStatus -switch $switch_ip -ifIndex $ifIndex -ifAdminStatus 1`;
+    pf_run("/usr/local/pf/bin/pfcmd_vlan -setIfAdminStatus -switch $switch_ip -ifIndex $ifIndex -ifAdminStatus 1");
 
 }
 
@@ -200,7 +201,9 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2010,2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

@@ -266,7 +266,7 @@ sub ip2mac {
             $mac = ip2macinarp($ip);
             if ( !$mac ) {
                 $logger->debug("trying to resolve $ip to mac using ping");
-                my @lines  = `/sbin/ip address show`;
+                my @lines  = pf_run("/sbin/ip address show");
                 my $lineNb = 0;
                 my $src_ip = undef;
                 while (( $lineNb < scalar(@lines) )
@@ -294,6 +294,7 @@ sub ip2mac {
                     my $ping = Net::Ping->new();
                     $logger->debug("binding ping src IP to $src_ip for ping");
                     $ping->bind($src_ip);
+                    $ip = clean_ip($ip);
                     $ping->ping( $ip, 2 );
                     $ping->close();
                     $mac = ip2macinarp($ip);
@@ -320,7 +321,8 @@ sub ip2macinarp {
     my $logger = Log::Log4perl::get_logger('pf::iplog');
     return (0) if ( !valid_ip($ip) );
     my $mac;
-    my @arpList = `/sbin/arp -n -a $ip`;
+    $ip = clean_ip($ip);
+    my @arpList = pf_run("/sbin/arp -n -a $ip");
     my $lineNb  = 0;
     while ( ( $lineNb < scalar(@arpList) ) && ( !$mac ) ) {
         if ( $arpList[$lineNb]

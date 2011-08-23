@@ -252,8 +252,11 @@ sub node_db_prepare {
         WHERE status = "$STATUS_REGISTERED"
     ]);
 
-    $node_statements->{'nodes_registered_not_violators_sql'} = get_db_handle()->prepare(
-        qq [ select node.mac from node left join violation on node.mac=violation.mac and violation.status='open' where node.status='reg' group by node.mac having count(violation.mac)=0 ]);
+    $node_statements->{'nodes_registered_not_violators_sql'} = get_db_handle()->prepare(qq[
+        SELECT node.mac FROM node 
+            LEFT JOIN violation ON node.mac=violation.mac AND violation.status='open' 
+        WHERE node.status='reg' GROUP BY node.mac HAVING count(violation.mac)=0
+    ]);
 
     $node_statements->{'nodes_active_unregistered_sql'} = get_db_handle()->prepare(
         qq [ select n.mac,n.pid,n.detect_date,n.regdate,n.unregdate,n.lastskip,n.status,n.user_agent,n.computername,n.notes,i.ip,i.start_time,i.end_time,n.last_arp from node n left join iplog i on n.mac=i.mac where n.status="unreg" and (i.end_time=0 or i.end_time > now()) ]);
@@ -297,19 +300,19 @@ sub node_delete {
     my $logger = Log::Log4perl::get_logger('pf::node');
     my $tmpMAC = Net::MAC->new( 'mac' => $mac );
     $mac = $tmpMAC->as_IEEE();
+
     if ( !node_exist($mac) ) {
         $logger->error("delete of non-existent node '$mac' failed");
         return 0;
     }
-    if ( lc($Config{'network'}{'mode'}) eq 'vlan' ) {
-        require pf::locationlog;
-        if ( defined( pf::locationlog::locationlog_view_open_mac($mac) ) ) {
-            $logger->warn(
-                "VLAN isolation mode enabled and $mac has open locationlog entry. Node deletion prohibited"
-            );
-            return 0;
-        }
+
+    require pf::locationlog;
+    # TODO that limitation is arbitrary at best, we need to resolve that.
+    if ( defined( pf::locationlog::locationlog_view_open_mac($mac) ) ) {
+        $logger->warn("$mac has an open locationlog entry. Node deletion prohibited");
+        return 0;
     }
+
     db_query_execute(NODE, $node_statements, 'node_delete_sql', $mac) || return (0);
     $logger->info("node $mac deleted");
     return (1);
@@ -692,14 +695,6 @@ sub node_register {
         return (0);
     }
 
-    if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
-        require pf::iptables;
-        if ( !pf::iptables::iptables_mark_node( $mac, $reg_mark ) ) {
-            $logger->error("unable to mark node $mac as registered");
-            return (0);
-        }
-    }
-
     if ( !$auto_registered ) {
 
         #nessus code
@@ -727,18 +722,6 @@ sub node_deregister {
         $logger->error("unable to de-register node $mac");
         return (0);
     }
-
-    if ( !( lc($Config{'network'}{'mode'}) eq 'vlan' ) ) {
-        require pf::iptables;
-        if ( !pf::iptables::iptables_unmark_node( $mac, $reg_mark ) ) {
-            $logger->error("unable to delete registration rule for $mac: $!");
-            return (0);
-        }
-    }
-
-    # we need to rely on the cgi's to do this work
-    # now that they are not SUID
-    #return(trapmac($mac)) if ($Config{'network'}{'mode'} =~ /arp/i);
 }
 
 =item * nodes_maintenance - handling deregistration on node expiration and node grace 
@@ -755,7 +738,7 @@ sub nodes_maintenance {
     my $ungrace_query = db_query_execute(NODE, $node_statements, 'node_ungrace_sql') || return (0);
     while (my $row = $ungrace_query->fetchrow_hashref()) {
         my $currentMac = $row->{mac};
-        `/usr/local/pf/bin/pfcmd manage deregister $currentMac`;
+        pf_run("/usr/local/pf/bin/pfcmd manage deregister $currentMac");
         $logger->info("modified $currentMac from status 'grace' to 'unreg'" );
     };
 
@@ -765,7 +748,7 @@ sub nodes_maintenance {
         my $expire_unreg_query = db_query_execute(NODE, $node_statements, 'node_expire_unreg_field_sql') || return (0);
         while (my $row = $expire_unreg_query->fetchrow_hashref()) {
             my $currentMac = $row->{mac};
-            `/usr/local/pf/bin/pfcmd manage deregister $currentMac`;
+            pf_run("/usr/local/pf/bin/pfcmd manage deregister $currentMac");
             $logger->info("modified $currentMac from status 'reg' to 'unreg' based on unregdate colum" );
         }
 
@@ -775,7 +758,7 @@ sub nodes_maintenance {
             ) || return (0);
             while (my $row = $expire_window_query->fetchrow_hashref()) {
                 my $currentMac = $row->{mac};
-                `/usr/local/pf/bin/pfcmd manage deregister $currentMac`;
+                pf_run("/usr/local/pf/bin/pfcmd manage deregister $currentMac");
                 $logger->info("modified $currentMac from status 'reg' to 'unreg' based on expiration window" );
             }
 
@@ -785,7 +768,7 @@ sub nodes_maintenance {
             ) || return (0);
             while (my $row = $expire_deadline_query->fetchrow_hashref()) {
                 my $currentMac = $row->{mac};
-                `/usr/local/pf/bin/pfcmd manage deregister $currentMac`;
+                pf_run("/usr/local/pf/bin/pfcmd manage deregister $currentMac");
                 $logger->info("modified $currentMac from status 'reg' to 'unreg' based on expiration deadline" );
             }
 
@@ -822,6 +805,12 @@ sub nodes_registered {
     return db_data(NODE, $node_statements, 'nodes_registered_sql');
 }
 
+=item nodes_registered_not_violators
+
+Returns a list of MACs which are registered and don't have any open violation.
+Since trap violations stay open, this has the intended effect of getting all MACs which should be allowed through.
+
+=cut
 sub nodes_registered_not_violators {
     return db_data(NODE, $node_statements, 'nodes_registered_not_violators_sql');
 }

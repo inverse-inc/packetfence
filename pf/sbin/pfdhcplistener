@@ -32,6 +32,7 @@ use pf::action;
 use pf::class;
 use pf::config;
 use pf::db;
+use pf::inline::custom $INLINE_API_LEVEL;
 use pf::iplog;
 use pf::iptables;
 use pf::locationlog;
@@ -81,6 +82,10 @@ my $interface = $args{i};
 pod2usage( -verbose => 1 ) if ( $args{h} || !$args{i} );
 
 my %rogue_servers;
+my $is_inline_vlan;
+my $accessControl;
+my $interface_ip;
+my $interface_vlan;
 
 # standard signals and daemonize
 daemonize() if ($daemonize);
@@ -89,10 +94,20 @@ daemonize() if ($daemonize);
 if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
     my @devices = @listen_ints;
     push @devices, @dhcplistener_ints;
-    @devices = get_dhcp_devs() if ( $Config{'network'}{'mode'} =~ /^dhcp$/i );
     foreach my $dev (@devices) {
         if ( $dev eq $interface ) {
-            $logger->info("DHCP detector on $dev enabled");
+
+            # are we listening on an inline interface ?
+            if (grep( { $_->tag("int") eq $interface} @inline_enforcement_nets) != 0) {
+                $logger->debug("DHCP detector on an inline interface");
+                $is_inline_vlan = $TRUE;
+                $accessControl = new pf::inline::custom();
+            }
+
+            $interface_ip = $Config{"interface $interface"}{'ip'};
+            $interface_vlan = get_vlan_from_int($interface) || $NO_VLAN;
+
+            $logger->info("DHCP detector on $interface enabled");
             dhcp_detector($interface);
         }
     }
@@ -270,7 +285,7 @@ sub listen_dhcp {
                 "$src ($smac) was detected offering $yiaddr to $chaddr on $eth"
             );
             #TODO: merge this hackish violation into standard violation management in a new violation type
-            `$bin_dir/pfcmd 'violation add vid=1100010, mac=$smac'`;
+            pf_run("$bin_dir/pfcmd 'violation add vid=1100010, mac=$smac'");
             if (scalar( @{ $rogue_servers{$smac} } )
                 == $Config{'network'}{'rogueinterval'} )
             {
@@ -339,6 +354,10 @@ sub listen_dhcp {
                     . ( defined($lease_length) ? " with lease of $lease_length seconds" : "")
                 );
                 update_iplog( $chaddr, $client_ip, $lease_length );
+            }
+            if ($is_inline_vlan) {
+                locationlog_synchronize($interface_ip, $NO_PORT, $interface_vlan, $chaddr, NO_VOIP, INLINE);
+                $accessControl->performInlineEnforcement($chaddr);
             }
 
         } elsif ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 7 ) {
@@ -584,6 +603,8 @@ Copyright (C) 2005 Dave Laporte
 Copyright (C) 2005 Kevin Amorin
 
 Copyright (C) 2007-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

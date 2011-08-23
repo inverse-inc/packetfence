@@ -17,6 +17,13 @@ use strict;
 use warnings;
 use diagnostics;
 
+use Time::localtime;
+
+use pf::accounting qw(
+    node_accounting_view 
+    node_accounting_daily_bw node_accounting_weekly_bw node_accounting_monthly_bw node_accounting_yearly_bw
+    node_accounting_daily_time node_accounting_weekly_time node_accounting_monthly_time node_accounting_yearly_time
+);
 use pf::config;
 use pf::iplog;
 use pf::locationlog;
@@ -114,43 +121,41 @@ sub lookup_node {
         }
         $return .= "DHCP Info      : Last DHCP request at ".$node_info->{'last_dhcp'}."\n";
 
-        if (lc($Config{'network'}{'mode'}) eq 'vlan') {
-            my @last_locationlog_entry = locationlog_history_mac($mac);
-            if ($last_locationlog_entry[0] && defined($last_locationlog_entry[0]->{'mac'})) {
+        my @last_locationlog_entry = locationlog_history_mac($mac);
+        if ($last_locationlog_entry[0] && defined($last_locationlog_entry[0]->{'mac'})) {
 
-                # assignments using ternary operator: if exist assign otherwise unknown
-                my $port = defined($last_locationlog_entry[0]->{'port'}) ? 
-                    $last_locationlog_entry[0]->{'port'} : "UNKNOWN";
-                my $vlan = defined($last_locationlog_entry[0]->{'vlan'}) ? 
-                    $last_locationlog_entry[0]->{'vlan'} : "UNKNOWN";
-                my $switch = defined($last_locationlog_entry[0]->{'switch'}) ? 
-                    $last_locationlog_entry[0]->{'switch'} : "UNKNOWN";
-                $return .= "Location       : port $port (vlan $vlan) on switch $switch\n";
+            # assignments using ternary operator: if exist assign otherwise unknown
+            my $port = defined($last_locationlog_entry[0]->{'port'}) ? 
+                $last_locationlog_entry[0]->{'port'} : "UNKNOWN";
+            my $vlan = defined($last_locationlog_entry[0]->{'vlan'}) ? 
+                $last_locationlog_entry[0]->{'vlan'} : "UNKNOWN";
+            my $switch = defined($last_locationlog_entry[0]->{'switch'}) ? 
+                $last_locationlog_entry[0]->{'switch'} : "UNKNOWN";
+            $return .= "Location       : port $port (vlan $vlan) on switch $switch\n";
 
-                my $con_type = defined($last_locationlog_entry[0]->{'connection_type'}) ?
-                    $last_locationlog_entry[0]->{'connection_type'} : "UNKNOWN";
-                $return .= "Connection type: $con_type\n";
+            my $con_type = defined($last_locationlog_entry[0]->{'connection_type'}) ?
+                $last_locationlog_entry[0]->{'connection_type'} : "UNKNOWN";
+            $return .= "Connection type: $con_type\n";
 
-                if (defined($last_locationlog_entry[0]->{'dot1x_username'})) {
-                    $return .= "802.1X Username: ".$last_locationlog_entry[0]->{'dot1x_username'}."\n";
-                }
-
-                if (defined($last_locationlog_entry[0]->{'ssid'})) {
-                    $return .= "Wireless SSID  : ".$last_locationlog_entry[0]->{'ssid'}."\n";
-                }
-
-                # if end_time is null or is set to 0
-                if (!defined($last_locationlog_entry[0]->{'end_time'})) {
-                    $return .= "Last activity  : UNKNOWN\n";
-                } elsif (defined($last_locationlog_entry[0]->{'end_time'}) 
-                    && $last_locationlog_entry[0]->{'end_time'} !~ /0000/) {
-                    $return .= "Last activity  : currently active\n";
-                } else {
-                    $return .= "Last activity  : ".$last_locationlog_entry[0]->{'end_time'}."\n";
-                }
-            } else {
-                $return .= "No connectivity information available (We probably only saw a DHCP request)\n";
+            if (defined($last_locationlog_entry[0]->{'dot1x_username'})) {
+                $return .= "802.1X Username: ".$last_locationlog_entry[0]->{'dot1x_username'}."\n";
             }
+
+            if (defined($last_locationlog_entry[0]->{'ssid'})) {
+                $return .= "Wireless SSID  : ".$last_locationlog_entry[0]->{'ssid'}."\n";
+            }
+
+            # if end_time is null or is set to 0
+            if (!defined($last_locationlog_entry[0]->{'end_time'})) {
+                $return .= "Last activity  : UNKNOWN\n";
+            } elsif (defined($last_locationlog_entry[0]->{'end_time'}) 
+                && $last_locationlog_entry[0]->{'end_time'} !~ /0000/) {
+                $return .= "Last activity  : currently active\n";
+            } else {
+                $return .= "Last activity  : ".$last_locationlog_entry[0]->{'end_time'}."\n";
+            }
+        } else {
+            $return .= "No connectivity information available (We probably only saw a DHCP request)\n";
         }
 
     } else {
@@ -158,6 +163,51 @@ sub lookup_node {
         $return = "Node $mac is not a known node!\n";
 
     }
+    
+    my $node_accounting = node_accounting_view($mac);
+    if (defined($node_accounting->{'mac'})) {
+            $return .= "\nACCOUNTING INFORMATION AND STATISTICS\n";
+            $return .= "Last Session   :\n"; 
+            $return .= "    Session Start   : " . $node_accounting->{'acctstarttime'} . "\n" if ( $node_accounting->{'acctstarttime'} );
+            $return .= "    Session End     : " . $node_accounting->{'acctstoptime'} . "\n" if ( $node_accounting->{'acctstoptime'} && $node_accounting->{'status'} eq 'not connected' );
+            $return .= "    Session Time    : " . $node_accounting->{'acctsessiontime'} . " Minutes\n" if ( $node_accounting->{'acctsessiontime'} && $node_accounting->{'status'} eq 'not connected' );
+            $return .= "    Terminate Cause : " . $node_accounting->{'acctterminatecause'} . "\n" if ( $node_accounting->{'acctterminatecause'} && $node_accounting->{'status'} eq 'not connected' );
+            $return .= "    Bandwitdh Used  : " . pretty_bandwidth($node_accounting->{'accttotal'}) if ( $node_accounting->{'accttotal'} );
+            $return .= "\n";
+            $return .= "Bandwidth Statistics :\n";
+            my $daily_bw = node_accounting_daily_bw($mac);
+            $return .= "    Today           : ";
+            if ($daily_bw->{'accttotal'}) { $return .= pretty_bandwidth($daily_bw->{'accttotal'}) . " (IN: " . pretty_bandwidth($daily_bw->{'acctoutput'}) ." // OUT: " . pretty_bandwidth($daily_bw->{'acctinput'}) . " ) \n" } else { $return .= "0.0 MB \n" ; }
+
+            my $weekly_bw = node_accounting_weekly_bw($mac);
+            $return .= "    This Week       : ";
+            if ($weekly_bw->{'accttotal'}) { $return .= pretty_bandwidth($weekly_bw->{'accttotal'}) . " (IN: " . pretty_bandwidth($weekly_bw->{'acctoutput'})  . " // OUT: " . pretty_bandwidth($weekly_bw->{'acctinput'}) . " ) \n" } else { $return .= "0.0 MB \n"; }
+
+            my $monthly_bw = node_accounting_monthly_bw($mac);
+            $return .= "    This Month      : ";
+            if ($monthly_bw->{'accttotal'}) { $return .= pretty_bandwidth($monthly_bw->{'accttotal'}) . " (IN: " . pretty_bandwidth($monthly_bw->{'acctoutput'})  . " // OUT: " . pretty_bandwidth($monthly_bw->{'acctinput'}) . " ) \n" } else { $return .= "0.0 MB\n"; } 
+
+            my $yearly_bw = node_accounting_yearly_bw($mac);
+            $return .= "    This Year       : ";
+            if ($yearly_bw->{'accttotal'}) { $return .= pretty_bandwidth($yearly_bw->{'accttotal'}) . " (IN: " . pretty_bandwidth($yearly_bw->{'acctoutput'})  . " // OUT: " . pretty_bandwidth($yearly_bw->{'acctinput'}) . " ) \n"} else { $return .= "0.0 MB\n"; }
+            
+            $return .= "\n";
+
+            $return .= "Time Connected       :\n";
+            my $daily_time = node_accounting_daily_time($mac);
+            $return .= "    Today           : ";
+            if ( $daily_time->{'accttotaltime'} ) { $return .= $daily_time->{'accttotaltime'} . " Minutes \n" } else { $return .= "0.0 Minutes \n" ;}
+            my $weekly_time = node_accounting_weekly_time($mac);
+            $return .= "    This Week       : ";
+            if ( $weekly_time->{'accttotaltime'} ) { $return .= $weekly_time->{'accttotaltime'}  . " Minutes \n" } else { $return .= "0.0 Minutes \n" ;}
+            my $monthly_time = node_accounting_monthly_time($mac);
+            $return .= "    This Month      : ";
+            if ( $monthly_time->{'accttotaltime'} ) { $return .= $monthly_time->{'accttotaltime'}  . " Minutes \n" } else { $return .= "0.0 Minutes \n" ;}
+            my $yearly_time = node_accounting_yearly_time($mac);
+            $return .= "    This Year       : ";
+            if ( $yearly_time->{'accttotaltime'} ){ $return .= $yearly_time->{'accttotaltime'}  . " Minutes \n"} else { $return .= "0.0 Minutes \n" ;}
+        }
+
     return ($return);
 }
 
@@ -171,13 +221,17 @@ Dominik Gehl <dgehl@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
+Francois Gaudreault <fgaudreault@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009,2011 Inverse inc.
+Copyright (C) 2009-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

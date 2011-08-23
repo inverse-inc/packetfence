@@ -236,7 +236,14 @@ sub parseCommandLine {
                                      \s+ ( $RE{net}{MAC} )
                                    )
                                  $ /xms,
-        'nodecategory'    => qr{ ^ (?:
+         'nodeaccounting'   => qr/ ^ ( view )
+                                   \s+
+                                   (?:
+                                       ( all ) 
+                                       | ( $RE{net}{MAC} )
+                                   )
+                                 $ /xms,
+         'nodecategory'    => qr{ ^ (?:
                                      (view) \s+ (all|\d+)
                                    )
                                    |
@@ -283,7 +290,7 @@ sub parseCommandLine {
                                  $ }xms,
         'service'         => qr{ ^ ( dhcpd | httpd | named | pfdetect 
                                      | pf | pfdhcplistener | pfmon 
-                                     | pfredirect | pfsetvlan | snmptrapd 
+                                     | pfredirect | pfsetvlan | radiusd | snmptrapd 
                                      | snort )
                                    \s+
                                    ( restart | start | status | stop

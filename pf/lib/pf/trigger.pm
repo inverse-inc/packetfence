@@ -36,7 +36,6 @@ BEGIN {
         trigger_view_enable
         trigger_view_all
         trigger_delete_all
-        trigger_in_range
         trigger_add
         trigger_view_type
         trigger_view_tid
@@ -181,23 +180,6 @@ sub trigger_add {
         || return (0);
     $logger->debug("trigger $tid_start $tid_end added");
     return (1);
-}
-
-sub trigger_in_range {
-    my ( $range, $trigger ) = @_;
-    foreach my $element ( split( /\s*,\s*/, $range ) ) {
-        if ( $element eq $trigger ) {
-            return (1);
-        } elsif ( $element =~ /^\d+\s*\-\s*\d+$/ ) {
-            my ( $begin, $end ) = split( /\s*\-\s*/, $element );
-            if ( $trigger >= $begin && $trigger <= $end ) {
-                return (1);
-            }
-        } else {
-            return (0);
-        }
-    }
-    return;
 }
 
 sub parse_triggers {

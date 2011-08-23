@@ -95,6 +95,23 @@ sub generate_httpd_conf {
     $tags{'start_servers'} = calculate_start_servers($tags{'max_clients'});
     $tags{'min_spare_servers'} = calculate_min_spare_servers($tags{'max_clients'});
 
+    if (is_inline_enforcement_enabled()) {
+        # TODO we only support one inline interface auto-configured in apache
+        $tags{'inline_internal_ip'} = $inline_enforcement_nets[0]->tag("ip");
+
+        # Captive Portal redirection for inline mode
+        if ($Config{'inline'}{'portal_redirect'} eq 'dns') {
+            $tags{'inline_redirect_prefix'} = 'https://' . $tags{'hostname'} . '.' . $tags{'domain'};
+        } else {
+            # We drop https when doing IP-only redirection
+            $tags{'inline_redirect_prefix'} = 'http://' . $inline_enforcement_nets[0]->tag("ip");
+        }
+    } else {
+        # populate with default values so apache won't crash on startup
+        $tags{'inline_internal_ip'} = '127.0.0.1';
+        $tags{'inline_redirect_prefix'} = 'https://' . $tags{'hostname'} . '.' . $tags{'domain'};
+    }
+
     my @proxies;
     my %proxy_configs = %{ $Config{'proxies'} };
     foreach my $proxy ( keys %proxy_configs ) {
@@ -140,6 +157,14 @@ sub generate_httpd_conf {
 
     $logger->info("generating $generated_conf_dir/ssl-certificates.conf");
     parse_template( \%tags, "$conf_dir/ssl-certificates.conf", "$generated_conf_dir/ssl-certificates.conf", "#" );
+
+    # TODO we *could* do something smarter and process all of conf/httpd.conf.d/
+    my @config_files = ( 'block-unwanted.conf', 'captive-portal-common.conf', 'captive-portal-cleanurls.conf');
+    foreach my $config_file (@config_files) {
+        $logger->info("generating $generated_conf_dir/$config_file");
+        parse_template(\%tags, "$conf_dir/httpd.conf.d/$config_file", "$generated_conf_dir/$config_file");
+    }
+
     return 1;
 }
 

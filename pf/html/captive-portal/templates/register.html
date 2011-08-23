@@ -1,0 +1,24 @@
+[% INCLUDE header.html %]
+
+[% INCLUDE $reg_page_content_file %]
+
+        <div class="input">
+        <form method="post" action="[% form_action %]">
+          <input type="hidden" name="destination_url" value="[% destination_url %]" />
+          <input type="submit" name="submit" value="[% button_text %]" />
+        </form>
+        </div>
+
+        [%# This workflow, being ARP/DHCP mode only is not well tested %]
+        [% IF txt_skip_registration %]
+          <div class="input">
+          <form method="post" action="/captive-portal">
+            <input type="hidden" name="destination_url" value="[% destination_url %]" />
+            <input type="hidden" name="auth" value="skip" />
+            <input type="hidden" name="mode" value="register" />
+            <input type="submit" name="submit" value="[% txt_skip_registration %]" />
+          </form>
+          </div>
+        [% END %]
+
+[% INCLUDE footer.html %]

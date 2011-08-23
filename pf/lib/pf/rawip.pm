@@ -4,12 +4,13 @@ package pf::rawip;
 
 pf::rawip - module for ARP spoofing.
 
-=cut
+=head1 WARNING
+
+This code is deprecated and will be removed in an upcoming PacketFence release
 
 =head1 DESCRIPTION
 
-pf::rawip contains the functions used for ARP spoofing when PacketFence
-is configured in ARP mode.
+pf::rawip contains the functions used for ARP spoofing when PacketFence is configured in ARP mode.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 

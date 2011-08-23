@@ -54,7 +54,7 @@ $grammar = q {
              | 'manage' manage_options
              | 'schedule' schedule_options
 
-   manage_options : 'register' macaddr value edit_options(?)
+   manage_options : 'register' macaddr pid edit_options(?)
 
    person_options : 'add' value person_edit_options(?)  | 'edit' value person_edit_options | 'delete' value
 
@@ -86,6 +86,9 @@ $grammar = q {
    macaddr : /(([0-9a-f]{2}[-:]){5}[0-9a-f]{2})|(([0-9a-f]{4}\.){2}[0-9a-f]{4})/i
 
    date : /[^,=]+/
+
+   # backticks only tolerated because pfcmd manage register is always called within single quotes
+   pid: '"' /[&=?()\/,0-9a-zA-Z_\*\.\-\:\;\@\ \+\!\^\[\]\|\#]*/ '"' {$item[2]} | /[&=?()\/,0-9a-zA-Z_\*\.\-\:\;\@\ \+\!\^\[\]\|\#]*/
 
    edit_options : <leftop: assignment ',' assignment>
 
@@ -153,7 +156,7 @@ $grammar = q {
 
    interfaceconfig_view_field : 'interface' | 'ip' | 'mask' | 'type' | 'gateway'
 
-   networkconfig_view_field : 'type' | 'netmask' | 'named' | 'dhcpd' | 'gateway' | 'domain-name' | 'dns' | 'dhcp_start' | 'dhcp_end' | 'dhcp_default_lease_time' | 'dhcp_max_lease_time' | 'pf_gateway'
+   networkconfig_view_field : 'type' | 'netmask' | 'named' | 'dhcpd' | 'gateway' | 'domain-name' | 'dns' | 'dhcp_start' | 'dhcp_end' | 'dhcp_default_lease_time' | 'dhcp_max_lease_time' | 'pf_gateway' | 'next_hop'
 
    switchconfig_view_field : 'type' | 'mode' | 'uplink' | 'SNMPVersionTrap' | 'SNMPCommunityRead' | 'SNMPCommunityWrite' | 'SNMPVersion' | 'SNMPCommunityTrap' | 'cliTransport' | 'cliUser' | 'cliPwd' | 'cliEnablePwd' | 'wsTransport' | 'wsUser' | 'wsPwd' | 'vlans' | 'normalVlan' | 'registrationVlan' | 'isolationVlan' | 'macDetectionVlan' | 'guestVlan' | 'customVlan1' | 'customVlan2' | 'customVlan3' | 'customVlan4' | 'customVlan5' | 'macSearchesMaxNb' | 'macSearchesSleepInterval' | 'VoIPEnabled' | 'voiceVlan' | 'SNMPEngineID' | 'SNMPUserNameRead' | 'SNMPAuthProtocolRead' | 'SNMPAuthPasswordRead' | 'SNMPPrivProtocolRead' | 'SNMPPrivPasswordRead' | 'SNMPUserNameWrite' | 'SNMPAuthProtocolWrite' | 'SNMPAuthPasswordWrite' | 'SNMPPrivProtocolWrite' | 'SNMPPrivPasswordWrite' | 'SNMPUserNameTrap' | 'SNMPAuthProtocolTrap' | 'SNMPAuthPasswordTrap' | 'SNMPPrivProtocolTrap' | 'SNMPPrivPasswordTrap' | 'radiusSecret' | 'controllerIp'
 

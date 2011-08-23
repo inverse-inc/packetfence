@@ -39,7 +39,6 @@ BEGIN {
 
 use pf::config;
 use pf::db;
-use pf::trigger qw(trigger_in_range);
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $os_db_prepared = 0;
@@ -47,6 +46,13 @@ our $os_db_prepared = 0;
 # the hash if required
 our $os_statements = {};
 
+=head1 SUBROUTINES
+
+This list is incomplete.
+
+=over
+
+=cut
 sub os_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::os');
     $logger->debug("Preparing pf::os database queries");
@@ -114,6 +120,7 @@ sub read_dhcp_fingerprints_conf {
     if ( scalar(@errors) ) {
         $logger->logcroak( join( "\n", @errors ) );
     }
+
     my %seen_class;
     foreach my $os ( tied(%dhcp_fingerprints)->GroupMembers("os") ) {
         my $os_id = $os;
@@ -137,21 +144,45 @@ sub read_dhcp_fingerprints_conf {
             }
         }
 
-        foreach my $class ( tied(%dhcp_fingerprints)->GroupMembers("class") )
-        {
+        foreach my $class ( tied(%dhcp_fingerprints)->GroupMembers("class") ) {
+
             my $os_class = $class;
             $os_class =~ s/^class\s+//;
             db_query_execute(OS, $os_statements, 'os_class_add_sql', 
                 $os_class, $dhcp_fingerprints{$class}{"description"}) if ( !$seen_class{$os_class} );
             $seen_class{$os_class} = 1;
 
-            if (trigger_in_range($dhcp_fingerprints{$class}{"members"}, $os_id)) {
+            if (_class_member_in_range($dhcp_fingerprints{$class}{"members"}, $os_id)) {
                 db_query_execute(OS, $os_statements, 'os_mapping_add_sql', $os_id, $os_class);
             }
         }
     }
     return ($fp_total);
 }
+
+=item _class_member_in_range
+
+Handles the F<dhcp_fingerprint.conf> members=... field. If a given OS is in a member range returns true otherwise false.
+
+=cut
+sub _class_member_in_range {
+    my ( $range, $member ) = @_;
+    foreach my $element ( split( /\s*,\s*/, $range ) ) {
+        if ( $element eq $member ) {
+            return $TRUE;
+        } elsif ( $element =~ /^\d+\s*\-\s*\d+$/ ) {
+            my ( $begin, $end ) = split( /\s*\-\s*/, $element );
+            if ( $member >= $begin && $member <= $end ) {
+                return $TRUE;
+            }
+        } else {
+            return $FALSE;
+        }
+    }
+    return;
+}
+
+=back
 
 =head1 AUTHOR
 
@@ -167,7 +198,9 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2010,2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

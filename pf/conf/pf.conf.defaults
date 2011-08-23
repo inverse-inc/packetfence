@@ -13,7 +13,7 @@ hostname=abc
 # general.logo
 #
 # Logo displayed on web pages.
-logo=/common/packetfence.png
+logo=/common/packetfence-cp.png
 #
 # general.dnsservers
 #
@@ -27,8 +27,8 @@ dhcpservers=127.0.0.1
 #
 # general.caching
 #
-# Enable caching of isinternal values as well as other fun stuff.  Leave this enabled or suffer the performance consequences.
-caching=enabled
+# Enable caching of isinternal values. Not recommended on large networks. Disabled by default. 
+caching=disabled
 #
 # general.locale
 #
@@ -95,15 +95,6 @@ stuffing=disabled
 
 [network]
 #
-# network.mode
-#
-# Defines the mode in which PacketFence will operate.
-# 
-# When deployed in arp mode, PacketFence uses ARP manipulation inject itself into the datastream of unregistered or 
-# trapped nodes.  The major failing of arp mode is that 
-# it's not 100% in catching all traffic - spurious packets can and will occasionaly get through.
-mode=arp
-#
 # network.rogueinterval
 #
 # When rogue DHCP server detection is enabled, this parameter defines how often to email administrators.  With its default 
@@ -151,14 +142,6 @@ range=192.168.0.0/24
 # If enabled, nodes will be required to register on first network access.  Further registration options are configured in the 
 # registration section.
 registration=disabled
-#
-# trapping.immediate
-#
-# Enable this if you want to see lots of "IP conflict boxes on Windows systems!  On detection of a violation, a spoofed GARP 
-# (gratitous ARP) is sent to the offending system.  This causes it to think another system is using its IP address and, under 
-# Windows 2000, causes it to disable its IP stack.  When the user manages to get the system back on the wire (ipconfig 
-# /release, reboot, etc) he/she will be assigned an address from the isolation scope.
-immediate=disabled
 #
 # trapping.redirtimer
 #
@@ -242,11 +225,19 @@ skip_reminder=1d
 #
 # registration.auth
 #
-# Method by which registering nodes will be authenticated.  Templates for LDAP and local are 
+# Method by which registering nodes will be authenticated.  Templates for LDAP, RADIUS, Kerberos, local and guests are 
 # available at <conf_dir>/authentication.  If you wish to use a different authentication mechanism, simply create 
 # a file called <conf_dir>/authentication/<authname>.pm, fill it with the necessary data, and set 
 # auth=<authname>.  The default value, local, relies on a local access file in <conf_dir>/user.conf.
 auth=local
+
+#
+# registration.default_auth
+#
+# Authentication method selected as the default in the captive portal drop-down. Only useful if you have more than
+# one authentication method (registration.auth).
+default_auth=
+
 #
 # registration.expire_mode
 #
@@ -290,7 +281,7 @@ button_text=Register
 # registration.nbregpages
 #
 # The number of registration pages to show to the user
-nbregpages=1
+nbregpages=0
 
 #
 # This section allows you to create passthroughs to HTML content or remote addresses/networks.
@@ -344,17 +335,9 @@ admin_netbiosname=EXAMPLE
 
 [ports]
 #
-# ports.redirect
-#
-# Ports to intercept and redirect for trapped and unregistered systems.  Defaults to 80/tcp (HTTP), 110/tcp (POP3), and 
-# 143/tcp (IMAP).  IMAP and POP3 listeners must be enabled via the listeners parameter if the redirection is to be of any use.  
-# Redirecting 443/tcp (SSL) will work, although users will get ugly and confusing pop-ups as the commonname will no longer 
-# match.  Redirecting 53/udp (DNS) seems to have issues and is also not recommended.
-redirect=80/tcp,110/tcp,143/tcp
-#
 # ports.listeners
 #
-# Enables "bogus" IMAP and POP servers.  These servers serve only to deliver a message (POP3) or send an alert (IMAP) to 
+# Enables "bogus" IMAP and POP servers.  These servers serve only to deliver a message (POP3) or send an alert (IMAP) to
 # inform the user that he/she must register before connectivity is allowed.  Content of the message is found at 
 # <conf_dir>/listener.msg
 listeners=
@@ -512,36 +495,13 @@ named=/usr/sbin/named
 # services.snmptrapd
 # Location of the snmptrapd binary.  Only necessary to change if you are not using the RPMed version.
 snmptrapd=/usr/sbin/snmptrapd
-
-[dhcp]
-#
-# dhcp.isolation_lease
-#
-# Length of lease for isolated clients
-isolation_lease=2m
-#
-# dhcp.unregistered_lease
-#
-# Length of lease for unregistered clients
-unregistered_lease=2m
-#
-# dhcp.registered_lease 
-#
-# Length of lease for registered clients
-registered_lease=2h
+# 
+# services.radiusd
+# 
+# Location of the named binary.  Only necessary to change if you are not running the RPMed version.
+radiusd=/usr/sbin/radiusd
 
 [vlan]
-#
-# vlan.adjustswitchportvlanreasons
-#
-# After which calls to pfcmd do we have to re-calculate and re-assign
-# the switchport VLAN a node is connected to
-adjustswitchportvlanreasons=node_modify,manage_register,manage_deregister,manage_vclose,manage_vopen,violation_modify,violation_add,violation_delete
-#
-# vlan.adjustswitchportvlanscript
-#
-# Which script do we have to execute to adjust the switchport VLAN
-adjustswitchportvlanscript=flip.pl
 #
 # vlan.closelocationlogonstop
 #
@@ -562,6 +522,14 @@ dhcpd=disabled
 #
 named=disabled
 #
+#
+# vlan.radiusd
+#
+# Should radiusd be started ?
+#
+radiusd=disabled
+#
+#
 # vlan.nbtraphandlerthreads
 #
 # Number of trap handler threads pfsetvlan should start
@@ -577,6 +545,27 @@ nbtrapparserthreads = 5
 # Delay to wait between the shut / no-shut on a port. Some OS need a higher value than others.
 # Default should be reasonable for almost every OS but is too long for the usual proprietary OS.
 bounce_duration = 4s
+
+
+[inline]
+#
+# inline.ports_redirect
+#
+# Ports to intercept and redirect for trapped and unregistered systems.  Defaults to 80/tcp (HTTP), 443/tcp (HTTPS).
+# Redirecting 443/tcp (SSL) will work, although users might get certificate errors if you didn't install a valid 
+# certificate or if you don't use DNS (although IP-based certificates supposedly exist)
+# Redirecting 53/udp (DNS) seems to have issues and is also not recommended.
+# We also have experimental IMAP and POP3 listeners which give fake emails telling users to open their browsers.
+# Enable them via the ports.listeners parameter and add the IMAP (143/tcp) and POP3 (110/tcp) here.
+ports_redirect=80/tcp,443/tcp
+#
+# inline.portal_redirect
+#
+# How should we refer to the captive portal in inline mode? Using DNS means that 
+# you need to configure your DNS to point to the PacketFence IP on the inline 
+# interface but allows you to easily use an SSL certificate for https.
+portal_redirect=ip
+
 
 [servicewatch]
 #
@@ -602,3 +591,14 @@ restart=disabled
 #
 network_detection_ip = 67.205.85.245
 
+[advanced]
+#
+# advanced.reevaluate_access_reasons
+#
+# After which calls to pfcmd do we have to re-evaluate the state of a node and re-assign VLAN or change iptables rules
+reevaluate_access_reasons=node_modify,manage_register,manage_deregister,manage_vclose,manage_vopen,violation_modify,violation_add,violation_delete
+#
+# advanced.adjustswitchportvlanscript
+#
+# Which script do we have to execute to adjust the switchport VLAN
+adjustswitchportvlanscript=flip.pl

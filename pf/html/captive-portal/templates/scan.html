@@ -1,0 +1,17 @@
+[% INCLUDE header.html %]
+<script type="text/javascript">
+var waitTime=[% timer %];
+var action = function() {
+  hidebar();
+  top.location.href="[% destination_url %]";
+}; 
+</script>
+
+        <div id="about">
+          <img src="/content/images/quarantine.png" alt="Scan" />
+          <p>[% txt_message %]</p>
+          <script type="text/javascript" src="/content/timerbar.js"></script>
+          <noscript><p>[% txt_noscript %]</p></noscript>
+        </div>
+
+[% INCLUDE footer.html %]

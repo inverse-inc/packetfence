@@ -18,7 +18,9 @@ Read the F<pf.conf> configuration file.
 
 use strict;
 use warnings;
+
 use Log::Log4perl;
+use Parse::Nessus::NBE;
 
 BEGIN {
     use Exporter ();
@@ -28,10 +30,9 @@ BEGIN {
 }
 
 use pf::config;
+use pf::iplog qw(ip2mac);
 use pf::util;
 use pf::violation qw(violation_exist_open violation_trigger violation_modify);
-use pf::iplog qw(ip2mac);
-use Parse::Nessus::NBE;
 
 use constant {
     SCAN_VID => 1200001,
@@ -86,7 +87,7 @@ sub runScan {
 
     # the scan
     $logger->info("executing $nessusRcHome /opt/nessus/bin/nessus -q -V -x --dot-nessus $nessusclient_file --policy-name $nessusclient_policy $host $port $user <password> --target-file $infileName $outfileName");
-    my $output = `$nessusRcHome /opt/nessus/bin/nessus -q -V -x --dot-nessus $nessusclient_file --policy-name $nessusclient_policy $host $port $user $pass --target-file $infileName $outfileName 2>&1`;
+    my $output = pf_run("$nessusRcHome /opt/nessus/bin/nessus -q -V -x --dot-nessus $nessusclient_file --policy-name $nessusclient_policy $host $port $user $pass --target-file $infileName $outfileName 2>&1");
     unlink($infileName);
 
     # did it went well?
@@ -137,7 +138,7 @@ sub runScan {
 
             my $cmd = $bin_dir."/pfcmd manage vclose $mac ".SCAN_VID;
             $logger->info("calling $bin_dir/pfcmd manage vclose $mac ".SCAN_VID);
-            my $grace = `$cmd`;
+            my $grace = pf_run("$cmd");
             if ($grace == -1) {
                 $logger->warn("problem trying to close scan violation");
                 return 0;
@@ -160,7 +161,9 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009 Inverse inc.
+Copyright (C) 2009-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
