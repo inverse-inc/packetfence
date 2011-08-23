@@ -258,7 +258,7 @@
 
 
 function get_pie_chart_data($cmd){
-        $cached_data = preg_replace("/\s+/", '_', $_SERVER['DOCUMENT_ROOT'] . "/tmp/jpgraph_cache/$cmd");
+        $cached_data = preg_replace("/\s+/", '_', get_var_path() . "/jpgraph_cache/$cmd");
 
         if(file_exists($cached_data)){
                 $cache_time = set_default($_SESSION['ui_prefs']['cache_time'], 0) * 60;
@@ -293,7 +293,7 @@ function get_pie_chart_data($cmd){
 
 function get_chart_data($cmd){
 
-        $cached_data = preg_replace("/\s+/", '_', $_SERVER['DOCUMENT_ROOT'] . "/tmp/jpgraph_cache/$cmd");
+        $cached_data = preg_replace("/\s+/", '_', get_var_path() . "/jpgraph_cache/$cmd");
 
         if(file_exists($cached_data)){
                 $cache_time = set_default($_SESSION['ui_prefs']['cache_time'], 0) * 60;

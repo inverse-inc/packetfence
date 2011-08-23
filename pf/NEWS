@@ -25,7 +25,7 @@ Compatibility notice
    enforcement and is specified per interface in pf.conf.
  * Removed support for ARP mode
  * Removed support for Apache prior to version 2.2.0 (#828)
- * Removed support for jpgraph 1.x which bumps our depedencies to PHP 5
+ * Removed support for jpgraph 1.x, 2.x which bumps our depedencies to PHP 5.1
 
 New Hardware Support
  * LG-Ericsson iPecs 4500 support for port-security
@@ -62,9 +62,11 @@ Enhancements
  * Included the jpgraph PHP library. Simplifies installation from source.
  * More start-up validation in `pfcmd checkup`
  * Improved error-handling
+ * Improved Filesystem Hierarchy Standard (FHS) compliance (#762)
  * More tests
 
 Bug fixes
+ * jpgraph version bump to 3.0.7. Fixes RHEL 6 issues. (#1244)
  * Fixes issues with accentuated characters and single quotes in some captive
    portal strings
  * Cisco C3560 now heritates the Cisco C2960 code

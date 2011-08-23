@@ -983,7 +983,7 @@ function PrintSubNav($menu){
   }
 
   function jpgraph_dir(){
-    return get_lib_path() . 'jpgraph-2.3.4/src';
+    return get_lib_path() . 'jpgraph';
   }
 
   function jpgraph_check(){

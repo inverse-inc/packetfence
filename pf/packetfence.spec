@@ -581,11 +581,7 @@ fi
 %dir                    /usr/local/pf/lib
 %dir                    /usr/local/pf/lib/HTTP
                         /usr/local/pf/lib/HTTP/BrowserDetect.pm
-%doc                    /usr/local/pf/lib/jpgraph-2.3.4/QPL.txt
-%doc                    /usr/local/pf/lib/jpgraph-2.3.4/README
-%attr(0755, pf, pf)     /usr/local/pf/lib/jpgraph-2.3.4/
-%doc                    /usr/local/pf/lib/jpgraph-2.3.4/docs/*
-%doc                    /usr/local/pf/lib/jpgraph-2.3.4/src/Examples/
+%attr(0755, pf, pf)     /usr/local/pf/lib/jpgraph/
 %dir                    /usr/local/pf/lib/pf
                         /usr/local/pf/lib/pf/*.pm
 %dir                    /usr/local/pf/lib/pf/floatingdevice
