@@ -21,7 +21,7 @@ use strict;
 use warnings;
 
 use IPTables::ChainMgr;
-#use IPTables::Interface;
+use IPTables::Interface;
 use Log::Log4perl;
 use Readonly;
 
@@ -286,40 +286,38 @@ sub generate_nat_redirect_rules {
 sub iptables_mark_node {
     my ( $mac, $mark ) = @_;
     my $logger   = Log::Log4perl::get_logger('pf::iptables');
-    my $iptables = new IPTables::ChainMgr('ipt_exec_style' => 'system')
-        || logger->logcroak("unable to create IPTables::ChainMgr object");
-    my $iptables_cmd = $iptables->{'_iptables'};
+    my $iptables = IPTables::Interface::new('mangle')
+        || logger->logcroak("unable to create IPTables::Interface object");
 
     $logger->debug("marking node $mac with mark 0x$mark");
-    my ($rv, $out_ar, $errs_ar) = $iptables->run_ipt_cmd(
-        "$iptables_cmd -t mangle -A $FW_PREROUTING_INT_INLINE " . 
-        "--match mac --mac-source $mac --jump MARK --set-mark 0x$mark"
+    my $success = $iptables->iptables_do_command(
+        "-A $FW_PREROUTING_INT_INLINE",  "--match mac --mac-source $mac", "--jump MARK --set-mark 0x$mark"
     );
 
-    if (!$rv) {
+    if (!$success) {
         $logger->error("Unable to mark mac $mac: $!");
         return;
     }
+    $iptables->commit();
     return (1);
 }
 
 sub iptables_unmark_node {
     my ( $mac, $mark ) = @_;
     my $logger   = Log::Log4perl::get_logger('pf::iptables');
-    my $iptables = new IPTables::ChainMgr('ipt_exec_style' => 'system')
-        || logger->logcroak("unable to create IPTables::ChainMgr object");
-    my $iptables_cmd = $iptables->{'_iptables'};
+    my $iptables = IPTables::Interface::new('mangle')
+        || logger->logcroak("unable to create IPTables::Interface object");
 
     $logger->debug("removing mark 0x$mark on node $mac");
-    my ($rv, $out_ar, $errs_ar) = $iptables->run_ipt_cmd(
-        "$iptables_cmd -t mangle -D $FW_PREROUTING_INT_INLINE " . 
-        "--match mac --mac-source $mac --jump MARK --set-mark 0x$mark"
+    my $success = $iptables->iptables_do_command(
+        "-D $FW_PREROUTING_INT_INLINE", "--match mac --mac-source $mac", "--jump MARK --set-mark 0x$mark"
     );
 
-    if (!$rv) {
+    if (!$success) {
         $logger->error("Unable to unmark mac $mac: $!");
         return;
     }
+    $iptables->commit();
     return (1);
 }
 
@@ -331,6 +329,7 @@ Useful to re-evaluate what to do with a given node who's state changed.
 Returns IPTABLES MARK constant ($IPTABLES_MARK_...) or undef on failure.
 
 =cut
+# TODO migrate to IPTables::Interface (to get rid of IPTables::ChainMgr) once it supports fetching iptables info
 sub get_mangle_mark_for_mac {
     my ( $mac ) = @_;
     my $logger   = Log::Log4perl::get_logger('pf::iptables');

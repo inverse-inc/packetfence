@@ -83,6 +83,9 @@ Requires: perl-File-Tail
 Requires: perl-IPC-Cmd
 Requires: perl-IPTables-ChainMgr
 Requires: perl-IPTables-Parse
+# Required for inline mode. Specific version matches system's iptables version.
+# CentOS 5 (iptables 1.3.5)
+Requires: perl(IPTables::libiptc) = 0.14
 Requires: perl-LDAP
 Requires: perl-libwww-perl
 Requires: perl-List-MoreUtils
