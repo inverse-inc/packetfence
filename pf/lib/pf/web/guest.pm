@@ -267,10 +267,10 @@ sub validate_selfregistration {
 
             # make sure that they are not local users
             # You should not register as a guest if you are part of the local network
-            my $localdomain = $Config{'general'}{'domain'};
-            if ($cgi->param('email') =~ /[@.]$localdomain$/i) {
-                return (0, 2);
-            }
+#            my $localdomain = $Config{'general'}{'domain'};
+#            if ($cgi->param('email') =~ /[@.]$localdomain$/i) {
+#                return (0, 2);
+#            }
 
             # auth accepted, save login information in session (we will use them to put the guest in the db)
             $session->param("firstname", $cgi->param("firstname"));
