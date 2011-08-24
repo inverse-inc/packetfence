@@ -109,10 +109,6 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
       my $count = violation_count($mac);
       
       if ($count == 0) {
-        if ($Config{'network'}{'mode'} =~ /arp/i) {
-          my $freemac_cmd = $bin_dir."/pfcmd manage freemac $mac";
-          my $out = qx/$freemac_cmd/;
-        }
         pf::web::generate_release_page($cgi, $session, $destination_url);
         $logger->info("registration url = $destination_url");
       }

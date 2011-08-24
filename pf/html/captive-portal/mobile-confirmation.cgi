@@ -130,12 +130,10 @@ if ($cgi->param("pin")) { # && $session->param("authType")) {
     my $count = violation_count($mac);
 
     if ($count == 0) {
-      if ($Config{'network'}{'mode'} =~ /arp/i) {
-        my $cmd = $bin_dir."/pfcmd manage freemac $mac";
-        my $output = qx/$cmd/;
-      }
+
       pf::web::generate_release_page($cgi, $session, $destination_url, $mac);
       $logger->info("registration url = $destination_url");
+
     } else {
       print $cgi->redirect("/captive-portal?destination_url=$destination_url");
       $logger->info("more violations yet to come for $mac");

@@ -234,9 +234,8 @@ sub service_list {
             $snortflag = 1
                 if ( isenabled( $Config{'trapping'}{'detection'} ) );
         } elsif ( $service eq "radiusd" ) {
-            push @finalServiceList, $service
-                if ( isenabled( $Config{'vlan'}{'radiusd'} )
-                     && $Config{'network'}{'mode'} =~ /^vlan$/i );
+            push @finalServiceList, $service 
+                if ( is_vlan_enforcement_enabled() && isenabled($Config{'vlan'}{'radiusd'}) );
         } elsif ( $service eq "pfdetect" ) {
             push @finalServiceList, $service
                 if ( isenabled( $Config{'trapping'}{'detection'} ) );

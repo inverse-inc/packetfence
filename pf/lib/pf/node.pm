@@ -772,7 +772,7 @@ sub nodes_maintenance {
                 $logger->info("modified $currentMac from status 'reg' to 'unreg' based on expiration deadline" );
             }
 
-        } elsif ( ( lc($expire_mode) eq 'session' ) &&  !( $Config{'network'}{'mode'} =~ /vlan/i ) ) {
+        } elsif ( lc($expire_mode) eq 'session' ) {
             my $expire_session_query = db_query_execute(
                 NODE, $node_statements, 'node_expire_session_sql', $Config{'registration'}{'expire_session'}
             ) || return (0);
