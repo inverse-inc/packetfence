@@ -1,32 +1,32 @@
-[% INCLUDE header.html
-    body_attributes = 'onload="$(\'login\').focus();"';
-%]
+[% title = i18n("Guest Access Code") %]
+[% INCLUDE header.html %]
 
         [%# Welcome text %]
         <div id="about" class="underlined">
           <img src="/content/images/unlock.png" alt="Access information" />
-          <h1>[% txt_page_header %]</h1>
+          <h1>[% title %]</h1>
+          <hr/>
         </div>
 
           [%# User / Pass %]
           <div class="input">
-            <span>[% txt_username %]</span>
+            <span>[% i18n("Username") %]</span>
             [% info.username %]
           </div>
           <div class="input">
-            <span>[% txt_password %]</span>
+            <span>[% i18n("Password") %]</span>
             [% info.password %]
           </div>
           <div class="input">
-    <div class="note">
+            <div class="note">
               [% txt_valid_from %] [% txt_duration %]
             </div>
   </div>
 
           [%# submit %]
           <div class="input">
-            <input type="button" name="print" value="[% txt_button_print %]" class="submitButton" onClick="window.print()"/>
-            <input type="button" name="return" value="[% txt_button_back %]" class="submitButton" onClick="document.location='/guests/manage'"/>
+            <input type="button" class="button" name="print" value="[% i18n("Print") %]" class="submitButton" onClick="window.print()"/>
+            <input type="button" class="button" name="return" value="[% i18n("Back") %]" class="submitButton" onClick="document.location='/guests/manage'"/>
           </div>
 
 [% INCLUDE guest/footer.html %]

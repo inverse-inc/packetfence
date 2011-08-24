@@ -42,7 +42,7 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     # No export to force users to use full package name and allowing pf::web::custom to redefine us
-    @EXPORT = qw();
+    @EXPORT = qw(i18n ni18n);
 }
 
 use pf::config;
@@ -59,6 +59,20 @@ Warning: The list of subroutine is incomplete
 =over
 
 =cut
+
+sub i18n {
+    my $msgid = shift;
+
+    return decode_utf8(gettext($msgid));
+}
+
+sub ni18n {
+    my $singular = shift;
+    my $plural = shift;
+    my $category = shift;
+
+    return decode_utf8(ngettext($singular, $plural, $category));
+}
 
 sub web_get_locale {
     my ($cgi,$session) = @_;
@@ -94,28 +108,10 @@ sub generate_release_page {
         timer           => $Config{'trapping'}{'redirtimer'},
         destination_url => $destination_url,
         redirect_url => $Config{'trapping'}{'redirecturl'},
-        txt_page_title  => gettext("release: enabling network"),
-        txt_message     => gettext("network access is being enabled"),
-        txt_opera => encode_entities(decode_utf8(gettext(
-            "There are known issues with the automatic redirection on Opera browsers. " 
-            . "Please open a new browser window from time to time to see if your access was enabled."
-        ))),
-        txt_ie => encode_entities(decode_utf8(gettext(
-            "Some versions of Internet Explorer may take a while before redirection occur."
-        ))),
-        txt_noscript => gettext(
-            "If you have scripting turned off, you will not be automatically redirected. "
-            . "Please enable scripting or open a new browser window from time to time " 
-            . "to see if your access was enabled."
-        ),
-        txt_timerexpired => encode_entities(decode_utf8(gettext(
-            "Unable to detect network connectivity. "
-            . "Try opening a web page to see if your access has been succesfully enabled."
-        ))),
+        i18n => \&i18n,
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
         retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
-        txt_help => gettext("help: provide info"),
         list_help_info  => [
             { name => gettext('IP'),  value => $ip },
             { name => gettext('MAC'), value => $mac }
@@ -154,22 +150,15 @@ sub generate_scan_start_page {
         logo            => $Config{'general'}{'logo'},
         timer           => $Config{'scan'}{'duration'},
         destination_url => $destination_url,
-        txt_page_title  => gettext("scan: scan in progress"),
+        i18n => \&i18n,
         txt_message     => sprintf(
             gettext("system scan in progress"),
             $Config{'scan'}{'duration'}
         ),
-        txt_enabling => gettext("Scanning ..."),
-        txt_help => gettext("help: provide info"),
         list_help_info  => [
             { name => gettext('IP'),  value => $ip },
             { name => gettext('MAC'), value => $mac }
         ],
-        txt_noscript => gettext(
-            "If you have scripting turned off, you will not be automatically redirected. "
-            . "Please enable scripting or open a new browser window from time to time " 
-            . "to see if your access was enabled."
-        ),
     };
     # Once the progress bar is over, try redirecting
     my $html_txt;
@@ -192,19 +181,9 @@ sub generate_login_page {
     textdomain("packetfence");
     my $ip = get_client_ip($cgi);
     my $vars = {
-        txt_page_title  => gettext('Login'),
+        i18n            => \&i18n,
         logo            => $Config{'general'}{'logo'},
         destination_url => $destination_url,
-        txt_all_systems_must_be_registered => gettext("register: all systems must be registered"),
-        txt_to_complete => gettext("register: to complete"),
-        txt_username    => gettext('Username'),
-        txt_login       => gettext('Login'),
-        txt_password    => gettext('Password'),
-        txt_select_authentication => gettext("select authentication"),
-        txt_aup => gettext("Acceptable Use Policy"),
-        txt_accept_terms => gettext("I accept the terms"),
-        txt_accept_terms_mobile => gettext("I have read and accept the terms"),
-        txt_help        => gettext("help: provide info"),
         list_help_info  => [
             { name => gettext('IP'),  value => $ip },
             { name => gettext('MAC'), value => $mac }
@@ -247,7 +226,7 @@ sub generate_enabler_page {
         destination_url => $destination_url,
         violation_id    => $violation_id,
         enable_text     => $enable_text,
-        txt_print       => gettext('Print this page'),
+        i18n            => \&i18n
     };
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
@@ -267,7 +246,7 @@ sub generate_redirect_page {
         logo            => $Config{'general'}{'logo'},
         violation_url   => $violation_url,
         destination_url => $destination_url,
-        txt_page_title => gettext('Quarantine Established!'),
+        i18n            => \&i18n,
     };
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
@@ -290,9 +269,8 @@ sub generate_aup_standalone_page {
     textdomain("packetfence");
     my $ip = get_client_ip($cgi);
     my $vars = {
-        logo          => $Config{'general'}{'logo'},
-        txt_page_title => gettext('Acceptable Use Policy'),
-        txt_help        => gettext("help: provide info"),
+        logo            => $Config{'general'}{'logo'},
+        i18n            => \&i18n,
         list_help_info  => [
             { name => gettext('IP'),  value => $ip },
             { name => gettext('MAC'), value => $mac }
@@ -320,13 +298,11 @@ sub generate_scan_status_page {
     my $mac = ip2mac($ip);
     my $vars = {
         logo             => $Config{'general'}{'logo'},
-        txt_page_title   => gettext('scan: scan in progress'),
-        txt_page_header  => gettext('scan: scan in progress'),
+        i18n             => \&i18n,
         txt_message      => sprintf(gettext('scan in progress contact support if too long'), $scan_start_time),
         txt_auto_refresh => sprintf(gettext('automatically refresh'), $refresh_timer),
         destination_url  => $destination_url,
         refresh_timer    => $refresh_timer,
-        txt_help        => gettext("help: provide info"),
         list_help_info  => [
             { name => gettext('IP'),  value => $ip },
             { name => gettext('MAC'), value => $mac }
@@ -347,9 +323,7 @@ sub generate_error_page {
     textdomain("packetfence");
     my $vars = {
         logo            => $Config{'general'}{'logo'},
-        txt_page_title  => gettext('Sorry'),
-        txt_page_header => gettext('Sorry'),
-        txt_help        => gettext('help: provide info'),
+        i18n            => \&i18n,
     };
     # TODO: this is ugly, we shouldn't do something based on error message provided
     if ( $error_msg eq 'error: only register max nodes' ) {
@@ -395,14 +369,7 @@ sub generate_status_page {
     my $ip   = get_client_ip($cgi);
     my $vars = {
         logo            => $Config{'general'}{'logo'},
-        txt_page_title  => gettext('Status'),
-        txt_page_header => gettext('Status'),
-        txt_addresses   => gettext('Addresses'),
-        txt_violations  => gettext('Violations'),
-        txt_print       => gettext('Print this page'),
-        txt_deregister  => gettext('De-register node'),
-        txt_node        => gettext('Node'),
-        txt_help        => gettext("help: provide info"),
+        i18n            => \&i18n,
         list_help_info  => [
             { name => gettext('IP'),  value => $ip },
             { name => gettext('MAC'), value => $mac }
@@ -591,9 +558,7 @@ sub generate_registration_page {
         logo            => $Config{'general'}{'logo'},
         deadline        => $Config{'registration'}{'skip_deadline'},
         destination_url => $destination_url,
-        txt_page_title  => gettext("PacketFence Registration System"),
-        txt_page_header => gettext("PacketFence Registration System"),
-        txt_help        => gettext("help: provide info"),
+        i18n            => \&i18n,
         list_help_info  => [
             { name => gettext('IP'),  value => $ip },
             { name => gettext('MAC'), value => $mac }
@@ -640,31 +605,13 @@ sub generate_pending_page {
     my $ip = $cgi->remote_addr;
     my $vars = {
         logo            => $Config{'general'}{'logo'},
-        txt_page_title  => "Registration pending",
-        txt_page_header => "Registration pending",
-        txt_help        => gettext('help: provide info'),
+        i18n => \&i18n,
         list_help_info  => [
             { name => gettext('IP'),  value => $ip },
             { name => gettext('MAC'), value => $mac }
         ],
         destination_url => $destination_url,
         redirect_url => $Config{'trapping'}{'redirecturl'},
-        txt_opera => encode_entities(decode_utf8(gettext(
-            "There are known issues with the automatic redirection on Opera browsers. " 
-            . "Please open a new browser window from time to time to see if your access was enabled."
-        ))),
-        txt_ie => encode_entities(decode_utf8(gettext(
-            "Some versions of Internet Explorer may take a while before redirection occur."
-        ))),
-        txt_noscript => gettext(
-            "If you have scripting turned off, you will not be automatically redirected. "
-            . "Please enable scripting or open a new browser window from time to time " 
-            . "to see if your access was enabled."
-        ),
-        txt_pending => gettext(
-            "Your registration is pending approval. "
-            . "Once approved you will be automatically redirected."
-        ),
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_INITIAL_DELAY'},
         retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_RETRY_DELAY'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},

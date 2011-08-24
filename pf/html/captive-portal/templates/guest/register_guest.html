@@ -1,12 +1,13 @@
+[% title = i18n("guest management") %]
 [% INCLUDE header.html
     body_attributes = 'onload="$(\'firstfield\').focus();"';
 %]
 
         [%# Welcome text %]
         <div id="about" class="underlined">
-          <img src="content/images/registration.png" alt="Registration" />
-          <h1>[% txt_page_header %]</h1>
-          <p>[% txt_instructions %]</p>
+          <img src="/content/images/registration.png" alt="Registration" />
+          <h1>[% i18n("guest registration form") %]</h1>
+          <p>[% i18n("guest registration instructions") %]</p>
           <hr/>
         </div>
 
@@ -16,28 +17,28 @@
         <form method="post" action="[% post_uri %]">
 
           <div class="input">
-            <span>[% txt_firstname | replace(' ', '&nbsp;') %]</span>
+            <span>[% i18n("Firstname") %]</span>
             <input class="field" name="firstname" id="firstfield" type="text" value="[% firstname %]" />
           </div>
           <div class="input">
-            <span>[% txt_lastname | replace(' ', '&nbsp;') %]</span>
+            <span>[% i18n("Lastname") %]</span>
             <input class="field" name="lastname" type="text" value="[% lastname %]" />
           </div>
           <div class="input">
-            <span>[% txt_phone | replace(' ', '&nbsp;') %]</span>
+            <span>[% i18n("Phone number") %]</span>
             <input class="field" name="phone" type="text" value="[% phone %]" />
           </div>
           <div class="input">
-            <span>[% txt_email %]*</span>
+            <span>[% i18n("Email") %]*</span>
             <input class="field" name="email" type="text" value="[% email %]" />
           </div>
           <div class="input">
-            <span>[% txt_arrival | replace(' ', '&nbsp;') %]*</span>
+            <span>[% i18n("Arrival Date") %]*</span>
             <input class="field" name="arrival_date" type="text" value="[% arrival_date %]" /><br/>
-            <em>[% txt_arrival_format %]</em>
+            <em>[% i18n("Format is: yyyy-mm-dd") %]</em>
           </div>
           <div class="input">
-            <span>[% txt_access_duration | replace(' ', '&nbsp;') %]*</span>
+            <span>[% i18n("Access Duration") %]*</span>
             <select name="access_duration">
               [% FOREACH d IN duration.keys.nsort %]
                 <option [% IF default_duration == d %]selected='selected' [% END %]value='[% d %]'>
@@ -49,8 +50,8 @@
 
           [%# submit %]
           <div class="input">
-            <input type="submit" class="button" name="action_print" value="[% txt_button_print %]" /><br/>
-            <input type="submit" class="button" name="action_sendEmail" value="[% txt_button_email %]" />
+            <input type="submit" class="button" name="action_print" value="[% i18n("Print access code") %]" /><br/>
+            <input type="submit" class="button" name="action_sendEmail" value="[% i18n("Send access code by email") %]" />
           </div>
 
 [% INCLUDE guest/footer.html %]

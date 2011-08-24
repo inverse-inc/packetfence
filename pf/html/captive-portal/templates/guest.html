@@ -1,12 +1,13 @@
+[% title = i18n("PacketFence Registration System") %]
 [% INCLUDE header.html
     body_attributes = 'onload="$(\'firstfield\').focus();"';
 %]
 
         <div id="about" class="underlined">
           <img src="/content/images/registration.png" alt="Registration" />
-          <h1>Guest Registration</h1>
-          <p>This guest network is provided exclusively for the convenience of guests and visitors. Access implies no guarantee of reliability, speed or privacy; this network is provided for the express purpose of facilitating simple Internet web communication. Use implies agreement with all terms and conditions of appropriate behavior of our <b>Acceptable Use Policy.</b></p>
-          <p>In the fields below please enter your name, phone number and a valid email address.</p>
+          <h1>[% i18n("Guest Registration") %]</h1>
+          <p>[% i18n("guest network disclaimer") %]</p>
+          <p>[% i18n("In the fields below please enter your name, phone number and a valid email address.") %]</p>
           <hr/>
         </div>
 
@@ -17,55 +18,54 @@
           <input type="hidden" name="destination_url" value="[% destination_url %]" />
 
           <div class="input">
-            <span>[% txt_firstname %]</span>
+            <span>[% i18n("Firstname") %]</span>
             <input class="field" name="firstname" id="firstfield" type="text" value="[% firstname %]" />
           </div>
           <div class="input">
-            <span>[% txt_lastname %]</span>
+            <span>[% i18n("Lastname") %]</span>
             <input class="field" name="lastname" type="text" value="[% lastname %]" />
           </div>
           <div class="input">
-            <span>[% txt_phone %]</span>
+            <span>[% i18n("Phone number") %]</span>
             <input class="field" name="phone" type="text" value="[% phone %]" />
           </div>
           <div class="input">
-            <span>[% txt_mobileprovider %]</span>
+            <span>[% i18n("Phone Provider") %]</span>
             <select name="mobileprovider">
-              <option value='' selected>Select your provider</option>
+              <option value='' selected>[% i18n("Select your provider") %]</option>
                   [% FOREACH carrier IN sms_carriers %]<option value='[% carrier.id %]'>[% carrier.name %]</option>
                   [% END %]
               </select>
           </div>
           <div class="input">
-            <span>[% txt_email %]</span>
+            <span>[% i18n("Email") %]</span>
             <input class="field" name="email" type="text" value="[% email %]" /><br/>
           </div>
 
           [%# AUP %]
           <div class="input">
-            <div>[% txt_aup %]</div>
+            <div>[% i18n("Acceptable Use Policy") %]</div>
             <div id="aup" class="notmobile">
               [% INCLUDE aup_text.html %]
             </div>
-            [%# The space below is intententionnal %]
-            <div class="notmobile"><input name="aup_signed" type="checkbox" value="on" /> [% txt_accept_terms %]</div>
-            <div class="mobile"><input name="aup_signed" type="checkbox" value="on" /> [% txt_accept_terms_mobile %]</div>
+            <div class="notmobile"><input name="aup_signed" type="checkbox" value="on" /> [% i18n("I accept the terms") %]</div>
+            <div class="mobile"><input name="aup_signed" type="checkbox" value="on" /> [% i18n("I have read and accept the terms") %]</div>
           </div>
 
           [%# submit %]
           <div class="input">
             <div class="note bg">
-              <p>If you choose to receive your access code <strong>by email</strong>, you will be given temporary network access for 10 minutes during that time:</p>
+              <p>[% i18n("If you choose to receive your access code <strong>by email</strong>, you will be given temporary network access for 10 minutes during that time:") %]</p>
               <ul>
-                <li>Login to the email account you referenced and;</li>
-                <li>Click on the link emailed to you to validate network access for the next 24 hours.</li>
+                <li>[% i18n("Login to the email account you referenced and;") %]</li>
+                <li>[% i18n("Click on the link emailed to you to validate network access for the next 24 hours.") %]</li>
             </ul>
             </div>
-            <input type="submit" class="button" name="by_email" value="Register by Email" /><br/>
+            <input type="submit" class="button" name="by_email" value="[% i18n("Register by Email") %]" /><br/>
             <div class="note bg">
-              <p>If you choose to receive your access code <strong>by SMS</strong>, you will be able to enter it on the next page.</p>
+              <p>[% i18n("If you choose to receive your access code <strong>by SMS</strong>, you will be able to enter it on the next page.") %]</p>
             </div>
-              <input type="submit" class="button" name="by_sms" value="Register by SMS" />
+              <input type="submit" class="button" name="by_sms" value="[% i18n("Register by SMS") %]" />
           </div>
 
         </form>

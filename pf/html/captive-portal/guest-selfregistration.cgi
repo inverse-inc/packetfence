@@ -46,7 +46,7 @@ my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 
 my $result;
 my $ip              = $cgi->remote_addr();
-my $destination_url = $cgi->param("destination_url");
+my $destination_url = $cgi->param("destination_url") || 'http://www.google.com';
 my $enable_menu     = $cgi->param("enable_menu");
 my $mac             = ip2mac($ip);
 my %params;
@@ -101,33 +101,36 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
       $info{'subject'} = $Config{'general'}{'domain'}.': Email activation required';
       
       # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
-      pf::email_activation::create_and_email_activation_code(
-          $mac, $info{'pid'}, $info{'pid'}, $pf::email_activation::GUEST_TEMPLATE, %info
-      );
+      ($auth_return, $err) = pf::email_activation::create_and_email_activation_code($mac, $info{'pid'}, $info{'pid'}, $pf::email_activation::GUEST_TEMPLATE, %info);
 
-      # Violation handling and redirection (accorindingly)
-      my $count = violation_count($mac);
-      
-      if ($count == 0) {
-        pf::web::generate_release_page($cgi, $session, $destination_url);
-        $logger->info("registration url = $destination_url");
-      }
-      else {
-        print $cgi->redirect("/captive-portal?destination_url=$destination_url");
-        $logger->info("more violations yet to come for $mac");
+      if ($auth_return) {
+        # Violation handling and redirection (accorindingly)
+        my $count = violation_count($mac);
+        
+        if ($count == 0) {
+          pf::web::generate_release_page($cgi, $session, $destination_url);
+          $logger->info("registration url = $destination_url");
+        }
+        else {
+          print $cgi->redirect("/captive-portal?destination_url=$destination_url");
+          $logger->info("more violations yet to come for $mac");
+        }
       }
     }
     elsif ($auth_return && defined($params{'by_sms'})) {
       # User chose to register by SMS
       $logger->info("Registering guest by SMS " . $session->param("phone") . " @ " . $cgi->param("mobileprovider"));
       if ($session->param("phone") && $cgi->param("mobileprovider")) {
-        sms_activation_create_send($mac, $session->param("phone"), $cgi->param("mobileprovider") );
-        $logger->info("redirecting to mobile confirmation page");
-        generate_sms_confirmation_page($cgi, $session, "/activate/sms", $destination_url, $err);
-        return (0);
+        ($auth_return, $err) = sms_activation_create_send($mac, $session->param("phone"), $cgi->param("mobileprovider") );
+        if ($auth_return) {
+          $logger->info("redirecting to mobile confirmation page");
+          pf::web::guest::generate_sms_confirmation_page($cgi, $session, "/activate/sms", $destination_url, $err);
+          return (0);
+        }
       }
-      
-      ($auth_return, $err) = (0, 1);
+      else {
+        ($auth_return, $err) = (0, 1);
+      }
     }
 
     # Registration form was invalid, return to guest self-registration page and show error message

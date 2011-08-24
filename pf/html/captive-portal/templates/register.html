@@ -1,3 +1,4 @@
+[% title = i18n("PacketFence Registration System") %]
 [% INCLUDE header.html %]
 
 [% INCLUDE $reg_page_content_file %]
@@ -5,7 +6,7 @@
         <div class="input">
         <form method="post" action="[% form_action %]">
           <input type="hidden" name="destination_url" value="[% destination_url %]" />
-          <input type="submit" name="submit" value="[% button_text %]" />
+          <input type="submit" class="button" name="submit" value="[% button_text %]" />
         </form>
         </div>
 
@@ -16,7 +17,7 @@
             <input type="hidden" name="destination_url" value="[% destination_url %]" />
             <input type="hidden" name="auth" value="skip" />
             <input type="hidden" name="mode" value="register" />
-            <input type="submit" name="submit" value="[% txt_skip_registration %]" />
+            <input type="submit" class="button" name="submit" value="[% txt_skip_registration %]" />
           </form>
           </div>
         [% END %]

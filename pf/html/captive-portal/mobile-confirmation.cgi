@@ -27,6 +27,7 @@ use pf::node;
 use pf::util;
 use pf::violation;
 use pf::web;
+use pf::web::guest;
 # called last to allow redefinitions
 use pf::web::custom;
 
@@ -55,11 +56,10 @@ $logger->info("$ip - $mac ");
 my %info;
 
 # Pull username
-$info{'pid'}=1;
-$info{'pid'}=$cgi->remote_user if (defined $cgi->remote_user);
+$info{'pid'} = $cgi->remote_user || 1;
 
 # Pull browser user-agent string
-$info{'user_agent'}=$cgi->user_agent;
+$info{'user_agent'} = $cgi->user_agent;
 
 # pull parameters from query string
 foreach my $param($cgi->url_param()) {
@@ -81,7 +81,7 @@ if ($cgi->param("pin")) { # && $session->param("authType")) {
         return (0);
     }
 
-    $logger->info("entering guest authentication by SMS");
+    $logger->info("Entering guest authentication by SMS");
     my ($auth_return,$err) = pf::web::guest::web_sms_validation($cgi, $session);
     if ($auth_return != 1) {
         # Invalid PIN -- redirect to confirmation template 
@@ -138,6 +138,9 @@ if ($cgi->param("pin")) { # && $session->param("authType")) {
       print $cgi->redirect("/captive-portal?destination_url=$destination_url");
       $logger->info("more violations yet to come for $mac");
     }
+} elsif (defined($cgi->param("action")) && $cgi->param("action") eq 'Confirm') {
+  # No PIN specified
+  pf::web::guest::generate_sms_confirmation_page($cgi, $session, $ENV{REQUEST_URI}, $destination_url);
 } else {
   pf::web::generate_registration_page($cgi, $session, $destination_url, $mac,1);
 }

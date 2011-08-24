@@ -32,7 +32,6 @@ use pf::trigger;
 use Apache2::RequestRec ();
 use Apache2::RequestIO ();
 use Apache2::Const -compile => qw(OK REDIRECT);
-use Apache2::Reload;
 
 sub handler
 {

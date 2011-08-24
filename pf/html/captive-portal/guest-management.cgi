@@ -61,7 +61,7 @@ foreach my $param($cgi->param()) {
 # is user already logged in?
 if (defined($session->param("login"))) {
 
-    if ($cgi->param("action") eq "logout") {
+    if (defined($cgi->param("action")) && $cgi->param("action") eq "logout") {
         $session->delete();
         pf::web::guest::generate_activation_login_page($cgi, $session, 0, "guest/mgmt_login.html");
         exit(0);

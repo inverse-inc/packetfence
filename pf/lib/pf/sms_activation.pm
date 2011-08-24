@@ -308,7 +308,18 @@ sub send_sms {
         Data        =>  "PIN: $pin"
     );
 
-    $msg->send('smtp', $smtpserver, Timeout => 60);
+    my $result = 0;
+    eval {
+      $msg->send('smtp', $smtpserver, Timeout => 20);
+      $result = $msg->last_send_successful();
+    };
+    if ($@) {
+      my $msg = "Can't send email to $email: $@";
+      $msg =~ s/\n//g;
+      $logger->error($msg);
+    }
+    
+    return $result;
 }
 
 =item sms_activation_create_send - Create and send PIN code
@@ -318,10 +329,15 @@ sub sms_activation_create_send {
     my ($mac, $phone_number, $provider_id, %info) = @_;
     my $logger = Log::Log4perl::get_logger('pf::sms_activation');
 
+    my ($success, $err) = (1, 0);
     my $activation_code = create($mac, $phone_number, $provider_id);
     if (defined($activation_code)) {
-        send_sms($activation_code, %info);
+      unless (send_sms($activation_code, %info)) {
+        ($success, $err) = (0, 4);
+      }
     }
+
+    return ($success, $err);
 }
 
 # returns the validated mac address or undef

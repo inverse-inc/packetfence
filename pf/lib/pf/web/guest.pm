@@ -45,9 +45,10 @@ BEGIN {
 }
 
 use pf::config;
+use pf::iplog qw(ip2mac);
 use pf::temporary_password 1.10;
 use pf::util;
-use pf::web;
+use pf::web qw(i18n ni18n);
 use pf::web::auth;
 use pf::web::util;
 use pf::sms_activation;
@@ -91,26 +92,12 @@ sub generate_selfregistration_page {
     my $ip   = $cgi->remote_addr;
     my $vars = {
         logo            => $Config{'general'}{'logo'},
+        i18n            => \&i18n,
         deadline        => $Config{'registration'}{'skip_deadline'},
         destination_url => $destination_url,
-        txt_page_title  => gettext("PacketFence Registration System"),
-        txt_page_header => gettext("PacketFence Registration System"),
-        txt_help        => gettext("help: provide info"),
-        txt_firstname => gettext("Firstname"),
-        txt_lastname => gettext("Lastname"),
-        txt_phone => gettext("Phone number"),
-        txt_mobileprovider => gettext("Phone Provider"),
-        txt_email => gettext("Email"),
-        txt_aup         => gettext("Acceptable Use Policy"),
-        txt_accept_terms => gettext("I accept the terms"),
-        txt_accept_terms_mobile => gettext("I have read and accept the terms"),
-        txt_all_systems_must_be_registered =>
-            gettext("register: all systems must be registered"),
-        txt_to_complete => gettext("register: to complete"),
-        txt_msg_aup     => gettext("register: aup"),
         list_help_info  => [
-            { name => gettext('IP'),  value => $ip },
-            { name => gettext('MAC'), value => $mac }
+            { name => i18n('IP'),  value => $ip },
+            { name => i18n('MAC'), value => $mac }
         ],
         post_uri => $post_uri,
     };
@@ -125,14 +112,16 @@ sub generate_selfregistration_page {
     $logger->info('generate_selfregistration_page');
 
     # showing errors
-    # showing errors
     if ( defined($err) ) {
         if ( $err == 1 ) {
-            $vars->{'txt_error'} = gettext("Missing mandatory parameter or malformed entry.");
+            $vars->{'txt_error'} = i18n("Missing mandatory parameter or malformed entry.");
         } elsif ( $err == 2 ) {
             my $localdomain = $Config{'general'}{'domain'};
-            $vars->{'txt_error'} = "You can't register as a guest with a $localdomain email address. "
-                . "Please register as a regular user using your email address instead.";
+            $vars->{'txt_error'} = sprintf(i18n("You can't register as a guest with a %s email address. Please register as a regular user using your email address instead."), $localdomain);
+        } elsif ( $err == 3 ) {
+            $vars->{'txt_error'} = i18n("An error occured while sending the confirmation email.");
+        } elsif ( $err == 4 ) {
+            $vars->{'txt_error'} = i18n("An error occured while sending the PIN by SMS.");
         }
     }
 
@@ -173,27 +162,7 @@ sub generate_registration_page {
     my $vars = {
         logo            => $Config{'general'}{'logo'},
         deadline        => $Config{'registration'}{'skip_deadline'},
-        txt_page_title  => gettext("guest management"),
-        txt_page_header => gettext("guest registration form"),
-        txt_help        => gettext("help: provide info"),
-        txt_aup         => gettext("Acceptable Use Policy"),
-        txt_accept_terms => gettext("I accept the terms"),
-        txt_accept_terms_mobile => gettext("I have read and accept the terms"),
-        txt_all_systems_must_be_registered =>
-            gettext("register: all systems must be registered"),
-        txt_to_complete => gettext("register: to complete"),
-        txt_msg_aup     => gettext("register: aup"),
-        txt_instructions => gettext("guest registration instructions"),
-        txt_firstname => gettext("Firstname"),
-        txt_lastname => gettext("Lastname"),
-        txt_phone => gettext("Phone number"),
-        txt_email => gettext("Email"),
-        txt_arrival => gettext("Arrival Date"),
-        txt_arrival_format => gettext("Format is: yyyy-mm-dd"),
-        txt_end => gettext("End Date"),
-        txt_access_duration => gettext("Access Duration"),
-        txt_button_email => gettext("Send access code by email"),
-        txt_button_print => gettext("Print access code"),
+        i18n            => \&i18n,
         post_uri => $post_uri,
     };
 
@@ -217,13 +186,13 @@ sub generate_registration_page {
     # showing errors
     if ( defined($err) ) {
         if ( $err == 1 ) {
-            $vars->{'txt_error'} = gettext("Missing mandatory parameter or malformed entry.");
+            $vars->{'txt_error'} = i18n("Missing mandatory parameter or malformed entry.");
         } elsif ( $err == 2 ) {
-            $vars->{'txt_error'} = gettext("Access duration is not of an allowed value.");
+            $vars->{'txt_error'} = i18n("Access duration is not of an allowed value.");
         } elsif ( $err == 3 ) {
-            $vars->{'txt_error'} = gettext("Arrival date is not of expected format.");
+            $vars->{'txt_error'} = i18n("Arrival date is not of expected format.");
         } elsif ( $err == 4 ) {
-            $vars->{'txt_error'} = gettext(
+            $vars->{'txt_error'} = i18n(
                 "Guest successfully registered. An email with the username and password has been sent."
             );
         }
@@ -373,16 +342,8 @@ sub generate_activation_confirmation_page {
     my $ip   = $cgi->remote_addr;
     my $vars = {
         logo            => $Config{'general'}{'logo'},
-        deadline        => $Config{'registration'}{'skip_deadline'},
-        txt_page_title  => "Access to the guest network granted",
-        txt_page_header => gettext("PacketFence Registration System"),
-        txt_help        => gettext("help: provide info"),
-        txt_aup         => gettext("Acceptable Use Policy"),
-        txt_all_systems_must_be_registered =>
-            gettext("register: all systems must be registered"),
-        txt_to_complete => gettext("register: to complete"),
-        txt_msg_aup     => gettext("register: aup"),
-        expiration      => $expiration,
+        i18n            => \&i18n,
+        txt_message     => sprintf(i18n('Access to the guest network has been granted until %s.'), $expiration)
     };
 
     my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
@@ -407,12 +368,7 @@ sub generate_activation_login_page {
     my $ip   = $cgi->remote_addr;
     my $vars = {
         logo => $Config{'general'}{'logo'},
-        txt_help => gettext("help: provide info"),
-        txt_page_title => gettext("guest management"), 
-        txt_login => gettext('Login'),
-        txt_page_header => gettext("guest management"), 
-        txt_username => gettext('Username'),
-        txt_password => gettext('Password'),
+        i18n => \&i18n
     };
 
     $vars->{'login'} = encode_entities($cgi->param("login"));
@@ -420,9 +376,9 @@ sub generate_activation_login_page {
     # showing errors
     if ( defined($err) ) {
         if ( $err == 1 ) {
-            $vars->{'txt_auth_error'} = gettext('error: invalid login or password');
+            $vars->{'txt_auth_error'} = i18n('error: invalid login or password');
         } elsif ( $err == 2 ) {
-            $vars->{'txt_auth_error'} = gettext('error: unable to validate credentials at the moment');
+            $vars->{'txt_auth_error'} = i18n('error: unable to validate credentials at the moment');
         }
     }
 
@@ -450,24 +406,12 @@ sub generate_login_page {
         logo            => $Config{'general'}{'logo'},
         deadline        => $Config{'registration'}{'skip_deadline'},
         destination_url => $destination_url,
-        txt_page_title  => gettext("PacketFence Registration System"),
-        txt_page_header => gettext("PacketFence Registration System"),
-        txt_help        => gettext("help: provide info"),
-        txt_aup         => gettext("Acceptable Use Policy"),
-        txt_username    => gettext('Username'),
-        txt_login       => gettext('Login'),
-        txt_password    => gettext('Password'),
-        txt_page_title  => gettext('Login'),
-        txt_all_systems_must_be_registered =>
-            gettext("register: all systems must be registered"),
-        txt_to_complete => gettext("register: to complete"),
-        txt_msg_aup     => gettext("register: aup"),
+        i18n            => \&i18n,
         list_help_info  => [
-            { name => gettext('IP'),  value => $ip },
-            { name => gettext('MAC'), value => $mac }
+            { name => i18n('IP'),  value => $ip },
+            { name => i18n('MAC'), value => $mac }
         ],
-        txt_select_authentication => gettext("select authentication"),
-        post_uri => $post_uri,
+        post_uri => $post_uri
     };
 
     $vars->{'login'} = encode_entities($cgi->param("login"));
@@ -477,9 +421,9 @@ sub generate_login_page {
     # showing errors
     if ( defined($err) ) {
         if ( $err == 1 ) {
-            $vars->{'txt_auth_error'} = gettext('error: invalid login or password');
+            $vars->{'txt_auth_error'} = i18n('error: invalid login or password');
         } elsif ( $err == 2 ) {
-            $vars->{'txt_auth_error'} = gettext('error: unable to validate credentials at the moment');
+            $vars->{'txt_auth_error'} = i18n('error: unable to validate credentials at the moment');
         }
     }
 
@@ -556,7 +500,7 @@ sub preregister {
         . "lastname=\"" . $session->param("lastname") . "\","
         . "email=\"" . $session->param("email") . "\","
         . "telephone=\"" . $session->param("phone") . "\","
-        . "notes=\"".sprintf(gettext("Expected on %s"), $session->param("arrival_date"))."\"'"
+        . "notes=\"".sprintf(i18n("Expected on %s"), $session->param("arrival_date"))."\"'"
     ;
     $logger->info("Adding guest person with command: $person_add_cmd");
     pf_run("$person_add_cmd");
@@ -601,26 +545,21 @@ sub generate_registration_confirmation_page {
 
     my $vars = {
         logo            => $Config{'general'}{'logo'},
-        txt_page_title  => gettext("Guest Access Code"),
-        txt_page_header => gettext("Guest Access Code"),
-        txt_username => gettext("Username"),
-        txt_password => gettext("Password"),
-        txt_button_print => gettext("Print"),
-        txt_button_back => gettext("Back"),
+        i18n            => \&i18n
     };
 
     # add the whole info hashref to the information available in the template
     $vars->{'info'} = $info;
 
     $vars->{'txt_valid_from'} = sprintf(
-        gettext("This username and password will be valid starting %s."),
+        i18n("This username and password will be valid starting %s."),
         $info->{'valid_from'}
     );
 
     my ($singular, $plural, $value) = get_translatable_time($info->{'duration'});
     $vars->{'txt_duration'} = sprintf(
-        gettext("Once authenticated the access will be valid for %d %s."),
-        $value, ngettext($singular, $plural, $value)
+        i18n("Once authenticated the access will be valid for %d %s."),
+        $value, ni18n($singular, $plural, $value)
     );
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
@@ -643,13 +582,13 @@ sub send_registration_confirmation_email {
 
     # translate 3d into 3 days with proper plural form handling
     my ($singular, $plural, $value) = get_translatable_time($info->{'duration'});
-    $info->{'duration'} = "$value " . ngettext($singular, $plural, $value);
+    $info->{'duration'} = "$value " . ni18n($singular, $plural, $value);
 
     my $msg = MIME::Lite::TT->new(
         From        =>  $from,
         To          =>  $info->{'email'},
         Cc          =>  $pf::web::guest::EMAIL_CC,
-        Subject     =>  encode("MIME-Q", gettext("Guest Network Access Information")),
+        Subject     =>  encode("MIME-Q", i18n("Guest Network Access Information")),
         Template    =>  "emails-guest_registration.txt.tt",
         TmplOptions =>  { INCLUDE_PATH => "$conf_dir/templates/" },
         TmplParams  =>  $info,
@@ -726,15 +665,13 @@ sub generate_sms_confirmation_page {
     my $mac  = ip2mac($ip);
     my $vars = {
         logo            => $Config{'general'}{'logo'},
+        i18n            => \&i18n,
         destination_url => $destination_url,
         post_uri        => $post_uri,
-        txt_page_title  => 'Confirm Mobile Phone Number',
-        txt_page_header => 'Confirm Mobile Phone Number',
-        txt_help        => gettext("help: provide info"),
         list_help_info  => [
-            { name => gettext('IP'),  value => $ip },
-            { name => gettext('MAC'), value => $mac }
-        ],
+            { name => i18n('IP'),  value => $ip },
+            { name => i18n('MAC'), value => $mac }
+        ]
     };
 
     if ( defined($err) ) {

@@ -334,17 +334,33 @@ sub send_email {
         TmplParams  =>  \%info, 
     ); 
 
-    $msg->send('smtp', $smtpserver, Timeout => 20);
+    my $result = 0;
+    eval {
+      $msg->send('smtp', $smtpserver, Timeout => 20);
+      $result = $msg->last_send_successful();
+    };
+    if ($@) {
+      my $msg = "Can't send email to ".$info{'email'}.": $@";
+      $msg =~ s/\n//g;
+      $logger->error($msg);
+    }
+    
+    return $result;
 }
 
 sub create_and_email_activation_code {
     my ($mac, $pid, $email_addr, $template, %info) = @_;
     my $logger = Log::Log4perl::get_logger('pf::email_activation');
 
+    my ($success, $err) = (1, 0);
     my $activation_code = create($mac, $pid, $email_addr);
     if (defined($activation_code)) {
-        send_email($activation_code, $template, %info);
+      unless (send_email($activation_code, $template, %info)) {
+        ($success, $err) = (0, 3);
+      }
     }
+
+    return ($success, $err);
 }
 
 # returns the validated activation record hashref or undef

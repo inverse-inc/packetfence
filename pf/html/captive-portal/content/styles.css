@@ -69,6 +69,18 @@ div#about p,
 div#about ul {
   padding-left: 128px;
 }
+p#languages {
+  font-size: small;
+  text-align: right;
+}
+p#languages a {
+  color: #999;
+  text-decoration: none;
+}
+p#languages a:hover {
+  color: #555;
+  text-decoration: underline;
+}
 div.input,
 h1,
 h2,

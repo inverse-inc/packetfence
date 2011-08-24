@@ -1,9 +1,10 @@
+[% title = i18n("PacketFence Registration System") %]
 [% INCLUDE header.html %]
 
         <div id="about">
           <img src="/content/images/unlock.png" alt="Access granted" />
-          <h1>[% txt_page_title %]</h1>
-          <p>Access to the guest network has been granted until [% expiration %].</p>
+          <h1>[% i18n("Access to the guest network granted") %]</h1>
+          <p>[% txt_message %]</p>
         </div>
 
 [% INCLUDE footer.html %]

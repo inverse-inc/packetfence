@@ -1,9 +1,10 @@
+[% title = i18n("Status") %]
 [% INCLUDE header.html %]
 
         <div class="note">
-          <h1>[% txt_page_header %]</h1>
+          <h1>[% title %]</h1>
 
-          <h2>[% txt_addresses %]</h2>
+          <h2>[% i18n("Addresses") %]</h2>
           <table>
           [% FOREACH address IN list_addresses %]
             <tr>
@@ -12,7 +13,7 @@
           [% END %]
           </table>
 
-          <h2>[% txt_node %]</h2>
+          <h2>[% i18n("Node") %]</h2>
           <table>
           [% FOREACH node_info IN list_node_info %]
             <tr>
@@ -22,7 +23,7 @@
           </table>
   
           [% IF list_violations %]
-            <h2>[% txt_violations %]</h2>
+            <h2>[% i18n("Violations") %]</h2>
             <table>
             [% FOREACH violation_info IN list_violations %]
               <tr>
@@ -35,11 +36,11 @@
           <form method="post" action="/authenticate">
             <div class="input">
               <script language="javascript"><!--
-                document.write("<input type='button' name='Print' value='[% txt_print %]' onClick='window.print()'>");
+                document.write("<input type='button' name='Print' value='[% i18n("Print this page") %]' onClick='window.print()'>");
               //-->
               </script>
               <input type="hidden" name="mode" value="deregister">
-              <input type="submit" name="submit" value="[% txt_deregister %]">
+              <input type="submit" name="submit" value="[% i18n("De-register node") %]">
             </div>
           </form>
         </div>

@@ -1,3 +1,4 @@
+[% title = i18n("Login") %]
 [% INCLUDE header.html 
     body_attributes = 'onload="$(\'username\').focus();"';
 %]
@@ -5,8 +6,8 @@
         [%# Welcome text %]
         <div id="about">
           <img src="/content/images/lock.png" alt="You are not authorized" />
-          <p>[% txt_all_systems_must_be_registered %]</p>
-          <p>[% txt_to_complete %]</p>
+          <p>[% i18n("register: all systems must be registered") %]</p>
+          <p>[% i18n("register: to complete") %]</p>
           <hr/>
         </div>
 
@@ -23,7 +24,7 @@
             [% END %]
           [% ELSE %]
             <div class="input">
-                <span>[% txt_select_authentication %]</span>
+                <span>[% i18n("Authentication") %]</span>
         <select name='auth'>
                 [% FOREACH authentication_info IN list_authentications.pairs %]
                   <option [% IF authentication_info.key == selected_auth %]selected='selected' [% END %]
@@ -35,27 +36,27 @@
 
           [%# User / Pass %]
           <div class="input">
-            <span>[% txt_username %]</span>
+            <span>[% i18n("Username") %]</span>
 	    <input class="field" name="username" id="username" type="text" value="[% username %]" />
           </div>
           <div class="input">
-            <span>[% txt_password %]</span><input class="field" name="password" type="password" />
+            <span>[% i18n("Password") %]</span><input class="field" name="password" type="password" />
           </div>
 
           [%# AUP %]
           <div class="input">
-            <div>[% txt_aup %]</div>
+            <div>[% i18n("Acceptable Use Policy") %]</div>
             <div id="aup" class="notmobile">
               [% INCLUDE aup_text.html %]
             </div>
             [%# The space below is intententionnal %]
-            <div class="notmobile"><input name="aup_signed" type="checkbox" /> [% txt_accept_terms %]</div>
-            <div class="mobile"><input name="aup_signed" type="checkbox" />[% txt_accept_terms_mobile %]</div>
+            <div class="notmobile"><input name="aup_signed" type="checkbox" /> [% i18n("I accept the terms") %]</div>
+            <div class="mobile"><input name="aup_signed" type="checkbox" />[% i18n("I have read and accept the terms") %]</div>
           </div>
 
           [%# submit %]
           <div class="input">
-            <input type="submit" class="button" name="submit" value="[% txt_login %]" /> or <a href="/signup">Sign up</a>
+            <input type="submit" class="button" name="submit" value="[% i18n("Login") %]" /> [% i18n("or") %] <a href="/signup">[% i18n("Sign up") %]</a>
           </div>
         </form>
 
