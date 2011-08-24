@@ -581,6 +581,11 @@ fi
 %dir                    /usr/local/pf/lib
 %dir                    /usr/local/pf/lib/HTTP
                         /usr/local/pf/lib/HTTP/BrowserDetect.pm
+%dir                    /usr/local/pf/lib/IPTables/
+                        /usr/local/pf/lib/IPTables/Interface.pm
+%dir                    /usr/local/pf/lib/IPTables/Interface/
+                        /usr/local/pf/lib/IPTables/Interface/Lock.pm
+%dir                    /usr/local/pf/lib/IPTables/
 %attr(0755, pf, pf)     /usr/local/pf/lib/jpgraph/
 %dir                    /usr/local/pf/lib/pf
                         /usr/local/pf/lib/pf/*.pm
