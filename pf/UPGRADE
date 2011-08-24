@@ -46,6 +46,15 @@ o Upgrading from a version prior to <trunk-release>:
     the file. You can do so with:
     mv /usr/local/pf/conf/dhcpd_vlan.conf /usr/local/pf/conf/dhcpd.conf
 
+    - vlan.dhcpd, vlan.named and vlan.radiusd moved under [services]
+    These variables are now located under [services] and they have a new 
+    default value of enabled. Make sure to remove or migrate the old 
+    configuration from your conf/pf.conf.
+
+    - services.httpd, dhcpd, named, radiusd, snmptrapd and snort renamed
+    They were all renamed to <name>_binary. Adapt your configuration if 
+    required. Most users shouldn't have to.
+
     - general.caching disabled by default
     A historical and badly understood feature, general caching, has now been
     disabled by default. Previously it only had impacts if the mode was ARP but

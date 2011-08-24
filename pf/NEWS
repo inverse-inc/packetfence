@@ -54,7 +54,7 @@ Enhancements
  * Captive portal usability improvements for both users and administrators
  * pfcmd and web administration performance improvements by avoiding duplicate
    loading of some configuration files
- * Configuration simplification (#1182)
+ * Configuration simplification (#1051, #1182)
  * FreeRADIUS package now does the certificate boostrapping process (#1226)
  * Named isolation and registration zones now automatically generated on startup
    based on networks.conf's DNS entry (#1105)

@@ -472,33 +472,49 @@ locationlog=0d
 
 [services]
 #
-# services.snort
-#
-# Location of the snort binary.  Only necessary to change if you are not running the RPMed version. 
-snort=/usr/sbin/snort
-#
-# services.httpd
-#
-# Location of the apache binary.  Only necessary to change if you are not running the RPMed version.
-httpd=/usr/sbin/httpd
-#
 # services.dhcpd
 #
-# Location of the dhcpd binary.  Only necessary to change if you are not running the RPMed version.
-dhcpd=/usr/sbin/dhcpd
+# Should DHCPd be managed by PacketFence?
+dhcpd=enabled
 #
 # services.named
 #
-# Location of the named binary.  Only necessary to change if you are not running the RPMed version.
-named=/usr/sbin/named
+# Should named be managed by PacketFence?
+named=enabled
 #
-# services.snmptrapd
-# Location of the snmptrapd binary.  Only necessary to change if you are not using the RPMed version.
-snmptrapd=/usr/sbin/snmptrapd
-# 
 # services.radiusd
+#
+# Should radiusd be managed by PacketFence?
+radiusd=enabled
+#
+# services.snort_binary
+#
+# Location of the snort binary. Only necessary to change if you are not running the RPMed version. 
+snort_binary=/usr/sbin/snort
+#
+# services.httpd_binary
+#
+# Location of the apache binary. Only necessary to change if you are not running the RPMed version.
+httpd_binary=/usr/sbin/httpd
+#
+# services.dhcpd_binary
+#
+# Location of the dhcpd binary. Only necessary to change if you are not running the RPMed version.
+dhcpd_binary=/usr/sbin/dhcpd
+#
+# services.named_binary
+#
+# Location of the named binary. Only necessary to change if you are not running the RPMed version.
+named_binary=/usr/sbin/named
+#
+# services.snmptrapd_binary
+#
+# Location of the snmptrapd binary. Only necessary to change if you are not using the RPMed version.
+snmptrapd_binary=/usr/sbin/snmptrapd
 # 
-# Location of the named binary.  Only necessary to change if you are not running the RPMed version.
+# services.radiusd_binary
+# 
+# Location of the named binary. Only necessary to change if you are not running the RPMed version.
 radiusd=/usr/sbin/radiusd
 
 [vlan]
@@ -508,26 +524,6 @@ radiusd=/usr/sbin/radiusd
 # Should open locationlog entries be closed when pfsetvlan is 
 # stopped
 closelocationlogonstop=disabled
-#
-# vlan.dhcpd
-#
-# Should DHCPd be started ?
-#
-dhcpd=disabled
-#
-#
-# vlan.named
-#
-# Should named be started ?
-#
-named=disabled
-#
-#
-# vlan.radiusd
-#
-# Should radiusd be started ?
-#
-radiusd=disabled
 #
 #
 # vlan.nbtraphandlerthreads

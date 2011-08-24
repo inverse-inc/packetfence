@@ -79,7 +79,7 @@ sub sanity_check {
     interfaces_defined();
     interfaces();
 
-    if ( isenabled($Config{'vlan'}{'radiusd'} ) ) {
+    if ( isenabled($Config{'services'}{'radiusd'} ) ) {
         freeradius();
     }
 
@@ -105,7 +105,7 @@ sub service_exists {
     my (@services) = @_;
 
     foreach my $service (@services) {
-        my $exe = ( $Config{'services'}{$service} || "$install_dir/sbin/$service" );
+        my $exe = ( $Config{'services'}{"${service}_binary"} || "$install_dir/sbin/$service" );
         if ( !-e $exe ) {
             add_problem( $FATAL, "$exe for $service does not exist !" );
         }
@@ -191,7 +191,7 @@ Validation related to the FreeRADIUS daemon
 =cut
 sub freeradius {
 
-    if ( !-x $Config{'services'}{'radiusd'} ) {
+    if ( !-x $Config{'services'}{'radiusd_binary'} ) {
         add_problem( $FATAL, "radiusd binary is not executable / does not exist!" );
     }
 }
@@ -220,7 +220,7 @@ sub ids_snort {
         }
     }
 
-    if ( !-x $Config{'services'}{'snort'} ) {
+    if ( !-x $Config{'services'}{'snort_binary'} ) {
         add_problem( $FATAL, "snort binary is not executable / does not exist!" );
     }
 
@@ -250,16 +250,16 @@ sub network {
         );
     }
 
-    # make sure that networks.conf is not empty when vlan.dhcpd
+    # make sure that networks.conf is not empty when services.dhcpd
     # is enabled
-    if ((isenabled($Config{'vlan'}{'dhcpd'})) && ((!-e "$conf_dir/networks.conf") || (-z "$conf_dir/networks.conf"))) {
-        add_problem( $FATAL, "networks.conf cannot be empty when vlan.dhcpd is enabled" );
+    if (isenabled($Config{'services'}{'dhcpd'}) && ((!-e "$conf_dir/networks.conf") || (-z "$conf_dir/networks.conf"))){
+        add_problem( $FATAL, "networks.conf cannot be empty when services.dhcpd is enabled" );
     }
 
-    # make sure that networks.conf is not empty when vlan.named
+    # make sure that networks.conf is not empty when services.named
     # is enabled
-    if ((isenabled($Config{'vlan'}{'named'})) && ((!-e "$conf_dir/networks.conf") || (-z "$conf_dir/networks.conf"))) {
-        add_problem( $FATAL, "networks.conf cannot be empty when vlan.named is enabled" );
+    if (isenabled($Config{'services'}{'named'}) && ((!-e "$conf_dir/networks.conf") || (-z "$conf_dir/networks.conf"))){
+        add_problem( $FATAL, "networks.conf cannot be empty when services.named is enabled" );
     }
 
     foreach my $network (keys %ConfigNetworks) {

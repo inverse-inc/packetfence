@@ -78,8 +78,7 @@ if ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int ) {
 sub service_ctl {
     my ( $daemon, $action, $quick ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::services');
-    my $service
-        = ( $Config{'services'}{$daemon} || "$install_dir/sbin/$daemon" );
+    my $service = ( $Config{'services'}{"${daemon}_binary"} || "$install_dir/sbin/$daemon" );
     my $exe = basename($service);
     $logger->info("$service $action");
     if ( $exe
@@ -89,11 +88,11 @@ sub service_ctl {
         $exe = $1;
     CASE: {
             $action eq "start" && do {
-                # We won't start dhcpd unless vlan.dhcpd is set to enable
-                return (0) if ( $exe =~ /dhcpd/ && !isenabled($Config{'vlan'}{'dhcpd'}) );
+                # We won't start dhcpd unless services.dhcpd is set to enable
+                return (0) if ( $exe =~ /dhcpd/ && !isenabled($Config{'services'}{'dhcpd'}) );
                 return (0)
                     if ( $exe =~ /radiusd/
-                    && !isenabled( $Config{'vlan'}{'radiusd'} ) );
+                    && !isenabled( $Config{'services'}{'radiusd'} ) );
                 return (0)
                     if ( $exe =~ /snort/
                     && !isenabled( $Config{'trapping'}{'detection'} ) );
@@ -105,7 +104,7 @@ sub service_ctl {
                 return (0)
                     if ( $exe =~ /pfsetvlan/ && !(is_vlan_enforcement_enabled()) );
                 return (0)
-                    if ($exe =~ /named/ && !( is_vlan_enforcement_enabled() && isenabled($Config{'vlan'}{'named'}) ));
+                    if ($exe =~ /named/ && !(is_vlan_enforcement_enabled() && isenabled($Config{'services'}{'named'})));
                 if ( $daemon =~ /(named|dhcpd|snort|httpd|snmptrapd)/
                     && !$quick )
                 {
@@ -240,7 +239,7 @@ sub service_list {
                 if ( isenabled( $Config{'trapping'}{'detection'} ) );
         } elsif ( $service eq "radiusd" ) {
             push @finalServiceList, $service 
-                if ( is_vlan_enforcement_enabled() && isenabled($Config{'vlan'}{'radiusd'}) );
+                if ( is_vlan_enforcement_enabled() && isenabled($Config{'services'}{'radiusd'}) );
         } elsif ( $service eq "pfdetect" ) {
             push @finalServiceList, $service
                 if ( isenabled( $Config{'trapping'}{'detection'} ) );
@@ -249,12 +248,13 @@ sub service_list {
                 if ( $Config{'ports'}{'listeners'} );
         } elsif ( $service eq "dhcpd" ) {
             push @finalServiceList, $service
-                if ( is_inline_enforcement_enabled() 
-                || ( is_vlan_enforcement_enabled() && isenabled($Config{'vlan'}{'dhcpd'}) ));
+                if ( (is_inline_enforcement_enabled() || is_vlan_enforcement_enabled())
+                    && isenabled($Config{'services'}{'dhcpd'}) );
         } elsif ( $service eq "snmptrapd" ) {
             push @finalServiceList, $service if ( is_vlan_enforcement_enabled() );
         } elsif ( $service eq "named" ) {
-            push @finalServiceList, $service if (is_vlan_enforcement_enabled() && isenabled($Config{'vlan'}{'named'}));
+            push @finalServiceList, $service 
+                if (is_vlan_enforcement_enabled() && isenabled($Config{'services'}{'named'}));
         } elsif ( $service eq "pfsetvlan" ) {
             push @finalServiceList, $service if ( is_vlan_enforcement_enabled() );
         } else {
