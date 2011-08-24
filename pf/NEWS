@@ -70,7 +70,7 @@ Bug fixes
  * Fixes issues with accentuated characters and single quotes in some captive
    portal strings
  * Cisco C3560 now heritates the Cisco C2960 code
- * Fixed distro portability problems (#1185, #1248)
+ * Fixed distro portability problems (#1185, #1187, #1248)
  * Additional fixes to nessus scans
  * Renaming Nortel ERS modules (#1238)
  * Interim fixes (#1239, #1240)
