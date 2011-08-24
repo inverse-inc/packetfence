@@ -74,6 +74,7 @@ if ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int ) {
 
 =cut
 
+#FIXME this is ridiculously complex and unfocused for such a simple task.. what is all that duplication?
 sub service_ctl {
     my ( $daemon, $action, $quick ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::services');
@@ -124,9 +125,13 @@ sub service_ctl {
                         print "No such sub: $confname\n";
                     }
                 }
-                if (  ( $service =~ /named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|radiusd|snort|httpd|snmptrapd|pfsetvlan/ )
-                      && ( $daemon =~ /named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|radiusd|snort|httpd|snmptrapd|pfsetvlan/ )
-                      && ( defined( $flags{$daemon} ) ) ) {
+                if ( $service =~ /
+                    named|dhcpd|radiusd|snort|httpd|apache2|snmptrapd|    # external daemons
+                    pfdhcplistener|pfmon|pfdetect|pfredirect|pfsetvlan    # packetfence daemons
+                    /x && $daemon =~ 
+                    /named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|radiusd|snort|httpd|snmptrapd|pfsetvlan/
+                    && defined($flags{$daemon}) ) {
+
                     if ( $daemon ne 'pfdhcplistener' ) {
                         if ( $daemon eq 'dhcpd' ) {
                             manage_Static_Route(1);
