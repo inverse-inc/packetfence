@@ -137,9 +137,13 @@ o Upgrading from a version prior to <trunk-release>:
     environments still on PHP4. We don't think it's used by anyone at this 
     point. Let us know if you need it back.
 
-    - Nortal ERS Switch module rename
-    We changed the naming of two Nortel switch modules.  Nortel::ERS4500 is
-    now Nortel::ERS4000, and Nortel::ERS5500 is now Nortel::ERS5000
+    - Nortal/Avaya ERS Switch module rename
+    We changed the naming of some Nortel/Avaya switch modules:
+     - Avaya::ERS5500 -> Avaya::ERS5000
+     - Avaya::ERS5500_6x -> Avaya::ERS5000_6x
+     - Nortel::ERS4500 -> Nortel::ERS4000
+     - Nortel::ERS5500 -> Nortel::ERS5000
+     - Nortel::ERS5500_6x -> Nortel::ERS5000_6x
 
     - RADIUS Accounting
     RADIUS is now using SQL to fetch the client configuration.  So, for
