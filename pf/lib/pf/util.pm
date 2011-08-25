@@ -989,34 +989,44 @@ sub pf_run {
     my ($command) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
 
-    my @result = `$command`;
+    # Using perl trickery to figure out what the caller expects so I can return him just that
+    # this is to perfectly emulate the backtick operator behavior
+    if (not defined wantarray) {
+        # void context
+        `$command`;
+        return if ($CHILD_ERROR == 0);
 
-    # slightly modified version of "perldoc -f system" error handling strategy
-    if ($CHILD_ERROR == 0) {
-        return @result;
+    } elsif (wantarray) { 
+        # list context
+        my @result = `$command`;
+        return @result if ($CHILD_ERROR == 0);
 
     } else {
+        # scalar context
+        my $result = `$command`;
+        return $result if ($CHILD_ERROR == 0);
+    }
 
-        my $caller = ( caller(1) )[3] || basename($0);
-        $caller =~ s/^(pf::\w+|main):://;
+    # slightly modified version of "perldoc -f system" error handling strategy
+    my $caller = ( caller(1) )[3] || basename($0);
+    $caller =~ s/^(pf::\w+|main):://;
 
-        if ($CHILD_ERROR == -1) {
-            $logger->warn("Error trying to run command: $command called from $caller. OS Error: $OS_ERROR");
+    if ($CHILD_ERROR == -1) {
+        $logger->warn("Error trying to run command: $command called from $caller. OS Error: $OS_ERROR");
 
-        } elsif ($CHILD_ERROR & 127) {
-            my $signal = ($CHILD_ERROR & 127);
-            my $with_core = ($CHILD_ERROR & 128) ? 'with' : 'without';
-            $logger->warn(
-                "Error trying to run command: $command called from $caller. " 
-                . "Child died with signal $signal $with_core coredump."
-            );
-        } else {
-            my $exit_status = $CHILD_ERROR >> 8;
-            $logger->warn(
-                "Error trying to run command: $command called from $caller. " 
-                . "Child exited with non-zero value $exit_status"
-            );
-        }
+    } elsif ($CHILD_ERROR & 127) {
+        my $signal = ($CHILD_ERROR & 127);
+        my $with_core = ($CHILD_ERROR & 128) ? 'with' : 'without';
+        $logger->warn(
+            "Error trying to run command: $command called from $caller. " 
+            . "Child died with signal $signal $with_core coredump."
+        );
+    } else {
+        my $exit_status = $CHILD_ERROR >> 8;
+        $logger->warn(
+            "Error trying to run command: $command called from $caller. " 
+            . "Child exited with non-zero value $exit_status"
+        );
     }
     return;
 }
