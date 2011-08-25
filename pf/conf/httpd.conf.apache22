@@ -342,6 +342,13 @@ SetEnvIf User-Agent ".*MSIE.*" \
   SSLEngine on
   Include %%varconf_dir%%/ssl-certificates.conf
 
+  RewriteEngine On
+  #RewriteLogLevel 3
+  #RewriteLog %%install_dir%%/logs/admin_rewrite_log
+
+  # Clean URLS
+  RewriteRule ^/guests/manage(.*)$ /guest-management.cgi$1 [PT]
+
   <Location /cgi-bin/pfcmd.cgi>
     SetHandler cgi-script
     Options Indexes FollowSymLinks ExecCGI
