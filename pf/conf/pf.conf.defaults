@@ -515,7 +515,7 @@ snmptrapd_binary=/usr/sbin/snmptrapd
 # services.radiusd_binary
 # 
 # Location of the named binary. Only necessary to change if you are not running the RPMed version.
-radiusd=/usr/sbin/radiusd
+radiusd_binary=/usr/sbin/radiusd
 
 [vlan]
 #
