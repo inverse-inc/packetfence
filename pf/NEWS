@@ -36,7 +36,7 @@ New features
  * Major update to the captive portal look and feel! More modern and 
    professional. Cleaner XHTML/CSS makes customization a lot easier than before.
    Also, all user-visible URLs are now clean and short (no more cgi-bin/... 
-   clutter). (#980, #982)
+   clutter). (#980, #982, #1114)
  * Flexible guest handling API (covering temporary passwords, self-registration,
    pre-registration, etc.)
  * Introduced in-line support: firewall based access control with captive 
@@ -47,7 +47,7 @@ New features
    have customizable names
  * New default_auth parameter will be the default authentication module selected
    if you have multiple authentication back-end enabled in auth
- * Remediation pages are translatable (#822)
+ * Simplification of the captive portal translation (#822, #1114)
  * RADIUS Accounting for tracking node bandwidth usage
 
 Enhancements
@@ -67,6 +67,7 @@ Enhancements
 
 Bug fixes
  * jpgraph version bump to 3.0.7. Fixes RHEL 6 issues. (#1244)
+ * Fixed encoding issues in the captive portal (#1115)
  * Fixes issues with accentuated characters and single quotes in some captive
    portal strings
  * Cisco C3560 now heritates the Cisco C2960 code
