@@ -164,7 +164,7 @@
                            'Nortel::ERS2500' => 'Nortel ERS 2500 Series',
                            'Nortel::ERS4000' => 'Nortel ERS 4000 Series',
                            'Nortel::ERS5000' => 'Nortel ERS 5000 Series',
-                           'Nortel::ERS5500_6x' => 'Nortel ERS 5500 w/ firmware 6.x',
+                           'Nortel::ERS5000_6x' => 'Nortel ERS 5000 Series w/ firmware 6.x',
                            'Nortel::ES325' => 'Nortel ES325',
                            'PacketFence' => 'PacketFence',
                            'SMC::TS6128L2' => 'SMC TigerStack 6128L2',

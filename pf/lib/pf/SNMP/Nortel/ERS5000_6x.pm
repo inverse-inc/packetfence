@@ -1,12 +1,12 @@
-package pf::SNMP::Nortel::ERS5500_6x;
+package pf::SNMP::Nortel::ERS5000_6x;
 
 =head1 NAME
 
-pf::SNMP::Nortel::ERS5500_6x
+pf::SNMP::Nortel::ERS5000_6x
 
 =head1 DESCRIPTION
 
-Object oriented module to access SNMP enabled Nortel ERS5500 switches running software code >= 6.x.
+Object oriented module to access SNMP enabled Nortel ERS5000 switches running software code >= 6.x.
 
 Starting with firmware 6.x ifIndex handling changed and this module takes care of this change.
 
