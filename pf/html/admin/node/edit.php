@@ -65,8 +65,9 @@
   $edit_info = new table("$current_top view $edit_item");
 
   print "<form name='edit' method='post' action='/$current_top/edit.php?item=$edit_item'>";
-  print "<div id='add'><table>";
-  print "<tr><td><img src='../images/node.png'></td><td valign='middle' colspan=2><b>Editing: ".$edit_info->rows[0][$edit_info->key]."</b></td></tr>";
+  print "<div id='add'>";
+  print "<div id='header'><p><img src='../images/node.png'><b>Editing: ".$edit_info->rows[0][$edit_info->key]."</b></p></div>";
+  print "<div id='content'><table>";
   foreach($edit_info->rows[0] as $key => $val){
     if($key == $edit_info->key){
       continue;
@@ -118,9 +119,9 @@
 
     print "</td></tr>";
   }
-  print "<tr><td colspan=3 align=right><input type='submit' value='Edit ".ucfirst($current_top)."'></td></tr>";
   print "</table></div>";
-  print "</form>";
+  print "<div id='footer'><p><input type='submit' value='Edit ".ucfirst($current_top)."'/></p></div>";
+  print "</div></form>";
 ?>
 
 </html>

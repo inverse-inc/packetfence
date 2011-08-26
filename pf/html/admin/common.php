@@ -553,7 +553,7 @@ if($sajax){
                  print "  </form>";
                }
              } else {
-               print "  <a href=\"javascript:popUp('/$current_top/edit.php?item=$key_item',500,400)\" title='Edit this record'><img src='/images/edit.png' alt=\"[ Edit ]\"></a>\n";
+               print "  <a href=\"javascript:popUp('/$current_top/edit.php?item=$key_item',500,450)\" title='Edit this record'><img src='/images/edit.png' alt=\"[ Edit ]\"></a>\n";
                if($this->violationable){
                  print "  <a href='violation/add.php?MAC=".$this->rows[$i]['mac']."'><img src='/images/trap.png' border='0' title='Add Violation' alt='[ Add Violation ]'></a>\n";
                }

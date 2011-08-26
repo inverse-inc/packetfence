@@ -277,7 +277,10 @@ td.action A {
 
 DIV#add,
 DIV#login {
+    margin-top: 10px;
     text-align: center;
+}
+DIV#login {
     margin-top: 25px;
 }
 
@@ -598,12 +601,52 @@ body.popup h1 {
 }
 
 body.popup DIV#content {
-    height: auto;
-    width: auto;
+    background-color: #ddd;
+    border-top: 1px solid #aaa;
+    border-bottom: 1px solid #aaa;
+    height: auto; /* best for FF/Webkit */
+    bottom: 38px; /* best for FF/Webkit */
+    height: 395px; /* required for IE :( */
+    margin: 0 auto;
+    position: absolute;
+    top: 63px;
+    overflow: hidden;
+    overflow-y: auto;
+}
+
+body.popup div#header { 
+   position: absolute;
+   top: 0px;
+   height: 40px;
+   margin: 0px auto;
+   line-height: 40px;
+   width: 100%;
+}
+
+body.popup div#header p {
+  font-size: 1.2em;
+  margin: 5px auto 0 auto;
+  text-align: right;
+  width: 320px;
+}
+body.popup div#header img {
+  float: left;
+}
+
+body.popup div#footer {
+    position: absolute;
+    bottom: 2px;
+    height: 30px;
+    width: 100%;
+}
+body.popup div#footer p {
+    margin: 0 auto;
+    text-align: right;
+    width: 320px;
 }
 
 body.popup table {
-    background-color: #fff;
+    background-color: #eee;
     width: 350px;
 }
 
@@ -620,6 +663,17 @@ body.popup tr.button td {
     border-top: 2px solid #2f2400;
     padding-top: 10px;
     text-align: right;
+}
+
+body.popup input[type="text"],
+body.popup select {
+    width: 135px;
+}
+
+body.popup div#container {
+    position: absolute;
+    bottom: 5px;
+    overflow-y: auto;
 }
 
 /* Fancy configuration table */
