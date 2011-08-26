@@ -122,6 +122,9 @@ div.input input.field:focus {
   background-color: #DEFEFF;
   color: #333;
 }
+div.input select {
+  width: 250px;
+}
 div.input div {
   padding: 4px;
   text-align: left;
