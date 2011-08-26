@@ -372,8 +372,6 @@ sub generate_activation_login_page {
         i18n => \&i18n
     };
 
-    $vars->{'login'} = encode_entities($cgi->param("login"));
-
     # showing errors
     if ( defined($err) ) {
         if ( $err == 1 ) {
@@ -414,8 +412,6 @@ sub generate_login_page {
         ],
         post_uri => $post_uri
     };
-
-    $vars->{'login'} = encode_entities($cgi->param("login"));
 
     $vars->{list_authentications} = pf::web::auth::list_enabled_auth_types();
 
