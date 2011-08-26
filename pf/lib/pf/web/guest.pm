@@ -265,20 +265,21 @@ sub validate_selfregistration {
 
         if ($valid_email && $valid_name && $cgi->param("phone") ne '' && length($cgi->param("aup_signed"))) {
 
-            # make sure that they are not local users
+          unless (isenabled($Config{'registration'}{'self_allow_localdomain'})) {
             # You should not register as a guest if you are part of the local network
-#            my $localdomain = $Config{'general'}{'domain'};
-#            if ($cgi->param('email') =~ /[@.]$localdomain$/i) {
-#                return (0, 2);
-#            }
+            my $localdomain = $Config{'general'}{'domain'};
+            if ($cgi->param('email') =~ /[@.]$localdomain$/i) {
+                return (0, 2);
+            }
+          }
 
-            # auth accepted, save login information in session (we will use them to put the guest in the db)
-            $session->param("firstname", $cgi->param("firstname"));
-            $session->param("lastname", $cgi->param("lastname"));
-            $session->param("email", $cgi->param("email")); 
-            $session->param("login", $cgi->param("email"));
-            $session->param("phone", $cgi->param("phone"));
-            return (1, 0);
+          # auth accepted, save login information in session (we will use them to put the guest in the db)
+          $session->param("firstname", $cgi->param("firstname"));
+          $session->param("lastname", $cgi->param("lastname"));
+          $session->param("email", $cgi->param("email")); 
+          $session->param("login", $cgi->param("email"));
+          $session->param("phone", $cgi->param("phone"));
+          return (1, 0);
         } else {
             return (0, 1);
         }

@@ -282,6 +282,11 @@ button_text=Register
 #
 # The number of registration pages to show to the user
 nbregpages=0
+#
+# registration.self_allow_localdomain
+#
+# Accept self-registration with email address from the local domain
+self_allow_localdomain=enabled
 
 #
 # This section allows you to create passthroughs to HTML content or remote addresses/networks.
