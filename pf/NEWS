@@ -37,8 +37,8 @@ New features
    professional. Cleaner XHTML/CSS makes customization a lot easier than before.
    Also, all user-visible URLs are now clean and short (no more cgi-bin/... 
    clutter). (#980, #982, #1114)
- * Flexible guest handling API (covering temporary passwords, self-registration,
-   pre-registration, etc.)
+ * Flexible guest handling (covering temporary passwords, self-registration,
+   pre-registration, extension API, etc.)
  * Introduced in-line support: firewall based access control with captive 
    portal. Use this complementary technique when you cannot use VLAN 
    enforcement. (#1227)
