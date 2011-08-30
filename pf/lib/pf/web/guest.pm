@@ -265,7 +265,7 @@ sub validate_selfregistration {
 
         if ($valid_email && $valid_name && $cgi->param("phone") ne '' && length($cgi->param("aup_signed"))) {
 
-          unless (isenabled($Config{'registration'}{'self_allow_localdomain'})) {
+          unless (isenabled($Config{'guests'}{'self_allow_localdomain'})) {
             # You should not register as a guest if you are part of the local network
             my $localdomain = $Config{'general'}{'domain'};
             if ($cgi->param('email') =~ /[@.]$localdomain$/i) {
