@@ -389,24 +389,24 @@ sub violation_trigger {
     $type = lc($type);
 
     if (whitelisted_mac($mac)) {
-        $logger->info("violation not added, $mac is whitelisted! trigger $type::$tid");
+        $logger->info("violation not added, $mac is whitelisted! trigger ${type}::${tid}");
         return 0;
     } 
 
     if (!valid_mac($mac)) {
-        $logger->info("violation not added, MAC $mac is whitelisted! trigger $type::$tid");
+        $logger->info("violation not added, MAC $mac is invalid! trigger ${type}::${tid}");
         return 0;
     } 
 
     if (!trappable_mac($mac)) {
-        $logger->info("violation not added, MAC $mac is not trappable! trigger $type::$tid");
+        $logger->info("violation not added, MAC $mac is not trappable! trigger ${type}::${tid}");
         return 0;
     }
 
     # if we were given an IP as additionnal violation trigger info
     # test whether this ip is trappable or not
     if (defined($data{ip}) && !trappable_ip($data{ip})) {
-        $logger->info("violation not added, IP ".$data{ip}." is not trappable! trigger $type::$tid, MAC: $mac");
+        $logger->info("violation not added, IP ".$data{ip}." is not trappable! trigger ${type}::${tid}, MAC: $mac");
         return 0;
     }
 
