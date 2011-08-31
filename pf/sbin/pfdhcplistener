@@ -545,7 +545,7 @@ sub process_fingerprint {
         }
 
     } else {
-        $logger->warn("unknown DHCP fingerprint: $dhcp_fingerprint");
+        $logger->info("unknown DHCP fingerprint: $dhcp_fingerprint");
     }
 
     return $fingerprint_data;
