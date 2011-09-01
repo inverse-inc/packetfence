@@ -579,7 +579,7 @@ sub preregister {
         . "lastname=\"" . $session->param("lastname") . "\","
         . "email=\"" . $session->param("email") . "\","
         . "telephone=\"" . $session->param("phone") . "\","
-        . "notes=\"".sprintf(i18n("Expected on %s"), $session->param("arrival_date"))."\"'"
+        . "notes=\"".sprintf(i18n("Expected on %s"), $session->param("arrival_date")).". ".i18n("Sponsored by")." ".$session->param("login")."\"'"
     ;
     $logger->info("Adding guest person with command: $person_add_cmd");
     pf_run("$person_add_cmd");
@@ -625,9 +625,10 @@ sub preregister_multiple {
     for (my $i = 1; $i <= $quantity; $i++) {
       my $pid = "$prefix$i";
       # Create/modify person
-      my %data = ('notes' => '');
-      my $result = person_modify($pid, ('notes' => sprintf(i18n("Expected on %s"), $session->param("arrival_date"))
-                                        . ". " . i18n("Multiple guest accounts creation") . " $prefix" . "[1-$quantity]"));
+      my $notes = sprintf(i18n("Expected on %s"), $session->param("arrival_date"))
+        . ". " . i18n("Multiple guest accounts creation") . " $prefix" . "[1-$quantity]. "
+        . i18n("Sponsored by") . " " . $session->param("login");
+      my $result = person_modify($pid, ('notes' => $notes));
       if ($result) {
         # Create/update password
         my $password = pf::temporary_password::generate($pid,
@@ -875,7 +876,8 @@ sub import_csv {
                   'lastname'  => $index{'c_lastname'}  ? $fields[$index{'c_lastname'}]  : undef,
                   'email'     => $index{'c_email'}     ? $fields[$index{'c_email'}]     : undef,
                   'telephone' => $index{'c_phone'}     ? $fields[$index{'c_phone'}]     : undef,
-                  'notes'     => $index{'c_note'}      ? $fields[$index{'c_note'}]      : undef);
+                  'notes'     => $index{'c_note'}      ? $fields[$index{'c_note'}]      : '');
+      $data{'notes'} .= i18n("Sponsored by") . " " . $session->param("login");
       my $result = person_modify($pid, %data);
       if ($result) {
         # Create/update password
