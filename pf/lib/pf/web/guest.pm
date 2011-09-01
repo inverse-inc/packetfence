@@ -579,7 +579,8 @@ sub preregister {
         . "lastname=\"" . $session->param("lastname") . "\","
         . "email=\"" . $session->param("email") . "\","
         . "telephone=\"" . $session->param("phone") . "\","
-        . "notes=\"".sprintf(i18n("Expected on %s"), $session->param("arrival_date")).". ".i18n("Sponsored by")." ".$session->param("login")."\"'"
+        . "notes=\"".sprintf(i18n("Expected on %s"), $session->param("arrival_date")) . "\","
+        . "sponsor=\"".$session->param("login")."\"'"
     ;
     $logger->info("Adding guest person with command: $person_add_cmd");
     pf_run("$person_add_cmd");
@@ -626,9 +627,9 @@ sub preregister_multiple {
       my $pid = "$prefix$i";
       # Create/modify person
       my $notes = sprintf(i18n("Expected on %s"), $session->param("arrival_date"))
-        . ". " . i18n("Multiple guest accounts creation") . " $prefix" . "[1-$quantity]. "
-        . i18n("Sponsored by") . " " . $session->param("login");
-      my $result = person_modify($pid, ('notes' => $notes));
+        . ". " . i18n("Multiple guest accounts creation") . " $prefix" . "[1-$quantity]";
+      my $result = person_modify($pid, ('notes' => $notes,
+                                        'sponsor' => $session->param("login")));
       if ($result) {
         # Create/update password
         my $password = pf::temporary_password::generate($pid,
@@ -641,7 +642,7 @@ sub preregister_multiple {
         }
       }
     }
-    $logger->info("Created $count guest accounts: $prefix"."[1-$quantity]");
+    $logger->info("Created $count guest accounts: $prefix"."[1-$quantity]. Sponsor by ".$session->param("login"));
 
     # failure, redirect to error page
     if ($count == 0) {
@@ -876,8 +877,8 @@ sub import_csv {
                   'lastname'  => $index{'c_lastname'}  ? $fields[$index{'c_lastname'}]  : undef,
                   'email'     => $index{'c_email'}     ? $fields[$index{'c_email'}]     : undef,
                   'telephone' => $index{'c_phone'}     ? $fields[$index{'c_phone'}]     : undef,
-                  'notes'     => $index{'c_note'}      ? $fields[$index{'c_note'}]      : '');
-      $data{'notes'} .= i18n("Sponsored by") . " " . $session->param("login");
+                  'notes'     => $index{'c_note'}      ? $fields[$index{'c_note'}]      : undef,
+                  'sponsor'   => $session->param("login"));
       my $result = person_modify($pid, %data);
       if ($result) {
         # Create/update password

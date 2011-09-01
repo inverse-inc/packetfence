@@ -45,6 +45,7 @@ CREATE TABLE person (
   `company` varchar(255) default NULL,
   `address` varchar(255) default NULL,
   notes varchar(255),
+  sponsor varchar(255) default NULL,
   PRIMARY KEY (pid)
 ) ENGINE=InnoDB;
 

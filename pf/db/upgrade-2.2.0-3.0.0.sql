@@ -1,4 +1,12 @@
 --
+-- Support new sponsor field in person
+--
+
+ALTER TABLE person
+  ADD sponsor varchar(255) default NULL
+;
+
+--
 -- Adding support for guest self-registration / management
 --
 

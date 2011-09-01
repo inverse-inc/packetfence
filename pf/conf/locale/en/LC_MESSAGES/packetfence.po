@@ -426,6 +426,9 @@ msgstr ""
 msgid "You are logged in as"
 msgstr ""
 
+msgid "Sponsored by"
+msgstr ""
+
 msgid "Guest Network Access Information"
 msgstr ""
 
