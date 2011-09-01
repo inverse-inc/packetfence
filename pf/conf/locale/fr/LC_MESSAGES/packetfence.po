@@ -17,11 +17,26 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 "POT-Creation-Date: \n"
 
-msgid  "en_US"
+msgid "en_US"
 msgstr "English"
 
-msgid  "fr_FR"
+msgid "fr_FR"
 msgstr "Français"
+
+msgid "es_ES"
+msgstr "Español"
+
+msgid "de_DE"
+msgstr "Deutsch"
+
+msgid "it_IT"
+msgstr "Italiano"
+
+msgid "nl_NL"
+msgstr "Dutch"
+
+msgid "pt_BR"
+msgstr "Português"
 
 msgid "error: access denied not owner"
 msgstr "Acc&egrave;s refus&eacute; : vous n'&ecirc;tes pas le propri&eacute;taire de ce noeud !"
