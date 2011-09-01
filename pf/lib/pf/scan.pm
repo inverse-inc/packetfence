@@ -103,7 +103,11 @@ sub runScan {
     my @nessusdata = <$infile_fh>;
     close( $infile_fh );
 
-    my @countvulns = Parse::Nessus::NBE::nstatvulns(@nessusdata, SEVERITY_INFO);
+    my @countvulns = ( 
+        Parse::Nessus::NBE::nstatvulns(@nessusdata, SEVERITY_HOLE), 
+        Parse::Nessus::NBE::nstatvulns(@nessusdata, SEVERITY_WARNING), 
+        Parse::Nessus::NBE::nstatvulns(@nessusdata, SEVERITY_INFO),
+    );
     
     # for each vuln, trigger the violation
     my $failedScan = 0;
