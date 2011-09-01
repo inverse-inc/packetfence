@@ -158,6 +158,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteRule ^/cgi-bin/content/(.*)$ /content/$1 [PT]
   RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-selfregistration.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/email_activation.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/mobile-confirmation.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-management.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
@@ -254,6 +255,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteRule ^/cgi-bin/content/(.*)$ /content/$1 [PT]
   RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-selfregistration.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/email_activation.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/mobile-confirmation.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-management.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
@@ -365,6 +367,13 @@ SetEnvIf User-Agent ".*MSIE.*" \
     AuthName "PacketFence Authentication"
     AuthType Basic
     require valid-user
+  </Location>
+
+  <Location /guest-management.cgi>
+    SetHandler perl-script
+    PerlResponseHandler ModPerl::PerlRun
+    PerlOptions +ParseHeaders
+    Options Indexes FollowSymLinks ExecCGI
   </Location>
 
   <LocationMatch /cgi-bin/pfcmd.cgi>
