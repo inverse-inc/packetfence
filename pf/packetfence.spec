@@ -566,6 +566,8 @@ fi
                         /usr/local/pf/html/captive-portal/*.php
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/mobile.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/styles.css
+%config(noreplace)      /usr/local/pf/html/captive-portal/content/print.css
+                        /usr/local/pf/html/captive-portal/content/guest-management.js
                         /usr/local/pf/html/captive-portal/content/timerbar.js
 %dir                    /usr/local/pf/html/captive-portal/content/images
                         /usr/local/pf/html/captive-portal/content/images/*
