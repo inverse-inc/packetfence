@@ -20,17 +20,16 @@ use lib INSTALL_DIR . "/lib";
 # required for dynamically loaded authentication modules
 use lib INSTALL_DIR . "/conf";
 
+use pf::class;
 use pf::config;
+use pf::enforcement;
 use pf::iplog;
+use pf::node;
 use pf::util;
+use pf::violation;
 use pf::web;
 # called last to allow redefinitions
 use pf::web::custom;
-# not SUID now!
-#use pf::rawip;
-use pf::node;
-use pf::class;
-use pf::violation;
 
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('redir.cgi');
@@ -136,9 +135,30 @@ if (defined($node_info) && $node_info->{'status'} eq $pf::node::STATUS_PENDING) 
   exit(0);
 }
 
-#TODO: I think the below here is what's causing redirect loops, need to confirm first then fix
-$logger->info("redirecting to ".$Config{'trapping'}{'redirecturl'});
-print $cgi->redirect($Config{'trapping'}{'redirecturl'});
+# NODES IN AN UKNOWN STATE
+# aka you shouldn't be here but if you are we need to handle you.
+
+# Here we are using a cache to prevent malicious or accidental DoS of the captive portal 
+# through too many access reevaluation requests (since this is rather expensive especially in VLAN mode)
+my $cached_lost_device = $main::lost_devices_cache->get($mac);
+
+# After 5 requests we won't perform re-eval for 5 minutes
+if ( !defined($cached_lost_device) || $cached_lost_device <= 5 ) {
+
+    # set the cache, incrementing before on purpose (otherwise it's not hitting the cache)
+    $main::lost_devices_cache->set( $mac, ++$cached_lost_device, "5 minutes");
+
+    $logger->info(
+      "MAC $mac shouldn't reach here. " .
+      "Calling access re-evaluation through flip.pl. " .
+      "Make sure your network device configuration is correct."
+    );
+    pf::enforcement::reevaluate_access( $mac, 'redir.cgi', (force => $TRUE) );
+}
+
+pf::web::generate_error_page($cgi, $session, 
+  "Your network should be enabled within a minute or two. If it is not reboot your computer."
+);
 
 =head1 AUTHOR
 

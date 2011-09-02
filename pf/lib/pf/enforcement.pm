@@ -55,7 +55,7 @@ Triggered by pfcmd.
 
 =cut
 sub reevaluate_access {
-    my ( $mac, $function ) = @_;
+    my ( $mac, $function, %opts ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::enforcement');
 
     # Untaint MAC
@@ -74,9 +74,9 @@ sub reevaluate_access {
             my $conn_type = str_to_connection_type($locationlog_entry->{'connection_type'});
             if ($conn_type == INLINE) {
                 my $inline = new pf::inline::custom();
-                return $inline->performInlineEnforcement($mac);
+                return $inline->performInlineEnforcement($mac, %opts);
             } else {
-                return _vlan_reevaluation($mac, $locationlog_entry);
+                return _vlan_reevaluation($mac, $locationlog_entry, %opts);
             }
 
         }
@@ -85,13 +85,41 @@ sub reevaluate_access {
 
 =item _vlan_reevaluation
 
-Calls flip.pl if locationlog VLAN differ from what VLAN the node should be in.
-Evaluates node's VLAN through L<pf::vlan>'s fetchVlanForNode (which can be redefined by L<pf::vlan::custom>)
+Calls flip.pl if we should reevaluate the VLAN of a node.
 
 =cut
 sub _vlan_reevaluation {
-    my ($mac, $locationlog_entry) = @_;
+    my ($mac, $locationlog_entry, %opts) = @_;
     my $logger = Log::Log4perl::get_logger('pf::enforcement');
+
+    if ( _should_we_reassign_vlan($mac, $locationlog_entry, %opts) ) {
+
+        my @args = ( $Config{'advanced'}{'adjustswitchportvlanscript'}, $mac );
+        # TODO use pf_run instead (warning: be careful about taint checking)
+        system(@args);
+    }
+
+    return 1;
+}
+
+=item _should_we_reassign_vlan
+
+Returns true or false whether or not we should request vlan adjustment
+
+Evaluates node's VLAN through L<pf::vlan>'s fetchVlanForNode (which can be redefined by L<pf::vlan::custom>)
+
+=cut
+sub _should_we_reassign_vlan {
+    my ($mac, $locationlog_entry, %opts) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::enforcement');
+
+    if ($opts{'force'}) {
+        $logger->info(
+            "$mac VLAN reassignment is forced. " .
+            "Calling " . $Config{'advanced'}{'adjustswitchportvlanscript'} . " on node"
+        );
+        return $TRUE; 
+    }
 
     my $switch_ip = $locationlog_entry->{'switch'};
     my $ifIndex = $locationlog_entry->{'port'};
@@ -107,7 +135,7 @@ sub _vlan_reevaluation {
     my $switch = pf::SwitchFactory->getInstance()->instantiate($switch_ip);
     if (!$switch) {
         $logger->error("Can not instantiate switch $switch_ip! Won't change VLAN");
-        return;
+        return $FALSE;
     }
 
     my $newCorrectVlan = $vlan_obj->fetchVlanForNode($mac, $switch, $ifIndex, $connection_type, $user_name, $ssid);
@@ -116,19 +144,16 @@ sub _vlan_reevaluation {
             "new correct VLAN for $mac is $newCorrectVlan. calling "
             . $Config{'advanced'}{'adjustswitchportvlanscript'} . " on node"
         );
-        my @args = ( $Config{'advanced'}{'adjustswitchportvlanscript'}, $mac );
-        # TODO use pf_run instead (warning: be careful about taint checking)
-        system(@args);
+        return $TRUE;
     } elsif ( $newCorrectVlan ne $currentVlan ) {
         $logger->info(
             "calling " . $Config{'advanced'}{'adjustswitchportvlanscript'}
             . " for node $mac (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
         );
-        my @args = ( $Config{'advanced'}{'adjustswitchportvlanscript'}, $mac );
-        # TODO use pf_run instead (warning: be careful about taint checking)
-        system(@args);
+        return $TRUE;
     }
-    return 1;
+    $logger->debug("No VLAN reassignment required for $mac.");
+    return $FALSE;
 }
 
 =back

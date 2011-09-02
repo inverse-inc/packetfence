@@ -21,6 +21,7 @@ use pf::web;
 use pf::web::custom;
 
 our $useragent_cache = new Cache::FileCache( { 'namespace' => 'CaptivePortal_UserAgents' } );
+our $lost_devices_cache = new Cache::FileCache( { 'namespace' => 'CaptivePortal_LostDevices' } );
 
 =head1 AUTHOR
 
