@@ -57,9 +57,11 @@ echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
             <?php echo isset($description_text) ? _($description_text) : ""; ?>
           </p>
         </div>
-        <div id='remediation'>
-          <?php echo isset($remediation_header) ? _($remediation_header) : ""; ?>
-          <?php echo isset($remediation_text) ? _($remediation_text) : ""; ?>
+        <div class="input">
+          <div><?php echo isset($remediation_header) ? _($remediation_header) : ""; ?></div>
+          <div class="note">
+            <?php echo isset($remediation_text) ? _($remediation_text) : ""; ?>
+          </div>
         </div>
       </div>
       <div id="footer">

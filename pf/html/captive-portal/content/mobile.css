@@ -1,3 +1,6 @@
+div#container {
+  width: 456px;
+}
 div#content,
 div#about h1 {
   font-size: 24px;
