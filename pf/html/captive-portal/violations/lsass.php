@@ -1,6 +1,6 @@
 <?
 /**
- * TODO short desc
+ * LSASS Worm remediation page
  *
  * TODO long desc
  * 
@@ -19,8 +19,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  * 
+ * @author      Olivier Bilodeau <obilodeau@inverse.ca>
  * @author      Dominik Gehl <dgehl@inverse.ca>
- * @copyright   2008-2010 Inverse inc.
+ * @copyright   2008-2011 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
@@ -30,9 +31,7 @@ $description_text = 'Your system has been found to be infected with An LSASS-bas
 
 $remediation_header = 'Worm Removal';
 
-$remediation_text ="
-
-<ol>
+$remediation_text ="<ol>
   <li>Click the \"Enable Network\" button below.</li>
   <li>When prompted, save the stinger.exe file to a convenient location on your computer (such as your Desktop).</li>
   <li>If you are running Windows ME or Windows XP, please follow these steps to disable system restore:</li>
@@ -66,11 +65,6 @@ $remediation_text ="
   
 <p class='sub_header'>Re-enabling Your Network Access</p>
 
-Clicking the \"Enable Network\" button below will re-enable your network access for minutes. During this window, you must follow the instructions listed above 
-to correct the issue. Failure to do so will result in network access again being disabled. Repeated failures will result in access being disabled 
-permanently.
-
-";
-
+Clicking the \"Enable Network\" button below will re-enable your network access for minutes. During this window, you must follow the instructions listed above to correct the issue. Failure to do so will result in network access again being disabled. Repeated failures will result in access being disabled permanently.";
 
 ?>

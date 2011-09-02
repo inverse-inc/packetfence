@@ -1,6 +1,6 @@
 <?
 /**
- * TODO short desc
+ * Trojan infection remediation template
  *
  * TODO long desc
  * 
@@ -19,14 +19,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  * 
+ * @author      Olivier Bilodeau <obilodeau@inverse.ca>
  * @author      Dominik Gehl <dgehl@inverse.ca>
- * @copyright   2008-2010 Inverse inc.
+ * @copyright   2008-2011 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
 $description_header='Trojan Infection';
 
-$description_text='Your system has been found to be infected with a Trojan IRC "bot" and is scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken.';
+$description_text='Your system has been found to be infected with a Trojan IRC bot and is scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken.';
 
 $remediation_text='Your system will likely need to be rebuilt. Please contact your local support staff for more information.';
 
