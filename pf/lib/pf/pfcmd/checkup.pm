@@ -174,7 +174,7 @@ sub interfaces {
 
             if ($type eq 'managed') {
                 add_problem( $WARN, 
-                    "Interface type 'managed' is drepecated and will be removed in future versions of PacketFence. " .
+                    "Interface type 'managed' is deprecated and will be removed in future versions of PacketFence. " .
                     "You should use the 'management' keyword instead. " .
                     "Seen on interface $interface."
                 );
