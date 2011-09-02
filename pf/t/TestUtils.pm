@@ -48,7 +48,7 @@ our @integration_tests = qw(
 );
 
 our @quality_tests = qw(
-    coding-style.t pod.t
+    coding-style.t pod.t i18n.t
 );
 
 our @quality_failing_tests = qw(
