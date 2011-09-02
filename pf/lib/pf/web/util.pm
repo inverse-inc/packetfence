@@ -23,6 +23,7 @@ use POSIX;
 
 use pf::config;
 use pf::util;
+use pf::web;
 
 BEGIN {
     use Exporter ();
@@ -110,7 +111,7 @@ sub get_translated_time_hash {
         # we normalize time so we can present the hash in a sorted fashion
         my $unix_timestamp = normalize_time($keys);
 
-        $time{$unix_timestamp} = $value . " " . ngettext($unit, $unit_plural, $value);
+        $time{$unix_timestamp} = $value . " " . ni18n($unit, $unit_plural, $value);
     }
     return \%time;
 }
