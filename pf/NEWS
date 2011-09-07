@@ -60,7 +60,7 @@ Enhancements
    based on networks.conf's DNS entry (#1105)
  * Simplified Apache configuration
  * Included the jpgraph PHP library. Simplifies installation from source.
- * More start-up validation in `pfcmd checkup` (#1191)
+ * More start-up validation in `pfcmd checkup` (#1031, #1191)
  * Improved error-handling
  * Improved Filesystem Hierarchy Standard (FHS) compliance (#762)
  * PHP 5.3.x support, relates to distro portability too (#1211)
