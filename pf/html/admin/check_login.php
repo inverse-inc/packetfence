@@ -34,6 +34,7 @@
   require_once 'common/adminperm.inc';
   require_once 'common/display.inc';
   require_once 'common/logging.inc';
+  require_once 'common/forms.inc';
 
   $debug_log = '';
   if($_SESSION['ui_prefs']['ui_debug'] == 'true'){
