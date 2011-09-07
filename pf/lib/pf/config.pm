@@ -53,7 +53,7 @@ BEGIN {
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
     @EXPORT = qw(
-        $install_dir $bin_dir $conf_dir $lib_dir $generated_conf_dir $var_dir
+        $install_dir $bin_dir $conf_dir $lib_dir $generated_conf_dir $var_dir $log_dir
         @listen_ints @dhcplistener_ints @ha_ints $monitor_int 
         @internal_nets @routed_isolation_nets @routed_registration_nets @management_nets @external_nets
         @inline_enforcement_nets @vlan_enforcement_nets
