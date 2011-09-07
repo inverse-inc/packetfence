@@ -20,7 +20,7 @@
  * USA.
  * 
  * @author      Olivier Bilodeau <obilodeau@inverse.ca>
- * @copyright   2008-2010 Inverse inc.
+ * @copyright   2008-2011 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
@@ -73,7 +73,7 @@
     }
 
     if($_REQUEST['action'] == 'edit' || $_REQUEST['action'] == 'add'){
-      $new_array=$orig_array=split("/\|/", $_POST['original']);
+      $new_array=$orig_array=explode("|", $_POST['original']);
       $_POST['count'] ? $count = $_POST['count'] : $count = count($my_table->headers);
 
       for($i=0; $i<$count; $i++){
