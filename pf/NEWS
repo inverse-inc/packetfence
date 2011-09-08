@@ -63,7 +63,7 @@ Enhancements
  * Improved error-handling
  * Improved Filesystem Hierarchy Standard (FHS) compliance (#762)
  * Improves PHP 5.3.x support, relates to distro portability too (#1211, 
-   psnizek #1251)
+   #1251: Thanks to Philipp Snizek)
  * More tests
 
 Bug fixes
