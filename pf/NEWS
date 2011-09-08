@@ -23,7 +23,6 @@ Compatibility notice
  * We removed the central concept of mode (arp, dhcp or vlan). Now PacketFence
    can operate in multiple modes simultaneously. This new concept is called
    enforcement and is specified per interface in pf.conf.
- * Removed support for ARP mode
  * Removed support for Apache prior to version 2.2.0 (#828)
  * Removed support for jpgraph 1.x, 2.x which bumps our depedencies to PHP 5.1
 
