@@ -79,6 +79,7 @@ Bug fixes
  * Additional fixes to nessus scans
  * Renaming Nortel ERS modules (#1238)
  * Interim fixes (#1239, #1240)
+ * Missing named in the pfcmd help
 
 Translations
  * Updated Spanish (es) translation (Thanks to Juan Camilo Valencia)
