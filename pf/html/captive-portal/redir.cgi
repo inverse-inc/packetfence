@@ -62,14 +62,6 @@ if (defined($cgi->user_agent)) {
   $logger->warn("$mac has no user agent");
 }
 
-# registration auth request?
-# XXX deprecate that?
-if (defined($cgi->param('mode')) && $cgi->param('auth')) {
-  my $type=$cgi->param('auth');
-  $logger->info("redirecting to register-$type.cgi for reg authentication");
-  print $cgi->redirect("/cgi-bin/register-$type.cgi?mode=register&destination_url=$destination_url");
-}
-
 # check violation 
 #
 my $violation = violation_view_top($mac);
