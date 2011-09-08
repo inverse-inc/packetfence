@@ -269,9 +269,7 @@ sub readPfConfigFiles {
     foreach my $val (
         "expire.iplog",               "expire.traplog",
         "expire.locationlog",         "expire.node",
-        "arp.interval",               "arp.gw_timeout",
-        "arp.timeout",                "arp.dhcp_timeout",
-        "arp.heartbeat",              "trapping.redirtimer",
+        "trapping.redirtimer",
         "registration.skip_window",   "registration.skip_reminder",
         "registration.expire_window", "registration.expire_session",
         "general.maintenance_interval", "scan.duration",
@@ -351,9 +349,6 @@ sub readPfConfigFiles {
             }
         }
     }
-
-    @listen_ints = split( /\s*,\s*/, $Config{'arp'}{'listendevice'} )
-        if ( defined $Config{'arp'}{'listendevice'} );
 }
 
 =item readNetworkConfigFiles - networks.conf

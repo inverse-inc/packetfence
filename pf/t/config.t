@@ -29,7 +29,6 @@ foreach my $section ( tied(%doc)->Sections ) {
         if ($section =~ /^([^.]+)\.(.+)$/) {
             if ( ($1 ne 'interface') && ($1 ne 'services') 
                  && (! ( ($1 eq 'alerting') && ($2 eq 'fromaddr') ) )
-                 && (! ( ($1 eq 'arp') && ($2 eq 'listendevice') ) )
             ) {
                 $testNb++;
             }
@@ -58,7 +57,6 @@ foreach my $section ( tied(%doc)->Sections ) {
         if ($section =~ /^([^.]+)\.(.+)$/) {
             if ( ($1 ne 'interface') && ($1 ne 'services')
                  && (! ( ($1 eq 'alerting') && ($2 eq 'fromaddr') ) )
-                 && (! ( ($1 eq 'arp') && ($2 eq 'listendevice') ) )
                ) {
                 ok ( exists($default_cfg{$1}{$2}),
                      "$section has default value" );

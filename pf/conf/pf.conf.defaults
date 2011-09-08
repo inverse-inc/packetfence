@@ -41,57 +41,6 @@ locale=en_US
 # Interval at which Packetfence runs its maintenance tasks.
 maintenance_interval=60s
 
-[arp]
-#
-# arp.dhcp_timeout
-#
-# Used in detection of systems with static IP addresses.  Looks for broadcast DHCPDISCOVERs and flags a node as rogue if it 
-# fails to see one before timer is exceeded.  This value should be greater than 50% of your DHCP lease time.
-# 
-dhcp_timeout=8h
-#
-# arp.cleanshutdown
-#
-# If enabled, ARPs are sent to all trapped systems to re-point them to the correct gateway device at shutdown.
-cleanshutdown=enabled
-#
-# arp.interval
-#
-# Interval at which poisoned ARPs ("traps") are sent to infected/unregistered systems.
-interval=60s
-#
-# arp.strobe
-#
-# If enabled, sends ARP request to all IP addresses within range immediately after startup.  This allows for the internal MAC 
-# to IP mappings to be populated quickly.
-strobe=enabled
-#
-# arp.gw_timeout
-#
-# Used in detection of systems with statically-defined gateway ARP entries.  If a system has not ARPed for the gateway 
-# within this interval, it is removed from the IP->MAC mappings and should be flagged as rogue by the next probe.
-gw_timeout=1d
-#
-# arp.timeout
-#
-# Length of time of inactivity after which an unresponsive system is aged out.  Hello ARPs are sent at timeout/2 
-# and timeout-interval to avoid prematurely timing out a system.
-timeout=8h
-#
-# arp.heartbeat
-#
-# To eliminate the negative effects of switch flooding of poisoned ARPs on some (cough...cough...Netgear MR814v2) routers, we 
-# must first send a valid ARP to establish that the system is on-line.  The heartbeat is the length of time between the initial
-# "hello" and a poisoned "goodbye".
-heartbeat=30s
-#
-# arp.stuffing
-#
-# If enabled, forces PF system to "stuff" router ARP cache with a bogus MAC for systems that are not responding.  This 
-# option effectively increases the "stickiness" of traps by suppressing broadcast ARP traffic from the gateway.  It is also 
-# somewhat dangerous in that it relies on systems to issue a GARP (gratuitous ARP) at boot to reclaim previously stuffed 
-# addresses.
-stuffing=disabled
 
 [network]
 #

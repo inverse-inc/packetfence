@@ -66,7 +66,6 @@ my @files = (
     '/usr/local/pf/lib/pf/locationlog.pm',
     '/usr/local/pf/lib/pf/lookup/node.pm',
     '/usr/local/pf/lib/pf/lookup/person.pm',
-    '/usr/local/pf/lib/pf/nodecache.pm',
     '/usr/local/pf/lib/pf/nodecategory.pm',
     '/usr/local/pf/lib/pf/node.pm',
     '/usr/local/pf/lib/pf/os.pm',
