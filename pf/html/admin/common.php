@@ -1251,7 +1251,7 @@ function PrintSubNav($menu){
     $formname = "form_$error_$line";
 
     print "<form name='$formname' action='http://www.packetfence.org/bug_report.php' method='post'>";
-    print "  <input type='hidden' name='referrer' value='https://{$errcontext[HTTP_SERVER_VARS][HTTP_HOST]}{$errcontext[HTTP_SERVER_VARS][SCRIPT_NAME]}'>";
+    print "  <input type='hidden' name='referrer' value='https://{$errcontext[_SERVER][HTTP_HOST]}{$errcontext[_SERVER][SCRIPT_NAME]}'>";
     print "  <input type='hidden' name='context' value='".serialize($errcontext)."'>";
     print "  <input type='hidden' name='error' value='{$error_types[$severity]}: $error in $file on line $line'>";
     print "</form>";

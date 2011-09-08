@@ -387,8 +387,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
   <Location ~ />
     Options Indexes FollowSymLinks ExecCGI
     #AllowOverride None
-    #php_value register_globals "On"
-    php_value register_long_arrays "On"
     php_value session.save_path "%%install_dir%%/var/session"
     php_value memory_limit "128M"
     #(E_ALL & ~E_NOTICE) = 2047-8

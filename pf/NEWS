@@ -62,7 +62,8 @@ Enhancements
  * More start-up validation in `pfcmd checkup` (#1031, #1191)
  * Improved error-handling
  * Improved Filesystem Hierarchy Standard (FHS) compliance (#762)
- * PHP 5.3.x support, relates to distro portability too (#1211)
+ * Improves PHP 5.3.x support, relates to distro portability too (#1211, 
+   psnizek #1251)
  * More tests
 
 Bug fixes
