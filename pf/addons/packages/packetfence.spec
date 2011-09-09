@@ -133,7 +133,7 @@ Requires: perl(Authen::Krb5::Simple)
 Requires: perl(Text::CSV)
 Requires: perl(Text::CSV_XS)
 # Required for testing
-BuildRequires: perl(Test::MockModule), perl(Test::Perl::Critic), perl(Test::WWW::Mechanize)
+BuildRequires: perl(Test::MockObject), perl(Test::MockModule), perl(Test::Perl::Critic), perl(Test::WWW::Mechanize)
 BuildRequires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception), perl(Test::NoWarnings)
 
 %description
