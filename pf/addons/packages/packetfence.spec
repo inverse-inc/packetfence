@@ -132,8 +132,7 @@ Requires: perl(Authen::Krb5::Simple)
 Requires: perl(Text::CSV)
 Requires: perl(Text::CSV_XS)
 # Required for testing
-# TODO: I noticed that we provide perl-Test-MockDBI in our repo, maybe we made a poo poo with the deps
-BuildRequires: perl(Test::MockModule), perl(Test::MockDBI), perl(Test::Perl::Critic), perl(Test::WWW::Mechanize)
+BuildRequires: perl(Test::MockModule), perl(Test::Perl::Critic), perl(Test::WWW::Mechanize)
 BuildRequires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception), perl(Test::NoWarnings)
 
 %description
