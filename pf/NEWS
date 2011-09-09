@@ -48,6 +48,7 @@ New features
    if you have multiple authentication back-end enabled in auth
  * Simplification of the captive portal translation (#822, #1114)
  * RADIUS Accounting for tracking node bandwidth usage
+ * RedHat Enterprise Linux 6 / CentOS 6 support
 
 Enhancements
  * Captive portal usability improvements for both users and administrators
