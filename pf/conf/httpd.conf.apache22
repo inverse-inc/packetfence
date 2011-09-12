@@ -104,6 +104,7 @@ DirectoryIndex index.html index.cgi index.php
 # -- GLOBAL OPTIONS --
 PerlSwitches -I%%install_dir%%/lib
 PerlChildInitHandler "sub { srand }"
+php_value date.timezone "%%timezone%%"
  
 AddType application/x-httpd-php .php
 # Prevent Browsers (Chrome and Firefox) to cache DNS while under the captive portal
@@ -221,13 +222,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteRule ^.*$ https://%%hostname%%.%%domain%%/captive-portal?destination_url=https://%{HTTP_HOST}%{REQUEST_URI} [R=307,L]
 
 %%proxies%%                
-
-  <Location />
-    Options Indexes FollowSymLinks ExecCGI
-    php_value session.save_path "%%install_dir%%/var/session"
-    #(E_ALL & ~E_NOTICE) = 2047-8
-    php_value error_reporting 2039
-  </Location>
 
 </VirtualHost>
 
@@ -391,6 +385,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
     php_value memory_limit "128M"
     #(E_ALL & ~E_NOTICE) = 2047-8
     php_value error_reporting 2039
+    php_value short_open_tag On
   </Location>
 
 </VirtualHost>

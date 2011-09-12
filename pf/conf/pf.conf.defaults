@@ -36,6 +36,12 @@ caching=disabled
 # more than 1 can be specified
 locale=en_US
 #
+# general.timezone
+#
+# System's timezone in string format. Supported list:
+# http://www.php.net/manual/en/timezones.php
+timezone=America/Montreal
+#
 # general.maintenance_interval
 #
 # Interval at which Packetfence runs its maintenance tasks.
