@@ -48,7 +48,7 @@ New features
    if you have multiple authentication back-end enabled in auth
  * Simplification of the captive portal translation (#822, #1114)
  * RADIUS Accounting for tracking node bandwidth usage
- * RedHat Enterprise Linux 6 / CentOS 6 support
+ * RedHat Enterprise Linux 6 / CentOS 6 support (#1244)
 
 Enhancements
  * Captive portal usability improvements for both users and administrators
@@ -63,7 +63,7 @@ Enhancements
  * More start-up validation in `pfcmd checkup` (#1031, #1191)
  * Improved error-handling, reduced number of Perl warnings (#1266)
  * Improved Filesystem Hierarchy Standard (FHS) compliance (#762)
- * Improves PHP 5.3.x support, relates to distro portability too (#1211, 
+ * Improves PHP 5.3.x support, relates to distro portability too (#1211, #1244
    #1251: Thanks to Philipp Snizek)
  * More tests
 
