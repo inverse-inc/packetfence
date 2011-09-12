@@ -647,7 +647,7 @@ sub preregister_multiple {
     # failure, redirect to error page
     if ($count == 0) {
         pf::web::generate_error_page( $cgi, $session, "error: something went wrong creating the guest" );
-        return undef;
+        return;
     }
 
     # on success
@@ -867,8 +867,8 @@ sub import_csv {
   }
 
   # Read CSV file
-  if (open (FILE, "<$filename")) {
-    while (my $line = <FILE>) {
+  if (open (my $import_fh, "<", $filename)) {
+    while (my $line = <$import_fh>) {
       chomp $line;
       my @fields = split($delimiter, $line);
       my $pid = $fields[$index{'c_username'}];
@@ -890,7 +890,7 @@ sub import_csv {
         $count++ if ($success);
       }
     }
-    close FILE;
+    close $import_fh;
 
     return (1, $count);
   }

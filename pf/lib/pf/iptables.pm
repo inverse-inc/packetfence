@@ -151,12 +151,13 @@ sub generate_inline_rules {
 
     $logger->info("Allowing DNS through on inline interfaces to configured DNS servers");
     foreach my $network (keys %ConfigNetworks) {
-        my $dns = $ConfigNetworks{$network}{'dns'} if (defined($ConfigNetworks{$network}{'dns'}));;
-         
-        my $rule = "--protocol udp --destination $dns --destination-port 53 --jump ACCEPT\n";
-        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE $rule";
-        $$nat_rules_ref .= "-A $FW_PREROUTING_INT_INLINE $rule";
-        $logger->trace("adding DNS FILTER passthrough for $dns");
+        if (defined($ConfigNetworks{$network}{'dns'})) {
+            my $dns = $ConfigNetworks{$network}{'dns'};
+            my $rule = "--protocol udp --destination $dns --destination-port 53 --jump ACCEPT\n";
+            $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE $rule";
+            $$nat_rules_ref .= "-A $FW_PREROUTING_INT_INLINE $rule";
+            $logger->trace("adding DNS FILTER passthrough for $dns");
+        }
     }
 
     if (isenabled($Config{'trapping'}{'registration'})) {
@@ -482,7 +483,8 @@ sub generate_passthrough {
     my $filter_rules = '';
 
     # poke passthroughs
-    my %passthroughs =  %{ $Config{'passthroughs'} } if ( $Config{'trapping'}{'passthrough'} =~ /^iptables$/i );
+    my %passthroughs;
+    %passthroughs =  %{ $Config{'passthroughs'} } if ( $Config{'trapping'}{'passthrough'} =~ /^iptables$/i );
     $passthroughs{'trapping.redirecturl'} = $Config{'trapping'}{'redirecturl'} if ($Config{'trapping'}{'redirecturl'});
     foreach my $passthrough ( keys %passthroughs ) {
         if ( $passthroughs{$passthrough} =~ /^(http|https):\/\// ) {
