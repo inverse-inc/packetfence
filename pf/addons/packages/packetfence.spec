@@ -59,7 +59,7 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}-
 # http://www.rpm.org/wiki/PackagerDocs/Dependencies#InterpretersandShells for discussion on why
 BuildRequires: gettext, httpd
 BuildRequires: perl(Parse::RecDescent)
-Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget
+Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget, gettext
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl, php, php-gd
 Requires: mod_perl
