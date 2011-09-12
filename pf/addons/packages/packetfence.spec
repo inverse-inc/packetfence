@@ -163,7 +163,8 @@ server.
 
 %package freeradius2
 Group: System Environment/Daemons
-Requires: freeradius2, freeradius2-perl
+%{?el5:Requires: freeradius2, freeradius2-perl}
+%{?el6:Requires: freeradius, freeradius-perl}
 Requires: perl-SOAP-Lite
 Summary: Configuration pack for FreeRADIUS 2
 
