@@ -61,7 +61,7 @@ Enhancements
  * Simplified Apache configuration
  * Included the jpgraph PHP library. Simplifies installation from source.
  * More start-up validation in `pfcmd checkup` (#1031, #1191)
- * Improved error-handling
+ * Improved error-handling, reduced number of Perl warnings (#1266)
  * Improved Filesystem Hierarchy Standard (FHS) compliance (#762)
  * Improves PHP 5.3.x support, relates to distro portability too (#1211, 
    #1251: Thanks to Philipp Snizek)

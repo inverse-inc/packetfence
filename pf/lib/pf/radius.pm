@@ -31,7 +31,7 @@ use pf::vlan::custom $VLAN_API_LEVEL;
 # constants used by this module are provided by
 use pf::radius::constants;
 
-our $VERSION = 1.00;
+our $VERSION = 1.01;
 
 =head1 SUBROUTINES
 
@@ -115,7 +115,7 @@ sub authorize {
     # switch-specific information retrieval
     my $ssid;
     $port = $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
-    if (($connection_type & WIRELESS) == WIRELESS) {
+    if (($connection_type & $WIRELESS) == $WIRELESS) {
         $ssid = $switch->extractSsid($radius_request);
     }
 
@@ -172,7 +172,7 @@ sub authorize {
 
     #closes old locationlog entries and create a new one if required
     locationlog_synchronize($switch_ip, $port, $vlan, $mac, 
-        $isPhone ? VOIP : NO_VOIP, $connection_type, $user_name, $ssid
+        $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid
     );
 
     # does the switch support Dynamic VLAN Assignment
@@ -247,10 +247,10 @@ sub _doWeActOnThisCall {
     # is it wired or wireless? call sub accordingly
     if (defined($connection_type)) {
 
-        if (($connection_type & WIRELESS) == WIRELESS) {
+        if (($connection_type & $WIRELESS) == $WIRELESS) {
             $do_we_act = $this->_doWeActOnThisCallWireless($connection_type, $switch_ip, $mac, $port, $user_name);
 
-        } elsif (($connection_type & WIRED) == WIRED) {
+        } elsif (($connection_type & $WIRED) == $WIRED) {
             $do_we_act = $this->_doWeActOnThisCallWired($connection_type, $switch_ip, $mac, $port, $user_name);
         } else {
             $do_we_act = 0;
@@ -300,7 +300,7 @@ sub _doWeActOnThisCallWired {
 
 Identify the connection type based information provided by RADIUS call
 
-Returns the constants WIRED or WIRELESS. Undef if unable to identify.
+Returns the constants $WIRED or $WIRELESS. Undef if unable to identify.
 
 =cut
 sub _identifyConnectionType {
@@ -313,9 +313,9 @@ sub _identifyConnectionType {
         if ($nas_port_type =~ /^Wireless-802\.11$/) {
 
             if ($eap_type) {
-                return WIRELESS_802_1X;
+                return $WIRELESS_802_1X;
             } else {
-                return WIRELESS_MAC_AUTH;
+                return $WIRELESS_MAC_AUTH;
             }
     
         } elsif ($nas_port_type =~ /^Ethernet$/) {
@@ -328,13 +328,13 @@ sub _identifyConnectionType {
                 # (supportsEAPMacAuth?)
                 $mac =~ s/://g;
                 if ($mac eq $user_name) {
-                    return WIRED_MAC_AUTH;
+                    return $WIRED_MAC_AUTH;
                 } else {
-                    return WIRED_802_1X;
+                    return $WIRED_802_1X;
                 }
 
             } else {
-                return WIRED_MAC_AUTH;
+                return $WIRED_MAC_AUTH;
             }
 
         } else {
@@ -374,7 +374,7 @@ sub _authorizeVoip {
     }
 
     locationlog_synchronize(
-        $switch->{_ip}, $port, $switch->{_voiceVlan}, $mac, VOIP, $connection_type, $user_name, $ssid
+        $switch->{_ip}, $port, $switch->{_voiceVlan}, $mac, $VOIP, $connection_type, $user_name, $ssid
     );
 
     my %RAD_REPLY = $switch->getVoipVsa();
@@ -390,10 +390,10 @@ sub _translateNasPortToIfIndex {
     my ($this, $conn_type, $switch, $port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    if (($conn_type & WIRED) == WIRED) {
+    if (($conn_type & $WIRED) == $WIRED) {
         $logger->trace("translating NAS-Port to ifIndex for proper accounting");
         return $switch->NasPortToIfIndex($port);
-    } elsif (($conn_type & WIRELESS) == WIRELESS && !defined($port)) {
+    } elsif (($conn_type & $WIRELESS) == $WIRELESS && !defined($port)) {
         $logger->debug("got empty NAS-Port parameter, setting 0 to avoid breakage");
         $port = 0;
     }
@@ -409,15 +409,15 @@ sub _isSwitchSupported {
     my ($this, $switch, $conn_type) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    if ($conn_type == WIRED_MAC_AUTH) {
+    if ($conn_type == $WIRED_MAC_AUTH) {
         return $switch->supportsWiredMacAuth();
-    } elsif ($conn_type == WIRED_802_1X) {
+    } elsif ($conn_type == $WIRED_802_1X) {
         return $switch->supportsWiredDot1x();
-    } elsif ($conn_type == WIRELESS_MAC_AUTH) {
+    } elsif ($conn_type == $WIRELESS_MAC_AUTH) {
         # TODO implement supportsWirelessMacAuth (or supportsWireless)
         $logger->trace("Wireless doesn't have a supports...() call for now, always say it's supported");
         return $TRUE;
-    } elsif ($conn_type == WIRELESS_802_1X) {
+    } elsif ($conn_type == $WIRELESS_802_1X) {
         # TODO implement supportsWirelessMacAuth (or supportsWireless)
         $logger->trace("Wireless doesn't have a supports...() call for now, always say it's supported");
         return $TRUE;

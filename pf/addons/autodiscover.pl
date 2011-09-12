@@ -122,7 +122,7 @@ foreach my $switchDesc ( sort keys %{ $switchFactory->{'_config'} } ) {
                 print " -> vlan $vlan\n";
                 foreach my $mac ( @{ $allMacs->{$ifIndex}->{$vlan} } ) {
                     print "    - MAC: $mac";
-                    my $isPhone = NO_VOIP;
+                    my $isPhone = $NO_VOIP;
                     my $isFake = 0;
                     if ( $switch->isFakeMac($mac) ) {
                         print " (fake PC MAC)";
@@ -135,7 +135,7 @@ foreach my $switchDesc ( sort keys %{ $switchFactory->{'_config'} } ) {
                     if ( !$isFake ) {
                         if ( $switch->isPhoneAtIfIndex( $mac, $ifIndex ) ) {
                             print " (real VoIP MAC)";
-                            $isPhone = VOIP;
+                            $isPhone = $VOIP;
                             $nbPhones++;
                         } else {
                             $nbPCs++;

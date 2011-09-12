@@ -934,7 +934,7 @@ sub dot1xPortReauthenticate {
         my $vlan_obj = new pf::vlan::custom();
         $this->_setVlan(
             $ifIndex, 
-            $vlan_obj->fetchVlanForNode($mac, $this, $ifIndex, WIRED_802_1X), 
+            $vlan_obj->fetchVlanForNode($mac, $this, $ifIndex, $WIRED_802_1X), 
             undef, 
             {}
         );

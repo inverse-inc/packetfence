@@ -25,7 +25,7 @@ use pf::SNMP::constants;
 use pf::util;
 use pf::violation qw(violation_count_trap violation_exist_open violation_view_top);
 
-our $VERSION = 1.00;
+our $VERSION = 1.01;
 
 =head1 SUBROUTINES
 
@@ -370,11 +370,11 @@ sub getNodeInfoForAutoReg {
 
     # this might look circular but if a VoIP dhcp fingerprint was seen, we'll set node.voip to VOIP
     if ($isPhone) {
-        $node_info{'voip'} = VOIP;
+        $node_info{'voip'} = $VOIP;
     }
 
     # under 802.1X EAP, we trust the username provided since it authenticated
-    if (defined($conn_type) && (($conn_type & EAP) == EAP) && defined($user_name)) {
+    if (defined($conn_type) && (($conn_type & $EAP) == $EAP) && defined($user_name)) {
         $node_info{'pid'} = $user_name;
     }
 
@@ -425,7 +425,7 @@ sub shouldAutoRegister {
 
     # custom example: auto-register 802.1x users
     # Since they already have validated credentials through EAP to do 802.1X
-    #if (defined($conn_type) && (($conn_type & EAP) == EAP)) {
+    #if (defined($conn_type) && (($conn_type & $EAP) == $EAP)) {
     #    $logger->trace("returned yes because it's a 802.1X client that successfully authenticated already");
     #    return 1;
     #}

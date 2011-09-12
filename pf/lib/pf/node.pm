@@ -877,7 +877,7 @@ sub is_node_voip {
 
     $logger->trace("Asked wether node $mac is a VoIP Device or not");
     my $node_info = node_attributes($mac);   
-    if ($node_info->{'voip'} eq VOIP) {
+    if ($node_info->{'voip'} eq $VOIP) {
         return $TRUE;
     } else {
         return $FALSE;

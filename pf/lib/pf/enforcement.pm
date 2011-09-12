@@ -72,7 +72,7 @@ sub reevaluate_access {
         } else {
 
             my $conn_type = str_to_connection_type($locationlog_entry->{'connection_type'});
-            if ($conn_type == INLINE) {
+            if ($conn_type == $INLINE) {
                 my $inline = new pf::inline::custom();
                 return $inline->performInlineEnforcement($mac, %opts);
             } else {

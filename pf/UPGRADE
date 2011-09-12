@@ -14,8 +14,21 @@ o Upgrading from a version prior to <trunk-release>:
 
     - Database schema update
     Added support for guest self-registration / management. Also added support
-    for Radius accounting. New tables creation. You need to update your schema with:
+    for Radius accounting. New tables creation. You need to update your schema
+    with:
     mysql -u root -p pf -v < db/upgrade-2.2.0-3.0.0.sql
+
+    - pf/vlan/custom.pm and pf/vlan/radius.pm API changes
+    Several variables were changed from bareword constants into Readonly 
+    constants (to fix #1266). Some of you might need to adjust your 
+    customizations to handle this change. Most of you won't need to. If you use
+    any of these constants in your customizations:
+    WIRELESS_802_1X, WIRELESS_MAC_AUTH, WIRED_802_1X, WIRED_MAC_AUTH, 
+    WIRED_SNMP_TRAPS, WIRELESS, WIRED, EAP, UNKNOWN, INLINE, VOIP, NO_VOIP
+    Then you need to add a $ symbol in front of the constant's name.
+    All of you will need to bump the API level to '1.01' after your changes are
+    made (if required) to stop PacketFence from complaining about correct API 
+    level.
 
     - Firewall (iptables) now handled by PacketFence
     Make sure that iptables is not handled by your operating system otherwise

@@ -34,6 +34,7 @@ use JSON;
 use Locale::gettext;
 use Log::Log4perl;
 use POSIX;
+use Readonly;
 use Template;
 use Try::Tiny;
 
@@ -51,6 +52,8 @@ use pf::iplog qw(ip2mac);
 use pf::node qw(node_attributes node_view node_modify);
 use pf::useragent;
 use pf::web::auth; 
+
+Readonly our $LOOPBACK_IPV4 => '127.0.0.1';
 
 =head1 SUBROUTINES
 
@@ -647,7 +650,7 @@ sub get_client_ip {
     my $directly_connected_ip = $cgi->remote_addr();
 
     # handling most common case first
-    if ($directly_connected_ip ne LOOPBACK_IPV4) {
+    if ($directly_connected_ip ne $LOOPBACK_IPV4) {
         return $directly_connected_ip;
     }
 
@@ -655,13 +658,13 @@ sub get_client_ip {
     if (defined($ENV{'HTTP_X_FORWARDED_FOR'})) {
         my $proxied_ip = $ENV{'HTTP_X_FORWARDED_FOR'};
         $logger->debug(
-            "Remote Address is ".LOOPBACK_IPV4.". Client is proxied? "
+            "Remote Address is $LOOPBACK_IPV4. Client is proxied? "
             . "Returning: $proxied_ip according to HTTP Headers"
         );
         return $proxied_ip;
     }
 
-    $logger->debug("Remote Address is ".LOOPBACK_IPV4." but no further hints of client IP in HTTP Headers");
+    $logger->debug("Remote Address is $LOOPBACK_IPV4 but no further hints of client IP in HTTP Headers");
     return $directly_connected_ip;
 }
 
