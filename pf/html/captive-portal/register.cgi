@@ -16,11 +16,6 @@ use Log::Log4perl;
 use strict;
 use warnings;
 
-use constant INSTALL_DIR => '/usr/local/pf';
-use lib INSTALL_DIR . "/lib";
-# required for dynamically loaded authentication modules
-use lib INSTALL_DIR . "/conf";
-
 use pf::config;
 use pf::iplog;
 use pf::util;

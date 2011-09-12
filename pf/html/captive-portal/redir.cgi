@@ -14,17 +14,12 @@ use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
 use Log::Log4perl;
 
-use constant INSTALL_DIR => '/usr/local/pf';
-use constant SCAN_VID => 1200001;
-use lib INSTALL_DIR . "/lib";
-# required for dynamically loaded authentication modules
-use lib INSTALL_DIR . "/conf";
-
 use pf::class;
 use pf::config;
 use pf::enforcement;
 use pf::iplog;
 use pf::node;
+use pf::scan qw($SCAN_VID);
 use pf::util;
 use pf::violation;
 use pf::web;
@@ -72,7 +67,7 @@ if ($violation){
   my $class=class_view($vid);
 
   # detect if a system scan is in progress, if so redirect to scan in progress page
-  if ($vid == SCAN_VID && $violation->{'ticket_ref'} =~ /^Scan in progress, started at: (.*)$/) {
+  if ($vid == $SCAN_VID && $violation->{'ticket_ref'} =~ /^Scan in progress, started at: (.*)$/) {
     $logger->info("captive portal redirect to the scan in progress page");
     pf::web::generate_scan_status_page($cgi, $session, $1, $destination_url);
     exit(0);

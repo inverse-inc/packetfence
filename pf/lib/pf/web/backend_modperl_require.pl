@@ -9,6 +9,8 @@ Pre-loading PacketFence's modules in Apache (mod_perl) for the Web Admin / Web S
 
 =cut
 use lib "/usr/local/pf/lib";
+# dynamicly loaded authentication modules
+use lib "/usr/local/pf/conf";
 
 use strict;
 use warnings;

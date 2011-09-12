@@ -6,6 +6,8 @@ captiveportal_modperl_require.pl - Pre-loading PacketFence's modules in Apache (
 
 =cut
 use lib "/usr/local/pf/lib";
+# dynamicly loaded authentication modules
+use lib "/usr/local/pf/conf";
 
 use strict;
 use warnings;

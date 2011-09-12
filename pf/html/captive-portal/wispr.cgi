@@ -17,9 +17,6 @@ use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
 use Log::Log4perl;
 
-use constant INSTALL_DIR => '/usr/local/pf';
-use lib INSTALL_DIR . "/lib";
-
 use pf::web::wispr;
 # called last to allow redefinitions
 use pf::web::custom;

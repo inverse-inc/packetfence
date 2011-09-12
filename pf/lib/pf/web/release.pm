@@ -15,19 +15,17 @@ use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
 use Log::Log4perl;
 
-use constant INSTALL_DIR => '/usr/local/pf';
-use lib INSTALL_DIR . "/lib";
+use pf::class;
 use pf::config;
 use pf::iplog;
+use pf::node;
+use pf::scan qw($SCAN_VID);
+use pf::trigger;
 use pf::util;
+use pf::violation;
 use pf::web;
 # called last to allow redefinitions
 use pf::web::custom;
-#use pf::rawip;
-use pf::node;
-use pf::class;
-use pf::violation;
-use pf::trigger;
 
 use Apache2::RequestRec ();
 use Apache2::RequestIO ();
@@ -93,7 +91,7 @@ sub handler
   }
   
   # scan code...
-  if ($vid==1200001){
+  if ($vid==$SCAN_VID){
     # detect if a system scan is in progress, if so redirect to scan in progress page
     # this should only happen if the user explicitly put /release in his browser address
     if ($violations->{'ticket_ref'} =~ /^Scan in progress, started at: (.*)$/) {

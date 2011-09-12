@@ -72,6 +72,7 @@ BEGIN {
 use pf::config;
 use pf::db;
 use pf::nodecategory;
+use pf::scan qw($SCAN_VID);
 use pf::util;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -700,7 +701,7 @@ sub node_register {
         #nessus code
         if ( isenabled( $Config{'scan'}{'registration'} ) ) {
             require pf::violation;
-            pf::violation::violation_add( $mac, 1200001 );
+            pf::violation::violation_add( $mac, $SCAN_VID );
         }
 
     }

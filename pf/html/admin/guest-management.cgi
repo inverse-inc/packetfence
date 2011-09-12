@@ -15,11 +15,6 @@ use POSIX;
 use Readonly;
 use Template;
 
-use constant INSTALL_DIR => '/usr/local/pf';
-use lib INSTALL_DIR . "/lib";
-# required for dynamically loaded authentication modules
-use lib INSTALL_DIR . "/conf";
-
 use pf::class;
 use pf::config;
 use pf::email_activation;
