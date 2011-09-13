@@ -417,13 +417,6 @@ sub violation_trigger {
         return 0;
     }
 
-    # scan violation and scan violation id not authorized in config
-    if ($type eq 'scan' && ! _scanTriggerIdEnabled($tid)) {   
-        $logger->warn("violation not added, Scan trigger id is not enabled! ". 
-                      "Please add $tid to scan.live_tids for the violation to trigger. MAC: $mac, IP: ".$data{'ip'});
-        return 0;
-    }
-
     my $addedViolation = 0;
     foreach my $row (@trigger_info) {
         # if trigger row is not an hash reference, has no vid or its vid is non numeric, we report and skip
@@ -470,19 +463,6 @@ sub violation_trigger {
         $addedViolation = 1;
     }
     return $addedViolation;
-}
-
-# test wrapper for: Is this scan tid authorized in scan.live_tids
-sub _scanTriggerIdEnabled {
-    my ($tid) = @_;
-
-    #if scan.live_tids is not set assume nothing is allowed
-    return 0 if (!defined $Config{'scan'}{'live_tids'});
-
-    #read: return 0 if its not in the list
-    return 0 if (!grep({$_ eq $tid} split(/\s*,\s*/, $Config{'scan'}{'live_tids'})));
-
-    return 1;
 }
 
 sub violation_delete {

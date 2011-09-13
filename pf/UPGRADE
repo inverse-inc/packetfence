@@ -86,6 +86,11 @@ o Upgrading from a version prior to <trunk-release>:
     because of the modes removal it needed to be changed to disabled by default.
     Please report any regression introduced by this change.
 
+    - pf.conf's scan.live_tids parameter removed
+    This "feature" has been removed because it created more confusion than 
+    usefulness. Now every scan trigger ids specified in violations.conf have
+    full effect.
+
     - networks.conf's pf_gateway= renamed next_hop=
     Make sure to update your configuration otherwise you will get warnings on
     startup. At some point in the future pf_gateway will no longer be supported.

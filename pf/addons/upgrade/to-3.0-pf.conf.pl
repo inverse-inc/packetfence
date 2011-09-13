@@ -26,6 +26,10 @@ No longer required.
 
 They changed section and they default to enabled so if we see them as enabled we simply get rid of the entries.
 
+=item scan.live_tids dropped
+
+We just drop it.
+
 =back
 
 =cut
@@ -38,6 +42,7 @@ while (<>) {
     next if (/^mode=vlan\s*$/i);
     next if (/^named=\s*enabled\s*$/i);
     next if (/^dhcpd=\s*enabled\s*$/i);
+    next if (/^live_tids=.*$/i);
 
     # if we didn't skip, we keep
     print;

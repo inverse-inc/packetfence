@@ -343,13 +343,6 @@ host=127.0.0.1
 # If this option is enabled, pf will scan each host after registration is complete with all nessusids.
 registration=disabled
 #
-# scan.live_tids
-#
-# If a host fails a scan AND the tid is listed in live_tids the corresponding violation will
-# be added. If the tid is not listed here the event will be logged only. This is used to test 
-# Nessus plugins before going live. The tid is the Nessus plugin Id.
-live_tids=
-#
 # scan.nessusclient_file
 #
 # Name of the NessusClient file; the file format is documented at
