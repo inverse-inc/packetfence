@@ -57,7 +57,7 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}-
 
 # FIXME change all perl Requires: into their namespace counterpart, see what happened in #931 and
 # http://www.rpm.org/wiki/PackagerDocs/Dependencies#InterpretersandShells for discussion on why
-BuildRequires: gettext, httpd
+BuildRequires: gettext, httpd, rpm-macros-rpmforge
 BuildRequires: perl(Parse::RecDescent)
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget, gettext
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
