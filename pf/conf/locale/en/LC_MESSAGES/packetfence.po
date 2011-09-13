@@ -16,11 +16,26 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 
-msgid  "en_US"
+msgid "en_US"
 msgstr "English"
 
-msgid  "fr_FR"
+msgid "fr_FR"
 msgstr "Français"
+
+msgid "es_ES"
+msgstr "Español"
+
+msgid "de_DE"
+msgstr "Deutsch"
+
+msgid "it_IT"
+msgstr "Italiano"
+
+msgid "nl_NL"
+msgstr "Dutch"
+
+msgid "pt_BR"
+msgstr "Português"
 
 msgid  "error: access denied not owner"
 msgstr "Access denied: you are not the owner of this node!"
@@ -224,13 +239,13 @@ msgid "Your system has been detected sending traffic to a network known to be un
 msgstr ""
 
 msgid  "Your system will likely need to be rebuilt. Please contact your local support staff for more information."
-msgstr "Your system will likely need to be rebuilt. Please contact your local support staff for more information."
+msgstr ""
 
 msgid  "Windows patches are not up to date"
-msgstr "Windows patches are not up to date"
+msgstr ""
 
-msgid  "Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken. Instructions for disinfection are below:"
-msgstr "Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken. Instructions for disinfection are below:"
+msgid  "Due to the threat this poses for other systems on the network, network connectivity has been disabled until corrective action is taken. Instructions for disinfection are below:"
+msgstr ""
 
 msgid  "Generic"
 msgstr "Generic"
@@ -378,6 +393,12 @@ msgstr ""
 msgid  "An error occured while sending the PIN by SMS."
 msgstr ""
 
+msgid  "The uploaded file was corrupted. Please try again."
+msgstr ""
+
+msgid  "Can't open uploaded file."
+msgstr ""
+
 msgid  "Confirm Mobile Phone Number"
 msgstr ""
 
@@ -403,6 +424,24 @@ msgid "Once authenticated the access will be valid for %d %s."
 msgstr ""
 
 msgid "Guest successfully registered. An email with the username and password has been sent."
+msgstr ""
+
+msgid "Successfully registered %i guests."
+msgstr ""
+
+msgid "Single guest creation"
+msgstr ""
+
+msgid "Multiple guest accounts creation"
+msgstr ""
+
+msgid "CSV file import"
+msgstr ""
+
+msgid "You are logged in as"
+msgstr ""
+
+msgid "Sponsored by"
 msgstr ""
 
 msgid "Guest Network Access Information"
@@ -439,4 +478,58 @@ msgid "Next page"
 msgstr ""
 
 msgid "The activation code provided is invalid. Reasons could be: it never existed, it was already used or has expired."
+msgstr ""
+
+msgid "You have been detected using a device that has been explicitly disallowed by your network administrator."
+msgstr ""
+
+msgid "NAT Device Detected"
+msgstr ""
+
+msgid "You have been detected using a device that performs network address translation (NAT). These devices, typically wireless access points or 'routers' are not permitted on the network. Please unplug this device and connect your computer directly to the network for access."
+msgstr ""
+
+msgid "Rogue DHCP server"
+msgstr ""
+
+msgid "You have been detected running a rogue DHCP server. Please disable it."
+msgstr ""
+
+msgid "Vulnerability Scanning"
+msgstr ""
+
+msgid "Your system will be scanned for vulnerabilities before you are allowed to enter the network. Please click on the button below, this can take anywhere from a few seconds to a couple of minutes."
+msgstr ""
+
+msgid "Malware found!"
+msgstr ""
+
+msgid "Your system has been found to be infected with malware. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgstr ""
+
+msgid "Malware Removal"
+msgstr ""
+
+msgid "LSASS Worm"
+msgstr ""
+
+msgid "Your system has been found to be infected with An LSASS-based worm. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken. Instructions for disinfection are below:"
+msgstr ""
+
+msgid "Worm Removal"
+msgstr ""
+
+msgid "Trojan Infection"
+msgstr ""
+
+msgid "Your system has been found to be infected with a Trojan IRC bot and is scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgstr ""
+
+msgid  "Zotob Infection"
+msgstr ""
+
+msgid  "Your system has been found to be infected with a Zotob worm and is scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgstr ""
+
+msgid  "Your network access is currently being enabled. Once network connectivity is established you will be automatically redirected."
 msgstr ""

@@ -21,12 +21,13 @@ use warnings;
 
 use Log::Log4perl;
 use Parse::Nessus::NBE;
+use Readonly;
 
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
-    @EXPORT = qw(runScan);
+    @EXPORT = qw(runScan $SCAN_VID);
 }
 
 use pf::config;
@@ -34,8 +35,9 @@ use pf::iplog qw(ip2mac);
 use pf::util;
 use pf::violation qw(violation_exist_open violation_trigger violation_modify);
 
+Readonly our $SCAN_VID => 1200001;
+
 use constant {
-    SCAN_VID => 1200001,
     SEVERITY_HOLE => 1,
     SEVERITY_WARNING => 2,
     SEVERITY_INFO => 3,
@@ -103,7 +105,11 @@ sub runScan {
     my @nessusdata = <$infile_fh>;
     close( $infile_fh );
 
-    my @countvulns = Parse::Nessus::NBE::nstatvulns(@nessusdata, SEVERITY_INFO);
+    my @countvulns = ( 
+        Parse::Nessus::NBE::nstatvulns(@nessusdata, SEVERITY_HOLE), 
+        Parse::Nessus::NBE::nstatvulns(@nessusdata, SEVERITY_WARNING), 
+        Parse::Nessus::NBE::nstatvulns(@nessusdata, SEVERITY_INFO),
+    );
     
     # for each vuln, trigger the violation
     my $failedScan = 0;
@@ -130,14 +136,14 @@ sub runScan {
     # If scan came from elsewhere
     #   Do nothing
     #
-    # The way we accomplish the above workflow is to differentiate by checking if 1200001 exists or not
-    if (my $violationId = violation_exist_open($mac, SCAN_VID)) {
+    # The way we accomplish the above workflow is to differentiate by checking if special violation exists or not
+    if (my $violationId = violation_exist_open($mac, $SCAN_VID)) {
         $logger->trace("Scan is completed and there is an open scan violation. We have something to do!");
         # we passed the scan so we can close the scan violation
         if (!$failedScan) {
 
-            my $cmd = $bin_dir."/pfcmd manage vclose $mac ".SCAN_VID;
-            $logger->info("calling $bin_dir/pfcmd manage vclose $mac ".SCAN_VID);
+            my $cmd = $bin_dir."/pfcmd manage vclose $mac $SCAN_VID";
+            $logger->info("calling $bin_dir/pfcmd manage vclose $mac $SCAN_VID");
             my $grace = pf_run("$cmd");
             if ($grace == -1) {
                 $logger->warn("problem trying to close scan violation");

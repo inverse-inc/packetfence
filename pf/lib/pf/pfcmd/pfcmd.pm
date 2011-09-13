@@ -2,6 +2,7 @@
 
 pfcmd grammar
 
+
 =head1 DESCRIPTION
 
 bin/pfcmd command-line parser.
@@ -15,7 +16,8 @@ The grammar is usually compiled by the RPM install process
 however if you do any modifications on your own you might want to precompile it again youself.
 
 To do so, from /usr/local/pf/, run: 
-    /usr/bin/perl -w -e 'use strict; use warnings; use diagnostics; use Parse::RecDescent; use lib "./lib"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile($grammar, "pfcmd_pregrammar");'
+
+  /usr/bin/perl -w -e "use strict; use warnings; use diagnostics; use Parse::RecDescent; use lib \"./lib\"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile(\$grammar, \"pfcmd_pregrammar\");"
 
 Then put the resulting pfcmd_pregrammar.pm file in /usr/local/pf/lib/pf/pfcmd/
 
@@ -148,7 +150,7 @@ $grammar = q {
 
    value : '"' /[&=?()\/,0-9a-zA-Z_\*\.\-\:_\;\@\ \+\!]*/ '"' {$item[2]} | /[\/0-9a-zA-Z_\*\.\-\:_\;\@]+/
 
-   person_view_field : 'pid' | 'firstname' | 'lastname' | 'email' | 'telephone' | 'company' | 'address' | 'notes'
+   person_view_field : 'pid' | 'firstname' | 'lastname' | 'email' | 'telephone' | 'company' | 'address' | 'notes' | 'sponsor'
 
    node_view_field : 'mac' | 'pid' | 'category' | 'detect_date' | 'regdate' | 'unregdate' | 'lastskip' | 'status' | 'user_agent' | 'computername'  | 'notes' | 'last_arp' | 'last_dhcp' | 'dhcp_fingerprint' | 'voip' | 'bypass_vlan'
 
@@ -162,7 +164,7 @@ $grammar = q {
 
    floatingnetworkdeviceconfig_view_field : 'ip' | 'trunkPort' | 'pvid' | 'taggedVlan'
 
-   violationconfig_view_field : 'desc' | 'disable' | 'auto_enable' | 'actions' | 'max_enable' | 'grace' | 'priority' | 'url' | 'button_text' | 'trigger' | 'vlan' | 'whitelisted_categories'
+   violationconfig_view_field : 'desc' | 'enabled' | 'auto_enable' | 'actions' | 'max_enable' | 'grace' | 'priority' | 'url' | 'button_text' | 'trigger' | 'vlan' | 'whitelisted_categories'
 
    violation_view_field :  'id' | 'mac' | 'vid' | 'start_date' | 'release_date' | 'status' | 'notes'
 

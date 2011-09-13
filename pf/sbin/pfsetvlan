@@ -1065,7 +1065,7 @@ sub handleTrap {
                     "MAC $mac is a VoIP phone -> Do nothing besides updating locationlog"
                 );
                 locationlog_synchronize($switch_ip, $switch_port, 
-                    $switch->getVoiceVlan($switch_port), $mac, VOIP, WIRED_SNMP_TRAPS);
+                    $switch->getVoiceVlan($switch_port), $mac, $VOIP, $WIRED_SNMP_TRAPS);
             } else {
 
                 my $changeVlan = 0;
@@ -1081,7 +1081,7 @@ sub handleTrap {
                 {
                     if ( $locationlog[0]->{'mac'} =~ /^$mac$/i ) {
                         if (( $locationlog[0]->{'vlan'} == $vlan )
-                            && ($vlan == $vlan_obj->fetchVlanForNode($mac, $switch, $switch_port, WIRED_SNMP_TRAPS))
+                            && ($vlan == $vlan_obj->fetchVlanForNode($mac, $switch, $switch_port, $WIRED_SNMP_TRAPS))
                            ) {
                             $logger->info(
                                 "locationlog is already up2date. Do nothing");
@@ -1102,7 +1102,7 @@ sub handleTrap {
                 }
 
                 if ( $changeVlan == 1 ) {
-                    node_determine_and_set_into_VLAN( $mac, $switch, $switch_port, WIRED_SNMP_TRAPS );
+                    node_determine_and_set_into_VLAN( $mac, $switch, $switch_port, $WIRED_SNMP_TRAPS );
                 }
             }
         }
@@ -1254,7 +1254,7 @@ sub handleTrap {
                     $voiceVlan );
             }
 
-            locationlog_synchronize($switch_ip, $switch_port, $voiceVlan, $trapMac, VOIP, WIRED_SNMP_TRAPS);
+            locationlog_synchronize($switch_ip, $switch_port, $voiceVlan, $trapMac, $VOIP, $WIRED_SNMP_TRAPS);
 
             # }}}3
 
@@ -1269,7 +1269,7 @@ sub handleTrap {
                 locationlog_update_end_mac($oldPC);
                 $logger->info("authorizing $trapMac (old entry $oldPC) at new location $switch_ip ifIndex $switch_port");
                 my $correctVlanForThisNode = $vlan_obj->fetchVlanForNode(
-                    $trapMac, $switch, $switch_port, WIRED_SNMP_TRAPS
+                    $trapMac, $switch, $switch_port, $WIRED_SNMP_TRAPS
                 );
                 $switch->authorizeMAC( $switch_port, $oldPC, $trapMac, $switch->getVlan($switch_port), $correctVlanForThisNode );
 
@@ -1296,7 +1296,7 @@ sub handleTrap {
                     }
                 }
                 my $correctVlanForThisNode = $vlan_obj->fetchVlanForNode(
-                    $trapMac, $switch, $switch_port, WIRED_SNMP_TRAPS
+                    $trapMac, $switch, $switch_port, $WIRED_SNMP_TRAPS
                 );
                 if ( defined($old_mac_to_remove) ) {
                     $logger->info(
@@ -1554,7 +1554,7 @@ sub handleTrap {
             # }}}4
 
             # node_determine_and_set_into_VLAN {{{4
-            node_determine_and_set_into_VLAN( $mac, $switch, $switch_port, WIRED_SNMP_TRAPS );
+            node_determine_and_set_into_VLAN( $mac, $switch, $switch_port, $WIRED_SNMP_TRAPS );
 
             # }}}4
             # }}}3
@@ -1575,7 +1575,7 @@ sub handleTrap {
         $logger->info("$trapType trap received on $switch_ip for wireless client $trapMac");
         #$switch->deauthenticateMac($trapMac);
         my $switchIp = $switch->{_ip};
-        if ($connection_type == WIRELESS_802_1X) {
+        if ($connection_type == $WIRELESS_802_1X) {
             # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
             # http://www.cpanforum.com/threads/6909
             pf_run("/usr/local/pf/bin/pfcmd_vlan -deauthenticateDot1x -switch $switchIp -mac $trapMac");
@@ -1592,11 +1592,11 @@ sub handleTrap {
         my $connection_type = $trapOperation; # WARNING: I used trapOperation to carry the connection type
         $logger->info("$trapType trap received on $switch_ip ifIndex $switch_port");
 
-        if (defined($connection_type) && $connection_type == WIRED_802_1X) {
+        if (defined($connection_type) && $connection_type == $WIRED_802_1X) {
             $logger->info("Forcing 802.1x re-authentication on $switch_ip:$switch_port. A new VLAN will be assigned.");
             pf_run("/usr/local/pf/bin/pfcmd_vlan -deauthenticateDot1x -switch $switch_ip -ifIndex $switch_port");
 
-        } elsif (defined($connection_type) && $connection_type == WIRED_MAC_AUTH) {
+        } elsif (defined($connection_type) && $connection_type == $WIRED_MAC_AUTH) {
             $switch->handleReAssignVlanTrapForWiredMacAuth($switch_port);
 
         } else {
@@ -1789,10 +1789,10 @@ sub node_update_PF {
     node_mac_wakeup($mac);
 
     #should we auto-register?
-    if ($vlan_obj->shouldAutoRegister($mac, $registrationMode, 0, $isPhone, WIRED_SNMP_TRAPS)) {
+    if ($vlan_obj->shouldAutoRegister($mac, $registrationMode, 0, $isPhone, $WIRED_SNMP_TRAPS)) {
         # auto-register
         my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch->{_ip}, $switch_port, 
-            $mac, $vlan, $registrationMode, 0, $isPhone, WIRED_SNMP_TRAPS);
+            $mac, $vlan, $registrationMode, 0, $isPhone, $WIRED_SNMP_TRAPS);
         $logger->debug("auto-registering node $mac");
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
             $logger->error("auto-registration of node $mac failed");

@@ -46,7 +46,7 @@ sub new {
 
 =cut
 sub performInlineEnforcement { 
-    my ($this, $mac) = @_;
+    my ($this, $mac, %opts) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     # What is the MAC's current state?

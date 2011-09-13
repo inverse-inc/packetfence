@@ -72,6 +72,7 @@ BEGIN {
 use pf::config;
 use pf::db;
 use pf::nodecategory;
+use pf::scan qw($SCAN_VID);
 use pf::util;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -700,7 +701,7 @@ sub node_register {
         #nessus code
         if ( isenabled( $Config{'scan'}{'registration'} ) ) {
             require pf::violation;
-            pf::violation::violation_add( $mac, 1200001 );
+            pf::violation::violation_add( $mac, $SCAN_VID );
         }
 
     }
@@ -876,7 +877,7 @@ sub is_node_voip {
 
     $logger->trace("Asked wether node $mac is a VoIP Device or not");
     my $node_info = node_attributes($mac);   
-    if ($node_info->{'voip'} eq VOIP) {
+    if ($node_info->{'voip'} eq $VOIP) {
         return $TRUE;
     } else {
         return $FALSE;

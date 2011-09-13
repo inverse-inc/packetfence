@@ -23,7 +23,6 @@ Compatibility notice
  * We removed the central concept of mode (arp, dhcp or vlan). Now PacketFence
    can operate in multiple modes simultaneously. This new concept is called
    enforcement and is specified per interface in pf.conf.
- * Removed support for ARP mode
  * Removed support for Apache prior to version 2.2.0 (#828)
  * Removed support for jpgraph 1.x, 2.x which bumps our depedencies to PHP 5.1
 
@@ -37,8 +36,8 @@ New features
    professional. Cleaner XHTML/CSS makes customization a lot easier than before.
    Also, all user-visible URLs are now clean and short (no more cgi-bin/... 
    clutter). (#980, #982, #1114)
- * Flexible guest handling API (covering temporary passwords, self-registration,
-   pre-registration, etc.)
+ * Flexible guest handling (covering temporary passwords, self-registration,
+   pre-registration, extension API, etc.)
  * Introduced in-line support: firewall based access control with captive 
    portal. Use this complementary technique when you cannot use VLAN 
    enforcement. (#1227)
@@ -49,6 +48,7 @@ New features
    if you have multiple authentication back-end enabled in auth
  * Simplification of the captive portal translation (#822, #1114)
  * RADIUS Accounting for tracking node bandwidth usage
+ * RedHat Enterprise Linux 6 / CentOS 6 support (#1244)
 
 Enhancements
  * Captive portal usability improvements for both users and administrators
@@ -60,21 +60,30 @@ Enhancements
    based on networks.conf's DNS entry (#1105)
  * Simplified Apache configuration
  * Included the jpgraph PHP library. Simplifies installation from source.
- * More start-up validation in `pfcmd checkup`
- * Improved error-handling
+ * More start-up validation in `pfcmd checkup` (#1031, #1191, #1252)
+ * Improved error-handling, reduced number of Perl warnings (#1266)
  * Improved Filesystem Hierarchy Standard (FHS) compliance (#762)
+ * Improves PHP 5.3.x support, relates to distro portability too (#1211, #1244
+   #1251: Thanks to Philipp Snizek)
  * More tests
 
 Bug fixes
  * jpgraph version bump to 3.0.7. Fixes RHEL 6 issues. (#1244)
  * Fixed encoding issues in the captive portal (#1115)
+ * Fixed redirect loop on the captive portal if VLAN reassignment failed (#1260)
  * Fixes issues with accentuated characters and single quotes in some captive
    portal strings
+ * Fixed accidental stop/restart of services because administrative where done
+   in GET instead of POST (#1119)
  * Cisco C3560 now heritates the Cisco C2960 code
  * Fixed distro portability problems (#1185, #1187, #1248)
  * Additional fixes to nessus scans
  * Renaming Nortel ERS modules (#1238)
  * Interim fixes (#1239, #1240)
+ * Missing named in the pfcmd help
+
+Translations
+ * Updated Spanish (es) translation (Thanks to Juan Camilo Valencia)
 
 --------------------------------------------------------------------------------
 Version <version> released on <releaseDate>

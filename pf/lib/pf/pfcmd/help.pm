@@ -99,6 +99,7 @@ status returns PID of specified PF daemon or 0 if not running
 watch acts as a service watcher which can send email/restart the services
 
   httpd            | apache
+  named            | BIND 
   pf               | all services
   pfdetect         | PF snort alert parser
   pfdhcplistener   | PF DHCP monitoring daemon

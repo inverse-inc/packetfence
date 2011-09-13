@@ -34,6 +34,7 @@ use JSON;
 use Locale::gettext;
 use Log::Log4perl;
 use POSIX;
+use Readonly;
 use Template;
 use Try::Tiny;
 
@@ -51,6 +52,8 @@ use pf::iplog qw(ip2mac);
 use pf::node qw(node_attributes node_view node_modify);
 use pf::useragent;
 use pf::web::auth; 
+
+Readonly our $LOOPBACK_IPV4 => '127.0.0.1';
 
 =head1 SUBROUTINES
 
@@ -113,8 +116,8 @@ sub generate_release_page {
         retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
         list_help_info  => [
-            { name => gettext('IP'),  value => $ip },
-            { name => gettext('MAC'), value => $mac }
+            { name => i18n('IP'),  value => $ip },
+            { name => i18n('MAC'), value => $mac }
         ],
     };
 
@@ -152,12 +155,12 @@ sub generate_scan_start_page {
         destination_url => $destination_url,
         i18n => \&i18n,
         txt_message     => sprintf(
-            gettext("system scan in progress"),
+            i18n("system scan in progress"),
             $Config{'scan'}{'duration'}
         ),
         list_help_info  => [
-            { name => gettext('IP'),  value => $ip },
-            { name => gettext('MAC'), value => $mac }
+            { name => i18n('IP'),  value => $ip },
+            { name => i18n('MAC'), value => $mac }
         ],
     };
     # Once the progress bar is over, try redirecting
@@ -185,19 +188,19 @@ sub generate_login_page {
         logo            => $Config{'general'}{'logo'},
         destination_url => $destination_url,
         list_help_info  => [
-            { name => gettext('IP'),  value => $ip },
-            { name => gettext('MAC'), value => $mac }
+            { name => i18n('IP'),  value => $ip },
+            { name => i18n('MAC'), value => $mac }
         ],
     };
     if ( defined($err) ) {
         if ( $err == 3 ) {
-            $vars->{'txt_auth_error'} = gettext('You need to accept the terms before proceeding any further.');
+            $vars->{'txt_auth_error'} = i18n('You need to accept the terms before proceeding any further.');
         } elsif ( $err == 2 ) {
-            $vars->{'txt_auth_error'} = gettext(
+            $vars->{'txt_auth_error'} = i18n(
                 'error: unable to validate credentials at the moment');
         } elsif ( $err == 1 ) {
             $vars->{'txt_auth_error'}
-                = gettext('error: invalid login or password');
+                = i18n('error: invalid login or password');
         }
     }
 
@@ -272,8 +275,8 @@ sub generate_aup_standalone_page {
         logo            => $Config{'general'}{'logo'},
         i18n            => \&i18n,
         list_help_info  => [
-            { name => gettext('IP'),  value => $ip },
-            { name => gettext('MAC'), value => $mac }
+            { name => i18n('IP'),  value => $ip },
+            { name => i18n('MAC'), value => $mac }
         ],
     };
 
@@ -299,13 +302,13 @@ sub generate_scan_status_page {
     my $vars = {
         logo             => $Config{'general'}{'logo'},
         i18n             => \&i18n,
-        txt_message      => sprintf(gettext('scan in progress contact support if too long'), $scan_start_time),
-        txt_auto_refresh => sprintf(gettext('automatically refresh'), $refresh_timer),
+        txt_message      => sprintf(i18n('scan in progress contact support if too long'), $scan_start_time),
+        txt_auto_refresh => sprintf(i18n('automatically refresh'), $refresh_timer),
         destination_url  => $destination_url,
         refresh_timer    => $refresh_timer,
         list_help_info  => [
-            { name => gettext('IP'),  value => $ip },
-            { name => gettext('MAC'), value => $mac }
+            { name => i18n('IP'),  value => $ip },
+            { name => i18n('MAC'), value => $mac }
         ],
     };
 
@@ -330,18 +333,18 @@ sub generate_error_page {
         my $maxnodes = 0;
         $maxnodes = $Config{'registration'}{'maxnodes'}
             if ( defined $Config{'registration'}{'maxnodes'} );
-        $vars->{txt_message} = sprintf( gettext($error_msg), $maxnodes );
+        $vars->{txt_message} = sprintf( i18n($error_msg), $maxnodes );
     } else {
-        $vars->{txt_message} = gettext($error_msg);
+        $vars->{txt_message} = i18n($error_msg);
     }
 
     my $ip = get_client_ip($cgi);
     push @{ $vars->{list_help_info} },
-        { name => gettext('IP'), value => $ip };
+        { name => i18n('IP'), value => $ip };
     my $mac = ip2mac($ip);
     if ($mac) {
         push @{ $vars->{list_help_info} },
-            { name => gettext('MAC'), value => $mac };
+            { name => i18n('MAC'), value => $mac };
     }
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
@@ -371,28 +374,28 @@ sub generate_status_page {
         logo            => $Config{'general'}{'logo'},
         i18n            => \&i18n,
         list_help_info  => [
-            { name => gettext('IP'),  value => $ip },
-            { name => gettext('MAC'), value => $mac }
+            { name => i18n('IP'),  value => $ip },
+            { name => i18n('MAC'), value => $mac }
         ],
     };
     $vars->{list_addresses} = [
-        { name => gettext('IP'),  value => $ip },
-        { name => gettext('MAC'), value => $mac },
-        {   name  => gettext('Hostname'),
+        { name => i18n('IP'),  value => $ip },
+        { name => i18n('MAC'), value => $mac },
+        {   name  => i18n('Hostname'),
             value => $node_info->{'computername'}
         },
-        {   name  => gettext('Gateway') . ' (' . gettext('IP') . ')',
+        {   name  => i18n('Gateway') . ' (' . i18n('IP') . ')',
             value => ip2gateway($ip)
         },
-        {   name  => gettext('Gateway') . ' (' . gettext('MAC') . ')',
+        {   name  => i18n('Gateway') . ' (' . i18n('MAC') . ')',
             value => ip2mac( ip2gateway($ip) )
         },
     ];
     $vars->{list_node_info} = [
-        {   name  => gettext('Status'),
-            value => gettext( $node_info->{'status'} )
+        {   name  => i18n('Status'),
+            value => i18n( $node_info->{'status'} )
         },
-        { name => gettext('PID'), value => $node_info->{'pid'} },
+        { name => i18n('PID'), value => $node_info->{'pid'} },
     ];
     require pf::violation;
     require pf::class;
@@ -560,8 +563,8 @@ sub generate_registration_page {
         destination_url => $destination_url,
         i18n            => \&i18n,
         list_help_info  => [
-            { name => gettext('IP'),  value => $ip },
-            { name => gettext('MAC'), value => $mac }
+            { name => i18n('IP'),  value => $ip },
+            { name => i18n('MAC'), value => $mac }
         ],
         reg_page_content_file => "register_$pagenumber.html",
     };
@@ -580,10 +583,10 @@ sub generate_registration_page {
     }
 
     if ( $pagenumber == $Config{'registration'}{'nbregpages'} ) {
-        $vars->{'button_text'} = gettext($Config{'registration'}{'button_text'});
+        $vars->{'button_text'} = i18n($Config{'registration'}{'button_text'});
         $vars->{'form_action'} = '/authenticate';
     } else {
-        $vars->{'button_text'} = gettext("Next page");
+        $vars->{'button_text'} = i18n("Next page");
         $vars->{'form_action'} = '/authenticate?mode=next_page&page=' . ( int($pagenumber) + 1 );
     }
 
@@ -607,8 +610,8 @@ sub generate_pending_page {
         logo            => $Config{'general'}{'logo'},
         i18n => \&i18n,
         list_help_info  => [
-            { name => gettext('IP'),  value => $ip },
-            { name => gettext('MAC'), value => $mac }
+            { name => i18n('IP'),  value => $ip },
+            { name => i18n('MAC'), value => $mac }
         ],
         destination_url => $destination_url,
         redirect_url => $Config{'trapping'}{'redirecturl'},
@@ -647,7 +650,7 @@ sub get_client_ip {
     my $directly_connected_ip = $cgi->remote_addr();
 
     # handling most common case first
-    if ($directly_connected_ip ne LOOPBACK_IPV4) {
+    if ($directly_connected_ip ne $LOOPBACK_IPV4) {
         return $directly_connected_ip;
     }
 
@@ -655,13 +658,13 @@ sub get_client_ip {
     if (defined($ENV{'HTTP_X_FORWARDED_FOR'})) {
         my $proxied_ip = $ENV{'HTTP_X_FORWARDED_FOR'};
         $logger->debug(
-            "Remote Address is ".LOOPBACK_IPV4.". Client is proxied? "
+            "Remote Address is $LOOPBACK_IPV4. Client is proxied? "
             . "Returning: $proxied_ip according to HTTP Headers"
         );
         return $proxied_ip;
     }
 
-    $logger->debug("Remote Address is ".LOOPBACK_IPV4." but no further hints of client IP in HTTP Headers");
+    $logger->debug("Remote Address is $LOOPBACK_IPV4 but no further hints of client IP in HTTP Headers");
     return $directly_connected_ip;
 }
 

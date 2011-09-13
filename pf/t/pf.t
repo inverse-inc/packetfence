@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 63;
+use Test::More tests => 62;
 
 # pf core libs
 use lib '/usr/local/pf/lib';
@@ -28,7 +28,6 @@ BEGIN { use_ok('pf::iplog') }
 BEGIN { use_ok('pf::locationlog') }
 BEGIN { use_ok('pf::lookup::node') }
 BEGIN { use_ok('pf::lookup::person') }
-BEGIN { use_ok('pf::nodecache') }
 BEGIN { use_ok('pf::nodecategory') }
 BEGIN { use_ok('pf::node') }
 BEGIN { use_ok('pf::os') }

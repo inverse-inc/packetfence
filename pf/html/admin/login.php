@@ -213,7 +213,7 @@ function validate_user_group($user, $pass, $hash = ''){
   return false;
 }
 
-$abs_url="https://$HTTP_SERVER_VARS[HTTP_HOST]"; 
+$abs_url="https://$_SERVER[HTTP_HOST]";
 
 if(!function_exists('session_start')){
   die("<div id='error'>Error: Your version of PHP does not have session support.  Session support is needed for this application</div>");

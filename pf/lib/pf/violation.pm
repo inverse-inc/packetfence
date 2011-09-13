@@ -389,24 +389,24 @@ sub violation_trigger {
     $type = lc($type);
 
     if (whitelisted_mac($mac)) {
-        $logger->info("violation not added, $mac is whitelisted! trigger $type::$tid");
+        $logger->info("violation not added, $mac is whitelisted! trigger ${type}::${tid}");
         return 0;
     } 
 
     if (!valid_mac($mac)) {
-        $logger->info("violation not added, MAC $mac is whitelisted! trigger $type::$tid");
+        $logger->info("violation not added, MAC $mac is invalid! trigger ${type}::${tid}");
         return 0;
     } 
 
     if (!trappable_mac($mac)) {
-        $logger->info("violation not added, MAC $mac is not trappable! trigger $type::$tid");
+        $logger->info("violation not added, MAC $mac is not trappable! trigger ${type}::${tid}");
         return 0;
     }
 
     # if we were given an IP as additionnal violation trigger info
     # test whether this ip is trappable or not
     if (defined($data{ip}) && !trappable_ip($data{ip})) {
-        $logger->info("violation not added, IP ".$data{ip}." is not trappable! trigger $type::$tid, MAC: $mac");
+        $logger->info("violation not added, IP ".$data{ip}." is not trappable! trigger ${type}::${tid}, MAC: $mac");
         return 0;
     }
 
@@ -414,13 +414,6 @@ sub violation_trigger {
     my @trigger_info = pf::trigger::trigger_view_enable( $tid, $type );
     if ( !scalar(@trigger_info) ) {
         $logger->debug("violation not added, no trigger found for ${type}::${tid} or violation is disabled");
-        return 0;
-    }
-
-    # scan violation and scan violation id not authorized in config
-    if ($type eq 'scan' && ! _scanTriggerIdEnabled($tid)) {   
-        $logger->warn("violation not added, Scan trigger id is not enabled! ". 
-                      "Please add $tid to scan.live_tids for the violation to trigger. MAC: $mac, IP: ".$data{'ip'});
         return 0;
     }
 
@@ -465,24 +458,11 @@ sub violation_trigger {
             next;
         }
         $logger->info("calling '$bin_dir/pfcmd violation add vid=$vid,mac=$mac' (trigger ${type}::${tid})");
-        # forking a pfcmd because it will call a vlan flip if needed
+        # running pfcmd because it will call an access re-evaluation if needed
         pf_run("$bin_dir/pfcmd violation add vid=$vid,mac=$mac");
         $addedViolation = 1;
     }
     return $addedViolation;
-}
-
-# test wrapper for: Is this scan tid authorized in scan.live_tids
-sub _scanTriggerIdEnabled {
-    my ($tid) = @_;
-
-    #if scan.live_tids is not set assume nothing is allowed
-    return 0 if (!defined $Config{'scan'}{'live_tids'});
-
-    #read: return 0 if its not in the list
-    return 0 if (!grep({$_ eq $tid} split(/\s*,\s*/, $Config{'scan'}{'live_tids'})));
-
-    return 1;
 }
 
 sub violation_delete {

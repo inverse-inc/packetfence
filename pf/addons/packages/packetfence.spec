@@ -57,9 +57,9 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}-
 
 # FIXME change all perl Requires: into their namespace counterpart, see what happened in #931 and
 # http://www.rpm.org/wiki/PackagerDocs/Dependencies#InterpretersandShells for discussion on why
-BuildRequires: gettext, httpd
+BuildRequires: gettext, httpd, rpm-macros-rpmforge
 BuildRequires: perl(Parse::RecDescent)
-Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget
+Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget, gettext
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl, php, php-gd
 Requires: mod_perl
@@ -85,7 +85,8 @@ Requires: perl-IPTables-ChainMgr
 Requires: perl-IPTables-Parse
 # Required for inline mode. Specific version matches system's iptables version.
 # CentOS 5 (iptables 1.3.5)
-Requires: perl(IPTables::libiptc) = 0.14
+%{?el5:Requires: perl(IPTables::libiptc) = 0.14}
+%{?el6:Requires: perl(IPTables::libiptc)}
 Requires: perl-LDAP
 Requires: perl-libwww-perl
 Requires: perl-List-MoreUtils
@@ -132,8 +133,7 @@ Requires: perl(Authen::Krb5::Simple)
 Requires: perl(Text::CSV)
 Requires: perl(Text::CSV_XS)
 # Required for testing
-# TODO: I noticed that we provide perl-Test-MockDBI in our repo, maybe we made a poo poo with the deps
-BuildRequires: perl(Test::MockModule), perl(Test::MockDBI), perl(Test::Perl::Critic), perl(Test::WWW::Mechanize)
+BuildRequires: perl(Test::MockObject), perl(Test::MockModule), perl(Test::Perl::Critic), perl(Test::WWW::Mechanize)
 BuildRequires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception), perl(Test::NoWarnings)
 
 %description
@@ -163,7 +163,8 @@ server.
 
 %package freeradius2
 Group: System Environment/Daemons
-Requires: freeradius2, freeradius2-perl
+%{?el5:Requires: freeradius2, freeradius2-perl freeradius2-mysql}
+%{?el6:Requires: freeradius, freeradius-perl freeradius-mysql}
 Requires: perl-SOAP-Lite
 Summary: Configuration pack for FreeRADIUS 2
 
@@ -215,6 +216,7 @@ cp -r addons/freeradius-integration/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/high-availability/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/integration-testing/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/mrtg/ $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp -r addons/packages/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/upgrade/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/watchdog/ $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -454,11 +456,13 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/addons/monitorpfsetvlan.pl
 %dir                    /usr/local/pf/addons/mrtg
                         /usr/local/pf/addons/mrtg/*
+%dir                    /usr/local/pf/addons/packages
+                        /usr/local/pf/addons/packages/*
 %attr(0755, pf, pf)     /usr/local/pf/addons/recovery.pl
 %dir                    /usr/local/pf/addons/snort
                         /usr/local/pf/addons/snort/oinkmaster.conf
 %dir                    /usr/local/pf/addons/upgrade
-%attr(0755, pf, pf)     /usr/local/pf/addons/upgrade/update-all-useragents.pl
+%attr(0755, pf, pf)     /usr/local/pf/addons/upgrade/*.pl
 %dir                    /usr/local/pf/addons/802.1X
 %doc                    /usr/local/pf/addons/802.1X/README
 %attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/packetfence.pm
@@ -566,6 +570,8 @@ fi
                         /usr/local/pf/html/captive-portal/*.php
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/mobile.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/styles.css
+%config(noreplace)      /usr/local/pf/html/captive-portal/content/print.css
+                        /usr/local/pf/html/captive-portal/content/guest-management.js
                         /usr/local/pf/html/captive-portal/content/timerbar.js
 %dir                    /usr/local/pf/html/captive-portal/content/images
                         /usr/local/pf/html/captive-portal/content/images/*
@@ -659,6 +665,10 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Tue Sep 13 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Added dependendy on freeradius-mysql for our configuration
+  package
+
 * Mon Aug 15 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Added named, and dhcpd as dependencies
 

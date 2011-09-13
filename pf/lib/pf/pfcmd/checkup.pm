@@ -75,6 +75,13 @@ sub sanity_check {
     @problems = ();
     print "Checking configuration sanity...\n";
 
+    if (!-f $lib_dir . '/pf/pfcmd/pfcmd_pregrammar.pm') {
+        add_problem( $FATAL, 
+            "You are missing a critical file for PacketFence's proper operation. " .
+            "See instructions to re-create the file in: perldoc $lib_dir/pf/pfcmd/pfcmd.pm"
+        );
+    }
+
     service_exists(@services);
     interfaces_defined();
     interfaces();
@@ -127,6 +134,11 @@ sub interfaces_defined {
             if (!defined $int_conf{'ip'} || !defined $int_conf{'mask'} || !defined $int_conf{'gateway'}) {
                 add_problem( $FATAL, "incomplete network information for $interface" );
             }
+        }
+
+        my $int_types = qr/(?:internal|management|managed|monitor|dhcplistener|dhcp-listener|high-availability)/;
+        if (defined($int_conf{'type'}) && $int_conf{'type'} !~ /$int_types/) {
+            add_problem( $FATAL, "invalid network type $int_conf{'type'} for $interface" );
         }
     }
 }
@@ -485,7 +497,6 @@ sub is_config_documented {
 
         next if ( $section =~ /^(proxies|passthroughs)$/ || $group =~ /^(interface|services)$/ );
         next if ( ( $group eq 'alerting' ) && ( $item eq 'fromaddr' ) );
-        next if ( ( $group eq 'arp' )      && ( $item eq 'listendevice' ) );
 
         if ( defined( $Config{$group}{$item} ) ) {
             if ( $type eq "toggle" ) {
@@ -652,8 +663,15 @@ sub permissions {
         add_problem( $FATAL, "pfcmd needs to be owned by root. Fix with chown root:root pfcmd" );
     }
 
-    # TODO verify log files ownership (issue #1191)
-
+    my @important_log_files = qw(
+        access_log error_log admin_access_log admin_error_log
+        packetfence.log
+    );
+    foreach my $log_file (@important_log_files) {
+        # log owner must be pf otherwise apache or pf daemons won't start
+        add_problem( $FATAL, "$log_file must be owned by user pf. Fix with chown pf -R logs/" )
+            unless (getpwuid((stat($log_dir . '/' . $log_file))[4]) eq 'pf');
+    }
 }
 
 =item apache
@@ -705,6 +723,7 @@ sub violations {
 
     my %violations = pf::services::class_set_defaults(%violations_conf);    
 
+    my $deprecated_disable_seen = $FALSE;
     foreach my $violation ( keys %violations ) {
 
         # parse triggers if they exist
@@ -717,6 +736,17 @@ sub violations {
                 add_problem($WARN, "Violation $violation is ignored: $_");
             };
         }
+
+        if ( defined $violations{$violation}{'disable'} ) {
+            $deprecated_disable_seen = $TRUE;
+        }
+    }
+
+    if ($deprecated_disable_seen) {
+        add_problem( $FATAL,
+            "violations.conf's disable parameter is deprecated in favor of enabled. " . 
+            "Make sure to update your configuration. Read UPGRADE for details and an upgrade script."
+        );
     }
 }
 

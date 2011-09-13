@@ -6,7 +6,7 @@ body {
 }
 div#container {
   margin: 10px auto;
-  width: 456px;
+  width: 656px;
 }
 div#header {
   padding-bottom: 10px;
@@ -89,6 +89,8 @@ ul {
   margin: 10px;
 }
 em {
+  clear: left;
+  display: block;
   font-size: small;
 }
 div.note h1,
@@ -100,6 +102,7 @@ div#about p strong {
   color: #fff;
 }
 div.input {
+  clear: both;
   color: #555;
   padding-bottom: 10px;
   text-align: right;
@@ -110,7 +113,7 @@ div.input span {
   padding: 4px;
   text-align: left;
   white-space: nowrap;
-  width: 100px;
+  width: 120px;
 }
 div.input input.field {
   border: 1px solid #ddd;
@@ -122,7 +125,8 @@ div.input input.field:focus {
   background-color: #DEFEFF;
   color: #333;
 }
-div.input select {
+div.input select,
+div.input input[type="file"] {
   width: 250px;
 }
 div.input div {
@@ -169,26 +173,86 @@ div#footer {
 div#footer p {
   padding-left: 96px;
 }
-
 div#footer ul {
   padding-left: 124px;
 }
-
-body.print,
-body.print div#content {
-  background-image: none;
-  background-color: #fff;
+div#footer a {
+  color: #555;
 }
-body.print div#about h1,
-body.print div#about p {
+div#footer a:hover {
+  color: #333;
+}
+
+/* tabs */
+ul.tab {
+  display: block;
+  margin: 0;
   padding-left: 0;
 }
-body.print div.input div.note {
-  border: 0;
-  border-top: 1px dotted #ccc;
-  margin-top: 20px;
-  padding-top: 10px;
+ul.tab li {
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #eee;
+  border-top: 1px solid #ddd;
+  display: block;
+  float: left;
+  height: 30px;
 }
-body.print img {
+ul.tab li.active {
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+}
+ul.tab li a {
+  background-color: #ddd;
+  display: block;
+  float: left;
+  height: 25px;
+  padding: 5px 7px 0;
+}
+ul.tab li a:hover,
+ul.tab li.active a {
+  background-color: #eee;
+  height: 26px;
+}
+ul.tab li a img {
+  border: 0;
+}
+
+div.tab {
+  border: 1px solid #ddd;
+  clear: both;
+  padding-top: 10px;
+  display: none;
+}
+
+div.tab.active {
+  display: block;
+}
+
+div.input div#columns {
+  float: right;
+  margin: 0 0 20px 0;
+  padding: 0;
+  width: 250px;
+}
+
+div.input div.column span {
+  float: none;
+}
+
+div.input div.column span.disabled {
+  color: #ccc;
+}
+
+div.input div.column span.order {
+  float: right;
+  width: 30px;
+}
+
+div.input div.column span.order img {
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.page-break {
   display: none;
 }

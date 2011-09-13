@@ -17,10 +17,6 @@ use CGI::Session;
 use Log::Log4perl;
 use POSIX;
 
-use constant INSTALL_DIR => '/usr/local/pf';
-use lib INSTALL_DIR . "/lib";
-use lib INSTALL_DIR . "/conf";
-
 use pf::config;
 use pf::iplog;
 use pf::node;

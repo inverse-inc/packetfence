@@ -443,7 +443,7 @@ sub locationlog_synchronize {
 
     # if we are in a wired environment, close any conflicting switchport entry
     # but paying attention to VoIP vs non-VoIP entries (we close the same type that we are asked to add)
-    if (($connection_type & WIRED) == WIRED) {
+    if (($connection_type & $WIRED) == $WIRED) {
 
         my @locationlog_switchport = locationlog_view_open_switchport($switch, $ifIndex, $voip_status);
         if (!(@locationlog_switchport && scalar(@locationlog_switchport) > 0)) {
@@ -454,7 +454,7 @@ sub locationlog_synchronize {
             || (defined($mac) && (!defined($locationlog_switchport[0]->{mac})))) { # or MAC changed 
 
             # close entries of same voip status
-            if ($voip_status eq NO_VOIP) {
+            if ($voip_status eq $NO_VOIP) {
                 db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_update_end_switchport_no_VoIP_sql', 
                     $switch, $ifIndex);
             } else {
@@ -515,7 +515,7 @@ sub _is_locationlog_accurate {
     my $ssidChanged = ($locationlog_mac->{'ssid'} ne $ssid);
     # ifIndex on wireless is not important
     my $ifIndexChanged = 0;
-    if (($connection_type & WIRED) == WIRED) {
+    if (($connection_type & $WIRED) == $WIRED) {
         $ifIndexChanged = ($locationlog_mac->{port} != $ifIndex);
     }
 

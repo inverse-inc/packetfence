@@ -6,6 +6,8 @@ captiveportal_modperl_require.pl - Pre-loading PacketFence's modules in Apache (
 
 =cut
 use lib "/usr/local/pf/lib";
+# dynamicly loaded authentication modules
+use lib "/usr/local/pf/conf";
 
 use strict;
 use warnings;
@@ -21,6 +23,7 @@ use pf::web;
 use pf::web::custom;
 
 our $useragent_cache = new Cache::FileCache( { 'namespace' => 'CaptivePortal_UserAgents' } );
+our $lost_devices_cache = new Cache::FileCache( { 'namespace' => 'CaptivePortal_LostDevices' } );
 
 =head1 AUTHOR
 

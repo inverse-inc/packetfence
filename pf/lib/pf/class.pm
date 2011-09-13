@@ -33,6 +33,7 @@ BEGIN {
     );
 }
 
+use pf::action;
 use pf::db;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -46,10 +47,10 @@ sub class_db_prepare {
     $logger->debug("Preparing pf::class database queries");
 
     $class_statements->{'class_view_sql'} = get_db_handle()->prepare(
-        qq [ select class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.disable,class.vlan,group_concat(action.action order by action.action asc) as action from class left join action on class.vid=action.vid where class.vid=? GROUP BY class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.disable ]);
+        qq [ select class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.enabled,class.vlan,group_concat(action.action order by action.action asc) as action from class left join action on class.vid=action.vid where class.vid=? GROUP BY class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.enabled]);
 
     $class_statements->{'class_view_all_sql'} = get_db_handle()->prepare(
-        qq [ select class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.disable,class.vlan,group_concat(action.action order by action.action asc) as action from class left join action on class.vid=action.vid GROUP BY class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.disable ]);
+        qq [ select class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.enabled,class.vlan,group_concat(action.action order by action.action asc) as action from class left join action on class.vid=action.vid GROUP BY class.vid,class.description,class.auto_enable,class.max_enables,class.grace_period,class.priority,class.url,class.max_enable_url,class.redirect_url,class.button_text,class.enabled]);
 
     $class_statements->{'class_view_actions_sql'} = get_db_handle()->prepare(qq [ select vid,action from action where vid=? ]);
 
@@ -58,16 +59,16 @@ sub class_db_prepare {
     $class_statements->{'class_delete_sql'} = get_db_handle()->prepare(qq [ delete from class where vid=? ]);
 
     $class_statements->{'class_add_sql'} = get_db_handle()->prepare(
-        qq [ insert into class(vid,description,auto_enable,max_enables,grace_period,priority,url,max_enable_url,redirect_url,button_text,disable,vlan) values(?,?,?,?,?,?,?,?,?,?,?,?) ]);
+        qq [ insert into class(vid,description,auto_enable,max_enables,grace_period,priority,url,max_enable_url,redirect_url,button_text,enabled,vlan) values(?,?,?,?,?,?,?,?,?,?,?,?) ]);
 
     $class_statements->{'class_modify_sql'} = get_db_handle()->prepare(
-        qq [ update class set description=?,auto_enable=?,max_enables=?,grace_period=?,priority=?,url=?,max_enable_url=?,redirect_url=?,button_text=?,disable=?,vlan=? where vid=? ]);
+        qq [ update class set description=?,auto_enable=?,max_enables=?,grace_period=?,priority=?,url=?,max_enable_url=?,redirect_url=?,button_text=?,enabled=?,vlan=? where vid=? ]);
 
     $class_statements->{'class_cleanup_sql'} = get_db_handle()->prepare(
         qq [ delete from class where vid not in (?) and vid < 1200000 and vid > 1200100 ]);
 
     $class_statements->{'class_trappable_sql'} = get_db_handle()->prepare(
-        qq [select c.vid,c.description,c.auto_enable,c.max_enables,c.grace_period,c.priority,c.url,c.max_enable_url,c.redirect_url,c.button_text,c.disable,c.vlan from class c left join action a on c.vid=a.vid where a.action="trap" ]);
+        qq [select c.vid,c.description,c.auto_enable,c.max_enables,c.grace_period,c.priority,c.url,c.max_enable_url,c.redirect_url,c.button_text,c.enabled,c.vlan from class c left join action a on c.vid=a.vid where a.action="trap" ]);
 
     $class_db_prepared = 1;
 }
@@ -142,16 +143,12 @@ sub class_modify {
     return (1);
 }
 
-# TODO this is written in another style than most of pf, it should be streamlined
 sub class_merge {
     my $id       = shift(@_);
     my $triggers = pop(@_);
     my $actions  = pop(@_);
     my $whitelisted_categories = pop(@_);
     my $logger   = Log::Log4perl::get_logger('pf::class');
-    use pf::action;
-
-    $logger->debug("inserting $id");
 
     # delete existing violation actions
     if ( !pf::action::action_delete_all($id) ) {
@@ -167,7 +164,6 @@ sub class_merge {
     } else {
 
         #insert violation class
-        $logger->debug("insert violation class $id with @_");
         class_add(@_);
     }
 
@@ -200,7 +196,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009,2010 Inverse inc.
+Copyright (C) 2009-2011 Inverse inc.
 
 =head1 LICENSE
 

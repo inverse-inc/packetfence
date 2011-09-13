@@ -545,7 +545,7 @@ sub read_violations_conf {
             $violations{$violation}{'max_enable_url'},
             $violations{$violation}{'redirect_url'},
             $violations{$violation}{'button_text'},
-            $violations{$violation}{'disable'},
+            $violations{$violation}{'enabled'},
             $violations{$violation}{'vlan'},
             $violations{$violation}{'whitelisted_categories'},
             $violations{$violation}{'actions'},
@@ -592,6 +592,8 @@ Copyright (C) 2005 David LaPorte
 Copyright (C) 2005 Kevin Amorin
 
 Copyright (C) 2009-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

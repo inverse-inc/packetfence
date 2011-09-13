@@ -47,6 +47,7 @@ Readonly my %PERSON1 => (
     'company' => 'Physics',
     'address' => '500 West 185th Street, New York',
     'notes' => 'Treat this man with respect',
+    'sponsor' => '',
 );
 Readonly my $PERSON2_PID => 'inewton';
 Readonly my %PERSON2 => (
@@ -57,6 +58,7 @@ Readonly my %PERSON2 => (
     'company' => 'Physics',
     'address' => 'The Old Schools, Trinity Lane, Cambridge CB2 1TN, UK',
     'notes' => 'Not very good with computers',
+    'sponsor' => '',
 );
 Readonly my %DEFAULT_PERSON => (
     'pid' => '1',
@@ -67,6 +69,7 @@ Readonly my %DEFAULT_PERSON => (
     'company' => undef,
     'address' => undef,
     'notes' => 'Default User - do not delete',
+    'sponsor' => undef,
 );
 Readonly my $UNKNOWN_PERSON => "mtheresa";
 

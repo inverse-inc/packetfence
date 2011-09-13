@@ -82,7 +82,7 @@ my $switch = $switchFactory->instantiate('192.168.0.1');
 $switch->{_VoIPEnabled} = 1;
 
 $radius_response = $radius->_authorizeVoip(
-    WIRED_MAC_AUTH, $switch, $radius_request->{'Calling-Station-Id'}, 
+    $WIRED_MAC_AUTH, $switch, $radius_request->{'Calling-Station-Id'}, 
     $radius_request->{'NAS-Port'}, $radius_request->{'User-Name'}, undef
 );
 is_deeply($radius_response,

@@ -53,7 +53,7 @@ BEGIN {
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
     @EXPORT = qw(
-        $install_dir $bin_dir $conf_dir $lib_dir $generated_conf_dir $var_dir
+        $install_dir $bin_dir $conf_dir $lib_dir $generated_conf_dir $var_dir $log_dir
         @listen_ints @dhcplistener_ints @ha_ints $monitor_int 
         @internal_nets @routed_isolation_nets @routed_registration_nets @management_nets @external_nets
         @inline_enforcement_nets @vlan_enforcement_nets
@@ -67,9 +67,9 @@ BEGIN {
         $blackholemac $portscan_sid @VALID_TRIGGER_TYPES $thread $default_pid $fqdn
         $FALSE $TRUE $YES $NO
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE
-        WIRELESS_802_1X WIRELESS_MAC_AUTH WIRED_802_1X WIRED_MAC_AUTH WIRED_SNMP_TRAPS WIRELESS WIRED EAP UNKNOWN INLINE
-        VOIP NO_VOIP $NO_PORT $NO_VLAN
-        LOOPBACK_IPV4
+        $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE
+        $WIRELESS $WIRED $EAP
+        $VOIP $NO_VOIP $NO_PORT $NO_VLAN
         %connection_type %connection_type_to_str %connection_type_explained
         $RADIUS_API_LEVEL $VLAN_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL
         %CAPTIVE_PORTAL
@@ -130,62 +130,62 @@ Readonly our $NET_TYPE_VLAN_ISOL => 'vlan-isolation';
 Readonly our $NET_TYPE_INLINE => 'inline';
 
 # connection type constants
-use constant WIRELESS_802_1X   => 0b110000001;
-use constant WIRELESS_MAC_AUTH => 0b100000010;
-use constant WIRED_802_1X      => 0b011000100;
-use constant WIRED_MAC_AUTH    => 0b001001000;
-use constant WIRED_SNMP_TRAPS  => 0b001010000;
-use constant INLINE            => 0b000100000;
-use constant UNKNOWN           => 0b000000000;
+Readonly our $WIRELESS_802_1X   => 0b110000001;
+Readonly our $WIRELESS_MAC_AUTH => 0b100000010;
+Readonly our $WIRED_802_1X      => 0b011000100;
+Readonly our $WIRED_MAC_AUTH    => 0b001001000;
+Readonly our $WIRED_SNMP_TRAPS  => 0b001010000;
+Readonly our $INLINE            => 0b000100000;
+Readonly our $UNKNOWN           => 0b000000000;
 # masks to be used on connection types
-use constant WIRELESS => 0b100000000;
-use constant WIRED    => 0b001000000;
-use constant EAP      => 0b010000000;
+Readonly our $WIRELESS => 0b100000000;
+Readonly our $WIRED    => 0b001000000;
+Readonly our $EAP      => 0b010000000;
 
 # TODO we should build a connection data class with these hashes and related constants
 # String to constant hash
 %connection_type = (
-    'Wireless-802.11-EAP'   => WIRELESS_802_1X,
-    'Wireless-802.11-NoEAP' => WIRELESS_MAC_AUTH,
-    'Ethernet-EAP'          => WIRED_802_1X,
-    'Ethernet-NoEAP'        => WIRED_MAC_AUTH,
-    'SNMP-Traps'            => WIRED_SNMP_TRAPS,
-    'Inline'                => INLINE,
+    'Wireless-802.11-EAP'   => $WIRELESS_802_1X,
+    'Wireless-802.11-NoEAP' => $WIRELESS_MAC_AUTH,
+    'Ethernet-EAP'          => $WIRED_802_1X,
+    'Ethernet-NoEAP'        => $WIRED_MAC_AUTH,
+    'SNMP-Traps'            => $WIRED_SNMP_TRAPS,
+    'Inline'                => $INLINE,
 );
 
 # Note that the () in the hashes below is a trick to prevent bareword quoting so I can store 
 # my constant values as keys of the hashes. See CAVEATS section of perldoc constant.
 # Their string equivalent for database storage
 %connection_type_to_str = (
-    WIRELESS_802_1X() => 'Wireless-802.11-EAP',
-    WIRELESS_MAC_AUTH() => 'Wireless-802.11-NoEAP',
-    WIRED_802_1X() => 'Ethernet-EAP',
-    WIRED_MAC_AUTH() => 'Ethernet-NoEAP',
-    WIRED_SNMP_TRAPS() => 'SNMP-Traps',
-    INLINE() => 'Inline',
-    UNKNOWN() => '',
+    $WIRELESS_802_1X => 'Wireless-802.11-EAP',
+    $WIRELESS_MAC_AUTH => 'Wireless-802.11-NoEAP',
+    $WIRED_802_1X => 'Ethernet-EAP',
+    $WIRED_MAC_AUTH => 'Ethernet-NoEAP',
+    $WIRED_SNMP_TRAPS => 'SNMP-Traps',
+    $INLINE => 'Inline',
+    $UNKNOWN => '',
 );
 
 # String to constant hash
 # these duplicated in html/admin/common.php for web admin display
 # changes here should be reflected there
 %connection_type_explained = (
-    WIRELESS_802_1X() => 'WiFi 802.1X',
-    WIRELESS_MAC_AUTH() => 'WiFi MAC Auth',
-    WIRED_802_1X() => 'Wired 802.1x',
-    WIRED_MAC_AUTH() => 'Wired MAC Auth',
-    WIRED_SNMP_TRAPS() => 'Wired SNMP',
-    INLINE() => 'Inline',
-    UNKNOWN() => 'Unknown',
+    $WIRELESS_802_1X => 'WiFi 802.1X',
+    $WIRELESS_MAC_AUTH => 'WiFi MAC Auth',
+    $WIRED_802_1X => 'Wired 802.1x',
+    $WIRED_MAC_AUTH => 'Wired MAC Auth',
+    $WIRED_SNMP_TRAPS => 'Wired SNMP',
+    $INLINE => 'Inline',
+    $UNKNOWN => 'Unknown',
 );
 
 # VoIP constants
-use constant VOIP    => 'yes';
-use constant NO_VOIP => 'no';
+Readonly our $VOIP    => 'yes';
+Readonly our $NO_VOIP => 'no';
 
 # API version constants
-Readonly::Scalar our $RADIUS_API_LEVEL => 1.00;
-Readonly::Scalar our $VLAN_API_LEVEL => 1.00;
+Readonly::Scalar our $RADIUS_API_LEVEL => 1.01;
+Readonly::Scalar our $VLAN_API_LEVEL => 1.01;
 Readonly::Scalar our $INLINE_API_LEVEL => 1.00;
 Readonly::Scalar our $AUTHENTICATION_API_LEVEL => 1.00;
 
@@ -203,7 +203,6 @@ Readonly::Scalar our $NO_VLAN => 0;
 
 # this is broken NIC on Dave's desk - it better be unique!
 $blackholemac = "00:60:8c:83:d7:34";
-use constant LOOPBACK_IPV4 => '127.0.0.1';
 
 # Log Reload Timer in seconds
 Readonly our $LOG4PERL_RELOAD_TIMER => 5 * 60;
@@ -269,9 +268,7 @@ sub readPfConfigFiles {
     foreach my $val (
         "expire.iplog",               "expire.traplog",
         "expire.locationlog",         "expire.node",
-        "arp.interval",               "arp.gw_timeout",
-        "arp.timeout",                "arp.dhcp_timeout",
-        "arp.heartbeat",              "trapping.redirtimer",
+        "trapping.redirtimer",
         "registration.skip_window",   "registration.skip_reminder",
         "registration.expire_window", "registration.expire_session",
         "general.maintenance_interval", "scan.duration",
@@ -351,9 +348,6 @@ sub readPfConfigFiles {
             }
         }
     }
-
-    @listen_ints = split( /\s*,\s*/, $Config{'arp'}{'listendevice'} )
-        if ( defined $Config{'arp'}{'listendevice'} );
 }
 
 =item readNetworkConfigFiles - networks.conf

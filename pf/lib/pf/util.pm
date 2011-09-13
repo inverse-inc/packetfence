@@ -846,7 +846,7 @@ sub str_to_connection_type {
     } elsif (defined($conn_type_str) && $conn_type_str eq '') {
 
         $logger->debug("got an empty connection_type, this happens if we discovered the node but it never connected");
-        return UNKNOWN;
+        return $UNKNOWN;
 
     } else {
         my ($package, undef, undef, $routine) = caller(1);

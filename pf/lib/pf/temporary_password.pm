@@ -144,14 +144,14 @@ sub view {
 add a temporary password record to the database
 
 =cut
-sub add {
-    my (%data) = @_;
-
-    return(db_data(TEMPORARY_PASSWORD, $temporary_password_statements, 
-        'temporary_password_add_sql', 
-        $data{'pid'}, $data{'password'}, $data{'valid_from'}, $data{'expiration'}, $data{'access_duration'}
-    ));
-}
+#sub add {
+#    my (%data) = @_;
+#
+#    return(db_data(TEMPORARY_PASSWORD, $temporary_password_statements, 
+#        'temporary_password_add_sql', 
+#        $data{'pid'}, $data{'password'}, $data{'valid_from'}, $data{'expiration'}, $data{'access_duration'}
+#    ));
+#}
 
 =item _delete
 
@@ -227,7 +227,7 @@ Defaults to 0 (no per user limit)
 
 =cut
 sub generate {
-    my ($pid, $expiration, $valid_from, $access_duration) = @_;
+    my ($pid, $expiration, $valid_from, $access_duration, $password) = @_;
     my $logger = Log::Log4perl::get_logger('pf::temporary_password');
 
     my %data;
@@ -243,7 +243,7 @@ sub generate {
     $data{'access_duration'} = $access_duration || undef;
 
     # generate password 
-    $data{'password'} = _generate_password();
+    $data{'password'} = $password || _generate_password();
 
     # if an entry of the same pid already exist, delete it
     if (defined(view($pid))) {

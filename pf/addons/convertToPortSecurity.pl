@@ -318,7 +318,7 @@ foreach my $ifIndex ( sort { $a <=> $b } keys %$ifDescHashRef ) {
                 $logger->debug("synchronizing locationlog entries");
                 if ( !( $macToSecure =~ /02:00:00:00:00/ ) ) {
                     locationlog_synchronize( $switch_ip, $ifIndex,
-                        $switch->getVlan($ifIndex), $macToSecure, NO_VOIP, WIRED_SNMP_TRAPS);
+                        $switch->getVlan($ifIndex), $macToSecure, $NO_VOIP, $WIRED_SNMP_TRAPS);
                 }
             }
         }

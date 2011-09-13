@@ -28,12 +28,13 @@
 
   session_start(); 
   $timeout = 3600;  // session timeout in seconds
-  $abs_url="https://$HTTP_SERVER_VARS[HTTP_HOST]";
+  $abs_url="https://$_SERVER[HTTP_HOST]";
 
   require_once 'common/helpers.inc';
   require_once 'common/adminperm.inc';
   require_once 'common/display.inc';
   require_once 'common/logging.inc';
+  require_once 'common/forms.inc';
 
   $debug_log = '';
   if($_SESSION['ui_prefs']['ui_debug'] == 'true'){

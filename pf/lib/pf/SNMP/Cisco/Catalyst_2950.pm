@@ -37,6 +37,11 @@ This module extends pf::SNMP::Cisco.
 =head1 BUGS AND LIMITATIONS
 
 =over
+
+=item Problematic firmware versions
+
+We got reports that 12.1(22)EA13 is buggy. 
+Not sending port-security traps under uncertain circumstances.
  
 =item 802.1X
  
@@ -929,7 +934,7 @@ sub dot1xPortReauthenticate {
         my $vlan_obj = new pf::vlan::custom();
         $this->_setVlan(
             $ifIndex, 
-            $vlan_obj->fetchVlanForNode($mac, $this, $ifIndex, WIRED_802_1X), 
+            $vlan_obj->fetchVlanForNode($mac, $this, $ifIndex, $WIRED_802_1X), 
             undef, 
             {}
         );

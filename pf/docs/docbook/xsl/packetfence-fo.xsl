@@ -24,7 +24,8 @@
   -->
 
   <!-- Load default values -->
-  <xsl:import href="/opt/local/share/xsl/docbook-xsl/fo/docbook.xsl"/> 
+  <!--<xsl:import href="/opt/local/share/xsl/docbook-xsl/fo/docbook.xsl"/>-->
+  <xsl:import href="/usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl"/> 
 
   <!-- title page extra styling -->
   <xsl:import href="titlepage-fo.xsl"/>

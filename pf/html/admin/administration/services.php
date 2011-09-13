@@ -30,8 +30,8 @@
   require_once('../common.php');
   include_once('../header.php');
 
-  if(isset($_GET['service']) && isset($_GET['action'])){
-    PFCMD("service {$_GET['service']} {$_GET['action']}");
+  if(isset($_POST['service']) && isset($_POST['action'])){
+    PFCMD("service {$_POST['service']} {$_POST['action']}");
   }
 
   $configs = PFCMD('config get all');
@@ -127,13 +127,29 @@ function print_status_table(){
           print "<td>" . (($services[1] == 0) ? 'Stopped' : 'Running') . "</td>\n";
           print "<td>" . (($services[2] == 0) ? 'Stopped' : 'Running (pid: ' . $services[2] . ')') . "</td>\n";
           if (($services[1] == 1) && ($services[2] == 0)) {
-            print "<td align=center><a href=$current_top/$current_sub.php?service=$services[0]&action=start><img src='images/start.png' title='Start $services[0]' border=0></a></td>";
+            print "<td align=center>";
+            image_button(
+                "$current_top/$current_sub.php", array( 'service' => $services[0], 'action' => 'start'), 
+                'images/start.png', "Start $services[0]"
+            );
+            print "</td>\n";
           } else {
             print "<td>&nbsp;</td>\n";
           }
           if (($services[1] == 1) && ($services[2] != 0)) {
-            print "<td align=center><a href=$current_top/$current_sub.php?service=$services[0]&action=stop><img src='images/stop.png' title='Stop $services[0]' border=0></a></td>\n";
-            print "<td align=center><a href=$current_top/$current_sub.php?service=$services[0]&action=restart><img src='images/restart.png' title='Restart $services[0]' border=0></a></td>\n";
+            print "<td align=center>";
+            image_button(
+                "$current_top/$current_sub.php", array( 'service' => $services[0], 'action' => 'stop' ), 
+                'images/stop.png', "Stop $services[0]"
+            );
+            print "</td>\n";
+
+            print "<td align=center>";
+            image_button(
+                "$current_top/$current_sub.php", array( 'service' => $services[0], 'action' => 'restart'), 
+                'images/restart.png', "Restart $services[0]"
+            );
+            print "</td>\n";
           } else {
             print "<td>&nbsp;</td>\n";
             print "<td>&nbsp;</td>\n";
@@ -150,7 +166,12 @@ function print_status_table(){
   print "<td>&nbsp;</td>\n";
   print "<td>&nbsp;</td>\n";
   print "<td align=center>&nbsp;</td>\n";
-  print "<td align=center><a href=$current_top/$current_sub.php?service=pf&action=stop><img src='images/stop.png' title='Stop All' border=0></a></td>\n";
+  print "<td align=center>";
+  image_button(
+      "$current_top/$current_sub.php", array( 'service' => 'pf', 'action' => 'stop' ), 
+      'images/stop.png', "Stop All"
+  );
+  print "</td>\n";
   print "<td align=center>&nbsp;</td>";
   print "</tr>\n";
   print "</table>";

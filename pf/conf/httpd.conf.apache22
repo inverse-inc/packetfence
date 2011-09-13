@@ -104,6 +104,7 @@ DirectoryIndex index.html index.cgi index.php
 # -- GLOBAL OPTIONS --
 PerlSwitches -I%%install_dir%%/lib
 PerlChildInitHandler "sub { srand }"
+php_value date.timezone "%%timezone%%"
  
 AddType application/x-httpd-php .php
 # Prevent Browsers (Chrome and Firefox) to cache DNS while under the captive portal
@@ -158,6 +159,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteRule ^/cgi-bin/content/(.*)$ /content/$1 [PT]
   RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-selfregistration.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/email_activation.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/mobile-confirmation.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-management.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
@@ -221,13 +223,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
 %%proxies%%                
 
-  <Location />
-    Options Indexes FollowSymLinks ExecCGI
-    php_value session.save_path "%%install_dir%%/var/session"
-    #(E_ALL & ~E_NOTICE) = 2047-8
-    php_value error_reporting 2039
-  </Location>
-
 </VirtualHost>
 
 <VirtualHost %%inline_internal_ip%%:80>
@@ -254,6 +249,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteRule ^/cgi-bin/content/(.*)$ /content/$1 [PT]
   RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-selfregistration.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/email_activation.cgi
+  RewriteCond %{REQUEST_URI} !^/cgi-bin/mobile-confirmation.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-management.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
   RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
@@ -367,6 +363,13 @@ SetEnvIf User-Agent ".*MSIE.*" \
     require valid-user
   </Location>
 
+  <Location /guest-management.cgi>
+    SetHandler perl-script
+    PerlResponseHandler ModPerl::PerlRun
+    PerlOptions +ParseHeaders
+    Options Indexes FollowSymLinks ExecCGI
+  </Location>
+
   <LocationMatch /cgi-bin/pfcmd.cgi>
     AuthUserFile %%install_dir%%/conf/admin.conf
     AuthGroupFile /dev/null
@@ -378,12 +381,11 @@ SetEnvIf User-Agent ".*MSIE.*" \
   <Location ~ />
     Options Indexes FollowSymLinks ExecCGI
     #AllowOverride None
-    #php_value register_globals "On"
-    php_value register_long_arrays "On"
     php_value session.save_path "%%install_dir%%/var/session"
     php_value memory_limit "128M"
     #(E_ALL & ~E_NOTICE) = 2047-8
     php_value error_reporting 2039
+    php_value short_open_tag On
   </Location>
 
 </VirtualHost>

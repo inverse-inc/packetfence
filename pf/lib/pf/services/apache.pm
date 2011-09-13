@@ -88,6 +88,7 @@ sub generate_httpd_conf {
     $tags{'routed-nets'} = join(" ", get_routed_isolation_nets()) ." ". join(" ", get_routed_registration_nets());
     $tags{'hostname'} = $Config{'general'}{'hostname'};
     $tags{'domain'} = $Config{'general'}{'domain'};
+    $tags{'timezone'} = $Config{'general'}{'timezone'};
     $tags{'admin_port'} = $Config{'ports'}{'admin'};
     $tags{'install_dir'} = $install_dir;
     $tags{'varconf_dir'} = $generated_conf_dir;

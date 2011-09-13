@@ -53,19 +53,19 @@ if ($locationlog_entry) {
     my $trapSender = pf::SwitchFactory->getInstance()->instantiate('127.0.0.1');
 
     if ($trapSender) {
-        if ($conn_type == UNKNOWN) {
+        if ($conn_type == $UNKNOWN) {
             $logger->warn("Unknown connection type! We won't perform VLAN reassignment since node never connected");
 
-        } elsif ($conn_type == WIRED_SNMP_TRAPS) {
+        } elsif ($conn_type == $WIRED_SNMP_TRAPS) {
             $logger->debug("sending a local reAssignVlan trap to force VLAN change");
             $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type);
 
-        } elsif ($conn_type == WIRELESS_MAC_AUTH) {
+        } elsif ($conn_type == $WIRELESS_MAC_AUTH) {
             $logger->debug("sending a local desAssociate trap to force deassociation "
                 . "(client will reconnect getting a new VLAN)");
             $trapSender->sendLocalDesAssociateTrap($switch_ip, $mac, $conn_type);
 
-        } elsif ($conn_type == WIRELESS_802_1X) {
+        } elsif ($conn_type == $WIRELESS_802_1X) {
             $logger->debug(
                 "sending a local desAssociate trap to force deassociation (client will reconnect getting a new VLAN)"
             );
@@ -75,11 +75,11 @@ if ($locationlog_entry) {
             );
             $trapSender->sendLocalDesAssociateTrap($switch_ip, $mac, $conn_type)
 
-        } elsif ($conn_type == WIRED_802_1X) {
+        } elsif ($conn_type == $WIRED_802_1X) {
             $logger->debug("sending a local reAssignVlan trap to force VLAN change");
             $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type);
 
-        } elsif ($conn_type == WIRED_MAC_AUTH) {
+        } elsif ($conn_type == $WIRED_MAC_AUTH) {
             $logger->debug("sending a local reAssignVlan trap to force VLAN change");
             $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type);
         }

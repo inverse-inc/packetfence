@@ -618,7 +618,7 @@ sub setVlan {
     }
 
     #closes old locationlog entries and create a new one if required
-    locationlog_synchronize($this->{_ip}, $ifIndex, $newVlan, $presentPCMac, NO_VOIP, WIRED_SNMP_TRAPS);
+    locationlog_synchronize($this->{_ip}, $ifIndex, $newVlan, $presentPCMac, $NO_VOIP, $WIRED_SNMP_TRAPS);
 
     if ( $vlan == $newVlan ) {
         $logger->info(
@@ -1422,7 +1422,7 @@ sub isPhoneAtIfIndex {
     $logger->trace("determining DHCP fingerprint info for $mac");
     my $node_info = node_view_with_fingerprint($mac);
 
-    if (defined($node_info->{'voip'}) && $node_info->{'voip'} eq VOIP) {
+    if (defined($node_info->{'voip'}) && $node_info->{'voip'} eq $VOIP) {
         $logger->debug("This is a VoIP phone according to node.voip");
         return 1;
     }

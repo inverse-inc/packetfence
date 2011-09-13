@@ -8,110 +8,448 @@ domain "packetfence"
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"PO-Revision-Date: 2008-04-28 11:34-0400\n"
-"Last-Translator: Olivier Bilodeau <obilodeau@inverse.ca>\n"
+"PO-Revision-Date: 2011-08-30 18:00-0500\n"
+"Last-Translator: Juan Camilo Valencia <juan.valencia@seguratec.com.co>\n"
 "Language-Team: PacketFence support <support@packetfence.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 
-msgid  "error: access denied not owner" 
+msgid "en_US"
+msgstr "English"
+
+msgid "fr_FR"
+msgstr "Français"
+
+msgid "es_ES"
+msgstr "Español"
+
+msgid "de_DE"
+msgstr "Deutsch"
+
+msgid "it_IT"
+msgstr "Italiano"
+
+msgid "nl_NL"
+msgstr "Dutch"
+
+msgid "pt_BR"
+msgstr "Português"
+
+msgid "error: access denied not owner"
 msgstr "Acceso denegado: No es el propietario de este nodo!"
 
-msgid  "error: incorrect mode" 
+msgid "error: incorrect mode"
 msgstr "Modo incorrecto!"
 
-msgid  "error: max re-enables reached"
+msgid "error: invalid login or password"
+msgstr "Inicio de sesión o contraseña inválidos  "
+
+msgid "error: invalid page number"
+msgstr " Número de página inválida"
+
+msgid "error: max re-enables reached"
 msgstr "Máximo de reactivaciones alcanzado!"
 
-msgid  "error: not found in the database"
-msgstr "Su ordenador no fue encontrado en la base de datos del PacketFence. Por favor reinicie para solucionar este problema" 
+msgid "error: not found in the database"
+msgstr "Su ordenador no fue encontrado en la base de datos de PacketFence. Por favor reinicie para solucionar este problema"
 
-msgid  "error: not trappable IP"
+msgid "error: not trappable IP"
 msgstr "Acceso denegado: No es una IP interceptable"
 
-msgid  "error: only register max nodes"
+msgid "error: only register max nodes"
 msgstr "Solo debe registrar un máximo de %s nodos!"
 
-msgid  "help: provide info"
-msgstr "Si tiene alguna pregunta sobre esta página, contacta con su técnico local. Por favor indique la siguiente información:"
+msgid "error: unable to validate credentials at the moment"
+msgstr "Incapaz de validar las credenciales en este momento"
 
-msgid  "register: all systems must be registered"
+msgid "error: something went wrong creating the guest"
+msgstr "Ocurrió un problema creando la cuenta de Invitado"
+
+msgid "help: provide info"
+msgstr "Si tiene alguna pregunta sobre esta página, contacte su técnico local. Por favor indique la siguiente información:"
+
+msgid "register: all systems must be registered"
 msgstr "Debido a que se necesite contactar con los usuarios considerados como sistemas individuales, todos los sistemas de esta red deben estar registrados"
 
-msgid  "register: aup"
-msgstr "El proceso de registro requiere de la aceptación de Acceptable Use Policy (AUP). Si desea leer esta política antes de empezar con el registro, por favor visite:"
+msgid "register: aup"
+msgstr "El proceso de registro requiere la aceptación de la Política de Uso Aceptable (Acceptable Use Policy, AUP). Si desea leer esta política antes de empezar con el registro, por favor visite:"
 
-msgid  "register: to complete"
-msgstr "Para completar el proceso de registro, es necesario que se autentifique con un usuario y una contraseña"
+msgid "register: to complete"
+msgstr "Para completar el proceso de registro, es necesario que se autentique con un usuario y una contraseña"
 
-msgid  "register: select authentications"
-msgstr "Seleccione Autentificación"
+msgid "Authentication"
+msgstr "Autenticación"
 
-msgid  "release: enabling network"
+msgid "or"
+msgstr "o"
+
+msgid "Sign up"
+msgstr "Registrese"
+
+msgid "register: skip registration"
+msgstr "saltar registro"
+
+msgid "release: enabling network"
 msgstr "Habilitando acceso a la red"
 
-msgid  "release: reopen browser"
-msgstr "Debe reabrir su navegador web"
+msgid "release: reopen browser"
+msgstr "Debe abrir de nuevo su navegador web para obtener acceso a Internet. Si usted esta conectando un teléfono, usted necesita reiniciciar su computador para obtener acceso Internet."
 
-msgid  "Acceptable Use Policy"
-msgstr "Política de uso aceptable"
+msgid "scan: scan in progress"
+msgstr "Su sistema esta siendo analizado"
 
-msgid  "Addresses"
-msgstr "Dirección"
+msgid "scan in progress contact support if too long"
+msgstr "Su sistema esta todavía siendo analizado. El proceso inició hace %s. Usualmente este proceso toma unos pocos minutos. Si está tomando demasiado tiempo, por favor contacte a su equipo de soporte."
 
-msgid  "De-register node"
+msgid "automatically refresh"
+msgstr "Esta página se actualiza cada %s segundos para verificar si el análisis ha sido completado."
+
+msgid "Acceptable Use Policy"
+msgstr "Política de Uso Aceptable"
+
+msgid "Addresses"
+msgstr "Direcciones"
+
+msgid "De-register node"
 msgstr "Deshabilitar nodo"
 
-msgid  "Enabling ..."
-msgstr "Activando..."
+msgid "Scanning ..."
+msgstr "Analizando..."
 
-msgid  "Gateway"
-msgstr "Pasarela"
+msgid "Gateway"
+msgstr "Puerta de enlace"
 
-msgid  "grace"
-msgstr "grace"
+msgid "grace"
+msgstr "gracia"
 
-msgid  "Hostname"
+msgid "Hostname"
 msgstr "Nombre del equipo"
 
-msgid  "IP"
-msgstr "Dirección IP"
+msgid "IP"
+msgstr "IP"
 
-msgid  "MAC"
+msgid "Login"
+msgstr "Entrar"
+
+msgid "MAC"
 msgstr "MAC"
 
-msgid  "network access is being enabled"
-msgstr "Su acceso a la red esta siendo habilitado - este proceso tardara aproximadamente. %s segundos"
+msgid "network access is being enabled"
+msgstr "Su acceso a la red esta siendo habilitado - este proceso tardará aproximadamente. %s segundos"
 
-msgid  "Node"
+msgid "system scan in progress"
+msgstr "Su sistema está siendo analizado - este proceso tardará aproximadamente %s segundos."
+
+msgid "Node"
 msgstr "Nodo"
 
-msgid  "PacketFence Registration System"
+msgid "PacketFence Registration System"
 msgstr "Sistema de registro de PacketFence"
 
-msgid  "PID"
-msgstr "Propietario"
+msgid "Guest Registration"
+msgstr "Registro de Invitados"
 
-msgid  "Print this page"
+msgid "guest network disclaimer"
+msgstr "Esta red de invitados es provista exclusivamente para la conveniencia de Invitados y Vistantes. El acceso no implica ninguna garantía de confiabilidad, velocidad o privacidad; esta red esta provista para el propósito expreso de facilitar la comunicación a Internet. El uso implica estar de acuerdo con los términos y condiciones de la <b>Política de Uso Aceptable.</b>"
+
+msgid "In the fields below please enter your name, phone number and a valid email address."
+msgstr "En los campos a continuación por favor ingrese su nombre, número telefónico y la dirección de correo electrónico válida."
+
+msgid "If you choose to receive your access code <strong>by email</strong>, you will be given temporary network access for 10 minutes during that time:"
+msgstr "Si usted selecciona recibir su código de acceso <strong>por correo electrónico</strong>, usted recibirá un acceso temporal a la red por 10 minutos:"
+
+msgid "Login to the email account you referenced and;"
+msgstr "Ingrese a la cuenta de correo electrónico que ha referenciado;"
+
+msgid "Click on the link emailed to you to validate network access for the next 24 hours."
+msgstr "Haga clic sobre el enlace que ha sido enviado al correo electrónico para validar el acceso a la red por las proximas 24 horas."
+
+msgid "Register by Email"
+msgstr "Registro por correo"
+
+msgid "If you choose to receive your access code <strong>by SMS</strong>, you will be able to enter it on the next page."
+msgstr "Si usted selecciona recibir su código de acceso <strong>por SMS</strong>, usted será habilitado para entrar en la próxima página."
+
+msgid "Register by SMS"
+msgstr "Registrado por SMS"
+
+msgid "Password"
+msgstr "Contraseña"
+
+msgid "PID"
+msgstr "PID"
+
+msgid "Print this page"
 msgstr "Imprimir esta página"
 
-msgid  "reg"
+msgid "reg"
 msgstr "Registrado"
 
-msgid  "Sorry"
-msgstr "Perdón!"
+msgid "Sorry"
+msgstr "Disculpe!"
 
-msgid  "Status"
+msgid "Status"
 msgstr "Estado"
 
-msgid  "unknown"
+msgid "unknown"
 msgstr "Desconocido"
 
-msgid  "unreg"
+msgid "unreg"
 msgstr "No registrado"
 
-msgid  "Violations"
+msgid "Username"
+msgstr "Usuario"
+
+msgid "Violations"
 msgstr "Violaciones"
+
+msgid "Quarantine Established!"
+msgstr "Aislamiento Establecido!"
+
+msgid "Registration Notification"
+msgstr "Notificación de Registro"
+
+msgid "Additional Assistance"
+msgstr "Asistencia Adicional"
+
+msgid "If your network connectivity becomes permanently disabled or you are unable to follow the instructions above, please contact your local IT support staff for assistance."
+msgstr "Si su conectividad a la red permanece deshabilitada o usted no se ecuentra en la capacidad de seguir las instrucciones anteriores, por favor contacte su equipo de soporte para asistencia."
+
+msgid "The following information should be provided upon request:"
+msgstr "La siguiente información deberá ser proporcionada:"
+
+msgid "IP Address"
+msgstr "Dirección IP"
+
+msgid "MAC Address"
+msgstr "Dirección MAC"
+
+msgid "Banned Operating System"
+msgstr "Sistema Operativo Prohibido"
+
+msgid "You have been detected using an operating system not allowed on the network. Please install a more recent operating system"
+msgstr "Usted ha sido detectado usando un sistema operativo no permitido en la red. Por favor instale un sistema operativo más reciente"
+
+msgid "Darknet Violation"
+msgstr "Violaciones tipo Darknet"
+
+msgid "Your system has been detected sending traffic to a network known to be unused (darknet). This is often indicative of a worm/virus infection."
+msgstr "Su sistema ha sido detectado enviando tráfico a una red permitida (darknet). Esto frecuentemente indica una infección por un gusano o un virus."
+
+msgid "Your system will likely need to be rebuilt. Please contact your local support staff for more information."
+msgstr "Su sistema probablemente necesita ser reinstalado. Por favor contacte su equipo de soporte para mayor información."
+
+msgid "Windows patches are not up to date"
+msgstr "Los parches de Windows no estan actualizados"
+
+msgid "Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken. Instructions for disinfection are below:"
+msgstr "Debido a la amenaza que esta infección posee para otros sistemas en la red, la conectividad de la red ha sido deshabilitada hasta que se tomen acciones correctivas. Instrucciones para la desinfección estan en la parte inferior:"
+
+msgid "Generic"
+msgstr "Genérico"
+
+msgid "Network connectivity has been disabled."
+msgstr "La conectividad de la red ha sido deshabilitada. Por favor contacte a su equipo de soporte"
+
+msgid "Please contact your support staff for more information."
+msgstr "Por favor contacte su equipo de soporte para mayor información."
+
+msgid "Hub Detection"
+msgstr "Detección de Hub"
+
+msgid "You have been detected using a hub. Such device is not permitted on the network.  Please remove it."
+msgstr "Usted ha sido detectado usando un hub. Tal dispositivo no es permitido en la red. Por favor desconectelo."
+
+msgid "Peer-to-Peer"
+msgstr "Peer-to-Peer"
+
+msgid "You have been detected using a peer-to-peer file sharing application. Such software is not permitted on the network.  Please uninstall the infringing software."
+msgstr "Usted ha sido detectado usando una aplicación peer-to-peer de uso compartido de archivos. Dicho software no es permitido en la red. Por favor desinstale el software infractor."
+
+msgid "System Scanning"
+msgstr "Análisis del sistema"
+
+msgid "Your system has been found to be scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgstr "Su sistema ha sido encontrado analizando otros sistemas. Debido a la amenaza que esta infección posee para otros sistemas en la red, la conectividad de la red ha sido deshabilitada hasta que se tomen acciones correctivas."
+
+msgid "Spamming"
+msgstr "Spamming"
+
+msgid "Your system has been found to be sending unsolicited commercial email (UCE, or \"spam\") to other systems. Due to the threat this poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgstr "Su sistema ha sido encontrado enviando correo electrónico comercial no solicitado (UCE, o \"spam\") a otros sistemas. Debido a la amenaza que esto representa para otros sistemas en la red, la conectividad de la red ha sido deshabilitada hasta que se tomen acciones correctivas."
+
+msgid "Your system may need to be rebuilt. Please contact your local support staff for more information."
+msgstr "Su sistema debe ser reinstalado. Por favor contacte el equipo de soporte para mayor información."
+
+msgid "guest management"
+msgstr "Administración de Invitados"
+
+msgid "guest registration form"
+msgstr "Formato de registro para Invitados"
+
+msgid "guest registration instructions"
+msgstr "Por favor llene todos los campos a continuación para que la cuenta de invitado sea creada. Los invitados solo podrán registrarse durante un día. La duración del acceso comenzará una vez el invitado se registre en el portal cautivo."
+
+msgid "Firstname"
+msgstr "Nombre "
+
+msgid "Lastname"
+msgstr "Apellido"
+
+msgid "Phone number"
+msgstr "Número teléfonico"
+
+msgid "Phone Provider"
+msgstr "Télefono proveedor"
+
+msgid "Select your provider"
+msgstr "Seleccione su proveedor"
+
+msgid "Email"
+msgstr "Correo electrónico"
+
+msgid "Arrival Date"
+msgstr "Fecha de llegada"
+
+msgid "End Date"
+msgstr "Fecha de finalización"
+
+msgid "Access duration"
+msgstr "Duración del acceso"
+
+msgid "Send access code by email"
+msgstr "Enviar código de acceso por correo electrónico"
+
+msgid "Print access code"
+msgstr "Imprimir código de acceso"
+
+msgid "Print"
+msgstr "Imprimir"
+
+msgid "Back"
+msgstr "Atrás"
+
+msgid "second"
+msgid_plural "seconds"
+msgstr[0] "segundo"
+msgstr[1] "segundos"
+
+msgid "minute"
+msgid_plural "minutes"
+msgstr[0] "minuto"
+msgstr[1] "minutos"
+
+msgid "hour"
+msgid_plural "hours"
+msgstr[0] "hora"
+msgstr[1] "horas"
+
+msgid "day"
+msgid_plural "days"
+msgstr[0] "día"
+msgstr[1] "dias"
+
+msgid "week"
+msgid_plural "weeks"
+msgstr[0] "semana"
+msgstr[1] "semanas"
+
+msgid "month"
+msgid_plural "months"
+msgstr[0] "mes"
+msgstr[1] "meses"
+
+msgid "year"
+msgid_plural "years"
+msgstr[0] "año"
+msgstr[1] "años"
+
+msgid "Invalid access duration provided"
+msgstr "Duración del acceso provisto inválido"
+
+msgid "Expected on %s"
+msgstr "Esperado en %s"
+
+msgid "Missing mandatory parameter or malformed entry."
+msgstr "Falta un parámetro obligatorio o entrada incorrecta."
+
+msgid "Access duration is not of an allowed value."
+msgstr "La Duración de acceso no es un valor permitido."
+
+msgid "Arrival date is not of expected format."
+msgstr "La Fecha de llegada no tiene el formato esperado."
+
+msgid "You can't register as a guest with a %s email address. Please register as a regular user using your email address instead."
+msgstr "Usted no puede registrarse como invitado con un %s dirección de correo electrónico. Por favor regístrese como un usuario regular usando su dirección de correo electrónico en su lugar."
+
+msgid "An error occured while sending the confirmation email."
+msgstr "Un error ocurrió mientras se enviaba el correo de confirmación."
+
+msgid "An error occured while sending the PIN by SMS."
+msgstr "Un error ocurrió mientras se enviaba el PIN por SMS."
+
+msgid "Confirm Mobile Phone Number"
+msgstr "Confirmar número telefónico móvil"
+
+msgid "Please enter the PIN code received on your mobile phone in order to gain access to the network."
+msgstr "Por favor ingrese el código PIN recibido en su teléfono móvil con el fin de tener acceso a la red."
+
+msgid "PIN"
+msgstr "PIN"
+
+msgid "Confirm"
+msgstr "Confirmar"
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "Guest Access Code"
+msgstr "Código de acceso de Invitado"
+
+msgid "This username and password will be valid starting %s."
+msgstr "Este usuario y contraseña serán validados empezando %s."
+
+msgid "Once authenticated the access will be valid for %d %s."
+msgstr "Una vez autenticado el acceso será validado por %d %s."
+
+msgid "Guest successfully registered. An email with the username and password has been sent."
+msgstr "Invitado registrado exitosamente. Un correo con su nombre de usuario y contraseña ha sido enviado."
+
+msgid "Guest Network Access Information"
+msgstr "Informacíon de acceso a la red de Invitados"
+
+msgid "If you have scripting turned off, you will not be automatically redirected. Please enable scripting or open a new browser window from time to time to see if your access was enabled."
+msgstr "Si usted ha desactivado la ejecución de secuencia de comandos (scripts), usted no será automaticamente redireccionado. Por favor habilite la ejecución de secuencia de comandos (scripts), o abra una nueva ventana del navegador de vez en cuando para ver si su acceso fue habilitado."
+
+msgid "Unable to detect network connectivity. Try opening a web page to see if your access has been succesfully enabled."
+msgstr "Incapaz de detectar actividad en la red. Intente abrir una página web para mirar si su acceso ha sido habilitado exitosamente."
+
+msgid "Registration pending"
+msgstr "Registro pendiente"
+
+msgid "There are known issues with the automatic redirection on Opera browsers. Please open a new browser window from time to time to see if your access was enabled."
+msgstr "Hay algunos problemas conocidos con la redirección automática en los navegadores Opera. Por favor abra una nueva ventana en el navegador de vez en cuando para verificar si su acceso fue habilitado."
+
+msgid "Some versions of Internet Explorer may take a while before redirection occur."
+msgstr "En algunas versiones de Internet Explorer pueden tomar un tiempo antes que la redirección ocurra."
+
+msgid "I accept the terms"
+msgstr "Acepto los términos"
+
+msgid "I have read and accept the terms"
+msgstr "He leído y acepto <a href='/aup' target='_blank'>los términos</a>"
+
+msgid "You need to accept the terms before proceeding any further."
+msgstr "Usted necesita aceptar los términos antes de continuar."
+
+msgid "Your registration is pending approval. Once approved you will be automatically redirected."
+msgstr "Su registro esta pendiente de aprobación. Una vez sea aprobado usted será automaticamente redireccionado."
+
+msgid "Next page"
+msgstr "Próxima página"
+
+msgid "The activation code provided is invalid. Reasons could be: it never existed, it was already used or has expired."
+msgstr "El código de activación proporcionado es inválido. Las razones pueden ser: este nunca existió, ya ha sido utilizado o ya expiró."
 

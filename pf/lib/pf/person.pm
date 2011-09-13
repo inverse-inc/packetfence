@@ -52,18 +52,18 @@ sub person_db_prepare {
     $person_statements->{'person_exist_sql'} = get_db_handle()->prepare(qq[ select count(*) from person where pid=? ]);
 
     $person_statements->{'person_add_sql'} = get_db_handle()->prepare(
-        qq[ insert into person(pid,firstname,lastname,email,telephone,company,address,notes) values(?,?,?,?,?,?,?,?) ]);
+        qq[ insert into person(pid,firstname,lastname,email,telephone,company,address,notes,sponsor) values(?,?,?,?,?,?,?,?,?) ]);
 
     $person_statements->{'person_view_sql'} = get_db_handle()->prepare(
-        qq[ select pid,firstname,lastname,email,telephone,company,address,notes from person where pid=? ]);
+        qq[ select pid,firstname,lastname,email,telephone,company,address,notes,sponsor from person where pid=? ]);
 
     $person_statements->{'person_view_all_sql'} = get_db_handle()->prepare(
-        qq[ select pid,firstname,lastname,email,telephone,company,address,notes from person ]);
+        qq[ select pid,firstname,lastname,email,telephone,company,address,notes,sponsor from person ]);
 
     $person_statements->{'person_delete_sql'} = get_db_handle()->prepare(qq[ delete from person where pid=? ]);
 
     $person_statements->{'person_modify_sql'} = get_db_handle()->prepare(
-        qq[ update person set pid=?,firstname=?,lastname=?,email=?,telephone=?,company=?,address=?,notes=? where pid=? ]);
+        qq[ update person set pid=?,firstname=?,lastname=?,email=?,telephone=?,company=?,address=?,notes=?,sponsor=? where pid=? ]);
 
     $person_statements->{'person_nodes_sql'} = get_db_handle()->prepare(
         qq[ select mac,pid,regdate,unregdate,lastskip,status,user_agent,computername,dhcp_fingerprint from node where pid=? ]);
@@ -121,7 +121,7 @@ sub person_add {
         $logger->error("attempt to add existing person $pid");
         return (2);
     }
-    db_query_execute(PERSON, $person_statements, 'person_add_sql', $pid, $data{'firstname'},$data{'lastname'},$data{'email'}, $data{'telephone'}, $data{'company'}, $data{'address'}, $data{'notes'}) || return (0);
+    db_query_execute(PERSON, $person_statements, 'person_add_sql', $pid, $data{'firstname'},$data{'lastname'},$data{'email'}, $data{'telephone'}, $data{'company'}, $data{'address'}, $data{'notes'}, $data{'sponsor'}) || return (0);
     $logger->info("person $pid added");
     return (1);
 }
@@ -181,6 +181,7 @@ sub person_modify {
         $existing->{'lastname'},  $existing->{'email'},
         $existing->{'telephone'}, $existing->{'company'},
         $existing->{'address'},   $new_notes, 
+        $existing->{'sponsor'},
         $pid 
     ) || return (0);
     $logger->info("person $pid modified to $new_pid");
@@ -202,6 +203,8 @@ Kevin Amorin <kev@amorin.org>
 Dominik Gehl <dgehl@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Francis Lachapelle <flachapelle@inverse.ca>
 
 =head1 COPYRIGHT
 

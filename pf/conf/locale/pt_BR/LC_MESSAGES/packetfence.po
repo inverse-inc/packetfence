@@ -16,6 +16,27 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;"
 
+msgid "en_US"
+msgstr "English"
+
+msgid "fr_FR"
+msgstr "Français"
+
+msgid "es_ES"
+msgstr "Español"
+
+msgid "de_DE"
+msgstr "Deutsch"
+
+msgid "it_IT"
+msgstr "Italiano"
+
+msgid "nl_NL"
+msgstr "Dutch"
+
+msgid "pt_BR"
+msgstr "Português"
+
 msgid  "error: access denied not owner"
 msgstr "Acesso negado: você não é o dono deste nó!"
 

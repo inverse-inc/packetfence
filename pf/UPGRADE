@@ -14,8 +14,28 @@ o Upgrading from a version prior to <trunk-release>:
 
     - Database schema update
     Added support for guest self-registration / management. Also added support
-    for Radius accounting. New tables creation. You need to update your schema with:
+    for Radius accounting. New tables creation. You need to update your schema
+    with:
     mysql -u root -p pf -v < db/upgrade-2.2.0-3.0.0.sql
+
+    - pf/vlan/custom.pm and pf/vlan/radius.pm API changes
+    Several variables were changed from bareword constants into Readonly 
+    constants (to fix #1266). Some of you might need to adjust your 
+    customizations to handle this change. Most of you won't need to. If you use
+    any of these constants in your customizations:
+    WIRELESS_802_1X, WIRELESS_MAC_AUTH, WIRED_802_1X, WIRED_MAC_AUTH, 
+    WIRED_SNMP_TRAPS, WIRELESS, WIRED, EAP, UNKNOWN, INLINE, VOIP, NO_VOIP
+    Then you need to add a $ symbol in front of the constant's name.
+    All of you will need to bump the API level to '1.01' after your changes are
+    made (if required) to stop PacketFence from complaining about correct API 
+    level.
+
+    - Upgrade helper scripts
+    Very basic upgrade scripts for 3.0 were created in addons/upgrade/. See 
+    their POD doc for usage information:
+    perldoc addons/upgrade/to-3.0-networks.conf.pl 
+    perldoc addons/upgrade/to-3.0-pf.conf.pl 
+    perldoc addons/upgrade/to-3.0-violations.conf.pl
 
     - Firewall (iptables) now handled by PacketFence
     Make sure that iptables is not handled by your operating system otherwise
@@ -25,6 +45,11 @@ o Upgrading from a version prior to <trunk-release>:
     - Several changes to Apache configuration
     We've externalized repetitive portions in conf/httpd.conf.d/. Make sure to
     re-integrate any customization you've made.
+
+    - violations.conf disable parameter deprecated in favor of enabled
+    disable=Y|N is no longer supported. Change with enabled=Y|N.
+    A helper upgrade script is provided in addons/upgrade/. See:
+    perldoc addons/upgrade/to-3.0-violations.conf.pl
 
     - New pf.conf configuration parameter: interface enforcement
     Under the [interface ...] statements a new configuration parameter has been
@@ -60,6 +85,11 @@ o Upgrading from a version prior to <trunk-release>:
     disabled by default. Previously it only had impacts if the mode was ARP but
     because of the modes removal it needed to be changed to disabled by default.
     Please report any regression introduced by this change.
+
+    - pf.conf's scan.live_tids parameter removed
+    This "feature" has been removed because it created more confusion than 
+    usefulness. Now every scan trigger ids specified in violations.conf have
+    full effect.
 
     - networks.conf's pf_gateway= renamed next_hop=
     Make sure to update your configuration otherwise you will get warnings on
@@ -124,13 +154,18 @@ o Upgrading from a version prior to <trunk-release>:
     Upgrade your Apache. We don't think it's used by anyone at this point. Let
     us know if you need it back.
 
+    - register-$type.cgi no longer supported
+    If you relied on it, we suggest that you migrate your custom code into 
+    lib/pf/web/custom.pm or the captive-portal's CGIs.
+
     - jpgraph external library now included with distribution
-    Due to jpgraph 2.3.4's rarity, we decided to inline the software instead
-    of building packages for it. This simplifies installation from tarball.
+    Due to the lack of jpgraph packages, we decided to inline the software 
+    instead of building packages for it. This simplifies installation from 
+    tarball.
     Jpgraph's installation used to be at 
     /usr/local/pf/html/admin/common/jpgraph/jpgraph-<version> but is now in 
-    /usr/local/pf/lib/jpgraph-<version>. Users of our packaged versions won't 
-    notice the change and can get rid of the php-jpgraph-packetfence package.
+    /usr/local/pf/lib/jpgraph. Users of our packaged versions won't notice the
+    change and can safely get rid of the php-jpgraph-packetfence package.
 
     - jpgraph 1.x support deprecated
     We got rid of the 1.x jpgraph support. It was only required for 
