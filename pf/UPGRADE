@@ -39,6 +39,11 @@ o Upgrading from a version prior to <trunk-release>:
     We've externalized repetitive portions in conf/httpd.conf.d/. Make sure to
     re-integrate any customization you've made.
 
+    - violations.conf disable parameter deprecated in favor of enabled
+    disable=Y|N is no longer supported. Change with enabled=Y|N.
+    A helper upgrade script is provided in addons/upgrade/. See:
+    perldoc addons/upgrade/to-3.0-violations.conf.pl
+
     - New pf.conf configuration parameter: interface enforcement
     Under the [interface ...] statements a new configuration parameter has been
     added: enforcement. We got rid of the concept of 'modes' in PacketFence and

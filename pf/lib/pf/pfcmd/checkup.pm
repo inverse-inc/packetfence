@@ -723,6 +723,7 @@ sub violations {
 
     my %violations = pf::services::class_set_defaults(%violations_conf);    
 
+    my $deprecated_disable_seen = $FALSE;
     foreach my $violation ( keys %violations ) {
 
         # parse triggers if they exist
@@ -735,6 +736,17 @@ sub violations {
                 add_problem($WARN, "Violation $violation is ignored: $_");
             };
         }
+
+        if ( defined $violations{$violation}{'disable'} ) {
+            $deprecated_disable_seen = $TRUE;
+        }
+    }
+
+    if ($deprecated_disable_seen) {
+        add_problem( $FATAL,
+            "violations.conf's disable parameter is deprecated in favor of enabled. " . 
+            "Make sure to update your configuration. Read UPGRADE for details and an upgrade script."
+        );
     }
 }
 

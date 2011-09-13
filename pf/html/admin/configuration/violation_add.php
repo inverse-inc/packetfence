@@ -84,7 +84,7 @@
     }
 
     $pretty_key = pretty_header("configuration-violation", $key);
-    if (($key == 'disable') || ($key == 'auto_enable')) {
+    if (($key == 'enabled') || ($key == 'auto_enable')) {
       print "<tr><td></td><td>$pretty_key:</td><td>";
       printSelect( array('Y' => 'Yes', 'N' => 'No'), 'hash', $val, "name='$key'
 ");

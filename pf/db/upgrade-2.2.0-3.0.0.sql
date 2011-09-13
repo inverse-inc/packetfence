@@ -404,3 +404,15 @@ BEGIN
     (p_acctsessiontime - Previous_Session_Time));
 END /
 DELIMITER ;
+
+
+---
+-- violation class disable becomes enabled
+--
+
+-- in order to properly migrate we empty the class table so the new code will properly update the table
+DELETE FROM class;
+
+ALTER TABLE class 
+        CHANGE `disable` `enabled` char(1) NOT NULL default "N"
+;

@@ -13,7 +13,7 @@ CREATE TABLE class (
   max_enable_url varchar(255),
   redirect_url varchar(255),
   button_text varchar(255),
-  disable char(1) NOT NULL default "Y",
+  enabled char(1) NOT NULL default "N",
   vlan varchar(255),
   PRIMARY KEY (vid)
 ) ENGINE=InnoDB;
