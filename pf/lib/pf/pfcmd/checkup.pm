@@ -135,6 +135,11 @@ sub interfaces_defined {
                 add_problem( $FATAL, "incomplete network information for $interface" );
             }
         }
+
+        my $int_types = qr/(?:internal|management|managed|monitor|dhcplistener|dhcp-listener|high-availability)/;
+        if (defined($int_conf{'type'}) && $int_conf{'type'} !~ /$int_types/) {
+            add_problem( $FATAL, "invalid network type $int_conf{'type'} for $interface" );
+        }
     }
 }
 
