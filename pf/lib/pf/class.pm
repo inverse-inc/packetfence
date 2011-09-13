@@ -33,6 +33,7 @@ BEGIN {
     );
 }
 
+use pf::action;
 use pf::db;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -142,16 +143,12 @@ sub class_modify {
     return (1);
 }
 
-# TODO this is written in another style than most of pf, it should be streamlined
 sub class_merge {
     my $id       = shift(@_);
     my $triggers = pop(@_);
     my $actions  = pop(@_);
     my $whitelisted_categories = pop(@_);
     my $logger   = Log::Log4perl::get_logger('pf::class');
-    use pf::action;
-
-    $logger->debug("inserting $id");
 
     # delete existing violation actions
     if ( !pf::action::action_delete_all($id) ) {
@@ -167,7 +164,6 @@ sub class_merge {
     } else {
 
         #insert violation class
-        $logger->debug("insert violation class $id with @_");
         class_add(@_);
     }
 
@@ -200,7 +196,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009,2010 Inverse inc.
+Copyright (C) 2009-2011 Inverse inc.
 
 =head1 LICENSE
 
