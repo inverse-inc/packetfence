@@ -30,6 +30,13 @@ o Upgrading from a version prior to <trunk-release>:
     made (if required) to stop PacketFence from complaining about correct API 
     level.
 
+    - Upgrade helper scripts
+    Very basic upgrade scripts for 3.0 were created in addons/upgrade/. See 
+    their POD doc for usage information:
+    perldoc addons/upgrade/to-3.0-networks.conf.pl 
+    perldoc addons/upgrade/to-3.0-pf.conf.pl 
+    perldoc addons/upgrade/to-3.0-violations.conf.pl
+
     - Firewall (iptables) now handled by PacketFence
     Make sure that iptables is not handled by your operating system otherwise
     conflicts might occur. You can customize the default firewall configuration

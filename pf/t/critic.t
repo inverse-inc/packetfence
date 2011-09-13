@@ -33,6 +33,8 @@ my @files = (
     '/usr/local/pf/addons/pfdetect_remote/sbin/pfdetect_remote',
     '/usr/local/pf/addons/recovery.pl',
     '/usr/local/pf/addons/upgrade/to-2.2.0-update-all-useragents.pl',
+    '/usr/local/pf/addons/upgrade/to-3.0-networks.conf.pl',
+    '/usr/local/pf/addons/upgrade/to-3.0-pf.conf.pl',
     '/usr/local/pf/addons/upgrade/to-3.0-violations.conf.pl',
     '/usr/local/pf/bin/flip.pl',
     '/usr/local/pf/bin/pfcmd',

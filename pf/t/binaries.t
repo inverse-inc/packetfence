@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 30;
+use Test::More tests => 32;
 
 my @binaries = (
     '/usr/local/pf/configurator.pl',
@@ -27,6 +27,8 @@ my @binaries = (
     '/usr/local/pf/addons/802.1X/packetfence.pm',
     '/usr/local/pf/addons/mrtg/mrtg-wrapper.pl',
     '/usr/local/pf/addons/upgrade/to-2.2.0-update-all-useragents.pl',
+    '/usr/local/pf/addons/upgrade/to-3.0-networks.conf.pl',
+    '/usr/local/pf/addons/upgrade/to-3.0-pf.conf.pl',
     '/usr/local/pf/addons/upgrade/to-3.0-violations.conf.pl',
     '/usr/local/pf/bin/flip.pl',
     '/usr/local/pf/bin/pfcmd_vlan',
