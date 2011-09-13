@@ -75,6 +75,13 @@ sub sanity_check {
     @problems = ();
     print "Checking configuration sanity...\n";
 
+    if (!-f $lib_dir . '/pf/pfcmd/pfcmd_pregrammar.pm') {
+        add_problem( $FATAL, 
+            "You are missing a critical file for PacketFence's proper operation. " .
+            "See instructions to re-create the file in: perldoc $lib_dir/pf/pfcmd/pfcmd.pm"
+        );
+    }
+
     service_exists(@services);
     interfaces_defined();
     interfaces();
