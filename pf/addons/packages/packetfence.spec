@@ -163,8 +163,8 @@ server.
 
 %package freeradius2
 Group: System Environment/Daemons
-%{?el5:Requires: freeradius2, freeradius2-perl}
-%{?el6:Requires: freeradius, freeradius-perl}
+%{?el5:Requires: freeradius2, freeradius2-perl freeradius2-mysql}
+%{?el6:Requires: freeradius, freeradius-perl freeradius-mysql}
 Requires: perl-SOAP-Lite
 Summary: Configuration pack for FreeRADIUS 2
 
@@ -665,6 +665,10 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Tue Sep 13 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Added dependendy on freeradius-mysql for our configuration
+  package
+
 * Mon Aug 15 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Added named, and dhcpd as dependencies
 
