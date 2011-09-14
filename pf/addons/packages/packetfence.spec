@@ -469,7 +469,6 @@ fi
 %dir                    /usr/local/pf/addons/watchdog
 %attr(0755, pf, pf)     /usr/local/pf/addons/watchdog/*.sh
 %dir                    /usr/local/pf/bin
-%attr(0755, pf, pf)     /usr/local/pf/bin/flip.pl
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %doc                    /usr/local/pf/ChangeLog
