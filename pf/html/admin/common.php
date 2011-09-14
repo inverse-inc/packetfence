@@ -744,6 +744,10 @@ function PrintSubNav($menu){
       else if($current_sub==$sub_nav[0]) {
         print "         <li class='active'><a href='$current_top/$sub_nav[0].php' class='current'>$sub_nav[1]</a></li>\n";
 
+      # TODO I know, I know this is hackish but how else am I supposed to do this in less than a couple of hours?
+      } else if( $current_top == "person" && $sub_nav[0] == "guests" ) {
+        print "         <li><a href='/guests/manage' target='_blank'>$sub_nav[1]</a></li>\n";
+
       } else {
         print "          <li><a href='$current_top/$sub_nav[0].php'>$sub_nav[1]</a></li>\n";
       }
