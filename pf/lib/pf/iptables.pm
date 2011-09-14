@@ -41,6 +41,9 @@ use pf::node qw(nodes_registered_not_violators);
 use pf::util;
 use pf::violation qw(violation_view_open_uniq violation_count);
 
+Readonly my $FW_TABLE_FILTER => 'filter';
+Readonly my $FW_TABLE_MANGLE => 'mangle';
+Readonly my $FW_TABLE_NAT => 'nat';
 Readonly my $FW_FILTER_INPUT_INT_VLAN => 'input-internal-vlan-if';
 Readonly my $FW_FILTER_INPUT_INT_INLINE => 'input-internal-inline-if';
 Readonly my $FW_FILTER_INPUT_MGMT => 'input-management-if';
@@ -48,6 +51,7 @@ Readonly my $FW_FILTER_INPUT_INT_HA => 'input-highavailability-if';
 Readonly my $FW_FILTER_INPUT_INT_MON => 'input-monitor-if';
 Readonly my $FW_FILTER_FORWARD_INT_INLINE => 'forward-internal-inline-if';
 Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-internal-inline-if';
+Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-internal-inline-if';
 
 =head1 SUBROUTINES
 
@@ -62,28 +66,30 @@ sub iptables_generate {
     my %tags = ( 
         'filter_if_src_to_chain' => '', 'filter_forward_inline' => '', 
         'mangle_if_src_to_chain' => '', 'mangle_prerouting_inline' => '', 
-        'nat_if_src_to_chain' => '', 'nat_prerouting_inline' => '', 
+        'nat_if_src_to_chain' => '', 'nat_prerouting_inline' => '', 'nat_postrouting_inline' => '' 
     );
 
     # global substitution variables
     $tags{'web_admin_port'} = $Config{'ports'}{'admin'};
-    # grabbing first management interface
-    $tags{'mgmt_interface'} = $management_nets[0]->tag("int");
 
     # FILTER
     # per interface-type pointers to pre-defined chains
     $tags{'filter_if_src_to_chain'} .= generate_filter_if_src_to_chain();
 
-    # Note: I'm giving references to this guy here so he can directly mess with the tables
-    generate_inline_rules(\$tags{'filter_forward_inline'}, \$tags{'nat_prerouting_inline'});
-
-    # MANGLE
-    $tags{'mangle_if_src_to_chain'} .= generate_inline_if_src_to_chain();
-    $tags{'mangle_prerouting_inline'} .= generate_mangle_rules();
-
-    # NAT chain targets and redirections (other rules injected by generate_inline_rules)
-    $tags{'nat_if_src_to_chain'} .= generate_inline_if_src_to_chain();
-    $tags{'nat_prerouting_inline'} .= generate_nat_redirect_rules();
+    if (is_inline_enforcement_enabled()) {
+        # Note: I'm giving references to this guy here so he can directly mess with the tables
+        generate_inline_rules(
+            \$tags{'filter_forward_inline'}, \$tags{'nat_prerouting_inline'}, \$tags{'nat_postrouting_inline'}
+        );
+    
+        # MANGLE
+        $tags{'mangle_if_src_to_chain'} .= generate_inline_if_src_to_chain($FW_TABLE_MANGLE);
+        $tags{'mangle_prerouting_inline'} .= generate_mangle_rules();
+    
+        # NAT chain targets and redirections (other rules injected by generate_inline_rules)
+        $tags{'nat_if_src_to_chain'} .= generate_inline_if_src_to_chain($FW_TABLE_NAT);
+        $tags{'nat_prerouting_inline'} .= generate_nat_redirect_rules();
+    }
 
     chomp(
         $tags{'filter_if_src_to_chain'}, $tags{'filter_forward_inline'},
@@ -142,6 +148,13 @@ sub generate_filter_if_src_to_chain {
         $rules .= "-A INPUT --in-interface $monitor_int --jump $FW_FILTER_INPUT_INT_MON\n";
     }
 
+    # Allow the NAT back inside through the forwarding table if inline is enabled
+    if (is_inline_enforcement_enabled()) {
+        # grabbing first management interface
+        my $mgmt_int = $management_nets[0]->tag("int");
+        $rules .= "-A FORWARD --in-interface $mgmt_int --match state --state ESTABLISHED,RELATED --jump ACCEPT\n";
+    }
+
     return $rules;
 }
 
@@ -152,7 +165,7 @@ Handling both FILTER and NAT tables at the same time.
 
 =cut
 sub generate_inline_rules {
-    my ($filter_rules_ref, $nat_rules_ref) = @_;
+    my ($filter_rules_ref, $nat_prerouting_ref, $nat_postrouting_ref) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
 
     $logger->info("Allowing DNS through on inline interfaces to configured DNS servers");
@@ -161,10 +174,14 @@ sub generate_inline_rules {
             my $dns = $ConfigNetworks{$network}{'dns'};
             my $rule = "--protocol udp --destination $dns --destination-port 53 --jump ACCEPT\n";
             $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE $rule";
-            $$nat_rules_ref .= "-A $FW_PREROUTING_INT_INLINE $rule";
+            $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule";
             $logger->trace("adding DNS FILTER passthrough for $dns");
         }
     }
+
+    $logger->info("Adding NAT Masquarade statement (PAT)");
+    $$nat_postrouting_ref .= "-A $FW_POSTROUTING_INT_INLINE --jump MASQUERADE\n";
+    
 
     if (isenabled($Config{'trapping'}{'registration'})) {
         $logger->info(
@@ -178,13 +195,13 @@ sub generate_inline_rules {
     }
 }
 
-
 =item generate_inline_if_src_to_chain
 
 Creating proper source interface matches to jump to the right chains for inline enforcement method.
 
 =cut
 sub generate_inline_if_src_to_chain {
+    my ($table) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $rules = '';
 
@@ -198,6 +215,13 @@ sub generate_inline_if_src_to_chain {
             # send everything from inline interfaces to the inline chain
             $rules .= "-A PREROUTING --in-interface $dev --jump $FW_PREROUTING_INT_INLINE\n";
         }
+    }
+
+    # NAT POSTROUTING
+    if ($table eq $FW_TABLE_NAT) {
+        # grabbing first management interface
+        my $mgmt_int = $management_nets[0]->tag("int");
+        $rules .= "-A POSTROUTING --out-interface $mgmt_int --jump $FW_POSTROUTING_INT_INLINE\n";
     }
 
     return $rules;
