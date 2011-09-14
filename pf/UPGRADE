@@ -126,6 +126,12 @@ o Upgrading from a version prior to <trunk-release>:
     just edit conf/iptables.conf and add your own rules to allow specific IPs
     in.
 
+    - flip.pl is no more
+    Its functionality has been merged into pfcmd_vlan under the -reevaluateVlan
+    flag. If you replaced system's flip.pl with your own you would like to know
+    that you will need to parse the -reevaluateVlan and -mac aa:bb:cc:dd:ee:ff
+    properly.
+
     - Authentication modules interface change
     All authentication modules (conf/authentication/*) were migrated into
     objects. Please carefully merge any module you were using by comparing

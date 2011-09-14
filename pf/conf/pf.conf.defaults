@@ -548,4 +548,4 @@ reevaluate_access_reasons=node_modify,manage_register,manage_deregister,manage_v
 # advanced.adjustswitchportvlanscript
 #
 # Which script do we have to execute to adjust the switchport VLAN
-adjustswitchportvlanscript=flip.pl
+adjustswitchportvlanscript=pfcmd_vlan

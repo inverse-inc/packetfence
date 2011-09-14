@@ -136,8 +136,7 @@ if ( !defined($cached_lost_device) || $cached_lost_device <= 5 ) {
     $main::lost_devices_cache->set( $mac, ++$cached_lost_device, "5 minutes");
 
     $logger->info(
-      "MAC $mac shouldn't reach here. " .
-      "Calling access re-evaluation through flip.pl. " .
+      "MAC $mac shouldn't reach here. Calling access re-evaluation. " .
       "Make sure your network device configuration is correct."
     );
     pf::enforcement::reevaluate_access( $mac, 'redir.cgi', (force => $TRUE) );

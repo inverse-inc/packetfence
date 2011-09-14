@@ -32,7 +32,6 @@ my @files = (
     '/usr/local/pf/addons/upgrade/to-3.0-pf.conf.pl',
     '/usr/local/pf/addons/upgrade/to-3.0-violations.conf.pl',
     '/usr/local/pf/addons/recovery.pl',
-    '/usr/local/pf/bin/flip.pl',
     '/usr/local/pf/bin/pfcmd',
     '/usr/local/pf/bin/pfcmd_vlan',
     '/usr/local/pf/conf/authentication/guest_managers.pm',

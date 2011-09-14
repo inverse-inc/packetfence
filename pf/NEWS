@@ -65,6 +65,7 @@ Enhancements
  * Improved Filesystem Hierarchy Standard (FHS) compliance (#762)
  * Improves PHP 5.3.x support, relates to distro portability too (#1211, #1244
    #1251: Thanks to Philipp Snizek)
+ * Migrated bin/flip.pl into a bin/pfcmd_vlan subcommand
  * More tests
 
 Bug fixes

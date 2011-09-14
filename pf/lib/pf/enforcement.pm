@@ -85,7 +85,7 @@ sub reevaluate_access {
 
 =item _vlan_reevaluation
 
-Calls flip.pl if we should reevaluate the VLAN of a node.
+Calls script defined by config's adjustswitchportvlanscript parameter if we should reevaluate the VLAN of a node.
 
 =cut
 sub _vlan_reevaluation {
@@ -94,9 +94,7 @@ sub _vlan_reevaluation {
 
     if ( _should_we_reassign_vlan($mac, $locationlog_entry, %opts) ) {
 
-        my @args = ( $Config{'advanced'}{'adjustswitchportvlanscript'}, $mac );
-        # TODO use pf_run instead (warning: be careful about taint checking)
-        system(@args);
+        pf_run($Config{'advanced'}{'adjustswitchportvlanscript'} . " -reevaluateVlan -mac $mac");
     }
 
     return 1;

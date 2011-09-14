@@ -27,6 +27,7 @@ pfcmd_vlan command [options]
    -isolate             set the switch port to the isolation VLAN
    -man                 full documentation
    -reAssignVlan        re-assign a switch port VLAN
+   -reevaluateVlan      reevaluate the VLAN of a given MAC by calling reAssignVlan or deauthenticate (replaces flip.pl)
    -resetVlanAllPort    reset VLAN on all non-UpLink ports of the specified switch
    -resetVlanNetwork    reset VLAN on all non-UpLink ports of all managed switches
    -setAlias            set the description of the specified switch port
@@ -94,6 +95,7 @@ use constant {
 use lib INSTALL_DIR . '/lib';
 use pf::db;
 use pf::config;
+use pf::locationlog;
 use pf::SwitchFactory;
 use pf::util;
 
@@ -136,6 +138,7 @@ my $ifAdminStatus = 0;
 my $deauthenticate;
 my $deauthenticateDot1x;
 my $reAssignVlan;
+my $reevaluateVlan;
 
 GetOptions(
     "alias:s"             => \$alias,
@@ -160,6 +163,7 @@ GetOptions(
     "mac:s"               => \$mac,
     "man"                 => \$man,
     "reAssignVlan"        => \$reAssignVlan,
+    "reevaluateVlan"      => \$reevaluateVlan,
     "resetVlanAllPort"    => \$resetVlanAllPort,
     "resetVlanNetwork"    => \$resetVlanNetwork,
     "setAlias"            => \$setAlias,
@@ -214,8 +218,64 @@ if ($logLevel) {
 }
 
 my $switchFactory = pf::SwitchFactory->getInstance();
+if ($reevaluateVlan) {
 
-if ($getUpLinks) {
+    if (!defined($mac) || $mac eq '' ) {
+        pod2usage("MAC argument is necessary");
+    }
+    $mac = clean_mac($mac);
+    
+    my $locationlog_entry = locationlog_view_open_mac($mac);
+    if ($locationlog_entry) {
+        my $switch_ip = $locationlog_entry->{'switch'} || 'unknown';
+        my $ifIndex = $locationlog_entry->{'port'} || 'unknown';
+        my $conn_type = str_to_connection_type($locationlog_entry->{'connection_type'});
+        $logger->info("switch port for $mac is $switch_ip ifIndex $ifIndex "
+            . "connection type: " . $connection_type_explained{$conn_type});
+    
+        # TODO we could try to avoid the need to create a switch factory each time..
+        my $trapSender = $switchFactory->instantiate('127.0.0.1');
+    
+        if ($trapSender) {
+            if ($conn_type == $UNKNOWN) {
+                $logger->warn("Unknown connection type! We won't perform VLAN reassignment since node never connected");
+    
+            } elsif ($conn_type == $WIRED_SNMP_TRAPS) {
+                $logger->debug("sending a local reAssignVlan trap to force VLAN change");
+                $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type);
+    
+            } elsif ($conn_type == $WIRELESS_MAC_AUTH) {
+                $logger->debug("sending a local desAssociate trap to force deassociation "
+                    . "(client will reconnect getting a new VLAN)");
+                $trapSender->sendLocalDesAssociateTrap($switch_ip, $mac, $conn_type);
+    
+            } elsif ($conn_type == $WIRELESS_802_1X) {
+                $logger->debug(
+                    "sending a local desAssociate trap to force deassociation. Client will reconnect getting a new VLAN"
+                );
+                $logger->info(
+                    "trying to dissociate a wireless 802.1x user, this might not work depending on hardware support. "
+                    . "If its your case please file a bug"
+                );
+                $trapSender->sendLocalDesAssociateTrap($switch_ip, $mac, $conn_type)
+    
+            } elsif ($conn_type == $WIRED_802_1X) {
+                $logger->debug("sending a local reAssignVlan trap to force VLAN change");
+                $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type);
+    
+            } elsif ($conn_type == $WIRED_MAC_AUTH) {
+                $logger->debug("sending a local reAssignVlan trap to force VLAN change");
+                $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type);
+            }
+        } else {
+            $logger->error("Can not instantiate switch 127.0.0.1 !");
+        }
+    
+    } else {
+        $logger->warn("Can't find status information for $mac. Are you sure this node is connected to the network?");
+    }
+
+} elsif ($getUpLinks) {
 
     if ( $switchDescRegExp eq '' ) {
         pod2usage("the switch argument is necessary");
@@ -402,7 +462,7 @@ if ($getUpLinks) {
 
 } elsif ($deauthenticate) {
 
-    if ( $mac eq '' ) {
+    if (!defined($mac) || $mac eq '') {
         pod2usage("the MAC argument is necessary");
     }
     if ( $switchDescRegExp eq '' ) {
@@ -518,8 +578,6 @@ if ($getUpLinks) {
         } elsif ($reAssignVlan) {
 
             $logger->debug("start handling 'reAssignVlan' command");
-            require pf::locationlog;
-            import pf::locationlog;
             my @locationlog_entry = locationlog_view_open_switchport_no_VoIP($switch->{'_ip'}, $ifIndex);
             if (@locationlog_entry) {
                 my $conn_type = str_to_connection_type($locationlog_entry[0]->{'connection_type'});
