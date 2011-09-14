@@ -62,23 +62,24 @@ my $name = "Guest Management";
 sub authenticate {
   my ($this, $username, $password) = @_;
   my $logger = Log::Log4perl::get_logger('authentication::guest_managers');
-  my $passwdFile = "$conf_dir/guest-managers.conf";
 
-  if (! -r $passwdFile) {
-      $logger->error("unable to read password file '$passwdFile'");
-      return (0,2);
-  }
+  foreach my $passwdFile ("$conf_dir/guest-managers.conf", "$conf_dir/admin.conf") {
 
-  my $htpasswd = new Apache::Htpasswd({
-      passwdFile => $passwdFile,
-      ReadOnly   => 1}
-  );
-  if ((!defined($htpasswd->htCheckPassword($username, $password))) 
-    or ($htpasswd->htCheckPassword($username, $password) == 0)) {
-      return (0,1);
-  } else {
-      return (1,0);
+    if (! -r $passwdFile) {
+        $logger->error("unable to read password file '$passwdFile'");
+        next;
+    }
+  
+    my $htpasswd = new Apache::Htpasswd({
+        passwdFile => $passwdFile,
+        ReadOnly   => 1}
+    );
+    if ($htpasswd->htCheckPassword($username, $password)) {
+        return (1,0);
+    }
+
   }
+  return (0,1);
 }
 
 =item * getName
