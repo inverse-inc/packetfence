@@ -81,11 +81,6 @@ tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stng260.exe
 
 [trapping]
 #
-# trapping.testing
-#
-# Disables sending of ARPs - note that this has implications on node detection and timeouts.
-testing=enabled
-#
 # trapping.range
 #
 # Comma-delimited list of address ranges/CIDR blocks that PacketFence will monitor/detect/trap on.  Gateway, network, and 

@@ -103,14 +103,11 @@ sub arpmac {
     $logger->debug(
         "ARP type=$type src $eth $mymac $myip -> dst $destmac content: [$mymac,$myip,$destmac,$destip]"
     );
-    if ( !isenabled( $Config{'trapping'}{'testing'} ) ) {
-        my $oWrite = Net::Write::Layer2->new( dev => $eth );
-        $oWrite->open;
-        $oWrite->send( $pktToSend->raw );
-        $oWrite->close;
-    } else {
-        $logger->warn("not sending frame, testing mode enabled");
-    }
+
+    my $oWrite = Net::Write::Layer2->new( dev => $eth );
+    $oWrite->open;
+    $oWrite->send( $pktToSend->raw );
+    $oWrite->close;
 }
 
 =head1 AUTHOR

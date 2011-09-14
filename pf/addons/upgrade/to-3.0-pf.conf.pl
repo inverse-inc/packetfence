@@ -30,6 +30,10 @@ They changed section and they default to enabled so if we see them as enabled we
 
 We just drop it.
 
+=item trapping.testing
+
+We just drop it.
+
 =back
 
 =cut
@@ -43,6 +47,7 @@ while (<>) {
     next if (/^named=\s*enabled\s*$/i);
     next if (/^dhcpd=\s*enabled\s*$/i);
     next if (/^live_tids=.*$/i);
+    next if (/^testing=.*$/i);
 
     # if we didn't skip, we keep
     print;

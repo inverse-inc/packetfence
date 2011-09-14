@@ -132,18 +132,6 @@ sub instantiate {
         $_tmp =~ s/ //g;
         push @vlans, $_tmp;
     }
-    my $switch_mode;
-    if ( isenabled( $Config{'trapping'}{'testing'} ) ) {
-        $switch_mode = 'testing';
-        $logger->warn(
-            'setting switch mode to testing since trapping.testing=enabled');
-    } else {
-        $switch_mode = lc(
-            (          $SwitchConfig{$requestedSwitch}{'mode'}
-                    || $SwitchConfig{'default'}{'mode'}
-            )
-        );
-    }
     $logger->debug("creating new $type object");
     return $type->new(
         '-customVlan1' => (
@@ -213,7 +201,7 @@ sub instantiate {
                    $SwitchConfig{$requestedSwitch}{'macSearchesSleepInterval'}
                 || $SwitchConfig{'default'}{'macSearchesSleepInterval'}
         ),
-        '-mode'       => $switch_mode,
+        '-mode' => lc( ($SwitchConfig{$requestedSwitch}{'mode'} || $SwitchConfig{'default'}{'mode'}) ),
         '-normalVlan' => (
                    $SwitchConfig{$requestedSwitch}{'normalVlan'}
                 || $SwitchConfig{'default'}{'normalVlan'}
