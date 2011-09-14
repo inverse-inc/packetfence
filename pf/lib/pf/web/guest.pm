@@ -228,7 +228,7 @@ sub generate_registration_page {
     #}
 
     my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], });
-    $template->process($pf::web::guest::REGISTRATION_TEMPLATE, $vars); 
+    $template->process($pf::web::guest::REGISTRATION_TEMPLATE, $vars) || $logger->error($template->error());
     exit;
 }
 
