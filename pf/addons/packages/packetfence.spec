@@ -485,6 +485,7 @@ fi
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
+%config(noreplace)      /usr/local/pf/conf/guest-managers.conf
 %dir                    /usr/local/pf/conf/locale
 %dir                    /usr/local/pf/conf/locale/de
 %dir                    /usr/local/pf/conf/locale/de/LC_MESSAGES
