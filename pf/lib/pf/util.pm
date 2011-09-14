@@ -989,6 +989,7 @@ sub pf_run {
     my ($command) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
 
+    local $OS_ERROR;
     # Using perl trickery to figure out what the caller expects so I can return him just that
     # this is to perfectly emulate the backtick operator behavior
     if (not defined wantarray) {
@@ -1006,13 +1007,15 @@ sub pf_run {
         my $result = `$command`;
         return $result if ($CHILD_ERROR == 0);
     }
+    # copying as soon as possible
+    my $exception = $OS_ERROR;
 
     # slightly modified version of "perldoc -f system" error handling strategy
     my $caller = ( caller(1) )[3] || basename($0);
     $caller =~ s/^(pf::\w+|main):://;
 
     if ($CHILD_ERROR == -1) {
-        $logger->warn("Error trying to run command: $command called from $caller. OS Error: $OS_ERROR");
+        $logger->warn("Error trying to run command: $command called from $caller. OS Error: $exception");
 
     } elsif ($CHILD_ERROR & 127) {
         my $signal = ($CHILD_ERROR & 127);
