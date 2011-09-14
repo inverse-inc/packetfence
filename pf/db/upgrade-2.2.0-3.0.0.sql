@@ -406,7 +406,7 @@ END /
 DELIMITER ;
 
 
----
+--
 -- violation class disable becomes enabled
 --
 
