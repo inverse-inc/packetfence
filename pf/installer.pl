@@ -90,13 +90,10 @@ my $pf_release = ( split( /\s+/, $version ) )[1];
 my $snort_version_string = "snort-2.8.6";
 
 my %oses = (
-    "Red Hat Enterprise Linux AS release 4"     => "RHEL4",
-    "Red Hat Enterprise Linux ES release 4"     => "RHEL4",
-    "White Box Enterprise Linux release 4"      => "RHEL4",
-    "CentOS release 4"                          => "RHEL4",
     "CentOS release 5"                          => "RHEL5",
     "Red Hat Enterprise Linux Server release 5" => "RHEL5",
-    "Fedora Core release 4"                     => "FC4"
+    "CentOS release 6"                          => "RHEL6",
+    "Red Hat Enterprise Linux Server release 6" => "RHEL6",
 );
 
 my @suids = ( "$install_dir/bin/pfcmd" );
@@ -477,6 +474,8 @@ Copyright (C) 2005 Dave Laporte
 Copyright (C) 2005 Kevin Amorin
 
 Copyright (C) 2007-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
