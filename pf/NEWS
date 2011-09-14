@@ -70,6 +70,7 @@ Enhancements
 
 Bug fixes
  * jpgraph version bump to 3.0.7. Fixes RHEL 6 issues. (#1244)
+ * Fixed silent failure when deleting a person with associated nodes (#1265)
  * Fixed encoding issues in the captive portal (#1115)
  * Fixed redirect loop on the captive portal if VLAN reassignment failed (#1260)
  * Fixes issues with accentuated characters and single quotes in some captive
