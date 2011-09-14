@@ -68,6 +68,12 @@ CREATE TABLE `node_category` (
 INSERT INTO `node_category` (category_id,name,notes) VALUES ("1","default","Placeholder category, feel free to edit");
 
 --
+-- Insert 'guest' category
+--
+
+INSERT INTO `node_category` (category_id,name,notes) VALUES ("2","guest","Guests");
+
+--
 -- Table structure for table `node`
 --
 

@@ -54,9 +54,6 @@ my %info;
 # Pull username
 $info{'pid'} = $cgi->remote_user || 1;
 
-# Pull browser user-agent string
-$info{'user_agent'} = $cgi->user_agent;
-
 # pull parameters from query string
 foreach my $param($cgi->url_param()) {
   $params{$param} = $cgi->url_param($param);
@@ -101,23 +98,21 @@ if ($cgi->param("pin")) { # && $session->param("authType")) {
       return(0);
     }
 
-    # save user info
-    $info{'firstname'} = $session->param( "final_user_first_name");
-    $info{'lastname'} = $session->param( "final_user_name");
-    $info{'email'} = $session->param( "final_user_email");
-    $info{'telephone'} = $session->param("phone");
+    # Adding person (using edit in case person already exists)
+    my $person_add_cmd = "$bin_dir/pfcmd 'person edit \""
+      . $session->param("login")."\" "
+      . "firstname=\"" . $session->param("final_user_first_name") . "\","
+      . "lastname=\"" . $session->param("final_user_name") . "\","
+      . "email=\"" . $session->param("final_user_email") . "\","
+      . "telephone=\"" . $session->param("phone") . "\","
+      . "notes=\"sms confirmation\"'";
+    $logger->info("Registering guest person with command: $person_add_cmd");
+    pf_run("$person_add_cmd");
 
     # Setting access timeout
     my $unregdate = localtime( time + normalize_time($pf::web::guest::DEFAULT_REGISTRATION_DURATION) );
     $info{'unregdate'} = POSIX::strftime( "%Y-%m-%d %H:%M:%S", $unregdate );
-
-    $logger->info(
-        "saving person info: firstname=" . $info{'firstname'} . ", lastname=" . $info{'lastname'} 
-        . ", email=" . $info{'email'}
-    );
-    $info{'notes'} = 'Guest';
-
-    $logger->info("setting unregdate to " . $info{'unregdate'});
+    $info{'category'} = 'guest';
 
     pf::web::web_node_register($cgi, $session, $mac, $pid, %info);
     # clear state that redirects to the Enter PIN page

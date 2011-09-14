@@ -72,13 +72,12 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
         . "lastname=\"" . $session->param("lastname") . "\","
         . "email=\"" . $session->param("email") . "\","
         . "telephone=\"" . $session->param("phone") . "\","
-        . "notes=\"guest account\"'";
+        . "notes=\"email activation\"'";
       $logger->info("Registering guest person with command: $person_add_cmd");
       pf_run("$person_add_cmd");
 
       # grab additional info about the node
       $info{'pid'} = $session->param("login");
-      $info{'user_agent'} = $cgi->user_agent;
       $info{'category'} = "guest";
 
       # unreg in 10 minutes
