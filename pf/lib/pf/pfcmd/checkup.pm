@@ -663,12 +663,15 @@ sub permissions {
         add_problem( $FATAL, "pfcmd needs to be owned by root. Fix with chown root:root pfcmd" );
     }
 
+    # log owner must be pf otherwise apache or pf daemons won't start
     my @important_log_files = qw(
         access_log error_log admin_access_log admin_error_log
         packetfence.log
     );
     foreach my $log_file (@important_log_files) {
-        # log owner must be pf otherwise apache or pf daemons won't start
+        # if log doesn't exist it is created correctly so no need to complain
+        next if (!-f $log_dir . '/' . $log_file);
+
         add_problem( $FATAL, "$log_file must be owned by user pf. Fix with chown pf -R logs/" )
             unless (getpwuid((stat($log_dir . '/' . $log_file))[4]) eq 'pf');
     }
