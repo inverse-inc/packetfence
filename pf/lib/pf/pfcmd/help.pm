@@ -98,8 +98,9 @@ stop/stop/restart specified service
 status returns PID of specified PF daemon or 0 if not running
 watch acts as a service watcher which can send email/restart the services
 
-  httpd            | apache
-  named            | BIND 
+  dhcpd            | dhcpd daemon
+  httpd            | Apache (Captive Portal and Web Admin)
+  named            | DNS daemon (bind)
   pf               | all services
   pfdetect         | PF snort alert parser
   pfdhcplistener   | PF DHCP monitoring daemon
