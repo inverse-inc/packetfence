@@ -139,9 +139,6 @@ sub service_ctl {
                             require pf::freeradius;
                             pf::freeradius::freeradius_populate_nas_config();
 
-                        } elsif ( ($daemon eq 'pfsetvlan') && (!switches_conf_is_valid()) ) {
-                            $logger->error_warn("Errors in switches.conf. This can be problematic for "
-                                . "pfsetvlan's operation. Check logs for details.");
                         }
                         $logger->info(
                             "Starting $exe with '$service $flags{$daemon}'");
@@ -386,114 +383,6 @@ sub generate_snmptrapd_conf {
     parse_template( \%tags, "$conf_dir/snmptrapd.conf",
         "$generated_conf_dir/snmptrapd.conf" );
     return 1;
-}
-
-=item * switches_conf_is_valid
-
-=cut
-
-sub switches_conf_is_valid {
-    my $logger = Log::Log4perl::get_logger('pf::services');
-    my %switches_conf;
-    tie %switches_conf, 'Config::IniFiles',
-        ( -file => "$conf_dir/switches.conf" );
-    my @errors = @Config::IniFiles::errors;
-    if ( scalar(@errors) ) {
-        $logger->error(
-            "Error reading switches.conf: " . join( "\n", @errors ) . "\n" );
-        return 0;
-    }
-
-    # trimming trailing whitespace
-    foreach my $section ( tied(%switches_conf)->Sections ) {
-        foreach my $key ( keys %{ $switches_conf{$section} } ) {
-            $switches_conf{$section}{$key} =~ s/\s+$//;
-        }
-    }
-
-    my $parsing_successful_flag = 1;
-    foreach my $section ( keys %switches_conf ) {
-        if ( ( $section ne 'default' )
-            && ( $section ne '127.0.0.1' ) ) {
-
-            # validate that switches are not duplicated (we check for type and mode specifically) fixes #766
-            if (ref($switches_conf{$section}{'type'}) eq 'ARRAY' || ref($switches_conf{$section}{'mode'}) eq 'ARRAY') {
-                $logger->error("There is an error in the switches.conf configuration file around $section. "
-                    . "Did you define the same switch twice?");
-                $parsing_successful_flag = 0;
-                next;
-            }
-
-            # check type
-            my $type
-                = "pf::SNMP::"
-                . (    $switches_conf{$section}{'type'}
-                    || $switches_conf{'default'}{'type'} );
-            if ( ! $type->require() ) {
-                $logger->error(
-                    "Unknown switch type: $type for switch $section: $@");
-                $parsing_successful_flag = 0;
-            }
-
-            if ( !valid_ip($section) ) {
-                $logger->error("switch IP is invalid for $section");
-                $parsing_successful_flag = 0;
-            }
-
-            # check SNMP version
-            my $SNMPVersion = ($switches_conf{$section}{'SNMPVersion'}
-                || $switches_conf{$section}{'version'}
-                || $switches_conf{'default'}{'SNMPVersion'}
-                || $switches_conf{'default'}{'version'}
-            );
-
-            if (!defined($SNMPVersion)) {
-                $logger->error("Switch SNMP version is missing. Please provide one specific to switch or in default. Config section: $section");
-                $parsing_successful_flag = 0;
-            } elsif ( !( $SNMPVersion =~ /^1|2c|3$/ ) ) {
-                $logger->error("switch SNMP version is invalid for $section");
-                $parsing_successful_flag = 0;
-            }
-
-            # check SNMP Trap version
-            my $SNMPVersionTrap = ($switches_conf{$section}{'SNMPVersionTrap'} || $switches_conf{'default'}{'SNMPVersionTrap'});
-            if (!defined($SNMPVersionTrap)) {
-                $logger->error("Switch SNMP Trap version is missing. Please provide one specific to switch or in default. Config section: $section");
-                $parsing_successful_flag = 0;
-            } elsif ( !( $SNMPVersionTrap =~ /^1|2c|3$/ ) ) {
-                $logger->error("switch SNMP Trap version is invalid for $section");
-                $parsing_successful_flag = 0;
-            }
-
-            # check uplink
-            my $uplink = $switches_conf{$section}{'uplink'}
-                || $switches_conf{'default'}{'uplink'};
-            if (( !defined($uplink) )
-                || (   ( lc($uplink) ne 'dynamic' )
-                    && ( !( $uplink =~ /(\d+,)*\d+/ ) ) )
-                )
-            {
-                $logger->error( "switch uplink ("
-                        . ( defined($uplink) ? $uplink : 'undefined' )
-                        . ") is invalid for $section" );
-                $parsing_successful_flag = 0;
-            }
-
-            # check mode
-            my @valid_switch_modes = ( 'testing', 'ignore', 'production', 'registration', 'discovery' );
-            my $mode = $switches_conf{$section}{'mode'}
-                || $switches_conf{'default'}{'mode'};
-            if ( !grep( { lc($_) eq lc($mode) } @valid_switch_modes ) ) {
-                $logger->error("switch mode ($mode) is invalid for $section");
-                $parsing_successful_flag = 0;
-            }
-        }
-    }
-    if ($parsing_successful_flag == 1) {
-        return 1;
-    } else {
-        return 0;
-    }
 }
 
 =item * read_violations_conf
