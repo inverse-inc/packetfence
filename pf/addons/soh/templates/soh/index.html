@@ -2,7 +2,7 @@
 [% INCLUDE header.html %]
 
 <style type="text/css">
- .del { font-size: 80% }
+ .del, .rdel { font-size: 80% }
  div.ruleset {
    border: 1px solid maroon;
    margin: 10px 0 10px 0; padding: 5px;
@@ -10,7 +10,7 @@
 </style>
 
 <script id=filtertmpl type="text/x-template">
- <li id="f#{filter_id}" name="#{name}">
+ <li class=filter id="f#{filter_id}" name="#{name}">
   <button class=del>x</button> #{name}
   <input type=hidden name=filter_id value="#{filter_id}">
   <input type=hidden name=filter_name value="#{name}">
@@ -33,7 +33,6 @@
 
 <script id=ruletmpl type="text/x-template">
  <li class=rule>
-  <button class=rdel>x</button>
   <select name="#{rfid}class">
    <option value=""></option>
    <option value="antivirus">Anti-virus</option>
@@ -55,6 +54,7 @@
    <option value="uptodate">up-to-date</option>
    <option value="microsoft">from Microsoft</option>
   </select>
+  <button class=rdel>x</button>
  </li>
 </script>
 
@@ -64,7 +64,7 @@
 
  <ul id=filternames>
   [% FOREACH filter IN list_filters %]
-   <li id="f[% filter.filter_id %]" name="[% filter.name %]">
+   <li class=filter id="f[% filter.filter_id %]" name="[% filter.name %]">
     [% IF filter.name != 'Default' %]<button class=del>x</button>[% END %] [% filter.name %]
     <input type=hidden name=filter_id value="[% filter.filter_id %]">
     <input type=hidden name=filter_name value="[% filter.name %]">
@@ -79,12 +79,11 @@
       [% IF !(filter.action == 'violation' && filter.violation) %]style="display: none"[% END %]>
      <p>Conditions:
      <ul class=rules>
+     [% matched = 0 %]
      [% FOREACH rule IN list_rules %]
-      [% matched = 0 %]
       [% IF rule.filter_id == filter.filter_id %]
        [% matched = 1 %]
        <li class=rule>
-        <button class=rdel>x</button>
         <select name="r[% filter.filter_id %]class">
          <option value="antivirus" [% IF rule.class == 'antivirus' %]selected[% END %]>Anti-virus</option>
          <option value="antispyware" [% IF rule.class == 'antispyware' %]selected[% END %]>Anti-spyware</option>
@@ -103,6 +102,7 @@
          <option value="uptodate" [% IF rule.status == 'uptodate' %]selected[% END %]>up-to-date</option>
          <option value="microsoft" [% IF rule.status == 'microsoft' %]selected[% END %]>from Microsoft</option>
         </select>
+        <button class=rdel>x</button>
        </li>
       [% END %]
      [% END %]
