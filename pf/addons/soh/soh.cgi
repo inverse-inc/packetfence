@@ -39,7 +39,7 @@ if ($sid && -f "$sdir/sess_$sid") {
 }
 unless ($session && $session->get('user')) {
     print $q->redirect("/");
-    return;
+    exit;
 }
 
 my $csession = CGI::Session->new(undef, $q, {Directory => '/tmp'});
