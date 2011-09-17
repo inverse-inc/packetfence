@@ -104,6 +104,7 @@ sub sanity_check {
     extensions();
     permissions();
     violations();
+    switches();
 
     return @problems;
 }
@@ -753,6 +754,86 @@ sub violations {
     }
 }
 
+=item switches
+
+Checking for switches configurations
+
+=cut
+sub switches {
+    my %switches_conf;
+    tie %switches_conf, 'Config::IniFiles', ( -file => "$conf_dir/switches.conf" );
+    
+    my @errors = @Config::IniFiles::errors;
+    if ( scalar(@errors) ) {
+        add_problem( $FATAL, "switches.conf | Error reading switches.conf" );
+    }
+
+    # remove trailing whitespaces
+    foreach my $section ( tied(%switches_conf)->Sections ) {
+        foreach my $key ( keys %{ $switches_conf{$section} } ) {
+            $switches_conf{$section}{$key} =~ s/\s+$//;
+        }
+    }
+
+    foreach my $section ( keys %switches_conf ) {
+        if ( ($section ne 'default') && ($section ne '127.0.0.1') ) {
+        
+        # validate that switches are not duplicated (we check for type and mode specifically) fixes #766
+        if ( ref($switches_conf{$section}{'type'}) eq 'ARRAY' || ref($switches_conf{$section}{'mode'}) eq 'ARRAY' ) {
+            add_problem( $WARN, "switches.conf | Error around $section Did you define the same switch twice?" );
+        }
+
+        # check type
+        my $type = "pf::SNMP::" . ( $switches_conf{$section}{'type'} || $switches_conf{'default'}{'type'} );
+        if ( !$type->require() ) {
+            add_problem( $WARN, "switches.conf | Switch type ($type) is invalid for switch $section" );
+        }
+
+        # check for valid switch IP
+        if ( !valid_ip($section) ) {
+            add_problem( $WARN, "switches.conf | Switch IP is invalid for switch $section" );
+        }
+
+        # check SNMP version
+        my $SNMPVersion = ( $switches_conf{$section}{'SNMPVersion'}
+                || $switches_conf{$section}{'version'}
+                || $switches_conf{'default'}{'SNMPVersion'}
+                || $switches_conf{'default'}{'version'} );
+        if ( !defined($SNMPVersion) ) {
+            add_problem( $WARN, "switches.conf | Switch SNMP version is missing for switch $section"
+                    . "Please provide one specific to the switch or in default." );
+        } elsif ( !($SNMPVersion =~ /^1|2c|3$/) ) {
+            add_problem( $WARN, "switches.conf | Switch SNMP version ($SNMPVersion) is invalid for switch $section" );
+        }
+
+        # check SNMP Trap version
+        my $SNMPVersionTrap = ($switches_conf{$section}{'SNMPVersionTrap'} 
+                || $switches_conf{'default'}{'SNMPVersionTrap'});
+        if (!defined($SNMPVersionTrap)) {
+            add_problem( $WARN, "switches.conf | Switch SNMP Trap version is missing for switch $section"
+                    . "Please provide one specific to the switch or in default." );
+        } elsif ( !( $SNMPVersionTrap =~ /^1|2c|3$/ ) ) {
+            add_problem( $WARN, "switches.conf | Switch SNMP Trap version ($SNMPVersionTrap) is invalid "
+                    . "for switch $section" );
+        }
+
+        # check uplink
+        my $uplink = $switches_conf{$section}{'uplink'} || $switches_conf{'default'}{'uplink'};
+        if ( (!defined($uplink)) || (( lc($uplink) ne 'dynamic' ) && (!( $uplink =~ /(\d+,)*\d+/ ))) ) {
+            add_problem( $WARN, "switches.conf | Switch uplink is invalid for switch $section" );
+        }
+
+        # check mode
+        my @valid_switch_modes = ( 'testing', 'ignore', 'production', 'registration', 'discovery' );
+        my $mode = $switches_conf{$section}{'mode'} || $switches_conf{'default'}{'mode'};
+        if ( !grep( { lc($_) eq lc($mode) } @valid_switch_modes ) ) {
+            add_problem( $WARN, "switches.conf | Switch mode ($mode) is invalid for switch $section" );
+        }
+
+        }
+    }
+}
+
 =back
 
 =head1 AUTHOR
@@ -760,6 +841,8 @@ sub violations {
 Olivier Bilodeau <obilodeau@inverse.ca>
 
 Francois Gaudreault <fgaudreault@inverse.ca>
+
+Derek Wuelfrath <dwuelfrath@inverse.ca>
 
 =head1 COPYRIGHT
 
