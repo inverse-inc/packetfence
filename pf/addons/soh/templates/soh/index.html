@@ -115,7 +115,7 @@
  </ul>
 
  <button id=addfilter>Add a filter</button>
- <input type=submit value="Save filters">
+ <input id=save type=submit value="Save filters">
  <span id=msg style="margin-left: 20px; font-size: 80%"></span>
 </form>
 
@@ -168,6 +168,7 @@
      if (!ul.down()) {
        ul.insert('<li>(None)</li>');
      }
+     $('save').style.color = 'red';
    }
 
    else if (addrule) {
@@ -178,6 +179,7 @@
        ul.down().remove();
      }
      ul.insert(tmpl.evaluate({rfid: rfid}));
+     $('save').style.color = 'red';
    }
 
    else if (del) {
@@ -228,13 +230,23 @@
 
  $('filterform').observe('change', function (e) {
    var n = e.target;
+   $('save').style.color = 'red';
    if (n.nodeName == 'SELECT' && n.name == 'action') {
      n.next().style.display = n.getValue() == 'violation' ? '' : 'none';
    }
  });
 
  $('filterform').observe('submit', function (e) {
-   $('filterform').request({onSuccess: ajax_success});
+   $('filterform').request({
+     onFailure: ajax_failure,
+     onSuccess: function (t) {
+       ajax_success(t);
+       var j = t.responseJSON;
+       if (j && j.status == 'ok') {
+         $('save').style.color = '';
+       }
+     }
+   });
    e.stop();
  });
 </script>
