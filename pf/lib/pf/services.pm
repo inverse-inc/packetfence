@@ -60,10 +60,9 @@ $flags{'snmptrapd'} = "-n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $insta
 $flags{'radiusd'} = "";
 
 if ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int ) {
-    $flags{'snort'}
-        = "-u pf -c $generated_conf_dir/snort.conf -i "
-        . $monitor_int
-        . " -N -D -l $install_dir/var";
+    $flags{'snort'} = 
+        "-u pf -c $generated_conf_dir/snort.conf -i $monitor_int " . 
+        "-N -D -l $install_dir/var --pid-path $install_dir/var/run";
 }
 
 =head1 SUBROUTINES
