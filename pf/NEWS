@@ -81,7 +81,7 @@ Bug fixes
  * Fixed distro portability problems (#1185, #1187, #1248)
  * Additional fixes to nessus scans
  * Renaming Nortel ERS modules (#1238)
- * Interim fixes (#1239, #1240, #1268)
+ * Interim fixes (#1239, #1240, #1268, #1269)
  * Missing named in the pfcmd help
 
 Translations

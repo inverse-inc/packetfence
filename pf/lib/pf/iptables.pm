@@ -170,8 +170,10 @@ sub generate_inline_rules {
 
     $logger->info("Allowing DNS through on inline interfaces to configured DNS servers");
     foreach my $network (keys %ConfigNetworks) {
-        if (defined($ConfigNetworks{$network}{'dns'})) {
-            my $dns = $ConfigNetworks{$network}{'dns'};
+        # skip non-inline interfaces
+        next if (!pf::config::is_network_type_inline($network));
+
+        foreach my $dns ( split(/\s*,\s*/, $ConfigNetworks{$network}{'dns'}) ) {
             my $rule = "--protocol udp --destination $dns --destination-port 53 --jump ACCEPT\n";
             $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE $rule";
             $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule";
