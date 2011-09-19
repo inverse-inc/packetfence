@@ -78,6 +78,8 @@ Bug fixes
  * Fixed accidental stop/restart of services because administrative where done
    in GET instead of POST (#1119)
  * Fixed help not visible in the Web Admin when using Internet Explorer (#1256)
+ * Fixed missing exportation icon in the Web Admin when using Internet Explorer
+   (#1255)
  * Cisco C3560 now heritates the Cisco C2960 code
  * Fixed distro portability problems (#1185, #1187, #1248)
  * Fixed snort pidpath (#1258)

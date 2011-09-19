@@ -116,20 +116,7 @@ for($i=0; $i<count($my_table->headers); $i++){
 
 
 ?>
-<!----
   </tr>
-  <tr height=50>
-    <td><img src=images/excel_icon.gif></td>
-    <td><img src=images/html_icon.gif></td>
-    <td><img src=images/excel_icon.gif></td>
-  </tr>
-  <tr>
-    <td><input type=radio name=output value=CSV></td>
-    <td><input type=radio name=output value=HTML></td>
-    <td><input type=radio name=output value=TXT></td>
-
-  </tr>
----!>
 <tr height=30>
   <td align=right colspan=<?=count($my_table->headers)?>><input type=submit value=Export></td>
 </tr>
