@@ -18,15 +18,19 @@ particular, it tries to achieve the following tasks:
 
 =over
 
-=item * choice between template and custom configuration
+=item * choice between different PacketFence working mode
 
-=item * choice of isolation mode (C<arp>, C<dhcp> or C<vlan>)
+=item * choice of enforcement methods (VLANs, Inline, Both)
 
-=item * database connection parameters
+=item * general PacketFence configurations
 
-=item * hostname and IP address
+=item * database configuration
 
-=item * network configuration (management interfaces)
+=item * detection and scanning configuration (in enabled)
+
+=item * interfaces configuration
+
+=item * networks configuration
 
 =back
 
@@ -179,11 +183,6 @@ sub config_pf_general {
     $pf_cfg{general}{domain} = `hostname -d`;
     chop ( $pf_cfg{general}{domain} );
     $pf_cfg{general}{domain} = '<NONE>' if ( $pf_cfg{general}{domain} eq '(none)' );    
-    $pf_cfg{general}{dnsservers} = "";
-    for (`cat /etc/resolv.conf`) {
-        $pf_cfg{general}{dnsservers} .= "$1," if (/nameserver (\S+)/);
-    }
-    chop( $pf_cfg{general}{dnsservers} );
 
     # General configs
     gatherer ( "What's my host name (without the domain name)? ", \%pf_cfg, 'general.hostname' );
@@ -271,7 +270,7 @@ sub config_pf_interfaces {
     print "\nPACKETFENCE INTERFACES CONFIGURATION\n";
     print "\n*** PacketFence configuration rely on your network interfaces attributes. Prior to continue, make 
 sure that those are correctly configured using ifconfig (You should open a new term window to avoid closing this 
-configuration process) ***\n\n";
+configuration process) ***\n";
 
     foreach my $net ( get_networkinfos() ) {
         next if ( defined $pf_cfg{"interface $net->{device}"} );
@@ -320,7 +319,7 @@ configuration process) ***\n\n";
 sub config_pf_networks {
     print "\nPACKETFENCE NETWORKS CONFIGURATION\n";
     print "\n*** PacketFence will now be configured to act as a DHCP / DNS server on the enforcement enabled " . 
-            "interfaces ***\n\n";
+            "interfaces ***\n";
 
     push @network_types, "other";
 
@@ -346,7 +345,10 @@ sub config_pf_networks {
         $networks_cfg{$prefix}{"next_hop"} = "";
         if ( $type eq "inline" ) {
             $networks_cfg{$prefix}{"named"} = "disabled";
-            $networks_cfg{$prefix}{"dns"} = "4.2.2.2";
+            for (`cat /etc/resolv.conf`) {
+                $networks_cfg{$prefix}{"dns"} .= "$1," if (/nameserver (\S+)/);
+            }
+            chop( $networks_cfg{$prefix}{"dns"} );
         } else {
             $networks_cfg{$prefix}{"named"} = "enabled";
             $networks_cfg{$prefix}{"dns"} = $net->{"ip"};
