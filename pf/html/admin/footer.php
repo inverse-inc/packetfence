@@ -36,7 +36,7 @@
       <table width="100%">
         <tr> 
           <td width="10%" align="left">
-            <a href="javascript:popUp('<?=$current_top?>/help.html#<?=$current_sub?>', '500', '400')"><img src='images/help.png' alt='Help!' title='Help!'></a>
+            <a href="javascript:popUp('/<?=$current_top?>/help.html#<?=$current_sub?>', '500', '400')"><img src='/images/help.png' alt='Help!' title='Help!'></a>
           </td>
           <td width="80%" align="center"><?if(isset($my_table)) $my_table->print_pager()?></td>
           <td width="10%" nowrap align="right">
