@@ -326,10 +326,8 @@ sub readPfConfigFiles {
 
         foreach my $type ( split( /\s*,\s*/, $type ) ) {
             if ( $type eq 'internal' ) {
-                push @internal_nets, $int_obj;
-                if (!defined($Config{$interface}{'enforcement'})) {
-                  $logger->warn("$int: interface type internal must have an enforcement mode defined.");
-                } elsif ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) {
+                push @internal_nets, $int_obj if (defined($int_obj));
+                if ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) {
                   push @vlan_enforcement_nets, $int_obj;
                 } elsif ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_INLINE) {
                     push @inline_enforcement_nets, $int_obj;
