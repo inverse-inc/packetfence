@@ -49,8 +49,8 @@ Readonly my $FW_FILTER_INPUT_INT_INLINE => 'input-internal-inline-if';
 Readonly my $FW_FILTER_INPUT_MGMT => 'input-management-if';
 Readonly my $FW_FILTER_INPUT_INT_HA => 'input-highavailability-if';
 Readonly my $FW_FILTER_FORWARD_INT_INLINE => 'forward-internal-inline-if';
-Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-internal-inline-if';
-Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-internal-inline-if';
+Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-int-inline-if';
+Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
 
 =head1 SUBROUTINES
 

@@ -82,7 +82,7 @@ Bug fixes
  * Fixed snort pidpath (#1258)
  * Additional fixes to nessus scans
  * Renaming Nortel ERS modules (#1238)
- * Interim fixes (#1239, #1240, #1268, #1269)
+ * Interim fixes (#1239, #1240, #1263, #1268, #1269)
  * Missing named in the pfcmd help
 
 Translations
