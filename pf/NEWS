@@ -60,6 +60,7 @@ Enhancements
  * Named isolation and registration zones now automatically generated on startup
    based on networks.conf's DNS entry (#1105)
  * Simplified Apache configuration
+ * Improved installer.pl and configurator.pl
  * Included the jpgraph PHP library. Simplifies installation from source.
  * More start-up validation in `pfcmd checkup` (#1031, #1191, #1252)
  * Improved error-handling, reduced number of Perl warnings (#1266)

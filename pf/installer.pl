@@ -191,11 +191,13 @@ if (questioner(
     $mysql_db = "pf" if ( !$mysql_db );
 
     my $times  = 0;
-    my $denied = 0;
+    my $is_mysql_accessible;
     do {
         if ( $times > 0 ) {
-            print "MySQL is reporting access denied, try again\n";
+            print "MySQL is reporting access denied or can't connect, try again\n";
+            print "Perhaps you did not configure mysql with /usr/bin/mysql_secure_installation?\n";
         }
+        $times++;
         print "  Current Admin User [root]: ";
         $mysqlAdminUser = <STDIN>;
         chop $mysqlAdminUser;
@@ -210,12 +212,9 @@ if (questioner(
             print "Perhaps you did not configure mysql with /usr/bin/mysql_secure_installation?\n";
             exit 1;
         }
-        $denied = (
-            (   `echo "use pf"|mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' 2>&1`
-                    =~ /Access denied/
-            ) ? 1 : 0
-        );
-    } while ($denied);
+        $is_mysql_accessible = 
+            `echo "use pf"|mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' 2>&1`;
+    } while ($is_mysql_accessible =~ /Access denied|Can't connect/);
 
     my $exists = 0;
 
