@@ -20,16 +20,40 @@ Installation and configuration
 
    mysql pf < soh.sql
 
-2. Put the CGI script and its dependencies in place:
+#. Put the CGI script and its dependencies in place:
 
    ln -sf $install_dir/addons/soh/soh.cgi $install_dir/html/admin/soh.cgi
    ln -sf $install_dir/addons/soh/templates/soh \
        $install_dir/html/captive-portal/templates/soh
 
-3. Optional. Add rewrite rules for nicer URLs (/soh.cgi -> /soh) in the
+#. Optional. Add rewrite rules for nicer URLs (/soh.cgi -> /soh) in the
    admin VirtualHost:
 
    RewriteRule ^/soh([^.]*)$ /soh.cgi$1 [PT]
+
+#. Copy packetfence-soh.pm to /etc/raddb, and add the following section
+   to /etc/raddb/modules/perl:
+
+   perl sohperl {
+       module = ${confdir}/packetfence-soh.pm
+   }
+
+#. Create a virtual server to handle SoH requests by placing the
+   following into /etc/raddb/sites-enabled/soh-server:
+
+   server soh-server {
+       authorize {
+           perl
+           update config {
+               Auth-Type = Accept
+           }
+       }
+   }
+
+#. Enable SoH support inside the peap {} section in eap.conf:
+
+   soh = yes
+   soh-virtual-server = "soh-server"
 
 Web interface
 =============
