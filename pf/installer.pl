@@ -87,7 +87,11 @@ $version = <$pfrelease_fh>;
 close($pfrelease_fh);
 my $pf_release = ( split( /\s+/, $version ) )[1];
 
-my $snort_version_string = "snort-2.8.6";
+my %snort_rules_version = (
+    "RHEL5" => "snort-2.8.6",
+    "RHEL6" => "snort-2.9.0",
+    "latest" => "snort-2.9.0",
+);
 
 my %oses = (
     "CentOS release 5"                          => "RHEL5",
@@ -120,6 +124,7 @@ if ( !$os_type ) {
         )
     {
         $unsupported = 1;
+        $os_type = 'latest';
     } else {
         exit;
     }
@@ -371,7 +376,7 @@ if (questioner(
         'emerging-worm.rules'
     );
     foreach my $current_rule_file (@rule_files) {
-        `/usr/bin/wget -N http://rules.emergingthreats.net/open/$snort_version_string/rules/$current_rule_file -P $conf_dir/snort`;
+        `/usr/bin/wget -N http://rules.emergingthreats.net/open/$snort_rules_version{$os_type}/rules/$current_rule_file -P $conf_dir/snort`;
     }
 }
 
