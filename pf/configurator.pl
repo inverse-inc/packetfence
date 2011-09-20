@@ -274,7 +274,7 @@ configuration process) ***\n";
 
     foreach my $net ( get_networkinfos() ) {
         next if ( defined $pf_cfg{"interface $net->{device}"} );
-        if ( questioner ( "\nIs $net->{device} ( $net->{ip} ) will be used by PacketFence?", 'y', ( 'y', 'n' ) ) ) {
+        if ( questioner ( "\nIs $net->{device} ( $net->{ip} ) to be used by PacketFence?", 'y', ( 'y', 'n' ) ) ) {
             
             $int = $net->{device};
 
