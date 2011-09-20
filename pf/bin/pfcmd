@@ -1210,17 +1210,14 @@ sub service {
         my @services_which_should_be_started = pf::services::service_list(@services);
         my @incorrectly_stopped_services     = ();
         foreach my $tmp (@services) {
-            my $should_be_started = (
-                (   grep( { $_ eq $tmp } @services_which_should_be_started )
-                        > 0
-                ) ? 1 : 0
-            );
+            my $should_be_started = (grep( { $_ eq $tmp } @services_which_should_be_started ) > 0);
             my $pid = pf::services::service_ctl( $tmp, 'status' );
             if ( ($should_be_started) && ( !$pid ) ) {
                 push @incorrectly_stopped_services, $tmp;
             }
         }
-        if ( scalar(@incorrectly_stopped_services) > 0 ) {
+        if (@incorrectly_stopped_services) {
+            $logger->info("watch found incorrectly stopped services: " . join(", ", @incorrectly_stopped_services));
             print "The following processes are not running:\n" . " - "
                 . join( "\n - ", @incorrectly_stopped_services ) . "\n";
             if ( isenabled( $Config{'servicewatch'}{'email'} ) ) {
