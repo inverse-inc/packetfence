@@ -212,7 +212,7 @@ sub config_pf_general {
     # High-availability
     my $ha = gatherer ( "Do you want to use a high-availability setup?", \%pf_cfg, '', ("enabled", "disabled") );
     if ( $ha eq "enabled" ) {
-        my $ha_int = gatherer ( "What is my high-availability interface?", \%pf_cfg, '', get_available_interfaces() );
+        my $ha_int = gatherer ( "What is my high-availability interface?", \%pf_cfg, '', get_interfaces() );
         %{ $pf_cfg{"interface $ha_int"} } = ();
         $pf_cfg{"interface $ha_int"}{'type'}   = "high-availability";
     }
@@ -227,7 +227,7 @@ sub config_pf_detection {
 
     $pf_cfg{"trapping"}{"detection"} = "enabled";
 
-    my $mon_int = gatherer ( "What is my monitor interface?", \%pf_cfg, '', get_available_interfaces() );
+    my $mon_int = gatherer ( "What is my monitor interface?", \%pf_cfg, '', get_interfaces() );
     %{ $pf_cfg{"interface $mon_int"} } = ();
     $pf_cfg{"interface $mon_int"}{"type"}   = "monitor";
 }
@@ -274,7 +274,7 @@ configuration process) ***\n";
 
     foreach my $net ( get_networkinfos() ) {
         next if ( defined $pf_cfg{"interface $net->{device}"} );
-        if ( questioner ( "Is $net->{device} ( $net->{ip} ) will be used by PacketFence?", 'y', ( 'y', 'n' ) ) ) {
+        if ( questioner ( "\nIs $net->{device} ( $net->{ip} ) will be used by PacketFence?", 'y', ( 'y', 'n' ) ) ) {
             
             $int = $net->{device};
 
@@ -432,15 +432,14 @@ sub check_for_upgrade {
 }
 
 
-=item get_available_interfaces
+=item get_interfaces
 
 =cut
-sub get_available_interfaces {
+sub get_interfaces {
     my @ints;
 
     foreach my $int (Net::Interface->interfaces()) {
         next if ( "$int" eq "lo" );
-        next if ( defined $pf_cfg{"interface $int"} );
         push @ints, "$int"; # quotes required because of Net::Interface's overloaded operators
     }
 
@@ -528,8 +527,6 @@ sub questioner {
 =cut
 sub gatherer {
     my ( $query, $tied_hash_ref, $params, @choices ) = @_;
-
-    #%tied_hash = %pf_cfg if !( %tied_hash );
 
     my $default;
     my $current;
