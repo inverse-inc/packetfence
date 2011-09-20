@@ -3,12 +3,12 @@
 # general.domain
 #
 # Domain name of PacketFence system.
-domain=example.com
+domain=packetfence.org
 #
 # general.hostname
 #
 # Hostname of PacketFence system.  This is concatenated with the domain in Apache rewriting rules and therefore must be resolvable by clients.
-hostname=abc
+hostname=packetfence
 #
 # general.logo
 #

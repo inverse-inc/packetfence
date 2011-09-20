@@ -112,7 +112,7 @@ Once done, your PacketFence installation will be fully functionnal (if everythin
 ready to use. For more advanced configurations, don't be shy to take a look at the main configuration file 
 ($conf_dir/pf.conf) and it's documentation file $conf_dir/documentation.conf\n";
 
-print "\nHere's the steps that will be performed:
+print "\nHere are the steps that will be performed:
     - Choice of configuration template and enforcement method
     - General configuration of the PacketFence server
     - Configuration of enforcement networks\n";
@@ -131,7 +131,7 @@ END_TEMPLATE_LIST
 
 my $template = questioner ( $template_list, '', (1 .. 4) );
 
-print "\n*** The following configuration script won't configure SNORT / Nessus. It will only configure 
+print "\n*** The following configuration script won't configure Nessus or a remote SNORT probe. It will only configure 
 PacketFence related to those services. ***\n";
 
 my $enforcement_list = << "END_ENFORCEMENT_LIST";
