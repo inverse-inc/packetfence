@@ -318,9 +318,8 @@ sub validate_registration {
 
     $logger->info("duration: " . $cgi->param('access_duration'));
     my $valid_email = ($cgi->param('email') =~ /^[A-z0-9_.-]+@[A-z0-9_-]+(\.[A-z0-9_-]+)*\.[A-z]{2,6}$/);
-    my $valid_name = ($cgi->param("firstname") =~ /\w/ && $cgi->param("lastname") =~ /\w/);
 
-    if (!$valid_email || !$valid_name || $cgi->param("phone") eq '') {
+    if (!$valid_email) {
         return (0, 1);
     }
 
