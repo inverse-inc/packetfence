@@ -76,6 +76,7 @@ use warnings;
 use diagnostics;
 
 use Data::Dumper;
+use English qw( -no_match_vars ) ;  # Avoids regex performance penalty
 use File::Basename qw(basename);
 use Getopt::Long;
 use Log::Log4perl;
@@ -186,7 +187,7 @@ pod2usage( -verbose => 1 ) if $help;
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger(basename($0));
 Log::Log4perl::MDC->put('proc', basename($0));
-Log::Log4perl::MDC->put('tid',  0);
+Log::Log4perl::MDC->put('tid', $PROCESS_ID);
 
 # if the verbosity flag is present we log both on file and on STDOUT and adjust log level
 if ($logLevel) {

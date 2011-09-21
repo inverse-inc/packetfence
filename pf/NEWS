@@ -16,6 +16,12 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <trunk-release> released on <releaseDate>
 
+Enhancements
+ * Process IDs are now logged in the logs for pfcmd and pfcmd_vlan
+
+--------------------------------------------------------------------------------
+Version 3.0.0 released on 2011-09-21
+
 Compatibility notice
  * BACKUP YOUR /usr/local/pf/ BEFORE UPGRADING. Several path changed with this
    release and an rpm upgrade will REMOVE your templates and remediation pages.
