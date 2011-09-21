@@ -14,7 +14,7 @@ For a list of compatibility related changes see the UPGRADE file.
 
 
 --------------------------------------------------------------------------------
-Version <trunk-release> released on <releaseDate>
+Version 3.0.0 released on 2011-09-21
 
 Compatibility notice
  * BACKUP YOUR /usr/local/pf/ BEFORE UPGRADING. Several path changed with this
@@ -27,8 +27,10 @@ Compatibility notice
  * Removed support for jpgraph 1.x, 2.x which bumps our depedencies to PHP 5.1
 
 New Hardware Support
- * LG-Ericsson iPecs 4500 support for port-security
+ * Avaya/Nortel switches now support the floating network device feature
  * Avaya Wireless Controller support
+ * Dlink DWL Access-Point support
+ * LG-Ericsson iPecs 4500 support for port-security and MAC Authentication/802.1X
  * Netgear FGS Series support for port-security 
 
 New features
@@ -41,6 +43,7 @@ New features
  * Introduced in-line support: firewall based access control with captive 
    portal. Use this complementary technique when you cannot use VLAN 
    enforcement. (#1227)
+ * Ability to view log files from the Web Administration interface (#1080)
  * PacketFence now takes care of the local firewall configuration on the server
  * Captive portal authentication modules are versioned, validated on startup and
    have customizable names
@@ -63,14 +66,36 @@ Enhancements
  * Improved installer.pl and configurator.pl
  * Included the jpgraph PHP library. Simplifies installation from source.
  * More start-up validation in `pfcmd checkup` (#1031, #1191, #1252)
- * Improved error-handling, reduced number of Perl warnings (#1266)
+ * Improved error-handling, reduced number of Perl warnings, added tests (#1266)
  * Improved Filesystem Hierarchy Standard (FHS) compliance (#762)
  * Improves PHP 5.3.x support, relates to distro portability too (#1211, #1244
    #1251: Thanks to Philipp Snizek)
  * Migrated bin/flip.pl into a bin/pfcmd_vlan subcommand
- * More tests
+ * Added ldap port option to Web Admin LDAP (AD) authentication
+ * New controllerIp network device parameter will make it simpler to support
+   wireless hardware working in bridged mode
+ * New DHCP fingerprints for Mac OS X Lion, Fedora 14, Polycom, Aastra, 
+   LifeSize, Nortel, Polycom and Snom Conferencing and VoIP, Ubuntu 11.04, 
+   Belkin Wireless Router, HP ProCurve switches, Androids, Zebra, Kyocera, HP 
+   and Xerox printers, NEC Projectors, Polycom Video Conferencing and Paradox
+   Card Access module
+ * Developer documentation to add Floating Network Devices support to switches
+ * Minor usability improvements
 
 Bug fixes
+ * Fixed issues with several switches if node MAC address falls into an Hex to
+   ASCII printable range (#1098)
+ * Renaming Nortel ERS modules (#1238)
+ * Fixed Avaya/Nortel switches problems on ERS2500 / ERS4500 (at least)
+ * Fixed OS violations regression introduced in 2.2.0
+ * Fixed nessus scans don't work with bin/pfcmd as a setuid/setgid (#1087)
+ * Fixed custom VLAN assignments relying on connection_type failing on "unknown" nodes (#1231)
+ * Fixed problematic default grace period for System scan violation
+ * Fixed configurator.pl does not show interfaces without IP address (#1221)
+ * Fixed issue to detect the shell prompt MeruOS 4.1 or greater (#1232)
+ * Fixed issues with wireless hardware not sending a NAS-Port parameter (#1229)
+ * Fixed Apache configuration problems on non RHEL / CentOS platforms
+ * Fixed other cases of warnings from our FreeRADIUS module
  * jpgraph version bump to 3.0.7. Fixes RHEL 6 issues. (#1244)
  * Fixed silent failure when deleting a person with associated nodes (#1265)
  * Fixed encoding issues in the captive portal (#1115)
@@ -80,56 +105,16 @@ Bug fixes
  * Fixed accidental stop/restart of services because administrative where done
    in GET instead of POST (#1119)
  * Fixed help not visible in the Web Admin when using Internet Explorer (#1256)
- * Fixed missing exportation icon in the Web Admin when using Internet Explorer
-   (#1255)
+ * Fixed missing exportation icon in the Web Admin when using Internet Explorer (#1255)
  * Cisco C3560 now heritates the Cisco C2960 code
  * Fixed distro portability problems (#1185, #1187, #1248)
  * Fixed snort pidpath (#1258)
  * Additional fixes to nessus scans
- * Renaming Nortel ERS modules (#1238)
  * Interim fixes (#1239, #1240, #1263, #1268, #1269)
- * Missing named in the pfcmd help
+ * Missing "named" in the pfcmd help
 
 Translations
  * Updated Spanish (es) translation (Thanks to Juan Camilo Valencia)
-
---------------------------------------------------------------------------------
-Version <version> released on <releaseDate>
-
-New Hardware Support
- * Avaya/Nortel switches now support the floating network device feature
- * Dlink DWL Access-Point support
- * LG-Ericsson iPecs 4500 support for MAC Authentication/802.1X
-
-New Features
- * Ability to view log files from the Web Administration interface (#1080)
-
-Enhancements
- * Added ldap port option to Web Admin LDAP (AD) authentication
- * New DHCP fingerprints for Mac OS X Lion, Fedora 14, Polycom, Aastra, 
-   LifeSize, Nortel, Polycom and Snom Conferencing and VoIP, Ubuntu 11.04, 
-   Belkin Wireless Router, HP ProCurve switches, Androids, Zebra, Kyocera, HP 
-   and Xerox printers, NEC Projectors, Polycom Video Conferencing and Paradox
-   Card Access module
- * New controllerIp network device parameter will make it simpler to support
-   wireless hardware working in bridged mode
- * Developer documentation to add Floating Network Devices support to switches
- * Minor usability improvements
-
-Bug fixes
- * Fixed issues with several switches if node MAC address falls into an Hex to
-   ASCII printable range (#1098)
- * Fixed OS violations regression introduced in 2.2.0
- * Fixed Avaya/Nortel switches problems on ERS2500 / ERS4500 (at least)
- * Fixed nessus scans don't work with bin/pfcmd as a setuid/setgid (#1087)
- * Fixed custom VLAN assignments relying on connection_type failing on "unknown"
-   nodes (#1231)
- * Fixed problematic default grace period for System scan violation
- * Fixed configurator.pl does not show interfaces without IP address (#1221)
- * Fixed issue to detect the shell prompt MeruOS 4.1 or greater (#1232)
- * Fixed issues with wireless hardware not sending a NAS-Port parameter (#1229)
- * Fixed Apache configuration problems on non RHEL / CentOS platforms
- * Fixed other cases of warnings from our FreeRADIUS module
 
 --------------------------------------------------------------------------------
 Version 2.2.1 released on 2011-06-16
