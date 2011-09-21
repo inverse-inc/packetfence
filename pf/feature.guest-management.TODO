@@ -1,6 +1,3 @@
-- ajouter addons/guest-manangement/ dans rpm
-- ajouter les tables dans le schema
-
 
 TODOs
 - Clean URL the new CGI's in httpd.conf as we did in trunk/
