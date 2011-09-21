@@ -1,4 +1,35 @@
 ----------------------------------------------------------------------
+Revision: 4c39b6bf784e9a0be356cdfc4177b91d2d7e2d03
+Parent:   c1c9325f492c8c9c38973123b94ed6049b9ac85e
+Author:   flachapelle@inverse.ca
+Date:     21/09/2011 16:46:44
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+Fixed pf::web::custom support for pf::web::guest and pf::web::wispr.
+
+Changes against parent c1c9325f492c8c9c38973123b94ed6049b9ac85e
+
+  patched  pf/lib/pf/web/captiveportal_modperl_require.pl
+  patched  pf/lib/pf/web/custom.pm
+
+----------------------------------------------------------------------
+Revision: c1c9325f492c8c9c38973123b94ed6049b9ac85e
+Parent:   20a730b1811e6293caa2bec94674e339dd73c24c
+Author:   obilodeau@inverse.ca
+Date:     21/09/2011 16:38:44
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+re-updated ChangeLog
+
+Changes against parent 20a730b1811e6293caa2bec94674e339dd73c24c
+
+  patched  pf/ChangeLog
+
+----------------------------------------------------------------------
 Revision: 20a730b1811e6293caa2bec94674e339dd73c24c
 Parent:   74e20c246438cfe29f463d8bbd93d223365293ee
 Author:   obilodeau@inverse.ca
