@@ -75,7 +75,7 @@ if($_POST){
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="stylesheet" href="style.css" type="text/css"> 
 </head>
-<body class="popup">
+<body class="popup help">
 
 <div id=content>
 <h1>Select the fields you want to export</h1>
