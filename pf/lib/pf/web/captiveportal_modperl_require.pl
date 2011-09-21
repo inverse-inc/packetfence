@@ -19,6 +19,8 @@ use pf::config;
 use pf::useragent;
 use pf::util;
 use pf::web;
+use pf::web::guest;
+use pf::web::wispr;
 # needs to be called last of the pf::web's to allow dark magic redefinitions
 use pf::web::custom;
 

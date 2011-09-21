@@ -83,7 +83,7 @@ To set the particular session variable use the following:
 # Example: change default access duration for guests
 #package pf::web::guest;
 #
-#$pf::web::guest::DEFAULT_REGISTRATION_DURATION = "24h";
+#$pf::web::guest::DEFAULT_REGISTRATION_DURATION = "1d";
 
 # end of no warnings 'redefine' block
 }
