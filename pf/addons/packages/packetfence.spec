@@ -461,6 +461,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/addons/recovery.pl
 %dir                    /usr/local/pf/addons/snort
                         /usr/local/pf/addons/snort/oinkmaster.conf
+                        /usr/local/pf/addons/snort/oinkmaster.conf.2.8.6
 %dir                    /usr/local/pf/addons/upgrade
 %attr(0755, pf, pf)     /usr/local/pf/addons/upgrade/*.pl
 %dir                    /usr/local/pf/addons/802.1X
