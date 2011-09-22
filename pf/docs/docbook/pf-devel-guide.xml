@@ -25,11 +25,12 @@
     <revhistory>
       <revision>
         <revnumber>2.5</revnumber>
-        <date>2011-05-31</date>
+        <date>2011-09-21</date>
         <authorinitials>OBU</authorinitials>
         <revremark>Content updated to reflect latest captive portal improvements: 
           Better templating, XHTML/CSS and streamlined remediation pages. 
           Updated translation information including contributing translations.
+          How-to develop support for Floating Network Devices in switches and documented controllerIp feature.
         </revremark>
       </revision>
       <revision>
