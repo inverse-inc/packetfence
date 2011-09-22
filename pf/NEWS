@@ -16,6 +16,12 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <trunk-release> released on <releaseDate>
 
+Enhancements
+ * Process IDs are now logged in the logs for pfcmd and pfcmd_vlan
+
+--------------------------------------------------------------------------------
+Version 3.0.0 released on 2011-09-21
+
 Compatibility notice
  * BACKUP YOUR /usr/local/pf/ BEFORE UPGRADING. Several path changed with this
    release and an rpm upgrade will REMOVE your templates and remediation pages.
@@ -49,6 +55,7 @@ New features
  * Simplification of the captive portal translation (#822, #1114)
  * RADIUS Accounting for tracking node bandwidth usage
  * RedHat Enterprise Linux 6 / CentOS 6 support (#1244)
+ * Snort 2.9.x support
 
 Enhancements
  * Captive portal usability improvements for both users and administrators
@@ -59,6 +66,7 @@ Enhancements
  * Named isolation and registration zones now automatically generated on startup
    based on networks.conf's DNS entry (#1105)
  * Simplified Apache configuration
+ * Improved installer.pl and configurator.pl
  * Included the jpgraph PHP library. Simplifies installation from source.
  * More start-up validation in `pfcmd checkup` (#1031, #1191, #1252)
  * Improved error-handling, reduced number of Perl warnings (#1266)
@@ -77,11 +85,15 @@ Bug fixes
    portal strings
  * Fixed accidental stop/restart of services because administrative where done
    in GET instead of POST (#1119)
+ * Fixed help not visible in the Web Admin when using Internet Explorer (#1256)
+ * Fixed missing exportation icon in the Web Admin when using Internet Explorer
+   (#1255)
  * Cisco C3560 now heritates the Cisco C2960 code
  * Fixed distro portability problems (#1185, #1187, #1248)
+ * Fixed snort pidpath (#1258)
  * Additional fixes to nessus scans
  * Renaming Nortel ERS modules (#1238)
- * Interim fixes (#1239, #1240)
+ * Interim fixes (#1239, #1240, #1263, #1268, #1269)
  * Missing named in the pfcmd help
 
 Translations

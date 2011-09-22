@@ -41,6 +41,19 @@ CREATE TABLE temporary_password (
 ) ENGINE=InnoDB;
 
 --
+-- Trigger to delete the temp password from 'temporary_password' when deleting the pid associated with
+--
+
+DROP TRIGGER IF EXISTS temporary_password_delete_trigger;
+DELIMITER /
+CREATE TRIGGER temporary_password_delete_trigger AFTER DELETE ON person
+FOR EACH ROW
+BEGIN
+  DELETE FROM temporary_password WHERE pid = OLD.pid;
+END /
+DELIMITER ;
+
+--
 -- Table structure for table `sms_activation`
 --
 

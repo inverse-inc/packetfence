@@ -48,10 +48,9 @@ Readonly my $FW_FILTER_INPUT_INT_VLAN => 'input-internal-vlan-if';
 Readonly my $FW_FILTER_INPUT_INT_INLINE => 'input-internal-inline-if';
 Readonly my $FW_FILTER_INPUT_MGMT => 'input-management-if';
 Readonly my $FW_FILTER_INPUT_INT_HA => 'input-highavailability-if';
-Readonly my $FW_FILTER_INPUT_INT_MON => 'input-monitor-if';
 Readonly my $FW_FILTER_FORWARD_INT_INLINE => 'forward-internal-inline-if';
-Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-internal-inline-if';
-Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-internal-inline-if';
+Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-int-inline-if';
+Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
 
 =head1 SUBROUTINES
 
@@ -143,11 +142,6 @@ sub generate_filter_if_src_to_chain {
         $rules .= "-A INPUT --in-interface $interface --jump $FW_FILTER_INPUT_INT_HA\n";
     }
 
-    # monitor interface handling
-    if ($monitor_int) {
-        $rules .= "-A INPUT --in-interface $monitor_int --jump $FW_FILTER_INPUT_INT_MON\n";
-    }
-
     # Allow the NAT back inside through the forwarding table if inline is enabled
     if (is_inline_enforcement_enabled()) {
         # grabbing first management interface
@@ -170,8 +164,10 @@ sub generate_inline_rules {
 
     $logger->info("Allowing DNS through on inline interfaces to configured DNS servers");
     foreach my $network (keys %ConfigNetworks) {
-        if (defined($ConfigNetworks{$network}{'dns'})) {
-            my $dns = $ConfigNetworks{$network}{'dns'};
+        # skip non-inline interfaces
+        next if (!pf::config::is_network_type_inline($network));
+
+        foreach my $dns ( split(/\s*,\s*/, $ConfigNetworks{$network}{'dns'}) ) {
             my $rule = "--protocol udp --destination $dns --destination-port 53 --jump ACCEPT\n";
             $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE $rule";
             $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule";

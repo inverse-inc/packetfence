@@ -40,7 +40,9 @@ o Upgrading from a version prior to <trunk-release>:
     - Firewall (iptables) now handled by PacketFence
     Make sure that the iptables generated will not conflict with the rules you
     need for your environment. You can customize the default firewall 
-    configuration in conf/iptables.conf.
+    configuration in conf/iptables.conf. Also make sure that the iptables 
+    service is started by your distro by default otherwise you will have 
+    unnecessary error messages on PacketFence's startup.
 
     - Several changes to Apache configuration
     We've externalized repetitive portions in conf/httpd.conf.d/. Make sure to

@@ -87,7 +87,11 @@ $version = <$pfrelease_fh>;
 close($pfrelease_fh);
 my $pf_release = ( split( /\s+/, $version ) )[1];
 
-my $snort_version_string = "snort-2.8.6";
+my %snort_rules_version = (
+    "RHEL5" => "snort-2.8.6",
+    "RHEL6" => "snort-2.9.0",
+    "latest" => "snort-2.9.0",
+);
 
 my %oses = (
     "CentOS release 5"                          => "RHEL5",
@@ -120,6 +124,7 @@ if ( !$os_type ) {
         )
     {
         $unsupported = 1;
+        $os_type = 'latest';
     } else {
         exit;
     }
@@ -186,11 +191,13 @@ if (questioner(
     $mysql_db = "pf" if ( !$mysql_db );
 
     my $times  = 0;
-    my $denied = 0;
+    my $is_mysql_accessible;
     do {
         if ( $times > 0 ) {
-            print "MySQL is reporting access denied, try again\n";
+            print "MySQL is reporting access denied or can't connect, try again\n";
+            print "Perhaps you did not configure mysql with /usr/bin/mysql_secure_installation?\n";
         }
+        $times++;
         print "  Current Admin User [root]: ";
         $mysqlAdminUser = <STDIN>;
         chop $mysqlAdminUser;
@@ -205,12 +212,9 @@ if (questioner(
             print "Perhaps you did not configure mysql with /usr/bin/mysql_secure_installation?\n";
             exit 1;
         }
-        $denied = (
-            (   `echo "use pf"|mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' 2>&1`
-                    =~ /Access denied/
-            ) ? 1 : 0
-        );
-    } while ($denied);
+        $is_mysql_accessible = 
+            `echo "use pf"|mysql --host=$mysql_host --port=$mysql_port -u $mysqlAdminUser -p'$mysqlAdminPass' 2>&1`;
+    } while ($is_mysql_accessible =~ /Access denied|Can't connect/);
 
     my $exists = 0;
 
@@ -371,7 +375,7 @@ if (questioner(
         'emerging-worm.rules'
     );
     foreach my $current_rule_file (@rule_files) {
-        `/usr/bin/wget -N http://rules.emergingthreats.net/open/$snort_version_string/rules/$current_rule_file -P $conf_dir/snort`;
+        `/usr/bin/wget -N http://rules.emergingthreats.net/open/$snort_rules_version{$os_type}/rules/$current_rule_file -P $conf_dir/snort`;
     }
 }
 

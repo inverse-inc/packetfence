@@ -461,6 +461,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/addons/recovery.pl
 %dir                    /usr/local/pf/addons/snort
                         /usr/local/pf/addons/snort/oinkmaster.conf
+                        /usr/local/pf/addons/snort/oinkmaster.conf.2.8.6
 %dir                    /usr/local/pf/addons/upgrade
 %attr(0755, pf, pf)     /usr/local/pf/addons/upgrade/*.pl
 %dir                    /usr/local/pf/addons/802.1X
@@ -530,8 +531,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/snort/reference.config
 %dir                    /usr/local/pf/conf/ssl
 %config(noreplace)      /usr/local/pf/conf/switches.conf
-%dir                    /usr/local/pf/conf/configurator
-                        /usr/local/pf/conf/configurator/*
 %config                 /usr/local/pf/conf/dhcpd.conf
 %config                 /usr/local/pf/conf/httpd.conf
 %dir                    /usr/local/pf/conf/httpd.conf.d

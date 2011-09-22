@@ -614,6 +614,19 @@ body.popup DIV#content {
     overflow-y: auto;
 }
 
+body.popup.help DIV#content {
+    position: block;
+    height: auto;
+    top: 0;
+    bottom: 0;
+    overflow: auto;
+}
+
+body.popup.help H2,
+body.popup.help P {
+    margin: 5px 10px;
+}
+
 body.popup div#header { 
    position: absolute;
    top: 0px;
