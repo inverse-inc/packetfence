@@ -14,6 +14,12 @@ For a list of compatibility related changes see the UPGRADE file.
 
 
 --------------------------------------------------------------------------------
+Version <stable-release> released on <releaseDate>
+
+Enhancements
+ * Process IDs are now logged in the logs for pfcmd and pfcmd_vlan
+
+--------------------------------------------------------------------------------
 Version 3.0.0 released on 2011-09-21
 
 Compatibility notice
