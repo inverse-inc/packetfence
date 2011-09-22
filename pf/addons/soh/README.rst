@@ -55,6 +55,16 @@ Installation and configuration
    soh = yes
    soh-virtual-server = "soh-server"
 
+#. Install the core modules:
+
+   ln -sf $install_dir/addons/soh/lib/pf/soh.pm \
+       $install_dir/lib/pf/soh.pm
+   ln -sf $install_dir/addons/soh/lib/pf/soh/custom.pm \
+       $install_dir/lib/pf/soh/custom.pm
+
+#. Make sure $install_dir/lib/pf/WebAPI.pm has an soh_authorize
+   endpoint. XXX depends on how this is going to be installed XXX
+
 Web interface
 =============
 
