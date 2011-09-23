@@ -19,6 +19,12 @@ Version <stable-release> released on <releaseDate>
 Enhancements
  * Process IDs are now logged in the logs for pfcmd and pfcmd_vlan
 
+Bug Fixes
+ * MySQL pf user not having execute privileges (#1282)
+ * Error when doing nodeaccounting view all (#1280)
+ * Error when using installer.pl on CentOS 6 (#1274)
+ * Cannot confirm the PIN when using SMS self-registration (#1277)
+
 --------------------------------------------------------------------------------
 Version 3.0.0 released on 2011-09-21
 
