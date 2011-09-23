@@ -75,7 +75,7 @@ CREATE TABLE sms_activation (
 -- 
 -- Source: StatusNet
 -- Schema fetched on 2010-10-15 from:
--- http://gitorious.org/statusnet/mainline/blobs/raw/master/db/statusnet.sql
+-- http://gitorious.org/statusnet/mainline/blobs/master/classes/Sms_carrier.php
 --
 
 CREATE TABLE sms_carrier (

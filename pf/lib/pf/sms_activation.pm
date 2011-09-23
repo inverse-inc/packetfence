@@ -228,7 +228,6 @@ sub view_by_code {
                                  'sms_activation_view_by_code_sql', $activation_code);
     my $ref = $query->fetchrow_hashref();
     my $logger = Log::Log4perl::get_logger('pf::sms_activation');
-    $logger->warn("*** view_by_code " . $activation_code);
     
     # just get one row and finish
     $query->finish();
@@ -300,7 +299,10 @@ sub send_sms {
     # Hash merge. Note that on key collisions the result of view_by_code() will win
     %info = (%info, %{view_by_code($activation_code)});
 
-    my $email = sprintf($info{'carrier_email_pattern'}, $info{'phone_number'});
+    # Strip non-digits
+    my $phone = $info{'phone_number'};
+    $phone =~ s/\D//g;
+    my $email = sprintf($info{'carrier_email_pattern'}, $phone);
     my $msg = MIME::Lite->new(
         From        =>  $info{'from'},
         To          =>  $email,
