@@ -289,7 +289,7 @@ sub translate_bw {
     foreach my $datum (@data) {
 
         for (my $i=0; $i<3 ; $i++) {
-            $datum->{$fields[$i]} = pf::util::bwsize($datum->{$fields[$i]});
+            $datum->{$fields[$i]} = pf::util::pretty_bandwidth($datum->{$fields[$i]});
         }
     }
     return (@data);
