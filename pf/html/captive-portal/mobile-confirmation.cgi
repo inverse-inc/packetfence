@@ -110,8 +110,8 @@ if ($cgi->param("pin")) { # && $session->param("authType")) {
     pf_run("$person_add_cmd");
 
     # Setting access timeout
-    my $unregdate = localtime( time + normalize_time($pf::web::guest::DEFAULT_REGISTRATION_DURATION) );
-    $info{'unregdate'} = POSIX::strftime( "%Y-%m-%d %H:%M:%S", $unregdate );
+    my @unregdate = localtime( time + normalize_time($pf::web::guest::DEFAULT_REGISTRATION_DURATION) );
+    $info{'unregdate'} = POSIX::strftime( "%Y-%m-%d %H:%M:%S", @unregdate );
     $info{'category'} = 'guest';
 
     pf::web::web_node_register($cgi, $session, $mac, $pid, %info);
