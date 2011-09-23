@@ -33,7 +33,7 @@
 #
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 3.0.0
+Version: 3.0.1
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -664,6 +664,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Fri Sep 23 2011 Ludovic Marcotte <lmarcotte@inverse.ca> - 3.0.1-1
+- New release 3.0.1
+
 * Wed Sep 21 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 3.0.0-1
 - New release 3.0.0
 
