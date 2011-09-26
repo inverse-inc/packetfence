@@ -99,13 +99,13 @@ sub authorize {
     # If the client doesn't support SoH, we bail out early. (Can this
     # ever happen? We're being forwarded a request from the soh-server,
     # after all.) But perhaps one should be able to filter on this too?
-    unless ($rq->{"SoH-Supported"} eq 'yes') {
+    unless ($self->{request}->{"SoH-Supported"} eq 'yes') {
         return $RADIUS::RLM_MODULE_NOOP;
     }
 
-    $self->{logger}->info("Evaluating SoH from $rq->{client_description}");
+    $self->{logger}->info("Evaluating SoH from $self->{client_description}");
 
-    return [ $self->evaluate($rq, $self->filters()) ];
+    return [ $self->evaluate($self->filters()) ];
 }
 
 =item * parse_request - parses a request
@@ -120,6 +120,8 @@ sub parse_request {
     my ($rq) = @_;
 
     try {
+        $self->{request} = $rq;
+
         # Do we know who the client is?
         my $mac;
         unless ($mac = $rq->{"Calling-Station-Id"}) {
@@ -129,7 +131,7 @@ sub parse_request {
             die "Couldn't parse Calling-Station-Id $mac";
         }
         $mac =~ y/-/:/;
-        $rq->{mac_address} = $mac;
+        $self->{mac_address} = $mac;
 
         # Build up a client description
         my $client = "";
@@ -155,7 +157,7 @@ sub parse_request {
 
         $client .= " (". join("; ", @extra) .")";
 
-        $rq->{client_description} = $client;
+        $self->{client_description} = $client;
 
         # Parse the actual health status
         my $status = $rq->{"SoH-MS-Windows-Health-Status"};
@@ -203,7 +205,7 @@ sub parse_request {
             die "Couldn't parse any SoH-MS-Windows-Health-Status lines";
         }
 
-        $rq->{status} = \%ok;
+        $self->{status} = \%ok;
     }
     catch {
         $self->{logger}->error($_);
@@ -224,7 +226,7 @@ the $RADIUS::RLM_MODULE_* code to be sent back to FreeRADIUS.
 
 sub evaluate {
     my $self = shift;
-    my ($rq, $filters) = @_;
+    my ($filters) = @_;
 
     my $code = $RADIUS::RLM_MODULE_NOOP;
     my %actions = (
@@ -243,7 +245,7 @@ sub evaluate {
         my $matched = 0;
         my $rules = $filter->{rules};
         foreach my $rule (@$rules) {
-            if ($self->matches($rq, $rule)) {
+            if ($self->matches($rule)) {
                 $matched++;
             }
         }
@@ -269,10 +271,10 @@ needs to be.
 
 sub matches {
     my $self = shift;
-    my ($rq, $rule) = @_;
+    my ($rule) = @_;
 
     my ($class, $op, $status) = @{$rule}{qw/class op status/};
-    my $ss = $rq->{status};
+    my $ss = $self->{status};
 
     $self->{logger}->info("Matching against $class $op $status");
 
