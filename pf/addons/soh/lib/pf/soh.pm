@@ -59,6 +59,15 @@ sub soh_db_prepare {
         select filter_id, class, op, status from soh_filter_rules
             order by rule_id asc
     SQL
+
+    # We sneak behind pf::violation's back to fetch existing violations
+    # that affect a given MAC address.
+    
+    $soh_statements->{'soh_violations'} = get_db_handle()->prepare(<<"    SQL");
+        select vid,tid_start,tid_end
+            from violation v join `trigger` t using (vid)
+            where t.type='soh' and v.status='open' and mac=?
+    SQL
 }
 
 =head1 SUBROUTINES
@@ -105,7 +114,7 @@ sub authorize {
 
     $self->{logger}->info("Evaluating SoH from $self->{client_description}");
 
-    return [ $self->evaluate($self->filters()) ];
+    return [ $self->evaluate($self->filters(), $self->violations()) ];
 }
 
 =item * parse_request - parses a request
@@ -226,7 +235,7 @@ the $RADIUS::RLM_MODULE_* code to be sent back to FreeRADIUS.
 
 sub evaluate {
     my $self = shift;
-    my ($filters) = @_;
+    my ($filters, $violations) = @_;
 
     my $code = $RADIUS::RLM_MODULE_NOOP;
     my %actions = (
@@ -235,11 +244,8 @@ sub evaluate {
         violation => $RADIUS::RLM_MODULE_OK
     );
 
-    # XXX There's something I forgot to consider here. If there's an
-    # open violation for this node for some filter, and the filter's
-    # conditions no longer match, we need to clear that violation,
-    # because pf::enforcement::reevaluate_access can't do it. We
-    # could do that, but how do we make this method testable? XXX
+    # Check if each filter's rules match, and keep going until there are
+    # no more filters, or a filter returns reject.
 
     foreach my $filter (@$filters) {
         my $matched = 0;
@@ -249,11 +255,30 @@ sub evaluate {
                 $matched++;
             }
         }
-        if (@$rules && $matched == @$rules) {
+        if (@$rules) {
+            my $hit = $matched == @$rules;
             my $action = $filter->{action};
-            $code = $actions{$action};
-            $self->trigger_violation($filter)
-                if $action eq 'violation';
+
+            if ($action eq 'violation') {
+                if ($hit) {
+                    $self->trigger_violation($filter);
+                }
+                else {
+                    my $tid = $filter->{violation};
+                    my @open = grep {
+                        $tid >= $_->{tid_start} && $tid <= $_->{tid_end}
+                    } @$violations;
+
+                    if (@open) {
+                        $self->clear_violation($filter);
+                    }
+                }
+            }
+
+            if ($hit) {
+                $code = $actions{$action};
+                last if $action eq 'reject';
+            }
         }
     }
 
@@ -319,17 +344,52 @@ sub filters {
     return [ @filters ];
 }
 
+=item * violations - fetch violations from the db
+
+Returns a reference to an array of hashrefs, each representing a single
+violation raised against the current MAC.
+
+=cut
+
+sub violations {
+    my $self = shift;
+
+    my @violations = db_data(
+        "soh", $soh_statements, "soh_violations", $self->{mac_address}, 
+    );
+
+    return [ @violations ];
+}
+
+=item * clear_violation - clear a violation
+
+Clears a violation for the specified MAC address and filter.
+
+=cut
+
+sub clear_violation {
+    my $self = shift;
+    my ($filter) = @_;
+
+    system(
+        "$bin_dir/pfcmd", "manage", "vclose", $self->{mac_address},
+        $filter->{violation}
+    );
+}
+
 =item * trigger_violation - trigger a violation
 
-Triggers a violation for the specified filter and rule.
+Triggers a violation for the specified MAC address and filter.
 
 =cut
 
 sub trigger_violation {
     my $self = shift;
-    my ($filter, $rule) = @_;
+    my ($filter) = @_;
 
-    # XXX removed pending design changes XXX
+    pf::violation::violation_trigger(
+        $self->{mac_address}, $filter->{violation}, "soh"
+    );
 }
 
 =back
