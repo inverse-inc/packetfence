@@ -19,7 +19,7 @@
     <option value="">Do nothing</option>
     <option value="accept">Accept</option>
     <option value="reject">Reject</option>
-    <option value="violation">Raise violation</option>
+    <option value="violation">Trigger violation</option>
    </select>
    <input type=text name=violation value="" style="display: none">
    <p>Conditions:
@@ -73,7 +73,7 @@
       <option value="">Do nothing</option>
       <option value="accept" [% IF filter.action == 'accept' %]selected[% END %]>Accept</option>
       <option value="reject" [% IF filter.action == 'reject' %]selected[% END %]>Reject</option>
-      <option value="violation" [% IF filter.action == 'violation' && filter.violation %]selected[% END %]>Raise violation</option>
+      <option value="violation" [% IF filter.action == 'violation' && filter.violation %]selected[% END %]>Trigger violation</option>
      </select>
      <input type=text name=violation value="[% filter.violation %]"
       [% IF !(filter.action == 'violation' && filter.violation) %]style="display: none"[% END %]>
