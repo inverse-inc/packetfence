@@ -301,7 +301,7 @@ sub matches {
     my ($class, $op, $status) = @{$rule}{qw/class op status/};
     my $ss = $self->{status};
 
-    $self->{logger}->info("Matching against $class $op $status");
+    $self->{logger}->debug("Matching against $class $op $status");
 
     if (exists $ss->{$class}) {
         my $s = $ss->{$class}{$status};
