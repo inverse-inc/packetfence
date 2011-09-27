@@ -276,6 +276,9 @@ sub evaluate {
             }
 
             if ($hit) {
+                $self->{logger}->info(
+                    "MAC $self->{mac_address} matched filter $filter->{name}"
+                );
                 $code = $actions{$action};
                 last if $action eq 'reject';
             }
@@ -376,6 +379,10 @@ sub clear_violation {
     my $self = shift;
     my ($filter) = @_;
 
+    $self->{logger}->debug(
+        "Closing open violation $filter->{vid} for MAC $self->{mac_address} ".
+        "and filter $filter->{name}"
+    );
     system(
         "$bin_dir/pfcmd", "manage", "vclose", $self->{mac_address},
         $filter->{vid}
@@ -392,6 +399,10 @@ sub trigger_violation {
     my $self = shift;
     my ($filter) = @_;
 
+    $self->{logger}->debug(
+        "Triggering violation $filter->{vid} for MAC $self->{mac_address} ".
+        "and filter $filter->{name}"
+    );
     pf::violation::violation_trigger(
         $self->{mac_address}, $filter->{filter_id}, "soh"
     );
