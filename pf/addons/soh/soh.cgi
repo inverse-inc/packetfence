@@ -261,6 +261,7 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
                     
                     if ($new eq 'violation') {
                         unless ($ini{$vid}) {
+                            $ini{$vid} = {};
                             $ini{$vid}{desc} = "SoH filter $dname";
                             $ini{$vid}{url} = "/remediation.php?template=generic";
                             $ini{$vid}{actions} = "trap,email,log";
