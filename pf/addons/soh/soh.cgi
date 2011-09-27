@@ -189,9 +189,8 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
                 die "No violation id specified for filter $dname"
                     if ($action && $action eq 'violation' && !$vid);
 
-                my $f = $dbh->selectrow_arrayref(
-                    "select * from soh_filters where filter_id=?",
-                    { Slice => {} }, $fid
+                my $f = $dbh->selectrow_hashref(
+                    "select * from soh_filters where filter_id=?", {}, $fid
                 );
                 die "Unknown filter $dname" unless $f;
 
@@ -228,46 +227,60 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
                     );
                 }
 
-                # If we're activating or deactivating a violation to
-                # trigger, we need to perform special magic to handle
-                # the association of a trigger to the violation class.
+                # If we're adding, changing, or removing a violation to
+                # trigger, we need to adjust the triggers defined for
+                # the relevant violation class.
+                #
+                # XXX This should really be in a separate function, but
+                # this code is too convoluted to cleanly separate XXX
 
                 my $old = $f->{action} || "";
                 my $new = $action || "";
 
-                if ($old != $new) {
+                if ($old ne $new ||
+                    ($new eq 'violation' && $f->{vid} != $vid))
+                {
                     $violations++;
+
+                    # We know how to do two things: add a trigger to a
+                    # class (whether it exists or not), remove a trigger
+                    # from a class (if it exists); as a special trick,
+                    # we can even do both of the above.
+
+                    if ($old eq 'violation' &&
+                        ($new ne 'violation' || $vid != $f->{vid}))
+                    {
+                        my $ovid = $f->{vid};
+                        if ($ovid && $ini{$ovid} && $ini{$ovid}{triggers}) {
+                            my $t = $ini{$ovid}{triggers} || "";
+                            my @t = split /\s*,\s*/, $t;
+                            $ini{$ovid}{triggers} =
+                                join ",", grep $_ ne "soh::$fid", @t;
+                        }
+                    }
+                    
                     if ($new eq 'violation') {
-                        # Add this filter to the list of triggers for
-                        # the given violation class.
                         unless ($ini{$vid}) {
                             $ini{$vid}{desc} = "SoH filter $dname";
-                            $ini{$vid}{url} = "/remediation.php?template=soh";
-                            $ini{$vid}{actions} = [qw/trap email log/];
+                            $ini{$vid}{url} = "/remediation.php?template=generic";
+                            $ini{$vid}{actions} = "trap,email,log";
                             $ini{$vid}{enabled} = "N";
                             $ini{$vid}{triggers} = "soh::$fid";
                         }
                         else {
-                            my $triggers = $ini{$vid}{triggers} || [];
-                            push @$triggers, "soh::$fid"
-                                unless grep $_ eq "soh::$fid", @$triggers;
-                            $ini{$vid}{triggers} = $triggers;
-                        }
-                    }
-                    elsif ($old eq 'violation') {
-                        # Remove this filter from the list of triggers
-                        # for the former violation class.
-                        my $ovid = $f->{vid};
-                        if ($ovid && $ini{$ovid} && $ini{$ovid}{trigger}) {
-                            $ini{$ovid}{trigger} =
-                                grep $_ != $fid, @{$ini{$ovid}{trigger}};
+                            my $t = $ini{$vid}{triggers} || "";
+                            my @t = split /\s*,\s*/, $t;
+                            unless (grep $_ eq "soh::$fid", @t) {
+                                push @t, "soh::$fid";
+                            }
+                            $ini{$vid}{triggers} = join ",", @t;
                         }
                     }
                 }
             }
 
             if ($violations) {
-                tied(%ini)->WriteConfig("$conf_dir/ini.conf")
+                tied(%ini)->WriteConfig("$conf_dir/violations.conf")
                     or die "Couldn't write to violations.conf";
             }
 
