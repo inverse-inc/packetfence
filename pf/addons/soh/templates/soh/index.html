@@ -1,0 +1,257 @@
+[% title = i18n("SoH Management") %]
+[% INCLUDE header.html %]
+
+<style type="text/css">
+ .del, .rdel { font-size: 80% }
+ div.ruleset {
+   border: 1px solid maroon;
+   margin: 10px 0 10px 0; padding: 5px;
+ }
+</style>
+
+<script id=filtertmpl type="text/x-template">
+ <li class=filter id="f#{filter_id}" name="#{name}">
+  <button class=del>x</button> #{name}
+  <input type=hidden name=filter_id value="#{filter_id}">
+  <input type=hidden name=filter_name value="#{name}">
+  <div class=ruleset id="r#{filter_id}" style="display: none">
+   <p>Action: <select name=action>
+    <option value="">Do nothing</option>
+    <option value="accept">Accept</option>
+    <option value="reject">Reject</option>
+    <option value="violation">Trigger violation</option>
+   </select>
+   <input type=text name=vid value="#{vid}" style="display: none">
+   <p>Conditions:
+   <ul class=rules>
+     <li class=none>(None yet)</li>
+   </ul>
+   <button class=addrule>Add a condition</button>
+  </div>
+ </li>
+</script>
+
+<script id=ruletmpl type="text/x-template">
+ <li class=rule>
+  <select name="#{rfid}class">
+   <option value=""></option>
+   <option value="firewall">Firewall</option>
+   <option value="antivirus">Anti-virus</option>
+   <option value="antispyware">Anti-spyware</option>
+   <option value="auto-updates">Auto-updates</option>
+   <option value="security-updates">Security updates</option>
+  </select>
+  <select name="#{rfid}op">
+   <option value=""></option>
+   <option value="is">is</option>
+   <option value="isnot">is not</option>
+  </select>
+  <select name="#{rfid}status">
+   <option value=""></option>
+   <option value="ok">ok</option>
+   <option value="installed">installed</option>
+   <option value="enabled">enabled</option>
+   <option value="disabled">disabled</option>
+   <option value="uptodate">up-to-date</option>
+   <option value="microsoft">from Microsoft</option>
+  </select>
+  <button class=rdel>x</button>
+ </li>
+</script>
+
+<form id=filterform method=post action="[% self %]/filters/save">
+ <p>
+  Click on a filter to see its composition:
+
+ <ul id=filternames>
+  [% FOREACH filter IN list_filters %]
+   <li class=filter id="f[% filter.filter_id %]" name="[% filter.name %]">
+    [% IF filter.name != 'Default' %]<button class=del>x</button>[% END %] [% filter.name %]
+    <input type=hidden name=filter_id value="[% filter.filter_id %]">
+    <input type=hidden name=filter_name value="[% filter.name %]">
+    <div class=ruleset id="r[% filter.filter_id %]" style="display: none">
+     <p>Action: <select name=action>
+      <option value="">Do nothing</option>
+      <option value="accept" [% IF filter.action == 'accept' %]selected[% END %]>Accept</option>
+      <option value="reject" [% IF filter.action == 'reject' %]selected[% END %]>Reject</option>
+      <option value="violation" [% IF filter.action == 'violation' && filter.vid %]selected[% END %]>Trigger violation</option>
+     </select>
+     <input type=text name=vid value="[% filter.vid %]"
+      [% IF !(filter.action == 'violation' && filter.vid) %]style="display: none"[% END %]>
+     <p>Conditions:
+     <ul class=rules>
+     [% matched = 0 %]
+     [% FOREACH rule IN list_rules %]
+      [% IF rule.filter_id == filter.filter_id %]
+       [% matched = 1 %]
+       <li class=rule>
+        <select name="r[% filter.filter_id %]class">
+         <option value="firewall" [% IF rule.class == 'firewall' %]selected[% END %]>Firewall</option>
+         <option value="antivirus" [% IF rule.class == 'antivirus' %]selected[% END %]>Anti-virus</option>
+         <option value="antispyware" [% IF rule.class == 'antispyware' %]selected[% END %]>Anti-spyware</option>
+         <option value="auto-updates" [% IF rule.class == 'auto-updates' %]selected[% END %]>Auto-updates</option>
+         <option value="security-updates" [% IF rule.class == 'security-updates' %]selected[% END %]>Security updates</option>
+        </select>
+        <select name="r[% filter.filter_id %]op">
+         <option value="is" [% IF rule.op == 'is' %]selected[% END %]>is</option>
+         <option value="isnot" [% IF rule.op == 'isnot' %]selected[% END %]>is not</option>
+        </select>
+        <select name="r[% filter.filter_id %]status">
+         <option value="ok" [% IF rule.status == 'ok' %]selected[% END %]>ok</option>
+         <option value="installed" [% IF rule.status == 'installed' %]selected[% END %]>installed</option>
+         <option value="enabled" [% IF rule.status == 'enabled' %]selected[% END %]>enabled</option>
+         <option value="disabled" [% IF rule.status == 'disabled' %]selected[% END %]>disabled</option>
+         <option value="uptodate" [% IF rule.status == 'uptodate' %]selected[% END %]>up-to-date</option>
+         <option value="microsoft" [% IF rule.status == 'microsoft' %]selected[% END %]>from Microsoft</option>
+        </select>
+        <button class=rdel>x</button>
+       </li>
+      [% END %]
+     [% END %]
+     [% IF !matched %]<li class=none>(None yet)</li>[% END %]
+     </ul>
+     <button class=addrule>Add a condition</button>
+    </div>
+   </li>
+  [% END %]
+ </ul>
+
+ <button id=addfilter>Add a filter</button>
+ <input id=save type=submit value="Save filters">
+ <span id=msg style="margin-left: 20px; font-size: 80%"></span>
+</form>
+
+<script type="text/javascript">
+ var tid;
+
+ function ajax_success (t) {
+   var m = '';
+   var c = 'green';
+
+   if (tid)
+     window.clearTimeout(tid);
+
+   var j = t.responseJSON;
+   if (j) {
+     m = j.message;
+     if (j.status != 'ok') {
+       c = 'red';
+     } else {
+       tid = window.setTimeout(function () {$('msg').style.display = 'none'}, 3000);
+     }
+   }
+   else {
+     c = 'red';
+     m = 'Invalid response';
+   }
+
+   $('msg').update(m);
+   $('msg').style.color = c;
+   $('msg').style.display = '';
+ }
+
+ function ajax_failure (t) {
+   var m = t.responseText || 'Request failed';
+
+   $('msg').update(m);
+   $('msg').style.color = 'red';
+ }
+
+ $('filternames').observe('click', function (e) {
+   var li = e.findElement('li');
+   var del = e.findElement('button.del');
+   var rdel = e.findElement('button.rdel');
+   var ruleset = e.findElement('div.ruleset');
+   var addrule = e.findElement('button.addrule');
+
+   if (rdel) {
+     var ul = e.findElement('ul.rules');
+     li.remove();
+     if (!ul.down()) {
+       ul.insert('<li>(None)</li>');
+     }
+     $('save').style.color = 'red';
+   }
+
+   else if (addrule) {
+     var ul = addrule.previous();
+     var rfid = ul.up().id;
+     var tmpl = new Template($('ruletmpl').innerHTML);
+     if (ul.down().hasClassName('none')) {
+       ul.down().remove();
+     }
+     ul.insert(tmpl.evaluate({rfid: rfid}));
+     $('save').style.color = 'red';
+   }
+
+   else if (del) {
+     if (window.confirm('Are you sure you want to delete this filter?')) {
+       new Ajax.Request('[% self %]/filters/delete', {
+         method: 'post', parameters: { name: li.readAttribute('name') },
+         onFailure: ajax_failure,
+         onSuccess: function (t) {
+           ajax_success(t);
+           var j = t.responseJSON;
+           if (j && j.status == 'ok') {
+             li.remove();
+           }
+         }
+       });
+     }
+   }
+
+   else if (!ruleset && li) {
+     var r = $('r'+li.id.substring(1));
+     if (r) {
+       r.toggle();
+     }
+   }
+
+   e.stop();
+ });
+
+ $('addfilter').observe('click', function (e) {
+   var name = window.prompt('Enter new filter name');
+   if (name) {
+     new Ajax.Request('[% self %]/filters/add', {
+       method: 'post', parameters: { name: name },
+       onFailure: ajax_failure,
+       onSuccess: function (t) {
+         ajax_success(t);
+         var j = t.responseJSON;
+         if (j && j.status == 'ok' && j.filter_id) {
+           j.name = name;
+           var tmpl = new Template($('filtertmpl').innerHTML);
+           $('filternames').insert(tmpl.evaluate(j));
+         }
+       }
+     });
+   }
+   e.stop();
+ });
+
+ $('filterform').observe('change', function (e) {
+   var n = e.target;
+   $('save').style.color = 'red';
+   if (n.nodeName == 'SELECT' && n.name == 'action') {
+     n.next().style.display = n.getValue() == 'violation' ? '' : 'none';
+   }
+ });
+
+ $('filterform').observe('submit', function (e) {
+   $('filterform').request({
+     onFailure: ajax_failure,
+     onSuccess: function (t) {
+       ajax_success(t);
+       var j = t.responseJSON;
+       if (j && j.status == 'ok') {
+         $('save').style.color = '';
+       }
+     }
+   });
+   e.stop();
+ });
+</script>
+
+[%# We should probably define our own soh/footer.html %]
+[% INCLUDE footer.html %]
