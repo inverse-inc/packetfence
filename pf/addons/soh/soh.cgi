@@ -14,6 +14,7 @@ use Try::Tiny;
 use CGI::Session;
 use HTML::Entities;
 use CGI::Carp qw( fatalsToBrowser );
+use Config::IniFiles;
 use Locale::gettext;
 use Log::Log4perl;
 use PHP::Session;
@@ -24,6 +25,7 @@ use JSON;
 use pf::config;
 use pf::web;
 use pf::web::custom;
+use pf::trigger;
 
 # If we can find an existing PHP session, we allow the user to proceed.
 # Otherwise we redirect to / and let login.php handle authentication. We
@@ -158,6 +160,14 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
         try {
             local $dbh->{RaiseError} = 1;
 
+            my $violations = 0;
+
+            my %ini;
+            tie %ini, 'Config::IniFiles', ( -file => "$conf_dir/violations.conf" );
+            if (@Config::IniFiles::errors) {
+                die "Error reading violations.conf";
+            }
+
             my @ids = $q->param('filter_id');
             my @names = $q->param('filter_name');
             my @actions = $q->param('action');
@@ -179,6 +189,12 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
                     if $vid && $vid =~ /[^0-9]/;
                 die "No violation id specified for filter $dname"
                     if ($action && $action eq 'violation' && !$vid);
+
+                my $f = $dbh->selectrow_arrayref(
+                    "select * from soh_filters where filter_id=?",
+                    { Slice => {} }, $fid
+                );
+                die "Unknown filter $dname" unless $f;
 
                 $dbh->do(
                     "update soh_filters set name=?, action=?, vid=? ".
@@ -212,6 +228,53 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
                         {}, $fid, $class, $op, $status
                     );
                 }
+
+                # If we're activating or deactivating a violation to
+                # trigger, we need to perform special magic to handle
+                # the association of a trigger to the violation class.
+
+                my $old = $f->{action} || "";
+                my $new = $action || "";
+
+                if ($old != $new) {
+                    $violations++;
+                    if ($new eq 'violation') {
+                        # Add this filter to the list of triggers for
+                        # the given violation class.
+                        unless ($ini{$vid}) {
+                            $ini{$vid}{desc} = "SoH filter $dname";
+                            $ini{$vid}{url} = "/remediation.php?template=soh";
+                            $ini{$vid}{actions} = [qw/trap email log/];
+                            $ini{$vid}{enabled} = "N";
+                            $ini{$vid}{triggers} = "soh::$fid";
+                        }
+                        else {
+                            my $triggers = $ini{$vid}{triggers} || [];
+                            push @$triggers, "soh::$fid"
+                                unless grep $_ eq "soh::$fid", @$triggers;
+                            $ini{$vid}{triggers} = $triggers;
+                        }
+                        my $white = $ini{$vid}{whitelisted_categories} || undef;
+                        pf::trigger::trigger_add(
+                            $vid, $fid, $fid, "soh", $white
+                        );
+                    }
+                    elsif ($old eq 'violation') {
+                        # Remove this filter from the list of triggers
+                        # for the former violation class.
+                        my $ovid = $f->{vid};
+                        if ($ovid && $ini{$ovid} && $ini{$ovid}{trigger}) {
+                            $ini{$ovid}{trigger} =
+                                grep $_ != $fid, @{$ini{$ovid}{trigger}};
+                        }
+                        # XXX There's no trigger_delete XXX
+                    }
+                }
+            }
+
+            if ($violations) {
+                tied(%ini)->WriteConfig("$conf_dir/ini.conf")
+                    or die "Couldn't write to violations.conf";
             }
 
             $dbh->commit;
