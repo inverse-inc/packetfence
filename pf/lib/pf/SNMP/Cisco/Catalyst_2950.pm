@@ -52,7 +52,9 @@ This has nasty side-effects when used with VoIP (client don't re-DHCP automatica
 
 =item SNMPv3
 
-We got reports that it doesn't work with SNMPv3
+SNMPv3 support is broken for link-up / link-down and MAC Notification modes because Cisco didn't implement SNMPv3 context support for this IOS line and it is required to query the MAC address table. See #1284.
+
+SNMPv3 support is broken for port-security but there is a patch available if you dare. Attached to issue #1284.
 
 =back
 
