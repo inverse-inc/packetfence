@@ -303,6 +303,11 @@ sub matches {
 
     $self->{logger}->debug("Matching against $class $op $status");
 
+    if ($status eq 'disabled') {
+        $status = 'enabled';
+        $op = $op eq 'is' ? 'isnot' : 'is';
+    }
+
     if (exists $ss->{$class}) {
         my $s = $ss->{$class}{$status};
 
