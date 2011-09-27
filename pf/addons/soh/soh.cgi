@@ -251,6 +251,9 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
                         ($new ne 'violation' || $vid != $f->{vid}))
                     {
                         my $ovid = $f->{vid};
+                        $logger->debug(
+                            "Removing trigger soh::$fid from violation $ovid"
+                        );
                         if ($ovid && $ini{$ovid} && $ini{$ovid}{trigger}) {
                             my $t = $ini{$ovid}{trigger} || "";
                             my @t = split /\s*,\s*/, $t;
@@ -261,6 +264,9 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
                     
                     if ($new eq 'violation') {
                         unless ($ini{$vid}) {
+                            $logger->debug(
+                                "Creation violation $vid for filter $dname/$fid"
+                            );
                             $ini{$vid} = {};
                             $ini{$vid}{desc} = "SoH filter $dname";
                             $ini{$vid}{url} = "/remediation.php?template=generic";
@@ -269,6 +275,9 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
                             $ini{$vid}{trigger} = "soh::$fid";
                         }
                         else {
+                            $logger->debug(
+                                "Adding trigger soh::$fid to violation $vid"
+                            );
                             my $t = $ini{$vid}{trigger} || "";
                             my @t = split /\s*,\s*/, $t;
                             unless (grep $_ eq "soh::$fid", @t) {
@@ -281,6 +290,7 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
             }
 
             if ($violations) {
+                $logger->info("Adjusting SoH triggers in violations.conf");
                 tied(%ini)->WriteConfig("$conf_dir/violations.conf")
                     or die "Couldn't write to violations.conf";
             }
@@ -288,7 +298,7 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
             $dbh->commit;
         }
         catch {
-            # TODO: Translate the SQL error into something nicer
+            # XXX Should translate SQL errors into something nicer XXX
             $r->{message} = $_;
             try { $dbh->rollback };
         }
