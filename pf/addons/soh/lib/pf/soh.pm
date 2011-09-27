@@ -43,9 +43,9 @@ sub soh_db_prepare {
     # do something when those conditions match.
 
     $soh_statements->{'soh_filters'} = get_db_handle()->prepare(<<"    SQL");
-        select filter_id, name, action, violation
+        select filter_id, name, action, vid
             from soh_filters s
-            where ((action = 'violation' and violation is not null) or
+            where ((action = 'violation' and vid is not null) or
                 (action is not null and action <> 'violation')) and
                 (select count(*) from soh_filter_rules where
                  filter_id=s.filter_id) >= 1
@@ -264,7 +264,7 @@ sub evaluate {
                     $self->trigger_violation($filter);
                 }
                 else {
-                    my $tid = $filter->{violation};
+                    my $tid = $filter->{filter_id};
                     my @open = grep {
                         $tid >= $_->{tid_start} && $tid <= $_->{tid_end}
                     } @$violations;
@@ -373,7 +373,7 @@ sub clear_violation {
 
     system(
         "$bin_dir/pfcmd", "manage", "vclose", $self->{mac_address},
-        $filter->{violation}
+        $filter->{vid}
     );
 }
 
@@ -388,7 +388,7 @@ sub trigger_violation {
     my ($filter) = @_;
 
     pf::violation::violation_trigger(
-        $self->{mac_address}, $filter->{violation}, "soh"
+        $self->{mac_address}, $filter->{filter_id}, "soh"
     );
 }
 
