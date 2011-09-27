@@ -25,7 +25,6 @@ use JSON;
 use pf::config;
 use pf::web;
 use pf::web::custom;
-use pf::trigger;
 
 # If we can find an existing PHP session, we allow the user to proceed.
 # Otherwise we redirect to / and let login.php handle authentication. We
@@ -254,10 +253,6 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
                                 unless grep $_ eq "soh::$fid", @$triggers;
                             $ini{$vid}{triggers} = $triggers;
                         }
-                        my $white = $ini{$vid}{whitelisted_categories} || undef;
-                        pf::trigger::trigger_add(
-                            $vid, $fid, $fid, "soh", $white
-                        );
                     }
                     elsif ($old eq 'violation') {
                         # Remove this filter from the list of triggers
@@ -267,7 +262,6 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
                             $ini{$ovid}{trigger} =
                                 grep $_ != $fid, @{$ini{$ovid}{trigger}};
                         }
-                        # XXX There's no trigger_delete XXX
                     }
                 }
             }
