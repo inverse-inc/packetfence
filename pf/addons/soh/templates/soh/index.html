@@ -35,10 +35,11 @@
  <li class=rule>
   <select name="#{rfid}class">
    <option value=""></option>
+   <option value="firewall">Firewall</option>
    <option value="antivirus">Anti-virus</option>
    <option value="antispyware">Anti-spyware</option>
-   <option value="updates">Updates</option>
-   <option value="firewall">Firewall</option>
+   <option value="auto-updates">Auto-updates</option>
+   <option value="security-updates">Security updates</option>
   </select>
   <select name="#{rfid}op">
    <option value=""></option>
@@ -85,10 +86,11 @@
        [% matched = 1 %]
        <li class=rule>
         <select name="r[% filter.filter_id %]class">
+         <option value="firewall" [% IF rule.class == 'firewall' %]selected[% END %]>Firewall</option>
          <option value="antivirus" [% IF rule.class == 'antivirus' %]selected[% END %]>Anti-virus</option>
          <option value="antispyware" [% IF rule.class == 'antispyware' %]selected[% END %]>Anti-spyware</option>
-         <option value="updates" [% IF rule.class == 'updates' %]selected[% END %]>Updates</option>
-         <option value="firewall" [% IF rule.class == 'firewall' %]selected[% END %]>Firewall</option>
+         <option value="auto-updates" [% IF rule.class == 'auto-updates' %]selected[% END %]>Auto-updates</option>
+         <option value="security-updates" [% IF rule.class == 'security-updates' %]selected[% END %]>Security updates</option>
         </select>
         <select name="r[% filter.filter_id %]op">
          <option value="is" [% IF rule.op == 'is' %]selected[% END %]>is</option>
