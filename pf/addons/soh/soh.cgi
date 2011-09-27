@@ -75,7 +75,7 @@ if ($method eq 'GET' && $action eq '') {
     print $q->header;
 
     my $filters = $dbh->selectall_arrayref(
-        "select filter_id, name, action, violation ".
+        "select filter_id, name, action, vid ".
         "from soh_filters order by filter_id asc",
         {Slice => {}}
     );
@@ -161,25 +161,28 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
             my @ids = $q->param('filter_id');
             my @names = $q->param('filter_name');
             my @actions = $q->param('action');
-            my @violations = $q->param('violation');
+            my @vids = $q->param('vid');
 
             foreach my $fid (@ids) {
                 my $name = shift @names || undef;
+                my $dname = encode_entities($name);
                 my $action = shift @actions || undef;
-                my $violation = shift @violations || undef;
+                my $vid = shift @vids || undef;
 
                 $name = "Default" if $fid == 1;
 
-                die "Invalid name specified"
+                die "Invalid name specified: $dname"
                     if $name && $name =~ /[^a-zA-Z0-9_-]/;
-                die "Invalid action specified"
+                die "Invalid action specified for filter $dname"
                     if $action && $action =~ /[^a-zA-Z0-9-]/;
-                die "Invalid violation specified"
-                    if $violation && $violation =~ /[^a-zA-Z0-9-]/;
+                die "Invalid violation id specified for filter $dname"
+                    if $vid && $vid =~ /[^0-9]/;
+                die "No violation id specified for filter $dname"
+                    if ($action && $action eq 'violation' && !$vid);
 
                 $dbh->do(
-                    "update soh_filters set name=?, action=?, violation=? ".
-                    "where filter_id=?", {}, $name, $action, $violation, $fid
+                    "update soh_filters set name=?, action=?, vid=? ".
+                    "where filter_id=?", {}, $name, $action, $vid, $fid
                 );
 
                 $dbh->do(

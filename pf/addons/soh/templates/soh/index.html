@@ -21,7 +21,7 @@
     <option value="reject">Reject</option>
     <option value="violation">Trigger violation</option>
    </select>
-   <input type=text name=violation value="" style="display: none">
+   <input type=text name=vid value="#{vid}" style="display: none">
    <p>Conditions:
    <ul class=rules>
      <li class=none>(None yet)</li>
@@ -73,10 +73,10 @@
       <option value="">Do nothing</option>
       <option value="accept" [% IF filter.action == 'accept' %]selected[% END %]>Accept</option>
       <option value="reject" [% IF filter.action == 'reject' %]selected[% END %]>Reject</option>
-      <option value="violation" [% IF filter.action == 'violation' && filter.violation %]selected[% END %]>Trigger violation</option>
+      <option value="violation" [% IF filter.action == 'violation' && filter.vid %]selected[% END %]>Trigger violation</option>
      </select>
-     <input type=text name=violation value="[% filter.violation %]"
-      [% IF !(filter.action == 'violation' && filter.violation) %]style="display: none"[% END %]>
+     <input type=text name=vid value="[% filter.vid %]"
+      [% IF !(filter.action == 'violation' && filter.vid) %]style="display: none"[% END %]>
      <p>Conditions:
      <ul class=rules>
      [% matched = 0 %]

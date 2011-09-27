@@ -17,10 +17,10 @@ create table soh_filters (
     -- recognised and acted upon.
     action varchar(32),
 
-    -- If action = 'violation', then this column contains the name of
-    -- the violation to raise. (I wish I could write a constraint to
+    -- If action = 'violation', then this column contains the vid of a
+    -- violation to trigger. (I wish I could write a constraint to
     -- express this.)
-    violation varchar(32)
+    vid int
 ) ENGINE=InnoDB;
 
 insert into soh_filters (name) values ('Default');
