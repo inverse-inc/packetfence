@@ -196,7 +196,7 @@ sub parse_request {
             my %attrs;
             foreach (@attrs) {
                 my ($a, $v) = split /=/;
-                $attrs{$a} = $v || 1;
+                $attrs{$a} = defined $v ? $v : 1;
             }
 
             # XXX can we get multiple lines per class? XXX
@@ -311,6 +311,7 @@ sub matches {
         $op = $op eq 'is' ? 'isnot' : 'is';
     }
 
+    my $match = 0;
     if (exists $ss->{$class}) {
         my $s = $ss->{$class}{$status};
 
@@ -323,10 +324,10 @@ sub matches {
                 @a = reverse @a;
             }
         }
-        return $op eq 'is' ? $a[0] : $a[1];
+        $match = $op eq 'is' ? $a[0] : $a[1];
     }
 
-    return 0;
+    return $match;
 }
 
 =item * filters - fetch filters from the db
