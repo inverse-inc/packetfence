@@ -251,10 +251,10 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
                         ($new ne 'violation' || $vid != $f->{vid}))
                     {
                         my $ovid = $f->{vid};
-                        if ($ovid && $ini{$ovid} && $ini{$ovid}{triggers}) {
-                            my $t = $ini{$ovid}{triggers} || "";
+                        if ($ovid && $ini{$ovid} && $ini{$ovid}{trigger}) {
+                            my $t = $ini{$ovid}{trigger} || "";
                             my @t = split /\s*,\s*/, $t;
-                            $ini{$ovid}{triggers} =
+                            $ini{$ovid}{trigger} =
                                 join ",", grep $_ ne "soh::$fid", @t;
                         }
                     }
@@ -266,15 +266,15 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
                             $ini{$vid}{url} = "/remediation.php?template=generic";
                             $ini{$vid}{actions} = "trap,email,log";
                             $ini{$vid}{enabled} = "N";
-                            $ini{$vid}{triggers} = "soh::$fid";
+                            $ini{$vid}{trigger} = "soh::$fid";
                         }
                         else {
-                            my $t = $ini{$vid}{triggers} || "";
+                            my $t = $ini{$vid}{trigger} || "";
                             my @t = split /\s*,\s*/, $t;
                             unless (grep $_ eq "soh::$fid", @t) {
                                 push @t, "soh::$fid";
                             }
-                            $ini{$vid}{triggers} = join ",", @t;
+                            $ini{$vid}{trigger} = join ",", @t;
                         }
                     }
                 }
