@@ -23,6 +23,7 @@ use pf::web::custom;
 
 
 my $cgi = new CGI;
+$cgi->charset("UTF-8");
 my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 
 pf::web::wispr::generate_redirect($cgi, $session);
