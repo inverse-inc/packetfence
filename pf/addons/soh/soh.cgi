@@ -31,15 +31,17 @@ use pf::web::custom;
 # also need a CGI::Session object to (try to) play nice with pf::web.
 
 my $q = CGI->new;
+my $self = $q->url(-absolute => 1, -rewrite => 1);
+
 my $sid = $q->cookie('PHPSESSID');
 my $sdir = "$install_dir/var/session";
 
 my $session;
 if ($sid && -f "$sdir/sess_$sid") {
-    $session = PHP::Session->new($sid, {save_path => $sdir});
+    $session = PHP::Session->new($sid, {create => 1, save_path => $sdir});
 }
 unless ($session && $session->get('user')) {
-    print $q->redirect("/");
+    print $q->redirect("/login.php?p=$self");
     exit;
 }
 
@@ -91,7 +93,7 @@ if ($method eq 'GET' && $action eq '') {
     $rules ||= [];
 
     my $vars = {
-        self => $q->url(-absolute => 1, -rewrite => 1),
+        self => $self,
         logo => $Config{general}{logo},
         i18n => \&pf::web::i18n,
         list_filters => $filters,
