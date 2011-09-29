@@ -22,6 +22,7 @@ Enchancements
  * Better French Translation
 
 Bug Fixes
+ * Dashboard not printing the SQL stats when MySQL is not local (#1289)
  * Unreliable encoding behavior messes up with translations (#1287)
 
 --------------------------------------------------------------------------------

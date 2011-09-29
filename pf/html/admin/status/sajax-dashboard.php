@@ -73,9 +73,10 @@ function get_usage(){
 
     $user = $db_creds['db_user'];
     $pass = $db_creds['db_pass'];
+    $host = $db_creds['db_host'];
 
     if(!preg_match("/[\'|\"|\;]/", $user) && !preg_match("/[\'|\"|\;]/", $pass)){
-      exec("/usr/bin/mysqladmin status -u$user -p$pass", $sql_output);
+      exec("/usr/bin/mysqladmin status -u$user -p$pass -h$host", $sql_output);
       if(preg_match("/Queries\sper\ssecond\savg:\s+(\d+\.\d+)/", $sql_output[0], $matches)){
         $sql_queries = $matches[1];
       }    
@@ -89,7 +90,7 @@ function get_usage(){
 }
 
 function get_db_creds(){
-  $db_user = $db_pass = '';  
+  $db_user = $db_pass = $db_host = '';  
 
   exec(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/bin/pfcmd config get database.user", $user);
   if(preg_match('/^database\.user=([^|]*)\|([^|]*)\|/', $user[0], $matches)) {
@@ -108,8 +109,17 @@ function get_db_creds(){
     }
   }
 
-  if($db_user && $db_pass)  
-    return array('db_user' => $db_user, 'db_pass' => $db_pass);
+  exec(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/bin/pfcmd config get database.host", $host);
+  if(preg_match('/^database\.host=([^|]*)\|([^|]*)\|/', $host[0], $matches)) {
+    if ($matches[1] != '') {
+      $db_host = $matches[1];
+    } else {
+      $db_host = $matches[2];
+    } 
+  }
+
+  if($db_user && $db_pass && $db_host)  
+    return array('db_user' => $db_user, 'db_pass' => $db_pass, 'db_host' => $db_host);
   else
     return false;
 }
