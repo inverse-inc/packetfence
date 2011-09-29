@@ -165,7 +165,7 @@ msgid  "In the fields below please enter your name, phone number and a valid ema
 msgstr "Dans les champs ici bas, SVP entrez votre nom, numéro de téléphone ainsi qu'un courriel valide"
 
 msgid  "If you choose to receive your access code <strong>by email</strong>, you will be given temporary network access for 10 minutes during that time:"
-msgstr "Si vous choisissez de recevoir votre code d'accès par <strong>courriel</strong>, vous aurez un accès temporaire au réseau de 10 minutes.  Pendant ce laps de temps, vous devez:"
+msgstr "Si vous choisissez de recevoir votre code d'accès <strong>par courriel</strong>, vous aurez un accès temporaire au réseau de 10 minutes.  Pendant ce laps de temps:"
 
 msgid  "Login to the email account you referenced and;"
 msgstr "Connectez vous au compte courriel que vous avez entré dans le formulaire"
@@ -177,7 +177,7 @@ msgid  "Register by Email"
 msgstr "Inscription par courriel"
 
 msgid  "If you choose to receive your access code <strong>by SMS</strong>, you will be able to enter it on the next page."
-msgstr "Si vous choisissez de recevoice votre code par <strong>SMS</string>, vous pourrez entrer votre PIN sur la page suivante."
+msgstr "Si vous choisissez de recevoir votre code <strong>par SMS</string>, vous pourrez entrer votre NIP sur la page suivante."
 
 msgid  "Register by SMS"
 msgstr "Inscription par SMS"
