@@ -298,33 +298,36 @@ needs to be.
 
 sub matches {
     my $self = shift;
+
     my ($rule) = @_;
-
     my ($class, $op, $status) = @{$rule}{qw/class op status/};
-    my $ss = $self->{status};
 
-    $self->{logger}->debug("Matching against $class $op $status");
+    my $soh = $self->{status};
+    my $stmt = $soh->{$class} || { status => "missing" };
+
+    my $match = 0;
 
     if ($status eq 'disabled') {
         $status = 'enabled';
         $op = $op eq 'is' ? 'isnot' : 'is';
     }
 
-    my $match = 0;
-    if (exists $ss->{$class}) {
-        my $s = $ss->{$class}{$status};
-
-        my @a = (1, 0);
-        if ($status eq 'ok' && $s ne 'ok') {
-            @a = reverse @a;
-        }
-        else {
-            unless ($ss->{$class}{$status}) {
-                @a = reverse @a;
-            }
-        }
-        $match = $op eq 'is' ? $a[0] : $a[1];
+    my %top = map { $_ => 1 } qw/ok warn error/;
+    if (exists $top{$status}) {
+        $match = $status eq $stmt->{status};
     }
+    else {
+        $match = $stmt->{$status};
+    }
+
+    $match = (1, 0)[$match] if $op eq 'isnot';
+
+    my $yesno = (qw(No Yes))[$match];
+    my $desc = join " ", $class, $stmt->{status},
+        map { "$_=$stmt->{$_}" } grep { $_ ne 'status' }
+            keys %$stmt;
+
+    $self->{logger}->debug("Does ($desc) match ($class $op $status)? $yesno");
 
     return $match;
 }
