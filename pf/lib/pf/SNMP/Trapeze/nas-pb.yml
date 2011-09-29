@@ -1,0 +1,19 @@
+0000default : {}
+
+TrapezeOS :
+    prompt            : '/[\/a-zA-Z0-9._-]+(\([0-9]+\))? ?(?:\(config[^)]*\))? ?[#>] ?$/'
+    basic_prompt      : '/> ?$/'
+    privileged_prompt : '/# ?$/'
+    configure_prompt  : '/\(config[^)]*\)# ?$/'
+    user_prompt       : '/(?:[Ll]ogin|[Uu]sername)/'
+    userpass_prompt   : '/(?:[Ll]ogin|[Uu]sername|[Pp]assword): ?$/'
+    pass_prompt       : '/[Pp]assword: ?$/'
+    begin_configure_cmd            : 'configure terminal'
+    end_configure_cmd		   : 'end'
+    begin_privileged_cmd           : 'enable'
+    begin_privileged_with_user_cmd : 'login'
+    end_privileged_cmd             : 'exit'
+    disconnect                     : 'exit'
+    completion                     :  '?'
+    err_string : '/ ?(?:Error|Type "[^?]+\?"|(?:Incomplete|Unknown) command|Invalid input|The entry)/'
+    paging_cmd			   : 'terminal length'

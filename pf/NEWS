@@ -12,6 +12,11 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE file.
 
+--------------------------------------------------------------------------------
+Version <nextversion> released on <releasedate>
+
+New Hardware Support
+ * Trapeze Wireless Controllers
 
 --------------------------------------------------------------------------------
 Version 3.0.1 released on 2011-09-23
