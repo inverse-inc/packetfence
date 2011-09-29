@@ -30,6 +30,7 @@ use pf::config;
 use pf::db;
 use pf::radius::constants;
 use pf::violation;
+use pf::util;
 
 our $VERSION = 1.0;
 
@@ -136,11 +137,9 @@ sub parse_request {
         unless ($mac = $rq->{"Calling-Station-Id"}) {
             die "No Calling-Station-Id specified";
         }
-        unless ($mac =~ /^[0-9a-fA-F]{2}(?:-[0-9a-fA-F]{2}){5}$/) {
+        unless (defined ($self->{mac_address} = clean_mac($mac))) {
             die "Couldn't parse Calling-Station-Id $mac";
         }
-        $mac =~ y/-/:/;
-        $self->{mac_address} = $mac;
 
         # Build up a client description
         my $client = "";
