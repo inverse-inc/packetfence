@@ -682,6 +682,9 @@ body.popup input[type="text"],
 body.popup select {
     width: 135px;
 }
+body.popup textarea {
+    width: 100%;
+}
 
 body.popup div#container {
     position: absolute;
