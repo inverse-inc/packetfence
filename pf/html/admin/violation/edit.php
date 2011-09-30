@@ -93,6 +93,8 @@
         print ">$vid[desc] ($vid[vid])</option>\n";
       }
       print "</select>";
+    } elseif ($key == 'notes') {
+      print "<tr><td></td><td>$pretty_key:</td><td></td></tr><tr><td colspan='3'><textarea name='$key' rows='5'>$val</textarea>";
     } else {
       print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val'>";
     }

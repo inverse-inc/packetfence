@@ -79,7 +79,14 @@
     }
 
     $pretty_key = pretty_header("$current_top-view", $key);
-    print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val'></td></tr>";
+    switch($key) {
+    case 'notes':
+      print "<tr><td></td><td>$pretty_key:</td><td></td></tr><tr><td colspan='3'><textarea name='$key' rows='5'>$val</textarea></td></tr>";
+      break;
+
+    default:
+      print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val'></td></tr>";
+    }
   }
   print "<tr><td colspan=3 align=right><input type='submit' value='Edit ".ucfirst($current_top)."'></td></tr>";
   print "</table></div>";
