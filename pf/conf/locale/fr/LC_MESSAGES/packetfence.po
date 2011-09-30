@@ -376,6 +376,9 @@ msgstr "Attendu le %s"
 msgid "Missing mandatory parameter or malformed entry."
 msgstr "Param&egrave;tre requis manquant ou invalide."
 
+msgid "Usernames must only contain alphanumeric characters."
+msgstr "Les noms d'utilisateurs doivent être composés uniquement de charactères alpha-numériques.
+
 msgid "Access duration is not of an allowed value."
 msgstr "Dur&eacute;e de l'acc&egrave;s n'est pas dans un format allou&eacute;e."
 
@@ -424,8 +427,8 @@ msgstr "Une fois authentifié, l'accès sera valide pour %d %s."
 msgid "Guest successfully registered. An email with the username and password has been sent."
 msgstr "Invit&eacute; enregistr&eacute; avec succ&egrave;s. Un courriel avec un nom d'utilisateur et mot de passe a &eacute;t&eacute; envoy&eacute;."
 
-msgid "Successfully registered %i guests."
-msgstr ""
+msgid "Import completed: %i guest(s) created, %i line(s) skipped."
+msgstr "Importation complétée: %i invité(s) créé(s), %i ligne(s) ignorée(s)."
 
 msgid "Single guest creation"
 msgstr "Création d'un compte invité"

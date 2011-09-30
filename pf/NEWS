@@ -20,6 +20,7 @@ New Hardware Support
 
 Enchancements
  * Better French Translation
+ * Improved validation when creating/importing multiple guest accounts.
 
 Bug Fixes
  * Dashboard not printing the SQL stats when MySQL is not local (#1289)
