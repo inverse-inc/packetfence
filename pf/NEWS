@@ -24,6 +24,7 @@ Enchancements
 
 Bug Fixes
  * Dashboard not printing the SQL stats when MySQL is not local (#1289)
+ * Doubled allow subnets in captive-portal-common (#1242)
  * Unreliable encoding behavior messes up with translations (#1287)
 
 --------------------------------------------------------------------------------
