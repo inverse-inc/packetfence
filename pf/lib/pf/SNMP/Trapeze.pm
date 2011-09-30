@@ -83,6 +83,22 @@ sub getVersion {
     $logger->warn("unable to fetch version information");
 }
 
+=item parseTrap
+
+This is called when we receive an SNMP-Trap for this device
+
+=cut
+sub parseTrap {
+    my ( $this, $trapString ) = @_;
+    my $trapHashRef;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->debug("trap currently not handled");
+    $trapHashRef->{'trapType'} = 'unknown';
+
+    return $trapHashRef;
+}
+
 =item deauthenticateMac
 
 deauthenticate a MAC address from wireless network
