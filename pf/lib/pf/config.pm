@@ -34,7 +34,7 @@ use threads;
 our (
     $install_dir, $bin_dir, $conf_dir, $lib_dir, $log_dir, $generated_conf_dir, $var_dir,
     @listen_ints, @dhcplistener_ints, @ha_ints, $monitor_int,
-    @internal_nets, @routed_isolation_nets, @routed_registration_nets, @management_nets, @external_nets, 
+    @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets, @management_nets, @external_nets,
     @inline_enforcement_nets, @vlan_enforcement_nets,
     $default_config_file, %Default_Config, 
     $config_file, %Config, 
@@ -55,7 +55,7 @@ BEGIN {
     @EXPORT = qw(
         $install_dir $bin_dir $conf_dir $lib_dir $generated_conf_dir $var_dir $log_dir
         @listen_ints @dhcplistener_ints @ha_ints $monitor_int 
-        @internal_nets @routed_isolation_nets @routed_registration_nets @management_nets @external_nets
+        @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets @management_nets @external_nets
         @inline_enforcement_nets @vlan_enforcement_nets
         $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
         $default_config_file %Default_Config
@@ -375,6 +375,9 @@ sub readNetworkConfigFile {
         } elsif ( is_network_type_vlan_reg($network) ) {
             my $registration_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
             push @routed_registration_nets, $registration_obj;
+        } elsif ( is_network_type_inline($network) ) {
+            my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
+            push @inline_nets, $inline_obj;
         }
 
         # transition pf_gateway to next_hop

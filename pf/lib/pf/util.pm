@@ -37,7 +37,7 @@ BEGIN {
         trappable_ip reggable_ip
         inrange_ip ip2gateway ip2interface ip2device isinternal pfmailer isenabled
         isdisabled getlocalmac ip2int int2ip 
-        get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_internal_ips
+        get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_inline_nets get_internal_ips
         get_internal_devs get_internal_devs_phy get_external_devs get_managed_devs get_internal_macs
         get_internal_info get_gateways createpid readpid deletepid
         pfmon_preload parse_template mysql_date oui_to_vendor mac2oid oid2mac 
@@ -528,6 +528,14 @@ sub get_routed_isolation_nets {
 sub get_routed_registration_nets {
     my @nets;
     foreach my $interface (@routed_registration_nets) {
+        push @nets, $interface->desc();
+    }
+    return (@nets);
+}
+
+sub get_inline_nets {
+    my @nets;
+    foreach my $interface (@inline_nets) {
         push @nets, $interface->desc();
     }
     return (@nets);

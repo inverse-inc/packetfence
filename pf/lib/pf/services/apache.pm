@@ -85,7 +85,7 @@ sub generate_httpd_conf {
     my $logger = Log::Log4perl::get_logger('pf::services::apache');
     $tags{'template'} = "$conf_dir/httpd.conf";
     $tags{'internal-nets'} = join(" ", get_internal_nets() );
-    $tags{'routed-nets'} = join(" ", get_routed_isolation_nets()) ." ". join(" ", get_routed_registration_nets());
+    $tags{'routed-nets'} = join(" ", get_routed_isolation_nets()) ." ". join(" ", get_routed_registration_nets()) ." ". join(" ", get_inline_nets());
     $tags{'hostname'} = $Config{'general'}{'hostname'};
     $tags{'domain'} = $Config{'general'}{'domain'};
     $tags{'timezone'} = $Config{'general'}{'timezone'};
