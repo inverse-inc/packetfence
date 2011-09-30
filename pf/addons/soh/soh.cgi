@@ -216,7 +216,7 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
                     my $status = shift @statuses || undef;
 
                     die "Invalid class specified"
-                        if $class && $class =~ /[^a-zA-Z0-9]/;
+                        if $class && $class =~ /[^a-zA-Z0-9-]/;
                     die "Invalid op specified"
                         if $op && $op =~ /[^a-zA-Z0-9]/;
                     die "Invalid status specified"
