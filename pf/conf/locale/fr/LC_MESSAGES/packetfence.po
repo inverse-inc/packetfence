@@ -377,7 +377,7 @@ msgid "Missing mandatory parameter or malformed entry."
 msgstr "Param&egrave;tre requis manquant ou invalide."
 
 msgid "Usernames must only contain alphanumeric characters."
-msgstr "Les noms d'utilisateurs doivent être composés uniquement de charactères alpha-numériques.
+msgstr "Les noms d'utilisateurs doivent être composés uniquement de charactères alpha-numériques."
 
 msgid "Access duration is not of an allowed value."
 msgstr "Dur&eacute;e de l'acc&egrave;s n'est pas dans un format allou&eacute;e."
