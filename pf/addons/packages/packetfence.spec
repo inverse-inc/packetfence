@@ -374,8 +374,12 @@ mv /etc/raddb/sql.conf.pf /etc/raddb/sql.conf
 mv /etc/raddb/modules/perl.pf /etc/raddb/modules/perl
 
 #Create symlinks for virtual hosts
-ln -s /etc/raddb/sites-available/packetfence /etc/raddb/sites-enabled/packetfence
-ln -s /etc/raddb/sites-available/packetfence-tunnel /etc/raddb/sites-enabled/packetfence-tunnel
+if [ ! -f /etc/raddb/sites-enabled/packetfence ]; then
+	ln -s /etc/raddb/sites-available/packetfence /etc/raddb/sites-enabled/packetfence
+fi
+if [ ! -f /etc/raddb/sites-enabled/packetfence-tunnel ]; then
+	ln -s /etc/raddb/sites-available/packetfence-tunnel /etc/raddb/sites-enabled/packetfence-tunnel
+fi
 
 if [ ! -f /etc/raddb/certs/dh ]; then
   echo "Bulding default RADIUS certificates..."
@@ -664,6 +668,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Mon Oct 03 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Won't create symlinks in sites-enabled if they already exists
+
 * Fri Sep 23 2011 Ludovic Marcotte <lmarcotte@inverse.ca> - 3.0.1-1
 - New release 3.0.1
 
