@@ -178,13 +178,28 @@ sub parse_request {
         foreach my $line (@$status) {
             my ($class, $status, @attrs) = split / /, $line;
 
-            # The health class is one of the following values (see
-            # healthclass2str), or numeric if unrecognised. Likewise
-            # the status.
+            if ($line =~ /^[0-9]* unknown /) {
+                $self->{logger}->warn(
+                    "Received unknown SoH-MS-Windows-Health-Status line: '$line'"
+                );
+                next;
+            }
+
+            # The health class and status should be one of the following
+            # values (see healthclass2str). We accept other values with
+            # a warning, though.
 
             my %classes = map {$_ => 1}
                 qw(security-updates auto-updates firewall antispyware antivirus);
-            my %status = map {$_ => 1} qw(ok warn error unknown);
+            my %statuses = map {$_ => 1} qw(ok warn error);
+
+            unless (exists $classes{$class}) {
+                $self->{logger}->warn("Unrecognised health class: $class");
+            }
+
+            unless (exists $statuses{$status}) {
+                $self->{logger}->warn("Unrecognised status: $status");
+            }
 
             # The remainder of the line consists of words (e.g. "all-installed")
             # or "attr=val" clauses (e.g. "action=install"), or numeric values
@@ -198,15 +213,11 @@ sub parse_request {
                 $attrs{$a} = defined $v ? $v : 1;
             }
 
-            # XXX can we get multiple lines per class? XXX
-            if (exists $classes{$class} && exists $status{$status}) {
-                $ok{$class} = { status => $status, %attrs };
-            }
-            else {
-                $self->{logger}->warn(
-                    "Couldn't parse SoH-MS-Windows-Health-Status '$line'"
-                );
-            }
+            # Add to an array of parsed lines for each class.
+
+            push @{$ok{$class}}, {
+                status => $status, %attrs
+            };
         }
 
         unless (%ok) {
