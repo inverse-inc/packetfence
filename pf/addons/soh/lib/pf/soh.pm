@@ -309,12 +309,23 @@ needs to be.
 
 sub matches {
     my $self = shift;
-
     my ($rule) = @_;
-    my ($class, $op, $status) = @{$rule}{qw/class op status/};
 
     my $soh = $self->{status};
-    my $stmt = $soh->{$class} || { status => "missing" };
+    my $stmts = $soh->{$class} || [];
+
+    foreach my $stmt (@{$stmts}) {
+        return 1 if $self->matches_one($stmt, $rule);
+    }
+
+    return 0;
+}
+
+sub matches_one {
+    my $self = shift;
+
+    my ($stmt, $rule) = @_;
+    my ($class, $op, $status) = @{$rule}{qw/class op status/};
 
     my $match = 0;
 
