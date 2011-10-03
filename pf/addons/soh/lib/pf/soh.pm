@@ -336,19 +336,43 @@ sub matches_one {
     my ($rule, $stmt) = @_;
     my ($class, $op, $status) = @{$rule}{qw/class op status/};
 
-    my $match = 0;
+    # Translate the status string into a set of words to match.
+    # For example, "ok,enabled,!microsoft,snoozed" are split up,
+    # matched separately, and the results ANDed together. But the
+    # usual input will be a single word (and that's all the UI can
+    # generate at the moment).
 
-    if ($status eq 'disabled') {
-        $status = 'enabled';
-        $op = $op eq 'is' ? 'isnot' : 'is';
+    my @words;
+    foreach my $w (split /\s*,\s*/, $status) {
+        if ($w eq 'disabled') {
+            $w = '!enabled';
+        }
+        push @words, $w;
     }
 
-    my %top = map { $_ => 1 } qw/ok warn error/;
-    if (exists $top{$status}) {
-        $match = $status eq $stmt->{status};
-    }
-    else {
-        $match = $stmt->{$status};
+    my $match;
+
+    foreach my $w (@words) {
+        my $m = 0;
+
+        my $not = 0;
+        if ($w =~ s/^!//) {
+            $not = 1;
+        }
+
+        my %top = map { $_ => 1 } qw/ok warn error/;
+        if ((exists $top{$w} && $stmt->{status} eq $w) || $stmt->{$w}) {
+            $m = 1;
+        }
+
+        $m = (1, 0)[$m] if $not;
+
+        unless (defined $match) {
+            $match = $m;
+            next;
+        }
+
+        $match = $match && $m;
     }
 
     $match = (1, 0)[$match] if $op eq 'isnot';
