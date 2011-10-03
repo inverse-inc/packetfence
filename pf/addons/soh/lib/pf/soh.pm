@@ -305,26 +305,35 @@ otherwise. We could (always) be more clever about how we match. The UI to
 define matches is simple, but the matching process can be as complex as it
 needs to be.
 
+The question we answer is: "does any status line match this rule?"
+
 =cut
 
 sub matches {
     my $self = shift;
-    my ($rule) = @_;
 
-    my $soh = $self->{status};
-    my $stmts = $soh->{$class} || [];
+    my ($rule) = @_;
+    my $stmts = $self->{status}{$rule->{class}} || [];
 
     foreach my $stmt (@{$stmts}) {
-        return 1 if $self->matches_one($stmt, $rule);
+        return 1 if $self->matches_one($rule, $stmt);
     }
 
     return 0;
 }
 
+=item * matches_one - does a single status line match a given rule?
+
+For every rule referring to a particular health class, this function is
+called once for each corresponding status line, and returns true if the
+rule matches, and false otherwise.
+
+=cut
+
 sub matches_one {
     my $self = shift;
 
-    my ($stmt, $rule) = @_;
+    my ($rule, $stmt) = @_;
     my ($class, $op, $status) = @{$rule}{qw/class op status/};
 
     my $match = 0;
