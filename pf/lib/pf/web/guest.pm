@@ -368,7 +368,6 @@ sub validate_registration_multiple {
         return (0, 3);
     }
 
-    my $prefix = $cgi->param('prefix');
     if ($prefix =~ m/[^a-zA-Z0-9_\-\@]/) {
         return (0, 6);
     }
