@@ -20,6 +20,10 @@ Installation and configuration
 
    mysql pf < soh.sql
 
+#. Install Perl dependencies:
+
+   yum install perl-PHP-Session (or apt-get or cpan ...)
+
 #. Put the CGI script and its dependencies in place:
 
    ln -sf $install_dir/addons/soh/soh.cgi $install_dir/html/admin/soh.cgi
