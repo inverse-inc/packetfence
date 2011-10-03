@@ -21,6 +21,7 @@ New Hardware Support
 Enchancements
  * Better French Translation
  * Improved validation when creating/importing multiple guest accounts.
+ * Configuration files ownership validation on start-up and in `pfcmd checkup`
 
 Bug Fixes
  * Dashboard not printing the SQL stats when MySQL is not local (#1289)
