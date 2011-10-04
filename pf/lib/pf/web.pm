@@ -27,7 +27,6 @@ use strict;
 use warnings;
 
 use Date::Parse;
-use Encode;
 use File::Basename;
 use HTML::Entities;
 use JSON;
@@ -66,7 +65,7 @@ Warning: The list of subroutine is incomplete
 sub i18n {
     my $msgid = shift;
 
-    return decode_utf8(gettext($msgid));
+    return gettext($msgid);
 }
 
 sub ni18n {
@@ -74,7 +73,7 @@ sub ni18n {
     my $plural = shift;
     my $category = shift;
 
-    return decode_utf8(ngettext($singular, $plural, $category));
+    return ngettext($singular, $plural, $category);
 }
 
 sub web_get_locale {

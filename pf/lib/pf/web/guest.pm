@@ -25,7 +25,6 @@ F<register.html>.
 use strict;
 use warnings;
 use Date::Parse;
-use Encode;
 use File::Basename;
 use HTML::Entities;
 use Locale::gettext;
