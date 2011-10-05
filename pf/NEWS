@@ -19,6 +19,7 @@ New Hardware Support
  * Trapeze Wireless Controllers
 
 Enchancements
+ * Wireless deauthentication in bridge mode for DLink DWS, HP MSM and Motorola controllers
  * Better French Translation
  * Improved validation when creating/importing multiple guest accounts.
  * Configuration files ownership validation on start-up and in `pfcmd checkup`

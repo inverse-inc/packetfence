@@ -117,8 +117,10 @@ sub deauthenticateMac {
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
-        return 0;
+    # handles if deauth should be performed against controller or actual device. Returns sessionWrite hash key to use.
+    my $performDeauthOn = $this->getDeauthSnmpConnectionKey();
+    if ( !defined($performDeauthOn) ) {
+        return;
     }
 
     # append MAC to deauthenticate to oid to set
@@ -126,7 +128,7 @@ sub deauthenticateMac {
 
     $logger->info("deauthenticate mac $mac from controller: " . $this->{_ip});
     $logger->trace("SNMP set_request for wsCcRfMuDisassociateNow: $oid_wsCcRfMuDisassociateNow");
-    my $result = $this->{_sessionWrite}->set_request(
+    my $result = $this->{$performDeauthOn}->set_request(
         -varbindlist => [ "$oid_wsCcRfMuDisassociateNow", Net::SNMP::INTEGER, $TRUE ]
     );
 
@@ -134,7 +136,7 @@ sub deauthenticateMac {
         $logger->debug("deauthenticatation successful");
         return $TRUE;
     } else {
-        $logger->warn("deauthenticatation failed with " . $this->{_sessionWrite}->error());
+        $logger->warn("deauthenticatation failed with " . $this->{$performDeauthOn}->error());
         return;
     }
 }
