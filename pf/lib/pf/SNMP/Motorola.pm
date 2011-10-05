@@ -27,7 +27,18 @@ Developed and tested on RFS7000 running OS release 4.3.0.0-059R
 
 =head1 BUGS AND LIMITATIONS
 
+=over
+
+=item Firmware 5.x support
+
+Deauthentication against firmware 5.x series seems to be broken.
+We are aware of that and will work to support this series soon.
+
+=item SNMPv3 
+
 SNMPv3 support is untested.
+
+=back
 
 =cut
 
