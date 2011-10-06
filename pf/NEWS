@@ -25,6 +25,7 @@ Enchancements
  * Configuration files ownership validation on start-up and in `pfcmd checkup`
 
 Bug Fixes
+ * Cisco access point (AP) configuration mistake in documentation
  * Dashboard not printing the SQL stats when MySQL is not local (#1289)
  * Doubled allow subnets in captive-portal-common (#1242)
  * Unreliable encoding behavior messes up with translations (#1287)
