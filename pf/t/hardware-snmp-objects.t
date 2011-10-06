@@ -48,7 +48,7 @@ my @whitelist = (
     'getVlanByName', 'isManagedVlan', 'deauthenticateMac', 'setVlan', 'extractSsid', 'supportsWirelessMacAuth', 
     'supportsWirelessDot1x', 'authorizeCurrentMacWithNewVlan', '_authorizeCurrentMacWithNewVlan',
     'disableIfLinkUpDownTraps', 'enableIfLinkUpDownTraps', 'connectWrite', 'connectWriteToController', 
-    'disconnectWrite', 'disconnectWriteToController', 'getDeauthSnmpConnectionKey',
+    'disconnectWrite', 'disconnectWriteToController', 'getDeauthSnmpConnectionKey', '_NasPortToIfIndex',
 );
 
 my @missing_subs;
