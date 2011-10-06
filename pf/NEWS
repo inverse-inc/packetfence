@@ -26,6 +26,7 @@ Enchancements
  * Several new DHCP fingerprints (from our spinoff www.fingerbank.org)
 
 Bug Fixes
+ * Allow incoming DNS on management interface to track users IPs in production VLANs
  * Cisco access point (AP) configuration mistake in documentation
  * Dashboard not printing the SQL stats when MySQL is not local (#1289)
  * Doubled allow subnets in captive-portal-common (#1242)

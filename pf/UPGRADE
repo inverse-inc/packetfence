@@ -5,7 +5,15 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to 3.0.2:
+
+    - Default Firewall Rules Updated
+    Review the updated firewall rules (in .rpmnew) if you made changes and
+    make sure to integrate changes if you need them. New rules include:
+     - Allow incoming DNS on management interface (track production VLANs IPs)
+
 o Upgrading from a version prior to 3.0.1:
+
     - MySQL pf user rights
     The user pf in the database is missing the execute rights.  Make sure
     you run :
