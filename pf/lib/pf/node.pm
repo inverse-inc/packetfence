@@ -734,7 +734,8 @@ sub nodes_maintenance {
     my $logger = Log::Log4perl::get_logger('pf::node');
 
     my $expire_mode = $Config{'registration'}{'expire_mode'};
-    $logger->debug("nodes_maintenance called with expire_mode=$expire_mode");
+
+    $logger->debug("nodes_maintenance called (expire_mode=$expire_mode)");
 
     my $ungrace_query = db_query_execute(NODE, $node_statements, 'node_ungrace_sql') || return (0);
     while (my $row = $ungrace_query->fetchrow_hashref()) {
@@ -743,16 +744,16 @@ sub nodes_maintenance {
         $logger->info("modified $currentMac from status 'grace' to 'unreg'" );
     };
 
+    my $expire_unreg_query = db_query_execute(NODE, $node_statements, 'node_expire_unreg_field_sql') || return (0);
+    while (my $row = $expire_unreg_query->fetchrow_hashref()) {
+        my $currentMac = $row->{mac};
+        pf_run("/usr/local/pf/bin/pfcmd manage deregister $currentMac");
+        $logger->info("modified $currentMac from status 'reg' to 'unreg' based on unregdate colum" );
+    }
+
     if ( isdisabled($expire_mode) ) {
         return (1);
     } else {
-        my $expire_unreg_query = db_query_execute(NODE, $node_statements, 'node_expire_unreg_field_sql') || return (0);
-        while (my $row = $expire_unreg_query->fetchrow_hashref()) {
-            my $currentMac = $row->{mac};
-            pf_run("/usr/local/pf/bin/pfcmd manage deregister $currentMac");
-            $logger->info("modified $currentMac from status 'reg' to 'unreg' based on unregdate colum" );
-        }
-
         if ( ( lc($expire_mode) eq 'window' ) && $Config{'registration'}{'expire_window'} > 0 ) {
             my $expire_window_query = db_query_execute(
                 NODE, $node_statements, 'node_expire_window_sql', $Config{'registration'}{'expire_window'}

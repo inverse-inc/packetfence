@@ -31,6 +31,7 @@ Bug Fixes
  * Dashboard not printing the SQL stats when MySQL is not local (#1289)
  * Doubled allow subnets in captive-portal-common (#1242)
  * Unreliable encoding behavior messes up with translations (#1287)
+ * Nodes are not unregistered on unregdate unless an expire mode is activated (#1298)
 
 --------------------------------------------------------------------------------
 Version 3.0.1 released on 2011-09-23
