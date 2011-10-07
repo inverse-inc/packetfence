@@ -18,6 +18,10 @@ o Upgrading from a version prior to 3.0.1:
     The user pf in the database is missing the execute rights.  Make sure
     you run :
     mysql -u root -p pf -v < db/upgrade-3.0.0-3.0.1.sql
+    - MySQL trigger on deleting node
+    A new trigger has been added to delete the node useragent when deleting
+    a node. Make sure you run:
+    mysql -u root -p pf -v < db/upgrade-3.0.0-3.0.1.sql
 
 o Upgrading from a version prior to 3.0.0:
 
