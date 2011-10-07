@@ -474,3 +474,6 @@ msgstr "Certaines versions d'Internet Explorer prennent du temps avant de rediri
 
 msgid "The activation code provided is invalid. Reasons could be: it never existed, it was already used or has expired."
 msgstr "Votre code d'activation n'est plus valide."
+
+msgid "Your network access is currently being enabled. Once network connectivity is established you will be automatically redirected."
+msgstr "Votre accès réseau est présentement en activation.  Une fois la connectivité réseau établie, vous serez automatiquement redirigé."
