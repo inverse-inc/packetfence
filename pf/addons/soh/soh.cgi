@@ -300,8 +300,10 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
             $dbh->commit;
         }
         catch {
-            # XXX Should translate SQL errors into something nicer XXX
             $r->{message} = $_;
+            if (/Column '([^']*)' cannot be null/) {
+                $r->{message} = "Please do not leave the $1 blank";
+            }
             try { $dbh->rollback };
         }
         finally {
