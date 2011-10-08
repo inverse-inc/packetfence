@@ -18,6 +18,7 @@ Packetfence supports the following access points and wireless controlers:
 - HP ProCurve MSM710 Mobility Controller
 - Meru Networks Wireless Controlers
 - Motorola RF Switches (Controllers)
+- Trapeze Wireless Controllers
 - Xirrus WiFi Arrays
 
 Eventhough this list is small, PacketFence may support many other access points
@@ -72,6 +73,8 @@ HP ProCurve MSM              |    --    |    XX    |    --    |
 Meru Networks                |    XX    |    --    |    --    |
 -----------------------------|----------|----------|----------|
 Motorola RF Switches         |    --    |    XX    |    --    |
+-----------------------------|----------|----------|----------|
+Trapeze Wireless Controllers |    XX    |    --    |    --    |
 -----------------------------|----------|----------|----------|
 Xirrus WiFi Arrays           |    --    |    XX    |    --    |
 -----------------------------|----------|----------|----------|

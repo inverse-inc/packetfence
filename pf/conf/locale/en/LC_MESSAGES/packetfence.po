@@ -378,6 +378,9 @@ msgstr ""
 msgid "Missing mandatory parameter or malformed entry."
 msgstr ""
 
+msgid "Usernames must only contain alphanumeric characters."
+msgstr ""
+
 msgid "Access duration is not of an allowed value."
 msgstr ""
 
@@ -426,7 +429,7 @@ msgstr ""
 msgid "Guest successfully registered. An email with the username and password has been sent."
 msgstr ""
 
-msgid "Successfully registered %i guests."
+msgid "Import completed: %i guest(s) created, %i line(s) skipped."
 msgstr ""
 
 msgid "Single guest creation"

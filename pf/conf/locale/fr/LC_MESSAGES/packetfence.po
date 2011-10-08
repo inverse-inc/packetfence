@@ -159,28 +159,28 @@ msgid  "Guest Registration"
 msgstr "Inscription"
 
 msgid  "guest network disclaimer"
-msgstr "This guest network is provided exclusively for the convenience of guests and visitors. Access implies no guarantee of reliability, speed or privacy; this network is provided for the express purpose of facilitating simple Internet web communication. Use implies agreement with all terms and conditions of appropriate behavior of our <b>Acceptable Use Policy.</b>"
+msgstr "Ce réseau public est fournis exclusivement pour la convenence des invités et des visiteurs.  L'accès n'implique aucune garantie de fiabilité, de vitesse ou de confidentialité.  Ce réseau est strictement fournis pour donner un accés a Internet.  Son utilisation implique l'acceptation de tous les termes et conditions contenus dans notre <b>Politique d'accès réseau</b>."
 
 msgid  "In the fields below please enter your name, phone number and a valid email address."
-msgstr ""
+msgstr "Dans les champs ici bas, SVP entrez votre nom, numéro de téléphone ainsi qu'un courriel valide"
 
 msgid  "If you choose to receive your access code <strong>by email</strong>, you will be given temporary network access for 10 minutes during that time:"
-msgstr ""
+msgstr "Si vous choisissez de recevoir votre code d'accès <strong>par courriel</strong>, vous aurez un accès temporaire au réseau de 10 minutes.  Pendant ce laps de temps:"
 
 msgid  "Login to the email account you referenced and;"
-msgstr ""
+msgstr "Connectez vous au compte courriel que vous avez entré dans le formulaire"
 
 msgid  "Click on the link emailed to you to validate network access for the next 24 hours."
-msgstr ""
+msgstr "Cliquez sur le lien contenu dans le courriel pour valider votre accès au réseau pour une durée de 24 heures"
 
 msgid  "Register by Email"
-msgstr ""
+msgstr "Inscription par courriel"
 
 msgid  "If you choose to receive your access code <strong>by SMS</strong>, you will be able to enter it on the next page."
-msgstr ""
+msgstr "Si vous choisissez de recevoir votre code <strong>par SMS</string>, vous pourrez entrer votre NIP sur la page suivante."
 
 msgid  "Register by SMS"
-msgstr ""
+msgstr "Inscription par SMS"
 
 msgid "Password"
 msgstr "Mot de passe"
@@ -376,6 +376,9 @@ msgstr "Attendu le %s"
 msgid "Missing mandatory parameter or malformed entry."
 msgstr "Param&egrave;tre requis manquant ou invalide."
 
+msgid "Usernames must only contain alphanumeric characters."
+msgstr "Les noms d'utilisateurs doivent être composés uniquement de charactères alpha-numériques."
+
 msgid "Access duration is not of an allowed value."
 msgstr "Dur&eacute;e de l'acc&egrave;s n'est pas dans un format allou&eacute;e."
 
@@ -383,28 +386,28 @@ msgid "Arrival date is not of expected format."
 msgstr "Date d'arriv&eacute;e n'est pas dans un format allou&eacute;e."
 
 msgid  "You can't register as a guest with a %s email address. Please register as a regular user using your email address instead."
-msgstr ""
+msgstr "Vous ne pouvez pas vous inscrire comme invité avec le courriel %s.  SVP, vous inscrire comme un utilisateur régulier."
 
 msgid  "An error occured while sending the confirmation email."
-msgstr ""
+msgstr "Une erreur est survenue pendant l'envoie de la confirmation par courriel"
 
 msgid  "An error occured while sending the PIN by SMS."
-msgstr ""
+msgstr "Une erreur est survenue pendant l'envoie de votre code NIP par SMS"
 
 msgid  "The uploaded file was corrupted. Please try again."
-msgstr ""
+msgstr "Le fichier reçu est corrompu.  SVP, ressayez de nouveau"
 
 msgid  "Can't open uploaded file."
-msgstr ""
+msgstr "Impossible d'ouvrir le fichier reçu"
 
 msgid  "Confirm Mobile Phone Number"
-msgstr ""
+msgstr "Confirmez le numéro de téléphone mobile"
 
 msgid  "Please enter the PIN code received on your mobile phone in order to gain access to the network."
-msgstr ""
+msgstr "Veuillez entrer le code NIP reçu sur votre téléphone mobile pour obtenir l'accès au réseau"
 
 msgid  "PIN"
-msgstr "PIN"
+msgstr "NIP"
 
 msgid  "Confirm"
 msgstr "Confirmer"
@@ -424,20 +427,20 @@ msgstr "Une fois authentifié, l'accès sera valide pour %d %s."
 msgid "Guest successfully registered. An email with the username and password has been sent."
 msgstr "Invit&eacute; enregistr&eacute; avec succ&egrave;s. Un courriel avec un nom d'utilisateur et mot de passe a &eacute;t&eacute; envoy&eacute;."
 
-msgid "Successfully registered %i guests."
-msgstr ""
+msgid "Import completed: %i guest(s) created, %i line(s) skipped."
+msgstr "Importation complétée: %i invité(s) créé(s), %i ligne(s) ignorée(s)."
 
 msgid "Single guest creation"
-msgstr ""
+msgstr "Création d'un compte invité"
 
 msgid "Multiple guest accounts creation"
-msgstr ""
+msgstr "Création de compte invité multiple"
 
 msgid "CSV file import"
-msgstr ""
+msgstr "Importation de fichier CSV"
 
 msgid "You are logged in as"
-msgstr ""
+msgstr "Vous êtes connecter en tant que"
 
 msgid "Guest Network Access Information"
 msgstr "Information d'accès au réseau pour invités"

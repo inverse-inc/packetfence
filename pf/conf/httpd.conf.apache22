@@ -33,8 +33,7 @@ LogFormat "%{User-agent}i" agent
 LogFormat "%h %l %u %t \"%r\" %>s %b" common
 LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
 ErrorLog %%install_dir%%/logs/error_log
-AddDefaultCharset ISO-8859-1
-AddCharset ISO-8859-1  .iso8859-1  .latin1
+AddDefaultCharset UTF-8
 
 AddHandler cgi-script .cgi
 TypesConfig /etc/mime.types

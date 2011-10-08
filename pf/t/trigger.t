@@ -14,7 +14,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 8;
+use Test::More tests => 9;
 use Test::NoWarnings;
 use Test::Exception;
 use File::Basename qw(basename);
@@ -70,6 +70,11 @@ throws_ok { parse_triggers("Detect::1100005,OS::4,INVALID::7") }
 throws_ok { parse_triggers("Detect::1100005-1100001,OS::4") }
     qr/Invalid trigger range/,
     'parsing triggers with an invalid trigger range expecting exception'
+;
+
+throws_ok { parse_triggers("VENDORMAC::00:22:FA,VENDORMAC::00:22:68,VENDORMAC::00:13:e8") }
+    qr/Invalid trigger id/,
+    'parsing triggers with an invalid trigger id expecting exception'
 ;
 
 =head1 AUTHOR

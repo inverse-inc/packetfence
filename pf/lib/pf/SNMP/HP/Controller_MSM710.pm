@@ -96,14 +96,16 @@ sub deauthenticateMac {
     my $OID_coDevWirCliStaMACAddress = '1.3.6.1.4.1.8744.5.25.1.7.1.1.2'; # from COLUBRIS-DEVICE-WIRELESS-MIB
     my $OID_coDevWirCliDisassociate = '1.3.6.1.4.1.8744.5.25.1.7.1.1.27'; # from COLUBRIS-DEVICE-WIRELESS-MIB
 
-    if ( !$this->connectWrite() ) {
-        return '';
+    # handles if deauth should be performed against controller or actual device. Returns sessionWrite hash key to use.
+    my $performDeauthOn = $this->getDeauthSnmpConnectionKey();
+    if ( !defined($performDeauthOn) ) {
+        return;
     }
 
     # Query the controller to get the index of the MAc in the coDeviceWirelessClientStatusTable 
     # CAUTION: we need to use the sessionWrite in order to have access to that table
     $logger->trace("SNMP get_table for coDevWirCliStaMACAddress: $OID_coDevWirCliStaMACAddress");
-    my $result = $this->{_sessionWrite}->get_table(-baseoid => "$OID_coDevWirCliStaMACAddress");
+    my $result = $this->{$performDeauthOn}->get_table(-baseoid => "$OID_coDevWirCliStaMACAddress");
     if (keys %{$result}) {
         my $count = 0;
         foreach my $key ( keys %{$result} ) {
@@ -113,20 +115,19 @@ sub deauthenticateMac {
                 $key =~ /^$OID_coDevWirCliStaMACAddress\.(\d+).(\d+).(\d+)$/;
                 my $coDevWirCliStaIndex = "$1.$2.$3";
 
-                $logger->debug("deauthenticating $mac on controller " . $this->{_ip});
-                $logger->trace("SNMP set_request for coDevWirCliDisassociate: 
-                    $OID_coDevWirCliDisassociate.$coDevWirCliStaIndex = $HP::DISASSOCIATE"
+                $logger->debug("deauthenticating $mac on controller " . $this->{$performDeauthOn}->hostname());
+                $logger->trace("SNMP set_request for coDevWirCliDisassociate: "
+                    . "$OID_coDevWirCliDisassociate.$coDevWirCliStaIndex = $HP::DISASSOCIATE"
                 );
-                $result = $this->{_sessionWrite}->set_request(-varbindlist => [
+                $result = $this->{$performDeauthOn}->set_request(-varbindlist => [
                     "$OID_coDevWirCliDisassociate.$coDevWirCliStaIndex", Net::SNMP::INTEGER, $HP::DISASSOCIATE
                 ]);
                 $count++;
                 last;
             }
         }
-        if ($count == 0) {
-            $logger->warn("Can not deauthenticate $mac on controller " . $this->{_ip} . " because it does not seem to be associated!");
-        }
+        $logger->warn("Can't deauthenticate $mac on controller $this->{_ip} because it does not seem to be associated!")
+            if ($count == 0);
     } else {
         $logger->error("Can not get the list of associated devices on controller " . $this->{_ip});
     }

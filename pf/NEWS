@@ -16,6 +16,24 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <trunk-release> released on <releaseDate>
 
+--------------------------------------------------------------------------------
+Version <nextversion> released on <releasedate>
+
+New Hardware Support
+ * Trapeze Wireless Controllers
+
+Enchancements
+ * Wireless deauthentication in bridge mode for DLink DWS, HP MSM and Motorola controllers
+ * Better French Translation
+ * Improved validation when creating/importing multiple guest accounts.
+ * Configuration files ownership validation on start-up and in `pfcmd checkup`
+ * Several new DHCP fingerprints (from our spinoff www.fingerbank.org)
+
+Bug Fixes
+ * Cisco access point (AP) configuration mistake in documentation
+ * Dashboard not printing the SQL stats when MySQL is not local (#1289)
+ * Doubled allow subnets in captive-portal-common (#1242)
+ * Unreliable encoding behavior messes up with translations (#1287)
 
 --------------------------------------------------------------------------------
 Version 3.0.1 released on 2011-09-23
@@ -23,6 +41,7 @@ Version 3.0.1 released on 2011-09-23
 Enhancements
  * Process IDs are now logged in the logs for pfcmd and pfcmd_vlan
  * We now strip all non-digits in telephone numbers during SMS activation
+ * Improved validation of violation triggers
 
 Bug Fixes
  * MySQL pf user not having execute privileges (#1282)

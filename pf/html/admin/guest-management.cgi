@@ -36,6 +36,7 @@ Log::Log4perl::MDC->put('proc', 'guest-management.cgi');
 Log::Log4perl::MDC->put('tid', 0);
 
 my $cgi = new CGI;
+$cgi->charset("UTF-8");
 my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 
 my $result;
@@ -149,8 +150,9 @@ if (defined($session->param("login"))) {
             $logger->info("CSV file import users from $tmpfilename ($filename, \"$delimiter\", \"$columns\")");
             ($success, $error) = pf::web::guest::import_csv($tmpfilename, $delimiter, $columns, $session);
             if ($success) {
-              $logger->info("CSV file import $error users");
-              $error = sprintf(i18n("Successfully registered %i guests."), $error);
+              my ($count, $skipped) = split(',',$error);
+              $logger->info("CSV file import $count users, skip $skipped users");
+              $error = sprintf(i18n("Import completed: %i guest(s) created, %i line(s) skipped."), $count, $skipped);
               
               # Tear down session information
               $session->clear([ "delimiter", "columns", "arrival_date", "access_duration" ]);

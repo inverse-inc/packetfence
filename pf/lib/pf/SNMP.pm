@@ -148,6 +148,7 @@ sub new {
         '_registrationVlan'         => undef,
         '_sessionRead'              => undef,
         '_sessionWrite'             => undef,
+        '_sessionControllerWrite'   => undef,
         '_SNMPAuthPasswordRead'     => undef,
         '_SNMPAuthPasswordTrap'     => undef,
         '_SNMPAuthPasswordWrite'    => undef,
@@ -367,29 +368,28 @@ sub disconnectRead {
     if ( !defined( $this->{_sessionRead} ) ) {
         return 1;
     }
-    $logger->debug( "closing SNMP v"
-            . $this->{_SNMPVersion}
-            . " read connection to $this->{_ip}" );
+    $logger->debug( "closing SNMP v" . $this->{_SNMPVersion} . " read connection to $this->{_ip}" );
     $this->{_sessionRead}->close;
     return 1;
 }
 
-=item connectWrite - establish write connection to switch
+=item connectWriteTo
+
+Establishes an SNMP Write connection to a given IP and installs the session object into this object's sessionKey.
+It performs a write test to make sure that the write actually works.
 
 =cut
-
-sub connectWrite {
-    my $this   = shift;
+sub connectWriteTo {
+    my ($this, $ip, $sessionKey) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
-    if ( defined( $this->{_sessionWrite} ) ) {
-        return 1;
-    }
-    $logger->debug( "opening SNMP v"
-            . $this->{_SNMPVersion}
-            . " write connection to $this->{_ip}" );
+
+    # if connection already exists, no need to connect again
+    return 1 if ( defined( $this->{$sessionKey} ) );
+
+    $logger->debug( "opening SNMP v" . $this->{_SNMPVersion} . " write connection to $ip" );
     if ( $this->{_SNMPVersion} eq '3' ) {
-        ( $this->{_sessionWrite}, $this->{_error} ) = Net::SNMP->session(
-            -hostname     => $this->{_ip},
+        ( $this->{$sessionKey}, $this->{_error} ) = Net::SNMP->session(
+            -hostname     => $ip,
             -version      => $this->{_SNMPVersion},
             -timeout      => 2,
             -retries      => 1,
@@ -400,54 +400,49 @@ sub connectWrite {
             -privpassword => $this->{_SNMPPrivPasswordWrite}
         );
     } else {
-        ( $this->{_sessionWrite}, $this->{_error} ) = Net::SNMP->session(
-            -hostname  => $this->{_ip},
+        ( $this->{$sessionKey}, $this->{_error} ) = Net::SNMP->session(
+            -hostname  => $ip,
             -version   => $this->{_SNMPVersion},
             -timeout   => 2,
             -retries   => 1,
             -community => $this->{_SNMPCommunityWrite}
         );
     }
-    if ( !defined( $this->{_sessionWrite} ) ) {
-        $logger->error( "error creating SNMP v"
-                . $this->{_SNMPVersion}
-                . " write connection to "
-                . $this->{_ip} . ": "
-                . $this->{_error} );
+
+    if ( !defined( $this->{$sessionKey} ) ) {
+
+        $logger->error( "error creating SNMP v" . $this->{_SNMPVersion} . " write connection to $ip: $this->{_error}" );
         return 0;
+
     } else {
         my $oid_sysLocation = '1.3.6.1.2.1.1.6.0';
         $logger->trace("SNMP get_request for sysLocation: $oid_sysLocation");
-        my $result = $this->{_sessionWrite}
-            ->get_request( -varbindlist => [$oid_sysLocation] );
+        my $result = $this->{$sessionKey}->get_request( -varbindlist => [$oid_sysLocation] );
         if ( !defined($result) ) {
-            $logger->error( "error creating SNMP v"
-                    . $this->{_SNMPVersion}
-                    . " write connection to "
-                    . $this->{_ip} . ": "
-                    . $this->{_sessionWrite}->error() );
-            $this->{_sessionWrite} = undef;
+            $logger->error(
+                "error creating SNMP v" . $this->{_SNMPVersion} . " write connection to $ip: " 
+                . $this->{$sessionKey}->error()
+            );
+            $this->{$sessionKey} = undef;
             return 0;
         } else {
             my $sysLocation = $result->{$oid_sysLocation} || '';
             $logger->trace(
                 "SNMP set_request for sysLocation: $oid_sysLocation to $sysLocation"
             );
-            $result = $this->{_sessionWrite}->set_request(
+            $result = $this->{$sessionKey}->set_request(
                 -varbindlist => [
                     "$oid_sysLocation", Net::SNMP::OCTET_STRING,
                     $sysLocation
                 ]
             );
             if ( !defined($result) ) {
-                $logger->error( "error creating SNMP v"
-                        . $this->{_SNMPVersion}
-                        . " write connection to "
-                        . $this->{_ip} . ": "
-                        . $this->{_sessionWrite}->error()
-                        . " it looks like you specified a read-only community instead of a read-write one"
+                $logger->error(
+                    "error creating SNMP v" . $this->{_SNMPVersion} . " write connection to $ip: " 
+                    . $this->{$sessionKey}->error()
+                    . " it looks like you specified a read-only community instead of a read-write one"
                 );
-                $this->{_sessionWrite} = undef;
+                $this->{$sessionKey} = undef;
                 return 0;
             }
         }
@@ -455,88 +450,67 @@ sub connectWrite {
     return 1;
 }
 
-=item disconnectWrite - closing write connection to switch
+=item connectWrite
+
+Establishes a default SNMP Write connection to the network device.
+Uses connectWriteTo with IP from configuration internally.
 
 =cut
-
-sub disconnectWrite {
+sub connectWrite {
     my $this   = shift;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    if ( !defined( $this->{_sessionWrite} ) ) {
-        return 1;
-    }
-    $logger->debug( "closing SNMP v"
-            . $this->{_SNMPVersion}
-            . " write connection to $this->{_ip}" );
-    $this->{_sessionWrite}->close;
-    return 1;
+    return $this->connectWriteTo($this->{_ip}, '_sessionWrite');
 }
 
 =item connectWriteToController
 
-Establish a temporary SNMP write connection to the controller
+Establishes an SNMP write connection to the controller of the network device as defined in controllerIp.
 
 =cut
-# TODO reduce duplication between this and connectWrite
 sub connectWriteToController {
     my $this   = shift;
+    return $this->connectWriteTo($this->{_controllerIp}, '_sessionControllerWrite');
+}
+
+=item disconnectWriteTo
+
+Closes an SNMP Write connection. Requires sessionKey stored in object (as when calling connectWriteTo).
+
+=cut
+sub disconnectWriteTo {
+    my ($this, $sessionKey) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    my ($sessionWrite, $error);
-    $logger->debug( "opening SNMP v" . $this->{_SNMPVersion} . " write connection to $this->{_controllerIp}" );
-    if ( $this->{_SNMPVersion} eq '3' ) {
-        ( $sessionWrite, $error ) = Net::SNMP->session(
-            -hostname     => $this->{_controllerIp},
-            -version      => $this->{_SNMPVersion},
-            -timeout      => 2,
-            -retries      => 1,
-            -username     => $this->{_SNMPUserNameWrite},
-            -authprotocol => $this->{_SNMPAuthProtocolWrite},
-            -authpassword => $this->{_SNMPAuthPasswordWrite},
-            -privprotocol => $this->{_SNMPPrivProtocolWrite},
-            -privpassword => $this->{_SNMPPrivPasswordWrite}
-        );
-    } else {
-        ( $sessionWrite, $error ) = Net::SNMP->session(
-            -hostname  => $this->{_controllerIp},
-            -version   => $this->{_SNMPVersion},
-            -timeout   => 2,
-            -retries   => 1,
-            -community => $this->{_SNMPCommunityWrite}
-        );
-    }
-    if ( !defined( $sessionWrite ) ) {
-        $logger->error("error creating SNMP v$this->{_SNMPVersion} write connection to $this->{_controllerIp}: $error");
-        return;
-    } else {
-        my $oid_sysLocation = '1.3.6.1.2.1.1.6.0';
-        $logger->trace("SNMP get_request for sysLocation: $oid_sysLocation");
-        my $result = $sessionWrite->get_request( -varbindlist => [$oid_sysLocation] );
-        if ( !defined($result) ) {
-            $logger->error(
-                "error creating SNMP v$this->{_SNMPVersion} write connection to "
-                . $this->{_controllerIp} . ": " . $sessionWrite->error()
-            );
-            $sessionWrite = undef;
-            return;
-        } else {
-            my $sysLocation = $result->{$oid_sysLocation} || '';
-            $logger->trace("SNMP set_request for sysLocation: $oid_sysLocation to $sysLocation");
-            $result = $sessionWrite->set_request(
-                -varbindlist => [ "$oid_sysLocation", Net::SNMP::OCTET_STRING, $sysLocation ]
-            );
-            if ( !defined($result) ) {
-                $logger->error( "error creating SNMP v" . $this->{_SNMPVersion}
-                    . " write connection to "
-                    . $this->{_controllerIp} . ": " . $sessionWrite->error()
-                    . " it looks like you specified a read-only community instead of a read-write one"
-                );
-                $sessionWrite = undef;
-                return;
-            }
-        }
-    }
-    return $sessionWrite;
+    return 1 if ( !defined( $this->{$sessionKey} ) );
+
+    $logger->debug( 
+        "closing SNMP v" . $this->{_SNMPVersion} . " write connection to " . $this->{$sessionKey}->hostname()
+    );
+
+    $this->{$sessionKey}->close();
+    $this->{$sessionKey} = undef;
+    return 1;
+}
+
+=item disconnectWrite
+
+Closes the default SNMP connection to the network device's IP.
+
+=cut
+sub disconnectWrite {
+    my $this = shift;
+
+    return $this->disconnectWriteTo('_sessionWrite');
+}
+
+=item disconnectWriteToController
+
+Closes the SNMP connection to the network device's controller.
+
+=cut
+sub disconnectWriteToController {
+    my $this = shift;
+
+    return $this->disconnectWriteTo('_sessionControllerWrite');
 }
 
 =item setVlan
@@ -2538,6 +2512,29 @@ sub disablePortConfigAsTrunk {
     }
 
     return 1;
+}
+
+=item getDeauthSnmpConnectionKey
+
+Handles if deauthentication should be performed against controller or actual network device. 
+Performs the actual SNMP Write connection and returns sessionWrite hash key to use.
+
+See L<pf::SNMP::Dlink::DWS_3026> for a usage example.
+
+=cut
+sub getDeauthSnmpConnectionKey {
+    my $this = shift;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    if (defined($this->{_controllerIp}) && $this->{_controllerIp} ne '') {
+
+        $logger->info("controllerIp is set, we will use controller $this->{_controllerIp} to perform deauth");
+        return if ( !$this->connectWriteToController() );
+        return '_sessionControllerWrite';
+    } else {
+        return if ( !$this->connectWrite() );;
+        return '_sessionWrite';
+    }
 }
 
 =back

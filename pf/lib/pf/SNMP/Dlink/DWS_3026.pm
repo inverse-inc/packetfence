@@ -59,32 +59,22 @@ sub deauthenticateMac {
         return 1;
     }
 
-    my $sessionWrite;
-    # TODO extract into method
-    # TODO it needs to handle calling $sessionWrite->close(); (or a disconnectWrite hook)
-    if (defined($this->{_controllerIp}) && $this->{_controllerIp} ne '') {
-
-        $logger->info("controllerIp is set, we will use controller $this->{_controllerIp} to perform deauth");
-        $sessionWrite = $this->connectWriteToController();
-        return if (!defined($sessionWrite));
-    } else {
-
-        if ( !$this->connectWrite() ) {
-            return;
-        }
-        $sessionWrite = $this->{_sessionWrite};
+    # handles if deauth should be performed against controller or actual device. Returns sessionWrite hash key to use.
+    my $performDeauthOn = $this->getDeauthSnmpConnectionKey();
+    if ( !defined($performDeauthOn) ) {
+        return;
     }
 
     my $deauth_oid = $OID_wsAssociatedClientDisassociateAction . "." . mac2oid($mac);
 
     $logger->trace("SNMP set_request for wsAssociatedClientDisassociateAction: $deauth_oid");
-    my $result = $sessionWrite->set_request( -varbindlist => [ $deauth_oid, Net::SNMP::INTEGER, 2 ] );
+    my $result = $this->{$performDeauthOn}->set_request( -varbindlist => [ $deauth_oid, Net::SNMP::INTEGER, 2 ] );
 
     # if $result is defined, it works we can return $TRUE
     return $TRUE if (defined($result));
 
     # otherwise report failure
-    $logger->warn("deauthentication for $mac failed with " . $sessionWrite->error());
+    $logger->warn("deauthentication for $mac failed with " . $this->{$performDeauthOn}->error());
     return;
 }
 

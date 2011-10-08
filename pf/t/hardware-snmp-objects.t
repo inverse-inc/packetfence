@@ -47,7 +47,8 @@ my @whitelist = (
     'isPhoneAtIfIndex', '_authorizeMAC', 'getRegExpFromList', '_getMacAtIfIndex', 'getMacAddrVlan', 'getHubs',
     'getVlanByName', 'isManagedVlan', 'deauthenticateMac', 'setVlan', 'extractSsid', 'supportsWirelessMacAuth', 
     'supportsWirelessDot1x', 'authorizeCurrentMacWithNewVlan', '_authorizeCurrentMacWithNewVlan',
-    'disableIfLinkUpDownTraps', 'enableIfLinkUpDownTraps',
+    'disableIfLinkUpDownTraps', 'enableIfLinkUpDownTraps', 'connectWrite', 'connectWriteToController', 
+    'disconnectWrite', 'disconnectWriteToController', 'getDeauthSnmpConnectionKey',
 );
 
 my @missing_subs;

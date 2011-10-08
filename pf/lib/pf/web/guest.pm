@@ -25,7 +25,6 @@ F<register.html>.
 use strict;
 use warnings;
 use Date::Parse;
-use Encode;
 use File::Basename;
 use HTML::Entities;
 use Locale::gettext;
@@ -204,6 +203,8 @@ sub generate_registration_page {
             $vars->{'txt_error'} = i18n("The uploaded file was corrupted. Please try again.");
         } elsif ( $err == 5 ) {
             $vars->{'txt_error'} = i18n("Can't open uploaded file.");
+        } elsif ( $err == 6 ) {
+            $vars->{'txt_error'} = i18n("Usernames must only contain alphanumeric characters.");
         } elsif ( $err == $REGISTRATION_CONTINUE ) {
             $vars->{'txt_error'} = i18n("Guest successfully registered. An email with the username and password has been sent.");
         } else {
@@ -346,6 +347,7 @@ sub validate_registration_multiple {
     # return (0,1) for missing info
     # return (0,2) for invalid access duration
     # return (0,3) for invalid arrival date
+    # return (0,6) for invalid username (prefix)
   
     my ($cgi, $session) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
@@ -363,6 +365,10 @@ sub validate_registration_multiple {
 
     if (!valid_arrival_date($cgi->param('arrival_date'))) {
         return (0, 3);
+    }
+
+    if ($prefix =~ m/[^a-zA-Z0-9_\-\@]/) {
+        return (0, 6);
     }
 
     $session->param("arrival_date", $cgi->param("arrival_date"));
@@ -848,6 +854,7 @@ sub import_csv {
 
   # Build hash table for columns order
   my $count = 0;
+  my $skipped = 0;
   my @order = split(",", $columns);
   my %index = ();
   for (my $i = 0; $i < scalar @order; $i++) {
@@ -871,6 +878,10 @@ sub import_csv {
       chomp $line;
       my @fields = split($delimiter, $line);
       my $pid = $fields[$index{'c_username'}];
+      if ($pid =~ m/[^a-zA-Z0-9_\-\@]/) {
+        $skipped++;
+        next;
+      }
       # Create/modify person
       my %data = ('firstname' => $index{'c_firstname'} ? $fields[$index{'c_firstname'}] : undef,
                   'lastname'  => $index{'c_lastname'}  ? $fields[$index{'c_lastname'}]  : undef,
@@ -878,6 +889,10 @@ sub import_csv {
                   'telephone' => $index{'c_phone'}     ? $fields[$index{'c_phone'}]     : undef,
                   'notes'     => $index{'c_note'}      ? $fields[$index{'c_note'}]      : undef,
                   'sponsor'   => $session->param("login"));
+      if ($data{'email'} && $data{'email'} !~ /^[A-z0-9_.-]+@[A-z0-9_-]+(\.[A-z0-9_-]+)*\.[A-z]{2,6}$/) {
+        $skipped++;
+        next;
+      }
       my $result = person_modify($pid, %data);
       if ($result) {
         # Create/update password
@@ -891,7 +906,7 @@ sub import_csv {
     }
     close $import_fh;
 
-    return (1, $count);
+    return (1, "$count,$skipped");
   }
   else {
     $logger->warn("Can't open CSV file $filename: $@");

@@ -664,6 +664,19 @@ sub permissions {
         add_problem( $FATAL, "pfcmd needs to be owned by root. Fix with chown root:root pfcmd" );
     }
 
+    # owner must be pf otherwise we can't modify configuration
+    # only a warning because pf can still run, it's the config we can't change (friendlier cluster failover handling)
+    my @configuration_files = qw(
+        floating_network_devices.conf networks.conf pf.conf switches.conf violations.conf
+    );
+    foreach my $conf_file (@configuration_files) {
+        # if file doesn't exist it is created correctly so no need to complain
+        next if (!-f $conf_dir . '/' . $conf_file);
+
+        add_problem( $WARN, "$conf_file must be owned by user pf. Fix with chown pf $conf_dir/$conf_file" )
+            unless (getpwuid((stat($conf_dir . '/' . $conf_file))[4]) eq 'pf');
+    }
+
     # log owner must be pf otherwise apache or pf daemons won't start
     my @important_log_files = qw(
         access_log error_log admin_access_log admin_error_log

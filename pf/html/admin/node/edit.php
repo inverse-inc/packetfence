@@ -108,6 +108,10 @@
       print "<tr><td></td><td>$pretty_key:</td><td><p title='$val' style='font-size: 0.7em;'>$connection_type[$val]</p>";
       break;
 
+    case 'notes':
+      print "<tr><td></td><td>$pretty_key:</td><td></td><tr><td colspan='3'><textarea name='$key' rows='5'>$val</textarea>";
+      break;
+
     default:
       print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val'>";
     }
