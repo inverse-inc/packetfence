@@ -169,6 +169,7 @@
      li.remove();
      if (!ul.down()) {
        ul.insert('<li>(None)</li>');
+       ul.down().addClassName('none');
      }
      $('save').style.color = 'red';
    }
