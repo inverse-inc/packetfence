@@ -6,10 +6,12 @@ Notes on upgrading from an older release
 ----------------------------------------
 
 o Upgrading from a version prior to 3.0.2:
-    - MySQL trigger on deleting node
+
+    - Database schema update
     A new trigger has been added to delete the node useragent when deleting
     a node. Make sure you run:
     mysql -u root -p pf -v < db/upgrade-3.0.1-3.0.2.sql
+
     - Default Firewall Rules Updated
     Review the updated firewall rules (in .rpmnew) if you made changes and
     make sure to integrate changes if you need them. New rules include:
