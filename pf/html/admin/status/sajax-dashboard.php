@@ -69,59 +69,22 @@ function get_usage(){
   } 
 
   ## DATABASE ACTIVITY
-  if($db_creds = get_db_creds()){
 
-    $user = $db_creds['db_user'];
-    $pass = $db_creds['db_pass'];
-    $host = $db_creds['db_host'];
+  $user = get_configuration_value('database.user');
+  $pass = get_configuration_value('database.pass');
+  $host = get_configuration_value('database.host');
 
-    if(!preg_match("/[\'|\"|\;]/", $user) && !preg_match("/[\'|\"|\;]/", $pass)){
-      exec("/usr/bin/mysqladmin status -u$user -p$pass -h$host", $sql_output);
-      if(preg_match("/Queries\sper\ssecond\savg:\s+(\d+\.\d+)/", $sql_output[0], $matches)){
-        $sql_queries = $matches[1];
-      }    
-    }
+  if(!preg_match("/[\'|\"|\;]/", $user) && !preg_match("/[\'|\"|\;]/", $pass)){
+    exec("/usr/bin/mysqladmin status -u$user -p$pass -h$host", $sql_output);
+    if(preg_match("/Queries\sper\ssecond\savg:\s+(\d+\.\d+)/", $sql_output[0], $matches)){
+      $sql_queries = $matches[1];
+    }    
   }
   else{
     $sql_queries = '?';
   }
 
   return "$disk_usage|$load_1|$load_2|$load_3|$mem_usage|$sql_queries";
-}
-
-function get_db_creds(){
-  $db_user = $db_pass = $db_host = '';  
-
-  exec(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/bin/pfcmd config get database.user", $user);
-  if(preg_match('/^database\.user=([^|]*)\|([^|]*)\|/', $user[0], $matches)) {
-    if ($matches[1] != '') {
-      $db_user = $matches[1];
-    } else {
-      $db_user = $matches[2];
-    }
-  }
-  exec(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/bin/pfcmd config get database.pass", $pass);
-  if(preg_match('/^database\.pass=([^|]*)\|([^|]*)\|/', $pass[0], $matches)) {
-    if ($matches[1] != '') {
-      $db_pass = $matches[1];
-    } else {
-      $db_pass = $matches[2];
-    }
-  }
-
-  exec(dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . "/bin/pfcmd config get database.host", $host);
-  if(preg_match('/^database\.host=([^|]*)\|([^|]*)\|/', $host[0], $matches)) {
-    if ($matches[1] != '') {
-      $db_host = $matches[1];
-    } else {
-      $db_host = $matches[2];
-    } 
-  }
-
-  if($db_user && $db_pass && $db_host)  
-    return array('db_user' => $db_user, 'db_pass' => $db_pass, 'db_host' => $db_host);
-  else
-    return false;
 }
 
 ?>
