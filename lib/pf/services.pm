@@ -42,10 +42,12 @@ use pf::services::apache;
 use pf::services::dhcpd qw(generate_dhcpd_conf);
 use pf::services::named qw(generate_named_conf);
 use pf::services::snmptrapd qw(generate_snmptrapd_conf);
+use pf::services::snort qw(generate_snort_conf);
+use pf::services::suricata qw(generate_suricata_conf);
 use pf::SwitchFactory;
 
 Readonly our @ALL_SERVICES => (
-    'named', 'dhcpd', 'snort', 'radiusd', 
+    'named', 'dhcpd', 'snort', 'suricata', 'radiusd', 
     'httpd', 'snmptrapd', 
     'pfdetect', 'pfredirect', 'pfsetvlan', 'pfdhcplistener', 'pfmon'
 );
@@ -82,10 +84,14 @@ $service_launchers{'snmptrapd'} = "%1\$s -n -c $generated_conf_dir/snmptrapd.con
 $service_launchers{'radiusd'} = "%1\$s";
 
 # TODO $monitor_int will cause problems with dynamic config reloading
-if ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int ) {
+if ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int && $Config{'trapping'}{'detection_engine'} eq 'snort' ) {
     $service_launchers{'snort'} =
         "%1\$s -u pf -c $generated_conf_dir/snort.conf -i $monitor_int " .
         "-N -D -l $install_dir/var --pid-path $install_dir/var/run";
+} elsif ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int && $Config{'trapping'}{'detection_engine'} eq 'suricata' ) {
+    $service_launchers{'suricata'} =
+        "%1\$s -c $install_dir/var/conf/suricata.yaml -i $monitor_int" . 
+        "-l $install_dir/var --pidfile $install_dir/var/run";
 }
 =back
 
@@ -115,7 +121,8 @@ sub service_ctl {
                     return $FALSE;
                 }
 
-                if ( $daemon =~ /(named|dhcpd|snort|httpd|snmptrapd)/ && !$quick )
+                if ( $daemon =~ /(named|dhcpd|snort|suricata|httpd|snmptrapd)/ && !$quick )
+                    && !$quick )
                 {
                     my $confname = "generate_" . $daemon . "_conf";
                     $logger->info(
@@ -124,6 +131,7 @@ sub service_ctl {
                         'named' => \&generate_named_conf,
                         'dhcpd' => \&generate_dhcpd_conf,
                         'snort' => \&generate_snort_conf,
+                        'suricata' => \&generate_suricata_conf,
                         'httpd' => \&generate_httpd_conf,
                         'snmptrapd' => \&generate_snmptrapd_conf
                     );
@@ -214,10 +222,10 @@ sub service_ctl {
                 last CASE;
             };
             $action eq "restart" && do {
-                service_ctl( "pfdetect", "stop" ) if ( $daemon eq "snort" );
+                service_ctl( "pfdetect", "stop" ) if ( $daemon eq "snort" || $daemon eq "suricata" );
                 service_ctl( $daemon, "stop" );
 
-                service_ctl( "pfdetect", "start" ) if ( $daemon eq "snort" );
+                service_ctl( "pfdetect", "start" ) if ( $daemon eq "snort" || $daemon eq "suricata" );
                 service_ctl( $daemon, "start" );
                 last CASE;
             };
@@ -252,7 +260,10 @@ sub service_list {
     foreach my $service (@services) {
         if ( $service eq "snort" ) {
             $snortflag = 1
-                if ( isenabled( $Config{'trapping'}{'detection'} ) );
+                if ( isenabled( $Config{'trapping'}{'detection'} ) && $Config{'trapping'}{'detection_engine'} eq "snort" );
+        } elsif ( $service eq "suricata" ) {
+            $snortflag = 2
+                if ( isenabled( $Config{'trapping'}{'detection'} ) && $Config{'trapping'}{'detection_engine'} eq "suricata" );
         } elsif ( $service eq "radiusd" ) {
             push @finalServiceList, $service 
                 if ( is_vlan_enforcement_enabled() && isenabled($Config{'services'}{'radiusd'}) );
@@ -281,7 +292,8 @@ sub service_list {
     }
 
     #add snort last
-    push @finalServiceList, "snort" if ($snortflag);
+    push @finalServiceList, "snort" if ($snortflag == 1);
+    push @finalServiceList, "suricata" if ($snortflag == 2);
     return @finalServiceList;
 }
 
@@ -309,45 +321,6 @@ sub manage_Static_Route {
             }
         }
     }
-}
-
-=item * generate_snort_conf
-
-=cut
-
-sub generate_snort_conf {
-    my $logger = Log::Log4perl::get_logger('pf::services');
-    my %tags;
-    $tags{'template'}      = "$conf_dir/snort.conf";
-    $tags{'internal-nets'} = join( ",", get_internal_nets() );
-    $tags{'dhcp_servers'}  = $Config{'general'}{'dhcpservers'};
-    $tags{'dns_servers'}   = $Config{'general'}{'dnsservers'};
-    $tags{'install_dir'}   = $install_dir;
-    my %violations_conf;
-    tie %violations_conf, 'Config::IniFiles',
-        ( -file => "$conf_dir/violations.conf" );
-    my @errors = @Config::IniFiles::errors;
-    if ( scalar(@errors) ) {
-        $logger->error( "Error reading violations.conf: " 
-                        .  join( "\n", @errors ) . "\n" );
-        return 0;
-    }
-
-    my @rules;
-
-    foreach my $rule (
-        split( /\s*,\s*/, $violations_conf{'defaults'}{'snort_rules'} ) )
-    {
-
-        #append install_dir if the path doesn't start with /
-        $rule = "\$RULE_PATH/$rule" if ( $rule !~ /^\// );
-        push @rules, "include $rule";
-    }
-    $tags{'snort_rules'} = join( "\n", @rules );
-    $logger->info("generating $conf_dir/snort.conf");
-    parse_template( \%tags, "$conf_dir/snort.conf",
-        "$generated_conf_dir/snort.conf" );
-    return 1;
 }
 
 =item * read_violations_conf
