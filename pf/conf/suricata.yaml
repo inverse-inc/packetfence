@@ -1,0 +1,457 @@
+%YAML 1.1
+---
+
+# Number of packets allowed to be processed simultaneously.  Default is a
+# conservative 50. a higher number will make sure CPU's/CPU cores will be
+# more easily kept busy, but will negatively impact caching.
+#
+# If you are using the CUDA pattern matcher (b2g_cuda below), different rules
+# apply. In that case try something like 4000 or more. This is because the CUDA
+# pattern matcher scans many packets in parallel.
+max-pending-packets: 1000
+
+# Set the order of alerts bassed on actions
+# The default order is pass, drop, reject, alert
+action-order:
+  - pass
+  - drop
+  - reject
+  - alert
+
+
+# The default logging directory.  Any log or output file will be
+# placed here if its not specified with a full path name.  This can be
+# overridden with the -l command line parameter.
+default-log-dir: %%install_dir%%/log
+
+# Configure the type of alert (and other) logging you would like.
+outputs:
+
+  # a line based alerts log similar to Snort's fast.log
+  - fast:
+      enabled: yes
+      filename: alert
+
+  # log output for use with Barnyard
+  - unified-log:
+      enabled: no
+      filename: unified.log
+
+      # Limit in MB.
+      #limit: 32
+
+  # alert output for use with Barnyard
+  - unified-alert:
+      enabled: no
+      filename: unified.alert
+
+      # Limit in MB.
+      #limit: 32
+
+  # alert output for use with Barnyard2
+  - unified2-alert:
+      enabled: no
+      filename: unified2.alert
+
+      # Limit in MB.
+      #limit: 32
+
+  # a line based log of HTTP requests (no alerts)
+  - http-log:
+      enabled: no
+      filename: http.log
+
+  # a full alerts log containing much information for signature writers
+  # or for investigating suspected false positives.
+  - alert-debug:
+      enabled: no
+      filename: alert-debug.log
+
+  # alert output to prelude (http://www.prelude-technologies.com/) only
+  # available if Suricata has been compiled with --enable-prelude
+  - alert-prelude:
+      enabled: no
+      profile: suricata
+
+defrag:
+  max-frags: 65535
+  prealloc: yes
+  timeout: 60
+
+# You can specify a threshold config file by setting "threshold-file"
+# to the path of the threshold config file:
+threshold-file: %%install_dir%%/conf/snort/threshold.config
+
+# The detection engine builds internal groups of signatures. The engine
+# allow us to specify the profile to use for them, to manage memory on an
+# efficient way keeping a good performance. For the profile keyword you
+# can use the words "low", "medium", "high" or "custom". If you use custom
+# make sure to define the values at "- custom-values" as your convenience.
+# Usually you would prefer medium/high/low
+detect-engine:
+  - profile: medium
+  - custom-values:
+      toclient_src_groups: 2
+      toclient_dst_groups: 2
+      toclient_sp_groups: 2
+      toclient_dp_groups: 3
+      toserver_src_groups: 2
+      toserver_dst_groups: 4
+      toserver_sp_groups: 2
+      toserver_dp_groups: 25
+
+# Suricata is multi-threaded. Here the threading can be influenced.
+threading:
+  # On some cpu's/architectures it is beneficial to tie individual threads
+  # to specific CPU's/CPU cores. In this case all threads are tied to CPU0,
+  # and each extra CPU/core has one "detect" thread.
+  #
+  # On Intel Core2 and Nehalem CPU's enabling this will degrade performance.
+  #
+  set_cpu_affinity: no
+  #
+  # By default Suricata creates one "detect" thread per available CPU/CPU core.
+  # This setting allows controlling this behaviour. A ratio setting of 2 will
+  # create 2 detect threads for each CPU/CPU core. So for a dual core CPU this
+  # will result in 4 detect threads. If values below 1 are used, less threads
+  # are created. So on a dual core CPU a setting of 0.5 results in 1 detect
+  # thread being created. Regardless of the setting at a minimum 1 detect
+  # thread will always be created.
+  #
+  detect_thread_ratio: 1.5
+
+# Select the cuda device to use.  The device_id identifies the device to be used
+# if one has multiple devices on the system.  To find out device_id associated
+#  with the card(s) on the system run "suricata --list-cuda-cards".
+cuda:
+  device_id: 0
+
+# Select the multi pattern algorithm you want to run for scan/search the
+# in the engine. The supported algorithms are b2g, b3g and wumanber.
+#
+# There is also a CUDA pattern matcher (only available if Suricata was
+# compiled with --enable-cuda: b2g_cuda. Make sure to update your
+# max-pending-packets setting above as well if you use b2g_cuda.
+
+mpm-algo: b2g
+
+# The memory settings for hash size of these algorithms can vary from lowest
+# (2048) - low (4096) - medium (8192) - high (16384) - highest (32768) - max
+# (65536). The bloomfilter sizes of these algorithms can vary from low (512) -
+# medium (1024) - high (2048).
+#
+# For B2g/B3g algorithms, there is a support for two different scan/search
+# algorithms. For B2g the scan algorithms are B2gScan & B2gScanBNDMq, and
+# search algorithms are B2gSearch & B2gSearchBNDMq. For B3g scan algorithms
+# are B3gScan & B3gScanBNDMq, and search algorithms are B3gSearch &
+# B3gSearchBNDMq.
+#
+# For B2g the different scan/search algorithms and, hash and bloom
+# filter size settings. For B3g the different scan/search algorithms and, hash
+# and bloom filter size settings. For wumanber the hash and bloom filter size
+# settings.
+
+pattern-matcher:
+  - b2g:
+      scan_algo: B2gScanBNDMq
+      search_algo: B2gSearchBNDMq
+      hash_size: low
+      bf_size: medium
+  - b3g:
+      scan_algo: B3gScanBNDMq
+      search_algo: B3gSearchBNDMq
+      hash_size: low
+      bf_size: medium
+  - wumanber:
+      hash_size: low
+      bf_size: medium
+
+# Flow settings:
+# By default, the reserved memory (memcap) for flows is 32MB. This is the limit
+# for flow allocation inside the engine. You can change this value to allow
+# more memory usage for flows.
+# The hash_size determine the size of the hash used to identify flows inside
+# the engine, and by default the value is 65536.
+# At the startup, the engine can preallocate a number of flows, to get a better
+# performance. The number of flows preallocated is 10000 by default.
+# emergency_recovery is the percentage of flows that the engine need to
+# prune before unsetting the emergency state. The emergency state is activated
+# when the memcap limit is reached, allowing to create new flows, but
+# prunning them with the emergency timeouts (they are defined below).
+# If the memcap is reached, the engine will try to prune prune_flows
+# with the default timeouts. If it doens't find a flow to prune, it will set
+# the emergency bit and it will try again with more agressive timeouts.
+# If that doesn't work, then it will try to kill the last time seen flows
+# not in use.
+
+flow:
+  memcap: 33554432
+  hash_size: 65536
+  prealloc: 10000
+  emergency_recovery: 30
+  prune_flows: 5
+
+# Specific timeouts for flows. Here you can specify the timeouts that the
+# active flows will wait to transit from the current state to another, on each
+# protocol. The value of "new" determine the seconds to wait after a hanshake or
+# stream startup before the engine free the data of that flow it doesn't
+# change the state to established (usually if we don't receive more packets
+# of that flow). The value of "established" is the amount of
+# seconds that the engine will wait to free the flow if it spend that amount
+# without receiving new packets or closing the connection. "closed" is the
+# amount of time to wait after a flow is closed (usually zero).
+#
+# There's an emergency mode that will become active under attack circumstances,
+# making the engine to check flow status faster. This configuration variables
+# use the prefix "emergency_" and work similar as the normal ones.
+# Some timeouts doesn't apply to all the protocols, like "closed", for udp and
+# icmp.
+
+flow-timeouts:
+
+  default:
+    new: 30
+    established: 300
+    closed: 0
+    emergency_new: 10
+    emergency_established: 100
+    emergency_closed: 0
+  tcp:
+    new: 60
+    established: 3600
+    closed: 120
+    emergency_new: 10
+    emergency_established: 300
+    emergency_closed: 20
+  udp:
+    new: 30
+    established: 300
+    emergency_new: 10
+    emergency_established: 100
+  icmp:
+    new: 30
+    established: 300
+    emergency_new: 10
+    emergency_established: 100
+
+# Stream engine settings. Here the TCP stream tracking and reaasembly
+# engine is configured.
+#
+# stream:
+#   memcap: 33554432            # 32mb tcp session memcap
+#   checksum_validation: yes    # To validate the checksum of received
+                                # packet. If csum validation is specified as
+                                # "yes", then packet with invalid csum will not
+                                # be processed by the engine stream/app layer.
+#   max_sessions: 262144        # 256k concurrent sessions
+#   prealloc_sessions: 32768    # 32k sessions prealloc'd
+#   midstream: false            # don't allow midstream session pickups
+#   async_oneside: false        # don't enable async stream handling
+#   reassembly:
+#     memcap: 67108864          # 64mb tcp reassembly memcap
+#     depth: 1048576            # 1 MB reassembly depth
+stream:
+  memcap: 33554432
+  checksum_validation: yes
+  reassembly:
+    memcap: 67108864
+    depth: 1048576
+
+# Logging configuration.  This is not about logging IDS alerts, but
+# IDS output about what its doing, errors, etc.
+logging:
+
+  # The default log level, can be overridden in an output section.
+  # Note that debug level logging will only be emitted if Suricata was
+  # compiled with the --enable-debug configure option.
+  #
+  # This value is overriden by the SC_LOG_LEVEL env var.
+  default-log-level: info
+
+  # The default output format.  Optional parameter, should default to
+  # something reasonable if not provided.  Can be overriden in an
+  # output section.  You can leave this out to get the default.
+  #
+  # This value is overriden by the SC_LOG_FORMAT env var.
+  #default-log-format: "[%i] %t - (%f:%l) <%d> (%n) -- "
+
+  # A regex to filter output.  Can be overridden in an output section.
+  # Defaults to empty (no filter).
+  #
+  # This value is overriden by the SC_LOG_OP_FILTER env var.
+  default-output-filter:
+
+  # Define your logging outputs.  If none are defined, or they are all
+  # disabled you will get the default - console output.
+  outputs:
+  - console:
+      enabled: yes
+  - file:
+      enabled: no
+      filename: /var/log/suricata.log
+  - syslog:
+      enabled: no
+      facility: local5
+      format: "[%i] <%d> -- "
+
+# PF_RING configuration. for use with native PF_RING support
+# for more info see http://www.ntop.org/PF_RING.html
+pfring:
+
+  # Default interface we will listen on.
+  interface: eth0
+
+  # Default clusterid.  PF_RING will load balance packets based on flow.
+  # All threads/processes that will participate need to have the same
+  # clusterid.
+  cluster-id: 99
+
+  # Default PF_RING cluster type. PF_RING can load balance per flow or per hash.
+  # This is only supported in versions of PF_RING > 4.1.1.
+  cluster-type: cluster_round_robin
+
+# For FreeBSD ipfw(8) divert(4) support.
+# Please make sure you have ipfw_load="YES" and ipdivert_load="YES"
+# in /etc/loader.conf or kldload'ing the appropriate kernel modules.
+# Additionally, you need to have an ipfw rule for the engine to see
+# the packets from ipfw.  For Example:
+#
+#   ipfw add 100 divert 8000 ip from any to any
+#
+# The 8000 above should be the same number you passed on the command
+# line, i.e. -d 8000
+#
+ipfw:
+
+  # Reinject packets at the specified ipfw rule number.  This config
+  # option is the ipfw rule number AT WHICH rule processing continues
+  # in the ipfw processing system after the engine has finished
+  # inspecting the packet for acceptance.  If no rule number is specified,
+  # accepted packets are reinjected at the divert rule which they entered
+  # and IPFW rule processing continues.  No check is done to verify
+  # this will rule makes sense so care must be taken to avoid loops in ipfw.
+  #
+  ## The following example tells the engine to reinject packets
+  # back into the ipfw firewall AT rule number 5500:
+  #
+  # ipfw-reinjection-rule-number: 5500
+
+# Set the default rule path here to search for the files.
+# if not set, it will look at the current working dir
+default-rule-path: %%install_dir%%/conf/snort/
+rule-files:
+%%suricata_rules%%
+
+classification-file: %%install_dir%%/conf/snort/classification.config
+
+# Holds variables that would be used by the engine.
+vars:
+
+  # Holds the address group vars that would be passed in a Signature.
+  # These would be retrieved during the Signature address parsing stage.
+  address-groups:
+
+    HOME_NET: "[%%trapping-range%%]"
+
+    EXTERNAL_NET: any
+
+    HTTP_SERVERS: "$HOME_NET"
+
+    SMTP_SERVERS: "$HOME_NET"
+
+    SQL_SERVERS: "$HOME_NET"
+
+    DNS_SERVERS: "$HOME_NET"
+
+    TELNET_SERVERS: "$HOME_NET"
+
+    AIM_SERVERS: any
+
+  # Holds the port group vars that would be passed in a Signature.
+  # These would be retrieved during the Signature port parsing stage.
+  port-groups:
+
+    HTTP_PORTS: "80"
+
+    SHELLCODE_PORTS: "!80"
+
+    ORACLE_PORTS: 1521
+
+    SSH_PORTS: 22
+
+# Host specific policies for defragmentation and TCP stream
+# reassembly.  The host OS lookup is done using a radix tree, just
+# like a routing table so the most specific entry matches.
+host-os-policy:
+  # Make the default policy windows.
+  windows: [0.0.0.0/0]
+  bsd: []
+  bsd_right: []
+  old_linux: []
+  linux: [10.0.0.0/8, 192.168.1.100, "8762:2352:6241:7245:E000:0000:0000:0000"]
+  old_solaris: []
+  solaris: ["::1"]
+  hpux10: []
+  hpux11: []
+  irix: []
+  macos: []
+  vista: []
+  windows2k3: []
+
+###########################################################################
+# Configure libhtp.
+#
+#
+# default-config:  Used when no server-config matches
+#   personality:   List of personalities used by default
+#
+# server-config:   List of server configurations to use if address matches
+#   address:       List of ip addresses or networks for this block
+#   personalitiy:  List of personalities used by this block
+#
+# Currently Available Personalities:
+#   Minimal
+#   Generic
+#   IDS (default)
+#   IIS_4_0
+#   IIS_5_0
+#   IIS_5_1
+#   IIS_6_0
+#   IIS_7_0
+#   IIS_7_5
+#   Apache
+#   Apache_2_2
+###########################################################################
+libhtp:
+
+   default-config:
+     personality: IDS
+
+   server-config:
+
+     - apache:
+         address: [192.168.1.0/24, 127.0.0.0/8, "::1"]
+         personality: Apache_2_2
+
+     - iis7:
+         address:
+           - 192.168.0.0/24
+           - 192.168.10.0/24
+         personality: IIS_7_0
+
+# rule profiling settings. Only effective if Suricata has been built with the
+# the --enable-profiling configure flag.
+#
+profiling:
+
+  rules:
+
+    # Profiling can be disabled here, but it will still have a
+    # performance impact if compiled in.
+    enabled: yes
+
+    # Sort options: ticks, avgticks, checks, matches
+    sort: avgticks
+
+    # Limit the number of items printed at exit.
+    limit: 100
