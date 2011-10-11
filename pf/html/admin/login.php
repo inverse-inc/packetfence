@@ -328,7 +328,7 @@ else {
 <div id="content">
 
 <div id="login" align=center>
-  <form method="post" name="login" action="<? print "$_SERVER[PHP_SELF]?p=" . (array_key_exists('p', $_GET) ? $_GET['p'] :'');?>">
+  <form method="post" name="login" action="<? print "$_SERVER[PHP_SELF]?p=" . (array_key_exists('p', $_GET) ? htmlentities($_GET['p']) :'');?>">
   <table>
     <tbody>
     <tr>
