@@ -19,6 +19,7 @@ SECURITY
  * Cross-site scripting (XSS) in Web Admin login (Reported by Matthew Daley, #1292)
  * LDAP Authentication bypass in Web Admin login (Reported by Matthew Daley, #1293)
  * LDAP Injection in Web Admin login (Reported by Matthew Daley, #1293)
+ * Shared session state between Captive Portal and Web Admin (Reported by Matthew Daley, #1294)
 
 New Hardware Support
  * Trapeze Wireless Controllers

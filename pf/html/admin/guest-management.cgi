@@ -37,7 +37,7 @@ Log::Log4perl::MDC->put('tid', 0);
 
 my $cgi = new CGI;
 $cgi->charset("UTF-8");
-my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
+my $session = new CGI::Session(undef, $cgi, {Directory=>"$var_dir/session"});
 
 my $result;
 my $ip              = $cgi->remote_addr();
