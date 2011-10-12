@@ -17,6 +17,7 @@ Version <nextversion> released on <releasedate>
 
 SECURITY
  * Cross-site scripting (XSS) in Web Admin login (Reported by Matthew Daley, #1292)
+ * Authentication bypass in Web Admin login (Reported by Matthew Daley, #1293)
 
 New Hardware Support
  * Trapeze Wireless Controllers

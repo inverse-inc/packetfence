@@ -39,12 +39,13 @@ function check_input($input){
   }
 } 
 
-# rejecting NULLs because they end-up doing an anonymous LDAP bind
-function check_password($input){
-  if (isset($input)) {
+# rejecting NULLs or empty strings because they end-up doing an anonymous LDAP bind
+function legal_password($input){
+  global $logger;
+  if (isset($input) && !is_null($input) && !empty($input)) {
     return true;
   } else {
-    print "Invalid password<br>";
+    $logger->info("Empty passwords are explicitly rejected");
     return false;
   }
 }
@@ -252,10 +253,19 @@ else {
     }
   }
 
-  if (isset($_POST['username'], $_POST['password']) && check_input($_POST['username']) && check_password($_POST['password'])) {
+  if (isset($_POST['username'], $_POST['password']) && check_input($_POST['username'])) {
+
     $hash = validate_user($_POST['username'], $_POST['password']);
-    if(!$hash || !isset($_COOKIE['test'])){
+
+    # verifies if a password is considered 'legal'. This does not check the actual password!
+    if (!legal_password($_POST['password'])) {
       $failed = true;
+
+    # hash invalid or cookies invalid
+    } elseif (!$hash || !isset($_COOKIE['test'])) {
+      $failed = true;
+
+    # successful auth
     } else {
       $_SESSION['user'] = $_POST['username'];
       $_SESSION['group'] = get_group($_SESSION['user']);
