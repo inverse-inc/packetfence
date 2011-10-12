@@ -20,7 +20,7 @@
  * USA.
  * 
  * @author      Olivier Bilodeau <obilodeau@inverse.ca>
- * @copyright   2008-2010 Inverse inc.
+ * @copyright   2008-2011 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 require_once 'common/logging.inc';
@@ -29,13 +29,14 @@ function get_group($user) {
   return 'admin';
 }
 
-function check_input($input){
-  if(preg_match("/^[\@a-zA-Z0-9_\:\,\(\)]/", $input) && strlen($input) <= 15){
+# restricting usernames to avoid LDAP injection
+function legal_username($input){
+  global $logger;
+  if(preg_match("/^[\@a-zA-Z0-9_\:\,\(\)]+$/", $input) && strlen($input) <= 15){
     return true; 
-  }        
-  else{
-    print "Invalid parameter: ".htmlentities($input)."<br>";
-    return false;           
+  } else {
+    $logger->info("Illegal username provided: $input. Rejecting user.");
+    return false;
   }
 } 
 
@@ -253,12 +254,16 @@ else {
     }
   }
 
-  if (isset($_POST['username'], $_POST['password']) && check_input($_POST['username'])) {
+  if (isset($_POST['username'], $_POST['password'])) {
 
     $hash = validate_user($_POST['username'], $_POST['password']);
 
+    # verifies if a username is considered 'legal'
+    if (!legal_username($_POST['username'])) {
+      $failed = true;
+
     # verifies if a password is considered 'legal'. This does not check the actual password!
-    if (!legal_password($_POST['password'])) {
+    } elseif (!legal_password($_POST['password'])) {
       $failed = true;
 
     # hash invalid or cookies invalid
