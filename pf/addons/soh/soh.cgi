@@ -45,7 +45,7 @@ unless ($session && $session->get('user')) {
     exit;
 }
 
-my $csession = CGI::Session->new(undef, $q, {Directory => '/tmp'});
+my $csession = CGI::Session->new(undef, $q, {Directory => "$var_dir/session"});
 
 # Next, set up our logger, database handle, translation context, etc.
 
