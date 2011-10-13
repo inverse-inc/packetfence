@@ -10,9 +10,11 @@ use warnings;
 use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
+use HTML::Entities qw(decode_entities);
 use Log::Log4perl;
 use Readonly;
 use POSIX;
+use URI::Escape qw(uri_escape uri_unescape);
 
 use pf::class;
 use pf::config;
@@ -20,6 +22,7 @@ use pf::email_activation;
 use pf::sms_activation;
 use pf::iplog;
 use pf::node;
+use pf::person qw(person_modify);
 use pf::util;
 use pf::violation;
 use pf::web;
@@ -41,7 +44,8 @@ my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 
 my $result;
 my $ip              = $cgi->remote_addr();
-my $destination_url = $cgi->param("destination_url") || $Config{'trapping'}{'redirecturl'};
+my $destination_url = decode_entities(uri_unescape($cgi->param("destination_url"))) 
+    || $Config{'trapping'}{'redirecturl'};
 my $enable_menu     = $cgi->param("enable_menu");
 my $mac             = ip2mac($ip);
 my %params;
@@ -66,16 +70,15 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
       # User chose to register by email
       $logger->info("Registering guest by email");
 
-      # Adding person (using edit in case person already exists)
-      my $person_add_cmd = "$bin_dir/pfcmd 'person edit \""
-        . $session->param("login")."\" "
-        . "firstname=\"" . $session->param("firstname") . "\","
-        . "lastname=\"" . $session->param("lastname") . "\","
-        . "email=\"" . $session->param("email") . "\","
-        . "telephone=\"" . $session->param("phone") . "\","
-        . "notes=\"email activation\"'";
-      $logger->info("Registering guest person with command: $person_add_cmd");
-      pf_run("$person_add_cmd");
+      # Login successful, adding person (using modify in case person already exists)
+      person_modify($session->param("login"), (
+          'firstname' => $session->param("firstname"),
+          'lastname' => $session->param("lastname"),
+          'email' => $session->param("email"),
+          'telephone' => $session->param("phone"),
+          'notes' => 'email activation',
+      ));
+      $logger->info("Adding guest person " . $session->param("login"));
 
       # grab additional info about the node
       $info{'pid'} = $session->param("login");
@@ -106,7 +109,7 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
           $logger->info("registration url = $destination_url");
         }
         else {
-          print $cgi->redirect("/captive-portal?destination_url=$destination_url");
+          print $cgi->redirect("/captive-portal?destination_url=".uri_escape($destination_url));
           $logger->info("more violations yet to come for $mac");
         }
       }

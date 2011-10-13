@@ -467,7 +467,7 @@ if($sajax){
     if($this->rows[$item+1])
       $value=implode("\t", $this->rows[$item+1]);
 
-    print "<input type='hidden' name='original' value='$value'>";
+    print "<input type='hidden' name='original' value='". htmlentities($value, ENT_QUOTES) ."'>";
     print "<input type='hidden' name='commit' value='true'>";
     print "<td width='50'><div id='submit'><input type='submit' value='Submit'></div></td>\n";
     print "</form>";
@@ -560,8 +560,8 @@ if($sajax){
                print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page&amp;action=$action&amp;item=$item' method='post'>";
                print "  <input type='hidden' name='action' value='delete'>\n";
                print "  <input type='hidden' name='commit' value='true'>\n";
-               print "  <input type='hidden' name='original' value='".implode("\t", $this->rows[$i])."'>\n";
-               print "  <input class=\"button\" type='image' src='/images/delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete ".$this->rows[$i][$this->key]."?');\">\n";
+               print "  <input type='hidden' name='original' value='".htmlentities(implode("\t", $this->rows[$i]), ENT_QUOTES)."'>\n";
+               print "  <input class=\"button\" type='image' src='/images/delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete ".htmlentities($this->rows[$i][$this->key], ENT_QUOTES)."?');\">\n";
                print "  </form>";
              }
              print "</td>\n";
@@ -578,6 +578,9 @@ if($sajax){
 
            $a=-1;
            foreach($this->rows[$i] as $cell){
+             # XSS prevention
+             $cell = htmlentities($cell, ENT_QUOTES);
+
              $key=$this->headers[++$a];
 
              if($key == $this->key){

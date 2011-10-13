@@ -12,6 +12,12 @@ The pf::SNMP::HP::Controller_MSM710 module manages access to HP Procurve Control
 
 Should work on all HP Wireless E series
 
+Developed and tested on HP MSM 710 running firmware version 5.4.1.0
+
+=head1 BUGS AND LIMITATIONS
+
+Firmware version 5.5.2.14 and 5.5.3 are known to have problematic deauthentication.
+
 =cut
 
 use strict;
