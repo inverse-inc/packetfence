@@ -576,7 +576,7 @@ snort_binary=/usr/sbin/snort
 # services.suricata
 # 
 # Location of the suricata binary.
-suricata_binary=/usr/local/bin/suricata
+suricata_binary=/usr/bin/suricata
 #
 # services.httpd_binary
 #
