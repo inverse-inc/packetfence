@@ -107,6 +107,7 @@ sub generate_selfregistration_page {
     $vars->{'lastname'} = encode_entities($cgi->param("lastname"));
     $vars->{'phone'} = encode_entities($cgi->param("phone"));
     $vars->{'email'} = encode_entities($cgi->param("email"));
+    $vars->{'mobileprovider'} = $cgi->param("mobileprovider");
 
     $vars->{'sms_carriers'} = sms_carrier_view_all();
     $logger->info('generate_selfregistration_page');
