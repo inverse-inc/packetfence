@@ -67,9 +67,9 @@ sub generate_suricata_conf {
 
         #append install_dir if the path doesn't start with /
         $rule = " - $rule" if ( $rule !~ /^\// );
-        push @rules, "include $rule";
+        push @rules, " - $rule";
     }
-    $tags{'snort_rules'} = join( "\n", @rules );
+    $tags{'suricata_rules'} = join( "\n", @rules );
     $logger->info("generating $conf_dir/suricata.yaml");
     parse_template( \%tags, "$conf_dir/suricata.yaml",
         "$generated_conf_dir/suricata.yaml" );

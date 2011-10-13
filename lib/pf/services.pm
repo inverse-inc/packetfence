@@ -90,8 +90,8 @@ if ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int && $Config{'t
         "-N -D -l $install_dir/var --pid-path $install_dir/var/run";
 } elsif ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int && $Config{'trapping'}{'detection_engine'} eq 'suricata' ) {
     $service_launchers{'suricata'} =
-        "%1\$s -c $install_dir/var/conf/suricata.yaml -i $monitor_int" . 
-        "-l $install_dir/var --pidfile $install_dir/var/run";
+        "%1\$s -D -c $install_dir/var/conf/suricata.yaml -i $monitor_int" . 
+        "-l $install_dir/var --pidfile $install_dir/var/run/suricata.pid";
 }
 =back
 
