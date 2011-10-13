@@ -20,6 +20,7 @@ use POSIX;
 use pf::config;
 use pf::iplog;
 use pf::node;
+use pf::person qw(person_modify);
 use pf::util;
 use pf::violation;
 use pf::web;
@@ -100,16 +101,15 @@ if ($cgi->param("pin")) { # && $session->param("authType")) {
       return(0);
     }
 
-    # Adding person (using edit in case person already exists)
-    my $person_add_cmd = "$bin_dir/pfcmd 'person edit \""
-      . $session->param("login")."\" "
-      . "firstname=\"" . $session->param("final_user_first_name") . "\","
-      . "lastname=\"" . $session->param("final_user_name") . "\","
-      . "email=\"" . $session->param("final_user_email") . "\","
-      . "telephone=\"" . $session->param("phone") . "\","
-      . "notes=\"sms confirmation\"'";
-    $logger->info("Registering guest person with command: $person_add_cmd");
-    pf_run("$person_add_cmd");
+    # Login successful, adding person (using modify in case person already exists)
+    $logger->info("Adding guest person $pid");
+    person_modify($pid, (
+        'firstname' => $session->param("firstname"),
+        'lastname' => $session->param("lastname"),
+        'email' => $session->param("email"),
+        'telephone' => $session->param("phone"),
+        'notes' => 'sms confirmation',
+    ));
 
     # Setting access timeout
     my @unregdate = localtime( time + normalize_time($pf::web::guest::DEFAULT_REGISTRATION_DURATION) );

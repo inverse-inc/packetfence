@@ -20,6 +20,7 @@ use pf::email_activation;
 use pf::sms_activation;
 use pf::iplog;
 use pf::node;
+use pf::person qw(person_modify);
 use pf::util;
 use pf::violation;
 use pf::web;
@@ -66,16 +67,15 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
       # User chose to register by email
       $logger->info("Registering guest by email");
 
-      # Adding person (using edit in case person already exists)
-      my $person_add_cmd = "$bin_dir/pfcmd 'person edit \""
-        . $session->param("login")."\" "
-        . "firstname=\"" . $session->param("firstname") . "\","
-        . "lastname=\"" . $session->param("lastname") . "\","
-        . "email=\"" . $session->param("email") . "\","
-        . "telephone=\"" . $session->param("phone") . "\","
-        . "notes=\"email activation\"'";
-      $logger->info("Registering guest person with command: $person_add_cmd");
-      pf_run("$person_add_cmd");
+      # Login successful, adding person (using modify in case person already exists)
+      person_modify($session->param("login"), (
+          'firstname' => $session->param("firstname"),
+          'lastname' => $session->param("lastname"),
+          'email' => $session->param("email"),
+          'telephone' => $session->param("phone"),
+          'notes' => 'email activation',
+      ));
+      $logger->info("Adding guest person " . $session->param("login"));
 
       # grab additional info about the node
       $info{'pid'} = $session->param("login");

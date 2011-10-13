@@ -577,18 +577,16 @@ sub preregister {
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
-    # Login successful, adding person (using edit in case person already exists)
-    my $person_add_cmd = "$bin_dir/pfcmd 'person edit \""
-        . $session->param("email")."\" "
-        . "firstname=\"" . $session->param("firstname") . "\","
-        . "lastname=\"" . $session->param("lastname") . "\","
-        . "email=\"" . $session->param("email") . "\","
-        . "telephone=\"" . $session->param("phone") . "\","
-        . "notes=\"".sprintf(i18n("Expected on %s"), $session->param("arrival_date")) . "\","
-        . "sponsor=\"".$session->param("login")."\"'"
-    ;
-    $logger->info("Adding guest person with command: $person_add_cmd");
-    pf_run("$person_add_cmd");
+    # Login successful, adding person (using modify in case person already exists)
+    person_modify($session->param("email"), (
+        'firstname' => $session->param("firstname"),
+        'lastname' => $session->param("lastname"),
+        'email' => $session->param("email"),
+        'telephone' => $session->param("phone"),
+        'notes' => sprintf(i18n("Expected on %s"), $session->param("arrival_date")),
+        'sponsor' => $session->param("login")
+    ));
+    $logger->info("Adding guest person " . $session->param("email"));
 
     # expiration is arrival date + access duration + a tolerance window of 24 hrs
     my $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", 

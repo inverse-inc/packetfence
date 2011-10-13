@@ -20,6 +20,7 @@ SECURITY
  * LDAP Authentication bypass in Web Admin login (Reported by Matthew Daley, #1293)
  * LDAP Injection in Web Admin login (Reported by Matthew Daley, #1293)
  * Shared session state between Captive Portal and Web Admin (Reported by Matthew Daley, #1294)
+ * Command injection in guest handling in the Captive Portal and Web Admin (Reported by Matthew Daley, #1295)
 
 New Hardware Support
  * Trapeze Wireless Controllers
@@ -33,6 +34,7 @@ Enchancements
 
 Bug Fixes
  * Allow incoming DNS on management interface to track users IPs in production VLANs
+ * Guest access by SMS confirmation now properly record user's firstname and lastname (#1308)
  * Cisco access point (AP) configuration mistake in documentation
  * Dashboard not printing the SQL stats when MySQL is not local (#1289)
  * Doubled allow subnets in captive-portal-common (#1242)
