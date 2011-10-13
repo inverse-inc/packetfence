@@ -14,8 +14,10 @@ use warnings;
 use CGI::Carp qw( fatalsToBrowser );
 use CGI;
 use CGI::Session;
+use HTML::Entities qw(decode_entities);
 use Log::Log4perl;
 use POSIX;
+use URI::Escape qw(uri_escape uri_unescape);
 
 use pf::config;
 use pf::iplog;
@@ -40,8 +42,7 @@ my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 
 my $ip              = $cgi->remote_addr;
 my $mac             = ip2mac($ip);
-my $destination_url = $cgi->param("destination_url");
-
+my $destination_url = decode_entities(uri_unescape($cgi->param("destination_url")));
 $destination_url = $Config{'trapping'}{'redirecturl'} if (!$destination_url);
 
 if (!valid_mac($mac)) {
@@ -128,7 +129,7 @@ if ($cgi->param("pin")) { # && $session->param("authType")) {
       $logger->info("registration url = $destination_url");
 
     } else {
-      print $cgi->redirect("/captive-portal?destination_url=$destination_url");
+      print $cgi->redirect('/captive-portal?destination_url=' . uri_escape($destination_url));
       $logger->info("more violations yet to come for $mac");
     }
 } elsif (defined($cgi->param("action")) && $cgi->param("action") eq 'Confirm') {

@@ -10,9 +10,11 @@ use warnings;
 use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
+use HTML::Entities qw(decode_entities);
 use Log::Log4perl;
 use Readonly;
 use POSIX;
+use URI::Escape qw(uri_escape uri_unescape);
 
 use pf::class;
 use pf::config;
@@ -42,7 +44,8 @@ my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 
 my $result;
 my $ip              = $cgi->remote_addr();
-my $destination_url = $cgi->param("destination_url") || $Config{'trapping'}{'redirecturl'};
+my $destination_url = decode_entities(uri_unescape($cgi->param("destination_url"))) 
+    || $Config{'trapping'}{'redirecturl'};
 my $enable_menu     = $cgi->param("enable_menu");
 my $mac             = ip2mac($ip);
 my %params;
@@ -106,7 +109,7 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
           $logger->info("registration url = $destination_url");
         }
         else {
-          print $cgi->redirect("/captive-portal?destination_url=$destination_url");
+          print $cgi->redirect("/captive-portal?destination_url=".uri_escape($destination_url));
           $logger->info("more violations yet to come for $mac");
         }
       }

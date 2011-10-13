@@ -12,7 +12,9 @@ use warnings;
 use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
+use HTML::Entities qw(decode_entities);
 use Log::Log4perl;
+use URI::Escape qw(uri_escape uri_unescape);
 
 use pf::class;
 use pf::config;
@@ -37,7 +39,7 @@ my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 
 my $result;
 my $ip              = pf::web::get_client_ip($cgi);
-my $destination_url = $cgi->param("destination_url") || $Config{'trapping'}{'redirecturl'};
+my $destination_url = decode_entities(uri_unescape($cgi->param("destination_url"))) || $Config{'trapping'}{'redirecturl'};
 my $enable_menu     = $cgi->param("enable_menu");
 my $mac             = ip2mac($ip);
 my %tags;
@@ -115,7 +117,7 @@ if (defined($node_info) && $node_info->{'status'} eq $pf::node::STATUS_PENDING) 
   if ($cgi->https()) {
     print $cgi->redirect(
         "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-        ."/captive-portal?destination_url=$destination_url"
+        .'/captive-portal?destination_url=' . uri_escape($destination_url)
     );
   } else {
     pf::web::generate_pending_page($cgi, $session, $destination_url, $mac);

@@ -62,7 +62,7 @@ function networkAccessCallback(destination_url, redirect_url) {
     }
 
     // Chrome 10 / Safari 5 / IE9 (sometimes) flawless
-    top.location.replace(destination_url);
+    top.location.replace(destination_url.unescapeHTML());
 }
 
 /**
@@ -71,7 +71,7 @@ function networkAccessCallback(destination_url, redirect_url) {
  Simple wrapper to redirect the browser. The wrapper enables us to call the redirect with .delay().
  */
 function performRedirect(destination_url) {
-    top.location.replace(destination_url);
+    top.location.replace(destination_url.unescapeHTML());
 }
 
 /**

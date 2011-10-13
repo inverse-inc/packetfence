@@ -41,7 +41,6 @@ my $session = new CGI::Session(undef, $cgi, {Directory=>"$var_dir/session"});
 
 my $result;
 my $ip              = $cgi->remote_addr();
-my $destination_url = $cgi->param("destination_url");
 my $enable_menu     = $cgi->param("enable_menu");
 my $mac             = ip2mac($ip);
 my %params;

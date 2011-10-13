@@ -94,7 +94,7 @@ sub generate_selfregistration_page {
         logo            => $Config{'general'}{'logo'},
         i18n            => \&i18n,
         deadline        => $Config{'registration'}{'skip_deadline'},
-        destination_url => $destination_url,
+        destination_url => encode_entities($destination_url),
         list_help_info  => [
             { name => i18n('IP'),  value => $ip },
             { name => i18n('MAC'), value => $mac }
@@ -491,7 +491,7 @@ sub generate_login_page {
     my $vars = {
         logo            => $Config{'general'}{'logo'},
         deadline        => $Config{'registration'}{'skip_deadline'},
-        destination_url => $destination_url,
+        destination_url => encode_entities($destination_url),
         i18n            => \&i18n,
         list_help_info  => [
             { name => i18n('IP'),  value => $ip },
@@ -800,7 +800,7 @@ sub generate_sms_confirmation_page {
     my $vars = {
         logo            => $Config{'general'}{'logo'},
         i18n            => \&i18n,
-        destination_url => $destination_url,
+        destination_url => encode_entities($destination_url),
         post_uri        => $post_uri,
         list_help_info  => [
             { name => i18n('IP'),  value => $ip },

@@ -125,6 +125,7 @@ Requires: perl(Try::Tiny)
 Requires: perl(Crypt::GeneratePassword)
 Requires: perl(MIME::Lite::TT)
 Requires: perl(Cache::Cache), perl(HTML::Parser)
+Requires: perl(URI::Escape)
 # Used by Captive Portal authentication modules
 Requires: perl(Apache::Htpasswd)
 Requires: perl(Authen::Radius)
