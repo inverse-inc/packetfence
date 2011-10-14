@@ -32,8 +32,8 @@
           <div class="input">
             <span>[% i18n("Phone Provider") %]</span>
             <select name="mobileprovider">
-              <option value='' selected>[% i18n("Select your provider") %]</option>
-                  [% FOREACH carrier IN sms_carriers %]<option value='[% carrier.id %]'>[% carrier.name %]</option>
+              <option value=''>[% i18n("Select your provider") %]</option>
+                  [% FOREACH carrier IN sms_carriers %]<option value='[% carrier.id %]'[% IF mobileprovider == carrier.id %] selected[% END %]>[% carrier.name %]</option>
                   [% END %]
               </select>
           </div>
