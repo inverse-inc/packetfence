@@ -24,7 +24,7 @@ start() {
 		echo
 		return 0
 	fi
-	daemon ${prog} -d -p /var/log/snort/alert
+	daemon ${prog} -d -p /var/log/snort-compat/alert
 	RETVAL=$?
 	echo
 	return $RETVAL

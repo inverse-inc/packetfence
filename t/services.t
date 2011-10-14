@@ -14,7 +14,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 21;
+use Test::More tests => 23;
 use Log::Log4perl;
 use File::Basename qw(basename);
 use lib '/usr/local/pf/lib';
@@ -29,6 +29,8 @@ BEGIN { use_ok('pf::services::apache') }
 BEGIN { use_ok('pf::services::dhcpd') }
 BEGIN { use_ok('pf::services::named') }
 BEGIN { use_ok('pf::services::snmptrapd') }
+BEGIN { use_ok('pf::services::snort') }
+BEGIN { use_ok('pf::services::suricata') }
 
 use pf::config;
 

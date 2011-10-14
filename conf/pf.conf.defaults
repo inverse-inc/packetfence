@@ -573,7 +573,7 @@ radiusd=enabled
 # Location of the snort binary. Only necessary to change if you are not running the RPMed version. 
 snort_binary=/usr/sbin/snort
 #
-# services.suricata
+# services.suricata_binary
 # 
 # Location of the suricata binary.
 suricata_binary=/usr/bin/suricata

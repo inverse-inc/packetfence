@@ -231,12 +231,12 @@ sub freeradius {
 }
 
 
-=item ids_snort
+=item ids
 
-Validation related to the Snort IDS usage 
+Validation related to the Snort/Suricata IDS usage 
 
 =cut
-sub ids_snort {
+sub ids {
 
     # make sure a monitor device is present if snort is enabled
     if ( !$monitor_int ) {
@@ -247,15 +247,17 @@ sub ids_snort {
     }
 
     # make sure named pipe 'alert' is present if snort is enabled
-    my $snortpipe = "$install_dir/var/alert";
-    if ( !-p $snortpipe ) {
+    my $alertpipe = "$install_dir/var/alert";
+    if ( !-p $alertpipe ) {
         if ( !POSIX::mkfifo( $snortpipe, oct(666) ) ) {
-            add_problem( $FATAL, "snort alert pipe ($snortpipe) does not exist and unable to create it" );
+            add_problem( $FATAL, "IDS alert pipe ($alertpipe) does not exist and unable to create it" );
         }
     }
 
-    if ( !-x $Config{'services'}{'snort_binary'} ) {
+    if ( $Config{'trapping'}{'detection_engine'} eq "snort" && !-x $Config{'services'}{'snort_binary'} ) {
         add_problem( $FATAL, "snort binary is not executable / does not exist!" );
+    } elsif ( $Config{'trapping'}{'detection_engine'} eq "suricata" && !-x $Config{'services'}{'suricata_binary'} ) {
+        add_problem( $FATAL, "suricata binary is not executable / does not exist!" );
     }
 
 }
@@ -971,6 +973,7 @@ sub unsupported {
 }
 
 =item ids
+
 IDS Checkup
 
 =cut
