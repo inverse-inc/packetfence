@@ -155,7 +155,7 @@ sub interfaces {
         add_problem( $FATAL, "internal network(s) not defined!" );
     }
     if ( scalar(get_managed_devs()) != 1 ) {
-        add_problem( $FATAL, "please define exactly one management interace" );
+        add_problem( $FATAL, "please define exactly one management interface" );
     }
 
     my %seen;
