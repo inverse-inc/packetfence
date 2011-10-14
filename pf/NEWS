@@ -36,6 +36,7 @@ Enchancements
 Bug Fixes
  * Allow incoming DNS on management interface to track users IPs in production VLANs
  * Guest access by SMS confirmation now properly record user's firstname and lastname (#1308)
+ * Signup page now retain Phone provider value if there was a mistake in the form (#1309)
  * Cisco access point (AP) configuration mistake in documentation
  * Dashboard not printing the SQL stats when MySQL is not local (#1289)
  * Doubled allow subnets in captive-portal-common (#1242)
