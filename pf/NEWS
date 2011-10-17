@@ -31,6 +31,7 @@ Enchancements
  * Improved validation when creating/importing multiple guest accounts.
  * Configuration files ownership validation on start-up and in `pfcmd checkup`
  * Several new DHCP fingerprints (from our spinoff www.fingerbank.org)
+ * Minor usability improvements
 
 Bug Fixes
  * Allow incoming DNS on management interface to track users IPs in production VLANs
