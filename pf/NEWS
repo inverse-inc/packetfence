@@ -16,12 +16,11 @@ For a list of compatibility related changes see the UPGRADE file.
 Version <nextversion> released on <releasedate>
 
 SECURITY
- * Cross-site scripting (XSS) in Web Admin login (Reported by Matthew Daley, #1292)
- * LDAP Authentication bypass in Web Admin login (Reported by Matthew Daley, #1293)
- * LDAP Injection in Web Admin login (Reported by Matthew Daley, #1293)
- * Shared session state between Captive Portal and Web Admin (Reported by Matthew Daley, #1294)
- * Command injection in guest handling in the Captive Portal and Web Admin (Reported by Matthew Daley, #1295)
- * Cross-site scripting (XSS) in Captive Portal (Reported by Matthew Daley, #1296)
+ * Cross-site scripting (XSS) in Captive Portal and Web Admin login. CVE-2011-4067 (Reported by Matthew Daley, #1292 and #1296)
+ * LDAP Authentication bypass in Web Admin login. CVE-2011-4068 (Reported by Matthew Daley, #1293)
+ * LDAP Injection in Web Admin login. CVE-2011-4069 (Reported by Matthew Daley, #1293)
+ * Shared session state between Captive Portal and Web Admin. CVE-2011-4070 (Reported by Matthew Daley, #1294)
+ * Command injection in guest handling in the Captive Portal and Web Admin. CVE-2011-4071 (Reported by Matthew Daley, #1295)
 
 New Hardware Support
  * Trapeze Wireless Controllers
