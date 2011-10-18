@@ -94,7 +94,8 @@ Requires: perl-List-MoreUtils
 Requires: perl(Locale::gettext)
 Requires: perl-Log-Log4perl >= 1.11
 # Required by switch modules
-# Net::Appliance::Session specific version added because newer versions broke API compatibility
+# Net::Appliance::Session specific version added because newer versions broke API compatibility (#1312)
+# We would need to port to the new 3.x API (tracked by #1313)
 Requires: perl-Net-Appliance-Session = 1.36
 # Required by configurator script
 Requires: perl(Net::Interface)
