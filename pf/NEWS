@@ -44,6 +44,7 @@ Bug Fixes
  * Nodes are not unregistered on unregdate unless an expire mode is activated (#1298)
  * Add trigger or cascade to delete node_useragent when deleting a node (#1285)
  * Removed an error when validating multiple guest pre-registration
+ * Pinned Net-Appliance-Session version requirement in RPM Spec (#1312)
 
 --------------------------------------------------------------------------------
 Version 3.0.1 released on 2011-09-23
