@@ -29,6 +29,7 @@ Enchancements
  * Wireless deauthentication in bridge mode for DLink DWS, HP MSM and Motorola controllers
  * Better French Translation
  * Improved validation when creating/importing multiple guest accounts.
+ * Captive portal's email confirmation page is now reachable from the management interface by default
  * Configuration files ownership validation on start-up and in `pfcmd checkup`
  * Several new DHCP fingerprints (from our spinoff www.fingerbank.org)
  * Minor usability improvements
