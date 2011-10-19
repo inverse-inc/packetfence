@@ -24,23 +24,23 @@ var initialTabName = "single";
             <form method="post" action="[% post_uri %]" enctype="multipart/form-data">
             <div class="input">
               <span>[% i18n("Firstname") %]</span>
-              <input class="field first" name="firstname" type="text" value="[% firstname %]" />
+              <input class="field first" name="firstname" type="text" value="[% firstname | html %]" />
             </div>
             <div class="input">
               <span>[% i18n("Lastname") %]</span>
-              <input class="field" name="lastname" type="text" value="[% lastname %]" />
+              <input class="field" name="lastname" type="text" value="[% lastname | html %]" />
             </div>
             <div class="input">
               <span>[% i18n("Phone number") %]</span>
-              <input class="field" name="phone" type="text" value="[% phone %]" />
+              <input class="field" name="phone" type="text" value="[% phone | html %]" />
             </div>
             <div class="input">
               <span>[% i18n("Email") %]*</span>
-              <input class="field" name="email" type="text" value="[% email %]" />
+              <input class="field" name="email" type="text" value="[% email | html %]" />
             </div>
             <div class="input">
               <span>[% i18n("Arrival Date") %]*</span>
-              <input class="field" name="arrival_date" type="text" value="[% arrival_date %]" /><br/>
+              <input class="field" name="arrival_date" type="text" value="[% arrival_date | html %]" /><br/>
               <em>[% i18n("Format is: yyyy-mm-dd") %]</em>
             </div>
             <div class="input">
@@ -64,15 +64,15 @@ var initialTabName = "single";
             <form method="post" action="[% post_uri %]" enctype="multipart/form-data">
             <div class="input">
               <span>[% i18n("Username Prefix") %]*</span>
-              <input class="field first" name="prefix" type="text" value="[% prefix %]" />
+              <input class="field first" name="prefix" type="text" value="[% prefix | html %]" />
             </div>
             <div class="input">
               <span>[% i18n("Quantity") %]*</span>
-              <input class="field" name="quantity" type="text" value="[% quantity %]" />
+              <input class="field" name="quantity" type="text" value="[% quantity | html %]" />
             </div>
             <div class="input">
               <span>[% i18n("Arrival Date") %]*</span>
-              <input class="field" name="arrival_date" type="text" value="[% arrival_date %]" /><br/>
+              <input class="field" name="arrival_date" type="text" value="[% arrival_date | html %]" /><br/>
               <em>[% i18n("Format is: yyyy-mm-dd") %]</em>
             </div>
             <div class="input">

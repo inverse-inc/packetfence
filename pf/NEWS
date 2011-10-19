@@ -27,6 +27,7 @@ New Hardware Support
 
 Enchancements
  * Wireless deauthentication in bridge mode for DLink DWS, HP MSM and Motorola controllers
+ * Authentication modules now hold authentication error strings and can set node attributes on authentication
  * Better French Translation
  * Improved validation when creating/importing multiple guest accounts.
  * Captive portal's email confirmation page is now reachable from the management interface by default
@@ -35,6 +36,7 @@ Enchancements
  * Minor usability improvements
 
 Bug Fixes
+ * Pre-registered guest unregdate not set (#1301)
  * Allow incoming DNS on management interface to track users IPs in production VLANs
  * Guest access by SMS confirmation now properly record user's firstname and lastname (#1308)
  * Signup page now retain Phone provider value if there was a mistake in the form (#1309)
@@ -45,6 +47,9 @@ Bug Fixes
  * Nodes are not unregistered on unregdate unless an expire mode is activated (#1298)
  * Add trigger or cascade to delete node_useragent when deleting a node (#1285)
  * Removed an error when validating multiple guest pre-registration
+ * No admin username output when printing guest access codes
+ * Guest access code are now sorted when using batch creation
+ * Reduced documentation.conf startup annoyance when using custom authentication modules
  * Pinned Net-Appliance-Session version requirement in RPM Spec (#1312)
 
 --------------------------------------------------------------------------------

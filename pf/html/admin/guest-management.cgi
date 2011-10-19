@@ -27,6 +27,10 @@ use pf::web::guest 1.10;
 # called last to allow redefinitions
 use pf::web::custom;
 
+# for guest_managers authentication module
+use lib "/usr/local/pf/conf";
+use authentication::guest_managers;
+
 # constants
 Readonly::Scalar my $GUEST_REGISTRATION => "guest-register";
 
@@ -54,13 +58,13 @@ foreach my $param($cgi->param()) {
 }
 
 # Is user already logged in?
-if (defined($session->param("login"))) {
+if (defined($session->param("username"))) {
 
     if (defined($cgi->param("action")) && $cgi->param("action") eq "logout") {
         # Logout button
 
         $session->delete();
-        pf::web::guest::generate_activation_login_page($cgi, $session, 0, "guest/mgmt_login.html");
+        pf::web::guest::generate_custom_login_page($cgi, $session, undef, "guest/mgmt_login.html");
 
     }
     elsif (defined($cgi->param("action_print")) || defined($cgi->param("action_sendEmail"))) {
@@ -166,15 +170,28 @@ if (defined($session->param("login"))) {
     }
 }
 else {
-    # User is not logged, show authentication form
-    my ($auth_return,$err) = pf::web::guest::auth($cgi, $session, "guest_managers");
+    # User is not logged and didn't provide username or password: show login form
+    if (!($cgi->param("username") && $cgi->param("password"))) {
+        pf::web::guest::generate_custom_login_page($cgi, $session, undef, "guest/mgmt_login.html");
+        exit(0);
+    }
+
+    # User provided username and password: authenticate
+    my ($auth_return, $authenticator) = pf::web::web_user_authenticate($cgi, $session, "guest_managers");
     if ($auth_return != 1) {
-        $logger->debug("authentication required");
-        pf::web::guest::generate_activation_login_page($cgi, $session, $err, "guest/mgmt_login.html");
+        $logger->info("authentication failed for user ".$cgi->param("username"));
+        my $error;
+        if (!defined($authenticator)) {
+            $error = 'Unable to validate credentials at the moment';
+        } else {
+            $error = $authenticator->getLastError();
+        }
+        pf::web::guest::generate_custom_login_page($cgi, $session, $error, "guest/mgmt_login.html");
+        exit(0);
     }
-    else {
-        pf::web::guest::generate_registration_page( $cgi, $session, "/guests/manage" );
-    }
+
+    # auth succeeded: redirect to guest registration page
+    pf::web::guest::generate_registration_page( $cgi, $session, "/guests/manage" );
 }
 
 =head1 AUTHOR

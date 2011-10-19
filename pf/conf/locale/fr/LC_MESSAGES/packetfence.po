@@ -44,7 +44,11 @@ msgstr "Acc&egrave;s refus&eacute; : vous n'&ecirc;tes pas le propri&eacute;tair
 msgid "error: incorrect mode"
 msgstr "Mode incorrect !"
 
+# deprecated but kept for a couple of versions (until at least early 2013)
 msgid "error: invalid login or password"
+msgstr "Nom d'utilisateur ou mot de passe invalide"
+
+msgid "Invalid login or password"
 msgstr "Nom d'utilisateur ou mot de passe invalide"
 
 msgid "error: invalid page number"
@@ -62,7 +66,11 @@ msgstr "Acc&egrave;s refus&eacute; : IP ne peut pas &ecirc;tre isol&eacute; !"
 msgid "error: only register max nodes"
 msgstr "Vous pouvez seulement enregistrer un maximum de %s noeuds !"
 
+# deprecated but kept for a couple of versions (until at least early 2013)
 msgid "error: unable to validate credentials at the moment"
+msgstr "Impossible de valider votre login et mot de passe en ce moment"
+
+msgid "Unable to validate credentials at the moment"
 msgstr "Impossible de valider votre login et mot de passe en ce moment"
 
 msgid "help: provide info"
@@ -477,3 +485,9 @@ msgstr "Votre code d'activation n'est plus valide."
 
 msgid "Your network access is currently being enabled. Once network connectivity is established you will be automatically redirected."
 msgstr "Votre accès réseau est présentement en activation.  Une fois la connectivité réseau établie, vous serez automatiquement redirigé."
+
+msgid "This account is expired."
+msgstr "Cet compte est expiré."
+
+msgid "This account is not yet activated."
+msgstr "Cet compte n'est pas encore activé."
