@@ -33,7 +33,6 @@ use MIME::Lite::TT;
 use Net::LDAP;
 use POSIX;
 use Template;
-use Try::Tiny;
 
 BEGIN {
     use Exporter ();
@@ -53,7 +52,7 @@ use pf::web::auth;
 use pf::web::util;
 use pf::sms_activation;
 
-our $VERSION = 1.10;
+our $VERSION = 1.20;
 
 our $LOGIN_TEMPLATE = "login.html";
 our $SELF_REGISTRATION_TEMPLATE = "guest.html";
@@ -103,10 +102,11 @@ sub generate_selfregistration_page {
     };
 
     # put seperately because of side effects in anonymous hashref
-    $vars->{'firstname'} = encode_entities($cgi->param("firstname"));
-    $vars->{'lastname'} = encode_entities($cgi->param("lastname"));
-    $vars->{'phone'} = encode_entities($cgi->param("phone"));
-    $vars->{'email'} = encode_entities($cgi->param("email"));
+    $vars->{'firstname'} = $cgi->param("firstname");
+    $vars->{'lastname'} = $cgi->param("lastname");
+    $vars->{'phone'} = $cgi->param("phone");
+    $vars->{'email'} = $cgi->param("email");
+    $vars->{'mobileprovider'} = $cgi->param("mobileprovider");
 
     $vars->{'sms_carriers'} = sms_carrier_view_all();
     $logger->info('generate_selfregistration_page');
@@ -125,20 +125,6 @@ sub generate_selfregistration_page {
         }
     }
 
-    # TODO: make localizable
-    # generate list of locales
-    #my $authorized_locale_txt = $Config{'general'}{'locale'};
-    #my @authorized_locale_array = split(/,/, $authorized_locale_txt);
-    #if ( scalar(@authorized_locale_array) == 1 ) {
-    #    push @{ $vars->{list_locales} },
-    #        { name => 'locale', value => $authorized_locale_array[0] };
-    #} else {
-    #    foreach my $authorized_locale (@authorized_locale_array) {
-    #        push @{ $vars->{list_locales} },
-    #            { name => 'locale', value => $authorized_locale };
-    #    }
-    #}
-
     my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
     $template->process($pf::web::guest::SELF_REGISTRATION_TEMPLATE, $vars);
     exit;
@@ -146,8 +132,7 @@ sub generate_selfregistration_page {
 
 =item generate_registration_page
 
-Sub to present a guest registration form. 
-This is not hooked-up by default
+Sub to present a guest registration form where we create the guest accounts.
 
 =cut
 sub generate_registration_page {
@@ -167,12 +152,11 @@ sub generate_registration_page {
     };
 
     # put seperately because of side effects in anonymous hashref
-    $vars->{'firstname'} = encode_entities($cgi->param("firstname"));
-    $vars->{'lastname'} = encode_entities($cgi->param("lastname"));
-    $vars->{'phone'} = encode_entities($cgi->param("phone"));
-    $vars->{'email'} = encode_entities($cgi->param("email"));
+    $vars->{'firstname'} = $cgi->param("firstname");
+    $vars->{'lastname'} = $cgi->param("lastname");
+    $vars->{'phone'} = $cgi->param("phone");
+    $vars->{'email'} = $cgi->param("email");
     $vars->{'arrival_date'} = $cgi->param("arrival_date") || POSIX::strftime("%Y-%m-%d", localtime(time));
-        #encode_entities($cgi->param("arrival_date")) || POSIX::strftime("%Y-%m-%d", localtime(time));
 
     # access duration
     $vars->{'default_duration'} = $cgi->param("access_duration") || normalize_time($pf::web::guest::DEFAULT_REGISTRATION_DURATION);
@@ -189,7 +173,7 @@ sub generate_registration_page {
     $vars->{'delimiter'} = $cgi->param("delimiter");
     $vars->{'columns'} = $cgi->param("columns"); 
 
-    $vars->{'login'} = $session->param("login") || "unknown";
+    $vars->{'username'} = $session->param("username") || "unknown";
 
     # showing errors
     if ( defined($err) ) {
@@ -213,20 +197,6 @@ sub generate_registration_page {
     }
 
     $vars->{'section'} = $section if ($section);
-
-    # TODO: make localizable
-    # generate list of locales
-    #my $authorized_locale_txt = $Config{'general'}{'locale'};
-    #my @authorized_locale_array = split(/,/, $authorized_locale_txt);
-    #if ( scalar(@authorized_locale_array) == 1 ) {
-    #    push @{ $vars->{list_locales} },
-    #        { name => 'locale', value => $authorized_locale_array[0] };
-    #} else {
-    #    foreach my $authorized_locale (@authorized_locale_array) {
-    #        push @{ $vars->{list_locales} },
-    #            { name => 'locale', value => $authorized_locale };
-    #    }
-    #}
 
     my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], });
     $template->process($pf::web::guest::REGISTRATION_TEMPLATE, $vars) || $logger->error($template->error());
@@ -439,13 +409,12 @@ sub generate_activation_confirmation_page {
     exit;
 }
 
-=item generate_activation_login_page
+=item generate_custom_login_page
 
-Sub to present the a login form before activation. 
-This is not hooked-up by default.
+Sub to present a login form. Template is provided as a parameter.
 
 =cut
-sub generate_activation_login_page {
+sub generate_custom_login_page {
     my ( $cgi, $session, $err, $html_template ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
     setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
@@ -459,111 +428,14 @@ sub generate_activation_login_page {
         i18n => \&i18n
     };
 
-    # showing errors
-    if ( defined($err) ) {
-        if ( $err == 1 ) {
-            $vars->{'txt_auth_error'} = i18n('error: invalid login or password');
-        } elsif ( $err == 2 ) {
-            $vars->{'txt_auth_error'} = i18n('error: unable to validate credentials at the moment');
-        }
-    }
+    $vars->{'txt_auth_error'} = i18n($err) if (defined($err));
+
+    # return login
+    $vars->{'username'} = encode_entities($cgi->param("username"));
 
     my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
     $template->process($html_template, $vars);
     exit;
-}
-
-=item generate_login_page  
-
-Generates a guest login page.
-This is not hooked-up by default.
-
-=cut
-sub generate_login_page {
-    my ( $cgi, $session, $post_uri, $destination_url, $mac, $err ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web::guest');
-    setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    textdomain("packetfence");
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-    my $ip   = $cgi->remote_addr;
-    my $vars = {
-        logo            => $Config{'general'}{'logo'},
-        deadline        => $Config{'registration'}{'skip_deadline'},
-        destination_url => encode_entities($destination_url),
-        i18n            => \&i18n,
-        list_help_info  => [
-            { name => i18n('IP'),  value => $ip },
-            { name => i18n('MAC'), value => $mac }
-        ],
-        post_uri => $post_uri
-    };
-
-    $vars->{list_authentications} = pf::web::auth::list_enabled_auth_types();
-
-    # showing errors
-    if ( defined($err) ) {
-        if ( $err == 1 ) {
-            $vars->{'txt_auth_error'} = i18n('error: invalid login or password');
-        } elsif ( $err == 2 ) {
-            $vars->{'txt_auth_error'} = i18n('error: unable to validate credentials at the moment');
-        }
-    }
-
-    # TODO: make localizable
-    # generate list of locales
-    #my $authorized_locale_txt = $Config{'general'}{'locale'};
-    #my @authorized_locale_array = split(/,/, $authorized_locale_txt);
-    #if ( scalar(@authorized_locale_array) == 1 ) {
-    #    push @{ $vars->{list_locales} },
-    #        { name => 'locale', value => $authorized_locale_array[0] };
-    #} else {
-    #    foreach my $authorized_locale (@authorized_locale_array) {
-    #        push @{ $vars->{list_locales} },
-    #            { name => 'locale', value => $authorized_locale };
-    #    }
-    #}
-
-    my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
-    $template->process($pf::web::guest::LOGIN_TEMPLATE, $vars);
-    exit;
-}
-
-=item auth 
-
-Sub to authenticate guests.
-This is not hooked-up by default.
-
-=cut
-sub auth {
-
-    # return ( 1, 0, module specific parameters ) for successful authentication
-    # return (0,2) for inability to check credentials
-    # return (0,1) for wrong login/password
-    # return (0,0) for first attempt
-
-    my ( $cgi, $session, $auth_module ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web::guest');
-    if ( $cgi->param("login") && $cgi->param("password") ) {
-
-        my ($authenticator, $authReturn, $err, $params);
-        try {
-            $authenticator = pf::web::auth::get_instance($auth_module);
-            # validate login and password
-            ($authReturn, $err, $params) = $authenticator->authenticate($cgi->param("login"), $cgi->param("password"));
-        } catch {
-            $logger->error("Authentication module authentication::$auth_module failed. $_");
-        };
-        if (!defined($authReturn)) {
-            return ( 0, 2 );
-        } elsif( $authReturn == 1 ) {
-            #save login into session
-            $session->param( "login", $cgi->param("login") );
-        }
-        return ( $authReturn, $err, $params );
-    }
-    return ( 0, 0 );
 }
 
 =item preregister
@@ -584,7 +456,7 @@ sub preregister {
         'email' => $session->param("email"),
         'telephone' => $session->param("phone"),
         'notes' => sprintf(i18n("Expected on %s"), $session->param("arrival_date")),
-        'sponsor' => $session->param("login")
+        'sponsor' => $session->param("username")
     ));
     $logger->info("Adding guest person " . $session->param("email"));
 
@@ -632,7 +504,7 @@ sub preregister_multiple {
       my $notes = sprintf(i18n("Expected on %s"), $session->param("arrival_date"))
         . ". " . i18n("Multiple guest accounts creation") . " $prefix" . "[1-$quantity]";
       my $result = person_modify($pid, ('notes' => $notes,
-                                        'sponsor' => $session->param("login")));
+                                        'sponsor' => $session->param("username")));
       if ($result) {
         # Create/update password
         my $password = pf::temporary_password::generate($pid,
@@ -645,7 +517,7 @@ sub preregister_multiple {
         }
       }
     }
-    $logger->info("Created $count guest accounts: $prefix"."[1-$quantity]. Sponsor by ".$session->param("login"));
+    $logger->info("Created $count guest accounts: $prefix"."[1-$quantity]. Sponsor by ".$session->param("username"));
 
     # failure, redirect to error page
     if ($count == 0) {
@@ -658,13 +530,6 @@ sub preregister_multiple {
             'duration' => pf::web::guest::valid_access_duration($session->param("access_duration")),
             'users' => \%users};
 }
-
-=item self_preregister
-
-=cut
-# TODO
-#sub self_preregister {
-#}
 
 =item generate_registration_confirmation_page
 
@@ -689,6 +554,9 @@ sub generate_registration_confirmation_page {
         i18n("This username and password will be valid starting %s."),
         $info->{'valid_from'}
     );
+
+    # admin username
+    $vars->{'username'} = $session->param("username"); 
 
     my ($singular, $plural, $value) = get_translatable_time($info->{'duration'});
     $vars->{'txt_duration'} = sprintf(
@@ -886,7 +754,7 @@ sub import_csv {
                   'email'     => $index{'c_email'}     ? $fields[$index{'c_email'}]     : undef,
                   'telephone' => $index{'c_phone'}     ? $fields[$index{'c_phone'}]     : undef,
                   'notes'     => $index{'c_note'}      ? $fields[$index{'c_note'}]      : undef,
-                  'sponsor'   => $session->param("login"));
+                  'sponsor'   => $session->param("username"));
       if ($data{'email'} && $data{'email'} !~ /^[A-z0-9_.-]+@[A-z0-9_-]+(\.[A-z0-9_-]+)*\.[A-z]{2,6}$/) {
         $skipped++;
         next;

@@ -187,7 +187,7 @@ Readonly our $NO_VOIP => 'no';
 Readonly::Scalar our $RADIUS_API_LEVEL => 1.01;
 Readonly::Scalar our $VLAN_API_LEVEL => 1.01;
 Readonly::Scalar our $INLINE_API_LEVEL => 1.00;
-Readonly::Scalar our $AUTHENTICATION_API_LEVEL => 1.00;
+Readonly::Scalar our $AUTHENTICATION_API_LEVEL => 1.10;
 
 # to shut up strict warnings
 $ENV{PATH} = '/sbin:/bin:/usr/bin:/usr/sbin';

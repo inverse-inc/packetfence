@@ -24,6 +24,15 @@
 
     <revhistory>
       <revision>
+        <revnumber>2.6</revnumber>
+        <date>2011-10-19</date>
+        <authorinitials>OBU</authorinitials>
+        <revremark>
+          New documentation section points to POD doc. New Authentication modules section.
+          Minor references that were out of date.
+        </revremark>
+      </revision>
+      <revision>
         <revnumber>2.5</revnumber>
         <date>2011-09-21</date>
         <authorinitials>OBU</authorinitials>
@@ -122,6 +131,19 @@
     <para>
       <ulink url="http://www.packetfence.org/download/guides.html">
       http://www.packetfence.org/download/guides.html</ulink>.
+    </para>
+  </chapter>
+
+  <chapter>
+    <title>Documentation</title>
+
+    <para>
+      The in-depth or more technical documentation is always as close to the code as possible.
+      Always look at the POD doc<footnote><para>Perl's Plain Old Documentation: 
+        <ulink url="http://perldoc.perl.org/perlpod.html">http://perldoc.perl.org/perlpod.html</ulink>
+      </para></footnote>
+      . To do so, the prefered way is using the <command>perldoc</command> command as follows:
+      <screen>perldoc conf/authentication/ldap.pm</screen>
     </para>
   </chapter>
 
@@ -225,7 +247,7 @@
         <orderedlist>
           <listitem>
             <para>URL is compared against the redirection instructions in 
-            <filename>/usr/local/pf/conf/httpd.conf</filename></para>
+            <filename>/usr/local/pf/conf/httpd.conf.d/captive-portal-cleanurls.conf</filename></para>
           </listitem>
           <listitem>
             <para>Requested CGI script in <filename>/usr/local/pf/html/captive-portal/</filename> is executed</para>
@@ -242,6 +264,35 @@
       </sect2>
 
       <sect2>
+        <title>Authentication modules</title>
+
+        <para>
+          Default authentication modules are provided in <filename>conf/authentication/</filename>.
+          These modules are meant to be modified by users.
+          A version check in made in <command>pfcmd checkup</command> to verify API compatibility of modified modules. 
+          Since the 3.0 releases these modules are objects and they have a couple of useful methods to override.
+          Check the <classname>pf::web::auth</classname> POD documentation for the details 
+          and the list of all object methods. 
+          Below is the list of, arguably, the most interesting:
+        <itemizedlist>
+          <listitem><function>getNodeAttributes</function></listitem>
+          <listitem><function>authenticate</function></listitem>
+        </itemizedlist>
+          Here's an example of a <function>getNodeAttributes</function> that will automatically categorize nodes of a 
+          given authentication type and set an <varname>unregdate</varname> to tomorrow at midnight:
+        <programlisting language="perl"><![CDATA[sub getNodeAttributes {
+    my ($this) = @_;
+
+    return (
+        unregdate => POSIX::strftime( "%Y-%m-%d 00:00:00", localtime(time + 24*60*60) ),
+        category => 'consultants', 
+    );
+}
+]]></programlisting>
+        </para>
+      </sect2>
+
+      <sect2>
         <title>Remediation Pages</title>
         <para>
           The remediation page shown to the user during isolation are specified through the URL parameter of the given
@@ -250,7 +301,7 @@
           <filename>/usr/local/pf/html/captive-portal/violations/</filename> and obeys the
           everything mentionned in the <link linkend='presentation' endterm="presentation.title"/> section.
           The only caveat being that the template (<filename>remediation.html</filename>) is not Template Toolkit 
-          but pure perl.
+          but pure php.
         </para>
       </sect2>
 
@@ -272,8 +323,8 @@
             <listitem>
               <para>Rest of the captive portal</para>
               <para>
-                <classname>pf::web</classname> takes care of performing the translation and gives pre-translated 
-                strings to the templates.
+                In the templates, if a string is in a <function>i18n()</function> call it will be translated.
+                Also <classname>pf::web</classname> takes care of performing some of the other translations.
               </para>
             </listitem>
           </itemizedlist>

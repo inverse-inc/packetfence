@@ -12,6 +12,33 @@ o Upgrading from a version prior to 3.0.2:
     a node. Make sure you run:
     mysql -u root -p pf -v < db/upgrade-3.0.1-3.0.2.sql
 
+    - Changes to Guest API
+     - generate_activation_login_page is now generate_custom_login_page
+     - pf::web::guest::auth has been replaced by pf::web::web_user_authenticate
+     - pf::web::generate_login_page has been dropped. Use 
+       generate_custom_login_page instead.
+
+    - Changes to captive portal Web API
+    Authentication objects are now created on every authentication attempt and
+    they can return connection specific state to the captive portal. For 
+    example a more specific authentication error or additional attributes to be
+    recorded inside PacketFence. 
+     - pf::web::web_user_authenticate no longer performs form validation. 
+       validate_form is the one responsible now. Also it returns an instance
+       of the auth::* object after authentication. Users with custom code using
+       it will need to update their code.
+     - pf::web::validate_form is a new method to validate login forms
+
+    - Changes to authentication modules API
+     - $name is now a package global (declared with our) instead of a local 
+       variable.
+     - authenticate returns only a true or false value. Errors meant for users 
+       should be set with $this->_setLastError("string") in authenticate() sub.
+     - Some modules will require the import of pf::config. Add to the use 
+       section on top: use pf::config qw($FALSE $TRUE);
+    Once the migration done, bump $VERSION to 1.10. You will *not* have to do 
+    this if you made no customization to the conf/authentication/... files.
+
     - Default Firewall Rules Updated
     Review the updated firewall rules (in .rpmnew) if you made changes and
     make sure to integrate changes if you need them. New rules include:

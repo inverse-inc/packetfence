@@ -20,26 +20,30 @@ Version <trunk-release> released on <releaseDate>
 Version <nextversion> released on <releasedate>
 
 SECURITY
- * Cross-site scripting (XSS) in Web Admin login (Reported by Matthew Daley, #1292)
- * LDAP Authentication bypass in Web Admin login (Reported by Matthew Daley, #1293)
- * LDAP Injection in Web Admin login (Reported by Matthew Daley, #1293)
- * Shared session state between Captive Portal and Web Admin (Reported by Matthew Daley, #1294)
- * Command injection in guest handling in the Captive Portal and Web Admin (Reported by Matthew Daley, #1295)
- * Cross-site scripting (XSS) in Captive Portal (Reported by Matthew Daley, #1296)
+ * Cross-site scripting (XSS) in Captive Portal and Web Admin login. CVE-2011-4067 (Reported by Matthew Daley, #1292 and #1296)
+ * LDAP Authentication bypass in Web Admin login. CVE-2011-4068 (Reported by Matthew Daley, #1293)
+ * LDAP Injection in Web Admin login. CVE-2011-4069 (Reported by Matthew Daley, #1293)
+ * Shared session state between Captive Portal and Web Admin. CVE-2011-4070 (Reported by Matthew Daley, #1294)
+ * Command injection in guest handling in the Captive Portal and Web Admin. CVE-2011-4071 (Reported by Matthew Daley, #1295)
 
 New Hardware Support
  * Trapeze Wireless Controllers
 
 Enchancements
  * Wireless deauthentication in bridge mode for DLink DWS, HP MSM and Motorola controllers
+ * Authentication modules now hold authentication error strings and can set node attributes on authentication
  * Better French Translation
  * Improved validation when creating/importing multiple guest accounts.
+ * Captive portal's email confirmation page is now reachable from the management interface by default
  * Configuration files ownership validation on start-up and in `pfcmd checkup`
  * Several new DHCP fingerprints (from our spinoff www.fingerbank.org)
+ * Minor usability improvements
 
 Bug Fixes
+ * Pre-registered guest unregdate not set (#1301)
  * Allow incoming DNS on management interface to track users IPs in production VLANs
  * Guest access by SMS confirmation now properly record user's firstname and lastname (#1308)
+ * Signup page now retain Phone provider value if there was a mistake in the form (#1309)
  * Cisco access point (AP) configuration mistake in documentation
  * Dashboard not printing the SQL stats when MySQL is not local (#1289)
  * Doubled allow subnets in captive-portal-common (#1242)
@@ -47,6 +51,10 @@ Bug Fixes
  * Nodes are not unregistered on unregdate unless an expire mode is activated (#1298)
  * Add trigger or cascade to delete node_useragent when deleting a node (#1285)
  * Removed an error when validating multiple guest pre-registration
+ * No admin username output when printing guest access codes
+ * Guest access code are now sorted when using batch creation
+ * Reduced documentation.conf startup annoyance when using custom authentication modules
+ * Pinned Net-Appliance-Session version requirement in RPM Spec (#1312)
 
 --------------------------------------------------------------------------------
 Version 3.0.1 released on 2011-09-23

@@ -27,6 +27,7 @@ div.input div.note {
   padding-top: 10px;
 }
 div.input.submit,
+div#footer,
 img {
   display: none;
 }

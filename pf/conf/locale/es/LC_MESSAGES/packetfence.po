@@ -43,8 +43,12 @@ msgstr "Acceso denegado: No es el propietario de este nodo!"
 msgid "error: incorrect mode"
 msgstr "Modo incorrecto!"
 
+# deprecated but kept for a couple of versions (until at least early 2013)
 msgid "error: invalid login or password"
 msgstr "Inicio de sesión o contraseña inválidos  "
+
+msgid "Invalid login or password"
+msgstr "Inicio de sesión o contraseña inválidos"
 
 msgid "error: invalid page number"
 msgstr " Número de página inválida"
@@ -61,7 +65,11 @@ msgstr "Acceso denegado: No es una IP interceptable"
 msgid "error: only register max nodes"
 msgstr "Solo debe registrar un máximo de %s nodos!"
 
+# deprecated but kept for a couple of versions (until at least early 2013)
 msgid "error: unable to validate credentials at the moment"
+msgstr "Incapaz de validar las credenciales en este momento"
+
+msgid "Unable to validate credentials at the moment"
 msgstr "Incapaz de validar las credenciales en este momento"
 
 msgid "error: something went wrong creating the guest"

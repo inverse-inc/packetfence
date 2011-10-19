@@ -43,8 +43,12 @@ msgstr "Access denied: you are not the owner of this node!"
 msgid  "error: incorrect mode"
 msgstr "Incorrect mode!"
 
-msgid  "error: invalid login or password"
+# deprecated but kept for a couple of versions (until at least early 2013)
+msgid "error: invalid login or password"
 msgstr "Invalid login or password"
+
+msgid "Invalid login or password"
+msgstr ""
 
 msgid  "error: invalid page number"
 msgstr "Invalid page number"
@@ -61,8 +65,12 @@ msgstr "Access denied: not a trappable IP!"
 msgid  "error: only register max nodes"
 msgstr "You may only register a maximum of %s nodes!"
 
+# deprecated but kept for a couple of versions (until at least early 2013)
 msgid  "error: unable to validate credentials at the moment"
 msgstr "Unable to validate credentials at the moment"
+
+msgid "Unable to validate credentials at the moment"
+msgstr ""
 
 msgid "error: something went wrong creating the guest"
 msgstr "There was a problem creating the guest account."
@@ -535,4 +543,10 @@ msgid  "Your system has been found to be infected with a Zotob worm and is scann
 msgstr ""
 
 msgid  "Your network access is currently being enabled. Once network connectivity is established you will be automatically redirected."
+msgstr ""
+
+msgid "This account is expired."
+msgstr ""
+
+msgid "This account is not yet activated."
 msgstr ""

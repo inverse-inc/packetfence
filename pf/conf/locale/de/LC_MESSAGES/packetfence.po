@@ -43,7 +43,11 @@ msgstr "Zugriff verweigert: Sie sind nicht Besitzer von diesem Gerät!"
 msgid  "error: incorrect mode"
 msgstr "Falscher Modus!"
 
+# deprecated but kept for a couple of versions (until at least early 2013)
 msgid  "error: invalid login or password"
+msgstr "Ungültiger Benutzername oder Passwort"
+
+msgid  "Invalid login or password"
 msgstr "Ungültiger Benutzername oder Passwort"
 
 msgid  "error: invalid page number"
@@ -61,7 +65,11 @@ msgstr "Zugriff Verweigert: Keine erfassbare IP-Adresse!"
 msgid  "error: only register max nodes"
 msgstr "Sie dürfen nur maximal %s Geräte registrieren!"
 
+# deprecated but kept for a couple of versions (until at least early 2013)
 msgid  "error: unable to validate credentials at the moment"
+msgstr "Die Anmeldeinformationen können im Moment nicht überprüft werden"
+
+msgid "Unable to validate credentials at the moment"
 msgstr "Die Anmeldeinformationen können im Moment nicht überprüft werden"
 
 msgid  "help: provide info"
