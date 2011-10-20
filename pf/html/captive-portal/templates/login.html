@@ -56,7 +56,10 @@
 
           [%# submit %]
           <div class="input">
-            <input type="submit" class="button" name="submit" value="[% i18n("Login") %]" /> [% i18n("or") %] <a href="/signup">[% i18n("Sign up") %]</a>
+            <input type="submit" class="button" name="submit" value="[% i18n("Login") %]" /> 
+            [% IF guest_allowed %]
+              [% i18n("or") %] <a href="/signup">[% i18n("Sign up") %]</a>
+            [% END %]
           </div>
         </form>
 

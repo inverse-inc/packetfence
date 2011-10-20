@@ -54,6 +54,8 @@
 
           [%# submit %]
           <div class="input">
+
+            [% IF email_guest_allowed %]
             <div class="note bg">
               <p>[% i18n("If you choose to receive your access code <strong>by email</strong>, you will be given temporary network access for 10 minutes during that time:") %]</p>
               <ul>
@@ -62,10 +64,14 @@
             </ul>
             </div>
             <input type="submit" class="button" name="by_email" value="[% i18n("Register by Email") %]" /><br/>
+            [% END %]
+
+            [% IF sms_guest_allowed %]
             <div class="note bg">
               <p>[% i18n("If you choose to receive your access code <strong>by SMS</strong>, you will be able to enter it on the next page.") %]</p>
             </div>
               <input type="submit" class="button" name="by_sms" value="[% i18n("Register by SMS") %]" />
+            [% END %]
           </div>
 
         </form>

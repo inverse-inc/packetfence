@@ -236,6 +236,14 @@ nbregpages=0
 
 [guests]
 #
+# guests.self_registration_modes
+# 
+# Self-registration is the signup button where a guest can register by
+# email or SMS. sms or email modes are available and both can be enabled
+# at the same time. To disable guest self-registration entirely don't
+# select any option.
+self_registration_modes=sms,email
+#
 # guests.self_allow_localdomain
 #
 # Accept self-registration with email address from the local domain
