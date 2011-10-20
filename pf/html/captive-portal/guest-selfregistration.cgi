@@ -26,7 +26,7 @@ use pf::person qw(person_modify);
 use pf::util;
 use pf::violation;
 use pf::web;
-use pf::web::guest 1.10;
+use pf::web::guest 1.20;
 # called last to allow redefinitions
 use pf::web::custom;
 
@@ -59,6 +59,10 @@ foreach my $param($cgi->param()) {
   $params{$param} = $cgi->param($param);
 }
 
+# if no self registered modes are enabled, redirect to portal entrance
+print $cgi->redirect("/captive-portal?destination_url=".uri_escape($destination_url))
+    if (!$Config{'guests'}{'self_registration_modes'});
+
 # Correct POST
 if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
 
@@ -66,7 +70,7 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
     my ($auth_return, $err) = pf::web::guest::validate_selfregistration($cgi, $session);
 
     # Registration form was properly filled
-    if ($auth_return && defined($params{'by_email'})) {
+    if ($auth_return && defined($params{'by_email'}) && defined($guest_self_registration{$SELFREG_MODE_EMAIL})) {
       # User chose to register by email
       $logger->info("Registering guest by email");
 
@@ -82,6 +86,8 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
 
       # grab additional info about the node
       $info{'pid'} = $session->param("login");
+      # TODO migrate into pf.conf parameter: both unregdate (email_activation_timeout) and category
+      # TODO document that email act timeout can't be too short unless maintenance interval is lowered
       $info{'category'} = "guest";
 
       # unreg in 10 minutes
@@ -114,7 +120,7 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
         }
       }
     }
-    elsif ($auth_return && defined($params{'by_sms'})) {
+    elsif ( $auth_return && defined($params{'by_sms'}) && defined($guest_self_registration{$SELFREG_MODE_EMAIL}) ) {
       # User chose to register by SMS
       $logger->info("Registering guest by SMS " . $session->param("phone") . " @ " . $cgi->param("mobileprovider"));
       if ($session->param("phone") && $cgi->param("mobileprovider")) {

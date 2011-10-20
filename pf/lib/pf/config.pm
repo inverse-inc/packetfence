@@ -36,6 +36,7 @@ our (
     @listen_ints, @dhcplistener_ints, @ha_ints, $monitor_int,
     @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets, @management_nets, @external_nets,
     @inline_enforcement_nets, @vlan_enforcement_nets,
+    %guest_self_registration,
     $default_config_file, %Default_Config, 
     $config_file, %Config, 
     $network_config_file, %ConfigNetworks,
@@ -57,6 +58,7 @@ BEGIN {
         @listen_ints @dhcplistener_ints @ha_ints $monitor_int 
         @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets @management_nets @external_nets
         @inline_enforcement_nets @vlan_enforcement_nets
+        %guest_self_registration
         $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
         $default_config_file %Default_Config
         $config_file %Config
@@ -72,9 +74,11 @@ BEGIN {
         $VOIP $NO_VOIP $NO_PORT $NO_VLAN
         %connection_type %connection_type_to_str %connection_type_explained
         $RADIUS_API_LEVEL $VLAN_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL
+        $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS
         %CAPTIVE_PORTAL
         normalize_time
         is_vlan_enforcement_enabled is_inline_enforcement_enabled
+        is_in_list
         $LOG4PERL_RELOAD_TIMER
     );
 }
@@ -200,6 +204,10 @@ Readonly::Scalar our $IPTABLES_MARK_ISOLATION => "2";
 
 Readonly::Scalar our $NO_PORT => 0;
 Readonly::Scalar our $NO_VLAN => 0;
+
+# Guest related
+Readonly our $SELFREG_MODE_EMAIL => 'email';
+Readonly our $SELFREG_MODE_SMS => 'sms';
 
 # this is broken NIC on Dave's desk - it better be unique!
 $blackholemac = "00:60:8c:83:d7:34";
@@ -346,6 +354,19 @@ sub readPfConfigFiles {
             }
         }
     }
+
+    # GUEST RELATED
+
+    # explode self-registration modes for easier and cached boolean tests
+    $guest_self_registration{'sms'} = $TRUE if is_in_list(
+        $SELFREG_MODE_SMS,
+        $Config{'guests'}{'self_registration_modes'}
+    );
+
+    $guest_self_registration{'email'} = $TRUE if is_in_list(
+        $SELFREG_MODE_EMAIL,
+        $Config{'guests'}{'self_registration_modes'}
+    );
 }
 
 =item readNetworkConfigFiles - networks.conf
@@ -586,6 +607,20 @@ sub is_network_type_inline {
     } else {
         return $FALSE;
     }
+}
+
+=item is_in_list
+
+Searches for an item in a comma separated list of elements (like we do in our configuration files).
+
+Returns true or false values based on if item was found or not.
+
+=cut
+sub is_in_list {
+    my ($item, $list) = @_;
+    my @list = split( /\s*,\s*/, $list );
+    return $TRUE if ( scalar grep({ $_ eq $item } @list) );
+    return $FALSE;
 }
 
 =back

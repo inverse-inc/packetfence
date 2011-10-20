@@ -77,7 +77,7 @@ Warning: The list of subroutine is incomplete
 
 =item generate_selfregistration_page
 
-Sub to present to a guest so that it can self-register (guest.html), this is not hooked-up by default
+Sub to present to a guest so that it can self-register (guest.html).
 
 =cut
 sub generate_selfregistration_page {
@@ -110,6 +110,9 @@ sub generate_selfregistration_page {
 
     $vars->{'sms_carriers'} = sms_carrier_view_all();
     $logger->info('generate_selfregistration_page');
+
+    $vars->{'sms_guest_allowed'} = defined($guest_self_registration{$SELFREG_MODE_SMS});
+    $vars->{'email_guest_allowed'} = defined($guest_self_registration{$SELFREG_MODE_EMAIL});
 
     # showing errors
     if ( defined($err) ) {

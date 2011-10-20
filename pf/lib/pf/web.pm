@@ -190,6 +190,9 @@ sub generate_login_page {
             { name => i18n('MAC'), value => $mac }
         ],
     };
+
+    # if self_registration_modes is anything else than blank it will be true in a boolean context. this is what we want
+    $vars->{'guest_allowed'} = $Config{'guests'}{'self_registration_modes'};
     $vars->{'txt_auth_error'} = i18n($err) if (defined($err)); 
 
     # return login
