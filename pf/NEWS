@@ -28,7 +28,6 @@ New Hardware Support
 Enchancements
  * Wireless deauthentication in bridge mode for DLink DWS, HP MSM and Motorola controllers
  * Authentication modules now hold authentication error strings and can set node attributes on authentication
- * Better French Translation
  * Improved validation when creating/importing multiple guest accounts.
  * Captive portal's email confirmation page is now reachable from the management interface by default
  * Configuration files ownership validation on start-up and in `pfcmd checkup`
@@ -51,6 +50,9 @@ Bug Fixes
  * Guest access code are now sorted when using batch creation
  * Reduced documentation.conf startup annoyance when using custom authentication modules
  * Pinned Net-Appliance-Session version requirement in RPM Spec (#1312)
+
+Translations
+ * Updated French (fr) translation
 
 --------------------------------------------------------------------------------
 Version 3.0.1 released on 2011-09-23
