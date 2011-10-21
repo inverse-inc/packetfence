@@ -26,6 +26,7 @@ my @clean_URLs = qw(
     captive-portal
     enabler
     release
+    signup
     status
 );
 

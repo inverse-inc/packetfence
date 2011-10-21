@@ -34,6 +34,7 @@ Enchancements
  * Configuration files ownership validation on start-up and in `pfcmd checkup`
  * Several new DHCP fingerprints (from our spinoff www.fingerbank.org)
  * Minor usability improvements
+ * Reduced some false warnings in the logs on node de-registration (#1315)
 
 Bug Fixes
  * Pre-registered guest unregdate not set (#1301)
