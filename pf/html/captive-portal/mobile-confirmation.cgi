@@ -112,10 +112,10 @@ if ($cgi->param("pin")) { # && $session->param("authType")) {
         'notes' => 'sms confirmation',
     ));
 
-    # Setting access timeout
-    my @unregdate = localtime( time + normalize_time($pf::web::guest::DEFAULT_REGISTRATION_DURATION) );
-    $info{'unregdate'} = POSIX::strftime( "%Y-%m-%d %H:%M:%S", @unregdate );
-    $info{'category'} = 'guest';
+    # Setting access timeout and category from config
+    my $access_duration = $Config{'guests_self_registration'}{'access_duration'};
+    $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $access_duration));
+    $info{'category'} = $Config{'guests_self_registration'}{'category'};
 
     pf::web::web_node_register($cgi, $session, $mac, $pid, %info);
     # clear state that redirects to the Enter PIN page

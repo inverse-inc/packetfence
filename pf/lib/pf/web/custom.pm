@@ -79,10 +79,10 @@ To set the particular session variable use the following:
 #package pf::web::guest;
 # and also to redefine in pf::web::guest::... not pf::web::...
 
-# Example: change default access duration for guests
+# Example: add a CC to the guest access code email sent to guests
 #package pf::web::guest;
 #
-#$pf::web::guest::DEFAULT_REGISTRATION_DURATION = "1d";
+#$pf::web::guest::EMAIL_CC = "helpdesk@initech.com";
 
 # end of no warnings 'redefine' block
 }

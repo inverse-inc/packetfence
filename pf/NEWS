@@ -28,7 +28,7 @@ New Hardware Support
 Enchancements
  * Wireless deauthentication in bridge mode for DLink DWS, HP MSM and Motorola controllers
  * Authentication modules now hold authentication error strings and can set node attributes on authentication
- * New configuration parameter to control guest signup
+ * Several new configuration parameters to control guest signup, categorization and access durations
  * Improved validation when creating/importing multiple guest accounts.
  * Captive portal's email confirmation page is now reachable from the management interface by default
  * Configuration files ownership validation on start-up and in `pfcmd checkup`

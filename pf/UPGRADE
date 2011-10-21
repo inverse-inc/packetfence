@@ -12,6 +12,10 @@ o Upgrading from a version prior to 3.0.2:
     a node. Make sure you run:
     mysql -u root -p pf -v < db/upgrade-3.0.1-3.0.2.sql
 
+    - pf.conf configuration changes
+    guests.self_allow_localdomain has been renamed 
+    guests_self_registration.allow_localdomain
+
     - Changes to Guest API
      - generate_activation_login_page is now generate_custom_login_page
      - pf::web::guest::auth has been replaced by pf::web::web_user_authenticate

@@ -281,6 +281,8 @@ sub readPfConfigFiles {
         "registration.expire_window", "registration.expire_session",
         "general.maintenance_interval", "scan.duration",
         "vlan.bounce_duration",   
+        "guests_self_registration.email_activation_timeout", "guests_self_registration.access_duration",
+        "guests_pre_registration.default_access_duration",
     ) {
         my ( $group, $item ) = split( /\./, $val );
         $Config{$group}{$item} = normalize_time( $Config{$group}{$item} );
@@ -360,12 +362,12 @@ sub readPfConfigFiles {
     # explode self-registration modes for easier and cached boolean tests
     $guest_self_registration{'sms'} = $TRUE if is_in_list(
         $SELFREG_MODE_SMS,
-        $Config{'guests'}{'self_registration_modes'}
+        $Config{'guests_self_registration'}{'modes'}
     );
 
     $guest_self_registration{'email'} = $TRUE if is_in_list(
         $SELFREG_MODE_EMAIL,
-        $Config{'guests'}{'self_registration_modes'}
+        $Config{'guests_self_registration'}{'modes'}
     );
 }
 

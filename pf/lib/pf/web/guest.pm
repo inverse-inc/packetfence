@@ -59,9 +59,6 @@ our $SELF_REGISTRATION_TEMPLATE = "guest.html";
 
 our $REGISTRATION_TEMPLATE = "guest/register_guest.html";
 our $REGISTRATION_CONFIRMATION_TEMPLATE = "guest/registration_confirmation.html";
-our $DEFAULT_REGISTRATION_DURATION = "12h";
-our @REGISTRATION_DURATIONS = ( "1h", "3h", "12h", "1d", "2d", "3d", "5d" );
-our $REGISTRATION_CATEGORY = "guest";
 our $REGISTRATION_CONTINUE = 10;
 
 our $EMAIL_FROM = undef;
@@ -162,9 +159,12 @@ sub generate_registration_page {
     $vars->{'arrival_date'} = $cgi->param("arrival_date") || POSIX::strftime("%Y-%m-%d", localtime(time));
 
     # access duration
-    $vars->{'default_duration'} = $cgi->param("access_duration") || normalize_time($pf::web::guest::DEFAULT_REGISTRATION_DURATION);
+    $vars->{'default_duration'} = $cgi->param("access_duration")
+        || $Config{'guests_pre_registration'}{'default_access_duration'};
+
     $vars->{'duration'} = pf::web::util::get_translated_time_hash(
-        \@pf::web::guest::REGISTRATION_DURATIONS, pf::web::web_get_locale($cgi, $session)
+        [ split (/\s*,\s*/, $Config{'guests_pre_registration'}{'access_duration_choices'}) ], 
+        pf::web::web_get_locale($cgi, $session)
     );
 
     # multiple section
@@ -214,7 +214,7 @@ We are doing this because we can't trust what comes from the client.
 =cut
 sub valid_access_duration {
     my ($value) = @_;
-    foreach my $allowed_duration (@REGISTRATION_DURATIONS) {
+    foreach my $allowed_duration (split (/\s*,\s*/, $Config{'guests_pre_registration'}{'access_duration_choices'})) {
         return $allowed_duration if ($value == normalize_time($allowed_duration));
     }
     return $FALSE;
@@ -254,7 +254,7 @@ sub validate_selfregistration {
 
         if ($valid_email && $valid_name && $cgi->param("phone") ne '' && length($cgi->param("aup_signed"))) {
 
-          unless (isenabled($Config{'guests'}{'self_allow_localdomain'})) {
+          unless (isenabled($Config{'guests_self_registration'}{'allow_localdomain'})) {
             # You should not register as a guest if you are part of the local network
             my $localdomain = $Config{'general'}{'domain'};
             if ($cgi->param('email') =~ /[@.]$localdomain$/i) {

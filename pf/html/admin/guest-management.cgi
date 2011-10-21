@@ -23,7 +23,7 @@ use pf::node;
 use pf::util;
 use pf::violation;
 use pf::web;
-use pf::web::guest 1.10;
+use pf::web::guest 1.20;
 # called last to allow redefinitions
 use pf::web::custom;
 

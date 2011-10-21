@@ -61,7 +61,7 @@ foreach my $param($cgi->param()) {
 
 # if no self registered modes are enabled, redirect to portal entrance
 print $cgi->redirect("/captive-portal?destination_url=".uri_escape($destination_url))
-    if (!$Config{'guests'}{'self_registration_modes'});
+    if (!$Config{'guests_self_registration'}{'modes'});
 
 # Correct POST
 if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
@@ -86,12 +86,11 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
 
       # grab additional info about the node
       $info{'pid'} = $session->param("login");
-      # TODO migrate into pf.conf parameter: both unregdate (email_activation_timeout) and category
-      # TODO document that email act timeout can't be too short unless maintenance interval is lowered
-      $info{'category'} = "guest";
+      $info{'category'} = $Config{'guests_self_registration'}{'category'};
 
-      # unreg in 10 minutes
-      $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + 10*60 ));
+      # unreg in guests.email_activation_timeout seconds
+      my $timeout = $Config{'guests_self_registration'}{'email_activation_timeout'};
+      $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + $timeout ));
 
       # register the node
       pf::web::web_node_register($cgi, $session, $mac, $info{'pid'}, %info);

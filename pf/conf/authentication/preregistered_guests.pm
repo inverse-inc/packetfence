@@ -17,7 +17,7 @@ use POSIX;
 
 use base ('pf::web::auth');
 
-use pf::config qw($TRUE $FALSE normalize_time);
+use pf::config qw($TRUE $FALSE normalize_time %Config);
 use pf::temporary_password;
 
 our $VERSION = 1.10;
@@ -87,7 +87,8 @@ sub getNodeAttributes {
     my ($this) = @_;
 
     return (
-        unregdate => POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($this->{_accessDuration})) )
+        unregdate => POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($this->{_accessDuration}))),
+        category => $Config{'guests_pre_registration'}{'category'},
     );
 }
 
