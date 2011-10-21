@@ -32,6 +32,7 @@ Enchancements
  * Improved validation when creating/importing multiple guest accounts.
  * Captive portal's email confirmation page is now reachable from the management interface by default
  * Configuration files ownership validation on start-up and in `pfcmd checkup`
+ * Inline firewall changes: prevent registered users from reaching the captive portal
  * Several new DHCP fingerprints (from our spinoff www.fingerbank.org)
  * Minor usability improvements
  * Reduced some false warnings in the logs on node de-registration (#1315)

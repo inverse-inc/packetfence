@@ -198,6 +198,7 @@ $ENV{PATH} = '/sbin:/bin:/usr/bin:/usr/sbin';
 
 # Inline related
 # Ip mash marks
+# Warning: make sure to verify conf/iptables.conf for hard-coded marks if you change the marks here.
 Readonly::Scalar our $IPTABLES_MARK_UNREG => "0";
 Readonly::Scalar our $IPTABLES_MARK_REG => "1";
 Readonly::Scalar our $IPTABLES_MARK_ISOLATION => "2";
