@@ -52,6 +52,7 @@ Bug Fixes
  * Removed an error when validating multiple guest pre-registration
  * No admin username output when printing guest access codes
  * Guest access code are now sorted when using batch creation
+ * Path problem in Proxy Bypass addon
  * Reduced documentation.conf startup annoyance when using custom authentication modules
  * Pinned Net-Appliance-Session version requirement in RPM Spec (#1312)
  * Some reports graphics were not properly dispalyed (#1234)
