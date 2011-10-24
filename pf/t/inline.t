@@ -41,6 +41,7 @@ isa_ok($inline_obj, 'pf::inline');
 can_ok($inline_obj, qw(
     fetchMarkForNode 
     performInlineEnforcement
+    isInlineEnforcementRequired
 ));
 
 # TODO more tests!

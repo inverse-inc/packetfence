@@ -38,6 +38,7 @@ Enchancements
  * Reduced some false warnings in the logs on node de-registration (#1315)
 
 Bug Fixes
+ * Permission denied when changing firewall rules (#1273)
  * Firewall doesn't allow broadcast packets on internal interfaces (#1316)
  * Pre-registered guest unregdate not set (#1301)
  * Allow incoming DNS on management interface to track users IPs in production VLANs

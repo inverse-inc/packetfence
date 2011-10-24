@@ -78,17 +78,18 @@ use lib INSTALL_DIR . '/lib';
 
 require 5.8.8;
 use pf::config;
-use pf::SwitchFactory;
-$thread = 1;
-use pf::util;
+use pf::floatingdevice::custom;
+use pf::inline::custom $INLINE_API_LEVEL;
 use pf::locationlog;
-use pf::traplog;
 use pf::node;
-use pf::violation;
 use pf::SNMP 2.00;
 use pf::SNMP::constants;
+use pf::SwitchFactory;
+use pf::traplog;
+use pf::util;
+use pf::violation;
 use pf::vlan::custom $VLAN_API_LEVEL;
-use pf::floatingdevice::custom;
+$thread = 1;
 
 # }}}1
 
@@ -660,6 +661,19 @@ sub parseTrap {
                         'trapMac'       => $1,
                         'trapOperation' => $2
                     };
+
+                } elsif ($trapLine =~ /BEGIN\ VARIABLEBINDINGS\                                   # metadata
+                    \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0\ =\ OID:\ \.1\.3\.6\.1\.4\.1\.29464\.1\.3   # metadata
+                    \|\.1\.3\.6\.1\.4\.1\.29464\.1\.3\ =\ STRING:\ \"(.+)\"\                      # mac
+                    END\ VARIABLEBINDINGS/x) {   
+                    # WARNING: using trap operation for something it is not meant to
+                    # WARNING: always leave trapIfIndex because the trapLine parser expects it
+                    $trapHashRef = {
+                        'trapType'      => 'firewallRequest',
+                        'trapIfIndex'   => 'NA',
+                        'trapMac'       => $1,
+                    };
+
                 } elsif ($trapLine =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.29464\.1\.2\|\.1\.3\.6\.1\.4\.1\.29464\.1\.3 = STRING: \"(.+)\" END VARIABLEBINDINGS/) {
                     # WARNING: always leave trapIfIndex because the trapLine parser expects it
                     $trapHashRef = {
@@ -717,11 +731,14 @@ sub parseTrap {
                     $trapMac       = $trapHashRef->{'trapMac'};
                     $trapOperation = $trapHashRef->{'trapOperation'};
 
+                } elsif ( $trapType eq 'firewallRequest' ) {
+                    $trapMac = $trapHashRef->{'trapMac'};
+
                 } elsif ($trapType eq 'reAssignVlan') {
                     $trapOperation = $trapHashRef->{'trapOperation'};
                 }
-                return
-                    "$switch_ip|$switch_port|$trapType|$trapVlan|$trapOperation|$trapMac";
+
+                return "$switch_ip|$switch_port|$trapType|$trapVlan|$trapOperation|$trapMac";
             } else {
                 $logger->info("ignoring unknown trap: $trapLine");
             }
@@ -897,9 +914,7 @@ sub startTrapHandlers {
 sub handleTrap {
 
     # initialize {{{2
-    my ( $switch_ip, $switch_port, $trapType, $trapVlan, $trapOperation,
-        $trapMac )
-        = @_;
+    my ( $switch_ip, $switch_port, $trapType, $trapVlan, $trapOperation, $trapMac ) = @_;
     my $logger     = Log::Log4perl->get_logger('pfsetvlan::handling');
     my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
@@ -949,9 +964,7 @@ sub handleTrap {
         # initialize {{{3
         my $mac  = lc($trapMac);
         my $vlan = $trapVlan;
-        $logger->info(
-            "$trapOperation trap received on $switch_ip ifIndex $switch_port for $mac in VLAN $vlan"
-    );
+        $logger->info("$trapOperation trap received on $switch_ip ifIndex $switch_port for $mac in VLAN $vlan");
 
         # }}}3
 
@@ -1593,6 +1606,8 @@ sub handleTrap {
         $logger->info("$trapType trap received on $switch_ip ifIndex $switch_port");
 
         if (defined($connection_type) && $connection_type == $WIRED_802_1X) {
+            # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
+            # http://www.cpanforum.com/threads/6909
             $logger->info("Forcing 802.1x re-authentication on $switch_ip:$switch_port. A new VLAN will be assigned.");
             pf_run("/usr/local/pf/bin/pfcmd_vlan -deauthenticateDot1x -switch $switch_ip -ifIndex $switch_port");
 
@@ -1639,14 +1654,10 @@ sub handleTrap {
                             $message{'message'} .= "The violation details are\n";
     
                             foreach my $violation (@violations) {
-                                $message{'message'} .= "Description: "
-                                    . $violation->{'description'} . "\n";
-                                $message{'message'} .= "Start: "
-                                    . $violation->{'start_date'} . "\n";
+                                $message{'message'} .= "Description: " . $violation->{'description'} . "\n";
+                                $message{'message'} .= "Start: " . $violation->{'start_date'} . "\n";
                             }
-                            $logger->info(
-                                "sending email to admin regarding isolation of $mac behind VoIP phone"
-                            );
+                            $logger->info("sending email to admin regarding isolation of $mac behind VoIP phone");
                             pfmailer(%message);
                         }
                     }
@@ -1677,7 +1688,16 @@ sub handleTrap {
 
         # }}}2
 
-    }
+        # trapType eq 'desAssociate' {{{2
+    } elsif ( $trapType eq 'firewallRequest' ) {
+        $logger->info("$trapType trap received for inline client: $trapMac. Modifying firewall.");
+
+        # verify if firewall rule is ok
+        my $inline = new pf::inline::custom();
+        $inline->performInlineEnforcement($trapMac);
+
+        # }}}2
+    } 
 
     # cleanupAfterThread {{{2
     cleanupAfterThread( $switch_ip, $switch_port );

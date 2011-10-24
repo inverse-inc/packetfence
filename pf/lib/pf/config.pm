@@ -190,7 +190,7 @@ Readonly our $NO_VOIP => 'no';
 # API version constants
 Readonly::Scalar our $RADIUS_API_LEVEL => 1.01;
 Readonly::Scalar our $VLAN_API_LEVEL => 1.01;
-Readonly::Scalar our $INLINE_API_LEVEL => 1.00;
+Readonly::Scalar our $INLINE_API_LEVEL => 1.01;
 Readonly::Scalar our $AUTHENTICATION_API_LEVEL => 1.10;
 
 # to shut up strict warnings
@@ -299,12 +299,6 @@ sub readPfConfigFiles {
         my ( $group, $item ) = split( /\./, $val );
         if ( !File::Spec->file_name_is_absolute( $Config{$group}{$item} ) ) {
             $Config{$group}{$item} = File::Spec->catfile( $log_dir, $Config{$group}{$item} );
-        }
-    }
-    foreach my $val ("advanced.adjustswitchportvlanscript") {
-        my ( $group, $item ) = split( /\./, $val );
-        if ( !File::Spec->file_name_is_absolute( $Config{$group}{$item} ) ) {
-            $Config{$group}{$item} = File::Spec->catfile( $bin_dir, $Config{$group}{$item} );
         }
     }
 
