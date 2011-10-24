@@ -32,7 +32,7 @@ function get_group($user) {
 # restricting usernames to avoid LDAP injection
 function legal_username($input){
   global $logger;
-  if(preg_match("/^[\@a-zA-Z0-9_\:\,\(\)]+$/", $input) && strlen($input) <= 15){
+  if(preg_match("/^[\@a-zA-Z0-9_\:\,\(\)\.]+$/", $input) && strlen($input) <= 15){
     return true; 
   } else {
     $logger->info("Illegal username provided: $input. Rejecting user.");
