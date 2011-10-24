@@ -18,6 +18,11 @@ o Upgrading from a version prior to 3.0.2:
      - advanced.adjustswitchportvlanscript has been dropped
      - advanced.reevaluate_access_reasons's default value changed
 
+    - Default Firewall Rules Updated
+    Review the updated firewall rules (in .rpmnew) if you made changes and
+    make sure to integrate changes if you need them. New rules include:
+     - Allow incoming DNS on management interface (track production VLANs IPs)
+
     - Changes to Inline API
     Added a new method to pf::inline. Users with customized pf::inline::custom
     will need to bump the API level to '1.01' after your changes are made (if
@@ -49,11 +54,6 @@ o Upgrading from a version prior to 3.0.2:
        section on top: use pf::config qw($FALSE $TRUE);
     Once the migration done, bump $VERSION to 1.10. You will *not* have to do 
     this if you made no customization to the conf/authentication/... files.
-
-    - Default Firewall Rules Updated
-    Review the updated firewall rules (in .rpmnew) if you made changes and
-    make sure to integrate changes if you need them. New rules include:
-     - Allow incoming DNS on management interface (track production VLANs IPs)
 
     - pfcmd_vlan interface changes
     reevaluateVlan is now called reevaluateAccess and will perform appropriate

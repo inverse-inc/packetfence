@@ -33,7 +33,7 @@
 #
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 3.0.1
+Version: 3.0.2
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -671,6 +671,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Mon Oct 24 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 3.0.2-1
+- New release 3.0.2
+
 * Mon Oct 03 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Won't create symlinks in sites-enabled if they already exists
 
