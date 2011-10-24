@@ -10,8 +10,6 @@ use Test::More;
 use Test::NoWarnings;
 use Config::IniFiles;
 
-BEGIN { use_ok('pf::config') }
-
 my %default_cfg;
 my %doc;
 
@@ -45,6 +43,8 @@ foreach my $section ( tied(%doc)->Sections ) {
 
 # +6 for: NoWarnings, use_ok and the 4 ok tests and the end
 plan tests => $testNb + 6;
+
+use_ok('pf::config');
 
 #run the tests
 foreach my $section ( tied(%default_cfg)->Sections ) {
