@@ -42,7 +42,9 @@ foreach my $section ( tied(%doc)->Sections ) {
         }
     }
 }
-plan tests => $testNb + 5;
+
+# +6 for: NoWarnings, use_ok and the 4 ok tests and the end
+plan tests => $testNb + 6;
 
 #run the tests
 foreach my $section ( tied(%default_cfg)->Sections ) {
