@@ -18,6 +18,7 @@ Version <release> released on <releaseDate>
 Bug Fixes
  * 802.1X broken on Cisco Catalyst 3750 (#1286)
  * Pop-Up windows are too small (#1078)
+ * RedHat Enterprise Linux 6 installation instructions
 
 --------------------------------------------------------------------------------
 Version 3.0.2 released on 2011-10-24
@@ -32,7 +33,7 @@ SECURITY
 New Hardware Support
  * Trapeze Wireless Controllers
 
-Enchancements
+Enhancements
  * Wireless deauthentication in bridge mode for DLink DWS, HP MSM and Motorola controllers
  * Authentication modules now hold authentication error strings and can set node attributes on authentication
  * Several new configuration parameters to control guest signup, categorization and access durations
