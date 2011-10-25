@@ -63,6 +63,7 @@ Bug Fixes
  * Reduced documentation.conf startup annoyance when using custom authentication modules
  * Pinned Net-Appliance-Session version requirement in RPM Spec (#1312)
  * Some reports graphics were not properly dispalyed (#1234)
+ * People was not able to confirm registration on some cases (#1302)
 
 Translations
  * Updated French (fr) translation
