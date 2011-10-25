@@ -16,6 +16,9 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <trunk-release> released on <releaseDate>
 
+Enhancements
+ * Using HTTP Return Code 501 "Not Implemented" for more effective client blocking
+
 --------------------------------------------------------------------------------
 Version <release> released on <releaseDate>
 
