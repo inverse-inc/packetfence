@@ -2,21 +2,25 @@ package pf::SNMP::Cisco::Catalyst_3750;
 
 =head1 NAME
 
-pf::SNMP::Cisco::Catalyst_3750 - Object oriented module to access and configure Cisco Catalyst 3750 switches
+pf::SNMP::Cisco::Catalyst_3750
+
+=head1 DESCRIPTION
+
+Object oriented module to access and configure Cisco Catalyst 3750 switches
+
+This module is currently only a placeholder, see pf::SNMP::Cisco::Catalyst_2960.
 
 =head1 STATUS
+
+Should work in:
 
 =over
 
 =item port-security
 
-This module is currently only a placeholder, see pf::SNMP::Cisco::Catalyst_2950.
-
 =item MAC-Authentication / 802.1X
 
-The hardware should support it.
-
-802.1X support was never tested by Inverse.
+We've got reports of it working with 12.2(55)SE.
 
 =back
 
@@ -40,30 +44,7 @@ use pf::config;
 use base ('pf::SNMP::Cisco::Catalyst_2960');
 
 # CAPABILITIES
-# access technology supported
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
-# VoIP technology supported
-sub supportsRadiusVoip { return $TRUE; }
-# override 2950's FALSE
-sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
-
-=head1 SUBROUTINES
-
-=over
-
-=item dot1xPortReauthenticate
-
-Points to pf::SNMP implementation bypassing Catalyst_2950's overridden behavior.
-
-=cut
-sub dot1xPortReauthenticate {
-    my ($this, $ifIndex) = @_;
-
-    return $this->_dot1xPortReauthenticate($ifIndex);
-}
-
-=back
+# inherited from 2960
 
 =head1 AUTHOR
 
