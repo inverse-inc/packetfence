@@ -37,7 +37,7 @@ use Net::SNMP;
 
 use pf::config;
 
-use base ('pf::SNMP::Cisco::Catalyst_2950');
+use base ('pf::SNMP::Cisco::Catalyst_2960');
 
 # CAPABILITIES
 # access technology supported

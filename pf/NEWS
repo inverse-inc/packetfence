@@ -13,6 +13,12 @@ For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE file.
 
 --------------------------------------------------------------------------------
+Version <release> released on <releaseDate>
+
+Bug Fixes
+ * 802.1X broken on Cisco Catalyst 3750 (#1286)
+
+--------------------------------------------------------------------------------
 Version 3.0.2 released on 2011-10-24
 
 SECURITY
