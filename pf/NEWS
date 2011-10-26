@@ -21,6 +21,7 @@ New Features
 
 Enhancements
  * Using HTTP Return Code 501 "Not Implemented" for more effective client blocking
+ * Cleanup in the Cisco 3560's code and documentation
 
 --------------------------------------------------------------------------------
 Version <release> released on <releaseDate>
