@@ -116,7 +116,7 @@ $floating_devices_file  = $conf_dir . "/floating_network_device.conf";
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
 
-Readonly our @VALID_TRIGGER_TYPES => ( "scan", "detect", "internal", "os", "vendormac", "useragent" );
+Readonly our @VALID_TRIGGER_TYPES => ( "scan", "detect", "internal", "os", "vendormac", "mac", "useragent" );
 
 $portscan_sid = 1200003;
 $default_pid  = 1;
