@@ -273,16 +273,6 @@ sub evaluate {
                 if ($hit) {
                     $self->trigger_violation($filter);
                 }
-                else {
-                    my $tid = $filter->{filter_id};
-                    my @open = grep {
-                        $tid >= $_->{tid_start} && $tid <= $_->{tid_end}
-                    } @$violations;
-
-                    if (@open) {
-                        $self->clear_violation($filter);
-                    }
-                }
             }
 
             if ($hit) {
@@ -425,26 +415,6 @@ sub violations {
     );
 
     return [ @violations ];
-}
-
-=item * clear_violation - clear a violation
-
-Clears a violation for the specified MAC address and filter.
-
-=cut
-
-sub clear_violation {
-    my $self = shift;
-    my ($filter) = @_;
-
-    $self->{logger}->debug(
-        "Closing open violation $filter->{vid} for MAC $self->{mac_address} ".
-        "and filter $filter->{name}"
-    );
-    system(
-        "$bin_dir/pfcmd", "manage", "vclose", $self->{mac_address},
-        $filter->{vid}
-    );
 }
 
 =item * trigger_violation - trigger a violation
