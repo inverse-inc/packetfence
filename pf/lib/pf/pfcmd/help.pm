@@ -98,10 +98,11 @@ stop/stop/restart specified service
 status returns PID of specified PF daemon or 0 if not running
 watch acts as a service watcher which can send email/restart the services
 
+Services managed by PacketFence:
   dhcpd            | dhcpd daemon
   httpd            | Apache (Captive Portal and Web Admin)
   named            | DNS daemon (bind)
-  pf               | all services
+  pf               | all services that should be running based on your config
   pfdetect         | PF snort alert parser
   pfdhcplistener   | PF DHCP monitoring daemon
   pfmon            | PF ARP monitoring daemon
@@ -110,6 +111,12 @@ watch acts as a service watcher which can send email/restart the services
   radiusd          | FreeRADIUS daemon
   snmptrapd        | SNMP trap receiver daemon
   snort            | if stopped or restarted, pfredirect must also be restarted
+
+watch
+Watch performs services checks to make sure that everything is fine. It's 
+behavior is controlled by servicewatch configuration parameters. watch is 
+typically best called from cron with something like:
+*/5 * * * * /usr/local/pf/bin/pfcmd service pf watch
 EOT
     return 1;
 }

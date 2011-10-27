@@ -15,6 +15,9 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <release> released on <releaseDate>
 
+Enhancements
+ * More documentation for service watch
+
 Bug Fixes
  * 802.1X broken on Cisco Catalyst 3750 (#1286)
  * Pop-Up windows are too small (#1078)
