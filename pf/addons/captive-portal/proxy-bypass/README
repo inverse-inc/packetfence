@@ -33,10 +33,10 @@ sslproxy_cert_error deny all
 
 # URL Redirectors
 # Rewrites ANY non-Captive Portal request to a Captive Portal request
-url_rewrite_program /usr/local/pf/addons/proxy-bypass/squid-redirector.pl
+url_rewrite_program /usr/local/pf/addons/captive-portal/proxy-bypass/squid-redirector.pl
 url_rewrite_concurrency 10
 
-  * Check addons/proxy-bypass/squid.conf-sample.patch for a config patch against a default squid.conf installation.
+  * Check addons/captive-portal/proxy-bypass/squid.conf-sample.patch for a config patch against a default squid.conf installation.
   * Change the above cert=... to point to your certificate. Bumping SSL requires a certificate and private key in the same file (PEM format). In this example, it was prepared with `cat server.crt server.key > server.pem`.
   * Change above port (8080) to reflect your environment proxy's port.
 

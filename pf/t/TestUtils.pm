@@ -36,7 +36,7 @@ our @cli_tests = qw(
 );
 
 our @compile_tests = qw(
-    binaries.t pf.t php.t
+    pf.t binaries.t php.t
 );
 
 our @dao_tests = qw(

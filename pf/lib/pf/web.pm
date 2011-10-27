@@ -35,7 +35,6 @@ use Log::Log4perl;
 use POSIX;
 use Readonly;
 use Template;
-use Try::Tiny;
 
 BEGIN {
     use Exporter ();
@@ -108,7 +107,7 @@ sub generate_release_page {
     my $vars = {
         logo            => $Config{'general'}{'logo'},
         timer           => $Config{'trapping'}{'redirtimer'},
-        destination_url => $destination_url,
+        destination_url => encode_entities($destination_url),
         redirect_url => $Config{'trapping'}{'redirecturl'},
         i18n => \&i18n,
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
@@ -151,7 +150,7 @@ sub generate_scan_start_page {
     my $vars = {
         logo            => $Config{'general'}{'logo'},
         timer           => $Config{'scan'}{'duration'},
-        destination_url => $destination_url,
+        destination_url => encode_entities($destination_url),
         i18n => \&i18n,
         txt_message     => sprintf(
             i18n("system scan in progress"),
@@ -185,23 +184,16 @@ sub generate_login_page {
     my $vars = {
         i18n            => \&i18n,
         logo            => $Config{'general'}{'logo'},
-        destination_url => $destination_url,
+        destination_url => encode_entities($destination_url),
         list_help_info  => [
             { name => i18n('IP'),  value => $ip },
             { name => i18n('MAC'), value => $mac }
         ],
     };
-    if ( defined($err) ) {
-        if ( $err == 3 ) {
-            $vars->{'txt_auth_error'} = i18n('You need to accept the terms before proceeding any further.');
-        } elsif ( $err == 2 ) {
-            $vars->{'txt_auth_error'} = i18n(
-                'error: unable to validate credentials at the moment');
-        } elsif ( $err == 1 ) {
-            $vars->{'txt_auth_error'}
-                = i18n('error: invalid login or password');
-        }
-    }
+
+    # if guest modes is anything else than blank it will be true in a boolean context. this is what we want
+    $vars->{'guest_allowed'} = $Config{'guests_self_registration'}{'modes'};
+    $vars->{'txt_auth_error'} = i18n($err) if (defined($err)); 
 
     # return login
     $vars->{'username'} = encode_entities($cgi->param("username"));
@@ -225,7 +217,7 @@ sub generate_enabler_page {
     textdomain("packetfence");
     my $vars = {
         logo            => $Config{'general'}{'logo'},
-        destination_url => $destination_url,
+        destination_url => encode_entities($destination_url),
         violation_id    => $violation_id,
         enable_text     => $enable_text,
         i18n            => \&i18n
@@ -247,7 +239,7 @@ sub generate_redirect_page {
     my $vars = {
         logo            => $Config{'general'}{'logo'},
         violation_url   => $violation_url,
-        destination_url => $destination_url,
+        destination_url => encode_entities($destination_url),
         i18n            => \&i18n,
     };
 
@@ -303,7 +295,7 @@ sub generate_scan_status_page {
         i18n             => \&i18n,
         txt_message      => sprintf(i18n('scan in progress contact support if too long'), $scan_start_time),
         txt_auto_refresh => sprintf(i18n('automatically refresh'), $refresh_timer),
-        destination_url  => $destination_url,
+        destination_url  => encode_entities($destination_url),
         refresh_timer    => $refresh_timer,
         list_help_info  => [
             { name => i18n('IP'),  value => $ip },
@@ -498,50 +490,61 @@ sub web_node_record_user_agent {
     return pf::useragent::process_useragent($mac, $user_agent);
 }
 
-sub web_user_authenticate {
+=item validate_form
+
+    return (0, 0) for first attempt
+    return (1) for valid form
+    return (0, "Error string" ) on form validation problems
+
+=cut
+sub validate_form {
     my ( $cgi, $session ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
-    $logger->trace("authentication attempt");
+    $logger->trace("form validation attempt");
 
-    # TODO extract these magic digits in constants
-    # return (1,0) for successfull authentication
-    # return (0,2) for inability to check credentials
-    # return (0,1) for wrong login/password
-    # return (0,0) for first attempt
-
-    if (   $cgi->param("username") && $cgi->param("password") && $cgi->param("auth") ) {
+    if ( $cgi->param("username") && $cgi->param("password") && $cgi->param("auth") ) {
 
         # acceptable use pocliy accepted?
         if (!defined($cgi->param("aup_signed")) || !$cgi->param("aup_signed")) {
-            return ( 0 , 3 );
+            return ( 0 , 'You need to accept the terms before proceeding any further.' );
         }
-
-        my $auth = $cgi->param("auth");
 
         # validates if supplied auth type is allowed by configuration
+        my $auth = $cgi->param("auth");
         my @auth_choices = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
         if ( grep( { $_ eq $auth } @auth_choices ) == 0 ) {
-            return ( 0, 2 );
+            return ( 0, 'Unable to validate credentials at the moment' );
         }
 
-        my ($authenticator, $authReturn, $err);
-        try {
-            $authenticator = pf::web::auth::get_instance($auth);
-            # validate login and password
-            ( $authReturn, $err ) = $authenticator->authenticate( $cgi->param("username"), $cgi->param("password") );
-        } catch {
-            $logger->error("Authentication module authentication::$auth failed. $_");
-        };
-        if (!defined($authReturn)) {
-            return ( 0, 2 );
-        } elsif( $authReturn == 1 ) {
-            #save login into session
-            $session->param( "username", $cgi->param("username") );
-            $session->param( "authType", $auth );
-        }
-        return ( $authReturn, $err );
+        return (1);
     }
-    return ( 0, 0 );
+    return (0, 0);
+}
+
+=item web_user_authenticate
+
+    return (1, pf::web::auth subclass) for successfull authentication
+    return (0, undef) for inability to check credentials
+    return (0, pf::web::auth subclass) otherwise (pf::web::auth can give detailed error)
+
+=cut
+sub web_user_authenticate {
+    my ( $cgi, $session, $auth_module ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web');
+    $logger->trace("authentication attempt");
+
+    my $authenticator = pf::web::auth::instantiate($auth_module);
+    return (0, undef) if (!defined($authenticator));
+
+    # validate login and password
+    my $return = $authenticator->authenticate( $cgi->param("username"), $cgi->param("password") );
+
+    if (defined($return) && $return == 1) {
+        #save login into session
+        $session->param( "username", $cgi->param("username") );
+        $session->param( "authType", $auth_module );
+    }
+    return ($return, $authenticator);
 }
 
 sub generate_registration_page {
@@ -559,7 +562,7 @@ sub generate_registration_page {
     my $vars = {
         logo            => $Config{'general'}{'logo'},
         deadline        => $Config{'registration'}{'skip_deadline'},
-        destination_url => $destination_url,
+        destination_url => encode_entities($destination_url),
         i18n            => \&i18n,
         list_help_info  => [
             { name => i18n('IP'),  value => $ip },
@@ -612,7 +615,7 @@ sub generate_pending_page {
             { name => i18n('IP'),  value => $ip },
             { name => i18n('MAC'), value => $mac }
         ],
-        destination_url => $destination_url,
+        destination_url => encode_entities($destination_url),
         redirect_url => $Config{'trapping'}{'redirecturl'},
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_INITIAL_DELAY'},
         retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_RETRY_DELAY'},

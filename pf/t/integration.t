@@ -14,10 +14,12 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 8;
-use Log::Log4perl;
-use File::Basename qw(basename);
+use Test::More tests => 10;
+
 use lib '/usr/local/pf/lib';
+use English qw( -no_match_vars );
+use File::Basename qw(basename);
+use Log::Log4perl;
 
 Log::Log4perl->init("/usr/local/pf/t/log.conf");
 my $logger = Log::Log4perl->get_logger( basename($0) );
@@ -57,6 +59,14 @@ $return_value = pf::services::service_ctl ("snort", "stop");
 ok($return_value == 1, "service_ctl snort stop returns expected value");
 
 ok(`pidof -x snort` eq "\n", "snort stopped successfully");
+
+# exit codes
+`/usr/local/pf/bin/pfcmd manage deregister f0:4d:a2:cb:d9:c5`;
+is($CHILD_ERROR, 0, "pfcmd manage deregister exit code should be 0");
+
+# FIXME untestable at this point, we would need to inject our switches.conf (ENV_VAR?)
+#`/usr/local/pf/bin/pfcmd_vlan -deauthenticateDot1x -switch 10.0.0.1 -mac f0:4d:a2:cb:d9:c5`;
+#is($CHILD_ERROR, 0, "pfcmd_vlan deauth exit code should be 0");
 
 # TODO inject traps provoking reactions
 # this one here reproduces #1098

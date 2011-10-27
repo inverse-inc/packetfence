@@ -1,7 +1,7 @@
 [% title = i18n("Guest Access Code") %]
 [% INCLUDE header.html %]
 
-[% IF info.users %][% FOREACH username IN info.users.keys %]
+[% IF info.users %][% FOREACH guest IN info.users.keys.sort %]
         [%# Multiple User / Pass %]
         [%# Welcome text %]
         <div id="about">
@@ -12,11 +12,11 @@
 
           <div class="input">
             <span>[% i18n("Username") %]</span>
-            [% username %]
+            [% guest %]
           </div>
           <div class="input">
             <span>[% i18n("Password") %]</span>
-            [% info.users.$username %]
+            [% info.users.$guest %]
           </div>
           <div class="input">
             <div class="note">

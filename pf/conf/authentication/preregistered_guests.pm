@@ -3,25 +3,24 @@ package authentication::preregistered_guests;
 
 authentication::preregistered_guests
 
-=head1 SYNOPSIS
-
-  use authentication::preregistered_guests;
-  my ( $authReturn, $err, $return ) = authenticate ( $login, $password );
-
 =head1 DESCRIPTION
 
 Validates provided credentials against the temporary_password table (local guest accounts)
+
+This module extends pf::web::auth.
 
 =cut
 use strict;
 use warnings;
 use Log::Log4perl;
+use POSIX;
 
 use base ('pf::web::auth');
-use pf::config;
+
+use pf::config qw($TRUE $FALSE normalize_time %Config);
 use pf::temporary_password;
 
-our $VERSION = 1.00;
+our $VERSION = 1.10;
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -33,25 +32,20 @@ our $VERSION = 1.00;
 
 Name displayed on the captive portal dropdown
 
+=cut
+our $name = "Guests";
+
 =back
 
-=cut
-my $name = "Guests";
-
-=head1 SUBROUTINES
+=head1 OBJECT METHODS
 
 =over
 
 =item * authenticate( $login, $password )
 
-  return (1, 0, hashref) for successfull authentication
-  return (0, 1) for wrong username / password
-  return (0, 2) for inability to check credentials
-  return (0, 3) credentials expired
-  return (0, 4) credntials not yet valid
-
-returned hashref
-  access_duration => access_duration value as defined in temporary table
+True if successful, false otherwise. 
+If unsuccessful errors meant for users are available in getLastError(). 
+Errors meant for administrators are logged in F<logs/packetfence.log>.
 
 =cut
 sub authenticate {
@@ -62,26 +56,40 @@ sub authenticate {
     $logger->debug("password validation returned: $status");
 
     if ($status == $pf::temporary_password::AUTH_SUCCESS) {
-        return (1, 0, { 'access_duration' => $access_duration } );
+        $this->{_accessDuration} = $access_duration;
+        return $TRUE;
+
     } elsif ($status == $pf::temporary_password::AUTH_FAILED_INVALID) {
-        return (0, 1);
+        $this->_setLastError('Invalid login or password');
+        return $FALSE;
+
     } elsif ($status == $pf::temporary_password::AUTH_FAILED_EXPIRED) {
-        return (0, 3);
+        $logger->info("authentication of guest $username failed because password is expired");
+        $this->_setLastError('This account is expired.');
+        return $FALSE;
+
     } elsif ($status == $pf::temporary_password::AUTH_FAILED_NOT_YET_VALID) {
-        return (0, 4);
+        $logger->info("authentication of guest $username failed because password is not yet activated");
+        $this->_setLastError('This account is not yet activated.');
+        return $FALSE;
     }
 
-    return (0, 2);
+    $this->_setLastError('Invalid login or password');
+    return $FALSE;
 }
 
-=item * getName
+=item * getNodeAttributes
 
-Returns name as configured
+Return unregdate based on access_duration for the user who just authenticated.
 
 =cut
-sub getName {
+sub getNodeAttributes {
     my ($this) = @_;
-    return $name;
+
+    return (
+        unregdate => POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($this->{_accessDuration}))),
+        category => $Config{'guests_pre_registration'}{'category'},
+    );
 }
 
 =back

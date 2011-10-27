@@ -4,7 +4,10 @@ use strict;
 use warnings;
 use diagnostics;
 
+use lib '/usr/local/pf/lib';
+
 use Test::More;
+use Test::NoWarnings;
 use Config::IniFiles;
 
 my %default_cfg;
@@ -37,7 +40,11 @@ foreach my $section ( tied(%doc)->Sections ) {
         }
     }
 }
-plan tests => $testNb;
+
+# +6 for: NoWarnings, use_ok and the 4 ok tests and the end
+plan tests => $testNb + 6;
+
+use_ok('pf::config');
 
 #run the tests
 foreach my $section ( tied(%default_cfg)->Sections ) {
@@ -66,6 +73,11 @@ foreach my $section ( tied(%doc)->Sections ) {
         }
     }
 }
+
+ok(is_in_list("sms","sms,email"), "is_in_list positive");
+ok(!is_in_list("sms","email"), "is_in_list negative");
+ok(!is_in_list("sms",""), "is_in_list empty list");
+ok(is_in_list("sms","sms, email"), "is_in_list positive with spaces");
 
 # TODO add tests for configfile import / export
 

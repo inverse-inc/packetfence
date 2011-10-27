@@ -94,7 +94,9 @@ Requires: perl-List-MoreUtils
 Requires: perl(Locale::gettext)
 Requires: perl-Log-Log4perl >= 1.11
 # Required by switch modules
-Requires: perl-Net-Appliance-Session
+# Net::Appliance::Session specific version added because newer versions broke API compatibility (#1312)
+# We would need to port to the new 3.x API (tracked by #1313)
+Requires: perl-Net-Appliance-Session = 1.36
 # Required by configurator script
 Requires: perl(Net::Interface)
 Requires: perl-Net-Frame, perl-Net-Frame-Simple
@@ -125,6 +127,7 @@ Requires: perl(Try::Tiny)
 Requires: perl(Crypt::GeneratePassword)
 Requires: perl(MIME::Lite::TT)
 Requires: perl(Cache::Cache), perl(HTML::Parser)
+Requires: perl(URI::Escape)
 # Used by Captive Portal authentication modules
 Requires: perl(Apache::Htpasswd)
 Requires: perl(Authen::Radius)
@@ -274,7 +277,7 @@ curdir=`pwd`
 
 #pf-schema.sql symlink
 cd $RPM_BUILD_ROOT/usr/local/pf/db
-ln -s pf-schema-3.0.0.sql ./pf-schema.sql
+ln -s pf-schema-3.1.0.sql ./pf-schema.sql
 
 #httpd.conf symlink
 #We dropped support for pre 2.2.0 but keeping the symlink trick alive since Apache 2.4 is coming
@@ -668,6 +671,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Mon Oct 24 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 3.0.2-1
+- New release 3.0.2
+
 * Mon Oct 03 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Won't create symlinks in sites-enabled if they already exists
 

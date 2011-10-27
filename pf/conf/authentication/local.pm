@@ -3,27 +3,23 @@ package authentication::local;
 
 authentication::local - htaccess file authentication
 
-=head1 SYNOPSIS
-
-  use authentication::local;
-  my ( $authReturn, $err ) = authenticate ( $login, $password );
-
 =head1 DESCRIPTION
 
-authentication::local allows to validate a username/password
-combination using the htaccess file F<conf/user.conf>
+authentication::local allows to validate a username/password combination using the htaccess file F<conf/user.conf>
+
+This module extends pf::web::auth
 
 =cut
-
 use strict;
 use warnings;
 use Apache::Htpasswd;
 use Log::Log4perl;
 
 use base ('pf::web::auth');
-use pf::config;
 
-our $VERSION = 1.00;
+use pf::config qw($TRUE $FALSE $conf_dir);
+
+our $VERSION = 1.10;
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -33,34 +29,22 @@ our $VERSION = 1.00;
 
 =item name
 
-Name displayed on the captive portal dropdown
-
-=back
+Name displayed on the captive portal dropdown (displayed only if more than 1 auth type is configured).
 
 =cut
-my $name = "Local";
-
-=head1 DEPENDENCIES
-
-=over
-
-=item * Apache::Htpasswd
-
-=item * Log::Log4perl
-
-=item * pf::config
+our $name = "Local";
 
 =back
 
-=head1 SUBROUTINES
+=head1 OBJECT METHODS
 
 =over
 
-=item * authenticate( $login, $password )
+=item authenticate( $login, $password )
 
-  return (1,0) for successfull authentication
-  return (0,2) for inability to check credentials
-  return (0,1) for wrong login/password
+True if successful, false otherwise. 
+If unsuccessful errors meant for users are available in getLastError(). 
+Errors meant for administrators are logged in F<logs/packetfence.log>.
 
 =cut
 sub authenticate {
@@ -70,27 +54,19 @@ sub authenticate {
 
   if (! -r $passwdFile) {
       $logger->error("unable to read password file '$passwdFile'");
-      return (0,2);
+      $this->_setLastError('Unable to validate credentials at the moment');
+      return $FALSE;
   }
 
   my $htpasswd = new Apache::Htpasswd({ passwdFile => $passwdFile, ReadOnly   => 1});
   if ( (!defined($htpasswd->htCheckPassword($username, $password))) 
       or ($htpasswd->htCheckPassword($username, $password) == 0) ) {
 
-      return (0,1);
+      $this->_setLastError('Invalid login or password');
+      return $FALSE;
   } else {
-      return (1,0);
+      return $TRUE;
   }
-}
-
-=item * getName
-
-Returns name as configured
-
-=cut
-sub getName {
-    my ($this) = @_;
-    return $name;
 }
 
 =back

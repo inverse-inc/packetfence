@@ -34,7 +34,6 @@ my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 
 my $result;
 my $ip              = $cgi->remote_addr();
-my $destination_url = $cgi->param("destination_url");
 my $enable_menu     = $cgi->param("enable_menu");
 my $mac             = ip2mac($ip);
 my %params;
@@ -62,12 +61,13 @@ if (defined($params{'code'})) {
     }
 
     my $node_mac = $activation_record->{'mac'};
-    # expire in a week (at 2AM)
-    # TODO extract expiration in a config param
-    my $expiration = POSIX::strftime("%Y-%m-%d 02:00:00", localtime( time + 7*24*60*60 ));
+    # expiration according to config
+    my $access_duration = $Config{'guests_self_registration'}{'access_duration'};
+    my $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + $access_duration ));
+    my $category = $Config{'guests_self_registration'}{'category'};
 
     # change the unregdate of the node associated with the submitted code
-    node_modify($node_mac, ('unregdate' => $expiration, 'status' => 'reg'));
+    node_modify($node_mac, ('unregdate' => $expiration, 'status' => 'reg', 'category' => $category));
 
     # send to success page
     pf::web::guest::generate_activation_confirmation_page($cgi, $session, $expiration);

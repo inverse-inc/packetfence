@@ -36,6 +36,7 @@ our (
     @listen_ints, @dhcplistener_ints, @ha_ints, $monitor_int,
     @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets, @management_nets, @external_nets,
     @inline_enforcement_nets, @vlan_enforcement_nets,
+    %guest_self_registration,
     $default_config_file, %Default_Config, 
     $config_file, %Config, 
     $network_config_file, %ConfigNetworks,
@@ -57,6 +58,7 @@ BEGIN {
         @listen_ints @dhcplistener_ints @ha_ints $monitor_int 
         @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets @management_nets @external_nets
         @inline_enforcement_nets @vlan_enforcement_nets
+        %guest_self_registration
         $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
         $default_config_file %Default_Config
         $config_file %Config
@@ -72,9 +74,11 @@ BEGIN {
         $VOIP $NO_VOIP $NO_PORT $NO_VLAN
         %connection_type %connection_type_to_str %connection_type_explained
         $RADIUS_API_LEVEL $VLAN_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL
+        $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS
         %CAPTIVE_PORTAL
         normalize_time
         is_vlan_enforcement_enabled is_inline_enforcement_enabled
+        is_in_list
         $LOG4PERL_RELOAD_TIMER
     );
 }
@@ -112,7 +116,7 @@ $floating_devices_file  = $conf_dir . "/floating_network_device.conf";
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
 
-Readonly our @VALID_TRIGGER_TYPES => ( "scan", "detect", "internal", "os", "vendormac", "useragent", "soh" );
+Readonly our @VALID_TRIGGER_TYPES => ( "scan", "detect", "internal", "os", "vendormac", "mac", "useragent", "soh" );
 
 $portscan_sid = 1200003;
 $default_pid  = 1;
@@ -186,20 +190,25 @@ Readonly our $NO_VOIP => 'no';
 # API version constants
 Readonly::Scalar our $RADIUS_API_LEVEL => 1.01;
 Readonly::Scalar our $VLAN_API_LEVEL => 1.01;
-Readonly::Scalar our $INLINE_API_LEVEL => 1.00;
-Readonly::Scalar our $AUTHENTICATION_API_LEVEL => 1.00;
+Readonly::Scalar our $INLINE_API_LEVEL => 1.01;
+Readonly::Scalar our $AUTHENTICATION_API_LEVEL => 1.10;
 
 # to shut up strict warnings
 $ENV{PATH} = '/sbin:/bin:/usr/bin:/usr/sbin';
 
 # Inline related
 # Ip mash marks
+# Warning: make sure to verify conf/iptables.conf for hard-coded marks if you change the marks here.
 Readonly::Scalar our $IPTABLES_MARK_UNREG => "0";
 Readonly::Scalar our $IPTABLES_MARK_REG => "1";
 Readonly::Scalar our $IPTABLES_MARK_ISOLATION => "2";
 
 Readonly::Scalar our $NO_PORT => 0;
 Readonly::Scalar our $NO_VLAN => 0;
+
+# Guest related
+Readonly our $SELFREG_MODE_EMAIL => 'email';
+Readonly our $SELFREG_MODE_SMS => 'sms';
 
 # this is broken NIC on Dave's desk - it better be unique!
 $blackholemac = "00:60:8c:83:d7:34";
@@ -273,6 +282,8 @@ sub readPfConfigFiles {
         "registration.expire_window", "registration.expire_session",
         "general.maintenance_interval", "scan.duration",
         "vlan.bounce_duration",   
+        "guests_self_registration.email_activation_timeout", "guests_self_registration.access_duration",
+        "guests_pre_registration.default_access_duration",
     ) {
         my ( $group, $item ) = split( /\./, $val );
         $Config{$group}{$item} = normalize_time( $Config{$group}{$item} );
@@ -288,12 +299,6 @@ sub readPfConfigFiles {
         my ( $group, $item ) = split( /\./, $val );
         if ( !File::Spec->file_name_is_absolute( $Config{$group}{$item} ) ) {
             $Config{$group}{$item} = File::Spec->catfile( $log_dir, $Config{$group}{$item} );
-        }
-    }
-    foreach my $val ("advanced.adjustswitchportvlanscript") {
-        my ( $group, $item ) = split( /\./, $val );
-        if ( !File::Spec->file_name_is_absolute( $Config{$group}{$item} ) ) {
-            $Config{$group}{$item} = File::Spec->catfile( $bin_dir, $Config{$group}{$item} );
         }
     }
 
@@ -346,6 +351,19 @@ sub readPfConfigFiles {
             }
         }
     }
+
+    # GUEST RELATED
+
+    # explode self-registration modes for easier and cached boolean tests
+    $guest_self_registration{'sms'} = $TRUE if is_in_list(
+        $SELFREG_MODE_SMS,
+        $Config{'guests_self_registration'}{'modes'}
+    );
+
+    $guest_self_registration{'email'} = $TRUE if is_in_list(
+        $SELFREG_MODE_EMAIL,
+        $Config{'guests_self_registration'}{'modes'}
+    );
 }
 
 =item readNetworkConfigFiles - networks.conf
@@ -586,6 +604,20 @@ sub is_network_type_inline {
     } else {
         return $FALSE;
     }
+}
+
+=item is_in_list
+
+Searches for an item in a comma separated list of elements (like we do in our configuration files).
+
+Returns true or false values based on if item was found or not.
+
+=cut
+sub is_in_list {
+    my ($item, $list) = @_;
+    my @list = split( /\s*,\s*/, $list );
+    return $TRUE if ( scalar grep({ $_ eq $item } @list) );
+    return $FALSE;
 }
 
 =back

@@ -20,7 +20,7 @@ use Log::Log4perl;
 use Try::Tiny;
 
 use Test::Exception;
-use Test::More tests => 23;
+use Test::More tests => 24;
 use Test::NoWarnings;
 
 Log::Log4perl->init("log.conf");
@@ -31,6 +31,9 @@ Log::Log4perl::MDC->put( 'tid',  0 );
 BEGIN { 
     use_ok('pf::web::auth'); 
 }
+
+# testing interface of base class
+can_ok('pf::web::auth', qw(initialize instantiate list_enabled_auth_types));
 
 my @auth_modules = qw(
     guest_managers
@@ -63,12 +66,7 @@ my $conf_dir = $main::pf::config::conf_dir;
 $main::pf::config::conf_dir = "data";
 
 my $local_auth = new authentication::local();
-my @auth_reply = $local_auth->authenticate("user", "testpass");
-is_deeply(
-    \@auth_reply,
-    [ 1, 0 ],
-    "working account expecting success"
-);
+ok($local_auth->authenticate("user", "testpass"), "working account expecting success");
 
 # ERROR HANDLING
 

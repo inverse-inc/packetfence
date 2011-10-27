@@ -375,14 +375,11 @@ sub getVlan {
     if ( !$this->connectRead() ) {
         return 0;
     }
-    my $OID_vmVlan
-        = '1.3.6.1.4.1.9.9.68.1.2.2.1.2';    #CISCO-VLAN-MEMBERSHIP-MIB
+    my $OID_vmVlan = '1.3.6.1.4.1.9.9.68.1.2.2.1.2';    #CISCO-VLAN-MEMBERSHIP-MIB
     $logger->trace("SNMP get_request for vmVlan: $OID_vmVlan.$ifIndex");
-    my $result = $this->{_sessionRead}
-        ->get_request( -varbindlist => ["$OID_vmVlan.$ifIndex"] );
-    if ( exists( $result->{"$OID_vmVlan.$ifIndex"} )
-        && ( $result->{"$OID_vmVlan.$ifIndex"} ne 'noSuchInstance' ) )
-    {
+
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => ["$OID_vmVlan.$ifIndex"] );
+    if ( exists( $result->{"$OID_vmVlan.$ifIndex"} ) && ( $result->{"$OID_vmVlan.$ifIndex"} ne 'noSuchInstance' ) ) {
         return $result->{"$OID_vmVlan.$ifIndex"};
     } else {
 

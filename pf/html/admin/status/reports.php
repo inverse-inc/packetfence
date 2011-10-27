@@ -380,7 +380,7 @@ array('owner', 'person/lookup.php')));
   $my_table->tableprint(false);
 
   if($graph){
-    print "</td><td style='padding-top:15px;' align=center><img src='$current_top/grapher.php?type=".trim($type)."&span=report&size=small'></td></tr></table></center>";
+    print "</td><td style='padding-top:15px;' align=center><img src='$current_top/grapher.php?type=".trim($type)."&span=report'></td></tr></table></center>";
   }
 
   $is_printable = true;

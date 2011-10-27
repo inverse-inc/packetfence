@@ -1,25 +1,11 @@
 package authentication::radius;
-
 =head1 NAME
 
 authentication::radius - radius authentication
 
-=head1 SYNOPSYS
-
-  use authentication::radius;
-  my ( $authReturn, $err ) = authenticate ( $login, $password);
-
 =head1 DESCRIPTION
 
 authentication::radius allows to validate a username/password combination using RADIUS
-
-=head1 DEPENDENCIES
-
-=over
-
-=item * Authen::Radius
-
-=back
 
 =cut
 use strict;
@@ -28,17 +14,20 @@ use Authen::Radius;
 
 use base ('pf::web::auth');
 
-our $VERSION = 1.00;
+use pf::config qw($TRUE $FALSE);
+
+our $VERSION = 1.10;
 
 =head1 CONFIGURATION AND ENVIRONMENT
+
+Don't forget to install the Authen::Radius module. 
+This is done automatically if you use a packaged version of PacketFence.
 
 Define the variables C<RadiusServer> and C<RadiusSecret> at the top of the module.
 
 =cut
 my $RadiusServer = 'localhost';
 my $RadiusSecret = 'testing123';
-
-=head1 CONFIGURATION AND ENVIRONMENT
 
 =head2 Optional
 
@@ -48,20 +37,20 @@ my $RadiusSecret = 'testing123';
 
 Name displayed on the captive portal dropdown
 
+=cut
+our $name = "RADIUS";
+
 =back
 
-=cut
-my $name = "RADIUS";
-
-=head1 SUBROUTINES
+=head1 OBJECT METHODS
 
 =over
 
 =item * authenticate ($login, $password)
 
-  return (1,0) for successfull authentication
-  return (0,2) for inability to check credentials
-  return (0,1) for wrong login/password
+True if successful, false otherwise. 
+If unsuccessful errors meant for users are available in getLastError(). 
+Errors meant for administrators are logged in F<logs/packetfence.log>.
 
 =cut
 sub authenticate {
@@ -72,20 +61,11 @@ sub authenticate {
     );
 
     if ($radcheck->check_pwd($username, $password)) {
-        return (1,0);
+        return $TRUE;
     } else {
-        return (0,1);
+        $this->_setLastError('Invalid login or password');
+        return $FALSE;
     }
-}
-
-=item * getName
-
-Returns name as configured
-
-=cut
-sub getName {
-    my ($this) = @_;
-    return $name;
 }
 
 =back

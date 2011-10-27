@@ -22,7 +22,7 @@ use pf::iptables;
 use pf::node qw(node_attributes);
 use pf::violation qw(violation_count_trap);
 
-our $VERSION = 1.00;
+our $VERSION = 1.01;
 
 =head1 SUBROUTINES
 
@@ -46,7 +46,7 @@ sub new {
 
 =cut
 sub performInlineEnforcement { 
-    my ($this, $mac, %opts) = @_;
+    my ($this, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     # What is the MAC's current state?
@@ -60,6 +60,23 @@ sub performInlineEnforcement {
 
     $logger->info("MAC: $mac stated changed, adapting firewall rules for proper enforcement");
     return pf::iptables::update_mark($mac, $current_mark, $should_be_mark);
+}
+
+=item isInlineEnforcementRequired
+
+Returns a true value if a firewall change is required. False otherwise.
+
+=cut
+sub isInlineEnforcementRequired {
+    my ($this, $mac) = @_;
+
+    # What is the MAC's current state?
+    my $current_mark = pf::iptables::get_mangle_mark_for_mac($mac);
+    my $should_be_mark = $this->fetchMarkForNode($mac);
+    if ($current_mark == $should_be_mark) {
+        return $FALSE;
+    }
+    return $TRUE;
 }
 
 =item fetchMarkForNode

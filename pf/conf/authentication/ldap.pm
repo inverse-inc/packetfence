@@ -4,18 +4,11 @@ package authentication::ldap;
 
 authentication::ldap - LDAP authentication
 
-=head1 SYNOPSYS
-
-  use authentication::ldap;
-  my ( $authReturn, $err ) = authenticate ( 
-                                 $login, 
-                                 $password 
-                                           );
-
 =head1 DESCRIPTION
 
-authentication::ldap allows to validate a username/password
-combination using LDAP
+authentication::ldap allows to validate a username/password combination using LDAP
+
+This module extends pf::web::auth
 
 =cut
 use strict;
@@ -26,12 +19,16 @@ use Net::LDAP;
 
 use base ('pf::web::auth');
 
-our $VERSION = 1.00;
+use pf::config qw($TRUE $FALSE);
+
+our $VERSION = 1.10;
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-Define the variables C<LDAPServer>, C<LDAPBindDN>, 
-C<LDAPBindPassword>, C<LDAPUserBase>, C<LDAPUserKey>
+Don't forget to install the Net::LDAP module. 
+This is done automatically if you use a packaged version of PacketFence.
+
+Define the variables C<LDAPServer>, C<LDAPBindDN>, C<LDAPBindPassword>, C<LDAPUserBase>, C<LDAPUserKey>
 and C<LDAPUserScope> at the top of the module.
 
 =over
@@ -42,13 +39,11 @@ LDAPServer hostname of IP address to connect to
 
 =item * C<LDAPBindDN> and C<LDAPBindPassword>
 
-DN and password of a user which is allowed to search for
-user accounts
+DN and password of a user which is allowed to search for user accounts
 
 =item * C<LDAPUserKey> 
 
-The name of the parameter you would like to find your users
-by (in order to retrieve their DN).
+The name of the parameter you would like to find your users by (in order to retrieve their DN).
 
 =item * C<LDAPUserBase>
 
@@ -56,10 +51,7 @@ LDAP branch your users are in
 
 =item * C<LDAPUserScope>
 
-Do you want to search the whole subbranch of $LDAPUserBase 
-for users or only direct entries at $LDAPUserBase ?
-
-=back
+Do you want to search the whole subbranch of $LDAPUserBase for users or only direct entries at $LDAPUserBase ?
 
 =cut
 my $LDAPUserBase = "";
@@ -71,18 +63,20 @@ my $LDAPServer = "";
 my $LDAPGroupMemberKey = "memberOf";
 my $LDAPGroupDN = "";
 
+=back
+
 =head2 Optional
 
 =over
 
 =item name
 
-Name displayed on the captive portal dropdown
-
-=back
+Name displayed on the captive portal dropdown (displayed only if more than 1 auth type is configured).
 
 =cut
-my $name = "LDAP";
+our $name = "LDAP";
+
+=back
 
 =head1 TESTING
 
@@ -122,34 +116,15 @@ LDAP servers:
 
 =cut
 
-=head1 DEPENDENCIES
-
-=over
-
-=item * Log::Log4perl
-
-=item * Net::LDAP
-
-=back
-
-=head1 SUBROUTINES
+=head1 OBJECT METHODS
 
 =over 
 
-=item * getName
-
-Returns name as configured
-
-=cut
-sub getName {
-    my ($this) = @_;
-    return $name;
-}
 =item * authenticate ($login, $password)
 
-  return (1,0) for successfull authentication
-  return (0,2) for inability to check credentials
-  return (0,1) for wrong login/password
+True if successful, false otherwise. 
+If unsuccessful errors meant for users are available in getLastError(). 
+Errors meant for administrators are logged in F<logs/packetfence.log>.
 
 =cut
 sub authenticate {
@@ -159,14 +134,16 @@ sub authenticate {
   my $connection = Net::LDAP->new($LDAPServer);
   if (! defined($connection)) {
     $logger->error("Unable to connect to '$LDAPServer'");
-    return (0,2);
+    $this->_setLastError('Unable to validate credentials at the moment');
+    return $FALSE;
   }
 
   my $result = $connection->bind($LDAPBindDN, password => $LDAPBindPassword);
 
   if ($result->is_error) {
     $logger->error("Unable to bind with '$LDAPBindDN'");
-    return (0,2);
+    $this->_setLastError('Unable to validate credentials at the moment');
+    return $FALSE;
   }
  
   $result = $connection->search(
@@ -179,12 +156,14 @@ sub authenticate {
   
   if ($result->is_error) {
     $logger->error("Unable to execute search");
-    return (0,2);
+    $this->_setLastError('Unable to validate credentials at the moment');
+    return $FALSE;
   }
   
   if ($result->count != 1) {
     $logger->warn("Unable to find user '$username'");
-    return (0,1);
+    $this->_setLastError('Invalid login or password');
+    return $FALSE;
   }
 
   my $user = $result->entry(0);
@@ -193,11 +172,12 @@ sub authenticate {
 
   if ($result->is_error) {
     $logger->info("invalid password for $username");
-    return (0,1);
+    $this->_setLastError('Invalid login or password');
+    return $FALSE;
   }
   
   $connection->unbind;
-  return (1,0);
+  return $TRUE;
 }
 
 =item * getMemberGroups

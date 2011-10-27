@@ -1,26 +1,13 @@
 package authentication::guest_managers;
 =head1 NAME
 
-authentication::guest_managers - file authentication on the conf/guest-managers.conf file
+authentication::guest_managers - authenticate guest managers
 
-=head1 SYNOPSIS
+=head1 DESCRIPTION
 
-  use authentication::guest_managers;
-  my ( $authReturn, $err ) = authenticate ( $login, $password );
+htaccess style file authentication on the F<conf/guest-managers.conf> file
 
-This module extends pf::web::auth
-
-=head1 DEPENDENCIES
-
-=over
-
-=item * Apache::Htpasswd
-
-=item * Log::Log4perl
-
-=item * pf::config
-
-=back
+This module extends pf::web::auth.
 
 =cut
 use strict;
@@ -29,9 +16,13 @@ use Apache::Htpasswd;
 use Log::Log4perl;
 
 use base ('pf::web::auth');
-use pf::config;
 
-our $VERSION = 1.00;
+use pf::config qw($TRUE $FALSE $conf_dir);
+
+our $VERSION = 1.10;
+
+# TODO: regroup authenticate() portion of local and this module in authentication::htaccess 
+#       (or even pf::web::auth::htaccess) to prevent code duplication
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -43,20 +34,20 @@ our $VERSION = 1.00;
 
 Name displayed on the captive portal dropdown
 
+=cut
+our $name = "Guest Management";
+
 =back
 
-=cut
-my $name = "Guest Management";
-
-=head1 SUBROUTINES
+=head1 OBJECT METHODS
 
 =over
 
-=item * authenticate( $login, $password )
+=item authenticate( $login, $password )
 
-  return (1,0) for successfull authentication
-  return (0,2) for inability to check credentials
-  return (0,1) for wrong login/password
+True if successful, false otherwise. 
+If unsuccessful errors meant for users are available in getLastError(). 
+Errors meant for administrators are logged in F<logs/packetfence.log>.
 
 =cut
 sub authenticate {
@@ -67,6 +58,7 @@ sub authenticate {
 
     if (! -r $passwdFile) {
         $logger->error("unable to read password file '$passwdFile'");
+        $this->_setLastError('Unable to validate credentials at the moment');
         next;
     }
   
@@ -75,21 +67,12 @@ sub authenticate {
         ReadOnly   => 1}
     );
     if ($htpasswd->htCheckPassword($username, $password)) {
-        return (1,0);
+        return $TRUE;
     }
 
   }
-  return (0,1);
-}
-
-=item * getName
-
-Returns name as configured
-
-=cut
-sub getName {
-    my ($this) = @_;
-    return $name;
+  $this->_setLastError('Invalid login or password');
+  return $FALSE;
 }
 
 =back

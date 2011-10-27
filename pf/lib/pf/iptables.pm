@@ -119,10 +119,12 @@ sub generate_filter_if_src_to_chain {
         # VLAN enforcement
         if ($enforcement_type eq $IF_ENFORCEMENT_VLAN) {
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_VLAN\n";
+            $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_VLAN\n";
 
         # inline enforcement
         } elsif ($enforcement_type eq $IF_ENFORCEMENT_INLINE) {
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_INLINE\n";
+            $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_INLINE\n";
 
         # nothing? something is wrong

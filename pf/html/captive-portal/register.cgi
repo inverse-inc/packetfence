@@ -12,7 +12,9 @@ Handles captive-portal authentication, /status, de-registration, multiple regist
 use CGI::Carp qw( fatalsToBrowser );
 use CGI;
 use CGI::Session;
+use HTML::Entities qw(decode_entities);
 use Log::Log4perl;
+use URI::Escape qw(uri_escape uri_unescape);
 use strict;
 use warnings;
 
@@ -38,8 +40,7 @@ my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 
 my $ip              = pf::web::get_client_ip($cgi);
 my $mac             = ip2mac($ip);
-my $destination_url = $cgi->param("destination_url");
-
+my $destination_url = decode_entities(uri_unescape($cgi->param("destination_url")));
 $destination_url = $Config{'trapping'}{'redirecturl'} if (!$destination_url);
 
 if (!valid_mac($mac)) {
@@ -69,10 +70,23 @@ foreach my $param($cgi->param()) {
 
 if (defined($params{'username'}) && $params{'username'} ne '') {
 
-  my ($auth_return,$err) = pf::web::web_user_authenticate($cgi, $session);
+  my ($form_return, $err) = pf::web::validate_form($cgi, $session);
+  if ($form_return != 1) {
+    $logger->trace("form validation failed or first time for $mac");
+    pf::web::generate_login_page($cgi, $session, $destination_url, $mac, $err);
+    exit(0);
+  }
+
+  my ($auth_return, $authenticator) = pf::web::web_user_authenticate($cgi, $session, $cgi->param("auth"));
   if ($auth_return != 1) {
     $logger->trace("authentication failed for $mac");
-    pf::web::generate_login_page($cgi, $session, $destination_url, $mac, $err);
+    my $error;
+    if (!defined($authenticator)) {
+        $error = 'Unable to validate credentials at the moment';
+    } else {
+        $error = $authenticator->getLastError();
+    }
+    pf::web::generate_login_page($cgi, $session, $destination_url, $mac, $error);
     exit(0);
   }
 
@@ -88,6 +102,10 @@ if (defined($params{'username'}) && $params{'username'} ne '') {
     pf::web::generate_error_page($cgi, $session, "error: only register max nodes");
     return(0);
   }
+
+  # obtain node information provided by authentication module
+  # This appends the hashes to one another. values returned by authenticator wins on key collision
+  %info = (%info, $authenticator->getNodeAttributes());
  
   pf::web::web_node_register($cgi, $session, $mac, $pid, %info);
 
@@ -99,18 +117,17 @@ if (defined($params{'username'}) && $params{'username'} ne '') {
     if ($cgi->https()) {  
       print $cgi->redirect(
         "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-        ."/access?destination_url=$destination_url"
+        .'/access?destination_url=' . uri_escape($destination_url)
       );
     } else {
       pf::web::generate_release_page($cgi, $session, $destination_url, $mac);
     }
     exit(0);
   } else {
-    print $cgi->redirect("/captive-portal?destination_url=$destination_url");
+    print $cgi->redirect('/captive-portal?destination_url=' . uri_escape($destination_url));
     $logger->info("more violations yet to come for $mac");
   }
 
-# TODO this workflow is unsupported right now
 } elsif (defined($params{'mode'}) && $params{'mode'} eq "next_page") {
   my $pageNb = int($params{'page'});
   if (($pageNb > 1) && ($pageNb <= $Config{'registration'}{'nbregpages'})) {
@@ -128,17 +145,31 @@ if (defined($params{'username'}) && $params{'username'} ne '') {
   } else {
     pf::web::generate_error_page($cgi, $session, "error: not trappable IP");
   }
+
 } elsif (defined($params{'mode'}) && $params{'mode'} eq "deregister") {
-  my ($auth_return,$err) = pf::web::web_user_authenticate($cgi, $session);
-  if ($auth_return != 1) {
+  my ($form_return, $err) = pf::web::validate_form($cgi, $session);
+  if ($form_return != 1) {
+    $logger->trace("form validation failed or first time for $mac");
     pf::web::generate_login_page($cgi, $session, $destination_url, $mac, $err);
     exit(0);
   }
+
+  my ($auth_return, $authenticator) = pf::web::web_user_authenticate($cgi, $session, $cgi->param("auth"));
+  if ($auth_return != 1) {
+    $logger->trace("authentication failed for $mac");
+    my $error;
+    if (!defined($authenticator)) {
+        $error = 'Unable to validate credentials at the moment';
+    } else {
+        $error = $authenticator->getLastError();
+    }
+    pf::web::generate_login_page($cgi, $session, $destination_url, $mac, $error);
+    exit(0);
+  }
+
   my $node_info = node_view($mac);
   my $pid = $node_info->{'pid'};
   if ($session->param("username") eq $pid) {
-    #node_deregister($mac);
-    #trapmac($mac);
     my $cmd = $bin_dir."/pfcmd manage deregister $mac";
     my $output = qx/$cmd/;
     $logger->info("calling $bin_dir/pfcmd  manage deregister $mac");
@@ -146,12 +177,13 @@ if (defined($params{'username'}) && $params{'username'} ne '') {
   } else {
     pf::web::generate_error_page($cgi, $session, "error: access denied not owner");
   }
+
 } elsif (defined($params{'mode'}) && $params{'mode'} eq "release") {
   # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
   if ($cgi->https()) {
     print $cgi->redirect(
       "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-      ."/access?destination_url=$destination_url"
+      .'/access?destination_url=' . uri_escape($destination_url)
     );
   } else {
     pf::web::generate_release_page($cgi, $session, $destination_url, $mac);

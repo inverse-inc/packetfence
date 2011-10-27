@@ -10,9 +10,11 @@ use warnings;
 use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
+use HTML::Entities qw(decode_entities);
 use Log::Log4perl;
 use Readonly;
 use POSIX;
+use URI::Escape qw(uri_escape uri_unescape);
 
 use pf::class;
 use pf::config;
@@ -20,10 +22,11 @@ use pf::email_activation;
 use pf::sms_activation;
 use pf::iplog;
 use pf::node;
+use pf::person qw(person_modify);
 use pf::util;
 use pf::violation;
 use pf::web;
-use pf::web::guest 1.10;
+use pf::web::guest 1.20;
 # called last to allow redefinitions
 use pf::web::custom;
 
@@ -41,7 +44,8 @@ my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 
 my $result;
 my $ip              = $cgi->remote_addr();
-my $destination_url = $cgi->param("destination_url") || $Config{'trapping'}{'redirecturl'};
+my $destination_url = decode_entities(uri_unescape($cgi->param("destination_url"))) 
+    || $Config{'trapping'}{'redirecturl'};
 my $enable_menu     = $cgi->param("enable_menu");
 my $mac             = ip2mac($ip);
 my %params;
@@ -55,6 +59,10 @@ foreach my $param($cgi->param()) {
   $params{$param} = $cgi->param($param);
 }
 
+# if no self registered modes are enabled, redirect to portal entrance
+print $cgi->redirect("/captive-portal?destination_url=".uri_escape($destination_url))
+    if (!$Config{'guests_self_registration'}{'modes'});
+
 # Correct POST
 if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
 
@@ -62,27 +70,27 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
     my ($auth_return, $err) = pf::web::guest::validate_selfregistration($cgi, $session);
 
     # Registration form was properly filled
-    if ($auth_return && defined($params{'by_email'})) {
+    if ($auth_return && defined($params{'by_email'}) && defined($guest_self_registration{$SELFREG_MODE_EMAIL})) {
       # User chose to register by email
       $logger->info("Registering guest by email");
 
-      # Adding person (using edit in case person already exists)
-      my $person_add_cmd = "$bin_dir/pfcmd 'person edit \""
-        . $session->param("login")."\" "
-        . "firstname=\"" . $session->param("firstname") . "\","
-        . "lastname=\"" . $session->param("lastname") . "\","
-        . "email=\"" . $session->param("email") . "\","
-        . "telephone=\"" . $session->param("phone") . "\","
-        . "notes=\"email activation\"'";
-      $logger->info("Registering guest person with command: $person_add_cmd");
-      pf_run("$person_add_cmd");
+      # Login successful, adding person (using modify in case person already exists)
+      person_modify($session->param("login"), (
+          'firstname' => $session->param("firstname"),
+          'lastname' => $session->param("lastname"),
+          'email' => $session->param("email"),
+          'telephone' => $session->param("phone"),
+          'notes' => 'email activation',
+      ));
+      $logger->info("Adding guest person " . $session->param("login"));
 
       # grab additional info about the node
       $info{'pid'} = $session->param("login");
-      $info{'category'} = "guest";
+      $info{'category'} = $Config{'guests_self_registration'}{'category'};
 
-      # unreg in 10 minutes
-      $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + 10*60 ));
+      # unreg in guests.email_activation_timeout seconds
+      my $timeout = $Config{'guests_self_registration'}{'email_activation_timeout'};
+      $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + $timeout ));
 
       # register the node
       pf::web::web_node_register($cgi, $session, $mac, $info{'pid'}, %info);
@@ -106,12 +114,12 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
           $logger->info("registration url = $destination_url");
         }
         else {
-          print $cgi->redirect("/captive-portal?destination_url=$destination_url");
+          print $cgi->redirect("/captive-portal?destination_url=".uri_escape($destination_url));
           $logger->info("more violations yet to come for $mac");
         }
       }
     }
-    elsif ($auth_return && defined($params{'by_sms'})) {
+    elsif ( $auth_return && defined($params{'by_sms'}) && defined($guest_self_registration{$SELFREG_MODE_EMAIL}) ) {
       # User chose to register by SMS
       $logger->info("Registering guest by SMS " . $session->param("phone") . " @ " . $cgi->param("mobileprovider"));
       if ($session->param("phone") && $cgi->param("mobileprovider")) {

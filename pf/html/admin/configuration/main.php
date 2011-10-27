@@ -195,7 +195,7 @@ foreach($config_tree as $section => $settings){
         if (substr_compare('proxies', $setting, 0, 7) == 0) {
           print $setting;
         } else {
-          print "<a class='no_hover' HREF=\"javascript:popUp('$current_top/more_info.php?option=$setting', '100', '500');\">$setting</a>";
+          print "<a class='no_hover' HREF=\"javascript:popUp('$current_top/more_info.php?option=$setting', '200', '450');\">$setting</a>";
         }
         print "</td><td style='text-align:right;'>";
                 $setting = preg_replace("/\./", "_", $setting);

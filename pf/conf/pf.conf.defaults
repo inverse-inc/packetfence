@@ -234,12 +234,60 @@ button_text=Register
 nbregpages=0
 
 
-[guests]
+[guests_self_registration]
 #
-# guests.self_allow_localdomain
+# guests_self_registration.modes
+# 
+# Self-registration is the signup button where a guest can register by
+# email or SMS. sms or email modes are available and both can be enabled
+# at the same time. To disable guest self-registration entirely don't
+# select any option or empty the line.
+modes=sms,email
 #
-# Accept self-registration with email address from the local domain
-self_allow_localdomain=enabled
+# guests_self_registration.category
+#
+# The node category that will be assigned to guests' nodes.
+category=guest
+#
+# guests_self_registration.access_duration
+#
+# The length of network access a confirmed guest will have. On successful
+# confirmation a guest node's unregdate is set to now + access_duration.
+access_duration=7d
+#
+# guests_self_registration.email_activation_timeout
+#
+# This is the delay given to a guest who registered by email confirmation
+# to log into his email and click the activation link. Low values will require
+# a modification of maintenance_interval because the timeout is enforced every
+# 10 maintenance intervals.
+email_activation_timeout=10m
+#
+# guests_self_registration.allow_localdomain
+#
+# Accept self-registration with email address from the local domain.
+allow_localdomain=enabled
+
+
+[guests_pre_registration]
+#
+# guests_pre_registration.access_duration_choices
+#
+# These are all the choices offered in the guest management interface as 
+# possible access duration values for a given registration.
+access_duration_choices=1h,3h,12h,1d,2d,3d,5d
+#
+# guests_pre_registration.default_access_duration
+#
+# This is the default access duration value selected in the dropdown on the 
+# guest management interface.
+default_access_duration=12h
+#
+# guests_pre_registration.category
+#
+# The node category that will be assigned to guests' pre-registered nodes by default.
+category=guest
+
 
 #
 # This section allows you to create passthroughs to HTML content or remote addresses/networks.
@@ -543,9 +591,4 @@ network_detection_ip = 67.205.85.245
 # advanced.reevaluate_access_reasons
 #
 # After which calls to pfcmd do we have to re-evaluate the state of a node and re-assign VLAN or change iptables rules
-reevaluate_access_reasons=node_modify,manage_register,manage_deregister,manage_vclose,manage_vopen,violation_modify,violation_add,violation_delete,redir.cgi
-#
-# advanced.adjustswitchportvlanscript
-#
-# Which script do we have to execute to adjust the switchport VLAN
-adjustswitchportvlanscript=pfcmd_vlan
+reevaluate_access_reasons=node_modify,manage_register,manage_deregister,manage_vclose,manage_vopen,violation_modify,violation_add,violation_delete,redir.cgi,pfcmd_vlan

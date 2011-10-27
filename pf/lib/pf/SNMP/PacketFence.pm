@@ -9,6 +9,12 @@ pf::SNMP::PacketFence - Object oriented module to send local traps to snmptrapd
 The pf::SNMP::PacketFence module implements an object oriented interface
 to send local SNMP traps to snmptrapd
 
+=head1 SUBROUTINES
+
+List incomplete.
+
+=over
+
 =cut
 
 use strict;
@@ -84,6 +90,33 @@ sub sendLocalDesAssociateTrap {
     return 1;
 }
 
+=item sendLocalFirewallRequestTrap
+
+Sends a local trap meant to trigger firewall changes in pfsetvlan
+
+=cut
+sub sendLocalFirewallRequestTrap {
+    my ($this, $ip, $mac) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    if ( !$this->connectWrite() ) {
+        return 0;
+    }
+    my $result = $this->{_sessionWrite}->trap(
+        -genericTrap => Net::SNMP::ENTERPRISE_SPECIFIC,
+        -agentaddr   => $ip,
+        -varbindlist => [
+            '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER, '1.3.6.1.4.1.29464.1.3', 
+            "1.3.6.1.4.1.29464.1.3", Net::SNMP::OCTET_STRING,      $mac,
+        ]
+    );
+    if ( !$result ) {
+        $logger->error("error sending SNMP trap: " . $this->{_sessionWrite}->error());
+    }
+    return 1;
+}
+
+=back
+
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>
@@ -92,7 +125,9 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2010 Inverse inc.
+Copyright (C) 2007-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

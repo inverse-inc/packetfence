@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="../style.css" type="text/css">
 </head>
 
-<body class="popup">
+<body class="popup help">
 
 <div id="content">
 <?

@@ -46,7 +46,7 @@
 +
 +# URL Redirectors
 +# Rewrites ANY requests to a Captive Portal request
-+url_rewrite_program /usr/local/pf/addons/proxy-bypass/squid-redirector.pl
++url_rewrite_program /usr/local/pf/addons/captive-portal/proxy-bypass/squid-redirector.pl
 +url_rewrite_concurrency 10
  
  # We recommend you to use at least the following line.

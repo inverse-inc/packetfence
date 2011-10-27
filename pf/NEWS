@@ -16,24 +16,70 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <trunk-release> released on <releaseDate>
 
+New Features
+ * MAC violation triggers allowing to isolate a single device (#1320)
+
+Enhancements
+ * Using HTTP Return Code 501 "Not Implemented" for more effective client blocking
+ * Cleanup in the Cisco 3560's code and documentation
+
 --------------------------------------------------------------------------------
-Version <nextversion> released on <releasedate>
+Version <release> released on <releaseDate>
+
+Bug Fixes
+ * 802.1X broken on Cisco Catalyst 3750 (#1286)
+ * Pop-Up windows are too small (#1078)
+ * RedHat Enterprise Linux 6 installation instructions
+
+--------------------------------------------------------------------------------
+Version 3.0.2 released on 2011-10-24
+
+SECURITY
+ * Cross-site scripting (XSS) in Captive Portal and Web Admin login. CVE-2011-4067 (Reported by Matthew Daley, #1292 and #1296)
+ * LDAP Authentication bypass in Web Admin login. CVE-2011-4068 (Reported by Matthew Daley, #1293)
+ * LDAP Injection in Web Admin login. CVE-2011-4069 (Reported by Matthew Daley, #1293)
+ * Shared session state between Captive Portal and Web Admin. CVE-2011-4070 (Reported by Matthew Daley, #1294)
+ * Command injection in guest handling in the Captive Portal and Web Admin. CVE-2011-4071 (Reported by Matthew Daley, #1295)
 
 New Hardware Support
  * Trapeze Wireless Controllers
 
-Enchancements
+Enhancements
  * Wireless deauthentication in bridge mode for DLink DWS, HP MSM and Motorola controllers
- * Better French Translation
+ * Authentication modules now hold authentication error strings and can set node attributes on authentication
+ * Several new configuration parameters to control guest signup, categorization and access durations
  * Improved validation when creating/importing multiple guest accounts.
+ * Captive portal's email confirmation page is now reachable from the management interface by default
  * Configuration files ownership validation on start-up and in `pfcmd checkup`
+ * Inline firewall changes: prevent registered users from reaching the captive portal
  * Several new DHCP fingerprints (from our spinoff www.fingerbank.org)
+ * Minor usability improvements
+ * Reduced some false warnings in the logs on node de-registration (#1315)
 
 Bug Fixes
+ * Permission denied when changing firewall rules (#1273)
+ * Firewall doesn't allow broadcast packets on internal interfaces (#1316)
+ * Pre-registered guest unregdate not set (#1301)
+ * Allow incoming DNS on management interface to track users IPs in production VLANs
+ * Guest access by SMS confirmation now properly record user's firstname and lastname (#1308)
+ * Signup page now retain Phone provider value if there was a mistake in the form (#1309)
  * Cisco access point (AP) configuration mistake in documentation
  * Dashboard not printing the SQL stats when MySQL is not local (#1289)
  * Doubled allow subnets in captive-portal-common (#1242)
  * Unreliable encoding behavior messes up with translations (#1287)
+ * Nodes are not unregistered on unregdate unless an expire mode is activated (#1298)
+ * Add trigger or cascade to delete node_useragent when deleting a node (#1285)
+ * Removed an error when validating multiple guest pre-registration
+ * No admin username output when printing guest access codes
+ * Guest access code are now sorted when using batch creation
+ * Path problem in Proxy Bypass addon
+ * Reduced documentation.conf startup annoyance when using custom authentication modules
+ * Pinned Net-Appliance-Session version requirement in RPM Spec (#1312)
+ * Some reports graphics were not properly dispalyed (#1234)
+ * People was not able to confirm registration on some cases (#1302)
+
+Translations
+ * Updated French (fr) translation
 
 --------------------------------------------------------------------------------
 Version 3.0.1 released on 2011-09-23

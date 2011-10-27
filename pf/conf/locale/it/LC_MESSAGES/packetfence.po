@@ -43,7 +43,11 @@ msgstr "Accesso Negato: Non sei il titolare di questo computer!"
 msgid  "error: incorrect mode"
 msgstr "Modo non corretto!"
 
+# deprecated but kept for a couple of versions (until at least early 2013)
 msgid  "error: invalid login or password"
+msgstr "Username o password sbagliata"
+
+msgid "Invalid login or password"
 msgstr "Username o password sbagliata"
 
 msgid  "error: invalid page number"
@@ -61,9 +65,12 @@ msgstr "Accesso negato: Il tuo IP non risulta collegabile!"
 msgid  "error: only register max nodes"
 msgstr "Puoi registrare un massimo di %s computer!"
 
+# deprecated but kept for a couple of versions (until at least early 2013)
 msgid  "error: unable to validate credentials at the moment"
 msgstr "Non e' possibile verificare le credenziali al momento"
 
+msgid "Unable to validate credentials at the moment"
+msgstr "Non e' possibile verificare le credenziali al momento"
 
 msgid  "help: provide info"
 msgstr "Se hai domande in merito a questa pagina contatta l'amministratore di rete. Per favore fornisci le seguenti informazioni: "

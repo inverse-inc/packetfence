@@ -24,7 +24,7 @@ use pf::iptables;
 use pf::node qw(node_attributes);
 use pf::violation qw(violation_count_trap);
 
-our $VERSION = 1.00;
+our $VERSION = 1.01;
 
 =head1 SUBROUTINES
 

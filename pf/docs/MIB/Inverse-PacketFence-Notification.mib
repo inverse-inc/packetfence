@@ -35,3 +35,12 @@ packetFenceDesAssociateNotification NOTIFICATION-TYPE
      should be des-associated (WIFI)."
   ::= { inversePacketFenceNotificationMIB 2 }
 END
+
+packetFenceFirewallRequestNotification NOTIFICATION-TYPE
+  OBJECTS { mac }
+  STATUS current
+  DESCRIPTION
+    "This notification is generated when the firewall rules
+     for MAC need to be adjusted to mark"
+  ::= { inversePacketFenceNotificationMIB 3 }
+END
