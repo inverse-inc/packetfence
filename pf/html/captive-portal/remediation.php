@@ -84,12 +84,23 @@
   textdomain("packetfence");
 
   $template = $_GET['template'];
-  # verify template's existence
-  if (!file_exists("$template_path/$template.php") || preg_match("/[\'|\"|\/]/", $template)) {
+
+  # but first, filter dangerous characters
+  if (preg_match("/[\'|\"|\/]/", $template)) {
+      die("An error occured on this page, please contact the Helpdesk.");
+
+  # favor loading localized template over generic one
+  } elseif (file_exists("$template_path/$template.$locale.php")) {
+      include("$template_path/$template.$locale.php");
+
+  } elseif (file_exists("$template_path/$template.php")) {
+      include("$template_path/$template.php");
+
+  # template didn't exist on filesytem
+  } else {
       die("An error occured on this page, please contact the Helpdesk.");
   }
 
-  include("$template_path/$template.php");
 
   $preview ? $title = "Preview: Quarantine Established!" : $title = "Quarantine Established!";
 
