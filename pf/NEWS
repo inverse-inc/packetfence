@@ -17,6 +17,7 @@ Version <release> released on <releaseDate>
 
 Enhancements
  * More documentation for service watch
+ * Eliminated some unncessary warnings
 
 Bug Fixes
  * 802.1X broken on Cisco Catalyst 3750 (#1286)

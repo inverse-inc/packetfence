@@ -35,6 +35,7 @@ use Log::Log4perl;
 use POSIX;
 use Readonly;
 use Template;
+use URI::Escape qw(uri_unescape);
 
 BEGIN {
     use Exporter ();
@@ -671,6 +672,20 @@ sub get_client_ip {
 
     $logger->debug("Remote Address is $LOOPBACK_IPV4 but no further hints of client IP in HTTP Headers");
     return $directly_connected_ip;
+}
+
+=item get_destination_url
+
+Returns destination_url properly parsed, defended against XSS and with configured value if not defined.
+
+=cut
+sub get_destination_url {
+    my ($cgi) = @_;
+
+    # set default if destination_url not set
+    return $Config{'trapping'}{'redirecturl'} if (!defined($cgi->param("destination_url")));
+
+    return decode_entities(uri_unescape($cgi->param("destination_url")));
 }
 
 =back

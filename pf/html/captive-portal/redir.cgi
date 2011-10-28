@@ -12,9 +12,8 @@ use warnings;
 use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
-use HTML::Entities qw(decode_entities);
 use Log::Log4perl;
-use URI::Escape qw(uri_escape uri_unescape);
+use URI::Escape qw(uri_escape);
 
 use pf::class;
 use pf::config;
@@ -39,7 +38,7 @@ my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 
 my $result;
 my $ip              = pf::web::get_client_ip($cgi);
-my $destination_url = decode_entities(uri_unescape($cgi->param("destination_url"))) || $Config{'trapping'}{'redirecturl'};
+my $destination_url = pf::web::get_destination_url($cgi);
 my $enable_menu     = $cgi->param("enable_menu");
 my $mac             = ip2mac($ip);
 my %tags;
