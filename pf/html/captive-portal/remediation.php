@@ -29,6 +29,7 @@
  *
  */
 
+  header('Content-type: text/html; charset=utf-8');
   # if we view this page through Web Admin vhost it means we are in preview mode
   if ($_SERVER["VHOST"] == "ADMIN") {
 
@@ -73,10 +74,12 @@
 
   # grab informations from configuration
   $logo_src = get_configuration_value('general.logo');
-  $locale = get_configuration_value('general.locale');
+  # FIXME we only support the first locale for now
+  list($locale) = explode(',', get_configuration_value('general.locale'));
+  $locale = trim($locale);
 
   # i18n
-  setlocale(LC_ALL, $locale);
+  setlocale(LC_ALL, $locale . ".UTF-8");
   bindtextdomain("packetfence", "/usr/local/pf/conf/locale");
   textdomain("packetfence");
 
