@@ -71,7 +71,7 @@ Requires: net-snmp >= 5.3.2.2
 Requires: mysql, perl-DBD-mysql
 Requires: perl >= 5.8.8, perl-suidperl
 Requires: perl-Bit-Vector
-Requires: perl-CGI-Session, perl(JSON)
+Requires: perl(CGI::Session), perl(JSON), perl(PHP::Session)
 Requires: perl-Class-Accessor
 Requires: perl-Class-Accessor-Fast-Contained
 Requires: perl-Class-Data-Inheritable
