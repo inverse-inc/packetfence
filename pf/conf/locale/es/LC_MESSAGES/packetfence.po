@@ -79,7 +79,7 @@ msgid "help: provide info"
 msgstr "Si tiene alguna pregunta sobre esta página, contacte su técnico local. Por favor indique la siguiente información:"
 
 msgid "register: all systems must be registered"
-msgstr "Debido a que se necesite contactar con los usuarios considerados como sistemas individuales, todos los sistemas de esta red deben estar registrados"
+msgstr "Cada usuario en esta red es considerado como un sistema individual, por esta razón todos los sistemas deben estar registrados"
 
 msgid "register: aup"
 msgstr "El proceso de registro requiere la aceptación de la Política de Uso Aceptable (Acceptable Use Policy, AUP). Si desea leer esta política antes de empezar con el registro, por favor visite:"
@@ -109,7 +109,7 @@ msgid "scan: scan in progress"
 msgstr "Su sistema esta siendo analizado"
 
 msgid "scan in progress contact support if too long"
-msgstr "Su sistema esta todavía siendo analizado. El proceso inició hace %s. Usualmente este proceso toma unos pocos minutos. Si está tomando demasiado tiempo, por favor contacte a su equipo de soporte."
+msgstr "Su sistema esta todavía siendo analizado. El proceso inició desde %s. Usualmente este proceso toma unos pocos minutos. Si está tomando demasiado tiempo, por favor contacte a su equipo de soporte."
 
 msgid "automatically refresh"
 msgstr "Esta página se actualiza cada %s segundos para verificar si el análisis ha sido completado."
@@ -145,7 +145,7 @@ msgid "MAC"
 msgstr "MAC"
 
 msgid "network access is being enabled"
-msgstr "Su acceso a la red esta siendo habilitado - este proceso tardará aproximadamente. %s segundos"
+msgstr "Su acceso a la red esta siendo habilitado - este proceso tardará aproximadamente %s segundos"
 
 msgid "system scan in progress"
 msgstr "Su sistema está siendo analizado - este proceso tardará aproximadamente %s segundos."
@@ -166,7 +166,7 @@ msgid "In the fields below please enter your name, phone number and a valid emai
 msgstr "En los campos a continuación por favor ingrese su nombre, número telefónico y la dirección de correo electrónico válida."
 
 msgid "If you choose to receive your access code <strong>by email</strong>, you will be given temporary network access for 10 minutes during that time:"
-msgstr "Si usted selecciona recibir su código de acceso <strong>por correo electrónico</strong>, usted recibirá un acceso temporal a la red por 10 minutos:"
+msgstr "Si usted selecciona recibir su código de acceso <strong>por EMAIL</strong>, usted recibirá un acceso temporal a la red por 10 minutos:"
 
 msgid "Login to the email account you referenced and;"
 msgstr "Ingrese a la cuenta de correo electrónico que ha referenciado;"
@@ -175,13 +175,13 @@ msgid "Click on the link emailed to you to validate network access for the next 
 msgstr "Haga clic sobre el enlace que ha sido enviado al correo electrónico para validar el acceso a la red por las proximas 24 horas."
 
 msgid "Register by Email"
-msgstr "Registro por correo"
+msgstr "Registrar por EMAIL"
 
 msgid "If you choose to receive your access code <strong>by SMS</strong>, you will be able to enter it on the next page."
 msgstr "Si usted selecciona recibir su código de acceso <strong>por SMS</strong>, usted será habilitado para entrar en la próxima página."
 
 msgid "Register by SMS"
-msgstr "Registrado por SMS"
+msgstr "Registrar por SMS"
 
 msgid "Password"
 msgstr "Contraseña"
@@ -244,7 +244,7 @@ msgid "Darknet Violation"
 msgstr "Violaciones tipo Darknet"
 
 msgid "Your system has been detected sending traffic to a network known to be unused (darknet). This is often indicative of a worm/virus infection."
-msgstr "Su sistema ha sido detectado enviando tráfico a una red permitida (darknet). Esto frecuentemente indica una infección por un gusano o un virus."
+msgstr "Su sistema ha sido detectado enviando tráfico a una red no usada (darknet). Esto frecuentemente indica una infección por un gusano o un virus."
 
 msgid "Your system will likely need to be rebuilt. Please contact your local support staff for more information."
 msgstr "Su sistema probablemente necesita ser reinstalado. Por favor contacte su equipo de soporte para mayor información."
@@ -298,7 +298,7 @@ msgid "guest registration form"
 msgstr "Formato de registro para Invitados"
 
 msgid "guest registration instructions"
-msgstr "Por favor llene todos los campos a continuación para que la cuenta de invitado sea creada. Los invitados solo podrán registrarse durante un día. La duración del acceso comenzará una vez el invitado se registre en el portal cautivo."
+msgstr "Por favor complete todos los campos a continuación para que la cuenta de invitado sea creada. Los invitados solo podrán registrarse durante un día. La duración del acceso comenzará una vez el invitado se registre en el portal cautivo."
 
 msgid "Firstname"
 msgstr "Nombre "
@@ -307,10 +307,10 @@ msgid "Lastname"
 msgstr "Apellido"
 
 msgid "Phone number"
-msgstr "Número teléfonico"
+msgstr "Número Celular"
 
 msgid "Phone Provider"
-msgstr "Télefono proveedor"
+msgstr "Proveedor"
 
 msgid "Select your provider"
 msgstr "Seleccione su proveedor"
@@ -390,7 +390,7 @@ msgid "Arrival date is not of expected format."
 msgstr "La Fecha de llegada no tiene el formato esperado."
 
 msgid "You can't register as a guest with a %s email address. Please register as a regular user using your email address instead."
-msgstr "Usted no puede registrarse como invitado con un %s dirección de correo electrónico. Por favor regístrese como un usuario regular usando su dirección de correo electrónico en su lugar."
+msgstr "Usted no puede registrarse como invitado con una %s dirección de correo electrónico. Por favor regístrese como un usuario regular usando su dirección de correo electrónico en su lugar."
 
 msgid "An error occured while sending the confirmation email."
 msgstr "Un error ocurrió mientras se enviaba el correo de confirmación."
@@ -460,4 +460,103 @@ msgstr "Próxima página"
 
 msgid "The activation code provided is invalid. Reasons could be: it never existed, it was already used or has expired."
 msgstr "El código de activación proporcionado es inválido. Las razones pueden ser: este nunca existió, ya ha sido utilizado o ya expiró."
+
+msgid "Malware found!"
+msgstr "Malware encontrado!"
+
+msgid "Your system has been found to be infected with malware. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgstr "Su sistema ha sido encontrado infectado con malware. Debido a la amenaza que esta infección posee para otros sistemas en la red, la conectividad de la red ha sido deshabilitada hasta que se tomen acciones correctivas."
+
+msgid "Malware Removal"
+msgstr "Eliminación de Malware"
+
+msgid "You have been detected using a device that has been explicitly disallowed by your network administrator."
+msgstr "Usted ha sido detectado utilizando un dispositivo que ha sido deshabilitado explicitamente por su administrador de red"
+
+msgid "NAT Device Detected"
+msgstr "Dispositivo NAT Detectado"
+
+msgid "You have been detected using a device that performs network address translation (NAT). These devices, typically wireless access points or 'routers' are not permitted on the network. Please unplug this device and connect your computer directly to the network for access."
+msgstr "Usted ha sido detectado utilizando un dispositivo que desempeña traducciones de direcciones de red (Network Address Translations NAT). Estos dispositivos, típicamente access points inalámbricos y routers, no son permitidos en la red. Por favor desconecte el dispositivo y conecte su computador directamente a la red para tener acceso."
+
+msgid "Rogue DHCP server"
+msgstr "Servidor DHCP Pirata"
+
+msgid "You have been detected running a rogue DHCP server. Please disable it."
+msgstr "Usted ha sido detectado corriendo un servidor DHCP no autorizado. Por favor deshabilitelo."
+
+msgid "Vulnerability Scanning"
+msgstr "Análisis de Vulnerabilidades"
+
+msgid "Your system will be scanned for vulnerabilities before you are allowed to enter the network. Please click on the button below, this can take anywhere from a few seconds to a couple of minutes."
+msgstr "Su sistema será analizado en busca de vulnerabilidades antes de que se le permita el ingreso a la red. Por favor haga clic sobre el botón a continuación, esto puede tardar desde unos pocos segundos hasta un par de minutos."
+
+msgid "LSASS Worm"
+msgstr "Gusano LSASS"
+
+msgid "Your system has been found to be infected with An LSASS-based worm. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken. Instructions for disinfection are below:"
+msgstr "Su sistema ha sido encontrado infectado con cun gusano de tipo LSASS. Debido a la amenaza que esta infección posee para otros sistemas en la red, la conectividad de la red ha sido deshabilitada hasta que se tomen acciones correctivas."
+
+msgid "Worm Removal"
+msgstr "Eliminación de Gusano"
+
+msgid "Make sure your antivirus is working. You might want to perform a full system scan. Clicking the 'Enable Network' button below will re-enable your network access. Make sure that you followed the instructions to correct the issue. Failure to do so will result in network access being disabled again. Repeated failures will result in access being disabled permanently."
+msgstr ""
+
+msgid "Your network should be enabled within a minute or two. If it is not reboot your computer."
+msgstr ""
+
+msgid "You must be authenticated to manage guests."
+msgstr ""
+
+msgid "You are logged in as"
+msgstr ""
+
+msgid "CSV file"
+msgstr ""
+
+msgid "CSV file import"
+msgstr ""
+
+msgid "Invalid PIN"
+msgstr ""
+
+msgid "Access Duration"
+msgstr ""
+
+msgid "Username Prefix"
+msgstr ""
+
+msgid "Quantity"
+msgstr ""
+
+msgid "Print access codes"
+msgstr ""
+
+msgid "Logout"
+msgstr ""
+
+msgid "Required columns: username, password."
+msgstr ""
+
+msgid "Column Delimiter"
+msgstr ""
+
+msgid "Columns Order"
+msgstr ""
+
+msgid "comma (,)"
+msgstr ""
+
+msgid "semicolon (;)"
+msgstr ""
+
+msgid "tab"
+msgstr ""
+
+msgid "Format is: yyyy-mm-dd"
+msgstr ""
+
+msgid "Import file"
+msgstr ""
 

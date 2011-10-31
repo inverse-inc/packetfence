@@ -16,7 +16,8 @@ For a list of compatibility related changes see the UPGRADE file.
 Version <release> released on <releaseDate>
 
 Enhancements
- * Localized remediation templates (if a localized version exists, it'll override the default)
+ * Translatable remediation templates (if a translated version exists, it'll override the default)
+ * Guest management interface can be translated
  * More documentation for service watch
  * Eliminated some unncessary warnings
  * Better help in the web admin UI
