@@ -41,6 +41,7 @@ sub handler
   Log::Log4perl::MDC->put('tid', 0);
 
   my $cgi = new CGI;
+  $cgi->charset("UTF-8");
   my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 
   my $ip              = pf::web::get_client_ip($cgi);
