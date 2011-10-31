@@ -8,7 +8,7 @@ domain "packetfence"
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"PO-Revision-Date: 2011-05-19 12:00-0400\n"
+"PO-Revision-Date: 2011-10-31 11:39-0400\n"
 "Last-Translator: Olivier Bilodeau <obilodeau@inverse.ca>\n"
 "Language-Team: PacketFence support <support@packetfence.org>\n"
 "MIME-Version: 1.0\n"
@@ -252,7 +252,7 @@ msgstr ""
 msgid  "Windows patches are not up to date"
 msgstr ""
 
-msgid  "Due to the threat this poses for other systems on the network, network connectivity has been disabled until corrective action is taken. Instructions for disinfection are below:"
+msgid "Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken. Instructions for disinfection are below:"
 msgstr ""
 
 msgid  "Generic"
@@ -261,8 +261,8 @@ msgstr "Generic"
 msgid  "Network connectivity has been disabled."
 msgstr "Network connectivity has been disabled."
 
-msgid  "Please contact your support staff for more information."
-msgstr "Please contact your support staff for more information."
+msgid "Please contact your support staff for more information."
+msgstr ""
 
 msgid  "Hub Detection"
 msgstr "Hub Detection"
@@ -446,6 +446,9 @@ msgstr ""
 msgid "Multiple guest accounts creation"
 msgstr ""
 
+msgid "CSV file"
+msgstr ""
+
 msgid "CSV file import"
 msgstr ""
 
@@ -530,23 +533,77 @@ msgstr ""
 msgid "Worm Removal"
 msgstr ""
 
+msgid "Make sure your antivirus is working. You might want to perform a full system scan. Clicking the 'Enable Network' button below will re-enable your network access. Make sure that you followed the instructions to correct the issue. Failure to do so will result in network access being disabled again. Repeated failures will result in access being disabled permanently."
+msgstr ""
+
 msgid "Trojan Infection"
+msgstr ""
+
+msgid "Unauthorized device"
 msgstr ""
 
 msgid "Your system has been found to be infected with a Trojan IRC bot and is scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
 msgstr ""
 
-msgid  "Zotob Infection"
+msgid "Zotob Infection"
 msgstr ""
 
-msgid  "Your system has been found to be infected with a Zotob worm and is scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgid "Your system has been found to be infected with a Zotob worm and is scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
 msgstr ""
 
-msgid  "Your network access is currently being enabled. Once network connectivity is established you will be automatically redirected."
+msgid "Your network access is currently being enabled. Once network connectivity is established you will be automatically redirected."
+msgstr ""
+
+msgid "You must be authenticated to manage guests."
 msgstr ""
 
 msgid "This account is expired."
 msgstr ""
 
 msgid "This account is not yet activated."
+msgstr ""
+
+msgid "Your network should be enabled within a minute or two. If it is not reboot your computer."
+msgstr ""
+
+msgid "Invalid PIN"
+msgstr ""
+
+msgid "Access Duration"
+msgstr ""
+
+msgid "Username Prefix"
+msgstr ""
+
+msgid "Quantity"
+msgstr ""
+
+msgid "Print access codes"
+msgstr ""
+
+msgid "Logout"
+msgstr ""
+
+msgid "Required columns: username, password."
+msgstr ""
+
+msgid "Column Delimiter"
+msgstr ""
+
+msgid "Columns Order"
+msgstr ""
+
+msgid "comma (,)"
+msgstr ""
+
+msgid "semicolon (;)"
+msgstr ""
+
+msgid "tab"
+msgstr ""
+
+msgid "Format is: yyyy-mm-dd"
+msgstr ""
+
+msgid "Import file"
 msgstr ""

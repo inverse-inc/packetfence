@@ -16,7 +16,8 @@ For a list of compatibility related changes see the UPGRADE file.
 Version <release> released on <releaseDate>
 
 Enhancements
- * Localized remediation templates (if a localized version exists, it'll override the default)
+ * Translatable remediation templates (if a translated version exists, it'll override the default)
+ * Guest management interface can be translated
  * More documentation for service watch
  * Eliminated some unncessary warnings
  * Better help in the web admin UI
@@ -26,6 +27,10 @@ Bug Fixes
  * Pop-Up windows are too small (#1078)
  * RedHat Enterprise Linux 6 installation instructions
  * Encoding on the remediation pages and on the release pages (scan, access enabled)
+
+Translations
+ * Minor update to French (fr) translation
+ * Updated Spanish (es) translation (Thanks to Juan Camilo Valencia)
 
 --------------------------------------------------------------------------------
 Version 3.0.2 released on 2011-10-24

@@ -8,7 +8,7 @@ domain "packetfence"
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"PO-Revision-Date: 2011-07-13 16:29-0500\n"
+"PO-Revision-Date: 2011-10-31 11:37-0400\n"
 "Last-Translator: Olivier Bilodeau <obilodeau@inverse.ca>\n"
 "Language-Team: PacketFence support <support@packetfence.org>\n"
 "MIME-Version: 1.0\n"
@@ -185,7 +185,7 @@ msgid  "Register by Email"
 msgstr "Inscription par courriel"
 
 msgid  "If you choose to receive your access code <strong>by SMS</strong>, you will be able to enter it on the next page."
-msgstr "Si vous choisissez de recevoir votre code <strong>par SMS</string>, vous pourrez entrer votre NIP sur la page suivante."
+msgstr "Si vous choisissez de recevoir votre code <strong>par SMS</strong>, vous pourrez entrer votre NIP sur la page suivante."
 
 msgid  "Register by SMS"
 msgstr "Inscription par SMS"
@@ -240,6 +240,12 @@ msgstr "Adresse IP"
 
 msgid "MAC Address"
 msgstr "Adresse MAC"
+
+msgid "Unauthorized device"
+msgstr "Périphérique non-autorisé"
+
+msgid "You have been detected using a device that has been explicitly disallowed by your network administrator."
+msgstr "Vous avez été détecté avec périphérique qui est explicitement interdit par la politique d'accès au réseau."
 
 msgid "Banned Operating System"
 msgstr "Syst&egrave;me d'exploitation non autoris&eacute;"
@@ -487,7 +493,7 @@ msgid "Your network access is currently being enabled. Once network connectivity
 msgstr "Votre accès réseau est présentement en activation.  Une fois la connectivité réseau établie, vous serez automatiquement redirigé."
 
 msgid "This account is expired."
-msgstr "Cet compte est expiré."
+msgstr "Ce compte est expiré."
 
 msgid "This account is not yet activated."
-msgstr "Cet compte n'est pas encore activé."
+msgstr "Ce compte n'est pas encore activé."
