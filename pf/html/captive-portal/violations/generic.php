@@ -20,7 +20,7 @@
  * USA.
  * 
  * @author      Dominik Gehl <dgehl@inverse.ca>
- * @copyright   2008-2010 Inverse inc.
+ * @copyright   2008-2011 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
@@ -28,6 +28,6 @@
  
   $description_text = 'Network connectivity has been disabled.';
 
-  $remediation_text = 'Please contact your local support staff for more information.';
+  $remediation_text = 'Please contact your support staff for more information.';
 
 ?>
