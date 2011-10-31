@@ -23,10 +23,9 @@
     <date>2011-10-24</date>
 
     <revhistory>
-      <revision><revnumber>2.6</revnumber><date>2011-10-19</date><authorinitials>OBU</authorinitials>
+      <revision><revnumber>2.7</revnumber><date>2011-10-31</date><authorinitials>OBU</authorinitials>
         <revremark>
-          New documentation section points to POD doc. New Authentication modules section.
-          Minor references that were out of date.
+          Explained new translation technique for violation remediation pages.
         </revremark>
       </revision>
       <revision>
@@ -290,7 +289,7 @@
           <filename>/usr/local/pf/html/captive-portal/violations/</filename> and obeys the
           everything mentionned in the <link linkend='presentation' endterm="presentation.title"/> section.
           The only caveat being that the template (<filename>remediation.html</filename>) is not Template Toolkit 
-          but pure php.
+          but pure PHP.
         </para>
       </sect2>
 
@@ -307,6 +306,19 @@
                 <filename>/usr/local/pf/html/captive-portal/violations/</filename>) 
                 will be looked up in the translation files in <filename>/usr/local/pf/conf/locale/..</filename>
                 and if a translation is available the translated string will be the one visible on the captive portal.
+              </para>
+              <para>
+                Also, if you create a violation template with the name of your locale in 
+                <filename>/usr/local/pf/html/captive-portal/violations/</filename> in the format: 
+                <filename>&lt;template_name&gt;.&lt;locale_name&gt;.php</filename>. 
+                It will be loaded instead of the default <filename>&lt;template_name&gt;.php</filename> and so
+                you can put strings and HTML directly in your target language without the hassle of escaping everything
+                properly as you would need to do with gettext.
+              </para>
+              <para>
+                For example, if <filename>malware.es_ES.php</filename> exists and you are using the 
+                <varname>es_ES</varname> (Spanish) locale then it will be loaded instead of 
+                <filename>malware.php</filename> on violation set to load the <varname>malware</varname> template.
               </para>
             </listitem>
             <listitem>
