@@ -1,6 +1,6 @@
 <?php
 /**
- * TODO short desc
+ * header.php - print header and top of body
  *
  * TODO long desc
  * 
@@ -211,6 +211,14 @@
 
 <!-- Begin Content -->
 <div id="content">
+  <?php 
+  /*
+   * The $_error global is displayed here if it is set. 
+   * This is done to avoid errors printing before the header is sent (if using print).
+   * TODO: Unfortunately it relies on globals because the original design didn't foresee the problem.
+   */
+  if (isset($_error)) {
+    print_error($_error);
+  }
 
-<?php
-perform_access_control();
+  perform_access_control();

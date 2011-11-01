@@ -933,9 +933,8 @@ function PrintSubNav($menu){
     }
 
     if($errors){
-      print "<div id='error' style='text-align:left;padding:10px;background:#FF7575;'>
-        <b>Error: Problems executing 'PFCMD $command'</b><br><pre>".
-        implode('<br>', $errors)."</pre></div>";
+      global $_error;
+      $_error = "<b>Error: Problems executing 'PFCMD $command'</b><br><pre>". implode('<br>', $errors)."</pre>";
       return false;
     }
 
@@ -998,15 +997,18 @@ function PrintSubNav($menu){
 
     $extensions = get_loaded_extensions();
     if(!in_array('gd', $extensions)){ 
-      print "<div id='error'>Error: PHP does not have GD installed.<br>JPGraph uses the graphing library GD to produce it's magnificent graphs, so you must install PHP with GD support.  For RedHat, use 'up2date php-gd' or 'yum php-gd'.</div>";
+      global $_error;
+      $_error = "Error: PHP does not have GD installed.<br>JPGraph uses the graphing library GD to produce it's magnificent graphs, so you must install PHP with GD support.  For RedHat, use 'up2date php-gd' or 'yum php-gd'.";
       return false;
     }
     else if(!file_exists("$jpgraph_dir/jpgraph.php")){
-      print "<div id='error'>Error: missing JpGraph files in '$jpgraph_dir'.<br>Go to <a href='http://www.aditus.nu/jpgraph/'>http://www.aditus.nu/jpgraph/</a> to download the most recent version of JpGraph.</div>";
+      global $_error;
+      $_error = "Error: missing JpGraph files in '$jpgraph_dir'.<br>Go to <a href='http://www.aditus.nu/jpgraph/'>http://www.aditus.nu/jpgraph/</a> to download the most recent version of JpGraph.";
       return false;
     }
     else if(!file_exists("../common/fonts/arial.ttf")){
-      print "<div id='error'>Error: missing true type font file in 'pf/html/admin/common/fonts/arial.ttf'.<br>Go to <a href='http://ftp.gnome.org/pub/GNOME/sources/ttf-bitstream-vera'>http://ftp.gnome.org/pub/GNOME/sources/ttf-bitstream-vera/</a> to download the most recent version of the Bitstream Vera open source fonts.</div>";
+      global $_error;
+      $_error = "Error: missing true type font file in 'pf/html/admin/common/fonts/arial.ttf'.<br>Go to <a href='http://ftp.gnome.org/pub/GNOME/sources/ttf-bitstream-vera'>http://ftp.gnome.org/pub/GNOME/sources/ttf-bitstream-vera/</a> to download the most recent version of the Bitstream Vera open source fonts.";
       return false;
     }
     return true;

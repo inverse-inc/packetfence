@@ -531,8 +531,9 @@ ul#navlist li:hover ul#subnavlist  {
 
 #error{
     padding:10px;
-    text-align:center;
+    text-align:left;
     background:#FF7575;
+    color: #000;
 }
 
 #message_box{
