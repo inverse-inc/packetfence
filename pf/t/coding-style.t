@@ -25,6 +25,7 @@ my @files = (
     '/usr/local/pf/addons/connect_and_read.pl',
     '/usr/local/pf/addons/convertToPortSecurity.pl',
     '/usr/local/pf/addons/dhcp_dumper',
+    '/usr/local/pf/addons/import-node-csv.pl',
     '/usr/local/pf/addons/monitorpfsetvlan.pl',
     '/usr/local/pf/addons/mrtg/mrtg-wrapper.pl',
     '/usr/local/pf/addons/upgrade/to-2.2.0-update-all-useragents.pl',

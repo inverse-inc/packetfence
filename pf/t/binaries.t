@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 31;
+use Test::More tests => 32;
 
 my @binaries = (
     '/usr/local/pf/configurator.pl',
@@ -22,6 +22,7 @@ my @binaries = (
     '/usr/local/pf/addons/connect_and_read.pl',
     '/usr/local/pf/addons/convertToPortSecurity.pl',
     '/usr/local/pf/addons/dhcp_dumper',
+    '/usr/local/pf/addons/import-node-csv.pl',
     '/usr/local/pf/addons/monitorpfsetvlan.pl',
     '/usr/local/pf/addons/recovery.pl',
     '/usr/local/pf/addons/802.1X/packetfence.pm',
