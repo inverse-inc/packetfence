@@ -2036,7 +2036,11 @@ sub command_param {
         }
         return (0);
     } else {
-        print "error: please consult log for more information\n";
+        if ( $function =~ /^node_add$/ ) {
+            print "Error adding a node: The node already exists. (pfcmd line ".__LINE__.")\n";
+        } else {
+            print "error: please consult log for more information\n";
+        }
         return (2);
     }
 }

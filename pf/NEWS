@@ -30,6 +30,7 @@ Bug Fixes
  * Encoding on the remediation pages and on the release pages (scan, access enabled)
  * SNMPv3 issues affecting all the Cisco wired product line (#1284)
  * Allow incoming DHCP on management interface to track users IPs in production VLANs (as opposed to DNS added in 3.0.2)
+ * Node add silently fails on the Web Admin if a node already exists
 
 Translations
  * Minor update to French (fr) translation
