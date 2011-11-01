@@ -521,9 +521,6 @@ msgstr ""
 msgid "Invalid PIN"
 msgstr ""
 
-msgid "Access Duration"
-msgstr ""
-
 msgid "Username Prefix"
 msgstr ""
 
