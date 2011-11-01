@@ -48,6 +48,7 @@ unless ($session && $session->get('user')) {
 my $csession = CGI::Session->new(undef, $q, {Directory => "$var_dir/session"});
 
 # Next, set up our logger, database handle, translation context, etc.
+# TODO can't this boiler plate done inside mod_perl?
 
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('soh.cgi');
@@ -233,8 +234,9 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
                 # trigger, we need to adjust the triggers defined for
                 # the relevant violation class.
                 #
-                # XXX This should really be in a separate function, but
-                # this code is too convoluted to cleanly separate XXX
+                # TODO at some point violations will be full blown objects 
+                # SoH will be a subclass and none of this convoluted trigger
+                # management will be required TODO
 
                 my $old = $f->{action} || "";
                 my $new = $action || "";
