@@ -61,9 +61,9 @@ if (! $mysql_connection) {
 my $mac;
 my $now = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time) );
 my %macHash = (
-    'status' 	  => 'reg',
-    'regdate'	  => "$now",
-    'notes'	  => 'auto-registered by Dany Heroux'
+    'status' => 'reg',
+    'regdate' => "$now",
+    'notes' => 'auto-registered by Dany Heroux'
 );
 
 my $csv = Text::CSV->new({ binary => 1 });
