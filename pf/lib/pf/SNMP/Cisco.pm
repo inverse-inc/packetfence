@@ -202,6 +202,8 @@ sub parseTrap {
                                 ["$OID_dot1dBasePortIfIndex.$dot1dBasePort"],
                             -contextname => "vlan_$currentVlan"
                         );
+                        # FIXME: calling "private" method to unset context. See #1284 or upstream rt.cpan.org:72075.
+                        $this->{_sessionRead}->{_context_name} = undef;
                     }
                 } else {
                     my ( $sessionReadVlan, $sessionReadVlanError )
@@ -675,6 +677,8 @@ sub getMacBridgePortHash {
             -baseoid     => $OID_dot1dTpFdbPort,
             -contextname => "vlan_$vlan"
         );
+        # FIXME: calling "private" method to unset context. See #1284 or upstream rt.cpan.org:72075.
+        $this->{_sessionRead}->{_context_name} = undef;
     } else {
         my ( $sessionReadVlan, $sessionReadVlanError ) = Net::SNMP->session(
             -hostname  => $this->{_ip},
@@ -767,6 +771,8 @@ sub getIfIndexForThisMac {
                     return $result->{$oid};
                 }
             }
+            # FIXME: calling "private" method to unset context. See #1284 or upstream rt.cpan.org:72075.
+            $this->{_sessionRead}->{_context_name} = undef;
 
         } else {
 
@@ -846,6 +852,8 @@ sub isMacInAddressTableAtIfIndex {
                 return 1;
             }
         }
+        # FIXME: calling "private" method to unset context. See #1284 or upstream rt.cpan.org:72075.
+        $this->{_sessionRead}->{_context_name} = undef;
 
     } else {
 
@@ -1239,6 +1247,8 @@ sub getAllMacs {
                     -baseoid     => $OID_dot1dTpFdbPort,
                     -contextname => "vlan_$vlan"
                 );
+                # FIXME: calling "private" method to unset context. See #1284 or upstream rt.cpan.org:72075.
+                $this->{_sessionRead}->{_context_name} = undef;
             } else {
                 my ( $sessionReadVlan, $sessionReadVlanError )
                     = Net::SNMP->session(
