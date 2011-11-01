@@ -327,7 +327,7 @@ msgstr ""
 msgid "End Date"
 msgstr ""
 
-msgid "Access duration"
+msgid "Access Duration"
 msgstr ""
 
 msgid "Send access code by email"

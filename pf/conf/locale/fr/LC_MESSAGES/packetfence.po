@@ -331,7 +331,7 @@ msgstr "Date d'arriv&eacute;e"
 msgid "End Date"
 msgstr "Date de fin"
 
-msgid "Access duration"
+msgid "Access Duration"
 msgstr "Dur&eacute;e de l'acc&egrave;s"
 
 msgid "Send access code by email"
