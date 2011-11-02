@@ -38,6 +38,10 @@ use pf::util;
 
 use base ('pf::SNMP::Cisco::Catalyst_2960');
 
+=head1 SUBROUTINES
+
+=over
+
 =item _setVlan
 
 Here we override Cisco's setVlan because of the behavior of the security table on the 6500's.
@@ -131,6 +135,8 @@ sub authorizeMAC {
     }
     return 1;
 }
+
+=back
 
 =head1 AUTHOR
 
