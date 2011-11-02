@@ -21,7 +21,7 @@ my @binaries = (
     '/usr/local/pf/addons/autodiscover.pl',
     '/usr/local/pf/addons/connect_and_read.pl',
     '/usr/local/pf/addons/convertToPortSecurity.pl',
-    '/usr/local/pf/addons/dhcp_dumper',
+    '/usr/local/pf/addons/dhcp_dumper.pl',
     '/usr/local/pf/addons/import-node-csv.pl',
     '/usr/local/pf/addons/monitorpfsetvlan.pl',
     '/usr/local/pf/addons/recovery.pl',

@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-dhcp_dumper - listen to DHCP packets
+dhcp_dumper.pl - listen to DHCP packets
 
 =head1 SYNOPSIS
 
-dhcp_dumper [options]
+dhcp_dumper.pl [options]
 
  Options:
    -i      Interface (eg. "eth0")
