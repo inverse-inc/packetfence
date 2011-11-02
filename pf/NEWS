@@ -15,6 +15,9 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <release> released on <releaseDate>
 
+New Hardware Support
+ * Cisco Catalyst 6500 series switches in port-security
+
 Enhancements
  * Translatable remediation templates (if a translated version exists, it'll override the default)
  * Guest management interface can be translated
