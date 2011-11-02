@@ -31,6 +31,7 @@ my @files = (
     '/usr/local/pf/addons/import-node-csv.pl',
     '/usr/local/pf/addons/monitorpfsetvlan.pl',
     '/usr/local/pf/addons/mrtg/mrtg-wrapper.pl',
+    '/usr/local/pf/addons/network-save-configs.pl',
     '/usr/local/pf/addons/pfdetect_remote/sbin/pfdetect_remote',
     '/usr/local/pf/addons/recovery.pl',
     '/usr/local/pf/addons/upgrade/to-2.2.0-update-all-useragents.pl',

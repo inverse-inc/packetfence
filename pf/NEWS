@@ -25,6 +25,7 @@ Enhancements
  * Eliminated some unncessary warnings
  * Better help in the web admin UI
  * Added a new addon: import-node-csv.pl - bulk node import tool
+ * Added a new addon: network-save-configs.pl - saves configs (write mem) for the whole network (only Cisco for now)
 
 Bug Fixes
  * 802.1X broken on Cisco Catalyst 3750 (#1286)

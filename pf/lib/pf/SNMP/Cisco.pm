@@ -25,6 +25,10 @@ use pf::config;
 use pf::SNMP::constants;
 use pf::util;
 
+# CAPABILITIES
+# special features 
+sub supportsSaveConfig { return $TRUE; }
+
 =head1 SUBROUTINES
 
 TODO: This list is incomplete
@@ -1392,105 +1396,93 @@ sub isVoIPEnabled {
     return ( $this->{_VoIPEnabled} == 1 );
 }
 
-# type == 3 => startupConfig
-# type == 4 => runningConfig
-sub copyConfig {
-    my ( $this, $type, $ip, $user, $pass, $filename ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    my $result;
-    my $random;
+=item copyConfig
 
-    my $OID_ccCopyProtocol
-        = '1.3.6.1.4.1.9.9.96.1.1.1.1.2';    #CISCO-CONFIG-COPY-MIB
+Copy the configuration.
+
+Source and destination types are defined under ConfigFileType from CISCO-CONFIG-COPY MIB.
+Local values are available in L<pf::SNMP::constants>.
+
+We could support other destination types if there was motivation to do so.
+
+Notice that we are throwing exceptions in here so make sure to trap them!
+
+Inspired by: http://www.notarus.net/networking/cisco_snmp_config.html#wrmem
+
+=cut
+sub copyConfig {
+    my ( $this, $src_type, $dest_type, $uri ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    # Validation
+    die("Can't connect in SNMP Read to switch " . $this->{_ip}) if (!$this->connectRead());
+    die("Can't connect in SNMP Write to switch " . $this->{_ip}) if (!$this->connectWrite());
+
+    my @supported = ($CISCO::STARTUP_CONFIG, $CISCO::RUNNING_CONFIG);
+    die("Copy source not supported!") if (!grep $_ eq $src_type, @supported);
+    die("Copy destination not supported!") if (!grep $_ eq $dest_type, @supported);
+
+    my $OID_ccCopyProtocol = '1.3.6.1.4.1.9.9.96.1.1.1.1.2';    #CISCO-CONFIG-COPY-MIB
     my $OID_ccCopySourceFileType = '1.3.6.1.4.1.9.9.96.1.1.1.1.3';
     my $OID_ccCopyDestFileType   = '1.3.6.1.4.1.9.9.96.1.1.1.1.4';
-    my $OID_ccCopyServerAddress  = '1.3.6.1.4.1.9.9.96.1.1.1.1.5';
-    my $OID_ccCopyFileName       = '1.3.6.1.4.1.9.9.96.1.1.1.1.6';
-    my $OID_ccCopyUserName       = '1.3.6.1.4.1.9.9.96.1.1.1.1.7';
-    my $OID_ccCopyUserPassword   = '1.3.6.1.4.1.9.9.96.1.1.1.1.8';
     my $OID_ccCopyState          = '1.3.6.1.4.1.9.9.96.1.1.1.1.10';
     my $OID_ccCopyEntryRowStatus = '1.3.6.1.4.1.9.9.96.1.1.1.1.14';
+    # Unsupported for now
+    #my $OID_ccCopyServerAddress  = '1.3.6.1.4.1.9.9.96.1.1.1.1.5';
+    #my $OID_ccCopyFileName       = '1.3.6.1.4.1.9.9.96.1.1.1.1.6';
+    #my $OID_ccCopyUserName       = '1.3.6.1.4.1.9.9.96.1.1.1.1.7';
+    #my $OID_ccCopyUserPassword   = '1.3.6.1.4.1.9.9.96.1.1.1.1.8';
 
-    if ( !$this->connectRead() ) {
-        return 0;
-    }
-
-    if ( !$this->connectWrite() ) {
-        return 0;
-    }
-
-    # generate random number
+    # generate random number and make sure the switches copy mechanisms are not already using it
+    my ($result, $random);
     my $nb = 0;
     do {
         $nb++;
         $random = 1 + int( rand(1000) );
-        $logger->trace(
-            "SNMP get_request for ccCopyEntryRowStatus: $OID_ccCopyEntryRowStatus.$random"
-        );
-        $result = $this->{_sessionRead}->get_request(
-            -varbindlist => [ "$OID_ccCopyEntryRowStatus.$random" ] );
+        $logger->trace("SNMP get_request for ccCopyEntryRowStatus: $OID_ccCopyEntryRowStatus.$random");
+        $result = $this->{_sessionRead}->get_request(-varbindlist => [ "$OID_ccCopyEntryRowStatus.$random" ] );
         if ( defined($result) ) {
-            $logger->debug(
-                "ccCopyTable row $random is already used - let's generate a new random number"
-            );
+            $logger->debug("ccCopyTable row $random is already used - let's generate a new random number");
         } else {
-            $logger->debug(
-                "ccCopyTable row $random is free - starting to create it");
+            $logger->debug("ccCopyTable row $random is free - starting to create it");
         }
     } while ( ( $nb <= 20 ) && ( defined($result) ) );
+
+    # we couldn't find an unsued copy slot
     if ( $nb == 20 ) {
-        $logger->error("unable to find unused entry in ccCopyTable");
-        return 0;
+        die("Unable to find unused entry in ccCopyTable! Can't copy config.");
     }
 
-    $logger->trace(
-        "SNMP set_request to create entry in ccCopyTable: $OID_ccCopyProtocol.$random i 2 $OID_ccCopySourceFileType.$random i $type $OID_ccCopyDestFileType.$random i 1 $OID_ccCopyServerAddress.$random a $ip $OID_ccCopyUserName.$random s $user $OID_ccCopyUserPassword.$random s $pass $OID_ccCopyFileName.$random s $filename $OID_ccCopyEntryRowStatus.$random i 4"
-    );
-    $result = $this->{_sessionWrite}->set_request(
-        -varbindlist => [
-            "$OID_ccCopyProtocol.$random",
-            Net::SNMP::INTEGER,
-            2,
-            "$OID_ccCopySourceFileType.$random",
-            Net::SNMP::INTEGER,
-            $type,
-            "$OID_ccCopyDestFileType.$random",
-            Net::SNMP::INTEGER,
-            1,
-            "$OID_ccCopyServerAddress.$random",
-            Net::SNMP::IPADDRESS,
-            $ip,
-            "$OID_ccCopyUserName.$random",
-            Net::SNMP::OCTET_STRING,
-            $user,
-            "$OID_ccCopyUserPassword.$random",
-            Net::SNMP::OCTET_STRING,
-            $pass,
-            "$OID_ccCopyFileName.$random",
-            Net::SNMP::OCTET_STRING,
-            $filename,
-            "$OID_ccCopyEntryRowStatus.$random",
-            Net::SNMP::INTEGER,
-            4
-        ]
-    );
+    my $varbindlist = [
+        "$OID_ccCopySourceFileType.$random", Net::SNMP::INTEGER, $src_type,
+        "$OID_ccCopyDestFileType.$random", Net::SNMP::INTEGER, $dest_type,
+        "$OID_ccCopyEntryRowStatus.$random", Net::SNMP::INTEGER, $SNMP::CREATE_AND_GO,
+    ];
 
+    # Not supported for now
+    # proto://user:pass@ip/filename with URI parser
+    # my ($ip, $user, $pass, $filename) = parsed-uri;
+    #    "$OID_ccCopyProtocol.$random", Net::SNMP::INTEGER, 2,
+    #    "$OID_ccCopyServerAddress.$random", Net::SNMP::IPADDRESS, $ip,
+    #    "$OID_ccCopyUserName.$random", Net::SNMP::OCTET_STRING, $user,
+    #    "$OID_ccCopyUserPassword.$random", Net::SNMP::OCTET_STRING, $pass,
+    #    "$OID_ccCopyFileName.$random", Net::SNMP::OCTET_STRING, $filename,
+
+    $logger->trace("SNMP set_request to create entry in ccCopyTable: @$varbindlist");
+
+    $result = $this->{_sessionWrite}->set_request( -varbindlist => $varbindlist );
     if ( defined($result) ) {
         $logger->debug("ccCopyTable row $random successfully created");
         $nb = 0;
         do {
             $nb++;
             sleep(1);
-            $logger->trace(
-                "SNMP get_request for ccCopyState: $OID_ccCopyState.$random");
-            $result = $this->{_sessionRead}->get_request(
-                -varbindlist => [ "$OID_ccCopyState.$random" ] );
-            } while ( ( $nb <= 120 )
-            && defined($result)
-            && ( $result->{"$OID_ccCopyState.$random"} == 2 ) );
+            $logger->trace("SNMP get_request for ccCopyState: $OID_ccCopyState.$random");
+            $result = $this->{_sessionRead}->get_request( -varbindlist => [ "$OID_ccCopyState.$random" ] );
+        } while ( ( $nb <= 120 ) && defined($result) && ( $result->{"$OID_ccCopyState.$random"} == 2 ) );
+
         if ( $nb == 120 ) {
-            $logger->error("copy operation seems not to complete");
-            return 0;
+            die("Config copy operation seems not to complete on " . $this->{_ip});
         }
 
         $logger->debug("deleting ccCopyTable row $random");
@@ -1498,21 +1490,32 @@ sub copyConfig {
             "SNMP set_request for ccCopyEntryRowStatus: $OID_ccCopyEntryRowStatus.$random"
         );
         $result = $this->{_sessionWrite}->set_request(
-            -varbindlist => [
-                "$OID_ccCopyEntryRowStatus.$random", Net::SNMP::INTEGER, 6
-            ]
+            -varbindlist => [ "$OID_ccCopyEntryRowStatus.$random", Net::SNMP::INTEGER, $SNMP::DESTROY ]
         );
     } else {
-        $logger->warn( "could not fill ccCopyTable row $random: "
-                . $this->{_sessionWrite}->error() );
+        die("Problem copying configuration on ".$this->{_ip}.": " . $this->{_sessionWrite}->error() );
     }
     return ( defined($result) );
+}
 
+=item saveConfig
+
+Save the running config into startup config. 
+Exact equivalent of doing a 'write mem' on the CLI.
+
+Notice that we are throwing exceptions in here so make sure to trap them!
+
+=cut
+sub saveConfig {
+    my ($this) = @_;
+    $this->copyConfig($CISCO::RUNNING_CONFIG, $CISCO::STARTUP_CONFIG);
 }
 
 =back
 
 =head1 AUTHOR
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 Dominik Gehl <dgehl@inverse.ca>
 
@@ -1521,6 +1524,8 @@ Regis Balzard <rbalzard@inverse.ca>
 =head1 COPYRIGHT
 
 Copyright (C) 2006-2010 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

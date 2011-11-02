@@ -176,6 +176,25 @@ Readonly::Scalar our $SHUTDOWN => 1;
 Readonly::Scalar our $DROPNOTIFY => 2;
 Readonly::Scalar our $DROP => 3;
 
+=item ConfigFileType
+
+Various configuration-related source files or target files. 
+Used by ccCopySourceFileType and ccCopyDestFileType.
+From CISCO-CONFIG-COPY MIB.
+
+  networkFile(1),
+  iosFile(2),
+  startupConfig(3),
+  runningConfig(4),
+  terminal(5),
+  fabricStartupConfig(6)
+
+=cut
+Readonly::Scalar our $NETWORK_FILE => 1;
+Readonly::Scalar our $STARTUP_CONFIG => 3;
+Readonly::Scalar our $RUNNING_CONFIG => 4;
+Readonly::Scalar our $TERMINAL => 5;
+
 =back
 
 =head1 EXTREME

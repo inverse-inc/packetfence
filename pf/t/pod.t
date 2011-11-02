@@ -28,6 +28,7 @@ my @files = (
     '/usr/local/pf/addons/dhcp_dumper.pl',
     '/usr/local/pf/addons/import-node-csv.pl',
     '/usr/local/pf/addons/monitorpfsetvlan.pl',
+    '/usr/local/pf/addons/network-save-configs.pl',
     '/usr/local/pf/addons/recovery.pl',
     '/usr/local/pf/addons/802.1X/packetfence.pm',
     '/usr/local/pf/addons/mrtg/mrtg-wrapper.pl',
