@@ -129,6 +129,8 @@ Cisco 3750                   |    XX    |    XX    |    XX    |    XX    |   XX 
 -----------------------------|----------|----------|----------|----------|--------|
 Cisco 4500 Series            |    XX    |    XX    |    XX    |    XX    |   XX   |
 -----------------------------|----------|----------|----------|----------|--------|
+Cisco 6500 Series            |    ??    |    ??    |    XX    |    ??    |   ??   |
+-----------------------------|----------|----------|----------|----------|--------|
 Cisco ISR 1800 Series        |    XX    |    --    |    --    |    ??    |   ??   |
 -----------------------------|----------|----------|----------|----------|--------|
 Dell PowerConnect 3424       |    XX    |    --    |    --    |    --    |   --   |
@@ -225,7 +227,7 @@ appropriate VLAN. When a device is unplugged, the switch sends a LinkDown
 trap to PacketFence which puts the port into the MAC detection VLAN.
 
 IMPORTANT:
-When a computer boots, the initialization of the NIC generates several link    |
+When a computer boots, the initialization of the NIC generates several link
 status changes. And every time the switch sends a linkup and a linkdown trap to 
 PacketFence. Since PacketFence has to act on each of these trap, this generates 
 unfortunately some unnecessary load on pfsetvlan. In order to optimize the trap 
