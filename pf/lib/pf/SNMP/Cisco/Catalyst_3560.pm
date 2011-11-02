@@ -1,28 +1,33 @@
 package pf::SNMP::Cisco::Catalyst_3560;
-
 =head1 NAME
 
-pf::SNMP::Cisco::Catalyst_3560 - Object oriented module to access and configure Cisco Catalyst 3560 switches
+pf::SNMP::Cisco::Catalyst_3560
 
-=head1 STATUS
+=head1 DESCRIPTION
+
+Object oriented module to access and configure Cisco Catalyst 3560 switches
+
+This module is currently only a placeholder, see pf::SNMP::Cisco::Catalyst_2960.
+
+=head1 SUPPORT STATUS
 
 =over
 
 =item port-security
 
-This module is currently only a placeholder, see pf::SNMP::Cisco::Catalyst_2950.
+12.2(50)SE1 has been reported to work fine
+
+12.2(25)SEC1 has issues
+
+=item port-security + Voice over IP (VoIP)
+
+Recommended IOS is 12.2(55)SE4.
 
 =item MAC-Authentication / 802.1X
 
 The hardware should support it.
 
 802.1X support was never tested by Inverse.
-
-=item Firmware 
-
-12.2(50)SE1 has been reported to work fine
-
-12.2(25)SEC1 has issues
 
 =back
 
@@ -33,11 +38,23 @@ L<pf::SNMP::Cisco::Catalyst_2950> also.
 
 =over 
 
-=item Port-Security + Voice over IP (VoIP): IOS 12.2(25r) disappearing config
+=item port-security + Voice over IP (VoIP)
+
+=over
+
+=item IOS 12.2(25r) disappearing config
 
 For some reason when securing a MAC address the switch loses an important portion of its config.
 This is a Cisco bug, nothing much we can do. Don't use this IOS for VoIP.
 See issue #1020 for details.
+
+=item IOS 12.2(55)SE1 voice VLAN issues
+
+For some reason this IOS doesn't put VoIP devices in the voice VLAN correctly.
+This is a Cisco bug, nothing much we can do. Don't use this IOS for VoIP.
+12.2(55)SE4 is working fine.
+
+=back
 
 =back
 
@@ -54,30 +71,7 @@ use pf::config;
 use base ('pf::SNMP::Cisco::Catalyst_2960');
 
 # CAPABILITIES
-# access technology supported
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
-# VoIP technology supported
-sub supportsRadiusVoip { return $TRUE; }
-# override 2950's FALSE
-sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
-
-=head1 SUBROUTINES
-
-=over
-
-=item dot1xPortReauthenticate
-
-Points to pf::SNMP implementation bypassing Catalyst_2950's overridden behavior.
-
-=cut
-sub dot1xPortReauthenticate {
-    my ($this, $ifIndex) = @_;
-
-    return $this->_dot1xPortReauthenticate($ifIndex);
-}
-
-=back
+# inherited from 2960
 
 =head1 AUTHOR
 

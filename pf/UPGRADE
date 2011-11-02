@@ -5,6 +5,13 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to <trunk-release>:
+
+    - Database schema update
+    The trigger table tid_start and tid_end data type changed. Make sure you 
+    run the following to update your schema:
+    mysql -u root -p pf -v < db/upgrade-3.0.2-3.1.0.sql
+
 o Upgrading from a version prior to 3.0.2:
 
     - Database schema update
