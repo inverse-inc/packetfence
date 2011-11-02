@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 31;
+use Test::More tests => 32;
 
 my @binaries = (
     '/usr/local/pf/configurator.pl',
@@ -32,6 +32,7 @@ my @binaries = (
     '/usr/local/pf/addons/upgrade/to-3.0-violations.conf.pl',
     '/usr/local/pf/bin/pfcmd_vlan',
     '/usr/local/pf/html/admin/guest-management.cgi',
+    '/usr/local/pf/html/admin/soh.cgi',
     '/usr/local/pf/html/captive-portal/email_activation.cgi',
     '/usr/local/pf/html/captive-portal/guest-selfregistration.cgi',
     '/usr/local/pf/html/captive-portal/mobile-confirmation.cgi',

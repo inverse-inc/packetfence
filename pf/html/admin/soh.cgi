@@ -34,7 +34,7 @@ my $q = CGI->new;
 my $self = $q->url(-absolute => 1, -rewrite => 1);
 
 my $sid = $q->cookie('PHPSESSID');
-my $sdir = "$install_dir/var/session";
+my $sdir = "$var_dir/session";
 
 my $session;
 if ($sid && -f "$sdir/sess_$sid") {
@@ -67,13 +67,13 @@ textdomain("packetfence");
 
 # Now, what does this request ask of us?
 #
-# We know how to (a) generate the index page, (b) add a filter,
+# We know how to (a) generate the soh page, (b) add a filter,
 # (c) delete a filter, (d) add/edit/delete the rules in a filter.
 
 my $method = $q->request_method;
 (my $action = $q->path_info) =~ s/^\///;
 
-# GET / renders templates/soh/index.html
+# GET / renders templates/soh.html
 
 if ($method eq 'GET' && $action eq '') {
     print $q->header;
@@ -101,8 +101,8 @@ if ($method eq 'GET' && $action eq '') {
         list_rules => $rules
     };
 
-    my $tmpl = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{TEMPLATE_DIR}]});
-    $tmpl->process("soh/index.html", $vars);
+    my $tmpl = Template->new({INCLUDE_PATH => ["$install_dir/html/admin/templates"]});
+    $tmpl->process("soh.html", $vars);
 }
 
 # POST /filters/* does something and returns a JSON response
