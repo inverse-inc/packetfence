@@ -28,7 +28,7 @@
      * print an error
      */
     function print_error($msg) {
-      print "<div id='error' style='text-align:left;padding:10px;background:#FF7575;'>$msg</div>";
+      print "<div id='error'>$msg</div>";
     }
 
     function print_notice($msg) {

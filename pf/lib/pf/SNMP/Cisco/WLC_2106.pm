@@ -41,6 +41,9 @@ TODO: This list is incomplete
 # access technology supported
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
+# special features 
+sub supportsSaveConfig { return $FALSE; }
+
 
 =item deauthenticateMac
 

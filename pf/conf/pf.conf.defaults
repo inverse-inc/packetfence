@@ -566,12 +566,18 @@ portal_redirect=ip
 #
 # servicewatch.email
 #
-# should pfcmd service pf watch send an email if services are not running
+# Should pfcmd service pf watch send an email if services are not running?
+# You must make sure to call the watch command. Installing it in the cron is the
+# recommended approach:
+# */5 * * * * /usr/local/pf/bin/pfcmd service pf watch
 email=enabled
 #
 # servicewatch.restart
 #
-# should pfcmd service pf watch restart PF if services are not running
+# Should pfcmd service pf watch restart PF if services are not running?
+# You must make sure to call the watch command. Installing it in the cron is the
+# recommended approach:
+# */5 * * * * /usr/local/pf/bin/pfcmd service pf watch
 restart=disabled
 
 [captive_portal]

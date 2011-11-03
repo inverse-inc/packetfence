@@ -35,6 +35,7 @@ use Log::Log4perl;
 use POSIX;
 use Readonly;
 use Template;
+use URI::Escape qw(uri_unescape);
 
 BEGIN {
     use Exporter ();
@@ -79,7 +80,7 @@ sub web_get_locale {
     my ($cgi,$session) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
     my $authorized_locale_txt = $Config{'general'}{'locale'};
-    my @authorized_locale_array = split(/,/, $authorized_locale_txt);
+    my @authorized_locale_array = split(/\s*,\s*/, $authorized_locale_txt);
     if ( defined($cgi->url_param('lang')) ) {
         $logger->info("url_param('lang') is " . $cgi->url_param('lang'));
         my $user_chosen_language = $cgi->url_param('lang');
@@ -233,9 +234,12 @@ sub generate_enabler_page {
 
 sub generate_redirect_page {
     my ( $cgi, $session, $violation_url, $destination_url ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web');
+
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
+
     my $vars = {
         logo            => $Config{'general'}{'logo'},
         violation_url   => $violation_url,
@@ -247,7 +251,7 @@ sub generate_redirect_page {
     print $cgi->header( -cookie => $cookie );
 
     my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
-    $template->process( "redirect.html", $vars );
+    $template->process( "redirect.html", $vars ) || $logger->error($template->error());
     exit;
 }
 
@@ -668,6 +672,20 @@ sub get_client_ip {
 
     $logger->debug("Remote Address is $LOOPBACK_IPV4 but no further hints of client IP in HTTP Headers");
     return $directly_connected_ip;
+}
+
+=item get_destination_url
+
+Returns destination_url properly parsed, defended against XSS and with configured value if not defined.
+
+=cut
+sub get_destination_url {
+    my ($cgi) = @_;
+
+    # set default if destination_url not set
+    return $Config{'trapping'}{'redirecturl'} if (!defined($cgi->param("destination_url")));
+
+    return decode_entities(uri_unescape($cgi->param("destination_url")));
 }
 
 =back

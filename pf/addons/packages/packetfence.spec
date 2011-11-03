@@ -442,16 +442,13 @@ fi
 
 %dir                    /usr/local/pf
 %dir                    /usr/local/pf/addons
-%attr(0755, pf, pf)     /usr/local/pf/addons/accounting.pl
-%attr(0755, pf, pf)     /usr/local/pf/addons/autodiscover.pl
+%attr(0755, pf, pf)     /usr/local/pf/addons/*.pl
+%attr(0755, pf, pf)     /usr/local/pf/addons/*.sh
 %dir                    /usr/local/pf/addons/captive-portal/
                         /usr/local/pf/addons/captive-portal/*
-%attr(0755, pf, pf)     /usr/local/pf/addons/connect_and_read.pl
-%attr(0755, pf, pf)     /usr/local/pf/addons/convertToPortSecurity.pl
 %attr(0755, pf, pf)     /usr/local/pf/addons/dhcp_dumper
 %dir                    /usr/local/pf/addons/dev-helpers/
                         /usr/local/pf/addons/dev-helpers/*
-%attr(0755, pf, pf)     /usr/local/pf/addons/database-backup-and-maintenance.sh
 %dir                    /usr/local/pf/addons/freeradius-integration/
                         /usr/local/pf/addons/freeradius-integration/*
 %dir                    /usr/local/pf/addons/high-availability/
@@ -459,13 +456,10 @@ fi
 %dir                    /usr/local/pf/addons/integration-testing/
                         /usr/local/pf/addons/integration-testing/*
                         /usr/local/pf/addons/logrotate
-%attr(0755, pf, pf)     /usr/local/pf/addons/migrate-to-locationlog_history.sh
-%attr(0755, pf, pf)     /usr/local/pf/addons/monitorpfsetvlan.pl
 %dir                    /usr/local/pf/addons/mrtg
                         /usr/local/pf/addons/mrtg/*
 %dir                    /usr/local/pf/addons/packages
                         /usr/local/pf/addons/packages/*
-%attr(0755, pf, pf)     /usr/local/pf/addons/recovery.pl
 %dir                    /usr/local/pf/addons/snort
                         /usr/local/pf/addons/snort/oinkmaster.conf
                         /usr/local/pf/addons/snort/oinkmaster.conf.2.8.6

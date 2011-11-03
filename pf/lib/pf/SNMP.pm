@@ -123,6 +123,15 @@ sub supportsRadiusVoip {
     return $FALSE;
 }
 
+=item supportsSaveConfig
+
+=cut
+sub supportsSaveConfig {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    return $FALSE;
+}
+
 =item supportsRadiusDynamicVlanAssignment
 
 =cut

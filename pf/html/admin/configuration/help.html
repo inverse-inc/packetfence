@@ -24,7 +24,26 @@
     use the new configuration settings.
 </p>
 
-<a name="violation"><h2>Switches</h2></a>
+<a name="interfaces"><h2>Interfaces</h2></a>
+<p>
+   Consult and modify the PacketFence's server interface configuration<br>
+    Please note that this is equivalent to modifying the
+    Packetfence configuration file <code>&lt;conf_dir&gt;/pf.conf</code>
+    interface section.
+    In particular, the changes are not immediately taken into account.
+    You'll have to restart the Packetfence services in order to
+    use the new interface configuration settings.
+</p>
+
+<a name="networks"><h2>Networks</h2></a>
+<p>
+   Consult and modify the different network configuration for the registration,
+   isolation or inline DHCP scopes.  This is equivalent to modifying the
+   <code>&lt;conf_dir&gt;/networks.conf</code> file.
+   Make sure to restart the dhcp and named service upon changes.
+</p>
+
+<a name="switches"><h2>Switches</h2></a>
 <p>
    Consult and modify the Packetfence VLAN configuration
    (interface to the <code>pfcmd switchconfig</code> commands).<br>
@@ -33,6 +52,13 @@
     In particular, the changes are not immediately taken into account.
     You'll have to restart the affected Packetfence services in order to
     use the new configuration settings.
+</p>
+
+<a name="floating network devices"><h2>Floating Network Devices</h2></a>
+<p>
+    Consult and modify the floating device configuration.  Refer to the
+    administration guide to know more about this feature.  Currently
+    tested and working on some Cisco or Nortel switches.
 </p>
 
 <a name="violation"><h2>Violation</h2></a>
@@ -49,6 +75,18 @@
 <a name="fingerprint"><h2>Fingerprint</h2></a>
 <p>
    Consult and update the DHCP fingerprints.
+</p>
+
+<a name="user-agent"><h2>User Agents</h2></a>
+<p>
+   Consult and update the browser user-agent definitions.
+</p>
+
+<a name="captive-portal"><h2>Captive-Portal</h2></a>
+<p>
+   Consult and update the different remediation pages for the violations.
+   Those files can also be found on the file system in 
+   html/captive-portal/violations.
 </p>
 
 </div>

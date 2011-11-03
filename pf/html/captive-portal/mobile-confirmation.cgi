@@ -14,10 +14,9 @@ use warnings;
 use CGI::Carp qw( fatalsToBrowser );
 use CGI;
 use CGI::Session;
-use HTML::Entities qw(decode_entities);
 use Log::Log4perl;
 use POSIX;
-use URI::Escape qw(uri_escape uri_unescape);
+use URI::Escape qw(uri_escape);
 
 use pf::config;
 use pf::iplog;
@@ -42,8 +41,7 @@ my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 
 my $ip              = $cgi->remote_addr;
 my $mac             = ip2mac($ip);
-my $destination_url = decode_entities(uri_unescape($cgi->param("destination_url")));
-$destination_url = $Config{'trapping'}{'redirecturl'} if (!$destination_url);
+my $destination_url = pf::web::get_destination_url($cgi);
 
 if (!valid_mac($mac)) {
   $logger->info("MAC not found for $ip generating Error Page");

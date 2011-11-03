@@ -27,10 +27,31 @@ Enhancements
 --------------------------------------------------------------------------------
 Version <release> released on <releaseDate>
 
+New Hardware Support
+ * Cisco Catalyst 6500 series switches in port-security
+
+Enhancements
+ * Translatable remediation templates (if a translated version exists, it'll override the default)
+ * Guest management interface can be translated
+ * More documentation for service watch
+ * Eliminated some unncessary warnings
+ * Better help in the web admin UI
+ * Added a new addon: import-node-csv.pl - bulk node import tool
+ * Added a new addon: network-save-configs.pl - saves configs (write mem) for the whole network (only Cisco for now)
+
 Bug Fixes
  * 802.1X broken on Cisco Catalyst 3750 (#1286)
  * Pop-Up windows are too small (#1078)
  * RedHat Enterprise Linux 6 installation instructions
+ * Encoding on the remediation pages and on the release pages (scan, access enabled)
+ * SNMPv3 issues affecting all the Cisco wired product line (#1284)
+ * Allow incoming DHCP on management interface to track users IPs in production VLANs (as opposed to DNS added in 3.0.2)
+ * Node add silently fails on the Web Admin if a node already exists
+ * Error reporting in Web Admin breaks layout (#1290)
+
+Translations
+ * Minor update to French (fr) translation
+ * Updated Spanish (es) translation (Thanks to Juan Camilo Valencia)
 
 --------------------------------------------------------------------------------
 Version 3.0.2 released on 2011-10-24
