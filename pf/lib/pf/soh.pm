@@ -32,7 +32,7 @@ use pf::radius::constants;
 use pf::violation;
 use pf::util;
 
-our $VERSION = 1.0;
+our $VERSION = 1.00;
 
 # Scaffolding required to use pf::db
 

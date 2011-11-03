@@ -18,7 +18,7 @@ use diagnostics;
 
 use base 'pf::soh';
 
-our $VERSION = 1.0;
+our $VERSION = 1.00;
 
 =head1 AUTHOR
 

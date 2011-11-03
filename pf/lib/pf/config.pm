@@ -73,7 +73,7 @@ BEGIN {
         $WIRELESS $WIRED $EAP
         $VOIP $NO_VOIP $NO_PORT $NO_VLAN
         %connection_type %connection_type_to_str %connection_type_explained
-        $RADIUS_API_LEVEL $VLAN_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL
+        $RADIUS_API_LEVEL $VLAN_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $SOH_API_LEVEL
         $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS
         %CAPTIVE_PORTAL
         normalize_time
@@ -192,6 +192,7 @@ Readonly::Scalar our $RADIUS_API_LEVEL => 1.01;
 Readonly::Scalar our $VLAN_API_LEVEL => 1.01;
 Readonly::Scalar our $INLINE_API_LEVEL => 1.01;
 Readonly::Scalar our $AUTHENTICATION_API_LEVEL => 1.10;
+Readonly::Scalar our $SOH_API_LEVEL => 1.00;
 
 # to shut up strict warnings
 $ENV{PATH} = '/sbin:/bin:/usr/bin:/usr/sbin';

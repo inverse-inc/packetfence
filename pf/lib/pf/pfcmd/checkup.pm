@@ -589,6 +589,22 @@ sub extensions {
         add_problem( $FATAL, "Uncaught exception while trying to identify VLAN extension version: $_" );
     };
 
+    try {
+        require pf::soh::custom;
+        if (!defined(pf::soh::custom->VERSION())) {
+            add_problem( $FATAL,
+                "SoH Extension point (pf::soh::custom) VERSION is not defined. Did you read the UPGRADE document?"
+            );
+        } elsif ($SOH_API_LEVEL > pf::soh::custom->VERSION()) {
+            add_problem( $FATAL,
+                "SoH Extension point (pf::soh::custom) is not at the correct API level. " .
+                "Did you read the UPGRADE document?"
+            );
+        }
+    } catch {
+        add_problem( $FATAL, "Uncaught exception while trying to identify SoH extension version: $_" );
+    };
+
     # we wrap in a try/catch because we might trap exceptions if pf::vlan::custom is not to the appropriate level
     try {
         require pf::radius::custom;

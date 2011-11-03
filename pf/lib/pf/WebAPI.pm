@@ -58,7 +58,7 @@ use pf::config;
 use pf::iplog;
 use pf::radius::custom $RADIUS_API_LEVEL;
 use pf::violation;
-use pf::soh::custom;
+use pf::soh::custom $SOH_API_LEVEL;
 
 sub event_add {
   my ($class, $date, $srcip, $type, $id) = @_;
