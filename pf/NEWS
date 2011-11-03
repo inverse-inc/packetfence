@@ -24,6 +24,9 @@ Enhancements
  * Using HTTP Return Code 501 "Not Implemented" for more effective client blocking
  * Cleanup in the Cisco 3560's code and documentation
 
+Bug Fixes
+ * Slashes (/) not allowed in person id (#1322)
+
 --------------------------------------------------------------------------------
 Version <release> released on <releaseDate>
 
