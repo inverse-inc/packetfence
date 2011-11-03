@@ -16,18 +16,28 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More;
-use Data::Dumper;
+use Test::More tests => 19;
+use Test::NoWarnings;
+
+use File::Basename qw(basename);
+
+use pf::config;
+
+# Log in test log
+Log::Log4perl->init("log.conf");
+my $logger = Log::Log4perl->get_logger( basename($0) );
+Log::Log4perl::MDC->put( 'proc', basename($0) );
+Log::Log4perl::MDC->put( 'tid',  0 );
 
 require_ok('pf::soh');
 require_ok('pf::soh::custom');
 
-my $soh = pf::soh->new();
+my $soh = pf::soh::custom->new();
 ok(defined $soh, "Can create pf::soh object");
 
 # First, we exercise the parser a little.
 
-ok(!defined $soh->parse_request({}), "Won't accept empty request");
+ok(!$soh->parse_request({}), "Won't accept empty request");
 
 my $res = $soh->parse_request({
     "NAS-Port" => 42,
@@ -137,8 +147,6 @@ is(
 );
 
 # XXX We could always use more tests XXX
-
-done_testing();
 
 =head1 AUTHOR
 
