@@ -571,6 +571,8 @@ fi
 %dir                    /usr/local/pf/html
 %dir                    /usr/local/pf/html/admin
                         /usr/local/pf/html/admin/*
+%dir                    /usr/local/pf/html/admin/templates
+%config(noreplace)      /usr/local/pf/html/admin/templates/*
 %dir                    /usr/local/pf/html/captive-portal
 %attr(0755, pf, pf)     /usr/local/pf/html/captive-portal/*.cgi
                         /usr/local/pf/html/captive-portal/*.php
@@ -616,6 +618,8 @@ fi
                         /usr/local/pf/lib/pf/services/*
 %dir                    /usr/local/pf/lib/pf/SNMP
                         /usr/local/pf/lib/pf/SNMP/*
+%dir                    /usr/local/pf/lib/pf/soh
+%config(noreplace)      /usr/local/pf/lib/pf/soh/custom.pm
 %dir                    /usr/local/pf/lib/pf/vlan
 %config(noreplace)      /usr/local/pf/lib/pf/vlan/custom.pm
 %dir                    /usr/local/pf/lib/pf/web
