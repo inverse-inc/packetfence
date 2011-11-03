@@ -120,6 +120,7 @@ sub parse_request {
     my $self = shift;
     my ($rq) = @_;
 
+    my $result;
     try {
         $self->{request} = $rq;
 
@@ -216,13 +217,15 @@ sub parse_request {
         }
 
         $self->{status} = \%ok;
+        $result = $TRUE;
     }
     catch {
+        chomp;
         $self->{logger}->error($_);
-        return undef;
+        $result = $FALSE;
     };
 
-    return 1;
+    return $result;
 }
 
 =item * evaluate - evaluates an SoH request against filters
