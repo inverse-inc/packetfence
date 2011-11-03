@@ -31,6 +31,7 @@ use pf::web::custom;
 # also need a CGI::Session object to (try to) play nice with pf::web.
 
 my $q = CGI->new;
+$q->charset("UTF-8");
 my $self = $q->url(-absolute => 1, -rewrite => 1);
 
 my $sid = $q->cookie('PHPSESSID');
@@ -101,8 +102,8 @@ if ($method eq 'GET' && $action eq '') {
         list_rules => $rules
     };
 
-    my $tmpl = Template->new({INCLUDE_PATH => ["$install_dir/html/admin/templates"]});
-    $tmpl->process("soh.html", $vars);
+    my $tmpl = Template->new({INCLUDE_PATH => ["$install_dir/html/admin/templates", $CAPTIVE_PORTAL{'TEMPLATE_DIR'}]});
+    $tmpl->process("soh.html", $vars) || $logger->error($tmpl->error());
 }
 
 # POST /filters/* does something and returns a JSON response
