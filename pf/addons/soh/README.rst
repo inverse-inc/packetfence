@@ -16,29 +16,13 @@ indications), see http://technet.microsoft.com/en-us/network/bb545879
 Installation and configuration
 ==============================
 
-1. Copy packetfence-soh.pm to /etc/raddb, and add the following section
-   to /etc/raddb/modules/perl:
-
-   perl sohperl {
-       module = ${confdir}/packetfence-soh.pm
-   }
-
-#. Create a virtual server to handle SoH requests by placing the
-   following into /etc/raddb/sites-enabled/soh-server:
-
-   server soh-server {
-       authorize {
-           perl
-           update config {
-               Auth-Type = Accept
-           }
-       }
-   }
-
 #. Enable SoH support inside the peap {} section in eap.conf:
 
    soh = yes
    soh-virtual-server = "soh-server"
+
+#. Put the proper credentials in the packetfence-soh.pm file,
+   and restart RADIUS.
 
 Configuration of SoH filters
 ============================

@@ -251,8 +251,10 @@ cp -r addons/freeradius-integration/users.pf $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/modules/perl.pf $RPM_BUILD_ROOT/etc/raddb/modules
 cp -r addons/freeradius-integration/sql.conf.pf $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/sql/mysql/packetfence.conf $RPM_BUILD_ROOT/etc/raddb/sql/mysql
+cp -r addons/soh/packetfence-soh.pm $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/802.1X/packetfence.pm $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/sites-available/packetfence $RPM_BUILD_ROOT/etc/raddb/sites-available
+cp -r addons/freeradius-integration/sites-available/packetfence-soh $RPM_BUILD_ROOT/etc/raddb/sites-available
 cp -r addons/freeradius-integration/sites-available/packetfence-tunnel $RPM_BUILD_ROOT/etc/raddb/sites-available
 #end
 cp -r ChangeLog $RPM_BUILD_ROOT/usr/local/pf/
@@ -380,6 +382,9 @@ mv /etc/raddb/modules/perl.pf /etc/raddb/modules/perl
 if [ ! -f /etc/raddb/sites-enabled/packetfence ]; then
 	ln -s /etc/raddb/sites-available/packetfence /etc/raddb/sites-enabled/packetfence
 fi
+if [ ! -f /etc/raddb/sites-enabled/packetfence-soh ]; then
+        ln -s /etc/raddb/sites-available/packetfence-soh /etc/raddb/sites-enabled/packetfence-soh
+fi
 if [ ! -f /etc/raddb/sites-enabled/packetfence-tunnel ]; then
 	ln -s /etc/raddb/sites-available/packetfence-tunnel /etc/raddb/sites-enabled/packetfence-tunnel
 fi
@@ -418,6 +423,7 @@ mv /etc/raddb/modules-perl.pfsave /etc/raddb/modules/perl
 
 # Remove symnlinks
 rm -f /etc/raddb/sites-enabled/packetfence 
+rm -f /etc/raddb/sites-enabled/packetfence-soh
 rm -f /etc/raddb/sites-enabled/packetfence-tunnel
 
 %postun
@@ -666,11 +672,16 @@ fi
 %config                                    /etc/raddb/sql.conf.pf
 %config                                    /etc/raddb/modules/perl.pf
 %attr(0755, -, radiusd) %config(noreplace) /etc/raddb/packetfence.pm
+%attr(0755, -, radiusd) %config(noreplace) /etc/raddb/packetfence-soh.pm
 %config                                    /etc/raddb/sql/mysql/packetfence.conf
 %config(noreplace)                         /etc/raddb/sites-available/packetfence
+%config(noreplace)                         /etc/raddb/sites-available/packetfence-soh
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Thu Nov 03 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Adding SoH support in freeradius2 configuration pack
+
 * Mon Oct 24 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 3.0.2-1
 - New release 3.0.2
 
