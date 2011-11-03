@@ -221,6 +221,7 @@ cp -r addons/integration-testing/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/mrtg/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/packages/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp -r addons/soh/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/upgrade/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/watchdog/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -443,6 +444,9 @@ fi
 %dir                    /usr/local/pf/addons
 %attr(0755, pf, pf)     /usr/local/pf/addons/*.pl
 %attr(0755, pf, pf)     /usr/local/pf/addons/*.sh
+%dir                    /usr/local/pf/addons/802.1X
+%doc                    /usr/local/pf/addons/802.1X/README
+%attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/packetfence.pm
 %dir                    /usr/local/pf/addons/captive-portal/
                         /usr/local/pf/addons/captive-portal/*
 %dir                    /usr/local/pf/addons/dev-helpers/
@@ -461,11 +465,11 @@ fi
 %dir                    /usr/local/pf/addons/snort
                         /usr/local/pf/addons/snort/oinkmaster.conf
                         /usr/local/pf/addons/snort/oinkmaster.conf.2.8.6
+%dir                    /usr/local/pf/addons/soh
+%doc                    /usr/local/pf/addons/soh/README.rst
+%attr(0755, pf, pf)     /usr/local/pf/addons/soh/packetfence-soh.pm
 %dir                    /usr/local/pf/addons/upgrade
 %attr(0755, pf, pf)     /usr/local/pf/addons/upgrade/*.pl
-%dir                    /usr/local/pf/addons/802.1X
-%doc                    /usr/local/pf/addons/802.1X/README
-%attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/packetfence.pm
 %dir                    /usr/local/pf/addons/watchdog
 %attr(0755, pf, pf)     /usr/local/pf/addons/watchdog/*.sh
 %dir                    /usr/local/pf/bin
