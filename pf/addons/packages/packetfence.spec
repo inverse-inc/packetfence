@@ -225,7 +225,6 @@ cp -r addons/upgrade/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/watchdog/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp addons/dhcp_dumper $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/logrotate $RPM_BUILD_ROOT/usr/local/pf/addons/
 mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
 cp addons/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
@@ -446,7 +445,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/addons/*.sh
 %dir                    /usr/local/pf/addons/captive-portal/
                         /usr/local/pf/addons/captive-portal/*
-%attr(0755, pf, pf)     /usr/local/pf/addons/dhcp_dumper
 %dir                    /usr/local/pf/addons/dev-helpers/
                         /usr/local/pf/addons/dev-helpers/*
 %dir                    /usr/local/pf/addons/freeradius-integration/

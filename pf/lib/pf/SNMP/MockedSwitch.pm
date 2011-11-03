@@ -2448,7 +2448,7 @@ sub enablePortConfigAsTrunk {
     }
 
     # FIXME
-    # this is one of the ugliest hack I did... For a mysterious reason if we don't wait 5 sec between the moment we set 
+    # this is a hack that should be removed. For a mysterious reason if we don't wait 5 sec between the moment we set 
     # the port as trunk and the moment we enable linkdown traps, the switch port starts a never ending linkdown/linkup 
     # trap cycle. The problem would probably not occur if we could enable only linkdown traps without linkup. 
     # But we can't on Cisco's...
