@@ -23,8 +23,34 @@ network-save-configs.pl [options]
 
 =head1 DESCRIPTION
 
-Will save the running configuration in startup configuration if the network device supports the capability.
-Currently we don't support many but support could be added if requested.
+=for comment
+The section below is synced with our FAQ's page on the packetfence.org website.
+
+Some switches doesn't save MAC addresses in the port-security table to the startup-config automatically when the table is modified.
+
+This means that if you have a power outage the security table needs to be re-created from scratch. 
+This is not a problem usually since the appropriate traps will be sent to PacketFence. 
+However, if you implement configuration changes while users are connected and in the security table, then you experience power outage and during that window people connect to other equipment, the port-security state on the PacketFence server no longer matches what will be in the original switch of the user after it reboots. 
+In that case, saving configs often can insure that the VLAN and port-security configuration will match a recent state that the user is expected to be in.
+
+The network-save-configs.pl (provided in addons/) will crawl through the list of all network devices in conf/switches.conf and it will perform a running-config to startup-config copy (if the device supports saving configuration through SNMP).
+
+You can run the script manually with:
+
+  network-save-configs.pl
+
+Once you are confident it's doing the right thing for you, you can add it to cron
+
+  MAILTO=pf-admins@domain.com 
+  12 23 * * * if [ -f /var/run/mysqld/mysqld.pid ]; then /usr/local/pf/addons/network-save-configs.pl -v 0 2>&1; fi
+
+-v 0 makes sure that only FATALs will be emailed to admins and the test on the MySQL file is to make sure that it only runs on the active cluster (if you do high-availability).
+
+The script only supports Cisco switches for now. 
+Others switches could be added if they expose configuration saving through SNMP. 
+Please let us know if you are interested.
+
+This is not useful for MAC-Authentication or 802.1X-based access control techniques.
 
 =cut
 use strict;
