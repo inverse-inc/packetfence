@@ -12,6 +12,21 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE file.
 
+
+--------------------------------------------------------------------------------
+Version <trunk-release> released on <releaseDate>
+
+New Features
+ * Statement of Health (SoH) support for reliable client-side policy compliance through 802.1X
+ * MAC violation triggers allowing to isolate a single device (#1320)
+
+Enhancements
+ * Using HTTP Return Code 501 "Not Implemented" for more effective client blocking
+ * Cleanup in the Cisco 3560's code and documentation
+
+Bug Fixes
+ * Slashes (/) not allowed in person id (#1322)
+
 --------------------------------------------------------------------------------
 Version <release> released on <releaseDate>
 
