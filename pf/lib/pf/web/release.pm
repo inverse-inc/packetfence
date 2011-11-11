@@ -98,7 +98,7 @@ sub handler
     if ($violations->{'ticket_ref'} =~ /^Scan in progress, started at: (.*)$/) {
       $logger->info("captive portal redirect to the scan in progress page");
       pf::web::generate_scan_status_page($cgi, $session, $1, $destination_url, $r);
-      return Apache2::Const::REDIRECT;
+      return Apache2::Const::OK;
     }
     
     # Start scan in cleanup phase to avoid browser to hang on connection

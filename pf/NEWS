@@ -36,6 +36,7 @@ Bug Fixes
  * Allow incoming DHCP on management interface to track users IPs in production VLANs (as opposed to DNS added in 3.0.2)
  * Node add silently fails on the Web Admin if a node already exists
  * Error reporting in Web Admin breaks layout (#1290)
+ * Captive portal presentation glitch on the scan in progress page
 
 Translations
  * Minor update to French (fr) translation
