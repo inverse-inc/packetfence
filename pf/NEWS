@@ -37,6 +37,7 @@ Bug Fixes
  * Node add silently fails on the Web Admin if a node already exists
  * Error reporting in Web Admin breaks layout (#1290)
  * Captive portal presentation glitch on the scan in progress page
+ * Email activation regression (#1328)
 
 Translations
  * Minor update to French (fr) translation
