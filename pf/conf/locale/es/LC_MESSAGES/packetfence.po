@@ -580,3 +580,9 @@ msgstr "Importar archivo"
 
 msgid "Unauthorized device"
 msgstr "Dispositivo no Autorizado"
+
+msgid "Access to the guest network has been granted until %s."
+msgstr "El acceso a la red de invitados ha sido permitido hasta %s."
+
+msgid "Access to the guest network granted"
+msgstr "Acceso a la red de Invitados permitido"

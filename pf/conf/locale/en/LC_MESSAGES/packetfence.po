@@ -607,3 +607,9 @@ msgstr ""
 
 msgid "Import file"
 msgstr ""
+
+msgid "Access to the guest network has been granted until %s."
+msgstr ""
+
+msgid "Access to the guest network granted"
+msgstr ""
