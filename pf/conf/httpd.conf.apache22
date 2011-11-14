@@ -343,6 +343,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
   # Clean URLS
   RewriteRule ^/guests/manage(.*)$ /guest-management.cgi$1 [PT]
+  RewriteRule ^/soh([^.]*)$ /soh.cgi$1 [PT]
 
   <Location /cgi-bin/pfcmd.cgi>
     SetHandler cgi-script
