@@ -312,6 +312,11 @@ category=guest
 # PacketFence-related message goes to.
 emailaddr=pf@localhost
 #
+# alerting.fromaddr
+#
+# Source email address for email notifications. Empty means root@<server-domain-name>.
+fromaddr=
+#
 # alerting.smtpserver
 #
 # Server through which to send messages to the above emailaddr.  The default is localhost - be sure you're running an SMTP 

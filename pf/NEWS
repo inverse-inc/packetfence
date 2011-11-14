@@ -38,6 +38,7 @@ Bug Fixes
  * Error reporting in Web Admin breaks layout (#1290)
  * Captive portal presentation glitch on the scan in progress page
  * Email activation regression (#1328)
+ * alerting.fromaddr visible from Web Admin (#1333)
 
 Translations
  * Minor update to French (fr) translation
