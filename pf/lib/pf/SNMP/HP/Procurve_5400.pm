@@ -54,6 +54,8 @@ sub supportsRadiusVoip { return $TRUE; }
 #Insert your voice vlan name, not the ID.
 our $VOICEVLANAME = "voip";
 
+=over 
+
 =item getVoipVSA
 
 Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
@@ -68,6 +70,11 @@ sub getVoipVsa {
     return ('Egress-VLAN-Name' => "1".$VOICEVLANAME);
 }
 
+=item isVoIPEnabled
+
+Is VoIP enabled for this device
+
+=cut
 sub isVoIPEnabled {
     my ($this) = @_;
     return ( $this->{_VoIPEnabled} == 1 );
