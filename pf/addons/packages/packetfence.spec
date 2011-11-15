@@ -33,7 +33,7 @@
 #
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 3.0.2
+Version: 3.1.0
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -71,7 +71,7 @@ Requires: net-snmp >= 5.3.2.2
 Requires: mysql, perl-DBD-mysql
 Requires: perl >= 5.8.8, perl-suidperl
 Requires: perl-Bit-Vector
-Requires: perl-CGI-Session, perl(JSON)
+Requires: perl(CGI::Session), perl(JSON), perl(PHP::Session)
 Requires: perl-Class-Accessor
 Requires: perl-Class-Accessor-Fast-Contained
 Requires: perl-Class-Data-Inheritable
@@ -221,6 +221,7 @@ cp -r addons/integration-testing/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/mrtg/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/packages/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp -r addons/soh/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/upgrade/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/watchdog/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -250,8 +251,10 @@ cp -r addons/freeradius-integration/users.pf $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/modules/perl.pf $RPM_BUILD_ROOT/etc/raddb/modules
 cp -r addons/freeradius-integration/sql.conf.pf $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/sql/mysql/packetfence.conf $RPM_BUILD_ROOT/etc/raddb/sql/mysql
+cp -r addons/soh/packetfence-soh.pm $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/802.1X/packetfence.pm $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/sites-available/packetfence $RPM_BUILD_ROOT/etc/raddb/sites-available
+cp -r addons/freeradius-integration/sites-available/packetfence-soh $RPM_BUILD_ROOT/etc/raddb/sites-available
 cp -r addons/freeradius-integration/sites-available/packetfence-tunnel $RPM_BUILD_ROOT/etc/raddb/sites-available
 #end
 cp -r ChangeLog $RPM_BUILD_ROOT/usr/local/pf/
@@ -276,7 +279,7 @@ curdir=`pwd`
 
 #pf-schema.sql symlink
 cd $RPM_BUILD_ROOT/usr/local/pf/db
-ln -s pf-schema-3.0.2.sql ./pf-schema.sql
+ln -s pf-schema-3.1.0.sql ./pf-schema.sql
 
 #httpd.conf symlink
 #We dropped support for pre 2.2.0 but keeping the symlink trick alive since Apache 2.4 is coming
@@ -379,6 +382,9 @@ mv /etc/raddb/modules/perl.pf /etc/raddb/modules/perl
 if [ ! -f /etc/raddb/sites-enabled/packetfence ]; then
 	ln -s /etc/raddb/sites-available/packetfence /etc/raddb/sites-enabled/packetfence
 fi
+if [ ! -f /etc/raddb/sites-enabled/packetfence-soh ]; then
+        ln -s /etc/raddb/sites-available/packetfence-soh /etc/raddb/sites-enabled/packetfence-soh
+fi
 if [ ! -f /etc/raddb/sites-enabled/packetfence-tunnel ]; then
 	ln -s /etc/raddb/sites-available/packetfence-tunnel /etc/raddb/sites-enabled/packetfence-tunnel
 fi
@@ -417,6 +423,7 @@ mv /etc/raddb/modules-perl.pfsave /etc/raddb/modules/perl
 
 # Remove symnlinks
 rm -f /etc/raddb/sites-enabled/packetfence 
+rm -f /etc/raddb/sites-enabled/packetfence-soh
 rm -f /etc/raddb/sites-enabled/packetfence-tunnel
 
 %postun
@@ -443,6 +450,9 @@ fi
 %dir                    /usr/local/pf/addons
 %attr(0755, pf, pf)     /usr/local/pf/addons/*.pl
 %attr(0755, pf, pf)     /usr/local/pf/addons/*.sh
+%dir                    /usr/local/pf/addons/802.1X
+%doc                    /usr/local/pf/addons/802.1X/README
+%attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/packetfence.pm
 %dir                    /usr/local/pf/addons/captive-portal/
                         /usr/local/pf/addons/captive-portal/*
 %dir                    /usr/local/pf/addons/dev-helpers/
@@ -461,11 +471,11 @@ fi
 %dir                    /usr/local/pf/addons/snort
                         /usr/local/pf/addons/snort/oinkmaster.conf
                         /usr/local/pf/addons/snort/oinkmaster.conf.2.8.6
+%dir                    /usr/local/pf/addons/soh
+%doc                    /usr/local/pf/addons/soh/README.rst
+%attr(0755, pf, pf)     /usr/local/pf/addons/soh/packetfence-soh.pm
 %dir                    /usr/local/pf/addons/upgrade
 %attr(0755, pf, pf)     /usr/local/pf/addons/upgrade/*.pl
-%dir                    /usr/local/pf/addons/802.1X
-%doc                    /usr/local/pf/addons/802.1X/README
-%attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/packetfence.pm
 %dir                    /usr/local/pf/addons/watchdog
 %attr(0755, pf, pf)     /usr/local/pf/addons/watchdog/*.sh
 %dir                    /usr/local/pf/bin
@@ -563,6 +573,8 @@ fi
 %dir                    /usr/local/pf/html
 %dir                    /usr/local/pf/html/admin
                         /usr/local/pf/html/admin/*
+%dir                    /usr/local/pf/html/admin/templates
+%config(noreplace)      /usr/local/pf/html/admin/templates/*
 %dir                    /usr/local/pf/html/captive-portal
 %attr(0755, pf, pf)     /usr/local/pf/html/captive-portal/*.cgi
                         /usr/local/pf/html/captive-portal/*.php
@@ -608,6 +620,8 @@ fi
                         /usr/local/pf/lib/pf/services/*
 %dir                    /usr/local/pf/lib/pf/SNMP
                         /usr/local/pf/lib/pf/SNMP/*
+%dir                    /usr/local/pf/lib/pf/soh
+%config(noreplace)      /usr/local/pf/lib/pf/soh/custom.pm
 %dir                    /usr/local/pf/lib/pf/vlan
 %config(noreplace)      /usr/local/pf/lib/pf/vlan/custom.pm
 %dir                    /usr/local/pf/lib/pf/web
@@ -658,11 +672,16 @@ fi
 %config                                    /etc/raddb/sql.conf.pf
 %config                                    /etc/raddb/modules/perl.pf
 %attr(0755, -, radiusd) %config(noreplace) /etc/raddb/packetfence.pm
+%attr(0755, -, radiusd) %config(noreplace) /etc/raddb/packetfence-soh.pm
 %config                                    /etc/raddb/sql/mysql/packetfence.conf
 %config(noreplace)                         /etc/raddb/sites-available/packetfence
+%config(noreplace)                         /etc/raddb/sites-available/packetfence-soh
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Thu Nov 03 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Adding SoH support in freeradius2 configuration pack
+
 * Mon Oct 24 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 3.0.2-1
 - New release 3.0.2
 

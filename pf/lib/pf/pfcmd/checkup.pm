@@ -187,7 +187,7 @@ sub interfaces {
 
             if ($type eq 'managed') {
                 add_problem( $WARN, 
-                    "Interface type 'managed' is drepecated and will be removed in future versions of PacketFence. " .
+                    "Interface type 'managed' is deprecated and will be removed in future versions of PacketFence. " .
                     "You should use the 'management' keyword instead. " .
                     "Seen on interface $interface."
                 );
@@ -587,6 +587,22 @@ sub extensions {
         }
     } catch {
         add_problem( $FATAL, "Uncaught exception while trying to identify VLAN extension version: $_" );
+    };
+
+    try {
+        require pf::soh::custom;
+        if (!defined(pf::soh::custom->VERSION())) {
+            add_problem( $FATAL,
+                "SoH Extension point (pf::soh::custom) VERSION is not defined. Did you read the UPGRADE document?"
+            );
+        } elsif ($SOH_API_LEVEL > pf::soh::custom->VERSION()) {
+            add_problem( $FATAL,
+                "SoH Extension point (pf::soh::custom) is not at the correct API level. " .
+                "Did you read the UPGRADE document?"
+            );
+        }
+    } catch {
+        add_problem( $FATAL, "Uncaught exception while trying to identify SoH extension version: $_" );
     };
 
     # we wrap in a try/catch because we might trap exceptions if pf::vlan::custom is not to the appropriate level
