@@ -20,6 +20,10 @@ Module to manage HP Procurve 5400 switches
 
 =item port-security
 
+=item MAC-Authentication
+
+=item 802.1X
+
 =back
 
 =back
@@ -85,6 +89,7 @@ sub isVoIPEnabled {
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
 Francois Gaudreault <fgaudreault@inverse.ca>
 
 =head1 COPYRIGHT
