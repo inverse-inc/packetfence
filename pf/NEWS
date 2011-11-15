@@ -17,6 +17,7 @@ Version <release> released on <releaseDate>
 
 New Hardware Support
  * Cisco Catalyst 6500 series switches in port-security
+ * HP Procurve 5400 now supporting mac auth and 802.1x (with VoIP)
 
 Enhancements
  * Translatable remediation templates (if a translated version exists, it'll override the default)

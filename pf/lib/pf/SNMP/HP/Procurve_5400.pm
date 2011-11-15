@@ -40,9 +40,45 @@ use Net::SNMP;
 
 use base ('pf::SNMP::HP::Procurve_2500');
 
+use pf::config;
+use pf::SNMP::constants;
+use pf::util;
+
+# CAPABILITIES
+# access technology supported
+sub supportsWiredMacAuth { return $TRUE; }
+sub supportsWiredDot1x { return $TRUE; }
+# VoIP technology supported
+sub supportsRadiusVoip { return $TRUE; }
+
+#Insert your voice vlan name, not the ID.
+our $VOICEVLANAME = "voip";
+
+=item getVoipVSA
+
+Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
+
+TODO: Use Egress-VLANID instead. See: http://wiki.freeradius.org/HP#RFC+4675+%28multiple+tagged%2Funtagged+VLAN%29+Assignment
+
+=cut
+sub getVoipVsa {
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    return ('Egress-VLAN-Name' => "1".$VOICEVLANAME);
+}
+
+sub isVoIPEnabled {
+    my ($this) = @_;
+    return ( $this->{_VoIPEnabled} == 1 );
+}
+
+=back
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+Francois Gaudreault <fgaudreault@inverse.ca>
 
 =head1 COPYRIGHT
 
