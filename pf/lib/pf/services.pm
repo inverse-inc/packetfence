@@ -99,10 +99,6 @@ sub service_ctl {
                     if ( $exe =~ /pfdhcplistener/
                     && !isenabled( $Config{'network'}{'dhcpdetector'} ) );
                 return (0)
-                    if ( $exe =~ /snmptrapd/ && !(is_vlan_enforcement_enabled()) );
-                return (0)
-                    if ( $exe =~ /pfsetvlan/ && !(is_vlan_enforcement_enabled()) );
-                return (0)
                     if ($exe =~ /named/ && !(is_vlan_enforcement_enabled() && isenabled($Config{'services'}{'named'})));
                 if ( $daemon =~ /(named|dhcpd|snort|httpd|snmptrapd)/
                     && !$quick )
@@ -247,12 +243,12 @@ sub service_list {
                 if ( (is_inline_enforcement_enabled() || is_vlan_enforcement_enabled())
                     && isenabled($Config{'services'}{'dhcpd'}) );
         } elsif ( $service eq "snmptrapd" ) {
-            push @finalServiceList, $service if ( is_vlan_enforcement_enabled() );
+            push @finalServiceList, $service;
         } elsif ( $service eq "named" ) {
             push @finalServiceList, $service 
                 if (is_vlan_enforcement_enabled() && isenabled($Config{'services'}{'named'}));
         } elsif ( $service eq "pfsetvlan" ) {
-            push @finalServiceList, $service if ( is_vlan_enforcement_enabled() );
+            push @finalServiceList, $service;
         } else {
             push @finalServiceList, $service;
         }
