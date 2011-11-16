@@ -42,6 +42,7 @@ Bug Fixes
  * alerting.fromaddr visible from Web Admin (#1333)
  * Inline mode regression if you don't do VLAN enforcement at the same time (#1325)
  * Avoiding missing session variables in SMS activation
+ * Minor syntax issues in the po files
 
 Translations
  * Minor update to French (fr) translation
