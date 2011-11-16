@@ -292,6 +292,16 @@ ln -s httpd.conf.apache22 ./httpd.conf
 #  ln -s httpd.conf.pre_apache22 ./httpd.conf
 #fi
 
+#named.conf symlink
+#We added the support fort BIND 9.7+ for getting rid of the session-keyfile error
+cd $RPM_BUILD_ROOT/usr/local/pf/conf
+if ( /usr/sbin/named -v | egrep 'BIND\ 9.[7-9]' > /dev/null )
+then
+    ln -s named.conf.bind97 ./named.conf
+else
+    ln -s named.conf.pre_bind97 ./named.conf
+fi
+
 cd $curdir
 #end create symlinks
 
@@ -679,6 +689,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Wed Nov 16 2011 Derek Wuelfrath <dwuelfrath@inverse.ca>
+- Create symlink for named.conf according to the BIND version (9.7)
+
 * Thu Nov 03 2011 Francois Gaudreault <fgaudreault@inverse.ca>
 - Adding SoH support in freeradius2 configuration pack
 
