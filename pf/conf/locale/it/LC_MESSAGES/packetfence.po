@@ -3,6 +3,8 @@
 # This file is distributed under the same license as the PacketFence project.
 # Mario Varelli <mvarelli@biologia.unipi.it>, 2009
 #
+domain "packetfence"
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
@@ -35,211 +37,211 @@ msgstr "Dutch"
 msgid "pt_BR"
 msgstr "Português"
 
-msgid "error: access denied not owner"
+msgid  "error: access denied not owner"
 msgstr "Accesso Negato: Non sei il titolare di questo computer!"
 
-msgid "error: incorrect mode"
+msgid  "error: incorrect mode"
 msgstr "Modo non corretto!"
 
 # deprecated but kept for a couple of versions (until at least early 2013)
-msgid "error: invalid login or password"
+msgid  "error: invalid login or password"
 msgstr "Username o password sbagliata"
 
 msgid "Invalid login or password"
 msgstr "Username o password sbagliata"
 
-msgid "error: invalid page number"
+msgid  "error: invalid page number"
 msgstr "Numero di pagina non valido"
 
-msgid "error: max re-enables reached"
+msgid  "error: max re-enables reached"
 msgstr "Hai raggiunto il numero massimo di riattivazioni della rete!"
 
-msgid "error: not found in the database"
+msgid  "error: not found in the database"
 msgstr "Il tuo computer non e' stato trovato nel database di Packetfence, Riavvialo per risolvere il problema"
 
-msgid "error: not trappable IP"
+msgid  "error: not trappable IP"
 msgstr "Accesso negato: Il tuo IP non risulta collegabile!"
 
-msgid "error: only register max nodes"
+msgid  "error: only register max nodes"
 msgstr "Puoi registrare un massimo di %s computer!"
 
 # deprecated but kept for a couple of versions (until at least early 2013)
-msgid "error: unable to validate credentials at the moment"
+msgid  "error: unable to validate credentials at the moment"
 msgstr "Non e' possibile verificare le credenziali al momento"
 
 msgid "Unable to validate credentials at the moment"
 msgstr "Non e' possibile verificare le credenziali al momento"
 
-msgid "help: provide info"
+msgid  "help: provide info"
 msgstr "Se hai domande in merito a questa pagina contatta l'amministratore di rete. Per favore fornisci le seguenti informazioni: "
 
 
-msgid "register: all systems must be registered"
+msgid  "register: all systems must be registered"
 msgstr "Tutti i computer sulla rete devono essere registrati per poter accedere."
 
-msgid "register: aup"
+msgid  "register: aup"
 msgstr "Il processo di registrazione richiede l'accettazione delle regole di accesso alla rete; se vuoi prenderne visione prima di accedere alla rete per favore visita il seguente link:"
 
-msgid "register: to complete"
+msgid  "register: to complete"
 msgstr "Per completare il processo di registrazione e' necessario autenticarsi tramite le credenziali di ateneo."
 
-msgid "register: select authentications"
+msgid  "register: select authentications"
 msgstr "Selezionare il modo di autenticazione"
 
-msgid "register: skip registration"
+msgid  "register: skip registration"
 msgstr "Rimanda la registrazione"
 
-msgid "release: enabling network"
+msgid  "release: enabling network"
 msgstr "Accesso in abilitazione"
 
-msgid "release: reopen browser"
+msgid  "release: reopen browser"
 msgstr "Devi riavviare il tuo browser"
 
-msgid "Acceptable Use Policy"
+msgid  "Acceptable Use Policy"
 msgstr "Regole di accesso alla rete"
 
-msgid "Addresses"
+msgid  "Addresses"
 msgstr "Indirizzi"
 
-msgid "De-register node"
+msgid  "De-register node"
 msgstr "Cancella registrazione"
 
-msgid "Enabling ..."
+msgid  "Enabling ..."
 msgstr "In abilitazione ..."
 
-msgid "Gateway"
+msgid  "Gateway"
 msgstr "Gateway"
 
-msgid "grace"
+msgid  "grace"
 msgstr "grazia"
 
-msgid "Hostname"
+msgid  "Hostname"
 msgstr "Hostname"
 
-msgid "IP"
+msgid  "IP"
 msgstr "indirizzo IP"
 
-msgid "Login"
+msgid  "Login"
 msgstr "Login"
 
-msgid "MAC"
+msgid  "MAC"
 msgstr "MAC"
 
-msgid "network access is being enabled"
+msgid  "network access is being enabled"
 msgstr "Il tuo accesso alla rete sta per essere abilitato - questo processo durera' approssimativamente %s secondi."
 
-msgid "Node"
+msgid  "Node"
 msgstr "Computer"
 
-msgid "PacketFence Registration System"
+msgid  "PacketFence Registration System"
 msgstr "Sistema di registrazione Packetfence"
 
-msgid "Password"
+msgid  "Password"
 msgstr "Password"
 
-msgid "PID"
+msgid  "PID"
 msgstr "Titolare"
 
-msgid "Print this page"
+msgid  "Print this page"
 msgstr "Stampa questa pagina"
 
-msgid "reg"
+msgid  "reg"
 msgstr "Registrazione"
 
-msgid "Sorry"
+msgid  "Sorry"
 msgstr "Negato!"
 
-msgid "Status"
+msgid  "Status"
 msgstr "Stato"
 
-msgid "unknown"
+msgid  "unknown"
 msgstr "sconosciuto"
 
-msgid "unreg"
+msgid  "unreg"
 msgstr "non registrato"
 
-msgid "Username"
+msgid  "Username"
 msgstr "Username"
 
-msgid "Violations"
+msgid  "Violations"
 msgstr "Violazioni"
 
-msgid "Quarantine Established!"
+msgid  "Quarantine Established!"
 msgstr "Quarantena stabilita!"
 
-msgid "Registration Notification"
+msgid  "Registration Notification"
 msgstr "Notifica di registrazione"
 
-msgid "Additional Assistance"
+msgid  "Additional Assistance"
 msgstr "Assistenza Addizionale"
 
-msgid "If your network connectivity becomes permanently disabled or you are unable to follow the instructions above, please contact your local IT support staff for assistance."
-msgstr "Se la tua connettivita' di rete diventa permanentemente disabilitata o non sei in grado di seguire le istruzioni che seguono, per favore contatta l'amministratore di rete."
+msgid  "If your network connectivity becomes permanently disabled or you are unable to follow the instructions above, please contact your local IT support staff for assistance."
+msgstr  "Se la tua connettivita' di rete diventa permanentemente disabilitata o non sei in grado di seguire le istruzioni che seguono, per favore contatta l'amministratore di rete."
 
-msgid "The following information should be provided upon request:"
+msgid  "The following information should be provided upon request:"
 msgstr "Fornisci le seguenti informazioni come riferimento:"
 
-msgid "IP Address"
+msgid  "IP Address"
 msgstr "Indirizzo IP"
 
-msgid "MAC Address"
+msgid  "MAC Address"
 msgstr "MAC Address"
 
-msgid "Banned Operating System"
+msgid  "Banned Operating System"
 msgstr "Sistema operativo Bannato"
 
-msgid "You have been detected using an operating system not allowed on the network. Please install a more recent operating system"
+msgid  "You have been detected using an operating system not allowed on the network. Please install a more recent operating system"
 msgstr "I sistema operativo che stai utilizzando non e' autorizzato ad accedere alla rete. Per favore installa un sistema operativo piu' recente."
 
-msgid "Darknet Violation"
+msgid  "Darknet Violation"
 msgstr "E' stato rilevato che il tuo sistema sta inviando traffico verso una rete che non deve essere usata (darknet). Questo e' indicativo di una infezine da worm o virus."
 
-msgid "Your system will likely need to be rebuilt. Please contact your local support staff for more information."
+msgid  "Your system will likely need to be rebuilt. Please contact your local support staff for more information."
 msgstr "E' probabile che il tuo sistema operativo sia danneggiato. Per favore contatta l'amministratore di rete."
 
-msgid "Windows patches are not up to date"
+msgid  "Windows patches are not up to date"
 msgstr "Il sistema operativo non e' aggiornato; per favore esegui windows update"
 
-msgid "Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken. Instructions for disinfection are below:"
+msgid  "Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken. Instructions for disinfection are below:"
 msgstr "A causa della pericolosita' dell'infezione per gli altri apparati sulla rete il tuo accesso alla rete e' stato disabilitato fino alla risoluzione del problema. Segui le istruzioni per la disinfezione:"
 
-msgid "Generic"
+msgid  "Generic"
 msgstr "Generico"
 
-msgid "Network connectivity has been disabled."
+msgid  "Network connectivity has been disabled."
 msgstr "L'accesso alla rete e' stato disabilitato."
 
-msgid "Please contact your local support staff for more information."
+msgid  "Please contact your local support staff for more information."
 msgstr "Per favore contatta l'amministratore di rete."
 
-msgid "Hub Detection"
+msgid  "Hub Detection"
 msgstr "Hub rilevato"
 
-msgid "You have been detected using a hub. Such device is not permitted on the network.  Please remove it."
+msgid  "You have been detected using a hub. Such device is not permitted on the network.  Please remove it."
 msgstr "E' stato rilevato che ti stai collegando attraverso un HUB. Tali apparati non sono ammessi sulla rete. Per favore rimuovilo."
 
-msgid "Peer-to-Peer"
+msgid  "Peer-to-Peer"
 msgstr "Peer-to-Peer"
 
-msgid "You have been detected using a peer-to-peer file sharing application. Such software is not permitted on the network.  Please uninstall the infringing software."
+msgid  "You have been detected using a peer-to-peer file sharing application. Such software is not permitted on the network.  Please uninstall the infringing software."
 msgstr "E' stato rilevato che stai usando una applicazione di condivisione di file peer-to-per (Emule, BitTorrent, etc). Non e' permesso l'utilizzo di wuesto software sulla rete. Per favore disinstalla il software in questione."
 
-msgid "System Scanning"
+msgid  "System Scanning"
 msgstr "Scansione del sistema"
 
-msgid "Your system has been found to be scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgid  "Your system has been found to be scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
 msgstr "E stato rilevato che il tuo computer sta effettuando la scansione di altri computer. A causa della pericolosita' dell'infezione per gli altri apparati sulla rete il tuo accesso alla rete e' stato disabilitato fino alla risoluzione del problema."
 
-msgid "Spamming"
+msgid  "Spamming"
 msgstr "Spamming"
 
-msgid "Your system has been found to be sending unsolicited commercial email (UCE, or \"spam\") to other systems. Due to the threat this poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgid  "Your system has been found to be sending unsolicited commercial email (UCE, or \"spam\") to other systems. Due to the threat this poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
 msgstr "E' stato rilevato che il tuo computer ha inviato mail non richieste (SPAM) ad altri comoputers. A causa della pericolosita' dell'infezione per gli altri apparati sulla rete il tuo accesso alla rete e' stato disabilitato fino alla risoluzione del problema."
 
-msgid "Your system may need to be rebuilt. Please contact your local support staff for more information."
+msgid  "Your system may need to be rebuilt. Please contact your local support staff for more information."
 msgstr "E' probabile che il tuo sistema operativo debba essere reinstallato. Per favore contatta l'amministratore di rete."
 
-msgid "NAT Device Detected"
+msgid  "NAT Device Detected"
 msgstr "Rilevata periferica NAT (network address translation)"
 
 msgid "You have been detected using a device that performs network address translation (NAT). These devices, typically wireless access points or 'routers' are not permitted on the network. Please unplug this device and connect your computer directly to the network for access."

@@ -3,6 +3,8 @@
 # This file is distributed under the same license as the PacketFence project.
 # Olivier Bilodeau <obilodeau@inverse.ca>, 2011.
 #
+domain "packetfence"
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
@@ -92,10 +94,10 @@ msgstr "Afin de compl&eacute;ter le processus d'enregistrement, vous devez vous 
 msgid "Authentication"
 msgstr "Authentification"
 
-msgid "or"
+msgid  "or"
 msgstr "ou"
 
-msgid "Sign up"
+msgid  "Sign up"
 msgstr "S'inscrire"
 
 msgid "register: skip registration"
@@ -161,31 +163,31 @@ msgstr "Noeud"
 msgid "PacketFence Registration System"
 msgstr "Syst&egrave;me d'enregistrement PacketFence"
 
-msgid "Guest Registration"
+msgid  "Guest Registration"
 msgstr "Inscription"
 
-msgid "guest network disclaimer"
+msgid  "guest network disclaimer"
 msgstr "Ce réseau public est fournis exclusivement pour la convenence des invités et des visiteurs.  L'accès n'implique aucune garantie de fiabilité, de vitesse ou de confidentialité.  Ce réseau est strictement fournis pour donner un accés a Internet.  Son utilisation implique l'acceptation de tous les termes et conditions contenus dans notre <b>Politique d'accès réseau</b>."
 
-msgid "In the fields below please enter your name, phone number and a valid email address."
+msgid  "In the fields below please enter your name, phone number and a valid email address."
 msgstr "Dans les champs ici bas, SVP entrez votre nom, numéro de téléphone ainsi qu'un courriel valide"
 
-msgid "If you choose to receive your access code <strong>by email</strong>, you will be given temporary network access for 10 minutes during that time:"
+msgid  "If you choose to receive your access code <strong>by email</strong>, you will be given temporary network access for 10 minutes during that time:"
 msgstr "Si vous choisissez de recevoir votre code d'accès <strong>par courriel</strong>, vous aurez un accès temporaire au réseau de 10 minutes.  Pendant ce laps de temps:"
 
-msgid "Login to the email account you referenced and;"
+msgid  "Login to the email account you referenced and;"
 msgstr "Connectez vous au compte courriel que vous avez entré dans le formulaire"
 
-msgid "Click on the link emailed to you to validate network access for the next 24 hours."
+msgid  "Click on the link emailed to you to validate network access for the next 24 hours."
 msgstr "Cliquez sur le lien contenu dans le courriel pour valider votre accès au réseau pour une durée de 24 heures"
 
-msgid "Register by Email"
+msgid  "Register by Email"
 msgstr "Inscription par courriel"
 
-msgid "If you choose to receive your access code <strong>by SMS</strong>, you will be able to enter it on the next page."
+msgid  "If you choose to receive your access code <strong>by SMS</strong>, you will be able to enter it on the next page."
 msgstr "Si vous choisissez de recevoir votre code <strong>par SMS</strong>, vous pourrez entrer votre NIP sur la page suivante."
 
-msgid "Register by SMS"
+msgid  "Register by SMS"
 msgstr "Inscription par SMS"
 
 msgid "Password"
@@ -314,10 +316,10 @@ msgstr "Nom de famille"
 msgid "Phone number"
 msgstr "Téléphone"
 
-msgid "Phone Provider"
+msgid  "Phone Provider"
 msgstr "Fournisseur"
 
-msgid "Select your provider"
+msgid  "Select your provider"
 msgstr "Sélectionnez votre compagnie de cellulaire"
 
 msgid "Email"
@@ -397,34 +399,34 @@ msgstr "Dur&eacute;e de l'acc&egrave;s n'est pas dans un format allou&eacute;e."
 msgid "Arrival date is not of expected format."
 msgstr "Date d'arriv&eacute;e n'est pas dans un format allou&eacute;e."
 
-msgid "You can't register as a guest with a %s email address. Please register as a regular user using your email address instead."
+msgid  "You can't register as a guest with a %s email address. Please register as a regular user using your email address instead."
 msgstr "Vous ne pouvez pas vous inscrire comme invité avec le courriel %s.  SVP, vous inscrire comme un utilisateur régulier."
 
-msgid "An error occured while sending the confirmation email."
+msgid  "An error occured while sending the confirmation email."
 msgstr "Une erreur est survenue pendant l'envoie de la confirmation par courriel"
 
-msgid "An error occured while sending the PIN by SMS."
+msgid  "An error occured while sending the PIN by SMS."
 msgstr "Une erreur est survenue pendant l'envoie de votre code NIP par SMS"
 
-msgid "The uploaded file was corrupted. Please try again."
+msgid  "The uploaded file was corrupted. Please try again."
 msgstr "Le fichier reçu est corrompu.  SVP, ressayez de nouveau"
 
-msgid "Can't open uploaded file."
+msgid  "Can't open uploaded file."
 msgstr "Impossible d'ouvrir le fichier reçu"
 
-msgid "Confirm Mobile Phone Number"
+msgid  "Confirm Mobile Phone Number"
 msgstr "Confirmez le numéro de téléphone mobile"
 
-msgid "Please enter the PIN code received on your mobile phone in order to gain access to the network."
+msgid  "Please enter the PIN code received on your mobile phone in order to gain access to the network."
 msgstr "Veuillez entrer le code NIP reçu sur votre téléphone mobile pour obtenir l'accès au réseau"
 
-msgid "PIN"
+msgid  "PIN"
 msgstr "NIP"
 
-msgid "Confirm"
+msgid  "Confirm"
 msgstr "Confirmer"
 
-msgid "Cancel"
+msgid  "Cancel"
 msgstr "Annuler"
 
 msgid "Guest Access Code"

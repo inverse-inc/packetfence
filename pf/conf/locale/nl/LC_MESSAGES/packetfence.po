@@ -3,6 +3,8 @@
 # This file is distributed under the same license as the PacketFence project.
 # Olivier Bilodeau <obilodeau@inverse.ca>, 2011
 #
+domain "packetfence"
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
@@ -35,106 +37,106 @@ msgstr "Dutch"
 msgid "pt_BR"
 msgstr "Português"
 
-msgid "error: access denied not owner"
+msgid  "error: access denied not owner"
 msgstr "Toegang geweigerd: U bent niet de eigenaar van deze machine!"
 
-msgid "error: incorrect mode"
+msgid  "error: incorrect mode"
 msgstr "Verkeerde Modus!"
 
-msgid "error: max re-enables reached"
+msgid  "error: max re-enables reached"
 msgstr "Maximum aantal reactivaties bereikt!"
 
-msgid "error: not found in the database"
+msgid  "error: not found in the database"
 msgstr "Uw computer was niet gevonden in de packetshield database, reboot uw computer om dit probleem op te lossen. "
 
-msgid "error: not trappable IP"
+msgid  "error: not trappable IP"
 msgstr "Toegang geweigerd: geen afvangbaar IP adres!"
 
-msgid "error: only register max nodes"
+msgid  "error: only register max nodes"
 msgstr "Er mogen slechts een maximum van %s nodes geregistreerd worden!"
 
        
-msgid "help: provide info"
+msgid  "help: provide info"
 msgstr "Mochten er vragen zijn over deze pagina, neem dan contact op met de helpdesk voor assistentie. Vermeld hierbij de volgende informatie: "
 
 
-msgid "register: all systems must be registered"
+msgid  "register: all systems must be registered"
 msgstr "Het kan voorkomen dat we gebruikers moeten benaderen omtrent individuele systemen, daarom dienen alle systemen op het netwerk geregistreerd te worden."
 
-msgid "register: aup"
+msgid  "register: aup"
 msgstr "Het registratie process verlangt dat u de Aceptable Use Policy (UAP) accepteerd. Mocht je deze UAP willen lezen voor het begin van het registratieproces bezoek dan: "
 
-msgid "register: to complete"
+msgid  "register: to complete"
 msgstr "Om het registratie proces te voltooien dient u uw gebruikersnaam en wachtwoord in te vullen."
 
-msgid "register: select authentications"
+msgid  "register: select authentications"
 msgstr "Selecteer authenticatie methode"
 
 
-msgid "release: enabling network"
+msgid  "release: enabling network"
 msgstr "Netwerk toegang wordt geactiveerd"
 
-msgid "release: reopen browser"
+msgid  "release: reopen browser"
 msgstr "U dient wellicht uw browser opnieuw te openen"
 
 		 
-msgid "Acceptable Use Policy"
+msgid  "Acceptable Use Policy"
 msgstr "Acceptable Use Policy"
 
-msgid "Addresses"
+msgid  "Addresses"
 msgstr "Adressen"
 
-msgid "De-register node"
+msgid  "De-register node"
 msgstr "Machine deregistreren"
 
-msgid "Enabling ..."
+msgid  "Enabling ..."
 msgstr "Activeren ..."
 
-msgid "Gateway"
+msgid  "Gateway"
 msgstr "Gateway"
 
-msgid "grace"
+msgid  "grace"
 msgstr "grace"
 
-msgid "Hostname"
+msgid  "Hostname"
 msgstr "Hostname"
 
-msgid "IP"
+msgid  "IP"
 msgstr "IP adres"
 
-msgid "MAC"
+msgid  "MAC"
 msgstr "MAC"
 
-msgid "network access is being enabled"
+msgid  "network access is being enabled"
 msgstr "Uw netwerktoegang wordt op dit moment geactiveerd - dit proces neemt ongeveer %s seconden in beslag."
 
-msgid "Node"
+msgid  "Node"
 msgstr "Machine"
 
-msgid "PacketFence Registration System"
+msgid  "PacketFence Registration System"
 msgstr "PacketShield Registration System"
 
-msgid "PID"
+msgid  "PID"
 msgstr "Eigenaar"
 
-msgid "Print this page"
+msgid  "Print this page"
 msgstr "Print deze pagina"
 
-msgid "reg"
+msgid  "reg"
 msgstr "geregistreerd"
 
-msgid "Sorry"
+msgid  "Sorry"
 msgstr "Sorry!"
 
-msgid "Status"
+msgid  "Status"
 msgstr "Status"
 
-msgid "unknown"
+msgid  "unknown"
 msgstr "onbekend"
 
-msgid "unreg"
+msgid  "unreg"
 msgstr "niet geregistreerd"
 
-msgid "Violations"
+msgid  "Violations"
 msgstr "Overtredingen"
 
