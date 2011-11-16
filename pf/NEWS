@@ -41,6 +41,7 @@ Bug Fixes
  * Email activation regression (#1328)
  * alerting.fromaddr visible from Web Admin (#1333)
  * Inline mode regression if you don't do VLAN enforcement at the same time (#1325)
+ * Avoiding missing session variables in SMS activation
 
 Translations
  * Minor update to French (fr) translation

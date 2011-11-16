@@ -21,7 +21,6 @@ use URI::Escape qw(uri_escape);
 use pf::config;
 use pf::iplog;
 use pf::node;
-use pf::person qw(person_modify);
 use pf::util;
 use pf::violation;
 use pf::web;
@@ -89,7 +88,7 @@ if ($cgi->param("pin")) { # && $session->param("authType")) {
    
     my $maxnodes = 0;
     $maxnodes = $Config{'registration'}{'maxnodes'} if (defined $Config{'registration'}{'maxnodes'});
-    my $pid = $session->param( "phone" );
+    my $pid = $session->param( "token" ) || 1;
 
     my $node_count = 0;
     $node_count = node_pid($pid) if ($pid ne '1');
@@ -100,16 +99,6 @@ if ($cgi->param("pin")) { # && $session->param("authType")) {
       return(0);
     }
 
-    # Login successful, adding person (using modify in case person already exists)
-    $logger->info("Adding guest person $pid");
-    person_modify($pid, (
-        'firstname' => $session->param("firstname"),
-        'lastname' => $session->param("lastname"),
-        'email' => $session->param("email"),
-        'telephone' => $session->param("phone"),
-        'notes' => 'sms confirmation',
-    ));
-
     # Setting access timeout and category from config
     my $access_duration = $Config{'guests_self_registration'}{'access_duration'};
     $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $access_duration));
@@ -117,10 +106,9 @@ if ($cgi->param("pin")) { # && $session->param("authType")) {
 
     pf::web::web_node_register($cgi, $session, $mac, $pid, %info);
     # clear state that redirects to the Enter PIN page
-    $session->clear(["phone"]);
+    $session->clear(["token"]);
 
     my $count = violation_count($mac);
-
     if ($count == 0) {
 
       pf::web::generate_release_page($cgi, $session, $destination_url, $mac);

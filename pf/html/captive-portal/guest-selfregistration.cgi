@@ -72,7 +72,7 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
       # User chose to register by email
       $logger->info("Registering guest by email");
 
-      # Login successful, adding person (using modify in case person already exists)
+      # form valid, adding person (using modify in case person already exists)
       person_modify($session->param("login"), (
           'firstname' => $session->param("firstname"),
           'lastname' => $session->param("lastname"),
@@ -123,9 +123,21 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
       if ($session->param("phone") && $cgi->param("mobileprovider")) {
         ($auth_return, $err) = sms_activation_create_send($mac, $session->param("phone"), $cgi->param("mobileprovider") );
         if ($auth_return) {
+
+          # form valid, adding person (using modify in case person already exists)
+          $logger->info("Adding guest person " . $session->param("phone"));
+          person_modify($session->param("phone"), (
+              'firstname' => $session->param("firstname"),
+              'lastname' => $session->param("lastname"),
+              'email' => $session->param("email"),
+              'telephone' => $session->param("phone"),
+              'notes' => 'sms confirmation',
+          ));
+          $session->param("token", $session->param("phone"));
+
           $logger->info("redirecting to mobile confirmation page");
           pf::web::guest::generate_sms_confirmation_page($cgi, $session, "/activate/sms", $destination_url, $err);
-          return (0);
+          exit(0);
         }
       }
       else {
