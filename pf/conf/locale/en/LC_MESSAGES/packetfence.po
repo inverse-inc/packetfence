@@ -3,18 +3,17 @@
 # This file is distributed under the same license as the PacketFence project.
 # Olivier Bilodeau <obilodeau@inverse.ca>, 2011.
 #
-domain "packetfence"
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"PO-Revision-Date: 2011-10-31 11:39-0400\n"
+"PO-Revision-Date: 2011-11-16 15:15-0500\n"
 "Last-Translator: Olivier Bilodeau <obilodeau@inverse.ca>\n"
 "Language-Team: PacketFence support <support@packetfence.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"POT-Creation-Date: \n"
 
 msgid "en_US"
 msgstr "English"
@@ -37,10 +36,10 @@ msgstr "Dutch"
 msgid "pt_BR"
 msgstr "Português"
 
-msgid  "error: access denied not owner"
+msgid "error: access denied not owner"
 msgstr "Access denied: you are not the owner of this node!"
 
-msgid  "error: incorrect mode"
+msgid "error: incorrect mode"
 msgstr "Incorrect mode!"
 
 # deprecated but kept for a couple of versions (until at least early 2013)
@@ -50,23 +49,23 @@ msgstr "Invalid login or password"
 msgid "Invalid login or password"
 msgstr ""
 
-msgid  "error: invalid page number"
+msgid "error: invalid page number"
 msgstr "Invalid page number"
 
-msgid  "error: max re-enables reached"
+msgid "error: max re-enables reached"
 msgstr "Maximum re-enables reached!"
 
-msgid  "error: not found in the database"
+msgid "error: not found in the database"
 msgstr "Your computer was not found in the PacketFence database. Please reboot to solve this issue."
 
-msgid  "error: not trappable IP"
+msgid "error: not trappable IP"
 msgstr "Access denied: not a trappable IP!"
 
-msgid  "error: only register max nodes"
+msgid "error: only register max nodes"
 msgstr "You may only register a maximum of %s nodes!"
 
 # deprecated but kept for a couple of versions (until at least early 2013)
-msgid  "error: unable to validate credentials at the moment"
+msgid "error: unable to validate credentials at the moment"
 msgstr "Unable to validate credentials at the moment"
 
 msgid "Unable to validate credentials at the moment"
@@ -75,169 +74,169 @@ msgstr ""
 msgid "error: something went wrong creating the guest"
 msgstr "There was a problem creating the guest account."
 
-msgid  "help: provide info"
+msgid "help: provide info"
 msgstr "If you have questions about this page, contact your local support staff for assistance. Please provide the following information: "
 
-msgid  "register: all systems must be registered"
+msgid "register: all systems must be registered"
 msgstr "As we may need to contact users regarding individual systems, all systems on this network must be registered."
 
-msgid  "register: aup"
+msgid "register: aup"
 msgstr "The registration process will require acceptance of an Acceptable Use Policy (AUP).  If you wish to read this policy before beginning the registration process, please visit:"
 
-msgid  "register: to complete"
+msgid "register: to complete"
 msgstr "To complete the registration process, you will need to authenticate using your username and password."
 
-msgid  "Authentication"
+msgid "Authentication"
 msgstr ""
 
-msgid  "or"
+msgid "or"
 msgstr ""
 
-msgid  "Sign up"
+msgid "Sign up"
 msgstr ""
 
-msgid  "register: skip registration"
+msgid "register: skip registration"
 msgstr "Skip Registration"
 
-msgid  "release: enabling network"
+msgid "release: enabling network"
 msgstr "Enabling network access"
 
-msgid  "release: reopen browser"
+msgid "release: reopen browser"
 msgstr "You may have to re-open your browser to get Internet access. If you are plugged into a telephone, you will need to restart your computer to get Internet access."
 
-msgid  "scan: scan in progress"
+msgid "scan: scan in progress"
 msgstr "Your system is being scanned"
 
-msgid  "scan in progress contact support if too long"
+msgid "scan in progress contact support if too long"
 msgstr "Your system is still being scanned right now. The process started at %s. Usually this process takes a few minutes. If it has been much longer than that, contact your local support staff."
 
-msgid  "automatically refresh"
+msgid "automatically refresh"
 msgstr "This page automatically refreshes every %s seconds to verify if scan has completed."
 
-msgid  "Acceptable Use Policy"
+msgid "Acceptable Use Policy"
 msgstr "Acceptable Use Policy"
 
-msgid  "Addresses"
+msgid "Addresses"
 msgstr "Addresses"
 
-msgid  "De-register node"
+msgid "De-register node"
 msgstr "De-register node"
 
-msgid  "Scanning ..."
+msgid "Scanning ..."
 msgstr "Scanning ..."
 
-msgid  "Gateway"
+msgid "Gateway"
 msgstr "Gateway"
 
-msgid  "grace"
+msgid "grace"
 msgstr "grace"
 
-msgid  "Hostname"
+msgid "Hostname"
 msgstr "Hostname"
 
-msgid  "IP"
+msgid "IP"
 msgstr "IP address"
 
-msgid  "Login"
+msgid "Login"
 msgstr "Login"
 
-msgid  "MAC"
+msgid "MAC"
 msgstr "MAC"
 
-msgid  "network access is being enabled"
+msgid "network access is being enabled"
 msgstr "Your network access is currently being enabled. Once network connectivity is established you will be automatically redirected."
 
-msgid  "system scan in progress"
+msgid "system scan in progress"
 msgstr "Your system is being scanned - this process will take approximately %s seconds."
 
-msgid  "Node"
+msgid "Node"
 msgstr ""
 
-msgid  "PacketFence Registration System"
+msgid "PacketFence Registration System"
 msgstr ""
 
-msgid  "Guest Registration"
+msgid "Guest Registration"
 msgstr ""
 
-msgid  "guest network disclaimer"
+msgid "guest network disclaimer"
 msgstr "This guest network is provided exclusively for the convenience of guests and visitors. Access implies no guarantee of reliability, speed or privacy; this network is provided for the express purpose of facilitating simple Internet web communication. Use implies agreement with all terms and conditions of appropriate behavior of our <b>Acceptable Use Policy.</b>"
 
-msgid  "In the fields below please enter your name, phone number and a valid email address."
-msgstr  ""
-
-msgid  "If you choose to receive your access code <strong>by email</strong>, you will be given temporary network access for 10 minutes during that time:"
+msgid "In the fields below please enter your name, phone number and a valid email address."
 msgstr ""
 
-msgid  "Login to the email account you referenced and;"
+msgid "If you choose to receive your access code <strong>by email</strong>, you will be given temporary network access for 10 minutes during that time:"
 msgstr ""
 
-msgid  "Click on the link emailed to you to validate network access for the next 24 hours."
+msgid "Login to the email account you referenced and;"
 msgstr ""
 
-msgid  "Register by Email"
+msgid "Click on the link emailed to you to validate network access for the next 24 hours."
 msgstr ""
 
-msgid  "If you choose to receive your access code <strong>by SMS</strong>, you will be able to enter it on the next page."
+msgid "Register by Email"
 msgstr ""
 
-msgid  "Register by SMS"
+msgid "If you choose to receive your access code <strong>by SMS</strong>, you will be able to enter it on the next page."
 msgstr ""
 
-msgid  "Password"
+msgid "Register by SMS"
 msgstr ""
 
-msgid  "PID"
+msgid "Password"
+msgstr ""
+
+msgid "PID"
 msgstr "Owner"
 
-msgid  "Print this page"
+msgid "Print this page"
 msgstr ""
 
-msgid  "reg"
+msgid "reg"
 msgstr "registered"
 
-msgid  "Sorry"
+msgid "Sorry"
 msgstr "Sorry!"
 
-msgid  "Status"
+msgid "Status"
 msgstr "Status"
 
-msgid  "unknown"
+msgid "unknown"
 msgstr "unknown"
 
-msgid  "unreg"
+msgid "unreg"
 msgstr "unregistered"
 
-msgid  "Username"
+msgid "Username"
 msgstr "Username"
 
-msgid  "Violations"
+msgid "Violations"
 msgstr "Violations"
 
-msgid  "Quarantine Established!"
+msgid "Quarantine Established!"
 msgstr "Quarantine Established!"
 
-msgid  "Registration Notification"
+msgid "Registration Notification"
 msgstr "Registration Notification"
 
-msgid  "Additional Assistance"
+msgid "Additional Assistance"
 msgstr "Additional Assistance"
 
-msgid  "If your network connectivity becomes permanently disabled or you are unable to follow the instructions above, please contact your local IT support staff for assistance."
-msgstr  "If your network connectivity becomes permanently disabled or you are unable to follow the instructions above, please contact your local IT support staff for assistance."
+msgid "If your network connectivity becomes permanently disabled or you are unable to follow the instructions above, please contact your local IT support staff for assistance."
+msgstr "If your network connectivity becomes permanently disabled or you are unable to follow the instructions above, please contact your local IT support staff for assistance."
 
-msgid  "The following information should be provided upon request:"
+msgid "The following information should be provided upon request:"
 msgstr "The following information should be provided upon request:"
 
-msgid  "IP Address"
+msgid "IP Address"
 msgstr "IP Address"
 
-msgid  "MAC Address"
+msgid "MAC Address"
 msgstr "MAC Address"
 
-msgid  "Banned Operating System"
+msgid "Banned Operating System"
 msgstr "Banned Operating System"
 
-msgid  "You have been detected using an operating system not allowed on the network. Please install a more recent operating system"
+msgid "You have been detected using an operating system not allowed on the network. Please install a more recent operating system"
 msgstr "You have been detected using an operating system not allowed on the network. Please install a more recent operating system"
 
 msgid "Darknet Violation"
@@ -252,46 +251,46 @@ msgstr ""
 msgid "Your system will likely need to be rebuilt. Please contact your support staff for more information."
 msgstr ""
 
-msgid  "Windows patches are not up to date"
+msgid "Windows patches are not up to date"
 msgstr ""
 
 msgid "Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken. Instructions for disinfection are below:"
 msgstr ""
 
-msgid  "Generic"
+msgid "Generic"
 msgstr "Generic"
 
-msgid  "Network connectivity has been disabled."
+msgid "Network connectivity has been disabled."
 msgstr "Network connectivity has been disabled."
 
 msgid "Please contact your support staff for more information."
 msgstr ""
 
-msgid  "Hub Detection"
+msgid "Hub Detection"
 msgstr "Hub Detection"
 
-msgid  "You have been detected using a hub. Such device is not permitted on the network.  Please remove it."
+msgid "You have been detected using a hub. Such device is not permitted on the network.  Please remove it."
 msgstr "You have been detected using a hub. Such device is not permitted on the network.  Please remove it."
 
-msgid  "Peer-to-Peer"
+msgid "Peer-to-Peer"
 msgstr "Peer-to-Peer"
 
-msgid  "You have been detected using a peer-to-peer file sharing application. Such software is not permitted on the network.  Please uninstall the infringing software."
+msgid "You have been detected using a peer-to-peer file sharing application. Such software is not permitted on the network.  Please uninstall the infringing software."
 msgstr "You have been detected using a peer-to-peer file sharing application. Such software is not permitted on the network.  Please uninstall the infringing software."
 
-msgid  "System Scanning"
+msgid "System Scanning"
 msgstr "System Scanning"
 
-msgid  "Your system has been found to be scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgid "Your system has been found to be scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
 msgstr "Your system has been found to be scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
 
-msgid  "Spamming"
+msgid "Spamming"
 msgstr "Spamming"
 
-msgid  "Your system has been found to be sending unsolicited commercial email (UCE, or \"spam\") to other systems. Due to the threat this poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgid "Your system has been found to be sending unsolicited commercial email (UCE, or \"spam\") to other systems. Due to the threat this poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
 msgstr "Your system has been found to be sending unsolicited commercial email (UCE, or \"spam\") to other systems. Due to the threat this poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
 
-msgid  "Your system may need to be rebuilt. Please contact your local support staff for more information."
+msgid "Your system may need to be rebuilt. Please contact your local support staff for more information."
 msgstr "Your system may need to be rebuilt. Please contact your local support staff for more information."
 
 msgid "guest management"
@@ -301,10 +300,7 @@ msgid "guest registration form"
 msgstr "Guest Registration Form"
 
 msgid "guest registration instructions"
-msgstr ""
-"Please fill in all the fields below for the guest account to be created. "
-"Guests will not be able to register before arrival date or after arrival date plus duration with a one day tolerance window. "
-"Access duration will start once the guest logged into the captive portal. "
+msgstr "Please fill in all the fields below for the guest account to be created. Guests will not be able to register before arrival date or after arrival date plus duration with a one day tolerance window. Access duration will start once the guest logged into the captive portal. "
 
 msgid "Firstname"
 msgstr ""
@@ -315,10 +311,10 @@ msgstr ""
 msgid "Phone number"
 msgstr ""
 
-msgid  "Phone Provider"
+msgid "Phone Provider"
 msgstr ""
 
-msgid  "Select your provider"
+msgid "Select your provider"
 msgstr ""
 
 msgid "Email"
@@ -398,34 +394,34 @@ msgstr ""
 msgid "Arrival date is not of expected format."
 msgstr ""
 
-msgid  "You can't register as a guest with a %s email address. Please register as a regular user using your email address instead."
+msgid "You can't register as a guest with a %s email address. Please register as a regular user using your email address instead."
 msgstr ""
 
-msgid  "An error occured while sending the confirmation email."
+msgid "An error occured while sending the confirmation email."
 msgstr ""
 
-msgid  "An error occured while sending the PIN by SMS."
+msgid "An error occured while sending the PIN by SMS."
 msgstr ""
 
-msgid  "The uploaded file was corrupted. Please try again."
+msgid "The uploaded file was corrupted. Please try again."
 msgstr ""
 
-msgid  "Can't open uploaded file."
+msgid "Can't open uploaded file."
 msgstr ""
 
-msgid  "Confirm Mobile Phone Number"
+msgid "Confirm Mobile Phone Number"
 msgstr ""
 
-msgid  "Please enter the PIN code received on your mobile phone in order to gain access to the network."
+msgid "Please enter the PIN code received on your mobile phone in order to gain access to the network."
 msgstr ""
 
-msgid  "PIN"
+msgid "PIN"
 msgstr ""
 
-msgid  "Confirm"
+msgid "Confirm"
 msgstr ""
 
-msgid  "Cancel"
+msgid "Cancel"
 msgstr ""
 
 msgid "Guest Access Code"
@@ -613,3 +609,4 @@ msgstr ""
 
 msgid "Access to the guest network granted"
 msgstr ""
+
