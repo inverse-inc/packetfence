@@ -560,6 +560,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/named-registration.ca
 %config(noreplace)      /usr/local/pf/conf/named-isolation.ca
 %config                 /usr/local/pf/conf/named.conf
+%config                 /usr/local/pf/conf/named.conf.pre_bind97
+%config                 /usr/local/pf/conf/named.conf.bind97
 %config(noreplace)      /usr/local/pf/conf/popup.msg
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf
