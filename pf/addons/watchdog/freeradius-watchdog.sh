@@ -8,6 +8,9 @@
 EMAILTO="user@domain.tld"
 # if you want to add more recipients seperate them with a comma
 
+# NOTE TO HIGH AVAILABILITY USERS
+# Need to change 127.0.0.1 to the vIP and add a radius client from the vIP with secret testing123
+
 # setting separator to newline
 IFS='
 '
