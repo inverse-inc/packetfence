@@ -23,6 +23,7 @@ use Log::Log4perl;
 use Net::Pcap 0.16;
 use Pod::Usage;
 use POSIX qw(:signal_h);
+use Try::Tiny;
 
 use constant INSTALL_DIR => '/usr/local/pf';
 
@@ -43,6 +44,7 @@ use pf::rawip;
 use pf::services;
 use pf::trigger;
 use pf::util;
+use pf::util::dhcp;
 use pf::violation;
 
 Log::Log4perl->init_and_watch( INSTALL_DIR . "/conf/log.conf", $LOG4PERL_RELOAD_TIMER );
@@ -158,33 +160,34 @@ sub process_pkt {
 sub listen_dhcp {
     my ( $packet, $eth ) = @_;
 
-    # decode src/dst MAC addrs
-    my ( $dmac, $smac ) = unpack( 'H12H12', $packet );
-    $smac = clean_mac($smac);
-    $dmac = clean_mac($dmac);
+    my ($l2, $l3, $l4, $dhcp);
 
-    return if ( !valid_mac($smac) );
+    # we need success flag here because we can't next inside try catch
+    my $success;
+    try {
+        ($l2, $l3, $l4, $dhcp) = decompose_dhcp($packet);
+        $success = 1;
+    };
+    if (!$success) {
+        $logger->warn("Unable to parse DHCP packet: $_");
+        return;
+    }
 
-    # decode IP datagram
-    my ($version, $tos,   $length, $id,    $flags,
-        $ttl,     $proto, $chksum, $saddr, $daddr
-    ) = unpack( 'CCnnnCCnNN', substr( $packet, 14 ) );
-    my $ihl = $version & oct(17);
-    $version >>= 4;
-    my $src = int2ip($saddr);
-    my $dst = int2ip($daddr);
+    # grab frame information we care about
+    my $smac = clean_mac($l2->{'src_mac'});
+    my $dmac = clean_mac($l2->{'dst_mac'});
 
-    # decode UDP datagram
-    my ( $sport, $dport, $len, $udpsum )
-        = unpack( 'nnnn', substr( $packet, 14 + $ihl * 4 ) );
+    if (!valid_mac($smac)) {
+        $logger->debug("smac is invalid. skipping");
+        return;
+    }
 
-    # decode DHCP data
-    my ($op,     $htype,  $hlen,   $hops,   $xid,
-        $secs,   $dflags, $ciaddr, $yiaddr, $siaddr,
-        $giaddr, $chaddr, $sname,  $file,   @options
-        )
-        = unpack( 'CCCCNnnNNNNH32A64A128C*',
-        substr( $packet, 14 + $ihl * 4 + 8 ) );
+    # grab IP information we care about
+    my $src = $l3->{'src_ip'};
+    my $dst = $l3->{'dst_ip'};
+
+    # grab DHCP information
+    my $chaddr = $dhcp->{'chaddr'};
 
     if ( !defined($chaddr) ) {
         $logger->debug("chaddr is undefined in DHCP packet");
@@ -202,43 +205,6 @@ sub listen_dhcp {
     # There is activity from that mac, call node wakeup
     node_mac_wakeup($chaddr);
 
-    # decode DHCP options
-    # valid DHCP options field begins with 99,130,83,99...
-    if ( !join( ":", splice( @options, 0, 4 ) ) =~ /^99:130:83:99$/ ) {
-        $logger->debug("invalid DHCP options received from $chaddr");
-        return;
-    }
-
-    # populate hash with DHCP options
-    # ASCII-ify textual data and treat option 55 (parameter list) as an array
-    my %options;
-    while (@options) {
-        my $code   = shift(@options);
-        my $length = shift(@options);
-        if ( $code != 0 ) {
-            while ($length) {
-                my $val = shift(@options);
-                if (   $code == 15
-                    || $code == 12
-                    || $code == 60
-                    || $code == 66
-                    || $code == 67
-                    || $code == 81
-                    || $code == 4 )
-                {
-                    if ( defined($val) && $val != 0 && $val != 1 ) {
-                        $val = chr($val);
-                    } else {
-                        $length--;
-                        next;
-                    }
-                }
-                push( @{ $options{$code} }, $val );
-                $length--;
-            }
-        }
-    }
-
     # opcode 1 = request, opcode 2 = reply
 
     #           Value   Message Type
@@ -252,14 +218,13 @@ sub listen_dhcp {
     #             7     DHCPRELEASE
     #             8     DHCPINFORM
 
-    if ( $op == 2 ) {
+    my %options = %{$dhcp->{'options'}};
+    if ( $dhcp->{'op'} == 2 ) {
         if ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 2 ) {
-            if ($yiaddr) {
-                $yiaddr = int2ip($yiaddr);
-                $logger->info(
-                    "DHCPOFFER from $src ($smac) to host $chaddr ($yiaddr)");
+            if ($dhcp->{'yiaddr'}) {
+                $logger->info("DHCPOFFER from $src ($smac) to host $chaddr ($dhcp->{yiaddr})");
             } else {
-                $logger->warn("DHCPOFFER invalid IP $yiaddr for $chaddr");
+                $logger->warn("DHCPOFFER invalid IP in DHCP's yiaddr for $chaddr");
                 return;
             }
 
@@ -270,20 +235,19 @@ sub listen_dhcp {
                     split( /\s*,\s*/, $Config{'general'}{'dhcpservers'} ) ) )
             {
                 $logger->debug(
-                    "$src ($smac) appears to be a DHCP server or relay, adding $chaddr ($yiaddr) to hash"
+                    "$src ($smac) appears to be a DHCP server or relay, adding $chaddr ($dhcp->{yiaddr}) to hash"
                 );
 
-                #update_iplog($chaddr,$yiaddr);
+                #update_iplog($chaddr,$dhcp->{yiaddr});
                 return;
             }
 
             my $date = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
             push @{ $rogue_servers{$smac} },
                 sprintf( "%s: %15s to %s on interface %s\n",
-                $date, $yiaddr, $chaddr, $eth );
-            $logger->warn(
-                "$src ($smac) was detected offering $yiaddr to $chaddr on $eth"
-            );
+                $date, $dhcp->{'yiaddr'}, $chaddr, $eth );
+
+            $logger->warn("$src ($smac) was detected offering $dhcp->{yiaddr} to $chaddr on $eth");
             #TODO: merge this hackish violation into standard violation management in a new violation type
             pf_run("$bin_dir/pfcmd 'violation add vid=1100010, mac=$smac'");
             if (scalar( @{ $rogue_servers{$smac} } )
@@ -306,41 +270,32 @@ sub listen_dhcp {
                 }
                 pfmailer(%rogue_message);
             }
+
         } elsif ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 5 ) {
             my $lease_length = get_lease_length();
 
-            if ($yiaddr) {
-                $yiaddr = int2ip($yiaddr);
+            if ($dhcp->{'yiaddr'}) {
                 $logger->info(
-                    "DHCPACK from $src ($smac) to host $chaddr ($yiaddr)"
-                        . (
-                        defined($lease_length)
-                        ? " for $lease_length seconds"
-                        : ""
-                        )
+                    "DHCPACK from $src ($smac) to host $chaddr ($dhcp->{yiaddr})"
+                    . ( defined($lease_length) ? " for $lease_length seconds" : "" )
                 );
-                update_iplog( $chaddr, $yiaddr, $lease_length );
+                update_iplog( $chaddr, $dhcp->{'yiaddr'}, $lease_length );
                 return;
-            } elsif ($ciaddr) {
-                $ciaddr = int2ip($ciaddr);
+            } elsif ($dhcp->{'ciaddr'}) {
                 $logger->info(
-                    "DHCPACK CIADDR from $src ($smac) to host $chaddr ($ciaddr)"
-                        . (
-                        defined($lease_length)
-                        ? " for $lease_length seconds"
-                        : ""
-                        )
+                    "DHCPACK CIADDR from $src ($smac) to host $chaddr ($dhcp->{ciaddr})"
+                    . ( defined($lease_length) ? " for $lease_length seconds" : "")
                 );
-                update_iplog( $chaddr, $ciaddr, $lease_length );
+                update_iplog( $chaddr, $dhcp->{'ciaddr'}, $lease_length );
                 return;
             } else {
                 $logger->warn(
-                    "invalid DHCPACK from $src ($smac) to host $chaddr [$yiaddr - $ciaddr ] -"
+                    "invalid DHCPACK from $src ($smac) to host $chaddr [$dhcp->{yiaddr} - $dhcp->{ciaddr} ] -"
                 );
                 return;
             }
         }
-    } elsif ( $op == 1 ) {
+    } elsif ( $dhcp->{'op'} == 1 ) {
         if ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 1 ) {
             $logger->debug("DHCPDISCOVER from $chaddr");
 
@@ -361,13 +316,11 @@ sub listen_dhcp {
             }
 
         } elsif ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 7 ) {
-            $ciaddr = int2ip($ciaddr);
-            $logger->debug("DHCPRELEASE from $chaddr ($ciaddr)");
-            iplog_close($ciaddr);
+            $logger->debug("DHCPRELEASE from $chaddr ($dhcp->{ciaddr})");
+            iplog_close($dhcp->{'ciaddr'});
             return;
         } elsif ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 8 ) {
-            $ciaddr = int2ip($ciaddr);
-            $logger->info("DHCPINFORM from $chaddr ($ciaddr)");
+            $logger->debug("DHCPINFORM from $chaddr ($dhcp->{ciaddr})");
             return;
         }
 
@@ -439,7 +392,7 @@ sub listen_dhcp {
             print "$field: $tmp{$field}\n";
         }
     } else {
-        $logger->debug("unrecognized DHCP opcode from $chaddr: $op");
+        $logger->debug("unrecognized DHCP opcode from $chaddr: $dhcp->{op}");
     }
 }
 

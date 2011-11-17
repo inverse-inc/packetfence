@@ -102,7 +102,10 @@ Requires: perl(Net::Interface)
 Requires: perl-Net-Frame, perl-Net-Frame-Simple
 Requires: perl-Net-MAC, perl-Net-MAC-Vendor
 Requires: perl-Net-Netmask
+# pfmon, pfdhcplistener
 Requires: perl-Net-Pcap >= 0.16
+# pfdhcplistener
+Requires: perl(NetPacket) >= 1.2.0
 Requires: perl-Net-SNMP
 # for SNMPv3 AES as privacy protocol, fixes #775
 Requires: perl-Crypt-Rijndael
@@ -608,6 +611,8 @@ fi
                         /usr/local/pf/lib/pf/services/*
 %dir                    /usr/local/pf/lib/pf/SNMP
                         /usr/local/pf/lib/pf/SNMP/*
+%dir                    /usr/local/pf/lib/pf/util
+                        /usr/local/pf/lib/pf/util/*
 %dir                    /usr/local/pf/lib/pf/vlan
 %config(noreplace)      /usr/local/pf/lib/pf/vlan/custom.pm
 %dir                    /usr/local/pf/lib/pf/web

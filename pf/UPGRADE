@@ -5,6 +5,13 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to <minor-release>:
+
+    - New dependency
+    This version introduces a new perl dependency: NetPacket. If you don't have
+    EPEL configured as a repository trying to upgrade might fail. To 
+    successfully upgrade make sure you have the EPEL repository enabled.
+
 o Upgrading from a version prior to 3.0.2:
 
     - Database schema update
