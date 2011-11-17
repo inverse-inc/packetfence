@@ -117,7 +117,7 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
         }
       }
     }
-    elsif ( $auth_return && defined($params{'by_sms'}) && defined($guest_self_registration{$SELFREG_MODE_EMAIL}) ) {
+    elsif ( $auth_return && defined($params{'by_sms'}) && defined($guest_self_registration{$SELFREG_MODE_SMS}) ) {
       # User chose to register by SMS
       $logger->info("Registering guest by SMS " . $session->param("phone") . " @ " . $cgi->param("mobileprovider"));
       if ($session->param("phone") && $cgi->param("mobileprovider")) {

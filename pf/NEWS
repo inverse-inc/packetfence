@@ -44,6 +44,7 @@ Bug Fixes
  * Avoiding missing session variables in SMS activation
  * Minor syntax issues in the po files
  * DHCP analysis on RedHat Enterprise Linux 6 (#1336)
+ * Disabling email guests would prevent sms guest registration
 
 Translations
  * Minor update to French (fr) translation
