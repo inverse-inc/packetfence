@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 64;
+use Test::More tests => 65;
 
 # pf core libs
 use lib '/usr/local/pf/lib';
@@ -58,6 +58,7 @@ BEGIN { use_ok('pf::traplog') }
 BEGIN { use_ok('pf::trigger') }
 BEGIN { use_ok('pf::useragent') }
 BEGIN { use_ok('pf::util') }
+BEGIN { use_ok('pf::util::dhcp') }
 BEGIN { use_ok('pf::violation') }
 BEGIN { use_ok('pf::vlan') }
 BEGIN { use_ok('pf::vlan::custom') }
