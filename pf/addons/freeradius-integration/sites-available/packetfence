@@ -9,7 +9,7 @@ authorize {
         files
         expiration
         logintime
-	perl
+	packetfence
 }
 
 authenticate {
@@ -40,7 +40,7 @@ session {
 
 post-auth {
         exec
-        perl
+        packetfence
         Post-Auth-Type REJECT {
                 attr_filter.access_reject
         }

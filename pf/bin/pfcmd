@@ -1293,7 +1293,7 @@ sub service {
     if ( $command ne 'stop' ) {
         print "config files|$command\n";
         require pf::os;
-        pf::os::read_dhcp_fingerprints_conf();
+        pf::os::import_dhcp_fingerprints();
         pf::services::read_violations_conf();
         print "iptables|$command\n";
         require pf::iptables;
@@ -1701,7 +1701,7 @@ sub reload {
     my $option = $cmd{command}[1];
     if ( $option eq "fingerprints" ) {
         require pf::os;
-        my $fp_total = pf::os::read_dhcp_fingerprints_conf();
+        my $fp_total = pf::os::import_dhcp_fingerprints({ force => $TRUE });
         $logger->info("$fp_total DHCP fingerprints reloaded");
         print "$fp_total DHCP fingerprints reloaded\n";
     } elsif ( $option eq "violations" ) {
@@ -1739,7 +1739,7 @@ sub update {
             print
                 "DHCP fingerprints updated via $dhcp_fingerprints_url to $version\n";
             require pf::os;
-            my $fp_total = pf::os::read_dhcp_fingerprints_conf();
+            my $fp_total = pf::os::import_dhcp_fingerprints({ force => $TRUE });
             $logger->info("$fp_total DHCP fingerprints reloaded");
             print "$fp_total DHCP fingerprints reloaded\n";
         }
@@ -1936,8 +1936,8 @@ sub command_param {
         }
         if ( defined( $cmd{'node_filter'} ) ) {
             $function .= "_all";
-            $params{'where'}{'type'}  = $cmd{'node_filter'}[0][0];
-            $params{'where'}{'value'} = $cmd{'node_filter'}[0][1];
+            $params{'where'}{'type'}  = $cmd{'node_filter'}[0];
+            $params{'where'}{'value'} = $cmd{'node_filter'}[1];
         }
         exit( print_results( $function, $id, %params ) );
         return (0);
@@ -1945,8 +1945,8 @@ sub command_param {
         $function .= "_count_all";
         my %params;
         if ( defined( $cmd{'node_filter'} ) ) {
-            $params{'where'}{'type'}  = $cmd{'node_filter'}[0][0];
-            $params{'where'}{'value'} = $cmd{'node_filter'}[0][1];
+            $params{'where'}{'type'}  = $cmd{'node_filter'}[0];
+            $params{'where'}{'value'} = $cmd{'node_filter'}[1];
         }
         exit( print_results( $function, $id, %params ) );
         return (0);
