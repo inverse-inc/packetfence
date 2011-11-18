@@ -549,7 +549,7 @@ sub node_modify {
         }
     }
 
-    my $existing   = node_view($mac);
+    my $existing = node_attributes($mac);
     # keep track of status
     my $old_status = $existing->{status};
     # special handling for category to category_id conversion
