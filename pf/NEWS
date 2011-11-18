@@ -20,18 +20,19 @@ New Hardware Support
  * HP Procurve 5400 now supporting mac auth and 802.1x (with VoIP)
 
 Enhancements
+ * Performance improvements under stressed workloads
  * Translatable remediation templates (if a translated version exists, it'll override the default)
  * Guest management interface can be translated
  * More documentation for service watch
- * Eliminated some unncessary warnings
+ * Eliminated some unnecessary warnings
  * Better help in the web admin UI
  * Added a new addon: import-node-csv.pl - bulk node import tool
  * Added a new addon: network-save-configs.pl - saves configs (write mem) for the whole network (only Cisco for now)
 
 Bug Fixes
  * 802.1X broken on Cisco Catalyst 3750 (#1286)
- * Pop-Up windows are too small (#1078)
- * RedHat Enterprise Linux 6 installation instructions
+ * Pop-up windows are too small (#1078)
+ * Red Hat Enterprise Linux 6 installation instructions
  * Encoding on the remediation pages and on the release pages (scan, access enabled)
  * SNMPv3 issues affecting all the Cisco wired product line (#1284)
  * Allow incoming DHCP on management interface to track users IPs in production VLANs (as opposed to DNS added in 3.0.2)
@@ -44,7 +45,7 @@ Bug Fixes
  * Avoiding missing session variables in SMS activation
  * Minor syntax issues in the po files
  * DHCP analysis on RedHat Enterprise Linux 6 (#1336)
- * Disabling email guests would prevent sms guest registration
+ * Disabling email guests would prevent SMS guest registration
 
 Translations
  * Minor update to French (fr) translation
