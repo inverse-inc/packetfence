@@ -272,7 +272,7 @@ sub listen_dhcp {
             }
 
         } elsif ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 5 ) {
-            my $lease_length = get_lease_length();
+            my $lease_length = $dhcp->{'options'}->{'51'};
 
             if ($dhcp->{'yiaddr'}) {
                 $logger->info(
@@ -301,8 +301,8 @@ sub listen_dhcp {
 
         } elsif ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 3 ) {
             $logger->debug("DHCPREQUEST from $chaddr");
-            my $lease_length = get_lease_length(%options);
-            my $client_ip = get_requested_ip(%options);
+            my $lease_length = $dhcp->{'options'}->{'51'};
+            my $client_ip = $dhcp->{'options'}->{'50'};
             if ($client_ip) {
                 $logger->info(
                     "DHCPREQUEST from $chaddr ($client_ip)"
@@ -426,42 +426,6 @@ sub update_iplog {
         node_add_simple($srcmac);
     }
     iplog_open( $srcmac, $srcip, $lease_length );
-}
-
-=item get_lease_length
-
-Grab DHCP lease duration from DHCP Option 51. See RFC 2132 for details.
-
-Option 51: IP Address Lease Time
-
-=cut
-sub get_lease_length {
-    my (%options) = @_;
-
-    my $lease_length;
-    if ( exists( $options{51} ) ) {
-        $lease_length = unpack( "N", pack( "C4", @{ $options{51} } ) );
-    }
-
-    return $lease_length;
-}
-
-=item get_requested_ip
-
-Grab IP address from DHCP Option 50. See RFC 2132 for details.
-
-Option 50: Requested IP Address
-
-=cut
-sub get_requested_ip {
-    my (%options) = @_;
-
-    my $req_ip;
-    if ( exists( $options{50} ) ) {
-        $req_ip = int2ip( unpack( "N", pack( "C4", @{$options{50}} ) ) );
-    }
-
-    return $req_ip;
 }
 
 =item process_fingerprint
