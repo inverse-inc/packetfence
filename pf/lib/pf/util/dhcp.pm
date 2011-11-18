@@ -27,6 +27,8 @@ use NetPacket::Ethernet;
 use NetPacket::IP;
 use NetPacket::UDP;
 
+use pf::util qw(int2ip);
+
 our @ascii_options = (
     15, # Domain Name (RFC2132)
     12, # Host Name (RFC2132)
@@ -78,8 +80,29 @@ sub decode_dhcp {
     # assigning keys one by one to the result of unpack and returning the whole thing as an hashref
     my $dhcp_ref = { map { shift(@keys) => $_ } unpack( 'CCCCNnnNNNNH32A64A128', $udp_payload) };
 
+    # the following parameters are converted into IP addresses
+    foreach my $param ('ciaddr', 'yiaddr', 'siaddr', 'giaddr') {
+        $dhcp_ref->{$param} = int2ip($dhcp_ref->{$param});
+    }
+
     # grabbing the rest as one byte options in an array
     my @options = unpack( 'x236 C*', $udp_payload);
+    decode_dhcp_options($dhcp_ref, @options);
+
+    return $dhcp_ref;
+}
+
+=item decode_dhcp_options
+
+Parses the Options portion of a DHCP packet and populate the hashref passed as a parameter.
+
+We try to be as clever as possible regarding how data should be formatted and we convert it to appropriate types.
+
+  decode_dhcp_options( hashref, @options )
+
+=cut
+sub decode_dhcp_options {
+    my ($dhcp_ref, @options) = @_;
 
     # we are expecting DHCP's magic cookies (63:82:53:63) right before the options
     if ( !join( ":", splice( @options, 0, 4 ) ) =~ /^99:130:83:99$/ ) {
@@ -109,8 +132,21 @@ sub decode_dhcp {
         }
     }
 
-    return $dhcp_ref;
+    # Here we format some well known DHCP options
+    # -------------------------------------------
+
+    # Option 50: Requested IP Address (RFC2132)
+    if ( exists( $dhcp_ref->{'options'}->{50} ) ) {
+        $dhcp_ref->{'options'}->{50} = join ('.', @{ $dhcp_ref->{'options'}->{50} } );
+    }
+
+    # Option 51: IP Address Lease Time (RFC2132)
+    if ( exists( $dhcp_ref->{'options'}->{51} ) ) {
+        $dhcp_ref->{'options'}->{51} = unpack( "N", pack( "C4", @{ $dhcp_ref->{'options'}->{51} } ) );
+    }
 }
+
+=back
 
 =head1 AUTHOR
 
