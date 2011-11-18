@@ -274,14 +274,14 @@ sub listen_dhcp {
         } elsif ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 5 ) {
             my $lease_length = $dhcp->{'options'}->{'51'};
 
-            if ($dhcp->{'yiaddr'}) {
+            if ($dhcp->{'yiaddr'} !~ /^0\.0\.0\.0$/) {
                 $logger->info(
                     "DHCPACK from $src ($smac) to host $chaddr ($dhcp->{yiaddr})"
                     . ( defined($lease_length) ? " for $lease_length seconds" : "" )
                 );
                 update_iplog( $chaddr, $dhcp->{'yiaddr'}, $lease_length );
                 return;
-            } elsif ($dhcp->{'ciaddr'}) {
+            } elsif ($dhcp->{'ciaddr'} !~ /^0\.0\.0\.0$/) {
                 $logger->info(
                     "DHCPACK CIADDR from $src ($smac) to host $chaddr ($dhcp->{ciaddr})"
                     . ( defined($lease_length) ? " for $lease_length seconds" : "")
@@ -290,7 +290,7 @@ sub listen_dhcp {
                 return;
             } else {
                 $logger->warn(
-                    "invalid DHCPACK from $src ($smac) to host $chaddr [$dhcp->{yiaddr} - $dhcp->{ciaddr} ] -"
+                    "invalid DHCPACK from $src ($smac) to host $chaddr [$dhcp->{yiaddr} - $dhcp->{ciaddr}]"
                 );
                 return;
             }
@@ -303,7 +303,7 @@ sub listen_dhcp {
             $logger->debug("DHCPREQUEST from $chaddr");
             my $lease_length = $dhcp->{'options'}->{'51'};
             my $client_ip = $dhcp->{'options'}->{'50'};
-            if ($client_ip) {
+            if (defined($client_ip) && $client_ip !~ /^0\.0\.0\.0$/) {
                 $logger->info(
                     "DHCPREQUEST from $chaddr ($client_ip)"
                     . ( defined($lease_length) ? " with lease of $lease_length seconds" : "")
