@@ -1,5 +1,4 @@
 # PacketFence RPM SPEC
-# DO NOT FORGET TO UPDATE CHANGELOG AT THE END OF THE FILE WHENEVER IT IS MODIFIED!
 # 
 # BUILDING FOR RELEASE
 # 
@@ -668,6 +667,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Mon Nov 21 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 3.0.3-1
+- New release 3.0.3
+
 * Mon Oct 24 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 3.0.2-1
 - New release 3.0.2
 

@@ -13,7 +13,7 @@ For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE file.
 
 --------------------------------------------------------------------------------
-Version <release> released on <releaseDate>
+Version 3.0.3 released on 2011-11-21
 
 New Hardware Support
  * Cisco Catalyst 6500 series switches in port-security

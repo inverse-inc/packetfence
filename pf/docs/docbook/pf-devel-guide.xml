@@ -19,8 +19,8 @@
   <info>
   
     <title>PacketFence Developer's Guide</title>
-    <subtitle>for version 3.0.2</subtitle>
-    <date>2011-10-24</date>
+    <subtitle>for version 3.0.3</subtitle>
+    <date>2011-11-21</date>
 
     <revhistory>
       <revision><revnumber>2.7</revnumber><date>2011-10-31</date><authorinitials>OBU</authorinitials>
@@ -96,7 +96,7 @@
       section entitled "GNU Free Documentation License".</para>
     </legalnotice>
 
-    <releaseinfo>Version 3.0.2 - October 2011</releaseinfo>
+    <releaseinfo>Version 3.0.3 - November 2011</releaseinfo>
 
     <mediaobject>
       <info>
@@ -114,7 +114,7 @@
 
     <para>This guide will help you modifying PacketFence to your particular needs. It also contains information on how
     to add support for new switches.</para>
-    <para>The instructions are based on version 3.0.2 of PacketFence.</para>
+    <para>The instructions are based on version 3.0.3 of PacketFence.</para>
     <para>The latest version of this guide is available online at</para>
     <para>
       <ulink url="http://www.packetfence.org/download/guides.html">
