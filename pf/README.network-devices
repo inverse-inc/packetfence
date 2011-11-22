@@ -1,8 +1,19 @@
-======================================
-Access Points and Wireless controllers
-======================================
+================
+Wireless support
+================
 
-Packetfence supports the following access points and wireless controlers:
+There are two approaches to wireless networks. One where a controller handles
+the Access Points (AP) and one where AP act individually. PacketFence supports
+both approaches.
+
+Wireless controllers
+--------------------
+
+When using a controller, it does not matter to PacketFence what individual AP
+are supported or not. As long as the AP itself is supported by your controller
+and that your controller is supported by PacketFence it will work fine. 
+
+Packetfence supports the following wireless controlers:
 - AeroHIVE AP Series
 - Aruba Networks (200, 600 Series, 800, 2400, 3000 Series, 6000)
 - Avaya Wireless controllers
@@ -20,6 +31,30 @@ Packetfence supports the following access points and wireless controlers:
 - Motorola RF Switches (controllers)
 - Trapeze Wireless controllers
 - Xirrus WiFi Arrays
+
+Access points
+-------------
+
+Some Access Points behave the same if they are attached to a controller or not.
+Because of that you might want to try a controller module if a controller from
+the same vendor is supported in the list above.
+
+Packetfence supports the following access points:
+- AeroHIVE AP Series
+- Avaya (?)
+- Cisco 1130AG
+- Cisco 1240AG
+- Cisco 1250
+- Dlink DWL Access Points
+- Extricom (?)
+- HP ProCurve (?)
+- Meru Networks (?)
+- Motorola (?)
+- Trapeze Wireless (?)
+- Xirrus WiFi Arrays
+
+Wireless hardware not on the list?
+----------------------------------
 
 Eventhough this list is small, PacketFence may support many other access points
 as long as they have the following features:
@@ -44,7 +79,9 @@ RADIUS is an upcoming deauthentication mechanism in PacketFence. It's the
 support for RFC 3576 Change of Authorization (CoA) or Disconnect-Messages (DM 
 aka PoD). Once implemented it will be the best deauthentication technique.
 
-Deauthentication support
+Wireless deauthentication support
+---------------------------------
+
                              |   SSH /  |          |          | 
                              |  Telnet  |   SNMP   |  RADIUS* |
 -----------------------------|----------|----------|----------|
@@ -204,9 +241,8 @@ SMC TS6224M                  |    XX    |    --    |    ??    |    --    |   -- 
 SMC SMC8824M - SMC8848M      |    XX    |    --    |    XX    |    --    |   --   |
 -----------------------------|----------|----------|----------|----------|--------|
 
-======================================
 LinkUp/Down traps
-======================================
+-----------------
 
 - the switch sends a LinkUp trap when the port ifOperStatus is set to 1
 - the switch sends a LinkDown trap when the port ifOperStatus is set to 0
@@ -238,9 +274,8 @@ computers boot at the same time, PacketFence would receive a lot of traps almost
 instantly and this could result in network connection latency…
 
 
-======================================
 MAC notification traps
-======================================
+----------------------
 
 If your switches support MAC notification traps (MAC learnt, MAC removed), we 
 suggest that you activate them in addition to the LinkUp/LinkDown traps. This 
@@ -252,9 +287,8 @@ switch learns the MAC address of the device it sends a MAC learnt trap
 (containing the MAC address) to PacketFence.
 
 
-======================================
 Port Security traps
-======================================
+-------------------
 
 In its most basic form, the Port Security feature remembers the MAC address 
 connected to the switch port and allows only that MAC address to communicate on
@@ -272,9 +306,8 @@ When you enable port security traps you should not enable LinkUp/LinkDown nor
 MAC notification traps.
 
 
-======================================
 802.1X
-======================================
+------
 
 802.1X provides port-based authentication, which involves communications between
 a supplicant, authenticator, and authentication server. The supplicant is often
@@ -288,3 +321,20 @@ as user name / password or digital certificate, to the authenticator, and the
 authenticator forwards the credentials to the authentication server for 
 verification. If the credentials are valid (in the authentication server 
 database), the supplicant (client device) is allowed to access the network.
+
+======================================
+Hardware apparently not supported?
+======================================
+
+Your network hardware is not on these lists? Chances are that it works with a 
+similar module already. Try this first and if it does work, let us know what 
+module you used on what hardware and your firmware version. You can 
+communicate that information to us by filing a ticket in our bug tracking 
+system under the category 'hardware modules':
+
+http://www.packetfence.org/bugs/bug_report_page.php
+
+Otherwise, we are always interested in adding new hardware support into 
+PacketFence. Please contact us at info@inverse.ca or via our web form:
+
+http://www.inverse.ca/english/about/contact.html#c1538
