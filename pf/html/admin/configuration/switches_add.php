@@ -110,7 +110,7 @@
                            'Accton::ES3528M' => 'Accton ES3528M',
                            'AeroHIVE::AP' => 'AeroHIVE AP',
                            'Amer::SS2R24i' => 'Amer SS2R24i',
-                           'Aruba::Controller_200' => 'Aruba Controller 200',
+                           'Aruba' => 'Aruba Networks',
                            'Avaya::WC' => 'Avaya Wireless Controller', 
                            'Avaya' => 'Avaya Switch (see Nortel)', 
                            'Cisco::Aironet_1130' => 'Cisco Aironet 1130',
