@@ -24,27 +24,27 @@ dhcp_dumper.pl [options]
                7     DHCPRELEASE
                8     DHCPINFORM
    -u      Only show packets with unknown DHCP prints
+   -v      verbose 
    -h      Help
 
 =cut
-
-use Net::Pcap 0.16;
-use Getopt::Std;
-use Config::IniFiles;
-use File::Basename qw(basename);
-use FindBin;
-use Pod::Usage;
-use Log::Log4perl;
 use strict;
 use warnings;
 
-Log::Log4perl->init( $FindBin::Bin . "/../conf/log.conf" );
-my $logger = Log::Log4perl->get_logger( basename($0) );
-Log::Log4perl::MDC->put( 'proc', basename($0) );
-Log::Log4perl::MDC->put( 'tid',  0 );
+use Config::IniFiles;
+use File::Basename qw(basename);
+use FindBin;
+use Getopt::Std;
+use Log::Log4perl qw(:easy);
+use Net::Pcap 0.16;
+use Pod::Usage;
+
+use lib $FindBin::Bin . "/../lib";
+
+use pf::util;
 
 my %args;
-getopts( 't:i:f:c:o:hu', \%args );
+getopts( 't:i:f:c:o:huv', \%args );
 
 my $interface = $args{i} || "eth0";
 
@@ -68,13 +68,19 @@ my $unknown;
 if ( $args{u} ) {
     $unknown = 1;
 }
+my $verbose = $INFO;
+if ( $args{v} ) {
+    $verbose = $DEBUG;
+}
+Log::Log4perl->easy_init({ level  => $verbose, layout => '%m%n' });
+my $logger = Log::Log4perl->get_logger('');                                                                             
 
 my $prints_file;
 my %prints;
 if ( $args{o} ) {
     $prints_file = $args{o};
 } else {
-    $prints_file = "/usr/local/pf/conf/dhcp_fingerprints.conf";
+    $prints_file = "$FindBin::Bin/../conf/dhcp_fingerprints.conf";
 }
 
 if ( -r $prints_file ) {
@@ -142,6 +148,7 @@ if ( ( Net::Pcap::compile( $pcap_t, \$filter_t, $filter, $opt, 0 ) ) == -1 ) {
     $logger->logdie("Unable to compile filter string '$filter'");
 }
 Net::Pcap::setfilter( $pcap_t, $filter_t );
+$logger->info("Starting to listen on $interface with filter: $filter");
 Net::Pcap::loop( $pcap_t, -1, \&process_pkt, $interface );
 
 sub process_pkt {
@@ -149,22 +156,9 @@ sub process_pkt {
     listen_dhcp( $pkt, $user_data );
 }
 
-sub int2ip {
-    return ( join( ".", unpack( "C4", pack( "N", shift ) ) ) );
-}
-
-sub clean_mac {
-    my ($mac) = @_;
-    $mac =~ s/\s//g;
-    $mac = lc($mac);
-    $mac =~ s/\.//g if ( $mac =~ /^([0-9a-f]{4}(\.|$)){4}$/i );
-    $mac =~ s/([a-f0-9]{2})(?!$)/$1:/g if ( $mac =~ /^[a-f0-9]{12}$/i );
-    $mac = join q {:} => map { sprintf "%02x" => hex } split m {:|\-} => $mac;
-    return ($mac);
-}
-
 sub listen_dhcp {
     my ( $packet, $eth ) = @_;
+    $logger->debug("Received packet on interface");
 
     # decode src/dst MAC addrs
     my ( $dmac, $smac ) = unpack( 'H12H12', $packet );
@@ -348,21 +342,9 @@ sub listen_dhcp {
     $logger->info("ttl: $ttl");
 }
 
-sub valid_mac {
-    my ($mac) = @_;
-    $mac = clean_mac($mac);
-    if (   $mac =~ /^ff:ff:ff:ff:ff:ff$/
-        || $mac =~ /^00:00:00:00:00:00$/
-        || $mac !~ /^([0-9a-f]{2}(:|$)){6}$/i )
-    {
-        $logger->error("invalid MAC: $mac");
-        return (0);
-    } else {
-        return (1);
-    }
-}
-
 =head1 AUTHOR
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 Dave Laporte <dave@laportestyle.org>
 
@@ -372,11 +354,13 @@ Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
+Copyright (C) 2009-2011 Inverse inc.
+
 Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009 Inverse inc.
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
