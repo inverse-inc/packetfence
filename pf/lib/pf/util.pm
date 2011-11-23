@@ -33,7 +33,7 @@ BEGIN {
     @ISA = qw(Exporter);
     @EXPORT = qw(
         valid_date valid_ip reverse_ip clean_ip 
-        clean_mac valid_mac get_decimal_oui_from_mac whitelisted_mac trappable_mac format_mac_for_acct
+        clean_mac valid_mac mac2nb macoui2nb whitelisted_mac trappable_mac format_mac_for_acct
         trappable_ip reggable_ip
         inrange_ip ip2gateway ip2interface ip2device isinternal pfmailer isenabled
         isdisabled getlocalmac ip2int int2ip 
@@ -205,26 +205,46 @@ sub valid_mac {
     }
 }
 
-=item * get_decimal_oui_from_mac
+=item * macoui2nb
 
 Extract the OUI (Organizational Unique Identifier) from a MAC address then
-converts it into a decimal value. To be used to generate mac address violations.
+converts it into a decimal value. To be used to generate vendormac violations.
 
-in: mac address (xx:xx:xx:xx:xx)
+in: MAC address (of xx:xx:xx:xx:xx format)
 
-out: an int
+Returns a number.
 
 =cut
-
-sub get_decimal_oui_from_mac {
+sub macoui2nb {
     my ($mac) = @_;
-
-    return (0) if ( !valid_mac($mac) );
-    $mac = clean_mac($mac);
 
     my $oui = substr($mac, 0, 8);
     $oui =~ s/://g;
     return hex($oui);
+}
+
+=item * mac2nb
+
+Converts a MAC address into a decimal value. To be used to generate mac violations.
+
+in: MAC address (of xx:xx:xx:xx:xx format)
+
+Returns a number.
+
+=cut
+sub mac2nb {
+    my ($mac) = @_;
+    my $nb;
+
+    $mac =~ s/://g;
+    # disabling warnings in this scope because a MAC address (48bit) is larger than an int on 32bit systems
+    # and perl warns about it but gives the right value.
+    {
+        no warnings;
+        $nb = hex($mac);
+    }
+
+    return $nb;
 }
 
 sub whitelisted_mac {

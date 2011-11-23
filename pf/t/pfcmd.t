@@ -14,7 +14,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 79;
+use Test::More tests => 86;
 use Test::NoWarnings;
 
 use Log::Log4perl;
@@ -105,10 +105,24 @@ is_deeply(\%cmd,
           { 'command' => [ 'interfaceconfig', 'get', 'all' ] },
           'pfcmd interfaceconfig get all');
 
+%cmd = pf::pfcmd::parseCommandLine('lookup node 00:00:00:00:00:01');
+is_deeply(\%cmd, { 'command' => [ 'lookup', 'node', '00:00:00:00:00:01' ] }, 'pfcmd lookup node 00:00:00:00:00:01');
+
+%cmd = pf::pfcmd::parseCommandLine('lookup node not-a-mac');
+is_deeply(\%cmd, { 'command' => [ 'help', 'lookup' ] }, 'invalid pfcmd lookup node should fail');
+
 %cmd = pf::pfcmd::parseCommandLine('lookup person 1');
 is_deeply(\%cmd,
           { 'command' => [ 'lookup', 'person', '1' ] },
           'pfcmd lookup person 1');
+
+# regression test for #1322
+%cmd = pf::pfcmd::parseCommandLine('lookup person host/user');
+is_deeply(\%cmd, { 'command' => [ 'lookup', 'person', 'host/user' ] }, 'pfcmd lookup person pid with slash');
+
+# regression test for #1322
+%cmd = pf::pfcmd::parseCommandLine('lookup person "user name"');
+is_deeply(\%cmd, { 'command' => [ 'lookup', 'person', 'user name' ] }, 'pfcmd lookup person pid with space');
 
 %cmd = pf::pfcmd::parseCommandLine('manage freemac 00:00:00:00:00:01');
 is_deeply(\%cmd,
@@ -155,6 +169,14 @@ is_deeply(\%cmd,
           },
           'pfcmd node view all limit 2,1');
 
+%cmd = pf::pfcmd::parseCommandLine('node view category=guest');
+is_deeply(\%cmd,
+          { 'command' => [ 'node', 'view', 'category', 'guest' ],
+            'node_options' => [ 'view', 'category' ],
+            'node_filter' => [ 'category', 'guest' ],
+          },
+          'pfcmd node view category=guest');
+
 %cmd = pf::pfcmd::parseCommandLine('nodecategory view all');
 is_deeply(\%cmd,
           { 'command' 
@@ -172,6 +194,20 @@ is_deeply(\%cmd,
               => [ 'view', 'all' ]
           },
           'pfcmd person view all');
+
+# regression tests for #1322
+%cmd = pf::pfcmd::parseCommandLine('person view host/user');
+is_deeply(\%cmd,
+    { 'command' => [ 'person', 'view', 'host/user' ], 'person_options' => [ 'view', 'host/user' ] },
+    'pfcmd person view pid with slash'
+);
+
+# regression tests for #1322
+%cmd = pf::pfcmd::parseCommandLine('person view "user name"');
+is_deeply(\%cmd,
+    { 'command' => [ 'person', 'view', 'user name' ], 'person_options' => [ 'view', 'user name' ] },
+    'pfcmd person view pid with space'
+);
 
 %cmd = pf::pfcmd::parseCommandLine('reload fingerprints');
 is_deeply(\%cmd,
@@ -268,13 +304,13 @@ foreach my $help_arg (@main_args) {
 
 # test version
 @output = `/usr/local/pf/bin/pfcmd version`;
-like ( $output[0], qr'PacketFence 3.0.3', "pfcmd version is correct" );
+like ( $output[0], qr'PacketFence 3.1.0dev', "pfcmd version is correct" );
 
 # reproducing issue #1206: pid=email@address.com not accepted in pfcmd node view ...
 %cmd = pf::pfcmd::parseCommandLine('node view pid=email@address.com');
 is_deeply(\%cmd, { 
     'command' => [ 'node', 'view', 'pid', 'email@address.com' ],
-    'node_filter' => [ [ 'pid', 'email@address.com' ] ], # node_filter[0] holds [ pid, email ]
+    'node_filter' => [ 'pid', 'email@address.com' ],
     'node_options' => [ 'view', 'pid' ],
 }, 'pfcmd node view with pid as an email');
 

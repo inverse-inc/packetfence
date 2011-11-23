@@ -181,15 +181,16 @@ sub generate_inline_rules {
     $$nat_postrouting_ref .= "-A $FW_POSTROUTING_INT_INLINE --jump MASQUERADE\n";
     
 
-    if (isenabled($Config{'trapping'}{'registration'})) {
+    $logger->info("building firewall to accept registered users through inline interface");
+    $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_REG --jump ACCEPT\n";
+    if (!isenabled($Config{'trapping'}{'registration'})) {
         $logger->info(
-            "trapping.registration is enabled, " . 
-            "building firewall so that we only accept marked users through inline interface"
+            "trapping.registration is disabled, adding rule so we accept unregistered users through inline interface"
         );
-        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_REG --jump ACCEPT\n";
-    } else {
-        $logger->info("trapping.registration is disabled, allowing everyone through firewall on inline interface");
-        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --jump ACCEPT\n";
+        $$filter_rules_ref .= 
+            "-A $FW_FILTER_FORWARD_INT_INLINE "
+            . "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n"
+        ;
     }
 }
 
