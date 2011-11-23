@@ -90,8 +90,8 @@ foreach my $packet (keys %discover_packets) {
         { 
           '50' => '192.168.200.100',
           '53' => [ 1 ],
-          '12' => [ 'T', 'e', 's', 't', 'i', 'n', 'g', 'L', 'a', 'p', 't', 'o', 'p' ],
-          '55' => [ 1, 28, 2, 3, 15, 6, 119, 12, 44, 47, 26, 121, 42, 121, 249, 252, 42 ]
+          '12' => 'TestingLaptop',
+          '55' => '1,28,2,3,15,6,119,12,44,47,26,121,42,121,249,252,42',
         },
         "$packet: DHCP options properly parsed" 
     );
@@ -103,15 +103,15 @@ foreach my $packet (keys %discover_packets) {
 foreach my $packet (keys %request_packets) {
     my ($l2, $l3, $l4, $dhcp) = decompose_dhcp(pack('H*', $request_packets{$packet}));
 
-    is($dhcp->{'options'}->{'53'}[0], 3, "$packet: Parse option 53 (DHCP Message Type)");
-    is($dhcp->{'options'}->{'50'}, '172.21.150.100', "$packet: Parse option 50 (Requested IP Address)");
+    is($dhcp->{'options'}{'53'}[0], 3, "$packet: Parse option 53 (DHCP Message Type)");
+    is($dhcp->{'options'}{'50'}, '172.21.150.100', "$packet: Parse option 50 (Requested IP Address)");
 }
 
 foreach my $packet (keys %ack_packets) {
     my ($l2, $l3, $l4, $dhcp) = decompose_dhcp(pack('H*', $ack_packets{$packet}));
 
-    is($dhcp->{'options'}->{'53'}[0], 5, "$packet: Parse option 53 (DHCP Message Type)");
-    is($dhcp->{'options'}->{'51'}, 24*60*60, "$packet: Parse option 51 (IP Address Lease Time)");
+    is($dhcp->{'options'}{'53'}[0], 5, "$packet: Parse option 53 (DHCP Message Type)");
+    is($dhcp->{'options'}{'51'}, 24*60*60, "$packet: Parse option 51 (IP Address Lease Time)");
     is($dhcp->{'yiaddr'}, '172.21.150.100', "$packet: Parse yiaddr (Your IP Address)");
 }
 

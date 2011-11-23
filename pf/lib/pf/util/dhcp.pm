@@ -26,6 +26,7 @@ BEGIN {
 use NetPacket::Ethernet;
 use NetPacket::IP;
 use NetPacket::UDP;
+use Readonly;
 
 use pf::util qw(int2ip);
 
@@ -38,6 +39,19 @@ our @ascii_options = (
     81, # Client FQDN option (RFC4702)
     4, # Time Server (RFC2132)
 );
+
+Readonly my %MESSAGE_TYPE => (
+    'DHCPDISCOVER' => 1,
+    'DHCPOFFER' => 2,
+    'DHCPREQUEST' => 3,
+    'DHCPDECLINE' => 4,
+    'DHCPACK' => 5,
+    'DHCPNAK' => 6,
+    'DHCPRELEASE' => 7,
+    'DHCPINFORM' => 8,
+);
+
+Readonly my %MESSAGE_TYPE_TO_STRING => reverse %MESSAGE_TYPE;
 
 =head1 SUBROUTINES
 
@@ -106,7 +120,7 @@ sub decode_dhcp_options {
 
     # we are expecting DHCP's magic cookies (63:82:53:63) right before the options
     if ( !join( ":", splice( @options, 0, 4 ) ) =~ /^99:130:83:99$/ ) {
-        die("Invalid DHCP Options received from $dhcp_ref->{chaddr}");
+        die("Invalid magic DHCP Options received from $dhcp_ref->{chaddr}");
     }
 
     # populate DHCP options
@@ -132,8 +146,29 @@ sub decode_dhcp_options {
         }
     }
 
+    # Validating mandatory option for DHCP
+    # Option 53: DHCP Message Type (RFC2132)
+    #    Value   Message Type
+    #    -----   ------------
+    #      1     DHCPDISCOVER
+    #      2     DHCPOFFER
+    #      3     DHCPREQUEST
+    #      4     DHCPDECLINE
+    #      5     DHCPACK
+    #      6     DHCPNAK
+    #      7     DHCPRELEASE
+    #      8     DHCPINFORM
+    if ( ! defined( $dhcp_ref->{'options'}->{53}[0] ) ) {
+        die("Invalid DHCP Option 53 (Message Type) received from $dhcp_ref->{chaddr}");
+    }
+
     # Here we format some well known DHCP options
     # -------------------------------------------
+
+    # Option 12: Host Name (RFC2132)
+    if ( exists( $dhcp_ref->{'options'}->{12} ) ) {
+        $dhcp_ref->{'options'}->{12} = join( "", @{ $dhcp_ref->{'options'}->{'12'} } ); 
+    }
 
     # Option 50: Requested IP Address (RFC2132)
     if ( exists( $dhcp_ref->{'options'}->{50} ) ) {
@@ -144,6 +179,17 @@ sub decode_dhcp_options {
     if ( exists( $dhcp_ref->{'options'}->{51} ) ) {
         $dhcp_ref->{'options'}->{51} = unpack( "N", pack( "C4", @{ $dhcp_ref->{'options'}->{51} } ) );
     }
+
+    # Option 55: Parameter Request List (RFC2132)
+    if ( exists( $dhcp_ref->{'options'}->{55} ) ) {
+        $dhcp_ref->{'options'}->{55} = join( ",", @{ $dhcp_ref->{'options'}->{'55'} } );
+    }
+}
+
+sub dhcp_message_type_to_string {
+    my ($id) = @_;
+
+    return $MESSAGE_TYPE_TO_STRING{$id};
 }
 
 =back

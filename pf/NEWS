@@ -29,6 +29,7 @@ Enhancements
 Bug Fixes
  * Slashes (/) not allowed in person id (#1322)
  * Inline: isolation not properly enforced by firewall if registration is disabled (#1330)
+ * Several small fixes in pfdhcplistener 
 
 --------------------------------------------------------------------------------
 Version <release> released on <releaseDate>

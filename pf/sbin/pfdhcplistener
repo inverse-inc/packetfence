@@ -37,6 +37,7 @@ use pf::inline::custom $INLINE_API_LEVEL;
 use pf::iplog;
 use pf::iptables;
 use pf::locationlog;
+use pf::lookup::node;
 use pf::node;
 use pf::os;
 use pf::person;
@@ -45,7 +46,7 @@ use pf::services;
 use pf::trigger;
 use pf::util;
 use pf::util::dhcp;
-use pf::violation;
+use pf::violation qw(violation_trigger);
 
 Log::Log4perl->init_and_watch( INSTALL_DIR . "/conf/log.conf", $LOG4PERL_RELOAD_TIMER );
 my $logger = Log::Log4perl->get_logger( basename($0) );
@@ -83,6 +84,7 @@ my $interface = $args{i};
 
 pod2usage( -verbose => 1 ) if ( $args{h} || !$args{i} );
 
+my $ROGUE_DHCP_TRIGGER = '1100010';
 my %rogue_servers;
 my $is_inline_vlan;
 my $accessControl;
@@ -173,209 +175,84 @@ sub listen_dhcp {
         return;
     }
 
-    # grab frame information we care about
-    my $smac = clean_mac($l2->{'src_mac'});
-    my $dmac = clean_mac($l2->{'dst_mac'});
+    # adding to dhcp hashref some frame information we care about
+    $dhcp->{'src_mac'} = clean_mac($l2->{'src_mac'});
+    $dhcp->{'dest_mac'} = clean_mac($l2->{'dest_mac'});
+    $dhcp->{'src_ip'} = $l3->{'src_ip'};
+    $dhcp->{'dest_ip'} = $l3->{'dest_ip'};
 
-    if (!valid_mac($smac)) {
-        $logger->debug("smac is invalid. skipping");
+    if (!valid_mac($dhcp->{'src_mac'})) {
+        $logger->debug("Source MAC is invalid. skipping");
         return;
     }
 
-    # grab IP information we care about
-    my $src = $l3->{'src_ip'};
-    my $dst = $l3->{'dst_ip'};
-
     # grab DHCP information
-    my $chaddr = $dhcp->{'chaddr'};
-
-    if ( !defined($chaddr) ) {
+    if ( !defined($dhcp->{'chaddr'}) ) {
         $logger->debug("chaddr is undefined in DHCP packet");
         return;
     }
 
-    $chaddr = clean_mac( substr( $chaddr, 0, 12 ) );
-    if ( $chaddr ne "00:00:00:00:00:00" && !valid_mac($chaddr) ) {
+    $dhcp->{'chaddr'} = clean_mac( substr( $dhcp->{'chaddr'}, 0, 12 ) );
+    if ( $dhcp->{'chaddr'} ne "00:00:00:00:00:00" && !valid_mac($dhcp->{'chaddr'}) ) {
         $logger->debug(
-            "invalid CHADDR value ($chaddr) in DHCP packet from $smac ($src)"
+            "invalid CHADDR value ($dhcp->{'chaddr'}) in DHCP packet from $dhcp->{src_mac} ($dhcp->{src_ip})"
         );
         return;
     }
 
+    if ( !node_exist($dhcp->{'chaddr'}) ) {
+        $logger->info("Unseen before node added: $dhcp->{'chaddr'}");
+        node_add_simple($dhcp->{'chaddr'});
+    }
+
+    # FIXME throtle this
     # There is activity from that mac, call node wakeup
-    node_mac_wakeup($chaddr);
+    node_mac_wakeup($dhcp->{'chaddr'});
 
     # opcode 1 = request, opcode 2 = reply
 
-    #           Value   Message Type
-    #           -----   ------------
-    #             1     DHCPDISCOVER
-    #             2     DHCPOFFER
-    #             3     DHCPREQUEST
-    #             4     DHCPDECLINE
-    #             5     DHCPACK
-    #             6     DHCPNAK
-    #             7     DHCPRELEASE
-    #             8     DHCPINFORM
-
-    my %options = %{$dhcp->{'options'}};
+    # Option 53: DHCP Message Type (RFC2132)
+    # Value   Message Type
+    # -----   ------------
+    #   1     DHCPDISCOVER
+    #   2     DHCPOFFER
+    #   3     DHCPREQUEST
+    #   4     DHCPDECLINE
+    #   5     DHCPACK
+    #   6     DHCPNAK
+    #   7     DHCPRELEASE
+    #   8     DHCPINFORM
+ 
     if ( $dhcp->{'op'} == 2 ) {
-        if ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 2 ) {
-            if ($dhcp->{'yiaddr'}) {
-                $logger->info("DHCPOFFER from $src ($smac) to host $chaddr ($dhcp->{yiaddr})");
-            } else {
-                $logger->warn("DHCPOFFER invalid IP in DHCP's yiaddr for $chaddr");
-                return;
-            }
+        parse_dhcp_offer($dhcp, $eth) if ( $dhcp->{'options'}{'53'}[0] == 2 ); 
 
-            # ignore DHCPOFFER from gateways
-            # avoid rogue DHCP false positives
-            if ( grep( { $_ eq $src } get_gateways() )
-                || grep( { $_ eq $src }
-                    split( /\s*,\s*/, $Config{'general'}{'dhcpservers'} ) ) )
-            {
-                $logger->debug(
-                    "$src ($smac) appears to be a DHCP server or relay, adding $chaddr ($dhcp->{yiaddr}) to hash"
-                );
+        parse_dhcp_ack($dhcp) if ( $dhcp->{'options'}{'53'}[0] == 5 );
 
-                #update_iplog($chaddr,$dhcp->{yiaddr});
-                return;
-            }
-
-            my $date = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
-            push @{ $rogue_servers{$smac} },
-                sprintf( "%s: %15s to %s on interface %s\n",
-                $date, $dhcp->{'yiaddr'}, $chaddr, $eth );
-
-            $logger->warn("$src ($smac) was detected offering $dhcp->{yiaddr} to $chaddr on $eth");
-            #TODO: merge this hackish violation into standard violation management in a new violation type
-            pf_run("$bin_dir/pfcmd 'violation add vid=1100010, mac=$smac'");
-            if (scalar( @{ $rogue_servers{$smac} } )
-                == $Config{'network'}{'rogueinterval'} )
-            {
-                my %rogue_message;
-                $rogue_message{'subject'}
-                    = "ROGUE DHCP SERVER DETECTED AT "
-                    . uc($smac)
-                    . " ($src) ON "
-                    . uc($eth) . "\n";
-                push @INC, $bin_dir;
-                require pf::lookup::node;
-                $rogue_message{'message'} = pf::lookup::node::lookup_node($smac) . "\n";
-                $rogue_message{'message'}
-                    = "Detected Offers\n---------------\n";
-                while ( @{ $rogue_servers{$smac} } ) {
-                    $rogue_message{'message'}
-                        .= pop( @{ $rogue_servers{$smac} } );
-                }
-                pfmailer(%rogue_message);
-            }
-
-        } elsif ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 5 ) {
-            my $lease_length = $dhcp->{'options'}->{'51'};
-
-            if ($dhcp->{'yiaddr'} !~ /^0\.0\.0\.0$/) {
-                $logger->info(
-                    "DHCPACK from $src ($smac) to host $chaddr ($dhcp->{yiaddr})"
-                    . ( defined($lease_length) ? " for $lease_length seconds" : "" )
-                );
-                update_iplog( $chaddr, $dhcp->{'yiaddr'}, $lease_length );
-                return;
-            } elsif ($dhcp->{'ciaddr'} !~ /^0\.0\.0\.0$/) {
-                $logger->info(
-                    "DHCPACK CIADDR from $src ($smac) to host $chaddr ($dhcp->{ciaddr})"
-                    . ( defined($lease_length) ? " for $lease_length seconds" : "")
-                );
-                update_iplog( $chaddr, $dhcp->{'ciaddr'}, $lease_length );
-                return;
-            } else {
-                $logger->warn(
-                    "invalid DHCPACK from $src ($smac) to host $chaddr [$dhcp->{yiaddr} - $dhcp->{ciaddr}]"
-                );
-                return;
-            }
-        }
     } elsif ( $dhcp->{'op'} == 1 ) {
-        if ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 1 ) {
-            $logger->debug("DHCPDISCOVER from $chaddr");
 
-        } elsif ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 3 ) {
-            $logger->debug("DHCPREQUEST from $chaddr");
-            my $lease_length = $dhcp->{'options'}->{'51'};
-            my $client_ip = $dhcp->{'options'}->{'50'};
-            if (defined($client_ip) && $client_ip !~ /^0\.0\.0\.0$/) {
-                $logger->info(
-                    "DHCPREQUEST from $chaddr ($client_ip)"
-                    . ( defined($lease_length) ? " with lease of $lease_length seconds" : "")
-                );
-                update_iplog( $chaddr, $client_ip, $lease_length );
-            }
-            if ($is_inline_vlan) {
-                locationlog_synchronize($interface_ip, $NO_PORT, $interface_vlan, $chaddr, $NO_VOIP, $INLINE);
-                $accessControl->performInlineEnforcement($chaddr);
-            }
+        parse_dhcp_discover($dhcp) if ( $dhcp->{'options'}{'53'}[0] == 1 );
 
-        } elsif ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 7 ) {
-            $logger->debug("DHCPRELEASE from $chaddr ($dhcp->{ciaddr})");
-            iplog_close($dhcp->{'ciaddr'});
-            return;
-        } elsif ( defined( $options{'53'}[0] ) && $options{'53'}[0] == 8 ) {
-            $logger->debug("DHCPINFORM from $chaddr ($dhcp->{ciaddr})");
-            return;
-        }
+        parse_dhcp_request($dhcp) if ( $dhcp->{'options'}{'53'}[0] == 3 );
 
-        my %tmp;
-        $tmp{'dhcp_fingerprint'} = "";
-        if ( defined( $options{'55'} ) ) {
-            $tmp{'dhcp_fingerprint'} = join( ",", @{ $options{'55'} } );
-        }
+        return parse_dhcp_release($dhcp) if ( $dhcp->{'options'}{'53'}[0] == 7 );
 
-        # TODO why rely on mysql_date, we should use time instead
-        $tmp{'last_dhcp'} = mysql_date();
-        $tmp{'computername'} = join( "", @{ $options{'12'} } )
-            if ( defined( $options{'12'} ) );
+        return parse_dhcp_inform($dhcp) if ( $dhcp->{'options'}{'53'}[0] == 8 );
 
-        if ( isenabled( $Config{'network'}{'dhcpoption82logger'} )
-            && defined( $options{'82'} ) )
-        {
-            my ($switch, $vlan, $mod, $port);
-            my %option_82;
-            while ( @{ $options{'82'} } ) {
-                my $subopt = shift( @{ $options{'82'} } );
-
-                # this makes offset assumptions we probably shouldn't, but it should work fine for Cisco
-                # assume all cidtype/ridtype always == 0
-                shift( @{ $options{'82'} } );
-                shift( @{ $options{'82'} } );
-                my $len = shift( @{ $options{'82'} } );
-                while ($len) {
-                    my $val = shift( @{ $options{'82'} } );
-                    push( @{ $option_82{$subopt} }, $val );
-                    $len--;
-                }
-            }
-
-            if ( defined( $option_82{'1'} ) ) {
-                ($vlan, $mod, $port) = unpack( 'nCC', pack( "C*", @{ $option_82{'1'} } ) );
-            }
-            if ( defined( $option_82{'2'} ) ) {
-                $tmp{'switch'} = clean_mac( join( ":", unpack( "H*", pack( "C*", @{ $option_82{'2'} } ) ) ) ); 
-            }
-
-            # TODO port should be translated into ifIndex
-            locationlog_insert_closed($switch, $mod . '/' . $port, $vlan, $chaddr, '');
-        }
-
-        if ( !node_exist($chaddr) ) {
-            $logger->info("UPDATE New node $chaddr");
-            node_add_simple($chaddr);
+        # Option 82 Relay Agent Information (RFC3046)
+        if ( isenabled( $Config{'network'}{'dhcpoption82logger'} ) && defined( $dhcp->{'options'}{'82'} ) ) {
+            parse_dhcp_option82($dhcp);
         }
 
         # updating the node first 
         # in case the fingerprint generates a violation and that autoreg uses fingerprint to auto-categorize nodes 
         # see #1216 for details
-        my $result = node_modify( $chaddr, %tmp );
-        my $fingerprint_data = process_fingerprint($chaddr, $tmp{'dhcp_fingerprint'});
+        my %tmp;
+        $tmp{'dhcp_fingerprint'} = $dhcp->{'options'}->{'55'};
+        $tmp{'last_dhcp'} = mysql_date();
+        $tmp{'computername'} = $dhcp->{'options'}->{'12'};
+        node_modify( $dhcp->{'chaddr'}, %tmp );
+
+        my $fingerprint_data = process_fingerprint($dhcp);
 
         my $modified_node_log_message = '';
         foreach my $node_key ( keys %tmp ) {
@@ -383,17 +260,183 @@ sub listen_dhcp {
         }
         chop($modified_node_log_message);
 
-        $logger->info("$chaddr requested an IP. "
+        $logger->info("$dhcp->{'chaddr'} requested an IP. "
             . ( defined($fingerprint_data) ? "DHCP Fingerprint: $fingerprint_data. " : "Unknown DHCP fingerprint." )
             . "Modified node with $modified_node_log_message"
         );
 
-        foreach my $field (keys %tmp) {
-            print "$field: $tmp{$field}\n";
-        }
     } else {
-        $logger->debug("unrecognized DHCP opcode from $chaddr: $dhcp->{op}");
+        $logger->debug("unrecognized DHCP opcode from $dhcp->{'chaddr'}: $dhcp->{op}");
     }
+}
+
+=item parse_dhcp_discover
+
+=cut
+sub parse_dhcp_discover {
+    my ($dhcp) = @_;
+    $logger->debug("DHCPDISCOVER from $dhcp->{'chaddr'}");
+}
+
+=item parse_dhcp_offer
+
+=cut
+sub parse_dhcp_offer {
+    my ($dhcp, $eth) = @_;
+
+    if ($dhcp->{'yiaddr'} =~ /^0\.0\.0\.0$/) {
+        $logger->warn("DHCPOFFER invalid IP in DHCP's yiaddr for $dhcp->{'chaddr'}");
+        return;
+    }
+
+    $logger->info("DHCPOFFER from $dhcp->{src_ip} ($dhcp->{src_mac}) to host $dhcp->{'chaddr'} ($dhcp->{yiaddr})");
+
+    # ignore DHCPOFFER from gateways
+    # avoids rogue DHCP false positives
+    if ( grep( { $_ eq $dhcp->{'src_ip'} } get_gateways() )
+        || grep( { $_ eq $dhcp->{'src_ip'} } split( /\s*,\s*/, $Config{'general'}{'dhcpservers'} ) ) ) {
+
+        $logger->debug(
+            "$dhcp->{src_ip} ($dhcp->{src_mac}) appears to be a DHCP server or relay, adding $dhcp->{'chaddr'} ($dhcp->{yiaddr}) to hash"
+        );
+
+        #update_iplog($dhcp->{'chaddr'},$dhcp->{yiaddr});
+        return;
+    }
+
+    my $smac = $dhcp->{'src_mac'};
+    my $src = $dhcp->{'src_ip'};
+    my $date = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
+    push @{ $rogue_servers{$smac} },
+        sprintf( "%s: %15s to %s on interface %s\n", $date, $dhcp->{'yiaddr'}, $dhcp->{'chaddr'}, $eth );
+
+    $logger->warn("$src ($smac) was detected offering $dhcp->{yiaddr} to $dhcp->{'chaddr'} on $eth");
+    violation_trigger( $smac, $ROGUE_DHCP_TRIGGER, 'INTERNAL' );
+
+    if (scalar( @{ $rogue_servers{$smac} } ) == $Config{'network'}{'rogueinterval'} ) {
+        my %rogue_message;
+        $rogue_message{'subject'} = "ROGUE DHCP SERVER DETECTED AT ".uc($smac)." ($src) ON ".uc($eth)."\n";
+        $rogue_message{'message'} = pf::lookup::node::lookup_node($smac) . "\n";
+        $rogue_message{'message'} .= "Detected Offers\n---------------\n";
+        while ( @{ $rogue_servers{$smac} } ) {
+            $rogue_message{'message'} .= pop( @{ $rogue_servers{$smac} } );
+        }
+        pfmailer(%rogue_message);
+    }
+}
+
+=item parse_dhcp_request
+
+=cut
+sub parse_dhcp_request {
+    my ($dhcp) = @_;
+    $logger->debug("DHCPREQUEST from $dhcp->{'chaddr'}");
+
+    my $lease_length = $dhcp->{'options'}->{'51'};
+    my $client_ip = $dhcp->{'options'}->{'50'};
+    if (defined($client_ip) && $client_ip !~ /^0\.0\.0\.0$/) {
+        $logger->info(
+            "DHCPREQUEST from $dhcp->{'chaddr'} ($client_ip)"
+            . ( defined($lease_length) ? " with lease of $lease_length seconds" : "")
+        );
+        update_iplog( $dhcp->{'chaddr'}, $client_ip, $lease_length );
+    }
+
+    if ($is_inline_vlan) {
+        locationlog_synchronize($interface_ip, $NO_PORT, $interface_vlan, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE);
+        $accessControl->performInlineEnforcement($dhcp->{'chaddr'});
+    }
+}
+
+
+=item parse_dhcp_ack
+
+=cut
+sub parse_dhcp_ack {
+    my ($dhcp) = @_;
+
+    my $s_ip = $dhcp->{'src_ip'};
+    my $s_mac = $dhcp->{'src_mac'};
+    my $lease_length = $dhcp->{'options'}->{'51'};
+    
+    if ($dhcp->{'yiaddr'} !~ /^0\.0\.0\.0$/) {
+
+        $logger->info(
+            "DHCPACK from $s_ip ($s_mac) to host $dhcp->{'chaddr'} ($dhcp->{yiaddr})"
+            . ( defined($lease_length) ? " for $lease_length seconds" : "" )
+        );  
+        update_iplog( $dhcp->{'chaddr'}, $dhcp->{'yiaddr'}, $lease_length );
+
+    } elsif ($dhcp->{'ciaddr'} !~ /^0\.0\.0\.0$/) {
+
+        $logger->info(
+            "DHCPACK CIADDR from $s_ip ($s_mac) to host $dhcp->{'chaddr'} ($dhcp->{ciaddr})"
+            . ( defined($lease_length) ? " for $lease_length seconds" : "")
+        );
+        update_iplog( $dhcp->{'chaddr'}, $dhcp->{'ciaddr'}, $lease_length );
+
+    } else {
+        $logger->warn(
+            "invalid DHCPACK from $s_ip ($s_mac) to host $dhcp->{'chaddr'} [$dhcp->{yiaddr} - $dhcp->{ciaddr}]"
+        );
+    }
+}
+
+=item parse_dhcp_release
+
+=cut
+sub parse_dhcp_release {
+    my ($dhcp) = @_;
+    $logger->debug("DHCPRELEASE from $dhcp->{'chaddr'} ($dhcp->{ciaddr})");
+    iplog_close($dhcp->{'ciaddr'});
+}
+
+=item parse_dhcp_inform
+
+=cut
+sub parse_dhcp_inform {
+    my ($dhcp) = @_;
+    $logger->debug("DHCPINFORM from $dhcp->{'chaddr'} ($dhcp->{ciaddr})");
+}
+
+
+=item parse_dhcp_option82
+
+Option 82 is Relay Agent Information. Defined in RFC 3046.
+
+=cut
+sub parse_dhcp_option82 {
+    my ($dhcp) = @_;
+
+    # TODO push upstream in pf::util::dhcp
+    my ($switch, $vlan, $mod, $port);
+    my %option_82;
+    my %options = %{$dhcp->{'options'}};
+    while ( @{ $options{'82'} } ) {
+        my $subopt = shift( @{ $options{'82'} } );
+
+        # this makes offset assumptions we probably shouldn't, but it should work fine for Cisco
+        # assume all cidtype/ridtype always == 0
+        shift( @{ $options{'82'} } );
+        shift( @{ $options{'82'} } );
+        my $len = shift( @{ $options{'82'} } );
+        while ($len) {
+            my $val = shift( @{ $options{'82'} } );
+            push( @{ $option_82{$subopt} }, $val );
+            $len--;
+        }
+    }
+
+    if ( defined( $option_82{'1'} ) ) {
+        ($vlan, $mod, $port) = unpack( 'nCC', pack( "C*", @{ $option_82{'1'} } ) );
+    }
+    if ( defined( $option_82{'2'} ) ) {
+        # FIXME we could be updating node's location information
+        #$tmp{'switch'} = clean_mac( join( ":", unpack( "H*", pack( "C*", @{ $option_82{'2'} } ) ) ) ); 
+    }
+
+    # TODO port should be translated into ifIndex
+    locationlog_insert_closed($switch, $mod . '/' . $port, $vlan, $dhcp->{'chaddr'}, '');
 }
 
 sub update_iplog {
@@ -421,10 +464,7 @@ sub update_iplog {
         );
         iplog_close_now($oldip);
     }
-    if ( !node_exist($srcmac) ) {
-        $logger->info("UPDATE New node $srcmac ($srcip)");
-        node_add_simple($srcmac);
-    }
+
     iplog_open( $srcmac, $srcip, $lease_length );
 }
 
@@ -442,11 +482,14 @@ sub update_iplog {
 
 =cut
 sub process_fingerprint {
-    my ($chaddr, $dhcp_fingerprint) = @_;
+    my ($dhcp) = @_;
+
+    my $dhcp_fingerprint = $dhcp->{'options'}->{'55'};
+    my $chaddr = $dhcp->{'chaddr'};
+    my $fingerprint_data;
 
     return if (!defined($dhcp_fingerprint) || $dhcp_fingerprint eq "");
 
-    my $fingerprint_data;
     my @fingerprint_info = dhcp_fingerprint_view($dhcp_fingerprint);
     if ( scalar(@fingerprint_info) && ( ref( $fingerprint_info[0] ) eq 'HASH' ) ) {
 
@@ -457,12 +500,14 @@ sub process_fingerprint {
 
         # class fingerprints
         foreach my $class_trigger (@fingerprint_info) {
-            $logger->debug("$chaddr sending OS::".$class_trigger->{'classid'}." (".$class_trigger->{'class'}.") trigger");
+            my $class_data = "OS::".$class_trigger->{'classid'}." (".$class_trigger->{'class'}.")";
+            $logger->debug("$chaddr sending $class_data trigger");
             violation_trigger( $chaddr, $class_trigger->{'classid'}, "OS" );
         }
 
     } else {
-        $logger->info("unknown DHCP fingerprint: $dhcp_fingerprint");
+        my $dhcp_type = dhcp_message_type_to_string($dhcp->{'options'}{53});
+        $logger->info("Unknown DHCP fingerprint: $dhcp_fingerprint (DHCP Message Type: $dhcp_type)");
     }
 
     return $fingerprint_data;
