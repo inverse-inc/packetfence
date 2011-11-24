@@ -25,6 +25,7 @@ Enhancements
  * Cleanup in the Cisco 3560's code and documentation
  * Startup performance improvements
  * Added support for session-keyfile introduced in BIND 9.7 (#1257)
+ * Several improvements in the dhcp_dumper.pl addon
 
 Bug Fixes
  * Slashes (/) not allowed in person id (#1322)

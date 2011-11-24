@@ -19,7 +19,7 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT = qw(decompose_dhcp decode_dhcp);
+    @EXPORT = qw(decompose_dhcp decode_dhcp dhcp_message_type_to_string dhcp_summary);
     @EXPORT_OK = qw();
 }
 
@@ -165,10 +165,12 @@ sub decode_dhcp_options {
     # Here we format some well known DHCP options
     # -------------------------------------------
 
-    # Option 12: Host Name (RFC2132)
-    if ( exists( $dhcp_ref->{'options'}->{12} ) ) {
-        $dhcp_ref->{'options'}->{12} = join( "", @{ $dhcp_ref->{'options'}->{'12'} } ); 
-    }
+    # pack in scalar strings ascii options
+    foreach my $option (@ascii_options) {
+        if ( exists( $dhcp_ref->{'options'}->{$option} ) ) {
+            $dhcp_ref->{'options'}->{$option} = join( "", @{ $dhcp_ref->{'options'}->{$option} } ); 
+        }
+    } 
 
     # Option 50: Requested IP Address (RFC2132)
     if ( exists( $dhcp_ref->{'options'}->{50} ) ) {
@@ -192,6 +194,33 @@ sub dhcp_message_type_to_string {
     return $MESSAGE_TYPE_TO_STRING{$id};
 }
 
+=item dhcp_summary
+
+Returns a one-liner string representing most important information about DHCP Packet hashref passed.
+
+=cut
+sub dhcp_summary {
+    my ($dhcp_ref) = @_;
+
+    my $message_type = $dhcp_ref->{'options'}{'53'}[0];
+    my $summary = dhcp_message_type_to_string($message_type);
+
+    if ( $message_type == $MESSAGE_TYPE{'DHCPACK'} ) {
+        $summary .= " received for $dhcp_ref->{'ciaddr'} ($dhcp_ref->{'chaddr'})";
+
+    } elsif ( $message_type == $MESSAGE_TYPE{'DHCPDISCOVER'} ) {
+        $summary .= " from $dhcp_ref->{'chaddr'}";
+
+    } elsif ( $message_type == $MESSAGE_TYPE{'DHCPREQUEST'} || $message_type == $MESSAGE_TYPE{'DHCPINFORM'} ) {
+        $summary .= " from $dhcp_ref->{'ciaddr'} ($dhcp_ref->{'chaddr'})";
+    }
+
+    if ($dhcp_ref->{'giaddr'} !~ /^0\.0\.0\.0$/) {
+        $summary .= ", relayed via $dhcp_ref->{'giaddr'}";
+    }
+
+    return $summary;
+}
 =back
 
 =head1 AUTHOR

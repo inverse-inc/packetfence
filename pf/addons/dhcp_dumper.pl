@@ -32,16 +32,19 @@ use strict;
 use warnings;
 
 use Config::IniFiles;
+use Data::Dumper;
 use File::Basename qw(basename);
 use FindBin;
 use Getopt::Std;
 use Log::Log4perl qw(:easy);
 use Net::Pcap 0.16;
 use Pod::Usage;
+use Try::Tiny;
 
 use lib $FindBin::Bin . "/../lib";
 
 use pf::util;
+use pf::util::dhcp;
 
 my %args;
 getopts( 't:i:f:c:o:huv', \%args );
@@ -160,186 +163,78 @@ sub listen_dhcp {
     my ( $packet, $eth ) = @_;
     $logger->debug("Received packet on interface");
 
-    # decode src/dst MAC addrs
-    my ( $dmac, $smac ) = unpack( 'H12H12', $packet );
-    $smac = clean_mac($smac);
-    $dmac = clean_mac($dmac);
+    my ($l2, $l3, $l4, $dhcp);
 
-    #return if (!valid_mac($smac));
-
-    # decode IP datagram
-    my ($version, $tos,   $length, $id,    $flags,
-        $ttl,     $proto, $chksum, $saddr, $daddr
-    ) = unpack( 'CCnnnCCnNN', substr( $packet, 14 ) );
-    my $ihl = $version & oct(17);
-    $version >>= 4;
-    my $src = int2ip($saddr);
-    my $dst = int2ip($daddr);
-
-    # decode UDP datagram
-    my ( $sport, $dport, $len, $udpsum )
-        = unpack( 'nnnn', substr( $packet, 14 + $ihl * 4 ) );
-
-    # decode DHCP data
-    my ($op,     $htype,  $hlen,   $hops,   $xid,
-        $secs,   $dflags, $ciaddr, $yiaddr, $siaddr,
-        $giaddr, $chaddr, $sname,  $file,   @options
-        )
-        = unpack( 'CCCCNnnNNNNH32A64A128C*',
-        substr( $packet, 14 + $ihl * 4 + 8 ) );
-
-    $chaddr = clean_mac( substr( $chaddr, 0, 12 ) );
-    $ciaddr = int2ip($ciaddr);
-    $giaddr = int2ip($giaddr);
-    return if ( $chaddr_filter && $chaddr_filter ne $chaddr );
-
-    # decode DHCP options
-    # valid DHCP options field begins with 99,130,83,99...
-    if ( !join( ":", splice( @options, 0, 4 ) ) =~ /^99:130:83:99$/ ) {
-        $logger->warn("invalid DHCP options received from $chaddr");
+    # we need success flag here because we can't next inside try catch
+    my $success;
+    try {
+        ($l2, $l3, $l4, $dhcp) = decompose_dhcp($packet);
+        $success = 1;
+    };
+    if (!$success) {
+        $logger->warn("Unable to parse DHCP packet: $_");
         return;
     }
 
-    # populate hash with DHCP options
-    # ASCII-ify textual data and treat option 55 (parameter list) as an array
-    my %options;
-    while (@options) {
-        my $code = shift(@options);
-        push( @{ $options{'options'} }, $code );
+    # adding to dhcp hashref some frame information we care about
+    $dhcp->{'src_mac'} = clean_mac($l2->{'src_mac'});
+    $dhcp->{'dest_mac'} = clean_mac($l2->{'dest_mac'});
 
-        my $length = shift(@options);
-        if ( $code != 0 ) {
-            while ($length) {
-                my $val = shift(@options);
-                if (   $code == 15
-                    || $code == 12
-                    || $code == 60
-                    || $code == 66
-                    || $code == 67
-                    || $code == 81
-                    || $code == 4 )
-                {
-                    if ( $val != 0 && $val != 1 ) {
-                        $val = chr($val);
-                    } else {
-                        $length--;
-                        next;
-                    }
-                }
-                push( @{ $options{$code} }, $val );
-                $length--;
-            }
-        }
+    # chaddr filter
+    $dhcp->{'chaddr'} = clean_mac( substr( $dhcp->{'chaddr'}, 0, 12 ) );
+    return if ( $chaddr_filter && $chaddr_filter ne $dhcp->{'chaddr'});
+
+    return if ( !$dhcp->{'options'}{'53'}[0] );
+
+    # DHCP Message Type filter
+    return if ( $type && $type ne $dhcp->{'options'}{'53'}[0] );
+
+    # skip known signature if we said so on the command line
+    if ( defined( $dhcp->{'options'}{'55'} ) ) {
+        return if ( $unknown && defined( $prints{$dhcp->{'options'}{'55'}} ) );
     }
 
-    # opcode 1 = request, opcode 2 = reply
+    $logger->info("-" x 80);
+    $logger->info("Ethernet\tsrc:\t$dhcp->{'src_mac'}\tdst:\t$dhcp->{'dest_mac'}");
+    $logger->info(sprintf("IP\t\tsrc: %20s\tdst: %20s", $l3->{'src_ip'}, $l3->{'dest_ip'}));
+    $logger->info(sprintf("UDP\t\tsrc port: %15s\tdst port: %15s", $l4->{'src_port'}, $l4->{'dest_port'}));
+    $logger->info("-" x 80);
+    $logger->info(dhcp_summary($dhcp));
+    $logger->debug(Dumper($dhcp));
 
-    #           Value   Message Type
-    #           -----   ------------
-    #             1     DHCPDISCOVER
-    #             2     DHCPOFFER
-    #             3     DHCPREQUEST
-    #             4     DHCPDECLINE
-    #             5     DHCPACK
-    #             6     DHCPNAK
-    #             7     DHCPRELEASE
-    #             8     DHCPINFORM
-
-    if ( !$options{'53'}[0] ) {
-        return;
-    }
-    if ($type) {
-        return if ( $type ne $options{'53'}[0] );
+    if ( defined( $dhcp->{'options'}{'82'} ) ) {
+        # FIXME output option 82 stuff
     }
 
-    if ( $op == 2 ) {
-        if ( $options{'53'}[0] == 2 ) {
-            $logger->info("DHCPOFFER from $src ($smac)");
-        } elsif ( $options{'53'}[0] == 5 ) {
-            $logger->info("DHCPACK received for $ciaddr ($chaddr) XID: $xid");
-        }
-    } elsif ( $op == 1 ) {
-        if ( $options{'53'}[0] == 1 ) {
-            my $msg = "DHCPDISCOVER from $chaddr";
-            if ($giaddr) {
-                $msg .= ", relayed via $giaddr";
-            }
-            $logger->info($msg);
-        } elsif ( $options{'53'}[0] == 3 ) {
-            my $msg = "DHCPREQUEST from $ciaddr ($chaddr)";
-            if ($giaddr) {
-                $msg .= ", relayed via $giaddr";
-            }
-            $logger->info($msg);
-        } elsif ( $options{'53'}[0] == 8 ) {
-            my $msg = "DHCPINFORM from $ciaddr ($chaddr)";
-            if ($giaddr) {
-                $msg .= ", relayed via $giaddr";
-            }
-            $logger->info($msg);
-            return;
-        }
-
-        if ( defined( $options{'82'} ) ) {
-
-            my %option_82;
-            while ( @{ $options{'82'} } ) {
-                my $subopt = shift( @{ $options{'82'} } );
-
-# this makes offset assumptions we probably shouldn't, but it should work fine for Cisco
-# assume all cidtype/ridtype always == 0
-                shift( @{ $options{'82'} } );
-                shift( @{ $options{'82'} } );
-                my $len = shift( @{ $options{'82'} } );
-                while ($len) {
-                    my $val = shift( @{ $options{'82'} } );
-                    push( @{ $option_82{$subopt} }, $val );
-                    $len--;
-                }
-
-            }
-
-            if ( defined( $option_82{'1'} )
-                && scalar( @{ $option_82{'1'} } ) )
-            {
-                my ( $vlan, $mod, $port )
-                    = unpack( 'nCC', pack( "C*", @{ $option_82{'1'} } ) );
-                my $switch = '';
-                $switch = clean_mac(
-                    join( ":",
-                        unpack( "H*", pack( "C*", @{ $option_82{'2'} } ) ) )
-                ) if ( defined( $option_82{'2'} ) );
-                delete( $options{'82'} );
-                push @{ $options{'82'} },
-                      "port " 
-                    . $mod . '/' 
-                    . $port
-                    . " (VLAN $vlan) on switch $switch";
-            }
-        }
-    } else {
-        $logger->info("unrecognized DHCP opcode from $chaddr: $op");
-    }
-
-    my $print;
-    if ( defined( $options{'55'} ) ) {
-        $print = join( ",", @{ $options{'55'} } );
-        if ( $unknown && defined( $prints{$print} ) ) {
-            return;
-        }
-    } else {
-        return;
-    }
-
-    foreach my $key ( keys(%options) ) {
+    foreach my $key ( keys(%{ $dhcp->{'options'} }) ) {
         my $tmpkey = $key;
         $tmpkey = $msg_types{$key} if ( defined( $msg_types{$key} ) );
-        $logger->info( "$tmpkey: " . join( ",", @{ $options{$key} } ) );
+
+        my $output;
+        if (ref($dhcp->{'options'}{$key}) eq 'ARRAY') {
+            $output = join( ",", @{ $dhcp->{'options'}{$key} } );
+
+        } elsif (ref($dhcp->{'options'}{$key}) eq 'SCALAR') {
+            $output = ${$dhcp->{'options'}{$key}};
+
+        } elsif (ref($dhcp->{'options'}{$key}) eq 'HASH') {
+            $output = Dumper($dhcp->{'options'}{$key});
+
+        } elsif (!ref($dhcp->{'options'}{$key})) {
+            $output = $dhcp->{'options'}{$key};
+        }
+        unless ( !$output ) {
+            $logger->info( "$tmpkey: $output" );
+        }
     }
 
-    $logger->info("operating system: $prints{$print}")
-        if ( defined( $prints{$print} ) );
-    $logger->info("ttl: $ttl");
+    my $fprint = $dhcp->{'options'}{'55'};
+    if (defined($fprint) && defined( $prints{$fprint}) ) {
+        $logger->info("OS/Device Ident: $prints{$fprint}");
+    }
+
+    $logger->info("TTL: $l3->{'ttl'}");
+    $logger->info("=" x 80);
 }
 
 =head1 AUTHOR

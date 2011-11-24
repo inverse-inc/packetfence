@@ -18,6 +18,9 @@ o Upgrading from a version prior to <trunk-release>:
     fingerprints) or reloading fingerprints (pfcmd reload fingerprints) will 
     still do.
 
+    - dhcp_dumper.pl addon changes
+    Deep and important refactoring of the addon. Output format changed.
+
 o Upgrading from a version prior to 3.0.3:
 
     - New dependency
