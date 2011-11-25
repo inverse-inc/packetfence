@@ -112,10 +112,13 @@ if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
             $interface_vlan = get_vlan_from_int($interface) || $NO_VLAN;
 
             $logger->info("DHCP detector on $interface enabled");
-            dhcp_detector($interface);
+            dhcp_detector();
         }
     }
-    $logger->warn("pfdhcplistener for $interface finished - this is bad");
+    $logger->warn(
+        "pfdhcplistener for $interface finished - this is bad. " .
+        "Are you sure the interface you are trying to run the listener on is configured in packetfence to do so?"
+    );
 }
 
 END {
@@ -133,17 +136,16 @@ exit(0);
 
 =cut
 sub dhcp_detector {
-    my ($eth) = @_;
     my $filter = "udp and (port 67 or port 68)";
     my $filter_t;
     my $net;
     my $mask;
     my $opt = 1;
     my $err;
-    my $pcap_t = Net::Pcap::pcap_open_live( $eth, 576, 1, 0, \$err );
+    my $pcap_t = Net::Pcap::pcap_open_live( $interface, 576, 1, 0, \$err );
 
     if (!defined($pcap_t)) {
-        $logger->logdie("Unable to initiate packet capture. Is $eth an actual network interface?");
+        $logger->logdie("Unable to initiate packet capture. Is $interface an actual network interface?");
     }
 
     if ((Net::Pcap::compile( $pcap_t, \$filter_t, $filter, $opt, 0 )) == -1) {
@@ -151,7 +153,8 @@ sub dhcp_detector {
     }
 
     Net::Pcap::setfilter( $pcap_t, $filter_t );
-    Net::Pcap::loop( $pcap_t, -1, \&process_pkt, $eth );
+    my $result = Net::Pcap::loop( $pcap_t, -1, \&process_pkt, $interface );
+    $logger->logdie(pcap_geterr($pcap_t)) if ($result == -1);
 }
 
 sub process_pkt {
@@ -160,7 +163,7 @@ sub process_pkt {
 }
 
 sub listen_dhcp {
-    my ( $packet, $eth ) = @_;
+    my ( $packet ) = @_;
 
     my ($l2, $l3, $l4, $dhcp);
 
@@ -224,7 +227,7 @@ sub listen_dhcp {
     #   8     DHCPINFORM
  
     if ( $dhcp->{'op'} == 2 ) {
-        parse_dhcp_offer($dhcp, $eth) if ( $dhcp->{'options'}{'53'}[0] == 2 ); 
+        parse_dhcp_offer($dhcp) if ( $dhcp->{'options'}{'53'}[0] == 2 ); 
 
         parse_dhcp_ack($dhcp) if ( $dhcp->{'options'}{'53'}[0] == 5 );
 
@@ -247,9 +250,9 @@ sub listen_dhcp {
         # in case the fingerprint generates a violation and that autoreg uses fingerprint to auto-categorize nodes 
         # see #1216 for details
         my %tmp;
-        $tmp{'dhcp_fingerprint'} = $dhcp->{'options'}->{'55'};
+        $tmp{'dhcp_fingerprint'} = defined($dhcp->{'options'}{'55'}) ? $dhcp->{'options'}{'55'} : '';
         $tmp{'last_dhcp'} = mysql_date();
-        $tmp{'computername'} = $dhcp->{'options'}->{'12'};
+        $tmp{'computername'} = defined($dhcp->{'options'}{'12'}) ? $dhcp->{'options'}{'12'} : '';
         node_modify( $dhcp->{'chaddr'}, %tmp );
 
         my $fingerprint_data = process_fingerprint($dhcp);
@@ -282,7 +285,7 @@ sub parse_dhcp_discover {
 
 =cut
 sub parse_dhcp_offer {
-    my ($dhcp, $eth) = @_;
+    my ($dhcp) = @_;
 
     if ($dhcp->{'yiaddr'} =~ /^0\.0\.0\.0$/) {
         $logger->warn("DHCPOFFER invalid IP in DHCP's yiaddr for $dhcp->{'chaddr'}");
@@ -291,38 +294,7 @@ sub parse_dhcp_offer {
 
     $logger->info("DHCPOFFER from $dhcp->{src_ip} ($dhcp->{src_mac}) to host $dhcp->{'chaddr'} ($dhcp->{yiaddr})");
 
-    # ignore DHCPOFFER from gateways
-    # avoids rogue DHCP false positives
-    if ( grep( { $_ eq $dhcp->{'src_ip'} } get_gateways() )
-        || grep( { $_ eq $dhcp->{'src_ip'} } split( /\s*,\s*/, $Config{'general'}{'dhcpservers'} ) ) ) {
-
-        $logger->debug(
-            "$dhcp->{src_ip} ($dhcp->{src_mac}) appears to be a DHCP server or relay, adding $dhcp->{'chaddr'} ($dhcp->{yiaddr}) to hash"
-        );
-
-        #update_iplog($dhcp->{'chaddr'},$dhcp->{yiaddr});
-        return;
-    }
-
-    my $smac = $dhcp->{'src_mac'};
-    my $src = $dhcp->{'src_ip'};
-    my $date = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
-    push @{ $rogue_servers{$smac} },
-        sprintf( "%s: %15s to %s on interface %s\n", $date, $dhcp->{'yiaddr'}, $dhcp->{'chaddr'}, $eth );
-
-    $logger->warn("$src ($smac) was detected offering $dhcp->{yiaddr} to $dhcp->{'chaddr'} on $eth");
-    violation_trigger( $smac, $ROGUE_DHCP_TRIGGER, 'INTERNAL' );
-
-    if (scalar( @{ $rogue_servers{$smac} } ) == $Config{'network'}{'rogueinterval'} ) {
-        my %rogue_message;
-        $rogue_message{'subject'} = "ROGUE DHCP SERVER DETECTED AT ".uc($smac)." ($src) ON ".uc($eth)."\n";
-        $rogue_message{'message'} = pf::lookup::node::lookup_node($smac) . "\n";
-        $rogue_message{'message'} .= "Detected Offers\n---------------\n";
-        while ( @{ $rogue_servers{$smac} } ) {
-            $rogue_message{'message'} .= pop( @{ $rogue_servers{$smac} } );
-        }
-        pfmailer(%rogue_message);
-    }
+    rogue_dhcp_handling($dhcp->{'src_ip'}, $dhcp->{'src_mac'}, $dhcp->{'yiaddr'}, $dhcp->{'chaddr'});
 }
 
 =item parse_dhcp_request
@@ -341,6 +313,8 @@ sub parse_dhcp_request {
         );
         update_iplog( $dhcp->{'chaddr'}, $client_ip, $lease_length );
     }
+
+    rogue_dhcp_handling($dhcp->{'options'}{54}, undef, $dhcp->{'options'}{50}, $dhcp->{'chaddr'});
 
     if ($is_inline_vlan) {
         locationlog_synchronize($interface_ip, $NO_PORT, $interface_vlan, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE);
@@ -397,6 +371,58 @@ sub parse_dhcp_release {
 sub parse_dhcp_inform {
     my ($dhcp) = @_;
     $logger->debug("DHCPINFORM from $dhcp->{'chaddr'} ($dhcp->{ciaddr})");
+}
+
+# TODO consider the option82 stuff to get the MAC of the server relayed too maybe?
+# TODO consider a flag to disable rogue detection
+=item rogue_dhcp_handling
+
+Requires DHCP Server IP
+
+Optional but very useful DHCP Server MAC
+
+=cut
+sub rogue_dhcp_handling {
+    my ($dhcp_srv_ip, $dhcp_srv_mac, $offered_ip, $client_mac) = @_;
+
+    # if server ip is empty, it means that the client is asking for it's old IP and this should be legit
+    if (!defined($dhcp_srv_ip)) {
+        $logger->debug("received empty DHCP Server IP in rogue detection. Offered IP: $offered_ip");
+        return;
+    }
+
+    # ignore if DHCP server is a local pf gateway
+    return if ( grep({ $_ eq $dhcp_srv_ip } get_gateways()) );
+
+    # ignore whitelisted DHCP servers
+    return if ( grep({$_ eq $dhcp_srv_ip} split(/\s*,\s*/, $Config{'general'}{'dhcpservers'})) );
+
+    push @{ $rogue_servers{$dhcp_srv_ip} },
+        sprintf( "%s: %15s to %s on interface %s\n", mysql_date(), $offered_ip, $client_mac, $interface );
+
+    # if I have a MAC use it, otherwise look it up
+    $dhcp_srv_mac = ip2mac($dhcp_srv_ip) if (!defined($dhcp_srv_mac));
+    if ($dhcp_srv_mac) {
+        violation_trigger( $dhcp_srv_mac, $ROGUE_DHCP_TRIGGER, 'INTERNAL' );
+    } else {
+        $logger->info("Unable to find MAC based on IP $dhcp_srv_ip for rogue DHCP server");
+        $dhcp_srv_mac = 'unknown';
+    }
+
+    $logger->warn("$dhcp_srv_ip ($dhcp_srv_mac) was detected offering $offered_ip to $client_mac on $interface");
+    if (scalar( @{ $rogue_servers{$dhcp_srv_ip} } ) == $Config{'network'}{'rogueinterval'} ) {
+        my %rogue_message;
+        $rogue_message{'subject'} = "ROGUE DHCP SERVER DETECTED AT $dhcp_srv_ip ($dhcp_srv_mac) ON $interface\n";
+        $rogue_message{'message'} = '';
+        if ($dhcp_srv_mac ne 'unknown') {
+            $rogue_message{'message'} .= pf::lookup::node::lookup_node($dhcp_srv_mac) . "\n";
+        }
+        $rogue_message{'message'} .= "Detected Offers\n---------------\n";
+        while ( @{ $rogue_servers{$dhcp_srv_ip} } ) {
+            $rogue_message{'message'} .= pop( @{ $rogue_servers{$dhcp_srv_ip} } );
+        }
+        pfmailer(%rogue_message);
+    }
 }
 
 
