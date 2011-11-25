@@ -31,13 +31,19 @@ use Readonly;
 use pf::util qw(int2ip);
 
 our @ascii_options = (
-    15, # Domain Name (RFC2132)
+    4, # Time Server (RFC2132)
     12, # Host Name (RFC2132)
+    15, # Domain Name (RFC2132)
+    56, # Message (RFC2132)
     60, # Vendor class (RFC2132)
     66, # TFTP server name (RFC2132)
     67, # Bootfile name (RFC2132)
     81, # Client FQDN option (RFC4702)
-    4, # Time Server (RFC2132)
+);
+
+our @ipv4_options = (
+    50, # Requested IP Address (RFC2132)
+    54, # Server Identifier (RFC2132)
 );
 
 Readonly my %MESSAGE_TYPE => (
@@ -172,9 +178,11 @@ sub decode_dhcp_options {
         }
     } 
 
-    # Option 50: Requested IP Address (RFC2132)
-    if ( exists( $dhcp_ref->{'options'}->{50} ) ) {
-        $dhcp_ref->{'options'}->{50} = join ('.', @{ $dhcp_ref->{'options'}->{50} } );
+    # pack IPv4 in dotted notation
+    foreach my $option (@ipv4_options) {
+        if ( exists( $dhcp_ref->{'options'}->{$option} ) ) {
+            $dhcp_ref->{'options'}->{$option} = join ('.', @{ $dhcp_ref->{'options'}->{$option} } );
+        }
     }
 
     # Option 51: IP Address Lease Time (RFC2132)
