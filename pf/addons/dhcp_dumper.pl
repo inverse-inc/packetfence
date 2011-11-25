@@ -176,10 +176,6 @@ sub listen_dhcp {
         return;
     }
 
-    # adding to dhcp hashref some frame information we care about
-    $dhcp->{'src_mac'} = clean_mac($l2->{'src_mac'});
-    $dhcp->{'dest_mac'} = clean_mac($l2->{'dest_mac'});
-
     # chaddr filter
     $dhcp->{'chaddr'} = clean_mac( substr( $dhcp->{'chaddr'}, 0, 12 ) );
     return if ( $chaddr_filter && $chaddr_filter ne $dhcp->{'chaddr'});
@@ -195,7 +191,7 @@ sub listen_dhcp {
     }
 
     $logger->info("-" x 80);
-    $logger->info("Ethernet\tsrc:\t$dhcp->{'src_mac'}\tdst:\t$dhcp->{'dest_mac'}");
+    $logger->info(sprintf("Ethernet\tsrc:\t%s\tdst:\t%s", clean_mac($l2->{'src_mac'}), clean_mac($l2->{'dest_mac'})));
     $logger->info(sprintf("IP\t\tsrc: %20s\tdst: %20s", $l3->{'src_ip'}, $l3->{'dest_ip'}));
     $logger->info(sprintf("UDP\t\tsrc port: %15s\tdst port: %15s", $l4->{'src_port'}, $l4->{'dest_port'}));
     $logger->info("-" x 80);
