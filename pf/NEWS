@@ -27,6 +27,7 @@ Enhancements
  * Startup performance improvements
  * Added support for session-keyfile introduced in BIND 9.7 (#1257)
  * Several improvements in the dhcp_dumper.pl addon
+ * Global option to disable rogue DHCP server detection
 
 Bug Fixes
  * Slashes (/) not allowed in person id (#1322)
