@@ -114,6 +114,7 @@ sub generate_release_page {
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
         retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
+        auto_redirect => $Config{'captive_portal'}{'network_detection'},
         list_help_info  => [
             { name => i18n('IP'),  value => $ip },
             { name => i18n('MAC'), value => $mac }

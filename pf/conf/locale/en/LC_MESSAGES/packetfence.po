@@ -470,6 +470,9 @@ msgstr ""
 msgid "Unable to detect network connectivity. Try opening a web page to see if your access has been succesfully enabled."
 msgstr ""
 
+msgid "Your network access should be available. Close your current browser, and open a new one to start browsing."
+msgstr ""
+
 msgid "Registration pending"
 msgstr ""
 
@@ -555,6 +558,9 @@ msgid "Your system has been found to be infected with a Zotob worm and is scanni
 msgstr ""
 
 msgid "Your network access is currently being enabled. Once network connectivity is established you will be automatically redirected."
+msgstr ""
+
+msgid "Your network access is currently being enabled. Please wait..."
 msgstr ""
 
 msgid "You must be authenticated to manage guests."

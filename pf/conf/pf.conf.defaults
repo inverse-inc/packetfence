@@ -587,6 +587,11 @@ restart=disabled
 
 [captive_portal]
 #
+# captive_portal.network_detection
+#
+# Enable or not the network detection feature after registration
+network_detection=enabled
+#
 # captive_portal.network_detection_ip
 #
 # This IP is used as the webserver who hosts the common/network-access-detection.gif which is used to detect if network

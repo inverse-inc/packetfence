@@ -477,6 +477,9 @@ msgstr "Vous devez accepter les termes afin de vous connecter au r&eacute;seau."
 msgid "Unable to detect network connectivity. Try opening a web page to see if your access has been succesfully enabled."
 msgstr "Incapable de détecter l'accès réseau. Essayez d'ouvrir une page Web pour voir si votre connectivité a été établie."
 
+msgid "Your network access should be available. Close your current browser, and open a new one to start browsing."
+msgstr "Votre accès réseau devrait être disponible.  Fermer votre fureteur et ouvrez-en un nouveau pour commencer à naviguer."
+
 msgid "Registration pending"
 msgstr "Enregistrement en attente"
 
@@ -491,6 +494,9 @@ msgstr "Votre code d'activation n'est plus valide."
 
 msgid "Your network access is currently being enabled. Once network connectivity is established you will be automatically redirected."
 msgstr "Votre accès réseau est présentement en activation.  Une fois la connectivité réseau établie, vous serez automatiquement redirigé."
+
+msgid "Your network access is currently being enabled. Please wait..."
+msgstr "Votre accès réseau est présentement en activation.  SVP patientez..."
 
 msgid "This account is expired."
 msgstr "Ce compte est expiré."
