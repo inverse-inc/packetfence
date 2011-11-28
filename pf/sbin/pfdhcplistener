@@ -172,11 +172,10 @@ sub listen_dhcp {
     try {
         ($l2, $l3, $l4, $dhcp) = decompose_dhcp($packet);
         $success = 1;
-    };
-    if (!$success) {
+    } catch {
         $logger->warn("Unable to parse DHCP packet: $_");
-        return;
-    }
+    };
+    return if (!$success);
 
     # adding to dhcp hashref some frame information we care about
     $dhcp->{'src_mac'} = clean_mac($l2->{'src_mac'});

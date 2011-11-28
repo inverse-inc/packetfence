@@ -170,11 +170,10 @@ sub listen_dhcp {
     try {
         ($l2, $l3, $l4, $dhcp) = decompose_dhcp($packet);
         $success = 1;
-    };
-    if (!$success) {
+    } catch {
         $logger->warn("Unable to parse DHCP packet: $_");
-        return;
-    }
+    };
+    return if (!$success);
 
     # chaddr filter
     $dhcp->{'chaddr'} = clean_mac( substr( $dhcp->{'chaddr'}, 0, 12 ) );
