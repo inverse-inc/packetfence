@@ -17,6 +17,7 @@ Version <release> released on <releaseDate>
 
 Enhancements
  * Several new DHCP fingerprints (from our spinoff www.fingerbank.org)
+ * Better support of WISPr (captive portal detection)
 
 --------------------------------------------------------------------------------
 Version 3.0.3 released on 2011-11-21
