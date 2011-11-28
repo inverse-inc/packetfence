@@ -372,7 +372,6 @@ sub parse_dhcp_inform {
     $logger->debug("DHCPINFORM from $dhcp->{'chaddr'} ($dhcp->{ciaddr})");
 }
 
-# TODO consider the option82 stuff to get the MAC of the server relayed too maybe?
 # TODO consider a flag to disable rogue detection
 =item rogue_dhcp_handling
 
@@ -433,35 +432,14 @@ Option 82 is Relay Agent Information. Defined in RFC 3046.
 sub parse_dhcp_option82 {
     my ($dhcp) = @_;
 
-    # TODO push upstream in pf::util::dhcp
-    my ($switch, $vlan, $mod, $port);
-    my %option_82;
-    my %options = %{$dhcp->{'options'}};
-    while ( @{ $options{'82'} } ) {
-        my $subopt = shift( @{ $options{'82'} } );
+    # slicing the hash to retrive the stuff we are interested in
+    my ($switch, $vlan, $mod, $port)  = @{$dhcp->{'options'}{'82'}}{'switch', 'vlan', 'module', 'port'};
+    if ( defined($switch) && defined($vlan) && defined($mod) && defined($port) ) {
 
-        # this makes offset assumptions we probably shouldn't, but it should work fine for Cisco
-        # assume all cidtype/ridtype always == 0
-        shift( @{ $options{'82'} } );
-        shift( @{ $options{'82'} } );
-        my $len = shift( @{ $options{'82'} } );
-        while ($len) {
-            my $val = shift( @{ $options{'82'} } );
-            push( @{ $option_82{$subopt} }, $val );
-            $len--;
-        }
+        # TODO port should be translated into ifIndex
+        # FIXME option82 stuff needs to be re-validated (#1340)
+        locationlog_insert_closed($switch, $mod . '/' . $port, $vlan, $dhcp->{'chaddr'}, '');
     }
-
-    if ( defined( $option_82{'1'} ) ) {
-        ($vlan, $mod, $port) = unpack( 'nCC', pack( "C*", @{ $option_82{'1'} } ) );
-    }
-    if ( defined( $option_82{'2'} ) ) {
-        # FIXME we could be updating node's location information
-        #$tmp{'switch'} = clean_mac( join( ":", unpack( "H*", pack( "C*", @{ $option_82{'2'} } ) ) ) ); 
-    }
-
-    # TODO port should be translated into ifIndex
-    locationlog_insert_closed($switch, $mod . '/' . $port, $vlan, $dhcp->{'chaddr'}, '');
 }
 
 sub update_iplog {

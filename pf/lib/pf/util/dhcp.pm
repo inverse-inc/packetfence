@@ -28,7 +28,7 @@ use NetPacket::IP;
 use NetPacket::UDP;
 use Readonly;
 
-use pf::util qw(int2ip);
+use pf::util qw(int2ip clean_mac);
 
 our @ascii_options = (
     4, # Time Server (RFC2132)
@@ -194,6 +194,11 @@ sub decode_dhcp_options {
     if ( exists( $dhcp_ref->{'options'}->{55} ) ) {
         $dhcp_ref->{'options'}->{55} = join( ",", @{ $dhcp_ref->{'options'}->{'55'} } );
     }
+
+    # Option 82: Relay Agent Information (RFC3046)
+    if ( exists( $dhcp_ref->{'options'}->{82} ) ) {
+        _decode_dhcp_option82($dhcp_ref);
+    }
 }
 
 sub dhcp_message_type_to_string {
@@ -229,6 +234,54 @@ sub dhcp_summary {
 
     return $summary;
 }
+
+=item _decode_dhcp_option82
+
+Parses Relay Agent Information (option 82) and add information understood to the dhcp hashref.
+Relay Agent Information is defined in RFC3046.
+
+On cisco, option 82 can be populated on the layer 3 switch when relaying by entering the following commands:
+
+    conf t
+    ip dhcp relay information option
+
+=cut
+sub _decode_dhcp_option82 {
+    my ($dhcp_ref) = @_;
+
+    my %sub_opt_82;
+    my @option82 = @{$dhcp_ref->{'options'}{'82'}};
+    while ( @option82 ) {
+        my $subopt = shift( @option82 );
+        my $len = shift( @option82 );
+
+        while ($len) {
+            my $val = shift( @option82 );
+            push( @{ $sub_opt_82{$subopt} }, $val );
+            $len--;
+        }
+    }
+
+    # stripping option82 arrayref and pushing an hashref instead with raw = options 82 array ref
+    $dhcp_ref->{'options'}{'82'} = { 
+        '_raw' => $dhcp_ref->{'options'}{'82'},
+        '_subopts' => \%sub_opt_82,
+    };
+    if ( defined( $sub_opt_82{'1'} ) ) {
+
+        # TODO not sure this is the good stuff
+        my ( $vlan, $module, $port ) = unpack('nCC', pack("C*", @{$sub_opt_82{'1'}}));
+        $dhcp_ref->{'options'}{'82'}{'vlan'} = $vlan;
+        $dhcp_ref->{'options'}{'82'}{'module'} = $module;
+        $dhcp_ref->{'options'}{'82'}{'port'} = $port;
+    }
+
+    if ( defined( $sub_opt_82{'2'} ) ) {
+        $dhcp_ref->{'options'}{'82'}{'switch'} = clean_mac( unpack("H*", pack("C*", @{$sub_opt_82{'2'}})) );
+    }
+
+}
+
 =back
 
 =head1 AUTHOR
