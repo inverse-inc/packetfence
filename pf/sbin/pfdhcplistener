@@ -425,6 +425,9 @@ sub rogue_dhcp_handling {
         while ( @{ $rogue_servers{$dhcp_srv_ip} } ) {
             $rogue_message{'message'} .= pop( @{ $rogue_servers{$dhcp_srv_ip} } );
         }
+        $rogue_message{'message'} .= 
+            "\n\nIf this DHCP Server is legitimate, make sure to add it to the dhcpservers list under General.\n"
+        ;
         pfmailer(%rogue_message);
     }
 }

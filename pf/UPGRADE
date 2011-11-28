@@ -7,6 +7,13 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <trunk-release>:
 
+    - Changes to rogue DHCP server detection and pfdhcplistener
+    A lot of changes were made to the pfdhcplistener daemon. One big change
+    is that it will now detect rogue DHCP servers even on your normal VLANs 
+    and routed VLANs (given that you forward your DHCP traffic to it). Make 
+    sure that your dhcpservers configuration listing all authorized DHCP is 
+    up to date.
+
     - Database schema update
     SoH support and the MAC violation improvements required database changes. 
     Make sure you run the following to update your schema:
