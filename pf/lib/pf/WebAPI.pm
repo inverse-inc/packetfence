@@ -58,6 +58,7 @@ use pf::config;
 use pf::iplog;
 use pf::radius::custom $RADIUS_API_LEVEL;
 use pf::violation;
+use pf::soh::custom $SOH_API_LEVEL;
 
 sub event_add {
   my ($class, $date, $srcip, $type, $id) = @_;
@@ -92,6 +93,22 @@ sub radius_authorize {
   }
   return $return;
 }
+
+sub soh_authorize {
+  my ($class, %radius_request) = @_;
+  my $logger = Log::Log4perl->get_logger('pf::WebAPI');
+
+  my $soh = pf::soh::custom->new();
+  my $return;
+  eval {
+    $return = $soh->authorize(\%radius_request);
+  };
+  if ($@) {
+    $logger->logdie("soh authorize failed with error: $@");
+  }
+  return $return;
+}
+
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>

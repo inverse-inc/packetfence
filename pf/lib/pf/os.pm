@@ -34,6 +34,8 @@ BEGIN {
         read_dhcp_fingerprints_conf
         dhcp_fingerprint_view
         dhcp_fingerprint_view_all
+        dhcp_fingerprint_count
+        import_dhcp_fingerprints
     );
 }
 
@@ -90,20 +92,48 @@ sub os_db_prepare {
         ORDER BY class_id
     ]);
 
-    # TODO why is this commented? The only change is the addition of a group-by clause
-    #$dhcp_fingerprint_view_all_sql=$dbh->prepare( qq [ SELECT d.fingerprint,o.description as os,c.description as class FROM dhcp_fingerprint d LEFT JOIN os_type o ON o.os_id=d.os_id LEFT JOIN os_mapping m ON m.os_type=o.os_id LEFT JOIN os_class c ON  m.os_class=c.class_id GROUP BY c.class_id ORDER BY class_id ]);
+
+    $os_statements->{'dhcp_fingerprint_count_sql'} = get_db_handle()->prepare(<<"    SQL");
+        SELECT count(*) FROM dhcp_fingerprint;
+    SQL
 
     $os_db_prepared = 1;
 }
 
 sub dhcp_fingerprint_view {
     my ($fingerprint) = @_;
-
     return db_data(OS, $os_statements, 'dhcp_fingerprint_view_sql', $fingerprint );
 }
 
 sub dhcp_fingerprint_view_all {
     return db_data(OS, $os_statements, 'dhcp_fingerprint_view_all_sql');
+}
+
+sub dhcp_fingerprint_count {
+    my $query = db_query_execute(OS, $os_statements, 'dhcp_fingerprint_count_sql');
+    my ($val) = $query->fetchrow_array();
+    $query->finish();
+    return ($val);
+}
+
+=item import_dhcp_fingerprints
+
+Import all DHCP fingerprints if we currently don't have any in the table.
+Options:
+
+  force => $TRUE: will trigger the import anyway
+
+=cut
+sub import_dhcp_fingerprints {
+    my ($opts_ref) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::os');
+
+    if (dhcp_fingerprint_count() != 0 && !$opts_ref->{'force'}) {
+        $logger->debug("DHCP fingerprints already present in database: Not loading again.");
+        return 0;
+    }
+
+    return read_dhcp_fingerprints_conf();
 }
 
 sub read_dhcp_fingerprints_conf {
