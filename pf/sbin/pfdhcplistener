@@ -232,7 +232,8 @@ sub listen_dhcp {
 
     } elsif ( $dhcp->{'op'} == 1 ) {
 
-        parse_dhcp_discover($dhcp) if ( $dhcp->{'options'}{'53'}[0] == 1 );
+        # returning on Discover in order to avoid some unnecessary work (we expect clients to do a dhcp request anyway)
+        return parse_dhcp_discover($dhcp) if ( $dhcp->{'options'}{'53'}[0] == 1 );
 
         parse_dhcp_request($dhcp) if ( $dhcp->{'options'}{'53'}[0] == 3 );
 
