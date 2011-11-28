@@ -197,10 +197,6 @@ sub listen_dhcp {
     $logger->info(dhcp_summary($dhcp));
     $logger->debug(Dumper($dhcp));
 
-    if ( defined( $dhcp->{'options'}{'82'} ) ) {
-        # FIXME output option 82 stuff
-    }
-
     foreach my $key ( keys(%{ $dhcp->{'options'} }) ) {
         my $tmpkey = $key;
         $tmpkey = $msg_types{$key} if ( defined( $msg_types{$key} ) );
