@@ -7,6 +7,12 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <trunk-release>:
 
+    - rogue DHCP server violation
+    The rogue DHCP server violation now needs a trigger in order to work. Make
+    sure you have trigger=internal::1100010 under the violation entry. Users
+    of packaged versions should have appropriate config upgrade mechanism
+    handling the violation file.
+
     - Changes to rogue DHCP server detection and pfdhcplistener
     A lot of changes were made to the pfdhcplistener daemon. One big change
     is that it will now detect rogue DHCP servers even on your normal VLANs 
