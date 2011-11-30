@@ -90,6 +90,7 @@ if (defined($session->param("username"))) {
                 'password' => $password,
                 'valid_from' => $session->param("arrival_date"),
                 'duration' => pf::web::guest::valid_access_duration($session->param("access_duration")),
+                'notes' => $session->param("notes"),
             };
 
             # tear down session information

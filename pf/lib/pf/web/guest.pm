@@ -155,9 +155,12 @@ sub generate_registration_page {
     # put seperately because of side effects in anonymous hashref
     $vars->{'firstname'} = $cgi->param("firstname");
     $vars->{'lastname'} = $cgi->param("lastname");
+    $vars->{'company'} = $cgi->param("company");
     $vars->{'phone'} = $cgi->param("phone");
     $vars->{'email'} = $cgi->param("email");
+    $vars->{'address'} = $cgi->param("address");
     $vars->{'arrival_date'} = $cgi->param("arrival_date") || POSIX::strftime("%Y-%m-%d", localtime(time));
+    $vars->{'notes'} = $cgi->param("notes");
 
     # access duration
     $vars->{'default_duration'} = $cgi->param("access_duration")
@@ -308,10 +311,13 @@ sub validate_registration {
 
     $session->param("firstname", $cgi->param("firstname"));
     $session->param("lastname", $cgi->param("lastname"));
+    $session->param("company", $cgi->param("company"));
     $session->param("email", $cgi->param("email")); 
     $session->param("phone", $cgi->param("phone"));
+    $session->param("address", $cgi->param("address"));
     $session->param("arrival_date", $cgi->param("arrival_date"));
     $session->param("access_duration", $cgi->param("access_duration"));
+    $session->param("notes", $cgi->param("notes"));
     return (1, 0);
 }
 
@@ -345,9 +351,16 @@ sub validate_registration_multiple {
         return (0, 6);
     }
 
+    $session->param("fistname", $cgi->param("firstname"));
+    $session->param("lastname", $cgi->param("lastname"));
+    $session->param("company", $cgi->param("company"));
+    $session->param("email", $cgi->param("email"));
+    $session->param("phone", $cgi->param("phone"));
+    $session->param("address", $cgi->param("address"));
     $session->param("arrival_date", $cgi->param("arrival_date"));
     $session->param("access_duration", $cgi->param("access_duration"));
-
+    $session->param("notes", $cgi->param("notes"));
+   
     return (1, 0);
 }
 
@@ -383,6 +396,9 @@ sub validate_registration_import {
         $logger->warn("Import: Received corrupted file: " . $cgi->cgi_error);
         return (0, 4);
     }
+
+    $session->param("arrival_date", $cgi->param("arrival_date"));
+    $session->param("access_duration", $cgi->param("access_duration"));
 
     return (1, 0);
 }
@@ -459,7 +475,9 @@ sub preregister {
         'lastname' => $session->param("lastname"),
         'email' => $session->param("email"),
         'telephone' => $session->param("phone"),
-        'notes' => sprintf(i18n("Expected on %s"), $session->param("arrival_date")),
+        'company' => $session->param("company"),
+        'address' => $session->param("address"),
+        'notes' => $session->param("notes"),
         'sponsor' => $session->param("username")
     ));
     $logger->info("Adding guest person " . $session->param("email"));
@@ -505,9 +523,13 @@ sub preregister_multiple {
     for (my $i = 1; $i <= $quantity; $i++) {
       my $pid = "$prefix$i";
       # Create/modify person
-      my $notes = sprintf(i18n("Expected on %s"), $session->param("arrival_date"))
-        . ". " . i18n("Multiple guest accounts creation") . " $prefix" . "[1-$quantity]";
-      my $result = person_modify($pid, ('notes' => $notes,
+      my $result = person_modify($pid, ('firstname' => $session->param("firstname"),
+                                        'lastname' => $session->param("lastname"),
+                                        'email' => $session->param("email"),
+                                        'telephone' => $session->param("phone"),
+                                        'company' => $session->param("company"),
+                                        'address' => $session->param("address"),
+                                        'notes' => $session->param("notes"),
                                         'sponsor' => $session->param("username")));
       if ($result) {
         # Create/update password
@@ -757,6 +779,8 @@ sub import_csv {
                   'lastname'  => $index{'c_lastname'}  ? $fields[$index{'c_lastname'}]  : undef,
                   'email'     => $index{'c_email'}     ? $fields[$index{'c_email'}]     : undef,
                   'telephone' => $index{'c_phone'}     ? $fields[$index{'c_phone'}]     : undef,
+                  'company'   => $index{'c_company'}   ? $fields[$index{'c_company'}]   : undef,
+                  'address'   => $index{'c_address'}   ? $fields[$index{'c_address'}]   : undef,
                   'notes'     => $index{'c_note'}      ? $fields[$index{'c_note'}]      : undef,
                   'sponsor'   => $session->param("username"));
       if ($data{'email'} && $data{'email'} !~ /^[A-z0-9_.-]+@[A-z0-9_-]+(\.[A-z0-9_-]+)*\.[A-z]{2,6}$/) {

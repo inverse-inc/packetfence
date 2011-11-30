@@ -38,7 +38,8 @@ div.input hr {
 }
 div.input input.field,
 div.input div#aup,
-div.input div.note {
+div.input div.note,
+div.input textarea {
   font-size: 14px;
 }
 div#content {
@@ -115,13 +116,15 @@ div.input span {
   white-space: nowrap;
   width: 120px;
 }
-div.input input.field {
+div.input input.field,
+div.input textarea {
   border: 1px solid #ddd;
   background-color: #fff;
   padding: 3px;
   width: 250px;
 }
-div.input input.field:focus {
+div.input input.field:focus,
+div.input textarea:focus {
   background-color: #DEFEFF;
   color: #333;
 }

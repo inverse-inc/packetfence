@@ -312,6 +312,9 @@ msgstr ""
 msgid "Lastname"
 msgstr ""
 
+msgid "Company"
+msgstr ""
+
 msgid "Phone number"
 msgstr ""
 
@@ -324,6 +327,9 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
+msgid "Address"
+msgstr ""
+
 msgid "Arrival Date"
 msgstr ""
 
@@ -331,6 +337,9 @@ msgid "End Date"
 msgstr ""
 
 msgid "Access Duration"
+msgstr ""
+
+msgid "Notes"
 msgstr ""
 
 msgid "Send access code by email"

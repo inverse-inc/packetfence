@@ -25,25 +25,28 @@ var initialTabName = "single";
             <div class="input">
               <span>[% i18n("Firstname") %]</span>
               <input class="field first" name="firstname" type="text" value="[% firstname | html %]" />
-            </div>
-            <div class="input">
+
               <span>[% i18n("Lastname") %]</span>
               <input class="field" name="lastname" type="text" value="[% lastname | html %]" />
             </div>
             <div class="input">
+              <span>[% i18n("Company") %]</span>
+              <input class="field" name="company" type="text" value="[% company | html %]" />
+
               <span>[% i18n("Phone number") %]</span>
               <input class="field" name="phone" type="text" value="[% phone | html %]" />
-            </div>
-            <div class="input">
+
               <span>[% i18n("Email") %]*</span>
               <input class="field" name="email" type="text" value="[% email | html %]" />
+
+              <span>[% i18n("Address") %]</span>
+              <textarea name="address">[% address | html %]</textarea>
             </div>
             <div class="input">
               <span>[% i18n("Arrival Date") %]*</span>
               <input class="field" name="arrival_date" type="text" value="[% arrival_date | html %]" /><br/>
               <em>[% i18n("Format is: yyyy-mm-dd") %]</em>
-            </div>
-            <div class="input">
+
               <span>[% i18n("Access Duration") %]*</span>
               <select name="access_duration">
                 [% FOREACH d IN duration.keys.nsort %]
@@ -52,6 +55,10 @@ var initialTabName = "single";
                   </option>
                 [% END %]
               </select>
+            </div>
+            <div class="input">
+              <span>[% i18n("Note") %]</span>
+              <textarea name="notes">[% notes | html %]</textarea>
             </div>
             <div class="input">
               <input type="submit" class="button" name="action_print" value="[% i18n("Print access code") %]" /><br/>
@@ -65,17 +72,34 @@ var initialTabName = "single";
             <div class="input">
               <span>[% i18n("Username Prefix") %]*</span>
               <input class="field first" name="prefix" type="text" value="[% prefix | html %]" />
-            </div>
-            <div class="input">
+
               <span>[% i18n("Quantity") %]*</span>
               <input class="field" name="quantity" type="text" value="[% quantity | html %]" />
+            </div>
+            <div class="input">
+              <span>[% i18n("Firstname") %]</span>
+              <input class="field first" name="firstname" type="text" value="[% firstname | html %]" />
+
+              <span>[% i18n("Lastname") %]</span>
+              <input class="field" name="lastname" type="text" value="[% lastname | html %]" />
+
+              <span>[% i18n("Company") %]</span>
+              <input class="field" name="company" type="text" value="[% company | html %]" />
+
+              <span>[% i18n("Phone number") %]</span>
+              <input class="field" name="phone" type="text" value="[% phone | html %]" />
+
+              <span>[% i18n("Email") %]</span>
+              <input class="field" name="email" type="text" value="[% email | html %]" />
+
+              <span>[% i18n("Address") %]</span>
+              <textarea name="address">[% address | html %]</textarea>
             </div>
             <div class="input">
               <span>[% i18n("Arrival Date") %]*</span>
               <input class="field" name="arrival_date" type="text" value="[% arrival_date | html %]" /><br/>
               <em>[% i18n("Format is: yyyy-mm-dd") %]</em>
-            </div>
-            <div class="input">
+
               <span>[% i18n("Access Duration") %]*</span>
               <select name="access_duration">
                 [% FOREACH d IN duration.keys.nsort %]
@@ -84,6 +108,10 @@ var initialTabName = "single";
                   </option>
                 [% END %]
               </select>
+            </div>
+            <div class="input">
+              <span>[% i18n("Note") %]</span>
+              <textarea name="notes">[% notes | html %]</textarea>
             </div>
             <div class="input">
               <input type="submit" class="button" name="action_print_multiple" value="[% i18n("Print access codes") %]" /><br/>
@@ -116,6 +144,8 @@ var initialTabName = "single";
                 <div class="column"><input type="checkbox" name="c_lastname"><span>[% i18n("Lastname") %]</span><span class="order"><img src="/content/images/arrow_up_12x12.png"><img src="/content/images/arrow_down_12x12.png"></span></div>
                 <div class="column"><input type="checkbox" name="c_email"><span>[% i18n("Email") %]</span><span class="order"><img src="/content/images/arrow_up_12x12.png"><img src="/content/images/arrow_down_12x12.png"></span></div>
                 <div class="column"><input type="checkbox" name="c_phone"><span>[% i18n("Phone number") %]</span><span class="order"><img src="/content/images/arrow_up_12x12.png"><img src="/content/images/arrow_down_12x12.png"></span></div>
+                <div class="column"><input type="checkbox" name="c_company"><span>[% i18n("Company") %]</span><span class="order"><img src="/content/images/arrow_up_12x12.png"><img src="/content/images/arrow_down_12x12.png"></span></div>
+                <div class="column"><input type="checkbox" name="c_address"><span>[% i18n("Address") %]</span><span class="order"><img src="/content/images/arrow_up_12x12.png"><img src="/content/images/arrow_down_12x12.png"></span></div>
                 <div class="column"><input type="checkbox" name="c_note"><span>[% i18n("Note") %]</span><span class="order"><img src="/content/images/arrow_up_12x12.png"><img src="/content/images/arrow_down_12x12.png"></span></div>
               </div>
             </div>
