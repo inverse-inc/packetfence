@@ -307,7 +307,11 @@ sub parse_dhcp_request {
         update_iplog( $dhcp->{'chaddr'}, $client_ip, $lease_length );
     }
 
-    rogue_dhcp_handling($dhcp->{'options'}{54}, undef, $dhcp->{'options'}{50}, $dhcp->{'chaddr'}, $dhcp->{'giaddr'});
+    # As per RFC2131 in a DHCPREQUEST if ciaddr is set and we broadcast, we are in re-binding state
+    # in which case we are not interested in detecting rogue DHCP
+    if ($dhcp->{'ciaddr'} =~ /^0\.0\.0\.0$/) {
+        rogue_dhcp_handling($dhcp->{'options'}{54}, undef, $client_ip, $dhcp->{'chaddr'}, $dhcp->{'giaddr'});
+    }
 
     if ($is_inline_vlan) {
         locationlog_synchronize($interface_ip, $NO_PORT, $interface_vlan, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE);
