@@ -477,7 +477,7 @@ sub preregister {
         'telephone' => $session->param("phone"),
         'company' => $session->param("company"),
         'address' => $session->param("address"),
-        'notes' => $session->param("notes"),
+        'notes' => $session->param("notes").". ".sprintf(i18n("Expected on %s"), $session->param("arrival_date")),
         'sponsor' => $session->param("username")
     ));
     $logger->info("Adding guest person " . $session->param("email"));
@@ -523,13 +523,14 @@ sub preregister_multiple {
     for (my $i = 1; $i <= $quantity; $i++) {
       my $pid = "$prefix$i";
       # Create/modify person
+      my $notes = $session->param("notes").". ".sprintf(i18n("Expected on %s"), $session->param("arrival_date"));
       my $result = person_modify($pid, ('firstname' => $session->param("firstname"),
                                         'lastname' => $session->param("lastname"),
                                         'email' => $session->param("email"),
                                         'telephone' => $session->param("phone"),
                                         'company' => $session->param("company"),
                                         'address' => $session->param("address"),
-                                        'notes' => $session->param("notes"),
+                                        'notes' => $notes,
                                         'sponsor' => $session->param("username")));
       if ($result) {
         # Create/update password
