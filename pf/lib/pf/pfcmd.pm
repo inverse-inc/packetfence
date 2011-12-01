@@ -20,6 +20,15 @@ use diagnostics;
 use Log::Log4perl;
 use Regexp::Common qw(net);
 
+# if you change something here, make sure
+#   - not to allow unquoted stuff interpreted by the shell
+#   - update the appropriate regexp in lib/pfcmd/pfcmd.pm grammar too
+my $pid_re = qr{(?: 
+    ( [a-zA-Z0-9\-\_\.\@\/\:\+\!,]+ )                               # unquoted allowed
+    |                                                               # OR
+    \" ( [&=?\(\)\/,0-9a-zA-Z_\*\.\-\:\;\@\ \+\!\^\[\]\|\#]+ ) \"   # quoted allowed
+)}xo;
+
 sub parseCommandLine {
     my ($commandLine) = @_;
     my $logger = Log::Log4perl::get_logger("pf::pfcmd");
@@ -176,10 +185,11 @@ sub parseCommandLine {
                                      ( [^,=]+ )
                                    )?
                                  $ /xms,
-        'lookup'          => qr{ ^ ( person | node ) 
-                                   \s+
-                                   ( [0-9a-zA-Z_\-\.\:@]+ )
-                                 $  }xms,
+        'lookup'          => qr{ ^(?: 
+                                       ( person ) \s+ $pid_re
+                                   | 
+                                       ( node ) \s+ ( $RE{net}{MAC} )
+                                 )$  }xms,
         'manage'          => qr/ ^ 
                                    (?:
                                      ( freemac | deregister )
@@ -203,11 +213,8 @@ sub parseCommandLine {
                                      (?: 
                                          ( all ) 
                                        | ( $RE{net}{MAC} ) 
-                                       | ( category | pid )
-                                         \s* [=] \s*
-                                         (?: (?: \" ( [0-9a-zA-Z_\-\.\:\ \@]+ ) \" ) 
-                                             | ( [0-9a-zA-Z_\-\.\:\@]+ )
-                                         )
+                                         # TODO be more strict on category names (but no time now)
+                                       | (?: ( category | pid  ) \s* [=] \s* $pid_re )
                                      )
                                      (?:
                                        \s+ ( order ) \s+ ( by )
@@ -223,13 +230,11 @@ sub parseCommandLine {
                                      |
                                      ( count )
                                      \s+
-                                     (?:   ( all )
-                                         | ( $RE{net}{MAC} )
-                                         | ( category | pid )
-                                           \s* [=] \s*
-                                           (?: (?: \" ( [0-9a-zA-Z_\-\.\:\ ]+ ) \" ) 
-                                               | ( [0-9a-zA-Z_\-\.\:]+ )
-                                           )
+                                     (?: 
+                                         ( all ) 
+                                       | ( $RE{net}{MAC} ) 
+                                         # TODO be more strict on category names (but no time now)
+                                       | (?: ( category | pid  ) \s* [=] \s* $pid_re )
                                      )
                                      |
                                      ( delete )
@@ -257,7 +262,9 @@ sub parseCommandLine {
                                  $ }xms,
         'person'          => qr{ ^ (view)
                                    \s+
-                                   ( [a-zA-Z0-9\-\_\.\@]+ )
+                                   (?: 
+                                       ( all ) | $pid_re
+                                   )
                                  $ }xms,
         'reload'          => qr{ ^ ( fingerprints | violations ) $  }xms,
         'report'          => qr{ ^ (?: #for grouping only
@@ -406,7 +413,7 @@ sub parseCommandLine {
                 if ($cmd{'command'}[1] eq 'view') {
                     if (defined($4)) {
                         # node filter is either capture 5 or 6 (with or without quotes)
-                        push @{$cmd{'node_filter'}}, [$4, $5 ? $5 : $6];
+                        push @{$cmd{'node_filter'}}, ($4, $5 ? $5 : $6);
                     }
                     if (defined($7)) {
                         push @{$cmd{'orderby_options'}}, ($7, $8, $9, $10);
@@ -418,7 +425,7 @@ sub parseCommandLine {
                 if ($cmd{'command'}[1] eq 'count') {
                     if (defined($17)) {
                         # node filter is either capture 18 or 19 (with or without quotes)
-                        push @{$cmd{'node_filter'}}, [$17, $18 ? $18 : $19];
+                        push @{$cmd{'node_filter'}}, ($17, $18 ? $18 : $19);
                     }
                 }
             }
