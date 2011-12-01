@@ -191,6 +191,9 @@ Controller issue with Windows 7: It only works with IOS > 6.x in 802.1x+WPA2. It
 
 With IOS 6.0.182.0 we had intermittent issues with DHCP. Disabling DHCP Proxy resolved it. Not a PacketFence issue.
 
+With IOS 7.0.116 and 7.0.220, the SNMP deassociation is not working if using WPA2.  It only works if using an
+Open SSID.
+
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>
