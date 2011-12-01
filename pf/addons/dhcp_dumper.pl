@@ -179,10 +179,10 @@ sub listen_dhcp {
     $dhcp->{'chaddr'} = clean_mac( substr( $dhcp->{'chaddr'}, 0, 12 ) );
     return if ( $chaddr_filter && $chaddr_filter ne $dhcp->{'chaddr'});
 
-    return if ( !$dhcp->{'options'}{'53'}[0] );
+    return if ( !$dhcp->{'options'}{'53'} );
 
     # DHCP Message Type filter
-    return if ( $type && $type ne $dhcp->{'options'}{'53'}[0] );
+    return if ( $type && $type ne $dhcp->{'options'}{'53'} );
 
     # skip known signature if we said so on the command line
     if ( defined( $dhcp->{'options'}{'55'} ) ) {

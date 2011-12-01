@@ -219,20 +219,20 @@ sub listen_dhcp {
     #   8     DHCPINFORM
  
     if ( $dhcp->{'op'} == 2 ) {
-        parse_dhcp_offer($dhcp) if ( $dhcp->{'options'}{'53'}[0] == 2 ); 
+        parse_dhcp_offer($dhcp) if ( $dhcp->{'options'}{'53'} == 2 ); 
 
-        parse_dhcp_ack($dhcp) if ( $dhcp->{'options'}{'53'}[0] == 5 );
+        parse_dhcp_ack($dhcp) if ( $dhcp->{'options'}{'53'} == 5 );
 
     } elsif ( $dhcp->{'op'} == 1 ) {
 
         # returning on Discover in order to avoid some unnecessary work (we expect clients to do a dhcp request anyway)
-        return parse_dhcp_discover($dhcp) if ( $dhcp->{'options'}{'53'}[0] == 1 );
+        return parse_dhcp_discover($dhcp) if ( $dhcp->{'options'}{'53'} == 1 );
 
-        parse_dhcp_request($dhcp) if ( $dhcp->{'options'}{'53'}[0] == 3 );
+        parse_dhcp_request($dhcp) if ( $dhcp->{'options'}{'53'} == 3 );
 
-        return parse_dhcp_release($dhcp) if ( $dhcp->{'options'}{'53'}[0] == 7 );
+        return parse_dhcp_release($dhcp) if ( $dhcp->{'options'}{'53'} == 7 );
 
-        return parse_dhcp_inform($dhcp) if ( $dhcp->{'options'}{'53'}[0] == 8 );
+        return parse_dhcp_inform($dhcp) if ( $dhcp->{'options'}{'53'} == 8 );
 
         # Option 82 Relay Agent Information (RFC3046)
         if ( isenabled( $Config{'network'}{'dhcpoption82logger'} ) && defined( $dhcp->{'options'}{'82'} ) ) {

@@ -164,7 +164,9 @@ sub decode_dhcp_options {
     #      6     DHCPNAK
     #      7     DHCPRELEASE
     #      8     DHCPINFORM
-    if ( ! defined( $dhcp_ref->{'options'}->{53}[0] ) ) {
+    if ( defined( $dhcp_ref->{'options'}->{53}[0] ) ) {
+        $dhcp_ref->{'options'}->{53} = $dhcp_ref->{'options'}->{53}[0];
+    } else {
         die("Invalid DHCP Option 53 (Message Type) received from $dhcp_ref->{chaddr}");
     }
 
@@ -215,7 +217,7 @@ Returns a one-liner string representing most important information about DHCP Pa
 sub dhcp_summary {
     my ($dhcp_ref) = @_;
 
-    my $message_type = $dhcp_ref->{'options'}{'53'}[0];
+    my $message_type = $dhcp_ref->{'options'}{'53'};
     my $summary = dhcp_message_type_to_string($message_type);
 
     if ( $message_type == $MESSAGE_TYPE{'DHCPACK'} ) {
