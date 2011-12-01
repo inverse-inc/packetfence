@@ -384,7 +384,10 @@ sub rogue_dhcp_handling {
 
     # if server ip is empty, it means that the client is asking for it's old IP and this should be legit
     if (!defined($dhcp_srv_ip)) {
-        $logger->debug("received empty DHCP Server IP in rogue detection. Offered IP: $offered_ip");
+        $logger->debug(
+            "received empty DHCP Server IP in rogue detection. " .
+            "Offered IP: " . ( defined($offered_ip) ? $offered_ip : 'unknown' )
+        );
         return;
     }
 
