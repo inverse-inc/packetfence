@@ -29,21 +29,14 @@ use constant INSTALL_DIR => '/usr/local/pf';
 
 use lib INSTALL_DIR . "/lib";
 
-use pf::action;
-use pf::class;
 use pf::config;
 use pf::db;
 use pf::inline::custom $INLINE_API_LEVEL;
 use pf::iplog;
-use pf::iptables;
 use pf::locationlog;
 use pf::lookup::node;
 use pf::node;
 use pf::os;
-use pf::person;
-use pf::rawip;
-use pf::services;
-use pf::trigger;
 use pf::util;
 use pf::util::dhcp;
 use pf::violation qw(violation_trigger);
@@ -264,7 +257,7 @@ sub listen_dhcp {
         chop($modified_node_log_message);
 
         $logger->info("$dhcp->{'chaddr'} requested an IP. "
-            . ( defined($fingerprint_data) ? "DHCP Fingerprint: $fingerprint_data. " : "Unknown DHCP fingerprint." )
+            . ( defined($fingerprint_data) ? "DHCP Fingerprint: $fingerprint_data. " : "Unknown DHCP fingerprint. " )
             . "Modified node with $modified_node_log_message"
         );
 
@@ -304,8 +297,8 @@ sub parse_dhcp_request {
     my ($dhcp) = @_;
     $logger->debug("DHCPREQUEST from $dhcp->{'chaddr'}");
 
-    my $lease_length = $dhcp->{'options'}->{'51'};
-    my $client_ip = $dhcp->{'options'}->{'50'};
+    my $lease_length = $dhcp->{'options'}{'51'};
+    my $client_ip = $dhcp->{'options'}{'50'};
     if (defined($client_ip) && $client_ip !~ /^0\.0\.0\.0$/) {
         $logger->info(
             "DHCPREQUEST from $dhcp->{'chaddr'} ($client_ip)"
