@@ -11,7 +11,9 @@ to manage Dlink DWS 3026 controller.
 
 =head1 STATUS
 
-Model 8500 version 2.2.0.19 is known to work fine
+Model 8500 version 2.2.0.19 or 3.0.0.16 are known to work fine
+
+Model 8600 version 3.0.0.16 is known to work fine with secure SSIDs only
 
 =head1 BUGS AND LIMITATIONS
 
@@ -24,9 +26,11 @@ The VLAN are assigned straight from the cache instead of creating a new query.
 
 Versions above and below 2.2.0.19 are know to cause these problems.
 
-=item No RADIUS VLAN Assignment on in MAC Authentication (Open SSIDs) on AP 8600
+Version 3.0.0.16 is known to work.
 
-Firmwawre 3.0.0.13 known to be affected.
+=item No RADIUS VLAN assignment in MAC Authentication (Open SSIDs) on AP 8600
+
+Firmware 3.0.0.13 and 3.0.0.16 are known to be affected.
 
 =back
 
