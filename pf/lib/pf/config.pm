@@ -443,7 +443,7 @@ sub normalize_time {
     if ( $date =~ /^\d+$/ ) {
         return ($date);
     } else {
-        my ( $num, $modifier ) = $date =~ /^(\d+)([smhdwy])$/i;
+        my ( $num, $modifier ) = $date =~ /^(\d+)([smhDWMY])$/i;
         $modifier = lc($modifier);
         if ( $modifier eq "s" ) {
             return ($num);
@@ -451,11 +451,13 @@ sub normalize_time {
             return ( $num * 60 );
         } elsif ( $modifier eq "h" ) {
             return ( $num * 3600 );
-        } elsif ( $modifier eq "d" ) {
+        } elsif ( $modifier eq "D" ) {
             return ( $num * 86400 );
-        } elsif ( $modifier eq "w" ) {
+        } elsif ( $modifier eq "W" ) {
             return ( $num * 604800 );
-        } elsif ( $modifier eq "y" ) {
+        } elsif ( $modifier eq "M" ) {
+            return ( $num * 2592000 );
+        } elsif ( $modifier eq "Y" ) {
             return ( $num * 31449600 );
         } else {
             return (0);
