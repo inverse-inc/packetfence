@@ -209,7 +209,7 @@ expire_deadline=Mon Nov 12 12:00:00 EST 2012
 #
 # If expire_mode is set to "window", this is length of time after
 # registration that a node reverts to an unregistered state.
-expire_window=52w
+expire_window=52W
 #
 # registration.expire_session
 # If expire_mode is set to "session", this is the amount of time after
