@@ -1,0 +1,229 @@
+# -*- text -*-
+#
+#	Attributes and values defined in RFC 2865.
+#	http://www.ietf.org/rfc/rfc2865.txt
+#
+#	$Id$
+#
+ATTRIBUTE	User-Name				1	string
+ATTRIBUTE	User-Password				2	string
+ATTRIBUTE	CHAP-Password				3	octets
+ATTRIBUTE	NAS-IP-Address				4	ipaddr
+ATTRIBUTE	NAS-Port				5	integer
+ATTRIBUTE	Service-Type				6	integer
+ATTRIBUTE	Framed-Protocol				7	integer
+ATTRIBUTE	Framed-IP-Address			8	ipaddr
+ATTRIBUTE	Framed-IP-Netmask			9	ipaddr
+ATTRIBUTE	Framed-Routing				10	integer
+ATTRIBUTE	Filter-Id				11	string
+ATTRIBUTE	Framed-MTU				12	integer
+ATTRIBUTE	Framed-Compression			13	integer
+ATTRIBUTE	Login-IP-Host				14	ipaddr
+ATTRIBUTE	Login-Service				15	integer
+ATTRIBUTE	Login-TCP-Port				16	integer
+# Attribute 17 is undefined
+ATTRIBUTE	Reply-Message				18	string
+ATTRIBUTE	Callback-Number				19	string
+ATTRIBUTE	Callback-Id				20	string
+# Attribute 21 is undefined
+ATTRIBUTE	Framed-Route				22	string
+ATTRIBUTE	Framed-IPX-Network			23	ipaddr
+ATTRIBUTE	State					24	octets
+ATTRIBUTE	Class					25	octets
+ATTRIBUTE	Vendor-Specific				26	octets
+ATTRIBUTE	Session-Timeout				27	integer
+ATTRIBUTE	Idle-Timeout				28	integer
+ATTRIBUTE	Termination-Action			29	integer
+ATTRIBUTE	Called-Station-Id			30	string
+ATTRIBUTE	Calling-Station-Id			31	string
+ATTRIBUTE	NAS-Identifier				32	string
+ATTRIBUTE	Proxy-State				33	octets
+ATTRIBUTE	Login-LAT-Service			34	string
+ATTRIBUTE	Login-LAT-Node				35	string
+ATTRIBUTE	Login-LAT-Group				36	octets
+ATTRIBUTE	Framed-AppleTalk-Link			37	integer
+ATTRIBUTE	Framed-AppleTalk-Network		38	integer
+ATTRIBUTE	Framed-AppleTalk-Zone			39	string
+
+ATTRIBUTE	CHAP-Challenge				60	octets
+ATTRIBUTE	NAS-Port-Type				61	integer
+ATTRIBUTE	Port-Limit				62	integer
+ATTRIBUTE	Login-LAT-Port				63	string
+
+#
+#	Integer Translations
+#
+
+#	Service types
+
+VALUE	Service-Type			Login-User		1
+VALUE	Service-Type			Framed-User		2
+VALUE	Service-Type			Callback-Login-User	3
+VALUE	Service-Type			Callback-Framed-User	4
+VALUE	Service-Type			Outbound-User		5
+VALUE	Service-Type			Administrative-User	6
+VALUE	Service-Type			NAS-Prompt-User		7
+VALUE	Service-Type			Authenticate-Only	8
+VALUE	Service-Type			Callback-NAS-Prompt	9
+VALUE	Service-Type			Call-Check		10
+VALUE	Service-Type			Callback-Administrative	11
+
+#	Framed Protocols
+
+VALUE	Framed-Protocol			PPP			1
+VALUE	Framed-Protocol			SLIP			2
+VALUE	Framed-Protocol			ARAP			3
+VALUE	Framed-Protocol			Gandalf-SLML		4
+VALUE	Framed-Protocol			Xylogics-IPX-SLIP	5
+VALUE	Framed-Protocol			X.75-Synchronous	6
+
+#	Framed Routing Values
+
+VALUE	Framed-Routing			None			0
+VALUE	Framed-Routing			Broadcast		1
+VALUE	Framed-Routing			Listen			2
+VALUE	Framed-Routing			Broadcast-Listen	3
+
+#	Framed Compression Types
+
+VALUE	Framed-Compression		None			0
+VALUE	Framed-Compression		Van-Jacobson-TCP-IP	1
+VALUE	Framed-Compression		IPX-Header-Compression	2
+VALUE	Framed-Compression		Stac-LZS		3
+
+#	Login Services
+
+VALUE	Login-Service			Telnet			0
+VALUE	Login-Service			Rlogin			1
+VALUE	Login-Service			TCP-Clear		2
+VALUE	Login-Service			PortMaster		3
+VALUE	Login-Service			LAT			4
+VALUE	Login-Service			X25-PAD			5
+VALUE	Login-Service			X25-T3POS		6
+VALUE	Login-Service			TCP-Clear-Quiet		8
+
+#	Login-TCP-Port		(see /etc/services for more examples)
+
+VALUE	Login-TCP-Port			Telnet			23
+VALUE	Login-TCP-Port			Rlogin			513
+VALUE	Login-TCP-Port			Rsh			514
+
+#	Termination Options
+
+VALUE	Termination-Action		Default			0
+VALUE	Termination-Action		RADIUS-Request		1
+
+#	NAS Port Types
+
+VALUE	NAS-Port-Type			Async			0
+VALUE	NAS-Port-Type			Sync			1
+VALUE	NAS-Port-Type			ISDN			2
+VALUE	NAS-Port-Type			ISDN-V120		3
+VALUE	NAS-Port-Type			ISDN-V110		4
+VALUE	NAS-Port-Type			Virtual			5
+VALUE	NAS-Port-Type			PIAFS			6
+VALUE	NAS-Port-Type			HDLC-Clear-Channel	7
+VALUE	NAS-Port-Type			X.25			8
+VALUE	NAS-Port-Type			X.75			9
+VALUE	NAS-Port-Type			G.3-Fax			10
+VALUE	NAS-Port-Type			SDSL			11
+VALUE	NAS-Port-Type			ADSL-CAP		12
+VALUE	NAS-Port-Type			ADSL-DMT		13
+VALUE	NAS-Port-Type			IDSL			14
+VALUE	NAS-Port-Type			Ethernet		15
+VALUE	NAS-Port-Type			xDSL			16
+VALUE	NAS-Port-Type			Cable			17
+VALUE	NAS-Port-Type			Wireless-Other		18
+VALUE	NAS-Port-Type			Wireless-802.11		19
+
+
+# -*- text -*-
+#
+#	Attributes and values defined in RFC 2866.
+#	http://www.ietf.org/rfc/rfc2866.txt
+#
+#	$Id$
+#
+ATTRIBUTE	Acct-Status-Type			40	integer
+ATTRIBUTE	Acct-Delay-Time				41	integer
+ATTRIBUTE	Acct-Input-Octets			42	integer
+ATTRIBUTE	Acct-Output-Octets			43	integer
+ATTRIBUTE	Acct-Session-Id				44	string
+ATTRIBUTE	Acct-Authentic				45	integer
+ATTRIBUTE	Acct-Session-Time			46	integer
+ATTRIBUTE	Acct-Input-Packets			47	integer
+ATTRIBUTE	Acct-Output-Packets			48	integer
+ATTRIBUTE	Acct-Terminate-Cause			49	integer
+ATTRIBUTE	Acct-Multi-Session-Id			50	string
+ATTRIBUTE	Acct-Link-Count				51	integer
+
+#	Accounting Status Types
+
+VALUE	Acct-Status-Type		Start			1
+VALUE	Acct-Status-Type		Stop			2
+VALUE	Acct-Status-Type		Alive			3   # dup
+VALUE	Acct-Status-Type		Interim-Update		3
+VALUE	Acct-Status-Type		Accounting-On		7
+VALUE	Acct-Status-Type		Accounting-Off		8
+VALUE	Acct-Status-Type		Failed			15
+
+#	Authentication Types
+
+VALUE	Acct-Authentic			RADIUS			1
+VALUE	Acct-Authentic			Local			2
+VALUE	Acct-Authentic			Remote			3
+VALUE	Acct-Authentic			Diameter		4
+
+#	Acct Terminate Causes
+
+VALUE	Acct-Terminate-Cause		User-Request		1
+VALUE	Acct-Terminate-Cause		Lost-Carrier		2
+VALUE	Acct-Terminate-Cause		Lost-Service		3
+VALUE	Acct-Terminate-Cause		Idle-Timeout		4
+VALUE	Acct-Terminate-Cause		Session-Timeout		5
+VALUE	Acct-Terminate-Cause		Admin-Reset		6
+VALUE	Acct-Terminate-Cause		Admin-Reboot		7
+VALUE	Acct-Terminate-Cause		Port-Error		8
+VALUE	Acct-Terminate-Cause		NAS-Error		9
+VALUE	Acct-Terminate-Cause		NAS-Request		10
+VALUE	Acct-Terminate-Cause		NAS-Reboot		11
+VALUE	Acct-Terminate-Cause		Port-Unneeded		12
+VALUE	Acct-Terminate-Cause		Port-Preempted		13
+VALUE	Acct-Terminate-Cause		Port-Suspended		14
+VALUE	Acct-Terminate-Cause		Service-Unavailable	15
+VALUE	Acct-Terminate-Cause		Callback		16
+VALUE	Acct-Terminate-Cause		User-Error		17
+VALUE	Acct-Terminate-Cause		Host-Request		18
+
+
+
+# -*- text -*-
+#
+#	Attributes and values defined in RFC 3576.
+#	http://www.ietf.org/rfc/rfc3576.txt
+#
+#	$Id$
+#
+ATTRIBUTE	Error-Cause				101	integer
+
+#	Service Types
+
+VALUE	Service-Type			Authorize-Only		17
+
+#	Error causes
+
+VALUE	Error-Cause			Residual-Context-Removed 201
+VALUE	Error-Cause			Invalid-EAP-Packet	202
+VALUE	Error-Cause			Unsupported-Attribute	401
+VALUE	Error-Cause			Missing-Attribute	402
+VALUE	Error-Cause			NAS-Identification-Mismatch 403
+VALUE	Error-Cause			Invalid-Request		404
+VALUE	Error-Cause			Unsupported-Service	405
+VALUE	Error-Cause			Unsupported-Extension	406
+VALUE	Error-Cause			Administratively-Prohibited 501
+VALUE	Error-Cause			Proxy-Request-Not-Routable 502
+VALUE	Error-Cause			Session-Context-Not-Found 503
+VALUE	Error-Cause			Session-Context-Not-Removable 504
+VALUE	Error-Cause			Proxy-Processing-Error	505
+VALUE	Error-Cause			Resources-Unavailable	506
+VALUE	Error-Cause			Request-Initiated	507

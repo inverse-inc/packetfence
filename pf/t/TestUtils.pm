@@ -58,7 +58,7 @@ our @quality_failing_tests = qw(
 our @unit_tests = qw(
     config.t enforcement.t floatingdevice.t hardware-snmp-objects.t import.t inline.t linux.t network-devices/cisco.t 
     network-devices/threecom.t network-devices/wireless.t nodecategory.t person.t pfsetvlan.t radius.t services.t 
-    SNMP.t soh.t SwitchFactory.t trigger.t useragent.t util.t util-dhcp.t vlan.t web.t web-auth.t
+    SNMP.t soh.t SwitchFactory.t trigger.t useragent.t util.t util-dhcp.t util-radius.t vlan.t web.t web-auth.t
 );
 
 =item use_test_db

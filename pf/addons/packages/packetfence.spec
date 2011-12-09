@@ -105,6 +105,9 @@ Requires: perl-Net-Netmask
 Requires: perl-Net-Pcap >= 0.16
 # pfdhcplistener
 Requires: perl(NetPacket) >= 1.2.0
+# RADIUS CoA support
+Requires: perl(Net::Radius::Dictionary), perl(Net::Radius::Packet)
+# SNMP to network hardware
 Requires: perl-Net-SNMP
 # for SNMPv3 AES as privacy protocol, fixes #775
 Requires: perl-Crypt-Rijndael
@@ -137,9 +140,11 @@ Requires: perl(Authen::Krb5::Simple)
 # Required for importation feature
 Requires: perl(Text::CSV)
 Requires: perl(Text::CSV_XS)
+
 # Required for testing
 BuildRequires: perl(Test::MockObject), perl(Test::MockModule), perl(Test::Perl::Critic), perl(Test::WWW::Mechanize)
 BuildRequires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception), perl(Test::NoWarnings)
+BuildRequires: perl(Net::UDP)
 
 %description
 

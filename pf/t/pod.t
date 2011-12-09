@@ -102,6 +102,7 @@ my @files = (
     '/usr/local/pf/lib/pf/useragent.pm',
     '/usr/local/pf/lib/pf/util.pm',
     '/usr/local/pf/lib/pf/util/dhcp.pm',
+    '/usr/local/pf/lib/pf/util/radius.pm',
     '/usr/local/pf/lib/pf/violation.pm',
     '/usr/local/pf/lib/pf/vlan/custom.pm',
     '/usr/local/pf/lib/pf/vlan.pm',
