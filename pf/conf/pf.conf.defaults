@@ -165,13 +165,13 @@ skip_deadline=Mon Nov 12 12:00:00 EST 2012
 #
 # The length of time that a node may skip registration.  For instance, setting it to 14 days would allow 
 # students to skip registration for two weeks, giving them time to get a student ID, password, etc.
-skip_window=14d
+skip_window=14D
 #
 # registration.skip_reminder
 #
-# Interval that a user is re-prompted to register after skipping.  For example, if skip_window=2w and skip_reminder=1d,
+# Interval that a user is re-prompted to register after skipping.  For example, if skip_window=2W and skip_reminder=1D,
 # a user will be allowed to skip for two weeks but will be re-prompted every day.
-skip_reminder=1d
+skip_reminder=1D
 #
 # registration.auth
 #
@@ -253,7 +253,7 @@ category=guest
 #
 # The length of network access a confirmed guest will have. On successful
 # confirmation a guest node's unregdate is set to now + access_duration.
-access_duration=7d
+access_duration=7D
 #
 # guests_self_registration.email_activation_timeout
 #
@@ -275,7 +275,7 @@ allow_localdomain=enabled
 #
 # These are all the choices offered in the guest management interface as 
 # possible access duration values for a given registration.
-access_duration_choices=1h,3h,12h,1d,2d,3d,5d
+access_duration_choices=1h,3h,12h,1D,2D,3D,5D
 #
 # guests_pre_registration.default_access_duration
 #
@@ -443,36 +443,36 @@ host=localhost
 # expire.node
 #
 # Time before a node is removed due to inactivity.
-# A value of 0d disables expiration.
+# A value of 0D disables expiration.
 # example:
-# node=90d
-node=0d
+# node=90D
+node=0D
 #
 # expire.iplog
 #
 # Time which you would like to keep logs on IP/MAC information.
-# A value of 0d disables expiration.
+# A value of 0D disables expiration.
 # example:
-# iplog=180d
-iplog=0d
+# iplog=180D
+iplog=0D
 #
 # expire.traplog
 #
 # Time which you would like to keep logs on trap information.
-# A value of 0d disables expiration.
+# A value of 0D disables expiration.
 # example:
-# traplog=180d
-traplog=0d
+# traplog=180D
+traplog=0D
 #
 # expire.locationlog
 #
 # Time which you would like to keep logs on location information
 # Please note that this table should not become too big since it 
 # could degrade pfsetvlan performance.
-# A value of 0d disables expiration.
+# A value of 0D disables expiration.
 # example:
-# locationlog=180d
-locationlog=0d
+# locationlog=180D
+locationlog=0D
 
 [services]
 #
