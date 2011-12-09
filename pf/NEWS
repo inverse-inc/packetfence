@@ -20,6 +20,7 @@ New Features
  * Statement of Health (SoH) support for reliable client-side policy compliance through 802.1X
  * MAC violation triggers allowing to isolate a single device (#1320)
  * Detection of rogue DHCP Servers even behind relays (#1151)
+ * RFC3576 (RADIUS Change of Authorization / Disconnect) support added. Aruba is the first module to support it.
 
 Enhancements
  * Using HTTP Return Code 501 "Not Implemented" for more effective client blocking

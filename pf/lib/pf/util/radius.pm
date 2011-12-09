@@ -81,6 +81,17 @@ and
 for every attribute returned.
 
 =cut
+# TODO Proper handling of multiple identical attributes could be done like Net::SNMP
+# ex: perform_dynauth( 
+#         { nas_ip => 127.0.0.1, secret => qwerty }, 
+#         'Disconnect-Message',
+#         [ Attribute1 => Value1,
+#           Attribute2 => Value2, ],
+#         [ Vendor, VSA-Attribute1 , Value1,
+#           Vendor, VSA-Attribute2 , Value2, ]
+#      );
+# Since its in arrayrefs, we are able to handle two identical keys here
+# Return value should be of the same format
 sub perform_dynauth {
     my ($connection_info, $radius_code, $attributes, $vsa) = @_;
 
@@ -100,6 +111,8 @@ sub perform_dynauth {
     $radius_request->set_code($radius_code);
     # sets a random byte into id
     $radius_request->set_identifier( int(rand(256)) );
+    # avoids unnecessary warnings
+    $radius_request->set_authenticator("");
 
     # pushing attributes
     # TODO deal with attribute merging
@@ -183,14 +196,14 @@ for every attribute returned.
 sub perform_disconnect {
     my ($connection_info, $deauth_mac, $attributes, $vsa) = @_;
 
-    # Apparently Cisco expects format 00-11-22-33-44-55
-    # TODO validate if we need to uppercase or not
-    $deauth_mac =~ s/:/-/g;
+    # expected format 00-11-22-33-CA-FE
+    my $mac = uc($deauth_mac);
+    $mac =~ s/:/-/g;
 
     # Prepare standard attributes for disconnect
     # TODO deal with attribute merging
     $attributes = {
-        'Calling-Station-Id' => $deauth_mac,
+        'Calling-Station-Id' => $mac,
         'NAS-IP-Address' => $connection_info->{'nas_ip'},
     };
 

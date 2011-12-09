@@ -25,6 +25,12 @@ o Upgrading from a version prior to <trunk-release>:
     Make sure you run the following to update your schema:
     mysql -u root -p pf -v < db/upgrade-3.0.2-3.1.0.sql
 
+    - Aruba wireless de-authentication
+    Aruba de-authentication now relies on RADIUS Disconnect-Request (RFC3576)
+    instead of Telnet. Make sure you have set radiusSecret in your 
+    conf/switches.conf and that RFC3576 support is properly enabled in your
+    controller's AAA config.
+
     - DHCP Fingerprints loading behavior change
     In order to improve performance, DHCP fingerprints are not re-imported on
     every startup anymore. However updating fingerprints (pfcmd update 
