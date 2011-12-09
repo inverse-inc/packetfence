@@ -20,7 +20,6 @@ Read the F<pf.conf> configuration file.
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
 use Log::Log4perl;
 
 use constant NODECATEGORY => 'nodecategory';

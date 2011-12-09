@@ -13,8 +13,6 @@ use Log::Log4perl;
 use ModPerl::Util;
 use threads;
 
-use constant INSTALL_DIR => '/usr/local/pf';
-use lib INSTALL_DIR . "/lib";
 use pf::config;
 
 #uncomment for more debug information

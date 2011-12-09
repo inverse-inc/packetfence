@@ -13,7 +13,6 @@ DHCP related functions necessary to analyze DHCP traffic.
 =cut
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
 
 BEGIN {
     use Exporter ();
