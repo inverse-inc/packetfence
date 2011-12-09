@@ -40,9 +40,12 @@ BEGIN {
 
 use Net::Radius::Packet;
 use Net::Radius::Dictionary;
+use IO::Select;
 use IO::Socket qw/:DEFAULT :crlf/;
 
 my $dictionary = new Net::Radius::Dictionary "/usr/local/pf/lib/pf/util/dictionary";
+my $default_port = '3799';
+my $default_timeout = 10;
 
 =head1 SUBROUTINES
 
@@ -57,8 +60,9 @@ Note: It doesn't support attribute stacking on the same key.
 $connection_info is an hashref with following supported attributes:
 
   nas_ip - IP of the dynauth server
-  nas_port - port of the dynauth server
+  nas_port - port of the dynauth server (default: 3799)
   secret - secret of the dynauth server
+  timeout - number of seconds before the socket times out (default: 5)
 
 $attributes is an hashref of the attribute_name => value form
 
@@ -80,11 +84,15 @@ for every attribute returned.
 sub perform_dynauth {
     my ($connection_info, $radius_code, $attributes, $vsa) = @_;
 
+    # setting up defaults
+    $connection_info->{'nas_port'} ||= $default_port;
+    $connection_info->{'timeout'} ||= $default_timeout;
+
     # Warning: original code had Reuse => 1 (Note: Reuse is deprecated in favor of ReuseAddr)
     my $socket = IO::Socket::INET->new(
-        PeerAddr => $connection_info->{'nas_ip'}, 
-        PeerPort => ( $connection_info->{'nas_port'} || '3799' ),
         LocalAddr => $connection_info->{'local_ip'}, 
+        PeerAddr => $connection_info->{'nas_ip'}, 
+        PeerPort => $connection_info->{'nas_port'},
         Proto => 'udp',
     );
 
@@ -108,27 +116,35 @@ sub perform_dynauth {
     # applying shared-secret signing then send
     $socket->send(auth_resp($radius_request->pack(), $connection_info->{'secret'}));
 
-    # Listen for the response
-    my $MAX_TO_READ = 2048;
-    my $rad_data;
-    while (my $reply = $socket->recv($rad_data, $MAX_TO_READ)) {
+    # Listen for the response. 
+    # Using IO::Select because otherwise we can't do timeout without using alarm() 
+    # and signals don't play nice with threads
+    my $select = IO::Select->new($socket);
+    while (1) {
+        if ($select->can_read($connection_info->{'timeout'})) {
 
-        next if (!$rad_data);
+            my $rad_data;
+            my $MAX_TO_READ = 2048;
+            die("No answer from $connection_info->{'nas_ip'} on port $connection_info->{'nas_port'}")
+                if (!$socket->recv($rad_data, $MAX_TO_READ)); 
 
-        my $radius_reply = Net::Radius::Packet->new($dictionary, $rad_data);
+            my $radius_reply = Net::Radius::Packet->new($dictionary, $rad_data);
+            # identifies if the reply is related to the request? damn you udp...
+            if ($radius_reply->identifier() != $radius_request->identifier()) { 
+                die("Received an invalid RADIUS packet identifier: " . $radius_reply->identifier());
+            }
+    
+            my %return = ( 'Code' => $radius_reply->code() );
+            # TODO deal with attribute merging
+            # TODO deal with vsa attributes merging
+            foreach my $key ($radius_reply->attributes()) {
+                $return{$key} = $radius_reply->attr($key);
+            }
+            return \%return;
 
-        # identifies if the reply is related to the request? damn you udp...
-        if ($radius_reply->identifier() != $radius_request->identifier()) { 
-            die("Received an invalid RADIUS packet identifier: " . $radius_reply->identifier());
+        } else {
+            die("Timeout waiting for a reply from $connection_info->{'nas_ip'} on port $connection_info->{'nas_port'}");
         }
-
-        my %return = ( 'Code' => $radius_reply->code() );
-        # TODO deal with attribute merging
-        # TODO deal with vsa attributes merging
-        foreach my $key ($radius_reply->attributes()) {
-            $return{$key} = $radius_reply->attr($key);
-        }
-        return \%return;
     }
 }
 
@@ -141,8 +157,9 @@ Note: It doesn't support attribute stacking on the same key.
 $connection_info is an hashref with following supported attributes:
 
   nas_ip - IP of the dynauth server
-  nas_port - port of the dynauth server
+  nas_port - port of the dynauth server (default: 3799)
   secret - secret of the dynauth server
+  timeout - number of seconds before the socket times out (default: 5)
 
 $deauth_mac - MAC to deauthenticate
 
@@ -190,8 +207,9 @@ Note: It doesn't support attribute stacking on the same key.
 $connection_info is an hashref with following supported attributes:
 
   nas_ip - IP of the dynauth server
-  nas_port - port of the dynauth server
+  nas_port - port of the dynauth server (default: 3799)
   secret - secret of the dynauth server
+  timeout - number of seconds before the socket times out (default: 5)
 
 $attributes is an hashref of the attribute_name => value form
 

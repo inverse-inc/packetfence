@@ -17,6 +17,7 @@ use threads;
 use lib '/usr/local/pf/lib';
 use pf::util::radius qw(perform_disconnect);
 
+#my $coa_server_ip = '192.168.1.1';
 my $coa_server_ip = '127.0.0.1';
 my $coa_server_secret = 'qwerty';
 my $nb_threads = $ARGV[0];
@@ -26,7 +27,7 @@ my $mac_prefix = "aa:bb:";
 die "coa-calls: please specify the number of threads and the number of requests per thread on the command line" 
     if (!($nb_threads && $nb_requests_per_thread));
 
-print "about to launch $nb_threads threads sending each $nb_requests_per_thread radius calls...\n";
+print "about to launch $nb_threads threads sending each $nb_requests_per_thread Disconnect-Request...\n";
 
 # worker launcher
 my @threads;
@@ -50,7 +51,7 @@ sub coa_requests {
   for(my $i=0; $i<$nb_requests_per_thread; $i++) {
 
     # generating last 6 mac digit with i (zero filled)
-    my $zero_filled_i= sprintf('%06d', $i);
+    my $zero_filled_i = sprintf('%06d', $i);
     $zero_filled_i =~ /(\d{2})(\d{2})(\d{2})/;
     my $mac_suffix = ":$1:$2:$3";
   
@@ -62,7 +63,8 @@ sub coa_requests {
     if ($response->{'Code'} eq 'Disconnect-ACK' && $response->{'Reply-Message'} eq $mac) {
         print "SUCCESS - Successfully kicked client $mac\n";
     } else {
-        die("ERROR - invalid returned Code or Reply-Message expected $mac got: $response->{'Reply-Message'}");
+        my $response = defined($response->{'Reply-Message'}) ? $response->{'Reply-Message'} : 'nothing';
+        die("ERROR - invalid returned Code or Reply-Message expected $mac got: $response");
     }
   }
 }
