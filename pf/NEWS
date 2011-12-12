@@ -21,7 +21,7 @@ New Features
  * MAC violation triggers allowing to isolate a single device (#1320)
  * Detection of rogue DHCP Servers even behind relays (#1151)
  * RFC3576 (RADIUS Change of Authorization / Disconnect) support added. Aruba is the first module to support it.
- * Wireless profile provisionning for iPhone, iPods, and iPads
+ * Wireless profile provisioning for iPhone, iPods, and iPads
 
 Enhancements
  * Using HTTP Return Code 501 "Not Implemented" for more effective client blocking

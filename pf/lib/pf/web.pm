@@ -132,11 +132,11 @@ sub generate_release_page {
     my $html_txt;
     my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], });
     
-    my $config_category = $Config{'provisionning'}{'category'};    
+    my $config_category = $Config{'provisioning'}{'category'};    
     my $node = node_attributes($mac);
     my @fingerprint = dhcp_fingerprint_view($node->{'dhcp_fingerprint'});
 
-    if ($Config{'provisionning'}{'autoconfig'} eq 'enabled' &&
+    if ($Config{'provisioning'}{'autoconfig'} eq 'enabled' &&
         ( $config_category eq 'any' || (defined($node->{'category'}) && $config_category eq $node->{'category'} )) &&
         (defined($fingerprint[0]->{'os'}) && $fingerprint[0]->{'os'} =~ /Apple iPod, iPhone or iPad/)) {
  
@@ -173,7 +173,7 @@ sub generate_mobileconfig {
     
     my %tags;
     $tags{'username'}  = $session->param('username');
-    $tags{'ssid'} = $Config{'provisionning'}{'ssid'};
+    $tags{'ssid'} = $Config{'provisioning'}{'ssid'};
 
     parse_template( \%tags, "$conf_dir/autoconfig.mobileconfig",
         "$install_dir/html/common/mobileconfig/$filename" );

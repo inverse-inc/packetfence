@@ -615,21 +615,21 @@ network_detection_ip = 67.205.85.245
 # After which calls to pfcmd do we have to re-evaluate the state of a node and re-assign VLAN or change iptables rules
 reevaluate_access_reasons=node_modify,manage_register,manage_deregister,manage_vclose,manage_vopen,violation_modify,violation_add,violation_delete,redir.cgi,pfcmd_vlan
 
-[provisionning]
+[provisioning]
 #
-# provisionning.autoconfig
+# provisioning.autoconfig
 #
 # Enable or disable the XML mobile config generation for wireless on iPhones, iPods, and iPads
 autoconfig = disabled
 
 #
-# provisionning.ssid
+# provisioning.ssid
 #
 # SSID name where the users need to connect to upon registration
 ssid = SSID-Hidden
 
 #
-# provisionning.category
+# provisioning.category
 #
 # Accessible to node that are member of this category
 category = any
