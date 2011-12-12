@@ -27,6 +27,7 @@ use strict;
 use warnings;
 
 use Date::Parse;
+use Digest::SHA1 qw(sha1_hex);
 use File::Basename;
 use HTML::Entities;
 use JSON;
@@ -48,6 +49,7 @@ BEGIN {
 use pf::config;
 use pf::util;
 use pf::iplog qw(ip2mac);
+use pf::os qw(dhcp_fingerprint_view);
 use pf::node qw(node_attributes node_view node_modify);
 use pf::useragent;
 use pf::web::auth; 
@@ -101,6 +103,7 @@ sub web_get_locale {
 
 sub generate_release_page {
     my ( $cgi, $session, $destination_url, $mac, $r ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web');
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
@@ -128,7 +131,32 @@ sub generate_release_page {
 
     my $html_txt;
     my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], });
-    $template->process( "release.html", $vars, \$html_txt );
+    
+    my $config_category = $Config{'provisionning'}{'category'};    
+    my $node = node_attributes($mac);
+    my @fingerprint = dhcp_fingerprint_view($node->{'dhcp_fingerprint'});
+
+    if ($Config{'provisionning'}{'autoconfig'} eq 'enabled' &&
+        ( $config_category eq 'any' || (defined($node->{'category'}) && $config_category eq $node->{'category'} )) &&
+        (defined($fingerprint[0]->{'os'}) && $fingerprint[0]->{'os'} =~ /Apple iPod, iPhone or iPad/)) {
+ 
+        my $filename = format_mac_for_acct($mac).sha1_hex(localtime(time)).".mobileconfig";
+
+        my $vars_iphone = {
+            logo            => $Config{'general'}{'logo'},
+            filename        => $filename,
+            i18n => \&i18n,
+            list_help_info  => [
+                { name => i18n('IP'),  value => $ip },
+                { name => i18n('MAC'), value => $mac }
+            ],
+        };
+
+        generate_mobileconfig($session,$filename);
+        $template->process( "release_iphone.html", $vars_iphone, \$html_txt );
+    } else {
+        $template->process( "release.html", $vars, \$html_txt );
+    }
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header(
@@ -138,6 +166,18 @@ sub generate_release_page {
     );
     if ($r) { print $r->print($html_txt); }
     else    { print STDOUT $html_txt; }
+}
+
+sub generate_mobileconfig {
+    my ( $session, $filename ) = @_;
+    
+    my %tags;
+    $tags{'username'}  = $session->param('username');
+    $tags{'ssid'} = $Config{'provisionning'}{'ssid'};
+
+    parse_template( \%tags, "$conf_dir/autoconfig.mobileconfig",
+        "$install_dir/html/common/mobileconfig/$filename" );
+
 }
 
 sub generate_scan_start_page {

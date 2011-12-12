@@ -687,11 +687,13 @@ sub parse_template {
         push @parsed, $_;
     }
 
-    # add generated file header (inserting in front of array)
-    $comment_char = "#" if (!defined($comment_char));
-    unshift @parsed, 
-        "$comment_char This file is generated from a template at $template\n"
-        ."$comment_char Any changes made to this file will be lost on restart\n\n";
+    # add generated file header (inserting in front of array), except for XML template
+    if ($template !~ /mobileconfig$/) {
+        $comment_char = "#" if (!defined($comment_char));
+        unshift @parsed, 
+            "$comment_char This file is generated from a template at $template\n"
+            ."$comment_char Any changes made to this file will be lost on restart\n\n";
+    }
 
     #close(TEMPLATE);
     if ($destination) {

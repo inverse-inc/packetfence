@@ -1,0 +1,12 @@
+[% title = i18n("release: enabling network") %]
+[% INCLUDE header.html %]
+        <div id="about">
+          <img src="/content/images/unlock.png" alt="Access granted" />
+          <p">[% i18n("Your XML configuration have been generated and is now ready to download.  Follow the link below in order to get access to the secure SSID. ") %]</p>
+          <p>
+          <br/>
+          [% i18n("Your generated wireless profile:") %] <a href="/common/mobileconfig/[% filename %]">autoconfig.mobileconfig</a>
+          </p>
+        </div>
+
+[% INCLUDE footer.html %]
