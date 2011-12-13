@@ -31,6 +31,7 @@ Enhancements
  * Several improvements in the dhcp_dumper.pl addon
  * Global option to disable rogue DHCP server detection
  * Performance improvements to pfdhcplistener
+ * More startup validation on SNMPv3 Trap configuration
 
 Bug Fixes
  * Slashes (/) not allowed in person id (#1322)

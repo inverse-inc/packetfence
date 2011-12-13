@@ -844,6 +844,16 @@ sub switches {
         } elsif ( !( $SNMPVersionTrap =~ /^1|2c|3$/ ) ) {
             add_problem( $WARN, "switches.conf | Switch SNMP Trap version ($SNMPVersionTrap) is invalid "
                     . "for switch $section" );
+        } elsif ( $SNMPVersionTrap =~ /^3$/ ) {
+            # mandatory SNMPv3 traps parameters
+            foreach (qw(
+                SNMPUserNameTrap SNMPEngineID 
+                SNMPAuthProtocolTrap SNMPAuthPasswordTrap 
+                SNMPPrivProtocolTrap SNMPPrivPasswordTrap
+            )) {
+                add_problem( $WARN, "switches.conf | $_ is missing for switch $section" )
+                    if (!defined($switches_conf{$section}{$_}));
+            }
         }
 
         # check uplink
