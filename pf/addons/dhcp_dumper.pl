@@ -39,6 +39,7 @@ use Getopt::Std;
 use Log::Log4perl qw(:easy);
 use Net::Pcap 0.16;
 use Pod::Usage;
+use POSIX;
 use Try::Tiny;
 
 use lib $FindBin::Bin . "/../lib";
@@ -189,6 +190,7 @@ sub listen_dhcp {
         return if ( $unknown && defined( $prints{$dhcp->{'options'}{'55'}} ) );
     }
 
+    $logger->info(POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ));
     $logger->info("-" x 80);
     $logger->info(sprintf("Ethernet\tsrc:\t%s\tdst:\t%s", clean_mac($l2->{'src_mac'}), clean_mac($l2->{'dest_mac'})));
     $logger->info(sprintf("IP\t\tsrc: %20s\tdst: %20s", $l3->{'src_ip'}, $l3->{'dest_ip'}));
