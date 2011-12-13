@@ -1511,6 +1511,58 @@ sub saveConfig {
     $this->copyConfig($CISCO::RUNNING_CONFIG, $CISCO::STARTUP_CONFIG);
 }
 
+=item _radiusBouncePort
+
+Using RADIUS Change of Authorization (CoA) defined in RFC3576 to bounce a port.
+
+Uses L<pf::util::dhcp> for the low-level RADIUS stuff.
+
+At proof of concept stage. For now using SNMP is still preferred way to bounce a port.
+
+=cut
+sub _radiusBouncePort {
+    my ( $self, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    if ( !$self->isProductionMode() ) {
+        $logger->info("not in production mode... we won't perform port bounce");
+        return 1;
+    }
+
+    if (!defined($self->{'_radiusSecret'})) {
+        $logger->warn(
+            "Unable to perform RADIUS CoA-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
+        );
+        return;
+    }
+
+    $logger->info("boucing ifIndex $ifIndex using RADIUS CoA-Request method");
+    my $response;
+    try {
+        # TODO check for HA local IP or not
+        $response = perform_coa(
+            { nas_ip => $self->{'_ip'}, secret => $self->{'_radiusSecret'} },
+            { 'Acct-Terminate-Cause' => 'Admin-Reset' },
+            { 'NAS-IP-Address' => $self->{'_ip'} },
+            [{ 'vendor' => 'Cisco', 'attribute' => 'Cisco-AVPair', 'value' => 'subscriber:command=bounce-host-port' }],
+        );
+    } catch {
+        chomp;
+        $logger->warn("Unable to perform RADIUS CoA-Request: $_");
+        $logger->error("Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
+    };
+    return if (!defined($response));
+
+    return $TRUE if ($response->{'Code'} eq 'CoA-ACK');
+
+    $logger->warn(
+        "Unable to perform RADIUS CoA-Request."
+        . ( defined($response->{'Code'}) ? " $response->{'Code'}" : 'no RADIUS code' ) . ' received'
+        . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
+    );
+    return;
+}
+
 =back
 
 =head1 AUTHOR

@@ -227,3 +227,32 @@ VALUE	Error-Cause			Session-Context-Not-Removable 504
 VALUE	Error-Cause			Proxy-Processing-Error	505
 VALUE	Error-Cause			Resources-Unavailable	506
 VALUE	Error-Cause			Request-Initiated	507
+
+# -*- text -*-
+#
+# dictionary.cisco
+#
+#               Accounting VSAs originally by
+#               "Marcelo M. Sosa Lugones" <marcelo@sosa.com.ar>
+#
+# Version:      $Id$
+#
+#  For documentation on Cisco RADIUS attributes, see:
+#
+# http://www.cisco.com/univercd/cc/td/doc/product/access/acs_serv/vapp_dev/vsaig3.htm
+#
+#  For general documentation on Cisco RADIUS configuration, see:
+#
+# http://www.cisco.com/en/US/partner/tech/tk583/tk547/tsd_technology_support_sub-protocol_home.html
+#
+
+VENDOR          Cisco                           9
+
+#
+#       Standard attribute
+#
+
+VENDORATTR      Cisco                           Cisco-AVPair    1       string
+VENDORATTR      Cisco                           Cisco-NAS-Port  2       string
+
+

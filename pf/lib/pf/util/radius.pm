@@ -244,11 +244,6 @@ for every attribute returned.
 sub perform_coa {
     my ($connection_info, $attributes, $vsa) = @_;
 
-    # CoA related
-    #    $coa_request->set_vsattr('9', 'cisco-avpair', 'subscriber:command=bounce-host-port');
-    #    $coa_request->set_attr('Acct-Terminate-Cause' => 6);  # admin reset
-    # + NAS-IP-Address
-
     return perform_dynauth($connection_info, 'CoA-Request', $attributes, $vsa);
 }
 
