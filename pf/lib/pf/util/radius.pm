@@ -35,7 +35,7 @@ BEGIN {
     our ( @ISA, @EXPORT, @EXPORT_OK );
     @ISA = qw(Exporter);
     @EXPORT = qw();
-    @EXPORT_OK = qw(perform_disconnect);
+    @EXPORT_OK = qw(perform_disconnect perform_coa);
 }
 
 use Net::Radius::Packet;
@@ -105,7 +105,7 @@ sub perform_dynauth {
         PeerAddr => $connection_info->{'nas_ip'}, 
         PeerPort => $connection_info->{'nas_port'},
         Proto => 'udp',
-    );
+    ) or die ("Couldn't create UDP connection: $@");
 
     my $radius_request = Net::Radius::Packet->new($dictionary);
     $radius_request->set_code($radius_code);

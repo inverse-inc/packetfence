@@ -19,11 +19,13 @@ use base ('pf::SNMP');
 use Log::Log4perl;
 use Net::SNMP;
 use Net::Appliance::Session;
+use Try::Tiny;
 
 use pf::config;
 # importing switch constants
 use pf::SNMP::constants;
 use pf::util;
+use pf::util::radius qw(perform_coa);
 
 # CAPABILITIES
 # special features 
@@ -1536,11 +1538,12 @@ sub _radiusBounceMac {
         return;
     }
 
-    # expected format 00-11-22-33-CA-FE
+    $logger->info("boucing MAC $mac using RADIUS CoA-Request method");
+
+    # translating to expected format 00-11-22-33-CA-FE
     $mac = uc($mac);
     $mac =~ s/:/-/g;
 
-    $logger->info("boucing ifIndex $ifIndex using RADIUS CoA-Request method");
     my $response;
     try {
         # TODO check for HA local IP or not

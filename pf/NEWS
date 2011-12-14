@@ -21,6 +21,7 @@ New Features
  * MAC violation triggers allowing to isolate a single device (#1320)
  * Detection of rogue DHCP Servers even behind relays (#1151)
  * RFC3576 (RADIUS Change of Authorization / Disconnect) support added. Aruba is the first module to support it.
+ * Preview support for wired port-bounce on Cisco through CoA (RFC3576). Disabled by default.
  * Wireless profile provisioning for iPhone, iPods, and iPads
 
 Enhancements
