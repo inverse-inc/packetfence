@@ -1511,17 +1511,17 @@ sub saveConfig {
     $this->copyConfig($CISCO::RUNNING_CONFIG, $CISCO::STARTUP_CONFIG);
 }
 
-=item _radiusBouncePort
+=item _radiusBounceMac
 
-Using RADIUS Change of Authorization (CoA) defined in RFC3576 to bounce a port.
+Using RADIUS Change of Authorization (CoA) defined in RFC3576 to bounce the port where a given MAC is present.
 
 Uses L<pf::util::dhcp> for the low-level RADIUS stuff.
 
 At proof of concept stage. For now using SNMP is still preferred way to bounce a port.
 
 =cut
-sub _radiusBouncePort {
-    my ( $self, $ifIndex ) = @_;
+sub _radiusBounceMac {
+    my ( $self, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
     if ( !$self->isProductionMode() ) {
@@ -1536,14 +1536,19 @@ sub _radiusBouncePort {
         return;
     }
 
+    # expected format 00-11-22-33-CA-FE
+    $mac = uc($mac);
+    $mac =~ s/:/-/g;
+
     $logger->info("boucing ifIndex $ifIndex using RADIUS CoA-Request method");
     my $response;
     try {
         # TODO check for HA local IP or not
         $response = perform_coa(
             { nas_ip => $self->{'_ip'}, secret => $self->{'_radiusSecret'} },
-            { 'Acct-Terminate-Cause' => 'Admin-Reset' },
-            { 'NAS-IP-Address' => $self->{'_ip'} },
+            { 'Acct-Terminate-Cause' => 'Admin-Reset',
+            'NAS-IP-Address' => $self->{'_ip'},
+            'Calling-Station-Id' => $mac, },
             [{ 'vendor' => 'Cisco', 'attribute' => 'Cisco-AVPair', 'value' => 'subscriber:command=bounce-host-port' }],
         );
     } catch {
