@@ -31,6 +31,12 @@ o Upgrading from a version prior to <trunk-release>:
     conf/switches.conf and that RFC3576 support is properly enabled in your
     controller's AAA config.
 
+    - iptables marks changed
+    Mark 0 is no longer used. Unregistered nodes' packets are now set to mark
+    3. It was changed because rules matching mark 0 were matching unmarked 
+    packets also. Unless you customized your firewall rules this change should
+    be transparent.
+
     - DHCP Fingerprints loading behavior change
     In order to improve performance, DHCP fingerprints are not re-imported on
     every startup anymore. However updating fingerprints (pfcmd update 

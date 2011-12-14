@@ -38,6 +38,7 @@ Bug Fixes
  * Slashes (/) not allowed in person id (#1322)
  * Inline: isolation not properly enforced by firewall if registration is disabled (#1330)
  * Several small fixes in pfdhcplistener 
+ * Inline: NAT out behavior of PacketFence was changed for the best
 
 --------------------------------------------------------------------------------
 Version <release> released on <releaseDate>

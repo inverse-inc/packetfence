@@ -220,7 +220,15 @@ sub generate_inline_if_src_to_chain {
     if ($table eq $FW_TABLE_NAT) {
         # grabbing first management interface
         my $mgmt_int = $management_nets[0]->tag("int");
-        $rules .= "-A POSTROUTING --out-interface $mgmt_int --jump $FW_POSTROUTING_INT_INLINE\n";
+
+        # Every marked packet should be NATed 
+        # Note that here we don't wonder if they should be allowed or not. This is a filtering step done in FORWARD.
+        foreach ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
+            $rules .= "-A POSTROUTING --out-interface $mgmt_int ";
+            $rules .= "--match mark --mark 0x$_ ";
+            $rules .= "--jump $FW_POSTROUTING_INT_INLINE";
+            $rules .= "\n";
+        }
     }
 
     return $rules;
