@@ -23,6 +23,11 @@
     <date>2011-11-21</date>
 
     <revhistory>
+      <revision><revnumber>2.8</revnumber><date>2011-12-15</date><authorinitials>OBU</authorinitials>
+        <revremark>
+          Coverage of our support for RADIUS Dynamic Authorization (RFC3576)
+        </revremark>
+      </revision>
       <revision><revnumber>2.7</revnumber><date>2011-10-31</date><authorinitials>OBU</authorinitials>
         <revremark>
           Explained new translation technique for violation remediation pages.
@@ -651,6 +656,19 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
       </sect2>
 
       <sect2>
+        <title>RADIUS Dynamic Authorization (RFC3576)</title>
+        <note>RADIUS Dynamic Authorization implementation is not recommended on the wired side at this point.</note>
+        <para>RADIUS Dynamic Authorization also known as RADIUS Change of Authorization (CoA)
+          or RADIUS Disconnect Messages is supported by PacketFence starting with version 3.1.
+        </para>
+        <para>On wired network devices CoA can be used to change the security posture of a MAC and perform other
+          functions like bounce a port. So far we only encountered support for CoA on the wired side on the Cisco
+          hardware. For an implementation example check <function>_radiusBounceMac</function> in
+          <classname>pf::SNMP::Cisco</classname>.
+        </para>
+      </sect2>
+
+      <sect2>
         <title>Floating Network Devices Support</title>
         <para>
           Floating Network Devices are described in the Administration Guide under "Floating Network Devices" 
@@ -719,26 +737,45 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
             <para>definition of several SSID with several VLANs inside every SSID (minimum of 2 VLANs per SSID)</para>
           </listitem>
           <listitem><para>RADIUS authentication (MAC Authentication / 802.1X)</para></listitem>
-          <listitem><para>dynamic VLAN assignment based on RADIUS attributes</para></listitem>
-          <listitem><para>SNMP deassociation/deauthentication traps</para></listitem>
+          <listitem><para>Dynamic VLAN assignment through RADIUS attributes</para></listitem>
           <listitem>
-            <para>a CLI, SNMP, RADIUS<footnote>
-              <para>RADIUS RFC 3576 Change of Authorization (CoA) or Disconnect-Messages (DM aka PoD)</para></footnote>
-            or WebServices command to deassociate/deauthenticate a client</para>
+            <para>a means to de-associate or de-authenticate a client through CLI (Telnet or SSH), SNMP, RADIUS Dyn-Auth
+              <footnote><para>
+                RADIUS Dynamic Authorization (RFC 3576) aka Change of Authorization (CoA) or Disconnect-Messages
+                (DM aka PoD)
+              </para></footnote>
+              or WebServices
+            </para>
           </listitem>
         </itemizedlist>
 
         <para>Most of these features work out of the box for enterprise grade Access Points (AP)
         or Controllers. Where the situation starts to vary is for deauthentication support.</para>
+      </sect2>
 
-        <para>SSH or Telnet is an error prone interface and requires preparation for the SSH
-        access or is insecure for Telnet.</para>
-
-        <para>SNMP is implemented when available but not all vendor support it.</para>
-
-        <para>RADIUS is an upcoming deauthentication mechanism in PacketFence. 
-        It's the support for RFC 3576 Change of Authorization (CoA) or Disconnect-Messages (DM aka PoD). 
-        Once implemented it will be the preferred deauthentication technique.</para>
+      <sect2>
+        <title>De-authentication techniques</title>
+        <itemizedlist>
+          <listitem><para>CLI (SSH or Telnet)</para>
+            <para>
+              An error prone interface and requires preparation for the SSH access or is insecure for Telnet.
+              Not recommended if you can avoid it.
+            </para>
+          </listitem>
+          <listitem><para>SNMP</para>
+            <para>SNMP de-authentication works well when available.
+              However Vendor support is not consistent and the OID to use are not standard.
+            </para>
+          </listitem>
+          <listitem><para>RADIUS Dynamic Authorization (RFC3576)</para>
+            <para>RADIUS Dynamic Authorization also known as RADIUS Change of Authorization (CoA)
+              or RADIUS Disconnect Messages is supported by PacketFence starting with version 3.1.
+              When supported it is the preferred technique to perform de-authentication.
+              It is standard and requires less configuration from the user.
+            </para>
+            <para>An actual implementation can be found in <classname>pf::SNMP::Aruba</classname>.</para>
+          </listitem>
+        </itemizedlist>
       </sect2>
 
       <sect2>
