@@ -21,8 +21,7 @@ Packetfence supports the following wireless controlers:
 - Cisco 1240AG
 - Cisco 1250
 - Cisco Wireless Services Module (WiSM)
-- Cisco WLC 2106
-- Cisco WLC 4400
+- Cisco WLC (2106, 4400, 5508)
 - Dlink DWL Access Points
 - Dlink DWS 3026
 - Extricom EXSW Wireless Switches (controllers)
@@ -41,16 +40,11 @@ the same vendor is supported in the list above.
 
 Packetfence supports the following access points:
 - AeroHIVE AP Series
-- Avaya (?)
 - Cisco 1130AG
 - Cisco 1240AG
 - Cisco 1250
 - Dlink DWL Access Points
-- Extricom (?)
-- HP ProCurve (?)
-- Meru Networks (?)
-- Motorola (?)
-- Trapeze Wireless (?)
+- HP ProCurve
 - Xirrus WiFi Arrays
 
 Wireless hardware not on the list?
@@ -58,26 +52,30 @@ Wireless hardware not on the list?
 
 Eventhough this list is small, PacketFence may support many other access points
 as long as they have the following features:
-- definition of several SSID with several VLANs inside every SSID (minimum
+- Definition of several SSID with several VLANs inside every SSID (minimum
   of 2 VLANs per SSID)
 - RADIUS authentication (MAC Authentication / 802.1X)
-- dynamic VLAN assignment based on RADIUS attributes
-- SNMP deassociation/deauthentication traps
-- a CLI, SNMP, RADIUS* or WebServices command to deassociate/deauthenticate a 
-  client
+- Dynamic VLAN assignment through RADIUS attributes
+- A means to de-associate or de-authenticate a client through CLI (Telnet or 
+  SSH), SNMP, RADIUS Dyn-Auth* or WebServices
 
 Most of these features work out of the box for enterprise grade Access Points
-or Controllers. Where the situation starts to vary is for deauthentication 
+or Controllers. Where the situation starts to vary is for de-authentication 
 support.
 
-SSH / Telnet is an error prone interface and requires preparation for the SSH 
-access or is insecure for Telnet.
+- CLI (SSH or Telnet)
+An error prone interface and requires preparation for the SSH access or is 
+insecure for Telnet. Not recommended if you can avoid it.
 
-SNMP is implemented when available but not all vendor support it.
+- SNMP
+SNMP de-authentication works well when available. However Vendor support is 
+not consistent and the OID to use are not standard.
 
-RADIUS is an upcoming deauthentication mechanism in PacketFence. It's the 
-support for RFC 3576 Change of Authorization (CoA) or Disconnect-Messages (DM 
-aka PoD). Once implemented it will be the best deauthentication technique.
+- RADIUS Dynamic Authorization (RFC3576)
+RADIUS Dynamic Authorization also known as RADIUS Change of Authorization (CoA)
+or RADIUS Disconnect Messages is supported by PacketFence starting with version 3.1.
+When supported it is the preferred technique to perform de-authentication.
+It is standard and requires less configuration from the user.
 
 Wireless deauthentication support
 ---------------------------------
@@ -116,12 +114,13 @@ Trapeze Wireless controllers |    XX    |    --    |    --    |
 Xirrus WiFi Arrays           |    --    |    XX    |    --    |
 -----------------------------|----------|----------|----------|
 
-*: RADIUS RFC 3576 Change of Authorization (CoA) or Disconnect-Messages (DM aka PoD)
+*: RADIUS Dynamic Authorization (RFC 3576) Change of Authorization (CoA) or 
+   Disconnect-Messages (DM aka PoD)
 
 
-======================================
+========
 Switches
-======================================
+========
 
 Currently, PacketFence supports the following switches:
 
@@ -322,9 +321,9 @@ authenticator forwards the credentials to the authentication server for
 verification. If the credentials are valid (in the authentication server 
 database), the supplicant (client device) is allowed to access the network.
 
-======================================
+==================================
 Hardware apparently not supported?
-======================================
+==================================
 
 Your network hardware is not on these lists? Chances are that it works with a 
 similar module already. Try this first and if it does work, let us know what 
