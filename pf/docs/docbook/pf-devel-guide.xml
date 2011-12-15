@@ -25,7 +25,7 @@
     <revhistory>
       <revision><revnumber>2.8</revnumber><date>2011-12-15</date><authorinitials>OBU</authorinitials>
         <revremark>
-          Coverage of our support for RADIUS Dynamic Authorization (RFC3576)
+          Coverage of our support for RADIUS Dynamic Authorization (RFC3576). Updated exception-handling section.
         </revremark>
       </revision>
       <revision><revnumber>2.7</revnumber><date>2011-10-31</date><authorinitials>OBU</authorinitials>
@@ -894,7 +894,7 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
 
       <para>Little attention was given to error-handling in PacketFence's early design. 
       This is understandable as it wasn't probably the most bang-for-the-buck thing to do.
-      However we must now live with a large codebase that explodes at runtime or that doesn't differentiate an 
+      However we must now live with a large code base that explodes at runtime or that doesn't differentiate an
       erroneous condition from a null or 0 value. 
       Refactoring to improve error-handling will be gradual but new code should follow these tips:</para>
       <orderedlist>
@@ -906,13 +906,12 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
           to throw an exception and make the error message meaningful</para>
         </listitem>
         <listitem>
-          <para>in the catch block, use <code>$logger->logcarp(string . $@)</code> 
+          <para>in the catch block, use <code>$logger->logcarp(string . $_)</code>
             if I want output to the CLI, otherwise, choose wisely</para>
         </listitem>
       </orderedlist>
       <para>
-        This catches a lot of errors (including runtime crashers) and 
-        allows us to recover from these conditions so its pretty cool!
+        This catches a lot of errors (including runtime crashers) and allows us to recover from these conditions.
       </para>
       <para>
         So far, it is mandatory to wrap the Web Services enabled network devices modules' code since 
