@@ -17,16 +17,12 @@ Packetfence supports the following wireless controlers:
 - AeroHIVE AP Series
 - Aruba Networks (200, 600 Series, 800, 2400, 3000 Series, 6000)
 - Avaya Wireless controllers
-- Cisco 1130AG
-- Cisco 1240AG
-- Cisco 1250
 - Cisco Wireless Services Module (WiSM)
 - Cisco WLC (2106, 4400, 5508)
-- Dlink DWL Access Points
 - Dlink DWS 3026
 - Extricom EXSW Wireless Switches (controllers)
 - HP ProCurve MSM710 Mobility controller
-- Meru Networks Wireless controlers
+- Meru Networks Wireless controllers
 - Motorola RF Switches (controllers)
 - Trapeze Wireless controllers
 - Xirrus WiFi Arrays
