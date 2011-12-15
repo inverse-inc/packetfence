@@ -38,7 +38,7 @@ BEGIN {
         inrange_ip ip2gateway ip2interface ip2device isinternal pfmailer isenabled
         isdisabled getlocalmac ip2int int2ip 
         get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_inline_nets get_internal_ips
-        get_internal_devs get_internal_devs_phy get_external_devs get_managed_devs get_internal_macs
+        get_internal_devs get_internal_devs_phy get_external_devs get_internal_macs
         get_internal_info get_gateways createpid readpid deletepid
         pfmon_preload parse_template mysql_date oui_to_vendor mac2oid oid2mac 
         str_to_connection_type connection_type_to_str
@@ -589,15 +589,6 @@ sub get_internal_devs_phy {
 sub get_external_devs {
     my @devs;
     foreach my $interface (@external_nets) {
-        push @devs, $interface->tag("int");
-    }
-    return (@devs);
-}
-
-# TODO rename managed to management
-sub get_managed_devs {
-    my @devs;
-    foreach my $interface (@management_nets) {
         push @devs, $interface->tag("int");
     }
     return (@devs);

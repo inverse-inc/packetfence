@@ -25,6 +25,7 @@ use Date::Parse;
 use File::Basename qw(basename);
 use File::Spec;
 use Log::Log4perl;
+use Net::Interface qw(inet_ntoa);
 use Net::Netmask;
 use POSIX;
 use Readonly;
@@ -34,8 +35,8 @@ use threads;
 our (
     $install_dir, $bin_dir, $conf_dir, $lib_dir, $log_dir, $generated_conf_dir, $var_dir,
     @listen_ints, @dhcplistener_ints, @ha_ints, $monitor_int,
-    @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets, @management_nets, @external_nets,
-    @inline_enforcement_nets, @vlan_enforcement_nets,
+    @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets, @external_nets,
+    @inline_enforcement_nets, @vlan_enforcement_nets, $management_network, 
     %guest_self_registration,
     $default_config_file, %Default_Config, 
     $config_file, %Config, 
@@ -56,7 +57,7 @@ BEGIN {
     @EXPORT = qw(
         $install_dir $bin_dir $conf_dir $lib_dir $generated_conf_dir $var_dir $log_dir
         @listen_ints @dhcplistener_ints @ha_ints $monitor_int 
-        @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets @management_nets @external_nets
+        @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network @external_nets
         @inline_enforcement_nets @vlan_enforcement_nets
         %guest_self_registration
         $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
@@ -340,7 +341,8 @@ sub readPfConfigFiles {
                 }
                 push @listen_ints, $int if ( $int !~ /:\d+$/ );
             } elsif ( $type eq 'managed' || $type eq 'management' ) {
-                push @management_nets, $int_obj;
+                $int_obj->tag("vip", _fetch_virtual_ip($int));
+                $management_network = $int_obj;
             } elsif ( $type eq 'external' ) {
                 push @external_nets, $int_obj;
             } elsif ( $type eq 'monitor' ) {
@@ -619,6 +621,32 @@ sub is_in_list {
     my @list = split( /\s*,\s*/, $list );
     return $TRUE if ( scalar grep({ $_ eq $item } @list) );
     return $FALSE;
+}
+
+=item _fetch_virtual_ip
+
+Returns the virtual IP (vip) on a given interface.
+
+We assume that the vip has a /32 netmask and that's how we fetch it.
+
+We return the first vip that matches the above criteria in decimal dotted notation (ex: 192.168.1.1).
+Undef if nothing is found.
+
+=cut
+sub _fetch_virtual_ip {
+    my ($interface) = @_;
+
+    my $if = Net::Interface->new($interface);
+    return if (!defined($if));
+
+    # these array are ordered the same way, that's why we can assume the following
+    my @masks = $if->netmask();
+    my @addresses = $if->address();
+
+    for my $i (0 .. $#masks) {
+        return inet_ntoa($addresses[$i]) if (inet_ntoa($masks[$i]) eq '255.255.255.255');
+    }
+    return;
 }
 
 =back

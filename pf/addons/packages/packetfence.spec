@@ -96,7 +96,7 @@ Requires: perl-Log-Log4perl >= 1.11
 # Net::Appliance::Session specific version added because newer versions broke API compatibility (#1312)
 # We would need to port to the new 3.x API (tracked by #1313)
 Requires: perl-Net-Appliance-Session = 1.36
-# Required by configurator script
+# Required by configurator script, pf::config
 Requires: perl(Net::Interface)
 Requires: perl-Net-Frame, perl-Net-Frame-Simple
 Requires: perl-Net-MAC, perl-Net-MAC-Vendor

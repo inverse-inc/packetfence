@@ -133,11 +133,9 @@ sub generate_filter_if_src_to_chain {
         }
     }
 
-    # management interfaces handling
-    foreach my $interface (@management_nets) {
-        my $dev = $interface->tag("int");
-        $rules .= "-A INPUT --in-interface $dev --jump $FW_FILTER_INPUT_MGMT\n";
-    }
+    # management interface handling
+    my $mgmt_int = $management_network->tag("int");
+    $rules .= "-A INPUT --in-interface $mgmt_int --jump $FW_FILTER_INPUT_MGMT\n";
 
     # high-availability interfaces handling
     foreach my $interface (@ha_ints) {
@@ -146,8 +144,6 @@ sub generate_filter_if_src_to_chain {
 
     # Allow the NAT back inside through the forwarding table if inline is enabled
     if (is_inline_enforcement_enabled()) {
-        # grabbing first management interface
-        my $mgmt_int = $management_nets[0]->tag("int");
         $rules .= "-A FORWARD --in-interface $mgmt_int --match state --state ESTABLISHED,RELATED --jump ACCEPT\n";
     }
 
@@ -218,8 +214,7 @@ sub generate_inline_if_src_to_chain {
 
     # NAT POSTROUTING
     if ($table eq $FW_TABLE_NAT) {
-        # grabbing first management interface
-        my $mgmt_int = $management_nets[0]->tag("int");
+        my $mgmt_int = $management_network->tag("int");
 
         # Every marked packet should be NATed 
         # Note that here we don't wonder if they should be allowed or not. This is a filtering step done in FORWARD.

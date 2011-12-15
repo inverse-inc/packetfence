@@ -127,6 +127,8 @@ check the config file to make sure interfaces are fully defined
 =cut
 sub interfaces_defined {
 
+    my $nb_management_interface = 0;
+
     foreach my $interface ( tied(%Config)->GroupMembers("interface") ) {
         my %int_conf = %{$Config{$interface}};
         my $int_with_no_config_required_regexp = qr/(?:monitor|dhcplistener|dhcp-listener|high-availability)/;
@@ -141,6 +143,12 @@ sub interfaces_defined {
         if (defined($int_conf{'type'}) && $int_conf{'type'} !~ /$int_types/) {
             add_problem( $FATAL, "invalid network type $int_conf{'type'} for $interface" );
         }
+ 
+        $nb_management_interface++ if (defined($int_conf{'type'}) && $int_conf{'type'} =~ /management|managed/);
+    }
+
+    if ($nb_management_interface != 1)  {
+        add_problem( $FATAL, "please define exactly one management interface" );
     }
 }
 
@@ -154,14 +162,11 @@ sub interfaces {
     if ( !scalar(get_internal_devs()) ) {
         add_problem( $FATAL, "internal network(s) not defined!" );
     }
-    if ( scalar(get_managed_devs()) != 1 ) {
-        add_problem( $FATAL, "please define exactly one management interface" );
-    }
 
     my %seen;
     my @network_interfaces;
     push @network_interfaces, get_internal_devs();
-    push @network_interfaces, get_managed_devs();
+    push @network_interfaces, $management_network->tag("int");
     foreach my $interface (@network_interfaces) {
         my $device = "interface " . $interface;
 
@@ -475,6 +480,7 @@ sub registration {
 
 }
 
+# TODO Consider moving to a test
 sub is_config_documented {
 
     #compare configuration with documentation
