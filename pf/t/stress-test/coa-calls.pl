@@ -60,6 +60,8 @@ sub coa_requests {
     my $response = perform_disconnect( { nas_ip => $coa_server_ip, secret => $coa_server_secret }, $mac );
 
     $mac =~ s/:/-/g;
+    $mac = uc($mac);
+
     if ($response->{'Code'} eq 'Disconnect-ACK' && $response->{'Reply-Message'} eq $mac) {
         print "SUCCESS - Successfully kicked client $mac\n";
     } else {
