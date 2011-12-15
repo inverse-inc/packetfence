@@ -2568,6 +2568,7 @@ Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station
 Uses L<pf::util::dhcp> for the low-level RADIUS stuff.
 
 =cut
+# TODO consider whether we should handle retries or not?
 sub radiusDisconnect {
     my ($self, $mac) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
@@ -2582,11 +2583,12 @@ sub radiusDisconnect {
     $logger->info("deauthenticating $mac");
     my $response;
     try {
-        # TODO check for HA local IP or not
-        $response = perform_disconnect(
-            { nas_ip => $self->{'_ip'}, secret => $self->{'_radiusSecret'} },
-            $mac
-        );
+        my $connection_info = {
+            nas_ip => $self->{'_ip'}, 
+            secret => $self->{'_radiusSecret'}, 
+            LocalAddr => $management_network->tag('vip'),
+        };
+        $response = perform_disconnect($connection_info, $mac);
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS Disconnect-Request: $_");

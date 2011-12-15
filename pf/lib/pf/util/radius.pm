@@ -63,6 +63,7 @@ $connection_info is an hashref with following supported attributes:
   nas_port - port of the dynauth server (default: 3799)
   secret - secret of the dynauth server
   timeout - number of seconds before the socket times out (default: 5)
+  LocalAddr - local IP for the connection (directly passed to IO::Socket::INET)
 
 $attributes is an hashref of the attribute_name => value form
 
@@ -101,7 +102,7 @@ sub perform_dynauth {
 
     # Warning: original code had Reuse => 1 (Note: Reuse is deprecated in favor of ReuseAddr)
     my $socket = IO::Socket::INET->new(
-        LocalAddr => $connection_info->{'local_ip'}, 
+        LocalAddr => $connection_info->{'LocalAddr'}, 
         PeerAddr => $connection_info->{'nas_ip'}, 
         PeerPort => $connection_info->{'nas_port'},
         Proto => 'udp',

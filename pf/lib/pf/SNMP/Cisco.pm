@@ -1546,12 +1546,18 @@ sub _radiusBounceMac {
 
     my $response;
     try {
-        # TODO check for HA local IP or not
-        $response = perform_coa(
-            { nas_ip => $self->{'_ip'}, secret => $self->{'_radiusSecret'} },
-            { 'Acct-Terminate-Cause' => 'Admin-Reset',
-            'NAS-IP-Address' => $self->{'_ip'},
-            'Calling-Station-Id' => $mac, },
+        my $connection_info = {
+            nas_ip => $self->{'_ip'},
+            secret => $self->{'_radiusSecret'},
+            LocalAddr => $management_network->tag('vip'),
+        };
+
+        $response = perform_coa( $connection_info, 
+            {
+                'Acct-Terminate-Cause' => 'Admin-Reset',
+                'NAS-IP-Address' => $self->{'_ip'},
+                'Calling-Station-Id' => $mac,
+            },
             [{ 'vendor' => 'Cisco', 'attribute' => 'Cisco-AVPair', 'value' => 'subscriber:command=bounce-host-port' }],
         );
     } catch {
