@@ -53,6 +53,11 @@ o Upgrading from a version prior to 3.0.3:
     EPEL configured as a repository trying to upgrade might fail. To 
     successfully upgrade make sure you have the EPEL repository enabled.
 
+    - New time format
+    We are now using an ISO like format for time, s=seconds, m=minutes, D=days,
+    W=weeks, M=months, and Y=years.  Make sure you adjust your configs,
+    especially your violations.conf.
+
 o Upgrading from a version prior to 3.0.2:
 
     - Database schema update

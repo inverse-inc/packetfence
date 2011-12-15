@@ -10,7 +10,11 @@ The pf::SNMP::Dlink::DWL module implements an object oriented interface to manag
 
 =head1 STATUS
 
-This module is currently only a placeholder, see L<pf::SNMP::Dlink::DWS_3026>.
+This module is currently only a placeholder, see L<pf::SNMP::Dlink::DWS_3026> for relevant support items.
+
+=head1 BUGS AND LIMITATIONS
+
+This module is currently only a placeholder, see L<pf::SNMP::Dlink::DWS_3026> for relevant bugs and limitations.
 
 =cut
 

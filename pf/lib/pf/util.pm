@@ -943,14 +943,15 @@ sub get_translatable_time {
    my ($time) = @_;
 
    # grab time unit
-   my ( $value, $unit ) = $time =~ /^(\d+)([smhdwy])$/i;
+   my ( $value, $unit ) = $time =~ /^(\d+)([smhDWMY])$/i;
    $unit = lc($unit);
    if ($unit eq "s") { return ("second", "seconds", $value);
    } elsif ($unit eq "m") { return ("minute", "minutes", $value);
    } elsif ($unit eq "h") { return ("hour", "hours", $value); 
-   } elsif ($unit eq "d") { return ("day", "days", $value);
-   } elsif ($unit eq "w") { return ("week", "weeks", $value);
-   } elsif ($unit eq "y") { return ("year", "years", $value);
+   } elsif ($unit eq "D") { return ("day", "days", $value);
+   } elsif ($unit eq "W") { return ("week", "weeks", $value);
+   } elsif ($unit eq "M") { return ("month", "months", $value);
+   } elsif ($unit eq "Y") { return ("year", "years", $value);
    }
    return;
 }
