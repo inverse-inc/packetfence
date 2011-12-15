@@ -26,6 +26,7 @@
       <revision><revnumber>2.8</revnumber><date>2011-12-15</date><authorinitials>OBU</authorinitials>
         <revremark>
           Coverage of our support for RADIUS Dynamic Authorization (RFC3576). Updated exception-handling section.
+          Added transifex translation instructions.
         </revremark>
       </revision>
       <revision><revnumber>2.7</revnumber><date>2011-10-31</date><authorinitials>OBU</authorinitials>
@@ -966,34 +967,63 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
       http://www.gnu.org/software/gettext/manual/gettext.html#Overview</ulink> for a quick introduction.</para>
       <para>The PO files are stored in <filename>/usr/local/pf/conf/locale</filename>. 
         List that directory to see the languages we currently have translations for.</para>
-      <para>If you want to add support for a new language, please follow these steps:</para>
-      <orderedlist>
-        <listitem>
-          <para>create a new language subdirectory in <filename>/usr/local/pf/conf/locale</filename></para>
-        </listitem>
-        <listitem>
-          <para>change into your newly created directory</para>
-        </listitem>
-        <listitem>
-          <para>create a new subdirectory <filename>LC_MESSAGES</filename></para>
-        </listitem>
-        <listitem>
-          <para>change into your newly created directory</para>
-        </listitem>
-        <listitem>
-          <para>copy the file <filename>/usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.po</filename> into
-          your directory</para>
-        </listitem>
-        <listitem>
-          <para>translate the message strings in <filename>packetfence.po</filename></para>
-        </listitem>
-        <listitem>
-          <para>create the MO file by executing: <screen>/usr/bin/msgfmt packetfence.po</screen></para>
-        </listitem>
-      </orderedlist>
-      <para>Submit your new translation to the PacketFence project by contacting us at 
-      <ulink url="mailto:packetfence-devel@lists.sourceforge.net?subject=new%20translation">
-      packetfence-devel@lists.sourceforge.net</ulink>.</para>
+
+      <sect2>
+        <title>Online using Transifex</title>
+        <para>We use the hosted service Transifex to translate
+          <ulink url="https://www.transifex.net/projects/p/packetfence/">PacketFence's PO files</ulink>.
+          It offers the possibility to translate all the strings online as well as providing
+          a command-line tool to push your changes. It's very convenient.</para>
+        <para>To use Transifex, you must first sign up for a free account here:
+          <ulink url="https://www.transifex.net/plans/signup/free/">https://www.transifex.net/plans/signup/free/</ulink>
+        </para>
+        <itemizedlist>
+          <listitem>
+            <para>Once registered, <ulink url="https://www.transifex.net/projects/p/packetfence/teams">
+              request a new team for your language</ulink>
+            </para>
+          </listitem>
+          <listitem>
+            <para>Once authorized, you'll be able to start/continue translating PacketFence in your language</para>
+          </listitem>
+        </itemizedlist>
+        <para>
+          If you need further help about using Transifex, you might want to have
+          <ulink url="http://help.transifex.net/">a look here</ulink>.
+        </para>
+      </sect2>
+
+      <sect2>
+        <title>Using traditional method</title>
+        <para>If you want to add support for a new language, please follow these steps:</para>
+        <orderedlist>
+          <listitem>
+            <para>create a new language subdirectory in <filename>/usr/local/pf/conf/locale</filename></para>
+          </listitem>
+          <listitem>
+            <para>change into your newly created directory</para>
+          </listitem>
+          <listitem>
+            <para>create a new subdirectory <filename>LC_MESSAGES</filename></para>
+          </listitem>
+          <listitem>
+            <para>change into your newly created directory</para>
+          </listitem>
+          <listitem>
+            <para>copy the file <filename>/usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.po</filename> into
+            your directory</para>
+          </listitem>
+          <listitem>
+            <para>translate the message strings in <filename>packetfence.po</filename></para>
+          </listitem>
+          <listitem>
+            <para>create the MO file by executing: <screen>/usr/bin/msgfmt packetfence.po</screen></para>
+          </listitem>
+        </orderedlist>
+        <para>Submit your new translation to the PacketFence project by contacting us at
+        <ulink url="mailto:packetfence-devel@lists.sourceforge.net?subject=new%20translation">
+        packetfence-devel@lists.sourceforge.net</ulink>.</para>
+      </sect2>
     </sect1>
 
   </chapter>
