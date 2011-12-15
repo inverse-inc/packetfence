@@ -72,8 +72,6 @@ Read F<pf.conf> and F<floating_network_device.conf> configuration files.
 use strict;
 use warnings;
 
-use lib qw(/usr/local/pf/lib);
-
 use Log::Log4perl;
 use Readonly;
 

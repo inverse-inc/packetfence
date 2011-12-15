@@ -32,7 +32,7 @@
 #
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 3.0.3
+Version: 3.1.0
 Release: %{source_release}%{?dist}
 License: GPL
 Group: System Environment/Daemons
@@ -70,7 +70,7 @@ Requires: net-snmp >= 5.3.2.2
 Requires: mysql, perl-DBD-mysql
 Requires: perl >= 5.8.8, perl-suidperl
 Requires: perl-Bit-Vector
-Requires: perl-CGI-Session, perl(JSON)
+Requires: perl(CGI::Session), perl(JSON), perl(PHP::Session)
 Requires: perl-Class-Accessor
 Requires: perl-Class-Accessor-Fast-Contained
 Requires: perl-Class-Data-Inheritable
@@ -96,7 +96,7 @@ Requires: perl-Log-Log4perl >= 1.11
 # Net::Appliance::Session specific version added because newer versions broke API compatibility (#1312)
 # We would need to port to the new 3.x API (tracked by #1313)
 Requires: perl-Net-Appliance-Session = 1.36
-# Required by configurator script
+# Required by configurator script, pf::config
 Requires: perl(Net::Interface)
 Requires: perl-Net-Frame, perl-Net-Frame-Simple
 Requires: perl-Net-MAC, perl-Net-MAC-Vendor
@@ -105,6 +105,9 @@ Requires: perl-Net-Netmask
 Requires: perl-Net-Pcap >= 0.16
 # pfdhcplistener
 Requires: perl(NetPacket) >= 1.2.0
+# RADIUS CoA support
+Requires: perl(Net::Radius::Dictionary), perl(Net::Radius::Packet)
+# SNMP to network hardware
 Requires: perl-Net-SNMP
 # for SNMPv3 AES as privacy protocol, fixes #775
 Requires: perl-Crypt-Rijndael
@@ -137,9 +140,11 @@ Requires: perl(Authen::Krb5::Simple)
 # Required for importation feature
 Requires: perl(Text::CSV)
 Requires: perl(Text::CSV_XS)
+
 # Required for testing
 BuildRequires: perl(Test::MockObject), perl(Test::MockModule), perl(Test::Perl::Critic), perl(Test::WWW::Mechanize)
 BuildRequires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception), perl(Test::NoWarnings)
+BuildRequires: perl(Net::UDP)
 
 %description
 
@@ -223,6 +228,7 @@ cp -r addons/integration-testing/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/mrtg/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/packages/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
+cp -r addons/soh/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/upgrade/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/watchdog/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -252,8 +258,10 @@ cp -r addons/freeradius-integration/users.pf $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/modules/perl.pf $RPM_BUILD_ROOT/etc/raddb/modules
 cp -r addons/freeradius-integration/sql.conf.pf $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/sql/mysql/packetfence.conf $RPM_BUILD_ROOT/etc/raddb/sql/mysql
+cp -r addons/soh/packetfence-soh.pm $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/802.1X/packetfence.pm $RPM_BUILD_ROOT/etc/raddb
 cp -r addons/freeradius-integration/sites-available/packetfence $RPM_BUILD_ROOT/etc/raddb/sites-available
+cp -r addons/freeradius-integration/sites-available/packetfence-soh $RPM_BUILD_ROOT/etc/raddb/sites-available
 cp -r addons/freeradius-integration/sites-available/packetfence-tunnel $RPM_BUILD_ROOT/etc/raddb/sites-available
 #end
 cp -r ChangeLog $RPM_BUILD_ROOT/usr/local/pf/
@@ -278,7 +286,7 @@ curdir=`pwd`
 
 #pf-schema.sql symlink
 cd $RPM_BUILD_ROOT/usr/local/pf/db
-ln -s pf-schema-3.0.2.sql ./pf-schema.sql
+ln -s pf-schema-3.1.0.sql ./pf-schema.sql
 
 #httpd.conf symlink
 #We dropped support for pre 2.2.0 but keeping the symlink trick alive since Apache 2.4 is coming
@@ -290,6 +298,16 @@ ln -s httpd.conf.apache22 ./httpd.conf
 #else
 #  ln -s httpd.conf.pre_apache22 ./httpd.conf
 #fi
+
+#named.conf symlink
+#We added the support fort BIND 9.7+ for getting rid of the session-keyfile error
+cd $RPM_BUILD_ROOT/usr/local/pf/conf
+if ( /usr/sbin/named -v | egrep 'BIND\ 9.[7-9]' > /dev/null )
+then
+    ln -s named.conf.bind97 ./named.conf
+else
+    ln -s named.conf.pre_bind97 ./named.conf
+fi
 
 cd $curdir
 #end create symlinks
@@ -381,6 +399,9 @@ mv /etc/raddb/modules/perl.pf /etc/raddb/modules/perl
 if [ ! -f /etc/raddb/sites-enabled/packetfence ]; then
 	ln -s /etc/raddb/sites-available/packetfence /etc/raddb/sites-enabled/packetfence
 fi
+if [ ! -f /etc/raddb/sites-enabled/packetfence-soh ]; then
+        ln -s /etc/raddb/sites-available/packetfence-soh /etc/raddb/sites-enabled/packetfence-soh
+fi
 if [ ! -f /etc/raddb/sites-enabled/packetfence-tunnel ]; then
 	ln -s /etc/raddb/sites-available/packetfence-tunnel /etc/raddb/sites-enabled/packetfence-tunnel
 fi
@@ -419,6 +440,7 @@ mv /etc/raddb/modules-perl.pfsave /etc/raddb/modules/perl
 
 # Remove symnlinks
 rm -f /etc/raddb/sites-enabled/packetfence 
+rm -f /etc/raddb/sites-enabled/packetfence-soh
 rm -f /etc/raddb/sites-enabled/packetfence-tunnel
 
 %postun
@@ -445,6 +467,9 @@ fi
 %dir                    /usr/local/pf/addons
 %attr(0755, pf, pf)     /usr/local/pf/addons/*.pl
 %attr(0755, pf, pf)     /usr/local/pf/addons/*.sh
+%dir                    /usr/local/pf/addons/802.1X
+%doc                    /usr/local/pf/addons/802.1X/README
+%attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/packetfence.pm
 %dir                    /usr/local/pf/addons/captive-portal/
                         /usr/local/pf/addons/captive-portal/*
 %dir                    /usr/local/pf/addons/dev-helpers/
@@ -463,11 +488,11 @@ fi
 %dir                    /usr/local/pf/addons/snort
                         /usr/local/pf/addons/snort/oinkmaster.conf
                         /usr/local/pf/addons/snort/oinkmaster.conf.2.8.6
+%dir                    /usr/local/pf/addons/soh
+%doc                    /usr/local/pf/addons/soh/README.rst
+%attr(0755, pf, pf)     /usr/local/pf/addons/soh/packetfence-soh.pm
 %dir                    /usr/local/pf/addons/upgrade
 %attr(0755, pf, pf)     /usr/local/pf/addons/upgrade/*.pl
-%dir                    /usr/local/pf/addons/802.1X
-%doc                    /usr/local/pf/addons/802.1X/README
-%attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/packetfence.pm
 %dir                    /usr/local/pf/addons/watchdog
 %attr(0755, pf, pf)     /usr/local/pf/addons/watchdog/*.sh
 %dir                    /usr/local/pf/bin
@@ -518,6 +543,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.po
 %config(noreplace)      /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.mo
 %config(noreplace)      /usr/local/pf/conf/log.conf
+%config(noreplace)      /usr/local/pf/conf/autoconfig.mobileconfig
 %dir                    /usr/local/pf/conf/nessus
 %config(noreplace)      /usr/local/pf/conf/nessus/remotescan.nessus
 %config(noreplace)      /usr/local/pf/conf/networks.conf
@@ -542,6 +568,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/named-registration.ca
 %config(noreplace)      /usr/local/pf/conf/named-isolation.ca
 %config                 /usr/local/pf/conf/named.conf
+%config                 /usr/local/pf/conf/named.conf.pre_bind97
+%config                 /usr/local/pf/conf/named.conf.bind97
 %config(noreplace)      /usr/local/pf/conf/popup.msg
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf
@@ -565,6 +593,8 @@ fi
 %dir                    /usr/local/pf/html
 %dir                    /usr/local/pf/html/admin
                         /usr/local/pf/html/admin/*
+%dir                    /usr/local/pf/html/admin/templates
+%config(noreplace)      /usr/local/pf/html/admin/templates/*
 %dir                    /usr/local/pf/html/captive-portal
 %attr(0755, pf, pf)     /usr/local/pf/html/captive-portal/*.cgi
                         /usr/local/pf/html/captive-portal/*.php
@@ -610,6 +640,8 @@ fi
                         /usr/local/pf/lib/pf/services/*
 %dir                    /usr/local/pf/lib/pf/SNMP
                         /usr/local/pf/lib/pf/SNMP/*
+%dir                    /usr/local/pf/lib/pf/soh
+%config(noreplace)      /usr/local/pf/lib/pf/soh/custom.pm
 %dir                    /usr/local/pf/lib/pf/util
                         /usr/local/pf/lib/pf/util/*
 %dir                    /usr/local/pf/lib/pf/vlan
@@ -662,13 +694,24 @@ fi
 %config                                    /etc/raddb/sql.conf.pf
 %config                                    /etc/raddb/modules/perl.pf
 %attr(0755, -, radiusd) %config(noreplace) /etc/raddb/packetfence.pm
+%attr(0755, -, radiusd) %config(noreplace) /etc/raddb/packetfence-soh.pm
 %config                                    /etc/raddb/sql/mysql/packetfence.conf
 %config(noreplace)                         /etc/raddb/sites-available/packetfence
+%config(noreplace)                         /etc/raddb/sites-available/packetfence-soh
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Tue Dec 13 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Adding autoconfig.mobileconfig
+
 * Mon Nov 21 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 3.0.3-1
 - New release 3.0.3
+
+* Wed Nov 16 2011 Derek Wuelfrath <dwuelfrath@inverse.ca>
+- Create symlink for named.conf according to the BIND version (9.7)
+
+* Thu Nov 03 2011 Francois Gaudreault <fgaudreault@inverse.ca>
+- Adding SoH support in freeradius2 configuration pack
 
 * Mon Oct 24 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 3.0.2-1
 - New release 3.0.2

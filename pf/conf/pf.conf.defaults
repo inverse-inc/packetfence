@@ -50,18 +50,24 @@ maintenance_interval=60s
 
 [network]
 #
-# network.rogueinterval
-#
-# When rogue DHCP server detection is enabled, this parameter defines how often to email administrators.  With its default 
-# setting of 10, it will email administrators the details of the previous 10 DHCP offers.
-rogueinterval=10
-#
 # network.dhcpdetector
 #
 # If enabled, PacketFence will monitor DHCP-specific items such as rogue DHCP services, DHCP-based OS fingerprinting, computername/hostname 
 # resolution, and (optionnally) option-82 location-based information.  The monitored DHCP packets are DHCPDISCOVERs and DHCPREQUESTs - both are broadcasts, 
 # meaning a span port is not necessary.  This feature is highly recommended if the internal network is DHCP-based.
 dhcpdetector=enabled
+#
+# network.rogue_dhcp_detection
+#
+# Tries to identify Rogue DHCP Servers and triggers the 1100010 violation if one is found.
+# This feature is only available if the dhcpdetector is activated.
+rogue_dhcp_detection=enabled
+#
+# network.rogueinterval
+#
+# When rogue DHCP server detection is enabled, this parameter defines how often to email administrators.  With its default 
+# setting of 10, it will email administrators the details of the previous 10 DHCP offers.
+rogueinterval=10
 #
 # network.dhcpoption82logger
 #
@@ -608,3 +614,22 @@ network_detection_ip = 67.205.85.245
 #
 # After which calls to pfcmd do we have to re-evaluate the state of a node and re-assign VLAN or change iptables rules
 reevaluate_access_reasons=node_modify,manage_register,manage_deregister,manage_vclose,manage_vopen,violation_modify,violation_add,violation_delete,redir.cgi,pfcmd_vlan
+
+[provisioning]
+#
+# provisioning.autoconfig
+#
+# Enable or disable the XML mobile config generation for wireless on iPhones, iPods, and iPads
+autoconfig = disabled
+
+#
+# provisioning.ssid
+#
+# SSID name where the users need to connect to upon registration
+ssid = SSID-Hidden
+
+#
+# provisioning.category
+#
+# Accessible to node that are member of this category
+category = any

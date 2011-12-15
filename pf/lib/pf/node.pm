@@ -74,6 +74,7 @@ use pf::db;
 use pf::nodecategory;
 use pf::scan qw($SCAN_VID);
 use pf::util;
+use pf::violation;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $node_db_prepared = 0;
@@ -859,10 +860,13 @@ sub node_mac_wakeup {
     my $logger = Log::Log4perl::get_logger('pf::node');
 
     # Is there a violation for the Vendor of this MAC?
-    require pf::violation;
-    my $dec_oui = get_decimal_oui_from_mac($mac);
-    $logger->debug( "sending MAC::$dec_oui ($mac) trigger" );
+    my $dec_oui = macoui2nb($mac);
+    $logger->debug( "sending VENDORMAC::$dec_oui trigger" );
     pf::violation::violation_trigger( $mac, $dec_oui, "VENDORMAC" );
+
+    my $dec_mac = mac2nb($mac);
+    $logger->debug( "sending MAC::$dec_mac trigger" );
+    pf::violation::violation_trigger( $mac, $dec_mac, "MAC" );
 }
 
 =item * is_node_voip
