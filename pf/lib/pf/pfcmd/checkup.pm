@@ -508,7 +508,7 @@ sub is_config_documented {
                     );
                 }
             } elsif ( $type eq "time" ) {
-                if ( $myconfig{$group}{$item} !~ /\d+[smhdw]$/ ) {
+                if ( $myconfig{$group}{$item} !~ /\d+$TIME_MODIFIER_RE$/ ) {
                     add_problem( $FATAL,
                         "pf.conf value $group\.$item does not explicity define interval (eg. 7200s, 120m, 2h) " .
                         "- please define it before running packetfence"

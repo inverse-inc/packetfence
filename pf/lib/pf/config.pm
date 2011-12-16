@@ -76,7 +76,7 @@ BEGIN {
         $RADIUS_API_LEVEL $VLAN_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL
         $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS
         %CAPTIVE_PORTAL
-        normalize_time
+        normalize_time $TIME_MODIFIER_RE
         is_vlan_enforcement_enabled is_inline_enforcement_enabled
         is_in_list
         $LOG4PERL_RELOAD_TIMER
@@ -219,6 +219,9 @@ Readonly our $LOG4PERL_RELOAD_TIMER => 5 * 60;
 # simple cache for faster config lookup
 my $cache_vlan_enforcement_enabled;
 my $cache_inline_enforcement_enabled;
+
+# Accepted time modifier values
+our $TIME_MODIFIER_RE = qr/[smhDWMY]/;
 
 readPfConfigFiles();
 
@@ -443,7 +446,7 @@ sub normalize_time {
     if ( $date =~ /^\d+$/ ) {
         return ($date);
     } else {
-        my ( $num, $modifier ) = $date =~ /^(\d+)([smhDWMY])$/i;
+        my ( $num, $modifier ) = $date =~ /^(\d+)($TIME_MODIFIER_RE)$/i;
         $modifier = lc($modifier);
         if ( $modifier eq "s" ) {
             return ($num);

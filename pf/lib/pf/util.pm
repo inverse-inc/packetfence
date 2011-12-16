@@ -930,7 +930,7 @@ sub get_translatable_time {
    my ($time) = @_;
 
    # grab time unit
-   my ( $value, $unit ) = $time =~ /^(\d+)([smhDWMY])$/i;
+   my ( $value, $unit ) = $time =~ /^(\d+)($TIME_MODIFIER_RE)$/i;
    $unit = lc($unit);
    if ($unit eq "s") { return ("second", "seconds", $value);
    } elsif ($unit eq "m") { return ("minute", "minutes", $value);
