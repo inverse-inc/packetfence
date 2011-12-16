@@ -22,7 +22,7 @@ my $coa_server_ip = '127.0.0.1';
 my $coa_server_secret = 'qwerty';
 my $nb_threads = $ARGV[0];
 my $nb_requests_per_thread = $ARGV[1];
-my $mac_prefix = "aa:bb:";
+my $mac_prefix = "AA-BB-";
 
 die "coa-calls: please specify the number of threads and the number of requests per thread on the command line" 
     if (!($nb_threads && $nb_requests_per_thread));
@@ -53,14 +53,18 @@ sub coa_requests {
     # generating last 6 mac digit with i (zero filled)
     my $zero_filled_i = sprintf('%06d', $i);
     $zero_filled_i =~ /(\d{2})(\d{2})(\d{2})/;
-    my $mac_suffix = ":$1:$2:$3";
+    my $mac_suffix = "-$1-$2-$3";
   
     my $mac = $mac_prefix . $mac_thread . $mac_suffix;
     print "thread $tid connection #$i: about to launch coa call with mac $mac\n";
-    my $response = perform_disconnect( { nas_ip => $coa_server_ip, secret => $coa_server_secret }, $mac );
 
-    $mac =~ s/:/-/g;
-    $mac = uc($mac);
+    my $response = perform_disconnect(
+        { nas_ip => $coa_server_ip, secret => $coa_server_secret },
+        {
+            'Calling-Station-Id' => $mac,
+            'NAS-IP-Address' => $coa_server_ip,
+        }
+    );
 
     if ($response->{'Code'} eq 'Disconnect-ACK' && $response->{'Reply-Message'} eq $mac) {
         print "SUCCESS - Successfully kicked client $mac\n";

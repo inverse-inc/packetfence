@@ -164,7 +164,7 @@ sub perform_dynauth {
 
 =item perform_disconnect
 
-Sending RADIUS disconnect message to a NAS. It overrides attributes as necessary.
+Sending RADIUS disconnect message to a NAS. Attributes must be provided.
 
 Note: It doesn't support attribute stacking on the same key.
 
@@ -174,8 +174,6 @@ $connection_info is an hashref with following supported attributes:
   nas_port - port of the dynauth server (default: 3799)
   secret - secret of the dynauth server
   timeout - number of seconds before the socket times out (default: 5)
-
-$deauth_mac - MAC to deauthenticate
 
 $attributes is an hashref of the attribute_name => value form
 
@@ -195,18 +193,7 @@ for every attribute returned.
 
 =cut
 sub perform_disconnect {
-    my ($connection_info, $deauth_mac, $attributes, $vsa) = @_;
-
-    # expected format 00-11-22-33-CA-FE
-    my $mac = uc($deauth_mac);
-    $mac =~ s/:/-/g;
-
-    # Prepare standard attributes for disconnect
-    # TODO deal with attribute merging
-    $attributes = {
-        'Calling-Station-Id' => $mac,
-        'NAS-IP-Address' => $connection_info->{'nas_ip'},
-    };
+    my ($connection_info, $attributes, $vsa) = @_;
 
     return perform_dynauth($connection_info, 'Disconnect-Request', $attributes, $vsa);
 }
@@ -214,7 +201,7 @@ sub perform_disconnect {
 
 =item perform_coa
 
-Sending RADIUS Change of Authorization (CoA) message to a NAS. It overrides attributes as necessary.
+Sending RADIUS Change of Authorization (CoA) message to a NAS. Attributes must be provided.
 
 Note: It doesn't support attribute stacking on the same key.
 
