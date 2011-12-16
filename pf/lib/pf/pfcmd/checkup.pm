@@ -127,6 +127,8 @@ check the config file to make sure interfaces are fully defined
 =cut
 sub interfaces_defined {
 
+    my $nb_management_interface = 0;
+
     foreach my $interface ( tied(%Config)->GroupMembers("interface") ) {
         my %int_conf = %{$Config{$interface}};
         my $int_with_no_config_required_regexp = qr/(?:monitor|dhcplistener|dhcp-listener|high-availability)/;
@@ -141,6 +143,12 @@ sub interfaces_defined {
         if (defined($int_conf{'type'}) && $int_conf{'type'} !~ /$int_types/) {
             add_problem( $FATAL, "invalid network type $int_conf{'type'} for $interface" );
         }
+ 
+        $nb_management_interface++ if (defined($int_conf{'type'}) && $int_conf{'type'} =~ /management|managed/);
+    }
+
+    if ($nb_management_interface != 1)  {
+        add_problem( $FATAL, "please define exactly one management interface" );
     }
 }
 
@@ -154,14 +162,11 @@ sub interfaces {
     if ( !scalar(get_internal_devs()) ) {
         add_problem( $FATAL, "internal network(s) not defined!" );
     }
-    if ( scalar(get_managed_devs()) != 1 ) {
-        add_problem( $FATAL, "please define exactly one management interface" );
-    }
 
     my %seen;
     my @network_interfaces;
     push @network_interfaces, get_internal_devs();
-    push @network_interfaces, get_managed_devs();
+    push @network_interfaces, $management_network->tag("int");
     foreach my $interface (@network_interfaces) {
         my $device = "interface " . $interface;
 
@@ -187,7 +192,7 @@ sub interfaces {
 
             if ($type eq 'managed') {
                 add_problem( $WARN, 
-                    "Interface type 'managed' is drepecated and will be removed in future versions of PacketFence. " .
+                    "Interface type 'managed' is deprecated and will be removed in future versions of PacketFence. " .
                     "You should use the 'management' keyword instead. " .
                     "Seen on interface $interface."
                 );
@@ -475,6 +480,7 @@ sub registration {
 
 }
 
+# TODO Consider moving to a test
 sub is_config_documented {
 
     #compare configuration with documentation
@@ -587,6 +593,22 @@ sub extensions {
         }
     } catch {
         add_problem( $FATAL, "Uncaught exception while trying to identify VLAN extension version: $_" );
+    };
+
+    try {
+        require pf::soh::custom;
+        if (!defined(pf::soh::custom->VERSION())) {
+            add_problem( $FATAL,
+                "SoH Extension point (pf::soh::custom) VERSION is not defined. Did you read the UPGRADE document?"
+            );
+        } elsif ($SOH_API_LEVEL > pf::soh::custom->VERSION()) {
+            add_problem( $FATAL,
+                "SoH Extension point (pf::soh::custom) is not at the correct API level. " .
+                "Did you read the UPGRADE document?"
+            );
+        }
+    } catch {
+        add_problem( $FATAL, "Uncaught exception while trying to identify SoH extension version: $_" );
     };
 
     # we wrap in a try/catch because we might trap exceptions if pf::vlan::custom is not to the appropriate level
@@ -828,6 +850,16 @@ sub switches {
         } elsif ( !( $SNMPVersionTrap =~ /^1|2c|3$/ ) ) {
             add_problem( $WARN, "switches.conf | Switch SNMP Trap version ($SNMPVersionTrap) is invalid "
                     . "for switch $section" );
+        } elsif ( $SNMPVersionTrap =~ /^3$/ ) {
+            # mandatory SNMPv3 traps parameters
+            foreach (qw(
+                SNMPUserNameTrap SNMPEngineID 
+                SNMPAuthProtocolTrap SNMPAuthPasswordTrap 
+                SNMPPrivProtocolTrap SNMPPrivPasswordTrap
+            )) {
+                add_problem( $WARN, "switches.conf | $_ is missing for switch $section" )
+                    if (!defined($switches_conf{$section}{$_}));
+            }
         }
 
         # check uplink

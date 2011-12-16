@@ -9,7 +9,7 @@ use lib qw(
    /usr/local/pf/lib
 );
 
-use Test::Pod::Coverage tests => 22;
+use Test::Pod::Coverage tests => 23;
 
 pod_coverage_ok('authentication::guest_managers');
 pod_coverage_ok('authentication::kerberos');
@@ -28,8 +28,10 @@ pod_coverage_ok("pf::radius");
 pod_coverage_ok("pf::services::apache");
 pod_coverage_ok("pf::services::dhcpd");
 pod_coverage_ok("pf::services::named");
+pod_coverage_ok("pf::soh");
 pod_coverage_ok("pf::SNMP");
 pod_coverage_ok("pf::util::dhcp");
+pod_coverage_ok("pf::util::radius");
 pod_coverage_ok("pf::vlan");
 pod_coverage_ok("pf::web");
 pod_coverage_ok("pf::web::guest");

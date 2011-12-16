@@ -34,7 +34,6 @@ in your apache config.
 #TODO properly hash passwords (1000 SHA1 iterations of salt + password)
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
 
 use Crypt::GeneratePassword qw(word);
 use Log::Log4perl;
