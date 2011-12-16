@@ -11,7 +11,8 @@ manage Motorola RF Switches (Wireless Controllers)
 
 =head1 STATUS
 
-Developed and tested on RFS7000 running OS release 4.3.0.0-059R
+Developed and tested on RFS7000 running OS release 4.3.0.0-059R,
+and RFS6000 running OS 5.2.0.0-069R.
 
 =over
 
@@ -29,10 +30,13 @@ Developed and tested on RFS7000 running OS release 4.3.0.0-059R
 
 =over
 
+=item Firmware 4.x support
+
+Deauthentication against firmware 4.x series is done using SNMP
+
 =item Firmware 5.x support
 
-Deauthentication against firmware 5.x series seems to be broken.
-We are aware of that and will work to support this series soon.
+Deauthentication against firmware 5.x series is done using RADIUS CoA.
 
 =item SNMPv3 
 
@@ -49,6 +53,7 @@ use diagnostics;
 use base ('pf::SNMP');
 use Log::Log4perl;
 
+use pf::accounting qw(node_accounting_current_sessionid);
 use pf::config;
 use pf::util;
 
@@ -115,10 +120,38 @@ sub parseTrap {
 
 =item deauthenticateMac
 
-deauthenticate a MAC address from wireless network (including 802.1x)
+De-authenticate a MAC address from wireless network (including 802.1x).
+
+New implementation using RADIUS Disconnect-Request.
 
 =cut
 sub deauthenticateMac {
+    my ( $self, $mac, $is_dot1x ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    if ( !$self->isProductionMode() ) {
+        $logger->info("not in production mode... we won't perform deauthentication");
+        return 1;
+    }
+    
+    if ($self->getVersion() =~ /^5/) {    
+        #Fetching the acct-session-id, mandatory for Motorola
+        my $acctsessionid = node_accounting_current_sessionid($mac);
+
+        $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
+        return $self->radiusDisconnect($mac,$acctsessionid);
+    } else {
+        $logger->debug("deauthenticate $mac using SNMP deauth method");
+        return $self->_deauthenticateMacSNMP($mac);
+    }
+}
+
+=item _deauthenticateMacSNMP
+
+deauthenticate a MAC address from wireless network (including 802.1x)
+
+=cut
+sub _deauthenticateMacSNMP {
     my ($this, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     my $oid_wsCcRfMuDisassociateNow = '1.3.6.1.4.1.388.14.3.2.1.12.3.1.19'; # from WS-CC-RF-MIB
