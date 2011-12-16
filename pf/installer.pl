@@ -317,6 +317,18 @@ if ( !( -e "$conf_dir/httpd.conf" ) ) {
     `ln -s $conf_dir/httpd.conf.apache22 $conf_dir/httpd.conf`;
 }
 
+if ( !( -e "$conf_dir/named.conf" ) ) {
+    print "$conf_dir/named.conf symlink does not yet exist\n";
+
+    if ( `/usr/sbin/named -v | grep "^BIND 9.[7-9]"` ) {
+        print "creating symlink to named.conf.bind97\n";
+        `ln -s $conf_dir/named.conf.bind97 $conf_dir/named.conf`;
+    } else {
+        print "creating symlink to named.conf.pre_bind97\n";
+        `ln -s $conf_dir/named.conf.pre_bind97 $conf_dir/named.conf`;
+    }
+}
+
 if ( !( -e "$conf_dir/ssl/server.crt" ) ) {
     if (questioner(
             "Would you like me to create a self-signed SSL certificate for the PacketFence web pages?",

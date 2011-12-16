@@ -77,6 +77,8 @@ is($CHILD_ERROR, 0, "pfcmd manage deregister exit code should be 0");
 
 # TODO do a node_add then a node_view and expect everything to be correct
 
+# TODO add a config test for the presence of a vip tag in $management_network interface
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>

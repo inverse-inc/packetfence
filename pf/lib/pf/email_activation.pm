@@ -27,7 +27,7 @@ Remove this note when it will be no longer relevant. ;)
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+
 use Digest::MD5 qw(md5_hex);
 use Log::Log4perl;
 use MIME::Lite::TT;

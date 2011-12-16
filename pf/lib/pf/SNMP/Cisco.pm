@@ -19,11 +19,13 @@ use base ('pf::SNMP');
 use Log::Log4perl;
 use Net::SNMP;
 use Net::Appliance::Session;
+use Try::Tiny;
 
 use pf::config;
 # importing switch constants
 use pf::SNMP::constants;
 use pf::util;
+use pf::util::radius qw(perform_coa);
 
 # CAPABILITIES
 # special features 
@@ -1509,6 +1511,70 @@ Notice that we are throwing exceptions in here so make sure to trap them!
 sub saveConfig {
     my ($this) = @_;
     $this->copyConfig($CISCO::RUNNING_CONFIG, $CISCO::STARTUP_CONFIG);
+}
+
+=item _radiusBounceMac
+
+Using RADIUS Change of Authorization (CoA) defined in RFC3576 to bounce the port where a given MAC is present.
+
+Uses L<pf::util::dhcp> for the low-level RADIUS stuff.
+
+At proof of concept stage. For now using SNMP is still preferred way to bounce a port.
+
+=cut
+sub _radiusBounceMac {
+    my ( $self, $mac ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    if ( !$self->isProductionMode() ) {
+        $logger->info("not in production mode... we won't perform port bounce");
+        return 1;
+    }
+
+    if (!defined($self->{'_radiusSecret'})) {
+        $logger->warn(
+            "Unable to perform RADIUS CoA-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
+        );
+        return;
+    }
+
+    $logger->info("boucing MAC $mac using RADIUS CoA-Request method");
+
+    # translating to expected format 00-11-22-33-CA-FE
+    $mac = uc($mac);
+    $mac =~ s/:/-/g;
+
+    my $response;
+    try {
+        my $connection_info = {
+            nas_ip => $self->{'_ip'},
+            secret => $self->{'_radiusSecret'},
+            LocalAddr => $management_network->tag('vip'),
+        };
+
+        $response = perform_coa( $connection_info, 
+            {
+                'Acct-Terminate-Cause' => 'Admin-Reset',
+                'NAS-IP-Address' => $self->{'_ip'},
+                'Calling-Station-Id' => $mac,
+            },
+            [{ 'vendor' => 'Cisco', 'attribute' => 'Cisco-AVPair', 'value' => 'subscriber:command=bounce-host-port' }],
+        );
+    } catch {
+        chomp;
+        $logger->warn("Unable to perform RADIUS CoA-Request: $_");
+        $logger->error("Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
+    };
+    return if (!defined($response));
+
+    return $TRUE if ($response->{'Code'} eq 'CoA-ACK');
+
+    $logger->warn(
+        "Unable to perform RADIUS CoA-Request."
+        . ( defined($response->{'Code'}) ? " $response->{'Code'}" : 'no RADIUS code' ) . ' received'
+        . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
+    );
+    return;
 }
 
 =back
