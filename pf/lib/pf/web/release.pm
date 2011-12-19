@@ -90,7 +90,7 @@ sub handler
     $class_redirect_url = $class->{'redirect_url'} if defined($class->{'redirect_url'});
     $class_max_enable_url = $class->{'max_enable_url'} if defined($class->{'max_enable_url'});
   }
-  
+
   # scan code...
   if ($vid==$SCAN_VID){
     # detect if a system scan is in progress, if so redirect to scan in progress page
