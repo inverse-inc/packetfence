@@ -182,6 +182,7 @@ my @files = (
     '/usr/local/pf/html/captive-portal/redir.cgi',
     '/usr/local/pf/html/captive-portal/register.cgi',
     '/usr/local/pf/html/captive-portal/remediation.php',
+    '/usr/local/pf/html/captive-portal/wireless-profile.cgi',
     '/usr/local/pf/html/captive-portal/wispr.cgi',
     '/usr/local/pf/html/captive-portal/violations/banned_os.php',
     '/usr/local/pf/html/captive-portal/violations/banned_devices.php',

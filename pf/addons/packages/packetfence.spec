@@ -543,7 +543,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.po
 %config(noreplace)      /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.mo
 %config(noreplace)      /usr/local/pf/conf/log.conf
-%config(noreplace)      /usr/local/pf/conf/autoconfig.mobileconfig
 %dir                    /usr/local/pf/conf/nessus
 %config(noreplace)      /usr/local/pf/conf/nessus/remotescan.nessus
 %config(noreplace)      /usr/local/pf/conf/networks.conf
@@ -702,9 +701,6 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
-* Tue Dec 13 2011 Francois Gaudreault <fgaudreault@inverse.ca>
-- Adding autoconfig.mobileconfig
-
 * Mon Nov 21 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 3.0.3-1
 - New release 3.0.3
 

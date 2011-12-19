@@ -628,3 +628,9 @@ msgstr ""
 
 msgid "Access to the guest network granted"
 msgstr ""
+
+msgid "Your XML configuration have been generated and is now ready to download.  Follow the link below in order to get access to the secure SSID."
+msgstr ""
+
+msgid "Click to install your generated wireless profile."
+msgstr ""

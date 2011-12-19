@@ -51,6 +51,7 @@ my @files = (
     '/usr/local/pf/html/captive-portal/mobile-confirmation.cgi',
     '/usr/local/pf/html/captive-portal/redir.cgi',
     '/usr/local/pf/html/captive-portal/register.cgi',
+    '/usr/local/pf/html/captive-portal/wireless-profile.cgi',
     '/usr/local/pf/html/captive-portal/wispr.cgi',
     '/usr/local/pf/lib/pf/accounting.pm',
     '/usr/local/pf/lib/pf/action.pm',

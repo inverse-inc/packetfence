@@ -59,6 +59,11 @@ if (defined($cgi->user_agent)) {
   $logger->warn("$mac has no user agent");
 }
 
+# if we are going to provide a provisionned wi-fi profile then we should not deauth the user
+if (pf::web::supports_mobileconfig_provisioning($cgi, $session, $mac)) {
+  $session->param("do_not_deauth", $TRUE);
+}
+
 # check violation 
 #
 my $violation = violation_view_top($mac);

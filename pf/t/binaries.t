@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 34;
+use Test::More tests => 35;
 
 my @binaries = (
     '/usr/local/pf/configurator.pl',
@@ -40,6 +40,7 @@ my @binaries = (
     '/usr/local/pf/html/captive-portal/mobile-confirmation.cgi',
     '/usr/local/pf/html/captive-portal/redir.cgi',
     '/usr/local/pf/html/captive-portal/register.cgi',
+    '/usr/local/pf/html/captive-portal/wireless-profile.cgi',
     '/usr/local/pf/html/captive-portal/wispr.cgi',
     '/usr/local/pf/lib/pf/WebAPI.pm',
     '/usr/local/pf/lib/pf/web/backend_modperl_require.pl',

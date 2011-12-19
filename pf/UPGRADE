@@ -31,6 +31,11 @@ o Upgrading from a version prior to <trunk-release>:
     conf/switches.conf and that RFC3576 support is properly enabled in your
     controller's AAA config.
 
+    - Web library API change
+    Anyone who customized his web_node_register method will need to update his
+    version. _sanitize_and_register() now requires the session to be passed to
+    it.
+
     - iptables marks changed
     Mark 0 is no longer used. Unregistered nodes' packets are now set to mark
     3. It was changed because rules matching mark 0 were matching unmarked 
