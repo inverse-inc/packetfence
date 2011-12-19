@@ -551,7 +551,20 @@ nbtrapparserthreads = 5
 # Delay to wait between the shut / no-shut on a port. Some OS need a higher value than others.
 # Default should be reasonable for almost every OS but is too long for the usual proprietary OS.
 bounce_duration = 4s
-
+#
+# vlan.trap_limit_threshold
+#
+# Maximum number of SNMP traps that a switchport can send to PacketFence within
+# a minute without being flagged as DoS. Defaults to 100
+trap_limit_threshold = 100
+#
+# vlan.trap_limit_action
+#
+# Action that PacketFence will take if the vlan.trap_limit_threshold is reached.
+# Defaults to none. email will send an email every hour if the limit's still reached.
+# shut will shut the port on the switch and will also send an email even if email is not
+# specified.
+trap_limit_action = 
 
 [inline]
 #

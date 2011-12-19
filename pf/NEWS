@@ -23,6 +23,7 @@ New Features
  * RFC3576 (RADIUS Change of Authorization / Disconnect) support added. Aruba and Motorola are the first modules to support it.
  * Preview support for wired port-bounce on Cisco through CoA (RFC3576). Disabled by default.
  * Wireless profile provisioning for iPhone, iPods, and iPads
+ * SNMP traps limit mecanism
 
 Enhancements
  * Using HTTP Return Code 501 "Not Implemented" for more effective client blocking
