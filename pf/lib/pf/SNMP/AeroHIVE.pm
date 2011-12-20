@@ -88,14 +88,36 @@ sub parseTrap {
     return $trapHashRef;
 }
 
-=item deauthenticateMac
+=item deauthenticateMac 
+
+De-authenticate a MAC address from wireless network (including 802.1x).
+
+New implementation using RADIUS Disconnect-Request.
+
+=cut
+sub deauthenticateMac {
+    my ( $self, $mac, $is_dot1x ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    if ( !$self->isProductionMode() ) {
+        $logger->info("not in production mode... we won't perform deauthentication");
+        return 1;
+    }
+
+    $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
+    return $self->radiusDisconnect($mac);
+}
+
+=item _deauthenticateMacTelnet
+
+** DEPRECATED
 
 deauthenticate a MAC address from wireless network
 
 Right now te only way to do it is from the CLi (through Telnet or SSH).
 
 =cut
-sub deauthenticateMac {
+sub _deauthenticateMacTelnet {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
