@@ -27,13 +27,12 @@
   include('sajax-dashboard.php');
 
   require_once('../common.php');
+  require_once('grapher.php');
 
   $current_top="status";
   $current_sub="dashboard";
 
   include_once('../header.php');
-
-  jpgraph_check();
 
   if($_POST['graphs'] && $_POST['nuggets']){
     $_SESSION['ui_prefs']['dashboard']['graphs'] = array();
@@ -183,7 +182,7 @@
           # 9 rows
              for($i=0; $i<9; $i++){
                if($graphs[$i]){
-                 print "<div style='width:450px;padding-top:155px;padding-bottom:155px;text-align:center;margin-bottom:10px;background-image:url(\"status/grapher.php?type=".$graphs[$i][type]."&span=".$graphs[$i][span]."&size=small\");background-repeat:no-repeat;'>";
+                 jsgraph(array('type' => $graphs[$i][type], 'span' => $graphs[$i][span], 'size' => 'small'));
                }
                else{
                  print "<div style='width:450px;text-align:center;padding-top:20px;padding-bottom:20px;background:#dddddd;border:1px solid black;margin-bottom:10px'>";
@@ -198,7 +197,7 @@
            }
            else{
              foreach($graphs as $graph){
-               print "<img src='status/grapher.php?type=$graph[type]&span=$graph[span]&size=small'><p>";
+               jsgraph(array('type' => $graph[type], 'span' => $graph[span], 'size' => 'small'));
              }
            }
         ?>

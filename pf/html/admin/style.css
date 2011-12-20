@@ -24,6 +24,26 @@ a:link, a:visited {
 
 }
 
+h2.chart {
+    margin-top: 20px;
+    margin-bottom: 0px;
+    margin-right: 25px;
+    border-bottom: 1px solid #999;
+    text-align: left;
+}
+
+span.chart {
+    font-size: 12px;
+    font-weight: normal;
+    color: #999;
+    display: block;
+    text-align: left;
+}
+
+div.chart {
+    margin: auto;
+}
+
 td.topnav {
     margin: 0;
     padding: 0;
