@@ -25,14 +25,13 @@
  */
 
   require_once('../common.php');
+  require_once('grapher.php');
 
   $current_top="status";
   $current_sub="graphs";
   $is_printable=true;
 
   include_once('../header.php');
-
-  jpgraph_check();
 
   $type = set_default($_GET['type'], 'nodes');
   $span = set_default($_GET['span'], 'day');
@@ -121,8 +120,7 @@
   exit(1);
   }
   if (($_REQUEST['type'] != "ifoctetshistoryuser") && ($_REQUEST['type'] != "ifoctetshistorymac") && ($_REQUEST['type'] != "ifoctetshistoryswitch")) {
-    $img_src = "status/grapher.php?type=$type&span=$span";
-    print "<div id=graph><img src='$img_src'></div>";  
+    jsgraph(array('type' => $type, 'span' => $span));
   } elseif ($_REQUEST['type'] == "ifoctetshistoryuser") {
 ?>
   <div id="history">
@@ -164,8 +162,7 @@ foreach($person_lines as $current_person_line){
   if (isset($_REQUEST['pid']) && (strlen(trim($_REQUEST['pid'])) > 0)) {
     if ((isset($_REQUEST['start_time']) && (strlen(trim($_REQUEST['start_time'])) > 0)) &&
       (isset($_REQUEST['end_time']) && (strlen(trim($_REQUEST['end_time'])) > 0))) {
-      $img_src = "status/grapher.php?type=$type&pid={$_REQUEST['pid']}&start_time=" . urlencode($_REQUEST['start_time']) . "&end_time=" . urlencode($_REQUEST['end_time']);
-      print "<div id=graph><img src='$img_src'></div>";  
+      jsgraph(array('type' => $type, 'pid' => $_REQUEST['pid'], 'start_time' => $_REQUEST['start_time'], 'end_time' => $_REQUEST['end_time']));
     }
     $get_args['pid'] = $_REQUEST['pid'];
     $get_args['start_time'] = $_REQUEST['start_time'];
@@ -200,8 +197,7 @@ foreach($person_lines as $current_person_line){
   if (isset($_REQUEST['pid']) && (strlen(trim($_REQUEST['pid'])) > 0)) {
     if ((isset($_REQUEST['start_time']) && (strlen(trim($_REQUEST['start_time'])) > 0)) &&
       (isset($_REQUEST['end_time']) && (strlen(trim($_REQUEST['end_time'])) > 0))) {
-      $img_src = "status/grapher.php?type=$type&pid={$_REQUEST['pid']}&start_time=" . urlencode($_REQUEST['start_time']) . "&end_time=" . urlencode($_REQUEST['end_time']);
-      print "<div id=graph><img src='$img_src'></div>";  
+      jsgraph(array('type' => $type, 'pid' => $_REQUEST['pid'], 'start_time' => $_REQUEST['start_time'], 'end_time' => $_REQUEST['end_time']));
     }
     $get_args['pid'] = $_REQUEST['pid'];
     $get_args['start_time'] = $_REQUEST['start_time'];
@@ -240,8 +236,7 @@ foreach($person_lines as $current_person_line){
     if (isset($_REQUEST['switch']) && (strlen(trim($_REQUEST['switch'])) > 0) && isset($_REQUEST['port']) && (strlen(trim($_REQUEST['port'])) > 0)) {
     if ((isset($_REQUEST['start_time']) && (strlen(trim($_REQUEST['start_time'])) > 0)) &&
       (isset($_REQUEST['end_time']) && (strlen(trim($_REQUEST['end_time'])) > 0))) {
-      $img_src = "status/grapher.php?type=$type&switch={$_REQUEST['switch']}&port={$_REQUEST['port']}&start_time=" . urlencode($_REQUEST['start_time']) . "&end_time=" . urlencode($_REQUEST['end_time']);
-      print "<div id=graph><img src='$img_src'></div>";  
+      jsgraph(array('type' => $type, 'switch' => $_REQUEST['switch'], 'port' => $_REQUEST['port'], 'start_time' => $_REQUEST['start_time'], 'end_time' => $_REQUEST['end_time']));
     }
     $get_args['switch'] = $_REQUEST['switch'];
     $get_args['port'] = $_REQUEST['port'];

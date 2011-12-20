@@ -27,6 +27,7 @@
  */
 
   require_once('../common.php');
+  require_once('grapher.php');
 
   $current_top="status";
   $current_sub="reports";
@@ -380,7 +381,9 @@ array('owner', 'person/lookup.php')));
   $my_table->tableprint(false);
 
   if($graph){
-    print "</td><td style='padding-top:15px;' align=center><img src='$current_top/grapher.php?type=".trim($type)."&span=report'></td></tr></table></center>";
+    print "</td><td style='padding-top:15px;' align=center>";
+    jsgraph(array('type' => trim($type), 'span' => 'report'));
+    print "</td></tr></table></center>";
   }
 
   $is_printable = true;

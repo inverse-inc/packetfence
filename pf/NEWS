@@ -23,10 +23,11 @@ New Features
  * Statement of Health (SoH) support for reliable client-side policy compliance through 802.1X
  * MAC violation triggers allowing to isolate a single device (#1320)
  * Detection of rogue DHCP Servers even behind relays (#1151)
- * RFC3576 (RADIUS Change of Authorization / Disconnect) support added. Aruba and Motorola are the first modules to support it.
+ * RFC3576 (RADIUS Change of Authorization / Disconnect) support added. Aruba, Motorola, and AeroHIVE are the first modules to support it.
  * Preview support for wired port-bounce on Cisco through CoA (RFC3576). Disabled by default.
  * Wireless profile provisioning for iPhone, iPods, and iPads
  * SNMP traps limit mecanism
+ * New graphs in the web admin UI -- replaced jpgraph (php) by gRaphael (JavaScript)
 
 Enhancements
  * Using HTTP Return Code 501 "Not Implemented" for more effective client blocking
