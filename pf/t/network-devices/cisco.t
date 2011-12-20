@@ -4,7 +4,8 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 3;
+use Test::More tests => 12;
+use Test::NoWarnings;
 
 use lib '/usr/local/pf/lib';
 use pf::config;
@@ -26,7 +27,28 @@ isa_ok($switch, 'pf::SNMP::Cisco');
 can_ok($switch, qw(
     enablePortConfigAsTrunk
     disablePortConfigAsTrunk
+    NasPortToIfIndex
 ));
+
+# Catalyst 3750 tests
+
+$switch = $switchFactory->instantiate('10.0.0.4');
+
+# sample NAS-Port -> ifIndex mappings
+my %nasPortIfIndex = (
+    '50101' => '10101',
+    '50128' => '10128',
+    '50201' => '10601',
+    '50228' => '10628',
+    '50301' => '11101',
+    '50328' => '11128',
+    '50401' => '11601',
+    '50428' => '11628',
+);
+
+foreach my $nasPort (keys %nasPortIfIndex) {
+    is($switch->NasPortToIfIndex($nasPort), $nasPortIfIndex{$nasPort}, "port translation for $nasPort");
+}
 
 # TODO a lot missing here
 

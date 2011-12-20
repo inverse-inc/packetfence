@@ -8,7 +8,7 @@ pf::SNMP::Cisco::Catalyst_3750
 
 Object oriented module to access and configure Cisco Catalyst 3750 switches
 
-This module is currently only a placeholder, see pf::SNMP::Cisco::Catalyst_2960.
+This module implements a few things but for the most part refer to L<pf::SNMP::Cisco::Catalyst_2960>.
 
 =head1 STATUS
 
@@ -21,6 +21,7 @@ Should work in:
 =item MAC-Authentication / 802.1X
 
 We've got reports of it working with 12.2(55)SE.
+Stacked switches should also work.
 
 =back
 
@@ -40,11 +41,34 @@ use Log::Log4perl;
 use Net::SNMP;
 
 use pf::config;
+use pf::SNMP::constants;
 
 use base ('pf::SNMP::Cisco::Catalyst_2960');
 
 # CAPABILITIES
 # inherited from 2960
+
+=item NasPortToIfIndex
+
+Translate RADIUS NAS-Port into switch's ifIndex.
+
+=cut
+sub NasPortToIfIndex {
+    my ($this, $NAS_port) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    # NAS-Port bumps by +100 between stacks while ifIndex bumps by +500
+    # some examples values for stacked switches are available in t/network-devices/cisco.t
+    # This could work with other Cisco switches but we couldn't test so we implemented it only for the 3750.
+    if (my ($stack_idx, $port) = $NAS_port =~ /^50(\d)(\d\d)$/) {
+        return ( ($stack_idx - 1) * $CISCO::IFINDEX_PER_STACK ) + $port + $CISCO::IFINDEX_OFFSET;
+    } else {
+        $logger->warn("Unknown NAS-Port format. ifIndex translation could have failed. "
+            ."VLAN re-assignment and switch/port accounting will be affected.");
+    }
+    return $NAS_port;
+}
+
 
 =head1 AUTHOR
 

@@ -16,6 +16,9 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <trunk-release> released on <releaseDate>
 
+New Hardware Support
+ * Stacked Cisco 3750 in MAC-Auth or 802.1X
+
 New Features
  * Statement of Health (SoH) support for reliable client-side policy compliance through 802.1X
  * MAC violation triggers allowing to isolate a single device (#1320)
