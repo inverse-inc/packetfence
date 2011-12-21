@@ -25,7 +25,7 @@ use Date::Parse;
 use File::Basename qw(basename);
 use File::Spec;
 use Log::Log4perl;
-use Net::Interface qw(inet_ntoa);
+use Net::Interface qw(inet_ntoa :afs);
 use Net::Netmask;
 use POSIX;
 use Readonly;
@@ -640,6 +640,7 @@ We return the first vip that matches the above criteria in decimal dotted notati
 Undef if nothing is found.
 
 =cut
+# TODO IPv6 support
 sub _fetch_virtual_ip {
     my ($interface) = @_;
 
@@ -647,8 +648,8 @@ sub _fetch_virtual_ip {
     return if (!defined($if));
 
     # these array are ordered the same way, that's why we can assume the following
-    my @masks = $if->netmask();
-    my @addresses = $if->address();
+    my @masks = $if->netmask(AF_INET);
+    my @addresses = $if->address(AF_INET);
 
     for my $i (0 .. $#masks) {
         return inet_ntoa($addresses[$i]) if (inet_ntoa($masks[$i]) eq '255.255.255.255');
