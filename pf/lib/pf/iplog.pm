@@ -51,6 +51,7 @@ BEGIN {
 
 use pf::config;
 use pf::db;
+use pf::node qw(node_add_simple node_exist);
 use pf::util;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -196,9 +197,8 @@ sub iplog_open {
     my ( $mac, $ip, $lease_length ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iplog');
 
-    require pf::node;
-    if ( !pf::node::node_exist($mac) ) {
-        pf::node::node_add_simple($mac);
+    if ( !node_exist($mac) ) {
+        node_add_simple($mac);
     }
 
     if ($lease_length) {

@@ -184,13 +184,6 @@ sub cleanup {
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
     $logger->info("Starting cleanup thread");
 
-    if ( !$restart ) {
-        $logger->info("closing open iplogs (just in case)");
-        iplog_shutdown();
-    } else {
-        $logger->info("restarted - leaving iplogs open");
-    }
-
     my $counter = 0;
     while (1) {
         $counter = ( $counter + 1 ) % 10;
@@ -250,9 +243,6 @@ sub daemonize {
 sub normal_sighandler {
     deletepid();
     if ( threads->self->tid() == 0 ) {
-        $logger->info( "caught SIG" . $_[0] . " - closing open iplogs" );
-
-        iplog_shutdown();
         $logger->logdie( "pfmon: caught SIG" . $_[0] . " - terminating" );
     }
 }
