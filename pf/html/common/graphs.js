@@ -198,7 +198,6 @@ window.onload = function () {
     /* Draw graphs */
     graphs.keys().each(function(name) {
         var graph = graphs.get(name);
-        console.info(name + ", " + graph['labels'].length + " labels, " + graph['type'] + " " + graph['size']);
 
         switch(graph['type']) {
         case 'pie':
