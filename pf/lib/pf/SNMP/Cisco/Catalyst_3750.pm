@@ -48,6 +48,10 @@ use base ('pf::SNMP::Cisco::Catalyst_2960');
 # CAPABILITIES
 # inherited from 2960
 
+=head1 SUBROUTINES
+
+=over
+
 =item NasPortToIfIndex
 
 Translate RADIUS NAS-Port into switch's ifIndex.
@@ -69,6 +73,7 @@ sub NasPortToIfIndex {
     return $NAS_port;
 }
 
+=back
 
 =head1 AUTHOR
 
