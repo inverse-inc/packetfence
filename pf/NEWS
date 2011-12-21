@@ -45,6 +45,7 @@ Bug Fixes
  * Inline: isolation not properly enforced by firewall if registration is disabled (#1330)
  * Several small fixes in pfdhcplistener 
  * Inline: NAT out behavior of PacketFence was changed for the best
+ * Keep IP to MAC associations across restarts (#1343)
  * Interim fixes: #1349
 
 --------------------------------------------------------------------------------
