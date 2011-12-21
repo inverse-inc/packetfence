@@ -412,8 +412,6 @@ sub read_violations_conf {
 
         # parse grace, try to understand trailing signs, and convert back to seconds 
         if ( defined $violations{$violation}{'grace'} ) {
-            # If we can detect s, m, h, d, w or y at the end of the string, we recalculate the number of seconds
-            # if we have nothing, we consider it is seconds (s=seconds, m=minutes, h=hours, d=days, w=weeks, y=years)
             $violations{$violation}{'grace'} = normalize_time($violations{$violation}{'grace'});
         }
 

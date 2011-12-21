@@ -12,6 +12,42 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE file.
 
+
+--------------------------------------------------------------------------------
+Version <trunk-release> released on <releaseDate>
+
+New Hardware Support
+ * Stacked Cisco 3750 in MAC-Auth or 802.1X
+ * AeroHIVE, Aruba and Motorola support RADIUS Disconnect (RFC3576) to perform de-authentication
+
+New Features
+ * Statement of Health (SoH) support for reliable client-side policy compliance through 802.1X
+ * MAC violation triggers allowing to isolate a single device (#1320)
+ * Detection of rogue DHCP Servers even behind relays (#1151)
+ * RFC3576 (RADIUS Change of Authorization / Disconnect) support added
+ * Preview support for wired port-bounce on Cisco through CoA (RFC3576). Disabled by default.
+ * Wireless profile provisioning for iPhone, iPods, and iPads
+ * SNMP traps limit mecanism
+ * New graphs in the web admin UI -- replaced jpgraph (php) by gRaphael (JavaScript)
+
+Enhancements
+ * Using HTTP Return Code 501 "Not Implemented" for more effective client blocking
+ * Cleanup in the Cisco 3560's code and documentation
+ * Startup performance improvements
+ * Added support for session-keyfile introduced in BIND 9.7 (#1257)
+ * Several improvements in the dhcp_dumper.pl addon
+ * Global option to disable rogue DHCP server detection
+ * Performance improvements to pfdhcplistener
+ * More startup validation on SNMPv3 Trap configuration
+
+Bug Fixes
+ * Slashes (/) not allowed in person id (#1322)
+ * Inline: isolation not properly enforced by firewall if registration is disabled (#1330)
+ * Several small fixes in pfdhcplistener 
+ * Inline: NAT out behavior of PacketFence was changed for the best
+ * Keep IP to MAC associations across restarts (#1343)
+ * Interim fixes: #1349
+
 --------------------------------------------------------------------------------
 Version <release> released on <releaseDate>
 

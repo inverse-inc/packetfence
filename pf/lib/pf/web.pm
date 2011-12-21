@@ -46,10 +46,12 @@ BEGIN {
 }
 
 use pf::config;
-use pf::util;
+use pf::enforcement qw(reevaluate_access);
 use pf::iplog qw(ip2mac);
-use pf::node qw(node_attributes node_view node_modify);
+use pf::node qw(node_attributes node_modify node_register node_view);
+use pf::os qw(dhcp_fingerprint_view);
 use pf::useragent;
+use pf::util;
 use pf::web::auth; 
 
 Readonly our $LOOPBACK_IPV4 => '127.0.0.1';
@@ -101,6 +103,7 @@ sub web_get_locale {
 
 sub generate_release_page {
     my ( $cgi, $session, $destination_url, $mac, $r ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web');
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
@@ -128,8 +131,8 @@ sub generate_release_page {
 
     my $html_txt;
     my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], });
-    $template->process( "release.html", $vars, \$html_txt );
-
+    $template->process( "release.html", $vars, \$html_txt ) || $logger->error($template->error());
+    
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header(
         -cookie         => $cookie,
@@ -138,6 +141,92 @@ sub generate_release_page {
     );
     if ($r) { print $r->print($html_txt); }
     else    { print STDOUT $html_txt; }
+}
+
+=item supports_mobileconfig_provisioning
+
+Validating that the node supports mobile configuration provisioning, that it's configured 
+and that the node's category matches the configuration.
+
+=cut
+sub supports_mobileconfig_provisioning {
+    my ( $cgi, $session, $mac ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web');
+
+    return $FALSE if (isdisabled($Config{'provisioning'}{'autoconfig'}));
+
+    # is this an iDevice?
+    # TODO get rid of hardcoded targets like that
+    my $node_attributes = node_attributes($mac);
+    my @fingerprint = dhcp_fingerprint_view($node_attributes->{'dhcp_fingerprint'});
+    return $FALSE if (!defined($fingerprint[0]->{'os'}) || $fingerprint[0]->{'os'} !~ /Apple iPod, iPhone or iPad/); 
+
+    # do we perform provisioning for this category?
+    my $config_category = $Config{'provisioning'}{'category'};
+    my $node_cat = $node_attributes->{'category'};
+
+    # validating that the node is under the proper category for mobile config provioning
+    return $TRUE if ( $config_category eq 'any' || (defined($node_cat) && $node_cat eq $config_category));
+
+    # otherwise
+    return $FALSE;
+}
+
+=item generate_mobileconfig_provisioning_page
+
+Offers a page that links to the proper provisioning XML.
+
+=cut
+sub generate_mobileconfig_provisioning_page {
+    my ( $cgi, $session, $mac ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web');
+
+    setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
+    bindtextdomain( "packetfence", "$conf_dir/locale" );
+    textdomain("packetfence");
+
+    my $ip = get_client_ip($cgi);
+    my $vars = {
+        logo => $Config{'general'}{'logo'},
+        i18n => \&i18n,
+        list_help_info  => [
+            { name => i18n('IP'),  value => $ip },
+            { name => i18n('MAC'), value => $mac }
+        ],
+    };
+
+    my $cookie = $cgi->cookie( CGISESSID => $session->id );
+    print $cgi->header( -cookie => $cookie );
+
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
+    $template->process( "release_with_xmlconfig.html", $vars ) || $logger->error($template->error());
+}
+
+=item generate_apple_mobileconfig_provisioning_xml
+
+Generate the proper .mobileconfig XML to automatically configure Wireless for iOS devices.
+
+=cut
+sub generate_apple_mobileconfig_provisioning_xml {
+    my ( $cgi, $session ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web');
+
+    # if not logged in, disallow access
+    return if (!defined($session->param('username')));
+
+    my $vars = {
+        username => $session->param('username'),
+        ssid => $Config{'provisioning'}{'ssid'},
+    };
+
+    # Some required headers
+    # http://www.rootmanager.com/iphone-ota-configuration/iphone-ota-setup-with-signed-mobileconfig.html
+    print $cgi->header( 'Content-type: application/x-apple-aspen-config; chatset=utf-8' );
+    print $cgi->header( 'Content-Disposition: attachment; filename="wireless-profile.mobileconfig"' );
+
+    # Using TT to render the XML with correct variables populated
+    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
+    $template->process( "wireless-profile.xml", $vars ) || $logger->error($template->error());
 }
 
 sub generate_scan_start_page {
@@ -448,24 +537,21 @@ sub web_node_register {
     my $logger = Log::Log4perl::get_logger('pf::web');
 
     # we are good, push the registration
-    return _sanitize_and_register($mac, $pid, %info);
+    return _sanitize_and_register($session, $mac, $pid, %info);
 }
 
 sub _sanitize_and_register {
-    my ( $mac, $pid, %info ) = @_;
+    my ( $session, $mac, $pid, %info ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
-    my $info;
 
-    foreach my $key ( keys %info ) {
-        $info{$key} =~ s/[^0-9a-zA-Z_\*\.\-\:_\;\@\ ]/ /g;
-        $info .= $key . '="' . $info{$key} . '",';
+    $logger->info("performing node registration MAC: $mac pid: $pid");
+    node_register( $mac, $pid, %info );
+
+    unless ( $session->param("do_not_deauth") == $TRUE ) {
+        reevaluate_access( $mac, 'manage_register' );
     }
-    chop($info);
-    $logger->info(
-        "calling $bin_dir/pfcmd 'manage register $mac \"$pid\" $info'");
-    my $cmd    = $bin_dir . "/pfcmd 'manage register $mac \"$pid\" $info'";
-    my $output = qx/$cmd/;
-    return 1;
+
+    return $TRUE;
 }
 
 =item web_node_record_user_agent

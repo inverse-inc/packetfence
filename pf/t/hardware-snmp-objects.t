@@ -49,6 +49,7 @@ my @whitelist = (
     'supportsWirelessDot1x', 'authorizeCurrentMacWithNewVlan', '_authorizeCurrentMacWithNewVlan',
     'disableIfLinkUpDownTraps', 'enableIfLinkUpDownTraps', 'connectWrite', 'connectWriteToController', 
     'disconnectWrite', 'disconnectWriteToController', 'getDeauthSnmpConnectionKey', '_NasPortToIfIndex',
+    'radiusDisconnect', 
 );
 
 my @missing_subs;
@@ -73,7 +74,7 @@ is_deeply(
     "there must be no sub in pf::SNMP not implemented or whitelisted in pf::SNMP::MockedSwitch"
 );
 
-# TODO future MockedWireless module will have to test for: deauthenticateMac
+# TODO future MockedWireless module will have to test for: deauthenticateMac, radiusDisconnect
 
 =head1 AUTHOR
 

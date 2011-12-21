@@ -17,9 +17,10 @@ use warnings;
 use diagnostics;
 
 use Carp;
+use Data::Dumper;
 use Net::SNMP;
 use Log::Log4perl;
-use Data::Dumper;
+use Try::Tiny;
 
 our $VERSION = 2.00;
 
@@ -29,6 +30,7 @@ use pf::node;
 # SNMP constants
 use pf::SNMP::constants;
 use pf::util;
+use pf::util::radius qw(perform_disconnect);
 
 =head1 SUBROUTINES
 
@@ -2554,9 +2556,71 @@ sub getDeauthSnmpConnectionKey {
         return if ( !$this->connectWriteToController() );
         return '_sessionControllerWrite';
     } else {
-        return if ( !$this->connectWrite() );;
+        return if ( !$this->connectWrite() );
         return '_sessionWrite';
     }
+}
+
+=item radiusDisconnect
+
+Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
+
+Optionally you can provide the Accounting Session Id. Sometimes it is required.
+
+Uses L<pf::util::dhcp> for the low-level RADIUS stuff.
+
+=cut
+# TODO consider whether we should handle retries or not?
+sub radiusDisconnect {
+    my ($self, $mac, $acctSessionId) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    if (!defined($self->{'_radiusSecret'})) {
+        $logger->warn(
+            "Unable to perform RADIUS Disconnect-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
+        );
+        return;
+    }
+
+    $logger->info("deauthenticating $mac");
+    my $response;
+    try {
+        my $connection_info = {
+            nas_ip => $self->{'_ip'}, 
+            secret => $self->{'_radiusSecret'}, 
+            LocalAddr => $management_network->tag('vip'),
+        };
+
+        # transforming MAC to the expected format 00-11-22-33-CA-FE
+        $mac = uc($mac);
+        $mac =~ s/:/-/g;
+
+        # Standard Attributes
+        my $attributes = {
+            'Calling-Station-Id' => $mac,
+            'NAS-IP-Address' => $self->{'_ip'},
+        };
+
+        # The Acct-Session-Id attribute is required sometimes
+        $attributes->{'Acct-Session-Id'} = $acctSessionId if (defined($acctSessionId));
+
+        $response = perform_disconnect($connection_info, $attributes);
+    } catch {
+        chomp;
+        $logger->warn("Unable to perform RADIUS Disconnect-Request: $_");
+        $logger->error("Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
+    };
+    return if (!defined($response));
+
+    return $TRUE if ($response->{'Code'} eq 'Disconnect-ACK');
+
+    
+    $logger->warn(
+        "Unable to perform RADIUS Disconnect-Request."
+        . ( defined($response->{'Code'}) ? " $response->{'Code'}" : 'no RADIUS code' ) . ' received'
+        . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
+    );
+    return;
 }
 
 =back

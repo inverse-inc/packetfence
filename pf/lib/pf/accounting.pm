@@ -25,6 +25,7 @@ BEGIN {
     @ISA = qw(Exporter);
     @EXPORT = qw($accounting_db_prepared accounting_db_prepare);
     @EXPORT_OK = qw(
+        node_accounting_current_sessionid
         node_accounting_exist
         node_accounting_view
         node_accounting_view_all
@@ -63,6 +64,10 @@ Initialize database prepared statements
 sub accounting_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::accounting');
     $logger->debug("Preparing pf::accounting database queries");
+
+    $accounting_statements->{'acct_current_sessionid_sql'} = get_db_handle()->prepare(qq[
+        SELECT acctsessionid FROM radacct WHERE acctstoptime IS NULL AND callingstationid=? ORDER BY acctstarttime DESC LIMIT 1;
+    ]);
 
     $accounting_statements->{'acct_exist_sql'} = get_db_handle()->prepare(qq[
         SELECT COUNT(*) FROM radacct WHERE username = ?;
@@ -159,6 +164,21 @@ sub accounting_db_prepare {
     $accounting_db_prepared = 1;
 }
 
+
+=item current_sessionid
+
+Returns the current sessionid for a given mac address
+
+=cut
+sub node_accounting_current_sessionid {
+    my ($mac) = format_mac_for_acct(@_);
+    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_current_sessionid_sql', $mac) || return (0);
+    my ($val) = $query->fetchrow_array();
+    $query->finish();
+    return ($val);
+}
+
+
 =item accounting_exist
 
 Returns true if an accounting entry exists undef or 0 otherwise.
@@ -166,8 +186,8 @@ Returns true if an accounting entry exists undef or 0 otherwise.
 =cut
 sub node_accounting_exist {
     my ($mac) = format_mac_for_acct(@_);
-    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'accounting_exist_sql', $mac) || return (0);
-    my ($val) = $query->fetchrow_array();
+    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_exist_sql', $mac) || return (0);
+    my ($val) = $query->fetchrow_hashref();
     $query->finish();
     return ($val);
 }

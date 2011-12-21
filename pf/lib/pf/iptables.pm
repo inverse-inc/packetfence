@@ -133,11 +133,9 @@ sub generate_filter_if_src_to_chain {
         }
     }
 
-    # management interfaces handling
-    foreach my $interface (@management_nets) {
-        my $dev = $interface->tag("int");
-        $rules .= "-A INPUT --in-interface $dev --jump $FW_FILTER_INPUT_MGMT\n";
-    }
+    # management interface handling
+    my $mgmt_int = $management_network->tag("int");
+    $rules .= "-A INPUT --in-interface $mgmt_int --jump $FW_FILTER_INPUT_MGMT\n";
 
     # high-availability interfaces handling
     foreach my $interface (@ha_ints) {
@@ -146,8 +144,6 @@ sub generate_filter_if_src_to_chain {
 
     # Allow the NAT back inside through the forwarding table if inline is enabled
     if (is_inline_enforcement_enabled()) {
-        # grabbing first management interface
-        my $mgmt_int = $management_nets[0]->tag("int");
         $rules .= "-A FORWARD --in-interface $mgmt_int --match state --state ESTABLISHED,RELATED --jump ACCEPT\n";
     }
 
@@ -181,15 +177,16 @@ sub generate_inline_rules {
     $$nat_postrouting_ref .= "-A $FW_POSTROUTING_INT_INLINE --jump MASQUERADE\n";
     
 
-    if (isenabled($Config{'trapping'}{'registration'})) {
+    $logger->info("building firewall to accept registered users through inline interface");
+    $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_REG --jump ACCEPT\n";
+    if (!isenabled($Config{'trapping'}{'registration'})) {
         $logger->info(
-            "trapping.registration is enabled, " . 
-            "building firewall so that we only accept marked users through inline interface"
+            "trapping.registration is disabled, adding rule so we accept unregistered users through inline interface"
         );
-        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_REG --jump ACCEPT\n";
-    } else {
-        $logger->info("trapping.registration is disabled, allowing everyone through firewall on inline interface");
-        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --jump ACCEPT\n";
+        $$filter_rules_ref .= 
+            "-A $FW_FILTER_FORWARD_INT_INLINE "
+            . "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n"
+        ;
     }
 }
 
@@ -217,9 +214,16 @@ sub generate_inline_if_src_to_chain {
 
     # NAT POSTROUTING
     if ($table eq $FW_TABLE_NAT) {
-        # grabbing first management interface
-        my $mgmt_int = $management_nets[0]->tag("int");
-        $rules .= "-A POSTROUTING --out-interface $mgmt_int --jump $FW_POSTROUTING_INT_INLINE\n";
+        my $mgmt_int = $management_network->tag("int");
+
+        # Every marked packet should be NATed 
+        # Note that here we don't wonder if they should be allowed or not. This is a filtering step done in FORWARD.
+        foreach ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
+            $rules .= "-A POSTROUTING --out-interface $mgmt_int ";
+            $rules .= "--match mark --mark 0x$_ ";
+            $rules .= "--jump $FW_POSTROUTING_INT_INLINE";
+            $rules .= "\n";
+        }
     }
 
     return $rules;

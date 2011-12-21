@@ -71,7 +71,7 @@ To set the particular session variable use the following:
 #    }
 #
 #    # we are good, push the registration
-#    return _sanitize_and_register($mac, $pid, %info);
+#    return _sanitize_and_register($session, $mac, $pid, %info);
 #};
 
 

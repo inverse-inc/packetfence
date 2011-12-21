@@ -91,7 +91,6 @@ include('../header.php');
 
 $configs = PFCMD('config get all');
 
-$time_units = array('s' => 'seconds', 'm' => 'minutes', 'h' => 'hours', 'd' => 'days', 'w' => 'weeks'); 
 if(isset($_GET['update'])){
   foreach($configs as $config) {
     $parts_ar=preg_split("/\|/",$config);
@@ -208,9 +207,9 @@ foreach($config_tree as $section => $settings){
 
                         case "time":
                         $value = set_default($options['value'], $options['default']);
-                        preg_match("/^(\d+)([s|m|h|d|w])/", $value, $matches);
+                        preg_match(get_time_regexp(), $value, $matches);
                         print "<input type='text' name='{$setting}[amount]' value='$matches[1]' size=5>";
-                        printSelect($time_units, 'HASH', $matches[2], "name='{$setting}[unit]'");
+                        printSelect(get_time_units_for_dropdown(), 'HASH', $matches[2], "name='{$setting}[unit]'");
                         break;
 
                         case "multi":

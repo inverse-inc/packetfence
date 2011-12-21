@@ -34,7 +34,7 @@ include_once('../header.php');
 $view_item = set_default($_REQUEST['view_item'], '');
 
 if($view_item){
-  $person_lookup = PFCMD("lookup person $view_item");
+  $person_lookup = PFCMD("lookup person \"$view_item\"");
   if($person_lookup[0] != $view_item){
     foreach($person_lookup as $extra){
       $parts = explode("|", $extra);

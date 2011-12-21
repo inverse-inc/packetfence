@@ -751,6 +751,10 @@ function PrintSubNav($menu){
       } else if( $current_top == "person" && $sub_nav[0] == "guests" ) {
         print "         <li><a href='/guests/manage' target='_blank'>$sub_nav[1]</a></li>\n";
 
+      # TODO I know, I know this is hackish but how else am I supposed to do this in less than a couple of hours?
+      } else if( $current_top == "configuration" && $sub_nav[0] == "soh" ) {
+        print "         <li><a href='/soh' target='_blank'>$sub_nav[1]</a></li>\n";
+
       } else {
         print "          <li><a href='$current_top/$sub_nav[0].php'>$sub_nav[1]</a></li>\n";
       }
@@ -987,32 +991,6 @@ function PrintSubNav($menu){
     print_r($var);
     print "</pre></div>";
   }
-
-  function jpgraph_dir(){
-    return get_lib_path() . 'jpgraph';
-  }
-
-  function jpgraph_check(){
-    $jpgraph_dir = jpgraph_dir();
-
-    $extensions = get_loaded_extensions();
-    if(!in_array('gd', $extensions)){ 
-      global $_error;
-      $_error = "Error: PHP does not have GD installed.<br>JPGraph uses the graphing library GD to produce it's magnificent graphs, so you must install PHP with GD support.  For RedHat, use 'up2date php-gd' or 'yum php-gd'.";
-      return false;
-    }
-    else if(!file_exists("$jpgraph_dir/jpgraph.php")){
-      global $_error;
-      $_error = "Error: missing JpGraph files in '$jpgraph_dir'.<br>Go to <a href='http://www.aditus.nu/jpgraph/'>http://www.aditus.nu/jpgraph/</a> to download the most recent version of JpGraph.";
-      return false;
-    }
-    else if(!file_exists("../common/fonts/arial.ttf")){
-      global $_error;
-      $_error = "Error: missing true type font file in 'pf/html/admin/common/fonts/arial.ttf'.<br>Go to <a href='http://ftp.gnome.org/pub/GNOME/sources/ttf-bitstream-vera'>http://ftp.gnome.org/pub/GNOME/sources/ttf-bitstream-vera/</a> to download the most recent version of the Bitstream Vera open source fonts.";
-      return false;
-    }
-    return true;
-  }  // end jpgraph_check
 
   function helper_menu($current_top, $current_sub, $current, $draw_menu, $additional){
     $o = array();

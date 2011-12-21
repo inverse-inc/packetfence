@@ -19,34 +19,22 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  * 
+ * @author      Francis Lachapelle <flachapelle@inverse.ca>
+ * @author      Olivier Bilodeau <obilodeau@inverse.ca>
  * @author      Francois Gaudreault <fgaudreault@inverse.ca>
  * @author      Dominik Gehl <dgehl@inverse.ca>
  * @copyright   2008-2011 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
-  include("../common.php");
-  include('../check_login.php');
-
-  $type = set_default($_GET['type'], 'nodes');
-  $span = set_default($_GET['span'], 'month');
-  $size = set_default($_GET['size'], 'large');
-
-  $jpgraph_dir = jpgraph_dir();  
-  DEFINE('TTF_DIR', $_SERVER['DOCUMENT_ROOT'] . '/common/fonts/');
-
-  include("$jpgraph_dir/jpgraph.php");
-
-  require("$jpgraph_dir/jpgraph_line.php");
-  require("$jpgraph_dir/jpgraph_bar.php");
-  require("$jpgraph_dir/jpgraph_pie.php");
-  require("$jpgraph_dir/jpgraph_pie3d.php");
+  include_once("../common.php");
+  include_once('../check_login.php');
 
   $types = array(
-    'unregistered' => 'stacked', 
-    'registered' => 'bar', 
-    'violations' => 'bar', 
-    'nodes' => 'stacked', 
+    'unregistered' => 'line', 
+    'registered' => 'line', 
+    'violations' => 'line', 
+    'nodes' => 'line', 
     'os' => 'pie', 
     'os active' => 'pie', 
     'os all' => 'pie', 
@@ -68,197 +56,86 @@
     'ssid all' => 'pie'
   );
 
+function jsgraph($options) {
+  $type = set_default($options['type'], 'nodes');
+  $size = set_default($options['size'], 'large');
+  $span = set_default($options['span'], 'month');
+
   if (($type == 'ifoctetshistoryuser')||($type == 'ifoctetshistorymac')) {
-    $chart_data = get_chart_data("graph $type {$_GET['pid']} start_time={$_GET['start_time']},end_time=${_GET['end_time']}");
+    $chart_data = get_chart_data("graph $type {$options['pid']} start_time={$options['start_time']},end_time={$options['end_time']}");
+
+    # For graphs with one data point, make them bar graphs
+    if(count($chart_data['x_labels']) == 1){
+          $single_point = 'bar';
+    }
+
+    print _jsgraph($chart_data['chart_data'],
+                   $chart_data['x_labels'],
+                   set_default($single_point, $GLOBALS['types'][$type], 'line'),
+                   $size,
+                   pretty_header('status-graphs', $type),
+                   $options['start_time'] . " - " . $options['end_time']);
+   
+  } elseif ($type == 'ifoctetshistoryswitch') {    
+    $chart_data = get_chart_data("graph $type {$options['switch']} {$options['port']} start_time={$options['start_time']},end_time=${options['end_time']}");
     
     # For graphs with one data point, make them bar graphs
     if(count($chart_data['x_labels']) == 1){
           $single_point = 'bar';
     }
 
-    jpgraph($chart_data['chart_data'], $chart_data['x_labels'], set_default(set_default($single_point, $types[$type]), 'line'), $size, pretty_header('status-graphs', $type), $_GET['start_time'] . " - " . $_GET['end_time']);
-   
-  } elseif ($type == 'ifoctetshistoryswitch') {
-    
-    $chart_data = get_chart_data("graph $type {$_GET['switch']} {$_GET['port']} start_time={$_GET['start_time']},end_time=${_GET['end_time']}");
-    
-    # For graphs with one data point, make them bar graphs
-    if(count($chart_data['x_labels']) == 1){
-          $single_point = 'bar';
-    }
-
-    jpgraph($chart_data['chart_data'], $chart_data['x_labels'], set_default(set_default($single_point, $types[$type]), 'line'), $size, pretty_header('status-graphs', $type), $_GET['start_time'] . " - " . $_GET['end_time']);
-   
+    _jsgraph($chart_data['chart_data'],
+             $chart_data['x_labels'],
+             set_default($single_point, $GLOBALS['types'][$type], 'line'),
+             $size,
+             pretty_header('status-graphs', $type),
+             $options['start_time'] . " - " . $options['end_time']);
     
   } else {
 
     if ($span == 'report') {
         $chart_data = get_pie_chart_data("report $type");
+        $title = pretty_header('status-reports', $type);
+        if ($GLOBALS['types'][$type] == 'pie') {
+            $title .= ' distribution';
+        }
+        $subtitle = '';
     } else {
         $chart_data = get_chart_data("graph $type $span");
         # For graphs with one data point, make them bar graphs
         if(count($chart_data['x_labels']) == 1){
             $single_point = 'bar';
         }
+        $title = pretty_header('status-graphs', $type);
+        $subtitle = "Per ".ucfirst($span);
     }
 
-    jpgraph($chart_data['chart_data'], $chart_data['x_labels'], set_default(set_default($single_point, $types[$type]), 'line'), $size, pretty_header('status-graphs', $type), "Per ".ucfirst($span));
-
+    print _jsgraph($chart_data['chart_data'],
+                   $chart_data['x_labels'],
+                   set_default($single_point, $GLOBALS['types'][$type], 'line'),
+                   $size, $title, $subtitle);
   }
+}
 
-  function jpgraph($chart_data, $x_labels, $type = 'line', $size, $title, $subtitle){
+function _jsgraph($series, $labels, $type, $size, $title, $subtitle) {
+  $id = preg_replace('/[^a-zA-Z]+/', '', $title.$subtitle);
+  $js = "\n";
+  $js .= '<div id="' . $id . '" class="chart"></div>';
+  $js .= '<script type="text/javascript">';
+  $js .= "graphs.set('$id', {type: '$type', title: '$title', subtitle: '$subtitle', size: '$size', labels: ['" . implode("', '", $labels) . "'], series: {";
+  $series_json = array();
+  foreach(array_keys($series) as $name) {
+    array_push($series_json, "'$name': [" . implode(", ", $series[$name]) . "]");
+  }
+  $js .= implode(", ", $series_json);
+  $js .= "}});";
+  $js .= "</script>\n";
 
-        #extra sample data
-        #$chart_data['registered nodes']=array(10,20,15,20,0,30,40,20,10);
-        #$chart_data['aregistered nodes']=array(10,20,15,20,0,30,40,20,10);
-
-        if(!$chart_data){
-                print file_get_contents("../images/graph_error.gif");
-                return false;
-        }
-
-        if($size == 'small'){
-                $height = 300; $width = 450;
-        }
-        else{
-                $height = 400; $width = 600;
-        }
-
-        $colors=array('', '#0066B3', '#FF0000', 'darkolivegreen3', 'sienna', 'powderblue', 'olivedrab', 'orange', 'dodgerblue2', 'springgreen4');
-
-        (count($chart_data) > 1 || $type == 'pie') ? $show_legend = true : $show_legend = false;
-
-        if($show_legend){
-                $size == 'large' ? $cols = min(count($chart_data),$cols=3) : $cols = min(count($chart_data),$cols=2);
-                if($type == 'pie'){
-                        $size == 'large' ? $cols = min(count($x_labels),$cols=3) : $cols = min(count($x_labels),$cols=2);
-                }
-                $spacer = ceil(count($chart_data)/$cols)*20;
-                $height += $spacer*1.5;
-        }
-
-        $graph = new Graph($width, $height , "auto");
-
-        if(count($x_labels)==1 && $type != 'bar'){  // to get around line graphs with one point
-                array_unshift($x_labels, "0");
-                foreach($chart_data as $key => $val){
-                        array_unshift($chart_data[$key], "0");        
-                }
-        }
-
-        if($type == 'pie'){
-                $graph = new PieGraph($width, $height, "auto");
-
-                # we extract the first portion of the graph type to go and fetch it's pretty header for the graph's title
-                if (preg_match("/^(\w+).*$/", $_GET['type'], $match)) {
-                    $title=pretty_header('status-reports', $match[1]) .' distribution';
-                } else {
-                    $title=pretty_header('status-reports', $_GET['type']).' distribution';
-                }
-        }
-        
-        $graph->title->Set(ucwords($title));
-        if($subtitle != 'Per Report'){
-                $graph->subtitle->Set($subtitle);
-        }
-
-        $graph->SetScale("textlin");
-        $graph->SetFrame(true);
-        $show_legend ? $graph->SetMargin(60,40,10,$spacer+80) : $graph->SetMargin(60,40,10,60);
-
-        $graph->ygrid->SetFill(true, '#FFC366@.5','#f7f7f7@.5');
-
-        $graph->yaxis->HideZeroLabel();
-        $graph->SetMarginColor("#f7f7f7"); 
-
-        $color_num = 1;
-        foreach ($chart_data as $group => $keys) {
-                $values = $keys;
-                if($type == 'line' || $type == 'stacked' || $type == 'stacked_without_fill'){
-                        $$group = new LinePlot($values);
-                }
-                if($type == 'bar'){
-                        $$group = new BarPlot($values);
-                }
-        
-                if($type == 'pie'){
-                        $$group = new PiePlot3D($values);
-                        $$group->SetCenter(.5, .38);
-                }
-
-                if ($color_num > count($colors) - 1) 
-                        $color_num = 1;
-
-                $this_color = $colors["$color_num"];
-                $$group->SetColor($this_color);
-                if($type == 'stacked' || $type == 'bar'){
-                        $$group->SetFillColor($this_color);
-                }
-        
-                if($type == 'line'){
-                        $$group->mark->SetType(MARK_IMG_DIAMOND, 'gray', 0.2);
-                }
-        
-                if($type != 'pie'){
-                        if($show_legend){        // to get rid of blank legends
-                                $$group->SetLegend(ucwords($group));
-                        }
-                }
-
-                if($type == 'pie'){
-                        $$group->value->SetFont(FF_ARIAL,FS_NORMAL,8);
-                        $$group->SetLegends($x_labels);
-                }
-
-                $color_num++;
-                $groups[]=$$group;
-                if($type != 'stacked' && $type != 'bar' && $type != 'stacked_without_fill'){
-                        $graph->Add($$group);
-                }
-       }                                 
-
-       if(($type == 'stacked') || ($type == 'stacked_without_fill')) {
-                $accplot = new AccLinePlot($groups);
-                $graph->Add($accplot);
-       }
-       if($type == 'bar'){
-                $accplot = new AccBarPlot($groups);
-                $graph->Add($accplot);         
-       }
-
-        $graph->xaxis->SetTickLabels($x_labels);
-
-        $size == 'large' ? $x = 20 : $x = 15;
-        $interval = ceil(count($x_labels)/$x);
-
-        $graph->xaxis->SetTextLabelInterval($interval);
-        $graph->xaxis->SetLabelAngle(45);
-
-        $graph->xaxis->SetFont(FF_ARIAL,FS_NORMAL,8);
-        $graph->yaxis->SetFont(FF_ARIAL,FS_NORMAL,8);
-        $graph->yaxis->title->SetFont(FF_ARIAL,FS_NORMAL);
-        $graph->xaxis->title->SetFont(FF_ARIAL,FS_NORMAL);
-
-        $graph->title->SetFont(FF_ARIAL,FS_NORMAL, 12);
-        $graph->subtitle->SetFont(FF_ARIAL,FS_NORMAL, 9);
-
-        $graph->legend->SetFont(FF_ARIAL,FS_NORMAL);
-        if($show_legend){
-                $graph->legend->SetLayout(LEGEND_HOR); 
-                #$graph->legend->Pos( 0.5,($height-($spacer+10))/$height,"center");
-                $graph->legend->Pos( 0.5, 0.98, "center", "bottom");
-                $graph->legend->SetColumns($cols);
-        }
-
-
-        $graph->img->SetAntiAliasing();
-
-        $graph->Stroke();
-}                                                         
-
+  return $js;
+}
 
 function get_pie_chart_data($cmd){
-        $cached_data = preg_replace("/\s+/", '_', get_var_path() . "/jpgraph_cache/$cmd");
+        $cached_data = preg_replace("/\s+/", '_', get_cache_path() . "$cmd");
 
         if(file_exists($cached_data)){
                 $cache_time = set_default($_SESSION['ui_prefs']['cache_time'], 0) * 60;
@@ -266,7 +143,6 @@ function get_pie_chart_data($cmd){
                         return unserialize(file_get_contents($cached_data));
                 }
         }
-
 
         $rows = array_slice(PFCMD($cmd), 1, -1);
 
@@ -292,14 +168,13 @@ function get_pie_chart_data($cmd){
 }
 
 function get_chart_data($cmd){
-
-        $cached_data = preg_replace("/\s+/", '_', get_var_path() . "/jpgraph_cache/$cmd");
+        $cached_data = preg_replace("/\s+/", '_', get_cache_path() . "$cmd");
 
         if(file_exists($cached_data)){
                 $cache_time = set_default($_SESSION['ui_prefs']['cache_time'], 0) * 60;
-                if(time() - filemtime($cached_data) < $cache_time){                        
+                if(time() - filemtime($cached_data) < $cache_time){
                         return unserialize(file_get_contents($cached_data));
-                }            
+                }
         }
 
         $output = PFCMD($cmd);

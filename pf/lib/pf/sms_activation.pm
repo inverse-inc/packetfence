@@ -9,7 +9,7 @@ pf::sms_activation
 # TODO consider refactoring with pf::email_activation to regroup some functionality
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+
 use Digest::MD5 qw(md5_hex);
 use Locale::gettext;
 use Log::Log4perl;
@@ -18,6 +18,8 @@ use POSIX;
 use Readonly;
 use Time::HiRes qw(time);
 
+use pf::config;
+use pf::db;
 use pf::iplog qw(ip2mac);
 
 # Constants
@@ -45,9 +47,6 @@ BEGIN {
         validate_code
     );
 }
-
-use pf::config;
-use pf::db;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $sms_activation_db_prepared = 0;

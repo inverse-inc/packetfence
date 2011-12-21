@@ -108,12 +108,16 @@ if (defined($params{'username'}) && $params{'username'} ne '') {
  
   pf::web::web_node_register($cgi, $session, $mac, $pid, %info);
 
+  # FIXME the following block is repeated across CGI's, we should consolidate
   my $count = violation_count($mac);
-
   if ($count == 0) {
 
+    # handle mobile provisioning if relevant
+    if (pf::web::supports_mobileconfig_provisioning($cgi, $session, $mac)) {
+      pf::web::generate_mobileconfig_provisioning_page($cgi, $session, $mac);
+
     # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
-    if ($cgi->https()) {  
+    } elsif ($cgi->https()) {  
       print $cgi->redirect(
         "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
         .'/access?destination_url=' . uri_escape($destination_url)
@@ -122,6 +126,7 @@ if (defined($params{'username'}) && $params{'username'} ne '') {
       pf::web::generate_release_page($cgi, $session, $destination_url, $mac);
     }
     exit(0);
+
   } else {
     print $cgi->redirect('/captive-portal?destination_url=' . uri_escape($destination_url));
     $logger->info("more violations yet to come for $mac");

@@ -11,6 +11,24 @@ to access and manage Aruba Wireless Controllers.
 
 =cut
 
+=head1 STATUS
+
+Developed and tested on Controller 200 running firmware 5.0.3.3
+
+=over
+
+=item Supports
+
+=over
+
+=item Deauthentication with RADIUS Disconnect (RFC3576)
+
+=item Deauthentication with Telnet
+
+=back
+
+=back
+
 =head1 BUGS AND LIMITATIONS
 
 =over
@@ -19,9 +37,8 @@ to access and manage Aruba Wireless Controllers.
 
 This is caused by the fact that the client state is on the LOCAL controller but for PacketFence the IP who initiated the RADIUS authentication is the IP it talks to (which is the master and not the local).
 
-=item Telnet deauthentication
-
-Wireless deauthentication (deassociation) works only in Telnet
+Something could be done about that now since we support detached AP / Controllers.
+Let us know because we don't have the hardware to test.
 
 =back 
 
@@ -94,12 +111,36 @@ sub parseTrap {
     return $trapHashRef;
 }
 
-=item deauthenticateMac - deauthenticate a MAC address from wireless network (including 802.1x)
+=item deauthenticateMac 
+
+De-authenticate a MAC address from wireless network (including 802.1x).
+
+New implementation using RADIUS Disconnect-Request.
+
+=cut
+sub deauthenticateMac {
+    my ( $self, $mac, $is_dot1x ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    if ( !$self->isProductionMode() ) {
+        $logger->info("not in production mode... we won't perform deauthentication");
+        return 1;
+    }
+
+    $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
+    return $self->radiusDisconnect($mac);
+}
+
+=item _deauthenticateMacWithTelnet 
+
+DEPRECATED
+
+De-authenticate a MAC address from wireless network (including 802.1x)
 
 Here, we find out what submodule to call _dot1xDeauthenticateMAC or _deauthenticateMAC and call accordingly.
 
 =cut
-sub deauthenticateMac {
+sub _deauthenticateMacWithTelnet {
     my ( $this, $mac, $is_dot1x ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
@@ -170,9 +211,13 @@ sub deauthenticateMac {
 #    }
 #}
 
-=item _dot1xDeauthenticateMAC - deauthenticate a MAC from controller when user is in 802.1x mode
+=item _dot1xDeauthenticateMAC 
 
-* Private: don't call outside of same object, use deauthenticateMac externally *
+DEPRECATED
+
+De-authenticate a MAC from controller when user is in 802.1x mode using Telnet.
+
+* Private: don't call outside of same object, use _deauthenticateMacWithTelnet externally *
 
 =cut
 sub _dot1xDeauthenticateMAC {
@@ -194,7 +239,11 @@ sub _dot1xDeauthenticateMAC {
 
 }
 
-=item _deauthenticateMAC - deauthenticate a MAC from controller if user is not in 802.1x mode
+=item _deauthenticateMAC 
+
+DEPRECATED
+
+De-authenticate a MAC from controller if user is not in 802.1x mode using Telnet
 
 Here we used to specify MAC and IP in the OID but it doesn't work in a lot of 
 cases. As soon as the client stops doing activity for a little while, the IP 
@@ -205,7 +254,7 @@ What we are doing now is fetching the table instead of only one entry and
 issuing deauth on the matching MAC in OID format. Worked in my tests with 
 and without an IP in the table.
 
-* Private: don't call outside of same object, use deauthenticateMac externally *
+* Private: don't call outside of same object, use _deauthenticateMacWithTelnet externally *
 
 =cut
 sub _deauthenticateMAC {
@@ -326,6 +375,8 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 =head1 COPYRIGHT
 
 Copyright (C) 2009-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

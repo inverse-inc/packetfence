@@ -195,6 +195,14 @@ Readonly::Scalar our $STARTUP_CONFIG => 3;
 Readonly::Scalar our $RUNNING_CONFIG => 4;
 Readonly::Scalar our $TERMINAL => 5;
 
+=item NAS-Port constants
+
+Used for NAS-Port to ifIndex translation
+
+=cut
+Readonly::Scalar our $IFINDEX_OFFSET => 10100;
+Readonly::Scalar our $IFINDEX_PER_STACK => 500;
+
 =back
 
 =head1 EXTREME

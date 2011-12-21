@@ -134,6 +134,12 @@
   <script type="text/javascript" src="<?=$abs_url?>/3rdparty/calendar/calendar-setup.js"></script>
   <script type="text/javascript" src="<?=$abs_url?>/common/prototype.js"></script>
   <script type="text/javascript" src="<?=$abs_url?>/common/pf.js"></script>
+  <script type="text/javascript" src="<?=$abs_url?>/3rdparty/raphael/raphael-min.js"></script>
+  <script type="text/javascript" src="<?=$abs_url?>/3rdparty/raphael/g.raphael-min.js"></script>
+  <script type="text/javascript" src="<?=$abs_url?>/3rdparty/raphael/g.line.js"></script>
+  <script type="text/javascript" src="<?=$abs_url?>/3rdparty/raphael/g.bar-min.js"></script>
+  <script type="text/javascript" src="<?=$abs_url?>/3rdparty/raphael/g.pie-min.js"></script>
+  <script type="text/javascript" src="<?=$abs_url?>/common/graphs.js"></script>
 
   <script type="text/javascript">
     <?

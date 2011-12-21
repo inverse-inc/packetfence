@@ -8,8 +8,29 @@ pf::SNMP::AeroHIVE
 
 Module to manage AeroHIVE APs
 
-=cut
+=head1 STATUS
 
+Developed and tested on AeroHIVE AP 320 running firmware 3 something.
+
+=over
+
+=item Supports
+
+=over
+
+=item Deauthentication with RADIUS Disconnect (RFC3576)
+
+=item Deauthentication with SNMP
+
+=back
+
+=back
+
+=head1 BUGS AND LIMITATIONS
+
+Nothing documented at this point.
+
+=cut
 use strict;
 use warnings;
 use diagnostics;
@@ -25,19 +46,6 @@ use pf::config;
 use pf::SNMP::constants;
 use pf::util;
 
-=head1 STATUS
-
-=head1 BUGS AND LIMITATIONS
-
-=over
-
-=item CLI deauthentication
-
-De-authentication of a Wireless user is based on CLI access (Telnet or SSH).
-COA is not implemented for this module yet, but the device supports it.
-
-=back
- 
 =head1 SUBROUTINES
 
 =over
@@ -88,14 +96,36 @@ sub parseTrap {
     return $trapHashRef;
 }
 
-=item deauthenticateMac
+=item deauthenticateMac 
+
+De-authenticate a MAC address from wireless network (including 802.1x).
+
+New implementation using RADIUS Disconnect-Request.
+
+=cut
+sub deauthenticateMac {
+    my ( $self, $mac, $is_dot1x ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    if ( !$self->isProductionMode() ) {
+        $logger->info("not in production mode... we won't perform deauthentication");
+        return 1;
+    }
+
+    $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
+    return $self->radiusDisconnect($mac);
+}
+
+=item _deauthenticateMacTelnet
+
+** DEPRECATED
 
 deauthenticate a MAC address from wireless network
 
 Right now te only way to do it is from the CLi (through Telnet or SSH).
 
 =cut
-sub deauthenticateMac {
+sub _deauthenticateMacTelnet {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 

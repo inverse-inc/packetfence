@@ -25,6 +25,7 @@ use Date::Parse;
 use File::Basename qw(basename);
 use File::Spec;
 use Log::Log4perl;
+use Net::Interface qw(inet_ntoa :afs);
 use Net::Netmask;
 use POSIX;
 use Readonly;
@@ -34,8 +35,8 @@ use threads;
 our (
     $install_dir, $bin_dir, $conf_dir, $lib_dir, $log_dir, $generated_conf_dir, $var_dir,
     @listen_ints, @dhcplistener_ints, @ha_ints, $monitor_int,
-    @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets, @management_nets, @external_nets,
-    @inline_enforcement_nets, @vlan_enforcement_nets,
+    @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets, @external_nets,
+    @inline_enforcement_nets, @vlan_enforcement_nets, $management_network, 
     %guest_self_registration,
     $default_config_file, %Default_Config, 
     $config_file, %Config, 
@@ -56,7 +57,7 @@ BEGIN {
     @EXPORT = qw(
         $install_dir $bin_dir $conf_dir $lib_dir $generated_conf_dir $var_dir $log_dir
         @listen_ints @dhcplistener_ints @ha_ints $monitor_int 
-        @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets @management_nets @external_nets
+        @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network @external_nets
         @inline_enforcement_nets @vlan_enforcement_nets
         %guest_self_registration
         $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
@@ -73,7 +74,7 @@ BEGIN {
         $WIRELESS $WIRED $EAP
         $VOIP $NO_VOIP $NO_PORT $NO_VLAN
         %connection_type %connection_type_to_str %connection_type_explained
-        $RADIUS_API_LEVEL $VLAN_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL
+        $RADIUS_API_LEVEL $VLAN_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $SOH_API_LEVEL
         $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS
         %CAPTIVE_PORTAL
         normalize_time $TIME_MODIFIER_RE
@@ -116,7 +117,7 @@ $floating_devices_file  = $conf_dir . "/floating_network_device.conf";
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
 
-Readonly our @VALID_TRIGGER_TYPES => ( "scan", "detect", "internal", "os", "vendormac", "useragent" );
+Readonly our @VALID_TRIGGER_TYPES => ( "scan", "detect", "internal", "os", "vendormac", "mac", "useragent", "soh" );
 
 $portscan_sid = 1200003;
 $default_pid  = 1;
@@ -192,6 +193,7 @@ Readonly::Scalar our $RADIUS_API_LEVEL => 1.01;
 Readonly::Scalar our $VLAN_API_LEVEL => 1.01;
 Readonly::Scalar our $INLINE_API_LEVEL => 1.01;
 Readonly::Scalar our $AUTHENTICATION_API_LEVEL => 1.10;
+Readonly::Scalar our $SOH_API_LEVEL => 1.00;
 
 # to shut up strict warnings
 $ENV{PATH} = '/sbin:/bin:/usr/bin:/usr/sbin';
@@ -199,9 +201,9 @@ $ENV{PATH} = '/sbin:/bin:/usr/bin:/usr/sbin';
 # Inline related
 # Ip mash marks
 # Warning: make sure to verify conf/iptables.conf for hard-coded marks if you change the marks here.
-Readonly::Scalar our $IPTABLES_MARK_UNREG => "0";
 Readonly::Scalar our $IPTABLES_MARK_REG => "1";
 Readonly::Scalar our $IPTABLES_MARK_ISOLATION => "2";
+Readonly::Scalar our $IPTABLES_MARK_UNREG => "3";
 
 Readonly::Scalar our $NO_PORT => 0;
 Readonly::Scalar our $NO_VLAN => 0;
@@ -221,6 +223,8 @@ my $cache_vlan_enforcement_enabled;
 my $cache_inline_enforcement_enabled;
 
 # Accepted time modifier values
+# if you change these, make sure to change:
+# html/admin/common/helpers.inc's get_time_units_for_dropdown and get_time_regexp()
 our $TIME_MODIFIER_RE = qr/[smhDWMY]/;
 
 readPfConfigFiles();
@@ -342,7 +346,8 @@ sub readPfConfigFiles {
                 }
                 push @listen_ints, $int if ( $int !~ /:\d+$/ );
             } elsif ( $type eq 'managed' || $type eq 'management' ) {
-                push @management_nets, $int_obj;
+                $int_obj->tag("vip", _fetch_virtual_ip($int));
+                $management_network = $int_obj;
             } elsif ( $type eq 'external' ) {
                 push @external_nets, $int_obj;
             } elsif ( $type eq 'monitor' ) {
@@ -623,6 +628,33 @@ sub is_in_list {
     my @list = split( /\s*,\s*/, $list );
     return $TRUE if ( scalar grep({ $_ eq $item } @list) );
     return $FALSE;
+}
+
+=item _fetch_virtual_ip
+
+Returns the virtual IP (vip) on a given interface.
+
+We assume that the vip has a /32 netmask and that's how we fetch it.
+
+We return the first vip that matches the above criteria in decimal dotted notation (ex: 192.168.1.1).
+Undef if nothing is found.
+
+=cut
+# TODO IPv6 support
+sub _fetch_virtual_ip {
+    my ($interface) = @_;
+
+    my $if = Net::Interface->new($interface);
+    return if (!defined($if));
+
+    # these array are ordered the same way, that's why we can assume the following
+    my @masks = $if->netmask(AF_INET);
+    my @addresses = $if->address(AF_INET);
+
+    for my $i (0 .. $#masks) {
+        return inet_ntoa($addresses[$i]) if (inet_ntoa($masks[$i]) eq '255.255.255.255');
+    }
+    return;
 }
 
 =back

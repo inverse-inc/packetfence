@@ -19,14 +19,19 @@ Model 8600 version 3.0.0.16 is known to work fine with secure SSIDs only
 
 =over
 
-=item Caching problems
+=item Caching problems on secure connections
 
-Apparently most Dlink firmwares cache in a way that affects PacketFence.
-The VLAN are assigned straight from the cache instead of creating a new query.
+Performing a de-authentication does not clear the key cache. 
+Meaning that on reconnection the device's authorization is served straight from the cache 
+instead of creating a new RADIUS query.
+This defeats the reason why we perform de-authentication (to change VLAN or deny access).
+
+A client-side workaround exists: disable the PMK Caching on the client.
+However this could (and should in our opinion) be fixed by the vendor.
 
 Versions above and below 2.2.0.19 are know to cause these problems.
 
-Version 3.0.0.16 is known to work.
+Version 3.0.0.16 is known to work fine.
 
 =item No RADIUS VLAN assignment in MAC Authentication (Open SSIDs) on AP 8600
 

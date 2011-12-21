@@ -28,6 +28,8 @@ Regis Balzard <rbalzard@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
+Derek Wuelfrath <dwuelfrath@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2006-2011 Inverse inc.
@@ -56,16 +58,19 @@ use strict;
 use warnings;
 use diagnostics;
 
+require 5.8.8;
+
+use Cache::FileCache;
 use Data::Dumper;
+use File::Basename qw(basename);
 use File::Tail;
+use Getopt::Long;
+use Log::Log4perl;
+use Net::SMTP;
+use Pod::Usage;
+use POSIX ();
 use threads;
 use threads::shared;
-use File::Basename qw(basename);
-use Log::Log4perl;
-use Getopt::Long;
-use Pod::Usage;
-use Net::SMTP;
-use POSIX ();
 
 use constant INSTALL_DIR => '/usr/local/pf';
 
@@ -76,7 +81,6 @@ use constant {
 
 use lib INSTALL_DIR . '/lib';
 
-require 5.8.8;
 use pf::config;
 use pf::floatingdevice::custom;
 use pf::inline::custom $INLINE_API_LEVEL;
@@ -97,6 +101,11 @@ Log::Log4perl->init_and_watch( INSTALL_DIR . '/conf/log.conf', $LOG4PERL_RELOAD_
 my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  threads->self->tid() );
+
+# Initialize a new cache for the traps sent from switches IfIndex
+our $traps_switchIfIndex_cache = new Cache::FileCache( {'namespace'=>'pfSetVlan_TrapsLimitSwitchIfIndex'} );
+# Initialize a new cache for the actions taken if the traps limit has been reached
+our $traps_email_cache = new Cache::FileCache( {'namespace'=>'pfSetVlan_TrapsLimitEmail'} );
 
 # sighandler {{{1
 POSIX::sigaction(
@@ -699,8 +708,13 @@ sub parseTrap {
             }
             my $trapType = $trapHashRef->{'trapType'};
 
+            # skip traps coming from switch ifIndex that reached traps limit threshold
+            if ( defined($trapHashRef->{'trapIfIndex'}) 
+                    && check_traps_limit_threshold($switch, $trapHashRef->{'trapIfIndex'}) ) {
+                $logger->warn("We received too many traps (over $Config{'vlan'}{'trap_limit_threshold'}) in a minute) "
+                        . "from ifIndex $trapHashRef->{'trapIfIndex'} of switch $switch->{_ip}");
             # skip unknown traps
-            if ( $trapType ne 'unknown' ) {
+            } elsif ( $trapType ne 'unknown' ) {
                 my $switch_ip     = $switch->{_ip};
                 my $switch_port   = $trapHashRef->{'trapIfIndex'};
                 my $trapVlan      = '';
@@ -1839,6 +1853,58 @@ sub node_determine_and_set_into_VLAN {
         \%switch_locker,
         $mac
     );
+}
+
+# }}}1
+
+# sub check_traps_limit_threshold {{{1
+sub check_traps_limit_threshold {
+    my ( $switch, $switchIfIndex ) = @_;
+    my $logger = Log::Log4perl->get_logger('pfsetvlan::check_traps_limit_threshold');
+
+    # Poking tied config files here instead of declaring them globally is arguably discutable on terms of performances
+    my $trapsLimitThreshold = $Config{'vlan'}{'trap_limit_threshold'};
+    my $trapsLimitAction = $Config{'vlan'}{'trap_limit_action'};
+
+    my $switchIp = $switch->{_ip};
+    my $cached_traps_switchIfIndex = $traps_switchIfIndex_cache->get($switchIp.$switchIfIndex);
+
+    # TODO: Use CHI and the append method
+    # Using Cache::Cache with the set method may cause the cache to never expire. 
+    # Each time the cache is set, the expire is renewed and the cache may never expire completly.
+    # The new unified caching interface (CHI) provide an append method which solve the problem but CHI is
+    # currently not packaged.
+    
+    # FileCache is threads safe
+    $traps_switchIfIndex_cache->set($switchIp.$switchIfIndex, ++$cached_traps_switchIfIndex, "1 minute");
+
+    if ( !defined($cached_traps_switchIfIndex) || ($cached_traps_switchIfIndex < $trapsLimitThreshold) ) {
+        $logger->trace("Traps limit per switchIfIndex cache reached $cached_traps_switchIfIndex");
+        return $FALSE;
+    }
+
+    if ( is_in_list('email', $trapsLimitAction) || is_in_list('shut', $trapsLimitAction) ) {
+        my %email;
+
+        $email{'subject'} = "Too many traps coming from switch $switchIp";
+        $email{'message'} = "Too many SNMP traps were received from a switchport according to the threshold.\n\n";
+        $email{'message'} .= "Switch: $switchIp\n";
+        $email{'message'} .= "Port: $switchIfIndex\n";
+        $email{'message'} .= "Threshold: maximum $trapsLimitThreshold SNMP traps per 1 minute.\n";
+
+        if ( is_in_list('shut', $trapsLimitAction) ) {
+            $email{'message'} .= "Action: PacketFence SHUTTED THE PORT";
+            $switch->setAdminStatus($switchIfIndex, $SNMP::DOWN);
+        }
+
+        my $cached_traps_email = $traps_email_cache->get($switchIp.$switchIfIndex);
+        if ( !defined($cached_traps_email) || $cached_traps_email < 1 ) {
+            $traps_email_cache->set($switchIp.$switchIfIndex, ++$cached_traps_email, "1 hour");
+            pfmailer(%email);
+        }
+    }
+
+    return $TRUE; 
 }
 
 # }}}1
