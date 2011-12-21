@@ -12,6 +12,7 @@ window.onload = function () {
 
         var maxdots = parseInt(width/20),
         increment = (labels.length > maxdots)? Math.round(labels.length/maxdots) : 1,
+        axisxstep = ((size == 'small' || j < 8)?4:8),
         valuesx = [],
         valuesy = [],
         legend = [],
@@ -38,7 +39,7 @@ window.onload = function () {
                                 {   // options
                                     nostroke: false,
                                     axis: "0 0 1 1",
-                                    axisxstep: ((size == 'small' || j < 8)?4:8), //j - 1,
+                                    axisxstep: axisxstep,
                                     symbol: "circle",
                                     smooth: true,
                                     //dash: "-",
@@ -73,7 +74,7 @@ window.onload = function () {
         // Set x-axis labels
         chart.axis[0].text.items.each( function (label, index) {
             var i = parseInt(label.attr('text'));
-            label.attr({'text': labels[i]});
+            label.attr({'text': labels[i*increment]});
         });
 
         // Print legend
