@@ -79,9 +79,9 @@ Wireless deauthentication support
                              |   SSH /  |          |          | 
                              |  Telnet  |   SNMP   |  RADIUS* |
 -----------------------------|----------|----------|----------|
-AeroHIVE AP                  |    XX    |    --    |    --    |
+AeroHIVE AP                  |    xx    |    --    |    XX    |
 -----------------------------|----------|----------|----------|
-Aruba                        |    XX    |    --    |    XX    |
+Aruba                        |    xx    |    --    |    XX    |
 -----------------------------|----------|----------|----------|
 Avaya WC                     |    --    |    XX    |    --    |
 -----------------------------|----------|----------|----------|
@@ -103,13 +103,15 @@ HP ProCurve MSM              |    --    |    XX    |    --    |
 -----------------------------|----------|----------|----------|
 Meru Networks                |    XX    |    --    |    --    |
 -----------------------------|----------|----------|----------|
-Motorola RF Switches         |    --    |    XX    |    --    |
+Motorola RF Switches         |    --    |    xx    |    XX    |
 -----------------------------|----------|----------|----------|
 Trapeze Wireless controllers |    XX    |    --    |    --    |
 -----------------------------|----------|----------|----------|
 Xirrus WiFi Arrays           |    --    |    XX    |    --    |
 -----------------------------|----------|----------|----------|
 
+X: Supported and in use
+x: supported, disabled by default
 *: RADIUS Dynamic Authorization (RFC 3576) Change of Authorization (CoA) or 
    Disconnect-Messages (DM aka PoD)
 

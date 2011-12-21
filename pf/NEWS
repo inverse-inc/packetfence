@@ -18,12 +18,13 @@ Version <trunk-release> released on <releaseDate>
 
 New Hardware Support
  * Stacked Cisco 3750 in MAC-Auth or 802.1X
+ * AeroHIVE, Aruba and Motorola support RADIUS Disconnect (RFC3576) to perform de-authentication
 
 New Features
  * Statement of Health (SoH) support for reliable client-side policy compliance through 802.1X
  * MAC violation triggers allowing to isolate a single device (#1320)
  * Detection of rogue DHCP Servers even behind relays (#1151)
- * RFC3576 (RADIUS Change of Authorization / Disconnect) support added. Aruba, Motorola, and AeroHIVE are the first modules to support it.
+ * RFC3576 (RADIUS Change of Authorization / Disconnect) support added
  * Preview support for wired port-bounce on Cisco through CoA (RFC3576). Disabled by default.
  * Wireless profile provisioning for iPhone, iPods, and iPads
  * SNMP traps limit mecanism

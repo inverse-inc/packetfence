@@ -11,6 +11,24 @@ to access and manage Aruba Wireless Controllers.
 
 =cut
 
+=head1 STATUS
+
+Developed and tested on Controller 200 running firmware 5.0.3.3
+
+=over
+
+=item Supports
+
+=over
+
+=item Deauthentication with RADIUS Disconnect (RFC3576)
+
+=item Deauthentication with Telnet
+
+=back
+
+=back
+
 =head1 BUGS AND LIMITATIONS
 
 =over
@@ -19,9 +37,8 @@ to access and manage Aruba Wireless Controllers.
 
 This is caused by the fact that the client state is on the LOCAL controller but for PacketFence the IP who initiated the RADIUS authentication is the IP it talks to (which is the master and not the local).
 
-=item Telnet deauthentication
-
-Wireless deauthentication (deassociation) works only in Telnet
+Something could be done about that now since we support detached AP / Controllers.
+Let us know because we don't have the hardware to test.
 
 =back 
 

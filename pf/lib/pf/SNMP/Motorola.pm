@@ -20,6 +20,8 @@ and RFS6000 running OS 5.2.0.0-069R.
 
 =over
 
+=item Deauthentication with RADIUS Disconnect (RFC3576)
+
 =item Deauthentication with SNMP
 
 =back
