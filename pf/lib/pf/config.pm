@@ -223,6 +223,8 @@ my $cache_vlan_enforcement_enabled;
 my $cache_inline_enforcement_enabled;
 
 # Accepted time modifier values
+# if you change these, make sure to change:
+# html/admin/common/helpers.inc's get_time_units_for_dropdown and get_time_regexp()
 our $TIME_MODIFIER_RE = qr/[smhDWMY]/;
 
 readPfConfigFiles();

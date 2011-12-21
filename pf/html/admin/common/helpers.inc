@@ -155,3 +155,28 @@
         }
     }
 
+    /*
+     * get_time_units_for_dropdown
+     * 
+     * Returns the time units accepted by PacketFence in a format used to generate dropdowns.
+     */
+    function get_time_units_for_dropdown() {
+        return array(
+            's' => 'seconds', 
+            'm' => 'minutes', 
+            'h' => 'hours', 
+            'D' => 'days',
+            'W' => 'weeks',
+            'M' => 'months',
+            'Y' => 'years'
+        );
+    }
+
+    /*
+     * get_time_regexp
+     * 
+     * Returns the regexp for PacketFence's time format.
+     */
+    function get_time_regexp() {
+        return "/^(\d+)([smhDWMY])$/";
+    }
