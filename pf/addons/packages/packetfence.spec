@@ -218,6 +218,7 @@ mv packetfence.mo conf/locale/pt_BR/LC_MESSAGES/
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/run
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/rrd 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/webadmin_cache
 cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r addons/802.1X/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/captive-portal/ $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -672,6 +673,7 @@ fi
 %dir                    /usr/local/pf/var/run
 %dir                    /usr/local/pf/var/rrd
 %dir                    /usr/local/pf/var/session
+%dir                    /usr/local/pf/var/webadmin_cache
 
 # Remote snort sensor file list
 %files remote-snort-sensor

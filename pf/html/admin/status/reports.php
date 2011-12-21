@@ -381,7 +381,7 @@ array('owner', 'person/lookup.php')));
   $my_table->tableprint(false);
 
   if($graph){
-    print "</td><td style='padding-top:15px;' align=center>";
+    print "</td><td style='padding-top:15px;' align=center valign=top>";
     jsgraph(array('type' => trim($type), 'span' => 'report'));
     print "</td></tr></table></center>";
   }

@@ -113,6 +113,13 @@
     }
 
     /*
+     * Returns Web Administration cache path
+     */
+    function get_cache_path() {
+        return get_var_path() . 'webadmin_cache/';
+    }
+
+    /*
      * Returns logs path
      */
     function get_logs_path() {

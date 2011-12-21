@@ -55,6 +55,11 @@ o Upgrading from a version prior to <trunk-release>:
     PacketFence can now limits the number of SNMP traps coming from a single
     ifIndex. See pf/conf/documentation.conf under vlan for more infos.
 
+    - dropped jpgraph external library
+    We migrated out of jpgraph into a new javascript-based library for our 
+    charts and graphs. Source users will have to create a webadmin_cache/ 
+    directory in var/. Packaged users won't have to do a thing.
+
 o Upgrading from a version prior to 3.0.3:
 
     - New dependency

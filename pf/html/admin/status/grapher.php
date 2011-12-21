@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  * 
+ * @author      Francis Lachapelle <flachapelle@inverse.ca>
+ * @author      Olivier Bilodeau <obilodeau@inverse.ca>
  * @author      Francois Gaudreault <fgaudreault@inverse.ca>
  * @author      Dominik Gehl <dgehl@inverse.ca>
  * @copyright   2008-2011 Inverse inc.
@@ -93,20 +95,25 @@ function jsgraph($options) {
 
     if ($span == 'report') {
         $chart_data = get_pie_chart_data("report $type");
+        $title = pretty_header('status-reports', $type);
+        if ($GLOBALS['types'][$type] == 'pie') {
+            $title .= ' distribution';
+        }
+        $subtitle = '';
     } else {
         $chart_data = get_chart_data("graph $type $span");
         # For graphs with one data point, make them bar graphs
         if(count($chart_data['x_labels']) == 1){
             $single_point = 'bar';
         }
+        $title = pretty_header('status-graphs', $type);
+        $subtitle = "Per ".ucfirst($span);
     }
 
     print _jsgraph($chart_data['chart_data'],
                    $chart_data['x_labels'],
                    set_default($single_point, $GLOBALS['types'][$type], 'line'),
-                   $size,
-                   pretty_header('status-graphs', $type),
-                   "Per ".ucfirst($span));
+                   $size, $title, $subtitle);
   }
 }
 
@@ -128,7 +135,7 @@ function _jsgraph($series, $labels, $type, $size, $title, $subtitle) {
 }
 
 function get_pie_chart_data($cmd){
-        $cached_data = preg_replace("/\s+/", '_', get_var_path() . "/jpgraph_cache/$cmd");
+        $cached_data = preg_replace("/\s+/", '_', get_cache_path() . "$cmd");
 
         if(file_exists($cached_data)){
                 $cache_time = set_default($_SESSION['ui_prefs']['cache_time'], 0) * 60;
@@ -136,7 +143,6 @@ function get_pie_chart_data($cmd){
                         return unserialize(file_get_contents($cached_data));
                 }
         }
-
 
         $rows = array_slice(PFCMD($cmd), 1, -1);
 
@@ -162,7 +168,7 @@ function get_pie_chart_data($cmd){
 }
 
 function get_chart_data($cmd){
-        $cached_data = preg_replace("/\s+/", '_', get_var_path() . "/jpgraph_cache/$cmd");
+        $cached_data = preg_replace("/\s+/", '_', get_cache_path() . "$cmd");
 
         if(file_exists($cached_data)){
                 $cache_time = set_default($_SESSION['ui_prefs']['cache_time'], 0) * 60;

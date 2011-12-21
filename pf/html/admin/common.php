@@ -992,6 +992,22 @@ function PrintSubNav($menu){
     print "</pre></div>";
   }
 
+  function helper_menu($current_top, $current_sub, $current, $draw_menu, $additional){
+    $o = array();
+    if($draw_menu){
+      $additional = "<br>$additional";
+      $meta_array=meta("$current_top-$current_sub");
+      if($meta_array){
+        foreach($meta_array as $link){
+          $link[0] == $current ? $links[]="<a href='$current_top/$current_sub.php?menu=true&type=$link[0]'><u>$link[1]</u></a>" : $links[]="<a href='$current_top/$current_sub.php?menu=true&type=$link[0]'>$link[1]</a>"; 
+        }
+       $o[] =  implode(" | ", $links);
+      }
+    }
+    if($draw_menu || $additional)
+      return "<div id='message_box'>".implode("\n", $o)."$additional</div>";
+  } // end helper_menu
+
   function set_default(){
     foreach(func_get_args() as $arg){
       if($arg){ return $arg; }
