@@ -171,9 +171,10 @@ window.onload = function () {
                                values,
                                {
                                    stacked: true,
-                                   type: "soft",
+                                   type: "soft"
                                }
-                              ).hover(fin, fout);
+                              );
+        chart.hover(fin, fout);
 
         // Print legend
  	chart.legend = r.set();
