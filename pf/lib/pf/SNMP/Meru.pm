@@ -8,23 +8,6 @@ pf::SNMP::Meru
 
 Module to manage Meru controllers
 
-=cut
-
-use strict;
-use warnings;
-use diagnostics;
-
-use Log::Log4perl;
-use Net::Appliance::Session;
-use POSIX;
-
-use base ('pf::SNMP');
-
-use pf::config;
-# importing switch constants
-use pf::SNMP::constants;
-use pf::util;
-
 =head1 STATUS
 
 Tested against MeruOS version 3.6.1-67
@@ -44,8 +27,34 @@ The vendor doesn't include the SSID in their RADIUS-Request when on MAC Authenti
 VLAN assignment per SSID is not possible.
 This is a vendor issue and might be fixed in newer firmware versions.
 
+=item Caching problems on secure connections
+
+Performing a de-authentication does not clear the key cache. 
+Meaning that on reconnection the device's authorization is served straight from the cache 
+instead of creating a new RADIUS query.
+This defeats the reason why we perform de-authentication (to change VLAN or deny access).
+
+A client-side workaround exists: disable the PMK Caching on the client.
+However this could (and should in our opinion) be fixed by the vendor.
+
 =back
- 
+
+=cut
+use strict;
+use warnings;
+use diagnostics;
+
+use Log::Log4perl;
+use Net::Appliance::Session;
+use POSIX;
+
+use base ('pf::SNMP');
+
+use pf::config;
+# importing switch constants
+use pf::SNMP::constants;
+use pf::util;
+
 =head1 SUBROUTINES
 
 =over

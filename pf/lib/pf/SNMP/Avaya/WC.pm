@@ -11,7 +11,21 @@ manage Avaya Wireless Controllers
 
 =head1 BUGS AND LIMITATIONS
 
-SNMPv3 support is untested.
+=over
+
+=item Caching problems on secure connections
+
+Performing a de-authentication does not clear the key cache. 
+Meaning that on reconnection the device's authorization is served straight from the cache 
+instead of creating a new RADIUS query.
+This defeats the reason why we perform de-authentication (to change VLAN or deny access).
+
+A client-side workaround exists: disable the PMK Caching on the client.
+However this could (and should in our opinion) be fixed by the vendor.
+
+=item SNMPv3 support is untested.
+
+=back
 
 =over
 
