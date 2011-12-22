@@ -102,6 +102,9 @@ window.onload = function () {
         height = 250,
         ray = 90;
 
+        for (var i = 0; i < labels.length; i++)
+            labels[i] += " - %%.%%";
+
         $(holder).setStyle({ width: width+'px',
                              height: height+'px' });
 
