@@ -1,20 +1,25 @@
 # pt_BR translation for PacketFence
-# Copyright (C) 2011 Inverse inc.
+# Copyright (C) 2006-2011 Inverse inc.
 # This file is distributed under the same license as the PacketFence project.
-# Brivaldo Junior <condector@gmail.com>, 2011
-#
+# 
+# Translators:
+# Brivaldo Junior <condector@gmail.com>, 2011.
+#   <djkakaroto@gmail.com>, 2011.
 domain "packetfence"
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"PO-Revision-Date: 2011-02-28 18:06-0400\n"
-"Last-Translator: Brivaldo Junior <condector@gmail.com>\n"
-"Language-Team: PacketFence support <support@packetfence.org>\n"
+"Report-Msgid-Bugs-To: http://www.packetfence.org/bugs/\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2011-12-05 17:30+0000\n"
+"Last-Translator: djkakaroto <djkakaroto@gmail.com>\n"
+"Language-Team: Portuguese (Brazilian) (http://www.transifex.net/projects/p/packetfence/team/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n>1;"
+"Language: pt_BR\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
 msgid "en_US"
 msgstr "English"
@@ -57,7 +62,9 @@ msgid "error: max re-enables reached"
 msgstr "O número de re-abilitações chegou ao máximo!"
 
 msgid "error: not found in the database"
-msgstr "Se computador não foi encontrado na base de dados do PacketFence. Por favor, reinicie seu computador para resolver este problema."
+msgstr ""
+"Seu computador não foi encontrado na base de dados do PacketFence. Por "
+"favor, reinicie seu computador para resolver este problema."
 
 msgid "error: not trappable IP"
 msgstr "Acesso negado: IP não interceptável!"
@@ -72,40 +79,65 @@ msgstr "Impossível validar credenciais no momento"
 msgid "Unable to validate credentials at the moment"
 msgstr "Impossível validar credenciais no momento"
 
-msgid "help: provide info"
-msgstr "Se você tem perguntas sobre esta página, entre em contato com a equipe de suporte para assistência. Por favor, forneça as seguintes informações: "
+msgid "error: something went wrong creating the guest"
+msgstr "Houve um problema ao criar a conta de convidado."
 
+msgid "help: provide info"
+msgstr ""
+"Se você tem perguntas sobre esta página, entre em contato com a equipe de "
+"suporte para assistência. Por favor, forneça as seguintes informações: "
 
 msgid "register: all systems must be registered"
-msgstr "Como pode ser necessário contactar usuários individualmente, todos os sistemas na rede devem ser registrados."
+msgstr ""
+"Como podemos precisar entrar em contato com os usuários individualmente, "
+"todos os sistemas na rede devem ser registrados."
 
 msgid "register: aup"
-msgstr "O processo de registro requer a aceitação das Políticas de Uso Aceitável da Rede (PUAR). Se você deseja ler as políticas antes de começar o processo de registro, por favor visite:"
+msgstr ""
+"O processo de registro requer a aceitação das Políticas de Uso Aceitável da "
+"Rede (PUAR). Se você deseja ler as políticas antes de começar o processo de "
+"registro, por favor visite:"
 
 msgid "register: to complete"
-msgstr "Para completar o processo de registro, você deve se autenticar usando seu usuário e senha."
+msgstr ""
+"Para completar o processo de registro, você deve se autenticar usando seu "
+"usuário e senha."
 
-msgid "register: select authentications"
-msgstr "Selecione a Autenticação"
+msgid "Authentication"
+msgstr "Autenticação"
+
+msgid "or"
+msgstr "ou"
+
+msgid "Sign up"
+msgstr "Registrar"
 
 msgid "register: skip registration"
 msgstr "Pular registro"
 
-
 msgid "release: enabling network"
-msgstr "Habilitar o acesso a rede"
+msgstr "Habilitar o acesso à rede"
 
 msgid "release: reopen browser"
-msgstr "Você talvez tenha que reabrir o seu navegador de internet"
+msgstr ""
+"Você pode ter que re-abrir o seu navegador para ter acesso à Internet. Se o "
+"usuário estiver conectado a um telefone, o usuário precisará reiniciar o "
+"computador para ter acesso à Internet."
 
 msgid "scan: scan in progress"
 msgstr "Seu sistema está sendo varrido"
 
 msgid "scan in progress contact support if too long"
-msgstr "Seu sistema ainda está sendo varrido. O processo começou as %s. Geralmente este processo leva apenas alguns minutos. Se por algum motivo estiver demorando muito, entre em contato com o suporte. Por favor, forneça as seguintes informações:"
+msgstr ""
+"Seu sistema ainda está sendo varrido. O processo começou as %s. Geralmente "
+"este processo leva apenas alguns minutos. Se por algum motivo estiver "
+"demorando muito, entre em contato com o suporte. Por favor, forneça as "
+"seguintes informações:"
 
 msgid "automatically refresh"
-msgstr "Esta página será atualizada automaticamente a cada %s segundos para verificar se a varredura terminou."
+msgstr ""
+"Esta página será atualizada automaticamente a cada %s segundos para "
+"verificar se a varredura terminou."
 
 msgid "Acceptable Use Policy"
 msgstr "Política de Uso Aceitável da Rede"
@@ -115,9 +147,6 @@ msgstr "Endereços"
 
 msgid "De-register node"
 msgstr "Desregistrar nó"
-
-msgid "Enabling ..."
-msgstr "Habilitando ..."
 
 msgid "Scanning ..."
 msgstr "Escaneando ..."
@@ -129,7 +158,7 @@ msgid "grace"
 msgstr "grace"
 
 msgid "Hostname"
-msgstr "Nome do equipamento"
+msgstr "Nome do Equipamento"
 
 msgid "IP"
 msgstr "Endereço IP"
@@ -141,16 +170,69 @@ msgid "MAC"
 msgstr "MAC"
 
 msgid "network access is being enabled"
-msgstr "Seu acesso a rede foi ativado - este processo vai demorar aproximadamente %s segundos."
+msgstr ""
+"Seu acesso à rede está sendo ativado. Uma vez que a conectividade da rede "
+"for estabelecida, o usuário será automaticamente redirecionado."
 
 msgid "system scan in progress"
-msgstr "Seu sistema está sendo varrido - este processo vai demorar aproximadamente %s segundos."
+msgstr ""
+"Seu sistema está sendo varrido - este processo vai demorar aproximadamente "
+"%s segundos."
 
 msgid "Node"
 msgstr "Nó"
 
 msgid "PacketFence Registration System"
 msgstr "Sistema de Registro PacketFence"
+
+msgid "Guest Registration"
+msgstr "Registro de Convidado"
+
+msgid "guest network disclaimer"
+msgstr ""
+"Esta rede de Convidado é fornecida exclusivamente para a conveniência dos "
+"convidados e visitantes. O acesso não implica nenhuma garantia de "
+"velocidade, confiabilidade ou privacidade; esta rede é fornecida para o "
+"propósito expresso de facilitar a simples comunicação com a Internet. O uso "
+"implica, acordo com todos os termos e condições apropriadas de comportamento"
+" da nossa <b>Política de Utilização Aceitável da Rede.</b>"
+
+msgid ""
+"In the fields below please enter your name, phone number and a valid email "
+"address."
+msgstr ""
+"Nos campos abaixo digite seu nome, número de telefone e um endereço de email"
+" válido."
+
+msgid ""
+"If you choose to receive your access code <strong>by email</strong>, you "
+"will be given temporary network access for 10 minutes during that time:"
+msgstr ""
+"Se você escolher receber o seu código de acesso <strong>por e-mail,</strong>"
+" você terá acesso temporário à rede por 10 minutos, durante esse tempo:"
+
+msgid "Login to the email account you referenced and;"
+msgstr "Login para a conta de e-mail e usuário referenciados;"
+
+msgid ""
+"Click on the link emailed to you to validate network access for the next 24 "
+"hours."
+msgstr ""
+"Clique no link por e-mail para validar o acesso à rede para as próximas 24 "
+"horas."
+
+msgid "Register by Email"
+msgstr "Registrar por E-mail"
+
+msgid ""
+"If you choose to receive your access code <strong>by SMS</strong>, you will "
+"be able to enter it on the next page."
+msgstr ""
+"Se o usuário escolher receber o seu código de acesso <strong>por "
+"SMS</strong>, o usuário será capaz de inseri-lo na página seguinte."
+
+msgid "Register by SMS"
+msgstr "Registrar por SMS"
 
 msgid "Password"
 msgstr "Senha"
@@ -174,7 +256,7 @@ msgid "unknown"
 msgstr "desconhecido"
 
 msgid "unreg"
-msgstr "desregistrado"
+msgstr "não registrado"
 
 msgid "Username"
 msgstr "Usuário"
@@ -191,11 +273,18 @@ msgstr "Notificação de Registro"
 msgid "Additional Assistance"
 msgstr "Assistência Adicional"
 
-msgid "If your network connectivity becomes permanently disabled or you are unable to follow the instructions above, please contact your local IT support staff for assistance."
-msgstr "Se a conectividade da sua rede ficar desabilitada permanentemente ou se você está impossibilitado de seguir as instruções acima, por favor, entre em contato com o suporte de TI para assistência."
+msgid ""
+"If your network connectivity becomes permanently disabled or you are unable "
+"to follow the instructions above, please contact your local IT support staff"
+" for assistance."
+msgstr ""
+"Se a conectividade da sua rede ficar desabilitada permanentemente ou se o "
+"usuário está impossibilitado de seguir as instruções acima, por favor, entre"
+" em contato com o suporte de TI para assistência."
 
 msgid "The following information should be provided upon request:"
-msgstr "As seguintes informações devem ser fornecidas junto com sua requisição:"
+msgstr ""
+"As seguintes informações devem ser fornecidas junto com sua requisição:"
 
 msgid "IP Address"
 msgstr "Endereço IP"
@@ -206,53 +295,547 @@ msgstr "Endereço MAC"
 msgid "Banned Operating System"
 msgstr "Sistema Operacional Banido"
 
-msgid "You have been detected using an operating system not allowed on the network. Please install a more recent operating system"
-msgstr "Você foi detectado usando um sistema operacional não permitido nesta rede. Por favor instale um sistema operacional mais recente"
+msgid ""
+"You have been detected using an operating system not allowed on the network."
+" Please install a more recent operating system"
+msgstr ""
+"O usuário foi detectado usando um sistema operacional não permitido nesta "
+"rede. Por favor, instale um sistema operacional mais recente"
 
 msgid "Darknet Violation"
-msgstr "Seu sistema foi detectado enviando tráfego para uma rede que é conhecida por não ser utilizada (darknet). Isso geralmente é um indicativo de infecção por vírus/verme."
+msgstr "Violação Darknet"
 
-msgid "Your system will likely need to be rebuilt. Please contact your local support staff for more information."
-msgstr "Seu sistema provavelmente precisa ser reinstalado. Por favor, entre em contato com o suporte para mais informações."
+msgid ""
+"Your system has been detected sending traffic to a network known to be "
+"unused (darknet). This is often indicative of a worm/virus infection."
+msgstr ""
+"Seu sistema foi detectado o envio de tráfego para uma rede conhecida por ser"
+" utilizado (darknet). Isso é muitas vezes indicativo de uma infecção "
+"worm/vírus."
+
+msgid ""
+"Your system will likely need to be rebuilt. Please contact your local "
+"support staff for more information."
+msgstr ""
+"Seu sistema provavelmente precisa ser reinstalado. Por favor, entre em "
+"contato com o suporte para mais informações."
+
+msgid ""
+"Your system will likely need to be rebuilt. Please contact your support "
+"staff for more information."
+msgstr ""
+"Seu sistema provavelmente precisará ser reconstruído. Por favor, entre em "
+"contato com o suporte para mais informações."
 
 msgid "Windows patches are not up to date"
 msgstr "As atualizações de segurança do Windows estão desatualizadas"
 
-msgid "Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken. Instructions for disinfection are below:"
-msgstr "Devido à ameaça que está infecção representa para outros sistemas na rede, a conectividade com a rede foi desabilitada até que ações corretivas sejam tomadas. Instruções para desinfecção estão abaixo:"
+msgid ""
+"Due to the threat this infection poses for other systems on the network, "
+"network connectivity has been disabled until corrective action is taken. "
+"Instructions for disinfection are below:"
+msgstr ""
+"Devido à ameaça que está infecção representa para outros sistemas na rede, a"
+" conectividade com a rede foi desabilitada até que ações corretivas sejam "
+"tomadas. Instruções para desinfecção estão abaixo:"
 
 msgid "Generic"
-msgstr "Generico"
+msgstr "Genérico"
 
 msgid "Network connectivity has been disabled."
 msgstr "A conectividade com a rede foi desabilitada."
 
 msgid "Please contact your support staff for more information."
-msgstr "Por favor, entre em contato com a equipe de suporte para mais informações."
+msgstr ""
+"Por favor, entre em contato com a equipe de suporte para mais informações."
 
 msgid "Hub Detection"
 msgstr "Detecção de Hub"
 
-msgid "You have been detected using a hub. Such device is not permitted on the network.  Please remove it."
-msgstr "Você foi detectado usando um hub. Este dispositivo não é permitido na rede. Por favor remova."
+msgid ""
+"You have been detected using a hub. Such device is not permitted on the "
+"network.  Please remove it."
+msgstr ""
+"Você foi detectado usando um hub. Este dispositivo não é permitido na rede. "
+"Por favor, remova-o."
 
 msgid "Peer-to-Peer"
 msgstr "Peer-to-Peer (P2P)"
 
-msgid "You have been detected using a peer-to-peer file sharing application. Such software is not permitted on the network.  Please uninstall the infringing software."
-msgstr "Você foi detectado usando uma aplicação de compartilhamento de arquivos por peer-to-peer (P2P). Este tipo de software não é permitido na rede. Por favor desinstale o software infrator."
+msgid ""
+"You have been detected using a peer-to-peer file sharing application. Such "
+"software is not permitted on the network.  Please uninstall the infringing "
+"software."
+msgstr ""
+"O usuário foi detectado usando uma aplicação de compartilhamento de arquivos"
+" por peer-to-peer (P2P). Este tipo de software não é permitido na rede. Por "
+"favor desinstale o software infrator."
 
 msgid "System Scanning"
 msgstr "Varrendo Sistema"
 
-msgid "Your system has been found to be scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
-msgstr "Seu sistema foi detectado por estar varrendo outros sistemas. Devido à ameaça que está infecção representa para outros sistemas na rede, a conectividade com a rede foi desabilitada até que ações corretivas sejam tomadas."
+msgid ""
+"Your system has been found to be scanning other systems. Due to the threat "
+"this infection poses for other systems on the network, network connectivity "
+"has been disabled until corrective action is taken."
+msgstr ""
+"Seu sistema foi detectado por estar varrendo outros sistemas. Devido à "
+"ameaça que está infecção representa para outros sistemas na rede, a "
+"conectividade com a rede foi desabilitada até que ações corretivas sejam "
+"tomadas."
 
 msgid "Spamming"
 msgstr "Spam"
 
-msgid "Your system has been found to be sending unsolicited commercial email (UCE, or \"spam\") to other systems. Due to the threat this poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
-msgstr "Seu sistema foi detectado por estar enviando emails comerciais não solicitados (UCE, ou \"spam\") para outros sistemas. Devido à ameaça que está infecção representa para outros sistemas na rede, a conectividade com a rede foi desabilitada até que ações corretivas sejam tomadas."
+msgid ""
+"Your system has been found to be sending unsolicited commercial email (UCE, "
+"or \"spam\") to other systems. Due to the threat this poses for other "
+"systems on the network, network connectivity has been disabled until "
+"corrective action is taken."
+msgstr ""
+"Seu sistema foi detectado por estar enviando emails comerciais não "
+"solicitados (UCE, ou \"spam\") para outros sistemas. Devido à ameaça que "
+"está infecção representa para outros sistemas na rede, a conectividade com a"
+" rede foi desabilitada até que ações corretivas sejam tomadas."
 
-msgid "Your system may need to be rebuilt. Please contact your local support staff for more information."
-msgstr "Seu sistema talvez precise ser reinstalado. Por favor, entre em contato com o suporte para mais informações."
+msgid ""
+"Your system may need to be rebuilt. Please contact your local support staff "
+"for more information."
+msgstr ""
+"Seu sistema talvez precise ser reinstalado. Por favor, entre em contato com "
+"o suporte para mais informações."
+
+msgid "guest management"
+msgstr "Gerência de Convidado"
+
+msgid "guest registration form"
+msgstr "Formulário de Registro de Convidado"
+
+msgid "guest registration instructions"
+msgstr ""
+"Por favor, preencha todos os campos abaixo para a conta de convidado ser "
+"criada. Os convidados não serão capazes de se registrar antes da data de "
+"chegada ou após a data de chegada, além da duração com uma janela de "
+"tolerância de um dia. A duração do acesso terá início assim que o convidado "
+"conectar ao Portal Captive."
+
+msgid "Firstname"
+msgstr "Nome"
+
+msgid "Lastname"
+msgstr "Sobrenome"
+
+msgid "Phone number"
+msgstr "Telefone"
+
+msgid "Phone Provider"
+msgstr "Operadora"
+
+msgid "Select your provider"
+msgstr "Selecione sua operadora"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Arrival Date"
+msgstr "Data de Chegada"
+
+msgid "End Date"
+msgstr "Data Final"
+
+msgid "Access Duration"
+msgstr "Duração do Acesso"
+
+msgid "Send access code by email"
+msgstr "Enviar código de acesso por e-mail"
+
+msgid "Print access code"
+msgstr "Imprimir código de acesso"
+
+msgid "Print"
+msgstr "Imprimir"
+
+msgid "Back"
+msgstr "Voltar"
+
+msgid "second"
+msgid_plural "seconds"
+msgstr[0] "segundo"
+msgstr[1] "segundos"
+
+msgid "minute"
+msgid_plural "minutes"
+msgstr[0] "minuto"
+msgstr[1] "minutos"
+
+msgid "hour"
+msgid_plural "hours"
+msgstr[0] "hora"
+msgstr[1] "horas"
+
+msgid "day"
+msgid_plural "days"
+msgstr[0] "dia"
+msgstr[1] "dias"
+
+msgid "week"
+msgid_plural "weeks"
+msgstr[0] "semana"
+msgstr[1] "semanas"
+
+msgid "month"
+msgid_plural "months"
+msgstr[0] "mês"
+msgstr[1] "meses"
+
+msgid "year"
+msgid_plural "years"
+msgstr[0] "ano"
+msgstr[1] "anos"
+
+msgid "Invalid access duration provided"
+msgstr "Inválido a duração de acesso fornecido"
+
+msgid "Expected on %s"
+msgstr "Esperado em %s"
+
+msgid "Missing mandatory parameter or malformed entry."
+msgstr "Falta de parâmetro obrigatório ou entrada incorreta."
+
+msgid "Usernames must only contain alphanumeric characters."
+msgstr "Nomes de usuários deve conter apenas caracteres alfanuméricos."
+
+msgid "Access duration is not of an allowed value."
+msgstr "A duração do acesso não é um valor permitido."
+
+msgid "Arrival date is not of expected format."
+msgstr "A data de chegada não é o formato esperado."
+
+msgid ""
+"You can't register as a guest with a %s email address. Please register as a "
+"regular user using your email address instead."
+msgstr ""
+"O usuário não pode se registrar como convidado com o endereço de email %s. "
+"Por favor, se registre como um usuário normal usando em seu lugar, o seu "
+"endereço de e-mail."
+
+msgid "An error occured while sending the confirmation email."
+msgstr "Ocorreu um erro ao enviar o e-mail de confirmação."
+
+msgid "An error occured while sending the PIN by SMS."
+msgstr "Ocorreu um erro ao enviar o PIN por SMS."
+
+msgid "The uploaded file was corrupted. Please try again."
+msgstr "O arquivo enviado foi corrompido. Por favor, tente novamente."
+
+msgid "Can't open uploaded file."
+msgstr "Não é possível abrir o arquivo enviado."
+
+msgid "Confirm Mobile Phone Number"
+msgstr "Confirmar o número do telefone celular"
+
+msgid ""
+"Please enter the PIN code received on your mobile phone in order to gain "
+"access to the network."
+msgstr ""
+"Por favor, insira o código PIN recebido em seu telefone celular a fim de "
+"ganhar acesso à rede."
+
+msgid "PIN"
+msgstr "PIN"
+
+msgid "Confirm"
+msgstr "Confirmar"
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "Guest Access Code"
+msgstr "Código de Acesso de Convidado"
+
+msgid "This username and password will be valid starting %s."
+msgstr "Esse nome de usuário e senha serão válidos a partir %s."
+
+msgid "Once authenticated the access will be valid for %d %s."
+msgstr "Uma vez autenticado o acesso será válido para %d %s."
+
+msgid ""
+"Guest successfully registered. An email with the username and password has "
+"been sent."
+msgstr ""
+"Convidado registrado com sucesso. Um e-mail com o usuário e senha foi "
+"enviado."
+
+msgid "Import completed: %i guest(s) created, %i line(s) skipped."
+msgstr "Importação concluída: %i visitante(s) criado, %i linha(s) ignorada."
+
+msgid "Single guest creation"
+msgstr "Criação simples de convidado"
+
+msgid "Multiple guest accounts creation"
+msgstr "Criação de várias contas de convidados"
+
+msgid "CSV file"
+msgstr "Arquivo CSV"
+
+msgid "CSV file import"
+msgstr "Importação de arquivo CSV"
+
+msgid "You are logged in as"
+msgstr "Usuário está logado como"
+
+msgid "Sponsored by"
+msgstr "Patrocinado por"
+
+msgid "Guest Network Access Information"
+msgstr "Informação de Acesso à Rede de Convidado"
+
+msgid ""
+"If you have scripting turned off, you will not be automatically redirected. "
+"Please enable scripting or open a new browser window from time to time to "
+"see if your access was enabled."
+msgstr ""
+"Se o usuário possuir scripting desligado, o usuário não será redirecionado "
+"automaticamente. Por favor, ative o scripting ou abra uma nova janela do "
+"navegador de tempos em tempos para ver se o seu acesso foi ativado."
+
+msgid ""
+"Unable to detect network connectivity. Try opening a web page to see if your"
+" access has been succesfully enabled."
+msgstr ""
+"Incapaz de detectar a conectividade da rede. Tente abrir uma página web para"
+" ver se o seu acesso foi habilitado com sucesso."
+
+msgid "Registration pending"
+msgstr "Registro pendente"
+
+msgid ""
+"There are known issues with the automatic redirection on Opera browsers. "
+"Please open a new browser window from time to time to see if your access was"
+" enabled."
+msgstr ""
+"Existem problemas conhecidos com o redirecionamento automático em "
+"navegadores Opera. Por favor, abra uma nova janela do navegador de tempos em"
+" tempos para ver se o seu acesso foi ativado."
+
+msgid ""
+"Some versions of Internet Explorer may take a while before redirection "
+"occur."
+msgstr ""
+"Algumas versões do Internet Explorer pode demorar um pouco antes de ocorrer "
+"o redirecionamento."
+
+msgid "I accept the terms"
+msgstr "Eu aceito os termos"
+
+msgid "I have read and accept the terms"
+msgstr "Eu li e aceito os termos <a href='/aup' target='_blank'></a>"
+
+msgid "You need to accept the terms before proceeding any further."
+msgstr "O usuário precisa aceitar os termos antes de prosseguir."
+
+msgid ""
+"Your registration is pending approval. Once approved you will be "
+"automatically redirected."
+msgstr ""
+"O seu registro está pendente de aprovação. Uma vez aprovado, o usuário será "
+"automaticamente redirecionado."
+
+msgid "Next page"
+msgstr "Próxima página"
+
+msgid ""
+"The activation code provided is invalid. Reasons could be: it never existed,"
+" it was already used or has expired."
+msgstr ""
+"O código de ativação fornecido é inválido. Razões que podem ser: ele nunca "
+"existiu, já foi usado ou expirou."
+
+msgid ""
+"You have been detected using a device that has been explicitly disallowed by"
+" your network administrator."
+msgstr ""
+"O usuário foi detectado usando um dispositivo que tenha sido explicitamente "
+"proibido pelo administrador da rede."
+
+msgid "NAT Device Detected"
+msgstr "Dispositivo NAT Detectado"
+
+msgid ""
+"You have been detected using a device that performs network address "
+"translation (NAT). These devices, typically wireless access points or "
+"'routers' are not permitted on the network. Please unplug this device and "
+"connect your computer directly to the network for access."
+msgstr ""
+"O usuário foi detectado usando um dispositivo que realiza a tradução de "
+"endereços de rede (NAT). Estes dispositivos, tipicamente, pontos de acesso "
+"sem fio ou 'roteadores' não são permitidos na rede. Por favor, desligue o "
+"dispositivo e conecte seu computador diretamente à rede de acesso."
+
+msgid "Rogue DHCP server"
+msgstr "Servidor de DHCP Ilegal"
+
+msgid "You have been detected running a rogue DHCP server. Please disable it."
+msgstr ""
+"O usuário foi detectado executando um servidor DHCP Ilegal. Por favor, "
+"desative-o."
+
+msgid "Vulnerability Scanning"
+msgstr "Escaneamento de Vulnerabilidade"
+
+msgid ""
+"Your system will be scanned for vulnerabilities before you are allowed to "
+"enter the network. Please click on the button below, this can take anywhere "
+"from a few seconds to a couple of minutes."
+msgstr ""
+"Seu sistema será escaneado as vulnerabilidades, antes que seja autorizado a "
+"entrar na rede. Por favor, clique no botão abaixo, esse pode levar de alguns"
+" segundos a alguns minutos."
+
+msgid "Malware found!"
+msgstr "Malware encontrado!"
+
+msgid ""
+"Your system has been found to be infected with malware. Due to the threat "
+"this infection poses for other systems on the network, network connectivity "
+"has been disabled until corrective action is taken."
+msgstr ""
+"Seu sistema foi encontrado infectado com malware. Devido à ameaça que esta "
+"infecção representa para outros sistemas na rede, a conectividade da rede "
+"foi desativada, até que medidas corretivas sejam tomadas."
+
+msgid "Malware Removal"
+msgstr "Remoção de Malware"
+
+msgid "LSASS Worm"
+msgstr "Worm LSASS"
+
+msgid ""
+"Your system has been found to be infected with An LSASS-based worm. Due to "
+"the threat this infection poses for other systems on the network, network "
+"connectivity has been disabled until corrective action is taken. "
+"Instructions for disinfection are below:"
+msgstr ""
+"Seu sistema foi encontrado infectado com um vírus basead em LSASS. Devido à "
+"ameaça que esta infecção representa para outros sistemas na rede, a "
+"conectividade da rede foi desativada, até que medidas corretivas sejam "
+"tomadas. Instruções para desinfecção estão abaixo:"
+
+msgid "Worm Removal"
+msgstr "Remoção de Worm"
+
+msgid ""
+"Make sure your antivirus is working. You might want to perform a full system"
+" scan. Clicking the 'Enable Network' button below will re-enable your "
+"network access. Make sure that you followed the instructions to correct the "
+"issue. Failure to do so will result in network access being disabled again. "
+"Repeated failures will result in access being disabled permanently."
+msgstr ""
+"Verifique se o seu antivírus está funcionando. O usuário pode querer "
+"executar uma verificação completa do sistema. Clicando no botão abaixo "
+"\"Habilitar Rede\", re-habilitando seu acesso à rede. Certifique-se que o "
+"usuário seguiu as instruções para corrigir o problema. Não fazendo isso "
+"resultará em acesso à rede sendo desativado novamente. Repetidas falhas "
+"resultará em acesso sendo desativado permanentemente."
+
+msgid "Trojan Infection"
+msgstr "Infecção de trojan"
+
+msgid "Unauthorized device"
+msgstr "Dispositivo não autorizado"
+
+msgid ""
+"Your system has been found to be infected with a Trojan IRC bot and is "
+"scanning other systems. Due to the threat this infection poses for other "
+"systems on the network, network connectivity has been disabled until "
+"corrective action is taken."
+msgstr ""
+"Seu sistema foi encontrado infectado por um Trojan IRC Bot e está explorando"
+" outros sistemas. Devido à ameaça que esta infecção representa para outros "
+"sistemas na rede, a conectividade da rede foi desativada, até que medidas "
+"corretivas sejam tomadas."
+
+msgid "Zotob Infection"
+msgstr "Infecção de Zotob"
+
+msgid ""
+"Your system has been found to be infected with a Zotob worm and is scanning "
+"other systems. Due to the threat this infection poses for other systems on "
+"the network, network connectivity has been disabled until corrective action "
+"is taken."
+msgstr ""
+"Seu sistema foi encontrado infectado por um worm Zotob e está explorando "
+"outros sistemas. Devido à ameaça que esta infecção representa para outros "
+"sistemas na rede, a conectividade da rede foi desativada até que medidas "
+"corretivas sejam tomadas."
+
+msgid ""
+"Your network access is currently being enabled. Once network connectivity is"
+" established you will be automatically redirected."
+msgstr ""
+"O seu acesso à rede está atualmente sendo ativado. Uma vez que, a "
+"conectividade da rede for estabelecida, o usuário será automaticamente "
+"redirecionado."
+
+msgid "You must be authenticated to manage guests."
+msgstr "Você deve estar autenticado para gerenciar convidados."
+
+msgid "This account is expired."
+msgstr "Esta conta está expirada."
+
+msgid "This account is not yet activated."
+msgstr "Esta conta ainda não foi ativada."
+
+msgid ""
+"Your network should be enabled within a minute or two. If it is not reboot "
+"your computer."
+msgstr ""
+"Sua rede deve ser ativada dentro de um minuto ou dois. Se não foi ativada, "
+"reinicie o seu computador."
+
+msgid "Invalid PIN"
+msgstr "PIN inválido"
+
+msgid "Username Prefix"
+msgstr "Prefixo nome de usuário"
+
+msgid "Quantity"
+msgstr "Quantidade"
+
+msgid "Print access codes"
+msgstr "Imprimir códigos de acesso"
+
+msgid "Logout"
+msgstr "Sair"
+
+msgid "Required columns: username, password."
+msgstr "Colunas obrigatórias: usuário, senha."
+
+msgid "Column Delimiter"
+msgstr "Delimitador de Coluna"
+
+msgid "Columns Order"
+msgstr "Ordem das colunas"
+
+msgid "comma (,)"
+msgstr "vírgula (,)"
+
+msgid "semicolon (;)"
+msgstr "ponto e vírgula (;)"
+
+msgid "tab"
+msgstr "aba"
+
+msgid "Format is: yyyy-mm-dd"
+msgstr "Formato é: yyyy-mm-dd"
+
+msgid "Import file"
+msgstr "Importação de arquivo"
+
+msgid "Access to the guest network has been granted until %s."
+msgstr "Acesso à rede de convidado foi permitido até %s."
+
+msgid "Access to the guest network granted"
+msgstr "Acesso à rede de convidado permitido"
+
+

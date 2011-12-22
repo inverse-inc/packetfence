@@ -53,6 +53,10 @@ Bug Fixes
  * Captive portal error "0" when no password is provided
  * Interim fixes: #1349
 
+Translations
+ * New Hebrew (he_IL) translation (Thanks to Ereli)
+ * Updated Brazilian Portuguese (pt_BR) translation (Thanks to Diego de Souza Lopes and Mauricio Lopes)
+
 --------------------------------------------------------------------------------
 Version <release> released on <releaseDate>
 

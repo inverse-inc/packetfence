@@ -199,6 +199,8 @@ mv packetfence.mo conf/locale/en/LC_MESSAGES/
 mv packetfence.mo conf/locale/es/LC_MESSAGES/
 /usr/bin/msgfmt conf/locale/fr/LC_MESSAGES/packetfence.po
 mv packetfence.mo conf/locale/fr/LC_MESSAGES/
+/usr/bin/msgfmt conf/locale/he_IL/LC_MESSAGES/packetfence.po
+mv packetfence.mo conf/locale/he_IL/LC_MESSAGES/
 /usr/bin/msgfmt conf/locale/it/LC_MESSAGES/packetfence.po
 mv packetfence.mo conf/locale/it/LC_MESSAGES/
 /usr/bin/msgfmt conf/locale/nl/LC_MESSAGES/packetfence.po

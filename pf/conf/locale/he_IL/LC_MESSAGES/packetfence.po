@@ -1,0 +1,743 @@
+# he_IL translation for PacketFence
+# Copyright (C) 2006-2011 Inverse inc.
+# This file is distributed under the same license as the PacketFence project.
+# 
+# Translators:
+#   <ereli@securegion.com>, 2011.
+domain "packetfence"
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PacketFence\n"
+"Report-Msgid-Bugs-To: http://www.packetfence.org/bugs/\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2011-11-17 18:44+0000\n"
+"Last-Translator: Ereli <ereli@securegion.com>\n"
+"Language-Team: Hebrew (Israel) (http://www.transifex.net/projects/p/packetfence/team/he_IL/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: he_IL\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+msgid "en_US"
+msgstr "אנגלית"
+
+msgid "fr_FR"
+msgstr "צרפתית"
+
+msgid "es_ES"
+msgstr "ספרדית"
+
+msgid "de_DE"
+msgstr "גרמנית"
+
+msgid "it_IT"
+msgstr "איטלית"
+
+msgid "nl_NL"
+msgstr "הולנדית"
+
+msgid "pt_BR"
+msgstr "פורטוגזית"
+
+msgid "error: access denied not owner"
+msgstr "הגישה נדחתה: אתה לא הבעלים של הצומת הזה!"
+
+msgid "error: incorrect mode"
+msgstr "מצב שגוי!"
+
+# deprecated but kept for a couple of versions (until at least early 2013)
+msgid "error: invalid login or password"
+msgstr "שם משתמש או סיסמה שגויים"
+
+msgid "Invalid login or password"
+msgstr "שם משתמש או סיסמה שגויים"
+
+msgid "error: invalid page number"
+msgstr "מספר עמוד שגוי"
+
+msgid "error: max re-enables reached"
+msgstr "הגעת למקסימום הפעלות-מחדש!"
+
+msgid "error: not found in the database"
+msgstr ""
+"המחשב שלך לא נמצא במסד הנתונים של PacketFence. נא להפעיל מחדש את המחשב כדי "
+"לפתור בעיה זו."
+
+msgid "error: not trappable IP"
+msgstr "גישה נדחתה: כתובת IP לא ניתנת ללכידה!"
+
+msgid "error: only register max nodes"
+msgstr "אתה יכול לרשום רק %s צמתים!"
+
+# deprecated but kept for a couple of versions (until at least early 2013)
+msgid "error: unable to validate credentials at the moment"
+msgstr "לא מצליח כרגע לוודא פרטי הזדהות"
+
+msgid "Unable to validate credentials at the moment"
+msgstr "לא מצליח כרגע לוודא פרטי הזדהות"
+
+msgid "error: something went wrong creating the guest"
+msgstr "הייתה בעיה ביצירת חשבון אורח"
+
+msgid "help: provide info"
+msgstr ""
+"אם יש לך שאלות בקשר לדף זה, צור קשר עם איש התמיכה לסיוע. בבקשה ספק לו את "
+"הפרטים הבאים:"
+
+msgid "register: all systems must be registered"
+msgstr ""
+"ייתכן שנצטרך ליצור עם משתמשים מסוימים, ולכן כל המערכות ברשת זו דורשות הרשמה."
+
+msgid "register: aup"
+msgstr ""
+"תהליך ההרשמה דורש שתאשר קבלת מדיניות שימוש מותרת (מש\"מ). אם ברצונך לקרוא "
+"אותה לפני התחלת הליך ההרשמה, בקר בבקשה ב-"
+
+msgid "register: to complete"
+msgstr ""
+"על מנת לסיים את הליך ההרשמה, נדרש לזהות אותך באמצעות השם המשתמש והסיסמה שלך."
+
+msgid "Authentication"
+msgstr "הזדהות"
+
+msgid "or"
+msgstr "או"
+
+msgid "Sign up"
+msgstr "הרשמה ראשונית"
+
+msgid "register: skip registration"
+msgstr "דילוג על רישום"
+
+msgid "release: enabling network"
+msgstr "הפעלתי גישה לרשת"
+
+msgid "release: reopen browser"
+msgstr ""
+"אתה יכול לפתוח מחדש את הדפדפן שלך על מנת לגשת לאינטרנט. אם אתה אם אתה מחובר "
+"דרך טלפון, עליך להפעיל מחדש את המחשב."
+
+msgid "scan: scan in progress"
+msgstr "המחשב שלך נסרק"
+
+msgid "scan in progress contact support if too long"
+msgstr ""
+"המחשב של נסרק ברגעים אלה. התהליך התחיל ב%s. זה בדרך כלל לוקח מספר דקות. אם "
+"זה לוקח יותר מזה, צור קשר עם התמיכה שלך."
+
+msgid "automatically refresh"
+msgstr "דף זה מתרענן בצורה אוטומטית כל %s שניות כדי לבדוק אם הסריקה הסתיימה"
+
+msgid "Acceptable Use Policy"
+msgstr "מדיניות שימוש מותרת"
+
+msgid "Addresses"
+msgstr "כתובות"
+
+msgid "De-register node"
+msgstr "מחיקת רישום צומת"
+
+msgid "Scanning ..."
+msgstr "סורק..."
+
+msgid "Gateway"
+msgstr "שער"
+
+msgid "grace"
+msgstr "חסד"
+
+msgid "Hostname"
+msgstr "שם מחשב"
+
+msgid "IP"
+msgstr "כתובת IP"
+
+msgid "Login"
+msgstr "שם משתמש"
+
+msgid "MAC"
+msgstr "MAC"
+
+msgid "network access is being enabled"
+msgstr ""
+"הגישה שלך לרשת מופעלת ברגעים אלה. ברגע שהגישה תתאפשר אתה תופנה בצורה "
+"אוטומטית."
+
+msgid "system scan in progress"
+msgstr "המחשב שלך נסרק  - תהליך זה יקח בערך %s שניות."
+
+msgid "Node"
+msgstr "צומת"
+
+msgid "PacketFence Registration System"
+msgstr "מערכת רישום  PacketFence"
+
+msgid "Guest Registration"
+msgstr "רישום אורח"
+
+msgid "guest network disclaimer"
+msgstr ""
+"רשת אורחים זו קיימת לנוחיותם של אורחים ומבקרים. גישה לא כוללת בחובה שום "
+"אחריות או אמינות, מהירות או פרטיות; רשת זו קיימת לצורך אספקת גישה פשוטה "
+"לגלישה ברשת האינטרנט. שימוש בה מהווה הסכמה לכל התנאים והכללים המופיעים במסמך"
+" <b>מדיניות שימוש מותרת</b>."
+
+msgid ""
+"In the fields below please enter your name, phone number and a valid email "
+"address."
+msgstr ""
+"בשדות המופיעים מטה אנא הכנס את שמך, מספר הטלפון שלך וכתובת דואר אלקטרוני "
+"תקינה."
+
+msgid ""
+"If you choose to receive your access code <strong>by email</strong>, you "
+"will be given temporary network access for 10 minutes during that time:"
+msgstr ""
+"אם תבחר לקבלת את קוד הגישה שלך באמצעות <strong>דואר אלקטרוני</Strong>, תקבל "
+"גישה זמנית לרשת למשך 10 דקות:"
+
+msgid "Login to the email account you referenced and;"
+msgstr ""
+
+msgid ""
+"Click on the link emailed to you to validate network access for the next 24 "
+"hours."
+msgstr ""
+
+msgid "Register by Email"
+msgstr ""
+
+msgid ""
+"If you choose to receive your access code <strong>by SMS</strong>, you will "
+"be able to enter it on the next page."
+msgstr ""
+
+msgid "Register by SMS"
+msgstr ""
+
+msgid "Password"
+msgstr ""
+
+msgid "PID"
+msgstr ""
+
+msgid "Print this page"
+msgstr ""
+
+msgid "reg"
+msgstr ""
+
+msgid "Sorry"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "unknown"
+msgstr ""
+
+msgid "unreg"
+msgstr ""
+
+msgid "Username"
+msgstr ""
+
+msgid "Violations"
+msgstr ""
+
+msgid "Quarantine Established!"
+msgstr ""
+
+msgid "Registration Notification"
+msgstr ""
+
+msgid "Additional Assistance"
+msgstr ""
+
+msgid ""
+"If your network connectivity becomes permanently disabled or you are unable "
+"to follow the instructions above, please contact your local IT support staff"
+" for assistance."
+msgstr ""
+
+msgid "The following information should be provided upon request:"
+msgstr ""
+
+msgid "IP Address"
+msgstr ""
+
+msgid "MAC Address"
+msgstr ""
+
+msgid "Banned Operating System"
+msgstr ""
+
+msgid ""
+"You have been detected using an operating system not allowed on the network."
+" Please install a more recent operating system"
+msgstr ""
+
+msgid "Darknet Violation"
+msgstr ""
+
+msgid ""
+"Your system has been detected sending traffic to a network known to be "
+"unused (darknet). This is often indicative of a worm/virus infection."
+msgstr ""
+
+msgid ""
+"Your system will likely need to be rebuilt. Please contact your local "
+"support staff for more information."
+msgstr ""
+
+msgid ""
+"Your system will likely need to be rebuilt. Please contact your support "
+"staff for more information."
+msgstr ""
+
+msgid "Windows patches are not up to date"
+msgstr ""
+
+msgid ""
+"Due to the threat this infection poses for other systems on the network, "
+"network connectivity has been disabled until corrective action is taken. "
+"Instructions for disinfection are below:"
+msgstr ""
+
+msgid "Generic"
+msgstr ""
+
+msgid "Network connectivity has been disabled."
+msgstr ""
+
+msgid "Please contact your support staff for more information."
+msgstr ""
+
+msgid "Hub Detection"
+msgstr ""
+
+msgid ""
+"You have been detected using a hub. Such device is not permitted on the "
+"network.  Please remove it."
+msgstr ""
+
+msgid "Peer-to-Peer"
+msgstr ""
+
+msgid ""
+"You have been detected using a peer-to-peer file sharing application. Such "
+"software is not permitted on the network.  Please uninstall the infringing "
+"software."
+msgstr ""
+
+msgid "System Scanning"
+msgstr ""
+
+msgid ""
+"Your system has been found to be scanning other systems. Due to the threat "
+"this infection poses for other systems on the network, network connectivity "
+"has been disabled until corrective action is taken."
+msgstr ""
+
+msgid "Spamming"
+msgstr ""
+
+msgid ""
+"Your system has been found to be sending unsolicited commercial email (UCE, "
+"or \"spam\") to other systems. Due to the threat this poses for other "
+"systems on the network, network connectivity has been disabled until "
+"corrective action is taken."
+msgstr ""
+
+msgid ""
+"Your system may need to be rebuilt. Please contact your local support staff "
+"for more information."
+msgstr ""
+
+msgid "guest management"
+msgstr ""
+
+msgid "guest registration form"
+msgstr ""
+
+msgid "guest registration instructions"
+msgstr ""
+
+msgid "Firstname"
+msgstr ""
+
+msgid "Lastname"
+msgstr ""
+
+msgid "Phone number"
+msgstr ""
+
+msgid "Phone Provider"
+msgstr ""
+
+msgid "Select your provider"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Arrival Date"
+msgstr ""
+
+msgid "End Date"
+msgstr ""
+
+msgid "Access Duration"
+msgstr ""
+
+msgid "Send access code by email"
+msgstr ""
+
+msgid "Print access code"
+msgstr ""
+
+msgid "Print"
+msgstr ""
+
+msgid "Back"
+msgstr ""
+
+msgid "second"
+msgid_plural "seconds"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "minute"
+msgid_plural "minutes"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "hour"
+msgid_plural "hours"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "day"
+msgid_plural "days"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "week"
+msgid_plural "weeks"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "month"
+msgid_plural "months"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "year"
+msgid_plural "years"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Invalid access duration provided"
+msgstr ""
+
+msgid "Expected on %s"
+msgstr ""
+
+msgid "Missing mandatory parameter or malformed entry."
+msgstr ""
+
+msgid "Usernames must only contain alphanumeric characters."
+msgstr ""
+
+msgid "Access duration is not of an allowed value."
+msgstr ""
+
+msgid "Arrival date is not of expected format."
+msgstr ""
+
+msgid ""
+"You can't register as a guest with a %s email address. Please register as a "
+"regular user using your email address instead."
+msgstr ""
+
+msgid "An error occured while sending the confirmation email."
+msgstr ""
+
+msgid "An error occured while sending the PIN by SMS."
+msgstr ""
+
+msgid "The uploaded file was corrupted. Please try again."
+msgstr ""
+
+msgid "Can't open uploaded file."
+msgstr ""
+
+msgid "Confirm Mobile Phone Number"
+msgstr ""
+
+msgid ""
+"Please enter the PIN code received on your mobile phone in order to gain "
+"access to the network."
+msgstr ""
+
+msgid "PIN"
+msgstr ""
+
+msgid "Confirm"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Guest Access Code"
+msgstr ""
+
+msgid "This username and password will be valid starting %s."
+msgstr ""
+
+msgid "Once authenticated the access will be valid for %d %s."
+msgstr ""
+
+msgid ""
+"Guest successfully registered. An email with the username and password has "
+"been sent."
+msgstr ""
+
+msgid "Import completed: %i guest(s) created, %i line(s) skipped."
+msgstr ""
+
+msgid "Single guest creation"
+msgstr ""
+
+msgid "Multiple guest accounts creation"
+msgstr ""
+
+msgid "CSV file"
+msgstr ""
+
+msgid "CSV file import"
+msgstr ""
+
+msgid "You are logged in as"
+msgstr ""
+
+msgid "Sponsored by"
+msgstr ""
+
+msgid "Guest Network Access Information"
+msgstr ""
+
+msgid ""
+"If you have scripting turned off, you will not be automatically redirected. "
+"Please enable scripting or open a new browser window from time to time to "
+"see if your access was enabled."
+msgstr ""
+
+msgid ""
+"Unable to detect network connectivity. Try opening a web page to see if your"
+" access has been succesfully enabled."
+msgstr ""
+
+msgid "Registration pending"
+msgstr ""
+
+msgid ""
+"There are known issues with the automatic redirection on Opera browsers. "
+"Please open a new browser window from time to time to see if your access was"
+" enabled."
+msgstr ""
+
+msgid ""
+"Some versions of Internet Explorer may take a while before redirection "
+"occur."
+msgstr ""
+
+msgid "I accept the terms"
+msgstr ""
+
+msgid "I have read and accept the terms"
+msgstr ""
+
+msgid "You need to accept the terms before proceeding any further."
+msgstr "עליך לאשר את קבלת תנאי השירות לפני שתמשיך."
+
+msgid ""
+"Your registration is pending approval. Once approved you will be "
+"automatically redirected."
+msgstr "הרשמתך ממתינה לאישור. כשהיא תאושר אתה תופנה באופן אוטומטי."
+
+msgid "Next page"
+msgstr "עמוד הבא"
+
+msgid ""
+"The activation code provided is invalid. Reasons could be: it never existed,"
+" it was already used or has expired."
+msgstr ""
+"קוד ההפעלה שסופק שגוי. הסיבות לכך יכולות להיות: הוא מעולם לא התקיים, נעשה בו"
+" כבר שימוש או שהוא פג."
+
+msgid ""
+"You have been detected using a device that has been explicitly disallowed by"
+" your network administrator."
+msgstr ""
+"התגלה כי הינך עושה שימוש במכשיר שנאסר לשימוש במפורש על ידיד מנהל הרשת שלך."
+
+msgid "NAT Device Detected"
+msgstr "מכשיר NAT התגלה"
+
+msgid ""
+"You have been detected using a device that performs network address "
+"translation (NAT). These devices, typically wireless access points or "
+"'routers' are not permitted on the network. Please unplug this device and "
+"connect your computer directly to the network for access."
+msgstr ""
+"התגלה כי הנך עושה שימוש במכשיר הכולל תרגום כתובות רשת (NAT). מכשירים אלה, "
+"בדרך כלל נקודות גישה אלחוטיות או \"נתבים\" אסורים לשימוש ברשת. בבקשה נתק את "
+"המכשיר וחבר את המחשב שלך ישירות לשקע הרשת."
+
+msgid "Rogue DHCP server"
+msgstr "שרת DHCP לא מאושר"
+
+msgid "You have been detected running a rogue DHCP server. Please disable it."
+msgstr "התגלה כי הנך עושה שימוש בשרת DHCP לא מאושר. אנא חדל מכך."
+
+msgid "Vulnerability Scanning"
+msgstr "סריקת פגיעויות"
+
+msgid ""
+"Your system will be scanned for vulnerabilities before you are allowed to "
+"enter the network. Please click on the button below, this can take anywhere "
+"from a few seconds to a couple of minutes."
+msgstr ""
+"המחשב שלך יעבור סריקת פגיעויות לפי שתוכל להכנס לרשת. בבקשה לחץ על הכפתור "
+"מטה, זה עשוי לקחת בין מספר שניות למספר דקות."
+
+msgid "Malware found!"
+msgstr "נמצאה תוכנה זדונית!"
+
+msgid ""
+"Your system has been found to be infected with malware. Due to the threat "
+"this infection poses for other systems on the network, network connectivity "
+"has been disabled until corrective action is taken."
+msgstr ""
+"נמצא תוכנה זדונית על המחשב שלך. לאור האיום שנובע מכך שאתה עלול להדביק מחשבים"
+" אחרים ברשת, הגישה לשלך לרשת נותקה עד שתבוצע פעולה לתיקון הליקוי. "
+
+msgid "Malware Removal"
+msgstr "הסרת תוכנה זדונית"
+
+msgid "LSASS Worm"
+msgstr "תולעת LSASS"
+
+msgid ""
+"Your system has been found to be infected with An LSASS-based worm. Due to "
+"the threat this infection poses for other systems on the network, network "
+"connectivity has been disabled until corrective action is taken. "
+"Instructions for disinfection are below:"
+msgstr ""
+"המחשב שלך נמצא מודבק בתולעת LSASS. לאור האיום שמצב זה יוצר למחשבים אחרים, "
+"הגישה שלך לרשת נותקה עד שהמצב יותקן. הוראות להסרת התולעת מופיעות כאן:"
+
+msgid "Worm Removal"
+msgstr "הסרת תולעת"
+
+msgid ""
+"Make sure your antivirus is working. You might want to perform a full system"
+" scan. Clicking the 'Enable Network' button below will re-enable your "
+"network access. Make sure that you followed the instructions to correct the "
+"issue. Failure to do so will result in network access being disabled again. "
+"Repeated failures will result in access being disabled permanently."
+msgstr ""
+"אנא ודא כי תוכנת האנטי-ווירוס שלך עובד. ייתכן שעליך לבצע סריקה מערכת מלאה. "
+"לחיצה על "
+
+msgid "Trojan Infection"
+msgstr ""
+
+msgid "Unauthorized device"
+msgstr ""
+
+msgid ""
+"Your system has been found to be infected with a Trojan IRC bot and is "
+"scanning other systems. Due to the threat this infection poses for other "
+"systems on the network, network connectivity has been disabled until "
+"corrective action is taken."
+msgstr ""
+
+msgid "Zotob Infection"
+msgstr ""
+
+msgid ""
+"Your system has been found to be infected with a Zotob worm and is scanning "
+"other systems. Due to the threat this infection poses for other systems on "
+"the network, network connectivity has been disabled until corrective action "
+"is taken."
+msgstr ""
+
+msgid ""
+"Your network access is currently being enabled. Once network connectivity is"
+" established you will be automatically redirected."
+msgstr ""
+
+msgid "You must be authenticated to manage guests."
+msgstr ""
+
+msgid "This account is expired."
+msgstr ""
+
+msgid "This account is not yet activated."
+msgstr ""
+
+msgid ""
+"Your network should be enabled within a minute or two. If it is not reboot "
+"your computer."
+msgstr ""
+
+msgid "Invalid PIN"
+msgstr ""
+
+msgid "Username Prefix"
+msgstr "קידומת לשם המשתמש"
+
+msgid "Quantity"
+msgstr "כמות"
+
+msgid "Print access codes"
+msgstr "הדפס קודי גישה"
+
+msgid "Logout"
+msgstr "התנתקות"
+
+msgid "Required columns: username, password."
+msgstr "עמודות נדרשות: שם משתמש, סיסמה."
+
+msgid "Column Delimiter"
+msgstr "מפריד עמודות"
+
+msgid "Columns Order"
+msgstr "סדר עמודות"
+
+msgid "comma (,)"
+msgstr "פסיק (,)"
+
+msgid "semicolon (;)"
+msgstr "נקודה פסיק (;)"
+
+msgid "tab"
+msgstr "טאב"
+
+msgid "Format is: yyyy-mm-dd"
+msgstr "פורמט התאריך: yyyy-mm-dd"
+
+msgid "Import file"
+msgstr "קובץ יבוא"
+
+msgid "Access to the guest network has been granted until %s."
+msgstr "גישה לרשת אורחים הוענקה עד %s."
+
+msgid "Access to the guest network granted"
+msgstr "הוענקה גישה לרשת אורחים"
+
+
