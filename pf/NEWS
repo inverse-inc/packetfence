@@ -40,6 +40,7 @@ Enhancements
  * Performance improvements to pfdhcplistener
  * More startup validation on SNMPv3 Trap configuration
  * CentOS 6.2 support
+ * Several new HTTP User-Agents detected
 
 Bug Fixes
  * Slashes (/) not allowed in person id (#1322)

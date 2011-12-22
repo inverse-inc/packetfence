@@ -48,6 +48,11 @@ o Upgrading from a version prior to <trunk-release>:
     fingerprints) or reloading fingerprints (pfcmd reload fingerprints) will 
     still do.
 
+    - User-Agent database updated
+    We updated our User-Agent database. Some IDs could have changed in the 
+    process. Most shouldn't have. The upstream project (HTTP::BrowserDetect) 
+    accepted a patch from us to make this smoother in the future.
+
     - dhcp_dumper.pl addon changes
     Deep and important refactoring of the addon. Output format changed.
 
