@@ -46,6 +46,7 @@ Bug Fixes
  * Several small fixes in pfdhcplistener 
  * Inline: NAT out behavior of PacketFence was changed for the best
  * Keep IP to MAC associations across restarts (#1343)
+ * Interface enforcement is now configurable through Web UI / CLI (#1335)
  * Interim fixes: #1349
 
 --------------------------------------------------------------------------------

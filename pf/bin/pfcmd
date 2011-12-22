@@ -484,7 +484,7 @@ sub violationconfig {
                 $violations_conf{$section}{$key} =~ s/\s+$//;
             }
         }
-        # TODO columns should be auto-detected a la conf/ui.conf
+        # TODO columns should be auto-detected and displayed based on ui.conf (like print_results does)
         my @columns = qw(desc enabled auto_enable actions max_enable grace priority url button_text trigger vlan 
                 whitelisted_categories
         );
@@ -633,6 +633,7 @@ sub floatingnetworkdeviceconfig {
         my @sections_tmp = keys %floatingnetworkdevice_conf;
         my @sections = map substr( $_, 4 ) => sort map pack( 'C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/ ) 
             . $_ => @sections_tmp;
+        # TODO columns should be auto-detected and displayed based on ui.conf (like print_results does)
         my @columns = qw(ip trunkPort pvid taggedVlan);
         print "floatingnetworkdevice|" . join( "|", @columns ) . "\n";
         foreach my $section (@sections) {
@@ -730,6 +731,7 @@ sub networkconfig {
         my @networks = map substr( $_, 4 ) => sort map pack( 'C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/ ) 
             . $_ => @networks_tmp;
 
+        # TODO columns should be auto-detected and displayed based on ui.conf (like print_results does)
         my @columns = qw(
             type netmask gateway next_hop named dhcpd domain-name dns dhcp_start dhcp_end dhcp_default_lease_time
             dhcp_max_lease_time
@@ -858,7 +860,8 @@ sub interfaceconfig {
                 $pf_conf{$section}{$key} =~ s/\s+$//;
             }
         }
-        my @columns = qw(ip mask type gateway);
+        # TODO columns should be auto-detected and displayed based on ui.conf (like print_results does)
+        my @columns = qw(ip mask type enforcement gateway);
         print "interface|" . join( "|", @columns ) . "\n";
         foreach my $section ( keys %pf_conf ) {
             if ( $section =~ /^interface (.+)$/ ) {
@@ -967,7 +970,7 @@ sub switchconfig {
                 $switches_conf{$section}{$key} =~ s/\s+$//;
             }
         }
-        #TODO: information duplicated from ui.conf, consider refactoring (what do we do elsewhere?)
+        # TODO columns should be auto-detected and displayed based on ui.conf (like print_results does)
         my @columns = qw(
             ip type mode VoIPEnabled uplink 
             vlans normalVlan registrationVlan isolationVlan macDetectionVlan guestVlan voiceVlan 

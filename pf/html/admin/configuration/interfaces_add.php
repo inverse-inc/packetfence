@@ -20,7 +20,7 @@
  * USA.
  * 
  * @author      Olivier Bilodeau <obilodeau@inverse.ca>
- * @copyright   2008-2010 Inverse inc.
+ * @copyright   2008-2011 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
@@ -84,23 +84,56 @@
     }
 
     $pretty_key = pretty_header("configuration-interfaces", $key);
-    if ($key == 'type') {
-      print "<tr><td></td><td>$pretty_key:</td><td>";
-      print "\n<select multiple name='$key" .  "[]'>";
-      $my_values = explode(",", $val);
-      $my_options = array('dhcplistener' => 'dhcplistener', 'internal' => 'internal', 'managed' => 'managed', 'monitor' => 'monitor');
-      foreach ($my_options as $option_val => $option_txt) {
-        if (in_array($option_val, $my_values)) {
-          print "<option value='$option_val' SELECTED>$option_txt</option>\n";
-        } else {
-          print "<option value='$option_val'>$option_txt</option>\n";
-        }
-      }
-      print "</select>\n";
-    } else {
-      print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val'>";
-    }
+    switch($key) {
+      case 'type':
+        print "<tr><td></td><td>$pretty_key:</td><td>";
+        print "\n<select multiple name='$key" .  "[]'>";
+        # migrating deprecated values: managed -> management, dhcplistener -> dhcp-listener
+        foreach (explode(",", $val) as $value) {
+          switch ($value) {
+            case 'managed':
+              $my_values[] = 'management';
+              break;
 
+            case 'dhcplisteners':
+              $my_values[] = 'dhcp-listeners';
+              break;
+
+            default:
+              $my_values[] = $value;
+          }
+        }
+        $my_options = array(
+          'dhcp-listener' => 'dhcp-listener', 
+          'external' => 'external',
+          'high-availability' => 'high-availability',
+          'internal' => 'internal', 
+          'management' => 'management', 
+          'monitor' => 'monitor'
+        );
+        foreach ($my_options as $option_val => $option_txt) {
+          if (in_array($option_val, $my_values)) {
+            print "<option value='$option_val' SELECTED>$option_txt</option>\n";
+          } else {
+            print "<option value='$option_val'>$option_txt</option>\n";
+          }
+        }
+        print "</select>\n";
+        break;
+
+      case 'enforcement':
+        print "<tr><td></td><td>$pretty_key:</td><td>";
+        printSelect(
+          array('' => 'only if type internal', 'vlan' => 'VLAN', 'inline' => 'Inline'), 
+          'hash', $val, "name='$key'"
+        );
+        break;
+
+      default:
+        print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val'>";
+        break;
+
+    }
     print "</td></tr>";
   }
   print "<tr><td colspan=3 align=right><input type='submit' value='Add interface'></td></tr>";
