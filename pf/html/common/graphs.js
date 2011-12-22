@@ -41,7 +41,7 @@ window.onload = function () {
                                     axis: "0 0 1 1",
                                     axisxstep: axisxstep,
                                     symbol: "circle",
-                                    smooth: true,
+                                    smooth: false,
                                     //dash: "-",
                                     shade: true
                                 }
@@ -101,6 +101,9 @@ window.onload = function () {
         var width = 500,
         height = 250,
         ray = 90;
+
+        for (var i = 0; i < labels.length; i++)
+            labels[i] += " - %%.%%";
 
         $(holder).setStyle({ width: width+'px',
                              height: height+'px' });
