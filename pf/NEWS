@@ -48,6 +48,7 @@ Bug Fixes
  * Inline: NAT out behavior of PacketFence was changed for the best
  * Keep IP to MAC associations across restarts (#1343)
  * Interface enforcement is now configurable through Web UI / CLI (#1335)
+ * Violation charts now show proper values
  * Interim fixes: #1349
 
 --------------------------------------------------------------------------------

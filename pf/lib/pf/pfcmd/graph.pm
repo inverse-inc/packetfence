@@ -55,14 +55,50 @@ sub graph_db_prepare {
     $graph_statements->{'graph_unregistered_year_sql'} = get_db_handle()->prepare(
         qq [ SELECT 'unregistered nodes' as series, mydate, (SELECT COUNT(*) FROM node WHERE DATE_FORMAT(detect_date,"%Y") <= mydate AND (DATE_FORMAT(regdate,"%Y") >= mydate OR regdate=0) ) AS count FROM (SELECT DISTINCT DATE_FORMAT(detect_date,"%Y") AS mydate FROM node) as tmp group by mydate order by mydate ]);
 
-    $graph_statements->{'graph_violations_day_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mydate, (SELECT COUNT(*) FROM violation WHERE vid=myvid AND DATE_FORMAT(start_date,"%Y/%m/%d") <= mydate AND (DATE_FORMAT(release_date,"%Y/%m/%d") >= mydate OR release_date=0) ) AS count,description as series FROM (SELECT DISTINCT DATE_FORMAT(start_date,"%Y/%m/%d") AS mydate, v.vid as myvid,c.description FROM violation v,class c) as tmp group by myvid, mydate order by mydate ]);
+    $graph_statements->{'graph_violations_day_sql'} = get_db_handle()->prepare(<<"    SQL");
+        SELECT mydate, (
+            SELECT COUNT(*) FROM violation 
+            WHERE vid=myvid 
+                AND DATE_FORMAT(start_date,"%Y/%m/%d") <= mydate 
+                AND (DATE_FORMAT(release_date,"%Y/%m/%d") >= mydate OR release_date=0)
+            ) AS count,
+            description AS series 
+        FROM (
+            SELECT DISTINCT DATE_FORMAT(start_date, "%Y/%m/%d") AS mydate, v.vid AS myvid, c.description 
+            FROM violation AS v LEFT JOIN class AS c USING (vid)
+        ) AS tmp 
+        GROUP BY myvid, mydate ORDER BY mydate
+    SQL
 
-    $graph_statements->{'graph_violations_month_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mydate, (SELECT COUNT(*) FROM violation WHERE vid=myvid AND DATE_FORMAT(start_date,"%Y/%m") <= mydate AND (DATE_FORMAT(release_date,"%Y/%m") >= mydate OR release_date=0) ) AS count,description as series FROM (SELECT DISTINCT DATE_FORMAT(start_date,"%Y/%m") AS mydate, v.vid as myvid,c.description FROM violation v,class c) as tmp group by myvid, mydate order by mydate ]);
+    $graph_statements->{'graph_violations_month_sql'} = get_db_handle()->prepare(<<"    SQL");
+        SELECT mydate, (
+            SELECT COUNT(*) FROM violation 
+            WHERE vid=myvid 
+                AND DATE_FORMAT(start_date,"%Y/%m") <= mydate 
+                AND (DATE_FORMAT(release_date,"%Y/%m") >= mydate OR release_date=0)
+            ) AS count,
+            description AS series 
+        FROM (
+            SELECT DISTINCT DATE_FORMAT(start_date, "%Y/%m") AS mydate, v.vid AS myvid, c.description 
+            FROM violation AS v LEFT JOIN class AS c USING (vid)
+        ) AS tmp 
+        GROUP BY myvid, mydate ORDER BY mydate
+    SQL
 
-    $graph_statements->{'graph_violations_year_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mydate, (SELECT COUNT(*) FROM violation WHERE vid=myvid AND DATE_FORMAT(start_date,"%Y") <= mydate AND (DATE_FORMAT(release_date,"%Y") >= mydate OR release_date=0) ) AS count,description as series FROM (SELECT DISTINCT DATE_FORMAT(start_date,"%Y") AS mydate, v.vid as myvid,c.description FROM violation v,class c) as tmp group by myvid, mydate order by mydate ]);
+    $graph_statements->{'graph_violations_year_sql'} = get_db_handle()->prepare(<<"    SQL");
+        SELECT mydate, (
+            SELECT COUNT(*) FROM violation 
+            WHERE vid=myvid 
+                AND DATE_FORMAT(start_date,"%Y") <= mydate 
+                AND (DATE_FORMAT(release_date,"%Y") >= mydate OR release_date=0)
+            ) AS count,
+            description AS series 
+        FROM (
+            SELECT DISTINCT DATE_FORMAT(start_date, "%Y") AS mydate, v.vid AS myvid, c.description 
+            FROM violation AS v LEFT JOIN class AS c USING (vid)
+        ) AS tmp 
+        GROUP BY myvid, mydate ORDER BY mydate
+    SQL
 
     # graph_activity_current
     # graph_nodes_current
@@ -116,7 +152,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2010,2011 Inverse inc.
 
 =head1 LICENSE
 
