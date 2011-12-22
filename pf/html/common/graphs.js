@@ -100,7 +100,7 @@ window.onload = function () {
         chart.symbols.attr({ r: 4 });
 
         for (i = 0; i < chart.lines.length; i++) {
-            chart.lines[i].animate({"stroke-width": 3}, 1000);
+            chart.lines[i].animate({"stroke-width": 3}, 2000);
             chart.symbols[i].attr({stroke: "#fff"});
         }
 

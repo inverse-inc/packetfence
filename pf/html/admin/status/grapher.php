@@ -120,17 +120,19 @@ function jsgraph($options) {
 function _jsgraph($series, $labels, $type, $size, $title, $subtitle) {
   $id = preg_replace('/[^a-zA-Z]+/', '', $title.$subtitle);
   $js = "\n";
-  $js .= '<div id="' . $id . '" class="chart"></div>';
-  $js .= '<script type="text/javascript">';
-  $js .= "graphs.set('$id', {type: '$type', title: '$title', subtitle: '$subtitle', size: '$size', labels: ['" . implode("', '", $labels) . "'], series: {";
-  $series_json = array();
-  foreach(array_keys($series) as $name) {
-    array_push($series_json, "'$name': [" . implode(", ", $series[$name]) . "]");
+  if (count($labels) > 0) {
+    $js .= '<div id="' . $id . '" class="chart"></div>';
+    $js .= '<script type="text/javascript">';
+    $js .= "graphs.set('$id', {type: '$type', title: '$title', subtitle: '$subtitle', size: '$size', labels: ['" . implode("', '", $labels) . "'], series: {";
+    $series_json = array();
+    foreach(array_keys($series) as $name) {
+      array_push($series_json, "'$name': [" . implode(", ", $series[$name]) . "]");
+    }
+    $js .= implode(", ", $series_json);
+    $js .= "}});";
+    $js .= "</script>\n";
   }
-  $js .= implode(", ", $series_json);
-  $js .= "}});";
-  $js .= "</script>\n";
-
+  
   return $js;
 }
 
