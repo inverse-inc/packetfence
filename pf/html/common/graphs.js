@@ -41,7 +41,7 @@ window.onload = function () {
                                     axis: "0 0 1 1",
                                     axisxstep: axisxstep,
                                     symbol: "circle",
-                                    smooth: true,
+                                    smooth: false,
                                     //dash: "-",
                                     shade: true
                                 }
