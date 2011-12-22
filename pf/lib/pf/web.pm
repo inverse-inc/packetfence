@@ -609,7 +609,7 @@ sub validate_form {
 
         return (1);
     }
-    return (0, 0);
+    return (0, 'Invalid login or password');
 }
 
 =item web_user_authenticate

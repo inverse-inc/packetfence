@@ -49,6 +49,7 @@ Bug Fixes
  * Keep IP to MAC associations across restarts (#1343)
  * Interface enforcement is now configurable through Web UI / CLI (#1335)
  * Violation charts now show proper values
+ * Captive portal error "0" when no password is provided
  * Interim fixes: #1349
 
 --------------------------------------------------------------------------------
