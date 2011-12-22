@@ -8,7 +8,7 @@ window.onload = function () {
         if (labels.length < 2) return;
 
         $(holder).setStyle({ width: width+'px',
-                             height: height+'px' });
+                             height: (2*height)+'px' }); // leave plenty of space for the legend
 
         var maxdots = parseInt(width/20),
         increment = (labels.length > maxdots)? Math.round(labels.length/maxdots) : 1,
@@ -32,7 +32,39 @@ window.onload = function () {
         var r = Raphael(holder),
         txtattr = { font: "12px 'Fontin Sans', Fontin-Sans, sans-serif" };
 
-        var chart = r.linechart(25, 25, // x, y
+        // Print legend at top
+        var colors = Raphael.g.colors;
+        var x = 15, h = 5, j = 0, lines = [];
+        for(i = 0, lines[j] = r.set(); i < legend.length; ++i) {
+            var clr = colors[i];
+            var box = r.set();
+            box.push(r.circle(x + 5, h, 5) 
+                     .attr({fill: clr, stroke: "none"}));
+            box.push(r.text(x + 20, h, legend[i])
+                     .attr(txtattr)
+                     .attr({fill: "#000", "text-anchor": "start"}));
+            x += box.getBBox().width + 15;
+            
+            if (x > (width - margin) && lines[j].length > 1) {
+                // Create a new line
+                x = 15, h += box.getBBox().height * 1.2;
+                box.remove();
+                var bb = lines[j].getBBox(),
+                tr = [width - margin - bb.width, 0];
+                lines[j].translate.apply(lines[j], tr);
+                j++, i--;
+                lines[j] = r.set();
+            }
+            else {
+                lines[j].push(box);
+            }
+        };
+        var bb = lines[j].getBBox(),
+        tr = [width - margin - bb.width, 0];
+        lines[j].translate.apply(lines[j], tr);
+
+        // Create graph
+        var chart = r.linechart(25, 20 + h, // x, y
                                 width-margin, height-margin-20, // width, height
                                 valuesx,
                                 valuesy,
@@ -43,7 +75,8 @@ window.onload = function () {
                                     symbol: "circle",
                                     smooth: false,
                                     //dash: "-",
-                                    shade: true
+                                    shade: false,
+                                    colors: colors
                                 }
                                );
         chart.hoverColumn(function () {
@@ -77,24 +110,7 @@ window.onload = function () {
             label.attr({'text': labels[i*increment]});
         });
 
-        // Print legend
- 	chart.legend = r.set();
- 	var x = 15, h = 5;
- 	for(i = 0; i < legend.length; ++i) {
- 	    var clr = chart.lines[i].attr("stroke");
- 	    chart.legend.push(r.set());
- 	    chart.legend[i].push(r.circle(x + 5, h, 5)
- 	                         .attr({fill: clr, stroke: "none"}));
- 	    chart.legend[i].push(r.text(x + 20, h, legend[i])
- 	                         .attr(txtattr)
- 	                         .attr({fill: "#000", "text-anchor": "start"}));
- 	    x += chart.legend[i].getBBox().width * 1.2;
- 	};
-        var bb = chart.legend.getBBox(),
-        tr = [width - margin - bb.width, 0];
-
-        chart.legend.translate.apply(chart.legend, tr);
-        chart.push(chart.legend);
+        $(holder).setStyle({ height: (height+h)+'px' });
     }
 
     function graphPieData(holder, size, labels, series) {
@@ -145,7 +161,7 @@ window.onload = function () {
         margin = 50;
 
         $(holder).setStyle({ width: width+'px',
-                             height: height+'px' });
+                             height: (2*height)+'px' }); // leave plenty of space for the legend
 
         var values = [];
         var legend = [];
@@ -160,16 +176,48 @@ window.onload = function () {
         }
 
         var r = Raphael(holder),
+        txtattr = { font: "12px 'Fontin Sans', Fontin-Sans, sans-serif" };
 
-        fin = function () {
+        // Print legend at top
+        var colors = Raphael.g.colors;
+ 	var x = 15, h = 5, j = 0, lines = [];
+ 	for(i = 0, lines[j] = r.set(); i < legend.length; ++i) {
+ 	    var clr = colors[i];
+ 	    var box = r.set();
+            box.push(r.circle(x + 5, h, 5)
+ 	             .attr({fill: clr, stroke: "none"}));
+ 	    box.push(r.text(x + 20, h, legend[i])
+ 	             .attr(txtattr)
+ 	             .attr({fill: "#000", "text-anchor": "start"}));
+ 	    x += box.getBBox().width + 15;
+
+            if (x > (width - margin) && lines[j].length > 1) {
+                // Create a new line
+                x = 15, h += box.getBBox().height * 1.2;
+                box.remove();
+                var bb = lines[j].getBBox(),
+                tr = [width - margin - bb.width, 0];
+                lines[j].translate.apply(lines[j], tr);
+                j++, i--;
+                lines[j] = r.set();
+            }
+            else {
+                lines[j].push(box);
+            }
+ 	};
+        var bb = lines[j].getBBox(),
+        tr = [width - margin - bb.width, 0];
+        lines[j].translate.apply(lines[j], tr);
+
+        var fin = function () {
             this.flag = r.popup(this.bar.x, this.bar.y, this.bar.value || "0").insertBefore(this);
         },
         fout = function () {
             this.flag.remove();
-        },
-        txtattr = { font: "12px 'Fontin Sans', Fontin-Sans, sans-serif" };
+        };
                 
-        var chart = r.barchart(10, 10,
+        // Create graph
+        var chart = r.barchart(10, 10 + h,
                                width, height,
                                values,
                                {
@@ -179,24 +227,7 @@ window.onload = function () {
                               );
         chart.hover(fin, fout);
 
-        // Print legend
- 	chart.legend = r.set();
- 	var x = 15, h = 5;
- 	for(i = 0; i < legend.length; ++i) {
- 	    var clr = chart.bars[i][0].attr("fill");
- 	    chart.legend.push(r.set());
- 	    chart.legend[i].push(r.circle(x + 5, h, 5)
- 	                         .attr({fill: clr, stroke: "none"}));
- 	    chart.legend[i].push(r.text(x + 20, h, legend[i])
- 	                         .attr(txtattr)
- 	                         .attr({fill: "#000", "text-anchor": "start"}));
- 	    x += chart.legend[i].getBBox().width * 1.2;
- 	};
-        var bb = chart.legend.getBBox(),
-        tr = [width - margin - bb.width, 0];
-
-        chart.legend.translate.apply(chart.legend, tr);
-        chart.push(chart.legend);
+        $(holder).setStyle({ height: (height+h)+'px' });
     }
 
     /* Draw graphs */
