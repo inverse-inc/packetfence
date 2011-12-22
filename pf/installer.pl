@@ -94,9 +94,10 @@ my %snort_rules_version = (
 );
 
 my %oses = (
-    "CentOS release 5"                          => "RHEL5",
+    "CentOS release 5" => "RHEL5",
     "Red Hat Enterprise Linux Server release 5" => "RHEL5",
-    "CentOS Linux release 6"                          => "RHEL6",
+    "CentOS Linux release 6" => "RHEL6",
+    "CentOS release 6" => "RHEL6",
     "Red Hat Enterprise Linux Server release 6" => "RHEL6",
 );
 
