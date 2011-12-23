@@ -1,4 +1,3529 @@
 ----------------------------------------------------------------------
+Revision: e76034317b157dc98443705d71543b72891e550e
+Parent:   c351463f273dfeacf7a6661b65df32347cbddc94
+Author:   obilodeau@inverse.ca
+Date:     23/12/2011 14:22:50
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+typo fix
+
+Changes against parent c351463f273dfeacf7a6661b65df32347cbddc94
+
+  patched  pf/NEWS
+
+----------------------------------------------------------------------
+Revision: c351463f273dfeacf7a6661b65df32347cbddc94
+Parent:   552e9441f7bf95fc52ab1698168e951d243abd9a
+Author:   obilodeau@inverse.ca
+Date:     23/12/2011 13:37:19
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+integrated 3_0 and trunk changes in NEWS
+
+Changes against parent 552e9441f7bf95fc52ab1698168e951d243abd9a
+
+  patched  pf/NEWS
+
+----------------------------------------------------------------------
+Revision: e7bb6a6459338a12a0c3650209249de5ac02de40
+Parent:   c2d10f623faa3adb32eaad473278285f0153b052
+Author:   obilodeau@inverse.ca
+Date:     23/12/2011 08:52:16
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+buildfix: proper integration of he_IL translation
+
+Changes against parent c2d10f623faa3adb32eaad473278285f0153b052
+
+  patched  pf/addons/packages/packetfence.spec
+  patched  pf/conf/documentation.conf
+
+----------------------------------------------------------------------
+Revision: 96b29a7fb5bb49eab0bbad97191cb92344236a41
+Parent:   522b4d4a90aaba87bc9491cb13a996dde235e499
+Author:   obilodeau@inverse.ca
+Date:     23/12/2011 11:58:30
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Again, other issues in the normalize_time changes
+
+Changes against parent 522b4d4a90aaba87bc9491cb13a996dde235e499
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/config.pm
+  patched  pf/lib/pf/util.pm
+  patched  pf/lib/pf/web/util.pm
+  patched  pf/t/config.t
+  patched  pf/t/util.t
+
+----------------------------------------------------------------------
+Revision: 522b4d4a90aaba87bc9491cb13a996dde235e499
+Parent:   c5ca8d6bab1203ffba407ca9e088e1d5f2e04b6c
+Author:   flachapelle@inverse.ca
+Date:     22/12/2011 15:38:29
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+grapher.php -- don't call "implode" when $labels is not defined.
+
+Changes against parent c5ca8d6bab1203ffba407ca9e088e1d5f2e04b6c
+
+  patched  pf/html/admin/status/grapher.php
+  patched  pf/html/common/graphs.js
+
+----------------------------------------------------------------------
+Revision: c5ca8d6bab1203ffba407ca9e088e1d5f2e04b6c
+Parent:   c2d10f623faa3adb32eaad473278285f0153b052
+Author:   flachapelle@inverse.ca
+Date:     22/12/2011 15:26:46
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Graph legends are now wrapped on multiple lines.
+
+Changes against parent c2d10f623faa3adb32eaad473278285f0153b052
+
+  patched  pf/html/common/graphs.js
+
+----------------------------------------------------------------------
+Revision: c2d10f623faa3adb32eaad473278285f0153b052
+Parent:   ad4aced6fa32cd977fbe956bdb8bfcc838feffb1
+Author:   obilodeau@inverse.ca
+Date:     22/12/2011 14:59:50
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+sync with transifex translations
+
+Changes against parent ad4aced6fa32cd977fbe956bdb8bfcc838feffb1
+
+  added    pf/conf/locale/he_IL
+  added    pf/conf/locale/he_IL/LC_MESSAGES
+  added    pf/conf/locale/he_IL/LC_MESSAGES/packetfence.po
+  patched  pf/NEWS
+  patched  pf/README
+  patched  pf/addons/packages/packetfence.spec
+  patched  pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.po
+
+----------------------------------------------------------------------
+Revision: ad4aced6fa32cd977fbe956bdb8bfcc838feffb1
+Parent:   03b54a0e941e0063fc6e58d9c6ecc14626863305
+Author:   obilodeau@inverse.ca
+Date:     22/12/2011 14:26:26
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+sync with fingerbank.org version 5.50
+
+Changes against parent 03b54a0e941e0063fc6e58d9c6ecc14626863305
+
+  patched  pf/conf/dhcp_fingerprints.conf
+
+----------------------------------------------------------------------
+Revision: 03b54a0e941e0063fc6e58d9c6ecc14626863305
+Parent:   60b4ab7c6ff57e57adba8ec077f5c8ee283e59cf
+Author:   obilodeau@inverse.ca
+Date:     22/12/2011 14:24:32
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+sync with upstream HTTP::BrowserDetect 1.39
+
+Changes against parent 60b4ab7c6ff57e57adba8ec077f5c8ee283e59cf
+
+  patched  pf/NEWS
+  patched  pf/UPGRADE
+  patched  pf/lib/HTTP/BrowserDetect.pm
+
+----------------------------------------------------------------------
+Revision: 6cba9c428b800e6c08e9a591744e96ee8b1880fa
+Parent:   274986ef02b4268ed5d23c4efc70555f218551d9
+Author:   flachapelle@inverse.ca
+Date:     22/12/2011 11:50:58
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Added percentages inside legend of pie charts.
+
+Changes against parent 274986ef02b4268ed5d23c4efc70555f218551d9
+
+  patched  pf/html/common/graphs.js
+
+----------------------------------------------------------------------
+Revision: bbe59c2fe25d592f864380365ce326b4e7c44807
+Parent:   76c686168c237b9706542d0c7c90d0e4ec61ef94
+Author:   flachapelle@inverse.ca
+Date:     22/12/2011 11:29:37
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Turned off smooth lines of graphs.
+
+Changes against parent 76c686168c237b9706542d0c7c90d0e4ec61ef94
+
+  patched  pf/html/common/graphs.js
+
+----------------------------------------------------------------------
+Revision: 5682d721e75905a9f9c2e161a0cd373a2ddfc0ef
+Parent:   a171ef3ce655ec973d40a43030fa5c8fdfa07b3f
+Author:   obilodeau@inverse.ca
+Date:     22/12/2011 14:03:26
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+now showing proper error message when no password is provided on captive portal
+
+Changes against parent a171ef3ce655ec973d40a43030fa5c8fdfa07b3f
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/web.pm
+
+----------------------------------------------------------------------
+Revision: a171ef3ce655ec973d40a43030fa5c8fdfa07b3f
+Parent:   8b45a10186aa0844ae60bbbc7e3f1266ed0886a1
+Author:   obilodeau@inverse.ca
+Date:     22/12/2011 13:59:28
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+made mobile provisioning profile deletable by default
+
+Changes against parent 8b45a10186aa0844ae60bbbc7e3f1266ed0886a1
+
+  patched  pf/html/captive-portal/templates/wireless-profile.xml
+
+----------------------------------------------------------------------
+Revision: 8b45a10186aa0844ae60bbbc7e3f1266ed0886a1
+Parent:   cef9792ef5dc85375400d066ab4c01afad1325ae
+Author:   obilodeau@inverse.ca
+Date:     22/12/2011 12:14:30
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+fixed SQL query generating violation charts
+
+Changes against parent cef9792ef5dc85375400d066ab4c01afad1325ae
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/pfcmd/graph.pm
+
+----------------------------------------------------------------------
+Revision: cef9792ef5dc85375400d066ab4c01afad1325ae
+Parent:   76c686168c237b9706542d0c7c90d0e4ec61ef94
+Author:   obilodeau@inverse.ca
+Date:     22/12/2011 11:18:34
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+installer changes to support latest CentOS
+
+because CentOS 6.2 (or 6.1) changed their release strings
+
+Changes against parent 76c686168c237b9706542d0c7c90d0e4ec61ef94
+
+  patched  pf/NEWS
+  patched  pf/installer.pl
+
+----------------------------------------------------------------------
+Revision: 76c686168c237b9706542d0c7c90d0e4ec61ef94
+Parent:   b72faeb4d9c735e8a7267e24603d8d13d5f89e7c
+Author:   obilodeau@inverse.ca
+Date:     22/12/2011 09:28:30
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Interface enforcement is now configurable through Web UI / CLI. Fixes #1335;
+
+- added enforcement to the interfaceconfig_view_field grammar
+- required changes in pfcmd interfaceconfig() (including future TODO's)
+- added enforcement field in web admin interface_add, _edit and view.
+- made web admin translate managed to management, dhcplistener to dhcp-listener and added high-availability, external as valid types
+
+Changes against parent b72faeb4d9c735e8a7267e24603d8d13d5f89e7c
+
+  patched  pf/NEWS
+  patched  pf/bin/pfcmd
+  patched  pf/conf/ui.conf
+  patched  pf/html/admin/configuration/interfaces_add.php
+  patched  pf/html/admin/configuration/interfaces_edit.php
+  patched  pf/lib/pf/pfcmd/pfcmd.pm
+
+----------------------------------------------------------------------
+Revision: 3c12fed3e324bb53297deefe8ae6ad9e0166ea49
+Parent:   f44a5c1f7663fd14a0de450f9836901f6d7e1d2f
+Author:   obilodeau@inverse.ca
+Date:     21/12/2011 16:20:24
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+manual sync admin guide from 3_0
+
+Changes against parent f44a5c1f7663fd14a0de450f9836901f6d7e1d2f
+
+  patched  pf/docs/PacketFence_Administration_Guide.odt
+
+----------------------------------------------------------------------
+Revision: f5fc7b2f1c3087083103c54425077691811f032c
+Parent:   af0690fd49290c2c2f79a6dacc3f0b9b44ec1334
+Author:   obilodeau@inverse.ca
+Date:     21/12/2011 15:30:59
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+stop closing iplog entries on pfmon start or stop. Fixes #1343
+
+For discussion see: http://www.packetfence.org/bugs/view.php?id=1343
+
+Changes against parent af0690fd49290c2c2f79a6dacc3f0b9b44ec1334
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/iplog.pm
+  patched  pf/sbin/pfmon
+
+----------------------------------------------------------------------
+Revision: ab26294810a3f89e1e7886f2e6bf69ce21104ca7
+Parent:   a64d948580f635b90ec3d1210c34131a1ada5f99
+Author:   flachapelle@inverse.ca
+Date:     21/12/2011 15:23:48
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+
+
+Changes against parent a64d948580f635b90ec3d1210c34131a1ada5f99
+
+  patched  pf/html/common/graphs.js
+
+----------------------------------------------------------------------
+Revision: a64d948580f635b90ec3d1210c34131a1ada5f99
+Parent:   af0690fd49290c2c2f79a6dacc3f0b9b44ec1334
+Author:   flachapelle@inverse.ca
+Date:     21/12/2011 14:43:53
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Removed debugging output from html/common/graphs.js.
+
+Changes against parent af0690fd49290c2c2f79a6dacc3f0b9b44ec1334
+
+  patched  pf/html/common/graphs.js
+
+----------------------------------------------------------------------
+Revision: af0690fd49290c2c2f79a6dacc3f0b9b44ec1334
+Parent:   39047cf67d4ed11e3f12ec117763f0089aa96253
+Author:   flachapelle@inverse.ca
+Date:     21/12/2011 14:34:41
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Fixed labels of JavaScript graphs.
+
+Changes against parent 39047cf67d4ed11e3f12ec117763f0089aa96253
+
+  patched  pf/html/common/graphs.js
+
+----------------------------------------------------------------------
+Revision: 39047cf67d4ed11e3f12ec117763f0089aa96253
+Parent:   ce1a58e9958b3e6417f6b68c8057d1124f742177
+Author:   obilodeau@inverse.ca
+Date:     21/12/2011 14:04:58
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+preventing a startup failure if an IPv6 interface is present. Fixes #1349
+
+made virtual IP detection work only on IPv4 added a note to our IPv6 support bug
+
+Changes against parent ce1a58e9958b3e6417f6b68c8057d1124f742177
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/config.pm
+
+----------------------------------------------------------------------
+Revision: ce1a58e9958b3e6417f6b68c8057d1124f742177
+Parent:   08ab91941915f4176a0c003ec8135993904730ad
+Author:   obilodeau@inverse.ca
+Date:     21/12/2011 13:42:22
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+fixes to new graphs
+
+- reintroduced helper_menu() in admin/common.php
+- incomplete title fixes to the pie charts
+- graph aligned with data to top
+- dropped jpgraph lib, old package and old source
+- changed webadmin cache folder location and updated package
+
+
+Changes against parent 08ab91941915f4176a0c003ec8135993904730ad
+
+  dropped  pf/addons/dependencies
+  dropped  pf/addons/dependencies/jpgraph-2.3.4.tar.gz
+  dropped  pf/addons/dependencies/php-jpgraph.spec
+  dropped  pf/lib/jpgraph
+  dropped  pf/lib/jpgraph/Examples
+  dropped  pf/lib/jpgraph/Examples/accbarex1.php
+  dropped  pf/lib/jpgraph/Examples/accbarframeex01.php
+  dropped  pf/lib/jpgraph/Examples/accbarframeex02.php
+  dropped  pf/lib/jpgraph/Examples/accbarframeex03.php
+  dropped  pf/lib/jpgraph/Examples/alphabarex1.php
+  dropped  pf/lib/jpgraph/Examples/antispamex01.php
+  dropped  pf/lib/jpgraph/Examples/axislabelbkgex01.php
+  dropped  pf/lib/jpgraph/Examples/axislabelbkgex02.php
+  dropped  pf/lib/jpgraph/Examples/axislabelbkgex03.php
+  dropped  pf/lib/jpgraph/Examples/axislabelbkgex04.php
+  dropped  pf/lib/jpgraph/Examples/axislabelbkgex05.php
+  dropped  pf/lib/jpgraph/Examples/axislabelbkgex06.php
+  dropped  pf/lib/jpgraph/Examples/axislabelbkgex07.php
+  dropped  pf/lib/jpgraph/Examples/background_type_ex0.php
+  dropped  pf/lib/jpgraph/Examples/background_type_ex1.php
+  dropped  pf/lib/jpgraph/Examples/background_type_ex2.php
+  dropped  pf/lib/jpgraph/Examples/background_type_ex3.php
+  dropped  pf/lib/jpgraph/Examples/background_type_ex4.php
+  dropped  pf/lib/jpgraph/Examples/backgroundex01.php
+  dropped  pf/lib/jpgraph/Examples/backgroundex02.php
+  dropped  pf/lib/jpgraph/Examples/backgroundex03.php
+  dropped  pf/lib/jpgraph/Examples/balloonex1.php
+  dropped  pf/lib/jpgraph/Examples/balloonex2.php
+  dropped  pf/lib/jpgraph/Examples/bar2scalesex1.php
+  dropped  pf/lib/jpgraph/Examples/bar_csimex1.php
+  dropped  pf/lib/jpgraph/Examples/bar_csimex2.php
+  dropped  pf/lib/jpgraph/Examples/bar_csimex3.php
+  dropped  pf/lib/jpgraph/Examples/barcsim_details.php
+  dropped  pf/lib/jpgraph/Examples/barcsim_popup.php
+  dropped  pf/lib/jpgraph/Examples/barformatcallbackex1.php
+  dropped  pf/lib/jpgraph/Examples/bargradex1.php
+  dropped  pf/lib/jpgraph/Examples/bargradex2.php
+  dropped  pf/lib/jpgraph/Examples/bargradex3.php
+  dropped  pf/lib/jpgraph/Examples/bargradex4.php
+  dropped  pf/lib/jpgraph/Examples/bargradex5.php
+  dropped  pf/lib/jpgraph/Examples/bargradex6.php
+  dropped  pf/lib/jpgraph/Examples/bargradsmallex1.php
+  dropped  pf/lib/jpgraph/Examples/bargradsmallex2.php
+  dropped  pf/lib/jpgraph/Examples/bargradsmallex3.php
+  dropped  pf/lib/jpgraph/Examples/bargradsmallex4.php
+  dropped  pf/lib/jpgraph/Examples/bargradsmallex5.php
+  dropped  pf/lib/jpgraph/Examples/bargradsmallex6.php
+  dropped  pf/lib/jpgraph/Examples/bargradsmallex7.php
+  dropped  pf/lib/jpgraph/Examples/bargradsmallex8.php
+  dropped  pf/lib/jpgraph/Examples/barimgex1.php
+  dropped  pf/lib/jpgraph/Examples/barintex1.php
+  dropped  pf/lib/jpgraph/Examples/barintex2.php
+  dropped  pf/lib/jpgraph/Examples/barline_csimex1.php
+  dropped  pf/lib/jpgraph/Examples/barlinealphaex1.php
+  dropped  pf/lib/jpgraph/Examples/barlinefreq_csimex1.php
+  dropped  pf/lib/jpgraph/Examples/barlinefreqex1.php
+  dropped  pf/lib/jpgraph/Examples/barpatternex1.php
+  dropped  pf/lib/jpgraph/Examples/barscalecallbackex1.php
+  dropped  pf/lib/jpgraph/Examples/bartutex1.php
+  dropped  pf/lib/jpgraph/Examples/bartutex12.php
+  dropped  pf/lib/jpgraph/Examples/bartutex2.php
+  dropped  pf/lib/jpgraph/Examples/bartutex3.php
+  dropped  pf/lib/jpgraph/Examples/bartutex4.php
+  dropped  pf/lib/jpgraph/Examples/bartutex5.php
+  dropped  pf/lib/jpgraph/Examples/bartutex6.php
+  dropped  pf/lib/jpgraph/Examples/basic_contourex01.php
+  dropped  pf/lib/jpgraph/Examples/basic_contourex02.php
+  dropped  pf/lib/jpgraph/Examples/basic_contourex03-1.php
+  dropped  pf/lib/jpgraph/Examples/basic_contourex03-2.php
+  dropped  pf/lib/jpgraph/Examples/basic_contourex03-3.php
+  dropped  pf/lib/jpgraph/Examples/basic_contourex04.php
+  dropped  pf/lib/jpgraph/Examples/basic_contourex05.php
+  dropped  pf/lib/jpgraph/Examples/bezierex1.php
+  dropped  pf/lib/jpgraph/Examples/bkgimgflagex1.php
+  dropped  pf/lib/jpgraph/Examples/bkgimgflagex2.php
+  dropped  pf/lib/jpgraph/Examples/bkgimgflagex3.php
+  dropped  pf/lib/jpgraph/Examples/bkgimgflagex4.php
+  dropped  pf/lib/jpgraph/Examples/bkgimgflagex5.php
+  dropped  pf/lib/jpgraph/Examples/blueblack400x300grad.png
+  dropped  pf/lib/jpgraph/Examples/boxstockcsimex1.php
+  dropped  pf/lib/jpgraph/Examples/boxstockex1.php
+  dropped  pf/lib/jpgraph/Examples/boxstockex2.php
+  dropped  pf/lib/jpgraph/Examples/builtinplotmarksex1.php
+  dropped  pf/lib/jpgraph/Examples/canvas_jpgarchex.php
+  dropped  pf/lib/jpgraph/Examples/canvasbezierex1.php
+  dropped  pf/lib/jpgraph/Examples/canvasex01.php
+  dropped  pf/lib/jpgraph/Examples/canvasex02.php
+  dropped  pf/lib/jpgraph/Examples/canvasex03.php
+  dropped  pf/lib/jpgraph/Examples/canvasex04.php
+  dropped  pf/lib/jpgraph/Examples/canvasex05.php
+  dropped  pf/lib/jpgraph/Examples/canvasex06.php
+  dropped  pf/lib/jpgraph/Examples/canvaspiralex1.php
+  dropped  pf/lib/jpgraph/Examples/ccbp_ex1.php
+  dropped  pf/lib/jpgraph/Examples/ccbp_ex2.php
+  dropped  pf/lib/jpgraph/Examples/ccbpgraph.class.php
+  dropped  pf/lib/jpgraph/Examples/centeredlineex01.php
+  dropped  pf/lib/jpgraph/Examples/centeredlineex02.php
+  dropped  pf/lib/jpgraph/Examples/centeredlineex03.php
+  dropped  pf/lib/jpgraph/Examples/centerlinebarex1.php
+  dropped  pf/lib/jpgraph/Examples/checkgd.php
+  dropped  pf/lib/jpgraph/Examples/checkgd2.php
+  dropped  pf/lib/jpgraph/Examples/checkttf.php
+  dropped  pf/lib/jpgraph/Examples/classroom.jpg
+  dropped  pf/lib/jpgraph/Examples/clipping_ex1.php
+  dropped  pf/lib/jpgraph/Examples/clipping_ex2.php
+  dropped  pf/lib/jpgraph/Examples/colormaps.php
+  dropped  pf/lib/jpgraph/Examples/comb90dategraphex01.php
+  dropped  pf/lib/jpgraph/Examples/comb90dategraphex02.php
+  dropped  pf/lib/jpgraph/Examples/comb90dategraphex03.php
+  dropped  pf/lib/jpgraph/Examples/combgraphex1.php
+  dropped  pf/lib/jpgraph/Examples/combgraphex2.php
+  dropped  pf/lib/jpgraph/Examples/contourex01.php
+  dropped  pf/lib/jpgraph/Examples/contourex02.php
+  dropped  pf/lib/jpgraph/Examples/contourex03.php
+  dropped  pf/lib/jpgraph/Examples/contourex04.php
+  dropped  pf/lib/jpgraph/Examples/contourex05.php
+  dropped  pf/lib/jpgraph/Examples/csim_in_html_ex1.php
+  dropped  pf/lib/jpgraph/Examples/csim_in_html_ex2.php
+  dropped  pf/lib/jpgraph/Examples/csim_in_html_graph_ex1.php
+  dropped  pf/lib/jpgraph/Examples/csim_in_html_graph_ex2.php
+  dropped  pf/lib/jpgraph/Examples/dataset01.inc.php
+  dropped  pf/lib/jpgraph/Examples/dateaxisex1.php
+  dropped  pf/lib/jpgraph/Examples/dateaxisex2.php
+  dropped  pf/lib/jpgraph/Examples/dateaxisex3.php
+  dropped  pf/lib/jpgraph/Examples/dateaxisex4.php
+  dropped  pf/lib/jpgraph/Examples/datescaleticksex01.php
+  dropped  pf/lib/jpgraph/Examples/dateutilex01.php
+  dropped  pf/lib/jpgraph/Examples/dateutilex02.php
+  dropped  pf/lib/jpgraph/Examples/dupyaxisex1.php
+  dropped  pf/lib/jpgraph/Examples/example0-0.php
+  dropped  pf/lib/jpgraph/Examples/example0.php
+  dropped  pf/lib/jpgraph/Examples/example1.1.php
+  dropped  pf/lib/jpgraph/Examples/example1.2.php
+  dropped  pf/lib/jpgraph/Examples/example1.php
+  dropped  pf/lib/jpgraph/Examples/example10.php
+  dropped  pf/lib/jpgraph/Examples/example11.php
+  dropped  pf/lib/jpgraph/Examples/example13.php
+  dropped  pf/lib/jpgraph/Examples/example14.php
+  dropped  pf/lib/jpgraph/Examples/example15.php
+  dropped  pf/lib/jpgraph/Examples/example16.1.php
+  dropped  pf/lib/jpgraph/Examples/example16.2.php
+  dropped  pf/lib/jpgraph/Examples/example16.3.php
+  dropped  pf/lib/jpgraph/Examples/example16.4.php
+  dropped  pf/lib/jpgraph/Examples/example16.5.php
+  dropped  pf/lib/jpgraph/Examples/example16.6.php
+  dropped  pf/lib/jpgraph/Examples/example16.php
+  dropped  pf/lib/jpgraph/Examples/example17.php
+  dropped  pf/lib/jpgraph/Examples/example18.php
+  dropped  pf/lib/jpgraph/Examples/example19.1.php
+  dropped  pf/lib/jpgraph/Examples/example19.php
+  dropped  pf/lib/jpgraph/Examples/example2.1.php
+  dropped  pf/lib/jpgraph/Examples/example2.5.php
+  dropped  pf/lib/jpgraph/Examples/example2.6.php
+  dropped  pf/lib/jpgraph/Examples/example2.php
+  dropped  pf/lib/jpgraph/Examples/example20.1.php
+  dropped  pf/lib/jpgraph/Examples/example20.2.php
+  dropped  pf/lib/jpgraph/Examples/example20.3.php
+  dropped  pf/lib/jpgraph/Examples/example20.4.php
+  dropped  pf/lib/jpgraph/Examples/example20.5.php
+  dropped  pf/lib/jpgraph/Examples/example20.php
+  dropped  pf/lib/jpgraph/Examples/example21.php
+  dropped  pf/lib/jpgraph/Examples/example22.php
+  dropped  pf/lib/jpgraph/Examples/example23.php
+  dropped  pf/lib/jpgraph/Examples/example24.php
+  dropped  pf/lib/jpgraph/Examples/example25.1.php
+  dropped  pf/lib/jpgraph/Examples/example25.2.php
+  dropped  pf/lib/jpgraph/Examples/example25.php
+  dropped  pf/lib/jpgraph/Examples/example26.1.php
+  dropped  pf/lib/jpgraph/Examples/example26.php
+  dropped  pf/lib/jpgraph/Examples/example27.1.php
+  dropped  pf/lib/jpgraph/Examples/example27.2.php
+  dropped  pf/lib/jpgraph/Examples/example27.3.php
+  dropped  pf/lib/jpgraph/Examples/example27.php
+  dropped  pf/lib/jpgraph/Examples/example28.1.php
+  dropped  pf/lib/jpgraph/Examples/example28.2.php
+  dropped  pf/lib/jpgraph/Examples/example28.3.php
+  dropped  pf/lib/jpgraph/Examples/example28.php
+  dropped  pf/lib/jpgraph/Examples/example3.0.1.php
+  dropped  pf/lib/jpgraph/Examples/example3.0.2.php
+  dropped  pf/lib/jpgraph/Examples/example3.0.3.php
+  dropped  pf/lib/jpgraph/Examples/example3.1.1.php
+  dropped  pf/lib/jpgraph/Examples/example3.1.php
+  dropped  pf/lib/jpgraph/Examples/example3.2.1.php
+  dropped  pf/lib/jpgraph/Examples/example3.2.2.php
+  dropped  pf/lib/jpgraph/Examples/example3.2.php
+  dropped  pf/lib/jpgraph/Examples/example3.3.php
+  dropped  pf/lib/jpgraph/Examples/example3.4.1.php
+  dropped  pf/lib/jpgraph/Examples/example3.4.php
+  dropped  pf/lib/jpgraph/Examples/example3.php
+  dropped  pf/lib/jpgraph/Examples/example4.php
+  dropped  pf/lib/jpgraph/Examples/example5.1.php
+  dropped  pf/lib/jpgraph/Examples/example5.php
+  dropped  pf/lib/jpgraph/Examples/example6.1.php
+  dropped  pf/lib/jpgraph/Examples/example6.2.php
+  dropped  pf/lib/jpgraph/Examples/example6.php
+  dropped  pf/lib/jpgraph/Examples/example7.php
+  dropped  pf/lib/jpgraph/Examples/example8.1.php
+  dropped  pf/lib/jpgraph/Examples/example8.php
+  dropped  pf/lib/jpgraph/Examples/example9.1.php
+  dropped  pf/lib/jpgraph/Examples/example9.2.php
+  dropped  pf/lib/jpgraph/Examples/example9.php
+  dropped  pf/lib/jpgraph/Examples/exampleex9.php
+  dropped  pf/lib/jpgraph/Examples/fieldscatterex1.php
+  dropped  pf/lib/jpgraph/Examples/filledgridex1.php
+  dropped  pf/lib/jpgraph/Examples/filledline01.php
+  dropped  pf/lib/jpgraph/Examples/filledlineex01.1.php
+  dropped  pf/lib/jpgraph/Examples/filledlineex01.php
+  dropped  pf/lib/jpgraph/Examples/filledlineex02.php
+  dropped  pf/lib/jpgraph/Examples/filledlineex03.php
+  dropped  pf/lib/jpgraph/Examples/filledstepstyleex1.php
+  dropped  pf/lib/jpgraph/Examples/fixscale_radarex1.php
+  dropped  pf/lib/jpgraph/Examples/footerex1.php
+  dropped  pf/lib/jpgraph/Examples/funcex1.php
+  dropped  pf/lib/jpgraph/Examples/funcex2.php
+  dropped  pf/lib/jpgraph/Examples/funcex3.php
+  dropped  pf/lib/jpgraph/Examples/funcex4.php
+  dropped  pf/lib/jpgraph/Examples/gantt_samerowex1.php
+  dropped  pf/lib/jpgraph/Examples/gantt_samerowex2.php
+  dropped  pf/lib/jpgraph/Examples/gantt_textex1.php
+  dropped  pf/lib/jpgraph/Examples/ganttcolumnfontsex01.php
+  dropped  pf/lib/jpgraph/Examples/ganttconstrainex0.php
+  dropped  pf/lib/jpgraph/Examples/ganttconstrainex1.php
+  dropped  pf/lib/jpgraph/Examples/ganttconstrainex2.php
+  dropped  pf/lib/jpgraph/Examples/ganttcsimex01.php
+  dropped  pf/lib/jpgraph/Examples/ganttcsimex02.php
+  dropped  pf/lib/jpgraph/Examples/ganttex00.php
+  dropped  pf/lib/jpgraph/Examples/ganttex01.php
+  dropped  pf/lib/jpgraph/Examples/ganttex02.php
+  dropped  pf/lib/jpgraph/Examples/ganttex03.php
+  dropped  pf/lib/jpgraph/Examples/ganttex04.php
+  dropped  pf/lib/jpgraph/Examples/ganttex05.php
+  dropped  pf/lib/jpgraph/Examples/ganttex06.php
+  dropped  pf/lib/jpgraph/Examples/ganttex07.php
+  dropped  pf/lib/jpgraph/Examples/ganttex08.php
+  dropped  pf/lib/jpgraph/Examples/ganttex09.php
+  dropped  pf/lib/jpgraph/Examples/ganttex10.php
+  dropped  pf/lib/jpgraph/Examples/ganttex11.php
+  dropped  pf/lib/jpgraph/Examples/ganttex12.php
+  dropped  pf/lib/jpgraph/Examples/ganttex13-zoom1.php
+  dropped  pf/lib/jpgraph/Examples/ganttex13-zoom2.php
+  dropped  pf/lib/jpgraph/Examples/ganttex13.php
+  dropped  pf/lib/jpgraph/Examples/ganttex14.php
+  dropped  pf/lib/jpgraph/Examples/ganttex15.php
+  dropped  pf/lib/jpgraph/Examples/ganttex16.php
+  dropped  pf/lib/jpgraph/Examples/ganttex17-flag.php
+  dropped  pf/lib/jpgraph/Examples/ganttex17.php
+  dropped  pf/lib/jpgraph/Examples/ganttex18.php
+  dropped  pf/lib/jpgraph/Examples/ganttex19.php
+  dropped  pf/lib/jpgraph/Examples/ganttex30.php
+  dropped  pf/lib/jpgraph/Examples/ganttex_slice.php
+  dropped  pf/lib/jpgraph/Examples/gantthgridex1.php
+  dropped  pf/lib/jpgraph/Examples/gantthourex1.php
+  dropped  pf/lib/jpgraph/Examples/gantthourminex1.php
+  dropped  pf/lib/jpgraph/Examples/gantticonex1.php
+  dropped  pf/lib/jpgraph/Examples/ganttmonthyearex1.php
+  dropped  pf/lib/jpgraph/Examples/ganttmonthyearex2.php
+  dropped  pf/lib/jpgraph/Examples/ganttmonthyearex3.php
+  dropped  pf/lib/jpgraph/Examples/ganttmonthyearex4.php
+  dropped  pf/lib/jpgraph/Examples/ganttsimpleex1.php
+  dropped  pf/lib/jpgraph/Examples/grace_ex0.php
+  dropped  pf/lib/jpgraph/Examples/grace_ex1.php
+  dropped  pf/lib/jpgraph/Examples/grace_ex2.php
+  dropped  pf/lib/jpgraph/Examples/grace_ex3.php
+  dropped  pf/lib/jpgraph/Examples/gradbkgex1.php
+  dropped  pf/lib/jpgraph/Examples/gradlinefillex1.php
+  dropped  pf/lib/jpgraph/Examples/gradlinefillex2.php
+  dropped  pf/lib/jpgraph/Examples/gradlinefillex3.php
+  dropped  pf/lib/jpgraph/Examples/gradlinefillex4.php
+  dropped  pf/lib/jpgraph/Examples/groupbarex1.php
+  dropped  pf/lib/jpgraph/Examples/heat1.jpg
+  dropped  pf/lib/jpgraph/Examples/horizbarex1.php
+  dropped  pf/lib/jpgraph/Examples/horizbarex2.php
+  dropped  pf/lib/jpgraph/Examples/horizbarex3.php
+  dropped  pf/lib/jpgraph/Examples/horizbarex4.php
+  dropped  pf/lib/jpgraph/Examples/horizbarex6.php
+  dropped  pf/lib/jpgraph/Examples/imgmarkercsimex1.php
+  dropped  pf/lib/jpgraph/Examples/imgmarkerex1.php
+  dropped  pf/lib/jpgraph/Examples/impulsex1.php
+  dropped  pf/lib/jpgraph/Examples/impulsex2.php
+  dropped  pf/lib/jpgraph/Examples/impulsex3.php
+  dropped  pf/lib/jpgraph/Examples/impulsex4.php
+  dropped  pf/lib/jpgraph/Examples/interpolation-growth-log.php
+  dropped  pf/lib/jpgraph/Examples/interpolation-growth.php
+  dropped  pf/lib/jpgraph/Examples/inyaxisex1.php
+  dropped  pf/lib/jpgraph/Examples/inyaxisex2.php
+  dropped  pf/lib/jpgraph/Examples/inyaxisex3.php
+  dropped  pf/lib/jpgraph/Examples/ledex1.php
+  dropped  pf/lib/jpgraph/Examples/ledex10.php
+  dropped  pf/lib/jpgraph/Examples/ledex11.php
+  dropped  pf/lib/jpgraph/Examples/ledex12.php
+  dropped  pf/lib/jpgraph/Examples/ledex13.php
+  dropped  pf/lib/jpgraph/Examples/ledex14.php
+  dropped  pf/lib/jpgraph/Examples/ledex15.php
+  dropped  pf/lib/jpgraph/Examples/ledex16.php
+  dropped  pf/lib/jpgraph/Examples/ledex17.php
+  dropped  pf/lib/jpgraph/Examples/ledex2.php
+  dropped  pf/lib/jpgraph/Examples/ledex3.php
+  dropped  pf/lib/jpgraph/Examples/ledex4.1.php
+  dropped  pf/lib/jpgraph/Examples/ledex4.2.php
+  dropped  pf/lib/jpgraph/Examples/ledex4.php
+  dropped  pf/lib/jpgraph/Examples/ledex5.php
+  dropped  pf/lib/jpgraph/Examples/ledex6.php
+  dropped  pf/lib/jpgraph/Examples/ledex7.php
+  dropped  pf/lib/jpgraph/Examples/ledex8.php
+  dropped  pf/lib/jpgraph/Examples/ledex9.php
+  dropped  pf/lib/jpgraph/Examples/ledex_cyrillic.php
+  dropped  pf/lib/jpgraph/Examples/ledex_cyrillic2.php
+  dropped  pf/lib/jpgraph/Examples/lightbluedarkblue400x300grad.png
+  dropped  pf/lib/jpgraph/Examples/linebarcentex1.php
+  dropped  pf/lib/jpgraph/Examples/linebarex1.php
+  dropped  pf/lib/jpgraph/Examples/linebarex2.php
+  dropped  pf/lib/jpgraph/Examples/linebarex3.php
+  dropped  pf/lib/jpgraph/Examples/linegraceex.php
+  dropped  pf/lib/jpgraph/Examples/lineiconex1.php
+  dropped  pf/lib/jpgraph/Examples/lineiconex2.php
+  dropped  pf/lib/jpgraph/Examples/lineimagefillex1.php
+  dropped  pf/lib/jpgraph/Examples/linlogex1.php
+  dropped  pf/lib/jpgraph/Examples/listallflags.php
+  dropped  pf/lib/jpgraph/Examples/listallflags_helper.php
+  dropped  pf/lib/jpgraph/Examples/listfontsex1.php
+  dropped  pf/lib/jpgraph/Examples/logbarex1.php
+  dropped  pf/lib/jpgraph/Examples/loglogex1.php
+  dropped  pf/lib/jpgraph/Examples/manscaleex1.php
+  dropped  pf/lib/jpgraph/Examples/manscaleex2.php
+  dropped  pf/lib/jpgraph/Examples/manscaleex3.php
+  dropped  pf/lib/jpgraph/Examples/manscaleex4.php
+  dropped  pf/lib/jpgraph/Examples/manual_textscale_ex1.php
+  dropped  pf/lib/jpgraph/Examples/manual_textscale_ex2.php
+  dropped  pf/lib/jpgraph/Examples/manual_textscale_ex3.php
+  dropped  pf/lib/jpgraph/Examples/manual_textscale_ex4.php
+  dropped  pf/lib/jpgraph/Examples/manualtickex1.php
+  dropped  pf/lib/jpgraph/Examples/manualtickex1a.php
+  dropped  pf/lib/jpgraph/Examples/manualtickex2.php
+  dropped  pf/lib/jpgraph/Examples/manualtickex3.php
+  dropped  pf/lib/jpgraph/Examples/manualtickex4.php
+  dropped  pf/lib/jpgraph/Examples/markflagex1.php
+  dropped  pf/lib/jpgraph/Examples/mkgrad.php
+  dropped  pf/lib/jpgraph/Examples/multconstganttex01.php
+  dropped  pf/lib/jpgraph/Examples/mulyaxiscsimex1.php
+  dropped  pf/lib/jpgraph/Examples/mulyaxisex1.php
+  dropped  pf/lib/jpgraph/Examples/negbarvalueex01.php
+  dropped  pf/lib/jpgraph/Examples/nullvalueex01.php
+  dropped  pf/lib/jpgraph/Examples/partiallyfilledlineex1.php
+  dropped  pf/lib/jpgraph/Examples/penguin.png
+  dropped  pf/lib/jpgraph/Examples/pie3d_csimex1.php
+  dropped  pf/lib/jpgraph/Examples/pie3dex1.php
+  dropped  pf/lib/jpgraph/Examples/pie3dex2.php
+  dropped  pf/lib/jpgraph/Examples/pie3dex3.php
+  dropped  pf/lib/jpgraph/Examples/pie3dex4.php
+  dropped  pf/lib/jpgraph/Examples/pie3dex5.php
+  dropped  pf/lib/jpgraph/Examples/pie_csimex1.php
+  dropped  pf/lib/jpgraph/Examples/piebkgex1.php
+  dropped  pf/lib/jpgraph/Examples/piec_csimex1.php
+  dropped  pf/lib/jpgraph/Examples/piecex1.php
+  dropped  pf/lib/jpgraph/Examples/piecex2.php
+  dropped  pf/lib/jpgraph/Examples/pieex1.php
+  dropped  pf/lib/jpgraph/Examples/pieex2.php
+  dropped  pf/lib/jpgraph/Examples/pieex3.php
+  dropped  pf/lib/jpgraph/Examples/pieex4.php
+  dropped  pf/lib/jpgraph/Examples/pieex5.php
+  dropped  pf/lib/jpgraph/Examples/pieex6.php
+  dropped  pf/lib/jpgraph/Examples/pieex7.php
+  dropped  pf/lib/jpgraph/Examples/pieex8.php
+  dropped  pf/lib/jpgraph/Examples/pieex9.php
+  dropped  pf/lib/jpgraph/Examples/pielabelsex1.php
+  dropped  pf/lib/jpgraph/Examples/pielabelsex2.php
+  dropped  pf/lib/jpgraph/Examples/pielabelsex3.php
+  dropped  pf/lib/jpgraph/Examples/pielabelsex4.php
+  dropped  pf/lib/jpgraph/Examples/pielabelsex5.php
+  dropped  pf/lib/jpgraph/Examples/plotbanddensity_ex0.php
+  dropped  pf/lib/jpgraph/Examples/plotbanddensity_ex1.php
+  dropped  pf/lib/jpgraph/Examples/plotbanddensity_ex2.php
+  dropped  pf/lib/jpgraph/Examples/plotlineex1.php
+  dropped  pf/lib/jpgraph/Examples/polar_csimex1.php
+  dropped  pf/lib/jpgraph/Examples/polarclockex1.php
+  dropped  pf/lib/jpgraph/Examples/polarclockex2.php
+  dropped  pf/lib/jpgraph/Examples/polarex0-180.php
+  dropped  pf/lib/jpgraph/Examples/polarex0.php
+  dropped  pf/lib/jpgraph/Examples/polarex1.php
+  dropped  pf/lib/jpgraph/Examples/polarex10.php
+  dropped  pf/lib/jpgraph/Examples/polarex2.php
+  dropped  pf/lib/jpgraph/Examples/polarex3-lin.php
+  dropped  pf/lib/jpgraph/Examples/polarex3.php
+  dropped  pf/lib/jpgraph/Examples/polarex4.php
+  dropped  pf/lib/jpgraph/Examples/polarex5.php
+  dropped  pf/lib/jpgraph/Examples/polarex6.php
+  dropped  pf/lib/jpgraph/Examples/polarex7-1.php
+  dropped  pf/lib/jpgraph/Examples/polarex7-2.php
+  dropped  pf/lib/jpgraph/Examples/polarex7.php
+  dropped  pf/lib/jpgraph/Examples/polarex8.php
+  dropped  pf/lib/jpgraph/Examples/polarex9.php
+  dropped  pf/lib/jpgraph/Examples/prepaccdata_example.php
+  dropped  pf/lib/jpgraph/Examples/pushpinex1.php
+  dropped  pf/lib/jpgraph/Examples/pushpinex2.php
+  dropped  pf/lib/jpgraph/Examples/radar_csimex1.php
+  dropped  pf/lib/jpgraph/Examples/radarex1.php
+  dropped  pf/lib/jpgraph/Examples/radarex2.php
+  dropped  pf/lib/jpgraph/Examples/radarex3.php
+  dropped  pf/lib/jpgraph/Examples/radarex4.php
+  dropped  pf/lib/jpgraph/Examples/radarex5.php
+  dropped  pf/lib/jpgraph/Examples/radarex6.1.php
+  dropped  pf/lib/jpgraph/Examples/radarex6.php
+  dropped  pf/lib/jpgraph/Examples/radarex7.php
+  dropped  pf/lib/jpgraph/Examples/radarex8.1.php
+  dropped  pf/lib/jpgraph/Examples/radarex8.php
+  dropped  pf/lib/jpgraph/Examples/radarex9.php
+  dropped  pf/lib/jpgraph/Examples/radarlogex1-aa.php
+  dropped  pf/lib/jpgraph/Examples/radarlogex1.php
+  dropped  pf/lib/jpgraph/Examples/radarlogex2.php
+  dropped  pf/lib/jpgraph/Examples/radarmarkex1.php
+  dropped  pf/lib/jpgraph/Examples/rotateex1.php
+  dropped  pf/lib/jpgraph/Examples/rotex0.php
+  dropped  pf/lib/jpgraph/Examples/rotex1.php
+  dropped  pf/lib/jpgraph/Examples/rotex2.php
+  dropped  pf/lib/jpgraph/Examples/rotex3.php
+  dropped  pf/lib/jpgraph/Examples/rotex4.php
+  dropped  pf/lib/jpgraph/Examples/rotex5.php
+  dropped  pf/lib/jpgraph/Examples/saab_95.jpg
+  dropped  pf/lib/jpgraph/Examples/scatter_csimex1.php
+  dropped  pf/lib/jpgraph/Examples/scatterex1.php
+  dropped  pf/lib/jpgraph/Examples/scatterex2.php
+  dropped  pf/lib/jpgraph/Examples/scatterlinkex1.php
+  dropped  pf/lib/jpgraph/Examples/scatterlinkex2.php
+  dropped  pf/lib/jpgraph/Examples/scatterlinkex3.php
+  dropped  pf/lib/jpgraph/Examples/scatterlinkex4.php
+  dropped  pf/lib/jpgraph/Examples/scatterrotex1.php
+  dropped  pf/lib/jpgraph/Examples/show-example.php
+  dropped  pf/lib/jpgraph/Examples/show-image.php
+  dropped  pf/lib/jpgraph/Examples/show-source.php
+  dropped  pf/lib/jpgraph/Examples/smallstaticbandsex1.php
+  dropped  pf/lib/jpgraph/Examples/smallstaticbandsex10.php
+  dropped  pf/lib/jpgraph/Examples/smallstaticbandsex11.php
+  dropped  pf/lib/jpgraph/Examples/smallstaticbandsex2.php
+  dropped  pf/lib/jpgraph/Examples/smallstaticbandsex3.php
+  dropped  pf/lib/jpgraph/Examples/smallstaticbandsex4.php
+  dropped  pf/lib/jpgraph/Examples/smallstaticbandsex5.php
+  dropped  pf/lib/jpgraph/Examples/smallstaticbandsex6.php
+  dropped  pf/lib/jpgraph/Examples/smallstaticbandsex7.php
+  dropped  pf/lib/jpgraph/Examples/smallstaticbandsex8.php
+  dropped  pf/lib/jpgraph/Examples/smallstaticbandsex9.php
+  dropped  pf/lib/jpgraph/Examples/splineex1.php
+  dropped  pf/lib/jpgraph/Examples/staticbandbarex1.php
+  dropped  pf/lib/jpgraph/Examples/staticbandbarex2.php
+  dropped  pf/lib/jpgraph/Examples/staticbandbarex3.php
+  dropped  pf/lib/jpgraph/Examples/staticbandbarex4.php
+  dropped  pf/lib/jpgraph/Examples/staticbandbarex5.php
+  dropped  pf/lib/jpgraph/Examples/staticbandbarex6.php
+  dropped  pf/lib/jpgraph/Examples/staticbandbarex7.php
+  dropped  pf/lib/jpgraph/Examples/staticlinebarex1.php
+  dropped  pf/lib/jpgraph/Examples/stockex1.php
+  dropped  pf/lib/jpgraph/Examples/stockex2.php
+  dropped  pf/lib/jpgraph/Examples/stship.jpg
+  dropped  pf/lib/jpgraph/Examples/sunspotsex1.php
+  dropped  pf/lib/jpgraph/Examples/sunspotsex2.php
+  dropped  pf/lib/jpgraph/Examples/sunspotsex3.php
+  dropped  pf/lib/jpgraph/Examples/sunspotsex4.php
+  dropped  pf/lib/jpgraph/Examples/sunspotsex5.php
+  dropped  pf/lib/jpgraph/Examples/sunspotsex6.php
+  dropped  pf/lib/jpgraph/Examples/sunspotsex7.php
+  dropped  pf/lib/jpgraph/Examples/tabtitleex1.php
+  dropped  pf/lib/jpgraph/Examples/testsuit.php
+  dropped  pf/lib/jpgraph/Examples/text-example1.php
+  dropped  pf/lib/jpgraph/Examples/text-example2.php
+  dropped  pf/lib/jpgraph/Examples/textalignex1.php
+  dropped  pf/lib/jpgraph/Examples/textpalignex1.php
+  dropped  pf/lib/jpgraph/Examples/tiger1.jpg
+  dropped  pf/lib/jpgraph/Examples/tiger_bkg.gif
+  dropped  pf/lib/jpgraph/Examples/tiger_bkg.jpg
+  dropped  pf/lib/jpgraph/Examples/tiger_bkg.png
+  dropped  pf/lib/jpgraph/Examples/timestampex01.php
+  dropped  pf/lib/jpgraph/Examples/titlecsimex01.php
+  dropped  pf/lib/jpgraph/Examples/titleex1.php
+  dropped  pf/lib/jpgraph/Examples/topxaxisex1.php
+  dropped  pf/lib/jpgraph/Examples/worldmap1.jpg
+  dropped  pf/lib/jpgraph/Examples/y2synch.php
+  dropped  pf/lib/jpgraph/Examples/y2synch2.php
+  dropped  pf/lib/jpgraph/Examples/yearssn.txt
+  dropped  pf/lib/jpgraph/contour_dev
+  dropped  pf/lib/jpgraph/contour_dev/findpolygon.php
+  dropped  pf/lib/jpgraph/contour_dev/tri-quad.php
+  dropped  pf/lib/jpgraph/flag_mapping
+  dropped  pf/lib/jpgraph/flags.dat
+  dropped  pf/lib/jpgraph/flags_thumb100x100.dat
+  dropped  pf/lib/jpgraph/flags_thumb35x35.dat
+  dropped  pf/lib/jpgraph/flags_thumb60x60.dat
+  dropped  pf/lib/jpgraph/gd_image.inc.php
+  dropped  pf/lib/jpgraph/imgdata_balls.inc.php
+  dropped  pf/lib/jpgraph/imgdata_bevels.inc.php
+  dropped  pf/lib/jpgraph/imgdata_diamonds.inc.php
+  dropped  pf/lib/jpgraph/imgdata_pushpins.inc.php
+  dropped  pf/lib/jpgraph/imgdata_squares.inc.php
+  dropped  pf/lib/jpgraph/imgdata_stars.inc.php
+  dropped  pf/lib/jpgraph/jpg-config.inc.php
+  dropped  pf/lib/jpgraph/jpgraph.php
+  dropped  pf/lib/jpgraph/jpgraph_antispam-digits.php
+  dropped  pf/lib/jpgraph/jpgraph_antispam.php
+  dropped  pf/lib/jpgraph/jpgraph_bar.php
+  dropped  pf/lib/jpgraph/jpgraph_canvas.php
+  dropped  pf/lib/jpgraph/jpgraph_canvtools.php
+  dropped  pf/lib/jpgraph/jpgraph_contour.php
+  dropped  pf/lib/jpgraph/jpgraph_date.php
+  dropped  pf/lib/jpgraph/jpgraph_errhandler.inc.php
+  dropped  pf/lib/jpgraph/jpgraph_error.php
+  dropped  pf/lib/jpgraph/jpgraph_flags.php
+  dropped  pf/lib/jpgraph/jpgraph_gantt.php
+  dropped  pf/lib/jpgraph/jpgraph_gb2312.php
+  dropped  pf/lib/jpgraph/jpgraph_gradient.php
+  dropped  pf/lib/jpgraph/jpgraph_iconplot.php
+  dropped  pf/lib/jpgraph/jpgraph_imgtrans.php
+  dropped  pf/lib/jpgraph/jpgraph_led.php
+  dropped  pf/lib/jpgraph/jpgraph_legend.inc.php
+  dropped  pf/lib/jpgraph/jpgraph_line.php
+  dropped  pf/lib/jpgraph/jpgraph_log.php
+  dropped  pf/lib/jpgraph/jpgraph_meshinterpolate.inc.php
+  dropped  pf/lib/jpgraph/jpgraph_mgraph.php
+  dropped  pf/lib/jpgraph/jpgraph_pie.php
+  dropped  pf/lib/jpgraph/jpgraph_pie3d.php
+  dropped  pf/lib/jpgraph/jpgraph_plotband.php
+  dropped  pf/lib/jpgraph/jpgraph_plotline.php
+  dropped  pf/lib/jpgraph/jpgraph_plotmark.inc.php
+  dropped  pf/lib/jpgraph/jpgraph_polar.php
+  dropped  pf/lib/jpgraph/jpgraph_radar.php
+  dropped  pf/lib/jpgraph/jpgraph_regstat.php
+  dropped  pf/lib/jpgraph/jpgraph_rgb.inc.php
+  dropped  pf/lib/jpgraph/jpgraph_scatter.php
+  dropped  pf/lib/jpgraph/jpgraph_stock.php
+  dropped  pf/lib/jpgraph/jpgraph_text.inc.php
+  dropped  pf/lib/jpgraph/jpgraph_ttf.inc.php
+  dropped  pf/lib/jpgraph/jpgraph_utils.inc.php
+  dropped  pf/lib/jpgraph/lang
+  dropped  pf/lib/jpgraph/lang/de.inc.php
+  dropped  pf/lib/jpgraph/lang/en.inc.php
+  dropped  pf/lib/jpgraph/lang/prod.inc.php
+  added    pf/var/webadmin_cache
+  patched  pf/UPGRADE
+  patched  pf/addons/packages/packetfence.spec
+  patched  pf/html/admin/common/helpers.inc
+  patched  pf/html/admin/common.php
+  patched  pf/html/admin/status/grapher.php
+  patched  pf/html/admin/status/reports.php
+
+----------------------------------------------------------------------
+Revision: f9d970aaef44dd5f7659f3f60a12972fed1b581b
+Parent:   c95a1b0659692a72c20906fb49ec87dd28fabba2
+Author:   obilodeau@inverse.ca
+Date:     21/12/2011 11:30:54
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+hopefully one last fix to the normalize_time format changes
+
+Changes against parent c95a1b0659692a72c20906fb49ec87dd28fabba2
+
+  patched  pf/html/admin/common/helpers.inc
+  patched  pf/html/admin/configuration/main.php
+  patched  pf/lib/pf/config.pm
+  patched  pf/lib/pf/services.pm
+
+----------------------------------------------------------------------
+Revision: c95a1b0659692a72c20906fb49ec87dd28fabba2
+Parent:   f956ebe86c455174010bd02d47f9d051c532f199
+Author:   obilodeau@inverse.ca
+Date:     21/12/2011 11:25:02
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+dropped a directory no longer used
+
+Changes against parent f956ebe86c455174010bd02d47f9d051c532f199
+
+  dropped  pf/html/common/mobileconfig
+
+----------------------------------------------------------------------
+Revision: 671ae90d3cbf2e7663966c80a6544eefc581e961
+Parent:   f956ebe86c455174010bd02d47f9d051c532f199
+Author:   flachapelle@inverse.ca
+Date:     21/12/2011 10:53:09
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+JavaScript to generate new graphs.
+
+Changes against parent f956ebe86c455174010bd02d47f9d051c532f199
+
+  added    pf/html/common/graphs.js
+
+----------------------------------------------------------------------
+Revision: f956ebe86c455174010bd02d47f9d051c532f199
+Parent:   8800e41bad85902774aba170c35973b1120f9bf0
+Author:   obilodeau@inverse.ca
+Date:     21/12/2011 10:18:33
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+POD fix
+
+Changes against parent 8800e41bad85902774aba170c35973b1120f9bf0
+
+  patched  pf/lib/pf/SNMP/Cisco/Catalyst_3750.pm
+
+----------------------------------------------------------------------
+Revision: 8800e41bad85902774aba170c35973b1120f9bf0
+Parent:   9cf9d94ec4fd4038b76b09783d2bd433912ca37b
+Author:   obilodeau@inverse.ca
+Date:     21/12/2011 10:04:58
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+documented caching problems
+
+Changes against parent 9cf9d94ec4fd4038b76b09783d2bd433912ca37b
+
+  patched  pf/lib/pf/SNMP/Avaya/WC.pm
+  patched  pf/lib/pf/SNMP/Dlink/DWS_3026.pm
+  patched  pf/lib/pf/SNMP/Meru.pm
+
+----------------------------------------------------------------------
+Revision: 9cf9d94ec4fd4038b76b09783d2bd433912ca37b
+Parent:   b13807d7cf7368d2fd6897101a2c039cd5eeb7f2
+Author:   obilodeau@inverse.ca
+Date:     21/12/2011 09:47:45
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+RFC3576-related documentation improvements
+
+Changes against parent b13807d7cf7368d2fd6897101a2c039cd5eeb7f2
+
+  patched  pf/NEWS
+  patched  pf/README.network-devices
+  patched  pf/lib/pf/SNMP/AeroHIVE.pm
+  patched  pf/lib/pf/SNMP/Aruba.pm
+  patched  pf/lib/pf/SNMP/Motorola.pm
+
+----------------------------------------------------------------------
+Revision: eab98e5cdd124edd54462f8e384c87d26243b9c3
+Parent:   5f6678a953b917e39d28b9be04ab2ffae6baa75d
+Author:   flachapelle@inverse.ca
+Date:     20/12/2011 11:09:29
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+New graphs in the web admin UI -- replaced jpgraph (php) by gRaphael (JavaScript)
+
+Changes against parent 5f6678a953b917e39d28b9be04ab2ffae6baa75d
+
+  added    pf/html/admin/3rdparty/raphael
+  added    pf/html/admin/3rdparty/raphael/g.bar-min.js
+  added    pf/html/admin/3rdparty/raphael/g.dot-min.js
+  added    pf/html/admin/3rdparty/raphael/g.line.js
+  added    pf/html/admin/3rdparty/raphael/g.pie-min.js
+  added    pf/html/admin/3rdparty/raphael/g.raphael-min.js
+  added    pf/html/admin/3rdparty/raphael/raphael-min.js
+  patched  pf/NEWS
+  patched  pf/addons/packages/packetfence.spec
+  patched  pf/html/admin/common.php
+  patched  pf/html/admin/header.php
+  patched  pf/html/admin/status/dashboard.php
+  patched  pf/html/admin/status/grapher.php
+  patched  pf/html/admin/status/graphs.php
+  patched  pf/html/admin/status/reports.php
+  patched  pf/html/admin/style.css
+
+----------------------------------------------------------------------
+Revision: 5f6678a953b917e39d28b9be04ab2ffae6baa75d
+Parent:   8d06dcc6a223a1108b3eeacff936f0900af917bb
+Author:   fgaudreault@inverse.ca
+Date:     20/12/2011 10:51:40
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+RFC 5176 support for AeroHive (uses the standard method)
+
+Changes against parent 8d06dcc6a223a1108b3eeacff936f0900af917bb
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/SNMP/AeroHIVE.pm
+
+----------------------------------------------------------------------
+Revision: c5623ff12b1bdc2f2c5118fbd4a3c2d84cbb4309
+Parent:   8d06dcc6a223a1108b3eeacff936f0900af917bb
+Author:   obilodeau@inverse.ca
+Date:     20/12/2011 17:36:40
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Support for stacked Cisco 3750 in MAC-Auth or 802.1X
+
+Changes against parent 8d06dcc6a223a1108b3eeacff936f0900af917bb
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/SNMP/Cisco/Catalyst_3750.pm
+  patched  pf/lib/pf/SNMP/constants.pm
+  patched  pf/t/data/switches.conf
+  patched  pf/t/network-devices/cisco.t
+
+----------------------------------------------------------------------
+Revision: 8d06dcc6a223a1108b3eeacff936f0900af917bb
+Parent:   022a0899fc86207d1ca6e0b8cb7302903d892339
+Author:   obilodeau@inverse.ca
+Date:     19/12/2011 15:30:46
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Re-work of wireless provisioning
+
+- no unnecessary info fetching (performance++)
+- no hacks required to pf::util's parse_template()
+- no unnecessary file creation
+- no new deps
+- added translated strings to PO
+- some captive portal redirection fixes related to TLS
+- no longer creating a process in order to register a node (pfcmd manage register)
+
+Changes against parent 022a0899fc86207d1ca6e0b8cb7302903d892339
+
+  renamed  pf/conf/autoconfig.mobileconfig
+       to  pf/html/captive-portal/templates/wireless-profile.xml
+  renamed  pf/html/captive-portal/templates/release_iphone.html
+       to  pf/html/captive-portal/templates/release_with_xmlconfig.html
+  added    pf/html/captive-portal/wireless-profile.cgi
+  patched  pf/UPGRADE
+  patched  pf/addons/packages/packetfence.spec
+  patched  pf/conf/httpd.conf.d/captive-portal-cleanurls.conf
+  patched  pf/conf/locale/en/LC_MESSAGES/packetfence.po
+  patched  pf/html/captive-portal/guest-selfregistration.cgi
+  patched  pf/html/captive-portal/mobile-confirmation.cgi
+  patched  pf/html/captive-portal/redir.cgi
+  patched  pf/html/captive-portal/register.cgi
+  patched  pf/html/captive-portal/templates/release_with_xmlconfig.html
+  patched  pf/html/captive-portal/templates/wireless-profile.xml
+  patched  pf/lib/pf/util.pm
+  patched  pf/lib/pf/web/custom.pm
+  patched  pf/lib/pf/web.pm
+  patched  pf/t/binaries.t
+  patched  pf/t/coding-style.t
+  patched  pf/t/critic.t
+  patched  pf/t/pod.t
+  attr on  pf/html/captive-portal/wireless-profile.cgi
+      set  mtn:execute
+       to  true
+
+----------------------------------------------------------------------
+Revision: a8987d049e63e4b4eeb266ce4e6a586c14bcc4bd
+Parent:   c3a57cbbeacf40b7ba307c8dcbaee1498d96e18d
+Author:   obilodeau@inverse.ca
+Date:     19/12/2011 10:37:42
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+whitespace removal
+
+Changes against parent c3a57cbbeacf40b7ba307c8dcbaee1498d96e18d
+
+  patched  pf/lib/pf/web/release.pm
+
+----------------------------------------------------------------------
+Revision: 60ab2f642637ac3504134a989cdb3ee33de300c7
+Parent:   c3a57cbbeacf40b7ba307c8dcbaee1498d96e18d
+Author:   dwuelfrath@inverse.ca
+Date:     19/12/2011 11:34:51
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+SNMP traps limit
+
+Changes against parent c3a57cbbeacf40b7ba307c8dcbaee1498d96e18d
+
+  added    pf/t/benchmarks/tieconfig.pl
+  patched  pf/NEWS
+  patched  pf/UPGRADE
+  patched  pf/conf/documentation.conf
+  patched  pf/conf/pf.conf.defaults
+  patched  pf/sbin/pfsetvlan
+  attr on  pf/t/benchmarks/tieconfig.pl
+      set  mtn:execute
+       to  true
+
+----------------------------------------------------------------------
+Revision: c3a57cbbeacf40b7ba307c8dcbaee1498d96e18d
+Parent:   813aa646a078bb04175ca85c91c077dd31670e39
+Author:   obilodeau@inverse.ca
+Date:     16/12/2011 15:07:01
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Adding CoA support to Motorola
+
+Changes against parent 813aa646a078bb04175ca85c91c077dd31670e39
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/SNMP/Motorola.pm
+  patched  pf/lib/pf/accounting.pm
+
+----------------------------------------------------------------------
+Revision: 813aa646a078bb04175ca85c91c077dd31670e39
+Parent:   3faada9373beaff73fdeb6ef5f1dcadec45644b9
+Author:   obilodeau@inverse.ca
+Date:     16/12/2011 14:57:10
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Optional Acct-Session-Id support in radiusDisconnect()
+
+Some refactoring to cleanly support the change
+
+Changes against parent 3faada9373beaff73fdeb6ef5f1dcadec45644b9
+
+  patched  pf/lib/pf/SNMP.pm
+  patched  pf/lib/pf/util/radius.pm
+  patched  pf/t/stress-test/coa-calls.pl
+
+----------------------------------------------------------------------
+Revision: ae911fa3055de5e58055f648325a44aff38c366b
+Parent:   0b65985b879f8d6fc2b90a8edeea741317f9af13
+Author:   obilodeau@inverse.ca
+Date:     16/12/2011 09:01:42
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+disapproval of revision '0b65985b879f8d6fc2b90a8edeea741317f9af13'
+
+Changes against parent 0b65985b879f8d6fc2b90a8edeea741317f9af13
+
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: 0b65985b879f8d6fc2b90a8edeea741317f9af13
+Parent:   cac405d91cdd341ab6233384aa008d8a649d1405
+Author:   obilodeau@inverse.ca
+Date:     16/12/2011 09:01:28
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+build fix: missing ui.conf.es_ES from manifest
+
+Changes against parent cac405d91cdd341ab6233384aa008d8a649d1405
+
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: 29b1e7105d9ad519bd799970a4aede268d68f30f
+Parent:   31919636df66a59ff74f6b7d2bdee7f3b32fc005
+Author:   obilodeau@inverse.ca
+Date:     15/12/2011 14:15:22
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+added Mauricio Lopes to README for his pt_BR help
+
+Changes against parent 31919636df66a59ff74f6b7d2bdee7f3b32fc005
+
+  patched  pf/README
+
+----------------------------------------------------------------------
+Revision: 17c8c3d319f5f38abbd9f57aa1546b11c8ebbd16
+Parent:   4fb9b8f02aa5dd4ed5faa6d1fd1a5950b1e765ef
+Author:   obilodeau@inverse.ca
+Date:     15/12/2011 13:49:54
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Added transifex translation instructions
+
+Changes against parent 4fb9b8f02aa5dd4ed5faa6d1fd1a5950b1e765ef
+
+  patched  pf/docs/docbook/pf-devel-guide.xml
+
+----------------------------------------------------------------------
+Revision: 4fb9b8f02aa5dd4ed5faa6d1fd1a5950b1e765ef
+Parent:   65bcf6723c46bc0c9862b76543554cbd26d57b59
+Author:   obilodeau@inverse.ca
+Date:     15/12/2011 13:30:37
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Updated exception-handling section
+
+Changes against parent 65bcf6723c46bc0c9862b76543554cbd26d57b59
+
+  patched  pf/docs/docbook/pf-devel-guide.xml
+
+----------------------------------------------------------------------
+Revision: 65bcf6723c46bc0c9862b76543554cbd26d57b59
+Parent:   e390b6b5f24efad215dadf0eb89d6c2dacbff498
+Author:   obilodeau@inverse.ca
+Date:     15/12/2011 13:25:46
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Coverage of our support for RADIUS Dynamic Authorization (RFC3576)
+
+Changes against parent e390b6b5f24efad215dadf0eb89d6c2dacbff498
+
+  patched  pf/docs/docbook/pf-devel-guide.xml
+
+----------------------------------------------------------------------
+Revision: ce923914f6d2e2f43e4fff1db419a2ea2cc6fa22
+Parent:   9794d81e8ecdfdd686880b472c8bc8266a157cf4
+Author:   obilodeau@inverse.ca
+Date:     15/12/2011 11:24:50
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+manual sync from 3_0 branch
+
+Changes against parent 9794d81e8ecdfdd686880b472c8bc8266a157cf4
+
+  patched  pf/docs/PacketFence_Administration_Guide.odt
+
+----------------------------------------------------------------------
+Revision: 0c4b6b408e2eb5d6b046ece99f4e55bda842f928
+Parent:   9794d81e8ecdfdd686880b472c8bc8266a157cf4
+Author:   obilodeau@inverse.ca
+Date:     15/12/2011 09:45:27
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+updated coa client because we uppercase the MAC now
+
+Changes against parent 9794d81e8ecdfdd686880b472c8bc8266a157cf4
+
+  patched  pf/t/stress-test/coa-calls.pl
+
+----------------------------------------------------------------------
+Revision: 9794d81e8ecdfdd686880b472c8bc8266a157cf4
+Parent:   9d9863d72daa6b986cd51cb6792f92d7b777caae
+Author:   obilodeau@inverse.ca
+Date:     15/12/2011 09:31:07
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+RFC3576 is cluster IP capable
+
+Also added support for it directly into the CoA PoC and radiusDisconnect clients
+
+Changes against parent 9d9863d72daa6b986cd51cb6792f92d7b777caae
+
+  patched  pf/lib/pf/SNMP/Cisco.pm
+  patched  pf/lib/pf/SNMP.pm
+  patched  pf/lib/pf/util/radius.pm
+
+----------------------------------------------------------------------
+Revision: 9d9863d72daa6b986cd51cb6792f92d7b777caae
+Parent:   b4a867bc8af5b52a3b8a03be85c929a93faa97ff
+Author:   obilodeau@inverse.ca
+Date:     14/12/2011 19:54:45
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Virtual IP (vip) auto-detection by pf::config
+
+Did some refactoring too
+- managed_nets is now management_network
+- updated the pfcmd checkup tests
+
+Changes against parent b4a867bc8af5b52a3b8a03be85c929a93faa97ff
+
+  patched  pf/addons/packages/packetfence.spec
+  patched  pf/lib/pf/config.pm
+  patched  pf/lib/pf/iptables.pm
+  patched  pf/lib/pf/pfcmd/checkup.pm
+  patched  pf/lib/pf/util.pm
+  patched  pf/t/integration.t
+
+----------------------------------------------------------------------
+Revision: b4a867bc8af5b52a3b8a03be85c929a93faa97ff
+Parent:   113a03f276ba5d1230a24bc53c3330cc6a7bbfb7
+Author:   obilodeau@inverse.ca
+Date:     14/12/2011 14:26:45
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+important fix preventing unnecessary NAT of packets from the server
+
+Specificly fixed an issue where we were trying to send UDP packets from the cluster IP and the rules kept NAT'ing the packets to another address even though it was not from inline-enforced nodes.
+
+Changes against parent 113a03f276ba5d1230a24bc53c3330cc6a7bbfb7
+
+  patched  pf/NEWS
+  patched  pf/UPGRADE
+  patched  pf/lib/pf/config.pm
+  patched  pf/lib/pf/iptables.pm
+
+----------------------------------------------------------------------
+Revision: 113a03f276ba5d1230a24bc53c3330cc6a7bbfb7
+Parent:   65e14796e4b2bd89fa9febf83daface3150e53ea
+Author:   obilodeau@inverse.ca
+Date:     14/12/2011 14:11:49
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+additional fixes to wired CoA support
+
+Initial testing for CoA successful. Feature disabled by default.
+
+Changes against parent 65e14796e4b2bd89fa9febf83daface3150e53ea
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/SNMP/Cisco.pm
+  patched  pf/lib/pf/util/radius.pm
+
+----------------------------------------------------------------------
+Revision: 65e14796e4b2bd89fa9febf83daface3150e53ea
+Parent:   6f5147e7219499f33d85106252fcac5047ffe1cd
+Author:   obilodeau@inverse.ca
+Date:     14/12/2011 10:35:57
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+fixes to test Cisco CoA
+
+Changes against parent 6f5147e7219499f33d85106252fcac5047ffe1cd
+
+  patched  pf/lib/pf/SNMP/Cisco.pm
+
+----------------------------------------------------------------------
+Revision: 6f5147e7219499f33d85106252fcac5047ffe1cd
+Parent:   b7e8fe8c5c5bd97ad2f2d784beabac6f8aadfa9b
+Author:   obilodeau@inverse.ca
+Date:     13/12/2011 15:17:41
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Preliminary CoA support in Cisco (to be tested)
+
+Changes against parent b7e8fe8c5c5bd97ad2f2d784beabac6f8aadfa9b
+
+  patched  pf/lib/pf/SNMP/Cisco.pm
+  patched  pf/lib/pf/util/dictionary
+  patched  pf/lib/pf/util/radius.pm
+
+----------------------------------------------------------------------
+Revision: b7e8fe8c5c5bd97ad2f2d784beabac6f8aadfa9b
+Parent:   8633fd23d609d41bc647acfd9637d8d119f128fc
+Author:   obilodeau@inverse.ca
+Date:     13/12/2011 15:07:48
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+outputting date on each packet
+
+
+Changes against parent 8633fd23d609d41bc647acfd9637d8d119f128fc
+
+  patched  pf/addons/dhcp_dumper.pl
+
+----------------------------------------------------------------------
+Revision: 8633fd23d609d41bc647acfd9637d8d119f128fc
+Parent:   72d203001f3b3ccbb68dd557c33bfb79721f7578
+Author:   obilodeau@inverse.ca
+Date:     13/12/2011 11:30:09
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+SNMP Traps v3 configuration validation on startup
+
+Changes against parent 72d203001f3b3ccbb68dd557c33bfb79721f7578
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/pfcmd/checkup.pm
+
+----------------------------------------------------------------------
+Revision: 72d203001f3b3ccbb68dd557c33bfb79721f7578
+Parent:   58201c93fbf8a81323c62b52d3c99147d135004b
+Author:   fgaudreault@inverse.ca
+Date:     13/12/2011 10:09:23
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+- Missing file in spec
+
+Changes against parent 58201c93fbf8a81323c62b52d3c99147d135004b
+
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: 58201c93fbf8a81323c62b52d3c99147d135004b
+Parent:   7f85271bf6e1cde142558b9c3b85bc1c592b37c6
+Author:   fgaudreault@inverse.ca
+Date:     12/12/2011 16:06:52
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Documentation for iPhone provisioning feature
+Correcting the name to provisioning instead of provisionning :S
+
+Changes against parent 7f85271bf6e1cde142558b9c3b85bc1c592b37c6
+
+  patched  pf/NEWS
+  patched  pf/conf/documentation.conf
+  patched  pf/conf/pf.conf.defaults
+  patched  pf/docs/PacketFence_Administration_Guide.odt
+  patched  pf/lib/pf/web.pm
+
+----------------------------------------------------------------------
+Revision: 7f85271bf6e1cde142558b9c3b85bc1c592b37c6
+Parent:   c88b04d213b8aaf7b07dcd061d950bfb77dd1807
+Author:   fgaudreault@inverse.ca
+Date:     12/12/2011 13:40:59
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Basic support for iPhone provisionning.
+Missing some core features to finish, we will need to fix the way we 
+register devices in order to have it fully working.  We also need to 
+add some code to clean the generated configs. (ie. delete everything that is
+older than 30min).  For the rest, I tested in lab, and with WISPr, it
+is very cool.
+
+Changes against parent c88b04d213b8aaf7b07dcd061d950bfb77dd1807
+
+  added    pf/html/common/mobileconfig
+  added    pf/conf/autoconfig.mobileconfig
+  added    pf/html/captive-portal/templates/release_iphone.html
+  patched  pf/NEWS
+  patched  pf/conf/documentation.conf
+  patched  pf/conf/pf.conf.defaults
+  patched  pf/lib/pf/util.pm
+  patched  pf/lib/pf/web.pm
+
+----------------------------------------------------------------------
+Revision: c88b04d213b8aaf7b07dcd061d950bfb77dd1807
+Parent:   a24b3f022d9c7d14019428b4590e717184d67911
+Author:   obilodeau@inverse.ca
+Date:     09/12/2011 15:31:27
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Aruba module now uses RFC3576 for deauth
+
+Changes against parent a24b3f022d9c7d14019428b4590e717184d67911
+
+  patched  pf/NEWS
+  patched  pf/README.network-devices
+  patched  pf/UPGRADE
+  patched  pf/lib/pf/SNMP/Aruba.pm
+  patched  pf/lib/pf/SNMP.pm
+  patched  pf/lib/pf/util/radius.pm
+  patched  pf/t/hardware-snmp-objects.t
+
+----------------------------------------------------------------------
+Revision: a24b3f022d9c7d14019428b4590e717184d67911
+Parent:   9689d8efc0de6ea4ea37626f069e17e6b67a904e
+Author:   obilodeau@inverse.ca
+Date:     08/12/2011 21:38:53
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+RFC3576 library change to handle timeouts
+
+Also
+- changed default values handling
+- more exceptions
+- emprically confirmed timeout multithread handling and multithread proper operation
+
+Changes against parent 9689d8efc0de6ea4ea37626f069e17e6b67a904e
+
+  patched  pf/lib/pf/util/radius.pm
+  patched  pf/t/stress-test/coa-calls.pl
+
+----------------------------------------------------------------------
+Revision: 9689d8efc0de6ea4ea37626f069e17e6b67a904e
+Parent:   65523c128d8401c48000c66e9d6e110b62691411
+Author:   obilodeau@inverse.ca
+Date:     08/12/2011 19:19:12
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+RADIUS CoA / Disconnect library and test scripts
+
+Changes against parent 65523c128d8401c48000c66e9d6e110b62691411
+
+  added    pf/lib/pf/util/dictionary
+  added    pf/lib/pf/util/radius.pm
+  added    pf/t/stress-test/coa-calls.pl
+  added    pf/t/stress-test/coa-server.pl
+  added    pf/t/util-radius.t
+  patched  pf/addons/packages/packetfence.spec
+  patched  pf/t/TestUtils.pm
+  patched  pf/t/coding-style.t
+  patched  pf/t/critic.t
+  patched  pf/t/pf.t
+  patched  pf/t/pod.t
+  patched  pf/t/podCoverage.t
+  attr on  pf/t/stress-test/coa-calls.pl
+      set  mtn:execute
+       to  true
+  attr on  pf/t/util-radius.t
+      set  mtn:execute
+       to  true
+
+----------------------------------------------------------------------
+Revision: 65523c128d8401c48000c66e9d6e110b62691411
+Parent:   14dbd449d14a805a68fed7453b0717223b839290
+Author:   obilodeau@inverse.ca
+Date:     08/12/2011 19:13:55
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+portability improvements: no more use unneeded lib
+
+got rid of several hardcoded unnecessary use lib module references
+
+Changes against parent 14dbd449d14a805a68fed7453b0717223b839290
+
+  patched  pf/lib/pf/SNMP/ThreeCom/SS4200.pm
+  patched  pf/lib/pf/WebAPI.pm
+  patched  pf/lib/pf/email_activation.pm
+  patched  pf/lib/pf/floatingdevice.pm
+  patched  pf/lib/pf/nodecategory.pm
+  patched  pf/lib/pf/sms_activation.pm
+  patched  pf/lib/pf/temporary_password.pm
+  patched  pf/lib/pf/util/dhcp.pm
+
+----------------------------------------------------------------------
+Revision: 14dbd449d14a805a68fed7453b0717223b839290
+Parent:   8912e2bfd757320a07b9c718f5e2474383c4bee6
+Author:   obilodeau@inverse.ca
+Date:     05/12/2011 10:18:07
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+build fix: dhcp lib changed but not tests
+
+Changes against parent 8912e2bfd757320a07b9c718f5e2474383c4bee6
+
+  patched  pf/t/util-dhcp.t
+
+----------------------------------------------------------------------
+Revision: 8912e2bfd757320a07b9c718f5e2474383c4bee6
+Parent:   32ba5aa22b5efa3ea5e458b489b2dc4bb75adb9a
+Author:   obilodeau@inverse.ca
+Date:     01/12/2011 12:05:43
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+more warning avoidance
+
+Changes against parent 32ba5aa22b5efa3ea5e458b489b2dc4bb75adb9a
+
+  patched  pf/sbin/pfdhcplistener
+
+----------------------------------------------------------------------
+Revision: 32ba5aa22b5efa3ea5e458b489b2dc4bb75adb9a
+Parent:   8c594148d1ed8909cd0cb1d6a0f777f2ce33492a
+Author:   obilodeau@inverse.ca
+Date:     01/12/2011 11:29:33
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+don't send dhcprequest to rogue dhcp evaluation if performing DHCP re-binding 
+
+Changes against parent 8c594148d1ed8909cd0cb1d6a0f777f2ce33492a
+
+  patched  pf/sbin/pfdhcplistener
+
+----------------------------------------------------------------------
+Revision: 8c594148d1ed8909cd0cb1d6a0f777f2ce33492a
+Parent:   234d148da252690cb86be1d71d8ea22ee5e8f590
+Author:   obilodeau@inverse.ca
+Date:     01/12/2011 11:26:03
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+removing 1 element arrayref in favor of scalar in dhcp option 53 (type)
+
+Made user code more complex than it needed to be
+Fixed one warning in a logger statement which didn't do it (triggered the change)
+
+Changes against parent 234d148da252690cb86be1d71d8ea22ee5e8f590
+
+  patched  pf/addons/dhcp_dumper.pl
+  patched  pf/lib/pf/util/dhcp.pm
+  patched  pf/sbin/pfdhcplistener
+
+----------------------------------------------------------------------
+Revision: 234d148da252690cb86be1d71d8ea22ee5e8f590
+Parent:   92548c65b1b538b1671bc6ffea18fb1762e4ae1d
+Author:   obilodeau@inverse.ca
+Date:     01/12/2011 11:23:25
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+minor cleanup
+
+- removed unnecessary imports
+- log msg fix
+- leaner hashref accessor syntax
+
+Changes against parent 92548c65b1b538b1671bc6ffea18fb1762e4ae1d
+
+  patched  pf/sbin/pfdhcplistener
+
+----------------------------------------------------------------------
+Revision: 9f43636d3401f2b2473ffcaa964a559d36e67694
+Parent:   cc2f57771e3d2faf2e08859dd91f6b96b6a3d086
+Author:   obilodeau@inverse.ca
+Date:     29/11/2011 11:53:58
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+rogue DHCP violation now needs a trigger to work
+
+Changes against parent cc2f57771e3d2faf2e08859dd91f6b96b6a3d086
+
+  patched  pf/UPGRADE
+  patched  pf/conf/violations.conf
+
+----------------------------------------------------------------------
+Revision: 6c01f73ad854eeb91e96ccefbf08dc29a2f8f675
+Parent:   32a869de4d9923b275a3c94879d72bde87a239a7
+Author:   obilodeau@inverse.ca
+Date:     28/11/2011 13:24:24
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+added notice: be careful about your general.dhcpservers list
+
+Changes against parent 32a869de4d9923b275a3c94879d72bde87a239a7
+
+  patched  pf/UPGRADE
+  patched  pf/sbin/pfdhcplistener
+
+----------------------------------------------------------------------
+Revision: 32a869de4d9923b275a3c94879d72bde87a239a7
+Parent:   3d143ebb0ca1384316dd42842d2a0d5974d068f1
+Author:   obilodeau@inverse.ca
+Date:     28/11/2011 13:12:53
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+not doing updates on DHCP Discover to save some CPU / IO
+
+Changes against parent 3d143ebb0ca1384316dd42842d2a0d5974d068f1
+
+  patched  pf/NEWS
+  patched  pf/sbin/pfdhcplistener
+
+----------------------------------------------------------------------
+Revision: 3d143ebb0ca1384316dd42842d2a0d5974d068f1
+Parent:   3cf19feab1c4a32c50c75eba6397378020b250aa
+Author:   obilodeau@inverse.ca
+Date:     28/11/2011 12:04:34
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+disable flag for rogue dhcp server detection and sending relay information in alarms
+
+Changes against parent 3cf19feab1c4a32c50c75eba6397378020b250aa
+
+  patched  pf/NEWS
+  patched  pf/conf/documentation.conf
+  patched  pf/conf/pf.conf.defaults
+  patched  pf/sbin/pfdhcplistener
+
+----------------------------------------------------------------------
+Revision: 3cf19feab1c4a32c50c75eba6397378020b250aa
+Parent:   5b2efd3a2c11cfecad36110c4f6f46f317e255ce
+Author:   obilodeau@inverse.ca
+Date:     28/11/2011 11:58:04
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+option 82 was pushed in pf::util::dhcp
+
+Changes against parent 5b2efd3a2c11cfecad36110c4f6f46f317e255ce
+
+  patched  pf/addons/dhcp_dumper.pl
+
+----------------------------------------------------------------------
+Revision: 5b2efd3a2c11cfecad36110c4f6f46f317e255ce
+Parent:   81202c2d663dec99002ec567e0b43a5e182a1dbf
+Author:   obilodeau@inverse.ca
+Date:     28/11/2011 10:56:18
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+pushed option 82 decoding into pf::util::dhcp
+
+Changes against parent 81202c2d663dec99002ec567e0b43a5e182a1dbf
+
+  patched  pf/lib/pf/util/dhcp.pm
+  patched  pf/sbin/pfdhcplistener
+
+----------------------------------------------------------------------
+Revision: 81202c2d663dec99002ec567e0b43a5e182a1dbf
+Parent:   11cda3dfd55678189c879365e26e31d63cf326a1
+Author:   obilodeau@inverse.ca
+Date:     28/11/2011 10:32:26
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+fix to the exception handling code
+
+Changes against parent 11cda3dfd55678189c879365e26e31d63cf326a1
+
+  patched  pf/addons/dhcp_dumper.pl
+  patched  pf/sbin/pfdhcplistener
+
+----------------------------------------------------------------------
+Revision: 11cda3dfd55678189c879365e26e31d63cf326a1
+Parent:   de2a671168df086fbd7b24f3945777c9e480ed06
+Author:   obilodeau@inverse.ca
+Date:     25/11/2011 14:25:21
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+pfdhcplistener basic rogue dhcp server detection through ip helpers. See #1151
+
+Also:
+- warning avoidance
+- it included minor cleanups
+http://www.packetfence.org/bugs/view.php?id=1151
+
+Changes against parent de2a671168df086fbd7b24f3945777c9e480ed06
+
+  patched  pf/NEWS
+  patched  pf/sbin/pfdhcplistener
+
+----------------------------------------------------------------------
+Revision: de2a671168df086fbd7b24f3945777c9e480ed06
+Parent:   2ce23fad90d835de11849b3df648a87ee9baf7e3
+Author:   obilodeau@inverse.ca
+Date:     25/11/2011 14:15:57
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+ipv4 parsing and another ascii option to parse
+
+Changes against parent 2ce23fad90d835de11849b3df648a87ee9baf7e3
+
+  patched  pf/lib/pf/util/dhcp.pm
+
+----------------------------------------------------------------------
+Revision: 2ce23fad90d835de11849b3df648a87ee9baf7e3
+Parent:   c212d9ab0e45798ff0cc82bee6eecfca135553ae
+Author:   obilodeau@inverse.ca
+Date:     25/11/2011 14:13:34
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+got rid of unecessary dhcp hashref pollution
+
+Changes against parent c212d9ab0e45798ff0cc82bee6eecfca135553ae
+
+  patched  pf/addons/dhcp_dumper.pl
+
+----------------------------------------------------------------------
+Revision: 79bf9aa1a7115b009a54ec6b1b79622ee2174af2
+Parent:   c4cab7a1a2456a4a7dc99bfc697d26deeff42948
+Author:   obilodeau@inverse.ca
+Date:     24/11/2011 11:12:54
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+migrated dhcp_dumper to use pf::util::dhcp
+
+Changes against parent c4cab7a1a2456a4a7dc99bfc697d26deeff42948
+
+  patched  pf/NEWS
+  patched  pf/UPGRADE
+  patched  pf/addons/dhcp_dumper.pl
+  patched  pf/lib/pf/util/dhcp.pm
+
+----------------------------------------------------------------------
+Revision: c4cab7a1a2456a4a7dc99bfc697d26deeff42948
+Parent:   8f87c13c26470934f4fa03ba520fc01d772ead46
+Author:   obilodeau@inverse.ca
+Date:     23/11/2011 15:49:54
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+quickly aligned dhcp_dumper.pl to current practices
+
+Changes against parent 8f87c13c26470934f4fa03ba520fc01d772ead46
+
+  patched  pf/addons/dhcp_dumper.pl
+
+----------------------------------------------------------------------
+Revision: 8f87c13c26470934f4fa03ba520fc01d772ead46
+Parent:   d5709e56846b5f1fa71696764c485e9b92344a9a
+Author:   obilodeau@inverse.ca
+Date:     23/11/2011 15:12:05
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+pfdhcplistener refactoring
+
+- more offloading to pf::util::dhcp
+- saner hardcoded roguedhcp violation triggering
+- everything now splitted in the listener under separate subs
+- some fixes (lookup show in email on rogue, etc.)
+- some improvements (no double verifications, etc.)
+
+Changes against parent d5709e56846b5f1fa71696764c485e9b92344a9a
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/util/dhcp.pm
+  patched  pf/sbin/pfdhcplistener
+  patched  pf/t/util-dhcp.t
+
+----------------------------------------------------------------------
+Revision: 03ee943325ff5f911ca976d92d60f60db2b01eff
+Parent:   04ba2243800c53c6639e2c97ab9adc61f8a30898
+Author:   obilodeau@inverse.ca
+Date:     18/11/2011 10:12:53
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+disapproval of revision '04ba2243800c53c6639e2c97ab9adc61f8a30898'
+
+Changes against parent 04ba2243800c53c6639e2c97ab9adc61f8a30898
+
+  patched  pf/sbin/pfdhcplistener
+  patched  pf/t/util-dhcp.t
+
+----------------------------------------------------------------------
+Revision: 6768b6177d4e45a28579fe9e4a7a902263c9d793
+Parent:   427c80068f189600b3ee8cbcf524153838a0e88f
+Author:   obilodeau@inverse.ca
+Date:     18/11/2011 10:13:04
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+disapproval of revision '427c80068f189600b3ee8cbcf524153838a0e88f'
+
+Changes against parent 427c80068f189600b3ee8cbcf524153838a0e88f
+
+  patched  pf/lib/pf/util/dhcp.pm
+
+----------------------------------------------------------------------
+Revision: 427c80068f189600b3ee8cbcf524153838a0e88f
+Parent:   04ba2243800c53c6639e2c97ab9adc61f8a30898
+Author:   obilodeau@inverse.ca
+Date:     18/11/2011 10:10:58
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+forgotten file from previous commit
+
+additional changes to the dhcp decoding required due to regression
+
+Changes against parent 04ba2243800c53c6639e2c97ab9adc61f8a30898
+
+  patched  pf/lib/pf/util/dhcp.pm
+
+----------------------------------------------------------------------
+Revision: 04ba2243800c53c6639e2c97ab9adc61f8a30898
+Parent:   0419206564283249cd3845a044277522d6bab4c7
+Author:   obilodeau@inverse.ca
+Date:     18/11/2011 10:08:33
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+additional changes to the dhcp decoding required due to regression
+
+Changes against parent 0419206564283249cd3845a044277522d6bab4c7
+
+  patched  pf/sbin/pfdhcplistener
+  patched  pf/t/util-dhcp.t
+
+----------------------------------------------------------------------
+Revision: a9dd71e95a453ae8c359a9a1d9b0e804996268c5
+Parent:   2e5c707717502082e8efc054f7617056c3c7b69e
+Author:   dwuelfrath@inverse.ca
+Date:     17/11/2011 09:15:39
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Revision 2e5c707717502082e8efc054f7617056c3c7b69e package fix
+
+Changes against parent 2e5c707717502082e8efc054f7617056c3c7b69e
+
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: 2e5c707717502082e8efc054f7617056c3c7b69e
+Parent:   02d1f641c3eb42e54f393d968891cb657cb6859c
+Author:   dwuelfrath@inverse.ca
+Date:     16/11/2011 15:29:44
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Added support for session-keyfile introduced in BIND 9.7 (#1257)
+
+Changes against parent 02d1f641c3eb42e54f393d968891cb657cb6859c
+
+  dropped  pf/conf/named.conf
+  added    pf/conf/named.conf.bind97
+  added    pf/conf/named.conf.pre_bind97
+  patched  pf/NEWS
+  patched  pf/addons/packages/packetfence.spec
+  patched  pf/installer.pl
+
+----------------------------------------------------------------------
+Revision: 37fbb1e5184c54d3a67a4a2a0e9e4df402841ef7
+Parent:   a6206d516a7a2f3bc5edec6cbf54369c12d66e00
+Author:   obilodeau@inverse.ca
+Date:     17/11/2011 14:54:28
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+inline, isolation and registration disabled bugfix. Fixes #1330;
+
+isolation not properly enforced by firewall if registration is disabled
+
+http://packetfence.org/bugs/view.php?id=1330
+
+Changes against parent a6206d516a7a2f3bc5edec6cbf54369c12d66e00
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/iptables.pm
+
+----------------------------------------------------------------------
+Revision: a6206d516a7a2f3bc5edec6cbf54369c12d66e00
+Parent:   a877462999f21b63e8a40717cf03ca723d9f3fba
+Author:   obilodeau@inverse.ca
+Date:     14/11/2011 12:23:58
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Improved startup time (especially on IO limited env.)
+
+DHCP fingerprints re-importing is handled only if necessary.
+
+Changes against parent a877462999f21b63e8a40717cf03ca723d9f3fba
+
+  patched  pf/NEWS
+  patched  pf/UPGRADE
+  patched  pf/bin/pfcmd
+  patched  pf/lib/pf/os.pm
+
+----------------------------------------------------------------------
+Revision: bb832e07ac98838287be674b9dc10654f3463053
+Parent:   8caa27e9c6243bc7cd90159207e8ba9461d16271
+Author:   fgaudreault@inverse.ca
+Date:     04/11/2011 11:54:41
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+- Missing rewrite rule for soh
+
+Changes against parent 8caa27e9c6243bc7cd90159207e8ba9461d16271
+
+  patched  pf/conf/httpd.conf.apache22
+
+----------------------------------------------------------------------
+Revision: 8caa27e9c6243bc7cd90159207e8ba9461d16271
+Parent:   a21df4276da7aac66ed9befdc6a208d378ae380b
+Author:   obilodeau@inverse.ca
+Date:     03/11/2011 12:26:45
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+More allowed characters in PID. Fixes 1322;
+
+Allowed slashes and a couple of others and made sure that the web interface quoted on lookups.
+
+Also:
+- regrouped into pre-compiled regexp for code reuse /easier maintenance
+- removed node_filter stacking complexity because it can't be used by the code right now anyways
+- regression tests for all the problem's I've encountered
+http://www.packetfence.org/bugs/view.php?id=1322
+
+Changes against parent a21df4276da7aac66ed9befdc6a208d378ae380b
+
+  patched  pf/NEWS
+  patched  pf/bin/pfcmd
+  patched  pf/html/admin/person/lookup.php
+  patched  pf/lib/pf/pfcmd.pm
+  patched  pf/t/pfcmd.t
+
+----------------------------------------------------------------------
+Revision: a21df4276da7aac66ed9befdc6a208d378ae380b
+Parent:   34f02be6754c7739835a9dfcf441baaae4a72d6e
+Author:   fgaudreault@inverse.ca
+Date:     03/11/2011 11:23:21
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+- Adding SoH support to our freeradius2 configuration pack
+
+Changes against parent 34f02be6754c7739835a9dfcf441baaae4a72d6e
+
+  added    pf/addons/freeradius-integration/sites-available/packetfence-soh
+  patched  pf/addons/freeradius-integration/modules/perl.pf
+  patched  pf/addons/freeradius-integration/sites-available/packetfence
+  patched  pf/addons/freeradius-integration/sites-available/packetfence-tunnel
+  patched  pf/addons/packages/packetfence.spec
+  patched  pf/addons/soh/README.rst
+
+----------------------------------------------------------------------
+Revision: 34f02be6754c7739835a9dfcf441baaae4a72d6e
+Parent:   12e7e74ae8513541a5f19bb9135f10472830592c
+Author:   obilodeau@inverse.ca
+Date:     03/11/2011 09:04:32
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+RPM spec: added addons/soh to files manifest
+
+Changes against parent 12e7e74ae8513541a5f19bb9135f10472830592c
+
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: 52c560f686798f1dab6e2b33bc54b97837432621
+Parent:   d65e9febaba95bb50da39b44607e3ef367a91f7c
+Author:   obilodeau@inverse.ca
+Date:     02/11/2011 20:47:58
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+added files to package manifest
+
+Changes against parent d65e9febaba95bb50da39b44607e3ef367a91f7c
+
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: d65e9febaba95bb50da39b44607e3ef367a91f7c
+Parent:   556740b79ade99fc5fa5ba350df1e03d3bde99d0
+Author:   obilodeau@inverse.ca
+Date:     02/11/2011 20:45:03
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Added SoH link under Web Admin
+
+Changes against parent 556740b79ade99fc5fa5ba350df1e03d3bde99d0
+
+  patched  pf/conf/ui.conf
+  patched  pf/html/admin/common.php
+
+----------------------------------------------------------------------
+Revision: 556740b79ade99fc5fa5ba350df1e03d3bde99d0
+Parent:   25c442c14e8eca93ac077c507c86ae281be02085
+Author:   obilodeau@inverse.ca
+Date:     02/11/2011 20:43:09
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+fixed TT issues with the tempate move I did
+
+Changes against parent 25c442c14e8eca93ac077c507c86ae281be02085
+
+  patched  pf/html/admin/soh.cgi
+
+----------------------------------------------------------------------
+Revision: 25c442c14e8eca93ac077c507c86ae281be02085
+Parent:   57fe90aa368157b429c0f438b77c2c5a123d06f2
+Author:   obilodeau@inverse.ca
+Date:     02/11/2011 20:19:36
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+API version validation and hooks for pf::soh / pf::soh::custom
+
+Changes against parent 57fe90aa368157b429c0f438b77c2c5a123d06f2
+
+  patched  pf/lib/pf/WebAPI.pm
+  patched  pf/lib/pf/config.pm
+  patched  pf/lib/pf/pfcmd/checkup.pm
+  patched  pf/lib/pf/soh/custom.pm
+  patched  pf/lib/pf/soh.pm
+
+----------------------------------------------------------------------
+Revision: 57fe90aa368157b429c0f438b77c2c5a123d06f2
+Parent:   559eee7e5de6a138d9ab8f0c53c63d658450bd3b
+Author:   obilodeau@inverse.ca
+Date:     02/11/2011 20:10:43
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Integrating soh.t into smoke testsuite
+
+- fixed tests expecting false value instead of undef (due to previous commit)
+- removed unsupported Test::More construct (redhat's 5.8 perl)
+- added logger statements to log into test logs
+
+Changes against parent 559eee7e5de6a138d9ab8f0c53c63d658450bd3b
+
+  patched  pf/t/TestUtils.pm
+  patched  pf/t/soh.t
+
+----------------------------------------------------------------------
+Revision: 559eee7e5de6a138d9ab8f0c53c63d658450bd3b
+Parent:   aca9ce18af287e3786709859bf8ab47d20367a05
+Author:   obilodeau@inverse.ca
+Date:     02/11/2011 20:02:44
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+you can't return from a try {} catch {} block
+
+Changes against parent aca9ce18af287e3786709859bf8ab47d20367a05
+
+  patched  pf/lib/pf/soh.pm
+
+----------------------------------------------------------------------
+Revision: aca9ce18af287e3786709859bf8ab47d20367a05
+Parent:   c249b1d087322cce2feea304ad9e5cb07ff87251
+Author:   obilodeau@inverse.ca
+Date:     02/11/2011 19:40:19
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Most of Statement of Health (SoH) support migrated into core
+
+Missing: freeradius package integration
+
+- merged database changes db schema (and added to the 3.0.2 to 3.1.0 upgrade script)
+- moved template from captive portal to web admin
+- renamed soh/index.html into soh.html
+- integrated soh rewrite rule
+- added soh.cgi, pf::soh and pf::soh::custom to tests
+- removed no longer necessary entries in addons/soh/README.rst
+
+Changes against parent c249b1d087322cce2feea304ad9e5cb07ff87251
+
+  dropped  pf/addons/soh/lib
+  dropped  pf/addons/soh/lib/pf
+  dropped  pf/addons/soh/lib/pf/soh
+  dropped  pf/addons/soh/soh.sql
+  dropped  pf/addons/soh/templates
+  dropped  pf/addons/soh/templates/soh
+  renamed  pf/addons/soh/lib/pf/soh/custom.pm
+       to  pf/lib/pf/soh/custom.pm
+  renamed  pf/addons/soh/lib/pf/soh.pm
+       to  pf/lib/pf/soh.pm
+  renamed  pf/addons/soh/soh.cgi
+       to  pf/html/admin/soh.cgi
+  renamed  pf/addons/soh/templates/soh/index.html
+       to  pf/html/admin/templates/soh.html
+  added    pf/html/admin/templates
+  added    pf/lib/pf/soh
+  patched  pf/NEWS
+  patched  pf/UPGRADE
+  patched  pf/addons/soh/README.rst
+  patched  pf/db/pf-schema-3.1.0.sql
+  patched  pf/db/upgrade-3.0.2-3.1.0.sql
+  patched  pf/html/admin/soh.cgi
+  patched  pf/t/binaries.t
+  patched  pf/t/coding-style.t
+  patched  pf/t/critic.t
+  patched  pf/t/pf.t
+  patched  pf/t/pod.t
+  patched  pf/t/podCoverage.t
+
+----------------------------------------------------------------------
+Revision: c249b1d087322cce2feea304ad9e5cb07ff87251
+Parent:   d016d1232eede07ca41b230675d5809efadbee27
+Author:   obilodeau@inverse.ca
+Date:     01/11/2011 19:54:27
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+new code comments
+
+Changes against parent d016d1232eede07ca41b230675d5809efadbee27
+
+  patched  pf/addons/soh/soh.cgi
+
+----------------------------------------------------------------------
+Revision: d016d1232eede07ca41b230675d5809efadbee27
+Parent:   4c64ace80050fbc0dfdb31429635385a05cb41f0
+Author:   obilodeau@inverse.ca
+Date:     28/10/2011 10:10:54
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+added PHP::Session dependency to our package
+
+Changes against parent 4c64ace80050fbc0dfdb31429635385a05cb41f0
+
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: 4c64ace80050fbc0dfdb31429635385a05cb41f0
+Parent:   5d7c0785acfcaff2f1787a88b3f38388805b640d
+Author:   obilodeau@inverse.ca
+Date:     27/10/2011 15:20:31
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+more cleanup related to violations in SoH
+
+turns out violations are not used elsewhere, chopping off the code
+
+Changes against parent 5d7c0785acfcaff2f1787a88b3f38388805b640d
+
+  patched  pf/addons/soh/lib/pf/soh.pm
+
+----------------------------------------------------------------------
+Revision: 5d7c0785acfcaff2f1787a88b3f38388805b640d
+Parent:   65aaac4221e020cffdb96ad09bb493802136b7a8
+Author:   obilodeau@inverse.ca
+Date:     27/10/2011 15:09:09
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+getting rid of the violation closing code
+
+Closing violation is not the responsibility of the triggering modules.
+- violation of type other than trap are automatically closed after action is executed
+- violation of type 'trap' is meant for remediation and so violations of this type are closed by the portal itself
+
+Contact me if you believe this code removal is wrong
+
+Changes against parent 65aaac4221e020cffdb96ad09bb493802136b7a8
+
+  patched  pf/addons/soh/lib/pf/soh.pm
+
+----------------------------------------------------------------------
+Revision: 6cb899af7059bc7ab93d30ba59cf001bd29d1731
+Parent:   47fd329721fd21bc72c35b7795cdbf5662c43dce
+Author:   obilodeau@inverse.ca
+Date:     12/10/2011 15:56:19
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Applying security fix #1294: shared session state between captive portal and web admin
+
+Changes against parent 47fd329721fd21bc72c35b7795cdbf5662c43dce
+
+  patched  pf/addons/soh/soh.cgi
+
+----------------------------------------------------------------------
+Revision: 47fd329721fd21bc72c35b7795cdbf5662c43dce
+Parent:   ab5f2e6c41d39c312251332cf181b9c11041d25e
+Author:   obilodeau@inverse.ca
+Date:     12/10/2011 15:53:03
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+applied changes from 040493ea147330b41fd2b19d1c3cc1cf8c8d6929
+             through c9d2a6a5b8ce155a535eddae62c1d9430c5a7f1a
+
+Applied security fix
+
+Changes against parent ab5f2e6c41d39c312251332cf181b9c11041d25e
+
+  patched  pf/html/admin/guest-management.cgi
+
+----------------------------------------------------------------------
+Revision: 2d1a45cd7b52f81e69e3d72f0d1e1147b1223856
+Parent:   4ffaf46d4e7cb18b8866b21a62623dee313664cc
+Author:   amenonsen@inverse.ca
+Date:     08/10/2011 12:00:13
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Translate 'Column x cannot be null' errors
+
+Changes against parent 4ffaf46d4e7cb18b8866b21a62623dee313664cc
+
+  patched  pf/addons/soh/soh.cgi
+
+----------------------------------------------------------------------
+Revision: 4ffaf46d4e7cb18b8866b21a62623dee313664cc
+Parent:   427adeb9f5ebc0cdbb73084fa70caf32e5894aad
+Author:   amenonsen@inverse.ca
+Date:     08/10/2011 11:57:40
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Fix display bug reported by François
+
+Delete all rules. "(None)" is displayed. Add a rule, but "(None)"
+didn't go away, because it was missing the 'none' class.
+
+Changes against parent 427adeb9f5ebc0cdbb73084fa70caf32e5894aad
+
+  patched  pf/addons/soh/templates/soh/index.html
+
+----------------------------------------------------------------------
+Revision: 427adeb9f5ebc0cdbb73084fa70caf32e5894aad
+Parent:   d914bd9a16a001af597bebd5a74c6536287f2cbd
+Author:   amenonsen@inverse.ca
+Date:     03/10/2011 15:54:43
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Add some SoH parsing and matching tests
+
+Changes against parent d914bd9a16a001af597bebd5a74c6536287f2cbd
+
+  added    pf/t/soh.t
+  attr on  pf/t/soh.t
+      set  mtn:execute
+       to  true
+
+----------------------------------------------------------------------
+Revision: d914bd9a16a001af597bebd5a74c6536287f2cbd
+Parent:   945f51292a99ac80dac1dca6384387cf53cb607c
+Author:   amenonsen@inverse.ca
+Date:     03/10/2011 15:17:57
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Support a list of ANDed status words
+
+Changes against parent 945f51292a99ac80dac1dca6384387cf53cb607c
+
+  patched  pf/addons/soh/lib/pf/soh.pm
+
+----------------------------------------------------------------------
+Revision: 945f51292a99ac80dac1dca6384387cf53cb607c
+Parent:   f913a4a2719d4adcaa700969e7a96f702a82fdb0
+Author:   amenonsen@inverse.ca
+Date:     03/10/2011 14:59:01
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Small tweaks plus undef-variable bugfix
+
+Changes against parent f913a4a2719d4adcaa700969e7a96f702a82fdb0
+
+  patched  pf/addons/soh/lib/pf/soh.pm
+
+----------------------------------------------------------------------
+Revision: f913a4a2719d4adcaa700969e7a96f702a82fdb0
+Parent:   3762d9e55a31f4c41002e8f374afc0095d407a76
+Author:   obilodeau@inverse.ca
+Date:     03/10/2011 11:02:37
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+added perl dependency requirement in README
+
+Changes against parent 3762d9e55a31f4c41002e8f374afc0095d407a76
+
+  patched  pf/addons/soh/README.rst
+
+----------------------------------------------------------------------
+Revision: 3762d9e55a31f4c41002e8f374afc0095d407a76
+Parent:   702ab6479c5f085c9cc93332c96a6f13b062b2c1
+Author:   amenonsen@inverse.ca
+Date:     03/10/2011 07:13:49
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Split matches into matches and matches_one (untested)
+
+Changes against parent 702ab6479c5f085c9cc93332c96a6f13b062b2c1
+
+  patched  pf/addons/soh/lib/pf/soh.pm
+
+----------------------------------------------------------------------
+Revision: 702ab6479c5f085c9cc93332c96a6f13b062b2c1
+Parent:   66bcf2aaedd7a0cff1e0f1d3795f1e4c94a0ef64
+Author:   amenonsen@inverse.ca
+Date:     02/10/2011 23:18:10
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Make the SoH parser a bit more accepting
+
+Changes against parent 66bcf2aaedd7a0cff1e0f1d3795f1e4c94a0ef64
+
+  patched  pf/addons/soh/lib/pf/soh.pm
+
+----------------------------------------------------------------------
+Revision: 66bcf2aaedd7a0cff1e0f1d3795f1e4c94a0ef64
+Parent:   b5d371c6be7de351beed7ba14f1c03dfea8fbfa0
+Author:   amenonsen@inverse.ca
+Date:     30/09/2011 10:25:05
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Allow - in class name
+
+Changes against parent b5d371c6be7de351beed7ba14f1c03dfea8fbfa0
+
+  patched  pf/addons/soh/soh.cgi
+
+----------------------------------------------------------------------
+Revision: b5d371c6be7de351beed7ba14f1c03dfea8fbfa0
+Parent:   36714af1cb39d4f54131b6c3050bfc9da41ea80d
+Author:   amenonsen@inverse.ca
+Date:     29/09/2011 14:49:12
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Handle redirect on login/logout properly
+
+Changes against parent 36714af1cb39d4f54131b6c3050bfc9da41ea80d
+
+  patched  pf/addons/soh/soh.cgi
+
+----------------------------------------------------------------------
+Revision: 36714af1cb39d4f54131b6c3050bfc9da41ea80d
+Parent:   8a20c2001a07626b16490329e232ff6d91dbf697
+Author:   amenonsen@inverse.ca
+Date:     29/09/2011 14:32:29
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Make pf::soh::matches simpler, smarter, and better
+
+Changes against parent 8a20c2001a07626b16490329e232ff6d91dbf697
+
+  patched  pf/addons/soh/lib/pf/soh.pm
+
+----------------------------------------------------------------------
+Revision: 8a20c2001a07626b16490329e232ff6d91dbf697
+Parent:   8f1d34215f21bcfa5a1b2326a2aeadcb27d65863
+Author:   amenonsen@inverse.ca
+Date:     29/09/2011 07:28:16
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Use pf::util::clean_mac to parse MAC addresses
+
+Calling-Station-Id can come in more flavours than I expected, and
+this function handles them all. Thanks to François for the hint.
+
+Changes against parent 8f1d34215f21bcfa5a1b2326a2aeadcb27d65863
+
+  patched  pf/addons/soh/lib/pf/soh.pm
+
+----------------------------------------------------------------------
+Revision: 8f1d34215f21bcfa5a1b2326a2aeadcb27d65863
+Parent:   1895ee2b5967f01a2178d7993c6536b824a95877
+Author:   amenonsen@inverse.ca
+Date:     27/09/2011 14:46:55
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Small matching bugfixes
+
+Changes against parent 1895ee2b5967f01a2178d7993c6536b824a95877
+
+  patched  pf/addons/soh/lib/pf/soh.pm
+
+----------------------------------------------------------------------
+Revision: 1895ee2b5967f01a2178d7993c6536b824a95877
+Parent:   44d0a70c6d224168096b6c50029ac91d20801dc9
+Author:   amenonsen@inverse.ca
+Date:     27/09/2011 14:39:29
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Add still more debug logging
+
+Changes against parent 44d0a70c6d224168096b6c50029ac91d20801dc9
+
+  patched  pf/addons/soh/lib/pf/soh.pm
+
+----------------------------------------------------------------------
+Revision: 44d0a70c6d224168096b6c50029ac91d20801dc9
+Parent:   fa99dc665afd690bbde7d323ded8c782c8712446
+Author:   amenonsen@inverse.ca
+Date:     27/09/2011 14:33:09
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Some statuses need translation; but avoid if possible
+
+Changes against parent fa99dc665afd690bbde7d323ded8c782c8712446
+
+  patched  pf/addons/soh/lib/pf/soh.pm
+  patched  pf/addons/soh/templates/soh/index.html
+
+----------------------------------------------------------------------
+Revision: d70b1e7007837505464b764362014a79eccfcede
+Parent:   4d5460daf6ddbfe92c9a396cfa49485a8ca48e9b
+Author:   obilodeau@inverse.ca
+Date:     02/11/2011 10:08:58
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+dropping feature TODO file: either done or filed in the BTS
+
+Changes against parent 4d5460daf6ddbfe92c9a396cfa49485a8ca48e9b
+
+  dropped  pf/feature.guest-management.TODO
+
+----------------------------------------------------------------------
+Revision: ad97c1ced8ad05a5806dab9b438e9fb8ae60acd5
+Parent:   01651748cee7353f99ea7f2a51582d8dc20ba76c
+Author:   obilodeau@inverse.ca
+Date:     26/10/2011 15:52:28
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+entry for previous commit
+
+Changes against parent 01651748cee7353f99ea7f2a51582d8dc20ba76c
+
+  patched  pf/NEWS
+
+----------------------------------------------------------------------
+Revision: 01651748cee7353f99ea7f2a51582d8dc20ba76c
+Parent:   f679f70ff80e9d7f591804b26444d8924f818068
+Author:   obilodeau@inverse.ca
+Date:     26/10/2011 15:50:31
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Cisco 3560 under 2960's adjustments
+
+- aligned POD with current practices
+- no longer need to bypass' 2950's dot1xPortReauthenticate(), since it inherits from 2960
+- no longer need to redefine capabilities since they match 2960's
+- documented port-security + voip issues and broken / working IOSes
+
+Changes against parent f679f70ff80e9d7f591804b26444d8924f818068
+
+  patched  pf/lib/pf/SNMP/Cisco/Catalyst_3560.pm
+
+----------------------------------------------------------------------
+Revision: f679f70ff80e9d7f591804b26444d8924f818068
+Parent:   373a31acd927a1fc491f8432a0e3175296e31b9b
+Author:   obilodeau@inverse.ca
+Date:     26/10/2011 15:39:57
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+linking to latest schema
+
+Changes against parent 373a31acd927a1fc491f8432a0e3175296e31b9b
+
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: 373a31acd927a1fc491f8432a0e3175296e31b9b
+Parent:   79f9a51108298a97126498dbec4bcfec36dabfff
+Author:   obilodeau@inverse.ca
+Date:     26/10/2011 15:16:28
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+added a MAC trigger type to violations
+
+Allows to isolate or get notifications on a single device. Useful for stolen stuff.
+Required database changes on the trigger tid_start and tid_end because a 48bit MAC is larger than a 32bit int.
+
+Changes against parent 79f9a51108298a97126498dbec4bcfec36dabfff
+
+  added    pf/db/pf-schema-3.1.0.sql
+  added    pf/db/upgrade-3.0.2-3.1.0.sql
+  patched  pf/NEWS
+  patched  pf/UPGRADE
+  patched  pf/conf/violations.conf
+  patched  pf/lib/pf/config.pm
+  patched  pf/lib/pf/node.pm
+  patched  pf/lib/pf/util.pm
+
+----------------------------------------------------------------------
+Revision: 79f9a51108298a97126498dbec4bcfec36dabfff
+Parent:   74459a291a5a94602b88e719c95116c7e7359451
+Author:   obilodeau@inverse.ca
+Date:     25/10/2011 17:09:28
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Using HTTP 501 instead of 403 for blocked clients
+
+Apparently way more effective against broken clients (a 5xx code afterall).
+
+Changes against parent 74459a291a5a94602b88e719c95116c7e7359451
+
+  patched  pf/NEWS
+  patched  pf/conf/httpd.conf.d/block-unwanted.conf
+
+----------------------------------------------------------------------
+Revision: 820b456147edf34d3593075422b99561d2fff980
+Parent:   1d68f0a16830bd8f02ef058ad227a1ea8802d547
+Author:   amenonsen@inverse.ca
+Date:     27/09/2011 14:10:19
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+This should be debug, not info
+
+Changes against parent 1d68f0a16830bd8f02ef058ad227a1ea8802d547
+
+  patched  pf/addons/soh/lib/pf/soh.pm
+
+----------------------------------------------------------------------
+Revision: 1d68f0a16830bd8f02ef058ad227a1ea8802d547
+Parent:   db99867ac3573ebbe8872f5b4fd63f730ce9c105
+Author:   amenonsen@inverse.ca
+Date:     27/09/2011 14:06:49
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Add some logging
+
+Changes against parent db99867ac3573ebbe8872f5b4fd63f730ce9c105
+
+  patched  pf/addons/soh/soh.cgi
+
+----------------------------------------------------------------------
+Revision: db99867ac3573ebbe8872f5b4fd63f730ce9c105
+Parent:   2b1a03d7f51f9819d6fda74849c2840827cf0ba6
+Author:   amenonsen@inverse.ca
+Date:     27/09/2011 13:41:49
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Split updates into auto-updates and security-updates
+
+Changes against parent 2b1a03d7f51f9819d6fda74849c2840827cf0ba6
+
+  patched  pf/addons/soh/templates/soh/index.html
+
+----------------------------------------------------------------------
+Revision: 2b1a03d7f51f9819d6fda74849c2840827cf0ba6
+Parent:   8697213d7bd818bca009892b21d4000c69bdd72a
+Author:   amenonsen@inverse.ca
+Date:     27/09/2011 13:15:48
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Add a section about creating filters, etc.
+
+Changes against parent 8697213d7bd818bca009892b21d4000c69bdd72a
+
+  patched  pf/addons/soh/README.rst
+
+----------------------------------------------------------------------
+Revision: 8697213d7bd818bca009892b21d4000c69bdd72a
+Parent:   7a77280afc5fb0e082cd95edeac5cf0bf19d6d90
+Author:   amenonsen@inverse.ca
+Date:     27/09/2011 12:14:07
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Add 'soh' to the list of valid trigger type
+
+Changes against parent 7a77280afc5fb0e082cd95edeac5cf0bf19d6d90
+
+  patched  pf/lib/pf/config.pm
+
+----------------------------------------------------------------------
+Revision: 7a77280afc5fb0e082cd95edeac5cf0bf19d6d90
+Parent:   c4c13d861813fb292b93a81c3315e2f04703f246
+Author:   amenonsen@inverse.ca
+Date:     27/09/2011 12:06:58
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+It's 'trigger', not 'triggers'
+
+Changes against parent c4c13d861813fb292b93a81c3315e2f04703f246
+
+  patched  pf/addons/soh/soh.cgi
+
+----------------------------------------------------------------------
+Revision: c4c13d861813fb292b93a81c3315e2f04703f246
+Parent:   8d6bda772342ddedee69daefe9bbfc1b9f7cd953
+Author:   amenonsen@inverse.ca
+Date:     27/09/2011 11:04:49
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Create new section before writing to it
+
+Changes against parent 8d6bda772342ddedee69daefe9bbfc1b9f7cd953
+
+  patched  pf/addons/soh/soh.cgi
+
+----------------------------------------------------------------------
+Revision: 8d6bda772342ddedee69daefe9bbfc1b9f7cd953
+Parent:   a1524619927fbeaf7d227ea717b7227171f62075
+Author:   amenonsen@inverse.ca
+Date:     27/09/2011 11:00:38
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Fix various thinkos/typos/etc.
+
+Changes against parent a1524619927fbeaf7d227ea717b7227171f62075
+
+  patched  pf/addons/soh/soh.cgi
+
+----------------------------------------------------------------------
+Revision: a1524619927fbeaf7d227ea717b7227171f62075
+Parent:   61feaffe62ac9864eb6475ed7d3db6d8dfdaa7f5
+Author:   amenonsen@inverse.ca
+Date:     27/09/2011 10:19:52
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Triggers can't be added/deleted without restarting pf
+
+Changes against parent 61feaffe62ac9864eb6475ed7d3db6d8dfdaa7f5
+
+  patched  pf/addons/soh/soh.cgi
+
+----------------------------------------------------------------------
+Revision: 61feaffe62ac9864eb6475ed7d3db6d8dfdaa7f5
+Parent:   9440293b8afb53badd537be2974f458426242921
+Author:   amenonsen@inverse.ca
+Date:     27/09/2011 09:54:57
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Handle soh::fid triggers automatically
+
+Changes against parent 9440293b8afb53badd537be2974f458426242921
+
+  patched  pf/addons/soh/soh.cgi
+
+----------------------------------------------------------------------
+Revision: 9440293b8afb53badd537be2974f458426242921
+Parent:   46aa8b2351aebaf100de6bc56c5e42de7dbb7897
+Author:   amenonsen@inverse.ca
+Date:     27/09/2011 07:39:02
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Adjust to column rename
+
+Changes against parent 46aa8b2351aebaf100de6bc56c5e42de7dbb7897
+
+  patched  pf/addons/soh/lib/pf/soh.pm
+
+----------------------------------------------------------------------
+Revision: 46aa8b2351aebaf100de6bc56c5e42de7dbb7897
+Parent:   6b88da7d86c476eea90a1c0af621ea8e5e0ebca0
+Author:   amenonsen@inverse.ca
+Date:     27/09/2011 05:13:09
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Rename soh_filters.violation to .vid
+
+Changes against parent 6b88da7d86c476eea90a1c0af621ea8e5e0ebca0
+
+  patched  pf/addons/soh/soh.cgi
+  patched  pf/addons/soh/soh.sql
+  patched  pf/addons/soh/templates/soh/index.html
+
+----------------------------------------------------------------------
+Revision: 6b88da7d86c476eea90a1c0af621ea8e5e0ebca0
+Parent:   c46e476a1afc508a8da05347023a71bd956299ac
+Author:   amenonsen@inverse.ca
+Date:     26/09/2011 05:59:14
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Open and close violations correctly (we hope)
+
+Changes against parent c46e476a1afc508a8da05347023a71bd956299ac
+
+  patched  pf/addons/soh/lib/pf/soh.pm
+
+----------------------------------------------------------------------
+Revision: c46e476a1afc508a8da05347023a71bd956299ac
+Parent:   59f942969a193360b2d9a85c9538a88159341159
+Author:   amenonsen@inverse.ca
+Date:     26/09/2011 05:09:42
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Trigger, not raise
+
+Changes against parent 59f942969a193360b2d9a85c9538a88159341159
+
+  patched  pf/addons/soh/templates/soh/index.html
+
+----------------------------------------------------------------------
+Revision: 59f942969a193360b2d9a85c9538a88159341159
+Parent:   ad228dfbf88e796692435ceca5b4ebddf1eb2701
+Author:   amenonsen@inverse.ca
+Date:     26/09/2011 03:32:40
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Reorganisation: store $rq in $self->{request} and reuse
+
+Changes against parent ad228dfbf88e796692435ceca5b4ebddf1eb2701
+
+  patched  pf/addons/soh/lib/pf/soh.pm
+
+----------------------------------------------------------------------
+Revision: c28ed7cc03f1b5ed46142281e91bd72014846470
+Parent:   c28b7fb8c0dca7370ac5670a56cfdb17a6955f9e
+Author:   obilodeau@inverse.ca
+Date:     21/09/2011 22:39:32
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+re-adding this somewhat outdated TODO in trunk because we are not done with it yet
+
+Changes against parent c28b7fb8c0dca7370ac5670a56cfdb17a6955f9e
+
+  added    pf/feature.guest-management.TODO
+
+----------------------------------------------------------------------
+Revision: 0117476415a3e4c0fbde48584cd438779a351053
+Parent:   5c9c8becdf35f13dc29692353931ae16d50b7af8
+Author:   dwuelfrath@inverse.ca
+Date:     19/12/2011 11:11:16
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+SNMP traps limit documentation
+
+Changes against parent 5c9c8becdf35f13dc29692353931ae16d50b7af8
+
+  patched  pf/docs/PacketFence_Administration_Guide.odt
+
+----------------------------------------------------------------------
+Revision: 5c9c8becdf35f13dc29692353931ae16d50b7af8
+Parent:   828a94e9b57a9c46816b40bb8c47fa0929b29a19
+Author:   fgaudreault@inverse.ca
+Date:     16/12/2011 16:41:57
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+Motorola CoA documentation
+Meru documentation fixes
+Samba documentation fixes
+
+Changes against parent 828a94e9b57a9c46816b40bb8c47fa0929b29a19
+
+  patched  pf/docs/PacketFence_Administration_Guide.odt
+  patched  pf/docs/PacketFence_Network_Devices_Configuration_Guide.odt
+
+----------------------------------------------------------------------
+Revision: 828a94e9b57a9c46816b40bb8c47fa0929b29a19
+Parent:   83e1d3e4319e9412cec0cb1e461731c494a0c68a
+Author:   obilodeau@inverse.ca
+Date:     16/12/2011 13:14:36
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+additionnal fixes to the normalize_time changes
+
+Changes against parent 83e1d3e4319e9412cec0cb1e461731c494a0c68a
+
+  patched  pf/lib/pf/config.pm
+  patched  pf/lib/pf/pfcmd/checkup.pm
+  patched  pf/lib/pf/util.pm
+
+----------------------------------------------------------------------
+Revision: 83e1d3e4319e9412cec0cb1e461731c494a0c68a
+Parent:   c7b0a48422e017982cedd6e1d037d14df9343017
+Author:   obilodeau@inverse.ca
+Date:     16/12/2011 09:03:03
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+build fix: missing ui.conf.es_ES from manifest
+
+Changes against parent c7b0a48422e017982cedd6e1d037d14df9343017
+
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: c7b0a48422e017982cedd6e1d037d14df9343017
+Parent:   198e6bec53c70e80f6c97dbcbd2b3d826be9496d
+Author:   obilodeau@inverse.ca
+Date:     15/12/2011 15:48:41
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+Removed AP from controller section and fixed a typo
+
+Changes against parent 198e6bec53c70e80f6c97dbcbd2b3d826be9496d
+
+  patched  pf/README.network-devices
+
+----------------------------------------------------------------------
+Revision: 198e6bec53c70e80f6c97dbcbd2b3d826be9496d
+Parent:   323917e93b52c209937381825cd2c74e970cf398
+Author:   obilodeau@inverse.ca
+Date:     15/12/2011 15:25:43
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+doc update
+
+- removed wireless devices not likely to work in standalone APs
+- sync with devel guide
+
+Changes against parent 323917e93b52c209937381825cd2c74e970cf398
+
+  patched  pf/README.network-devices
+
+----------------------------------------------------------------------
+Revision: 323917e93b52c209937381825cd2c74e970cf398
+Parent:   cba6c7136a0433bbc1c724dac07e055388c2e7db
+Author:   obilodeau@inverse.ca
+Date:     15/12/2011 15:09:11
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+added Spanish translation (es) for the admin
+
+In a separate file that must be copied over for now. We have no other means of admin translations.
+
+Changes against parent cba6c7136a0433bbc1c724dac07e055388c2e7db
+
+  added    pf/conf/ui.conf.es_ES
+
+----------------------------------------------------------------------
+Revision: cba6c7136a0433bbc1c724dac07e055388c2e7db
+Parent:   7630755c864f80a38d7e424807660656a82bc583
+Author:   fgaudreault@inverse.ca
+Date:     15/12/2011 11:22:23
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+iPhone provisionning doc
+
+Changes against parent 7630755c864f80a38d7e424807660656a82bc583
+
+  patched  pf/docs/PacketFence_Administration_Guide.odt
+
+----------------------------------------------------------------------
+Revision: 7c10295200187780c243a6fc83e186105ebc15eb
+Parent:   b02b017efbe3e7a26666fd850777373cdf6697f5
+Author:   obilodeau@inverse.ca
+Date:     15/12/2011 11:12:44
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+Doc update
+
+- added small bits of info on RFC3576
+- re-written Aruba documentation
+
+Changes against parent b02b017efbe3e7a26666fd850777373cdf6697f5
+
+  patched  pf/docs/PacketFence_Administration_Guide.odt
+  patched  pf/docs/PacketFence_Network_Devices_Configuration_Guide.odt
+
+----------------------------------------------------------------------
+Revision: c0f2755c2050f987dd6afe55c1ff1b9b0aaa31d4
+Parent:   b02b017efbe3e7a26666fd850777373cdf6697f5
+Author:   fgaudreault@inverse.ca
+Date:     14/12/2011 10:17:11
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+Changed translatable_time to respect the same values as normalize_time
+
+Changes against parent b02b017efbe3e7a26666fd850777373cdf6697f5
+
+  patched  pf/lib/pf/util.pm
+
+----------------------------------------------------------------------
+Revision: b02b017efbe3e7a26666fd850777373cdf6697f5
+Parent:   22fa7600e8f5480ad44573602d604e8b85cea87c
+Author:   obilodeau@inverse.ca
+Date:     13/12/2011 14:38:49
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+Local SNMP Trap handler now configured by default
+
+Avoid issues where the default switch is overloaded with values that aren't comptabile with the SNMP Trap version enabled for 127.0.0.1 (which is hardcoded to 1)
+
+Changes against parent 22fa7600e8f5480ad44573602d604e8b85cea87c
+
+  patched  pf/NEWS
+  patched  pf/conf/switches.conf
+
+----------------------------------------------------------------------
+Revision: 22fa7600e8f5480ad44573602d604e8b85cea87c
+Parent:   1e844b89907d2c48d2e60a58e1554d7c125bfddc
+Author:   fgaudreault@inverse.ca
+Date:     13/12/2011 13:13:05
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+Updated DRBD documentation
+
+Changes against parent 1e844b89907d2c48d2e60a58e1554d7c125bfddc
+
+  patched  pf/docs/PacketFence_Administration_Guide.odt
+
+----------------------------------------------------------------------
+Revision: 1e844b89907d2c48d2e60a58e1554d7c125bfddc
+Parent:   84fa24bdd352259ecb4d3425934b366cfcafb62a
+Author:   fgaudreault@inverse.ca
+Date:     09/12/2011 15:56:23
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+Forgot one
+
+Changes against parent 84fa24bdd352259ecb4d3425934b366cfcafb62a
+
+  patched  pf/conf/pf.conf.defaults
+
+----------------------------------------------------------------------
+Revision: 84fa24bdd352259ecb4d3425934b366cfcafb62a
+Parent:   6dffac13ba82c9dbe1043f5fceb3c42437130cbc
+Author:   fgaudreault@inverse.ca
+Date:     09/12/2011 11:07:28
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+Changing time format in pf.conf.defaults
+
+Changes against parent 6dffac13ba82c9dbe1043f5fceb3c42437130cbc
+
+  patched  pf/conf/pf.conf.defaults
+
+----------------------------------------------------------------------
+Revision: 6dffac13ba82c9dbe1043f5fceb3c42437130cbc
+Parent:   c2a5d94dd796d2ccfb49946d8779b6a5e813afa1
+Author:   fgaudreault@inverse.ca
+Date:     08/12/2011 16:32:09
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+Support for months in normalize_time
+
+Changes against parent c2a5d94dd796d2ccfb49946d8779b6a5e813afa1
+
+  patched  pf/NEWS
+  patched  pf/UPGRADE
+  patched  pf/lib/pf/config.pm
+
+----------------------------------------------------------------------
+Revision: c2a5d94dd796d2ccfb49946d8779b6a5e813afa1
+Parent:   a8450682585ad4b08419ed7a04bc639c21c70fc8
+Author:   obilodeau@inverse.ca
+Date:     06/12/2011 13:22:12
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+Added information about a new DLink firmware fixing some issues while leaving others unresolved
+
+Changes against parent a8450682585ad4b08419ed7a04bc639c21c70fc8
+
+  patched  pf/lib/pf/SNMP/Dlink/DWL.pm
+  patched  pf/lib/pf/SNMP/Dlink/DWS_3026.pm
+
+----------------------------------------------------------------------
+Revision: a8450682585ad4b08419ed7a04bc639c21c70fc8
+Parent:   14c4d1660010b51b027d9f3c23af80af8720b42f
+Author:   fgaudreault@inverse.ca
+Date:     01/12/2011 14:55:34
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+Same thing as the WiSM PoD
+
+Changes against parent 14c4d1660010b51b027d9f3c23af80af8720b42f
+
+  patched  pf/lib/pf/SNMP/Cisco/WLC_4400.pm
+
+----------------------------------------------------------------------
+Revision: 14c4d1660010b51b027d9f3c23af80af8720b42f
+Parent:   91e4d6a2dfb82eb7dda8ac2a86567dbe425da5f0
+Author:   fgaudreault@inverse.ca
+Date:     01/12/2011 14:45:44
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+PoD for WiSM updated
+
+Changes against parent 91e4d6a2dfb82eb7dda8ac2a86567dbe425da5f0
+
+  patched  pf/lib/pf/SNMP/Cisco/WiSM.pm
+
+----------------------------------------------------------------------
+Revision: 91e4d6a2dfb82eb7dda8ac2a86567dbe425da5f0
+Parent:   55ccdb336dae40d598d8e1227b4fceb4d7a9092b
+Author:   fgaudreault@inverse.ca
+Date:     01/12/2011 11:32:04
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+Small change in the network detect enabled/disabled feature
+
+Changes against parent 55ccdb336dae40d598d8e1227b4fceb4d7a9092b
+
+  patched  pf/html/captive-portal/templates/release.html
+
+----------------------------------------------------------------------
+Revision: 55ccdb336dae40d598d8e1227b4fceb4d7a9092b
+Parent:   d4665eb52730a3888993da160648486ffdcf4cea
+Author:   obilodeau@inverse.ca
+Date:     01/12/2011 10:49:41
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+re-added the append of expected arrival date to the note field
+
+Changes against parent d4665eb52730a3888993da160648486ffdcf4cea
+
+  patched  pf/lib/pf/web/guest.pm
+
+----------------------------------------------------------------------
+Revision: d4665eb52730a3888993da160648486ffdcf4cea
+Parent:   0ac2650ad0b2e2e2397aeb1ea1343326ba8dc939
+Author:   flachapelle@inverse.ca
+Date:     30/11/2011 06:53:37
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+Guests management : added the possibility to define the firstname, lastname, company, address, phone number and notes for all import options (single, multiple, csv).
+
+Changes against parent 0ac2650ad0b2e2e2397aeb1ea1343326ba8dc939
+
+  patched  pf/conf/locale/en/LC_MESSAGES/packetfence.po
+  patched  pf/html/admin/guest-management.cgi
+  patched  pf/html/captive-portal/content/styles.css
+  patched  pf/html/captive-portal/templates/guest/register_guest.html
+  patched  pf/lib/pf/web/guest.pm
+
+----------------------------------------------------------------------
+Revision: 0ac2650ad0b2e2e2397aeb1ea1343326ba8dc939
+Parent:   d25f85fe3fb45d3c5a97d99dac099a0cb4fdf402
+Author:   obilodeau@inverse.ca
+Date:     30/11/2011 10:26:53
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+Added Brazilian Portuguese version of the Admin guide
+
+Contributed by: Diego de Souza Lopes <djkakaroto@gmail.com>
+
+Changes against parent d25f85fe3fb45d3c5a97d99dac099a0cb4fdf402
+
+  added    pf/docs/PacketFence_Administration_Guide.pt_BR.odt
+  patched  pf/README
+  attr on  pf/docs/PacketFence_Administration_Guide.pt_BR.odt
+      set  mtn:manual_merge
+       to  true
+
+----------------------------------------------------------------------
+Revision: d25f85fe3fb45d3c5a97d99dac099a0cb4fdf402
+Parent:   64c34bf15d735be9ccb65cda2aa6a5662caac477
+Author:   fgaudreault@inverse.ca
+Date:     28/11/2011 16:59:31
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+Configuration flag to diabled automatic network detection
+
+Changes against parent 64c34bf15d735be9ccb65cda2aa6a5662caac477
+
+  patched  pf/NEWS
+  patched  pf/conf/documentation.conf
+  patched  pf/conf/locale/en/LC_MESSAGES/packetfence.po
+  patched  pf/conf/locale/fr/LC_MESSAGES/packetfence.po
+  patched  pf/conf/pf.conf.defaults
+  patched  pf/html/captive-portal/templates/release.html
+  patched  pf/lib/pf/web.pm
+
+----------------------------------------------------------------------
+Revision: 64c34bf15d735be9ccb65cda2aa6a5662caac477
+Parent:   cb0843312f40e61a9e18f8e0499bb6903956dc5c
+Author:   obilodeau@inverse.ca
+Date:     28/11/2011 15:12:00
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+fingerbank sync
+
+Changes against parent cb0843312f40e61a9e18f8e0499bb6903956dc5c
+
+  patched  pf/conf/dhcp_fingerprints.conf
+
+----------------------------------------------------------------------
+Revision: cb0843312f40e61a9e18f8e0499bb6903956dc5c
+Parent:   cb1c666acb4af9367cf2e172b5955eff9e8b102d
+Author:   fgaudreault@inverse.ca
+Date:     28/11/2011 13:11:27
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+Better support of WISPr
+
+Changes against parent cb1c666acb4af9367cf2e172b5955eff9e8b102d
+
+  patched  pf/NEWS
+  patched  pf/conf/httpd.conf.d/captive-portal-cleanurls.conf
+  patched  pf/html/captive-portal/wispr/redirect.tt
+
+----------------------------------------------------------------------
+Revision: cb1c666acb4af9367cf2e172b5955eff9e8b102d
+Parent:   6cf6c656769502f07628d7b17a45728d41b573e5
+Author:   obilodeau@inverse.ca
+Date:     25/11/2011 10:07:10
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+fingerbank sync
+
+Changes against parent 6cf6c656769502f07628d7b17a45728d41b573e5
+
+  patched  pf/conf/dhcp_fingerprints.conf
+
+----------------------------------------------------------------------
+Revision: 6cf6c656769502f07628d7b17a45728d41b573e5
+Parent:   02514f6b1b54f6e1c1e42564aaff72b427e3f685
+Author:   obilodeau@inverse.ca
+Date:     23/11/2011 15:08:26
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+DHCP fingerprint sync with fingerbank.org
+
+Changes against parent 02514f6b1b54f6e1c1e42564aaff72b427e3f685
+
+  patched  pf/NEWS
+  patched  pf/conf/dhcp_fingerprints.conf
+
+----------------------------------------------------------------------
+Revision: 02514f6b1b54f6e1c1e42564aaff72b427e3f685
+Parent:   616d5cabb39f5744539b20ceed55db28aa2c11e1
+Author:   obilodeau@inverse.ca
+Date:     22/11/2011 11:03:25
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+improvements to the wireless documentation
+
+Changes against parent 616d5cabb39f5744539b20ceed55db28aa2c11e1
+
+  patched  pf/README.network-devices
+
+----------------------------------------------------------------------
+Revision: 616d5cabb39f5744539b20ceed55db28aa2c11e1
+Parent:   9aec9a841d9e0612581aed2ee79da8974579d47c
+Author:   obilodeau@inverse.ca
+Date:     22/11/2011 11:02:44
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+promoting Aruba support
+
+Changes against parent 9aec9a841d9e0612581aed2ee79da8974579d47c
+
+  patched  pf/html/admin/configuration/switches_add.php
+  patched  pf/html/admin/configuration/switches_edit.php
+
+----------------------------------------------------------------------
+Revision: 9aec9a841d9e0612581aed2ee79da8974579d47c
+Parent:   4dd624e98e5a0228358f9d0436e0da9b5c01fde3
+Author:   fgaudreault@inverse.ca
+Date:     21/11/2011 13:06:24
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+- Version bump of Zen Guide
+
+Changes against parent 4dd624e98e5a0228358f9d0436e0da9b5c01fde3
+
+  patched  pf/docs/PacketFenceZEN_Installation_Guide.odt
+
+----------------------------------------------------------------------
+Revision: 4dd624e98e5a0228358f9d0436e0da9b5c01fde3
+Parent:   21cb0909278e3c9f314c44122c4f860a4fed0b4f
+Author:   obilodeau@inverse.ca
+Date:     21/11/2011 08:24:39
+Branch:   org.packetfence.3_0
+Tag:      packetfence-3.0.3
+
+Changelog: 
+
+fixed failing test for version
+
+Changes against parent 21cb0909278e3c9f314c44122c4f860a4fed0b4f
+
+  patched  pf/t/pfcmd.t
+
+----------------------------------------------------------------------
+Revision: 21cb0909278e3c9f314c44122c4f860a4fed0b4f
+Parent:   b546a8ade208c03254ca7be6915529b9071b0f73
+Author:   obilodeau@inverse.ca
+Date:     18/11/2011 15:51:07
+Branch:   org.packetfence.3_0
+
+Changelog: 
+
+pre-release version bumps and changelog generation
+
+Changes against parent b546a8ade208c03254ca7be6915529b9071b0f73
+
+  patched  pf/ChangeLog
+  patched  pf/NEWS
+  patched  pf/UPGRADE
+  patched  pf/addons/packages/packetfence.spec
+  patched  pf/conf/pf-release
+  patched  pf/docs/PacketFence_Administration_Guide.odt
+  patched  pf/docs/PacketFence_Network_Devices_Configuration_Guide.odt
+  patched  pf/docs/docbook/pf-devel-guide.xml
+
+----------------------------------------------------------------------
 Revision: b546a8ade208c03254ca7be6915529b9071b0f73
 Parent:   cfb16cbfc8eaa055338cfebb5023cd54c99cce36
 Author:   obilodeau@inverse.ca
@@ -2886,6 +6411,105 @@ Changes against parent 3ef53dfc8a5fc9d3f3d2b12796e0955e9c875658
   patched  pf/conf/pf-release
 
 ----------------------------------------------------------------------
+Revision: c229a5e65cca4660d6ab5759de7f216ab34b7aeb
+Parent:   ffee767e434738160c8037d64de36ebf6f174a65
+Author:   obilodeau@inverse.ca
+Date:     21/09/2011 21:29:45
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+trunk version bump to avoid confusion in packaged snapshots
+
+Changes against parent ffee767e434738160c8037d64de36ebf6f174a65
+
+  patched  pf/addons/packages/packetfence.spec
+  patched  pf/conf/pf-release
+  patched  pf/t/pfcmd.t
+
+----------------------------------------------------------------------
+Revision: dffe702cb037191ce044c68a78f4aaad378ecb14
+Parent:   07de55372ba7d9c145498ecde394151e070db156
+Author:   amenonsen@inverse.ca
+Date:     22/09/2011 09:07:25
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Add a few lines about the core modules too
+
+Changes against parent 07de55372ba7d9c145498ecde394151e070db156
+
+  patched  pf/addons/soh/README.rst
+
+----------------------------------------------------------------------
+Revision: 07de55372ba7d9c145498ecde394151e070db156
+Parent:   52c59a3fe397088e19df7822595e736f9f30f936
+Author:   amenonsen@inverse.ca
+Date:     22/09/2011 09:00:37
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Here's the core matching logic in pf::soh
+
+I just realised that the way I was handling violations needs some
+changes, so I've removed that part (which just amounted to calling
+pf::violation::violation_trigger anyway). We need to also *clear*
+the violation when the condition no longer matches.
+
+Changes against parent 52c59a3fe397088e19df7822595e736f9f30f936
+
+  patched  pf/addons/soh/lib/pf/soh.pm
+
+----------------------------------------------------------------------
+Revision: ffee767e434738160c8037d64de36ebf6f174a65
+Parent:   71218071beeb17a55c003d1095b5c572c47cec29
+Author:   flachapelle@inverse.ca
+Date:     21/09/2011 15:17:56
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Guest registration: firstname and phone are not required.
+
+Changes against parent 71218071beeb17a55c003d1095b5c572c47cec29
+
+  patched  pf/lib/pf/web/guest.pm
+
+----------------------------------------------------------------------
+Revision: 71218071beeb17a55c003d1095b5c572c47cec29
+Parent:   9a1a49184ace7e7b7ac5fccc45c794d022f07bce
+Author:   obilodeau@inverse.ca
+Date:     21/09/2011 14:56:42
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+updated guest management TODO
+
+Changes against parent 9a1a49184ace7e7b7ac5fccc45c794d022f07bce
+
+  patched  pf/feature.guest-management.TODO
+
+----------------------------------------------------------------------
+Revision: 9a1a49184ace7e7b7ac5fccc45c794d022f07bce
+Parent:   3ef53dfc8a5fc9d3f3d2b12796e0955e9c875658
+Author:   obilodeau@inverse.ca
+Date:     21/09/2011 14:56:08
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+added process IDs in the logs for binaries instead of tid (which was always 0)
+
+Changes against parent 3ef53dfc8a5fc9d3f3d2b12796e0955e9c875658
+
+  patched  pf/NEWS
+  patched  pf/bin/pfcmd
+  patched  pf/bin/pfcmd_vlan
+
+----------------------------------------------------------------------
 Revision: 3ef53dfc8a5fc9d3f3d2b12796e0955e9c875658
 Parent:   387f3cdc78efc8fd3db5d3d1a6f8bc82424dfbe9
 Author:   obilodeau@inverse.ca
@@ -3427,6 +7051,104 @@ Changes against parent 30adc1db7ada5d6a422da5e0a8ecd6be7a7d882e
   patched  pf/configurator.pl
 
 ----------------------------------------------------------------------
+Revision: c5e2240e38e0459e0c6f1b5970a03f433e455499
+Parent:   c2a0a1862e6e0d67429ab058a1e85b23576cd058
+Author:   amenonsen@inverse.ca
+Date:     20/09/2011 15:31:23
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Add pf::WebAPI::soh_authorize SOAP proxy to pf::soh::custom->authorize
+
+(Note: pf::soh is still just a stub in this commit, but the others are
+complete. I'm committing the stub so that the branch tip isn't broken.
+At this point, FreeRADIUS will forward SoH requests, and PF will just
+accept them, and things should work as normal.)
+
+Changes against parent c2a0a1862e6e0d67429ab058a1e85b23576cd058
+
+  added    pf/addons/soh/lib
+  added    pf/addons/soh/lib/pf
+  added    pf/addons/soh/lib/pf/soh
+  added    pf/addons/soh/lib/pf/soh/custom.pm
+  added    pf/addons/soh/lib/pf/soh.pm
+  patched  pf/lib/pf/WebAPI.pm
+
+----------------------------------------------------------------------
+Revision: c2a0a1862e6e0d67429ab058a1e85b23576cd058
+Parent:   cec97f4750b37e7792cb34206d73f2f8c9eb7dda
+Author:   amenonsen@inverse.ca
+Date:     20/09/2011 13:59:32
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+FreeRADIUS SoH integration module, plus installation documentation
+
+This is based on addons/802.1X/packetfence.pm, but it uses only the
+authorize callback, and cleans up initialisation and error handling
+by using Try::Tiny (which is already used in pfcmd and elsewhere).
+
+Some of these changes should be copied to packetfence.pm too. For
+example, the "$soap = new SOAP::Lite(...) or return ..." is broken,
+because we're not inside a sub at that point; and the TODO just above
+that line is addressed by the code here anyway.
+
+Changes against parent cec97f4750b37e7792cb34206d73f2f8c9eb7dda
+
+  added    pf/addons/soh/packetfence-soh.pm
+  patched  pf/addons/soh/README.rst
+  attr on  pf/addons/soh/packetfence-soh.pm
+      set  mtn:execute
+       to  true
+
+----------------------------------------------------------------------
+Revision: cec97f4750b37e7792cb34206d73f2f8c9eb7dda
+Parent:   ba16f2a86f9252807c49d3f5af2c1ee681d5a39b
+Author:   amenonsen@inverse.ca
+Date:     18/09/2011 00:13:43
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Make #save red when there's something to save
+
+Changes against parent ba16f2a86f9252807c49d3f5af2c1ee681d5a39b
+
+  patched  pf/addons/soh/templates/soh/index.html
+
+----------------------------------------------------------------------
+Revision: ba16f2a86f9252807c49d3f5af2c1ee681d5a39b
+Parent:   649fee61dc93bde5f630227aa7a5e02c1cd262fa
+Author:   amenonsen@inverse.ca
+Date:     17/09/2011 13:52:19
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Can't return outside a subroutine
+
+Changes against parent 649fee61dc93bde5f630227aa7a5e02c1cd262fa
+
+  patched  pf/addons/soh/soh.cgi
+
+----------------------------------------------------------------------
+Revision: 649fee61dc93bde5f630227aa7a5e02c1cd262fa
+Parent:   88c7c1e7a6990cba52a4d0dd4f504f223ba0115d
+Author:   amenonsen@inverse.ca
+Date:     17/09/2011 13:43:58
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Move rdel buttons to the right; fix a small bug in the TT code
+
+Changes against parent 88c7c1e7a6990cba52a4d0dd4f504f223ba0115d
+
+  patched  pf/addons/soh/templates/soh/index.html
+
+----------------------------------------------------------------------
 Revision: a32961c2c81e16c0dfe40ceddfdf1d9b96d1fb9d
 Parent:   667f0e3222901ec19ad1680de57f797b8d2cc59e
 Author:   fgaudreault@inverse.ca
@@ -3487,6 +7209,39 @@ Changes against parent 124ffe3c64b319413b7a0d450b4e5aecedacf166
   patched  pf/lib/pf/pfcmd/checkup.pm
   patched  pf/lib/pf/services.pm
   patched  pf/t/services.t
+
+----------------------------------------------------------------------
+Revision: 1e3bc361b34414153a7a19ca0f85a26261f6266c
+Parent:   4d0652a65a349bab7eb2b1f3924673a64e28710f
+Author:   amenonsen@inverse.ca
+Date:     17/09/2011 07:22:23
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Add an SoH management web interface in addons/soh
+
+This contains (a) the two SQL table definitions needed, (b) basic
+installation instructions (but not usage instructions yet), (c) a
+CGI script and its associated template.
+
+The script can be called as either /soh (with the given RewriteRule) or
+/soh.cgi. It'll detect how it's used and do the right thing anyway. It
+also piggybacks on the PHP session established by login.php, so that a
+user doesn't need to login again (and so it needs PHP::Session).
+
+Changes against parent 4d0652a65a349bab7eb2b1f3924673a64e28710f
+
+  added    pf/addons/soh
+  added    pf/addons/soh/templates
+  added    pf/addons/soh/templates/soh
+  added    pf/addons/soh/README.rst
+  added    pf/addons/soh/soh.cgi
+  added    pf/addons/soh/soh.sql
+  added    pf/addons/soh/templates/soh/index.html
+  attr on  pf/addons/soh/soh.cgi
+      set  mtn:execute
+       to  true
 
 ----------------------------------------------------------------------
 Revision: 124ffe3c64b319413b7a0d450b4e5aecedacf166
@@ -4935,6 +8690,21 @@ changed the wording of the new guest features
 Changes against parent 3f2c8dbfd85caeb0419f2f0f254bfc9f9ab81175
 
   patched  pf/NEWS
+
+----------------------------------------------------------------------
+Revision: 227e32e98e77276a5ac9fceda0fe691d2ae4f526
+Parent:   dbc1aa8e4935beaab2c755b7abd47d49bebce0cd
+Author:   amenonsen@inverse.ca
+Date:     02/09/2011 04:59:44
+Branch:   org.packetfence.people.amenonsen
+
+Changelog: 
+
+Typo fix (drepecated)
+
+Changes against parent dbc1aa8e4935beaab2c755b7abd47d49bebce0cd
+
+  patched  pf/lib/pf/pfcmd/checkup.pm
 
 ----------------------------------------------------------------------
 Revision: 689d86c31d6757a9c8492480df1a4af92cd41cd3

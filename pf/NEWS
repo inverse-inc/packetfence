@@ -14,7 +14,7 @@ For a list of compatibility related changes see the UPGRADE file.
 
 
 --------------------------------------------------------------------------------
-Version <trunk-release> released on <releaseDate>
+Version 3.1.0 released on 2011-12-23
 
 New Hardware Support
  * Stacked Cisco 3750 in MAC-Auth or 802.1X

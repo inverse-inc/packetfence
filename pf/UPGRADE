@@ -5,7 +5,7 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
-o Upgrading from a version prior to <trunk-release>:
+o Upgrading from a version prior to 3.1.0:
 
     - rogue DHCP server violation
     The rogue DHCP server violation now needs a trigger in order to work. Make
