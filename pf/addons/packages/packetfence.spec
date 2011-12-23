@@ -533,6 +533,9 @@ fi
 %dir                    /usr/local/pf/conf/locale/fr/LC_MESSAGES
 %config(noreplace)      /usr/local/pf/conf/locale/fr/LC_MESSAGES/packetfence.po
 %config(noreplace)      /usr/local/pf/conf/locale/fr/LC_MESSAGES/packetfence.mo
+%dir                    /usr/local/pf/conf/locale/he_IL
+%dir                    /usr/local/pf/conf/locale/he_IL/LC_MESSAGES
+%config(noreplace)      /usr/local/pf/conf/locale/he_IL/LC_MESSAGES/packetfence.po
 %dir                    /usr/local/pf/conf/locale/it
 %dir                    /usr/local/pf/conf/locale/it/LC_MESSAGES
 %config(noreplace)      /usr/local/pf/conf/locale/it/LC_MESSAGES/packetfence.po
