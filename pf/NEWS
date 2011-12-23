@@ -41,6 +41,10 @@ Enhancements
  * More startup validation on SNMPv3 Trap configuration
  * CentOS 6.2 support
  * Several new HTTP User-Agents detected
+ * Several new DHCP fingerprints (from our spinoff www.fingerbank.org)
+ * Better support of WISPr (captive portal detection)
+ * Configuration flag to disable the captive portal's network detection feature
+ * Added support for months in normalize_time (#1291)
 
 Bug Fixes
  * Slashes (/) not allowed in person id (#1322)
@@ -51,24 +55,13 @@ Bug Fixes
  * Interface enforcement is now configurable through Web UI / CLI (#1335)
  * Violation charts now show proper values
  * Captive portal error "0" when no password is provided
+ * Local SNMP Trap handler now configured by default
  * Years are now 365 days!
  * Interim fixes: #1349
 
 Translations
  * New Hebrew (he_IL) translation (Thanks to Ereli)
  * Updated Brazilian Portuguese (pt_BR) translation (Thanks to Diego de Souza Lopes and Mauricio Lopes)
-
---------------------------------------------------------------------------------
-Version <release> released on <releaseDate>
-
-Enhancements
- * Several new DHCP fingerprints (from our spinoff www.fingerbank.org)
- * Better support of WISPr (captive portal detection)
- * Configuration flag to disable the captive portal's network detection feature
- * Added support for months in normalize_time (#1291)
-
-Bug Fixes
- * Local SNMP Trap handler now configured by default
 
 --------------------------------------------------------------------------------
 Version 3.0.3 released on 2011-11-21
