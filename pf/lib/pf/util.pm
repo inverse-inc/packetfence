@@ -931,8 +931,10 @@ sub parse_mac_from_trap {
 
 =item get_translatable_time
 
-Returns a tuple with integer and english string representation of a time string as defined in pf.conf.
-ex: 7d will return (7, "day")
+Returns a triplet with singular and plural english string representation plus integer of a time string 
+as defined in pf.conf.
+
+ex: 7d will return ("day", "days", 7)
 
 Returns undef on failure
 
@@ -942,7 +944,7 @@ sub get_translatable_time {
 
    # grab time unit
    my ( $value, $unit ) = $time =~ /^(\d+)($TIME_MODIFIER_RE)$/i;
-   $unit = lc($unit);
+
    if ($unit eq "s") { return ("second", "seconds", $value);
    } elsif ($unit eq "m") { return ("minute", "minutes", $value);
    } elsif ($unit eq "h") { return ("hour", "hours", $value); 

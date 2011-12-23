@@ -51,6 +51,7 @@ Bug Fixes
  * Interface enforcement is now configurable through Web UI / CLI (#1335)
  * Violation charts now show proper values
  * Captive portal error "0" when no password is provided
+ * Years are now 365 days!
  * Interim fixes: #1349
 
 Translations

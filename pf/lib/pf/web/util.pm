@@ -93,7 +93,7 @@ sub is_email_valid {
 
 =item get_translated_time_hash
 
-Returns an hash that holds time values.
+Returns an hashref that holds time values.
  key => short time format (ex: 1h or 1d)
  value => translated long time format. ex: 1 hour (en) 1 heure (fr) or 1 day (en) 1 jour (fr)
 

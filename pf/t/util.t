@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
-use Test::More tests => 12;
+use Test::More tests => 13;
 use Test::NoWarnings;
 
 BEGIN { use_ok('pf::util') }
@@ -23,6 +23,13 @@ is(clean_mac("aa-bb-cc-dd-ee-ff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of th
 is(clean_mac("aabb-ccdd-eeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxx-xxxx-xxxx");
 is(clean_mac("aabb.ccdd.eeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxx.xxxx.xxxx");
 is(clean_mac("aabbccddeeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxxxxxxxxxx");
+
+# regression test for get_translatable_time
+is_deeply(
+    [ get_translatable_time("3D") ], 
+    ["day", "days", 3],
+    "able to translate new format with capital date modifiers"
+);
 
 # TODO add more tests, we should test:
 #  - all methods ;)

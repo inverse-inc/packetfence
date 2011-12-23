@@ -445,30 +445,24 @@ sub readFloatingNetworkDeviceFile {
 
 =item normalize_time - formats date
 
+Months and years are approximate. Do not use for anything serious about time.
+
 =cut
 sub normalize_time {
     my ($date) = @_;
     if ( $date =~ /^\d+$/ ) {
         return ($date);
+
     } else {
-        my ( $num, $modifier ) = $date =~ /^(\d+)($TIME_MODIFIER_RE)$/i;
-        $modifier = lc($modifier);
-        if ( $modifier eq "s" ) {
-            return ($num);
-        } elsif ( $modifier eq "m" ) {
-            return ( $num * 60 );
-        } elsif ( $modifier eq "h" ) {
-            return ( $num * 3600 );
-        } elsif ( $modifier eq "D" ) {
-            return ( $num * 86400 );
-        } elsif ( $modifier eq "W" ) {
-            return ( $num * 604800 );
-        } elsif ( $modifier eq "M" ) {
-            return ( $num * 2592000 );
-        } elsif ( $modifier eq "Y" ) {
-            return ( $num * 31449600 );
-        } else {
-            return (0);
+        my ( $num, $modifier ) = $date =~ /^(\d+)($TIME_MODIFIER_RE)$/i or return (0);
+
+        if ( $modifier eq "s" ) { return ($num);
+        } elsif ( $modifier eq "m" ) { return ( $num * 60 );
+        } elsif ( $modifier eq "h" ) { return ( $num * 60 * 60 );
+        } elsif ( $modifier eq "D" ) { return ( $num * 24 * 60 * 60 );
+        } elsif ( $modifier eq "W" ) { return ( $num * 7 * 24 * 60 * 60 );
+        } elsif ( $modifier eq "M" ) { return ( $num * 30 * 24 * 60 * 60 );
+        } elsif ( $modifier eq "Y" ) { return ( $num * 365 * 24 * 60 * 60 );
         }
     }
 }
