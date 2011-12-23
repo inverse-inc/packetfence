@@ -26,9 +26,9 @@ New Features
  * Detection of rogue DHCP Servers even behind relays (#1151)
  * RFC3576 (RADIUS Change of Authorization / Disconnect) support added
  * Preview support for wired port-bounce on Cisco through CoA (RFC3576). Disabled by default.
- * Wireless profile provisioning for iPhone, iPods, and iPads
- * SNMP traps limit mecanism
- * New graphs in the web admin UI -- replaced jpgraph (php) by gRaphael (JavaScript)
+ * Wireless profile provisioning for iPhone, iPods, and iPads devices
+ * SNMP traps rate-limiting mechanism
+ * New graphs in the web admin UI -- replaced jpgraph (PHP) by gRaphael (JavaScript)
 
 Enhancements
  * Using HTTP Return Code 501 "Not Implemented" for more effective client blocking
