@@ -53,7 +53,7 @@ ok(!defined(pf::useragent::property_to_tid()), "property translations with undef
 my $p2t = {
     3 => "firefox",
     100 => "device",
-    111 => "psp",
+    112 => "psp",
     405 => "vms",
 };
 foreach my $test (keys %{$p2t}) {

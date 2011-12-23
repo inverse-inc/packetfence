@@ -9,14 +9,14 @@ require Exporter;
 @EXPORT_OK = qw();
 
 # Operating Systems
-my @OS_TESTS = qw(
+our @OS_TESTS = qw(
     windows mac   os2 
     unix    linux vms 
     bsd     amiga
 );
 
 # More precise Windows
-my @WINDOWS_TESTS = qw(
+our @WINDOWS_TESTS = qw(
     win16 win3x   win31
     win95 win98   winnt
     winme win32   win2k
@@ -25,13 +25,13 @@ my @WINDOWS_TESTS = qw(
 );
 
 # More precise Mac
-my @MAC_TESTS = qw(
+our @MAC_TESTS = qw(
     macosx mac68k macppc
     ios
 );
 
 # More precise Unix
-my @UNIX_TESTS = qw(
+our @UNIX_TESTS = qw(
     sun     sun4     sun5
     suni86  irix     irix5
     irix6   hpux     hpux9
@@ -42,17 +42,17 @@ my @UNIX_TESTS = qw(
 );
 
 # More precise BSDs
-my @BSD_TESTS = qw(
+our @BSD_TESTS = qw(
     freebsd 
 );
 
 # Gaming devices
-my @GAMING_TESTS = qw(
+our @GAMING_TESTS = qw(
     ps3gameos pspgameos
 );
 
 # Devices
-my %DEVICE_TESTS = (
+our %DEVICE_TESTS = (
     android => 'Android',
     audrey => 'Audrey',
     blackberry => 'BlackBerry',
@@ -71,7 +71,7 @@ my %DEVICE_TESTS = (
 );
 
 # Browsers
-my @BROWSER_TESTS = qw(
+our @BROWSER_TESTS = qw(
     mosaic        netscape    firefox
     chrome        safari      ie
     opera         lynx        links
@@ -81,40 +81,40 @@ my @BROWSER_TESTS = qw(
     mobile_safari
 );
 
-my @IE_TESTS = qw(
+our @IE_TESTS = qw(
     ie3         ie4         ie4up
     ie5         ie5up       ie55
     ie55up      ie6         ie7
     ie8         ie9         ie10
 );
 
-my @OPERA_TESTS = qw(
+our @OPERA_TESTS = qw(
     opera3      opera4     opera5
     opera6      opera7
 );
 
-my @AOL_TESTS = qw(
+our @AOL_TESTS = qw(
     aol         aol3        aol4
     aol5        aol6        
 );
 
-my @NETSCAPE_TESTS = qw(
+our @NETSCAPE_TESTS = qw(
     nav2   nav3   nav4  
     nav4up nav45  nav45up
     nav6   nav6up navgold
 );
 
 # Firefox variants
-my @FIREFOX_TESTS = qw(
+our @FIREFOX_TESTS = qw(
     firebird    iceweasel   phoenix 
     namoroka
 );
 
-my @ENGINE_TESTS = qw(
+our @ENGINE_TESTS = qw(
     gecko    trident
 );
 
-my @ROBOT_TESTS = qw(
+our @ROBOT_TESTS = qw(
     puf          curl        wget
     getright     robot       yahoo
     altavista    lycos       infoseek
@@ -125,7 +125,7 @@ my @ROBOT_TESTS = qw(
     facebook
 );
 
-my @MISC_TESTS = qw(
+our @MISC_TESTS = qw(
     mobile      dotnet      x11
     java
 );
