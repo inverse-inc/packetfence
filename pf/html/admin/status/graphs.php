@@ -149,7 +149,7 @@ foreach($person_lines as $current_person_line){
      </tr>
      <tr>
         <td>End Date and Time</td>
-        <td><input id='end_time' name="end_time" value="<?=$_REQUEST['end_time']?>"><button type="reset" id="button_time">...</button> <?php show_calendar_with_button('end_time', 'button_time') ?></td>
+        <td><input id='end_time' name="end_time" value="<?=$_REQUEST['end_time']?>"><button type="reset" id="button_time1">...</button> <?php show_calendar_with_button('end_time', 'button_time1') ?></td>
      </tr>
      <tr>
         <td colspan="2" align="right"><input type="submit" value="Query IfOctets History"></td>
@@ -184,7 +184,7 @@ foreach($person_lines as $current_person_line){
      </tr>
      <tr>
         <td>End Date and Time</td>
-        <td><input id='end_time' name="end_time" value="<?=$_REQUEST['end_time']?>"><button type="reset" id="button_time">...</button> <?php show_calendar_with_button('end_time', 'button_time') ?></td>
+        <td><input id='end_time' name="end_time" value="<?=$_REQUEST['end_time']?>"><button type="reset" id="button_time1">...</button> <?php show_calendar_with_button('end_time', 'button_time1') ?></td>
      </tr>
      <tr>
         <td colspan="2" align="right"><input type="submit" value="Query IfOctets History"></td>
@@ -223,7 +223,7 @@ foreach($person_lines as $current_person_line){
      </tr>
      <tr>
         <td>End Date and Time</td>
-        <td><input id='end_time' name="end_time" value="<?=$_REQUEST['end_time']?>"><button type="reset" id="button_time">...</button> <?php show_calendar_with_button('end_time', 'button_time') ?></td>
+        <td><input id='end_time' name="end_time" value="<?=$_REQUEST['end_time']?>"><button type="reset" id="button_time1">...</button> <?php show_calendar_with_button('end_time', 'button_time1') ?></td>
      </tr>
      <tr>
         <td colspan="2" align="right"><input type="submit" value="Query IfOctets History"></td>
