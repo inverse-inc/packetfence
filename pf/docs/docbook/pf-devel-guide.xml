@@ -85,8 +85,10 @@
       <firstname>Olivier</firstname><surname>Bilodeau</surname>
       <affiliation><address><email>obilodeau@inverse.ca</email></address></affiliation>
     </author>
-    <author><firstname>Dominik</firstname><surname>Gehl</surname></author>
+    <author>
+      <firstname>Dominik</firstname><surname>Gehl</surname>
       <affiliation><address><email>dgehl@inverse.ca</email></address></affiliation>
+    </author>
     <copyright>
       <year>2008</year>
       <year>2009</year>
@@ -102,7 +104,7 @@
       section entitled "GNU Free Documentation License".</para>
     </legalnotice>
 
-    <releaseinfo>Version 3.10 - December 2011</releaseinfo>
+    <releaseinfo>Version 3.1.0 - December 2011</releaseinfo>
 
     <mediaobject>
       <info>
