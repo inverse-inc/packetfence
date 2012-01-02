@@ -122,12 +122,12 @@
   </legalnotice>
   <releaseinfo>Version 3.1.0 - December 2011</releaseinfo>
   <mediaobject>
-    <info>
-      <othercredit>
-        <orgname>Inverse inc.</orgname>
-      </othercredit>
-    </info>
-    <alt>PacketFence's spike</alt>
+    <objectinfo>
+      <corpname>Inverse inc.</corpname>
+    </objectinfo>
+    <textobject>
+      <phrase>PacketFence's spike logo</phrase>
+    </textobject>
     <imageobject>
       <imagedata align="left" width="4in" format="PNG" fileref="docs/images/pf-logo.png" />
     </imageobject>
@@ -146,7 +146,7 @@
 <chapter>
   <title>Documentation</title>
   <para>The in-depth or more technical documentation is always as close to the code as possible. Always look at the
-  POD doc
+  POD doc 
   <footnote>
     <para>Perl's Plain Old Documentation: 
     <ulink url="http://perldoc.perl.org/perlpod.html">http://perldoc.perl.org/perlpod.html</ulink></para>
@@ -227,7 +227,7 @@
       <title id="presentation.title">Presentation</title>
       <sect3>
         <title>XHTML Templates</title>
-        <para>Captive portal content use Template Toolkit templates (
+        <para>Captive portal content use Template Toolkit templates ( 
         <ulink url="http://template-toolkit.org/">http://template-toolkit.org/</ulink>). All the template files are
         located in 
         <filename>/usr/local/pf/html/captive-portal/templates</filename>. You can freely edit the HTML code in this
@@ -312,7 +312,7 @@
       to render text provided in the directory 
       <filename>/usr/local/pf/html/captive-portal/violations/</filename>and obeys the everything mentionned in the 
       <link linkend='presentation' endterm="presentation.title" />section. The only caveat being that the template
-      (
+      ( 
       <filename>remediation.html</filename>) is not Template Toolkit but pure PHP.</para>
     </sect2>
     <sect2>
@@ -918,7 +918,7 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
     <classname>pf::pfcmd::pfcmd</classname>when packetfence is built.</para>
     <para>To help troubleshoot a failing command, you can enable tracing on the parser by removing the comment from
     the following line in 
-    <command>pfcmd</command>:
+    <command>pfcmd</command>: 
     <code>#our $RD_TRACE = 1;</code></para>
   </sect1>
   <sect1>
