@@ -1,8 +1,8 @@
 <?php
 /**
- * Node User-Agent Information
+ * Node RADIUS Accouting Information
  *
- * Screen that displays User-Agent information on the nodes
+ * TODO long desc 
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
