@@ -39,6 +39,8 @@ function print_time_options() {
 }
 
 $my_table=new table("schedule view all");
+include_once('../header.php');
+
 $my_table->set_editable(true);
 
 if (isset($page_num)) {
@@ -47,8 +49,6 @@ if (isset($page_num)) {
 if (isset($per_page)) {
   $my_table->set_per_page($per_page);
 }
-
-include_once('../header.php');
 
 if(isset($_REQUEST[action]) && $_REQUEST[action]=='add'){
   ## HOSTS ##

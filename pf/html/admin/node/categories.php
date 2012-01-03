@@ -28,18 +28,18 @@
 
   $current_top="node";
   $current_sub="categories";
+  $is_printable=true;
 
   $view_item = set_default($_REQUEST['view_item'], 'all');
 
   $my_table=new table("nodecategory view $view_item");
-  $my_table->set_linkable(array(array('name', 'node/view.php?filter_type=category')));
+  include_once('../header.php');
 
+  $my_table->set_linkable(array(array('name', 'node/view.php?filter_type=category')));
   $my_table->set_editable(true);
-  $is_printable=true;
+
   $my_table->set_page_num(set_default($_REQUEST['page_num'],1));
   $my_table->set_per_page(set_default($_REQUEST['per_page'],25));
-
-  include_once('../header.php');
 
   $my_table->tableprint(false);
 
