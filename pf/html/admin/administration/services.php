@@ -35,26 +35,8 @@
   }
 
   $configs = PFCMD('config get all');
-  $hostname = '';
-  $domainname = '';
-  foreach ($configs as $config) {
-    $parts_ar=preg_split("/\|/",$config);
-    $type = array_pop($parts_ar);
-    $options_ar=preg_split("/=/", $parts_ar[0]);
-    $pf_option=array_shift($options_ar);
-    if ( ($pf_option == 'general.hostname')
-        || ($pf_option == 'general.domain') ) {
-        $value = implode("=", $options_ar);
-        if (!$value) {
-            $value = $pars_ar[1];
-        }
-        if ($pf_option == 'general.hostname') {
-            $hostname = $value;
-        } else {
-            $domainname = $value;
-        }
-    }
-  }
+  $hostname = get_configuration_value('general.hostname');
+  $domainname = get_configuration_value('general.domain');
 
   $checkup = PFCMD('checkup');
 ?>

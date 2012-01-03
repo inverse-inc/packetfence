@@ -15,6 +15,9 @@ For a list of compatibility related changes see the UPGRADE file.
 Version <next version> released on <date>
 --------------------------------------------------------------------------------
 
+Enhancements
+ * Minor code refactoring
+
 Bug Fixes
  * Buttons in graphs.php of type ifoctetshistoryswitch, ifoctetshistoryuser, ifoctetshistorymac (#1110)
 
