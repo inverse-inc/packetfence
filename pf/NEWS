@@ -17,6 +17,7 @@ Version <next version> released on <date>
 
 Enhancements
  * Minor code refactoring
+ * Minor documentation update for Aruba Controllers
 
 Bug Fixes
  * Buttons in graphs.php of type ifoctetshistoryswitch, ifoctetshistoryuser, ifoctetshistorymac (#1110)

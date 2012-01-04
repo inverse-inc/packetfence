@@ -224,10 +224,10 @@
             <para>Aruba</para>
           </entry>
           <entry>
-            <para>Controller 200&#160; &#160; &#160; &#160;</para>
+            <para>All Controller Model</para>
           </entry>
           <entry>
-            <para>Aruba::Controller_200</para>
+            <para>Aruba</para>
           </entry>
         </row>
         <row>
@@ -2306,7 +2306,7 @@
     <para>Generic Aruba</para>
     <para>In this section, we cover the basic configuration of the Aruba wireless controller for PacketFence via
     the web GUI. It was done on an Aruba Controller 200 software version ArubaOS 5.0.3.3 but it should apply to all
-    Aruba models.</para>
+    Aruba models and the version 6 of the ArubaOS.</para>
     <para>Warning: If you are already using your Aruba controllers and don't want to impact your users you should
     create new AAA profiles and apply them to new SSIDs instead of modifying the default ones.</para>
     <sect2>
