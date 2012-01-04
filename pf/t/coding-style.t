@@ -115,7 +115,6 @@ my @files = (
     '/usr/local/pf/html/admin/administration/index.php',
     '/usr/local/pf/html/admin/administration/services.php',
     '/usr/local/pf/html/admin/administration/ui_options.php',
-    '/usr/local/pf/html/admin/administration/version.php',
     '/usr/local/pf/html/admin/3rdparty/calendar/calendar.php',
     '/usr/local/pf/html/admin/check_login.php',
     '/usr/local/pf/html/admin/common.php',
