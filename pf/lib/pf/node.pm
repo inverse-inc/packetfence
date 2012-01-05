@@ -880,7 +880,7 @@ sub is_node_voip {
     my ($mac) = @_;
     my $logger = Log::Log4perl::get_logger('pf::node');
 
-    $logger->trace("Asked wether node $mac is a VoIP Device or not");
+    $logger->trace("Asked whether node $mac is a VoIP Device or not");
     my $node_info = node_attributes($mac);   
     if ($node_info->{'voip'} eq $VOIP) {
         return $TRUE;
@@ -900,7 +900,7 @@ sub is_node_registered {
     my ($mac) = @_;
     my $logger = Log::Log4perl::get_logger('pf::node');
 
-    $logger->trace("Asked wether node $mac is registered or not");
+    $logger->trace("Asked whether node $mac is registered or not");
     my $node_info = node_attributes($mac);   
     if ($node_info->{'status'} eq $STATUS_REGISTERED) {
         return $TRUE;

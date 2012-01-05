@@ -22,6 +22,7 @@ Enhancements
 Bug Fixes
  * Buttons in graphs.php of type ifoctetshistoryswitch, ifoctetshistoryuser, ifoctetshistorymac (#1110)
  * Web Admin usability fixes (#1071)
+ * Small typo error in node.pm log message (#1357)
 
 --------------------------------------------------------------------------------
 Version 3.1.0 released on 2011-12-23
