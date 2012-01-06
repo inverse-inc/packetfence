@@ -39,6 +39,7 @@ use pf::class qw(class_view_all class_merge);
 use pf::services::apache;
 use pf::services::dhcpd qw(generate_dhcpd_conf);
 use pf::services::named qw(generate_named_conf);
+use pf::services::snmptrapd qw(generate_snmptrapd_conf);
 use pf::SwitchFactory;
 
 Readonly our @ALL_SERVICES => (
@@ -326,60 +327,6 @@ sub generate_snort_conf {
     return 1;
 }
 
-=item * generate_snmptrapd_conf
-
-=cut
-
-sub generate_snmptrapd_conf {
-    my $logger = Log::Log4perl::get_logger('pf::services');
-    my %tags;
-    $tags{'authLines'} = '';
-    $tags{'userLines'} = '';
-    my %SNMPv3Users;
-    my %SNMPCommunities;
-    my $switchFactory = pf::SwitchFactory->getInstance();
-    my %switchConfig = %{ $switchFactory->{_config} };
-
-    foreach my $key ( sort keys %switchConfig ) {
-        if ( $key ne 'default' ) {
-            if (ref($switchConfig{$key}{'type'}) eq 'ARRAY') {
-                $logger->warn("There is an error in your $conf_dir/switches.conf. "
-                    . "I will skip $key from snmptrapd config");
-                next;
-            }
-            my $switch = $switchFactory->instantiate($key);
-            if (!$switch) {
-                $logger->error("Can not instantiate switch $key!");
-            } else {
-                if ( $switch->{_SNMPVersionTrap} eq '3' ) {
-                    $SNMPv3Users{ $switch->{_SNMPUserNameTrap} }
-                        = '-e ' . $switch->{_SNMPEngineID} . ' '
-                        . $switch->{_SNMPUserNameTrap} . ' '
-                        . $switch->{_SNMPAuthProtocolTrap} . ' '
-                        . $switch->{_SNMPAuthPasswordTrap} . ' '
-                        . $switch->{_SNMPPrivProtocolTrap} . ' '
-                        . $switch->{_SNMPPrivPasswordTrap};
-                } else {
-                    $SNMPCommunities{ $switch->{_SNMPCommunityTrap} } = 1;
-                }
-            }
-        }
-    }
-    foreach my $userName ( sort keys %SNMPv3Users ) {
-        $tags{'userLines'}
-            .= "createUser " . $SNMPv3Users{$userName} . "\n";
-        $tags{'authLines'} .= "authUser log $userName priv\n";
-    }
-    foreach my $community ( sort keys %SNMPCommunities ) {
-        $tags{'authLines'} .= "authCommunity log $community\n";
-    }
-    $tags{'template'} = "$conf_dir/snmptrapd.conf";
-    $logger->info("generating $generated_conf_dir/snmptrapd.conf");
-    parse_template( \%tags, "$conf_dir/snmptrapd.conf",
-        "$generated_conf_dir/snmptrapd.conf" );
-    return 1;
-}
-
 =item * read_violations_conf
 
 =cut
@@ -473,7 +420,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009-2011 Inverse inc.
+Copyright (C) 2009-2012 Inverse inc.
 
 =head1 LICENSE
 
