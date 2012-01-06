@@ -309,6 +309,7 @@ sub validate_password {
     return $AUTH_FAILED_INVALID;
 }
 
+=back
 
 =head1 AUTHOR
 
