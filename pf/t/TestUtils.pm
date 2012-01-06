@@ -24,6 +24,8 @@ BEGIN {
     @EXPORT_OK = qw(
         @cli_tests @compile_tests @dao_tests @integration_tests @quality_tests @quality_failing_tests @unit_tests 
         use_test_db
+        get_all_perl_binaries get_all_perl_cgi get_all_perl_modules 
+        get_all_php
         get_networkdevices_modules get_networkdevices_classes
     );
 }
@@ -73,6 +75,107 @@ sub use_test_db {
     $Config{'database'}{'user'} = 'pf-test';
     $Config{'database'}{'pass'} = 'p@ck3tf3nc3';
     $Config{'database'}{'db'} = 'pf-test';
+}
+
+=item get_all_perl_binaries
+
+Return all the files ending with .pl under
+
+  /usr/local/pf/addons
+  /usr/local/pf/lib/pf
+
+and return all the normal files under
+
+  /usr/local/pf/bin
+  /usr/local/pf/sbin
+
+=cut
+sub get_all_perl_binaries {
+
+    my @list;
+
+    # find2perl /usr/local/pf/lib/pf /usr/local/pf/addons -name "*.pl"
+    File::Find::find({
+        wanted => sub {
+            /^.*\.pl\z/s && push(@list, $File::Find::name);
+        }}, '/usr/local/pf/lib/pf', '/usr/local/pf/addons'
+    );
+
+    # find2perl /usr/local/pf/bin /usr/local/pf/sbin -type f
+    File::Find::find({
+        wanted => sub {
+            # add to list if it's a regular file
+            push(@list, $File::Find::name) if (-f $File::Find::name); 
+        }}, '/usr/local/pf/bin', '/usr/local/pf/sbin'
+    );
+
+    return @list;
+}
+
+=item get_all_perl_cgi
+
+Return all the files ending with .cgi under
+
+  /usr/local/pf/html
+
+=cut
+sub get_all_perl_cgi {
+
+    my @list;
+
+    # find2perl /usr/local/pf/html -name "*.cgi"
+    File::Find::find({
+        wanted => sub {
+            /^.*\.cgi\z/s && push(@list, $File::Find::name);
+        }}, '/usr/local/pf/html'
+    );
+
+    return @list;
+}
+
+=item get_all_perl_modules
+
+Return all the files ending with .pm under
+
+  /usr/local/pf/addons
+  /usr/local/pf/conf/authentication
+  /usr/local/pf/lib/pf
+
+One exception: pfcmd_pregrammar.pm because it's generated
+
+=cut
+sub get_all_perl_modules {
+
+    my @list;
+
+    # find2perl /usr/local/pf/lib/pf /usr/local/pf/addons -name "*.pm"
+    # Except that I'm explictly throwing out pfcmd_pregrammar.pm
+    File::Find::find({
+        wanted => sub {
+            /^.*\.pm\z/s && ! /^.*pfcmd_pregrammar\.pm\z/s && push(@list, $File::Find::name);
+        }}, '/usr/local/pf/lib/pf', '/usr/local/pf/conf/authentication', '/usr/local/pf/addons'
+    );
+
+    return @list;
+}
+
+=item get_all_php
+
+Return all the files ending with .php or .inc under F</usr/local/pf/html>
+
+=cut
+sub get_all_php {
+
+    my @list;
+
+    # find2perl  /usr/local/pf/html -name "*.php" -o -name "*.inc"
+    File::Find::find({
+        wanted => sub {
+           /^.*\.php\z/s || /^.*\.inc\z/s && push(@list, $File::Find::name);
+        }}, '/usr/local/pf/html'
+    );
+
+    return @list;
 }
 
 =item get_networkdevices_modules
