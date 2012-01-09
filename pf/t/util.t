@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
-use Test::More tests => 13;
+use Test::More tests => 15;
 use Test::NoWarnings;
 
 BEGIN { use_ok('pf::util') }
@@ -24,6 +24,14 @@ is(clean_mac("aabb-ccdd-eeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the f
 is(clean_mac("aabb.ccdd.eeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxx.xxxx.xxxx");
 is(clean_mac("aabbccddeeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxxxxxxxxxx");
 
+# oid2mac / mac2oid
+is( oid2mac('240.77.162.203.217.197'), 'f0:4d:a2:cb:d9:c5', "oid2mac legit conversion" );
+# this throws warnings
+# is( oid2mac(), undef, "oid2mac return undef on failure" );
+is( mac2oid('f0:4d:a2:cb:d9:c5'), '240.77.162.203.217.197', "mac2oid legit conversion" );
+# this throws warnings
+# is( mac2oid(), undef, "mac2oid return undef on failure" );
+
 # regression test for get_translatable_time
 is_deeply(
     [ get_translatable_time("3D") ], 
@@ -40,7 +48,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2010-2011 Inverse inc.
+Copyright (C) 2010-2012 Inverse inc.
 
 =head1 LICENSE
     
