@@ -82,7 +82,7 @@ To set the particular session variable use the following:
 # Example: add a CC to the guest access code email sent to guests
 #package pf::web::guest;
 #
-#$pf::web::guest::EMAIL_CC = "helpdesk@initech.com";
+#$pf::web::guest::EMAIL_CC = 'helpdesk@initech.com';
 
 # end of no warnings 'redefine' block
 }
