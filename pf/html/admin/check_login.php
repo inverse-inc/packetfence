@@ -93,7 +93,6 @@
 
     $version=PFCMD("version");
     $_SESSION['menus']['pf-version']=$version[0];
-    $_SESSION['menus']['db-version']=$version[1];
 
     ## Fingerprint Caching
     if(!isset($_SESSION['fingerprints'])){
