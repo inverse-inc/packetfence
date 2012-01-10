@@ -684,7 +684,6 @@ sub parse_template {
         "$comment_char This file is generated from a template at $template\n"
         ."$comment_char Any changes made to this file will be lost on restart\n\n";
 
-    #close(TEMPLATE);
     if ($destination) {
         my $destination_fh;
         open( $destination_fh, ">", $destination )
@@ -694,7 +693,6 @@ sub parse_template {
             print {$destination_fh} $line;
         }
 
-        #close(DESTINATION);
     } else {
         return (@parsed);
     }
