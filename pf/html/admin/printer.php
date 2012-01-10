@@ -1,8 +1,8 @@
 <?php
 /**
- * TODO short desc
+ * printer.php
  *
- * TODO long desc
+ * Outputs table stored in session in a printer friendly format.
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,8 +19,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
  * USA.
  * 
+ * @author      Olivier Bilodeau <obilodeau@inverse.ca>
  * @author      Dominik Gehl <dgehl@inverse.ca>
- * @copyright   2008-2010 Inverse inc.
+ * @copyright   2008-2010, 2012 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
@@ -37,12 +38,8 @@
 <body>
 
 <?
-  if($_GET['img_src']){
-    print "<img src='$_GET[img_src]'>";
-  }
 
-
-  else if($_SESSION['table']){
+  if($_SESSION['table']){
     $table = unserialize($_SESSION['table']);
     #if($table->editable){
     #  array_pop($table->headers);
@@ -51,12 +48,16 @@
     print "<div id='printer'>";
     $font_size = set_default($_GET['font_size'], 3);
 
+    # Anti-XSS
+    $font_size = htmlspecialchars($font_size, ENT_QUOTES | ENT_HTML401);
+    $uri = htmlspecialchars($_SERVER[REQUEST_URI], ENT_QUOTES | ENT_HTML401);
+
     if($font_size < 5){
-      print "<a href='".$_SERVER[REQUEST_URI]."&font_size=".($font_size+1)."'><img width='30px' border='0' src='images/big_font.gif' alt='Inbiggin Font'></a>";
+      print "<a href='$uri&font_size=".($font_size+1)."'><img width='30px' border='0' src='images/big_font.gif' alt='Inbiggin Font'></a>";
     }    
     if($font_size > 1){
-      print "<a href='".$_SERVER[REQUEST_URI]."&font_size=".($font_size-1)."'><img width='22px' border='0' src='images/small_font.gif' alt='Smallify Font'></a>";
-    }    
+      print "<a href='$uri&font_size=".($font_size-1)."'><img width='22px' border='0' src='images/small_font.gif' alt='Smallify Font'></a>";
+    }
 
     print "<table border=1 style='border-collapse:collapse;'>";
     print "<tr>";
@@ -72,10 +73,11 @@
       }
       print "</tr>";
     }
-  print "</table>";
+    print "</table>";
+
+  } else {
+    print "No data";
   }
-
-
 
 ?>
 

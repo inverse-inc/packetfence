@@ -12,8 +12,11 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE file.
 
-Version <next version> released on <date>
 --------------------------------------------------------------------------------
+Version <next version> released on <date>
+
+Security
+ * Reflected Cross-site scripting (XSS) in Web Admin printing system (#1362)
 
 Enhancements
  * Code and tests refactoring

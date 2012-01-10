@@ -21,7 +21,7 @@
  * 
  * @author      Olivier Bilodeau <obilodeau@inverse.ca>
  * @author      Dominik Gehl <dgehl@inverse.ca>
- * @copyright   2008-2011 Inverse inc.
+ * @copyright   2008-2012 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 ?>
@@ -53,7 +53,7 @@
                print "<a href=\"javascript:popUp('/exporter.php?current_top=$current_top&amp;current_sub=$current_sub','175','1200')\"><img border=0 src='images/csv.png' alt='Download CSV of this data' title='Download CSV of this data'></a>";
             }
             if(isset($is_printable) && $is_printable){
-               print "<a href='/printer.php?current_top=$current_top&amp;current_sub=$current_sub&amp;img_src=".urlencode($img_src)."' target=_NEW><img border=0 src='images/printer.png' alt='View a Printer Friendly Version' title='View a Printer Friendly Version'></a>";
+               print "<a href='/printer.php?current_top=$current_top&amp;current_sub=$current_sub' target='_blank'><img border=0 src='images/printer.png' alt='View a Printer Friendly Version' title='View a Printer Friendly Version'></a>";
             }
           ?>      
           </td>
