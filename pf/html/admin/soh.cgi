@@ -5,6 +5,8 @@
 soh.cgi - A web interface to manage SoH rules
 
 =cut
+use strict;
+use warnings;
 
 use lib "/usr/local/pf/lib";
 
@@ -333,7 +335,7 @@ Abhijit Menon-Sen <amenonsen@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2011, 2012 Inverse inc.
 
 =head1 LICENSE
 

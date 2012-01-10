@@ -10,51 +10,30 @@ Compile check on perl binaries
 =cut
 use strict;
 use warnings;
-use diagnostics;
 
-use Test::More tests => 35;
+use Test::More;
+use Test::NoWarnings;
+
+use TestUtils qw(get_all_perl_binaries get_all_perl_cgi);
 
 my @binaries = (
-    '/usr/local/pf/configurator.pl',
-    '/usr/local/pf/installer.pl',
-    '/usr/local/pf/addons/accounting.pl',
-    '/usr/local/pf/addons/autodiscover.pl',
-    '/usr/local/pf/addons/connect_and_read.pl',
-    '/usr/local/pf/addons/convertToPortSecurity.pl',
-    '/usr/local/pf/addons/dhcp_dumper.pl',
-    '/usr/local/pf/addons/import-node-csv.pl',
-    '/usr/local/pf/addons/monitorpfsetvlan.pl',
-    '/usr/local/pf/addons/network-save-configs.pl',
-    '/usr/local/pf/addons/recovery.pl',
-    '/usr/local/pf/addons/802.1X/packetfence.pm',
-    '/usr/local/pf/addons/mrtg/mrtg-wrapper.pl',
-    '/usr/local/pf/addons/upgrade/to-2.2.0-update-all-useragents.pl',
-    '/usr/local/pf/addons/upgrade/to-3.0-networks.conf.pl',
-    '/usr/local/pf/addons/upgrade/to-3.0-pf.conf.pl',
-    '/usr/local/pf/addons/upgrade/to-3.0-violations.conf.pl',
-    '/usr/local/pf/bin/pfcmd_vlan',
-    '/usr/local/pf/html/admin/guest-management.cgi',
-    '/usr/local/pf/html/admin/soh.cgi',
-    '/usr/local/pf/html/captive-portal/email_activation.cgi',
-    '/usr/local/pf/html/captive-portal/guest-selfregistration.cgi',
-    '/usr/local/pf/html/captive-portal/mobile-confirmation.cgi',
-    '/usr/local/pf/html/captive-portal/redir.cgi',
-    '/usr/local/pf/html/captive-portal/register.cgi',
-    '/usr/local/pf/html/captive-portal/wireless-profile.cgi',
-    '/usr/local/pf/html/captive-portal/wispr.cgi',
-    '/usr/local/pf/lib/pf/WebAPI.pm',
-    '/usr/local/pf/lib/pf/web/backend_modperl_require.pl',
-    '/usr/local/pf/lib/pf/web/captiveportal_modperl_require.pl',
-    '/usr/local/pf/sbin/pfdetect',
-    '/usr/local/pf/sbin/pfdhcplistener',
-    '/usr/local/pf/sbin/pfmon',
-    '/usr/local/pf/sbin/pfredirect',
-    '/usr/local/pf/sbin/pfsetvlan',
+    get_all_perl_binaries(), 
+    get_all_perl_cgi()
 );
 
-foreach my $currentBinary (@binaries) {
-    ok( system("/usr/bin/perl -c $currentBinary 2>&1") == 0,
-        "$currentBinary compiles" );
+# all files + no warnings
+plan tests => scalar @binaries * 1 + 1;
+
+# TODO because of the 'hack' described below, we can only run these tests as root
+
+foreach my $current_binary (@binaries) {
+    # hack: removing setuid bit otherwise we can't run a compile test. see 'Switches On the "#!" Line' in perlsec 
+    `chmod ug-s $current_binary` if ($current_binary eq '/usr/local/pf/bin/pfcmd');
+
+    is( system("/usr/bin/perl -c $current_binary 2>&1"), 0, "$current_binary compiles" );
+
+    # hack: putting back setuid bit. see above
+    `chmod ug+s $current_binary` if ($current_binary eq '/usr/local/pf/bin/pfcmd');
 }
 
 =head1 AUTHOR
@@ -65,7 +44,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2009-2011 Inverse inc.
+Copyright (C) 2009-2012 Inverse inc.
 
 =head1 LICENSE
     

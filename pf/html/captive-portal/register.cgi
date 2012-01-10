@@ -9,13 +9,16 @@ register.cgi
 Handles captive-portal authentication, /status, de-registration, multiple registration pages workflow and viewing AUP
 
 =cut
+use strict;
+use warnings;
+
+use lib '/usr/local/pf/lib';
+
 use CGI::Carp qw( fatalsToBrowser );
 use CGI;
 use CGI::Session;
 use Log::Log4perl;
 use URI::Escape qw(uri_escape);
-use strict;
-use warnings;
 
 use pf::config;
 use pf::iplog;
@@ -212,7 +215,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2008-2011 Inverse inc.
+Copyright (C) 2008-2012 Inverse inc.
 
 =head1 LICENSE
     
