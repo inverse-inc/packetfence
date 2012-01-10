@@ -89,6 +89,11 @@ and return all the normal files under
   /usr/local/pf/bin
   /usr/local/pf/sbin
 
+Plus
+
+  /usr/local/pf/configurator.pl
+  /usr/local/pf/installer.pl
+
 =cut
 sub get_all_perl_binaries {
 
@@ -108,6 +113,8 @@ sub get_all_perl_binaries {
             push(@list, $File::Find::name) if (-f $File::Find::name); 
         }}, '/usr/local/pf/bin', '/usr/local/pf/sbin'
     );
+
+    push @list, '/usr/local/pf/configurator.pl', '/usr/local/pf/installer.pl';
 
     return @list;
 }

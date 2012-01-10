@@ -172,7 +172,7 @@ write_configs();
 exit;
 
 
-=item config_pf_general
+=item * config_pf_general
 
 =cut
 sub config_pf_general {
@@ -219,7 +219,7 @@ sub config_pf_general {
 }
 
 
-=item config_pf_detection
+=item * config_pf_detection
 
 =cut
 sub config_pf_detection {
@@ -233,7 +233,7 @@ sub config_pf_detection {
 }
 
 
-=item config_pf_scanning
+=item * config_pf_scanning
 
 =cut
 sub config_pf_scanning {
@@ -248,7 +248,7 @@ sub config_pf_scanning {
 }
 
 
-=item config_pf_database
+=item * config_pf_database
 
 =cut
 sub config_pf_database {
@@ -261,7 +261,7 @@ sub config_pf_database {
 }
 
 
-=item config_pf_interfaces
+=item * config_pf_interfaces
 
 =cut
 sub config_pf_interfaces {
@@ -313,7 +313,7 @@ configuration process) ***\n";
 }
 
 
-=item config_pf_networks
+=item * config_pf_networks
 
 =cut
 sub config_pf_networks {
@@ -363,7 +363,7 @@ sub config_pf_networks {
 }
 
 
-=item write_configs
+=item * write_configs
 
 =cut
 sub write_configs {
@@ -410,7 +410,7 @@ sub write_configs {
 }
 
 
-=item check_for_upgrade
+=item * check_for_upgrade
 
 =cut
 sub check_for_upgrade {
@@ -432,7 +432,7 @@ sub check_for_upgrade {
 }
 
 
-=item get_interfaces
+=item * get_interfaces
 
 =cut
 sub get_interfaces {
@@ -447,7 +447,7 @@ sub get_interfaces {
 }
 
 
-=item get_networkinfos
+=item * get_networkinfos
 
 =cut
 sub get_networkinfos {
@@ -475,7 +475,7 @@ sub get_networkinfos {
 }
 
 
-=item get_enforcement_enabled_interfaces
+=item * get_enforcement_enabled_interfaces
 
 =cut
 sub get_enforcement_enabled_interfaces {
@@ -492,7 +492,7 @@ sub get_enforcement_enabled_interfaces {
 }
 
 
-=item questioner
+=item * questioner
 
 =cut
 sub questioner {
@@ -522,7 +522,7 @@ sub questioner {
 }
 
 
-=item gatherer
+=item * gatherer
 
 =cut
 sub gatherer {
@@ -584,7 +584,7 @@ sub gatherer {
 }
 
 
-=item confirm
+=item * confirm
 
 =cut
 sub confirm {
@@ -606,7 +606,7 @@ sub confirm {
 }
 
 
-=item password_gatherer
+=item * password_gatherer
 
 =cut
 sub password_gatherer {
@@ -637,7 +637,7 @@ sub password_gatherer {
 }
 
 
-=item password_confirm
+=item * password_confirm
 
 =cut
 sub password_confirm {
@@ -675,7 +675,7 @@ Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2008-2011 Inverse inc.
+Copyright (C) 2008-2012 Inverse inc.
 
 =head1 LICENSE
 
