@@ -60,7 +60,7 @@ is( $switch->{_radiusSecret}, 'bigsecret', 'RADIUS secret of 192.168.0.1' );
 
 is( $switch->{_voiceVlan},    '10',        'voice VLAN of 192.168.0.1' );
 is( $switch->{_SNMPEngineID},
-    'SNMPEngineID', 'SNMP Engine ID of 192.168.0.1' );
+    '0123456', 'SNMP Engine ID of 192.168.0.1' );
 is( $switch->{_SNMPUserNameRead},
     'userRead', 'SNMP read user of 192.168.0.1' );
 is( $switch->{_SNMPAuthProtocolRead},

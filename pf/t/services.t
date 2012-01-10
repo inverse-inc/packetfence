@@ -14,7 +14,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 14;
+use Test::More tests => 20;
 use Log::Log4perl;
 use File::Basename qw(basename);
 use lib '/usr/local/pf/lib';
@@ -28,25 +28,15 @@ BEGIN { use_ok('pf::services') }
 BEGIN { use_ok('pf::services::apache') }
 BEGIN { use_ok('pf::services::dhcpd') }
 BEGIN { use_ok('pf::services::named') }
+BEGIN { use_ok('pf::services::snmptrapd') }
 
-# CONFIGURATION VALIDATION
+use pf::config;
 
-# switches_conf_is_valid() is gone. switches.conf check has been migrated to checkup.pm
-# switches_conf_is_valid()
+=head1 CONFIGURATION VALIDATION
 
-# modify global $conf_dir so that t/data/switches.conf will be loaded instead of conf/switches.conf
-#my $conf_dir = $main::pf::config::conf_dir;
-#$main::pf::config::conf_dir = "data/";
-#ok(pf::services::switches_conf_is_valid(), "switches.conf validation with a good file");
-# modify global $conf_dir so that t/data/bug766/switches.conf will be loaded instead of conf/switches.conf
-#$main::pf::config::conf_dir = "data/bug766/";
-#ok(!pf::services::switches_conf_is_valid(), "switches.conf validation with a broken file (duplicate IP)");
-#$main::pf::config::conf_dir = $conf_dir;
-# TODO add more tests around switches_conf_is_valid to test all cases
+=item pf::services::apache
 
-
-# pf::services::apache
-# --------------------
+=cut
 
 # _url_parser 
 my @return = pf::services::apache::_url_parser('http://packetfence.org/tests/conficker.html');
@@ -138,13 +128,41 @@ ok(200 < $max_clients && $max_clients < 250, "MaxClients for 16Gb RAM");
 $max_clients = pf::services::apache::calculate_max_clients(24576 * 1024);
 ok(250 < $max_clients && $max_clients < 350, "MaxClients for 24Gb RAM");
 
+
+=item pf::services::snmptrapd
+
+=cut
+# forcing an switchFactory instance with the test config file
+pf::SwitchFactory->getInstance( -configFile => './data/switches.conf' );
+
+# This tests proper config creation and also covers regression test #1354
+my ($snmpv3_users, $snmp_communities) = pf::services::snmptrapd::_fetch_trap_users_and_communities();
+is_deeply(
+    [ $snmpv3_users, $snmp_communities ],
+    [
+        { 
+            "0123456 readUser" => '-e 0123456 readUser MD5 authpwdread DES privpwdread', 
+            "6543210 readUser" => '-e 6543210 readUser MD5 authpwdread DES privpwdread'
+        },
+        { 'trapCommunity' => $TRUE, 'public' => $TRUE },
+    ],
+    "snmptrapd configuration file generation"
+);
+
+my @engine_ids = ("0123456", "6543210");
+foreach my $user_key (sort keys %$snmpv3_users) {
+    my ($engine_id, $username) = split(/ /, $user_key);
+    is($engine_id, shift(@engine_ids), "Engine ID parsed correctly");
+    is($username, "readUser", "Username parsed correctly");
+}
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2010-2011 Inverse inc.
+Copyright (C) 2010-2012 Inverse inc.
 
 =head1 LICENSE
     

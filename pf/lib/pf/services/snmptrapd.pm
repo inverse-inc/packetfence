@@ -50,8 +50,11 @@ sub generate_snmptrapd_conf {
     $tags{'authLines'} = '';
     $tags{'userLines'} = '';
 
-    foreach my $username ( sort keys %$snmpv3_users ) { 
-        $tags{'userLines'} .= "createUser " . $snmpv3_users->{$username} . "\n";
+    foreach my $user_key ( sort keys %$snmpv3_users ) { 
+        $tags{'userLines'} .= "createUser " . $snmpv3_users->{$user_key} . "\n";
+
+        # grabbing only the username portion of the key
+        my (undef, $username) = split(/ /, $user_key);
         $tags{'authLines'} .= "authUser log $username priv\n";
     }
 
@@ -94,7 +97,7 @@ sub _fetch_trap_users_and_communities {
             $logger->error("Can not instantiate switch $key!");
         } else {
             if ( $switch->{_SNMPVersionTrap} eq '3' ) {
-                $snmpv3_users{ $switch->{_SNMPUserNameTrap} } = 
+                $snmpv3_users{"$switch->{_SNMPEngineID} $switch->{_SNMPUserNameTrap}"} = 
                     '-e ' . $switch->{_SNMPEngineID} . ' ' . $switch->{_SNMPUserNameTrap} . ' '
                     . $switch->{_SNMPAuthProtocolTrap} . ' ' . $switch->{_SNMPAuthPasswordTrap} . ' '
                     . $switch->{_SNMPPrivProtocolTrap} . ' ' . $switch->{_SNMPPrivPasswordTrap}
