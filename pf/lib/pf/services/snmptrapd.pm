@@ -83,14 +83,6 @@ sub _fetch_trap_users_and_communities {
     foreach my $key ( sort keys %switchConfig ) {
         next if ( $key =~ /^default$/i );
 
-        # minor validation
-        # FIXME should be migrated into checkup
-        if (ref($switchConfig{$key}{'type'}) eq 'ARRAY') {
-            $logger->warn("There is an error in your $conf_dir/switches.conf. "
-                . "I will skip $key from snmptrapd config");
-            next;
-        }
-
         # TODO we can probably make this more performant if we avoid object instantiation (can we?)
         my $switch = $switchFactory->instantiate($key);
         if (!$switch) {
