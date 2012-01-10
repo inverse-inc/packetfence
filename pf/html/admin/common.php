@@ -2,7 +2,7 @@
 /**
  * common.php: The Web Admin interface's main library
  *
- * TODO long desc
+ * Making Olivier have bad dreams since 2009...
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,7 +21,7 @@
  * 
  * @author      Olivier Bilodeau <obilodeau@inverse.ca>
  * @author      Francois Gaudreault <fgaudreault@inverse.ca>
- * @copyright   2008-2011 Inverse inc.
+ * @copyright   2008-2012 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
@@ -591,6 +591,8 @@ if($sajax){
              if(isset($this->linkable[$key])){
                strstr($this->linkable[$key], '?') ? $break = '&' : $break = '?';
 
+               # Warning: some of the fancy lookups here are duplicated in printer.php
+               # Make sure to maintain both. Actually why don't you redesign the thing to avoid this hack?
                if($key == 'dhcp_fingerprint' && $_SESSION['fingerprints']["$cell"]){
                  print "    <td $hide_tag><a href='".$this->linkable[$key].$break."view_item=$cell'>".$_SESSION['fingerprints']["$cell"]."</a></td>\n";
                }

@@ -53,23 +53,46 @@
     $uri = htmlspecialchars($_SERVER[REQUEST_URI], ENT_QUOTES | ENT_HTML401);
 
     if($font_size < 5){
-      print "<a href='$uri&font_size=".($font_size+1)."'><img width='30px' border='0' src='images/big_font.gif' alt='Inbiggin Font'></a>";
-    }    
+      print "<a href='$uri&font_size=".($font_size+1)."'>\n";
+      print "  <img width='30px' border='0' src='images/big_font.gif' alt='Inbiggin Font'>\n";
+      print "</a>\n";
+    }
     if($font_size > 1){
-      print "<a href='$uri&font_size=".($font_size-1)."'><img width='22px' border='0' src='images/small_font.gif' alt='Smallify Font'></a>";
+      print "<a href='$uri&font_size=".($font_size-1)."'>\n";
+      print "  <img width='22px' border='0' src='images/small_font.gif' alt='Smallify Font'>\n";
+      print "</a>\n";
     }
 
     print "<table border=1 style='border-collapse:collapse;'>";
     print "<tr>";
     foreach($table->headers as $header){
-      print "<td style='background:#ddd;padding:8px;text-align:center;font-weight:bold;'><font size='$font_size'>".pretty_header("$_GET[current_top]-$_GET[current_sub]", $header)."</font></td>";
+      # TODO extract in CSS
+      print "  <td style='background:#ddd;padding:8px;text-align:center;font-weight:bold;'>\n";
+      print "    <font size='$font_size'>".pretty_header("$_GET[current_top]-$_GET[current_sub]", $header)."</font>\n";
+      print "  </td>\n";
     }
     print "</tr>";
 
     foreach($table->rows as $row){
       print "<tr>";
-      foreach($row as $cell){
-        print "<td style='padding:2px;'><font size='$font_size'>$cell</font></td>";
+
+      # Warning: some of the fancy lookups here are duplicated from common.php's big ass tableprint function
+      # Make sure to maintain both. Actually why don't you redesign the thing to avoid this hack?
+      foreach($row as $key => $cell){
+        if ($key == 'dhcp_fingerprint' && $_SESSION['fingerprints']["$cell"]) {
+          # TODO extract in CSS
+          print "  <td style='padding:2px;'>\n";
+          print "    <font size='$font_size'>".$_SESSION['fingerprints']["$cell"]."</font>\n";
+          print "  </td>\n";
+        } else if($key == 'vid' && $_SESSION['violation_classes']["$cell"]) {
+          # TODO extract in CSS
+          print "  <td style='padding:2px;'>\n";
+          print "    <font size='$font_size'>".$_SESSION['violation_classes']["$cell"]."</font>\n";
+          print "  </td>\n";
+        } else {
+          # TODO extract in CSS
+          print "<td style='padding:2px;'><font size='$font_size'>$cell</font></td>\n";
+        }
       }
       print "</tr>";
     }
@@ -80,5 +103,3 @@
   }
 
 ?>
-
-<!--<script type="text/javascript">window.print();</script>-->
