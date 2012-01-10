@@ -811,7 +811,8 @@ sub switches {
     }
 
     foreach my $section ( keys %switches_conf ) {
-        if ( ($section ne 'default') && ($section ne '127.0.0.1') ) {
+        # skip default switch parameters
+        next if ( $section =~ /^default$/i ); 
         
         # validate that switches are not duplicated (we check for type and mode specifically) fixes #766
         if ( ref($switches_conf{$section}{'type'}) eq 'ARRAY' || ref($switches_conf{$section}{'mode'}) eq 'ARRAY' ) {
@@ -875,7 +876,6 @@ sub switches {
             add_problem( $WARN, "switches.conf | Switch mode ($mode) is invalid for switch $section" );
         }
 
-        }
     }
 }
 
