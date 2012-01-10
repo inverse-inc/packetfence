@@ -21,7 +21,6 @@ use strict;
 use warnings;
 
 use Log::Log4perl;
-use Readonly;
 
 BEGIN {
     use Exporter ();
@@ -38,51 +37,25 @@ use pf::util;
 
 =over
 
-=item * generate_snmptrapd_conf
+=item generate_snmptrapd_conf
 
 =cut
 
 sub generate_snmptrapd_conf {
-    my $logger = Log::Log4perl::get_logger('pf::services');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my ($snmpv3_users, $snmp_communities) = _fetch_trap_users_and_communities();
+
     my %tags;
     $tags{'authLines'} = '';
     $tags{'userLines'} = '';
-    my %SNMPv3Users;
-    my %SNMPCommunities;
-    my $switchFactory = pf::SwitchFactory->getInstance();
-    my %switchConfig = %{ $switchFactory->{_config} };
 
-    foreach my $key ( sort keys %switchConfig ) {
-        if ( $key ne 'default' ) {
-            if (ref($switchConfig{$key}{'type'}) eq 'ARRAY') {
-                $logger->warn("There is an error in your $conf_dir/switches.conf. "
-                    . "I will skip $key from snmptrapd config");
-                next;
-            }
-            my $switch = $switchFactory->instantiate($key);
-            if (!$switch) {
-                $logger->error("Can not instantiate switch $key!");
-            } else {
-                if ( $switch->{_SNMPVersionTrap} eq '3' ) {
-                    $SNMPv3Users{ $switch->{_SNMPUserNameTrap} }
-                        = '-e ' . $switch->{_SNMPEngineID} . ' '
-                        . $switch->{_SNMPUserNameTrap} . ' '
-                        . $switch->{_SNMPAuthProtocolTrap} . ' '
-                        . $switch->{_SNMPAuthPasswordTrap} . ' '
-                        . $switch->{_SNMPPrivProtocolTrap} . ' '
-                        . $switch->{_SNMPPrivPasswordTrap};
-                } else {
-                    $SNMPCommunities{ $switch->{_SNMPCommunityTrap} } = 1;
-                }
-            }
-        }
+    foreach my $username ( sort keys %$snmpv3_users ) { 
+        $tags{'userLines'} .= "createUser " . $snmpv3_users->{$username} . "\n";
+        $tags{'authLines'} .= "authUser log $username priv\n";
     }
 
-    foreach my $userName ( sort keys %SNMPv3Users ) { 
-        $tags{'userLines'} .= "createUser " . $SNMPv3Users{$userName} . "\n";
-        $tags{'authLines'} .= "authUser log $userName priv\n";
-    }
-    foreach my $community ( sort keys %SNMPCommunities ) {
+    foreach my $community ( sort keys %$snmp_communities ) {
         $tags{'authLines'} .= "authCommunity log $community\n";
     }
 
@@ -90,6 +63,49 @@ sub generate_snmptrapd_conf {
     $logger->info("generating $generated_conf_dir/snmptrapd.conf");
     parse_template( \%tags, "$conf_dir/snmptrapd.conf", "$generated_conf_dir/snmptrapd.conf" );
     return $TRUE;
+}
+
+=item _fetch_trap_users_and_communities
+
+Returns a tuple of two hashref. One with SNMPv3 Trap Users Auth parameters and one with unique communities.
+
+=cut
+sub _fetch_trap_users_and_communities {
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $switchFactory = pf::SwitchFactory->getInstance();
+    my %switchConfig = %{ $switchFactory->{_config} };
+
+    my (%snmpv3_users, %snmp_communities);
+    foreach my $key ( sort keys %switchConfig ) {
+        next if ( $key =~ /^default$/i );
+
+        # minor validation
+        # FIXME should be migrated into checkup
+        if (ref($switchConfig{$key}{'type'}) eq 'ARRAY') {
+            $logger->warn("There is an error in your $conf_dir/switches.conf. "
+                . "I will skip $key from snmptrapd config");
+            next;
+        }
+
+        # TODO we can probably make this more performant if we avoid object instantiation (can we?)
+        my $switch = $switchFactory->instantiate($key);
+        if (!$switch) {
+            $logger->error("Can not instantiate switch $key!");
+        } else {
+            if ( $switch->{_SNMPVersionTrap} eq '3' ) {
+                $snmpv3_users{ $switch->{_SNMPUserNameTrap} } = 
+                    '-e ' . $switch->{_SNMPEngineID} . ' ' . $switch->{_SNMPUserNameTrap} . ' '
+                    . $switch->{_SNMPAuthProtocolTrap} . ' ' . $switch->{_SNMPAuthPasswordTrap} . ' '
+                    . $switch->{_SNMPPrivProtocolTrap} . ' ' . $switch->{_SNMPPrivPasswordTrap}
+                ;
+            } else {
+                $snmp_communities{$switch->{_SNMPCommunityTrap}} = $TRUE;
+            }
+        }
+    }
+
+    return (\%snmpv3_users, \%snmp_communities);
 }
 
 =back
