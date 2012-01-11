@@ -13,7 +13,7 @@ When using a controller, it does not matter to PacketFence what individual AP
 are supported or not. As long as the AP itself is supported by your controller
 and that your controller is supported by PacketFence it will work fine. 
 
-Packetfence supports the following wireless controlers:
+Packetfence supports the following wireless controllers:
 - AeroHIVE AP Series
 - Aruba Networks (200, 600 Series, 800, 2400, 3000 Series, 6000)
 - Avaya Wireless controllers
