@@ -32,6 +32,9 @@ Bug Fixes
  * OS and violation classes properly displayed in printer-friendly tables in the Web Admin
  * Disabled config ownership tests because of too many false positives (#1345)
 
+Translations
+ * Updated Brazilian Portuguese (pt_BR) Admin guide translation (Thanks to Diego de Souza Lopes)
+
 --------------------------------------------------------------------------------
 Version 3.1.0 released on 2011-12-23
 
