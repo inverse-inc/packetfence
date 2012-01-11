@@ -94,8 +94,7 @@
   <para>The latest version of this guide is available at 
   <ulink url="http://www.packetfence.org/documentation/">http://www.packetfence.org/documentation/</ulink></para>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__4753_400627320" />Other sources of information</title>
+    <title>Other sources of information</title>
     <para>Administration Guide – Covers PacketFence installation, configuration and administration.</para>
     <para>Developers Guide – Covers captive portal customization, VLAN management customization and instructions
     for supporting new hardware.</para>
@@ -106,16 +105,14 @@
   </sect1>
 </chapter>
 <chapter>
-  <title>
-  <anchor id="__RefHeading__4596_1682283688" />Note on Inline enforcement support</title>
+  <title>Note on Inline enforcement support</title>
   <para>There is no need to follow the instructions in this guide if you plan on deploying in inline enforcement.
   In this case all you need to do is to have a flat layer 2 network up to PacketFence's inline interface with no
   other gateway available for devices to reach out to the Internet.</para>
   <para>This technique is usually used when your network hardware doesn't support VLAN enforcement.</para>
 </chapter>
 <chapter>
-  <title>
-  <anchor id="__RefHeading__21830_1038895957" />List of supported Network Devices</title>
+  <title>List of supported Network Devices</title>
   <para>PacketFence supports the following devices:</para>
   <informaltable frame="all">
     <tgroup cols="3">
@@ -961,11 +958,9 @@
   </informaltable>
 </chapter>
 <chapter>
-  <title>
-  <anchor id="__RefHeading__4775_400627320" />Switch configuration</title>
+  <title>Switch configuration</title>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__21832_1038895957" />Assumptions</title>
+    <title>Assumptions</title>
     <para>Throughout this configuration example we use the following assumptions for our network
     infrastructure:</para>
     <para>❏&#160; &#160; &#160; &#160; PacketFence is fully configured with FreeRADIUS running (if you want 802.1X
@@ -981,8 +976,7 @@
     <para>❏&#160; &#160; &#160; &#160; RADIUS Secret: useStrongerSecret</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__21834_1038895957" />3COM</title>
+    <title>3COM</title>
     <para>SuperStack 3 Switch 4200 and 4500</para>
     <para>PacketFence supports these 3Com switches with no VoIP using one trap type:</para>
     <orderedlist>
@@ -1121,8 +1115,7 @@
     </sect2>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__21836_1038895957" />Amer</title>
+    <title>Amer</title>
     <para>PacketFence supports Amer switches with no VoIP using one trap type:</para>
     <orderedlist>
       <listitem>
@@ -1151,15 +1144,13 @@
     <para>where xx stands for the interface index</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__2434_834933746" />Avaya</title>
+    <title>Avaya</title>
     <para>Avaya bought Nortel's wired networks assets. So Avaya switches are, in effect, re-branded Nortels. See
     Nortel section of this document for configuration instructions.</para>
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__21936_1038895957" />Cisco</title>
+    <title>Cisco</title>
     <para>PacketFence supports Cisco switches with VoIP using three different trap types:</para>
     <para />
     <orderedlist>
@@ -1527,8 +1518,7 @@
     </sect2>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__21938_1038895957" />D-Link</title>
+    <title>D-Link</title>
     <para>PacketFence supports D-Link switches with no VoIP using two different trap types:</para>
     <orderedlist>
       <listitem>
@@ -1556,8 +1546,7 @@
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__21940_1038895957" />Dell</title>
+    <title>Dell</title>
     <para>PowerConnect 3424</para>
     <para>PacketFence supports this switch using linkUp/linkDown traps.</para>
     <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
@@ -1568,8 +1557,7 @@
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__21942_1038895957" />Edge-corE</title>
+    <title>Edge-corE</title>
     <para>PacketFence supports Edge-corE switches with no VoIP using one trap type:</para>
     <orderedlist>
       <listitem>
@@ -1583,8 +1571,7 @@
     <para>SNMP-server host 192.168.1.5 public version 2c udp-port 162</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__21944_1038895957" />Enterasys</title>
+    <title>Enterasys</title>
     <para>PacketFence supports Enterasys switches with no VoIP using two different trap types:</para>
     <orderedlist>
       <listitem>
@@ -1667,8 +1654,7 @@
     </sect2>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__21946_1038895957" />Extreme Networks</title>
+    <title>Extreme Networks</title>
     <para>PacketFence supports Extreme Networks switches using :</para>
     <orderedlist>
       <listitem>
@@ -1767,8 +1753,7 @@
     </sect2>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__21948_1038895957" />Foundry</title>
+    <title>Foundry</title>
     <para>FastIron 4802</para>
     <para>PacketFence support this switch with optional VoIP using two different trap types:</para>
     <orderedlist>
@@ -1805,15 +1790,13 @@
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__2662_1562029471" />HP</title>
+    <title>HP</title>
     <para>E4800G and E5500G Switch series</para>
     <para>These are re-branded 3Com switches, see under the 3Com section for documentation.</para>
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__21950_1038895957" />HP ProCurve</title>
+    <title>HP ProCurve</title>
     <para>PacketFence supports ProCurve switches with no VoIP using two different trap types:</para>
     <orderedlist>
       <listitem>
@@ -1917,8 +1900,7 @@
     </sect2>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__21952_1038895957" />Intel</title>
+    <title>Intel</title>
     <para>Express 460 and Express 530</para>
     <para>PacketFence support these switches with no VoIP using one trap type:</para>
     <orderedlist>
@@ -1930,8 +1912,7 @@
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__2206_1949182198" />Juniper</title>
+    <title>Juniper</title>
     <para>PacketFence supports Juniper switches without VoIP in MAC Authentication (Juniper's MAC RADIUS)
     mode.</para>
     <para># load replace terminal[Type ^D at a new line to end input]interfaces { &#160; &#160;interface-range
@@ -1962,8 +1943,7 @@
     <para>Change the interface-range statement to reflect the ports you want to secure with PacketFence.</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__3095_1690137014" />LG-Ericsson</title>
+    <title>LG-Ericsson</title>
     <para>PacketFence supports iPECS series switches with no VoIP using two different trap types:</para>
     <para />
     <orderedlist>
@@ -2037,8 +2017,7 @@
     </sect2>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__21954_1038895957" />Linksys</title>
+    <title>Linksys</title>
     <para>PacketFence supports Linksys switches with no VoIP using one trap type:</para>
     <para />
     <orderedlist>
@@ -2061,8 +2040,7 @@
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__3032_1148626201" />Netgear</title>
+    <title>Netgear</title>
     <para>FSM726 / FSM726S version 1</para>
     <para>PacketFence supports FSM726 / FSM726S version 1 switches with no VoIP using the following trap
     types:</para>
@@ -2092,8 +2070,7 @@
     <para>&#160; &#160; &#160; &#160; Don't forget to update the startup config !</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__21956_1038895957" />Nortel</title>
+    <title>Nortel</title>
     <para>PacketFence supports Nortel switches with VoIP using one trap type:</para>
     <orderedlist>
       <listitem>
@@ -2144,8 +2121,7 @@
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__21958_1038895957" />SMC</title>
+    <title>SMC</title>
     <para>PacketFence supports these switches without VoIP using two different trap types:</para>
     <orderedlist>
       <listitem>
@@ -2191,11 +2167,9 @@
   </sect1>
 </chapter>
 <chapter>
-  <title>
-  <anchor id="__RefHeading__21960_1038895957" />Wireless Controllers and Access Point Configuration</title>
+  <title>Wireless Controllers and Access Point Configuration</title>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__21962_1038895957" />Assumptions</title>
+    <title>Assumptions</title>
     <para>Throughout this configuration example we use the following assumptions for our network
     infrastructure:</para>
     <para>❏&#160; &#160; &#160; &#160; PacketFence is fully configured with FreeRADIUS running</para>
@@ -2214,8 +2188,7 @@
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__21964_1038895957" />Unsupported Equipment</title>
+    <title>Unsupported Equipment</title>
     <para>Wireless network access configuration is a lot more consistent between vendors. This is due to the fact
     that the situation is a lot more standardized than the wired side: VLAN assignment is done centrally with
     RADIUS and that the client protocol is consistent (MAC-Authentication or 802.1X).</para>
@@ -2251,8 +2224,7 @@
     list</ulink>.</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__19245_611304355" />AeroHIVE</title>
+    <title>AeroHIVE</title>
     <para>AeroHIVE products are a bit different compared to the other vendors. &#160;They support either a local
     HiveManager (kind of wireless controller) or a cloud-based HVM. &#160;However, the configuration is the same
     for the local and the cloud-based controller. &#160;Note that all the config are made on the HVM and then
@@ -2294,15 +2266,13 @@
     </sect2>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__10239_605950653" />Avaya</title>
+    <title>Avaya</title>
     <para>Wireless Controller (WC)</para>
     <para>To be Contributed....</para>
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__21966_1038895957" />Aruba</title>
+    <title>Aruba</title>
     <para>Generic Aruba</para>
     <para>In this section, we cover the basic configuration of the Aruba wireless controller for PacketFence via
     the web GUI. It was done on an Aruba Controller 200 software version ArubaOS 5.0.3.3 but it should apply to all
@@ -2404,8 +2374,7 @@
     </sect2>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__22016_1038895957" />Cisco</title>
+    <title>Cisco</title>
     <para>Aironet 1121, 1130, 1242, 1250</para>
     <para>With this equipment, the same VLAN cannot be shared between two SSIDs. Have this in mind in your design.
     For example, you need two isolation VLAN if you want to isolate hosts on the public and secure SSIDs.</para>
@@ -2503,16 +2472,14 @@
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__22018_1038895957" />D-Link</title>
+    <title>D-Link</title>
     <para>DWL Access-Points and DWS 3026</para>
     <para />
     <para>To be contributed...</para>
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__17023_1684072385" />Extricom</title>
+    <title>Extricom</title>
     <para>EXSW Wireless Switches (Controllers)</para>
     <para>In order to have the Extricom controller working with PacketFence, you need to define two ESSID
     definition, one for the “public” network, and one for the “secure” network. &#160;This can be done under a very
@@ -2538,14 +2505,12 @@
     </sect2>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__22020_1038895957" />HP</title>
+    <title>HP</title>
     <para>ProCurve Controller MSM710</para>
     <para>To be contributed...</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__10241_605950653" />Meru</title>
+    <title>Meru</title>
     <para>Meru Controllers (MC)</para>
     <para>In this section, we cover the basic configuration of the Meru wireless controller for PacketFence via the
     web GUI.</para>
@@ -2653,8 +2618,7 @@
     </sect2>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__2610_691561661" />Motorola</title>
+    <title>Motorola</title>
     <para>In order to have the Motorola controller working with PacketFence, you need to define two Wireless LANs
     definition, one for the “public” network, and one for the “secure” network.</para>
     <para />
@@ -2758,8 +2722,7 @@
     </sect2>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__7311_1177678925" />Trapeze</title>
+    <title>Trapeze</title>
     <para>In order to have the Trapeze controller working with PacketFence, you need to define the RADIUS
     configuration and the proper service profiles.</para>
     <sect2>
@@ -2805,8 +2768,7 @@
     </sect2>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__2404_647845087" />Xirrus</title>
+    <title>Xirrus</title>
     <para>Xirrus WiFi Arrays</para>
     <para>Xirrus Access Points can be configured to work with PacketFence quickly since Xirrus supports RADIUS
     assigned VLANs out of the box.</para>

@@ -211,8 +211,7 @@
     <ulink url="http://www.packetfence.org/">http://www.packetfence.org</ulink></para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__4908_1071192008" />Network Integration</title>
+    <title>Network Integration</title>
     <para>
     <!-- TODO: validate width, depth -->
     <inlinegraphic format="PNG" fileref="docs/images/diagram-network.png" width="18.883cm" depth="17.903cm" />VLAN
@@ -220,8 +219,7 @@
     PacketFence acts as a firewall / gateway.</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__4889_676192730" />Components</title>
+    <title>Components</title>
     <para>
       <!-- TODO: validate width, depth -->
       <inlinegraphic format="PNG" fileref="docs/images/diagram-components.png" width="14.038cm" depth="18.825cm" />
@@ -229,11 +227,9 @@
   </sect1>
 </chapter>
 <chapter>
-  <title>
-  <anchor id="__RefHeading__4757_400627320" />System Requirements</title>
+  <title>System Requirements</title>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__7255_1795821865" />Assumptions</title>
+    <title>Assumptions</title>
     <para>PacketFence reuses many components in an infrastructure. Thus, it requires the following ones:</para>
     <orderedlist>
       <listitem>
@@ -312,8 +308,7 @@
     <para>More recent versions of the software mentioned above can also be used.</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__1805_664238303" />Minimum Hardware Requirements</title>
+    <title>Minimum Hardware Requirements</title>
     <para>The following table provides hardware recommendations for the server and desktops :</para>
     <informaltable frame="all">
       <tgroup cols="2">
@@ -347,8 +342,7 @@
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__1807_664238303" />Operating System Requirements</title>
+    <title>Operating System Requirements</title>
     <para>PacketFence supports the following operating systems on the i386 or x86_64 architectures:</para>
     <orderedlist>
       <listitem>
@@ -377,12 +371,10 @@
   </sect1>
 </chapter>
 <chapter>
-  <title>
-  <anchor id="__RefHeading__7257_1795821865" />Installation</title>
+  <title>Installation</title>
   <para>This section will guide you through the installation of PacketFence together with its dependencies.</para>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__1811_664238303" />OS Installation</title>
+    <title>OS Installation</title>
     <para>Install your distribution with minimal installation and no additional packages. Then:</para>
     <orderedlist>
       <listitem>
@@ -454,8 +446,7 @@
     <para>yum install perl-Net-Telnet --enablerepo=rpmforge-extras</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__1813_664238303" />Software Download</title>
+    <title>Software Download</title>
     <para>Starting with 1.8.5, PacketFence is now providing an RPM repository for RHEL / CentOS instead of a single
     RPM file.</para>
     <para>This repository contains all required dependencies to install PacketFence. This provides numerous
@@ -465,8 +456,7 @@
     <para>❏&#160; &#160; &#160; &#160; easy upgrade</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__1815_664238303" />Software Installation</title>
+    <title>Software Installation</title>
     <para>In order to use the repository, just create a file named /etc/yum.repos.d/PacketFence.repo with the
     following content:</para>
     <para>[PacketFence]name=PacketFence
@@ -490,14 +480,12 @@
   </sect1>
 </chapter>
 <chapter>
-  <title>
-  <anchor id="__RefHeading__1817_664238303" />Configuration</title>
+  <title>Configuration</title>
   <para>In this section, you'll learn how to configure PacketFence. PacketFence will use MySQL, Apache, ISC DHCP,
   ISC DNS, iptables and FreeRADIUS. As previously mentioned, we assume that those components run on the same server
   on which PacketFence is being installed.</para>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__1819_664238303" />First Step</title>
+    <title>First Step</title>
     <para>In order to properly begin the configuration of PacketFence, we strongly recommend to execute the
     configuration script located at /usr/local/pf/configurator.pl. This script will guide you through the process
     of creating a working PacketFence configuration file that is suitable to your needs.</para>
@@ -509,8 +497,7 @@
     afterward.</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__4222_851406933" />Web-based Administration Interface</title>
+    <title>Web-based Administration Interface</title>
     <para>PacketFence provides a web-based administration interface for easy configuration and operational
     management. In order to access the interface you need to create an administrator and a web services
     account.</para>
@@ -525,8 +512,7 @@
     https://&lt;hostname&gt;:1443/</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__4224_851406933" />Global configuration file (pf.conf)</title>
+    <title>Global configuration file (pf.conf)</title>
     <para>The /usr/local/pf/conf/pf.conf file contains the PacketFence general configuration. For example, this is
     the place where we inform PacketFence it will work in VLAN isolation mode.</para>
     <para>All the default parameters and their descriptions are stored in
@@ -549,8 +535,7 @@
     accessible solution.</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__1821_664238303" />Apache Configuration</title>
+    <title>Apache Configuration</title>
     <para>The PacketFence configuration for Apache is located in /usr/local/pf/conf/httpd.conf.</para>
     <para>Upon PacketFence installation, a default configuration file is created which is suitable for most
     configurations. SSL is enabled by default to secure access.</para>
@@ -561,14 +546,12 @@
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__10325_892139441" />SELinux</title>
+    <title>SELinux</title>
     <para>Even if this feature may be wanted by some organizations, PacketFence will not run properly if SELinux is
     set to enforced. &#160;You will need to explicitly disable it in the /etc/selinux/config file.</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__1823_664238303" />Authentication (flat file, LDAP/AD, RADIUS)</title>
+    <title>Authentication (flat file, LDAP/AD, RADIUS)</title>
     <para>PacketFence can authenticate users that register devices via the captive-portal using a flat file, an
     LDAP (or Active Directory) server or a RADIUS server.</para>
     <para />
@@ -610,8 +593,7 @@
     more than one authentication method (in registration.auth).</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__4226_851406933" />Network Devices Definition (switches.conf)</title>
+    <title>Network Devices Definition (switches.conf)</title>
     <para>This section applies only for VLAN enforcement. Users planning to do inline enforcement only can skip
     this section.</para>
     <para>PacketFence needs to know which switches, access points or controllers it manages, their type and
@@ -720,8 +702,7 @@
     </sect2>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__4228_851406933" />Default VLAN assignment</title>
+    <title>Default VLAN assignment</title>
     <para>This section applies only for VLAN enforcement. Users planning to do inline enforcement only can skip
     this section.</para>
     <para>The default VLAN assignment technique used in PacketFence is a per-switch one. The correct default VLAN
@@ -733,8 +714,7 @@
     <link linkend="">Advanced features</link>.</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__4285_1877026166" />Inline enforcement configuration</title>
+    <title>Inline enforcement configuration</title>
     <para>This section applies only for Inline enforcement. Users planning to do VLAN enforcement only can skip
     this section.</para>
     <para>Introduced in PacketFence 3.0, inline enforcement is a very convenient method of performing access
@@ -761,8 +741,7 @@
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__8290_1385082861" />DHCP and DNS Server Configuration (networks.conf)</title>
+    <title>DHCP and DNS Server Configuration (networks.conf)</title>
     <para>PacketFence automatically generates the DHCP and DNS configuration files for Registration and Isolation
     VLANs. This is done when executing the configurator script (see the 
     <link linkend="">General Configuration section</link>).</para>
@@ -810,8 +789,7 @@
     &#160;var/conf/named/named-isolation.ca)</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__10918_1231235898" />Production DHCP access</title>
+    <title>Production DHCP access</title>
     <para>In order to perform all of its access control duties, PacketFence needs to be able to map MAC addresses
     into IP addresses.</para>
     <para>For all the networks/VLANs where you want PacketFence to have the ability to isolate a node or to have IP
@@ -864,8 +842,7 @@
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__8292_1385082861" />Routed Networks</title>
+    <title>Routed Networks</title>
     <para>If your isolation and registration networks are not locally-reachable (at layer 2) on the network, but
     routed to the PacketFence server, you'll have to let the PacketFence server know this. PacketFence can even
     provide DHCP and DNS in these routed networks and provides an easy to use configuration interface.</para>
@@ -895,8 +872,7 @@
     [192.168.30.0]netmask=255.255.255.0gateway=192.168.30.254next_hop=192.168.3.254domain-name=isolation.example.comdns=192.168.3.1dhcp_start=192.168.30.10dhcp_end=192.168.30.200dhcp_default_lease_time=300dhcp_max_lease_time=600type=vlan-isolationnamed=enableddhcpd=enabled</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__24248_1038895957" />FreeRADIUS Configuration</title>
+    <title>FreeRADIUS Configuration</title>
     <para>This section presents the FreeRADIUS configuration steps. &#160;In some occasions, a RADIUS server is
     mandatory in order to give access to the network. &#160;For example, the usage of WPA2-Enterprise (Wireless
     802.1X), MAC authentication and Wired 802.1X all requires a RADIUS server to authenticate the users and the
@@ -1042,8 +1018,7 @@
     </sect2>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__10089_2111357785" />Starting PacketFence Services</title>
+    <title>Starting PacketFence Services</title>
     <para>Once PacketFence is fully installed and configured, start the services using the following command
     :</para>
     <para>service packetfence start</para>
@@ -1051,8 +1026,7 @@
     time.</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__4230_851406933" />Log files</title>
+    <title>Log files</title>
     <para>Here are the most important PacketFence log files:</para>
     <para>❏ /usr/local/pf/logs/packetfence.log – PacketFence Core Log</para>
     <para>❏ /usr/local/pf/logs/access_log – Apache – Captive Portal Access Log</para>
@@ -1068,13 +1042,11 @@
   </sect1>
 </chapter>
 <chapter>
-  <title>
-  <anchor id="__RefHeading__4232_851406933" />Configuration by example</title>
+  <title>Configuration by example</title>
   <para>Here is an end-to-end sample configuration of PacketFence in “Hybrid” mode (VLAN mode and Inline mode at
   the same time).</para>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__4234_851406933" />Assumptions</title>
+    <title>Assumptions</title>
     <para>Throughout this configuration example we use the following assumptions for our network
     infrastructure:</para>
     <para>❏&#160; &#160; &#160; &#160; There are two different types of manageable switches in our network: Cisco
@@ -1227,8 +1199,7 @@
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__4236_851406933" />Network Interfaces</title>
+    <title>Network Interfaces</title>
     <para>Here are the NICs startup scripts on PacketFence:</para>
     <para>❏&#160; &#160; &#160; &#160; /etc/sysconfig/network-scripts/ifcfg-eth0</para>
     <para>
@@ -1257,8 +1228,7 @@
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__4238_851406933" />Switch Setup</title>
+    <title>Switch Setup</title>
     <para>In our example, we enable linkUp/linkDown on a Cisco 2900LX and Port Security on a Cisco Catalyst 2960.
     Please consult the 
     <ulink url="http://www.packetfence.org/documentation/">Network Devices Configuration Guide</ulink>for the
@@ -1286,8 +1256,7 @@
     <para>Don't forget to update the startup-config.</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__4240_851406933" />switches.conf</title>
+    <title>switches.conf</title>
     <para>See 
     <link linkend="">Network Device Definition</link>for more information about the content of this file.</para>
     <para>Here are the parameters (other than the defaults ones) for our example</para>
@@ -1303,8 +1272,7 @@
     section.</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__4242_851406933" />pf.conf</title>
+    <title>pf.conf</title>
     <para>Here is the /usr/local/pf/conf/pf.conf file for our setup. For more information about pf.conf see 
     <link linkend="">Global configuration file (pf.conf) section</link>.</para>
     <para>[general]domain=yourdomain.org</para>
@@ -1328,8 +1296,7 @@
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__4244_851406933" />networks.conf</title>
+    <title>networks.conf</title>
     <para>Here is the /usr/local/pf/conf/networks.conf file for our setup. For more information about networks.conf
     see 
     <link linkend="">DHCP and DNS Server configuration</link>.</para>
@@ -1344,8 +1311,7 @@
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__9527_1417655456" />Inline enforcement specifics</title>
+    <title>Inline enforcement specifics</title>
     <para>To see another important optional parameter that can be altered to do inline enforcement see the 
     <link linkend="">Inline enforcement configuration</link>section.</para>
     <para>In order to have the inline mode properly working, you need to enable ip forwarding on your servers.
@@ -1357,11 +1323,9 @@
   </sect1>
 </chapter>
 <chapter>
-  <title>
-  <anchor id="__RefHeading__4785_400627320" />Optional components</title>
+  <title>Optional components</title>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__10091_2111357785" />Blocking malicious activities with violations</title>
+    <title>Blocking malicious activities with violations</title>
     <para>Policy violations allow you to restrict client system access based on violations of certain policies. For
     example, if you do not allow P2P type traffic on your network, and you are running the appropriate software to
     detect it and trigger a violation for a given client, PacketFence will give that client a “blocked” page which
@@ -1492,8 +1456,7 @@
     </sect2>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__10139_2111357785" />Conformity Scan (Nessus)</title>
+    <title>Conformity Scan (Nessus)</title>
     <para>Installation</para>
     <para>Please visit 
     <ulink url="http://www.nessus.org/download/">http://www.nessus.org/download/</ulink>to download and install the
@@ -1545,8 +1508,7 @@
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__4823_400627320" />Oinkmaster</title>
+    <title>Oinkmaster</title>
     <para>Oinkmaster is a perl script that enables the possibility to update the different snort rules very easily.
     &#160;It is simple to use, and install. &#160;This section will show you how to implement Oinkmaster to work
     with PacketFence and Snort.</para>
@@ -1578,8 +1540,7 @@
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__10920_1231235898" />Floating Network Devices</title>
+    <title>Floating Network Devices</title>
     <para>Starting with version 1.9, PacketFence now supports floating network devices. A Floating network device
     is a device for which PacketFence has a different behaviour compared to a regular device. &#160;This
     functionality was originally added to support mobile Access Points.</para>
@@ -1643,8 +1604,7 @@
     these are the Vlans that have to be tagged on the port.</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__17954_1140743167" />Guest management</title>
+    <title>Guest management</title>
     <para>PacketFence supports the ability to manage guest by establishing expire dates and assign a different
     category which will permit a different access to the network resources.</para>
     <para>Guests can self-register themselves using an activation code sent to their mobile phone or they can use
@@ -1732,8 +1692,7 @@
     </sect2>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__6134_1786020060" />Statement of Health (SoH)</title>
+    <title>Statement of Health (SoH)</title>
     <para>The Statement of Health (SoH) is product that has been developed by Microsoft. &#160;In the Microsoft
     world, this is named Network Access Protection or NAP. &#160;On Windows versions from XP SP2 to Windows 7,
     there is a NAP service installed that can relay health information (Anti-Virus update status, Windows Update
@@ -1807,8 +1766,7 @@
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__12987_1101745408" />Apple wireless profile provisioning</title>
+    <title>Apple wireless profile provisioning</title>
     <para>Apple devices such as iPhones, iPads, and iPods support wireless profile importation using a special XML
     file format (mobileconfig). &#160;In fact, installing such file on your phone will automatically configure the
     wireless settings for a given SSID. &#160;This feature is often used when the SSID is hidden, and you want to
@@ -1852,8 +1810,7 @@
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__4599_276096807" />SNMP traps limit</title>
+    <title>SNMP traps limit</title>
     <para>PacketFence mainly rely on SNMP traps to communicate with equipment. Due to the fact that traps coming in
     from approved (configured) devices are all processed by the daemon, it is possible for someone who want to
     generate a certain load on the PacketFence server to force the generation of non-legitimate SNMP traps or a
@@ -1873,19 +1830,16 @@
   </sect1>
 </chapter>
 <chapter>
-  <title>
-  <anchor id="__RefHeading__10792_892139441" />Operating System Best Practices</title>
+  <title>Operating System Best Practices</title>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__10794_892139441" />Iptables</title>
+    <title>Iptables</title>
     <para>IPTables is now entirely managed by PacketFence. &#160;However, if you need to perform some custom rules,
     you can modify conf/iptables.conf to your own needs. &#160;However, the default template should work for most
     users.</para>
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__10796_892139441" />Log Rotations</title>
+    <title>Log Rotations</title>
     <para>PacketFence can generate a lot of log entries in huge production environments. &#160;This is why we
     recommend to use either logrotate or log4perl to periodically rotate your logs.</para>
     <para />
@@ -1917,8 +1871,7 @@
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__24252_1038895957" />High availability</title>
+    <title>High availability</title>
     <para>A high availability setup (active/passive) for PacketFence can be created using two PacketFence servers
     and the following open source utilities:</para>
     <para>❏&#160; &#160; &#160; &#160; Linux-HA ( 
@@ -2174,11 +2127,9 @@
   </sect1>
 </chapter>
 <chapter>
-  <title>
-  <anchor id="__RefHeading__4791_400627320" />Performance optimization</title>
+  <title>Performance optimization</title>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__4795_400627320" />MySQL optimizations</title>
+    <title>MySQL optimizations</title>
     <para>Tuning MySQL itself</para>
     <para>If you're PacketFence system is acting VERY SLOW, this could be due to your MySQL configuration. You
     should do the following to tune performance:</para>
@@ -2302,8 +2253,7 @@
     <para />
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__6431_1006122953" />Captive portal optimizations</title>
+    <title>Captive portal optimizations</title>
     <para>Avoid captive portal overload due to non-browser HTTP requests</para>
     <para>By default we allow every query to be redirected and reach PacketFence for the captive portal operation.
     In a lot of cases, this means that a lot of non-user initiated queries reach PacketFence and waste its
@@ -2328,9 +2278,7 @@
   </sect1>
 </chapter>
 <chapter>
-  <title>
-  <anchor id="__RefHeading__4809_400627320" />Frequently Asked Questions</title>
-  <para />
+  <title>Frequently Asked Questions</title>
   <para>PacketFence FAQ is now available online. &#160;Please visit :</para>
   <para>
     <ulink url="http://www.packetfence.org/support/faqs.html">http://www.packetfence.org/support/faqs.html</ulink>
@@ -2338,11 +2286,9 @@
   <para />
 </chapter>
 <chapter>
-  <title>
-  <anchor id="__RefHeading__24254_1038895957" />Technical introduction to VLAN enforcement</title>
+  <title>Technical introduction to VLAN enforcement</title>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__15227_2111357785" />Introduction</title>
+    <title>Introduction</title>
     <para>VLAN assignment is currently performed using several different techniques. These techniques are
     compatible one to another but not on the same switch port. This means that you can use the more secure and
     modern techniques for your latest switches and another technique on the old switches that doesn't support
@@ -2476,11 +2422,9 @@
   </sect1>
 </chapter>
 <chapter>
-  <title>
-  <anchor id="__RefHeading__9529_1417655456" />Technical introduction to Inline enforcement</title>
+  <title>Technical introduction to Inline enforcement</title>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__9614_1417655456" />Introduction</title>
+    <title>Introduction</title>
     <para>Before the version 3.0 of PacketFence, it was not possible to support unmanageable devices such as
     entry-level consumer switches or access-points. Now, with the new inline mode, PacketFence can be use in-band
     for those devices. &#160;So in other words, PacketFence will become the gateway of that inline network, and NAT
@@ -2488,15 +2432,13 @@
     works.</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__9616_1417655456" />Device configuration</title>
+    <title>Device configuration</title>
     <para>No special configuration is needed on the unmanageable device. &#160;That's the beauty of it. &#160;You
     only need to ensure that the device is “talking” on the inline VLAN. &#160;At this point, all the traffic will
     be passing through PacketFence since it is the gateway for this VLAN.</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__9618_1417655456" />Access control</title>
+    <title>Access control</title>
     <para>The access control relies entirely on IPTables. When a user is not registered, and connects in the inline
     VLAN, PacketFence will give him an IP address. At this point, the user will be marked as unregistered in the
     firewall, and all the Web traffic will be redirected to the captive-portal and other traffic blocked. The user
@@ -2504,8 +2446,7 @@
     the firewall marking rule to allow the user's mac address to go through it.</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__4287_1877026166" />Limitations</title>
+    <title>Limitations</title>
     <para>Inline enforcement because of it's nature has several limitations that one must be aware of.</para>
     <para>❏&#160; &#160; &#160; &#160; Everyone behind an inline interface is on the same Layer 2 LAN</para>
     <para>❏&#160; &#160; &#160; &#160; Every packet of authorized users goes through the PacketFence server
@@ -2520,11 +2461,9 @@
   </sect1>
 </chapter>
 <chapter>
-  <title>
-  <anchor id="__RefHeading__24091_1038895957" />Appendix A: Administration Tools</title>
+  <title>Appendix A: Administration Tools</title>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__4759_400627320" />pfcmd</title>
+    <title>pfcmd</title>
     <para>pfcmd is the command line interface to most PacketFence functionalities.</para>
     <para>When executed without any arguments pfcmd returns a basic help message with all main options:</para>
     <para># /usr/local/pf/bin/pfcmd</para>
@@ -2584,8 +2523,7 @@
     <para>52:54:00:12:35:02|1|2008-10-23 17:32:16||||unreg||||2008-10-23 21:12:21|||||</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__4761_400627320" />pfcmd_vlan</title>
+    <title>pfcmd_vlan</title>
     <para>pfcmd_vlan is the command line interface to most VLAN isolation related functionality.</para>
     <para>Again, when executed without any arguments, a help screen is shown.</para>
     <para># /usr/local/pf/bin/pfcmd_vlan</para>
@@ -2645,8 +2583,7 @@
     <para>&#160; -vlan &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;VLAN</para>
   </sect1>
   <sect1>
-    <title>
-    <anchor id="__RefHeading__4763_400627320" />Web Admin GUI</title>
+    <title>Web Admin GUI</title>
     <para>The Web Admin GUI, accessible using https on port 1443, shows the same information available using
     pfcmd.</para>
     <para>
@@ -2656,8 +2593,7 @@
   </sect1>
 </chapter>
 <chapter>
-  <title>
-  <anchor id="__RefHeading__5636_45833099" />Appendix B : Manual FreeRADIUS 2 configuration</title>
+  <title>Appendix B : Manual FreeRADIUS 2 configuration</title>
   <para>Since we provide a working RPM package that contains pre-built RADIUS configuration files, those files
   don't need to be modified by hand anymore. &#160;However, consider this section as a reference.</para>
   <para />
@@ -2734,8 +2670,7 @@
   </sect1>
 </chapter>
 <chapter>
-  <title>
-  <anchor id="__RefHeading__24256_1038895957" />Appendix C: Legacy FreeRADIUS 1.x configuration</title>
+  <title>Appendix C: Legacy FreeRADIUS 1.x configuration</title>
   <para>Since PacketFence 1.9.0 we recommend the use of FreeRADIUS 2.x over 1.x.</para>
   <para>This documentation is provided here for historical reference.</para>
   <para>FreeRADIUS 1.x Configuration</para>
