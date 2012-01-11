@@ -15,6 +15,8 @@ to access and manage Aruba Wireless Controllers.
 
 Developed and tested on Controller 200 running firmware 5.0.3.3
 
+Tested on Controller 600 with RADIUS Disconnect running firmware 6.0.x
+
 =over
 
 =item Supports
