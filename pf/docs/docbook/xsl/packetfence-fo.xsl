@@ -21,6 +21,7 @@
     TODO prettier revhistory
     TODO prettier Table of Contents
     TODO 
+    TODO generate PDF table of contents (like OSX's Preview shows on the right hand side)
   -->
 
   <!-- Load default values -->
