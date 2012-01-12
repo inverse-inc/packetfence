@@ -963,81 +963,130 @@
     <title>Assumptions</title>
     <para>Throughout this configuration example we use the following assumptions for our network
     infrastructure:</para>
-    <para>❏&#160; &#160; &#160; &#160; PacketFence is fully configured with FreeRADIUS running (if you want 802.1X
-    or MAC Auth)</para>
-    <para>❏&#160; &#160; &#160; &#160; PacketFence IP address: 192.168.1.5</para>
-    <para>❏&#160; &#160; &#160; &#160; Normal VLAN: 1</para>
-    <para>❏&#160; &#160; &#160; &#160; Registration VLAN: 2</para>
-    <para>❏&#160; &#160; &#160; &#160; Isolation VLAN: 3</para>
-    <para>❏&#160; &#160; &#160; &#160; MAC Detection VLAN: 4</para>
-    <para>❏&#160; &#160; &#160; &#160; VoIP, Voice VLAN: 100</para>
-    <para>❏&#160; &#160; &#160; &#160; use SNMP v2c</para>
-    <para>❏&#160; &#160; &#160; &#160; SNMP Trap community: public</para>
-    <para>❏&#160; &#160; &#160; &#160; RADIUS Secret: useStrongerSecret</para>
+    <itemizedlist>
+      <listitem>
+        <para>PacketFence is fully configured with FreeRADIUS running (if you want 802.1X or MAC Auth)</para>
+      </listitem>
+      <listitem>
+        <para>PacketFence IP address: 192.168.1.5</para>
+      </listitem>
+      <listitem>
+        <para>Normal VLAN: 1</para>
+      </listitem>
+      <listitem>
+        <para>Registration VLAN: 2</para>
+      </listitem>
+      <listitem>
+        <para>Isolation VLAN: 3</para>
+      </listitem>
+      <listitem>
+        <para>MAC Detection VLAN: 4</para>
+      </listitem>
+      <listitem>
+        <para>VoIP, Voice VLAN: 100</para>
+      </listitem>
+      <listitem>
+        <para>use SNMP v2c</para>
+      </listitem>
+      <listitem>
+        <para>SNMP Trap community: public</para>
+      </listitem>
+      <listitem>
+        <para>RADIUS Secret: useStrongerSecret</para>
+      </listitem>
+    </itemizedlist>
   </sect1>
   <sect1>
     <title>3COM</title>
-    <para>SuperStack 3 Switch 4200 and 4500</para>
-    <para>PacketFence supports these 3Com switches with no VoIP using one trap type:</para>
-    <orderedlist>
-      <listitem>
-        <para>❏&#160; &#160; &#160; &#160; linkUp/linkDown</para>
-        <para>❏&#160; &#160; &#160; &#160; Port Security (with static MACs)</para>
-      </listitem>
-    </orderedlist>
-    <para>Don't forget to update the startup config !</para>
     <sect2>
-      <title>linkUp / linkDown only</title>
-      <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
-      <para>snmp-agent</para>
-      <para>snmp-agent target-host trap address udp-domain 192.168.1.5 params securityname public</para>
-      <para>snmp-agent trap enable standard linkup linkdown</para>
-      <para />
-      <para>❏&#160; &#160; &#160; &#160; On each interface:</para>
-      <para>port access vlan 4</para>
+      <title>SuperStack 3 Switch 4200 and 4500</title>
+      <para>PacketFence supports these 3Com switches with no VoIP using one trap type:</para>
+      <itemizedlist>
+        <listitem>
+          <para>linkUp/linkDown</para>
+        </listitem>
+        <listitem>
+          <para>Port Security (with static MACs)</para>
+        </listitem>
+      </itemizedlist>
+      <para>Don't forget to update the startup config !</para>
+      <sect3>
+        <title>linkUp / linkDown only</title>
+        <sect4>
+          <title>Global config settings</title>
+          <programlisting xml:space="default">
+            <![CDATA[snmp-agent
+snmp-agent target-host trap address udp-domain 192.168.1.5 params securityname public
+snmp-agent trap enable standard linkup linkdown
+]]>
+</programlisting>
+        </sect4>
+        <sect4>
+          <title>On each interface:</title>
+          <programlisting>port access vlan 4</programlisting>
+        </sect4>
+      </sect3>
+      <sect3>
+        <title>In Port Security</title>
+        <sect4>
+          <title>Global config settings</title>
+          <programlisting xml:space="default">
+            <![CDATA[snmp-agent
+snmp-agent target-host trap address udp-domain 192.168.1.5 params securityname public
+snmp-agent trap enable
+port-security enable
+port-security trap addresslearned
+port-security trap intrusion
+]]>
+</programlisting>
+        </sect4>
+        <sect4>
+          <title>On each interface:</title>
+          <programlisting>
+            <![CDATA[port access vlan 4
+port-security max-mac-count 1
+port-security port-mode secure
+port-security intrusion-mode blockmac
+undo enable snmp trap updown
+]]>
+</programlisting>
+        </sect4>
+      </sect3>
     </sect2>
     <sect2>
-      <title>In Port Security</title>
-      <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
-      <para>snmp-agent</para>
-      <para>snmp-agent target-host trap address udp-domain 192.168.1.5 params securityname public</para>
-      <para>snmp-agent trap enable</para>
-      <para>port-security enable</para>
-      <para>port-security trap addresslearned</para>
-      <para>port-security trap intrusion</para>
-      <para />
-      <para>❏&#160; &#160; &#160; &#160; On each interface:</para>
-      <para>port access vlan 4</para>
-      <para>port-security max-mac-count 1</para>
-      <para>port-security port-mode secure</para>
-      <para>port-security intrusion-mode blockmac</para>
-      <para>undo enable snmp trap updown</para>
-      <para />
       <para>E4800G</para>
       <para>PacketFence supports these 3Com switches with the following techniques:</para>
       <orderedlist>
         <listitem>
-          <para>❏&#160; &#160; &#160; &#160; 802.1X with MAC Authentication fallback</para>
-          <para>❏&#160; &#160; &#160; &#160; linkUp/linkDown (not recommended)</para>
+          <listitem>
+            <para>802.1X with MAC Authentication fallback</para>
+          </listitem>
+          <listitem>
+            <para>linkUp/linkDown (not recommended)</para>
+          </listitem>
         </listitem>
       </orderedlist>
       <para>Voice over IP support was not explicitly tested during implementation however it does not mean that it
       won't work.</para>
       <para>Don't forget to update the startup config !</para>
-    </sect2>
-    <sect2>
       <title>linkUp / linkDown only</title>
-      <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+      <listitem>
+        <para>Global config settings</para>
+      </listitem>
       <para>snmp-agent</para>
       <para>snmp-agent target-host trap address udp-domain 192.168.1.5 params securityname public</para>
       <para>snmp-agent trap enable standard linkup linkdown</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; On each interface:</para>
+      <listitem>
+        <para>On each interface:</para>
+      </listitem>
       <para>port access vlan 4</para>
     </sect2>
     <sect2>
       <title>802.1X with MAC Authentication fallback</title>
-      <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+      <listitem>
+        <para>Global config settings</para>
+      </listitem>
       <para>system-view &#160; radius scheme PacketFence &#160; &#160; primary authentication 192.168.1.5 1812
       &#160; &#160; primary accounting 192.168.1.5 1812 &#160; &#160; key authentication useStrongerSecret &#160;
       &#160; user-name-format without-domain &#160; &#160; quit &#160; domain packetfence.local &#160; &#160;
@@ -1054,7 +1103,9 @@
       0 4 &#160; &#160;user privilege level 3 &#160; &#160;set authentication password simple useStrongerPassword
       &#160;quitquit</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; On each interface:</para>
+      <listitem>
+        <para>On each interface:</para>
+      </listitem>
       <para>system-view &#160;interface gigabitEthernet 1/0/xx &#160; &#160;port-security port-mode
       mac-else-userlogin-secure-ext &#160; &#160;# userlogin-secure-or-mac-ext could be used below instead &#160;
       &#160;# see the Switch_4200G's documentation for a discussion about it &#160; &#160;undo enable snmp trap
@@ -1065,8 +1116,12 @@
       <para>PacketFence supports these 3Com switches with the following techniques:</para>
       <orderedlist>
         <listitem>
-          <para>❏&#160; &#160; &#160; &#160; 802.1X with MAC Authentication fallback</para>
-          <para>❏&#160; &#160; &#160; &#160; linkUp/linkDown (not recommended)</para>
+          <listitem>
+            <para>802.1X with MAC Authentication fallback</para>
+          </listitem>
+          <listitem>
+            <para>linkUp/linkDown (not recommended)</para>
+          </listitem>
         </listitem>
       </orderedlist>
       <para>Voice over IP support was not explicitly tested during implementation however it does not mean that it
@@ -1075,17 +1130,23 @@
     </sect2>
     <sect2>
       <title>linkUp / linkDown only</title>
-      <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+      <listitem>
+        <para>Global config settings</para>
+      </listitem>
       <para>snmp-agent</para>
       <para>snmp-agent target-host trap address udp-domain 192.168.1.5 params securityname public</para>
       <para>snmp-agent trap enable standard linkup linkdown</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; On each interface:</para>
+      <listitem>
+        <para>On each interface:</para>
+      </listitem>
       <para>port access vlan 4</para>
     </sect2>
     <sect2>
       <title>802.1X with MAC Authentication fallback</title>
-      <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+      <listitem>
+        <para>Global config settings</para>
+      </listitem>
       <para>system-view &#160; radius scheme PacketFence &#160; &#160; server-type standard &#160; &#160; primary
       authentication 192.168.1.5 1812 &#160; &#160; primary accounting 192.168.1.5 1812 &#160; &#160; accounting
       optional &#160; &#160; key authentication useStrongerSecret &#160; &#160; user-name-format without-domain
@@ -1102,7 +1163,9 @@
       0 4 &#160; &#160;user privilege level 3 &#160; &#160;set authentication password simple useStrongerPassword
       &#160;quitquit</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; On each interface:</para>
+      <listitem>
+        <para>On each interface:</para>
+      </listitem>
       <para>system-view &#160;interface gigabitEthernet 1/0/xx &#160; &#160;port-security port-mode
       mac-else-userlogin-secure-ext &#160; &#160;# userlogin-secure-or-mac-ext could be used below instead &#160;
       &#160;# see the Switch_4200G's documentation for a discussion about it &#160; &#160;undo enable snmp trap
@@ -1119,7 +1182,9 @@
     <para>PacketFence supports Amer switches with no VoIP using one trap type:</para>
     <orderedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; linkUp/linkDown</para>
+        <listitem>
+          <para>linkUp/linkDown</para>
+        </listitem>
       </listitem>
     </orderedlist>
     <para>Don't forget to update the startup config !</para>
@@ -1127,7 +1192,9 @@
     <para>L2 Switch SS2R24i</para>
     <orderedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; Global config settings:</para>
+        <listitem>
+          <para>Global config settings:</para>
+        </listitem>
       </listitem>
     </orderedlist>
     <para>create snmp host 192.168.1.5 v2c public</para>
@@ -1138,7 +1205,9 @@
         <para />
       </listitem>
     </orderedlist>
-    <para>❏&#160; &#160; &#160; &#160; On each interface:</para>
+    <listitem>
+      <para>On each interface:</para>
+    </listitem>
     <para>config vlan default delete xx</para>
     <para>config vlan mac-detection add untagged xx</para>
     <para>where xx stands for the interface index</para>
@@ -1155,14 +1224,24 @@
     <para />
     <orderedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; linkUp/linkDown</para>
-        <para>❏&#160; &#160; &#160; &#160; MAC Notification</para>
-        <para>❏&#160; &#160; &#160; &#160; Port Security (with static MACs)</para>
+        <listitem>
+          <para>linkUp/linkDown</para>
+        </listitem>
+        <listitem>
+          <para>MAC Notification</para>
+        </listitem>
+        <listitem>
+          <para>Port Security (with static MACs)</para>
+        </listitem>
         <para />
         <para>On some recent models, we can also use more secure and robust features, like :</para>
         <para />
-        <para>❏&#160; &#160; &#160; &#160; MAC Authentication (Cisco's MAC Authentication Bypass or MAB)</para>
-        <para>❏&#160; &#160; &#160; &#160; 802.1x (Multi-Host or Multi-Domain)</para>
+        <listitem>
+          <para>MAC Authentication (Cisco's MAC Authentication Bypass or MAB)</para>
+        </listitem>
+        <listitem>
+          <para>802.1x (Multi-Host or Multi-Domain)</para>
+        </listitem>
         <para />
       </listitem>
     </orderedlist>
@@ -1183,18 +1262,24 @@
     <para>2900XL Series and 3500XL Series</para>
     <sect2>
       <title>linkUP/linkDown SNMP traps</title>
-      <para>❏&#160; &#160; &#160; &#160; Global config settings:</para>
+      <listitem>
+        <para>Global config settings:</para>
+      </listitem>
       <para>snmp-server enable traps snmp linkdown linkup</para>
       <para>snmp-server enable traps mac-notification</para>
       <para>snmp-server host 192.168.1.5 trap version 2c public snmp mac-notification</para>
       <para>mac-address-table notification interval 0mac-address-table notificationmac-address-table aging-time
       3600</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; On each interface with no VoIP:</para>
+      <listitem>
+        <para>On each interface with no VoIP:</para>
+      </listitem>
       <para>switchport mode access</para>
       <para>switchport access vlan 4</para>
       <para>snmp trap mac-notification added</para>
-      <para>❏&#160; &#160; &#160; &#160; On each interface with VoIP:</para>
+      <listitem>
+        <para>On each interface with VoIP:</para>
+      </listitem>
       <para>switchport trunk encapsulation dot1qswitchport trunk native vlan 4switchport mode trunkswitchport voice
       vlan 100snmp trap mac-notification addedsnmp trap mac-notification removed</para>
       <para />
@@ -1208,10 +1293,14 @@
       <title>802.1X</title>
       <para>Recently, we were able to add the support for 802.1X on those switch even if they are not supporting
       RADIUS dynamic VLAN assignments.</para>
-      <para>❏&#160; &#160; &#160; &#160; Global settings</para>
+      <listitem>
+        <para>Global settings</para>
+      </listitem>
       <para>dot1x system-auth-control</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; AAA Groups and Configuration</para>
+      <listitem>
+        <para>AAA Groups and Configuration</para>
+      </listitem>
       <para>aaa new-model</para>
       <para>aaa group server radius packetfence</para>
       <para>&#160;server 192.168.1.5 auth-port 1812 acct-port 1813</para>
@@ -1219,18 +1308,24 @@
       <para>aaa authentication dot1x default group packetfence</para>
       <para>aaa authorization network default group packetfence</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; Radius server configuration</para>
+      <listitem>
+        <para>Radius server configuration</para>
+      </listitem>
       <para>radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret</para>
       <para>radius-server vsa send authentication</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; For ports without VoIP</para>
+      <listitem>
+        <para>For ports without VoIP</para>
+      </listitem>
       <para>switchport access vlan 4</para>
       <para>switchport mode access</para>
       <para>dot1x port-control auto</para>
       <para>dot1x host-mode multi-host</para>
       <para>dot1x reauthentication</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; For ports with VoIP</para>
+      <listitem>
+        <para>For ports with VoIP</para>
+      </listitem>
       <para>switchport access vlan 4</para>
       <para>switchport mode access</para>
       <para>switchport voice vlan 100</para>
@@ -1245,12 +1340,16 @@
       other hand, if a MAC is actually connected when you enable port security, you must secure this MAC rather
       than the bogus one. Otherwise this MAC will lose its connectivity instantly.</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; Global config settings with no VoIP</para>
+      <listitem>
+        <para>Global config settings with no VoIP</para>
+      </listitem>
       <para>snmp-server enable traps port-security</para>
       <para>snmp-server enable traps port-security trap-rate 1</para>
       <para>snmp-server host 192.168.1.5 version 2c public port-security</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; On each interface with no VoIP</para>
+      <listitem>
+        <para>On each interface with no VoIP</para>
+      </listitem>
       <para>switchport mode access</para>
       <para>switchport access vlan 4</para>
       <para>switchport port-security</para>
@@ -1258,8 +1357,9 @@
       <para>switchport port-security mac-address 0200.0000.00xx</para>
       <para>where xxxxx stands for the interface ifIndex</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; Use the following templates for interface IfIndex in bogus MAC addresses
-      (0200.000x.xxxx):</para>
+      <listitem>
+        <para>Use the following templates for interface IfIndex in bogus MAC addresses (0200.000x.xxxx):</para>
+      </listitem>
       <orderedlist>
         <listitem>
           <para>Fa0/1...Fa0/48&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; &#160; &#160;
@@ -1267,7 +1367,9 @@
           &#160; &#160; 49, 50</para>
         </listitem>
       </orderedlist>
-      <para>❏&#160; &#160; &#160; &#160; Global config settings with VoIP:</para>
+      <listitem>
+        <para>Global config settings with VoIP:</para>
+      </listitem>
       <para>snmp-server enable traps snmp linkdown linkup</para>
       <para>snmp-server enable traps mac-notification</para>
       <para>snmp-server host 192.168.1.5 trap version 2c public snmp mac-notification</para>
@@ -1275,7 +1377,9 @@
       <para>mac-address-table notification</para>
       <para>mac-address-table aging-time 3600</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; On each interface with VoIP</para>
+      <listitem>
+        <para>On each interface with VoIP</para>
+      </listitem>
       <para>switchport voice vlan 100</para>
       <para>switchport access vlan 4</para>
       <para>switchport mode access</para>
@@ -1288,21 +1392,28 @@
     </sect2>
     <sect2>
       <title>Port-Security for IOS earlier than 12.2(46)SE</title>
-      <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+      <listitem>
+        <para>Global config settings</para>
+      </listitem>
       <para>snmp-server enable traps port-securitysnmp-server enable traps port-security trap-rate 1snmp-server
       host 192.168.1.5 version 2c public port-security</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; On each interface with no VoIP:</para>
+      <listitem>
+        <para>On each interface with no VoIP:</para>
+      </listitem>
       <para>switchport access vlan 4switchport port-securityswitchport port-security maximum 1 vlan
       accessswitchport port-security violation restrictswitchport port-security mac-address 0200.000x.xxxx</para>
       <para>where xxxxx stands for the interface ifIndex</para>
-      <para>❏&#160; &#160; &#160; &#160; On each interface with VoIP:</para>
+      <listitem>
+        <para>On each interface with VoIP:</para>
+      </listitem>
       <para>switchport voice vlan 100switchport access vlan 4switchport port-securityswitchport port-security
       maximum 2switchport port-security maximum 1 vlan accessswitchport port-security violation restrictswitchport
       port-security mac-address 0200.000x.xxxx</para>
       <para>where xxxxx stands for the interface ifIndex</para>
-      <para>❏&#160; &#160; &#160; &#160; Use the following templates for interface IfIndex in bogus MAC addresses
-      (0200.000x.xxxx):</para>
+      <listitem>
+        <para>Use the following templates for interface IfIndex in bogus MAC addresses (0200.000x.xxxx):</para>
+      </listitem>
       <orderedlist>
         <listitem>
           <para>Fa0/1...Fa0/48&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; &#160; &#160;
@@ -1319,23 +1430,30 @@
       then authorize the phone MAC address on the network.</para>
       <para />
       <para />
-      <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+      <listitem>
+        <para>Global config settings</para>
+      </listitem>
       <para>snmp-server enable traps port-securitysnmp-server enable traps port-security trap-rate 1snmp-server
       host 192.168.1.5 version 2c public port-security</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; On each interface with no VoIP:</para>
+      <listitem>
+        <para>On each interface with no VoIP:</para>
+      </listitem>
       <para>switchport access vlan 4switchport port-securityswitchport port-security maximum 1 vlan
       accessswitchport port-security violation restrictswitchport port-security mac-address 0200.000x.xxxx</para>
       <para>where xxxxx stands for the interface ifIndex</para>
-      <para>❏&#160; &#160; &#160; &#160; On each interface with VoIP:</para>
+      <listitem>
+        <para>On each interface with VoIP:</para>
+      </listitem>
       <para>switchport voice vlan 100switchport access vlan 4switchport port-securityswitchport port-security
       maximum 2switchport port-security maximum 1 vlan access</para>
       <para>switchport port-security maximum 1 vlan voice switchport port-security violation restrict</para>
       <para>switchport port-security mac-address 0200.010x.xxxx vlan voiceswitchport port-security mac-address
       0200.000x.xxxx vlan access</para>
       <para>where xxxxx stands for the interface ifIndex</para>
-      <para>❏&#160; &#160; &#160; &#160; Use the following templates for interface IfIndex in bogus MAC addresses
-      :</para>
+      <listitem>
+        <para>Use the following templates for interface IfIndex in bogus MAC addresses :</para>
+      </listitem>
       <para>&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;
       Fa0/1...Fa0/48&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; &#160; &#160; &#160;
       10001...10048</para>
@@ -1349,10 +1467,14 @@
     </sect2>
     <sect2>
       <title>802.1x with MAC Authentication bypass (Multi-Domain)</title>
-      <para>❏&#160; &#160; &#160; &#160; Global settings</para>
+      <listitem>
+        <para>Global settings</para>
+      </listitem>
       <para>dot1x system-auth-control</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; On each interface</para>
+      <listitem>
+        <para>On each interface</para>
+      </listitem>
       <para>switchport mode access</para>
       <para>switchport voice vlan 100</para>
       <para>authentication host-mode multi-domain</para>
@@ -1368,7 +1490,9 @@
       <para>dot1x timeout quiet-period 2</para>
       <para>dot1x timeout tx-period 3</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; AAA Groups and Configuration</para>
+      <listitem>
+        <para>AAA Groups and Configuration</para>
+      </listitem>
       <para>aaa new-model</para>
       <para>aaa group server radius packtfence</para>
       <para>&#160;server 192.168.1.5 auth-port 1812 acct-port 1813</para>
@@ -1376,17 +1500,23 @@
       <para>aaa authentication dot1x default group packetfence</para>
       <para>aaa authorization network default group packetfence</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; Radius server configuration</para>
+      <listitem>
+        <para>Radius server configuration</para>
+      </listitem>
       <para>radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret</para>
       <para>radius-server vsa send authentication</para>
       <para />
     </sect2>
     <sect2>
       <title>802.1x with MAC Authentication bypass (Multi-Host)</title>
-      <para>❏&#160; &#160; &#160; &#160; Global settings</para>
+      <listitem>
+        <para>Global settings</para>
+      </listitem>
       <para>dot1x system-auth-control</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; On each interface</para>
+      <listitem>
+        <para>On each interface</para>
+      </listitem>
       <para>switchport mode access</para>
       <para>&#160;authentication order dot1x mab</para>
       <para>&#160;authentication priority dot1x mab</para>
@@ -1400,24 +1530,32 @@
       <para>&#160;dot1x timeout quiet-period 2</para>
       <para>&#160;dot1x timeout tx-period 3</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; AAA Groups and Configuration</para>
+      <listitem>
+        <para>AAA Groups and Configuration</para>
+      </listitem>
       <para>aaa new-model</para>
       <para>aaa group server radius packetfence</para>
       <para>&#160;server 192.168.1.5 auth-port 1812 acct-port 1813</para>
       <para>aaa authentication login default local</para>
       <para>aaa authentication dot1x default group packetfence</para>
       <para>aaa authorization network default group packetfence</para>
-      <para>❏&#160; &#160; &#160; &#160; Radius server configuration</para>
+      <listitem>
+        <para>Radius server configuration</para>
+      </listitem>
       <para>radius-server host 10.10.10.10 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret</para>
       <para>radius-server vsa send authentication</para>
       <para />
     </sect2>
     <sect2>
       <title>MAC Authentication bypass only</title>
-      <para>❏&#160; &#160; &#160; &#160; Global settings</para>
+      <listitem>
+        <para>Global settings</para>
+      </listitem>
       <para>dot1x system-auth-control</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; On each interface</para>
+      <listitem>
+        <para>On each interface</para>
+      </listitem>
       <para>switchport mode access</para>
       <para>&#160;switchport voice vlan 100</para>
       <para>&#160;dot1x mac-auth-bypass</para>
@@ -1431,7 +1569,9 @@
       <para>&#160;mab</para>
       <para>&#160;no snmp trap link-status</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; AAA Groups and Configuration</para>
+      <listitem>
+        <para>AAA Groups and Configuration</para>
+      </listitem>
       <para>aaa new-model</para>
       <para>aaa group server radius packtfence</para>
       <para>&#160;server 192.168.1.5 auth-port 1812 acct-port 1813</para>
@@ -1439,28 +1579,37 @@
       <para>aaa authentication dot1x default group packetfence</para>
       <para>aaa authorization network default group packetfence</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; Radius server configuration</para>
+      <listitem>
+        <para>Radius server configuration</para>
+      </listitem>
       <para>radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret</para>
       <para>radius-server vsa send authentication</para>
       <para />
     </sect2>
     <sect2>
       <title>Port-Security</title>
-      <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+      <listitem>
+        <para>Global config settings</para>
+      </listitem>
       <para>snmp-server enable traps port-securitysnmp-server enable traps port-security trap-rate 1snmp-server
       host 192.168.1.5 version 2c public port-security</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; On each interface with no VoIP:</para>
+      <listitem>
+        <para>On each interface with no VoIP:</para>
+      </listitem>
       <para>switchport access vlan 4switchport port-securityswitchport port-security maximum 1 vlan
       accessswitchport port-security violation restrictswitchport port-security mac-address 0200.000x.xxxx</para>
       <para>where xxxxx stands for the interface ifIndex</para>
-      <para>❏&#160; &#160; &#160; &#160; On each interface with VoIP:</para>
+      <listitem>
+        <para>On each interface with VoIP:</para>
+      </listitem>
       <para>switchport voice vlan 100switchport access vlan 4switchport port-securityswitchport port-security
       maximum 2switchport port-security maximum 1 vlan accessswitchport port-security violation restrictswitchport
       port-security mac-address 0200.000x.xxxx</para>
       <para>where xxxxx stands for the interface ifIndex</para>
-      <para>❏&#160; &#160; &#160; &#160; Use the following templates for interface IfIndex in bogus MAC addresses
-      (0200.000x.xxxx):</para>
+      <listitem>
+        <para>Use the following templates for interface IfIndex in bogus MAC addresses (0200.000x.xxxx):</para>
+      </listitem>
       <orderedlist>
         <listitem>
           <para>Fa0/1...Fa0/48&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; &#160; &#160;
@@ -1476,21 +1625,28 @@
       MAC on the data VLAN so we enable it whether there is VoIP or not.</para>
       <para>We need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC
       appears on a port.</para>
-      <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+      <listitem>
+        <para>Global config settings</para>
+      </listitem>
       <para>snmp-server enable traps port-securitysnmp-server enable traps port-security trap-rate 1snmp-server
       host 192.168.1.5 version 2c public port-security</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; On each interface with no VoIP:</para>
+      <listitem>
+        <para>On each interface with no VoIP:</para>
+      </listitem>
       <para>switchport access vlan 4switchport port-securityswitchport port-security maximum 1 vlan
       accessswitchport port-security violation restrictswitchport port-security mac-address 0200.000x.xxxx</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; On each interface with VoIP:</para>
+      <listitem>
+        <para>On each interface with VoIP:</para>
+      </listitem>
       <para>switchport voice vlan 100switchport access vlan 4switchport port-securityswitchport port-security
       maximum 2switchport port-security maximum 1 vlan accessswitchport port-security violation restrictswitchport
       port-security mac-address 0200.000x.xxxx</para>
       <para>where xxxxx stands for the interface ifIndex</para>
-      <para>❏&#160; &#160; &#160; &#160; Use the following templates for interface IfIndex in bogus MAC addresses
-      (0200.000x.xxxx):</para>
+      <listitem>
+        <para>Use the following templates for interface IfIndex in bogus MAC addresses (0200.000x.xxxx):</para>
+      </listitem>
       <orderedlist>
         <listitem>
           <para>Fa1/0/1...Fa1/0/48&#160; &#160; &#160; &#160; -&gt;&#160; &#160; &#160; &#160;
@@ -1509,10 +1665,14 @@
       the router interfaces (ie: fa0 and fa1 on a 1811). VLAN interfaces ifIndex should also be marked as uplinks
       in the PacketFence switch configuration as they generate traps but are of no interest to PacketFence (layer
       3).</para>
-      <para>❏&#160; &#160; &#160; &#160; Global config settings:</para>
+      <listitem>
+        <para>Global config settings:</para>
+      </listitem>
       <para>snmp-server enable traps snmp linkdown linkupsnmp-server host 192.168.1.5 trap version 2c public</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; On each interface:</para>
+      <listitem>
+        <para>On each interface:</para>
+      </listitem>
       <para>switchport mode accessswitchport access vlan 4</para>
       <para />
     </sect2>
@@ -1522,26 +1682,38 @@
     <para>PacketFence supports D-Link switches with no VoIP using two different trap types:</para>
     <orderedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; linkUp/linkDown</para>
-        <para>❏&#160; &#160; &#160; &#160; MAC Notification</para>
+        <listitem>
+          <para>linkUp/linkDown</para>
+        </listitem>
+        <listitem>
+          <para>MAC Notification</para>
+        </listitem>
       </listitem>
     </orderedlist>
     <para>We recommend to enable linkUp/linkDown and MAC notification together.</para>
     <para>Don't forget to update the startup config !</para>
     <para />
     <para>DES3526 / 3550</para>
-    <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+    <listitem>
+      <para>Global config settings</para>
+    </listitem>
     <para>To be contributed...</para>
     <para />
-    <para>❏&#160; &#160; &#160; &#160; On each interface:</para>
+    <listitem>
+      <para>On each interface:</para>
+    </listitem>
     <para>To be contributed...</para>
     <para />
     <para />
     <para>DGS3100/3200</para>
-    <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+    <listitem>
+      <para>Global config settings</para>
+    </listitem>
     <para>To be contributed...</para>
     <para />
-    <para>❏&#160; &#160; &#160; &#160; On each interface:</para>
+    <listitem>
+      <para>On each interface:</para>
+    </listitem>
     <para>To be contributed...</para>
     <para />
   </sect1>
@@ -1549,10 +1721,14 @@
     <title>Dell</title>
     <para>PowerConnect 3424</para>
     <para>PacketFence supports this switch using linkUp/linkDown traps.</para>
-    <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+    <listitem>
+      <para>Global config settings</para>
+    </listitem>
     <para>To be contributed...</para>
     <para />
-    <para>❏&#160; &#160; &#160; &#160; On each interface:</para>
+    <listitem>
+      <para>On each interface:</para>
+    </listitem>
     <para>To be contributed...</para>
     <para />
   </sect1>
@@ -1561,13 +1737,17 @@
     <para>PacketFence supports Edge-corE switches with no VoIP using one trap type:</para>
     <orderedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; linkUp/linkDown</para>
+        <listitem>
+          <para>linkUp/linkDown</para>
+        </listitem>
       </listitem>
     </orderedlist>
     <para>Don't forget to update the startup config !</para>
     <para />
     <para>3526XA and 3528M</para>
-    <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+    <listitem>
+      <para>Global config settings</para>
+    </listitem>
     <para>SNMP-server host 192.168.1.5 public version 2c udp-port 162</para>
   </sect1>
   <sect1>
@@ -1575,8 +1755,12 @@
     <para>PacketFence supports Enterasys switches with no VoIP using two different trap types:</para>
     <orderedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; linkUp/linkDown</para>
-        <para>❏&#160; &#160; &#160; &#160; MAC Locking (Port Security with static MACs)</para>
+        <listitem>
+          <para>linkUp/linkDown</para>
+        </listitem>
+        <listitem>
+          <para>MAC Locking (Port Security with static MACs)</para>
+        </listitem>
       </listitem>
     </orderedlist>
     <para>We recommend to enable MAC locking only.</para>
@@ -1587,13 +1771,17 @@
     default this switch doesn't do an electrical low-level linkDown when setting the port to admin down. So we need
     to activate a global option called forcelinkdown to enable this behaviour. Without this option, clients don't
     understand that they lost their connection and they never do a new DHCP on VLAN change.</para>
-    <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+    <listitem>
+      <para>Global config settings</para>
+    </listitem>
     <para>set snmp community publicset snmp targetparams v2cPF user public security-model v2c message-processing
     v2c</para>
     <para>set snmp notify entryPF tag TrapPFset snmp targetaddr tr 192.168.1.5 param v2cPF taglist TrapPFset
     maclock enableset forcelinkdown enable</para>
     <para />
-    <para>❏&#160; &#160; &#160; &#160; On each interface:</para>
+    <listitem>
+      <para>On each interface:</para>
+    </listitem>
     <para>set port trap ge.1.xx disable</para>
     <para>set maclock enable ge.1.xx</para>
     <para>set maclock static ge.1.xx 1</para>
@@ -1605,12 +1793,16 @@
       <title />
       <para>SecureStack C2</para>
       <para>linkUp/linkDown traps are enabled by default so we disable them and enable MAC locking only.</para>
-      <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+      <listitem>
+        <para>Global config settings</para>
+      </listitem>
       <para>set snmp community publicset snmp targetparams v2cPF user public security-model v2c message-processing
       v2c</para>
       <para>set snmp notify entryPF tag TrapPFset snmp targetaddr tr 192.168.1.5 param v2cPF taglist TrapPFset
       maclock enable</para>
-      <para>❏&#160; &#160; &#160; &#160; On each interface:</para>
+      <listitem>
+        <para>On each interface:</para>
+      </listitem>
       <para>set port trap fe.1.xx disable</para>
       <para>set maclock enable fe.1.xx</para>
       <para>set maclock static fe.1.xx 1</para>
@@ -1621,12 +1813,16 @@
       means that you must add all the VLAN created for PacketFence as untagged egress VLAN on the relevant
       interfaces. This is why there is a VLAN command on each interface below.</para>
       <para>linkUp/linkDown traps are enabled by default so we disable them and enable MAC locking only.</para>
-      <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+      <listitem>
+        <para>Global config settings</para>
+      </listitem>
       <para>set snmp community publicset snmp targetparams v2cPF user public security-model v2c message-processing
       v2c</para>
       <para>set snmp notify entryPF tag TrapPFset snmp targetaddr tr 192.168.1.5 param v2cPF taglist TrapPFset
       maclock enable</para>
-      <para>❏&#160; &#160; &#160; &#160; On each interface:</para>
+      <listitem>
+        <para>On each interface:</para>
+      </listitem>
       <para>set vlan egress 1,2,3 ge.1.xx untaggedset port trap ge.1.xx disableset maclock enable ge.1.xxset
       maclock static ge.1.xx 1set maclock firstarrival ge.1.xx 0set maclock trap ge.1.xx enable</para>
       <para>where xx stands for the interface index</para>
@@ -1637,13 +1833,17 @@
       is problematic because on some occasions the untagged VLAN port list can become inconsistent with the
       switch’s running config. To fix that, clear all untagged VLANs of a port even if the CLI interface doesn’t
       show them. To do so, use: clear vlan egress &lt;vlans&gt; &lt;ports&gt;</para>
-      <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+      <listitem>
+        <para>Global config settings</para>
+      </listitem>
       <para>set snmp community publicset snmp targetparams v2cPF user public security-model v2c message-processing
       v2c</para>
       <para>set snmp notify entryPF tag TrapPFset snmp targetaddr tr 192.168.1.5 param v2cPF taglist TrapPFset
       maclock enable</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; On each interface:</para>
+      <listitem>
+        <para>On each interface:</para>
+      </listitem>
       <para>set port trap ge.1.xx disable</para>
       <para>set maclock enable ge.1.xx</para>
       <para>set maclock static ge.1.xx 1</para>
@@ -1658,9 +1858,15 @@
     <para>PacketFence supports Extreme Networks switches using :</para>
     <orderedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; linkUp/linkDown</para>
-        <para>❏&#160; &#160; &#160; &#160; MAC Address Lockdown (Port Security)</para>
-        <para>❏&#160; &#160; &#160; &#160; Netlogin - MAC Authentication</para>
+        <listitem>
+          <para>linkUp/linkDown</para>
+        </listitem>
+        <listitem>
+          <para>MAC Address Lockdown (Port Security)</para>
+        </listitem>
+        <listitem>
+          <para>Netlogin - MAC Authentication</para>
+        </listitem>
       </listitem>
     </orderedlist>
     <para>Don't forget to save the configuration!</para>
@@ -1674,7 +1880,9 @@
       only.</para>
       <orderedlist>
         <listitem>
-          <para>❏&#160; &#160; &#160; &#160; Global config settings without Voice over IP (VoIP):</para>
+          <listitem>
+            <para>Global config settings without Voice over IP (VoIP):</para>
+          </listitem>
         </listitem>
       </orderedlist>
       <para>enable snmp accessconfigure snmp add trapreceiver 192.168.1.5 community publicenable web http</para>
@@ -1686,7 +1894,9 @@
       <para />
       <orderedlist>
         <listitem>
-          <para>❏&#160; &#160; &#160; &#160; Global config settings with Voice over IP (VoIP):</para>
+          <listitem>
+            <para>Global config settings with Voice over IP (VoIP):</para>
+          </listitem>
         </listitem>
       </orderedlist>
       <para>enable snmp accessconfigure snmp add trapreceiver 192.168.1.5 community publicenable web http</para>
@@ -1701,7 +1911,9 @@
       <title>MAC Authentication</title>
       <orderedlist>
         <listitem>
-          <para>❏&#160; &#160; &#160; &#160; AAA Configuration</para>
+          <listitem>
+            <para>AAA Configuration</para>
+          </listitem>
           <para>configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8 vr VR-Default</para>
           <para>configure radius netlogin primary shared-secret 12345</para>
           <para>enable radius netlogin</para>
@@ -1710,7 +1922,9 @@
       <para />
       <orderedlist>
         <listitem>
-          <para>❏&#160; &#160; &#160; &#160; Netlogin (Mac Authentication)</para>
+          <listitem>
+            <para>Netlogin (Mac Authentication)</para>
+          </listitem>
           <para>configure netlogin vlan temp</para>
           <para>enable netlogin mac</para>
           <para>configure netlogin dynamic-vlan enable</para>
@@ -1727,7 +1941,9 @@
       <title>802.1X</title>
       <orderedlist>
         <listitem>
-          <para>❏&#160; &#160; &#160; &#160; AAA Configuration</para>
+          <listitem>
+            <para>AAA Configuration</para>
+          </listitem>
           <para>configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8 vr VR-Default</para>
           <para>configure radius netlogin primary shared-secret 12345</para>
           <para>enable radius netlogin</para>
@@ -1736,7 +1952,9 @@
       <para />
       <orderedlist>
         <listitem>
-          <para>❏&#160; &#160; &#160; &#160; Netlogin (802.1X)</para>
+          <listitem>
+            <para>Netlogin (802.1X)</para>
+          </listitem>
           <para>configure netlogin vlan temp</para>
           <para>enable netlogin dot1x</para>
           <para>configure netlogin dynamic-vlan enable</para>
@@ -1758,8 +1976,12 @@
     <para>PacketFence support this switch with optional VoIP using two different trap types:</para>
     <orderedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; linkUp/linkDown</para>
-        <para>❏&#160; &#160; &#160; &#160; Port Security (with static MACs)</para>
+        <listitem>
+          <para>linkUp/linkDown</para>
+        </listitem>
+        <listitem>
+          <para>Port Security (with static MACs)</para>
+        </listitem>
       </listitem>
     </orderedlist>
     <para>We recommend to enable Port Security only.</para>
@@ -1769,17 +1991,23 @@
     VLAN so we enable it whether there is VoIP or not.</para>
     <para>We need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC
     appears on a port.</para>
-    <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+    <listitem>
+      <para>Global config settings</para>
+    </listitem>
     <para>snmp-server host 192.168.1.5 publicno snmp-server enable traps link-downno snmp-server enable traps
     link-up</para>
     <para />
-    <para>❏&#160; &#160; &#160; &#160; On each interface with no VoIP:</para>
+    <listitem>
+      <para>On each interface with no VoIP:</para>
+    </listitem>
     <para>int eth xx &#160;port security &#160; &#160;enable &#160; &#160;maximum 1 &#160; &#160;secure
     0200.0000.00xx 0 &#160; &#160;violation restrict</para>
     <para>where xx stands for the interface ifIndex.</para>
     <para />
-    <para>❏&#160; &#160; &#160; &#160; With VoIP a little more work needs to be performed. Instead of the no-VoIP,
-    put in the following config:</para>
+    <listitem>
+      <para>With VoIP a little more work needs to be performed. Instead of the no-VoIP, put in the following
+      config:</para>
+    </listitem>
     <para>conf tvlan &lt;mac-detection-vlan&gt; &#160;untagged eth xxvlan &lt;voice-vlan&gt; &#160;tagged eth
     xx</para>
     <para>int eth xx &#160;dual-mode &lt;mac-detection-vlan&gt; &#160;port security &#160; &#160;maximum 2 &#160;
@@ -1800,8 +2028,12 @@
     <para>PacketFence supports ProCurve switches with no VoIP using two different trap types:</para>
     <orderedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; linkUp/linkDown</para>
-        <para>❏&#160; &#160; &#160; &#160; Port Security (with static MACs)</para>
+        <listitem>
+          <para>linkUp/linkDown</para>
+        </listitem>
+        <listitem>
+          <para>Port Security (with static MACs)</para>
+        </listitem>
       </listitem>
     </orderedlist>
     <para>We recommend to enable Port Security only.</para>
@@ -1822,11 +2054,15 @@
     <para>On 2500's, we need to secure bogus MAC addresses on ports in order for the switch to send a trap when a
     new MAC appears on a port.</para>
     <para />
-    <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+    <listitem>
+      <para>Global config settings</para>
+    </listitem>
     <para>snmp-server community "public" Unrestrictedsnmp-server host 192.168.1.5 "public" Not-INFOno snmp-server
     enable traps link-change 1-26</para>
     <para />
-    <para>❏&#160; &#160; &#160; &#160; On each interface:</para>
+    <listitem>
+      <para>On each interface:</para>
+    </listitem>
     <para>port-security xx learn-mode static action send-alarm mac-address 0200000000xx</para>
     <para>where xx stands for the interface index</para>
     <para />
@@ -1834,11 +2070,15 @@
     <para>linkUp/linkDown traps are enabled by default so we disable them and enable Port Security only.</para>
     <para>On 2600's, we don't need to secure bogus MAC addresses on ports in order for the switch to send a trap
     when a new MAC appears on a port.</para>
-    <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+    <listitem>
+      <para>Global config settings</para>
+    </listitem>
     <para>snmp-server community public manager unrestrictedsnmp-server host 192.168.1.5 "public" Not-INFOno
     snmp-server enable traps link-change 1-26</para>
     <para />
-    <para>❏&#160; &#160; &#160; &#160; On each interface:</para>
+    <listitem>
+      <para>On each interface:</para>
+    </listitem>
     <para>port-security xx learn-mode configured action send-alarm</para>
     <para>where xx stands for the interface index</para>
     <para>4100, 5400 Series</para>
@@ -1848,11 +2088,15 @@
     new MAC appears on a port. The ports are indexed differently on 4100's: it's based on the number of modules you
     have in your 4100, each module is indexed with a letter.</para>
     <para />
-    <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+    <listitem>
+      <para>Global config settings</para>
+    </listitem>
     <para>snmp-server community "public" Unrestrictedsnmp-server host 192.168.1.5 "public" Not-INFOno snmp-server
     enable traps link-change 1-26</para>
     <para />
-    <para>❏&#160; &#160; &#160; &#160; You should configure interfaces like this:</para>
+    <listitem>
+      <para>You should configure interfaces like this:</para>
+    </listitem>
     <para>port-security A1 learn-mode static action send-alarm mac-address 020000000001</para>
     <para>...</para>
     <para>port-security A24 learn-mode static action send-alarm mac-address 020000000024</para>
@@ -1868,10 +2112,14 @@
       &#160;Finally, make sure to change the value of the &#160;$VOICEVLANAME variable in the Procurve 5400
       module.</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; RADIUS configuration</para>
+      <listitem>
+        <para>RADIUS configuration</para>
+      </listitem>
       <para>radius-server host 192.168.1.5 key strongKey</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; MAC Authentication</para>
+      <listitem>
+        <para>MAC Authentication</para>
+      </listitem>
       <para>aaa port-access mac-based C5-C7</para>
       <para>aaa port-access mac-based C5 addr-limit 2</para>
       <para>aaa port-access mac-based C6 addr-limit 2</para>
@@ -1888,10 +2136,14 @@
       &#160;Finally, make sure to change the value of the &#160;$VOICEVLANAME variable in the Procurve 5400
       module.</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; RADIUS configuration</para>
+      <listitem>
+        <para>RADIUS configuration</para>
+      </listitem>
       <para>radius-server host 192.168.1.5 key strongKey</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; 802.1X</para>
+      <listitem>
+        <para>802.1X</para>
+      </listitem>
       <para>aaa authentication port-access eap-radius</para>
       <para>aaa port-access authenticator C3-C4</para>
       <para>aaa port-access authenticator C3 client-limit 3</para>
@@ -1905,7 +2157,9 @@
     <para>PacketFence support these switches with no VoIP using one trap type:</para>
     <orderedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; linkUp/linkDown</para>
+        <listitem>
+          <para>linkUp/linkDown</para>
+        </listitem>
       </listitem>
     </orderedlist>
     <para>Exact command-line configuration to be contributed...</para>
@@ -1948,13 +2202,21 @@
     <para />
     <orderedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; linkUp / linkDown</para>
-        <para>❏&#160; &#160; &#160; &#160; Port Security (with static MACs)</para>
+        <listitem>
+          <para>linkUp / linkDown</para>
+        </listitem>
+        <listitem>
+          <para>Port Security (with static MACs)</para>
+        </listitem>
         <para />
         <para>On some recent models, we can also use more secure and robust features, like :</para>
         <para />
-        <para>❏&#160; &#160; &#160; &#160; MAC Authentication</para>
-        <para>❏&#160; &#160; &#160; &#160; 802.1x</para>
+        <listitem>
+          <para>MAC Authentication</para>
+        </listitem>
+        <listitem>
+          <para>802.1x</para>
+        </listitem>
       </listitem>
     </orderedlist>
     <para />
@@ -1966,7 +2228,9 @@
       <para>Firmware 1.2.3.2 is required for linkUp / linkDown</para>
       <para>Prior to config, make sure to create all necessaries VLANs and config the appropriate uplink
       port.</para>
-      <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+      <listitem>
+        <para>Global config settings</para>
+      </listitem>
       <para>snmp-server community public ro</para>
       <para>snmp-server community private rw</para>
       <para>!</para>
@@ -1978,7 +2242,9 @@
       the webGUI under Administration-&gt; SNMP.</para>
       <para>&#160; &#160; &#160; &#160; Some reports shows that the switch doesn't always send linkDown
       traps.</para>
-      <para>❏&#160; &#160; &#160; &#160; On each interface (except uplink)</para>
+      <listitem>
+        <para>On each interface (except uplink)</para>
+      </listitem>
       <para>switchport allowed vlan add 4 untagged</para>
       <para>switchport native vlan 4</para>
       <para>switchport allowed vlan remove 1</para>
@@ -1989,7 +2255,9 @@
       <para>Firmware 1.2.3.2 is required for port-security.</para>
       <para>Prior to config, make sure to create all necessaries VLANs and config the appropriate uplink
       port.</para>
-      <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+      <listitem>
+        <para>Global config settings</para>
+      </listitem>
       <para>snmp-server community public ro</para>
       <para>snmp-server community private rw</para>
       <para>!</para>
@@ -1997,7 +2265,9 @@
       <para>snmp-server host 192.168.1.5 public version 2c udp-port 162</para>
       <para>snmp-server notify-filter traphost.192.168.1.5.public remote 192.168.1.5</para>
       <para />
-      <para>❏&#160; &#160; &#160; &#160; On each interface (except uplink)</para>
+      <listitem>
+        <para>On each interface (except uplink)</para>
+      </listitem>
       <para>port security max-mac-count 1</para>
       <para>port security</para>
       <para>port security action trap</para>
@@ -2022,20 +2292,26 @@
     <para />
     <orderedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; linkUp/linkDown</para>
+        <listitem>
+          <para>linkUp/linkDown</para>
+        </listitem>
         <para />
       </listitem>
     </orderedlist>
     <para>Don't forget to update the startup config !</para>
     <para />
     <para>SRW224G4</para>
-    <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+    <listitem>
+      <para>Global config settings</para>
+    </listitem>
     <para>no snmp-server trap authentication</para>
     <para>snmp-server community CS_2000_le rw view Default</para>
     <para>snmp-server community CS_2000_ls ro view Default</para>
     <para>snmp-server host 192.168.1.5 public 2</para>
     <para />
-    <para>❏&#160; &#160; &#160; &#160; On each interface</para>
+    <listitem>
+      <para>On each interface</para>
+    </listitem>
     <para>switchport access vlan 4</para>
     <para />
   </sect1>
@@ -2046,13 +2322,17 @@
     types:</para>
     <orderedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; Port Security (with static MACs) – called Trusted MAC table</para>
+        <listitem>
+          <para>Port Security (with static MACs) – called Trusted MAC table</para>
+        </listitem>
       </listitem>
     </orderedlist>
     <para />
     <para>Using the HTTP GUI, follow the steps below to configure such feature. Of course, you must create all your
     VLANs on the switch as well.</para>
-    <para>❏&#160; &#160; &#160; &#160; SNMP Settings</para>
+    <listitem>
+      <para>SNMP Settings</para>
+    </listitem>
     <para>&#160; &#160; &#160; &#160; In Advanced -&gt; SNMP -&gt; Community Table , create a read-write community
     string and a trap community string. &#160;You can use the same community for all the 3 functions (Get, Set,
     Trap). &#160;</para>
@@ -2062,7 +2342,9 @@
     <para>&#160; &#160; &#160; &#160; Finally, under &#160;Advanced -&gt; SNMP -&gt; Trap Setting, enable the
     authentication trap.</para>
     <para />
-    <para>❏&#160; &#160; &#160; &#160; Trusted MAC Security</para>
+    <listitem>
+      <para>Trusted MAC Security</para>
+    </listitem>
     <para>&#160; &#160; &#160; &#160; Under Advanced -&gt; Advanced Security -&gt; Trusted MAC Address, create a
     fake MAC address per port (ie. 02:00:00:00:00:xx where xx is the port number). This will have the effect of
     sending a security trap to PacketFence when a new device plugs on the port.</para>
@@ -2074,7 +2356,9 @@
     <para>PacketFence supports Nortel switches with VoIP using one trap type:</para>
     <orderedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; Mac Security</para>
+        <listitem>
+          <para>Mac Security</para>
+        </listitem>
       </listitem>
     </orderedlist>
     <para>Don't forget to update the startup config !</para>
@@ -2082,7 +2366,9 @@
     module called Nortel::BayStack5500_6x in your /usr/local/pf/conf/switches.conf. Indeed, Nortel introduced an
     incompatible change of behavior in this firmware.</para>
     <para>BayStack 470, ERS2500 Series, ERS4500 Series, 4550, 5500 Series and ES325</para>
-    <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+    <listitem>
+      <para>Global config settings</para>
+    </listitem>
     <para>snmp-server authentication-trap disable</para>
     <para>snmp-server host 192.168.1.5 "public"</para>
     <para>snmp trap link-status port 1-24 disable</para>
@@ -2096,7 +2382,9 @@
     filtering enablemac-security snmp-trap enablemac-security auto-learning aging-time 60mac-security
     learning-ports NONEmac-security learning disable</para>
     <para />
-    <para>❏&#160; &#160; &#160; &#160; VoIP support</para>
+    <listitem>
+      <para>VoIP support</para>
+    </listitem>
     <para>You need to ensure that all your ports are tagged with the voice VLAN. &#160;The switch should do the
     rest for you.</para>
     <para>vlan create 6 name "Telephone" type port learning ivl</para>
@@ -2104,7 +2392,9 @@
     <para />
     <para>BPS2000</para>
     <para>You can only configure this switch through menus.</para>
-    <para>❏&#160; &#160; &#160; &#160; Enable “MAC Address Security”:</para>
+    <listitem>
+      <para>Enable “MAC Address Security”:</para>
+    </listitem>
     <para>MAC Address Security: Enabled</para>
     <para>MAC Address Security SNMP-Locked: Disabled</para>
     <para>Partition Port on Intrusion Detected: Disabled</para>
@@ -2125,8 +2415,12 @@
     <para>PacketFence supports these switches without VoIP using two different trap types:</para>
     <orderedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; linkUp/linkDown on 6128L2, 6224M, 8824M and 8848M</para>
-        <para>❏&#160; &#160; &#160; &#160; Port Security (with static MACs) on 6128L2, 8824M and 8848M</para>
+        <listitem>
+          <para>linkUp/linkDown on 6128L2, 6224M, 8824M and 8848M</para>
+        </listitem>
+        <listitem>
+          <para>Port Security (with static MACs) on 6128L2, 8824M and 8848M</para>
+        </listitem>
       </listitem>
     </orderedlist>
     <para>We recommend to enable Port Security only.</para>
@@ -2136,21 +2430,29 @@
     <para>PacketFence supports these switches without VoIP using two different trap types:</para>
     <orderedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; linkUp/linkDown</para>
-        <para>❏&#160; &#160; &#160; &#160; Port Security (with static MACs)</para>
+        <listitem>
+          <para>linkUp/linkDown</para>
+        </listitem>
+        <listitem>
+          <para>Port Security (with static MACs)</para>
+        </listitem>
       </listitem>
     </orderedlist>
     <para>We recommend to enable Port Security only.</para>
     <para />
     <orderedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+        <listitem>
+          <para>Global config settings</para>
+        </listitem>
       </listitem>
     </orderedlist>
     <para>SNMP-server host 192.168.1.5 public version 2c udp-port 162no snmp-server enable traps
     link-up-down</para>
     <para />
-    <para>❏&#160; &#160; &#160; &#160; On each interface:</para>
+    <listitem>
+      <para>On each interface:</para>
+    </listitem>
     <para>port security max-mac-count 1</para>
     <para>port security</para>
     <para>port security action trap</para>
@@ -2158,11 +2460,15 @@
     <para>TigerStack 6224M</para>
     <orderedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; linkUp/linkDown</para>
+        <listitem>
+          <para>linkUp/linkDown</para>
+        </listitem>
       </listitem>
     </orderedlist>
     <para />
-    <para>❏&#160; &#160; &#160; &#160; Global config settings</para>
+    <listitem>
+      <para>Global config settings</para>
+    </listitem>
     <para>SNMP-server host 192.168.1.5 public version 1</para>
   </sect1>
 </chapter>
@@ -2172,19 +2478,45 @@
     <title>Assumptions</title>
     <para>Throughout this configuration example we use the following assumptions for our network
     infrastructure:</para>
-    <para>❏&#160; &#160; &#160; &#160; PacketFence is fully configured with FreeRADIUS running</para>
-    <para>❏&#160; &#160; &#160; &#160; PacketFence IP address: 192.168.1.5</para>
-    <para>❏&#160; &#160; &#160; &#160; Normal VLAN: 1</para>
-    <para>❏&#160; &#160; &#160; &#160; Registration VLAN: 2</para>
-    <para>❏&#160; &#160; &#160; &#160; Isolation VLAN: 3</para>
-    <para>❏&#160; &#160; &#160; &#160; MAC Detection VLAN: 4</para>
-    <para>❏&#160; &#160; &#160; &#160; Guest VLAN: 5</para>
-    <para>❏&#160; &#160; &#160; &#160; VoIP, Voice VLAN: 100</para>
-    <para>❏&#160; &#160; &#160; &#160; use SNMP v2c</para>
-    <para>❏&#160; &#160; &#160; &#160; SNMP community name: public</para>
-    <para>❏&#160; &#160; &#160; &#160; RADIUS Secret: useStrongerSecret</para>
-    <para>❏&#160; &#160; &#160; &#160; Open SSID PacketFence-Public</para>
-    <para>❏&#160; &#160; &#160; &#160; WPA-Enterprise SSID PacketFence-Secure</para>
+    <listitem>
+      <para>PacketFence is fully configured with FreeRADIUS running</para>
+    </listitem>
+    <listitem>
+      <para>PacketFence IP address: 192.168.1.5</para>
+    </listitem>
+    <listitem>
+      <para>Normal VLAN: 1</para>
+    </listitem>
+    <listitem>
+      <para>Registration VLAN: 2</para>
+    </listitem>
+    <listitem>
+      <para>Isolation VLAN: 3</para>
+    </listitem>
+    <listitem>
+      <para>MAC Detection VLAN: 4</para>
+    </listitem>
+    <listitem>
+      <para>Guest VLAN: 5</para>
+    </listitem>
+    <listitem>
+      <para>VoIP, Voice VLAN: 100</para>
+    </listitem>
+    <listitem>
+      <para>use SNMP v2c</para>
+    </listitem>
+    <listitem>
+      <para>SNMP community name: public</para>
+    </listitem>
+    <listitem>
+      <para>RADIUS Secret: useStrongerSecret</para>
+    </listitem>
+    <listitem>
+      <para>Open SSID PacketFence-Public</para>
+    </listitem>
+    <listitem>
+      <para>WPA-Enterprise SSID PacketFence-Secure</para>
+    </listitem>
     <para />
   </sect1>
   <sect1>
@@ -2199,17 +2531,27 @@
     give it a try. The next section covers the objectives that you want to accomplish for trying out your equipment
     even if we don't have configuration for it.</para>
     <para>Here are the high-level requirements for proper wireless integration with PacketFence</para>
-    <para>❏&#160; &#160; &#160; &#160; The appropriate VLANs must exist</para>
-    <para>❏&#160; &#160; &#160; &#160; Allow controller to honor VLAN assignments from AAA (sometimes called AAA
-    override)</para>
-    <para>❏&#160; &#160; &#160; &#160; Put your open SSID (if any) in MAC-Authentication mode and authenticate
-    against the FreeRADIUS hosted on PacketFence</para>
-    <para>❏&#160; &#160; &#160; &#160; Put your secure SSID (if any) in 802.1X mode and authenticate against
-    FreeRADIUS hosted on PacketFence.</para>
-    <para>❏&#160; &#160; &#160; &#160; On registration / isolation VLANs the DHCP traffic must reach the
-    PacketFence server</para>
-    <para>❏&#160; &#160; &#160; &#160; On your production VLANs a copy of the DHCP traffic must reach PacketFence
-    where a pfdhcplistener listens (configurable in pf.conf under interfaces)</para>
+    <listitem>
+      <para>The appropriate VLANs must exist</para>
+    </listitem>
+    <listitem>
+      <para>Allow controller to honor VLAN assignments from AAA (sometimes called AAA override)</para>
+    </listitem>
+    <listitem>
+      <para>Put your open SSID (if any) in MAC-Authentication mode and authenticate against the FreeRADIUS hosted
+      on PacketFence</para>
+    </listitem>
+    <listitem>
+      <para>Put your secure SSID (if any) in 802.1X mode and authenticate against FreeRADIUS hosted on
+      PacketFence.</para>
+    </listitem>
+    <listitem>
+      <para>On registration / isolation VLANs the DHCP traffic must reach the PacketFence server</para>
+    </listitem>
+    <listitem>
+      <para>On your production VLANs a copy of the DHCP traffic must reach PacketFence where a pfdhcplistener
+      listens (configurable in pf.conf under interfaces)</para>
+    </listitem>
     <para>At this point, user registration with the captive-portal is possible and registered users should have
     access to the appropriate VLANs. However, VLAN changes (like after a registration) won't automatically happen,
     you will need to disconnect / reconnect. An explanation is provided in introduction section above about this
@@ -2233,28 +2575,50 @@
       <title>AAA Client Settings</title>
       <para>In the HVM, go to Configuration -&gt; AAA Authentication -&gt; AAA Client Settings, and insert the
       proper properties :</para>
-      <para>❏&#160; &#160; &#160; &#160; Give a RADIUS Name</para>
-      <para>❏&#160; &#160; &#160; &#160; Add a RADIUS server with Authentication as the server type and primary as
-      the role</para>
-      <para>❏&#160; &#160; &#160; &#160; Make sure Permit Dynamic Change of Authorization is ticked (RFC
-      3576)</para>
+      <listitem>
+        <para>Give a RADIUS Name</para>
+      </listitem>
+      <listitem>
+        <para>Add a RADIUS server with Authentication as the server type and primary as the role</para>
+      </listitem>
+      <listitem>
+        <para>Make sure Permit Dynamic Change of Authorization is ticked (RFC 3576)</para>
+      </listitem>
     </sect2>
     <sect2>
       <title>Public SSID</title>
       <para>Again in the HVM, go to Configuration -&gt; SSIDs, and create a new SSID with the following :</para>
-      <para>❏&#160; &#160; &#160; &#160; Give a Profile Name and an SSID Name</para>
-      <para>❏&#160; &#160; &#160; &#160; Choose Open as the Access Security</para>
-      <para>❏&#160; &#160; &#160; &#160; Select Enable Mac Authentication</para>
-      <para>❏&#160; &#160; &#160; &#160; Select your RADIUS server from the RADIUS Server dropdown list</para>
+      <listitem>
+        <para>Give a Profile Name and an SSID Name</para>
+      </listitem>
+      <listitem>
+        <para>Choose Open as the Access Security</para>
+      </listitem>
+      <listitem>
+        <para>Select Enable Mac Authentication</para>
+      </listitem>
+      <listitem>
+        <para>Select your RADIUS server from the RADIUS Server dropdown list</para>
+      </listitem>
     </sect2>
     <sect2>
       <title>Secure SSID</title>
       <para>In the HVM, go to Configuration -&gt; SSIDs, and create a new SSID with the following :</para>
-      <para>❏&#160; &#160; &#160; &#160; Give a Profile Name and an SSID Name</para>
-      <para>❏&#160; &#160; &#160; &#160; Choose WPA2 Enterprise as the Access Security</para>
-      <para>❏&#160; &#160; &#160; &#160; Select WPA2-802.1X as the key management</para>
-      <para>❏&#160; &#160; &#160; &#160; Select CCMP as the encryption method</para>
-      <para>❏&#160; &#160; &#160; &#160; Select your RADIUS server from the RADIUS Server dropdown list</para>
+      <listitem>
+        <para>Give a Profile Name and an SSID Name</para>
+      </listitem>
+      <listitem>
+        <para>Choose WPA2 Enterprise as the Access Security</para>
+      </listitem>
+      <listitem>
+        <para>Select WPA2-802.1X as the key management</para>
+      </listitem>
+      <listitem>
+        <para>Select CCMP as the encryption method</para>
+      </listitem>
+      <listitem>
+        <para>Select your RADIUS server from the RADIUS Server dropdown list</para>
+      </listitem>
     </sect2>
     <sect2>
       <title>Caching and Roaming</title>
@@ -2283,9 +2647,15 @@
       <title>AAA Settings</title>
       <para>In the Web interface, go to Configuration -&gt; Authentication -&gt; RADIUS Server and add a RADIUS
       server named “packetfence” then edit it:</para>
-      <para>❏&#160; &#160; &#160; &#160; Set Host to PacketFence's IP (192.168.1.5)</para>
-      <para>❏&#160; &#160; &#160; &#160; Set the Key to your RADIUS shared secret (useStrongerSecret)</para>
-      <para>❏&#160; &#160; &#160; &#160; Click Apply</para>
+      <listitem>
+        <para>Set Host to PacketFence's IP (192.168.1.5)</para>
+      </listitem>
+      <listitem>
+        <para>Set the Key to your RADIUS shared secret (useStrongerSecret)</para>
+      </listitem>
+      <listitem>
+        <para>Click Apply</para>
+      </listitem>
       <para>Under Configuration -&gt; Authentication -&gt; Server Group add a new Server Group named “packetfence”
       then edit it to add your RADIUS Server “packetfence” to the group. Click Apply.</para>
       <para>Under Configuration -&gt; Authentication -&gt; RFC3576 add a new server with PacketFence's IP
@@ -2305,17 +2675,25 @@
       <title>Public SSID</title>
       <para>In the Web interface, go to Configuration -&gt; AP Configuration then edit the “default” AP Group. Go
       in Wireless LAN -&gt; Virtual AP create a new profile with the following :</para>
-      <para>❏&#160; &#160; &#160; &#160; AAA Profile: default-mac-auth</para>
-      <para>❏&#160; &#160; &#160; &#160; SSID Profile: Select NEW then add an SSID (PacketFence-Public) and Network
-      authentication set to None</para>
+      <listitem>
+        <para>AAA Profile: default-mac-auth</para>
+      </listitem>
+      <listitem>
+        <para>SSID Profile: Select NEW then add an SSID (PacketFence-Public) and Network authentication set to
+        None</para>
+      </listitem>
     </sect2>
     <sect2>
       <title>Secure SSID</title>
       <para>In the Web interface, go to Configuration -&gt; AP Configuration then edit the “default” AP Group. Go
       in Wireless LAN -&gt; Virtual AP create a new profile with the following :</para>
-      <para>❏&#160; &#160; &#160; &#160; AAA Profile: default-dot1x</para>
-      <para>❏&#160; &#160; &#160; &#160; SSID Profile: Select NEW then add an SSID (PacketFence-Secure) and Network
-      authentication set to WPA2</para>
+      <listitem>
+        <para>AAA Profile: default-dot1x</para>
+      </listitem>
+      <listitem>
+        <para>SSID Profile: Select NEW then add an SSID (PacketFence-Secure) and Network authentication set to
+        WPA2</para>
+      </listitem>
       <para />
       <para>Aruba Controller 200</para>
       <para>In this section, we cover the basic configuration of the Aruba Controller 200 for PacketFence using the
@@ -2489,16 +2867,27 @@
     UI, go to WLAN Settings -&gt; ESSID definitions. &#160;Create the profiles per the following:</para>
     <sect2>
       <title>Public SSID</title>
-      <para>❏&#160; &#160; &#160; &#160; MAC Authentication must be ticked</para>
-      <para>❏&#160; &#160; &#160; &#160; Encryption method needs to be set to None</para>
-      <para>❏&#160; &#160; &#160; &#160; Select PacketFence as the MAC Authentication RADIUS server (previously
-      added)</para>
+      <listitem>
+        <para>MAC Authentication must be ticked</para>
+      </listitem>
+      <listitem>
+        <para>Encryption method needs to be set to None</para>
+      </listitem>
+      <listitem>
+        <para>Select PacketFence as the MAC Authentication RADIUS server (previously added)</para>
+      </listitem>
     </sect2>
     <sect2>
       <title>Secure SSID</title>
-      <para>❏&#160; &#160; &#160; &#160; Encryption method needs to be set to WPA Enterprise/WPA2 Enterprise</para>
-      <para>❏&#160; &#160; &#160; &#160; AES only needs to be selected</para>
-      <para>❏&#160; &#160; &#160; &#160; Select PacketFence as the RADIUS server (previously added)</para>
+      <listitem>
+        <para>Encryption method needs to be set to WPA Enterprise/WPA2 Enterprise</para>
+      </listitem>
+      <listitem>
+        <para>AES only needs to be selected</para>
+      </listitem>
+      <listitem>
+        <para>Select PacketFence as the RADIUS server (previously added)</para>
+      </listitem>
       <para />
       <para>The final step is to enable SNMP Agent and SNMP Traps on the controller. &#160;This is done under the
       following tab in the administrative UI : Advanced -&gt; SNMP</para>
@@ -2518,16 +2907,30 @@
       <title>VLAN Definition</title>
       <para>Here, we create our PacketFence VLANs for client use. &#160;Go to Configuration -&gt; Wired -&gt; VLAN,
       and select Add.</para>
-      <para>❏&#160; &#160; &#160; &#160; VLAN Name is the human readable name (ie. RegistrationVLAN)</para>
-      <para>❏&#160; &#160; &#160; &#160; Tag is the VLAN ID</para>
-      <para>❏&#160; &#160; &#160; &#160; Fast Ethernet Interface Index refers to the controller's ethernet
-      interface</para>
-      <para>❏&#160; &#160; &#160; &#160; IP Address – An IP address for this controller on this VLAN</para>
-      <para>❏&#160; &#160; &#160; &#160; Netmask – Network mask for this VLAN</para>
-      <para>❏&#160; &#160; &#160; &#160; IP Address of the default gateway – Wired IP router for this VLAN</para>
-      <para>❏&#160; &#160; &#160; &#160; Set the Override Default DHCP server flag to off</para>
-      <para>❏&#160; &#160; &#160; &#160; Leave the DHCP server IP address and the DHCP relay Pass-Through to
-      default</para>
+      <listitem>
+        <para>VLAN Name is the human readable name (ie. RegistrationVLAN)</para>
+      </listitem>
+      <listitem>
+        <para>Tag is the VLAN ID</para>
+      </listitem>
+      <listitem>
+        <para>Fast Ethernet Interface Index refers to the controller's ethernet interface</para>
+      </listitem>
+      <listitem>
+        <para>IP Address – An IP address for this controller on this VLAN</para>
+      </listitem>
+      <listitem>
+        <para>Netmask – Network mask for this VLAN</para>
+      </listitem>
+      <listitem>
+        <para>IP Address of the default gateway – Wired IP router for this VLAN</para>
+      </listitem>
+      <listitem>
+        <para>Set the Override Default DHCP server flag to off</para>
+      </listitem>
+      <listitem>
+        <para>Leave the DHCP server IP address and the DHCP relay Pass-Through to default</para>
+      </listitem>
       <para />
       <para>Click OK to add the VLAN.</para>
       <para />
@@ -2536,12 +2939,21 @@
       <title>AAA Authentication Server</title>
       <para>Here, we create our PacketFence RADIUS server for use. &#160;Under Configuration -&gt; Security -&gt;
       Radius, select Add.</para>
-      <para>❏&#160; &#160; &#160; &#160; Give the RADIUS Profile a name</para>
-      <para>❏&#160; &#160; &#160; &#160; Write a description of the profile</para>
-      <para>❏&#160; &#160; &#160; &#160; Give the RADIUS IP, RADIUS Secret and the RADIUS authentication
-      port</para>
-      <para>❏&#160; &#160; &#160; &#160; Select Colon for the MAC address delimiter</para>
-      <para>❏&#160; &#160; &#160; &#160; Select MAC Address as the password type</para>
+      <listitem>
+        <para>Give the RADIUS Profile a name</para>
+      </listitem>
+      <listitem>
+        <para>Write a description of the profile</para>
+      </listitem>
+      <listitem>
+        <para>Give the RADIUS IP, RADIUS Secret and the RADIUS authentication port</para>
+      </listitem>
+      <listitem>
+        <para>Select Colon for the MAC address delimiter</para>
+      </listitem>
+      <listitem>
+        <para>Select MAC Address as the password type</para>
+      </listitem>
       <para />
       <para>Click OK to add the RADIUS profile.</para>
     </sect2>
@@ -2549,22 +2961,42 @@
       <title>AAA Accounting Server</title>
       <para>Here, we create our PacketFence RADIUS server for use. &#160;Under Configuration -&gt; Security -&gt;
       Radius, select Add.</para>
-      <para>❏&#160; &#160; &#160; &#160; Give the RADIUS Profile a name</para>
-      <para>❏&#160; &#160; &#160; &#160; Write a description of the profile</para>
-      <para>❏&#160; &#160; &#160; &#160; Give the RADIUS IP, RADIUS Secret and the RADIUS accounting port</para>
-      <para>❏&#160; &#160; &#160; &#160; Select Colon for the MAC address delimiter</para>
-      <para>❏&#160; &#160; &#160; &#160; Select MAC Address as the password type</para>
+      <listitem>
+        <para>Give the RADIUS Profile a name</para>
+      </listitem>
+      <listitem>
+        <para>Write a description of the profile</para>
+      </listitem>
+      <listitem>
+        <para>Give the RADIUS IP, RADIUS Secret and the RADIUS accounting port</para>
+      </listitem>
+      <listitem>
+        <para>Select Colon for the MAC address delimiter</para>
+      </listitem>
+      <listitem>
+        <para>Select MAC Address as the password type</para>
+      </listitem>
       <para>Click OK to add the RADIUS accounting profile.</para>
     </sect2>
     <sect2>
       <title>AAA Profiles – Open SSID</title>
       <para>Here, we create our wireless security profiles for use. &#160;Under Configuration -&gt; Security -&gt;
       Profile, select Add.</para>
-      <para>❏&#160; &#160; &#160; &#160; Give the security profile a name</para>
-      <para>❏&#160; &#160; &#160; &#160; Select Clear as the L2 Modes Allowed</para>
-      <para>❏&#160; &#160; &#160; &#160; Leave Data Encrypt empty</para>
-      <para>❏&#160; &#160; &#160; &#160; Disable the Captive Portal</para>
-      <para>❏&#160; &#160; &#160; &#160; Enable the Mac Filtering</para>
+      <listitem>
+        <para>Give the security profile a name</para>
+      </listitem>
+      <listitem>
+        <para>Select Clear as the L2 Modes Allowed</para>
+      </listitem>
+      <listitem>
+        <para>Leave Data Encrypt empty</para>
+      </listitem>
+      <listitem>
+        <para>Disable the Captive Portal</para>
+      </listitem>
+      <listitem>
+        <para>Enable the Mac Filtering</para>
+      </listitem>
       <para />
       <para>Click OK to save the profile.</para>
     </sect2>
@@ -2572,21 +3004,39 @@
       <title>MAC Filtering</title>
       <para>When using the OpenSSID, you need to activate the mac filtering. &#160;Under Configuration -&gt; Mac
       Filtering :</para>
-      <para>❏&#160; &#160; &#160; &#160; Set ACL Environment State to Permit list enabled</para>
-      <para>❏&#160; &#160; &#160; &#160; Select your RADIUS profile</para>
+      <listitem>
+        <para>Set ACL Environment State to Permit list enabled</para>
+      </listitem>
+      <listitem>
+        <para>Select your RADIUS profile</para>
+      </listitem>
       <para />
     </sect2>
     <sect2>
       <title>AAA Profiles – Secure SSID</title>
       <para>Here, we create our wireless security profiles for use. &#160;Under Configuration -&gt; Security -&gt;
       Profile, select Add.</para>
-      <para>❏&#160; &#160; &#160; &#160; Give the security profile a name</para>
-      <para>❏&#160; &#160; &#160; &#160; Select WPA2 as the L2 Modes Allowed</para>
-      <para>❏&#160; &#160; &#160; &#160; Select CCMP-AES for Data Encrypt</para>
-      <para>❏&#160; &#160; &#160; &#160; Select your PacketFence RADIUS Authentication Profile</para>
-      <para>❏&#160; &#160; &#160; &#160; Disable the Captive Portal</para>
-      <para>❏&#160; &#160; &#160; &#160; Enable the 802.1X network initiation</para>
-      <para>❏&#160; &#160; &#160; &#160; Leave the Mac Filetering to off</para>
+      <listitem>
+        <para>Give the security profile a name</para>
+      </listitem>
+      <listitem>
+        <para>Select WPA2 as the L2 Modes Allowed</para>
+      </listitem>
+      <listitem>
+        <para>Select CCMP-AES for Data Encrypt</para>
+      </listitem>
+      <listitem>
+        <para>Select your PacketFence RADIUS Authentication Profile</para>
+      </listitem>
+      <listitem>
+        <para>Disable the Captive Portal</para>
+      </listitem>
+      <listitem>
+        <para>Enable the 802.1X network initiation</para>
+      </listitem>
+      <listitem>
+        <para>Leave the Mac Filetering to off</para>
+      </listitem>
       <para />
       <para>Click OK to save the profile.</para>
     </sect2>
@@ -2594,15 +3044,30 @@
       <title>WLAN SSIDs</title>
       <para>Here, we create our SSID and tie it to a security profile. &#160;Under Configuration -&gt; Wireless
       -&gt; ESS, select Add.</para>
-      <para>❏&#160; &#160; &#160; &#160; Give the ESS profile a name, and enable it</para>
-      <para>❏&#160; &#160; &#160; &#160; Write an SSID name</para>
-      <para>❏&#160; &#160; &#160; &#160; Select your security profile name previously created</para>
-      <para>❏&#160; &#160; &#160; &#160; Select your PacketFence RADIUS Accounting Profile (if you want to do
-      accounting)</para>
-      <para>❏&#160; &#160; &#160; &#160; Enable the SSID Broadcast</para>
-      <para>❏&#160; &#160; &#160; &#160; Make the new AP to join the ESS</para>
-      <para>❏&#160; &#160; &#160; &#160; Set the tunnel interface type to RADIUS and Configured VLAN</para>
-      <para>❏&#160; &#160; &#160; &#160; Select the registration VLAN for the VLAN Name</para>
+      <listitem>
+        <para>Give the ESS profile a name, and enable it</para>
+      </listitem>
+      <listitem>
+        <para>Write an SSID name</para>
+      </listitem>
+      <listitem>
+        <para>Select your security profile name previously created</para>
+      </listitem>
+      <listitem>
+        <para>Select your PacketFence RADIUS Accounting Profile (if you want to do accounting)</para>
+      </listitem>
+      <listitem>
+        <para>Enable the SSID Broadcast</para>
+      </listitem>
+      <listitem>
+        <para>Make the new AP to join the ESS</para>
+      </listitem>
+      <listitem>
+        <para>Set the tunnel interface type to RADIUS and Configured VLAN</para>
+      </listitem>
+      <listitem>
+        <para>Select the registration VLAN for the VLAN Name</para>
+      </listitem>
       <para />
       <para>Click OK to create the SSID. &#160;Repeat those steps for the open and secure SSID by choosing the
       right security profile.</para>
@@ -2612,8 +3077,12 @@
       <title>WLAN SSIDs – Adding to access point</title>
       <para>Here, we tie our SSIDs to access points. &#160;Under Configuration -&gt; Wireless -&gt; ESS, select the
       SSID you want to add to your aps. &#160;Then, select the ESS-AP Table, and click Add</para>
-      <para>❏&#160; &#160; &#160; &#160; Select the AP ID from the drop down list</para>
-      <para>❏&#160; &#160; &#160; &#160; Click OK to associate the SSID with this AP</para>
+      <listitem>
+        <para>Select the AP ID from the drop down list</para>
+      </listitem>
+      <listitem>
+        <para>Click OK to associate the SSID with this AP</para>
+      </listitem>
       <para />
     </sect2>
   </sect1>
@@ -2627,10 +3096,15 @@
       <title>AAA Policy (RADIUS server)</title>
       <para>First, we need to build the AAA Policy. &#160;Under Configuration -&gt; Wireless -&gt; AAA Policy,
       click on the Add button at the bottom right. &#160;Configure the RADIUS profile like the following :</para>
-      <para>❏&#160; &#160; &#160; &#160; Host: &#160;Choose IP Address in the drop down, and put the RADIUS server
-      (PF) IP</para>
-      <para>❏&#160; &#160; &#160; &#160; Insert a RADIUS secret passphrase</para>
-      <para>❏&#160; &#160; &#160; &#160; Select “Through Wireless Controller” Request Mode</para>
+      <listitem>
+        <para>Host: &#160;Choose IP Address in the drop down, and put the RADIUS server (PF) IP</para>
+      </listitem>
+      <listitem>
+        <para>Insert a RADIUS secret passphrase</para>
+      </listitem>
+      <listitem>
+        <para>Select “Through Wireless Controller” Request Mode</para>
+      </listitem>
       <para />
       <para>Since we are using RADIUS Dynamic Authorization, we need to enable the accounting. &#160;Under the
       RADIUS accounting tab, &#160;click the Add button at the bottom right, and insert the proper values.
@@ -2641,38 +3115,76 @@
       <title>Open SSID</title>
       <para>Under Configuration -&gt; Wireless -&gt; Wireless LANs, &#160;click on the Add button at the bottom
       right. &#160;Under Basic Configuration &#160;:</para>
-      <para>❏&#160; &#160; &#160; &#160; Profile Name : Give a convenient name</para>
-      <para>❏&#160; &#160; &#160; &#160; SSID: &#160;This is the ESSID name</para>
-      <para>❏&#160; &#160; &#160; &#160; Ensure that the WLAN Status is set to enable</para>
-      <para>❏&#160; &#160; &#160; &#160; Select Single VLAN as VLAN assignment technique</para>
-      <para>❏&#160; &#160; &#160; &#160; Ensure that “Allow RADIUS Override” is selected</para>
+      <listitem>
+        <para>Profile Name : Give a convenient name</para>
+      </listitem>
+      <listitem>
+        <para>SSID: &#160;This is the ESSID name</para>
+      </listitem>
+      <listitem>
+        <para>Ensure that the WLAN Status is set to enable</para>
+      </listitem>
+      <listitem>
+        <para>Select Single VLAN as VLAN assignment technique</para>
+      </listitem>
+      <listitem>
+        <para>Ensure that “Allow RADIUS Override” is selected</para>
+      </listitem>
       <para />
       <para>Now, for the Security configuration :</para>
-      <para>❏&#160; &#160; &#160; &#160; Select MAC as authentication type</para>
-      <para>❏&#160; &#160; &#160; &#160; Select your AAA Policy previously created</para>
-      <para>❏&#160; &#160; &#160; &#160; Ensure that you selected Open as the Encryption</para>
+      <listitem>
+        <para>Select MAC as authentication type</para>
+      </listitem>
+      <listitem>
+        <para>Select your AAA Policy previously created</para>
+      </listitem>
+      <listitem>
+        <para>Ensure that you selected Open as the Encryption</para>
+      </listitem>
       <para />
       <para>Now, for the Advanced configuration :</para>
-      <para>❏&#160; &#160; &#160; &#160; Make sure you select RADIUS Dynamic Authorization</para>
+      <listitem>
+        <para>Make sure you select RADIUS Dynamic Authorization</para>
+      </listitem>
     </sect2>
     <sect2>
       <title>Secure SSID</title>
       <para>Under Configuration -&gt; Wireless -&gt; Wireless LANs, &#160;click on the Add button at the bottom
       right. &#160;Under Basic Configuration &#160;:</para>
-      <para>❏&#160; &#160; &#160; &#160; Profile Name : Give a convenient name</para>
-      <para>❏&#160; &#160; &#160; &#160; SSID: &#160;This is the ESSID name</para>
-      <para>❏&#160; &#160; &#160; &#160; Ensure that the WLAN Status is set to enable</para>
-      <para>❏&#160; &#160; &#160; &#160; Select Single VLAN as VLAN assignment technique</para>
-      <para>❏&#160; &#160; &#160; &#160; Ensure that “Allow RADIUS Override” is selected</para>
+      <listitem>
+        <para>Profile Name : Give a convenient name</para>
+      </listitem>
+      <listitem>
+        <para>SSID: &#160;This is the ESSID name</para>
+      </listitem>
+      <listitem>
+        <para>Ensure that the WLAN Status is set to enable</para>
+      </listitem>
+      <listitem>
+        <para>Select Single VLAN as VLAN assignment technique</para>
+      </listitem>
+      <listitem>
+        <para>Ensure that “Allow RADIUS Override” is selected</para>
+      </listitem>
       <para />
       <para>Now, for the Security configuration :</para>
-      <para>❏&#160; &#160; &#160; &#160; Select EAP as authentication type</para>
-      <para>❏&#160; &#160; &#160; &#160; Select your AAA Policy previously created</para>
-      <para>❏&#160; &#160; &#160; &#160; Ensure that you selected WPA/WPA2-TKIP as the Encryption</para>
-      <para>❏&#160; &#160; &#160; &#160; Unselect everything under Fast Roaming (Disable caching)</para>
+      <listitem>
+        <para>Select EAP as authentication type</para>
+      </listitem>
+      <listitem>
+        <para>Select your AAA Policy previously created</para>
+      </listitem>
+      <listitem>
+        <para>Ensure that you selected WPA/WPA2-TKIP as the Encryption</para>
+      </listitem>
+      <listitem>
+        <para>Unselect everything under Fast Roaming (Disable caching)</para>
+      </listitem>
       <para />
       <para>Now, for the Advanced configuration :</para>
-      <para>❏&#160; &#160; &#160; &#160; Make sure you select RADIUS Dynamic Authorization</para>
+      <listitem>
+        <para>Make sure you select RADIUS Dynamic Authorization</para>
+      </listitem>
     </sect2>
     <sect2>
       <title>Profile (WLAN Mapping)</title>
@@ -2700,18 +3212,36 @@
     </sect2>
     <sect2>
       <title>Option for Public Wireless LAN</title>
-      <para>❏&#160; &#160; &#160; &#160; Check the Dynamic Assignment check-box</para>
-      <para>❏&#160; &#160; &#160; &#160; Select “MAC Authentication” under Authentication</para>
-      <para>❏&#160; &#160; &#160; &#160; Click “Config...” choose the Colon delimiter format</para>
-      <para>❏&#160; &#160; &#160; &#160; Un-check all encryption options</para>
-      <para>❏&#160; &#160; &#160; &#160; Under RADIUS put in PacketFence's RADIUS Server information</para>
+      <listitem>
+        <para>Check the Dynamic Assignment check-box</para>
+      </listitem>
+      <listitem>
+        <para>Select “MAC Authentication” under Authentication</para>
+      </listitem>
+      <listitem>
+        <para>Click “Config...” choose the Colon delimiter format</para>
+      </listitem>
+      <listitem>
+        <para>Un-check all encryption options</para>
+      </listitem>
+      <listitem>
+        <para>Under RADIUS put in PacketFence's RADIUS Server information</para>
+      </listitem>
     </sect2>
     <sect2>
       <title>Option for Secure Wireless LAN</title>
-      <para>❏&#160; &#160; &#160; &#160; Check the Dynamic Assignment check-box</para>
-      <para>❏&#160; &#160; &#160; &#160; Select “802.1X EAP” under Authentication</para>
-      <para>❏&#160; &#160; &#160; &#160; Check WPA/WPA2-TKIP encryption option</para>
-      <para>❏&#160; &#160; &#160; &#160; Under RADIUS put in PacketFence's RADIUS Server information</para>
+      <listitem>
+        <para>Check the Dynamic Assignment check-box</para>
+      </listitem>
+      <listitem>
+        <para>Select “802.1X EAP” under Authentication</para>
+      </listitem>
+      <listitem>
+        <para>Check WPA/WPA2-TKIP encryption option</para>
+      </listitem>
+      <listitem>
+        <para>Under RADIUS put in PacketFence's RADIUS Server information</para>
+      </listitem>
     </sect2>
     <sect2>
       <title>SNMP Global configuration</title>

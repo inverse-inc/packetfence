@@ -231,19 +231,29 @@
   <sect1>
     <title>Assumptions</title>
     <para>PacketFence reuses many components in an infrastructure. Thus, it requires the following ones:</para>
-    <orderedlist>
+    <itemizedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; Database server (MySQL)</para>
-        <para>❏&#160; &#160; &#160; &#160; Web server (Apache)</para>
-        <para />
-        <para>Depending on your setup you may have to install additional components like:</para>
-        <para>❏&#160; &#160; &#160; &#160; DHCP server (ISC DHCP)</para>
-        <para>❏&#160; &#160; &#160; &#160; DNS server (BIND)</para>
-        <para>❏&#160; &#160; &#160; &#160; RADIUS server (FreeRADIUS)</para>
+        <para>Database server (MySQL)</para>
       </listitem>
-    </orderedlist>
-    <para>❏&#160; &#160; &#160; &#160; NIDS (Snort)</para>
-    <para />
+      <listitem>
+        <para>Web server (Apache)</para>
+      </listitem>
+    </itemizedlist>
+    <para>Depending on your setup you may have to install additional components like:</para>
+    <itemizedlist>
+      <listitem>
+        <para>DHCP server (ISC DHCP)</para>
+      </listitem>
+      <listitem>
+        <para>DNS server (BIND)</para>
+      </listitem>
+      <listitem>
+        <para>RADIUS server (FreeRADIUS)</para>
+      </listitem>
+      <listitem>
+        <para>NIDS (Snort)</para>
+      </listitem>
+    </itemizedlist>
     <para>In this guide, we assume that all those components are running on the same server (i.e., “localhost” or
     “127.0.0.1”) that PacketFence will be installed on.</para>
     <para>Good understanding of those underlying component and GNU/Linux is required to install PacketFence. If you
@@ -309,45 +319,37 @@
   </sect1>
   <sect1>
     <title>Minimum Hardware Requirements</title>
-    <para>The following table provides hardware recommendations for the server and desktops :</para>
-    <informaltable frame="all">
-      <tgroup cols="2">
-        <tbody>
-          <row>
-            <entry>
-              <para>Server</para>
-            </entry>
-            <entry>
-              <orderedlist>
-                <listitem>
-                  <para>◾ Intel or AMD CPU 3 GHz</para>
-                </listitem>
-              </orderedlist>
-              <orderedlist>
-                <listitem>
-                  <para>◾ 2048 MB of RAM</para>
-                </listitem>
-              </orderedlist>
-              <orderedlist>
-                <listitem>
-                  <para>◾ 20 GB of disk space (RAID 1 recommended)</para>
-                  <para>◾ 1 Network card</para>
-                </listitem>
-              </orderedlist>
-            </entry>
-          </row>
-        </tbody>
-      </tgroup>
-    </informaltable>
-    <para />
+    <para>The following provides hardware recommendations for the server:</para>
+    <itemizedlist>
+      <listitem>
+        <para>Intel or AMD CPU 3 GHz</para>
+      </listitem>
+      <listitem>
+        <para>2048 MB of RAM</para>
+      </listitem>
+      <listitem>
+        <para>20 GB of disk space (RAID 1 recommended)</para>
+      </listitem>
+      <listitem>
+        <para>1 Network card</para>
+        <itemizedlist>
+          <listitem>
+            <para>+1 for high-availability</para>
+            <para>+1 for intrusion detection (IDS) integration</para>
+          </listitem>
+        </itemizedlist>
+      </listitem>
+    </itemizedlist>
   </sect1>
   <sect1>
     <title>Operating System Requirements</title>
     <para>PacketFence supports the following operating systems on the i386 or x86_64 architectures:</para>
     <orderedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; Red Hat Enterprise Linux 5.x/6.x Server</para>
-        <para>❏&#160; &#160; &#160; &#160; Community ENTerprise Operating System (CentOS) 5.x/6.x</para>
+        <para>Red Hat Enterprise Linux 5.x/6.x Server</para>
+      </listitem>
+      <listitem>
+        <para>Community ENTerprise Operating System (CentOS) 5.x/6.x</para>
       </listitem>
     </orderedlist>
     <para />
@@ -359,15 +361,27 @@
     <para />
     <para>Services start-up</para>
     <para>PacketFence takes care of handling the operation of the following services:</para>
-    <para>❏&#160; &#160; &#160; &#160; Web server (httpd)</para>
-    <para>❏&#160; &#160; &#160; &#160; DHCP server (dhcpd)</para>
-    <para>❏&#160; &#160; &#160; &#160; DNS server (named)</para>
-    <para>❏&#160; &#160; &#160; &#160; FreeRADIUS server (radiusd)</para>
-    <para>❏&#160; &#160; &#160; &#160; Snort Network IDS (snort)</para>
-    <para>❏&#160; &#160; &#160; &#160; Firewall (iptables)</para>
-    <para />
+    <itemizedlist>
+      <listitem>
+        <para>Web server (httpd)</para>
+      </listitem>
+      <listitem>
+        <para>DHCP server (dhcpd)</para>
+      </listitem>
+      <listitem>
+        <para>DNS server (named)</para>
+      </listitem>
+      <listitem>
+        <para>FreeRADIUS server (radiusd)</para>
+      </listitem>
+      <listitem>
+        <para>Snort Network IDS (snort)</para>
+      </listitem>
+      <listitem>
+        <para>Firewall (iptables)</para>
+      </listitem>
+    </itemizedlist>
     <para>Make sure that all the other services are automatically started by your operating system!</para>
-    <para />
   </sect1>
 </chapter>
 <chapter>
@@ -376,13 +390,14 @@
   <sect1>
     <title>OS Installation</title>
     <para>Install your distribution with minimal installation and no additional packages. Then:</para>
-    <orderedlist>
+    <itemizedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; Enable Firewall</para>
-        <para>❏&#160; &#160; &#160; &#160; Disable SELinux</para>
-        <para />
+        <para>Enable Firewall</para>
       </listitem>
-    </orderedlist>
+      <listitem>
+        <para>Disable SELinux</para>
+      </listitem>
+    </itemizedlist>
     <para>Make sure your system is up to date and your yum database is updated:</para>
     <para>yum update</para>
     <para />
@@ -451,9 +466,17 @@
     RPM file.</para>
     <para>This repository contains all required dependencies to install PacketFence. This provides numerous
     advantages:</para>
-    <para>❏&#160; &#160; &#160; &#160; very easy installation</para>
-    <para>❏&#160; &#160; &#160; &#160; everything is packaged as RPM (no more CPAN hassle)</para>
-    <para>❏&#160; &#160; &#160; &#160; easy upgrade</para>
+    <itemizedlist>
+      <listitem>
+        <para>very easy installation</para>
+      </listitem>
+      <listitem>
+        <para>everything is packaged as RPM (no more CPAN hassle)</para>
+      </listitem>
+      <listitem>
+        <para>easy upgrade</para>
+      </listitem>
+    </itemizedlist>
   </sect1>
   <sect1>
     <title>Software Installation</title>
@@ -601,33 +624,45 @@
     configuration directly in the switches.conf file or you can do it in the Web Administration panel under
     Configuration -&gt; Switches.</para>
     <para>This files contains a default section including:</para>
-    <para>❏&#160; &#160; &#160; &#160; List of VLANs managed by PacketFence</para>
-    <orderedlist>
+    <itemizedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; Default SNMP read/write communities for the switches</para>
-        <para>❏&#160; &#160; &#160; &#160; Default working mode (see note about working mode below)</para>
+        <para>List of VLANs managed by PacketFence</para>
       </listitem>
-    </orderedlist>
+      <listitem>
+        <para>Default SNMP read/write communities for the switches</para>
+      </listitem>
+      <listitem>
+        <para>Default working mode (see note about working mode below)</para>
+      </listitem>
+    </itemizedlist>
     <para>and a switch section for each switch (managed by PacketFence) including:</para>
-    <orderedlist>
+    <itemizedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; Switch IP</para>
-        <para>❏&#160; &#160; &#160; &#160; Switch vendor/type</para>
-        <para>❏&#160; &#160; &#160; &#160; Switch uplink ports (trunks and non-managed ports)</para>
-        <para>❏&#160; &#160; &#160; &#160; per-switch re-definition of the vlans (if required)</para>
+        <para>Switch IP</para>
       </listitem>
-    </orderedlist>
-    <para />
+      <listitem>
+        <para>Switch vendor/type</para>
+      </listitem>
+      <listitem>
+        <para>Switch uplink ports (trunks and non-managed ports)</para>
+      </listitem>
+      <listitem>
+        <para>per-switch re-definition of the vlans (if required)</para>
+      </listitem>
+    </itemizedlist>
     <para>Working modes</para>
     <para>There are three different working modes:</para>
     <orderedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; Testing: pfsetvlan writes in the log files what it would normally do,
-        but it doesn't do anything.</para>
-        <para>❏&#160; &#160; &#160; &#160; Registration: pfsetvlan automatically-register all MAC addresses seen on
-        the switch ports. As in testing mode, no VLAN changes are done.</para>
-        <para>❏&#160; &#160; &#160; &#160; Production: pfsetvlan sends the SNMP writes to change the VLAN on the
-        switch ports.</para>
+        <para>Testing: pfsetvlan writes in the log files what it would normally do, but it doesn't do
+        anything.</para>
+      </listitem>
+      <listitem>
+        <para>Registration: pfsetvlan automatically-register all MAC addresses seen on the switch ports. As in
+        testing mode, no VLAN changes are done.</para>
+      </listitem>
+      <listitem>
+        <para>Production: pfsetvlan sends the SNMP writes to change the VLAN on the switch ports.</para>
       </listitem>
     </orderedlist>
     <para />
@@ -734,10 +769,8 @@
     way the redirection will be SSL based and you won't have certificate errors if your certificate's CN is
     matching PacketFence's fully qualified hostname.</para>
     <para>In summary:</para>
-    <para>&#160; &#160; &#160; &#160; ❏&#160; &#160; &#160; &#160; portal_redirect=ip – default, no HTTPS, no need
-    to modify DNS</para>
-    <para>&#160; &#160; &#160; &#160; ❏&#160; &#160; &#160; &#160; portal_redirect=dns – need to update your DNS,
-    portal will be in HTTPS</para>
+    <para>portal_redirect=ip – default, no HTTPS, no need to modify DNS</para>
+    <para>portal_redirect=dns – need to update your DNS, portal will be in HTTPS</para>
     <para />
   </sect1>
   <sect1>
@@ -753,28 +786,51 @@
       <inlinegraphic format="PNG" fileref="docs/images/screenshot-network-config.png" width="14.472cm"
       depth="4.617cm" />
     </para>
-    <para>❏&#160; &#160; &#160; &#160; network: Network subnet</para>
-    <para>❏&#160; &#160; &#160; &#160; netmask: Network mask</para>
-    <para>❏&#160; &#160; &#160; &#160; gateway: PacketFence IP address in this network</para>
-    <para>❏&#160; &#160; &#160; &#160; next_hop: used only with routed networks; IP address of the router in this
-    network (This is used to locally create static routes to the routed networks). See the 
-    <link linkend="">Routed</link>
-    <link linkend="">Networks section</link>)</para>
-    <para>❏&#160; &#160; &#160; &#160; domain-name: DNS name</para>
-    <para>❏&#160; &#160; &#160; &#160; dns: PacketFence IP address in this network</para>
-    <para>❏&#160; &#160; &#160; &#160; dhcp_start: starting IP address of the DHCP scope</para>
-    <para>❏&#160; &#160; &#160; &#160; dhcp_end: ending IP address of the DHCP scope</para>
-    <para>❏&#160; &#160; &#160; &#160; dhcp_default_lease_time: default DHCP lease time</para>
-    <para>❏&#160; &#160; &#160; &#160; dhcp_max_lease_time: maximum DHCP lease time</para>
-    <para>❏&#160; &#160; &#160; &#160; type: vlan-registration or vlan-isolation or inline</para>
-    <orderedlist>
+    <itemizedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; named: Is PacketFence the DNS for this network ? (Enabled/Disabled) set
-        it to &#160; &#160; &#160; &#160; enabled unless in inline type where it should be disabled</para>
-        <para>❏&#160; &#160; &#160; &#160; dhcpd: Is PacketFence the DHCP server for this network ?
-        (Enabled/Disabled) set it &#160; &#160; &#160; &#160; to enabled</para>
+        <para>network: Network subnet</para>
       </listitem>
-    </orderedlist>
+      <listitem>
+        <para>netmask: Network mask</para>
+      </listitem>
+      <listitem>
+        <para>gateway: PacketFence IP address in this network</para>
+      </listitem>
+      <listitem>
+        <para>next_hop: used only with routed networks; IP address of the router in this network (This is used to
+        locally create static routes to the routed networks). See the 
+        <link linkend="">Routed</link>
+        <link linkend="">Networks section</link>)</para>
+      </listitem>
+      <listitem>
+        <para>domain-name: DNS name</para>
+      </listitem>
+      <listitem>
+        <para>dns: PacketFence IP address in this network</para>
+      </listitem>
+      <listitem>
+        <para>dhcp_start: starting IP address of the DHCP scope</para>
+      </listitem>
+      <listitem>
+        <para>dhcp_end: ending IP address of the DHCP scope</para>
+      </listitem>
+      <listitem>
+        <para>dhcp_default_lease_time: default DHCP lease time</para>
+      </listitem>
+      <listitem>
+        <para>dhcp_max_lease_time: maximum DHCP lease time</para>
+      </listitem>
+      <listitem>
+        <para>type: vlan-registration or vlan-isolation or inline</para>
+      </listitem>
+      <listitem>
+        <para>named: Is PacketFence the DNS for this network ? (Enabled/Disabled) set it to enabled unless in
+        inline type where it should be disabled</para>
+      </listitem>
+      <listitem>
+        <para>dhcpd: Is PacketFence the DHCP server for this network ? (Enabled/Disabled) set it to enabled</para>
+      </listitem>
+    </itemizedlist>
     <para>When starting PacketFence generates the DHCP and DNS configuration files by reading the &#160;information
     provided in networks.conf:</para>
     <para>The DHCP configuration file is generated to var/conf/dhcpd.conf using conf/dhcpd.conf as a
@@ -879,7 +935,11 @@
     devices, and then to push the proper VLAN to the network equipment. &#160;We strongly recommend that you
     install FreeRADIUS even if you plan not to use the feature now.</para>
     <para>Install the following packages:</para>
-    <para>❏&#160; &#160; &#160; &#160; packetfence-freeradius2</para>
+    <itemizedlist>
+      <listitem>
+        <para>packetfence-freeradius2</para>
+      </listitem>
+    </itemizedlist>
     <para />
     <sect2>
       <title>/etc/raddb/clients.conf</title>
@@ -1049,28 +1109,53 @@
     <title>Assumptions</title>
     <para>Throughout this configuration example we use the following assumptions for our network
     infrastructure:</para>
-    <para>❏&#160; &#160; &#160; &#160; There are two different types of manageable switches in our network: Cisco
-    Catalyst 2900XL and Cisco Catalyst 2960, and one unmanageable device.</para>
-    <para>❏&#160; &#160; &#160; &#160; VLAN 1 is the “regular” VLAN</para>
-    <para>❏&#160; &#160; &#160; &#160; VLAN 2 is the registration VLAN (unregistered devices will be put in this
-    VLAN)</para>
-    <para>❏&#160; &#160; &#160; &#160; VLAN 3 is the isolation VLAN (isolated devices will be put in this
-    VLAN)</para>
-    <para>❏&#160; &#160; &#160; &#160; VLANs 2 and 3 are spanned throughout the network</para>
-    <para>❏&#160; &#160; &#160; &#160; VLAN 4 is the MAC detection VLAN (empty VLAN)</para>
-    <para>❏&#160; &#160; &#160; &#160; VLAN 4 must be defined on all the switches that do not support port-security
-    (in our example Catalyst 2900XL do not support port-security with static MAC address). No need to put it in the
-    trunk port.</para>
-    <para>❏&#160; &#160; &#160; &#160; VLAN 5 is the inline VLAN (In-Band, for unmanageable devices)</para>
-    <para>❏&#160; &#160; &#160; &#160; We want to isolate computers using Limewire (peer-to-peer software)</para>
-    <para>❏&#160; &#160; &#160; &#160; We use Snort as NIDS</para>
-    <para>❏&#160; &#160; &#160; &#160; The traffic monitored by Snort is spanned on eth1</para>
-    <para>❏&#160; &#160; &#160; &#160; The DHCP server on the PacketFence box that will take care of IP address
-    distribution in VLANs 2, 3 and 5</para>
-    <para>❏&#160; &#160; &#160; &#160; The DNS server on the PacketFence box that will take care of domain
-    resolution in VLANs 2 and 3</para>
-    <para>❏&#160; &#160; &#160; &#160; The network setup looks like this:</para>
-    <para />
+    <itemizedlist>
+      <listitem>
+        <para>There are two different types of manageable switches in our network: Cisco Catalyst 2900XL and Cisco
+        Catalyst 2960, and one unmanageable device.</para>
+      </listitem>
+      <listitem>
+        <para>VLAN 1 is the “regular” VLAN</para>
+      </listitem>
+      <listitem>
+        <para>VLAN 2 is the registration VLAN (unregistered devices will be put in this VLAN)</para>
+      </listitem>
+      <listitem>
+        <para>VLAN 3 is the isolation VLAN (isolated devices will be put in this VLAN)</para>
+      </listitem>
+      <listitem>
+        <para>VLANs 2 and 3 are spanned throughout the network</para>
+      </listitem>
+      <listitem>
+        <para>VLAN 4 is the MAC detection VLAN (empty VLAN)</para>
+      </listitem>
+      <para>❏&#160; &#160; &#160; &#160; VLAN 4 must be defined on all the switches that do not support
+      port-security (in our example Catalyst 2900XL do not support port-security with static MAC address). No need
+      to put it in the trunk port.</para>
+      <listitem>
+        <para>VLAN 5 is the inline VLAN (In-Band, for unmanageable devices)</para>
+      </listitem>
+      <listitem>
+        <para>We want to isolate computers using Limewire (peer-to-peer software)</para>
+      </listitem>
+      <listitem>
+        <para>We use Snort as NIDS</para>
+      </listitem>
+      <listitem>
+        <para>The traffic monitored by Snort is spanned on eth1</para>
+      </listitem>
+      <listitem>
+        <para>The DHCP server on the PacketFence box that will take care of IP address distribution in VLANs 2, 3
+        and 5</para>
+      </listitem>
+      <listitem>
+        <para>The DNS server on the PacketFence box that will take care of domain resolution in VLANs 2 and
+        3</para>
+      </listitem>
+      <listitem>
+        <para>The network setup looks like this:</para>
+      </listitem>
+    </itemizedlist>
     <informaltable frame="all">
       <tgroup cols="5">
         <tbody>
@@ -1201,31 +1286,41 @@
   <sect1>
     <title>Network Interfaces</title>
     <para>Here are the NICs startup scripts on PacketFence:</para>
-    <para>❏&#160; &#160; &#160; &#160; /etc/sysconfig/network-scripts/ifcfg-eth0</para>
-    <para>
-    DEVICE=eth0BROADCAST=192.168.1.255IPADDR=192.168.1.5NETMASK=255.255.255.0NETWORK=192.168.1.0ONBOOT=yesTYPE=Ethernet</para>
-    <para />
-    <para>❏&#160; &#160; &#160; &#160; /etc/sysconfig/network-scripts/ifcfg-eth0.2</para>
-    <para>DEVICE=eth0.2ONBOOT=yesBOOTPROTO=staticIPADDR=192.168.2.1NETMASK=255.255.255.0VLAN=yes</para>
-    <para />
-    <para>❏&#160; &#160; &#160; &#160; /etc/sysconfig/network-scripts/ifcfg-eth0.3</para>
-    <para>DEVICE=eth0.3ONBOOT=yesBOOTPROTO=staticIPADDR=192.168.3.1NETMASK=255.255.255.0VLAN=yes</para>
-    <para />
-    <para />
-    <para />
-    <para />
-    <para>❏&#160; &#160; &#160; &#160; /etc/sysconfig/network-scripts/ifcfg-eth0.5</para>
-    <para>DEVICE=eth0.5ONBOOT=yesBOOTPROTO=staticIPADDR=192.168.5.1NETMASK=255.255.255.0VLAN=yes</para>
-    <para />
-    <para>❏&#160; &#160; &#160; &#160; /etc/sysconfig/network-scripts/ifcfg-eth1. This NIC is used for the mirror
-    of the &#160; &#160; &#160; &#160; traffic monitored by Snort.</para>
-    <para>DEVICE=eth1ONBOOT=yesBOOTPROTO=none</para>
-    <para />
-    <para>Trap receiver</para>
-    <para>PacketFence uses snmptrapd as the trap receiver. It stores the community name used by the switch to send
-    traps in the switch config file (/usr/local/pf/conf/switches.conf):</para>
-    <para>[default]SNMPCommunityTrap = public</para>
-    <para />
+    <itemizedlist>
+      <listitem>
+        <para>/etc/sysconfig/network-scripts/ifcfg-eth0</para>
+        <screen>DEVICE=eth0 BROADCAST=192.168.1.255 IPADDR=192.168.1.5 NETMASK=255.255.255.0 NETWORK=192.168.1.0
+        ONBOOT=yes TYPE=Ethernet</screen>
+      </listitem>
+      <listitem>
+        <para>/etc/sysconfig/network-scripts/ifcfg-eth0.2</para>
+        <screen>DEVICE=eth0.2 ONBOOT=yes BOOTPROTO=static IPADDR=192.168.2.1 NETMASK=255.255.255.0
+        VLAN=yes</screen>
+      </listitem>
+      <para />
+      <listitem>
+        <para>/etc/sysconfig/network-scripts/ifcfg-eth0.3</para>
+        <screen>DEVICE=eth0.3 ONBOOT=yes BOOTPROTO=static IPADDR=192.168.3.1 NETMASK=255.255.255.0
+        VLAN=yes</screen>
+      </listitem>
+      <listitem>
+        <para>/etc/sysconfig/network-scripts/ifcfg-eth0.5</para>
+        <screen>DEVICE=eth0.5 ONBOOT=yes BOOTPROTO=static IPADDR=192.168.5.1 NETMASK=255.255.255.0
+        VLAN=yes</screen>
+      </listitem>
+      <listitem>
+        <para>/etc/sysconfig/network-scripts/ifcfg-eth1. This NIC is used for the mirror of the traffic monitored
+        by Snort.</para>
+        <screen>DEVICE=eth1 ONBOOT=yes BOOTPROTO=none</screen>
+      </listitem>
+    </itemizedlist>
+    <sect2>
+      <title>Trap receiver</title>
+      <para>PacketFence uses snmptrapd as the trap receiver. It stores the community name used by the switch to
+      send traps in the switch config file (/usr/local/pf/conf/switches.conf):</para>
+      <para>[default]SNMPCommunityTrap = public</para>
+      <para />
+    </sect2>
   </sect1>
   <sect1>
     <title>Switch Setup</title>
@@ -1355,70 +1450,102 @@
       you need to create a violation and add the Snort alert SID in the trigger section of a Violation.</para>
       <para>PacketFence policy violations are controlled using the /usr/local/pf/conf/violations.conf configuration
       file. The violation format is as follows:</para>
-      <para>[1234]desc=Your Violation
-      Descriptionpriority=8url=/content/index.php?template=&lt;template&gt;redirect_url=/proxies/tools/stinger.exeenable=Ytrigger=Detect::2200032,Scan::11808actions=email,log,trapvlan=isolationVlanwhitelisted_categories=</para>
-      <para />
-      <para>❏&#160; &#160; &#160; &#160; [1234]: violation ID. Any integer except 1200000-120099 which is reserved
-      for required administration violations.</para>
-      <para>❏&#160; &#160; &#160; &#160; desc: single line description of violation</para>
-      <para>❏&#160; &#160; &#160; &#160; priority: range 1-10, with 1 the higest priority and 10 the lowest. Higher
-      priority violations will be addressed first if a host has more than one.</para>
-      <para>❏&#160; &#160; &#160; &#160; url: HTML URL the host will be redirected to while in violation. This is
-      usually a local URL of the form /content/index.php?template=... where ... is the name of the remediation
-      template to show to the user. Full URLs like 
-      <ulink url="http://myportal.com/violation1234/">http://myportal.com/violation1234/</ulink>are also supported
-      if passthrough=proxy is set under [trapping]. In that case, the Captive Portal will do reverse proxying to
-      the specified URL. Great care should be taken when using this feature because any resource outside the
-      specified path will fail to load.</para>
-      <para>❏&#160; &#160; &#160; &#160; redirect_url: The user is redirected to this URL after he re-enabled his
-      network access on the remediation page.</para>
-      <para>❏&#160; &#160; &#160; &#160; enable: if enable is set to 'N', this violation is disabled and no
-      additional violations of this type will be added.</para>
-      <para>❏&#160; &#160; &#160; &#160; trigger: method to reference external detection methods such as Detect
-      (SNORT), Scan (Nessus), OS (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC
-      address class), etc. Trigger is formatted as follows type::ID. in this example 2000032 is the snort id and
-      11808 is the Nessus plugin number. The Snort ID does NOT have to match the violation ID.</para>
-      <para>❏&#160; &#160; &#160; &#160; actions: this is the list of actions that will be executed on a violation
-      addition. The actions can be:</para>
-      <orderedlist>
+      <screen>
+        <![CDATA[
+[1234]
+desc=Your Violation Description
+priority=8
+url=/content/index.php?template=<template>
+redirect_url=/proxies/tools/stinger.exe
+enable=Y
+trigger=Detect::2200032,Scan::11808
+actions=email,log,trap
+vlan=isolationVlan
+whitelisted_categories=
+]]>
+</screen>
+      <!-- TODO emphasis on title -->
+      <itemizedlist>
         <listitem>
-          <para>log: log a message to the file specified in [alerting].log</para>
+          <para>[1234]: violation ID. Any integer except 1200000-120099 which is reserved for required
+          administration violations.</para>
         </listitem>
         <listitem>
-          <para>email: email the address specified in [alerting].emailaddr, using [alerting].smtpserver. Multiple
-          emailaddr can be sperated by comma.</para>
+          <para>desc: single line description of violation</para>
         </listitem>
         <listitem>
-          <para>trap: isolate the host and place them in violation. It opens a violation and leaves it open. If
-          trap is not there, a violation is opened and then automatically closed</para>
+          <para>priority: range 1-10, with 1 the higest priority and 10 the lowest. Higher priority violations will
+          be addressed first if a host has more than one.</para>
         </listitem>
         <listitem>
-          <para>winpopup: send a windows popup message. You need to configure [alerting].winserver,
-          [alerting].netbiosname in pf.conf when using this option</para>
+          <para>url: HTML URL the host will be redirected to while in violation. This is usually a local URL of the
+          form /content/index.php?template=... where ... is the name of the remediation template to show to the
+          user. Full URLs like 
+          <ulink url="http://myportal.com/violation1234/">http://myportal.com/violation1234/</ulink>are also
+          supported if passthrough=proxy is set under [trapping]. In that case, the Captive Portal will do reverse
+          proxying to the specified URL. Great care should be taken when using this feature because any resource
+          outside the specified path will fail to load.</para>
         </listitem>
         <listitem>
-          <para>external: execute an external command, specified in [paths].externalapi</para>
-        </listitem>
-      </orderedlist>
-      <para>❏&#160; &#160; &#160; &#160; vlan: Destination VLAN where PacketFence should put the client when a
-      violation of this&#160; &#160; &#160; &#160; type is open. The VLAN value can be:</para>
-      <orderedlist>
-        <listitem>
-          <para>isolationVlan: Isolation VLAN as specified in switches.conf. This is the recommended value for most
-          violation types.</para>
+          <para>redirect_url: The user is redirected to this URL after he re-enabled his network access on the
+          remediation page.</para>
         </listitem>
         <listitem>
-          <para>registrationVlan: Registration VLAN as specified in switches.conf.</para>
+          <para>enable: if enable is set to 'N', this violation is disabled and no additional violations of this
+          type will be added.</para>
         </listitem>
         <listitem>
-          <para>normalVlan: Normal VLAN as specified in switches.conf. Note: It is preferable not to trap than to
-          trap and put in normal VLAN. Make sure you understand what you are doing.</para>
+          <para>trigger: method to reference external detection methods such as Detect (SNORT), Scan (Nessus), OS
+          (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC address class), etc. Trigger
+          is formatted as follows type::ID. in this example 2000032 is the snort id and 11808 is the Nessus plugin
+          number. The Snort ID does NOT have to match the violation ID.</para>
         </listitem>
-      </orderedlist>
-      <para>❏&#160; &#160; &#160; &#160; whitelisted_categories: Nodes in a category listed in
-      whitelisted_categories won't be &#160; &#160; &#160; &#160; affected by a violation of this type. Format is a
-      comma separated list of category names.</para>
-      <para />
+        <listitem>
+          <para>actions: this is the list of actions that will be executed on a violation addition. The actions can
+          be:</para>
+          <itemizedlist>
+            <listitem>
+              <para>log: log a message to the file specified in [alerting].log</para>
+            </listitem>
+            <listitem>
+              <para>email: email the address specified in [alerting].emailaddr, using [alerting].smtpserver.
+              Multiple emailaddr can be sperated by comma.</para>
+            </listitem>
+            <listitem>
+              <para>trap: isolate the host and place them in violation. It opens a violation and leaves it open. If
+              trap is not there, a violation is opened and then automatically closed</para>
+            </listitem>
+            <listitem>
+              <para>winpopup: send a windows popup message. You need to configure [alerting].winserver,
+              [alerting].netbiosname in pf.conf when using this option</para>
+            </listitem>
+            <listitem>
+              <para>external: execute an external command, specified in [paths].externalapi</para>
+            </listitem>
+          </itemizedlist>
+        </listitem>
+        <listitem>
+          <para>vlan: Destination VLAN where PacketFence should put the client when a violation of this type is
+          open. The VLAN value can be:</para>
+          <itemizedlist>
+            <listitem>
+              <para>isolationVlan: Isolation VLAN as specified in switches.conf. This is the recommended value for
+              most violation types.</para>
+            </listitem>
+            <listitem>
+              <para>registrationVlan: Registration VLAN as specified in switches.conf.</para>
+            </listitem>
+            <listitem>
+              <para>normalVlan: Normal VLAN as specified in switches.conf. Note: It is preferable not to trap than
+              to trap and put in normal VLAN. Make sure you understand what you are doing.</para>
+            </listitem>
+          </itemizedlist>
+        </listitem>
+        <listitem>
+          <para>whitelisted_categories: Nodes in a category listed in whitelisted_categories won't be affected by a
+          violation of this type. Format is a comma separated list of category names.</para>
+        </listitem>
+      </itemizedlist>
       <para>Also included in violation.conf is the defaults section. The defaults section will set a default value
       for every violation in the configuration. If a configuration value is not specified in the specific ID, the
       default will be used:</para>
@@ -1432,16 +1559,22 @@
       <para>❏&#160; &#160; &#160; &#160; max_enable: number of times a host will be able to try and self remediate
       before they are locked out and have to call the help desk. This is useful for users who just 'click through'
       violation pages.</para>
-      <para>❏&#160; &#160; &#160; &#160; auto_enable: specifies if a host can self remediate the violation (enable
-      network button) or if they can not and must call the help desk.</para>
-      <para>❏&#160; &#160; &#160; &#160; grace: number of minutes before the violation can reoccur. This is useful
-      to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their
-      peer-to-peer application.</para>
-      <para>❏&#160; &#160; &#160; &#160; button_text: text displayed on the violation form to hosts.</para>
-      <para>❏&#160; &#160; &#160; &#160; snort_rules: the Snort rules file is the administrators responsibility.
-      Please change this to point to your violation rules file(s). If you do not specify a full path, the default
-      is /usr/local/pf/conf/snort. If you need to include more than one file, just separate each filename with a
-      comma.</para>
+      <itemizedlist>
+        <listitem>
+          <para>auto_enable: specifies if a host can self remediate the violation (enable network button) or if
+          they can not and must call the help desk.</para>
+        </listitem>
+        <para>❏&#160; &#160; &#160; &#160; grace: number of minutes before the violation can reoccur. This is
+        useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff
+        their peer-to-peer application.</para>
+        <listitem>
+          <para>button_text: text displayed on the violation form to hosts.</para>
+        </listitem>
+        <para>❏&#160; &#160; &#160; &#160; snort_rules: the Snort rules file is the administrators responsibility.
+        Please change this to point to your violation rules file(s). If you do not specify a full path, the default
+        is /usr/local/pf/conf/snort. If you need to include more than one file, just separate each filename with a
+        comma.</para>
+      </itemizedlist>
       <para>
       <anchor id="__RefHeading__1827_664238303" />violations.conf is loaded at startup.</para>
       <para>Example violation</para>
@@ -1457,36 +1590,36 @@
   </sect1>
   <sect1>
     <title>Conformity Scan (Nessus)</title>
-    <para>Installation</para>
-    <para>Please visit 
-    <ulink url="http://www.nessus.org/download/">http://www.nessus.org/download/</ulink>to download and install the
-    Nessus package for your operating system. &#160;You will also need to register for the HomeFeed (or the
-    ProfessionalFeed) in order to get the plugins.</para>
-    <para>After you installed Nessus, follow the Nessus documentation for the configuration of the Nessus Server,
-    and to create a user for PacketFence.</para>
-    <para>Configuration</para>
-    <para>In order for a given Nessus Scan to generate a violation inside PacketFence, you have to configure two
-    sections:</para>
-    <para>❏&#160; &#160; &#160; &#160; pf.confAdjust the settings in the scan section like the following:</para>
-    <para>[scan]</para>
-    <para>ssl=enabled</para>
-    <para>pass=userPassword</para>
-    <para>user=nessusUsername</para>
-    <para>port=1241</para>
-    <para>host=127.0.0.1</para>
-    <para>registration=enabled</para>
-    <para>nessusclient_file=basic-policy.nessus</para>
-    <para>nessusclient_policy=basic-policy</para>
-    <para />
-    <para>❏&#160; &#160; &#160; &#160; violations.confYou need to create a new violation section and have to
-    specify</para>
-    <para>trigger=Scan::&lt;violationId&gt;</para>
-    <para>Where violationId is the Id of the Nessus plugin to check for. Once you have finished the configuration,
-    you need to reload the violation related database contents using:</para>
-    <para>pfcmd reload violations</para>
-    <para>NOTE: Violations will trigger if the Nessus plugin &#160;is higher than a low severity
-    vulnerability</para>
-    <para />
+    <sect2>
+      <title>Installation</title>
+      <para>Please visit 
+      <ulink url="http://www.nessus.org/download/">http://www.nessus.org/download/</ulink>to download and install
+      the Nessus package for your operating system. &#160;You will also need to register for the HomeFeed (or the
+      ProfessionalFeed) in order to get the plugins.</para>
+      <para>After you installed Nessus, follow the Nessus documentation for the configuration of the Nessus Server,
+      and to create a user for PacketFence.</para>
+    </sect2>
+    <sect2>
+      <title>Configuration</title>
+      <para>In order for a given Nessus Scan to generate a violation inside PacketFence, you have to configure two
+      sections:</para>
+      <sect3>
+        <title>pf.conf</title>
+        <para>Adjust the settings in the scan section like the following:</para>
+        <programlisting>[scan] ssl=enabled pass=userPassword user=nessusUsername port=1241 host=127.0.0.1
+        registration=enabled nessusclient_file=basic-policy.nessus
+        nessusclient_policy=basic-policy</programlisting>
+      </sect3>
+      <sect3>
+        <title>violations.conf</title>
+        <para>You need to create a new violation section and have to specify</para>
+        <programlisting>trigger=Scan::&lt;violationId&gt;</programlisting>
+        <para>Where violationId is the Id of the Nessus plugin to check for. Once you have finished the
+        configuration, you need to reload the violation related database contents using:</para>
+        <programlisting>pfcmd reload violations</programlisting>
+        <para>NOTE: Violations will trigger if the Nessus plugin is higher than a low severity vulnerability</para>
+      </sect3>
+    </sect2>
     <para>NessusClient Integration</para>
     <para>New since 1.8.3 is the ability to directly use the nessus command line client and dot nessus files. The
     NessusClient File format is documented at 
@@ -1510,34 +1643,45 @@
   <sect1>
     <title>Oinkmaster</title>
     <para>Oinkmaster is a perl script that enables the possibility to update the different snort rules very easily.
-    &#160;It is simple to use, and install. &#160;This section will show you how to implement Oinkmaster to work
-    with PacketFence and Snort.</para>
+    It is simple to use, and install. &#160;This section will show you how to implement Oinkmaster to work with
+    PacketFence and Snort.</para>
     <para>Please visit 
     <ulink url="http://oinkmaster.sourceforge.net/download.shtml">
     http://oinkmaster.sourceforge.net/download.shtml</ulink>to download oinkmaster. A sample oinkmaster
     configuration file is provided at /usr/local/pf/addons/snort/oinkmaster.conf</para>
-    <para />
-    <para>Configuration</para>
-    <para>Here are the steps to make Oinkmaster work. &#160;We will assume that you already downloaded the newest
-    oinkmaster archive :</para>
-    <para />
-    <para>❏&#160; &#160; &#160; &#160; Untar the freshly downloaded Oinkmaster</para>
-    <para>❏&#160; &#160; &#160; &#160; Copy the required perl scripts into /usr/local/pf/oinkmaster. &#160;You need
-    to copy over contrib and oinkmaster.pl</para>
-    <para>❏&#160; &#160; &#160; &#160; Copy the oinkmaster.conf provided by PacketFence (see the section above) in
-    /usr/local/pf/conf</para>
-    <para>❏&#160; &#160; &#160; &#160; Modify the configuration to suit your own needs. &#160;Currently, the
-    configuration file is set to fetch the bleeding rules.</para>
-    <para />
-    <para>Rules update</para>
-    <para>In order to get periodic updates for PacketFence Snort rules, we simply need to create a crontab entry
-    with the right information. &#160;The example below shows a crontab entry to fetch the updates daily at 23:00
-    PM :</para>
-    <para />
-    <para>0 23 * * * (cd /usr/local/pf; perl oinkmaster/oinkmaster.pl -C conf/oinkmaster.conf -o
-    conf/snort/)</para>
-    <para />
-    <para />
+    <sect2>
+      <title>Configuration</title>
+      <para>Here are the steps to make Oinkmaster work. &#160;We will assume that you already downloaded the newest
+      oinkmaster archive :</para>
+      <itemizedlist>
+        <listitem>
+          <para>Untar the freshly downloaded Oinkmaster</para>
+        </listitem>
+        <listitem>
+          <para>Copy the required perl scripts into /usr/local/pf/oinkmaster. &#160;You need to copy over contrib
+          and oinkmaster.pl</para>
+        </listitem>
+        <listitem>
+          <para>Copy the oinkmaster.conf provided by PacketFence (see the section above) in
+          /usr/local/pf/conf</para>
+        </listitem>
+        <listitem>
+          <para>Modify the configuration to suit your own needs. &#160;Currently, the configuration file is set to
+          fetch the bleeding rules.</para>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+    <sect2>
+      <para>Rules update</para>
+      <para>In order to get periodic updates for PacketFence Snort rules, we simply need to create a crontab entry
+      with the right information. &#160;The example below shows a crontab entry to fetch the updates daily at 23:00
+      PM :</para>
+      <programlisting>
+        <![CDATA[
+0 23 * * * (cd /usr/local/pf; perl oinkmaster/oinkmaster.pl -C conf/oinkmaster.conf -o conf/snort/)
+]]>
+</programlisting>
+    </sect2>
   </sect1>
   <sect1>
     <title>Floating Network Devices</title>
@@ -1555,53 +1699,83 @@
     and set PVID and tagged VLANs on the port.</para>
     <para>When an floating network device is unplugged, PacketFence should reconfigure the port like before it was
     plugged.</para>
-    <para />
     <para>Here is how it works:</para>
-    <para>❏&#160; &#160; &#160; &#160; floating network devices have to be identified using their MAC
-    address.</para>
-    <para>❏&#160; &#160; &#160; &#160; linkup/linkdown traps are not enabled on the switches, only port-security
-    traps are.</para>
-    <para />
+    <itemizedlist>
+      <listitem>
+        <para>floating network devices have to be identified using their MAC address.</para>
+      </listitem>
+      <listitem>
+        <para>linkup/linkdown traps are not enabled on the switches, only port-security traps are.</para>
+      </listitem>
+    </itemizedlist>
     <para>When PacketFence receives a port-security trap for a floating network device, it changes the port
     configuration so that:</para>
-    <para>❏&#160; &#160; &#160; &#160; it disables port-security</para>
-    <para>❏&#160; &#160; &#160; &#160; it sets the PVID</para>
-    <para>❏&#160; &#160; &#160; &#160; it eventually sets the port as multi-vlan (trunk) and sets the tagged
-    Vlans</para>
-    <para>❏&#160; &#160; &#160; &#160; it enables linkdown traps</para>
-    <para />
+    <itemizedlist>
+      <listitem>
+        <para>it disables port-security</para>
+      </listitem>
+      <listitem>
+        <para>it sets the PVID</para>
+      </listitem>
+      <listitem>
+        <para>it eventually sets the port as multi-vlan (trunk) and sets the tagged Vlans</para>
+      </listitem>
+      <listitem>
+        <para>it enables linkdown traps</para>
+      </listitem>
+    </itemizedlist>
     <para>When PF receives a linkdown trap on a port in which a floating network device was plugged, it changes the
     port configuration so that:</para>
-    <para>❏&#160; &#160; &#160; &#160; it enables port-security</para>
-    <para>❏&#160; &#160; &#160; &#160; it disables linkdown traps</para>
-    <para />
-    <para />
-    <para />
-    <para>
-    <anchor id="__RefHeading__4787_400627320" />Identification</para>
-    <para>As we mentioned earlier, each floating network device has to be identified. There are two ways to do
-    it:</para>
-    <para>❏&#160; &#160; &#160; &#160; by editing conf/floating_network_device.conf</para>
-    <para>❏&#160; &#160; &#160; &#160; through the Web GUI, in the Configuration -&gt; Floating Network Device
-    tab.</para>
-    <para>
-      <!-- TODO validate width and depth -->
-      <inlinegraphic format="PNG" fileref="docs/images/screenshot-floating-dev.png" width="15.25cm"
-      depth="5.072cm" />
-    </para>
-    <para>
-      <!-- TODO validate width and depth -->
-      <inlinegraphic format="PNG" fileref="docs/images/screenshot-add-floating-dev.png" width="8.408cm"
-      depth="4.746cm" />
-    </para>
-    <para>Here are the settings that are available:</para>
-    <para>❏&#160; &#160; &#160; &#160; MAC address</para>
-    <para>❏&#160; &#160; &#160; &#160; IP address (in case of a static IP)</para>
-    <para>❏&#160; &#160; &#160; &#160; trunkPort: yes/no. Should the port be configured as a muti-vlan port
-    ?</para>
-    <para>❏&#160; &#160; &#160; &#160; pvid: Vlan in which PacketFence should put the port</para>
-    <para>❏&#160; &#160; &#160; &#160; taggedVlan: comma separated list of Vlans. If the port is a multi-vlan,
-    these are the Vlans that have to be tagged on the port.</para>
+    <itemizedlist>
+      <listitem>
+        <para>it enables port-security</para>
+      </listitem>
+      <listitem>
+        <para>it disables linkdown traps</para>
+      </listitem>
+    </itemizedlist>
+    <sect2>
+      <title>Identification</title>
+      <para>As we mentioned earlier, each floating network device has to be identified. There are two ways to do
+      it:</para>
+      <itemizedlist>
+        <listitem>
+          <para>by editing conf/floating_network_device.conf</para>
+        </listitem>
+        <listitem>
+          <para>through the Web GUI, in the Configuration -&gt; Floating Network Device tab.</para>
+        </listitem>
+      </itemizedlist>
+      <para>
+        <!-- TODO validate width and depth -->
+        <inlinegraphic format="PNG" fileref="docs/images/screenshot-floating-dev.png" width="15.25cm"
+        depth="5.072cm" />
+      </para>
+      <para>
+        <!-- TODO validate width and depth -->
+        <inlinegraphic format="PNG" fileref="docs/images/screenshot-add-floating-dev.png" width="8.408cm"
+        depth="4.746cm" />
+      </para>
+      <para>Here are the settings that are available:</para>
+      <itemizedlist>
+        <listitem>
+          <para>MAC address</para>
+        </listitem>
+        <listitem>
+          <para>IP address (in case of a static IP)</para>
+        </listitem>
+        <listitem>
+          <para>trunkPort: yes/no. Should the port be configured as a muti-vlan port ?</para>
+        </listitem>
+        <listitem>
+          <para>pvid: Vlan in which PacketFence should put the port</para>
+        </listitem>
+        <listitem>
+          <para>taggedVlan: comma separated list of Vlans. If the port is a multi-vlan, these are the Vlans that
+          have to be tagged on the port.</para>
+        </listitem>
+      </itemizedlist>
+    </sect2>
   </sect1>
   <sect1>
     <title>Guest management</title>
@@ -1851,9 +2025,17 @@
     <para>Log4perl</para>
     <para>This log4perl way is a little more complex to achieve, but it is still quite simple. &#160;There are 3
     packages you need to get from RPMForge :</para>
-    <para>❏&#160; &#160; &#160; &#160; perl-Log-Dispatcher</para>
-    <para>❏&#160; &#160; &#160; &#160; perl-Log-Dispatcher-FileRotate</para>
-    <para>❏&#160; &#160; &#160; &#160; perl-Date-Manip</para>
+    <itemizedlist>
+      <listitem>
+        <para>perl-Log-Dispatcher</para>
+      </listitem>
+      <listitem>
+        <para>perl-Log-Dispatcher-FileRotate</para>
+      </listitem>
+      <listitem>
+        <para>perl-Date-Manip</para>
+      </listitem>
+    </itemizedlist>
     <para />
     <para>Once you downloaded those packages, you need to modify the logging configuration file (conf/log.conf)
     with something like the following example. &#160;Note that log4perl is almost the same as log4j, so you should
@@ -1874,30 +2056,71 @@
     <title>High availability</title>
     <para>A high availability setup (active/passive) for PacketFence can be created using two PacketFence servers
     and the following open source utilities:</para>
-    <para>❏&#160; &#160; &#160; &#160; Linux-HA ( 
-    <ulink url="http://www.linux-ha.org/">www.linux-ha.org</ulink>): a daemon that provides cluster infrastructure
-    to its clients. Heartbeat would be responsible for starting the PacketFence services, eventually</para>
-    <para>❏&#160; &#160; &#160; &#160; DRBD ( 
-    <ulink url="http://www.drbd.org/">www.drbd.org</ulink>): A network based raid-1.</para>
-    <para />
+    <itemizedlist>
+      <listitem>
+        <para>Linux-HA ( 
+        <ulink url="http://www.linux-ha.org/">www.linux-ha.org</ulink>): a daemon that provides cluster
+        infrastructure to its clients. Heartbeat would be responsible for starting the PacketFence services,
+        eventually</para>
+      </listitem>
+      <listitem>
+        <para>DRBD ( 
+        <ulink url="http://www.drbd.org/">www.drbd.org</ulink>): A network based raid-1.</para>
+      </listitem>
+    </itemizedlist>
     <para>Since PacketFence stores most of its information in a MySQL database, the two PacketFence redundant
     servers need to share this database in a way or another.</para>
-    <para />
     <para>There are different options to share the database between the two PacketFence servers:</para>
-    <para>❏&#160; &#160; &#160; &#160; A local MySQL database server on each PacketFence box configured to store
-    its databases on a remote partition (a LUN on a SAN for example)</para>
-    <para />
-    <para>
-    <anchor id="__RefHeading__4799_400627320" />Creation of the DRBD partition</para>
+    <itemizedlist>
+      <listitem>
+        <para>A local MySQL database server on each PacketFence box configured to store its databases on a remote
+        partition (a LUN on a SAN for example)</para>
+        <itemizedlist>
+          <listitem>
+            <para>Warning: You have to make sure that only one database server is running at each time (don't
+            double-mount the partition)</para>
+          </listitem>
+        </itemizedlist>
+      </listitem>
+      <listitem>
+        <para>A local MySQL database server on each PacketFence box and replication of the database partition using
+        DRBD</para>
+      </listitem>
+      <listitem>
+        <para>A remote MySQL database server with its own high availability setup</para>
+      </listitem>
+    </itemizedlist>
+    <para>In this document, we describe the second option that involves DRBD.</para>
+    <para>We assume that:</para>
+    <itemizedlist>
+      <listitem>
+        <para>you are using RedHat Enterprise 5 or CentOS 5.</para>
+      </listitem>
+      <listitem>
+        <para>pf1 is the first PacketFence server</para>
+      </listitem>
+      <listitem>
+        <para>pf2 is the second PacketFence server</para>
+      </listitem>
+      <listitem>
+        <para>PacketFence is properly configured on each server</para>
+      </listitem>
+      <listitem>
+        <para>the DRBD partition is 30G long</para>
+      </listitem>
+      <listitem>
+        <para>we use HeartBeat v1</para>
+      </listitem>
+    </itemizedlist>
+    <para>Creation of the DRBD partition</para>
     <para>During the OS installation, reduce the size of the main partition and create a new one (that will be used
     for the replicated MySQL database) of 30G. In order to do so, on VolGroup00:</para>
-    <orderedlist>
+    <itemizedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; leave at least 30G of drive space for a new partition. &#160;DO NOT
-        create that partition during the install process, we will do it later.</para>
+        <para>leave at least 30G of drive space for a new partition. &#160;DO NOT create that partition during the
+        install process, we will do it later.</para>
       </listitem>
-    </orderedlist>
-    <para />
+    </itemizedlist>
     <para>Partitioning</para>
     <para>After the install, you need to create the extra partition for drbd. &#160;Using fdisk, create you new
     partition and save the table. &#160;You will probably need to reboot your server after this step.</para>
@@ -1949,21 +2172,21 @@
     <para>&#160; }</para>
     <para>}</para>
     <para>where:</para>
-    <orderedlist>
+    <itemizedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; mysql is the name of the partition you created when installing the
-        OS</para>
+        <para>mysql is the name of the partition you created when installing the OS</para>
       </listitem>
-    </orderedlist>
-    <orderedlist>
       <listitem>
-        <para>❏&#160; &#160; &#160; &#160; pf1_server_name and pf2_server_name by the real server names.</para>
-        <para>❏&#160; &#160; &#160; &#160; x.x.x.x and y.y.y.y by the IP addresses dedicated to DRBD on each server
-        (use a dedicated NIC for this, not the main one with all the Ips)</para>
-        <para>❏&#160; &#160; &#160; &#160; YOUR_PARTITION_DEVICE is the device to use for the MySQL partition (ie.
-        /dev/sda2)</para>
+        <para>pf1_server_name and pf2_server_name by the real server names.</para>
       </listitem>
-    </orderedlist>
+      <listitem>
+        <para>x.x.x.x and y.y.y.y by the IP addresses dedicated to DRBD on each server (use a dedicated NIC for
+        this, not the main one with all the Ips)</para>
+      </listitem>
+      <listitem>
+        <para>YOUR_PARTITION_DEVICE is the device to use for the MySQL partition (ie. /dev/sda2)</para>
+      </listitem>
+    </itemizedlist>
     <para />
     <para>Then initialize the partition:</para>
     <para>[root@pf1 ~]# drbdadm create-md mysql</para>
@@ -2048,13 +2271,20 @@
     <para>pf1.example.com Ipaddr2::x.x.x.x IfUp::eth0.y IfUp::eth0.z drbddisk::mysql
     Filesystem::/dev/drbd0::/var/lib/mysql::ext3 mysqld packetfence</para>
     <para />
-    <para>❏&#160; &#160; &#160; &#160; x.x.x.x is PF admin virtual address</para>
-    <para>❏&#160; &#160; &#160; &#160; eth0.y is the name of the NIC configuration file
-    (/etc/sysconfig/network-scripts/ifcfg_eth0.y) dedicated to IP address in vlan y (registration for
-    example).</para>
-    <para>❏&#160; &#160; &#160; &#160; eth0.z is the name of the NIC configuration file
-    (/etc/sysconfig/network-scripts/ifcfg_eth0.z) dedicated to IP address in vlan z (isolation for example).</para>
-    <para />
+    <itemizedlist>
+      <listitem>
+        <para>x.x.x.x is PF admin virtual address</para>
+      </listitem>
+      <listitem>
+        <para>❏&#160; &#160; &#160; &#160; eth0.y is the name of the NIC configuration file
+        (/etc/sysconfig/network-scripts/ifcfg_eth0.y) dedicated to IP address in vlan y (registration for
+        example).</para>
+      </listitem>
+      <listitem>
+        <para>eth0.z is the name of the NIC configuration file (/etc/sysconfig/network-scripts/ifcfg_eth0.z)
+        dedicated to IP address in vlan z (isolation for example).</para>
+      </listitem>
+    </itemizedlist>
     <para>Create the /etc/ha.d/resource.d/IfUp script that will mount IP addresses in Registration, Isolation,
     &#160;(eth0.y, etho0.z) with the following content:</para>
     <para>case "$2" in</para>
@@ -2269,12 +2499,26 @@
     %{HTTP_USER_AGENT} !^BlackBerryRewriteRule ^.*$ - [L,forbidden]</para>
     <para />
     <para>This will allow the following browsers to reach the captive portal (but nothing else):</para>
-    <para>❏&#160; &#160; &#160; &#160; BlackBerry</para>
-    <para>❏&#160; &#160; &#160; &#160; Firefox</para>
-    <para>❏&#160; &#160; &#160; &#160; Google Chrome</para>
-    <para>❏&#160; &#160; &#160; &#160; Internet Explorer</para>
-    <para>❏&#160; &#160; &#160; &#160; Opera</para>
-    <para>❏&#160; &#160; &#160; &#160; Safari</para>
+    <itemizedlist>
+      <listitem>
+        <para>BlackBerry</para>
+      </listitem>
+      <listitem>
+        <para>Firefox</para>
+      </listitem>
+      <listitem>
+        <para>Google Chrome</para>
+      </listitem>
+      <listitem>
+        <para>Internet Explorer</para>
+      </listitem>
+      <listitem>
+        <para>Opera</para>
+      </listitem>
+      <listitem>
+        <para>Safari</para>
+      </listitem>
+    </itemizedlist>
   </sect1>
 </chapter>
 <chapter>
@@ -2448,12 +2692,22 @@
   <sect1>
     <title>Limitations</title>
     <para>Inline enforcement because of it's nature has several limitations that one must be aware of.</para>
-    <para>❏&#160; &#160; &#160; &#160; Everyone behind an inline interface is on the same Layer 2 LAN</para>
-    <para>❏&#160; &#160; &#160; &#160; Every packet of authorized users goes through the PacketFence server
-    increasing the servers' load considerably: Plan ahead for capacity</para>
-    <para>❏&#160; &#160; &#160; &#160; Every packet of authorized users goes through the PacketFence server: it is
-    a single point of failure for Internet access</para>
-    <para>❏&#160; &#160; &#160; &#160; Does not handle routed networks</para>
+    <itemizedlist>
+      <listitem>
+        <para>Everyone behind an inline interface is on the same Layer 2 LAN</para>
+      </listitem>
+      <listitem>
+        <para>Every packet of authorized users goes through the PacketFence server increasing the servers' load
+        considerably: Plan ahead for capacity</para>
+      </listitem>
+      <listitem>
+        <para>Every packet of authorized users goes through the PacketFence server: it is a single point of failure
+        for Internet access</para>
+      </listitem>
+      <listitem>
+        <para>Does not handle routed networks</para>
+      </listitem>
+    </itemizedlist>
     <para>This is why it is considered a poor man's way of doing access control. We have avoided it for a long time
     because of the above mentioned limitations. That said, being able to perform both inline and VLAN enforcement
     on the same server at the same time is a real advantage: it allows users to maintain maximum security while
@@ -2675,7 +2929,11 @@
   <para>This documentation is provided here for historical reference.</para>
   <para>FreeRADIUS 1.x Configuration</para>
   <para>Make sure to install the following packages:</para>
-  <para>❏&#160; &#160; &#160; &#160; freeradius</para>
+  <itemizedlist>
+    <listitem>
+      <para>freeradius</para>
+    </listitem>
+  </itemizedlist>
   <para />
   <sect1>
     <title />
