@@ -1,0 +1,28 @@
+////
+
+    Additional information section
+
+    This file is part of the PacketFence project.
+    Authors: 
+      - Olivier Bilodeau <obilodeau@inverse.ca>
+
+    Copyright (C) 2011, 2012 Inverse inc.
+    License: GFDL 1.2 or later. http://www.gnu.org/licenses/fdl.html
+
+////
+
+
+Additional Information
+----------------------
+
+For more information, please consult the mailing archives or post your 
+questions to it. For details, see:
+
+* packetfence-announce@lists.sourceforge.net: Public announcements (new 
+  releases, security warnings etc.) regarding PacketFence
+
+* packetfence-devel@lists.sourceforge.net: Discussion of PacketFence development
+
+* packetfence-users@lists.sourceforge.net: User and usage discussions
+
+// vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
