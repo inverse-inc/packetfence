@@ -163,6 +163,7 @@ our network infrastructure:
 * RADIUS Secret: useStrongerSecret 
 
 
+[[3Com]]
 3COM
 ~~~~
 
@@ -1069,16 +1070,582 @@ On each interface:
 
 where xx stands for the interface index 
 
-// XXX I'm here
+Extreme Networks
+~~~~~~~~~~~~~~~~
+
+PacketFence supports Extreme Networks switches using:
+
+* linkUp/linkDown
+* MAC Address Lockdown (Port Security)
+* Netlogin - MAC Authentication
+* Netlogin - 802.1X
+
+Don't forget to save the configuration!
+
+All Extreme XOS based switches
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In addition to the SNMP and VLANs settings, this switch needs the Web Services to be enabled and an administrative username and password provided in its PacketFence configuration for Web Services.
+
+MAC Address Lockdown (Port-Security)
+++++++++++++++++++++++++++++++++++++
+
+linkUp/linkDown traps are enabled by default so we disable them and enable MAC Address Lockdown only.
+
+Global config settings without Voice over IP (VoIP):
+
+  enable snmp access
+  configure snmp add trapreceiver 192.168.1.5 community public
+  enable web http
+  configure vlan "Default" delete ports <portlist>
+  configure vlan registration add ports <portlist> untagged
+  configure ports <portlist> vlan registration lock-learning
+  disable snmp traps port-up-down ports <portlist>
+
+where `<portlist>` are ports you want to secure. It can be an individual port or a port-range with a dash.
+
+Global config settings with Voice over IP (VoIP):
+
+  enable snmp access
+  configure snmp add trapreceiver 192.168.1.5 community public
+  enable web http
+  configure vlan "Default" delete ports <portlist>
+  configure vlan registration add ports <portlist> untagged
+  configure vlan voice add ports <portlist> tagged
+  configure ports <portlist> vlan registration lock-learning
+  configure ports <portlist> vlan voice limit-learning 1
+  disable snmp traps port-up-down ports <portlist>
+
+where `<portlist>` are ports you want to secure. It can be an individual port or a port-range with a dash.
+
+MAC Authentication
+++++++++++++++++++
+
+AAA Configuration
+
+  configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8 vr VR-Default
+  configure radius netlogin primary shared-secret 12345
+  enable radius netlogin
+
+Netlogin (Mac Authentication)
+
+  configure netlogin vlan temp
+  enable netlogin mac
+  configure netlogin dynamic-vlan enable
+  configure netlogin dynamic-vlan uplink-ports 50
+  configure netlogin mac authentication database-order radius
+  enable netlogin ports 1-48 mac
+  configure netlogin ports 1-48 mode port-based-vlans
+  configure netlogin ports 1-48 no-restart
+
+802.1X
+++++++
+
+AAA Configuration
+
+  configure radius netlogin primary server 192.168.1.5 1812 client-ip 10.0.0.8 vr VR-Default
+  configure radius netlogin primary shared-secret 12345
+  enable radius netlogin
+
+Netlogin (802.1X)
+
+  configure netlogin vlan temp
+  enable netlogin dot1x
+  configure netlogin dynamic-vlan enable
+  configure netlogin dynamic-vlan uplink-ports 50
+  enable netlogin ports 1-48 dot1x 
+  configure netlogin ports 1-48 mode port-based-vlans
+  configure netlogin ports 1-48 no-restart
+
+NOTE: You can mix the MAC Authentication and 802.1X on the same switchport.  If the device fails 802.1X authentication, it will roll back to the MAC Authentication.
+
+Foundry
+~~~~~~~
+
+FastIron 4802
+^^^^^^^^^^^^^
+
+PacketFence support this switch with optional VoIP using two different trap types:
+
+* linkUp/linkDown
+* Port Security (with static MACs)
+
+*We recommend to enable Port Security only.*
+
+Don't forget to update the startup config!
+
+Those switches support port-security with static MAC address and allow us to secure a MAC on the data VLAN so we enable it whether there is VoIP or not.
+
+We need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC appears on a port.
+
+Global config settings
+
+  snmp-server host 192.168.1.5 public
+  no snmp-server enable traps link-down
+  no snmp-server enable traps link-up
+
+On each interface with no VoIP:
+
+  int eth xx
+    port security
+      enable
+      maximum 1
+      secure 0200.0000.00xx 0
+      violation restrict
+
+where xx stands for the interface ifIndex.
+
+With VoIP a little more work needs to be performed. Instead of the no-VoIP, put in the following config:
+
+----
+conf t
+vlan <mac-detection-vlan>
+  untagged eth xx
+vlan <voice-vlan>
+  tagged eth xx
+
+int eth xx
+  dual-mode <mac-detection-vlan>
+  port security
+    maximum 2
+    secure 0200.00xx.xxxx <mac-detection-vlan>
+    secure 0200.01xx.xxxx <voice-vlan>
+    violation restrict
+    enable
+----
+
+where `xxxxxx` stands for the interface number (filled with zeros), `<voice-vlan>` with your voice-VLAN number and `<mac-detection-vlan>` with your mac-detection VLAN number.
+
+
+HP
+~~
+
+E4800G and E5500G Switch series
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+These are re-branded 3Com switches, see under the <<3Com,3Com section>> for their documentation.
+
+HP ProCurve
+~~~~~~~~~~~
+
+PacketFence supports ProCurve switches with no VoIP using two different trap types:
+
+* linkUp/linkDown
+* Port Security (with static MACs)
+
+*We recommend to enable Port Security only.*
+
+Don't forget to update the startup config!
+
+NOTE: HP ProCurve only sends one security trap to PacketFence per security violation so make sure PacketFence runs when you configure port-security. Also, because of the above limitation, it is considered good practice to reset the intrusion flag as a first troubleshooting step.
+
+If you want to learn more about intrusion flag and port-security, please refer to the ProCurve documentation.
+
+CAUTION: If you configure a switch that is already in production be careful that enabling port-security causes active MAC addresses to be automatically added to the intrusion list without a security trap sent to PacketFence. This is undesired because PacketFence will not be notified that it needs to configure the port. As a work-around, unplug clients before activating port-security or remove the intrusion flag after you enabled port-security with: `port-security <port> clear-intrusion-flag`.
+
+2500 Series
+^^^^^^^^^^^
+
+linkUp/linkDown traps are enabled by default so we disable them and enable Port Security only.
+
+On 2500's, we need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC appears on a port.
+
+Global config settings:
+
+  snmp-server community "public" Unrestricted
+  snmp-server host 192.168.1.5 "public" Not-INFO
+  no snmp-server enable traps link-change 1-26
+
+On each interface: 
+
+  port-security xx learn-mode static action send-alarm mac-address 0200000000xx
+
+where xx stands for the interface index
+
+2600 Series and 3400cl Series
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+linkUp/linkDown traps are enabled by default so we disable them and enable Port Security only.
+
+On 2600's, we *don't* need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC appears on a port.
+
+Global config settings
+
+  snmp-server community public manager unrestricted
+  snmp-server host 192.168.1.5 "public" Not-INFO
+  no snmp-server enable traps link-change 1-26
+
+On each interface: 
+
+  port-security xx learn-mode configured action send-alarm
+
+where xx stands for the interface index
+
+4100, 5400 Series
+^^^^^^^^^^^^^^^^^
+
+Port-Security
++++++++++++++
+
+linkUp/linkDown traps are enabled by default and we have not found a way yet to disable them so do not forget to declare the trunk ports as uplinks in the switch config file.
+
+On 4100's, we need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC appears on a port. The ports are indexed differently on 4100's: it's based on the number of modules you have in your 4100, each module is indexed with a letter.
+
+Global config settings
+
+  snmp-server community "public" Unrestricted
+  snmp-server host 192.168.1.5 "public" Not-INFO
+  no snmp-server enable traps link-change 1-26
+
+You should configure interfaces like this:
+
+  port-security A1 learn-mode static action send-alarm mac-address 020000000001
+  ...
+  port-security A24 learn-mode static action send-alarm mac-address 020000000024
+  port-security B1 learn-mode static action send-alarm mac-address 020000000025
+  ...
+  port-security B24 learn-mode static action send-alarm mac-address 020000000048
+  port-security C1 learn-mode static action send-alarm mac-address 020000000049
+  ...
+
+MAC Authentication (with VoIP)
+++++++++++++++++++++++++++++++
+
+In order to have MAC Authentication working with VoIP, you need to ensure that the Voice VLAN is tagged on all the port first. You also need to activate lldp notification on all ports that will handle VoIP. 
+*Finally, make sure to change the value of the $VOICEVLANAME variable in the Procurve 5400 module's source code.*
+
+RADIUS configuration
+
+  radius-server host 192.168.1.5 key strongKey
+
+MAC Authentication
+
+  aaa port-access mac-based C5-C7
+  aaa port-access mac-based C5 addr-limit 2
+  aaa port-access mac-based C6 addr-limit 2
+  aaa port-access mac-based C7 addr-limit 2
+  aaa port-access C5 controlled-direction in
+  aaa port-access C6 controlled-direction in
+  aaa port-access C7 controlled-direction in
+
+802.1X (with VoIP)
+++++++++++++++++++
+
+Same as MAC Authentication, you need to ensure that the Voice VLAN is tagged on all the port first if using 802.1X. You also need to activate lldp notification on all ports that will handle VoIP. 
+*Finally, make sure to change the value of the $VOICEVLANAME variable in the Procurve 5400 module's source code.*
+
+RADIUS configuration
+
+  radius-server host 192.168.1.5 key strongKey
+
+802.1X
+
+  aaa authentication port-access eap-radius
+  aaa port-access authenticator C3-C4
+  aaa port-access authenticator C3 client-limit 3
+  aaa port-access authenticator C4 client-limit 3
+  aaa port-access authenticator active
+
+Intel
+~~~~~
+
+Express 460 and Express 530
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PacketFence support these switches with no VoIP using one trap type:
+
+* linkUp/linkDown
+
+Exact command-line configuration to be contributed...
+
+Juniper
+~~~~~~~
+
+PacketFence supports Juniper switches without VoIP in MAC Authentication (Juniper's MAC RADIUS) mode.
+
+----
+# load replace terminal
+[Type ^D at a new line to end input]
+interfaces {
+    interface-range access-ports {
+        member-range ge-0/0/1 to ge-0/0/46;
+        unit 0 {
+            family ethernet-switching {
+                port-mode access;
+            }
+        }
+    }
+}
+
+protocols {
+    dot1x {
+        authenticator {
+            authentication-profile-name packetfence;
+            interface {
+                access-ports {
+                    supplicant multiple;
+                    mac-radius {
+                        restrict;
+                    }
+                }
+            }
+        }
+    }
+}
+
+access {
+    radius-server {
+        192.168.1.5 {
+            port 1812;
+            secret "useStrongerSecret";
+        }
+    }
+
+    profile packetfence {
+        authentication-order radius;
+        radius {
+            authentication-server 192.168.1.5;
+            accounting-server 192.168.1.5;
+        }
+        accounting {
+            order radius;
+            accounting-stop-on-failure;
+            accounting-stop-on-access-deny;
+        }
+    }
+}
+
+Ctrl-D
+# commit comment “packetfenced”
+----
+
+Change the interface-range statement to reflect the ports you want to secure with PacketFence.
+
+LG-Ericsson
+~~~~~~~~~~~
+
+PacketFence supports iPECS series switches with no VoIP using two different trap types:
+
+* linkUp / linkDown
+* Port Security (with static MACs)
+
+On some recent models, we can also use more secure and robust features, like:
+
+* MAC Authentication
+* 802.1x
+
+ES-4500G Series
+^^^^^^^^^^^^^^^
+
+LinkUp / LinkDown
++++++++++++++++++
+
+Firmware 1.2.3.2 is required for linkUp / linkDown
+
+Prior to config, make sure to create all necessaries VLANs and config the appropriate uplink port.
+
+Global config settings
+
+  snmp-server community public ro
+  snmp-server community private rw
+  !
+  snmp-server enable traps authentication
+  snmp-server host 192.168.1.5 public version 2c udp-port 162
+  snmp-server notify-filter traphost.192.168.1.5.public remote 192.168.1.5
+
+Firmware is kinda buggy so you'll need to enable linkUp / linkDown using the Web Interface under *Administration -> SNMP*.
+
+Some reports shows that the switch doesn't always send linkDown traps.
+
+On each interface (except uplink)
+
+  switchport allowed vlan add 4 untagged
+  switchport native vlan 4
+  switchport allowed vlan remove 1
+  switchport mode access
+
+Port-Security
++++++++++++++
+
+Firmware 1.2.3.2 is required for port-security.
+
+Prior to config, make sure to create all necessaries VLANs and config the appropriate uplink port.
+
+Global config settings
+
+  snmp-server community public ro
+  snmp-server community private rw
+  !
+  snmp-server enable traps authentication
+  snmp-server host 192.168.1.5 public version 2c udp-port 162
+  snmp-server notify-filter traphost.192.168.1.5.public remote 192.168.1.5
+
+On each interface (except uplink)
+
+  port security max-mac-count 1
+  port security
+  port security action trap
+  switchport allowed vlan add 2 untagged
+  switchport native vlan 2
+  switchport allowed vlan remove 1
+  switchport mode access
+
+The above _port security_ command may not work using the CLI. In this case, use the Web Interface under the *Security -> Port Security* menu and enable each ports using the checkboxes.
+
+It is also recommended, when using port-security, to disable link-change (UP / DOWN) traps.
+
+Don't forget to update the startup config!
+
+Linksys
+~~~~~~~
+
+PacketFence supports Linksys switches with no VoIP using one trap type:
+
+* linkUp/linkDown
+
+Don't forget to update the startup config!
+
+SRW224G4
+^^^^^^^^
+
+Global config settings
+
+  no snmp-server trap authentication
+  snmp-server community CS_2000_le rw view Default 
+  snmp-server community CS_2000_ls ro view Default 
+  snmp-server host 192.168.1.5 public 2
+
+On each interface
+
+  switchport access vlan 4
+
+Netgear
+~~~~~~~
+
+FSM726 / FSM726S version 1
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PacketFence supports FSM726 / FSM726S version 1 switches with no VoIP in Port Security mode (with static MACs) – called Trusted MAC table on Netgear's hardware.
+
+Using the HTTP GUI, follow the steps below to configure such feature. Of course, you must create all your VLANs on the switch as well.
+
+.SNMP Settings
+
+In *Advanced -> SNMP -> Community Table*, create a read-write community string and a trap community string.  You can use the same community for all the 3 functions (Get, Set, Trap).  
+  
+Next, under *Advanced -> SNMP -> Host Table*, enable the Host Authorization feature and add the PacketFence server into the allowed host list.
+
+Finally, under *Advanced -> SNMP -> Trap Setting*, enable the authentication trap.
+
+.Trusted MAC Security
+
+Under *Advanced -> Advanced Security -> Trusted MAC Address*, create a fake MAC address per port (ie. 02:00:00:00:00:xx where xx is the port number). This will have the effect of sending a security trap to PacketFence when a new device plugs on the port.
+  
+Don't forget to save the configuration!
+
 
 Nortel
 ~~~~~~
 
+PacketFence supports Nortel switches with VoIP using one trap type:
+
+* Mac Security
+
+Don't forget to update the startup config!
+
+NOTE: if you are using a 5500 series with a firmware version of 6 or above, you must use a different module called Nortel::BayStack5500_6x in your `/usr/local/pf/conf/switches.conf`. Indeed, Nortel introduced an incompatible change of behavior in this firmware.
+
+BayStack 470, ERS2500 Series, ERS4500 Series, 4550, 5500 Series and ES325
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.Global config settings
+
+  snmp-server authentication-trap disable
+  snmp-server host 192.168.1.5 "public"
+  snmp trap link-status port 1-24 disable
+  no mac-security mac-address-table
+  interface FastEthernet ALL
+  mac-security port ALL disable
+  mac-security port 1-24 enable
+  default mac-security auto-learning port ALL max-addrs
+  exit
+  mac-security enable
+  mac-security snmp-lock disable
+  mac-security intrusion-detect disable
+  mac-security filtering enable
+  mac-security snmp-trap enable
+  mac-security auto-learning aging-time 60
+  mac-security learning-ports NONE
+  mac-security learning disable
+
+.VoIP support
+
+You need to ensure that all your ports are tagged with the voice VLAN.  The switch should do the rest for you.
+
+  vlan create 6 name "Telephone" type port learning ivl
+  vlan members 6 1-20,23-24
+
+BPS2000
+^^^^^^^
+
+You can only configure this switch through menus.
+
+Enable MAC Address Security:
+
+-----
+MAC Address Security: Enabled
+MAC Address Security SNMP-Locked: Disabled
+Partition Port on Intrusion Detected: Disabled
+DA Filtering on Intrusion Detected: Enabled
+Generate SNMP Trap on Intrusion: Enabled
+Current Learning Mode: Disabled
+Learn by Ports: NONE
+
+Port  Trunk  Security
+----  -----  --------
+   1         Enabled
+ ...
+  24         Enabled
+-----
+
+SMC
+~~~
+
+TigerStack 6128L2, 8824M and 8848M
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PacketFence supports these switches without VoIP using two different trap types:
+
+* linkUp/linkDown
+* Port Security (with static MACs)
+
+*We recommend to enable Port Security only.*
+
+Global config settings
+
+  SNMP-server host 192.168.1.5 public version 2c udp-port 162
+  no snmp-server enable traps link-up-down
+
+On each interface: 
+
+  port security max-mac-count 1
+  port security
+  port security action trap
+
+TigerStack 6224M
+^^^^^^^^^^^^^^^^
+
+Supports linkUp/linkDown mode
+
+Global config settings
+
+  SNMP-server host 192.168.1.5 public version 1
 
 // TODO with no VoIP replace with _without VoIP_
 // TODO with VoIP replace with _with VoIP_
 // TODO replace ifIndex with `ifIndex`
 // TODO replace where xxxxx (or xx) with `xxxxx` or `xx`
+// TODO don't forget latest Aruba changes made by FG on the Aruba in the docbook version
 
 include::additional-info.asciidoc[]
 
