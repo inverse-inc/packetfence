@@ -170,7 +170,7 @@ our network infrastructure:
 SuperStack 3 Switch 4200 and 4500
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-PacketFence supports these 3Com switches with no VoIP using one trap type:
+PacketFence supports these 3Com switches _without VoIP_ using one trap type:
 
 * linkUp/linkDown
 * Port Security (with static MACs)
@@ -377,7 +377,7 @@ To configure: use web interface to send the linkUp/linkDown traps to the PacketF
 Amer 
 ~~~~
 
-PacketFence supports Amer switches with no VoIP using one trap type: 
+PacketFence supports Amer switches _without VoIP_ using one trap type: 
 
 * linkUp/linkDown 
 
@@ -573,7 +573,7 @@ Global config settings:
   snmp-server enable traps port-security trap-rate 1 
   snmp-server host 192.168.1.5 version 2c public port-security 
 
-On each interface with no VoIP: 
+On each interface _without VoIP_: 
 
   switchport access vlan 4 
   switchport port-security 
@@ -610,7 +610,7 @@ Port­Security for IOS 12.2(46)SE or greater
 
 Since version PacketFence 2.2.1, the way to handle VoIP when using 
 port-security dramatically changed. Ensure that you follow the instructions 
-below.  To make the story short, instead on relying on the dynamic 
+below. To make the story short, instead on relying on the dynamic 
 MAC learning for VoIP, we use a static entry on the voice VLAN so we can trigger a new security 
 violation, and then authorize the phone MAC address on the network. 
 
@@ -620,7 +620,7 @@ Global config settings:
   snmp-server enable traps port-security trap-rate 1 
   snmp-server host 192.168.1.5 version 2c public port-security 
 
-On each interface with no VoIP:
+On each interface _without VoIP_:
 
   switchport access vlan 4 
   switchport port-security 
@@ -780,7 +780,7 @@ Global config settings
   snmp-server enable traps port-security trap-rate 1 
   snmp-server host 192.168.1.5 version 2c public port-security 
 
-On each interface with no VoIP: 
+On each interface _without VoIP_: 
 
   switchport access vlan 4 
   switchport port-security 
@@ -828,7 +828,7 @@ Global config settings
   snmp-server enable traps port-security trap-rate 1 
   snmp-server host 192.168.1.5 version 2c public port-security 
 
-On each interface with no VoIP: 
+On each interface _without VoIP_: 
 
   switchport access vlan 4 
   switchport port-security 
@@ -950,7 +950,7 @@ Global config settings
 Enterasys 
 ~~~~~~~~~
 
-PacketFence supports Enterasys switches with no VoIP using two different trap types: 
+PacketFence supports Enterasys switches _without VoIP_ using two different trap types: 
 
 * linkUp/linkDown 
 * MAC Locking (Port Security with static MACs) 
@@ -1157,7 +1157,7 @@ Netlogin (802.1X)
   configure netlogin ports 1-48 mode port-based-vlans
   configure netlogin ports 1-48 no-restart
 
-NOTE: You can mix the MAC Authentication and 802.1X on the same switchport.  If the device fails 802.1X authentication, it will roll back to the MAC Authentication.
+NOTE: You can mix the MAC Authentication and 802.1X on the same switchport. If the device fails 802.1X authentication, it will roll back to the MAC Authentication.
 
 Foundry
 ~~~~~~~
@@ -1184,7 +1184,7 @@ Global config settings
   no snmp-server enable traps link-down
   no snmp-server enable traps link-up
 
-On each interface with no VoIP:
+On each interface _without VoIP_:
 
   int eth xx
     port security
@@ -1228,7 +1228,7 @@ These are re-branded 3Com switches, see under the <<3Com,3Com section>> for thei
 HP ProCurve
 ~~~~~~~~~~~
 
-PacketFence supports ProCurve switches with no VoIP using two different trap types:
+PacketFence supports ProCurve switches _without VoIP_ using two different trap types:
 
 * linkUp/linkDown
 * Port Security (with static MACs)
@@ -1352,7 +1352,7 @@ Intel
 Express 460 and Express 530
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-PacketFence support these switches with no VoIP using one trap type:
+PacketFence support these switches _without VoIP_ using one trap type:
 
 * linkUp/linkDown
 
@@ -1416,7 +1416,7 @@ access {
 }
 
 Ctrl-D
-# commit comment “packetfenced”
+# commit comment "packetfenced"
 ----
 
 Change the interface-range statement to reflect the ports you want to secure with PacketFence.
@@ -1424,7 +1424,7 @@ Change the interface-range statement to reflect the ports you want to secure wit
 LG-Ericsson
 ~~~~~~~~~~~
 
-PacketFence supports iPECS series switches with no VoIP using two different trap types:
+PacketFence supports iPECS series switches _without VoIP_ using two different trap types:
 
 * linkUp / linkDown
 * Port Security (with static MACs)
@@ -1499,7 +1499,7 @@ Don't forget to update the startup config!
 Linksys
 ~~~~~~~
 
-PacketFence supports Linksys switches with no VoIP using one trap type:
+PacketFence supports Linksys switches _without VoIP_ using one trap type:
 
 * linkUp/linkDown
 
@@ -1525,7 +1525,7 @@ Netgear
 FSM726 / FSM726S version 1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-PacketFence supports FSM726 / FSM726S version 1 switches with no VoIP in Port Security mode (with static MACs) – called Trusted MAC table on Netgear's hardware.
+PacketFence supports FSM726 / FSM726S version 1 switches _without VoIP_ in Port Security mode (with static MACs) – called Trusted MAC table on Netgear's hardware.
 
 Using the HTTP GUI, follow the steps below to configure such feature. Of course, you must create all your VLANs on the switch as well.
 
@@ -1641,11 +1641,636 @@ Global config settings
 
   SNMP-server host 192.168.1.5 public version 1
 
-// TODO with no VoIP replace with _without VoIP_
+Wireless Controllers and Access Point Configuration
+---------------------------------------------------
+
+Assumptions
+~~~~~~~~~~~
+
+Throughout this configuration example we use the following assumptions for our network infrastructure:
+
+* PacketFence is fully configured with FreeRADIUS running
+* PacketFence IP address: 192.168.1.5
+* Normal VLAN: 1
+* Registration VLAN: 2
+* Isolation VLAN: 3
+* MAC Detection VLAN: 4
+* Guest VLAN: 5
+* VoIP, Voice VLAN: 100
+* use SNMP v2c
+* SNMP community name: public
+* RADIUS Secret: useStrongerSecret footnote:[Be careful to change the secret key to a much stronger one. A 16 character random secret with digits, upper case and lower case characters is recommended.]
+* Open SSID: PacketFence-Public
+* WPA-Enterprise SSID: PacketFence-Secure
+
+
+Unsupported Equipment
+~~~~~~~~~~~~~~~~~~~~~
+
+Wireless network access configuration is a lot more consistent between vendors. This is due to the fact that the situation is a lot more standardized than the wired side: VLAN assignment is done centrally with RADIUS and that the client protocol is consistent (MAC-Authentication or 802.1X).
+
+This consistency has the benefit that a lot of the wireless network devices tend to work out-of-the-box with PacketFence. The only missing piece being, in most cases, remote deauthentication of the client which is used for VLAN assignment (deauth user so it'll reconnect and get new VLAN).
+
+So, even if your wireless equipment is not explicitly supported by PacketFence, it's recommended that you give it a try. The next section covers the objectives that you want to accomplish for trying out your equipment even if we don't have configuration for it.
+
+Here are the high-level requirements for proper wireless integration with PacketFence
+
+* The appropriate VLANs must exist
+* Allow controller to honor VLAN assignments from AAA (sometimes called AAA override)
+* Put your open SSID (if any) in MAC-Authentication mode and authenticate against the FreeRADIUS hosted on PacketFence
+* Put your secure SSID (if any) in 802.1X mode and authenticate against FreeRADIUS hosted on PacketFence.
+* On registration / isolation VLANs the DHCP traffic must reach the PacketFence server
+* On your production VLANs a copy of the DHCP traffic must reach PacketFence where a pfdhcplistener listens (configurable in `pf.conf` under `interfaces`)
+
+At this point, user registration with the captive-portal is possible and registered users should have access to the appropriate VLANs. However, VLAN changes (like after a registration) won't automatically happen, you will need to disconnect / reconnect. An explanation is provided in introduction section above about this behavior.
+
+You can try modules similar to your equipment if any (read appropriate instructions) or you can try to see if RFC3576 is supported. RFC3576 covers RADIUS Packet of Disconnect (PoD) also known as Disconnect Messages (DM) or Change of Authorization (CoA). You can try the Aruba module if you want to verify if RFC3576 is supported by your hardware.
+
+If none of the above worked then you can fallback to inline enforcement or let us know what equipment you are using on the https://lists.sourceforge.net/lists/listinfo/packetfence-devel[packetfence-devel mailing list].
+
+AeroHIVE
+~~~~~~~~
+
+AeroHIVE products are a bit different compared to the other vendors.  They support either a local HiveManager (kind of wireless controller) or a cloud-based HVM.  However, the configuration is the same for the local and the cloud-based controller.  Note that all the config are made on the HVM and then pushed to the APs. 
+
+.AAA Client Settings
+
+In the HVM, go to *Configuration -> AAA Authentication -> AAA Client Settings*, and insert the proper properties:
+
+* Give a RADIUS Name
+* Add a RADIUS server with Authentication as the server type and primary as the role
+* Make sure Permit Dynamic Change of Authorization is ticked (RFC 3576)
+
+.Public SSID
+
+Again in the HVM, go to *Configuration -> SSIDs*, and create a new SSID with the following:
+
+* Give a Profile Name and an SSID Name
+* Choose Open as the Access Security 
+* Select Enable Mac Authentication
+* Select your RADIUS server from the RADIUS Server dropdown list
+
+.Secure SSID
+
+In the HVM, go to *Configuration -> SSIDs*, and create a new SSID with the following :
+
+* Give a Profile Name and an SSID Name
+* Choose WPA2 Enterprise as the Access Security 
+* Select WPA2-802.1X as the key management
+* Select CCMP as the encryption method
+* Select your RADIUS server from the RADIUS Server dropdown list
+
+.Caching and Roaming
+
+AeroHIVE have a session replication feature to ease the EAP session roaming between two access points.  However, this may cause problems when you bounce the wireless card of a client, it will not do a new RADIUS request.  Two settings can be tweaked to reduce the caching impact, it is the roaming cache update interval and roaming cache ageout.  They are located in *Configuration -> SSIDs -> [SSID Name] -> Optional Settings -> Advanced*.
+
+
+Avaya
+~~~~~
+
+Wireless Controller (WC)
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+To be Contributed....
+
+Aruba
+~~~~~
+
+All Aruba OS
+^^^^^^^^^^^^
+
+In this section, we cover the basic configuration of the Aruba wireless controller for PacketFence via the web GUI. It was done on an Aruba Controller 200 software version ArubaOS 5.0.3.3, tested on a Controller 600 with ArubaOS 6.0 but it should apply to all Aruba models.
+
+CAUTION: If you are already using your Aruba controllers and don't want to impact your users you should create new AAA profiles and apply them to new SSIDs instead of modifying the default ones.
+
+.AAA Settings
+
+In the Web interface, go to *Configuration -> Authentication -> RADIUS Server* and add a RADIUS server named "packetfence" then edit it:
+
+* Set Host to PacketFence's IP (192.168.1.5)
+* Set the Key to your RADIUS shared secret (useStrongerSecret)
+* Click Apply
+
+Under *Configuration -> Authentication -> Server Group* add a new Server Group named "packetfence" then edit it to add your RADIUS Server "packetfence" to the group. Click Apply.
+
+Under *Configuration -> Authentication -> RFC3576* add a new server with PacketFence's IP (192.168.1.5) and your RADIUS shared secret (useStrongerSecret). Click Apply.
+Under *Configuration -> Authentication -> L2 Authentication* edit the MAC Authentication Profile called "default" then edit it to change the Delimiter to dash. Click Apply.
+
+Under *Configuration -> Authentication -> L2 Authentication* edit the 802.1X Authentication Profile called "default" then edit it to uncheck the Opportunistic Key Caching under Advanced. Click Apply.
+
+Under *Configuration -> Authentication -> AAA Profiles* click on the "default-mac-auth" profile then click on MAC Authentication Server Group and choose the "packetfence" server group. Click Apply. Move to the RFC3576 server sub item and choose PacketFence's IP (192.168.1.5) click add then apply.
+
+Under *Configuration -> Authentication -> AAA Profiles* click on the "default-dot1x" profile then click on 802.1X Authentication Server Group and choose the "packetfence" server group. Click Apply. Move to the RFC3576 server sub item and choose PacketFence's IP (192.168.1.5) click add then apply.
+
+.Public SSID
+
+In the Web interface, go to *Configuration -> AP Configuration* then edit the "default" AP Group. Go in *Wireless LAN -> Virtual AP* create a new profile with the following:
+
+* AAA Profile: default-mac-auth
+* SSID Profile: Select NEW then add an SSID (PacketFence-Public) and Network authentication set to None
+
+.Secure SSID
+
+In the Web interface, go to *Configuration -> AP Configuration* then edit the "default" AP Group. Go in *Wireless LAN -> Virtual AP* create a new profile with the following:
+
+* AAA Profile: default-dot1x
+* SSID Profile: Select NEW then add an SSID (PacketFence-Secure) and Network authentication set to WPA2
+
+Aruba Controller 200
+^^^^^^^^^^^^^^^^^^^^
+
+In this section, we cover the basic configuration of the Aruba Controller 200 for PacketFence using the command line interface. We suggest you to use the instructions above for the Web GUI instead.
+
+.VLAN definition
+
+Here, we create our PacketFence VLANs, and our AccessPoint VLAN (VID 66). It is recommended to isolate the management of the thin APs in a separate VLAN. 
+
+  vlan 2 
+  vlan 3 
+  vlan 5 
+  vlan 10 
+  vlan 66 
+
+.AAA Authentication Server
+
+  aaa authentication-server radius "PacketFence"
+     host 192.168.1.5
+     key useStrongerSecret
+  aaa server-group "Radius-Group"
+   auth-server PacketFence
+
+.AAA Profiles
+
+  aaa profile "default-dot1x"
+     authentication-dot1x "default"
+     dot1x-default-role "authenticated"
+     dot1x-server-group "Radius-Group"
+     radius-accounting "Radius-Group"
+  aaa profile "PacketFence"
+     authentication-mac "pf_mac_auth"
+     mac-server-group "Radius-Group"
+     radius-accounting "Radius-Group"
+
+.WLAN SSIDs: profiles and virtual AP
+
+  wlan ssid-profile "PacketFence-Public"
+     essid "PacketFence-Public"
+  wlan ssid-profile "PacketFence-Secure"
+     essid "PacketFence-Secure"
+     opmode wpa2-aes
+  wlan virtual-ap "Inverse-Guest"
+     aaa-profile "PacketFence"
+     ssid-profile "PacketFence-Public"
+  wlan virtual-ap "Inverse-Secure"
+     aaa-profile "default-dot1x"
+     ssid-profile "PacketFence-Secure"
+  ap-group "Inverse"
+     virtual-ap "Inverse-Guest"
+     virtual-ap "Inverse-Secure"                    
+     ids-profile "ids-disabled"
+
+Cisco
+~~~~~
+
+Aironet 1121, 1130, 1242, 1250
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+CAUTION: With this equipment, the same VLAN cannot be shared between two SSIDs. Have this in mind in your design. For example, you need two isolation VLAN if you want to isolate hosts on the public and secure SSIDs.
+
+Here is the MAC-Authentication + 802.1X configuration:
+
+----
+dot11 vlan-name normal vlan 1
+dot11 vlan-name registration vlan 2
+dot11 vlan-name isolation vlan 3
+dot11 vlan-name guest vlan 5
+
+interface Dot11Radio0
+  encryption vlan 1 mode ciphers aes-ccm
+  encryption vlan 2 mode ciphers aes-ccm
+  ssid PacketFence-Public
+  ssid PacketFence-Secure
+
+interface Dot11Radio0.2
+  encapsulation dot1Q 2
+  no ip route-cache
+  bridge-group 253
+  bridge-group 253 subscriber-loop-control
+  bridge-group 253 block-unknown-source
+  no bridge-group 253 source-learning
+  no bridge-group 253 unicast-flooding
+  bridge-group 253 spanning-disabled
+
+interface Dot11Radio0.3
+  encapsulation dot1Q 3
+  no ip route-cache
+  bridge-group 254
+  bridge-group 254 subscriber-loop-control
+  bridge-group 254 block-unknown-source
+  no bridge-group 254 source-learning
+  no bridge-group 254 unicast-flooding
+  bridge-group 254 spanning-disabled
+
+interface Dot11Radio0.5
+  encapsulation dot1Q 5
+  no ip route-cache
+  bridge-group 255
+  bridge-group 255 subscriber-loop-control
+  bridge-group 255 block-unknown-source
+  no bridge-group 255 source-learning
+  no bridge-group 255 unicast-flooding
+  bridge-group 255 spanning-disabled
+
+interface FastEthernet0.2
+  encapsulation dot1Q 2
+  no ip route-cache
+  bridge-group 253
+  no bridge-group 253 source-learning
+  bridge-group 253 spanning-disabled
+
+interface FastEthernet0.3
+  encapsulation dot1Q 3
+  no ip route-cache
+  bridge-group 254
+  no bridge-group 254 source-learning
+  bridge-group 254 spanning-disabled
+
+interface FastEthernet0.5
+  encapsulation dot1Q 5
+  no ip route-cache
+  bridge-group 255
+  no bridge-group 255 source-learning
+  bridge-group 255 spanning-disabled
+----
+
+Then create the two SSIDs:
+
+----
+dot11 ssid PacketFence-Secure
+  vlan 3 backup normal
+  authentication open eap eap_methods
+  authentication key-management wpa
+
+dot11 ssid PacketFence-Public
+  vlan 2 backup guest
+  authentication open mac-address mac_methods
+  mbssid guest-mode
+----
+
+Configure the RADIUS server (we assume here that the FreeRADIUS server and the PacketFence server are located on the same box):
+
+----
+radius-server host 192.168.0.10 auth-port 1812 acct-port 1813 key useStrongerSecret
+aaa group server radius rad_eap
+  server 192.168.0.10 auth-port 1812 acct-port 1813
+aaa authentication login eap_methods group rad_eap
+aaa group server radius rad_mac
+  server 192.168.0.10 auth-port 1812 acct-port 1813
+aaa authentication login mac_methods group rad_mac
+----
+
+
+Wireless LAN Controller (WLC) 2106 and 4400
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  To be contributed...
+
+Wireless Services Module (WiSM)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  To be contributed...
+
+D-Link
+~~~~~~
+
+DWL Access-Points and DWS 3026
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  To be contributed...
+
+
+Extricom
+~~~~~~~~
+
+EXSW Wireless Switches (Controllers)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In order to have the Extricom controller working with PacketFence, you need to define two ESSID definition, one for the “public” network, and one for the “secure” network.  This can be done under a very short time period since Extricom supports RADIUS assigned VLANs out of the box.
+
+You first need to configure you RADIUS server.  This is done under the: *WLAN Settings -> RADIUS* tab.  Enter the PacketFence RADIUS server information. For the ESSID configuration. in the administration UI, go to *WLAN Settings -> ESSID definitions*.  Create the profiles per the following:
+
+.Public SSID
+
+* MAC Authentication must be ticked
+* Encryption method needs to be set to None
+* Select PacketFence as the MAC Authentication RADIUS server (previously added)
+
+.Secure SSID
+
+* Encryption method needs to be set to WPA Enterprise/WPA2 Enterprise
+* AES only needs to be selected
+* Select PacketFence as the RADIUS server (previously added)
+
+The final step is to enable SNMP Agent and SNMP Traps on the controller.  This is done under the following tab in the administrative UI: *Advanced -> SNMP*.
+
+HP
+~~
+
+ProCurve Controller MSM710
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  To be contributed...
+
+Meru
+~~~~
+
+Meru Controllers (MC)
+^^^^^^^^^^^^^^^^^^^^^
+
+In this section, we cover the basic configuration of the Meru wireless controller for PacketFence via the web GUI.
+
+.VLAN Definition
+
+Here, we create our PacketFence VLANs for client use.  Go to *Configuration -> Wired -> VLAN*, and select Add.
+* VLAN Name is the human readable name (ie. RegistrationVLAN)
+* Tag is the VLAN ID
+* Fast Ethernet Interface Index refers to the controller's ethernet interface
+* IP Address – An IP address for this controller on this VLAN
+* Netmask – Network mask for this VLAN
+* IP Address of the default gateway – Wired IP router for this VLAN
+* Set the Override Default DHCP server flag to off
+* Leave the DHCP server IP address and the DHCP relay Pass-Through to default
+
+Click *OK* to add the VLAN.
+
+.AAA Authentication Server 
+
+Here, we create our PacketFence RADIUS server for use.  Under *Configuration -> Security -> Radius*, select *Add*.
+
+* Give the RADIUS Profile a name
+* Write a description of the profile
+* Give the RADIUS IP, RADIUS Secret and the RADIUS authentication port
+* Select Colon for the MAC address delimiter
+* Select MAC Address as the password type
+
+Click *OK* to add the RADIUS profile.
+
+.AAA Accounting Server 
+
+Here, we create our PacketFence RADIUS server for use.  Under *Configuration -> Security -> Radius*, select *Add*.
+
+* Give the RADIUS Profile a name
+* Write a description of the profile
+* Give the RADIUS IP, RADIUS Secret and the RADIUS accounting port
+* Select Colon for the MAC address delimiter
+* Select MAC Address as the password type
+
+Click *OK* to add the RADIUS accounting profile.
+
+.AAA Profiles – Open SSID
+
+Here, we create our wireless security profiles for use.  
+Under *Configuration -> Security -> Profile*, select *Add*.
+
+* Give the security profile a name
+* Select Clear as the L2 Modes Allowed
+* Leave Data Encrypt empty
+* Disable the Captive Portal
+* Enable the Mac Filtering
+
+Click *OK* to save the profile.
+
+.MAC Filtering
+
+When using the OpenSSID, you need to activate the mac filtering. 
+Under *Configuration -> Mac Filtering*:
+
+* Set ACL Environment State to Permit list enabled
+* Select your RADIUS profile
+
+.AAA Profiles – Secure SSID
+
+Here, we create our wireless security profiles for use. 
+Under *Configuration -> Security -> Profile*, select *Add*.
+
+* Give the security profile a name
+* Select WPA2 as the L2 Modes Allowed
+* Select CCMP-AES for Data Encrypt
+* Select your PacketFence RADIUS Authentication Profile
+* Disable the Captive Portal
+* Enable the 802.1X network initiation
+* Leave the Mac Filtering to off
+
+Click *OK* to save the profile.
+
+.WLAN SSIDs
+
+Here, we create our SSID and tie it to a security profile. 
+Under *Configuration -> Wireless -> ESS*, select *Add*.
+
+* Give the ESS profile a name, and enable it
+* Write an SSID name
+* Select your security profile name previously created
+* Select your PacketFence RADIUS Accounting Profile (if you want to do accounting)
+* Enable the SSID Broadcast
+* Make the new AP to join the ESS
+* Set the tunnel interface type to RADIUS and Configured VLAN
+* Select the registration VLAN for the VLAN Name
+
+Click *OK* to create the SSID.  Repeat those steps for the open and secure SSID by choosing the right security profile.
+
+.WLAN SSIDs – Adding to access point
+
+Here, we tie our SSIDs to access points. 
+Under *Configuration -> Wireless -> ESS*, select the SSID you want to add to your aps.  Then, select the *ESS-AP Table*, and click *Add*
+
+* Select the AP ID from the drop down list
+* Click *OK* to associate the SSID with this AP
+
+Motorola
+~~~~~~~~
+
+In order to have the Motorola controller working with PacketFence, you need to define two Wireless LANs definition, one for the “public” network, and one for the “secure” network. 
+
+WiNG (Firmware >= 5.0)
+^^^^^^^^^^^^^^^^^^^^^^
+
+.AAA Policy (RADIUS server)
+
+First, we need to build the AAA Policy. Under *Configuration -> Wireless -> AAA Policy*, click on the *Add* button at the bottom right. Configure the RADIUS profile like the following:
+
+* Host:  Choose IP Address in the drop down, and put the RADIUS server (PF) IP
+* Insert a RADIUS secret passphrase
+* Select “Through Wireless Controller” Request Mode
+
+CAUTION: Since we are using RADIUS Dynamic Authorization, we need to enable the RADIUS accounting.  Under the RADIUS accounting tab,  click the Add button at the bottom right, and insert the proper values.
+
+.Open SSID
+
+Under *Configuration -> Wireless -> Wireless LANs*,  click on the *Add* button at the bottom right.  Under Basic Configuration:
+
+* Profile Name : Give a convenient name
+* SSID:  This is the ESSID name
+* Ensure that the WLAN Status is set to enable
+* Select Single VLAN as VLAN assignment technique
+* Ensure that “Allow RADIUS Override” is selected
+
+Now, for the Security configuration:
+
+* Select MAC as authentication type
+* Select your AAA Policy previously created
+* Ensure that you selected Open as the Encryption
+
+Now, for the Advanced configuration:
+
+* Make sure you select RADIUS Dynamic Authorization
+
+.Secure SSID
+
+Under *Configuration -> Wireless -> Wireless LANs*,  click on the *Add* button at the bottom right.  Under Basic Configuration:
+
+* Profile Name : Give a convenient name
+* SSID:  This is the ESSID name
+* Ensure that the WLAN Status is set to enable
+* Select Single VLAN as VLAN assignment technique
+* Ensure that “Allow RADIUS Override” is selected
+
+Now, for the Security configuration:
+
+* Select EAP as authentication type
+* Select your AAA Policy previously created
+* Ensure that you selected WPA/WPA2-TKIP as the Encryption
+* Unselect everything under Fast Roaming (Disable caching)
+
+Now, for the Advanced configuration:
+
+* Make sure you select RADIUS Dynamic Authorization
+
+.Profile (WLAN Mapping)
+
+You have multiple options here.  Either, you create a general AP profile, and you assign it to your Aps, or you modify the AP device configuration to map the WLAN to the radio interfaces.   For the purpose of this document, we will modify the general profile.  Under *Profiles -> default-apXXX* (where XXX is your AP model), in *Interface -> Radios*, edit the existing radios settings.  Go to the *WLAN Mapping* tab, select the two SSIDs and click on the *<<* button.
+
+.Profile (Management)
+
+Here, we can configure our SNMP community strings.  Located in *Configuration -> Management -> Management Policy*.  Again, you can modify the default one, or you can create a brand new Policy.
+
+.VLANs
+
+You need to ensure that the uplink interface of the controller is configured as a trunk, and that all the necessary VLANs are created on the device.  This is configured under *Device -> rfsXXXX-MAC* (where XXXX is your controller series, and MAC is the latest 3 octets of its mac address).   Edit the device configuration, and go to *Interface -> Ethernet Ports*.  Ensure that the up1 interface is set as trunk, with all the allowed VLANs.  Next, create the VLAN under *Interface -> Virtual Interfaces*.
+
+Older Firmwares (< 5.0)
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.Option for Public Wireless LAN
+
+* Check the Dynamic Assignment check-box
+* Select “MAC Authentication” under Authentication
+* Click “Config...” choose the Colon delimiter format
+* Un-check all encryption options
+* Under RADIUS put in PacketFence's RADIUS Server information
+
+.Option for Secure Wireless LAN
+
+* Check the Dynamic Assignment check-box
+* Select “802.1X EAP” under Authentication
+* Check WPA/WPA2-TKIP encryption option
+* Under RADIUS put in PacketFence's RADIUS Server information
+
+.SNMP Global configuration
+
+Add the two Read-Only and Read-Write users under *Management Access -> SNMP Access*.
+
+
+Trapeze
+~~~~~~~
+
+In order to have the Trapeze controller working with PacketFence, you need to define the RADIUS configuration and the proper service profiles.
+
+.RADIUS configuration
+
+  set radius server PF address 192.168.1.5 timeout 5 retransmit 3 deadtime 0 key secret
+  set server group PF-RADIUS members PF
+
+.Service Profiles
+
+Here we define two service profiles, one for the open SSID (PF-Open) and one for the WPA2-Enterprise SSID (PF-Secure):
+
+----
+set service-profile PF-Open ssid-name CSPI-PF-Open
+set service-profile PF-Open ssid-type clear
+set service-profile PF-Open auth-fallthru last-resort
+set service-profile PF-Open cipher-tkip enable
+set service-profile PF-Open auth-dot1x disable
+set service-profile PF-Open 11n mode-na required
+set service-profile PF-Open attr vlan-name WLAN_REG
+
+set service-profile PF-Secure ssid-name CSPI-PF-Secure
+set service-profile PF-Secure cipher-tkip enable
+set service-profile PF-Secure cipher-ccmp enable
+set service-profile PF-Secure wpa-ie enable
+set service-profile PF-Secure rsn-ie enable
+set service-profile PF-Secure 11n mode-na required
+set service-profile PF-Secure attr vlan-name Wlan
+
+set radio-profile default service-profile CSPI-PF-Open
+set radio-profile default service-profile CSPI-PF-Secure
+----
+
+.AAA configuration
+
+Finally, we need to tie the service profiles with the proper AAA configuration.
+
+  set accounting dot1x ssid PF-Secure ** start-stop PF-RADIUS
+  set accounting mac ssid PF-Open * start-stop PF-RADIUS
+  set authentication mac ssid PF-Open * PF-RADIUS
+  set authentication dot1x ssid PF-Secure ** pass-through PF-RADIUS
+
+Xirrus
+~~~~~~
+
+Xirrus WiFi Arrays
+^^^^^^^^^^^^^^^^^^
+
+Xirrus Access Points can be configured to work with PacketFence quickly since Xirrus supports RADIUS assigned VLANs out of the box.
+
+First, RADIUS server configuration. Set the RADIUS server to be PacketFence's IP: 
+
+  radius-server  ! (global settings)
+    !
+    external
+      primary     server 192.168.1.5
+      primary     secret useStrongerSecret
+      !
+      accounting
+        primary   server 192.168.1.5
+        primary   secret useStrongerSecret
+      exit
+    exit
+  exit
+
+Enable SNMP Agent on the access point:
+
+  snmp
+    !
+    v2
+      community read-write public
+      community read-only public
+    exit
+    !
+  exit
+
+Finally, don't forget to create the SSID you want and the proper bindings with the LAN. Open SSID should be configured to perform MAC Authentication and Secure SSID should be configured to perform 802.1X (WPA-Enterprise or WPA2-Enterprise).
+
+
 // TODO with VoIP replace with _with VoIP_
 // TODO replace ifIndex with `ifIndex`
 // TODO replace where xxxxx (or xx) with `xxxxx` or `xx`
 // TODO don't forget latest Aruba changes made by FG on the Aruba in the docbook version
+// TODO collapse double spaces with /\S  
+// TODO To be Contributed -> contributed
+// TODO all To be contributed should be in a code block
+// TODO s/“/"/g && s/”/"/g
+
 
 include::additional-info.asciidoc[]
 
