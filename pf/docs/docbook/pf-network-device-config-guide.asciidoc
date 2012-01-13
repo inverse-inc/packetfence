@@ -581,7 +581,7 @@ On each interface _without VoIP_:
   switchport port-security violation restrict 
   switchport port-security mac-address 0200.000x.xxxx 
 
-where `xxxxx` stands for the interface ifIndex 
+where `xxxxx` stands for the interface `ifIndex` 
 
 On each interface with VoIP:
 
@@ -593,7 +593,7 @@ On each interface with VoIP:
   switchport port-security violation restrict 
   switchport port-security mac-address 0200.000x.xxxx 
 
-where `xxxxx` stands for the interface ifIndex 
+where `xxxxx` stands for the interface `ifIndex` 
 
 [NOTE]
 .ifIndex mapping
@@ -628,9 +628,9 @@ On each interface _without VoIP_:
   switchport port-security violation restrict 
   switchport port-security mac-address 0200.000x.xxxx 
 
-where xxxxx stands for the interface ifIndex
+where `xxxxx` stands for the interface `ifIndex`
 
-On each interface with VoIP: 
+On each interface _with VoIP_: 
 
   switchport voice vlan 100 
   switchport access vlan 4 
@@ -642,7 +642,7 @@ On each interface with VoIP:
   switchport port-security mac-address 0200.010x.xxxx vlan voice 
   switchport port-security mac-address 0200.000x.xxxx vlan access 
 
-where xxxxx stands for the interface ifIndex 
+where `xxxxx` stands for the interface `ifIndex` 
 
 [NOTE]
 .ifIndex mapping
@@ -788,9 +788,9 @@ On each interface _without VoIP_:
   switchport port-security violation restrict 
   switchport port-security mac-address 0200.000x.xxxx 
 
-where xxxxx stands for the interface ifIndex 
+where `xxxxx` stands for the interface `ifIndex` 
 
-On each interface with VoIP: 
+On each interface _with VoIP_: 
 
   switchport voice vlan 100 
   switchport access vlan 4 
@@ -800,7 +800,7 @@ On each interface with VoIP:
   switchport port-security violation restrict 
   switchport port-security mac-address 0200.000x.xxxx 
 
-where xxxxx stands for the interface ifIndex 
+where `xxxxx` stands for the interface `ifIndex` 
 
 [NOTE]
 .ifIndex mapping
@@ -836,7 +836,7 @@ On each interface _without VoIP_:
   switchport port-security violation restrict 
   switchport port-security mac-address 0200.000x.xxxx 
 
-On each interface with VoIP: 
+On each interface _with VoIP_: 
 
   switchport voice vlan 100 
   switchport access vlan 4 
@@ -846,7 +846,7 @@ On each interface with VoIP:
   switchport port-security violation restrict 
   switchport port-security mac-address 0200.000x.xxxx 
 
-where xxxxx stands for the interface ifIndex 
+where `xxxxx` stands for the interface `ifIndex` 
 
 [NOTE]
 .ifIndex mapping
@@ -869,7 +869,7 @@ Router ISR 1800 Series
 ++++++++++++++++++++++
 
 PacketFence supports the 1800 series Router with linkUp / linkDown traps. It cannot do 
-anything about the router interfaces (ie: fa0 and fa1 on a 1811). VLAN interfaces ifIndex should 
+anything about the router interfaces (ie: fa0 and fa1 on a 1811). VLAN interfaces `ifIndex` should 
 also be marked as uplinks in the PacketFence switch configuration as they generate traps but 
 are of no interest to PacketFence (layer 3). 
 
@@ -985,7 +985,7 @@ On each interface:
   set maclock firstarrival ge.1.xx 0 
   set maclock trap ge.1.xx enable 
 
-where xx stands for the interface index.
+where `xx` stands for the interface index.
 
 SecureStack C2 
 ^^^^^^^^^^^^^^
@@ -1008,7 +1008,7 @@ On each interface:
   set maclock static fe.1.xx 1 
   set maclock firstarrival fe.1.xx 0 
 
-where xx stands for the interface index 
+where `xx` stands for the interface index 
 
 SecureStack C3 
 ^^^^^^^^^^^^^^
@@ -1038,7 +1038,7 @@ On each interface:
   set maclock firstarrival ge.1.xx 0 
   set maclock trap ge.1.xx enable 
 
-where xx stands for the interface index 
+where `xx` stands for the interface index 
 
 Standalone D2 
 ^^^^^^^^^^^^^
@@ -1068,7 +1068,7 @@ On each interface:
   set maclock firstarrival ge.1.xx 0 
   set maclock trap ge.1.xx enable 
 
-where xx stands for the interface index 
+where `xx` stands for the interface index 
 
 Extreme Networks
 ~~~~~~~~~~~~~~~~
@@ -1193,7 +1193,7 @@ On each interface _without VoIP_:
       secure 0200.0000.00xx 0
       violation restrict
 
-where xx stands for the interface ifIndex.
+where `xx` stands for the interface `ifIndex`.
 
 With VoIP a little more work needs to be performed. Instead of the no-VoIP, put in the following config:
 
@@ -1260,7 +1260,7 @@ On each interface:
 
   port-security xx learn-mode static action send-alarm mac-address 0200000000xx
 
-where xx stands for the interface index
+where `xx` stands for the interface index
 
 2600 Series and 3400cl Series
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1279,7 +1279,7 @@ On each interface:
 
   port-security xx learn-mode configured action send-alarm
 
-where xx stands for the interface index
+where `xx` stands for the interface index
 
 4100, 5400 Series
 ^^^^^^^^^^^^^^^^^
@@ -1531,7 +1531,7 @@ Using the HTTP GUI, follow the steps below to configure such feature. Of course,
 
 .SNMP Settings
 
-In *Advanced -> SNMP -> Community Table*, create a read-write community string and a trap community string.  You can use the same community for all the 3 functions (Get, Set, Trap).  
+In *Advanced -> SNMP -> Community Table*, create a read-write community string and a trap community string. You can use the same community for all the 3 functions (Get, Set, Trap).
   
 Next, under *Advanced -> SNMP -> Host Table*, enable the Host Authorization feature and add the PacketFence server into the allowed host list.
 
@@ -1539,7 +1539,7 @@ Finally, under *Advanced -> SNMP -> Trap Setting*, enable the authentication tra
 
 .Trusted MAC Security
 
-Under *Advanced -> Advanced Security -> Trusted MAC Address*, create a fake MAC address per port (ie. 02:00:00:00:00:xx where xx is the port number). This will have the effect of sending a security trap to PacketFence when a new device plugs on the port.
+Under *Advanced -> Advanced Security -> Trusted MAC Address*, create a fake MAC address per port (ie. 02:00:00:00:00:xx where `xx` is the port number). This will have the effect of sending a security trap to PacketFence when a new device plugs on the port.
   
 Don't forget to save the configuration!
 
@@ -1580,7 +1580,7 @@ BayStack 470, ERS2500 Series, ERS4500 Series, 4550, 5500 Series and ES325
 
 .VoIP support
 
-You need to ensure that all your ports are tagged with the voice VLAN.  The switch should do the rest for you.
+You need to ensure that all your ports are tagged with the voice VLAN. The switch should do the rest for you.
 
   vlan create 6 name "Telephone" type port learning ivl
   vlan members 6 1-20,23-24
@@ -1691,7 +1691,7 @@ If none of the above worked then you can fallback to inline enforcement or let u
 AeroHIVE
 ~~~~~~~~
 
-AeroHIVE products are a bit different compared to the other vendors.  They support either a local HiveManager (kind of wireless controller) or a cloud-based HVM.  However, the configuration is the same for the local and the cloud-based controller.  Note that all the config are made on the HVM and then pushed to the APs. 
+AeroHIVE products are a bit different compared to the other vendors. They support either a local HiveManager (kind of wireless controller) or a cloud-based HVM. However, the configuration is the same for the local and the cloud-based controller. Note that all the config are made on the HVM and then pushed to the APs. 
 
 .AAA Client Settings
 
@@ -1722,7 +1722,7 @@ In the HVM, go to *Configuration -> SSIDs*, and create a new SSID with the follo
 
 .Caching and Roaming
 
-AeroHIVE have a session replication feature to ease the EAP session roaming between two access points.  However, this may cause problems when you bounce the wireless card of a client, it will not do a new RADIUS request.  Two settings can be tweaked to reduce the caching impact, it is the roaming cache update interval and roaming cache ageout.  They are located in *Configuration -> SSIDs -> [SSID Name] -> Optional Settings -> Advanced*.
+AeroHIVE have a session replication feature to ease the EAP session roaming between two access points. However, this may cause problems when you bounce the wireless card of a client, it will not do a new RADIUS request. Two settings can be tweaked to reduce the caching impact, it is the roaming cache update interval and roaming cache ageout. They are located in *Configuration -> SSIDs -> [SSID Name] -> Optional Settings -> Advanced*.
 
 
 Avaya
@@ -1731,7 +1731,7 @@ Avaya
 Wireless Controller (WC)
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-To be Contributed....
+  To be contributed....
 
 Aruba
 ~~~~~
@@ -1826,7 +1826,7 @@ Here, we create our PacketFence VLANs, and our AccessPoint VLAN (VID 66). It is 
      ssid-profile "PacketFence-Secure"
   ap-group "Inverse"
      virtual-ap "Inverse-Guest"
-     virtual-ap "Inverse-Secure"                    
+     virtual-ap "Inverse-Secure"
      ids-profile "ids-disabled"
 
 Cisco
@@ -1955,9 +1955,9 @@ Extricom
 EXSW Wireless Switches (Controllers)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In order to have the Extricom controller working with PacketFence, you need to define two ESSID definition, one for the “public” network, and one for the “secure” network.  This can be done under a very short time period since Extricom supports RADIUS assigned VLANs out of the box.
+In order to have the Extricom controller working with PacketFence, you need to define two ESSID definition, one for the "public" network, and one for the "secure" network. This can be done under a very short time period since Extricom supports RADIUS assigned VLANs out of the box.
 
-You first need to configure you RADIUS server.  This is done under the: *WLAN Settings -> RADIUS* tab.  Enter the PacketFence RADIUS server information. For the ESSID configuration. in the administration UI, go to *WLAN Settings -> ESSID definitions*.  Create the profiles per the following:
+You first need to configure you RADIUS server. This is done under the: *WLAN Settings -> RADIUS* tab. Enter the PacketFence RADIUS server information. For the ESSID configuration. in the administration UI, go to *WLAN Settings -> ESSID definitions*. Create the profiles per the following:
 
 .Public SSID
 
@@ -1971,7 +1971,7 @@ You first need to configure you RADIUS server.  This is done under the: *WLAN Se
 * AES only needs to be selected
 * Select PacketFence as the RADIUS server (previously added)
 
-The final step is to enable SNMP Agent and SNMP Traps on the controller.  This is done under the following tab in the administrative UI: *Advanced -> SNMP*.
+The final step is to enable SNMP Agent and SNMP Traps on the controller. This is done under the following tab in the administrative UI: *Advanced -> SNMP*.
 
 HP
 ~~
@@ -1991,7 +1991,7 @@ In this section, we cover the basic configuration of the Meru wireless controlle
 
 .VLAN Definition
 
-Here, we create our PacketFence VLANs for client use.  Go to *Configuration -> Wired -> VLAN*, and select Add.
+Here, we create our PacketFence VLANs for client use. Go to *Configuration -> Wired -> VLAN*, and select Add.
 * VLAN Name is the human readable name (ie. RegistrationVLAN)
 * Tag is the VLAN ID
 * Fast Ethernet Interface Index refers to the controller's ethernet interface
@@ -2005,7 +2005,7 @@ Click *OK* to add the VLAN.
 
 .AAA Authentication Server 
 
-Here, we create our PacketFence RADIUS server for use.  Under *Configuration -> Security -> Radius*, select *Add*.
+Here, we create our PacketFence RADIUS server for use. Under *Configuration -> Security -> Radius*, select *Add*.
 
 * Give the RADIUS Profile a name
 * Write a description of the profile
@@ -2017,7 +2017,7 @@ Click *OK* to add the RADIUS profile.
 
 .AAA Accounting Server 
 
-Here, we create our PacketFence RADIUS server for use.  Under *Configuration -> Security -> Radius*, select *Add*.
+Here, we create our PacketFence RADIUS server for use. Under *Configuration -> Security -> Radius*, select *Add*.
 
 * Give the RADIUS Profile a name
 * Write a description of the profile
@@ -2029,7 +2029,7 @@ Click *OK* to add the RADIUS accounting profile.
 
 .AAA Profiles – Open SSID
 
-Here, we create our wireless security profiles for use.  
+Here, we create our wireless security profiles for use. 
 Under *Configuration -> Security -> Profile*, select *Add*.
 
 * Give the security profile a name
@@ -2077,12 +2077,12 @@ Under *Configuration -> Wireless -> ESS*, select *Add*.
 * Set the tunnel interface type to RADIUS and Configured VLAN
 * Select the registration VLAN for the VLAN Name
 
-Click *OK* to create the SSID.  Repeat those steps for the open and secure SSID by choosing the right security profile.
+Click *OK* to create the SSID. Repeat those steps for the open and secure SSID by choosing the right security profile.
 
 .WLAN SSIDs – Adding to access point
 
 Here, we tie our SSIDs to access points. 
-Under *Configuration -> Wireless -> ESS*, select the SSID you want to add to your aps.  Then, select the *ESS-AP Table*, and click *Add*
+Under *Configuration -> Wireless -> ESS*, select the SSID you want to add to your aps. Then, select the *ESS-AP Table*, and click *Add*
 
 * Select the AP ID from the drop down list
 * Click *OK* to associate the SSID with this AP
@@ -2090,7 +2090,7 @@ Under *Configuration -> Wireless -> ESS*, select the SSID you want to add to you
 Motorola
 ~~~~~~~~
 
-In order to have the Motorola controller working with PacketFence, you need to define two Wireless LANs definition, one for the “public” network, and one for the “secure” network. 
+In order to have the Motorola controller working with PacketFence, you need to define two Wireless LANs definition, one for the "public" network, and one for the "secure" network. 
 
 WiNG (Firmware >= 5.0)
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -2099,21 +2099,21 @@ WiNG (Firmware >= 5.0)
 
 First, we need to build the AAA Policy. Under *Configuration -> Wireless -> AAA Policy*, click on the *Add* button at the bottom right. Configure the RADIUS profile like the following:
 
-* Host:  Choose IP Address in the drop down, and put the RADIUS server (PF) IP
+* Host: Choose IP Address in the drop down, and put the RADIUS server (PF) IP
 * Insert a RADIUS secret passphrase
-* Select “Through Wireless Controller” Request Mode
+* Select "Through Wireless Controller" Request Mode
 
-CAUTION: Since we are using RADIUS Dynamic Authorization, we need to enable the RADIUS accounting.  Under the RADIUS accounting tab,  click the Add button at the bottom right, and insert the proper values.
+CAUTION: Since we are using RADIUS Dynamic Authorization, we need to enable the RADIUS accounting. Under the RADIUS accounting tab, click the Add button at the bottom right, and insert the proper values.
 
 .Open SSID
 
-Under *Configuration -> Wireless -> Wireless LANs*,  click on the *Add* button at the bottom right.  Under Basic Configuration:
+Under *Configuration -> Wireless -> Wireless LANs*, click on the *Add* button at the bottom right. Under Basic Configuration:
 
 * Profile Name : Give a convenient name
-* SSID:  This is the ESSID name
+* SSID: This is the ESSID name
 * Ensure that the WLAN Status is set to enable
 * Select Single VLAN as VLAN assignment technique
-* Ensure that “Allow RADIUS Override” is selected
+* Ensure that "Allow RADIUS Override" is selected
 
 Now, for the Security configuration:
 
@@ -2127,13 +2127,13 @@ Now, for the Advanced configuration:
 
 .Secure SSID
 
-Under *Configuration -> Wireless -> Wireless LANs*,  click on the *Add* button at the bottom right.  Under Basic Configuration:
+Under *Configuration -> Wireless -> Wireless LANs*, click on the *Add* button at the bottom right. Under Basic Configuration:
 
 * Profile Name : Give a convenient name
-* SSID:  This is the ESSID name
+* SSID: This is the ESSID name
 * Ensure that the WLAN Status is set to enable
 * Select Single VLAN as VLAN assignment technique
-* Ensure that “Allow RADIUS Override” is selected
+* Ensure that "Allow RADIUS Override" is selected
 
 Now, for the Security configuration:
 
@@ -2148,15 +2148,15 @@ Now, for the Advanced configuration:
 
 .Profile (WLAN Mapping)
 
-You have multiple options here.  Either, you create a general AP profile, and you assign it to your Aps, or you modify the AP device configuration to map the WLAN to the radio interfaces.   For the purpose of this document, we will modify the general profile.  Under *Profiles -> default-apXXX* (where XXX is your AP model), in *Interface -> Radios*, edit the existing radios settings.  Go to the *WLAN Mapping* tab, select the two SSIDs and click on the *<<* button.
+You have multiple options here. Either, you create a general AP profile, and you assign it to your Aps, or you modify the AP device configuration to map the WLAN to the radio interfaces. For the purpose of this document, we will modify the general profile. Under *Profiles -> default-apXXX* (where XXX is your AP model), in *Interface -> Radios*, edit the existing radios settings. Go to the *WLAN Mapping* tab, select the two SSIDs and click on the *<<* button.
 
 .Profile (Management)
 
-Here, we can configure our SNMP community strings.  Located in *Configuration -> Management -> Management Policy*.  Again, you can modify the default one, or you can create a brand new Policy.
+Here, we can configure our SNMP community strings. Located in *Configuration -> Management -> Management Policy*. Again, you can modify the default one, or you can create a brand new Policy.
 
 .VLANs
 
-You need to ensure that the uplink interface of the controller is configured as a trunk, and that all the necessary VLANs are created on the device.  This is configured under *Device -> rfsXXXX-MAC* (where XXXX is your controller series, and MAC is the latest 3 octets of its mac address).   Edit the device configuration, and go to *Interface -> Ethernet Ports*.  Ensure that the up1 interface is set as trunk, with all the allowed VLANs.  Next, create the VLAN under *Interface -> Virtual Interfaces*.
+You need to ensure that the uplink interface of the controller is configured as a trunk, and that all the necessary VLANs are created on the device. This is configured under *Device -> rfsXXXX-MAC* (where XXXX is your controller series, and MAC is the latest 3 octets of its mac address). Edit the device configuration, and go to *Interface -> Ethernet Ports*. Ensure that the up1 interface is set as trunk, with all the allowed VLANs. Next, create the VLAN under *Interface -> Virtual Interfaces*.
 
 Older Firmwares (< 5.0)
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -2164,15 +2164,15 @@ Older Firmwares (< 5.0)
 .Option for Public Wireless LAN
 
 * Check the Dynamic Assignment check-box
-* Select “MAC Authentication” under Authentication
-* Click “Config...” choose the Colon delimiter format
+* Select "MAC Authentication" under Authentication
+* Click "Config..." choose the Colon delimiter format
 * Un-check all encryption options
 * Under RADIUS put in PacketFence's RADIUS Server information
 
 .Option for Secure Wireless LAN
 
 * Check the Dynamic Assignment check-box
-* Select “802.1X EAP” under Authentication
+* Select "802.1X EAP" under Authentication
 * Check WPA/WPA2-TKIP encryption option
 * Under RADIUS put in PacketFence's RADIUS Server information
 
@@ -2260,17 +2260,6 @@ Enable SNMP Agent on the access point:
   exit
 
 Finally, don't forget to create the SSID you want and the proper bindings with the LAN. Open SSID should be configured to perform MAC Authentication and Secure SSID should be configured to perform 802.1X (WPA-Enterprise or WPA2-Enterprise).
-
-
-// TODO with VoIP replace with _with VoIP_
-// TODO replace ifIndex with `ifIndex`
-// TODO replace where xxxxx (or xx) with `xxxxx` or `xx`
-// TODO don't forget latest Aruba changes made by FG on the Aruba in the docbook version
-// TODO collapse double spaces with /\S  
-// TODO To be Contributed -> contributed
-// TODO all To be contributed should be in a code block
-// TODO s/“/"/g && s/”/"/g
-
 
 include::additional-info.asciidoc[]
 
