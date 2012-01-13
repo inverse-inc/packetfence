@@ -1706,7 +1706,9 @@ In the HVM, go to *Configuration -> AAA Authentication -> AAA Client Settings*, 
 * Add a RADIUS server with Authentication as the server type and primary as the role
 * Make sure Permit Dynamic Change of Authorization is ticked (RFC 3576)
 
-.Public SSID
+[float]
+Public SSID
+++++++++++++
 
 Again in the HVM, go to *Configuration -> SSIDs*, and create a new SSID with the following:
 
@@ -1715,7 +1717,9 @@ Again in the HVM, go to *Configuration -> SSIDs*, and create a new SSID with the
 * Select Enable Mac Authentication
 * Select your RADIUS server from the RADIUS Server dropdown list
 
-.Secure SSID
+[float]
+Secure SSID
+++++++++++++
 
 In the HVM, go to *Configuration -> SSIDs*, and create a new SSID with the following :
 
@@ -1725,7 +1729,9 @@ In the HVM, go to *Configuration -> SSIDs*, and create a new SSID with the follo
 * Select CCMP as the encryption method
 * Select your RADIUS server from the RADIUS Server dropdown list
 
-.Caching and Roaming
+[float]
+Caching and Roaming
+++++++++++++++++++++
 
 AeroHIVE have a session replication feature to ease the EAP session roaming between two access points. However, this may cause problems when you bounce the wireless card of a client, it will not do a new RADIUS request. Two settings can be tweaked to reduce the caching impact, it is the roaming cache update interval and roaming cache ageout. They are located in *Configuration -> SSIDs -> [SSID Name] -> Optional Settings -> Advanced*.
 
@@ -1748,7 +1754,9 @@ In this section, we cover the basic configuration of the Aruba wireless controll
 
 CAUTION: If you are already using your Aruba controllers and don't want to impact your users you should create new AAA profiles and apply them to new SSIDs instead of modifying the default ones.
 
-.AAA Settings
+[float]
+AAA Settings
++++++++++++++
 
 In the Web interface, go to *Configuration -> Authentication -> RADIUS Server* and add a RADIUS server named "packetfence" then edit it:
 
@@ -1767,14 +1775,18 @@ Under *Configuration -> Authentication -> AAA Profiles* click on the "default-ma
 
 Under *Configuration -> Authentication -> AAA Profiles* click on the "default-dot1x" profile then click on 802.1X Authentication Server Group and choose the "packetfence" server group. Click Apply. Move to the RFC3576 server sub item and choose PacketFence's IP (192.168.1.5) click add then apply.
 
-.Public SSID
+[float]
+Public SSID
+++++++++++++
 
 In the Web interface, go to *Configuration -> AP Configuration* then edit the "default" AP Group. Go in *Wireless LAN -> Virtual AP* create a new profile with the following:
 
 * AAA Profile: default-mac-auth
 * SSID Profile: Select NEW then add an SSID (PacketFence-Public) and Network authentication set to None
 
-.Secure SSID
+[float]
+Secure SSID
+++++++++++++
 
 In the Web interface, go to *Configuration -> AP Configuration* then edit the "default" AP Group. Go in *Wireless LAN -> Virtual AP* create a new profile with the following:
 
@@ -1786,7 +1798,9 @@ Aruba Controller 200
 
 In this section, we cover the basic configuration of the Aruba Controller 200 for PacketFence using the command line interface. We suggest you to use the instructions above for the Web GUI instead.
 
-.VLAN definition
+[float]
+VLAN definition
+++++++++++++++++
 
 Here, we create our PacketFence VLANs, and our AccessPoint VLAN (VID 66). It is recommended to isolate the management of the thin APs in a separate VLAN. 
 
@@ -1796,7 +1810,9 @@ Here, we create our PacketFence VLANs, and our AccessPoint VLAN (VID 66). It is 
   vlan 10 
   vlan 66 
 
-.AAA Authentication Server
+[float]
+AAA Authentication Server
+++++++++++++++++++++++++++
 
   aaa authentication-server radius "PacketFence"
      host 192.168.1.5
@@ -1804,7 +1820,9 @@ Here, we create our PacketFence VLANs, and our AccessPoint VLAN (VID 66). It is 
   aaa server-group "Radius-Group"
    auth-server PacketFence
 
-.AAA Profiles
+[float]
+AAA Profiles
++++++++++++++
 
   aaa profile "default-dot1x"
      authentication-dot1x "default"
@@ -1816,7 +1834,9 @@ Here, we create our PacketFence VLANs, and our AccessPoint VLAN (VID 66). It is 
      mac-server-group "Radius-Group"
      radius-accounting "Radius-Group"
 
-.WLAN SSIDs: profiles and virtual AP
+[float]
+WLAN SSIDs: profiles and virtual AP
+++++++++++++++++++++++++++++++++++++
 
   wlan ssid-profile "PacketFence-Public"
      essid "PacketFence-Public"
@@ -1842,7 +1862,9 @@ Aironet 1121, 1130, 1242, 1250
 
 CAUTION: With this equipment, the same VLAN cannot be shared between two SSIDs. Have this in mind in your design. For example, you need two isolation VLAN if you want to isolate hosts on the public and secure SSIDs.
 
-.MAC-Authentication + 802.1X configuration
+[float]
+MAC-Authentication + 802.1X configuration
+++++++++++++++++++++++++++++++++++++++++++
 
 Radio Interfaces:
 
@@ -1970,13 +1992,17 @@ In order to have the Extricom controller working with PacketFence, you need to d
 
 You first need to configure you RADIUS server. This is done under the: *WLAN Settings -> RADIUS* tab. Enter the PacketFence RADIUS server information. For the ESSID configuration. in the administration UI, go to *WLAN Settings -> ESSID definitions*. Create the profiles per the following:
 
-.Public SSID
+[float]
+Public SSID
+++++++++++++
 
 * MAC Authentication must be ticked
 * Encryption method needs to be set to None
 * Select PacketFence as the MAC Authentication RADIUS server (previously added)
 
-.Secure SSID
+[float]
+Secure SSID
+++++++++++++
 
 * Encryption method needs to be set to WPA Enterprise/WPA2 Enterprise
 * AES only needs to be selected
@@ -2135,7 +2161,9 @@ First, we need to build the AAA Policy. Under *Configuration -> Wireless -> AAA 
 
 CAUTION: Since we are using RADIUS Dynamic Authorization, we need to enable the RADIUS accounting. Under the RADIUS accounting tab, click the Add button at the bottom right, and insert the proper values.
 
-.Open SSID
+[float]
+Open SSID
+++++++++++
 
 Under *Configuration -> Wireless -> Wireless LANs*, click on the *Add* button at the bottom right. Under Basic Configuration:
 
@@ -2155,7 +2183,9 @@ Now, for the Advanced configuration:
 
 * Make sure you select RADIUS Dynamic Authorization
 
-.Secure SSID
+[float]
+Secure SSID
+++++++++++++
 
 Under *Configuration -> Wireless -> Wireless LANs*, click on the *Add* button at the bottom right. Under Basic Configuration:
 
@@ -2176,22 +2206,30 @@ Now, for the Advanced configuration:
 
 * Make sure you select RADIUS Dynamic Authorization
 
-.Profile (WLAN Mapping)
+[float]
+Profile (WLAN Mapping)
++++++++++++++++++++++++
 
 You have multiple options here. Either, you create a general AP profile, and you assign it to your Aps, or you modify the AP device configuration to map the WLAN to the radio interfaces. For the purpose of this document, we will modify the general profile. Under *Profiles -> default-apXXX* (where XXX is your AP model), in *Interface -> Radios*, edit the existing radios settings. Go to the *WLAN Mapping* tab, select the two SSIDs and click on the *<<* button.
 
-.Profile (Management)
+[float]
+Profile (Management)
++++++++++++++++++++++
 
 Here, we can configure our SNMP community strings. Located in *Configuration -> Management -> Management Policy*. Again, you can modify the default one, or you can create a brand new Policy.
 
-.VLANs
+[float]
+VLANs
+++++++
 
 You need to ensure that the uplink interface of the controller is configured as a trunk, and that all the necessary VLANs are created on the device. This is configured under *Device -> rfsXXXX-MAC* (where XXXX is your controller series, and MAC is the latest 3 octets of its mac address). Edit the device configuration, and go to *Interface -> Ethernet Ports*. Ensure that the up1 interface is set as trunk, with all the allowed VLANs. Next, create the VLAN under *Interface -> Virtual Interfaces*.
 
 Older Firmwares (< 5.0)
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-.Option for Public Wireless LAN
+[float]
+Option for Public Wireless LAN
++++++++++++++++++++++++++++++++
 
 * Check the Dynamic Assignment check-box
 * Select "MAC Authentication" under Authentication
@@ -2199,14 +2237,18 @@ Older Firmwares (< 5.0)
 * Un-check all encryption options
 * Under RADIUS put in PacketFence's RADIUS Server information
 
-.Option for Secure Wireless LAN
+[float]
+Option for Secure Wireless LAN
++++++++++++++++++++++++++++++++
 
 * Check the Dynamic Assignment check-box
 * Select "802.1X EAP" under Authentication
 * Check WPA/WPA2-TKIP encryption option
 * Under RADIUS put in PacketFence's RADIUS Server information
 
-.SNMP Global configuration
+[float]
+SNMP Global configuration
+++++++++++++++++++++++++++
 
 Add the two Read-Only and Read-Write users under *Management Access -> SNMP Access*.
 
@@ -2216,12 +2258,16 @@ Trapeze
 
 In order to have the Trapeze controller working with PacketFence, you need to define the RADIUS configuration and the proper service profiles.
 
-.RADIUS configuration
+[float]
+RADIUS configuration
++++++++++++++++++++++
 
   set radius server PF address 192.168.1.5 timeout 5 retransmit 3 deadtime 0 key secret
   set server group PF-RADIUS members PF
 
-.Service Profiles
+[float]
+Service Profiles
++++++++++++++++++
 
 Here we define two service profiles, one for the open SSID (PF-Open) and one for the WPA2-Enterprise SSID (PF-Secure):
 
@@ -2246,7 +2292,9 @@ set radio-profile default service-profile CSPI-PF-Open
 set radio-profile default service-profile CSPI-PF-Secure
 ----
 
-.AAA configuration
+[float]
+AAA configuration
+++++++++++++++++++
 
 Finally, we need to tie the service profiles with the proper AAA configuration.
 
