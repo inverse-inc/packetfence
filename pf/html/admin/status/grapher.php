@@ -181,6 +181,7 @@ function get_chart_data($cmd){
 
         $output = PFCMD($cmd);
 
+        if (!is_array($output)) return false;
         $headers = array_shift($output); 
         $parts = explode('|', $headers);
         for($i=0; $i<count($parts); $i++){
