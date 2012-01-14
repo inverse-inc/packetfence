@@ -1,0 +1,45 @@
+PacketFence Administration Guide
+================================
+:encoding: UTF-8
+:lang: en
+:doctype: book
+
+////
+
+    This file is part of the PacketFence project.
+
+    See pf-admin-guide-docinfo.xml for authors, copyright and license 
+    information.
+
+////
+
+About this Guide
+----------------
+
+Other sources of information
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// FIXME adapt to this guide
+
+Administration Guide::
+  Covers PacketFence installation, configuration and administration. 
+Developers Guide::
+  Covers captive portal customization, VLAN management customization and 
+  instructions for supporting new hardware. 
+`NEWS`::
+  Covers noteworthy features, improvements and bugfixes by release. 
+`UPGRADE`::
+  Covers compatibility related changes, manual instructions and general notes 
+  about upgrading. 
+`ChangeLog`::
+  Covers all changes to the source code.
+
+These files are included in the package and release tarballs.
+
+include::additional-info.asciidoc[]
+
+include::commercial-support.asciidoc[]
+
+include::license.asciidoc[]
+
+// vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

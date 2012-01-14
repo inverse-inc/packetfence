@@ -6,8 +6,6 @@ PacketFence Network Devices Configuration Guide
 
 ////
 
-    PacketFence Network Devices Configuration Guide
-
     This file is part of the PacketFence project.
 
     See pf-network-device-config-guide-docinfo.xml for authors, copyright and
@@ -18,11 +16,10 @@ PacketFence Network Devices Configuration Guide
 About this Guide
 ----------------
 
-This guide covers the configuration of network devices in order to integrate them with
-PacketFence in VLAN enforcement. Switches, wireless controllers and wireless access points 
-are all considered network devices in PacketFence's terms.
-
-The instructions are based on version 3.1.0 of PacketFence. 
+This guide covers the configuration of network devices in order to integrate 
+them with PacketFence in VLAN enforcement. Switches, wireless controllers and 
+wireless access points are all considered network devices in PacketFence's 
+terms.
 
 The latest version of this guide is available at http://www.packetfence.org/documentation/ 
 

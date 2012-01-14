@@ -1,18 +1,9 @@
+<releaseinfo>Version 3.1.0 - December 2011</releaseinfo>
 <subtitle>for version 3.1.0</subtitle>
 <date>2011-12-23</date>
-<copyright>
-  <year>2010</year>
-  <year>2011</year>
-  <year>2012</year>
-  <holder>Inverse inc.</holder>
-</copyright>
 <legalnotice>
-  <para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free
-  Documentation License, Version 1.2 or any later version published by the Free Software Foundation; with no
-  Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts. A copy of the license is included in the
-  section entitled "GNU Free Documentation License".</para>
+  <para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.2 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts. A copy of the license is included in the section entitled "GNU Free Documentation License".</para>
 </legalnotice>
-<releaseinfo>Version 3.1.0 - December 2011</releaseinfo>
 <mediaobject>
   <objectinfo>
     <corpname>Inverse inc.</corpname>

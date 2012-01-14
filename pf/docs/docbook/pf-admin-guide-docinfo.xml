@@ -1,18 +1,18 @@
 <copyright>
-  <year>2010-2012</year>
+  <year>2008-2012</year>
   <holder>Inverse inc.</holder>
 </copyright>
 <revhistory>
   <revision>
     <revnumber>2.0</revnumber>
-    <date>2012-01-02</date>
+    <date>2012-01-14</date>
     <authorinitials>OBU</authorinitials>
-    <revremark>Port to asciidoc.</revremark>
+    <revremark>Port to Docbook.</revremark>
   </revision>
   <revision>
     <revnumber>1.0</revnumber>
-    <date>2010-11-22</date>
-    <authorinitials>OBU</authorinitials>
+    <date>2008-12-13</date>
+    <authorinitials>DGL</authorinitials>
     <revremark>First OpenDocument version.</revremark>
   </revision>
 </revhistory>
@@ -40,6 +40,15 @@
   <affiliation>
     <address>
       <email>dwuelfrath@inverse.ca</email>
+    </address>
+  </affiliation>
+</author>
+<author>
+  <firstname>Dominik</firstname>
+  <surname>Gehl</surname>
+  <affiliation>
+    <address>
+      <email>dgehl@inverse.ca</email>
     </address>
   </affiliation>
 </author>
