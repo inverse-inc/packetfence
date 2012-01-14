@@ -1561,6 +1561,7 @@ BayStack 470, ERS2500 Series, ERS4500 Series, 4550, 5500 Series and ES325
 
 [float]
 Global config settings
+++++++++++++++++++++++
 
   snmp-server authentication-trap disable
   snmp-server host 192.168.1.5 "public"
@@ -1582,6 +1583,7 @@ Global config settings
 
 [float]
 VoIP support
+++++++++++++
 
 You need to ensure that all your ports are tagged with the voice VLAN. The switch should do the rest for you.
 
@@ -2136,7 +2138,7 @@ WLAN SSIDs – Adding to access point
 +++++++++++++++++++++++++++++++++++
 
 Here, we tie our SSIDs to access points. 
-Under *Configuration -> Wireless -> ESS*, select the SSID you want to add to your aps. Then, select the *ESS-AP Table*, and click *Add*
+Under *Configuration -> Wireless -> ESS*, select the SSID you want to add to your aps. Then, select the *ESS-AP Table*, and click *Add*.
 
 * Select the AP ID from the drop down list
 * Click *OK* to associate the SSID with this AP
@@ -2173,14 +2175,12 @@ Under *Configuration -> Wireless -> Wireless LANs*, click on the *Add* button at
 * Select Single VLAN as VLAN assignment technique
 * Ensure that "Allow RADIUS Override" is selected
 
-Now, for the Security configuration:
-
+.Security configuration:
 * Select MAC as authentication type
 * Select your AAA Policy previously created
 * Ensure that you selected Open as the Encryption
 
-Now, for the Advanced configuration:
-
+.Advanced configuration:
 * Make sure you select RADIUS Dynamic Authorization
 
 [float]
@@ -2195,15 +2195,13 @@ Under *Configuration -> Wireless -> Wireless LANs*, click on the *Add* button at
 * Select Single VLAN as VLAN assignment technique
 * Ensure that "Allow RADIUS Override" is selected
 
-Now, for the Security configuration:
-
+.Security configuration:
 * Select EAP as authentication type
 * Select your AAA Policy previously created
 * Ensure that you selected WPA/WPA2-TKIP as the Encryption
 * Unselect everything under Fast Roaming (Disable caching)
 
-Now, for the Advanced configuration:
-
+.Advanced configuration:
 * Make sure you select RADIUS Dynamic Authorization
 
 [float]
@@ -2227,20 +2225,14 @@ You need to ensure that the uplink interface of the controller is configured as 
 Older Firmwares (< 5.0)
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-[float]
-Option for Public Wireless LAN
-+++++++++++++++++++++++++++++++
-
+.Option for Public Wireless LAN
 * Check the Dynamic Assignment check-box
 * Select "MAC Authentication" under Authentication
 * Click "Config..." choose the Colon delimiter format
 * Un-check all encryption options
 * Under RADIUS put in PacketFence's RADIUS Server information
 
-[float]
-Option for Secure Wireless LAN
-+++++++++++++++++++++++++++++++
-
+.Option for Secure Wireless LAN
 * Check the Dynamic Assignment check-box
 * Select "802.1X EAP" under Authentication
 * Check WPA/WPA2-TKIP encryption option

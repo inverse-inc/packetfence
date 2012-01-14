@@ -17,12 +17,26 @@
 
      ******************************************************************** -->
 
-  <!-- Tasks
+<!--
+    Global Tasks
+    
     TODO prettier revhistory
     TODO prettier Table of Contents
-    TODO 
     TODO generate PDF table of contents (like OSX's Preview shows on the right hand side)
-  -->
+    TODO title 2
+    - align with text?
+    - more above whitespace
+    TODO change the bullet for a prettier one
+    TODO title 3 and 4 
+    - align with text?
+    - should be easier to differentiate (check network guide)
+    TODO icon on line wrap in monospace boxes
+    TODO caution, notes, warnings, etc.
+    - box around it
+    - sexy icon
+    TODO -> is converted into an arrow but it's not pretty (is it font or docbook-thingy?)
+
+-->
 
   <!-- Load default values -->
   <!--<xsl:import href="/opt/local/share/xsl/docbook-xsl/fo/docbook.xsl"/>-->
@@ -38,7 +52,7 @@
   <xsl:template match="legalnotice" mode="book.titlepage.verso.mode">
     <xsl:apply-templates mode="titlepage.mode"/>
     <fo:block text-align="right">
-      <fo:external-graphic src="url('docs/images/inverse-logo.jpg')" width="2in" content-width="scale-to-fit"/>
+      <fo:external-graphic src="url('docs/images/inverse-logo.jpg')" width="3in" content-width="scale-to-fit"/>
     </fo:block>
   </xsl:template>
 
@@ -67,6 +81,9 @@
   <xsl:attribute-set name="revhistory.table.cell.properties">
     <xsl:attribute name="border">solid</xsl:attribute>
   </xsl:attribute-set>
+
+  <!-- Table Of Contents (TOC) options -->
+  <!-- None -->
 
   <!-- grey boxes around code (screen, programlisting) -->
   <xsl:param name="shade.verbatim" select="1"/>
