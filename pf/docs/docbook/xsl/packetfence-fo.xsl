@@ -111,5 +111,8 @@
   <!-- copyright in range instead of seperated years -->
   <xsl:param name="make.year.ranges" select="1" />
 
+  <!-- variablelist behavior (asciidoc's term:: lists) -->
+  <!-- <xsl:param name="variablelist.term.break.after" select="1" /> -->
+
 </xsl:stylesheet>
 <!-- vim: set shiftwidth=2 tabstop=2 expandtab: -->

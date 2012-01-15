@@ -16,13 +16,15 @@ PacketFence Administration Guide
 About this Guide
 ----------------
 
+This guide will walk you through the installation and the day to day administration of the PacketFence solution.
+
+The latest version of this guide is available at http://www.packetfence.org/documentation/
+
 Other sources of information
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-// FIXME adapt to this guide
-
-Administration Guide::
-  Covers PacketFence installation, configuration and administration. 
+Network Devices Configuration Guide::
+  Covers switch, controllers and access points configuration.
 Developers Guide::
   Covers captive portal customization, VLAN management customization and 
   instructions for supporting new hardware. 
@@ -35,6 +37,67 @@ Developers Guide::
   Covers all changes to the source code.
 
 These files are included in the package and release tarballs.
+
+Introduction
+------------
+
+PacketFence is a fully supported, trusted, Free and Open Source network access control (NAC) system. Boosting an impressive feature set including a captive-portal for registration and remediation, centralized wired and wireless management, 802.1X support, layer-2 isolation of problematic devices, integration with the Snort IDS and the Nessus vulnerability scanner; PacketFence can be used to effectively secure networks - from small to very large heterogeneous networks.
+
+Features
+~~~~~~~~
+
+Out of band (VLAN Enforcement)::
+PacketFence's operation is completely out of band when using VLAN enforcement which allows the solution to scale geographically and to be more resilient to failures.
+
+In Band (Inline Enforcement)::
+PacketFence can also be configured to be in-band, especially when you have non-manageable network switches or access points. PacketFence can also work with both VLAN and Inline enforcement activated for maximum scalability and security while allowing older hardware to still be secured using Inline enforcement.  
+
+Voice over IP (VoIP) support::
+Also called IP Telephony (IPT), VoIP is fully supported (even in heterogeneous environments) for multiple switch vendors (Cisco, Edge-Core, HP, LinkSys, Nortel Networks and many more).
+
+802.1X::
+802.1X wireless and wired is supported through a http://www.freeradius.org[FreeRADIUS] module.
+
+Wireless integration::
+  PacketFence integrates perfectly with wireless networks through a http://www.freeradius.org/[FreeRADIUS] module. This allows you to secure your wired and wireless networks the same way using the same user database and using the same captive portal, providing a consistent user experience. Mixing Access Points (AP) vendors and Wireless Controllers is supported.
+
+Registration::
+  PacketFence supports an optional registration mechanism similar to "captive portal" solutions. Contrary to most captive portal solutions, PacketFence remembers users who previously registered and will automatically give them access without another authentication. Of course, this is configurable. An Acceptable Use Policy can be specified such that users cannot enable network access without first accepting it.
+
+Detection of abnormal network activities::
+  Abnormal network activities (computer virus, worms, spyware, traffic denied by establishment policy, etc.) can be detected using local and remote http://www.snort.org/[Snort] sensors. Beyond simple detection, PacketFence layers its own alerting and suppression mechanism on each alert type. A set of configurable actions for each violation is available to administrators.
+
+Proactive vulnerability scans::
+  http://www.nessus.org/nessus/[Nessus] vulnerability scans can be performed upon registration, scheduled or on an ad-hoc basis. PacketFence correlates the Nessus vulnerability ID's of each scan to the violation configuration, returning content specific web pages about which vulnerability the host may have.
+
+Isolation of problematic devices::
+  PacketFence supports several isolation techniques, including VLAN isolation with VoIP support (even in heterogeneous environments) for multiple switch vendors.
+
+Remediation through a captive portal::
+  Once trapped, all network traffic is terminated by the PacketFence system. Based on the node's current status (unregistered, open violation, etc), the user is redirected to the appropriate URL. In the case of a violation, the user will be presented with instructions for the particular situation he/she is in reducing costly help desk intervention.
+
+Command-line and Web-based management::
+  Web-based and command-line interfaces for all management tasks.
+
+Guest Access::
+  PacketFence supports a special guest VLAN out of the box. You configure your network so that the guest VLAN only goes out to the Internet and the registration VLAN and the captive portal are the components used to explain to the guest how to register for access and how his access works. This is usually branded by the organization offering the access. Several means of registering guests are possible. PacketFence does also support guest access bulk creations and imports.
+
+PacketFence is developed by a community of developers located mainly in North America. More information can be found at http://www.packetfence.org.
+
+Network Integration
+~~~~~~~~~~~~~~~~~~~
+
+image::docs/images/diagram-network.png[scaledwidth="100%",alt="Network integration diagram"]
+
+VLAN enforcement is pictured in the above diagram. Inline enforcement should be seen as a simple flat network where PacketFence acts as a firewall / gateway.
+
+Components
+~~~~~~~~~~
+
+image::docs/images/diagram-components.png[scaledwidth="100%",alt="System components overview"]
+
+System Requirements
+-------------------
 
 include::additional-info.asciidoc[]
 
