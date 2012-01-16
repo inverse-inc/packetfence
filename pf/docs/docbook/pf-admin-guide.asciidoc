@@ -99,6 +99,1347 @@ image::docs/images/diagram-components.png[scaledwidth="100%",alt="System compone
 System Requirements
 -------------------
 
+Assumptions
+~~~~~~~~~~~
+
+PacketFence reuses many components in an infrastructure. Thus, it requires the following ones:
+
+* Database server (MySQL)
+* Web server (Apache)
+
+Depending on your setup you may have to install additional components like:
+
+* DHCP server (ISC DHCP)
+* DNS server (BIND)
+* RADIUS server (FreeRADIUS)
+* NIDS (Snort)
+
+In this guide, we assume that all those components are running on the same server (i.e., “localhost” or “127.0.0.1”) that PacketFence will be installed on.
+
+Good understanding of those underlying component and GNU/Linux is required to install PacketFence. If you miss some of those required components, please refer to the appropriate documentation and proceed with the installation of these requirements before continuing with this guide.
+
+The following table provides recommendations for the required components, together with version numbers :
+
+[cols="1,3",grid="rows"]
+|========================================
+|MySQL server     |MySQL 4.1 or 5.1
+|Web server       |Apache 2.2
+|DHCP server      |DHCP 3
+|DNS server       |BIND 9
+|RADIUS server    |FreeRADIUS 2.1.12
+|Snort            |Snort 2.8 or 2.9
+|========================================
+
+More recent versions of the software mentioned above can also be used.
+
+Minimum Hardware Requirements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following provides a list of server hardware recommendations:
+
+* Intel or AMD CPU 3 GHz
+* 2048 MB of RAM
+* 20 GB of disk space (RAID 1 recommended)
+* 1 Network card
+ - +1 for high-availability
+ - +1 for intrusion detection
+
+Operating System Requirements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+PacketFence supports the following operating systems on the i386 or x86_64 architectures: 
+
+* Red Hat Enterprise Linux 5.x/6.x Server
+* Community ENTerprise Operating System (CentOS) 5.x/6.x
+
+Make sure that you can install additional packages from your standard distribution. For example, if you are using Red Hat Enterprise Linux, you have to be subscribed to the Red Hat Network before continuing with the PacketFence software installation.
+
+Other distributions such as Debian, Fedora and Gentoo are known to work but this document doesn't cover them.
+
+Services start-up
+^^^^^^^^^^^^^^^^^
+
+PacketFence takes care of handling the operation of the following services:
+
+* Web server (httpd)
+* DHCP server (dhcpd)
+* DNS server (named)
+* FreeRADIUS server (radiusd)
+* Snort Network IDS (snort)
+* Firewall (iptables)
+
+*Make sure that all the other services are automatically started by your operating system!*
+
+Installation
+------------
+
+This section will guide you through the installation of PacketFence together with its dependencies.
+
+OS Installation
+~~~~~~~~~~~~~~~
+
+Install your distribution with minimal installation and no additional packages. Then:
+
+* Enable Firewall
+* Disable SELinux
+
+Make sure your system is up to date and your yum database is updated:
+
+  yum update
+
+RHEL 5.x / CentOS 5.x
+^^^^^^^^^^^^^^^^^^^^^
+
+Some PacketFence dependencies are available through the Repoforge repository (http://repoforge.org/) so you need to configure YUM to use it.
+
+Then install the latest version of the RPMForge package for your architecture (http://pkgs.repoforge.org/rpmforge-release/). For example (i386):
+
+  wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el5.rf.i386.rpm
+  rpm -i rpmforge-release-0.5.2-2.el5.rf.i386.rpm
+
+Disable the repository by default.  In the `/etc/yum.repos.d/rpmforge.repo`, set enabled to 0 under the rpmforge section:
+
+  enabled = 0
+
+Then install the EPEL repository (http://fedoraproject.org/wiki/EPEL/FAQ). To do so, simply grab the latest EPEL rpm (version 5.4 at the time of this release), and install it :
+
+  wget http://download.fedoraproject.org/pub/epel/5/i386/epel-release-5-4.noarch.rpm
+  rpm -i epel-release-5-4.noarch.rpm
+
+RHEL 6.x / CentOS 6.x
+^^^^^^^^^^^^^^^^^^^^^
+
+Some PacketFence dependencies are available through the Repoforge repository (http://repoforge.org/) so you need to configure YUM to use it.
+
+Then install the latest version of the RPMForge package for your architecture (http://pkgs.repoforge.org/rpmforge-release/). For example (x86_64):
+
+  wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm
+  rpm -i rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm
+
+Disable this repository by default. In the `/etc/yum.repos.d/rpmforge.repo`, set enabled to 0 under the rpmforge section:
+
+  enabled = 0
+
+Then install the EPEL repository (http://fedoraproject.org/wiki/EPEL/FAQ). To do so, simply grab the latest EPEL rpm (version 6.5 at the time of this release), and install it :
+
+  wget http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-5.noarch.rpm
+  rpm -i epel-release-6-5.noarch.rpm
+
+RHEL 6.x
+^^^^^^^^
+
+RedHat Enterprise Linux users need to take an additional setup step. If you are not using the RHN Subscription Management from RedHat you need to enable the optional channel by running the following as root:
+
+  rhn-channel --add –channel=rhel-`uname -m`-server-optional-6
+
+RedHat doesn't seem to provide a `perl-Net-Telnet` package. PacketFence needs it so we will install it from the rpmforge-extras repository now: 
+
+  yum install perl-Net-Telnet --enablerepo=rpmforge-extras
+
+Software Download
+~~~~~~~~~~~~~~~~~
+
+Starting with 1.8.5, PacketFence is now providing an RPM repository for RHEL / CentOS instead of a single RPM file.
+
+This repository contains all required dependencies to install PacketFence. This provides numerous advantages: 
+
+* very easy installation
+* everything is packaged as RPM (no more CPAN hassle)
+* easy upgrade
+
+Software Installation
+~~~~~~~~~~~~~~~~~~~~~
+
+In order to use the repository, just create a file named `/etc/yum.repos.d/PacketFence.repo` with the following content: 
+
+  [PacketFence]
+  name=PacketFence Repository
+  baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/$basearch
+  gpgcheck=0
+  enabled=0
+
+Once the repository is defined, you can install PacketFence with all it's dependencies, and the required external services (DNS server, Database server, DHCP server, RADIUS server) using:
+
+  yum groupinstall --enablerepo=PacketFence,rpmforge Packetfence-complete
+
+Or, if you prefer, to install only the core PacketFence without all the external services, you can use:
+
+  yum install --enablerepo=PacketFence,rpmforge packetfence
+
+Once installed, execute the installer and follow the instructions:
+
+  /usr/local/pf/installer.pl
+
+Once completed, PacketFence will be fully installed on your server. You are now ready to configure it.
+
+Configuration
+-------------
+
+In this section, you'll learn how to configure PacketFence. PacketFence will use MySQL, Apache, ISC DHCP, ISC DNS, iptables and FreeRADIUS. As previously mentioned, we assume that those components run on the same server on which PacketFence is being installed.
+
+First Step
+~~~~~~~~~~
+
+In order to properly begin the configuration of PacketFence, we strongly recommend to execute the configuration script located at `/usr/local/pf/configurator.pl`. This script will guide you through the process of creating a working PacketFence configuration file that is suitable to your needs.
+
+The script will give you different avenues for configuration. Depending on what you want to achieve you answer the questions presented to you. The script will ask some more information about your network infrastructure, like the DNS servers, and the DHCP servers address, etc.
+
+Keep in mind that the resulting PacketFence configuration will be located in `/usr/local/pf/conf/pf.conf` and `/usr/local/pf/conf/networks.conf` and it can always be adjusted by hand afterward.
+
+Web-based Administration Interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+PacketFence provides a web-based administration interface for easy configuration and operational management. In order to access the interface you need to create an administrator and a web services account.
+
+You need to encrypt the new password in the `admin.conf` file with `htpasswd`:
+
+----
+htpasswd -d /usr/local/pf/conf/admin.conf admin
+----
+
+Then enter the new password twice.
+
+Then again for webservice:
+
+----
+htpasswd -d /usr/local/pf/conf/admin.conf webservice
+----
+
+Then enter the new password twice. *Use a very strong password*. You will never have to enter it more than once.
+
+Once PacketFence is started, administration interface is available at: https://<hostname>:1443/
+
+Global configuration file (pf.conf)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `/usr/local/pf/conf/pf.conf` file contains the PacketFence general configuration. For example, this is the place where we inform PacketFence it will work in VLAN isolation mode.
+
+All the default parameters and their descriptions are stored in `/usr/local/pf/conf/pf.conf.defaults`.
+
+In order to override a default parameter, define it and set it in `pf.conf`.
+
+`/usr/local/pf/conf/documentation.conf` holds the complete list of all available parameters.
+
+All of these parameters are also accessible through the Web Administration interface under the Configuration tab.
+
+Captive Portal
+^^^^^^^^^^^^^^
+
+Important parameters to configure regarding the captive portal are the following:
+
+`redirecturl` under `[trapping]`
+
+For some browsers, is it preferable to redirect the user to a specific URL instead of the URL the user originally intended to visit. For these browsers, the URL defined in `redirecturl` will be the one where the user will be redirected. Affected browsers are Firefox 3 and later.
+
+`network_detection_ip` under `[captive_portal]`
+
+This IP is used as the web server who hosts the `common/network-access-detection.gif` which is used to detect if network access was enabled. It cannot be a domain name since it is used in registration or quarantine where DNS is black-holed. It is recommended that you allow your users to reach your PacketFence server and put your LAN's PacketFence IP. By default we will make this reach PacketFence's website as an easier and more accessible solution.
+
+Apache Configuration
+~~~~~~~~~~~~~~~~~~~~
+
+The PacketFence configuration for Apache is located in `/usr/local/pf/conf/httpd.conf`.
+
+Upon PacketFence installation, a default configuration file is created which is suitable for most configurations. SSL is enabled by default to secure access.
+
+If you used the installer.pl script, you should have self-signed SSL certificates in `/usr/local/pf/conf/ssl` (`server.key` and `server.crt`).  Those certificates can be replaced anytime by your 3rd-party or existing wildcard certificate without problems.  Please note that the CN (Common Name) needs to be the same as the one defined in the PacketFence configuration file (`pf.conf`).
+
+SELinux
+~~~~~~~
+
+Even if this feature may be wanted by some organizations, PacketFence will not run properly if SELinux is set to enforced.  You will need to explicitly disable it in the `/etc/selinux/config` file.
+
+Authentication (flat file, LDAP/AD, RADIUS)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+PacketFence can authenticate users that register devices via the captive-portal using various methods. Among them are a flat file, an LDAP (or Active Directory) server or a RADIUS server. 
+
+Other authentication techniques are also available. Check the modules under `/usr/local/pf/conf/authentication/` to see what is available.
+
+Flat file
+^^^^^^^^^
+
+By default, PacketFence looks into `/usr/local/pf/conf/user.conf` to find users allowed to register devices. If you want to use a different file, edit `/usr/local/pf/conf/authentication/local.pm` and change the following parameter:
+
+  my $passwdFile = '/usr/local/pf/conf/user.conf';
+
+You need to encrypt the password of each user with htpasswd like this:
+
+  htpasswd -d /usr/local/pf/conf/user.conf newuser
+
+LDAP / Active Directory (AD)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Edit `/usr/local/pf/conf/authentication/ldap.pm` and make the necessary changes to the following parameters :
+
+  my $LDAPUserBase = "ou=People,dc=domain,dc=org";
+  my $LDAPUserKey = "uid";
+  my $LDAPUserScope = "one";
+  my $LDAPBindDN = "cn=ldapuser,dc=domain,dc=org";
+  my $LDAPBindPassword = "password";
+  my $LDAPServer = "127.0.0.1";
+
+RADIUS
+^^^^^^
+
+Edit `/usr/local/pf/conf/authentication/radius.pm` and make the necessary changes to the following parameters:
+
+  my $RadiusServer = 'localhost';
+  my $RadiusSecret = 'testing123';
+
+Selecting an Authentication Method
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To configure authentication set the `[registration].auth` option in `/usr/local/pf/conf/pf.conf`:
+
+  auth=local,ldap,radius
+
+If more than one method are specified, PF will display a pull-down list to allow users to select the preferred authentication method.
+
+The authentication method name displayed in the drop-down is controlled by the `$name` variable in the authentication module (located in `conf/authentication/`). Feel free to modify the names to fit your organization's need.
+
+Default Authentication Method
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Authentication method selected as the default in the captive portal drop-down. Only useful if you have more than one authentication method (in `registration.auth`). Named `[registration].default_auth` in the configuration file.
+
+Network Devices Definition (switches.conf)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This section applies only for VLAN enforcement. Users planning to do inline enforcement only can skip this section.
+
+PacketFence needs to know which switches, access points or controllers it manages, their type and configuration. All this information is stored in `/usr/local/pf/conf/switches.conf`. You can modify the configuration directly in the `switches.conf` file or you can do it in the Web Administration panel under *Configuration -> Switches*.
+
+This files contains a default section including:
+
+* List of VLANs managed by PacketFence
+* Default SNMP read/write communities for the switches
+* Default working mode (see note about working mode below)
+
+and a switch section for each switch (managed by PacketFence) including:
+
+* Switch IP
+* Switch vendor/type
+* Switch uplink ports (trunks and non-managed ports)
+* per-switch re-definition of the vlans (if required)
+
+NOTE: `switches.conf` is loaded at startup. A restart is required when changes 
+are made to this file.
+
+Working modes
+^^^^^^^^^^^^^
+
+There are three different working modes:
+
+Testing::
+pfsetvlan writes in the log files what it would normally do, but it doesn't do anything.
+Registration::
+pfsetvlan automatically-register all MAC addresses seen on the switch ports. As in testing mode, no VLAN changes are done.
+Production::
+pfsetvlan sends the SNMP writes to change the VLAN on the switch ports. 
+
+SNMP v1, v2c and v3
+^^^^^^^^^^^^^^^^^^^
+
+PacketFence uses SNMP to communicate with most switches. Starting with 1.8, PacketFence now supports SNMP v3. You can use SNMP v3 for communication in both directions: from the switch to PacketFence and from PacketFence to the switch.
+
+From PacketFence to a switch
+++++++++++++++++++++++++++++
+
+Edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
+
+  SNMPVersion = 3
+  SNMPUserNameRead = readUser
+  SNMPAuthProtocolRead = MD5
+  SNMPAuthPasswordRead = authpwdread
+  SNMPPrivProtocolRead = AES
+  SNMPPrivPasswordRead = privpwdread
+  SNMPUserNameWrite = writeUser
+  SNMPAuthProtocolWrite = MD5
+  SNMPAuthPasswordWrite = authpwdwrite
+  SNMPPrivProtocolWrite = AES
+  SNMPPrivPasswordWrite = privpwdwrite
+
+From a switch to PacketFence
+++++++++++++++++++++++++++++
+
+Edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
+
+  SNMPVersionTrap = 3
+  SNMPUserNameTrap = readUser
+  SNMPAuthProtocolTrap = MD5
+  SNMPAuthPasswordTrap = authpwdread
+  SNMPPrivProtocolTrap = AES
+  SNMPPrivPasswordTrap = privpwdread
+
+Switch Configuration
+++++++++++++++++++++
+
+Here is a switch configuration example in order to enable SNMP v3 in both directions on a Cisco Switch.
+
+  snmp-server engineID local AA5ED139B81D4A328D18ACD1
+  snmp-server group readGroup v3 priv
+  snmp-server group writeGroup v3 priv read v1default write v1default
+  snmp-server user readUser readGroup v3 auth md5 authpwdread priv aes 128 privpwdread
+  snmp-server user writeUser writeGroup v3 auth md5 authpwdwrite priv aes 128 privpwdwrite
+  snmp-server enable traps port-security
+  snmp-server enable traps port-security trap-rate 1
+  snmp-server host 192.168.0.50 version 3 priv readUser  port-security
+
+Command-Line Interface: Telnet and SSH
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PackeFence needs sometimes to establish an interactive command-line session with a switch. This can be done using Telnet. Starting with 1.8, you can now use SSH. In order to do so, edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
+
+  cliTransport = SSH (or Telnet)
+  cliUser = admin
+  cliPwd = admin_pwd
+  cliEnablePwd =
+
+It can also be done through the Web Administration Interface under *Configuration -> Switches*.
+
+Web Services Interface
+^^^^^^^^^^^^^^^^^^^^^^
+
+PackeFence sometimes needs to establish a dialog with the Web Services capabilities of a switch. In order to do so, edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
+
+  wsTransport = http (or https)
+  wsUser = admin
+  wsPwd = admin_pwd
+
+NOTE: as of PacketFence 1.9.1 few switches require Web Services configuration in order to work. It can also be done through the Web Administration Interface under *Configuration -> Switches*.
+
+Radius Secret
+^^^^^^^^^^^^^
+
+For certain authentication mechanism, such as 802.1X or MAC Authentication, the RADIUS server needs to have the network device in its client list.  As of PacketFence 3.0, we now use a database backend to store the RADIUS client information.  In order to do so, edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
+
+  radiusSecret= secretPassPhrase
+
+Also, starting with PacketFence 3.1, the RADIUS secret is required for our support of RADIUS  Dynamic Authentication (Change of authorization or Disconnect) as defined in RFC3576.
+
+Default VLAN assignment
+~~~~~~~~~~~~~~~~~~~~~~~
+
+This section applies only for VLAN enforcement. Users planning to do inline enforcement only can skip this section.
+
+The default VLAN assignment technique used in PacketFence is a per-switch one. The correct default VLAN for a given MAC is the `normalVlan` variable of the switch where the MAC is connected or the `[default]` `normalVlan` if the switch doesn't specify a `normalVlan`.
+
+This allows you to do easy per-building VLAN segmentation.
+
+If you need more flexibility (per SSID, per node category, etc.) take a look at the “I need more flexible VLAN assignment” section under <<_advanced_features,Advanced features>>.
+
+Inline enforcement configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This section applies only for Inline enforcement. Users planning to do VLAN enforcement only can skip this section.
+
+Introduced in PacketFence 3.0, inline enforcement is a very convenient method of performing access control on older network hardware who is not capable of doing VLAN enforcement or who is not compatible with PacketFence. This technique is covered in details in the <<_technical_introduction_to_inline_enforcement,"Technical introduction to Inline enforcement" section>>.
+
+An important configuration parameter to have in mind when configuring inline enforcement is that the DNS reached by this users should be your actual production DNS server. The next section shows you how to configure the proper inline interface and it is there that you should refer to the proper production DNS. 
+
+Since we are unable to predict if you will have control over your DNS or not, the default redirection technique relies on the IP address instead of DNS. This means that your SSL certificate will generate an error when presented to the user (your domain doesn't match the IP address of the portal). Because of that, we removed mandatory HTTPS support from the inline captive portal in IP redirection mode. Unfortunately we had to do this to make inline mode as simple as possible. That limitation might be removed in a future release.
+
+To remove that limitation, if you have control over your DNS, add an entry matching pf's `hostname.domain` to the IP on the inline interface of PacketFence. Then set the `inline.portal_redirect` parameter to dns. This way the redirection will be SSL based and you won't have certificate errors if your certificate's CN is matching PacketFence's fully qualified hostname.
+
+In summary: 
+
+* portal_redirect=ip – default, no HTTPS, no need to modify DNS
+* portal_redirect=dns – need to update your DNS, portal will be in HTTPS
+
+DHCP and DNS Server Configuration (networks.conf)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+PacketFence automatically generates the DHCP and DNS configuration files for Registration and Isolation VLANs. This is done when executing the configurator script (see the <<_general_configuration,General Configuration section>>).
+
+The Registration and Isolation networks information is accessible through the GUI in *Administration -> Networks*:
+
+image::docs/images/screenshot-network-config.png[scaledwidth="100%",alt="Network configuration screenshot"]
+
+network:: Network subnet
+netmask:: Network mask
+gateway:: PacketFence IP address in this network
+next_hop:: 
+Used only with routed networks; IP address of the router in this network (This is used to locally create static routes to the routed networks). See the <<_routed_networks,Routed Networks section>>)
+domain-name:: DNS name 
+dns:: PacketFence IP address in this network
+dhcp_start:: Starting IP address of the DHCP scope
+dhcp_end:: Ending IP address of the DHCP scope
+dhcp_default_lease_time:: Default DHCP lease time
+dhcp_max_lease_time:: Maximum DHCP lease time 
+type:: vlan-registration or vlan-isolation or inline
+named:: 
+Is PacketFence the DNS for this network ? (Enabled/Disabled) set it to   enabled unless in inline type where it should be disabled
+dhcpd:: 
+Is PacketFence the DHCP server for this network ? (Enabled/Disabled) set it  to enabled
+
+When starting PacketFence generates the DHCP and DNS configuration files by reading the  information provided in `networks.conf`:
+
+The DHCP configuration file is written to `var/conf/dhcpd.conf` using `conf/dhcpd.conf` as a template.
+
+The DNS configuration files are generated this way:
+
+* `var/conf/named.conf` generated from `conf/named.conf`
+* `var/named/named-registration.ca` generated from `conf/named-registration.ca`
+* `var/named/named-isolation.ca` generated from `conf/named-isolation.ca`
+
+Since PacketFence 3.0, the DNS zone files are automatically populated.  Simply ensure that the information are right in the generated config files (`var/conf/named/named-registration.ca` and `var/conf/named/named-isolation.ca`).
+
+Production DHCP access
+~~~~~~~~~~~~~~~~~~~~~~
+
+In order to perform all of its access control duties, PacketFence needs to be able to map MAC addresses into IP addresses.
+
+For all the networks/VLANs where you want PacketFence to have the ability to isolate a node or to have IP information about nodes, you will need to perform *one* of the techniques below.
+
+Also note that this doesn't need to be done for the registration, isolation VLANs and inline interfaces since PacketFence acts as the DHCP server in these networks. 
+
+IP Helpers (recommended)
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you are already using IP Helpers for your production DHCP in your production VLANs this approach is the simplest one and the one that works the best.
+
+Add PacketFence's management IP address as the last `ip helper-address` statement in your network equipment. At this point PacketFence will receive a copy of all DHCP requests for that VLAN and will record what IP were distributed to what node using a `pfdhcplistener` daemon.
+
+// FIXME are we missing add type dhcp-listener here?
+
+Make sure that no DHCP Server are running on the interface where you are sending the requests otherwise PacketFence might try to reply to the DHCP requests which would be a bad thing.
+
+Obtain a copy of the DHCP traffic
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Get a copy of all the DHCP Traffic to a dedicated physical interface in the PacketFence server and run `pfdhcplistener` on that interface. It will involve configuring your switch properly to perform port mirroring (aka network span) and adding in PacketFence the proper interface statement at the operating system level and in `pf.conf`.
+
+`/etc/sysconfig/network-scripts/ifcfg-eth2`:
+
+  DEVICE=eth2
+  ONBOOT=yes
+  BOOTPROTO=none
+
+Add to `pf.conf`: (IPs are not important they are there only so that PacketFence will start)
+
+  [interface eth2]
+  mask=255.255.255.0
+  type=dhcp-listener
+  gateway=192.168.1.5
+  ip=192.168.1.1
+
+Restart PacketFence and you should be good to go.
+
+Interface in every VLAN
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Because DHCP traffic is broadcast traffic, an alternative for small networks with few local VLANs is to put a VLAN interface for every VLAN on the PacketFence server and have a `pfdhcplistener` listen on that VLAN interface.
+
+On the network side you need to make sure that the VLAN truly reaches all the way from your client to your DHCP infrastructure up to the PacketFence server.
+
+On the PacketFence side, first you need an operating system VLAN interface like the one below. Stored in `/etc/sysconfig/network-scripts/ifcfg-eth0.1010`:
+
+  # Engineering VLAN
+  DEVICE=eth0.1010
+  ONBOOT=yes
+  BOOTPROTO=static
+  IPADDR=10.0.101.4
+  NETMASK=255.255.255.0
+  VLAN=yes
+
+Then you need to specify in `pf.conf` that you are interested in that VLAN's DHCP by setting type to `dhcp-listener`.
+
+  [interface eth0.1010]
+  mask=255.255.255.0
+  type=dhcp-listener
+  gateway=10.0.101.1
+  ip=10.0.101.4
+
+Repeat the above for all your production VLANs then restart PacketFence.
+
+Host production DHCP on PacketFence
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+It's an option. Just modify `conf/dhcpd.conf` so that it will host your production DHCP properly and make sure that a `pfdhcplistener` runs on the same interface where production DHCP runs.  However, please note that this is *NOT* recommended. See http://www.packetfence.org/bugs/view.php?id=1050[this ticket] to see why.
+
+Routed Networks
+~~~~~~~~~~~~~~~
+
+If your isolation and registration networks are not locally-reachable (at layer 2) on the network, but routed to the PacketFence server, you'll have to let the PacketFence server know this. PacketFence can even provide DHCP and DNS in these routed networks and provides an easy to use configuration interface.
+
+image::docs/images/diagram-routed-net.png[scaledwidth="100%",alt="Routed network exemple diagram"]
+
+For dhcpd, make sure that the clients DHCP requests are correctly forwarded (IP Helpers in the remote routers) to the PacketFence server. Then make sure you followed the instructions in the <<_dhcp_and_dns_server_configuration_networks_conf,DHCP and DNS Server Configuration (networks.conf)>> for your locally accessible network.
+
+Then you need to provide the routed networks information to PacketFence. You can do it through the GUI in *Administration -> Networks* (or in `conf/networks.conf`).
+
+If we consider the network architecture illustrated in the above schema, `conf/networks.conf` will look like this:
+
+----
+[192.168.2.0]
+netmask=255.255.255.0
+gateway=192.168.2.1
+next_hop=
+domain-name=registration.example.com
+dns=192.168.2.1
+dhcp_start=192.168.2.10
+dhcp_end=192.168.2.200
+dhcp_default_lease_time=300
+dhcp_max_lease_time=600
+type=vlan-registration
+named=enabled
+dhcpd=enabled
+
+[192.168.3.0]
+netmask=255.255.255.0
+gateway=192.168.3.1
+next_hop=
+domain-name=isolation.example.com
+dns=192.168.3.1
+dhcp_start=192.168.3.10
+dhcp_end=192.168.3.200
+dhcp_default_lease_time=300
+dhcp_max_lease_time=600
+type=vlan-isolation
+named=enabled
+dhcpd=enabled
+
+[192.168.20.0]
+netmask=255.255.255.0
+gateway=192.168.20.254
+next_hop=192.168.2.254
+domain-name=registration.example.com
+dns=192.168.2.1
+dhcp_start=192.168.20.10
+dhcp_end=192.168.20.200
+dhcp_default_lease_time=300
+dhcp_max_lease_time=600
+type=vlan-registration
+named=enabled
+dhcpd=enabled
+
+[192.168.30.0]
+netmask=255.255.255.0
+gateway=192.168.30.254
+next_hop=192.168.3.254
+domain-name=isolation.example.com
+dns=192.168.3.1
+dhcp_start=192.168.30.10
+dhcp_end=192.168.30.200
+dhcp_default_lease_time=300
+dhcp_max_lease_time=600
+type=vlan-isolation
+named=enabled
+dhcpd=enabled
+----
+
+FreeRADIUS Configuration
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+This section presents the FreeRADIUS configuration steps.  In some occasions, a RADIUS server is mandatory in order to give access to the network.  For example, the usage of WPA2-Enterprise (Wireless 802.1X), MAC authentication and Wired 802.1X all requires a RADIUS server to authenticate the users and the devices, and then to push the proper VLAN to the network equipment.  We strongly recommend that you install FreeRADIUS even if you plan not to use the feature now.
+
+Install the following packages:
+
+* packetfence-freeradius2
+
+In /etc/raddb/clients.conf
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+CAUTION: As of PacketFence 3.0, this step is now unnecessary.  As you saw previously in this guide, we are now using the radiusSecret attribute in the switch configuration file.
+
+For PacketFence versions prior to 3.0, you will still use the RADIUS client flat file.  Replace <...> with values useful to you. You need one client entry per network device.
+
+  client <useful_device_name> {
+    ipaddr    = <network_device_ip_address>
+    secret    = <radius secret>
+  }
+
+In /etc/raddb/packetfence.pm
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Make sure to set the required configuration parameters on top of the file. Set the password to the account previously created under the <<_web_based_administration_interface,Web-based Administration Interface section>>.
+
+  # FreeRADIUS to PacketFence communications (SOAP Server settings)
+  WS_USER     => 'webservice',
+  WS_PASS     => 'password',
+
+In /etc/raddb/sql.conf
+^^^^^^^^^^^^^^^^^^^^^^
+
+Make sure to set the proper credentials to access the PacketFence database.
+
+  # Connection info:
+  server = "localhost"
+  port = 3306
+  login = "pf"
+  password = "pf"
+
+Option 1: Authentication against Active Directory (AD)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Replace `/etc/raddb/modules/mschap` with the following configuration: 
+
+  mschap {
+          use_mppe = yes
+          require_encryption = yes
+          require_strong = yes
+          with_ntdomain_hack = yes
+          ntlm_auth = "/usr/bin/ntlm_auth --request-nt-key --username=%{%{Stripped-User-Name}:-%{mschap:User-Name:-None}} --challenge=%{mschap:Challenge:-00} –nt-response=%{mschap:NT-Response:-00}"
+  }
+
+Samba / Kerberos / Winbind
+++++++++++++++++++++++++++
+
+Install SAMBA.  You can either use the sources or use the package for your OS.  For CentOS, you can use:
+
+// TODO make this more arch independent
+CAUTION: These are for CentOS 5 on the x86_64 architecture. Make sure to change the packages fetched based on your OS.
+
+----
+wget ftp://ftp.sernet.de/pub/samba/3.5/centos/5/x86_64/samba3-3.5.6-43.el5.x86_64.rpm
+wget ftp://ftp.sernet.de/pub/samba/3.5/centos/5/x86_64/samba3-client-3.5.6-43.el5.x86_64.rpm
+wget ftp://ftp.sernet.de/pub/samba/3.5/centos/5/x86_64/samba3-utils-3.5.6-43.el5.x86_64.rpm
+wget ftp://ftp.sernet.de/pub/samba/3.5/centos/5/x86_64/samba3-winbind-3.5.6-43.el5.x86_64.rpm
+wget ftp://ftp.sernet.de/pub/samba/3.5/centos/5/x86_64/libwbclient0-3.5.6-43.el5.x86_64.rpm
+
+yum install ./samba*.rpm --nogpgcheck
+----
+
+NOTE: If you have Windows 7 PCs in your network, you need to use SAMBA version 3.5.0 or greater)
+ 
+When done with the samba install, you need to modify `/etc/krb5.conf`. Here is an example for the `DOMAIN.NET` domain:
+
+----
+[logging]
+ default = FILE:/var/log/krb5libs.log
+ kdc = FILE:/var/log/krb5kdc.log
+ admin_server = FILE:/var/log/kadmind.log
+
+[libdefaults]
+ default_realm = DOMAIN.NET
+ dns_lookup_realm = false
+ dns_lookup_kdc = false
+ ticket_lifetime = 24h
+ forwardable = yes
+
+[realms]
+ DOMAIN.NET = {
+  kdc = adserver.domain.net:88
+  admin_server = adserver.domain.net:749
+  default_domain = domain.net
+ }
+[domain_realm]
+ .domain.net = DOMAIN.NET
+ domain.net = DOMAIN.NET
+
+[appdefaults]
+ pam = {
+   debug = false
+   ticket_lifetime = 36000
+   renew_lifetime = 36000
+   forwardable = true
+   krb4_convert = false
+ }
+----
+
+Next, edit `/etc/samba/smb.conf`.  Again, here is an example for our `DOMAIN.NET`:
+
+  [global]
+  workgroup = DOMAIN
+  server string = pf_server_name
+  interfaces = 192.168.1.2/24
+  security = ADS
+  passdb backend = tdbsam
+  realm = DOMAIN.NET
+  encrypt passwords = yes
+  winbind use default domain = yes
+  client NTLMv2 auth = yes
+  preferred master = no
+  load printers = no
+  cups options = raw
+  idmap uid = 10000-45000
+  idmap gid = 10000-45000
+  log level = 1 winbind:5 auth:3
+
+Issue a `kinit` and `klist` in order to get and verify the Kerberos token:
+
+  # kinit administrator
+  # klist
+
+After that, you need to start samba, and join the machine to the domain:
+
+  # service smb start
+  # chkconfig --level 345 smb on
+  # net ads join -U administrator
+
+Finally, start `winbind`, and test the setup using `ntlm_auth`:
+
+  # service winbind start
+  # chkconfig --level 345 winbind on
+  # chgrp radiusd /var/lib/samba/winbindd_privileged/
+  # ntlm_auth –username myDomainUser
+
+Option 2: Local Authentication
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Add your user's entries at the end of the `/etc/raddb/users` file with the following format:
+
+  username Cleartext-Password := "password"
+
+Option 3: Authentication against OpenLDAP
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  To be contributed...
+
+Tests
+^^^^^
+
+Test your setup with `radtest` using the following command and make sure you get an `Access-Accept` answer:
+
+----
+# radtest dd9999 Abcd1234 localhost 12 testing123
+Sending Access-Request of id 74 to 127.0.0.1 port 1812
+  User-Name = "dd9999"
+  User-Password = "Abcd1234"
+  NAS-IP-Address = 255.255.255.255
+  NAS-Port = 12
+rad_recv: Access-Accept packet from host 127.0.0.1:1812, id=74, length=20
+----
+
+Debug
+^^^^^
+
+First, check the `syslog`, this is where the PacketFence module logs. Syslog messages are usually stored in `/var/log/messages` or `/var/log/syslog`.
+
+If this didn't help, run FreeRADIUS in debug mode. To do so, start it using the following command:
+
+  # radiusd -X
+
+Starting PacketFence Services
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Once PacketFence is fully installed and configured, start the services using the following command :
+
+  service packetfence start
+
+You may verify using the `chkconfig` command that the PacketFence service is automatically started at boot time.
+
+Log files
+~~~~~~~~~
+
+Here are the most important PacketFence log files:
+
+/usr/local/pf/logs/packetfence.log:: PacketFence Core Log
+/usr/local/pf/logs/access_log:: Apache – Captive Portal Access Log
+/usr/local/pf/logs/error_log:: Apache – Captive Portal Error Log
+/usr/local/pf/logs/admin_access_log:: Apache – Web Admin/Services Access Log
+/usr/local/pf/logs/admin_error_log:: Apache – Web Admin/Services Error Log
+/usr/local/pf/logs/admin_debug_log:: Apache – Web Admin Debug Log
+
+There are other log files in `/usr/local/pf/logs/` that could be relevant depending on what issue you are experiencing. Make sure you take a look at them.
+
+The logging system's configuration file is `/usr/local/pf/conf/log.conf`. It contains the configuration for the `packetfence.log` file (`Log::Log4Perl`) and you normally don't need to modify it.
+
+Starting with 3.0, you can see logs file in the Web Administration under *Administration -> Logs*.
+
+Configuration by example
+------------------------
+
+Here is an end-to-end sample configuration of PacketFence in “Hybrid” mode (VLAN mode and Inline mode at the same time).
+
+Assumptions
+~~~~~~~~~~~
+
+Throughout this configuration example we use the following assumptions for our network infrastructure:
+
+* There are two different types of manageable switches in our network: Cisco Catalyst 2900XL and Cisco Catalyst 2960, and one unmanageable device.
+* VLAN 1 is the “regular” VLAN
+* VLAN 2 is the registration VLAN (unregistered devices will be put in this VLAN)
+* VLAN 3 is the isolation VLAN (isolated devices will be put in this VLAN)
+* VLANs 2 and 3 are spanned throughout the network
+* VLAN 4 is the MAC detection VLAN (empty VLAN)
+* VLAN 4 must be defined on all the switches that do not support port-security (in our example Catalyst 2900XL do not support port-security with static MAC address). No need to put it in the trunk port.
+* VLAN 5 is the inline VLAN (In-Band, for unmanageable devices)
+* We want to isolate computers using Limewire (peer-to-peer software)
+* We use Snort as NIDS
+* The traffic monitored by Snort is spanned on eth1
+* The DHCP server on the PacketFence box that will take care of IP address distribution in VLANs 2, 3 and 5
+* The DNS server on the PacketFence box that will take care of domain resolution in VLANs 2 and 3
+
+The network setup looks like this:
+
+[options="header",cols="1,2,2,2,3",grid="rows"]
+|=========================================================================
+|VLAN ID  |VLAN Name     |Subnet         |Gateway     |PacketFence Address
+|1        |Normal        |192.168.1.0/24 |192.168.1.1 |192.168.1.5
+|2        |Registration  |192.168.2.0/24 |192.168.2.1 |192.168.2.1
+|3        |Isolation     |192.168.3.0/24 |192.168.3.1 |192.168.3.1
+|4        |Mac Detection |               |            |
+|5        |Inline        |192.168.5.0/24 |192.168.5.1 |192.168.5.1
+|100      |Voice         |               |            |
+|=========================================================================
+
+Network Interfaces
+~~~~~~~~~~~~~~~~~~
+
+Here are the NICs startup scripts on PacketFence.
+
+`/etc/sysconfig/network-scripts/ifcfg-eth0`:
+
+  DEVICE=eth0
+  BROADCAST=192.168.1.255
+  IPADDR=192.168.1.5
+  NETMASK=255.255.255.0
+  NETWORK=192.168.1.0
+  ONBOOT=yes
+  TYPE=Ethernet
+
+`/etc/sysconfig/network-scripts/ifcfg-eth0.2`:
+
+  DEVICE=eth0.2
+  ONBOOT=yes
+  BOOTPROTO=static
+  IPADDR=192.168.2.1
+  NETMASK=255.255.255.0
+  VLAN=yes
+
+`/etc/sysconfig/network-scripts/ifcfg-eth0.3`:
+
+  DEVICE=eth0.3
+  ONBOOT=yes
+  BOOTPROTO=static
+  IPADDR=192.168.3.1
+  NETMASK=255.255.255.0
+  VLAN=yes
+
+`/etc/sysconfig/network-scripts/ifcfg-eth0.5`:
+
+  DEVICE=eth0.5
+  ONBOOT=yes
+  BOOTPROTO=static
+  IPADDR=192.168.5.1
+  NETMASK=255.255.255.0
+  VLAN=yes
+
+`/etc/sysconfig/network-scripts/ifcfg-eth1`. This NIC is used for the mirror of the traffic monitored by Snort.
+
+  DEVICE=eth1
+  ONBOOT=yes
+  BOOTPROTO=none
+
+Trap receiver
+^^^^^^^^^^^^^
+
+PacketFence uses `snmptrapd` as the trap receiver. It stores the community name used by the switch to send traps in the switch config file (`/usr/local/pf/conf/switches.conf`):
+
+  [default]
+  SNMPCommunityTrap = public
+
+Switch Setup
+~~~~~~~~~~~~
+
+In our example, we enable linkUp/linkDown on a Cisco 2900LX and Port Security on a Cisco Catalyst 2960. Please consult the http://www.packetfence.org/documentation/[Network Devices Configuration Guide] for the complete list of supported switches and configuration instructions.
+
+linkUp/linkDown + MAC Notification
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+On the 2900XL.
+
+global setup
+
+  snmp-server enable traps snmp linkdown linkup
+  snmp-server enable traps mac-notification
+  snmp-server host 192.168.1.5 trap version 2c public snmp mac-notification
+  mac-address-table notification interval 0
+  mac-address-table notification
+  mac-address-table aging-time 3600
+
+on each interface
+
+  switchport mode access
+  switchport access vlan 4
+  snmp trap mac-notification added
+
+Port Security
+^^^^^^^^^^^^^
+
+On the 2960.
+
+global setup
+
+  snmp-server enable traps port-security
+  snmp-server enable traps port-security trap-rate 1
+  snmp-server host 192.168.1.5 version 2c public port-security
+
+On each interface, you need to initialize the port security by authorizing a fake MAC address with the following commands
+
+  switchport access vlan 4
+  switchport port-security
+  switchport port-security maximum 2
+  switchport port-security maximum 1 vlan access
+  switchport port-security violation restrict
+  switchport port-security mac-address 0200.0000.00xx
+
+where `xx` stands for the interface index.
+
+NOTE: Don't forget to update the startup-config.
+
+switches.conf
+~~~~~~~~~~~~~
+
+NOTE: You can use the Web Administration interface instead of performing the configuration in the flat files.
+
+Here is the `/usr/local/pf/conf/switches.conf` file for our setup. See <<_network_devices_definition_switches_conf,Network Device Definition>> for more information about the content of this file.
+
+----
+[default]
+SNMPCommunityRead = public
+SNMPCommunityWrite = private
+SNMPommunityTrap = public
+SNMPVersion = 1
+vlans = 1,2,3,4,10
+normalVlan = 1
+registrationVlan = 2
+isolationVlan = 3
+macDetectionVlan = 4
+VoIPEnabled = no
+
+[192.168.1.100]
+type = Cisco::Catalyst_2900XL
+mode = production
+uplink = 24
+
+[192.168.1.101]
+type = Cisco::Catalyst_2960
+mode = production
+uplink = 25
+normalVlan = 10
+radiusSecret=useStrongerSecret
+----
+
+If you want to have a different read/write communities name for each switch, declare it in each switch section.
+
+pf.conf
+~~~~~~~
+
+Here is the `/usr/local/pf/conf/pf.conf` file for our setup. For more information about `pf.conf` see <<_global_configuration_file_pf_conf,Global configuration file (pf.conf) section>>.
+
+----
+[general]
+domain=yourdomain.org
+#Put your External/Infra DNS servers here
+dnsservers=4.2.2.2,4.2.2.1
+dhcpservers=192.168.2.1,192.168.3.1,192.168.5.1
+
+[trapping]
+registration=enabled
+detection=enabled
+range=192.168.2.0/24,192.168.3.0/24,192.168.5.0/24
+
+[registration]
+auth=ldap
+
+[interface eth0]
+mask=255.255.255.0
+type=management
+gateway=192.168.1.1
+ip=192.168.1.5
+
+[interface eth0.2]
+mask=255.255.255.0
+type=internal
+enforcement=vlan
+gateway=192.168.2.1
+ip=192.168.2.1
+
+[interface eth0.3]
+mask=255.255.255.0
+type=internal
+enforcement=vlan
+gateway=192.168.3.1
+ip=192.168.3.1
+
+[interface eth0.5]
+mask=255.255.255.0
+type=internal
+enforcement=inline
+gateway=192.168.5.1
+ip=192.168.5.1
+
+[interface eth1]
+mask=255.255.255.0
+type=monitor
+gateway=192.168.1.5
+ip=192.168.1.1
+----
+
+networks.conf
+~~~~~~~~~~~~~
+
+Here is the `/usr/local/pf/conf/networks.conf` file for our setup. For more information about `networks.conf` see <<_dhcp_and_dns_server_configuration_networks_conf,DHCP and DNS Server configuration>>.
+
+----
+[192.168.2.0]
+netmask=255.255.255.0
+gateway=192.168.2.1
+next_hop=192.168.2.254
+domain-name=registration.example.com
+dns=192.168.2.1
+dhcp_start=192.168.2.10
+dhcp_end=192.168.2.200
+dhcp_default_lease_time=300
+dhcp_max_lease_time=600
+type=vlan-registration
+named=enabled
+dhcpd=enabled
+
+[192.168.3.0]
+netmask=255.255.255.0
+gateway=192.168.3.1
+next_hop=192.168.3.254
+domain-name=isolation.example.com
+dns=192.168.3.1
+dhcp_start=192.168.3.10
+dhcp_end=192.168.3.200
+dhcp_default_lease_time=300
+dhcp_max_lease_time=600
+type=vlan-isolation
+named=enabled
+dhcpd=enabled
+
+[192.168.5.0]
+netmask=255.255.255.0
+gateway=192.168.5.1
+next_hop=
+domain-name=inline.example.com
+dns=4.2.2.2,4.2.2.1
+dhcp_start=192.168.5.10
+dhcp_end=192.168.5.254
+dhcp_default_lease_time=300
+dhcp_max_lease_time=600
+type=inline
+named=disabled
+dhcpd=enabled
+----
+
+Inline enforcement specifics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To see another important optional parameter that can be altered to do inline enforcement see the <<_inline_enforcement_configuration,Inline enforcement configuration section>>.
+
+In order to have the inline mode properly working, you need to enable IP forwarding on your servers.  To do it permanently, look in the `/etc/sysctl.conf`, and set the following line:
+
+  # Controls IP packet forwarding
+  net.ipv4.ip_forward = 1
+
+Save the file, and issue a `sysctl -p` to update the OS config.
+
+Optional components
+-------------------
+
+Blocking malicious activities with violations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Policy violations allow you to restrict client system access based on violations of certain policies. For example, if you do not allow P2P type traffic on your network, and you are running the appropriate software to detect it and trigger a violation for a given client, PacketFence will give that client a “blocked” page which can be customized to your wishes.
+
+In order to be able to block malicious activities, you need to install and configure the SNORT IDS to talk with PacketFence.
+
+Snort
+^^^^^
+
+Installation
+++++++++++++
+
+The installation procedure is quite simple for SNORT.  We maintain a working version on the PacketFence repository.  To install it, simply run the following command:
+
+  yum install snort
+
+Configuration
++++++++++++++
+
+PacketFence provides a basic `snort.conf` template that you may need to edit depending of the Snort version.  The file is located in `/usr/local/pf/conf`.  It is rarely necessary to change anything in that file to make Snort work and trap alerts.  DO NOT edit the `snort.conf` located in `/usr/local/pf/var/conf`, all the modification will be destroyed on each PacketFence restart.
+
+Violations
+^^^^^^^^^^
+
+In order to make PacketFence react to the Snort alerts, you need to explicitly tell the software to do so.  Otherwise, the alerts will be discarded.  This is quite simple to accomplish.  In fact, you need to create a violation and add the Snort alert SID in the trigger section of a Violation. 
+
+PacketFence policy violations are controlled using the `/usr/local/pf/conf/violations.conf` configuration file. The violation format is as follows:
+
+  [1234]
+  desc=Your Violation Description
+  priority=8
+  url=/content/index.php?template=<template>
+  redirect_url=/proxies/tools/stinger.exe
+  enable=Y
+  trigger=Detect::2200032,Scan::11808
+  actions=email,log,trap
+  vlan=isolationVlan
+  whitelisted_categories=
+
+`[1234]`:: 
+The violation ID. Any integer except 1200000-120099 which is reserved for required administration violations.
+`desc`:: single line description of violation
+`priority`:: 
+Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority violations will be addressed first if a host has more than one.
+`url`:: 
+HTML URL the host will be redirected to while in violation. This is usually a local URL of the form /content/index.php?template=... where ... is the name of the remediation template to show to the user. Full URLs like http://myportal.com/violation1234/ are also supported if passthrough=proxy is set under [trapping]. In that case, the Captive Portal will do reverse proxying to the specified URL. 
+CAUTION: Great care should be taken when using this feature because any resource outside the specified path will fail to load.
+`redirect_url`:: 
+The user is redirected to this URL after he re-enabled his network access on the remediation page.
+`enable`:: 
+If enable is set to 'N', this violation is disabled and no additional violations of this type will be added.
+`trigger`:: 
+`Method to reference external detection methods such as Detect (SNORT), Scan (Nessus), OS (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC address class), etc. Trigger is formatted as follows `type`::ID`. in this example 2000032 is the snort id and 11808 is the Nessus plugin number. The Snort ID does NOT have to match the violation ID.
+`actions`:: 
+This is the list of actions that will be executed on a violation addition. The actions can be:
+  `log`;; Log a message to the file specified in `[alerting].log`
+  `email`;; 
+    Email the address specified in `[alerting].emailaddr`, using `[alerting].smtpserver`. Multiple `emailaddr` can be sperated by comma.
+  `trap`;; 
+    Isolate the host and place them in violation. It opens a violation and leaves it open. If trap is not there, a violation is opened and then automatically closed.
+  `winpopup`;; send a windows popup message. You need to configure `[alerting].winserver`, `[alerting].netbiosname` in `pf.conf` when using this option.
+  `external`;; execute an external command, specified in `[paths].externalapi`.
+`vlan`:: 
+  Destination VLAN where PacketFence should put the client when a violation of this  type is open. The VLAN value can be:
+  `isolationVlan`;;
+    Isolation VLAN as specified in `switches.conf`. This is the recommended value for most violation types.
+  `registrationVlan`;; Registration VLAN as specified in `switches.conf`.
+  `normalVlan`;;
+    Normal VLAN as specified in `switches.conf`. Note: It is preferable not to trap than to trap and put in normal VLAN. Make sure you understand what you are doing.
+`whitelisted_categories`:: Nodes in a category listed in `whitelisted_categories` won't be affected by a violation of this type. Format is a comma separated list of category names.
+
+Also included in `violation.conf` is the defaults section. The defaults section will set a default value for every violation in the configuration. If a configuration value is not specified in the specific ID, the default will be used:
+
+  [defaults]
+  priority=4
+  max_enable=3
+  actions=email,log
+  auto_enable=Y
+  enable=N
+  grace=120
+  button_text=Enable Network
+  snort_rules=local.rules,bleeding-attack_response.rules,bleeding-exploit.rules,bleeding-p2p.rules,bleeding-scan.rules,bleeding-virus.rules
+  vlan=isolationVlan
+  whitelisted_categories=
+
+`max_enable`::
+Number of times a host will be able to try and self remediate before they are locked out and have to call the help desk. This is useful for users who just 'click through' violation pages.
+`auto_enable`::
+Specifies if a host can self remediate the violation (enable network button) or if they can not and must call the help desk.
+`grace`::
+Number of minutes before the violation can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.
+`button_text`::
+Text displayed on the violation form to hosts.
+`snort_rules`::
+The Snort rules file is the administrators responsibility. Please change this to point to your violation rules file(s). If you do not specify a full path, the default is `/usr/local/pf/conf/snort`. If you need to include more than one file, just separate each filename with a comma.
+
+NOTE: `violations.conf` is loaded at startup. A restart is required when 
+changes are made to this file.
+
+Example violation
+^^^^^^^^^^^^^^^^^
+
+In our example we want to isolate people using Limewire. Here we assume Snort is installed and configured to send alerts to PacketFence. Now we need to configure PacketFence isolation.
+
+Enable Limewire violation in `/usr/local/pf/conf/violations.conf` and configure it to trap.
+
+  [2001808]
+  desc=P2P (Limewire)
+  priority=8
+  url=/content/index.php?template=p2p
+  actions=log,trap
+  enable=Y
+  max_enable=1
+  trigger=Detect::2001808
+
+Conformity Scan (Nessus)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Installation
+^^^^^^^^^^^^
+
+Please visit http://www.nessus.org/download/ to download and install the Nessus package for your operating system.  You will also need to register for the HomeFeed (or the ProfessionalFeed) in order to get the plugins.
+
+After you installed Nessus, follow the Nessus documentation for the configuration of the Nessus Server, and to create a user for PacketFence.
+
+Configuration
+^^^^^^^^^^^^^
+
+In order for a given Nessus Scan to generate a violation inside PacketFence, you have to configure two sections:
+
+pf.conf
++++++++
+
+Adjust the settings in the scan section like the following:
+
+  [scan]
+  ssl=enabled
+  pass=userPassword
+  user=nessusUsername
+  port=1241
+  host=127.0.0.1
+  registration=enabled
+  nessusclient_file=basic-policy.nessus
+  nessusclient_policy=basic-policy
+
+violations.conf
++++++++++++++++
+
+You need to create a new violation section and have to specify:
+
+  trigger=Scan::<violationId>
+
+Where `violationId` is the ID of the Nessus plugin to check for. Once you have finished the configuration, you need to reload the violation related database contents using:
+
+  $ pfcmd reload violations
+
+NOTE: Violations will trigger if the Nessus plugin is higher than a low severity vulnerability.
+
+NessusClient Integration
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+New since 1.8.3 is the ability to directly use the nessus command line client and `dot nessus` files. The `NessusClient` file format is documented at http://www.nessus.org/documentation/dot_nessus_file_format.pdf and can easily be generated using the official Nessus Client.
+
+You'll have to save your `dot nessus` file in the `/usr/local/pf/conf/nessus/` directory and specify its filename using the `scan.nessusclient_file` configuration setting. You'll also have to specify your policy name using the `scan.nessusclient_policy` setting. After that, you can execute your scan using:
+
+  $ pfcmd schedule now <IP>
+
+NOTE: If you provide credentials in the `.nessus` file, you need to enable the “Store passwords as plain text” option in your Nessus Client.
+
+Scan on registration
+^^^^^^^^^^^^^^^^^^^^
+
+To perform a system scan before giving access to a host on the network you need to enable the `scan.registration` parameter in `pf.conf`.
+
+It is also recommended to adjust `scan.duration` to reflect how long the scan takes. A progress bar of this duration will be shown to the user while he is waiting. By default, we set this variable to 60s.
+
+Oinkmaster
+~~~~~~~~~~
+
+Oinkmaster is a perl script that enables the possibility to update the different snort rules very easily.  It is simple to use, and install.  This section will show you how to implement Oinkmaster to work with PacketFence and Snort.
+
+Please visit http://oinkmaster.sourceforge.net/download.shtml to download oinkmaster. A sample oinkmaster configuration file is provided at `/usr/local/pf/addons/snort/oinkmaster.conf`.
+
+Configuration
+^^^^^^^^^^^^^
+
+Here are the steps to make Oinkmaster work.  We will assume that you already downloaded the newest oinkmaster archive:
+
+. Untar the freshly downloaded Oinkmaster
+. Copy the required perl scripts into `/usr/local/pf/oinkmaster`.  You need to copy over `contrib` and `oinkmaster.pl`
+. Copy the `oinkmaster.conf` provided by PacketFence (see the section above) in `/usr/local/pf/conf`
+. Modify the configuration to suit your own needs.  Currently, the configuration file is set to fetch the bleeding rules.
+
+Rules update
+^^^^^^^^^^^^
+
+In order to get periodic updates for PacketFence Snort rules, we simply need to create a `crontab` entry with the right information.  The example below shows a `crontab` entry to fetch the updates daily at 23:00 PM:
+
+  0 23 * * * (cd /usr/local/pf; perl oinkmaster/oinkmaster.pl -C conf/oinkmaster.conf -o conf/snort/)
+
+
+
+// TODO collapse double spaces /\S  
+// TODO %s/“/"/g and %s/”/"/g
+// TODO merge two level ToC in the network guide into the main pf
+
 include::additional-info.asciidoc[]
 
 include::commercial-support.asciidoc[]
