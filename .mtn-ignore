@@ -1,4 +1,5 @@
 pf/docs/docbook/xsl/titlepage-fo.xsl
+pf/docs/docbook/.*\.docbook
 pf/html/admin/scan/results/
 pf/logs
 pf/var/conf/
