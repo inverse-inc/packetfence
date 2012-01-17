@@ -34,6 +34,8 @@ Has been reported to work on 5412zl by the community
 
 The code is the same as the 2500 but the configuration should be like the 4100 series.
 
+Recommanded Firmware is K.15.06.0008
+
 =cut
 
 use strict;

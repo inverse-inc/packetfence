@@ -83,7 +83,8 @@
   </xsl:attribute-set>
 
   <!-- Table Of Contents (TOC) options -->
-  <!-- None -->
+  <!-- We only want 2 level of ToC depth -->
+  <xsl:param name="toc.section.depth" select="1"/>
 
   <!-- grey boxes around code (screen, programlisting) -->
   <xsl:param name="shade.verbatim" select="1"/>

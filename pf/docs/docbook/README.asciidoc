@@ -1,0 +1,73 @@
+Documentation README
+====================
+
+CAUTION: This is work in progress.
+
+asciidoc
+--------
+
+* Documentation: http://www.methods.co.nz/asciidoc/
+* Useful cheatsheat: http://powerman.name/doc/asciidoc
+
+Convert to PDF 
+~~~~~~~~~~~~~~
+
+Here's the example with the Admin guide.
+
+. First asciidoc to docbook
+
+  $ asciidoc -a docinfo2 -b docbook -d book -o docs/docbook/pf-admin-guide.docbook docs/docbook/pf-admin-guide.asciidoc
+
+. Then render the PDF from the docbook
+
+  $ fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-admin-guide.docbook -xsl docs/docbook/xsl/packetfence-fo.xsl -pdf PacketFence_Administration_Guide.pdf
+
+
+Docbook
+-------
+
+CAUTION: deprecated. See <<_asciidoc,asciidoc>> instead.
+
+To build HTML from Docbook:
+$ xsltproc --output packetfence-developers-guide.html /opt/local/share/xsl/docbook-xsl/html/docbook.xsl docs/docbook/pf-devel-guide.xml
+
+To build PDF from Docbook:
+$ fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-devel-guide.xml -xsl docs/docbook/xsl/packetfence-fo.xsl -pdf packetfence-developers-guide.pdf
+
+
+Troubleshooting
+---------------
+
+IO Exception with stylesheet file: titlepage-fo.xsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you get an error like:
+
+  file://.../docs/docbook/xsl/packetfence-fo.xsl; Line #46; Column #40; Had IO Exception with stylesheet file: titlepage-fo.xsl
+
+It's because you are missing the XSL template for the titlepage. Rebuilt it with:
+
+  $ xsltproc -o docs/docbook/xsl/titlepage-fo.xsl /usr/share/xml/docbook/stylesheet/docbook-xsl/template/titlepage.xsl docs/docbook/xsl/titlepage-fo.xml
+
+Title page template modified but no effect visible
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you modify the titlepage template (`docs/docbook/xsl/titlepage-fo.xml`) you need to rebuilt the XSL template. See <<_io_exception_with_stylesheet_file_titlepage_fo_xsl,IO Exception with stylesheet file: titlepage-fo.xsl>> to find out how.
+
+On OSX: failed to load external entity (or IO Exceptions)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Errors like:
+
+  warning: failed to load external entity "/usr/share/xml/docbook/stylesheet/docbook-xsl/template/titlepage.xsl"
+
+or
+
+  Had IO Exception with stylesheet file: /usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl
+
+Are caused because docbook installation (with macport) on OSX uses different directories than on Linux. Simplest way to get everything working without changing source is to create a symlink:
+
+  $ sudo mkdir -p /usr/share/xml/docbook/stylesheet/
+  $ sudo ln -s /opt/local/share/xsl/docbook-xsl /usr/share/xml/docbook/stylesheet/
+
+// vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
