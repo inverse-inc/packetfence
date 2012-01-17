@@ -2322,6 +2322,280 @@ image::docs/images/screenshot-node-view.png[scaledwidth="100%",alt="Web Admin no
 Manual FreeRADIUS 2 configuration
 ---------------------------------
 
+Since we provide a working RPM package that contains pre-built RADIUS configuration files, those files don't need to be modified by hand anymore.  However, consider this section as a reference.
+
+Configuration
+~~~~~~~~~~~~~
+
+In /etc/raddb/sites-enabled/default
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Make sure the `authorize{}`, `authenticate{}` and `post-auth{}` sections look like this:
+
+----
+authorize {
+        preprocess
+        eap {
+                ok = return
+        }
+        files
+        expiration
+        logintime
+        perl
+}
+
+authenticate {
+        Auth-Type MS-CHAP {
+                mschap
+        }
+        eap
+}
+
+post-auth {
+        perl
+}
+----
+
+In /etc/raddb/sites-enabled/inner-tunnel
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Make sure the `authorize{}`, `authenticate{}` and `post-auth{}` sections look like this:
+
+----
+authorize {
+        preprocess
+        eap {
+                ok = return
+        }
+        files
+        expiration
+        logintime
+        perl
+}
+
+authenticate {
+        Auth-Type MS-CHAP {
+                mschap
+        }
+        eap
+}
+
+post-auth {
+        perl
+}
+----
+
+In /etc/raddb/users
+^^^^^^^^^^^^^^^^^^^
+
+Add the following lines where we define that non-EAP messages should, by default, lead to an authentication acceptation.
+
+  DEFAULT EAP-Message !* "", Auth-Type := Accept
+
+*Comment or delete all other statements.*
+
+Optional: Wired or Wireless 802.1X configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Generate cryptographic material for the EAP tunnel (802.1X) to work. Run as root:
+
+  cd /etc/raddb/certs
+  make
+
+In /etc/raddb/eap.conf
+^^^^^^^^^^^^^^^^^^^^^^
+
+Make sure this file looks like:
+
+----
+eap {
+        default_eap_type = peap
+        timer_expire     = 60
+        ignore_unknown_eap_types = no
+        cisco_accounting_username_bug = no
+        max_sessions = 2048
+
+        md5 {
+        }
+        tls {
+                certdir = ${confdir}/certs
+                cadir = ${confdir}/certs
+                private_key_file = /usr/local/pf/conf/ssl/server.key
+                certificate_file = /usr/local/pf/conf/ssl/server.crt
+                dh_file = ${certdir}/dh
+                random_file = ${certdir}/random
+                cipher_list = "DEFAULT"
+                make_cert_command = "${certdir}/bootstrap"
+                cache {
+                        enable = no
+                        lifetime = 24 # hours
+                        max_entries = 255
+                }
+        }
+        ttls {
+                default_eap_type = md5
+                copy_request_to_tunnel = yes
+                use_tunneled_reply = yes
+                virtual_server = "inner-tunnel"
+        }
+        peap {
+                default_eap_type = mschapv2
+                copy_request_to_tunnel = yes
+                use_tunneled_reply = yes
+                virtual_server = "inner-tunnel"
+        }
+        mschapv2 {
+        }
+}
+----
+
+Legacy FreeRADIUS 1.x configuration
+-----------------------------------
+
+Since PacketFence 1.9.0 we recommend the use of FreeRADIUS 2.x over 1.x.
+
+This documentation is provided here for historical reference.
+
+FreeRADIUS 1.x Configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Make sure to install the following packages:
+
+* freeradius
+
+In /etc/raddb/clients.conf
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Add the following lines:
+
+  client 192.168.0.3 {
+    secret = secretKey
+    shortname = AP1242
+  }
+
+In /etc/raddb/radiusd.conf
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Add the following lines to the `modules{}` section:
+
+  perl {
+          module = ${confdir}/rlm_perl_packetfence.pl
+  }
+
+Make sure the `authorize{}` section looks like this:
+
+  authorize {
+          preprocess
+          eap
+          files
+          perl
+  }
+
+Make sure the `post-auth{}` section looks like this:
+
+  post-auth {
+          perl
+  }
+
+Make sure the `mschap{}` section looks like this:
+
+  mschap {
+          authtype = MS-CHAP
+          use_mppe = yes
+          require_encryption = yes
+          require_strong = yes
+          with_ntdomain_hack = yes
+          ntlm_auth = "/usr/bin/ntlm_auth --request-nt-key --username=%{mschap:User-Name:-None} --challenge=%{mschap:Challenge:-00} --nt-response=%{mschap:NT-Response:-00}"
+  }
+
+In /etc/raddb/eap.conf
+^^^^^^^^^^^^^^^^^^^^^^
+
+Make sure this file looks like:
+
+----
+eap {
+        default_eap_type = peap
+        timer_expire     = 60
+        ignore_unknown_eap_types = no
+        cisco_accounting_username_bug = no
+
+        md5 {
+        }
+                    
+        leap {
+        }
+                    
+        gtc {   
+                auth_type = PAP
+        }
+
+        tls {
+                private_key_file = /usr/local/pf/conf/ssl/keyfile.key
+                certificate_file = /usr/local/pf/conf/ssl/certfile.crt
+                CA_file = /usr/local/pf/conf/ssl/CAfile.crt
+                dh_file = /dev/null
+                random_file = /dev/urandom
+        }
+
+        peap {
+                default_eap_type = mschapv2
+        }
+
+        mschapv2 {
+        }
+}
+----
+
+In /etc/raddb/users
+^^^^^^^^^^^^^^^^^^^
+
+Add the following lines where we define that non EAP-messages should, by default, lead to an authentication acceptance:
+
+  DEFAULT EAP-Message !* "", Auth-Type := Accept
+
+In /etc/raddb/rlm_perl_packetfence.pl
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This perl script uses the `Calling-Station-Id` RADIUS request attribute, containing the MAC of the wireless station, to determine its registration and violation status. Based on this information, it sets the `Tunnel-Medium-Type`, `Tunnel-Type` and `Tunnel-Private-Group-ID` RADIUS reply attributes. The AP, upon reception of these three attributes, then confines the wireless station into the specified VLAN.
+
+Make sure to set the required configuration parameters on top of the file. Mainly, the VLAN tags used in your environment and PacketFence's database credentials.
+
+  # Database connection settings
+  DB_HOSTNAME => 'localhost',
+  DB_NAME     => 'pf',
+  DB_USER     => 'pf',
+  DB_PASS     => 'pf',
+  # VLAN configuration
+  VLAN_GUEST        => 5,
+  VLAN_REGISTRATION => 2,
+  VLAN_ISOLATION    => 3,
+  VLAN_NORMAL       => 1
+
+Tests
+~~~~~
+
+Test your setup with radtest using the following command and make sure you get an `Access-Accept` answer:
+
+----
+# radtest dd9999 Abcd1234 localhost 12 testing123
+
+Sending Access-Request of id 74 to 127.0.0.1 port 1812
+  User-Name = "dd9999"
+  User-Password = "Abcd1234"
+  NAS-IP-Address = 255.255.255.255
+  NAS-Port = 12
+rad_recv: Access-Accept packet from host 127.0.0.1:1812, id=74, length=20
+----
+
+Debug
+~~~~~
+
+In order to start FreeRADIUS in debug mode, start it using the following command:
+
+  # radiusd -X
+
+
 // TODO collapse double spaces /\S  
 // TODO %s/“/"/g and %s/”/"/g
 // TODO merge two level ToC in the network guide into the main pf
