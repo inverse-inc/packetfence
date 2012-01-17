@@ -50,7 +50,7 @@ Out of band (VLAN Enforcement)::
 PacketFence's operation is completely out of band when using VLAN enforcement which allows the solution to scale geographically and to be more resilient to failures.
 
 In Band (Inline Enforcement)::
-PacketFence can also be configured to be in-band, especially when you have non-manageable network switches or access points. PacketFence can also work with both VLAN and Inline enforcement activated for maximum scalability and security while allowing older hardware to still be secured using Inline enforcement.  
+PacketFence can also be configured to be in-band, especially when you have non-manageable network switches or access points. PacketFence can also work with both VLAN and Inline enforcement activated for maximum scalability and security while allowing older hardware to still be secured using Inline enforcement.
 
 Voice over IP (VoIP) support::
 Also called IP Telephony (IPT), VoIP is fully supported (even in heterogeneous environments) for multiple switch vendors (Cisco, Edge-Core, HP, LinkSys, Nortel Networks and many more).
@@ -114,7 +114,7 @@ Depending on your setup you may have to install additional components like:
 * RADIUS server (FreeRADIUS)
 * NIDS (Snort)
 
-In this guide, we assume that all those components are running on the same server (i.e., “localhost” or “127.0.0.1”) that PacketFence will be installed on.
+In this guide, we assume that all those components are running on the same server (i.e., "localhost" or "127.0.0.1") that PacketFence will be installed on.
 
 Good understanding of those underlying component and GNU/Linux is required to install PacketFence. If you miss some of those required components, please refer to the appropriate documentation and proceed with the installation of these requirements before continuing with this guide.
 
@@ -197,7 +197,7 @@ Then install the latest version of the RPMForge package for your architecture (h
   wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el5.rf.i386.rpm
   rpm -i rpmforge-release-0.5.2-2.el5.rf.i386.rpm
 
-Disable the repository by default.  In the `/etc/yum.repos.d/rpmforge.repo`, set enabled to 0 under the rpmforge section:
+Disable the repository by default. In the `/etc/yum.repos.d/rpmforge.repo`, set enabled to 0 under the rpmforge section:
 
   enabled = 0
 
@@ -342,12 +342,12 @@ The PacketFence configuration for Apache is located in `/usr/local/pf/conf/httpd
 
 Upon PacketFence installation, a default configuration file is created which is suitable for most configurations. SSL is enabled by default to secure access.
 
-If you used the installer.pl script, you should have self-signed SSL certificates in `/usr/local/pf/conf/ssl` (`server.key` and `server.crt`).  Those certificates can be replaced anytime by your 3rd-party or existing wildcard certificate without problems.  Please note that the CN (Common Name) needs to be the same as the one defined in the PacketFence configuration file (`pf.conf`).
+If you used the installer.pl script, you should have self-signed SSL certificates in `/usr/local/pf/conf/ssl` (`server.key` and `server.crt`). Those certificates can be replaced anytime by your 3rd-party or existing wildcard certificate without problems. Please note that the CN (Common Name) needs to be the same as the one defined in the PacketFence configuration file (`pf.conf`).
 
 SELinux
 ~~~~~~~
 
-Even if this feature may be wanted by some organizations, PacketFence will not run properly if SELinux is set to enforced.  You will need to explicitly disable it in the `/etc/selinux/config` file.
+Even if this feature may be wanted by some organizations, PacketFence will not run properly if SELinux is set to enforced. You will need to explicitly disable it in the `/etc/selinux/config` file.
 
 Authentication (flat file, LDAP/AD, RADIUS)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -512,11 +512,11 @@ NOTE: as of PacketFence 1.9.1 few switches require Web Services configuration in
 Radius Secret
 ^^^^^^^^^^^^^
 
-For certain authentication mechanism, such as 802.1X or MAC Authentication, the RADIUS server needs to have the network device in its client list.  As of PacketFence 3.0, we now use a database backend to store the RADIUS client information.  In order to do so, edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
+For certain authentication mechanism, such as 802.1X or MAC Authentication, the RADIUS server needs to have the network device in its client list. As of PacketFence 3.0, we now use a database backend to store the RADIUS client information. In order to do so, edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
 
   radiusSecret= secretPassPhrase
 
-Also, starting with PacketFence 3.1, the RADIUS secret is required for our support of RADIUS  Dynamic Authentication (Change of authorization or Disconnect) as defined in RFC3576.
+Also, starting with PacketFence 3.1, the RADIUS secret is required for our support of RADIUS Dynamic Authentication (Change of authorization or Disconnect) as defined in RFC3576.
 
 Default VLAN assignment
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -527,7 +527,7 @@ The default VLAN assignment technique used in PacketFence is a per-switch one. T
 
 This allows you to do easy per-building VLAN segmentation.
 
-If you need more flexibility (per SSID, per node category, etc.) take a look at the “I need more flexible VLAN assignment” section under <<_advanced_features,Advanced features>>.
+If you need more flexibility (per SSID, per node category, etc.) take a look at the "I need more flexible VLAN assignment" section under <<_advanced_features,Advanced features>>.
 
 Inline enforcement configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -569,11 +569,11 @@ dhcp_default_lease_time:: Default DHCP lease time
 dhcp_max_lease_time:: Maximum DHCP lease time 
 type:: vlan-registration or vlan-isolation or inline
 named:: 
-Is PacketFence the DNS for this network ? (Enabled/Disabled) set it to   enabled unless in inline type where it should be disabled
+Is PacketFence the DNS for this network ? (Enabled/Disabled) set it to enabled unless in inline type where it should be disabled
 dhcpd:: 
-Is PacketFence the DHCP server for this network ? (Enabled/Disabled) set it  to enabled
+Is PacketFence the DHCP server for this network ? (Enabled/Disabled) set it to enabled
 
-When starting PacketFence generates the DHCP and DNS configuration files by reading the  information provided in `networks.conf`:
+When starting PacketFence generates the DHCP and DNS configuration files by reading the information provided in `networks.conf`:
 
 The DHCP configuration file is written to `var/conf/dhcpd.conf` using `conf/dhcpd.conf` as a template.
 
@@ -583,7 +583,7 @@ The DNS configuration files are generated this way:
 * `var/named/named-registration.ca` generated from `conf/named-registration.ca`
 * `var/named/named-isolation.ca` generated from `conf/named-isolation.ca`
 
-Since PacketFence 3.0, the DNS zone files are automatically populated.  Simply ensure that the information are right in the generated config files (`var/conf/named/named-registration.ca` and `var/conf/named/named-isolation.ca`).
+Since PacketFence 3.0, the DNS zone files are automatically populated. Simply ensure that the information are right in the generated config files (`var/conf/named/named-registration.ca` and `var/conf/named/named-isolation.ca`).
 
 Production DHCP access
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -656,7 +656,7 @@ Repeat the above for all your production VLANs then restart PacketFence.
 Host production DHCP on PacketFence
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-It's an option. Just modify `conf/dhcpd.conf` so that it will host your production DHCP properly and make sure that a `pfdhcplistener` runs on the same interface where production DHCP runs.  However, please note that this is *NOT* recommended. See http://www.packetfence.org/bugs/view.php?id=1050[this ticket] to see why.
+It's an option. Just modify `conf/dhcpd.conf` so that it will host your production DHCP properly and make sure that a `pfdhcplistener` runs on the same interface where production DHCP runs. However, please note that this is *NOT* recommended. See http://www.packetfence.org/bugs/view.php?id=1050[this ticket] to see why.
 
 Routed Networks
 ~~~~~~~~~~~~~~~
@@ -732,7 +732,7 @@ dhcpd=enabled
 FreeRADIUS Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-This section presents the FreeRADIUS configuration steps.  In some occasions, a RADIUS server is mandatory in order to give access to the network.  For example, the usage of WPA2-Enterprise (Wireless 802.1X), MAC authentication and Wired 802.1X all requires a RADIUS server to authenticate the users and the devices, and then to push the proper VLAN to the network equipment.  We strongly recommend that you install FreeRADIUS even if you plan not to use the feature now.
+This section presents the FreeRADIUS configuration steps. In some occasions, a RADIUS server is mandatory in order to give access to the network. For example, the usage of WPA2-Enterprise (Wireless 802.1X), MAC authentication and Wired 802.1X all requires a RADIUS server to authenticate the users and the devices, and then to push the proper VLAN to the network equipment. We strongly recommend that you install FreeRADIUS even if you plan not to use the feature now.
 
 Install the following packages:
 
@@ -741,9 +741,9 @@ Install the following packages:
 In /etc/raddb/clients.conf
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-CAUTION: As of PacketFence 3.0, this step is now unnecessary.  As you saw previously in this guide, we are now using the radiusSecret attribute in the switch configuration file.
+CAUTION: As of PacketFence 3.0, this step is now unnecessary. As you saw previously in this guide, we are now using the radiusSecret attribute in the switch configuration file.
 
-For PacketFence versions prior to 3.0, you will still use the RADIUS client flat file.  Replace <...> with values useful to you. You need one client entry per network device.
+For PacketFence versions prior to 3.0, you will still use the RADIUS client flat file. Replace <...> with values useful to you. You need one client entry per network device.
 
   client <useful_device_name> {
     ipaddr    = <network_device_ip_address>
@@ -786,7 +786,7 @@ Replace `/etc/raddb/modules/mschap` with the following configuration:
 Samba / Kerberos / Winbind
 ++++++++++++++++++++++++++
 
-Install SAMBA.  You can either use the sources or use the package for your OS.  For CentOS, you can use:
+Install SAMBA. You can either use the sources or use the package for your OS. For CentOS, you can use:
 
 // TODO make this more arch independent
 CAUTION: These are for CentOS 5 on the x86_64 architecture. Make sure to change the packages fetched based on your OS.
@@ -838,7 +838,7 @@ When done with the samba install, you need to modify `/etc/krb5.conf`. Here is a
  }
 ----
 
-Next, edit `/etc/samba/smb.conf`.  Again, here is an example for our `DOMAIN.NET`:
+Next, edit `/etc/samba/smb.conf`. Again, here is an example for our `DOMAIN.NET`:
 
   [global]
   workgroup = DOMAIN
@@ -941,7 +941,7 @@ Starting with 3.0, you can see logs file in the Web Administration under *Admini
 Configuration by example
 ------------------------
 
-Here is an end-to-end sample configuration of PacketFence in “Hybrid” mode (VLAN mode and Inline mode at the same time).
+Here is an end-to-end sample configuration of PacketFence in "Hybrid" mode (VLAN mode and Inline mode at the same time).
 
 Assumptions
 ~~~~~~~~~~~
@@ -949,7 +949,7 @@ Assumptions
 Throughout this configuration example we use the following assumptions for our network infrastructure:
 
 * There are two different types of manageable switches in our network: Cisco Catalyst 2900XL and Cisco Catalyst 2960, and one unmanageable device.
-* VLAN 1 is the “regular” VLAN
+* VLAN 1 is the "regular" VLAN
 * VLAN 2 is the registration VLAN (unregistered devices will be put in this VLAN)
 * VLAN 3 is the isolation VLAN (isolated devices will be put in this VLAN)
 * VLANs 2 and 3 are spanned throughout the network
@@ -1223,7 +1223,7 @@ Inline enforcement specifics
 
 To see another important optional parameter that can be altered to do inline enforcement see the <<_inline_enforcement_configuration,Inline enforcement configuration section>>.
 
-In order to have the inline mode properly working, you need to enable IP forwarding on your servers.  To do it permanently, look in the `/etc/sysctl.conf`, and set the following line:
+In order to have the inline mode properly working, you need to enable IP forwarding on your servers. To do it permanently, look in the `/etc/sysctl.conf`, and set the following line:
 
   # Controls IP packet forwarding
   net.ipv4.ip_forward = 1
@@ -1236,7 +1236,7 @@ Optional components
 Blocking malicious activities with violations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Policy violations allow you to restrict client system access based on violations of certain policies. For example, if you do not allow P2P type traffic on your network, and you are running the appropriate software to detect it and trigger a violation for a given client, PacketFence will give that client a “blocked” page which can be customized to your wishes.
+Policy violations allow you to restrict client system access based on violations of certain policies. For example, if you do not allow P2P type traffic on your network, and you are running the appropriate software to detect it and trigger a violation for a given client, PacketFence will give that client a "blocked" page which can be customized to your wishes.
 
 In order to be able to block malicious activities, you need to install and configure the SNORT IDS to talk with PacketFence.
 
@@ -1246,19 +1246,19 @@ Snort
 Installation
 ++++++++++++
 
-The installation procedure is quite simple for SNORT.  We maintain a working version on the PacketFence repository.  To install it, simply run the following command:
+The installation procedure is quite simple for SNORT. We maintain a working version on the PacketFence repository. To install it, simply run the following command:
 
   yum install snort
 
 Configuration
 +++++++++++++
 
-PacketFence provides a basic `snort.conf` template that you may need to edit depending of the Snort version.  The file is located in `/usr/local/pf/conf`.  It is rarely necessary to change anything in that file to make Snort work and trap alerts.  DO NOT edit the `snort.conf` located in `/usr/local/pf/var/conf`, all the modification will be destroyed on each PacketFence restart.
+PacketFence provides a basic `snort.conf` template that you may need to edit depending of the Snort version. The file is located in `/usr/local/pf/conf`. It is rarely necessary to change anything in that file to make Snort work and trap alerts. DO NOT edit the `snort.conf` located in `/usr/local/pf/var/conf`, all the modification will be destroyed on each PacketFence restart.
 
 Violations
 ^^^^^^^^^^
 
-In order to make PacketFence react to the Snort alerts, you need to explicitly tell the software to do so.  Otherwise, the alerts will be discarded.  This is quite simple to accomplish.  In fact, you need to create a violation and add the Snort alert SID in the trigger section of a Violation. 
+In order to make PacketFence react to the Snort alerts, you need to explicitly tell the software to do so. Otherwise, the alerts will be discarded. This is quite simple to accomplish. In fact, you need to create a violation and add the Snort alert SID in the trigger section of a Violation. 
 
 PacketFence policy violations are controlled using the `/usr/local/pf/conf/violations.conf` configuration file. The violation format is as follows:
 
@@ -1299,7 +1299,7 @@ This is the list of actions that will be executed on a violation addition. The a
   `winpopup`;; send a windows popup message. You need to configure `[alerting].winserver`, `[alerting].netbiosname` in `pf.conf` when using this option.
   `external`;; execute an external command, specified in `[paths].externalapi`.
 `vlan`:: 
-  Destination VLAN where PacketFence should put the client when a violation of this  type is open. The VLAN value can be:
+  Destination VLAN where PacketFence should put the client when a violation of this type is open. The VLAN value can be:
   `isolationVlan`;;
     Isolation VLAN as specified in `switches.conf`. This is the recommended value for most violation types.
   `registrationVlan`;; Registration VLAN as specified in `switches.conf`.
@@ -1357,7 +1357,7 @@ Conformity Scan (Nessus)
 Installation
 ^^^^^^^^^^^^
 
-Please visit http://www.nessus.org/download/ to download and install the Nessus package for your operating system.  You will also need to register for the HomeFeed (or the ProfessionalFeed) in order to get the plugins.
+Please visit http://www.nessus.org/download/ to download and install the Nessus package for your operating system. You will also need to register for the HomeFeed (or the ProfessionalFeed) in order to get the plugins.
 
 After you installed Nessus, follow the Nessus documentation for the configuration of the Nessus Server, and to create a user for PacketFence.
 
@@ -1403,7 +1403,7 @@ You'll have to save your `dot nessus` file in the `/usr/local/pf/conf/nessus/` d
 
   $ pfcmd schedule now <IP>
 
-NOTE: If you provide credentials in the `.nessus` file, you need to enable the “Store passwords as plain text” option in your Nessus Client.
+NOTE: If you provide credentials in the `.nessus` file, you need to enable the "Store passwords as plain text" option in your Nessus Client.
 
 Scan on registration
 ^^^^^^^^^^^^^^^^^^^^
@@ -1415,31 +1415,31 @@ It is also recommended to adjust `scan.duration` to reflect how long the scan ta
 Oinkmaster
 ~~~~~~~~~~
 
-Oinkmaster is a perl script that enables the possibility to update the different snort rules very easily.  It is simple to use, and install.  This section will show you how to implement Oinkmaster to work with PacketFence and Snort.
+Oinkmaster is a perl script that enables the possibility to update the different snort rules very easily. It is simple to use, and install. This section will show you how to implement Oinkmaster to work with PacketFence and Snort.
 
 Please visit http://oinkmaster.sourceforge.net/download.shtml to download oinkmaster. A sample oinkmaster configuration file is provided at `/usr/local/pf/addons/snort/oinkmaster.conf`.
 
 Configuration
 ^^^^^^^^^^^^^
 
-Here are the steps to make Oinkmaster work.  We will assume that you already downloaded the newest oinkmaster archive:
+Here are the steps to make Oinkmaster work. We will assume that you already downloaded the newest oinkmaster archive:
 
 . Untar the freshly downloaded Oinkmaster
-. Copy the required perl scripts into `/usr/local/pf/oinkmaster`.  You need to copy over `contrib` and `oinkmaster.pl`
+. Copy the required perl scripts into `/usr/local/pf/oinkmaster`. You need to copy over `contrib` and `oinkmaster.pl`
 . Copy the `oinkmaster.conf` provided by PacketFence (see the section above) in `/usr/local/pf/conf`
-. Modify the configuration to suit your own needs.  Currently, the configuration file is set to fetch the bleeding rules.
+. Modify the configuration to suit your own needs. Currently, the configuration file is set to fetch the bleeding rules.
 
 Rules update
 ^^^^^^^^^^^^
 
-In order to get periodic updates for PacketFence Snort rules, we simply need to create a `crontab` entry with the right information.  The example below shows a `crontab` entry to fetch the updates daily at 23:00 PM:
+In order to get periodic updates for PacketFence Snort rules, we simply need to create a `crontab` entry with the right information. The example below shows a `crontab` entry to fetch the updates daily at 23:00 PM:
 
   0 23 * * * (cd /usr/local/pf; perl oinkmaster/oinkmaster.pl -C conf/oinkmaster.conf -o conf/snort/)
 
 Floating Network Devices
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Starting with version 1.9, PacketFence now supports floating network devices. A Floating network device is a device for which PacketFence has a different behaviour compared to a regular device.  This functionality was originally added to support mobile Access Points.
+Starting with version 1.9, PacketFence now supports floating network devices. A Floating network device is a device for which PacketFence has a different behaviour compared to a regular device. This functionality was originally added to support mobile Access Points.
 
 CAUTION: Right now PacketFence only supports floating network devices on Cisco and Nortel switches configured with port-security.
 
@@ -1576,20 +1576,20 @@ Pre-registered guests are added under the persons tab of the PacketFence web adm
 Statement of Health (SoH)
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The Statement of Health (SoH) is product that has been developed by Microsoft.  In the Microsoft world, this is named Network Access Protection or NAP.  On Windows versions from XP SP2 to Windows 7, there is a NAP service installed that can relay health information (Anti-Virus update status, Windows Update status, etc) to a RADIUS Server or a DHCP server.  The section below explains you how to do SoH policies with PacketFence.
+The Statement of Health (SoH) is product that has been developed by Microsoft. In the Microsoft world, this is named Network Access Protection or NAP. On Windows versions from XP SP2 to Windows 7, there is a NAP service installed that can relay health information (Anti-Virus update status, Windows Update status, etc) to a RADIUS Server or a DHCP server. The section below explains you how to do SoH policies with PacketFence.
 
 Packages
 ^^^^^^^^
 
-Adding the SoH functionality requires specific RADIUS configuration.  Ensure that you have at least the version 3.1 of the packetfence-freeradius2 package.
+Adding the SoH functionality requires specific RADIUS configuration. Ensure that you have at least the version 3.1 of the packetfence-freeradius2 package.
  
 Installation
 ^^^^^^^^^^^^
 
-By default, we turn SoH off.  To enable its support, simply uncomment the following lines in `/etc/raddb/eap.conf`.
+By default, we turn SoH off. To enable its support, simply uncomment the following lines in `/etc/raddb/eap.conf`.
 
   soh=yes
-  soh-virtual-server = “soh-server”
+  soh-virtual-server = "soh-server"
 
 Restart the RADIUS service afterward.
 
@@ -1609,12 +1609,12 @@ netsh nap client show config
 netsh nap client set enforce id=$ID admin=enable
 ----
 
-The last step is to select the “Enforce Network Access Protection” checkbox under the EAP profile settings.  Those steps can be easily configured using GPOs.
+The last step is to select the "Enforce Network Access Protection" checkbox under the EAP profile settings. Those steps can be easily configured using GPOs.
 
 Configuration of SoH policy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In order to enforce a SoH policy, we need to create it first.  This is done using a separate interface accessible on the same virtual server as the administrative UI under *Configuration -> SOH*.
+In order to enforce a SoH policy, we need to create it first. This is done using a separate interface accessible on the same virtual server as the administrative UI under *Configuration -> SOH*.
 
 Policy example
 ^^^^^^^^^^^^^^
@@ -1633,16 +1633,16 @@ First, create the proper violation either via the Admin UI, or by editing the `c
 
 NOTE: You may also want to set other attributes such as auto_enable, grace, etc.
 
-When done with the violation, visit the Web Administration under *Configuration -> SOH* and (edit the filter named *Default*, or) use the *Add a filter* button to create a filter named *antivirus*.  Click on *antivirus* in the filter list, and select *Trigger violation* in the action drop-down. Enter the vid of the violation you created above in the input box that appears.
+When done with the violation, visit the Web Administration under *Configuration -> SOH* and (edit the filter named *Default*, or) use the *Add a filter* button to create a filter named *antivirus*. Click on *antivirus* in the filter list, and select *Trigger violation* in the action drop-down. Enter the vid of the violation you created above in the input box that appears.
 
-Next, click on *Add a condition*, and select *Anti-virus*, *is*, and *disabled* in the drop-down boxes that appear.  Click on the *Save filters* button.  Finally, reload the violations either by restarting PacketFence or using the `pfcmd reload violations` command.
+Next, click on *Add a condition*, and select *Anti-virus*, *is*, and *disabled* in the drop-down boxes that appear. Click on the *Save filters* button. Finally, reload the violations either by restarting PacketFence or using the `pfcmd reload violations` command.
 
-The last step is to create a new remediation template called `noantivirus.php` on the filesystem in the `html/captive-portal/violations` folder.  Edit it to include the text you want to display to the users.  
+The last step is to create a new remediation template called `noantivirus.php` on the filesystem in the `html/captive-portal/violations` folder. Edit it to include the text you want to display to the users.
 
 Apple wireless profile provisioning
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Apple devices such as iPhones, iPads, and iPods support wireless profile importation using a special XML file format (mobileconfig).  In fact, installing such file on your phone will automatically configure the wireless settings for a given SSID.  This feature is often used when the SSID is hidden, and you want to easy the configuration steps on the phone (because it is painful to configure manually).  In PacketFence, we are going further, we generate the profile according to the administrator desire, and we pre-populate the file with the user's credentials (without the password).  The user simply need to install its generated file, and he will be able to use the new SSID.
+Apple devices such as iPhones, iPads, and iPods support wireless profile importation using a special XML file format (mobileconfig). In fact, installing such file on your phone will automatically configure the wireless settings for a given SSID. This feature is often used when the SSID is hidden, and you want to easy the configuration steps on the phone (because it is painful to configure manually). In PacketFence, we are going further, we generate the profile according to the administrator desire, and we pre-populate the file with the user's credentials (without the password). The user simply need to install its generated file, and he will be able to use the new SSID.
 
 Configure the feature
 ^^^^^^^^^^^^^^^^^^^^^
@@ -1653,7 +1653,7 @@ provisioning.autoconfig:: Enable or disable the feature
 provisioning.ssid:: This is the SSID you want the user to connect to upon registration 
 provisioning.category:: Activate this feature to a specific category or any.
 
-Here is an example: We have an hidden WPA2-Enterprise SSID named HiddenSecure, and we want to provision this wireless profile to everybody registering with an iPhone, iPad, or iPod.   The configuration in `pf.conf` would look like:
+Here is an example: We have an hidden WPA2-Enterprise SSID named HiddenSecure, and we want to provision this wireless profile to everybody registering with an iPhone, iPad, or iPod. The configuration in `pf.conf` would look like:
 
   [provisioning]
   autoconfig=enabled
@@ -1664,7 +1664,7 @@ Here is an example: We have an hidden WPA2-Enterprise SSID named HiddenSecure, a
 Profile generation
 ^^^^^^^^^^^^^^^^^^
 
-Upon registration, instead of showing the default release page, the user will be showing another version of the page saying that the wireless profile has been generated with a clickable link on it.  To install the profile, the user simply need to click on that link, and follow the instructions on their device.  It is that simple.
+Upon registration, instead of showing the default release page, the user will be showing another version of the page saying that the wireless profile has been generated with a clickable link on it. To install the profile, the user simply need to click on that link, and follow the instructions on their device. It is that simple.
 
 SNMP traps limit
 ~~~~~~~~~~~~~~~~
@@ -1686,28 +1686,28 @@ Operating System Best Practices
 Iptables
 ~~~~~~~~
 
-IPTables is now entirely managed by PacketFence.  However, if you need to perform some custom rules, you can modify `conf/iptables.conf` to your own needs.  However, the default template should work for most users.
+IPTables is now entirely managed by PacketFence. However, if you need to perform some custom rules, you can modify `conf/iptables.conf` to your own needs. However, the default template should work for most users.
 
 Log Rotations
 ~~~~~~~~~~~~~
 
-PacketFence can generate a lot of log entries in huge production environments.  This is why we recommend to use either `logrotate` or `log4perl` to periodically rotate your logs.
+PacketFence can generate a lot of log entries in huge production environments. This is why we recommend to use either `logrotate` or `log4perl` to periodically rotate your logs.
 
 Logrotate (recommended)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-This is the easiest way to rotate your logs.  In fact, a working logrotate script is provided with the  PacketFence package.  This script is located in `/usr/local/pf/addons`, and it's configured to do a weekly log rotation and keeping old logs with compression.  Just add it to your existing logrotate cronjobs.
+This is the easiest way to rotate your logs. In fact, a working logrotate script is provided with the PacketFence package. This script is located in `/usr/local/pf/addons`, and it's configured to do a weekly log rotation and keeping old logs with compression. Just add it to your existing logrotate cronjobs.
 
 Log4perl
 ~~~~~~~~
 
-This log4perl way is a little more complex to achieve, but it is still quite simple.  There are 3 packages you need to get from RPMForge:
+This log4perl way is a little more complex to achieve, but it is still quite simple. There are 3 packages you need to get from RPMForge:
 
 * perl-Log-Dispatcher
 * perl-Log-Dispatcher-FileRotate
 * perl-Date-Manip
 
-Once you downloaded those packages, you need to modify the logging configuration file (`conf/log.conf`) with something like the following example.  Note that log4perl is almost the same as log4j, so you should be able to find a lot of documentation online.
+Once you downloaded those packages, you need to modify the logging configuration file (`conf/log.conf`) with something like the following example. Note that log4perl is almost the same as log4j, so you should be able to find a lot of documentation online.
 
   log4perl.appender.LOGFILE=Log::Dispatch::FileRotate
   log4perl.appender.LOGFILE.filename=/usr/local/pf/logs/packetfence.log
@@ -1760,7 +1760,7 @@ During the OS installation, reduce the size of the main partition and create a n
 Partitioning
 ^^^^^^^^^^^^
 
-After the install, you need to create the extra partition for drbd.  Using fdisk, create you new partition and save the table.  You will probably need to reboot your server after this step.
+After the install, you need to create the extra partition for drbd. Using fdisk, create you new partition and save the table. You will probably need to reboot your server after this step.
 
 DRBD and Linux-HA Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1980,12 +1980,12 @@ Enable HB automatic start
 RADIUS HA configuration
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-If you configured FreeRADIUS with your wireless setup and you configured redundancy, you could configure FreeRADIUS to answer requests exclusively coming on the virtual IP.  In order to do so, you need to modify the RADIUS configuration and add RADIUS to the managed resources.
+If you configured FreeRADIUS with your wireless setup and you configured redundancy, you could configure FreeRADIUS to answer requests exclusively coming on the virtual IP. In order to do so, you need to modify the RADIUS configuration and add RADIUS to the managed resources.
 
 RADIUS Configuration
 ++++++++++++++++++++
 
-Modify the `listen` statements in the `radiusd.conf` file per the following.  Change the `[VIP_IPV4_ADDRSS]` with your virtual IP address:
+Modify the `listen` statements in the `radiusd.conf` file per the following. Change the `[VIP_IPV4_ADDRSS]` with your virtual IP address:
 
   listen {
     type = auth
@@ -2120,17 +2120,17 @@ One such table is the `locationlog` table. We recommend that closed entries in t
 
 We provide a script called `database-backup-and-maintenance.sh` located in `addons/` that performs this cleanup in addition to optimize tables on Sunday and daily backups.
 
-Avoid 'Too many connections' problems
+Avoid "Too many connections" problems
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In a wireless context, there tends to be a lot of connections made to the database by our `freeradius` module. The default MySQL value tend to be low (100) so we encourage you to increase that value to at least 300. See http://dev.mysql.com/doc/refman/5.0/en/too-many-connections.html for details.
 
-Avoid 'Host <hostname> is blocked' problems
+Avoid "Host <hostname> is blocked" problems
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In a wireless context, there tend to be a lot of connections made to the database by our freeradius module. When the server is loaded, these connection attempts can timeout. If a connection times out during connection, MySQL will consider this a connection error and after 10 of these (by default) he will lock the host out with a:
 
-  Host 'host_name' is blocked because of many connection errors. Unblock  with 'mysqladmin flush-hosts'
+  Host 'host_name' is blocked because of many connection errors. Unblock with 'mysqladmin flush-hosts'
 
 This will grind PacketFence to a halt so you want to avoid that at all cost. One way to do so is to increase the number of maximum connections (see above), to periodically flush hosts or to allow more connection errors. See http://dev.mysql.com/doc/refman/5.0/en/blocked-host.html for details.
 
@@ -2245,11 +2245,11 @@ Technical introduction to Inline enforcement
 Introduction
 ~~~~~~~~~~~~
 
-Before the version 3.0 of PacketFence, it was not possible to support unmanageable devices such as entry-level consumer switches or access-points. Now, with the new inline mode, PacketFence can be use in-band for those devices.  So in other words, PacketFence will become the gateway of that inline network, and NAT the traffic using IPTables to the Internet (or to another section of the network).  Let see how it works.
+Before the version 3.0 of PacketFence, it was not possible to support unmanageable devices such as entry-level consumer switches or access-points. Now, with the new inline mode, PacketFence can be use in-band for those devices. So in other words, PacketFence will become the gateway of that inline network, and NAT the traffic using IPTables to the Internet (or to another section of the network). Let see how it works.
 
 Device configuration
 ~~~~~~~~~~~~~~~~~~~~
-No special configuration is needed on the unmanageable device.  That's the beauty of it.  You only need to ensure that the device is “talking” on the inline VLAN.  At this point, all the traffic will be passing through PacketFence since it is the gateway for this VLAN.
+No special configuration is needed on the unmanageable device. That's the beauty of it. You only need to ensure that the device is "talking" on the inline VLAN. At this point, all the traffic will be passing through PacketFence since it is the gateway for this VLAN.
 
 Access control
 ~~~~~~~~~~~~~~
@@ -2322,7 +2322,7 @@ image::docs/images/screenshot-node-view.png[scaledwidth="100%",alt="Web Admin no
 Manual FreeRADIUS 2 configuration
 ---------------------------------
 
-Since we provide a working RPM package that contains pre-built RADIUS configuration files, those files don't need to be modified by hand anymore.  However, consider this section as a reference.
+Since we provide a working RPM package that contains pre-built RADIUS configuration files, those files don't need to be modified by hand anymore. However, consider this section as a reference.
 
 Configuration
 ~~~~~~~~~~~~~
@@ -2526,7 +2526,7 @@ eap {
         leap {
         }
                     
-        gtc {   
+        gtc {
                 auth_type = PAP
         }
 
@@ -2595,9 +2595,5 @@ In order to start FreeRADIUS in debug mode, start it using the following command
 
   # radiusd -X
 
-
-// TODO collapse double spaces /\S  
-// TODO %s/“/"/g and %s/”/"/g
-// TODO merge two level ToC in the network guide into the main pf
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
