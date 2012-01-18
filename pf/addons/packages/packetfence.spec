@@ -205,22 +205,15 @@ done
 xsltproc -o docs/docbook/xsl/titlepage-fo.xsl \
     /usr/share/sgml/docbook/xsl-stylesheets/template/titlepage.xsl \
     docs/docbook/xsl/titlepage-fo.xml
-# admin guide
+# admin and network device config guide
+for GUIDE in PacketFence_Administration_Guide PacketFence_Network_Devices_Configuration_Guide; do 
 asciidoc -a docinfo2 -b docbook -d book \
-    -o docs/docbook/pf-admin-guide.docbook \
-    docs/docbook/pf-admin-guide.asciidoc
+    -o docs/docbook/$GUIDE.docbook
+    docs/$GUIDE.asciidoc
 fop -c docs/fonts/fop-config.xml \
-    -xml docs/docbook/pf-admin-guide.docbook \
+    -xml docs/docbook/$GUIDE.docbook \
     -xsl docs/docbook/xsl/packetfence-fo.xsl \
-    -pdf docs/PacketFence_Administration_Guide.pdf
-# network device guide
-asciidoc -a docinfo2 -b docbook -d book \
-    -o docs/docbook/pf-network-device-config-guide.docbook \
-    docs/docbook/pf-network-device-config-guide.asciidoc
-fop -c docs/fonts/fop-config.xml \
-    -xml docs/docbook/pf-network-device-config-guide.docbook \
-    -xsl docs/docbook/xsl/packetfence-fo.xsl \
-    -pdf docs/PacketFence_Network_Device_Configuration_Guide.pdf
+    -pdf docs/$GUIDE.pdf
 # devel guide (docbook only)
 fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-devel-guide.xml \
     -xsl docs/docbook/xsl/packetfence-fo.xsl \
@@ -291,8 +284,7 @@ cp -r configurator.pl $RPM_BUILD_ROOT/usr/local/pf/
 cp -r COPYING $RPM_BUILD_ROOT/usr/local/pf/
 cp -r db $RPM_BUILD_ROOT/usr/local/pf/
 cp -r docs $RPM_BUILD_ROOT/usr/local/pf/
-# FIXME hack until the ODT guides are gone
-rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/*.odt
+rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/archives
 rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/docbook
 rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/fonts
 rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/images
@@ -614,7 +606,9 @@ fi
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
 %dir                    /usr/local/pf/docs
+%doc                    /usr/local/pf/docs/*.asciidoc
 %doc                    /usr/local/pf/docs/*.pdf
+%doc                    /usr/local/pf/docs/*.xml
 %doc                    /usr/local/pf/docs/fdl-1.2.txt
 %dir                    /usr/local/pf/docs/MIB
 %doc                    /usr/local/pf/docs/MIB/Inverse-PacketFence-Notification.mib

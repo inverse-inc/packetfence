@@ -8,8 +8,8 @@ PacketFence Network Devices Configuration Guide
 
     This file is part of the PacketFence project.
 
-    See pf-network-device-config-guide-docinfo.xml for authors, copyright and
-    license information.
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
 
 ////
 

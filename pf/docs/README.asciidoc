@@ -18,11 +18,16 @@ Here's the example with the Admin guide.
 
 . First asciidoc to docbook
 
-  $ asciidoc -a docinfo2 -b docbook -d book -o docs/docbook/pf-admin-guide.docbook docs/docbook/pf-admin-guide.asciidoc
+  $ asciidoc -a docinfo2 -b docbook -d book \
+    -o docs/docbook/PacketFence_Administration_Guide.docbook \
+    docs/PacketFence_Administration_Guide.asciidoc
 
 . Then render the PDF from the docbook
 
-  $ fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-admin-guide.docbook -xsl docs/docbook/xsl/packetfence-fo.xsl -pdf PacketFence_Administration_Guide.pdf
+  $ fop -c docs/fonts/fop-config.xml \
+    -xml docs/docbook/PacketFence_Administration_Guide.docbook \
+    -xsl docs/docbook/xsl/packetfence-fo.xsl \
+    -pdf docs/PacketFence_Administration_Guide.pdf
 
 
 Docbook

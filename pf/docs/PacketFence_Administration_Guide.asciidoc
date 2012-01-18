@@ -8,8 +8,8 @@ PacketFence Administration Guide
 
     This file is part of the PacketFence project.
 
-    See pf-admin-guide-docinfo.xml for authors, copyright and license 
-    information.
+    See PacketFence_Administration_Guide-docinfo.xml for authors, copyright 
+    and license information.
 
 ////
 

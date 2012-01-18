@@ -19,6 +19,7 @@ Security
  * Reflected Cross-site scripting (XSS) in Web Admin printing system (#1362)
 
 Enhancements
+ * Migrated our documentation from a binary-only ODT to a flexible asciidoc format
  * Code and tests refactoring
  * Minor documentation update for Aruba Controllers
  * Performance: avoiding some redundant operations on startup
