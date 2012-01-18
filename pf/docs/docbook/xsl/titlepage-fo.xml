@@ -34,8 +34,11 @@
      If you make changes you need to rebuild XSL: 
 
      xsltproc -o docs/docbook/xsl/titlepage-fo.xsl \
-         /opt/local/share/xsl/docbook-xsl/template/titlepage.xsl \
+         /usr/share/xml/docbook/stylesheet/docbook-xsl/template/titlepage.xsl \
          docs/docbook/xsl/titlepage-fo.xml
+
+     On some platforms the titlepage.xsl is located elsewhere:
+     * OSX: /opt/local/share/xsl/docbook-xsl/template/titlepage.xsl
 
      This is a customized version of docbook-xsl/fo/titlepage.templates.xml.
      I removed every section except the book one. Feel free to add more if more

@@ -38,9 +38,14 @@
 
 -->
 
-  <!-- Load default values -->
-  <!--<xsl:import href="/opt/local/share/xsl/docbook-xsl/fo/docbook.xsl"/>-->
-  <xsl:import href="/usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl"/> 
+  <!-- 
+      Load default values
+
+      If no Internet access is available here are some common locations:
+      * OSX <xsl:import href="/opt/local/share/xsl/docbook-xsl/fo/docbook.xsl"/>
+      * Debian <xsl:import href="/usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl"/>
+  -->
+  <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/fo/docbook.xsl"/>
 
   <!-- title page extra styling -->
   <xsl:import href="titlepage-fo.xsl"/>

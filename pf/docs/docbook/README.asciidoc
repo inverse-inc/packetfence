@@ -7,7 +7,7 @@ asciidoc
 --------
 
 * Documentation: http://www.methods.co.nz/asciidoc/
-* Useful cheatsheat: http://powerman.name/doc/asciidoc
+* Useful cheatsheet: http://powerman.name/doc/asciidoc
 
 Convert to PDF 
 ~~~~~~~~~~~~~~
@@ -29,10 +29,12 @@ Docbook
 CAUTION: deprecated. See <<_asciidoc,asciidoc>> instead.
 
 To build HTML from Docbook:
-$ xsltproc --output packetfence-developers-guide.html /opt/local/share/xsl/docbook-xsl/html/docbook.xsl docs/docbook/pf-devel-guide.xml
+
+  $ xsltproc --output packetfence-developers-guide.html /opt/local/share/xsl/docbook-xsl/html/docbook.xsl docs/docbook/pf-devel-guide.xml
 
 To build PDF from Docbook:
-$ fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-devel-guide.xml -xsl docs/docbook/xsl/packetfence-fo.xsl -pdf packetfence-developers-guide.pdf
+
+  $ fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-devel-guide.xml -xsl docs/docbook/xsl/packetfence-fo.xsl -pdf packetfence-developers-guide.pdf
 
 
 Troubleshooting
@@ -48,6 +50,8 @@ If you get an error like:
 It's because you are missing the XSL template for the titlepage. Rebuilt it with:
 
   $ xsltproc -o docs/docbook/xsl/titlepage-fo.xsl /usr/share/xml/docbook/stylesheet/docbook-xsl/template/titlepage.xsl docs/docbook/xsl/titlepage-fo.xml
+
+NOTE: On some platform the titlepage.xsl is located elsewhere (like `/opt/local/share/xsl/docbook-xsl/template/titlepage.xsl` on OSX).
 
 Title page template modified but no effect visible
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -69,5 +73,43 @@ Are caused because docbook installation (with macport) on OSX uses different dir
 
   $ sudo mkdir -p /usr/share/xml/docbook/stylesheet/
   $ sudo ln -s /opt/local/share/xsl/docbook-xsl /usr/share/xml/docbook/stylesheet/
+
+
+Making it work on RHEL5 / CentOS 5
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Turns out this is quite tricky and unfortunately doesn't yield the best results.
+
+. First make sure you have rpmforge repository enabled. If you don't have it, see the Admin guide, it is covered there.
+. Install jpackage repository
+
+  # yum install jpackage-release
+  # wget http://www.jpackage.org/jpackage50.repo
+  # mv jpackage50.repo /etc/yum.repos.d/jpackage50.repo
+  
+. Edit `/etc/yum.repos.d/jpackage50.repo` and enable the generic and rhel repos.
+
+. Install the tools
+
+  # yum install xmlgraphics-fop libxslt asciidoc
+
+. If you are bitten by 'Missing Dependency: /usr/bin/rebuild-security-providers
+ is needed by package' install http://plone.lucidsolutions.co.nz/linux/centos/jpackage-jpackage-utils-compatibility-for-centos-5.x[RPM provided here].
+
+  # rpm -Uvh http://plone.lucidsolutions.co.nz/linux/centos/images/jpackage-utils-compat-el5-0.0.1-1.noarch.rpm
+
+. Second attempt to install the tools
+
+  # yum install xmlgraphics-fop libxslt asciidoc
+
+. Patch xmlgraphics-fop
+
+  patch -p0 < docs/docbook/xmlgraphics-fop-centos5.patch
+
+. Create the appropriate symlink
+
+  # ln -s /usr/bin/xmlgraphics-fop /usr/bin/fop
+
+. You are good to go!
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
