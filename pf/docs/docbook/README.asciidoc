@@ -47,9 +47,25 @@ If you get an error like:
 
   file://.../docs/docbook/xsl/packetfence-fo.xsl; Line #46; Column #40; Had IO Exception with stylesheet file: titlepage-fo.xsl
 
+or
+
+  ERROR:  '.../docs/docbook/xsl/titlepage-fo.xsl (No such file or directory)'
+  FATAL ERROR:  'Could not compile stylesheet'
+
 It's because you are missing the XSL template for the titlepage. Rebuilt it with:
 
+Debian / Ubuntu::
+----
   $ xsltproc -o docs/docbook/xsl/titlepage-fo.xsl /usr/share/xml/docbook/stylesheet/docbook-xsl/template/titlepage.xsl docs/docbook/xsl/titlepage-fo.xml
+----
+CentOS / RHEL::
+----
+  $ xsltproc -o docs/docbook/xsl/titlepage-fo.xsl /usr/share/sgml/docbook/xsl-stylesheets/template/titlepage.xsl docs/docbook/xsl/titlepage-fo.xml
+----
+OSX::
+----
+  $ xsltproc -o docs/docbook/xsl/titlepage-fo.xsl /opt/local/share/xsl/docbook-xsl/template/titlepage.xsl docs/docbook/xsl/titlepage-fo.xml
+----
 
 NOTE: On some platform the titlepage.xsl is located elsewhere (like `/opt/local/share/xsl/docbook-xsl/template/titlepage.xsl` on OSX).
 
@@ -111,5 +127,29 @@ Turns out this is quite tricky and unfortunately doesn't yield the best results.
   # ln -s /usr/bin/xmlgraphics-fop /usr/bin/fop
 
 . You are good to go!
+
+
+CentOS 6 / RHEL6: Could not compile stylesheet
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Getting an error similar to:
+
+  Compiler warnings:
+    file:/usr/share/sgml/docbook/xsl-stylesheets/fo/table.xsl: line 451: Attribute 'border-start-style' outside of element.
+    file:/usr/share/sgml/docbook/xsl-stylesheets/fo/table.xsl: line 452: Attribute 'border-end-style' outside of element.
+    file:/usr/share/sgml/docbook/xsl-stylesheets/fo/table.xsl: line 453: Attribute 'border-top-style' outside of element.
+    file:/usr/share/sgml/docbook/xsl-stylesheets/fo/table.xsl: line 454: Attribute 'border-bottom-style' outside of element.
+    file:/usr/share/sgml/docbook/xsl-stylesheets/fo/index.xsl: line 351: Attribute 'rx:key' outside of element.
+  ERROR:  'The first argument to the non-static Java function 'insertCallouts' is not a valid object reference.'
+  FATAL ERROR:  'Could not compile stylesheet'
+  Jan 17, 2012 9:13:28 PM org.apache.fop.cli.Main startFOP
+  SEVERE: Exception
+  org.apache.fop.apps.FOPException: Could not compile stylesheet
+  ...
+
+Try patching your `/usr/bin/fop` with `docs/docbook/fop-centos6.patch`:
+
+  patch -p0 < docs/docbook/fop-centos6.patch
+
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
