@@ -9,6 +9,8 @@ asciidoc
 * Documentation: http://www.methods.co.nz/asciidoc/
 * Useful cheatsheet: http://powerman.name/doc/asciidoc
 
+Minimum version 8.6.2 is required to produce the PDF Guides.
+
 Convert to PDF 
 ~~~~~~~~~~~~~~
 
@@ -150,6 +152,14 @@ Getting an error similar to:
 Try patching your `/usr/bin/fop` with `docs/docbook/fop-centos6.patch`:
 
   patch -p0 < docs/docbook/fop-centos6.patch
+
+
+CentOS 6 / RHEL6: Output is not the same
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You are probably not running asciidoc >= 8.6.2. Install from rpmforge-extras:
+
+  yum install --enablerepo=rpmforge-extras asciidoc
 
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
