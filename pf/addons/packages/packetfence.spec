@@ -194,22 +194,10 @@ make FreeRADIUS properly interact with PacketFence
 mv pfcmd_pregrammar.pm lib/pf/pfcmd/
 
 # generate translations
-/usr/bin/msgfmt conf/locale/de/LC_MESSAGES/packetfence.po
-mv packetfence.mo conf/locale/de/LC_MESSAGES/
-/usr/bin/msgfmt conf/locale/en/LC_MESSAGES/packetfence.po
-mv packetfence.mo conf/locale/en/LC_MESSAGES/
-/usr/bin/msgfmt conf/locale/es/LC_MESSAGES/packetfence.po
-mv packetfence.mo conf/locale/es/LC_MESSAGES/
-/usr/bin/msgfmt conf/locale/fr/LC_MESSAGES/packetfence.po
-mv packetfence.mo conf/locale/fr/LC_MESSAGES/
-/usr/bin/msgfmt conf/locale/he_IL/LC_MESSAGES/packetfence.po
-mv packetfence.mo conf/locale/he_IL/LC_MESSAGES/
-/usr/bin/msgfmt conf/locale/it/LC_MESSAGES/packetfence.po
-mv packetfence.mo conf/locale/it/LC_MESSAGES/
-/usr/bin/msgfmt conf/locale/nl/LC_MESSAGES/packetfence.po
-mv packetfence.mo conf/locale/nl/LC_MESSAGES/
-/usr/bin/msgfmt conf/locale/pt_BR/LC_MESSAGES/packetfence.po
-mv packetfence.mo conf/locale/pt_BR/LC_MESSAGES/
+for LANG in de en es fr he_IL it nl pt_BR; do 
+       /usr/bin/msgfmt conf/locale/$LANG/LC_MESSAGES/packetfence.po
+       mv packetfence.mo conf/locale/$LANG/LC_MESSAGES/
+done
 
 # RHEL6 only: generating PDF guides
 %if %{el6}
