@@ -195,12 +195,12 @@ mv pfcmd_pregrammar.pm lib/pf/pfcmd/
 
 # generate translations
 for LANG in de en es fr he_IL it nl pt_BR; do 
-       /usr/bin/msgfmt conf/locale/$LANG/LC_MESSAGES/packetfence.po
-       mv packetfence.mo conf/locale/$LANG/LC_MESSAGES/
+    /usr/bin/msgfmt conf/locale/$LANG/LC_MESSAGES/packetfence.po
+    mv packetfence.mo conf/locale/$LANG/LC_MESSAGES/
 done
 
 # RHEL6 only: generating PDF guides
-%if %{el6}
+%if 0%{?el6}
 # generating custom XSL for titlepage
 xsltproc -o docs/docbook/xsl/titlepage-fo.xsl \
     /usr/share/sgml/docbook/xsl-stylesheets/template/titlepage.xsl \
@@ -607,7 +607,7 @@ fi
                         /usr/local/pf/db/*
 %dir                    /usr/local/pf/docs
 %doc                    /usr/local/pf/docs/*.asciidoc
-%doc                    /usr/local/pf/docs/*.pdf
+%{?el6:%doc             /usr/local/pf/docs/*.pdf }
 %doc                    /usr/local/pf/docs/*.xml
 %doc                    /usr/local/pf/docs/fdl-1.2.txt
 %dir                    /usr/local/pf/docs/MIB
