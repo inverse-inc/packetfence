@@ -612,6 +612,7 @@ fi
 %doc                    /usr/local/pf/docs/fdl-1.2.txt
 %dir                    /usr/local/pf/docs/MIB
 %doc                    /usr/local/pf/docs/MIB/Inverse-PacketFence-Notification.mib
+%doc                    /usr/local/pf/docs/PacketFenceZEN_Installation_Guide.odt
 %dir                    /usr/local/pf/html
 %dir                    /usr/local/pf/html/admin
                         /usr/local/pf/html/admin/*
