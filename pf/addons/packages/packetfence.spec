@@ -214,6 +214,7 @@ fop -c docs/fonts/fop-config.xml \
     -xml docs/docbook/$GUIDE.docbook \
     -xsl docs/docbook/xsl/packetfence-fo.xsl \
     -pdf docs/$GUIDE.pdf
+done
 # devel guide (docbook only)
 fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-devel-guide.xml \
     -xsl docs/docbook/xsl/packetfence-fo.xsl \
