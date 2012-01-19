@@ -208,7 +208,7 @@ xsltproc -o docs/docbook/xsl/titlepage-fo.xsl \
 # admin and network device config guide
 for GUIDE in PacketFence_Administration_Guide PacketFence_Network_Devices_Configuration_Guide; do 
 asciidoc -a docinfo2 -b docbook -d book \
-    -o docs/docbook/$GUIDE.docbook
+    -o docs/docbook/$GUIDE.docbook \
     docs/$GUIDE.asciidoc
 fop -c docs/fonts/fop-config.xml \
     -xml docs/docbook/$GUIDE.docbook \
