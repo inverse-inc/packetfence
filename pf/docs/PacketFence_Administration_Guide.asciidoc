@@ -527,7 +527,7 @@ The default VLAN assignment technique used in PacketFence is a per-switch one. T
 
 This allows you to do easy per-building VLAN segmentation.
 
-If you need more flexibility (per SSID, per node category, etc.) take a look at the "I need more flexible VLAN assignment" section under <<_advanced_features,Advanced features>>.
+If you need more flexibility (per SSID, per node category, etc.) take a look at the FAQ entry http://www.packetfence.org/support/faqs/article/custom-vlan-assignment-behavior.html[Custom VLAN assignment behavior] available online.
 
 Inline enforcement configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -550,7 +550,7 @@ In summary:
 DHCP and DNS Server Configuration (networks.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PacketFence automatically generates the DHCP and DNS configuration files for Registration and Isolation VLANs. This is done when executing the configurator script (see the <<_general_configuration,General Configuration section>>).
+PacketFence automatically generates the DHCP and DNS configuration files for Registration and Isolation VLANs. This is done when executing the configurator script (see the <<_first_step,First Step section>>).
 
 The Registration and Isolation networks information is accessible through the GUI in *Administration -> Networks*:
 
