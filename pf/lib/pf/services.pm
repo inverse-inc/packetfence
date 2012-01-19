@@ -150,6 +150,7 @@ sub service_ctl {
                             push @devices, @dhcplistener_ints;
                             foreach my $dev (@devices) {
                                 my $cmd_line = "$service -i $dev $flags{$daemon}";
+                                # FIXME lame taint-mode bypass
                                 if ($cmd_line =~ /^(.+)$/) {
                                     $cmd_line = $1;
                                     $logger->info(
