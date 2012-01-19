@@ -23,6 +23,7 @@ Enhancements
  * Code and tests refactoring
  * Minor documentation update for Aruba Controllers
  * Performance: avoiding some redundant operations on startup
+ * A DHCP listener will run by default on the management interface 
 
 Bug Fixes
  * Buttons in graphs.php of type ifoctetshistoryswitch, ifoctetshistoryuser, ifoctetshistorymac (#1110)

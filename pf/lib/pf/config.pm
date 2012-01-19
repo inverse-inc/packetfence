@@ -348,6 +348,8 @@ sub readPfConfigFiles {
             } elsif ( $type eq 'managed' || $type eq 'management' ) {
                 $int_obj->tag("vip", _fetch_virtual_ip($int));
                 $management_network = $int_obj;
+                # adding management to dhcp listeners by default (if it's not already there)
+                push @dhcplistener_ints, $int if ( not scalar grep({ $_ eq $int } @dhcplistener_ints) );
             } elsif ( $type eq 'external' ) {
                 push @external_nets, $int_obj;
             } elsif ( $type eq 'monitor' ) {
@@ -691,3 +693,7 @@ USA.
 =cut
 
 1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:

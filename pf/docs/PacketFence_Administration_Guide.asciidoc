@@ -536,7 +536,7 @@ The default VLAN assignment technique used in PacketFence is a per-switch one. T
 
 This allows you to do easy per-building VLAN segmentation.
 
-If you need more flexibility (per SSID, per node category, etc.) take a look at the "I need more flexible VLAN assignment" section under Advanced features.
+If you need more flexibility (per SSID, per node category, etc.) take a look at the FAQ entry http://www.packetfence.org/support/faqs/article/custom-vlan-assignment-behavior.html[Custom VLAN assignment behavior] available online.
 
 Inline enforcement configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -560,7 +560,7 @@ In summary:
 DHCP and DNS Server Configuration (networks.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PacketFence automatically generates the DHCP and DNS configuration files for Registration and Isolation VLANs. This is done when executing the configurator script (see the <<_general_configuration,General Configuration section>>).
+PacketFence automatically generates the DHCP and DNS configuration files for Registration and Isolation VLANs. This is done when executing the configurator script (see the <<_first_step,First Step section>>).
 
 The Registration and Isolation networks information is accessible through the GUI in *Administration -> Networks*:
 
@@ -612,9 +612,7 @@ If you are already using IP Helpers for your production DHCP in your production 
 
 Add PacketFence's management IP address as the last `ip helper-address` statement in your network equipment. At this point PacketFence will receive a copy of all DHCP requests for that VLAN and will record what IP were distributed to what node using a `pfdhcplistener` daemon.
 
-// FIXME are we missing add type dhcp-listener here?
-
-Make sure that no DHCP Server are running on the interface where you are sending the requests otherwise PacketFence might try to reply to the DHCP requests which would be a bad thing.
+By default no DHCP Server should be running on that interface where you are sending the requests. This is by design otherwise PacketFence would reply to the DHCP requests which would be a bad thing.
 
 Obtain a copy of the DHCP traffic
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
