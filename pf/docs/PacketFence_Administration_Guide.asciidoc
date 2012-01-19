@@ -601,9 +601,7 @@ If you are already using IP Helpers for your production DHCP in your production 
 
 Add PacketFence's management IP address as the last `ip helper-address` statement in your network equipment. At this point PacketFence will receive a copy of all DHCP requests for that VLAN and will record what IP were distributed to what node using a `pfdhcplistener` daemon.
 
-// FIXME are we missing add type dhcp-listener here?
-
-Make sure that no DHCP Server are running on the interface where you are sending the requests otherwise PacketFence might try to reply to the DHCP requests which would be a bad thing.
+By default no DHCP Server should be running on that interface where you are sending the requests. This is by design otherwise PacketFence would reply to the DHCP requests which would be a bad thing.
 
 Obtain a copy of the DHCP traffic
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
