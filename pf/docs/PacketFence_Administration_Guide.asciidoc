@@ -104,11 +104,13 @@ Assumptions
 
 PacketFence reuses many components in an infrastructure. Thus, it requires the following ones:
 
+[options="compact"]
 * Database server (MySQL)
 * Web server (Apache)
 
 Depending on your setup you may have to install additional components like:
 
+[options="compact"]
 * DHCP server (ISC DHCP)
 * DNS server (BIND)
 * RADIUS server (FreeRADIUS)
@@ -120,7 +122,7 @@ Good understanding of those underlying component and GNU/Linux is required to in
 
 The following table provides recommendations for the required components, together with version numbers :
 
-[cols="1,3",grid="rows"]
+[cols="1,3",frame="topbot",grid="rows"]
 |========================================
 |MySQL server     |MySQL 4.1 or 5.1
 |Web server       |Apache 2.2
@@ -137,6 +139,7 @@ Minimum Hardware Requirements
 
 The following provides a list of server hardware recommendations:
 
+[options="compact"]
 * Intel or AMD CPU 3 GHz
 * 2048 MB of RAM
 * 20 GB of disk space (RAID 1 recommended)
@@ -149,6 +152,7 @@ Operating System Requirements
 
 PacketFence supports the following operating systems on the i386 or x86_64 architectures: 
 
+[options="compact"]
 * Red Hat Enterprise Linux 5.x/6.x Server
 * Community ENTerprise Operating System (CentOS) 5.x/6.x
 
@@ -161,6 +165,7 @@ Services start-up
 
 PacketFence takes care of handling the operation of the following services:
 
+[options="compact"]
 * Web server (httpd)
 * DHCP server (dhcpd)
 * DNS server (named)
@@ -180,6 +185,7 @@ OS Installation
 
 Install your distribution with minimal installation and no additional packages. Then:
 
+[options="compact"]
 * Enable Firewall
 * Disable SELinux
 
@@ -243,6 +249,7 @@ Starting with 1.8.5, PacketFence is now providing an RPM repository for RHEL / C
 
 This repository contains all required dependencies to install PacketFence. This provides numerous advantages: 
 
+[options="compact"]
 * very easy installation
 * everything is packaged as RPM (no more CPAN hassle)
 * easy upgrade
@@ -412,12 +419,14 @@ PacketFence needs to know which switches, access points or controllers it manage
 
 This files contains a default section including:
 
+[options="compact"]
 * List of VLANs managed by PacketFence
 * Default SNMP read/write communities for the switches
 * Default working mode (see note about working mode below)
 
 and a switch section for each switch (managed by PacketFence) including:
 
+[options="compact"]
 * Switch IP
 * Switch vendor/type
 * Switch uplink ports (trunks and non-managed ports)
@@ -527,7 +536,7 @@ The default VLAN assignment technique used in PacketFence is a per-switch one. T
 
 This allows you to do easy per-building VLAN segmentation.
 
-If you need more flexibility (per SSID, per node category, etc.) take a look at the "I need more flexible VLAN assignment" section under <<_advanced_features,Advanced features>>.
+If you need more flexibility (per SSID, per node category, etc.) take a look at the "I need more flexible VLAN assignment" section under Advanced features.
 
 Inline enforcement configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -544,6 +553,7 @@ To remove that limitation, if you have control over your DNS, add an entry match
 
 In summary: 
 
+[options="compact"]
 * portal_redirect=ip – default, no HTTPS, no need to modify DNS
 * portal_redirect=dns – need to update your DNS, portal will be in HTTPS
 
@@ -579,6 +589,7 @@ The DHCP configuration file is written to `var/conf/dhcpd.conf` using `conf/dhcp
 
 The DNS configuration files are generated this way:
 
+[options="compact"]
 * `var/conf/named.conf` generated from `conf/named.conf`
 * `var/named/named-registration.ca` generated from `conf/named-registration.ca`
 * `var/named/named-isolation.ca` generated from `conf/named-isolation.ca`
@@ -736,6 +747,7 @@ This section presents the FreeRADIUS configuration steps. In some occasions, a R
 
 Install the following packages:
 
+[options="compact"]
 * packetfence-freeradius2
 
 In /etc/raddb/clients.conf
@@ -948,6 +960,7 @@ Assumptions
 
 Throughout this configuration example we use the following assumptions for our network infrastructure:
 
+[options="compact"]
 * There are two different types of manageable switches in our network: Cisco Catalyst 2900XL and Cisco Catalyst 2960, and one unmanageable device.
 * VLAN 1 is the "regular" VLAN
 * VLAN 2 is the registration VLAN (unregistered devices will be put in this VLAN)
@@ -964,7 +977,7 @@ Throughout this configuration example we use the following assumptions for our n
 
 The network setup looks like this:
 
-[options="header",cols="1,2,2,2,3",grid="rows"]
+[options="header",cols="1,2,2,2,3",frame="topbot",grid="rows"]
 |=========================================================================
 |VLAN ID  |VLAN Name     |Subnet         |Gateway     |PacketFence Address
 |1        |Normal        |192.168.1.0/24 |192.168.1.1 |192.168.1.5
@@ -1456,11 +1469,13 @@ Here is how it works:
 
 Configuration
 
+[options="compact"]
 * floating network devices have to be identified using their MAC address.
 * linkup/linkdown traps are not enabled on the switches, only port-security traps are.
 
 When PacketFence receives a port-security trap for a floating network device, it changes the port configuration so that:
 
+[options="compact"]
 * it disables port-security
 * it sets the PVID
 * it eventually sets the port as multi-vlan (trunk) and sets the tagged Vlans 
@@ -1468,6 +1483,7 @@ When PacketFence receives a port-security trap for a floating network device, it
 
 When PF receives a linkdown trap on a port in which a floating network device was plugged, it changes the port configuration so that: 
 
+[options="compact"]
 * it enables port-security
 * it disables linkdown traps
 
@@ -1476,6 +1492,7 @@ Identification
 
 As we mentioned earlier, each floating network device has to be identified. There are two ways to do it:
 
+[options="compact"]
 * by editing `conf/floating_network_device.conf`
 * through the Web GUI, in the *Configuration -> Floating Network Device* tab
 
@@ -1703,6 +1720,7 @@ Log4perl
 
 This log4perl way is a little more complex to achieve, but it is still quite simple. There are 3 packages you need to get from RPMForge:
 
+[options="compact"]
 * perl-Log-Dispatcher
 * perl-Log-Dispatcher-FileRotate
 * perl-Date-Manip
@@ -1732,6 +1750,7 @@ Since PacketFence stores most of its information in a MySQL database, the two Pa
 
 There are different options to share the database between the two PacketFence servers:
 
+[options="compact"]
 * A local MySQL database server on each PacketFence box configured to store its databases on a remote partition (a LUN on a SAN for example) 
 +
 CAUTION: You have to make sure that only one database server is running at each time (don't double-mount the partition)
@@ -1743,6 +1762,7 @@ In this document, we describe the second option that involves DRBD.
 
 We assume that:
 
+[options="compact"]
 * you are using RedHat Enterprise 5 or CentOS 5.
 * pf1 is the first PacketFence server
 * pf2 is the second PacketFence server
@@ -1755,6 +1775,7 @@ Creation of the DRBD partition
 
 During the OS installation, reduce the size of the main partition and create a new one (that will be used for the replicated MySQL database) of 30G. In order to do so, on `VolGroup00`:
 
+[options="compact"]
 * leave at least 30G of drive space for a new partition. *Do not* create that partition during the install process, we will do it later.
 
 Partitioning
@@ -1818,6 +1839,7 @@ resource mysql {
 
 where:
 
+[options="compact"]
 * `mysql` is the name of the partition you created when installing the OS
 * `pf1_server_name` and `pf2_server_name` by the real server names
 * `x.x.x.x` and `y.y.y.y` by the IP addresses dedicated to DRBD on each server (use a dedicated NIC for this, not the main one with all the IPs)
@@ -1923,6 +1945,7 @@ Create `/etc/ha.d/haresources` with the following content:
 
   pf1.example.com Ipaddr2::x.x.x.x IfUp::eth0.y IfUp::eth0.z drbddisk::mysql Filesystem::/dev/drbd0::/var/lib/mysql::ext3 mysqld packetfence
 
+[options="compact"]
 * `x.x.x.x` is PF admin virtual address
 * `eth0.y` is the name of the NIC configuration file (`/etc/sysconfig/network-scripts/ifcfg_eth0.y`) dedicated to IP address in VLAN `y` (registration for example).
 * `eth0.z` is the name of the NIC configuration file (`/etc/sysconfig/network-scripts/ifcfg_eth0.z`) dedicated to IP address in VLAN `z` (isolation for example).
@@ -2155,6 +2178,7 @@ If you want to enable this feature, edit `conf/httpd.conf.d/block-unwanted.conf`
 
 This will allow the following browsers to reach the captive portal (but nothing else):
 
+[options="compact"]
 * BlackBerry
 * Firefox
 * Google Chrome
@@ -2261,6 +2285,7 @@ Limitations
 
 Inline enforcement because of it's nature has several limitations that one must be aware of.
 
+[options="compact"]
 * Everyone behind an inline interface is on the same Layer 2 LAN
 * Every packet of authorized users goes through the PacketFence server increasing the servers' load considerably: Plan ahead for capacity
 * Every packet of authorized users goes through the PacketFence server: it is a single point of failure for Internet access
@@ -2461,6 +2486,7 @@ FreeRADIUS 1.x Configuration
 
 Make sure to install the following packages:
 
+[options="compact"]
 * freeradius
 
 In /etc/raddb/clients.conf
