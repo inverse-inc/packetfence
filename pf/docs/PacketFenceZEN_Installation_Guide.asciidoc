@@ -8,17 +8,19 @@ PacketFence ZEN Administration Guide
 
     This file is part of the PacketFence project.
 
-    See PacketFence_Administration_Guide-docinfo.xml for authors, copyright
+    See PacketFenceZEN_Installation_Guide-docinfo.xml for authors, copyright
     and license information.
 
 ////
+
+include::includes/global-attributes.asciidoc[]
 
 About this Guide
 ----------------
 
 This guide will walk you through the installation and configuration of the PacketFence ZEN solution. It covers VLAN isolation setup.
 
-The instructions are based on version 3.1.0 of PacketFence.
+The instructions are based on version {release_version} of PacketFence.
 
 The latest version of this guide is available online at http://www.packetfence.org/documentation/guides.html
 
@@ -317,6 +319,13 @@ PacketFence provides a web admin interface. Go to https://DHCP_RECEIVED_IP:1443
 
 * User: admin
 * Password: p@ck3tf3nc3
+
+include::includes/additional-info.asciidoc[]
+
+include::includes/commercial-support.asciidoc[]
+
+include::includes/license.asciidoc[]
+
 
 Appendix 1: Legacy configuration for VMWare Workstation
 -------------------------------------------------------

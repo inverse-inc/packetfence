@@ -13,6 +13,8 @@ PacketFence Network Devices Configuration Guide
 
 ////
 
+include::includes/global-attributes.asciidoc[]
+
 About this Guide
 ----------------
 
@@ -2328,10 +2330,10 @@ Enable SNMP Agent on the access point:
 
 Finally, don't forget to create the SSID you want and the proper bindings with the LAN. Open SSID should be configured to perform MAC Authentication and Secure SSID should be configured to perform 802.1X (WPA-Enterprise or WPA2-Enterprise).
 
-include::additional-info.asciidoc[]
+include::includes/additional-info.asciidoc[]
 
-include::commercial-support.asciidoc[]
+include::includes/commercial-support.asciidoc[]
 
-include::license.asciidoc[]
+include::includes/license.asciidoc[]
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

@@ -13,6 +13,8 @@ PacketFence Administration Guide
 
 ////
 
+include::includes/global-attributes.asciidoc[]
+
 About this Guide
 ----------------
 
@@ -2291,11 +2293,11 @@ Inline enforcement because of it's nature has several limitations that one must 
 
 This is why it is considered a poor man's way of doing access control. We have avoided it for a long time because of the above mentioned limitations. That said, being able to perform both inline and VLAN enforcement on the same server at the same time is a real advantage: it allows users to maintain maximum security while they deploy new and more capable network hardware providing a clean migration path to VLAN enforcement.
 
-include::additional-info.asciidoc[]
+include::includes/additional-info.asciidoc[]
 
-include::commercial-support.asciidoc[]
+include::includes/commercial-support.asciidoc[]
 
-include::license.asciidoc[]
+include::includes/license.asciidoc[]
 
 [appendix]
 Administration Tools
