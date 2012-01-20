@@ -205,8 +205,8 @@ done
 xsltproc -o docs/docbook/xsl/titlepage-fo.xsl \
     /usr/share/sgml/docbook/xsl-stylesheets/template/titlepage.xsl \
     docs/docbook/xsl/titlepage-fo.xml
-# admin and network device config guide
-for GUIDE in PacketFence_Administration_Guide PacketFence_Network_Devices_Configuration_Guide; do 
+# admin, network device config and ZEN install guides
+for GUIDE in PacketFence_Administration_Guide PacketFence_Network_Devices_Configuration_Guide PacketFenceZEN_Installation_Guide; do 
 asciidoc -a docinfo2 -b docbook -d book \
     -o docs/docbook/$GUIDE.docbook \
     docs/$GUIDE.asciidoc
@@ -613,7 +613,6 @@ fi
 %doc                    /usr/local/pf/docs/fdl-1.2.txt
 %dir                    /usr/local/pf/docs/MIB
 %doc                    /usr/local/pf/docs/MIB/Inverse-PacketFence-Notification.mib
-%doc                    /usr/local/pf/docs/PacketFenceZEN_Installation_Guide.odt
 %dir                    /usr/local/pf/html
 %dir                    /usr/local/pf/html/admin
                         /usr/local/pf/html/admin/*
