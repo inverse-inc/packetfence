@@ -167,7 +167,7 @@ if (! exists($cmd_tmp{'grammar'})) {
         'floatingnetworkdeviceconfig' => sub { floatingnetworkdeviceconfig(); exit(1); },
         'fingerprint' => sub { fingerprint(); exit(1); },
         'graph' => sub { graph(); exit(1); },
-        'help' => sub { help(); exit(1); },
+        'help' => sub { help(); exit(0); },
         'history' => sub { history(); exit(1); },
         'ifoctetshistorymac' => sub { ifoctetshistorymac(); exit(1); },
         'ifoctetshistoryswitch' => sub { ifoctetshistoryswitch(); exit(1); },

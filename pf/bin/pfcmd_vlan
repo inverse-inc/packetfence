@@ -182,7 +182,7 @@ GetOptions(
 ) or pod2usage( -verbose => 1 );
 
 pod2usage( -verbose => 2 ) if $man;
-pod2usage( -verbose => 1 ) if $help;
+pod2usage( -verbose => 1, -exitval => 0 ) if $help;
 
 # logging
 Log::Log4perl->init("$conf_dir/log.conf");
@@ -722,7 +722,7 @@ if ($reevaluateAccess) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2011 Inverse inc.
+Copyright (C) 2007-2012 Inverse inc.
 
 =head1 LICENSE
 
@@ -740,6 +740,8 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
+
+=cut
 
 # vim: set shiftwidth=4:
 # vim: set expandtab:

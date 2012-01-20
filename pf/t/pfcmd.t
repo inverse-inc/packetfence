@@ -14,11 +14,12 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 86;
+use Test::More tests => 87;
 use Test::NoWarnings;
 
-use Log::Log4perl;
+use English '-no_match_vars';
 use File::Basename qw(basename);
+use Log::Log4perl;
 
 Log::Log4perl->init("log.conf");
 my $logger = Log::Log4perl->get_logger( basename($0) );
@@ -302,6 +303,10 @@ foreach my $help_arg (@main_args) {
          "pfcmd $help_arg is documented" );
 }
 
+# required to avoid warnings in admin guide asciidoc build
+`/usr/local/pf/bin/pfcmd help`;
+is($CHILD_ERROR, 0, "pfcmd help exit with status 0"); 
+
 # test version
 @output = `/usr/local/pf/bin/pfcmd version`;
 like ( $output[0], qr'PacketFence 3.2.0dev', "pfcmd version is correct" );
@@ -325,7 +330,7 @@ Regis Balzard <rbalzard@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2009-2011 Inverse inc.
+Copyright (C) 2009-2012 Inverse inc.
 
 =head1 LICENSE
     

@@ -2310,12 +2310,8 @@ pfcmd
 
 When executed without any arguments `pfcmd` returns a basic help message with all main options:
 
-// this can probably be generated at build time 
-// with the drawback that it might not work when user try to render document 
-// on their workstation
-// TODO make sure this works
 ----
-sys::[/usr/local/pf/bin/pfcmd]
+sys::[/usr/local/pf/bin/pfcmd help]
 ----
 
 The node view option shows all information contained in the node database table for a specified MAC address
@@ -2331,9 +2327,8 @@ pfcmd_vlan
 
 Again, when executed without any arguments, a help screen is shown.
 
-// TODO make sure this works
 ----
-sys::[/usr/local/pf/bin/pfcmd_vlan]
+sys::[/usr/local/pf/bin/pfcmd_vlan -help]
 ----
 
 Web Admin GUI

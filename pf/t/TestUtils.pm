@@ -34,7 +34,7 @@ use pf::config;
 
 # Tests are categorized here
 our @cli_tests = qw(
-    pfcmd.t pfdhcplistener.t
+    pfcmd.t pfcmd_vlan.t pfdhcplistener.t
 );
 
 our @compile_tests = qw(
