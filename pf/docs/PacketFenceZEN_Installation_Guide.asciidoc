@@ -207,7 +207,7 @@ The main configuration files are :
 Network Devices
 ~~~~~~~~~~~~~~~
 
-Please refer to the Network Devices Configuration Guide in order to properly configure your devices.
+Please refer to the http://www.packetfence.org/documentation/[Network Devices Configuration Guide] in order to properly configure your devices.
 
 
 Production DHCP
@@ -318,7 +318,7 @@ PacketFence Web Admin Interface
 PacketFence provides a web admin interface. Go to https://DHCP_RECEIVED_IP:1443
 
 * User: admin
-* Password: p@ck3tf3nc3
+* Password: p\@ck3tf3nc3
 
 include::includes/additional-info.asciidoc[]
 
@@ -326,9 +326,9 @@ include::includes/commercial-support.asciidoc[]
 
 include::includes/license.asciidoc[]
 
-
-Appendix 1: Legacy configuration for VMWare Workstation
--------------------------------------------------------
+[appendix]
+Legacy configuration for VMWare Workstation
+-------------------------------------------
 
 * /etc/sysconfig/network-scripts/ifcfg-eth0.2
 ----
