@@ -14,7 +14,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 20;
+use Test::More tests => 21;
 use Log::Log4perl;
 use File::Basename qw(basename);
 use lib '/usr/local/pf/lib';
@@ -49,6 +49,12 @@ is_deeply(\@return,
 is_deeply(\@return,
     [ 'https\:\/\/www\.inverse\.ca', 'https', 'www\.inverse\.ca', '\/' ],
     "Parsing an uppercase HTTPS URL with no query"
+);
+
+@return = pf::services::apache::_url_parser('http://www.google.co.uk');
+is_deeply(\@return,
+    [ 'http\:\/\/www\.google\.co\.uk', 'http', 'www\.google\.co\.uk', '\/' ],
+    'regression test for issue 1368: accept domains without ending slash'
 );
 
 @return = pf::services::apache::_url_parser('invalid://url$.com');

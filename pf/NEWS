@@ -33,6 +33,7 @@ Bug Fixes
  * Allow more than one SNMPv3 EngineID per user (#1354)
  * OS and violation classes properly displayed in printer-friendly tables in the Web Admin
  * Disabled config ownership tests because of too many false positives (#1345)
+ * Passthrough doesn't work with domains without an ending slash (#1368)
 
 Translations
  * Updated Brazilian Portuguese (pt_BR) Admin guide translation (Thanks to Diego de Souza Lopes)
