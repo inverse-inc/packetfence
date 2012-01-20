@@ -18,7 +18,14 @@ BEGIN {
     @EXPORT = qw();
 }
 
+=item usage
+
+If a true value is passed as a parameter we output to STDOUT instead of STDERR.
+
+=cut
 sub usage {
+    my ($to_stdout) = @_;
+
     my $command = basename($0);
     if ( defined( $ARGV[0] ) ) {
         my $functionName = "pf::pfcmd::help::help_" . $ARGV[0];
@@ -28,7 +35,7 @@ sub usage {
         }
     }
 
-    print STDERR << "EOF";
+    print { $to_stdout ? *STDOUT : *STDERR } << "EOF";
 Usage: $command <command> [options]
 
 checkup                      | perform a sanity checkup and report any problems or warnings
@@ -633,7 +640,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2008-2010 Inverse inc.
+Copyright (C) 2008-2012 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

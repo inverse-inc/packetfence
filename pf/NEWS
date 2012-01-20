@@ -35,6 +35,7 @@ Bug Fixes
  * Disabled config ownership tests because of too many false positives (#1345)
  * Passthrough doesn't work with domains without an ending slash (#1368)
  * Returning exit status 0 on command line tools when asked to show help
+ * pfcmd's general help is now sent to standard ouput instead of standard error
 
 Translations
  * Updated Brazilian Portuguese (pt_BR) Admin guide translation (Thanks to Diego de Souza Lopes)
