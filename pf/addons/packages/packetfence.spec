@@ -611,6 +611,8 @@ fi
 %{?el6:%doc             /usr/local/pf/docs/*.pdf }
 %doc                    /usr/local/pf/docs/*.xml
 %doc                    /usr/local/pf/docs/fdl-1.2.txt
+%dir                    /usr/local/pf/docsincludes
+%doc                    /usr/local/pf/docs/includes/*.asciidoc
 %dir                    /usr/local/pf/docs/MIB
 %doc                    /usr/local/pf/docs/MIB/Inverse-PacketFence-Notification.mib
 %dir                    /usr/local/pf/html
