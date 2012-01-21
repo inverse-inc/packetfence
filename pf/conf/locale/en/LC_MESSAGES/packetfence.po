@@ -634,3 +634,98 @@ msgstr ""
 
 msgid "Click to install your generated wireless profile."
 msgstr ""
+
+# SoH filters
+
+msgid "Filters"
+msgstr ""
+
+msgid "Define the filters which will apply to all NAP-capable clients that produce a statement of health (SoH)."
+msgstr ""
+
+msgid "Delete this filter"
+msgstr ""
+
+msgid "Do nothing"
+msgstr ""
+
+msgid "Accept"
+msgstr ""
+
+msgid "Reject"
+msgstr ""
+
+msgid "Trigger violation"
+msgstr ""
+
+msgid "Conditions:"
+msgstr ""
+
+msgid "(None yet)"
+msgstr ""
+
+msgid "Add a condition"
+msgstr ""
+
+msgid "Delete this condition"
+msgstr ""
+
+msgid "Firewall"
+msgstr ""
+
+msgid "Anti-virus"
+msgstr ""
+
+msgid "Anti-spyware"
+msgstr ""
+
+msgid "Auto-updates"
+msgstr ""
+
+msgid "Security updates"
+msgstr ""
+
+msgid "is"
+msgstr ""
+
+msgid "is not"
+msgstr ""
+
+msgid "ok"
+msgstr ""
+
+msgid "installed"
+msgstr ""
+
+msgid "enabled"
+msgstr ""
+
+msgid "disabled"
+msgstr ""
+
+msgid "up-to-date"
+msgstr ""
+
+msgid "from Microsoft"
+msgstr ""
+
+msgid "Action:"
+msgstr ""
+
+msgid "Add a filter"
+msgstr ""
+
+msgid "Save filters"
+msgstr ""
+
+msgid "Invalid response"
+msgstr ""
+
+msgid "Request failed"
+msgstr ""
+
+msgid "Are you sure you want to delete this filter?"
+msgstr ""
+
+msgid "Enter new filter name"
+msgstr ""
