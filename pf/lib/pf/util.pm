@@ -138,7 +138,7 @@ sub clean_ip {
 
 =item clean_mac 
 
-Clean a MAC address accepting xx-xx-xx-xx-xx-xx, xx:xx:xx:xx:xx:xx, xxxx-xxxx-xxxx and xxxx.xxxx.xxxx.
+Clean a MAC address accepting xxxxxxxxxxxx, xx-xx-xx-xx-xx-xx, xx:xx:xx:xx:xx:xx, xxxx-xxxx-xxxx and xxxx.xxxx.xxxx.
 
 Returns an untainted string with MAC in format: xx:xx:xx:xx:xx:xx
 
