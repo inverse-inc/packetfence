@@ -366,36 +366,22 @@ admin=1443
 
 [scan]
 #
-# scan.ssl
+# scan.engine
 #
-# enable ssl communication with the nessus server.   
-ssl=enabled
+# Which scan engine
+engine=openvas
 #
-# scan.pass
+# scan.duration
 #
-# Password to log into nessus server with.
-pass=packet
-#
-# scan.user
-#
-# Username to log into nessus server with.
-user=admin
-#
-# scan.port
-#
-# Port nessus server is running on.
-port=1241
+# Approximate duration of a scan. User being scanned on registration are presented a progress bar 
+# for this duration, afterwards the browser refreshes until scan is complete.
+duration=60s
 #
 # scan.host
 #
 # Host the nessus server is running on.  For performance reasons, we recommend running the nessus server remotely.  A 
 # passthrough will be automagically created.
 host=127.0.0.1
-#
-# scan.registration
-#
-# If this option is enabled, pf will scan each host after registration is complete with all nessusids.
-registration=disabled
 #
 # scan.nessusclient_file
 #
@@ -409,12 +395,35 @@ nessusclient_file=remotescan.nessus
 # Name of the policy inside the NessusClient file
 nessusclient_policy=RemoteScan
 #
-# scan.duration
+# scan.openvas_configid
 #
-# Approximate duration of a scan. User being scanned on registration are presented a progress bar 
-# for this duration, afterwards the browser refreshes until scan is complete.
-duration=60s
+# ID of the scanning configuration on the OpenVAS server
+openvas_configid=
 #
+# scan.openvas_reportformatid
+#
+# ID of the .NBE report format on the OpenVAS server
+openvas_reportformatid=
+#
+# scan.pass
+#
+# Password to log into nessus server with.
+pass=packet
+#
+# scan.port
+#
+# Port nessus server is running on.
+port=1241
+#
+# scan.registration
+#
+# If this option is enabled, pf will scan each host after registration is complete with all nessusids.
+registration=disabled
+#
+# scan.user
+#
+# Username to log into nessus server with.
+user=admin
 
 [database]
 #
