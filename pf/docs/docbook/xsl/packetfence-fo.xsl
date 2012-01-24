@@ -82,7 +82,7 @@
 
   <!-- default fonts -->
   <xsl:param name="body.font.family">Delicious</xsl:param>
-  <xsl:param name="body.font.master">11</xsl:param>
+  <xsl:param name="body.font.master">10</xsl:param>
   <xsl:param name="monospace.font.family">Incosolata</xsl:param>
 
   <!-- revision table layout -->
@@ -120,6 +120,19 @@
       <xsl:otherwise>square</xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+
+  <!-- admonition -->
+  <xsl:param name="admon.graphics" select="1"></xsl:param>
+  <xsl:param name="admon.graphics.path">docs/images/</xsl:param>
+  <xsl:param name="admon.graphics.extension">.png</xsl:param>
+  <xsl:attribute-set name="graphical.admonition.properties">
+    <xsl:attribute name="border-top">1px solid</xsl:attribute>
+    <xsl:attribute name="border-bottom">1px solid</xsl:attribute>
+    <xsl:attribute name="padding-top">0.5em</xsl:attribute>
+    <xsl:attribute name="padding-bottom">0.5em</xsl:attribute>
+    <xsl:attribute name="margin-left">2em</xsl:attribute>
+  </xsl:attribute-set>
+
 
   <!-- grey boxes around code (screen, programlisting) -->
   <xsl:param name="shade.verbatim" select="1"/>
