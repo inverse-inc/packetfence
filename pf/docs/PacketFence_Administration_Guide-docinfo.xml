@@ -4,6 +4,12 @@
 </copyright>
 <revhistory>
   <revision>
+    <revnumber>2.0.1</revnumber>
+    <date>2012-01-24</date>
+    <authorinitials>FG</authorinitials>
+    <revremark>Adding basic VoIP documentation</revremark>
+  </revision>
+  <revision>
     <revnumber>2.0</revnumber>
     <date>2012-01-14</date>
     <authorinitials>OBU</authorinitials>
