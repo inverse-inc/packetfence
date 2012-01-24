@@ -53,7 +53,7 @@
    <option value="is">[% i18n('is') %]</option>
    <option value="isnot">[% i18n('is not') %]</option>
   </select>
-  <select name="#{rfid}status">
+  <select name="#{rfid}status">'is
    <option value=""></option>
    <option value="ok">[% i18n('ok') %]</option>
    <option value="installed">[% i18n('installed') %]</option>
@@ -105,8 +105,8 @@
          <option value="security-updates" [% IF rule.class == 'security-updates' %]selected[% END %]>[% i18n('Security updates') %]</option>
         </select>
         <select name="r[% filter.filter_id %]op">
-         <option value="is" [% IF rule.op == 'is' %]selected[% END %]>is') %]</option>
-         <option value="isnot" [% IF rule.op == 'isnot' %]selected[% END %]>is not') %]</option>
+         <option value="is" [% IF rule.op == 'is' %]selected[% END %]>[% i18n('is') %]</option>
+         <option value="isnot" [% IF rule.op == 'isnot' %]selected[% END %]>[% i18n('is not') %]</option>
         </select>
         <select name="r[% filter.filter_id %]status">
          <option value="ok" [% IF rule.status == 'ok' %]selected[% END %]>ok</option>
