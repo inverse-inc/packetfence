@@ -5,9 +5,9 @@
 <revhistory>
   <revision>
     <revnumber>2.0.1</revnumber>
-    <date>2012-01-24</date>
-    <authorinitials>FG</authorinitials>
-    <revremark>Adding basic VoIP documentation</revremark>
+    <date>2012-01-25</date>
+    <authorinitials>FG, OB</authorinitials>
+    <revremark>Adding basic VoIP documentation, added warning regarding CLI access due to #1370</revremark>
   </revision>
   <revision>
     <revnumber>2.0</revnumber>

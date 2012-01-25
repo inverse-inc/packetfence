@@ -500,6 +500,8 @@ Here is a switch configuration example in order to enable SNMP v3 in both direct
 Command-Line Interface: Telnet and SSH
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+WARNING: Privilege detection is disabled in the current PacketFence version due to some issues (see http://www.packetfence.org/bugs/view.php?id=1370[#1370]). So make sure that the `cliUser` and `cliPwd` you provide always get you into a privileged mode (except for Trapeze hardware).
+
 PackeFence needs sometimes to establish an interactive command-line session with a switch. This can be done using Telnet. Starting with 1.8, you can now use SSH. In order to do so, edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
 
   cliTransport = SSH (or Telnet)

@@ -100,6 +100,8 @@ sub getVlan {
 
 We need to override Cisco's implementation because BRIDGE-MIB is very limited on the 1811
 
+Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
+
 =cut 
 sub getMacBridgePortHash {
     my $this   = shift;
@@ -134,17 +136,18 @@ sub getMacBridgePortHash {
         return %macBridgePortHash;
     }
 
+    # Session not already privileged are not supported at this point. See #1370
     # are we in enabled mode?
-    if (!$session->in_privileged_mode()) {
+    #if (!$session->in_privileged_mode()) {
 
-        # let's try to enable
-        if (!$session->enable($this->{_cliEnablePwd})) {
-            $logger->error("Cannot get into privileged mode on ".$this->{'ip'}.
-                           ". Are you sure you provided enable password in configuration?");
-            $session->close();
-            return %macBridgePortHash;
-        }
-    }
+    #    # let's try to enable
+    #    if (!$session->enable($this->{_cliEnablePwd})) {
+    #        $logger->error("Cannot get into privileged mode on ".$this->{'ip'}.
+    #                       ". Are you sure you provided enable password in configuration?");
+    #        $session->close();
+    #        return %macBridgePortHash;
+    #    }
+    #}
 
     # command that allows us to get MAC to ifIndex information 
     my $command = "show mac-address-table";
@@ -240,7 +243,9 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009, 2010 Inverse inc.
+Copyright (C) 2009, 2010, 2012 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

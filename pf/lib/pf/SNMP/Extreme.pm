@@ -1392,6 +1392,8 @@ DEPRECATED by SNMP version. See _setPortSecurityByIfIndex.
 
 On this switch, the lock-learning is a per-vlan attribute so it performs it on the current untagged VLAN of the ifIndex
 
+Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
+
 =cut
 sub _setPortSecurityByIfIndexCLI {
     my ( $this, $ifIndex, $enable ) = @_;
@@ -1478,7 +1480,9 @@ Regis Balzard <rbalzard@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009,2010 Inverse inc.
+Copyright (C) 2009, 2010, 2012 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

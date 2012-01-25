@@ -186,6 +186,8 @@ safe:
 
 L<http://www.cpanforum.com/threads/6909/>
 
+Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
+
 =cut
 sub clearMacAddressTable {
     my ( $this, $ifIndex, $vlan ) = @_;
@@ -204,7 +206,8 @@ sub clearMacAddressTable {
             Name     => $this->{_cliUser},
             Password => $this->{_cliPwd}
         );
-        $session->begin_privileged( $this->{_cliEnablePwd} );
+        # Session not already privileged are not supported at this point. See #1370
+        # $session->begin_privileged( $this->{_cliEnablePwd} );
     };
 
     if ($@) {
@@ -455,6 +458,8 @@ safe:
 
 L<http://www.cpanforum.com/threads/6909/>
 
+Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
+
 =cut
 sub ping {
     my ( $this, $ip ) = @_;
@@ -480,11 +485,12 @@ sub ping {
         return 1;
     }
 
-    if ( !$session->begin_privileged( $this->{_cliEnablePwd} ) ) {
-        $logger->error( "ERROR: Cannot enable: " . $session->errmsg );
-        $session->close();
-        return 1;
-    }
+    # Session not already privileged are not supported at this point. See #1370
+    #if ( !$session->begin_privileged( $this->{_cliEnablePwd} ) ) {
+    #    $logger->error( "ERROR: Cannot enable: " . $session->errmsg );
+    #    $session->close();
+    #    return 1;
+    #}
 
     $session->cmd("ping $ip timeout 0 repeat 1");
     $session->close();
@@ -638,6 +644,12 @@ sub setPortSecurityMaxSecureMacAddrByIfIndex {
 
 Sets the maximum number of MAC addresses on the data vlan for port-security on a port
 
+Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread safe: 
+
+L<http://www.cpanforum.com/threads/6909/>
+
+Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
+
 =cut
 sub setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
     my ( $this, $ifIndex, $maxSecureMac ) = @_;
@@ -671,17 +683,18 @@ sub setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
         $logger->error("Error connecting to " . $this->{'_ip'} . " using ".$this->{_cliTransport} . ". Error: $!");
     }
 
+    # Session not already privileged are not supported at this point. See #1370
     # are we in enabled mode?
-    if (!$session->in_privileged_mode()) {
+    #if (!$session->in_privileged_mode()) {
 
-        # let's try to enable
-        if (!$session->enable($this->{_cliEnablePwd})) {
-            $logger->error("Cannot get into privileged mode on ".$this->{'ip'}.
-                           ". Are you sure you provided enable password in configuration?");
-            $session->close();
-            return 0;
-        }
-    }
+    #    # let's try to enable
+    #    if (!$session->enable($this->{_cliEnablePwd})) {
+    #        $logger->error("Cannot get into privileged mode on ".$this->{'ip'}.
+    #                       ". Are you sure you provided enable password in configuration?");
+    #        $session->close();
+    #        return 0;
+    #    }
+    #}
 
     eval {
         $session->cmd(String => "conf t", Timeout => '10');
@@ -984,7 +997,9 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2011 Inverse inc.
+Copyright (C) 2006-2012 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

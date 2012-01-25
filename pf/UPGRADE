@@ -5,6 +5,15 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to <release>:
+
+    - CLI (telnet/ssh) behavior change regarding privileged access
+    The feature to detect privileged access when using CLI access has been
+    disabled except in the Trapeze module where users are unpriviledged by
+    default. See #1370 for more details. Affected modules: most Cisco 
+    switches with VoIP enabled and floating network devices, Cisco 3500XL, 
+    Cisco ISR 18xx and Cisco WLC 21xx.
+
 o Upgrading from a version prior to 3.1.0:
 
     - rogue DHCP server violation

@@ -128,6 +128,8 @@ safe:
 
 L<http://www.cpanforum.com/threads/6909/>
 
+Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
+
 =cut
 sub clearMacAddressTable {
     my ( $this, $ifIndex, $vlan ) = @_;
@@ -146,7 +148,8 @@ sub clearMacAddressTable {
             Name     => $this->{_cliUser},
             Password => $this->{_cliPwd}
         );
-        $session->begin_privileged( $this->{_cliEnablePwd} );
+        # Session not already privileged are not supported at this point. See #1370
+        #$session->begin_privileged( $this->{_cliEnablePwd} );
     };
     if ($@) {
         $logger->error(
@@ -411,11 +414,15 @@ sub ping {
 
 =head1 AUTHOR
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008 Inverse inc.
+Copyright (C) 2006-2008, 2012 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

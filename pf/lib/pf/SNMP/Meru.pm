@@ -122,6 +122,8 @@ deauthenticate a MAC address from wireless network
 
 Right now te only way to do it is from the CLi (through Telnet or SSH).
 
+Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
+
 =cut
 sub deauthenticateMac {
     my ( $this, $mac ) = @_;
@@ -157,6 +159,7 @@ sub deauthenticateMac {
         return;
     }
 
+    # Session not already privileged are not supported at this point. See #1370
     #if (!$session->in_privileged_mode()) {
     #    if (!$session->enable($this->{_cliEnablePwd})) {
     #        $logger->error("Cannot get into privileged mode on ".$this->{'ip'}.
@@ -200,7 +203,7 @@ Regis Balzard <rbalzard@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010,2011 Inverse inc.
+Copyright (C) 2010, 2011, 2012 Inverse inc.
 
 =head1 LICENSE
 
