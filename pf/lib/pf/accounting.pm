@@ -26,6 +26,7 @@ BEGIN {
     @EXPORT = qw($accounting_db_prepared accounting_db_prepare);
     @EXPORT_OK = qw(
         node_accounting_current_sessionid
+        node_accounting_dynauth_attr
         node_accounting_exist
         node_accounting_view
         node_accounting_view_all
@@ -67,6 +68,10 @@ sub accounting_db_prepare {
 
     $accounting_statements->{'acct_current_sessionid_sql'} = get_db_handle()->prepare(qq[
         SELECT acctsessionid FROM radacct WHERE acctstoptime IS NULL AND callingstationid=? ORDER BY acctstarttime DESC LIMIT 1;
+    ]);
+
+    $accounting_statements->{'acct_dynauth_attr_sql'} = get_db_handle()->prepare(qq[
+        SELECT acctsessionid,username FROM radacct WHERE acctstoptime IS NULL AND callingstationid=? ORDER BY acctstarttime DESC LIMIT 1;
     ]);
 
     $accounting_statements->{'acct_exist_sql'} = get_db_handle()->prepare(qq[
@@ -178,6 +183,18 @@ sub node_accounting_current_sessionid {
     return ($val);
 }
 
+=item dynauth_attr
+
+Returns the RADIUS Dynamic Authorization attributes (User-name, Acct-Session-Id)
+
+=cut
+sub node_accounting_dynauth_attr {
+    my ($mac) = format_mac_for_acct(@_);
+    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_dynauth_attr_sql', $mac) || return (0);
+    my $ref = $query->fetchrow_hashref();
+    $query->finish();
+    return ($ref);
+}
 
 =item accounting_exist
 

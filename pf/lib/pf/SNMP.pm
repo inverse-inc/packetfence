@@ -2572,7 +2572,7 @@ Uses L<pf::util::dhcp> for the low-level RADIUS stuff.
 =cut
 # TODO consider whether we should handle retries or not?
 sub radiusDisconnect {
-    my ($self, $mac, $acctSessionId) = @_;
+    my ($self, $mac, $acctSessionId, $username) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
     if (!defined($self->{'_radiusSecret'})) {
@@ -2603,6 +2603,7 @@ sub radiusDisconnect {
 
         # The Acct-Session-Id attribute is required sometimes
         $attributes->{'Acct-Session-Id'} = $acctSessionId if (defined($acctSessionId));
+        $attributes->{'User-Name'} = $username if (defined($username));
 
         $response = perform_disconnect($connection_info, $attributes);
     } catch {
@@ -2613,7 +2614,6 @@ sub radiusDisconnect {
     return if (!defined($response));
 
     return $TRUE if ($response->{'Code'} eq 'Disconnect-ACK');
-
     
     $logger->warn(
         "Unable to perform RADIUS Disconnect-Request."

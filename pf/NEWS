@@ -18,6 +18,9 @@ Version <next version> released on <date>
 Security
  * Reflected Cross-site scripting (XSS) in Web Admin printing system (#1362)
 
+New Hardware Support
+ * Ruckus Wireless Controllers
+
 Enhancements
  * Migrated our documentation from a binary-only ODT to a flexible asciidoc format
  * Code and tests refactoring
