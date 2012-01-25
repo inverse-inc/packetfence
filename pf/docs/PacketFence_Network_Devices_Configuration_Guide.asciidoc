@@ -135,6 +135,7 @@ PacketFence supports the following devices:
 |                 |Baystack 4550               |Nortel::Baystack4550
 |                 |Baystack 5500 Series        |Nortel::Baystack5500
 |                 |Baystack 5500 w/ 6.x        |Nortel::BayStack5500_6x
+|Ruckus           |Ruckus ZoneDirector         |Ruckus
 |SMC              |TigerStack 6128 L2          |SMC::TS6128L2
 |                 |TigerStack 6224M            |SMC::TS6224M
 |                 |TigerStack 8824-48M         |SMC::TS8800M
@@ -2242,6 +2243,49 @@ SNMP Global configuration
 ++++++++++++++++++++++++++
 
 Add the two Read-Only and Read-Write users under *Management Access -> SNMP Access*.
+
+
+Ruckus
+~~~~~~
+
+AAA Servers
++++++++++++
+
+We need to define the RADIUS and RADIUS accounting (mandatory):
+
+Under *Configuration -> AAA Servers*, click on the *Create New* button.  Enter the proper configuration:
+
+* Enter a server name
+* Select either RADIUS or RADIUS accounting as the type
+* Use PAP as the Auth Method
+* Enter the IP addres, and shared secret.
+* Hit OK
+
+Repeat the steps for the RADIUS and RADIUS accounting types.  We need 1 definition for each otherwise RADIUS dynamic authorization won't work.
+
+WLAN Definitions
+++++++++++++++++
+
+Under *Configuration -> WLAN*, click on the *Create New* button.  Enter the proper configuration:
+
+.Open SSID
+* Enter a Name/SSID
+* Select *Standard Usage* as the Type
+* Select *MAC Address* as the authentication type
+* Select *Open* as the encryption method
+* Select the proper RADIUS server as the authentication server
+* Select the proper RADIUS server as the accounting server
+
+NOTE: The Open SSID does *NOT* support dynamic VLAN assignments (Firmware 9.3.0.0.83)
+
+.Secure SSID
+* Enter a Name/SSID
+* Select *Standard Usage* as the Type
+* Select *WPA2* as the authentication type
+* Select *AES* as the encryption method
+* Select the proper RADIUS server as the authentication server
+* Select the proper RADIUS server as the accounting server
+* Check the *Enable Dynamic VLAN* checkbox
 
 
 Trapeze
