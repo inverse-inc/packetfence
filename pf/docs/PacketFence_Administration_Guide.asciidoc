@@ -2293,6 +2293,53 @@ Inline enforcement because of it's nature has several limitations that one must 
 
 This is why it is considered a poor man's way of doing access control. We have avoided it for a long time because of the above mentioned limitations. That said, being able to perform both inline and VLAN enforcement on the same server at the same time is a real advantage: it allows users to maintain maximum security while they deploy new and more capable network hardware providing a clean migration path to VLAN enforcement.
 
+More on VoIP Integration
+------------------------
+
+VoIP has been growing in popularity on enterprise networks.  At first sight, the IT administrators think that deploying VoIP with a NAC poses a huge complicated challenge to resolve.  In fact, depending of the hardware you have, not really.  In this section, we will see why.
+
+CDP and LLDP are your friend
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For those of you who are unaware of the existence of CDP or LLDP (or LLDP-MED), I suggest you start reading on this topic.  Cisco Discovery Protocol (CDP) is device-discovery protocol that runs on all Cisco-manufactured equipment including routers, access servers, bridges, and switches. Using CDP, a device can advertise its existence to other devices and receive information about other devices on the same LAN or on the remote side of a WAN.  In the world of VoIP, CDP is able to determine if the connecting device is an IP Phone or not, and tell the IP Phone to tag its ethernet frame using the configured voice vlan on the switchport.
+
+On many other vendors, you are likely to find LLDP or LLDP-MED support.  Link Layer Discovery Protocol (LLDP) is a vendor-neutral Link Layer protocol in the Internet Protocol Suite used by network devices for advertising their identity, capabilities, and neighbors.  Same as CDP, LLDP can tell an IP Phone which VLAN id is the voice vlan.
+
+VoIP and VLAN assignment techniques
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As you already know, PacketFence supports many VLAN assignment techniques such as port-security, mac authentication or 802.1X.  Let's see how VoIP is doing with each of those.
+
+Port-security
+^^^^^^^^^^^^^
+
+Using port-security, the VoIP device rely on CDP/LLDP to tag its ethernet frame using the configured voice vlan on the switch port.  After that, we ensure that a security trap is sent from the voice VLAN so that PacketFence can authorize the mac address on the port.  When the PC connects, another security trap will be sent, but from the data VLAN.  That way, we will have 1 mac address authorized on the voice VLAN, and 1 on the access VLAN.
+
+NOTE: Not all vendors support VoIP on port-security, please refer to the Network Configuration Guide.
+
+Mac Authentication and 802.1X
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Cisco hardware
+++++++++++++++
+
+On Cisco switches, we are looking at the multi-domain configuration.  The multi-domain means that we can have one device on the VOICE domain, and one device on the DATA domain.  The domain assignment is done using a Cisco VSA.  When the phone connects to the switchport, PacketFence will respond with the proper VSA only, no RADIUS tunneled attributes.  CDP then tells the phone to tag its ethernet frames using the configured voice VLAN on the port.  When a PC connects, the RADIUS server will return tunneled attributes, and the switch will place the port in the provided access VLAN.
+
+Non-Cisco hardware
+++++++++++++++++++
+
+On other vendor hardware, it is possible to make VoIP work using RADIUS VSAs.  When a phone connects to a switchport, PacketFence needs to return the proper VSA to tell the switch to allow tagged frames from this device.  When the PC will connect, we will be able to return standard RADIUS tunnel attributes to the switch, that will be the untagged VLAN.
+
+NOTE: Again, refer to the Network Configuration Guide to see if VoIP is supported on your switch hardware.
+
+What if CDP/LLDP feature is missing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is possible that your phone doesn't support CDP or LLDP.  If it's the case, you are probably looking at the "DHCP way" of provisionning your phone with a voice VLAN.  Some models will ask for a specific DHCP option so that the DHCP server can give the phone a voice VLAN id.  The phone will then reboot, and tag its ethernet frame using the provided VLAN tag.
+
+In order to make this scenario work with PacketFence, you need to ensure that you tweak the registration and your production DHCP server to provide the DHCP option.  You also need to make sure there is a voice VLAN properly configured on the port, and that you auto-register your IP Phones (On the first connect, the phone will be assigned on the registration VLAN).
+
+
 include::includes/additional-info.asciidoc[]
 
 include::includes/commercial-support.asciidoc[]

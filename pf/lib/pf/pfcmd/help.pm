@@ -18,6 +18,12 @@ BEGIN {
     @EXPORT = qw();
 }
 
+=head1 SUBROUTINES
+
+TODO: This list is incomplete.
+
+=over
+
 =item usage
 
 If a true value is passed as a parameter we output to STDOUT instead of STDERR.
@@ -621,6 +627,8 @@ example:
 EOT
     return 1;
 }
+
+=back
 
 =head1 AUTHOR
 
