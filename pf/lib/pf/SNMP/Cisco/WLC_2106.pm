@@ -86,7 +86,7 @@ sub deauthenticateMac {
         );
         # Session not already privileged are not supported at this point. See #1370
         #$session->begin_privileged( $this->{_cliEnablePwd} );
-        $session->->do_privileged_mode(0);
+        $session->do_privileged_mode(0);
         $session->begin_configure();
     };
 
