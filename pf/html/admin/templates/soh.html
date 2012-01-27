@@ -27,7 +27,10 @@
     <option value="reject">[% i18n('Reject') %]</option>
     <option value="violation">[% i18n('Trigger violation') %]</option>
    </select>
-   <input type=text name=vid value="#{vid}" style="display: none">
+   <select name="vid" style="display: none">
+       [% FOREACH violation IN list_violations %]<option value="[% violation.key %]">[% violation.value %]</option>
+       [% END %]
+   </select>
    <p>[% i18n('Conditions:') %]
    <ul class=rules>
      <li class=none>[% i18n('(None yet)') %]</li>
@@ -87,8 +90,11 @@
       <option value="reject" [% IF filter.action == 'reject' %]selected[% END %]>[% i18n('Reject') %]</option>
       <option value="violation" [% IF filter.action == 'violation' && filter.vid %]selected[% END %]>[% i18n('Trigger violation') %]</option>
      </select>
-     <input type=text name=vid value="[% filter.vid %]"
-      [% IF !(filter.action == 'violation' && filter.vid) %]style="display: none"[% END %]>
+     <select name="vid"
+       [% IF !(filter.action == 'violation' && filter.vid) %]style="display: none"[% END %]>
+         [% FOREACH violation IN list_violations %]<option value="[% violation.key %]"[% IF filter.vid == violation.key %] selected[% END %]>[% violation.value %]</option>
+         [% END %]
+     </select>
      <p>[% i18n('Conditions:') %]
      <ul class=rules>
      [% matched = 0 %]
