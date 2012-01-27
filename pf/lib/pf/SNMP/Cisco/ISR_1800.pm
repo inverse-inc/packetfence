@@ -84,7 +84,7 @@ sub getVlan {
 
     $logger->trace("SNMP get_request for vmVlan: $OID_vmVlan.$ifIndex");
 
-    my $result = $this->{_sessionRead} ->get_request( -varbindlist => ["$OID_vmVlan.$ifIndex"] );
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => ["$OID_vmVlan.$ifIndex"] );
     if (defined($result) 
         && exists($result->{"$OID_vmVlan.$ifIndex"})
         && ($result->{"$OID_vmVlan.$ifIndex"} ne 'noSuchInstance')) {
