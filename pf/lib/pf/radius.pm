@@ -117,6 +117,7 @@ sub authorize {
     $port = $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
     if (($connection_type & $WIRELESS) == $WIRELESS) {
         $ssid = $switch->extractSsid($radius_request);
+        $logger->debug("SSID resolved to: $ssid") if (defined($ssid));
     }
 
     # determine if we need to perform automatic registration

@@ -28,6 +28,7 @@ Enhancements
  * Performance: avoiding some redundant operations on startup
  * A DHCP listener will run by default on the management interface 
  * pfcmd_vlan is now able to run arbitrary methods on network devices
+ * debug statement with the resolved SSID now available to troubleshoot SSID problems live
 
 Bug Fixes
  * Buttons in graphs.php of type ifoctetshistoryswitch, ifoctetshistoryuser, ifoctetshistorymac (#1110)
