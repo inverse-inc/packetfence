@@ -1392,6 +1392,10 @@ DEPRECATED by SNMP version. See _setPortSecurityByIfIndex.
 
 On this switch, the lock-learning is a per-vlan attribute so it performs it on the current untagged VLAN of the ifIndex
 
+Warning: this method should _never_ be called in a thread. 
+Net::Appliance::Session is not thread safe: L<http://www.cpanforum.com/threads/6909/>
+Experienced mostly when using SSH.
+
 Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
 
 =cut
