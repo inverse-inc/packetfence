@@ -43,6 +43,7 @@ Bug Fixes
  * pfcmd's general help is now sent to standard ouput instead of standard error
  * Globally disabled privilege detection in hardware requiring Telnet / SSH. All except Trapeze. (#1370)
  * Thread crash with floating network devices with VoIP through SSH transport (#1369)
+ * MAC-Auth / 802.1X translation fixes for the Cisco Catalyst 3550
 
 Translations
  * Updated Brazilian Portuguese (pt_BR) Admin guide translation (Thanks to Diego de Souza Lopes)
