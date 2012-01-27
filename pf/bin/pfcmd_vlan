@@ -30,6 +30,7 @@ pfcmd_vlan command [options]
    -reevaluateAccess    reevaluate the current VLAN or firewall rules of a given MAC
    -resetVlanAllPort    reset VLAN on all non-UpLink ports of the specified switch
    -resetVlanNetwork    reset VLAN on all non-UpLink ports of all managed switches
+   -runSwitchMethod     run a particular method call on a given switch (FOR ADVANCED PURPOSES)
    -setAlias            set the description of the specified switch port
    -setDefaultVlan      set the switch port to the default VLAN
    -setIfAdminStatus    set the admin status of the specified switch port
@@ -141,6 +142,7 @@ my $deauthenticate;
 my $deauthenticateDot1x;
 my $reAssignVlan;
 my $reevaluateAccess;
+my $runSwitchMethod;
 
 GetOptions(
     "alias:s"             => \$alias,
@@ -168,6 +170,7 @@ GetOptions(
     "reevaluateAccess"    => \$reevaluateAccess,
     "resetVlanAllPort"    => \$resetVlanAllPort,
     "resetVlanNetwork"    => \$resetVlanNetwork,
+    "runSwitchMethod"     => \$runSwitchMethod,
     "setAlias"            => \$setAlias,
     "setDefaultVlan"      => \$setDefaultVlan,
     "setIfAdminStatus"    => \$setIfAdminStatus,
@@ -227,6 +230,33 @@ if ($reevaluateAccess) {
     }
 
     pf::enforcement::reevaluate_access( $mac, 'pfcmd_vlan' );
+
+# Warning: powerfully dangerous method below (reconsider if unstrusted users have access to pfcmd_vlan)
+# This executes a specified method call passed on the command line on a 
+# proper switch object with the parameters supplied.
+} elsif ($runSwitchMethod) {
+
+    if ( $switchDescRegExp eq '' ) {
+        pod2usage("the switch argument is necessary");
+    }
+    if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
+        pod2usage("unknown switch $switchDescRegExp");
+    }
+
+    my $switch = $switchFactory->instantiate($switchDescRegExp);
+    if (!$switch) {
+        print "Can't instantiate switch $switchDescRegExp! See log files for details\n";
+    } else {
+        # grabbing parameters
+        my ($method, @params) = @ARGV;
+        local $" = ", ";
+        $logger->debug("start handling 'runSwitchMethod' command with: ->$method(@params)");
+        {
+            no strict 'refs';
+            $switch->$method(@params);
+        }
+        $logger->debug("finished handling 'runSwitchMethod' command");
+    }
 
 } elsif ($getUpLinks) {
 

@@ -27,6 +27,7 @@ Enhancements
  * Minor documentation update for Aruba Controllers
  * Performance: avoiding some redundant operations on startup
  * A DHCP listener will run by default on the management interface 
+ * pfcmd_vlan is now able to run arbitrary methods on network devices
 
 Bug Fixes
  * Buttons in graphs.php of type ifoctetshistoryswitch, ifoctetshistoryuser, ifoctetshistorymac (#1110)
@@ -40,6 +41,7 @@ Bug Fixes
  * Returning exit status 0 on command line tools when asked to show help
  * pfcmd's general help is now sent to standard ouput instead of standard error
  * Globally disabled privilege detection in hardware requiring Telnet / SSH. All except Trapeze. (#1370)
+ * Thread crash with floating network devices with VoIP through SSH transport (#1369)
 
 Translations
  * Updated Brazilian Portuguese (pt_BR) Admin guide translation (Thanks to Diego de Souza Lopes)

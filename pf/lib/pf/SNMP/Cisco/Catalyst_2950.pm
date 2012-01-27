@@ -649,7 +649,31 @@ sub setPortSecurityMaxSecureMacAddrByIfIndex {
    return ( defined($result) );
 }
 
-=item setPortSecurityMaxSecureMacAddrVlanByIfIndex 
+=item setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex
+
+Wraps around _setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex by spawning
+a process to call it thus working around bug #1369: thread crash with 
+floating network devices with VoIP through SSH transport
+
+=cut
+sub setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
+    my ( $this, $ifIndex, $maxSecureMac ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
+    # http://www.cpanforum.com/threads/6909
+
+    my $command = 
+        "/usr/local/pf/bin/pfcmd_vlan -switch $this->{_ip} "
+        . "-runSwitchMethod _setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex $ifIndex $maxSecureMac"
+    ;
+
+    $logger->info("spawning a pfcmd_vlan process to set 'switchport port-security maximum $maxSecureMac vlan access'");
+    pf_run($command);
+    return $TRUE;
+}
+
+=item _setPortSecurityMaxSecureMacAddrVlanByIfIndex 
 
 Sets the maximum number of MAC addresses on the data vlan for port-security on a port
 
@@ -660,7 +684,7 @@ L<http://www.cpanforum.com/threads/6909/>
 Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
 
 =cut
-sub setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
+sub _setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
     my ( $this, $ifIndex, $maxSecureMac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
