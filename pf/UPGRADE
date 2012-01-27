@@ -14,6 +14,11 @@ o Upgrading from a version prior to <release>:
     switches with VoIP enabled and floating network devices, Cisco 3500XL, 
     Cisco ISR 18xx and Cisco WLC 21xx.
 
+    - Cisco Catalyst 3550 MAC-Auth / 802.1X
+    We changed the way we perform NAS-Port to ifIndex translation with this 
+    release. If you use MAC-Auth (Cisco's MAB or 802.1X) and experience *any*
+    regression, please let us know.
+
 o Upgrading from a version prior to 3.1.0:
 
     - rogue DHCP server violation
