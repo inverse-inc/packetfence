@@ -56,6 +56,15 @@ SNMPv3 support is broken for link-up / link-down and MAC Notification modes.
 Cisco didn't implement SNMPv3 context support for this IOS line and it is required to query the MAC address table. 
 See #1284.
 
+=item VLAN enforcement on trunk ports through SSH
+
+On trunk ports, we need to clear the MAC address table when performing a 
+VLAN change (however this assumption might need to get revisited). 
+Clearing MAC is done over CLI (Telnet / SSH) and currently under SSH it is 
+broken. Because we don't recommend users securing trunk ports with NAC and
+since Telnet works fine, this is a low priority issue. See #1371 for more 
+details.
+
 =back
 
 =head1 CONFIGURATION AND ENVIRONMENT
