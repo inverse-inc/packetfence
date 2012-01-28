@@ -801,15 +801,20 @@ sub getAlias {
 =cut
 
 sub getSwitchLocation {
-    my ( $this, $ifIndex ) = @_;
+    my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
-    if ( !$this->connectRead() ) {
-        return '';
-    }
+    return if ( !$this->connectRead() ); 
+
     my $OID_sysLocation = '1.3.6.1.2.1.1.6.0';
     $logger->trace("SNMP get_request for sysLocation: $OID_sysLocation");
-    my $result = $this->{_sessionRead}
-        ->get_request( -varbindlist => ["$OID_sysLocation"] );
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => ["$OID_sysLocation"] );
+    if ( !defined($result) ) {
+        $logger->error("couldn't fetch sysLocation on $this->{_ip}: " . $this->{_sessionWrite}->error());
+        return;
+    }
+    if (!defined($result->{"$OID_sysLocation"})) {
+        $logger->error("no result for sysLocation on $this->{_ip}");
+    }
     return $result->{"$OID_sysLocation"};
 }
         
@@ -2635,7 +2640,7 @@ Regis Balzard <rbalzard@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2011 Inverse inc.
+Copyright (C) 2006-2012 Inverse inc.
 
 =head1 LICENSE
 
