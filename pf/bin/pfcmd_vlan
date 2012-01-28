@@ -17,6 +17,7 @@ pfcmd_vlan command [options]
    -getIfOperStatus     show the operational status of the specified switch port
    -getIfType           show the ifType on the specified switch port
    -getLocation         show at which switch port the MAC is found
+   -getSwitchLocation   show SNMP location of specified switch
    -getMAC              show all MACs on the specified switch port
    -getType             show switch type
    -getUpLinks          show the upLinks of the specified switch
@@ -117,6 +118,7 @@ my $man;
 my $getMac;
 my $getAllMacs;
 my $getAlias;
+my $getSwitchLocation;
 my $setAlias;
 my $getVlan;
 my $resetVlanAllPort;
@@ -149,6 +151,7 @@ GetOptions(
     "deauthenticate"      => \$deauthenticate,
     "deauthenticateDot1x" => \$deauthenticateDot1x,
     "getAlias"            => \$getAlias,
+    "getSwitchLocation"   => \$getSwitchLocation,
     "getAllMacs"          => \$getAllMacs,
     "getHubs"             => \$getHubs,
     "getIfOperStatus"     => \$getIfOperStatus,
@@ -222,6 +225,7 @@ if ($logLevel) {
     $root_logger->add_appender($appender);
 }
 
+# TODO we should consolidate calls which need similar parameters and unduplicate tests and error reporting
 my $switchFactory = pf::SwitchFactory->getInstance();
 if ($reevaluateAccess) {
 
@@ -276,6 +280,23 @@ if ($reevaluateAccess) {
             print "- $currentIfIndex\n";
         }
         $logger->debug("finished handling 'getUpLinks' command");
+    }
+
+} elsif ($getSwitchLocation) {
+
+    if ( $switchDescRegExp eq '' ) {
+        pod2usage("the switch argument is necessary");
+    }
+    if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
+        pod2usage("unknown switch $switchDescRegExp");
+    }
+    my $switch = $switchFactory->instantiate($switchDescRegExp);
+    if (!$switch) {
+        print "Can't instantiate switch $switchDescRegExp! See log files for details\n";
+    } else {
+        $logger->debug("start handling 'getSwitchLocation' command");
+        print $switch->getSwitchLocation($ifIndex) . "\n";
+        $logger->debug("finished handling 'getSwitchLocation' command");
     }
 
 } elsif ($getVersion) {
