@@ -46,6 +46,7 @@ Bug Fixes
  * Thread crash with floating network devices with VoIP through SSH transport (#1369)
  * MAC-Auth / 802.1X translation fixes for the Cisco Catalyst 3550
  * No more obscure error message if no management interface is defined in pf.conf
+ * pfcmd exit status now more consistent regarding config
 
 Translations
  * Updated Brazilian Portuguese (pt_BR) Admin guide translation (Thanks to Diego de Souza Lopes)

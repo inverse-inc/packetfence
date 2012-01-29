@@ -19,6 +19,9 @@ o Upgrading from a version prior to <release>:
     release. If you use MAC-Auth (Cisco's MAB or 802.1X) and experience *any*
     regression, please let us know.
 
+    - pfcmd exit status
+    Some exit status of pfcmd changed regarding the config sub-command.
+
 o Upgrading from a version prior to 3.1.0:
 
     - rogue DHCP server violation
