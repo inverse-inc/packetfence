@@ -46,7 +46,7 @@ our @dao_tests = qw(
 );
 
 our @integration_tests = qw(
-    integration.t integration/radius.t integration/captive-portal.t
+    integration.t integration/radius.t integration/captive-portal.t integration/pfcmd.t
 );
 
 our @quality_tests = qw(

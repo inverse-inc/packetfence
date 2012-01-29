@@ -14,7 +14,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 88;
+use Test::More tests => 92;
 use Test::NoWarnings;
 
 use English '-no_match_vars';
@@ -55,6 +55,13 @@ is_deeply(\%cmd,
 is_deeply(\%cmd,
           { 'command' => [ 'config', 'set', 'general.hostname=packetfence' ] },
           'pfcmd config set general.hostname=packetfence');
+
+%cmd = pf::pfcmd::parseCommandLine('config set guests_self_registration.modes=');
+is_deeply(
+    \%cmd,
+    { 'command' => [ 'config', 'set', 'guests_self_registration.modes=' ] },
+    'pfcmd set empty config'
+);
 
 %cmd = pf::pfcmd::parseCommandLine('config set proxies.tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stng260.bin');
 is_deeply(\%cmd,
@@ -322,6 +329,13 @@ is_deeply(\%cmd, {
     'node_options' => [ 'view', 'pid' ],
 }, 'pfcmd node view with pid as an email');
 
+# pfcmd's exit status
+# see perldoc perlvar on CHILD_ERROR for the reason behind the >> 8 shift
+my $pfcmd_config_unknown_param_stdout = `/usr/local/pf/bin/pfcmd config get invalid.fail`;
+is($CHILD_ERROR >> 8, $pf::pfcmd::ERROR_CONFIG_UNKNOWN_PARAM, "exit status: invalid pfcmd set config"); 
+
+my $pfcmd_config_no_help_stdout = `/usr/local/pf/bin/pfcmd config help invalid.fail`;
+is($CHILD_ERROR >> 8, $pf::pfcmd::ERROR_CONFIG_NO_HELP, "exit status: pfcmd config help w/o help"); 
 
 =head1 AUTHOR
 
