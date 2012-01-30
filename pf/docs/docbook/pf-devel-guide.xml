@@ -865,7 +865,7 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
       </listitem>
       <listitem>
         <para>Add it to 
-        <filename>pf/html/admin/configuration/switches_add.php</filename>and 
+        <filename>pf/html/admin/configuration/switches_add.php</filename> and 
         <filename>switches_edit.php</filename></para>
       </listitem>
       <listitem>
@@ -949,7 +949,7 @@ snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
     <para>This catches a lot of errors (including runtime crashers) and allows us to recover from these
     conditions.</para>
     <para>So far, it is mandatory to wrap the Web Services enabled network devices modules' code since 
-    <classname>SOAP::Lite</classname>will die on you if host is unreachable for example (actually it's 
+    <classname>SOAP::Lite</classname> will die on you if host is unreachable for example (actually it's 
     <classname>LWP::UserAgent</classname>who will).</para>
   </sect1>
 </chapter>
