@@ -426,6 +426,11 @@ Returning lots of information about a given MAC address (node)
 sub node_view {
     my ($mac) = @_;
 
+    # Uncomment to log callers
+    #my $logger = Log::Log4perl::get_logger('pf::node');
+    #my $caller = ( caller(1) )[3] || basename($0);
+    #$logger->trace("node_view called from $caller");
+
     my $tmpMAC = Net::MAC->new( 'mac' => $mac );
     $mac = $tmpMAC->as_IEEE();
     my $query = db_query_execute(NODE, $node_statements, 'node_view_sql', $mac) || return (0);
