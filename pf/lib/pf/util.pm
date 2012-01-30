@@ -745,10 +745,11 @@ sub preload_reggable_ip {
 sub preload_network_range {
     my ($network_range) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
-    my $caller = ( caller(1) )[3] || basename($0);
-    $caller =~ s/^pf::\w+:://;
 
+    #my $caller = ( caller(1) )[3] || basename($0);
+    #$caller =~ s/^pf::\w+:://;
     #print "caller: network range = $network_range\n";
+
     my %cache_ip;
 
     foreach my $gateway ( get_gateways() ) {
