@@ -30,6 +30,7 @@ Enhancements
  * pfcmd_vlan is now able to run arbitrary methods on network devices
  * debug statement with the resolved SSID now available to troubleshoot SSID problems live
  * added getSwitchLocation to pfcmd_vlan which fetches SNMP sysLocation on switch (#1250, Thanks to Maikel!)
+ * introduced more aggressive exception-based configuration error handling
 
 Bug Fixes
  * Buttons in graphs.php of type ifoctetshistoryswitch, ifoctetshistoryuser, ifoctetshistorymac (#1110)
@@ -47,6 +48,7 @@ Bug Fixes
  * MAC-Auth / 802.1X translation fixes for the Cisco Catalyst 3550
  * No more obscure error message if no management interface is defined in pf.conf
  * pfcmd exit status now more consistent regarding config
+ * No more "Can't call method "tag" on an undefined value" on broken pf.conf configuration (#1352)
 
 Translations
  * Updated Brazilian Portuguese (pt_BR) Admin guide translation (Thanks to Diego de Souza Lopes)

@@ -30,6 +30,7 @@ use Net::Netmask;
 use POSIX;
 use Readonly;
 use threads;
+use Try::Tiny;
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -227,20 +228,27 @@ my $cache_inline_enforcement_enabled;
 # html/admin/common/helpers.inc's get_time_units_for_dropdown and get_time_regexp()
 our $TIME_MODIFIER_RE = qr/[smhDWMY]/;
 
-readPfConfigFiles();
+try {
 
-# Captive Portal constants
-Readonly %CAPTIVE_PORTAL => (
-    "NET_DETECT_INITIAL_DELAY" => floor($Config{'trapping'}{'redirtimer'} / 4),
-    "NET_DETECT_RETRY_DELAY" => 2,
-    "NET_DETECT_PENDING_INITIAL_DELAY" => 2 * 60,
-    "NET_DETECT_PENDING_RETRY_DELAY" => 30,
-    "TEMPLATE_DIR" => "$install_dir/html/captive-portal/templates",
-);
+    readPfConfigFiles();
 
-readNetworkConfigFile();
+    # Captive Portal constants
+    Readonly %CAPTIVE_PORTAL => (
+        "NET_DETECT_INITIAL_DELAY" => floor($Config{'trapping'}{'redirtimer'} / 4),
+        "NET_DETECT_RETRY_DELAY" => 2,
+        "NET_DETECT_PENDING_INITIAL_DELAY" => 2 * 60,
+        "NET_DETECT_PENDING_RETRY_DELAY" => 30,
+        "TEMPLATE_DIR" => "$install_dir/html/captive-portal/templates",
+    );
 
-readFloatingNetworkDeviceFile();
+    readNetworkConfigFile();
+
+    readFloatingNetworkDeviceFile();
+
+} catch {
+
+    $logger->logdie("Fatal error preventing configuration to load. Please review your configuration. Error: $_");
+};
 
 
 =over
@@ -336,9 +344,12 @@ sub readPfConfigFiles {
             $type = '';
         }
 
+        die "Missing mandatory element ip or netmask on interface $int"
+            if ($type =~ /internal|managed|management|external/ && !defined($int_obj));
+
         foreach my $type ( split( /\s*,\s*/, $type ) ) {
             if ( $type eq 'internal' ) {
-                push @internal_nets, $int_obj if (defined($int_obj));
+                push @internal_nets, $int_obj;
                 if ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) {
                   push @vlan_enforcement_nets, $int_obj;
                 } elsif ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_INLINE) {
@@ -346,10 +357,12 @@ sub readPfConfigFiles {
                 }
                 push @listen_ints, $int if ( $int !~ /:\d+$/ );
             } elsif ( $type eq 'managed' || $type eq 'management' ) {
+
                 $int_obj->tag("vip", _fetch_virtual_ip($int));
                 $management_network = $int_obj;
                 # adding management to dhcp listeners by default (if it's not already there)
                 push @dhcplistener_ints, $int if ( not scalar grep({ $_ eq $int } @dhcplistener_ints) );
+
             } elsif ( $type eq 'external' ) {
                 push @external_nets, $int_obj;
             } elsif ( $type eq 'monitor' ) {
