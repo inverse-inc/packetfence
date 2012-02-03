@@ -7,6 +7,12 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <release>:
 
+    - New pf.conf configuration flag: registration.guests_self_registration
+    This parameter allows to enable or disable guest self-registration. It 
+    deprecates the previous technique to disable this feature (set modes=).
+    It is enabled by default so when upgrading make sure to disable it if you
+    don't want to allow self-registered guests.
+
     - CLI (telnet/ssh) behavior change regarding privileged access
     The feature to detect privileged access when using CLI access has been
     disabled except in the Trapeze module where users are unpriviledged by

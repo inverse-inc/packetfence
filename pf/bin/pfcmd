@@ -1564,14 +1564,15 @@ sub config {
     tie %myconfig, 'Config::IniFiles', ( -file => $conf_dir . "/pf.conf" )
         or $logger->logdie("Unable to open pf.conf: $!");
 
-    if ( lc($option) eq 'set' && $param !~ /^.+?=.+?$/ ) {
-        require pf::pfcmd::help;
-        pf::pfcmd::help::usage("config");
-    }
     if ( lc($option) eq 'set' ) {
-        $param =~ /^([^=]+)=(.+)$/;
-        $param = $1;
-        $value = $2;
+        if ($param =~ /^([^=]+)=(.+)?$/) {
+            $param = $1;
+            $value = (defined($2) ? $2 : '');
+        }
+        else {
+            require pf::pfcmd::help;
+            pf::pfcmd::help::usage("config");
+        }
     }
 
     # get rid of spaces (a la [interface X])

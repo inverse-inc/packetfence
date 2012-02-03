@@ -238,6 +238,12 @@ button_text=Register
 #
 # The number of registration pages to show to the user
 nbregpages=0
+#
+# registration.guests_self_registration
+#
+# Is the guest self-registration feature enabled or not. Self-registration 
+# is the signup button where a guest can register by email or SMS.
+guests_self_registration=enabled
 
 
 [guests_self_registration]

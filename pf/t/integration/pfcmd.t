@@ -14,7 +14,7 @@ use warnings;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 4;
+use Test::More tests => 5;
 use Test::NoWarnings;
 
 use English '-no_match_vars';
@@ -34,6 +34,9 @@ is($CHILD_ERROR >> 8, 0, "pfcmd set config exit with status 0");
 my $pfcmd_get_config_stdout = `/usr/local/pf/bin/pfcmd config get general.hostname`;
 is($CHILD_ERROR >> 8, 0, "pfcmd get config exit with status 0"); 
 like($pfcmd_get_config_stdout, qr/initech/, "pfcmd set config worked"); 
+
+my $pfcmd_set_config_empty_stdout = `/usr/local/pf/bin/pfcmd config set guests_self_registration.modes=`;
+is($CHILD_ERROR >> 8, 0, "pfcmd set config with empty value (bug 1361)"); 
 
 # put back config before the tests
 `cp /usr/local/pf/conf/pf.conf-integration-tests.bkp /usr/local/pf/conf/pf.conf`; 

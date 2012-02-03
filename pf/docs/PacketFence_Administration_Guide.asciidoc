@@ -1556,10 +1556,10 @@ Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and document
   email_activation_timeout=10m
   allow_localdomain=enabled
 
-To disable the self-registration feature, modify the following line in `/usr/local/pf/conf/pf.conf`.
+To disable the self-registration feature, you can do so in the Web Administration interface or by modify the following line in `/usr/local/pf/conf/pf.conf`:
 
-  [guests_self_registration]
-  modes=
+  [registration]
+  guests_self_registration=disabled
 
 CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
 
@@ -1573,7 +1573,7 @@ It is possible to modify the default values of the guest pre-registration featur
 Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and documentation for every settings is available in `/usr/local/pf/conf/documentations.conf`.
 
   [guests_pre_registration]
-  access_duration_choices=1h,3h,12h,1d,2d,3d,5d
+  access_duration_choices=1h,3h,12h,1D,2D,3D,5D
   default_access_duration=12h
   category=guest
 

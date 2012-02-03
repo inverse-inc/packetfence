@@ -33,6 +33,7 @@ Enhancements
  * Introduced more aggressive exception-based configuration error handling
  * Introduced new trigger types (nessus and openvas) and removed the scan type
  * Added the capability to use dots in trigger id
+ * Added a new config flag: registration.guests_self_registration to control if self-registered guests are enabled (#1361)
 
 Bug Fixes
  * Buttons in graphs.php of type ifoctetshistoryswitch, ifoctetshistoryuser, ifoctetshistorymac (#1110)
