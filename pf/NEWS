@@ -31,6 +31,8 @@ Enhancements
  * debug statement with the resolved SSID now available to troubleshoot SSID problems live
  * added getSwitchLocation to pfcmd_vlan which fetches SNMP sysLocation on switch (#1250, Thanks to Maikel!)
  * introduced more aggressive exception-based configuration error handling
+ * introduced new trigger types (nessus and openvas) and removed the scan type
+ * added the capability to use dots in trigger id
 
 Bug Fixes
  * Buttons in graphs.php of type ifoctetshistoryswitch, ifoctetshistoryuser, ifoctetshistorymac (#1110)
