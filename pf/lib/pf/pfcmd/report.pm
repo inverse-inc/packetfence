@@ -250,7 +250,7 @@ sub report_os_all {
                 my $static_percent = sprintf( "%.1f", ( $statics / $total ) * 100 );
                 push @return_data,
                     {
-                    description => "*Probable Static IP(s)",
+                    description => "Probable Static IP(s)",
                     percent     => $static_percent,
                     count       => $statics
                     };
@@ -286,7 +286,7 @@ sub report_os_active {
                 my $static_percent = sprintf( "%.1f", ( $statics / $total ) * 100 );
                 push @return_data,
                     {
-                    description => "*Probable Static IP(s)",
+                    description => "Probable Static IP(s)",
                     percent     => $static_percent,
                     count       => $statics
                     };
@@ -323,7 +323,7 @@ sub report_osclass_all {
                 my $static_percent = sprintf( "%.1f", ( $statics / $total ) * 100 );
                 push @return_data,
                     {
-                    description => "*Probable Static IP(s)",
+                    description => "Probable Static IP(s)",
                     percent     => $static_percent,
                     count       => $statics
                     };
@@ -360,7 +360,7 @@ sub report_osclass_active {
                 my $static_percent = sprintf( "%.1f", ( $statics / $total ) * 100 );
                 push @return_data,
                     {
-                    description => "*Probable Static IP(s)",
+                    description => "Probable Static IP(s)",
                     percent     => $static_percent,
                     count       => $statics
                     };
