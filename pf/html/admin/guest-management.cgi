@@ -70,7 +70,11 @@ foreach my $param($cgi->param()) {
 
 # Is user already logged in?
 # If we can find an existing PHP session, we allow the user to proceed.
-if ($psession && $psession->get('user') || defined($session->param("username"))) {
+if ($psession && $psession->get('user')) {
+  $session->param("username", $psession->get('user'));
+}
+
+if (defined($session->param("username"))) {
 
     if (defined($cgi->param("action")) && $cgi->param("action") eq "logout") {
         # Logout button
