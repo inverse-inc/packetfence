@@ -469,8 +469,12 @@ sub preregister {
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
+    # by default guest identifier is their email address
+    my $pid = $session->param("email");
+    $session->param("pid", $pid);
+
     # Login successful, adding person (using modify in case person already exists)
-    person_modify($session->param("email"), (
+    person_modify($pid, (
         'firstname' => $session->param("firstname"),
         'lastname' => $session->param("lastname"),
         'email' => $session->param("email"),
@@ -480,7 +484,7 @@ sub preregister {
         'notes' => $session->param("notes").". ".sprintf(i18n("Expected on %s"), $session->param("arrival_date")),
         'sponsor' => $session->param("username")
     ));
-    $logger->info("Adding guest person " . $session->param("email"));
+    $logger->info("Adding guest person " . $pid);
 
     # expiration is arrival date + access duration + a tolerance window of 24 hrs
     my $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", 
@@ -489,7 +493,7 @@ sub preregister {
 
     # we create temporary password with the expiration and a 'not valid before' value
     my $password = pf::temporary_password::generate(
-        $session->param("email"), $expiration, $session->param("arrival_date"), 
+        $pid, $expiration, $session->param("arrival_date"), 
         valid_access_duration($session->param("access_duration"))
     );
 
