@@ -103,7 +103,7 @@ if ($psession && $psession->get('user') || defined($session->param("username")))
                 'firstname' => $session->param("firstname"),
                 'lastname' => $session->param("lastname"),
                 'email' => $session->param("email"),
-                'username' => $session->param("email"),
+                'username' => $session->param("pid"),
                 'password' => $password,
                 'valid_from' => $session->param("arrival_date"),
                 'duration' => pf::web::guest::valid_access_duration($session->param("access_duration")),
