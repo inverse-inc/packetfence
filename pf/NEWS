@@ -37,6 +37,7 @@ Enhancements
  * Made it easier to override preregistered guest usernames (default is email)
  * Added a new config flag: vlan.trap_limit to enable/disable the trap limit feature
  * RADIUS captive portal authentication can now target several RADIUS servers for fault tolerance
+ * Added a multi-threaded EAP test script in t/stress-test/
 
 Bug Fixes
  * Buttons in graphs.php of type ifoctetshistoryswitch, ifoctetshistoryuser, ifoctetshistorymac (#1110)
