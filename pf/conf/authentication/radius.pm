@@ -10,7 +10,9 @@ authentication::radius allows to validate a username/password combination using 
 =cut
 use strict;
 use warnings;
+
 use Authen::Radius;
+use Log::Log4perl;
 
 use base ('pf::web::auth');
 
@@ -20,14 +22,24 @@ our $VERSION = 1.10;
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-Don't forget to install the Authen::Radius module. 
-This is done automatically if you use a packaged version of PacketFence.
+Define the C<radiusServers> variable at the top of the module.
 
-Define the variables C<RadiusServer> and C<RadiusSecret> at the top of the module.
+=over
+
+=item Servers are always validated from top to bottom.
+
+=item Multiple servers are useful for fault tolerance not to try users on different RADIUS
+
+=back
 
 =cut
-my $RadiusServer = 'localhost';
-my $RadiusSecret = 'testing123';
+
+# uncomment the second line to add another server to the list to check
+# you can add more lines also
+my $radiusServers = [ 
+    { 'host' => 'server1:1819', secret => 'secret' },
+#    { 'host' => 'server2:1819', secret => 'secret2' },
+];
 
 =head2 Optional
 
@@ -55,17 +67,30 @@ Errors meant for administrators are logged in F<logs/packetfence.log>.
 =cut
 sub authenticate {
     my ($this, $username, $password) = @_;
-    my $radcheck = new Authen::Radius(
-        Host => $RadiusServer, 
-        Secret => $RadiusSecret
-    );
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    if ($radcheck->check_pwd($username, $password)) {
-        return $TRUE;
-    } else {
-        $this->_setLastError('Invalid login or password');
-        return $FALSE;
+    foreach my $server (@$radiusServers) {
+
+        my $radcheck = new Authen::Radius(
+            Host => $server->{'host'}, 
+            Secret => $server->{'secret'},
+        );
+
+        my $response = $radcheck->check_pwd($username, $password);
+        if (Authen::Radius::get_error() eq 'ENONE') {
+
+            if ($response) {
+                return $TRUE;
+            } else {
+                $this->_setLastError('Invalid login or password');
+                return $FALSE;
+            }
+        }
     }
+
+    $logger->error("Unable to perform RADIUS authentication on any server: " . Authen::Radius::get_error() );
+    $this->_setLastError('Unable to authenticate successfully');
+    return $FALSE;
 }
 
 =back
@@ -78,7 +103,7 @@ Maikel van der roest <mvdroest@utelisys.com>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2011, 2012 Inverse inc.
 
 Copyright (C) 2008 Utelisys Communications B.V.
 
