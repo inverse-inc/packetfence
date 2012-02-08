@@ -1690,8 +1690,9 @@ SNMP traps limit
 
 PacketFence mainly rely on SNMP traps to communicate with equipment. Due to the fact that traps coming in from approved (configured) devices are all processed by the daemon, it is possible for someone who want to generate a certain load on the PacketFence server to force the generation of non-legitimate SNMP traps or a switch can randomly generate a high quantity of traps sent to PacketFence for an unknown reason.
 
-According to this case, it is possible to limit the number of SNMP traps coming in from a single switch port and take action if that limit is reached. Per example, if over 100 traps are received by PacketFence from the same switch port in a minute, the switch port will be shut and a notification email will be sent.
-Here's the configs for the SNMP traps limit feature. Per default, PacketFence will log the abnormal activity after 100 traps from the same switch port in a minute.
+Because of that, it is possible to limit the number of SNMP traps coming in from a single switch port and take action if that limit is reached. For example, if over 100 traps are received by PacketFence from the same switch port in a minute, the switch port will be shut and a notification email will be sent.
+
+Here's the default config for the SNMP traps limit feature. As you can see, by default, PacketFence will log the abnormal activity after 100 traps from the same switch port in a minute.
 
 These configurations are in the `pf.conf` file:
 
