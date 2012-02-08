@@ -1697,6 +1697,7 @@ Here's the default config for the SNMP traps limit feature. As you can see, by d
 These configurations are in the `pf.conf` file:
 
   [vlan]
+  trap_limit = enabled
   trap_limit_threshold = 100
   trap_limit_action = 
 

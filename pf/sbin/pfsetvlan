@@ -710,6 +710,7 @@ sub parseTrap {
 
             # skip traps coming from switch ifIndex that reached traps limit threshold
             if ( defined($trapHashRef->{'trapIfIndex'}) 
+                    && isenabled($Config{'vlan'}{'trap_limit'})
                     && check_traps_limit_threshold($switch, $trapHashRef->{'trapIfIndex'}) ) {
                 $logger->warn("We received too many traps (over $Config{'vlan'}{'trap_limit_threshold'}) in a minute) "
                         . "from ifIndex $trapHashRef->{'trapIfIndex'} of switch $switch->{_ip}");

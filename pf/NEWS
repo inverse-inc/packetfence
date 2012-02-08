@@ -35,6 +35,7 @@ Enhancements
  * Added the capability to use dots in trigger id
  * Added a new config flag: registration.guests_self_registration to control if self-registered guests are enabled (#1361)
  * Made it easier to override preregistered guest usernames (default is email)
+ * Added a new config flag: vlan.trap_limit to enable/disable the trap limit feature
 
 Bug Fixes
  * Buttons in graphs.php of type ifoctetshistoryswitch, ifoctetshistoryuser, ifoctetshistorymac (#1110)
