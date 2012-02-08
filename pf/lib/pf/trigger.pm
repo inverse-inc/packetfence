@@ -187,7 +187,7 @@ sub parse_triggers {
 
     my $triggers_ref = [];
     foreach my $trigger ( split( /\s*,\s*/, $violation_triggers ) ) {   
-        die("Invalid trigger id: $trigger") if ($trigger !~ /^\w+::[\d.-]+$/);
+        die("Invalid trigger id: $trigger") if ($trigger !~ /^\w+::[\d\.-]+$/);
         my ( $type, $tid ) = split( /::/, $trigger );
         $type = lc($type);
 
@@ -197,7 +197,7 @@ sub parse_triggers {
         }
 
         # process range
-        if ( $tid =~ /(\d.+)-(\d.+)/ ) {
+        if ( $tid =~ /(\d+)-(\d+)/ ) {
             if ( $2 > $1 ) {
                 push @$triggers_ref, [ $1, $2, $type ];
             } else {

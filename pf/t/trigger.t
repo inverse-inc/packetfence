@@ -51,8 +51,9 @@ is_deeply(
 );
 
 is_deeply(
-    parse_triggers("Detect::1100005,OS::4"),
-    [ [ 1100005, 1100005, "detect" ], [ 4, 4, "os" ] ],
+    parse_triggers("Detect::1100005,OS::4,Openvas::1.3.6.1.4.1.25623.1.0.80001"),
+    [ [ 1100005, 1100005, "detect" ], [ 4, 4, "os" ], 
+    [ "1.3.6.1.4.1.25623.1.0.80001", "1.3.6.1.4.1.25623.1.0.80001", "openvas"] ],
     "parsing multiple triggers"
 );
 
@@ -67,7 +68,7 @@ throws_ok { parse_triggers("Detect::1100005,OS::4,INVALID::7") }
     'parsing triggers with an invalid trigger type expecting exception'
 ;
 
-throws_ok { parse_triggers("Detect::1100005-1100001,OS::4") }
+throws_ok { parse_triggers("Detect::1100005-1100001,OS::4,Openvas::1.3.6.1.4.1.25.1.0.801-1.3.6.1.4.1.25.1.0.802") }
     qr/Invalid trigger range/,
     'parsing triggers with an invalid trigger range expecting exception'
 ;
