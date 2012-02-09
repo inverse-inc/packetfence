@@ -6,6 +6,9 @@ use warnings;
 use threads;
 use Try::Tiny;
 
+my $RADIUS_SERVER = '127.0.0.1';
+my $CLIENT_IP = '127.0.0.1';
+
 my $nb_threads = $ARGV[0];
 my $nb_requests_per_thread = $ARGV[1];
 
@@ -39,7 +42,7 @@ sub radius_requests {
     my $mac = "aabb" . $fake_mac_for_thread . $fake_client_mac;
     # inject proper : to obtain aa:bb:xx:...
     $mac =~ s/([a-f0-9]{2})(?!$)/$1:/g;
-    my $cmd = "eapol_test -c eap-client.conf -s qwerty -M $mac -a 10.0.0.100";
+    my $cmd = "eapol_test -c eap-client.conf -s qwerty -M $mac -a $RADIUS_SERVER -A $CLIENT_IP";
 
     try {
       my $result = `$cmd`;
