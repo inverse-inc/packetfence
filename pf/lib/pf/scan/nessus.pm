@@ -12,32 +12,15 @@ pf::scan::nessus is a module to add Nessus scanning option.
 
 =cut
 
-=head1 DEVELOPMENT NOTE
-
-This module is in progress to be merged with pf::scan (like Openvas)
-There's some duplicates for the moment and those will be removed when merge will be completed.
-
-=cut
-
 use strict;
 use warnings;
 
 use Log::Log4perl;
-use Parse::Nessus::NBE; # TODO: To remove when merge completed
 use Readonly;
 
 use pf::config;
+use pf::scan;
 use pf::util;
-use pf::violation qw(violation_exist_open violation_trigger violation_modify);  #TODO: To remove when merge completed
-
-Readonly our $LOGGER_SCOPE  => 'pf::scan::nessus';
-Readonly our $SCAN_VID => 1200001;  # TODO: To remove when merge completed
-
-use constant {  # TODO: To remove when merge completed
-    SEVERITY_HOLE => 1,
-    SEVERITY_WARNING => 2,
-    SEVERITY_INFO => 3,
-};
 
 =head1 SUBROUTINES
 
@@ -50,7 +33,7 @@ Create a new Nessus scanning object with the required attributes
 =cut
 sub new {
     my ( $class, %data ) = @_;
-    my $logger = Log::Log4perl::get_logger($LOGGER_SCOPE);
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     $logger->debug("Instantiating a new pf::scan::nessus scanning object");
 
@@ -60,11 +43,11 @@ sub new {
             '_port'     => undef,
             '_user'     => undef,
             '_pass'     => undef,
-            '_scanHost' => undef,
+            '_scanIp'   => undef,
             '_scanMac'  => undef,
             '_report'   => undef,
             '_file'     => undef,
-            '_policy'   => undef
+            '_policy'   => undef,
     }, $class;
 
     foreach my $value ( keys %data ) {
@@ -83,7 +66,7 @@ sub new {
 =cut
 sub startScan {
     my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger($LOGGER_SCOPE);
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     # nessus scan setup
     my $id                  = $this->{_id};
@@ -123,58 +106,13 @@ sub startScan {
     my @nessusdata = <$infile_fh>;
     close( $infile_fh );
 
-    my @countvulns = ( 
-        Parse::Nessus::NBE::nstatvulns(@nessusdata, SEVERITY_HOLE), 
-        Parse::Nessus::NBE::nstatvulns(@nessusdata, SEVERITY_WARNING), 
-        Parse::Nessus::NBE::nstatvulns(@nessusdata, SEVERITY_INFO),
+    my %scan_attributes = (
+        type    => "nessus",
+        ip      => $hostaddr,
+        mac     => $mac,
     );
-    
-    # for each vuln, trigger the violation
-    my $failedScan = 0;
-    foreach my $current_vul (@countvulns) {
-        # Parse nstatvulns format
-        my ($tid, $number) = split(/\|/, $current_vul);
 
-        $logger->info("calling violation_trigger for ip: $hostaddr, mac: $mac, Nessus ScanID: $tid");
-        my $violationAdded = violation_trigger($mac, $tid, "scan", ( ip => $hostaddr ));
-
-        # if a violation has been added consider the scan failed
-        if ($violationAdded) {
-            $failedScan = 1;
-        }
-    }
-
-    if (!$failedScan) {
-        $logger->info("Nessus scan did not detect any vulnerabilities on $hostaddr");
-    }
-
-    # If scan is requested because of registration scanning
-    #   Clear scan violation if the host didn't generate any violation
-    #   Otherwise we keep the violation and clear the ticket_ref. (so we can re-scan once he remediates)
-    # If scan came from elsewhere
-    #   Do nothing
-    #
-    # The way we accomplish the above workflow is to differentiate by checking if special violation exists or not
-    if (my $violationId = violation_exist_open($mac, $SCAN_VID)) {
-        $logger->trace("Scan is completed and there is an open scan violation. We have something to do!");
-        # we passed the scan so we can close the scan violation
-        if (!$failedScan) {
-
-            my $cmd = $bin_dir."/pfcmd manage vclose $mac $SCAN_VID";
-            $logger->info("calling $bin_dir/pfcmd manage vclose $mac $SCAN_VID");
-            my $grace = pf_run("$cmd");
-            if ($grace == -1) {
-                $logger->warn("problem trying to close scan violation");
-                return 0;
-            }
-        # scan completed but it found a violation
-        # HACK: we empty the violation's ticket_ref field which we use to track if scan is in progress or not
-        } else {
-           $logger->debug("Modifying violation id $violationId to empty its ticket_ref field.");
-           violation_modify($violationId, (ticket_ref => "" ));
-        }
-    }
-    return 1;
+    pf::scan::parse_scan_report(@nessusdata, %scan_attributes);
 }
 
 =back

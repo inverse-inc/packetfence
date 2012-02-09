@@ -1451,7 +1451,7 @@ sub schedule {
         $logger->trace("pcmd schedule now called");
 
         require pf::scan;
-        pf::scan::runScan($hostaddr, %params);
+        pf::scan::run_scan($hostaddr);
 
         $logger->trace("leaving pfcmd schedule now");
 

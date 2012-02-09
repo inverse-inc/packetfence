@@ -1054,6 +1054,38 @@ sub pf_run {
     return;
 }
 
+=item generate_id
+
+This will generate and return a new id.
+The id will be as follow: epochtime + 2 random numbers + last four characters of the mac address
+The epoch will be used in database entries so we use the same to make sure it is the same.
+
+=cut
+sub generate_id {
+    my ( $epoch, $mac ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # Make sure the mac address format is correct
+    my $tmpMac  = Net::MAC->new('mac' => $mac);
+    $mac        = $tmpMac->as_IEEE();
+
+    $logger->debug("Generating a new ID with epoch $epoch and mac $mac");
+
+    # Generate 2 random numbers
+    # the number 100 is to permit a 2 digits random number
+    my $random = int(rand(100));
+
+    # Get the four last characters of the mac address
+    $mac =~ s/\://g;
+    $mac = substr($mac, -4);
+
+    my $id = $epoch . $random . $mac;
+
+    $logger->info("New ID generated: $id");
+
+    return $id;
+}
+
 =back
 
 =head1 AUTHOR
