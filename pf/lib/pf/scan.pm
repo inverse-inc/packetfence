@@ -19,14 +19,6 @@ use Log::Log4perl;
 use Parse::Nessus::NBE;
 use Readonly;
 
-use pf::config;
-use pf::db;
-use pf::iplog qw(ip2mac);
-use pf::scan::nessus;
-use pf::scan::openvas;
-use pf::util;
-use pf::violation qw(violation_exist_open violation_trigger violation_modify);
-
 BEGIN {
     use Exporter ();
     our (@ISA, @EXPORT, @EXPORT_OK);
@@ -34,6 +26,14 @@ BEGIN {
     @EXPORT = qw(run_scan $SCAN_VID $scan_db_prepared scan_db_prepare);
     @EXPORT_OK = qw(scan_insert_sql scan_select_sql scan_update_sql);
 }
+
+use pf::config;
+use pf::db;
+use pf::iplog qw(ip2mac);
+use pf::scan::nessus;
+use pf::scan::openvas;
+use pf::util;
+use pf::violation qw(violation_exist_open violation_trigger violation_modify);
 
 Readonly our $SCAN_VID          => 1200001;
 Readonly our $SEVERITY_HOLE     => 1;

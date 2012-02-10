@@ -15,6 +15,8 @@ use CGI::Session;
 use Log::Log4perl;
 use POSIX;
 
+use lib '/usr/local/pf/lib';
+
 use pf::config;
 use pf::scan;
 
