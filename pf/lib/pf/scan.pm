@@ -104,13 +104,11 @@ Parse a scan report and trigger violations if needed
 
 =cut
 sub parse_scan_report {
-    my ( $type, $ip, $mac, @scan_report ) = @_;
+    my ( $scan_report, %args ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    $logger->info("SCAN REPORT: @scan_report");
-    $logger->info("TYPE: $type");
-    $logger->info("IP: $ip");
-    $logger->info("MAC: $mac");
+    my ($ip, $mac, $type, $report_id) = $args{'ip', 'mac', 'type', 'report_id'};
+    $logger->debug("Scan report to analyze from $type: $report_id"); 
 
     my @count_vulns = (
         Parse::Nessus::NBE::nstatvulns(@scan_report, $SEVERITY_HOLE),

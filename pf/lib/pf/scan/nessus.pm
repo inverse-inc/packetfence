@@ -65,6 +65,7 @@ sub new {
 =item startScan
 
 =cut
+# WARNING: A lot of extra single quoting has been done to fix perl taint mode issues: #1087
 sub startScan {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -107,13 +108,13 @@ sub startScan {
     my @nessusdata = <$infile_fh>;
     close( $infile_fh );
 
-    my %scan_attributes = (
-        type    => "nessus",
-        ip      => $hostaddr,
-        mac     => $mac,
+    pf::scan::parse_scan_report(
+        \@nessusdata,
+        type => "nessus",
+        ip => $hostaddr,
+        mac => $mac,
+        report_id => $outfileName,
     );
-
-    pf::scan::parse_scan_report(@nessusdata, %scan_attributes);
 }
 
 =back

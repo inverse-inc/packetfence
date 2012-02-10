@@ -44,8 +44,7 @@ if ( defined($params{'scanid'}) ) {
     # Check if there's a report id associated with that scan id and if the scan status is started (is the scan id valid)
     # otherwise the user has nothing to do here
     my $scan_infos = pf::scan::retrieve_scan_infos($params{'scanid'});
-#    if ( $scan_infos->{'report_id'} && ($scan_infos->{'status'} eq 'started') ) {
-    if ( $scan_infos->{'report_id'} ) {
+    if ( $scan_infos->{'report_id'} && ($scan_infos->{'status'} eq 'started') ) {
 
         $logger->info("Received a hit to get openvas scanning engine report for scan id $params{'scanid'}");
 
@@ -67,15 +66,12 @@ if ( defined($params{'scanid'}) ) {
         # Each line of the scan report is pushed into an array
         my @scan_report = split("\n", $scan->{'_report'});
 
-        # Fetching  scan attributes to then parse the report
-        my $ip  = $scan_infos->{'ip'};
-        my $mac = $scan_infos->{'mac'};
-
-        $logger->info("SCAN REPORT: @scan_report");
-        $logger->info("TYPE: $type");
-        $logger->info("IP: $ip");
-        $logger->info("MAC: $mac");
-        pf::scan::parse_scan_report($type, $ip, $mac, @scan_report);
+        pf::scan::parse_scan_report(\@scan_report,
+            'type' => $type,
+            'ip' => $scan_infos->{'ip'},
+            'mac' => $scan_infos->{'mac'},
+            'report_id' => $scan_infos->{'report_id'},
+        );
     }
 
 # There's no scan id in the url or the scan doesn't have a report_id or a valid state
