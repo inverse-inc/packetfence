@@ -206,12 +206,11 @@ sub run_scan {
     my $epoch   = time;
     my $date    = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime($epoch));
     my $id      = pf::util::generate_id($epoch, $host_mac);
-    my $type    = $Config{'scan'}{'engine'};
+    my $type    = lc($Config{'scan'}{'engine'});
 
     my %scan_attributes = (
             _id         => $id,
             _host       => $Config{'scan'}{'host'},
-            _port       => $Config{'scan'}{'port'},
             _user       => $Config{'scan'}{'user'},
             _pass       => $Config{'scan'}{'pass'},
             _scanIp     => $host_ip,

@@ -368,8 +368,14 @@ admin=1443
 #
 # scan.engine
 #
-# Which scan engine
-engine=openvas
+# Which scan engine to use to perform client-side policy compliance.
+engine=none
+#
+# scan.registration
+#
+# If this option is enabled, the PF system will scan each host after
+# registration is complete.
+registration=disabled
 #
 # scan.duration
 #
@@ -379,21 +385,44 @@ duration=60s
 #
 # scan.host
 #
-# Host the nessus server is running on.  For performance reasons, we recommend running the nessus server remotely.  A 
-# passthrough will be automagically created.
+# Host the scanning engine is running on.  For performance reasons, we
+# recommend running the scanning engine on a remote server. A passthrough will
+# be automagically created.
 host=127.0.0.1
 #
-# scan.nessusclient_file
+# scan.user
+#
+# Username to log into scanning engine with.
+user=admin
+#
+# scan.pass
+#
+# Password to log into scanning engine with.
+pass=packet
+#
+# scan.nessus_port
+#
+# Remote port of the Nessus scanning engine. Default value should be fine in
+# most cases.
+nessus_port=1241
+#
+# scan.nessus_clientfile
 #
 # Name of the NessusClient file; the file format is documented at
-# http://www.nessus.org/documentation/dot_nessus_file_format.pdf
-# This file must be found in conf/nessus/
-nessusclient_file=remotescan.nessus
+# http://www.nessus.org/documentation/dot_nessus_file_format.pdf.
+# This file must be found in conf/nessus/.
+nessus_clientfile=remotescan.nessus
 #
-# scan.nessusclient_policy
+# scan.nessus_clientpolicy
 #
 # Name of the policy inside the NessusClient file
-nessusclient_policy=RemoteScan
+nessus_clientpolicy=RemoteScan
+#
+# scan.openvas_port
+#
+# Remote port of the OpenVAS scanning engine. Default value should be fine in
+# most cases.
+openvas_port=9390
 #
 # scan.openvas_configid
 #
@@ -404,26 +433,6 @@ openvas_configid=
 #
 # ID of the .NBE report format on the OpenVAS server
 openvas_reportformatid=
-#
-# scan.pass
-#
-# Password to log into nessus server with.
-pass=packet
-#
-# scan.port
-#
-# Port nessus server is running on.
-port=1241
-#
-# scan.registration
-#
-# If this option is enabled, pf will scan each host after registration is complete with all nessusids.
-registration=disabled
-#
-# scan.user
-#
-# Username to log into nessus server with.
-user=admin
 
 [database]
 #

@@ -1378,8 +1378,8 @@ Adjust the settings in the scan section like the following:
   port=1241
   host=127.0.0.1
   registration=enabled
-  nessusclient_file=basic-policy.nessus
-  nessusclient_policy=basic-policy
+  nessus_clientfile=basic-policy.nessus
+  nessus_clientpolicy=basic-policy
 
 violations.conf
 +++++++++++++++
@@ -1399,7 +1399,7 @@ NessusClient Integration
 
 New since 1.8.3 is the ability to directly use the nessus command line client and `dot nessus` files. The `NessusClient` file format is documented at http://www.nessus.org/documentation/dot_nessus_file_format.pdf and can easily be generated using the official Nessus Client.
 
-You'll have to save your `dot nessus` file in the `/usr/local/pf/conf/nessus/` directory and specify its filename using the `scan.nessusclient_file` configuration setting. You'll also have to specify your policy name using the `scan.nessusclient_policy` setting. After that, you can execute your scan using:
+You'll have to save your `dot nessus` file in the `/usr/local/pf/conf/nessus/` directory and specify its filename using the `scan.nessus_clientfile` configuration setting. You'll also have to specify your policy name using the `scan.nessus_clientpolicy` setting. After that, you can execute your scan using:
 
   $ pfcmd schedule now <IP>
 

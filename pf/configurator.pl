@@ -26,7 +26,7 @@ particular, it tries to achieve the following tasks:
 
 =item * database configuration
 
-=item * detection and scanning configuration (in enabled)
+=item * detection (IDS) configuration
 
 =item * interfaces configuration
 
@@ -124,15 +124,12 @@ my $template_list = << "END_TEMPLATE_LIST";
 What kind of configuration would you like to put in place?
         1) PacketFence standalone (Basic configuration)
         2) PacketFence with detection (SNORT)
-        3) PacketFence with scanning (Nessus)
-        4) PacketFence with both detection and scanning (SNORT & Nessus)
 Configuration choice: 
 END_TEMPLATE_LIST
 
-my $template = questioner ( $template_list, '', (1 .. 4) );
+my $template = questioner ( $template_list, '', (1 .. 2) );
 
-print "\n*** The following configuration script won't configure Nessus or a remote SNORT probe. It will only configure 
-PacketFence related to those services. ***\n";
+print "\n*** The following configuration script won't configure a remote SNORT probe only a local one. ***\n";
 
 my $enforcement_list = << "END_ENFORCEMENT_LIST";
 What kind of enforcement would you like to use for isolation?
@@ -149,13 +146,8 @@ push @network_types, "isolation";
 config_pf_general();
 
 # Detection configuration
-if ( $template eq 2 || $template eq 4 ) {
+if ( $template eq 2 ) {
     config_pf_detection();
-}
-
-# Scanning configuration
-if ( $template eq 3 || $template eq 4 ) {
-    config_pf_scanning();
 }
 
 # Database configuration
@@ -197,7 +189,7 @@ sub config_pf_general {
             'alerting.emailaddr' );
     gatherer ( "Should I send notification emails when services managed by PacketFence are not running?", \%pf_cfg,
             'servicewatch.email', ("enabled", "disabled") );
-    gatherer ( "Should I restart services I manage and that seems halted?", \%pf_cfg, 'servicewatch.restart',
+    gatherer ( "Should I restart services I manage and that seems halted? (Remember that you'll need to install a cron entry. See conf/pf.conf.defaults)", \%pf_cfg, 'servicewatch.restart',
             ("enabled", "disabled") );
 
     # Registration
@@ -230,21 +222,6 @@ sub config_pf_detection {
     my $mon_int = gatherer ( "What is my monitor interface?", \%pf_cfg, '', get_interfaces() );
     %{ $pf_cfg{"interface $mon_int"} } = ();
     $pf_cfg{"interface $mon_int"}{"type"}   = "monitor";
-}
-
-
-=item * config_pf_scanning
-
-=cut
-sub config_pf_scanning {
-    print "\nPACKETFENCE SCANNING (NESSUS) CONFIGURATION\n";
-    gatherer ( "Where's the Nessus server?", \%pf_cfg, "scan.host" );
-    gatherer ( "Which port is it listening on?", \%pf_cfg, "scan.port" );
-    gatherer ( "Which account should I use?", \%pf_cfg, "scan.user" );
-    password_gatherer ( "What is the password associated with this account?", "scan.pass" );
-    gatherer ( "Should I use SSL encryption to communicate with the server?", \%pf_cfg, "scan.ssl", 
-            ("enabled", "disabled") );
-    gatherer ( "Should I scan every new registered device?", \%pf_cfg, "scan.registration", ("enabled", "disabled") );
 }
 
 

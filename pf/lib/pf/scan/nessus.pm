@@ -55,8 +55,9 @@ sub new {
     }
 
     # Nessus specific attributes
-    $this->{_file}      = $install_dir . '/conf/nessus/' . $Config{'scan'}{'nessusclient_file'};
-    $this->{_policy}    = $Config{'scan'}{'nessusclient_policy'};
+    $this->{_port} = $Config{'scan'}{'nessus_port'};
+    $this->{_file} = $install_dir . '/conf/nessus/' . $Config{'scan'}{'nessus_clientfile'};
+    $this->{_policy} = $Config{'scan'}{'nessus_clientpolicy'};
 
     return $this;
 }
@@ -76,8 +77,8 @@ sub startScan {
     my $port                = $this->{_port};
     my $user                = $this->{_user};
     my $pass                = $this->{_pass};
-    my $nessusclient_file   = $this->{_file};
-    my $nessusclient_policy = $this->{_policy};
+    my $nessus_clientfile   = $this->{_file};
+    my $nessus_clientpolicy = $this->{_policy};
     my $nessusRcHome        = 'HOME=' . $install_dir . '/conf/nessus/';
 
     # preparing host to scan temporary file and result file
@@ -89,8 +90,8 @@ sub startScan {
     close( $infile_fh );
 
     # the scan
-    $logger->info("executing $nessusRcHome /opt/nessus/bin/nessus -q -V -x --dot-nessus $nessusclient_file --policy-name $nessusclient_policy $host $port $user <password> --target-file $infileName $outfileName");
-    my $output = pf_run("$nessusRcHome /opt/nessus/bin/nessus -q -V -x --dot-nessus $nessusclient_file --policy-name $nessusclient_policy $host $port $user $pass --target-file $infileName $outfileName 2>&1");
+    $logger->info("executing $nessusRcHome /opt/nessus/bin/nessus -q -V -x --dot-nessus $nessus_clientfile --policy-name $nessus_clientpolicy $host $port $user <password> --target-file $infileName $outfileName");
+    my $output = pf_run("$nessusRcHome /opt/nessus/bin/nessus -q -V -x --dot-nessus $nessus_clientfile --policy-name $nessus_clientpolicy $host $port $user $pass --target-file $infileName $outfileName 2>&1");
     unlink($infileName);
 
     # did it went well?

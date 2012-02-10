@@ -228,8 +228,9 @@ sub new {
     }
 
     # OpenVAS specific attributes
-    $this->{_configId}          = $Config{'scan'}{'openvas_configid'};
-    $this->{_reportFormatId}    = $Config{'scan'}{'openvas_reportformatid'};
+    $this->{_port} = $Config{'scan'}{'openvas_port'};
+    $this->{_configId} = $Config{'scan'}{'openvas_configid'};
+    $this->{_reportFormatId} = $Config{'scan'}{'openvas_reportformatid'};
 
     return $this;
 }
