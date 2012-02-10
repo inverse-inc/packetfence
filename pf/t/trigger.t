@@ -14,7 +14,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 9;
+use Test::More tests => 10;
 use Test::NoWarnings;
 use Test::Exception;
 use File::Basename qw(basename);
@@ -68,9 +68,14 @@ throws_ok { parse_triggers("Detect::1100005,OS::4,INVALID::7") }
     'parsing triggers with an invalid trigger type expecting exception'
 ;
 
-throws_ok { parse_triggers("Detect::1100005-1100001,OS::4,Openvas::1.3.6.1.4.1.25.1.0.801-1.3.6.1.4.1.25.1.0.802") }
+throws_ok { parse_triggers("Detect::1100005-1100001,OS::4") }
     qr/Invalid trigger range/,
     'parsing triggers with an invalid trigger range expecting exception'
+;
+
+throws_ok { parse_triggers("Openvas::1.3.6.1.4.1.25.1.0.801-1.3.6.1.4.1.25.1.0.802") }
+    qr/Invalid trigger range/,
+    'parsing triggers with a range in an OpenVAS OID expecting exception'
 ;
 
 throws_ok { parse_triggers("VENDORMAC::00:22:FA,VENDORMAC::00:22:68,VENDORMAC::00:13:e8") }
@@ -81,10 +86,12 @@ throws_ok { parse_triggers("VENDORMAC::00:22:FA,VENDORMAC::00:22:68,VENDORMAC::0
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Derek Wuelfrath <dwuelfrath@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2011, 2012 Inverse inc.
 
 =head1 LICENSE
     
