@@ -38,52 +38,53 @@ foreach my $param($cgi->param()) {
     $params{$param} = $cgi->param($param);
 }
 
-# Check if there's a scan id in url, otherwise the user has nothing to do here
-if ( defined($params{'scanid'}) ) {
+# Check if there's a scan id in url, otherwise no one has nothing to do here.
+exit(0) if ( !defined($params{'scanid'}) );
 
-    # Check if there's a report id associated with that scan id and if the scan status is started (is the scan id valid)
-    # otherwise the user has nothing to do here
-    my $scan_infos = pf::scan::retrieve_scan_infos($params{'scanid'});
-    if ( $scan_infos->{'report_id'} && ($scan_infos->{'status'} eq 'started') ) {
+# Check if there's a report id associated with that scan id and if the scan status is started (is the scan id valid)
+# otherwise the user has nothing to do here
+my $scan_infos = pf::scan::retrieve_scan_infos($params{'scanid'});
+if ( !defined($scan_infos->{'report_id'}) || ($scan_infos->{'status'} ne 'started') ) {
 
-        $logger->info("Received a hit to get openvas scanning engine report for scan id $params{'scanid'}");
-
-        # Fetching scan attributes to instantiate a scan object and then get the report
-        my $type = $scan_infos->{'type'};
-        my %scan_attributes = (
-                _id         => $params{'scanid'},
-                _host       => $Config{'scan'}{'host'},
-                _port       => $Config{'scan'}{'port'},
-                _user       => $Config{'scan'}{'user'},
-                _pass       => $Config{'scan'}{'pass'},
-                _reportId   => $scan_infos->{'report_id'},
-        );
-
-        my $scan = pf::scan::instantiate_scan_engine($type, %scan_attributes);
-        $scan->getReport();
-
-        # We need to manipulate the scan report.
-        # Each line of the scan report is pushed into an array
-        my @scan_report = split("\n", $scan->{'_report'});
-
-        pf::scan::parse_scan_report(\@scan_report,
-            'type' => $type,
-            'ip' => $scan_infos->{'ip'},
-            'mac' => $scan_infos->{'mac'},
-            'report_id' => $scan_infos->{'report_id'},
-        );
-    }
-
-# There's no scan id in the url or the scan doesn't have a report_id or a valid state
-# User has nothing to do here
-} else {
-    $logger->info("User has nothing to do here, redirecting to ". $Config{'trapping'}{'redirecturl'});
-    print $cgi->redirect($Config{'trapping'}{'redirecturl'});
+    $logger->info("Request to fetch a scan report with unrecognized or expired scan id: $params{'scanid'}");
+    pf::web::generate_error_page($cgi, $session, "The scan report code provided is invalid or expired.");
+    exit(0);
 }
+
+$logger->info("Received a hit to get OpenVAS scanning engine report for scan id $params{'scanid'}");
+
+# Fetching scan attributes to instantiate a scan object and then get the report
+my $type = $scan_infos->{'type'};
+my %scan_attributes = (
+        _id         => $params{'scanid'},
+        _host       => $Config{'scan'}{'host'},
+        _port       => $Config{'scan'}{'port'},
+        _user       => $Config{'scan'}{'user'},
+        _pass       => $Config{'scan'}{'pass'},
+        _reportId   => $scan_infos->{'report_id'},
+);
+
+my $scan = pf::scan::instantiate_scan_engine($type, %scan_attributes);
+# FIXME this has hidden side-effects, I would prefer if it would return the report I guess
+$scan->getReport();
+
+# We need to manipulate the scan report.
+# Each line of the scan report is pushed into an array
+my @scan_report = split("\n", $scan->{'_report'});
+
+pf::scan::parse_scan_report(\@scan_report,
+    'type' => $type,
+    'ip' => $scan_infos->{'ip'},
+    'mac' => $scan_infos->{'mac'},
+    'report_id' => $scan_infos->{'report_id'},
+);
+exit(0);
 
 =head1 AUTHOR
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
