@@ -48,6 +48,7 @@ BEGIN {
         get_translatable_time
         pretty_bandwidth
         pf_run
+        generate_id
     );
 }
 

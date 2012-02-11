@@ -107,7 +107,7 @@ sub parse_scan_report {
     my ( $scan_report, %args ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my ($ip, $mac, $type, $report_id) = $args{'ip', 'mac', 'type', 'report_id'};
+    my ($ip, $mac, $type, $report_id) = @args{'ip', 'mac', 'type', 'report_id'};
     $logger->debug("Scan report to analyze from $type: $report_id"); 
 
     my @count_vulns = (
@@ -144,8 +144,9 @@ sub parse_scan_report {
         # We passed the scan so we can close the scan violation
         if ( !$failed_scan ) {
             my $cmd = $bin_dir . "/pfcmd manage vclose $mac $SCAN_VID";
-            $logger->info("Calling $bin_dir/pfcmd mamange vclose $mac $SCAN_VID");
+            $logger->info("Calling $cmd");
             my $grace = pf_run("$cmd");
+            # FIXME shouldn't we focus on return code instead of output? pretty sure this is broken
             if ( $grace == -1 ) {
                 $logger->warn("Problem trying to close scan violation");
                 return 0;
@@ -193,17 +194,13 @@ sub run_scan {
     my $host_mac = ip2mac($host_ip);
     if ( !$host_mac ) {
         $logger->warn("Unable to fin MAC address for the scanned host $host_ip. Scan aborted.");
-        return 0;
+        return;
     }
-
-    # Make sure the mac address format is correct
-    my $tmpMac  = Net::MAC->new('mac' => $host_mac);
-    $host_mac   = $tmpMac->as_IEEE();
 
     # Preparing the scan attributes
     my $epoch   = time;
     my $date    = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime($epoch));
-    my $id      = pf::util::generate_id($epoch, $host_mac);
+    my $id      = generate_id($epoch, $host_mac);
     my $type    = lc($Config{'scan'}{'engine'});
 
     my %scan_attributes = (
