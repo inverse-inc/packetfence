@@ -111,9 +111,9 @@ sub parse_scan_report {
     $logger->debug("Scan report to analyze from $type: $report_id"); 
 
     my @count_vulns = (
-        Parse::Nessus::NBE::nstatvulns(@scan_report, $SEVERITY_HOLE),
-        Parse::Nessus::NBE::nstatvulns(@scan_report, $SEVERITY_WARNING),
-        Parse::Nessus::NBE::nstatvulns(@scan_report, $SEVERITY_INFO),
+        Parse::Nessus::NBE::nstatvulns(@$scan_report, $SEVERITY_HOLE),
+        Parse::Nessus::NBE::nstatvulns(@$scan_report, $SEVERITY_WARNING),
+        Parse::Nessus::NBE::nstatvulns(@$scan_report, $SEVERITY_INFO),
     );
 
     # Trigger a violation for each vulnerability
