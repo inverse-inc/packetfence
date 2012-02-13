@@ -20,6 +20,10 @@ use base ('pf::SNMP::Cisco::WLC_4400');
 
 =head1 BUGS AND LIMITATIONS
 
+=over
+
+=item Version specific issues
+
 Controller issue with Windows 7: It only works with IOS > 6.x in 802.1x+WPA2. It's not a PacketFence issue.
 
 With IOS 6.0.182.0 we had intermittent issues with DHCP. Disabling DHCP Proxy resolved it. Not a PacketFence issue.
@@ -27,13 +31,22 @@ With IOS 6.0.182.0 we had intermittent issues with DHCP. Disabling DHCP Proxy re
 With IOS 7.0.116 and 7.0.220, the SNMP deassociation is not working if using WPA2.  It only works if using an
 Open SSID.
 
+=item H-REAP limitations
+
+Access Points in Hybrid Remote Edge Access Point (H-REAP) mode don't support 
+RADIUS dynamic VLAN assignments (AAA override).
+
+Customer specific work-arounds are possible. For example: per-SSID registration, auto-registration, etc.
+
+=back
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2010, 2012 Inverse inc.
 
 =head1 LICENSE
 
