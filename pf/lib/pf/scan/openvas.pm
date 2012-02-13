@@ -39,13 +39,9 @@ sub createEscalator {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $name        = $this->{_id};
-    my $command     = "<create_escalator>
-            <name>$name</name>
-            <condition>Always<data>High<name>level</name></data><data>changed<name>direction</name></data></condition>
-            <event>Task run status changed<data>Done<name>status</name></data></event>
-            <method>HTTP Get<data>http://127.0.0.1/scan/report/$name<name>URL</name></data></method>
-            </create_escalator>";
+    my $name = $this->{_id};
+    my $callback = $this->_generateCallback();
+    my $command = _get_escalator_string($name, $callback);
 
     $logger->info("Creating a new scan escalator named $name");
     $logger->debug("Scan escalator creation command: $command");
@@ -64,11 +60,11 @@ sub createEscalator {
     if ( $1 eq $RESPONSE_RESOURCE_CREATED ) {
         $logger->info("Scan escalator named $name successfully created with id: $2");
         $this->{_escalatorId} = $2;
-        return 1;
+        return $TRUE;
     }
 
     $logger->warn("There was an error creating scan escalator named $name, here's the output: $output");
-    return 0;
+    return;
 }
 
 =item createTarget
@@ -80,11 +76,11 @@ sub createTarget {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $name    = $this->{_id};
-    my $host    = $this->{_scanIp};
-    my $command = "<create_target><name>$name</name><hosts>$host</hosts></create_target>";
+    my $name = $this->{_id};
+    my $target_host = $this->{_scanIp};
+    my $command = "<create_target><name>$name</name><hosts>$target_host</hosts></create_target>";
 
-    $logger->info("Creating a new scan target named $name for host $host");
+    $logger->info("Creating a new scan target named $name for host $target_host");
     $logger->debug("Scan target creation command: $command");
 
     my $output = pf_run("omp -h $this->{_host} -p $this->{_port} -u $this->{_user} -w $this->{_pass} -X '$command'");
@@ -101,11 +97,11 @@ sub createTarget {
     if ( $1 eq $RESPONSE_RESOURCE_CREATED ) {
         $logger->info("Scan target named $name successfully created with id: $2");
         $this->{_targetId} = $2;
-        return 1;
+        return $TRUE;
     }
 
     $logger->warn("There was an error creating scan target named $name, here's the output: $output");
-    return 0;
+    return;
 }
 
 =item createTask
@@ -121,12 +117,8 @@ sub createTask {
     my $config_id       = $Config{'scan'}{'openvas_configid'};
     my $target_id       = $this->{_targetId};
     my $escalator_id    = $this->{_escalatorId};
-    my $command         = "<create_task>
-            <name>$name</name>
-            <config id=\"$config_id\"/>
-            <target id=\"$target_id\"/>
-            <escalator id=\"$escalator_id\"/>
-            </create_task>";
+
+    my $command = _get_task_string($name, $config_id, $target_id, $escalator_id);
 
     $logger->info("Creating a new scan task named $name");
     $logger->debug("Scan task creation command: $command");
@@ -145,11 +137,11 @@ sub createTask {
     if ( $1 eq $RESPONSE_RESOURCE_CREATED ) {
         $logger->info("Scan task named $name successfully created with id: $2");
         $this->{_taskId} = $2;
-        return 1;
+        return $TRUE;
     }
 
     $logger->warn("There was an error creating scan task named $name, here's the output: $output");
-    return 0;
+    return;
 }
 
 =item getReport
@@ -188,11 +180,11 @@ sub getReport {
         my $status      = "closed";
         pf::scan::update_scan_infos($name, $status, $report_id);
 
-        return 1;
+        return $TRUE;
     }
 
     $logger->warn("There was an error fetching the scan report for the task named $name, here's the output: $output");
-    return 0;
+    return;
 }
 
 =item new
@@ -285,11 +277,74 @@ sub startTask {
         my $status      = "started";
         pf::scan::update_scan_infos($name, $status, $report_id);
 
-        return 1;
+        return $TRUE;
     }
 
     $logger->warn("There was an error starting the scan task named $name, here's the output: $output");
-    return 0;
+    return;
+}
+
+=item _generateCallback
+
+Escalator callback needs to be different if we are running OpenVAS locally or remotely.
+
+Local: plain HTTP on loopback (127.0.0.1)
+
+Remote: HTTPS with fully qualified domain name
+
+=cut
+sub _generateCallback {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $name = $this->{'_id'};
+    my $callback = "<method>HTTP Get<data>";
+    if ($this->{'_host'} eq '127.0.0.1') {
+        $callback .= "http://127.0.0.1/scan/report/$name";
+    }
+    else {
+        $callback .= "https://$Config{general}{hostname}.$Config{general}{domain}/scan/report/$name";
+    }
+    $callback .= "<name>URL</name></data></method>";
+
+    $logger->debug("Generated OpenVAS callback is: $callback");
+    return $callback;
+}
+
+=item _get_escalator_string
+
+create_escalator string creation.
+
+=cut
+sub _get_escalator_string {
+    my ($name, $callback) = @_;
+
+    return <<"EOF";
+<create_escalator>
+  <name>$name</name>
+  <condition>Always<data>High<name>level</name></data><data>changed<name>direction</name></data></condition>
+  <event>Task run status changed<data>Done<name>status</name></data></event>
+  $callback
+</create_escalator>
+EOF
+}
+
+=item _get_task_string
+
+create_task string creation.
+
+=cut
+sub _get_task_string {
+    my ($name, $config_id, $target_id, $escalator_id) = @_;
+
+    return <<"EOF";
+<create_task>
+  <name>$name</name>
+  <config id=\"$config_id\"/>
+  <target id=\"$target_id\"/>
+  <escalator id=\"$escalator_id\"/>
+</create_task>
+EOF
 }
 
 =back
@@ -297,6 +352,8 @@ sub startTask {
 =head1 AUTHOR
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
