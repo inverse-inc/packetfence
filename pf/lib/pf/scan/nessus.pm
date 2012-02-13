@@ -91,8 +91,12 @@ sub startScan {
     close( $infile_fh );
 
     # the scan
-    $logger->info("executing $nessusRcHome /opt/nessus/bin/nessus -q -V -x --dot-nessus $nessus_clientfile --policy-name $nessus_clientpolicy $host $port $user <password> --target-file $infileName $outfileName");
-    my $output = pf_run("$nessusRcHome /opt/nessus/bin/nessus -q -V -x --dot-nessus $nessus_clientfile --policy-name $nessus_clientpolicy $host $port $user $pass --target-file $infileName $outfileName 2>&1");
+    my $cmd = 
+        "$nessusRcHome /opt/nessus/bin/nessus -q -V -x --dot-nessus $nessus_clientfile " 
+        . "--policy-name $nessus_clientpolicy $host $port $user $pass --target-file $infileName $outfileName 2>&1"
+    ;
+    $logger->info("executing $cmd");
+    my $output = pf_run($cmd);
     unlink($infileName);
 
     # did it went well?

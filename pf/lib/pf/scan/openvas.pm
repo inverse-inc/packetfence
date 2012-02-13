@@ -44,11 +44,11 @@ sub createEscalator {
     my $command = _get_escalator_string($name, $callback);
 
     $logger->info("Creating a new scan escalator named $name");
-    $logger->debug("Scan escalator creation command: $command");
 
-    my $output = pf_run("omp -h $this->{_host} -p $this->{_port} -u $this->{_user} -w $this->{_pass} -X '$command'");
-
-    $logger->debug("Scan escalator creation output: $output");
+    my $cmd = "omp -h $this->{_host} -p $this->{_port} -u $this->{_user} -w $this->{_pass} -X '$command'";
+    $logger->trace("Scan escalator creation command: $cmd");
+    my $output = pf_run($cmd);
+    $logger->trace("Scan escalator creation output: $output");
 
     # Fetch response status and escalator id
     $output =~ /<create_escalator_response\ 
@@ -81,11 +81,11 @@ sub createTarget {
     my $command = "<create_target><name>$name</name><hosts>$target_host</hosts></create_target>";
 
     $logger->info("Creating a new scan target named $name for host $target_host");
-    $logger->debug("Scan target creation command: $command");
 
-    my $output = pf_run("omp -h $this->{_host} -p $this->{_port} -u $this->{_user} -w $this->{_pass} -X '$command'");
-
-    $logger->debug("Scan target creation output: $output");
+    my $cmd = "omp -h $this->{_host} -p $this->{_port} -u $this->{_user} -w $this->{_pass} -X '$command'";
+    $logger->trace("Scan target creation command: $cmd");
+    my $output = pf_run($cmd);
+    $logger->trace("Scan target creation output: $output");
 
     # Fetch response status and target id
     $output =~ /<create_target_response\ 
@@ -121,11 +121,11 @@ sub createTask {
     my $command = _get_task_string($name, $config_id, $target_id, $escalator_id);
 
     $logger->info("Creating a new scan task named $name");
-    $logger->debug("Scan task creation command: $command");
 
-    my $output = pf_run("omp -h $this->{_host} -p $this->{_port} -u $this->{_user} -w $this->{_pass} -X '$command'");
-
-    $logger->debug("Scan task creation output: $output");
+    my $cmd = "omp -h $this->{_host} -p $this->{_port} -u $this->{_user} -w $this->{_pass} -X '$command'";
+    $logger->trace("Scan task creation command: $cmd");
+    my $output = pf_run($cmd);
+    $logger->trace("Scan task creation output: $output");
 
     # Fetch response status and task id
     $output =~ /<create_task_response\ 
@@ -161,9 +161,10 @@ sub getReport {
 
     $logger->info("Getting the scan report for the finished scan task named $name");
 
-    my $output = pf_run("omp -h $this->{_host} -p $this->{_port} -u $this->{_user} -w $this->{_pass} -X '$command'");
-
-    $logger->debug("Report fetching output: $output");
+    my $cmd = "omp -h $this->{_host} -p $this->{_port} -u $this->{_user} -w $this->{_pass} -X '$command'";
+    $logger->trace("Report fetching command: $cmd");
+    my $output = pf_run($cmd);
+    $logger->trace("Report fetching output: $output");
 
     # Fetch response status and report
     $output =~ /<get_reports_response\ 
@@ -256,11 +257,11 @@ sub startTask {
     my $command = "<start_task task_id=\"$task_id\"/>";
 
     $logger->info("Starting scan task named $name");
-    $logger->debug("Scan task starting command: $command");
 
-    my $output = pf_run("omp -h $this->{_host} -p $this->{_port} -u $this->{_user} -w $this->{_pass} -X '$command'");
-
-    $logger->debug("Scan task starting output: $output");
+    my $cmd = "omp -h $this->{_host} -p $this->{_port} -u $this->{_user} -w $this->{_pass} -X '$command'";
+    $logger->trace("Scan task starting command: $cmd");
+    my $output = pf_run($cmd);
+    $logger->trace("Scan task starting output: $output");
 
     # Fetch response status and report id
     $output =~ /<start_task_response\ 
