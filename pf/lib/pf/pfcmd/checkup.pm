@@ -94,6 +94,8 @@ sub sanity_check {
         ids_snort();
     }
 
+    scan() if ( lc($Config{'scan'}{'engine'}) ne "none" );
+    scan_openvas() if ( lc($Config{'scan'}{'engine'}) eq "openvas" );
     database();
     network();
     inline() if (is_inline_enforcement_enabled());
@@ -242,6 +244,44 @@ sub ids_snort {
         add_problem( $FATAL, "snort binary is not executable / does not exist!" );
     }
 
+}
+
+=item scan
+
+Validation related to the vulnerability scanning engine option.
+
+=cut
+sub scan {
+    # Check if the configuration provided scan engine is instanciable
+    my $scan_engine = 'pf::scan::' . $Config{'scan'}{'engine'};
+
+    try {
+        my %scan_attributes = (
+            _host       => $Config{'scan'}{'host'},
+            _user       => $Config{'scan'}{'user'},
+            _pass       => $Config{'scan'}{'pass'},
+        );
+        my $scan = $scan_engine->new(%scan_attributes);
+    } catch {
+        add_problem( $FATAL, "SCAN: Incorrect scan engine declared in pf.conf" );
+    };
+}
+
+=item scan_openvas
+
+Validation related to the OpenVas vulnerability scanning engine usage.
+
+=cut
+sub scan_openvas {
+    # Check if the mandatory informations are provided in the config file
+    if ( !$Config{'scan'}{'openvas_configid'} ) {
+        add_problem($FATAL, "SCAN: The use of OpenVas as a scanning engine require to fill the " . 
+                "scan.openvas_configid field in pf.conf" );
+    }
+    if ( !$Config{'scan'}{'openvas_reportformatid'} ) {
+        add_problem($FATAL, "SCAN: The use of OpenVas as a scanning engine require to fill the " . 
+                "scan.openvas_reportformatid field in pf.conf");
+    }
 }
 
 =item network
