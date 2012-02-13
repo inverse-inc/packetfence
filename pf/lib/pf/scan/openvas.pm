@@ -113,15 +113,13 @@ sub createTask {
     my ( $this )  = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $name            = $this->{_id};
-    my $config_id       = $Config{'scan'}{'openvas_configid'};
-    my $target_id       = $this->{_targetId};
-    my $escalator_id    = $this->{_escalatorId};
-
-    my $command = _get_task_string($name, $config_id, $target_id, $escalator_id);
+    my $name = $this->{_id};
 
     $logger->info("Creating a new scan task named $name");
 
+    my $command = _get_task_string(
+        $name, $Config{'scan'}{'openvas_configid'}, $this->{_targetId}, $this->{_escalatorId}
+    );
     my $cmd = "omp -h $this->{_host} -p $this->{_port} -u $this->{_user} -w $this->{_pass} -X '$command'";
     $logger->trace("Scan task creation command: $cmd");
     my $output = pf_run($cmd);
