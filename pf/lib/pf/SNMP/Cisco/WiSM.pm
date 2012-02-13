@@ -31,10 +31,10 @@ With IOS 6.0.182.0 we had intermittent issues with DHCP. Disabling DHCP Proxy re
 With IOS 7.0.116 and 7.0.220, the SNMP deassociation is not working if using WPA2.  It only works if using an
 Open SSID.
 
-=item H-REAP limitations
+=item flexconnect (H-REAP) limitations
 
-Access Points in Hybrid Remote Edge Access Point (H-REAP) mode don't support 
-RADIUS dynamic VLAN assignments (AAA override).
+Access Points in Hybrid Remote Edge Access Point (H-REAP) mode, now known as 
+flexconnect, don't support RADIUS dynamic VLAN assignments (AAA override).
 
 Customer specific work-arounds are possible. For example: per-SSID registration, auto-registration, etc.
 
