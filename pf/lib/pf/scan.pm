@@ -203,6 +203,12 @@ sub run_scan {
     my $id      = generate_id($epoch, $host_mac);
     my $type    = lc($Config{'scan'}{'engine'});
 
+    # Check the scan engine
+    # If set to "none" we abort the scan
+    if ( $type eq "none" ) {
+        return;
+    }
+
     my %scan_attributes = (
             _id         => $id,
             _host       => $Config{'scan'}{'host'},
@@ -240,11 +246,13 @@ sub update_scan_infos {
 
 =head1 AUTHOR
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 Derek Wuelfrath <dwuelfrath@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2009-2012 Inverse inc.
 
 =head1 LICENSE
 
