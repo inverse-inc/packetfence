@@ -51,7 +51,7 @@ sub new {
     }, $class;
 
     foreach my $value ( keys %data ) {
-        $this->{$value} = $data{$value};
+        $this->{'_' . $value} = $data{$value};
     }
 
     # Nessus specific attributes

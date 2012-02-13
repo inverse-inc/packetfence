@@ -634,3 +634,6 @@ msgstr ""
 
 msgid "Click to install your generated wireless profile."
 msgstr ""
+
+msgid "The scan report code provided is invalid or expired."
+msgstr ""

@@ -24,7 +24,7 @@ BEGIN {
     our (@ISA, @EXPORT, @EXPORT_OK);
     @ISA = qw(Exporter);
     @EXPORT = qw(run_scan $SCAN_VID $scan_db_prepared scan_db_prepare);
-    @EXPORT_OK = qw(scan_insert_sql scan_select_sql scan_update_sql);
+    @EXPORT_OK = qw(scan_insert_sql scan_select_sql scan_update_status_sql);
 }
 
 use pf::config;
@@ -67,7 +67,7 @@ sub scan_db_prepare {
             WHERE id = ?
     ]);
 
-    $scan_statements->{'scan_update_sql'} = get_db_handle()->prepare(qq[
+    $scan_statements->{'scan_update_status_sql'} = get_db_handle()->prepare(qq[
             UPDATE scan SET
                 status = ?, report_id =?
             WHERE id = ?
@@ -161,21 +161,30 @@ sub parse_scan_report {
     }
 }
 
-=item retrieve_scan_infos
+=item retrieve_scan
 
-Retrieve scan informations from the database using the scan id
+Retrieve a scan object populated from the database using the scan id
 
 =cut
-sub retrieve_scan_infos {
+sub retrieve_scan {
     my ( $scan_id ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $query = db_query_execute(SCAN, $scan_statements, 'scan_select_sql', $scan_id) || return 0;
     my $scan_infos = $query->fetchrow_hashref();
-
     $query->finish();
 
-    return $scan_infos;
+    if (!defined($scan_infos) || $scan_infos->{'id'} ne $scan_id) {
+        $logger->warn("Invalid scan object requested");
+        return;
+    }
+
+    my %scan_args;
+    # here we map parameters expected by the object (left) with fields of the database (right)
+    @scan_args{qw(id scanIp scanMac reportId status)} = @scan_infos{qw(id ip mac report_id status)};
+    my $scan = instantiate_scan_engine($scan_infos->{'type'}, %scan_args);
+
+    return $scan;
 }
 
 =item run_scan
@@ -210,12 +219,12 @@ sub run_scan {
     }
 
     my %scan_attributes = (
-            _id         => $id,
-            _host       => $Config{'scan'}{'host'},
-            _user       => $Config{'scan'}{'user'},
-            _pass       => $Config{'scan'}{'pass'},
-            _scanIp     => $host_ip,
-            _scanMac    => $host_mac,
+            id         => $id,
+            host       => $Config{'scan'}{'host'},
+            user       => $Config{'scan'}{'user'},
+            pass       => $Config{'scan'}{'pass'},
+            scanIp     => $host_ip,
+            scanMac    => $host_mac,
     );
 
     db_query_execute(SCAN, $scan_statements, 'scan_insert_sql',
@@ -238,7 +247,7 @@ sub update_scan_infos {
     my ( $scan_id, $status, $report_id ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    db_query_execute(SCAN, $scan_statements, 'scan_update_sql', $status, $report_id, $scan_id) || return 0;
+    db_query_execute(SCAN, $scan_statements, 'scan_update_status_sql', $status, $report_id, $scan_id) || return 0;
 }
 
 
@@ -249,6 +258,8 @@ sub update_scan_infos {
 Olivier Bilodeau <obilodeau@inverse.ca>
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 

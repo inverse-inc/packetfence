@@ -26,6 +26,9 @@ Readonly our $RESPONSE_OK                   => 200;
 Readonly our $RESPONSE_RESOURCE_CREATED     => 201;
 Readonly our $RESPONSE_REQUEST_SUBMITTED    => 202;
 
+Readonly our $STATUS_STARTED => 'started';
+Readonly our $STATUS_CLOSED => 'closed';
+
 =head1 SUBROUTINES
 
 =over
@@ -142,13 +145,15 @@ sub createTask {
     return;
 }
 
-=item getReport
+=item processReport
 
-Retrieve the report associated with a task once the associated task is done
+Retrieve the report associated with a task. 
 When retrieving a report in other format than XML, we received the report in base64 encoding.
 
+Report processing's duty is to ensure that the proper violation will be triggered.
+
 =cut
-sub getReport {
+sub processReport {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -176,8 +181,18 @@ sub getReport {
         $logger->info("Report id $report_id successfully fetched for task named $name");
         $this->{_report} = decode_base64($2);   # we need to decode the base64 report
 
-        my $status      = "closed";
-        pf::scan::update_scan_infos($name, $status, $report_id);
+        # We need to manipulate the scan report.
+        # Each line of the scan report is pushed into an array
+        my @scan_report = split("\n", $this->{'_report'});
+        pf::scan::parse_scan_report(\@scan_report,
+            'type' => 'openvas',
+            'ip' => $this->{'_scanIp'},
+            'mac' => $this->{'_scanMac'},
+            'report_id' => $report_id,
+        );
+
+        $this->{'_status'} = $STATUS_CLOSED;
+        pf::scan::update_scan_infos($name, $this->{'status'}, $report_id);
 
         return $TRUE;
     }
@@ -212,10 +227,11 @@ sub new {
             '_escalatorId'      => undef,
             '_taskId'           => undef,
             '_reportId'         => undef,
+            '_status'           => undef,
     }, $class;
 
     foreach my $value ( keys %data ) {
-        $this->{$value} = $data{$value};
+        $this->{'_' . $value} = $data{$value};
     }
 
     # OpenVAS specific attributes
@@ -272,9 +288,8 @@ sub startTask {
         $logger->info("Scan task named $name successfully started");
         $this->{_reportId} = $2;
 
-        my $report_id   = $this->{_reportId};
-        my $status      = "started";
-        pf::scan::update_scan_infos($name, $status, $report_id);
+        $this->{'_status'} = $STATUS_STARTED;
+        pf::scan::update_scan_infos($name, $STATUS_STARTED, $this->{_reportId});
 
         return $TRUE;
     }
