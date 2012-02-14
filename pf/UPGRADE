@@ -12,6 +12,14 @@ o Upgrading from a version prior to <release>:
     deprecates the previous technique to disable this feature (set modes=).
     It is enabled by default so when upgrading make sure to disable it if you
     don't want to allow self-registered guests.
+ 
+    - new trigger types (no more scan type)
+    The trigger type "Scan" has been removed to leave place to two new types 
+    (Nessus and Openvas). Due to that change, modification to existing 
+    violations.conf is required to change all existing "Scan" type to "Nessus".
+    You can run the following command that will do the job. Make sure to backup
+    your existing violations.conf file.
+    /usr/bin/perl -p -i -e "s/Scan::/Nessus::/ig" /usr/local/pf/conf/violations.conf
 
     - CLI (telnet/ssh) behavior change regarding privileged access
     The feature to detect privileged access when using CLI access has been
@@ -27,14 +35,6 @@ o Upgrading from a version prior to <release>:
 
     - pfcmd exit status
     Some exit status of pfcmd changed regarding the config sub-command.
-
-    - new trigger types (no more scan type)
-    The trigger type "Scan" has been removed to leave place to two new types 
-    (Nessus and Openvas). Due to that change, modification to existing 
-    violations.conf is required to change all existing "Scan" type to "Nessus".
-    You can run the following command that will do the job. Make sure to backup
-    your existing violations.conf file.
-    /usr/bin/perl -p -i -e "s/Scan::/Nessus::/g" /usr/local/pf/conf/violations.conf
 
 o Upgrading from a version prior to 3.1.0:
 
