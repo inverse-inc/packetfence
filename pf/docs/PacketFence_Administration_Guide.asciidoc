@@ -70,7 +70,7 @@ Detection of abnormal network activities::
   Abnormal network activities (computer virus, worms, spyware, traffic denied by establishment policy, etc.) can be detected using local and remote http://www.snort.org/[Snort] sensors. Beyond simple detection, PacketFence layers its own alerting and suppression mechanism on each alert type. A set of configurable actions for each violation is available to administrators.
 
 Proactive vulnerability scans::
-  http://www.nessus.org/nessus/[Nessus] vulnerability scans can be performed upon registration, scheduled or on an ad-hoc basis. PacketFence correlates the Nessus vulnerability ID's of each scan to the violation configuration, returning content specific web pages about which vulnerability the host may have.
+  Either http://www.nessus.org/nessus/[Nessus] or http://www.openvas.org[OpenVAS] vulnerability scans can be performed upon registration, scheduled or on an ad-hoc basis. PacketFence correlates the scan engine vulnerability ID's of each scan to the violation configuration, returning content specific web pages about which vulnerability the host may have.
 
 Isolation of problematic devices::
   PacketFence supports several isolation techniques, including VLAN isolation with VoIP support (even in heterogeneous environments) for multiple switch vendors.
@@ -1303,7 +1303,7 @@ The user is redirected to this URL after he re-enabled his network access on the
 `enable`:: 
 If enable is set to 'N', this violation is disabled and no additional violations of this type will be added.
 `trigger`:: 
-`Method to reference external detection methods such as Detect (SNORT), Scan (Nessus), OS (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC address class), etc. Trigger is formatted as follows `type`::ID`. in this example 2000032 is the snort id and 11808 is the Nessus plugin number. The Snort ID does NOT have to match the violation ID.
+`Method to reference external detection methods such as Detect (SNORT), Nessus, OpenVAS, OS (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC address class), etc. Trigger is formatted as follows `type`::ID`. in this example 2000032 is the snort id and 11808 is the Nessus plugin number. The Snort ID does NOT have to match the violation ID.
 `actions`:: 
 This is the list of actions that will be executed on a violation addition. The actions can be:
   `log`;; Log a message to the file specified in `[alerting].log`
@@ -1366,55 +1366,90 @@ Enable Limewire violation in `/usr/local/pf/conf/violations.conf` and configure 
   max_enable=1
   trigger=Detect::2001808
 
-Conformity Scan (Nessus)
-~~~~~~~~~~~~~~~~~~~~~~~~
+Conformity Scan
+~~~~~~~~~~~~~~~
+
+PacketFence supports either Nessus or OpenVAS as a scanning engine for conformity scan.
 
 Installation
 ^^^^^^^^^^^^
+
+Nessus
+++++++
 
 Please visit http://www.nessus.org/download/ to download and install the Nessus package for your operating system. You will also need to register for the HomeFeed (or the ProfessionalFeed) in order to get the plugins.
 
 After you installed Nessus, follow the Nessus documentation for the configuration of the Nessus Server, and to create a user for PacketFence.
 
+OpenVAS
++++++++
+
+Please visit http://www.openvas.org/install-packages.html#openvas4_centos_atomic to configure the correct repository to be able to install the latest OpenVAS scanning engine.
+
+Once installed, please make sure to follow the instructions to correctly configure the scanning engine and create a scan configuration that will fit your needs. You'll also need to create a user for PacketFence to be able to communicate with the server.
+
+It is important to get the correct scan config ID and NBE report format ID to populate the parameters in the PacketFence configuration file. The easiest way to get these IDs is by downloading both of the scan configuration and report format from the OpenVAS web gui and retrieve the IDs in the filenames.
+
+For example `report-format-f5c2a364-47d2-4700-b21d-0a7693daddab.xml` gives report format ID `f5c2a364-47d2-4700-b21d-0a7693daddab`.
+
 Configuration
 ^^^^^^^^^^^^^
 
-In order for a given Nessus Scan to generate a violation inside PacketFence, you have to configure two sections:
+In order for the conformity scan to correctly work with PacketFence (communication and generate violations inside PacketFence), you must configure two sections:
 
 pf.conf
 +++++++
 
 Adjust the settings in the scan section like the following:
+Don't hesitate to refer to the `documentation.conf` file for any help on these paramaters and which of them to configure.
+
+Using Nessus:
 
   [scan]
-  ssl=enabled
-  pass=userPassword
-  user=nessusUsername
-  port=1241
+  engine=nessus
   host=127.0.0.1
+  nessus_clientfile=basic-policy.nessus
+  nessus_clientpolicy=basic-policy
+  pass=nessusUserPassword
   registration=enabled
-  nessusclient_file=basic-policy.nessus
-  nessusclient_policy=basic-policy
+  user=nessusUsername
+
+Using OpenVAS:
+
+  [scan]
+  engine=openvas
+  host=127.0.0.1
+  openvas_configid=openvasScanConfigId
+  openvas_reportformatid=openvasNBEReportFormatId
+  pass=openvasUserPassword
+  registration=enabled
+  user=openvasUsername
 
 violations.conf
 +++++++++++++++
 
 You need to create a new violation section and have to specify:
 
-  trigger=Scan::<violationId>
+Using Nessus:
 
-Where `violationId` is the ID of the Nessus plugin to check for. Once you have finished the configuration, you need to reload the violation related database contents using:
+  trigger=Nessus::<violationId>
+
+Using OpenVAS:
+
+  trigger=OpenVAS::<violationId>
+
+Where `violationId` is either the ID of the Nessus plugin or the OID of the OpenVAS plugin to check for. Once you have finished the configuration, you need to reload the violation related database contents using:
 
   $ pfcmd reload violations
 
-NOTE: Violations will trigger if the Nessus plugin is higher than a low severity vulnerability.
+NOTE: Violations will trigger if the plugin is higher than a low severity vulnerability.
 
 NessusClient Integration
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 New since 1.8.3 is the ability to directly use the nessus command line client and `dot nessus` files. The `NessusClient` file format is documented at http://www.nessus.org/documentation/dot_nessus_file_format.pdf and can easily be generated using the official Nessus Client.
 
-You'll have to save your `dot nessus` file in the `/usr/local/pf/conf/nessus/` directory and specify its filename using the `scan.nessusclient_file` configuration setting. You'll also have to specify your policy name using the `scan.nessusclient_policy` setting. After that, you can execute your scan using:
+You'll have to save your `dot nessus` file in the `/usr/local/pf/conf/nessus/` directory and specify its filename using the `scan.nessus_clientfile` configuration setting. You'll also have to specify your policy name using the `scan.nessus_clientpolicy` setting. After that, you can execute your scan using:
 
   $ pfcmd schedule now <IP>
 
