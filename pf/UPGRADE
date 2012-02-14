@@ -38,6 +38,13 @@ o Upgrading from a version prior to <release>:
 
 o Upgrading from a version prior to 3.1.0:
 
+    - New repository required for RHEL 5 / CentOS 5: EPEL
+    Extra Packages for Enterprise Linux (EPEL) is a repository provided by 
+    the Fedora project that we now rely upon. RHEL 6 / CentOS 6 users have it
+    already installed per installation instructions. Here's how to install it:
+    wget http://download.fedoraproject.org/pub/epel/5/i386/epel-release-5-4.noarch.rpm
+    rpm -i epel-release-5-4.noarch.rpm
+
     - rogue DHCP server violation
     The rogue DHCP server violation now needs a trigger in order to work. Make
     sure you have trigger=internal::1100010 under the violation entry. Users
@@ -50,6 +57,11 @@ o Upgrading from a version prior to 3.1.0:
     and routed VLANs (given that you forward your DHCP traffic to it). Make 
     sure that your dhcpservers configuration listing all authorized DHCP is 
     up to date.
+
+    - FreeRADIUS configuration changes
+    Due to the new SoH feature, you might need to reinstall the PacketFence 
+    FreeRADIUS package.
+    yum reinstall --enablerepo=PacketFence packetfence-freeradius2
 
     - Database schema update
     SoH support and the MAC violation improvements required database changes. 
