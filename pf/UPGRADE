@@ -7,6 +7,11 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <release>:
 
+    - Database schema update
+    OpenVAS support required database changes. Make sure you run the 
+    following to update your schema even if you don't use OpenVAS support:
+    mysql -u root -p pf -v < db/upgrade-3.1.0-3.2.0.sql
+
     - Configuration changes related to OpenVAS integration
     With the addition of OpenVAS as a scanning engine, we made changes to the
     default configuration. People using nessus scan right now should be 
