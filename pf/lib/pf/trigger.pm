@@ -187,7 +187,8 @@ sub parse_triggers {
 
     my $triggers_ref = [];
     foreach my $trigger ( split( /\s*,\s*/, $violation_triggers ) ) {   
-        die("Invalid trigger id: $trigger") if ($trigger !~ /^\w+::[\d\.-]+$/);
+        die("Invalid trigger id: $trigger") if ($trigger !~ /^\w+::[\d\.-]+$/ 
+             && $trigger !~ /^\w+::(IN|OUT|TOT)(\d+)(B|KB|MB|GB|TB)(\d+)?($TIME_MODIFIER_RE)?$/);
         my ( $type, $tid ) = split( /::/, $trigger );
         $type = lc($type);
 

@@ -47,6 +47,7 @@ BEGIN {
         get_vlan_from_int
         get_translatable_time
         pretty_bandwidth
+        unpretty_bandwidth
         pf_run
     );
 }
@@ -998,6 +999,31 @@ sub pretty_bandwidth {
     return "$rounded $units[$x]"
 }
 
+=item unpretty_bandwidth
+
+Returns the bandwidth in bytes depending of the incombing unit
+
+=cut
+
+sub unpretty_bandwidth {
+    my ($bw,$unit) = @_;
+    
+    # Check what units we have, and multiple by 1024 exponent something
+    if ($unit eq 'PB') {
+        return $bw * 1024**5;
+    } elsif ($unit eq 'TB') {
+        return $bw * 1024**4;
+    } elsif ($unit eq 'GB') {
+        return $bw * 1024**3;
+    } elsif ($unit eq 'MB') {
+        return $bw * 1024**2;
+    } elsif ($unit eq 'KB') {
+        return $bw * 1024;
+    }
+    
+    # Not matching, We assume we have bytes then
+    return $bw;
+}
 
 =item pf_run
 

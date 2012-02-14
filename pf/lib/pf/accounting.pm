@@ -25,6 +25,7 @@ BEGIN {
     @ISA = qw(Exporter);
     @EXPORT = qw($accounting_db_prepared accounting_db_prepare);
     @EXPORT_OK = qw(
+        acct_maintenance
         node_accounting_current_sessionid
         node_accounting_dynauth_attr
         node_accounting_exist
@@ -45,6 +46,7 @@ use pf::config;
 use pf::db;
 use pf::violation;
 use pf::util;
+use pf::trigger;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $accounting_db_prepared = 0;
@@ -165,10 +167,94 @@ sub accounting_db_prepare {
         LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
         WHERE YEAR(timestamp) = YEAR(CURRENT_DATE()) AND callingstationid = ?;
     ]);
+    
+    $accounting_statements->{'acct_maintenance_bw_inbound'} = get_db_handle()->prepare(qq[
+        SELECT radacct.callingstationid, 
+                SUM(radacct_log.acctinputoctets) AS acctinput,
+                SUM(radacct_log.acctoutputoctets) AS acctoutput,
+                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
+        FROM radacct_log
+        RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+        GROUP BY radacct.callingstationid
+        HAVING acctinput >= ?;
+    ]);
+
+    $accounting_statements->{'acct_maintenance_bw_outbound'} = get_db_handle()->prepare(qq[
+        SELECT radacct.callingstationid,
+                SUM(radacct_log.acctinputoctets) AS acctinput,
+                SUM(radacct_log.acctoutputoctets) AS acctoutput,
+                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
+        FROM radacct_log
+        RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+        GROUP BY radacct.callingstationid
+        HAVING acctoutput >= ?
+    ]);
+
+    $accounting_statements->{'acct_maintenance_bw_total'} = get_db_handle()->prepare(qq[
+        SELECT radacct.callingstationid,
+                SUM(radacct_log.acctinputoctets) AS acctinput,
+                SUM(radacct_log.acctoutputoctets) AS acctoutput,
+                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
+        FROM radacct_log
+        RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+        GROUP BY radacct.callingstationid
+        HAVING accttotal >= ?
+    ]);
 
     $accounting_db_prepared = 1;
 }
 
+=tiem acct_maintenance
+
+Check in the accounting tables for potential bandwidth abuse
+
+=cut
+
+sub acct_maintenance {
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    $logger->info("getting violations triggers for accounting cleanup");
+
+    my @triggers = trigger_view_type("accounting");
+
+    foreach my $acct_triggers (@triggers) {
+        my $acct_policy = $acct_triggers->{'tid_start'};
+        if ($acct_policy =~ /(IN|OUT|TOT)(\d+)(B|KB|MB|GB|TB)(\d+)?($TIME_MODIFIER_RE)?/) {
+
+            my $direction = $1;
+            my $bwInBytes = pf::util::unpretty_bandwidth($2,$3);
+
+            my $intervalInSeconds;
+            if (defined($4) && defined($5)) {
+                $intervalInSeconds = pf::config::normalize_time($4.$5);
+            } else {
+                #This should bring us in 1695, and PF was not yet existing :)
+                #The funny thing is that it's the birth year of Jean De La Fontaine.. aight
+                #no one cares :)
+                $intervalInSeconds = 9999999999;
+            }
+
+            my @results;
+            if ($direction eq "IN") {
+                @results = node_acct_maintenance_bw_inbound($intervalInSeconds,$bwInBytes);
+            } elsif ($direction eq "OUT") {
+                @results = node_acct_maintenance_bw_outbound($intervalInSeconds,$bwInBytes);
+            } else {
+                @results = node_acct_maintenance_bw_total($intervalInSeconds,$bwInBytes);
+            }
+            
+            foreach my $mac (@results) {
+                violation_trigger(clean_mac($mac->{'callingstationid'}),$acct_policy,"accounting");
+            }
+        }
+        else {
+            $logger->warn("Invalid trigger for accounting maintenance: $acct_policy");
+        }
+    }
+    return (1);
+}
 
 =item current_sessionid
 
@@ -314,6 +400,31 @@ sub node_accounting_yearly_time {
     my $ref = $query->fetchrow_hashref();
     $query->finish();
     return ($ref);
+}
+
+=item node_acct_maintenance_bw_inbound - get mac that downloaded more bandwidth than they should
+
+=cut
+sub node_acct_maintenance_bw_inbound {
+    my ($intervalSeconds,$bytes) = @_;
+    return db_data(ACCOUNTING, $accounting_statements, 'acct_maintenance_bw_inbound', $intervalSeconds, $bytes );
+}
+
+=item node_acct_maintenance_bw_outbound - get mac that uploaded more bandwidth than they should
+
+=cut
+sub node_acct_maintenance_bw_outbound {
+    my ($intervalSeconds,$bytes) = @_;
+    return db_data(ACCOUNTING, $accounting_statements, 'acct_maintenance_bw_outbound', $intervalSeconds, $bytes );
+
+}
+
+=item node_acct_maintenance_bw_total - get mac that used more bandwidth (IN + OUT) than they should
+
+=cut
+sub node_acct_maintenance_bw_total {
+    my ($intervalSeconds,$bytes) = @_;
+    return db_data(ACCOUNTING, $accounting_statements, 'acct_maintenance_bw_total', $intervalSeconds, $bytes );
 }
 
 sub translate_bw {
