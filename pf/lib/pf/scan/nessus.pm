@@ -72,7 +72,7 @@ sub startScan {
 
     # nessus scan setup
     my $id                  = $this->{_id};
-    my $hostaddr            = $this->{_scanHost};
+    my $hostaddr            = $this->{_scanIp};
     my $mac                 = $this->{_scanMac};
     my $host                = $this->{_host};
     my $port                = $this->{_port};
