@@ -181,7 +181,7 @@ sub retrieve_scan {
 
     my %scan_args;
     # here we map parameters expected by the object (left) with fields of the database (right)
-    @scan_args{qw(id scanIp scanMac reportId status)} = @scan_infos{qw(id ip mac report_id status)};
+    @scan_args{qw(id scanIp scanMac reportId status)} = @$scan_infos{qw(id ip mac report_id status)};
     my $scan = instantiate_scan_engine($scan_infos->{'type'}, %scan_args);
 
     return $scan;
