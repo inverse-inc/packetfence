@@ -207,7 +207,7 @@ sub accounting_db_prepare {
     $accounting_db_prepared = 1;
 }
 
-=tiem acct_maintenance
+=item acct_maintenance
 
 Check in the accounting tables for potential bandwidth abuse
 
