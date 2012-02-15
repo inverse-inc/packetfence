@@ -148,6 +148,9 @@ Requires: perl(Text::CSV_XS)
 BuildRequires: perl(Test::MockObject), perl(Test::MockModule), perl(Test::Perl::Critic), perl(Test::WWW::Mechanize)
 BuildRequires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception), perl(Test::NoWarnings)
 BuildRequires: perl(Net::UDP)
+#We now need RADIUS as a dependency, version >= 2.1.12
+%{?el5:Requires freeradius2 >= 2.1.12}
+%{?el6:Requires freeradius >= 2.1.12}
 
 %description
 
