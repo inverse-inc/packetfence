@@ -37,6 +37,11 @@ This defeats the reason why we perform de-authentication (to change VLAN or deny
 A client-side workaround exists: disable the PMK Caching on the client.
 However this could (and should in our opinion) be fixed by the vendor.
 
+We made some progress about this lately.  In fact, for the 4.0 version tree, you need 
+to get version 4.0-160 in order to disable the PMK caching at the AP level.  For the
+5.0 version tree, all versions including 5.0-87 are impacted.  Vendor is saying that
+in the 5.1 version, PMK will be disabled by default.  To be confirmed.
+
 =back
 
 =cut

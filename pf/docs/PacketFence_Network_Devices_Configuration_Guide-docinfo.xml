@@ -3,6 +3,12 @@
   <holder>Inverse inc.</holder>
 </copyright>
 <revhistory>
+ <revision>
+    <revnumber>2.0.2</revnumber>
+    <date>2012-02-15</date>
+    <authorinitials>FG</authorinitials>
+    <revremark>Adding documentation for Meru PMK caching</revremark>
+  </revision>
   <revision>
     <revnumber>2.0.1</revnumber>
     <date>2012-01-25</date>

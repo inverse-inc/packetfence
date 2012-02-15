@@ -2029,6 +2029,20 @@ Meru Controllers (MC)
 In this section, we cover the basic configuration of the Meru wireless controller for PacketFence via the web GUI.
 
 [float]
+Disable PMK Caching
++++++++++++++++++++
+
+If you are running a WPA2 SSID, you may need to disable PMK caching in order to avoid deauthentication issues.  This is true if you are running AP 300s using any 5.0 versions including 5.0-87, or any versions below 4.0-160.
+
+Here are the commands to run to disable the PMK caching at the AP level.  First, login the AP, and run this command to see which radios are broadcasting your SSID.
+   vap display
+
+Second, disable the PMK caching on those radios.
+   radio pmkid radio00 disable
+
+You can also add those commands to the AP bootscript.  Contact your Meru support representative for that part.
+
+[float]
 VLAN Definition
 +++++++++++++++
 
