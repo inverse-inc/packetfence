@@ -78,8 +78,8 @@ sub generate_radiusd_mainconf {
 
     $tags{'template'}    = "$conf_dir/radiusd/radiusd.conf";
     $tags{'install_dir'} = $install_dir;
-    %tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
-    %tags{'arch'} = `uname -m` eq "x86_64" ? "64" : "";
+    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+    $tags{'arch'} = `uname -m` eq "x86_64" ? "64" : "";
     
     parse_template( \%tags, "$conf_dir/radiusd/radiusd.conf", "$install_dir/var/radiusd/radiusd.conf" );    
 }
