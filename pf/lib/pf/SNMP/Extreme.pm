@@ -6,11 +6,23 @@ pf::SNMP::Extreme - Object oriented module to parse SNMP traps and manage Extrem
 
 =head1 STATUS
 
-Supports 
- linkUp / linkDown mode (Extreme XOS 12.2 and up)
- port-security (called MAC Address Lockdown) with 12.4.3
+=head2 Supports 
 
-Developed and tested on Summit X250e-48p running on image version 12.4.2.17
+=over
+
+=item linkUp / linkDown mode (Extreme XOS 12.2 and up)
+
+=item port-security (called MAC Address Lockdown) 
+
+Requires XOS 12.7.
+
+Developed and tested on Summit X250e-48p running on image version 12.4.2.17 (never released).
+
+=item MAC-Authentication / 802.1X 
+
+This was tested on XOS 12.4.2.17 and probably worked on earlier versions.
+
+=back
 
 =head1 BUGS AND LIMITATIONS
  
@@ -29,7 +41,7 @@ SNMPv3 support was not tested.
 
 =item Port-security mode (MAC Address Lockdown)
 
-Known to work with ExtremeXOS image version 12.4.3
+Known to work with ExtremeXOS image version 12.7 and later
 
 Relies on XML calls which require web interface to be enabled
 
