@@ -6,6 +6,12 @@ Notes on upgrading from an older release
 ----------------------------------------
 
 o Upgrading from a version prior to <release>:
+    - RADIUS configuration is now in the PacketFence directory.  You may need
+    to import custom configuration from /etc/raddb to var/radiusd.  Note that
+    we now generates radiusd.conf, eap.conf, and sql.conf based on templates in
+    conf/radiusd.
+    
+o Upgrading from a version prior to <release>:
 
     - New pf.conf configuration flag: registration.guests_self_registration
     This parameter allows to enable or disable guest self-registration. It 

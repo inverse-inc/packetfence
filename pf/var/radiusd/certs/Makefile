@@ -1,7 +1,7 @@
 ######################################################################
 #
-#	Make file to be installed in /etc/raddb/certs to enable
-#	the easy creation of certificates.
+#	Make file to be installed in /usr/local/pf/var/radiusd/certs
+#       to enable the easy creation of certificates.
 #
 #	See the README file in this directory for more information.
 #	
