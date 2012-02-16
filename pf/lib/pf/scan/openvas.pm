@@ -312,7 +312,7 @@ sub _generateCallback {
         $callback .= "http://127.0.0.1/scan/report/$name";
     }
     else {
-        $callback .= "https://$Config{general}{hostname}.$Config{general}{domain}:1443/scan/report/$name";
+        $callback .= "https://$Config{general}{hostname}.$Config{general}{domain}:$Config{ports}{admin}/scan/report/$name";
     }
     $callback .= "<name>URL</name></data></method>";
 
