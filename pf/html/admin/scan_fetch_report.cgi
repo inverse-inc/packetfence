@@ -14,6 +14,7 @@ use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
 use Log::Log4perl;
 use POSIX;
+use Try::Tiny;
 
 use lib '/usr/local/pf/lib';
 
@@ -41,17 +42,24 @@ foreach my $param($cgi->param()) {
 # Check if there's a scan id in url, otherwise no one has nothing to do here.
 exit(0) if ( !defined($params{'scanid'}) );
 
-# Fetching proper scan object
-my $scan = pf::scan::retrieve_scan($params{'scanid'});
-if ( !defined($scan) ) {
+try {
 
-    $logger->info("Request to fetch a scan report with unrecognized or expired scan id: $params{'scanid'}");
-    pf::web::generate_error_page($cgi, $session, "The scan report code provided is invalid or expired.");
-    exit(0);
-}
+    # Fetching proper scan object
+    my $scan = pf::scan::retrieve_scan($params{'scanid'});
+    if ( defined($scan) && $scan->isNotExpired() ) {
+        $logger->info("Received a hit to get OpenVAS scanning engine report for scan id $params{'scanid'}");
+        $scan->processReport();
+    }
+    else {
+        $logger->info("Request to fetch a scan report with unrecognized or expired scan id: $params{'scanid'}");
+        pf::web::generate_error_page($cgi, $session, "The scan report code provided is invalid or expired.");
+    }
 
-$logger->info("Received a hit to get OpenVAS scanning engine report for scan id $params{'scanid'}");
-$scan->processReport();
+} catch {
+    chomp($_);
+    $logger->error("Caught exception while processing OpenVAS scan callback: $_");
+    exit(2);
+};
 
 exit(0);
 

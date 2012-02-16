@@ -19,6 +19,8 @@ use Log::Log4perl;
 use Parse::Nessus::NBE;
 use Readonly;
 
+use overload '""' => "toString";
+
 BEGIN {
     use Exporter ();
     our (@ISA, @EXPORT, @EXPORT_OK);
@@ -39,11 +41,11 @@ Readonly our $SCAN_VID          => 1200001;
 Readonly our $SEVERITY_HOLE     => 1;
 Readonly our $SEVERITY_WARNING  => 2;
 Readonly our $SEVERITY_INFO     => 3;
+Readonly our $STATUS_NEW => 'new';
+Readonly our $STATUS_STARTED => 'started';
+Readonly our $STATUS_CLOSED => 'closed';
 
-
-=head1 DATABASE HANDLING
-
-=cut
+# DATABASE HANDLING
 use constant SCAN       => 'scan';
 our $scan_db_prepared   = 0;
 our $scan_statements    = {};
@@ -67,7 +69,7 @@ sub scan_db_prepare {
             WHERE id = ?
     ]);
 
-    $scan_statements->{'scan_update_status_sql'} = get_db_handle()->prepare(qq[
+    $scan_statements->{'scan_update_sql'} = get_db_handle()->prepare(qq[
             UPDATE scan SET
                 status = ?, report_id =?
             WHERE id = ?
@@ -100,21 +102,25 @@ sub instantiate_scan_engine {
 
 =item parse_scan_report
 
-Parse a scan report and trigger violations if needed
+Parse a scan report from the scan object and trigger violations if needed
 
 =cut
 sub parse_scan_report {
-    my ( $scan_report, %args ) = @_;
+    my ( $scan ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my ($ip, $mac, $type, $report_id) = @args{'ip', 'mac', 'type', 'report_id'};
-    $logger->debug("Scan report to analyze from $type: $report_id"); 
+    $logger->debug("Scan report to analyze. Scan id: $scan"); 
 
+    my $scan_report = $scan->getReport();
     my @count_vulns = (
         Parse::Nessus::NBE::nstatvulns(@$scan_report, $SEVERITY_HOLE),
         Parse::Nessus::NBE::nstatvulns(@$scan_report, $SEVERITY_WARNING),
         Parse::Nessus::NBE::nstatvulns(@$scan_report, $SEVERITY_INFO),
     );
+
+    # FIXME we shouldn't poke directly into the scan object, we should rely on accessors
+    # we are slicing out the parameters out of the $scan objectified hashref
+    my ($mac, $ip, $type) = @{$scan}{qw(_scanMac _scanIp _type)};
 
     # Trigger a violation for each vulnerability
     my $failed_scan = 0;    
@@ -123,7 +129,7 @@ sub parse_scan_report {
         my ( $trigger_id, $number ) = split(/\|/, $current_vuln);
 
         $logger->info("Calling violation_trigger for ip: $ip, mac: $mac, type: $type, trigger: $trigger_id");
-        my $violation_added = violation_trigger($mac, $trigger_id, 'scan', (ip => $ip));
+        my $violation_added = violation_trigger($mac, $trigger_id, $type, (ip => $ip));
 
         # If a violation has been added, consider the scan failed
         if ( $violation_added ) {
@@ -149,7 +155,7 @@ sub parse_scan_report {
             # FIXME shouldn't we focus on return code instead of output? pretty sure this is broken
             if ( $grace == -1 ) {
                 $logger->warn("Problem trying to close scan violation");
-                return 0;
+                return;
             }
 
         # Scan completed but a violation has been found
@@ -159,6 +165,9 @@ sub parse_scan_report {
             violation_modify($violation_id, (ticket_ref => ""));
         }
     }
+
+    $scan->setStatus($STATUS_CLOSED);
+    $scan->statusReportSyncToDb();
 }
 
 =item retrieve_scan
@@ -181,7 +190,7 @@ sub retrieve_scan {
 
     my %scan_args;
     # here we map parameters expected by the object (left) with fields of the database (right)
-    @scan_args{qw(id scanIp scanMac reportId status)} = @$scan_infos{qw(id ip mac report_id status)};
+    @scan_args{qw(id scanIp scanMac reportId status type)} = @$scan_infos{qw(id ip mac report_id status type)};
     my $scan = instantiate_scan_engine($scan_infos->{'type'}, %scan_args);
 
     return $scan;
@@ -202,7 +211,7 @@ sub run_scan {
     # Resolve mac address
     my $host_mac = ip2mac($host_ip);
     if ( !$host_mac ) {
-        $logger->warn("Unable to fin MAC address for the scanned host $host_ip. Scan aborted.");
+        $logger->warn("Unable to find MAC address for the scanned host $host_ip. Scan aborted.");
         return;
     }
 
@@ -220,15 +229,13 @@ sub run_scan {
 
     my %scan_attributes = (
             id         => $id,
-            host       => $Config{'scan'}{'host'},
-            user       => $Config{'scan'}{'user'},
-            pass       => $Config{'scan'}{'pass'},
             scanIp     => $host_ip,
             scanMac    => $host_mac,
+            type       => $type,
     );
 
     db_query_execute(SCAN, $scan_statements, 'scan_insert_sql',
-            $id, $host_ip, $host_mac, $type, $date, '0000-00-00 00:00:00', 'new', 'NULL'
+            $id, $host_ip, $host_mac, $type, $date, '0000-00-00 00:00:00', $STATUS_NEW, 'NULL'
     ) || return 0;
 
     # Instantiate the new scan object
@@ -238,24 +245,60 @@ sub run_scan {
     $scan->startScan();
 }
 
-=item update_scan_infos
+=back
 
-Update the database informations of a scan using the scan id
+=head1 METHODS
+
+We are also a lean base class for pf::scan::*.
+
+=over
+
+=item statusReportSyncToDb
+
+Update the status and reportId of the scan in the database.
 
 =cut
-sub update_scan_infos {
-    my ( $scan_id, $status, $report_id ) = @_;
+sub statusReportSyncToDb {
+    my ( $self ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    db_query_execute(SCAN, $scan_statements, 'scan_update_status_sql', $status, $report_id, $scan_id) || return 0;
+    db_query_execute(SCAN, $scan_statements, 'scan_update_sql', 
+        $self->{'_status'}, $self->{'_reportId'}, $self->{'_id'}
+    ) || return 0;
+    return $TRUE;
 }
 
+=item isNotExpired
+
+Returns true or false based on wether scan is considered expired or not.
+
+This basically means can we still apply the result of a scan to a node or was it already applied.
+
+=cut
+sub isNotExpired {
+    my ($self) = @_;
+    return ($self->{'_status'} eq $STATUS_STARTED);
+}
+
+sub setStatus {
+    my ($self, $status) = @_;
+    $self->{'_status'} = $status;
+    return $TRUE;
+}
+
+sub getReport {
+    my ($self) = @_;
+    return $self->{'_report'};
+}
+
+sub toString {
+    my ($self) = @_;
+    return $self->{'_id'};
+}
 
 =back
 
 =head1 AUTHOR
-
-Olivier Bilodeau <obilodeau@inverse.ca>
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
 

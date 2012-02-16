@@ -18,6 +18,8 @@ use warnings;
 use Log::Log4perl;
 use Readonly;
 
+use base ('pf::scan');
+
 use pf::config;
 use pf::scan;
 use pf::util;
@@ -39,15 +41,17 @@ sub new {
 
     my $this = bless {
             '_id'       => undef,
-            '_host'     => undef,
+            '_host'     => $Config{'scan'}{'host'},
             '_port'     => undef,
-            '_user'     => undef,
-            '_pass'     => undef,
+            '_user'     => $Config{'scan'}{'user'},
+            '_pass'     => $Config{'scan'}{'pass'},
             '_scanIp'   => undef,
             '_scanMac'  => undef,
             '_report'   => undef,
             '_file'     => undef,
             '_policy'   => undef,
+            '_type'     => undef,
+            '_status'   => undef,
     }, $class;
 
     foreach my $value ( keys %data ) {
@@ -96,6 +100,8 @@ sub startScan {
         . "--policy-name $nessus_clientpolicy $host $port $user $pass --target-file $infileName $outfileName 2>&1"
     ;
     $logger->info("executing $cmd");
+    $this->{'_status'} = $pf::scan::STATUS_STARTED;
+    $this->statusReportSyncToDb();
     my $output = pf_run($cmd);
     unlink($infileName);
 
@@ -109,16 +115,13 @@ sub startScan {
     # Preparing and parsing output file
     chmod 0644, $outfileName;
     open( $infile_fh, '<', $outfileName);
-    my @nessusdata = <$infile_fh>;
+
+    # slurp the whole file in arrayref
+    $this->{'_report'} = [ <$infile_fh> ];
+
     close( $infile_fh );
 
-    pf::scan::parse_scan_report(
-        \@nessusdata,
-        type => "nessus",
-        ip => $hostaddr,
-        mac => $mac,
-        report_id => $outfileName,
-    );
+    pf::scan::parse_scan_report($this);
 }
 
 =back

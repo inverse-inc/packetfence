@@ -432,7 +432,7 @@ openvas_configid=
 # scan.openvas_reportformatid
 #
 # ID of the .NBE report format on the OpenVAS server
-openvas_reportformatid=
+openvas_reportformatid=f5c2a364-47d2-4700-b21d-0a7693daddab
 
 [database]
 #

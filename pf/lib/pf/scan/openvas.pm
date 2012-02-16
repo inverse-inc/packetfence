@@ -19,6 +19,8 @@ use Log::Log4perl;
 use MIME::Base64;
 use Readonly;
 
+use base ('pf::scan');
+
 use pf::config;
 use pf::util;
 
@@ -26,10 +28,7 @@ Readonly our $RESPONSE_OK                   => 200;
 Readonly our $RESPONSE_RESOURCE_CREATED     => 201;
 Readonly our $RESPONSE_REQUEST_SUBMITTED    => 202;
 
-Readonly our $STATUS_STARTED => 'started';
-Readonly our $STATUS_CLOSED => 'closed';
-
-=head1 SUBROUTINES
+=head1 METHODS 
 
 =over
 
@@ -51,18 +50,19 @@ sub createEscalator {
     my $cmd = "omp -h $this->{_host} -p $this->{_port} -u $this->{_user} -w $this->{_pass} -X '$command'";
     $logger->trace("Scan escalator creation command: $cmd");
     my $output = pf_run($cmd);
+    chomp($output);
     $logger->trace("Scan escalator creation output: $output");
 
     # Fetch response status and escalator id
-    $output =~ /<create_escalator_response\ 
+    my ($response, $escalator_id) = ($output =~ /<create_escalator_response\ 
             status="([0-9]+)"\      # status code
-            id="([a-zA-Z0-9\-]*)"   # escalator id
-            /x;
+            id="([a-zA-Z0-9\-]+)"   # escalator id
+            /x);
 
     # Scan escalator successfully created
-    if ( $1 eq $RESPONSE_RESOURCE_CREATED ) {
-        $logger->info("Scan escalator named $name successfully created with id: $2");
-        $this->{_escalatorId} = $2;
+    if ( defined($response) && $response eq $RESPONSE_RESOURCE_CREATED ) {
+        $logger->info("Scan escalator named $name successfully created with id: $escalator_id");
+        $this->{_escalatorId} = $escalator_id;
         return $TRUE;
     }
 
@@ -88,18 +88,19 @@ sub createTarget {
     my $cmd = "omp -h $this->{_host} -p $this->{_port} -u $this->{_user} -w $this->{_pass} -X '$command'";
     $logger->trace("Scan target creation command: $cmd");
     my $output = pf_run($cmd);
+    chomp($output);
     $logger->trace("Scan target creation output: $output");
 
     # Fetch response status and target id
-    $output =~ /<create_target_response\ 
+    my ($response, $target_id) = ($output =~ /<create_target_response\ 
             status="([0-9]+)"\      # status code
-            id="([a-zA-Z0-9\-]*)"   # task id
-            /x;
+            id="([a-zA-Z0-9\-]+)"   # task id
+            /x);
 
     # Scan target successfully created
-    if ( $1 eq $RESPONSE_RESOURCE_CREATED ) {
-        $logger->info("Scan target named $name successfully created with id: $2");
-        $this->{_targetId} = $2;
+    if ( defined($response) && $response eq $RESPONSE_RESOURCE_CREATED ) {
+        $logger->info("Scan target named $name successfully created with id: $target_id");
+        $this->{_targetId} = $target_id;
         return $TRUE;
     }
 
@@ -126,18 +127,19 @@ sub createTask {
     my $cmd = "omp -h $this->{_host} -p $this->{_port} -u $this->{_user} -w $this->{_pass} -X '$command'";
     $logger->trace("Scan task creation command: $cmd");
     my $output = pf_run($cmd);
+    chomp($output);
     $logger->trace("Scan task creation output: $output");
 
     # Fetch response status and task id
-    $output =~ /<create_task_response\ 
+    my ($response, $task_id) = ($output =~ /<create_task_response\ 
             status="([0-9]+)"\      # status code
             id="([a-zA-Z0-9\-]*)"   # task id
-            /x;
+            /x);
 
     # Scan task successfully created
-    if ( $1 eq $RESPONSE_RESOURCE_CREATED ) {
-        $logger->info("Scan task named $name successfully created with id: $2");
-        $this->{_taskId} = $2;
+    if ( defined($response) && $response eq $RESPONSE_RESOURCE_CREATED ) {
+        $logger->info("Scan task named $name successfully created with id: $task_id");
+        $this->{_taskId} = $task_id;
         return $TRUE;
     }
 
@@ -167,32 +169,25 @@ sub processReport {
     my $cmd = "omp -h $this->{_host} -p $this->{_port} -u $this->{_user} -w $this->{_pass} -X '$command'";
     $logger->trace("Report fetching command: $cmd");
     my $output = pf_run($cmd);
+    chomp($output);
     $logger->trace("Report fetching output: $output");
 
     # Fetch response status and report
-    $output =~ /<get_reports_response\ 
+    my ($response, $raw_report) = ($output =~ /<get_reports_response\ 
             status="([0-9]+)"       # status code
             [^\<]+[\<][^\>]+[\>]    # get to the report
-            ([a-zA-Z0-9\=]*)        # report base64 encoded
-            /x;
+            ([a-zA-Z0-9\=]+)        # report base64 encoded
+            /x);
 
     # Scan report successfully fetched
-    if ( $1 eq $RESPONSE_OK ) {
+    if ( defined($response) && $response eq $RESPONSE_OK && defined($raw_report) ) {
         $logger->info("Report id $report_id successfully fetched for task named $name");
-        $this->{_report} = decode_base64($2);   # we need to decode the base64 report
+        $this->{_report} = decode_base64($raw_report);   # we need to decode the base64 report
 
         # We need to manipulate the scan report.
-        # Each line of the scan report is pushed into an array
-        my @scan_report = split("\n", $this->{'_report'});
-        pf::scan::parse_scan_report(\@scan_report,
-            'type' => 'openvas',
-            'ip' => $this->{'_scanIp'},
-            'mac' => $this->{'_scanMac'},
-            'report_id' => $report_id,
-        );
-
-        $this->{'_status'} = $STATUS_CLOSED;
-        pf::scan::update_scan_infos($name, $this->{'status'}, $report_id);
+        # Each line of the scan report is pushed into an arrayref
+        $this->{'_report'} = [ split("\n", $this->{'_report'}) ];
+        pf::scan::parse_scan_report($this);
 
         return $TRUE;
     }
@@ -214,10 +209,10 @@ sub new {
 
     my $this = bless {
             '_id'               => undef,
-            '_host'             => undef,
+            '_host'             => $Config{'scan'}{'host'},
             '_port'             => undef,
-            '_user'             => undef,
-            '_pass'             => undef,
+            '_user'             => $Config{'scan'}{'user'},
+            '_pass'             => $Config{'scan'}{'pass'},
             '_scanIp'           => undef,
             '_scanMac'          => undef,
             '_report'           => undef,
@@ -228,6 +223,7 @@ sub new {
             '_taskId'           => undef,
             '_reportId'         => undef,
             '_status'           => undef,
+            '_type'             => undef,
     }, $class;
 
     foreach my $value ( keys %data ) {
@@ -275,22 +271,21 @@ sub startTask {
     my $cmd = "omp -h $this->{_host} -p $this->{_port} -u $this->{_user} -w $this->{_pass} -X '$command'";
     $logger->trace("Scan task starting command: $cmd");
     my $output = pf_run($cmd);
+    chomp($output);
     $logger->trace("Scan task starting output: $output");
 
     # Fetch response status and report id
-    $output =~ /<start_task_response\ 
+    my ($response, $report_id) = ($output =~ /<start_task_response\ 
             status="([0-9]+)"[^\<]+[\<] # status code
-            report_id>([a-zA-Z0-9\-]*)  # report id
-            /x;
+            report_id>([a-zA-Z0-9\-]+)  # report id
+            /x);
 
     # Scan task successfully started
-    if ( $1 eq $RESPONSE_REQUEST_SUBMITTED ) {
+    if ( defined($response) && $response eq $RESPONSE_REQUEST_SUBMITTED ) {
         $logger->info("Scan task named $name successfully started");
-        $this->{_reportId} = $2;
-
-        $this->{'_status'} = $STATUS_STARTED;
-        pf::scan::update_scan_infos($name, $STATUS_STARTED, $this->{_reportId});
-
+        $this->{_reportId} = $report_id;
+        $this->{'_status'} = $pf::scan::STATUS_STARTED;
+        $this->statusReportSyncToDb();
         return $TRUE;
     }
 
@@ -304,7 +299,7 @@ Escalator callback needs to be different if we are running OpenVAS locally or re
 
 Local: plain HTTP on loopback (127.0.0.1)
 
-Remote: HTTPS with fully qualified domain name
+Remote: HTTPS with fully qualified domain name on admin interface
 
 =cut
 sub _generateCallback {
@@ -317,13 +312,19 @@ sub _generateCallback {
         $callback .= "http://127.0.0.1/scan/report/$name";
     }
     else {
-        $callback .= "https://$Config{general}{hostname}.$Config{general}{domain}/scan/report/$name";
+        $callback .= "https://$Config{general}{hostname}.$Config{general}{domain}:1443/scan/report/$name";
     }
     $callback .= "<name>URL</name></data></method>";
 
     $logger->debug("Generated OpenVAS callback is: $callback");
     return $callback;
 }
+
+=back
+
+=head1 SUBROUTINES
+
+=over
 
 =item _get_escalator_string
 
