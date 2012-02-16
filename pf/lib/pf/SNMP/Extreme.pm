@@ -6,11 +6,23 @@ pf::SNMP::Extreme - Object oriented module to parse SNMP traps and manage Extrem
 
 =head1 STATUS
 
-Supports 
- linkUp / linkDown mode (Extreme XOS 12.2 and up)
- port-security (called MAC Address Lockdown) with 12.4.3
+=head2 Supports 
 
-Developed and tested on Summit X250e-48p running on image version 12.4.2.17
+=over
+
+=item linkUp / linkDown mode (Extreme XOS 12.2 and up)
+
+=item port-security (called MAC Address Lockdown) 
+
+Requires XOS 12.7.
+
+Developed and tested on Summit X250e-48p running on image version 12.4.2.17 (never released).
+
+=item MAC-Authentication / 802.1X 
+
+This was tested on XOS 12.4.2.17 and probably worked on earlier versions.
+
+=back
 
 =head1 BUGS AND LIMITATIONS
  
@@ -29,7 +41,7 @@ SNMPv3 support was not tested.
 
 =item Port-security mode (MAC Address Lockdown)
 
-Known to work with ExtremeXOS image version 12.4.3
+Known to work with ExtremeXOS image version 12.7 and later
 
 Relies on XML calls which require web interface to be enabled
 
@@ -1392,6 +1404,12 @@ DEPRECATED by SNMP version. See _setPortSecurityByIfIndex.
 
 On this switch, the lock-learning is a per-vlan attribute so it performs it on the current untagged VLAN of the ifIndex
 
+Warning: this method should _never_ be called in a thread. 
+Net::Appliance::Session is not thread safe: L<http://www.cpanforum.com/threads/6909/>
+Experienced mostly when using SSH.
+
+Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
+
 =cut
 sub _setPortSecurityByIfIndexCLI {
     my ( $this, $ifIndex, $enable ) = @_;
@@ -1478,7 +1496,9 @@ Regis Balzard <rbalzard@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009,2010 Inverse inc.
+Copyright (C) 2009, 2010, 2012 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

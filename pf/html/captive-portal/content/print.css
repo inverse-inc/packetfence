@@ -18,13 +18,21 @@ div#about hr {
 div#about h1 {
   font-size: 1.5em;
 }
-div.input div.note {
+div.input div.note,
+div.input.aup h2 {
   border: 0;
   border-top: 1px solid #000;
   font-style: italic;
   font-weight: normal;
   margin-top: 20px;
   padding-top: 10px;
+}
+div.input.aup h2 {
+  margin-top: 10px;
+}
+div.input.aup {
+  font-size: 0.6em;
+  font-weight: normal;
 }
 div.input.submit,
 div#footer,

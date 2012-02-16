@@ -9,6 +9,8 @@ asciidoc
 * Documentation: http://www.methods.co.nz/asciidoc/
 * Useful cheatsheet: http://powerman.name/doc/asciidoc
 
+Minimum version 8.6.2 is required to produce the PDF Guides.
+
 Convert to PDF 
 ~~~~~~~~~~~~~~
 
@@ -16,11 +18,16 @@ Here's the example with the Admin guide.
 
 . First asciidoc to docbook
 
-  $ asciidoc -a docinfo2 -b docbook -d book -o docs/docbook/pf-admin-guide.docbook docs/docbook/pf-admin-guide.asciidoc
+  $ asciidoc -a docinfo2 -b docbook -d book \
+    -o docs/docbook/PacketFence_Administration_Guide.docbook \
+    docs/PacketFence_Administration_Guide.asciidoc
 
 . Then render the PDF from the docbook
 
-  $ fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-admin-guide.docbook -xsl docs/docbook/xsl/packetfence-fo.xsl -pdf PacketFence_Administration_Guide.pdf
+  $ fop -c docs/fonts/fop-config.xml \
+    -xml docs/docbook/PacketFence_Administration_Guide.docbook \
+    -xsl docs/docbook/xsl/packetfence-fo.xsl \
+    -pdf docs/PacketFence_Administration_Guide.pdf
 
 
 Docbook
@@ -150,6 +157,14 @@ Getting an error similar to:
 Try patching your `/usr/bin/fop` with `docs/docbook/fop-centos6.patch`:
 
   patch -p0 < docs/docbook/fop-centos6.patch
+
+
+CentOS 6 / RHEL6: Output is not the same
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You are probably not running asciidoc >= 8.6.2. Install from rpmforge-extras:
+
+  yum install --enablerepo=rpmforge-extras asciidoc
 
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

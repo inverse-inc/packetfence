@@ -59,9 +59,9 @@ foreach my $param($cgi->param()) {
   $params{$param} = $cgi->param($param);
 }
 
-# if no self registered modes are enabled, redirect to portal entrance
+# if self registration is not enabled, redirect to portal entrance
 print $cgi->redirect("/captive-portal?destination_url=".uri_escape($destination_url))
-    if (!$Config{'guests_self_registration'}{'modes'});
+    if (isdisabled($Config{'registration'}{'guests_self_registration'}));
 
 # Correct POST
 if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {

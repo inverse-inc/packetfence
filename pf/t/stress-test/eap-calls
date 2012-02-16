@@ -1,0 +1,85 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use threads;
+use Try::Tiny;
+
+my $RADIUS_SERVER = '127.0.0.1';
+my $CLIENT_IP = '127.0.0.1';
+
+my $nb_threads = $ARGV[0];
+my $nb_requests_per_thread = $ARGV[1];
+
+die "EAP calls: please specify the number of threads and the number of requests per thread on the command line" if (!($nb_threads && $nb_requests_per_thread));
+
+print "about to launch $nb_threads threads sending each $nb_requests_per_thread radius calls...\n";
+
+# worker launcher
+my @threads;
+for (my $i = 0; $i<$nb_threads; $i++) {
+
+  # create the thread
+  push @threads, threads->create( \&radius_requests, $i);
+}
+
+# wait for everyone
+foreach my $thread (@threads) {
+  $thread->join();
+}
+
+sub radius_requests {
+
+  my ($tid) = @_;
+  my $fake_mac_for_thread = sprintf( "%04x", int(rand(10000)) );
+
+  for(my $i=0; $i<$nb_requests_per_thread; $i++) {
+  
+    my $fake_client_mac = sprintf("%04x", $i % 65536); # generates fake last 4 digit of a MAC address based on $i
+
+    print "thread $tid connection #$i: about to launch eapol_test with mac aabb.$fake_mac_for_thread.$fake_client_mac\n";
+    my $mac = "aabb" . $fake_mac_for_thread . $fake_client_mac;
+    # inject proper : to obtain aa:bb:xx:...
+    $mac =~ s/([a-f0-9]{2})(?!$)/$1:/g;
+    my $cmd = "eapol_test -c eap-client.conf -s qwerty -M $mac -a $RADIUS_SERVER -A $CLIENT_IP";
+
+    try {
+      my $result = `$cmd`;
+      if ($? != 0 || $result !~ /SUCCESS/) {
+        print ("warning thread $tid connection #$i: something went wrong with the radius call. cmd: $cmd / result: $result");
+      }
+    }
+    catch {
+      print ("warning thread $tid connection #$i mac aabb.ccdd.$fake_client_mac NOT successful: $_\n");
+    };
+  }
+}
+
+=head1 AUTHOR
+
+Olivier Bilodeau <obilodeau@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2009, 2010, 2012 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+

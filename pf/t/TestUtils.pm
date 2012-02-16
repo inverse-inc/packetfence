@@ -34,7 +34,7 @@ use pf::config;
 
 # Tests are categorized here
 our @cli_tests = qw(
-    pfcmd.t pfdhcplistener.t
+    pfcmd.t pfcmd_vlan.t pfdhcplistener.t
 );
 
 our @compile_tests = qw(
@@ -46,7 +46,7 @@ our @dao_tests = qw(
 );
 
 our @integration_tests = qw(
-    integration.t integration/radius.t integration/captive-portal.t
+    integration.t integration/radius.t integration/captive-portal.t integration/pfcmd.t
 );
 
 our @quality_tests = qw(

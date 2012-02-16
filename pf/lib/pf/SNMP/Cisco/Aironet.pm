@@ -13,14 +13,34 @@ to access SNMP enabled Aironet access points.
 
 =head1 BUGS AND LIMITATIONS
 
+=over
+
+=item VLAN sharing between SSIDs
+
 The same VLAN cannot be shared between two SSIDs
 
+=item SSID Identification
+
 The Vendor Specific Attributes (VSA) needs to be enabled for SSID identification to work.
+
   radius-server vsa send authentication
+
+=item CLI (telnet or ssh) deassociation
 
 Wireless deauthentication (deassociation) uses the CLI (telnet or ssh) which is expensive (doesn't scale very well).
 
+=item PSK and MAC-Authentication
+
 Using Pre-Shared Key and MAC filtering (RADIUS MAC Authentication) is not possible on these devices.
+
+=item flexconnect (H-REAP) limitations
+
+Access Points in Hybrid Remote Edge Access Point (H-REAP) mode, now known as 
+flexconnect, don't support RADIUS dynamic VLAN assignments (AAA override).
+
+Customer specific work-arounds are possible. For example: per-SSID registration, auto-registration, etc.
+
+=back
 
 =cut
 
@@ -223,7 +243,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2011 Inverse inc.
+Copyright (C) 2007-2012 Inverse inc.
 
 =head1 LICENSE
 

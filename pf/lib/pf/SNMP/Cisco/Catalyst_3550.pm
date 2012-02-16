@@ -43,6 +43,38 @@ use Net::SNMP;
 
 use base ('pf::SNMP::Cisco::Catalyst_2960');
 
+=head1 SUBROUTINES
+
+=over
+
+=item NasPortToIfIndex
+
+Translate RADIUS NAS-Port into switch's ifIndex.
+This switch's NAS-Port behavior is different than the 2960.
+
+We considered changing the dependency chain to the 2950 but we think we 
+have less chances of breaking things if we just do the proper translation 
+here because we would have heard if port-security was broken anyway. That 
+said, if you hear about MAC-Auth / 802.1x regressions consider making this 
+method do per-IOS translations.
+
+=cut
+sub NasPortToIfIndex {
+    my ($this, $NAS_port) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    # 50017 is ifIndex 17
+    if ($NAS_port =~ s/^500//) {
+        return $NAS_port;
+    } else {
+        $logger->warn("Unknown NAS-Port format. ifIndex translation could have failed. "
+            ."VLAN re-assignment and switch/port accounting will be affected.");
+    }
+    return $NAS_port;
+}
+
+=back
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
@@ -51,7 +83,7 @@ Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2011 Inverse inc.
+Copyright (C) 2006-2012 Inverse inc.
 
 =head1 LICENSE
 

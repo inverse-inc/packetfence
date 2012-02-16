@@ -140,7 +140,10 @@ Requires: perl(Authen::Krb5::Simple)
 # Required for importation feature
 Requires: perl(Text::CSV)
 Requires: perl(Text::CSV_XS)
-
+# Required to build documentation
+# See docs/docbook/README.asciidoc for more info about installing requirements.
+# TODO fop on EL5 is actually xmlgraphics-fop
+%{?el6:BuildRequires: asciidoc >= 8.6.2, fop, libxslt, docbook-style-xsl, xalan-j2 }
 # Required for testing
 BuildRequires: perl(Test::MockObject), perl(Test::MockModule), perl(Test::Perl::Critic), perl(Test::WWW::Mechanize)
 BuildRequires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception), perl(Test::NoWarnings)
@@ -191,22 +194,32 @@ make FreeRADIUS properly interact with PacketFence
 mv pfcmd_pregrammar.pm lib/pf/pfcmd/
 
 # generate translations
-/usr/bin/msgfmt conf/locale/de/LC_MESSAGES/packetfence.po
-mv packetfence.mo conf/locale/de/LC_MESSAGES/
-/usr/bin/msgfmt conf/locale/en/LC_MESSAGES/packetfence.po
-mv packetfence.mo conf/locale/en/LC_MESSAGES/
-/usr/bin/msgfmt conf/locale/es/LC_MESSAGES/packetfence.po
-mv packetfence.mo conf/locale/es/LC_MESSAGES/
-/usr/bin/msgfmt conf/locale/fr/LC_MESSAGES/packetfence.po
-mv packetfence.mo conf/locale/fr/LC_MESSAGES/
-/usr/bin/msgfmt conf/locale/he_IL/LC_MESSAGES/packetfence.po
-mv packetfence.mo conf/locale/he_IL/LC_MESSAGES/
-/usr/bin/msgfmt conf/locale/it/LC_MESSAGES/packetfence.po
-mv packetfence.mo conf/locale/it/LC_MESSAGES/
-/usr/bin/msgfmt conf/locale/nl/LC_MESSAGES/packetfence.po
-mv packetfence.mo conf/locale/nl/LC_MESSAGES/
-/usr/bin/msgfmt conf/locale/pt_BR/LC_MESSAGES/packetfence.po
-mv packetfence.mo conf/locale/pt_BR/LC_MESSAGES/
+for LANG in de en es fr he_IL it nl pt_BR; do 
+    /usr/bin/msgfmt conf/locale/$LANG/LC_MESSAGES/packetfence.po
+    mv packetfence.mo conf/locale/$LANG/LC_MESSAGES/
+done
+
+# RHEL6 only: generating PDF guides
+%if 0%{?el6}
+# generating custom XSL for titlepage
+xsltproc -o docs/docbook/xsl/titlepage-fo.xsl \
+    /usr/share/sgml/docbook/xsl-stylesheets/template/titlepage.xsl \
+    docs/docbook/xsl/titlepage-fo.xml
+# admin, network device config and ZEN install guides
+for GUIDE in PacketFence_Administration_Guide PacketFence_Network_Devices_Configuration_Guide PacketFenceZEN_Installation_Guide; do 
+asciidoc -a docinfo2 -b docbook -d book \
+    -o docs/docbook/$GUIDE.docbook \
+    docs/$GUIDE.asciidoc
+fop -c docs/fonts/fop-config.xml \
+    -xml docs/docbook/$GUIDE.docbook \
+    -xsl docs/docbook/xsl/packetfence-fo.xsl \
+    -pdf docs/$GUIDE.pdf
+done
+# devel guide (docbook only)
+fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-devel-guide.xml \
+    -xsl docs/docbook/xsl/packetfence-fo.xsl \
+    -pdf docs/PacketFence_Developers_Guide.pdf
+%endif
 
 %install
 %{__rm} -rf $RPM_BUILD_ROOT
@@ -272,6 +285,7 @@ cp -r configurator.pl $RPM_BUILD_ROOT/usr/local/pf/
 cp -r COPYING $RPM_BUILD_ROOT/usr/local/pf/
 cp -r db $RPM_BUILD_ROOT/usr/local/pf/
 cp -r docs $RPM_BUILD_ROOT/usr/local/pf/
+rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/archives
 rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/docbook
 rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/fonts
 rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/images
@@ -593,8 +607,12 @@ fi
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
 %dir                    /usr/local/pf/docs
-%doc                    /usr/local/pf/docs/*.odt
+%doc                    /usr/local/pf/docs/*.asciidoc
+%{?el6:%doc             /usr/local/pf/docs/*.pdf }
+%doc                    /usr/local/pf/docs/*.xml
 %doc                    /usr/local/pf/docs/fdl-1.2.txt
+%dir                    /usr/local/pf/docs/includes
+%doc                    /usr/local/pf/docs/includes/*.asciidoc
 %dir                    /usr/local/pf/docs/MIB
 %doc                    /usr/local/pf/docs/MIB/Inverse-PacketFence-Notification.mib
 %dir                    /usr/local/pf/html

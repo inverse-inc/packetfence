@@ -187,7 +187,8 @@ sub parse_triggers {
 
     my $triggers_ref = [];
     foreach my $trigger ( split( /\s*,\s*/, $violation_triggers ) ) {   
-        die("Invalid trigger id: $trigger") if ($trigger !~ /^\w+::[\d-]+$/);
+        die("Invalid trigger id: $trigger") if ($trigger !~ /^\w+::[\d\.-]+$/ 
+             && $trigger !~ /^\w+::(IN|OUT|TOT)(\d+)(B|KB|MB|GB|TB)(\d+)?($TIME_MODIFIER_RE)?$/);
         my ( $type, $tid ) = split( /::/, $trigger );
         $type = lc($type);
 
@@ -222,13 +223,15 @@ Dominik Gehl <dgehl@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
+Derek Wuelfrath <dwuelfrath@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009-2011 Inverse inc.
+Copyright (C) 2009-2012 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -246,6 +249,5 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
-
 
 1;

@@ -23,7 +23,43 @@ o Upgrading from a version prior to <release>:
     OpenVAS integration. Should pay attention to some 
     violations.conf.rpmsave /  violations.conf.rpmnew
 
+    - New pf.conf configuration flag: registration.guests_self_registration
+    This parameter allows to enable or disable guest self-registration. It 
+    deprecates the previous technique to disable this feature (set modes=).
+    It is enabled by default so when upgrading make sure to disable it if you
+    don't want to allow self-registered guests.
+ 
+    - new trigger types (no more scan type)
+    The trigger type "Scan" has been removed to leave place to two new types 
+    (Nessus and Openvas). Due to that change, modification to existing 
+    violations.conf is required to change all existing "Scan" type to "Nessus".
+    You can run the following command that will do the job. Make sure to backup
+    your existing violations.conf file.
+    /usr/bin/perl -p -i -e "s/Scan::/Nessus::/ig" /usr/local/pf/conf/violations.conf
+
+    - CLI (telnet/ssh) behavior change regarding privileged access
+    The feature to detect privileged access when using CLI access has been
+    disabled except in the Trapeze module where users are unpriviledged by
+    default. See #1370 for more details. Affected modules: most Cisco 
+    switches with VoIP enabled and floating network devices, Cisco 3500XL, 
+    Cisco ISR 18xx and Cisco WLC 21xx.
+
+    - Cisco Catalyst 3550 MAC-Auth / 802.1X
+    We changed the way we perform NAS-Port to ifIndex translation with this 
+    release. If you use MAC-Auth (Cisco's MAB or 802.1X) and experience *any*
+    regression, please let us know.
+
+    - pfcmd exit status
+    Some exit status of pfcmd changed regarding the config sub-command.
+
 o Upgrading from a version prior to 3.1.0:
+
+    - New repository required for RHEL 5 / CentOS 5: EPEL
+    Extra Packages for Enterprise Linux (EPEL) is a repository provided by 
+    the Fedora project that we now rely upon. RHEL 6 / CentOS 6 users have it
+    already installed per installation instructions. Here's how to install it:
+    wget http://download.fedoraproject.org/pub/epel/5/i386/epel-release-5-4.noarch.rpm
+    rpm -i epel-release-5-4.noarch.rpm
 
     - rogue DHCP server violation
     The rogue DHCP server violation now needs a trigger in order to work. Make
@@ -37,6 +73,11 @@ o Upgrading from a version prior to 3.1.0:
     and routed VLANs (given that you forward your DHCP traffic to it). Make 
     sure that your dhcpservers configuration listing all authorized DHCP is 
     up to date.
+
+    - FreeRADIUS configuration changes
+    Due to the new SoH feature, you might need to reinstall the PacketFence 
+    FreeRADIUS package.
+    yum reinstall --enablerepo=PacketFence packetfence-freeradius2
 
     - Database schema update
     SoH support and the MAC violation improvements required database changes. 

@@ -18,13 +18,31 @@ Version <next version> released on <date>
 Security
  * Reflected Cross-site scripting (XSS) in Web Admin printing system (#1362)
 
+New Hardware Support
+ * Ruckus Wireless Controllers
+
 New Features
  * OpenVAS integration
 
 Enhancements
+ * Migrated our documentation from a binary-only ODT to a flexible asciidoc format
  * Code and tests refactoring
  * Minor documentation update for Aruba Controllers
  * Performance: avoiding some redundant operations on startup
+ * A DHCP listener will run by default on the management interface 
+ * pfcmd_vlan is now able to run arbitrary methods on network devices
+ * Debug statement with the resolved SSID now available to troubleshoot SSID problems live
+ * Added getSwitchLocation to pfcmd_vlan which fetches SNMP sysLocation on switch (#1250, Thanks to Maikel!)
+ * Introduced more aggressive exception-based configuration error handling
+ * Introduced new trigger types (nessus and openvas) and removed the scan type
+ * Added the capability to use dots in trigger id
+ * Added a new config flag: registration.guests_self_registration to control if self-registered guests are enabled (#1361)
+ * Made it easier to override preregistered guest usernames (default is email)
+ * Added a new config flag: vlan.trap_limit to enable/disable the trap limit feature
+ * RADIUS captive portal authentication can now target several RADIUS servers for fault tolerance
+ * Added a multi-threaded EAP test script in t/stress-test/
+ * Performance: node_view query optimized for 100x+ gain in environments where MySQL is taking a lot of CPU
+ * Adding bandwidth violations based on RADIUS accounting information
 
 Bug Fixes
  * Buttons in graphs.php of type ifoctetshistoryswitch, ifoctetshistoryuser, ifoctetshistorymac (#1110)
@@ -34,6 +52,15 @@ Bug Fixes
  * Allow more than one SNMPv3 EngineID per user (#1354)
  * OS and violation classes properly displayed in printer-friendly tables in the Web Admin
  * Disabled config ownership tests because of too many false positives (#1345)
+ * Passthrough doesn't work with domains without an ending slash (#1368)
+ * Returning exit status 0 on command line tools when asked to show help
+ * pfcmd's general help is now sent to standard ouput instead of standard error
+ * Globally disabled privilege detection in hardware requiring Telnet / SSH. All except Trapeze. (#1370)
+ * Thread crash with floating network devices with VoIP through SSH transport (#1369)
+ * MAC-Auth / 802.1X translation fixes for the Cisco Catalyst 3550
+ * No more obscure error message if no management interface is defined in pf.conf
+ * pfcmd exit status now more consistent regarding config
+ * No more "Can't call method "tag" on an undefined value" on broken pf.conf configuration (#1352)
 
 Translations
  * Updated Brazilian Portuguese (pt_BR) Admin guide translation (Thanks to Diego de Souza Lopes)

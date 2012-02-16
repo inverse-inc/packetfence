@@ -56,6 +56,15 @@ SNMPv3 support is broken for link-up / link-down and MAC Notification modes.
 Cisco didn't implement SNMPv3 context support for this IOS line and it is required to query the MAC address table. 
 See #1284.
 
+=item VLAN enforcement on trunk ports through SSH
+
+On trunk ports, we need to clear the MAC address table when performing a 
+VLAN change (however this assumption might need to get revisited). 
+Clearing MAC is done over CLI (Telnet / SSH) and currently under SSH it is 
+broken. Because we don't recommend users securing trunk ports with NAC and
+since Telnet works fine, this is a low priority issue. See #1371 for more 
+details.
+
 =back
 
 =head1 CONFIGURATION AND ENVIRONMENT
@@ -186,6 +195,8 @@ safe:
 
 L<http://www.cpanforum.com/threads/6909/>
 
+Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
+
 =cut
 sub clearMacAddressTable {
     my ( $this, $ifIndex, $vlan ) = @_;
@@ -204,7 +215,8 @@ sub clearMacAddressTable {
             Name     => $this->{_cliUser},
             Password => $this->{_cliPwd}
         );
-        $session->begin_privileged( $this->{_cliEnablePwd} );
+        # Session not already privileged are not supported at this point. See #1370
+        # $session->begin_privileged( $this->{_cliEnablePwd} );
     };
 
     if ($@) {
@@ -455,6 +467,8 @@ safe:
 
 L<http://www.cpanforum.com/threads/6909/>
 
+Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
+
 =cut
 sub ping {
     my ( $this, $ip ) = @_;
@@ -480,11 +494,12 @@ sub ping {
         return 1;
     }
 
-    if ( !$session->begin_privileged( $this->{_cliEnablePwd} ) ) {
-        $logger->error( "ERROR: Cannot enable: " . $session->errmsg );
-        $session->close();
-        return 1;
-    }
+    # Session not already privileged are not supported at this point. See #1370
+    #if ( !$session->begin_privileged( $this->{_cliEnablePwd} ) ) {
+    #    $logger->error( "ERROR: Cannot enable: " . $session->errmsg );
+    #    $session->close();
+    #    return 1;
+    #}
 
     $session->cmd("ping $ip timeout 0 repeat 1");
     $session->close();
@@ -634,12 +649,42 @@ sub setPortSecurityMaxSecureMacAddrByIfIndex {
    return ( defined($result) );
 }
 
-=item setPortSecurityMaxSecureMacAddrVlanByIfIndex 
+=item setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex
 
-Sets the maximum number of MAC addresses on the data vlan for port-security on a port
+Wraps around _setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex by spawning
+a process to call it thus working around bug #1369: thread crash with 
+floating network devices with VoIP through SSH transport
 
 =cut
 sub setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
+    my ( $this, $ifIndex, $maxSecureMac ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
+    # http://www.cpanforum.com/threads/6909
+
+    my $command = 
+        "/usr/local/pf/bin/pfcmd_vlan -switch $this->{_ip} "
+        . "-runSwitchMethod _setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex $ifIndex $maxSecureMac"
+    ;
+
+    $logger->info("spawning a pfcmd_vlan process to set 'switchport port-security maximum $maxSecureMac vlan access'");
+    pf_run($command);
+    return $TRUE;
+}
+
+=item _setPortSecurityMaxSecureMacAddrVlanByIfIndex 
+
+Sets the maximum number of MAC addresses on the data vlan for port-security on a port
+
+Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread safe: 
+
+L<http://www.cpanforum.com/threads/6909/>
+
+Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
+
+=cut
+sub _setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
     my ( $this, $ifIndex, $maxSecureMac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
@@ -671,17 +716,18 @@ sub setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
         $logger->error("Error connecting to " . $this->{'_ip'} . " using ".$this->{_cliTransport} . ". Error: $!");
     }
 
+    # Session not already privileged are not supported at this point. See #1370
     # are we in enabled mode?
-    if (!$session->in_privileged_mode()) {
+    #if (!$session->in_privileged_mode()) {
 
-        # let's try to enable
-        if (!$session->enable($this->{_cliEnablePwd})) {
-            $logger->error("Cannot get into privileged mode on ".$this->{'ip'}.
-                           ". Are you sure you provided enable password in configuration?");
-            $session->close();
-            return 0;
-        }
-    }
+    #    # let's try to enable
+    #    if (!$session->enable($this->{_cliEnablePwd})) {
+    #        $logger->error("Cannot get into privileged mode on ".$this->{'ip'}.
+    #                       ". Are you sure you provided enable password in configuration?");
+    #        $session->close();
+    #        return 0;
+    #    }
+    #}
 
     eval {
         $session->cmd(String => "conf t", Timeout => '10');
@@ -984,7 +1030,9 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2011 Inverse inc.
+Copyright (C) 2006-2012 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

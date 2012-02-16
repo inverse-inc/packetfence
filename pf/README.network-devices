@@ -16,15 +16,16 @@ and that your controller is supported by PacketFence it will work fine.
 Packetfence supports the following wireless controllers:
 - AeroHIVE AP Series
 - Aruba Networks (200, 600 Series, 800, 2400, 3000 Series, 6000)
-- Avaya Wireless controllers
+- Avaya Wireless Controllers
 - Cisco Wireless Services Module (WiSM)
 - Cisco WLC (2106, 4400, 5508)
 - Dlink DWS 3026
-- Extricom EXSW Wireless Switches (controllers)
-- HP ProCurve MSM710 Mobility controller
+- Extricom EXSW Wireless Switches (Controllers)
+- HP ProCurve MSM710 Mobility Controller
 - Meru Networks Wireless controllers
-- Motorola RF Switches (controllers)
-- Trapeze Wireless controllers
+- Motorola RF Switches (Controllers)
+- Ruckus Wireless Controllers
+- Trapeze Wireless Controllers
 - Xirrus WiFi Arrays
 
 Access points
@@ -104,6 +105,8 @@ HP ProCurve MSM              |    --    |    XX    |    --    |
 Meru Networks                |    XX    |    --    |    --    |
 -----------------------------|----------|----------|----------|
 Motorola RF Switches         |    --    |    xx    |    XX    |
+-----------------------------|----------|----------|----------|
+Ruckus Wireless controllers  |    --    |    --    |    XX    |
 -----------------------------|----------|----------|----------|
 Trapeze Wireless controllers |    XX    |    --    |    --    |
 -----------------------------|----------|----------|----------|

@@ -28,10 +28,6 @@ convertToPortSecurity.pl [options]
 This script connects to a specified switch and converts to
 port security.
 
-=head1 AUTHOR
-
-Dominik Gehl <dgehl@inverse.ca>
-
 =cut
 
 use strict;
@@ -164,11 +160,12 @@ if ($@) {
     $logger->logdie( "Can not connect to switch $switch->{'_ip'} using "
             . $switch->{_cliTransport} );
 }
-if ( !$session->in_privileged_mode() ) {
-    if ( !$session->begin_privileged( $switch->{_cliEnablePwd} ) ) {
-        $logger->logdie("Can not enable");
-    }
-}
+# Session not already privileged are not supported at this point. See #1370
+#if ( !$session->in_privileged_mode() ) {
+#    if ( !$session->begin_privileged( $switch->{_cliEnablePwd} ) ) {
+#        $logger->logdie("Can not enable");
+#    }
+#}
 
 #obtain current config
 $logger->debug("obtaining current config");
@@ -397,9 +394,15 @@ sub convertMac {
         . substr( $temp, 15, 2 );
 }
 
+=head1 AUTHOR
+
+Dominik Gehl <dgehl@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2008-2010 Inverse inc.
+Copyright (C) 2008-2010, 2012 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

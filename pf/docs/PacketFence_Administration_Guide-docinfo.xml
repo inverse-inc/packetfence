@@ -4,6 +4,18 @@
 </copyright>
 <revhistory>
   <revision>
+    <revnumber>2.0.2</revnumber>
+    <date>2012-02-14</date>
+    <authorinitials>FG</authorinitials>
+    <revremark>Adding section for accounting violations based on bandwidth</revremark>
+  </revision>
+  <revision>
+    <revnumber>2.0.1</revnumber>
+    <date>2012-01-25</date>
+    <authorinitials>FG, OB</authorinitials>
+    <revremark>Adding basic VoIP documentation, added warning regarding CLI access due to #1370</revremark>
+  </revision>
+  <revision>
     <revnumber>2.0</revnumber>
     <date>2012-01-14</date>
     <authorinitials>OBU</authorinitials>

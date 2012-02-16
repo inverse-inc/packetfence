@@ -162,12 +162,12 @@ if (! exists($cmd_tmp{'grammar'})) {
             exit(1);
         },
         'class' => sub { class(); exit(1); },
-        'config' => sub { config(); exit(1); },
+        'config' => sub { config(); exit(0); },
         'configfiles' => sub { configfiles(); exit(1); },
         'floatingnetworkdeviceconfig' => sub { floatingnetworkdeviceconfig(); exit(1); },
         'fingerprint' => sub { fingerprint(); exit(1); },
         'graph' => sub { graph(); exit(1); },
-        'help' => sub { help(); exit(1); },
+        'help' => sub { help(); exit(0); },
         'history' => sub { history(); exit(1); },
         'ifoctetshistorymac' => sub { ifoctetshistorymac(); exit(1); },
         'ifoctetshistoryswitch' => sub { ifoctetshistoryswitch(); exit(1); },
@@ -272,7 +272,7 @@ sub help {
     require pf::pfcmd::help;
     my $functionName = "pf::pfcmd::help::help_$service";
     if ( !$service || !defined(&$functionName) ) {
-        pf::pfcmd::help::usage();
+        pf::pfcmd::help::usage($TRUE);
     } else {
         ( $pf::pfcmd::help::{ "help_" . $service } )->();
     }
@@ -1564,14 +1564,15 @@ sub config {
     tie %myconfig, 'Config::IniFiles', ( -file => $conf_dir . "/pf.conf" )
         or $logger->logdie("Unable to open pf.conf: $!");
 
-    if ( lc($option) eq 'set' && $param !~ /^.+?=.+?$/ ) {
-        require pf::pfcmd::help;
-        pf::pfcmd::help::usage("config");
-    }
     if ( lc($option) eq 'set' ) {
-        $param =~ /^([^=]+)=(.+)$/;
-        $param = $1;
-        $value = $2;
+        if ($param =~ /^([^=]+)=(.+)?$/) {
+            $param = $1;
+            $value = (defined($2) ? $2 : '');
+        }
+        else {
+            require pf::pfcmd::help;
+            pf::pfcmd::help::usage("config");
+        }
     }
 
     # get rid of spaces (a la [interface X])
@@ -1605,7 +1606,7 @@ sub config {
             print config_entry( $section, $parm );
         } else {
             print "Unknown configuration parameter: $section.$param!\n";
-            exit;
+            exit($pf::pfcmd::ERROR_CONFIG_UNKNOWN_PARAM);
         }
     } elsif ( lc($option) eq 'help' ) {
         if ( defined( $documentation{$param}{'description'} ) ) {
@@ -1622,12 +1623,12 @@ sub config {
             }
         } else {
             print "No help available for $param\n";
-            exit;
+            exit($pf::pfcmd::ERROR_CONFIG_NO_HELP);;
         }
     } elsif ( lc($option) eq 'set' ) {
         if ( !defined( $Config{$section}{$parm} ) ) {
             print "Unknown configuration parameter $section.$parm!\n";
-            exit;
+            exit($pf::pfcmd::ERROR_CONFIG_UNKNOWN_PARAM);
         } else {
 
             #write out the local config only - with the new value.
@@ -1649,9 +1650,6 @@ sub config {
             import pf::configfile;
             configfile_import( $conf_dir . "/pf.conf" );
         }
-    } else {
-        print "Unknown config option!\n";
-        exit;
     }
 }
 
@@ -2455,7 +2453,7 @@ Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2008-2011 Inverse inc.
+Copyright (C) 2008-2012 Inverse inc.
 
 =head1 LICENSE
 

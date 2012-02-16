@@ -8,10 +8,12 @@ PacketFence Network Devices Configuration Guide
 
     This file is part of the PacketFence project.
 
-    See pf-network-device-config-guide-docinfo.xml for authors, copyright and
-    license information.
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
 
 ////
+
+include::includes/global-attributes.asciidoc[]
 
 About this Guide
 ----------------
@@ -133,6 +135,7 @@ PacketFence supports the following devices:
 |                 |Baystack 4550               |Nortel::Baystack4550
 |                 |Baystack 5500 Series        |Nortel::Baystack5500
 |                 |Baystack 5500 w/ 6.x        |Nortel::BayStack5500_6x
+|Ruckus           |Ruckus ZoneDirector         |Ruckus
 |SMC              |TigerStack 6128 L2          |SMC::TS6128L2
 |                 |TigerStack 6224M            |SMC::TS6224M
 |                 |TigerStack 8824-48M         |SMC::TS8800M
@@ -2026,6 +2029,20 @@ Meru Controllers (MC)
 In this section, we cover the basic configuration of the Meru wireless controller for PacketFence via the web GUI.
 
 [float]
+Disable PMK Caching
++++++++++++++++++++
+
+If you are running a WPA2 SSID, you may need to disable PMK caching in order to avoid deauthentication issues.  This is true if you are running AP 300s using any 5.0 versions including 5.0-87, or any versions below 4.0-160.
+
+Here are the commands to run to disable the PMK caching at the AP level.  First, login the AP, and run this command to see which radios are broadcasting your SSID.
+   vap display
+
+Second, disable the PMK caching on those radios.
+   radio pmkid radio00 disable
+
+You can also add those commands to the AP bootscript.  Contact your Meru support representative for that part.
+
+[float]
 VLAN Definition
 +++++++++++++++
 
@@ -2242,6 +2259,49 @@ SNMP Global configuration
 Add the two Read-Only and Read-Write users under *Management Access -> SNMP Access*.
 
 
+Ruckus
+~~~~~~
+
+AAA Servers
++++++++++++
+
+We need to define the RADIUS and RADIUS accounting (mandatory):
+
+Under *Configuration -> AAA Servers*, click on the *Create New* button.  Enter the proper configuration:
+
+* Enter a server name
+* Select either RADIUS or RADIUS accounting as the type
+* Use PAP as the Auth Method
+* Enter the IP addres, and shared secret.
+* Hit OK
+
+Repeat the steps for the RADIUS and RADIUS accounting types.  We need 1 definition for each otherwise RADIUS dynamic authorization won't work.
+
+WLAN Definitions
+++++++++++++++++
+
+Under *Configuration -> WLAN*, click on the *Create New* button.  Enter the proper configuration:
+
+.Open SSID
+* Enter a Name/SSID
+* Select *Standard Usage* as the Type
+* Select *MAC Address* as the authentication type
+* Select *Open* as the encryption method
+* Select the proper RADIUS server as the authentication server
+* Select the proper RADIUS server as the accounting server
+
+NOTE: The Open SSID does *NOT* support dynamic VLAN assignments (Firmware 9.3.0.0.83)
+
+.Secure SSID
+* Enter a Name/SSID
+* Select *Standard Usage* as the Type
+* Select *WPA2* as the authentication type
+* Select *AES* as the encryption method
+* Select the proper RADIUS server as the authentication server
+* Select the proper RADIUS server as the accounting server
+* Check the *Enable Dynamic VLAN* checkbox
+
+
 Trapeze
 ~~~~~~~
 
@@ -2328,10 +2388,10 @@ Enable SNMP Agent on the access point:
 
 Finally, don't forget to create the SSID you want and the proper bindings with the LAN. Open SSID should be configured to perform MAC Authentication and Secure SSID should be configured to perform 802.1X (WPA-Enterprise or WPA2-Enterprise).
 
-include::additional-info.asciidoc[]
+include::includes/additional-info.asciidoc[]
 
-include::commercial-support.asciidoc[]
+include::includes/commercial-support.asciidoc[]
 
-include::license.asciidoc[]
+include::includes/license.asciidoc[]
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

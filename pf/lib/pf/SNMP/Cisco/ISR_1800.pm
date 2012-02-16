@@ -14,6 +14,24 @@ No documented minimum required firmware version. Lowest tested is 12.3(14)YT1.
 
 Developed and tested on Cisco 1811 12.4(15)T6
 
+=head1 BUGS AND LIMITATIONS
+
+Version 12.4(24)T1, 12.4(15)T6 and 12.3(14)YT1 doesn't support VTP MIB or 
+BRIDGE-MIB in a comprehensive way.
+
+Right now it needs CLI access to get the mac address table but that could be 
+resolved in the future with IOS 15.1T. See https://supportforums.cisco.com/message/3009429 
+for details.
+
+SNMPv3 support was not tested.
+
+SSH support is broken. You need to use Telnet.
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+F<conf/switches.conf>
+
+
 =head1 SUBROUTINES
 
 =over
@@ -84,7 +102,7 @@ sub getVlan {
 
     $logger->trace("SNMP get_request for vmVlan: $OID_vmVlan.$ifIndex");
 
-    my $result = $this->{_sessionRead} ->get_request( -varbindlist => ["$OID_vmVlan.$ifIndex"] );
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => ["$OID_vmVlan.$ifIndex"] );
     if (defined($result) 
         && exists($result->{"$OID_vmVlan.$ifIndex"})
         && ($result->{"$OID_vmVlan.$ifIndex"} ne 'noSuchInstance')) {
@@ -99,6 +117,8 @@ sub getVlan {
 =item getMacBridgePortHash
 
 We need to override Cisco's implementation because BRIDGE-MIB is very limited on the 1811
+
+Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
 
 =cut 
 sub getMacBridgePortHash {
@@ -134,17 +154,18 @@ sub getMacBridgePortHash {
         return %macBridgePortHash;
     }
 
+    # Session not already privileged are not supported at this point. See #1370
     # are we in enabled mode?
-    if (!$session->in_privileged_mode()) {
+    #if (!$session->in_privileged_mode()) {
 
-        # let's try to enable
-        if (!$session->enable($this->{_cliEnablePwd})) {
-            $logger->error("Cannot get into privileged mode on ".$this->{'ip'}.
-                           ". Are you sure you provided enable password in configuration?");
-            $session->close();
-            return %macBridgePortHash;
-        }
-    }
+    #    # let's try to enable
+    #    if (!$session->enable($this->{_cliEnablePwd})) {
+    #        $logger->error("Cannot get into privileged mode on ".$this->{'ip'}.
+    #                       ". Are you sure you provided enable password in configuration?");
+    #        $session->close();
+    #        return %macBridgePortHash;
+    #    }
+    #}
 
     # command that allows us to get MAC to ifIndex information 
     my $command = "show mac-address-table";
@@ -217,21 +238,6 @@ sub _getAllIfIndexForThisVlan {
 
 =back
 
-=head1 BUGS AND LIMITATIONS
-
-Version 12.4(24)T1, 12.4(15)T6 and 12.3(14)YT1 doesn't support VTP MIB or 
-BRIDGE-MIB in a comprehensive way.
-
-Right now it needs CLI access to get the mac address table but that could be 
-resolved in the future with IOS 15.1T. See https://supportforums.cisco.com/message/3009429 
-for details.
-
-SNMPv3 support was not tested.
-
-=head1 CONFIGURATION AND ENVIRONMENT
-
-F<conf/switches.conf>
-
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>
@@ -240,7 +246,9 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009, 2010 Inverse inc.
+Copyright (C) 2009, 2010, 2012 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

@@ -52,6 +52,8 @@ safe:
 
 L<http://www.cpanforum.com/threads/6909/>
 
+Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
+
 =cut
 sub deauthenticateMac {
     my ( $this, $mac ) = @_;
@@ -82,7 +84,9 @@ sub deauthenticateMac {
             Name     => $this->{_cliUser},
             Password => $this->{_cliPwd}
         );
-        $session->begin_privileged( $this->{_cliEnablePwd} );
+        # Session not already privileged are not supported at this point. See #1370
+        #$session->begin_privileged( $this->{_cliEnablePwd} );
+        $session->do_privileged_mode(0);
         $session->begin_configure();
     };
 
@@ -197,7 +201,7 @@ Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2011 Inverse inc.
+Copyright (C) 2007-2012 Inverse inc.
 
 =head1 LICENSE
 

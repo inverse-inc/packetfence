@@ -124,6 +124,8 @@ deauthenticate a MAC address from wireless network
 
 Right now te only way to do it is from the CLi (through Telnet or SSH).
 
+Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
+
 =cut
 sub _deauthenticateMacTelnet {
     my ( $this, $mac ) = @_;
@@ -187,7 +189,7 @@ Francois Gaudreault <fgaudreault@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010,2011 Inverse inc.
+Copyright (C) 2010, 2011, 2012 Inverse inc.
 
 =head1 LICENSE
 

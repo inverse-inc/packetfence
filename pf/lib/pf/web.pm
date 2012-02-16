@@ -282,8 +282,7 @@ sub generate_login_page {
         ],
     };
 
-    # if guest modes is anything else than blank it will be true in a boolean context. this is what we want
-    $vars->{'guest_allowed'} = $Config{'guests_self_registration'}{'modes'};
+    $vars->{'guest_allowed'} = isenabled($Config{'registration'}{'guests_self_registration'});
     $vars->{'txt_auth_error'} = i18n($err) if (defined($err)); 
 
     # return login

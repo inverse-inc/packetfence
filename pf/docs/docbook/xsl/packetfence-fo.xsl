@@ -62,7 +62,7 @@
   </xsl:template>
 
   <!-- stylesheet options -->
-  <xsl:param name="title.font.family">Palatino</xsl:param>
+  <xsl:param name="title.font.family">Sorts Mill Goudy</xsl:param>
   <xsl:param name="chapter.autolabel" select="0"/>
   <xsl:attribute-set name="component.title.properties">
     <xsl:attribute name="padding-bottom">2.5em</xsl:attribute>
@@ -71,8 +71,19 @@
   </xsl:attribute-set>
   <xsl:attribute-set name="section.title.level1.properties">
     <xsl:attribute name="border-bottom">solid 1px</xsl:attribute>
+    <xsl:attribute name="margin-top">2em</xsl:attribute>
     <xsl:attribute name="margin-bottom">1em</xsl:attribute>
   </xsl:attribute-set>
+
+  <!-- titles spacing -->
+  <xsl:attribute-set name="section.title.level2.properties">
+    <xsl:attribute name="margin-top">1em</xsl:attribute>
+  </xsl:attribute-set>
+
+  <!-- default fonts -->
+  <xsl:param name="body.font.family">Delicious</xsl:param>
+  <xsl:param name="body.font.master">10</xsl:param>
+  <xsl:param name="monospace.font.family">Incosolata</xsl:param>
 
   <!-- revision table layout -->
   <xsl:attribute-set name="revhistory.title.properties">
@@ -84,18 +95,52 @@
     <xsl:attribute name="break-before">page</xsl:attribute>
   </xsl:attribute-set>
   <xsl:attribute-set name="revhistory.table.cell.properties">
-    <xsl:attribute name="border">solid</xsl:attribute>
+    <xsl:attribute name="border-bottom">1px solid</xsl:attribute>
   </xsl:attribute-set>
 
   <!-- Table Of Contents (TOC) options -->
   <!-- We only want 2 level of ToC depth -->
   <xsl:param name="toc.section.depth" select="1"/>
 
+  <!-- titles left margin -->
+  <xsl:attribute-set name="section.title.properties">
+    <xsl:attribute name="start-indent"><xsl:value-of select="$body.start.indent"/></xsl:attribute>
+  </xsl:attribute-set>
+
+  <!-- lists type -->
+  <xsl:template name="itemizedlist.label.markup">
+    <xsl:param name="itemsymbol" select="'square'"/>
+    <xsl:choose>
+      <xsl:when test="$itemsymbol='square'"><fo:inline font-family="Delicious">&#x220f;</fo:inline></xsl:when>
+    </xsl:choose>
+  </xsl:template>
+  <xsl:template name="next.itemsymbol">
+    <xsl:param name="itemsymbol" select="'default'"/>
+    <xsl:choose>
+      <xsl:otherwise>square</xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <!-- admonition -->
+  <xsl:param name="admon.graphics" select="1"></xsl:param>
+  <xsl:param name="admon.graphics.path">docs/images/</xsl:param>
+  <xsl:param name="admon.graphics.extension">.png</xsl:param>
+  <xsl:attribute-set name="graphical.admonition.properties">
+    <xsl:attribute name="border-top">1px solid</xsl:attribute>
+    <xsl:attribute name="border-bottom">1px solid</xsl:attribute>
+    <xsl:attribute name="padding-top">0.5em</xsl:attribute>
+    <xsl:attribute name="padding-bottom">0.5em</xsl:attribute>
+    <xsl:attribute name="margin-left">2em</xsl:attribute>
+  </xsl:attribute-set>
+
+
   <!-- grey boxes around code (screen, programlisting) -->
   <xsl:param name="shade.verbatim" select="1"/>
   <xsl:attribute-set name="shade.verbatim.style">
     <xsl:attribute name="background-color">#E0E0E0</xsl:attribute>
     <xsl:attribute name="border">solid</xsl:attribute>
+    <xsl:attribute name="margin">0pt</xsl:attribute>
+    <xsl:attribute name="padding">0.5em</xsl:attribute>
     <!-- prevent page breaks in screen and programlisting tags -->
     <xsl:attribute name="keep-together.within-column">always</xsl:attribute>
   </xsl:attribute-set>

@@ -47,6 +47,7 @@ BEGIN {
         get_vlan_from_int
         get_translatable_time
         pretty_bandwidth
+        unpretty_bandwidth
         pf_run
         generate_id
     );
@@ -139,7 +140,7 @@ sub clean_ip {
 
 =item clean_mac 
 
-Clean a MAC address accepting xx-xx-xx-xx-xx-xx, xx:xx:xx:xx:xx:xx, xxxx-xxxx-xxxx and xxxx.xxxx.xxxx.
+Clean a MAC address accepting xxxxxxxxxxxx, xx-xx-xx-xx-xx-xx, xx:xx:xx:xx:xx:xx, xxxx-xxxx-xxxx and xxxx.xxxx.xxxx.
 
 Returns an untainted string with MAC in format: xx:xx:xx:xx:xx:xx
 
@@ -746,10 +747,11 @@ sub preload_reggable_ip {
 sub preload_network_range {
     my ($network_range) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
-    my $caller = ( caller(1) )[3] || basename($0);
-    $caller =~ s/^pf::\w+:://;
 
+    #my $caller = ( caller(1) )[3] || basename($0);
+    #$caller =~ s/^pf::\w+:://;
     #print "caller: network range = $network_range\n";
+
     my %cache_ip;
 
     foreach my $gateway ( get_gateways() ) {
@@ -998,6 +1000,31 @@ sub pretty_bandwidth {
     return "$rounded $units[$x]"
 }
 
+=item unpretty_bandwidth
+
+Returns the bandwidth in bytes depending of the incombing unit
+
+=cut
+
+sub unpretty_bandwidth {
+    my ($bw,$unit) = @_;
+    
+    # Check what units we have, and multiple by 1024 exponent something
+    if ($unit eq 'PB') {
+        return $bw * 1024**5;
+    } elsif ($unit eq 'TB') {
+        return $bw * 1024**4;
+    } elsif ($unit eq 'GB') {
+        return $bw * 1024**3;
+    } elsif ($unit eq 'MB') {
+        return $bw * 1024**2;
+    } elsif ($unit eq 'KB') {
+        return $bw * 1024;
+    }
+    
+    # Not matching, We assume we have bytes then
+    return $bw;
+}
 
 =item pf_run
 

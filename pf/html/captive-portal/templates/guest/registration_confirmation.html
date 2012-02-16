@@ -23,6 +23,12 @@
               [% txt_valid_from %] [% txt_duration %]
             </div>
           </div>
+          <div class="input aup">
+            <h2>[% i18n("Acceptable Use Policy") %]</h2>
+            <div>
+              [% INCLUDE aup_text.html %]
+            </div>
+          </div>
           [% UNLESS loop.last %]<div class="page-break"></div>[% END %][% END %]
 [% ELSE %]
         [%# Single User / Pass %]
@@ -44,6 +50,12 @@
           <div class="input">
             <div class="note">
               [% txt_valid_from %] [% txt_duration %]
+            </div>
+          </div>
+          <div class="input aup">
+            <h2>[% i18n("Acceptable Use Policy") %]</h2>
+            <div>
+              [% INCLUDE aup_text.html %]
             </div>
           </div>
 [% END %]

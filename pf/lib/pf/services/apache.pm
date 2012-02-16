@@ -44,10 +44,9 @@ Readonly::Scalar my $HTTPS => 'https';
 # url decompositor regular expression. 
 my $url_pattern = qr/^
     (((?i)$HTTP|$HTTPS):\/\/ # must begin by http or https (matched in a case-insensitive way)
-    (.+?))                   # capture domain_url and the host
-                             # NOTE: using non-greedy wildcard so captures stops at first forward slash
-    (\/.*)                   # capture everything else as query string (path)
-/x;
+    ([^\/]+))                # capture domain_url and the host (everything up to \/)
+    (\/.*)?                  # optinally capture everything else as query string (path)
+$/x;
 
 =head1 SUBROUTINES
 
@@ -61,17 +60,19 @@ Returns a list with
  Hostname
  Query string (path, file and arguments)
 
-All values except protocol have ambiguous regexp characters quoted.
+All values have ambiguous regexp characters quoted.
 
 =cut
 sub _url_parser {
     my ($url) = @_;
 
     if (defined($url) && $url =~ /$url_pattern/) {
-        return (quotemeta(lc($1)), lc($2), quotemeta(lc($3)), quotemeta($4));
-    } else {
-        return;
+        # if query_string is empty assign '/'
+        my $query_string = (defined($4) ? quotemeta($4) : '\/');
+        return (quotemeta(lc($1)), lc($2), quotemeta(lc($3)), $query_string);
     }
+
+    return;
 }
 
 =item generate_httpd_conf

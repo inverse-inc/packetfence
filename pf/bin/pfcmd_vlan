@@ -17,6 +17,7 @@ pfcmd_vlan command [options]
    -getIfOperStatus     show the operational status of the specified switch port
    -getIfType           show the ifType on the specified switch port
    -getLocation         show at which switch port the MAC is found
+   -getSwitchLocation   show SNMP location of specified switch
    -getMAC              show all MACs on the specified switch port
    -getType             show switch type
    -getUpLinks          show the upLinks of the specified switch
@@ -30,6 +31,7 @@ pfcmd_vlan command [options]
    -reevaluateAccess    reevaluate the current VLAN or firewall rules of a given MAC
    -resetVlanAllPort    reset VLAN on all non-UpLink ports of the specified switch
    -resetVlanNetwork    reset VLAN on all non-UpLink ports of all managed switches
+   -runSwitchMethod     run a particular method call on a given switch (FOR ADVANCED PURPOSES)
    -setAlias            set the description of the specified switch port
    -setDefaultVlan      set the switch port to the default VLAN
    -setIfAdminStatus    set the admin status of the specified switch port
@@ -116,6 +118,7 @@ my $man;
 my $getMac;
 my $getAllMacs;
 my $getAlias;
+my $getSwitchLocation;
 my $setAlias;
 my $getVlan;
 my $resetVlanAllPort;
@@ -141,12 +144,14 @@ my $deauthenticate;
 my $deauthenticateDot1x;
 my $reAssignVlan;
 my $reevaluateAccess;
+my $runSwitchMethod;
 
 GetOptions(
     "alias:s"             => \$alias,
     "deauthenticate"      => \$deauthenticate,
     "deauthenticateDot1x" => \$deauthenticateDot1x,
     "getAlias"            => \$getAlias,
+    "getSwitchLocation"   => \$getSwitchLocation,
     "getAllMacs"          => \$getAllMacs,
     "getHubs"             => \$getHubs,
     "getIfOperStatus"     => \$getIfOperStatus,
@@ -168,6 +173,7 @@ GetOptions(
     "reevaluateAccess"    => \$reevaluateAccess,
     "resetVlanAllPort"    => \$resetVlanAllPort,
     "resetVlanNetwork"    => \$resetVlanNetwork,
+    "runSwitchMethod"     => \$runSwitchMethod,
     "setAlias"            => \$setAlias,
     "setDefaultVlan"      => \$setDefaultVlan,
     "setIfAdminStatus"    => \$setIfAdminStatus,
@@ -182,7 +188,7 @@ GetOptions(
 ) or pod2usage( -verbose => 1 );
 
 pod2usage( -verbose => 2 ) if $man;
-pod2usage( -verbose => 1 ) if $help;
+pod2usage( -verbose => 1, -exitval => 0 ) if $help;
 
 # logging
 Log::Log4perl->init("$conf_dir/log.conf");
@@ -219,6 +225,7 @@ if ($logLevel) {
     $root_logger->add_appender($appender);
 }
 
+# TODO we should consolidate calls which need similar parameters and unduplicate tests and error reporting
 my $switchFactory = pf::SwitchFactory->getInstance();
 if ($reevaluateAccess) {
 
@@ -227,6 +234,33 @@ if ($reevaluateAccess) {
     }
 
     pf::enforcement::reevaluate_access( $mac, 'pfcmd_vlan' );
+
+# Warning: powerfully dangerous method below (reconsider if unstrusted users have access to pfcmd_vlan)
+# This executes a specified method call passed on the command line on a 
+# proper switch object with the parameters supplied.
+} elsif ($runSwitchMethod) {
+
+    if ( $switchDescRegExp eq '' ) {
+        pod2usage("the switch argument is necessary");
+    }
+    if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
+        pod2usage("unknown switch $switchDescRegExp");
+    }
+
+    my $switch = $switchFactory->instantiate($switchDescRegExp);
+    if (!$switch) {
+        print "Can't instantiate switch $switchDescRegExp! See log files for details\n";
+    } else {
+        # grabbing parameters
+        my ($method, @params) = @ARGV;
+        local $" = ", ";
+        $logger->debug("start handling 'runSwitchMethod' command with: ->$method(@params)");
+        {
+            no strict 'refs';
+            $switch->$method(@params);
+        }
+        $logger->debug("finished handling 'runSwitchMethod' command");
+    }
 
 } elsif ($getUpLinks) {
 
@@ -246,6 +280,23 @@ if ($reevaluateAccess) {
             print "- $currentIfIndex\n";
         }
         $logger->debug("finished handling 'getUpLinks' command");
+    }
+
+} elsif ($getSwitchLocation) {
+
+    if ( $switchDescRegExp eq '' ) {
+        pod2usage("the switch argument is necessary");
+    }
+    if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
+        pod2usage("unknown switch $switchDescRegExp");
+    }
+    my $switch = $switchFactory->instantiate($switchDescRegExp);
+    if (!$switch) {
+        print "Can't instantiate switch $switchDescRegExp! See log files for details\n";
+    } else {
+        $logger->debug("start handling 'getSwitchLocation' command");
+        print $switch->getSwitchLocation($ifIndex) . "\n";
+        $logger->debug("finished handling 'getSwitchLocation' command");
     }
 
 } elsif ($getVersion) {
@@ -722,7 +773,7 @@ if ($reevaluateAccess) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2011 Inverse inc.
+Copyright (C) 2007-2012 Inverse inc.
 
 =head1 LICENSE
 
@@ -740,6 +791,8 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
+
+=cut
 
 # vim: set shiftwidth=4:
 # vim: set expandtab:

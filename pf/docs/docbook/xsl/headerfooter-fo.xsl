@@ -23,6 +23,8 @@
      - bottom: copyright, chapter name, page
 -->
 
+<xsl:param name="header.rule" select="0"/>
+
 <xsl:template name="header.content">
   <xsl:param name="pageclass" select="''"/>
   <xsl:param name="sequence" select="''"/>
@@ -51,10 +53,15 @@
       <xsl:when test="$position='right'">
         <xsl:call-template name="draft.text"/>
       </xsl:when>
+
+      <xsl:otherwise>
+        <!-- nop -->
+      </xsl:otherwise>
     </xsl:choose>
   </fo:block>
 </xsl:template>
 
+<xsl:param name="footer.rule" select="0"/>
 <xsl:template name="footer.content">
   <xsl:param name="pageclass" select="''"/>
   <xsl:param name="sequence" select="''"/>

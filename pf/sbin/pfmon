@@ -32,6 +32,7 @@ use lib INSTALL_DIR . "/lib";
 
 #$thread=1;
 
+use pf::accounting qw(acct_maintenance);
 use pf::config;
 use pf::iplog;
 use pf::locationlog;
@@ -201,6 +202,8 @@ sub cleanup {
                 if ( $Config{'expire'}{'traplog'} );
             $logger->info("checking registered nodes for expiration");
             nodes_maintenance();
+            $logger->info("checking accounting data for potential bandwidth abuse");
+            acct_maintenance();
         }
 
         sleep $Config{'general'}{'maintenance_interval'};

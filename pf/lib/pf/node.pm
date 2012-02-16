@@ -134,7 +134,8 @@ sub node_db_prepare {
         WHERE mac = ?
     ]);
 
-    $node_statements->{'node_view_sql'} = get_db_handle()->prepare(qq[
+    # DEPRECATED see _node_view_old()
+    $node_statements->{'node_view_old_sql'} = get_db_handle()->prepare(qq[
         SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
             IF(ISNULL(node_category.name), '', node_category.name) as category,
             node.detect_date, node.regdate, node.unregdate, node.lastskip,
@@ -152,6 +153,27 @@ sub node_db_prepare {
         GROUP BY node.mac
         HAVING node.mac=?
     ]);
+
+    $node_statements->{'node_view_sql'} = get_db_handle()->prepare(<<'    SQL');
+        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
+            IF(ISNULL(node_category.name), '', node_category.name) as category,
+            node.detect_date, node.regdate, node.unregdate, node.lastskip,
+            node.user_agent, node.computername, node.dhcp_fingerprint,
+            node.last_arp, node.last_dhcp,
+            node.notes
+        FROM node
+            LEFT JOIN node_category USING (category_id)
+        WHERE node.mac=?
+    SQL
+
+    $node_statements->{'node_last_locationlog_sql'} = get_db_handle()->prepare(<<'    SQL');
+       SELECT 
+           locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
+           IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
+           locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid
+       FROM locationlog 
+       WHERE mac = ? AND end_time IS NULL
+    SQL
 
     $node_statements->{'node_view_with_fingerprint_sql'} = get_db_handle()->prepare(qq[
         SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status, 
@@ -408,8 +430,10 @@ It's a simpler and faster version of node_view with fewer fields returned.
 sub node_attributes {
     my ($mac) = @_;
 
-    my $tmpMAC = Net::MAC->new( 'mac' => $mac );
-    $mac = $tmpMAC->as_IEEE();
+    # commented for performance reason and because the calling code is already defensive enough
+    # remove comments if necessary (regressions)
+    #my $tmpMAC = Net::MAC->new( 'mac' => $mac );
+    #$mac = $tmpMAC->as_IEEE();
     my $query = db_query_execute(NODE, $node_statements, 'node_attributes_sql', $mac) || return (0);
     my $ref = $query->fetchrow_hashref();
 
@@ -418,22 +442,71 @@ sub node_attributes {
     return ($ref);
 }
 
-=item node_view
+=item _node_view_old
 
 Returning lots of information about a given MAC address (node)
 
+DEPRECATED: This has been kept in case of regressions in the new node_view code.
+This code will disappear in 2013.
+
 =cut
-sub node_view {
+sub _node_view_old {
     my ($mac) = @_;
 
-    my $tmpMAC = Net::MAC->new( 'mac' => $mac );
-    $mac = $tmpMAC->as_IEEE();
-    my $query = db_query_execute(NODE, $node_statements, 'node_view_sql', $mac) || return (0);
+    # Uncomment to log callers
+    #my $logger = Log::Log4perl::get_logger('pf::node');
+    #my $caller = ( caller(1) )[3] || basename($0);
+    #$logger->trace("node_view called from $caller");
+
+    # commented for performance reason and because the calling code is already defensive enough
+    # remove comments if necessary (regressions)
+    #my $tmpMAC = Net::MAC->new( 'mac' => $mac );
+    #$mac = $tmpMAC->as_IEEE();
+    my $query = db_query_execute(NODE, $node_statements, 'node_view_old_sql', $mac) || return (0);
     my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
     $query->finish();
     return ($ref);
+}
+
+
+=item node_view
+
+Returning lots of information about a given MAC address (node).
+
+New implementation in 3.2.0.
+
+=cut
+sub node_view {
+    my ($mac) = @_;
+
+    # Uncomment to log callers
+    #my $logger = Log::Log4perl::get_logger('pf::node');
+    #my $caller = ( caller(1) )[3] || basename($0);
+    #$logger->trace("node_view called from $caller");
+
+    my $query = db_query_execute(NODE, $node_statements, 'node_view_sql', $mac) || return (0);
+    my $node_info_ref = $query->fetchrow_hashref();
+    $query->finish();
+
+    # if no node info returned we exit
+    return if (!defined($node_info_ref));
+
+    $query = db_query_execute(NODE, $node_statements, 'node_last_locationlog_sql', $mac) || return (0);
+    my $locationlog_info_ref = $query->fetchrow_hashref();
+    $query->finish();
+
+    # merge hash references
+    # set locationlog info to empty hashref in case result from query was nothing
+    $locationlog_info_ref = {} if (!defined($locationlog_info_ref));
+    $node_info_ref = { 
+        %$node_info_ref, 
+        %$locationlog_info_ref,
+        'nbopenviolations' => violation_count($mac),
+    };
+
+    return ($node_info_ref);
 }
 
 sub node_count_all {

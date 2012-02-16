@@ -70,6 +70,12 @@ div#about p,
 div#about ul {
   padding-left: 128px;
 }
+div.input a {
+  color: #333;
+}
+div.input a:hover {
+  color: #000;
+}
 p#languages {
   font-size: small;
   text-align: right;
@@ -116,11 +122,15 @@ div.input span {
   white-space: nowrap;
   width: 120px;
 }
+div.input span#msg {
+  white-space: normal;
+}
 div.input input.field,
 div.input textarea {
   border: 1px solid #ddd;
   background-color: #fff;
-  padding: 3px;
+  padding: 4px;
+  margin: 2px;
   width: 250px;
 }
 div.input input.field:focus,
@@ -158,6 +168,9 @@ div.input div.note.justify {
 }
 div.input div#aup {
   height: 150px;
+}
+div.input.aup {
+  display: none;
 }
 div.input.center {
   text-align: center;

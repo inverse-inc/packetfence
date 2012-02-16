@@ -12,13 +12,18 @@ pf::pfcmd contains the functions necessary for the command line interface
 F</usr/local/pf/bin/pfcmd> to parse the options.
 
 =cut
-
 use strict;
 use warnings;
-use diagnostics;
 
 use Log::Log4perl;
+use Readonly;
 use Regexp::Common qw(net);
+
+# some constants used by pfcmd
+
+# exit status
+Readonly our $ERROR_CONFIG_UNKNOWN_PARAM => 10;
+Readonly our $ERROR_CONFIG_NO_HELP => 11;
 
 # if you change something here, make sure
 #   - not to allow unquoted stuff interpreted by the shell
@@ -486,6 +491,8 @@ Regis Balzard <rbalzard@inverse.ca>
 =head1 COPYRIGHT
 
 Copyright (C) 2009-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

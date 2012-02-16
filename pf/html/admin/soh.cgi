@@ -96,12 +96,21 @@ if ($method eq 'GET' && $action eq '') {
     $filters ||= [{filter_id => 1, name => "Default"}];
     $rules ||= [];
 
+    my $cmd = $bin_dir."/pfcmd violationconfig get all";
+    my $output = qx/$cmd/;
+    my %violations = ();
+    while ($output =~ m/^(\d+)\|([^\|]+)\|/mg) {
+      # vid | desc
+      $violations{$1} = $2;
+    }
+
     my $vars = {
         self => $self,
         logo => $Config{general}{logo},
         i18n => \&pf::web::i18n,
         list_filters => $filters,
-        list_rules => $rules
+        list_rules => $rules,
+        list_violations => \%violations
     };
 
     my $tmpl = Template->new({INCLUDE_PATH => ["$install_dir/html/admin/templates", $CAPTIVE_PORTAL{'TEMPLATE_DIR'}]});

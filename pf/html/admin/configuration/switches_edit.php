@@ -168,6 +168,7 @@
                            'Nortel::ERS5000_6x' => 'Nortel ERS 5000 Series w/ firmware 6.x',
                            'Nortel::ES325' => 'Nortel ES325',
                            'PacketFence' => 'PacketFence',
+                           'Ruckus' => 'Ruckus Wireless Controllers',
                            'SMC::TS6128L2' => 'SMC TigerStack 6128L2',
                            'SMC::TS6224M' => 'SMC TigerStack 6224M',
                            'SMC::TS8800M' => 'SMC TigerStack 8800 Series',

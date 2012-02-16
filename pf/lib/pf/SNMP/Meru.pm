@@ -37,6 +37,11 @@ This defeats the reason why we perform de-authentication (to change VLAN or deny
 A client-side workaround exists: disable the PMK Caching on the client.
 However this could (and should in our opinion) be fixed by the vendor.
 
+We made some progress about this lately.  In fact, for the 4.0 version tree, you need 
+to get version 4.0-160 in order to disable the PMK caching at the AP level.  For the
+5.0 version tree, all versions including 5.0-87 are impacted.  Vendor is saying that
+in the 5.1 version, PMK will be disabled by default.  To be confirmed.
+
 =back
 
 =cut
@@ -122,6 +127,8 @@ deauthenticate a MAC address from wireless network
 
 Right now te only way to do it is from the CLi (through Telnet or SSH).
 
+Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
+
 =cut
 sub deauthenticateMac {
     my ( $this, $mac ) = @_;
@@ -157,6 +164,7 @@ sub deauthenticateMac {
         return;
     }
 
+    # Session not already privileged are not supported at this point. See #1370
     #if (!$session->in_privileged_mode()) {
     #    if (!$session->enable($this->{_cliEnablePwd})) {
     #        $logger->error("Cannot get into privileged mode on ".$this->{'ip'}.
@@ -200,7 +208,7 @@ Regis Balzard <rbalzard@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010,2011 Inverse inc.
+Copyright (C) 2010, 2011, 2012 Inverse inc.
 
 =head1 LICENSE
 

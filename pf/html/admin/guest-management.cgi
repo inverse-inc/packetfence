@@ -13,6 +13,7 @@ use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
 use Log::Log4perl;
+use PHP::Session;
 use POSIX;
 use Readonly;
 use Template;
@@ -43,6 +44,14 @@ Log::Log4perl::MDC->put('tid', 0);
 
 my $cgi = new CGI;
 $cgi->charset("UTF-8");
+
+my $psession = undef;
+my $sid = $cgi->cookie('PHPSESSID');
+my $sdir = "$var_dir/session";
+if ($sid && -f "$sdir/sess_$sid") {
+  $psession = PHP::Session->new($sid, {create => 1, save_path => $sdir});
+}
+
 my $session = new CGI::Session(undef, $cgi, {Directory=>"$var_dir/session"});
 
 my $result;
@@ -60,13 +69,23 @@ foreach my $param($cgi->param()) {
 }
 
 # Is user already logged in?
+# If we can find an existing PHP session, we allow the user to proceed.
+if ($psession && $psession->get('user')) {
+  $session->param("username", $psession->get('user'));
+}
+
 if (defined($session->param("username"))) {
 
     if (defined($cgi->param("action")) && $cgi->param("action") eq "logout") {
         # Logout button
-
         $session->delete();
-        pf::web::guest::generate_custom_login_page($cgi, $session, undef, "guest/mgmt_login.html");
+
+        if ($psession && $psession->get('user')) {
+          print $cgi->redirect("/login.php?logout=true");
+        }
+        else {
+          pf::web::guest::generate_custom_login_page($cgi, $session, undef, "guest/mgmt_login.html");
+        }
 
     }
     elsif (defined($cgi->param("action_print")) || defined($cgi->param("action_sendEmail"))) {
@@ -88,7 +107,7 @@ if (defined($session->param("username"))) {
                 'firstname' => $session->param("firstname"),
                 'lastname' => $session->param("lastname"),
                 'email' => $session->param("email"),
-                'username' => $session->param("email"),
+                'username' => $session->param("pid"),
                 'password' => $password,
                 'valid_from' => $session->param("arrival_date"),
                 'duration' => pf::web::guest::valid_access_duration($session->param("access_duration")),

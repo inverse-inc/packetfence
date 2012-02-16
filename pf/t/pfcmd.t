@@ -14,11 +14,12 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 86;
+use Test::More tests => 91;
 use Test::NoWarnings;
 
-use Log::Log4perl;
+use English '-no_match_vars';
 use File::Basename qw(basename);
+use Log::Log4perl;
 
 Log::Log4perl->init("log.conf");
 my $logger = Log::Log4perl->get_logger( basename($0) );
@@ -54,6 +55,13 @@ is_deeply(\%cmd,
 is_deeply(\%cmd,
           { 'command' => [ 'config', 'set', 'general.hostname=packetfence' ] },
           'pfcmd config set general.hostname=packetfence');
+
+%cmd = pf::pfcmd::parseCommandLine('config set guests_self_registration.modes=');
+is_deeply(
+    \%cmd,
+    { 'command' => [ 'config', 'set', 'guests_self_registration.modes=' ] },
+    'pfcmd set empty config'
+);
 
 %cmd = pf::pfcmd::parseCommandLine('config set proxies.tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stng260.bin');
 is_deeply(\%cmd,
@@ -288,7 +296,7 @@ is_deeply(\%cmd,
           'pfcmd import nodes filename.csv');
 
 # test command line help
-my @output = `/usr/local/pf/bin/pfcmd help 2>&1`;
+my @output = `/usr/local/pf/bin/pfcmd help`;
 my @main_args;
 foreach my $line (@output) {
     if ($line =~ /^([^ ]+) +\|/) {
@@ -302,6 +310,13 @@ foreach my $help_arg (@main_args) {
          "pfcmd $help_arg is documented" );
 }
 
+# required to avoid warnings in admin guide asciidoc build
+my @pfcmd_help = `/usr/local/pf/bin/pfcmd help`;
+is($CHILD_ERROR, 0, "pfcmd help exit with status 0"); 
+
+# required to have help placed into the admin guide asciidoc during build
+ok(@pfcmd_help, "pfcmd help outputs on STDOUT"); 
+
 # test version
 @output = `/usr/local/pf/bin/pfcmd version`;
 like ( $output[0], qr'PacketFence 3.2.0dev', "pfcmd version is correct" );
@@ -314,6 +329,13 @@ is_deeply(\%cmd, {
     'node_options' => [ 'view', 'pid' ],
 }, 'pfcmd node view with pid as an email');
 
+# pfcmd's exit status
+# see perldoc perlvar on CHILD_ERROR for the reason behind the >> 8 shift
+my $pfcmd_config_unknown_param_stdout = `/usr/local/pf/bin/pfcmd config get invalid.fail`;
+is($CHILD_ERROR >> 8, $pf::pfcmd::ERROR_CONFIG_UNKNOWN_PARAM, "exit status: invalid pfcmd set config"); 
+
+my $pfcmd_config_no_help_stdout = `/usr/local/pf/bin/pfcmd config help invalid.fail`;
+is($CHILD_ERROR >> 8, $pf::pfcmd::ERROR_CONFIG_NO_HELP, "exit status: pfcmd config help w/o help"); 
 
 =head1 AUTHOR
 
@@ -325,7 +347,7 @@ Regis Balzard <rbalzard@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2009-2011 Inverse inc.
+Copyright (C) 2009-2012 Inverse inc.
 
 =head1 LICENSE
     

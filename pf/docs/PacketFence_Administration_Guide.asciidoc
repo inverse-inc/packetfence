@@ -8,10 +8,12 @@ PacketFence Administration Guide
 
     This file is part of the PacketFence project.
 
-    See pf-admin-guide-docinfo.xml for authors, copyright and license 
-    information.
+    See PacketFence_Administration_Guide-docinfo.xml for authors, copyright 
+    and license information.
 
 ////
+
+include::includes/global-attributes.asciidoc[]
 
 About this Guide
 ----------------
@@ -68,7 +70,7 @@ Detection of abnormal network activities::
   Abnormal network activities (computer virus, worms, spyware, traffic denied by establishment policy, etc.) can be detected using local and remote http://www.snort.org/[Snort] sensors. Beyond simple detection, PacketFence layers its own alerting and suppression mechanism on each alert type. A set of configurable actions for each violation is available to administrators.
 
 Proactive vulnerability scans::
-  http://www.nessus.org/nessus/[Nessus] vulnerability scans can be performed upon registration, scheduled or on an ad-hoc basis. PacketFence correlates the Nessus vulnerability ID's of each scan to the violation configuration, returning content specific web pages about which vulnerability the host may have.
+  Either http://www.nessus.org/nessus/[Nessus] or http://www.openvas.org[OpenVAS] vulnerability scans can be performed upon registration, scheduled or on an ad-hoc basis. PacketFence correlates the scan engine vulnerability ID's of each scan to the violation configuration, returning content specific web pages about which vulnerability the host may have.
 
 Isolation of problematic devices::
   PacketFence supports several isolation techniques, including VLAN isolation with VoIP support (even in heterogeneous environments) for multiple switch vendors.
@@ -104,11 +106,13 @@ Assumptions
 
 PacketFence reuses many components in an infrastructure. Thus, it requires the following ones:
 
+[options="compact"]
 * Database server (MySQL)
 * Web server (Apache)
 
 Depending on your setup you may have to install additional components like:
 
+[options="compact"]
 * DHCP server (ISC DHCP)
 * DNS server (BIND)
 * RADIUS server (FreeRADIUS)
@@ -120,7 +124,7 @@ Good understanding of those underlying component and GNU/Linux is required to in
 
 The following table provides recommendations for the required components, together with version numbers :
 
-[cols="1,3",grid="rows"]
+[cols="1,3",frame="topbot",grid="rows"]
 |========================================
 |MySQL server     |MySQL 4.1 or 5.1
 |Web server       |Apache 2.2
@@ -137,6 +141,7 @@ Minimum Hardware Requirements
 
 The following provides a list of server hardware recommendations:
 
+[options="compact"]
 * Intel or AMD CPU 3 GHz
 * 2048 MB of RAM
 * 20 GB of disk space (RAID 1 recommended)
@@ -149,6 +154,7 @@ Operating System Requirements
 
 PacketFence supports the following operating systems on the i386 or x86_64 architectures: 
 
+[options="compact"]
 * Red Hat Enterprise Linux 5.x/6.x Server
 * Community ENTerprise Operating System (CentOS) 5.x/6.x
 
@@ -161,6 +167,7 @@ Services start-up
 
 PacketFence takes care of handling the operation of the following services:
 
+[options="compact"]
 * Web server (httpd)
 * DHCP server (dhcpd)
 * DNS server (named)
@@ -180,6 +187,7 @@ OS Installation
 
 Install your distribution with minimal installation and no additional packages. Then:
 
+[options="compact"]
 * Enable Firewall
 * Disable SELinux
 
@@ -243,6 +251,7 @@ Starting with 1.8.5, PacketFence is now providing an RPM repository for RHEL / C
 
 This repository contains all required dependencies to install PacketFence. This provides numerous advantages: 
 
+[options="compact"]
 * very easy installation
 * everything is packaged as RPM (no more CPAN hassle)
 * easy upgrade
@@ -412,12 +421,14 @@ PacketFence needs to know which switches, access points or controllers it manage
 
 This files contains a default section including:
 
+[options="compact"]
 * List of VLANs managed by PacketFence
 * Default SNMP read/write communities for the switches
 * Default working mode (see note about working mode below)
 
 and a switch section for each switch (managed by PacketFence) including:
 
+[options="compact"]
 * Switch IP
 * Switch vendor/type
 * Switch uplink ports (trunks and non-managed ports)
@@ -489,6 +500,8 @@ Here is a switch configuration example in order to enable SNMP v3 in both direct
 Command-Line Interface: Telnet and SSH
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+WARNING: Privilege detection is disabled in the current PacketFence version due to some issues (see http://www.packetfence.org/bugs/view.php?id=1370[#1370]). So make sure that the `cliUser` and `cliPwd` you provide always get you into a privileged mode (except for Trapeze hardware).
+
 PackeFence needs sometimes to establish an interactive command-line session with a switch. This can be done using Telnet. Starting with 1.8, you can now use SSH. In order to do so, edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
 
   cliTransport = SSH (or Telnet)
@@ -527,7 +540,7 @@ The default VLAN assignment technique used in PacketFence is a per-switch one. T
 
 This allows you to do easy per-building VLAN segmentation.
 
-If you need more flexibility (per SSID, per node category, etc.) take a look at the "I need more flexible VLAN assignment" section under <<_advanced_features,Advanced features>>.
+If you need more flexibility (per SSID, per node category, etc.) take a look at the FAQ entry http://www.packetfence.org/support/faqs/article/custom-vlan-assignment-behavior.html[Custom VLAN assignment behavior] available online.
 
 Inline enforcement configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -544,13 +557,14 @@ To remove that limitation, if you have control over your DNS, add an entry match
 
 In summary: 
 
+[options="compact"]
 * portal_redirect=ip – default, no HTTPS, no need to modify DNS
 * portal_redirect=dns – need to update your DNS, portal will be in HTTPS
 
 DHCP and DNS Server Configuration (networks.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PacketFence automatically generates the DHCP and DNS configuration files for Registration and Isolation VLANs. This is done when executing the configurator script (see the <<_general_configuration,General Configuration section>>).
+PacketFence automatically generates the DHCP and DNS configuration files for Registration and Isolation VLANs. This is done when executing the configurator script (see the <<_first_step,First Step section>>).
 
 The Registration and Isolation networks information is accessible through the GUI in *Administration -> Networks*:
 
@@ -579,6 +593,7 @@ The DHCP configuration file is written to `var/conf/dhcpd.conf` using `conf/dhcp
 
 The DNS configuration files are generated this way:
 
+[options="compact"]
 * `var/conf/named.conf` generated from `conf/named.conf`
 * `var/named/named-registration.ca` generated from `conf/named-registration.ca`
 * `var/named/named-isolation.ca` generated from `conf/named-isolation.ca`
@@ -601,9 +616,7 @@ If you are already using IP Helpers for your production DHCP in your production 
 
 Add PacketFence's management IP address as the last `ip helper-address` statement in your network equipment. At this point PacketFence will receive a copy of all DHCP requests for that VLAN and will record what IP were distributed to what node using a `pfdhcplistener` daemon.
 
-// FIXME are we missing add type dhcp-listener here?
-
-Make sure that no DHCP Server are running on the interface where you are sending the requests otherwise PacketFence might try to reply to the DHCP requests which would be a bad thing.
+By default no DHCP Server should be running on that interface where you are sending the requests. This is by design otherwise PacketFence would reply to the DHCP requests which would be a bad thing.
 
 Obtain a copy of the DHCP traffic
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -736,6 +749,7 @@ This section presents the FreeRADIUS configuration steps. In some occasions, a R
 
 Install the following packages:
 
+[options="compact"]
 * packetfence-freeradius2
 
 In /etc/raddb/clients.conf
@@ -948,6 +962,7 @@ Assumptions
 
 Throughout this configuration example we use the following assumptions for our network infrastructure:
 
+[options="compact"]
 * There are two different types of manageable switches in our network: Cisco Catalyst 2900XL and Cisco Catalyst 2960, and one unmanageable device.
 * VLAN 1 is the "regular" VLAN
 * VLAN 2 is the registration VLAN (unregistered devices will be put in this VLAN)
@@ -964,7 +979,7 @@ Throughout this configuration example we use the following assumptions for our n
 
 The network setup looks like this:
 
-[options="header",cols="1,2,2,2,3",grid="rows"]
+[options="header",cols="1,2,2,2,3",frame="topbot",grid="rows"]
 |=========================================================================
 |VLAN ID  |VLAN Name     |Subnet         |Gateway     |PacketFence Address
 |1        |Normal        |192.168.1.0/24 |192.168.1.1 |192.168.1.5
@@ -1288,7 +1303,7 @@ The user is redirected to this URL after he re-enabled his network access on the
 `enable`:: 
 If enable is set to 'N', this violation is disabled and no additional violations of this type will be added.
 `trigger`:: 
-`Method to reference external detection methods such as Detect (SNORT), Scan (Nessus), OS (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC address class), etc. Trigger is formatted as follows `type`::ID`. in this example 2000032 is the snort id and 11808 is the Nessus plugin number. The Snort ID does NOT have to match the violation ID.
+`Method to reference external detection methods such as Detect (SNORT), Nessus, OpenVAS, OS (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC address class), etc. Trigger is formatted as follows `type`::ID`. in this example 2000032 is the snort id and 11808 is the Nessus plugin number. The Snort ID does NOT have to match the violation ID.
 `actions`:: 
 This is the list of actions that will be executed on a violation addition. The actions can be:
   `log`;; Log a message to the file specified in `[alerting].log`
@@ -1351,48 +1366,83 @@ Enable Limewire violation in `/usr/local/pf/conf/violations.conf` and configure 
   max_enable=1
   trigger=Detect::2001808
 
-Conformity Scan (Nessus)
-~~~~~~~~~~~~~~~~~~~~~~~~
+Conformity Scan
+~~~~~~~~~~~~~~~
+
+PacketFence supports either Nessus or OpenVAS as a scanning engine for conformity scan.
 
 Installation
 ^^^^^^^^^^^^
+
+Nessus
+++++++
 
 Please visit http://www.nessus.org/download/ to download and install the Nessus package for your operating system. You will also need to register for the HomeFeed (or the ProfessionalFeed) in order to get the plugins.
 
 After you installed Nessus, follow the Nessus documentation for the configuration of the Nessus Server, and to create a user for PacketFence.
 
+OpenVAS
++++++++
+
+Please visit http://www.openvas.org/install-packages.html#openvas4_centos_atomic to configure the correct repository to be able to install the latest OpenVAS scanning engine.
+
+Once installed, please make sure to follow the instructions to correctly configure the scanning engine and create a scan configuration that will fit your needs. You'll also need to create a user for PacketFence to be able to communicate with the server.
+
+It is important to get the correct scan config ID and NBE report format ID to populate the parameters in the PacketFence configuration file. The easiest way to get these IDs is by downloading both of the scan configuration and report format from the OpenVAS web gui and retrieve the IDs in the filenames.
+
+For example `report-format-f5c2a364-47d2-4700-b21d-0a7693daddab.xml` gives report format ID `f5c2a364-47d2-4700-b21d-0a7693daddab`.
+
 Configuration
 ^^^^^^^^^^^^^
 
-In order for a given Nessus Scan to generate a violation inside PacketFence, you have to configure two sections:
+In order for the conformity scan to correctly work with PacketFence (communication and generate violations inside PacketFence), you must configure two sections:
 
 pf.conf
 +++++++
 
 Adjust the settings in the scan section like the following:
+Don't hesitate to refer to the `documentation.conf` file for any help on these paramaters and which of them to configure.
+
+Using Nessus:
 
   [scan]
-  ssl=enabled
-  pass=userPassword
-  user=nessusUsername
-  port=1241
+  engine=nessus
   host=127.0.0.1
-  registration=enabled
   nessus_clientfile=basic-policy.nessus
   nessus_clientpolicy=basic-policy
+  pass=nessusUserPassword
+  registration=enabled
+  user=nessusUsername
+
+Using OpenVAS:
+
+  [scan]
+  engine=openvas
+  host=127.0.0.1
+  openvas_configid=openvasScanConfigId
+  openvas_reportformatid=openvasNBEReportFormatId
+  pass=openvasUserPassword
+  registration=enabled
+  user=openvasUsername
 
 violations.conf
 +++++++++++++++
 
 You need to create a new violation section and have to specify:
 
-  trigger=Scan::<violationId>
+Using Nessus:
 
-Where `violationId` is the ID of the Nessus plugin to check for. Once you have finished the configuration, you need to reload the violation related database contents using:
+  trigger=Nessus::<violationId>
+
+Using OpenVAS:
+
+  trigger=OpenVAS::<violationId>
+
+Where `violationId` is either the ID of the Nessus plugin or the OID of the OpenVAS plugin to check for. Once you have finished the configuration, you need to reload the violation related database contents using:
 
   $ pfcmd reload violations
 
-NOTE: Violations will trigger if the Nessus plugin is higher than a low severity vulnerability.
+NOTE: Violations will trigger if the plugin is higher than a low severity vulnerability.
 
 NessusClient Integration
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1411,6 +1461,36 @@ Scan on registration
 To perform a system scan before giving access to a host on the network you need to enable the `scan.registration` parameter in `pf.conf`.
 
 It is also recommended to adjust `scan.duration` to reflect how long the scan takes. A progress bar of this duration will be shown to the user while he is waiting. By default, we set this variable to 60s.
+
+RADIUS Accounting
+~~~~~~~~~~~~~~~~~
+
+RADIUS Accounting is usually used by ISPs to bill clients.  In PacketFence, we are able to use this information to determine if the node is still connected, how much time it has been connected, and how much bandwitdh the user consumed.
+
+Violations
+^^^^^^^^^^
+
+Since PacketFence 3.2, it is possible to add violations to limit bandwidth abuse.  The format of the trigger is very simple :
+   Accounting::[DIRECTION][LIMIT][INTERVAL(optional)]
+
+Let's explain each chunk properly:
+* DIRECTION: You can either set a limit to inbound(IN), outbound(OUT), or total(TOT) bandwidth
+* LIMIT: You can set a number of bytes(B), kilobytes(KB), megavytes(MB), gigabytes(GB), or petabytes(PB)
+* INTERVAL: This is actually the time window we will look for potential abuse.  You can set a number of seconds(s),minutes(m),hours(h),days(D),weeks(W),months(M), or years(Y).  This value is optional, if you set nothing, we will check in all the data we have since your packetfence install
+
+Example triggers
+++++++++++++++++
+* Look for Incoming (Download) traffic with a 50GB/month
+   Accounting::IN50GB1M
+* Look for Outgoing (Upload) traffic with a 500MB/hour
+   Accounting::OUT500MB1h
+* Look for Total (Download+Upload) traffic with a 200GB limit (we will check all the accounting data)
+   Accounting::TOT200GB
+
+Grace period
+++++++++++++
+When using such violation feature, setting the grace period is really important.  You don't want to put it too low (ie. A user re-enable his network, and get caught after 1 bytes is tranmitted!) or too high.  We recommend that you set the grace period to one interval window.
+
 
 Oinkmaster
 ~~~~~~~~~~
@@ -1456,11 +1536,13 @@ Here is how it works:
 
 Configuration
 
+[options="compact"]
 * floating network devices have to be identified using their MAC address.
 * linkup/linkdown traps are not enabled on the switches, only port-security traps are.
 
 When PacketFence receives a port-security trap for a floating network device, it changes the port configuration so that:
 
+[options="compact"]
 * it disables port-security
 * it sets the PVID
 * it eventually sets the port as multi-vlan (trunk) and sets the tagged Vlans 
@@ -1468,6 +1550,7 @@ When PacketFence receives a port-security trap for a floating network device, it
 
 When PF receives a linkdown trap on a port in which a floating network device was plugged, it changes the port configuration so that: 
 
+[options="compact"]
 * it enables port-security
 * it disables linkdown traps
 
@@ -1476,6 +1559,7 @@ Identification
 
 As we mentioned earlier, each floating network device has to be identified. There are two ways to do it:
 
+[options="compact"]
 * by editing `conf/floating_network_device.conf`
 * through the Web GUI, in the *Configuration -> Floating Network Device* tab
 
@@ -1537,10 +1621,10 @@ Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and document
   email_activation_timeout=10m
   allow_localdomain=enabled
 
-To disable the self-registration feature, modify the following line in `/usr/local/pf/conf/pf.conf`.
+To disable the self-registration feature, you can do so in the Web Administration interface or by modify the following line in `/usr/local/pf/conf/pf.conf`:
 
-  [guests_self_registration]
-  modes=
+  [registration]
+  guests_self_registration=disabled
 
 CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
 
@@ -1554,7 +1638,7 @@ It is possible to modify the default values of the guest pre-registration featur
 Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and documentation for every settings is available in `/usr/local/pf/conf/documentations.conf`.
 
   [guests_pre_registration]
-  access_duration_choices=1h,3h,12h,1d,2d,3d,5d
+  access_duration_choices=1h,3h,12h,1D,2D,3D,5D
   default_access_duration=12h
   category=guest
 
@@ -1671,12 +1755,14 @@ SNMP traps limit
 
 PacketFence mainly rely on SNMP traps to communicate with equipment. Due to the fact that traps coming in from approved (configured) devices are all processed by the daemon, it is possible for someone who want to generate a certain load on the PacketFence server to force the generation of non-legitimate SNMP traps or a switch can randomly generate a high quantity of traps sent to PacketFence for an unknown reason.
 
-According to this case, it is possible to limit the number of SNMP traps coming in from a single switch port and take action if that limit is reached. Per example, if over 100 traps are received by PacketFence from the same switch port in a minute, the switch port will be shut and a notification email will be sent.
-Here's the configs for the SNMP traps limit feature. Per default, PacketFence will log the abnormal activity after 100 traps from the same switch port in a minute.
+Because of that, it is possible to limit the number of SNMP traps coming in from a single switch port and take action if that limit is reached. For example, if over 100 traps are received by PacketFence from the same switch port in a minute, the switch port will be shut and a notification email will be sent.
+
+Here's the default config for the SNMP traps limit feature. As you can see, by default, PacketFence will log the abnormal activity after 100 traps from the same switch port in a minute.
 
 These configurations are in the `pf.conf` file:
 
   [vlan]
+  trap_limit = enabled
   trap_limit_threshold = 100
   trap_limit_action = 
 
@@ -1703,6 +1789,7 @@ Log4perl
 
 This log4perl way is a little more complex to achieve, but it is still quite simple. There are 3 packages you need to get from RPMForge:
 
+[options="compact"]
 * perl-Log-Dispatcher
 * perl-Log-Dispatcher-FileRotate
 * perl-Date-Manip
@@ -1732,6 +1819,7 @@ Since PacketFence stores most of its information in a MySQL database, the two Pa
 
 There are different options to share the database between the two PacketFence servers:
 
+[options="compact"]
 * A local MySQL database server on each PacketFence box configured to store its databases on a remote partition (a LUN on a SAN for example) 
 +
 CAUTION: You have to make sure that only one database server is running at each time (don't double-mount the partition)
@@ -1743,6 +1831,7 @@ In this document, we describe the second option that involves DRBD.
 
 We assume that:
 
+[options="compact"]
 * you are using RedHat Enterprise 5 or CentOS 5.
 * pf1 is the first PacketFence server
 * pf2 is the second PacketFence server
@@ -1755,6 +1844,7 @@ Creation of the DRBD partition
 
 During the OS installation, reduce the size of the main partition and create a new one (that will be used for the replicated MySQL database) of 30G. In order to do so, on `VolGroup00`:
 
+[options="compact"]
 * leave at least 30G of drive space for a new partition. *Do not* create that partition during the install process, we will do it later.
 
 Partitioning
@@ -1818,6 +1908,7 @@ resource mysql {
 
 where:
 
+[options="compact"]
 * `mysql` is the name of the partition you created when installing the OS
 * `pf1_server_name` and `pf2_server_name` by the real server names
 * `x.x.x.x` and `y.y.y.y` by the IP addresses dedicated to DRBD on each server (use a dedicated NIC for this, not the main one with all the IPs)
@@ -1923,6 +2014,7 @@ Create `/etc/ha.d/haresources` with the following content:
 
   pf1.example.com Ipaddr2::x.x.x.x IfUp::eth0.y IfUp::eth0.z drbddisk::mysql Filesystem::/dev/drbd0::/var/lib/mysql::ext3 mysqld packetfence
 
+[options="compact"]
 * `x.x.x.x` is PF admin virtual address
 * `eth0.y` is the name of the NIC configuration file (`/etc/sysconfig/network-scripts/ifcfg_eth0.y`) dedicated to IP address in VLAN `y` (registration for example).
 * `eth0.z` is the name of the NIC configuration file (`/etc/sysconfig/network-scripts/ifcfg_eth0.z`) dedicated to IP address in VLAN `z` (isolation for example).
@@ -2155,6 +2247,7 @@ If you want to enable this feature, edit `conf/httpd.conf.d/block-unwanted.conf`
 
 This will allow the following browsers to reach the captive portal (but nothing else):
 
+[options="compact"]
 * BlackBerry
 * Firefox
 * Google Chrome
@@ -2261,6 +2354,7 @@ Limitations
 
 Inline enforcement because of it's nature has several limitations that one must be aware of.
 
+[options="compact"]
 * Everyone behind an inline interface is on the same Layer 2 LAN
 * Every packet of authorized users goes through the PacketFence server increasing the servers' load considerably: Plan ahead for capacity
 * Every packet of authorized users goes through the PacketFence server: it is a single point of failure for Internet access
@@ -2268,11 +2362,58 @@ Inline enforcement because of it's nature has several limitations that one must 
 
 This is why it is considered a poor man's way of doing access control. We have avoided it for a long time because of the above mentioned limitations. That said, being able to perform both inline and VLAN enforcement on the same server at the same time is a real advantage: it allows users to maintain maximum security while they deploy new and more capable network hardware providing a clean migration path to VLAN enforcement.
 
-include::additional-info.asciidoc[]
+More on VoIP Integration
+------------------------
 
-include::commercial-support.asciidoc[]
+VoIP has been growing in popularity on enterprise networks.  At first sight, the IT administrators think that deploying VoIP with a NAC poses a huge complicated challenge to resolve.  In fact, depending of the hardware you have, not really.  In this section, we will see why.
 
-include::license.asciidoc[]
+CDP and LLDP are your friend
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For those of you who are unaware of the existence of CDP or LLDP (or LLDP-MED), I suggest you start reading on this topic.  Cisco Discovery Protocol (CDP) is device-discovery protocol that runs on all Cisco-manufactured equipment including routers, access servers, bridges, and switches. Using CDP, a device can advertise its existence to other devices and receive information about other devices on the same LAN or on the remote side of a WAN.  In the world of VoIP, CDP is able to determine if the connecting device is an IP Phone or not, and tell the IP Phone to tag its ethernet frame using the configured voice vlan on the switchport.
+
+On many other vendors, you are likely to find LLDP or LLDP-MED support.  Link Layer Discovery Protocol (LLDP) is a vendor-neutral Link Layer protocol in the Internet Protocol Suite used by network devices for advertising their identity, capabilities, and neighbors.  Same as CDP, LLDP can tell an IP Phone which VLAN id is the voice vlan.
+
+VoIP and VLAN assignment techniques
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As you already know, PacketFence supports many VLAN assignment techniques such as port-security, mac authentication or 802.1X.  Let's see how VoIP is doing with each of those.
+
+Port-security
+^^^^^^^^^^^^^
+
+Using port-security, the VoIP device rely on CDP/LLDP to tag its ethernet frame using the configured voice vlan on the switch port.  After that, we ensure that a security trap is sent from the voice VLAN so that PacketFence can authorize the mac address on the port.  When the PC connects, another security trap will be sent, but from the data VLAN.  That way, we will have 1 mac address authorized on the voice VLAN, and 1 on the access VLAN.
+
+NOTE: Not all vendors support VoIP on port-security, please refer to the Network Configuration Guide.
+
+Mac Authentication and 802.1X
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Cisco hardware
+++++++++++++++
+
+On Cisco switches, we are looking at the multi-domain configuration.  The multi-domain means that we can have one device on the VOICE domain, and one device on the DATA domain.  The domain assignment is done using a Cisco VSA.  When the phone connects to the switchport, PacketFence will respond with the proper VSA only, no RADIUS tunneled attributes.  CDP then tells the phone to tag its ethernet frames using the configured voice VLAN on the port.  When a PC connects, the RADIUS server will return tunneled attributes, and the switch will place the port in the provided access VLAN.
+
+Non-Cisco hardware
+++++++++++++++++++
+
+On other vendor hardware, it is possible to make VoIP work using RADIUS VSAs.  When a phone connects to a switchport, PacketFence needs to return the proper VSA to tell the switch to allow tagged frames from this device.  When the PC will connect, we will be able to return standard RADIUS tunnel attributes to the switch, that will be the untagged VLAN.
+
+NOTE: Again, refer to the Network Configuration Guide to see if VoIP is supported on your switch hardware.
+
+What if CDP/LLDP feature is missing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is possible that your phone doesn't support CDP or LLDP.  If it's the case, you are probably looking at the "DHCP way" of provisionning your phone with a voice VLAN.  Some models will ask for a specific DHCP option so that the DHCP server can give the phone a voice VLAN id.  The phone will then reboot, and tag its ethernet frame using the provided VLAN tag.
+
+In order to make this scenario work with PacketFence, you need to ensure that you tweak the registration and your production DHCP server to provide the DHCP option.  You also need to make sure there is a voice VLAN properly configured on the port, and that you auto-register your IP Phones (On the first connect, the phone will be assigned on the registration VLAN).
+
+
+include::includes/additional-info.asciidoc[]
+
+include::includes/commercial-support.asciidoc[]
+
+include::includes/license.asciidoc[]
 
 [appendix]
 Administration Tools
@@ -2285,12 +2426,8 @@ pfcmd
 
 When executed without any arguments `pfcmd` returns a basic help message with all main options:
 
-// this can probably be generated at build time 
-// with the drawback that it might not work when user try to render document 
-// on their workstation
-// TODO make sure this works
 ----
-sys::[/usr/local/pf/bin/pfcmd]
+sys::[/usr/local/pf/bin/pfcmd help]
 ----
 
 The node view option shows all information contained in the node database table for a specified MAC address
@@ -2306,9 +2443,8 @@ pfcmd_vlan
 
 Again, when executed without any arguments, a help screen is shown.
 
-// TODO make sure this works
 ----
-sys::[/usr/local/pf/bin/pfcmd_vlan]
+sys::[/usr/local/pf/bin/pfcmd_vlan -help]
 ----
 
 Web Admin GUI
@@ -2449,6 +2585,7 @@ eap {
 }
 ----
 
+[appendix]
 Legacy FreeRADIUS 1.x configuration
 -----------------------------------
 
@@ -2461,6 +2598,7 @@ FreeRADIUS 1.x Configuration
 
 Make sure to install the following packages:
 
+[options="compact"]
 * freeradius
 
 In /etc/raddb/clients.conf
