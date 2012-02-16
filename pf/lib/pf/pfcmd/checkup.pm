@@ -634,6 +634,24 @@ sub extensions {
         add_problem( $FATAL, "Uncaught exception while trying to identify VLAN extension version: $_" );
     };
 
+    # Billing extension point (pf::billing::custom)
+    try {
+        require pf::billing::custom;
+        if (!defined(pf::billing::custom->VERSION())) {
+            add_problem( $FATAL,
+                "Billing Extension point (pf::billing::custom) VERSION is not defined. " .
+                "Did you read the UPGRADE document?"
+            );
+        } elsif ($BILLING_API_LEVEL > pf::billing::custom->VERSION()) {
+            add_problem( $FATAL,
+                "Billing Extension point (pf::billing::custom) is not at the correct API level. " .
+                "Did you read the UPGRADE document?"
+            );
+        }
+    } catch {
+        add_problem( $FATAL, "Uncaught exception while trying to identify VLAN extension version: $_" );
+    };
+
     try {
         require pf::soh::custom;
         if (!defined(pf::soh::custom->VERSION())) {
@@ -932,7 +950,7 @@ Derek Wuelfrath <dwuelfrath@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2011-2012 Inverse inc.
 
 =head1 LICENSE
 

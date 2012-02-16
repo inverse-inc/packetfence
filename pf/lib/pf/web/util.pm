@@ -73,6 +73,62 @@ sub validate_phone_number {
     return;
 }
 
+=item is_creditcardexpiration_valid
+
+Return 1 if string provided is a valid credit card expiration date, 0 otherwise.
+
+=cut
+sub is_creditcardexpiration_valid {
+    my ( $credit_card_expiration ) = @_;
+
+    if ( $credit_card_expiration =~ /
+            ^[0-9]{4}   # The expiration date is made of 4 digits
+            $/x
+    ) {
+        return 1;
+    }
+    return 0; 
+}
+
+=item is_credidcardnumber_valid
+
+Return 1 if string provided is a valid credit card number, 0 otherwise.
+
+=cut
+sub is_creditcardnumber_valid {
+    my ( $credit_card_number ) = @_;
+
+    if ( $credit_card_number =~ / (?:
+            4[0-9]{12}(?:[0-9]{3})?|            # Visa
+            5[1-5][0-9]{14}|                    # MasterCard
+            3[47][0-9]{13}|                     # American Express
+            6(?:011|5[0-9][0-9])[0-9]{12}|      # Discover
+            3(?:0[0-5]|[68][0-9])[0-9]{11}|     # Diners Club
+            (?:2131|1800|35\d{3})\d{11})        # JCB
+            $/x
+    ) {
+        return 1;
+    }
+    return 0;
+}
+
+=item is_creditcardverification_valid
+
+Return 1 if string provided is a valid credit card verification number, 0 otherwise.
+
+=cut
+sub is_creditcardverification_valid {
+    my ( $credit_card_verification ) = @_;
+
+    if ( $credit_card_verification =~ /
+            ^[0-9]{3,4}     # There 3 or 4 digits
+            $/x
+     ) {
+        return 1;
+    }
+    return 0;
+}
+
 =item is_email_valid
 
 Returns 1 if string provided is a valid email address, 0 otherwise.
@@ -86,6 +142,22 @@ sub is_email_valid {
         (\.[A-z0-9_-]+)*\.  # optional unlimited number of sub domains
         [A-z]{2,6}$         # valid top level domain (from 2 to 6 char)
         /x) {
+        return 1;
+    }
+    return 0;
+}
+
+=item is_name_valid
+
+Return 1 if string provided is a valid name, 0 otherwise
+
+=cut
+sub is_name_valid {
+    my ( $name ) = @_;
+    if ( $name =~ /
+            \w              # only letters are accepted
+            /x 
+    ) {
         return 1;
     }
     return 0;

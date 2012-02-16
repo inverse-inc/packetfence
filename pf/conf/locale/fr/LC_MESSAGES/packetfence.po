@@ -1,5 +1,5 @@
 # fr translation for PacketFence
-# Copyright (C) 2006-2011 Inverse inc.
+# Copyright (C) 2006-2012 Inverse inc.
 # This file is distributed under the same license as the PacketFence project.
 # Olivier Bilodeau <obilodeau@inverse.ca>, 2011.
 #
@@ -8,8 +8,8 @@ domain "packetfence"
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"PO-Revision-Date: 2011-10-31 11:37-0400\n"
-"Last-Translator: Olivier Bilodeau <obilodeau@inverse.ca>\n"
+"PO-Revision-Date: 2012-02-14 10:44-0400\n"
+"Last-Translator: Derek Wuelfrath <dwuelfrath@inverse.ca>\n"
 "Language-Team: PacketFence support <support@packetfence.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -503,3 +503,27 @@ msgstr "Ce compte est expiré."
 
 msgid "This account is not yet activated."
 msgstr "Ce compte n'est pas encore activé."
+
+msgid "Internet Access Package"
+msgstr "Forfait d'accès Internet"
+
+msgid "Credit Card Number"
+msgstr "Numéro de carte de crédit"
+
+msgid "Credit Card Expiration Date"
+msgstr "Date d'expiration carte de crédit"
+
+msgid "MMYY"
+msgstr "MMAA"
+
+msgid "Credit Card Verification Number"
+msgstr "Numéro de vérification carte de crédit"
+
+msgid "Continue"
+msgstr "Continuer"
+
+msgid "An error occured while processing your payment. Incorrect credit card informations provided."
+msgstr "Une erreur est survenue durant le paiement. Veuillez vérifier les informations de carte de crédit."
+
+msgid "An error occured while processing you payment. Your credit card has not been charged."
+msgstr "Une erreur est survenue durant le paiement. Votre carte de crédit n'a pas été débitée."

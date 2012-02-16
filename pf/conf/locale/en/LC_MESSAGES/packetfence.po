@@ -1,5 +1,5 @@
 # en translation for PacketFence
-# Copyright (C) 2006-2011 Inverse inc.
+# Copyright (C) 2006-2012 Inverse inc.
 # This file is distributed under the same license as the PacketFence project.
 # Olivier Bilodeau <obilodeau@inverse.ca>, 2011.
 #
@@ -8,8 +8,8 @@ domain "packetfence"
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"PO-Revision-Date: 2011-10-31 11:39-0400\n"
-"Last-Translator: Olivier Bilodeau <obilodeau@inverse.ca>\n"
+"PO-Revision-Date: 2012-02-14 10:44-0400\n"
+"Last-Translator: Derek Wuelfrath <dwuelfrath@inverse.ca>\n"
 "Language-Team: PacketFence support <support@packetfence.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -633,6 +633,30 @@ msgid "Your XML configuration have been generated and is now ready to download. 
 msgstr ""
 
 msgid "Click to install your generated wireless profile."
+msgstr ""
+
+msgid "Internet Access Package"
+msgstr ""
+
+msgid "Credit Card Number"
+msgstr ""
+
+msgid "Credit Card Expiration Date"
+msgstr ""
+
+msgid "MMYY"
+msgstr ""
+
+msgid "Credit Card Verification Number"
+msgstr ""
+
+msgid "Continue"
+msgstr ""
+
+msgid "An error occured while processing your payment. Incorrect credit card informations provided."
+msgstr ""
+
+msgid "An error occured while processing you payment. Your credit card has not been charged."
 msgstr ""
 
 msgid "The scan report code provided is invalid or expired."

@@ -140,6 +140,8 @@ Requires: perl(Authen::Krb5::Simple)
 # Required for importation feature
 Requires: perl(Text::CSV)
 Requires: perl(Text::CSV_XS)
+# BILLING ENGINE
+Requires: perl(LWP::UserAgent)
 # Required to build documentation
 # See docs/docbook/README.asciidoc for more info about installing requirements.
 # TODO fop on EL5 is actually xmlgraphics-fop
@@ -726,6 +728,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Tue Feb 14 2012 Derek Wuelfrath <dwuelfrath@inverse.ca>
+- Added perl(LWP::UserAgent) dependency for billing engine
+
 * Fri Nov 23 2011 Olivier Bilodeau <obilodeau@inverse.ca> - 3.1.0-1
 - New release 3.1.0
 

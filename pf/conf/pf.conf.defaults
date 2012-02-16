@@ -244,7 +244,11 @@ nbregpages=0
 # Is the guest self-registration feature enabled or not. Self-registration 
 # is the signup button where a guest can register by email or SMS.
 guests_self_registration=enabled
-
+#
+# registation.billing_engine
+#
+# Enable or Disable the billing engine that allow registering to the network by buying access
+billing_engine = disabled
 
 [guests_self_registration]
 #
@@ -679,3 +683,25 @@ ssid = SSID-Hidden
 #
 # Accessible to node that are member of this category
 category = any
+
+[billing]
+#
+# billing.gateway
+#
+# The payment gateway to process the payments
+gateway = authorize_net
+#
+# billing.authorizenet_posturl
+#
+# The payment gateway processing URL (Provided by Authorize.net)
+authorizenet_posturl = https://test.authorize.net/gateway/transact.dll
+#
+# billing.authorizenet_login
+#
+# The merchant's unique API Login ID (Provided by Authorize.net)
+authorizenet_login =
+#
+# billing.authorizenet_trankey
+#
+# The merchant's unique Transaction Key (Provided by Authorize.net)
+authorizenet_trankey =

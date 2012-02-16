@@ -26,6 +26,7 @@ use pf::scan qw($SCAN_VID);
 use pf::util;
 use pf::violation;
 use pf::web;
+use pf::web::billing 1.00;
 # called last to allow redefinitions
 use pf::web::custom;
 
@@ -105,7 +106,12 @@ if ($violation){
 #
 my $unreg = node_unregistered($mac);
 if ($unreg && isenabled($Config{'trapping'}{'registration'})){
-  if ($Config{'registration'}{'nbregpages'} == 0) {
+  # Redirect to the billing engine if enabled
+  if ( isenabled($Config{'registration'}{'billing_engine'}) ) {
+    $logger->info("$mac redirected to billing page");
+    pf::web::billing::generate_billing_page($cgi, $session, "/pay?mode=process", $destination_url, $mac);
+    exit(0);
+  } elsif ($Config{'registration'}{'nbregpages'} == 0) {
     $logger->info("$mac redirected to authentication page");
     pf::web::generate_login_page($cgi, $session, $destination_url, $mac);
     exit(0);
