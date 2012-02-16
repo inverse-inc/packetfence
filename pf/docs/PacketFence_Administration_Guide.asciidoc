@@ -1462,6 +1462,21 @@ To perform a system scan before giving access to a host on the network you need 
 
 It is also recommended to adjust `scan.duration` to reflect how long the scan takes. A progress bar of this duration will be shown to the user while he is waiting. By default, we set this variable to 60s.
 
+Hosting Nessus / OpenVAS remotely
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Because of the CPU intensive nature of an automated vulnerability assessment, we recommend that it is hosted on a separate server for large environments. To do so, a couple of things are required: 
+
+[options="compact"]
+* PacketFence needs to be able to communicate to the server on the port specified by the vulnerability engine used
+* The scanning server need to be able to access the targets. In other words, registration VLAN access is required if scan on registration is enabled.
+
+If you are using the OpenVAS scanning engine:
+
+[options="compact"]
+* The scanning server need to be able to reach PacketFence's Admin interface (on port 1443 by default) by its DNS entry. Otherwise PacketFence won't be notified of completed scans.
+* You must have a valid SSL certificate on your PacketFence server
+
 RADIUS Accounting
 ~~~~~~~~~~~~~~~~~
 
