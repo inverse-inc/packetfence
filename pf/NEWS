@@ -22,7 +22,7 @@ New Hardware Support
  * Ruckus Wireless Controllers
 
 New Features
- * OpenVAS integration
+ * OpenVAS Vulnerability Assesment integration for client-side policy compliance
 
 Enhancements
  * Migrated our documentation from a binary-only ODT to a flexible asciidoc format
