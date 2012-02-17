@@ -660,6 +660,8 @@ fi
 %dir                    /usr/local/pf/lib/pf/radius
                         /usr/local/pf/lib/pf/radius/constants.pm
 %config(noreplace)      /usr/local/pf/lib/pf/radius/custom.pm
+%dir                    /usr/local/pf/lib/pf/scan
+                        /usr/local/pf/lib/pf/scan/*
 %dir                    /usr/local/pf/lib/pf/services
                         /usr/local/pf/lib/pf/services/*
 %dir                    /usr/local/pf/lib/pf/SNMP
