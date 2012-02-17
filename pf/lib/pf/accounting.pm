@@ -16,6 +16,7 @@ use strict;
 use warnings;
 
 use Log::Log4perl;
+use Readonly;
 
 use constant ACCOUNTING => 'accounting';
 
@@ -39,6 +40,7 @@ BEGIN {
         node_accounting_weekly_time
         node_accounting_monthly_time
         node_accounting_yearly_time
+        $ACCOUNTING_TRIGGER_RE
     );
 }
 
@@ -54,6 +56,17 @@ our $accounting_db_prepared = 0;
 # in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
 # the hash if required
 our $accounting_statements = {};
+
+# This parses the specific accounting violation trigger format
+Readonly our $ACCOUNTING_TRIGGER_RE => qr/
+    ($BANDWIDTH_DIRECTION_RE)     # bandwidth direction
+    (\d+)                         # nb of bandwidth units
+    ($BANDWIDTH_UNITS_RE)         # bandwidth units
+    (\d+)?($TIME_MODIFIER_RE)?    # optional time window (number + time modifier)
+/x;
+
+Readonly our $DIRECTION_IN => 'IN';
+Readonly our $DIRECTION_OUT => 'OUT';
 
 =head1 SUBROUTINES
 
@@ -221,7 +234,7 @@ sub acct_maintenance {
 
     foreach my $acct_triggers (@triggers) {
         my $acct_policy = $acct_triggers->{'tid_start'};
-        if ($acct_policy =~ /(IN|OUT|TOT)(\d+)(B|KB|MB|GB|TB)(\d+)?($TIME_MODIFIER_RE)?/) {
+        if ($acct_policy =~ /$ACCOUNTING_TRIGGER_RE/) {
 
             my $direction = $1;
             my $bwInBytes = pf::util::unpretty_bandwidth($2,$3);
@@ -229,17 +242,19 @@ sub acct_maintenance {
             my $intervalInSeconds;
             if (defined($4) && defined($5)) {
                 $intervalInSeconds = pf::config::normalize_time($4.$5);
-            } else {
+            } 
+            # no interval given so we assume from beginning of time
+            else {
+                # mysql specific
                 #This should bring us in 1695, and PF was not yet existing :)
-                #The funny thing is that it's the birth year of Jean De La Fontaine.. aight
-                #no one cares :)
+                #The funny thing is that it's the birth year of Jean De La Fontaine.. alright no one cares :)
                 $intervalInSeconds = 9999999999;
             }
 
             my @results;
-            if ($direction eq "IN") {
+            if ($direction eq $DIRECTION_IN) {
                 @results = node_acct_maintenance_bw_inbound($intervalInSeconds,$bwInBytes);
-            } elsif ($direction eq "OUT") {
+            } elsif ($direction eq $DIRECTION_OUT) {
                 @results = node_acct_maintenance_bw_outbound($intervalInSeconds,$bwInBytes);
             } else {
                 @results = node_acct_maintenance_bw_total($intervalInSeconds,$bwInBytes);
@@ -253,7 +268,7 @@ sub acct_maintenance {
             $logger->warn("Invalid trigger for accounting maintenance: $acct_policy");
         }
     }
-    return (1);
+    return $TRUE;
 }
 
 =item current_sessionid

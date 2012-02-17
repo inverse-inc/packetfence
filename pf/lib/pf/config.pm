@@ -79,6 +79,7 @@ BEGIN {
         $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS
         %CAPTIVE_PORTAL
         normalize_time $TIME_MODIFIER_RE
+        $BANDWIDTH_DIRECTION_RE $BANDWIDTH_UNITS_RE
         is_vlan_enforcement_enabled is_inline_enforcement_enabled
         is_in_list
         $LOG4PERL_RELOAD_TIMER
@@ -228,6 +229,10 @@ my $cache_inline_enforcement_enabled;
 # if you change these, make sure to change:
 # html/admin/common/helpers.inc's get_time_units_for_dropdown and get_time_regexp()
 our $TIME_MODIFIER_RE = qr/[smhDWMY]/;
+
+# Bandwdith accounting values
+our $BANDWIDTH_DIRECTION_RE = qr/IN|OUT|TOT/;
+our $BANDWIDTH_UNITS_RE = qr/B|KB|MB|GB|TB/;
 
 try {
 

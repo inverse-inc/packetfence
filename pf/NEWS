@@ -23,6 +23,7 @@ New Hardware Support
 
 New Features
  * OpenVAS Vulnerability Assesment integration for client-side policy compliance
+ * Bandwidth violations based on RADIUS accounting information
 
 Enhancements
  * Migrated our documentation from a binary-only ODT to a flexible asciidoc format
@@ -43,7 +44,6 @@ Enhancements
  * Added a multi-threaded EAP test script in t/stress-test/
  * Performance: node_view query optimized for 100x+ gain in environments where MySQL is taking a lot of CPU
  * Performance: faster command line response time (15%+ with bin/pfcmd)
- * Adding bandwidth violations based on RADIUS accounting information
 
 Bug Fixes
  * Buttons in graphs.php of type ifoctetshistoryswitch, ifoctetshistoryuser, ifoctetshistorymac (#1110)

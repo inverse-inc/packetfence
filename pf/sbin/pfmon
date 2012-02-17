@@ -200,8 +200,10 @@ sub cleanup {
                 if ( $Config{'expire'}{'node'} );
             traplog_cleanup( $Config{'expire'}{'traplog'} )
                 if ( $Config{'expire'}{'traplog'} );
+
             $logger->info("checking registered nodes for expiration");
             nodes_maintenance();
+
             $logger->info("checking accounting data for potential bandwidth abuse");
             acct_maintenance();
         }

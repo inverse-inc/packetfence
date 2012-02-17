@@ -43,6 +43,7 @@ BEGIN {
     );
 }
 
+use pf::accounting qw($ACCOUNTING_TRIGGER_RE);
 use pf::config;
 use pf::db;
 use pf::util;
@@ -187,14 +188,27 @@ sub parse_triggers {
 
     my $triggers_ref = [];
     foreach my $trigger ( split( /\s*,\s*/, $violation_triggers ) ) {   
-        die("Invalid trigger id: $trigger") if ($trigger !~ /^\w+::[\d\.-]+$/ 
-             && $trigger !~ /^\w+::(IN|OUT|TOT)(\d+)(B|KB|MB|GB|TB)(\d+)?($TIME_MODIFIER_RE)?$/);
+
+        # TODO we should refactor this into objects where trigger types provide their own matchers
+        # at first, we are liberal in what we accept
+        die("Invalid trigger id: $trigger") if ($trigger !~ /^\w+::[^:]+$/);
+
         my ( $type, $tid ) = split( /::/, $trigger );
         $type = lc($type);
 
         # make sure trigger is a valid trigger type
+        # TODO refactor into an ListUtil test or an hash lookup (see Perl Best Practices)
         if ( !grep( { lc($_) eq $type } @VALID_TRIGGER_TYPES ) ) {
             die("Invalid trigger type ($type)");
+        }
+
+        # special accouting only trigger parser
+        if ($type eq 'accounting') {
+            die("Invalid accounting trigger id: $trigger") if ($tid !~ /^$ACCOUNTING_TRIGGER_RE$/);
+        }
+        # usual trigger allowing digits, ranges and dots
+        else {
+            die("Invalid trigger id: $trigger") if ($trigger !~ /^\w+::[\d\.-]+$/);
         }
 
         # process range

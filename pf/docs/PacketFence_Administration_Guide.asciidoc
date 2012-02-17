@@ -1485,27 +1485,36 @@ RADIUS Accounting is usually used by ISPs to bill clients.  In PacketFence, we a
 Violations
 ^^^^^^^^^^
 
-Since PacketFence 3.2, it is possible to add violations to limit bandwidth abuse.  The format of the trigger is very simple :
+Since PacketFence 3.2, it is possible to add violations to limit bandwidth abuse.  The format of the trigger is very simple:
+
    Accounting::[DIRECTION][LIMIT][INTERVAL(optional)]
 
 Let's explain each chunk properly:
-* DIRECTION: You can either set a limit to inbound(IN), outbound(OUT), or total(TOT) bandwidth
-* LIMIT: You can set a number of bytes(B), kilobytes(KB), megavytes(MB), gigabytes(GB), or petabytes(PB)
-* INTERVAL: This is actually the time window we will look for potential abuse.  You can set a number of seconds(s),minutes(m),hours(h),days(D),weeks(W),months(M), or years(Y).  This value is optional, if you set nothing, we will check in all the data we have since your packetfence install
+
+[options="compact"]
+* `DIRECTION`: You can either set a limit to inbound(IN), outbound(OUT), or total(TOT) bandwidth
+* `LIMIT`: You can set a number of bytes(B), kilobytes(KB), megavytes(MB), gigabytes(GB), or petabytes(PB)
+* `INTERVAL`: This is actually the time window we will look for potential abuse.  You can set a number of seconds(s),minutes(m),hours(h),days(D),weeks(W),months(M), or years(Y).  This value is optional, if you set nothing, we will check in all the data we have since your packetfence install.
 
 Example triggers
 ++++++++++++++++
+
 * Look for Incoming (Download) traffic with a 50GB/month
+
    Accounting::IN50GB1M
+
 * Look for Outgoing (Upload) traffic with a 500MB/hour
+
    Accounting::OUT500MB1h
+
 * Look for Total (Download+Upload) traffic with a 200GB limit (we will check all the accounting data)
+
    Accounting::TOT200GB
 
 Grace period
 ++++++++++++
-When using such violation feature, setting the grace period is really important.  You don't want to put it too low (ie. A user re-enable his network, and get caught after 1 bytes is tranmitted!) or too high.  We recommend that you set the grace period to one interval window.
 
+When using such violation feature, setting the grace period is really important.  You don't want to put it too low (ie. A user re-enable his network, and get caught after 1 bytes is tranmitted!) or too high.  We recommend that you set the grace period to one interval window.
 
 Oinkmaster
 ~~~~~~~~~~
