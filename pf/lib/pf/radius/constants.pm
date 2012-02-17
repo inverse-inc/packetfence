@@ -13,7 +13,6 @@ specify the package.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Readonly;
 

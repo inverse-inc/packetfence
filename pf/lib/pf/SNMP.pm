@@ -14,7 +14,6 @@ functionnality and is meant to be subclassed.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Carp;
 use Data::Dumper;

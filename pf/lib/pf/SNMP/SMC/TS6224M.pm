@@ -14,7 +14,6 @@ This module was not developed by Inverse. Unknown firmware revision used for dev
 =cut
 use strict;
 use warnings;
-use diagnostics;
 
 use Log::Log4perl;
 use Net::SNMP;

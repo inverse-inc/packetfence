@@ -13,7 +13,6 @@ One day L<pf::import> will support what we need and this script will be removed.
 require 5.8.5;
 use strict;
 use warnings;
-use diagnostics;
 
 use Data::Dumper;
 use FindBin;

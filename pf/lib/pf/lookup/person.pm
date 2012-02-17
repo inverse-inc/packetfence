@@ -80,7 +80,6 @@ Define this function to return whatever data you'd like.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use pf::person;
 

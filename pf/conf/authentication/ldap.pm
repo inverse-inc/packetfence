@@ -13,7 +13,6 @@ This module extends pf::web::auth
 =cut
 use strict;
 use warnings;
-use diagnostics;
 use Log::Log4perl;
 use Net::LDAP;
 

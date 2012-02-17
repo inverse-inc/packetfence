@@ -15,7 +15,6 @@ or as the content of a violation action
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Time::localtime;
 

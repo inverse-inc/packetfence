@@ -12,7 +12,6 @@ This module forwards SoH authorization requests to Packetfence.
 
 use strict;
 use warnings;
-use diagnostics;
 use Sys::Syslog;
 use Try::Tiny;
 

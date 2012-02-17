@@ -17,7 +17,6 @@ This module is currently only a placeholder, see pf::SNMP::Meru
 
 use strict;
 use warnings;
-use diagnostics;
 use Log::Log4perl;
 
 use base ('pf::SNMP::Meru');

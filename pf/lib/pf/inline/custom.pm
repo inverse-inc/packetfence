@@ -14,7 +14,6 @@ This module extends pf::inline
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Log::Log4perl;
 

@@ -22,7 +22,6 @@ Firmware version 5.5.2.14 and 5.5.3 are known to have problematic deauthenticati
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Log::Log4perl;
 use POSIX;

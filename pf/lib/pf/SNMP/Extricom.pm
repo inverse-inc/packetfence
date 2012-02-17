@@ -22,7 +22,6 @@ SNMPv3 has not been tested.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Carp;
 use Log::Log4perl;

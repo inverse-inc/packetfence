@@ -13,7 +13,6 @@ It should work on all 6500 WiSM modules and maybe 7500.
 
 use strict;
 use warnings;
-use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::Cisco::WLC_4400');

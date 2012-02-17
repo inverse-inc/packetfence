@@ -12,7 +12,6 @@ This module is currently only a placeholder, see pf::SNMP::Juniper.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use base ('pf::SNMP::Juniper');
 use Log::Log4perl;

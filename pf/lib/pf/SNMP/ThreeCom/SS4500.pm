@@ -61,7 +61,6 @@ Maybe we can switch to use autolearn with forced 02:00... addresses to fill the 
 
 use strict;
 use warnings;
-use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
 use Net::Telnet;

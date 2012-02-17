@@ -47,7 +47,6 @@ in the 5.1 version, PMK will be disabled by default.  To be confirmed.
 =cut
 use strict;
 use warnings;
-use diagnostics;
 
 use Log::Log4perl;
 use Net::Appliance::Session;

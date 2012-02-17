@@ -32,7 +32,6 @@ port security.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use FindBin;
 

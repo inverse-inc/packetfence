@@ -46,7 +46,6 @@ Customer specific work-arounds are possible. For example: per-SSID registration,
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Carp;
 use Log::Log4perl;

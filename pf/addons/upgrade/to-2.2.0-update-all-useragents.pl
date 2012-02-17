@@ -32,7 +32,6 @@ Running this script when upgrading to 2.2.0 is *not* mandatory.
 =cut
 use strict;
 use warnings;
-use diagnostics;
 
 use FindBin;
 use Getopt::Long;

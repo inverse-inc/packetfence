@@ -17,7 +17,7 @@ however if you do any modifications on your own you might want to precompile it 
 
 To do so, from /usr/local/pf/, run: 
 
-  /usr/bin/perl -w -e "use strict; use warnings; use diagnostics; use Parse::RecDescent; use lib \"./lib\"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile(\$grammar, \"pfcmd_pregrammar\");"
+  /usr/bin/perl -w -e "use strict; use warnings; use Parse::RecDescent; use lib \"./lib\"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile(\$grammar, \"pfcmd_pregrammar\");"
 
 Then put the resulting pfcmd_pregrammar.pm file in /usr/local/pf/lib/pf/pfcmd/
 

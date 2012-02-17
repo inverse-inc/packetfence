@@ -17,7 +17,6 @@ Refer to them for more information.
 =cut
 use strict;
 use warnings;
-use diagnostics;
 
 use POSIX;
 use Log::Log4perl;

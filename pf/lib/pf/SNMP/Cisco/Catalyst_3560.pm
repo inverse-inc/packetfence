@@ -61,7 +61,6 @@ This is a Cisco bug, nothing much we can do. Don't use this IOS for VoIP.
 =cut
 use strict;
 use warnings;
-use diagnostics;
 
 use Log::Log4perl;
 use Net::SNMP;

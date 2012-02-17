@@ -14,7 +14,6 @@ to access SNMP enabled Cisco Controller 4400 with IOS version 4.2.130
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Carp;
 use Log::Log4perl;

@@ -31,7 +31,6 @@ switches.conf file and to execute some simple SNMP reads.
 # TODO make it work with most switches then call it pfdiag and place in bin/
 use strict;
 use warnings;
-use diagnostics;
 use threads;
 
 use FindBin;

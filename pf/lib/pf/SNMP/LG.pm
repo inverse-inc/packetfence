@@ -50,7 +50,6 @@ to learn rather than static.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use base ('pf::SNMP');
 

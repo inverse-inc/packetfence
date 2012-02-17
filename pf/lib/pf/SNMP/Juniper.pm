@@ -30,7 +30,6 @@ Users behind VoIP phones are not supported yet.
 =cut
 use strict;
 use warnings;
-use diagnostics;
 
 use base ('pf::SNMP');
 use Log::Log4perl;

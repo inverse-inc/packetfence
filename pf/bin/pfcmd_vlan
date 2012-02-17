@@ -75,7 +75,6 @@ This script allows to execute the following commands related to switches and VLA
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Data::Dumper;
 use English qw( -no_match_vars ) ;  # Avoids regex performance penalty

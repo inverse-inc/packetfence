@@ -12,7 +12,6 @@ monitorpfsetvlan.pl
 
 use strict;
 use warnings;
-use diagnostics;
 
 use File::Tail;
 use threads;

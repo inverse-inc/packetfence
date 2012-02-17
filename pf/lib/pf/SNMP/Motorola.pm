@@ -50,7 +50,6 @@ SNMPv3 support is untested.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use base ('pf::SNMP');
 use Log::Log4perl;

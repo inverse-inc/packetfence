@@ -33,7 +33,6 @@ SNMPv3 support was not tested.
 =cut
 use strict;
 use warnings;
-use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
 

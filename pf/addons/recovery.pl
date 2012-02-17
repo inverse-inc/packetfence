@@ -58,7 +58,6 @@ USA.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use FindBin;
 use DBI;

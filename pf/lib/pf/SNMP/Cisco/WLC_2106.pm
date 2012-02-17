@@ -18,7 +18,6 @@ Wireless deauthentication (deassociation) uses the CLI (telnet or ssh) which is 
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Carp;
 use Log::Log4perl;

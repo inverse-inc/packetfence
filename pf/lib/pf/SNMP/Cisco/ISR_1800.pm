@@ -40,7 +40,6 @@ F<conf/switches.conf>
 
 use strict;
 use warnings;
-use diagnostics;
 
 use base ('pf::SNMP::Cisco');
 use Log::Log4perl;

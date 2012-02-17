@@ -56,7 +56,6 @@ USA.
 # use, require {{{1
 use strict;
 use warnings;
-use diagnostics;
 
 require 5.8.8;
 

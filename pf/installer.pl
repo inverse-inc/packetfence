@@ -56,7 +56,6 @@ installer.pl will help you with the following tasks:
 
 use strict;
 use warnings;
-use diagnostics;
 
 use FindBin;
 use Term::ReadKey;
@@ -290,7 +289,7 @@ if (questioner(
 }
 
 print "Pre-compiling pfcmd grammar\n";
-`/usr/bin/perl -w -e 'use strict; use warnings; use diagnostics; use Parse::RecDescent; use lib "$install_dir/lib"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile(\$grammar, "pfcmd_pregrammar");'`;
+`/usr/bin/perl -w -e 'use strict; use warnings; use Parse::RecDescent; use lib "$install_dir/lib"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile(\$grammar, "pfcmd_pregrammar");'`;
 rename "pfcmd_pregrammar.pm", "$install_dir/lib/pf/pfcmd/pfcmd_pregrammar.pm";
 
 print "Compiling message catalogue (i18n)\n";

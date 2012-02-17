@@ -33,7 +33,6 @@ Be aware of that if you start to see MAC authorization failures and report the p
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Log::Log4perl;
 use Net::SNMP;

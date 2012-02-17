@@ -14,7 +14,6 @@ any of the functions in pf::soh, just redefine them here.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use base 'pf::soh';
 

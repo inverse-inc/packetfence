@@ -13,7 +13,6 @@ to access SNMP enabled Dlink switches.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use base ('pf::SNMP');
 use Net::SNMP;

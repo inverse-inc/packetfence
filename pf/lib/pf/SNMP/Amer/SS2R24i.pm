@@ -21,7 +21,6 @@ Developed and tested on SS2R24i running on firmware version 4.02-B15
 
 use strict;
 use warnings;
-use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::Amer');

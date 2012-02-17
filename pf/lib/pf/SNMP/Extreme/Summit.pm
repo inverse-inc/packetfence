@@ -13,7 +13,6 @@ This module is currently only a placeholder, see pf::SNMP::Extreme.
 
 use strict;
 use warnings;
-use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::Extreme');

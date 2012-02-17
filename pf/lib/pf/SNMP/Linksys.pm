@@ -14,7 +14,6 @@ to access SNMP enabled Linksys switches.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use base ('pf::SNMP');
 use Log::Log4perl;

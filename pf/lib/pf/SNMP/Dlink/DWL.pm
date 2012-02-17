@@ -20,7 +20,6 @@ This module is currently only a placeholder, see L<pf::SNMP::Dlink::DWS_3026> fo
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Log::Log4perl;
 use Net::SNMP;

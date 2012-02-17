@@ -17,7 +17,6 @@ This module is currently only a placeholder, see pf::SNMP::AeroHIVE
 
 use strict;
 use warnings;
-use diagnostics;
 use Log::Log4perl;
 
 use base ('pf::SNMP::AeroHIVE');

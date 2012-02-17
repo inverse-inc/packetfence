@@ -16,7 +16,6 @@ L<pf::SNMP::Cisco::Catalyst_2960> also.
 =cut
 use strict;
 use warnings;
-use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
 

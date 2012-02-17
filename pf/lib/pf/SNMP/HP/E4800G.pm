@@ -81,7 +81,6 @@ It's really a matter of choice.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Log::Log4perl;
 use Net::SNMP;

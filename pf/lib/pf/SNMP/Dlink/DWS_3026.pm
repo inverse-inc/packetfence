@@ -43,7 +43,6 @@ Firmware 3.0.0.13 and 3.0.0.16 are known to be affected.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Log::Log4perl;
 use Net::SNMP;

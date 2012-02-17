@@ -46,7 +46,6 @@ USA.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Log::Log4perl qw(:easy);
 use Getopt::Long;

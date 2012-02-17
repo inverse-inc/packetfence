@@ -12,7 +12,6 @@ pf::SNMP::Cisco
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Data::Dumper;
 use base ('pf::SNMP');

@@ -19,7 +19,6 @@ Otherwise this module is identical to pf::SNMP::Nortel.
 
 use strict;
 use warnings;
-use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::Nortel');

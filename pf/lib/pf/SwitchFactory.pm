@@ -15,7 +15,6 @@ the necessary information needed to actually instantiate the objects.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Carp;
 use Config::IniFiles;

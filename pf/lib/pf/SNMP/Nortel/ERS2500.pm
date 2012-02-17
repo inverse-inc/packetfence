@@ -32,7 +32,6 @@ Firmware series 4.3 is apparently fine.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Log::Log4perl;
 use Net::SNMP;

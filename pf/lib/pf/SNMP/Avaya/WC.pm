@@ -33,7 +33,6 @@ However this could (and should in our opinion) be fixed by the vendor.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use base ('pf::SNMP');
 use Log::Log4perl;

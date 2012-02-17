@@ -40,7 +40,6 @@ USA.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Time::Local;
 use IO::Handle;

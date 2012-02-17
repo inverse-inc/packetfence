@@ -22,7 +22,6 @@ SNMPv3 support is untested.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Log::Log4perl;
 use POSIX;

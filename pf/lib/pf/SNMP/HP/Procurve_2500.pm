@@ -17,7 +17,6 @@ We've got reports that the HP ProCurve's 5412zl and 8212zl work correctly with t
 
 use strict;
 use warnings;
-use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::HP');

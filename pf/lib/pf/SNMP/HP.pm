@@ -27,7 +27,6 @@ Warning: If you configure a switch that is already in production be careful that
 
 use strict;
 use warnings;
-use diagnostics;
 
 use base ('pf::SNMP');
 use Log::Log4perl;

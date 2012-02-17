@@ -20,7 +20,6 @@ The methods in pf::soh can be overriden in pf::soh::custom.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Log::Log4perl;
 use Data::Dumper;

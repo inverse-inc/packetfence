@@ -52,7 +52,6 @@ particular, it tries to achieve the following tasks:
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Carp;
 use Config::IniFiles;

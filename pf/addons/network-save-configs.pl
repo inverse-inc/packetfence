@@ -55,7 +55,6 @@ This is not useful for MAC-Authentication or 802.1X-based access control techniq
 =cut
 use strict;
 use warnings;
-use diagnostics;
 
 use FindBin;
 use Getopt::Long;

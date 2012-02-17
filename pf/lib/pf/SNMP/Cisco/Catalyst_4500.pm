@@ -23,7 +23,6 @@ F<conf/switches.conf>
 
 use strict;
 use warnings;
-use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
 

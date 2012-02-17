@@ -14,7 +14,6 @@ oriented interface to access SNMP enabled Foundry FastIron 4802 switches.
 
 use strict;
 use warnings;
-use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::Foundry');

@@ -33,7 +33,6 @@ Nothing documented at this point.
 =cut
 use strict;
 use warnings;
-use diagnostics;
 
 use Log::Log4perl;
 use Net::Appliance::Session;

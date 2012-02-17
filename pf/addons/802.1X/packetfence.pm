@@ -12,7 +12,6 @@ packetfence.pm contains the functions necessary to integrate PacketFence and Fre
 
 use strict;
 use warnings;
-use diagnostics;
 use Sys::Syslog;
 
 # Configuration parameters

@@ -13,7 +13,6 @@ oriented interface to access SNMP enabled HP Procurve 2600 switches.
 
 use strict;
 use warnings;
-use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::HP');

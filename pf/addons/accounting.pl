@@ -16,7 +16,6 @@ Obtain ifInOctets and ifOutOctets from switches using SNMP
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Data::Dumper;
 use Net::SNMP;

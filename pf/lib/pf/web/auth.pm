@@ -26,7 +26,6 @@ Subclasses controlled by site administrator at F<conf/authentication/>.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Log::Log4perl;
 use Try::Tiny;

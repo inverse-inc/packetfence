@@ -17,7 +17,6 @@ All the behavior contained here can be overridden in lib/pf/radius/custom.pm.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Log::Log4perl;
 

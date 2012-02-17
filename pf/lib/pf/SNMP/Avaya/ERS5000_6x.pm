@@ -20,7 +20,6 @@ Aside from ifIndex handling this module is identical to pf::SNMP::Nortel.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Log::Log4perl;
 use Net::SNMP;

@@ -37,7 +37,6 @@ behavior on the client device.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use base ('pf::SNMP');
 

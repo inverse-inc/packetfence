@@ -12,7 +12,6 @@ This module is currently only a placeholder, see pf::SNMP::Extricom
 
 use strict;
 use warnings;
-use diagnostics;
 use Log::Log4perl;
 
 use base ('pf::SNMP::Extricom');

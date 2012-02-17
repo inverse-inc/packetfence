@@ -17,7 +17,6 @@ to customize behavior here.
 
 use strict;
 use warnings;
-use diagnostics;
 use Log::Log4perl;
 
 use base ('pf::floatingdevice');

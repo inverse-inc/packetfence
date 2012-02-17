@@ -12,7 +12,6 @@ Module to manage Trapeze controllers
 
 use strict;
 use warnings;
-use diagnostics;
 
 use Log::Log4perl;
 use Net::Appliance::Session;

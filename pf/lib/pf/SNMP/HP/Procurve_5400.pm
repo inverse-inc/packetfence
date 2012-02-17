@@ -40,7 +40,6 @@ Recommanded Firmware is K.15.06.0008
 
 use strict;
 use warnings;
-use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
 

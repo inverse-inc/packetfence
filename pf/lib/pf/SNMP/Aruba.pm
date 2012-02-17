@@ -48,7 +48,6 @@ Let us know because we don't have the hardware to test.
 
 use strict;
 use warnings;
-use diagnostics;
 
 use base ('pf::SNMP');
 

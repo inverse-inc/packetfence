@@ -15,7 +15,6 @@ It should work on all Matrix chassis.
 
 use strict;
 use warnings;
-use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
 use Net::Telnet;

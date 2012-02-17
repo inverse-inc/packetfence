@@ -35,7 +35,6 @@ F<conf/switches.conf>
 
 use strict;
 use warnings;
-use diagnostics;
 use Carp;
 use Data::Dumper;
 use Log::Log4perl;

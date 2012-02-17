@@ -15,7 +15,6 @@ This modules extends pf::SNMP::Cisco::Aironet
 
 use strict;
 use warnings;
-use diagnostics;
 use Log::Log4perl;
 use Net::SNMP;
 
