@@ -14,7 +14,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 10;
+use Test::More tests => 13;
 use Test::NoWarnings;
 use Test::Exception;
 use File::Basename qw(basename);
@@ -81,6 +81,24 @@ throws_ok { parse_triggers("Openvas::1.3.6.1.4.1.25.1.0.801-1.3.6.1.4.1.25.1.0.8
 throws_ok { parse_triggers("VENDORMAC::00:22:FA,VENDORMAC::00:22:68,VENDORMAC::00:13:e8") }
     qr/Invalid trigger id/,
     'parsing triggers with an invalid trigger id expecting exception'
+;
+
+# Bandwidth accounting
+is_deeply(
+    parse_triggers("Accounting::TOT20GB1M"),
+    [ [ "TOT20GB1M", "TOT20GB1M", "accounting" ], ],
+    "parsing bandwidth accounting trigger"
+);
+
+is_deeply(
+    parse_triggers("Accounting::TOT20GB"),
+    [ [ "TOT20GB", "TOT20GB", "accounting" ], ],
+    "parsing bandwidth accounting trigger without a time limit"
+);
+
+throws_ok { parse_triggers("VENDORMAC::TOT20GB") }
+    qr/Invalid trigger id/,
+    'parsing a trigger with an invalid trigger id out of the accounting context expecting exception'
 ;
 
 =head1 AUTHOR
