@@ -80,6 +80,7 @@ sub billing_db_prepare {
 =item new
 
 Constructor
+
 Usually we don't call this constructor but we use the pf::billing::custom subclass instead.
 This will allow methods redefinition.
 
@@ -97,7 +98,7 @@ sub new {
 
 =item createNewTransaction
 
-TODO: Add some verification that all the informaations are there and in a good format.
+TODO: Add some verification that all the information is there and in a good format.
 
 =cut
 sub createNewTransaction {
@@ -105,11 +106,8 @@ sub createNewTransaction {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     # Preparing the transaction attributes
-    my $ip      = $transaction_infos{'ip'};
-    my $mac     = $transaction_infos{'mac'};
-    my $item    = $transaction_infos{'item'};
-    my $price   = $transaction_infos{'price'};
-    my $email   = $transaction_infos{'email'};
+    # slicing hash on the right assigning proper values to the left
+    my ($ip, $mac, $item, $price, $email) = @transaction_infos{qw(ip mac item price email)};
 
     my $epoch   = time;
     my $date    = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime($epoch));
@@ -144,7 +142,7 @@ sub getAvailableTiers {
 
     my %tiers = (
             tier1 => {
-                id => "tier1", name => "Tier 1", price => "1.00", timeout => "1D",
+                id => "tier1", name => "Tier 1", price => "1.00", timeout => "1D", category => 'default',
                 description => "Tier 1 Internet Access", destination_url => "http://www.packetfence.org" },
     );
 
@@ -160,7 +158,7 @@ sub instantiateNewTransaction {
     my ( $type, %transaction_infos ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $transaction = 'pf::billing::' . $type;
+    my $transaction = 'pf::billing::gateway::' . $type;
 
     return $transaction->new(%transaction_infos);
 }
@@ -179,9 +177,9 @@ sub processTransaction {
     my $paymentResponse = $transaction->processPayment();
 
     # Update transaction status in database
-    my $status = "processed - success";
+    my $status = $BILLING::STATUS_PROCESSED_SUCCESS;
     if ( $paymentResponse ne $BILLING::SUCCESS ) {
-        $status = "processed - error";
+        $status = $BILLING::STATUS_PROCESSED_ERROR;
     }
     updateTransactionStatus($transaction_infos{'id'}, $status);
 
@@ -207,6 +205,8 @@ sub updateTransactionStatus {
 =head1 AUTHOR
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 

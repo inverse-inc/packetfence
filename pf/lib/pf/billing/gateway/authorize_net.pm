@@ -1,14 +1,15 @@
-package pf::billing::authorize_net;
+package pf::billing::gateway::authorize_net;
 
 =head1 NAME
 
-pf::billing::authorize_net - Object oriented module for billing purposes
+pf::billing::gateway::authorize_net - Object oriented module for billing purposes
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::billing::authorize_net is a module that implements billing functions using the Authorize.net payment gateway.
+pf::billing::gateway::authorize_net is a module that implements billing 
+functions using the Authorize.net payment gateway.
 
 =cut
 
@@ -18,10 +19,13 @@ use warnings;
 use HTTP::Request::Common qw(POST);
 use Log::Log4perl;
 use LWP::UserAgent;
+use Readonly;
 
 use pf::billing::constants;
 use pf::config;
 
+
+Readonly our $DELIMITER => ',';
 
 =head1 SUBROUTINES
 
@@ -29,10 +33,10 @@ use pf::config;
 
 =cut
 
-
 =item new
 
 Constructor
+
 Create a new object for transactions using Authorize.net payment gateway
 
 =cut
@@ -40,7 +44,7 @@ sub new {
     my ( $class, $transaction_infos ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    $logger->debug("Instanciating a new pf::billing::authorize_net object");
+    $logger->debug("Instanciating a new " . __PACKAGE__ . " object");
 
     my $this = bless {
             # Transaction informations
@@ -97,7 +101,7 @@ sub processPayment {
             x_type            => 'AUTH_CAPTURE',
             x_version         => '3.1',
             x_delim_data      => 'TRUE',
-            x_delim_char      => ',',
+            x_delim_char      => $DELIMITER,
             x_relay_response  => 'FALSE',
             x_email_customer  => 'TRUE',
     };
@@ -108,12 +112,11 @@ sub processPayment {
 
     # There was an error processing the payment with the payment gateway
     if ( !$response->is_success ) {
-        $logger->error("There was an error in the process of the payment: $response->status_line");
+        $logger->error("There was an error in the process of the payment: " . $response->status_line());
         return;
     }
 
-    my @response = split(/\Q,/, $response->content);
-
+    my @response = split(/$DELIMITER/, $response->content);
     my $response_code           = $response[$AUTHORIZE_NET::RESPONSE_CODE];
     my $response_reason_text    = $response[$AUTHORIZE_NET::RESPONSE_REASON_TEXT];
 
@@ -132,6 +135,8 @@ sub processPayment {
 =head1 AUTHOR
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 

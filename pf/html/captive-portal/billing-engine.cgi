@@ -18,6 +18,7 @@ use Readonly;
 use POSIX;
 use URI::Escape qw(uri_escape uri_unescape);
 
+use pf::billing::constants;
 use pf::billing::custom;
 use pf::class;
 use pf::config;
@@ -30,8 +31,6 @@ use pf::web;
 use pf::web::billing 1.00;
 # called last to allow redefinitions
 use pf::web::custom;
-
-Readonly::Scalar my $ERROR_PAYMENT_PROCESS  => "3";
 
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('billing-engine.cgi');
@@ -57,13 +56,12 @@ foreach my $param($cgi->param()) {
 
 # If the billing engine isn't enabled (you shouldn't be here), redirect to portal entrance
 print $cgi->redirect("/captive-portal?destination_url=".uri_escape($destination_url))
-        if ( !isenabled($Config{'registration'}{'billing_engine'}) );
+        if ( isdisabled($Config{'registration'}{'billing_engine'}) );
 
-
-if ( defined($params{'mode'}) && ($params{'mode'} eq 'process') ) {
+if ( defined($params{'submit'}) ) {
 
     # Validate the form
-    my ($validation_return, $err) = pf::web::billing::validate_billing_infos($cgi, $session);
+    my ($validation_return, $error_code) = pf::web::billing::validate_billing_infos($cgi, $session);
 
     # Form is valid (Provided infos are ok)
     if ( $validation_return ) {
@@ -71,9 +69,9 @@ if ( defined($params{'mode'}) && ($params{'mode'} eq 'process') ) {
         my $billingObj = new pf::billing::custom();
 
         # Transactions informations
-        my $tier                = $cgi->param('tier');
-        my %tiers_infos         = $billingObj->getAvailableTiers();
-        my %transaction_infos   = (
+        my $tier                  = $cgi->param('tier');
+        my %tiers_infos           = $billingObj->getAvailableTiers();
+        my $transaction_infos_ref = {
                 ip              => $ip,
                 mac             => $mac,
                 firstname       => $cgi->param('firstname'),
@@ -85,10 +83,10 @@ if ( defined($params{'mode'}) && ($params{'mode'} eq 'process') ) {
                 item            => $tier,
                 price           => $tiers_infos{$tier}{'price'},
                 description     => $tiers_infos{$tier}{'description'},
-        );
+        };
 
         # Process the transaction
-        my $paymentStatus   = $billingObj->processTransaction(\%transaction_infos);
+        my $paymentStatus   = $billingObj->processTransaction($transaction_infos_ref);
 
         if ( $paymentStatus eq $BILLING::SUCCESS ) {
             # Adding person (using modify in case person already exists)
@@ -103,7 +101,7 @@ if ( defined($params{'mode'}) && ($params{'mode'} eq 'process') ) {
             my %info;
             my $timeout         = normalize_time($tiers_infos{$tier}{'timeout'});
             $info{'pid'}        = $session->param('login');
-            $info{'category'}   = $cgi->param('tier');
+            $info{'category'}   = $tiers_infos{$tier}{'category'};
             $info{'unregdate'}  = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + $timeout ));
 
             # Register the node
@@ -113,14 +111,18 @@ if ( defined($params{'mode'}) && ($params{'mode'} eq 'process') ) {
             $destination_url = decode_entities(uri_unescape($tiers_infos{$tier}{'destination_url'}))
                     if ( $tiers_infos{$tier}{'destination_url'} );
             pf::web::generate_release_page($cgi, $session, $destination_url, $mac);
+            exit(0);
 
+        } 
         # There was an error with the payment processing
-        } else {
-            $logger->info("There was an error with the payment processing");
+        else {
+            $logger->warn(
+                "There was an error with the payment processing for email $transaction_infos_ref->{email} "
+                . "(MAC: $transaction_infos_ref->{mac})"
+            );
 
-            $err = $ERROR_PAYMENT_PROCESS;
             pf::web::billing::generate_billing_page(
-                    $cgi, $session, "/pay?mode=process", $destination_url, $mac, $err
+                    $cgi, $session, $destination_url, $mac, $BILLING::ERROR_PAYMENT_GATEWAY_FAILURE
             );
             exit(0);
         }            
@@ -130,7 +132,7 @@ if ( defined($params{'mode'}) && ($params{'mode'} eq 'process') ) {
     if ( !$validation_return ) {
         $logger->info("Billing form was invalid, return to the billing page.");
         pf::web::billing::generate_billing_page(
-                $cgi, $session, "/pay?mode=process", $destination_url, $mac, $err
+                $cgi, $session, $destination_url, $mac, $error_code
         );
         exit(0);
     }
@@ -143,17 +145,19 @@ else {
     $cgi->delete('firstname', 'lastname', 'email', 'ccnumber', 'ccexpiration', 'ccvalidation');
 
     # By default, show billing page
-    pf::web::billing::generate_billing_page($cgi, $session, "/pay?mode=process", $destination_url, $mac);
+    pf::web::billing::generate_billing_page($cgi, $session, $destination_url, $mac);
 }
 
 
 =head1 AUTHOR
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2011, 2012 Inverse inc.
     
 =head1 LICENSE
 

@@ -109,13 +109,15 @@ if ($unreg && isenabled($Config{'trapping'}{'registration'})){
   # Redirect to the billing engine if enabled
   if ( isenabled($Config{'registration'}{'billing_engine'}) ) {
     $logger->info("$mac redirected to billing page");
-    pf::web::billing::generate_billing_page($cgi, $session, "/pay?mode=process", $destination_url, $mac);
+    pf::web::billing::generate_billing_page($cgi, $session, $destination_url, $mac);
     exit(0);
-  } elsif ($Config{'registration'}{'nbregpages'} == 0) {
+  } 
+  elsif ($Config{'registration'}{'nbregpages'} == 0) {
     $logger->info("$mac redirected to authentication page");
     pf::web::generate_login_page($cgi, $session, $destination_url, $mac);
     exit(0);
-  } else {
+  } 
+  else {
     $logger->info("$mac redirected to multi-page registration process");
     pf::web::generate_registration_page($cgi, $session, $destination_url, $mac);
     exit(0);

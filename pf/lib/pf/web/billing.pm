@@ -36,6 +36,7 @@ BEGIN {
     @EXPORT = qw();
 }
 
+use pf::billing::constants;
 use pf::billing::custom;
 use pf::config;
 use pf::web qw(i18n ni18n);
@@ -57,7 +58,7 @@ Will produce billing.html
 
 =cut
 sub generate_billing_page {
-    my ( $cgi, $session, $post_uri, $destination_url, $mac, $err ) = @_;
+    my ( $cgi, $session, $destination_url, $mac, $error_code ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
@@ -71,7 +72,6 @@ sub generate_billing_page {
         i18n            => \&i18n,
         destination_url => encode_entities($destination_url),
         logo            => $Config{'general'}{'logo'},
-        post_uri        => $post_uri,
         list_help_info  => [
             { name => i18n('IP'),   value => $cgi->remote_addr },
             { name => i18n('MAC'),  value => $mac }
@@ -90,24 +90,12 @@ sub generate_billing_page {
     $vars->{'ccverification'}   = $cgi->param("ccverification");
 
     # Error management
-    if ( defined($err) ) {
-        if ( $err == 1 ) {
-            $vars->{'txt_validation_error'} = i18n("Missing mandatory parameter or malformed entry");
-        } elsif ( $err == 2 ) {
-            $vars->{'txt_validation_error'} = i18n(
-                    "An error occured while processing your payment. Incorrect credit card informations provided."
-            );
-        } elsif ( $err == 3 ) {
-            $vars->{'txt_validation_error'} = i18n(
-                    "An error occured while processing you payment. Your credit card has not been charged."
-            );
-        }
-    }
+    $vars->{'txt_validation_error'} = $BILLING::ERRORS{$error_code} if (defined($error_code));
 
     # Generating the page with the correct template
     $logger->info('generate_billing_page');
     my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
-    $template->process( "billing/billing.html", $vars );
+    $template->process( "billing/billing.html", $vars ) || $logger->error($template->error());
     exit;
 }
 
@@ -139,7 +127,7 @@ sub validate_billing_infos {
         # Provided credit card informations are invalid
         unless ( $valid_ccnumber && $valid_ccexpiration && $valid_ccverification ) {
             # Return non-successful validation with credit card informations error
-            return (0, 2)
+            return ($FALSE, $BILLING::ERROR_CC_VALIDATION);
         }
 
         # Provided personnal informations are valid
@@ -153,10 +141,44 @@ sub validate_billing_infos {
             $session->param("tier", $cgi->param("tier"));
 
             # Return a successful validation
-            return (1, 0);
+            return ($TRUE, 0);
         }
     }
 
     # Return an unsuccessful validation with incorrect or incomplete informations error
-    return (0, 1);
+    return ($FALSE, $BILLING::ERROR_INVALID_FORM);
 }
+
+
+=back
+
+=head1 AUTHOR
+
+Derek Wuelfrath <dwuelfrath@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2011, 2012 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
+1;

@@ -12,18 +12,18 @@
     </div>
 
     [%# ERROR %]
-    [% IF txt_validation_error.defined %]<div class="error"><p>[% txt_validation_error %]</p></div>[% END %]
+    [% IF txt_validation_error.defined %]<div class="error"><p>[% i18n(txt_validation_error) %]</p></div>[% END %]
 
-    <form name="billing" method="post" action="[% post_uri %]">
+    <form name="billing" method="post" action="/pay">
         <input type="hidden" name="destination_url" value="[% destination_url %]" />
 
         [%# TIERS CHOICE %]
             <div class="input">
         [% FOREACH tier IN tiers.keys.sort %]
                 [% IF loop.first() %]<span>[% i18n("Internet Access Package") %]</span>[% END %]
-                <input name="tier" type="radio" value="[% i18n(tiers.$tier.id) %]" />
-                <b>[% i18n(tiers.$tier.name) %] - $[% i18n(tiers.$tier.price) %]</b><br/>
-                <em>[% i18n(tiers.$tier.description) %]</em><br/>
+                <input name="tier" type="radio" value="[% i18n(tiers.$tier.id) | html %]" />
+                <b>[% i18n(tiers.$tier.name) | html %] - $[% i18n(tiers.$tier.price) | html %]</b><br/>
+                <em>[% i18n(tiers.$tier.description) | html %]</em><br/>
         [% END %]
             </div>
 

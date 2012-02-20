@@ -142,6 +142,7 @@ Requires: perl(Text::CSV)
 Requires: perl(Text::CSV_XS)
 # BILLING ENGINE
 Requires: perl(LWP::UserAgent)
+Requires: perl(HTTP::Request::Common)
 # Required to build documentation
 # See docs/docbook/README.asciidoc for more info about installing requirements.
 # TODO fop on EL5 is actually xmlgraphics-fop
@@ -650,6 +651,11 @@ fi
                         /usr/local/pf/lib/IPTables/Interface/Lock.pm
 %dir                    /usr/local/pf/lib/pf
                         /usr/local/pf/lib/pf/*.pm
+%dir                    /usr/local/pf/lib/pf/billing
+                        /usr/local/pf/lib/pf/billing/constants.pm
+%config(noreplace)      /usr/local/pf/lib/pf/billing/custom.pm
+%dir                    /usr/local/pf/lib/pf/billing/gateway
+                        /usr/local/pf/lib/pf/billing/gateway/*.pm
 %dir                    /usr/local/pf/lib/pf/floatingdevice
 %config(noreplace)      /usr/local/pf/lib/pf/floatingdevice/custom.pm
 %dir                    /usr/local/pf/lib/pf/inline

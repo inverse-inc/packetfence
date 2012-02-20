@@ -28,19 +28,18 @@ our $VERSION = 1.00;
 
 =cut
 
-
 #sub getAvailableTiers {
 #    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 #
 #    my %tiers = (
 #            tier1 => {
-#                id => "tier1", name => "Tier 1", price => "1.00", timeout => "1D",
+#                id => "tier1", name => "Tier 1", price => "1.00", timeout => "1D", category => 'slow',
 #                description => "Tier 1 Internet Access", destination_url => "http://www.packetfence.org" },
 #            tier2 => {
-#                id => "tier2", name => "Tier 2", price => "2.00", timeout => "2D",
+#                id => "tier2", name => "Tier 2", price => "2.00", timeout => "2D", category => 'medium',
 #                description => "Tier 2 Internet Access", destination_url => "http://www.inverse.ca" },
 #            tier3 => {
-#                id => "tier3", name => "Tier 3", price => "3.00", timeout => "3D",
+#                id => "tier3", name => "Tier 3", price => "3.00", timeout => "3D", category => 'fast',
 #                description => "Tier 3 Internet Access", destination_url => "http://www.sogo.nu" },
 #    );
 #

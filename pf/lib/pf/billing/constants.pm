@@ -11,14 +11,10 @@ pf::billing::constants - Constants for billing to be used by different billing m
 This file is splitted by package and refering to the constants requires you to specify the package.
 
 =cut
-
 use strict;
 use warnings;
 
 use Readonly;
-
-
-=back
 
 =head1 BILLING
 
@@ -38,6 +34,33 @@ package BILLING;
 Readonly::Scalar our $ERROR     => 0;
 Readonly::Scalar our $SUCCESS   => 1;
 
+=item paymentProcessingStatusStrings
+
+Status string as put in the database.
+
+=cut
+Readonly::Scalar our $STATUS_PROCESSED_ERROR => 'processed - error';
+Readonly::Scalar our $STATUS_PROCESSED_SUCCESS => 'processed - success';
+
+=item error_code 
+
+PacketFence error codes regarding billing.
+
+=cut
+Readonly::Scalar our $ERROR_INVALID_FORM => 1;
+Readonly::Scalar our $ERROR_CC_VALIDATION => 2;
+Readonly::Scalar our $ERROR_PAYMENT_GATEWAY_FAILURE => 3;
+
+=item errors 
+
+An hash mapping error codes to error messages.
+
+=cut
+Readonly::Hash our %ERRORS => (
+    $ERROR_INVALID_FORM => 'Missing mandatory parameter or malformed entry',
+    $ERROR_CC_VALIDATION => 'An error occured while processing your payment. Incorrect credit card informations provided.',
+    $ERROR_PAYMENT_GATEWAY_FAILURE => "An error occured while processing you payment. Your credit card has not been charged.",
+);
 
 =back
 
@@ -76,6 +99,8 @@ Readonly::Scalar our $HELD_FOR_REVIEW   => 4;
 =head1 AUTHOR
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
