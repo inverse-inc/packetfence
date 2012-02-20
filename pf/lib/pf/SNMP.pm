@@ -2458,10 +2458,10 @@ sub extractSsid {
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     # it's put in Called-Station-Id
-    # ie: Called-Station-Id = "aa-bb-cc-dd-ee-ff:Secure SSID"
+    # ie: Called-Station-Id = "aa-bb-cc-dd-ee-ff:Secure SSID" or "aa:bb:cc:dd:ee:ff:Secure SSID"
     if (defined($radius_request->{'Called-Station-Id'})) {
         if ($radius_request->{'Called-Station-Id'} =~ /^
-            [a-f0-9]{2}-[a-f0-9]{2}-[a-f0-9]{2}-[a-f0-9]{2}-[a-f0-9]{2}-[a-f0-9]{2}   # MAC Address
+            [a-f0-9]{2}[-|:][a-f0-9]{2}[-|:][a-f0-9]{2}[-|:][a-f0-9]{2}[-|:][a-f0-9]{2}[-|:][a-f0-9]{2}   # MAC Address
             :                                                                         # : delimiter
             (.*)                                                                      # SSID
         $/ix) {

@@ -62,6 +62,7 @@ Bug Fixes
  * No more obscure error message if no management interface is defined in pf.conf
  * pfcmd exit status now more consistent regarding config
  * No more "Can't call method "tag" on an undefined value" on broken pf.conf configuration (#1352)
+ * Handling columns in Called-Station-Id (#1379)
 
 Translations
  * Updated Brazilian Portuguese (pt_BR) Admin guide translation (Thanks to Diego de Souza Lopes)
