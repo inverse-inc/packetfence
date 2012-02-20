@@ -8,8 +8,9 @@ Notes on upgrading from an older release
 o Upgrading from a version prior to <release>:
 
     - Database schema update
-    OpenVAS support required database changes. Make sure you run the 
-    following to update your schema even if you don't use OpenVAS support:
+    OpenVAS and billing engine support required database changes. Make sure you
+    run the following to update your scheam even if you don't use one or both
+    of these new features:
     mysql -u root -p pf -v < db/upgrade-3.1.0-3.2.0.sql
 
     - Configuration changes related to OpenVAS integration

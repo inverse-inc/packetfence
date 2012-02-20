@@ -23,6 +23,7 @@ New Hardware Support
 
 New Features
  * OpenVAS Vulnerability Assesment integration for client-side policy compliance
+ * Billing engine integration for allowing the use of a payment gateway to gain network access.
 
 Enhancements
  * Migrated our documentation from a binary-only ODT to a flexible asciidoc format
