@@ -105,34 +105,11 @@ if (defined($params{'mode'}) && $params{'mode'} eq $GUEST_REGISTRATION) {
       # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
       ($auth_return, $err) = pf::email_activation::create_and_email_activation_code($mac, $info{'pid'}, $info{'pid'}, $pf::email_activation::GUEST_TEMPLATE, %info);
 
-      if ($auth_return) {
-        # Violation handling and redirection (accorindingly)
-        # FIXME the following block is repeated across CGI's, we should consolidate
-        my $count = violation_count($mac);
-        if ($count == 0) {
-
-          # handle mobile provisioning if relevant
-          if (pf::web::supports_mobileconfig_provisioning($cgi, $session, $mac)) {
-            pf::web::generate_mobileconfig_provisioning_page($cgi, $session, $mac);
-      
-          # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
-          } elsif ($cgi->https()) {
-            print $cgi->redirect(
-              "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-              .'/access?destination_url=' . uri_escape($destination_url)
-            );
-          } else {
-            pf::web::generate_release_page($cgi, $session, $destination_url, $mac);
-          }
-          exit(0);
-
-        }
-        else {
-          print $cgi->redirect("/captive-portal?destination_url=".uri_escape($destination_url));
-          $logger->info("more violations yet to come for $mac");
-        }
-      }
+      # does the necessary captive portal escape sequence (violations, provisionning, etc.)
+      pf::web::end_portal_session($cgi, $session, $mac, $destination_url) if ($auth_return);
     }
+
+    # SMS
     elsif ( $auth_return && defined($params{'by_sms'}) && defined($guest_self_registration{$SELFREG_MODE_SMS}) ) {
       # User chose to register by SMS
       $logger->info("Registering guest by SMS " . $session->param("phone") . " @ " . $cgi->param("mobileprovider"));
@@ -183,7 +160,7 @@ else {
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
-        
+
 =head1 COPYRIGHT
         
 Copyright (C) 2010-2012 Inverse inc.

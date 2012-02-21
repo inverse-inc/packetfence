@@ -1790,6 +1790,31 @@ These configurations are in the `pf.conf` file:
   trap_limit_threshold = 100
   trap_limit_action = 
 
+Billing engine
+~~~~~~~~~~~~~~
+
+Since version 3.2.0, PacketFence integrate the ability to use a payment gateway to bill users to gain access to the network. When configured, the user who wants to access the network / Internet is prompted by a page asking for it's personnal information as well as it's credit card information.
+
+At this moment there is only one payment gateway built into PacketFence: Authorize.net.
+
+The configuration to use the feature is fairly simple. The general configuration to enable / disable the billing engine can be done through the Web administration GUI or in the `pf.conf` file:
+
+  [registration]
+  billing_engine = enabled
+
+  [billing]
+  gateway = authorize_net
+  authorizenet_posturl = The payment gateway processing URL
+  authorizenet_login = The merchant's unique API Login ID
+  authorizenet_trankey = The merchant's unique Transaction Key
+
+It is also possible to configure multiple network access with different prices.
+For example, you may want to provide basic Internet access with a decent speed at a specific price and another package with high speed connection at another price.
+
+To do so, some customizations is needed to the billing module. You'll need to redefined the `getAvailableTiers` method in the `lib/pf/billing/custom.pm` file. An example is already in place in the file.
+
+CAUTION: The use of different billing tiers requires different category in PacketFence. Make sure to create those category first otherwise you will run into problems.
+
 Operating System Best Practices
 -------------------------------
 

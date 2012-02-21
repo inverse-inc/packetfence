@@ -18,6 +18,7 @@ use warnings;
 use Log::Log4perl;
 use Parse::Nessus::NBE;
 use Readonly;
+use Try::Tiny;
 
 use overload '""' => "toString";
 
@@ -94,8 +95,17 @@ sub instantiate_scan_engine {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $scan_engine = 'pf::scan::' . $type;
-
     $logger->info("Instantiate a new vulnerability scanning engine object of type $scan_engine.");
+
+    try {
+        # try to import module and re-throw the error to catch if there's one
+        eval "use $scan_engine";
+        die($@) if ($@);
+
+    } catch {
+        chomp($_);
+        $logger->error("Initialization of scan engine $scan_engine failed: $_");
+    };
 
     return $scan_engine->new(%scan_attributes);
 }

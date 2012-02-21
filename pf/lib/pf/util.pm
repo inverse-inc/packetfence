@@ -1093,10 +1093,6 @@ sub generate_id {
     my ( $epoch, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    # Make sure the mac address format is correct
-    my $tmpMac  = Net::MAC->new('mac' => $mac);
-    $mac        = $tmpMac->as_IEEE();
-
     $logger->debug("Generating a new ID with epoch $epoch and mac $mac");
 
     # Generate 2 random numbers
@@ -1113,6 +1109,7 @@ sub generate_id {
 
     return $id;
 }
+
 
 =back
 

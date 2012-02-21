@@ -110,29 +110,8 @@ if ($cgi->param("pin")) { # && $session->param("authType")) {
     # clear state that redirects to the Enter PIN page
     $session->clear(["token"]);
 
-    # FIXME the following block is repeated across CGI's, we should consolidate
-    my $count = violation_count($mac);
-    if ($count == 0) {
+    pf::web::end_portal_session($cgi, $session, $mac, $destination_url);
 
-      # handle mobile provisioning if relevant
-      if (pf::web::supports_mobileconfig_provisioning($cgi, $session, $mac)) {
-        pf::web::generate_mobileconfig_provisioning_page($cgi, $session, $mac);
-  
-      # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
-      } elsif ($cgi->https()) {
-        print $cgi->redirect(
-          "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-          .'/access?destination_url=' . uri_escape($destination_url)
-        );
-      } else {
-        pf::web::generate_release_page($cgi, $session, $destination_url, $mac);
-      }
-      exit(0);
-
-    } else {
-      print $cgi->redirect('/captive-portal?destination_url=' . uri_escape($destination_url));
-      $logger->info("more violations yet to come for $mac");
-    }
 } elsif (defined($cgi->param("action")) && $cgi->param("action") eq 'Confirm') {
   # No PIN specified
   pf::web::guest::generate_sms_confirmation_page($cgi, $session, $ENV{REQUEST_URI}, $destination_url);

@@ -35,7 +35,7 @@ use Log::Log4perl;
 use POSIX;
 use Readonly;
 use Template;
-use URI::Escape qw(uri_unescape);
+use URI::Escape qw(uri_escape uri_unescape);
 
 BEGIN {
     use Exporter ();
@@ -52,6 +52,7 @@ use pf::node qw(node_attributes node_modify node_register node_view);
 use pf::os qw(dhcp_fingerprint_view);
 use pf::useragent;
 use pf::util;
+use pf::violation qw(violation_count);
 use pf::web::auth; 
 
 Readonly our $LOOPBACK_IPV4 => '127.0.0.1';
@@ -546,7 +547,7 @@ sub _sanitize_and_register {
     $logger->info("performing node registration MAC: $mac pid: $pid");
     node_register( $mac, $pid, %info );
 
-    unless ( $session->param("do_not_deauth") == $TRUE ) {
+    unless ( defined($session->param("do_not_deauth")) && $session->param("do_not_deauth") == $TRUE ) {
         reevaluate_access( $mac, 'manage_register' );
     }
 
@@ -774,6 +775,47 @@ sub get_destination_url {
     return decode_entities(uri_unescape($cgi->param("destination_url")));
 }
 
+=item end_portal_session
+
+Call after you made your changes to the user / node. 
+This takes care of handling violations, bouncing back to http for portal 
+network access detection or handling mobile provisionning.
+
+This was done in several different locations making maintenance more difficult than it should.
+It was regrouped here.
+
+=cut
+sub end_portal_session {
+    my ($cgi, $session, $mac, $destination_url) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # violation handling
+    my $count = violation_count($mac);
+    if ($count != 0) {
+      print $cgi->redirect('/captive-portal?destination_url=' . uri_escape($destination_url));
+      $logger->info("more violations yet to come for $mac");
+      exit(0);
+    }
+
+    # handle mobile provisioning if relevant
+    if (pf::web::supports_mobileconfig_provisioning($cgi, $session, $mac)) {
+        pf::web::generate_mobileconfig_provisioning_page($cgi, $session, $mac);
+        exit(0);
+    }
+
+    # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
+    if ($cgi->https()) {
+        print $cgi->redirect(
+            "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
+            .'/access?destination_url=' . uri_escape($destination_url)
+        );
+        exit(0);
+    } 
+
+    pf::web::generate_release_page($cgi, $session, $destination_url, $mac);
+    exit(0);
+}
+
 =back
 
 =head1 AUTHOR
@@ -792,7 +834,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2008-2011 Inverse inc.
+Copyright (C) 2008-2012 Inverse inc.
 
 =head1 LICENSE
 
