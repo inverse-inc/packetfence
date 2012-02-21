@@ -82,6 +82,7 @@ sub generate_billing_page {
     my %tiers       = $billingObj->getAvailableTiers();
 
     $vars->{'tiers'}            = \%tiers;
+    $vars->{'selected_tier'}    = $cgi->param("tier");
     $vars->{'firstname'}        = $cgi->param("firstname");
     $vars->{'lastname'}         = $cgi->param("lastname");
     $vars->{'email'}            = $cgi->param("email");

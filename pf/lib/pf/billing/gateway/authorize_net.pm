@@ -24,6 +24,7 @@ use Readonly;
 use pf::billing::constants;
 use pf::config;
 
+our $VERSION = 1.00;
 
 Readonly our $DELIMITER => ',';
 
@@ -41,7 +42,7 @@ Create a new object for transactions using Authorize.net payment gateway
 
 =cut
 sub new {
-    my ( $class, $transaction_infos ) = @_;
+    my ( $class, $transaction_infos_ref ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     $logger->debug("Instanciating a new " . __PACKAGE__ . " object");
@@ -70,8 +71,8 @@ sub new {
             '_authorizenet_posturl' => $Config{'billing'}{'authorizenet_posturl'},
     }, $class;
 
-    foreach my $value ( keys %$transaction_infos ) {
-        $this->{'_' . $value} = $transaction_infos->{$value};
+    foreach my $value ( keys %$transaction_infos_ref ) {
+        $this->{'_' . $value} = $transaction_infos_ref->{$value};
     }
 
     return $this;
@@ -125,6 +126,7 @@ sub processPayment {
         $logger->error("The payment was not approved by the payment gateway: $response_reason_text");
         return;
     }
+    $logger->info("Successfull payment from MAC: $this->{_mac}");
 
     return $BILLING::SUCCESS;
 }

@@ -21,7 +21,9 @@
             <div class="input">
         [% FOREACH tier IN tiers.keys.sort %]
                 [% IF loop.first() %]<span>[% i18n("Internet Access Package") %]</span>[% END %]
-                <input name="tier" type="radio" value="[% i18n(tiers.$tier.id) | html %]" />
+                <input name="tier" type="radio"[% IF selected_tier == tiers.$tier.id %] checked="checked"[% END %]
+                    value="[% i18n(tiers.$tier.id) | html %]"
+                />
                 <b>[% i18n(tiers.$tier.name) | html %] - $[% i18n(tiers.$tier.price) | html %]</b><br/>
                 <em>[% i18n(tiers.$tier.description) | html %]</em><br/>
         [% END %]

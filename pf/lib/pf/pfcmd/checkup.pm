@@ -96,6 +96,9 @@ sub sanity_check {
 
     scan() if ( lc($Config{'scan'}{'engine'}) ne "none" );
     scan_openvas() if ( lc($Config{'scan'}{'engine'}) eq "openvas" );
+
+    billing() if ( isenabled($Config{'registration'}{'billing_engine'}) );
+
     database();
     network();
     inline() if (is_inline_enforcement_enabled());
@@ -256,13 +259,16 @@ sub scan {
     my $scan_engine = 'pf::scan::' . lc($Config{'scan'}{'engine'});
 
     try {
+        eval "use $scan_engine;";
+        die($@) if ($@);
         my $scan = $scan_engine->new(
             host => $Config{'scan'}{'host'},
             user => $Config{'scan'}{'user'},
             pass => $Config{'scan'}{'pass'},
         );
     } catch {
-        add_problem( $FATAL, "SCAN: Incorrect scan engine declared in pf.conf" );
+        chomp($_);
+        add_problem( $FATAL, "SCAN: Incorrect scan engine declared in pf.conf: $_" );
     };
 }
 
@@ -649,7 +655,7 @@ sub extensions {
             );
         }
     } catch {
-        add_problem( $FATAL, "Uncaught exception while trying to identify VLAN extension version: $_" );
+        add_problem( $FATAL, "Uncaught exception while trying to identify Billing extension version: $_" );
     };
 
     try {
@@ -936,6 +942,35 @@ sub switches {
         }
 
     }
+}
+
+=item billing
+
+Validation related to the billing engine feature.
+
+=cut
+sub billing {
+    # Check if the configuration provided payment gateway is instanciable
+    my $payment_gw = 'pf::billing::gateway::' . lc($Config{'billing'}{'gateway'});
+
+    try {
+        eval "use $payment_gw;";
+        die($@) if ($@);
+        my $gw = $payment_gw->new();
+
+        if (!defined($gw->VERSION())) { 
+            add_problem($FATAL, "Payment gateway module $payment_gw is enabled and its VERSION is not defined.");
+        } 
+        elsif ($BILLING_API_LEVEL > $gw->VERSION()) { 
+            add_problem( $FATAL,
+                "Payment gateway module $payment_gw is enabled and is not at the correct API level. " .
+                "Did you read the UPGRADE document?"
+            );
+        }
+    } catch {
+        chomp($_);
+        add_problem( $FATAL, "Billing: Incorrect payment gateway declared in pf.conf: $_" );
+    };
 }
 
 =back

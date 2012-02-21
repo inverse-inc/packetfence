@@ -772,10 +772,9 @@ sub node_register {
 
     if ( !$auto_registered ) {
 
-        #nessus code
-        if ( isenabled( $Config{'scan'}{'registration'} ) ) {
-            require pf::violation;
-            pf::violation::violation_add( $mac, $SCAN_VID );
+        # triggering a violation used to communicate the scan to the user
+        if ( isenabled($Config{'scan'}{'registration'}) && $Config{'scan'}{'engine'} ne 'none' ) {
+            violation_add( $mac, $SCAN_VID );
         }
 
     }

@@ -19,6 +19,7 @@ use warnings;
 use Log::Log4perl;
 use Net::MAC;
 use POSIX;
+use Try::Tiny;
 
 BEGIN {
     use Exporter ();
@@ -102,12 +103,12 @@ TODO: Add some verification that all the information is there and in a good form
 
 =cut
 sub createNewTransaction {
-    my ( %transaction_infos ) = @_;
+    my ( $self, $transaction_infos_ref ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     # Preparing the transaction attributes
-    # slicing hash on the right assigning proper values to the left
-    my ($ip, $mac, $item, $price, $email) = @transaction_infos{qw(ip mac item price email)};
+    # slicing hashref on the right assigning proper values to the left
+    my ($ip, $mac, $item, $price, $email) = @{$transaction_infos_ref}{qw(ip mac item price email)};
 
     my $epoch   = time;
     my $date    = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime($epoch));
@@ -115,15 +116,15 @@ sub createNewTransaction {
     my $type    = lc($Config{'billing'}{'gateway'});
 
     # Update transaction informations
-    $transaction_infos{'id'} = $id;
+    $transaction_infos_ref->{'id'} = $id;
 
     # Adding an entry in the database to keep track of the transactions
     db_query_execute(BILLING, $billing_statements, 'billing_insert_sql',
             $id, $ip, $mac, $type, $date, '0000-00-00 00:00:00', 'new', $item, $price, $email
-    ) || return 0;
+    ) || return;
 
     # Instantiate the new transaction
-    my $transaction = instantiateNewTransaction($type, %transaction_infos);
+    my $transaction = $self->instantiateNewTransaction($type, $transaction_infos_ref);
 
     return $transaction;
 }
@@ -138,11 +139,12 @@ TODO: Put theses configuration in database and be able to modify them using the 
 
 =cut
 sub getAvailableTiers {
+    my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my %tiers = (
             tier1 => {
-                id => "tier1", name => "Tier 1", price => "1.00", timeout => "1D", category => 'default',
+                id => "tier1", name => "Tier 1", price => "1.00", timeout => "1D", category => '',
                 description => "Tier 1 Internet Access", destination_url => "http://www.packetfence.org" },
     );
 
@@ -155,23 +157,32 @@ Instantiate a new transaction using the payment gateway configured.
 
 =cut
 sub instantiateNewTransaction {
-    my ( $type, %transaction_infos ) = @_;
+    my ( $self, $type, $transaction_infos_ref ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $transaction = 'pf::billing::gateway::' . $type;
+    try {
+        # try to import module and re-throw the error to catch if there's one
+        eval "use $transaction $BILLING_API_LEVEL";
+        die($@) if ($@);
 
-    return $transaction->new(%transaction_infos);
+    } catch {
+        chomp($_);
+        $logger->error("Initialization of payment gateway module $transaction failed: $_");
+    };
+
+    return $transaction->new($transaction_infos_ref);
 }
 
 =item processTransaction
 
 =cut
 sub processTransaction {
-    my ( %transaction_infos ) = @_;
+    my ( $self, $transaction_infos_ref ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     # Create the new transaction
-    my $transaction = createNewTransaction(%transaction_infos);
+    my $transaction = $self->createNewTransaction($transaction_infos_ref);
 
     # Process the payment with the payment gateway
     my $paymentResponse = $transaction->processPayment();
@@ -181,7 +192,7 @@ sub processTransaction {
     if ( $paymentResponse ne $BILLING::SUCCESS ) {
         $status = $BILLING::STATUS_PROCESSED_ERROR;
     }
-    updateTransactionStatus($transaction_infos{'id'}, $status);
+    $self->updateTransactionStatus($transaction_infos_ref->{'id'}, $status);
 
     return $paymentResponse;
 }
@@ -192,12 +203,13 @@ Update the status of a transaction in the database
 
 =cut
 sub updateTransactionStatus {
-    my ( $id, $status ) = @_;
+    my ( $self, $id, $status ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     $logger->debug("Updating the transaction: $id with status: $status");
 
-    db_query_execute(BILLING, $billing_statements, 'billing_update_sql', $status, $id ) || return 0;
+    db_query_execute(BILLING, $billing_statements, 'billing_update_sql', $status, $id ) 
+        || return;
 }
 
 =back

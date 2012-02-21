@@ -14,7 +14,6 @@ use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
 use HTML::Entities;
 use Log::Log4perl;
-use Readonly;
 use POSIX;
 use URI::Escape qw(uri_escape uri_unescape);
 
@@ -110,9 +109,8 @@ if ( defined($params{'submit'}) ) {
             # Generate the release page
             $destination_url = decode_entities(uri_unescape($tiers_infos{$tier}{'destination_url'}))
                     if ( $tiers_infos{$tier}{'destination_url'} );
-            pf::web::generate_release_page($cgi, $session, $destination_url, $mac);
-            exit(0);
-
+            
+            pf::web::end_portal_session($cgi, $session, $mac, $destination_url);
         } 
         # There was an error with the payment processing
         else {

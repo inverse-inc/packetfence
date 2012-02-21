@@ -58,6 +58,7 @@ sub handler
 
   if (defined($cgi->param('mode'))) {
     if ($cgi->param('mode') eq 'release') {
+      # TODO this is duplicated also in register.cgi
       # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
       if ($cgi->https()) {
         print $cgi->redirect(
@@ -190,7 +191,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2008-2011 Inverse inc.
+Copyright (C) 2008-2012 Inverse inc.
 
 =head1 LICENSE
     
