@@ -161,8 +161,6 @@ Readonly our $EAP      => 0b010000000;
     'Inline'                => $INLINE,
 );
 
-# Note that the () in the hashes below is a trick to prevent bareword quoting so I can store 
-# my constant values as keys of the hashes. See CAVEATS section of perldoc constant.
 # Their string equivalent for database storage
 %connection_type_to_str = (
     $WIRELESS_802_1X => 'Wireless-802.11-EAP',
