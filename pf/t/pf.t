@@ -4,13 +4,17 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 66;
+use Test::More tests => 72;
 
 # pf core libs
 use lib '/usr/local/pf/lib';
 
 BEGIN { use_ok('pf::accounting') }
 BEGIN { use_ok('pf::action') }
+BEGIN { use_ok('pf::billing') }
+BEGIN { use_ok('pf::billing::constants') }
+BEGIN { use_ok('pf::billing::custom') }
+BEGIN { use_ok('pf::billing::gateway::authorize_net') }
 BEGIN { use_ok('pf::class') }
 BEGIN { use_ok('pf::configfile') }
 BEGIN { use_ok('pf::config') }
@@ -43,6 +47,8 @@ BEGIN { use_ok('pf::radius::constants') }
 BEGIN { use_ok('pf::radius::custom') }
 BEGIN { use_ok('pf::rawip') }
 BEGIN { use_ok('pf::scan') }
+BEGIN { use_ok('pf::scan::nessus') }
+BEGIN { use_ok('pf::scan::openvas') }
 BEGIN { use_ok('pf::schedule') }
 BEGIN { use_ok('pf::SNMP::constants') }
 BEGIN { use_ok('pf::services') }
