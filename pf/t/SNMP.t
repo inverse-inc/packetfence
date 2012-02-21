@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 16;
+use Test::More tests => 19;
 use lib '/usr/local/pf/lib';
 
 use File::Basename qw(basename);
@@ -83,6 +83,18 @@ ok($SNMP->isFakeVoIPMac($fake_mac_prefix.$fake_mac_voip."00:00:13"),
 ok(!$SNMP->isFakeVoIPMac($real_mac),
     "Is VoIP fake MAC with a real MAC");
 
+# extractSsid
+my $radius_request = { 'Called-Station-Id' => 'aa-bb-cc-dd-ee-ff:Secure SSID' };
+is($SNMP->extractSsid($radius_request), 'Secure SSID', 
+    "Extract SSID from Called-Station-Id format xx-xx-xx-xx-xx-xx:SSID");
+
+$radius_request = { 'Called-Station-Id' => 'aa:bb:cc:dd:ee:ff:Secure SSID' };
+is($SNMP->extractSsid($radius_request), 'Secure SSID', 
+    "Extract SSID from Called-Station-Id format xx:xx:xx:xx:xx:xx:SSID");
+
+$radius_request = { 'Called-Station-Id' => 'aabbccddeeff:Secure SSID' };
+is($SNMP->extractSsid($radius_request), 'Secure SSID', 
+    "Extract SSID from Called-Station-Id format xxxxxxxxxxxx:SSID");
 
 # Switch object tests
 # BE CAREFUL: if you change the configuration files, tests will break!

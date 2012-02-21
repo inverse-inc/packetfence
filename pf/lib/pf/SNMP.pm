@@ -2452,6 +2452,11 @@ If your AP is not supported look in /usr/share/freeradius/dictionary* for vendor
 
 Most standard way we encountered is in Called-Station-Id in the format: "xx-xx-xx-xx-xx-xx:SSID".
 
+We support also:
+
+  "xx:xx:xx:xx:xx:xx:SSID"
+  "xxxxxxxxxxxx:SSID"
+
 =cut
 sub extractSsid {
     my ($this, $radius_request) = @_;
@@ -2461,9 +2466,10 @@ sub extractSsid {
     # ie: Called-Station-Id = "aa-bb-cc-dd-ee-ff:Secure SSID" or "aa:bb:cc:dd:ee:ff:Secure SSID"
     if (defined($radius_request->{'Called-Station-Id'})) {
         if ($radius_request->{'Called-Station-Id'} =~ /^
-            [a-f0-9]{2}[-|:][a-f0-9]{2}[-|:][a-f0-9]{2}[-|:][a-f0-9]{2}[-|:][a-f0-9]{2}[-|:][a-f0-9]{2}   # MAC Address
-            :                                                                         # : delimiter
-            (.*)                                                                      # SSID
+            # below is MAC Address with supported separators: :, - or nothing
+            [a-f0-9]{2}[-:]?[a-f0-9]{2}[-:]?[a-f0-9]{2}[-:]?[a-f0-9]{2}[-:]?[a-f0-9]{2}[-:]?[a-f0-9]{2}
+            :                                                                                           # : delimiter
+            (.*)                                                                                        # SSID
         $/ix) {
             return $1;
         } else {
