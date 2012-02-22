@@ -2262,6 +2262,7 @@ Add the two Read-Only and Read-Write users under *Management Access -> SNMP Acce
 Ruckus
 ~~~~~~
 
+[float]
 AAA Servers
 +++++++++++
 
@@ -2277,6 +2278,7 @@ Under *Configuration -> AAA Servers*, click on the *Create New* button.  Enter t
 
 Repeat the steps for the RADIUS and RADIUS accounting types.  We need 1 definition for each otherwise RADIUS dynamic authorization won't work.
 
+[float]
 WLAN Definitions
 ++++++++++++++++
 
