@@ -683,6 +683,7 @@ fi
 %dir                    /usr/local/pf/lib/pf/web
                         /usr/local/pf/lib/pf/web/*.pl
                         /usr/local/pf/lib/pf/web/auth.pm
+                        /usr/local/pf/lib/pf/web/billing.pm
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
                         /usr/local/pf/lib/pf/web/guest.pm
                         /usr/local/pf/lib/pf/web/util.pm
