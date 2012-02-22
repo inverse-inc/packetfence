@@ -19,6 +19,7 @@ o Upgrading from a version prior to 3.2.0:
     careful and test their setup after the upgrade. They should at least set
     their scan.engine to nessus (default is none). Also, if a custom port was
     used, the scan.port parameter should be renamed to scan.nessus_port.
+
     - Violations changes related to OpenVAS integration
     There was some move in the example violations to add a new one for the 
     OpenVAS integration. Should pay attention to some 
