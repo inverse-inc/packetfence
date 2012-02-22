@@ -4,10 +4,16 @@
 </copyright>
 <revhistory>
   <revision>
-    <revnumber>1.0</revnumber>
-    <date>2012-01-20</date>
+    <revnumber>2.0</revnumber>
+    <date>2012-02-22</date>
     <authorinitials>FG</authorinitials>
     <revremark>Port from ODT to Asciidoc</revremark>
+  </revision>
+  <revision>
+    <revnumber>1.0</revnumber>
+    <date>2009-01-29</date>
+    <authorinitials>RB</authorinitials>
+    <revremark>First OpenDocument version.</revremark>
   </revision>
 </revhistory>
 <author>
@@ -29,11 +35,11 @@
   </affiliation>
 </author>
 <author>
-  <firstname>Derek</firstname>
-  <surname>Wuelfrath</surname>
+  <firstname>Regis</firstname>
+  <surname>Balzard</surname>
   <affiliation>
     <address>
-      <email>dwuelfrath@inverse.ca</email>
+      <email>rbalzard@inverse.ca</email>
     </address>
   </affiliation>
 </author>

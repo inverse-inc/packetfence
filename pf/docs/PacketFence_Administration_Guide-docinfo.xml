@@ -4,27 +4,15 @@
 </copyright>
 <revhistory>
   <revision>
-    <revnumber>2.0.2</revnumber>
-    <date>2012-02-14</date>
-    <authorinitials>FG</authorinitials>
-    <revremark>Adding section for accounting violations based on bandwidth</revremark>
-  </revision>
-  <revision>
-    <revnumber>2.0.1</revnumber>
-    <date>2012-01-25</date>
-    <authorinitials>FG, OB</authorinitials>
-    <revremark>Adding basic VoIP documentation, added warning regarding CLI access due to #1370</revremark>
-  </revision>
-  <revision>
     <revnumber>2.0</revnumber>
-    <date>2012-01-14</date>
-    <authorinitials>OBU</authorinitials>
-    <revremark>Port to Docbook.</revremark>
+    <date>2012-02-22</date>
+    <authorinitials>FG, OB, DW</authorinitials>
+    <revremark>Documentation ported to asciidoc. Added section for accounting violations based on bandwidth, OpenVAS-based client side policy compliance and billing integration. Updated FreeRADIUS 2 config and log locations. More documentation about running a scan from a remote server. Improvements to the trap limit feature description. Updated guest registration configuration section (new parameter introduced). Added basic VoIP documentation and warning regarding CLI access due to #1370.</revremark>
   </revision>
   <revision>
     <revnumber>1.0</revnumber>
     <date>2008-12-13</date>
-    <authorinitials>DGL</authorinitials>
+    <authorinitials>DG</authorinitials>
     <revremark>First OpenDocument version.</revremark>
   </revision>
 </revhistory>
