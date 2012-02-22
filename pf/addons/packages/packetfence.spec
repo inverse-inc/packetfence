@@ -737,6 +737,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Wed Feb 22 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.2.0-1
+- New release 3.2.0
+
 * Tue Feb 14 2012 Derek Wuelfrath <dwuelfrath@inverse.ca>
 - Added perl(LWP::UserAgent) dependency for billing engine
 

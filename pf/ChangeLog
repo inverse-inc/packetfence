@@ -1,4 +1,4022 @@
 ----------------------------------------------------------------------
+Revision: 609198b8e889d53ef430a2c9ac0e916a3df30a57
+Parent:   ae52caffe89e4488271539bc0c4303a9d5996a30
+Author:   obilodeau@inverse.ca
+Date:     22/02/2012 13:09:26
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+date bump on devel guide
+
+Changes against parent ae52caffe89e4488271539bc0c4303a9d5996a30
+
+  patched  pf/docs/docbook/pf-devel-guide.xml
+
+----------------------------------------------------------------------
+Revision: ae52caffe89e4488271539bc0c4303a9d5996a30
+Parent:   9afd64f839fceb9e3102ff75cb42ea24076f26ef
+Author:   obilodeau@inverse.ca
+Date:     22/02/2012 13:08:05
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+added font legal notice to devel guide too
+
+Changes against parent 9afd64f839fceb9e3102ff75cb42ea24076f26ef
+
+  patched  pf/docs/docbook/pf-devel-guide.xml
+
+----------------------------------------------------------------------
+Revision: b3cfbf2a1a71e67854e27a41dcabfbacd49db7c6
+Parent:   a31e9405069956672cae81212a23b0caab5fab7b
+Author:   obilodeau@inverse.ca
+Date:     22/02/2012 12:02:35
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+sync with upstream HTTP::BrowserDetect
+
+Changes against parent a31e9405069956672cae81212a23b0caab5fab7b
+
+  patched  pf/lib/HTTP/BrowserDetect.pm
+
+----------------------------------------------------------------------
+Revision: a31e9405069956672cae81212a23b0caab5fab7b
+Parent:   d2c62922018e22fd65f931b229ed59dfcc6d8b2d
+Author:   obilodeau@inverse.ca
+Date:     22/02/2012 11:58:16
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+sync DHCP fingerprint with upstream fingerbank.org
+
+Changes against parent d2c62922018e22fd65f931b229ed59dfcc6d8b2d
+
+  patched  pf/conf/dhcp_fingerprints.conf
+
+----------------------------------------------------------------------
+Revision: d2c62922018e22fd65f931b229ed59dfcc6d8b2d
+Parent:   6c85ca5b2b631abb91da86553f16f371ea0b6766
+Author:   obilodeau@inverse.ca
+Date:     22/02/2012 11:57:33
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+schema bump in package
+
+Changes against parent 6c85ca5b2b631abb91da86553f16f371ea0b6766
+
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: 6c85ca5b2b631abb91da86553f16f371ea0b6766
+Parent:   8d0ca21542df938094584c71dedbd6dbedc196a4
+Author:   obilodeau@inverse.ca
+Date:     22/02/2012 11:55:47
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+added a missing msgstr "" to en po file
+
+Changes against parent 8d0ca21542df938094584c71dedbd6dbedc196a4
+
+  patched  pf/conf/locale/en/LC_MESSAGES/packetfence.po
+
+----------------------------------------------------------------------
+Revision: 8d0ca21542df938094584c71dedbd6dbedc196a4
+Parent:   9202380915d925939c7cf4b55fc91c31130b9c7d
+Author:   obilodeau@inverse.ca
+Date:     22/02/2012 11:51:59
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+sync pt_BR translation from transifex
+
+Changes against parent 9202380915d925939c7cf4b55fc91c31130b9c7d
+
+  patched  pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.po
+
+----------------------------------------------------------------------
+Revision: 9202380915d925939c7cf4b55fc91c31130b9c7d
+Parent:   f6a9020a938e575f62d3ad89d51c72664010c090
+Author:   obilodeau@inverse.ca
+Date:     22/02/2012 11:36:02
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+pre-release version, date and revision updates on documentation
+
+Changes against parent f6a9020a938e575f62d3ad89d51c72664010c090
+
+  patched  pf/docs/PacketFenceZEN_Installation_Guide-docinfo.xml
+  patched  pf/docs/PacketFence_Administration_Guide-docinfo.xml
+  patched  pf/docs/PacketFence_Network_Devices_Configuration_Guide-docinfo.xml
+  patched  pf/docs/docbook/pf-devel-guide.xml
+  patched  pf/docs/includes/global-attributes.asciidoc
+
+----------------------------------------------------------------------
+Revision: f6a9020a938e575f62d3ad89d51c72664010c090
+Parent:   45d1af90fa2a264b9b083f758c3072473118177f
+Author:   obilodeau@inverse.ca
+Date:     22/02/2012 11:35:35
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+small fix on font license reference
+
+Changes against parent 45d1af90fa2a264b9b083f758c3072473118177f
+
+  patched  pf/docs/docinfo.xml
+
+----------------------------------------------------------------------
+Revision: 45d1af90fa2a264b9b083f758c3072473118177f
+Parent:   ee65b72aae0d51c5c6eccf8441925282498a045d
+Author:   obilodeau@inverse.ca
+Date:     22/02/2012 11:34:27
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+importing all possible local docbook fo schemas instead of just the centos one
+
+Changes against parent ee65b72aae0d51c5c6eccf8441925282498a045d
+
+  patched  pf/docs/docbook/xsl/packetfence-fo.xsl
+
+----------------------------------------------------------------------
+Revision: ee65b72aae0d51c5c6eccf8441925282498a045d
+Parent:   cc3c8223b1a984764ac602f8e9877f39095906f9
+Author:   obilodeau@inverse.ca
+Date:     22/02/2012 11:06:45
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+version bump, date bump and added font licenses
+
+Changes against parent cc3c8223b1a984764ac602f8e9877f39095906f9
+
+  patched  pf/docs/docinfo.xml
+
+----------------------------------------------------------------------
+Revision: cc3c8223b1a984764ac602f8e9877f39095906f9
+Parent:   d698617ca7573d58146434c28d1d0fb4f2bd6ef5
+Author:   obilodeau@inverse.ca
+Date:     21/02/2012 22:02:46
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+buildfix: added pf::web::billing to file manifest
+
+Changes against parent d698617ca7573d58146434c28d1d0fb4f2bd6ef5
+
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: d698617ca7573d58146434c28d1d0fb4f2bd6ef5
+Parent:   52c1d95d66936b94bc29c3c0b6f67df7de455386
+Author:   obilodeau@inverse.ca
+Date:     21/02/2012 22:02:19
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+buildfix: local instead of remote docbook stylesheets + doc warning fixes
+
+Changes against parent 52c1d95d66936b94bc29c3c0b6f67df7de455386
+
+  patched  pf/docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+  patched  pf/docs/docbook/xsl/packetfence-fo.xsl
+
+----------------------------------------------------------------------
+Revision: 4daf5a426d52b7bc64e307ad150b781920638263
+Parent:   52c1d95d66936b94bc29c3c0b6f67df7de455386
+Author:   obilodeau@inverse.ca
+Date:     22/02/2012 10:32:30
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+updated packetfence.pm logging based on fixed logger values from upstream
+
+Changes against parent 52c1d95d66936b94bc29c3c0b6f67df7de455386
+
+  patched  pf/addons/802.1X/packetfence.pm
+
+----------------------------------------------------------------------
+Revision: 52c1d95d66936b94bc29c3c0b6f67df7de455386
+Parent:   8219835d3324599dc23038758d2ef3324c25ae5b
+Author:   obilodeau@inverse.ca
+Date:     21/02/2012 21:25:46
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+avoid setting the special LANG env var
+
+so we won't get portuguese fop errors anymore
+
+Changes against parent 8219835d3324599dc23038758d2ef3324c25ae5b
+
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: 8219835d3324599dc23038758d2ef3324c25ae5b
+Parent:   e7f90dded67bc323f3a62678db415c0face4ce19
+Author:   obilodeau@inverse.ca
+Date:     21/02/2012 20:51:05
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+PacketFence FreeRADIUS module / config improvements
+
+Config
+- logging auth to help troubleshoot problems live
+
+packetfence.pm rlm_perl module
+- no more syslog logging (we think/hope this fixes our long standing segfaults see #1377)
+- logging in radius' own logs
+- changed what's logged to make it more relevant
+- got rid of a superfluous rlm_perl run in the inner tunnel's Post-Auth (performance 2x!)
+
+http://www.packetfence.org/bugs/view.php?id=1377
+
+Changes against parent e7f90dded67bc323f3a62678db415c0face4ce19
+
+  patched  pf/NEWS
+  patched  pf/UPGRADE
+  patched  pf/addons/802.1X/packetfence.pm
+  patched  pf/addons/freeradius-integration/radiusd.conf.pf
+  patched  pf/addons/freeradius-integration/sites-available/packetfence-tunnel
+  patched  pf/docs/PacketFence_Administration_Guide.asciidoc
+
+----------------------------------------------------------------------
+Revision: e7f90dded67bc323f3a62678db415c0face4ce19
+Parent:   5cd1fcb44e8cac24d869cc2fc1c01ca27f8d45ce
+Author:   obilodeau@inverse.ca
+Date:     21/02/2012 13:03:07
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+More reliable SSID extraction in Called-Station-Id. Fixes #1379;
+
+On top of Francois' previous work to support also no separator.
+Added regression tests too.
+
+http://www.packetfence.org/bugs/view.php?id=1379
+
+Changes against parent 5cd1fcb44e8cac24d869cc2fc1c01ca27f8d45ce
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/SNMP.pm
+  patched  pf/t/SNMP.t
+
+----------------------------------------------------------------------
+Revision: 8d85ca44641dd106d606cc92d7418f6861fc7d16
+Parent:   2815d77e56ba749de4a52493ad4e7800837b6391
+Author:   obilodeau@inverse.ca
+Date:     21/02/2012 12:34:45
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+removed misleading comment
+
+Changes against parent 2815d77e56ba749de4a52493ad4e7800837b6391
+
+  patched  pf/lib/pf/config.pm
+
+----------------------------------------------------------------------
+Revision: 2815d77e56ba749de4a52493ad4e7800837b6391
+Parent:   52336b40999eeea82fbef44714fd47afb5c4be1a
+Author:   obilodeau@inverse.ca
+Date:     21/02/2012 12:34:19
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+tests: added missing new components to 'use' tests
+
+Changes against parent 52336b40999eeea82fbef44714fd47afb5c4be1a
+
+  patched  pf/t/pf.t
+
+----------------------------------------------------------------------
+Revision: 9142199db39c31ab6345525946e5fbb319cde575
+Parent:   e16c3394ef18b16dab1f5889bca8d406dd857b43
+Author:   obilodeau@inverse.ca
+Date:     21/02/2012 11:00:34
+
+Changelog: 
+
+Several small changes throughout the codebase
+
+billing engine fixes / improvements resulting of testing
+- form remembers selected tier value
+- returning undef instead of 0 on failed queries
+- passing around hashref instead of hash
+- fixed checkup tests
+- fixed methods in pf::billing to behave like objet methods
+- More robust object creation
+- Dropped unnecessary test in pf::util's generate_id
+
+Additional Scanning fixes
+- `pfcmd checkup` fixes
+- pf::scan regarding object instanciations
+- lower-cased openvas/nessus/none because config validator is sensitive to case
+- scan were still being triggered if scan.engine = none was selected
+
+Additional code consolidation in pf::web regarding the portal session termination
+
+Changes against parent e16c3394ef18b16dab1f5889bca8d406dd857b43
+
+  patched  pf/conf/documentation.conf
+  patched  pf/html/captive-portal/billing-engine.cgi
+  patched  pf/html/captive-portal/guest-selfregistration.cgi
+  patched  pf/html/captive-portal/mobile-confirmation.cgi
+  patched  pf/html/captive-portal/register.cgi
+  patched  pf/html/captive-portal/templates/billing/billing.html
+  patched  pf/lib/pf/billing/gateway/authorize_net.pm
+  patched  pf/lib/pf/billing.pm
+  patched  pf/lib/pf/node.pm
+  patched  pf/lib/pf/pfcmd/checkup.pm
+  patched  pf/lib/pf/scan.pm
+  patched  pf/lib/pf/util.pm
+  patched  pf/lib/pf/web/billing.pm
+  patched  pf/lib/pf/web/release.pm
+  patched  pf/lib/pf/web.pm
+
+----------------------------------------------------------------------
+Revision: e16c3394ef18b16dab1f5889bca8d406dd857b43
+Parent:   9bb2d0c8733cea3ac7bf072364f740f5b8ad731a
+Author:   obilodeau@inverse.ca
+Date:     20/02/2012 11:34:15
+
+Changelog: 
+
+billing engine fixes / improvements
+
+Added files to package manifest
+pf::billing::authorize_net -> pf::billing::gateway::authorize_net
+Fixed: logging status would fail on error
+Extracted re-used string into constant (x2)
+Got rid of the mode=... GET parameter passed around for nothing
+Got rid of the post_uri parameter passed around for nothing
+Added category to the tier hash with a default that works out of the box
+Extracted errors into an hashref and keyed errors codes in pf::billing::constants
+Missing POD in pf::web::billing
+A little bit of documentation update
+More error logging
+
+Changes against parent 9bb2d0c8733cea3ac7bf072364f740f5b8ad731a
+
+  renamed  pf/lib/pf/billing/authorize_net.pm
+       to  pf/lib/pf/billing/gateway/authorize_net.pm
+  added    pf/lib/pf/billing/gateway
+  patched  pf/UPGRADE
+  patched  pf/addons/packages/packetfence.spec
+  patched  pf/docs/PacketFence_Administration_Guide.asciidoc
+  patched  pf/html/captive-portal/billing-engine.cgi
+  patched  pf/html/captive-portal/redir.cgi
+  patched  pf/html/captive-portal/templates/billing/billing.html
+  patched  pf/lib/pf/billing/constants.pm
+  patched  pf/lib/pf/billing/custom.pm
+  patched  pf/lib/pf/billing/gateway/authorize_net.pm
+  patched  pf/lib/pf/billing.pm
+  patched  pf/lib/pf/web/billing.pm
+
+----------------------------------------------------------------------
+Revision: 9bb2d0c8733cea3ac7bf072364f740f5b8ad731a
+Parent:   d524d7cad1ebb4839d5095ceb8fecd865c99e7c1
+Author:   dwuelfrath@inverse.ca
+Date:     20/02/2012 10:48:32
+
+Changelog: 
+
+Billing engine documentation phase 1
+
+Changes against parent d524d7cad1ebb4839d5095ceb8fecd865c99e7c1
+
+  patched  pf/docs/PacketFence_Administration_Guide.asciidoc
+
+----------------------------------------------------------------------
+Revision: d524d7cad1ebb4839d5095ceb8fecd865c99e7c1
+Parent:   3164e2e8d3e8d6dd0c1ba0ae759c7a0e605cbd85
+Author:   dwuelfrath@inverse.ca
+Date:     20/02/2012 10:02:08
+
+Changelog: 
+
+Usual stuff here
+
+Changes against parent 3164e2e8d3e8d6dd0c1ba0ae759c7a0e605cbd85
+
+  patched  pf/NEWS
+  patched  pf/UPGRADE
+
+----------------------------------------------------------------------
+Revision: 3164e2e8d3e8d6dd0c1ba0ae759c7a0e605cbd85
+Parent:   0e7580f33f1a8c9d38d134c22adbf2ead0b59310
+Author:   dwuelfrath@inverse.ca
+Date:     20/02/2012 09:58:29
+
+Changelog: 
+
+Added database table for billing
+
+Changes against parent 0e7580f33f1a8c9d38d134c22adbf2ead0b59310
+
+  patched  pf/db/pf-schema-3.2.0.sql
+  patched  pf/db/upgrade-3.1.0-3.2.0.sql
+
+----------------------------------------------------------------------
+Revision: 0e7580f33f1a8c9d38d134c22adbf2ead0b59310
+Parent:   a234ef73c033d6ce9b895872426a8b74e41e7fbf
+Author:   obilodeau@inverse.ca
+Date:     16/02/2012 15:40:20
+Branch:   org.packetfence.feature.billing-engine
+
+Changelog: 
+
+moved billing feature as-is from github test into mtn to shape for merge
+
+Changes against parent a234ef73c033d6ce9b895872426a8b74e41e7fbf
+
+  added    pf/html/captive-portal/templates/billing
+  added    pf/lib/pf/billing
+  added    pf/html/captive-portal/billing-engine.cgi
+  added    pf/html/captive-portal/content/images/authorize.net.gif
+  added    pf/html/captive-portal/content/images/creditcards.png
+  added    pf/html/captive-portal/templates/billing/billing.html
+  added    pf/lib/pf/billing/authorize_net.pm
+  added    pf/lib/pf/billing/constants.pm
+  added    pf/lib/pf/billing/custom.pm
+  added    pf/lib/pf/billing.pm
+  added    pf/lib/pf/web/billing.pm
+  patched  pf/addons/packages/packetfence.spec
+  patched  pf/conf/documentation.conf
+  patched  pf/conf/httpd.conf.d/captive-portal-cleanurls.conf
+  patched  pf/conf/locale/en/LC_MESSAGES/packetfence.po
+  patched  pf/conf/locale/fr/LC_MESSAGES/packetfence.po
+  patched  pf/conf/pf.conf.defaults
+  patched  pf/html/captive-portal/redir.cgi
+  patched  pf/lib/pf/config.pm
+  patched  pf/lib/pf/pfcmd/checkup.pm
+  patched  pf/lib/pf/util.pm
+  patched  pf/lib/pf/web/util.pm
+  attr on  pf/html/captive-portal/content/images/authorize.net.gif
+      set  mtn:manual_merge
+       to  true
+  attr on  pf/html/captive-portal/content/images/creditcards.png
+      set  mtn:manual_merge
+       to  true
+
+----------------------------------------------------------------------
+Revision: ca2336e64b1513dd627b5ce62978741f297be0cf
+Parent:   67ae04171b0431ce91541b162074ae116c3859ba
+Author:   fgaudreault@inverse.ca
+Date:     20/02/2012 15:50:50
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Fix for 1379
+
+Changes against parent 67ae04171b0431ce91541b162074ae116c3859ba
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/SNMP.pm
+
+----------------------------------------------------------------------
+Revision: 67ae04171b0431ce91541b162074ae116c3859ba
+Parent:   02d50cd8b127434ce0fc0ebddf9de3b87d653cd7
+Author:   obilodeau@inverse.ca
+Date:     19/02/2012 16:33:59
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+new bandwidth accounting related tests that I forgot to push
+
+Changes against parent 02d50cd8b127434ce0fc0ebddf9de3b87d653cd7
+
+  patched  pf/t/trigger.t
+
+----------------------------------------------------------------------
+Revision: 02d50cd8b127434ce0fc0ebddf9de3b87d653cd7
+Parent:   abf9bc7e178e7caaeb44d5fce20f28a58ad6d7ab
+Author:   obilodeau@inverse.ca
+Date:     17/02/2012 15:33:58
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+bandwidth accounting improvements
+
+extracted bandwidth units and direction into global regexp (avoids duplication)
+created a trigger parsing regexp exported by pf::accounting (avoids duplication)
+added trigger parsing tests for accounting
+when validating trigger, accounting specific regexp is only applied to accounting (avoid errors in other trigger types)
+extracted IN / OUT into constants
+asciidoc fixes
+
+Changes against parent abf9bc7e178e7caaeb44d5fce20f28a58ad6d7ab
+
+  patched  pf/NEWS
+  patched  pf/docs/PacketFence_Administration_Guide.asciidoc
+  patched  pf/lib/pf/accounting.pm
+  patched  pf/lib/pf/config.pm
+  patched  pf/lib/pf/trigger.pm
+  patched  pf/sbin/pfmon
+
+----------------------------------------------------------------------
+Revision: abf9bc7e178e7caaeb44d5fce20f28a58ad6d7ab
+Parent:   ae77c7b7cc06408f7d3d8822432e54389ea4760d
+Author:   obilodeau@inverse.ca
+Date:     17/02/2012 11:21:16
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+buildfix: missing files in manifest from OpenVAS integration
+
+Changes against parent ae77c7b7cc06408f7d3d8822432e54389ea4760d
+
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: ae77c7b7cc06408f7d3d8822432e54389ea4760d
+Parent:   117eacce50c5aa20393085d832dc34f2d75b25f5
+Author:   obilodeau@inverse.ca
+Date:     16/02/2012 20:14:22
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+NEWS entry from last commit
+
+Changes against parent 117eacce50c5aa20393085d832dc34f2d75b25f5
+
+  patched  pf/NEWS
+
+----------------------------------------------------------------------
+Revision: 117eacce50c5aa20393085d832dc34f2d75b25f5
+Parent:   a234ef73c033d6ce9b895872426a8b74e41e7fbf
+Author:   obilodeau@inverse.ca
+Date:     16/02/2012 20:05:59
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+performance: removing 'use diagnostics;' everywhere
+
+found out by profiling that it was a big hit and that it affected regexp performance all over the codebase too (according to Devel::NYTProf anyway)
+
+Changes against parent a234ef73c033d6ce9b895872426a8b74e41e7fbf
+
+  patched  pf/addons/802.1X/packetfence.pm
+  patched  pf/addons/accounting.pl
+  patched  pf/addons/autodiscover.pl
+  patched  pf/addons/connect_and_read.pl
+  patched  pf/addons/convertToPortSecurity.pl
+  patched  pf/addons/import-node-csv.pl
+  patched  pf/addons/integration-testing/replay-snmptrapd-logs.pl
+  patched  pf/addons/monitorpfsetvlan.pl
+  patched  pf/addons/network-save-configs.pl
+  patched  pf/addons/recovery.pl
+  patched  pf/addons/soh/packetfence-soh.pm
+  patched  pf/addons/upgrade/to-2.2.0-update-all-useragents.pl
+  patched  pf/bin/pfcmd_vlan
+  patched  pf/conf/authentication/ldap.pm
+  patched  pf/configurator.pl
+  patched  pf/docs/docbook/pf-devel-guide.xml
+  patched  pf/installer.pl
+  patched  pf/lib/pf/SNMP/Accton/ES3526XA.pm
+  patched  pf/lib/pf/SNMP/Accton/ES3528M.pm
+  patched  pf/lib/pf/SNMP/Accton.pm
+  patched  pf/lib/pf/SNMP/AeroHIVE/AP.pm
+  patched  pf/lib/pf/SNMP/AeroHIVE.pm
+  patched  pf/lib/pf/SNMP/Amer/SS2R24i.pm
+  patched  pf/lib/pf/SNMP/Amer.pm
+  patched  pf/lib/pf/SNMP/Aruba/Controller_200.pm
+  patched  pf/lib/pf/SNMP/Aruba.pm
+  patched  pf/lib/pf/SNMP/Avaya/ERS5000.pm
+  patched  pf/lib/pf/SNMP/Avaya/ERS5000_6x.pm
+  patched  pf/lib/pf/SNMP/Avaya/WC.pm
+  patched  pf/lib/pf/SNMP/Avaya.pm
+  patched  pf/lib/pf/SNMP/Cisco/Aironet.pm
+  patched  pf/lib/pf/SNMP/Cisco/Aironet_1130.pm
+  patched  pf/lib/pf/SNMP/Cisco/Aironet_1242.pm
+  patched  pf/lib/pf/SNMP/Cisco/Aironet_1250.pm
+  patched  pf/lib/pf/SNMP/Cisco/Catalyst_2900XL.pm
+  patched  pf/lib/pf/SNMP/Cisco/Catalyst_2950.pm
+  patched  pf/lib/pf/SNMP/Cisco/Catalyst_2960.pm
+  patched  pf/lib/pf/SNMP/Cisco/Catalyst_2970.pm
+  patched  pf/lib/pf/SNMP/Cisco/Catalyst_3500XL.pm
+  patched  pf/lib/pf/SNMP/Cisco/Catalyst_3550.pm
+  patched  pf/lib/pf/SNMP/Cisco/Catalyst_3560.pm
+  patched  pf/lib/pf/SNMP/Cisco/Catalyst_3750.pm
+  patched  pf/lib/pf/SNMP/Cisco/Catalyst_4500.pm
+  patched  pf/lib/pf/SNMP/Cisco/Catalyst_6500.pm
+  patched  pf/lib/pf/SNMP/Cisco/ISR_1800.pm
+  patched  pf/lib/pf/SNMP/Cisco/WLC_2106.pm
+  patched  pf/lib/pf/SNMP/Cisco/WLC_4400.pm
+  patched  pf/lib/pf/SNMP/Cisco/WiSM.pm
+  patched  pf/lib/pf/SNMP/Cisco.pm
+  patched  pf/lib/pf/SNMP/Dell/PowerConnect3424.pm
+  patched  pf/lib/pf/SNMP/Dell.pm
+  patched  pf/lib/pf/SNMP/Dlink/DES_3526.pm
+  patched  pf/lib/pf/SNMP/Dlink/DES_3550.pm
+  patched  pf/lib/pf/SNMP/Dlink/DGS_3100.pm
+  patched  pf/lib/pf/SNMP/Dlink/DGS_3200.pm
+  patched  pf/lib/pf/SNMP/Dlink/DWL.pm
+  patched  pf/lib/pf/SNMP/Dlink/DWS_3026.pm
+  patched  pf/lib/pf/SNMP/Dlink.pm
+  patched  pf/lib/pf/SNMP/Enterasys/D2.pm
+  patched  pf/lib/pf/SNMP/Enterasys/Matrix_N3.pm
+  patched  pf/lib/pf/SNMP/Enterasys/SecureStack_C2.pm
+  patched  pf/lib/pf/SNMP/Enterasys/SecureStack_C3.pm
+  patched  pf/lib/pf/SNMP/Enterasys.pm
+  patched  pf/lib/pf/SNMP/Extreme/Summit.pm
+  patched  pf/lib/pf/SNMP/Extreme/Summit_X250e.pm
+  patched  pf/lib/pf/SNMP/Extreme.pm
+  patched  pf/lib/pf/SNMP/Extricom/EXSW.pm
+  patched  pf/lib/pf/SNMP/Extricom.pm
+  patched  pf/lib/pf/SNMP/Foundry/FastIron_4802.pm
+  patched  pf/lib/pf/SNMP/Foundry/MC.pm
+  patched  pf/lib/pf/SNMP/Foundry.pm
+  patched  pf/lib/pf/SNMP/HP/Controller_MSM710.pm
+  patched  pf/lib/pf/SNMP/HP/E4800G.pm
+  patched  pf/lib/pf/SNMP/HP/E5500G.pm
+  patched  pf/lib/pf/SNMP/HP/Procurve_2500.pm
+  patched  pf/lib/pf/SNMP/HP/Procurve_2600.pm
+  patched  pf/lib/pf/SNMP/HP/Procurve_3400cl.pm
+  patched  pf/lib/pf/SNMP/HP/Procurve_4100.pm
+  patched  pf/lib/pf/SNMP/HP/Procurve_5400.pm
+  patched  pf/lib/pf/SNMP/HP.pm
+  patched  pf/lib/pf/SNMP/Intel/Express_460.pm
+  patched  pf/lib/pf/SNMP/Intel/Express_530.pm
+  patched  pf/lib/pf/SNMP/Intel.pm
+  patched  pf/lib/pf/SNMP/Juniper/EX.pm
+  patched  pf/lib/pf/SNMP/Juniper.pm
+  patched  pf/lib/pf/SNMP/LG/ES4500G.pm
+  patched  pf/lib/pf/SNMP/LG.pm
+  patched  pf/lib/pf/SNMP/Linksys/SRW224G4.pm
+  patched  pf/lib/pf/SNMP/Linksys.pm
+  patched  pf/lib/pf/SNMP/Meru/MC.pm
+  patched  pf/lib/pf/SNMP/Meru.pm
+  patched  pf/lib/pf/SNMP/MockedSwitch.pm
+  patched  pf/lib/pf/SNMP/Motorola/RFS.pm
+  patched  pf/lib/pf/SNMP/Motorola.pm
+  patched  pf/lib/pf/SNMP/Netgear/FSM726v1.pm
+  patched  pf/lib/pf/SNMP/Netgear.pm
+  patched  pf/lib/pf/SNMP/Nortel/BPS2000.pm
+  patched  pf/lib/pf/SNMP/Nortel/BayStack4550.pm
+  patched  pf/lib/pf/SNMP/Nortel/BayStack470.pm
+  patched  pf/lib/pf/SNMP/Nortel/BayStack5500.pm
+  patched  pf/lib/pf/SNMP/Nortel/BayStack5500_6x.pm
+  patched  pf/lib/pf/SNMP/Nortel/ERS2500.pm
+  patched  pf/lib/pf/SNMP/Nortel/ERS4000.pm
+  patched  pf/lib/pf/SNMP/Nortel/ERS5000.pm
+  patched  pf/lib/pf/SNMP/Nortel/ERS5000_6x.pm
+  patched  pf/lib/pf/SNMP/Nortel/ES325.pm
+  patched  pf/lib/pf/SNMP/Nortel.pm
+  patched  pf/lib/pf/SNMP/PacketFence.pm
+  patched  pf/lib/pf/SNMP/Ruckus.pm
+  patched  pf/lib/pf/SNMP/SMC/TS6128L2.pm
+  patched  pf/lib/pf/SNMP/SMC/TS6224M.pm
+  patched  pf/lib/pf/SNMP/SMC/TS8800M.pm
+  patched  pf/lib/pf/SNMP/SMC.pm
+  patched  pf/lib/pf/SNMP/ThreeCom/E4800G.pm
+  patched  pf/lib/pf/SNMP/ThreeCom/E5500G.pm
+  patched  pf/lib/pf/SNMP/ThreeCom/NJ220.pm
+  patched  pf/lib/pf/SNMP/ThreeCom/SS4200.pm
+  patched  pf/lib/pf/SNMP/ThreeCom/SS4500.pm
+  patched  pf/lib/pf/SNMP/ThreeCom/Switch_4200G.pm
+  patched  pf/lib/pf/SNMP/ThreeCom.pm
+  patched  pf/lib/pf/SNMP/Trapeze.pm
+  patched  pf/lib/pf/SNMP/WirelessModuleTemplate.pm
+  patched  pf/lib/pf/SNMP/Xirrus.pm
+  patched  pf/lib/pf/SNMP/constants.pm
+  patched  pf/lib/pf/SNMP.pm
+  patched  pf/lib/pf/SwitchFactory.pm
+  patched  pf/lib/pf/floatingdevice/custom.pm
+  patched  pf/lib/pf/inline/custom.pm
+  patched  pf/lib/pf/inline.pm
+  patched  pf/lib/pf/lookup/node.pm
+  patched  pf/lib/pf/lookup/person.pm
+  patched  pf/lib/pf/pfcmd/pfcmd.pm
+  patched  pf/lib/pf/radius/constants.pm
+  patched  pf/lib/pf/radius/custom.pm
+  patched  pf/lib/pf/radius.pm
+  patched  pf/lib/pf/soh/custom.pm
+  patched  pf/lib/pf/soh.pm
+  patched  pf/lib/pf/vlan/custom.pm
+  patched  pf/lib/pf/vlan.pm
+  patched  pf/lib/pf/web/auth.pm
+  patched  pf/sbin/pfsetvlan
+
+----------------------------------------------------------------------
+Revision: a234ef73c033d6ce9b895872426a8b74e41e7fbf
+Parent:   5e94702cfdd3b9bccced96a5d1a09ede81b8d8d7
+Author:   obilodeau@inverse.ca
+Date:     16/02/2012 15:11:21
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+documentation about running scan engine remotely
+
+Changes against parent 5e94702cfdd3b9bccced96a5d1a09ede81b8d8d7
+
+  patched  pf/docs/PacketFence_Administration_Guide.asciidoc
+
+----------------------------------------------------------------------
+Revision: 5e94702cfdd3b9bccced96a5d1a09ede81b8d8d7
+Parent:   3b061ce7e980ba9fe948fe38c4aa2c6932b0ce46
+Author:   obilodeau@inverse.ca
+Date:     16/02/2012 14:50:42
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+got rid of hardcoded 1443 for admin port from config
+
+Changes against parent 3b061ce7e980ba9fe948fe38c4aa2c6932b0ce46
+
+  patched  pf/lib/pf/scan/openvas.pm
+
+----------------------------------------------------------------------
+Revision: 3b061ce7e980ba9fe948fe38c4aa2c6932b0ce46
+Parent:   a6f2b0c35dc3ce0b692e6b7bdae4a2559d60d40e
+Author:   obilodeau@inverse.ca
+Date:     16/02/2012 14:14:49
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+more buzz in the new openvas integration feature mention
+
+Changes against parent a6f2b0c35dc3ce0b692e6b7bdae4a2559d60d40e
+
+  patched  pf/NEWS
+
+----------------------------------------------------------------------
+Revision: b5f939679bc62f12d5892222222789d8a4596133
+Parent:   c063f3cfe4f854d6b78cf881970453bbc412181f
+Author:   obilodeau@inverse.ca
+Date:     15/02/2012 14:11:47
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+documented XOS minimum released version required for port-security
+
+also added tested version for mac-auth / 802.1X and the fact that it's supported
+
+Changes against parent c063f3cfe4f854d6b78cf881970453bbc412181f
+
+  patched  pf/lib/pf/SNMP/Extreme.pm
+
+----------------------------------------------------------------------
+Revision: 9c6bd58c5d5370d03b4916bd2d8124959719859e
+Parent:   c063f3cfe4f854d6b78cf881970453bbc412181f
+Author:   fgaudreault@inverse.ca
+Date:     15/02/2012 12:08:07
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+adding Meru doc for PMK caching
+
+Changes against parent c063f3cfe4f854d6b78cf881970453bbc412181f
+
+  patched  pf/docs/PacketFence_Network_Devices_Configuration_Guide-docinfo.xml
+  patched  pf/docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+  patched  pf/lib/pf/SNMP/Meru.pm
+
+----------------------------------------------------------------------
+Revision: c063f3cfe4f854d6b78cf881970453bbc412181f
+Parent:   21059781c78cc6cf81d62fb043ae525e34ba8031
+Author:   fgaudreault@inverse.ca
+Date:     15/02/2012 08:47:09
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Small changes for accounting violation
+
+Changes against parent 21059781c78cc6cf81d62fb043ae525e34ba8031
+
+  added    pf/html/captive-portal/violations/bandwidth_limit.php
+  patched  pf/lib/pf/accounting.pm
+
+----------------------------------------------------------------------
+Revision: 21059781c78cc6cf81d62fb043ae525e34ba8031
+Parent:   91b79753e3ca380518c34ef404c8d532fa4740db
+Author:   fgaudreault@inverse.ca
+Date:     14/02/2012 17:12:52
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+- Adding RADIUS accounting violation support using bandwidth
+
+Changes against parent 91b79753e3ca380518c34ef404c8d532fa4740db
+
+  patched  pf/NEWS
+  patched  pf/conf/violations.conf
+  patched  pf/docs/PacketFence_Administration_Guide-docinfo.xml
+  patched  pf/docs/PacketFence_Administration_Guide.asciidoc
+  patched  pf/lib/pf/accounting.pm
+  patched  pf/lib/pf/config.pm
+  patched  pf/lib/pf/trigger.pm
+  patched  pf/lib/pf/util.pm
+  patched  pf/sbin/pfmon
+
+----------------------------------------------------------------------
+Revision: 91b79753e3ca380518c34ef404c8d532fa4740db
+Parent:   a2689c41dbb2bff28d5ba2424622f014296cc2b5
+Author:   dwuelfrath@inverse.ca
+Date:     14/02/2012 14:25:56
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Added OpenVAS documentation
+
+Changes against parent a2689c41dbb2bff28d5ba2424622f014296cc2b5
+
+  patched  pf/docs/PacketFence_Administration_Guide.asciidoc
+
+----------------------------------------------------------------------
+Revision: a2689c41dbb2bff28d5ba2424622f014296cc2b5
+Parent:   b6783622e557cd9fa3e46ce5187a539300c509f9
+Author:   obilodeau@inverse.ca
+Date:     14/02/2012 12:58:07
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+upgrade doc: moved up trigger changes and made case insensitive
+
+Changes against parent b6783622e557cd9fa3e46ce5187a539300c509f9
+
+  patched  pf/UPGRADE
+
+----------------------------------------------------------------------
+Revision: b6783622e557cd9fa3e46ce5187a539300c509f9
+Parent:   b864a9347add75f1176d1f40cbc23c1408b5a16b
+Author:   obilodeau@inverse.ca
+Date:     14/02/2012 12:42:48
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+added new notices regarding to upgrade to 3.1
+
+Changes against parent b864a9347add75f1176d1f40cbc23c1408b5a16b
+
+  patched  pf/UPGRADE
+
+----------------------------------------------------------------------
+Revision: b864a9347add75f1176d1f40cbc23c1408b5a16b
+Parent:   a73019be761cf1c10579db3894a081902b1b24cb
+Author:   obilodeau@inverse.ca
+Date:     13/02/2012 22:12:32
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+node_view optimization. see benchmark for details
+
+Changes against parent a73019be761cf1c10579db3894a081902b1b24cb
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/node.pm
+  patched  pf/t/benchmarks/pf-node.pl
+
+----------------------------------------------------------------------
+Revision: a73019be761cf1c10579db3894a081902b1b24cb
+Parent:   132e907c1f9311c4e41c434f6673e77f741e7eb4
+Author:   flachapelle@inverse.ca
+Date:     08/02/2012 04:05:39
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Updated Raphael JavaScript framework to version 2.0.2.
+
+Changes against parent 132e907c1f9311c4e41c434f6673e77f741e7eb4
+
+  patched  pf/html/admin/3rdparty/raphael/raphael-min.js
+
+----------------------------------------------------------------------
+Revision: 132e907c1f9311c4e41c434f6673e77f741e7eb4
+Parent:   bda75248c9d055696fdd5590847648d0c4e53f4a
+Author:   obilodeau@inverse.ca
+Date:     13/02/2012 10:46:29
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+H-REAP is now known as flexconnect
+
+Changes against parent bda75248c9d055696fdd5590847648d0c4e53f4a
+
+  patched  pf/lib/pf/SNMP/Cisco/Aironet.pm
+  patched  pf/lib/pf/SNMP/Cisco/WiSM.pm
+
+----------------------------------------------------------------------
+Revision: bda75248c9d055696fdd5590847648d0c4e53f4a
+Parent:   7fcb7a33ffe0b1df5ed10c201b76cb9225173972
+Author:   obilodeau@inverse.ca
+Date:     13/02/2012 09:58:22
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+documented H-REAP limitations
+
+Changes against parent 7fcb7a33ffe0b1df5ed10c201b76cb9225173972
+
+  patched  pf/lib/pf/SNMP/Cisco/WiSM.pm
+
+----------------------------------------------------------------------
+Revision: 7fcb7a33ffe0b1df5ed10c201b76cb9225173972
+Parent:   88c5b3d0e50fb12e8f005dc88161a5fdbdef7ec7
+Author:   obilodeau@inverse.ca
+Date:     13/02/2012 09:50:29
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+documented H-REAP limitation 
+
+itemized limitations because there are too many
+
+Changes against parent 88c5b3d0e50fb12e8f005dc88161a5fdbdef7ec7
+
+  patched  pf/lib/pf/SNMP/Cisco/Aironet.pm
+
+----------------------------------------------------------------------
+Revision: 88c5b3d0e50fb12e8f005dc88161a5fdbdef7ec7
+Parent:   ff01ca5a271a8990843d37e1bf0183edc8101fe9
+Author:   flachapelle@inverse.ca
+Date:     07/02/2012 15:01:26
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Guests management: fixed issue with username when coming from admin interface.
+
+Changes against parent ff01ca5a271a8990843d37e1bf0183edc8101fe9
+
+  patched  pf/html/admin/guest-management.cgi
+
+----------------------------------------------------------------------
+Revision: ff01ca5a271a8990843d37e1bf0183edc8101fe9
+Parent:   f11d1512580a8cef06cc68db110cee7d21e7d53c
+Author:   obilodeau@inverse.ca
+Date:     10/02/2012 09:45:11
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+extracted OpenVAS OID test in a separate test
+
+the previous test could hide the fact that we don't pass the test for OpenVAS' OID
+
+Changes against parent f11d1512580a8cef06cc68db110cee7d21e7d53c
+
+  patched  pf/t/trigger.t
+
+----------------------------------------------------------------------
+Revision: f11d1512580a8cef06cc68db110cee7d21e7d53c
+Parent:   ae6c6ff513dc8825c781a21e470ddbbb0f7e3ff1
+Author:   obilodeau@inverse.ca
+Date:     09/02/2012 15:46:02
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+fixed copyright / license
+
+Changes against parent ae6c6ff513dc8825c781a21e470ddbbb0f7e3ff1
+
+  patched  pf/t/stress-test/eap-calls
+
+----------------------------------------------------------------------
+Revision: ae6c6ff513dc8825c781a21e470ddbbb0f7e3ff1
+Parent:   2a4506684295daf9e34d7d74ba64e406cc97c1d7
+Author:   obilodeau@inverse.ca
+Date:     09/02/2012 15:06:31
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+highlighted / extracted some important variables
+
+Changes against parent 2a4506684295daf9e34d7d74ba64e406cc97c1d7
+
+  patched  pf/t/stress-test/eap-calls
+
+----------------------------------------------------------------------
+Revision: 2a4506684295daf9e34d7d74ba64e406cc97c1d7
+Parent:   83e59b360642e2f67a4e99fa9afbd19b20d4fc23
+Author:   obilodeau@inverse.ca
+Date:     08/02/2012 17:25:53
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+multi-threaded EAP stress-test based on eapol_test
+
+Changes against parent 83e59b360642e2f67a4e99fa9afbd19b20d4fc23
+
+  added    pf/t/stress-test/eap-calls
+  added    pf/t/stress-test/eap-client.conf
+  patched  pf/NEWS
+  attr on  pf/t/stress-test/eap-calls
+      set  mtn:execute
+       to  true
+
+----------------------------------------------------------------------
+Revision: fb8dd30c0b2a8b9f68579c54dc7f5c7a9ef6fdd3
+Parent:   a074717c2d137b2d447d818975f852b0e1730caa
+Author:   obilodeau@inverse.ca
+Date:     08/02/2012 15:52:24
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Authentication::radius now supports multiple radius server
+
+Changes against parent a074717c2d137b2d447d818975f852b0e1730caa
+
+  patched  pf/NEWS
+  patched  pf/conf/authentication/radius.pm
+
+----------------------------------------------------------------------
+Revision: e7e39abc1580a6ce5701daf347d8dc5ffbca00f9
+Parent:   c634eae5bef8afe29a1e29edf82a470438425b35
+Author:   dwuelfrath@inverse.ca
+Date:     08/02/2012 13:11:28
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Modification to previous trigger commit:
+- Disabled the possibility to use dots in trigger ranges
+- Added some tests
+- Escaped the dot in the trigger parsing
+
+Changes against parent c634eae5bef8afe29a1e29edf82a470438425b35
+
+  patched  pf/lib/pf/trigger.pm
+  patched  pf/t/trigger.t
+
+----------------------------------------------------------------------
+Revision: c634eae5bef8afe29a1e29edf82a470438425b35
+Parent:   c5126fc0060f4dc9dbc5c56c74dbf1abe58c00d2
+Author:   obilodeau@inverse.ca
+Date:     08/02/2012 13:34:00
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+new config flag: vlan.trap_limit to enable/disable the trap limit feature
+
+Done to avoid problem outlined in #1361.
+
+Changes against parent c5126fc0060f4dc9dbc5c56c74dbf1abe58c00d2
+
+  patched  pf/NEWS
+  patched  pf/conf/documentation.conf
+  patched  pf/conf/pf.conf.defaults
+  patched  pf/docs/PacketFence_Administration_Guide.asciidoc
+  patched  pf/sbin/pfsetvlan
+
+----------------------------------------------------------------------
+Revision: c5126fc0060f4dc9dbc5c56c74dbf1abe58c00d2
+Parent:   095993973a6904eba0a737d1346289b9071bdb8e
+Author:   obilodeau@inverse.ca
+Date:     08/02/2012 13:11:59
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+some minor improvements to the trap limit feature text
+
+Changes against parent 095993973a6904eba0a737d1346289b9071bdb8e
+
+  patched  pf/docs/PacketFence_Administration_Guide.asciidoc
+
+----------------------------------------------------------------------
+Revision: e9a938b16d7dffcd43d6b97a892b6df1309e9813
+Parent:   377963591ecec0fca3d69c17e54aa0c51b3257ea
+Author:   obilodeau@inverse.ca
+Date:     07/02/2012 12:56:48
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+decoupled a little more the guest username from the email field
+
+Also users to redefine a guest pid only in one location.
+
+Changes against parent 377963591ecec0fca3d69c17e54aa0c51b3257ea
+
+  patched  pf/NEWS
+  patched  pf/html/admin/guest-management.cgi
+  patched  pf/lib/pf/web/guest.pm
+
+----------------------------------------------------------------------
+Revision: e15153d0698971e6bf24d60ac4c41a5a7ec65c47
+Parent:   377963591ecec0fca3d69c17e54aa0c51b3257ea
+Author:   flachapelle@inverse.ca
+Date:     06/02/2012 11:39:11
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Guests management: we now recognized the PHP session if the user comes from the admin interface.
+
+Changes against parent 377963591ecec0fca3d69c17e54aa0c51b3257ea
+
+  patched  pf/html/admin/guest-management.cgi
+
+----------------------------------------------------------------------
+Revision: 377963591ecec0fca3d69c17e54aa0c51b3257ea
+Parent:   58f51ceeae236575d251a70502d7d11087d4722e
+Author:   obilodeau@inverse.ca
+Date:     03/02/2012 16:34:42
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+new config parameter: registration.guests_self_registration toggle (#1361)
+
+http://www.packetfence.org/bugs/view.php?id=1361
+
+Changes against parent 58f51ceeae236575d251a70502d7d11087d4722e
+
+  patched  pf/NEWS
+  patched  pf/UPGRADE
+  patched  pf/bin/pfcmd
+  patched  pf/conf/documentation.conf
+  patched  pf/conf/pf.conf.defaults
+  patched  pf/docs/PacketFence_Administration_Guide.asciidoc
+  patched  pf/html/captive-portal/guest-selfregistration.cgi
+  patched  pf/lib/pf/web.pm
+  patched  pf/t/integration/pfcmd.t
+
+----------------------------------------------------------------------
+Revision: 58f51ceeae236575d251a70502d7d11087d4722e
+Parent:   65829a81901eb3352cb093c5854c77f62bb3b6b9
+Author:   obilodeau@inverse.ca
+Date:     03/02/2012 16:22:43
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+capitalized first word of NEWS
+
+Changes against parent 65829a81901eb3352cb093c5854c77f62bb3b6b9
+
+  patched  pf/NEWS
+
+----------------------------------------------------------------------
+Revision: 65829a81901eb3352cb093c5854c77f62bb3b6b9
+Parent:   bb7de9cd6efe5ace025c067f464d2adf35cc6ad5
+Author:   flachapelle@inverse.ca
+Date:     03/02/2012 15:45:36
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Guests management: added the AUP to the print layout.
+
+Changes against parent bb7de9cd6efe5ace025c067f464d2adf35cc6ad5
+
+  patched  pf/html/captive-portal/content/print.css
+  patched  pf/html/captive-portal/content/styles.css
+  patched  pf/html/captive-portal/templates/guest/registration_confirmation.html
+
+----------------------------------------------------------------------
+Revision: bb7de9cd6efe5ace025c067f464d2adf35cc6ad5
+Parent:   3812cd88e17e2b9b64a45c321ca013984cb43771
+Author:   dwuelfrath@inverse.ca
+Date:     03/02/2012 15:23:22
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Administrative UI typos
+
+Changes against parent 3812cd88e17e2b9b64a45c321ca013984cb43771
+
+  patched  pf/conf/ui.conf
+  patched  pf/lib/pf/pfcmd/report.pm
+
+----------------------------------------------------------------------
+Revision: 3812cd88e17e2b9b64a45c321ca013984cb43771
+Parent:   a074717c2d137b2d447d818975f852b0e1730caa
+Author:   dwuelfrath@inverse.ca
+Date:     03/02/2012 10:19:23
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Modification to violation triggers
+- Removed "Scan" type
+- Added "Nessus" and "Openvas" type
+- Added the capability to use dots in triggers id (according to new Openvas trigger ids)
+
+Changes against parent a074717c2d137b2d447d818975f852b0e1730caa
+
+  patched  pf/NEWS
+  patched  pf/UPGRADE
+  patched  pf/conf/violations.conf
+  patched  pf/lib/pf/config.pm
+  patched  pf/lib/pf/trigger.pm
+
+----------------------------------------------------------------------
+Revision: a074717c2d137b2d447d818975f852b0e1730caa
+Parent:   6aadec70c5a8c7beb411cb209d2280ac7d6777c2
+Author:   obilodeau@inverse.ca
+Date:     31/01/2012 14:47:57
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+config error handling improvements
+
+wrapped all of pf::config's config processing into a try catch
+added explicit $int_obj tests on interface types which requires it
+
+Changes against parent 6aadec70c5a8c7beb411cb209d2280ac7d6777c2
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/config.pm
+
+----------------------------------------------------------------------
+Revision: 6aadec70c5a8c7beb411cb209d2280ac7d6777c2
+Parent:   f2e0f6ead71e9252f18f4355c01f02952eabcdde
+Author:   obilodeau@inverse.ca
+Date:     30/01/2012 14:44:25
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+whitespace fixes
+
+Changes against parent f2e0f6ead71e9252f18f4355c01f02952eabcdde
+
+  patched  pf/docs/docbook/pf-devel-guide.xml
+
+----------------------------------------------------------------------
+Revision: f2e0f6ead71e9252f18f4355c01f02952eabcdde
+Parent:   ebf872bbb6415fe2f704165ce37517f60b929610
+Author:   obilodeau@inverse.ca
+Date:     30/01/2012 14:41:11
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+added Ruckus to the controller deauth support table
+
+Changes against parent ebf872bbb6415fe2f704165ce37517f60b929610
+
+  patched  pf/README.network-devices
+
+----------------------------------------------------------------------
+Revision: ebf872bbb6415fe2f704165ce37517f60b929610
+Parent:   2c30850a656bedbec9e5aa7ad4aa30b37198f23a
+Author:   obilodeau@inverse.ca
+Date:     30/01/2012 14:39:19
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+uniformized to Controllers instead of controllers
+
+Changes against parent 2c30850a656bedbec9e5aa7ad4aa30b37198f23a
+
+  patched  pf/README.network-devices
+
+----------------------------------------------------------------------
+Revision: 2c30850a656bedbec9e5aa7ad4aa30b37198f23a
+Parent:   56294e3f586afc3eda611052f885ec8eee5b7c1d
+Author:   obilodeau@inverse.ca
+Date:     30/01/2012 14:32:56
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+added tracing code to pf::node's node_view. commented by default
+
+Changes against parent 56294e3f586afc3eda611052f885ec8eee5b7c1d
+
+  patched  pf/lib/pf/node.pm
+
+----------------------------------------------------------------------
+Revision: 7ba0fbd9c49549f3684dddff09bd59b5ac359fe4
+Parent:   1a041a4e041dce8464707717b956302171fff0dc
+Author:   obilodeau@inverse.ca
+Date:     30/01/2012 14:31:03
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+got rid of unused tracing code
+
+Changes against parent 1a041a4e041dce8464707717b956302171fff0dc
+
+  patched  pf/lib/pf/util.pm
+
+----------------------------------------------------------------------
+Revision: 2f7a351d9ea9e9b9d2d81fac62d0a37a1e818cf3
+Parent:   a9daa5714c4613c60a44c82104488e66d284a11b
+Author:   obilodeau@inverse.ca
+Date:     30/01/2012 09:45:35
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+fixed test count
+
+Changes against parent a9daa5714c4613c60a44c82104488e66d284a11b
+
+  patched  pf/t/pfcmd.t
+
+----------------------------------------------------------------------
+Revision: a9daa5714c4613c60a44c82104488e66d284a11b
+Parent:   3f1aa9206bf32669acdf703fab48e690e8a3fca6
+Author:   obilodeau@inverse.ca
+Date:     29/01/2012 13:41:00
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+UPGRADE and NEWS entry about previous commit
+
+Changes against parent 3f1aa9206bf32669acdf703fab48e690e8a3fca6
+
+  patched  pf/NEWS
+  patched  pf/UPGRADE
+
+----------------------------------------------------------------------
+Revision: 3f1aa9206bf32669acdf703fab48e690e8a3fca6
+Parent:   a73a634c916156132177094c3213815e07e8ea09
+Author:   obilodeau@inverse.ca
+Date:     29/01/2012 13:35:56
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+pfcmd exit status and appropriate tests
+
+including a more intrusive regression test
+paves the way towards a global rework of exit status
+
+Changes against parent a73a634c916156132177094c3213815e07e8ea09
+
+  added    pf/t/integration/pfcmd.t
+  patched  pf/bin/pfcmd
+  patched  pf/lib/pf/pfcmd.pm
+  patched  pf/t/TestUtils.pm
+  patched  pf/t/pfcmd.t
+  attr on  pf/t/integration/pfcmd.t
+      set  mtn:execute
+       to  true
+
+----------------------------------------------------------------------
+Revision: a73a634c916156132177094c3213815e07e8ea09
+Parent:   4a7da4c1d746427a50ef6e6874c88a527856dbb0
+Author:   obilodeau@inverse.ca
+Date:     28/01/2012 17:51:53
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+added getSwitchLocation to pfcmd_vlan (#1250)
+
+It calls pf::SNMP::getSwitchLocation which fetches SNMP sysLocation on the network device
+
+Adapted from patch in #1250 from Maikel.
+http://www.packetfence.org/bugs/view.php?id=1250
+
+Changes against parent 4a7da4c1d746427a50ef6e6874c88a527856dbb0
+
+  patched  pf/NEWS
+  patched  pf/bin/pfcmd_vlan
+
+----------------------------------------------------------------------
+Revision: 4a7da4c1d746427a50ef6e6874c88a527856dbb0
+Parent:   ccf9e937ab884287f1588292da14dddfda438a87
+Author:   obilodeau@inverse.ca
+Date:     28/01/2012 17:30:02
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+added error-handling and removed an unused parameter to getSwitchLocation()
+
+Changes against parent ccf9e937ab884287f1588292da14dddfda438a87
+
+  patched  pf/lib/pf/SNMP.pm
+
+----------------------------------------------------------------------
+Revision: 1a041a4e041dce8464707717b956302171fff0dc
+Parent:   b160c37a364aec02253846e65a12482090aa8a54
+Author:   obilodeau@inverse.ca
+Date:     27/01/2012 17:28:41
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+upgrade note for the 3550 change
+
+Changes against parent b160c37a364aec02253846e65a12482090aa8a54
+
+  patched  pf/UPGRADE
+
+----------------------------------------------------------------------
+Revision: b160c37a364aec02253846e65a12482090aa8a54
+Parent:   5b25fa74c77f55bb435f0f5565924130b0e4f697
+Author:   obilodeau@inverse.ca
+Date:     27/01/2012 17:24:41
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+specific NAS-Port to ifIndex translation for the Cisco 3550
+
+Changes against parent 5b25fa74c77f55bb435f0f5565924130b0e4f697
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/SNMP/Cisco/Catalyst_3550.pm
+
+----------------------------------------------------------------------
+Revision: 5b25fa74c77f55bb435f0f5565924130b0e4f697
+Parent:   6476d7229245283dbda50f5c623387f91041e963
+Author:   obilodeau@inverse.ca
+Date:     27/01/2012 15:48:03
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+added a debug statement with the resolved SSID
+
+Changes against parent 6476d7229245283dbda50f5c623387f91041e963
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/radius.pm
+
+----------------------------------------------------------------------
+Revision: dd48c0b1f6074b4079419f8f56496c515a238e93
+Parent:   6476d7229245283dbda50f5c623387f91041e963
+Author:   obilodeau@inverse.ca
+Date:     28/01/2012 17:01:49
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+fixed crasher in checkup when no mgmt interface defined
+
+test on management_interface's object existence avoids illegal method call exception.. which show up before the no mgmt interface defined FATAL even if it runs before
+
+Changes against parent 6476d7229245283dbda50f5c623387f91041e963
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/pfcmd/checkup.pm
+
+----------------------------------------------------------------------
+Revision: 01fdcd8a609da4d83f31b33891dfe87e369035a9
+Parent:   57521b3e79ee8b7ad948579f47416beb9e4aa380
+Author:   flachapelle@inverse.ca
+Date:     27/01/2012 10:30:48
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+SoH admin interface : added pulldown menu for violations.
+
+Changes against parent 57521b3e79ee8b7ad948579f47416beb9e4aa380
+
+  patched  pf/html/admin/soh.cgi
+  patched  pf/html/admin/templates/soh.html
+  patched  pf/html/captive-portal/content/styles.css
+
+----------------------------------------------------------------------
+Revision: 2e87f3f6e97f08b4b463975c9ece984fbd949a4f
+Parent:   57521b3e79ee8b7ad948579f47416beb9e4aa380
+Author:   obilodeau@inverse.ca
+Date:     27/01/2012 15:41:52
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+pfcmd_vlan: new -runSwitchMethod feature. Fixes #1369
+
+Allows to run arbritrary methods on switch ojects for debugging or to bypass thread safety problems.
+http://www.packetfence.org/bugs/view.php?id=1369
+
+Changes against parent 57521b3e79ee8b7ad948579f47416beb9e4aa380
+
+  patched  pf/NEWS
+  patched  pf/bin/pfcmd_vlan
+  patched  pf/lib/pf/SNMP/Cisco/Catalyst_2950.pm
+
+----------------------------------------------------------------------
+Revision: 57521b3e79ee8b7ad948579f47416beb9e4aa380
+Parent:   98940ad63f97e2bb59547beae5cb4b449c1f822e
+Author:   obilodeau@inverse.ca
+Date:     27/01/2012 10:29:45
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+added a note on a deprecated call in the Extreme module
+
+Changes against parent 98940ad63f97e2bb59547beae5cb4b449c1f822e
+
+  patched  pf/lib/pf/SNMP/Extreme.pm
+
+----------------------------------------------------------------------
+Revision: 98940ad63f97e2bb59547beae5cb4b449c1f822e
+Parent:   e17f8bd1a21185cd678b0d6998e086616b679ac2
+Author:   obilodeau@inverse.ca
+Date:     27/01/2012 10:22:58
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+added a note that SSH is broken on the ISR 18xx
+
+also moved doc up
+
+Changes against parent e17f8bd1a21185cd678b0d6998e086616b679ac2
+
+  patched  pf/lib/pf/SNMP/Cisco/ISR_1800.pm
+
+----------------------------------------------------------------------
+Revision: e17f8bd1a21185cd678b0d6998e086616b679ac2
+Parent:   693d3453b06a87c828f1dd0c7986da682aef513d
+Author:   obilodeau@inverse.ca
+Date:     27/01/2012 10:19:21
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+documented issue #1371
+
+Changes against parent 693d3453b06a87c828f1dd0c7986da682aef513d
+
+  patched  pf/lib/pf/SNMP/Cisco/Catalyst_2950.pm
+
+----------------------------------------------------------------------
+Revision: 693d3453b06a87c828f1dd0c7986da682aef513d
+Parent:   8dbe3b3b770402a64759403175c4404b8086dfaa
+Author:   obilodeau@inverse.ca
+Date:     27/01/2012 10:06:13
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+typo
+
+Changes against parent 8dbe3b3b770402a64759403175c4404b8086dfaa
+
+  patched  pf/lib/pf/SNMP/Cisco/ISR_1800.pm
+
+----------------------------------------------------------------------
+Revision: 8dbe3b3b770402a64759403175c4404b8086dfaa
+Parent:   b9d85634ba1f5092eb15be73cb0d1ec74707160c
+Author:   obilodeau@inverse.ca
+Date:     26/01/2012 14:28:04
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+fix in Cisco WLC 2106: typo related to #1370
+
+regression introduced in yesterday's fix
+
+Changes against parent b9d85634ba1f5092eb15be73cb0d1ec74707160c
+
+  patched  pf/lib/pf/SNMP/Cisco/WLC_2106.pm
+
+----------------------------------------------------------------------
+Revision: b9d85634ba1f5092eb15be73cb0d1ec74707160c
+Parent:   c009924544a2bfe9ba0256a352a46a8fdf7c5af4
+Author:   fgaudreault@inverse.ca
+Date:     25/01/2012 16:00:20
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Ruckus doc
+
+Changes against parent c009924544a2bfe9ba0256a352a46a8fdf7c5af4
+
+  patched  pf/README.network-devices
+
+----------------------------------------------------------------------
+Revision: c009924544a2bfe9ba0256a352a46a8fdf7c5af4
+Parent:   5b3395f89f9fff65ed9bdd165e11a4688f599d73
+Author:   fgaudreault@inverse.ca
+Date:     25/01/2012 15:32:20
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Documentation for Ruckus
+
+Changes against parent 5b3395f89f9fff65ed9bdd165e11a4688f599d73
+
+  patched  pf/docs/PacketFence_Network_Devices_Configuration_Guide-docinfo.xml
+  patched  pf/docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+----------------------------------------------------------------------
+Revision: 5b3395f89f9fff65ed9bdd165e11a4688f599d73
+Parent:   0544757e0c99f59496082b8fca638b9bf4547fad
+Author:   obilodeau@inverse.ca
+Date:     25/01/2012 15:16:00
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+no more in_privileged_mode() or begin_privileged with Net::Appliance::Session
+
+privilege detection didn't work and was causing threads to crash in pfsetvlan's operation
+
+Changes against parent 0544757e0c99f59496082b8fca638b9bf4547fad
+
+  patched  pf/NEWS
+  patched  pf/UPGRADE
+  patched  pf/addons/convertToPortSecurity.pl
+  patched  pf/docs/PacketFence_Administration_Guide-docinfo.xml
+  patched  pf/docs/PacketFence_Administration_Guide.asciidoc
+  patched  pf/lib/pf/SNMP/AeroHIVE.pm
+  patched  pf/lib/pf/SNMP/Cisco/Catalyst_2950.pm
+  patched  pf/lib/pf/SNMP/Cisco/Catalyst_3500XL.pm
+  patched  pf/lib/pf/SNMP/Cisco/ISR_1800.pm
+  patched  pf/lib/pf/SNMP/Cisco/WLC_2106.pm
+  patched  pf/lib/pf/SNMP/Extreme.pm
+  patched  pf/lib/pf/SNMP/Meru.pm
+
+----------------------------------------------------------------------
+Revision: bdf93c6b3921e354cd97eba3da40a15e0557ff88
+Parent:   fcd5c592be8f76dba44767af74b59f9a9c12d493
+Author:   flachapelle@inverse.ca
+Date:     25/01/2012 10:23:08
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Documentation : added missing "tip" image.
+
+Changes against parent fcd5c592be8f76dba44767af74b59f9a9c12d493
+
+  added    pf/docs/images/tip.png
+  attr on  pf/docs/images/tip.png
+      set  mtn:manual_merge
+       to  true
+
+----------------------------------------------------------------------
+Revision: fcd5c592be8f76dba44767af74b59f9a9c12d493
+Parent:   575536648a9971d4e3098531246fa7bc66ee7823
+Author:   fgaudreault@inverse.ca
+Date:     24/01/2012 13:41:32
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+VoIP Doc in Admin Guide
+
+Changes against parent 575536648a9971d4e3098531246fa7bc66ee7823
+
+  patched  pf/docs/PacketFence_Administration_Guide-docinfo.xml
+  patched  pf/docs/PacketFence_Administration_Guide.asciidoc
+
+----------------------------------------------------------------------
+Revision: 5b626f9387dd2f6f1238f2c45018e7b2e5bd4d49
+Parent:   f7523dfbe941176800bfad72df00fac92bcbcae6
+Author:   obilodeau@inverse.ca
+Date:     24/01/2012 10:38:19
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+fixed POD doc
+
+Changes against parent f7523dfbe941176800bfad72df00fac92bcbcae6
+
+  patched  pf/lib/pf/pfcmd/help.pm
+
+----------------------------------------------------------------------
+Revision: 699e130c69267f722558f308c64c93be5a6d110c
+Parent:   80d26fb04028651f1cbaf14713d2d32fa16c1f72
+Author:   flachapelle@inverse.ca
+Date:     24/01/2012 09:54:41
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Dockbook -- Improved admonition.
+
+Changes against parent 80d26fb04028651f1cbaf14713d2d32fa16c1f72
+
+  added    pf/docs/images/caution.png
+  added    pf/docs/images/important.png
+  added    pf/docs/images/note.png
+  added    pf/docs/images/warning.png
+  patched  pf/docs/docbook/xsl/packetfence-fo.xsl
+  attr on  pf/docs/images/caution.png
+      set  mtn:manual_merge
+       to  true
+  attr on  pf/docs/images/important.png
+      set  mtn:manual_merge
+       to  true
+  attr on  pf/docs/images/note.png
+      set  mtn:manual_merge
+       to  true
+  attr on  pf/docs/images/warning.png
+      set  mtn:manual_merge
+       to  true
+
+----------------------------------------------------------------------
+Revision: 80d26fb04028651f1cbaf14713d2d32fa16c1f72
+Parent:   f7523dfbe941176800bfad72df00fac92bcbcae6
+Author:   flachapelle@inverse.ca
+Date:     23/01/2012 11:21:16
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Changed the icon of the SoH filters page.
+
+Changes against parent f7523dfbe941176800bfad72df00fac92bcbcae6
+
+  added    pf/html/captive-portal/content/images/soh.png
+  patched  pf/html/admin/templates/soh.html
+  attr on  pf/html/captive-portal/content/images/soh.png
+      set  mtn:manual_merge
+       to  true
+
+----------------------------------------------------------------------
+Revision: f7523dfbe941176800bfad72df00fac92bcbcae6
+Parent:   bfc406ab7b4388afefb5e3bf1e9bf973bc862b65
+Author:   obilodeau@inverse.ca
+Date:     23/01/2012 10:06:26
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+clean_mac sanitizes more MACs than anticipated
+
+added test case
+
+Changes against parent bfc406ab7b4388afefb5e3bf1e9bf973bc862b65
+
+  patched  pf/lib/pf/util.pm
+  patched  pf/t/util.t
+
+----------------------------------------------------------------------
+Revision: 185ae0d9206fac332785a30920ae7d3e69013984
+Parent:   bfc406ab7b4388afefb5e3bf1e9bf973bc862b65
+Author:   obilodeau@inverse.ca
+Date:     25/01/2012 13:57:17
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Ruckus Wireless Controllers support
+
+Changes against parent bfc406ab7b4388afefb5e3bf1e9bf973bc862b65
+
+  added    pf/lib/pf/SNMP/Ruckus
+  added    pf/lib/pf/SNMP/Ruckus.pm
+  patched  pf/NEWS
+  patched  pf/html/admin/configuration/switches_add.php
+  patched  pf/html/admin/configuration/switches_edit.php
+  patched  pf/lib/pf/SNMP.pm
+  patched  pf/lib/pf/accounting.pm
+
+----------------------------------------------------------------------
+Revision: bfc406ab7b4388afefb5e3bf1e9bf973bc862b65
+Parent:   4222a7455f9878d732a63932812930242161a3ce
+Author:   obilodeau@inverse.ca
+Date:     23/01/2012 09:00:51
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+buildfix: missing / in files manifest
+
+Changes against parent 4222a7455f9878d732a63932812930242161a3ce
+
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: 4222a7455f9878d732a63932812930242161a3ce
+Parent:   716843262d51978094806f786987aa1727e7747f
+Author:   flachapelle@inverse.ca
+Date:     21/01/2012 14:30:25
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+English strings for SoH filters management page.
+
+Changes against parent 716843262d51978094806f786987aa1727e7747f
+
+  patched  pf/conf/locale/en/LC_MESSAGES/packetfence.po
+
+----------------------------------------------------------------------
+Revision: 716843262d51978094806f786987aa1727e7747f
+Parent:   f1ef9397fb851559b40eb21309e8d37c334ff59e
+Author:   flachapelle@inverse.ca
+Date:     20/01/2012 21:56:40
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Admin Web interface : improved SoH filters manager look & feel.
+
+Changes against parent f1ef9397fb851559b40eb21309e8d37c334ff59e
+
+  patched  pf/html/admin/templates/soh.html
+
+----------------------------------------------------------------------
+Revision: f1ef9397fb851559b40eb21309e8d37c334ff59e
+Parent:   b7e8d464d54217f4e695b2a57a708247e0c32b3d
+Author:   obilodeau@inverse.ca
+Date:     20/01/2012 15:32:14
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+pfcmd's general help is now sent to standard ouput instead of standard error
+
+added relevant regression test
+
+Changes against parent b7e8d464d54217f4e695b2a57a708247e0c32b3d
+
+  patched  pf/NEWS
+  patched  pf/bin/pfcmd
+  patched  pf/lib/pf/pfcmd/help.pm
+  patched  pf/t/pfcmd.t
+
+----------------------------------------------------------------------
+Revision: b7e8d464d54217f4e695b2a57a708247e0c32b3d
+Parent:   981d7c325bef46f25cbfd088bd7cf44054a8a98b
+Author:   obilodeau@inverse.ca
+Date:     20/01/2012 14:52:34
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+return exit status 0 when help explicitly is requested
+
+Fixes warnings when building admin guide asciidoc
+Added regression testing
+
+Changes against parent 981d7c325bef46f25cbfd088bd7cf44054a8a98b
+
+  added    pf/t/pfcmd_vlan.t
+  patched  pf/NEWS
+  patched  pf/bin/pfcmd
+  patched  pf/bin/pfcmd_vlan
+  patched  pf/docs/PacketFence_Administration_Guide.asciidoc
+  patched  pf/t/TestUtils.pm
+  patched  pf/t/pfcmd.t
+  attr on  pf/t/pfcmd_vlan.t
+      set  mtn:execute
+       to  true
+
+----------------------------------------------------------------------
+Revision: 981d7c325bef46f25cbfd088bd7cf44054a8a98b
+Parent:   468347662d6653c3bacda8863a80f228baebd789
+Author:   obilodeau@inverse.ca
+Date:     20/01/2012 13:44:00
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+modified regexp to accept domains without an ending slash. Fixes #1368
+
+added a regression test too
+
+http://www.packetfence.org/bugs/view.php?id=1368
+
+Changes against parent 468347662d6653c3bacda8863a80f228baebd789
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/services/apache.pm
+  patched  pf/t/services.t
+
+----------------------------------------------------------------------
+Revision: 468347662d6653c3bacda8863a80f228baebd789
+Parent:   67801e3efef907c167dad7f16850485b274b33b0
+Author:   obilodeau@inverse.ca
+Date:     20/01/2012 13:35:04
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+missing appendix section in admin guide
+
+Changes against parent 67801e3efef907c167dad7f16850485b274b33b0
+
+  patched  pf/docs/PacketFence_Administration_Guide.asciidoc
+
+----------------------------------------------------------------------
+Revision: 67801e3efef907c167dad7f16850485b274b33b0
+Parent:   471650eae3fa31f9e54aa21e17d88b3e3e4208ee
+Author:   obilodeau@inverse.ca
+Date:     20/01/2012 11:45:57
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+minor changes to the ZEN install guide
+
+Changes against parent 471650eae3fa31f9e54aa21e17d88b3e3e4208ee
+
+  patched  pf/docs/PacketFenceZEN_Installation_Guide.asciidoc
+
+----------------------------------------------------------------------
+Revision: 471650eae3fa31f9e54aa21e17d88b3e3e4208ee
+Parent:   401d25b9eb158ccd003a69e9e8ebd20510e6cc3a
+Author:   obilodeau@inverse.ca
+Date:     20/01/2012 11:39:35
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+updated manifest based on last change
+
+Changes against parent 401d25b9eb158ccd003a69e9e8ebd20510e6cc3a
+
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: 401d25b9eb158ccd003a69e9e8ebd20510e6cc3a
+Parent:   f4376b3885d9dcc1d0b363429685eea0f01e5be3
+Author:   obilodeau@inverse.ca
+Date:     20/01/2012 11:35:07
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+few improvements based on feedback
+
+- added a {release_version} attribute
+- moved included into a separate directory
+
+Changes against parent f4376b3885d9dcc1d0b363429685eea0f01e5be3
+
+  renamed  pf/docs/additional-info.asciidoc
+       to  pf/docs/includes/additional-info.asciidoc
+  renamed  pf/docs/commercial-support.asciidoc
+       to  pf/docs/includes/commercial-support.asciidoc
+  renamed  pf/docs/license.asciidoc
+       to  pf/docs/includes/license.asciidoc
+  added    pf/docs/includes
+  added    pf/docs/includes/global-attributes.asciidoc
+  patched  pf/docs/PacketFenceZEN_Installation_Guide.asciidoc
+  patched  pf/docs/PacketFence_Administration_Guide.asciidoc
+  patched  pf/docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+  patched  pf/docs/docinfo.xml
+
+----------------------------------------------------------------------
+Revision: f4376b3885d9dcc1d0b363429685eea0f01e5be3
+Parent:   033b78906c8db79947ec4d3b843d3a4da9019160
+Author:   obilodeau@inverse.ca
+Date:     20/01/2012 11:07:35
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+ZEN guide is now in asciidoc
+
+Changes against parent 033b78906c8db79947ec4d3b843d3a4da9019160
+
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: 033b78906c8db79947ec4d3b843d3a4da9019160
+Parent:   366a344529fe97944dcca81c72e7570c9ce4b109
+Author:   fgaudreault@inverse.ca
+Date:     19/01/2012 16:51:12
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+First pass, PF Zen in asciidoc
+
+Changes against parent 366a344529fe97944dcca81c72e7570c9ce4b109
+
+  renamed  pf/docs/PacketFenceZEN_Installation_Guide.odt
+       to  pf/docs/archives/PacketFenceZEN_Installation_Guide.odt
+  added    pf/docs/PacketFenceZEN_Installation_Guide-docinfo.xml
+  added    pf/docs/PacketFenceZEN_Installation_Guide.asciidoc
+
+----------------------------------------------------------------------
+Revision: ed3beb2cd4cfae9e75aa48af01a7f7f00550e454
+Parent:   c365bf504cbaed44e8d259ab06e053c75ac6764d
+Author:   obilodeau@inverse.ca
+Date:     19/01/2012 15:43:14
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+doc: fixed two broken links
+
+Changes against parent c365bf504cbaed44e8d259ab06e053c75ac6764d
+
+  patched  pf/docs/PacketFence_Administration_Guide.asciidoc
+
+----------------------------------------------------------------------
+Revision: c365bf504cbaed44e8d259ab06e053c75ac6764d
+Parent:   c18a174efada0c14a74f4248fa93aecfcfd2b4ee
+Author:   obilodeau@inverse.ca
+Date:     19/01/2012 15:30:52
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+no longer need to add a dhcp-listener statement on management interface
+
+Changes against parent c18a174efada0c14a74f4248fa93aecfcfd2b4ee
+
+  patched  pf/NEWS
+  patched  pf/docs/PacketFence_Administration_Guide.asciidoc
+  patched  pf/lib/pf/config.pm
+
+----------------------------------------------------------------------
+Revision: c18a174efada0c14a74f4248fa93aecfcfd2b4ee
+Parent:   1acbee87d1c1203a41361f2eaefe19c0b84696fd
+Author:   obilodeau@inverse.ca
+Date:     19/01/2012 15:25:02
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+added a task
+
+Changes against parent 1acbee87d1c1203a41361f2eaefe19c0b84696fd
+
+  patched  pf/lib/pf/services.pm
+
+----------------------------------------------------------------------
+Revision: 12530474a79e656ab495bda209fd575e21d7140d
+Parent:   1acbee87d1c1203a41361f2eaefe19c0b84696fd
+Author:   flachapelle@inverse.ca
+Date:     19/01/2012 15:45:46
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Various formatting improvements to the documentation.
+
+Changes against parent 1acbee87d1c1203a41361f2eaefe19c0b84696fd
+
+  added    pf/docs/fonts/deliciousitalic.ttf
+  added    pf/docs/fonts/deliciousitalic.xml
+  added    pf/docs/fonts/deliciousroman.ttf
+  added    pf/docs/fonts/deliciousroman.xml
+  added    pf/docs/fonts/inconsolata.ttf
+  added    pf/docs/fonts/inconsolata.xml
+  added    pf/docs/fonts/oflgoudystm.ttf
+  added    pf/docs/fonts/oflgoudystm.xml
+  added    pf/docs/fonts/oflgoudystmitalic.ttf
+  added    pf/docs/fonts/oflgoudystmitalic.xml
+  patched  pf/docs/PacketFence_Administration_Guide.asciidoc
+  patched  pf/docs/docbook/xsl/headerfooter-fo.xsl
+  patched  pf/docs/docbook/xsl/packetfence-fo.xsl
+  patched  pf/docs/fonts/fop-config.xml
+  attr on  pf/docs/fonts/deliciousitalic.ttf
+      set  mtn:manual_merge
+       to  true
+  attr on  pf/docs/fonts/deliciousroman.ttf
+      set  mtn:manual_merge
+       to  true
+  attr on  pf/docs/fonts/inconsolata.ttf
+      set  mtn:manual_merge
+       to  true
+  attr on  pf/docs/fonts/oflgoudystm.ttf
+      set  mtn:manual_merge
+       to  true
+  attr on  pf/docs/fonts/oflgoudystmitalic.ttf
+      set  mtn:manual_merge
+       to  true
+
+----------------------------------------------------------------------
+Revision: 1acbee87d1c1203a41361f2eaefe19c0b84696fd
+Parent:   a2d823cee6a1aae1ab153985d076cf66b3a0a19d
+Author:   obilodeau@inverse.ca
+Date:     19/01/2012 13:35:58
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+buildfix: added missing done after loop
+
+Changes against parent a2d823cee6a1aae1ab153985d076cf66b3a0a19d
+
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: a2d823cee6a1aae1ab153985d076cf66b3a0a19d
+Parent:   1b8835863d3e2e5eefb12ef35ebdfc1600b62c36
+Author:   obilodeau@inverse.ca
+Date:     19/01/2012 13:19:20
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+buildfix: fixed distro-specific conditional test
+
+and two tiny unrelated things
+
+Changes against parent 1b8835863d3e2e5eefb12ef35ebdfc1600b62c36
+
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: 1b8835863d3e2e5eefb12ef35ebdfc1600b62c36
+Parent:   16083e4701fdb8a9e7dfde9bf5c2af2f7a9a1c52
+Author:   obilodeau@inverse.ca
+Date:     19/01/2012 12:08:07
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+we'll keep the ZEN guide as ODT for the time being
+
+Changes against parent 16083e4701fdb8a9e7dfde9bf5c2af2f7a9a1c52
+
+  renamed  pf/docs/archives/PacketFenceZEN_Installation_Guide.odt
+       to  pf/docs/PacketFenceZEN_Installation_Guide.odt
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: 16083e4701fdb8a9e7dfde9bf5c2af2f7a9a1c52
+Parent:   1516c6de5e69da652bf37e1a8385f5c833629708
+Author:   obilodeau@inverse.ca
+Date:     19/01/2012 11:55:13
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+buildfix: added missing line terminator
+
+Changes against parent 1516c6de5e69da652bf37e1a8385f5c833629708
+
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: 1516c6de5e69da652bf37e1a8385f5c833629708
+Parent:   459d07c895212276429cd533fca6b3a7bf845008
+Author:   obilodeau@inverse.ca
+Date:     18/01/2012 16:08:03
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+asciidoc documentation now the official one
+
+moved ODT doc into docs/archives
+
+Changes against parent 459d07c895212276429cd533fca6b3a7bf845008
+
+  renamed  pf/docs/PacketFenceZEN_Installation_Guide.odt
+       to  pf/docs/archives/PacketFenceZEN_Installation_Guide.odt
+  renamed  pf/docs/PacketFence_Administration_Guide.odt
+       to  pf/docs/archives/PacketFence_Administration_Guide.odt
+  renamed  pf/docs/PacketFence_Administration_Guide.pt_BR.odt
+       to  pf/docs/archives/PacketFence_Administration_Guide.pt_BR.odt
+  renamed  pf/docs/PacketFence_Network_Devices_Configuration_Guide.odt
+       to  pf/docs/archives/PacketFence_Network_Devices_Configuration_Guide.odt
+  renamed  pf/docs/docbook/README.asciidoc
+       to  pf/docs/README.asciidoc
+  renamed  pf/docs/docbook/additional-info.asciidoc
+       to  pf/docs/additional-info.asciidoc
+  renamed  pf/docs/docbook/commercial-support.asciidoc
+       to  pf/docs/commercial-support.asciidoc
+  renamed  pf/docs/docbook/docinfo.xml
+       to  pf/docs/docinfo.xml
+  renamed  pf/docs/docbook/license.asciidoc
+       to  pf/docs/license.asciidoc
+  renamed  pf/docs/docbook/pf-admin-guide-docinfo.xml
+       to  pf/docs/PacketFence_Administration_Guide-docinfo.xml
+  renamed  pf/docs/docbook/pf-admin-guide.asciidoc
+       to  pf/docs/PacketFence_Administration_Guide.asciidoc
+  renamed  pf/docs/docbook/pf-network-device-config-guide-docinfo.xml
+       to  pf/docs/PacketFence_Network_Devices_Configuration_Guide-docinfo.xml
+  renamed  pf/docs/docbook/pf-network-device-config-guide.asciidoc
+       to  pf/docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+  added    pf/docs/archives
+  patched  pf/NEWS
+  patched  pf/addons/packages/packetfence.spec
+  patched  pf/docs/PacketFence_Administration_Guide.asciidoc
+  patched  pf/docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+  patched  pf/docs/README.asciidoc
+
+----------------------------------------------------------------------
+Revision: 459d07c895212276429cd533fca6b3a7bf845008
+Parent:   7a4c20a4dbb494eebc5e22f85b5528f64da93340
+Author:   obilodeau@inverse.ca
+Date:     18/01/2012 15:41:30
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+RPM package cleanup
+
+extracting repetitive task into for loop
+
+Changes against parent 7a4c20a4dbb494eebc5e22f85b5528f64da93340
+
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: 7a4c20a4dbb494eebc5e22f85b5528f64da93340
+Parent:   c7ca98e356c6aef1ffccc0af70a879d3b14920a8
+Author:   obilodeau@inverse.ca
+Date:     18/01/2012 15:25:23
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+RPM package: automatic guide building on CentOS 6
+
+Changes against parent c7ca98e356c6aef1ffccc0af70a879d3b14920a8
+
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: c7ca98e356c6aef1ffccc0af70a879d3b14920a8
+Parent:   d68f0b0cb0ad48b1f838e064d11cfaba5286b71a
+Author:   obilodeau@inverse.ca
+Date:     18/01/2012 12:18:53
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+added to asciidoc instructions
+
+asciidoc >= 8.6.2 required
+
+Changes against parent d68f0b0cb0ad48b1f838e064d11cfaba5286b71a
+
+  patched  pf/docs/docbook/README.asciidoc
+
+----------------------------------------------------------------------
+Revision: 498bccb94e600fd8e6745be44e9b819fe7c3a009
+Parent:   b68e2aff44c41fb9480385a5772321d5999bc068
+Author:   obilodeau@inverse.ca
+Date:     16/02/2012 13:46:46
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+scanning system improvements and fixes
+
+moved Web callback to Admin Web vhost: generally more accessible
+updating status and reportId changed
+fixed some bugs introduced by my previous refactoring
+fixed regression: a scan callback can only be executed once
+pushed default report format id in config
+introduced exception handling
+
+Changes against parent b68e2aff44c41fb9480385a5772321d5999bc068
+
+  renamed  pf/html/captive-portal/scan_fetch_report.cgi
+       to  pf/html/admin/scan_fetch_report.cgi
+  patched  pf/conf/httpd.conf.apache22
+  patched  pf/conf/httpd.conf.d/captive-portal-cleanurls.conf
+  patched  pf/conf/pf.conf.defaults
+  patched  pf/html/admin/scan_fetch_report.cgi
+  patched  pf/lib/pf/scan/nessus.pm
+  patched  pf/lib/pf/scan/openvas.pm
+  patched  pf/lib/pf/scan.pm
+
+----------------------------------------------------------------------
+Revision: 350a5869b4ed1a0c7dd2a21d1c0d167081648e0b
+Parent:   2e48f38a153fc9d55e4c9996068195c89a77b7fe
+Author:   obilodeau@inverse.ca
+Date:     14/02/2012 13:37:13
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+fix: scanHost is now scanIp
+
+Changes against parent 2e48f38a153fc9d55e4c9996068195c89a77b7fe
+
+  patched  pf/lib/pf/scan/nessus.pm
+
+----------------------------------------------------------------------
+Revision: 2e48f38a153fc9d55e4c9996068195c89a77b7fe
+Parent:   1d543a3183fc9daac32cb0b9ade2491244451bd4
+Author:   obilodeau@inverse.ca
+Date:     14/02/2012 12:55:04
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+upgrade doc: schema update
+
+Changes against parent 1d543a3183fc9daac32cb0b9ade2491244451bd4
+
+  patched  pf/UPGRADE
+
+----------------------------------------------------------------------
+Revision: 1d543a3183fc9daac32cb0b9ade2491244451bd4
+Parent:   d8f8669c8978808c5c97eac055bef2a393e6bde9
+Author:   obilodeau@inverse.ca
+Date:     14/02/2012 09:17:58
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+adjusted checkup tests
+
+lower-cased engine check
+FATAL -> WARN for bad configuration
+cleanup
+
+Changes against parent d8f8669c8978808c5c97eac055bef2a393e6bde9
+
+  patched  pf/lib/pf/pfcmd/checkup.pm
+
+----------------------------------------------------------------------
+Revision: d8f8669c8978808c5c97eac055bef2a393e6bde9
+Parent:   10fe31153c9f0f46be1c3cb21751503c44a60323
+Author:   obilodeau@inverse.ca
+Date:     13/02/2012 21:22:45
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+compile fix: added missing cast to hash for slice
+
+Changes against parent 10fe31153c9f0f46be1c3cb21751503c44a60323
+
+  patched  pf/lib/pf/scan.pm
+
+----------------------------------------------------------------------
+Revision: 10fe31153c9f0f46be1c3cb21751503c44a60323
+Parent:   84a93ade4aaaedc6a66d56433c7d66ea09bcbe1f
+Author:   obilodeau@inverse.ca
+Date:     13/02/2012 15:50:39
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+refactoring: pf::scan and friends
+
+more duties in the object: taking care of the report callback
+the above needed more state kept in the object
+renamed a couple of things
+externally exposed object parameters no longer prefixed with _
+extracted hardcoded strings into constants
+translated error string from scan_fetch_report.cgi
+
+Changes against parent 84a93ade4aaaedc6a66d56433c7d66ea09bcbe1f
+
+  patched  pf/conf/locale/en/LC_MESSAGES/packetfence.po
+  patched  pf/html/captive-portal/scan_fetch_report.cgi
+  patched  pf/lib/pf/scan/nessus.pm
+  patched  pf/lib/pf/scan/openvas.pm
+  patched  pf/lib/pf/scan.pm
+
+----------------------------------------------------------------------
+Revision: c9449108fc1053e6844bf2c1dbcb724db181763d
+Parent:   64080555c3d516751f4487ed267694a8dcdb3bc1
+Author:   dwuelfrath@inverse.ca
+Date:     14/02/2012 15:04:19
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+News and upgrade stuff
+
+Changes against parent 64080555c3d516751f4487ed267694a8dcdb3bc1
+
+  patched  pf/NEWS
+  patched  pf/UPGRADE
+
+----------------------------------------------------------------------
+Revision: 64080555c3d516751f4487ed267694a8dcdb3bc1
+Parent:   84a93ade4aaaedc6a66d56433c7d66ea09bcbe1f
+Author:   dwuelfrath@inverse.ca
+Date:     14/02/2012 15:00:02
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+Changes to conf/violations.conf
+- Changed some example violations number
+- Added a new example violation for OpenVAS
+
+Changes against parent 84a93ade4aaaedc6a66d56433c7d66ea09bcbe1f
+
+  patched  pf/conf/violations.conf
+
+----------------------------------------------------------------------
+Revision: 84a93ade4aaaedc6a66d56433c7d66ea09bcbe1f
+Parent:   29ba5cf0f23ea8b6a633c24719702bab63f1e65b
+Author:   dwuelfrath@inverse.ca
+Date:     13/02/2012 15:05:22
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+Database schema
+
+Changes against parent 29ba5cf0f23ea8b6a633c24719702bab63f1e65b
+
+  added    pf/db/pf-schema-3.2.0.sql
+  added    pf/db/upgrade-3.1.0-3.2.0.sql
+
+----------------------------------------------------------------------
+Revision: 29ba5cf0f23ea8b6a633c24719702bab63f1e65b
+Parent:   f828b4167d57ef2b9d1c278c284fe3c198ac5cec
+Author:   obilodeau@inverse.ca
+Date:     13/02/2012 14:33:15
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+avoiding unnecessary variables
+
+Changes against parent f828b4167d57ef2b9d1c278c284fe3c198ac5cec
+
+  patched  pf/lib/pf/scan/openvas.pm
+
+----------------------------------------------------------------------
+Revision: 0acabd7bf318f528437808c54a5bc78680120301
+Parent:   be1bd93b52c5a8a631191e5e41c340429bb3c745
+Author:   obilodeau@inverse.ca
+Date:     13/02/2012 14:23:24
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+pf::scan* logging changes
+
+logging also the command called but in trace instead of debug
+
+Changes against parent be1bd93b52c5a8a631191e5e41c340429bb3c745
+
+  patched  pf/lib/pf/scan/nessus.pm
+  patched  pf/lib/pf/scan/openvas.pm
+
+----------------------------------------------------------------------
+Revision: 34b9037c0dbb5874c3ac2d2ebbe4af4f2d7228a2
+Parent:   167524dfb09f6776b58a3ddcb7da824c892c8891
+Author:   dwuelfrath@inverse.ca
+Date:     13/02/2012 14:22:55
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+Added another check.
+
+Changes against parent 167524dfb09f6776b58a3ddcb7da824c892c8891
+
+  patched  pf/lib/pf/scan.pm
+
+----------------------------------------------------------------------
+Revision: 167524dfb09f6776b58a3ddcb7da824c892c8891
+Parent:   be1bd93b52c5a8a631191e5e41c340429bb3c745
+Author:   dwuelfrath@inverse.ca
+Date:     13/02/2012 14:12:31
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+Add some check for the new Openvas scanning engine
+
+Changes against parent be1bd93b52c5a8a631191e5e41c340429bb3c745
+
+  patched  pf/lib/pf/pfcmd/checkup.pm
+
+----------------------------------------------------------------------
+Revision: be1bd93b52c5a8a631191e5e41c340429bb3c745
+Parent:   7bc9edf7a582cd6725246e549156c09a2031f33e
+Author:   obilodeau@inverse.ca
+Date:     13/02/2012 12:21:05
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+pf::scan::openvas review: minor changes
+
+returning implicit undef instead of 0
+returning $TRUE instead of 1
+escalator callback can handle remote OpenVAS server
+renamed host to target_host to avoid confusion
+extracting long string into heredocs
+
+Changes against parent 7bc9edf7a582cd6725246e549156c09a2031f33e
+
+  patched  pf/lib/pf/scan/openvas.pm
+
+----------------------------------------------------------------------
+Revision: 7bc9edf7a582cd6725246e549156c09a2031f33e
+Parent:   6e146c4bfa9358816a32606d0ac583b5e68496bc
+Author:   obilodeau@inverse.ca
+Date:     10/02/2012 22:24:59
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+scan_fetch_report minor improvements
+
+showing an error page instead of redirecting
+translatable strings
+reversed execution order to avoid unnecessary indentation and handle more errors with the same code
+invalid hashref access prevention
+
+Changes against parent 6e146c4bfa9358816a32606d0ac583b5e68496bc
+
+  patched  pf/html/captive-portal/scan_fetch_report.cgi
+
+----------------------------------------------------------------------
+Revision: 6e146c4bfa9358816a32606d0ac583b5e68496bc
+Parent:   c107acc3a8a7503a44d25a514588a6de56ff47e2
+Author:   obilodeau@inverse.ca
+Date:     10/02/2012 22:23:44
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+added missing cast to array forgotten in previous change
+
+Changes against parent c107acc3a8a7503a44d25a514588a6de56ff47e2
+
+  patched  pf/lib/pf/scan.pm
+
+----------------------------------------------------------------------
+Revision: c107acc3a8a7503a44d25a514588a6de56ff47e2
+Parent:   c0418aed8fdaa5c847d3914b9aa132e5a828bd2b
+Author:   obilodeau@inverse.ca
+Date:     10/02/2012 22:22:09
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+disapproval of revision 'c0418aed8fdaa5c847d3914b9aa132e5a828bd2b'
+
+Changes against parent c0418aed8fdaa5c847d3914b9aa132e5a828bd2b
+
+  patched  pf/html/captive-portal/scan_fetch_report.cgi
+
+----------------------------------------------------------------------
+Revision: c0418aed8fdaa5c847d3914b9aa132e5a828bd2b
+Parent:   1a380bd8aebd1386cb4090d1899d7ae34cc1d8b5
+Author:   obilodeau@inverse.ca
+Date:     10/02/2012 22:20:03
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+fixed missing cast to array in previous change
+
+Changes against parent 1a380bd8aebd1386cb4090d1899d7ae34cc1d8b5
+
+  patched  pf/html/captive-portal/scan_fetch_report.cgi
+
+----------------------------------------------------------------------
+Revision: 1a380bd8aebd1386cb4090d1899d7ae34cc1d8b5
+Parent:   03fd07b7d04a9ace665d2f89f684dabe5debf6b7
+Author:   obilodeau@inverse.ca
+Date:     10/02/2012 21:36:14
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+minor cleanup to pf::scan and friends
+
+args hash slicing fix
+removed extra validation
+added FIXME for pre-existing potential problems
+fixing return values
+exporting generate_id in pf::util
+got rid of string duplication
+
+Changes against parent 03fd07b7d04a9ace665d2f89f684dabe5debf6b7
+
+  patched  pf/lib/pf/scan.pm
+  patched  pf/lib/pf/util.pm
+
+----------------------------------------------------------------------
+Revision: 03fd07b7d04a9ace665d2f89f684dabe5debf6b7
+Parent:   91530087db9d65d34cd6835caf019cc18e8c2589
+Author:   obilodeau@inverse.ca
+Date:     10/02/2012 15:50:10
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+eliminated over-debugging, changed callback strategy
+
+Changes against parent 91530087db9d65d34cd6835caf019cc18e8c2589
+
+  patched  pf/html/captive-portal/scan_fetch_report.cgi
+  patched  pf/lib/pf/scan/nessus.pm
+  patched  pf/lib/pf/scan.pm
+
+----------------------------------------------------------------------
+Revision: 91530087db9d65d34cd6835caf019cc18e8c2589
+Parent:   bb9761fbba5f70010a976b9f50450e732f3f0716
+Author:   obilodeau@inverse.ca
+Date:     10/02/2012 15:48:41
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+fixing metadata
+
+Changes against parent bb9761fbba5f70010a976b9f50450e732f3f0716
+
+  patched  pf/lib/pf/util.pm
+
+----------------------------------------------------------------------
+Revision: bb9761fbba5f70010a976b9f50450e732f3f0716
+Parent:   b365e28b074dccd4fe68c2f9cca2ea90d22f3257
+Author:   obilodeau@inverse.ca
+Date:     10/02/2012 14:56:42
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+fixing compilation problems
+
+Changes against parent b365e28b074dccd4fe68c2f9cca2ea90d22f3257
+
+  patched  pf/html/captive-portal/scan_fetch_report.cgi
+  patched  pf/lib/pf/scan.pm
+
+----------------------------------------------------------------------
+Revision: b365e28b074dccd4fe68c2f9cca2ea90d22f3257
+Parent:   0324c0c178c46ecf748b93120347c6003052c8c4
+Author:   obilodeau@inverse.ca
+Date:     10/02/2012 13:57:45
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+Updated Nessus / OpenVAS config
+
+Reordered a few parameters
+Port parameter is now per Engine
+Got rid of the configurator.pl pieces after some discussion
+
+Changes against parent 0324c0c178c46ecf748b93120347c6003052c8c4
+
+  patched  pf/UPGRADE
+  patched  pf/conf/documentation.conf
+  patched  pf/conf/pf.conf.defaults
+  patched  pf/configurator.pl
+  patched  pf/docs/docbook/pf-admin-guide.asciidoc
+  patched  pf/lib/pf/scan/nessus.pm
+  patched  pf/lib/pf/scan/openvas.pm
+  patched  pf/lib/pf/scan.pm
+
+----------------------------------------------------------------------
+Revision: 0324c0c178c46ecf748b93120347c6003052c8c4
+Parent:   2193a3242fda8b3ec5097b34a6b8e0a3fc27edf3
+Author:   dwuelfrath@inverse.ca
+Date:     09/02/2012 13:13:49
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+Openvas integration part 3
+
+Changes against parent 2193a3242fda8b3ec5097b34a6b8e0a3fc27edf3
+
+  patched  pf/bin/pfcmd
+  patched  pf/conf/httpd.conf.d/captive-portal-cleanurls.conf
+  patched  pf/conf/iptables.conf
+  patched  pf/html/captive-portal/scan_fetch_report.cgi
+  patched  pf/lib/pf/scan/nessus.pm
+  patched  pf/lib/pf/scan/openvas.pm
+  patched  pf/lib/pf/scan.pm
+  patched  pf/lib/pf/util.pm
+
+----------------------------------------------------------------------
+Revision: 2193a3242fda8b3ec5097b34a6b8e0a3fc27edf3
+Parent:   d29d6403dd31f0ce724fd64354520193c9cb5482
+Author:   dwuelfrath@inverse.ca
+Date:     23/01/2012 06:13:22
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+OpenVAS scanning engine integration part 2
+
+Changes against parent d29d6403dd31f0ce724fd64354520193c9cb5482
+
+  added    pf/html/captive-portal/scan_fetch_report.cgi
+  patched  pf/conf/documentation.conf
+  patched  pf/conf/httpd.conf.d/captive-portal-cleanurls.conf
+  patched  pf/conf/pf.conf.defaults
+  patched  pf/lib/pf/scan/nessus.pm
+  patched  pf/lib/pf/scan/openvas.pm
+  patched  pf/lib/pf/scan.pm
+  attr on  pf/html/captive-portal/scan_fetch_report.cgi
+      set  mtn:execute
+       to  true
+
+----------------------------------------------------------------------
+Revision: d29d6403dd31f0ce724fd64354520193c9cb5482
+Parent:   d68f0b0cb0ad48b1f838e064d11cfaba5286b71a
+Author:   dwuelfrath@inverse.ca
+Date:     18/01/2012 13:48:50
+Branch:   org.packetfence.feature.openvas
+
+Changelog: 
+
+Introducing support for OpenVAS scanning engine
+- Separate scanning methods in different packages
+
+Changes against parent d68f0b0cb0ad48b1f838e064d11cfaba5286b71a
+
+  added    pf/lib/pf/scan
+  added    pf/lib/pf/scan/nessus.pm
+  added    pf/lib/pf/scan/openvas.pm
+
+----------------------------------------------------------------------
+Revision: d68f0b0cb0ad48b1f838e064d11cfaba5286b71a
+Parent:   2f788ebae0d9efe83dce118f2de20b4b52fa39e3
+Author:   obilodeau@inverse.ca
+Date:     17/01/2012 21:41:01
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+CentOS 6 / RHEL6 instructions to build documentation
+
+Changes against parent 2f788ebae0d9efe83dce118f2de20b4b52fa39e3
+
+  added    pf/docs/docbook/fop-centos6.patch
+  patched  pf/docs/docbook/README.asciidoc
+
+----------------------------------------------------------------------
+Revision: 2f788ebae0d9efe83dce118f2de20b4b52fa39e3
+Parent:   676a9c3b1a4cbae4fe8857cb3dab91aa6514438b
+Author:   obilodeau@inverse.ca
+Date:     17/01/2012 20:29:50
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+docbook build instructions on CentOS 5 / RHEL5
+
+along with some minor improvements
+
+Changes against parent 676a9c3b1a4cbae4fe8857cb3dab91aa6514438b
+
+  added    pf/docs/docbook/xmlgraphics-fop-centos5.patch
+  patched  pf/docs/docbook/README.asciidoc
+  patched  pf/docs/docbook/xsl/packetfence-fo.xsl
+  patched  pf/docs/docbook/xsl/titlepage-fo.xml
+
+----------------------------------------------------------------------
+Revision: c93ca71dae9e7ad9fae3e5dfb01942ebc45fe01c
+Parent:   659c23a969fee0cc41eef253c14402cb25dd6c21
+Author:   obilodeau@inverse.ca
+Date:     17/01/2012 12:03:49
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+removed short-lived docbook admin and network device config guides
+
+Changes against parent 659c23a969fee0cc41eef253c14402cb25dd6c21
+
+  dropped  pf/docs/docbook/pf-admin-guide.xml
+  dropped  pf/docs/docbook/pf-network-device-config-guide.xml
+
+----------------------------------------------------------------------
+Revision: 659c23a969fee0cc41eef253c14402cb25dd6c21
+Parent:   01168ad6ffa92df6c02b76e030c1216ef34e7541
+Author:   obilodeau@inverse.ca
+Date:     17/01/2012 11:00:59
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+.docbook files should not be pushed
+
+Changes against parent 01168ad6ffa92df6c02b76e030c1216ef34e7541
+
+  patched  .mtn-ignore
+
+----------------------------------------------------------------------
+Revision: dc5a39ee47ed289b735f8afb1272aecee28e0e64
+Parent:   01168ad6ffa92df6c02b76e030c1216ef34e7541
+Author:   flachapelle@inverse.ca
+Date:     14/01/2012 11:02:12
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Guests management login: never show the username in the footer.
+
+Changes against parent 01168ad6ffa92df6c02b76e030c1216ef34e7541
+
+  patched  pf/html/captive-portal/templates/guest/mgmt_login.html
+
+----------------------------------------------------------------------
+Revision: e795ebacc47ad2dcf52a9af764fc74b965e15df3
+Parent:   4067295572b465b477a700d741c69d739557df30
+Author:   obilodeau@inverse.ca
+Date:     17/01/2012 10:52:06
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+updated README to include asciidoc
+
+Changes against parent 4067295572b465b477a700d741c69d739557df30
+
+  renamed  pf/docs/docbook/README
+       to  pf/docs/docbook/README.asciidoc
+  patched  pf/docs/docbook/README.asciidoc
+
+----------------------------------------------------------------------
+Revision: 73994a87357acb5c4ac64bd75818341f8d97149e
+Parent:   4067295572b465b477a700d741c69d739557df30
+Author:   fgaudreault@inverse.ca
+Date:     17/01/2012 10:14:24
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Recommended firmware for HP 5400 series
+
+Changes against parent 4067295572b465b477a700d741c69d739557df30
+
+  patched  pf/lib/pf/SNMP/HP/Procurve_5400.pm
+
+----------------------------------------------------------------------
+Revision: 4067295572b465b477a700d741c69d739557df30
+Parent:   ed9b33ca51159f3e3645fecb71328ae8621d4738
+Author:   obilodeau@inverse.ca
+Date:     17/01/2012 09:43:50
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+admin guide asciidoc improvements
+
+double-quotes fixes
+collapsed double spaces
+two-level ToC for all documents
+
+Changes against parent ed9b33ca51159f3e3645fecb71328ae8621d4738
+
+  dropped  pf/docs/docbook/xsl/pf-network-device-config-guide-fo.xsl
+  patched  pf/docs/docbook/pf-admin-guide.asciidoc
+  patched  pf/docs/docbook/xsl/packetfence-fo.xsl
+
+----------------------------------------------------------------------
+Revision: 67cd86553da3add2afd630b1d3d7559d3d00b3fa
+Parent:   ed9b33ca51159f3e3645fecb71328ae8621d4738
+Author:   flachapelle@inverse.ca
+Date:     14/01/2012 09:57:49
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Graphs: fixed SVG size so that surrounding elements are accessible.
+
+Changes against parent ed9b33ca51159f3e3645fecb71328ae8621d4738
+
+  patched  pf/html/common/graphs.js
+
+----------------------------------------------------------------------
+Revision: ed9b33ca51159f3e3645fecb71328ae8621d4738
+Parent:   00d73bc0f7b065b0cbac9926abac2f7b97762253
+Author:   obilodeau@inverse.ca
+Date:     17/01/2012 08:53:25
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+asciidoc-ification finished admin guide content
+
+Changes against parent 00d73bc0f7b065b0cbac9926abac2f7b97762253
+
+  patched  pf/docs/docbook/pf-admin-guide.asciidoc
+
+----------------------------------------------------------------------
+Revision: fa5c2558466e4e66247cfe82f86361b80b772dd8
+Parent:   d27bcf82389903ce8649755eecfb6b4eb37a2cf2
+Author:   obilodeau@inverse.ca
+Date:     16/01/2012 16:25:57
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+admin guide asciidoc-ification
+
+From floating network devices to appendix A: admin tools
+
+Changes against parent d27bcf82389903ce8649755eecfb6b4eb37a2cf2
+
+  patched  pf/docs/docbook/pf-admin-guide.asciidoc
+
+----------------------------------------------------------------------
+Revision: 3e55bcb80189ff5e47afc80c62b5de5125a78145
+Parent:   a0bc4355aeb6b12c86efbad7eebacdc843121117
+Author:   flachapelle@inverse.ca
+Date:     14/01/2012 02:51:11
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Administration interface: avoid throwing a PHP error when no data is available.
+
+Changes against parent a0bc4355aeb6b12c86efbad7eebacdc843121117
+
+  patched  pf/html/admin/status/grapher.php
+
+----------------------------------------------------------------------
+Revision: a0bc4355aeb6b12c86efbad7eebacdc843121117
+Parent:   d27bcf82389903ce8649755eecfb6b4eb37a2cf2
+Author:   flachapelle@inverse.ca
+Date:     14/01/2012 02:50:04
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Updated components graph in administration guide.
+
+Changes against parent d27bcf82389903ce8649755eecfb6b4eb37a2cf2
+
+  patched  pf/docs/images/diagram-components.png
+
+----------------------------------------------------------------------
+Revision: d27bcf82389903ce8649755eecfb6b4eb37a2cf2
+Parent:   17661473f889b68050095246b12a282c346c6eb0
+Author:   obilodeau@inverse.ca
+Date:     16/01/2012 12:10:48
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+admin guide asciidoc-ification
+
+from system requirements to optional components
+
+Changes against parent 17661473f889b68050095246b12a282c346c6eb0
+
+  patched  pf/docs/docbook/pf-admin-guide.asciidoc
+
+----------------------------------------------------------------------
+Revision: 17661473f889b68050095246b12a282c346c6eb0
+Parent:   2c48ed64f062a4b800a151f7a649b796cc50fae3
+Author:   obilodeau@inverse.ca
+Date:     15/01/2012 10:28:32
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+admin guide asciidoc-ification
+
+intro features added
+intro image scaling
+
+Changes against parent 2c48ed64f062a4b800a151f7a649b796cc50fae3
+
+  patched  pf/docs/docbook/pf-admin-guide.asciidoc
+  patched  pf/docs/docbook/xsl/packetfence-fo.xsl
+
+----------------------------------------------------------------------
+Revision: 2c48ed64f062a4b800a151f7a649b796cc50fae3
+Parent:   4b07a8d8534cae8dec2c2bf6025947ff76223cd1
+Author:   obilodeau@inverse.ca
+Date:     14/01/2012 07:33:03
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+asciidoc-ification
+
+added admin guide frame
+extracted copyright into specific guides metadata
+
+Changes against parent 4b07a8d8534cae8dec2c2bf6025947ff76223cd1
+
+  added    pf/docs/docbook/pf-admin-guide-docinfo.xml
+  added    pf/docs/docbook/pf-admin-guide.asciidoc
+  patched  pf/docs/docbook/docinfo.xml
+  patched  pf/docs/docbook/pf-network-device-config-guide-docinfo.xml
+  patched  pf/docs/docbook/pf-network-device-config-guide.asciidoc
+
+----------------------------------------------------------------------
+Revision: 4b07a8d8534cae8dec2c2bf6025947ff76223cd1
+Parent:   396a91288a64444c9ef7f1003776be5b82ae2ce9
+Author:   obilodeau@inverse.ca
+Date:     13/01/2012 19:54:25
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+more documentation goodness!
+
+Changes against parent 396a91288a64444c9ef7f1003776be5b82ae2ce9
+
+  added    pf/docs/docbook/xsl/pf-network-device-config-guide-fo.xsl
+  patched  pf/docs/docbook/commercial-support.asciidoc
+  patched  pf/docs/docbook/pf-network-device-config-guide.asciidoc
+  patched  pf/docs/docbook/xsl/packetfence-fo.xsl
+
+----------------------------------------------------------------------
+Revision: 396a91288a64444c9ef7f1003776be5b82ae2ce9
+Parent:   204f4c5aa6b6b3d5b71a7b3bab0a2357a8f0ef7d
+Author:   obilodeau@inverse.ca
+Date:     13/01/2012 15:52:30
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+automated floating title fixes
+
+Changes against parent 204f4c5aa6b6b3d5b71a7b3bab0a2357a8f0ef7d
+
+  patched  pf/docs/docbook/pf-network-device-config-guide.asciidoc
+
+----------------------------------------------------------------------
+Revision: 204f4c5aa6b6b3d5b71a7b3bab0a2357a8f0ef7d
+Parent:   1a6ca70269b80e3b15f4abc5f4f1369054f6fd04
+Author:   obilodeau@inverse.ca
+Date:     13/01/2012 15:50:30
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+some section cleanups
+
+Changes against parent 1a6ca70269b80e3b15f4abc5f4f1369054f6fd04
+
+  patched  pf/docs/docbook/pf-network-device-config-guide.asciidoc
+
+----------------------------------------------------------------------
+Revision: 1a6ca70269b80e3b15f4abc5f4f1369054f6fd04
+Parent:   d0be631ea6c85e3f4f6e46d236935db5f4f9d2a9
+Author:   obilodeau@inverse.ca
+Date:     13/01/2012 11:52:39
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+network guide asciidoc: various search replaces
+
+with VoIP replaced with _with VoIP_
+replaced ifIndex with `ifIndex`
+replaced where xxxxx (or xx) with `xxxxx` or `xx`
+collapse double spaces
+To be Contributed -> contributed
+All To be contributed should be in a code block
+fixed strange doublequotes
+
+Changes against parent d0be631ea6c85e3f4f6e46d236935db5f4f9d2a9
+
+  patched  pf/docs/docbook/pf-network-device-config-guide.asciidoc
+
+----------------------------------------------------------------------
+Revision: d0be631ea6c85e3f4f6e46d236935db5f4f9d2a9
+Parent:   aea572ca27ab09274c14969121f11647d43444bf
+Author:   obilodeau@inverse.ca
+Date:     13/01/2012 11:38:09
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+network guide asciidoc: finished all sections
+
+Changes against parent aea572ca27ab09274c14969121f11647d43444bf
+
+  patched  pf/docs/docbook/pf-network-device-config-guide.asciidoc
+
+----------------------------------------------------------------------
+Revision: aea572ca27ab09274c14969121f11647d43444bf
+Parent:   b917d5d06920ac9e59120eec69692edf5ea3b6b9
+Author:   obilodeau@inverse.ca
+Date:     13/01/2012 09:58:22
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+finished switch section
+
+Changes against parent b917d5d06920ac9e59120eec69692edf5ea3b6b9
+
+  patched  pf/docs/docbook/pf-network-device-config-guide.asciidoc
+
+----------------------------------------------------------------------
+Revision: b917d5d06920ac9e59120eec69692edf5ea3b6b9
+Parent:   ff81db61e60aca00b13c0a72922f53e3998b6cff
+Author:   obilodeau@inverse.ca
+Date:     12/01/2012 14:38:18
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+converted from 3Com's E5500G to Enterasys
+
+Changes against parent ff81db61e60aca00b13c0a72922f53e3998b6cff
+
+  patched  pf/docs/docbook/pf-network-device-config-guide.asciidoc
+
+----------------------------------------------------------------------
+Revision: ff81db61e60aca00b13c0a72922f53e3998b6cff
+Parent:   d6e7f5e8087b9e550af70c9bacf2a10cc551fefa
+Author:   obilodeau@inverse.ca
+Date:     12/01/2012 12:10:57
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+started converting the network device config guide to asciidoc
+
+Changes against parent d6e7f5e8087b9e550af70c9bacf2a10cc551fefa
+
+  added    pf/docs/docbook/additional-info.asciidoc
+  added    pf/docs/docbook/commercial-support.asciidoc
+  added    pf/docs/docbook/docinfo.xml
+  added    pf/docs/docbook/license.asciidoc
+  added    pf/docs/docbook/pf-network-device-config-guide-docinfo.xml
+  added    pf/docs/docbook/pf-network-device-config-guide.asciidoc
+
+----------------------------------------------------------------------
+Revision: d6e7f5e8087b9e550af70c9bacf2a10cc551fefa
+Parent:   b4005d99a1f46a0d1b0f74528e06e448171541eb
+Author:   obilodeau@inverse.ca
+Date:     12/01/2012 12:09:32
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+new TODO task for doc
+
+Changes against parent b4005d99a1f46a0d1b0f74528e06e448171541eb
+
+  patched  pf/docs/docbook/xsl/packetfence-fo.xsl
+
+----------------------------------------------------------------------
+Revision: b4005d99a1f46a0d1b0f74528e06e448171541eb
+Parent:   6bf083190ac8719875c411fac1a567fa314ea815
+Author:   obilodeau@inverse.ca
+Date:     11/01/2012 22:58:51
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+quite some progress on the docbook guides
+
+Changes against parent 6bf083190ac8719875c411fac1a567fa314ea815
+
+  patched  pf/docs/docbook/pf-admin-guide.xml
+  patched  pf/docs/docbook/pf-network-device-config-guide.xml
+
+----------------------------------------------------------------------
+Revision: 6bf083190ac8719875c411fac1a567fa314ea815
+Parent:   3bc83299957d1e6fd06863ba64d40697f5db005f
+Author:   obilodeau@inverse.ca
+Date:     11/01/2012 22:34:23
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+documented problem with tidy
+
+Changes against parent 3bc83299957d1e6fd06863ba64d40697f5db005f
+
+  patched  pf/docs/docbook/tidy-docbook.cfg
+
+----------------------------------------------------------------------
+Revision: 3bc83299957d1e6fd06863ba64d40697f5db005f
+Parent:   63458955682f3e492ac071beb6e74572b769310b
+Author:   obilodeau@inverse.ca
+Date:     11/01/2012 15:29:15
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+fixed title anchor references
+
+Changes against parent 63458955682f3e492ac071beb6e74572b769310b
+
+  patched  pf/docs/docbook/pf-admin-guide.xml
+  patched  pf/docs/docbook/pf-network-device-config-guide.xml
+
+----------------------------------------------------------------------
+Revision: 63458955682f3e492ac071beb6e74572b769310b
+Parent:   c847698b4c284e23cfcf9b4afe6c28af62858304
+Author:   obilodeau@inverse.ca
+Date:     11/01/2012 14:03:38
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+updated Administration Guide Brazilian Portuguese translation
+
+Thanks to Diego de Souza Lopes
+
+Changes against parent c847698b4c284e23cfcf9b4afe6c28af62858304
+
+  patched  pf/NEWS
+  patched  pf/docs/PacketFence_Administration_Guide.pt_BR.odt
+
+----------------------------------------------------------------------
+Revision: c847698b4c284e23cfcf9b4afe6c28af62858304
+Parent:   eb06e55c780f1b7a14b72e0076e8577477569da9
+Author:   obilodeau@inverse.ca
+Date:     11/01/2012 13:56:19
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+identified Aruba module as tested against 6.0.x
+
+Changes against parent eb06e55c780f1b7a14b72e0076e8577477569da9
+
+  patched  pf/lib/pf/SNMP/Aruba.pm
+
+----------------------------------------------------------------------
+Revision: eb06e55c780f1b7a14b72e0076e8577477569da9
+Parent:   015d8dd955ef61470bcb2f3aeb20f0aebc7dd0a0
+Author:   obilodeau@inverse.ca
+Date:     11/01/2012 13:51:00
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+typo: controller not controler
+
+Changes against parent 015d8dd955ef61470bcb2f3aeb20f0aebc7dd0a0
+
+  patched  pf/README.network-devices
+
+----------------------------------------------------------------------
+Revision: 015d8dd955ef61470bcb2f3aeb20f0aebc7dd0a0
+Parent:   b81ff35e069c676edbe5f6166a772def40426bcf
+Author:   obilodeau@inverse.ca
+Date:     11/01/2012 09:41:28
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Disabled config ownership tests. Fixes #1345;
+
+Because of too many false positives and no real added value while pfcmd is setuid.
+See #960
+
+Changes against parent b81ff35e069c676edbe5f6166a772def40426bcf
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/pfcmd/checkup.pm
+
+----------------------------------------------------------------------
+Revision: b81ff35e069c676edbe5f6166a772def40426bcf
+Parent:   bc47f31583011d5bfc6612a1766ac2bb474a9718
+Author:   obilodeau@inverse.ca
+Date:     10/01/2012 15:42:28
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+OS and violation classes properly displayed in printer-friendly tables in the Web Admin
+
+Changes against parent bc47f31583011d5bfc6612a1766ac2bb474a9718
+
+  patched  pf/NEWS
+  patched  pf/html/admin/common.php
+  patched  pf/html/admin/printer.php
+
+----------------------------------------------------------------------
+Revision: bc47f31583011d5bfc6612a1766ac2bb474a9718
+Parent:   4e7b8374a86e26fccebb4adc9385047431f3e1ea
+Author:   obilodeau@inverse.ca
+Date:     10/01/2012 15:09:21
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+security: XSS in printer.php's img_src, font_size and $_SERVER[REQUEST_URI]. Fixes #1362;
+
+Reflected XSS. Need to be authenticated for img_src. font_size and REQUEST_URI have more complex requirement. Details are in the ticket.
+
+http://www.packetfence.org/bugs/view.php?id=1362
+
+Changes against parent 4e7b8374a86e26fccebb4adc9385047431f3e1ea
+
+  patched  pf/NEWS
+  patched  pf/html/admin/footer.php
+  patched  pf/html/admin/printer.php
+
+----------------------------------------------------------------------
+Revision: 4e7b8374a86e26fccebb4adc9385047431f3e1ea
+Parent:   32e8106ad5c3ede04fe875a8f037063c38a9dfa2
+Author:   obilodeau@inverse.ca
+Date:     10/01/2012 14:44:31
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+cleanup
+
+Changes against parent 32e8106ad5c3ede04fe875a8f037063c38a9dfa2
+
+  patched  pf/html/admin/check_login.php
+
+----------------------------------------------------------------------
+Revision: 32e8106ad5c3ede04fe875a8f037063c38a9dfa2
+Parent:   952e9a756e05770a295ae2d53b112381d575df48
+Author:   obilodeau@inverse.ca
+Date:     10/01/2012 09:51:21
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+performance: avoiding some redundant operations on startup
+
+Changes against parent 952e9a756e05770a295ae2d53b112381d575df48
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/services/snmptrapd.pm
+
+----------------------------------------------------------------------
+Revision: 952e9a756e05770a295ae2d53b112381d575df48
+Parent:   dc745c2b9f2a95da4e88cc99d899bf5f308d953a
+Author:   obilodeau@inverse.ca
+Date:     10/01/2012 09:34:59
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Allow more than one SNMPv3 EngineID per user. Fixes #1354;
+
+Including regression testing
+http://www.packetfence.org/bugs/view.php?id=1354
+
+Changes against parent dc745c2b9f2a95da4e88cc99d899bf5f308d953a
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/services/snmptrapd.pm
+  patched  pf/t/SwitchFactory.t
+  patched  pf/t/data/switches.conf
+  patched  pf/t/services.t
+
+----------------------------------------------------------------------
+Revision: dc745c2b9f2a95da4e88cc99d899bf5f308d953a
+Parent:   46095a9492b1b515cc79232fed335bd6eeffdac4
+Author:   obilodeau@inverse.ca
+Date:     10/01/2012 09:07:06
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+refactoring: made testable
+
+removed unused import
+
+Changes against parent 46095a9492b1b515cc79232fed335bd6eeffdac4
+
+  patched  pf/lib/pf/services/snmptrapd.pm
+
+----------------------------------------------------------------------
+Revision: 46095a9492b1b515cc79232fed335bd6eeffdac4
+Parent:   c0f88c4fdae6b80312d6339de490c4a06674e92a
+Author:   obilodeau@inverse.ca
+Date:     10/01/2012 09:05:19
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+removing stale commented code
+
+Changes against parent c0f88c4fdae6b80312d6339de490c4a06674e92a
+
+  patched  pf/lib/pf/util.pm
+
+----------------------------------------------------------------------
+Revision: c0f88c4fdae6b80312d6339de490c4a06674e92a
+Parent:   78865cedc1c007e646da9f44bda292fc036166c5
+Author:   obilodeau@inverse.ca
+Date:     10/01/2012 09:03:34
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+refactoring: fixed small nesting problem
+
+Changes against parent 78865cedc1c007e646da9f44bda292fc036166c5
+
+  patched  pf/lib/pf/pfcmd/checkup.pm
+
+----------------------------------------------------------------------
+Revision: 78865cedc1c007e646da9f44bda292fc036166c5
+Parent:   8417133ef12795d8cd8389b5a30df387190c9547
+Author:   obilodeau@inverse.ca
+Date:     09/01/2012 23:03:16
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+base implementation
+
+Changes against parent 8417133ef12795d8cd8389b5a30df387190c9547
+
+  added    pf/t/benchmarks/pf-services-snmptrapd.pl
+  attr on  pf/t/benchmarks/pf-services-snmptrapd.pl
+      set  mtn:execute
+       to  true
+
+----------------------------------------------------------------------
+Revision: 8417133ef12795d8cd8389b5a30df387190c9547
+Parent:   88f06497cb9768099c1191fe95c290d3ab9cc7d3
+Author:   obilodeau@inverse.ca
+Date:     09/01/2012 21:28:43
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+migrated binary tests to new get_all_perl_binaries() and ...cgi()
+
+no hardcoded binary list to maintain but it required a couple of updates here and there
+
+Changes against parent 88f06497cb9768099c1191fe95c290d3ab9cc7d3
+
+  patched  pf/NEWS
+  patched  pf/html/admin/guest-management.cgi
+  patched  pf/html/admin/soh.cgi
+  patched  pf/html/captive-portal/email_activation.cgi
+  patched  pf/html/captive-portal/guest-selfregistration.cgi
+  patched  pf/html/captive-portal/mobile-confirmation.cgi
+  patched  pf/html/captive-portal/redir.cgi
+  patched  pf/html/captive-portal/register.cgi
+  patched  pf/html/captive-portal/wireless-profile.cgi
+  patched  pf/html/captive-portal/wispr.cgi
+  patched  pf/t/binaries.t
+
+----------------------------------------------------------------------
+Revision: 88f06497cb9768099c1191fe95c290d3ab9cc7d3
+Parent:   f785f7cfa0dce885ddf6c05c45d0305aed5bc52f
+Author:   obilodeau@inverse.ca
+Date:     09/01/2012 21:26:54
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+added installer.pl and configurator.pl to binary list
+
+Also needed to update configurator.pl's POD to fix tests
+
+Changes against parent f785f7cfa0dce885ddf6c05c45d0305aed5bc52f
+
+  patched  pf/configurator.pl
+  patched  pf/t/TestUtils.pm
+
+----------------------------------------------------------------------
+Revision: f785f7cfa0dce885ddf6c05c45d0305aed5bc52f
+Parent:   3c9d11005567375db2c31045c1f3315e6c478c4c
+Author:   obilodeau@inverse.ca
+Date:     09/01/2012 10:05:25
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+fixed interpolation issue in custom code that is disabled by default. Fixes #1358
+
+http://packetfence.org/bugs/view.php?id=1358
+
+Changes against parent 3c9d11005567375db2c31045c1f3315e6c478c4c
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/web/custom.pm
+
+----------------------------------------------------------------------
+Revision: 3c9d11005567375db2c31045c1f3315e6c478c4c
+Parent:   c41928f8e96320e7e7d2ffdc3e45693819f13d9f
+Author:   obilodeau@inverse.ca
+Date:     09/01/2012 09:43:05
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+simple oid2mac / mac2oid tests
+
+Changes against parent c41928f8e96320e7e7d2ffdc3e45693819f13d9f
+
+  patched  pf/t/util.t
+
+----------------------------------------------------------------------
+Revision: c41928f8e96320e7e7d2ffdc3e45693819f13d9f
+Parent:   177d76f8e799fccbd06325337a558f24011e4636
+Author:   obilodeau@inverse.ca
+Date:     05/01/2012 21:43:37
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+refactoring: moved snmptrapd.conf generation into separate module
+
+Changes against parent 177d76f8e799fccbd06325337a558f24011e4636
+
+  added    pf/lib/pf/services/snmptrapd.pm
+  patched  pf/NEWS
+  patched  pf/lib/pf/services.pm
+
+----------------------------------------------------------------------
+Revision: 177d76f8e799fccbd06325337a558f24011e4636
+Parent:   f37a42da4fecfc6eb7fe45d4839c82252cda9961
+Author:   obilodeau@inverse.ca
+Date:     05/01/2012 21:38:57
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+More testing automation
+
+Global tests now use new hooks that list all files matching specific criteras (.php, .pl, .pm, in bin/, etc.). This will make adding a new module or binary a lot less annoying regarding tests.
+
+
+Changes against parent f37a42da4fecfc6eb7fe45d4839c82252cda9961
+
+  patched  pf/t/TestUtils.pm
+  patched  pf/t/coding-style.t
+  patched  pf/t/critic.t
+  patched  pf/t/php.t
+  patched  pf/t/pod.t
+
+----------------------------------------------------------------------
+Revision: f37a42da4fecfc6eb7fe45d4839c82252cda9961
+Parent:   332d21099564d88c87f7b11bfe7df07852a2ae1e
+Author:   obilodeau@inverse.ca
+Date:     05/01/2012 21:36:00
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+POD fixes to pass pod.t
+
+Changes against parent 332d21099564d88c87f7b11bfe7df07852a2ae1e
+
+  patched  pf/addons/dev-helpers/radius-hook.pl
+  patched  pf/lib/pf/temporary_password.pm
+
+----------------------------------------------------------------------
+Revision: 332d21099564d88c87f7b11bfe7df07852a2ae1e
+Parent:   c08212a6e4de7ec9eeaa81fe18c05e32b90e3a6c
+Author:   fgaudreault@inverse.ca
+Date:     05/01/2012 15:19:45
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Fix small typo (#1357)
+
+Changes against parent c08212a6e4de7ec9eeaa81fe18c05e32b90e3a6c
+
+  patched  pf/NEWS
+  patched  pf/lib/pf/node.pm
+
+----------------------------------------------------------------------
+Revision: c08212a6e4de7ec9eeaa81fe18c05e32b90e3a6c
+Parent:   c6ef8fa7bda60e48ee1fda2dcdb13e5f99af06e3
+Author:   fgaudreault@inverse.ca
+Date:     04/01/2012 12:30:55
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+- Minor documentation fix for Aruba controllers
+
+Changes against parent c6ef8fa7bda60e48ee1fda2dcdb13e5f99af06e3
+
+  patched  pf/NEWS
+  patched  pf/docs/docbook/pf-network-device-config-guide.xml
+
+----------------------------------------------------------------------
+Revision: c6ef8fa7bda60e48ee1fda2dcdb13e5f99af06e3
+Parent:   ba0bb820bb367701791cf47bb5e6c81202a157d2
+Author:   obilodeau@inverse.ca
+Date:     04/01/2012 08:13:14
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+buildfix: removed tests on dropped files
+
+Changes against parent ba0bb820bb367701791cf47bb5e6c81202a157d2
+
+  patched  pf/t/coding-style.t
+  patched  pf/t/php.t
+
+----------------------------------------------------------------------
+Revision: ba0bb820bb367701791cf47bb5e6c81202a157d2
+Parent:   2a229bb715d34efe84e1625ec2bc1816808227b2
+Author:   obilodeau@inverse.ca
+Date:     03/01/2012 11:53:11
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+Web Admin usability 2 for 1 fix
+
+- lists don't go back to page 1 on deletion (#1071)
+- violation page loses violation vid description field
+
+Turns out the header include must be done earliest before table changes to avoid edit or delete side effects...
+Fixed every caller so hopefully this won't re-happen in the future.
+
+
+Changes against parent 2a229bb715d34efe84e1625ec2bc1816808227b2
+
+  patched  pf/NEWS
+  patched  pf/html/admin/node/categories.php
+  patched  pf/html/admin/node/view.php
+  patched  pf/html/admin/person/view.php
+  patched  pf/html/admin/scan/scan.php
+  patched  pf/html/admin/violation/view.php
+
+----------------------------------------------------------------------
+Revision: 2a229bb715d34efe84e1625ec2bc1816808227b2
+Parent:   d095826d2c5013b988cbf1fa61acec0274a80f9a
+Author:   obilodeau@inverse.ca
+Date:     03/01/2012 11:36:50
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+minor doc fix
+
+Changes against parent d095826d2c5013b988cbf1fa61acec0274a80f9a
+
+  patched  pf/html/admin/node/accounting.php
+
+----------------------------------------------------------------------
+Revision: d095826d2c5013b988cbf1fa61acec0274a80f9a
+Parent:   47393f27fb2656bd781cde7bad58e29167f332dd
+Author:   obilodeau@inverse.ca
+Date:     03/01/2012 11:27:54
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+dropped useless page
+
+Changes against parent 47393f27fb2656bd781cde7bad58e29167f332dd
+
+  dropped  pf/html/admin/administration/version.php
+
+----------------------------------------------------------------------
+Revision: 47393f27fb2656bd781cde7bad58e29167f332dd
+Parent:   c81710f36837ebd50591939df895aceb92c02751
+Author:   obilodeau@inverse.ca
+Date:     03/01/2012 11:21:22
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+quickly ported ugly code to new lib to get configuration values
+
+Changes against parent c81710f36837ebd50591939df895aceb92c02751
+
+  patched  pf/NEWS
+  patched  pf/html/admin/administration/services.php
+
+----------------------------------------------------------------------
+Revision: c81710f36837ebd50591939df895aceb92c02751
+Parent:   bcb8054053a0e0a6561f9edf55b7d6bae910bdff
+Author:   obilodeau@inverse.ca
+Date:     02/01/2012 17:30:42
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+PDF generation from admin and network device docbook guides
+
+- Template integration
+- Made sure they render PDFs without errors (mostly section cleanups)
+
+Changes against parent bcb8054053a0e0a6561f9edf55b7d6bae910bdff
+
+  patched  pf/docs/docbook/pf-admin-guide.xml
+  patched  pf/docs/docbook/pf-network-device-config-guide.xml
+
+----------------------------------------------------------------------
+Revision: bcb8054053a0e0a6561f9edf55b7d6bae910bdff
+Parent:   42c9e50aed6ecedb78a98df7fbbf18a50eab6f57
+Author:   obilodeau@inverse.ca
+Date:     02/01/2012 16:02:57
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+fixes to mediaobject's usage
+
+Changes against parent 42c9e50aed6ecedb78a98df7fbbf18a50eab6f57
+
+  patched  pf/docs/docbook/pf-devel-guide.xml
+
+----------------------------------------------------------------------
+Revision: 42c9e50aed6ecedb78a98df7fbbf18a50eab6f57
+Parent:   bf896b3805e0b05d549f7db3d1c6cb006bf436cc
+Author:   obilodeau@inverse.ca
+Date:     02/01/2012 15:34:45
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+added more diagrams and screenshots
+
+Changes against parent bf896b3805e0b05d549f7db3d1c6cb006bf436cc
+
+  renamed  pf/docs/images/packetfence-components.png
+       to  pf/docs/images/diagram-components.png
+  renamed  pf/docs/images/packetfence-network.eps
+       to  pf/docs/images/diagram-network.eps
+  renamed  pf/docs/images/packetfence-network.png
+       to  pf/docs/images/diagram-network.png
+  added    pf/docs/images/diagram-routed-net.png
+  added    pf/docs/images/diagram-trap-interaction.png
+  added    pf/docs/images/screenshot-add-floating-dev.png
+  added    pf/docs/images/screenshot-captive-portal.png
+  added    pf/docs/images/screenshot-floating-dev.png
+  added    pf/docs/images/screenshot-network-config.png
+  added    pf/docs/images/screenshot-node-view.png
+  attr on  pf/docs/images/diagram-routed-net.png
+      set  mtn:manual_merge
+       to  true
+  attr on  pf/docs/images/diagram-trap-interaction.png
+      set  mtn:manual_merge
+       to  true
+  attr on  pf/docs/images/screenshot-add-floating-dev.png
+      set  mtn:manual_merge
+       to  true
+  attr on  pf/docs/images/screenshot-captive-portal.png
+      set  mtn:manual_merge
+       to  true
+  attr on  pf/docs/images/screenshot-floating-dev.png
+      set  mtn:manual_merge
+       to  true
+  attr on  pf/docs/images/screenshot-network-config.png
+      set  mtn:manual_merge
+       to  true
+  attr on  pf/docs/images/screenshot-node-view.png
+      set  mtn:manual_merge
+       to  true
+
+----------------------------------------------------------------------
+Revision: bf896b3805e0b05d549f7db3d1c6cb006bf436cc
+Parent:   13d157a53f9dbf3f7e384ab1ee30826c8970de07
+Author:   obilodeau@inverse.ca
+Date:     02/01/2012 15:22:13
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+added important documentation diagrams
+
+Changes against parent 13d157a53f9dbf3f7e384ab1ee30826c8970de07
+
+  added    pf/docs/images/packetfence-components.png
+  added    pf/docs/images/packetfence-network.eps
+  added    pf/docs/images/packetfence-network.png
+  attr on  pf/docs/images/packetfence-components.png
+      set  mtn:manual_merge
+       to  true
+  attr on  pf/docs/images/packetfence-network.png
+      set  mtn:manual_merge
+       to  true
+
+----------------------------------------------------------------------
+Revision: 13d157a53f9dbf3f7e384ab1ee30826c8970de07
+Parent:   7dba9b21ab4ed56a63ee14771c77e70e6da980e8
+Author:   obilodeau@inverse.ca
+Date:     02/01/2012 12:37:54
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+developer guide tidy'ed
+
+Changes against parent 7dba9b21ab4ed56a63ee14771c77e70e6da980e8
+
+  patched  pf/docs/docbook/pf-devel-guide.xml
+
+----------------------------------------------------------------------
+Revision: 7dba9b21ab4ed56a63ee14771c77e70e6da980e8
+Parent:   d68207120d8aeb305ceee6c4be57201adbf9911a
+Author:   obilodeau@inverse.ca
+Date:     02/01/2012 12:37:33
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+configuration file for tidy to be used on docbook documents
+
+This way people can use whatever formatter / editor they want but still makes commits manageable.
+
+Changes against parent d68207120d8aeb305ceee6c4be57201adbf9911a
+
+  added    pf/docs/docbook/tidy-docbook.cfg
+
+----------------------------------------------------------------------
+Revision: d68207120d8aeb305ceee6c4be57201adbf9911a
+Parent:   a151d843e5ead491c8085b8cc8869d497f2fbdb6
+Author:   obilodeau@inverse.ca
+Date:     31/12/2011 01:37:24
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+minor fixes to devel guide
+
+Changes against parent a151d843e5ead491c8085b8cc8869d497f2fbdb6
+
+  patched  pf/docs/docbook/pf-devel-guide.xml
+
+----------------------------------------------------------------------
+Revision: a151d843e5ead491c8085b8cc8869d497f2fbdb6
+Parent:   dd307e0d46722ee9384ccc6ec506039a08018c50
+Author:   obilodeau@inverse.ca
+Date:     31/12/2011 01:22:52
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+initial docbook translation of the guides
+
+Only some basic tidying done so far. Do not use these guides at this point!
+
+Changes against parent dd307e0d46722ee9384ccc6ec506039a08018c50
+
+  added    pf/docs/docbook/pf-admin-guide.xml
+  added    pf/docs/docbook/pf-network-device-config-guide.xml
+
+----------------------------------------------------------------------
+Revision: dd307e0d46722ee9384ccc6ec506039a08018c50
+Parent:   5e63f97aadc0ce72940f355a8b3cc89b5012e70d
+Author:   fgaudreault@inverse.ca
+Date:     29/12/2011 15:16:41
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+- Fix bug #1110
+
+Changes against parent 5e63f97aadc0ce72940f355a8b3cc89b5012e70d
+
+  patched  pf/NEWS
+  patched  pf/html/admin/status/graphs.php
+
+----------------------------------------------------------------------
+Revision: 5e63f97aadc0ce72940f355a8b3cc89b5012e70d
+Parent:   96c4cab5aaa8d44b3b6f4e976e4f15b84bdeadad
+Author:   fgaudreault@inverse.ca
+Date:     27/12/2011 11:23:12
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+- Missed some version string to bump
+
+Changes against parent 96c4cab5aaa8d44b3b6f4e976e4f15b84bdeadad
+
+  patched  pf/docs/PacketFenceZEN_Installation_Guide.odt
+
+----------------------------------------------------------------------
+Revision: 96c4cab5aaa8d44b3b6f4e976e4f15b84bdeadad
+Parent:   38058a05f9f3a9d05282a1a9c3b12d73c394f322
+Author:   fgaudreault@inverse.ca
+Date:     27/12/2011 11:13:29
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+- Version Bump
+
+Changes against parent 38058a05f9f3a9d05282a1a9c3b12d73c394f322
+
+  patched  pf/docs/PacketFenceZEN_Installation_Guide.odt
+
+----------------------------------------------------------------------
+Revision: 38058a05f9f3a9d05282a1a9c3b12d73c394f322
+Parent:   a7aed6b7023247e85e7b26d777fecbe6e90770bf
+Author:   obilodeau@inverse.ca
+Date:     26/12/2011 09:47:18
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+buildfix: tested version mismatched pf-release version
+
+Changes against parent a7aed6b7023247e85e7b26d777fecbe6e90770bf
+
+  patched  pf/conf/pf-release
+  patched  pf/t/pfcmd.t
+
+----------------------------------------------------------------------
+Revision: a7aed6b7023247e85e7b26d777fecbe6e90770bf
+Parent:   e320a8c374f989c818b548775cf1b1025c39a0a4
+Author:   obilodeau@inverse.ca
+Date:     23/12/2011 15:52:24
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+version bump to avoid devel repo being older than stable
+
+Changes against parent e320a8c374f989c818b548775cf1b1025c39a0a4
+
+  patched  pf/addons/packages/packetfence.spec
+  patched  pf/t/pfcmd.t
+
+----------------------------------------------------------------------
+Revision: e320a8c374f989c818b548775cf1b1025c39a0a4
+Parent:   0fff43de81894fee5d83d6b927f687ff7b6a4869
+Author:   obilodeau@inverse.ca
+Date:     23/12/2011 15:15:05
+Branch:   org.packetfence.trunk
+Tag:      packetfence-3.1.0
+
+Changelog: 
+
+late HTTP::BrowserDetect fixes
+
+Changes against parent 0fff43de81894fee5d83d6b927f687ff7b6a4869
+
+  patched  pf/lib/HTTP/BrowserDetect.pm
+  patched  pf/t/useragent.t
+
+----------------------------------------------------------------------
+Revision: 0fff43de81894fee5d83d6b927f687ff7b6a4869
+Parent:   5b1e4e20235307860ff23214e04c2b38fac726f6
+Author:   obilodeau@inverse.ca
+Date:     23/12/2011 14:49:48
+Branch:   org.packetfence.trunk
+Tag:      packetfence-3.1.0
+
+Changelog: 
+
+build fix: added missing file to manifest
+
+Changes against parent 5b1e4e20235307860ff23214e04c2b38fac726f6
+
+  patched  pf/addons/packages/packetfence.spec
+
+----------------------------------------------------------------------
+Revision: 5b1e4e20235307860ff23214e04c2b38fac726f6
+Parent:   e76034317b157dc98443705d71543b72891e550e
+Author:   obilodeau@inverse.ca
+Date:     23/12/2011 14:41:06
+Branch:   org.packetfence.trunk
+
+Changelog: 
+
+version bump to 3.1.0
+
+Changes against parent e76034317b157dc98443705d71543b72891e550e
+
+  patched  pf/ChangeLog
+  patched  pf/NEWS
+  patched  pf/UPGRADE
+  patched  pf/addons/packages/packetfence.spec
+  patched  pf/conf/pf-release
+  patched  pf/docs/PacketFence_Administration_Guide.odt
+  patched  pf/docs/PacketFence_Network_Devices_Configuration_Guide.odt
+  patched  pf/docs/docbook/pf-devel-guide.xml
+  patched  pf/t/pfcmd.t
+
+----------------------------------------------------------------------
 Revision: e76034317b157dc98443705d71543b72891e550e
 Parent:   c351463f273dfeacf7a6661b65df32347cbddc94
 Author:   obilodeau@inverse.ca

@@ -5,7 +5,7 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
-o Upgrading from a version prior to <release>:
+o Upgrading from a version prior to 3.2.0:
 
     - Database schema update
     OpenVAS and billing engine support required database changes. Make sure you
