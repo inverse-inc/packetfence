@@ -26,7 +26,6 @@ post-auth {
         Post-Auth-Type REJECT {
                 attr_filter.access_reject
         }
-        packetfence
 }
 
 pre-proxy {

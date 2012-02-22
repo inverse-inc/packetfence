@@ -919,7 +919,7 @@ rad_recv: Access-Accept packet from host 127.0.0.1:1812, id=74, length=20
 Debug
 ^^^^^
 
-First, check the `syslog`, this is where the PacketFence module logs. Syslog messages are usually stored in `/var/log/messages` or `/var/log/syslog`.
+First, check the `/var/log/radius/radius.log` file, the PacketFence module logs there since version 3.2 (otherwise check the syslog).
 
 If this didn't help, run FreeRADIUS in debug mode. To do so, start it using the following command:
 
@@ -2555,7 +2555,6 @@ authorize {
         files
         expiration
         logintime
-        perl
 }
 
 authenticate {

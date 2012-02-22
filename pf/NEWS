@@ -45,6 +45,8 @@ Enhancements
  * Added a multi-threaded EAP test script in t/stress-test/
  * Performance: node_view query optimized for 100x+ gain in environments where MySQL is taking a lot of CPU
  * Performance: faster command line response time (15%+ with bin/pfcmd)
+ * Our FreeRADIUS module packetfence.pm now logs in radius' log instead of syslog (related to #1377)
+ * Performance: ~2x FreeRADIUS performance by avoiding superfluous queries
 
 Bug Fixes
  * Buttons in graphs.php of type ifoctetshistoryswitch, ifoctetshistoryuser, ifoctetshistorymac (#1110)
@@ -64,6 +66,7 @@ Bug Fixes
  * pfcmd exit status now more consistent regarding config
  * No more "Can't call method "tag" on an undefined value" on broken pf.conf configuration (#1352)
  * More reliable SSID extraction in Called-Station-Id (#1379)
+ * Fixed FreeRADIUS crashes in heavily loaded environments (#1377)
 
 Translations
  * Updated Brazilian Portuguese (pt_BR) Admin guide translation (Thanks to Diego de Souza Lopes)
