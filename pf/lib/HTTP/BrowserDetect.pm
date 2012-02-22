@@ -777,11 +777,14 @@ sub _test {
 
     $self->{realplayer_version} = undef;
     if ( $tests->{REALPLAYER} ) {
-        if ( $ua =~ /realplayer\/([\d\.]+)/ ) {
+        if ( $ua =~ /realplayer\/([\d+\.]+)/ ) {
             $self->{realplayer_version} = $1;
             my @version = split( /\./, $self->{realplayer_version} );
             $major = shift @version;
             $minor = shift @version;
+        }
+        elsif ( $ua =~ /realplayer\s(\w+)/ ){
+        	$self->{realplayer_version} = $1;
         }
     }
 
@@ -815,7 +818,7 @@ sub browser_string {
         $browser_string = 'Mosaic'      if $self->mosaic;
         $browser_string = 'Lynx'        if $self->lynx;
         $browser_string = 'Links'       if $self->links;
-        $browser_string = 'RealPlayer'  if $self->realplayer;
+        $browser_string = 'RealPlayer'  if $self->realplayer_browser;
         $browser_string = 'IceWeasel'   if $self->iceweasel;
         $browser_string = 'curl'        if $self->curl;
         $browser_string = 'puf'         if $self->puf;
@@ -874,6 +877,12 @@ sub _realplayer_version {
         return $self->{realplayer_version};
     }
 
+    return 0;
+}
+
+sub realplayer_browser {
+    my ( $self, $check ) = _self_or_default( @_ );
+    return 1 if $self->{realplayer_version};
     return 0;
 }
 
@@ -1476,6 +1485,12 @@ version separately.
 =head3 opera opera3 opera4 opera5 opera6 opera7
 
 =head3 realplayer
+
+=head3 realplayer_browser
+The realplayer method above tests for the presence of either the RealPlayer
+plug-in "(r1 " or the browser "RealPlayer". To preserve 
+"bugwards compatibility" and prevent false reporting, browser_string calls
+this method which ignores the "(r1 " plug-in signature.   
 
 =head3 safari
 
