@@ -197,9 +197,9 @@ make FreeRADIUS properly interact with PacketFence
 mv pfcmd_pregrammar.pm lib/pf/pfcmd/
 
 # generate translations
-for LANG in de en es fr he_IL it nl pt_BR; do 
-    /usr/bin/msgfmt conf/locale/$LANG/LC_MESSAGES/packetfence.po
-    mv packetfence.mo conf/locale/$LANG/LC_MESSAGES/
+for TRANSLATION in de en es fr he_IL it nl pt_BR; do 
+    /usr/bin/msgfmt conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.po
+    mv packetfence.mo conf/locale/$TRANSLATION/LC_MESSAGES/
 done
 
 # RHEL6 only: generating PDF guides
