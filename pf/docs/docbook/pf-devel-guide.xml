@@ -17,9 +17,15 @@
 <book id="developers-guide" lang="en">
 <info>
   <title>PacketFence Developer's Guide</title>
-  <subtitle>for version 3.1.0</subtitle>
-  <date>2011-12-23</date>
+  <subtitle>for version 3.2.0</subtitle>
+  <date>2012-02-22</date>
   <revhistory>
+    <revision>
+      <revnumber>2.9</revnumber>
+      <date>2012-02-22</date>
+      <authorinitials>OB</authorinitials>
+      <revremark>Cosmetic improvements.</revremark>
+    </revision>
     <revision>
       <revnumber>2.8</revnumber>
       <date>2011-12-15</date>
@@ -120,7 +126,7 @@
     Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts. A copy of the license is included in the
     section entitled "GNU Free Documentation License".</para>
   </legalnotice>
-  <releaseinfo>Version 3.1.0 - December 2011</releaseinfo>
+  <releaseinfo>Version 3.2.0 - February 2012</releaseinfo>
   <mediaobject>
     <objectinfo>
       <corpname>Inverse inc.</corpname>
@@ -137,7 +143,7 @@
   <title>About this Guide</title>
   <para>This guide will help you modifying PacketFence to your particular needs. It also contains information on
   how to add support for new switches.</para>
-  <para>The instructions are based on version 3.1.0 of PacketFence.</para>
+  <para>The instructions are based on version 3.2.0 of PacketFence.</para>
   <para>The latest version of this guide is available online at</para>
   <para>
   <ulink url="http://www.packetfence.org/download/guides.html">
