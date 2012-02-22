@@ -69,6 +69,7 @@ Bug Fixes
  * Fixed FreeRADIUS crashes in heavily loaded environments (#1377)
 
 Translations
+ * Updated Brazilian Portuguese (pt_BR) translation (Thanks to Diego de Souza Lopes)
  * Updated Brazilian Portuguese (pt_BR) Admin guide translation (Thanks to Diego de Souza Lopes)
 
 --------------------------------------------------------------------------------
