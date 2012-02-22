@@ -224,6 +224,67 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
 </VirtualHost>
 
+# Local Web Server created for OpenVAS callback
+# TODO this was put before the inline_internal_ip VHOST because if inline mode is disabled we assign it to 127.0.0.1
+# making the OpenVAS callback vhost unreachable
+# This should be fixed in the next release when we will support DNS DNAT'ing in inline mode
+<VirtualHost 127.0.0.1:80>
+
+  DocumentRoot "%%install_dir%%/html/admin"
+  ServerName %%hostname%%.%%domain%%:%%admin_port%%
+
+  Alias /favicon.ico %%install_dir%%/html/common/favicon.ico
+  Alias /common/ %%install_dir%%/html/common/
+  Alias /cgi-bin/pfcmd.cgi %%install_dir%%/bin/pfcmd
+  Alias /docs/ %%install_dir%%/docs/
+  # Allows previewing captive-portal remediation pages
+  SetEnv VHOST ADMIN
+  Alias /remediation.php %%install_dir%%/html/captive-portal/remediation.php
+  Alias /content/ %%install_dir%%/html/captive-portal/content/
+
+  #LogLevel debug
+  CustomLog %%install_dir%%/logs/admin_access_log combined
+  ErrorLog %%install_dir%%/logs/admin_error_log
+
+  RewriteEngine On
+  #RewriteLogLevel 3
+  #RewriteLog %%install_dir%%/logs/admin_rewrite_log
+
+  # OpenVAS scans related (report return callback) (Note: there's another one in WebAdmin section)
+  RewriteRule ^/scan/report/([a-zA-Z0-9\-]*)$ /scan_fetch_report.cgi?scanid=$1 [PT,QSA]
+
+  # mod_perl hosted pf::WebAPI (lib/pf/WebAPI.pm)
+  PerlPostConfigRequire %%install_dir%%/lib/pf/web/backend_modperl_require.pl
+  <Location /webapi>
+    SetHandler perl-script
+    PerlHandler pf::WebAPI
+    # Basic Authentication
+    AuthUserFile %%install_dir%%/conf/admin.conf
+    AuthGroupFile /dev/null
+    AuthName "PacketFence Authentication"
+    AuthType Basic
+    require valid-user
+  </Location>
+
+  <LocationMatch /(guest-management|scan_fetch_report).cgi>
+    SetHandler perl-script
+    PerlResponseHandler ModPerl::PerlRun
+    PerlOptions +ParseHeaders
+    Options Indexes FollowSymLinks ExecCGI
+  </LocationMatch>
+
+  <Location ~ />
+    Options Indexes FollowSymLinks ExecCGI
+    #AllowOverride None
+    php_value session.save_path "%%install_dir%%/var/session"
+    php_value memory_limit "128M"
+    #(E_ALL & ~E_NOTICE) = 2047-8
+    php_value error_reporting 2039
+    php_value short_open_tag On
+  </Location>
+
+</VirtualHost>
+
 <VirtualHost %%inline_internal_ip%%:80>
 
   DocumentRoot %%install_dir%%/html/captive-portal
@@ -313,64 +374,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
   RewriteRule ^.*$ %%inline_redirect_prefix%%/captive-portal?destination_url=http://%{HTTP_HOST}%{REQUEST_URI} [R=307,L]
 
 %%proxies%%                
-
-</VirtualHost>
-
-# Local Web Server created for OpenVAS callback
-<VirtualHost 127.0.0.1:80>
-
-  DocumentRoot "%%install_dir%%/html/admin"
-  ServerName %%hostname%%.%%domain%%:%%admin_port%%
-
-  Alias /favicon.ico %%install_dir%%/html/common/favicon.ico
-  Alias /common/ %%install_dir%%/html/common/
-  Alias /cgi-bin/pfcmd.cgi %%install_dir%%/bin/pfcmd
-  Alias /docs/ %%install_dir%%/docs/
-  # Allows previewing captive-portal remediation pages
-  SetEnv VHOST ADMIN
-  Alias /remediation.php %%install_dir%%/html/captive-portal/remediation.php
-  Alias /content/ %%install_dir%%/html/captive-portal/content/
-
-  #LogLevel debug
-  CustomLog %%install_dir%%/logs/admin_access_log combined
-  ErrorLog %%install_dir%%/logs/admin_error_log
-
-  RewriteEngine On
-  #RewriteLogLevel 3
-  #RewriteLog %%install_dir%%/logs/admin_rewrite_log
-
-  # OpenVAS scans related (report return callback) (Note: there's another one in WebAdmin section)
-  RewriteRule ^/scan/report/([a-zA-Z0-9\-]*)$ /scan_fetch_report.cgi?scanid=$1 [PT,QSA]
-
-  # mod_perl hosted pf::WebAPI (lib/pf/WebAPI.pm)
-  PerlPostConfigRequire %%install_dir%%/lib/pf/web/backend_modperl_require.pl
-  <Location /webapi>
-    SetHandler perl-script
-    PerlHandler pf::WebAPI
-    # Basic Authentication
-    AuthUserFile %%install_dir%%/conf/admin.conf
-    AuthGroupFile /dev/null
-    AuthName "PacketFence Authentication"
-    AuthType Basic
-    require valid-user
-  </Location>
-
-  <LocationMatch /(guest-management|scan_fetch_report).cgi>
-    SetHandler perl-script
-    PerlResponseHandler ModPerl::PerlRun
-    PerlOptions +ParseHeaders
-    Options Indexes FollowSymLinks ExecCGI
-  </LocationMatch>
-
-  <Location ~ />
-    Options Indexes FollowSymLinks ExecCGI
-    #AllowOverride None
-    php_value session.save_path "%%install_dir%%/var/session"
-    php_value memory_limit "128M"
-    #(E_ALL & ~E_NOTICE) = 2047-8
-    php_value error_reporting 2039
-    php_value short_open_tag On
-  </Location>
 
 </VirtualHost>
 
