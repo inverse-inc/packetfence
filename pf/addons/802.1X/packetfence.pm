@@ -44,15 +44,14 @@ use constant    RLM_MODULE_NUMCODES=>  9;#  /* How many return codes there are *
 #
 # FreeRADIUS log facility names
 #
-# TODO: understand better these facilities. 
-# With default log config and auth log to yes: L_DBG, L_INFO and L_ERR goes to the log while L_AUTH does not
-# This seems rather odd..
+# Same as src/include/radiusd.h
 use constant {
-    L_DBG   => 0,
-    L_AUTH  => 1,
-    L_PROXY => 2,
+    L_DBG   => 1,
+    L_AUTH  => 2,
     L_INFO  => 3,
     L_ERR   => 4,
+    L_PROXY => 5,
+    L_ACCT  => 6,
 };
 
 # when troubleshooting run radius -X and change the following line with: use SOAP::Lite +trace => qw(all), 
@@ -98,7 +97,7 @@ sub authorize {
         my $mac = $RAD_REQUEST{'User-Name'};
         # Password will be the MAC address, we set Cleartext-Password to it so that EAP Auth will perform auth properly
         $RAD_CHECK{'Cleartext-Password'} = $mac;
-        &radiusd::radlog(L_AUTH, "This is a Wired MAC Authentication request with EAP for MAC: $mac. Authentication should pass. File a bug report if it doesn't");
+        &radiusd::radlog(L_DBG, "This is a Wired MAC Authentication request with EAP for MAC: $mac. Authentication should pass. File a bug report if it doesn't");
         return RLM_MODULE_UPDATED;
     }
 
@@ -118,7 +117,7 @@ sub post_auth {
 
     # invalid MAC, this certainly happens on some type of RADIUS calls, we accept so it'll go on and ask other modules
     if (length($mac) != 17) {
-        &radiusd::radlog(L_ERR, "warning: mac address is empty or invalid in this request. "
+        &radiusd::radlog(L_INFO, "MAC address is empty or invalid in this request. "
             . "It could be normal on certain radius calls");
         return RLM_MODULE_OK;
     }
@@ -160,18 +159,18 @@ sub post_auth {
 
     if ($radius_return_code == 2) {
         if (defined($RAD_REPLY{'Tunnel-Private-Group-ID'})) {
-            &radiusd::radlog(L_INFO, "Returning vlan ".$RAD_REPLY{'Tunnel-Private-Group-ID'}." "
+            &radiusd::radlog(L_AUTH, "Returning vlan ".$RAD_REPLY{'Tunnel-Private-Group-ID'}." "
                 . "to request from $mac port $port");
         } else {
-            &radiusd::radlog(L_INFO, "request from $mac port $port was accepted but no VLAN returned. "
+            &radiusd::radlog(L_AUTH, "request from $mac port $port was accepted but no VLAN returned. "
                 . "This could be normal. See server logs for details.");
         }
     } else {
-        &radiusd::radlog(L_ERR, "request from $mac port $port was not accepted but a proper error code was provided. "
+        &radiusd::radlog(L_INFO, "request from $mac port $port was not accepted but a proper error code was provided. "
             . "Check server side logs for details");
     }
 
-    &radiusd::radlog(L_AUTH, "PacketFence RESULT RESPONSE CODE: $radius_return_code (2 means OK)");
+    &radiusd::radlog(L_DBG, "PacketFence RESULT RESPONSE CODE: $radius_return_code (2 means OK)");
     # Uncomment for verbose debugging with radius -X
     # Warning: This is a native module so you shouldn't run it with radiusd in threaded mode (default)
     # use Data::Dumper;
@@ -208,8 +207,8 @@ Called whenever an invalid answer is returned from the server
 =cut
 sub invalid_answer_handler {
     &radiusd::radlog(L_ERR, "No or invalid reply in SOAP communication with server. Check server side logs for details.");
-    &radiusd::radlog(L_AUTH, "PacketFence UNDEFINED RESULT RESPONSE CODE");
-    &radiusd::radlog(L_AUTH, "PacketFence RESULT VLAN COULD NOT BE DETERMINED");
+    &radiusd::radlog(L_DBG, "PacketFence UNDEFINED RESULT RESPONSE CODE");
+    &radiusd::radlog(L_DBG, "PacketFence RESULT VLAN COULD NOT BE DETERMINED");
     return RLM_MODULE_FAIL;
 }
 
@@ -239,7 +238,7 @@ sub is_eap_mac_authentication {
                 return 1;
             }
         } else {
-            &radiusd::radlog(L_AUTH, "MAC inappropriate for comparison. Can't tell if we are in EAP Wired MAC Auth case.");
+            &radiusd::radlog(L_DBG, "MAC inappropriate for comparison. Can't tell if we are in EAP Wired MAC Auth case.");
         }
     }
     return 0;
@@ -324,7 +323,7 @@ sub detach {
 #       &log_request_attributes;
 
         # Do some logging.
-        &radiusd::radlog(L_AUTH, "rlm_perl::Detaching. Reloading. Done.");
+        &radiusd::radlog(L_DBG, "rlm_perl::Detaching. Reloading. Done.");
 }
 
 #
