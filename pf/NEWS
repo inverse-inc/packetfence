@@ -13,6 +13,15 @@ For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE file.
 
 --------------------------------------------------------------------------------
+Version <version> released on <releaseDate>
+
+Enhancements
+ * New database-driven custom VLAN assignment strategy example
+
+Translations
+ * Updated Brazilian Portuguese (pt_BR) translation (Thanks to Diego de Souza Lopes)
+
+--------------------------------------------------------------------------------
 Version 3.2.0 released on 2012-02-22
 
 Security
