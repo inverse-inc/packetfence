@@ -679,6 +679,7 @@ fi
 %dir                    /usr/local/pf/lib/pf/util
                         /usr/local/pf/lib/pf/util/*
 %dir                    /usr/local/pf/lib/pf/vlan
+                        /usr/local/pf/lib/pf/vlan/*.pm
 %config(noreplace)      /usr/local/pf/lib/pf/vlan/custom.pm
 %dir                    /usr/local/pf/lib/pf/web
                         /usr/local/pf/lib/pf/web/*.pl
@@ -688,7 +689,7 @@ fi
                         /usr/local/pf/lib/pf/web/guest.pm
                         /usr/local/pf/lib/pf/web/util.pm
                         /usr/local/pf/lib/pf/web/wispr.pm
-			/usr/local/pf/lib/pf/web/release.pm
+                        /usr/local/pf/lib/pf/web/release.pm
 %dir                    /usr/local/pf/logs
 %doc                    /usr/local/pf/NEWS
 %doc                    /usr/local/pf/README
