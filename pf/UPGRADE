@@ -20,6 +20,13 @@ o Upgrading from a version prior to 3.2.0:
     their scan.engine to nessus (default is none). Also, if a custom port was
     used, the scan.port parameter should be renamed to scan.nessus_port.
 
+    - Scan configuration changes
+     - scan.ssl no longer exists, get rid of it, it never really did anything
+       since 1.8.3.
+     - scan.nessusclient_file was renamed scan.nessus_clientfile
+     - scan.nessusclient_policy was renamed scan.nessus_clientpolicy
+     - scan.port was renamed scan.nessus_port
+
     - Violations changes related to OpenVAS integration
     There was some move in the example violations to add a new one for the 
     OpenVAS integration. Should pay attention to some 
