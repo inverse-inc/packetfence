@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 102;
+use Test::More tests => 112;
 use Test::NoWarnings;
 use lib '/usr/local/pf/lib';
 
@@ -33,6 +33,7 @@ TestUtils::use_test_db();
 BEGIN { use_ok('pf::db') }
 BEGIN { 
     use_ok('pf::action');
+    use_ok('pf::billing');
     use_ok('pf::class');
     use_ok('pf::configfile');
     use_ok('pf::email_activation');
@@ -44,6 +45,7 @@ BEGIN {
     use_ok('pf::nodecategory');
     use_ok('pf::os');
     use_ok('pf::person');
+    use_ok('pf::scan');
     use_ok('pf::switchlocation');
     use_ok('pf::traplog');
     use_ok('pf::trigger');
@@ -56,6 +58,7 @@ BEGIN {
 
 my @data_modules = qw(
     pf::action
+    pf::billing
     pf::class
     pf::configfile
     pf::email_activation
@@ -67,6 +70,7 @@ my @data_modules = qw(
     pf::nodecategory
     pf::os
     pf::person
+    pf::scan
     pf::switchlocation
     pf::traplog
     pf::trigger
