@@ -17,6 +17,7 @@ Version <version> released on <releaseDate>
 
 Enhancements
  * New database-driven custom VLAN assignment strategy example
+ * Slightly more helpful installer.pl
 
 Translations
  * Updated Brazilian Portuguese (pt_BR) translation (Thanks to Diego de Souza Lopes)

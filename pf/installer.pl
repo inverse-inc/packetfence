@@ -195,7 +195,7 @@ if (questioner(
     do {
         if ( $times > 0 ) {
             print "MySQL is reporting access denied or can't connect, try again\n";
-            print "Perhaps you did not configure mysql with /usr/bin/mysql_secure_installation?\n";
+            print "Perhaps you did not configure mysql with /usr/bin/mysql_secure_installation (start mysqld first!)?\n";
         }
         $times++;
         print "  Current Admin User [root]: ";
