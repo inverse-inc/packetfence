@@ -742,8 +742,16 @@ sub get_client_ip {
     # if user is behind a proxy it's not sufficient since we'll get the proxy's IP
     my $directly_connected_ip = $cgi->remote_addr();
 
+    # every source IP in this table are considered to be from a proxied source
+    my %proxied_lookup = (
+        $LOOPBACK_IPV4 => 1,
+    );
+    # adding virtual IP if one is present
+    $proxied_lookup{$management_network->tag('vip')} = 1 if ($management_network->tag('vip'));
+
     # handling most common case first
-    if ($directly_connected_ip ne $LOOPBACK_IPV4) {
+    # if this is NOT from one of the expected proxy IPs return the IP
+    if (!$proxied_lookup{$directly_connected_ip}) {
         return $directly_connected_ip;
     }
 
