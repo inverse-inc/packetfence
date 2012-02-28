@@ -15,6 +15,7 @@ Developed and tested on Extricom EXSW800 Wireless Switch running firmware versio
 =head1 BUGS AND LIMITATIONS
 
 The vendor doesn't include the SSID in their RADIUS-Request. VLAN assignment per SSID is not possible.
+Apparently the vendor is working on a fix.
 
 SNMPv3 has not been tested.
 
