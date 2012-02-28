@@ -319,7 +319,7 @@ ok(@pfcmd_help, "pfcmd help outputs on STDOUT");
 
 # test version
 @output = `/usr/local/pf/bin/pfcmd version`;
-like ( $output[0], qr'PacketFence 3.2.0', "pfcmd version is correct" );
+like ( $output[0], qr'PacketFence 3.3.0dev', "pfcmd version is correct" );
 
 # reproducing issue #1206: pid=email@address.com not accepted in pfcmd node view ...
 %cmd = pf::pfcmd::parseCommandLine('node view pid=email@address.com');
