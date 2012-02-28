@@ -255,7 +255,7 @@ sub getViolationVlan {
 
     # CUSTOM: returning per building VLAN id if switch type is Cisco::WLC
     my $vlan_number;
-    if (ref($switch) eq 'pf::SNMP::Cisco::WLC_4400') {
+    if (defined($called_station_id) && ref($switch) eq 'pf::SNMP::Cisco::WLC_4400') {
         $vlan_number = buildingnum_per_called_station_id($called_station_id) . $switch->getVlanByName($vlan);
     }
     # Asking the switch to give us its configured vlan number for the vlan returned for the violation
@@ -308,7 +308,7 @@ sub getRegistrationVlan {
 
     # CUSTOM: pre-compute registrationVlan based on being on a WLC or not
     my $vlan_number;
-    if (ref($switch) eq 'pf::SNMP::Cisco::WLC_4400') {
+    if (defined($called_station_id) && ref($switch) eq 'pf::SNMP::Cisco::WLC_4400') {
         $vlan_number = 
             buildingnum_per_called_station_id($called_station_id) . $switch->getVlanByName('registrationVlan');
     }
@@ -346,7 +346,7 @@ sub getNormalVlan {
     # CUSTOM: fetching per building VLAN id if switch type is Cisco::WLC
     # by default no buliding id vlan prefix
     my $vlan_id_prefix = '';
-    if (ref($switch) eq 'pf::SNMP::Cisco::WLC_4400') {
+    if (defined($called_station_id) && ref($switch) eq 'pf::SNMP::Cisco::WLC_4400') {
         $vlan_id_prefix = buildingnum_per_called_station_id($called_station_id);
     }
 
