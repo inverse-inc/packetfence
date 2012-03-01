@@ -950,70 +950,75 @@ sub dot1xPortReauthenticate {
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     $logger->info(
-        "802.1X renegociation on this switch is not compatible with PacketFence. " . 
-        "We will re-assign VLAN directly. If it doesn't work open a bug report with your hardware type."
+        "802.1X renegociation on this switch is not compatible with PacketFence. "
+        . "If there's VoIP we will bounce the port otherwise we will re-assign VLAN directly. "
+        . "If it doesn't work open a bug report with your hardware type. "
+        . "switch: $this->{_ip} ifIndex: $ifIndex"
     );
 
-    my $switch_ip = $this->{'_ip'};
-    my @locationlog = locationlog_view_open_switchport_no_VoIP( $switch_ip, $ifIndex );
+    # TODO extract the following behavior in a method call in pf::vlan so it can be overridden easily
+    # by following behavior I mean the "don't bounce on VoIP violations" behavior
+
+    # If VoIP isn't enabled on this switch: bounce
+    if (!$this->isVoIPEnabled()) {
+        $logger->debug("VoIP is diabled on switch at $this->{_ip}. Will bounce ifIndex $ifIndex.");
+        return $this->bouncePort($ifIndex);
+    }
+
+    # If there's no phone on the ifIndex, we also bounce
+    my $hasPhone = $this->hasPhoneAtIfIndex($ifIndex);
+    if ( !$hasPhone ) {
+        $logger->debug("No VoIP is currently connected at $this->{_ip} ifIndex $ifIndex. Boucing ifIndex.");
+        return $this->bouncePort($ifIndex);
+    }
+
+    # there's a phone, we need to fetch the MAC on the ifIndex in order to do a setVlan!
+    my @locationlog = locationlog_view_open_switchport_no_VoIP( $this->{_ip}, $ifIndex );
     if (!(@locationlog) || !defined($locationlog[0]->{'mac'}) || ($locationlog[0]->{'mac'} eq '' )) {
-        $logger->warn("802.1X renegociation requested on $switch_ip ifIndex $ifIndex but can't determine non VoIP MAC");
+        $logger->warn(
+            "802.1X renegociation requested on $this->{_ip} ifIndex $ifIndex but can't determine non VoIP MAC"
+        );
         return;
     }
     
+    $logger->debug(
+        "A VoIP phone is currently connected at $this->{_ip} ifIndex $ifIndex so the port will not be bounced. " . 
+        "Changing VLAN and leaving everything as it is."
+    );
+
     my $mac = $locationlog[0]->{'mac'};
-    my $hasPhone = $this->hasPhoneAtIfIndex($ifIndex);
+    my $vlan_obj = new pf::vlan::custom();
+    $this->_setVlan(
+        $ifIndex, 
+        $vlan_obj->fetchVlanForNode($mac, $this, $ifIndex, $WIRED_802_1X), 
+        undef, 
+        # TODO passing an empty switchlocker is not the best thing to do...
+        {}
+    );
 
-    # TODO extract that behavior in a method call in pf::vlan so it can be overridden easily
-    if ( !$hasPhone ) {
-        $logger->info(
-            "no VoIP phone is currently connected at $switch_ip ifIndex $ifIndex. Flipping port admin status"
-        );
-        return $this->bouncePort($ifIndex);
+    require pf::violation;
+    my @violations = pf::violation::violation_view_open_desc($mac);
+    if ( scalar(@violations) > 0 ) {
+        my %message;
+        $message{'subject'} = "VLAN isolation of $mac behind VoIP phone";
+        $message{'message'} = "The following computer has been isolated behind a VoIP phone\n";
+        $message{'message'} .= "MAC: $mac\n";
 
-    } else {
+        require pf::node;
+        my $node_info = pf::node::node_attributes($mac);
+        $message{'message'} .= "Owner: " . $node_info->{'pid'} . "\n";
+        $message{'message'} .= "Computer Name: " . $node_info->{'computername'} . "\n";
+        $message{'message'} .= "Notes: " . $node_info->{'notes'} . "\n";
+        $message{'message'} .= "Switch: " . $this->{'_ip'} . "\n";
+        $message{'message'} .= "Port (ifIndex): " . $ifIndex . "\n\n";
+        $message{'message'} .= "The violation details are\n";
 
-        $logger->warn(
-            "A VoIP phone is currently connected at $switch_ip ifIndex $ifIndex so the port will not be bounced. " . 
-            "Changing VLAN and leaving everything as it is."
-        );
-
-        my $vlan_obj = new pf::vlan::custom();
-        $this->_setVlan(
-            $ifIndex, 
-            $vlan_obj->fetchVlanForNode($mac, $this, $ifIndex, $WIRED_802_1X), 
-            undef, 
-            {}
-        );
-
-        require pf::violation;
-        my @violations = pf::violation::violation_view_open_desc($mac);
-        if ( scalar(@violations) > 0 ) {
-            my %message;
-            $message{'subject'} = "VLAN isolation of $mac behind VoIP phone";
-            $message{'message'} = "The following computer has been isolated behind a VoIP phone\n";
-            $message{'message'} .= "MAC: $mac\n";
-
-            require pf::node;
-            my $node_info = pf::node::node_attributes($mac);
-            $message{'message'} .= "Owner: " . $node_info->{'pid'} . "\n";
-            $message{'message'} .= "Computer Name: " . $node_info->{'computername'} . "\n";
-            $message{'message'} .= "Notes: " . $node_info->{'notes'} . "\n";
-            $message{'message'} .= "Switch: " . $switch_ip . "\n";
-            $message{'message'} .= "Port (ifIndex): " . $ifIndex . "\n\n";
-            $message{'message'} .= "The violation details are\n";
-
-            foreach my $violation (@violations) {
-                $message{'message'} .= "Description: "
-                    . $violation->{'description'} . "\n";
-                $message{'message'} .= "Start: "
-                    . $violation->{'start_date'} . "\n";
-            }
-            $logger->info(
-                "sending email to admin regarding isolation of $mac behind VoIP phone"
-            );
-            pfmailer(%message);
+        foreach my $violation (@violations) {
+            $message{'message'} .= "Description: " . $violation->{'description'} . "\n";
+            $message{'message'} .= "Start: " . $violation->{'start_date'} . "\n";
         }
+        $logger->info("sending email to admin regarding isolation of $mac behind VoIP phone");
+        pfmailer(%message);
     }
 }
 
