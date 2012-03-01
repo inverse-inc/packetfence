@@ -1,13 +1,13 @@
-package pf::SNMP::Dlink::DGS_3200;
+package pf::SNMP::AlliedTelesis;
 
 =head1 NAME
 
-pf::SNMP::Dlink::DGS_3200 - Object oriented module to access SNMP enabled Dlink DES 3100 switches
+pf::SNMP::AlliedTelesis - Object oriented module to access SNMP enabled AliedTelesis Switches
 
 =head1 SYNOPSIS
 
-The pf::SNMP::Dlink::DGS_3200 module implements an object oriented interface
-to access SNMP enabled Dlink DGS 3200 switches.
+The pf::SNMP::AlliedTelesis module implements an object oriented interface
+to access SNMP enabled AlliedTelesis switches.
 
 =head1 STATUS
 
@@ -25,8 +25,6 @@ to access SNMP enabled Dlink DGS 3200 switches.
 
 =head1 BUGS AND LIMITATIONS
 
-The minimum required firmware version is 2.00.012 to properly support MAC Authentication
-
 =head1 CONFIGURATION AND ENVIRONMENT
 
 F<conf/switches.conf>
@@ -37,7 +35,7 @@ use strict;
 use warnings;
 use Log::Log4perl;
 use Net::SNMP;
-use base ('pf::SNMP::Dlink');
+use base ('pf::SNMP');
 
 # importing switch constants
 use pf::SNMP::constants;
@@ -59,16 +57,16 @@ sub supportsWiredDot1x { return $TRUE; }
 =cut
 sub getVersion {
     my ($this) = @_;
-    my $oid_dlinkFirmwareVersion = '1.3.6.1.4.1.171.10.94.89.89.2.4.0';
+    my $oid_alliedFirmwareVersion = '.1.3.6.1.4.1.89.2.4.0';
     my $logger = Log::Log4perl::get_logger( ref($this) );
     if ( !$this->connectRead() ) {
         return '';
     }
     $logger->trace(
-        "SNMP get_request for oid_dlinkFirmwareVersion: $oid_dlinkFirmwareVersion"
+        "SNMP get_request for oid_alliedFirmwareVersion: $oid_alliedFirmwareVersion"
     );
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_dlinkFirmwareVersion] );
-    my $runtimeSwVersion = ( $result->{$oid_dlinkFirmwareVersion} || '' );
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_alliedFirmwareVersion] );
+    my $runtimeSwVersion = ( $result->{$oid_alliedFirmwareVersion} || '' );
 
     return $runtimeSwVersion;
 }
@@ -94,7 +92,7 @@ Francois Gaudreault <fgaudreault@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse Inc.
+Copyright (C) 2012 Inverse Inc.
 
 =head1 LICENSE
 
