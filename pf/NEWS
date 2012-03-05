@@ -121,6 +121,7 @@ Enhancements
  * Better support of WISPr (captive portal detection)
  * Configuration flag to disable the captive portal's network detection feature
  * Added support for months in normalize_time (#1291)
+ * New fields in guest management (notes, etc.)
 
 Bug Fixes
  * Slashes (/) not allowed in person id (#1322)
