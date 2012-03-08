@@ -30,9 +30,7 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT_OK = qw(
-        generate_snort_conf
-    );
+    @EXPORT_OK = qw(generate_snort_conf);
 }
 
 =head1 SUBROUTINES
@@ -54,20 +52,16 @@ sub generate_snort_conf {
     $tags{'dns_servers'}   = $Config{'general'}{'dnsservers'};
     $tags{'install_dir'}   = $install_dir;
     my %violations_conf;
-    tie %violations_conf, 'Config::IniFiles',
-        ( -file => "$conf_dir/violations.conf" );
+    tie %violations_conf, 'Config::IniFiles', ( -file => "$conf_dir/violations.conf" );
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {
-        $logger->error( "Error reading violations.conf: " 
-                        .  join( "\n", @errors ) . "\n" );
+        $logger->error( "Error reading violations.conf: " . join( "\n", @errors ) . "\n" );
         return 0;
     }
 
     my @rules;
 
-    foreach my $rule (
-        split( /\s*,\s*/, $violations_conf{'defaults'}{'snort_rules'} ) )
-    {
+    foreach my $rule ( split( /\s*,\s*/, $violations_conf{'defaults'}{'snort_rules'} ) ) {
 
         #append install_dir if the path doesn't start with /
         $rule = "\$RULE_PATH/$rule" if ( $rule !~ /^\// );
@@ -75,8 +69,7 @@ sub generate_snort_conf {
     }
     $tags{'snort_rules'} = join( "\n", @rules );
     $logger->info("generating $conf_dir/snort.conf");
-    parse_template( \%tags, "$conf_dir/snort.conf",
-        "$generated_conf_dir/snort.conf" );
+    parse_template( \%tags, "$conf_dir/snort.conf", "$generated_conf_dir/snort.conf" );
     return 1;
 }
 
