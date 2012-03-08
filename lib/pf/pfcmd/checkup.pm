@@ -99,10 +99,7 @@ sub sanity_check {
     
     if ( isenabled($Config{'trapping'}{'detection'}) ) {
         ids();
-        
-        if ($Config{'trapping'}{'detection_engine'} eq 'snort') {
-             ids_snort();
-        }
+
         #TODO Suricata check
     }
 
@@ -249,14 +246,15 @@ sub ids {
     # make sure named pipe 'alert' is present if snort is enabled
     my $alertpipe = "$install_dir/var/alert";
     if ( !-p $alertpipe ) {
-        if ( !POSIX::mkfifo( $snortpipe, oct(666) ) ) {
+        if ( !POSIX::mkfifo( $alertpipe, oct(666) ) ) {
             add_problem( $FATAL, "IDS alert pipe ($alertpipe) does not exist and unable to create it" );
         }
     }
 
     if ( $Config{'trapping'}{'detection_engine'} eq "snort" && !-x $Config{'services'}{'snort_binary'} ) {
         add_problem( $FATAL, "snort binary is not executable / does not exist!" );
-    } elsif ( $Config{'trapping'}{'detection_engine'} eq "suricata" && !-x $Config{'services'}{'suricata_binary'} ) {
+    }
+    elsif ( $Config{'trapping'}{'detection_engine'} eq "suricata" && !-x $Config{'services'}{'suricata_binary'} ) {
         add_problem( $FATAL, "suricata binary is not executable / does not exist!" );
     }
 
