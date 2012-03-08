@@ -256,14 +256,12 @@ return an array of enabled services
 sub service_list {
     my @services         = @_;
     my @finalServiceList = ();
-    my $snortflag        = 0;
+    my @add_last;
     foreach my $service (@services) {
-        if ( $service eq "snort" ) {
-            $snortflag = 1
-                if ( isenabled( $Config{'trapping'}{'detection'} ) && $Config{'trapping'}{'detection_engine'} eq "snort" );
-        } elsif ( $service eq "suricata" ) {
-            $snortflag = 2
-                if ( isenabled( $Config{'trapping'}{'detection'} ) && $Config{'trapping'}{'detection_engine'} eq "suricata" );
+        if ( $service eq 'snort' || $service eq 'suricata' ) {
+            # add suricata or snort to services to add last if enabled
+            push @add_last, $service
+                if (isenabled($Config{'trapping'}{'detection'}) && $Config{'trapping'}{'detection_engine'} eq $service);
         } elsif ( $service eq "radiusd" ) {
             push @finalServiceList, $service 
                 if ( is_vlan_enforcement_enabled() && isenabled($Config{'services'}{'radiusd'}) );
@@ -291,9 +289,7 @@ sub service_list {
         }
     }
 
-    #add snort last
-    push @finalServiceList, "snort" if ($snortflag == 1);
-    push @finalServiceList, "suricata" if ($snortflag == 2);
+    push @finalServiceList, @add_last;
     return @finalServiceList;
 }
 
