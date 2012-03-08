@@ -19,12 +19,13 @@ Generates the following configuration files: F<var/conf/snort.conf>.
 
 use strict;
 use warnings;
+
 use Log::Log4perl;
 use POSIX;
 use Readonly;
 
 use pf::config;
-use pf::util;
+use pf::util qw(get_gateways get_internal_ips parse_template);
 
 BEGIN {
     use Exporter ();
@@ -42,7 +43,7 @@ BEGIN {
 =cut
 
 sub generate_snort_conf {
-    my $logger = Log::Log4perl::get_logger('pf::services');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my %tags;
     $tags{'template'}      = "$conf_dir/snort.conf";
     $tags{'internal-ips'}  = join( ",", get_internal_ips() );
@@ -56,7 +57,7 @@ sub generate_snort_conf {
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {
         $logger->error( "Error reading violations.conf: " . join( "\n", @errors ) . "\n" );
-        return 0;
+        return;
     }
 
     my @rules;
@@ -70,7 +71,7 @@ sub generate_snort_conf {
     $tags{'snort_rules'} = join( "\n", @rules );
     $logger->info("generating $conf_dir/snort.conf");
     parse_template( \%tags, "$conf_dir/snort.conf", "$generated_conf_dir/snort.conf" );
-    return 1;
+    return $TRUE;
 }
 
 =back
@@ -79,9 +80,11 @@ sub generate_snort_conf {
 
 Francois Gaudreault <fgaudreault@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2011, 2012 Inverse inc.
 
 =head1 LICENSE
 

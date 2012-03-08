@@ -19,12 +19,13 @@ Generates the following configuration files: F<var/conf/suricata.yaml>.
 
 use strict;
 use warnings;
+
 use Log::Log4perl;
 use POSIX;
 use Readonly;
 
 use pf::config;
-use pf::util;
+use pf::util qw(parse_template);
 
 BEGIN {
     use Exporter ();
@@ -42,7 +43,7 @@ BEGIN {
 =cut
 
 sub generate_suricata_conf {
-    my $logger = Log::Log4perl::get_logger('pf::services');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my %tags;
     $tags{'template'}      = "$conf_dir/suricata.yaml";
     $tags{'trapping-range'} = $Config{'trapping'}{'range'};
@@ -52,7 +53,7 @@ sub generate_suricata_conf {
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {
         $logger->error( "Error reading violations.conf: " .  join( "\n", @errors ) . "\n" );
-        return 0;
+        return;
     }
 
     my @rules;
@@ -65,7 +66,7 @@ sub generate_suricata_conf {
     $tags{'suricata_rules'} = join( "\n", @rules );
     $logger->info("generating $conf_dir/suricata.yaml");
     parse_template( \%tags, "$conf_dir/suricata.yaml", "$generated_conf_dir/suricata.yaml" );
-    return 1;
+    return $TRUE;
 }
 
 =back
@@ -74,9 +75,11 @@ sub generate_suricata_conf {
 
 Francois Gaudreault <fgaudreault@inverse.ca>
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2011, 2012 Inverse inc.
 
 =head1 LICENSE
 
