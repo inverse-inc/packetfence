@@ -185,7 +185,7 @@ The freeradius2-packetfence package contains the files needed to
 make FreeRADIUS properly interact with PacketFence
 
 %prep
-%setup -n pf
+%setup -q
 
 %build
 # generate pfcmd_pregrammar
@@ -715,6 +715,7 @@ fi
 - removed most empty folders from here now into installer.pl (Makefile someday)
 - extracted version out of package (we are getting rid of versions in files 
   to simplify devel/stable branch management)
+- source tarball changed: prefixed packetfence-<version>/ instead of pf/ 
 
 * Wed Feb 22 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.2.0-1
 - New release 3.2.0
