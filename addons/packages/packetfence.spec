@@ -1,45 +1,41 @@
 # PacketFence RPM SPEC
+#
+# NEW (since git migration):
+#
+#   Expecting a standard tarball with packetfence-<version>/...
 # 
 # BUILDING FOR RELEASE
 # 
-# - Create release tarball from monotone head, ex:
-# mtn --db ~/pf.mtn checkout --branch org.packetfence.1_8
-# cd org.packetfence.1_8/
-# tar czvf packetfence-1.8.5.tar.gz pf/
-# 
 # - Build
+#  - define ver <version>
 #  - define dist based on target distro (for centos/rhel => .el5)
-#  - define source_release based on package revision (must be > 0 for proprer upgrade from snapshots)
+#  - define rev based on package revision (must be > 0 for proprer upgrade from snapshots)
 # ex:
 # cd /usr/src/redhat/
-# rpmbuild -ba --define 'dist .el5' --define 'source_release 1' SPECS/packetfence.spec
+# rpmbuild -ba --define 'version 3.3.0' --define 'dist .el5' --define 'rev 1' SPECS/packetfence.spec
 #
 #
 # BUILDING FOR A SNAPSHOT (PRE-RELEASE)
 #
-# - Create release tarball from monotone head. Specify 0.<date> in tarball, ex:
-# mtn --db ~/pf.mtn checkout --branch org.packetfence.1_8
-# cd org.packetfence.1_8/
-# tar czvf packetfence-1.8.5-0.20091023.tar.gz pf/
-#
 # - Build
+#  - define ver <version>
 #  - define snapshot 1
 #  - define dist based on target distro (for centos/rhel => .el5)
-#  - define source_release to 0.<date> this way one can upgrade from snapshot to release
+#  - define rev to 0.<date> this way one can upgrade from snapshot to release
 # ex:
 # cd /usr/src/redhat/
-# rpmbuild -ba --define 'snapshot 1' --define 'dist .el5' --define 'source_release 0.20100506' SPECS/packetfence.spec
+# rpmbuild -ba --define 'version 3.3.0' --define 'snapshot 1' --define 'dist .el5' --define 'rev 0.20100506' SPECS/packetfence.spec
 #
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 3.3.0
-Release: %{source_release}%{?dist}
+Version: %{ver}
+Release: %{rev}%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.packetfence.org
 AutoReqProv: 0
 BuildArch: noarch
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{source_release}-root
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{rev}-root
 
 Packager: Inverse inc. <support@inverse.ca>
 Vendor: PacketFence, http://www.packetfence.org
@@ -51,7 +47,7 @@ Vendor: PacketFence, http://www.packetfence.org
 Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}.tar.gz
 %else
 # used for snapshot releases
-Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}-%{source_release}.tar.gz
+Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}-%{rev}.tar.gz
 %endif
 
 # FIXME change all perl Requires: into their namespace counterpart, see what happened in #931 and
@@ -717,6 +713,8 @@ fi
 %changelog
 * Thu Mar 08 2012 Olivier Bilodeau <obilodeau@inverse.ca>
 - removed most empty folders from here now into installer.pl (Makefile someday)
+- extracted version out of package (we are getting rid of versions in files 
+  to simplify devel/stable branch management)
 
 * Wed Feb 22 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.2.0-1
 - New release 3.2.0
