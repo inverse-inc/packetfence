@@ -1,0 +1,4 @@
+.gitattributes          export-ignore
+.gitignore              export-ignore
+.mtn-ignore             export-ignore
+conf/.gitattributes     export-ignore
