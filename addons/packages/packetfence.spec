@@ -225,6 +225,9 @@ fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-devel-guide.xml \
 %{__install} -D -m0755 packetfence.init $RPM_BUILD_ROOT%{_initrddir}/packetfence
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
+mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
+mkdir -p $RPM_BUILD_ROOT/usr/local/pf/logs
+mkdir -p $RPM_BUILD_ROOT/usr/local/pf/var
 cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r addons/802.1X/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/captive-portal/ $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -241,7 +244,6 @@ cp -r addons/watchdog/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/logrotate $RPM_BUILD_ROOT/usr/local/pf/addons/
-mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
 cp addons/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
@@ -625,6 +627,7 @@ fi
 %dir                    /usr/local/pf/html/common
                         /usr/local/pf/html/common/*
 %attr(0755, pf, pf)     /usr/local/pf/installer.pl
+%dir                    /usr/local/pf/logs
 %dir                    /usr/local/pf/lib
 %dir                    /usr/local/pf/lib/HTTP
                         /usr/local/pf/lib/HTTP/BrowserDetect.pm
@@ -683,6 +686,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfredirect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetvlan
 %doc                    /usr/local/pf/UPGRADE
+%dir                    /usr/local/pf/var
 
 # Remote snort sensor file list
 %files remote-snort-sensor
