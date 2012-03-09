@@ -1,45 +1,41 @@
 # PacketFence RPM SPEC
+#
+# NEW (since git migration):
+#
+#   Expecting a standard tarball with packetfence-<version>/...
 # 
 # BUILDING FOR RELEASE
 # 
-# - Create release tarball from monotone head, ex:
-# mtn --db ~/pf.mtn checkout --branch org.packetfence.1_8
-# cd org.packetfence.1_8/
-# tar czvf packetfence-1.8.5.tar.gz pf/
-# 
 # - Build
+#  - define ver <version>
 #  - define dist based on target distro (for centos/rhel => .el5)
-#  - define source_release based on package revision (must be > 0 for proprer upgrade from snapshots)
+#  - define rev based on package revision (must be > 0 for proprer upgrade from snapshots)
 # ex:
 # cd /usr/src/redhat/
-# rpmbuild -ba --define 'dist .el5' --define 'source_release 1' SPECS/packetfence.spec
+# rpmbuild -ba --define 'version 3.3.0' --define 'dist .el5' --define 'rev 1' SPECS/packetfence.spec
 #
 #
 # BUILDING FOR A SNAPSHOT (PRE-RELEASE)
 #
-# - Create release tarball from monotone head. Specify 0.<date> in tarball, ex:
-# mtn --db ~/pf.mtn checkout --branch org.packetfence.1_8
-# cd org.packetfence.1_8/
-# tar czvf packetfence-1.8.5-0.20091023.tar.gz pf/
-#
 # - Build
+#  - define ver <version>
 #  - define snapshot 1
 #  - define dist based on target distro (for centos/rhel => .el5)
-#  - define source_release to 0.<date> this way one can upgrade from snapshot to release
+#  - define rev to 0.<date> this way one can upgrade from snapshot to release
 # ex:
 # cd /usr/src/redhat/
-# rpmbuild -ba --define 'snapshot 1' --define 'dist .el5' --define 'source_release 0.20100506' SPECS/packetfence.spec
+# rpmbuild -ba --define 'version 3.3.0' --define 'snapshot 1' --define 'dist .el5' --define 'rev 0.20100506' SPECS/packetfence.spec
 #
 Summary: PacketFence network registration / worm mitigation system
 Name: packetfence
-Version: 3.2.0
-Release: %{source_release}%{?dist}
+Version: %{ver}
+Release: %{rev}%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.packetfence.org
 AutoReqProv: 0
 BuildArch: noarch
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{source_release}-root
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{rev}-root
 
 Packager: Inverse inc. <support@inverse.ca>
 Vendor: PacketFence, http://www.packetfence.org
@@ -51,7 +47,7 @@ Vendor: PacketFence, http://www.packetfence.org
 Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}.tar.gz
 %else
 # used for snapshot releases
-Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}-%{source_release}.tar.gz
+Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}-%{rev}.tar.gz
 %endif
 
 # FIXME change all perl Requires: into their namespace counterpart, see what happened in #931 and
@@ -189,7 +185,7 @@ The freeradius2-packetfence package contains the files needed to
 make FreeRADIUS properly interact with PacketFence
 
 %prep
-%setup -n pf
+%setup -q
 
 %build
 # generate pfcmd_pregrammar
@@ -229,14 +225,9 @@ fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-devel-guide.xml \
 %{__install} -D -m0755 packetfence.init $RPM_BUILD_ROOT%{_initrddir}/packetfence
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/logs
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/named
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/run
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/rrd 
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/webadmin_cache
+mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
+mkdir -p $RPM_BUILD_ROOT/usr/local/pf/logs
+mkdir -p $RPM_BUILD_ROOT/usr/local/pf/var
 cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r addons/802.1X/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/captive-portal/ $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -253,11 +244,11 @@ cp -r addons/watchdog/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/logrotate $RPM_BUILD_ROOT/usr/local/pf/addons/
-mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
 cp addons/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
 #pfdetect_remote
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var
 mv addons/pfdetect_remote/initrd/pfdetectd $RPM_BUILD_ROOT%{_initrddir}/
 mv addons/pfdetect_remote/sbin/pfdetect_remote $RPM_BUILD_ROOT/usr/local/pf/sbin
 mv addons/pfdetect_remote/conf/pfdetect_remote.conf $RPM_BUILD_ROOT/usr/local/pf/conf
@@ -295,7 +286,6 @@ rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/images
 cp -r html $RPM_BUILD_ROOT/usr/local/pf/
 cp -r installer.pl $RPM_BUILD_ROOT/usr/local/pf/
 cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
-cp -r var $RPM_BUILD_ROOT/usr/local/pf/
 cp -r NEWS $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README.network-devices $RPM_BUILD_ROOT/usr/local/pf/
@@ -376,8 +366,6 @@ do
   fi
 done
 
-#touch /usr/local/pf/conf/dhcpd/dhcpd.leases && chown pf:pf /usr/local/pf/conf/dhcpd/dhcpd.leases
-
 if [ -e /etc/logrotate.d/snort ]; then
   echo Removing /etc/logrotate.d/snort - it kills snort every night
   rm -f /etc/logrotate.d/snort
@@ -442,7 +430,6 @@ if [ $1 -eq 0 ] ; then
         /sbin/service packetfence stop &>/dev/null || :
         /sbin/chkconfig --del packetfence
 fi
-#rm -f /usr/local/pf/conf/dhcpd/dhcpd.leases
 
 %preun remote-snort-sensor
 if [ $1 -eq 0 ] ; then
@@ -579,7 +566,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/snort/classification.config
 %config(noreplace)      /usr/local/pf/conf/snort/local.rules
 %config(noreplace)      /usr/local/pf/conf/snort/reference.config
-%dir                    /usr/local/pf/conf/ssl
 %config(noreplace)      /usr/local/pf/conf/switches.conf
 %config                 /usr/local/pf/conf/dhcpd.conf
 %config                 /usr/local/pf/conf/httpd.conf
@@ -603,7 +589,6 @@ fi
 %config                 /usr/local/pf/conf/ui.conf
 %config                 /usr/local/pf/conf/ui.conf.es_ES
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
-%dir                    /usr/local/pf/conf/users
 %config(noreplace)      /usr/local/pf/conf/violations.conf
 %attr(0755, pf, pf)     /usr/local/pf/configurator.pl
 %doc                    /usr/local/pf/COPYING
@@ -642,6 +627,7 @@ fi
 %dir                    /usr/local/pf/html/common
                         /usr/local/pf/html/common/*
 %attr(0755, pf, pf)     /usr/local/pf/installer.pl
+%dir                    /usr/local/pf/logs
 %dir                    /usr/local/pf/lib
 %dir                    /usr/local/pf/lib/HTTP
                         /usr/local/pf/lib/HTTP/BrowserDetect.pm
@@ -690,7 +676,6 @@ fi
                         /usr/local/pf/lib/pf/web/util.pm
                         /usr/local/pf/lib/pf/web/wispr.pm
                         /usr/local/pf/lib/pf/web/release.pm
-%dir                    /usr/local/pf/logs
 %doc                    /usr/local/pf/NEWS
 %doc                    /usr/local/pf/README
 %doc                    /usr/local/pf/README.network-devices
@@ -702,14 +687,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetvlan
 %doc                    /usr/local/pf/UPGRADE
 %dir                    /usr/local/pf/var
-%dir                    /usr/local/pf/var/conf
-%dir                    /usr/local/pf/var/dhcpd
-                        /usr/local/pf/var/dhcpd/dhcpd.leases
-%dir                    /usr/local/pf/var/named
-%dir                    /usr/local/pf/var/run
-%dir                    /usr/local/pf/var/rrd
-%dir                    /usr/local/pf/var/session
-%dir                    /usr/local/pf/var/webadmin_cache
 
 # Remote snort sensor file list
 %files remote-snort-sensor
@@ -738,6 +715,12 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Thu Mar 08 2012 Olivier Bilodeau <obilodeau@inverse.ca>
+- removed most empty folders from here now into installer.pl (Makefile someday)
+- extracted version out of package (we are getting rid of versions in files 
+  to simplify devel/stable branch management)
+- source tarball changed: prefixed packetfence-<version>/ instead of pf/ 
+
 * Wed Feb 22 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.2.0-1
 - New release 3.2.0
 

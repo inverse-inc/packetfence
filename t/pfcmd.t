@@ -14,7 +14,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 91;
+use Test::More tests => 90;
 use Test::NoWarnings;
 
 use English '-no_match_vars';
@@ -316,10 +316,6 @@ is($CHILD_ERROR, 0, "pfcmd help exit with status 0");
 
 # required to have help placed into the admin guide asciidoc during build
 ok(@pfcmd_help, "pfcmd help outputs on STDOUT"); 
-
-# test version
-@output = `/usr/local/pf/bin/pfcmd version`;
-like ( $output[0], qr'PacketFence 3.2.0', "pfcmd version is correct" );
 
 # reproducing issue #1206: pid=email@address.com not accepted in pfcmd node view ...
 %cmd = pf::pfcmd::parseCommandLine('node view pid=email@address.com');
