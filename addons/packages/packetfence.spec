@@ -84,7 +84,7 @@ Requires: perl(IPTables::Parse)
 # CentOS 5 (iptables 1.3.5)
 %{?el5:Requires: perl(IPTables::libiptc) = 0.14}
 %{?el6:Requires: perl(IPTables::libiptc)}
-Requires: perl(LDAP)
+Requires: perl(Net::LDAP)
 # TODO: we depend on perl modules not perl-libwww-perl
 # find out what they are and specify them as perl(...::...) instead of perl-libwww-perl
 Requires: perl-libwww-perl
@@ -119,11 +119,12 @@ Requires: perl(Readonly), perl(Readonly::XS)
 Requires: perl(Regexp::Common)
 Requires: rrdtool, perl-rrdtool
 Requires: perl(SOAP::Lite)
-Requires: perl(Template::Toolkit)
+# Template::Toolkit - captive portal template system
+Requires: perl(Template)
 # Used by installer / configurator scripts
-Requires: perl(TermReadKey)
+Requires: perl(Term::ReadKey)
 Requires: perl(Thread::Pool)
-Requires: perl(TimeDate)
+Requires: perl(Date::Parse)
 Requires: perl(UNIVERSAL::require)
 Requires: perl(YAML)
 Requires: php-ldap
@@ -719,6 +720,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Sun Mar 11 2012 Olivier Bilodeau <obilodeau@inverse.ca>
+- Dependencies in recommended perl(A::B) notation instead of perl-A-B
+
 * Thu Mar 08 2012 Olivier Bilodeau <obilodeau@inverse.ca>
 - removed most empty folders from here now into installer.pl (Makefile someday)
 - extracted version out of package (we are getting rid of versions in files 
