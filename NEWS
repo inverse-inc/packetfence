@@ -21,6 +21,7 @@ New Hardware
 Enhancements
  * New database-driven custom VLAN assignment strategy example
  * Slightly more helpful installer.pl
+ * Added a virtual IP (vip) parameter for interfaces in configuration which overrides auto-detection (#1396)
 
 Bug Fixes
  * Proxy Bypass issues in environment with Virtual IP (#1385)

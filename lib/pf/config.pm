@@ -363,7 +363,7 @@ sub readPfConfigFiles {
                 push @listen_ints, $int if ( $int !~ /:\d+$/ );
             } elsif ( $type eq 'managed' || $type eq 'management' ) {
 
-                $int_obj->tag("vip", _fetch_virtual_ip($int));
+                $int_obj->tag("vip", _fetch_virtual_ip($int, $interface));
                 $management_network = $int_obj;
                 # adding management to dhcp listeners by default (if it's not already there)
                 push @dhcplistener_ints, $int if ( not scalar grep({ $_ eq $int } @dhcplistener_ints) );
@@ -648,7 +648,9 @@ sub is_in_list {
 
 Returns the virtual IP (vip) on a given interface.
 
-We assume that the vip has a /32 netmask and that's how we fetch it.
+First, if there's a vip parameter defined on the interface, we return that.
+
+Othwerise, we assume that the vip has a /32 netmask and that's how we fetch it.
 
 We return the first vip that matches the above criteria in decimal dotted notation (ex: 192.168.1.1).
 Undef if nothing is found.
@@ -656,7 +658,10 @@ Undef if nothing is found.
 =cut
 # TODO IPv6 support
 sub _fetch_virtual_ip {
-    my ($interface) = @_;
+    my ($interface, $config_section) = @_;
+
+    # [interface $int].vip= ... always wins
+    return $Config{$config_section}{'vip'} if defined($Config{$config_section}{'vip'});
 
     my $if = Net::Interface->new($interface);
     return if (!defined($if));
