@@ -52,6 +52,10 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}-
 
 BuildRequires: gettext, httpd, rpm-macros-rpmforge
 BuildRequires: perl(Parse::RecDescent)
+# Required to build documentation
+# See docs/docbook/README.asciidoc for more info about installing requirements.
+# TODO fop on EL5 is actually xmlgraphics-fop
+%{?el6:BuildRequires: asciidoc >= 8.6.2, fop, libxslt, docbook-style-xsl, xalan-j2 }
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget, gettext
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl, php, php-gd
@@ -138,14 +142,15 @@ Requires: perl(Text::CSV_XS)
 # BILLING ENGINE
 Requires: perl(LWP::UserAgent)
 Requires: perl(HTTP::Request::Common)
-# Required to build documentation
-# See docs/docbook/README.asciidoc for more info about installing requirements.
-# TODO fop on EL5 is actually xmlgraphics-fop
-%{?el6:BuildRequires: asciidoc >= 8.6.2, fop, libxslt, docbook-style-xsl, xalan-j2 }
-# Required for testing
-BuildRequires: perl(Test::MockObject), perl(Test::MockModule), perl(Test::Perl::Critic), perl(Test::WWW::Mechanize)
-BuildRequires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception), perl(Test::NoWarnings)
-BuildRequires: perl(Net::UDP)
+#
+# TESTING related
+#
+Requires: perl(Test::MockObject), perl(Test::MockModule)
+Requires: perl(Test::Perl::Critic), perl(Test::WWW::Mechanize)
+Requires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception)
+Requires: perl(Test::NoWarnings)
+# required for the fake CoA server
+Requires: perl(Net::UDP)
 
 %description
 
