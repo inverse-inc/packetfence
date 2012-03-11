@@ -50,8 +50,6 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}.
 Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}-%{rev}.tar.gz
 %endif
 
-# FIXME change all perl Requires: into their namespace counterpart, see what happened in #931 and
-# http://www.rpm.org/wiki/PackagerDocs/Dependencies#InterpretersandShells for discussion on why
 BuildRequires: gettext, httpd, rpm-macros-rpmforge
 BuildRequires: perl(Parse::RecDescent)
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget, gettext
@@ -63,66 +61,67 @@ Requires: dhcp, bind
 Requires: php-pear-Log
 Requires: net-tools
 Requires: net-snmp >= 5.3.2.2
-Requires: mysql, perl-DBD-mysql
+Requires: mysql, perl(DBD::mysql)
 Requires: perl >= 5.8.8, perl-suidperl
-Requires: perl-Bit-Vector
+Requires: perl(Bit::Vector)
 Requires: perl(CGI::Session), perl(JSON), perl(PHP::Session)
-Requires: perl-Class-Accessor
-Requires: perl-Class-Accessor-Fast-Contained
-Requires: perl-Class-Data-Inheritable
-Requires: perl-Class-Gomor
-Requires: perl-Config-IniFiles >= 2.40
-Requires: perl-Data-Phrasebook, perl-Data-Phrasebook-Loader-YAML
-Requires: perl-DBI
-Requires: perl-File-Tail
-Requires: perl-IPC-Cmd
-Requires: perl-IPTables-ChainMgr
-Requires: perl-IPTables-Parse
+Requires: perl(Class::Accessor)
+Requires: perl(Class::Accessor::Fast::Contained)
+Requires: perl(Class::Data::Inheritable)
+Requires: perl(Class::Gomor)
+Requires: perl(Config::IniFiles) >= 2.40
+Requires: perl(Data::Phrasebook), perl(Data::Phrasebook::Loader::YAML)
+Requires: perl(DBI)
+Requires: perl(File::Tail)
+Requires: perl(IPC::Cmd)
+Requires: perl(IPTables::ChainMgr)
+Requires: perl(IPTables::Parse)
 # Required for inline mode. Specific version matches system's iptables version.
 # CentOS 5 (iptables 1.3.5)
 %{?el5:Requires: perl(IPTables::libiptc) = 0.14}
 %{?el6:Requires: perl(IPTables::libiptc)}
-Requires: perl-LDAP
+Requires: perl(LDAP)
+# TODO: we depend on perl modules not perl-libwww-perl
+# find out what they are and specify them as perl(...::...) instead of perl-libwww-perl
 Requires: perl-libwww-perl
-Requires: perl-List-MoreUtils
-# Changed perl-Locale-gettext dependency to use the perl namespace version: perl(Locale-gettext), fixes #931
+Requires: perl(List::MoreUtils)
 Requires: perl(Locale::gettext)
-Requires: perl-Log-Log4perl >= 1.11
+Requires: perl(Log::Log4perl) >= 1.11
 # Required by switch modules
 # Net::Appliance::Session specific version added because newer versions broke API compatibility (#1312)
 # We would need to port to the new 3.x API (tracked by #1313)
-Requires: perl-Net-Appliance-Session = 1.36
+Requires: perl(Net::Appliance::Session) = 1.36
 # Required by configurator script, pf::config
 Requires: perl(Net::Interface)
-Requires: perl-Net-Frame, perl-Net-Frame-Simple
-Requires: perl-Net-MAC, perl-Net-MAC-Vendor
-Requires: perl-Net-Netmask
+Requires: perl(Net::Frame), perl(Net::Frame::Simple)
+Requires: perl(Net::MAC), perl(Net::MAC::Vendor)
+Requires: perl(Net::Netmask)
 # pfmon, pfdhcplistener
-Requires: perl-Net-Pcap >= 0.16
+Requires: perl(Net::Pcap) >= 0.16
 # pfdhcplistener
 Requires: perl(NetPacket) >= 1.2.0
 # RADIUS CoA support
 Requires: perl(Net::Radius::Dictionary), perl(Net::Radius::Packet)
 # SNMP to network hardware
-Requires: perl-Net-SNMP
+Requires: perl(Net::SNMP)
 # for SNMPv3 AES as privacy protocol, fixes #775
-Requires: perl-Crypt-Rijndael
-Requires: perl-Net-Telnet
-Requires: perl-Net-Write
-Requires: perl-Parse-Nessus-NBE
+Requires: perl(Crypt::Rijndael)
+Requires: perl(Net::Telnet)
+Requires: perl(Net::Write)
+Requires: perl(Parse::Nessus::NBE)
 Requires: perl(Parse::RecDescent)
 # Note: portability for non-x86 is questionnable for Readonly::XS
-Requires: perl-Readonly, perl(Readonly::XS)
-Requires: perl-Regexp-Common
+Requires: perl(Readonly), perl(Readonly::XS)
+Requires: perl(Regexp::Common)
 Requires: rrdtool, perl-rrdtool
-Requires: perl-SOAP-Lite
-Requires: perl-Template-Toolkit
+Requires: perl(SOAP::Lite)
+Requires: perl(Template::Toolkit)
 # Used by installer / configurator scripts
-Requires: perl-TermReadKey
-Requires: perl-Thread-Pool
-Requires: perl-TimeDate
-Requires: perl-UNIVERSAL-require
-Requires: perl-YAML
+Requires: perl(TermReadKey)
+Requires: perl(Thread::Pool)
+Requires: perl(TimeDate)
+Requires: perl(UNIVERSAL::require)
+Requires: perl(YAML)
 Requires: php-ldap
 Requires: perl(Try::Tiny)
 Requires: perl(Crypt::GeneratePassword)
@@ -163,7 +162,7 @@ as
 %package remote-snort-sensor
 Group: System Environment/Daemons
 Requires: perl >= 5.8.0, snort, perl(File::Tail), perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay)
-Requires: perl-SOAP-Lite
+Requires: perl(SOAP::Lite)
 Conflicts: packetfence
 AutoReqProv: 0
 Summary: Files needed for sending snort alerts to packetfence
@@ -177,7 +176,7 @@ server.
 Group: System Environment/Daemons
 %{?el5:Requires: freeradius2, freeradius2-perl freeradius2-mysql}
 %{?el6:Requires: freeradius, freeradius-perl freeradius-mysql}
-Requires: perl-SOAP-Lite
+Requires: perl(SOAP::Lite)
 Summary: Configuration pack for FreeRADIUS 2
 
 %description freeradius2
