@@ -52,6 +52,10 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}-
 
 BuildRequires: gettext, httpd, rpm-macros-rpmforge
 BuildRequires: perl(Parse::RecDescent)
+# Required to build documentation
+# See docs/docbook/README.asciidoc for more info about installing requirements.
+# TODO fop on EL5 is actually xmlgraphics-fop
+%{?el6:BuildRequires: asciidoc >= 8.6.2, fop, libxslt, docbook-style-xsl, xalan-j2 }
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget, gettext
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl, php, php-gd
@@ -80,7 +84,7 @@ Requires: perl(IPTables::Parse)
 # CentOS 5 (iptables 1.3.5)
 %{?el5:Requires: perl(IPTables::libiptc) = 0.14}
 %{?el6:Requires: perl(IPTables::libiptc)}
-Requires: perl(LDAP)
+Requires: perl(Net::LDAP)
 # TODO: we depend on perl modules not perl-libwww-perl
 # find out what they are and specify them as perl(...::...) instead of perl-libwww-perl
 Requires: perl-libwww-perl
@@ -115,11 +119,12 @@ Requires: perl(Readonly), perl(Readonly::XS)
 Requires: perl(Regexp::Common)
 Requires: rrdtool, perl-rrdtool
 Requires: perl(SOAP::Lite)
-Requires: perl(Template::Toolkit)
+# Template::Toolkit - captive portal template system
+Requires: perl(Template)
 # Used by installer / configurator scripts
-Requires: perl(TermReadKey)
+Requires: perl(Term::ReadKey)
 Requires: perl(Thread::Pool)
-Requires: perl(TimeDate)
+Requires: perl(Date::Parse)
 Requires: perl(UNIVERSAL::require)
 Requires: perl(YAML)
 Requires: php-ldap
@@ -138,14 +143,15 @@ Requires: perl(Text::CSV_XS)
 # BILLING ENGINE
 Requires: perl(LWP::UserAgent)
 Requires: perl(HTTP::Request::Common)
-# Required to build documentation
-# See docs/docbook/README.asciidoc for more info about installing requirements.
-# TODO fop on EL5 is actually xmlgraphics-fop
-%{?el6:BuildRequires: asciidoc >= 8.6.2, fop, libxslt, docbook-style-xsl, xalan-j2 }
-# Required for testing
-BuildRequires: perl(Test::MockObject), perl(Test::MockModule), perl(Test::Perl::Critic), perl(Test::WWW::Mechanize)
-BuildRequires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception), perl(Test::NoWarnings)
-BuildRequires: perl(Net::UDP)
+#
+# TESTING related
+#
+Requires: perl(Test::MockObject), perl(Test::MockModule)
+Requires: perl(Test::Perl::Critic), perl(Test::WWW::Mechanize)
+Requires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception)
+Requires: perl(Test::NoWarnings)
+# required for the fake CoA server
+Requires: perl(Net::UDP)
 
 %description
 
@@ -714,6 +720,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Sun Mar 11 2012 Olivier Bilodeau <obilodeau@inverse.ca>
+- Dependencies in recommended perl(A::B) notation instead of perl-A-B
+
 * Thu Mar 08 2012 Olivier Bilodeau <obilodeau@inverse.ca>
 - removed most empty folders from here now into installer.pl (Makefile someday)
 - extracted version out of package (we are getting rid of versions in files 
