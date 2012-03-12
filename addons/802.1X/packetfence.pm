@@ -227,14 +227,14 @@ sub is_eap_mac_authentication {
     if (exists($RAD_REQUEST{'EAP-Type'}) && $RAD_REQUEST{'User-Name'} =~ /[0-9a-fA-F]{12}/) {
 
         # clean station MAC
-        my $mac = $RAD_REQUEST{'Calling-Station-Id'};
+        my $mac = lc($RAD_REQUEST{'Calling-Station-Id'});
         $mac =~ s/ /0/g;
         # trim garbage
         $mac =~ s/[\s\-\.:]//g;
         if (length($mac) == 12) {
 
             # if Calling MAC and User-Name are the same thing, then we are processing a EAP Mac Auth request
-            if ($mac eq $RAD_REQUEST{'User-Name'}) {
+            if ($mac eq lc($RAD_REQUEST{'User-Name'})) {
                 return 1;
             }
         } else {
