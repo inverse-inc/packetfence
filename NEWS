@@ -26,6 +26,7 @@ Enhancements
 Bug Fixes
  * Proxy Bypass issues in environment with Virtual IP (#1385)
  * Cisco 2950 802.1X Reauthenticate without VoIP issue (#1388)
+ * RADIUS identity privacy fix (#1390)
 
 Translations
  * Updated Brazilian Portuguese (pt_BR) translation (Thanks to Diego de Souza Lopes)

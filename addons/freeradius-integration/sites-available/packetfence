@@ -40,7 +40,9 @@ session {
 
 post-auth {
         exec
-        packetfence
+        if (!EAP-Type || (EAP-Type != 21 && EAP-Type != 25)) {
+            packetfence
+        }
         Post-Auth-Type REJECT {
                 attr_filter.access_reject
         }
