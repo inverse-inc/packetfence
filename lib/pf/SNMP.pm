@@ -277,7 +277,7 @@ sub new {
         } elsif (/^-?wsTransport$/i) {
             $this->{_wsTransport} = lc($argv{$_});
         } elsif (/^-?radiusSecret$/i) {
-            $this->{_radiusSecret} = lc($argv{$_});
+            $this->{_radiusSecret} = $argv{$_};
         } elsif (/^-?controllerIp$/i) {
             $this->{_controllerIp} = lc($argv{$_});
         } elsif (/^-?uplink$/i) {
