@@ -28,6 +28,8 @@ Bug Fixes
  * Proxy Bypass issues in environment with Virtual IP (#1385)
  * Cisco 2950 802.1X Reauthenticate without VoIP issue (#1388)
  * CoA RADIUS secret is lower cased (#1392)
+ * Username length on the Web Admin is no longer limited to 15 characters
+
 Translations
  * Updated Brazilian Portuguese (pt_BR) translation (Thanks to Diego de Souza Lopes)
 
