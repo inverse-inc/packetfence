@@ -627,7 +627,6 @@ body.popup DIV#content {
     border-bottom: 1px solid #aaa;
     height: auto; /* best for FF/Webkit */
     bottom: 38px; /* best for FF/Webkit */
-    height: 395px; /* required for IE :( */
     margin: 0 auto;
     position: absolute;
     top: 63px;
