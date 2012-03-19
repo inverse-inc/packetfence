@@ -35,13 +35,6 @@ Tested on Controller 600 with RADIUS Disconnect running firmware 6.0.x
 
 =over
 
-=item The module currently doesn't work with Controllers in the MASTER / LOCAL configuration
-
-This is caused by the fact that the client state is on the LOCAL controller but for PacketFence the IP who initiated the RADIUS authentication is the IP it talks to (which is the master and not the local).
-
-Something could be done about that now since we support detached AP / Controllers.
-Let us know because we don't have the hardware to test.
-
 =item Telnet deauthentication broken on firmware 6.x
 
 We had reports that Telnet-based deauthentication is no longer working with 
@@ -387,7 +380,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009-2011 Inverse inc.
+Copyright (C) 2009-2012 Inverse inc.
 
 =head1 LICENSE
 

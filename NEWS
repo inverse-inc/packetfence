@@ -19,6 +19,9 @@ New Hardware
  * AlliedTelesis AT8000GS Switches using 802.1x without VoIP
  * Added 802.1x/Mac Authentication support for HP 2500/2600 switches (no VoIP)
 
+New Features
+ * Wireless deauthentication in Master / Local configuration supported for Aruba controllers (or other Disconnect-Message implementations)
+
 Enhancements
  * New database-driven custom VLAN assignment strategy example
  * Slightly more helpful installer.pl
