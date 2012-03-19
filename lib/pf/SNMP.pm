@@ -2593,10 +2593,20 @@ sub radiusDisconnect {
     }
 
     $logger->info("deauthenticating $mac");
+
+    # Where should we send the RADIUS Disconnect-Request?
+    # to network device by default
+    my $send_disconnect_to = $self->{'_ip'};
+    # but if controllerIp is set, we send there
+    if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
+        $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
+        $send_disconnect_to = $self->{'_controllerIp'};
+    }
+
     my $response;
     try {
         my $connection_info = {
-            nas_ip => $self->{'_ip'}, 
+            nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'}, 
             LocalAddr => $management_network->tag('vip'),
         };
@@ -2608,7 +2618,7 @@ sub radiusDisconnect {
         # Standard Attributes
         my $attributes = {
             'Calling-Station-Id' => $mac,
-            'NAS-IP-Address' => $self->{'_ip'},
+            'NAS-IP-Address' => $send_disconnect_to,
         };
 
         # The Acct-Session-Id attribute is required sometimes
