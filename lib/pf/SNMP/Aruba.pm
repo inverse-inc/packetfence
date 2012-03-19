@@ -42,6 +42,18 @@ This is caused by the fact that the client state is on the LOCAL controller but 
 Something could be done about that now since we support detached AP / Controllers.
 Let us know because we don't have the hardware to test.
 
+=item Telnet deauthentication broken on firmware 6.x
+
+We had reports that Telnet-based deauthentication is no longer working with 
+the firmware 6 series. 
+
+Although this is not a PacketFence issue, upgrading PacketFence to 3.1.0 will
+work-around this situation since we use a new RADIUS-based technique to 
+perform deauthentication on Aruba.
+
+Reported on firmware 6.1.3.1. Let us know if you have a 6.x version and you 
+are unaffected.
+
 =back 
 
 =cut
