@@ -21,6 +21,8 @@ to access SNMP enabled AlliedTelesis switches.
 
 =back
 
+Stacked switch support has not been tested.
+
 =back
 
 Tested on a AT8000GS with firmware 2.0.0.26.
@@ -86,7 +88,6 @@ sub NasPortToIfIndex {
     my ($this, $NAS_port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     
-    #NAS-Port is ifIndex (Stacked switch not tested!!)
     return $NAS_port;
 }
 
