@@ -230,6 +230,7 @@ Default implementation returns an empty list. Meant to be overridden.
 
 =cut
 sub getNodeAttributes {
+    my ($this) = @_;
     return ();
 }
 

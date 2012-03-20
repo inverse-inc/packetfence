@@ -505,19 +505,6 @@ sub getDot1dBasePortForThisIfIndex {
     return $dot1dBasePort;
 }
 
-=item NasPortToIfIndex 
-
-Translate RADIUS NAS-Port into the physical port ifIndex.
-Relies on default implmementation.
-
-=cut
-sub NasPortToIfIndex {
-    my ($this, $NAS_port) = @_;
-
-    return $this->_NasPortToIfIndex($NAS_port);
-}
-
-
 =back
 
 =head1 AUTHOR

@@ -21,9 +21,17 @@ to access SNMP enabled AlliedTelesis switches.
 
 =back
 
+Stacked switch support has not been tested.
+
 =back
 
+Tested on a AT8000GS with firmware 2.0.0.26.
+
 =head1 BUGS AND LIMITATIONS
+
+The minimum required firmware version is 2.0.0.26.
+
+Dynamic VLAN assignment on ports with voice is not supported by vendor.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -69,19 +77,6 @@ sub getVersion {
     my $runtimeSwVersion = ( $result->{$oid_alliedFirmwareVersion} || '' );
 
     return $runtimeSwVersion;
-}
-
-=item NasPortToIfIndex
-
-Translate RADIUS NAS-Port into the physical port ifIndex
-
-=cut
-sub NasPortToIfIndex {
-    my ($this, $NAS_port) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-    
-    #NAS-Port is ifIndex (Stacked switch not tested!!)
-    return $NAS_port;
 }
 
 =back

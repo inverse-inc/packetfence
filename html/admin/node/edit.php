@@ -35,6 +35,7 @@
   <title>PF::Node::Edit</title>
   <link rel="shortcut icon" href="/favicon.ico"> 
   <link rel="stylesheet" href="../style.css" type="text/css">
+  <!--[if IE]><link rel="stylesheet" type="text/css" href="../iefixes.css" /><![endif]-->
 </head>
 
 <body class="popup">

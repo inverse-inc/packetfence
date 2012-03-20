@@ -17,6 +17,10 @@ Version <version> released on <releaseDate>
 
 New Hardware
  * AlliedTelesis AT8000GS Switches using 802.1x/Mac Authentication without VoIP
+ * Added 802.1x/Mac Authentication support for HP 2500/2600 switches (no VoIP)
+
+New Features
+ * Wireless deauthentication in Master / Local configuration supported for Aruba controllers (or other Disconnect-Message implementations)
 
 Enhancements
  * New database-driven custom VLAN assignment strategy example
@@ -28,6 +32,8 @@ Bug Fixes
  * Cisco 2950 802.1X Reauthenticate without VoIP issue (#1388)
  * RADIUS identity privacy fix (#1390)
  * Cisco MAB EAP was not properly working (#1391)
+ * CoA RADIUS secret is lower cased (#1392)
+ * Username length on the Web Admin is no longer limited to 15 characters
 
 Translations
  * Updated Brazilian Portuguese (pt_BR) translation (Thanks to Diego de Souza Lopes)

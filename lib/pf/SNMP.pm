@@ -277,7 +277,7 @@ sub new {
         } elsif (/^-?wsTransport$/i) {
             $this->{_wsTransport} = lc($argv{$_});
         } elsif (/^-?radiusSecret$/i) {
-            $this->{_radiusSecret} = lc($argv{$_});
+            $this->{_radiusSecret} = $argv{$_};
         } elsif (/^-?controllerIp$/i) {
             $this->{_controllerIp} = lc($argv{$_});
         } elsif (/^-?uplink$/i) {
@@ -2397,27 +2397,15 @@ sub _dot1xPortReauthenticate {
 
 Translate RADIUS NAS-Port into the physical port ifIndex
 
+Default fallback implementation: we just return the NAS-Port as ifIndex.
+
 =cut
 sub NasPortToIfIndex {
-    my ($this, $NAS_port) = @_;
+    my ($this, $nas_port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    $logger->warn(
-        "This switch model doesn't seem to implement 802.1X or a degraded variant "
-        . "like MAC Authentication. Please let us know what hardware you are using"
-    );
-    return $this->_NasPortToIfIndex($NAS_port);
-}
-
-=item _NasPortToIfIndex 
-
-Default fallback implementation of NasPortToIfIndex, we just return the NAS-Port as ifIndex.
-
-=cut
-sub _NasPortToIfIndex {
-    my ($this, $NAS_port) = @_;
-
-    return $NAS_port;
+    $logger->trace("Fallback implementation. Returning NAS-Port as ifIndex: $nas_port");
+    return $nas_port;
 }
 
 =item handleReAssignVlanTrapForWiredMacAuth
@@ -2593,10 +2581,20 @@ sub radiusDisconnect {
     }
 
     $logger->info("deauthenticating $mac");
+
+    # Where should we send the RADIUS Disconnect-Request?
+    # to network device by default
+    my $send_disconnect_to = $self->{'_ip'};
+    # but if controllerIp is set, we send there
+    if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
+        $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
+        $send_disconnect_to = $self->{'_controllerIp'};
+    }
+
     my $response;
     try {
         my $connection_info = {
-            nas_ip => $self->{'_ip'}, 
+            nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'}, 
             LocalAddr => $management_network->tag('vip'),
         };
@@ -2608,7 +2606,7 @@ sub radiusDisconnect {
         # Standard Attributes
         my $attributes = {
             'Calling-Station-Id' => $mac,
-            'NAS-IP-Address' => $self->{'_ip'},
+            'NAS-IP-Address' => $send_disconnect_to,
         };
 
         # The Acct-Session-Id attribute is required sometimes

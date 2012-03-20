@@ -77,8 +77,9 @@ use pf::enforcement;
 use pf::pfcmd;
 use pf::util;
 
-
+# Perl taint mode setup (see: perlsec)
 delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
+$ENV{PATH} = "/bin:/sbin:/usr/bin:/usr/sbin";
 
 # Uncomment the following line to enable tracing in the grammar
 # Warning: doing so will break the web admin
@@ -93,28 +94,6 @@ Log::Log4perl::MDC->put( 'tid',  $PROCESS_ID );
 Readonly my $delimiter => '|';
 use vars qw/%cmd $grammar/;
 my $command;
-
-if ( defined( $ENV{'PATH'} ) ) {
-    my @PATH = split( /:/, $ENV{'PATH'} );
-    my $pos = 0;
-    while ( ( $pos < scalar(@PATH) ) && ( !( -x "$PATH[$pos]/getenforce" ) ) )
-    {
-        $pos++;
-    }
-    if ( $pos < scalar(@PATH) ) {
-        my $enforcing = `$PATH[$pos]/getenforce`;
-        if ( $enforcing eq "Enforcing\n" ) {
-            $logger->fatal(
-                'SELinux is in enforcing mode. This is currently not supported in PacketFence'
-            );
-            $logger->logdie(
-                'SELinux is in enforcing mode. This is currently not supported in PacketFence'
-            );
-        }
-    }
-}
-
-$ENV{PATH} = "/bin:/sbin:/usr/bin:/usr/sbin";
 
 my $count  = $ENV{PER_PAGE};
 my $offset = $ENV{PAGE_NUM};

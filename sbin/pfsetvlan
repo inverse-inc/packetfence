@@ -1889,7 +1889,7 @@ sub check_traps_limit_threshold {
         $email{'subject'} = "Too many traps coming from switch $switchIp";
         $email{'message'} = "Too many SNMP traps were received from a switchport according to the threshold.\n\n";
         $email{'message'} .= "Switch: $switchIp\n";
-        $email{'message'} .= "Port: $switchIfIndex\n";
+        $email{'message'} .= "ifIndex: $switchIfIndex\n";
         $email{'message'} .= "Threshold: maximum $trapsLimitThreshold SNMP traps per 1 minute.\n";
 
         if ( is_in_list('shut', $trapsLimitAction) ) {

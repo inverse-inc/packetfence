@@ -13,6 +13,9 @@ oriented interface to access SNMP enabled HP Procurve 2500 switches.
 
 We've got reports that the HP ProCurve's 5412zl and 8212zl work correctly with this module.
 
+Some clients report that 802.1x and Mac Authentication should work, however we did not test it lab.
+We are also not sure about the VoIP using 802.1X/Mac Auth.
+
 =cut
 
 use strict;
@@ -20,6 +23,16 @@ use warnings;
 use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::HP');
+
+# importing switch constants
+use pf::SNMP::constants;
+use pf::util;
+use pf::config;
+
+# CAPABILITIES
+# access technology supported
+sub supportsWiredMacAuth { return $TRUE; }
+sub supportsWiredDot1x { return $TRUE; }
 
 sub getMaxMacAddresses {
     my ( $this, $ifIndex ) = @_;
