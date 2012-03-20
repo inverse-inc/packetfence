@@ -79,18 +79,6 @@ sub getVersion {
     return $runtimeSwVersion;
 }
 
-=item NasPortToIfIndex
-
-Translate RADIUS NAS-Port into the physical port ifIndex
-
-=cut
-sub NasPortToIfIndex {
-    my ($this, $NAS_port) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-    
-    return $NAS_port;
-}
-
 =back
 
 =head1 AUTHOR
