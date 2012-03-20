@@ -2397,27 +2397,15 @@ sub _dot1xPortReauthenticate {
 
 Translate RADIUS NAS-Port into the physical port ifIndex
 
+Default fallback implementation: we just return the NAS-Port as ifIndex.
+
 =cut
 sub NasPortToIfIndex {
-    my ($this, $NAS_port) = @_;
+    my ($this, $nas_port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    $logger->warn(
-        "This switch model doesn't seem to implement 802.1X or a degraded variant "
-        . "like MAC Authentication. Please let us know what hardware you are using"
-    );
-    return $this->_NasPortToIfIndex($NAS_port);
-}
-
-=item _NasPortToIfIndex 
-
-Default fallback implementation of NasPortToIfIndex, we just return the NAS-Port as ifIndex.
-
-=cut
-sub _NasPortToIfIndex {
-    my ($this, $NAS_port) = @_;
-
-    return $NAS_port;
+    $logger->trace("Fallback implementation. Returning NAS-Port as ifIndex: $nas_port");
+    return $nas_port;
 }
 
 =item handleReAssignVlanTrapForWiredMacAuth
