@@ -16,7 +16,9 @@ Developed and tested on HP MSM 710 running firmware version 5.4.1.0
 
 =head1 BUGS AND LIMITATIONS
 
-Firmware version 5.5.2.14 and 5.5.3 are known to have problematic deauthentication.
+Firmware version 5.5.2.14 and 5.5.3 are known to have problematic deauthentication. Firmware version 5.7.0 also
+presents some issues, the SNMP deauthentication is not working.
+
 
 =cut
 
