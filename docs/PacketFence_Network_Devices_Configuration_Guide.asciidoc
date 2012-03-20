@@ -380,7 +380,9 @@ AlliedTelesis
 
 AT8000GS
 ^^^^^^^^
+
 PacketFence supports the AT8000GS switch using :
+
 * Mac Authentication (mac-only)
 * 802.1X
 
@@ -390,9 +392,11 @@ Mac Authentication
 ++++++++++++++++++
 
 First, activate 802.1X globally:
+
    dot1x system-auth-control
 
 Next, configure the RADIUS server and AAA settings:
+
    radius-server host 10.0.0.100               
    radius-server key qwerty
    radius-server source-ip 10.0.0.14
@@ -400,12 +404,14 @@ Next, configure the RADIUS server and AAA settings:
    aaa accounting dot1x radius
 
 In order to get mac authentication, you need to enable the guest VLAN globally: 
+
    interface vlan 5
    name "Guest Vlan"
    dot1x guest-vlan
    exit
 
 Finally, enable the necessary 802.1X settings for mac-only authentication:
+
    interface ethernet g1
    dot1x mac-authentication mac-only
    dot1x radius-attributes vlan                
@@ -419,9 +425,11 @@ Finally, enable the necessary 802.1X settings for mac-only authentication:
 The settings are almost the same as the MAC Authentication with some small differences.
 
 First, activate 802.1X globally:
+
    dot1x system-auth-control
 
 Next, configure the RADIUS server and AAA settings:
+
    radius-server host 10.0.0.100
    radius-server key qwerty
    radius-server source-ip 10.0.0.14
@@ -429,6 +437,7 @@ Next, configure the RADIUS server and AAA settings:
    aaa accounting dot1x radius
 
 Finally, enable the necessary 802.1X settings:
+
    interface ethernet g1    
    dot1x radius-attributes vlan
    dot1x port-control auto
