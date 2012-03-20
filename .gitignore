@@ -1,0 +1,16 @@
+# translations
+conf/locale/*/*/*.mo
+
+# SSL certificates
+conf/ssl/
+
+# documentation build temporary artifacts
+docs/docbook/xsl/titlepage-fo.xsl
+docs/docbook/.*\.docbook
+
+# built by package or installer
+lib/pf/pfcmd/pfcmd_pregrammar.pm
+
+# directories that can be ignored
+logs/
+var/
