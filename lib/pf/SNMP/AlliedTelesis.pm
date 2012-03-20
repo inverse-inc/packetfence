@@ -23,7 +23,13 @@ to access SNMP enabled AlliedTelesis switches.
 
 =back
 
+Tested on a AT8000GS with firmware 2.0.0.26.
+
 =head1 BUGS AND LIMITATIONS
+
+The minimum required firmware version is 2.0.0.26.
+
+Dynamic VLAN assignment on ports with voice is not supported by vendor.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 

@@ -13,23 +13,6 @@ to access SNMP enabled AT8000GS switches.
 
 This module is currently only a placeholder, see pf::SNMP::AlliedTelesis
 
-=over 
-
-=item Supports
-
-=over
-
-=item 802.1X/Mac Authentication without VoIP
-
-=back
-
-=back
-
-=head1 BUGS AND LIMITATIONS
-
-The minimum required firmware version is 2.0.0.26.  However, you cannot do dynamic VLAN assignment
-on ports with voice.
-
 =head1 CONFIGURATION AND ENVIRONMENT
 
 F<conf/switches.conf>
