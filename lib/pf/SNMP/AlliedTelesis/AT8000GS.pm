@@ -52,10 +52,6 @@ use pf::config;
 =over
 
 =cut
-# CAPABILITIES
-# access technology supported
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
 
 =back
 
