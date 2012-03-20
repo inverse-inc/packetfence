@@ -109,7 +109,6 @@
                            'Accton::ES3526XA' => 'Accton ES3526XA', 
                            'Accton::ES3528M' => 'Accton ES3528M',
                            'AeroHIVE::AP' => 'AeroHIVE AP',
-                           'AlliedTelesis::AT8000GS' => 'AlliedTelesis AT8000GS',
                            'Amer::SS2R24i' => 'Amer SS2R24i',
                            'Aruba' => 'Aruba Networks',
                            'Avaya::WC' => 'Avaya Wireless Controller', 

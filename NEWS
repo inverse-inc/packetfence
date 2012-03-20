@@ -16,7 +16,7 @@ For a list of compatibility related changes see the UPGRADE file.
 Version <version> released on <releaseDate>
 
 New Hardware
- * AlliedTelesis AT8000GS Switches using 802.1x/Mac Authentication without VoIP
+ * AlliedTelesis AT8000GS Switches using 802.1x without VoIP
  * Added 802.1x/Mac Authentication support for HP 2500/2600 switches (no VoIP)
 
 New Features
