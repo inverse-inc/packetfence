@@ -72,6 +72,7 @@ PacketFence supports the following devices:
 |                 |SuperStack 3 Switch 4500    |ThreeCom::SS4500 
 |                 |Switch 4200G                |ThreeCom::Switch_4200G 
 |Aerohive         |All AP models               |AeroHIVE::AP 
+|AlliedTelesis    |AlliedTelesis AT8000GS      |AlliedTelesis::AT8000GS
 |Amer             |L2 Switch SS2R24i           |Amer::SS2R24i
 |Aruba            |All Controllers             |Aruba
 |Avaya            |Wireless Controllers        |Avaya::WC
@@ -373,6 +374,73 @@ NJ220
 This switch does not support port-security. 
 
 To configure: use web interface to send the linkUp/linkDown traps to the PacketFence server. 
+
+AlliedTelesis
+~~~~~~~~~~~~~
+
+AT8000GS
+^^^^^^^^
+
+PacketFence supports the AT8000GS switch using :
+
+* Mac Authentication (mac-only)
+* 802.1X
+
+VoIP support is limited using 802.1X/MAC authentication.  We do have a limitation where the phone needs to be on the same VLAN as the PC (no voice VLAN concept).
+
+Mac Authentication
+++++++++++++++++++
+
+First, activate 802.1X globally:
+
+   dot1x system-auth-control
+
+Next, configure the RADIUS server and AAA settings:
+
+   radius-server host 10.0.0.100               
+   radius-server key qwerty
+   radius-server source-ip 10.0.0.14
+   aaa authentication dot1x default radius 
+   aaa accounting dot1x radius
+
+In order to get mac authentication, you need to enable the guest VLAN globally: 
+
+   interface vlan 5
+   name "Guest Vlan"
+   dot1x guest-vlan
+   exit
+
+Finally, enable the necessary 802.1X settings for mac-only authentication:
+
+   interface ethernet g1
+   dot1x mac-authentication mac-only
+   dot1x radius-attributes vlan                
+   dot1x port-control auto
+   dot1x guest-vlan enable
+
+
+802.1X
+++++++
+
+The settings are almost the same as the MAC Authentication with some small differences.
+
+First, activate 802.1X globally:
+
+   dot1x system-auth-control
+
+Next, configure the RADIUS server and AAA settings:
+
+   radius-server host 10.0.0.100
+   radius-server key qwerty
+   radius-server source-ip 10.0.0.14
+   aaa authentication dot1x default radius
+   aaa accounting dot1x radius
+
+Finally, enable the necessary 802.1X settings:
+
+   interface ethernet g1    
+   dot1x radius-attributes vlan
+   dot1x port-control auto
 
 Amer 
 ~~~~
