@@ -8,6 +8,10 @@ conf/ssl/
 docs/docbook/xsl/titlepage-fo.xsl
 docs/docbook/.*\.docbook
 
+# trap stats graphs
+# TODO we should move them under var/
+html/admin/traplog/
+
 # built by package or installer
 lib/pf/pfcmd/pfcmd_pregrammar.pm
 
