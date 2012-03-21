@@ -295,8 +295,8 @@ sub validate_selfregistration {
     $session->param("phone", pf::web::util::validate_phone_number($cgi->param("phone")));
     $session->param("email", $cgi->param("email")); 
     $session->param("sponsor", $cgi->param("sponsor_email")); 
-    # by general policy email is the username
-    $session->param("login", $cgi->param("email"));
+    # guest pid is configurable (defaults to email)
+    $session->param("guest_pid", $cgi->param($Config{'guests_self_registration'}{'guest_pid'}));
     return ($TRUE, 0);
 }
 

@@ -292,6 +292,11 @@ allow_localdomain=enabled
 # sponsor_email. Basic validation of minimally required values per guest mode 
 # is provided by default.
 mandatory_fields=firstname,lastname,phone,email
+#
+# guests_self_registration.guest_pid
+#
+# What field should we assign to the pid of the guest? Defaults to email.
+guest_pid=email
 
 
 [guests_pre_registration]

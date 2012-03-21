@@ -12,6 +12,7 @@ use lib '/usr/local/pf/lib';
 use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
+use Date::Format qw(time2str);
 use Log::Log4perl;
 use Readonly;
 use POSIX;
@@ -68,21 +69,21 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
     # Email
     if ($auth_return && defined($cgi->param('by_email')) && defined($guest_self_registration{$SELFREG_MODE_EMAIL})) {
       # User chose to register by email
-      $logger->info("Registering guest by email");
+      $logger->info("registering $mac guest by email");
 
       # form valid, adding person (using modify in case person already exists)
-      person_modify($session->param("login"), (
+      person_modify($session->param('guest_pid'), (
           'firstname' => $session->param("firstname"),
           'lastname' => $session->param("lastname"),
           'company' => $session->param('company'),
           'email' => $session->param("email"),
           'telephone' => $session->param("phone"),
-          'notes' => 'email activation',
+          'notes' => 'email activation. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time),
       ));
-      $logger->info("Adding guest person " . $session->param("login"));
+      $logger->info("Adding guest person " . $session->param('guest_pid'));
 
       # grab additional info about the node
-      $info{'pid'} = $session->param("login");
+      $info{'pid'} = $session->param('guest_pid');
       $info{'category'} = $Config{'guests_self_registration'}{'category'};
 
       # unreg in guests.email_activation_timeout seconds
@@ -109,35 +110,29 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
     # SMS
     elsif ( $auth_return && defined($cgi->param('by_sms')) && defined($guest_self_registration{$SELFREG_MODE_SMS}) ) {
       # User chose to register by SMS
-      $logger->info("Registering guest by SMS " . $session->param("phone") . " @ " . $cgi->param("mobileprovider"));
-      if ($session->param("phone") && $cgi->param("mobileprovider")) {
-        ($auth_return, $err, $errargs_ref) = sms_activation_create_send($mac, $session->param("phone"), $cgi->param("mobileprovider") );
-        if ($auth_return) {
+      $logger->info("registering $mac guest by SMS " . $session->param("phone") . " @ " . $cgi->param("mobileprovider"));
+      ($auth_return, $err, $errargs_ref) = sms_activation_create_send($mac, $session->param("phone"), $cgi->param("mobileprovider") );
+      if ($auth_return) {
 
           # form valid, adding person (using modify in case person already exists)
-          $logger->info("Adding guest person " . $session->param("phone"));
-          person_modify($session->param("phone"), (
+          $logger->info("Adding guest person " . $session->param('guest_pid') . "(" . $session->param("phone") . ")");
+          person_modify($session->param('guest_pid'), (
               'firstname' => $session->param("firstname"),
               'lastname' => $session->param("lastname"),
               'company' => $session->param('company'),
               'email' => $session->param("email"),
               'telephone' => $session->param("phone"),
-              'notes' => 'sms confirmation',
+              'notes' => 'sms confirmation. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time),
           ));
-          $session->param("token", $session->param("phone"));
 
           $logger->info("redirecting to mobile confirmation page");
           pf::web::guest::generate_sms_confirmation_page($cgi, $session, "/activate/sms", $destination_url, $err, $errargs_ref);
           exit(0);
-        }
-      }
-      else {
-        ($auth_return, $err) = ($FALSE, $GUEST::ERROR_INVALID_FORM);
       }
     }
 
     # Registration form was invalid, return to guest self-registration page and show error message
-    if ($auth_return != 1) {
+    if ($auth_return != $TRUE) {
         $logger->info("Missing information for self-registration");
         pf::web::guest::generate_selfregistration_page(
             $cgi, $session, "/signup?mode=$GUEST_REGISTRATION", $destination_url, $mac, $err, $errargs_ref

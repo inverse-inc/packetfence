@@ -74,7 +74,7 @@ if ($cgi->param("pin")) { # && $session->param("authType")) {
    
     my $maxnodes = 0;
     $maxnodes = $Config{'registration'}{'maxnodes'} if (defined $Config{'registration'}{'maxnodes'});
-    my $pid = $session->param( "token" ) || 1;
+    my $pid = $session->param( "guest_pid" ) || 1;
 
     my $node_count = 0;
     $node_count = node_pid($pid) if ($pid ne '1');
@@ -92,7 +92,7 @@ if ($cgi->param("pin")) { # && $session->param("authType")) {
 
     pf::web::web_node_register($cgi, $session, $mac, $pid, %info);
     # clear state that redirects to the Enter PIN page
-    $session->clear(["token"]);
+    $session->clear(["guest_pid"]);
 
     pf::web::end_portal_session($cgi, $session, $mac, $destination_url);
 
