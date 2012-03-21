@@ -44,7 +44,6 @@ BEGIN {
     @ISA    = qw(Exporter);
     @EXPORT = qw(
         sms_carrier_view_all
-        validate_phone_number
         sms_activation_create_send
         validate_code
     );
@@ -132,25 +131,6 @@ sub sms_carrier_view_all {
 #        || return (0);
 #    return (1);
 #},
-
-=item validate_phone_number
-
-Returns phone number in xxxyyyzzzz format if valid undef otherwise.
-
-=cut
-sub validate_phone_number {
-    my ($phone_number) = @_;
-    if ($phone_number =~ /
-        ^\(?([2-9]\d{2})\)?  # captures first 3 digits allows optional parenthesis
-        (?:-|.|\s)?          # separator -, ., sapce or nothing
-        (\d{3})              # captures 3 digits
-        (?:-|.|\s)?          # separator -, ., sapce or nothing
-        (\d{4})$             # captures last 4 digits
-        /x) {
-        return "$1$2$3";
-    }
-    return;
-}
 
 =item add - add an sms activation record to the database
 
