@@ -242,7 +242,8 @@ nbregpages=0
 # registration.guests_self_registration
 #
 # Is the guest self-registration feature enabled or not. Self-registration 
-# is the signup button where a guest can register by email or SMS.
+# is the signup button where a guest can register by email, SMS or be sponsored 
+# their access.
 guests_self_registration=enabled
 #
 # registation.billing_engine
@@ -255,10 +256,10 @@ billing_engine = disabled
 # guests_self_registration.modes
 # 
 # Self-registration is the signup button where a guest can register by
-# email or SMS. sms or email modes are available and both can be enabled
-# at the same time. To disable guest self-registration entirely don't
-# select any option or empty the line.
-modes=sms,email
+# email, SMS or sponsored by someone. Several modes can be enabled at the same 
+# time. To disable guest self-registration entirely see the 
+# guests_self_registration parameter under [registration].
+modes=sms,email,sponsor
 #
 # guests_self_registration.category
 #

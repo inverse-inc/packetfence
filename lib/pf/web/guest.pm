@@ -81,9 +81,12 @@ Sub to present to a guest so that it can self-register (guest.html).
 sub generate_selfregistration_page {
     my ( $cgi, $session, $post_uri, $destination_url, $mac, $err ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
+    $logger->info('generate_selfregistration_page');
+
     setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
+
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
     my $ip   = $cgi->remote_addr;
@@ -102,15 +105,19 @@ sub generate_selfregistration_page {
     # put seperately because of side effects in anonymous hashref
     $vars->{'firstname'} = $cgi->param("firstname");
     $vars->{'lastname'} = $cgi->param("lastname");
+
+    $vars->{'organization'} = $cgi->param("organization");
     $vars->{'phone'} = $cgi->param("phone");
-    $vars->{'email'} = $cgi->param("email");
     $vars->{'mobileprovider'} = $cgi->param("mobileprovider");
+    $vars->{'email'} = $cgi->param("email");
+
+    $vars->{'sponsor_email'} = $cgi->param("sponsor_email");
 
     $vars->{'sms_carriers'} = sms_carrier_view_all();
-    $logger->info('generate_selfregistration_page');
 
-    $vars->{'sms_guest_allowed'} = defined($guest_self_registration{$SELFREG_MODE_SMS});
     $vars->{'email_guest_allowed'} = defined($guest_self_registration{$SELFREG_MODE_EMAIL});
+    $vars->{'sms_guest_allowed'} = defined($guest_self_registration{$SELFREG_MODE_SMS});
+    $vars->{'sponsored_guest_allowed'} = defined($guest_self_registration{$SELFREG_MODE_SPONSOR});
 
     # showing errors
     if ( defined($err) ) {
