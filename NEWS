@@ -27,6 +27,7 @@ Enhancements
  * Slightly more helpful installer.pl
  * Added a virtual IP (vip) parameter for interfaces in configuration which overrides auto-detection (#1396)
  * More logging
+ * New parameter available to control what information is mandatory to be provided by a guest signing-up (guests_self_registration.mandatory_fields)
  * Daemon startup time logged. Allows for easier troubleshooting of slow-to-restart setups.
 
 Bug Fixes

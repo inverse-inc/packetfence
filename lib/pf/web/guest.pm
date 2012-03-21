@@ -53,7 +53,7 @@ use pf::web::auth;
 use pf::web::util;
 use pf::sms_activation;
 
-our $VERSION = 1.20;
+our $VERSION = 1.30;
 
 our $LOGIN_TEMPLATE = "login.html";
 our $SELF_REGISTRATION_TEMPLATE = "guest.html";
@@ -243,36 +243,61 @@ Sub to validate self-registering guests, this is not hooked-up by default
 
 =cut
 sub validate_selfregistration {
-
     my ($cgi, $session) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web::guest');
-    if ($cgi->param("firstname") || $cgi->param("lastname") || $cgi->param("phone") || $cgi->param("email")) {
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-        my $valid_email = ($cgi->param('email') =~ /^[A-z0-9_.-]+@[A-z0-9_-]+(\.[A-z0-9_-]+)*\.[A-z]{2,6}$/);
-        my $valid_name = ($cgi->param("firstname") =~ /\w/ && $cgi->param("lastname") =~ /\w/);
+    # mandatory parameters are defined in config
+    my @mandatory_fields = split( /\s*,\s*/, $Config{'guests_self_registration'}{'mandatory_fields'} );
 
-        if ($valid_email && $valid_name && $cgi->param("phone") ne '' && length($cgi->param("aup_signed"))) {
+    # no matter what is defined as mandatory, these are the minimum fields required per mode
+    push @mandatory_fields, ('email') if (defined($cgi->param('by_email')));
+    push @mandatory_fields, ('sponsor_email') if (defined($cgi->param('by_sponsor')));
+    push @mandatory_fields, ('phone', 'mobileprovider') if (defined($cgi->param('by_sms')));
 
-          unless (isenabled($Config{'guests_self_registration'}{'allow_localdomain'})) {
-            # You should not register as a guest if you are part of the local network
-            my $localdomain = $Config{'general'}{'domain'};
-            if ($cgi->param('email') =~ /[@.]$localdomain$/i) {
-                return ($FALSE, $GUEST::ERROR_EMAIL_UNAUTHORIZED_AS_GUEST, [ $localdomain ]);
-            }
-          }
+    # build hashlookup (collapses redundant checks together)
+    my %mandatory_fields = map { $_ => $TRUE } @mandatory_fields;
 
-          # auth accepted, save login information in session (we will use them to put the guest in the db)
-          $session->param("firstname", $cgi->param("firstname"));
-          $session->param("lastname", $cgi->param("lastname"));
-          $session->param("email", $cgi->param("email")); 
-          $session->param("login", $cgi->param("email"));
-          $session->param("phone", $cgi->param("phone"));
-          return ($TRUE, 0);
-        } else {
-            return ($FALSE, $GUEST::ERROR_INVALID_FORM);
+    my @missing_fields;
+    foreach my $required_field (keys %mandatory_fields) {
+        # mandatory must be non-empty
+        push @missing_fields, $required_field if ( !$cgi->param($required_field) );
+    }
+
+    # some mandatory fields are missing
+    if (@missing_fields) {
+        return ( $FALSE, $GUEST::ERROR_MISSING_MANDATORY_FIELDS, [ join(", ", map { i18n($_) } @missing_fields) ] );
+    }
+
+    if ( $mandatory_fields{'email'} && !pf::web::util::is_email_valid($cgi->param('email')) ) {
+        return ($FALSE, $GUEST::ERROR_ILLEGAL_EMAIL);
+    }
+
+    if ( $mandatory_fields{'phone'} && !pf::web::util::validate_phone_number($cgi->param('phone')) ) {
+        return ($FALSE, $GUEST::ERROR_ILLEGAL_PHONE);
+    }
+
+    if (!length($cgi->param("aup_signed"))) {
+        return ($FALSE, $GUEST::ERROR_AUP_NOT_ACCEPTED);
+    }
+
+    unless (isenabled($Config{'guests_self_registration'}{'allow_localdomain'})) {
+        # You should not register as a guest if you are part of the local network
+        my $localdomain = $Config{'general'}{'domain'};
+        if ($cgi->param('email') =~ /[@.]$localdomain$/i) {
+            return ($FALSE, $GUEST::ERROR_EMAIL_UNAUTHORIZED_AS_GUEST, [ $localdomain ]);
         }
     }
-    return ($FALSE, $GUEST::ERROR_INVALID_FORM);
+
+    # auth accepted, save login information in session (we will use them to put the guest in the db)
+    $session->param("firstname", $cgi->param("firstname"));
+    $session->param("lastname", $cgi->param("lastname"));
+    $session->param("company", $cgi->param("organization")); 
+    $session->param("phone", pf::web::util::validate_phone_number($cgi->param("phone")));
+    $session->param("email", $cgi->param("email")); 
+    $session->param("sponsor", $cgi->param("sponsor_email")); 
+    # by general policy email is the username
+    $session->param("login", $cgi->param("email"));
+    return ($TRUE, 0);
 }
 
 =item validate_registration
@@ -824,6 +849,10 @@ Readonly::Scalar our $ERROR_INVALID_FORM => 1;
 Readonly::Scalar our $ERROR_EMAIL_UNAUTHORIZED_AS_GUEST => 2;
 Readonly::Scalar our $ERROR_CONFIRMATION_EMAIL => 3;
 Readonly::Scalar our $ERROR_CONFIRMATION_SMS => 4;
+Readonly::Scalar our $ERROR_MISSING_MANDATORY_FIELDS => 5;
+Readonly::Scalar our $ERROR_ILLEGAL_EMAIL => 6;
+Readonly::Scalar our $ERROR_ILLEGAL_PHONE => 7;
+Readonly::Scalar our $ERROR_AUP_NOT_ACCEPTED => 8;
 
 =item errors 
 
@@ -835,6 +864,10 @@ Readonly::Hash our %ERRORS => (
     $ERROR_EMAIL_UNAUTHORIZED_AS_GUEST => q{You can't register as a guest with a %s email address. Please register as a regular user using your email address instead.},
     $ERROR_CONFIRMATION_EMAIL => 'An error occured while sending the confirmation email.',
     $ERROR_CONFIRMATION_SMS => 'An error occured while sending the PIN by SMS.',
+    $ERROR_MISSING_MANDATORY_FIELDS => 'Missing mandatory parameter(s): %s',
+    $ERROR_ILLEGAL_EMAIL => 'Illegal email address provided',
+    $ERROR_ILLEGAL_PHONE => 'Illegal phone number provided',
+    $ERROR_AUP_NOT_ACCEPTED => 'Acceptable Use Policy (AUP) was not accepted',
 );
 
 =back
