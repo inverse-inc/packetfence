@@ -1,3 +1,6 @@
+# temporary files
+*.swp
+
 # translations
 conf/locale/*/*/*.mo
 
