@@ -77,6 +77,8 @@ BEGIN {
 use pf::config;
 use pf::db;
 use pf::util;
+# TODO this dependency is unfortunate, ideally it wouldn't be in that direction
+use pf::web::guest;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $email_activation_db_prepared = 0;
@@ -352,11 +354,11 @@ sub create_and_email_activation_code {
     my ($mac, $pid, $email_addr, $template, %info) = @_;
     my $logger = Log::Log4perl::get_logger('pf::email_activation');
 
-    my ($success, $err) = (1, 0);
+    my ($success, $err) = ($TRUE, 0);
     my $activation_code = create($mac, $pid, $email_addr);
     if (defined($activation_code)) {
       unless (send_email($activation_code, $template, %info)) {
-        ($success, $err) = (0, 3);
+        ($success, $err) = ($FALSE, $GUEST::ERROR_CONFIRMATION_EMAIL);
       }
     }
 

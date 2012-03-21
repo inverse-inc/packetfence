@@ -63,7 +63,7 @@ if (!valid_mac($mac)) {
 if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGISTRATION) {
 
     # authenticate
-    my ($auth_return, $err) = pf::web::guest::validate_selfregistration($cgi, $session);
+    my ($auth_return, $err, $errargs_ref) = pf::web::guest::validate_selfregistration($cgi, $session);
 
     # Registration form was properly filled
     if ($auth_return && defined($cgi->param('by_email')) && defined($guest_self_registration{$SELFREG_MODE_EMAIL})) {
@@ -99,7 +99,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
       $info{'subject'} = $Config{'general'}{'domain'}.': Email activation required';
       
       # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
-      ($auth_return, $err) = pf::email_activation::create_and_email_activation_code($mac, $info{'pid'}, $info{'pid'}, $pf::email_activation::GUEST_TEMPLATE, %info);
+      ($auth_return, $err, $errargs_ref) = pf::email_activation::create_and_email_activation_code($mac, $info{'pid'}, $info{'pid'}, $pf::email_activation::GUEST_TEMPLATE, %info);
 
       # does the necessary captive portal escape sequence (violations, provisionning, etc.)
       pf::web::end_portal_session($cgi, $session, $mac, $destination_url) if ($auth_return);
@@ -110,7 +110,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
       # User chose to register by SMS
       $logger->info("Registering guest by SMS " . $session->param("phone") . " @ " . $cgi->param("mobileprovider"));
       if ($session->param("phone") && $cgi->param("mobileprovider")) {
-        ($auth_return, $err) = sms_activation_create_send($mac, $session->param("phone"), $cgi->param("mobileprovider") );
+        ($auth_return, $err, $errargs_ref) = sms_activation_create_send($mac, $session->param("phone"), $cgi->param("mobileprovider") );
         if ($auth_return) {
 
           # form valid, adding person (using modify in case person already exists)
@@ -125,12 +125,12 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
           $session->param("token", $session->param("phone"));
 
           $logger->info("redirecting to mobile confirmation page");
-          pf::web::guest::generate_sms_confirmation_page($cgi, $session, "/activate/sms", $destination_url, $err);
+          pf::web::guest::generate_sms_confirmation_page($cgi, $session, "/activate/sms", $destination_url, $err, $errargs_ref);
           exit(0);
         }
       }
       else {
-        ($auth_return, $err) = (0, 1);
+        ($auth_return, $err) = ($FALSE, $GUEST::ERROR_INVALID_FORM);
       }
     }
 
@@ -138,7 +138,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
     if ($auth_return != 1) {
         $logger->info("Missing information for self-registration");
         pf::web::guest::generate_selfregistration_page(
-            $cgi, $session, "/signup?mode=$GUEST_REGISTRATION", $destination_url, $mac, $err
+            $cgi, $session, "/signup?mode=$GUEST_REGISTRATION", $destination_url, $mac, $err, $errargs_ref
         );
         exit(0);
     }

@@ -79,7 +79,7 @@ Sub to present to a guest so that it can self-register (guest.html).
 
 =cut
 sub generate_selfregistration_page {
-    my ( $cgi, $session, $post_uri, $destination_url, $mac, $err ) = @_;
+    my ( $cgi, $session, $post_uri, $destination_url, $mac, $error_code, $error_args_ref ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
     $logger->info('generate_selfregistration_page');
 
@@ -119,18 +119,11 @@ sub generate_selfregistration_page {
     $vars->{'sms_guest_allowed'} = defined($guest_self_registration{$SELFREG_MODE_SMS});
     $vars->{'sponsored_guest_allowed'} = defined($guest_self_registration{$SELFREG_MODE_SPONSOR});
 
-    # showing errors
-    if ( defined($err) ) {
-        if ( $err == 1 ) {
-            $vars->{'txt_error'} = i18n("Missing mandatory parameter or malformed entry.");
-        } elsif ( $err == 2 ) {
-            my $localdomain = $Config{'general'}{'domain'};
-            $vars->{'txt_error'} = sprintf(i18n("You can't register as a guest with a %s email address. Please register as a regular user using your email address instead."), $localdomain);
-        } elsif ( $err == 3 ) {
-            $vars->{'txt_error'} = i18n("An error occured while sending the confirmation email.");
-        } elsif ( $err == 4 ) {
-            $vars->{'txt_error'} = i18n("An error occured while sending the PIN by SMS.");
-        }
+    # Error management
+    if (defined($error_code) && $error_code != 0) {
+        # ideally we'll set the array_ref always and won't need the following
+        $error_args_ref = [] if (!defined($error_args_ref)); 
+        $vars->{'txt_validation_error'} = sprintf(i18n($GUEST::ERRORS{$error_code}), @$error_args_ref);
     }
 
     my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
@@ -251,15 +244,10 @@ Sub to validate self-registering guests, this is not hooked-up by default
 =cut
 sub validate_selfregistration {
 
-    # return (1,0) for successfull validation
-    # return (0,1) for wrong guest info
-    # return (0,2) for invalid domain for guests
-    # return (0,0) for first attempt
-            
     my ($cgi, $session) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
     if ($cgi->param("firstname") || $cgi->param("lastname") || $cgi->param("phone") || $cgi->param("email")) {
-                
+
         my $valid_email = ($cgi->param('email') =~ /^[A-z0-9_.-]+@[A-z0-9_-]+(\.[A-z0-9_-]+)*\.[A-z]{2,6}$/);
         my $valid_name = ($cgi->param("firstname") =~ /\w/ && $cgi->param("lastname") =~ /\w/);
 
@@ -269,7 +257,7 @@ sub validate_selfregistration {
             # You should not register as a guest if you are part of the local network
             my $localdomain = $Config{'general'}{'domain'};
             if ($cgi->param('email') =~ /[@.]$localdomain$/i) {
-                return (0, 2);
+                return ($FALSE, $GUEST::ERROR_EMAIL_UNAUTHORIZED_AS_GUEST, [ $localdomain ]);
             }
           }
 
@@ -279,12 +267,12 @@ sub validate_selfregistration {
           $session->param("email", $cgi->param("email")); 
           $session->param("login", $cgi->param("email"));
           $session->param("phone", $cgi->param("phone"));
-          return (1, 0);
+          return ($TRUE, 0);
         } else {
-            return (0, 1);
+            return ($FALSE, $GUEST::ERROR_INVALID_FORM);
         }
     }
-    return (0, 1);
+    return ($FALSE, $GUEST::ERROR_INVALID_FORM);
 }
 
 =item validate_registration
@@ -696,7 +684,7 @@ sub validate_sponsor_group {
 }
 
 sub generate_sms_confirmation_page {
-    my ( $cgi, $session, $post_uri, $destination_url, $err ) = @_;
+    my ( $cgi, $session, $post_uri, $destination_url, $error_code, $error_args_ref ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     setlocale( LC_MESSAGES, $Config{'general'}{'locale'} );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
@@ -714,10 +702,9 @@ sub generate_sms_confirmation_page {
         ]
     };
 
-    if ( defined($err) ) {
-        if ( $err == 1 ) {
-            $vars->{'txt_auth_error'} = 'Invalid PIN';
-        }
+    # Error management
+    if (defined($error_code) && $error_code != 0) {
+        $vars->{'txt_auth_error'} = sprintf(i18n($GUEST::ERRORS{$error_code}), @$error_args_ref);
     }
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
@@ -729,9 +716,7 @@ sub generate_sms_confirmation_page {
 }
 
 sub web_sms_validation {
-    # return (1,0) for successfull authentication
-    # return (0,1) for invalid PIN
-    # return (0,0) for first attempt
+
     my ($cgi, $session) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -739,12 +724,13 @@ sub web_sms_validation {
     if ($cgi->param("pin")) {
         $logger->info("Mobile phone number validation attempt");
         if (validate_code($cgi->param("pin"))) {
-            return (1, 0);
+            return ( $TRUE, 0 );
         } else {
-            return ( 0, 1 ); #invalid PIN
+            return ( $FALSE, $GUEST::ERROR_INVALID_PIN );
         }
     } else {
-        return ( 0, 0 );
+        # this won't display an error
+        return ( $FALSE, 0 );
     }
 }
 
@@ -819,6 +805,37 @@ sub import_csv {
     return (0, 5);
   }
 }
+
+=back
+
+=head1 ERROR STRINGS
+
+=over
+
+=cut
+package GUEST;
+
+=item error_code 
+
+PacketFence error codes regarding guests.
+
+=cut
+Readonly::Scalar our $ERROR_INVALID_FORM => 1;
+Readonly::Scalar our $ERROR_EMAIL_UNAUTHORIZED_AS_GUEST => 2;
+Readonly::Scalar our $ERROR_CONFIRMATION_EMAIL => 3;
+Readonly::Scalar our $ERROR_CONFIRMATION_SMS => 4;
+
+=item errors 
+
+An hash mapping error codes to error messages.
+
+=cut
+Readonly::Hash our %ERRORS => (
+    $ERROR_INVALID_FORM => 'Missing mandatory parameter or malformed entry',
+    $ERROR_EMAIL_UNAUTHORIZED_AS_GUEST => q{You can't register as a guest with a %s email address. Please register as a regular user using your email address instead.},
+    $ERROR_CONFIRMATION_EMAIL => 'An error occured while sending the confirmation email.',
+    $ERROR_CONFIRMATION_SMS => 'An error occured while sending the PIN by SMS.',
+);
 
 =back
 

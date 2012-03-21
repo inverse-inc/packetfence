@@ -21,6 +21,8 @@ use Time::HiRes qw(time);
 use pf::config;
 use pf::db;
 use pf::iplog qw(ip2mac);
+# TODO this dependency is unfortunate, ideally it wouldn't be in that direction
+use pf::web::guest;
 
 # Constants
 use constant SMS_ACTIVATION => 'sms_activation';
@@ -330,11 +332,11 @@ sub sms_activation_create_send {
     my ($mac, $phone_number, $provider_id, %info) = @_;
     my $logger = Log::Log4perl::get_logger('pf::sms_activation');
 
-    my ($success, $err) = (1, 0);
+    my ($success, $err) = ($TRUE, 0);
     my $activation_code = create($mac, $phone_number, $provider_id);
     if (defined($activation_code)) {
       unless (send_sms($activation_code, %info)) {
-        ($success, $err) = (0, 4);
+        ($success, $err) = ($FALSE, $GUEST::ERROR_CONFIRMATION_SMS);
       }
     }
 

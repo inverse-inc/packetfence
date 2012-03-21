@@ -62,7 +62,7 @@ $info{'pid'} = $cgi->remote_user || 1;
 if ($cgi->param("pin")) { # && $session->param("authType")) {
 
     $logger->info("Entering guest authentication by SMS");
-    my ($auth_return,$err) = pf::web::guest::web_sms_validation($cgi, $session);
+    my ($auth_return, $err) = pf::web::guest::web_sms_validation($cgi, $session);
     if ($auth_return != 1) {
         # Invalid PIN -- redirect to confirmation template 
         $logger->info("Loading SMS confirmation page");
