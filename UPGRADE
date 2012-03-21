@@ -5,6 +5,17 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to <release>:
+
+    - Changes to Guest API
+    Users with custom code will have to hook on these updated APIs
+     - pf::web::guest::generate_selfregistration_page's error reporting
+     - pf::web::guest::validate_selfregistration's error reporting
+     - pf::web::guest::web_sms_validation's error reporting
+     - pf::web::guest::generate_sms_confirmation_page's error reporting
+     - pf::web::guest relies on setting a 'guest_pid' session variable instead
+       of the login / username or token variables
+
 o Upgrading from a version prior to 3.2.0:
 
     - Database schema update
