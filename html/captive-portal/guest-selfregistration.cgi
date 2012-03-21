@@ -62,10 +62,10 @@ if (!valid_mac($mac)) {
 # Correct POST
 if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGISTRATION) {
 
-    # authenticate
+    # is form valid?
     my ($auth_return, $err, $errargs_ref) = pf::web::guest::validate_selfregistration($cgi, $session);
 
-    # Registration form was properly filled
+    # Email
     if ($auth_return && defined($cgi->param('by_email')) && defined($guest_self_registration{$SELFREG_MODE_EMAIL})) {
       # User chose to register by email
       $logger->info("Registering guest by email");
@@ -74,6 +74,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
       person_modify($session->param("login"), (
           'firstname' => $session->param("firstname"),
           'lastname' => $session->param("lastname"),
+          'company' => $session->param('company'),
           'email' => $session->param("email"),
           'telephone' => $session->param("phone"),
           'notes' => 'email activation',
@@ -118,6 +119,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
           person_modify($session->param("phone"), (
               'firstname' => $session->param("firstname"),
               'lastname' => $session->param("lastname"),
+              'company' => $session->param('company'),
               'email' => $session->param("email"),
               'telephone' => $session->param("phone"),
               'notes' => 'sms confirmation',
@@ -145,7 +147,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
 }
 else {
     # wipe web fields
-    $cgi->delete('firstname', 'lastname', 'email', 'phone');
+    $cgi->delete('firstname', 'lastname', 'email', 'phone', 'organization');
 
     # by default, show guest registration page
     pf::web::guest::generate_selfregistration_page(
