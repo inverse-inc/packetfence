@@ -15,6 +15,7 @@ use CGI::Session;
 use Log::Log4perl;
 use POSIX;
 
+use pf::config;
 use pf::email_activation;
 use pf::node;
 use pf::web;
