@@ -34,6 +34,7 @@ use MIME::Lite::TT;
 use POSIX;
 use Readonly;
 use Time::HiRes qw(time);
+use Try::Tiny;
 
 # Constants
 use constant EMAIL_ACTIVATION => 'email_activation';
@@ -333,15 +334,14 @@ sub send_email {
     ); 
 
     my $result = 0;
-    eval {
+    try {
       $msg->send('smtp', $smtpserver, Timeout => 20);
       $result = $msg->last_send_successful();
-    };
-    if ($@) {
-      my $msg = "Can't send email to ".$info{'email'}.": $@";
-      $msg =~ s/\n//g;
-      $logger->error($msg);
     }
+    catch {
+      chomp($_);
+      $logger->error("Can't send email to ".$info{'email'}.": $_");
+    };
     
     return $result;
 }
