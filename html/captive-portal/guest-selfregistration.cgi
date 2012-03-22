@@ -101,7 +101,9 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
       $info{'subject'} = $Config{'general'}{'domain'}.': Email activation required';
       
       # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
-      ($auth_return, $err, $errargs_ref) = pf::email_activation::create_and_email_activation_code($mac, $info{'pid'}, $info{'pid'}, $pf::email_activation::GUEST_TEMPLATE, %info);
+      ($auth_return, $err, $errargs_ref) = pf::email_activation::create_and_email_activation_code(
+          $mac, $info{'pid'}, $info{'pid'}, $pf::web::guest::TEMPLATE_EMAIL_GUEST_ACTIVATION, %info
+      );
 
       # does the necessary captive portal escape sequence (violations, provisionning, etc.)
       pf::web::end_portal_session($cgi, $session, $mac, $destination_url) if ($auth_return);

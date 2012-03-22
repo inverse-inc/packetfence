@@ -7,6 +7,13 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <release>:
 
+    - Email templates changed names
+    Related to the above guest API changes were several template files renamed
+     - emails-guest_registration.txt.tt -> emails-guest_preregistration.txt.tt
+     - emails-guest_activation.txt.tt -> emails-guest_self_activation.txt.tt
+     - emails-sponsor_activation.txt.tt -> 
+       emails-guest_sponsor_activation.txt.tt
+
     - Changes to Guest API
     Users with custom code will have to hook on these updated APIs
      - pf::web::guest::generate_selfregistration_page's error reporting
@@ -15,6 +22,11 @@ o Upgrading from a version prior to <release>:
      - pf::web::guest::generate_sms_confirmation_page's error reporting
      - pf::web::guest relies on setting a 'guest_pid' session variable instead
        of the login / username or token variables
+     - GUEST_TEMPLATE and SPONSOR_TEMPLATE templates changed names to 
+       TEMPLATE_EMAIL_GUEST_ACTIVATION and TEMPLATE_EMAIL_SPONSOR_ACTIVATION 
+       and moved from pf::email_activation into pf::web::guest
+     - pf::web::guest::send_registration_confirmation_email is now
+       pf::web::guest::send_preregistration_confirmation_email
 
 o Upgrading from a version prior to 3.2.0:
 

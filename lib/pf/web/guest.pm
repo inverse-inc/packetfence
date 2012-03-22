@@ -33,6 +33,7 @@ use Log::Log4perl;
 use MIME::Lite::TT;
 use Net::LDAP;
 use POSIX;
+use Readonly;
 use Template;
 
 BEGIN {
@@ -61,6 +62,11 @@ our $SELF_REGISTRATION_TEMPLATE = "guest.html";
 our $REGISTRATION_TEMPLATE = "guest/register_guest.html";
 our $REGISTRATION_CONFIRMATION_TEMPLATE = "guest/registration_confirmation.html";
 our $REGISTRATION_CONTINUE = 10;
+
+# Available default email templates
+Readonly our $TEMPLATE_EMAIL_GUEST_ACTIVATION => 'guest_self_activation';
+Readonly our $TEMPLATE_EMAIL_SPONSOR_ACTIVATION => 'guest_sponsor_activation';
+Readonly our $TEMPLATE_EMAIL_GUEST_PREREGISTRATION => 'guest_preregistration';
 
 our $EMAIL_FROM = undef;
 our $EMAIL_CC = undef;
@@ -622,10 +628,10 @@ sub generate_registration_confirmation_page {
     exit;
 }
 
-=item send_registration_confirmation_email
+=item send_preregistration_confirmation_email
 
 =cut
-sub send_registration_confirmation_email {
+sub send_preregistration_confirmation_email {
     my ($info) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
 
@@ -642,7 +648,7 @@ sub send_registration_confirmation_email {
         To          =>  $info->{'email'},
         Cc          =>  $pf::web::guest::EMAIL_CC,
         Subject     =>  encode("MIME-Q", i18n("Guest Network Access Information")),
-        Template    =>  "emails-guest_registration.txt.tt",
+        Template    =>  "emails-$pf::web::guest::TEMPLATE_EMAIL_GUEST_PREREGISTRATION.txt.tt",
         TmplOptions =>  { INCLUDE_PATH => "$conf_dir/templates/" },
         TmplParams  =>  $info,
         TmplUpgrade =>  1,

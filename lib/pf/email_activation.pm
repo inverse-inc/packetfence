@@ -48,9 +48,6 @@ Readonly::Scalar our $EXPIRATION => 31*24*60*60; # defaults to 31 days
 Readonly::Scalar our $HASH_FORMAT => 1;
 # Hash formats
 Readonly::Scalar our $SIMPLE_MD5 => 1;
-# Available default templates
-Readonly::Scalar our $GUEST_TEMPLATE => 'guest_activation';
-Readonly::Scalar our $SPONSOR_TEMPLATE => 'sponsor_activation';
 
 BEGIN {
     use Exporter ();
@@ -70,7 +67,6 @@ BEGIN {
         create
         find_code
         $UNVERIFIED $EXPIRED $VERIFIED $INVALIDATED
-        $GUEST_TEMPLATE $SPONSOR_TEMPLATE
     );
 }
 

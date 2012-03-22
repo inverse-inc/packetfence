@@ -114,7 +114,7 @@ if (defined($session->param("username"))) {
             }
             else {
                 # Otherwise send email
-                pf::web::guest::send_registration_confirmation_email($info);
+                pf::web::guest::send_preregistration_confirmation_email($info);
                         
                 # Return user to the guest registration page
                 pf::web::guest::generate_registration_page($cgi, $session,"/guests/manage",
