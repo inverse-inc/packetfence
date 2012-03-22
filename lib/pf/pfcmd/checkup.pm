@@ -704,6 +704,10 @@ sub extensions {
 
     # Authentication modules
     my @activated_auth_modules = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
+    # if sponsored guest authentication is enabled test the module
+    if ($guest_self_registration{$SELFREG_MODE_SPONSOR}) {
+        push @activated_auth_modules, $Config{'guests_self_registration'}{'sponsor_authentication'};
+    }
     foreach my $auth (@activated_auth_modules) {
         my ($authenticator, $authReturn, $err);
         try {

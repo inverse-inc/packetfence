@@ -328,6 +328,13 @@ sub validate_sponsor {
         }
     }
 
+    my $authenticator = pf::web::auth::instantiate($Config{'guests_self_registration'}{'sponsor_authentication'});
+    return ($FALSE, $GUEST::ERROR_SPONSOR_UNABLE_TO_VALIDATE) if (!defined($authenticator));
+
+    # validate that this email can sponsor network accesses
+    my $can_sponsor = $authenticator->isAllowedToSponsorGuests( $cgi->param('sponsor_email') );
+    return ($FALSE, $GUEST::ERROR_SPONSOR_NOT_ALLOWED, [ $cgi->param('sponsor_email') ] ) if (!$can_sponsor);
+
     # all sponsor checks passed
     return ($TRUE, 0);
 }
@@ -723,62 +730,6 @@ sub send_preregistration_confirmation_email {
         or $logger->warn("problem sending guest registration email");
 }
 
-=item validate_sponsor_group
-
-Validate that the sponsor email entered is an authorized sponsor in LDAP.
-
-Returns 1 if sponsor is member of proper groups and 0 if not.
-On error will return undef and log an error.
-
-This check is not integrated by default.
-
-=cut
-sub validate_sponsor_group {
-  my ($sponsor_email) = @_;
-  my $logger = Log::Log4perl::get_logger("pf::web::guest");
-
-  # TODO externalize this in conf/pf.conf (along with authentication::ldap)
-  my $LDAPUserBase = "";
-  my $LDAPUserKey = "cn";
-  my $LDAPUserScope = "sub";
-  my $LDAPBindDN = "";
-  my $LDAPBindPassword = "";
-  my $LDAPServer = "";
-  my $LDAPGroupFilter = '|(memberOf=OU=Group1,DC=packetfence,DC=org)(memberOf=OU=Group2,DC=packetfence,DC=org)'; 
-
-  my $connection = Net::LDAP->new($LDAPServer);
-  if (!defined($connection)) {
-      $logger->error("Unable to connect to '$LDAPServer'");
-      return;
-  }
-
-  my $result = $connection->bind($LDAPBindDN, password => $LDAPBindPassword);
-  if ($result->is_error) {
-      $logger->error("Unable to bind with '$LDAPBindDN'");
-      return;
-  }
-
-  $result = $connection->search(
-      base => $LDAPUserBase,
-      filter => "(&($LDAPUserKey=$sponsor_email)($LDAPGroupFilter))",
-      scope => $LDAPUserScope,
-  );
-
-  if ($result->is_error) {
-      $logger->error("Unable to execute search");
-      return;
-  }
-
-  if ($result->count != 1) {
-    return 0;
-  }
-
-  my $user = $result->entry(0);
-
-  $connection->unbind;
-  return 1;
-}
-
 sub generate_sms_confirmation_page {
     my ( $cgi, $session, $post_uri, $destination_url, $error_code, $error_args_ref ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -925,6 +876,8 @@ Readonly::Scalar our $ERROR_ILLEGAL_EMAIL => 6;
 Readonly::Scalar our $ERROR_ILLEGAL_PHONE => 7;
 Readonly::Scalar our $ERROR_AUP_NOT_ACCEPTED => 8;
 Readonly::Scalar our $ERROR_SPONSOR_NOT_FROM_LOCALDOMAIN => 9;
+Readonly::Scalar our $ERROR_SPONSOR_UNABLE_TO_VALIDATE => 10;
+Readonly::Scalar our $ERROR_SPONSOR_NOT_ALLOWED => 11;
 
 =item errors 
 
@@ -940,7 +893,9 @@ Readonly::Hash our %ERRORS => (
     $ERROR_ILLEGAL_EMAIL => 'Illegal email address provided',
     $ERROR_ILLEGAL_PHONE => 'Illegal phone number provided',
     $ERROR_AUP_NOT_ACCEPTED => 'Acceptable Use Policy (AUP) was not accepted',
-    $ERROR_SPONSOR_NOT_FROM_LOCALDOMAIN => 'Your access can only be sponsored by a %s email address.',
+    $ERROR_SPONSOR_NOT_FROM_LOCALDOMAIN => 'Your access can only be sponsored by a %s email address',
+    $ERROR_SPONSOR_UNABLE_TO_VALIDATE => 'Unable to validate your sponsor at the moment',
+    $ERROR_SPONSOR_NOT_ALLOWED  => 'Email %s is not allowed to sponsor guest access',
 );
 
 =back
