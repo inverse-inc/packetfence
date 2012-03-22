@@ -36,19 +36,39 @@ use Readonly;
 use Time::HiRes qw(time);
 use Try::Tiny;
 
-# Constants
+=head1 CONSTANTS
+
+=over
+
+=item database
+
+=cut
 use constant EMAIL_ACTIVATION => 'email_activation';
-# Status-related
+
+=item Status-related
+
+=cut
 Readonly::Scalar our $UNVERIFIED => 'unverified';
 Readonly::Scalar our $VERIFIED => 'verified';
 Readonly::Scalar our $EXPIRED => 'expired';
 Readonly::Scalar our $INVALIDATED => 'invalidated'; # for example if a new code is requested
-# Expiration time in seconds
+
+=item Expiration time (in seconds)
+
+=cut
 Readonly::Scalar our $EXPIRATION => 31*24*60*60; # defaults to 31 days
+
+=item Hashing formats related
+
+=cut
 # Default hash format version
 Readonly::Scalar our $HASH_FORMAT => 1;
 # Hash formats
 Readonly::Scalar our $SIMPLE_MD5 => 1;
+
+=back
+
+=cut
 
 BEGIN {
     use Exporter ();
