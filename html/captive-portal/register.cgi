@@ -22,36 +22,35 @@ use URI::Escape qw(uri_escape);
 
 use pf::config;
 use pf::iplog;
+use pf::node;
 use pf::util;
+use pf::violation;
 use pf::web;
 # called last to allow redefinitions
 use pf::web::custom;
-#use pf::rawip;
-use pf::node;
-use pf::violation;
 
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('register.cgi');
 Log::Log4perl::MDC->put('proc', 'register.cgi');
 Log::Log4perl::MDC->put('tid', 0);
 
-my %params;
 my $cgi = new CGI;
 $cgi->charset("UTF-8");
 my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
-
-my $ip              = pf::web::get_client_ip($cgi);
-my $mac             = ip2mac($ip);
+my $ip = pf::web::get_client_ip($cgi);
 my $destination_url = pf::web::get_destination_url($cgi);
 $destination_url = $Config{'trapping'}{'redirecturl'} if (!$destination_url);
 
+# we need a valid MAC to identify a node
+# TODO this is duplicated too much, it should be brought up in a global dispatcher
+my $mac = ip2mac($ip);
 if (!valid_mac($mac)) {
-  $logger->info("MAC not found for $ip generating Error Page");
+  $logger->info("$ip not resolvable, generating error page");
   pf::web::generate_error_page($cgi, $session, "error: not found in the database");
   exit(0);
 }
 
-$logger->info("$ip - $mac ");
+$logger->info("$ip - $mac on registration page");
 
 my %info;
 
@@ -62,15 +61,7 @@ $info{'pid'}=$cgi->remote_user if (defined $cgi->remote_user);
 # Pull browser user-agent string
 $info{'user_agent'}=$cgi->user_agent;
 
-# pull parameters from query string
-foreach my $param($cgi->url_param()) {
-  $params{$param} = $cgi->url_param($param);
-}
-foreach my $param($cgi->param()) {
-  $params{$param} = $cgi->param($param);
-}
-
-if (defined($params{'username'}) && $params{'username'} ne '') {
+if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
 
   my ($form_return, $err) = pf::web::validate_form($cgi, $session);
   if ($form_return != 1) {
@@ -112,16 +103,16 @@ if (defined($params{'username'}) && $params{'username'} ne '') {
   pf::web::web_node_register($cgi, $session, $mac, $pid, %info);
   pf::web::end_portal_session($cgi, $session, $mac, $destination_url);
 
-} elsif (defined($params{'mode'}) && $params{'mode'} eq "next_page") {
-  my $pageNb = int($params{'page'});
+} elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "next_page") {
+  my $pageNb = int($cgi->url_param('page'));
   if (($pageNb > 1) && ($pageNb <= $Config{'registration'}{'nbregpages'})) {
     pf::web::generate_registration_page($cgi, $session, $destination_url, $mac, $pageNb);
   } else {
     pf::web::generate_error_page($cgi, $session, "error: invalid page number");
   }
-} elsif (defined($params{'mode'}) && $params{'mode'} eq "status") {
+} elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "status") {
   if (trappable_ip($ip)) {
-    if (defined($params{'json'})) {
+    if (defined($cgi->url_param('json'))) {
       pf::web::generate_status_json($cgi, $session, $mac);
     } else {
       pf::web::generate_status_page($cgi, $session, $mac);
@@ -130,7 +121,7 @@ if (defined($params{'username'}) && $params{'username'} ne '') {
     pf::web::generate_error_page($cgi, $session, "error: not trappable IP");
   }
 
-} elsif (defined($params{'mode'}) && $params{'mode'} eq "deregister") {
+} elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "deregister") {
   my ($form_return, $err) = pf::web::validate_form($cgi, $session);
   if ($form_return != 1) {
     $logger->trace("form validation failed or first time for $mac");
@@ -162,7 +153,7 @@ if (defined($params{'username'}) && $params{'username'} ne '') {
     pf::web::generate_error_page($cgi, $session, "error: access denied not owner");
   }
 
-} elsif (defined($params{'mode'}) && $params{'mode'} eq "release") {
+} elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "release") {
   # TODO this is duplicated also in register.cgi
   # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
   if ($cgi->https()) {
@@ -174,10 +165,10 @@ if (defined($params{'username'}) && $params{'username'} ne '') {
     pf::web::generate_release_page($cgi, $session, $destination_url, $mac);
   }
   exit(0);
-} elsif (defined($params{'mode'}) && $params{'mode'} eq "aup") {
+} elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "aup") {
   pf::web::generate_aup_standalone_page($cgi, $session, $mac);
   exit(0);
-} elsif (defined($params{'mode'})) {
+} elsif (defined($cgi->url_param('mode'))) {
   pf::web::generate_error_page($cgi, $session, "error: incorrect mode");
 } else {
   pf::web::generate_login_page($cgi, $session, $destination_url, $mac);

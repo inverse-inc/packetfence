@@ -35,36 +35,27 @@ my $logger = Log::Log4perl->get_logger('mobile-confirmation.cgi');
 Log::Log4perl::MDC->put('proc', 'mobile-confirmation.cgi');
 Log::Log4perl::MDC->put('tid', 0);
 
-my %params;
 my $cgi = new CGI;
 $cgi->charset("UTF-8");
 my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
-
-my $ip              = $cgi->remote_addr;
-my $mac             = ip2mac($ip);
+my $ip = $cgi->remote_addr;
 my $destination_url = pf::web::get_destination_url($cgi);
 
+# we need a valid MAC to identify a node
+# TODO this is duplicated too much, it should be brought up in a global dispatcher
+my $mac = ip2mac($ip);
 if (!valid_mac($mac)) {
-  $logger->info("MAC not found for $ip generating Error Page");
-  generate_error_page($cgi, $session, "error: not found in the database");
+  $logger->info("$ip not resolvable, generating error page");
+  pf::web::generate_error_page($cgi, $session, "error: not found in the database");
   exit(0);
 }
 
-$logger->info("$ip - $mac ");
+$logger->info("$ip - $mac on mobile confirmation page");
 
 my %info;
 
 # Pull username
 $info{'pid'} = $cgi->remote_user || 1;
-
-# pull parameters from query string
-foreach my $param($cgi->url_param()) {
-  $params{$param} = $cgi->url_param($param);
-}
-foreach my $param($cgi->param()) {
-  $params{$param} = $cgi->param($param);
-}
-
 
 # FIXME to enforce 'harder' trapping (proper workflow) once this all work
 # put code as main if () and provide a way to unset session in template

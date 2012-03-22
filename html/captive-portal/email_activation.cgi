@@ -15,12 +15,8 @@ use CGI::Session;
 use Log::Log4perl;
 use POSIX;
 
-use pf::class;
-use pf::config;
 use pf::email_activation;
-use pf::iplog;
 use pf::node;
-use pf::util;
 use pf::web;
 use pf::web::guest 1.10;
 use pf::web::custom;
@@ -34,26 +30,10 @@ my $cgi = new CGI;
 $cgi->charset("UTF-8");
 my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 
-my $result;
-my $ip              = $cgi->remote_addr();
-my $enable_menu     = $cgi->param("enable_menu");
-my $mac             = ip2mac($ip);
-my %params;
-my %info;
-
-# pull parameters from query string
-foreach my $param($cgi->url_param()) {
-  $params{$param} = $cgi->url_param($param);
-}
-foreach my $param($cgi->param()) {
-  $params{$param} = $cgi->param($param);
-}
-
-# Correct POST
-if (defined($params{'code'})) {
+if (defined($cgi->url_param('code'))) {
 
     # validate code
-    my $activation_record = pf::email_activation::validate_code($params{'code'});
+    my $activation_record = pf::email_activation::validate_code($cgi->url_param('code'));
     if (!defined($activation_record) || ref($activation_record) ne 'HASH' || !defined($activation_record->{'mac'})) {
 
         pf::web::generate_error_page($cgi, $session, "The activation code provided is invalid. "

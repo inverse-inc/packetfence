@@ -38,20 +38,18 @@ Log::Log4perl::MDC->put('tid', 0);
 my $cgi = new CGI;
 $cgi->charset("UTF-8");
 my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
-
-my $result;
-my $ip              = pf::web::get_client_ip($cgi);
+my $ip = pf::web::get_client_ip($cgi);
 my $destination_url = pf::web::get_destination_url($cgi);
-my $enable_menu     = $cgi->param("enable_menu");
-my $mac             = ip2mac($ip);
-my %tags;
 
-# valid mac?
+# we need a valid MAC to identify a node
+# TODO this is duplicated too much, it should be brought up in a global dispatcher
+my $mac = ip2mac($ip);
 if (!valid_mac($mac)) {
   $logger->info("$ip not resolvable, generating error page");
   pf::web::generate_error_page($cgi, $session, "error: not found in the database");
   exit(0);
 }
+
 $logger->info("$mac being redirected");
 
 # recording user agent for this mac in node table
@@ -89,7 +87,7 @@ if ($violation){
   # TODO: We need to validate that a user cannot request a frame with the enable button activated
 
   # enable button
-  if ($enable_menu) {
+  if ($cgi->param("enable_menu")) {
     $logger->debug("violation redirect: generating enable button frame (enable_menu = 1)");
     pf::web::generate_enabler_page($cgi, $session, $destination_url, $vid, $class->{'button_text'});
   } elsif  ($class->{'auto_enable'} eq 'Y'){

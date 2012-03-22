@@ -19,7 +19,6 @@ use URI::Escape qw(uri_escape uri_unescape);
 
 use pf::billing::constants;
 use pf::billing::custom;
-use pf::class;
 use pf::config;
 use pf::iplog;
 use pf::node;
@@ -39,25 +38,23 @@ Log::Log4perl::MDC->put('tid', 0);
 my $cgi = new CGI;
 $cgi->charset("UTF-8");
 my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
-
 my $destination_url = pf::web::get_destination_url($cgi);
-my $ip              = $cgi->remote_addr();
-my $mac             = ip2mac($ip);
-
-# Pull parameters from query string
-my %params;
-foreach my $param($cgi->url_param()) {
-  $params{$param} = $cgi->url_param($param);
-}
-foreach my $param($cgi->param()) {
-  $params{$param} = $cgi->param($param);
-}
+my $ip = $cgi->remote_addr();
 
 # If the billing engine isn't enabled (you shouldn't be here), redirect to portal entrance
 print $cgi->redirect("/captive-portal?destination_url=".uri_escape($destination_url))
         if ( isdisabled($Config{'registration'}{'billing_engine'}) );
 
-if ( defined($params{'submit'}) ) {
+# we need a valid MAC to identify a node
+# TODO this is duplicated too much, it should be brought up in a global dispatcher
+my $mac = ip2mac($ip);
+if (!valid_mac($mac)) {
+  $logger->info("$ip not resolvable, generating error page");
+  pf::web::generate_error_page($cgi, $session, "error: not found in the database");
+  exit(0);
+}
+
+if ( defined($cgi->param('submit')) ) {
 
     # Validate the form
     my ($validation_return, $error_code) = pf::web::billing::validate_billing_infos($cgi, $session);
