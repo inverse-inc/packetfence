@@ -27,6 +27,9 @@ o Upgrading from a version prior to <release>:
        and moved from pf::email_activation into pf::web::guest
      - pf::web::guest::send_registration_confirmation_email is now
        pf::web::guest::send_preregistration_confirmation_email
+     - new API entry point prepare_email_guest_activation_info and 
+       prepare_sponsor_guest_activation_info: these are meant to be overriden
+       by custom code to provide more information for email templates
 
 o Upgrading from a version prior to 3.2.0:
 
