@@ -98,7 +98,10 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
       
       # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
       ($auth_return, $err, $errargs_ref) = pf::email_activation::create_and_email_activation_code(
-          $mac, $info{'pid'}, $info{'pid'}, $pf::web::guest::TEMPLATE_EMAIL_GUEST_ACTIVATION, %info
+          $mac, $info{'pid'}, $info{'pid'}, 
+          $pf::web::guest::TEMPLATE_EMAIL_GUEST_ACTIVATION, 
+          $pf::email_activation::GUEST_ACTIVATION, 
+          %info
       );
 
       # does the necessary captive portal escape sequence (violations, provisionning, etc.)
@@ -160,7 +163,10 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
 
       # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
       ($auth_return, $err, $errargs_ref) = pf::email_activation::create_and_email_activation_code(
-          $mac, $info{'pid'}, $info{'sponsor'}, $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_ACTIVATION, %info
+          $mac, $info{'pid'}, $info{'sponsor'}, 
+          $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_ACTIVATION, 
+          $pf::email_activation::SPONSOR_ACTIVATION, 
+          %info
       );
 
       print $cgi->redirect('/captive-portal?destination_url=' . uri_escape($destination_url));

@@ -7,6 +7,12 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <release>:
 
+    - Database schema update
+    New sponsored guest feature and max nodes per user per category support 
+    required database changes. Make sure you run the following to update 
+    your schema even if you don't use the feature:
+    mysql -u root -p pf -v < db/upgrade-3.2.0-3.3.0.sql
+
     - Email templates changed names
     Related to the above guest API changes were several template files renamed
      - emails-guest_registration.txt.tt -> emails-guest_preregistration.txt.tt
