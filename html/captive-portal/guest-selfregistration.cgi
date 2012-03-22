@@ -94,11 +94,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
       pf::web::web_node_register($cgi, $session, $mac, $info{'pid'}, %info);
 
       # add more info for the activation email
-      $info{'firstname'} = $session->param("firstname");
-      $info{'lastname'} = $session->param("lastname");
-      $info{'telephone'} = $session->param("phone");
-
-      $info{'subject'} = $Config{'general'}{'domain'}.': Email activation required';
+      %info = pf::web::guest::prepare_email_guest_activation_info($cgi, $session, $mac, %info);
       
       # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
       ($auth_return, $err, $errargs_ref) = pf::email_activation::create_and_email_activation_code(
