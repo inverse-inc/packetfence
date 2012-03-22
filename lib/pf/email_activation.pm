@@ -409,10 +409,11 @@ sub validate_code {
         return;
     }
 
-    # At this point, code is valid, mark it as verified and return node's MAC
+    # At this point, code is valid, mark it as verified and return the activation record
     modify_status($activation_record->{'code_id'}, $VERIFIED);
-    $logger->info("Activation code sent to email ".$activation_record->{'email'}." successfully verified! "
-        . "Node authorized: ".$activation_record->{'mac'});
+    $logger->info("Activation code sent to email $activation_record->{email} successfully verified! "
+        . "Node authorized: $activation_record->{mac} of activation type: $activation_record->{type}"
+    );
     return $activation_record;
 }
 
