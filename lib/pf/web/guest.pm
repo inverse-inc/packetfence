@@ -474,6 +474,26 @@ sub prepare_email_guest_activation_info {
     return %info;
 }
 
+=item prepare_sponsor_guest_activation_info
+
+Provides basic information for the self registered sponsored guests template.
+
+This is meant to be overridden in L<pf::web::custom>.
+
+=cut
+sub prepare_sponsor_guest_activation_info {
+    my ( $cgi, $session, $mac, %info ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    $info{'firstname'} = $session->param("firstname");
+    $info{'lastname'} = $session->param("lastname");
+    $info{'telephone'} = $session->param("phone");
+    $info{'sponsor'} = $session->param('sponsor');
+    $info{'subject'} = $Config{'general'}{'domain'}.': Email activation required';
+
+    return %info;
+}
+
 =item generate_custom_login_page
 
 Sub to present a login form. Template is provided as a parameter.

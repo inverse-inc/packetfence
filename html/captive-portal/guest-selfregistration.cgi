@@ -27,7 +27,7 @@ use pf::person qw(person_modify);
 use pf::util;
 use pf::violation;
 use pf::web;
-use pf::web::guest 1.20;
+use pf::web::guest 1.30;
 # called last to allow redefinitions
 use pf::web::custom;
 
@@ -127,6 +127,44 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
           pf::web::guest::generate_sms_confirmation_page($cgi, $session, "/activate/sms", $destination_url, $err, $errargs_ref);
           exit(0);
       }
+    }
+
+    # SPONSOR
+    elsif ( $auth_return && defined($cgi->param('by_sponsor')) && defined($guest_self_registration{$SELFREG_MODE_SPONSOR}) ) {
+      # User chose to register by email
+      $logger->info("registering $mac guest through a sponsor");
+
+      # form valid, adding person (using modify in case person already exists)
+      person_modify($session->param('guest_pid'), (
+          'firstname' => $session->param("firstname"),
+          'lastname' => $session->param("lastname"),
+          'company' => $session->param('company'),
+          'email' => $session->param("email"),
+          'telephone' => $session->param("phone"),
+          'sponsor' => $session->param("sponsor"),
+          'notes' => 'sponsored guest. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time)
+      ));
+      $logger->info("Adding guest person " . $session->param('guest_pid'));
+
+      # grab additional info about the node
+      $info{'pid'} = $session->param('guest_pid');
+      $info{'category'} = $Config{'guests_self_registration'}{'category'};
+      $info{'status'} = $pf::node::STATUS_PENDING;
+
+      # modify the node
+      node_modify($mac, %info);
+
+      # fetch more info for the activation email
+      # this is meant to be overridden in pf::web::custom with customer specific needs
+      %info = pf::web::guest::prepare_sponsor_guest_activation_info($cgi, $session, $mac, %info);
+
+      # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
+      ($auth_return, $err, $errargs_ref) = pf::email_activation::create_and_email_activation_code(
+          $mac, $info{'pid'}, $info{'sponsor'}, $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_ACTIVATION, %info
+      );
+
+      print $cgi->redirect('/captive-portal?destination_url=' . uri_escape($destination_url));
+      exit(0);
     }
 
     # Registration form was invalid, return to guest self-registration page and show error message
