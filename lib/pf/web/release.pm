@@ -9,11 +9,15 @@ release.pm - Handles releasing nodes out of the captive portal.
 use strict;
 use warnings;
 
+use Apache2::RequestRec ();
+use Apache2::RequestIO ();
+use Apache2::Const -compile => qw(OK REDIRECT);
 use Date::Parse;
 use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
 use Log::Log4perl;
+use URI::Escape qw(uri_escape);
 
 use pf::class;
 use pf::config;
@@ -26,10 +30,6 @@ use pf::violation;
 use pf::web;
 # called last to allow redefinitions
 use pf::web::custom;
-
-use Apache2::RequestRec ();
-use Apache2::RequestIO ();
-use Apache2::Const -compile => qw(OK REDIRECT);
 
 sub handler
 {
@@ -45,10 +45,9 @@ sub handler
   my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 
   my $ip              = pf::web::get_client_ip($cgi);
-  my $destination_url = $cgi->param("destination_url");
-  my $mac             = ip2mac($ip);
-
+  my $destination_url = pf::web::get_destination_url($cgi);
   $destination_url = $Config{'trapping'}{'redirecturl'} if (!$destination_url);
+  my $mac             = ip2mac($ip);
 
   if (!valid_mac($mac)) {
     $logger->info("$ip not resolvable, generating error page");
@@ -63,7 +62,7 @@ sub handler
       if ($cgi->https()) {
         print $cgi->redirect(
           "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-          ."/access?destination_url=$destination_url"
+          .'/access?destination_url=' . uri_escape($destination_url)
         );
         return Apache2::Const::REDIRECT;
       } else {
@@ -133,7 +132,7 @@ sub handler
       if ($cgi->https()) {
         print $cgi->redirect(
           "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-          ."/access?destination_url=$destination_url"
+          .'/access?destination_url=' . uri_escape($destination_url)
         );
         return Apache2::Const::REDIRECT;
       }
@@ -144,9 +143,9 @@ sub handler
     }
     else {
       if ($class_redirect_url) {
-        print $cgi->redirect("/captive-portal?destination_url=$class_redirect_url");
+        print $cgi->redirect('/captive-portal?destination_url=' . uri_escape($class_redirect_url));
       } else {
-        print $cgi->redirect("/captive-portal?destination_url=$destination_url");
+        print $cgi->redirect('/captive-portal?destination_url=' . uri_escape($destination_url));
       }
       return Apache2::Const::REDIRECT;
     }

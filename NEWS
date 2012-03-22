@@ -34,6 +34,7 @@ Bug Fixes
  * Cisco MAB EAP was not properly working (#1391)
  * CoA RADIUS secret is lower cased (#1392)
  * Username length on the Web Admin is no longer limited to 15 characters
+ * Potential (not-validated) cross-site scripting (XSS) in captive portal
 
 Translations
  * Updated Brazilian Portuguese (pt_BR) translation (Thanks to Diego de Souza Lopes)
