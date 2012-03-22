@@ -426,7 +426,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2010, 2011, 2012 Inverse inc.
 
 =head1 LICENSE
 
