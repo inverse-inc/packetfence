@@ -286,12 +286,18 @@ sub validate_selfregistration {
         return ($FALSE, $GUEST::ERROR_AUP_NOT_ACCEPTED);
     }
 
+    my $localdomain = $Config{'general'}{'domain'};
     unless (isenabled($Config{'guests_self_registration'}{'allow_localdomain'})) {
         # You should not register as a guest if you are part of the local network
-        my $localdomain = $Config{'general'}{'domain'};
         if ($cgi->param('email') =~ /[@.]$localdomain$/i) {
             return ($FALSE, $GUEST::ERROR_EMAIL_UNAUTHORIZED_AS_GUEST, [ $localdomain ]);
         }
+    }
+
+    # sponsor validation in another sub to ease overrides
+    if (defined($cgi->param('by_sponsor'))) {
+        my ($valid_sponsor, $error_code, $error_args_ref) = pf::web::guest::validate_sponsor($cgi, $session);
+        return ($FALSE, $error_code, $error_args_ref) if (!$valid_sponsor);
     }
 
     # auth accepted, save login information in session (we will use them to put the guest in the db)
@@ -303,6 +309,26 @@ sub validate_selfregistration {
     $session->param("sponsor", $cgi->param("sponsor_email")); 
     # guest pid is configurable (defaults to email)
     $session->param("guest_pid", $cgi->param($Config{'guests_self_registration'}{'guest_pid'}));
+    return ($TRUE, 0);
+}
+
+=item validate_sponsor
+
+Performs sponsor validation.
+
+=cut
+sub validate_sponsor {
+    my ($cgi, $session) = @_;
+
+    # sponsors should be from the local network
+    if (isenabled($Config{'guests_self_registration'}{'sponsors_only_from_localdomain'})) {
+        my $localdomain = $Config{'general'}{'domain'};
+        if ($cgi->param('sponsor_email') !~ /[@.]$localdomain$/i) {
+            return ($FALSE, $GUEST::ERROR_SPONSOR_NOT_FROM_LOCALDOMAIN, [ $localdomain ]);
+        }
+    }
+
+    # all sponsor checks passed
     return ($TRUE, 0);
 }
 
@@ -898,6 +924,7 @@ Readonly::Scalar our $ERROR_MISSING_MANDATORY_FIELDS => 5;
 Readonly::Scalar our $ERROR_ILLEGAL_EMAIL => 6;
 Readonly::Scalar our $ERROR_ILLEGAL_PHONE => 7;
 Readonly::Scalar our $ERROR_AUP_NOT_ACCEPTED => 8;
+Readonly::Scalar our $ERROR_SPONSOR_NOT_FROM_LOCALDOMAIN => 9;
 
 =item errors 
 
@@ -913,6 +940,7 @@ Readonly::Hash our %ERRORS => (
     $ERROR_ILLEGAL_EMAIL => 'Illegal email address provided',
     $ERROR_ILLEGAL_PHONE => 'Illegal phone number provided',
     $ERROR_AUP_NOT_ACCEPTED => 'Acceptable Use Policy (AUP) was not accepted',
+    $ERROR_SPONSOR_NOT_FROM_LOCALDOMAIN => 'Your access can only be sponsored by a %s email address.',
 );
 
 =back

@@ -297,6 +297,12 @@ mandatory_fields=firstname,lastname,phone,email
 #
 # What field should we assign to the pid of the guest? Defaults to email.
 guest_pid=email
+#
+# guests_self_registration.sponsors_only_from_localdomain
+#
+# Sponsors emails can only be from the general.localdomain domain. Defaults to 
+# yes.
+sponsors_only_from_localdomain=yes
 
 
 [guests_pre_registration]
