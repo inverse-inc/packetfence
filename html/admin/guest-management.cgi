@@ -114,7 +114,13 @@ if (defined($session->param("username"))) {
             }
             else {
                 # Otherwise send email
-                pf::web::guest::send_preregistration_confirmation_email($info);
+                # translate 3d into 3 days with proper plural form handling
+                my ($singular, $plural, $value) = get_translatable_time($info->{'duration'});
+                $info->{'duration'} = "$value " . ni18n($singular, $plural, $value);
+
+                pf::web::guest::send_template_email(
+                    $pf::web::guest::TEMPLATE_EMAIL_GUEST_PREREGISTRATION, "Guest Network Access Information", $info
+                );
                         
                 # Return user to the guest registration page
                 pf::web::guest::generate_registration_page($cgi, $session,"/guests/manage",

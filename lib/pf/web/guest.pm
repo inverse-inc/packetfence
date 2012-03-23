@@ -700,27 +700,23 @@ sub generate_registration_confirmation_page {
     exit;
 }
 
-=item send_preregistration_confirmation_email
+=item send_template_email
 
 =cut
-sub send_preregistration_confirmation_email {
-    my ($info) = @_;
+sub send_template_email {
+    my ($template, $subject, $info) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
 
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
     # local override (EMAIL_FROM) or pf.conf's value or root@domain
     my $from = $pf::web::guest::EMAIL_FROM || $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
 
-    # translate 3d into 3 days with proper plural form handling
-    my ($singular, $plural, $value) = get_translatable_time($info->{'duration'});
-    $info->{'duration'} = "$value " . ni18n($singular, $plural, $value);
-
     my $msg = MIME::Lite::TT->new(
         From        =>  $from,
         To          =>  $info->{'email'},
         Cc          =>  $pf::web::guest::EMAIL_CC,
-        Subject     =>  encode("MIME-Q", i18n("Guest Network Access Information")),
-        Template    =>  "emails-$pf::web::guest::TEMPLATE_EMAIL_GUEST_PREREGISTRATION.txt.tt",
+        Subject     =>  encode("MIME-Q", i18n($subject)),
+        Template    =>  "emails-$template.txt.tt",
         TmplOptions =>  { INCLUDE_PATH => "$conf_dir/templates/" },
         TmplParams  =>  $info,
         TmplUpgrade =>  1,
