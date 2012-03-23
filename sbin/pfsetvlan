@@ -1674,6 +1674,9 @@ sub handleTrap {
                             $logger->info("sending email to admin regarding isolation of $mac behind VoIP phone");
                             pfmailer(%message);
                         }
+                        else {
+                            $logger->warn("VLAN changed and $mac is behind VoIP phone. Not bouncing the port!");
+                        }
                     }
                 } else {
                     $logger->info(
