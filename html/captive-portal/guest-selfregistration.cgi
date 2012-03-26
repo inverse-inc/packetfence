@@ -42,10 +42,8 @@ my $cgi = new CGI;
 $cgi->charset("UTF-8");
 my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 
-my $result;
-my $ip              = $cgi->remote_addr();
+my $ip = $cgi->remote_addr();
 my $destination_url = pf::web::get_destination_url($cgi);
-my $enable_menu     = $cgi->param("enable_menu");
 my %info;
 
 # if self registration is not enabled, redirect to portal entrance

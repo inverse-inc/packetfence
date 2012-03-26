@@ -58,15 +58,6 @@ my $result;
 my $ip              = $cgi->remote_addr();
 my $enable_menu     = $cgi->param("enable_menu");
 my $mac             = ip2mac($ip);
-my %params;
-
-# pull parameters from query string
-foreach my $param($cgi->url_param()) {
-  $params{$param} = $cgi->url_param($param);
-}
-foreach my $param($cgi->param()) {
-  $params{$param} = $cgi->param($param);
-}
 
 # Is user already logged in?
 # If we can find an existing PHP session, we allow the user to proceed.
