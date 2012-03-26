@@ -44,6 +44,9 @@ o Upgrading from a version prior to <release>:
        by custom code to provide more information for email templates
      - pf::web::guest::validate_sponsor_group() has been removed (migrated 
        into authentication modules)
+     - pf::web::guest::generate_activation_confirmation_page was renamed and
+       changed package, now: pf::web::generate_generic_page. It also changed 
+       signature (now more generic).
 
 o Upgrading from a version prior to 3.2.0:
 

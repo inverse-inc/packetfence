@@ -94,6 +94,7 @@ BEGIN {
         modify_status
         create
         find_code
+        set_status_verified
         $UNVERIFIED $EXPIRED $VERIFIED $INVALIDATED
         $SPONSOR_ACTIVATION $GUEST_ACTIVATION
     );
@@ -135,10 +136,16 @@ sub email_activation_db_prepare {
         WHERE activation_code LIKE ? AND status = ?
     ]);
 
+    $email_activation_statements->{'email_activation_find_code_sql'} = get_db_handle()->prepare(qq[
+        SELECT code_id, pid, mac, email, activation_code, expiration, status, type
+        FROM email_activation 
+        WHERE activation_code LIKE ?
+    ]);
+
     $email_activation_statements->{'email_activation_view_by_code_sql'} = get_db_handle()->prepare(qq[
         SELECT code_id, pid, mac, email, activation_code, expiration, status, type
         FROM email_activation 
-        WHERE activation_code= ?
+        WHERE activation_code = ?
     ]);
 
     $email_activation_statements->{'email_activation_add_sql'} = get_db_handle()->prepare(qq[
@@ -178,6 +185,20 @@ sub view {
     return ($ref);
 }
 
+=item find_code - view an email activation record by activation code without hash-format. Returns an hashref
+
+=cut
+sub find_code {
+    my ($activation_code) = @_;
+    my $query = db_query_execute(EMAIL_ACTIVATION, $email_activation_statements, 
+        'email_activation_find_code_sql', '%'.$activation_code);
+    my $ref = $query->fetchrow_hashref();
+
+    # just get one row and finish
+    $query->finish();
+    return ($ref);
+}
+
 =item find_unverified_code - find an unused email activation record by doing a LIKE in the code, returns an hashref
 
 =cut
@@ -192,7 +213,7 @@ sub find_unverified_code {
     return ($ref);
 }
 
-=item view_by_code - view an email activation record by activation code. Returns an hashref
+=item view_by_code - view an email activation record by exact activation code (including hash format). Returns an hashref
 
 =cut
 sub view_by_code {
@@ -409,12 +430,24 @@ sub validate_code {
         return;
     }
 
-    # At this point, code is valid, mark it as verified and return the activation record
-    modify_status($activation_record->{'code_id'}, $VERIFIED);
+    # At this point, code is validated: return the activation record
     $logger->info("Activation code sent to email $activation_record->{email} successfully verified! "
         . "Node authorized: $activation_record->{mac} of activation type: $activation_record->{type}"
     );
     return $activation_record;
+}
+
+=item set_status_verified 
+
+Change the status of a given email activation code to VERIFIED which means it can't be used anymore.
+
+=cut
+sub set_status_verified {
+    my ($activation_code) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $activation_record = find_code($activation_code);
+    modify_status($activation_record->{'code_id'}, $VERIFIED);
 }
 
 # TODO: add an expire / cleanup sub

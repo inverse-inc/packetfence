@@ -42,7 +42,7 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     # No export to force users to use full package name and allowing pf::web::custom to redefine us
-    @EXPORT = qw(i18n ni18n);
+    @EXPORT = qw(i18n ni18n i18n_format);
 }
 
 use pf::config;
@@ -77,6 +77,19 @@ sub ni18n {
     my $category = shift;
 
     return ngettext($singular, $plural, $category);
+}
+
+=item i18n_format
+
+Pass message id through gettext then sprintf it.
+
+Meant to be called from the TT templates.
+
+=cut
+sub i18n_format {
+    my ($msgid, @args) = @_;
+
+    return sprintf(gettext($msgid), @args);
 }
 
 sub web_get_locale {
@@ -823,6 +836,40 @@ sub end_portal_session {
     pf::web::generate_release_page($cgi, $session, $destination_url, $mac);
     exit(0);
 }
+
+=item generate_generic_page
+
+Present a generic page. Template and arguments provided to template passed as arguments
+
+=cut
+sub generate_generic_page {
+    my ( $cgi, $session, $template, $template_args ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
+    bindtextdomain( "packetfence", "$conf_dir/locale" );
+    textdomain("packetfence");
+
+    my $cookie = $cgi->cookie( CGISESSID => $session->id );
+    print $cgi->header( -cookie => $cookie );
+
+    my $ip = get_client_ip($cgi);
+    my $mac = ip2mac($ip);
+
+    my $vars = $template_args;
+    $vars->{'logo'} = $Config{'general'}{'logo'};
+    $vars->{'i18n'} = \&i18n;
+    $vars->{'i18n_format'} = \&i18n_format;
+    $vars->{'list_help_info'} = [
+        { name => i18n('IP'),  value => $ip },
+        { name => i18n('MAC'), value => $mac }
+    ];
+
+    my $tt = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
+    $tt->process($template, $vars) || $logger->error($tt->error());
+    exit;
+}
+
 
 =back
 

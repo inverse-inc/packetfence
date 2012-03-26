@@ -61,12 +61,17 @@ our $SELF_REGISTRATION_TEMPLATE = "guest.html";
 
 our $REGISTRATION_TEMPLATE = "guest/register_guest.html";
 our $REGISTRATION_CONFIRMATION_TEMPLATE = "guest/registration_confirmation.html";
+our $EMAIL_CONFIRMED_TEMPLATE = "activated.html";
+our $SPONSOR_CONFIRMED_TEMPLATE = "guest/sponsor_accepted.html";
+our $SPONSOR_LOGIN_TEMPLATE = "guest/sponsor_login.html";
 our $REGISTRATION_CONTINUE = 10;
 
 # Available default email templates
 Readonly our $TEMPLATE_EMAIL_GUEST_ACTIVATION => 'guest_self_activation';
 Readonly our $TEMPLATE_EMAIL_SPONSOR_ACTIVATION => 'guest_sponsor_activation';
 Readonly our $TEMPLATE_EMAIL_GUEST_PREREGISTRATION => 'guest_preregistration';
+Readonly our $TEMPLATE_EMAIL_GUEST_SELF_PREREGISTRATION => 'guest_self_preregistration';
+Readonly our $TEMPLATE_EMAIL_GUEST_ON_REGISTRATION => 'guest_registered';
 
 our $EMAIL_FROM = undef;
 our $EMAIL_CC = undef;
@@ -460,32 +465,6 @@ sub validate_registration_import {
     $session->param("access_duration", $cgi->param("access_duration"));
 
     return (1, 0);
-}
-
-=item generate_activation_confirmation_page
-
-Sub to present the activation confirmation. 
-This is not hooked-up by default.
-
-=cut
-sub generate_activation_confirmation_page {
-    my ( $cgi, $session, $expiration ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web::guest');
-    setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    textdomain("packetfence");
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-    my $ip   = $cgi->remote_addr;
-    my $vars = {
-        logo            => $Config{'general'}{'logo'},
-        i18n            => \&i18n,
-        txt_message     => sprintf(i18n('Access to the guest network has been granted until %s.'), $expiration)
-    };
-
-    my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
-    $template->process("activated.html", $vars);
-    exit;
 }
 
 =item prepare_email_guest_activation_info
