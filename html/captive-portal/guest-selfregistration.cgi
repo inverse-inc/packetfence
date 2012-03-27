@@ -43,7 +43,7 @@ my $cgi = new CGI;
 $cgi->charset("UTF-8");
 my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 
-my $ip = $cgi->remote_addr();
+my $ip = pf::web::get_client_ip($cgi);
 my $destination_url = pf::web::get_destination_url($cgi);
 my %info;
 
