@@ -83,23 +83,11 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
     exit(0);
   }
 
-  my $maxnodes = 0;
-  $maxnodes = $Config{'registration'}{'maxnodes'} if (defined $Config{'registration'}{'maxnodes'});
-  my $pid = $session->param("username");
-
-  my $node_count = 0;
-  $node_count = node_pid($pid) if ($pid ne '1');
-
-  if ($pid ne '1' && $maxnodes !=0 && $node_count >= $maxnodes ) {
-    $logger->info("$maxnodes are already registered to $pid");
-    pf::web::generate_error_page($cgi, $session, "error: only register max nodes");
-    return(0);
-  }
-
   # obtain node information provided by authentication module
   # This appends the hashes to one another. values returned by authenticator wins on key collision
   %info = (%info, $authenticator->getNodeAttributes());
  
+  my $pid = $session->param("username");
   pf::web::web_node_register($cgi, $session, $mac, $pid, %info);
   pf::web::end_portal_session($cgi, $session, $mac, $destination_url);
 

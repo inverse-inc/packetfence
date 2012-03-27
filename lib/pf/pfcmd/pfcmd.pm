@@ -154,7 +154,7 @@ $grammar = q {
 
    node_view_field : 'mac' | 'pid' | 'category' | 'detect_date' | 'regdate' | 'unregdate' | 'lastskip' | 'status' | 'user_agent' | 'computername'  | 'notes' | 'last_arp' | 'last_dhcp' | 'dhcp_fingerprint' | 'voip' | 'bypass_vlan'
 
-   nodecategory_view_field :  'name' | 'notes'
+   nodecategory_view_field :  'name' | 'max_nodes_per_pid' | 'notes'
 
    interfaceconfig_view_field : 'interface' | 'ip' | 'mask' | 'type' | 'gateway' | 'enforcement'
 

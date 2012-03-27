@@ -66,6 +66,7 @@ BEGIN {
         node_mac_wakeup
         is_node_voip
         is_node_registered
+        is_max_reg_nodes_reached
     );
 }
 
@@ -723,14 +724,8 @@ sub node_register {
     require pf::person;
     # do not check for max_node is it's for auto-register
     if (!$auto_registered) {
-        # checks to enforce max number of nodes per person id (pid) if enabled
-        my $max_nodes = 0;
-        $max_nodes = $Config{'registration'}{'maxnodes'}
-            if ( defined $Config{'registration'}{'maxnodes'} );
-        my $owned_nodes = node_pid($pid);
-        if ( $max_nodes != 0 && $pid ne '1' && $owned_nodes >= $max_nodes ) {
-            $logger->error(
-                "maxnodes met or exceeded - registration of $mac to $pid failed");
+        if ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}) ) {
+            $logger->error( "max nodes per pid met or exceeded - registration of $mac to $pid failed" );
             return (0);
         }
     }
@@ -1016,6 +1011,48 @@ sub _node_category_handling {
     return $data{'category_id'};
 }
 
+=item is_max_reg_nodes_reached
+
+Performs the enforcement of the maximum number of registered nodes allowed per user.
+
+Two techniques so far: a global maxnodes parameter and a per-category maximum.
+
+=cut
+sub is_max_reg_nodes_reached {
+    my ($mac, $pid, $category) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # default_pid is a special case: no limit for this user
+    return $FALSE if ($pid eq $default_pid);
+
+    # global max nodes per pid limit
+    my $nb_nodes_for_pid = node_pid($pid);
+    my $maxnodes = $Config{'registration'}{'maxnodes'};
+    if ( $maxnodes != 0 && $nb_nodes_for_pid >= $maxnodes ) {
+        $logger->info("global max nodes per-user limit reached: $nb_nodes_for_pid are already registered to $pid");
+        return $TRUE;
+    }
+
+    # per-category max node per pid limit
+    if ( defined($category) ) {
+
+        my $category_info = nodecategory_view_by_name($category);
+        if ( defined($category_info->{'max_nodes_per_pid'}) ) {
+
+            my $max_nodes_for_category = $category_info->{'max_nodes_per_pid'};
+            if ( $max_nodes_for_category != 0 && $nb_nodes_for_pid >= $max_nodes_for_category ) {
+                $logger->info(
+                    "per-category max nodes per-user limit reached: $nb_nodes_for_pid are already registered to $pid"
+                );
+                return $TRUE;
+            }
+        }
+    }
+
+    # fallback to maximum not reached
+    return $FALSE;
+}
+
 =back
 
 =head1 AUTHOR
@@ -1036,7 +1073,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2007-2011 Inverse inc.
+Copyright (C) 2007-2012 Inverse inc.
 
 =head1 LICENSE
 

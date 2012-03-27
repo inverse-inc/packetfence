@@ -57,6 +57,7 @@ CREATE TABLE person (
 CREATE TABLE `node_category` (
   `category_id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
+  `max_nodes_per_pid` int default 0,
   `notes` varchar(255) default NULL,
   PRIMARY KEY (`category_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

@@ -54,9 +54,6 @@ $logger->info("$ip - $mac on mobile confirmation page");
 
 my %info;
 
-# Pull username
-$info{'pid'} = $cgi->remote_user || 1;
-
 # FIXME to enforce 'harder' trapping (proper workflow) once this all work
 # put code as main if () and provide a way to unset session in template
 if ($cgi->param("pin")) { # && $session->param("authType")) {
@@ -72,24 +69,13 @@ if ($cgi->param("pin")) { # && $session->param("authType")) {
 
     $logger->info("Valid PIN -- Registering user");
    
-    my $maxnodes = 0;
-    $maxnodes = $Config{'registration'}{'maxnodes'} if (defined $Config{'registration'}{'maxnodes'});
-    my $pid = $session->param( "guest_pid" ) || 1;
-
-    my $node_count = 0;
-    $node_count = node_pid($pid) if ($pid ne '1');
-
-    if ($pid ne '1' && $maxnodes !=0 && $node_count >= $maxnodes ) {
-      $logger->info("$maxnodes are already registered to $pid");
-      pf::web::generate_error_page($cgi, $session, "error: only register max nodes");
-      return(0);
-    }
 
     # Setting access timeout and category from config
     my $access_duration = $Config{'guests_self_registration'}{'access_duration'};
     $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $access_duration));
     $info{'category'} = $Config{'guests_self_registration'}{'category'};
 
+    my $pid = $session->param( "guest_pid" ) || 1;
     pf::web::web_node_register($cgi, $session, $mac, $pid, %info);
     # clear state that redirects to the Enter PIN page
     $session->clear(["guest_pid"]);

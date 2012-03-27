@@ -66,7 +66,15 @@ To set the particular session variable use the following:
 =cut
 #*pf::web::web_node_register = sub {
 #    my ( $cgi, $session, $mac, $pid, %info ) = @_;
-#    my $logger = Log::Log4perl::get_logger('pf::web');
+#    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+#
+#    if ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}) ) {
+#        pf::web::generate_error_page(
+#            $cgi, $session, 
+#            "You have reached the maximum number of devices you are able to register with this username."
+#        );  
+#        exit(0);
+#    }  
 #
 #    if ($session->param('usercategory') eq 'guest') {
 #        $logger->info("registering a guest with mac: $mac");
@@ -99,7 +107,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010,2011 Inverse inc.
+Copyright (C) 2010, 2011, 2012 Inverse inc.
 
 =head1 LICENSE
 

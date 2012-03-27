@@ -14,7 +14,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 5;
+use Test::More tests => 4;
 use Test::NoWarnings;
 use Test::Exception;
 use File::Basename qw(basename);
@@ -43,9 +43,6 @@ throws_ok { nodecategory_add((notes => 'no-name')) } # passing an anonymous hash
     qr/name missing/,
     'nodecategory_add without a name parameter';
 
-throws_ok { nodecategory_modify(1, (notes => 'no-name')) } # passing an anonymous hash, forgetting the mandatory 'name'
-    qr/name missing/,
-    'nodecategory_modify without a name parameter';
 
 =head1 AUTHOR
 
@@ -53,7 +50,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2010-2011 Inverse inc.
+Copyright (C) 2010-2012 Inverse inc.
 
 =head1 LICENSE
     

@@ -48,7 +48,7 @@ BEGIN {
 use pf::config;
 use pf::enforcement qw(reevaluate_access);
 use pf::iplog qw(ip2mac);
-use pf::node qw(node_attributes node_modify node_register node_view);
+use pf::node qw(node_attributes node_modify node_register node_view is_max_reg_nodes_reached);
 use pf::os qw(dhcp_fingerprint_view);
 use pf::useragent;
 use pf::util;
@@ -423,26 +423,16 @@ sub generate_error_page {
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
     my $vars = {
-        logo            => $Config{'general'}{'logo'},
-        i18n            => \&i18n,
+        logo => $Config{'general'}{'logo'},
+        i18n => \&i18n,
+        txt_message => i18n($error_msg),
     };
-    # TODO: this is ugly, we shouldn't do something based on error message provided
-    if ( $error_msg eq 'error: only register max nodes' ) {
-        my $maxnodes = 0;
-        $maxnodes = $Config{'registration'}{'maxnodes'}
-            if ( defined $Config{'registration'}{'maxnodes'} );
-        $vars->{txt_message} = sprintf( i18n($error_msg), $maxnodes );
-    } else {
-        $vars->{txt_message} = i18n($error_msg);
-    }
 
     my $ip = get_client_ip($cgi);
-    push @{ $vars->{list_help_info} },
-        { name => i18n('IP'), value => $ip };
     my $mac = ip2mac($ip);
+    push @{ $vars->{list_help_info} }, { name => i18n('IP'), value => $ip };
     if ($mac) {
-        push @{ $vars->{list_help_info} },
-            { name => i18n('MAC'), value => $mac };
+        push @{ $vars->{list_help_info} }, { name => i18n('MAC'), value => $mac };
     }
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
@@ -547,7 +537,15 @@ See F<pf::web::custom> for examples.
 =cut
 sub web_node_register {
     my ( $cgi, $session, $mac, $pid, %info ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    if ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}) ) {
+        pf::web::generate_error_page(
+            $cgi, $session, 
+            "You have reached the maximum number of devices you are able to register with this username."
+        );
+        exit(0);
+    }
 
     # we are good, push the registration
     return _sanitize_and_register($session, $mac, $pid, %info);

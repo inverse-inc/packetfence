@@ -48,6 +48,11 @@ o Upgrading from a version prior to <release>:
        changed package, now: pf::web::generate_generic_page. It also changed 
        signature (now more generic).
 
+    - Changes to Web API
+    Users with custom code will have to hook on these updated APIs.
+     - pf::web::web_node_register now enforces max registered nodes per pid 
+       limits. You might want to merge that in your custom code.
+
 o Upgrading from a version prior to 3.2.0:
 
     - Database schema update
