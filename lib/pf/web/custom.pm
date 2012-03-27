@@ -52,9 +52,13 @@ package pf::web;
 
 =item categorization sample
 
+WARNING: The technique described below is for demonstration purposes only. 
+Node categorization is better performed by the authentication modules under 
+conf/authentication now. See L<pf::web::auth> for more information.
+
 Here if a particular session variable was set, we categorize the node as a guest
 and we set it's expiration to now + $GUEST_SESSION_DURATION. 
-Then the normal registartion code is called.
+Then the normal registration code is called.
 
 To set the particular session variable use the following:
  $session->param("usercategory", "guest");
