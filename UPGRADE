@@ -19,7 +19,7 @@ o Upgrading from a version prior to <release>:
     - Email templates changed names
     Related to the above guest API changes were several template files renamed
      - emails-guest_registration.txt.tt -> emails-guest_preregistration.txt.tt
-     - emails-guest_activation.txt.tt -> emails-guest_self_activation.txt.tt
+     - emails-guest_activation.txt.tt -> emails-guest_email_activation.txt.tt
      - emails-sponsor_activation.txt.tt -> 
        emails-guest_sponsor_activation.txt.tt
 

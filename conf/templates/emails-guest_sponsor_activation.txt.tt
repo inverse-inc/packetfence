@@ -13,7 +13,11 @@ Email: [% email %]
 
 In order to activate access we need you to click on the following link: [% activation_uri %]
 
+[% IF is_preregistration -%]
+Once you click on the activation link the guest will be sent a username and password by email which will allow him to register as a guest in the network once on-site.
+[% ELSE %]
 Until you click on the activation link this guest will have NO Internet access.
+[%- END %]
 
 Thank you for your cooperation.
 --

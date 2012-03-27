@@ -151,7 +151,7 @@ if (defined($cgi->url_param('code'))) {
     
             # populating variables used for temporary account
             $pid = $node_info->{'pid'};
-            $template = "emails-$pf::web::guest::TEMPLATE_EMAIL_GUEST_ON_REGISTRATION.txt.tt";
+            $template = $pf::web::guest::TEMPLATE_EMAIL_GUEST_ON_REGISTRATION;
             $info{'subject'} = $Config{'general'}{'domain'}.": Guest network access enabled";
         }
 
@@ -161,7 +161,7 @@ if (defined($cgi->url_param('code'))) {
             # If pid is set in activation record then we are activating a guest who pre-registered
             $pid = $activation_record->{'pid'};
             $info{'pid'} = $pid;
-            $template = "emails-$pf::web::guest::TEMPLATE_EMAIL_GUEST_SELF_PREREGISTRATION.txt.tt";
+            $template = $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_PREREGISTRATION;
             $info{'subject'} = $Config{'general'}{'domain'}.": Guest access request accepted";
         }
     
@@ -179,7 +179,7 @@ if (defined($cgi->url_param('code'))) {
         $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
 
         pf::web::guest::send_template_email(
-            $pf::web::guest::TEMPLATE_EMAIL_GUEST_ON_REGISTRATION, $info{'subject'}, \%info
+            $template, $info{'subject'}, \%info
         );
 
         pf::email_activation::set_status_verified($cgi->url_param('code'));

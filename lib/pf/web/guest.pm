@@ -61,16 +61,18 @@ our $SELF_REGISTRATION_TEMPLATE = "guest.html";
 
 our $REGISTRATION_TEMPLATE = "guest/register_guest.html";
 our $REGISTRATION_CONFIRMATION_TEMPLATE = "guest/registration_confirmation.html";
+our $PREREGISTRATION_CONFIRMED_TEMPLATE = 'guest/preregistration.html';
 our $EMAIL_CONFIRMED_TEMPLATE = "activated.html";
 our $SPONSOR_CONFIRMED_TEMPLATE = "guest/sponsor_accepted.html";
 our $SPONSOR_LOGIN_TEMPLATE = "guest/sponsor_login.html";
 our $REGISTRATION_CONTINUE = 10;
 
 # Available default email templates
-Readonly our $TEMPLATE_EMAIL_GUEST_ACTIVATION => 'guest_self_activation';
+Readonly our $TEMPLATE_EMAIL_GUEST_ACTIVATION => 'guest_email_activation';
 Readonly our $TEMPLATE_EMAIL_SPONSOR_ACTIVATION => 'guest_sponsor_activation';
+Readonly our $TEMPLATE_EMAIL_EMAIL_PREREGISTRATION => 'guest_email_preregistration';
+Readonly our $TEMPLATE_EMAIL_SPONSOR_PREREGISTRATION => 'guest_sponsor_preregistration';
 Readonly our $TEMPLATE_EMAIL_GUEST_ADMIN_PREREGISTRATION => 'guest_admin_pregistration';
-Readonly our $TEMPLATE_EMAIL_GUEST_SELF_PREREGISTRATION => 'guest_self_preregistration';
 Readonly our $TEMPLATE_EMAIL_GUEST_ON_REGISTRATION => 'guest_registered';
 
 our $EMAIL_FROM = undef;
@@ -129,6 +131,7 @@ sub generate_selfregistration_page {
     $vars->{'email_guest_allowed'} = defined($guest_self_registration{$SELFREG_MODE_EMAIL});
     $vars->{'sms_guest_allowed'} = defined($guest_self_registration{$SELFREG_MODE_SMS});
     $vars->{'sponsored_guest_allowed'} = defined($guest_self_registration{$SELFREG_MODE_SPONSOR});
+    $vars->{'is_preregistration'} = $session->param('preregistration');
 
     # Error management
     if (defined($error_code) && $error_code != 0) {
@@ -138,7 +141,7 @@ sub generate_selfregistration_page {
     }
 
     my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
-    $template->process($pf::web::guest::SELF_REGISTRATION_TEMPLATE, $vars);
+    $template->process($pf::web::guest::SELF_REGISTRATION_TEMPLATE, $vars) || $logger->error($template->error());
     exit;
 }
 
@@ -256,6 +259,11 @@ Sub to validate self-registering guests, this is not hooked-up by default
 sub validate_selfregistration {
     my ($cgi, $session) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # is preregistration allowed?
+    if ($session->param("preregistration") && isdisabled($Config{'guests_self_registration'}{'preregistration'})) {
+        return ($FALSE, $GUEST::ERROR_PREREG_NOT_ALLOWED);
+    }
 
     # mandatory parameters are defined in config
     my @mandatory_fields = split( /\s*,\s*/, $Config{'guests_self_registration'}{'mandatory_fields'} );
@@ -502,6 +510,8 @@ sub prepare_sponsor_guest_activation_info {
     $info{'telephone'} = $session->param("phone");
     $info{'sponsor'} = $session->param('sponsor');
     $info{'subject'} = $Config{'general'}{'domain'}.': Email activation required';
+
+    $info{'is_preregistration'} = $session->param('preregistration');
 
     return %info;
 }
@@ -853,6 +863,7 @@ Readonly::Scalar our $ERROR_AUP_NOT_ACCEPTED => 8;
 Readonly::Scalar our $ERROR_SPONSOR_NOT_FROM_LOCALDOMAIN => 9;
 Readonly::Scalar our $ERROR_SPONSOR_UNABLE_TO_VALIDATE => 10;
 Readonly::Scalar our $ERROR_SPONSOR_NOT_ALLOWED => 11;
+Readonly::Scalar our $ERROR_PREREG_NOT_ALLOWED => 12;
 
 =item errors 
 
@@ -871,6 +882,7 @@ Readonly::Hash our %ERRORS => (
     $ERROR_SPONSOR_NOT_FROM_LOCALDOMAIN => 'Your access can only be sponsored by a %s email address',
     $ERROR_SPONSOR_UNABLE_TO_VALIDATE => 'Unable to validate your sponsor at the moment',
     $ERROR_SPONSOR_NOT_ALLOWED  => 'Email %s is not allowed to sponsor guest access',
+    $ERROR_PREREG_NOT_ALLOWED  => 'Guest pre-registration is not allowed by policy',
 );
 
 =back
@@ -881,7 +893,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010,2011 Inverse inc.
+Copyright (C) 2010, 2011, 2012 Inverse inc.
 
 =head1 LICENSE
 
