@@ -1623,8 +1623,8 @@ Self-registration is enabled by default. It is part of the captive-portal and ca
 
 image::docs/images/screenshot-captive-portal.png[alt="Captive portal screenshot"]
 
-Guest pre-registration
-++++++++++++++++++++++
+Managed guests
+++++++++++++++
 
 Part of the web administration interface, the guests management interface is enabled by default. It is accessible through a separate interface which can use a different users file for access rights: https://<hostname>:1443/guests/manage
 
@@ -1654,19 +1654,19 @@ CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emai
 
 Self-registered guests are added under the persons tab of the PacketFence web administration interface.
 
-Guest pre-registration
-++++++++++++++++++++++
+Managed guests
+++++++++++++++
 
-It is possible to modify the default values of the guest pre-registration feature by editing `/usr/local/pf/conf/pf.conf`.
+It is possible to modify the default values of the guests created by the guest management interface by editing `/usr/local/pf/conf/pf.conf`.
 
 Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and documentation for every settings is available in `/usr/local/pf/conf/documentations.conf`.
 
-  [guests_pre_registration]
+  [guests_admin_registration]
   access_duration_choices=1h,3h,12h,1D,2D,3D,5D
   default_access_duration=12h
   category=guest
 
-To enable the pre-registered guests to login through the captive-portal, modify the following line in `/usr/local/pf/conf/pf.conf`.
+To allow the guest created by the guest management interface to login through the captive-portal, `preregistered_guests` must be selected as a valid authentication mechanism. For example with the following line in `/usr/local/pf/conf/pf.conf`:
 
   [registration]
   auth=preregistered_guests
@@ -1679,7 +1679,7 @@ The newly created user will be able to access the interface immediately.
 
 CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
 
-Pre-registered guests are added under the persons tab of the PacketFence web administration interface.
+Guests created by the guest management interface are added under the persons tab of the PacketFence web administration interface.
 
 Statement of Health (SoH)
 ~~~~~~~~~~~~~~~~~~~~~~~~~

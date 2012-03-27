@@ -316,23 +316,24 @@ sponsors_only_from_localdomain=yes
 sponsor_authentication=local
 
 
-[guests_pre_registration]
+[guests_admin_registration]
 #
-# guests_pre_registration.access_duration_choices
+# guests_admin_registration.access_duration_choices
 #
 # These are all the choices offered in the guest management interface as 
 # possible access duration values for a given registration.
 access_duration_choices=1h,3h,12h,1D,2D,3D,5D
 #
-# guests_pre_registration.default_access_duration
+# guests_admin_registration.default_access_duration
 #
 # This is the default access duration value selected in the dropdown on the 
 # guest management interface.
 default_access_duration=12h
 #
-# guests_pre_registration.category
+# guests_admin_registration.category
 #
-# The node category that will be assigned to guests' pre-registered nodes by default.
+# The node category that will be assigned to guests' nodes registered by an
+# admin by default.
 category=guest
 
 

@@ -119,7 +119,9 @@ if (defined($session->param("username"))) {
                 $info->{'duration'} = "$value " . ni18n($singular, $plural, $value);
 
                 pf::web::guest::send_template_email(
-                    $pf::web::guest::TEMPLATE_EMAIL_GUEST_PREREGISTRATION, "Guest Network Access Information", $info
+                    $pf::web::guest::TEMPLATE_EMAIL_GUEST_ADMIN_PREREGISTRATION, 
+                    "Guest Network Access Information", 
+                    $info
                 );
                         
                 # Return user to the guest registration page

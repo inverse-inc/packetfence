@@ -69,7 +69,7 @@ our $REGISTRATION_CONTINUE = 10;
 # Available default email templates
 Readonly our $TEMPLATE_EMAIL_GUEST_ACTIVATION => 'guest_self_activation';
 Readonly our $TEMPLATE_EMAIL_SPONSOR_ACTIVATION => 'guest_sponsor_activation';
-Readonly our $TEMPLATE_EMAIL_GUEST_PREREGISTRATION => 'guest_preregistration';
+Readonly our $TEMPLATE_EMAIL_GUEST_ADMIN_PREREGISTRATION => 'guest_admin_pregistration';
 Readonly our $TEMPLATE_EMAIL_GUEST_SELF_PREREGISTRATION => 'guest_self_preregistration';
 Readonly our $TEMPLATE_EMAIL_GUEST_ON_REGISTRATION => 'guest_registered';
 
@@ -175,10 +175,10 @@ sub generate_registration_page {
 
     # access duration
     $vars->{'default_duration'} = $cgi->param("access_duration")
-        || $Config{'guests_pre_registration'}{'default_access_duration'};
+        || $Config{'guests_admin_registration'}{'default_access_duration'};
 
     $vars->{'duration'} = pf::web::util::get_translated_time_hash(
-        [ split (/\s*,\s*/, $Config{'guests_pre_registration'}{'access_duration_choices'}) ], 
+        [ split (/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'}) ], 
         pf::web::web_get_locale($cgi, $session)
     );
 
@@ -229,7 +229,7 @@ We are doing this because we can't trust what comes from the client.
 =cut
 sub valid_access_duration {
     my ($value) = @_;
-    foreach my $allowed_duration (split (/\s*,\s*/, $Config{'guests_pre_registration'}{'access_duration_choices'})) {
+    foreach my $allowed_duration (split (/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'})) {
         return $allowed_duration if ($value == normalize_time($allowed_duration));
     }
     return $FALSE;

@@ -88,7 +88,7 @@ sub getNodeAttributes {
 
     return (
         unregdate => POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($this->{_accessDuration}))),
-        category => $Config{'guests_pre_registration'}{'category'},
+        category => $Config{'guests_admin_registration'}{'category'},
     );
 }
 

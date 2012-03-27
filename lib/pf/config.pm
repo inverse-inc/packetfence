@@ -304,7 +304,7 @@ sub readPfConfigFiles {
         "general.maintenance_interval", "scan.duration",
         "vlan.bounce_duration",   
         "guests_self_registration.email_activation_timeout", "guests_self_registration.access_duration",
-        "guests_pre_registration.default_access_duration",
+        "guests_admin_registration.default_access_duration",
     ) {
         my ( $group, $item ) = split( /\./, $val );
         $Config{$group}{$item} = normalize_time( $Config{$group}{$item} );

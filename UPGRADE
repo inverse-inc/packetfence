@@ -13,6 +13,9 @@ o Upgrading from a version prior to <release>:
     your schema even if you don't use the feature:
     mysql -u root -p pf -v < db/upgrade-3.2.0-3.3.0.sql
 
+    - guests_pre_registration renamed to guests_admin_registration
+    Update your conf/pf.conf if you diverged from the default settings.
+
     - Email templates changed names
     Related to the above guest API changes were several template files renamed
      - emails-guest_registration.txt.tt -> emails-guest_preregistration.txt.tt
