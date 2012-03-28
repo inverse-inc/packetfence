@@ -489,6 +489,7 @@ sub prepare_email_guest_activation_info {
     $info{'firstname'} = $session->param("firstname");
     $info{'lastname'} = $session->param("lastname");
     $info{'telephone'} = $session->param("phone");
+    $info{'company'} = $session->param("company");
     $info{'subject'} = $Config{'general'}{'domain'}.': Email activation required';
 
     return %info;
@@ -508,6 +509,7 @@ sub prepare_sponsor_guest_activation_info {
     $info{'firstname'} = $session->param("firstname");
     $info{'lastname'} = $session->param("lastname");
     $info{'telephone'} = $session->param("phone");
+    $info{'company'} = $session->param("company");
     $info{'sponsor'} = $session->param('sponsor');
     $info{'subject'} = $Config{'general'}{'domain'}.': Email activation required';
 
