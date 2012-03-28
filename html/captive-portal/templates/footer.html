@@ -1,6 +1,7 @@
 [%# Footer %]
     </div>
     <div id="footer">
+      [% UNLESS dont_show_help -%]
       <img src="/content/images/help.png" alt="Help" />
       <p>[% i18n("help: provide info") %]</p>
       <ul>
@@ -8,6 +9,7 @@
           <li>[% txt_help_info.name %]: [% txt_help_info.value %]</li>
         [%  END %]
       </ul>
+      [%- END %]
     </div>
   </div>
   </body>
