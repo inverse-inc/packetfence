@@ -133,6 +133,24 @@ sub generate_httpd_conf {
     }
     $tags{'proxies'} = join( "\n", @proxies );
 
+    # Guest related URLs allowed through Apache ACL's
+    $tags{'allowed_from_all_urls'} = '';
+    # /signup if pre-registration is allowed
+    my $guest_regist_allowed = isenabled($Config{'registration'}{'guests_self_registration'});
+    if ($guest_regist_allowed && isenabled($Config{'guests_self_registration'}{'preregistration'})) {
+        # TODO hardcoded URL mentionned here is probably suboptimal for maintenance
+        # | is for a regexp "or" as this is pulled from a 'Location ~' statement 
+        $tags{'allowed_from_all_urls'} .= '|/signup';
+    }
+    # /activate/email allowed if sponsor or email mode enabled
+    my $email_enabled = $guest_self_registration{$SELFREG_MODE_EMAIL};
+    my $sponsor_enabled = $guest_self_registration{$SELFREG_MODE_SPONSOR};
+    if ($guest_regist_allowed && ($email_enabled || $sponsor_enabled)) {
+        # TODO hardcoded URL mentionned here is probably suboptimal for maintenance
+        # | is for a regexp "or" as this is pulled from a 'Location ~' statement 
+        $tags{'allowed_from_all_urls'} .= '|/activate/email';
+    }
+
     my ($pt_http, $pt_https, $remediation);
     if ( $Config{'trapping'}{'passthrough'} eq "proxy" ) {
 

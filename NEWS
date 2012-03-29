@@ -32,6 +32,7 @@ Enhancements
  * Node categories were moved from node into configuration on the Web Admin
  * New per-category configuration to control maximum number of devices allowed per user (max_nodes_per_pid)
  * Daemon startup time logged. Allows for easier troubleshooting of slow-to-restart setups.
+ * Firewall and Captive Portal more restrictive by default if you are not using guest access
 
 Bug Fixes
  * Proxy Bypass issues in environment with Virtual IP (#1385)
