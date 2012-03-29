@@ -52,14 +52,21 @@ sub generate_named_conf {
     $tags{'template'}    = "$conf_dir/named.conf";
     $tags{'install_dir'} = $install_dir;
 
+    my @routed_inline_nets_named;
     my @routed_isolation_nets_named;
     my @routed_registration_nets_named;
-    my $registration_blackhole;
+    my $inline_blackhole;
     my $isolation_blackhole;
+    my $registration_blackhole;
     foreach my $network ( keys %ConfigNetworks ) {
 
         if ( $ConfigNetworks{$network}{'named'} eq 'enabled' ) {
-            if ( pf::config::is_network_type_vlan_isol($network) ) {
+            if ( pf::config::is_network_type_inline($network) ) {
+                my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
+                push @routed_inline_nets_named, $inline_obj;
+                $inline_blackhole = $ConfigNetworks{$network}{'gateway'};
+
+            } elsif ( pf::config::is_network_type_vlan_isol($network) ) {
                 my $isolation_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
                 push @routed_isolation_nets_named, $isolation_obj;
                 $isolation_blackhole = $ConfigNetworks{$network}{'dns'};
@@ -72,9 +79,9 @@ sub generate_named_conf {
         }
     }
 
-    $tags{'registration_clients'} = "";
-    foreach my $net ( @routed_registration_nets_named ) {
-        $tags{'registration_clients'} .= $net . "; ";
+    $tags{'inline_clients'} = "";
+    foreach my $net ( @routed_inline_nets_named ) {
+        $tags{'inline_clients'} .= $net . "; ";
     }
 
     $tags{'isolation_clients'} = "";
@@ -82,7 +89,20 @@ sub generate_named_conf {
         $tags{'isolation_clients'} .= $net . "; ";
     }
 
+    $tags{'registration_clients'} = "";
+    foreach my $net ( @routed_registration_nets_named ) {
+        $tags{'registration_clients'} .= $net . "; ";
+    }
+
     parse_template( \%tags, "$conf_dir/named.conf", "$generated_conf_dir/named.conf" );
+
+    my %tags_inline;
+    $tags_inline{'template'} = "$conf_dir/named-inline.ca";
+    $tags_inline{'hostname'} = $Config{'general'}{'hostname'};
+    $tags_inline{'incharge'} = "pf." . $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
+    $tags_inline{'A_blackhole'} = $inline_blackhole;
+    $tags_inline{'PTR_blackhole'} = reverse_ip($inline_blackhole) . ".in-addr.arpa.";
+    parse_template(\%tags_inline, "$conf_dir/named-inline.ca", "$var_dir/named/named-inline.ca", ";");
 
     my %tags_isolation;
     $tags_isolation{'template'} = "$conf_dir/named-isolation.ca";
@@ -109,9 +129,11 @@ sub generate_named_conf {
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
+Derek Wuelfrath <dwuelfrath@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2011-2012 Inverse inc.
 
 =head1 LICENSE
 

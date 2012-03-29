@@ -614,14 +614,6 @@ trap_limit_action =
 # We also have experimental IMAP and POP3 listeners which give fake emails telling users to open their browsers.
 # Enable them via the ports.listeners parameter and add the IMAP (143/tcp) and POP3 (110/tcp) here.
 ports_redirect=80/tcp,443/tcp
-#
-# inline.portal_redirect
-#
-# How should we refer to the captive portal in inline mode? Using DNS means that 
-# you need to configure your DNS to point to the PacketFence IP on the inline 
-# interface but allows you to easily use an SSL certificate for https.
-portal_redirect=ip
-
 
 [servicewatch]
 #

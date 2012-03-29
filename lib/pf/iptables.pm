@@ -160,19 +160,18 @@ sub generate_inline_rules {
     my ($filter_rules_ref, $nat_prerouting_ref, $nat_postrouting_ref) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
 
-    $logger->info("Allowing DNS through on inline interfaces to configured DNS servers");
-    foreach my $network (keys %ConfigNetworks) {
+    $logger->info("Adding DNS DNAT rules for unregistered and isolated inline clients.");
+    foreach my $network ( keys %ConfigNetworks ) {
         # skip non-inline interfaces
-        next if (!pf::config::is_network_type_inline($network));
+        next if ( !pf::config::is_network_type_inline($network) );
 
-        foreach my $dns ( split(/\s*,\s*/, $ConfigNetworks{$network}{'dns'}) ) {
-            my $rule = "--protocol udp --destination $dns --destination-port 53 --jump ACCEPT\n";
-            $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE $rule";
-            $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule";
-            $logger->trace("adding DNS FILTER passthrough for $dns");
-        }
+        my $rule = "--protocol udp --destination-port 53";
+        $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG 
+                --jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
+        $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOL
+                --jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
     }
-
+    
     $logger->info("Adding NAT Masquarade statement (PAT)");
     $$nat_postrouting_ref .= "-A $FW_POSTROUTING_INT_INLINE --jump MASQUERADE\n";
     
