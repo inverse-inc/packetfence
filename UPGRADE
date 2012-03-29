@@ -55,6 +55,9 @@ o Upgrading from a version prior to <release>:
     Users with custom code will have to hook on these updated APIs.
      - pf::web::web_node_register now enforces max registered nodes per pid 
        limits. You might want to merge that in your custom code.
+     - pf::web::generate_error_page no longer performs the translation 
+       itself, it is the burden of the caller to do so (to support format 
+       strings)
 
 o Upgrading from a version prior to 3.2.0:
 

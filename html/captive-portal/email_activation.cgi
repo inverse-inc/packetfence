@@ -38,8 +38,8 @@ if (defined($cgi->url_param('code'))) {
     my $activation_record = pf::email_activation::validate_code($cgi->url_param('code'));
     if (!defined($activation_record) || ref($activation_record) ne 'HASH' || !defined($activation_record->{'type'})) {
 
-        pf::web::generate_error_page($cgi, $session, "The activation code provided is invalid. "
-            . "Reasons could be: it never existed, it was already used or has expired."
+        pf::web::generate_error_page($cgi, $session, i18n("The activation code provided is invalid. "
+            . "Reasons could be: it never existed, it was already used or has expired.")
         );
         exit(0);
     }
@@ -161,7 +161,7 @@ if (defined($cgi->url_param('code'))) {
                 );
                 pf::web::generate_error_page(
                     $cgi, $session, 
-                    "There was a problem trying to find the computer to register. The problem has been logged."
+                    i18n("There was a problem trying to find the computer to register. The problem has been logged.")
                 );
                 exit(0);
             }
@@ -170,7 +170,7 @@ if (defined($cgi->url_param('code'))) {
     
                 $logger->warn("node mac: $node_mac has already been registered.");
                 pf::web::generate_error_page($cgi, $session,
-                    "The device with MAC address $node_mac has already been authorized to your network."
+                    i18n_format("The device with MAC address %s has already been authorized to your network.", $node_mac),
                 );
                 exit(0);
             }

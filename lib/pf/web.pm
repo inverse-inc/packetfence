@@ -425,7 +425,8 @@ sub generate_error_page {
     my $vars = {
         logo => $Config{'general'}{'logo'},
         i18n => \&i18n,
-        txt_message => i18n($error_msg),
+        i18n_format => \&i18n_format,
+        txt_message => $error_msg,
     };
 
     my $ip = get_client_ip($cgi);
@@ -448,8 +449,7 @@ sub generate_status_page {
 
     my $node_info = node_attributes($mac);
     if ( $session->param("username") ne $node_info->{'pid'} ) {
-        generate_error_page( $cgi, $session,
-            "error: access denied not owner" );
+        generate_error_page( $cgi, $session, i18n("error: access denied not owner") );
         exit(0);
     }
 
@@ -542,7 +542,7 @@ sub web_node_register {
     if ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}) ) {
         pf::web::generate_error_page(
             $cgi, $session, 
-            "You have reached the maximum number of devices you are able to register with this username."
+            i18n("You have reached the maximum number of devices you are able to register with this username.")
         );
         exit(0);
     }

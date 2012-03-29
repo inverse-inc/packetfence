@@ -71,7 +71,7 @@ To set the particular session variable use the following:
 #    if ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}) ) {
 #        pf::web::generate_error_page(
 #            $cgi, $session, 
-#            "You have reached the maximum number of devices you are able to register with this username."
+#            i18n("You have reached the maximum number of devices you are able to register with this username.")
 #        );  
 #        exit(0);
 #    }  

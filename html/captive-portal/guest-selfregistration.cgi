@@ -55,7 +55,7 @@ my $mac = ip2mac($ip);
 my $is_valid_mac = valid_mac($mac);
 if ( !$is_valid_mac && isdisabled($Config{'guests_self_registration'}{'preregistration'}) ) {
     $logger->info("$ip not resolvable, generating error page");
-    pf::web::generate_error_page($cgi, $session, "error: not found in the database");
+    pf::web::generate_error_page($cgi, $session, i18n("error: not found in the database"));
     exit(0);
 }
 # we can't resolve the MAC and preregistration is enabled: pre-registration
@@ -130,7 +130,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
     # SMS
     elsif ( $auth_return && defined($cgi->param('by_sms')) && defined($guest_self_registration{$SELFREG_MODE_SMS}) ) {
       if ($session->param("preregistration")) {
-          pf::web::generate_error_page($cgi, $session, "Registration in advance by SMS is not supported.");
+          pf::web::generate_error_page($cgi, $session, i18n("Registration in advance by SMS is not supported."));
           exit(0);
       }
 

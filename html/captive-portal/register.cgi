@@ -46,7 +46,7 @@ $destination_url = $Config{'trapping'}{'redirecturl'} if (!$destination_url);
 my $mac = ip2mac($ip);
 if (!valid_mac($mac)) {
   $logger->info("$ip not resolvable, generating error page");
-  pf::web::generate_error_page($cgi, $session, "error: not found in the database");
+  pf::web::generate_error_page($cgi, $session, i18n("error: not found in the database"));
   exit(0);
 }
 
@@ -96,7 +96,7 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
   if (($pageNb > 1) && ($pageNb <= $Config{'registration'}{'nbregpages'})) {
     pf::web::generate_registration_page($cgi, $session, $destination_url, $mac, $pageNb);
   } else {
-    pf::web::generate_error_page($cgi, $session, "error: invalid page number");
+    pf::web::generate_error_page($cgi, $session, i18n("error: invalid page number"));
   }
 } elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "status") {
   if (trappable_ip($ip)) {
@@ -106,7 +106,7 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
       pf::web::generate_status_page($cgi, $session, $mac);
     }
   } else {
-    pf::web::generate_error_page($cgi, $session, "error: not trappable IP");
+    pf::web::generate_error_page($cgi, $session, i18n("error: not trappable IP"));
   }
 
 } elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "deregister") {
@@ -138,7 +138,7 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
     $logger->info("calling $bin_dir/pfcmd  manage deregister $mac");
     print $cgi->redirect("/authenticate");
   } else {
-    pf::web::generate_error_page($cgi, $session, "error: access denied not owner");
+    pf::web::generate_error_page($cgi, $session, i18n("error: access denied not owner"));
   }
 
 } elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "release") {
@@ -157,7 +157,7 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
   pf::web::generate_aup_standalone_page($cgi, $session, $mac);
   exit(0);
 } elsif (defined($cgi->url_param('mode'))) {
-  pf::web::generate_error_page($cgi, $session, "error: incorrect mode");
+  pf::web::generate_error_page($cgi, $session, i18n("error: incorrect mode"));
 } else {
   pf::web::generate_login_page($cgi, $session, $destination_url, $mac);
 }
