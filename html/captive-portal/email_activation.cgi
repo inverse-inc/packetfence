@@ -75,8 +75,8 @@ if (defined($cgi->url_param('code'))) {
             my %info = (
                 'email' => $pid,
                 'pid' => $pid,
-                'subject' => $Config{'general'}{'domain'}.": Guest access confirmed!",
             );
+            $info{'subject'} = i18n("%s: Guest access confirmed!", $Config{'general'}{'domain'});
             $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
 
             # we create temporary password with default expiration / arrival date and access duration from config
@@ -186,7 +186,7 @@ if (defined($cgi->url_param('code'))) {
             # populating variables used for temporary account
             $pid = $node_info->{'pid'};
             $template = $pf::web::guest::TEMPLATE_EMAIL_GUEST_ON_REGISTRATION;
-            $info{'subject'} = $Config{'general'}{'domain'}.": Guest network access enabled";
+            $info{'subject'} = i18n_format("%s: Guest network access enabled", $Config{'general'}{'domain'});
         }
 
         # self-preregistered guest
@@ -196,7 +196,7 @@ if (defined($cgi->url_param('code'))) {
             $pid = $activation_record->{'pid'};
             $info{'pid'} = $pid;
             $template = $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_PREREGISTRATION;
-            $info{'subject'} = $Config{'general'}{'domain'}.": Guest access request accepted";
+            $info{'subject'} = i18n_format("%s: Guest access request accepted", $Config{'general'}{'domain'});
         }
     
         # TO:

@@ -49,7 +49,7 @@ use pf::iplog qw(ip2mac);
 use pf::person qw(person_modify);
 use pf::temporary_password 1.10;
 use pf::util;
-use pf::web qw(i18n ni18n);
+use pf::web qw(i18n ni18n i18n_format);
 use pf::web::auth;
 use pf::web::util;
 use pf::sms_activation;
@@ -139,7 +139,7 @@ sub generate_selfregistration_page {
     if (defined($error_code) && $error_code != 0) {
         # ideally we'll set the array_ref always and won't need the following
         $error_args_ref = [] if (!defined($error_args_ref)); 
-        $vars->{'txt_validation_error'} = sprintf(i18n($GUEST::ERRORS{$error_code}), @$error_args_ref);
+        $vars->{'txt_validation_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
     }
 
     my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
@@ -492,7 +492,7 @@ sub prepare_email_guest_activation_info {
     $info{'lastname'} = $session->param("lastname");
     $info{'telephone'} = $session->param("phone");
     $info{'company'} = $session->param("company");
-    $info{'subject'} = $Config{'general'}{'domain'}.': Email activation required';
+    $info{'subject'} = i18n_format("%s: Email activation required", $Config{'general'}{'domain'});
 
     return %info;
 }
@@ -513,7 +513,7 @@ sub prepare_sponsor_guest_activation_info {
     $info{'telephone'} = $session->param("phone");
     $info{'company'} = $session->param("company");
     $info{'sponsor'} = $session->param('sponsor');
-    $info{'subject'} = $Config{'general'}{'domain'}.': Email activation required';
+    $info{'subject'} = i18n_format("%s: Guest access request", $Config{'general'}{'domain'});
 
     $info{'is_preregistration'} = $session->param('preregistration');
 
@@ -572,7 +572,7 @@ sub preregister {
         'telephone' => $session->param("phone"),
         'company' => $session->param("company"),
         'address' => $session->param("address"),
-        'notes' => $session->param("notes").". ".sprintf(i18n("Expected on %s"), $session->param("arrival_date")),
+        'notes' => $session->param("notes").". ".i18n_format("Expected on %s", $session->param("arrival_date")),
         'sponsor' => $session->param("username")
     ));
     $logger->info("Adding guest person " . $pid);
@@ -618,7 +618,7 @@ sub preregister_multiple {
     for (my $i = 1; $i <= $quantity; $i++) {
       my $pid = "$prefix$i";
       # Create/modify person
-      my $notes = $session->param("notes").". ".sprintf(i18n("Expected on %s"), $session->param("arrival_date"));
+      my $notes = $session->param("notes").". ".i18n_format("Expected on %s", $session->param("arrival_date"));
       my $result = person_modify($pid, ('firstname' => $session->param("firstname"),
                                         'lastname' => $session->param("lastname"),
                                         'email' => $session->param("email"),
@@ -708,7 +708,7 @@ sub send_template_email {
         From        =>  $from,
         To          =>  $info->{'email'},
         Cc          =>  $pf::web::guest::EMAIL_CC,
-        Subject     =>  encode("MIME-Q", i18n($subject)),
+        Subject     =>  encode("MIME-Q", $subject),
         Template    =>  "emails-$template.txt.tt",
         TmplOptions =>  { INCLUDE_PATH => "$conf_dir/templates/" },
         TmplParams  =>  $info,
@@ -740,7 +740,7 @@ sub generate_sms_confirmation_page {
 
     # Error management
     if (defined($error_code) && $error_code != 0) {
-        $vars->{'txt_auth_error'} = sprintf(i18n($GUEST::ERRORS{$error_code}), @$error_args_ref);
+        $vars->{'txt_auth_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
     }
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );

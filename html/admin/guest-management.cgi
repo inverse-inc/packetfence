@@ -120,7 +120,7 @@ if (defined($session->param("username"))) {
 
                 pf::web::guest::send_template_email(
                     $pf::web::guest::TEMPLATE_EMAIL_GUEST_ADMIN_PREREGISTRATION, 
-                    "Guest Network Access Information", 
+                    i18n_format("%s: Guest Network Access Information", $Config{'general'}{'domain'}),
                     $info
                 );
                         
@@ -176,7 +176,7 @@ if (defined($session->param("username"))) {
             if ($success) {
               my ($count, $skipped) = split(',',$error);
               $logger->info("CSV file import $count users, skip $skipped users");
-              $error = sprintf(i18n("Import completed: %i guest(s) created, %i line(s) skipped."), $count, $skipped);
+              $error = i18n_format("Import completed: %i guest(s) created, %i line(s) skipped.", $count, $skipped);
               
               # Tear down session information
               $session->clear([ "delimiter", "columns", "arrival_date", "access_duration" ]);

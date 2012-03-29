@@ -400,8 +400,8 @@ sub generate_scan_status_page {
     my $vars = {
         logo             => $Config{'general'}{'logo'},
         i18n             => \&i18n,
-        txt_message      => sprintf(i18n('scan in progress contact support if too long'), $scan_start_time),
-        txt_auto_refresh => sprintf(i18n('automatically refresh'), $refresh_timer),
+        txt_message      => i18n_format('scan in progress contact support if too long', $scan_start_time),
+        txt_auto_refresh => i18n_format('automatically refresh', $refresh_timer),
         destination_url  => encode_entities($destination_url),
         refresh_timer    => $refresh_timer,
         list_help_info  => [
