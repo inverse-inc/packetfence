@@ -21,6 +21,8 @@ New Hardware
 
 New Features
  * Wireless deauthentication in Master / Local configuration supported for Aruba controllers (or other Disconnect-Message implementations)
+ * New guest self-registration mode: Sponsored. Guests accesses are approved through a 'sponsor'.
+ * New guest self-registration option: Pre-registered guests. They can register in advance through the portal. Email and sponsor modes supported right now.
 
 Enhancements
  * New database-driven custom VLAN assignment strategy example
