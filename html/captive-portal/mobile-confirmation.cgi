@@ -61,13 +61,6 @@ $info{'pid'} = $cgi->remote_user || 1;
 # put code as main if () and provide a way to unset session in template
 if ($cgi->param("pin")) { # && $session->param("authType")) {
 
-    # Handling Cancel first
-    if (defined($cgi->param("action")) && $cgi->param("action") eq 'Cancel') {
-        $session->clear(["pin"]);
-        pf::web::generate_registration_page($cgi, $session, $destination_url, $mac,1);
-        return (0);
-    }
-
     $logger->info("Entering guest authentication by SMS");
     my ($auth_return,$err) = pf::web::guest::web_sms_validation($cgi, $session);
     if ($auth_return != 1) {
@@ -103,7 +96,7 @@ if ($cgi->param("pin")) { # && $session->param("authType")) {
 
     pf::web::end_portal_session($cgi, $session, $mac, $destination_url);
 
-} elsif (defined($cgi->param("action")) && $cgi->param("action") eq 'Confirm') {
+} elsif ($cgi->param("action_confirm")) {
   # No PIN specified
   pf::web::guest::generate_sms_confirmation_page($cgi, $session, $ENV{REQUEST_URI}, $destination_url);
 } else {
