@@ -18,6 +18,7 @@ use POSIX;
 use pf::config;
 use pf::email_activation qw($GUEST_ACTIVATION $SPONSOR_ACTIVATION);
 use pf::node;
+use pf::util qw(valid_mac);
 use pf::web;
 use pf::web::guest 1.30;
 use pf::web::custom;
@@ -46,21 +47,54 @@ if (defined($cgi->url_param('code'))) {
     # Email activated guests only need to prove their email was valid by clicking on the link. 
     if ($activation_record->{'type'} eq $GUEST_ACTIVATION) {
 
+        # if we have a MAC, guest is on-site, we proceed with registration
         my $node_mac = $activation_record->{'mac'};
-        # expiration according to config
-        my $access_duration = $Config{'guests_self_registration'}{'access_duration'};
-        my $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + $access_duration ));
-        my $category = $Config{'guests_self_registration'}{'category'};
+        if (defined($node_mac) && valid_mac($node_mac)) {
 
-        # change the unregdate of the node associated with the submitted code
-        node_modify($node_mac, ('unregdate' => $expiration, 'status' => 'reg', 'category' => $category));
+            # calculate expiration according to config
+            my $access_duration = $Config{'guests_self_registration'}{'access_duration'};
+            my $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + $access_duration ));
 
+            # change the unregdate of the node associated with the submitted code
+            node_modify($node_mac, (
+                'unregdate' => $expiration, 
+                'status' => 'reg', 
+                'category' => $Config{'guests_self_registration'}{'category'},
+            ));
+
+            # send to a success page
+            pf::web::generate_generic_page(
+                $cgi, $session, $pf::web::guest::EMAIL_CONFIRMED_TEMPLATE, { 'expiration' => $expiration }
+            );
+        }
+        # if we don't have the MAC it means it's a preregistered guest
+        # generate a password and send an email with an access code
+        else {
+
+            my $pid = $activation_record->{'pid'};
+            my %info = (
+                'email' => $pid,
+                'pid' => $pid,
+                'subject' => $Config{'general'}{'domain'}.": Guest access confirmed!",
+            );
+            $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
+
+            # we create temporary password with default expiration / arrival date and access duration from config
+            $info{'password'} = pf::temporary_password::generate(
+                $pid, undef, undef, $Config{'guests_self_registration'}{'access_duration'}
+            );
+    
+            # send on-site guest credentials by email
+            pf::web::guest::send_template_email(
+                $pf::web::guest::TEMPLATE_EMAIL_EMAIL_PREREGISTRATION_CONFIRMED, $info{'subject'}, \%info
+            ); 
+
+            # send to a success page
+            pf::web::generate_generic_page($cgi, $session, $pf::web::guest::EMAIL_PREREG_CONFIRMED_TEMPLATE, \%info);
+        }
+
+        # code has been consumed, deactivate
         pf::email_activation::set_status_verified($cgi->url_param('code'));
-
-        # send to a success page
-        pf::web::generate_generic_page(
-            $cgi, $session, $pf::web::guest::EMAIL_CONFIRMED_TEMPLATE, { 'expiration' => $expiration }
-        );
     }
 
     # Sponsor activated guests. We need the sponsor to authenticate before allowing access
