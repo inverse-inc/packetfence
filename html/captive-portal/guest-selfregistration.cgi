@@ -61,7 +61,15 @@ if ( !$is_valid_mac && isdisabled($Config{'guests_self_registration'}{'preregist
 # we can't resolve the MAC and preregistration is enabled: pre-registration
 elsif ( !$is_valid_mac ) {
     $session->param("preregistration", $TRUE);
-    # Warning: this assumption is important for preregistration
+}
+# forced pre-registration overrides anything previously set (or not set)
+if (defined($cgi->url_param("preregistration")) && $cgi->url_param("preregistration") eq 'forced') {
+    $session->param("preregistration", $TRUE); 
+}
+
+# Clearing the MAC if in pre-registration
+# Warning: this assumption is important for preregistration
+if ($session->param("preregistration")) {
     $mac = undef;
 }
 
