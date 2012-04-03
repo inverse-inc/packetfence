@@ -16,7 +16,7 @@ use warnings;
 
 use Readonly;
 
-=head1 RADIUS 
+=head1 FreeRADIUS
 
 =over
 
@@ -54,13 +54,50 @@ Readonly::Scalar our $RLM_MODULE_NUMCODES=>  9;#  /* How many return codes there
 
 =back
 
+=head1 RADIUS Standard Values
+
+A useful reference: L<http://www.iana.org/assignments/radius-types/radius-types.xml>
+
+=over 
+
+=item RFC2868: RADIUS Attributes for Tunnel Protocol Support
+
+L<http://www.ietf.org/rfc/rfc2868.txt>
+
+=over 
+
+=item Tunnel Type
+
+First defined in RFC2868 but further additions made in RFC3580: 
+IEEE 802.1X Remote Authentication Dial In User Service (RADIUS)
+
+L<http://tools.ietf.org/html/rfc3580>
+
+Only useful ones included from RFC.
+
+=cut
+Readonly::Scalar our $VLAN => 13;
+
+=item Tunnel Medium Type
+
+Only useful ones included from RFC.
+
+Ethernet is actually called 802 in the standard and includes all 802 media plus Ethernet "canonical format".
+
+=cut
+Readonly::Scalar our $ETHERNET => 6;
+
+=back
+
+=back
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2010, 2012 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

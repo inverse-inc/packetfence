@@ -191,8 +191,8 @@ sub authorize {
     $switch->disconnectWrite();
 
     my %RAD_REPLY;
-    $RAD_REPLY{'Tunnel-Medium-Type'} = 6;
-    $RAD_REPLY{'Tunnel-Type'} = 13;
+    $RAD_REPLY{'Tunnel-Medium-Type'} = $RADIUS::ETHERNET;
+    $RAD_REPLY{'Tunnel-Type'} = $RADIUS::VLAN;
     $RAD_REPLY{'Tunnel-Private-Group-ID'} = $vlan;
     $logger->info("Returning ACCEPT with VLAN: $vlan");
     return [$RADIUS::RLM_MODULE_OK, %RAD_REPLY];
