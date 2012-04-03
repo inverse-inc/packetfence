@@ -18,8 +18,8 @@ use Try::Tiny;
 # Configuration parameters
 use constant {
     # FreeRADIUS to PacketFence communications (SOAP Server settings)
-    WS_USER        => 'admin',
-    WS_PASS        => 'pfadmin',
+    WS_USER        => 'webservice',
+    WS_PASS        => 'password',
     WEBADMIN_HOST  => 'localhost:1443',
     API_URI        => 'https://www.packetfence.org/PFAPI' #don't change this unless you know what you are doing
 };
