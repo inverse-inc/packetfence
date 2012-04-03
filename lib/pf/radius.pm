@@ -186,16 +186,13 @@ sub authorize {
         $switch->_setVlan( $port, $vlan, undef, {} );
     }
 
+    my $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($vlan, $mac, $port, $connection_type, $user_name, $ssid);
+
     # cleanup
     $switch->disconnectRead();
     $switch->disconnectWrite();
 
-    my %RAD_REPLY;
-    $RAD_REPLY{'Tunnel-Medium-Type'} = $RADIUS::ETHERNET;
-    $RAD_REPLY{'Tunnel-Type'} = $RADIUS::VLAN;
-    $RAD_REPLY{'Tunnel-Private-Group-ID'} = $vlan;
-    $logger->info("Returning ACCEPT with VLAN: $vlan");
-    return [$RADIUS::RLM_MODULE_OK, %RAD_REPLY];
+    return $RAD_REPLY_REF;
 }
 
 =item * _parseRequest
@@ -449,7 +446,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009-2011 Inverse inc.
+Copyright (C) 2009-2012 Inverse inc.
 
 =head1 LICENSE
 

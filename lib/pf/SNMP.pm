@@ -26,7 +26,9 @@ our $VERSION = 2.00;
 use pf::config;
 use pf::locationlog;
 use pf::node;
-# SNMP constants
+# RADIUS constants (RADIUS:: namespace)
+use pf::radius::constants;
+# SNMP constants (several standard-based and vendor-based namespaces)
 use pf::SNMP::constants;
 use pf::util;
 use pf::util::radius qw(perform_disconnect);
@@ -2629,6 +2631,28 @@ sub radiusDisconnect {
         . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
     );
     return;
+}
+
+=item returnRadiusAccessAccept
+
+Prepares the RADIUS Access-Accept reponse for the network device.
+
+Default implementation.
+
+=cut
+sub returnRadiusAccessAccept {
+    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    # VLAN enforcement
+    my $radius_reply = {
+        'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
+        'Tunnel-Type' => $RADIUS::VLAN,
+        'Tunnel-Private-Group-ID' => $vlan,
+    };
+    $logger->info("Returning ACCEPT with VLAN: $vlan");
+
+    return [$RADIUS::RLM_MODULE_OK, %$radius_reply];
 }
 
 =back
