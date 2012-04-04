@@ -18,6 +18,8 @@ pf::SNMP::Cisco::Catalyst_2960 - Object oriented module to access and configure 
 
 =item Link Up / Link Down
 
+=item Stacked configuration
+
 =back
 
 =item Firmware version
