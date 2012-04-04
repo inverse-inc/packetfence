@@ -126,6 +126,19 @@ sub supportsRadiusVoip {
     return $FALSE;
 }
 
+=item supportsRoleBasedEnforcement 
+
+=cut
+sub supportsRoleBasedEnforcement {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->warn(
+        "Role-based Network Access Control is not supported on network device type " . ref($this) . ". "
+    );
+    return $FALSE;
+}
+
 =item supportsSaveConfig
 
 =cut
@@ -2650,8 +2663,23 @@ sub returnRadiusAccessAccept {
         'Tunnel-Type' => $RADIUS::VLAN,
         'Tunnel-Private-Group-ID' => $vlan,
     };
-    $logger->info("Returning ACCEPT with VLAN: $vlan");
 
+    # TODO this is experimental
+    if ($self->supportsRoleBasedEnforcement()) {
+        $logger->debug("network device supports roles. Evaluating role to be returned");
+        # TODO push that into pf::roles (with ::custom extension) and it should return a role string
+        #my $role = $self->getRoleForUser($mac);
+        # XXX hardcoded attempt
+        my $role = 'PacketFence';
+        if (defined($role)) {
+            $radius_reply->{$self->returnRoleAttribute()} = $role;
+            $logger->info(
+                "Added role $role to the returned RADIUS Access-Accept under attribute " . $self->returnRoleAttribute()
+            );
+        }
+    }
+
+    $logger->info("Returning ACCEPT with VLAN: $vlan");
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply];
 }
 

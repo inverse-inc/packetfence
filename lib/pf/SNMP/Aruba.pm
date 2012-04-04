@@ -76,6 +76,7 @@ TODO: this list is incomplete
 # access technology supported
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
+sub supportsRoleBasedEnforcement { return $TRUE; }
 
 =item getVersion - obtain image version information from switch
 
@@ -369,6 +370,20 @@ sub extractSsid {
     return;
 }
 
+=item returnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role returned into.
+
+=cut
+sub returnRoleAttribute {
+    my ($this) = @_;
+
+    return 'Aruba-User-Role';
+}
+
+=item
+
+=cut
 
 =back
 
