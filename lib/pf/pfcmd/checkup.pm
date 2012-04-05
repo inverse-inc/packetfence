@@ -398,14 +398,6 @@ sub network_inline {
     # shorter, more convenient accessor
     my %net = %{$ConfigNetworks{$network}};
 
-    # inline with named=yes is not what you want
-    if ($net{'named'} =~ /enabled/i) {
-        add_problem( $WARN,
-            "networks.conf type inline with named enabled will *not* do what you might expect. " . 
-            "Disable named under the $network network to get rid of this warning."
-        );
-    }
-
     # inline interfaces should have at least one local gateway
     my $found = 0;
     foreach my $int (@internal_nets) {

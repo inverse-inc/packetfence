@@ -111,7 +111,8 @@ window.onload = function () {
         });
 
         $(holder).setStyle({ height: (height+h)+'px' });
-        $(holder).down('svg').setAttribute('height', (height+h));
+        var svg = $(holder).down('svg');
+        if (svg) svg.setAttribute('height', (height+h));
     }
 
     function graphPieData(holder, size, labels, series) {
