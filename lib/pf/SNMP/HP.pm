@@ -457,7 +457,19 @@ sub getVlanFdbId {
     }
 }
 
+=item isVoIPEnabled
+
+Supports VoIP if enabled.
+
+=cut
+sub isVoIPEnabled {
+    my ($self) = @_;
+    return ( $self->{_VoIPEnabled} == 1 );
+}
+
 =head1 AUTHOR
+
+Olivier Bilodeau <obilodeau@inverse.ca> 
 
 Regis Balzard <rbalzard@inverse.ca>
 
@@ -465,7 +477,9 @@ Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2009 Inverse inc.
+Copyright (C) 2007-2009, 2012 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

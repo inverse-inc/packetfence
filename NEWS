@@ -39,6 +39,7 @@ Bug Fixes
  * Mandatory MAC lookup in the self-registered guests pages
  * Cancel button problems on SMS confirmation page (#1393)
  * Documented the fact that you need to configure credentials in packetfence-soh.pm for Statement of Health (SoH) support
+ * Fixed port-security + VoIP support for the HP wired product line
 
 Translations
  * Updated Brazilian Portuguese (pt_BR) translation (Thanks to Diego de Souza Lopes)
