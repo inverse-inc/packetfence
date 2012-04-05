@@ -1,58 +1,70 @@
-#!/usr/bin/perl
+package pf::roles::custom;
+
 =head1 NAME
 
-backend_modperl_require.pl
+pf::roles::custom - OO module that performs the roles lookups for nodes
 
-=head1 DESCRIPTION
+=head1 SYNOPSIS
 
-Pre-loading PacketFence's modules in Apache (mod_perl) for the Web Admin / Web Services Back-End
+The pf::roles::custom implements roles lookups for nodes that are custom to a particular setup. 
+
+This module extends pf::roles
+
+=head1 EXPERIMENTAL
+
+This module is considered experimental. For example not a lot of information
+is provided to make the role decisions. This is expected to change in the
+future at the cost of API changes.
+
+You have been warned!
 
 =cut
-use lib "/usr/local/pf/lib";
-# dynamicly loaded authentication modules
-use lib "/usr/local/pf/conf";
 
 use strict;
 use warnings;
 
 use Log::Log4perl;
 
+use base ('pf::roles');
 use pf::config;
-use pf::locationlog;
-use pf::node;
-use pf::roles::custom;
-use pf::SNMP;
-use pf::SwitchFactory;
-use pf::util;
+use pf::node qw(node_attributes);
+use pf::violation qw(violation_count_trap);
 
-# Forces a pre-load of the singletons to avoid penalty performance on first request
-pf::roles::custom->instance();
-pf::SwitchFactory->getInstance();
+our $VERSION = 0.90;
+
+=head1 SUBROUTINES
+
+=over
+
+=cut
+
+=back
 
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
-        
-=head1 COPYRIGHT
-        
-Copyright (C) 2010-2011 Inverse inc.
 
-=head1 LICENSE 
+=head1 COPYRIGHT
+
+Copyright (C) 2012 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-    
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-            
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
-                
+USA.
+
 =cut
+
 1;

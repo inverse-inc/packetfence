@@ -28,6 +28,7 @@ use pf::locationlog;
 use pf::node;
 # RADIUS constants (RADIUS:: namespace)
 use pf::radius::constants;
+use pf::roles::custom $ROLE_API_LEVEL;
 # SNMP constants (several standard-based and vendor-based namespaces)
 use pf::SNMP::constants;
 use pf::util;
@@ -673,6 +674,19 @@ sub _setVlanByOnlyModifyingPvid {
             "error setting Pvid: " . $this->{_sessionWrite}->error );
     }
     return ( defined($result) );
+}
+
+=item getRoleByName
+
+Get the switch-specific role of a given global role in switches.conf
+ 
+=cut                    
+sub getRoleByName {
+    my ($this, $roleName) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    # XXX hardcoded for now
+    return 'PacketFence';
 }
 
 =item getVlanByName - get the VLAN number of a given name in switches.conf
@@ -2665,19 +2679,29 @@ sub returnRadiusAccessAccept {
     };
 
     # TODO this is experimental
-    if ($self->supportsRoleBasedEnforcement()) {
-        $logger->debug("network device supports roles. Evaluating role to be returned");
-        # TODO push that into pf::roles (with ::custom extension) and it should return a role string
-        #my $role = $self->getRoleForUser($mac);
-        # XXX hardcoded attempt
-        my $role = 'PacketFence';
-        if (defined($role)) {
-            $radius_reply->{$self->returnRoleAttribute()} = $role;
-            $logger->info(
-                "Added role $role to the returned RADIUS Access-Accept under attribute " . $self->returnRoleAttribute()
-            );
+    try {
+        if ($self->supportsRoleBasedEnforcement()) {
+            $logger->debug("network device supports roles. Evaluating role to be returned");
+            my $roleResolver = pf::roles::custom->instance();
+            my $role = $roleResolver->getRoleForNode($mac, $self);
+            if (defined($role)) {
+                $radius_reply->{$self->returnRoleAttribute()} = $role;
+                $logger->info(
+                    "Added role $role to the returned RADIUS Access-Accept under attribute " . $self->returnRoleAttribute()
+                );
+            }
+            else {
+                $logger->debug("received undefined role. No Role added to RADIUS Access-Accept");
+            }
         }
     }
+    catch {
+        chomp($_);
+        $logger->debug(
+            "Exception when trying to resolve a Role for the node. No Role added to RADIUS Access-Accept. "
+            . "Exception: $_"
+        );
+    };
 
     $logger->info("Returning ACCEPT with VLAN: $vlan");
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply];
