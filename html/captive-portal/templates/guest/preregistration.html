@@ -1,0 +1,18 @@
+[% title = i18n("PacketFence Registration System") %]
+[% INCLUDE header.html %]
+
+        <div id="about">
+          <img src="/content/images/registration.png" alt="Access waiting confirmation" />
+          <h1>[% i18n("Network Access Requested") %]</h1>
+          <p>
+            [% IF mode == 'email';
+                i18n("An email has been sent to your email address. Click on the activation link to confirm your email address. Once confirmed you will receive a username and password by email for you to use once on-site.");
+            ELSIF mode == 'sponsor';
+                i18n("An access request was sent to the sponsor's email. You will receive an email with a username and password once your access has been approved.");
+            END %]
+          </p>
+        </div>
+
+[% INCLUDE footer.html
+    dont_show_help = 1
+%]

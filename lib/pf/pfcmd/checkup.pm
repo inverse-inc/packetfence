@@ -116,6 +116,7 @@ sub sanity_check {
     permissions();
     violations();
     switches();
+    unsupported();
 
     return @problems;
 }
@@ -704,6 +705,10 @@ sub extensions {
 
     # Authentication modules
     my @activated_auth_modules = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
+    # if sponsored guest authentication is enabled test the module
+    if ($guest_self_registration{$SELFREG_MODE_SPONSOR}) {
+        push @activated_auth_modules, $Config{'guests_self_registration'}{'sponsor_authentication'};
+    }
     foreach my $auth (@activated_auth_modules) {
         my ($authenticator, $authReturn, $err);
         try {
@@ -977,6 +982,20 @@ sub billing {
         chomp($_);
         add_problem( $FATAL, "Billing: Incorrect payment gateway declared in pf.conf: $_" );
     };
+}
+
+=item unsupported
+
+Feature that we know don't work under certain circumstances (or other features activated)
+
+=cut
+sub unsupported {
+
+    # SMS confirmation doesn't work with pre-registration
+    # This was not implemented due to a time constraint. We can fix it.
+    if (isenabled($Config{'guests_self_registration'}{'preregistration'}) && $guest_self_registration{$SELFREG_MODE_SMS}) {
+        add_problem( $WARN, "Registering by SMS doesn't work with preregistration enabled." );
+    }
 }
 
 =back

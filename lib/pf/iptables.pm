@@ -90,6 +90,20 @@ sub iptables_generate {
         $tags{'nat_prerouting_inline'} .= generate_nat_redirect_rules();
     }
 
+    # per-feature firewall rules
+    # self-registered guest by email or sponsored
+    my $guests_enabled = isenabled($Config{'registration'}{'guests_self_registration'});
+    my $email_enabled = $guest_self_registration{$SELFREG_MODE_EMAIL};
+    my $sponsor_enabled = $guest_self_registration{$SELFREG_MODE_SPONSOR};
+    if ($guests_enabled && ($email_enabled || $sponsor_enabled)) {
+        $tags{'input_mgmt_guest_rules'} = 
+            "-A $FW_FILTER_INPUT_MGMT --protocol tcp --match tcp --dport 443 --jump ACCEPT"
+        ;
+    }
+    else {
+        $tags{'input_mgmt_guest_rules'} = '';
+    }
+
     chomp(
         $tags{'filter_if_src_to_chain'}, $tags{'filter_forward_inline'},
         $tags{'mangle_if_src_to_chain'}, $tags{'mangle_prerouting_inline'}, 

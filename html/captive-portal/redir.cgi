@@ -46,7 +46,7 @@ my $destination_url = pf::web::get_destination_url($cgi);
 my $mac = ip2mac($ip);
 if (!valid_mac($mac)) {
   $logger->info("$ip not resolvable, generating error page");
-  pf::web::generate_error_page($cgi, $session, "error: not found in the database");
+  pf::web::generate_error_page($cgi, $session, i18n("error: not found in the database"));
   exit(0);
 }
 
@@ -158,7 +158,7 @@ if ( !defined($cached_lost_device) || $cached_lost_device <= 5 ) {
 }
 
 pf::web::generate_error_page($cgi, $session, 
-  "Your network should be enabled within a minute or two. If it is not reboot your computer."
+  i18n("Your network should be enabled within a minute or two. If it is not reboot your computer.")
 );
 
 =head1 AUTHOR

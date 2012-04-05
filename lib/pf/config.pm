@@ -76,7 +76,7 @@ BEGIN {
         $VOIP $NO_VOIP $NO_PORT $NO_VLAN
         %connection_type %connection_type_to_str %connection_type_explained
         $RADIUS_API_LEVEL $VLAN_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $SOH_API_LEVEL $BILLING_API_LEVEL
-        $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS
+        $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR
         %CAPTIVE_PORTAL
         normalize_time $TIME_MODIFIER_RE
         $BANDWIDTH_DIRECTION_RE $BANDWIDTH_UNITS_RE
@@ -213,6 +213,7 @@ Readonly::Scalar our $NO_VLAN => 0;
 # Guest related
 Readonly our $SELFREG_MODE_EMAIL => 'email';
 Readonly our $SELFREG_MODE_SMS => 'sms';
+Readonly our $SELFREG_MODE_SPONSOR => 'sponsor';
 
 # this is broken NIC on Dave's desk - it better be unique!
 $blackholemac = "00:60:8c:83:d7:34";
@@ -303,7 +304,7 @@ sub readPfConfigFiles {
         "general.maintenance_interval", "scan.duration",
         "vlan.bounce_duration",   
         "guests_self_registration.email_activation_timeout", "guests_self_registration.access_duration",
-        "guests_pre_registration.default_access_duration",
+        "guests_admin_registration.default_access_duration",
     ) {
         my ( $group, $item ) = split( /\./, $val );
         $Config{$group}{$item} = normalize_time( $Config{$group}{$item} );
@@ -383,13 +384,18 @@ sub readPfConfigFiles {
     # GUEST RELATED
 
     # explode self-registration modes for easier and cached boolean tests
-    $guest_self_registration{'sms'} = $TRUE if is_in_list(
+    $guest_self_registration{$SELFREG_MODE_EMAIL} = $TRUE if is_in_list(
+        $SELFREG_MODE_EMAIL,
+        $Config{'guests_self_registration'}{'modes'}
+    );
+
+    $guest_self_registration{$SELFREG_MODE_SMS} = $TRUE if is_in_list(
         $SELFREG_MODE_SMS,
         $Config{'guests_self_registration'}{'modes'}
     );
 
-    $guest_self_registration{'email'} = $TRUE if is_in_list(
-        $SELFREG_MODE_EMAIL,
+    $guest_self_registration{$SELFREG_MODE_SPONSOR} = $TRUE if is_in_list(
+        $SELFREG_MODE_SPONSOR,
         $Config{'guests_self_registration'}{'modes'}
     );
 }

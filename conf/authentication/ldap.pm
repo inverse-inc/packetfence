@@ -20,7 +20,7 @@ use base ('pf::web::auth');
 
 use pf::config qw($TRUE $FALSE);
 
-our $VERSION = 1.10;
+our $VERSION = 1.20;
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -59,8 +59,9 @@ my $LDAPUserScope = "sub";
 my $LDAPBindDN = "";
 my $LDAPBindPassword = "";
 my $LDAPServer = "";
-my $LDAPGroupMemberKey = "memberOf";
-my $LDAPGroupDN = "";
+my $LDAPGroupMemberKey; # usually 'memberOf'
+my $LDAPGroupDN;
+my $LDAPSponsorUserKey = "userPrincipalName";
 
 =back
 
@@ -128,7 +129,7 @@ Errors meant for administrators are logged in F<logs/packetfence.log>.
 =cut
 sub authenticate {
   my ($this, $username, $password) = @_;
-  my $logger = Log::Log4perl::get_logger('authentication::ldap');
+  my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
   my $connection = Net::LDAP->new($LDAPServer);
   if (! defined($connection)) {
@@ -201,6 +202,60 @@ sub getMemberGroups {
     return @membergroups;
 }
 
+=item * isAllowedToSponsorGuests
+
+Is the given email allowed to sponsor guest access?
+
+We search in LDAP to see if user exists.
+
+=cut
+sub isAllowedToSponsorGuests {
+    my ($this, $sponsor_email) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $connection = Net::LDAP->new($LDAPServer);
+    if (!defined($connection)) {
+      $logger->error("Unable to connect to '$LDAPServer'");
+      return $FALSE;
+    }
+  
+    my $result = $connection->bind($LDAPBindDN, password => $LDAPBindPassword);
+    if ($result->is_error) {
+      $logger->error("Unable to bind with '$LDAPBindDN'");
+      return $FALSE;
+    }
+  
+    # build filter
+    my $filter;
+    if (defined($LDAPGroupMemberKey) && defined($LDAPGroupDN)) {
+        $filter = "(&($LDAPSponsorUserKey=$sponsor_email)($LDAPGroupMemberKey=$LDAPGroupDN))";
+    }
+    else {
+        $filter = "($LDAPSponsorUserKey=$sponsor_email)";
+    }
+
+    $result = $connection->search(
+      base => $LDAPUserBase,
+      filter => $filter,
+      scope => $LDAPUserScope,
+      #attrs => ['dn']
+    );
+  
+    if ($result->is_error) {
+      $logger->error("Unable to execute search");
+      return $FALSE;
+    }
+  
+    if ($result->count != 1) {
+      $logger->warn("Unable to find user '$sponsor_email'");
+      return $FALSE;
+    }
+
+    # The user exists: success!
+    $connection->unbind;
+    return $TRUE;
+}
+
 =back
 
 =head1 AUTHOR
@@ -211,7 +266,7 @@ Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2011 Inverse inc.
+Copyright (C) 2006-2012 Inverse inc.
 
 =head1 LICENSE
 

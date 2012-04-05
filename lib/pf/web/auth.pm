@@ -57,6 +57,10 @@ sub initialize {
     my $logger = Log::Log4perl::get_logger("pf::web::auth");
 
     my @auth_types = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
+    # if sponsored guest authentication is enabled add the module
+    if ($guest_self_registration{$SELFREG_MODE_SPONSOR}) {
+        push @auth_types, $Config{'guests_self_registration'}{'sponsor_authentication'};
+    }
     foreach my $auth_type (@auth_types) {
         try {
             # try to import module and re-throw the error to catch if there's one
@@ -232,6 +236,18 @@ Default implementation returns an empty list. Meant to be overridden.
 sub getNodeAttributes {
     my ($this) = @_;
     return ();
+}
+
+=item isAllowedToSponsorGuests
+
+Is the given email allowed to sponsor guest access?
+
+Default implementation always says no. Meant to be overridden.
+
+=cut
+sub isAllowedToSponsorGuests {
+    my ($this, $sponsor_email) = @_;
+    return $FALSE;
 }
 
 =back

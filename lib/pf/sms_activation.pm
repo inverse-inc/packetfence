@@ -21,6 +21,8 @@ use Time::HiRes qw(time);
 use pf::config;
 use pf::db;
 use pf::iplog qw(ip2mac);
+# TODO this dependency is unfortunate, ideally it wouldn't be in that direction
+use pf::web::guest;
 
 # Constants
 use constant SMS_ACTIVATION => 'sms_activation';
@@ -42,7 +44,6 @@ BEGIN {
     @ISA    = qw(Exporter);
     @EXPORT = qw(
         sms_carrier_view_all
-        validate_phone_number
         sms_activation_create_send
         validate_code
     );
@@ -130,25 +131,6 @@ sub sms_carrier_view_all {
 #        || return (0);
 #    return (1);
 #},
-
-=item validate_phone_number
-
-Returns phone number in xxxyyyzzzz format if valid undef otherwise.
-
-=cut
-sub validate_phone_number {
-    my ($phone_number) = @_;
-    if ($phone_number =~ /
-        ^\(?([2-9]\d{2})\)?  # captures first 3 digits allows optional parenthesis
-        (?:-|.|\s)?          # separator -, ., sapce or nothing
-        (\d{3})              # captures 3 digits
-        (?:-|.|\s)?          # separator -, ., sapce or nothing
-        (\d{4})$             # captures last 4 digits
-        /x) {
-        return "$1$2$3";
-    }
-    return;
-}
 
 =item add - add an sms activation record to the database
 
@@ -330,11 +312,11 @@ sub sms_activation_create_send {
     my ($mac, $phone_number, $provider_id, %info) = @_;
     my $logger = Log::Log4perl::get_logger('pf::sms_activation');
 
-    my ($success, $err) = (1, 0);
+    my ($success, $err) = ($TRUE, 0);
     my $activation_code = create($mac, $phone_number, $provider_id);
     if (defined($activation_code)) {
       unless (send_sms($activation_code, %info)) {
-        ($success, $err) = (0, 4);
+        ($success, $err) = ($FALSE, $GUEST::ERROR_CONFIRMATION_SMS);
       }
     }
 

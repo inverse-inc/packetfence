@@ -18,7 +18,7 @@ use base ('pf::web::auth');
 
 use pf::config qw($TRUE $FALSE);
 
-our $VERSION = 1.10;
+our $VERSION = 1.20;
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -90,6 +90,22 @@ sub authenticate {
 
     $logger->error("Unable to perform RADIUS authentication on any server: " . Authen::Radius::get_error() );
     $this->_setLastError('Unable to authenticate successfully');
+    return $FALSE;
+}
+
+=item * isAllowedToSponsorGuests
+
+Is the given email allowed to sponsor guest access?
+
+Can't perform user validation with Authen::Radius in a standard way.
+Override with what you deem necessary.
+
+=cut
+sub isAllowedToSponsorGuests {
+    my ($this, $sponsor_email) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    $logger->error(q{Unimplemented! RADIUS module doesn't support checking for a user's existence});
     return $FALSE;
 }
 

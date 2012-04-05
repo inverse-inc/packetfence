@@ -4,6 +4,12 @@
 </copyright>
 <revhistory>
   <revision>
+    <revnumber>2.1</revnumber>
+    <date>2012-03-29</date>
+    <authorinitials>OB</authorinitials>
+    <revremark>Added new documentation about pre-registered and sponsored guests</revremark>
+  </revision>
+  <revision>
     <revnumber>2.0</revnumber>
     <date>2012-02-22</date>
     <authorinitials>FG, OB, DW</authorinitials>
