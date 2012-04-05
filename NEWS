@@ -28,6 +28,7 @@ Enhancements
  * Added a virtual IP (vip) parameter for interfaces in configuration which overrides auto-detection (#1396)
  * More logging
  * Daemon startup time logged. Allows for easier troubleshooting of slow-to-restart setups.
+ * if VoIP is configured to be enabled and the network hardware doesn't support it, PacketFence will log a warning
 
 Bug Fixes
  * Proxy Bypass issues in environment with Virtual IP (#1385)
