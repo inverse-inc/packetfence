@@ -27,6 +27,7 @@ Enhancements
  * Slightly more helpful installer.pl
  * Added a virtual IP (vip) parameter for interfaces in configuration which overrides auto-detection (#1396)
  * More logging
+ * Added DNS rewrite (DNAT) while using inline mode for unregistered and isolated nodes.(#1374, #1387)
 
 Bug Fixes
  * Proxy Bypass issues in environment with Virtual IP (#1385)
