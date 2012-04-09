@@ -682,14 +682,53 @@ sub _setVlanByOnlyModifyingPvid {
 =item getRoleByName
 
 Get the switch-specific role of a given global role in switches.conf
+
+Warning: this interface is considered experimental!
+
+For now the format of roles is:
+
+  <category_name1>=<controller_role1>;<category_name2>=<controller_role2>;...
+
+We cache the configuration on first role lookup request.
  
 =cut                    
 sub getRoleByName {
     my ($this, $roleName) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    # XXX hardcoded for now
-    return 'PacketFence';
+    # skip if not defined
+    return if (!defined($this->{'_roles'}));
+
+    # is the cache ready?
+    if (defined($this->{'_cached_roles'})) {
+
+        # return if found
+        return $this->{'_cached_roles'}->{$roleName} if (defined($this->{'_cached_roles'}->{$roleName}));
+
+        # otherwise undef
+        $logger->warn("Roles are configured but no role found for $roleName");
+        return;
+    }
+
+    # not cached, let's perform the lookup then prepare cache
+    # split on ; to get 'category = controller_role'
+    my $roles_assignment_ref;
+    my @category_split = split( /\;/, $this->{'_roles'} );
+    foreach my $r_assign (@category_split) {
+        # split on = to get category then controller_role
+        my ($category, $controller_role) = split( /\=/, $r_assign );
+        $roles_assignment_ref->{$category} = $controller_role if (defined($controller_role) && $controller_role !~ /^\s*$/);
+    }
+
+    # cache the result of the role extrapolation
+    $this->{'_cached_roles'} = $roles_assignment_ref;
+
+    # return if found
+    return $roles_assignment_ref->{$roleName} if (defined($roles_assignment_ref->{$roleName}));
+
+    # otherwise log and return undef
+    $logger->warn("Roles are configured but no role found for $roleName");
+    return 
 }
 
 =item getVlanByName - get the VLAN number of a given name in switches.conf
