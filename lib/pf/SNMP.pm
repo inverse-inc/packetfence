@@ -208,7 +208,8 @@ sub new {
         '_uplink'                   => undef,
         '_vlans'                    => undef,
         '_voiceVlan'                => undef,
-        '_VoIPEnabled'              => undef
+        '_VoIPEnabled'              => undef,
+        '_roles'                    => undef,
     }, $class;
 
     foreach ( keys %argv ) {
@@ -310,6 +311,8 @@ sub new {
             $this->{_voiceVlan} = $argv{$_};
         } elsif (/^-?VoIPEnabled$/i) {
             $this->{_VoIPEnabled} = $argv{$_};
+        } elsif (/^-?roles$/i) {
+            $this->{_roles} = $argv{$_};
         }
     }
     return $this;

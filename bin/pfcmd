@@ -956,7 +956,7 @@ sub switchconfig {
             customVlan1 customVlan2 customVlan3 customVlan4 customVlan5 
             cliTransport cliUser cliPwd cliEnablePwd 
             wsTransport wsUser wsPwd 
-            radiusSecret
+            radiusSecret roles
             controllerIp
             SNMPVersionTrap SNMPCommunityTrap SNMPUserNameTrap 
             SNMPAuthProtocolTrap SNMPAuthPasswordTrap SNMPPrivProtocolTrap SNMPPrivPasswordTrap 
