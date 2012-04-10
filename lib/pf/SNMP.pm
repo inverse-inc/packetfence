@@ -696,8 +696,8 @@ sub getRoleByName {
     my ($this, $roleName) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    # skip if not defined
-    return if (!defined($this->{'_roles'}));
+    # skip if not defined or empty
+    return if (!defined($this->{'_roles'}) || $this->{'_roles'} =~ /^\s*$/);
 
     # is the cache ready?
     if (defined($this->{'_cached_roles'})) {
@@ -706,7 +706,7 @@ sub getRoleByName {
         return $this->{'_cached_roles'}->{$roleName} if (defined($this->{'_cached_roles'}->{$roleName}));
 
         # otherwise undef
-        $logger->warn("Roles are configured but no role found for $roleName");
+        $logger->warn("Roles are configured but no role found in cache for $roleName");
         return;
     }
 
@@ -728,7 +728,7 @@ sub getRoleByName {
 
     # otherwise log and return undef
     $logger->warn("Roles are configured but no role found for $roleName");
-    return 
+    return;
 }
 
 =item getVlanByName - get the VLAN number of a given name in switches.conf
