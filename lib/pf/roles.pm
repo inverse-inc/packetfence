@@ -133,6 +133,7 @@ sub performRoleLookup {
     return if (!defined($globalRoleName));
 
     my $switchRoleName = $switch->getRoleByName($globalRoleName);
+    return if (!defined($switchRoleName));
 
     $logger->debug("MAC: $mac is assigned the $switchRoleName role.");
     return $switchRoleName;
