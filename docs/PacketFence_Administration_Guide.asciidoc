@@ -531,6 +531,34 @@ For certain authentication mechanism, such as 802.1X or MAC Authentication, the 
 
 Also, starting with PacketFence 3.1, the RADIUS secret is required for our support of RADIUS Dynamic Authentication (Change of authorization or Disconnect) as defined in RFC3576.
 
+Role-based enforcement support
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Some network devices support the assignment of a specific set of rules 
+(firewall or ACLs) to a user. The idea is that these rules can be a lot more
+precise to control what a user can or cannot do compared to VLAN which have a
+larger network management overhead.
+
+Starting with PacketFence 3.3, we now support assigning roles on devices 
+that supports it. The current role assignment strategy is to assign it along 
+with the VLAN (that may change in the future). A special category to role 
+assignment must be configured in the switch configuration file 
+(`/usr/local/pf/conf/switches.conf`) as described below:
+
+The current format (which *will* change in the future) is the following:
+
+  Format: <category_name1>=<controller_role1>;<category_name2>=<controller_role2>;...
+
+And you assign it to the global `roles` parameter or the per-switch one. For example:
+
+  roles=admin=full-access;engineering=full-access;sales=little-access
+
+Would return the `full-access` role to the nodes categorized as admin or 
+engineering and the role `little-access` to nodes categorized as sales.
+
+CAUTION: Make sure that the roles are properly defined on the network devices
+prior to assigning roles!
+
 Default VLAN assignment
 ~~~~~~~~~~~~~~~~~~~~~~~
 

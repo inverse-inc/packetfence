@@ -1824,6 +1824,8 @@ In this section, we cover the basic configuration of the Aruba wireless controll
 
 CAUTION: If you are already using your Aruba controllers and don't want to impact your users you should create new AAA profiles and apply them to new SSIDs instead of modifying the default ones.
 
+NOTE: Starting with PacketFence 3.3, Aruba supports role-based access control. Read the Administration Guide under "Role-based enforcement support" for more information about how to configure it on the PacketFence side.
+
 [float]
 AAA Settings
 +++++++++++++
