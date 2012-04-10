@@ -575,7 +575,7 @@ For ports _with VoIP_:
   dot1x host-mode multi-host 
   dot1x reauthentication 
 
-Port-­Security 
+Port-Security 
 +++++++++++++
 
 CAUTION: With port-security, if no MAC is connected on ports when activating port-security, we need 
