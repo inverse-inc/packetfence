@@ -42,13 +42,17 @@ if [[ ! -d ~/build/packetfence ]]; then
   git clone $REPO
 fi
 cd ~/build/packetfence
+git fetch
+if [[ "$?" != "0" ]]; then
+	echo "Problem fetching source code. Aborting build process..." && exit 1
+fi
 git checkout $BRANCH
 if [[ "$?" != "0" ]]; then
 	echo "Problem checking out branch $BRANCH. Aborting build process..." && exit 1
 fi
-git pull origin $BRANCH
+git merge --ff-only origin/$BRANCH
 if [[ "$?" != "0" ]]; then
-	echo "Problem pulling out source code. Aborting build process..." && exit 1
+	echo "Problem merging with origin/$BRANCH from $BRANCH. Aborting build process..." && exit 1
 fi
 VERSION=`cat \$VERSION_FILE | awk '{print $2}'`
 PF_RELEASE=$VERSION-0.$DATE
