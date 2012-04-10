@@ -188,6 +188,12 @@ sub authorize {
 
     my $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($vlan, $mac, $port, $connection_type, $user_name, $ssid);
 
+    if ($this->_shouldRewriteAccessAccept($RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid)) {
+        $RAD_REPLY_REF = $this->_rewriteAccessAccept(
+            $RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid
+        );
+    }
+
     # cleanup
     $switch->disconnectRead();
     $switch->disconnectWrite();
@@ -432,6 +438,38 @@ sub _switchUnsupportedReply {
     $switch->disconnectRead();
     $switch->disconnectWrite();
     return [$RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Network device does not support this mode of operation")];
+}
+
+=item * _shouldRewriteAccessAccept
+
+If this returns true we will call _rewriteAccessAccept() and overwrite the 
+Access-Accept attributes by it's return value.
+
+This is meant to be overridden in L<pf::radius::custom>.
+
+=cut
+sub _shouldRewriteAccessAccept {
+    my ($this, $RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    return $FALSE;
+}
+
+=item * _rewriteAccessAccept
+
+Allows to rewrite the Access-Accept RADIUS atributes arbitrarily.
+
+Return type should match L<pf::radius::authorize()>'s return type. See its 
+documentation for details.
+
+This is meant to be overridden in L<pf::radius::custom>.
+
+=cut
+sub _rewriteAccessAccept {
+    my ($this, $RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    return $RAD_REPLY_REF;
 }
 
 =back

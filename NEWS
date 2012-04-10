@@ -28,6 +28,7 @@ Enhancements
  * Added a virtual IP (vip) parameter for interfaces in configuration which overrides auto-detection (#1396)
  * More logging
  * Daemon startup time logged. Allows for easier troubleshooting of slow-to-restart setups.
+ * New hook to make it easier to rewrite RADIUS Access-Accept packets
 
 Bug Fixes
  * Proxy Bypass issues in environment with Virtual IP (#1385)
