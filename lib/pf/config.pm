@@ -191,7 +191,7 @@ Readonly our $VOIP    => 'yes';
 Readonly our $NO_VOIP => 'no';
 
 # API version constants
-Readonly::Scalar our $RADIUS_API_LEVEL => 1.01;
+Readonly::Scalar our $RADIUS_API_LEVEL => 1.02;
 Readonly::Scalar our $VLAN_API_LEVEL => 1.01;
 Readonly::Scalar our $INLINE_API_LEVEL => 1.01;
 Readonly::Scalar our $AUTHENTICATION_API_LEVEL => 1.10;

@@ -21,7 +21,7 @@ use Net::SNMP;
 use Log::Log4perl;
 use Try::Tiny;
 
-our $VERSION = 2.00;
+our $VERSION = 2.10;
 
 use pf::config;
 use pf::locationlog;

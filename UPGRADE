@@ -5,6 +5,21 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to <release>:
+
+    - pf::radius API bump to 1.02
+    We bumped the version of our pf::radius API. If you want to take advantage
+    of the Role-based access control feature you should probably migrate your
+    custom authorize() call. Otherwise just bumping the version of your custom
+    extension should be fine.
+
+    - API Changes (pf::SNMP and pf::radius)
+    The final say of a RADIUS Access-Accept is now in a switch object (through
+    returnRadiusAccessAccept()) and no longer in pf::radius' authorize().
+    A new smaller indirection layer was introduced in pf::radius to allow 
+    extensive rewrite of RADIUS Access-Accept in custom code. Check 
+    pf::radius' _shouldRewriteAccessAccept and _rewriteAccessAccept.
+
 o Upgrading from a version prior to 3.2.0:
 
     - Database schema update
