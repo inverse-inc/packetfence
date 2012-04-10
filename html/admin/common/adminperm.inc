@@ -147,7 +147,7 @@ function parse_and_cache_permission_file() {
 function invalidate_permission_cache() {
     global $logger;
     if (isset($_SESSION[ADMIN_PERMISSIONS_SESSION_PREFIX])) {
-        $logger->debug("permission cache invalidated, it will need to be explicitly reloaded");
+        $logger->info("permission cache invalidated, it will need to be explicitly reloaded");
         unset($_SESSION[ADMIN_PERMISSIONS_SESSION_PREFIX]);
     }
 }

@@ -1004,13 +1004,20 @@ sub isDiscoveryMode {
     return ( $this->getMode() eq 'discovery' );
 }
 
-=item isVoIPEnabled - return true if $switch-E<gt>{_VoIPEnabled} == 1
+=item isVoIPEnabled
+
+Default implementation returns a false value and will log a warning if user 
+configured it's switches.conf to do VoIP.
 
 =cut
-
 sub isVoIPEnabled {
-    my ($this) = @_;
-    return 0;
+    my ($self) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    # if user set VoIPEnabled to true and we don't support it log a warning
+    $logger->warn("VoIP is not supported on this network module") if ($self->{_VoIPEnabled} == $TRUE);
+
+    return $FALSE;
 }
 
 =item setVlanAllPort - set the port VLAN for all the non-UpLink ports of a switch

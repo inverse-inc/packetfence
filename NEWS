@@ -26,6 +26,9 @@ Enhancements
  * New database-driven custom VLAN assignment strategy example
  * Slightly more helpful installer.pl
  * Added a virtual IP (vip) parameter for interfaces in configuration which overrides auto-detection (#1396)
+ * More logging
+ * Daemon startup time logged. Allows for easier troubleshooting of slow-to-restart setups.
+ * if VoIP is configured to be enabled and the network hardware doesn't support it, PacketFence will log a warning
 
 Bug Fixes
  * Proxy Bypass issues in environment with Virtual IP (#1385)
@@ -35,6 +38,10 @@ Bug Fixes
  * CoA RADIUS secret is lower cased (#1392)
  * Username length on the Web Admin is no longer limited to 15 characters
  * Potential (not-validated) cross-site scripting (XSS) in captive portal
+ * Mandatory MAC lookup in the self-registered guests pages
+ * Cancel button problems on SMS confirmation page (#1393)
+ * Documented the fact that you need to configure credentials in packetfence-soh.pm for Statement of Health (SoH) support
+ * Fixed port-security + VoIP support for the HP wired product line
 
 Translations
  * Updated Brazilian Portuguese (pt_BR) translation (Thanks to Diego de Souza Lopes)

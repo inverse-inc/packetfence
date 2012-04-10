@@ -43,12 +43,13 @@ sub handler
   my $cgi = new CGI;
   $cgi->charset("UTF-8");
   my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
-
-  my $ip              = pf::web::get_client_ip($cgi);
+  my $ip = pf::web::get_client_ip($cgi);
   my $destination_url = pf::web::get_destination_url($cgi);
   $destination_url = $Config{'trapping'}{'redirecturl'} if (!$destination_url);
-  my $mac             = ip2mac($ip);
 
+  # we need a valid MAC to identify a node
+  # TODO this is duplicated too much, it should be brought up in a global dispatcher
+  my $mac = ip2mac($ip);
   if (!valid_mac($mac)) {
     $logger->info("$ip not resolvable, generating error page");
     pf::web::generate_error_page($cgi, $session, "error: not found in the database", $r);

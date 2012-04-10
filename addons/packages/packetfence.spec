@@ -80,6 +80,8 @@ Requires: perl(File::Tail)
 Requires: perl(IPC::Cmd)
 Requires: perl(IPTables::ChainMgr)
 Requires: perl(IPTables::Parse)
+# Perl core modules but still explicitly defined just in case distro's core perl get stripped
+Requires: perl(Time::HiRes)
 # Required for inline mode. Specific version matches system's iptables version.
 # CentOS 5 (iptables 1.3.5)
 %{?el5:Requires: perl(IPTables::libiptc) = 0.14}

@@ -28,6 +28,7 @@ use File::Basename;
 use IPC::Cmd qw[can_run run];
 use Log::Log4perl;
 use Readonly;
+use Time::HiRes;
 use Try::Tiny;
 use UNIVERSAL::require;
 
@@ -141,7 +142,11 @@ sub service_ctl {
                         my $cmd_line = "$service $flags{$daemon}";
                         if ($cmd_line =~ /(.+)/) {
                             $cmd_line = $1;
-                            return ( system($cmd_line) );
+                            my $t0 = Time::HiRes::time();
+                            my $return_value = system($cmd_line);
+                            my $elapsed = Time::HiRes::time() - $t0;
+                            $logger->info(sprintf("Daemon $exe took %.3f seconds to start.", $elapsed));
+                            return $return_value;
                         }
                     } else {
                         if ( isenabled( $Config{'network'}{'dhcpdetector'} ) )
@@ -156,7 +161,10 @@ sub service_ctl {
                                     $logger->info(
                                         "Starting $exe with '$cmd_line'"
                                     );
+                                    my $t0 = Time::HiRes::time();
                                     system($cmd_line);
+                                    my $elapsed = Time::HiRes::time() - $t0;
+                                    $logger->info(sprintf("Daemon $exe took %.3f seconds to start.", $elapsed));
                                 }
                             }
                             return 1;

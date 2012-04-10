@@ -50,6 +50,15 @@ We had to work around that limitation by setting the VLAN using SNMP instead.
 Also, we realized that we need to do a shut / no-shut on the port in order for the client to properly re-authenticate.
 This has nasty side-effects when used with VoIP (client don't re-DHCP automatically).
 
+=item No MAC-Authentication Bypass support
+
+These switches don't support MAB (what we call MAC-Authentication in 
+PacketFence) and so their 802.1X support is a lot less attractive because of 
+that. Briefly it means that devices that don't support 802.1X can't coexist
+with 802.1X capable devices with the same port config.
+
+https://supportforums.cisco.com/thread/216455
+
 =item SNMPv3
 
 SNMPv3 support is broken for link-up / link-down and MAC Notification modes. 

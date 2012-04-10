@@ -74,7 +74,7 @@
     function invalidate_nodecategory_cache() {
         global $logger;
         if (isset($_SESSION['nodecategory'])) {
-            $logger->debug("nodecategory cache invalidated, will be reloaded on next nodecategory_caching call");
+            $logger->info("nodecategory cache invalidated, will be reloaded on next nodecategory_caching call");
             unset($_SESSION['nodecategory']);
         }
     }

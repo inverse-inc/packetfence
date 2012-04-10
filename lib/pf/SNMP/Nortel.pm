@@ -230,10 +230,20 @@ sub setModeTrunk {
     return;
 }
 
+=item getVoiceVlan
+
+In what VLAN should a VoIP device be?
+
+=cut
 sub getVoiceVlan {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    return ( $this->{_voiceVlan} || -1 );
+    my ($this, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    return ($this->{_voiceVlan}) if (defined($this->{_voiceVlan})); 
+
+    # otherwise say it didn't work
+    $logger->warn("Voice VLAN was requested but it's not configured!");
+    return -1;
 }
 
 sub getVlans {
@@ -874,7 +884,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2011 Inverse inc.
+Copyright (C) 2007-2012 Inverse inc.
 
 =head1 LICENSE
 

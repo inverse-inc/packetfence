@@ -1699,6 +1699,12 @@ By default, we turn SoH off. To enable its support, simply uncomment the followi
   soh=yes
   soh-virtual-server = "soh-server"
 
+Then make sure to set the required configuration parameters on top of the `/etc/raddb/packetfence-soh.pm` file. Set the password to the account previously created under the <<_web_based_administration_interface,Web-based Administration Interface section>>.
+
+  # FreeRADIUS to PacketFence communications (SOAP Server settings)
+  WS_USER     => 'webservice',
+  WS_PASS     => 'password',
+
 Restart the RADIUS service afterward.
 
 On the client side, to enable SoH for EAP, do the following (Windows 7 example):
