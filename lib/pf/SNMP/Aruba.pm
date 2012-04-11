@@ -27,6 +27,8 @@ Tested on Controller 600 with RADIUS Disconnect running firmware 6.0.x
 
 =item Deauthentication with Telnet
 
+=item Role-based access control
+
 =back
 
 =back
