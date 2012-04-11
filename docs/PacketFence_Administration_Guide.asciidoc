@@ -551,22 +551,16 @@ Introduced in PacketFence 3.0, inline enforcement is a very convenient method of
 
 An important configuration parameter to have in mind when configuring inline enforcement is that the DNS reached by this users should be your actual production DNS server. The next section shows you how to configure the proper inline interface and it is there that you should refer to the proper production DNS. 
 
-Since we are unable to predict if you will have control over your DNS or not, the default redirection technique relies on the IP address instead of DNS. This means that your SSL certificate will generate an error when presented to the user (your domain doesn't match the IP address of the portal). Because of that, we removed mandatory HTTPS support from the inline captive portal in IP redirection mode. Unfortunately we had to do this to make inline mode as simple as possible. That limitation might be removed in a future release.
+Introduced in PacketFence 3.3, inline enforcement now use DNS DNAT for unregistered or isolated users. Long story short, DNS is now working almost the same way as in VLAN enforcement mode. The only difference is that you need to make sure, as previously stated, to set a valid production DNS server for the inline configuration in `conf/networks.conf` and that the `named` statement is set to enabled.
 
-To remove that limitation, if you have control over your DNS, add an entry matching pf's `hostname.domain` to the IP on the inline interface of PacketFence. Then set the `inline.portal_redirect` parameter to dns. This way the redirection will be SSL based and you won't have certificate errors if your certificate's CN is matching PacketFence's fully qualified hostname.
-
-In summary: 
-
-[options="compact"]
-* portal_redirect=ip – default, no HTTPS, no need to modify DNS
-* portal_redirect=dns – need to update your DNS, portal will be in HTTPS
+Another important setting is the `gateway` statement. Since it this the only way to get the PacketFence server inline interface ip address, it is mandatory to set it to this ip (which is supposed to be the same as in the `ip` statement of the inline interface in `conf/pf.conf`) .
 
 DHCP and DNS Server Configuration (networks.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PacketFence automatically generates the DHCP and DNS configuration files for Registration and Isolation VLANs. This is done when executing the configurator script (see the <<_first_step,First Step section>>).
+PacketFence automatically generates the DHCP and DNS configuration files for Registration, Isolation and Inline VLANs. This is done when executing the configurator script (see the <<_first_step,First Step section>>).
 
-The Registration and Isolation networks information is accessible through the GUI in *Administration -> Networks*:
+Theses networks informations are accessible through the GUI in *Administration -> Networks*:
 
 image::docs/images/screenshot-network-config.png[scaledwidth="100%",alt="Network configuration screenshot"]
 
@@ -576,14 +570,14 @@ gateway:: PacketFence IP address in this network
 next_hop:: 
 Used only with routed networks; IP address of the router in this network (This is used to locally create static routes to the routed networks). See the <<_routed_networks,Routed Networks section>>)
 domain-name:: DNS name 
-dns:: PacketFence IP address in this network
+dns:: PacketFence IP address in this network. In inline type, set it to a valid DNS production server
 dhcp_start:: Starting IP address of the DHCP scope
 dhcp_end:: Ending IP address of the DHCP scope
 dhcp_default_lease_time:: Default DHCP lease time
 dhcp_max_lease_time:: Maximum DHCP lease time 
 type:: vlan-registration or vlan-isolation or inline
 named:: 
-Is PacketFence the DNS for this network ? (Enabled/Disabled) set it to enabled unless in inline type where it should be disabled
+Is PacketFence the DNS for this network ? (Enabled/Disabled) set it to enabled
 dhcpd:: 
 Is PacketFence the DHCP server for this network ? (Enabled/Disabled) set it to enabled
 
@@ -595,10 +589,11 @@ The DNS configuration files are generated this way:
 
 [options="compact"]
 * `var/conf/named.conf` generated from `conf/named.conf`
-* `var/named/named-registration.ca` generated from `conf/named-registration.ca`
+* `var/named/named-inline.ca` generated from `conf/named-inline.ca`
 * `var/named/named-isolation.ca` generated from `conf/named-isolation.ca`
+* `var/named/named-registration.ca` generated from `conf/named-registration.ca`
 
-Since PacketFence 3.0, the DNS zone files are automatically populated. Simply ensure that the information are right in the generated config files (`var/conf/named/named-registration.ca` and `var/conf/named/named-isolation.ca`).
+Since PacketFence 3.0, the DNS zone files are automatically populated. Simply ensure that the information are right in the generated config files (`var/named/named-inline.ca`, `var/named/named-isolation.ca` and `var/named/named-registration.ca`).
 
 Production DHCP access
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -1229,7 +1224,7 @@ dhcp_end=192.168.5.254
 dhcp_default_lease_time=300
 dhcp_max_lease_time=600
 type=inline
-named=disabled
+named=enabled
 dhcpd=enabled
 ----
 
