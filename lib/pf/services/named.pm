@@ -52,6 +52,12 @@ sub generate_named_conf {
     $tags{'template'}    = "$conf_dir/named.conf";
     $tags{'install_dir'} = $install_dir;
 
+    # Used to trigger if the configuration file should be generated or not
+    # depending on the presence of this type of interface
+    my $generate_inline          = $FALSE;
+    my $generate_isolation       = $FALSE;
+    my $generate_registration    = $FALSE;
+
     my @routed_inline_nets_named;
     my @routed_isolation_nets_named;
     my @routed_registration_nets_named;
@@ -65,16 +71,19 @@ sub generate_named_conf {
                 my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
                 push @routed_inline_nets_named, $inline_obj;
                 $inline_blackhole = $ConfigNetworks{$network}{'gateway'};
+                $generate_inline = $TRUE;
 
             } elsif ( pf::config::is_network_type_vlan_isol($network) ) {
                 my $isolation_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
                 push @routed_isolation_nets_named, $isolation_obj;
                 $isolation_blackhole = $ConfigNetworks{$network}{'dns'};
+                $generate_isolation = $TRUE;
 
             } elsif ( pf::config::is_network_type_vlan_reg($network) ) {
                 my $registration_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
                 push @routed_registration_nets_named, $registration_obj;
                 $registration_blackhole = $ConfigNetworks{$network}{'dns'};
+                $generate_registration = $TRUE;
             }
         }
     }
@@ -96,29 +105,36 @@ sub generate_named_conf {
 
     parse_template( \%tags, "$conf_dir/named.conf", "$generated_conf_dir/named.conf" );
 
-    my %tags_inline;
-    $tags_inline{'template'} = "$conf_dir/named-inline.ca";
-    $tags_inline{'hostname'} = $Config{'general'}{'hostname'};
-    $tags_inline{'incharge'} = "pf." . $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
-    $tags_inline{'A_blackhole'} = $inline_blackhole;
-    $tags_inline{'PTR_blackhole'} = reverse_ip($inline_blackhole) . ".in-addr.arpa.";
-    parse_template(\%tags_inline, "$conf_dir/named-inline.ca", "$var_dir/named/named-inline.ca", ";");
+    if ( $generate_inline ) {
+        my %tags_inline;
+        $tags_inline{'template'} = "$conf_dir/named-inline.ca";
+        $tags_inline{'hostname'} = $Config{'general'}{'hostname'};
+        $tags_inline{'incharge'} = "pf." . $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
+        $tags_inline{'A_blackhole'} = $inline_blackhole;
+        $tags_inline{'PTR_blackhole'} = reverse_ip($inline_blackhole) . ".in-addr.arpa.";
+        parse_template(\%tags_inline, "$conf_dir/named-inline.ca", "$var_dir/named/named-inline.ca", ";");
+    }
 
-    my %tags_isolation;
-    $tags_isolation{'template'} = "$conf_dir/named-isolation.ca";
-    $tags_isolation{'hostname'} = $Config{'general'}{'hostname'};
-    $tags_isolation{'incharge'} = "pf." . $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
-    $tags_isolation{'A_blackhole'} = $isolation_blackhole;
-    $tags_isolation{'PTR_blackhole'} = reverse_ip($isolation_blackhole) . ".in-addr.arpa.";
-    parse_template(\%tags_isolation, "$conf_dir/named-isolation.ca", "$var_dir/named/named-isolation.ca", ";");
+    if ( $generate_isolation ) {
+        my %tags_isolation;
+        $tags_isolation{'template'} = "$conf_dir/named-isolation.ca";
+        $tags_isolation{'hostname'} = $Config{'general'}{'hostname'};
+        $tags_isolation{'incharge'} = "pf." . $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
+        $tags_isolation{'A_blackhole'} = $isolation_blackhole;
+        $tags_isolation{'PTR_blackhole'} = reverse_ip($isolation_blackhole) . ".in-addr.arpa.";
+        parse_template(\%tags_isolation, "$conf_dir/named-isolation.ca", "$var_dir/named/named-isolation.ca", ";");
+    }
 
-    my %tags_registration;
-    $tags_registration{'template'} = "$conf_dir/named-registration.ca";
-    $tags_registration{'hostname'} = $Config{'general'}{'hostname'};
-    $tags_registration{'incharge'} = "pf." . $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
-    $tags_registration{'A_blackhole'} = $registration_blackhole;
-    $tags_registration{'PTR_blackhole'} = reverse_ip($registration_blackhole) . ".in-addr.arpa.";
-    parse_template(\%tags_registration, "$conf_dir/named-registration.ca", "$var_dir/named/named-registration.ca", ";");
+    if ( $generate_registration ) {
+        my %tags_registration;
+        $tags_registration{'template'} = "$conf_dir/named-registration.ca";
+        $tags_registration{'hostname'} = $Config{'general'}{'hostname'};
+        $tags_registration{'incharge'} = "pf." . $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
+        $tags_registration{'A_blackhole'} = $registration_blackhole;
+        $tags_registration{'PTR_blackhole'} = reverse_ip($registration_blackhole) . ".in-addr.arpa.";
+        parse_template(\%tags_registration, "$conf_dir/named-registration.ca", "$var_dir/named/named-registration.ca", 
+                ";");
+    }
 
     return 1;
 }
