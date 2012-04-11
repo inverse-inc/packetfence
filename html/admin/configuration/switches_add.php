@@ -129,6 +129,7 @@
                            'Cisco::Catalyst_6500' => 'Cisco Catalyst 6500 Series',
                            'Cisco::ISR_1800' => 'Cisco ISR 1800 Series',
                            'Cisco::WiSM' => 'Cisco WiSM',
+                           'Cisco::WLC_2100' => 'Cisco Wireless (WLC) 2100 Series',
                            'Cisco::WLC_2106' => 'Cisco Wireless Controller (WLC) 2106',
                            'Cisco::WLC_4400' => 'Cisco Wireless Controller (WLC) 4400',
                            'Dell::PowerConnect3424' => 'Dell PowerConnect 3424',

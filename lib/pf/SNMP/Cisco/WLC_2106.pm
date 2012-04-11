@@ -4,203 +4,28 @@ package pf::SNMP::Cisco::WLC_2106;
 
 pf::SNMP::Cisco::WLC_2106
 
-=head1 SYNOPSIS
+=head1 STATUS
 
-The pf::SNMP::Cisco::WLC_2106 module implements an object oriented interface to manage Wireless LAN Controllers.
-
-=cut
-
-=head1 BUGS AND LIMITATIONS
-
-Wireless deauthentication (deassociation) uses the CLI (telnet or ssh) which is expensive (doesn't scale very well).
+This module is currently only a placeholder, see L<pf::SNMP::Cisco::WLC_2100> for relevant support items.
 
 =cut
-
 use strict;
 use warnings;
 
-use Carp;
 use Log::Log4perl;
-use Net::Appliance::Session;
 use Net::SNMP;
 
-use base ('pf::SNMP::Cisco');
-
-use pf::config;
-
-=head1 SUBROUTINES
-
-TODO: This list is incomplete
-
-=over
-
-=cut
-
-# CAPABILITIES
-# access technology supported
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $TRUE; }
-# special features 
-sub supportsSaveConfig { return $FALSE; }
-
-
-=item deauthenticateMac
-
-Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread 
-safe: 
-
-L<http://www.cpanforum.com/threads/6909/>
-
-Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
-
-=cut
-sub deauthenticateMac {
-    my ( $this, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-
-    #format MAC
-    if ( length($mac) == 17 ) {
-        $mac =~ s/://g;
-        $mac
-            = substr( $mac, 0, 4 ) . "."
-            . substr( $mac, 4, 4 ) . "."
-            . substr( $mac, 8, 4 );
-    } else {
-        $logger->error(
-            "ERROR: MAC format is incorrect ($mac). Should be xx:xx:xx:xx:xx:xx"
-        );
-        return 1;
-    }
-
-    my $session;
-    eval {
-        $session = new Net::Appliance::Session->new(
-            Host      => $this->{_ip},
-            Timeout   => 5,
-            Transport => $this->{_cliTransport}
-        );
-        $session->connect(
-            Name     => $this->{_cliUser},
-            Password => $this->{_cliPwd}
-        );
-        # Session not already privileged are not supported at this point. See #1370
-        #$session->begin_privileged( $this->{_cliEnablePwd} );
-        $session->do_privileged_mode(0);
-        $session->begin_configure();
-    };
-
-    if ($@) {
-        $logger->error( "ERROR: Can not connect to WLC $this->{'_ip'} using "
-                . $this->{_cliTransport} );
-        return 1;
-    }
-
-    #if (! $session->enable($this->{_cliEnablePwd})) {
-    #    $logger->error("ERROR: Can not 'enable' telnet connection");
-    #    return 1;
-    #}
-    $session->cmd("client deauthenticate $mac");
-    $session->close();
-
-    return 1;
-}
-
-sub isLearntTrapsEnabled {
-    my ( $this, $ifIndex ) = @_;
-    return ( 0 == 1 );
-}
-
-sub setLearntTrapsEnabled {
-    my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return -1;
-}
-
-sub isRemovedTrapsEnabled {
-    my ( $this, $ifIndex ) = @_;
-    return ( 0 == 1 );
-}
-
-sub setRemovedTrapsEnabled {
-    my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return -1;
-}
-
-sub getVmVlanType {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return -1;
-}
-
-sub setVmVlanType {
-    my ( $this, $ifIndex, $type ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return -1;
-}
-
-sub isTrunkPort {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return -1;
-}
-
-sub getVlans {
-    my ($this) = @_;
-    my $vlans  = {};
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return $vlans;
-}
-
-sub isDefinedVlan {
-    my ( $this, $vlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return 0;
-}
-
-sub getPhonesDPAtIfIndex {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    my @phones = ();
-    if ( !$this->isVoIPEnabled() ) {
-        $logger->debug( "VoIP not enabled on switch "
-                . $this->{_ip}
-                . ". getPhonesDPAtIfIndex will return empty list." );
-        return @phones;
-    }
-    $logger->debug("no DP is available on WLC_2106");
-    return @phones;
-}
-
-sub isVoIPEnabled {
-    my ($this) = @_;
-    return 0;
-}
+use base ('pf::SNMP::Cisco::WLC_2100');
 
 =back
-
-=head1 BUGS AND LIMITATIONS
-
-Controller issue with Windows 7: It only works with IOS > 6.x in 802.1x+WPA2. It's not a PacketFence issue.
-
-With IOS 6.0.182.0 we had intermittent issues with DHCP. Disabling DHCP Proxy resolved it. Not a PacketFence issue.
 
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
-Dominik Gehl <dgehl@inverse.ca>
-
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2012 Inverse inc.
+Copyright (C) 2012 Inverse inc.
 
 =head1 LICENSE
 
