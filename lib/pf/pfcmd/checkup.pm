@@ -398,6 +398,14 @@ sub network_inline {
     # shorter, more convenient accessor
     my %net = %{$ConfigNetworks{$network}};
 
+    # inline interface with named=disabled is not what you want
+    if ( $net{'named'} =~ /disabled/i ) {
+        add_problem( $WARN,
+                "networks.conf type inline with named disabled is *not* what you want. " .
+                "Since we're DNATTING DNS if in an unreg or isolated state, you'll want to change that to enabled."
+        );
+    }
+
     # inline interfaces should have at least one local gateway
     my $found = 0;
     foreach my $int (@internal_nets) {
