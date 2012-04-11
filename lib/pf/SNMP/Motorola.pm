@@ -24,6 +24,8 @@ and RFS6000 running OS 5.2.0.0-069R.
 
 =item Deauthentication with SNMP
 
+=item Roles-assignment through RADIUS
+
 =back
 
 =back
@@ -68,6 +70,7 @@ use pf::util;
 # access technology supported
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
+sub supportsRoleBasedEnforcement { return $TRUE; }
 
 =item getVersion
 
@@ -186,15 +189,28 @@ sub _deauthenticateMacSNMP {
     }
 }
 
+=item returnRoleAttribute
+
+Motorola uses the following VSA for role assignment
+
+=cut
+sub returnRoleAttribute {
+    my ($this) = @_;
+
+    return 'Symbol-User-Group';
+}
+
 =back
 
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
+Francois Gaudreault <fgaudreault@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2011, 2012 Inverse inc.
 
 =head1 LICENSE
 
