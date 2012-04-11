@@ -2714,7 +2714,7 @@ sub returnRadiusAccessAccept {
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
     # VLAN enforcement
-    my $radius_reply = {
+    my $radius_reply_ref = {
         'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
         'Tunnel-Type' => $RADIUS::VLAN,
         'Tunnel-Private-Group-ID' => $vlan,
@@ -2727,7 +2727,7 @@ sub returnRadiusAccessAccept {
             my $roleResolver = pf::roles::custom->instance();
             my $role = $roleResolver->getRoleForNode($mac, $self);
             if (defined($role)) {
-                $radius_reply->{$self->returnRoleAttribute()} = $role;
+                $radius_reply_ref->{$self->returnRoleAttribute()} = $role;
                 $logger->info(
                     "Added role $role to the returned RADIUS Access-Accept under attribute " . $self->returnRoleAttribute()
                 );
@@ -2746,7 +2746,7 @@ sub returnRadiusAccessAccept {
     };
 
     $logger->info("Returning ACCEPT with VLAN: $vlan");
-    return [$RADIUS::RLM_MODULE_OK, %$radius_reply];
+    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 
 =back
