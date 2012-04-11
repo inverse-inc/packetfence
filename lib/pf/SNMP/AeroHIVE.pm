@@ -247,6 +247,18 @@ sub returnRadiusAccessAccept {
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 
+=item returnRoleAttribute
+
+AeroHive assigns roles differently, see it's implementation of returnRadiusAccessAccept.
+
+This stub is here otherwise roles support tests fails since we expect an returnRoleAttribute implementation.
+
+=cut
+sub returnRoleAttribute {
+    my ($this) = @_;
+    return;
+}
+
 =back
 
 =head1 AUTHOR
