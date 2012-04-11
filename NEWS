@@ -20,7 +20,7 @@ New Hardware
  * Added 802.1x/Mac Authentication support for HP 2500/2600 switches (no VoIP)
 
 New Features
- * Introduction of Role-based Access Control. Supported on Aruba, Meru and Motorola (considered experimental).
+ * Introduction of Role-based Access Control. Supported on AeroHIVE, Aruba, Meru and Motorola (considered experimental).
  * Wireless deauthentication in Master / Local configuration supported for Aruba controllers (or other Disconnect-Message implementations)
 
 Enhancements

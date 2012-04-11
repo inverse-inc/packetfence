@@ -22,6 +22,8 @@ Developed and tested on AeroHIVE AP 320 running firmware 3 something.
 
 =item Deauthentication with SNMP
 
+=item Role-based access control
+
 =back
 
 =back
@@ -36,11 +38,14 @@ use warnings;
 
 use Log::Log4perl;
 use Net::Appliance::Session;
-use POSIX;
+use Try::Tiny;
 
 use base ('pf::SNMP');
 
 use pf::config;
+# RADIUS constants (RADIUS:: namespace)
+use pf::radius::constants;
+use pf::roles::custom $ROLE_API_LEVEL;
 # importing switch constants
 use pf::SNMP::constants;
 use pf::util;
@@ -55,6 +60,7 @@ use pf::util;
 # access technology supported
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
+sub supportsRoleBasedEnforcement { return $TRUE; }
 
 =item getVersion
 
@@ -180,9 +186,72 @@ sub _deauthenticateMacTelnet {
     return 1;
 }
 
+=item returnRadiusAccessAccept
+
+Overloading L<pf::SNMP>'s implementation because AeroHIVE doesn't support 
+assigning VLANs and Roles at the same time.
+
+=cut
+sub returnRadiusAccessAccept {
+    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    my $radius_reply_ref = {};
+
+    # TODO this is experimental
+    try {
+
+        $logger->debug("network device supports roles. Evaluating role to be returned");
+        my $roleResolver = pf::roles::custom->instance();
+        my $role = $roleResolver->getRoleForNode($mac, $self);
+
+        # Roles are configured and the user should have one
+        if (defined($role)) {
+
+            $radius_reply_ref = {
+                'Tunnel-Medium-Type' => $RADIUS::IP,
+                'Tunnel-Type' => $RADIUS::GRE,
+                'Tunnel-Private-Group-ID' => $role,
+            };
+
+            $logger->info("Returning ACCEPT with Role: $role");
+        }
+
+        # if Roles aren't configured, return VLAN information
+        else {
+
+            $radius_reply_ref = {
+                'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
+                'Tunnel-Type' => $RADIUS::VLAN,
+                'Tunnel-Private-Group-ID' => $vlan,
+            };
+
+            $logger->info("Returning ACCEPT with VLAN: $vlan");
+        }
+
+    }
+    catch {
+        chomp($_);
+        $logger->debug(
+            "Exception when trying to resolve a Role for the node. Returning VLAN attributes in RADIUS Access-Accept. "
+            . "Exception: $_"
+        );
+
+        $radius_reply_ref = {
+            'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
+            'Tunnel-Type' => $RADIUS::VLAN,
+            'Tunnel-Private-Group-ID' => $vlan,
+        };
+    };
+
+    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+}
+
 =back
 
 =head1 AUTHOR
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 Francois Gaudreault <fgaudreault@inverse.ca>
 
