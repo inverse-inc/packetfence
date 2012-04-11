@@ -31,7 +31,7 @@ use pf::vlan::custom $VLAN_API_LEVEL;
 # constants used by this module are provided by
 use pf::radius::constants;
 
-our $VERSION = 1.01;
+our $VERSION = 1.02;
 
 =head1 AUTHOR
 
@@ -39,7 +39,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009-2011 Inverse inc.
+Copyright (C) 2009-2012 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
