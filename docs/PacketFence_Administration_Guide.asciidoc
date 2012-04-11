@@ -560,7 +560,7 @@ DHCP and DNS Server Configuration (networks.conf)
 
 PacketFence automatically generates the DHCP and DNS configuration files for Registration, Isolation and Inline VLANs. This is done when executing the configurator script (see the <<_first_step,First Step section>>).
 
-Theses networks informations are accessible through the GUI in *Administration -> Networks*:
+These networks informations are accessible through the GUI in *Administration -> Networks*:
 
 image::docs/images/screenshot-network-config.png[scaledwidth="100%",alt="Network configuration screenshot"]
 
