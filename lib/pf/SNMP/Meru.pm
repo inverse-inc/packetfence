@@ -50,7 +50,6 @@ use warnings;
 
 use Log::Log4perl;
 use Net::Appliance::Session;
-use POSIX;
 
 use base ('pf::SNMP');
 
