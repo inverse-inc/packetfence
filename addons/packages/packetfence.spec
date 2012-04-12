@@ -303,7 +303,7 @@ curdir=`pwd`
 
 #pf-schema.sql symlink
 cd $RPM_BUILD_ROOT/usr/local/pf/db
-ln -s pf-schema-3.2.0.sql ./pf-schema.sql
+ln -s pf-schema-3.3.0.sql ./pf-schema.sql
 
 #httpd.conf symlink
 #We dropped support for pre 2.2.0 but keeping the symlink trick alive since Apache 2.4 is coming
