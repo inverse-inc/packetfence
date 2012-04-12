@@ -5,6 +5,14 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to <release>:
+
+    - pf::SNMP API Bump
+    We changed the interface to radiusDisconnect. If you use that interface
+    in custom code (most, if not all, of you don't) then you'll need to update
+    your callers. We are now accepting an attributes hashref instead of the
+    accouting session id and username scalars.
+
 o Upgrading from a version prior to 3.2.0:
 
     - Database schema update

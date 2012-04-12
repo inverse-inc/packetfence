@@ -2570,14 +2570,14 @@ sub getDeauthSnmpConnectionKey {
 
 Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
 
-Optionally you can provide the Accounting Session Id. Sometimes it is required.
+Optionally you can provide other attributes as an hashref.
 
-Uses L<pf::util::dhcp> for the low-level RADIUS stuff.
+Uses L<pf::util::radius> for the low-level RADIUS stuff.
 
 =cut
 # TODO consider whether we should handle retries or not?
 sub radiusDisconnect {
-    my ($self, $mac, $acctSessionId, $username) = @_;
+    my ($self, $mac, $add_attributes_ref) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
     if (!defined($self->{'_radiusSecret'})) {
@@ -2611,16 +2611,15 @@ sub radiusDisconnect {
         $mac =~ s/:/-/g;
 
         # Standard Attributes
-        my $attributes = {
+        my $attributes_ref = {
             'Calling-Station-Id' => $mac,
             'NAS-IP-Address' => $send_disconnect_to,
         };
 
-        # The Acct-Session-Id attribute is required sometimes
-        $attributes->{'Acct-Session-Id'} = $acctSessionId if (defined($acctSessionId));
-        $attributes->{'User-Name'} = $username if (defined($username));
+        # merging additional attributes provided by caller to the standard attributes
+        $attributes_ref = { %$attributes_ref, $add_attributes_ref };
 
-        $response = perform_disconnect($connection_info, $attributes);
+        $response = perform_disconnect($connection_info, $attributes_ref);
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS Disconnect-Request: $_");
