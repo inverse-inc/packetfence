@@ -616,92 +616,49 @@ Performs version checking of the extension points.
 =cut
 sub extensions {
 
-    try {
-        require pf::inline::custom;
-        if (!defined(pf::inline::custom->VERSION())) {
-            add_problem($FATAL, "Inline extension point (pf::inline::custom) VERSION is not defined.");
+    my @extensions = (
+        { 'name' => 'Inline', 'module' => 'pf::inline::custom', 'api' => $INLINE_API_LEVEL, },
+        { 'name' => 'VLAN', 'module' => 'pf::vlan::custom', 'api' => $VLAN_API_LEVEL, },
+        { 'name' => 'Billing', 'module' => 'pf::billing::custom', 'api' => $BILLING_API_LEVEL, },
+        { 'name' => 'SoH', 'module' => 'pf::soh::custom', 'api' => $SOH_API_LEVEL, },
+        { 'name' => 'RADIUS', 'module' => 'pf::radius::custom', 'api' => $RADIUS_API_LEVEL, },
+        { 'name' => 'Roles', 'module' => 'pf::roles::custom', 'api' => $ROLE_API_LEVEL, },
+    );
 
-        } elsif ($INLINE_API_LEVEL > pf::inline::custom->VERSION()) {
-            add_problem( $FATAL,
-                "Inline extension point (pf::inline::custom) is not at the correct API level. " .
-                "Did you read the UPGRADE document?"
-            );
-        }
-    } catch {
-        add_problem( $FATAL, "Uncaught exception while trying to identify Inline extension version: $_" );
-    };
+    foreach my $extension_ref ( @extensions ) {
 
-    try {
-        require pf::vlan::custom;
-        if (!defined(pf::vlan::custom->VERSION())) {
-            add_problem( $FATAL,
-                "VLAN Extension point (pf::vlan::custom) VERSION is not defined. Did you read the UPGRADE document?"
-            );
-        } elsif ($VLAN_API_LEVEL > pf::vlan::custom->VERSION()) {
-            add_problem( $FATAL,
-                "VLAN Extension point (pf::vlan::custom) is not at the correct API level. " .
-                "Did you read the UPGRADE document?"
-            );
-        }
-    } catch {
-        add_problem( $FATAL, "Uncaught exception while trying to identify VLAN extension version: $_" );
-    };
+        try {
+            # try loading it
+            eval "require $extension_ref->{module}";
+            # throw exceptions
+            die($@) if ($@);
 
-    # Billing extension point (pf::billing::custom)
-    try {
-        require pf::billing::custom;
-        if (!defined(pf::billing::custom->VERSION())) {
-            add_problem( $FATAL,
-                "Billing Extension point (pf::billing::custom) VERSION is not defined. " .
-                "Did you read the UPGRADE document?"
-            );
-        } elsif ($BILLING_API_LEVEL > pf::billing::custom->VERSION()) {
-            add_problem( $FATAL,
-                "Billing Extension point (pf::billing::custom) is not at the correct API level. " .
-                "Did you read the UPGRADE document?"
-            );
-        }
-    } catch {
-        add_problem( $FATAL, "Uncaught exception while trying to identify Billing extension version: $_" );
-    };
+            if (!defined($extension_ref->{module}->VERSION())) {
+                add_problem($FATAL, 
+                    "$extension_ref->{name} extension point ($extension_ref->{module}) VERSION is not defined."
+                );
+            }
+            elsif ($extension_ref->{api} > $extension_ref->{module}->VERSION()) {
+                add_problem( $FATAL,
+                    "$extension_ref->{name} extension point ($extension_ref->{module}) is not at the correct API level. " .
+                    "Did you read the UPGRADE document?"
+                );
+            }
+        } 
+        catch {
+            chomp($_);
+            add_problem($FATAL, "Uncaught exception while trying to identify $extension_ref->{name} extension version: $_");
+        };
+    }
 
-    try {
-        require pf::soh::custom;
-        if (!defined(pf::soh::custom->VERSION())) {
-            add_problem( $FATAL,
-                "SoH Extension point (pf::soh::custom) VERSION is not defined. Did you read the UPGRADE document?"
-            );
-        } elsif ($SOH_API_LEVEL > pf::soh::custom->VERSION()) {
-            add_problem( $FATAL,
-                "SoH Extension point (pf::soh::custom) is not at the correct API level. " .
-                "Did you read the UPGRADE document?"
-            );
-        }
-    } catch {
-        add_problem( $FATAL, "Uncaught exception while trying to identify SoH extension version: $_" );
-    };
+    # TODO we might want to re-add that to the above if we ever get 
+    # catastrophic chains of extension failures that are confusing to users
 
-    # we wrap in a try/catch because we might trap exceptions if pf::vlan::custom is not to the appropriate level
-    try {
-        require pf::radius::custom;
-        if (!defined(pf::radius::custom->VERSION())) {
-            add_problem( $FATAL,
-                "RADIUS Extension point (pf::radius::custom) VERSION is not defined. " . 
-                "Did you read the UPGRADE document?"
-            );
-        } elsif ($RADIUS_API_LEVEL > pf::radius::custom->VERSION()) {
-            add_problem( $FATAL,
-                "RADIUS Extension point (pf::radius::custom) is not at the correct API level. " .
-                "Did you read the UPGRADE document?"
-            );
-        }
-    } catch {
-        # we ignore "version check failed" or "version x required"
-        # as it means that pf::vlan::custom's version is not good which we already catched above
-        if ($_ !~ /(?:version check failed)|(?:version .+ required)/) {
-            add_problem( $FATAL, "Uncaught exception while trying to identify RADIUS extension version: $_" );
-        }
-    };
+    # we ignore "version check failed" or "version x required"
+    # as it means that pf::vlan::custom's version is not good which we already catched above
+    #if ($_ !~ /(?:version check failed)|(?:version .+ required)/) {
+    #        add_problem( $FATAL, "Uncaught exception while trying to identify RADIUS extension version: $_" );
+    #}
 
     # Authentication modules
     my @activated_auth_modules = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
@@ -950,6 +907,21 @@ sub switches {
         my $mode = $switches_conf{$section}{'mode'} || $switches_conf{'default'}{'mode'};
         if ( !grep( { lc($_) eq lc($mode) } @valid_switch_modes ) ) {
             add_problem( $WARN, "switches.conf | Switch mode ($mode) is invalid for switch $section" );
+        }
+
+        # check role
+        my $roles = $switches_conf{$section}{'roles'} || $switches_conf{'default'}{'roles'};
+        # if it's not empty it must be in the <cat1>=<role1>;<cat2>=<role2>;... format
+        if ( $roles !~ /^\s*$/ && $roles !~ /
+            ^\w+=\w+         # at least one word=word
+            (;\w+=\w+)*      # maybe more word=word in that case they must be prefixed by ;
+            ;?               # optional ending ;
+            $/x ) {
+            add_problem(
+                $WARN, 
+                "switches.conf | Roles parameter ($roles) is badly formatted for switch $section. "
+                . "It should be: <category_name1>=<controller_role1>;<category_name2>=<controller_role2>;..."
+            );
         }
 
     }

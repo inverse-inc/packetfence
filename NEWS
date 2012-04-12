@@ -20,6 +20,7 @@ New Hardware
  * Added 802.1x/Mac Authentication support for HP 2500/2600 switches (no VoIP)
 
 New Features
+ * Introduction of Role-based Access Control. Supported on AeroHIVE, Aruba, Meru and Motorola (considered experimental).
  * Wireless deauthentication in Master / Local configuration supported for Aruba controllers (or other Disconnect-Message implementations)
  * New guest self-registration mode: Sponsored. Guests accesses are approved through a 'sponsor'.
  * New guest self-registration option: Pre-registered guests. They can register in advance through the portal. Email and sponsor modes supported right now.
@@ -38,6 +39,7 @@ Enhancements
  * if VoIP is configured to be enabled and the network hardware doesn't support it, PacketFence will log a warning
  * Firewall and Captive Portal more restrictive by default if you are not using guest access
  * Performance improvement for the RADIUS accouting (#1414)
+ * New hook to make it easier to rewrite RADIUS Access-Accept packets
 
 Bug Fixes
  * Proxy Bypass issues in environment with Virtual IP (#1385)

@@ -1,37 +1,44 @@
-package pf::radius::custom;
+package pf::roles::custom;
 
 =head1 NAME
 
-pf::radius::custom - Module that deals with everything RADIUS related
+pf::roles::custom - OO module that performs the roles lookups for nodes
 
 =head1 SYNOPSIS
 
-The pf::radius module contains the functions necessary for answering RADIUS queries.
-RADIUS is the network access component known as AAA used in 802.1x, MAC authentication, etc.
-This module acts as a proxy between our FreeRADIUS perl module's SOAP requests 
-(packetfence.pm) and PacketFence core modules.
+The pf::roles::custom implements roles lookups for nodes that are custom to a particular setup. 
 
-This modules extends pf::radius. Override methods for which you want to customize
-behavior here.
+This module extends pf::roles
+
+=head1 EXPERIMENTAL
+
+This module is considered experimental. For example not a lot of information
+is provided to make the role decisions. This is expected to change in the
+future at the cost of API changes.
+
+You have been warned!
 
 =cut
 
 use strict;
 use warnings;
+
 use Log::Log4perl;
 
-use base ('pf::radius');
+use base ('pf::roles');
 use pf::config;
-use pf::locationlog;
-use pf::node;
-use pf::SNMP;
-use pf::SwitchFactory;
-use pf::util;
-use pf::vlan::custom $VLAN_API_LEVEL;
-# constants used by this module are provided by
-use pf::radius::constants;
+use pf::node qw(node_attributes);
+use pf::violation qw(violation_count_trap);
 
-our $VERSION = 1.02;
+our $VERSION = 0.90;
+
+=head1 SUBROUTINES
+
+=over
+
+=cut
+
+=back
 
 =head1 AUTHOR
 
@@ -39,7 +46,9 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009-2012 Inverse inc.
+Copyright (C) 2012 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -59,7 +68,3 @@ USA.
 =cut
 
 1;
-
-# vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:

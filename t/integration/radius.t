@@ -54,8 +54,8 @@ my $radius_response = $radius->authorize($radius_request);
 is_deeply($radius_response, 
     [$RADIUS::RLM_MODULE_OK, (
         'Tunnel-Private-Group-ID'=> $regist_vlan,
-        'Tunnel-Type'            => 13,
-        'Tunnel-Medium-Type'     => 6)],
+        'Tunnel-Type'            => $RADIUS::VLAN,
+        'Tunnel-Medium-Type'     => $RADIUS::ETHERNET)],
     "Wired MAC Auth request expect registration vlan"
 );
 
@@ -114,8 +114,8 @@ $radius_response = $radius->authorize($radius_request);
 is_deeply($radius_response, 
     [$RADIUS::RLM_MODULE_OK, (
         'Tunnel-Private-Group-ID'=> $regist_vlan,
-        'Tunnel-Type'            => 13,
-        'Tunnel-Medium-Type'     => 6)],
+        'Tunnel-Type'            => $RADIUS::VLAN,
+        'Tunnel-Medium-Type'     => $RADIUS::ETHERNET)],
     "802.1X request expect registration vlan"
 );
 

@@ -20,7 +20,7 @@
  * USA.
  * 
  * @author      Olivier Bilodeau <obilodeau@inverse.ca>
- * @copyright   2008-2011 Inverse inc.
+ * @copyright   2008-2012 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
@@ -36,7 +36,7 @@
 
   $is_printable=true;
   $my_table->set_editable(true);
-  $my_table->set_hideable(array('SNMPVersion', 'SNMPCommunityRead', 'SNMPCommunityWrite', 'SNMPVersionTrap', 'SNMPCommunityTrap', 'cliTransport', 'cliUser', 'cliPwd', 'cliEnablePwd', 'wsTransport', 'wsUser', 'wsPwd', 'customVlan1', 'customVlan2', 'customVlan3', 'customVlan4', 'customVlan5', 'macSearchesMaxNb', 'macSearchesSleepInterval', 'SNMPEngineID', 'SNMPUserNameRead', 'SNMPAuthProtocolRead', 'SNMPAuthPasswordRead', 'SNMPPrivProtocolRead', 'SNMPPrivPasswordRead', 'SNMPUserNameWrite', 'SNMPAuthProtocolWrite', 'SNMPAuthPasswordWrite', 'SNMPPrivProtocolWrite', 'SNMPPrivPasswordWrite', 'SNMPUserNameTrap', 'SNMPAuthProtocolTrap', 'SNMPAuthPasswordTrap', 'SNMPPrivProtocolTrap', 'SNMPPrivPasswordTrap', 'radiusSecret', 'controllerIp'));
+  $my_table->set_hideable(array('SNMPVersion', 'SNMPCommunityRead', 'SNMPCommunityWrite', 'SNMPVersionTrap', 'SNMPCommunityTrap', 'cliTransport', 'cliUser', 'cliPwd', 'cliEnablePwd', 'wsTransport', 'wsUser', 'wsPwd', 'customVlan1', 'customVlan2', 'customVlan3', 'customVlan4', 'customVlan5', 'macSearchesMaxNb', 'macSearchesSleepInterval', 'SNMPEngineID', 'SNMPUserNameRead', 'SNMPAuthProtocolRead', 'SNMPAuthPasswordRead', 'SNMPPrivProtocolRead', 'SNMPPrivPasswordRead', 'SNMPUserNameWrite', 'SNMPAuthProtocolWrite', 'SNMPAuthPasswordWrite', 'SNMPPrivProtocolWrite', 'SNMPPrivPasswordWrite', 'SNMPUserNameTrap', 'SNMPAuthProtocolTrap', 'SNMPAuthPasswordTrap', 'SNMPPrivProtocolTrap', 'SNMPPrivPasswordTrap', 'radiusSecret', 'controllerIp', 'roles'));
   $my_table->set_page_num(set_default($_REQUEST['page_num'],1));
   $my_table->set_per_page(set_default($_REQUEST['per_page'],25));
 

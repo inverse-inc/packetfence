@@ -1,33 +1,49 @@
 #!/usr/bin/perl
+
 =head1 NAME
 
-backend_modperl_require.pl
+roles.t
 
 =head1 DESCRIPTION
 
-Pre-loading PacketFence's modules in Apache (mod_perl) for the Web Admin / Web Services Back-End
+Test for network devices modules that support roles
 
 =cut
-use lib "/usr/local/pf/lib";
-# dynamicly loaded authentication modules
-use lib "/usr/local/pf/conf";
 
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use UNIVERSAL::require;
 
-use pf::config;
-use pf::locationlog;
-use pf::node;
-use pf::roles::custom;
-use pf::SNMP;
-use pf::SwitchFactory;
-use pf::util;
+use lib '/usr/local/pf/lib';
+use Test::More;
+use Test::NoWarnings;
 
-# Forces a pre-load of the singletons to avoid penalty performance on first request
-pf::roles::custom->instance();
-pf::SwitchFactory->getInstance();
+use TestUtils;
+
+my @supports_roles;
+foreach my $networkdevice_class (TestUtils::get_networkdevices_classes()) {
+    # create the object
+    $networkdevice_class->require();
+    my $networkdevice_object = $networkdevice_class->new();
+    if ($networkdevice_object->supportsRoleBasedEnforcement()) {
+        # if it supports roles we keep for the tests
+        push(@supports_roles, $networkdevice_object);
+    }
+}
+
+# + no warnings
+plan tests => scalar @supports_roles * 2 + 1;
+
+foreach my $support_roles (@supports_roles) {
+
+    # test the object's heritage
+    isa_ok($support_roles, 'pf::SNMP');
+
+    # test its interface
+    can_ok($support_roles, qw(returnRoleAttribute));
+
+}
 
 =head1 AUTHOR
 
@@ -35,10 +51,10 @@ Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2010-2011 Inverse inc.
+Copyright (C) 2012 Inverse inc.
 
-=head1 LICENSE 
-
+=head1 LICENSE
+    
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
@@ -55,4 +71,4 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.            
                 
 =cut
-1;
+
