@@ -230,7 +230,8 @@ window.onload = function () {
         chart.hover(fin, fout);
 
         $(holder).setStyle({ height: (height+h)+'px' });
-        $(holder).down('svg').setAttribute('height', (height+h));
+        var svg = $(holder).down('svg');
+        if (svg) svg.setAttribute('height', (height+h));
     }
 
     /* Draw graphs */
