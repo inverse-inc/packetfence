@@ -725,6 +725,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Thu Apr 12 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.3.0-1
+- New release 3.3.0
+
 * Sun Mar 11 2012 Olivier Bilodeau <obilodeau@inverse.ca>
 - Dependencies in recommended perl(A::B) notation instead of perl-A-B
 
