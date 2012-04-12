@@ -17,3 +17,9 @@ UPDATE email_activation SET type = 'guest';
 ALTER TABLE node_category
   ADD `max_nodes_per_pid` int default 0 AFTER name
 ;
+
+--
+-- Create index on the radacct table for callingstationid
+--
+
+CREATE INDEX callingstationid ON radacct ( callingstationid );

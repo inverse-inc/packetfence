@@ -13,6 +13,10 @@ o Upgrading from a version prior to <release>:
     your schema even if you don't use the feature:
     mysql -u root -p pf -v < db/upgrade-3.2.0-3.3.0.sql
 
+    Warning: If you are actively using RADIUS accounting features, please
+    note that the schema upgrade might take a while, we will create a new
+    index on the radacct table.  Don't panic if it takes longer than usual!
+
     - guests_pre_registration renamed to guests_admin_registration
     Update your conf/pf.conf if you diverged from the default settings.
 

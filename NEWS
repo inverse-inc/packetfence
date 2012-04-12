@@ -36,6 +36,7 @@ Enhancements
  * Daemon startup time logged. Allows for easier troubleshooting of slow-to-restart setups.
  * if VoIP is configured to be enabled and the network hardware doesn't support it, PacketFence will log a warning
  * Firewall and Captive Portal more restrictive by default if you are not using guest access
+ * Performance improvement for the RADIUS accouting (#1414)
 
 Bug Fixes
  * Proxy Bypass issues in environment with Virtual IP (#1385)
