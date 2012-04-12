@@ -1,20 +1,13 @@
-package pf::SNMP::Cisco::WLC_2100;
+package pf::SNMP::Cisco::WLC;
 
 =head1 NAME
 
-pf::SNMP::Cisco::WLC_2100
-
-=head1 SYNOPSIS
-
-The pf::SNMP::Cisco::WLC_2100 module implements an object oriented interface to manage Wireless LAN Controllers.
+pf::SNMP::Cisco::WLC - Object oriented module to parse SNMP traps and manage
+Cisco Wireless Controllers (WLC) and Wireless Service Modules (WiSM)
 
 =head1 STATUS
 
-Developed and tested a long time ago on an undocumented IOS. 
-
-With time and product line evolution, this module mostly became a placeholder,
-you should see L<pf::SNMP::Cisco::WLC> for other relevant support items and 
-issues.
+Developed and tested on IOS version 4.2.130 altought the new RADIUS RFC3576 support requires IOS v5 and later.
 
 =over
 
@@ -22,7 +15,7 @@ issues.
 
 =over
 
-=item Deauthentication with CLI (Telnet or SSH)
+=item Deauthentication with SNMP
 
 =back
 
@@ -30,32 +23,45 @@ issues.
 
 =head1 BUGS AND LIMITATIONS
 
-Wireless deauthentication (deassociation) uses the CLI (telnet or ssh) which is expensive (doesn't scale very well).
+=over
+
+=item Version specific issues
 
 Controller issue with Windows 7: It only works with IOS > 6.x in 802.1x+WPA2. It's not a PacketFence issue.
 
 With IOS 6.0.182.0 we had intermittent issues with DHCP. Disabling DHCP Proxy resolved it. Not a PacketFence issue.
 
-=cut
+With IOS 7.0.116 and 7.0.220, the SNMP deassociation is not working if using WPA2.  It only works if using an
+Open SSID.
 
+With IOS 7.2.103.0 (and maybe up but it is currently the latest firmware), 
+SNMP de-authentication no longer works. It it believed to be caused by the 
+new firmware not accepting SNMP requests with 2 bytes request-id. Doing the 
+same SNMP set with `snmpset` command issues a 4 bytes request-id and the 
+controllers are happy with these. Not a PacketFence issue. I would think it
+relates to the following open caveats CSCtw87226:
+http://www.cisco.com/en/US/docs/wireless/controller/release/notes/crn7_2.html#wp934687
+
+=item flexconnect (H-REAP) limitations
+
+Access Points in Hybrid Remote Edge Access Point (H-REAP) mode, now known as 
+flexconnect, don't support RADIUS dynamic VLAN assignments (AAA override).
+
+Customer specific work-arounds are possible. For example: per-SSID registration, auto-registration, etc.
+
+=back
+
+=cut
 use strict;
 use warnings;
 
 use Log::Log4perl;
-use Net::Appliance::Session;
 use Net::SNMP;
+use Net::Telnet;
 
-use base ('pf::SNMP::Cisco::WLC');
+use base ('pf::SNMP::Cisco');
 
 use pf::config;
-
-=head1 SUBROUTINES
-
-TODO: This list is incomplete
-
-=over
-
-=cut
 
 # CAPABILITIES
 # access technology supported
@@ -64,65 +70,77 @@ sub supportsWirelessMacAuth { return $TRUE; }
 # special features 
 sub supportsSaveConfig { return $FALSE; }
 
-
-=item deauthenticateMac
-
-Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread 
-safe: 
-
-L<http://www.cpanforum.com/threads/6909/>
-
-Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
-
-=cut
 sub deauthenticateMac {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $OID_bsnMobileStationDeleteAction = '1.3.6.1.4.1.14179.2.1.4.1.22';
+
+    if ( !$this->isProductionMode() ) {
+        $logger->info(
+            "not in production mode ... we won't write to the bnsMobileStationTable"
+        );
+        return 1;
+    }
+
+    if ( !$this->connectWrite() ) {
+        return 0;
+    }
 
     #format MAC
     if ( length($mac) == 17 ) {
-        $mac =~ s/://g;
-        $mac
-            = substr( $mac, 0, 4 ) . "."
-            . substr( $mac, 4, 4 ) . "."
-            . substr( $mac, 8, 4 );
+        my @macArray = split( /:/, $mac );
+        my $completeOid = $OID_bsnMobileStationDeleteAction;
+        foreach my $macPiece (@macArray) {
+            $completeOid .= "." . hex($macPiece);
+        }
+        $logger->trace(
+            "SNMP set_request for bsnMobileStationDeleteAction: $completeOid"
+        );
+        my $result = $this->{_sessionWrite}->set_request(
+            -varbindlist => [ $completeOid, Net::SNMP::INTEGER, 1 ] );
+        # TODO: validate result
+        $logger->info("deauthenticate mac $mac from controller: ".$this->{_ip});
+        return ( defined($result) );
     } else {
         $logger->error(
             "ERROR: MAC format is incorrect ($mac). Should be xx:xx:xx:xx:xx:xx"
         );
         return 1;
     }
+}
 
-    my $session;
-    eval {
-        $session = new Net::Appliance::Session->new(
-            Host      => $this->{_ip},
-            Timeout   => 5,
-            Transport => $this->{_cliTransport}
-        );
-        $session->connect(
-            Name     => $this->{_cliUser},
-            Password => $this->{_cliPwd}
-        );
-        # Session not already privileged are not supported at this point. See #1370
-        #$session->begin_privileged( $this->{_cliEnablePwd} );
-        $session->do_privileged_mode(0);
-        $session->begin_configure();
-    };
+sub blacklistMac {
+    my ( $this, $mac, $description ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    if ($@) {
-        $logger->error( "ERROR: Can not connect to WLC $this->{'_ip'} using "
-                . $this->{_cliTransport} );
-        return 1;
+    if ( length($mac) == 17 ) {
+
+        my $session;
+        eval {
+            $session = Net::Telnet->new(
+                Host    => $this->{_ip},
+                Timeout => 5,
+                Prompt  => '/[\$%#>]$/'
+            );
+            $session->waitfor('/User: /');
+            $session->put( $this->{_cliUser} . "\n" );
+            $session->waitfor('/Password:/');
+            $session->put( $this->{_cliPwd} . "\n" );
+            $session->waitfor( $session->prompt );
+        };
+
+        if ($@) {
+            $logger->error(
+                "ERROR: Can not connect to access point $this->{'_ip'} using telnet"
+            );
+            return 1;
+        }
+        $logger->info("Blacklisting mac $mac");
+        $session->cmd("config exclusionlist add $mac");
+        $session->cmd(
+            "config exclusionlist description $mac \"$description\"");
+        $session->close();
     }
-
-    #if (! $session->enable($this->{_cliEnablePwd})) {
-    #    $logger->error("ERROR: Can not 'enable' telnet connection");
-    #    return 1;
-    #}
-    $session->cmd("client deauthenticate $mac");
-    $session->close();
-
     return 1;
 }
 
@@ -196,7 +214,7 @@ sub getPhonesDPAtIfIndex {
                 . ". getPhonesDPAtIfIndex will return empty list." );
         return @phones;
     }
-    $logger->debug("no DP is available on WLC_2100");
+    $logger->debug("no DP is available on Controller 4400");
     return @phones;
 }
 
@@ -205,13 +223,11 @@ sub isVoIPEnabled {
     return 0;
 }
 
-=back
-
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
 Dominik Gehl <dgehl@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 

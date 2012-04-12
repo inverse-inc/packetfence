@@ -1,16 +1,16 @@
-package pf::SNMP::Cisco::WiSM;
+package pf::SNMP::Cisco::WLC_2500;
 
 =head1 NAME
 
-pf::SNMP::Cisco::WiSM - Object oriented module to parse SNMP traps and manage Cisco Wireless Services Module (WiSM)
+pf::SNMP::Cisco::WLC_2500 - Object oriented module to parse SNMP traps and 
+manage Cisco Wireless Controllers 2500 Series
 
 =head1 STATUS
 
 This module is currently only a placeholder, see L<pf::SNMP::Cisco::WLC> for relevant support items.
 
-It should work on all 6500 WiSM modules and maybe 7500.
-
 =cut
+
 use strict;
 use warnings;
 
@@ -25,7 +25,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010, 2012 Inverse inc.
+Copyright (C) 2012 Inverse inc.
 
 =head1 LICENSE
 

@@ -17,8 +17,6 @@ use Net::SNMP;
 
 use base ('pf::SNMP::Cisco::WLC_2100');
 
-=back
-
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
