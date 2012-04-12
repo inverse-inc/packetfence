@@ -7,6 +7,12 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <release>:
 
+    - Cisco wireless de-authentication
+    Cisco de-authentication now relies on RADIUS Disconnect-Request (RFC3576)
+    instead of SNMP or Telnet/SSH. Make sure you have set radiusSecret in your
+    conf/switches.conf and that RFC3576 support is properly enabled in your
+    controller's AAA config (the default is enabled since IOS 5.x+).
+
     - pf::SNMP API Bump
     We changed the interface to radiusDisconnect. If you use that interface
     in custom code (most, if not all, of you don't) then you'll need to update

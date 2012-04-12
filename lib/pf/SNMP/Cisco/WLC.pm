@@ -15,6 +15,8 @@ Developed and tested on IOS version 4.2.130 altought the new RADIUS RFC3576 supp
 
 =over
 
+=item Deauthentication with RADIUS Disconnect (RFC3576)
+
 =item Deauthentication with SNMP
 
 =back
@@ -63,6 +65,12 @@ use base ('pf::SNMP::Cisco');
 
 use pf::config;
 
+=head1 SUBROUTINES
+
+=over
+
+=cut
+
 # CAPABILITIES
 # access technology supported
 sub supportsWirelessDot1x { return $TRUE; }
@@ -70,7 +78,38 @@ sub supportsWirelessMacAuth { return $TRUE; }
 # special features 
 sub supportsSaveConfig { return $FALSE; }
 
+=item deauthenticateMac
+    
+De-authenticate a MAC address from wireless network (including 802.1x).
+    
+New implementation using RADIUS Disconnect-Request.
+
+=cut
 sub deauthenticateMac {
+    my ( $self, $mac, $is_dot1x ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    
+    if ( !$self->isProductionMode() ) {
+        $logger->info("not in production mode... we won't perform deauthentication");
+        return 1;
+    }
+    
+    $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
+    # TODO push Login-User => 1 (RFC2865) in pf::radius::constants if someone ever reads this 
+    # (not done because it doesn't exist in current branch)
+    return $self->radiusDisconnect( $mac, { 'Service-Type' => 'Login-User'} );
+}
+
+=item _deauthenticateMacSNMP
+
+deauthenticate a MAC address from wireless network (including 802.1x)
+
+This implementation is deprecated since RADIUS Disconnect-Request (aka 
+RFC3576 aka CoA) is better and also it no longer worked with IOS 7.2 and up.
+See L<BUGS AND LIMITATIONS> for details.
+
+=cut
+sub _deauthenticateMacSnmp {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $OID_bsnMobileStationDeleteAction = '1.3.6.1.4.1.14179.2.1.4.1.22';
@@ -214,7 +253,7 @@ sub getPhonesDPAtIfIndex {
                 . ". getPhonesDPAtIfIndex will return empty list." );
         return @phones;
     }
-    $logger->debug("no DP is available on Controller 4400");
+    $logger->debug("no DP is available on Cisco Wireless Controllers");
     return @phones;
 }
 
@@ -222,6 +261,8 @@ sub isVoIPEnabled {
     my ($this) = @_;
     return 0;
 }
+
+=back
 
 =head1 AUTHOR
 

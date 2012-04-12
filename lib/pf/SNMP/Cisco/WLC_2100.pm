@@ -22,19 +22,15 @@ issues.
 
 =over
 
+=item Deauthentication with RADIUS Disconnect (RFC3576)
+
+Requires IOS 5 or later.
+
 =item Deauthentication with CLI (Telnet or SSH)
 
 =back
 
 =back
-
-=head1 BUGS AND LIMITATIONS
-
-Wireless deauthentication (deassociation) uses the CLI (telnet or ssh) which is expensive (doesn't scale very well).
-
-Controller issue with Windows 7: It only works with IOS > 6.x in 802.1x+WPA2. It's not a PacketFence issue.
-
-With IOS 6.0.182.0 we had intermittent issues with DHCP. Disabling DHCP Proxy resolved it. Not a PacketFence issue.
 
 =cut
 
@@ -65,7 +61,10 @@ sub supportsWirelessMacAuth { return $TRUE; }
 sub supportsSaveConfig { return $FALSE; }
 
 
-=item deauthenticateMac
+=item _deauthenticateMacSnmp
+
+Deprecated: This is no longer required since IOS 5.x+. New implementation is
+in pf::SNMP::Cisco::WLC and relies on Disconnect-Message (RFC3576).
 
 Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread 
 safe: 
@@ -75,7 +74,7 @@ L<http://www.cpanforum.com/threads/6909/>
 Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
 
 =cut
-sub deauthenticateMac {
+sub _deauthenticateMacSnmp {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
@@ -124,85 +123,6 @@ sub deauthenticateMac {
     $session->close();
 
     return 1;
-}
-
-sub isLearntTrapsEnabled {
-    my ( $this, $ifIndex ) = @_;
-    return ( 0 == 1 );
-}
-
-sub setLearntTrapsEnabled {
-    my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return -1;
-}
-
-sub isRemovedTrapsEnabled {
-    my ( $this, $ifIndex ) = @_;
-    return ( 0 == 1 );
-}
-
-sub setRemovedTrapsEnabled {
-    my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return -1;
-}
-
-sub getVmVlanType {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return -1;
-}
-
-sub setVmVlanType {
-    my ( $this, $ifIndex, $type ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return -1;
-}
-
-sub isTrunkPort {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return -1;
-}
-
-sub getVlans {
-    my ($this) = @_;
-    my $vlans  = {};
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return $vlans;
-}
-
-sub isDefinedVlan {
-    my ( $this, $vlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return 0;
-}
-
-sub getPhonesDPAtIfIndex {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    my @phones = ();
-    if ( !$this->isVoIPEnabled() ) {
-        $logger->debug( "VoIP not enabled on switch "
-                . $this->{_ip}
-                . ". getPhonesDPAtIfIndex will return empty list." );
-        return @phones;
-    }
-    $logger->debug("no DP is available on WLC_2100");
-    return @phones;
-}
-
-sub isVoIPEnabled {
-    my ($this) = @_;
-    return 0;
 }
 
 =back
