@@ -887,7 +887,7 @@ Finally, start `winbind`, and test the setup using `ntlm_auth`:
   # service winbind start
   # chkconfig --level 345 winbind on
   # chgrp radiusd /var/lib/samba/winbindd_privileged/
-  # ntlm_auth –username myDomainUser
+  # ntlm_auth --username myDomainUser
 
 Option 2: Local Authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
