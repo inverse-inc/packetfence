@@ -803,19 +803,22 @@ Samba / Kerberos / Winbind
 Install SAMBA. You can either use the sources or use the package for your OS. For CentOS, you can use:
 
 // TODO make this more arch independent
-CAUTION: These are for CentOS 5 on the x86_64 architecture. Make sure to change the packages fetched based on your OS.
+CAUTION: These are for CentOS 5 on the x86_64 architecture. Make sure to 
+change the packages fetched based on your OS. Additionally newer versions 
+could be made available and the site doesn't keep the previous versions so 
+you might need to update the versions accordingly.
 
 ----
-wget ftp://ftp.sernet.de/pub/samba/3.5/centos/5/x86_64/samba3-3.5.6-43.el5.x86_64.rpm
-wget ftp://ftp.sernet.de/pub/samba/3.5/centos/5/x86_64/samba3-client-3.5.6-43.el5.x86_64.rpm
-wget ftp://ftp.sernet.de/pub/samba/3.5/centos/5/x86_64/samba3-utils-3.5.6-43.el5.x86_64.rpm
-wget ftp://ftp.sernet.de/pub/samba/3.5/centos/5/x86_64/samba3-winbind-3.5.6-43.el5.x86_64.rpm
-wget ftp://ftp.sernet.de/pub/samba/3.5/centos/5/x86_64/libwbclient0-3.5.6-43.el5.x86_64.rpm
+wget ftp://ftp.sernet.de/pub/samba/3.5/centos/5/x86_64/samba3-3.5.14-44.el5.x86_64.rpm
+wget ftp://ftp.sernet.de/pub/samba/3.5/centos/5/x86_64/samba3-client-3.5.14-44.el5.x86_64.rpm
+wget ftp://ftp.sernet.de/pub/samba/3.5/centos/5/x86_64/samba3-utils-3.5.14-44.el5.x86_64.rpm
+wget ftp://ftp.sernet.de/pub/samba/3.5/centos/5/x86_64/samba3-winbind-3.5.14-44.el5.x86_64.rpm
+wget ftp://ftp.sernet.de/pub/samba/3.5/centos/5/x86_64/libwbclient0-3.5.14-44.el5.x86_64.rpm
 
-yum install ./samba*.rpm --nogpgcheck
+yum install ./samba*.rpm ./libwbclient0*.rpm --nogpgcheck
 ----
 
-NOTE: If you have Windows 7 PCs in your network, you need to use SAMBA version 3.5.0 or greater)
+NOTE: If you have Windows 7 PCs in your network, you need to use SAMBA version 3.5.0 (or greater)
  
 When done with the samba install, you need to modify `/etc/krb5.conf`. Here is an example for the `DOMAIN.NET` domain:
 
