@@ -256,7 +256,7 @@
         <para>Most of the branding should be possible by only changing the CSS. It is located in 
         <filename>/usr/local/pf/html/captive-portal/content/styles.css</filename>and there is also one loaded by
         mobile browsers at 
-        <filename>/usr/local/pf/html/captive-portal/content/mobile.css</filename>.</para>
+        <filename>/usr/local/pf/html/captive-portal/content/responsive.css</filename>.</para>
       </sect3>
     </sect2>
     <sect2>
