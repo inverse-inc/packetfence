@@ -63,9 +63,9 @@ pf::roles::custom subclass instead.
 =cut
 
 sub new {
+    my ( $class, %argv ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->debug("instantiating new " . __PACKAGE__ . " object");
-    my ( $class, %argv ) = @_;
     my $self = bless {}, $class;
     return $self;
 }
