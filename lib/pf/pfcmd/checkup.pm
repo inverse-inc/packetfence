@@ -907,7 +907,7 @@ sub switches {
         # check role
         my $roles = $switches_conf{$section}{'roles'} || $switches_conf{'default'}{'roles'};
         # if it's not empty it must be in the <cat1>=<role1>;<cat2>=<role2>;... format
-        if ( $roles !~ /^\s*$/ && $roles !~ /
+        if ( defined($roles) && $roles !~ /^\s*$/ && $roles !~ /
             ^\w+=\w+         # at least one word=word
             (;\w+=\w+)*      # maybe more word=word in that case they must be prefixed by ;
             ;?               # optional ending ;
