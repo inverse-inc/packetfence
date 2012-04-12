@@ -5,6 +5,21 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to <release>:
+
+    - Important changes to the inline mode
+    We made some important changes to the way inline mode DNS is working.
+    We introduced DNS DNATTING so that users in inline vlan receive a valid external DNS
+    server by DHCP but if are in an unregistered or isolated state, iptables DNAT DNS traffic
+    to a local DNS server on the PacketFence server (exactly as in a vlan mode).
+    It is now important to change the previously recommended "disabled" named setting to "enabled"
+    in your networks.conf for inline interfaces. A warning message will come up on PacketFence startup
+    in case the setting is still set as disabled in an inline configuration.
+    Due to this change, we also dropped a configuration parameter, inline.portal_redirect, so make
+    sure to update your pf.conf accordingly.
+    Don't hesitate to take a look at the revised configuration for the inline mode in the
+    PacketFence Administration Guide page 17.
+
 o Upgrading from a version prior to 3.2.0:
 
     - Database schema update
@@ -72,19 +87,6 @@ o Upgrading from a version prior to 3.2.0:
 
     - pfcmd exit status
     Some exit status of pfcmd changed regarding the config sub-command.
-
-    - Important changes to the inline mode
-    We made some important changes to the way inline mode DNS is working.
-    We introduced DNS DNATTING so that users in inline vlan receive a valid external DNS
-    server by DHCP but if are in an unregistered or isolated state, iptables DNAT DNS traffic
-    to a local DNS server on the PacketFence server (exactly as in a vlan mode).
-    It is now important to change the previously recommended "disabled" named setting to "enabled"
-    in your networks.conf for inline interfaces. A warning message will come up on PacketFence startup
-    in case the setting is still set as disabled in an inline configuration.
-    Due to this change, we also dropped a configuration parameter, inline.portal_redirect, so make
-    sure to update your pf.conf accordingly.
-    Don't hesitate to take a look at the revised configuration for the inline mode in the
-    PacketFence Administration Guide page 17.
 
 o Upgrading from a version prior to 3.1.0:
 
