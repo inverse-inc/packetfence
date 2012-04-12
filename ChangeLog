@@ -1,3 +1,47 @@
+commit 233e3c5aa0c36160e85a92b44815502fb63ae754
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Apr 12 15:09:49 2012 -0400
+
+    NEWS entry and manifest update for mobile CSS fix
+
+M	NEWS
+M	addons/packages/packetfence.spec
+
+commit 5ea40549f22c0ecdf739455d29557bfd7ac8844b
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Apr 12 14:56:07 2012 -0400
+
+    last minute fix to Network Device guide
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit f36aaad6651086061591567f4a13a25bb7939b8d
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Apr 12 14:46:54 2012 -0400
+
+    Fixed JavaScript error for IE8 in common/graphs.js.
+
+M	html/common/graphs.js
+
+commit 8a1453deaba662f6213d9ac434c7c7ec07dc3d03
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Apr 12 14:41:26 2012 -0400
+
+    Migrated CSS to a responsive design.
+
+D	html/captive-portal/content/mobile.css
+A	html/captive-portal/content/responsive.css
+M	html/captive-portal/templates/guest.html
+M	html/captive-portal/templates/header.html
+
+commit 1852f837cc0d6856c21d2fff258110d64c679f56
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Apr 12 14:13:42 2012 -0400
+
+    updated ChangeLog
+
+M	ChangeLog
+
 commit 8570e38eebbd19c1fdc92d521a09b7fdb2a24b26
 Author: Olivier Bilodeau <olivier@bottomlesspit.org>
 Date:   Thu Apr 12 13:53:13 2012 -0400
