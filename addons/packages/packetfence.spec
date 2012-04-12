@@ -619,7 +619,7 @@ fi
 %dir                    /usr/local/pf/html/captive-portal
 %attr(0755, pf, pf)     /usr/local/pf/html/captive-portal/*.cgi
                         /usr/local/pf/html/captive-portal/*.php
-%config(noreplace)      /usr/local/pf/html/captive-portal/content/mobile.css
+%config(noreplace)      /usr/local/pf/html/captive-portal/content/responsive.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/styles.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/print.css
                         /usr/local/pf/html/captive-portal/content/guest-management.js

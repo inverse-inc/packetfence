@@ -53,6 +53,7 @@ Bug Fixes
  * Documented the fact that you need to configure credentials in packetfence-soh.pm for Statement of Health (SoH) support
  * Fixed port-security + VoIP support for the HP wired product line
  * Minor Administration Guide updates
+ * Fixed CSS for mobiles devices
 
 Translations
  * Updated Brazilian Portuguese (pt_BR) translation (Thanks to Diego de Souza Lopes)
