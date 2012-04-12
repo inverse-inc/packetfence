@@ -2350,7 +2350,7 @@ You need to ensure that the uplink interface of the controller is configured as 
 
 [float]
 Roles (Per-User Firewall)
-+++++++++++++++++++++++++++++
++++++++++++++++++++++++++
 
 Since PacketFence 3.3.0, we now support roles for the Motorola hardware using WiNGS 5.x.  To add roles, go in *Configuration -> Security -> Wireless Client Roles*.  First create a global policy that
 will contain your roles.  Next, create your Roles by clicking on the *Add* button on the bottom right.  It is important to configure the Group Configuration line properly by setting the string
