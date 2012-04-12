@@ -714,9 +714,9 @@ sub getRoleByName {
     # split on ; to get 'category = controller_role'
     my $roles_assignment_ref;
     my @category_split = split( /\;/, $this->{'_roles'} );
-    foreach my $r_assign (@category_split) {
+    foreach my $current_role_assignment (@category_split) {
         # split on = to get category then controller_role
-        my ($category, $controller_role) = split( /\=/, $r_assign );
+        my ($category, $controller_role) = split( /\=/, $current_role_assignment );
         $roles_assignment_ref->{$category} = $controller_role if (defined($controller_role) && $controller_role !~ /^\s*$/);
     }
 
