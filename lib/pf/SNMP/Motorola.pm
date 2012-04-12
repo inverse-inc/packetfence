@@ -140,7 +140,7 @@ sub deauthenticateMac {
         my $acctsessionid = node_accounting_current_sessionid($mac);
 
         $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
-        return $self->radiusDisconnect($mac,$acctsessionid);
+        return $self->radiusDisconnect( $mac, { 'Acct-Session-Id' => $acctsessionid } );
     } else {
         $logger->debug("deauthenticate $mac using SNMP deauth method");
         return $self->_deauthenticateMacSNMP($mac);
@@ -194,7 +194,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2011, 2012 Inverse inc.
 
 =head1 LICENSE
 

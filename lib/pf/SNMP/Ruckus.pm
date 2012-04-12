@@ -118,7 +118,9 @@ sub deauthenticateMac {
     my $dynauth = node_accounting_dynauth_attr($mac);
 
     $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
-    return $self->radiusDisconnect($mac,$dynauth->{'acctsessionid'},$dynauth->{'username'});
+    return $self->radiusDisconnect(
+        $mac, { 'Acct-Session-Id' => $dynauth->{'acctsessionid'}, 'User-Name' => $dynauth->{'username'} },
+    );
 }
 
 =back
@@ -126,6 +128,8 @@ sub deauthenticateMac {
 =head1 AUTHOR
 
 Francois Gaudreault <fgaudreault@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
