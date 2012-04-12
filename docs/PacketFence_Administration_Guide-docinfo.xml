@@ -5,9 +5,9 @@
 <revhistory>
   <revision>
     <revnumber>2.1</revnumber>
-    <date>2012-03-29</date>
-    <authorinitials>OB</authorinitials>
-    <revremark>Added new documentation about pre-registered and sponsored guests</revremark>
+    <date>2012-04-12</date>
+    <authorinitials>OB, DW</authorinitials>
+    <revremark>Added new documentation about pre-registered, sponsored guests and role-based enforcement. Covered updated inline enforcement instructions. Updated drbd and samba installation instructions. SoH, ntlm_auth test and some typos fixed too.</revremark>
   </revision>
   <revision>
     <revnumber>2.0</revnumber>
