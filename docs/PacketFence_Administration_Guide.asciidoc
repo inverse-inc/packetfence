@@ -1946,9 +1946,22 @@ After the install, you need to create the extra partition for drbd. Using fdisk,
 DRBD and Linux-HA Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Use the following line to install the required packages :
+CentOS 5
+++++++++
 
-  yum install drbd83 kmod-drbd83 heartbeat heartbeat-pils heartbeat-stonith
+Use the following line to install the required packages.
+
+  yum install drbd drbd-kmdl heartbeat heartbeat-pils heartbeat-stonith
+
+CentOS 6
+++++++++
+
+Download the drbd-8.3 and drbd-kmdl-*-8.3 RPMs from http://dl.atrpms.net/el6-x86_64/atrpms/stable/ (for 64bit) 
+or http://dl.atrpms.net/el6-386/atrpms/stable/ (for 32bit).
+
+Use the following line to install the required packages.
+
+  yum install ./drbd*.rpm heartbeat heartbeat-pils heartbeat-stonith
 
 DRBD Configuration and setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
