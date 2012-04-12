@@ -2,206 +2,29 @@ package pf::SNMP::Cisco::WLC_4400;
 
 =head1 NAME
 
-pf::SNMP::Cisco::WLC_4400 - Object oriented module to access SNMP enabled Cisco 
-Wireless Controller (WLC) 4400 with IOS version 4.2.130
+pf::SNMP::Cisco::WLC_4400 - Object oriented module to parse SNMP traps and manage Cisco Wireless Controllers 4400 Series
 
-=head1 SYNOPSIS
+=head1 STATUS
 
-The pf::SNMP::Cisco::WLC_4400 module implements an object oriented interface
-to access SNMP enabled Cisco Controller 4400 with IOS version 4.2.130
+This module is currently only a placeholder, see L<pf::SNMP::Cisco::WLC> for relevant support items.
 
 =cut
 
 use strict;
 use warnings;
 
-use Carp;
 use Log::Log4perl;
 use Net::SNMP;
-use Net::Telnet;
 
-use base ('pf::SNMP::Cisco');
-
-use pf::config;
-
-# CAPABILITIES
-# access technology supported
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $TRUE; }
-# special features 
-sub supportsSaveConfig { return $FALSE; }
-
-sub deauthenticateMac {
-    my ( $this, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    my $OID_bsnMobileStationDeleteAction = '1.3.6.1.4.1.14179.2.1.4.1.22';
-
-    if ( !$this->isProductionMode() ) {
-        $logger->info(
-            "not in production mode ... we won't write to the bnsMobileStationTable"
-        );
-        return 1;
-    }
-
-    if ( !$this->connectWrite() ) {
-        return 0;
-    }
-
-    #format MAC
-    if ( length($mac) == 17 ) {
-        my @macArray = split( /:/, $mac );
-        my $completeOid = $OID_bsnMobileStationDeleteAction;
-        foreach my $macPiece (@macArray) {
-            $completeOid .= "." . hex($macPiece);
-        }
-        $logger->trace(
-            "SNMP set_request for bsnMobileStationDeleteAction: $completeOid"
-        );
-        my $result = $this->{_sessionWrite}->set_request(
-            -varbindlist => [ $completeOid, Net::SNMP::INTEGER, 1 ] );
-        # TODO: validate result
-        $logger->info("deauthenticate mac $mac from controller: ".$this->{_ip});
-        return ( defined($result) );
-    } else {
-        $logger->error(
-            "ERROR: MAC format is incorrect ($mac). Should be xx:xx:xx:xx:xx:xx"
-        );
-        return 1;
-    }
-}
-
-sub blacklistMac {
-    my ( $this, $mac, $description ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-
-    if ( length($mac) == 17 ) {
-
-        my $session;
-        eval {
-            $session = Net::Telnet->new(
-                Host    => $this->{_ip},
-                Timeout => 5,
-                Prompt  => '/[\$%#>]$/'
-            );
-            $session->waitfor('/User: /');
-            $session->put( $this->{_cliUser} . "\n" );
-            $session->waitfor('/Password:/');
-            $session->put( $this->{_cliPwd} . "\n" );
-            $session->waitfor( $session->prompt );
-        };
-
-        if ($@) {
-            $logger->error(
-                "ERROR: Can not connect to access point $this->{'_ip'} using telnet"
-            );
-            return 1;
-        }
-        $logger->info("Blacklisting mac $mac");
-        $session->cmd("config exclusionlist add $mac");
-        $session->cmd(
-            "config exclusionlist description $mac \"$description\"");
-        $session->close();
-    }
-    return 1;
-}
-
-sub isLearntTrapsEnabled {
-    my ( $this, $ifIndex ) = @_;
-    return ( 0 == 1 );
-}
-
-sub setLearntTrapsEnabled {
-    my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return -1;
-}
-
-sub isRemovedTrapsEnabled {
-    my ( $this, $ifIndex ) = @_;
-    return ( 0 == 1 );
-}
-
-sub setRemovedTrapsEnabled {
-    my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return -1;
-}
-
-sub getVmVlanType {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return -1;
-}
-
-sub setVmVlanType {
-    my ( $this, $ifIndex, $type ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return -1;
-}
-
-sub isTrunkPort {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return -1;
-}
-
-sub getVlans {
-    my ($this) = @_;
-    my $vlans  = {};
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return $vlans;
-}
-
-sub isDefinedVlan {
-    my ( $this, $vlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->error("function is NOT implemented");
-    return 0;
-}
-
-sub getPhonesDPAtIfIndex {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    my @phones = ();
-    if ( !$this->isVoIPEnabled() ) {
-        $logger->debug( "VoIP not enabled on switch "
-                . $this->{_ip}
-                . ". getPhonesDPAtIfIndex will return empty list." );
-        return @phones;
-    }
-    $logger->debug("no DP is available on Controller 4400");
-    return @phones;
-}
-
-sub isVoIPEnabled {
-    my ($this) = @_;
-    return 0;
-}
-
-=head1 BUGS AND LIMITATIONS
-
-Controller issue with Windows 7: It only works with IOS > 6.x in 802.1x+WPA2. It's not a PacketFence issue.
-
-With IOS 6.0.182.0 we had intermittent issues with DHCP. Disabling DHCP Proxy resolved it. Not a PacketFence issue.
-
-With IOS 7.0.116 and 7.0.220, the SNMP deassociation is not working if using WPA2.  It only works if using an
-Open SSID.
+use base ('pf::SNMP::Cisco::WLC');
 
 =head1 AUTHOR
-
-Dominik Gehl <dgehl@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2011 Inverse inc.
+Copyright (C) 2010, 2012 Inverse inc.
 
 =head1 LICENSE
 

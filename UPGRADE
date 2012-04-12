@@ -20,6 +20,14 @@ o Upgrading from a version prior to <release>:
     - guests_pre_registration renamed to guests_admin_registration
     Update your conf/pf.conf if you diverged from the default settings.
 
+    - Cisco wireless de-authentication
+    Cisco de-authentication now relies on RADIUS Disconnect-Request (RFC3576)
+    instead of SNMP or Telnet/SSH. Make sure you have set radiusSecret in your
+    conf/switches.conf and that RFC3576 support is properly enabled in your
+    controller's AAA config (the default is enabled since IOS 5.x+). Also
+    tightly firewalled environments will have to open up any port from 
+    PacketFence up to port 3799 UDP to their the controllers.
+
     - Important changes to the inline mode
     We made some important changes to the way inline mode DNS is working.
     We introduced DNS DNAT translation so that users in inline VLAN receive 
@@ -92,6 +100,12 @@ o Upgrading from a version prior to <release>:
     A new smaller indirection layer was introduced in pf::radius to allow 
     extensive rewrite of RADIUS Access-Accept in custom code. Check 
     pf::radius' _shouldRewriteAccessAccept and _rewriteAccessAccept.
+
+    - pf::SNMP API Bump
+    We changed the interface to radiusDisconnect. If you use that interface
+    in custom code (most, if not all, of you don't) then you'll need to update
+    your callers. We are now accepting an attributes hashref instead of the
+    accouting session id and username scalars.
 
 o Upgrading from a version prior to 3.2.0:
 

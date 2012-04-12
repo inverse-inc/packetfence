@@ -18,6 +18,7 @@ Version <version> released on <releaseDate>
 New Hardware
  * AlliedTelesis AT8000GS Switches using 802.1x/Mac Authentication without VoIP
  * Added 802.1x/Mac Authentication support for HP 2500/2600 switches (no VoIP)
+ * Cisco WLC/WiSM product line now supports RADIUS Disconnect (RFC3576) to perform de-authentication
 
 New Features
  * Introduction of Role-based Access Control. Supported on AeroHIVE, Aruba, Meru and Motorola (considered experimental).
