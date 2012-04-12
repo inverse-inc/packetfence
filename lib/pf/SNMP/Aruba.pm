@@ -76,9 +76,9 @@ TODO: this list is incomplete
 
 # CAPABILITIES
 # access technology supported
+sub supportsRoleBasedEnforcement { return $TRUE; }
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
-sub supportsRoleBasedEnforcement { return $TRUE; }
 
 =item getVersion - obtain image version information from switch
 
