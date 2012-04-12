@@ -20,6 +20,23 @@ o Upgrading from a version prior to <release>:
     - guests_pre_registration renamed to guests_admin_registration
     Update your conf/pf.conf if you diverged from the default settings.
 
+    - Important changes to the inline mode
+    We made some important changes to the way inline mode DNS is working.
+    We introduced DNS DNAT translation so that users in inline VLAN receive 
+    a valid external DNS server by DHCP but if are in an unregistered or 
+    isolated state, iptables DNATs the DNS traffic to a local DNS server on 
+    the PacketFence server (exactly as in a vlan mode).
+
+    It is now important to change the previously recommended "disabled" 
+    named setting to "enabled" in your conf/networks.conf for inline 
+    interfaces. A warning message will come up on startup in case the setting
+    is still set as disabled in an inline configuration. We also dropped a 
+    configuration parameter, inline.portal_redirect, so make sure to update 
+    your pf.conf accordingly. Lastly, the gateway parameter in your inline 
+    VLAN in conf/networks.conf should represent PacketFence's IP in that VLAN.
+    Don't hesitate to take a look at the revised configuration for the inline
+    mode in the PacketFence Administration Guide page 17.
+
     - Email templates changed names
     Related to the above guest API changes were several template files renamed
      - emails-guest_registration.txt.tt -> emails-guest_preregistration.txt.tt

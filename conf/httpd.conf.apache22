@@ -225,9 +225,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
 </VirtualHost>
 
 # Local Web Server created for OpenVAS callback
-# TODO this was put before the inline_internal_ip VHOST because if inline mode is disabled we assign it to 127.0.0.1
-# making the OpenVAS callback vhost unreachable
-# This should be fixed in the next release when we will support DNS DNAT'ing in inline mode
 <VirtualHost 127.0.0.1:80>
 
   DocumentRoot "%%install_dir%%/html/admin"
@@ -282,98 +279,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
     php_value error_reporting 2039
     php_value short_open_tag On
   </Location>
-
-</VirtualHost>
-
-<VirtualHost %%inline_internal_ip%%:80>
-
-  DocumentRoot %%install_dir%%/html/captive-portal
-  ServerName %%hostname%%.%%domain%%:80
-
-  # Alias, Logs, Access Control, Perl Config
-  Include %%varconf_dir%%/captive-portal-common.conf
-
-  # Rules that reduce server load by blocking undesired requests
-  Include %%varconf_dir%%/block-unwanted.conf
-
-%%passthrough-http-proxies%%
-
-%%remediation-proxies%%
-
-  # Captive Portal Clean URLs
-  Include %%varconf_dir%%/captive-portal-cleanurls.conf
-
-  # Warning: old cgi style URL deprecated will be removed in an upcoming release
-  # Still accepted for a transition period. To be deprecated in 2012.
-  ScriptAlias /cgi-bin/ "%%install_dir%%/html/captive-portal/"
-  RewriteRule ^/cgi-bin/content/(.*)$ /content/$1 [PT]
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-selfregistration.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/email_activation.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/mobile-confirmation.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-management.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/register.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/enabler.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/wispr.cgi
-  RewriteCond %{REQUEST_URI} !^/common
-  RewriteCond %{REQUEST_URI} !^/content
-  RewriteCond %{REQUEST_URI} !^/favicon.ico
-  RewriteCond %{REQUEST_URI} !^/proxies
-  RewriteCond %{REQUEST_URI} !^/proxy
-  RewriteCond %{REQUEST_URI} !^/remediation.php
-  # Now using temporary redirects instead of permanent (fixes #757)
-  # inline_redirect_prefix is controlled by inline.portal_redirect, see the documentation in conf/documentation.conf
-  RewriteRule ^.*$ %%inline_redirect_prefix%%/captive-portal?destination_url=http://%{HTTP_HOST}%{REQUEST_URI} [R=307,L]
-
-</VirtualHost>
-
-<VirtualHost %%inline_internal_ip%%:443>
-
-  DocumentRoot "%%install_dir%%/html/captive-portal"
-  ServerName %%hostname%%.%%domain%%:443
-
-  SSLEngine on
-  SSLProxyEngine on
-  Include %%varconf_dir%%/ssl-certificates.conf
-
-  # Alias, Logs, Access Control, Perl Config
-  Include %%varconf_dir%%/captive-portal-common.conf
-
-  # Rules that reduce server load by blocking undesired requests
-  Include %%varconf_dir%%/block-unwanted.conf
-
-%%passthrough-https-proxies%%
-
-%%remediation-proxies%%
-
-  # Captive Portal Clean URLs
-  Include %%varconf_dir%%/captive-portal-cleanurls.conf
-
-  # Warning: old cgi style URL deprecated will be removed in an upcoming release
-  # Still accepted for a transition period. To be deprecated in 2012.
-  ScriptAlias /cgi-bin/ "%%install_dir%%/html/captive-portal/"
-  RewriteRule ^/cgi-bin/content/(.*)$ /content/$1 [PT]
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-selfregistration.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/email_activation.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/mobile-confirmation.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-management.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/register.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/enabler.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/wispr.cgi
-  RewriteCond %{REQUEST_URI} !^/common
-  RewriteCond %{REQUEST_URI} !^/content
-  RewriteCond %{REQUEST_URI} !^/favicon.ico
-  RewriteCond %{REQUEST_URI} !^/proxies
-  RewriteCond %{REQUEST_URI} !^/proxy
-  RewriteCond %{REQUEST_URI} !^/remediation.php
-  # Now using temporary redirects instead of permanent (fixes #757)
-  # inline_redirect_prefix is controlled by inline.portal_redirect, see the documentation in conf/documentation.conf
-  RewriteRule ^.*$ %%inline_redirect_prefix%%/captive-portal?destination_url=http://%{HTTP_HOST}%{REQUEST_URI} [R=307,L]
-
-%%proxies%%                
 
 </VirtualHost>
 

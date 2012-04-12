@@ -399,11 +399,11 @@ sub network_inline {
     # shorter, more convenient accessor
     my %net = %{$ConfigNetworks{$network}};
 
-    # inline with named=yes is not what you want
-    if ($net{'named'} =~ /enabled/i) {
+    # inline interface with named=disabled is not what you want
+    if ( $net{'named'} =~ /disabled/i ) {
         add_problem( $WARN,
-            "networks.conf type inline with named enabled will *not* do what you might expect. " . 
-            "Disable named under the $network network to get rid of this warning."
+                "networks.conf type inline with named disabled is *not* what you want. " .
+                "Since we're DNATTING DNS if in an unreg or isolated state, you'll want to change that to enabled."
         );
     }
 

@@ -581,8 +581,9 @@ fi
 %config                 /usr/local/pf/conf/httpd.conf.apache22
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
-%config(noreplace)      /usr/local/pf/conf/named-registration.ca
+%config(noreplace)      /usr/local/pf/conf/named-inline.ca
 %config(noreplace)      /usr/local/pf/conf/named-isolation.ca
+%config(noreplace)      /usr/local/pf/conf/named-registration.ca
 %config                 /usr/local/pf/conf/named.conf
 %config                 /usr/local/pf/conf/named.conf.pre_bind97
 %config                 /usr/local/pf/conf/named.conf.bind97

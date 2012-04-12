@@ -20,11 +20,11 @@ acl pf {
   127.0.0.1;
 };
 
-view "registration" {
-  match-clients { %%registration_clients%% };
+view "inline" {
+  match-clients { %%inline_clients%% };
   zone "." IN {
     type master;
-    file "named-registration.ca";
+    file "named-inline.ca";
     allow-update { none; };
   };
 };
@@ -38,3 +38,11 @@ view "isolation" {
   };
 };
 
+view "registration" {
+  match-clients { %%registration_clients%% };
+  zone "." IN {
+    type master;
+    file "named-registration.ca";
+    allow-update { none; };
+  };
+};
